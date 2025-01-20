@@ -7,9 +7,9 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
 
   let_it_be(:user) { create(:user) }
   let_it_be(:namespace) { create(:group, developers: user) }
-  let_it_be(:project2) { create(:project, namespace: namespace) }
+  let_it_be(:project) { create(:project, namespace: namespace) }
 
-  let_it_be(:project1) do
+  let_it_be(:private_project) do
     create(
       :project, :with_avatar, :custom_repo,
       name: 'Component Repository',
@@ -29,8 +29,8 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
     )
   end
 
-  let_it_be(:resource1) do
-    create(:ci_catalog_resource, :published, project: project1, latest_released_at: '2023-01-01T00:00:00Z',
+  let_it_be(:private_resource) do
+    create(:ci_catalog_resource, :published, project: private_project, latest_released_at: '2023-01-01T00:00:00Z',
       last_30_day_usage_count: 15)
   end
 
@@ -48,10 +48,12 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
             fullPath
             webPath
             verificationLevel
+            visibilityLevel
             latestReleasedAt
             starCount
             starrersPath
             last30DayUsageCount
+            topics
           }
         }
       }
@@ -68,7 +70,7 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
         run_with_clean_state(query, context: ctx)
       end
 
-      create(:ci_catalog_resource, :published, project: project2)
+      create(:ci_catalog_resource, :published, project: project)
 
       expect do
         run_with_clean_state(query, context: ctx)
@@ -83,17 +85,18 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
 
     expect(graphql_data_at(:ciCatalogResources, :nodes)).to contain_exactly(
       a_graphql_entity_for(
-        resource1, :name, :description,
-        icon: project1.avatar_path,
-        latestReleasedAt: resource1.latest_released_at,
-        starCount: project1.star_count,
-        starrersPath: Gitlab::Routing.url_helpers.project_starrers_path(project1),
+        private_resource, :name, :description,
+        icon: private_project.avatar_path,
+        latestReleasedAt: private_resource.latest_released_at,
+        starCount: private_project.star_count,
+        starrersPath: Gitlab::Routing.url_helpers.project_starrers_path(private_project),
         verificationLevel: 'UNVERIFIED',
-        fullPath: project1.full_path,
-        webPath: "/#{project1.full_path}",
-        last30DayUsageCount: resource1.last_30_day_usage_count
+        visibilityLevel: 'private',
+        fullPath: private_project.full_path,
+        webPath: "/#{private_project.full_path}",
+        last30DayUsageCount: private_resource.last_30_day_usage_count
       ),
-      a_graphql_entity_for(public_resource)
+      a_graphql_entity_for(public_resource, visibilityLevel: 'public')
     )
   end
 
@@ -125,9 +128,31 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
     end
   end
 
+  describe 'catalog resources topics' do
+    it 'returns array if there are no topics set' do
+      post_graphql(query, current_user: user)
+
+      expect(graphql_data_at(:ciCatalogResources, :nodes, :topics)).to match([])
+    end
+
+    it 'returns topics' do
+      public_resource.project.update!(topic_list: 'topic1, topic2, topic3')
+
+      post_graphql(query, current_user: user)
+
+      expect(graphql_data_at(:ciCatalogResources, :nodes, :topics)).to match(%w[topic1 topic2 topic3])
+    end
+  end
+
   describe 'versions' do
-    let!(:resource1_v1) { create(:ci_catalog_resource_version, semver: '1.0.0', catalog_resource: resource1) }
-    let!(:resource1_v2) { create(:ci_catalog_resource_version, semver: '2.0.0', catalog_resource: resource1) }
+    let!(:private_resource_v1) do
+      create(:ci_catalog_resource_version, semver: '1.0.0', catalog_resource: private_resource)
+    end
+
+    let!(:private_resource_v2) do
+      create(:ci_catalog_resource_version, semver: '2.0.0', catalog_resource: private_resource)
+    end
+
     let!(:public_resource_v1) do
       create(:ci_catalog_resource_version, semver: '1.0.0', catalog_resource: public_resource)
     end
@@ -165,11 +190,11 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
 
       expect(graphql_data_at(:ciCatalogResources, :nodes)).to contain_exactly(
         a_graphql_entity_for(
-          resource1,
+          private_resource,
           versions: {
             'nodes' => [
-              a_graphql_entity_for(resource1_v2),
-              a_graphql_entity_for(resource1_v1)
+              a_graphql_entity_for(private_resource_v2),
+              a_graphql_entity_for(private_resource_v1)
             ]
           }
         ),

@@ -16,7 +16,7 @@ You can build a FIPS-compliant instance of GitLab, but [not all features are inc
 A FIPS-compliant instance must be configured following the [FIPS install instructions](#install-gitlab-with-fips-compliance)
 exactly.
 
-There are two current FIPS standards: [140-2](https://en.wikipedia.org/wiki/FIPS_140-2)
+The two current FIPS standards: [140-2](https://en.wikipedia.org/wiki/FIPS_140-2)
 and [140-3](https://en.wikipedia.org/wiki/FIPS_140-3). At GitLab we usually
 mean FIPS 140-2.
 
@@ -62,7 +62,6 @@ listed here that also do not work properly in FIPS mode:
 - [Container Scanning](../user/application_security/container_scanning/index.md) support for scanning images in repositories that require authentication.
 - [Code Quality](../ci/testing/code_quality.md) does not support operating in FIPS-compliant mode.
 - [Dependency scanning](../user/application_security/dependency_scanning/index.md) support for Gradle.
-- [Dynamic Application Security Testing (DAST)](../user/application_security/dast/proxy-based.md) supports a reduced set of analyzers. The proxy-based analyzer and on-demand scanning is not available in FIPS mode today, however browser-based DAST, API security testing, and DAST API Fuzzing images are available.
 - [Solutions for vulnerabilities](../user/application_security/vulnerabilities/index.md#resolve-a-vulnerability)
   for yarn projects.
 - [Static Application Security Testing (SAST)](../user/application_security/sast/index.md)
@@ -78,9 +77,9 @@ Additionally, these package repositories are disabled in FIPS mode:
 ## FIPS compliance vs FIPS validation at GitLab
 
 GitLab does not fork or modify cryptographic binaries (for example OpenSSL) in its FIPS-compliant
-software releases but instead uses existing, FIPS-validated crytographic software (modules).
+software releases but instead uses existing, FIPS-validated cryptographic software (modules).
 GitLab therefore does not need to submit its software through the
-[NIST Cryptographic Module Valiation Program (CMVP)](https://csrc.nist.gov/projects/cryptographic-module-validation-program/)
+[NIST Cryptographic Module Validation Program (CMVP)](https://csrc.nist.gov/projects/cryptographic-module-validation-program/)
 independent laboratory testing.
 Instead, GitLab must use FIPS-validated software (listed in
 [Cryptographic Module Validation Program](https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules))
@@ -285,7 +284,7 @@ Registration is required.
 
 After the virtual machine is set up, you can follow the [GDK](https://gitlab.com/gitlab-org/gitlab-development-kit)
 installation instructions, including the [advanced instructions for RHEL](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/doc/advanced.md#red-hat-enterprise-linux).
-Note that `asdf` is not used for dependency management because it's essential to
+The `asdf` tool is not used for dependency management because it's essential to
 use the RedHat-provided Go compiler and other system dependencies.
 
 ### Enable FIPS mode
@@ -347,6 +346,23 @@ These are [consumed by the GitLab Environment Toolkit](#install-gitlab-with-fips
 
 See [the section on how FIPS builds are created](#how-fips-builds-are-created).
 
+### System Libgcrypt
+
+Because of a bug, FIPS Linux packages for GitLab 17.6 and earlier did not use the system
+[Libgcrypt](https://www.gnupg.org/software/libgcrypt/index.html), but the same Libgcrypt
+bundled with regular Linux packages.
+
+This issue is fixed for all FIPS Linux packages for GitLab 17.7, except for AmazonLinux 2.
+The Libgcrypt version of AmazonLinux 2 is not compatible with the
+[GPGME](https://gnupg.org/software/gpgme/index.html) and [GnuPG](https://gnupg.org/)
+versions shipped with the FIPS Linux packages.
+
+FIPS Linux packages for AmazonLinux 2 will continue to use the same Libgcrypt bundled with
+the regular Linux packages, otherwise we would have to downgrade GPGME and GnuPG.
+
+If you require full compliance, you must migrate to another operating
+system for which FIPS Linux packages are available.
+
 ### Nightly Omnibus FIPS builds
 
 The Distribution team has created [nightly FIPS Omnibus builds](https://packages.gitlab.com/gitlab/nightly-fips-builds),
@@ -393,7 +409,7 @@ We use [`golang-fips`](https://github.com/golang-fips/go), [a fork of the `dev.b
 [dynamically link OpenSSL via `dlopen`](https://github.com/golang-fips/go/blob/go1.18.1-1-openssl-fips/src/crypto/internal/boring/boring.go#L47-L65). This has several advantages:
 
 - Using a FIPS-validated, system OpenSSL is straightforward.
-- This is the source code used by [Red Hat's go-toolset package](https://gitlab.com/redhat/centos-stream/rpms/golang#sources).
+- This is the source code used by the [Red Hat go-toolset package](https://gitlab.com/redhat/centos-stream/rpms/golang#sources).
 - Unlike [go-toolset](https://developers.redhat.com/blog/2019/06/24/go-and-fips-140-2-on-red-hat-enterprise-linux#), this fork appears to keep up with the latest Go releases.
 
 However, [cgo](https://pkg.go.dev/cmd/cgo) must be enabled via `CGO_ENABLED=1` for this to work. There
@@ -406,10 +422,13 @@ needed. There are [specific build tags](https://github.com/golang-fips/go/blob/g
 that disable these crypto hooks.
 
 We can [check whether a given binary is using OpenSSL](https://go.googlesource.com/go/+/dev.boringcrypto/misc/boring/#caveat) via `go tool nm`
-and look for symbols named `Cfunc__goboringcrypto`. For example:
+and look for symbols named `Cfunc__goboringcrypto` or `crypto/internal/boring/sig.BoringCrypto`.
 
-```plaintext
-$ go tool nm nginx-ingress-controller  | grep Cfunc__goboringcrypto | tail
+For example:
+
+```console
+$ # Find in a Golang-FIPS 1.17 library
+$ go tool nm nginx-ingress-controller | grep '_Cfunc__goboringcrypto_|\bcrypto/internal/boring/sig\.BoringCrypto' | tail
  2a0b650 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_SHA384_Final
  2a0b658 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_SHA384_Init
  2a0b660 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_SHA384_Update
@@ -420,6 +439,9 @@ $ go tool nm nginx-ingress-controller  | grep Cfunc__goboringcrypto | tail
  2a0b688 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_internal_ECDSA_verify
  2a0b690 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_internal_ERR_error_string_n
  2a0b698 D crypto/internal/boring._cgo_71ae3cd1ca33_Cfunc__goboringcrypto_internal_ERR_get_error
+$ # Find in a Golang-FIPS 1.22 library
+$ go tool nm tenctl | grep '_Cfunc__goboringcrypto_|\bcrypto/internal/boring/sig\.BoringCrypto'
+  4cb840 t crypto/internal/boring/sig.BoringCrypto.abi0
 ```
 
 In addition, LabKit contains routines to [check whether FIPS is enabled](https://gitlab.com/gitlab-org/labkit/-/tree/master/fips).
@@ -461,11 +483,11 @@ After this image has been tagged, add a new [CI job to Omnibus GitLab](https://g
 The Cloud Native GitLab CI pipeline generates images using several base images:
 
 - Debian
-- [Red Hat's Universal Base Image (UBI)](https://developers.redhat.com/products/rhel/ubi)
+- The [Red Hat Universal Base Image (UBI)](https://developers.redhat.com/products/rhel/ubi)
 
 UBI images ship with the same OpenSSL package as those used by
 RHEL. This makes it possible to build FIPS-compliant binaries without
-needing RHEL. Note that RHEL 8.2 ships a [FIPS-validated OpenSSL](https://access.redhat.com/articles/compliance_activities_and_gov_standards), but 8.5 is in
+needing RHEL. RHEL 8.2 ships a [FIPS-validated OpenSSL](https://access.redhat.com/articles/compliance_activities_and_gov_standards), but 8.5 is in
 review for FIPS validation.
 
 [This merge request](https://gitlab.com/gitlab-org/build/CNG/-/merge_requests/981)
@@ -473,13 +495,12 @@ introduces a FIPS pipeline for CNG images. Images tagged for FIPS have the `-fip
 the `webservice` container has the following tags:
 
 - `master`
-- `master-ubi8`
+- `master-ubi`
 - `master-fips`
 
 #### Base images for FIPS Builds
 
-- Current: [UBI 8.10 Minimal](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/ci_files/variables.yml?ref_type=heads#L4)
-- Under Evaluation: [UBI 9](https://gitlab.com/gitlab-org/build/CNG/-/merge_requests/1460)
+- Current: [UBI 9.5 Micro](https://gitlab.com/gitlab-org/build/CNG/-/blob/master/ci_files/variables.yml?ref_type=heads#L4)
 
 ### Testing merge requests with a FIPS pipeline
 
@@ -487,6 +508,6 @@ Merge requests that can trigger Package and QA, can trigger a FIPS package and a
 Reference Architecture test pipeline. The base image used for the trigger is
 Ubuntu 20.04 FIPS:
 
-1. Trigger `e2e:package-and-test` job, if not already triggered.
+1. Trigger `e2e:test-on-omnibus` job, if not already triggered.
 1. On the `gitlab-omnibus-mirror` child pipeline, manually trigger `Trigger:package:fips`.
 1. When the package job is complete, manually trigger the `RAT:FIPS` job.

@@ -29,6 +29,16 @@ RSpec.describe Gitlab::PushOptions do
         target: 'value'
       })
     end
+
+    it 'protects against malicious backtracking' do
+      option = "#{'=' * 1_000_000}."
+
+      expect do
+        Timeout.timeout(10.seconds) do
+          described_class.new([option])
+        end
+      end.not_to raise_error
+    end
   end
 
   describe '#get' do
@@ -40,14 +50,11 @@ RSpec.describe Gitlab::PushOptions do
   end
 
   describe '#as_json' do
-    it 'returns all options' do
+    it 'returns all options as a JSON serializable Hash' do
       options = described_class.new(['merge_request.target=value'])
 
-      expect(options.as_json).to include(
-        merge_request: {
-          target: 'value'
-        }
-      )
+      expect(options.as_json).to include('merge_request' => { 'target' => 'value' })
+      expect(options.as_json).not_to include(merge_request: { target: 'value' })
     end
   end
 

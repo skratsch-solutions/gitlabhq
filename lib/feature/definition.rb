@@ -40,7 +40,7 @@ module Feature
         raise Feature::InvalidFeatureFlagError, "Feature flag is missing name"
       end
 
-      unless VALID_FEATURE_NAME =~ name
+      unless VALID_FEATURE_NAME.match?(name)
         raise Feature::InvalidFeatureFlagError, "Feature flag '#{name}' is invalid"
       end
 
@@ -58,6 +58,10 @@ module Feature
 
       if File.basename(path, ".yml") != name || File.basename(File.dirname(path)) != type
         raise Feature::InvalidFeatureFlagError, "Feature flag '#{name}' has an invalid path: '#{path}'. Ensure to update #{path}"
+      end
+
+      unless milestone.nil? || milestone.is_a?(String)
+        raise InvalidFeatureFlagError, "Feature flag '#{name}' milestone must be a string"
       end
 
       validate_default_enabled!

@@ -1,9 +1,9 @@
 import { isString, mapValues, reduce, isDate, unescape } from 'lodash';
 import dateFormat from '~/lib/dateformat';
 import { roundToNearestHalf } from '~/lib/utils/common_utils';
+import { localeDateFormat } from '~/lib/utils/datetime/locale_dateformat';
 import { sanitize } from '~/lib/dompurify';
 import { s__, n__, __, sprintf } from '~/locale';
-import { parsePikadayDate } from './pikaday_utility';
 
 /**
  * Returns i18n month names array.
@@ -57,28 +57,6 @@ export const monthInWords = (date, abbreviated = false) => {
   }
 
   return getMonthNames(abbreviated)[date.getMonth()];
-};
-
-/**
- * Formats date to `January 01, 1970`
- *
- * @param {Date} [date]
- * @param {boolean} [abbreviated]
- * @param {boolean} [hideYear]
- */
-export const dateInWords = (date, abbreviated = false, hideYear = false) => {
-  if (!date) return date;
-
-  const month = date.getMonth();
-  const year = date.getFullYear();
-
-  const monthName = getMonthNames(abbreviated)[month];
-
-  if (hideYear) {
-    return `${monthName} ${date.getDate()}`;
-  }
-
-  return `${monthName} ${date.getDate()}, ${year}`;
 };
 
 /**
@@ -358,6 +336,19 @@ export const timeToHoursMinutes = (time = '') => {
 };
 
 /**
+ * Converts a Date object to a date-only string in the ISO format `yyyy-mm-dd`
+ *
+ * @param {Date} date A Date object
+ * @returns {string} A string in the format `yyyy-mm-dd`
+ */
+export const toISODateFormat = (date) => {
+  const day = padWithZeros(date.getDate());
+  const month = padWithZeros(date.getMonth() + 1);
+  const year = date.getFullYear();
+  return `${year}-${month}-${day}`;
+};
+
+/**
  * This combines a date and a time and returns the computed Date's ISO string representation.
  *
  * @param   {Date}   date Date object representing the base date.
@@ -492,27 +483,30 @@ export const formatTimezone = ({ offset, name }) => `[UTC${formatUtcOffset(offse
  * @param {Date} dueDate
  */
 export const humanTimeframe = (startDate, dueDate) => {
-  const start = startDate ? parsePikadayDate(startDate) : null;
-  const due = dueDate ? parsePikadayDate(dueDate) : null;
-
   if (startDate && dueDate) {
-    const startDateInWords = dateInWords(start, true, start.getFullYear() === due.getFullYear());
-    const dueDateInWords = dateInWords(due, true);
-
-    return sprintf(__('%{startDate} – %{dueDate}'), {
-      startDate: startDateInWords,
-      dueDate: dueDateInWords,
-    });
+    return localeDateFormat.asDate.formatRange(startDate, dueDate);
   }
   if (startDate && !dueDate) {
     return sprintf(__('%{startDate} – No due date'), {
-      startDate: dateInWords(start, true, false),
+      startDate: localeDateFormat.asDate.format(startDate),
     });
   }
   if (!startDate && dueDate) {
     return sprintf(__('No start date – %{dueDate}'), {
-      dueDate: dateInWords(due, true, false),
+      dueDate: localeDateFormat.asDate.format(dueDate),
     });
   }
   return '';
+};
+
+/**
+ * Formats seconds into a human readable value of elapsed time,
+ * optionally limiting it to hours.
+ * @param {Number} seconds Seconds to format
+ * @param {Boolean} limitToHours Whether or not to limit the elapsed time to be expressed in hours
+ * @return {String} Provided seconds in human readable elapsed time format
+ */
+export const formatTimeSpent = (seconds, limitToHours) => {
+  const negative = seconds < 0;
+  return (negative ? '- ' : '') + stringifyTime(parseSeconds(seconds, { limitToHours }));
 };

@@ -30,6 +30,10 @@ RSpec.describe 'Dashboard snippets', :js, feature_category: :source_code_managem
       parent_element = find_by_testid('page-heading-actions')
       expect(parent_element).to have_link('New snippet')
     end
+
+    it 'passes axe automated accessibility testing' do
+      expect(page).to be_axe_clean.within('#content-body')
+    end
   end
 
   context 'when there are no project snippets' do
@@ -55,7 +59,11 @@ RSpec.describe 'Dashboard snippets', :js, feature_category: :source_code_managem
 
     it 'shows documentation button in main comment area' do
       parent_element = page.find('.gl-empty-state')
-      expect(parent_element).to have_link('Learn more', href: help_page_path('user/snippets'))
+      expect(parent_element).to have_link('Learn more', href: help_page_path('user/snippets.md'))
+    end
+
+    it 'passes axe automated accessibility testing' do
+      expect(page).to be_axe_clean.within('#content-body')
     end
   end
 

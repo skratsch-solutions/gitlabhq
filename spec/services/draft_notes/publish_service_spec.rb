@@ -4,7 +4,7 @@ require 'spec_helper'
 RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workflow do
   include RepoHelpers
 
-  let_it_be(:merge_request) { create(:merge_request, reviewers: create_list(:user, 1)) }
+  let_it_be(:merge_request) { create(:merge_request, reviewers: create_list(:user, 1), assignees: create_list(:user, 1)) }
   let(:project) { merge_request.target_project }
   let(:user) { merge_request.author }
   let(:commit) { project.commit(sample_commit.id) }
@@ -142,10 +142,26 @@ RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workfl
       publish
     end
 
+    it 'resolves todos for the MR' do
+      expect_any_instance_of(TodoService) do |todo_service|
+        expect(todo_service).to receive(:new_review).with(kind_of(Review), user)
+      end
+
+      publish
+    end
+
     it 'tracks the publish event' do
       expect(Gitlab::UsageDataCounters::MergeRequestActivityUniqueCounter)
         .to receive(:track_publish_review_action)
         .with(user: user)
+
+      publish
+    end
+
+    it 'invalidates cache counts' do
+      expect(merge_request.assignees).to all(receive(:invalidate_merge_request_cache_counts))
+
+      stub_feature_flags(merge_request_dashboard: true)
 
       publish
     end
@@ -235,7 +251,7 @@ RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workfl
 
       recorder = ActiveRecord::QueryRecorder.new(skip_cached: false) { publish }
 
-      expect(recorder.count).not_to be > 111
+      expect(recorder.count).not_to be > 116
     end
   end
 
@@ -348,7 +364,7 @@ RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workfl
       create(:draft_note, merge_request: merge_request, author: user, note: "/assign #{user.to_reference}")
 
       expect { publish }.to change { DraftNote.count }.by(-1).and change { Note.count }.by(1)
-      expect(merge_request.reload.assignees).to eq([user])
+      expect(merge_request.reload.assignees).to include(user)
       expect(merge_request.notes.last).to be_system
     end
   end

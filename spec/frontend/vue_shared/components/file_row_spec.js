@@ -155,15 +155,15 @@ describe('File row component', () => {
     expect(wrapper.findComponent(FileIcon).props('submodule')).toBe(submodule);
   });
 
-  it('renders pinned icon', () => {
+  it('renders link icon', () => {
     createComponent({
       file: {
         ...file(),
-        pinned: true,
+        linked: true,
       },
       level: 0,
     });
 
-    expect(wrapper.findComponent(GlIcon).props('name')).toBe('thumbtack');
+    expect(wrapper.findComponent(GlIcon).props('name')).toBe('link');
   });
 });

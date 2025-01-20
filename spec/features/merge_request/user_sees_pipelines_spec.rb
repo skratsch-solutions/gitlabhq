@@ -148,10 +148,12 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
         sign_in(actor)
       end
 
+      # rubocop:disable Cop/DestroyAll -- cannot delete due to not-null constraint
       after do
-        parent_project.all_pipelines.delete_all
-        forked_project.all_pipelines.delete_all
+        parent_project.all_pipelines.destroy_all
+        forked_project.all_pipelines.destroy_all
       end
+      # rubocop:enable Cop/DestroyAll
 
       context 'when actor is a developer in parent project' do
         let(:actor) { developer_in_parent }
@@ -209,7 +211,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
 
       def check_pipeline(expected_project:)
         page.within('.ci-table') do
-          expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 4)
+          expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 2)
 
           page.within(first('[data-testid="pipeline-table-row"]')) do
             page.within('.pipeline-tags') do
@@ -240,7 +242,7 @@ RSpec.describe 'Merge request > User sees pipelines', :js, feature_category: :co
 
       def check_no_new_pipeline_created
         page.within('.ci-table') do
-          expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 2)
+          expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 1)
         end
       end
     end

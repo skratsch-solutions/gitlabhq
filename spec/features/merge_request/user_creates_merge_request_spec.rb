@@ -30,7 +30,7 @@ RSpec.describe 'User creates a merge request', :js, feature_category: :code_revi
       visit project_new_merge_request_path(project)
 
       expect(page).to have_title('Not Found')
-      expect(page).to have_content('Page Not Found')
+      expect(page).to have_content('Page not found')
     end
   end
 
@@ -139,6 +139,42 @@ RSpec.describe 'User creates a merge request', :js, feature_category: :code_revi
         end
 
         it_behaves_like 'renders not found'
+      end
+    end
+  end
+
+  context 'when source and target both have a commit with the same content' do
+    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:user) { create(:user) }
+
+    let(:title) { 'Some feature' }
+
+    before do
+      project.add_maintainer(user)
+      sign_in(user)
+
+      # create a commit with identical content on source and target
+      project.repository.create_file(user, 'bbb.txt', 'zzzz', message: 'Commit on target', branch_name: 'feature')
+      project.repository.create_file(user, 'bbb.txt', 'zzzz', message: 'Commit on src', branch_name: 'fix')
+    end
+
+    it "contains the correct changes count", :sidekiq_inline do
+      visit(project_new_merge_request_path(project))
+
+      compare_source_and_target('fix', 'feature')
+
+      fill_in('Title', with: title)
+      click_button('Create merge request')
+
+      page.within('.diffs-tab') do
+        expect(page).to have_content('Changes 2')
+      end
+
+      click_on 'Changes'
+      wait_for_requests
+
+      page.within('.diffs-tab') do
+        expect(page).to have_content('Changes 2')
       end
     end
   end

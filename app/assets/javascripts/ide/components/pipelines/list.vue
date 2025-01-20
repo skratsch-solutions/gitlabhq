@@ -4,17 +4,11 @@ import { GlLoadingIcon, GlIcon, GlTabs, GlTab, GlBadge, GlAlert } from '@gitlab/
 // eslint-disable-next-line no-restricted-imports
 import { mapActions, mapGetters, mapState } from 'vuex';
 import SafeHtml from '~/vue_shared/directives/safe_html';
-import IDEServices from '~/ide/services';
 import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
 import JobsList from '../jobs/list.vue';
 import EmptyState from './empty_state.vue';
 
-const CLASSES_FLEX_VERTICAL_CENTER = [
-  'gl-h-full',
-  'gl-display-flex',
-  'gl-flex-direction-column',
-  'gl-justify-content-center',
-];
+const CLASSES_FLEX_VERTICAL_CENTER = ['gl-h-full', 'gl-flex', 'gl-flex-col', 'gl-justify-center'];
 
 export default {
   components: {
@@ -47,7 +41,6 @@ export default {
   },
   created() {
     this.fetchLatestPipeline();
-    IDEServices.pingUsage(this.currentProject.path_with_namespace);
   },
   methods: {
     ...mapActions('pipelines', ['fetchLatestPipeline']),
@@ -85,7 +78,7 @@ export default {
         class="gl-mt-5"
       >
         <p class="gl-mb-0">{{ __('Unable to create pipeline') }}</p>
-        <p class="gl-mb-0 break-word">{{ latestPipeline.yamlError }}</p>
+        <p class="break-word gl-mb-0">{{ latestPipeline.yamlError }}</p>
       </gl-alert>
       <gl-tabs v-else>
         <gl-tab :active="!pipelineFailed">

@@ -4,39 +4,124 @@ group: Source Code
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Code Owners syntax and error handling
+# `CODEOWNERS` syntax
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-This page describes the syntax and error handling used in Code Owners files,
-and provides an example file.
+The `CODEOWNERS` file uses a syntax to define ownership rules.
+Each line in the file represents a rule, and specifies a file path pattern and one or more owners.
+The key elements are:
 
-## Code Owners syntax
+- **File paths**: Specific files, directories, or wildcards.
+- **Code Owners**: Use `@mentions` for users, groups, or roles.
+- **Comments**: Lines starting with `#` are ignored.
+- **Sections**: Optional groupings of rules, defined using `[Section name]`.
 
-### Comments
+NOTE:
+If an entry is duplicated in a section, [the last entry is used](advanced.md#define-code-owners-for-specific-files-or-directories). Rules defined later in the file take precedence over earlier rules.
 
-Lines beginning with `#` are ignored:
-
-```plaintext
-# This is a comment
-```
-
-### Sections
-
-Sections are groups of entries. A section begins with a section heading in square brackets, followed by the entries.
+Here are some examples:
 
 ```plaintext
-[Section name]
-/path/of/protected/file.rb @username
-/path/of/protected/dir/ @group
+# Specify a default Code Owner for all files with a wildcard:
+* @default-owner
+
+# Specify multiple Code Owners to a specific file:
+README.md @doc-team @tech-lead
+
+# Specify a Code Owner to all files with a specific extension:
+*.rb @ruby-owner
+
+# Specify Code Owners with usernames or email addresses:
+LICENSE @legal janedoe@gitlab.com
+
+# Use group names to match groups and nested groups:
+README @group @group/with-nested/subgroup
+
+# Specify a Code Owner to a directory and all its contents:
+/docs/ @all-docs
+/docs/* @root-docs
+/docs/**/*.md @root-docs
+
+# Use a section to group related rules:
+[Documentation]
+ee/docs    @docs
+docs       @docs
+
+# Assign a role as a Code Owner:
+/config/ @@maintainer
 ```
 
-#### Section headings
+## Sections
 
-Section headings must always have a name. They can also be made optional, or
-require a number of approvals. A list of default owners can be added to the section heading line.
+In a `CODEOWNERS` file, sections are named areas that are analyzed separately,
+and always enforced. Until you define a section, GitLab treats your entire `CODEOWNERS` file
+as a single section.
+Adding more sections changes how GitLab evaluates the file:
+
+- GitLab treats [entries without sections](advanced.md#regular-entries-and-sections), including rules defined
+  before the first section header, as if they were another, unnamed section.
+- Each section enforces its rules separately.
+- Only one Code Owner pattern per section is matched to a file path.
+- Rules defined later in the file take precedence over earlier rules.
+
+For example, in a `CODEOWNERS` file with sections that define the Code Owners of a `README` file:
+
+```plaintext
+* @admin
+
+[README Owners]
+README.md @user1 @user2
+internal/README.md @user4
+
+[README other owners]
+README.md @user3
+```
+
+- The Code Owners for the `README.md` in the _root_ directory are:
+  - `@admin`, from the unnamed section.
+  - `@user1` and `@user2`, from `[README Owners]`.
+  - `@user3`, from `[README other owners]`.
+- The Code Owners for `internal/README.md` are:
+  - `@admin`, from the unnamed section.
+  - `@user4`, from the last entry in `[README Owners]`.
+  - `@user3` from `[README other owners]`. (Both lines in `[README Owners]` match this file's name,
+    but only the last line in the section is kept.)
+
+To add a section to the `CODEOWNERS` file, enter a section name in square brackets,
+followed by the files or directories, and users, groups, or subgroups:
+
+```plaintext
+[README Owners]
+README.md @user1 @user2
+internal/README.md @user2
+```
+
+Each Code Owner in the merge request widget is listed under a label.
+The following image shows **Default**, **Frontend**, and **Technical Writing** sections:
+
+![MR widget - Sectional Code Owners](../img/sectional_code_owners_v17_4.png)
+
+For more section configuration options, see:
+
+- [Default Code Owners and optional sections](advanced.md#default-code-owners-and-optional-sections)
+- [Regular entries and sections](advanced.md#regular-entries-and-sections)
+- [Sections with duplicate names](advanced.md#sections-with-duplicate-names)
+
+### Section headings and names
+
+Section headings must have a name.
+Section names are case-insensitive, and [sections with duplicate names](advanced.md#sections-with-duplicate-names) are combined.
+For protected branches only, they can:
+
+- Require approval (default).
+- Be optional (prefixed with `^`).
+- Require a specific number of approvals. For more information, see [Group inheritance and eligibility](advanced.md#group-inheritance-and-eligibility) and [Approvals shown as optional](troubleshooting.md#approvals-shown-as-optional).
+- Include default owners.
+
+Examples:
 
 ```plaintext
 # Required section
@@ -55,93 +140,164 @@ require a number of approvals. A list of default owners can be added to the sect
 [Section name][2] @group @subgroup
 ```
 
-#### Section names
+### Set default Code Owner for a section
 
-Sections names are defined between square brackets. Section names are not case-sensitive.
-[Sections with duplicate names](index.md#sections-with-duplicate-names) are combined.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/371711) in GitLab 15.11 [with a flag](../../../administration/feature_flags.md) named `codeowners_default_owners`. Disabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/115888) in GitLab 15.11. Feature flag `codeowners_default_owners` removed.
+
+If multiple file paths inside a section share the same ownership, define default
+Code Owners for the section.
+All paths in that section inherit this default, unless you override the section
+default on a specific line.
+
+Default owners are applied when specific owners are not specified for file paths.
+Specific owners defined beside the file path override default owners.
+
+For example:
 
 ```plaintext
-[Section name]
+[Documentation] @docs-team
+docs/
+README.md
+
+[Database] @database-team @agarcia
+model/db/
+config/db/database-setup.md @docs-team
 ```
 
-#### Required sections
+In this example:
 
-Required sections do not include `^` before the [section name](#section-names).
+- `@docs-team` owns all items in the `Documentation` section.
+- `@database-team` and `@agarcia` own all items in the `Database` section except
+  `config/db/database-setup.md`, which has an override assigning it to `@docs-team`.
+
+Compare this behavior to when you use [regular entries and sections together](advanced.md#regular-entries-and-sections),
+when entries in sections don't override entries without sections.
+
+### Optional sections
+
+You can designate optional sections in your Code Owners file.
+Optional sections enable you to designate responsible parties for various parts
+of your codebase, but not require approval from them. This approach provides
+a more relaxed policy for parts of your project that are frequently updated,
+but don't require stringent reviews.
+
+To treat the entire section as optional, prepend the section name with the caret `^` character.
+
+In this example, the `[Go]` section is optional:
 
 ```plaintext
-[Required section]
+[Documentation]
+*.md @root
+
+[Ruby]
+*.rb @root
+
+^[Go]
+*.go @root
 ```
 
-#### Optional sections
+The optional Code Owners section displays in merge requests under the description:
 
-Optional sections include a `^` before the [section name](#section-names).
+![MR widget - Optional Code Owners sections](../img/optional_code_owners_sections_v17_4.png)
+
+If a section is duplicated in the file, and one of them is marked as optional and the other isn't, the section is required.
+
+Optional sections in the `CODEOWNERS` file are treated as optional only
+when changes are submitted by using merge requests. If a change is submitted directly
+to the protected branch, approval from Code Owners is still required, even if the
+section is marked as optional.
+
+## Add a role as a Code Owner
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/282438) in GitLab 17.7 [with a flag](../../../administration/feature_flags.md) named `codeowner_role_approvers`.
+> - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/497504) in GitLab 17.8.
+
+FLAG:
+The availability of this feature is controlled by a feature flag.
+For more information, see the history.
+
+You can add or set a role for direct project members as Code Owners:
+
+- Use the `@@` prefix to set a role.
+- Only Developer, Maintainer, and Owner roles are available.
+- Roles are not inclusive of higher roles. For example, specifying `@@developer`
+  does not include users with Maintainer or Owner roles.
+- Only direct project members with the specified roles are eligible Code Owners.
+- It is possible to specify plural roles. For example, `@@developers` is accepted.
+
+The following example sets all direct project members with the Developer or Maintainer
+role as Code Owners for `file.md`:
+
+1. Open the `CODEOWNERS` file.
+1. Add a line using the following pattern:
+
+   ```plaintext
+   file.md @@developer @@maintainer
+   ```
+
+1. Save the file.
+1. Commit and merge the changes.
+
+## Add a group as a Code Owner
+
+To set the members of a group or subgroup as a Code Owner:
+
+In the `CODEOWNERS` file, enter text that follows one of these patterns:
 
 ```plaintext
-^[Optional section]
-```
+# All group members as Code Owners for a file
+file.md @group-x
 
-#### Sections requiring multiple approvals
+# All subgroup members as Code Owners for a file
+file.md @group-x/subgroup-y
 
-Sections requiring multiple approvals include the number of approvals in square brackets after the [section name](#section-names).
-
-```plaintext
-[Section requiring 5 approvals][5]
+# All group and subgroup members as Code Owners for a file
+file.md @group-x @group-x/subgroup-y
 ```
 
 NOTE:
-Optional sections ignore the number of approvals required.
+When [Global SAML group memberships lock](../../group/saml_sso/group_sync.md#global-saml-group-memberships-lock) is enabled, you cannot set a group or subgroup as a Code Owner. For more information, see [Incompatibility with Global SAML group memberships lock](troubleshooting.md#incompatibility-with-global-saml-group-memberships-lock).
 
-#### Sections with default owners
+If you encounter issues, refer to [User not shown as possible approver](troubleshooting.md#user-not-shown-as-possible-approver).
 
-You can define a default owner for the entries in a section by appending the owners to the [section heading](#section-headings).
+## Path matching
 
-```plaintext
-# Section with @username as default owner
-[Section name] @username
-
-# Section with @group and @subgroup as default owners and requiring 2 approvals
-[Section name][2] @group @subgroup
-```
-
-### Code Owner entries
-
-Each Code Owner entry includes a path followed by one or more owners.
-
-```plaintext
-README.md @username1
-```
-
-NOTE:
-If an entry is duplicated in a section, [the last entry is used from each section.](index.md#define-more-specific-owners-for-more-specifically-defined-files-or-directories)
-
-### Relative paths
-
-If a path does not start with a `/`, the path is treated as if it starts with
-a [globstar](#globstar-paths). `README.md` is treated the same way as `/**/README.md`:
-
-```plaintext
-# This will match /README.md, /internal/README.md, /app/lib/README.md
-README.md @username
-
-# This will match /internal/README.md, /docs/internal/README.md, /docs/api/internal/README.md
-internal/README.md
-```
+Paths can be absolute, relative, directory, wildcard, or globstar,
+and are matched against the repository root.
 
 ### Absolute paths
 
-If a path starts with a `/` it matches the root of the repository.
+Paths starting with `/` match from the repository root:
 
 ```plaintext
-# Matches only the file named `README.md` in the root of the repository.
+# # Matches only README.md in the root.
 /README.md
 
-# Matches only the file named `README.md` inside the `/docs` directory.
+# Matches only README.md inside the /docs directory.
 /docs/README.md
 ```
 
+### Relative paths
+
+Paths without a leading `/` are treated as [globstar paths](#globstar-paths):
+
+```plaintext
+# Matches /README.md, /internal/README.md, /app/lib/README.md
+README.md @username
+
+# Matches /internal/README.md, /docs/internal/README.md, /docs/api/internal/README.md
+internal/README.md
+```
+
+NOTE:
+When using globstar paths, be cautious of unintended matches.
+For example, `README.md` without a leading `/` matches any `README.md`
+file in any directory or subdirectory of the repository.
+
 ### Directory paths
 
-If a path ends with `/`, the path matches any file in the directory.
+Paths ending with `/` match any file in the directory:
 
 ```plaintext
 # This is the same as `/docs/**/*`
@@ -150,7 +306,7 @@ If a path ends with `/`, the path matches any file in the directory.
 
 ### Wildcard paths
 
-Wildcards can be used to match one of more characters of a path.
+Use wildcards to match multiple characters:
 
 ```plaintext
 # Any markdown files in the docs directory
@@ -171,17 +327,17 @@ Wildcards can be used to match one of more characters of a path.
 
 ### Globstar paths
 
-Globstars (`**`) can be used to match zero or more directories and subdirectories.
+Use `**` to match zero or more directories recursively:
 
 ```plaintext
-# This will match /docs/index.md, /docs/api/index.md, /docs/api/graphql/index.md
+# Matches /docs/index.md, /docs/api/index.md, and /docs/api/graphql/index.md.
 /docs/**/index.md
 ```
 
-### Entry owners
+## Entry owners
 
-Entries must be followed by one or more owner. These can be groups, subgroups,
-and users. Order of owners is not important.
+Entries must have one or more owners These can be groups, subgroups,
+and users.
 
 ```plaintext
 /path/to/entry.rb @group
@@ -190,187 +346,12 @@ and users. Order of owners is not important.
 /path/to/entry.rb @group @group/subgroup @user
 ```
 
-#### Groups as entry owners
+For more information on adding groups as Code Owners, see [Add a group as a Code Owner](#add-a-group-as-a-code-owner).
 
-Groups and subgroups can be owners of an entry.
-Each entry can be owned by [one or more owners](#entry-owners).
-For more details see the [Add a group as a Code Owner](index.md#add-a-group-as-a-code-owner).
+## Related topics
 
-```plaintext
-/path/to/entry.rb @group
-/path/to/entry.rb @group/subgroup
-/path/to/entry.rb @group @group/subgroup
-```
-
-### Users as entry owners
-
-Users can be owners of an entry. Each entry can be owned by
-[one or more owners](#entry-owners).
-
-```plaintext
-/path/to/entry.rb @username1
-/path/to/entry.rb @username1 @username2
-```
-
-## Error handling in Code Owners
-
-> - Error validation [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/216066) in GitLab 16.3.
-
-### Entries with spaces
-
-Paths containing whitespace must be escaped with backslashes: `path\ with\ spaces/*.md`.
-Without the backslashes, the path after the first whitespace is parsed as an owner.
-GitLab the parses `folder with spaces/*.md @group` into
-`path: "folder", owners: " with spaces/*.md @group"`.
-
-### Unparsable sections
-
-If a section heading cannot be parsed, the section is:
-
-1. Parsed as an entry.
-1. Added to the previous section.
-1. If no previous section exists, the section is added to the default section.
-
-#### After the default section
-
-```plaintext
-* @group
-
-[Section name
-docs/ @docs_group
-```
-
-GitLab recognizes the heading `[Section name` as an entry. The default section includes 3 rules:
-
-- Default section
-  - `*` owned by `@group`
-  - `[Section` owned by `name`
-  - `docs/` owned by `@docs_group`
-
-#### After a named section
-
-```plaintext
-[Docs]
-docs/**/* @group
-
-[Section name
-docs/ @docs_group
-```
-
-GitLab recognizes the heading `[Section name` as an entry. The `[Docs]` section includes 3 rules:
-
-- `docs/**/*` owned by `@group`
-- `[Section` owned by `name`
-- `docs/` owned by `@docs_group`
-
-### Malformed owners
-
-Each entry must contain 1 or more owners to be valid, malformed owners are ignored.
-For example `/path/* @group user_without_at_symbol @user_with_at_symbol`
-is owned by `@group` and `@user_with_at_symbol`.
-
-### Inaccessible or incorrect owners
-
-Inaccessible or incorrect owners are ignored. For example, if `@group`, `@username`,
-and `example@gitlab.com` are accessible on the project and we create an entry:
-
-```plaintext
-* @group @grou @username @i_left @i_dont_exist example@gitlab.com invalid@gitlab.com
-```
-
-GitLab ignores `@grou`, `@i_left`, `@i_dont_exist`, and `invalid@gitlab.com`.
-
-For more information on who is accessible, see [Add a group as a Code Owner](index.md#add-a-group-as-a-code-owner).
-
-### Zero owners
-
-If an entry includes no owners, or zero [accessible owners](#inaccessible-or-incorrect-owners)
-exist, the entry is invalid. Because this rule can never be satisfied, GitLab
-auto-approves it in merge requests.
-
-NOTE:
-When a protected branch has `Require code owner approval` enabled, rules with
-zero owners are still honored.
-
-### Less than 1 required approval
-
-When [defining the number of approvals](index.md#require-multiple-approvals-from-code-owners) for a section,
-the minimum number of approvals is `1`. Setting the number of approvals to
-`0` results in GitLab requiring one approval.
-
-## Example `CODEOWNERS` file
-
-```plaintext
-# This is an example of a CODEOWNERS file.
-# Lines that start with `#` are ignored.
-
-# app/ @commented-rule
-
-# Specify a default Code Owner by using a wildcard:
-* @default-codeowner
-
-# Specify multiple Code Owners by using a tab or space:
-* @multiple @code @owners
-
-# Rules defined later in the file take precedence over the rules
-# defined before.
-# For example, for all files with a filename ending in `.rb`:
-*.rb @ruby-owner
-
-# Files with a `#` can still be accessed by escaping the pound sign:
-\#file_with_pound.rb @owner-file-with-pound
-
-# Specify multiple Code Owners separated by spaces or tabs.
-# In the following case the CODEOWNERS file from the root of the repo
-# has 3 Code Owners (@multiple @code @owners):
-CODEOWNERS @multiple @code @owners
-
-# You can use both usernames or email addresses to match
-# users. Everything else is ignored. For example, this code
-# specifies the `@legal` and a user with email `janedoe@gitlab.com` as the
-# owner for the LICENSE file:
-LICENSE @legal this_does_not_match janedoe@gitlab.com
-
-# Use group names to match groups, and nested groups to specify
-# them as owners for a file:
-README @group @group/with-nested/subgroup
-
-# End a path in a `/` to specify the Code Owners for every file
-# nested in that directory, on any level:
-/docs/ @all-docs
-
-# End a path in `/*` to specify Code Owners for every file in
-# a directory, but not nested deeper. This code matches
-# `docs/index.md` but not `docs/projects/index.md`:
-/docs/* @root-docs
-
-# Include `/**` to specify Code Owners for all subdirectories
-# in a directory. This rule matches `docs/projects/index.md` or
-# `docs/development/index.md`
-/docs/**/*.md @root-docs
-
-# This code makes matches a `lib` directory nested anywhere in the repository:
-lib/ @lib-owner
-
-# This code match only a `config` directory in the root of the repository:
-/config/ @config-owner
-
-# If the path contains spaces, escape them like this:
-path\ with\ spaces/ @space-owner
-
-# Code Owners section:
-[Documentation]
-ee/docs    @docs
-docs       @docs
-
-# Use of default owners for a section. In this case, all files (*) are owned by
-the dev team except the README.md and data-models which are owned by other teams.
-[Development] @dev-team
-*
-README.md @docs-team
-data-models/ @data-science-team
-
-# This section is combined with the previously defined [Documentation] section:
-[DOCUMENTATION]
-README.md  @docs
-```
+- [Code Owners](index.md)
+- [Advanced `CODEOWNERS` configuration](advanced.md)
+- [Merge request approvals](../merge_requests/approvals/index.md)
+- [Protected branches](../repository/branches/protected.md)
+- [Troubleshooting Code Owners](troubleshooting.md)

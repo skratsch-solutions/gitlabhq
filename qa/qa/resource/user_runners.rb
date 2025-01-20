@@ -27,7 +27,7 @@ module QA
         @run_untagged = nil
         @name = "qa-runner-#{SecureRandom.hex(4)}"
         @executor = :shell
-        @executor_image = "#{QA::Runtime::Env.container_registry_host}/#{QA::Runtime::Env.runner_container_namespace}/#{QA::Runtime::Env.gitlab_qa_build_image}" # rubocop:disable Layout/LineLength -- image path
+        @executor_image = "#{QA::Runtime::Env.container_registry_host}/#{QA::Runtime::Env.runner_container_namespace}/#{QA::Runtime::Env.gitlab_qa_build_image}"
       end
 
       def fabricate!
@@ -37,6 +37,10 @@ module QA
       def fabricate_via_api!
         api_post
         start_container_and_register
+      end
+
+      def unregister!
+        unregister_runner
       end
 
       def remove_via_api!
@@ -104,6 +108,12 @@ module QA
       rescue StandardError => e
         @docker_container&.remove!
         raise(e)
+      end
+
+      def unregister_runner
+        raise "Cannot unregister runner: Docker container not initialized for runner '#{name}'" unless @docker_container
+
+        @docker_container.run_unregister_command!
       end
 
       def populate_initial_id

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Subgroup events recording](https://gitlab.com/gitlab-org/gitlab/-/issues/366878) fixed in GitLab 15.2.
 > - Custom HTTP headers UI [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/361630) in GitLab 15.2 [with a flag](../feature_flags.md) named `custom_headers_streaming_audit_events_ui`. Disabled by default.
@@ -24,7 +24,10 @@ With audit event streaming for top-level groups, group owners can:
 - Manage their audit logs in third-party systems. Any service that can receive structured JSON data can be used as the
   streaming destination.
 
-Each streaming destination can have up to 20 custom HTTP headers included with each streamed event.
+Each streaming destination:
+
+- Can have up to 20 custom HTTP headers included with each streamed event.
+- For GitLab.com, must allow traffic from the [GitLab.com IP address range](../gitlab_com/index.md#ip-range).
 
 GitLab can stream a single event more than once to the same destination. Use the `id` key in the payload to deduplicate
 incoming data.

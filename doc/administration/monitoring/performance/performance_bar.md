@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can display the performance bar to see statistics for the performance of a GitLab UI page.
 For example:
@@ -97,7 +97,7 @@ Requests that exceed predefined limits display a warning **{warning}** icon and
 explanation next to the metric. In this example, the Gitaly call duration
 exceeded the threshold.
 
-![Gitaly call duration exceeded threshold](img/performance_bar_gitaly_threshold.png)
+![Gitaly call duration exceeded threshold](img/performance_bar_gitaly_threshold_v12_4.png)
 
 ## Enable the performance bar for non-administrators
 
@@ -105,7 +105,7 @@ The performance bar is disabled by default for non-administrators. To enable it
 for a given group:
 
 1. Sign in as a user with administrator access.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling**.
 1. Expand **Profiling - Performance bar**.
 1. Select **Allow non-administrators access to the performance bar**.

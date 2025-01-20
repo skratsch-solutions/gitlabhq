@@ -24,17 +24,16 @@ module Types
       field :admin_url, GraphQL::Types::String, null: true,
         description: 'Admin URL of the runner. Only available for administrators.'
       field :contacted_at, Types::TimeType, null: true,
-        description: 'Timestamp of last contact from this runner.',
-        method: :contacted_at
+        description: 'Timestamp of last contact from the runner.'
       field :created_at, Types::TimeType, null: true,
-        description: 'Timestamp of creation of this runner.'
+        description: 'Timestamp of creation of the runner.'
       field :created_by, Types::UserType, null: true,
-        description: 'User that created this runner.',
+        description: 'User that created the runner.',
         method: :creator
       field :creation_method, Types::Ci::RunnerCreationMethodEnum, null: true,
         method: :registration_type,
         description: 'Type of runner registration.',
-        alpha: { milestone: '17.0' }
+        experiment: { milestone: '17.0' }
       field :description, GraphQL::Types::String, null: true,
         description: 'Description of the runner.'
       field :edit_admin_url, GraphQL::Types::String, null: true,
@@ -42,24 +41,24 @@ module Types
       field :ephemeral_authentication_token, GraphQL::Types::String, null: true,
         description: 'Ephemeral authentication token used for runner manager registration. Only available for the creator of the runner for a limited time during registration.',
         authorize: :read_ephemeral_token,
-        alpha: { milestone: '15.9' }
+        experiment: { milestone: '15.9' }
       field :ephemeral_register_url, GraphQL::Types::String, null: true,
         description: 'URL of the registration page of the runner manager. Only available for the creator of the runner for a limited time during registration.',
-        alpha: { milestone: '15.11' }
+        experiment: { milestone: '15.11' }
       field :groups, null: true,
         resolver: ::Resolvers::Ci::RunnerGroupsResolver,
         description: 'Groups the runner is associated with. For group runners only.'
       field :id, ::Types::GlobalIDType[::Ci::Runner], null: false, description: 'ID of the runner.'
       field :job_count, GraphQL::Types::Int, null: true,
         description: "Number of jobs processed by the runner (limited to #{JOB_COUNT_LIMIT}, plus one to " \
-                     "indicate that more items exist).\n`jobCount` is an optimized version of `jobs { count }`, " \
-                     "and can be requested for multiple runners on the same request.",
+          "indicate that more items exist).\n`jobCount` is an optimized version of `jobs { count }`, " \
+          "and can be requested for multiple runners on the same request.",
         resolver: ::Resolvers::Ci::RunnerJobCountResolver
       field :job_execution_status,
         Types::Ci::RunnerJobExecutionStatusEnum,
         null: true,
         description: 'Job execution status of the runner.',
-        alpha: { milestone: '15.7' }
+        experiment: { milestone: '15.7' }
       field :jobs, ::Types::Ci::JobType.connection_type, null: true,
         description: 'Jobs assigned to the runner. This field can only be resolved for one runner in any single request.',
         authorize: :read_builds,
@@ -100,8 +99,7 @@ module Types
       field :tag_list, [GraphQL::Types::String], null: true,
         description: 'Tags associated with the runner.'
       field :token_expires_at, Types::TimeType, null: true,
-        description: 'Runner token expiration time.',
-        method: :token_expires_at
+        description: 'Runner token expiration time.'
 
       markdown_field :maintenance_note_html, null: true
 
@@ -158,7 +156,7 @@ module Types
           statuses = ::Ci::Runner.id_in(runner_ids).with_executing_builds.index_by(&:id)
 
           runner_ids.each do |runner_id|
-            loader.call(runner_id, statuses[runner_id] ? :running : :idle)
+            loader.call(runner_id, statuses[runner_id] ? :active : :idle)
           end
         end
       end

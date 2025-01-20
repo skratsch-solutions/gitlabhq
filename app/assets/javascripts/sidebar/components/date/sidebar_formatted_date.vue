@@ -33,18 +33,15 @@ export default {
 </script>
 
 <template>
-  <div class="gl-display-flex gl-align-items-center hide-collapsed">
-    <span
-      :class="hasDate ? 'gl-text-gray-900' : 'gl-text-gray-500'"
-      data-testid="sidebar-date-value"
-    >
+  <div class="hide-collapsed gl-flex gl-items-center">
+    <span :class="hasDate ? 'gl-text-default' : 'gl-text-subtle'" data-testid="sidebar-date-value">
       {{ formattedDate }}
     </span>
-    <div v-if="hasDate && canUpdate && canDelete" class="gl-display-flex">
+    <div v-if="hasDate && canUpdate && canDelete" class="gl-flex">
       <span class="gl-px-2">-</span>
       <gl-button
         variant="link"
-        class="gl-text-gray-500!"
+        class="!gl-text-subtle"
         data-testid="reset-button"
         :disabled="isLoading"
         @click="$emit('reset-date', $event)"

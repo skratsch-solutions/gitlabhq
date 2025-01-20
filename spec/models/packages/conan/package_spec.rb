@@ -5,6 +5,21 @@ require 'spec_helper'
 RSpec.describe Packages::Conan::Package, type: :model, feature_category: :package_registry do
   describe 'relationships' do
     it { is_expected.to have_one(:conan_metadatum).inverse_of(:package) }
+
+    it do
+      is_expected.to have_many(:conan_recipe_revisions).inverse_of(:package)
+        .class_name('Packages::Conan::RecipeRevision')
+    end
+
+    it do
+      is_expected.to have_many(:conan_package_references).inverse_of(:package)
+        .class_name('Packages::Conan::PackageReference')
+    end
+
+    it do
+      is_expected.to have_many(:conan_package_revisions).inverse_of(:package)
+        .class_name('Packages::Conan::PackageRevision')
+    end
   end
 
   describe 'validations' do
@@ -39,7 +54,8 @@ RSpec.describe Packages::Conan::Package, type: :model, feature_category: :packag
 
     context 'for recipe uniqueness' do
       let_it_be(:package) { create(:conan_package) }
-      let_it_be(:new_package) do
+
+      let(:new_package) do
         build(:conan_package, project: package.project, name: package.name, version: package.version)
       end
 
@@ -97,6 +113,10 @@ RSpec.describe Packages::Conan::Package, type: :model, feature_category: :packag
       it 'loads conan metadatum' do
         expect(packages.first.association(:conan_metadatum)).to be_loaded
       end
+    end
+
+    describe '.installable' do
+      it_behaves_like 'installable packages', :conan_package
     end
   end
 end

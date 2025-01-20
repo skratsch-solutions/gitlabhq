@@ -4,12 +4,9 @@ category: default
 action: click_consolidated_edit
 extra_properties:
 identifiers:
-product_group: ide
+product_group: remote_development
 milestone: "16.3"
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127163
-distributions:
-- ce
-- ee
 tiers:
 - free
 - premium

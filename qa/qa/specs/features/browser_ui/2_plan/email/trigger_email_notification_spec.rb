@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Plan', :orchestrated, :smtp, product_group: :project_management do
+  RSpec.describe 'Plan', :orchestrated, :smtp, :requires_admin, product_group: :project_management do
     describe 'Email Notification' do
       include Support::API
 
-      let!(:user) do
-        Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
-      end
+      let!(:user) { create(:user) }
 
       let(:project) { create(:project, name: 'email-notification-test') }
 
@@ -25,7 +23,7 @@ module QA
 
         expect(page).to have_content("@#{user.username}")
 
-        mailhog_items = mailhog_json.dig('items')
+        mailhog_items = mailhog_json['items']
 
         expect(mailhog_items).to include(an_object_satisfying { |o| mailhog_item_subject(o)&.include?('project was granted') })
       end
@@ -39,8 +37,8 @@ module QA
           mailhog_response = get QA::Runtime::MailHog.api_messages_url
 
           mailhog_data = JSON.parse(mailhog_response.body)
-          total = mailhog_data.dig('total')
-          subjects = mailhog_data.dig('items')
+          total = mailhog_data['total']
+          subjects = mailhog_data['items']
             .map { |item| mailhog_item_subject(item) }
 
           Runtime::Logger.debug(%(Total number of emails: #{total}))

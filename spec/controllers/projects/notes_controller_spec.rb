@@ -536,7 +536,7 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
 
       context 'when creating a note with quick actions' do
         context 'with commands that return changes' do
-          let(:note_text) { "/react :thumbsup:\n/estimate 1d\n/spend 3h" }
+          let(:note_text) { "/react :#{AwardEmoji::THUMBS_UP}:\n/estimate 1d\n/spend 3h" }
           let(:extra_request_params) { { format: :json } }
 
           it 'includes changes in commands_changes' do
@@ -551,7 +551,46 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
             create!
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['command_names']).to include('react', 'estimate', 'spend')
+            expect(json_response['quick_actions_status']['command_names']).to include('react', 'estimate', 'spend')
+            expect(json_response['quick_actions_status']['commands_only']).to be(true)
+          end
+        end
+
+        context 'with a mix of text and an invalid command' do
+          let(:note_text) { "hello world\n/spend asdf" }
+          let(:extra_request_params) { { format: :json } }
+          let(:expected) do
+            {
+              "messages" => nil,
+              "command_names" => %w[spend],
+              "commands_only" => false
+            }
+          end
+
+          it 'returns expected status' do
+            create!
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['quick_actions_status']).to eq(expected)
+          end
+        end
+
+        context 'with a mix of text and commands that return changes and errors' do
+          let(:note_text) { "hello world\n/estimate 1d\n/spend asdf" }
+          let(:extra_request_params) { { format: :json } }
+          let(:expected) do
+            {
+              "messages" => ["Set time estimate to 1d."],
+              "command_names" => %w[estimate spend],
+              "commands_only" => false
+            }
+          end
+
+          it 'returns expected status' do
+            create!
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(json_response['quick_actions_status']).to eq(expected)
           end
         end
 
@@ -576,20 +615,29 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
             create!
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['command_names']).to include('move', 'title')
+            expect(json_response['quick_actions_status']['command_names']).to include('move', 'title')
+            expect(json_response['quick_actions_status']['commands_only']).to be(true)
           end
         end
 
         context 'with commands that return an error' do
           let(:extra_request_params) { { format: :json } }
+          let(:expected) do
+            {
+              'quick_actions_status' => {
+                "error_messages" => ["Failed to apply commands."],
+                "command_names" => ["label"],
+                "commands_only" => true,
+                "messages" => nil
+              }
+            }
+          end
 
           before do
-            errors = ActiveModel::Errors.new(note)
-            errors.add(:commands_only, 'Failed to apply commands.')
-            errors.add(:command_names, ['label'])
-            errors.add(:commands, 'Failed to apply commands.')
-
-            allow(note).to receive(:errors).and_return(errors)
+            note.quick_actions_status = ::Notes::QuickActionsStatus.new(
+              command_names: ['label'],
+              commands_only: true)
+            note.quick_actions_status.add_error('Failed to apply commands.')
 
             allow_next_instance_of(Notes::CreateService) do |service|
               allow(service).to receive(:execute).and_return(note)
@@ -600,7 +648,7 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
             create!
 
             expect(response).to have_gitlab_http_status(:unprocessable_entity)
-            expect(response.body).to eq('{"errors":{"commands_only":["Failed to apply commands."]}}')
+            expect(response.parsed_body).to eq(expected)
           end
         end
       end
@@ -963,10 +1011,10 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
   describe 'DELETE destroy' do
     let(:request_params) do
       {
-          namespace_id: project.namespace,
-          project_id: project,
-          id: note,
-          format: :js
+        namespace_id: project.namespace,
+        project_id: project,
+        id: note,
+        format: :js
       }
     end
 
@@ -1011,7 +1059,7 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
 
     subject { post(:toggle_award_emoji, params: request_params.merge(name: emoji_name)) }
 
-    let(:emoji_name) { 'thumbsup' }
+    let(:emoji_name) { AwardEmoji::THUMBS_UP }
 
     it { is_expected.to have_request_urgency(:low) }
 
@@ -1069,6 +1117,84 @@ RSpec.describe Projects::NotesController, type: :controller, feature_category: :
     end
 
     specify { expect(get(:outdated_line_change, params: request_params)).to have_request_urgency(:low) }
+  end
+
+  describe 'POST resolve' do
+    let(:note) { create(:note, noteable: issue, project: project) }
+
+    before do
+      sign_in(user)
+      project.add_developer(user)
+    end
+
+    subject(:request) { post(:resolve, params: request_params) }
+
+    it 'returns not found when note is not resolvable' do
+      request
+
+      expect(response).to have_gitlab_http_status(:not_found)
+    end
+
+    context 'when note is resolvable' do
+      let(:note) { create(:discussion_note, :on_issue, noteable: issue, project: project) }
+
+      it 'resolves the given note' do
+        expect_next_instance_of(ProjectNoteSerializer) do |serializer|
+          expect(serializer)
+            .to receive(:represent)
+              .with(note, render_truncated_diff_lines: true)
+        end
+
+        expect { request }
+          .to change { note.reload.resolved? }
+            .from(false).to(true)
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'DELETE unresolve' do
+    let(:note) { create(:note, noteable: issue, project: project) }
+
+    before do
+      sign_in(user)
+      project.add_developer(user)
+    end
+
+    subject(:request) { delete(:unresolve, params: request_params) }
+
+    it 'returns not found when note is not resolvable' do
+      request
+
+      expect(response).to have_gitlab_http_status(:not_found)
+    end
+
+    context 'when note is resolvable' do
+      let(:note) do
+        create(
+          :discussion_note,
+          :resolved,
+          :on_issue,
+          noteable: issue,
+          project: project
+        )
+      end
+
+      it 'unresolves the given note' do
+        expect_next_instance_of(ProjectNoteSerializer) do |serializer|
+          expect(serializer)
+            .to receive(:represent)
+              .with(note, render_truncated_diff_lines: true)
+        end
+
+        expect { request }
+          .to change { note.reload.resolved? }
+            .from(true).to(false)
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
   end
 
   # Convert a time to an integer number of microseconds

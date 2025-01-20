@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/381902) in GitLab 15.8, GitLab no longer automatically creates namespaces or groups that don't exist. GitLab also no longer falls back to using the user's personal namespace if the namespace or group name is taken.
 > - Ability to import projects with a `.` in their path [added](https://gitlab.com/gitlab-org/gitlab/-/issues/434175) in GitLab 16.11.
@@ -35,8 +35,7 @@ When importing:
 - Because Gitea is not an OAuth provider, the author or assignee cannot be mapped to users on
   your GitLab instance. The project creator (usually the user who started the import process)
   is then set as the author. For issues, you can still see the original Gitea author.
-- Because Gitea cannot get comments from merge requests through the API, these comments are not imported.
-  For more information, see the [Gitea API documentation](https://docs.gitea.com/api/1.20/#tag/repository/operation/repoGetPullRequest).
+- The Gitea importer does not import diff notes from pull requests. See [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/450973) for more information.
 
 ## Prerequisites
 
@@ -89,3 +88,20 @@ You also can:
 - Filter projects by name. If a filter is applied, **Import all projects**
   imports only selected projects.
 - Choose a different name for the project and a different namespace if you have the privileges to do so.
+
+## User contribution mapping
+
+> - [Changed on GitLab.com](https://gitlab.com/groups/gitlab-org/-/epics/14667) to [User contribution and membership mapping](../import/index.md#user-contribution-and-membership-mapping) in 17.8.
+
+The Gitea importer uses [an improved method](../import/index.md#user-contribution-and-membership-mapping)
+of mapping user contributions for:
+
+- GitLab.com
+- GitLab Self-Managed 17.6 or later when the `importer_user_mapping` and `gitea_user_mapping` feature flags are enabled.
+
+### Old method of user contribution mapping
+
+You can use the old user contribution mapping method for imports to GitLab Self-Managed and GitLab Dedicated instances. For imports to GitLab.com, you must
+use [the improved method](../import/index.md#user-contribution-and-membership-mapping) instead.
+
+Using the old method, user contributions are assigned to the project creator (usually the user who started the import process) by default.

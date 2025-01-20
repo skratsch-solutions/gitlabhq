@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/346567) from GitLab Premium to GitLab Free in 15.3.
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/346585) to make the `id` attribute optional in GitLab 15.7.
@@ -84,7 +84,7 @@ For additional repository structure recommendations, see the [Flux documentation
 ## Immediate Git repository reconciliation
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/392852) in GitLab 16.1 with a [flag](../../../administration/feature_flags.md) named `notify_kas_on_git_push`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/126527) in GitLab 16.2.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/126527) in GitLab 16.2.
 > - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/410429) in GitLab 16.3.
 
 Usually, the Flux source controller reconciles Git repositories at configured intervals.
@@ -107,7 +107,7 @@ but it doesn't guarantee that every `git push` event is received. You should sti
 [`GitRepository.spec.interval`](https://fluxcd.io/flux/components/source/gitrepositories/#interval)
 to an acceptable duration.
 
-DISCLAIMER:
+NOTE:
 The agent only has access to the agent configuration project and all public projects.
 The agent is not able to immediately reconcile any private projects, except the agent configuration project.
 Allowing the agent to access private projects is proposed in [issue 389393](https://gitlab.com/gitlab-org/gitlab/-/issues/389393).

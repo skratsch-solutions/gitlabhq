@@ -38,7 +38,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
       end
     end
 
-    it_behaves_like 'scheduling with deduplication class', 'UntilExecuting'
+    it_behaves_like 'scheduling with deduplication class', 'UntilExecuted'
 
     context 'when the deduplication depends on a FF' do
       before do
@@ -52,7 +52,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
           stub_feature_flags(my_feature_flag: true)
         end
 
-        it_behaves_like 'scheduling with deduplication class', 'UntilExecuting'
+        it_behaves_like 'scheduling with deduplication class', 'UntilExecuted'
       end
 
       context 'when the feature flag is disabled' do
@@ -68,7 +68,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
   describe '#perform' do
     it 'calls perform on the strategy' do
       expect do |block|
-        expect_next_instance_of(Gitlab::SidekiqMiddleware::DuplicateJobs::Strategies::UntilExecuting) do |strategy|
+        expect_next_instance_of(Gitlab::SidekiqMiddleware::DuplicateJobs::Strategies::UntilExecuted) do |strategy|
           expect(strategy).to receive(:perform).with(job, &block)
         end
 
@@ -83,7 +83,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
     end
 
     let(:cookie_key) { "#{Gitlab::Redis::Queues::SIDEKIQ_NAMESPACE}:#{idempotency_key}:cookie:v2" }
-    let(:cookie) { get_redis_msgpack(cookie_key) }
+    let(:cookie) { duplicate_job.send(:get_cookie) }
 
     describe '#check!' do
       context 'when there was no job in the queue yet' do
@@ -189,86 +189,6 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
       end
     end
 
-    describe 'UPDATE_WAL_COOKIE_SCRIPT' do
-      subject do
-        with_redis do |redis|
-          redis.eval(described_class::UPDATE_WAL_COOKIE_SCRIPT, keys: [cookie_key], argv: argv)
-        end
-      end
-
-      let(:argv) { ['c1', 1, 'loc1', 'c2', 2, 'loc2', 'c3', 3, 'loc3'] }
-
-      it 'does not create the key' do
-        subject
-
-        expect(with_redis { |r| r.get(cookie_key) }).to eq(nil)
-      end
-
-      context 'when the key exists' do
-        let(:existing_cookie) { { 'offsets' => {}, 'wal_locations' => {} } }
-        let(:expected_ttl) { 123 }
-
-        before do
-          with_redis { |r| r.set(cookie_key, existing_cookie.to_msgpack, ex: expected_ttl) }
-        end
-
-        it 'updates all connections' do
-          subject
-
-          expect(cookie['wal_locations']).to eq({ 'c1' => 'loc1', 'c2' => 'loc2', 'c3' => 'loc3' })
-          expect(cookie['offsets']).to eq({ 'c1' => 1, 'c2' => 2, 'c3' => 3 })
-        end
-
-        it 'preserves the ttl' do
-          subject
-
-          expect(redis_ttl(cookie_key)).to be_within(1).of(expected_ttl)
-        end
-
-        it 'does not try to set an invalid ttl at the end of expiry' do
-          with_redis { |r| r.expire(cookie_key, 1) }
-
-          sleep 0.5 # sleep 500ms to redis would round the remaining ttl to 0
-
-          expect { subject }.not_to raise_error
-        end
-
-        context 'and low offsets' do
-          let(:existing_cookie) do
-            {
-              'offsets' => { 'c1' => 0, 'c2' => 2 },
-              'wal_locations' => { 'c1' => 'loc1old', 'c2' => 'loc2old' }
-            }
-          end
-
-          it 'updates only some connections' do
-            subject
-
-            expect(cookie['wal_locations']).to eq({ 'c1' => 'loc1', 'c2' => 'loc2old', 'c3' => 'loc3' })
-            expect(cookie['offsets']).to eq({ 'c1' => 1, 'c2' => 2, 'c3' => 3 })
-          end
-        end
-
-        context 'when a WAL location is nil with existing offsets' do
-          let(:existing_cookie) do
-            {
-              'offsets' => { 'main' => 8, 'ci' => 5 },
-              'wal_locations' => { 'main' => 'loc1old', 'ci' => 'loc2old' }
-            }
-          end
-
-          let(:argv) { ['main', 9, 'loc1', 'ci', '', 'loc2'] }
-
-          it 'only updates the main connection' do
-            subject
-
-            expect(cookie['wal_locations']).to eq({ 'main' => 'loc1', 'ci' => 'loc2old' })
-            expect(cookie['offsets']).to eq({ 'main' => 9, 'ci' => 5 })
-          end
-        end
-      end
-    end
-
     describe '#latest_wal_locations' do
       context 'when job was deduplicated and wal locations were already persisted' do
         before do
@@ -335,54 +255,6 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
       end
     end
 
-    describe '#set_deduplicated_flag!' do
-      context 'when the job is reschedulable' do
-        before do
-          duplicate_job.check! # ensure cookie exists
-          allow(duplicate_job).to receive(:reschedulable?) { true }
-        end
-
-        it 'sets the key in Redis' do
-          duplicate_job.set_deduplicated_flag!
-
-          expect(cookie['deduplicated']).to eq('1')
-        end
-
-        it 'sets, gets and cleans up the deduplicated flag' do
-          expect(duplicate_job.should_reschedule?).to eq(false)
-
-          duplicate_job.set_deduplicated_flag!
-          expect(duplicate_job.should_reschedule?).to eq(true)
-
-          duplicate_job.delete!
-          expect(duplicate_job.should_reschedule?).to eq(false)
-        end
-      end
-
-      context 'when the job is not reschedulable' do
-        before do
-          allow(duplicate_job).to receive(:reschedulable?) { false }
-        end
-
-        it 'does not set the key in Redis' do
-          duplicate_job.check!
-          duplicate_job.set_deduplicated_flag!
-
-          expect(cookie['deduplicated']).to eq(nil)
-        end
-
-        it 'does not set the deduplicated flag' do
-          expect(duplicate_job.should_reschedule?).to eq(false)
-
-          duplicate_job.set_deduplicated_flag!
-          expect(duplicate_job.should_reschedule?).to eq(false)
-
-          duplicate_job.delete!
-          expect(duplicate_job.should_reschedule?).to eq(false)
-        end
-      end
-    end
-
     describe '#duplicate?' do
       it "raises an error if the check wasn't performed" do
         expect { duplicate_job.duplicate? }.to raise_error(/Call `#check!` first/)
@@ -439,47 +311,9 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::DuplicateJob,
       fake_logger = instance_double(Gitlab::SidekiqLogging::DeduplicationLogger)
       expect(Gitlab::SidekiqLogging::DeduplicationLogger).to receive(:instance).and_return(fake_logger)
       expect(fake_logger).to receive(:rescheduled_log).with(a_hash_including({ 'jid' => '123' }))
-      expect(AuthorizedProjectsWorker).to receive(:perform_async).with(1).once
+      expect(AuthorizedProjectsWorker).to receive_message_chain(:rescheduled_once, :perform_async)
 
       duplicate_job.reschedule
-    end
-  end
-
-  describe '#should_reschedule?' do
-    subject { duplicate_job.should_reschedule? }
-
-    context 'when the job is reschedulable' do
-      before do
-        allow(duplicate_job).to receive(:reschedulable?) { true }
-      end
-
-      it { is_expected.to eq(false) }
-
-      context 'with deduplicated flag' do
-        before do
-          duplicate_job.check! # ensure cookie exists
-          duplicate_job.set_deduplicated_flag!
-        end
-
-        it { is_expected.to eq(true) }
-      end
-    end
-
-    context 'when the job is not reschedulable' do
-      before do
-        allow(duplicate_job).to receive(:reschedulable?) { false }
-      end
-
-      it { is_expected.to eq(false) }
-
-      context 'with deduplicated flag' do
-        before do
-          duplicate_job.check! # ensure cookie exists
-          duplicate_job.set_deduplicated_flag!
-        end
-
-        it { is_expected.to eq(false) }
-      end
     end
   end
 

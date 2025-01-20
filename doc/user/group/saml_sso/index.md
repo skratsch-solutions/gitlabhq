@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -43,7 +43,7 @@ To set up SSO with Azure as your identity provider:
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Settings > SAML SSO**.
 1. Note the information on this page.
-1. Go to Azure and [follow the instructions for configuring SSO for an application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal-setup-sso). The following GitLab settings correspond to the Azure fields.
+1. Go to Azure, [create a non-gallery application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/overview-application-gallery#create-your-own-application), and [configure SSO for an application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal-setup-sso). The following GitLab settings correspond to the Azure fields.
 
    | GitLab setting                           | Azure field                                    |
    | -----------------------------------------| ---------------------------------------------- |
@@ -54,9 +54,8 @@ To set up SSO with Azure as your identity provider:
    | **Certificate fingerprint**              | **Thumbprint**                                 |
 
 1. You should set the following attributes:
-   - **Unique User Identifier (Name identifier)** to `user.objectID`.
-   - **nameid-format** to `persistent`. For more information, see how to [manage user SAML identity](#manage-user-saml-identity).
-   - **email** to `user.mail` or similar.
+   - **Unique User Identifier (Name ID)** to `user.objectID`.
+      - **Name identifier format** to `persistent`. For more information, see how to [manage user SAML identity](#manage-user-saml-identity).
    - **Additional claims** to [supported attributes](#configure-assertions).
 
 1. Make sure the identity provider is set to have provider-initiated calls
@@ -182,7 +181,7 @@ To set up OneLogin as your identity provider:
 ### Configure assertions
 
 NOTE:
-The attributes are case-sensitive.
+The attributes are case-insensitive.
 
 At minimum, you must configure the following assertions:
 
@@ -195,7 +194,7 @@ Optionally, you can pass user information to GitLab as attributes in the SAML as
 - The username can be either a **username** or **nickname** attribute. You should specify only
   one of these.
 
-For more information, see the [attributes available for self-managed GitLab instances](../../../integration/saml.md#configure-assertions).
+For more information, see the [attributes available for GitLab Self-Managed](../../../integration/saml.md#configure-assertions).
 
 ### Use metadata
 
@@ -261,8 +260,10 @@ After you set up your identity provider to work with GitLab, you must configure 
      as the default membership role.
 1. Select the **Enable SAML authentication for this group** checkbox.
 1. Optional. Select:
+   - In GitLab 17.4 and later, **Disable password authentication for enterprise users**.
+     For more information, see the [Disable password authentication for enterprise users documentation](#disable-password-authentication-for-enterprise-users).
    - **Enforce SSO-only authentication for web activity for this group**.
-   - **Enforce SSO-only authentication for Git activity for this group**.
+   - **Enforce SSO-only authentication for Git and Dependency Proxy activity for this group**.
      For more information, see the [SSO enforcement documentation](#sso-enforcement).
 1. Select **Save changes**.
 
@@ -287,6 +288,9 @@ When a user tries to sign in with Group SSO, GitLab attempts to find or create a
 ### Link SAML to your existing GitLab.com account
 
 > - **Remember me** checkbox [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/121569) in GitLab 15.7.
+
+NOTE:
+If the user is an [enterprise user](../../enterprise_user/index.md) of that group, the following steps do not apply. The enterprise user must instead [sign in with a SAML account that has the same email as the GitLab account](#returning-users-automatic-identity-relinking). This allows GitLab to link the SAML account to the existing account.
 
 To link SAML to your existing GitLab.com account:
 
@@ -416,6 +420,32 @@ automatically confirms user accounts. Users still receive an
 - The user is provisioned with SAML or SCIM.
 - The user has an email address that belongs to the verified domain.
 
+### Disable password authentication for enterprise users
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/373718) in GitLab 17.4.
+
+Prerequisites:
+
+- You must have the Owner role for the group that the enterprise user belongs to.
+- Group SSO must be enabled.
+
+You can disable password authentication for all [enterprise users](../../enterprise_user/index.md) in a group. This also applies to enterprise users who are administrators of the group. Configuring this setting stops enterprise users from changing, resetting, or authenticating with their password. Instead, these users can authenticate with:
+
+- The group SAML IdP for the GitLab web UI.
+- A personal access token for the GitLab API and Git with HTTP Basic Authentication unless the group has [disabled personal access tokens for enterprise users](../../../user/profile/personal_access_tokens.md#disable-personal-access-tokens-for-enterprise-users).
+
+To disable password authentication for enterprise users:
+
+1. On the left sidebar, select **Search or go to** and find your group.
+1. Select **Settings > SAML SSO**.
+1. Under **Configuration**, select **Disable password authentication for enterprise users**.
+1. Select **Save changes**.
+
+#### Returning users (Automatic Identity Relinking)
+
+If an enterprise user is removed from the group and then returns, they can sign in with their enterprise SSO account.
+As long as the user's email address in the identity provider remains the same as the email address on the existing GitLab account, the SSO identity is automatically linked to the account and the user can sign in without any issues.
+
 ### Block user access
 
 To rescind a user's access to the group when only SAML SSO is configured, either:
@@ -481,7 +511,7 @@ SSO is enforced as follows:
 | Public                   | Off                 | Enforced             | Not enforced            | Not enforced                |
 | Public                   | On                  | Enforced             | Enforced                | Not enforced                |
 
-An [issue exists](https://gitlab.com/gitlab-org/gitlab/-/issues/297389) to add a similar SSO requirement for API activity.
+An [issue exists](https://gitlab.com/gitlab-org/gitlab/-/issues/297389) to add a similar SSO requirement for API activity. Until this requirement is added, you can use features that rely on APIs without an active SSO session.
 
 ### SSO-only for web activity enforcement
 
@@ -548,10 +578,10 @@ For example:
 
 ## Related topics
 
-- [SAML SSO for self-managed GitLab instances](../../../integration/saml.md)
+- [SAML SSO for GitLab Self-Managed](../../../integration/saml.md)
 - [Glossary](../../../integration/saml.md#glossary)
 - [Blog post: The ultimate guide to enabling SAML and SSO on GitLab.com](https://about.gitlab.com/blog/2023/09/14/the-ultimate-guide-to-enabling-saml/)
-- [Authentication comparison between SaaS and self-managed](../../../administration/auth/index.md#saas-vs-self-managed-comparison)
+- [Authentication comparison between SaaS and self-managed](../../../administration/auth/index.md#gitlabcom-compared-to-gitlab-self-managed)
 - [Passwords for users created through integrated authentication](../../../security/passwords_for_integrated_authentication_methods.md)
 - [SAML Group Sync](group_sync.md)
 
@@ -562,8 +592,8 @@ identity provider:
 
 1. Check your identity provider's documentation. Look at their example SAML
    configurations for information on the terms they use.
-1. Check the [SAML SSO for self-managed GitLab instances documentation](../../../integration/saml.md).
-   The self-managed GitLab instance SAML configuration file supports more options
+1. Check the [SAML SSO for GitLab Self-Managed documentation](../../../integration/saml.md).
+   The GitLab Self-Managed SAML configuration file supports more options
    than the GitLab.com file. You can find information on the self-managed instance
    file in the:
    - External [OmniAuth SAML documentation](https://github.com/omniauth/omniauth-saml/).

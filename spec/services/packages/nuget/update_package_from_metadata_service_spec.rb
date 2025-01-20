@@ -6,7 +6,8 @@ RSpec.describe Packages::Nuget::UpdatePackageFromMetadataService, :clean_gitlab_
   include ExclusiveLeaseHelpers
 
   let!(:package) { create(:nuget_package, :processing, :with_symbol_package, :with_build) }
-  let(:package_file) { package.package_files.first }
+  # Reload factory to reset associations cache for package files
+  let(:package_file) { package.reload.package_files.first }
   let(:package_zip_file) { Zip::File.new(package_file.file) }
   let(:service) { described_class.new(package_file, package_zip_file) }
   let(:package_name) { 'DummyProject.DummyPackage' }
@@ -124,6 +125,24 @@ RSpec.describe Packages::Nuget::UpdatePackageFromMetadataService, :clean_gitlab_
             .and change { ::Packages::Nuget::Metadatum.count }.by(1)
         end
       end
+
+      context 'when duplicates are not allowed' do
+        before do
+          allow(::Namespace::PackageSetting).to receive(:duplicates_allowed?).and_return(false)
+        end
+
+        it_behaves_like 'raising an', described_class::DuplicatePackageError, with_message: "A package 'DummyProject.DummyPackage' with version '1.0.0' already exists"
+
+        context 'when create_nuget_packages_on_the_fly feature flag is disabled' do
+          before do
+            stub_feature_flags(create_nuget_packages_on_the_fly: false)
+          end
+
+          it 'does not raise an error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+      end
     end
 
     context 'with a nuspec file with metadata' do
@@ -236,7 +255,8 @@ RSpec.describe Packages::Nuget::UpdatePackageFromMetadataService, :clean_gitlab_
     end
 
     context 'with a symbol package' do
-      let(:package_file) { package.package_files.last }
+      # Reload factory to reset associations cache for package files
+      let(:package_file) { package.reload.package_files.last }
       let(:package_file_name) { 'dummyproject.dummypackage.1.0.0.snupkg' }
 
       context 'with no existing package' do
@@ -246,10 +266,13 @@ RSpec.describe Packages::Nuget::UpdatePackageFromMetadataService, :clean_gitlab_
       end
 
       context 'with existing package' do
-        let!(:existing_package) { create(:nuget_package, project: package.project, name: package_name, version: package_version) }
+        let!(:existing_package) do
+          create(:nuget_package, :with_symbol_package, project: package.project, name: package_name, version: package_version, without_package_files: true)
+        end
+
         let(:package_id) { existing_package.id }
         let(:package_zip_file) do
-          Zip::File.open(package_file.file.path) do |zipfile|
+          Zip::File.open(existing_package.package_files.first.file.path) do |zipfile|
             zipfile.add('package.pdb', expand_fixture_path('packages/nuget/symbol/package.pdb'))
             zipfile
           end

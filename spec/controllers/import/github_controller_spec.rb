@@ -191,7 +191,7 @@ RSpec.describe Import::GithubController, feature_category: :importers do
         ActionController::Base.helpers.link_to(
           'Learn More',
           help_page_url(
-            'user/project/import/github', anchor: 'use-a-github-personal-access-token'
+            'user/project/import/github.md', anchor: 'use-a-github-personal-access-token'
           ),
           target: '_blank',
           rel: 'noopener noreferrer'
@@ -338,7 +338,19 @@ RSpec.describe Import::GithubController, feature_category: :importers do
       end
     end
 
-    it_behaves_like 'a GitHub-ish import controller: POST create'
+    it_behaves_like 'a GitHub-ish import controller: POST create' do
+      context 'when github importer is not enabled' do
+        before do
+          stub_application_setting(import_sources: [])
+        end
+
+        it 'returns 404' do
+          post :create, params: { target_namespace: user.namespace }, format: :json
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
 
     it_behaves_like 'project import rate limiter'
   end

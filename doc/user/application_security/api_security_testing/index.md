@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - API security testing analyzer [became the default analyzer for on-demand API security testing scans](https://gitlab.com/groups/gitlab-org/-/epics/4254) in GitLab 15.6.
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/457449) from **DAST API analyzer** to **API security testing analyzer** in GitLab 17.0.
@@ -51,6 +51,7 @@ other scanners) during a scan could cause inaccurate results.
 
 The following projects demonstrate API security testing scanning:
 
+- [Example OpenAPI v3 Specification project](https://gitlab.com/gitlab-org/security-products/demos/api-dast/openapi-v3-example)
 - [Example OpenAPI v2 Specification project](https://gitlab.com/gitlab-org/security-products/demos/api-dast/openapi-example)
 - [Example HTTP Archive (HAR) project](https://gitlab.com/gitlab-org/security-products/demos/api-dast/har-example)
 - [Example Postman Collection project](https://gitlab.com/gitlab-org/security-products/demos/api-dast/postman-example)

@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Threat Insights
+stage: Security Risk Management
+group: Security Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Each vulnerability in a project has a vulnerability page containing details of the vulnerability,
 including:
@@ -19,24 +19,31 @@ including:
 - Available actions
 - Linked issues
 - Actions log
+- Filename and line number of the vulnerability (if available)
+- Severity
+
+For vulnerabilities in the [Common Vulnerabilities and Exposures (CVE)](https://www.cve.org/)
+catalog you can also retrieve the following by using the GraphQL API:
+
+- EPSS score
+- KEV status
+
+For details on how to retrieve this additional data, see [vulnerability risk assessment data](risk_assessment_data.md).
 
 If the scanner determined the vulnerability to be a false positive, an alert message is included at
 the top of the vulnerability's page.
 
-When a vulnerability is no longer detected in a project's default branch, you should
-change its status to **Resolved**. This ensures that if it is accidentally reintroduced in a future
-merge, it is reported again as a new record. To change the status of multiple vulnerabilities, use
-the Vulnerability Report's [Activity filter](../vulnerability_report/index.md#activity-filter).
-
 ## Explaining a vulnerability
 
 DETAILS:
-**Tier:** Ultimate with [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md)
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3 Haiku](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10368) in GitLab 16.0 as an [experiment](../../../policy/experiment-beta-support.md#experiment) on GitLab.com.
-> - Promoted to [beta](../../../policy/experiment-beta-support.md#beta) status in GitLab 16.2.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10368) in GitLab 16.0 as an [experiment](../../../policy/development_stages_support.md#experiment) on GitLab.com.
+> - Promoted to [beta](../../../policy/development_stages_support.md#beta) status in GitLab 16.2.
 > - [Generally available](https://gitlab.com/groups/gitlab-org/-/epics/10642) in GitLab 17.2.
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
 
 GitLab can help you with a vulnerability by using a large language model to:
 
@@ -44,9 +51,9 @@ GitLab can help you with a vulnerability by using a large language model to:
 - Help developers and security analysts to understand the vulnerability, how it could be exploited, and how to fix it.
 - Provide a suggested mitigation.
 
-### Vulnerability explanation
+### Vulnerability Explanation
 
-Explain a vulnerability with GitLab Duo Vulnerability explanation. Use the explanation to better
+Explain a vulnerability with GitLab Duo Vulnerability Explanation. Use the explanation to better
 understand a vulnerability and its possible mitigation.
 
 Prerequisites:
@@ -74,11 +81,11 @@ To explain the vulnerability:
 
 The response is shown on the right side of the page.
 
-On GitLab.com this feature is available. By default, it is powered by Anthropic's [`claude-3-haiku`](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai)
+On GitLab.com this feature is available. By default, it is powered by the Anthropic [`claude-3-haiku`](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai)
 model. We cannot guarantee that the large language model produces results that are correct. Use the
 explanation with caution.
 
-### Data shared with third-party AI APIs
+### Data shared with third-party AI APIs for Vulnerability Explanation
 
 The following data is shared with third-party AI APIs:
 
@@ -86,27 +93,34 @@ The following data is shared with third-party AI APIs:
 - Vulnerability identifiers.
 - Filename.
 
-## Vulnerability resolution
+## Vulnerability Resolution
 
 DETAILS:
-**Tier:** Ultimate with [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md)
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3.5 Sonnet](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10779) in GitLab 16.7 as an [experiment](../../../policy/experiment-beta-support.md#experiment) on GitLab.com.
-> - [Generally available](https://gitlab.com/groups/gitlab-org/-/epics/10783) in GitLab 17.2.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10779) in GitLab 16.7 as an [experiment](../../../policy/development_stages_support.md#experiment) on GitLab.com.
+> - Changed to beta in GitLab 17.3.
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
 
 Use GitLab Duo Vulnerability resolution to automatically create a merge request that
-resolves the vulnerability. By default, it is powered by Anthropic's [`claude-3-haiku`](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai)
-model.
+resolves the vulnerability. By default, it is powered by the Anthropic [`claude-3.5-sonnet`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet) model.
 
-We cannot guarantee that the large language model produces results that are correct. Use the
-explanation with caution.
+We can't guarantee that the large language model produces correct results.
+You should always review the proposed change before merging it. When reviewing, check that:
+
+- Your application's existing functionality is preserved.
+- The vulnerability is resolved in accordance with your organization's standards.
 
 Prerequisites:
 
 - You must have the GitLab Ultimate subscription tier and GitLab Duo Enterprise.
 - You must be a member of the project.
-- The vulnerability must be a SAST finding.
+- The vulnerability must be a SAST finding from a supported analyzer:
+  - Any [GitLab-supported analyzer](../sast/analyzers.md).
+  - A properly integrated [third-party SAST scanner](../../../development/integrations/secure.md) that reports the [vulnerability location](../../../development/integrations/secure.md#sast) and a [CWE Identifier](../../../development/integrations/secure.md#identifiers) for each vulnerability.
+- The vulnerability must be of a [supported type](#supported-vulnerabilities-for-vulnerability-resolution).
 
 Learn more about [how to enable all GitLab Duo features](../../ai_features_enable.md).
 
@@ -116,54 +130,220 @@ To resolve the vulnerability:
 1. Select **Secure > Vulnerability report**.
 1. Optional. To remove the default filters, select **Clear** (**{clear}**).
 1. Above the list of vulnerabilities, select the filter bar.
-1. In the dropdown list that appears, select **Tool**, then select all the values in the **SAST** category.
+1. In the dropdown list that appears, select **Activity**, then select **Vulnerability Resolution available** in the **GitLab Duo (AI)** category.
 1. Select outside the filter field. The vulnerability severity totals and list of matching vulnerabilities are updated.
 1. Select the SAST vulnerability you want resolved.
-1. In the upper-right corner,
-   select **Resolve with merge request**.
+   - A blue icon is shown next to vulnerabilities that support Vulnerability Resolution.
+1. In the upper-right corner, select **Resolve with AI**. If this project is a public project be aware that creating an MR will publicly expose the vulnerablity and offered resolution. To create the MR privately, please [create a private fork](../../../user/project/merge_requests/confidential.md), and repeat this process.
+1. Add an additional commit to the MR. This forces a new pipeline to run.
+1. After the pipeline is complete, on the [pipeline security tab](../vulnerability_report/pipeline.md#view-vulnerabilities-in-a-pipeline), confirm that the vulnerability no longer appears.
+1. On the vulnerability report, [manually update the vulnerability](../vulnerability_report/index.md#change-status-of-vulnerabilities).
 
 A merge request containing the AI remediation suggestions is opened. Review the suggested changes,
 then process the merge request according to your standard workflow.
 
-### Data shared with third-party AI APIs
+Provide feedback on this feature in [issue 476553](https://gitlab.com/gitlab-org/gitlab/-/issues/476553).
+
+### Supported vulnerabilities for Vulnerability Resolution
+
+To ensure that suggested resolutions are high-quality, Vulnerability Resolution is available for a specific set of vulnerabilities.
+The system decides whether to offer Vulnerability Resolution based on the vulnerability's Common Weakness Enumeration (CWE) identifier.
+
+We selected the current set of vulnerabilities based on testing by automated systems and security experts.
+We are actively working to expand coverage to more types of vulnerabilities.
+
+<details><summary style="color:#5943b6; margin-top: 1em;"><a>View the complete list of supported CWEs for Vulnerability Resolution</a></summary>
+
+<ul>
+  <li>CWE-23: Relative Path Traversal</li>
+  <li>CWE-73: External Control of File Name or Path</li>
+  <li>CWE-80: Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS)</li>
+  <li>CWE-116: Improper Encoding or Escaping of Output</li>
+  <li>CWE-118: Incorrect Access of Indexable Resource ('Range Error')</li>
+  <li>CWE-119: Improper Restriction of Operations within the Bounds of a Memory Buffer</li>
+  <li>CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')</li>
+  <li>CWE-126: Buffer Over-read</li>
+  <li>CWE-190: Integer Overflow or Wraparound</li>
+  <li>CWE-200: Exposure of Sensitive Information to an Unauthorized Actor</li>
+  <li>CWE-208: Observable Timing Discrepancy</li>
+  <li>CWE-209: Generation of Error Message Containing Sensitive Information</li>
+  <li>CWE-272: Least Privilege Violation</li>
+  <li>CWE-287: Improper Authentication</li>
+  <li>CWE-295: Improper Certificate Validation</li>
+  <li>CWE-297: Improper Validation of Certificate with Host Mismatch</li>
+  <li>CWE-305: Authentication Bypass by Primary Weakness</li>
+  <li>CWE-310: Cryptographic Issues</li>
+  <li>CWE-311: Missing Encryption of Sensitive Data</li>
+  <li>CWE-323: Reusing a Nonce, Key Pair in Encryption</li>
+  <li>CWE-327: Use of a Broken or Risky Cryptographic Algorithm</li>
+  <li>CWE-328: Use of Weak Hash</li>
+  <li>CWE-330: Use of Insufficiently Random Values</li>
+  <li>CWE-338: Use of Cryptographically Weak Pseudo-Random Number Generator (PRNG)</li>
+  <li>CWE-345: Insufficient Verification of Data Authenticity</li>
+  <li>CWE-346: Origin Validation Error</li>
+  <li>CWE-352: Cross-Site Request Forgery</li>
+  <li>CWE-362: Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')</li>
+  <li>CWE-369: Divide By Zero</li>
+  <li>CWE-377: Insecure Temporary File</li>
+  <li>CWE-378: Creation of Temporary File With Insecure Permissions</li>
+  <li>CWE-400: Uncontrolled Resource Consumption</li>
+  <li>CWE-489: Active Debug Code</li>
+  <li>CWE-521: Weak Password Requirements</li>
+  <li>CWE-539: Use of Persistent Cookies Containing Sensitive Information</li>
+  <li>CWE-599: Missing Validation of OpenSSL Certificate</li>
+  <li>CWE-611: Improper Restriction of XML External Entity Reference</li>
+  <li>CWE-676: Use of potentially dangerous function</li>
+  <li>CWE-704: Incorrect Type Conversion or Cast</li>
+  <li>CWE-754: Improper Check for Unusual or Exceptional Conditions</li>
+  <li>CWE-770: Allocation of Resources Without Limits or Throttling</li>
+  <li>CWE-1004: Sensitive Cookie Without 'HttpOnly' Flag</li>
+  <li>CWE-1275: Sensitive Cookie with Improper SameSite Attribute</li>
+</ul>
+</details>
+
+### Troubleshooting
+
+Vulnerability Resolution sometimes cannot generate a suggested fix. Common causes include:
+
+- **False positive detected:** Before proposing a fix, the AI model assesses whether the vulnerability is valid. It may judge that the vulnerability is not a true vulnerability, or isn't worth fixing.
+  - This can happen if the vulnerability occurs in test code. Your organization might still choose to fix vulnerabilities even if they happen in test code, but models sometimes assess these to be false positives.
+  - If you agree that the vulnerability is a false-positive or is not worth fixing, you should [dismiss the vulnerability](#vulnerability-status-values) and [select a matching reason](#vulnerability-dismissal-reasons).
+    - To customize your SAST configuration or report a problem with a GitLab SAST rule, see [SAST rules](../sast/rules.md).
+- **Temporary or unexpected error:** The error message may state that "an unexpected error has occurred", "the upstream AI provider request timed out", "something went wrong", or a similar cause.
+  - These errors may be caused by temporary problems with the AI provider or with GitLab Duo.
+  - A new request may succeed, so you can try to resolve the vulnerability again.
+  - If you continue to see these errors, contact GitLab for assistance.
+
+### Data shared with third-party AI APIs for Vulnerability Resolution
 
 The following data is shared with third-party AI APIs:
 
-- Vulnerability title (which might contain the filename, depending on which scanner is used).
-- Vulnerability identifiers.
-- Code block.
-- File name.
+- Vulnerability name
+- Vulnerability description
+- Identifiers (CWE, OWASP)
+- Entire file that contains the vulnerable lines of code
+- Vulnerable lines of code (line numbers)
+
+## Vulnerability Resolution in a merge request
+
+DETAILS:
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14862) in GitLab 17.6 with a flag named [`resolve_vulnerability_in_mr`](https://gitlab.com/gitlab-org/gitlab/-/issues/482753). Disabled by default.
+> [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/175150) in GitLab 17.7.
+
+Use GitLab Duo Vulnerability resolution to automatically create a merge request suggestion comment that
+resolves the vulnerability finding. By default, it is powered by the Anthropic [`claude-3.5-sonnet`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet) model.
+
+To resolve the vulnerability finding:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Merge requests**.
+1. Select a merge request.
+   - Vulnerability findings supported by Vulnerability Resolution are indicated by the tanuki AI icon (**{tanuki-ai}**).
+1. Select the supported findings to open the security finding dialog.
+1. In the lower-right corner, select **Resolve with AI**.
+
+A comment containing the AI remediation suggestions is opened in the merge request. Review the suggested changes, then apply the merge request suggestion according to your standard workflow.
+
+Provide feedback on this feature in [issue 476553](https://gitlab.com/gitlab-org/gitlab/-/issues/476553).
+
+### Troubleshooting
+
+Vulnerability Resolution in a merge request sometimes cannot generate a suggested fix. Common causes include:
+
+- **False positive detected:** Before proposing a fix, the AI model assesses whether the vulnerability is valid. It may judge that the vulnerability is not a true vulnerability, or isn't worth fixing.
+  - This can happen if the vulnerability occurs in test code. Your organization might still choose to fix vulnerabilities even if they happen in test code, but models sometimes assess these to be false positives.
+  - If you agree that the vulnerability is a false-positive or is not worth fixing, you should [dismiss the vulnerability](#vulnerability-status-values) and [select a matching reason](#vulnerability-dismissal-reasons).
+    - To customize your SAST configuration or report a problem with a GitLab SAST rule, see [SAST rules](../sast/rules.md).
+- **Temporary or unexpected error:** The error message may state that "an unexpected error has occurred", "the upstream AI provider request timed out", "something went wrong", or a similar cause.
+  - These errors may be caused by temporary problems with the AI provider or with GitLab Duo.
+  - A new request may succeed, so you can try to resolve the vulnerability again.
+  - If you continue to see these errors, contact GitLab for assistance.
+- **Resolution target could not be found in the merge request, unable to create suggestion:**
+  - This error may occur when the target branch has not run a full security scan pipeline. See the [merge request documentation](../detect/security_scan_results.md#merge-request).
+
+## Vulnerability code flow
+
+DETAILS:
+**Tier:** Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+For specific types of vulnerabilities, GitLab Advanced SAST provides [code flow](../sast/gitlab_advanced_sast.md#vulnerability-code-flow) information.
+A vulnerability's code flow is the path the data takes from the user input (source) to the vulnerable line of code (sink), through all assignments, manipulation, and sanitization.
+
+For details on how to view a vulnerability's code flow, see
+[Vulnerability code flow](../sast/gitlab_advanced_sast.md#vulnerability-code-flow).
+
+![A code flow of a Python application across two files](img/code_flow_view_v17_7.png)
 
 ## Vulnerability status values
 
 A vulnerability's status can be:
 
-- **Detected**: The default state for a newly discovered vulnerability. Appears as "Needs triage" in the UI.
+- **Needs triage**: The default state for a newly discovered vulnerability.
 - **Confirmed**: A user has seen this vulnerability and confirmed it to be accurate.
-- **Dismissed**: A user has seen this vulnerability and dismissed it because it is not accurate or
-  otherwise not to be resolved. Dismissed vulnerabilities are ignored if detected in subsequent
-  scans.
+- **Dismissed**: A user has evaluated this vulnerability and [dismissed it](#vulnerability-dismissal-reasons).
+  Dismissed vulnerabilities are ignored if detected in subsequent scans.
 - **Resolved**: The vulnerability has been fixed or is no longer present. If a resolved
   vulnerability is reintroduced and detected again, its record is reinstated and its status set to
-  detected.
+  **Needs triage**.
+
+A vulnerability typically goes through the following lifecycle:
+
+```mermaid
+%%{init: { "fontFamily": "GitLab Sans" }}%%
+stateDiagram
+    accTitle: Vulnerability lifecycle
+    accDescr: Typical lifecycle of a vulnerability
+
+    direction LR
+    Needs_triage: Needs triage
+
+    [*] --> Needs_triage
+    Needs_triage --> Confirmed
+    Needs_triage --> Dismissed
+    Dismissed --> [*]
+    Confirmed --> Resolved
+    Resolved --> Needs_triage: If reintroduced and detected again
+    Resolved --> [*]
+```
+
+## Vulnerability is no longer detected
+
+A vulnerability may be no longer detected because of changes made deliberately to remediate it or
+as a side effect of other changes. When a security scan runs and a vulnerability is no longer
+detected in the default branch, the scanner adds **No longer detected** to the record's activity log
+but the record's status does not change. Instead you should check and confirm the
+vulnerability has been resolved and if so,
+[manually change its status to **Resolved**](#change-the-status-of-a-vulnerability). You can also
+use a [vulnerability management policy](../policies/vulnerability_management_policy.md) to
+automatically change the status of vulnerabilities matching specific criteria to **Resolved**.
 
 ## Vulnerability dismissal reasons
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/4942) in GitLab 15.11 with a feature flag named `dismissal_reason`.
-> - Enabled on GitLab.com in GitLab 15.11. For self-managed customers, [contact Support](https://about.gitlab.com/support/) if you would like to use this feature in GitLab 15.11.
-> - Enabled by default in GitLab 16.0.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/4942) in GitLab 15.11 [with a flag](../../../administration/feature_flags.md) named `dismissal_reason`.
+> - [Enabled on GitLab Self-Managed and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/393005) in GitLab 16.0.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/124397) in GitLab 16.2. Feature flag `dismissal_reason` removed.
 
-When dismissing a vulnerability, one of the following reasons must be chosen to clarify why it is being dismissed:
+When you dismiss a vulnerability you must choose one of the following reasons:
 
-- **Acceptable risk**: The vulnerability is known, and has not been remediated or mitigated, but is considered to be an acceptable business risk.
-- **False positive**: An error in reporting in which a test result incorrectly indicates the presence of a vulnerability in a system when the vulnerability is not present.
-- **Mitigating control**: A management, operational, or technical control (that is, safeguard or countermeasure) employed by an organization that provides equivalent or comparable protection for an information system.
-- **Used in tests**: The finding is not a vulnerability because it is part of a test or is test data.
-- **Not applicable**: The vulnerability is known, and has not been remediated or mitigated, but is considered to be in a part of the application that will not be updated.
+- **Acceptable risk**: The vulnerability is known, and has not been remediated or mitigated, but is
+  considered to be an acceptable business risk.
+- **False positive**: An error in reporting in which a test result incorrectly indicates the
+  presence of a vulnerability in a system when the vulnerability is not present.
+- **Mitigating control**: The vulnerability's risk is mitigated by a management, operational, or
+  technical control (that is, safeguard or countermeasure) employed by an organization that provides
+  equivalent or comparable protection for an information system.
+- **Used in tests**: The finding is not a vulnerability because it is part of a test or is test
+  data.
+- **Not applicable**: The vulnerability is known, and has not been remediated or mitigated, but is
+  considered to be in a part of the application that will not be updated.
 
 ## Change the status of a vulnerability
 
-> - In GitLab 16.4 the ability for `Developers` to change the status of a vulnerability (`admin_vulnerability`) was [deprecated](../../../update/deprecations.md#deprecate-change-vulnerability-status-from-the-developer-role). The `admin_vulnerability` permission will be removed, by default, from all `Developer` roles in GitLab 17.0.
+> - The permission allowing users with the `Developer` role to change the status of a vulnerability (`admin_vulnerability`) was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/424133) in GitLab 16.4 and [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/412693) in GitLab 17.0.
 
 Prerequisites:
 
@@ -208,7 +388,7 @@ Adding a link helps track the issue that resolves or mitigates a vulnerability.
 
 Prerequisites:
 
-- [Jira issue integration](../../../integration/jira/configure.md) must not be enabled.
+- [Jira issues integration](../../../integration/jira/configure.md) must not be enabled.
 
 To link a vulnerability to existing GitLab issues:
 
@@ -237,7 +417,7 @@ Be aware of the following conditions between a vulnerability and a linked GitLab
 
 Prerequisites:
 
-- Ensure the Jira issue integration is [configured](../../../integration/jira/configure.md#configure-the-integration)
+- Ensure the Jira issues integration is [configured](../../../integration/jira/configure.md#configure-the-integration)
   and the **Create Jira issues for vulnerabilities** checkbox is selected.
 
 To link a vulnerability to existing Jira issues, add the following line to the Jira issue's description:

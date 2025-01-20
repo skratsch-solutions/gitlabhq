@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This is the GitLab Support Team's collection of information regarding testing environments,
 for use while troubleshooting. It is listed here for transparency, and it may be useful
@@ -29,7 +29,7 @@ but contributions are welcome.
 
 ### GitLab
 
-See [our official Docker installation method](../../install/docker.md)
+See [our official Docker installation method](../../install/docker/index.md)
 for how to run GitLab on Docker.
 
 ### SAML

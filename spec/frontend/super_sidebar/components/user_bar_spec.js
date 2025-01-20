@@ -4,7 +4,6 @@ import Vuex from 'vuex';
 import Vue, { nextTick } from 'vue';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
-import { __ } from '~/locale';
 import CreateMenu from '~/super_sidebar/components/create_menu.vue';
 import UserMenu from '~/super_sidebar/components/user_menu.vue';
 import SearchModal from '~/super_sidebar/components/global_search/components/global_search.vue';
@@ -18,7 +17,11 @@ import { userCounts } from '~/super_sidebar/user_counts_manager';
 import { isLoggedIn } from '~/lib/utils/common_utils';
 import { stubComponent } from 'helpers/stub_component';
 import { sidebarData as mockSidebarData, loggedOutSidebarData } from '../mock_data';
-import { MOCK_DEFAULT_SEARCH_OPTIONS, MOCK_SEARCH_QUERY } from './global_search/mock_data';
+import {
+  MOCK_DEFAULT_SEARCH_OPTIONS,
+  MOCK_SEARCH_QUERY,
+  MOCK_SCOPED_SEARCH_OPTIONS,
+} from './global_search/mock_data';
 
 jest.mock('~/lib/utils/common_utils');
 
@@ -51,6 +54,7 @@ describe('UserBar component', () => {
       searchOptions: () => MOCK_DEFAULT_SEARCH_OPTIONS,
       isCommandMode: () => true,
       searchQuery: () => MOCK_SEARCH_QUERY,
+      scopedSearchOptions: () => MOCK_SCOPED_SEARCH_OPTIONS,
     },
   });
   const createWrapper = ({
@@ -106,7 +110,7 @@ describe('UserBar component', () => {
       const isuesCounter = findIssuesCounter();
       expect(isuesCounter.props('count')).toBe(userCounts.assigned_issues);
       expect(isuesCounter.props('href')).toBe(mockSidebarData.issues_dashboard_path);
-      expect(isuesCounter.props('label')).toBe(__('Assigned issues'));
+      expect(isuesCounter.props('label')).toBe('Assigned issues');
       expect(isuesCounter.attributes('data-track-action')).toBe('click_link');
       expect(isuesCounter.attributes('data-track-label')).toBe('issues_link');
       expect(isuesCounter.attributes('data-track-property')).toBe('nav_core_menu');
@@ -118,7 +122,7 @@ describe('UserBar component', () => {
       expect(mrsCounter.props('count')).toBe(
         userCounts.assigned_merge_requests + userCounts.review_requested_merge_requests,
       );
-      expect(mrsCounter.props('label')).toBe(__('Merge requests'));
+      expect(mrsCounter.props('label')).toBe('Merge requests');
       expect(mrsCounter.attributes('data-track-action')).toBe('click_dropdown');
       expect(mrsCounter.attributes('data-track-label')).toBe('merge_requests_menu');
       expect(mrsCounter.attributes('data-track-property')).toBe('nav_core_menu');
@@ -128,7 +132,7 @@ describe('UserBar component', () => {
       it('renders it', () => {
         const todosCounter = findTodosCounter();
         expect(todosCounter.props('href')).toBe(mockSidebarData.todos_dashboard_path);
-        expect(todosCounter.props('label')).toBe(__('To-Do list'));
+        expect(todosCounter.props('label')).toBe('To-Do List');
         expect(todosCounter.attributes('data-track-action')).toBe('click_link');
         expect(todosCounter.attributes('data-track-label')).toBe('todos_link');
         expect(todosCounter.attributes('data-track-property')).toBe('nav_core_menu');
@@ -215,7 +219,7 @@ describe('UserBar component', () => {
 
     it('search button should have tracking', async () => {
       const { trackEventSpy } = bindInternalEventDocument(findSearchButton().element);
-      await findSearchButton().trigger('click');
+      await findSearchButton().vm.$emit('click');
 
       expect(trackEventSpy).toHaveBeenCalledWith(
         'click_search_button_to_activate_command_palette',
@@ -243,6 +247,20 @@ describe('UserBar component', () => {
         expect(tooltip.value).toBe(`Type <kbd>/</kbd> to search`);
       });
     });
+
+    describe('when feature flag is on', () => {
+      beforeEach(() => {
+        createWrapper({ provideOverrides: { glFeatures: { searchButtonTopRight: true } } });
+      });
+
+      it('should not render search button', () => {
+        expect(findSearchButton().exists()).toBe(false);
+      });
+
+      it('should not render search modal', () => {
+        expect(findSearchModal().exists()).toBe(false);
+      });
+    });
   });
 
   describe('While impersonating a user', () => {
@@ -256,7 +274,7 @@ describe('UserBar component', () => {
 
     it('sets the correct label on the button', () => {
       const btn = findStopImpersonationButton();
-      const label = __('Stop impersonating');
+      const label = 'Stop impersonating';
 
       expect(btn.attributes('title')).toBe(label);
       expect(btn.attributes('aria-label')).toBe(label);

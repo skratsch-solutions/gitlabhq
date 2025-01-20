@@ -13,6 +13,7 @@ module Auth
       :build_create_container_image,
       :build_destroy_container_image
     ].freeze
+    PROTECTED_TAG_ACTIONS = %w[push delete].freeze
 
     def execute(authentication_abilities:)
       @authentication_abilities = authentication_abilities
@@ -59,11 +60,24 @@ module Auth
           name => %w[pull push],
           "#{name}/*" => %w[pull]
         },
-        override_project_path: name
+        use_key_as_project_path: true
       )
     end
 
-    def self.access_token(names_and_actions, type = 'repository', override_project_path: nil)
+    def self.push_pull_move_repositories_access_token(name, new_namespace)
+      name = name.chomp('/')
+
+      access_token(
+        {
+          name => %w[pull push],
+          "#{name}/*" => %w[pull],
+          "#{new_namespace}/*" => %w[push]
+        },
+        use_key_as_project_path: true
+      )
+    end
+
+    def self.access_token(names_and_actions, type = 'repository', use_key_as_project_path: false)
       registry = Gitlab.config.registry
       token = JSONWebToken::RSAToken.new(registry.key)
       token.issuer = registry.issuer
@@ -75,7 +89,7 @@ module Auth
           type: type,
           name: name,
           actions: actions,
-          meta: access_metadata(path: name, override_project_path: override_project_path)
+          meta: access_metadata(path: name, use_key_as_project_path: use_key_as_project_path, actions: actions)
         }.compact
       end
 
@@ -86,8 +100,8 @@ module Auth
       Time.current + Gitlab::CurrentSettings.container_registry_token_expire_delay.minutes
     end
 
-    def self.access_metadata(project: nil, path: nil, override_project_path: nil)
-      return { project_path: override_project_path.downcase } if override_project_path
+    def self.access_metadata(project: nil, path: nil, use_key_as_project_path: false, actions: [], user: nil)
+      return { project_path: path.chomp('/*').downcase } if use_key_as_project_path
 
       # If the project is not given, try to infer it from the provided path
       if project.nil?
@@ -109,11 +123,45 @@ module Auth
       {
         project_path: project&.full_path&.downcase,
         project_id: project&.id,
-        root_namespace_id: project&.root_ancestor&.id
-      }
+        root_namespace_id: project&.root_ancestor&.id,
+        tag_deny_access_patterns: tag_deny_access_patterns(project, user, actions)
+      }.compact
     end
 
     private
+
+    def self.tag_deny_access_patterns(project, user, actions)
+      return if project.nil? || user.nil?
+      return unless Feature.enabled?(:container_registry_protected_tags, project)
+      return unless project.container_registry_protection_tag_rules.any?
+
+      # Expand the special `*` action into individual actions (pull + push + delete), which is what it represents. The
+      # `pull` action is not part of the protected tags feature, so we can ignore it right here. Additionally, although
+      # unexpected for realistic scenarios (known client tools), it's technically possible for repeated actions to get
+      # this far in the code, so deduplicate them.
+      actions_to_check = actions.include?('*') ? PROTECTED_TAG_ACTIONS : actions.uniq
+      actions_to_check.delete('pull')
+
+      patterns = actions_to_check.index_with { [] }
+      # Admins get unrestricted access, but the registry expects to always see an array for each granted actions, so we
+      # can return early here, but not any earlier.
+      return patterns if user.can_admin_all_resources?
+
+      user_access_level = user.max_member_access_for_project(project.id)
+      applicable_rules = project.container_registry_protection_tag_rules.for_actions_and_access(actions_to_check, user_access_level)
+
+      applicable_rules.each do |rule|
+        if actions_to_check.include?('push') && rule.push_restricted?(user_access_level)
+          patterns['push'] << rule.tag_name_pattern
+        end
+
+        if actions_to_check.include?('delete') && rule.delete_restricted?(user_access_level)
+          patterns['delete'] << rule.tag_name_pattern
+        end
+      end
+
+      patterns
+    end
 
     def authorized_token(*accesses)
       JSONWebToken::RSAToken.new(registry.key).tap do |token|
@@ -200,7 +248,7 @@ module Auth
         type: type,
         name: path.to_s,
         actions: authorized_actions,
-        meta: self.class.access_metadata(project: requested_project)
+        meta: self.class.access_metadata(project: requested_project, path: path, actions: authorized_actions, user: current_user)
       }
     end
 
@@ -213,6 +261,11 @@ module Auth
       return if path.has_repository?
       return unless actions.include?('push')
 
+      find_or_create_repository_from_path(path)
+    end
+
+    # Overridden in EE
+    def find_or_create_repository_from_path(path)
       ContainerRepository.find_or_create_from_path!(path)
     end
 
@@ -310,7 +363,7 @@ module Auth
     end
 
     def repository_path_push_protected?
-      return false if Feature.disabled?(:container_registry_protected_containers, project)
+      return false if current_user&.can_admin_all_resources?
 
       push_scopes = scopes.select { |scope| scope[:actions].include?('push') || scope[:actions].include?('*') }
 

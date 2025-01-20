@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script>
 import { GlBadge, GlIcon, GlLink, GlButton } from '@gitlab/ui';
+import { localeDateFormat, newDate } from '~/lib/utils/datetime_utility';
 import SafeHtml from '~/vue_shared/directives/safe_html';
-import { dateInWords, isValidDate } from '~/lib/utils/datetime_utility';
 
 export default {
   components: {
@@ -22,21 +22,17 @@ export default {
   },
   computed: {
     releaseDate() {
-      const { published_at } = this.feature;
-      const date = new Date(`${published_at}T00:00:00`); // eslint-disable-line camelcase
-
-      if (!isValidDate(date) || date.getTime() === 0) {
-        return '';
+      if (!this.feature.published_at) {
+        return undefined;
       }
-
-      return dateInWords(date);
+      return localeDateFormat.asDate.format(newDate(this.feature.published_at));
     },
   },
 };
 </script>
 
 <template>
-  <div class="gl-py-6 gl-px-6 gl-border-b-1 gl-border-b-solid gl-border-b-gray-100">
+  <div class="gl-border-b-1 gl-border-b-default gl-px-6 gl-py-6 gl-border-b-solid">
     <gl-link
       v-if="feature.image_url"
       :href="feature.documentation_link"
@@ -48,7 +44,7 @@ export default {
       :data-track-property="feature.documentation_link"
     >
       <div
-        class="whats-new-item-image gl-bg-cover"
+        class="gl-h-31 gl-border-subtle gl-bg-cover"
         :style="`background-image: url(${feature.image_url});`"
       >
         <span class="gl-sr-only">{{ feature.name }}</span>
@@ -57,12 +53,13 @@ export default {
     <gl-link
       :href="feature.documentation_link"
       target="_blank"
-      class="whats-new-item-title-link gl-block gl-mt-4 gl-mb-1"
+      class="gl-mb-1 gl-mt-4 gl-block !gl-text-inherit"
       data-track-action="click_whats_new_item"
+      data-testid="whats-new-item-link"
       :data-track-label="feature.name"
       :data-track-property="feature.documentation_link"
     >
-      <h5 class="gl-font-lg gl-my-0" data-test-id="feature-name">{{ feature.name }}</h5>
+      <h5 class="gl-my-0 gl-text-lg" data-testid="feature-name">{{ feature.name }}</h5>
     </gl-link>
     <div v-if="releaseDate" class="gl-mb-3" data-testid="release-date">{{ releaseDate }}</div>
     <div v-if="feature.available_in" class="gl-mb-3">

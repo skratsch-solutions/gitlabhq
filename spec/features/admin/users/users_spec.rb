@@ -2,13 +2,15 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Admin::Users', feature_category: :user_management do
+RSpec.describe 'Admin::Users', :with_current_organization, feature_category: :user_management do
   include Features::AdminUsersHelpers
   include Spec::Support::Helpers::ModalHelpers
   include ListboxHelpers
 
-  let_it_be(:user, reload: true) { create(:omniauth_user, provider: 'twitter', extern_uid: '123456') }
-  let_it_be(:admin) { create(:admin) }
+  let_it_be(:admin) { create(:admin, organizations: [current_organization]) }
+  let_it_be_with_reload(:user) do
+    create(:omniauth_user, provider: 'twitter', extern_uid: '123456', organizations: [current_organization])
+  end
 
   before do
     sign_in(admin)
@@ -417,6 +419,35 @@ RSpec.describe 'Admin::Users', feature_category: :user_management do
       end
     end
 
+    context 'when organization access level is set', :js do
+      before do
+        within_testid 'organization-section' do
+          select_from_listbox 'Owner', from: 'User'
+        end
+        click_button 'Create user'
+      end
+
+      it 'assigns correct organization access level', :js do
+        user = User.find_by(username: 'bang')
+        organization_user = Organizations::OrganizationUser
+          .find_by(user_id: user.id, organization_id: current_organization.id)
+
+        expect(organization_user.access_level).to eq('owner')
+      end
+    end
+
+    context 'when instance has multiple organizations', :js do
+      let_it_be(:organization) { create(:organization, name: 'New Organization', users: [admin]) }
+
+      it 'creates user in the selected organization' do
+        within_testid 'organization-section' do
+          select_from_listbox 'New Organization', from: current_organization.name
+        end
+
+        expect { click_button 'Create user' }.to change { organization.users.count }.by(1)
+      end
+    end
+
     context 'with new users set to external enabled' do
       context 'with regex to match internal user email address set', :js do
         before do
@@ -546,13 +577,13 @@ RSpec.describe 'Admin::Users', feature_category: :user_management do
 
       visit new_admin_user_identity_path(user)
 
-      check_breadcrumb('New Identity')
+      check_breadcrumb('New identity')
 
       visit admin_user_identities_path(user)
 
       find('.table').find(:link, 'Edit').click
 
-      check_breadcrumb('Edit Identity')
+      check_breadcrumb('Edit')
     end
 
     def check_breadcrumb(content)
@@ -565,6 +596,15 @@ RSpec.describe 'Admin::Users', feature_category: :user_management do
       visit edit_admin_user_path(user)
     end
 
+    it 'shows all breadcrumbs', :js do
+      expect(page_breadcrumbs).to eq([
+        { text: 'Admin area', href: admin_root_path },
+        { text: 'Users', href: admin_users_path },
+        { text: user.name, href: admin_user_path(user) },
+        { text: 'Edit', href: edit_admin_user_path(user) }
+      ])
+    end
+
     describe 'Update user' do
       before do
         fill_in 'user_name', with: 'Big Bang'
@@ -573,20 +613,38 @@ RSpec.describe 'Admin::Users', feature_category: :user_management do
         fill_in 'user_password_confirmation', with: 'AValidPassword1'
         choose 'user_access_level_admin'
         check 'Private profile'
-        click_button 'Save changes'
       end
 
       it 'shows page with new data' do
+        click_button 'Save changes'
+
         expect(page).to have_content('bigbang@mail.com')
         expect(page).to have_content('Big Bang')
       end
 
       it 'changes user entry' do
+        click_button 'Save changes'
+
         user.reload
         expect(user.name).to eq('Big Bang')
         expect(user.admin?).to be_truthy
         expect(user.password_expires_at).to be <= Time.zone.now
         expect(user.private_profile).to eq(true)
+      end
+
+      context 'when updating the organization access level', :js do
+        it 'updates the user organization access level' do
+          organization_user = Organizations::OrganizationUser
+            .find_by(user_id: user.id, organization_id: current_organization.id)
+
+          expect do
+            within_testid 'organization-section' do
+              select_from_listbox 'Owner', from: 'User'
+            end
+
+            click_button 'Save changes'
+          end.to change { organization_user.reload.access_level }.from('default').to('owner')
+        end
       end
     end
 

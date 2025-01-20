@@ -106,7 +106,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Base, feature_category: :pipe
       it 'is not a valid file' do
         expect(valid?).to be_falsy
         expect(file.error_message)
-          .to eq('`some/file/xxxxxxxxxxxxxxxx.yml`: Invalid configuration format')
+          .to eq('`some/file/[MASKED]xxxxxxxx.yml`: Invalid configuration format')
       end
     end
 
@@ -207,12 +207,12 @@ RSpec.describe Gitlab::Ci::Config::External::File::Base, feature_category: :pipe
 
     subject(:metadata) { file.metadata }
 
-    it {
+    it do
       is_expected.to eq(
         context_project: project.full_path,
         context_sha: 'HEAD'
       )
-    }
+    end
   end
 
   describe '#eql?' do

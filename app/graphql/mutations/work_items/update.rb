@@ -16,6 +16,10 @@ module Mutations
         ::Types::WorkItems::Widgets::AwardEmojiUpdateInputType,
         required: false,
         description: 'Input for emoji reactions widget.'
+      argument :crm_contacts_widget,
+        ::Types::WorkItems::Widgets::CrmContactsUpdateInputType,
+        required: false,
+        description: 'Input for CRM contacts widget.'
       argument :current_user_todos_widget,
         ::Types::WorkItems::Widgets::CurrentUserTodosInputType,
         required: false,
@@ -45,7 +49,7 @@ module Mutations
         required: false,
         description: 'Input for start and due date widget.'
       argument :state_event,
-        Types::WorkItems::StateEventEnum,
+        ::Types::WorkItems::StateEventEnum,
         description: 'Close or reopen a work item.',
         required: false
       argument :time_tracking_widget,
@@ -57,9 +61,9 @@ module Mutations
         required: false,
         description: copy_field_description(Types::WorkItemType, :title)
 
-      field :work_item, Types::WorkItemType,
-            null: true,
-            description: 'Updated work item.'
+      field :work_item, ::Types::WorkItemType,
+        null: true,
+        description: 'Updated work item.'
 
       def resolve(id:, **attributes)
         Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/408575')

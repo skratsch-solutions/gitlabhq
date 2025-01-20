@@ -5,7 +5,7 @@ product_group: optimize
 value_type: number
 status: active
 milestone: "15.2"
-introduced_by_url:
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/90856
 time_frame: 28d
 data_source: internal_events
 data_category: operational
@@ -13,7 +13,7 @@ performance_indicator_type: []
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - premium
 - ultimate
 events:

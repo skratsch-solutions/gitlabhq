@@ -7,17 +7,16 @@ RSpec.describe WebIde::DefaultOauthApplication, feature_category: :web_ide do
   let_it_be(:oauth_application) { create(:oauth_application, owner: nil) }
 
   describe '#feature_enabled?' do
-    where(:vscode_web_ide, :web_ide_oauth, :expectation) do
+    where(:vscode_web_ide, :expectation) do
       [
-        [ref(:current_user), false, false],
-        [false, ref(:current_user), false],
-        [ref(:current_user), ref(:current_user), true]
+        [ref(:current_user), true],
+        [false, false]
       ]
     end
 
     with_them do
       it 'returns the expected value' do
-        stub_feature_flags(vscode_web_ide: vscode_web_ide, web_ide_oauth: web_ide_oauth)
+        stub_feature_flags(vscode_web_ide: vscode_web_ide)
 
         expect(described_class.feature_enabled?(current_user)).to be(expectation)
       end
@@ -101,6 +100,26 @@ RSpec.describe WebIde::DefaultOauthApplication, feature_category: :web_ide do
       result = application_settings.web_ide_oauth_application
       expect(result).not_to be_nil
       expect(result).to have_attributes(
+        name: 'GitLab Web IDE',
+        redirect_uri: described_class.oauth_callback_url,
+        scopes: ['api'],
+        trusted: true,
+        confidential: false
+      )
+    end
+  end
+
+  describe '#reset_oauth_application_settings' do
+    it 'resets oauth application settings to original' do
+      mock_bad_oauth_application = oauth_application
+      mock_bad_oauth_application["confidential"] = true
+      mock_bad_oauth_application["trusted"] = false
+
+      stub_application_setting({ web_ide_oauth_application: mock_bad_oauth_application })
+
+      described_class.reset_oauth_application_settings
+
+      expect(oauth_application).to have_attributes(
         name: 'GitLab Web IDE',
         redirect_uri: described_class.oauth_callback_url,
         scopes: ['api'],

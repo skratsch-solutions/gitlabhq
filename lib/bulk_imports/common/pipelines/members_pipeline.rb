@@ -10,7 +10,10 @@ module BulkImports
         PROJECT_MEMBER_RELATIONS = %i[direct inherited invited_groups shared_into_ancestors].freeze
 
         transformer Common::Transformers::ProhibitedAttributesTransformer
+        # The transformer is skipped when bulk_import_importer_user_mapping is enabled
         transformer Common::Transformers::MemberAttributesTransformer
+        # The transformer is skipped when bulk_import_importer_user_mapping is disabled
+        transformer Import::BulkImports::Common::Transformers::SourceUserMemberAttributesTransformer
 
         def extract(context)
           graphql_extractor.extract(context)
@@ -19,6 +22,16 @@ module BulkImports
         def load(_context, data)
           return unless data
 
+          if data[:source_user]
+            create_placeholder_membership(data)
+          else
+            create_member(data)
+          end
+        end
+
+        private
+
+        def create_member(data)
           user_id = data[:user_id]
 
           # Current user is already a member
@@ -35,7 +48,13 @@ module BulkImports
           member.save!
         end
 
-        private
+        def create_placeholder_membership(data)
+          result = Import::PlaceholderMemberships::CreateService.new(**data).execute
+
+          return unless result.error?
+
+          result.track_and_raise_exception(access_level: data[:access_level])
+        end
 
         def graphql_extractor
           @graphql_extractor ||= BulkImports::Common::Extractors::GraphqlExtractor

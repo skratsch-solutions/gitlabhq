@@ -8,10 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 > - `target_access_levels` [introduced](https://gitlab.com/gitlab-org/growth/team-tasks/-/issues/461) in GitLab 14.8 [with a flag](../administration/feature_flags.md) named `role_targeted_broadcast_messages`. Disabled by default.
 > - `color` parameter [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/95829) in GitLab 15.6.
+> - `theme` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/498900) in GitLab 17.6.
 
 Broadcast messages API operates on [broadcast messages](../administration/broadcast_messages.md).
 
@@ -24,7 +25,7 @@ GET requests do not require authentication. All other broadcast message API endp
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 List all broadcast messages.
 
@@ -52,7 +53,8 @@ Example response:
         "target_access_levels": [10,30],
         "target_path": "*/welcome",
         "broadcast_type": "banner",
-        "dismissable": false
+        "dismissable": false,
+        "theme": "indigo"
     }
 ]
 ```
@@ -61,7 +63,7 @@ Example response:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Get a specific broadcast message.
 
@@ -94,7 +96,8 @@ Example response:
     "target_access_levels": [10,30],
     "target_path": "*/welcome",
     "broadcast_type": "banner",
-    "dismissable": false
+    "dismissable": false,
+    "theme": "indigo"
 }
 ```
 
@@ -118,20 +121,35 @@ Parameters:
 | `target_path`          | string            | no       | Target path of the broadcast message.                 |
 | `broadcast_type`       | string            | no       | Appearance type (defaults to banner)                  |
 | `dismissable`          | boolean           | no       | Can the user dismiss the message?                     |
+| `theme`                | string            | no       | Color theme for the broadcast message (banners only). |
 
 The `target_access_levels` are defined in the `Gitlab::Access` module. The
 following levels are valid:
 
 - Guest (`10`)
+- Planner (`15`)
 - Reporter (`20`)
 - Developer (`30`)
 - Maintainer (`40`)
 - Owner (`50`)
 
+The `theme` options are defined in the `System::BroadcastMessage` class. The following themes are valid:
+
+- indigo (default)
+- light-indigo
+- blue
+- light-blue
+- green
+- light-green
+- red
+- light-red
+- dark
+- light
+
 Example request:
 
 ```shell
-curl --data "message=Deploy in progress&target_access_levels[]=10&target_access_levels[]=30" \
+curl --data "message=Deploy in progress&target_access_levels[]=10&target_access_levels[]=30&theme=red" \
      --header "PRIVATE-TOKEN: <your_access_token>" \
      "https://gitlab.example.com/api/v4/broadcast_messages"
 ```
@@ -149,7 +167,8 @@ Example response:
     "target_access_levels": [10,30],
     "target_path": "*/welcome",
     "broadcast_type": "notification",
-    "dismissable": false
+    "dismissable": false,
+    "theme": "red"
 }
 ```
 
@@ -174,15 +193,30 @@ Parameters:
 | `target_path`          | string            | no       | Target path of the broadcast message.                 |
 | `broadcast_type`       | string            | no       | Appearance type (defaults to banner)                  |
 | `dismissable`          | boolean           | no       | Can the user dismiss the message?                     |
+| `theme`                | string            | no       | Color theme for the broadcast message (banners only). |
 
 The `target_access_levels` are defined in the `Gitlab::Access` module. The
 following levels are valid:
 
 - Guest (`10`)
+- Planner (`15`)
 - Reporter (`20`)
 - Developer (`30`)
 - Maintainer (`40`)
 - Owner (`50`)
+
+The `theme` options are defined in the `System::BroadcastMessage` class. The following themes are valid:
+
+- indigo (default)
+- light-indigo
+- blue
+- light-blue
+- green
+- light-green
+- red
+- light-red
+- dark
+- light
 
 Example request:
 
@@ -204,7 +238,8 @@ Example response:
     "target_access_levels": [10,30],
     "target_path": "*/welcome",
     "broadcast_type": "notification",
-    "dismissable": false
+    "dismissable": false,
+    "theme": "indigo"
 }
 ```
 

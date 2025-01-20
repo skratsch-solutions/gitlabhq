@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab provides several tools to help make it easier to debug your CI/CD configuration.
 
@@ -16,6 +16,27 @@ If you are unable to resolve pipeline issues, you can get help from:
 
 - The [GitLab community forum](https://forum.gitlab.com/)
 - GitLab [Support](https://about.gitlab.com/support/)
+
+If you are having issues with a specific CI/CD feature, see the related troubleshooting section
+for that feature:
+
+- [Caching](caching/index.md#troubleshooting).
+- [CI/CD job tokens](jobs/ci_job_token.md#troubleshooting).
+- [Container registry](../user/packages/container_registry/troubleshoot_container_registry.md).
+- [Docker](docker/using_docker_build.md#troubleshooting).
+- [Downstream pipelines](pipelines/downstream_pipelines_troubleshooting.md).
+- [Environments](environments/index.md#troubleshooting).
+- [GitLab Runner](https://docs.gitlab.com/runner/faq/).
+- [ID tokens](secrets/id_token_authentication.md#troubleshooting).
+- [Jobs](jobs/job_troubleshooting.md).
+- [Job artifacts](jobs/job_artifacts_troubleshooting.md).
+- [Merge request pipelines](pipelines/mr_pipeline_troubleshooting.md),
+  [merged results pipelines](pipelines/merged_results_pipelines.md#troubleshooting),
+  and [merge trains](pipelines/merge_trains.md#troubleshooting).
+- [Pipeline editor](pipeline_editor/index.md#troubleshooting).
+- [Variables](variables/index.md#troubleshooting).
+- [YAML `includes` keyword](yaml/includes.md#troubleshooting).
+- [YAML `script` keyword](yaml/script.md#troubleshooting).
 
 ## Debugging techniques
 
@@ -52,12 +73,12 @@ latest version of the schema.
 
 #### Verify syntax with CI Lint tool
 
-You can use the [CI Lint tool](lint.md) to verify that the syntax of a CI/CD configuration
+You can use the [CI Lint tool](yaml/lint.md) to verify that the syntax of a CI/CD configuration
 snippet is correct. Paste in full `.gitlab-ci.yml` files or individual job configurations,
 to verify the basic syntax.
 
 When a `.gitlab-ci.yml` file is present in a project, you can also use the CI Lint
-tool to [simulate the creation of a full pipeline](lint.md#simulate-a-pipeline).
+tool to [simulate the creation of a full pipeline](yaml/lint.md#simulate-a-pipeline).
 It does deeper verification of the configuration syntax.
 
 ### Use pipeline names
@@ -119,7 +140,7 @@ my-flaky-job:
 ```
 
 In this example, `DEBUG_VARS` is blank by default in standard pipelines. If you need to
-debug the job's behavior, run the pipeline manually and set `DEBUG_VARS` to `--vebose`
+debug the job's behavior, run the pipeline manually and set `DEBUG_VARS` to `--verbose`
 for additional output.
 
 ### Dependencies
@@ -220,6 +241,10 @@ You can use a tool like [Rancher Desktop](https://rancherdesktop.io/) or [simila
 to run the job's container image on your local machine. Then, run the job's `script` commands
 in the container and verify the behavior.
 
+### Troubleshoot a failed job with Root Cause Analysis
+
+You can use GitLab Duo Root Cause Analysis in GitLab Duo Chat to [troubleshoot failed CI/CD jobs](../user/gitlab_duo_chat/examples.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis).
+
 ## Job configuration issues
 
 A lot of common pipeline issues can be fixed by analyzing the behavior of the `rules`
@@ -314,7 +339,7 @@ configuration into more independent [parent-child pipelines](../ci/pipelines/pip
 
 Pipeline configuration warnings are shown when you:
 
-- [Validate configuration with the CI Lint tool](lint.md).
+- [Validate configuration with the CI Lint tool](yaml/lint.md).
 - [Manually run a pipeline](pipelines/index.md#run-a-pipeline-manually).
 
 ### `Job may allow multiple pipelines to run for a single action` warning
@@ -327,31 +352,7 @@ To [prevent duplicate pipelines](jobs/job_rules.md#avoid-duplicate-pipelines), u
 [`workflow: rules`](yaml/index.md#workflow) or rewrite your rules to control
 which pipelines can run.
 
-## Troubleshooting
-
-For help with a specific area, see:
-
-- [Caching](caching/index.md#troubleshooting).
-- [CI/CD job tokens](jobs/ci_job_token.md).
-- [Container registry](../user/packages/container_registry/troubleshoot_container_registry.md).
-- [Docker](docker/using_docker_build.md#troubleshooting).
-- [Downstream pipelines](pipelines/downstream_pipelines_troubleshooting.md).
-- [Environments](environments/deployment_safety.md#ensure-only-one-deployment-job-runs-at-a-time).
-- [GitLab Runner](https://docs.gitlab.com/runner/faq/).
-- [ID tokens](secrets/id_token_authentication.md#troubleshooting).
-- [Jobs](jobs/index.md#troubleshooting).
-- [Job control](jobs/job_control.md).
-- [Job artifacts](jobs/job_artifacts_troubleshooting.md).
-- [Merge request pipelines](pipelines/mr_pipeline_troubleshooting.md),
-  [merged results pipelines](pipelines/merged_results_pipelines.md#troubleshooting),
-  and [Merge trains](pipelines/merge_trains.md#troubleshooting).
-- [Pipeline editor](pipeline_editor/index.md#troubleshooting).
-- [Variables](variables/index.md#troubleshooting).
-- [YAML `includes` keyword](yaml/includes.md#troubleshooting).
-- [YAML `script` keyword](yaml/script.md#troubleshooting).
-
-Otherwise, review the following troubleshooting sections for known status messages
-and error messages.
+## Pipeline errors
 
 ### `A CI/CD pipeline must run and be successful before merge` message
 
@@ -407,7 +408,7 @@ To resolve this, check that:
 - The path of the project is in the format `my-group/my-project` and does not include
   any folders in the repository.
 - The user running the pipeline is a [member of the projects](../user/project/members/index.md#add-users-to-a-project)
-  that contain the included files. Users must also have the [permission](../user/permissions.md#job-permissions)
+  that contain the included files. Users must also have the [permission](../user/permissions.md#cicd)
   to run CI/CD jobs in the same projects.
 
 ### `The parsed YAML is too big` message
@@ -471,7 +472,7 @@ registry to the target project's [job token allowlist](jobs/ci_job_token.md#add-
 
 These errors might also happen when trying to use a [project access token](../user/project/settings/project_access_tokens.md)
 to access images in another project. Project access tokens are scoped to one project,
-and therefore cannot access images in other projects. You must use [a different token type](../security/token_overview.md)
+and therefore cannot access images in other projects. You must use [a different token type](../security/tokens/index.md)
 with wider scope.
 
 ### `Something went wrong on our end` message or `500` error when running a pipeline

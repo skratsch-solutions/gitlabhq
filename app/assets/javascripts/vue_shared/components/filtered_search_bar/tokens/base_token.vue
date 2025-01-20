@@ -10,7 +10,6 @@ import {
 import { debounce, last } from 'lodash';
 
 import { stripQuotes } from '~/lib/utils/text_utility';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import {
   DEBOUNCE_DELAY,
   FILTERS_NONE_ANY,
@@ -29,7 +28,6 @@ export default {
     GlDropdownText,
     GlLoadingIcon,
   },
-  mixins: [glFeatureFlagMixin()],
   props: {
     config: {
       type: Object,
@@ -165,11 +163,7 @@ export default {
         : undefined;
     },
     multiSelectEnabled() {
-      return (
-        this.config.multiSelect &&
-        this.glFeatures.groupMultiSelectTokens &&
-        OPERATORS_TO_GROUP.includes(this.value.operator)
-      );
+      return this.config.multiSelect && OPERATORS_TO_GROUP.includes(this.value.operator);
     },
     validatedConfig() {
       if (this.config.multiSelect && !this.multiSelectEnabled) {

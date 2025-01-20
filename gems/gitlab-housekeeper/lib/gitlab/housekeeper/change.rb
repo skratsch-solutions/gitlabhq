@@ -43,8 +43,8 @@ module Gitlab
         [gitlab-housekeeper](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
         using the #{keep_class} keep.
 
-        To provide feedback on your experience with `gitlab-housekeeper` please comment in
-        <https://gitlab.com/gitlab-org/gitlab/-/issues/442003>.
+        To provide feedback on your experience with `gitlab-housekeeper` please create an issue with the
+        label ~"GitLab Housekeeper" and consider pinging the author of this keep.
         MARKDOWN
       end
 
@@ -69,6 +69,10 @@ module Gitlab
 
       def update_required?(category)
         !category.in?(non_housekeeper_changes)
+      end
+
+      def already_approved?
+        non_housekeeper_changes.include?(:approvals)
       end
 
       def valid?

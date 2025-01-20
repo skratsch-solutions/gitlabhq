@@ -35,11 +35,9 @@ class Groups::MilestonesController < Groups::ApplicationController
     end
   end
 
-  def show
-  end
+  def show; end
 
-  def edit
-  end
+  def edit; end
 
   def update
     Milestones::UpdateService.new(@milestone.parent, current_user, milestone_params).execute(@milestone)
@@ -72,7 +70,7 @@ class Groups::MilestonesController < Groups::ApplicationController
         render json: {
           errors: [
             format(
-              _("Someone edited this %{model_name} at the same time you did. Please refresh your browser and make sure your changes will not unintentionally remove theirs."), # rubocop:disable Layout/LineLength
+              _("Someone edited this %{model_name} at the same time you did. Please refresh your browser and make sure your changes will not unintentionally remove theirs."),
               model_name: _('milestone')
             )
           ]

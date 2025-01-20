@@ -220,30 +220,27 @@ describe('IntegrationForm', () => {
     });
 
     describe.each`
-      formActive | novalidate
-      ${true}    | ${undefined}
-      ${false}   | ${'true'}
-    `(
-      'when `toggle-integration-active` is emitted with $formActive',
-      ({ formActive, novalidate }) => {
-        beforeEach(() => {
-          createComponent({
-            customStateProps: {
-              sections: [mockSectionConnection],
-              showActive: true,
-              initialActivated: false,
-            },
-          });
-
-          const section = findAllSections().at(0);
-          section.vm.$emit('toggle-integration-active', formActive);
+      formActive | method
+      ${true}    | ${'toBeUndefined'}
+      ${false}   | ${'toBeDefined'}
+    `('when `toggle-integration-active` is emitted with $formActive', ({ formActive, method }) => {
+      beforeEach(() => {
+        createComponent({
+          customStateProps: {
+            sections: [mockSectionConnection],
+            manualActivation: true,
+            initialActivated: false,
+          },
         });
 
-        it(`sets noValidate to ${novalidate}`, () => {
-          expect(findGlForm().attributes('novalidate')).toBe(novalidate);
-        });
-      },
-    );
+        const section = findAllSections().at(0);
+        section.vm.$emit('toggle-integration-active', formActive);
+      });
+
+      it(`checks noValidate ${method}`, () => {
+        expect(findGlForm().attributes('novalidate'))[method]();
+      });
+    });
 
     describe('when section emits `request-jira-issue-types` event', () => {
       beforeEach(() => {
@@ -269,51 +266,48 @@ describe('IntegrationForm', () => {
 
   describe('ActiveCheckbox', () => {
     describe.each`
-      showActive
+      manualActivation
       ${true}
       ${false}
-    `('when `showActive` is $showActive', ({ showActive }) => {
-      it(`${showActive ? 'renders' : 'does not render'} ActiveCheckbox`, () => {
+    `('when `manualActivation` is $manualActivation', ({ manualActivation }) => {
+      it(`${manualActivation ? 'renders' : 'does not render'} ActiveCheckbox`, () => {
         createComponent({
           customStateProps: {
-            showActive,
+            manualActivation,
           },
         });
 
-        expect(findActiveCheckbox().exists()).toBe(showActive);
+        expect(findActiveCheckbox().exists()).toBe(manualActivation);
       });
     });
 
     describe.each`
-      formActive | novalidate
-      ${true}    | ${undefined}
-      ${false}   | ${'true'}
-    `(
-      'when `toggle-integration-active` is emitted with $formActive',
-      ({ formActive, novalidate }) => {
-        beforeEach(() => {
-          createComponent({
-            customStateProps: {
-              showActive: true,
-              initialActivated: false,
-            },
-          });
-
-          findActiveCheckbox().vm.$emit('toggle-integration-active', formActive);
+      formActive | method
+      ${true}    | ${'toBeUndefined'}
+      ${false}   | ${'toBeDefined'}
+    `('when `toggle-integration-active` is emitted with $formActive', ({ formActive, method }) => {
+      beforeEach(() => {
+        createComponent({
+          customStateProps: {
+            manualActivation: true,
+            initialActivated: false,
+          },
         });
 
-        it(`sets noValidate to ${novalidate}`, () => {
-          expect(findGlForm().attributes('novalidate')).toBe(novalidate);
-        });
-      },
-    );
+        findActiveCheckbox().vm.$emit('toggle-integration-active', formActive);
+      });
+
+      it(`checks noValidate ${method}`, () => {
+        expect(findGlForm().attributes('novalidate'))[method]();
+      });
+    });
   });
 
   describe('Response to the "save" event (form submission)', () => {
     const prepareComponentAndSave = async (initialActivated = true, checkValidityReturn) => {
       createComponent({
         customStateProps: {
-          showActive: true,
+          manualActivation: true,
           initialActivated,
           fields: [mockField],
         },
@@ -370,7 +364,7 @@ describe('IntegrationForm', () => {
       beforeEach(async () => {
         createComponent({
           customStateProps: {
-            showActive: true,
+            manualActivation: true,
             fields: [mockField],
           },
           mountFn: mountExtended,
@@ -396,7 +390,7 @@ describe('IntegrationForm', () => {
       beforeEach(() => {
         createComponent({
           customStateProps: {
-            showActive: true,
+            manualActivation: true,
             testPath: mockTestPath,
           },
           mountFn: mountExtended,

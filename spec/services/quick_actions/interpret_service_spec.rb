@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe QuickActions::InterpretService, feature_category: :team_planning do
+RSpec.describe QuickActions::InterpretService, feature_category: :text_editors do
   include AfterNextHelpers
 
   let_it_be(:group) { create(:group) }
@@ -251,7 +251,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
       it 'returns the todo message' do
         _, _, message = service.execute(content, issuable)
 
-        expect(message).to eq(_('Added a to do.'))
+        expect(message).to eq(_('Added a to-do item.'))
       end
     end
 
@@ -267,7 +267,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
         TodoService.new.mark_todo(issuable, developer)
         _, _, message = service.execute(content, issuable)
 
-        expect(message).to eq(_('Marked to do as done.'))
+        expect(message).to eq(_('Marked to-do item as done.'))
       end
     end
 
@@ -653,6 +653,43 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
         _, _, message = service.execute('/move invalid', issue)
 
         expect(message).to eq(_("Failed to move this issue because target project doesn't exist."))
+      end
+
+      context "when we pass a work_item" do
+        let(:work_item) { create(:work_item, :issue) }
+        let(:move_command) { "/move #{project.full_path}" }
+
+        it '/move execution method message' do
+          _, _, message = service.execute(move_command, work_item)
+
+          expect(message).to eq("Moved this issue to #{project.full_path}.")
+        end
+      end
+    end
+
+    describe 'clone issue command' do
+      it 'returns the clone issue message' do
+        _, _, message = service.execute("/clone #{project.full_path}", issue)
+        translated_string = _("Cloned this issue to %{project_full_path}.")
+        formatted_message = format(translated_string, project_full_path: project.full_path.to_s)
+
+        expect(message).to eq(formatted_message)
+      end
+
+      it 'returns clone issue failure message when the referenced issue is not found' do
+        _, _, message = service.execute('/clone invalid', issue)
+
+        expect(message).to eq(_("Failed to clone this issue because target project doesn't exist."))
+      end
+
+      context "when we pass a work_item" do
+        let(:work_item) { create(:work_item, :issue, project: project) }
+
+        it '/clone execution method message' do
+          _, _, message = service.execute("/clone #{project.full_path}", work_item)
+
+          expect(message).to eq("Cloned this issue to #{project.full_path}.")
+        end
       end
     end
 
@@ -1162,12 +1199,6 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
         it_behaves_like 'assign_reviewer command'
       end
 
-      context 'with the "request_review" alias' do
-        let(:content) { "/request_review @#{developer.username}" }
-
-        it_behaves_like 'assign_reviewer command'
-      end
-
       context 'with no user' do
         let(:content) { '/assign_reviewer' }
 
@@ -1180,6 +1211,91 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
         it_behaves_like 'failed command', 'a parse error' do
           let(:match_msg) { eq _("Could not apply assign_reviewer command. Failed to find users for 'do' and 'it!'.") }
         end
+      end
+    end
+
+    describe 'request_review command' do
+      let(:content) { "/request_review @#{developer.username}" }
+      let(:issuable) { merge_request }
+
+      context 'with one user' do
+        it 'assigns a reviewer to a single user' do
+          _, updates, message = service.execute(content, issuable)
+          translated_string = _("Requested a review from %{developer_to_reference}.")
+          formatted_message = format(translated_string, developer_to_reference: developer.to_reference.to_s)
+
+          expect(updates).to eq(reviewer_ids: [developer.id])
+          expect(message).to eq(formatted_message)
+        end
+
+        it 'explains command' do
+          _, explanations = service.explain(content, issuable)
+
+          expect(explanations).to eq(["Requests a review from #{developer.to_reference}."])
+        end
+      end
+
+      context 'when user is already assigned' do
+        let(:merge_request) { create(:merge_request, source_project: project, reviewers: [developer]) }
+
+        it 'requests a review' do
+          expect_next_instance_of(::MergeRequests::RequestReviewService) do |service|
+            expect(service).to receive(:execute).with(merge_request, developer)
+          end
+
+          _, _, message = service.execute(content, issuable)
+
+          translated_string = _("Requested a review from %{developer_to_reference}.")
+          formatted_message = format(translated_string, developer_to_reference: developer.to_reference.to_s)
+
+          expect(message).to eq(formatted_message)
+        end
+      end
+
+      # CE does not have multiple reviewers
+      context 'assign command with multiple reviewers' do
+        before do
+          project.add_developer(developer2)
+        end
+
+        # There's no guarantee that the reference extractor will preserve
+        # the order of the mentioned users since this is dependent on the
+        # order in which rows are returned. We just ensure that at least
+        # one of the mentioned users is assigned.
+        context 'assigns to one of the two users' do
+          let(:content) { "/request_review @#{developer.username} @#{developer2.username}" }
+
+          it 'assigns to a single reviewer' do
+            _, updates, message = service.execute(content, issuable)
+
+            expect(updates[:reviewer_ids].count).to eq(1)
+            reviewer = updates[:reviewer_ids].first
+            expect([developer.id, developer2.id]).to include(reviewer)
+
+            user = reviewer == developer.id ? developer : developer2
+
+            expect(message).to match("Requested a review from #{user.to_reference}.")
+          end
+        end
+      end
+
+      context 'with "me" alias' do
+        let(:content) { '/request_review me' }
+
+        it 'assigns a reviewer to a single user' do
+          _, updates, message = service.execute(content, issuable)
+          translated_string = _("Requested a review from %{developer_to_reference}.")
+          formatted_message = format(translated_string, developer_to_reference: developer.to_reference.to_s)
+
+          expect(updates).to eq(reviewer_ids: [developer.id])
+          expect(message).to eq(formatted_message)
+        end
+      end
+
+      context 'with no user' do
+        let(:content) { '/request_review' }
+
+        it_behaves_like 'failed command', "Failed to request a review because no user was specified."
       end
     end
 
@@ -1198,6 +1314,26 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
         let(:issuable) { issue }
 
         it_behaves_like 'failed command', 'Could not apply unassign_reviewer command.'
+      end
+
+      context 'with a not-yet-persisted merge request and a preceding assign_reviewer command' do
+        let(:content) do
+          <<-QUICKACTION
+/assign_reviewer #{developer.to_reference}
+/unassign_reviewer #{developer.to_reference}
+          QUICKACTION
+        end
+
+        let(:issuable) { build(:merge_request) }
+
+        it 'adds and then removes a single reviewer in a single step' do
+          _, updates, message = service.execute(content, issuable)
+          translated_string = _("Assigned %{developer_to_reference} as reviewer. Removed reviewer %{developer_to_reference}.")
+          formatted_message = format(translated_string, developer_to_reference: developer.to_reference.to_s)
+
+          expect(updates).to eq(reviewer_ids: [])
+          expect(message).to eq(formatted_message)
+        end
       end
 
       context 'with anything after the command' do
@@ -1760,33 +1896,6 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
       end
     end
 
-    context '/label command' do
-      context 'when target is a group level work item' do
-        let_it_be(:new_group) { create(:group, developers: developer) }
-        let_it_be(:group_level_work_item) { create(:work_item, :group_level, namespace: new_group) }
-        # this label should not be show on the list as belongs to another group
-        let_it_be(:invalid_label) { create(:group_label, title: 'not_from_group', group: group) }
-        let(:container) { new_group }
-
-        # This spec was introduced just to validate that the label finder scopes que query to a single group.
-        # The command checks that labels are available as part of the condition.
-        # Query was timing out in .com https://gitlab.com/gitlab-org/gitlab/-/issues/441123
-        it 'is not available when there are no labels associated with the group' do
-          expect(service.available_commands(group_level_work_item)).not_to include(a_hash_including(name: :label))
-        end
-
-        context 'when a label exists at the group level' do
-          before do
-            create(:group_label, group: new_group)
-          end
-
-          it 'is available' do
-            expect(service.available_commands(group_level_work_item)).to include(a_hash_including(name: :label))
-          end
-        end
-      end
-    end
-
     context '/copy_metadata command' do
       let(:todo_label) { create(:label, project: project, title: 'To Do') }
       let(:inreview_label) { create(:label, project: project, title: 'In Review') }
@@ -2220,15 +2329,15 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
 
       expect(Gitlab::UsageDataCounters::QuickActionActivityUniqueCounter)
         .to receive(:track_unique_action)
-        .with('shrug', args: 'test', user: developer)
+        .with('shrug', args: 'test', user: developer, project: project)
 
       expect(Gitlab::UsageDataCounters::QuickActionActivityUniqueCounter)
         .to receive(:track_unique_action)
-        .with('assign', args: 'me', user: developer)
+        .with('assign', args: 'me', user: developer, project: project)
 
       expect(Gitlab::UsageDataCounters::QuickActionActivityUniqueCounter)
         .to receive(:track_unique_action)
-        .with('milestone', args: '%4', user: developer)
+        .with('milestone', args: '%4', user: developer, project: project)
 
       service.execute(content, issue)
     end
@@ -2417,7 +2526,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
 
         it 'executes command successfully' do
           expect { unlink_issues }.to change { IssueLink.count }.by(-1)
-          expect(unlink_issues[2]).to eq("Removed link with #{other_issue.to_reference(issue)}.")
+          expect(unlink_issues[2]).to eq("Removed linked item #{other_issue.to_reference(issue)}.")
           expect(issue.notes.last.note).to eq("removed the relation with #{other_issue.to_reference}")
           expect(other_issue.notes.last.note).to eq("removed the relation with #{issue.to_reference}")
         end
@@ -2431,6 +2540,48 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
 
       context 'when provided issue is not linked' do
         it_behaves_like 'command with failure'
+      end
+    end
+
+    shared_examples 'only available when issue_or_work_item_feature_flag_enabled' do |command|
+      context 'when issue' do
+        it 'is available' do
+          _, explanations = service.explain(command, issue)
+
+          expect(explanations).not_to be_empty
+        end
+      end
+
+      context 'when project work item' do
+        let_it_be(:work_item) { create(:work_item, project: project) }
+
+        it 'is available' do
+          _, explanations = service.explain(command, work_item)
+
+          expect(explanations).not_to be_empty
+        end
+
+        context 'when feature flag disabled' do
+          before do
+            stub_feature_flags(work_items_alpha: false)
+          end
+
+          it 'is not available' do
+            _, explanations = service.explain(command, work_item)
+
+            expect(explanations).to be_empty
+          end
+        end
+      end
+
+      context 'when group work item' do
+        let_it_be(:work_item) { create(:work_item, :group_level) }
+
+        it 'is not available' do
+          _, explanations = service.explain(command, work_item)
+
+          expect(explanations).to be_empty
+        end
       end
     end
 
@@ -2562,6 +2713,8 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
           expect(service.available_commands(issuable)).not_to include(a_hash_including(name: :add_email))
         end
       end
+
+      it_behaves_like 'only available when issue_or_work_item_feature_flag_enabled', '/add_email'
     end
 
     describe 'remove_email command' do
@@ -3417,6 +3570,37 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
 
         expect(explanations).to eq([_("Moves this issue to test/project.")])
       end
+
+      context "when work item type is an issue" do
+        let(:move_command) { "/move test/project" }
+        let(:work_item) { create(:work_item, :issue, project: project) }
+
+        it "/move is available" do
+          _, explanations = service.explain(move_command, work_item)
+
+          expect(explanations).to match_array(["Moves this issue to test/project."])
+        end
+      end
+    end
+
+    describe 'clone issue to another project command' do
+      let(:content) { '/clone test/project' }
+
+      it 'includes the project name' do
+        _, explanations = service.explain(content, issue)
+
+        expect(explanations).to match_array([_("Clones this issue, without comments, to test/project.")])
+      end
+
+      context "when work item type is an issue" do
+        let(:work_item) { create(:work_item, :issue, project: project) }
+
+        it "/clone is available" do
+          _, explanations = service.explain("/clone test/project", work_item)
+
+          expect(explanations).to match_array(["Clones this issue, without comments, to test/project."])
+        end
+      end
     end
 
     describe 'tag a commit' do
@@ -3582,15 +3766,19 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
       context 'when user has permissions' do
         it '/relate command is available' do
           _, explanations = service.explain(relate_content, issue)
-          translated_string = _("Marks this issue as related to %{issue}.")
-          formatted_message = format(translated_string, issue: other_issue.to_s)
+          translated_string = _("Added %{target} as a linked item related to this %{work_item_type}.")
+          formatted_message = format(
+            translated_string,
+            target: other_issue,
+            work_item_type: "issue"
+          )
 
           expect(explanations).to eq([formatted_message])
         end
 
         it '/unlink command is available' do
           _, explanations = service.explain(unlink_content, issue)
-          translated_string = _("Removes link with %{issue}.")
+          translated_string = _("Removes linked item %{issue}.")
           formatted_message = format(translated_string, issue: other_issue.to_s)
 
           expect(explanations).to eq([formatted_message])
@@ -3830,6 +4018,26 @@ RSpec.describe QuickActions::InterpretService, feature_category: :team_planning 
           a_hash_including(name: :assign),
           a_hash_including(name: :due)
         )
+      end
+    end
+
+    context 'when target is a work item type of issue' do
+      let(:target) { create(:work_item, :issue) }
+
+      context "when work_item supports move and clone commands" do
+        it 'does recognize the actions' do
+          expect(service.available_commands(target).pluck(:name)).to include(:move, :clone)
+        end
+      end
+
+      context "when work_item does not support move and clone commands" do
+        before do
+          allow(target).to receive(:supports_move_and_clone?).and_return(false)
+        end
+
+        it 'does not recognize the action' do
+          expect(service.available_commands(target).pluck(:name)).not_to include(:move, :clone)
+        end
       end
     end
   end

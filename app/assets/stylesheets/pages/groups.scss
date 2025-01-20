@@ -18,71 +18,23 @@
 .group-row {
   .description p {
     margin-bottom: 0;
-    color: $gl-text-color-secondary;
+    @apply gl-text-subtle;
   }
 }
 
 .save-group-loader {
   margin-top: $gl-spacing-scale-9;
   margin-bottom: $gl-spacing-scale-9;
-  color: $gray-700;
+  @apply gl-text-subtle;
 }
 
 .card {
   .shared_runners_limit_under_quota {
-    color: $green-500;
+    @apply gl-text-success;
   }
 
   .shared_runners_limit_over_quota {
     color: $red-500;
-  }
-}
-
-.pipeline-quota {
-  border-bottom: 1px solid $table-border-color;
-  margin: 0 0 $gl-padding;
-
-  .row {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .right {
-    text-align: right;
-  }
-
-  .progress {
-    height: 6px;
-    width: 100%;
-    margin-bottom: 0;
-    margin-top: 4px;
-  }
-}
-
-table.pipeline-project-metrics tr td {
-  padding: $gl-padding;
-}
-
-.explore-groups.landing {
-  .inner-content p {
-    margin: 7px 0 0;
-    max-width: 480px;
-    padding: 0 $gl-padding;
-
-    @include media-breakpoint-down(sm) {
-      margin: 0 auto;
-    }
-  }
-
-  .svg-container svg {
-    width: 62px;
-    height: 50px;
-  }
-}
-
-.groups-list-tree-container {
-  > .group-list-tree > .group-row.has-children:first-child {
-    border-top: 0;
   }
 }
 
@@ -159,10 +111,17 @@ table.pipeline-project-metrics tr td {
     }
 
     .description {
+      z-index: 1;
+      position: relative;
+
       p {
         @include str-truncated;
 
         max-width: 100%;
+      }
+
+      mark {
+        @include str-highlighted;
       }
     }
 
@@ -196,7 +155,7 @@ table.pipeline-project-metrics tr td {
       position: relative;
       min-width: 250px;
       text-align: right;
-      color: $gl-text-color-secondary;
+      @apply gl-text-subtle;
     }
   }
 }

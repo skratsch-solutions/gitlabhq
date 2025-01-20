@@ -4,19 +4,21 @@
 
 .gfm-commit,
 .gfm-commit_range {
-  @include gl-font-monospace;
+  @apply gl-font-monospace;
   font-size: 95%;
 }
 
-.gfm-project_member,
+// Increase specificity to ensure that it is applied
+.gfm-project_member.gfm-project_member,
 .md a.gfm-project_member {
   padding: 0 2px;
-  background-color: $blue-100;
+  color: var(--gl-link-mention-text-color-default);
+  background-color: var(--gl-link-mention-background-color-default);
   border-radius: $gl-border-radius-base;
-  color: $blue-700;
 
   &.current-user {
-    background-color: $orange-100;
+    color: var(--gl-link-mention-text-color-current);
+    background-color: var(--gl-link-mention-background-color-current);
   }
 }
 

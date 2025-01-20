@@ -50,12 +50,20 @@ RSpec.describe ApplicationSettingsHelper do
       expect(helper.visible_attributes).to include(*%i[snowplow_collector_hostname snowplow_cookie_domain snowplow_enabled snowplow_app_id])
     end
 
+    it 'contains :resource_usage_limits' do
+      expect(helper.visible_attributes).to include(:resource_usage_limits)
+    end
+
     it 'contains :deactivate_dormant_users' do
       expect(helper.visible_attributes).to include(:deactivate_dormant_users)
     end
 
     it 'contains :deactivate_dormant_users_period' do
       expect(helper.visible_attributes).to include(:deactivate_dormant_users_period)
+    end
+
+    it 'contains :can_create_organization' do
+      expect(helper.visible_attributes).to include(:can_create_organization)
     end
 
     it 'contains rate limit parameters' do
@@ -69,6 +77,9 @@ RSpec.describe ApplicationSettingsHelper do
           group_api_limit group_projects_api_limit groups_api_limit project_api_limit projects_api_limit
           user_contributed_projects_api_limit user_projects_api_limit user_starred_projects_api_limit
           group_shared_groups_api_limit
+          group_invited_groups_api_limit
+          project_invited_groups_api_limit
+          create_organization_api_limit
         ])
     end
 
@@ -87,6 +98,12 @@ RSpec.describe ApplicationSettingsHelper do
         *%i[
           gitlab_environment_toolkit_instance
         ])
+    end
+
+    it 'contains sign_in_restrictions values' do
+      expect(visible_attributes).to include(*%i[
+        disable_password_authentication_for_users_with_sso_identities
+      ])
     end
 
     context 'when on SaaS', :saas do

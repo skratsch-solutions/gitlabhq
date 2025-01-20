@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the following tasks when you work with the agent for Kubernetes.
 
@@ -33,6 +33,24 @@ On this page, you can view:
 - The connection status.
 - The version of `agentk` installed on your cluster.
 - The path to each agent configuration file.
+
+### Configure your agent
+
+To configure your agent:
+
+- Add content to the `config.yaml` file optionally created [during installation](install/index.md#create-an-agent-configuration-file).
+
+You can quickly locate an agent configuration file from the list of agents.
+The **Configuration** column indicates the location of the `config.yaml` file,
+or shows how to create one.
+
+The agent configuration file manages the various agent features:
+
+- For a GitLab CI/CD workflow. You must [authorize the agent to access your projects](ci_cd_workflow.md#authorize-the-agent), and then
+  [add `kubectl` commands to your `.gitlab-ci.yml` file](ci_cd_workflow.md#update-your-gitlab-ciyml-file-to-run-kubectl-commands).
+- For [user access](user_access.md) to the cluster from the GitLab UI or from the local terminal.
+- For configuring [operational container scanning](vulnerabilities.md).
+- For configuring [remote workspaces](../../workspace/gitlab_agent_configuration.md).
 
 ## View shared agents
 
@@ -86,7 +104,7 @@ The agent has two loggers:
 - A general purpose logger, which defaults to `info`.
 - A gRPC logger, which defaults to `error`.
 
-You can change your log levels by using a top-level `observability` section in the [agent configuration file](install/index.md#configure-your-agent), for example setting the levels to `debug` and `warn`:
+You can change your log levels by using a top-level `observability` section in the [agent configuration file](#configure-your-agent), for example setting the levels to `debug` and `warn`:
 
 ```yaml
 observability:
@@ -144,7 +162,7 @@ To remove an agent from the UI:
 
 1. Get the `<cluster-agent-token-id>` from a query in the interactive GraphQL explorer.
    - For GitLab.com, go to <https://gitlab.com/-/graphql-explorer> to open GraphQL Explorer.
-   - For self-managed GitLab, go to `https://gitlab.example.com/-/graphql-explorer`, replacing `gitlab.example.com` with your instance's URL.
+   - For GitLab Self-Managed, go to `https://gitlab.example.com/-/graphql-explorer`, replacing `gitlab.example.com` with your instance's URL.
 
    ```graphql
    query{

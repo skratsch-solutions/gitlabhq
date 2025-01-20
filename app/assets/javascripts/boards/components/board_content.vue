@@ -5,18 +5,26 @@ import produce from 'immer';
 import Draggable from 'vuedraggable';
 import BoardAddNewColumn from 'ee_else_ce/boards/components/board_add_new_column.vue';
 import BoardAddNewColumnTrigger from '~/boards/components/board_add_new_column_trigger.vue';
+import WorkItemDrawer from '~/work_items/components/work_item_drawer.vue';
 import { s__ } from '~/locale';
+import { removeParams, updateHistory } from '~/lib/utils/url_utility';
 import { defaultSortableOptions, DRAG_DELAY } from '~/sortable/constants';
+import { mapWorkItemWidgetsToIssuableFields } from '~/issues/list/utils';
 import {
   DraggableItemTypes,
   flashAnimationDuration,
   listsQuery,
   updateListQueries,
   ListType,
+  listIssuablesQueries,
+  DEFAULT_BOARD_LIST_ITEMS_SIZE,
+  BoardType,
 } from 'ee_else_ce/boards/constants';
+import { DETAIL_VIEW_QUERY_PARAM_NAME } from '~/work_items/constants';
 import { calculateNewPosition } from 'ee_else_ce/boards/boards_util';
 import { setError } from '../graphql/cache_updates';
 import BoardColumn from './board_column.vue';
+import BoardDrawerWrapper from './board_drawer_wrapper.vue';
 
 export default {
   draggableItemTypes: DraggableItemTypes,
@@ -24,13 +32,24 @@ export default {
     BoardAddNewColumn,
     BoardAddNewColumnTrigger,
     BoardColumn,
+    BoardDrawerWrapper,
     BoardContentSidebar: () => import('~/boards/components/board_content_sidebar.vue'),
     EpicBoardContentSidebar: () =>
       import('ee_component/boards/components/epic_board_content_sidebar.vue'),
     EpicsSwimlanes: () => import('ee_component/boards/components/epics_swimlanes.vue'),
     GlAlert,
+    WorkItemDrawer,
   },
-  inject: ['boardType', 'canAdminList', 'isIssueBoard', 'isEpicBoard', 'disabled', 'issuableType'],
+  inject: [
+    'boardType',
+    'canAdminList',
+    'isIssueBoard',
+    'isEpicBoard',
+    'disabled',
+    'issuableType',
+    'isGroupBoard',
+    'fullPath',
+  ],
   props: {
     boardId: {
       type: String,
@@ -62,11 +81,16 @@ export default {
       type: Boolean,
       required: true,
     },
+    useWorkItemDrawer: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
       boardHeight: null,
       highlightedLists: [],
+      columnsThatCannotFindActiveItem: 0,
     };
   },
   computed: {
@@ -107,6 +131,9 @@ export default {
     closedListId() {
       const closedList = this.boardListsToUse.find((list) => list.listType === ListType.closed);
       return closedList?.id || '';
+    },
+    namespace() {
+      return this.isGroupBoard ? BoardType.group : BoardType.project;
     },
   },
   methods: {
@@ -193,16 +220,48 @@ export default {
         });
       }
     },
+    updateBoardCard(workItem, activeCard) {
+      const { cache } = this.$apollo.provider.clients.defaultClient;
+
+      const variables = {
+        id: activeCard.listId,
+        filters: this.filterParams,
+        fullPath: this.fullPath,
+        boardId: this.boardId,
+        isGroup: this.isGroupBoard,
+        isProject: !this.isGroupBoard,
+        first: DEFAULT_BOARD_LIST_ITEMS_SIZE,
+      };
+
+      cache.updateQuery(
+        { query: listIssuablesQueries[this.issuableType].query, variables },
+        (boardList) =>
+          mapWorkItemWidgetsToIssuableFields({
+            list: boardList,
+            workItem,
+            isBoard: true,
+            namespace: this.namespace,
+            type: this.issuableType,
+          }),
+      );
+    },
+    isLastList(index) {
+      return this.boardListsToUse.length - 1 === index;
+    },
+    handleCannotFindActiveItem() {
+      this.columnsThatCannotFindActiveItem += 1;
+      if (this.columnsThatCannotFindActiveItem === this.boardListsToUse.length) {
+        updateHistory({
+          url: removeParams([DETAIL_VIEW_QUERY_PARAM_NAME]),
+        });
+      }
+    },
   },
 };
 </script>
 
 <template>
-  <div
-    v-cloak
-    data-testid="boards-list"
-    class="gl-flex-grow-1 gl-display-flex gl-flex-direction-column gl-min-h-0"
-  >
+  <div v-cloak data-testid="boards-list" class="gl-flex gl-min-h-0 gl-grow gl-flex-col">
     <gl-alert v-if="error" variant="danger" :dismissible="true" @dismiss="dismissError">
       {{ error }}
     </gl-alert>
@@ -211,31 +270,41 @@ export default {
       v-if="!isSwimlanesOn"
       ref="list"
       v-bind="draggableOptions"
-      class="boards-list gl-w-full gl-py-5 gl-pl-0 gl-pr-5 xl:gl-pl-3 xl:gl-pr-6 gl-whitespace-nowrap gl-overflow-x-auto"
+      class="boards-list gl-w-full gl-overflow-x-auto gl-whitespace-nowrap gl-py-5 gl-pl-0 gl-pr-5 xl:gl-pl-3 xl:gl-pr-6"
       @end="updateListPosition"
     >
       <board-column
         v-for="(list, index) in boardListsToUse"
         :key="index"
         ref="board"
+        :column-index="index"
         :board-id="boardId"
         :list="list"
         :filters="filterParams"
         :highlighted-lists="highlightedLists"
         :data-draggable-item-type="$options.draggableItemTypes.list"
         :class="{ '!gl-hidden sm:!gl-inline-block': addColumnFormVisible }"
+        :last="isLastList(index)"
+        :list-query-variables="listQueryVariables"
+        :lists="boardListsById"
+        :can-admin-list="canAdminList"
+        @highlight-list="highlightList"
         @setActiveList="$emit('setActiveList', $event)"
         @setFilters="$emit('setFilters', $event)"
+        @addNewListAfter="$emit('setAddColumnFormVisibility', $event)"
+        @cannot-find-active-item="handleCannotFindActiveItem"
       />
 
       <transition mode="out-in" name="slide" @after-enter="afterFormEnters">
-        <div v-if="!addColumnFormVisible" class="gl-display-inline-block gl-pl-2">
+        <div v-if="!addColumnFormVisible && canAdminList" class="gl-inline-block gl-pl-2">
           <board-add-new-column-trigger
-            v-if="canAdminList"
             :is-new-list-showing="addColumnFormVisible"
             @setAddColumnFormVisibility="$emit('setAddColumnFormVisibility', $event)"
           />
         </div>
+      </transition>
+
+      <transition mode="out-in" name="slide" @after-enter="afterFormEnters">
         <board-add-new-column
           v-if="addColumnFormVisible"
           :board-id="boardId"
@@ -262,7 +331,7 @@ export default {
       <template #create-list-button>
         <div
           v-if="!addColumnFormVisible"
-          class="gl-mt-5 gl-display-inline-block gl-pl-3 gl-sticky gl-top-5"
+          class="gl-sticky gl-top-5 gl-mt-5 gl-inline-block gl-pl-3"
         >
           <board-add-new-column-trigger
             v-if="canAdminList"
@@ -283,19 +352,53 @@ export default {
         />
       </div>
     </epics-swimlanes>
-
-    <board-content-sidebar
-      v-if="isIssueBoard"
+    <board-drawer-wrapper
+      v-if="useWorkItemDrawer"
       :backlog-list-id="backlogListId"
       :closed-list-id="closedListId"
-      data-testid="issue-boards-sidebar"
-    />
+    >
+      <template
+        #default="{
+          activeIssuable,
+          onDrawerClosed,
+          onAttributeUpdated,
+          onIssuableDeleted,
+          onStateUpdated,
+        }"
+      >
+        <work-item-drawer
+          :open="Boolean(activeIssuable && activeIssuable.iid)"
+          :active-item="activeIssuable"
+          :issuable-type="issuableType"
+          click-outside-exclude-selector=".board-card"
+          @close="
+            onDrawerClosed();
+            $emit('drawer-closed');
+          "
+          @work-item-updated="updateBoardCard($event, activeIssuable)"
+          @workItemDeleted="onIssuableDeleted(activeIssuable)"
+          @attributesUpdated="onAttributeUpdated"
+          @workItemStateUpdated="onStateUpdated"
+          @workItemTypeChanged="updateBoardCard($event, activeIssuable)"
+          @opened="$emit('drawer-opened')"
+          @clicked-outside="$emit('drawer-closed')"
+        />
+      </template>
+    </board-drawer-wrapper>
 
-    <epic-board-content-sidebar
-      v-else-if="isEpicBoard"
-      :backlog-list-id="backlogListId"
-      :closed-list-id="closedListId"
-      data-testid="epic-boards-sidebar"
-    />
+    <template v-else>
+      <board-content-sidebar
+        v-if="isIssueBoard"
+        :backlog-list-id="backlogListId"
+        :closed-list-id="closedListId"
+        data-testid="issue-boards-sidebar"
+      />
+      <epic-board-content-sidebar
+        v-else-if="isEpicBoard"
+        :backlog-list-id="backlogListId"
+        :closed-list-id="closedListId"
+        data-testid="epic-boards-sidebar"
+      />
+    </template>
   </div>
 </template>

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache do
+RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache, feature_category: :markdown do
   let(:ar_class) do
     Class.new(ActiveRecord::Base) do
       self.table_name = 'issues'
@@ -11,6 +11,24 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache do
       cache_markdown_field :description
 
       before_validation -> { self.work_item_type_id = ::WorkItems::Type.default_issue_type.id }
+    end
+  end
+
+  let(:ar_class_store_mentions_after_commit) do
+    Class.new(ActiveRecord::Base) do
+      self.table_name = 'issues'
+      include CacheMarkdownField
+      cache_markdown_field :description
+
+      before_validation -> { self.work_item_type_id = ::WorkItems::Type.default_issue_type.id }
+
+      def store_mentions_after_commit?
+        true
+      end
+
+      def run_after_commit
+        yield
+      end
     end
   end
 
@@ -46,7 +64,7 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache do
   let(:updated_markdown) { '`Bar`' }
   let(:updated_html) { '<p dir="auto"><code>Bar</code></p>' }
 
-  let(:cache_version) { Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION << 16 }
+  let(:cache_version) { Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_SHIFTED }
 
   def thing_subclass(klass, *extra_attributes)
     Class.new(klass) { attr_accessor(*extra_attributes) }
@@ -444,6 +462,35 @@ RSpec.describe CacheMarkdownField, :clean_gitlab_redis_cache do
         thing.update!(description: updated_markdown)
 
         expect(thing.description_html).to eq(updated_html)
+      end
+    end
+  end
+
+  context 'for Active record classes that store mentions after commit' do
+    let_it_be(:project) { create(:project) }
+
+    let(:klass) { ar_class_store_mentions_after_commit }
+
+    describe '#save' do
+      context 'when cache is outdated' do
+        before do
+          stub_commonmark_sourcepos_disabled
+          thing.cached_markdown_version += 1
+        end
+
+        context 'when the markdown field also a mentionable attribute' do
+          let(:thing) { klass.new(project_id: project.id, namespace_id: project.project_namespace_id, description: markdown, description_html: html, cached_markdown_version: cache_version) }
+
+          it 'calls #store_mentions! from #run_after_commit' do
+            expect(thing).to receive(:mentionable_attributes_changed?).and_return(true)
+            expect(thing).to receive(:run_after_commit).and_call_original
+            expect(thing).to receive(:store_mentions!)
+
+            thing.try(:save)
+
+            expect(thing.description_html).to eq(html)
+          end
+        end
       end
     end
   end

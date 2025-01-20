@@ -15,16 +15,21 @@ export default {
       required: false,
       default: null,
     },
+    hasSearch: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 };
 </script>
 
 <template>
-  <div class="deploy-keys-panel table-holder gl-bg-white gl-rounded-lg">
+  <div class="deploy-keys-panel table-holder gl-rounded-lg gl-bg-white">
     <template v-if="keys.length > 0">
       <div
         role="row"
-        class="gl-responsive-table-row table-row-header gl-font-base gl-font-bold gl-text-gray-900 gl-md-pl-5 gl-md-pr-5 gl-bg-gray-10 gl-border-gray-100!"
+        class="gl-responsive-table-row table-row-header !gl-border-default gl-bg-gray-10 gl-text-base gl-font-bold gl-text-strong md:gl-pl-5 md:gl-pr-5"
       >
         <div role="rowheader" class="table-section section-40">
           {{ s__('DeployKeys|Deploy key') }}
@@ -43,8 +48,11 @@ export default {
         :project-id="projectId"
       />
     </template>
-    <div v-else class="gl-new-card-empty gl-bg-gray-10 gl-text-center gl-p-5">
-      {{ s__('DeployKeys|No deploy keys found, start by adding a new one above.') }}
+    <div v-else class="gl-bg-gray-10 gl-p-5 gl-text-subtle" data-testid="empty-state">
+      <span v-if="hasSearch">{{ s__('DeployKeys|No search results found.') }}</span>
+      <span v-else>{{
+        s__('DeployKeys|No deploy keys found, start by adding a new one above.')
+      }}</span>
     </div>
   </div>
 </template>

@@ -7,9 +7,8 @@ module Banzai
       # similar functionality in reference filtering.
       class AbstractReferenceFilter < ReferenceFilter
         include CrossProjectReference
+        prepend Concerns::TimeoutFilterHandler
         prepend Concerns::PipelineTimingCheck
-
-        RENDER_TIMEOUT = 2.seconds
 
         def initialize(doc, context = nil, result = nil)
           super
@@ -39,11 +38,12 @@ module Banzai
         #
         # Returns a String replaced with the return of the block.
         def references_in(text, pattern = object_class.reference_pattern)
-          text.gsub(pattern) do |match|
-            if ident = identifier($~)
-              yield match, ident, $~.named_captures['project'], $~.named_captures['namespace'], $~
+          Gitlab::Utils::Gsub.gsub_with_limit(text, pattern, limit: Banzai::Filter::FILTER_ITEM_LIMIT) do |match_data|
+            if ident = identifier(match_data)
+              yield match_data[0], ident, match_data.named_captures['project'], match_data.named_captures['namespace'],
+                match_data
             else
-              match
+              match_data[0]
             end
           end
         end
@@ -121,64 +121,53 @@ module Banzai
         def call
           return doc unless project || group || user
 
-          # protect against certain reference_patterns that are difficult to optimize
-          # against malicious input, such as Commit.reference_pattern
-          Gitlab::RenderTimeout.timeout(foreground: RENDER_TIMEOUT, background: RENDER_TIMEOUT) do
-            reference_cache.load_reference_cache(nodes) if respond_to?(:parent_records) && nodes.present?
+          reference_cache.load_reference_cache(nodes) if respond_to?(:parent_records) && nodes.present?
 
-            ref_pattern = object_reference_pattern
-            link_pattern = object_class.link_reference_pattern
+          ref_pattern = object_reference_pattern
+          link_pattern = object_class.link_reference_pattern
 
-            # Compile often used regexps only once outside of the loop
-            ref_pattern_anchor = /\A#{ref_pattern}\z/
-            link_pattern_start = /\A#{link_pattern}/
-            link_pattern_anchor = /\A#{link_pattern}\z/
+          # Compile often used regexps only once outside of the loop
+          ref_pattern_anchor = /\A#{ref_pattern}\z/
+          link_pattern_start = /\A#{link_pattern}/
+          link_pattern_anchor = /\A#{link_pattern}\z/
 
-            nodes.each_with_index do |node, index|
-              if text_node?(node) && ref_pattern
-                replace_text_when_pattern_matches(node, index, ref_pattern) do |content|
-                  object_link_filter(content, ref_pattern)
+          nodes.each_with_index do |node, index|
+            if text_node?(node) && ref_pattern
+              replace_text_when_pattern_matches(node, index, ref_pattern) do |content|
+                object_link_filter(content, ref_pattern)
+              end
+
+            elsif element_node?(node)
+              yield_valid_link(node) do |link, inner_html|
+                if ref_pattern && link =~ ref_pattern_anchor
+                  replace_link_node_with_href(node, index, link) do
+                    object_link_filter(link, ref_pattern_anchor, link_content: inner_html)
+                  end
+
+                  next
                 end
 
-              elsif element_node?(node)
-                yield_valid_link(node) do |link, inner_html|
-                  if ref_pattern && link =~ ref_pattern_anchor
-                    replace_link_node_with_href(node, index, link) do
-                      object_link_filter(link, ref_pattern_anchor, link_content: inner_html)
-                    end
+                next unless link_pattern
 
-                    next
+                if link == inner_html && inner_html =~ link_pattern_start
+                  replace_link_node_with_text(node, index) do
+                    object_link_filter(inner_html, link_pattern_start, link_reference: true)
                   end
 
-                  next unless link_pattern
+                  next
+                end
 
-                  if link == inner_html && inner_html =~ link_pattern_start
-                    replace_link_node_with_text(node, index) do
-                      object_link_filter(inner_html, link_pattern_start, link_reference: true)
-                    end
-
-                    next
+                if link_pattern_anchor.match?(link)
+                  replace_link_node_with_href(node, index, link) do
+                    object_link_filter(link, link_pattern_anchor, link_content: inner_html, link_reference: true)
                   end
 
-                  if link =~ link_pattern_anchor
-                    replace_link_node_with_href(node, index, link) do
-                      object_link_filter(link, link_pattern_anchor, link_content: inner_html, link_reference: true)
-                    end
-
-                    next
-                  end
+                  next
                 end
               end
             end
           end
 
-          doc
-        rescue Timeout::Error => e
-          class_name = self.class.name.demodulize
-          Gitlab::ErrorTracking.track_exception(e, project_id: context[:project]&.id, class_name: class_name)
-
-          # we've timed out, but some work may have already been completed,
-          # so go ahead and return the document
           doc
         end
 
@@ -239,7 +228,7 @@ module Banzai
 
               url.chomp!(matches[:format]) if matches.names.include?("format")
 
-              content = link_content || object_link_text(object, matches)
+              content = context[:link_text] || link_content || object_link_text(object, matches)
 
               link = %(<a href="#{url}" #{data}
                           title="#{escape_once(title)}"
@@ -297,7 +286,7 @@ module Banzai
           text = object.reference_link_text(parent)
 
           extras = object_link_text_extras(object, matches)
-          text += " (#{extras.join(", ")})" if extras.any?
+          text += " (#{extras.join(', ')})" if extras.any?
 
           text
         end

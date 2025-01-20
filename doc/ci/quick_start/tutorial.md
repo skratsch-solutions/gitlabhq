@@ -6,6 +6,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Tutorial: Create a complex pipeline
 
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
 This tutorial walks you through configuring a progressively more complex CI/CD pipeline
 through small, iterative steps. The pipeline is always fully functional,
 but it gains more functionality with each step. The goal is to build, test, and deploy
@@ -212,7 +216,7 @@ Use the pipeline editor to commit this pipeline configuration to the default bra
 and view the pipeline details from the **Pipelines** list. Verify that:
 
 - The two jobs run in different stages, `build` and `deploy`.
-- After the `pages` job completes a `pages-deploy` job appears, which is the GitLab process
+- After the `pages` job completes a `pages:deploy` job appears, which is the GitLab process
   that deploys the Pages site. When that job completes, you can visit your new Docusaurus
   site.
 
@@ -424,7 +428,7 @@ single sources of truth.
 
 This step introduces:
 
-- [Hidden jobs](../jobs/index.md#hide-jobs): Jobs that start with `.` are never
+- [Hidden jobs](../jobs/index.md#hide-a-job): Jobs that start with `.` are never
   added to a pipeline. Use them to hold configuration you want to reuse.
 - [`extends`](../yaml/index.md#extends): Use extends to repeat configuration in
   multiple places, often from hidden jobs. If you update the hidden job's configuration,

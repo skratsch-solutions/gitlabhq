@@ -56,6 +56,12 @@ class Gitlab::Seeder::Projects
 
   BATCH_SIZE = 100_000
 
+  attr_reader :organization
+
+  def initialize(organization:)
+    @organization = organization
+   end
+
   def seed!
     Sidekiq::Testing.inline! do
       create_real_projects!
@@ -65,10 +71,11 @@ class Gitlab::Seeder::Projects
 
   def self.insert_project_namespaces_sql(type:, range:)
     <<~SQL
-          INSERT INTO namespaces (name, path, parent_id, owner_id, type, visibility_level, created_at, updated_at)
+          INSERT INTO namespaces (name, path, organization_id, parent_id, owner_id, type, visibility_level, created_at, updated_at)
           SELECT
             'Seed project ' || seq || ' ' || ('{#{Gitlab::Seeder::Projects.visibility_per_user}}'::text[])[seq] AS project_name,
             '#{Gitlab::Seeder::MASS_INSERT_PROJECT_START}' || ('{#{Gitlab::Seeder::Projects.visibility_per_user}}'::text[])[seq] || '_' || seq AS namespace_path,
+            n.organization_id as organization_id,
             n.id AS parent_id,
             n.owner_id AS owner_id,
             'Project' AS type,
@@ -85,11 +92,12 @@ class Gitlab::Seeder::Projects
 
   def self.insert_projects_sql(type:, range:)
     <<~SQL
-          INSERT INTO projects (name, path, creator_id, namespace_id, project_namespace_id, visibility_level, created_at, updated_at)
+          INSERT INTO projects (name, path, creator_id, organization_id, namespace_id, project_namespace_id, visibility_level, created_at, updated_at)
           SELECT
             n.name AS project_name,
             n.path AS project_path,
             n.owner_id AS creator_id,
+            n.organization_id AS organization_id,
             n.parent_id AS namespace_id,
             n.id AS project_namespace_id,
             n.visibility_level AS visibility_level,
@@ -104,6 +112,73 @@ class Gitlab::Seeder::Projects
     SQL
   end
 
+  def self.create_real_project!(organization:, url: nil, force_latest_storage: false, project_path: nil, group_path: nil)
+    if url
+      group_path, project_path = url.split('/')[-2..-1]
+    end
+
+    group = Group.find_by(path: group_path)
+
+    unless group
+      group = Group.new(
+        name: group_path.titleize,
+        path: group_path,
+        organization: organization
+      )
+      group.description = FFaker::Lorem.sentence
+      group.save!
+
+      group.add_owner(User.first)
+      group.create_namespace_settings
+    end
+
+    project_path.gsub!(".git", "")
+    project = Project.find_by_name(project_path.titleize)
+
+    if project
+      puts "Project #{project.full_path} already exists, skipping"
+      return
+    end
+
+    params = {
+      import_url: url,
+      organization_id: organization.id,
+      namespace_id: group.id,
+      name: project_path.titleize,
+      description: FFaker::Lorem.sentence,
+      visibility_level: Gitlab::VisibilityLevel.values.sample,
+      skip_disk_validation: true
+    }
+
+    if force_latest_storage
+      params[:storage_version] = Project::LATEST_STORAGE_VERSION
+    end
+
+    Gitlab::ExclusiveLease.skipping_transaction_check do
+      Sidekiq::Worker.skipping_transaction_check do
+        project = ::Projects::CreateService.new(User.first, params).execute
+
+        # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
+        # hook won't run until after the fixture is loaded. That is too late
+        # since the Sidekiq::Testing block has already exited. Force clearing
+        # the `after_commit` queue to ensure the job is run now.
+        project.send(:_run_after_commit_queue)
+        project.import_state&.send(:_run_after_commit_queue)
+
+        # Expire repository cache after import to ensure
+        # valid_repo? call below returns a correct answer
+        project.repository.expire_all_method_caches
+      end
+    end
+
+    if project.valid? && project.valid_repo?
+      print '.'
+    else
+      puts project.errors.full_messages
+      print 'F'
+    end
+  end
+
   private
 
   def create_real_projects!
@@ -111,14 +186,16 @@ class Gitlab::Seeder::Projects
     size = ENV['SIZE'].present? ? ENV['SIZE'].to_i : 8
 
     PROJECT_URLS.first(size).each_with_index do |url, i|
-      create_real_project!(url, force_latest_storage: i.even?)
+      self.class.create_real_project!(url: url, force_latest_storage: i.even?, organization: organization)
     end
   end
 
   def create_large_projects!
     return unless ENV['LARGE_PROJECTS'].present?
 
-    LARGE_PROJECT_URLS.each(&method(:create_real_project!))
+    LARGE_PROJECT_URLS.each do |url|
+      self.class.create_real_project!(url: url, organization: organization)
+    end
 
     if ENV['FORK'].present?
       puts "\nGenerating forks"
@@ -150,69 +227,6 @@ class Gitlab::Seeder::Projects
     end
   end
 
-  def create_real_project!(url, force_latest_storage: false)
-    group_path, project_path = url.split('/')[-2..-1]
-
-    group = Group.find_by(path: group_path)
-
-    unless group
-      group = Group.new(
-        name: group_path.titleize,
-        path: group_path
-      )
-      group.description = FFaker::Lorem.sentence
-      group.save!
-
-      group.add_owner(User.first)
-      group.create_namespace_settings
-    end
-
-    project_path.gsub!(".git", "")
-    project = Project.find_by_name(project_path.titleize)
-
-    if project
-      puts "Project #{project.full_path} already exists, skipping"
-      return
-    end
-
-    params = {
-      import_url: url,
-      namespace_id: group.id,
-      name: project_path.titleize,
-      description: FFaker::Lorem.sentence,
-      visibility_level: Gitlab::VisibilityLevel.values.sample,
-      skip_disk_validation: true
-    }
-
-    if force_latest_storage
-      params[:storage_version] = Project::LATEST_STORAGE_VERSION
-    end
-
-    Gitlab::ExclusiveLease.skipping_transaction_check do
-      Sidekiq::Worker.skipping_transaction_check do
-        project = ::Projects::CreateService.new(User.first, params).execute
-
-        # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
-        # hook won't run until after the fixture is loaded. That is too late
-        # since the Sidekiq::Testing block has already exited. Force clearing
-        # the `after_commit` queue to ensure the job is run now.
-        project.send(:_run_after_commit_queue)
-        project.import_state.send(:_run_after_commit_queue)
-
-        # Expire repository cache after import to ensure
-        # valid_repo? call below returns a correct answer
-        project.repository.expire_all_method_caches
-      end
-    end
-
-    if project.valid? && project.valid_repo?
-      print '.'
-    else
-      puts project.errors.full_messages
-      print 'F'
-    end
-  end
-
   def self.projects_per_user_count
     MASS_PROJECTS_COUNT_PER_USER.values.sum
   end
@@ -237,6 +251,6 @@ class Gitlab::Seeder::Projects
 end
 
 Gitlab::Seeder.quiet do
-  projects = Gitlab::Seeder::Projects.new
+  projects = Gitlab::Seeder::Projects.new(organization: Organizations::Organization.default_organization)
   projects.seed!
 end

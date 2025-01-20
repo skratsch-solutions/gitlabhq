@@ -129,7 +129,7 @@ module IssuablesHelper
 
     count = issuables_count_for_state(issuable_type, state)
     if count != -1
-      html << " " << gl_badge_tag(format_count(issuable_type, count, Gitlab::IssuablesCountForState::THRESHOLD), { variant: :muted, size: :sm }, { class: "gl-tab-counter-badge gl-hidden sm:gl-inline-flex" })
+      html << " " << gl_badge_tag(format_count(issuable_type, count, Gitlab::IssuablesCountForState::THRESHOLD), { variant: :muted }, { class: "gl-tab-counter-badge gl-hidden sm:gl-inline-flex" })
     end
 
     html.html_safe
@@ -166,7 +166,7 @@ module IssuablesHelper
       issuableRef: issuable.to_reference,
       imported: issuable.imported?,
       markdownPreviewPath: preview_markdown_path(parent, target_type: issuable.model_name, target_id: issuable.iid),
-      markdownDocsPath: help_page_path('user/markdown'),
+      markdownDocsPath: help_page_path('user/markdown.md'),
       lockVersion: issuable.lock_version,
       issuableTemplateNamesPath: template_names_path(parent, issuable),
       initialTitleHtml: markdown_field(issuable, :title),
@@ -277,7 +277,7 @@ module IssuablesHelper
     end
   end
 
-  def issuable_sidebar_options(issuable)
+  def issuable_sidebar_options(issuable, project)
     {
       endpoint: "#{issuable[:issuable_json_path]}?serializer=sidebar_extras",
       toggleSubscriptionEndpoint: issuable[:toggle_subscription_path],
@@ -293,7 +293,8 @@ module IssuablesHelper
       timeTrackingLimitToHours: Gitlab::CurrentSettings.time_tracking_limit_to_hours,
       canCreateTimelogs: issuable.dig(:current_user, :can_create_timelogs),
       createNoteEmail: issuable[:create_note_email],
-      issuableType: issuable[:type]
+      issuableType: issuable[:type],
+      directlyInviteMembers: can_admin_project_member?(project).to_s
     }
   end
 

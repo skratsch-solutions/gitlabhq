@@ -109,9 +109,6 @@ export default {
       });
     },
   },
-  errorCaptured(err, _vm, info) {
-    reportToSentry(this.$options.name, `error: ${err}, info: ${info}`);
-  },
   mounted() {
     if (!isEmpty(this.linksData)) {
       this.calculateLinkData();
@@ -139,10 +136,10 @@ export default {
 };
 </script>
 <template>
-  <div class="gl-display-flex gl-relative">
+  <div class="gl-relative gl-flex">
     <svg
       id="link-svg"
-      class="gl-absolute gl-pointer-events-none"
+      class="gl-pointer-events-none gl-absolute"
       :viewBox="viewBox"
       :width="`${containerMeasurements.width}px`"
       :height="`${containerMeasurements.height}px`"

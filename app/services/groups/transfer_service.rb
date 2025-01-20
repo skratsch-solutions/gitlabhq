@@ -67,8 +67,7 @@ module Groups
           update_group_attributes
           ensure_ownership
           update_integrations
-          remove_issue_contacts(old_root_ancestor_id, was_root_group)
-          update_crm_objects(was_root_group)
+          update_crm_objects
           remove_namespace_commit_emails(was_root_group)
         end
       end
@@ -112,10 +111,11 @@ module Groups
 
     def no_permissions_to_migrate_crm?
       return false unless group && @new_parent_group
-      return false if group.root_ancestor == @new_parent_group.root_ancestor
+      return false if group.crm_settings&.source_group
+      return false if group.crm_group == @new_parent_group.crm_group
 
-      return true if group.contacts.exists? && !current_user.can?(:admin_crm_contact, @new_parent_group.root_ancestor)
-      return true if group.crm_organizations.exists? && !current_user.can?(:admin_crm_organization, @new_parent_group.root_ancestor)
+      return true if group.crm_group.contacts.exists? && !current_user.can?(:admin_crm_contact, @new_parent_group.root_ancestor)
+      return true if group.crm_group.crm_organizations.exists? && !current_user.can?(:admin_crm_organization, @new_parent_group.root_ancestor)
 
       false
     end
@@ -123,7 +123,10 @@ module Groups
     def group_with_namespaced_npm_packages?
       return false unless group.packages_feature_enabled?
 
-      npm_packages = ::Packages::GroupPackagesFinder.new(current_user, group, package_type: :npm, preload_pipelines: false).execute
+      npm_packages = ::Packages::GroupPackagesFinder
+                       .new(current_user, group, packages_class: ::Packages::Npm::Package, preload_pipelines: false)
+                       .execute
+
       npm_packages = npm_packages.with_npm_scope(group.root_ancestor.path)
 
       different_root_ancestor? && npm_packages.exists?
@@ -190,8 +193,7 @@ module Groups
     end
 
     # Overridden in EE
-    def remove_paid_features_for_projects(old_root_ancestor_id)
-    end
+    def remove_paid_features_for_projects(old_root_ancestor_id); end
 
     # rubocop: disable CodeReuse/ActiveRecord
     def update_children_and_projects_visibility
@@ -221,8 +223,7 @@ module Groups
     end
 
     # Overridden in EE
-    def update_project_settings(updated_project_ids)
-    end
+    def update_project_settings(updated_project_ids); end
 
     def update_two_factor_authentication
       return if namespace_parent_allows_two_factor_auth
@@ -245,7 +246,7 @@ module Groups
 
     def ensure_ownership
       return if @new_parent_group
-      return unless @group.all_owner_members.non_invite.empty?
+      return unless @group.non_invite_owner_members.empty?
 
       add_owner_on_transferred_group
     end
@@ -303,25 +304,20 @@ module Groups
     end
 
     def update_pending_builds
-      ::Ci::PendingBuilds::UpdateGroupWorker.perform_async(group.id, pending_builds_params)
+      ::Ci::PendingBuilds::UpdateGroupWorker.perform_async(group.id, pending_builds_params.stringify_keys)
     end
 
     def pending_builds_params
       ::Ci::PendingBuild.namespace_transfer_params(group)
     end
 
-    def update_crm_objects(was_root_group)
-      return unless was_root_group
+    def update_crm_objects
+      return unless group && new_parent_group
+      return if group.crm_settings&.source_group
+      return if group.crm_group == new_parent_group.crm_group
 
-      CustomerRelations::Contact.move_to_root_group(group)
-      CustomerRelations::Organization.move_to_root_group(group)
-    end
-
-    def remove_issue_contacts(old_root_ancestor_id, was_root_group)
-      return if was_root_group
-      return if old_root_ancestor_id == @group.root_ancestor.id
-
-      CustomerRelations::IssueContact.delete_for_group(@group)
+      was_crm_source = group.crm_group == group
+      CustomerRelations::GroupMigrationService.new(group.crm_group.id, new_parent_group.crm_group.id, was_crm_source).execute
     end
 
     def publish_event(old_root_ancestor_id)

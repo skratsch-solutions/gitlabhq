@@ -59,6 +59,9 @@ export default {
     };
   },
   computed: {
+    themeClass() {
+      return window.gon?.user_color_scheme;
+    },
     isCodeSuggestion() {
       return (
         this.node.attrs.isCodeSuggestion &&
@@ -68,7 +71,7 @@ export default {
     },
     classList() {
       return this.isCodeSuggestion
-        ? 'gl-p-0! suggestion-added-input'
+        ? '!gl-p-0 suggestion-added-input'
         : `gl-p-3 code highlight ${this.$options.userColorScheme}`;
     },
     lineOffset() {
@@ -172,7 +175,7 @@ export default {
         v-if="node.attrs.showPreview"
         :contenteditable="false"
         data-testid="sandbox-preview"
-        class="!-gl-mt-3 !-gl-ml-4 !-gl-mr-4 gl-mb-3 gl-bg-white! gl-p-4 gl-border-b-1 gl-border-b-solid gl-border-b-gray-100"
+        class="!-gl-ml-4 !-gl-mr-4 !-gl-mt-3 gl-mb-3 gl-border-b-1 gl-border-b-default !gl-bg-white gl-p-4 gl-border-b-solid"
       >
         <sandboxed-mermaid v-if="node.attrs.language === 'mermaid'" :source="diagramSource" />
         <img v-else ref="diagramContainer" :src="diagramUrl" />
@@ -181,7 +184,7 @@ export default {
         v-if="node.attrs.isFrontmatter"
         :contenteditable="false"
         data-testid="frontmatter-label"
-        class="gl-absolute gl-top-0 gl-right-3"
+        class="gl-absolute gl-right-3 gl-top-0"
         >{{ __('frontmatter') }}:{{ node.attrs.language }}</span
       >
       <div
@@ -191,18 +194,16 @@ export default {
         data-testid="code-suggestion-box"
       >
         <div
-          class="md-suggestion-header gl-flex-wrap gl-z-1 gl-w-full gl-border-none! gl-font-regular gl-px-4 gl-py-3 gl-border-b-1! gl-border-b-solid!"
+          class="md-suggestion-header gl-z-1 gl-w-full gl-flex-wrap !gl-border-b-1 !gl-border-none gl-px-4 gl-py-3 gl-font-regular !gl-border-b-solid"
         >
-          <div class="gl-font-bold gl-pr-3">
+          <div class="gl-pr-3 gl-font-bold">
             {{ __('Suggested change') }}
           </div>
 
-          <div
-            class="gl-display-flex gl-flex-wrap gl-align-items-center gl-pl-3 gl-gap-2 gl-whitespace-nowrap"
-          >
+          <div class="gl-flex gl-flex-wrap gl-items-center gl-gap-2 gl-whitespace-nowrap gl-pl-3">
             <gl-sprintf :message="__('From line %{line1} to %{line2}')">
               <template #line1>
-                <div class="gl-display-flex gl-bg-gray-50 gl-rounded-base gl-mx-1">
+                <div class="gl-mx-1 gl-flex gl-rounded-base gl-bg-gray-50">
                   <gl-button
                     size="small"
                     icon="dash"
@@ -213,9 +214,7 @@ export default {
                     :disabled="disableDecrementLineStart"
                     @click="updateLineOffset(-1, 0)"
                   />
-                  <div
-                    class="flex gl-align-items-center gl-justify-content-center gl-px-3 monospace"
-                  >
+                  <div class="monospace gl-flex gl-items-center gl-justify-center gl-px-3">
                     <strong>{{ absoluteLineOffset[0] }}</strong>
                   </div>
                   <gl-button
@@ -231,7 +230,7 @@ export default {
                 </div>
               </template>
               <template #line2>
-                <div class="gl-display-flex gl-bg-gray-50 gl-rounded-base gl-ml-1">
+                <div class="gl-ml-1 gl-flex gl-rounded-base gl-bg-gray-50">
                   <gl-button
                     size="small"
                     icon="dash"
@@ -242,9 +241,7 @@ export default {
                     :disabled="disableDecrementLineEnd"
                     @click="updateLineOffset(0, -1)"
                   />
-                  <div
-                    class="flex gl-align-items-center gl-justify-content-center gl-px-3 monospace"
-                  >
+                  <div class="monospace gl-flex gl-items-center gl-justify-center gl-px-3">
                     <strong>{{ absoluteLineOffset[1] }}</strong>
                   </div>
                   <gl-button
@@ -263,24 +260,44 @@ export default {
           </div>
         </div>
 
-        <div class="suggestion-deleted" data-testid="suggestion-deleted">
+        <div class="suggestion-deleted code" :class="themeClass" data-testid="suggestion-deleted">
           <code
             v-for="(line, i) in deletedLines"
             :key="i"
             :data-line-number="absoluteLineOffset[0] + i"
-            >{{ line }}</code
+            class="diff-line-num !gl-border-transparent"
+            ><span class="line_holder"
+              ><span class="line_content old">{{ line }}</span></span
+            ></code
           >
         </div>
-        <div class="suggestion-added gl-absolute" data-testid="suggestion-added">
+        <div
+          class="suggestion-added code gl-absolute"
+          :class="themeClass"
+          data-testid="suggestion-added"
+        >
           <code
             v-for="(line, i) in addedLines"
             :key="i"
             :data-line-number="absoluteLineOffset[0] + i"
-            >{{ line }}</code
+            class="diff-line-num !gl-border-transparent"
+            ><span class="line_holder"
+              ><span class="line_content new !gl-text-transparent">{{ line }}</span></span
+            ></code
           >
         </div>
       </div>
-      <node-view-content ref="nodeViewContent" as="code" class="gl-relative gl-z-1" />
+      <node-view-content
+        ref="nodeViewContent"
+        as="code"
+        class="gl-relative gl-z-1 !gl-break-words"
+        :class="{
+          'line_content new code': isCodeSuggestion,
+          [themeClass]: isCodeSuggestion,
+        }"
+        spellcheck="false"
+        data-testid="suggestion-field"
+      />
     </node-view-wrapper>
   </editor-state-observer>
 </template>

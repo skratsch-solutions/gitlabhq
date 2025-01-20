@@ -47,6 +47,33 @@ module API
         with: Entities::DeployKey, include_projects_with_write_access: true, include_projects_with_readonly_access: true
     end
 
+    desc 'Create a deploy key' do
+      detail 'Create a deploy key for the GitLab instance. This endpoint requires administrator access.'
+      success Entities::DeployKey
+      failure [
+        { code: 400, message: 'Bad request' },
+        { code: 401, message: 'Unauthorized' },
+        { code: 403, message: 'Forbidden' }
+      ]
+      tags deploy_keys_tags
+    end
+    params do
+      requires :key, type: String, desc: 'New deploy key'
+      requires :title, type: String, desc: "New deploy key's title"
+      optional :expires_at, type: DateTime, desc: 'The expiration date of the SSH key in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)'
+    end
+    post "deploy_keys" do
+      authenticated_as_admin!
+
+      deploy_key = ::DeployKeys::CreateService.new(current_user, declared_params.merge(public: true)).execute
+
+      if deploy_key.persisted?
+        present deploy_key, with: Entities::DeployKey
+      else
+        render_validation_error!(deploy_key)
+      end
+    end
+
     params do
       requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project owned by the authenticated user'
     end
@@ -204,7 +231,7 @@ module API
         if key
           present key, with: Entities::DeployKey
         else
-          not_found!('Deploy Key')
+          not_found!('Deploy key')
         end
       end
 
@@ -222,7 +249,7 @@ module API
       # rubocop: disable CodeReuse/ActiveRecord
       delete ":id/deploy_keys/:key_id" do
         deploy_key_project = user_project.deploy_keys_projects.find_by(deploy_key_id: params[:key_id])
-        not_found!('Deploy Key') unless deploy_key_project
+        not_found!('Deploy key') unless deploy_key_project
 
         destroy_conditionally!(deploy_key_project)
       end

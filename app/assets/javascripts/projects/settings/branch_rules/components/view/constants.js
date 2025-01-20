@@ -20,7 +20,7 @@ export const I18N = {
   protectBranchDescription: s__(
     'BranchRules|Keep stable branches secure and force developers to use merge requests. %{linkStart}What are protected branches?%{linkEnd}',
   ),
-  approvalsTitle: s__('BranchRules|Merge request approvals'),
+  mergeRequestsTitle: s__('BranchRules|Merge requests'),
   manageApprovalsLinkTitle: s__('BranchRules|Manage in merge request approvals'),
   approvalsDescription: s__(
     'BranchRules|Approvals to ensure separation of duties for new merge requests. %{linkStart}Learn more.%{linkEnd}',
@@ -30,9 +30,14 @@ export const I18N = {
     'BranchRules|Check for a status response in merge requests. Failures do not block merges. %{linkStart}Learn more.%{linkEnd}',
   ),
   statusChecksLinkTitle: s__('BranchRules|Manage in status checks'),
-  statusChecksHeader: s__('BranchRules|Status checks (%{total})'),
-  allowedToPushHeader: s__('BranchRules|Allowed to push and merge (%{total})'),
-  allowedToMergeHeader: s__('BranchRules|Allowed to merge (%{total})'),
+  statusChecksHeader: s__('BranchRules|Status checks'),
+  allowedToPushHeader: s__('BranchRules|Allowed to push and merge'),
+  allowedToMergeHeader: s__('BranchRules|Allowed to merge'),
+  squashSettingHeader: s__('BranchRules|Squash commits when merging'),
+  squashSettingHelpText: s__(
+    'BranchRules|Set the default behavior of this option in merge requests. Changes to this are also applied to existing merge requests. %{linkStart}What is squashing?%{linkEnd}',
+  ),
+  squashSettingEmptyState: s__('BranchRules|No default set until defined by user'),
   allowForcePushLabel: s__('BranchRules|Allow force push'),
   allowForcePushTitle: s__('BranchRules|Allows force push'),
   doesNotAllowForcePushTitle: s__('BranchRules|Does not allow force push'),
@@ -82,16 +87,6 @@ export const BRANCH_PARAM_NAME = 'branch';
 
 export const ALL_BRANCHES_WILDCARD = '*';
 
-export const PROTECTED_BRANCHES_HELP_PATH = 'user/project/protected_branches';
-
-export const APPROVALS_HELP_PATH = 'user/project/merge_requests/approvals/index.md';
-
-export const STATUS_CHECKS_HELP_PATH = 'user/project/merge_requests/status_checks.md';
-
-export const CODE_OWNERS_HELP_PATH = 'user/project/code_owners.md';
-
-export const PUSH_RULES_HELP_PATH = 'user/project/repository/push_rules.md';
-
 export const REQUIRED_ICON = 'check-circle-filled';
 export const NOT_REQUIRED_ICON = 'status-failed';
 
@@ -116,3 +111,8 @@ export const accessLevelsConfig = {
     accessLevelLabel: s__('BranchRules|No one'),
   },
 };
+
+export const SQUASH_SETTING_DO_NOT_ALLOW = 'do_not_allow';
+export const SQUASH_SETTING_ALLOW = 'allow';
+export const SQUASH_SETTING_ENCOURAGE = 'encourage';
+export const SQUASH_SETTING_REQUIRE = 'require';

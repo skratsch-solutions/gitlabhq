@@ -1,13 +1,11 @@
-import metricsData from 'test_fixtures/projects/analytics/value_stream_analytics/summary.json';
 import {
-  filterBySearchTerm,
   extractFilterQueryParameters,
   extractPaginationQueryParameters,
-  getDataZoomOption,
-  prepareTimeMetricsData,
+  filterBySearchTerm,
   generateValueStreamsDashboardLink,
+  getDataZoomOption,
+  overviewMetricsRequestParams,
 } from '~/analytics/shared/utils';
-import { slugify } from '~/lib/utils/text_utility';
 import { objectToQuery } from '~/lib/utils/url_utility';
 
 describe('filterBySearchTerm', () => {
@@ -181,60 +179,49 @@ describe('getDataZoomOption', () => {
   });
 });
 
-describe('prepareTimeMetricsData', () => {
-  let prepared;
-  const [first, second] = metricsData;
-  delete second.identifier; // testing the case when identifier is missing
-
-  const firstIdentifier = first.identifier;
-  const secondIdentifier = slugify(second.title);
-
-  beforeEach(() => {
-    prepared = prepareTimeMetricsData([first, second], {
-      [firstIdentifier]: { description: 'Is a value that is good' },
-    });
-  });
-
-  it('will add a `identifier` based on the title', () => {
-    expect(prepared).toMatchObject([
-      { identifier: firstIdentifier },
-      { identifier: secondIdentifier },
-    ]);
-  });
-
-  it('will add a `label` key', () => {
-    expect(prepared).toMatchObject([{ label: 'New issues' }, { label: 'Commits' }]);
-  });
-
-  it('will add a popover description using the key if it is provided', () => {
-    expect(prepared).toMatchObject([
-      { description: 'Is a value that is good' },
-      { description: '' },
-    ]);
-  });
-});
-
 describe('generateValueStreamsDashboardLink', () => {
   it.each`
-    groupPath              | result
-    ${''}                  | ${''}
-    ${'groups/fake-group'} | ${'/groups/fake-group/-/analytics/dashboards/value_streams_dashboard'}
+    namespacePath                | isProjectNamespace | result
+    ${''}                        | ${null}            | ${''}
+    ${'fake-group'}              | ${false}           | ${'/groups/fake-group/-/analytics/dashboards/value_streams_dashboard'}
+    ${'fake-group/fake-project'} | ${true}            | ${'/fake-group/fake-project/-/analytics/dashboards/value_streams_dashboard'}
   `(
-    'generates the dashboard link when groupPath=$groupPath and projectPaths=$projectPaths',
-    ({ groupPath, result }) => {
-      expect(generateValueStreamsDashboardLink(groupPath)).toBe(result);
+    'generates the dashboard link when namespacePath=namespacePath and isProjectNamespace=$isProjectNamespace',
+    ({ namespacePath, isProjectNamespace, result }) => {
+      expect(generateValueStreamsDashboardLink(namespacePath, isProjectNamespace)).toBe(result);
     },
   );
 
-  describe('with a relative url rool set', () => {
+  describe('with a relative url root set', () => {
     beforeEach(() => {
       gon.relative_url_root = '/foobar';
     });
 
-    it('with includes a relative path if one is set', () => {
-      expect(generateValueStreamsDashboardLink('groups/fake-path')).toBe(
-        '/foobar/groups/fake-path/-/analytics/dashboards/value_streams_dashboard',
-      );
+    it.each`
+      namespacePath                | isProjectNamespace | result
+      ${'fake-group'}              | ${false}           | ${'/foobar/groups/fake-group/-/analytics/dashboards/value_streams_dashboard'}
+      ${'fake-group/fake-project'} | ${true}            | ${'/foobar/fake-group/fake-project/-/analytics/dashboards/value_streams_dashboard'}
+    `('includes a relative path if one is set', ({ namespacePath, isProjectNamespace, result }) => {
+      expect(generateValueStreamsDashboardLink(namespacePath, isProjectNamespace)).toBe(result);
     });
+  });
+});
+
+describe('overviewMetricsRequestParams', () => {
+  it('returns empty object when no params provided', () => {
+    expect(overviewMetricsRequestParams()).toEqual({});
+  });
+
+  it.each`
+    requestParam           | value                   | expected
+    ${'created_after'}     | ${'2024-01-01'}         | ${'startDate'}
+    ${'created_before'}    | ${'2024-12-31'}         | ${'endDate'}
+    ${'label_name'}        | ${['bug', 'feature']}   | ${'labelNames'}
+    ${'assignee_username'} | ${['user1', 'user2']}   | ${'assigneeUsernames'}
+    ${'author_username'}   | ${'Author A'}           | ${'authorUsername'}
+    ${'milestone_title'}   | ${'some new milestone'} | ${'milestoneTitle'}
+  `('correctly transforms the $requestParam parameter', ({ requestParam, value, expected }) => {
+    const result = overviewMetricsRequestParams({ [requestParam]: value });
+    expect(result[expected]).toBe(value);
   });
 });

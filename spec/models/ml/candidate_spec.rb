@@ -4,6 +4,8 @@ require 'spec_helper'
 
 RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops do
   let_it_be(:candidate) { create(:ml_candidates, :with_metrics_and_params, :with_artifact, name: 'candidate0') }
+  let_it_be(:candidate_with_generic) { create(:ml_candidates, :with_generic_package, name: 'run1') }
+  let_it_be(:candidate_with_no_package) { create(:ml_candidates, name: 'run2') }
   let_it_be(:candidate2) do
     create(:ml_candidates, experiment: candidate.experiment, name: 'candidate2', project: candidate.project)
   end
@@ -108,6 +110,16 @@ RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops d
         .and change { Ml::CandidateMetric.count }.by(-2)
         .and not_change { Packages::Package.count }
     end
+
+    context 'when candidate is associated to a model version' do
+      let(:candidate_to_destroy) { candidate2 }
+
+      it 'does not destroy the candidate' do
+        expect { candidate_to_destroy.destroy! }.to raise_error(ActiveRecord::ActiveRecordError)
+        expect(candidate_to_destroy.errors.full_messages).to include('Cannot delete a candidate associated ' \
+          'to a model version')
+      end
+    end
   end
 
   describe '.artifact_root' do
@@ -115,7 +127,7 @@ RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops d
 
     subject { tested_candidate.artifact_root }
 
-    it { is_expected.to eq("/#{candidate.package_name}/#{candidate.iid}/") }
+    it { is_expected.to eq("/#{candidate.package_name}/candidate_#{candidate.iid}/") }
 
     context 'when candidate belongs to model' do
       let(:tested_candidate) { candidate_for_model }
@@ -131,12 +143,18 @@ RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops d
 
     subject { tested_candidate.package_version }
 
-    it { is_expected.to eq(candidate.iid) }
+    it { is_expected.to eq("candidate_#{candidate.iid}") }
 
-    context 'when candidate belongs to model' do
-      let(:tested_candidate) { candidate_for_model }
+    context 'for candidates with legacy generic package' do
+      let(:tested_candidate) { candidate_with_generic }
 
-      it { is_expected.to eq("candidate_#{candidate_for_model.iid}") }
+      it { is_expected.to eq(candidate_with_generic.iid) }
+    end
+
+    context 'for candidates with no package' do
+      let(:tested_candidate) { candidate_with_no_package }
+
+      it { is_expected.to eq("candidate_#{candidate_with_no_package.iid}") }
     end
   end
 
@@ -238,16 +256,39 @@ RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops d
     end
   end
 
+  describe '#with_project_id_and_id' do
+    let(:project_id) { candidate.experiment.project_id }
+    let(:id) { candidate.id }
+
+    subject { described_class.with_project_id_and_id(project_id, id) }
+
+    context 'when internal_id exists', 'and belongs to project' do
+      it { is_expected.to eq(candidate) }
+    end
+
+    context 'when id exists and does not belong to project' do
+      let(:project_id) { non_existing_record_id }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when id does not exist' do
+      let(:id) { non_existing_record_id }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe "#latest_metrics" do
     let_it_be(:candidate3) { create(:ml_candidates, experiment: candidate.experiment) }
     let_it_be(:metric1) { create(:ml_candidate_metrics, candidate: candidate3) }
-    let_it_be(:metric2) { create(:ml_candidate_metrics, candidate: candidate3 ) }
+    let_it_be(:metric2) { create(:ml_candidate_metrics, candidate: candidate3) }
     let_it_be(:metric3) { create(:ml_candidate_metrics, name: metric1.name, candidate: candidate3) }
 
     subject { candidate3.latest_metrics }
 
     it 'fetches only the last metric for the name' do
-      expect(subject).to match_array([metric2, metric3] )
+      expect(subject).to match_array([metric2, metric3])
     end
   end
 
@@ -296,7 +337,8 @@ RSpec.describe Ml::Candidate, factory_default: :keep, feature_category: :mlops d
     subject { described_class.without_model_version }
 
     it 'finds only candidates without model version' do
-      expect(subject).to match_array([candidate, candidate_for_model])
+      expect(subject).to match_array([candidate, candidate_for_model, candidate_with_no_package,
+        candidate_with_generic])
     end
   end
 

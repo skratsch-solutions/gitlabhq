@@ -88,7 +88,7 @@ module Types
       field :event_count,
         GraphQL::Types::Int,
         null: true,
-        description: 'Number of events of this alert.',
+        description: 'Number of events of the alert.',
         method: :events
 
       field :details, # rubocop:disable Graphql/JSONType
@@ -135,7 +135,11 @@ module Types
       field :prometheus_alert,
         Types::PrometheusAlertType,
         null: true,
-        description: 'Alert condition for Prometheus.'
+        description: 'Alert condition for Prometheus.',
+        deprecated: {
+          reason: 'Returns no data. Underlying feature was removed in 16.0',
+          milestone: '17.3'
+        }
 
       field :web_url,
         GraphQL::Types::String,
@@ -144,6 +148,10 @@ module Types
         description: 'URL of the alert.'
 
       def metrics_dashboard_url
+        nil
+      end
+
+      def prometheus_alert
         nil
       end
     end

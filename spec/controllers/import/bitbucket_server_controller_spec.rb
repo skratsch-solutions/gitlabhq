@@ -18,7 +18,7 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
 
   before do
     sign_in(user)
-    allow(controller).to receive(:bitbucket_server_import_enabled?).and_return(true)
+    stub_application_setting(import_sources: ['bitbucket_server'])
   end
 
   describe 'GET new' do
@@ -31,8 +31,9 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
     end
   end
 
-  describe 'POST create' do
+  describe 'POST create', :with_current_organization do
     let(:project_name) { "my-project_123" }
+    let(:params) { { repo_id: repo_id } }
 
     before do
       allow(controller).to receive(:client).and_return(client)
@@ -47,8 +48,9 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
       allow(Gitlab::BitbucketServerImport::ProjectCreator)
         .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything, timeout_strategy)
         .and_return(double(execute: project))
+      expect(Import::BitbucketServerService).to receive(:new).with(client, user, hash_including(params.merge(organization_id: current_organization.id))).and_call_original
 
-      post :create, params: { repo_id: repo_id }, format: :json
+      post :create, params: params, format: :json
 
       expect(response).to have_gitlab_http_status(:ok)
     end
@@ -61,9 +63,21 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
           .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything, timeout_strategy)
           .and_return(double(execute: project))
 
-        post :create, params: { repo_id: repo_id }, format: :json
+        post :create, params: params, format: :json
 
         expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
+    context 'when bitbucket server importer is not enabled' do
+      before do
+        stub_application_setting(import_sources: [])
+      end
+
+      it 'returns 404' do
+        post :create, params: params, format: :json
+
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -82,7 +96,7 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
     it 'returns an error when the project cannot be found' do
       allow(client).to receive(:repo).with(project_key, repo_slug).and_return(nil)
 
-      post :create, params: { repo_id: repo_id }, format: :json
+      post :create, params: params, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
@@ -92,7 +106,7 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
         .to receive(:new).with(project_key, repo_slug, anything, project_name, user.namespace, user, anything, timeout_strategy)
         .and_return(double(execute: build(:project)))
 
-      post :create, params: { repo_id: repo_id }, format: :json
+      post :create, params: params, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end
@@ -100,7 +114,7 @@ RSpec.describe Import::BitbucketServerController, feature_category: :importers d
     it "returns an error when the server can't be contacted" do
       allow(client).to receive(:repo).with(project_key, repo_slug).and_raise(::BitbucketServer::Connection::ConnectionError)
 
-      post :create, params: { repo_id: repo_id }, format: :json
+      post :create, params: params, format: :json
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
     end

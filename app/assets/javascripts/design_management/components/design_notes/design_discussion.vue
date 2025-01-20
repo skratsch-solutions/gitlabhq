@@ -3,6 +3,7 @@ import { GlButton, GlLink, GlTooltipDirective, GlFormCheckbox } from '@gitlab/ui
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { createAlert } from '~/alert';
 import { __, s__ } from '~/locale';
+import highlightCurrentUser from '~/behaviors/markdown/highlight_current_user';
 import DiscussionReplyPlaceholder from '~/notes/components/discussion_reply_placeholder.vue';
 import { updateGlobalTodoCount } from '~/sidebar/utils';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
@@ -161,6 +162,16 @@ export default {
       return this.isFormRendered && this.discussionWithOpenForm === this.discussion.id;
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      highlightCurrentUser(this.$el.querySelectorAll('.gfm-project_member'));
+    });
+  },
+  updated() {
+    this.$nextTick(() => {
+      highlightCurrentUser(this.$el.querySelectorAll('.gfm-project_member'));
+    });
+  },
   methods: {
     onDone({ data: { createNote } }) {
       if (hasErrors(createNote)) {
@@ -291,7 +302,7 @@ export default {
   <div class="design-discussion-wrapper" @click="$emit('update-active-discussion')">
     <design-note-pin :is-resolved="discussion.resolved" :label="discussion.index" />
     <ul
-      class="design-discussion bordered-box gl-relative gl-p-0 gl-list-none"
+      class="design-discussion gl-border gl-relative gl-list-none gl-rounded-base gl-border-section gl-p-0"
       :class="{ 'gl-bg-blue-50': isDiscussionActive }"
       data-testid="design-discussion-content"
     >
@@ -317,10 +328,10 @@ export default {
           />
         </template>
         <template v-if="discussion.resolved" #resolved-status>
-          <p class="gl-text-gray-500 gl-font-sm gl-m-0 gl-mt-5" data-testid="resolved-message">
+          <p class="gl-m-0 gl-mt-5 gl-text-sm gl-text-subtle" data-testid="resolved-message">
             {{ __('Resolved by') }}
             <gl-link
-              class="gl-text-gray-500 gl-text-decoration-none gl-font-sm link-inherit-color"
+              class="link-inherit-color gl-text-sm gl-text-subtle gl-no-underline"
               :href="discussion.resolvedBy.webUrl"
               target="_blank"
               >{{ discussion.resolvedBy.name }}</gl-link
@@ -371,7 +382,7 @@ export default {
             <template v-if="discussion.resolvable" #resolve-checkbox>
               <gl-form-checkbox
                 v-model="shouldChangeResolvedStatus"
-                class="gl-mt-5 -gl-mb-3"
+                class="-gl-mb-3 gl-mt-5"
                 data-testid="resolve-checkbox"
               >
                 {{ resolveCheckboxText }}

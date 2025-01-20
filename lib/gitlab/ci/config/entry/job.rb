@@ -14,11 +14,12 @@ module Gitlab
           ALLOWED_KEYS = %i[tags script image services start_in artifacts
                             cache dependencies before_script after_script hooks
                             coverage retry parallel timeout
-                            release id_tokens publish pages manual_confirmation].freeze
+                            release id_tokens publish pages manual_confirmation run].freeze
 
           validations do
             validates :config, allowed_keys: Gitlab::Ci::Config::Entry::Job.allowed_keys + PROCESSABLE_ALLOWED_KEYS
-            validates :script, presence: true
+            validates :config, mutually_exclusive_keys: %i[script run]
+            validates :script, presence: true, if: -> { config.is_a?(Hash) && !config.key?(:run) }
 
             with_options allow_nil: true do
               validates :when, type: String, inclusion: {
@@ -29,6 +30,12 @@ module Gitlab
               validates :dependencies, array_of_strings: true
               validates :allow_failure, hash_or_boolean: true
               validates :manual_confirmation, type: String
+              validates :run, json_schema: {
+                base_directory: 'app/validators/json_schemas',
+                detail_errors: true,
+                filename: 'run_steps',
+                hash_conversion: true
+              }
             end
 
             validates :start_in, duration: { limit: '1 week' }, if: :delayed?
@@ -43,17 +50,13 @@ module Gitlab
               else
                 missing_needs = dependencies - needs_value[:job].pluck(:name) # rubocop:disable CodeReuse/ActiveRecord -- Array#pluck
 
-                errors.add(:dependencies, "the #{missing_needs.join(", ")} should be part of needs") if missing_needs.any?
+                errors.add(:dependencies, "the #{missing_needs.join(', ')} should be part of needs") if missing_needs.any?
               end
             end
 
             validates :publish,
               absence: { message: "can only be used within a `pages` job" },
-              unless: -> { pages_job? }
-
-            validates :pages,
-              absence: { message: "can only be used within a `pages` job" },
-              unless: -> { pages_job? }
+              unless: -> { config.is_a?(Hash) && pages_job? }
           end
 
           entry :before_script, Entry::Commands,
@@ -137,11 +140,10 @@ module Gitlab
           attributes :script, :tags, :when, :dependencies,
             :needs, :retry, :parallel, :start_in,
             :timeout, :release,
-            :allow_failure, :publish, :pages, :manual_confirmation
+            :allow_failure, :publish, :pages, :manual_confirmation, :run
 
           def self.matching?(name, config)
-            !name.to_s.start_with?('.') &&
-              config.is_a?(Hash) && config.key?(:script)
+            !name.to_s.start_with?('.') && config.is_a?(Hash) && (config.key?(:script) || config.key?(:run))
           end
 
           def self.visible?
@@ -178,7 +180,8 @@ module Gitlab
               id_tokens: id_tokens_value,
               publish: publish,
               pages: pages,
-              manual_confirmation: self.manual_confirmation
+              manual_confirmation: self.manual_confirmation,
+              run: run
             ).compact
           end
 
@@ -193,7 +196,9 @@ module Gitlab
           end
 
           def pages_job?
-            name == :pages
+            return true if config[:pages].present?
+
+            name == :pages && config[:pages] != false # legacy behavior, overridable with `pages: false`
           end
 
           def self.allowed_keys

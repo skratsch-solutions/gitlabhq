@@ -15,10 +15,8 @@ import NoteActions from '~/work_items/components/notes/work_item_note_actions.vu
 import WorkItemCommentForm from '~/work_items/components/notes/work_item_comment_form.vue';
 import updateWorkItemNoteMutation from '~/work_items/graphql/notes/update_work_item_note.mutation.graphql';
 import updateWorkItemMutation from '~/work_items/graphql/update_work_item.mutation.graphql';
-import groupWorkItemByIidQuery from '~/work_items/graphql/group_work_item_by_iid.query.graphql';
 import workItemByIidQuery from '~/work_items/graphql/work_item_by_iid.query.graphql';
 import {
-  groupWorkItemByIidResponseFactory,
   mockAssignees,
   mockWorkItemCommentNote,
   updateWorkItemMutationResponse,
@@ -70,9 +68,6 @@ describe('Work Item Note', () => {
   });
 
   const workItemResponseHandler = jest.fn().mockResolvedValue(workItemByIidResponseFactory());
-  const groupWorkItemResponseHandler = jest
-    .fn()
-    .mockResolvedValue(groupWorkItemByIidResponseFactory());
   const workItemByAuthoredByDifferentUser = jest
     .fn()
     .mockResolvedValue(mockWorkItemByDifferentUser);
@@ -90,12 +85,10 @@ describe('Work Item Note', () => {
   const findNoteActions = () => wrapper.findComponent(NoteActions);
   const findCommentForm = () => wrapper.findComponent(WorkItemCommentForm);
   const findEditedAt = () => wrapper.findComponent(EditedAt);
-  const findNoteWrapper = () => wrapper.find('[data-testid="note-wrapper"]');
 
   const createComponent = ({
     note = mockWorkItemCommentNote,
     isFirstNote = false,
-    isGroup = false,
     updateNoteMutationHandler = successHandler,
     workItemId = mockWorkItemId,
     updateWorkItemMutationHandler = updateWorkItemMutationSuccessHandler,
@@ -103,9 +96,6 @@ describe('Work Item Note', () => {
     workItemByIidResponseHandler = workItemResponseHandler,
   } = {}) => {
     wrapper = shallowMount(WorkItemNote, {
-      provide: {
-        isGroup,
-      },
       propsData: {
         fullPath: 'test-project-path',
         workItemId,
@@ -117,9 +107,14 @@ describe('Work Item Note', () => {
         autocompleteDataSources: {},
         assignees,
       },
+      stubs: {
+        TimelineEntryItem,
+      },
+      mocks: {
+        $route: {},
+      },
       apolloProvider: mockApollo([
         [workItemByIidQuery, workItemByIidResponseHandler],
-        [groupWorkItemByIidQuery, groupWorkItemResponseHandler],
         [updateWorkItemNoteMutation, updateNoteMutationHandler],
         [updateWorkItemMutation, updateWorkItemMutationHandler],
       ]),
@@ -129,6 +124,7 @@ describe('Work Item Note', () => {
   describe('when editing', () => {
     beforeEach(() => {
       createComponent();
+
       findNoteActions().vm.$emit('startEditing');
       return nextTick();
     });
@@ -137,8 +133,8 @@ describe('Work Item Note', () => {
       expect(findCommentForm().exists()).toBe(true);
     });
 
-    it('should not render note wrapper', () => {
-      expect(findNoteWrapper().exists()).toBe(false);
+    it('should not render note body', () => {
+      expect(findNoteBody().exists()).toBe(false);
     });
 
     it('updates saved draft with current note text', () => {
@@ -157,11 +153,11 @@ describe('Work Item Note', () => {
       await nextTick();
 
       expect(findCommentForm().exists()).toBe(false);
-      expect(findNoteWrapper().exists()).toBe(true);
+      expect(findNoteBody().exists()).toBe(true);
     });
 
     it('should show the awards list when in edit mode', async () => {
-      createComponent({ note: mockWorkItemCommentNote, workItemsAlpha: true });
+      createComponent({ note: mockWorkItemCommentNote });
       findNoteActions().vm.$emit('startEditing');
       await nextTick();
       expect(findAwardsList().exists()).toBe(true);
@@ -231,7 +227,7 @@ describe('Work Item Note', () => {
 
     it('should render note wrapper', () => {
       createComponent();
-      expect(findNoteWrapper().exists()).toBe(true);
+      expect(findNoteBody().exists()).toBe(true);
     });
 
     it('renders no "edited at" information by default', () => {
@@ -274,6 +270,10 @@ describe('Work Item Note', () => {
 
       it('should have the project name', () => {
         expect(findNoteActions().props('projectName')).toBe('Project name');
+      });
+
+      it('should pass the noteUrl to the note header and should be a work items url', () => {
+        expect(findNoteHeader().props('noteUrl')).toContain('work_items');
       });
     });
 
@@ -444,39 +444,30 @@ describe('Work Item Note', () => {
     });
 
     it('passes note props to awards list', () => {
-      createComponent({ note: mockWorkItemCommentNote, workItemsAlpha: true });
+      createComponent({ note: mockWorkItemCommentNote });
 
       expect(findAwardsList().props('note')).toBe(mockWorkItemCommentNote);
       expect(findAwardsList().props('workItemIid')).toBe('1');
     });
+
+    it('passes external author to note header', () => {
+      const externalAuthor = 'user@example.com';
+
+      createComponent({
+        note: {
+          ...mockWorkItemCommentNote,
+          externalAuthor,
+        },
+      });
+
+      expect(findNoteHeader().props('emailParticipant')).toBe(externalAuthor);
+    });
   });
 
-  describe('when project context', () => {
-    it('calls the project work item query', () => {
-      createComponent();
+  it('calls the work item query', () => {
+    createComponent();
 
-      expect(workItemResponseHandler).toHaveBeenCalled();
-    });
-
-    it('skips calling the group work item query', () => {
-      createComponent();
-
-      expect(groupWorkItemResponseHandler).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('when group context', () => {
-    it('skips calling the project work item query', () => {
-      createComponent({ isGroup: true });
-
-      expect(workItemResponseHandler).not.toHaveBeenCalled();
-    });
-
-    it('calls the group work item query', () => {
-      createComponent({ isGroup: true });
-
-      expect(groupWorkItemResponseHandler).toHaveBeenCalled();
-    });
+    expect(workItemResponseHandler).toHaveBeenCalled();
   });
 
   describe('when note has no author', () => {

@@ -17,6 +17,7 @@ export default class GLForm {
    *                                By default, the backend embeds these in the global object gl.GfmAutocomplete.dataSources.
    *                                Use this param to override them.
    */
+  // eslint-disable-next-line max-params
   constructor(form, enableGFM = {}, forceNew = false, gfmDataSources = {}) {
     this.form = form;
     this.textarea = this.form.find('textarea.js-gfm-input');
@@ -80,6 +81,12 @@ export default class GLForm {
     this.form.show();
     if (this.isAutosizeable) this.setupAutosize();
     if (this.textarea.data('autofocus') === true) this.textarea.focus();
+  }
+
+  updateAutocompleteDataSources(dataSources) {
+    if (this.autoComplete) {
+      this.autoComplete.updateDataSources(dataSources);
+    }
   }
 
   setupAutosize() {

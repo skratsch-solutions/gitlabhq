@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Threat Insights
+stage: Security Risk Management
+group: Security Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - `last_edited_at` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/268154) in GitLab 16.7.
 > - `start_date` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/268154) in GitLab 16.7.
@@ -28,10 +28,10 @@ The response payload may be subject to change or breakage
 across GitLab releases. Use the
 [GraphQL API](graphql/reference/index.md#queryvulnerabilities) instead. For more information, see [GraphQL examples](#replace-vulnerability-rest-api-with-graphql).
 
-Every API call to vulnerabilities must be [authenticated](rest/index.md#authentication).
+Every API call to vulnerabilities must be [authenticated](rest/authentication.md).
 
 If an authenticated user does not have permission to
-[view vulnerabilities](../user/permissions.md#project-members-permissions),
+[view vulnerability report](../user/permissions.md#application-security),
 this request returns a `403 Forbidden` status code.
 
 ## Single vulnerability
@@ -80,7 +80,7 @@ Example response:
 Confirms a given vulnerability. Returns status code `304` if the vulnerability is already confirmed.
 
 If an authenticated user does not have permission to
-[confirm vulnerabilities](../user/permissions.md#project-members-permissions),
+[change vulnerability status](../user/permissions.md#application-security),
 this request results in a `403` status code.
 
 ```plaintext
@@ -125,7 +125,7 @@ Example response:
 Resolves a given vulnerability. Returns status code `304` if the vulnerability is already resolved.
 
 If an authenticated user does not have permission to
-[resolve vulnerabilities](../user/permissions.md#project-members-permissions),
+[change vulnerability status](../user/permissions.md#application-security),
 this request results in a `403` status code.
 
 ```plaintext
@@ -170,7 +170,7 @@ Example response:
 Dismisses a given vulnerability. Returns status code `304` if the vulnerability is already dismissed.
 
 If an authenticated user does not have permission to
-[dismiss vulnerabilities](../user/permissions.md#project-members-permissions),
+[change vulnerability status](../user/permissions.md#application-security),
 this request results in a `403` status code.
 
 ```plaintext
@@ -215,7 +215,7 @@ Example response:
 Reverts a given vulnerability to detected state. Returns status code `304` if the vulnerability is already in detected state.
 
 If an authenticated user does not have permission to
-[revert vulnerability to detected state](../user/permissions.md#project-members-permissions),
+[change vulnerability status](../user/permissions.md#application-security),
 this request results in a `403` status code.
 
 ```plaintext

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Prometheus < BaseMonitoring
+  class Prometheus < Integration
+    include Base::Monitoring
     include PrometheusAdapter
     include Gitlab::Utils::StrongMemoize
 
@@ -47,7 +48,8 @@ module Integrations
 
     scope :preload_project, -> { preload(:project) }
 
-    def show_active_box?
+    override :manual_activation?
+    def manual_activation?
       false
     end
 

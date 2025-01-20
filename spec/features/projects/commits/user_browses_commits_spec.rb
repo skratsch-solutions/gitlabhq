@@ -65,8 +65,9 @@ RSpec.describe 'User browses commits', feature_category: :source_code_management
 
     it 'renders commit ci info' do
       visit project_commit_path(project, sample_commit.id)
+      wait_for_requests
 
-      expect(page).to have_content "Pipeline ##{pipeline.id} pending"
+      expect(page).to have_selector('.js-commit-box-pipeline-summary')
     end
   end
 
@@ -163,7 +164,7 @@ RSpec.describe 'User browses commits', feature_category: :source_code_management
 
         fill_in 'commits-search', with: 'bogus12345'
 
-        expect(page).to have_content "Your search didn't match any commits"
+        expect(page).to have_content "No results found"
 
         fill_in 'commits-search', with: 'Glob'
 

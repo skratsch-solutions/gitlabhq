@@ -28,7 +28,7 @@ module Gitlab
                 aliases: "-n"
               option :set,
                 desc: "Optional helm chart values " \
-                      "(can specify multiple or separate values with commas: key1=val1,key2=val2)",
+                  "(can specify multiple or separate values with commas: key1=val1,key2=val2)",
                 type: :string,
                 repeatable: true
               option :ci,
@@ -41,22 +41,32 @@ module Gitlab
                 type: :string
               option :chart_sha,
                 desc: "Specific sha of GitLab chart repository, latest release version is used by default. " \
-                      "Requires 'tar' executable to be installed.",
+                  "Requires 'tar' executable to be installed.",
                 type: :string
+              option :env,
+                desc: "Extra environment variables to set for rails containers " \
+                  "(can specify multiple or separate values with commas: env1=val1,env2=val2)",
+                type: :string,
+                repeatable: true,
+                aliases: "-e"
+              option :retry,
+                desc: "Max number of retries for failed deployment",
+                default: 0,
+                type: :numeric
 
-              super(name)
+              super
             end
           end
 
           desc "kind [NAME]", "Create CNG deployment against local kind k8s cluster where NAME is helm release name. " \
-                              "Default: #{DEFAULT_HELM_RELEASE_NAME}"
+            "Default: #{DEFAULT_HELM_RELEASE_NAME}"
           option :create_cluster,
             desc: "Create kind cluster for local deployments before creating deployment",
             type: :boolean,
             default: true
           option :docker_hostname,
             desc: "Custom docker hostname if remote docker instance is used, like docker-in-docker, " \
-                  "only applicable when --create-cluster is true",
+              "only applicable when --create-cluster is true",
             type: :string
           option :gitlab_domain,
             desc: "Domain for deployed app, default to (your host IP).nip.io",
@@ -77,18 +87,22 @@ module Gitlab
             desc: "Host ssh port for gitlab",
             type: :numeric,
             default: 22
+          option :host_registry_port,
+            desc: "Host registry port for gitlab",
+            type: :numeric,
+            default: 5000
           option :print_deploy_args,
             desc: "Print all CI specific component helm values and deployment arguments." \
-                  "Useful for reproducing CI deployments. Only valid with --ci flag.",
+              "Useful for reproducing CI deployments. Only valid with --ci flag.",
             type: :boolean,
             default: false
           def kind(name = DEFAULT_HELM_RELEASE_NAME)
             return print_deploy_args("kind") if options[:print_deploy_args] && options[:ci]
 
             if options[:create_cluster]
-              invoke(Commands::Create, :cluster, [], **symbolized_options.slice(
-                :docker_hostname, :ci, :host_http_port, :host_ssh_port
-              ))
+              Kind::Cluster.new(**symbolized_options.slice(
+                :docker_hostname, :ci, :host_http_port, :host_ssh_port, :host_registry_port
+              )).create
             end
 
             configuration_args = symbolized_options.slice(
@@ -98,7 +112,8 @@ module Gitlab
               :admin_password,
               :admin_token,
               :host_http_port,
-              :host_ssh_port
+              :host_ssh_port,
+              :host_registry_port
             )
 
             installation(name, Cng::Deployment::Configurations::Kind.new(**configuration_args)).create
@@ -114,7 +129,7 @@ module Gitlab
           def installation(name, configuration)
             Cng::Deployment::Installation.new(
               name, configuration: configuration,
-              **symbolized_options.slice(:namespace, :set, :ci, :gitlab_domain, :timeout, :chart_sha)
+              **symbolized_options.slice(:namespace, :set, :ci, :gitlab_domain, :timeout, :chart_sha, :env, :retry)
             )
           end
 
@@ -128,6 +143,7 @@ module Gitlab
             end
             cmd = ["cng", "create", "deployment", configuration, *ci_components]
             cmd.push(*options[:set].flat_map { |opt| ["--set", opt] }) if options[:set]
+            cmd.push(*options[:env].flat_map { |opt| ["--env", opt] }) if options[:env]
             cmd.push("--chart-sha", options[:chart_sha]) if options[:chart_sha]
 
             log("Received --print-deploy-args option, printing example of all deployment arguments!", :warn)

@@ -12,7 +12,7 @@ description: Learn how to contribute to GitLab Documentation.
 used by the `docs-lint` test.
 
 Our [Documentation Style Guide](../styleguide/index.md#markdown) and
-[Markdown Guide](https://handbook.gitlab.com/handbook/markdown-guide/) elaborate on which choices must
+[Markdown Guide](https://handbook.gitlab.com/docs/markdown-guide/) elaborate on which choices must
 be made when selecting Markdown syntax for GitLab documentation. This tool helps catch deviations
 from those guidelines.
 
@@ -82,6 +82,24 @@ To configure markdownlint in your editor, install one of the following as approp
   ;; Place this code in a file called `.dir-locals.el` at the root of the gitlab project.
   ((markdown-mode . ((flycheck-markdown-markdownlint-cli-config . ".markdownlint.yml"))))
   ```
+
+## Run `markdownlint-cli2` locally
+
+You can run `markdownlint-cli2` from anywhere in your repository. From the root of your repository,
+you don't need to specify the location of the configuration file. If you run it from elsewhere
+in your repository, you must specify the configuration file's location. In these commands,
+replace `doc/**/*.md` with the path to the Markdown files in your repository:
+
+```shell
+# From the root directory, you don't need to specify the configuration file
+$ markdownlint-cli2 'doc/**/*.md'
+
+# From elsewhere in the repository, specify the configuration file
+$ markdownlint-cli2 --config .markdownlint-cli2.yaml 'doc/**/*.md'
+```
+
+For a full list of command-line options, see [Command Line](https://github.com/DavidAnson/markdownlint-cli2?tab=readme-ov-file#command-line)
+in the `markdownlint-cli2` documentation.
 
 ## Disable markdownlint tests
 

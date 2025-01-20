@@ -27,6 +27,8 @@ RSpec.describe DesignManagement::SaveDesignsService, feature_category: :design_m
   end
 
   before do
+    issue.instance_variable_set(:@design_collection, nil) # reload collection for each example
+
     if issue.design_collection.repository.exists?
       issue.design_collection.repository.expire_all_method_caches
       issue.design_collection.repository.raw.delete_all_refs_except([Gitlab::Git::SHA1_BLANK_SHA])
@@ -364,7 +366,7 @@ RSpec.describe DesignManagement::SaveDesignsService, feature_category: :design_m
           expect { service.execute }
             .to change { issue.designs.count }.from(0).to(2)
             .and change { DesignManagement::Version.count }.by(1)
-            .and change { Gitlab::GitalyClient.get_request_count }.by(3)
+            .and change { Gitlab::GitalyClient.get_request_count }.by(4)
             .and change { commit_count }.by(1)
             .and trigger_internal_events(Gitlab::UsageDataCounters::IssueActivityUniqueCounter::ISSUE_DESIGNS_ADDED)
               .twice.with(user: user, project: project, category: 'InternalEventTracking')

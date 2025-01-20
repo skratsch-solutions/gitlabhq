@@ -9,16 +9,16 @@ describe('Form component', () => {
   const findProjectDeletionSettings = () =>
     wrapper.findByTestId('inactive-project-deletion-settings');
   const findMinSizeGroup = () => wrapper.findByTestId('min-size-group');
-  const findMinSizeInputGroup = () => wrapper.findByTestId('min-size-input-group');
+  const findMinSizeInputGroupText = () => wrapper.findByTestId('min-size-input-group-text');
   const findMinSizeInput = () => wrapper.findByTestId('min-size-input');
   const findDeleteAfterMonthsGroup = () => wrapper.findByTestId('delete-after-months-group');
-  const findDeleteAfterMonthsInputGroup = () =>
-    wrapper.findByTestId('delete-after-months-input-group');
+  const findDeleteAfterMonthsInputGroupText = () =>
+    wrapper.findByTestId('delete-after-months-input-group-text');
   const findDeleteAfterMonthsInput = () => wrapper.findByTestId('delete-after-months-input');
   const findSendWarningEmailAfterMonthsGroup = () =>
     wrapper.findByTestId('send-warning-email-after-months-group');
-  const findSendWarningEmailAfterMonthsInputGroup = () =>
-    wrapper.findByTestId('send-warning-email-after-months-input-group');
+  const findSendWarningEmailAfterMonthsInputGroupText = () =>
+    wrapper.findByTestId('send-warning-email-after-months-input-group-text');
   const findSendWarningEmailAfterMonthsInput = () =>
     wrapper.findByTestId('send-warning-email-after-months-input');
 
@@ -60,7 +60,7 @@ describe('Form component', () => {
     });
 
     it('has the appended text on the field', () => {
-      expect(findMinSizeInputGroup().text()).toContain('MB');
+      expect(findMinSizeInputGroupText().text()).toContain('MB');
     });
 
     it.each`
@@ -89,7 +89,7 @@ describe('Form component', () => {
     });
 
     it('has the appended text on the field', () => {
-      expect(findDeleteAfterMonthsInputGroup().text()).toContain('months');
+      expect(findDeleteAfterMonthsInputGroupText().text()).toContain('months');
     });
 
     it.each`
@@ -124,7 +124,7 @@ describe('Form component', () => {
     });
 
     it('has the appended text on the field', () => {
-      expect(findSendWarningEmailAfterMonthsInputGroup().text()).toContain('months');
+      expect(findSendWarningEmailAfterMonthsInputGroupText().text()).toContain('months');
     });
 
     it.each`
@@ -140,5 +140,47 @@ describe('Form component', () => {
         expect(findSendWarningEmailAfterMonthsInput().classes('is-valid')).toBe(valid);
       },
     );
+  });
+
+  describe('HTML validity', () => {
+    beforeEach(() => {
+      createComponent(mountExtended, {
+        inactiveProjectsDeleteAfterMonths: 3,
+        inactiveProjectsSendWarningEmailAfterMonths: 2,
+        deleteInactiveProjects: true,
+      });
+
+      findDeleteAfterMonthsInput().vm.$el.setCustomValidity = jest.fn();
+      findSendWarningEmailAfterMonthsInput().vm.$el.setCustomValidity = jest.fn();
+    });
+
+    // Test case covering edge case customer bug: https://gitlab.com/gitlab-org/gitlab/-/issues/454772
+    it('when Delete project after is set to <= Send warning email, and then Send warning email is set to < Delete project after, it properly sets and clears the error', async () => {
+      await findDeleteAfterMonthsInput().find('input').setValue(2);
+
+      expect(findDeleteAfterMonthsInput().vm.$el.setCustomValidity).toHaveBeenCalledWith(
+        "You can't delete projects before the warning email is sent.",
+      );
+
+      await findSendWarningEmailAfterMonthsInput().find('input').setValue(1);
+
+      expect(findDeleteAfterMonthsInput().vm.$el.setCustomValidity).toHaveBeenCalledWith('');
+    });
+
+    it('when Delete project after is set to 0, it sets HTML error', async () => {
+      await findDeleteAfterMonthsInput().find('input').setValue(0);
+
+      expect(findDeleteAfterMonthsInput().vm.$el.setCustomValidity).toHaveBeenCalledWith(
+        "You can't delete projects before the warning email is sent.",
+      );
+    });
+
+    it('when Send warning email is set to 0, it sets HTML error', async () => {
+      await findSendWarningEmailAfterMonthsInput().find('input').setValue(0);
+
+      expect(findSendWarningEmailAfterMonthsInput().vm.$el.setCustomValidity).toHaveBeenCalledWith(
+        'Setting must be greater than 0.',
+      );
+    });
   });
 });

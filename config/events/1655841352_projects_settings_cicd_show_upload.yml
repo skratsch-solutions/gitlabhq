@@ -7,12 +7,11 @@ identifiers:
   - project
   - user
   - namespace
-product_group: pipeline_authoring
+product_group: pipeline_security
+product_categories:
+- secrets_management
 milestone: "15.2"
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/90449
-distributions:
-  - ce
-  - ee
 tiers:
   - free
   - premium

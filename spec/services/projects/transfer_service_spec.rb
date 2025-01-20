@@ -13,6 +13,10 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
 
   subject(:execute_transfer) { described_class.new(project, executor).execute(target).tap { project.reload } }
 
+  before do
+    allow(project).to receive(:has_container_registry_tags?).and_return(false)
+  end
+
   context 'with npm packages' do
     before do
       group.add_owner(user)
@@ -22,10 +26,16 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
 
     let!(:package) { create(:npm_package, project: project, name: "@testscope/test") }
 
-    context 'with a root namespace change' do
-      it 'allow the transfer' do
-        expect(transfer_service.execute(group)).to be true
+    shared_examples 'allow the transfer' do
+      it 'allows the transfer' do
+        expect(transfer_service.execute(namespace)).to be true
         expect(project.errors[:new_namespace]).to be_empty
+      end
+    end
+
+    context 'with a root namespace change' do
+      it_behaves_like 'allow the transfer' do
+        let(:namespace) { group }
       end
     end
 
@@ -34,9 +44,8 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
         package.pending_destruction!
       end
 
-      it 'allow the transfer' do
-        expect(transfer_service.execute(group)).to be true
-        expect(project.errors[:new_namespace]).to be_empty
+      it_behaves_like 'allow the transfer' do
+        let(:namespace) { group }
       end
     end
 
@@ -59,9 +68,8 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
         other_group.add_owner(user)
       end
 
-      it 'allow the transfer' do
-        expect(transfer_service.execute(other_group)).to be true
-        expect(project.errors[:new_namespace]).to be_empty
+      it_behaves_like 'allow the transfer' do
+        let(:namespace) { other_group }
       end
     end
   end
@@ -425,17 +433,70 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     end
   end
 
-  context 'disallow transferring of project with tags' do
-    let(:container_repository) { create(:container_repository) }
+  context 'when the project has registry tags' do
+    let_it_be_with_reload(:project) { create(:project, :repository, :legacy_storage, namespace: group) }
+    let(:target) { create(:group, parent: group) }
 
     before do
-      stub_container_registry_config(enabled: true)
-      stub_container_registry_tags(repository: :any, tags: ['tag'])
-      project.container_repositories << container_repository
+      group.add_owner(user)
+      allow(project).to receive(:has_container_registry_tags?).and_return(true)
     end
 
-    it 'does not allow the project transfer' do
-      expect(execute_transfer).to eq false
+    shared_examples 'project transfer failed with a message' do |message|
+      it 'fails with an error message' do
+        expect(execute_transfer).to eq false
+        expect(project.errors[:new_namespace]).to include(message)
+      end
+    end
+
+    context 'when the GitLab API is supported' do
+      let(:dry_run_result) { :accepted }
+
+      before do
+        allow(ContainerRegistry::GitlabApiClient).to receive_messages(supports_gitlab_api?: true, move_repository_to_namespace: dry_run_result)
+      end
+
+      context 'when transferring within the same top level namespace' do
+        context 'when the dry run in the registry succeeds' do
+          it 'allows the transfer to continue' do
+            expect(ContainerRegistry::GitlabApiClient).to receive(:move_repository_to_namespace).with(
+              project.full_path, namespace: target.full_path, dry_run: true)
+
+            expect(execute_transfer).to eq true
+          end
+        end
+
+        context 'when the dry run in the registry fails' do
+          let(:dry_run_result) { :bad_request }
+
+          before do
+            expect(ContainerRegistry::GitlabApiClient)
+              .to receive(:move_repository_to_namespace)
+              .with(project.full_path, namespace: target.full_path, dry_run: true)
+              .and_return(dry_run_result)
+          end
+
+          it_behaves_like 'project transfer failed with a message', 'Project cannot be transferred because of a container registry error: Bad Request'
+        end
+      end
+
+      context 'when transferring to a different top level namespace' do
+        let(:target) { create(:group) }
+
+        before do
+          target.add_owner(user)
+        end
+
+        it_behaves_like 'project transfer failed with a message', 'Project cannot be transferred to a different top-level namespace, because image tags are present in its container registry'
+      end
+    end
+
+    context 'when the GitLab API is not supported' do
+      before do
+        allow(ContainerRegistry::GitlabApiClient).to receive(:supports_gitlab_api?).and_return(false)
+      end
+
+      it_behaves_like 'project transfer failed with a message', 'Project cannot be transferred, because image tags are present in its container registry'
     end
   end
 

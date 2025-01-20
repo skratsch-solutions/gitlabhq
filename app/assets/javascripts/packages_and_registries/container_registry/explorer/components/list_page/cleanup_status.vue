@@ -78,8 +78,8 @@ export default {
 </script>
 
 <template>
-  <div v-if="showStatus" id="status-popover-container" class="gl-inline-flex gl-align-items-center">
-    <div class="gl-inline-flex gl-align-items-center">
+  <div v-if="showStatus" id="status-popover-container" class="gl-inline-flex gl-items-center">
+    <div class="gl-inline-flex gl-items-center">
       <gl-icon :name="expireIconName" data-testid="main-icon" />
     </div>
     <span class="gl-mx-2">
@@ -89,7 +89,7 @@ export default {
       v-if="failedDelete && calculatedTimeTilNextRun"
       :id="iconId"
       :size="16"
-      class="gl-text-gray-500"
+      class="gl-text-subtle"
       data-testid="extra-info"
       name="information-o"
     />
@@ -104,7 +104,7 @@ export default {
       <gl-sprintf :message="$options.i18n.PARTIAL_CLEANUP_CONTINUE_MESSAGE">
         <template #time>{{ calculatedTimeTilNextRun }}</template
         ><template #link="{ content }"
-          ><gl-link :href="$options.cleanupPolicyHelpPage" class="gl-font-sm" target="_blank">{{
+          ><gl-link :href="$options.cleanupPolicyHelpPage" class="gl-text-sm" target="_blank">{{
             content
           }}</gl-link></template
         >

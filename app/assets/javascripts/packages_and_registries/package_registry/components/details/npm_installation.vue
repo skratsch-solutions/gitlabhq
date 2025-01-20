@@ -128,7 +128,7 @@ export default {
       :tracking-label="$options.tracking.TRACKING_LABEL_CODE_INSTRUCTION"
     />
 
-    <h3 class="gl-font-lg">{{ __('Registry setup') }}</h3>
+    <h3 class="gl-text-lg">{{ __('Registry setup') }}</h3>
 
     <gl-form-radio-group
       :options="$options.packageEndpointTypeOptions"
@@ -152,7 +152,7 @@ export default {
       :tracking-label="$options.tracking.TRACKING_LABEL_CODE_INSTRUCTION"
     />
 
-    <span class="gl-text-secondary">
+    <span class="gl-text-subtle">
       <gl-sprintf :message="$options.i18n.helpText">
         <template #link="{ content }">
           <gl-link :href="$options.links.NPM_HELP_PATH" target="_blank">{{ content }}</gl-link>

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Value stream analytics measures the time it takes to go from an idea to production.
 
@@ -31,6 +31,8 @@ Value stream analytics helps businesses:
 - Optimize their workstreams to deliver more value, faster.
 
 Value stream analytics is available for projects and groups.
+
+For a click-through demo, see [the Value Stream Management product tour](https://gitlab.navattic.com/vsm).
 
 ## Feature availability
 
@@ -111,7 +113,7 @@ To learn what start and end events can be paired, see [Validating start and end 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Enable filtering by stop date [added](https://gitlab.com/gitlab-org/gitlab/-/issues/355000) in GitLab 15.0
 
@@ -134,7 +136,7 @@ To view when the data was most recently updated, in the right corner next to **E
 Value stream analytics measures each stage from its start event to its end event.
 Only items that have reached their end event are included in the stage time calculation.
 
-By default, blocked issues are not included in the life cycle overview.
+By default, blocked issues are not included in the lifecycle overview.
 However, you can use custom labels (for example `workflow::blocked`) to track them.
 
 You can customize stages in value stream analytics based on pre-defined events.
@@ -201,7 +203,7 @@ Keep in mind the following observations related to this example:
 #### Cumulative label event duration
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/432576) in GitLab 16.9 [with flags](../../../administration/feature_flags.md) named `enable_vsa_cumulative_label_duration_calculation` and `vsa_duration_from_db`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-com/gl-infra/production/-/issues/17476) in GitLab 16.10. Feature flag `vsa_duration_from_db` removed.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-com/gl-infra/production/-/issues/17476) in GitLab 16.10. Feature flag `vsa_duration_from_db` removed.
 > - Feature flag `enable_vsa_cumulative_label_duration_calculation` [removed](https://gitlab.com/gitlab-com/gl-infra/production/-/issues/17478) in GitLab 17.0.
 
 With this feature, value stream analytics measures the duration of repetitive events for label-based stages. You should configure label removal or addition events for both start and end events.
@@ -222,9 +224,9 @@ When you upgrade your GitLab version to 16.10 (or to a higher version), existing
 ##### Reaggregate data after upgrade
 
 DETAILS:
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-On large self-managed GitLab instances, when you upgrade the GitLab version and especially if several minor versions are skipped, the background aggregation processes might last longer. This delay can result in outdated data on the Value Stream Analytics page.
+On large instances, when you upgrade the GitLab version and especially if several minor versions are skipped, the background aggregation processes might last longer. This delay can result in outdated data on the Value Stream Analytics page.
 To speed up the aggregation process and avoid outdated data, in the [rails console](../../../administration/operations/rails_console.md#starting-a-rails-console-session) you can invoke the synchronous aggregation snippet for a given group:
 
 ```ruby
@@ -279,13 +281,13 @@ You can change the name of a project environment in your GitLab CI/CD configurat
 ## View value stream analytics
 
 > - Predefined date ranges dropdown list [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/408656/) in GitLab 16.5 [with a flag](../../../administration/feature_flags.md) named `vsa_predefined_date_ranges`. Disabled by default.
-> - Predefined date ranges dropdown list [enabled on self-managed and GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/433149) in GitLab 16.7.
+> - Predefined date ranges dropdown list [enabled on GitLab Self-Managed and GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/433149) in GitLab 16.7.
 > - Predefined date ranges dropdown list [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/438051) in GitLab 16.9. Feature flag `vsa_predefined_date_ranges` removed.
 
 Prerequisites:
 
 - You must have at least the Reporter role.
-- You must create a [custom value stream](#create-a-value-stream-with-gitlab-default-stages). Value stream analytics only shows custom value streams created for your group or project.
+- You must create a [custom value stream](#create-a-value-stream). Value stream analytics only shows custom value streams created for your group or project.
 
 To view value stream analytics for your group or project:
 
@@ -313,6 +315,9 @@ The table shows a list of related workflow items for the selected stage. Based o
 
 - Issues
 - Merge requests
+
+NOTE:
+The end date for each predefined date range is the current day, and is included in the number of days selected. For example, the start date for `Last 30 days` is 29 days prior to the current day for a total of 30 days.
 
 ### Data filters
 
@@ -347,7 +352,7 @@ Value stream analytics includes the following lifecycle metrics:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/355304) time to restore service tile in GitLab 15.0.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/357071) change failure rate tile in GitLab 15.0.
@@ -421,7 +426,7 @@ selected stage finished for the given item.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The **Tasks by type** chart displays the cumulative number of issues and merge requests per day for your group.
 
@@ -442,12 +447,10 @@ To view tasks by type:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-> - **New value stream** feature [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/381002) from a dialog to a page in GitLab 16.11 [with a flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. Disabled by default.
-
-FLAG:
-On self-managed GitLab, by default the **New value stream** feature is not available. To make it available, an administrator can enable the [feature flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. On GitLab.com and GitLab Dedicated, this feature is not available. This feature is not ready for production use.
+> - **New value stream** [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/381002) from a dialog to a page in GitLab 16.10 [with a flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. Disabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/171856) in GitLab 17.7. Feature flag `vsa_standalone_settings_page` removed.
 
 ### Create a value stream with GitLab default stages
 
@@ -462,7 +465,7 @@ create custom stages in addition to those provided in the default template.
 1. Customize the default stages:
    - To re-order stages, select the up or down arrows.
    - To hide a stage, select **Hide** (**{eye-slash}**).
-1. To add a custom stage, select **Add another stage**.
+1. To add a custom stage, select **Add a stage**.
    - Enter a name for the stage.
    - Select a **Start event** and a **Stop event**.
 1. Select **New value stream**.
@@ -480,9 +483,13 @@ When you create a value stream, you can create and add custom stages that align 
 1. For each stage:
    - Enter a name for the stage.
    - Select a **Start event** and a **Stop event**.
-1. To add another stage, select **Add another stage**.
+1. To add another stage, select **Add a stage**.
 1. To re-order the stages, select the up or down arrows.
 1. Select **New value stream**.
+
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+For a video explanation, see [Optimizing merge request review process with Value Stream Analytics](https://www.youtube.com/watch?v=kblpge6xeL8).
+<!-- Video published on 2024-07-29 -->
 
 #### Label-based stages for custom value streams
 
@@ -503,7 +510,7 @@ To learn more about the implementation, see the blog post [Applying GitLab Label
 
 #### Example for custom value stream configuration
 
-![Example configuration](img/object_hierarchy_example_V14_10.png "Example custom value stream configuration")
+![Example configuration](img/object_hierarchy_v14_10.png "Example custom value stream configuration")
 
 In the example above, two independent value streams are set up for two teams that are using different development workflows in the **Test Group** (top-level namespace).
 
@@ -513,24 +520,22 @@ The first value stream uses standard timestamp-based events for defining the sta
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-> - **Edit value stream** feature [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/381002) from a dialog to a page in GitLab 16.11 [with a flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. Disabled by default.
-
-FLAG:
-On self-managed GitLab, by default the **Edit value stream** feature is not available. To make it available, an administrator can enable the [feature flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. On GitLab.com and GitLab Dedicated, this feature is not available. This feature is not ready for production use.
+> - **Edit value stream** [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/381002) from a dialog to a page in GitLab 16.10 [with a flag](../../../administration/feature_flags.md) named `vsa_standalone_settings_page`. Disabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/171856) in GitLab 17.7. Feature flag `vsa_standalone_settings_page` removed.
 
 After you create a value stream, you can customize it to suit your purposes. To edit a value stream:
 
 1. On the left sidebar, select **Search or go to** and find your project or group.
-1. Select **Analyze > Value Stream analytics**.
-1. In the upper-right corner, select the dropdown list, then select a value stream.
+1. Select **Analyze > Value stream analytics**.
+1. From the value stream dropdown list, select the value stream you want to edit.
 1. Next to the value stream dropdown list, select **Edit**.
 1. Optional:
    - Rename the value stream.
    - Hide or re-order default stages.
    - Remove existing custom stages.
-   - To add new stages, select **Add another stage**.
+   - To add new stages, select **Add a stage**.
    - Select the start and end events for the stage.
 1. Optional. To undo any modifications, select **Restore value stream defaults**.
 1. Select **Save Value Stream**.
@@ -539,22 +544,20 @@ After you create a value stream, you can customize it to suit your purposes. To 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To delete a custom value stream:
 
 1. On the left sidebar, select **Search or go to** and find your project or group.
-1. In the upper-right corner, select the dropdown list, then select the value stream you would like to delete.
-1. Select **Delete (name of value stream)**.
+1. Select **Analyze > Value stream analytics**.
+1. From the value stream dropdown list, select the value stream you want to delete, then **Delete (name of value stream)**.
 1. To confirm, select **Delete**.
-
-![Delete value stream](img/delete_value_stream_v13_12.png "Deleting a custom value stream")
 
 ## View number of days for a cycle to complete
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The **Total time chart** shows the average number of days it takes for development cycles to complete.
 The chart shows data for the last 500 workflow items.
@@ -586,7 +589,7 @@ Access permissions for value stream analytics depend on the project type.
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Loading stage metrics through GraphQL [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/410327) in GitLab 17.0.
 
@@ -732,6 +735,42 @@ group(fullPath: "your-group-path") {
 - For periodic reporting, you can create a script and use the [scheduled pipelines](../../../ci/pipelines/schedules.md) feature to export the data in a timely manner.
 - When invoking the API, you get the current data from the database. Over time, the same metrics might change due to changes in the underlying data in the database. For example, moving or removing a project from the group might affect group-level metrics.
 - Re-requesting the metrics for previous periods and comparing them to the previously collected metrics can show skews in the data, which can help in discovering and explaining changing trends.
+
+## Forecast deployment frequency with Value Stream Forecasting
+
+DETAILS:
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**Status:** Experiment
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10228) in GitLab 16.2 as an [experiment](../../../policy/development_stages_support.md#experiment).
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
+
+Improve your planning and decision-making by predicting productivity metrics and
+identifying anomalies across your software development lifecycle.
+
+Prerequisites:
+
+- You must belong to at least one group with the [experiment and beta features setting](../../gitlab_duo/turn_on_off.md#turn-on-beta-and-experimental-features) enabled.
+- You must have permission to view the CI/CD analytics.
+
+To view a forecast of deployment frequency in CI/CD Analytics:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Analyze > CI/CD analytics**.
+1. Select the **Deployment frequency** tab.
+1. Turn on the **Show forecast** toggle.
+1. On the confirmation dialog, select **Accept testing terms**.
+
+The forecast is displayed as a dotted line on the chart. Data is forecasted for
+a duration that is half of the selected date range.
+
+For example, if you select a 30-day range, a forecast for the following 15 days
+is displayed.
+
+![Forecast deployment frequency](img/forecast_deployment_frequency_v16_5.png)
+
+Provide feedback on this experimental feature in [issue 416833](https://gitlab.com/gitlab-org/gitlab/-/issues/416833).
 
 ## Troubleshooting
 

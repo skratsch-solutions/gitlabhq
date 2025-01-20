@@ -9,7 +9,7 @@ description: "Merge requests show the results of CI/CD pipelines and mergeabilit
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The **Overview** page of a merge request displays status updates from services
 that perform actions on your merge request. All subscription levels display a
@@ -31,7 +31,7 @@ If an application is successfully deployed to an
 
 NOTE:
 When the pipeline fails in a merge request but it can still merge,
-GitLab shows the **Merge** button in red.
+GitLab shows **Merge** in red.
 
 ## Post-merge pipeline status
 
@@ -52,7 +52,7 @@ For more information, [read about pipelines](../../../ci/pipelines/index.md).
 ## Set auto-merge
 
 Set a merge request that looks ready to merge to
-[merge automatically when CI pipeline succeeds](merge_when_pipeline_succeeds.md).
+[merge automatically when CI pipeline succeeds](auto_merge.md).
 
 ## Live preview with review apps
 
@@ -71,7 +71,7 @@ faster to preview proposed modifications.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To view a list of licenses that detected for your project's dependencies,
 configure [License Compliance](../../compliance/license_scanning_of_cyclonedx_files/index.md)
@@ -83,7 +83,7 @@ for your project.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If you have configured [external status checks](status_checks.md) you can
 see the status of these checks in merge requests
@@ -93,4 +93,4 @@ see the status of these checks in merge requests
 
 If you enable any application security scanning tools, GitLab shows the results in the security
 scanning widget. For more information, see
-[security scanning output in merge request widget](../../application_security/index.md#merge-request).
+[security scanning output in merge request widget](../../application_security/detect/security_scan_results.md#merge-request).

@@ -6,11 +6,7 @@ import BlobHeader from '~/blob/components/blob_header.vue';
 import DefaultActions from '~/blob/components/blob_header_default_actions.vue';
 import BlobFilepath from '~/blob/components/blob_header_filepath.vue';
 import ViewerSwitcher from '~/blob/components/blob_header_viewer_switcher.vue';
-import {
-  RICH_BLOB_VIEWER_TITLE,
-  SIMPLE_BLOB_VIEWER,
-  SIMPLE_BLOB_VIEWER_TITLE,
-} from '~/blob/components/constants';
+import { SIMPLE_BLOB_VIEWER } from '~/blob/components/constants';
 import TableContents from '~/blob/components/table_contents.vue';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
@@ -26,14 +22,17 @@ describe('Blob Header Default Actions', () => {
 
   const defaultProvide = {
     blobHash: 'foo-bar',
+    glFeatures: { blobOverflowMenu: true },
   };
 
   const findDefaultActions = () => wrapper.findComponent(DefaultActions);
   const findTableContents = () => wrapper.findComponent(TableContents);
   const findViewSwitcher = () => wrapper.findComponent(ViewerSwitcher);
   const findBlobFilePath = () => wrapper.findComponent(BlobFilepath);
-  const findRichTextEditorBtn = () => wrapper.findByLabelText(RICH_BLOB_VIEWER_TITLE);
-  const findSimpleTextEditorBtn = () => wrapper.findByLabelText(SIMPLE_BLOB_VIEWER_TITLE);
+  const findRichTextEditorBtn = () =>
+    wrapper.findComponent('[data-testid="rich-blob-viewer-button"]');
+  const findSimpleTextEditorBtn = () =>
+    wrapper.findComponent('[data-testid="simple-blob-viewer-button"]');
   const findWebIdeLink = () => wrapper.findComponent(WebIdeLink);
 
   async function createComponent({
@@ -64,6 +63,9 @@ describe('Blob Header Default Actions', () => {
         blob: { ...Blob, ...blobProps },
         ...propsData,
       },
+      stubs: {
+        WebIdeLink,
+      },
       ...options,
     });
 
@@ -75,21 +77,30 @@ describe('Blob Header Default Actions', () => {
       it('renders the WebIdeLink component with the correct props', async () => {
         const { ideEditPath, editBlobPath, gitpodBlobUrl, pipelineEditorPath } = Blob;
         const showForkSuggestion = false;
-        await createComponent({ propsData: { showForkSuggestion } });
+        const showWebIdeForkSuggestion = false;
+        await createComponent({ propsData: { showForkSuggestion, showWebIdeForkSuggestion } });
 
         expect(findWebIdeLink().props()).toMatchObject({
           showEditButton: true,
+          buttonVariant: 'confirm',
           editUrl: editBlobPath,
           webIdeUrl: ideEditPath,
           needsToFork: showForkSuggestion,
+          needsToForkWithWebIde: showWebIdeForkSuggestion,
           showPipelineEditorButton: Boolean(pipelineEditorPath),
           pipelineEditorUrl: pipelineEditorPath,
           gitpodUrl: gitpodBlobUrl,
           showGitpodButton: applicationInfoMock.gitpodEnabled,
           gitpodEnabled: userInfoMock.currentUser.gitpodEnabled,
-          userPreferencesGitpodPath: userInfoMock.currentUser.preferencesGitpodPath,
-          userProfileEnableGitpodPath: userInfoMock.currentUser.profileEnableGitpodPath,
         });
+      });
+
+      it('passes the edit button variant down to the WebIdeLink', () => {
+        const editButtonVariant = 'danger';
+
+        createComponent({ propsData: { editButtonVariant } });
+
+        expect(findWebIdeLink().props('buttonVariant')).toBe(editButtonVariant);
       });
 
       it.each([[{ archived: true }], [{ editBlobPath: null }]])(
@@ -114,6 +125,12 @@ describe('Blob Header Default Actions', () => {
 
         expect(findComponent().exists()).toBe(true);
       });
+    });
+
+    it('does not render DefaultActions when on blob page', () => {
+      createComponent({ propsData: { isBlobPage: true } });
+
+      expect(findDefaultActions().exists()).toBe(false);
     });
 
     it.each([[{ showBlameToggle: true }], [{ showBlameToggle: false }]])(
@@ -141,15 +158,6 @@ describe('Blob Header Default Actions', () => {
         },
       });
       expect(findViewSwitcher().exists()).toBe(false);
-    });
-
-    it('does not render default actions is corresponding prop is passed', () => {
-      createComponent({
-        propsData: {
-          hideDefaultActions: true,
-        },
-      });
-      expect(findDefaultActions().exists()).toBe(false);
     });
 
     it.each`
@@ -181,6 +189,12 @@ describe('Blob Header Default Actions', () => {
       createComponent({ propsData: { isBinary: true } });
 
       expect(findDefaultActions().props('isBinary')).toBe(true);
+    });
+
+    it('passes the `showBlobSize` prop to `blobFilepath`', () => {
+      const showBlobSize = false;
+      createComponent({ propsData: { showBlobSize } });
+      expect(findBlobFilePath().props('showBlobSize')).toBe(showBlobSize);
     });
   });
 

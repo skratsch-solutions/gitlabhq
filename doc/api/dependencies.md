@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Composition Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,12 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-WARNING:
-This API is in an [experiment](../policy/experiment-beta-support.md#experiment) and considered unstable.
-The response payload may be subject to change or breakage
-across GitLab releases.
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Every call to this endpoint requires authentication. To perform this call, user should be authorized to read repository.
 To see vulnerabilities in response, user should be authorized to read
@@ -34,7 +29,7 @@ GET /projects/:id/dependencies?package_manager=yarn,bundler
 
 | Attribute     | Type           | Required | Description                                                                                                                                                                 |
 | ------------- | -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding).                                                            |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths).                                                            |
 | `package_manager` | string array   | no       | Returns dependencies belonging to specified package manager. Valid values: `bundler`, `composer`, `conan`, `go`, `gradle`, `maven`, `npm`, `nuget`, `pip`, `pipenv`, `pnpm`, `yarn`, `sbt`, or `setuptools`. |
 
 ```shell

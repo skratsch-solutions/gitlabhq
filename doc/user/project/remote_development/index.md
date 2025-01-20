@@ -1,6 +1,6 @@
 ---
 stage: Create
-group: IDE
+group: Remote Development
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 description: "Use your web browser to write code in a secure environment."
 ---
@@ -9,7 +9,7 @@ description: "Use your web browser to write code in a secure environment."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Remote development is a set of features you can use to make code changes
 without having to install any dependencies or clone any repositories locally.

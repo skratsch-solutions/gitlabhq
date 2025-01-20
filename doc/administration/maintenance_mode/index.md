@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Maintenance Mode allows administrators to reduce write operations to a minimum while maintenance tasks are performed. The main goal is to block all external actions that change the internal state. The internal state includes the PostgreSQL database, but especially files, Git repositories, and Container repositories.
 
@@ -23,7 +23,7 @@ Maintenance Mode allows most external actions that do not change internal state.
 Enable Maintenance Mode as an administrator in one of these ways:
 
 - **Web UI**:
-  1. On the left sidebar, at the bottom, select **Admin Area**.
+  1. On the left sidebar, at the bottom, select **Admin**.
   1. On the left sidebar, select **Settings > General**.
   1. Expand **Maintenance Mode**, and toggle **Enable Maintenance Mode**.
      You can optionally add a message for the banner as well.
@@ -35,19 +35,12 @@ Enable Maintenance Mode as an administrator in one of these ways:
   curl --request PUT --header "PRIVATE-TOKEN:$ADMIN_TOKEN" "<gitlab-url>/api/v4/application/settings?maintenance_mode=true"
   ```
 
-- [**Rails console**](../operations/rails_console.md#starting-a-rails-console-session):
-
-  ```ruby
-  ::Gitlab::CurrentSettings.update!(maintenance_mode: true)
-  ::Gitlab::CurrentSettings.update!(maintenance_mode_message: "New message")
-  ```
-
 ## Disable Maintenance Mode
 
 Disable Maintenance Mode in one of three ways:
 
 - **Web UI**:
-  1. On the left sidebar, at the bottom, select **Admin Area**.
+  1. On the left sidebar, at the bottom, select **Admin**.
   1. On the left sidebar, select **Settings > General**.
   1. Expand **Maintenance Mode**, and toggle **Enable Maintenance Mode**.
      You can optionally add a message for the banner as well.
@@ -59,12 +52,6 @@ Disable Maintenance Mode in one of three ways:
   curl --request PUT --header "PRIVATE-TOKEN:$ADMIN_TOKEN" "<gitlab-url>/api/v4/application/settings?maintenance_mode=false"
   ```
 
-- [**Rails console**](../operations/rails_console.md#starting-a-rails-console-session):
-
-  ```ruby
-  ::Gitlab::CurrentSettings.update!(maintenance_mode: false)
-  ```
-
 ## Behavior of GitLab features in Maintenance Mode
 
 When Maintenance Mode is enabled, a banner is displayed at the top of the page.
@@ -72,7 +59,7 @@ The banner can be customized with a specific message.
 
 An error is displayed when a user tries to perform a write operation that isn't allowed.
 
-![Maintenance Mode banner and error message](img/maintenance_mode_error_message.png)
+![Maintenance Mode banner and error message](img/maintenance_mode_error_message_v17.6.png)
 
 NOTE:
 In some cases, the visual feedback from an action could be misleading. For example, when starring a project, the **Star** button changes to show the **Unstar** action. However, this is only the frontend update, and it doesn't take into account the failed status of the POST request. These visual bugs are to be fixed [in follow-up iterations](https://gitlab.com/gitlab-org/gitlab/-/issues/295197).
@@ -122,7 +109,7 @@ For most JSON requests, `POST`, `PUT`, `PATCH`, and `DELETE` are blocked, and th
 | `POST` | Paths ending with `/compare`| Git revision routes. |
 | `POST` | `.git/git-upload-pack` | To allow Git pull/clone. |
 | `POST` | `/api/v4/internal` | [internal API routes](../../development/internal_api/index.md) |
-| `POST` | `/admin/sidekiq` | To allow management of background jobs in the Admin Area |
+| `POST` | `/admin/sidekiq` | To allow management of background jobs in the **Admin** area |
 | `POST` | `/admin/geo` | To allow updating Geo Nodes in the administrator UI |
 | `POST` | `/api/v4/geo_replication`| To allow certain Geo-specific administrator UI actions on secondary sites |
 
@@ -181,8 +168,8 @@ you should disable all cron jobs except for those related to Geo.
 
 To monitor queues and disable jobs:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Monitoring > Background Jobs**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Monitoring > Background jobs**.
 1. In the Sidekiq dashboard, select **Cron** and disable jobs individually or all at once by selecting **Disable All**.
 
 ### Incident management

@@ -1,8 +1,7 @@
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { readFile, rm } from 'node:fs/promises';
 
-const ROOT_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const ROOT_PATH = join(import.meta.dirname, '..', '..');
 const NODE_MODULES = join(ROOT_PATH, 'node_modules');
 const INTEGRITY_FILE = join(NODE_MODULES, '.yarn-integrity');
 const PACKAGE_JSON = join(ROOT_PATH, 'package.json');
@@ -31,7 +30,7 @@ async function getCurrentTopLevelPatterns() {
 
     return serializeAliasedDependencyPatterns(dependencies)
       .concat(serializeAliasedDependencyPatterns(devDependencies))
-      .filter(isAliasedDependency);
+      .filter(dep => isAliasedDependency(dep));
   } catch {
     return [];
   }

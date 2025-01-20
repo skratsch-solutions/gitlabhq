@@ -5,11 +5,12 @@ import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import waitForPromises from 'helpers/wait_for_promises';
 import { DEFAULT_PER_PAGE } from '~/api';
-import { __, s__, sprintf } from '~/locale';
+import { sprintf } from '~/locale';
 import TagSearch from '~/releases/components/tag_search.vue';
 import createStore from '~/releases/stores';
 import createEditNewModule from '~/releases/stores/modules/edit_new';
 import { createRefModule } from '~/ref/stores';
+import { HTTP_STATUS_OK } from '~/lib/utils/http_status';
 
 const TEST_TAG_NAME = 'test-tag-name';
 const TEST_PROJECT_ID = '1234';
@@ -46,14 +47,17 @@ describe('releases/components/tag_search', () => {
   afterEach(() => mock.restore());
 
   const findSearch = () => wrapper.findComponent(GlSearchBoxByType);
-  const findCreate = () => wrapper.findAllComponents(GlButton).at(-1);
+  const findCreate = () => {
+    const buttons = wrapper.findAllComponents(GlButton);
+    return buttons.at(buttons.length - 1);
+  };
   const findResults = () => wrapper.findAllComponents(GlDropdownItem);
 
   describe('init', () => {
     beforeEach(async () => {
       mock
         .onGet(`/api/v4/projects/${TEST_PROJECT_ID}/repository/tags`)
-        .reply(200, TAGS, { 'x-total': TAGS.length });
+        .reply(HTTP_STATUS_OK, TAGS, { 'x-total': TAGS.length });
 
       createWrapper();
 
@@ -66,7 +70,7 @@ describe('releases/components/tag_search', () => {
 
     it('has a disabled button', () => {
       const button = findCreate();
-      expect(button.text()).toBe(s__('Release|Or type a new tag name'));
+      expect(button.text()).toBe('Or type a new tag name');
       expect(button.props('disabled')).toBe(true);
     });
 
@@ -83,7 +87,7 @@ describe('releases/components/tag_search', () => {
           .onGet(`/api/v4/projects/${TEST_PROJECT_ID}/repository/tags`, {
             params: { search: query, per_page: DEFAULT_PER_PAGE },
           })
-          .reply(200, [], { 'x-total': 0 });
+          .reply(HTTP_STATUS_OK, [], { 'x-total': 0 });
 
         findSearch().vm.$emit('input', query);
 
@@ -92,7 +96,7 @@ describe('releases/components/tag_search', () => {
       });
 
       it('shows "No results found" when there are no results', () => {
-        expect(wrapper.text()).toContain(__('No results found'));
+        expect(wrapper.text()).toContain('No results found');
       });
 
       it('searches with the given input', () => {
@@ -113,7 +117,7 @@ describe('releases/components/tag_search', () => {
         .onGet(`/api/v4/projects/${TEST_PROJECT_ID}/repository/tags`, {
           params: { search: query, per_page: DEFAULT_PER_PAGE },
         })
-        .reply(200, TAGS, { 'x-total': TAGS.length });
+        .reply(HTTP_STATUS_OK, TAGS, { 'x-total': TAGS.length });
 
       createWrapper({ query });
 
@@ -126,9 +130,7 @@ describe('releases/components/tag_search', () => {
 
     it('has an enabled button', () => {
       const button = findCreate();
-      expect(button.text()).toMatchInterpolatedText(
-        sprintf(s__('Release|Create tag %{tag}'), { tag: query }),
-      );
+      expect(button.text()).toMatchInterpolatedText(sprintf('Create tag %{tag}', { tag: query }));
       expect(button.props('disabled')).toBe(false);
     });
 

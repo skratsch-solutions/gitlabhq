@@ -26,14 +26,11 @@ import {
   I18N_REGISTER_PROJECT_TYPE,
 } from '~/ci/runner/constants';
 
-import getRunnerPlatformsQuery from '~/vue_shared/components/runner_instructions/graphql/get_runner_platforms.query.graphql';
-import getRunnerSetupInstructionsQuery from '~/vue_shared/components/runner_instructions/graphql/get_runner_setup.query.graphql';
+import getRunnerPlatformsQuery from '~/ci/runner/components/registration/runner_instructions/graphql/get_runner_platforms.query.graphql';
+import getRunnerSetupInstructionsQuery from '~/ci/runner/components/registration/runner_instructions/graphql/get_runner_setup.query.graphql';
 
-import {
-  mockRunnerPlatforms,
-  mockInstructions,
-} from 'jest/vue_shared/components/runner_instructions/mock_data';
 import { mockRegistrationToken } from '../../mock_data';
+import { mockRunnerPlatforms, mockInstructions } from './runner_instructions/mock_data';
 
 Vue.use(VueApollo);
 
@@ -160,7 +157,7 @@ describe('RegistrationDropdown', () => {
       });
 
       expect(findDropdown().attributes()).toMatchObject({
-        toggleclass: 'gl-px-3!',
+        toggleclass: '!gl-px-3',
       });
     });
 
@@ -309,7 +306,7 @@ describe('RegistrationDropdown', () => {
         });
 
         expect(findDropdown().attributes()).toMatchObject({
-          toggleclass: 'gl-px-3!',
+          toggleclass: '!gl-px-3',
         });
       });
 
@@ -357,7 +354,7 @@ describe('RegistrationDropdown', () => {
     });
 
     it('the component is not shown', () => {
-      expect(wrapper.html()).toBe('');
+      expect(wrapper.find('*').exists()).toBe(false);
     });
   });
 });

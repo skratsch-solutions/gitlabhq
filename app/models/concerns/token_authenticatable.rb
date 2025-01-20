@@ -31,8 +31,7 @@ module TokenAuthenticatable
 
       attr_accessor :cleartext_tokens
 
-      strategy = TokenAuthenticatableStrategies::Base
-        .fabricate(self, token_field, options)
+      strategy = Authn::TokenField::Base.fabricate(self, token_field, options)
 
       token_authenticatable_sensitive_fields.concat(strategy.sensitive_fields.map(&:to_sym))
 
@@ -69,13 +68,6 @@ module TokenAuthenticatable
       mod.define_method("#{token_field}_matches?") do |other_token|
         token = read_attribute(token_field)
         token.present? && ActiveSupport::SecurityUtils.secure_compare(other_token, token)
-      end
-
-      # Base strategy delegates to this method for formatting a token before
-      # calling set_token. Can be overridden in models to e.g. add a prefix
-      # to the tokens
-      mod.define_method("format_#{token_field}") do |token|
-        token
       end
 
       mod.define_method("#{token_field}_expires_at") do

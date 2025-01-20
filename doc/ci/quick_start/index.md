@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This tutorial shows you how to configure and run your first CI/CD pipeline in GitLab.
 
@@ -44,7 +44,9 @@ In GitLab, runners are agents that run your CI/CD jobs.
 
 To view available runners:
 
-- Go to **Settings > CI/CD** and expand **Runners**.
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > CI/CD**.
+1. Expand **Runners**.
 
 As long as you have at least one runner that's active, with a green circle next to it,
 you have a runner available to process your jobs.
@@ -77,7 +79,7 @@ To create a `.gitlab-ci.yml` file in your project:
    If you're not sure, leave `master` or `main`.
    Then select the plus icon (**{plus}**) and **New file**:
 
-   ![New file](img/new_file_v13_6.png)
+   ![The new file button to create a file in the current folder.](img/new_file_v13_6.png)
 
 1. For the **Filename**, type `.gitlab-ci.yml` and in the larger window,
    paste this sample code:
@@ -123,15 +125,15 @@ Now take a look at your pipeline and the jobs within.
 
 1. Go to **Build > Pipelines**. A pipeline with three stages should be displayed:
 
-   ![Three stages](img/three_stages_v13_6.png)
+   ![The pipeline list shows a running pipeline with 3 stages](img/three_stages_v13_6.png)
 
 1. View a visual representation of your pipeline by selecting the pipeline ID:
 
-   ![Pipeline graph](img/pipeline_graph_v13_6.png)
+   ![The pipeline graph shows each job, its status, and its dependencies across all stages.](img/pipeline_graph_v13_6.png)
 
 1. View details of a job by selecting the job name. For example, `deploy-prod`:
 
-   ![Job details](img/job_details_v13_6.png)
+   ![The job details page shows the current status, timing information, and the output of logs.](img/job_details_v13_6.png)
 
 You have successfully created your first CI/CD pipeline in GitLab. Congratulations!
 
@@ -147,8 +149,8 @@ For the complete `.gitlab-ci.yml` syntax, see the full [CI/CD YAML syntax refere
 - Each job contains a script section and belongs to a stage:
   - [`stage`](../yaml/index.md#stage) describes the sequential execution of jobs.
     If there are runners available, jobs in a single stage run in parallel.
-  - Use the [`needs` keyword](../yaml/index.md#needs) to run jobs out of stage order.
-    This creates a [Directed Acyclic Graph (DAG)](../directed_acyclic_graph/index.md).
+  - Use the [`needs` keyword](../yaml/index.md#needs) to [run jobs out of stage order](../yaml/needs.md),
+    to increase pipeline speed and efficiency.
 - You can set additional configuration to customize how your jobs and stages perform:
   - Use the [`rules`](../yaml/index.md#rules) keyword to specify when to run or skip jobs.
     The `only` and `except` legacy keywords are still supported, but can't be used

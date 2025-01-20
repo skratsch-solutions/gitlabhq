@@ -16,6 +16,16 @@ RSpec.describe ServiceHook, feature_category: :webhooks do
 
   describe 'associations' do
     it { is_expected.to belong_to(:integration) }
+    it { is_expected.to have_many(:web_hook_logs) }
+  end
+
+  describe '#destroy' do
+    it 'does not cascade to web_hook_logs' do
+      web_hook = create(:service_hook)
+      create_list(:web_hook_log, 3, web_hook: web_hook)
+
+      expect { web_hook.destroy! }.not_to change { web_hook.web_hook_logs.count }
+    end
   end
 
   describe 'validations' do
@@ -27,7 +37,8 @@ RSpec.describe ServiceHook, feature_category: :webhooks do
     let(:data) { { key: 'value' } }
 
     it '#execute' do
-      expect(WebHookService).to receive(:new).with(hook, data, 'service_hook', force: false).and_call_original
+      expect(WebHookService).to receive(:new).with(hook, data, 'service_hook', idempotency_key: anything,
+        force: false).and_call_original
       expect_any_instance_of(WebHookService).to receive(:execute)
 
       hook.execute(data)

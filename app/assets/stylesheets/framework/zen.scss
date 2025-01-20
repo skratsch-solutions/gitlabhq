@@ -25,30 +25,28 @@
       margin: 0 auto 10px;
     }
 
+    .div-dropzone {
+      textarea.note-textarea {
+        resize: none !important;
+      }
+    }
+
     .zen-control-leave {
       display: block;
-      position: absolute;
-      top: 0;
     }
   }
 }
 
 .zen-control {
   padding: 0;
-  color: $gray-700;
+  @apply gl-text-subtle;
   background: none;
   border: 0;
 }
 
 .zen-control-leave {
   display: none;
-  color: $gl-text-color;
   position: absolute;
-  right: 10px;
-  padding: 5px;
-  font-size: 36px;
-
-  &:hover {
-    color: $black;
-  }
+  @apply sm:gl-p-3 sm:gl-text-base gl-leading-0 #{!important};
+  @apply gl-right-3 gl-top-3;
 }

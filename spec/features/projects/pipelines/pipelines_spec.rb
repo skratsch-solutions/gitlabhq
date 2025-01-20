@@ -94,8 +94,8 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           wait_for_requests
         end
 
-        it 'renders "Run pipeline" link' do
-          expect(page).to have_link('Run pipeline')
+        it 'renders "New pipeline" link' do
+          expect(page).to have_link('New pipeline')
         end
       end
 
@@ -105,30 +105,55 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
         end
 
         before do
+          stub_const("::Projects::PipelinesController::POLLING_INTERVAL", 1)
           job.run
           visit_project_pipelines
         end
 
         context 'when canceling support is disabled' do
-          before do
-            stub_feature_flags(ci_canceling_status: false)
-          end
-
           it 'indicates that pipeline can be canceled' do
             expect(page).to have_selector('.js-pipelines-cancel-button')
             expect(page).to have_selector('[data-testid="ci-icon"]', text: 'Running')
           end
 
           context 'when canceling' do
-            before do
+            it 'indicates that pipelines was canceled', :sidekiq_inline do
               find('.js-pipelines-cancel-button').click
               click_button 'Stop pipeline'
-              wait_for_requests
-            end
 
-            it 'indicates that pipelines was canceled', :sidekiq_inline do
+              wait_for_requests
+
               expect(page).not_to have_selector('.js-pipelines-cancel-button')
               expect(page).to have_selector('[data-testid="ci-icon"]', text: 'Canceled')
+            end
+
+            it 'targets the pipeline the cancel action was invoked on' do
+              allow_next_instance_of(Gitlab::EtagCaching::Store) do |instance|
+                allow(instance).to receive(:get).and_return(nil)
+              end
+
+              expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 1)
+
+              find('.js-pipelines-cancel-button').click
+
+              within_testid 'pipeline-stop-modal' do
+                expect(page).to have_content("Stop pipeline ##{pipeline.id}?")
+              end
+
+              create(
+                :ci_pipeline,
+                :running,
+                project: project,
+                source: Enums::Ci::Pipeline.sources[:push],
+                ref: 'master',
+                sha: 'sha'
+              )
+
+              expect(page).to have_selector('[data-testid="pipeline-table-row"]', count: 2)
+
+              within_testid 'pipeline-stop-modal' do
+                expect(page).to have_content("Stop pipeline ##{pipeline.id}?")
+              end
             end
           end
         end
@@ -328,8 +353,8 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
             wait_for_all_requests
           end
 
-          it 'enqueues manual action job', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/409984' do
-            expect(page).to have_selector('[data-testid="pipelines-manual-actions-dropdown"] .gl-dropdown-toggle:disabled')
+          it 'enqueues manual action job' do
+            expect(manual.reload).to be_pending
           end
         end
       end
@@ -389,14 +414,15 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
               click_button 'delayed job 1'
             end
 
-            # Wait for UI to transition to ensure a request has been made
+            # Click on the manual action dropdown and check if a request has been made
+            find(manual_action_selector).click
             within(manual_action_dropdown) { find('.gl-spinner') }
             within(manual_action_dropdown) { find_by_testid('play-icon') }
 
             wait_for_requests
           end
 
-          it 'enqueues the delayed job', :js, quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/410129' do
+          it 'enqueues the delayed job', :js do
             expect(delayed_job.reload).to be_pending
           end
         end
@@ -550,7 +576,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           create(:ci_build, :pending, pipeline: pipeline, stage: 'build', name: 'build')
         end
 
-        dropdown_selector = '[data-testid="mini-pipeline-graph-dropdown"]'
+        dropdown_selector = '[data-testid="pipeline-mini-graph-dropdown"]'
 
         before do
           visit_project_pipelines
@@ -563,7 +589,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
 
         context 'when clicking a stage badge', :js do
           it 'opens a dropdown' do
-            find_by_testid('mini-pipeline-graph-dropdown-toggle').click
+            find_by_testid('pipeline-mini-graph-dropdown-toggle').click
 
             wait_for_requests
 
@@ -571,7 +597,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           end
 
           it 'is possible to cancel pending build' do
-            find_by_testid('mini-pipeline-graph-dropdown-toggle').click
+            find_by_testid('pipeline-mini-graph-dropdown-toggle').click
 
             wait_for_requests
 
@@ -587,18 +613,18 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
             end
 
             it 'is possible to play manual build' do
-              find_by_testid('mini-pipeline-graph-dropdown-toggle').click
+              find_by_testid('pipeline-mini-graph-dropdown-toggle').click
 
               wait_for_requests
 
-              within first('[data-testid="job-with-link"]') do
+              within first('[data-testid="ci-job-item"]') do
                 expect(find_by_testid('play-icon')).to be_visible
               end
 
               find_by_testid('ci-action-button').click
               wait_for_requests
 
-              element = find_by_testid('mini-pipeline-graph-dropdown-toggle')
+              element = find_by_testid('pipeline-mini-graph-dropdown-toggle')
               expect(element['aria-expanded']).to eq "true"
               expect(element).to be_visible
             end
@@ -611,11 +637,11 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           end
 
           it 'displays the failure reason' do
-            find_by_testid('mini-pipeline-graph-dropdown-toggle').click
+            find_by_testid('pipeline-mini-graph-dropdown-toggle').click
 
             wait_for_requests
 
-            within_testid('mini-pipeline-graph-dropdown') do
+            within_testid('pipeline-mini-graph-dropdown') do
               build_element = page.find('.ci-job-component [data-testid="job-name"]')
               expect(build_element['title']).to eq('Failed - (unknown failure)')
             end
@@ -640,15 +666,16 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           visit project_pipelines_path(project, page: '2')
           wait_for_requests
 
-          expect(page).to have_selector('.gl-pagination .page-link', count: 4)
+          expect(page).to have_selector('[data-testid="gl-pagination-li"]', count: 4)
         end
 
         it 'shows updated content' do
           visit project_pipelines_path(project)
           wait_for_requests
-          page.find('.page-link.next-page-item').click
 
-          expect(page).to have_selector('.gl-pagination .page-link', count: 4)
+          find_by_testid('gl-pagination-next').click
+
+          expect(page).to have_selector('[data-testid="gl-pagination-li"]', count: 4)
         end
       end
 
@@ -750,7 +777,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           end
 
           subject(:run_pipeline) do
-            find_by_testid('run-pipeline-button', text: 'Run pipeline').click
+            find_by_testid('run-pipeline-button', text: 'New pipeline').click
 
             wait_for_requests
           end
@@ -762,6 +789,10 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
           end
 
           context 'when variables are specified' do
+            before do
+              project.update!(ci_pipeline_variables_minimum_override_role: :developer)
+            end
+
             it 'creates a new pipeline with variables' do
               within_testid('ci-variable-row-container') do
                 find_by_testid('pipeline-form-ci-variable-key-field').set('key_name')
@@ -769,7 +800,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
               end
 
               expect do
-                find_by_testid('run-pipeline-button', text: 'Run pipeline').click
+                find_by_testid('run-pipeline-button', text: 'New pipeline').click
                 wait_for_requests
               end
                 .to change { Ci::Pipeline.count }.by(1)
@@ -782,7 +813,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
 
         context 'without gitlab-ci.yml' do
           before do
-            find_by_testid('run-pipeline-button', text: 'Run pipeline').click
+            find_by_testid('run-pipeline-button', text: 'New pipeline').click
             wait_for_requests
           end
 
@@ -792,7 +823,7 @@ RSpec.describe 'Pipelines', :js, feature_category: :continuous_integration do
             stub_ci_pipeline_to_return_yaml_file
 
             expect do
-              find_by_testid('run-pipeline-button', text: 'Run pipeline').click
+              find_by_testid('run-pipeline-button', text: 'New pipeline').click
               wait_for_requests
             end
               .to change { Ci::Pipeline.count }.by(1)

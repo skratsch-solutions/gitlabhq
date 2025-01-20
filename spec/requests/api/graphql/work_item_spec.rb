@@ -6,7 +6,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
   include GraphqlHelpers
 
   let_it_be(:group) { create(:group) }
-  let_it_be_with_reload(:project) { create(:project, :private, group: group) }
+  let_it_be_with_reload(:project) { create(:project, :repository, :private, group: group) }
   let_it_be(:developer) { create(:user, developer_of: group) }
   let_it_be(:guest) { create(:user, guest_of: group) }
   let_it_be(:work_item) do
@@ -18,7 +18,8 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
       due_date: 1.week.from_now,
       created_at: 1.week.ago,
       last_edited_at: 1.day.ago,
-      last_edited_by: guest
+      last_edited_by: guest,
+      user_agent_detail: create(:user_agent_detail)
     )
   end
 
@@ -85,23 +86,12 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
           'adminParentLink' => true,
           'setWorkItemMetadata' => true,
           'createNote' => true,
-          'adminWorkItemLink' => true
+          'adminWorkItemLink' => true,
+          'markNoteAsInternal' => true,
+          'reportSpam' => false
         },
         'project' => hash_including('id' => project.to_gid.to_s, 'fullPath' => project.full_path)
       )
-    end
-
-    context 'when work item is created at the group level' do
-      let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
-      let(:global_id) { group_work_item.to_gid.to_s }
-
-      it 'always returns false in the archived field' do
-        expect(work_item_data).to include(
-          'id' => group_work_item.to_gid.to_s,
-          'iid' => group_work_item.iid.to_s,
-          'archived' => false
-        )
-      end
     end
 
     context 'when querying work item type information' do
@@ -182,6 +172,22 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
                 }
                 hasChildren
                 hasParent
+                rolledUpCountsByType {
+                  workItemType {
+                    name
+                  }
+                  countsByState {
+                    all
+                    opened
+                    closed
+                  }
+                }
+                depthLimitReachedByType {
+                  workItemType {
+                    name
+                  }
+                  depthLimitReached
+                }
               }
             }
           GRAPHQL
@@ -200,7 +206,23 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
                     hash_including('id' => child_link2.work_item.to_gid.to_s)
                   ]) },
                 'hasChildren' => true,
-                'hasParent' => false
+                'hasParent' => false,
+                'rolledUpCountsByType' => match_array([
+                  hash_including(
+                    'workItemType' => hash_including('name' => 'Task'),
+                    'countsByState' => {
+                      'all' => 2,
+                      'opened' => 2,
+                      'closed' => 0
+                    }
+                  )
+                ]),
+                'depthLimitReachedByType' => match_array([
+                  hash_including(
+                    'workItemType' => hash_including('name' => 'Task'),
+                    'depthLimitReached' => false
+                  )
+                ])
               )
             )
           )
@@ -296,8 +318,14 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
       end
 
       describe 'assignees widget' do
-        let(:assignees) { create_list(:user, 2) }
         let(:work_item) { create(:work_item, project: project, assignees: assignees) }
+        let(:assignees) do
+          [
+            create(:user, name: 'BBB'),
+            create(:user, name: 'AAA'),
+            create(:user, name: 'BBB')
+          ]
+        end
 
         let(:work_item_fields) do
           <<~GRAPHQL
@@ -318,7 +346,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
           GRAPHQL
         end
 
-        it 'returns widget information' do
+        it 'returns widget information, assignees are ordered by name ASC id DESC' do
           expect(work_item_data).to include(
             'id' => work_item.to_gid.to_s,
             'widgets' => include(
@@ -327,9 +355,11 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
                 'allowsMultipleAssignees' => boolean,
                 'canInviteMembers' => boolean,
                 'assignees' => {
-                  'nodes' => match_array(
-                    assignees.map { |a| { 'id' => a.to_gid.to_s, 'username' => a.username } }
-                  )
+                  'nodes' => [
+                    { 'id' => assignees[1].to_gid.to_s, 'username' => assignees[1].username },
+                    { 'id' => assignees[2].to_gid.to_s, 'username' => assignees[2].username },
+                    { 'id' => assignees[0].to_gid.to_s, 'username' => assignees[0].username }
+                  ]
                 }
               )
             )
@@ -595,8 +625,16 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
       describe 'linked items widget' do
         let_it_be(:related_item) { create(:work_item, project: project) }
         let_it_be(:blocked_item) { create(:work_item, project: project) }
-        let_it_be(:link1) { create(:work_item_link, source: work_item, target: related_item, link_type: 'relates_to') }
-        let_it_be(:link2) { create(:work_item_link, source: work_item, target: blocked_item, link_type: 'blocks') }
+        let_it_be(:link1) do
+          create(:work_item_link, source: work_item, target: related_item, link_type: 'relates_to',
+            created_at: Time.current + 1.day)
+        end
+
+        let_it_be(:link2) do
+          create(:work_item_link, source: work_item, target: blocked_item, link_type: 'blocks',
+            created_at: Time.current + 2.days)
+        end
+
         let(:work_item_fields) do
           <<~GRAPHQL
             id
@@ -661,7 +699,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
             include_context 'no sort argument'
 
             let(:first_param) { 1 }
-            let(:all_records) { [link1, link2] }
+            let(:all_records) { [link2, link1] }
             let(:data_path) { %w[workItem widgets linkedItems] }
 
             def widget_fields(args)
@@ -706,6 +744,48 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
             expect(widget_data["nodes"].size).to eq(1)
             expect(widget_data.dig("nodes", 0, "linkType")).to eq('relates_to')
           end
+        end
+      end
+
+      describe 'linked resources widget' do
+        let_it_be(:linked_resources_type) { create(:work_item_type, :non_default, widgets: [:linked_resources]) }
+        let_it_be(:work_item) { create(:work_item, project: project, work_item_type: linked_resources_type) }
+        let_it_be(:resource1) do
+          create(:zoom_meeting, issue_id: work_item.id, project: project, url: 'https://zoom.us/j/123456789')
+        end
+
+        let(:work_item_fields) do
+          <<~GRAPHQL
+            id
+            widgets {
+              type
+              ... on WorkItemWidgetLinkedResources {
+                linkedResources {
+                  nodes {
+                    url
+                  }
+                }
+              }
+            }
+          GRAPHQL
+        end
+
+        it 'returns widget information' do
+          expect(work_item_data).to include(
+            'id' => work_item.to_gid.to_s,
+            'widgets' => include(
+              hash_including(
+                'type' => 'LINKED_RESOURCES',
+                'linkedResources' => {
+                  'nodes' => containing_exactly(
+                    hash_including(
+                      'url' => resource1.url
+                    )
+                  )
+                }
+              )
+            )
+          )
         end
       end
     end
@@ -801,26 +881,6 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
           expect { post_graphql(query, current_user: developer) }.not_to exceed_query_limit(control).with_threshold(4)
           expect_graphql_errors_to_be_empty
         end
-
-        context 'when work item is associated with a group' do
-          let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
-          let_it_be(:group_work_item_note) { create(:note, noteable: group_work_item, author: developer, project: nil) }
-          let(:global_id) { group_work_item.to_gid.to_s }
-
-          before_all do
-            create(:award_emoji, awardable: group_work_item_note, name: 'rocket', user: developer)
-          end
-
-          it 'returns notes for the group work item' do
-            all_widgets = graphql_dig_at(work_item_data, :widgets)
-            notes_widget = all_widgets.find { |x| x['type'] == 'NOTES' }
-            notes = graphql_dig_at(notes_widget['discussions'], :nodes).flat_map { |d| d['notes']['nodes'] }
-
-            expect(notes).to contain_exactly(
-              hash_including('body' => group_work_item_note.note)
-            )
-          end
-        end
       end
     end
 
@@ -872,15 +932,15 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
           let(:object_params) { { id: global_id_of(object) } }
           let(:result_fields) { {} }
 
-          let(:expected_fields) do
-            result_fields.merge({ 'filename' => design.filename, 'project' => id_hash(project) })
-          end
-
           it 'retrieves the object' do
             post_query
             data = design_collection_data[GraphqlHelpers.fieldnamerize(object_field_name)]
 
-            expect(data).to match(a_hash_including(expected_fields))
+            expect(data).to match(
+              a_hash_including(
+                result_fields.merge({ 'filename' => design.filename, 'project' => id_hash(project) })
+              )
+            )
           end
 
           context 'when the user is unauthorized' do
@@ -1069,7 +1129,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
       end
 
       context 'when work item base type is non issue' do
-        let_it_be(:epic) { create(:work_item, :task, namespace: group) }
+        let_it_be(:epic) { create(:work_item, :task, project: project) }
         let_it_be(:global_id) { epic.to_gid.to_s }
 
         it 'returns without design' do
@@ -1086,9 +1146,82 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
     end
 
     describe 'development widget' do
+      let_it_be_with_reload(:merge_request1) { create(:merge_request, source_project: project) }
+      let_it_be_with_reload(:merge_request2) { create(:merge_request, source_project: project, target_branch: 'feat2') }
+
+      context 'when fetching related merge requests' do
+        let(:work_item_fields) do
+          <<~GRAPHQL
+            id
+            widgets {
+              type
+              ... on WorkItemWidgetDevelopment {
+                relatedMergeRequests {
+                  nodes {
+                    id
+                    iid
+                    author { id username }
+                  }
+                }
+              }
+            }
+          GRAPHQL
+        end
+
+        before_all do
+          update_params = { description: "References #{work_item.to_reference}" }
+
+          [merge_request1, merge_request2].each do |merge_request|
+            ::MergeRequests::UpdateService
+              .new(project: merge_request.project, current_user: developer, params: update_params)
+              .execute(merge_request)
+          end
+        end
+
+        context 'when user is developer' do
+          let(:current_user) { developer }
+
+          it 'returns related merge requests in the response' do
+            post_graphql(query, current_user: current_user)
+
+            expect(work_item_data).to include(
+              'id' => work_item.to_global_id.to_s,
+              'widgets' => array_including(
+                hash_including(
+                  'type' => 'DEVELOPMENT',
+                  'relatedMergeRequests' => {
+                    'nodes' => [
+                      hash_including('id' => merge_request2.to_gid.to_s, 'iid' => merge_request2.iid.to_s),
+                      hash_including('id' => merge_request1.to_gid.to_s, 'iid' => merge_request1.iid.to_s)
+                    ]
+                  }
+                )
+              )
+            )
+          end
+
+          it 'prevents N+1 queries' do
+            post_graphql(query, current_user: current_user) # warm up
+
+            control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+              post_graphql(query, current_user: current_user)
+            end
+
+            merge_request3 = create(:merge_request, source_project: project, target_branch: 'feat3')
+            ::MergeRequests::UpdateService.new(
+              project: merge_request3.project,
+              current_user: developer,
+              params: { description: "References #{work_item.to_reference}" }
+            ).execute(merge_request3)
+
+            expect do
+              post_graphql(query, current_user: current_user)
+            end.not_to exceed_all_query_limit(control)
+          end
+        end
+      end
+
       context 'when fetching closing merge requests' do
-        let_it_be(:merge_request1) { create(:merge_request, source_project: project) }
-        let_it_be(:merge_request2) { create(:merge_request, source_project: project, target_branch: 'feature2') }
         let_it_be(:private_project) { create(:project, :repository, :private) }
         let_it_be(:private_merge_request) { create(:merge_request, source_project: private_project) }
         let(:work_item_fields) do
@@ -1097,6 +1230,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
             widgets {
               type
               ... on WorkItemWidgetDevelopment {
+                willAutoCloseByMergeRequest
                 closingMergeRequests {
                   nodes {
                     id
@@ -1140,6 +1274,7 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
               'widgets' => array_including(
                 hash_including(
                   'type' => 'DEVELOPMENT',
+                  'willAutoCloseByMergeRequest' => true,
                   'closingMergeRequests' => {
                     'nodes' => containing_exactly(
                       hash_including(
@@ -1178,6 +1313,173 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
             expect(graphql_errors).to be_blank
           end
         end
+      end
+
+      context 'when fetching related branches' do
+        let_it_be(:branch_name) { "#{work_item.iid}-another-branch" }
+        let_it_be(:pipeline1) { create(:ci_pipeline, :success, project: project, ref: work_item.to_branch_name) }
+        let_it_be(:pipeline2) { create(:ci_pipeline, :success, project: project, ref: branch_name) }
+        let(:work_item_fields) do
+          <<~GRAPHQL
+            id
+            widgets {
+              type
+              ... on WorkItemWidgetDevelopment {
+                relatedBranches  {
+                  nodes {
+                    name
+                    comparePath
+                    pipelineStatus { name label favicon }
+                  }
+                }
+              }
+            }
+          GRAPHQL
+        end
+
+        before_all do
+          project.repository.create_branch(work_item.to_branch_name, pipeline1.sha)
+          project.repository.create_branch(branch_name, pipeline2.sha)
+          project.repository.create_branch("#{work_item.iid}doesnt-match", project.repository.root_ref)
+          project.repository.create_branch("#{work_item.iid}-0-stable", project.repository.root_ref)
+
+          project.repository.add_tag(developer, work_item.to_branch_name, pipeline1.sha)
+          create(
+            :merge_request,
+            source_project: work_item.project,
+            source_branch: work_item.to_branch_name,
+            description: "Related to #{work_item.to_reference}"
+          ).tap { |merge_request| merge_request.create_cross_references!(developer) }
+        end
+
+        before do
+          post_graphql(query, current_user: current_user)
+        end
+
+        context 'when user is developer' do
+          let(:current_user) { developer }
+
+          it 'returns related branches not referenced in merge requests' do
+            brach_compare_path = Gitlab::Routing.url_helpers.project_compare_path(
+              project,
+              from: project.default_branch,
+              to: branch_name
+            )
+
+            expect(work_item_data).to include(
+              'id' => work_item.to_global_id.to_s,
+              'widgets' => array_including(
+                hash_including(
+                  'type' => 'DEVELOPMENT',
+                  'relatedBranches' => {
+                    'nodes' => containing_exactly(
+                      hash_including(
+                        'name' => branch_name,
+                        'comparePath' => brach_compare_path,
+                        'pipelineStatus' => {
+                          'name' => 'SUCCESS',
+                          'label' => 'passed',
+                          'favicon' => 'favicon_status_success'
+                        }
+                      )
+                    )
+                  }
+                )
+              )
+            )
+          end
+        end
+      end
+    end
+
+    describe 'email participants widget' do
+      let_it_be(:email) { 'user@example.com' }
+      let_it_be(:obfuscated_email) { 'us*****@e*****.c**' }
+      let_it_be(:issue_email_participant) { create(:issue_email_participant, issue_id: work_item.id, email: email) }
+
+      let(:work_item_fields) do
+        <<~GRAPHQL
+          id
+          widgets {
+            type
+            ... on WorkItemWidgetEmailParticipants {
+              emailParticipants {
+                nodes {
+                  email
+                }
+              }
+            }
+          }
+        GRAPHQL
+      end
+
+      it 'contains the email' do
+        expect(work_item_data).to include(
+          'widgets' => array_including(
+            hash_including(
+              'type' => 'EMAIL_PARTICIPANTS',
+              'emailParticipants' => {
+                'nodes' => containing_exactly(
+                  hash_including(
+                    'email' => email
+                  )
+                )
+              }
+            )
+          )
+        )
+      end
+
+      context 'when user has the guest role' do
+        let(:current_user) { guest }
+
+        it 'contains the obfuscated email' do
+          expect(work_item_data).to include(
+            'widgets' => array_including(
+              hash_including(
+                'type' => 'EMAIL_PARTICIPANTS',
+                'emailParticipants' => {
+                  'nodes' => containing_exactly(
+                    hash_including(
+                      'email' => obfuscated_email
+                    )
+                  )
+                }
+              )
+            )
+          )
+        end
+      end
+    end
+
+    describe 'custom status widget' do
+      let_it_be(:task_work_item) { create(:work_item, :task, project: project) }
+      let_it_be(:global_id) { task_work_item.to_global_id }
+      let(:work_item_fields) do
+        <<~GRAPHQL
+          id
+          widgets {
+            type
+            ... on WorkItemWidgetCustomStatus {
+              id
+              name
+              iconName
+            }
+          }
+        GRAPHQL
+      end
+
+      it 'returns mock custom status data' do
+        expect(work_item_data).to include(
+          'widgets' => array_including(
+            hash_including(
+              'type' => 'CUSTOM_STATUS',
+              'id' => 'gid://gitlab/WorkItems::Widgets::CustomStatus/10',
+              'name' => 'Custom Status',
+              'iconName' => 'custom_status icon'
+            )
+          )
+        )
       end
     end
 
@@ -1218,6 +1520,25 @@ RSpec.describe 'Query.work_item(id)', feature_category: :team_planning do
         'userPermissions' =>
           hash_including(
             'setWorkItemMetadata' => false
+          )
+      )
+    end
+  end
+
+  context 'when the user can submit a work item as spam' do
+    let(:current_user) { create(:user, :admin) }
+
+    before do
+      stub_application_setting(akismet_enabled: true)
+      post_graphql(query, current_user: current_user)
+    end
+
+    it 'returns correct user permission' do
+      expect(work_item_data).to include(
+        'id' => work_item.to_gid.to_s,
+        'userPermissions' =>
+          hash_including(
+            'reportSpam' => true
           )
       )
     end

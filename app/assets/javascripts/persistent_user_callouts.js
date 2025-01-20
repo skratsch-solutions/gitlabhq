@@ -6,6 +6,7 @@ const PERSISTENT_USER_CALLOUTS = [
   '.js-admin-licensed-user-count-threshold',
   '.js-token-expiry-callout',
   '.js-registration-enabled-callout',
+  '.js-openssl-callout',
   '.js-new-user-signups-cap-reached',
   '.js-security-newsletter-callout',
   '.js-approaching-seat-count-threshold',
@@ -22,11 +23,15 @@ const PERSISTENT_USER_CALLOUTS = [
   '.js-geo-migrate-hashed-storage-callout',
   '.js-unlimited-members-during-trial-alert',
   '.js-branch-rules-info-callout',
-  '.js-new-nav-for-everyone-callout',
+  '.js-branch-rules-tip-callout',
   '.js-namespace-over-storage-users-combined-alert',
   '.js-joining-a-project-alert',
   '.js-all-seats-used',
   '.js-period-in-terraform-state-name-alert',
+  '.js-new-mr-dashboard-banner',
+  '.js-pipl-compliance-alert',
+  '.gcp-signup-offer',
+  '.js-gold-trial-callout',
 ];
 
 const initCallouts = () => {

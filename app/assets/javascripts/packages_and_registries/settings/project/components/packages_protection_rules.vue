@@ -2,7 +2,6 @@
 import {
   GlAlert,
   GlButton,
-  GlCard,
   GlTable,
   GlLoadingIcon,
   GlKeysetPagination,
@@ -12,11 +11,11 @@ import {
   GlFormSelect,
   GlSprintf,
 } from '@gitlab/ui';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import packagesProtectionRuleQuery from '~/packages_and_registries/settings/project/graphql/queries/get_packages_protection_rules.query.graphql';
 import { getPackageTypeLabel } from '~/packages_and_registries/package_registry/utils';
 import deletePackagesProtectionRuleMutation from '~/packages_and_registries/settings/project/graphql/mutations/delete_packages_protection_rule.mutation.graphql';
 import updatePackagesProtectionRuleMutation from '~/packages_and_registries/settings/project/graphql/mutations/update_packages_protection_rule.mutation.graphql';
-import SettingsBlock from '~/packages_and_registries/shared/components/settings_block.vue';
 import PackagesProtectionRuleForm from '~/packages_and_registries/settings/project/components/packages_protection_rule_form.vue';
 import { s__, __ } from '~/locale';
 
@@ -26,9 +25,8 @@ const I18N_MINIMUM_ACCESS_LEVEL_FOR_PUSH = s__('PackageRegistry|Minimum access l
 
 export default {
   components: {
-    SettingsBlock,
+    CrudComponent,
     GlButton,
-    GlCard,
     GlAlert,
     GlTable,
     GlLoadingIcon,
@@ -44,10 +42,12 @@ export default {
   },
   inject: ['projectPath'],
   i18n: {
+    delete: __('Delete'),
     settingBlockTitle: s__('PackageRegistry|Protected packages'),
     settingBlockDescription: s__(
       'PackageRegistry|When a package is protected, only certain user roles can push, update, and delete the protected package, which helps to avoid tampering with the package.',
     ),
+    createProtectionRuleText: s__('PackageRegistry|Add protection rule'),
     protectionRuleDeletionConfirmModal: {
       title: s__('PackageRegistry|Delete package protection rule?'),
       descriptionWarning: s__(
@@ -62,7 +62,6 @@ export default {
   data() {
     return {
       packageProtectionRules: [],
-      protectionRuleFormVisibility: false,
       packageProtectionRulesQueryPayload: { nodes: [], pageInfo: {} },
       packageProtectionRulesQueryPaginationParams: { first: PAGINATION_DEFAULT_PER_PAGE },
       protectionRuleMutationInProgress: false,
@@ -71,6 +70,9 @@ export default {
     };
   },
   computed: {
+    containsTableItems() {
+      return this.packageProtectionRulesQueryResult.length > 0;
+    },
     tableItems() {
       return this.packageProtectionRulesQueryResult.map((packagesProtectionRule) => {
         return {
@@ -90,33 +92,16 @@ export default {
     isLoadingPackageProtectionRules() {
       return this.$apollo.queries.packageProtectionRulesQueryPayload.loading;
     },
-    isAddProtectionRuleButtonDisabled() {
-      return this.protectionRuleFormVisibility;
-    },
-    modalActionPrimary() {
-      return {
-        text: s__('PackageRegistry|Delete package protection rule'),
-        attributes: {
-          variant: 'danger',
-        },
-      };
-    },
-    modalActionCancel() {
-      return {
-        text: __('Cancel'),
-      };
-    },
-    minimumAccessLevelOptions() {
-      return [
-        { value: 'MAINTAINER', text: __('Maintainer') },
-        { value: 'OWNER', text: __('Owner') },
-        { value: 'ADMIN', text: s__('AdminUsers|Administrator') },
-      ];
+    showTopLevelLoadingIcon() {
+      return this.isLoadingPackageProtectionRules && !this.containsTableItems;
     },
   },
   apollo: {
     packageProtectionRulesQueryPayload: {
       query: packagesProtectionRuleQuery,
+      context: {
+        batchKey: 'PackageRegistryProjectSettings',
+      },
       variables() {
         return {
           projectPath: this.projectPath,
@@ -133,10 +118,10 @@ export default {
   },
   methods: {
     showProtectionRuleForm() {
-      this.protectionRuleFormVisibility = true;
+      this.$refs.packagesCrud.showForm();
     },
     hideProtectionRuleForm() {
-      this.protectionRuleFormVisibility = false;
+      this.$refs.packagesCrud.hideForm();
     },
     refetchProtectionRules() {
       this.$apollo.queries.packageProtectionRulesQueryPayload.refetch();
@@ -250,128 +235,132 @@ export default {
     {
       key: 'col_4_actions',
       label: __('Actions'),
-      thClass: 'gl-text-right',
+      thAlignRight: true,
       tdClass: '!gl-align-middle gl-text-right',
     },
   ],
+  minimumAccessLevelOptions: [
+    { value: 'MAINTAINER', text: __('Maintainer') },
+    { value: 'OWNER', text: __('Owner') },
+    { value: 'ADMIN', text: s__('AdminUsers|Administrator') },
+  ],
   modal: { id: 'delete-package-protection-rule-confirmation-modal' },
+  modalActionPrimary: {
+    text: s__('PackageRegistry|Delete package protection rule'),
+    attributes: {
+      variant: 'danger',
+    },
+  },
+  modalActionCancel: {
+    text: __('Cancel'),
+  },
 };
 </script>
 
 <template>
-  <settings-block>
-    <template #title>{{ $options.i18n.settingBlockTitle }}</template>
+  <div data-testid="project-packages-protection-rules-settings">
+    <crud-component
+      ref="packagesCrud"
+      :title="$options.i18n.settingBlockTitle"
+      :toggle-text="$options.i18n.createProtectionRuleText"
+    >
+      <template #form>
+        <packages-protection-rule-form
+          @cancel="hideProtectionRuleForm"
+          @submit="refetchProtectionRules"
+        />
+      </template>
 
-    <template #description>
-      {{ $options.i18n.settingBlockDescription }}
-    </template>
-
-    <template #default>
-      <gl-card
-        class="gl-new-card"
-        header-class="gl-new-card-header"
-        body-class="gl-new-card-body gl-px-0"
-      >
-        <template #header>
-          <div class="gl-new-card-title-wrapper gl-justify-content-space-between">
-            <h3 class="gl-new-card-title">{{ $options.i18n.settingBlockTitle }}</h3>
-            <div class="gl-new-card-actions">
-              <gl-button
-                size="small"
-                :disabled="isAddProtectionRuleButtonDisabled"
-                @click="showProtectionRuleForm"
-              >
-                {{ s__('PackageRegistry|Add protection rule') }}
-              </gl-button>
-            </div>
-          </div>
-        </template>
-
-        <template #default>
-          <packages-protection-rule-form
-            v-if="protectionRuleFormVisibility"
-            @cancel="hideProtectionRuleForm"
-            @submit="refetchProtectionRules"
-          />
-
-          <gl-alert
-            v-if="alertErrorMessage"
-            class="gl-mb-5"
-            variant="danger"
-            @dismiss="clearAlertMessage"
-          >
-            {{ alertErrorMessage }}
-          </gl-alert>
-
-          <gl-table
-            :items="tableItems"
-            :fields="$options.fields"
-            show-empty
-            stacked="md"
-            :aria-label="$options.i18n.settingBlockTitle"
-            :busy="isLoadingPackageProtectionRules"
-          >
-            <template #table-busy>
-              <gl-loading-icon size="sm" class="gl-my-5" />
-            </template>
-
-            <template #cell(col_3_minimum_access_level_for_push)="{ item }">
-              <gl-form-select
-                v-model="item.minimumAccessLevelForPush"
-                class="gl-max-w-34"
-                required
-                :aria-label="$options.i18n.minimumAccessLevelForPush"
-                :options="minimumAccessLevelOptions"
-                :disabled="isProtectionRuleMinimumAccessLevelFormSelectDisabled(item)"
-                @change="updatePackageProtectionRule(item)"
-              />
-            </template>
-
-            <template #cell(col_4_actions)="{ item }">
-              <gl-button
-                v-gl-tooltip
-                v-gl-modal="$options.modal.id"
-                category="tertiary"
-                icon="remove"
-                :title="__('Delete')"
-                :aria-label="__('Delete')"
-                :disabled="isProtectionRuleDeleteButtonDisabled(item)"
-                @click="showProtectionRuleDeletionConfirmModal(item)"
-              />
-            </template>
-          </gl-table>
-
-          <div class="gl-display-flex gl-justify-content-center">
-            <gl-keyset-pagination
-              v-bind="packageProtectionRulesQueryPageInfo"
-              class="gl-mb-3"
-              @prev="onPrevPage"
-              @next="onNextPage"
-            />
-          </div>
-        </template>
-      </gl-card>
-
-      <gl-modal
-        v-if="protectionRuleMutationItem"
-        :modal-id="$options.modal.id"
-        size="sm"
-        :title="$options.i18n.protectionRuleDeletionConfirmModal.title"
-        :action-primary="modalActionPrimary"
-        :action-cancel="modalActionCancel"
-        @primary="deleteProtectionRule(protectionRuleMutationItem)"
-      >
-        <p>
-          <gl-sprintf
-            :message="$options.i18n.protectionRuleDeletionConfirmModal.descriptionWarning"
-          >
-            <template #packageNamePattern>
-              <strong>{{ protectionRuleMutationItem.col_1_package_name_pattern }}</strong>
-            </template>
-          </gl-sprintf>
+      <template #default>
+        <p
+          class="gl-pb-0 gl-text-subtle"
+          :class="{ 'gl-px-5 gl-pt-4': containsTableItems }"
+          data-testid="description"
+        >
+          {{ $options.i18n.settingBlockDescription }}
         </p>
-        <p>{{ $options.i18n.protectionRuleDeletionConfirmModal.descriptionConsequence }}</p>
-      </gl-modal>
-    </template>
-  </settings-block>
+
+        <gl-alert
+          v-if="alertErrorMessage"
+          class="gl-mb-5"
+          variant="danger"
+          @dismiss="clearAlertMessage"
+        >
+          {{ alertErrorMessage }}
+        </gl-alert>
+
+        <gl-loading-icon v-if="showTopLevelLoadingIcon" size="sm" class="gl-my-5" />
+        <gl-table
+          v-else-if="containsTableItems"
+          class="gl-border-t-1 gl-border-t-gray-100 gl-border-t-solid"
+          :items="tableItems"
+          :fields="$options.fields"
+          stacked="md"
+          :aria-label="$options.i18n.settingBlockTitle"
+          :busy="isLoadingPackageProtectionRules"
+        >
+          <template #table-busy>
+            <gl-loading-icon size="sm" class="gl-my-5" />
+          </template>
+
+          <template #cell(col_3_minimum_access_level_for_push)="{ item }">
+            <gl-form-select
+              v-model="item.minimumAccessLevelForPush"
+              class="gl-max-w-34"
+              required
+              :aria-label="$options.i18n.minimumAccessLevelForPush"
+              :options="$options.minimumAccessLevelOptions"
+              :disabled="isProtectionRuleMinimumAccessLevelFormSelectDisabled(item)"
+              data-testid="push-access-select"
+              @change="updatePackageProtectionRule(item)"
+            />
+          </template>
+
+          <template #cell(col_4_actions)="{ item }">
+            <gl-button
+              v-gl-tooltip
+              v-gl-modal="$options.modal.id"
+              category="tertiary"
+              icon="remove"
+              :title="$options.i18n.delete"
+              :aria-label="$options.i18n.delete"
+              data-testid="delete-rule-btn"
+              :disabled="isProtectionRuleDeleteButtonDisabled(item)"
+              @click="showProtectionRuleDeletionConfirmModal(item)"
+            />
+          </template>
+        </gl-table>
+        <p v-else class="gl-text-subtle">
+          {{ s__('PackageRegistry|No packages are protected.') }}
+        </p>
+      </template>
+
+      <template #pagination>
+        <gl-keyset-pagination
+          v-bind="packageProtectionRulesQueryPageInfo"
+          @prev="onPrevPage"
+          @next="onNextPage"
+        />
+      </template>
+    </crud-component>
+
+    <gl-modal
+      v-if="protectionRuleMutationItem"
+      :modal-id="$options.modal.id"
+      size="sm"
+      :title="$options.i18n.protectionRuleDeletionConfirmModal.title"
+      :action-primary="$options.modalActionPrimary"
+      :action-cancel="$options.modalActionCancel"
+      @primary="deleteProtectionRule(protectionRuleMutationItem)"
+    >
+      <p>
+        <gl-sprintf :message="$options.i18n.protectionRuleDeletionConfirmModal.descriptionWarning">
+          <template #packageNamePattern>
+            <strong>{{ protectionRuleMutationItem.col_1_package_name_pattern }}</strong>
+          </template>
+        </gl-sprintf>
+      </p>
+      <p>{{ $options.i18n.protectionRuleDeletionConfirmModal.descriptionConsequence }}</p>
+    </gl-modal>
+  </div>
 </template>

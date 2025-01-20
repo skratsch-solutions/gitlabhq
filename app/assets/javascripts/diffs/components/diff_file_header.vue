@@ -15,7 +15,6 @@ import { escape } from 'lodash';
 // eslint-disable-next-line no-restricted-imports
 import { mapActions, mapGetters, mapState } from 'vuex';
 import SafeHtml from '~/vue_shared/directives/safe_html';
-import { IdState } from 'vendor/vue-virtual-scroller';
 import { scrollToElement } from '~/lib/utils/common_utils';
 import { truncateSha } from '~/lib/utils/text_utility';
 import { __, s__, sprintf } from '~/locale';
@@ -48,7 +47,7 @@ export default {
     GlTooltip: GlTooltipDirective,
     SafeHtml,
   },
-  mixins: [IdState({ idProp: (vm) => vm.diffFile.file_hash }), glFeatureFlagsMixin()],
+  mixins: [glFeatureFlagsMixin()],
   i18n: {
     ...DIFF_FILE_HEADER,
     compareButtonLabel: __('Compare submodule commit revisions'),
@@ -98,16 +97,6 @@ export default {
       required: false,
       default: false,
     },
-    pinned: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-  },
-  idState() {
-    return {
-      moreActionsShown: false,
-    };
   },
   computed: {
     ...mapState('diffs', ['latestDiff']),
@@ -223,7 +212,6 @@ export default {
       'setFileCollapsedByUser',
       'setFileForcedOpen',
       'toggleFileCommentForm',
-      'unpinFile',
     ]),
     handleToggleFile() {
       this.setFileForcedOpen({
@@ -251,9 +239,6 @@ export default {
           this.setCurrentFileHash(this.diffFile.file_hash);
         }
       }
-    },
-    setMoreActionsShown(val) {
-      this.idState.moreActionsShown = val;
     },
     toggleReview(newReviewedStatus) {
       // this is the easiest way to hide an already open tooltip that triggers on focus
@@ -288,9 +273,6 @@ export default {
 <template>
   <div
     ref="header"
-    :class="{
-      'gl-z-dropdown-menu!': idState.moreActionsShown,
-    }"
     class="js-file-title file-title file-title-flex-parent"
     data-testid="file-title-container"
     :data-qa-file-name="filePath"
@@ -298,19 +280,7 @@ export default {
   >
     <div class="file-header-content">
       <gl-button
-        v-if="pinned"
-        v-gl-tooltip.hover.focus
-        :title="__('Unpin the file')"
-        :aria-label="__('Unpin the file')"
-        icon="thumbtack"
-        size="small"
-        class="btn-icon gl-mr-2"
-        category="tertiary"
-        data-testid="unpin-button"
-        @click="unpinFile"
-      />
-      <gl-button
-        v-else-if="collapsible"
+        v-if="collapsible"
         ref="collapseButton"
         class="gl-mr-2"
         category="tertiary"
@@ -321,7 +291,7 @@ export default {
       />
       <a
         :v-once="!viewDiffsFileByFile"
-        class="gl-mr-2 gl-text-decoration-none! gl-break-all"
+        class="gl-mr-2 gl-break-all !gl-no-underline"
         :href="titleLink"
         data-testid="file-title"
         @click="handleFileNameClick"
@@ -370,7 +340,7 @@ export default {
         v-if="isModeChanged"
         ref="fileMode"
         v-gl-tooltip.hover.focus
-        class="mr-1"
+        class="gl-mr-2 gl-text-subtle"
         :title="$options.i18n.fileModeTooltip"
       >
         {{ diffFile.a_mode }} → {{ diffFile.b_mode }}
@@ -383,7 +353,7 @@ export default {
 
     <div
       v-if="!diffFile.submodule && addMergeRequestButtons"
-      class="file-actions gl-flex gl-items-center gl-ml-auto gl-align-self-start"
+      class="file-actions gl-ml-auto gl-flex gl-items-center gl-self-start"
     >
       <diff-stats
         :diff-file="diffFile"
@@ -394,7 +364,7 @@ export default {
         v-if="isReviewable && showLocalFileReviews"
         v-gl-tooltip.hover.focus.left
         data-testid="fileReviewCheckbox"
-        class="gl-mr-5 -gl-mb-3 gl-flex gl-items-center"
+        class="-gl-mb-3 gl-mr-5 gl-flex gl-items-center"
         :title="$options.i18n.fileReviewTooltip"
         :checked="reviewed"
         @change="toggleReview"
@@ -409,11 +379,11 @@ export default {
         icon="comment"
         category="tertiary"
         size="small"
-        class="gl-mr-3 btn-icon"
+        class="btn-icon gl-mr-3"
         data-testid="comment-files-button"
         @click="toggleFileCommentForm(diffFile.file_path)"
       />
-      <gl-button-group class="gl-pt-0!">
+      <gl-button-group class="!gl-pt-0">
         <gl-button
           v-if="diffFile.external_url"
           ref="externalLink"
@@ -433,11 +403,9 @@ export default {
           category="tertiary"
           right
           toggle-class="btn-icon js-diff-more-actions"
-          class="gl-pt-0!"
+          class="!gl-pt-0"
           data-testid="options-dropdown-button"
           lazy
-          @show="setMoreActionsShown(true)"
-          @hidden="setMoreActionsShown(false)"
         >
           <template #button-content>
             <gl-icon name="ellipsis_v" class="mr-0" />
@@ -510,12 +478,12 @@ export default {
 
     <div
       v-if="diffFile.submodule_compare"
-      class="file-actions gl-hidden sm:gl-flex gl-align-items-center gl-flex-wrap"
+      class="file-actions gl-hidden gl-flex-wrap gl-items-center sm:gl-flex"
     >
       <gl-button
         v-gl-tooltip.hover
         v-safe-html="submoduleDiffCompareLinkText"
-        class="submodule-compare"
+        class="submodule-compare gl-inline-block"
         :title="$options.i18n.compareButtonLabel"
         :aria-label="$options.i18n.compareButtonLabel"
         :href="diffFile.submodule_compare.url"

@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Authentication
+stage: Fulfillment
+group: Provision
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363084) for self-managed instances in GitLab 15.1.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363084) for GitLab Self-Managed instances in GitLab 15.1.
 
 WARNING:
 Adding or changing Group Sync configuration can remove users from the mapped GitLab group.
@@ -18,6 +18,8 @@ Removal happens if there is any mismatch between the group names and the list of
 Before making changes, ensure either the SAML response includes the `groups` attribute
 and the `AttributeValue` value matches the **SAML Group Name** in GitLab,
 or that all groups are removed from GitLab to disable Group Sync.
+
+SAML group sync allows users to be assigned to pre-existing GitLab groups with specific permissions based on the user's group assignment in the SAML identity provider (IdP). This feature allows you to create a many-to-many mapping between SAML IdP groups and GitLab groups. For example, if the user `@amelia` is assigned to the `security` group in the SAML IdP, SAML group sync allows you to assign `@amelia` to the `security-gitlab` and `vulnerability` GitLab groups with `maintainer` and `reporter` permissions, respectively. SAML group sync does not create groups. You [create groups separately](../index.md#create-a-group), and then create the mapping.
 
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
 For a demo of Group Sync using Azure, see [Demo: SAML Group Sync](https://youtu.be/Iqvo2tJfXjg).
@@ -28,14 +30,13 @@ SAML Group Sync only manages a group if that group has one or more SAML group li
 
 Prerequisites:
 
-- Self-managed GitLab instances must have configured [SAML Group Sync](#configure-saml-group-sync). GitLab.com
+- Your GitLab Self-Managed instance must have configured [SAML Group Sync](#configure-saml-group-sync). GitLab.com
   instances are already configured for SAML Group Sync, and require no extra configuration.
 
 When SAML is enabled, users with the Owner role see a new menu
 item in group **Settings > SAML Group Links**.
 
-- You can configure one or more **SAML Group Links** to map a SAML identity
-  provider (IdP) group name to a GitLab role.
+- You can configure one or more **SAML Group Links** to map a SAML IdP group name to a GitLab role.
 - Members of the SAML IdP group are added as members of the GitLab
   group on their next SAML sign-in.
 - Group membership is evaluated each time a user signs in using SAML.
@@ -53,22 +54,59 @@ To link the SAML groups:
 1. Select **Save**.
 1. Repeat to add additional group links if required.
 
-![SAML Group Links](img/saml_group_links_v13_9.png)
+![SAML Group Links](img/saml_group_links_v17_8.png)
 
-### Self-managed GitLab with multiple SAML IdPs
+### GitLab Duo seat assignment
+
+DETAILS:
+**Tier:** Premium, Ultimate
+**Offering:** GitLab.com
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/480766) for GitLab.com in GitLab 17.8 [with a flag](../../../administration/feature_flags.md) named `saml_groups_duo_pro_add_on_assignment`. Disabled by default.
+
+Prerequisites:
+
+- An active [GitLab Duo add-on subscription](../../../subscriptions/subscription-add-ons.md)
+
+SAML Group Sync can manage GitLab Duo seat assignment and removal based on IdP group membership. Seats are only assigned when there are seats remaining in the subscription.  
+
+1. When [configuring a SAML Group Link](#configure-saml-group-links), select the **Assign GitLab Duo seats to users in this group** checkbox.
+1. Select **Save**.
+1. Repeat to add additional group links for all SAML users that should be assigned a GitLab Duo Pro or GitLab Duo Enterprise seat.
+   GitLab Duo seats are unassigned for users whose identity provider group memberships do not match a group link with this setting enabled.
+
+The checkbox does not appear for groups without an active GitLab Duo add-on subscription.
+
+### GitLab Self-Managed with multiple SAML IdPs
 
 When a user signs in, GitLab:
 
 - Checks all the configured SAML group links.
-- Adds that user to the corresponding GitLab groups based on the SAML groups the user belongs to across the different IdPs. 
+- Adds that user to the corresponding GitLab groups based on the SAML groups the user belongs to across the different IdPs.
 
-For this to work correctly, you must configure all SAML IdPs to contain group attributes in the SAML response.
+The group link mapping in GitLab is not tied to a specific IdP so you must configure all SAML IdPs to contain group attributes in the SAML response. This means that GitLab is able to match groups in the SAML response, regardless of the IdP that was used to sign in.
 
-For example, if you have two SAML IdPs and you configure a group link named `GTLB-Owners` mapped to the Owner role,
-the SAML response from either SAML IdP must contain a group attribute `GTLB-Owners`. If one of the SAML IdPs does not return the group attribute,
-when the user signs in with that SAML IdP, that user is removed from the group.
+As an example, you have 2 IdPs: `SAML1` and `SAML2`.
 
-### How role conflicts are resolved
+In GitLab, on a specific group, you have configured two group links:
+
+- `gtlb-owner => Owner role`.
+- `gtlb-dev => Developer role`.
+
+In `SAML1`, the user is a member of `gtlb-owner` but not `gtlb-dev`.
+
+In `SAML2`, the user is a member of `gtlb-dev` but not `gtlb-owner`.
+
+When a user signs in to a group with `SAML1`, the SAML response shows that the user is a member of `gtlb-owner`, so GitLab sets the user's role in that group to be `Owner`.
+
+The user then signs out and signs back in to the group with `SAML2`. The SAML response shows that the user is a member of `gtlb-dev`, so GitLab sets the user's role in that group to be `Developer`.
+
+Now let's change the previous example so that the user is not a member of either `gtlb-owner` or `gtlb-dev` in `SAML2`.
+
+- When the user signs in to a group with `SAML1`, the user is given the `Owner` role in that group.
+- When the user signs in with `SAML2`, the user is removed from the group because they are not a member of either configured group link.
+
+### Role prioritization
 
 #### Members of multiple mapped SAML groups
 
@@ -84,13 +122,13 @@ Users granted:
 - A higher role with Group Sync are displayed as having
   [direct membership](../../project/members/index.md#display-direct-members) of the group.
 - A lower or the same role with Group Sync are displayed as having
-  [inherited membership](../../project/members/index.md#display-inherited-members) of the group.
+  [inherited membership](../../project/members/index.md#membership-types) of the group.
 
 ### Use the API
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/290367) in GitLab 15.3.
 
-You can use the GitLab API to [list, add, and delete](../../../api/groups.md#saml-group-links) SAML group links.
+You can use the GitLab API to [list, add, and delete](../../../api/saml.md#saml-group-links) SAML group links.
 
 ## Configure SAML Group Sync
 
@@ -101,7 +139,7 @@ WARNING:
 To prevent users being accidentally removed from the GitLab group, follow these instructions closely before
 enabling Group Sync in GitLab.
 
-To configure SAML Group Sync for **self-managed GitLab instances**:
+To configure SAML Group Sync for GitLab Self-Managed:
 
 1. Configure the [SAML OmniAuth Provider](../../../integration/saml.md).
 1. Ensure your SAML identity provider sends an attribute statement with the same name as the value of the `groups_attribute` setting. See the following provider configuration example in `/etc/gitlab/gitlab.rb` for reference:
@@ -181,7 +219,7 @@ To integrate Microsoft Azure AD, you:
 
 ### Configure Azure AD
 
-<!-- vale gitlab.SentenceSpacing = NO -->
+<!-- vale gitlab_base.SentenceSpacing = NO -->
 
 1. In the [Azure Portal](https://portal.azure.com), go to **Microsoft Entra ID > App registrations > All applications**, and select your GitLab SAML application.
 1. Under **Essentials**, the **Application (client) ID** and **Directory (tenant) ID** values are displayed. Copy these values, because you need them for the GitLab configuration.
@@ -197,17 +235,18 @@ To integrate Microsoft Azure AD, you:
 1. Select **Add permissions** to save.
 1. Select **Grant admin consent for `<application_name>`**, then on the confirmation dialog select **Yes**. The **Status** column for both permissions should change to a green check with **Granted for `<application_name>`**.
 
-<!-- vale gitlab.SentenceSpacing = YES -->
+<!-- vale gitlab_base.SentenceSpacing = YES -->
 
 ### Configure GitLab
 
 To configure for a GitLab.com group:
 
-1. On the left sidebar, select **Search or go to** and find your top-level group.
+1. On the left sidebar, select **Search or go to** and find your group.
+   This group must be at the top level.
 1. Select **Settings > SAML SSO**.
 1. Configure [SAML SSO for the group](../../../user/group/saml_sso/index.md).
 1. In the **Microsoft Azure integration** section, select the **Enable Microsoft Azure integration for this group** checkbox.
-   This section will only be visible if SAML SSO is configured and enabled for the group.
+   This section is only visible if SAML SSO is configured and enabled for the group.
 1. Enter the **Tenant ID**, **Client ID**, and **Client secret** obtained earlier when configuring Azure Active Directory in the Azure Portal.
 1. Optional. If using Azure AD for US Government or Azure AD China, enter the appropriate **Login API endpoint** and **Graph API endpoint**. The default values work for most organizations.
 1. Select **Save changes**.
@@ -215,7 +254,7 @@ To configure for a GitLab.com group:
 To configure for self-managed:
 
 1. Configure [SAML SSO for the instance](../../../integration/saml.md).
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. In the **Microsoft Azure integration** section, select the **Enable Microsoft Azure integration for this group** checkbox.
 1. Enter the **Tenant ID**, **Client ID**, and **Client secret** obtained earlier when configuring Azure Active Directory in the Azure Portal.
@@ -230,7 +269,7 @@ Then the GitLab Group membership is updated according to SAML Group Links.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/386390) in GitLab 15.10.
 
@@ -244,12 +283,17 @@ When global group memberships lock is enabled:
 - Only an administrator can manage memberships of any group including access levels.
 - Users cannot:
   - Share a project with other groups.
+
+    NOTE:
+    You cannot set groups or subgroups as [Code Owners](../../project/codeowners/index.md).
+    The Code Owners feature requires direct group memberships, which are not possible when this lock is enabled.
+
   - Invite members to a project created in a group.
 
 To enable global group memberships lock:
 
-1. [Configure SAML](../../../integration/saml.md) for your self-managed GitLab instance.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. [Configure SAML](../../../integration/saml.md) for GitLab Self-Managed.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand the **Visibility and access controls** section.
 1. Ensure that **Lock memberships to SAML Group Links synchronization** is selected.
@@ -363,4 +407,4 @@ not limited to 150 groups.
 
 Otherwise, you can work around this issue by changing the [group claims](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims#configure-the-microsoft-entra-application-registration-for-group-attributes) to use the `Groups assigned to the application` option instead.
 
-![Manage Group Claims](img/Azure-manage-group-claims.png).
+![Manage Group Claims](img/Azure-manage-group-claims_v15_9.png)

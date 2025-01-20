@@ -1,5 +1,5 @@
 ---
-stage: Data Stores
+stage: Foundations
 group: Global Search
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Moved to GitLab Premium in 13.9.
 
@@ -36,10 +36,12 @@ You can use advanced search in:
 
 - For [GitLab.com](../../subscriptions/gitlab_com/index.md) and [GitLab Dedicated](../../subscriptions/gitlab_dedicated/index.md),
   advanced search is enabled in paid subscriptions.
-- For [GitLab self-managed](../../subscriptions/self_managed/index.md), an administrator must
+- For [GitLab Self-Managed](../../subscriptions/self_managed/index.md), an administrator must
   [enable advanced search](../../integration/advanced_search/elasticsearch.md#enable-advanced-search).
 
 ## Syntax
+
+<!-- Remember to also update the tables in `doc/drawers/advanced_search_syntax.md` -->
 
 > - Refining user search [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/388409) in GitLab 15.10.
 
@@ -88,7 +90,7 @@ You can refine user search with `simple_query_string`.
 
 - You can only search files smaller than 1 MB.
   For more information, see [issue 195764](https://gitlab.com/gitlab-org/gitlab/-/issues/195764).
-  For self-managed GitLab instances, an administrator can
+  For GitLab Self-Managed, an administrator can
   [configure the **Maximum file size indexed** setting](../../integration/advanced_search/elasticsearch.md#advanced-search-configuration).
 - You can use advanced search on the default branch of a project only.
   For more information, see [issue 229966](https://gitlab.com/gitlab-org/gitlab/-/issues/229966).

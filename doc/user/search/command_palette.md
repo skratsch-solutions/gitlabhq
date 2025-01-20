@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Personal Productivity
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Introduced in GitLab 16.2 [with a flag](../../administration/feature_flags.md) named `command_palette`. Enabled by default.
 > - Feature flag `command_palette` removed in GitLab 16.4.

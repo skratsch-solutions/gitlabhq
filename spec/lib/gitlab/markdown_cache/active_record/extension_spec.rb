@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension do
+RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension, feature_category: :wiki do
   let_it_be(:project) { create(:project) }
 
   let(:klass) do
@@ -18,7 +18,7 @@ RSpec.describe Gitlab::MarkdownCache::ActiveRecord::Extension do
     end
   end
 
-  let(:cache_version) { Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION << 16 }
+  let(:cache_version) { Gitlab::MarkdownCache::CACHE_COMMONMARK_VERSION_SHIFTED }
   let(:thing) do
     klass.create!(
       project_id: project.id, namespace_id: project.project_namespace_id,

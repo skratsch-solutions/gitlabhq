@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Packages::Nuget::PackageFinder, feature_category: :package_registry do
@@ -22,7 +23,10 @@ RSpec.describe Packages::Nuget::PackageFinder, feature_category: :package_regist
 
     shared_examples 'calling with_nuget_version_or_normalized_version scope' do |with_normalized:|
       it 'calls with_nuget_version_or_normalized_version scope with the correct arguments' do
-        expect(::Packages::Package).to receive(:with_nuget_version_or_normalized_version).with(package_version, with_normalized: with_normalized).and_call_original
+        expect(::Packages::Nuget::Package)
+          .to receive(:with_nuget_version_or_normalized_version)
+          .with(package_version, with_normalized: with_normalized)
+          .and_call_original
 
         subject
       end
@@ -164,20 +168,12 @@ RSpec.describe Packages::Nuget::PackageFinder, feature_category: :package_regist
 
       before_all do
         [subgroup, group, project].each do |entity|
-          entity.update!(visibility_level: Gitlab::VisibilityLevel.const_get(:PRIVATE, false))
+          entity.reload.update!(visibility_level: Gitlab::VisibilityLevel.const_get(:PRIVATE, false))
         end
         project.project_feature.update!(package_registry_access_level: ::ProjectFeature::PUBLIC)
       end
 
       it { is_expected.to match_array([package1, package2]) }
-
-      context 'when allow_anyone_to_pull_public_nuget_packages_on_group_level FF is disabled' do
-        before do
-          stub_feature_flags(allow_anyone_to_pull_public_nuget_packages_on_group_level: false)
-        end
-
-        it { is_expected.to be_empty }
-      end
     end
   end
 end

@@ -106,11 +106,11 @@ export default {
 </script>
 
 <template>
-  <div class="position-absolute gl-w-full gl-h-full image-diff-overlay">
+  <div class="image-diff-overlay gl-absolute gl-h-full gl-w-full">
     <button
       v-if="canComment"
       type="button"
-      class="btn-transparent position-absolute image-diff-overlay-add-comment gl-w-full gl-h-full js-add-image-diff-note-button"
+      class="image-diff-overlay-add-comment js-add-image-diff-note-button gl-absolute gl-h-full gl-w-full gl-border-0 gl-bg-transparent"
       @click="clickedImage($event.offsetX, $event.offsetY)"
     >
       <span class="sr-only"> {{ __('Add image comment') }} </span>

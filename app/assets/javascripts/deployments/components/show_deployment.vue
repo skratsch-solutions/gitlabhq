@@ -5,6 +5,7 @@ import { toggleQueryPollingByVisibility, etagQueryHeaders } from '~/graphql_shar
 import { s__ } from '~/locale';
 import deploymentQuery from '../graphql/queries/deployment.query.graphql';
 import environmentQuery from '../graphql/queries/environment.query.graphql';
+import releaseQuery from '../graphql/queries/release.query.graphql';
 import DeploymentHeader from './deployment_header.vue';
 import DeploymentAside from './deployment_aside.vue';
 import DeploymentDeployBlock from './deployment_deploy_block.vue';
@@ -58,9 +59,25 @@ export default {
         this.errorMessage = this.$options.i18n.errorMessage;
       },
     },
+    release: {
+      query: releaseQuery,
+      variables() {
+        return { fullPath: this.projectPath, tagName: this.deployment?.ref };
+      },
+      update(data) {
+        return data?.project?.release;
+      },
+      skip() {
+        return !this.deployment?.tag;
+      },
+      error(error) {
+        captureException(error);
+        this.errorMessage = this.$options.i18n.errorMessage;
+      },
+    },
   },
   data() {
-    return { deployment: {}, environment: {}, errorMessage: '' };
+    return { deployment: {}, environment: {}, errorMessage: '', release: null };
   },
   computed: {
     hasError() {
@@ -92,9 +109,9 @@ export default {
 </script>
 <template>
   <div>
-    <div class="gl-display-flex gl-justify-content-space-between">
-      <div class="gl-flex-grow-1">
-        <h1 class="page-title gl-font-size-h-display">
+    <div class="gl-flex gl-justify-between">
+      <div class="gl-grow lg:gl-pr-5">
+        <h1 class="page-title gl-text-size-h-display">
           <gl-sprintf :message="$options.i18n.header">
             <template #iid>{{ deploymentIid }}</template>
           </gl-sprintf>
@@ -104,31 +121,23 @@ export default {
           v-else
           :deployment="deployment"
           :environment="environment"
+          :release="release"
           :loading="isLoading"
         />
-        <details-feedback class="gl-mt-6 gl-w-9/10" />
+        <details-feedback class="gl-mt-6" />
         <deployment-approvals
           v-if="hasApprovalSummary"
           :approval-summary="deployment.approvalSummary"
           :deployment="deployment"
-          class="gl-mt-6 gl-w-9/10"
+          class="gl-mt-6"
           @change="$apollo.queries.deployment.refetch()"
         />
-        <deployment-deploy-block
-          v-if="isManual"
-          :deployment="deployment"
-          class="gl-w-9/10 gl-mt-4"
-        />
+        <deployment-deploy-block v-if="isManual" :deployment="deployment" class="gl-mt-4" />
         <deployment-timeline
           v-if="hasApprovalSummary"
           :approval-summary="deployment.approvalSummary"
-          class="gl-w-9/10"
         />
-        <approvals-empty-state
-          v-if="!isLoading"
-          :approval-summary="deployment.approvalSummary"
-          class="gl-w-9/10"
-        />
+        <approvals-empty-state v-if="!isLoading" :approval-summary="deployment.approvalSummary" />
       </div>
       <deployment-aside
         v-if="!hasError"

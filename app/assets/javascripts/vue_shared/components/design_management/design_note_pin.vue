@@ -72,7 +72,7 @@ export default {
     :style="position"
     :aria-label="pinLabel"
     :class="{
-      'btn-transparent comment-indicator': isNewNote,
+      'comment-indicator gl-border-0 gl-bg-transparent': isNewNote,
       'js-image-badge design-note-pin': !isNewNote,
       resolved: isResolved,
       inactive: isInactive,
@@ -81,13 +81,18 @@ export default {
       'gl-absolute': position,
       small: size === 'sm',
     }"
-    class="gl-display-flex gl-align-items-center gl-justify-content-center gl-font-sm"
+    class="gl-flex gl-items-center gl-justify-center gl-text-sm"
     type="button"
     @mousedown="$emit('mousedown', $event)"
     @mouseup="$emit('mouseup', $event)"
     @click="$emit('click', $event)"
   >
-    <gl-icon v-if="isNewNote" name="image-comment-dark" :size="24" />
+    <gl-icon
+      v-if="isNewNote"
+      name="image-comment-dark"
+      :size="24"
+      class="gl-rounded-full gl-border-2 gl-border-solid gl-border-white gl-bg-white"
+    />
     <template v-else>
       {{ label }}
     </template>

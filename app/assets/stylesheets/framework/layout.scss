@@ -4,21 +4,6 @@ html {
   }
 }
 
-body {
-  &.board-card-content {
-    background-color: $gray-50;
-
-    .content-wrapper {
-      padding: 0;
-
-      .container-fluid,
-      .container-limited {
-        background-color: $gray-50;
-      }
-    }
-  }
-}
-
 .container-fluid {
   &.limit-container-width {
     .flash-container.sticky {
@@ -64,20 +49,13 @@ body {
   }
 }
 
+.alert-wrapper-top-space {
+  .gl-alert:first-child {
+    @apply gl-mt-3;
+  }
+}
+
 .alert-wrapper {
-  @include gl-media-breakpoint-up(xl) {
-    --gl-alert-padding-x: #{$gl-spacing-scale-3};
-    --gl-broadcast-message-padding-x: #{$gl-spacing-scale-3};
-  }
-
-  .alert {
-    margin-bottom: 0;
-
-    &:last-child {
-      margin-bottom: $gl-padding;
-    }
-  }
-
   .alert-link-group {
     float: right;
   }
@@ -101,33 +79,6 @@ body {
     .alert-link-group {
       float: none;
       margin-top: $gl-padding-8;
-    }
-  }
-
-  /* Stripe the background colors so that adjacent alert-warnings are distinct from one another */
-  .alert-warning {
-    transition: background-color 0.15s, border-color 0.15s;
-    background-color: $orange-500;
-    border-color: $orange-500;
-
-    &:only-of-type {
-      background-color: $orange-500;
-      border-color: $orange-500;
-    }
-
-    + .alert-warning {
-      background-color: $orange-600;
-      border-color: $orange-600;
-
-      + .alert-warning {
-        background-color: $orange-700;
-        border-color: $orange-700;
-
-        + .alert-warning {
-          background-color: $orange-800;
-          border-color: $orange-800;
-        }
-      }
     }
   }
 }
@@ -155,11 +106,6 @@ body {
 
   .flash-container {
     margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .alert-wrapper .flash-container .flash-alert:last-child,
-  .alert-wrapper .flash-container .flash-notice:last-child {
     margin-bottom: 0;
   }
 
@@ -194,5 +140,20 @@ body {
   .gl-drawer-body > * {
     padding-left: 0;
     padding-right: 0;
+  }
+}
+
+
+/*
+ * These are used by the `Tab width` user preference in
+ * `https://gitlab.com/-/profile/preferences`. The `css_class_for_user` method in
+ * `lib/gitlab/tab_width.rb` is used to add one of these classes to the `body` element.
+*/
+
+@for $i from 1 through 12 {
+  #{'.tab-width-#{$i}'} {
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -moz-tab-size: $i;
+    tab-size: $i;
   }
 }

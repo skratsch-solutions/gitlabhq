@@ -8,9 +8,28 @@ export const MOCK_PAGE_INFO = {
 };
 
 export const MOCK_EXPERIMENT = {
+  id: 1,
   name: 'experiment',
   metadata: [],
   path: '/path/to/experiment',
+  created_at: '2022-11-07T10:42:21.480Z',
+  user: {
+    name: 'root',
+    path: '/root',
+  },
+};
+
+export const MOCK_MODEL_EXPERIMENT = {
+  id: 1,
+  name: 'experiment',
+  metadata: [],
+  path: '/path/to/experiment',
+  created_at: '2022-11-07T10:42:21.480Z',
+  user: {
+    name: 'root',
+    path: '/root',
+  },
+  model_id: 1,
 };
 
 export const MOCK_EXPERIMENT_METADATA = [
@@ -36,7 +55,7 @@ export const MOCK_CANDIDATES = [
   {
     rmse: 1,
     l1_ratio: 0.4,
-    details: 'link_to_candidate1',
+    details: 'link/to/candidate/1',
     artifact: 'link_to_artifact',
     ci_job: {
       path: 'link_to_job',
@@ -49,7 +68,7 @@ export const MOCK_CANDIDATES = [
   {
     auc: 0.3,
     l1_ratio: 0.5,
-    details: 'link_to_candidate2',
+    details: 'link/to/candidate/2',
     created_at: '2023-01-05T14:07:02.975Z',
     name: null,
     user: null,
@@ -57,7 +76,7 @@ export const MOCK_CANDIDATES = [
   {
     auc: 0.3,
     l1_ratio: 0.5,
-    details: 'link_to_candidate3',
+    details: 'link/to/candidate/3',
     created_at: '2023-01-05T14:07:02.975Z',
     name: null,
     user: null,
@@ -65,7 +84,7 @@ export const MOCK_CANDIDATES = [
   {
     auc: 0.3,
     l1_ratio: 0.5,
-    details: 'link_to_candidate4',
+    details: 'link/to/candidate/4',
     created_at: '2023-01-05T14:07:02.975Z',
     name: null,
     user: null,
@@ -73,7 +92,7 @@ export const MOCK_CANDIDATES = [
   {
     auc: 0.3,
     l1_ratio: 0.5,
-    details: 'link_to_candidate5',
+    details: 'link/to/candidate/5',
     created_at: '2023-01-05T14:07:02.975Z',
     name: null,
     user: null,

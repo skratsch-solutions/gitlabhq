@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -67,15 +67,15 @@ To create a new application for a group:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 To create an application for your GitLab instance:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Applications**.
 1. Select **New application**.
 
-When creating application in the **Admin Area** , mark it as **trusted**.
+When creating application in the **Admin area** , mark it as **trusted**.
 The user authorization step is automatically skipped for this application.
 
 ## View all authorized applications
@@ -113,7 +113,7 @@ At any time you can revoke any access by selecting **Revoke**.
 
 ## Access token expiration
 
-> - Database validation on `expires_in` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112765) in GitLab 15.10. If your GitLab instance has any remaining OAuth Access Tokens without `expires_in` set when you are upgrading to 15.10 or later, the database migration will raise an error. For workaround instructions, see the [GitLab 15.10.0 upgrade documentation](../update/versions/gitlab_15_changes.md#15100).
+> - Database validation on `expires_in` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112765) in GitLab 15.10. If your GitLab instance has any remaining OAuth access tokens without `expires_in` set when you are upgrading to 15.10 or later, the database migration will raise an error. For workaround instructions, see the [GitLab 15.10.0 upgrade documentation](../update/versions/gitlab_15_changes.md#15100).
 
 WARNING:
 The ability to opt out of expiring access tokens was
@@ -139,11 +139,8 @@ application are also deleted.
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/374588) in GitLab 15.4 [with a flag](../administration/feature_flags.md) named `hash_oauth_secrets`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/374588) in GitLab 15.8.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/374588) in GitLab 15.9.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature, an administrator can [disable the feature flag](../administration/feature_flags.md) named `hash_oauth_secrets`.
-On GitLab.com, this feature is available.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/374588) in GitLab 15.9.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/113892) in GitLab 15.10. Feature flag `hash_oauth_secrets` removed.
 
 By default, GitLab stores OAuth application secrets in the database in hashed format. These secrets are only available to users immediately after creating OAuth applications. In
 earlier versions of GitLab, application secrets are stored as plain text in the database.

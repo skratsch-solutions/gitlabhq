@@ -4,7 +4,7 @@ import {
   createMemoryHistory,
   createWebHistory,
   createWebHashHistory,
-} from 'vue-router-vue3';
+} from '@gitlab/vue-router-vue3';
 
 const mode = (value, options) => {
   if (!value) return null;
@@ -36,7 +36,7 @@ const toNewCatchAllPath = (path, { isRoot } = {}) => {
 
 const transformRoutes = (value, _routerOptions, transformOptions = { isRoot: true }) => {
   if (!value) return null;
-  const newRoutes = value.map(function handleRoutes(route) {
+  const newRoutes = value.map((route) => {
     const newRoute = {
       ...route,
       path: toNewCatchAllPath(route.path, transformOptions),

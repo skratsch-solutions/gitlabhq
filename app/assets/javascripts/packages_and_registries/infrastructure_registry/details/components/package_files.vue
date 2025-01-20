@@ -96,7 +96,7 @@ export default {
 
 <template>
   <div>
-    <h3 class="gl-font-lg gl-mt-5">{{ __('Assets') }}</h3>
+    <h3 class="gl-mt-5 gl-text-lg">{{ __('Assets') }}</h3>
     <gl-table
       :fields="filesTableHeaderFields"
       :items="filesTableRows"
@@ -113,14 +113,14 @@ export default {
         />
         <gl-link
           :href="item.download_path"
-          class="gl-text-secondary"
+          class="gl-text-subtle"
           data-testid="download-link"
           @click="$emit('download-file')"
         >
           <file-icon
             :file-name="item.file_name"
             css-classes="gl-relative file-icon"
-            class="gl-mr-1 gl-relative"
+            class="gl-relative gl-mr-1"
           />
           <span>{{ item.file_name }}</span>
         </gl-link>
@@ -130,7 +130,7 @@ export default {
         <gl-link
           v-if="item.pipeline && item.pipeline.project"
           :href="item.pipeline.project.commit_url"
-          class="gl-text-secondary"
+          class="gl-text-subtle"
           data-testid="commit-link"
           >{{ item.pipeline.git_commit_message }}</gl-link
         >
@@ -155,7 +155,7 @@ export default {
 
       <template #row-details="{ item }">
         <div
-          class="gl-display-flex gl-flex-direction-column gl-flex-grow-1 gl-bg-gray-10 gl-rounded-base gl-shadow-inner-1-gray-100"
+          class="gl-flex gl-grow gl-flex-col gl-rounded-base gl-bg-gray-10 gl-shadow-inner-1-gray-100"
         >
           <file-sha
             v-if="item.file_sha256"

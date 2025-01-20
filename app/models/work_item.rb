@@ -5,7 +5,7 @@ class WorkItem < Issue
 
   COMMON_QUICK_ACTIONS_COMMANDS = [
     :title, :reopen, :close, :cc, :tableflip, :shrug, :type, :promote_to, :checkin_reminder,
-    :subscribe, :unsubscribe, :confidential, :award, :react
+    :subscribe, :unsubscribe, :confidential, :award, :react, :move, :clone
   ].freeze
 
   self.table_name = 'issues'
@@ -17,7 +17,12 @@ class WorkItem < Issue
 
   has_one :parent_link, class_name: '::WorkItems::ParentLink', foreign_key: :work_item_id
   has_one :work_item_parent, through: :parent_link, class_name: 'WorkItem'
-  has_one :dates_source, class_name: 'WorkItems::DatesSource', foreign_key: 'issue_id', inverse_of: :work_item
+  has_one :dates_source,
+    class_name: 'WorkItems::DatesSource',
+    foreign_key: 'issue_id',
+    inverse_of: :work_item,
+    autosave: true
+  has_one :weights_source, class_name: 'WorkItems::WeightsSource'
 
   has_many :child_links, class_name: '::WorkItems::ParentLink', foreign_key: :work_item_parent_id
   has_many :work_item_children, through: :child_links, class_name: 'WorkItem',
@@ -26,7 +31,9 @@ class WorkItem < Issue
     through: :child_links, class_name: 'WorkItem',
     foreign_key: :work_item_id, source: :work_item
 
-  scope :inc_relations_for_permission_check, -> { includes(:author, :work_item_type, project: :project_feature) }
+  scope :inc_relations_for_permission_check, -> {
+    includes(:author, ::Gitlab::Issues::TypeAssociationGetter.call, project: :project_feature)
+  }
 
   class << self
     def find_by_namespace_and_iid!(namespace, iid)
@@ -69,6 +76,11 @@ class WorkItem < Issue
       Gitlab::Pagination::Keyset::Order.build(
         [
           Gitlab::Pagination::Keyset::ColumnOrderDefinition.new(
+            attribute_name: 'state_id',
+            column_expression: WorkItem.arel_table[:state_id],
+            order_expression: WorkItem.arel_table[:state_id].asc
+          ),
+          Gitlab::Pagination::Keyset::ColumnOrderDefinition.new(
             attribute_name: 'parent_link_relative_position',
             column_expression: WorkItems::ParentLink.arel_table[:relative_position],
             order_expression: WorkItems::ParentLink.arel_table[:relative_position].asc.nulls_last,
@@ -86,7 +98,7 @@ class WorkItem < Issue
     def work_item_children_keyset_order(_work_item)
       keyset_order = work_item_children_keyset_order_config
 
-      keyset_order.apply_cursor_conditions(includes(:parent_link)).reorder(keyset_order)
+      keyset_order.apply_cursor_conditions(joins(:parent_link)).reorder(keyset_order)
     end
 
     def linked_items_keyset_order
@@ -95,7 +107,7 @@ class WorkItem < Issue
           ::Gitlab::Pagination::Keyset::ColumnOrderDefinition.new(
             attribute_name: 'issue_link_id',
             column_expression: IssueLink.arel_table[:id],
-            order_expression: IssueLink.arel_table[:id].asc,
+            order_expression: IssueLink.arel_table[:id].desc,
             nullable: :not_nullable
           )
         ])
@@ -105,6 +117,27 @@ class WorkItem < Issue
     def related_link_class
       WorkItems::RelatedWorkItemLink
     end
+
+    def sync_callback_class(association_name)
+      ::WorkItems::DataSync::NonWidgets.const_get(association_name.to_s.camelcase, false)
+    rescue NameError
+      nil
+    end
+
+    def non_widgets
+      [:related_vulnerabilities]
+    end
+  end
+
+  def create_dates_source_from_current_dates
+    create_dates_source(
+      due_date: due_date,
+      start_date: start_date,
+      start_date_is_fixed: due_date.present? || start_date.present?,
+      due_date_is_fixed: due_date.present? || start_date.present?,
+      start_date_fixed: start_date,
+      due_date_fixed: due_date
+    )
   end
 
   def noteable_target_type_name
@@ -120,7 +153,7 @@ class WorkItem < Issue
   def widgets
     strong_memoize(:widgets) do
       work_item_type.widgets(resource_parent).map do |widget_definition|
-        widget_definition.widget_class.new(self)
+        widget_definition.widget_class.new(self, widget_definition: widget_definition)
       end
     end
   end
@@ -137,6 +170,10 @@ class WorkItem < Issue
 
   def ancestors
     hierarchy.ancestors(hierarchy_order: :asc)
+  end
+
+  def descendants
+    hierarchy.descendants
   end
 
   def same_type_base_and_ancestors
@@ -199,12 +236,34 @@ class WorkItem < Issue
     work_item_type.supports_time_tracking?(resource_parent)
   end
 
+  def due_date
+    dates_source&.due_date || read_attribute(:due_date)
+  end
+
+  def start_date
+    dates_source&.start_date || read_attribute(:start_date)
+  end
+
+  def max_depth_reached?(child_type)
+    restriction = ::WorkItems::HierarchyRestriction.find_by_parent_type_id_and_child_type_id(
+      work_item_type_id,
+      child_type.id
+    )
+    return false unless restriction&.maximum_depth
+
+    if work_item_type_id == child_type.id
+      same_type_base_and_ancestors.count >= restriction.maximum_depth
+    else
+      hierarchy(different_type_id: child_type.id).base_and_ancestors.count >= restriction.maximum_depth
+    end
+  end
+
   private
 
   override :parent_link_confidentiality
   def parent_link_confidentiality
     if confidential? && work_item_children.public_only.exists?
-      errors.add(:base, _('A confidential work item cannot have a parent that already has non-confidential children.'))
+      errors.add(:base, _('All child items must be confidential in order to turn on confidentiality.'))
     end
 
     if !confidential? && work_item_parent&.confidential?
@@ -219,15 +278,17 @@ class WorkItem < Issue
   end
 
   def hierarchy(options = {})
+    type_column_name = :"#{::Gitlab::Issues::TypeAssociationGetter.call}_id"
     base = self.class.where(id: id)
-    base = base.where(work_item_type_id: work_item_type_id) if options[:same_type]
+    base = base.where(type_column_name => attributes[type_column_name.to_s]) if options[:same_type]
+    base = base.where(type_column_name => options[:different_type_id]) if options[:different_type_id]
 
     ::Gitlab::WorkItems::WorkItemHierarchy.new(base, options: options)
   end
 
   override :allowed_work_item_type_change
   def allowed_work_item_type_change
-    return unless work_item_type_id_changed?
+    return unless correct_work_item_type_id_changed?
 
     child_links = WorkItems::ParentLink.for_parents(id)
     parent_link = ::WorkItems::ParentLink.find_by(work_item: self)
@@ -257,7 +318,9 @@ class WorkItem < Issue
   def validate_child_restrictions(child_links)
     return if child_links.empty?
 
-    child_type_ids = child_links.joins(:work_item).select(self.class.arel_table[:work_item_type_id]).distinct
+    type_id_column = :"#{::Gitlab::Issues::TypeAssociationGetter.call}_id"
+
+    child_type_ids = child_links.joins(:work_item).select(self.class.arel_table[type_id_column]).distinct
     restrictions = ::WorkItems::HierarchyRestriction.where(
       parent_type_id: work_item_type_id,
       child_type_id: child_type_ids
@@ -280,7 +343,7 @@ class WorkItem < Issue
     return unless restriction&.maximum_depth
 
     children_with_new_type = self.class.where(id: child_links.select(:work_item_id))
-      .where(work_item_type_id: work_item_type_id)
+      .where(correct_work_item_type_id: correct_work_item_type_id)
     max_child_depth = ::Gitlab::WorkItems::WorkItemHierarchy.new(children_with_new_type).max_descendants_depth.to_i
 
     ancestor_depth =

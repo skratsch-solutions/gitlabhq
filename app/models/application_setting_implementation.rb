@@ -44,7 +44,7 @@ module ApplicationSettingImplementation
         allow_possible_spam: false,
         asset_proxy_enabled: false,
         authorized_keys_enabled: true, # TODO default to false if the instance is configured to use AuthorizedKeysCommand
-        ci_max_total_yaml_size_bytes: 157286400, # max_yaml_size_bytes * ci_max_includes = 1.megabyte * 150
+        ci_max_total_yaml_size_bytes: 314572800, # max_yaml_size_bytes * ci_max_includes = 2.megabyte * 150
         commit_email_hostname: default_commit_email_hostname,
         container_expiration_policies_enable_historic_entries: false,
         container_registry_features: [],
@@ -73,7 +73,8 @@ module ApplicationSettingImplementation
         disable_feed_token: false,
         disabled_direct_code_suggestions: false,
         disabled_oauth_sign_in_sources: [],
-        dns_rebinding_protection_enabled: true,
+        disable_password_authentication_for_users_with_sso_identities: false,
+        dns_rebinding_protection_enabled: Settings.gitlab['dns_rebinding_protection_enabled'],
         domain_allowlist: Settings.gitlab['domain_allowlist'],
         dsa_key_restriction: default_min_key_size(:dsa),
         ecdsa_key_restriction: default_min_key_size(:ecdsa),
@@ -92,6 +93,7 @@ module ApplicationSettingImplementation
         external_pipeline_validation_service_token: nil,
         external_pipeline_validation_service_url: nil,
         failed_login_attempts_unlock_period_in_minutes: nil,
+        fetch_observability_alerts_from_cloud: true,
         first_day_of_week: 0,
         floc_enabled: false,
         gitaly_timeout_default: 55,
@@ -124,6 +126,7 @@ module ApplicationSettingImplementation
         mailgun_signing_key: nil,
         mailgun_events_enabled: false,
         math_rendering_limits_enabled: true,
+        max_artifacts_content_include_size: 5.megabytes,
         max_artifacts_size: Settings.artifacts['max_size'],
         max_attachment_size: Settings.gitlab['max_attachment_size'],
         max_decompressed_archive_size: 25600,
@@ -132,7 +135,7 @@ module ApplicationSettingImplementation
         max_import_remote_file_size: 10240,
         max_login_attempts: nil,
         max_terraform_state_size_bytes: 0,
-        max_yaml_size_bytes: 1.megabyte,
+        max_yaml_size_bytes: 2.megabyte,
         max_yaml_depth: 100,
         minimum_password_length: DEFAULT_MINIMUM_PASSWORD_LENGTH,
         mirror_available: true,
@@ -161,10 +164,14 @@ module ApplicationSettingImplementation
         push_event_hooks_limit: 3,
         raw_blob_request_limit: 300,
         recaptcha_enabled: false,
+        receptive_cluster_agents_enabled: false,
         repository_checks_enabled: true,
         repository_storages_weighted: { 'default' => 100 },
         require_admin_approval_after_user_signup: true,
         require_two_factor_authentication: false,
+        resource_usage_limits: {},
+        resource_access_token_notify_inherited: false,
+        lock_resource_access_token_notify_inherited: false,
         restricted_visibility_levels: Settings.gitlab['restricted_visibility_levels'],
         rsa_key_restriction: default_min_key_size(:rsa),
         session_expire_delay: Settings.gitlab['session_expire_delay'],
@@ -262,6 +269,7 @@ module ApplicationSettingImplementation
         bulk_import_enabled: false,
         bulk_import_max_download_file_size: 5120,
         silent_admin_exports_enabled: false,
+        allow_contribution_mapping_to_admins: false,
         allow_runner_registration_token: true,
         user_defaults_to_private_profile: false,
         projects_api_rate_limit_unauthenticated: 400,
@@ -279,17 +287,26 @@ module ApplicationSettingImplementation
         asciidoc_max_includes: 32,
         use_clickhouse_for_analytics: false,
         group_api_limit: 400,
+        group_invited_groups_api_limit: 60,
         group_projects_api_limit: 600,
         group_shared_groups_api_limit: 60,
         groups_api_limit: 200,
+        create_organization_api_limit: 10,
         project_api_limit: 400,
+        project_invited_groups_api_limit: 60,
         projects_api_limit: 2000,
         user_contributed_projects_api_limit: 100,
         user_projects_api_limit: 300,
         user_starred_projects_api_limit: 100,
         nuget_skip_metadata_url_validation: false,
         ai_action_api_rate_limit: 160,
-        code_suggestions_api_rate_limit: 60
+        code_suggestions_api_rate_limit: 60,
+        require_personal_access_token_expiry: true,
+        pages_extra_deployments_default_expiry_seconds: 86400,
+        scan_execution_policies_action_limit: 10,
+        seat_control: 0,
+        show_migrate_from_jenkins_banner: true,
+        ropc_without_client_credentials: true
       }.tap do |hsh|
         hsh.merge!(non_production_defaults) unless Rails.env.production?
       end
@@ -526,7 +543,9 @@ module ApplicationSettingImplementation
   def usage_ping_features_enabled
     return false unless usage_ping_enabled? && super
 
-    return include_optional_metrics_in_service_ping if Gitlab.ee? && respond_to?(:include_optional_metrics_in_service_ping)
+    if Gitlab.ee? && respond_to?(:include_optional_metrics_in_service_ping)
+      return include_optional_metrics_in_service_ping
+    end
 
     true
   end
@@ -688,14 +707,20 @@ module ApplicationSettingImplementation
     repository_storages_weighted.each do |key, val|
       next unless val.present?
 
-      errors.add(:repository_storages_weighted, _("value for '%{storage}' must be an integer") % { storage: key }) unless val.is_a?(Integer)
-      errors.add(:repository_storages_weighted, _("value for '%{storage}' must be between 0 and 100") % { storage: key }) unless val.between?(0, 100)
+      unless val.is_a?(Integer)
+        errors.add(:repository_storages_weighted, _("value for '%{storage}' must be an integer") % { storage: key })
+      end
+
+      unless val.between?(0, 100)
+        errors.add(:repository_storages_weighted, _("value for '%{storage}' must be between 0 and 100") % { storage: key })
+      end
     end
   end
 
   def check_valid_runner_registrars
-    valid = valid_runner_registrar_combinations.include?(valid_runner_registrars)
-    errors.add(:valid_runner_registrars, _("%{value} is not included in the list") % { value: valid_runner_registrars }) unless valid
+    return if valid_runner_registrar_combinations.include?(valid_runner_registrars)
+
+    errors.add(:valid_runner_registrars, _("%{value} is not included in the list") % { value: valid_runner_registrars })
   end
 
   def valid_runner_registrar_combinations

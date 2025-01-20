@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Secret Detection
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab Secret Detection automatically responds when it finds certain types of leaked secrets.
 Automatic responses can:
@@ -22,7 +22,7 @@ GitLab supports automatic response for the following types of secrets:
 
 | Secret type | Action taken | Supported on GitLab.com | Supported in self-managed |
 | ----- | --- | --- | --- |
-| GitLab [Personal access tokens](../../profile/personal_access_tokens.md) | Immediately revoke token, send email to owner | ✅ | ✅ [15.9 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/371658) |
+| GitLab [personal access tokens](../../profile/personal_access_tokens.md) | Immediately revoke token, send email to owner | ✅ | ✅ [15.9 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/371658) |
 | Amazon Web Services (AWS) [IAM access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) | Notify AWS | ✅ | ⚙ |
 | Google Cloud [service account keys](https://cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys), [API keys](https://cloud.google.com/docs/authentication/api-keys), and [OAuth client secrets](https://support.google.com/cloud/answer/6158849#rotate-client-secret) | Notify Google Cloud | ✅ | ⚙ |
 | Postman [API keys](https://learning.postman.com/docs/developer/postman-api/authentication/) | Notify Postman; Postman [notifies the key owner](https://learning.postman.com/docs/administration/managing-your-team/secret-scanner/#protect-postman-api-keys-in-gitlab) | ✅ | ⚙ |
@@ -109,8 +109,8 @@ accDescr: How a Partner API should receive and respond to leaked token revocatio
 1. The Partner API [verifies the signature](#verifying-the-request) against the actual request body, using the public key (**4**).
 1. The Partner API processes the leaked tokens, which may involve automatic revocation (**5**).
 1. The Partner API responds to the GitLab Token Revocation API (**6**) with the appropriate HTTP status code:
-    - A successful response code (HTTP 200 through 299) acknowledges that the partner has received and processed the request.
-    - An error code (HTTP 400 or higher) causes the GitLab Token Revocation API to retry the request.
+   - A successful response code (HTTP 200 through 299) acknowledges that the partner has received and processed the request.
+   - An error code (HTTP 400 or higher) causes the GitLab Token Revocation API to retry the request.
 
 #### Revocation request
 

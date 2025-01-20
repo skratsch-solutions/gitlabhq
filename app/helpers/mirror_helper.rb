@@ -9,17 +9,23 @@ module MirrorHelper
   end
 
   def pull_mirror_lfs_sync_message
-    template = _('Pull mirrors will only create LFS objects if LFS is %{docs_link_start}enabled for the project%{docs_link_end}.')
+    template = _(
+      'Pull mirrors will only create LFS objects if LFS is %{docs_link_start}enabled ' \
+        'for the project%{docs_link_end}.'
+    )
 
-    docs_link = link_to('', help_page_path('topics/git/lfs/index'), target: '_blank', rel: 'noopener noreferrer')
+    docs_link = link_to('', help_page_path('topics/git/lfs/index.md'), target: '_blank', rel: 'noopener noreferrer')
 
     safe_format(template, tag_pair(docs_link, :docs_link_start, :docs_link_end))
   end
 
   def push_mirror_lfs_sync_message
-    template = _('Push mirrors will only sync LFS objects if LFS is %{docs_link_start}enabled for the project%{docs_link_end}.')
+    template = _(
+      'Push mirrors will only sync LFS objects if LFS is %{docs_link_start}enabled ' \
+        'for the project%{docs_link_end}.'
+    )
 
-    docs_link = link_to('', help_page_path('topics/git/lfs/index'), target: '_blank', rel: 'noopener noreferrer')
+    docs_link = link_to('', help_page_path('topics/git/lfs/index.md'), target: '_blank', rel: 'noopener noreferrer')
 
     safe_format(template, tag_pair(docs_link, :docs_link_start, :docs_link_end))
   end

@@ -133,7 +133,7 @@ module Spam
       }
 
       target.run_after_commit_or_now do
-        Abuse::SpamAbuseEventsWorker.perform_async(params)
+        AntiAbuse::SpamAbuseEventsWorker.perform_async(params)
       end
     end
 

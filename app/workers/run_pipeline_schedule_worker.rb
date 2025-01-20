@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class RunPipelineScheduleWorker # rubocop:disable Scalability/IdempotentWorker
+class RunPipelineScheduleWorker
   include ApplicationWorker
 
-  data_consistency :always
+  data_consistency :sticky
 
   sidekiq_options retry: 3
   include PipelineQueue

@@ -166,6 +166,38 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
             it_behaves_like 'project commits'
           end
 
+          context 'with a range of refs' do
+            let(:route) { "/projects/#{project_id}/repository/commits?ref_name=#{Gitlab::Git::SHA1_EMPTY_TREE_ID}..HEAD" }
+
+            it_behaves_like 'project commits'
+          end
+
+          context 'with HEAD' do
+            let(:route) { "/projects/#{project_id}/repository/commits?ref_name=HEAD" }
+
+            it_behaves_like 'project commits'
+          end
+
+          context 'with incorrect ref_name parameter' do
+            context 'when starts with -' do
+              let(:route) { "/projects/#{project_id}/repository/commits?ref_name=-main" }
+
+              it_behaves_like '400 response' do
+                let(:request) { get api(route, user) }
+                let(:message) { 'ref_name is invalid' }
+              end
+            end
+
+            context 'when includes a whitespace' do
+              let(:route) { "/projects/#{project_id}/repository/commits?ref_name=main branch" }
+
+              it_behaves_like '400 response' do
+                let(:request) { get api(route, user) }
+                let(:message) { 'ref_name is invalid' }
+              end
+            end
+          end
+
           context 'with author parameter' do
             let(:params) { { author: 'Zaporozhets' } }
 
@@ -2329,6 +2361,17 @@ RSpec.describe API::Commits, feature_category: :source_code_management do
         expect(json_response['path']).to eq(path)
         expect(json_response['line']).to eq(1)
         expect(json_response['line_type']).to eq('new')
+      end
+
+      it 'creates a tag with /tag quick action' do
+        path = project.repository.commit.raw_diffs.first.new_path
+        post api(route, current_user), params: { note: '/tag quick-action-tag-test some commit message', path: path, line: 1, line_type: 'new' }
+
+        expect(response).to have_gitlab_http_status(:accepted)
+        expect(json_response['commands_changes']).to be_present
+        expect(json_response.dig('commands_changes', 'tag_message')).to eq('some commit message')
+        expect(json_response.dig('commands_changes', 'tag_name')).to eq('quick-action-tag-test')
+        expect(json_response['summary']).to eq(['Tagged this commit to quick-action-tag-test with "some commit message".'])
       end
 
       it 'correctly adds a note for the "old" line type' do

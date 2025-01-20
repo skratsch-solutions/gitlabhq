@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -10,7 +10,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 WARNING:
 This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/377825) in GitLab 15.7
@@ -52,7 +52,7 @@ Complete these steps in GitLab:
    - **ZenTao API token**: Use the key you generated when you [configured ZenTao](#configure-zentao).
    - **ZenTao Product ID**: To display issues from a single ZenTao product in a given GitLab project. The Product ID can be found in the ZenTao product page under **Settings > Overview**.
 
-   ![ZenTao settings page](img/zentao_product_id.png)
+   ![ZenTao settings page](img/zentao_product_id_v14_4.png)
 
 1. Optional. Select **Test settings**.
 1. Select **Save changes**.

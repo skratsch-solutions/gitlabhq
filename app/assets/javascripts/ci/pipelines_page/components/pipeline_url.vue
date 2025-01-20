@@ -120,8 +120,26 @@ export default {
     commitTitle() {
       return this.pipeline?.commit?.title;
     },
-    pipelineName() {
-      return this.pipeline?.name;
+    pipelineIdentifier() {
+      const { name, path, pipeline_schedule: pipelineSchedule } = this.pipeline || {};
+
+      // pipeline name should take priority over
+      // pipeline schedule description
+      if (name) {
+        return {
+          text: name,
+          link: path,
+        };
+      }
+
+      if (pipelineSchedule) {
+        return {
+          text: pipelineSchedule.description,
+          link: pipelineSchedule.path,
+        };
+      }
+
+      return false;
     },
   },
   methods: {
@@ -133,51 +151,51 @@ export default {
 </script>
 <template>
   <div class="pipeline-tags" data-testid="pipeline-url-table-cell">
-    <div v-if="pipelineName" class="gl-mb-2" data-testid="pipeline-name-container">
-      <span class="gl-display-flex">
+    <div v-if="pipelineIdentifier" class="gl-mb-2" data-testid="pipeline-identifier-container">
+      <span class="gl-flex">
         <tooltip-on-truncate
-          :title="pipelineName"
-          class="gl-flex-grow-1 gl-text-truncate gl-text-gray-900"
+          :title="pipelineIdentifier.text"
+          class="gl-grow gl-truncate gl-text-default"
         >
-          <gl-link
-            :href="pipeline.path"
-            class="gl-text-blue-600!"
-            data-testid="pipeline-url-link"
-            >{{ pipelineName }}</gl-link
-          >
+          <gl-link :href="pipelineIdentifier.link" data-testid="pipeline-identifier-link">{{
+            pipelineIdentifier.text
+          }}</gl-link>
         </tooltip-on-truncate>
       </span>
     </div>
 
-    <div v-if="!pipelineName" class="commit-title gl-mb-2" data-testid="commit-title-container">
-      <span v-if="commitTitle" class="gl-display-flex">
+    <div
+      v-if="!pipelineIdentifier"
+      class="commit-title gl-mb-2"
+      data-testid="commit-title-container"
+    >
+      <span v-if="commitTitle" class="gl-flex">
         <tooltip-on-truncate
           :title="commitTitle"
-          class="gl-flex-grow-1 gl-text-truncate gl-p-3 -gl-ml-3 -gl-mr-3 -gl-mt-3 -gl-mb-3"
+          class="-gl-mb-3 -gl-ml-3 -gl-mr-3 -gl-mt-3 gl-grow gl-truncate gl-p-3"
         >
           <gl-link
             :href="commitUrl"
-            class="commit-row-message gl-text-blue-600!"
+            class="commit-row-message"
             data-testid="commit-title"
             @click="trackClick('click_commit_title')"
             >{{ commitTitle }}</gl-link
           >
         </tooltip-on-truncate>
       </span>
-      <span v-else class="gl-text-gray-500">{{
-        __("Can't find HEAD commit for this branch")
-      }}</span>
+      <span v-else class="gl-text-subtle">{{ __("Can't find HEAD commit for this branch") }}</span>
     </div>
+
     <div class="gl-mb-2">
       <gl-link
         :href="pipeline.path"
-        class="gl-mr-1 gl-text-blue-500!"
+        class="gl-mr-1"
         data-testid="pipeline-url-link"
         @click="trackClick('click_pipeline_id')"
         >#{{ pipeline[pipelineIdType] }}</gl-link
       >
       <!--Commit row-->
-      <div class="gl-inline-flex gl-rounded-base gl-px-2 gl-bg-gray-50 gl-text-gray-700">
+      <div class="gl-inline-flex gl-rounded-base gl-bg-gray-50 gl-px-2 gl-text-subtle">
         <tooltip-on-truncate :title="tooltipTitle" truncate-target="child" placement="top">
           <gl-icon
             v-gl-tooltip
@@ -185,11 +203,12 @@ export default {
             :title="commitIconTooltipTitle"
             :size="12"
             data-testid="commit-icon-type"
+            variant="subtle"
           />
           <gl-link
             v-if="mergeRequestRef"
             :href="mergeRequestRef.path"
-            class="gl-font-sm gl-font-monospace gl-text-gray-700! gl-hover-text-gray-900!"
+            class="gl-text-sm !gl-text-subtle gl-font-monospace"
             :class="refClass"
             data-testid="merge-request-ref"
             @click="trackClick('click_mr_ref')"
@@ -198,7 +217,7 @@ export default {
           <gl-link
             v-else
             :href="refUrl"
-            class="gl-font-sm gl-font-monospace gl-text-gray-700! gl-hover-text-gray-900!"
+            class="gl-text-sm !gl-text-subtle gl-font-monospace"
             :class="refClass"
             data-testid="commit-ref-name"
             @click="trackClick('click_commit_name')"
@@ -206,9 +225,8 @@ export default {
           >
         </tooltip-on-truncate>
       </div>
-      <div
-        class="gl-display-inline-block gl-rounded-base gl-font-sm gl-px-2 gl-bg-gray-50 gl-text-black-normal"
-      >
+
+      <div class="gl-inline-block gl-rounded-base gl-bg-gray-50 gl-px-2 gl-text-sm gl-text-default">
         <gl-icon
           v-gl-tooltip
           name="commit"
@@ -219,12 +237,13 @@ export default {
         />
         <gl-link
           :href="commitUrl"
-          class="gl-font-sm gl-font-monospace gl-mr-0 gl-text-gray-700!"
+          class="gl-mr-0 gl-text-sm !gl-text-subtle gl-font-monospace"
           data-testid="commit-short-sha"
           @click="trackClick('click_commit_sha')"
           >{{ commitShortSha }}</gl-link
         >
       </div>
+
       <user-avatar-link
         v-if="commitAuthor"
         :link-href="commitAuthor.path"

@@ -44,7 +44,9 @@ To add a story:
    │  │  |  ├─ todo_button.stories.js
    ```
 
-1. Write the story as per the [official Storybook instructions](https://storybook.js.org/docs/writing-stories/)
+1. Stories should demonstrate each significantly different UI state related to the component's exposed props and events.
+
+For instructions on how to write stories, refer to the [official Storybook instructions](https://storybook.js.org/docs/writing-stories/)
 
    NOTE:
    Specify the `title` field of the story as the component's file path from the `javascripts/` directory, without the `/components` part.
@@ -142,7 +144,6 @@ To write a story for a component that requires access to a Vuex store, use the `
 the Story context.
 
 ```javascript
-import Vue from 'vue';
 import { withVuexStore } from 'storybook_addons/vuex_store';
 import DurationChart from './duration-chart.vue';
 

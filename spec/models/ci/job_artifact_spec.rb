@@ -111,8 +111,14 @@ RSpec.describe Ci::JobArtifact, feature_category: :job_artifacts do
     describe 'coverage_reports' do
       let(:report_type) { :coverage }
 
-      context 'when there is a coverage report' do
+      context 'when there is a cobertura report' do
         let!(:artifact) { create(:ci_job_artifact, :cobertura) }
+
+        it { is_expected.to eq([artifact]) }
+      end
+
+      context 'when there is a jacoco report' do
+        let!(:artifact) { create(:ci_job_artifact, :jacoco) }
 
         it { is_expected.to eq([artifact]) }
       end
@@ -837,6 +843,10 @@ RSpec.describe Ci::JobArtifact, feature_category: :job_artifacts do
         expect(attributes[:file_store]).to eq(artifact.file_store)
       end
 
+      it 'returns the project_id' do
+        expect(attributes[:project_id]).to eq(artifact.project_id)
+      end
+
       context 'when pick_up_at is present' do
         let(:pick_up_at) { 2.hours.ago }
 
@@ -858,6 +868,16 @@ RSpec.describe Ci::JobArtifact, feature_category: :job_artifacts do
           it 'sets current time as pick_up_at' do
             freeze_time do
               expect(attributes[:pick_up_at]).to eq(Time.current)
+            end
+          end
+        end
+
+        context 'when expire_at is far away in the future' do
+          let(:expire_at) { 1.year.from_now }
+
+          it 'sets pick_up_at to 1 hour in the future' do
+            freeze_time do
+              expect(attributes[:pick_up_at]).to eq(1.hour.from_now)
             end
           end
         end
@@ -886,6 +906,77 @@ RSpec.describe Ci::JobArtifact, feature_category: :job_artifacts do
       end
 
       it_behaves_like 'returning attributes for object deletion'
+    end
+  end
+
+  describe '#each_blob' do
+    let(:job_artifact) { create(:ci_job_artifact, :junit) }
+
+    it 'creates a report artifact for junit reports' do
+      expect { job_artifact.each_blob { |b| } }.to change { Ci::JobArtifactReport.count }.by(1)
+      expect(job_artifact.artifact_report.status).to eq("validated")
+    end
+
+    context 'when job artifact is not junit' do
+      let(:job_artifact) { create(:ci_job_artifact, :codequality) }
+
+      it 'does not create an artifact report' do
+        expect { job_artifact.each_blob { |b| } }.not_to change { Ci::JobArtifactReport.count }
+      end
+    end
+
+    context 'when parsing the junit fails from size error' do
+      before do
+        allow_next_instance_of(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator) do |instance|
+          allow(instance).to receive(:validate!)
+            .and_raise(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator::FileDecompressionError)
+        end
+      end
+
+      it 'updates the artifact report to failed state' do
+        expect { job_artifact.each_blob { |b| } }
+          .to raise_error(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator::FileDecompressionError)
+        expect(job_artifact.artifact_report.status).to eq("faulty")
+      end
+    end
+
+    context 'when the job artifact is not saved' do
+      let(:job_artifact) { build(:ci_job_artifact, :junit) }
+
+      it 'creates a report artifact for junit reports and saves when job artifact saves' do
+        job_artifact.each_blob { |b| }
+        expect { job_artifact.save! }.to change { Ci::JobArtifactReport.count }.by(1)
+        expect(job_artifact.artifact_report.status).to eq("validated")
+      end
+
+      context 'and parsing the junit fails from size error' do
+        before do
+          allow_next_instance_of(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator) do |instance|
+            allow(instance).to receive(:validate!)
+              .and_raise(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator::FileDecompressionError)
+          end
+        end
+
+        it 'updates the artifact report to failed state and saves when job artifact saves' do
+          expect { job_artifact.each_blob { |b| } }.to raise_error(StandardError)
+          expect { job_artifact.save! }.to change { Ci::JobArtifactReport.count }.by(1)
+          expect(job_artifact.artifact_report.status).to eq("faulty")
+        end
+      end
+
+      context 'and parsing the junit fails from unknown error' do
+        before do
+          allow_next_instance_of(Gitlab::Ci::Artifacts::DecompressedArtifactSizeValidator) do |instance|
+            allow(instance).to receive(:validate!).and_raise(StandardError)
+          end
+        end
+
+        it 'updates the artifact report to validated and saves when job artifact saves' do
+          expect { job_artifact.each_blob { |b| } }.to raise_error(StandardError)
+          expect { job_artifact.save! }.to change { Ci::JobArtifactReport.count }.by(1)
+          expect(job_artifact.artifact_report.status).to eq("validated")
+        end
+      end
     end
   end
 end

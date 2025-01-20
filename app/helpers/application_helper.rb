@@ -135,7 +135,6 @@ module ApplicationHelper
     {
       page: body_data_page,
       page_type_id: controller.params[:id],
-      find_file: find_file_path(ref_type: @ref_type),
       group: @group&.path,
       group_full_path: @group&.full_path
     }.merge(project_data)
@@ -209,11 +208,11 @@ module ApplicationHelper
   def edited_time_ago_with_tooltip(editable_object, placement: 'top', html_class: 'time_ago', exclude_author: false)
     return unless editable_object.edited?
 
-    content_tag :div, class: 'edited-text gl-mt-4 gl-text-gray-500 gl-font-sm' do
+    content_tag :div, class: 'edited-text gl-mt-4 gl-text-subtle gl-text-sm' do
       timeago = time_ago_with_tooltip(editable_object.last_edited_at, placement: placement, html_class: html_class)
 
       if !exclude_author && editable_object.last_edited_by
-        author_link = link_to_member(editable_object.project, editable_object.last_edited_by, avatar: false, extra_class: 'gl-hover-text-decoration-underline gl-text-gray-700', author_class: nil)
+        author_link = link_to_member(editable_object.last_edited_by, avatar: false, extra_class: 'hover:gl-underline gl-text-subtle', author_class: nil)
         output = safe_format(_("Edited %{timeago} by %{author}"), timeago: timeago, author: author_link)
       else
         output = safe_format(_("Edited %{timeago}"), timeago: timeago)
@@ -292,10 +291,6 @@ module ApplicationHelper
     "#{request.path}?#{options.compact.to_param}"
   end
 
-  def stylesheet_link_tag_defer(path)
-    universal_stylesheet_link_tag(path, media: "all", crossorigin: ActionController::Base.asset_host ? 'anonymous' : nil)
-  end
-
   def sign_in_with_redirect?
     current_page?(new_user_session_path) && session[:user_return_to].present?
   end
@@ -324,12 +319,11 @@ module ApplicationHelper
   end
 
   def page_class
-    class_names = []
+    class_names = ['with-top-bar']
     class_names << 'issue-boards-page gl-overflow-auto' if current_controller?(:boards)
     class_names << 'epic-boards-page gl-overflow-auto' if current_controller?(:epic_boards)
     class_names << 'with-performance-bar' if performance_bar_enabled?
     class_names << 'with-header' if @with_header || !current_user
-    class_names << 'with-top-bar' unless @hide_top_bar_padding
     class_names << system_message_class
 
     class_names
@@ -383,12 +377,22 @@ module ApplicationHelper
     "https://discord.com/users/#{user.discord}"
   end
 
+  def bluesky_url(user)
+    return '' if user.bluesky.blank?
+
+    external_redirect_path(url: "https://bsky.app/profile/#{user.bluesky}")
+  end
+
   def mastodon_url(user)
     return '' if user.mastodon.blank?
 
     url = user.mastodon.match UserDetail::MASTODON_VALIDATION_REGEX
 
-    external_redirect_path(url: "https://#{url[2]}/@#{url[1]}")
+    if url && Feature.enabled?(:verify_mastodon_user, user)
+      external_redirect_path(url: "https://#{url[2]}/@#{url[1]}", rel: 'me')
+    else
+      external_redirect_path(url: "https://#{url[2]}/@#{url[1]}")
+    end
   end
 
   def collapsed_super_sidebar?
@@ -409,7 +413,7 @@ module ApplicationHelper
   end
 
   def client_class_list
-    "gl-browser-#{browser_id} gl-platform-#{platform_id}"
+    "gl-browser-#{browser_id} gl-platform-#{platform_id}" # rubocop:disable Tailwind/StringInterpolation -- Not a CSS utility class
   end
 
   def client_js_flags
@@ -419,18 +423,24 @@ module ApplicationHelper
     }
   end
 
-  def add_page_specific_style(path, defer: true)
+  def add_page_specific_style(path)
     @already_added_styles ||= Set.new
     return if @already_added_styles.include?(path)
 
     @already_added_styles.add(path)
     content_for :page_specific_styles do
-      if defer
-        stylesheet_link_tag_defer path
-      else
-        universal_stylesheet_link_tag path
-      end
+      universal_stylesheet_link_tag path
     end
+  end
+
+  def add_work_items_stylesheet
+    add_page_specific_style('page_bundles/work_items')
+    add_page_specific_style('page_bundles/notes_shared')
+  end
+
+  def add_issuable_stylesheet
+    add_page_specific_style('page_bundles/issuable')
+    add_page_specific_style('page_bundles/notes_shared')
   end
 
   def page_startup_api_calls
@@ -503,7 +513,7 @@ module ApplicationHelper
     return unless title
 
     content_tag(:span, class: 'has-tooltip', title: title) do
-      sprite_icon('spam', css_class: ['gl-vertical-align-text-bottom', css_class].compact_blank.join(' '))
+      sprite_icon('spam', css_class: ['gl-align-text-bottom', css_class].compact_blank.join(' '))
     end
   end
 

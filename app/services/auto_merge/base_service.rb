@@ -12,7 +12,7 @@ module AutoMerge
       end
 
       notify(merge_request)
-      AutoMergeProcessWorker.perform_async(merge_request.id)
+      AutoMergeProcessWorker.perform_async({ 'merge_request_id' => merge_request.id })
 
       strategy.to_sym
     rescue StandardError => e
@@ -74,8 +74,7 @@ module AutoMerge
     end
 
     # Overridden in child classes
-    def notify(merge_request)
-    end
+    def notify(merge_request); end
 
     def strategy
       strong_memoize(:strategy) do

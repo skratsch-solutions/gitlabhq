@@ -16,7 +16,7 @@ module Types
           field :created_at, Types::TimeType, null: true, description: 'Timestamp of when the version was created.'
 
           field :released_at, Types::TimeType, null: true, description: 'Timestamp of when the version was released.',
-            alpha: { milestone: '16.7' }
+            experiment: { milestone: '16.7' }
 
           field :name, GraphQL::Types::String, null: true,
             description: 'Name that uniquely identifies the version within the catalog resource.'
@@ -26,7 +26,7 @@ module Types
 
           field :author, Types::UserType, null: true, description: 'User that created the version.'
 
-          field :commit, Types::CommitType, null: true, complexity: 10, calls_gitaly: true,
+          field :commit, Types::Repositories::CommitType, null: true, complexity: 10, calls_gitaly: true,
             description: 'Commit associated with the version.'
 
           field :components, Types::Ci::Catalog::Resources::ComponentType.connection_type, null: true,

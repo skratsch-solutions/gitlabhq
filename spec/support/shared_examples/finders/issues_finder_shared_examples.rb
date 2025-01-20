@@ -244,6 +244,40 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
         end
       end
 
+      # Querying Service Desk issues uses `support-bot` `author_username`.
+      # This is a workaround that selects both legacy Service Desk issues and ticket work items
+      # until we migrated Service Desk issues to work items of type ticket.
+      # Will be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/505024
+      context 'when filtering by Service Desk issues/tickets' do
+        # Use items only for this context because it's temporary. This way we don't need to modify other examples.
+        let_it_be_with_reload(:service_desk_issue) do
+          create(
+            :issue, # legacy Service Desk issues are always of type issue
+            author: Users::Internal.support_bot,
+            external_author: 'user@example.com',
+            project: project2,
+            description: 'Service Desk issue'
+          )
+        end
+
+        let_it_be_with_reload(:ticket) do
+          create(
+            :work_item,
+            :ticket,
+            author: user2, # don't use support bot because this isn't a req for ticket WIT
+            project: project2,
+            description: 'Ticket'
+          )
+        end
+
+        let(:params) { { author_username: 'support-bot' } }
+
+        it 'returns Service Desk issues and work items of type ticket' do
+          # Use the ids here because work item finder and issue finder return different types of objects.
+          expect(items.map(&:id)).to contain_exactly(service_desk_issue.id, ticket.id)
+        end
+      end
+
       context 'filtering by milestone' do
         let(:params) { { milestone_title: milestone.title } }
 
@@ -745,14 +779,14 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
         end
 
         context 'user searches by "thumbsup" reaction' do
-          let(:params) { { my_reaction_emoji: 'thumbsup' } }
+          let(:params) { { my_reaction_emoji: AwardEmoji::THUMBS_UP } }
 
           it 'returns items that the user thumbsup to' do
             expect(items).to contain_exactly(item1)
           end
 
           context 'using NOT' do
-            let(:params) { { not: { my_reaction_emoji: 'thumbsup' } } }
+            let(:params) { { not: { my_reaction_emoji: AwardEmoji::THUMBS_UP } } }
 
             it 'returns items that the user did not thumbsup to' do
               expect(items).to contain_exactly(item2, item3, item4, item5)
@@ -763,14 +797,14 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
         context 'user2 searches by "thumbsup" reaction' do
           let(:search_user) { user2 }
 
-          let(:params) { { my_reaction_emoji: 'thumbsup' } }
+          let(:params) { { my_reaction_emoji: AwardEmoji::THUMBS_UP } }
 
           it 'returns items that the user2 thumbsup to' do
             expect(items).to contain_exactly(item2)
           end
 
           context 'using NOT' do
-            let(:params) { { not: { my_reaction_emoji: 'thumbsup' } } }
+            let(:params) { { not: { my_reaction_emoji: AwardEmoji::THUMBS_UP } } }
 
             it 'returns items that the user2 thumbsup to' do
               expect(items).to contain_exactly(item3)
@@ -779,14 +813,14 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
         end
 
         context 'user searches by "thumbsdown" reaction' do
-          let(:params) { { my_reaction_emoji: 'thumbsdown' } }
+          let(:params) { { my_reaction_emoji: AwardEmoji::THUMBS_DOWN } }
 
           it 'returns items that the user thumbsdown to' do
             expect(items).to contain_exactly(item3)
           end
 
           context 'using NOT' do
-            let(:params) { { not: { my_reaction_emoji: 'thumbsdown' } } }
+            let(:params) { { not: { my_reaction_emoji: AwardEmoji::THUMBS_DOWN } } }
 
             it 'returns items that the user thumbsdown to' do
               expect(items).to contain_exactly(item1, item2, item4, item5)
@@ -817,6 +851,39 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
 
           it 'returns only public items' do
             expect(items).to contain_exactly(item1, item2, item3, item4, item5)
+          end
+        end
+      end
+
+      context 'filtering by subscribed' do
+        let_it_be(:subscribed_item) { create(factory, project: project1) }
+        let_it_be(:unsubscribed_item) { create(factory, project: project1) }
+        let_it_be(:regular_item) { create(factory, project: project1) }
+        let_it_be(:subscription) { create(:subscription, subscribable: subscribed_item, user: user, subscribed: true) }
+        let_it_be(:unsubscription) do
+          create(:subscription, subscribable: unsubscribed_item, user: user, subscribed: false)
+        end
+
+        context 'no filtering' do
+          it 'returns all items' do
+            expect(items)
+              .to contain_exactly(item1, item2, item3, item4, item5, subscribed_item, unsubscribed_item, regular_item)
+          end
+        end
+
+        context 'user filters for subscribed items' do
+          let(:params) { { subscribed: :explicitly_subscribed } }
+
+          it 'returns only subscribed items' do
+            expect(items).to contain_exactly(subscribed_item)
+          end
+        end
+
+        context 'user filters out subscribed items' do
+          let(:params) { { subscribed: :explicitly_unsubscribed } }
+
+          it 'returns only unsubscribed items' do
+            expect(items).to contain_exactly(unsubscribed_item)
           end
         end
       end

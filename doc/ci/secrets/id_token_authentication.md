@@ -1,5 +1,5 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/356986) in GitLab 15.7.
 
@@ -72,7 +72,7 @@ The token also includes custom claims provided by GitLab:
 | `ref_type`              | Always                       | Git ref type, either `branch` or `tag`.                                                                                                                                                                                                                                                                          |
 | `ref_path`              | Always                       | Fully qualified ref for the job. For example, `refs/heads/main`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119075) in GitLab 16.0.                                                                                                                                                      |
 | `ref_protected`         | Always                       | `true` if the Git ref is protected, `false` otherwise.                                                                                                                                                                                                                                                           |
-| `groups_direct`         | User is a direct member of 0 to 200 groups | The paths of the user's direct membership groups. Omitted if the user is a direct member of more than 200 groups. ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/435848) in GitLab 16.11). |
+| `groups_direct`         | User is a direct member of 0 to 200 groups | The paths of the user's direct membership groups. Omitted if the user is a direct member of more than 200 groups. ([Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/435848) in GitLab 16.11 and put behind the `ci_jwt_groups_direct` [feature flag](../../administration/feature_flags.md) in GitLab 17.3. |
 | `environment`           | Job specifies an environment | Environment this job deploys to.                                                                                                                                                                                             |
 | `environment_protected` | Job specifies an environment | `true` if deployed environment is protected, `false` otherwise.                                                                                                                                                              |
 | `deployment_tier`       | Job specifies an environment | [Deployment tier](../environments/index.md#deployment-tier-of-environments) of the environment the job specifies. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363590) in GitLab 15.2.                                                                                                             |
@@ -150,7 +150,7 @@ manual_authentication:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use ID tokens to automatically fetch secrets from HashiCorp Vault with the
 [`secrets`](../yaml/index.md#secrets) keyword.
@@ -200,7 +200,7 @@ job_with_secrets:
 ### `400: missing token` status code
 
 This error indicates that one or more basic components necessary for ID tokens are
-either missing or not configured as expect.
+either missing or not configured as expected.
 
 To find the problem, an administrator can look for more details in the instance's
 `exceptions_json.log` for the specific method that failed.

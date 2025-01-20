@@ -1,7 +1,7 @@
 import { nextTick } from 'vue';
 import { GlFormInputGroup } from '@gitlab/ui';
 
-import InputCopyToggleVisibility from '~/vue_shared/components/form/input_copy_toggle_visibility.vue';
+import InputCopyToggleVisibility from '~/vue_shared/components/input_copy_toggle_visibility/input_copy_toggle_visibility.vue';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
@@ -40,7 +40,7 @@ describe('InputCopyToggleVisibility', () => {
     return event;
   };
   const triggerCopyShortcut = () => {
-    wrapper.vm.$options.mousetrap.trigger(MOUSETRAP_COPY_KEYBOARD_SHORTCUT);
+    wrapper.vm.mousetrap.trigger(MOUSETRAP_COPY_KEYBOARD_SHORTCUT);
   };
 
   function expectInputToBeMasked() {

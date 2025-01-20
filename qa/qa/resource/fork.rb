@@ -2,46 +2,35 @@
 
 module QA
   module Resource
-    class Fork < Base
-      attr_accessor :namespace_path
-
+    class Fork < Project
       attribute :name do
         upstream.name
       end
 
-      attribute :project do
-        Resource::Project.fabricate_via_api! do |resource|
-          resource.add_name_uuid = false
-          resource.name = name
-          resource.path_with_namespace = "#{user.username}/#{name}"
-          resource.api_client = @api_client
-        end
-      end
-
       attribute :upstream do
-        Repository::ProjectPush.fabricate!.project
+        Resource::Project.fabricate_via_api! do |resource|
+          resource.initialize_with_readme = true
+        end
       end
 
       attribute :user do
-        User.fabricate_via_api! do |resource|
-          if Runtime::Env.forker?
-            resource.username = Runtime::Env.forker_username
-            resource.password = Runtime::Env.forker_password
-          end
-        end
+        Runtime::User::Store.test_user
       end
 
-      delegate :path_with_namespace, to: :project
+      attribute :path_with_namespace do
+        "#{namespace_path}/#{name}"
+      end
+
+      attribute :namespace_path do
+        user.username
+      end
 
       def fabricate!
         populate(:upstream, :user)
-
-        namespace_path ||= user.username
+        set_personal_namespace
 
         # Sign out as admin and sign is as the fork user
         Flow::Login.sign_in(as: user)
-
-        @api_client = Runtime::API::Client.new(:gitlab, is_new_session: false, user: user)
 
         upstream.visit!
 
@@ -60,20 +49,32 @@ module QA
 
       def fabricate_via_api!
         populate(:upstream, :user)
+        set_personal_namespace
 
-        @api_client = Runtime::API::Client.new(:gitlab, is_new_session: false, user: user)
+        Runtime::Logger.debug("Forking project #{name} to namespace #{namespace_path}...")
+        resource_web_url(api_get)
+      rescue ResourceNotFoundError
+        response = super
 
-        Runtime::Logger.debug("Forking project #{upstream.name} to namespace #{user.username}...")
-        super
-        wait_until_forked
+        Support::Retrier.retry_until(
+          max_duration: import_wait_duration,
+          sleep_interval: 5,
+          retry_on_exception: true,
+          message: "Wait for project to be forked"
+        ) do
+          reload!.api_resource[:import_status] == "finished"
+        end
 
-        populate(:project)
+        response
       end
 
-      def remove_via_api!
-        project.remove_via_api!
-        upstream.remove_via_api!
-        user.remove_via_api! unless Specs::Helpers::ContextSelector.dot_com?
+      # Api client
+      #
+      # Api client is set as public for MergeRequestFromFork resource to use correct client
+      #
+      # @return [Runtime::API::Client]
+      def api_client
+        @api_client ||= user.api_client
       end
 
       def api_get_path
@@ -86,19 +87,20 @@ module QA
 
       def api_post_body
         {
-          namespace_path: user.username,
+          namespace_path: namespace_path,
           name: name,
           path: name
         }
       end
 
-      def wait_until_forked
-        Runtime::Logger.debug("Waiting for the fork process to complete...")
-        forked = wait_until do
-          project.reload!.import_status == "finished"
-        end
+      def sandbox_path
+        ""
+      end
 
-        raise "Timed out while waiting for the fork process to complete." unless forked
+      def set_personal_namespace
+        return unless namespace_path == user.username
+
+        @personal_namespace = user.username
       end
     end
   end

@@ -1,9 +1,10 @@
 ---
 data_category: optional
 key_path: redis_hll_counters.deploy_token_packages.deploy_token_packages_total_unique_counts_monthly
-description: A monthly count of unique users who published packages to the registry using a deploy
-  token
+description: Count of distinct deploy tokens that have interacted with packages in the package registry in the last 28 days
 product_group: package_registry
+product_categories:
+- package_registry
 value_type: number
 status: active
 time_frame: 28d
@@ -33,9 +34,10 @@ events:
 distribution:
 - ee
 - ce
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

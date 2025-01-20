@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab provides Rake tasks to check the integrity of various components.
 See also the [check GitLab configuration Rake task](maintenance.md#check-gitlab-configuration).
@@ -267,7 +267,7 @@ decrypted, you can pass a `VERBOSE` environment variable:
 
 **Example verbose output**
 
-<!-- vale gitlab.SentenceSpacing = NO -->
+<!-- vale gitlab_base.SentenceSpacing = NO -->
 
 ```plaintext
 I, [2020-06-11T17:17:54.951815 #27148]  INFO -- : Checking encrypted values in the database
@@ -283,7 +283,7 @@ I, [2020-06-11T17:18:15.575678 #27148]  INFO -- : Total: 1 row(s) affected
 I, [2020-06-11T17:18:15.575711 #27148]  INFO -- : Done!
 ```
 
-<!-- vale gitlab.SentenceSpacing = YES -->
+<!-- vale gitlab_base.SentenceSpacing = YES -->
 
 ## Reset encrypted tokens when they can't be recovered
 
@@ -302,36 +302,36 @@ To reset broken tokens:
 1. Identify the broken tokens. For example `runners_token`.
 1. To reset broken tokens, run `gitlab:doctor:reset_encrypted_tokens` with `VERBOSE=true MODEL_NAMES=Model1,Model2 TOKEN_NAMES=broken_token1,broken_token2`. For example:
 
-    ```shell
-    VERBOSE=true MODEL_NAMES=Project,Group TOKEN_NAMES=runners_token bundle exec rake gitlab:doctor:reset_encrypted_tokens
-    ```
+   ```shell
+   VERBOSE=true MODEL_NAMES=Project,Group TOKEN_NAMES=runners_token bundle exec rake gitlab:doctor:reset_encrypted_tokens
+   ```
 
-    You will see every action this task would try to perform:
+   You will see every action this task would try to perform:
 
-    ```plain
-    I, [2023-09-26T16:20:23.230942 #88920]  INFO -- : Resetting runners_token on Project, Group if they can not be read
-    I, [2023-09-26T16:20:23.230975 #88920]  INFO -- : Executing in DRY RUN mode, no records will actually be updated
-    D, [2023-09-26T16:20:30.151585 #88920] DEBUG -- : > Fix Project[1].runners_token
-    I, [2023-09-26T16:20:30.151617 #88920]  INFO -- : Checked 1/9 Projects
-    D, [2023-09-26T16:20:30.151873 #88920] DEBUG -- : > Fix Project[3].runners_token
-    D, [2023-09-26T16:20:30.152975 #88920] DEBUG -- : > Fix Project[10].runners_token
-    I, [2023-09-26T16:20:30.152992 #88920]  INFO -- : Checked 11/29 Projects
-    I, [2023-09-26T16:20:30.153230 #88920]  INFO -- : Checked 21/29 Projects
-    I, [2023-09-26T16:20:30.153882 #88920]  INFO -- : Checked 29 Projects
-    D, [2023-09-26T16:20:30.195929 #88920] DEBUG -- : > Fix Group[22].runners_token
-    I, [2023-09-26T16:20:30.196125 #88920]  INFO -- : Checked 1/19 Groups
-    D, [2023-09-26T16:20:30.196192 #88920] DEBUG -- : > Fix Group[25].runners_token
-    D, [2023-09-26T16:20:30.197557 #88920] DEBUG -- : > Fix Group[82].runners_token
-    I, [2023-09-26T16:20:30.197581 #88920]  INFO -- : Checked 11/19 Groups
-    I, [2023-09-26T16:20:30.198455 #88920]  INFO -- : Checked 19 Groups
-    I, [2023-09-26T16:20:30.198462 #88920]  INFO -- : Done!
-    ```
+   ```plain
+   I, [2023-09-26T16:20:23.230942 #88920]  INFO -- : Resetting runners_token on Project, Group if they can not be read
+   I, [2023-09-26T16:20:23.230975 #88920]  INFO -- : Executing in DRY RUN mode, no records will actually be updated
+   D, [2023-09-26T16:20:30.151585 #88920] DEBUG -- : > Fix Project[1].runners_token
+   I, [2023-09-26T16:20:30.151617 #88920]  INFO -- : Checked 1/9 Projects
+   D, [2023-09-26T16:20:30.151873 #88920] DEBUG -- : > Fix Project[3].runners_token
+   D, [2023-09-26T16:20:30.152975 #88920] DEBUG -- : > Fix Project[10].runners_token
+   I, [2023-09-26T16:20:30.152992 #88920]  INFO -- : Checked 11/29 Projects
+   I, [2023-09-26T16:20:30.153230 #88920]  INFO -- : Checked 21/29 Projects
+   I, [2023-09-26T16:20:30.153882 #88920]  INFO -- : Checked 29 Projects
+   D, [2023-09-26T16:20:30.195929 #88920] DEBUG -- : > Fix Group[22].runners_token
+   I, [2023-09-26T16:20:30.196125 #88920]  INFO -- : Checked 1/19 Groups
+   D, [2023-09-26T16:20:30.196192 #88920] DEBUG -- : > Fix Group[25].runners_token
+   D, [2023-09-26T16:20:30.197557 #88920] DEBUG -- : > Fix Group[82].runners_token
+   I, [2023-09-26T16:20:30.197581 #88920]  INFO -- : Checked 11/19 Groups
+   I, [2023-09-26T16:20:30.198455 #88920]  INFO -- : Checked 19 Groups
+   I, [2023-09-26T16:20:30.198462 #88920]  INFO -- : Done!
+   ```
 
 1. If you are confident that this operation resets the correct tokens, disable dry-run mode and run the operation again:
 
-    ```shell
-    DRY_RUN=false VERBOSE=true MODEL_NAMES=Project,Group TOKEN_NAMES=runners_token bundle exec rake gitlab:doctor:reset_encrypted_tokens
-    ```
+   ```shell
+   DRY_RUN=false VERBOSE=true MODEL_NAMES=Project,Group TOKEN_NAMES=runners_token bundle exec rake gitlab:doctor:reset_encrypted_tokens
+   ```
 
 ## Troubleshooting
 
@@ -438,7 +438,7 @@ to remove the database entries.
 
 ### Update dangling object storage references
 
-If you have [migrated from object storage to local storage](../job_artifacts.md#migrating-from-object-storage-to-local-storage) and files were missing, then dangling database references remain.
+If you have [migrated from object storage to local storage](../cicd/job_artifacts.md#migrating-from-object-storage-to-local-storage) and files were missing, then dangling database references remain.
 
 This is visible in the migration logs with errors like the following:
 

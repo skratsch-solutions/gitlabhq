@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 > - [Deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8) in GitLab 14.5.
 
@@ -28,9 +28,9 @@ See the prerequisites below to add existing clusters to GitLab.
 
 To add any cluster to GitLab, you need:
 
-- Either a GitLab.com account or an account for a self-managed installation
+- An account on a GitLab.com or GitLab Self-Managed instance.
 - The Maintainer role for group-level and project-level clusters.
-- Access to the Admin Area for instance-level clusters.
+- Access to the **Admin** area for instance-level clusters.
 - A Kubernetes cluster.
 - Cluster administration access to the cluster with `kubectl`.
 
@@ -71,7 +71,7 @@ To add a Kubernetes cluster to your project, group, or instance:
 1. Go to your:
    1. Project's **{cloud-gear}** **Operate > Kubernetes clusters** page, for a project-level cluster.
    1. Group's **{cloud-gear}** **Kubernetes** page, for a group-level cluster.
-   1. The Admin Area's **Kubernetes** page, for an instance-level cluster.
+   1. The **Admin** area's **Kubernetes** page, for an instance-level cluster.
 1. On the **Kubernetes clusters** page, select the **Connect with a certificate** option from the **Actions** dropdown list.
 1. On the **Connect a cluster** page, fill in the details:
    1. **Kubernetes cluster name** (required) - The name you wish to give the cluster.
@@ -209,7 +209,7 @@ After about 10 minutes, your cluster is ready.
 
 ## Disable Role-Based Access Control (RBAC) (optional)
 
-When connecting a cluster via GitLab integration, you may specify whether the
+When connecting a cluster through GitLab integration, you may specify whether the
 cluster is RBAC-enabled or not. This affects how GitLab interacts with the
 cluster for certain operations. If you did *not* check the **RBAC-enabled cluster**
 checkbox at creation time, GitLab assumes RBAC is disabled for your cluster

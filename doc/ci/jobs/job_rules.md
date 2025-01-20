@@ -6,6 +6,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Specify when jobs run with `rules`
 
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
 Use [`rules`](../yaml/index.md#rules) to include or exclude jobs in pipelines.
 
 Rules are evaluated in order until the first match. When a match is found, the job
@@ -220,8 +224,8 @@ Use the `CI_PIPELINE_SOURCE` variable to control when to add jobs for these pipe
 | `schedule`                      | For [scheduled pipelines](../pipelines/schedules.md). |
 | `security_orchestration_policy` | For [security orchestration policy](../../user/application_security/policies/index.md) pipelines. |
 | `trigger`                       | For pipelines created by using a [trigger token](../triggers/index.md#configure-cicd-jobs-to-run-in-triggered-pipelines). |
-| `web`                           | For pipelines created by selecting **Run pipeline** in the GitLab UI, from the project's **Build > Pipelines** section. |
-| `webide`                        | For pipelines created by using the [WebIDE](../../user/project/web_ide/index.md). |
+| `web`                           | For pipelines created by selecting **New pipeline** in the GitLab UI, from the project's **Build > Pipelines** section. |
+| `webide`                        | For pipelines created by using the [Web IDE](../../user/project/web_ide/index.md). |
 
 These values are the same as returned for the `source` parameter when using the
 [pipelines API endpoint](../../api/pipelines.md#list-project-pipelines).

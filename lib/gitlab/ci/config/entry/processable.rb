@@ -27,6 +27,7 @@ module Gitlab
               validates :name, length: { maximum: 255 }
 
               validates :config, mutually_exclusive_keys: %i[script trigger]
+              validates :config, mutually_exclusive_keys: %i[run trigger]
 
               validates :config, disallowed_keys: {
                   in: %i[only except start_in],
@@ -112,7 +113,7 @@ module Gitlab
             last_rule = rules_value.last
 
             if last_rule&.keys == [:when] && last_rule[:when] != 'never'
-              docs_url = 'read more: https://docs.gitlab.com/ee/ci/troubleshooting.html#pipeline-warnings'
+              docs_url = 'read more: https://docs.gitlab.com/ee/ci/jobs/job_troubleshooting.html#job-may-allow-multiple-pipelines-to-run-for-a-single-action-warning'
               add_warning("may allow multiple pipelines to run for a single action due to `rules:when` clause with no `workflow:rules` - #{docs_url}")
             end
           end

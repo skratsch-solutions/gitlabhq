@@ -203,6 +203,8 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     it 'logs creation' do
+      allow(Gitlab::AppLogger).to receive(:info)
+
       expect(Gitlab::AppLogger).to receive(:info).with(/#{user.name} created a new project/)
 
       create_project(user, opts)
@@ -276,6 +278,19 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
     end
 
     it_behaves_like 'has sync-ed traversal_ids'
+
+    context 'when user is not allowed to create projects' do
+      it 'does not create the project' do
+        maintainer_group =
+          create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) do |group|
+            group.add_maintainer(user)
+          end
+        project = create_project(user, opts.merge!(namespace_id: maintainer_group.id))
+
+        expect(project).not_to be_persisted
+        expect(project.errors.messages[:namespace].first).to eq('is not valid')
+      end
+    end
 
     context 'when project is an import' do
       let(:group) do
@@ -1054,7 +1069,6 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
   context 'when github import source is disabled' do
     before do
       stub_application_setting(import_sources: [])
-      stub_feature_flags(override_github_disabled: false)
       opts[:import_type] = 'github'
     end
 
@@ -1064,25 +1078,11 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
       expect(project.errors[:import_source_disabled]).to include('github import source is disabled')
       expect(project).not_to be_persisted
     end
-
-    context 'when override_github_disabled ops flag is enabled for the user' do
-      before do
-        stub_feature_flags(override_github_disabled: user)
-      end
-
-      it 'creates the project' do
-        project = create_project(user, opts)
-
-        expect(project.errors).to be_blank
-        expect(project).to be_persisted
-      end
-    end
   end
 
   context 'when bitbucket server import source is disabled' do
     before do
       stub_application_setting(import_sources: [])
-      stub_feature_flags(override_bitbucket_server_disabled: false)
       opts[:import_type] = 'bitbucket_server'
     end
 
@@ -1091,19 +1091,6 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
 
       expect(project.errors[:import_source_disabled]).to include('bitbucket_server import source is disabled')
       expect(project).not_to be_persisted
-    end
-
-    context 'when override_bitbucket_server_disabled ops flag is enabled for the user' do
-      before do
-        stub_feature_flags(override_bitbucket_server_disabled: user)
-      end
-
-      it 'creates the project' do
-        project = create_project(user, opts)
-
-        expect(project.errors).to be_blank
-        expect(project).to be_persisted
-      end
     end
   end
 
@@ -1292,6 +1279,17 @@ RSpec.describe Projects::CreateService, '#execute', feature_category: :groups_an
           expect(project.project_namespace).to be_in_sync_with_project(project)
         end
       end
+    end
+  end
+
+  context 'with group_runners_enabled' do
+    subject(:project) { create_project(user, opts) }
+
+    let(:opts) { super().merge(group_runners_enabled: true) }
+
+    it 'creates ci_cd_settings relation' do
+      expect(project.ci_cd_settings).to be_present
+      expect(project.ci_cd_settings.group_runners_enabled).to be_truthy
     end
   end
 

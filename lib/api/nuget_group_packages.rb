@@ -42,12 +42,8 @@ module API
         project_or_group_without_auth.package_settings.nuget_symbol_server_enabled
       end
 
-      def require_authenticated!
-        unauthorized! unless current_user
-      end
-
       def snowplow_gitlab_standard_context
-        { namespace: find_authorized_group! }
+        { namespace: project_or_group }
       end
 
       def snowplow_gitlab_standard_context_without_auth
@@ -55,21 +51,13 @@ module API
       end
 
       def required_permission
-        if allow_anyone_to_pull_public_packages?
-          :read_package_within_public_registries
-        else
-          :read_group
-        end
-      end
-
-      def allow_anyone_to_pull_public_packages?
-        options[:path].first.in?(%w[index *package_version]) &&
-          ::Feature.enabled?(:allow_anyone_to_pull_public_nuget_packages_on_group_level, project_or_group_without_auth)
+        :read_package_within_public_registries
       end
     end
 
     params do
-      requires :id, types: [Integer, String], desc: 'The group ID or full group path.', regexp: ::API::Concerns::Packages::Nuget::PrivateEndpoints::POSITIVE_INTEGER_REGEX
+      requires :id, types: [Integer, String], desc: 'The group ID or full group path.',
+        regexp: ::API::Concerns::Packages::Nuget::PrivateEndpoints::POSITIVE_INTEGER_REGEX
     end
 
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
@@ -79,14 +67,17 @@ module API
         end
 
         authenticate_with do |accept|
-          accept.token_types(:personal_access_token_with_username, :deploy_token_with_username, :job_token_with_username)
-                .sent_through(:http_basic_auth)
+          accept.token_types(
+            :personal_access_token_with_username,
+            :deploy_token_with_username,
+            :job_token_with_username
+          ).sent_through(:http_basic_auth)
         end
 
         namespace '/nuget' do
           after_validation do
             # This API can't be accessed anonymously
-            require_authenticated! unless allow_anyone_to_pull_public_packages?
+            authenticate!
           end
 
           include ::API::Concerns::Packages::Nuget::PrivateEndpoints

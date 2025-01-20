@@ -59,21 +59,12 @@ RSpec.describe Projects::TriggeredHooks, feature_category: :webhooks do
 
       run_hooks(:emoji_hooks, data)
     end
-
-    context 'when emoji_webhooks feature flag is disabled' do
-      before do
-        stub_feature_flags(emoji_webhooks: false)
-      end
-
-      it 'does not execute the hook' do
-        expect(WebHookService).not_to receive(:new)
-
-        run_hooks(:emoji_hooks, data)
-      end
-    end
   end
 
   def expect_hook_execution(hook, data, scope)
-    expect(WebHookService).to receive(:new).with(hook, data, scope).and_return(wh_service)
+    expect(WebHookService)
+      .to receive(:new)
+      .with(hook, data, scope, idempotency_key: anything)
+      .and_return(wh_service)
   end
 end

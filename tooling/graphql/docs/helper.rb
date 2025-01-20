@@ -55,7 +55,7 @@ module Tooling
         def auto_generated_comment
           <<-MD.strip_heredoc
             ---
-            stage: Manage
+            stage: Foundations
             group: Import and Integrate
             info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
             ---
@@ -328,7 +328,7 @@ module Tooling
                     "**Deprecated:** #{object[:deprecation_reason]}"
                   end
 
-          buff << original_description if context == :inline && deprecation&.alpha?
+          buff << original_description if context == :inline && deprecation&.experiment?
 
           join(context, buff)
         end

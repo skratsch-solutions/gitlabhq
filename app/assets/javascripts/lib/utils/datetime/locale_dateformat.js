@@ -1,4 +1,7 @@
 import { createDateTimeFormat } from '~/locale';
+import * as Sentry from '~/sentry/sentry_browser_wrapper';
+
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/; // yyyy-mm-dd format
 
 /**
  * Format a Date with the help of {@link DateTimeFormat.asDateTime}
@@ -28,9 +31,20 @@ export const DATE_TIME_FULL_FORMAT = 'asDateTimeFull';
  *
  * @example
  * localeDateFormat[DATE_ONLY_FORMAT].format(date) // returns 'Jul 05, 2023'
- * localeDateFormat[DATE_ONLY_FORMAT].formatRange(date, date) // returns 'Jul 05 - Jul 07, 2023'
+ * localeDateFormat[DATE_ONLY_FORMAT].formatRange(date, date) // returns 'Jul 05 - 07, 2023'
  */
 export const DATE_ONLY_FORMAT = 'asDate';
+
+/**
+ * Format a Date with the help of {@link DateTimeFormat.asDateWithoutYear}
+ *
+ * Note: In case you can use localeDateFormat.asDateWithoutYear directly, please do that.
+ *
+ * @example
+ * localeDateFormat[DATE_WITHOUT_YEAR_FORMAT].format(date) // returns 'Jul 05'
+ * localeDateFormat[DATE_WITHOUT_YEAR_FORMAT].formatRange(date, date) // returns 'Jul 05 - 07'
+ */
+export const DATE_WITHOUT_YEAR_FORMAT = 'asDateWithoutYear';
 
 /**
  * Format a Date with the help of {@link DateTimeFormat.asTime}
@@ -42,11 +56,14 @@ export const DATE_ONLY_FORMAT = 'asDate';
  * localeDateFormat[TIME_ONLY_FORMAT].formatRange(date, date) // returns '2:43 - 6:27 PM'
  */
 export const TIME_ONLY_FORMAT = 'asTime';
+
 export const DEFAULT_DATE_TIME_FORMAT = DATE_WITH_TIME_FORMAT;
+
 export const DATE_TIME_FORMATS = [
   DATE_WITH_TIME_FORMAT,
   DATE_TIME_FULL_FORMAT,
   DATE_ONLY_FORMAT,
+  DATE_WITHOUT_YEAR_FORMAT,
   TIME_ONLY_FORMAT,
 ];
 
@@ -123,9 +140,10 @@ class DateTimeFormat {
   }
 
   /**
-   * Locale aware formatter to display a only the date.
+   * Locale aware formatter to display only the date.
    *
    * Use {@link DateTimeFormat.asDateTime} if you also need to display the time.
+   * Use {@link DateTimeFormat.asDateWithoutYear} if you need to omit the year.
    *
    * @example
    * // en-US: returns something like Jul 6, 2020
@@ -144,6 +162,34 @@ class DateTimeFormat {
       this.#formatters[DATE_ONLY_FORMAT] ||
       this.#createFormatter(DATE_ONLY_FORMAT, {
         dateStyle: 'medium',
+      })
+    );
+  }
+
+  /**
+   * Locale aware formatter to display only the date without the year.
+   *
+   * Use {@link DateTimeFormat.asDate} if you also need to display the year.
+   * Use {@link DateTimeFormat.asDateTime} if you also need to display the time.
+   *
+   * @example
+   * // en-US: returns something like Jul 6
+   * // en-GB: returns something like 6 Jul
+   * localeDateFormat.asDateWithoutYear.format(date)
+   *
+   * @example
+   * // en-US: returns something like Jul 6 – 7
+   * // en-GB: returns something like 6-7 Jul
+   * localeDateFormat.asDateWithoutYear.formatRange(date, date2)
+   *
+   * @returns {DateTimeFormatter}
+   */
+  get asDateWithoutYear() {
+    return (
+      this.#formatters[DATE_WITHOUT_YEAR_FORMAT] ||
+      this.#createFormatter(DATE_WITHOUT_YEAR_FORMAT, {
+        month: 'short',
+        day: 'numeric',
       })
     );
   }
@@ -226,6 +272,15 @@ class DateTimeFormat {
    * @returns {Date}
    */
   static castToDate(dateish) {
+    if (DATE_ONLY_REGEX.test(dateish)) {
+      const message =
+        "new Date('yyyy-mm-dd') causes day-off bugs. Convert the date-only string to a Date object with newDate() instead";
+      Sentry.captureException(new Error(message));
+    } else if (!(dateish instanceof Date)) {
+      const message = 'Consider passing a Date object with newDate() instead';
+      Sentry.captureException(new Error(message));
+    }
+
     const date = dateish instanceof Date ? dateish : new Date(dateish);
     if (Number.isNaN(date)) {
       // eslint-disable-next-line @gitlab/require-i18n-strings

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Security Risk Management
 group: Security Policies
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,10 +8,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This tutorial shows you how to create and apply a
-[scan execution policy](../../user/application_security/policies/scan-execution-policies.md).
+[scan execution policy](../../user/application_security/policies/scan_execution_policies.md).
 These policies enforce application security tools as part of the CI/CD pipeline. In this tutorial,
 you create a policy to enforce secret detection in the CI/CD pipeline of two projects.
 

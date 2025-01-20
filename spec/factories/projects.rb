@@ -16,8 +16,17 @@ FactoryBot.define do
     has_external_wiki { false }
 
     # Associations
+    namespace do
+      next group if group
+
+      if @overrides[:organization]
+        association(:namespace, organization: @overrides[:organization])
+      else
+        association(:namespace)
+      end
+    end
+
     organization { namespace&.organization }
-    namespace
     creator { group ? association(:user) : namespace&.owner }
 
     transient do
@@ -64,9 +73,11 @@ FactoryBot.define do
       runners_token { nil }
       runner_token_expiration_interval { nil }
       runner_token_expiration_interval_human_readable { nil }
+      ci_delete_pipelines_in_seconds { nil }
 
       # rubocop:disable Lint/EmptyBlock -- block is required by factorybot
       guests {}
+      planners {}
       reporters {}
       developers {}
       maintainers {}
@@ -142,6 +153,8 @@ FactoryBot.define do
       project.ci_inbound_job_token_scope_enabled = evaluator.ci_inbound_job_token_scope_enabled unless evaluator.ci_inbound_job_token_scope_enabled.nil?
       project.runner_token_expiration_interval = evaluator.runner_token_expiration_interval unless evaluator.runner_token_expiration_interval.nil?
       project.runner_token_expiration_interval_human_readable = evaluator.runner_token_expiration_interval_human_readable unless evaluator.runner_token_expiration_interval_human_readable.nil?
+      project.ci_delete_pipelines_in_seconds = evaluator.ci_delete_pipelines_in_seconds unless evaluator.ci_delete_pipelines_in_seconds.nil?
+      project.ci_cd_settings.save!
 
       if evaluator.import_status
         import_state = project.import_state || project.build_import_state
@@ -156,6 +169,7 @@ FactoryBot.define do
       project.create_ci_project_mirror!(namespace_id: project.namespace_id) unless project.ci_project_mirror
 
       project.add_members(Array.wrap(evaluator.guests), :guest)
+      project.add_members(Array.wrap(evaluator.planners), :planner)
       project.add_members(Array.wrap(evaluator.reporters), :reporter)
       project.add_members(Array.wrap(evaluator.developers), :developer)
       project.add_members(Array.wrap(evaluator.maintainers), :maintainer)
@@ -194,6 +208,12 @@ FactoryBot.define do
       import_status { :canceled }
     end
 
+    trait :bitbucket_server_import do
+      import_started
+      import_url { 'https://bitbucket.example.com' }
+      import_type { :bitbucket_server }
+    end
+
     trait :jira_dvcs_server do
       before(:create) do |project|
         create(:project_feature_usage, :dvcs_server, project: project)
@@ -223,7 +243,7 @@ FactoryBot.define do
     end
 
     trait :with_namespace_settings do
-      namespace factory: [:namespace, :with_namespace_settings]
+      association :namespace, :with_namespace_settings
     end
 
     trait :with_avatar do
@@ -231,8 +251,15 @@ FactoryBot.define do
     end
 
     trait :with_export do
-      after(:create) do |project, _evaluator|
-        ProjectExportWorker.new.perform(project.creator.id, project.id)
+      transient do
+        export_user { nil }
+      end
+
+      after(:create) do |project, evaluator|
+        export_user = evaluator.export_user || project.creator
+
+        project.add_maintainer(export_user)
+        ProjectExportWorker.new.perform(export_user.id, project.id)
       end
     end
 
@@ -556,7 +583,7 @@ FactoryBot.define do
   trait :pages_published do
     after(:create) do |project|
       project.mark_pages_onboarding_complete
-      create(:pages_deployment, project: project) # rubocop: disable RSpec/FactoryBot/StrategyInCallback
+      create(:pages_deployment, project: project)
     end
   end
 
@@ -600,6 +627,10 @@ FactoryBot.define do
     empty_repo
   end
 
+  factory :project_with_repo, parent: :project do
+    repository
+  end
+
   factory :forked_project_with_submodules, parent: :project do
     path { 'forked-gitlabhq' }
 
@@ -619,7 +650,7 @@ FactoryBot.define do
   end
 
   trait :in_group do
-    namespace factory: [:group]
+    namespace factory: :group
   end
 
   trait :in_subgroup do
@@ -637,6 +668,12 @@ FactoryBot.define do
     after :create do |project|
       create(:namespace_settings, namespace: project.namespace) unless project.namespace.namespace_settings
       project.namespace.namespace_settings.update!(allow_runner_registration_token: true)
+    end
+  end
+
+  trait :import_user_mapping_enabled do
+    import_data_attributes do
+      { data: { user_contribution_mapping_enabled: true } }
     end
   end
 end

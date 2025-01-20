@@ -9,7 +9,7 @@ module TodosHelper
     @todos_done_count ||= current_user.todos_done_count
   end
 
-  def todo_action_name(todo)
+  def todo_action_name(todo) # rubocop:disable Metrics/CyclomaticComplexity -- Will be removed/refactored as part of https://gitlab.com/gitlab-org/gitlab/-/issues/464069
     case todo.action
     when Todo::ASSIGNED then todo.self_added? ? _('assigned') : _('assigned you')
     when Todo::REVIEW_REQUESTED then s_('Todos|requested a review')
@@ -30,6 +30,8 @@ module TodosHelper
     when Todo::OKR_CHECKIN_REQUESTED then format(
       s_("Todos|requested an OKR update for %{what}"), what: todo.target.title
     )
+    when Todo::SSH_KEY_EXPIRED then s_('Todos|Your SSH key has expired')
+    when Todo::SSH_KEY_EXPIRING_SOON then s_('Todos|Your SSH key is expiring soon')
     end
   end
 
@@ -59,6 +61,9 @@ module TodosHelper
     if todo.resource_parent.is_a?(Group)
       todo.resource_parent.name
     else
+      # Note: Some todos (like for expired SSH keys) are neither related to a project nor a group.
+      return unless todo.project.present?
+
       title = content_tag(:span, todo.project.name, class: 'project-name')
       namespace = content_tag(:span, "#{todo.project.namespace.human_name} / ", class: 'namespace-name')
 
@@ -98,6 +103,8 @@ module TodosHelper
     elsif todo.for_issue_or_work_item?
       path_options[:only_path] = true
       Gitlab::UrlBuilder.build(todo.target, **path_options)
+    elsif todo.for_ssh_key?
+      user_settings_ssh_key_path(todo.target)
     elsif todo.member_access_requested?
       todo.access_request_url(only_path: true)
     else
@@ -144,7 +151,7 @@ module TodosHelper
     end
 
     content_tag(:span, class: 'todo-target-state') do
-      gl_badge_tag(raw_state_to_i18n[state] || state.capitalize, { variant: variant, size: 'sm' })
+      gl_badge_tag(raw_state_to_i18n[state] || state.capitalize, { variant: variant })
     end
   end
 
@@ -198,7 +205,9 @@ module TodosHelper
       { id: Todo::MENTIONED, text: s_('Todos|Mentioned') },
       { id: Todo::MARKED, text: s_('Todos|Added') },
       { id: Todo::BUILD_FAILED, text: s_('Todos|Pipelines') },
-      { id: Todo::MEMBER_ACCESS_REQUESTED, text: s_('Todos|Member access requested') }
+      { id: Todo::MEMBER_ACCESS_REQUESTED, text: s_('Todos|Member access requested') },
+      { id: Todo::SSH_KEY_EXPIRED, text: s_('Todos|SSH key expired') },
+      { id: Todo::SSH_KEY_EXPIRING_SOON, text: s_('Todos|SSH key expiring soon') }
     ]
   end
 
@@ -208,7 +217,8 @@ module TodosHelper
       { id: 'Issue', text: s_('Todos|Issue') },
       { id: 'MergeRequest', text: s_('Todos|Merge request') },
       { id: 'DesignManagement::Design', text: s_('Todos|Design') },
-      { id: 'AlertManagement::Alert', text: s_('Todos|Alert') }
+      { id: 'AlertManagement::Alert', text: s_('Todos|Alert') },
+      { id: 'Key', text: s_('Todos|SSH key') }
     ]
   end
 
@@ -229,9 +239,9 @@ module TodosHelper
     is_overdue = todo.target.overdue?
     css_class =
       if is_due_today
-        'text-warning'
+        'gl-text-warning'
       elsif is_overdue
-        'text-danger'
+        'gl-text-danger'
       else
         ''
       end
@@ -251,7 +261,7 @@ module TodosHelper
   end
 
   def todo_author_display?(todo)
-    !todo.build_failed? && !todo.unmergeable?
+    !todo.build_failed? && !todo.unmergeable? && !todo.for_ssh_key?
   end
 
   def todo_groups_requiring_saml_reauth(_todos)

@@ -3,6 +3,7 @@
 module Ci
   module Runners
     class RegisterRunnerService
+      include Gitlab::InternalEventsTracking
       include Gitlab::Utils::StrongMemoize
 
       def initialize(registration_token, attributes)
@@ -31,6 +32,8 @@ module Ci
           end
         end
 
+        track_runner_event(runner)
+
         ServiceResponse.success(payload: { runner: runner })
       end
 
@@ -44,10 +47,10 @@ module Ci
           { runner_type: :instance_type }
         elsif runner_registrar_valid?('project') && project = ::Project.find_by_runners_token(registration_token)
           # Create a project runner
-          { runner_type: :project_type, projects: [project] }
+          { runner_type: :project_type, projects: [project], sharding_key_id: project.id }
         elsif runner_registrar_valid?('group') && group = ::Group.find_by_runners_token(registration_token)
           # Create a group runner
-          { runner_type: :group_type, groups: [group] }
+          { runner_type: :group_type, groups: [group], sharding_key_id: group.id }
         elsif registration_token.present? && !Gitlab::CurrentSettings.allow_runner_registration_token
           {} # Will result in a :runner_registration_disallowed response
         end
@@ -77,12 +80,33 @@ module Ci
 
       def token_scope
         case attrs_from_token[:runner_type]
+        when :instance_type
+          Gitlab::Audit::InstanceScope.new
         when :project_type
           attrs_from_token[:projects]&.first
         when :group_type
           attrs_from_token[:groups]&.first
-          # No scope for instance type
         end
+      end
+
+      def track_runner_event(runner)
+        return if attributes[:maintenance_note].blank?
+
+        kwargs = {}
+        case runner.runner_type
+        when 'group_type'
+          kwargs[:namespace] = token_scope
+        when 'project_type'
+          kwargs[:project] = token_scope
+        end
+
+        track_internal_event(
+          'set_runner_maintenance_note',
+          **kwargs,
+          additional_properties: {
+            label: runner.runner_type
+          }
+        )
       end
     end
   end

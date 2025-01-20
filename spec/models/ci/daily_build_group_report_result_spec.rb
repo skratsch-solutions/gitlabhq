@@ -184,14 +184,14 @@ RSpec.describe Ci::DailyBuildGroupReportResult, feature_category: :continuous_in
     let!(:parent) { model.project }
   end
 
-  describe 'partitioning', :ci_partitionable do
+  describe 'partitioning' do
     include Ci::PartitioningHelpers
 
     let(:pipeline) { create(:ci_pipeline) }
     let(:daily_build_group_report_result) { create(:ci_daily_build_group_report_result, last_pipeline: pipeline) }
 
     before do
-      stub_current_partition_id
+      stub_current_partition_id(ci_testing_partition_id)
     end
 
     it 'assigns the same partition id as the one that pipeline has' do

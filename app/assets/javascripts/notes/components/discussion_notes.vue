@@ -54,11 +54,6 @@ export default {
       required: false,
       default: false,
     },
-    shouldScrollToNote: {
-      type: Boolean,
-      required: false,
-      default: true,
-    },
   },
   computed: {
     ...mapGetters(['userCanReply']),
@@ -146,9 +141,8 @@ export default {
           :discussion-root="true"
           :discussion-resolve-path="discussion.resolve_path"
           :is-overview-tab="isOverviewTab"
-          :should-scroll-to-note="shouldScrollToNote"
           :internal-note="isDiscussionInternal"
-          :class="{ 'gl-border-top-0!': isFileDiscussion }"
+          :class="{ '!gl-border-t-0': isFileDiscussion }"
           @handleDeleteNote="$emit('deleteNote')"
           @startReplying="$emit('startReplying')"
         >
@@ -158,14 +152,17 @@ export default {
               :edited-at="discussion.resolved_at"
               :edited-by="discussion.resolved_by"
               :action-text="resolvedText"
-              class-name="discussion-headline-light js-discussion-headline discussion-resolved-text gl-mb-2 gl-ml-3"
+              class-name="discussion-headline-light js-discussion-headline discussion-resolved-text -gl-mt-2 gl-mb-3 gl-ml-3"
             />
           </template>
           <template #avatar-badge>
             <slot name="avatar-badge"></slot>
           </template>
         </component>
-        <discussion-notes-replies-wrapper :is-diff-discussion="discussion.diff_discussion">
+        <discussion-notes-replies-wrapper
+          v-if="hasReplies || userCanReply"
+          :is-diff-discussion="discussion.diff_discussion"
+        >
           <toggle-replies-widget
             v-if="hasReplies"
             :collapsed="!isExpanded"
@@ -199,7 +196,6 @@ export default {
           :discussion-root="index === 0"
           :discussion-resolve-path="discussion.resolve_path"
           :is-overview-tab="isOverviewTab"
-          :should-scroll-to-note="shouldScrollToNote"
           :internal-note="isDiscussionInternal"
           @handleDeleteNote="$emit('deleteNote')"
         >

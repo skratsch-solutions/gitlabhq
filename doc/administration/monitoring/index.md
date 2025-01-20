@@ -1,14 +1,15 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
+description: Performance, health, uptime monitoring.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Monitoring GitLab
+# Monitor GitLab
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Explore our features to monitor your GitLab instance:
 

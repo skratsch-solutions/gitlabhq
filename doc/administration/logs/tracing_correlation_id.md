@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab instances log a unique request tracking ID (known as the
 "correlation ID") for most requests. Each individual request to GitLab gets
@@ -44,7 +44,7 @@ To locate a relevant request and view its correlation ID:
 
 See the following example:
 
-![Firefox's network monitor showing an request ID header](img/network_monitor_xid.png)
+![Example correlation ID in Headers section of network request details for HTML document](img/network_monitor_xid_v13_6.png)
 
 ### Getting the correlation ID from your logs
 
@@ -195,12 +195,12 @@ You can then view the database details for this request:
 
    ![Select request ID from request selector drop down menu](img/select-request-id-from-request-selector-drop-down-menu_v14_3.png)
 
-   <!-- vale gitlab.Substitutions = NO -->
+   <!-- vale gitlab_base.Substitutions = NO -->
 1. Select the `pg` link in the Progress Bar to view the database queries executed by the API request:
 
-   ![View pg database details](img/view-pg-details_v14_3.png)
-   <!-- vale gitlab.Substitutions = YES -->
+   ![GitLab API database details: 29ms / 34 queries](img/view-pg-details_v14_3.png)
+   <!-- vale gitlab_base.Substitutions = YES -->
 
    The database query dialog is displayed:
 
-   ![Database query dialog](img/database-query-dialog_v14_3.png)
+   ![Database query dialog with 34 SQL queries, 29ms duration, 34 replicas, 4 cached, and sorting options](img/database-query-dialog_v14_3.png)

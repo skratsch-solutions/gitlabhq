@@ -2,12 +2,10 @@
 
 module Gitlab
   module BackgroundMigration
-    # rubocop: disable Style/Documentation
     class DeleteInvalidEpicIssues < BatchedMigrationJob
       feature_category :database
 
-      def perform
-      end
+      def perform; end
     end
   end
 end

@@ -35,7 +35,12 @@ It's recommended to create two separate migration script files.
    use this setting only in special and documented circumstances.
 
 1. (Optionally) Create the database migration that fine-tunes each level with a
-   desired limit using `create_or_update_plan_limit` migration helper, such as:
+   desired limit using the `create_or_update_plan_limit` migration helper.
+   The plans in this migration should match the [plans on GitLab.com](#subscription-plans).
+   If a plan is missed, customers on that plan would receive the default limit, which might be
+   `0` (unlimited).
+
+   For example:
 
    ```ruby
    class InsertProjectHooksPlanLimits < Gitlab::Database::Migration[2.1]
@@ -49,6 +54,8 @@ It's recommended to create two separate migration script files.
        create_or_update_plan_limit('project_hooks', 'gold', 100)
        create_or_update_plan_limit('project_hooks', 'ultimate', 100)
        create_or_update_plan_limit('project_hooks', 'ultimate_trial', 100)
+       create_or_update_plan_limit('project_hooks', 'ultimate_trial_paid_customer', 100)
+       create_or_update_plan_limit('project_hooks', 'opensource', 100)
      end
 
      def down
@@ -61,12 +68,18 @@ It's recommended to create two separate migration script files.
        create_or_update_plan_limit('project_hooks', 'gold', 0)
        create_or_update_plan_limit('project_hooks', 'ultimate', 0)
        create_or_update_plan_limit('project_hooks', 'ultimate_trial', 0)
+       create_or_update_plan_limit('project_hooks', 'ultimate_trial_paid_customer', 0)
+       create_or_update_plan_limit('project_hooks', 'opensource', 0)
      end
    end
    ```
 
    Some plans exist only on GitLab.com. This is a no-op for plans
    that do not exist.
+
+   To set limits in your migration only for GitLab.com and allow other instances
+   to use the default limits, add `return unless Gitlab.com?` to the start of
+   the `#up` and `#down` methods to make the migration a no-op for other instances.
 
 ### Plan limits validation
 
@@ -148,13 +161,16 @@ GitLab.com:
 - `default`: Any system-wide feature.
 - `free`: Namespaces and projects with a Free subscription.
 - `bronze`: Namespaces and projects with a Bronze subscription. This tier is no longer available for purchase.
-- `silver`: Namespaces and projects with a Premium subscription.
+- `silver`: Namespaces and projects with a Premium subscription. This tier is no longer available for purchase.
 - `premium`: Namespaces and projects with a Premium subscription.
 - `premium_trial`: Namespaces and projects with a Premium Trial subscription.
-- `gold`: Namespaces and projects with an Ultimate subscription.
+- `gold`: Namespaces and projects with an Ultimate subscription. This tier is no longer available for purchase.
 - `ultimate`: Namespaces and projects with an Ultimate subscription.
 - `ultimate_trial`: Namespaces and projects with an Ultimate Trial subscription.
+- `ultimate_trial_paid_customer`: Namespaces and projects on a Premium subscription that are trialling Ultimate for 30 days.
 - `opensource`: Namespaces and projects that are member of GitLab Open Source program.
+
+There is an `early_adopter` plan on GitLab.com that has no subscriptions.
 
 The `test` environment doesn't have any plans.
 
@@ -170,7 +186,7 @@ The process for adding a new throttle is loosely:
 1. Update the JSON schema validator for the [rate_limits column](https://gitlab.com/gitlab-org/gitlab/-/blob/63b37287ae028842fcdcf56d311e6bb0c7e09e79/app/validators/json_schemas/application_setting_rate_limits.json).
 1. Extend `Gitlab::RackAttack` and `Gitlab::RackAttack::Request` to configure the new rate limit,
    and apply it to the desired requests.
-1. Add the new settings to the Admin Area form in `app/views/admin/application_settings/_ip_limits.html.haml`.
+1. Add the new settings to the **Admin** area form in `app/views/admin/application_settings/_ip_limits.html.haml`.
 1. Document the new settings in [User and IP rate limits](../administration/settings/user_and_ip_rate_limits.md) and [Application settings API](../api/settings.md).
 1. Configure the rate limit for GitLab.com and document it in [GitLab.com-specific rate limits](../user/gitlab_com/index.md#gitlabcom-specific-rate-limits).
 

@@ -134,11 +134,11 @@ module Gitlab
         end
 
         def with_lock_retries(&block)
-          Gitlab::Database::WithLockRetries.new(
+          Gitlab::Database::Partitioning::WithPartitioningLockRetries.new(
             klass: self.class,
             logger: Gitlab::AppLogger,
             connection: connection
-          ).run(&block)
+          ).run(raise_on_exhaustion: true, &block)
         end
 
         def table_partitioned?
@@ -160,7 +160,7 @@ module Gitlab
 
           primary_transaction(statement_timeout: STATEMENT_TIMEOUT) do
             # Running ANALYZE on partitioned table will go through itself and its partitions
-            connection.execute("ANALYZE #{model.quoted_table_name}")
+            connection.execute("ANALYZE (SKIP_LOCKED) #{model.quoted_table_name}")
           end
         end
 
@@ -180,7 +180,7 @@ module Gitlab
             last_analyzed_at = connection.select_value(
               "SELECT pg_stat_get_last_analyze_time('#{table_to_query}'::regclass)"
             )
-            last_analyzed_at.present? && last_analyzed_at >= Time.current - analyze_interval
+            last_analyzed_at.present? && last_analyzed_at >= ::Time.current - analyze_interval
           end
         end
 
@@ -196,7 +196,7 @@ module Gitlab
         end
 
         def primary_transaction(statement_timeout: nil)
-          Gitlab::Database::LoadBalancing::Session.current.use_primary do
+          Gitlab::Database::LoadBalancing::SessionMap.current(connection.load_balancer).use_primary do
             connection.transaction(requires_new: false) do
               if statement_timeout.present?
                 connection.execute(

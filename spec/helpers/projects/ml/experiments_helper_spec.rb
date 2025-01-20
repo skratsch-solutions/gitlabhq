@@ -7,7 +7,7 @@ require 'mime/types'
 
 RSpec.describe Projects::Ml::ExperimentsHelper, feature_category: :mlops do
   let_it_be(:project) { create(:project, :private) }
-  let_it_be(:experiment) { create(:ml_experiments, user_id: project.creator, project: project) }
+  let_it_be(:experiment) { create(:ml_experiments, :with_model, user: project.creator, project: project) }
   let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
   let_it_be(:build) { create(:ci_build, user: project.creator, pipeline: pipeline) }
   let_it_be(:candidate0) do
@@ -107,9 +107,39 @@ RSpec.describe Projects::Ml::ExperimentsHelper, feature_category: :mlops do
 
     it do
       is_expected.to eq({
+        'id' => experiment.id,
         'name' => experiment.name,
         'metadata' => experiment.metadata,
-        'path' => "/#{project.full_path}/-/ml/experiments/#{experiment.iid}"
+        'path' => "/#{project.full_path}/-/ml/experiments/#{experiment.iid}",
+        'model_id' => experiment.model.id,
+        'created_at' => experiment.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'user' => {
+          'id' => experiment.user.id,
+          'name' => experiment.user.name,
+          'path' => "/#{experiment.user.username}"
+        }
+      })
+    end
+  end
+
+  describe '#experiment_as_data when experiment does not have a model' do
+    let(:experiment) { create(:ml_experiments, user: project.creator, project: project) }
+
+    subject { Gitlab::Json.parse(helper.experiment_as_data(project, experiment)) }
+
+    it do
+      is_expected.to include({
+        'id' => experiment.id,
+        'name' => experiment.name,
+        'metadata' => experiment.metadata,
+        'path' => "/#{project.full_path}/-/ml/experiments/#{experiment.iid}",
+        'model_id' => nil,
+        'created_at' => experiment.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        'user' => {
+          'id' => experiment.user.id,
+          'name' => experiment.user.name,
+          'path' => "/#{experiment.user.username}"
+        }
       })
     end
   end
@@ -127,7 +157,14 @@ RSpec.describe Projects::Ml::ExperimentsHelper, feature_category: :mlops do
       expected_info = {
         "name" => experiment.name,
         "path" => "/#{project.full_path}/-/ml/experiments/#{experiment.iid}",
-        "candidate_count" => 2
+        "candidate_count" => 2,
+        "updated_at" => experiment.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+        "user" => {
+          "avatar_url" => experiment.user.avatar_url,
+          "id" => experiment.user_id,
+          "name" => experiment.user.name,
+          "path" => user_path(experiment.user)
+        }
       }
 
       expect(subject[0]).to eq(expected_info)

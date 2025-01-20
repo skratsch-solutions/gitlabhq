@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Review apps are a collaboration tool that provide an environment to showcase product changes.
 
@@ -23,7 +23,7 @@ Review apps:
 - Are fully integrated with the [GitLab DevOps LifeCycle](https://about.gitlab.com/stages-devops-lifecycle/).
 - Allow you to deploy your changes wherever you want.
 
-![review apps workflow](img/continuous-delivery-review-apps.svg)
+![review apps workflow](img/continuous-delivery-review-apps_v11_4.svg)
 
 In the previous example:
 
@@ -182,7 +182,7 @@ After you have the route mapping set up, it takes effect in the following locati
   - The list shows the first 5 matched items from the route map, but you can filter them if more
     than 5 are available.
 
-    ![View app file list in merge request widget](img/view_on_mr_widget.png)
+    ![View app file list in merge request widget](img/view_on_mr_widget_v11_5.png)
 
 - In the diff for a comparison or commit, by selecting **View** (**{external-link}**) next to the file.
 

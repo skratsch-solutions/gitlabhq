@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This page describes the GitLab reference architecture designed to target a peak load of 40 requests per second (RPS), the typical peak load of up to 2,000 users, both manual and automated, based on real data.
 
@@ -40,7 +40,7 @@ For a full list of reference architectures, see
 1. Can be optionally run on reputable third-party external PaaS PostgreSQL solutions. See [Provide your own PostgreSQL instance](#provide-your-own-postgresql-instance) and [Recommended cloud providers and services](index.md#recommended-cloud-providers-and-services) for more information.
 2. Can be optionally run on reputable third-party external PaaS Redis solutions. See [Provide your own Redis instance](#provide-your-own-redis-instance) and [Recommended cloud providers and services](index.md#recommended-cloud-providers-and-services) for more information.
 3. Recommended to be run with a reputable third-party load balancer or service (LB PaaS).
-   Also note that sizing depends on selected Load Balancer as well as additional factors such as Network Bandwidth. Refer to [Load Balancers](index.md#load-balancers) for more information.
+   Sizing depends on selected Load Balancer and additional factors such as Network Bandwidth. See [Load Balancers](index.md#load-balancers) for more information.
 4. Should be run on reputable Cloud Provider or Self Managed solutions. See [Configure the object storage](#configure-the-object-storage) for more information.
 5. Gitaly specifications are based on the use of normal-sized repositories in good health.
    However, if you have large monorepos (larger than several gigabytes) this can **significantly** impact Git and Gitaly performance and an increase of specifications will likely be required.
@@ -71,16 +71,16 @@ card "**Redis**" as redis #FF6347
 cloud "**Object Storage**" as object_storage #white
 
 elb -[#6a9be7]-> gitlab
-elb -[#6a9be7]--> monitor
+elb -[#6a9be7,norank]--> monitor
 
 gitlab -[#32CD32]--> gitaly
 gitlab -[#32CD32]--> postgres
-gitlab -[#32CD32]-> object_storage
+gitlab -[#32CD32]> object_storage
 gitlab -[#32CD32]--> redis
 
-sidekiq -[#ff8dd1]r-> object_storage
-sidekiq -[#ff8dd1]----> redis
-sidekiq .[#ff8dd1]----> postgres
+sidekiq -[#ff8dd1]> object_storage
+sidekiq -[#ff8dd1]--> redis
+sidekiq .[#ff8dd1]--> postgres
 sidekiq -[hidden]-> monitor
 
 monitor .[#7FFFD4]u-> gitlab
@@ -113,12 +113,12 @@ including CI and other workloads.
 
 If you have metrics to suggest that you have regularly higher throughput against the above endpoint targets, [large monorepos](index.md#large-monorepos)
 or notable [additional workloads](index.md#additional-workloads) these can notably impact the performance environment and [further adjustments may be required](index.md#scaling-an-environment).
-If this applies to you, we strongly recommended referring to the linked documentation as well as reaching out to your [Customer Success Manager](https://handbook.gitlab.com/job-families/sales/customer-success-management/) or our [Support team](https://about.gitlab.com/support/) for further guidance.
+If this applies to you, we strongly recommended referring to the linked documentation and reaching out to your [Customer Success Manager](https://handbook.gitlab.com/job-families/sales/customer-success-management/) or our [Support team](https://about.gitlab.com/support/) for further guidance.
 
-Testing is done regularly via our [GitLab Performance Tool (GPT)](https://gitlab.com/gitlab-org/quality/performance) and its dataset, which is available for anyone to use.
+Testing is done regularly by using our [GitLab Performance Tool (GPT)](https://gitlab.com/gitlab-org/quality/performance) and its dataset, which is available for anyone to use.
 The results of this testing are [available publicly on the GPT wiki](https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest). For more information on our testing strategy [refer to this section of the documentation](index.md#validation-and-test-results).
 
-The load balancers used for testing were HAProxy for Linux package environments or equivalent Cloud Provider services via NGINX Ingress for Cloud Native Hybrids. Note that these selections do not represent a specific requirement or recommendation as most [reputable load balancers are expected to work](#configure-the-external-load-balancer).
+The load balancers used for testing were HAProxy for Linux package environments or equivalent Cloud Provider services with NGINX Ingress for Cloud Native Hybrids. These selections do not represent a specific requirement or recommendation as most [reputable load balancers are expected to work](#configure-the-external-load-balancer).
 
 ## Set up components
 
@@ -127,9 +127,11 @@ To set up GitLab and its components to accommodate up to 40 RPS or 2,000 users:
 1. [Configure the external load balancing node](#configure-the-external-load-balancer)
    to handle the load balancing of the GitLab application services nodes.
 1. [Configure PostgreSQL](#configure-postgresql), the database for GitLab.
-1. [Configure Redis](#configure-redis).
+1. [Configure Redis](#configure-redis), which stores session data, temporary
+cache information, and background job queues.
 1. [Configure Gitaly](#configure-gitaly), which provides access to the Git
    repositories.
+1. [Configure Sidekiq](#configure-sidekiq) for background job processing.
 1. [Configure the main GitLab Rails application](#configure-gitlab-rails)
    to run Puma, Workhorse, GitLab Shell, and to serve all frontend
    requests (which include UI, API, and Git over HTTP/SSH).
@@ -268,13 +270,17 @@ to be used with GitLab.
 
 You can optionally use a [third party external service for PostgreSQL](../../administration/postgresql/external.md).
 
-A reputable provider or solution should be used for this. [Google Cloud SQL](https://cloud.google.com/sql/docs/postgres/high-availability#normal) and [Amazon RDS](https://aws.amazon.com/rds/) are known to work. However, Amazon Aurora is **incompatible** with load balancing enabled by default from [14.4.0](../../update/versions/gitlab_14_changes.md#1440). See [Recommended cloud providers and services](index.md#recommended-cloud-providers-and-services) for more information.
+A reputable provider or solution should be used for this. [Google Cloud SQL](https://cloud.google.com/sql/docs/postgres/high-availability#normal)
+and [Amazon RDS](https://aws.amazon.com/rds/) are known to work. However, Amazon Aurora is **incompatible** with load balancing enabled by default from
+[14.4.0](https://docs.gitlab.com/17.3/ee/update/versions/gitlab_14_changes.html#1440).
+
+See [Recommended cloud providers and services](index.md#recommended-cloud-providers-and-services) for more information.
 
 If you use a third party external service:
 
-1. Note that the HA Linux package PostgreSQL setup encompasses PostgreSQL, PgBouncer and Consul. All of these components would no longer be required when using a third party external service.
+1. The HA Linux package PostgreSQL setup encompasses PostgreSQL, PgBouncer and Consul. All of these components would no longer be required when using a third party external service.
 1. Set up PostgreSQL according to the
-   [database requirements document](../../install/requirements.md#database).
+   [database requirements document](../../install/requirements.md#postgresql).
 1. Set up a `gitlab` username with a password of your choice. The `gitlab` user
    needs privileges to create the `gitlabhq_production` database.
 1. Configure the GitLab application servers with the appropriate details.
@@ -332,7 +338,7 @@ If you use a third party external service:
 
 1. [Reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation) for the changes to take effect.
 1. Note the PostgreSQL node's IP address or hostname, port, and
-   plain text password. These will be necessary when configuring the
+   plain text password. These details are necessary when configuring the
    [GitLab application server](#configure-gitlab-rails) later.
 
 Advanced [configuration options](https://docs.gitlab.com/omnibus/settings/database.html)
@@ -383,8 +389,6 @@ the Linux package:
    redis['port'] = 6379
    redis['password'] = 'SECRET_PASSWORD_HERE'
 
-   gitlab_rails['enable'] = false
-
    # Set the network addresses that the exporters used for monitoring will listen on
    node_exporter['listen_address'] = '0.0.0.0:9100'
    redis_exporter['listen_address'] = '0.0.0.0:9121'
@@ -392,6 +396,9 @@ the Linux package:
          'redis.addr' => 'redis://0.0.0.0:6379',
          'redis.password' => 'SECRET_PASSWORD_HERE',
    }
+
+   # Prevent database migrations from running on upgrade automatically
+   gitlab_rails['auto_migrate'] = false
    ```
 
 1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the first Linux package node you configured and add or replace
@@ -437,8 +444,8 @@ Be sure to note the following items:
 - A GitLab server can use one or more Gitaly server nodes.
 - Gitaly addresses must be specified to be correctly resolvable for *all*
   Gitaly clients.
-- Gitaly servers must not be exposed to the public internet, as Gitaly's network
-  traffic is unencrypted by default. The use of a firewall is highly recommended
+- Gitaly servers must not be exposed to the public internet, as network traffic
+  on Gitaly is unencrypted by default. The use of a firewall is highly recommended
   to restrict access to the Gitaly server. Another option is to
   [use TLS](#gitaly-tls-support).
 
@@ -454,7 +461,7 @@ installation has two repository storages: `default` and `storage1`.
 To configure the Gitaly server, on the server node you want to use for Gitaly:
 
 1. [Download and install](https://about.gitlab.com/install/) the Linux package
-   package of your choice. Be sure to follow _only_ installation steps 1 and 2
+   of your choice. Be sure to follow _only_ installation steps 1 and 2
    on the page, and _do not_ provide the `EXTERNAL_URL` value.
 1. Edit the Gitaly server node's `/etc/gitlab/gitlab.rb` file to configure
    storage paths, enable the network listener, and to configure the token:
@@ -539,16 +546,16 @@ To configure the Gitaly server, on the server node you want to use for Gitaly:
 1. [Reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation) for the changes to take effect.
 
 1. Confirm that Gitaly can perform callbacks to the internal API:
-   - For GitLab 15.3 and later, run `sudo /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
-   - For GitLab 15.2 and earlier, run `sudo /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.3 and later, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.2 and earlier, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
 
 ### Gitaly TLS support
 
-Gitaly supports TLS encryption. To be able to communicate
-with a Gitaly instance that listens for secure connections you will need to use `tls://` URL
+Gitaly supports TLS encryption. To communicate
+with a Gitaly instance that listens for secure connections, you must use `tls://` URL
 scheme in the `gitaly_address` of the corresponding storage entry in the GitLab configuration.
 
-You will need to bring your own certificates as this isn't provided automatically.
+You must bring your own certificates as this isn't provided automatically.
 The certificate, or its certificate authority, must be installed on all Gitaly
 nodes (including the Gitaly node using the certificate) and on all client nodes
 that communicate with it following the procedure described in
@@ -656,11 +663,11 @@ To configure the Sidekiq server, on the server node you want to use for Sidekiq:
    # of the Gitaly setup
    gitlab_rails['gitaly_token'] = 'gitalysecret'
 
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      'default' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage1' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
-   })
+   }
 
    ## PostgreSQL connection details
    gitlab_rails['db_adapter'] = 'postgresql'
@@ -777,16 +784,15 @@ On each node perform the following:
    # of the Gitaly setup
    gitlab_rails['gitaly_token'] = 'gitalysecret'
 
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      'default' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage1' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
-   })
+   }
 
    ## Disable components that will not be on the GitLab application server
    roles(['application_role'])
    gitaly['enable'] = false
-   nginx['enable'] = true
    sidekiq['enable'] = false
 
    ## PostgreSQL connection details
@@ -861,14 +867,14 @@ On each node perform the following:
    ```
 
 1. If you're using [Gitaly with TLS support](#gitaly-tls-support), make sure the
-   `git_data_dirs` entry is configured with `tls` instead of `tcp`:
+   `gitlab_rails['repositories_storages']` entry is configured with `tls` instead of `tcp`:
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      'default' => { 'gitaly_address' => 'tls://gitaly1.internal:9999' },
      'storage1' => { 'gitaly_address' => 'tls://gitaly1.internal:9999' },
      'storage2' => { 'gitaly_address' => 'tls://gitaly2.internal:9999' },
-   })
+   }
    ```
 
    1. Copy the cert into `/etc/gitlab/trusted-certs`:
@@ -879,7 +885,10 @@ On each node perform the following:
 
 1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the first Linux package node you configured and add or replace
    the file of the same name on this server. If this is the first Linux package node you are configuring then you can skip this step.
-
+1. Copy the SSH host keys (all in the name format `/etc/ssh/ssh_host_*_key*`) from the first Rails node you configured and
+   add or replace the files of the same name on this server. This ensures host mismatch errors aren't thrown
+   for your users as they hit the load balanced Rails nodes. If this is the first Linux package node you are configuring,
+   then you can skip this step.
 1. To ensure database migrations are only run during reconfigure and not automatically on upgrade, run:
 
    ```shell
@@ -914,7 +923,7 @@ the [HTTPS documentation](https://docs.gitlab.com/omnibus/settings/ssl/index.htm
    sudo gitlab-rake gitlab:db:configure
    ```
 
-   Note that this requires the Rails node to be configured to connect to the primary database
+   This operation requires configuring the Rails node to connect to the primary database
    directly, [bypassing PgBouncer](../postgresql/pgbouncer.md#procedure-for-bypassing-pgbouncer).
    After migrations have completed, you must configure the node to pass through PgBouncer again.
 
@@ -957,6 +966,7 @@ running [Prometheus](../monitoring/prometheus/index.md):
    1.1.1.3: gitaly1
    1.1.1.4: rails1
    1.1.1.5: rails2
+   1.1.1.6: sidekiq
    ```
 
    Add the following to `/etc/gitlab/gitlab.rb`:
@@ -1003,13 +1013,13 @@ running [Prometheus](../monitoring/prometheus/index.md):
      {
         'job_name': 'gitlab-sidekiq',
         'static_configs' => [
-        'targets' => ['1.1.1.4:8082', '1.1.1.5:8082'],
+        'targets' => ['1.1.1.6:8082'],
         ],
      },
      {
         'job_name': 'static-node',
         'static_configs' => [
-        'targets' => ['1.1.1.1:9100', '1.1.1.2:9100', '1.1.1.3:9100', '1.1.1.4:9100', '1.1.1.5:9100'],
+        'targets' => ['1.1.1.1:9100', '1.1.1.2:9100', '1.1.1.3:9100', '1.1.1.4:9100', '1.1.1.5:9100', '1.1.1.6:9100'],
         ],
      },
    ]
@@ -1054,13 +1064,13 @@ in the future.
 
 GitLab Runner returns job logs in chunks which the Linux package caches temporarily on disk in `/var/opt/gitlab/gitlab-ci/builds` by default, even when using consolidated object storage. With default configuration, this directory needs to be shared through NFS on any GitLab Rails and Sidekiq nodes.
 
-While sharing the job logs through NFS is supported, it's recommended to avoid the need to use NFS by enabling [incremental logging](../job_logs.md#incremental-logging-architecture) (required when no NFS node has been deployed). Incremental logging uses Redis instead of disk space for temporary caching of job logs.
+While sharing the job logs through NFS is supported, it's recommended to avoid the need to use NFS by enabling [incremental logging](../cicd/job_logs.md#incremental-logging-architecture) (required when no NFS node has been deployed). Incremental logging uses Redis instead of disk space for temporary caching of job logs.
 
 ## Configure advanced search
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can leverage Elasticsearch and [enable advanced search](../../integration/advanced_search/elasticsearch.md)
 for faster, more advanced code search across your entire GitLab instance.
@@ -1078,9 +1088,15 @@ cluster alongside your instance, read how to
 
 ## Cloud Native Hybrid reference architecture with Helm Charts (alternative)
 
-Run select components of cloud-native GitLab in Kubernetes with the [GitLab Helm chart](https://docs.gitlab.com/charts/). In this setup, you can run the equivalent of GitLab Rails in the Kubernetes cluster called Webservice. You also can run the equivalent of Sidekiq nodes in the Kubernetes cluster called Sidekiq. In addition,
-the following other supporting services are supported: NGINX, Toolbox, Migrations,
-Prometheus.
+An alternative approach is to run specific GitLab components in Kubernetes.
+The following services are supported:
+
+- GitLab Rails
+- Sidekiq
+- NGINX
+- Toolbox
+- Migrations
+- Prometheus
 
 Hybrid installations leverage the benefits of both cloud native and traditional
 compute deployments. With this, _stateless_ components can benefit from cloud native
@@ -1123,7 +1139,7 @@ the overall makeup as desired as long as the minimum CPU and Memory requirements
   [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine) and [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/). Other Kubernetes services may also work, but your mileage may vary.
 - GCP and AWS examples of how to reach the Target Node Pool Total are given for convenience. These sizes are used in performance testing but following the example is not required. Different node pool designs can be used as desired as long as the targets are met, and all pods can deploy.
 - The [Webservice](#webservice) and [Sidekiq](#sidekiq) target node pool totals are given for GitLab components only. Additional resources are required for the chosen Kubernetes provider's system processes. The given examples take this into account.
-- The [Supporting](#supporting) target node pool total is given generally to accommodate several resources for supporting the GitLab deployment as well as any additional deployments you may wish to make depending on your requirements. Similar to the other node pools, the chosen Kubernetes provider's system processes also require resources. The given examples take this into account.
+- The [Supporting](#supporting) target node pool total is given generally to accommodate several resources for supporting the GitLab deployment and any additional deployments you may wish to make depending on your requirements. Similar to the other node pools, the chosen Kubernetes provider's system processes also require resources. The given examples take this into account.
 - In production deployments, it's not required to assign pods to specific nodes. However, it is recommended to have several nodes in each pool spread across different availability zones to align with resilient cloud architecture practices.
 - Enabling autoscaling, such as Cluster Autoscaler, for efficiency reasons is encouraged, but it's generally recommended targeting a floor of 75% for Webservice and Sidekiq pods to ensure ongoing performance.
 
@@ -1197,16 +1213,16 @@ Each Webservice pod (Puma and Workhorse) is recommended to be run with the follo
 - 5 GB memory (request)
 - 7 GB memory (limit)
 
-For 40 RPS or 2,000 users we recommend a total Puma worker count of around 12 so in turn it's recommended to run at
+For 40 RPS or 2,000 users, we recommend a total Puma worker count of around 12 so in turn it's recommended to run at
 least 3 Webservice pods.
 
 For further information on Webservice resource usage, see the Charts documentation on [Webservice resources](https://docs.gitlab.com/charts/charts/gitlab/webservice/#resources).
 
 ##### NGINX
 
-It's also recommended deploying the NGINX controller pods across the Webservice nodes as a DaemonSet. This is to allow the controllers to scale dynamically with the Webservice pods they serve as well as take advantage of the higher network bandwidth larger machine types typically have.
+It's also recommended deploying the NGINX controller pods across the Webservice nodes as a DaemonSet. This allows the controllers to scale dynamically with the Webservice pods they serve, and takes advantage of the higher network bandwidth larger machine types typically have.
 
-Note that this isn't a strict requirement. The NGINX controller pods can be deployed as desired as long as they have enough resources to handle the web traffic.
+This isn't a strict requirement. The NGINX controller pods can be deployed as desired as long as they have enough resources to handle the web traffic.
 
 #### Sidekiq
 
@@ -1244,3 +1260,12 @@ An example for the GitLab Helm Charts for the above 40 RPS or 2,000 reference ar
     Back to set up components <i class="fa fa-angle-double-up" aria-hidden="true"></i>
   </a>
 </div>
+
+## Next steps
+
+After following this guide you should now have a fresh GitLab environment with core functionality configured accordingly.
+
+You may want to configure additional optional features of GitLab depending on your requirements. See [Steps after installing GitLab](../../install/next_steps.md) for more information.
+
+NOTE:
+Depending on your environment and requirements, additional hardware requirements or adjustments may be required to set up additional features as desired. Refer to the individual pages for more information.

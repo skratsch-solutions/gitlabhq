@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To connect a Kubernetes cluster to GitLab, you must install an agent in your cluster.
 
@@ -16,20 +16,58 @@ To connect a Kubernetes cluster to GitLab, you must install an agent in your clu
 
 Before you can install the agent in your cluster, you need:
 
-- An existing Kubernetes cluster. If you don't have a cluster, you can create one on a cloud provider, like:
-  - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster)
+- An existing [Kubernetes cluster that you can connect to from your local terminal](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/). If you don't have a cluster, you can create one on a cloud provider, like:
   - [Amazon Elastic Kubernetes Service (EKS)](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html)
+  - [Azure Kubernetes Service (AKS)](https://learn.microsoft.com/en-us/azure/aks/what-is-aks)
   - [Digital Ocean](https://docs.digitalocean.com/products/kubernetes/getting-started/quickstart/)
-- On self-managed GitLab instances, a GitLab administrator must set up the
+  - [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine/docs/deploy-app-cluster)
+  - You should use [Infrastructure as Code techniques](../../../infrastructure/iac/index.md) for managing infrastructure resources at scale.
+- On GitLab Self-Managed, a GitLab administrator must set up the
   [agent server](../../../../administration/clusters/kas.md).
   Then it is available by default at `wss://gitlab.example.com/-/kubernetes-agent/`.
   On GitLab.com, the agent server is available at `wss://kas.gitlab.com`.
 
-## Installation steps
+## Bootstrap the agent with Flux support (recommended)
 
-To install the agent in your cluster:
+You can install the agent by bootstrapping it with the [GitLab CLI (`glab`)](../../../../editor_extensions/gitlab_cli/index.md) and Flux.
 
-1. [Create an agent configuration file](#create-an-agent-configuration-file).
+Prerequisites:
+
+- You have the following command-line tools installed:
+  - `glab`
+  - `kubectl`
+  - `flux`
+- You have a local cluster connection that works with `kubectl` and `flux`.
+- You [bootstrapped Flux](https://fluxcd.io/flux/installation/bootstrap/gitlab/) into the cluster with `flux bootstrap`.
+  - Make sure to bootstrap Flux and the agent in compatible directories. If you bootstrapped Flux
+    with the `--path` option, you must pass the same value to the `--manifest-path` option of the
+    `glab cluster agent bootstrap` command.
+
+To install the agent:
+
+- Run `glab cluster agent bootstrap`:
+
+  ```shell
+  glab cluster agent bootstrap <agent-name>
+  ```
+
+By default, the command:
+
+1. Registers the agent.
+1. Configures the agent.
+1. Configures an environment with a dashboard for the agent.
+1. Creates an agent token.
+1. In the cluster, creates a Kubernetes secret with the agent token.
+1. Commits the Flux Helm resources to the Git repository.
+1. Triggers a Flux reconciliation.
+
+For customization options, run `glab cluster agent bootstrap --help`. You probably want to use at least the `--path <flux_manifests_directory>` option.
+
+## Install the agent manually
+
+It takes three steps to install the agent in your cluster:
+
+1. Optional. [Create an agent configuration file](#create-an-agent-configuration-file).
 1. [Register the agent with GitLab](#register-the-agent-with-gitlab).
 1. [Install the agent in your cluster](#install-the-agent-in-the-cluster).
 
@@ -38,10 +76,9 @@ To install the agent in your cluster:
 
 ### Create an agent configuration file
 
-The agent configuration file can be added to multiple directories (or subdirectories) of the repository.
-For configuration settings, the agent uses a YAML file in the GitLab project. You must create this file if:
+For configuration settings, the agent uses a YAML file in the GitLab project. Adding an agent configuration file is optional. You must create this file if:
 
-- You use [a GitLab CI/CD workflow](../ci_cd_workflow.md#use-gitlab-cicd-with-your-cluster) and want to authorize a different project to use the agent.
+- You use [a GitLab CI/CD workflow](../ci_cd_workflow.md#use-gitlab-cicd-with-your-cluster) and want to authorize a different project or group to access the agent.
 - You [allow specific project or group members to access Kubernetes](../user_access.md).
 
 To create an agent configuration file:
@@ -55,26 +92,20 @@ To create an agent configuration file:
    - Start with an alphanumeric character.
    - End with an alphanumeric character.
 
-1. In the repository, in the default branch, create an agent configuration file at the root:
+1. In the repository, in the default branch, create an agent configuration file at:
 
    ```plaintext
    .gitlab/agents/<agent-name>/config.yaml
    ```
 
-You can leave the file blank for now, and [configure it](#configure-your-agent) later.
+You can leave the file blank for now, and [configure it](../work_with_agent.md#configure-your-agent) later.
 
 ### Register the agent with GitLab
 
+#### Option 1: Agent connects to GitLab
+
 You can create a new agent record directly from the GitLab UI.
 The agent can be registered without creating an agent configuration file.
-
-FLAG:
-A [flag](../../../../administration/feature_flags.md) named `certificate_based_clusters` changed the **Actions** menu to focus on the agent rather than certificates. The flag is [enabled on GitLab.com, GitLab Dedicated, and self-managed](https://gitlab.com/groups/gitlab-org/configure/-/epics/8).
-
-Prerequisites:
-
-- For a [GitLab CI/CD workflow](../ci_cd_workflow.md), ensure that
-  [GitLab CI/CD is not disabled](../../../../ci/pipelines/settings.md#disable-gitlab-cicd-pipelines).
 
 You must register an agent before you can install the agent in your cluster. To register an agent:
 
@@ -83,9 +114,10 @@ You must register an agent before you can install the agent in your cluster. To 
    it must be in this project. Your cluster manifest files should also be in this project.
 1. Select **Operate > Kubernetes clusters**.
 1. Select **Connect a cluster (agent)**.
-   - If you want to create a configuration with CI/CD defaults, type a name.
-   - If you already have an [agent configuration file](#create-an-agent-configuration-file), select it from the list.
-1. Select **Register an agent**.
+1. In the **Name of new agent** field, enter a unique name for your agent.
+   - If an [agent configuration file](#create-an-agent-configuration-file) with this name already exists, it is used.
+   - If no configuration exists for this name, a new agent is created with the default configuration.
+1. Select **Create and register**.
 1. GitLab generates an access token for the agent. You need this token to install the agent
    in your cluster.
 
@@ -94,6 +126,49 @@ You must register an agent before you can install the agent in your cluster. To 
 
 1. Copy the command under **Recommended installation method**. You need it when you use
    the one-liner installation method to install the agent in your cluster.
+
+#### Option 2: GitLab connects to agent (receptive agent)
+
+DETAILS:
+**Tier:** Ultimate
+**Offering:** GitLab Self-Managed
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/12180) in GitLab 17.4.
+
+NOTE:
+The GitLab Agent Helm Chart release does not fully support mTLS authentication.
+You should authenticate with the JWT method instead.
+Support for mTLS is tracked in
+[issue 64](https://gitlab.com/gitlab-org/charts/gitlab-agent/-/issues/64).
+
+[Receptive agents](../index.md#receptive-agents) allow GitLab to integrate with Kubernetes clusters that
+cannot establish a network connection to the GitLab instance, but can be connected to by GitLab.
+
+1. Follow the steps in option 1 to register an agent in your cluster.
+   Save the agent token and install command for later, but don't install the agent yet.
+1. Prepare an authentication method.
+
+   The GitLab-to-agent connection can be cleartext gRPC (`grpc://`) or encrypted gRPC (`grpcs://`, recommended).
+   GitLab can authenticate to the agent in your cluster using:
+   - A JWT token. Available in both `grpc://` and `grpcs://` configurations. You don't need to generate client certificates with this method.
+1. Add a URL configuration to the agent with the [cluster agents API](../../../../api/cluster_agents.md#create-an-agent-url-configuration). If you delete the URL configuration, the receptive agent becomes an ordinary agent. You can associate a receptive agent with only one URL configuration at a time.
+
+1. Install the agent into the cluster. Use the command you copied when you registered the agent, but remove the `--set config.kasAddress=...` parameter.
+
+   JWT token authentication example. Note the added `config.receptive.enabled=true` and `config.api.jwt` settings:
+
+   ```shell
+   helm repo add gitlab https://charts.gitlab.io
+   helm repo update
+   helm upgrade --install my-agent gitlab/gitlab-agent \
+    --namespace ns \
+    --create-namespace \
+    --set config.token=.... \
+    --set config.receptive.enabled=true \
+    --set config.api.jwtPublicKey=<public_key from the response>
+   ```
+
+It might take up to 10 minutes for GitLab to start trying to establish a connection to the new agent.
 
 ### Install the agent in the cluster
 
@@ -107,6 +182,8 @@ in your cluster. You can either:
 
 If you do not know which one to choose, we recommend starting with Helm.
 
+To install a receptive agent, follow the steps in [GitLab connects to agent (receptive agent)](#option-2-gitlab-connects-to-agent-receptive-agent).
+
 NOTE:
 To connect to multiple clusters, you must configure, register, and install an agent in each cluster. Make sure to give each agent a unique name.
 
@@ -117,7 +194,7 @@ For simplicity, the default Helm chart configuration sets up a service account f
 
 To install the agent on your cluster using Helm:
 
-1. [Install Helm](https://helm.sh/docs/intro/install/).
+1. [Install the Helm CLI](https://helm.sh/docs/intro/install/).
 1. In your computer, open a terminal and [connect to your cluster](https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/).
 1. Run the command you copied when you [registered your agent with GitLab](#register-the-agent-with-gitlab). The command should look like:
 
@@ -133,7 +210,7 @@ To install the agent on your cluster using Helm:
    ```
 
 1. Optional. [Customize the Helm installation](#customize-the-helm-installation).
-   If you install the agent on a production system, you should customize the Helm installation to restrict the permissions of the service account. See [How to deploy the GitLab agent for Kubernetes with limited permissions](https://about.gitlab.com/blog/2021/09/10/setting-up-the-k-agent/).
+   If you install the agent on a production system, you should customize the Helm installation to restrict the permissions of the service account. Related customization options are described below.
 
 ##### Customize the Helm installation
 
@@ -190,13 +267,6 @@ and the domain DNS can't be resolved.
 #### Advanced installation method
 
 GitLab also provides a [KPT package for the agent](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/tree/master/build/deployment/gitlab-agent). This method provides greater flexibility, but is only recommended for advanced users.
-
-### Configure your agent
-
-To configure your agent, add content to the `config.yaml` file:
-
-- For a GitLab CI/CD workflow, [authorize the agent to access your projects](../ci_cd_workflow.md#authorize-the-agent). Then
-  [add `kubectl` commands to your `.gitlab-ci.yml` file](../ci_cd_workflow.md#update-your-gitlab-ciyml-file-to-run-kubectl-commands).
 
 ## Install multiple agents in your cluster
 
@@ -256,7 +326,7 @@ To update the agent to the latest version, you can run:
 ```shell
 helm repo update
 helm upgrade --install gitlab-agent gitlab/gitlab-agent \
-  --namespace gitlab-agent \
+  --namespace gitlab-agent
 ```
 
 To set a specific version, you can override the `image.tag` value. For example, to install version `v14.9.1`, run:
@@ -279,3 +349,22 @@ If you [installed the agent with Helm](#install-the-agent-with-helm), then you c
 helm uninstall gitlab-agent \
     --namespace gitlab-agent
 ```
+
+## Troubleshooting
+
+When you install the agent for Kubernetes, you might encounter the following issues.
+
+### Error: `failed to reconcile the GitLab Agent`
+
+If the `glab cluster agent bootstrap` command fails with the message `failed to reconcile the GitLab Agent`,
+it means `glab` couldn't reconcile the agent with Flux.
+
+This error might be because:
+
+- The Flux setup doesn't point to the directory where `glab` put the Flux manifests for the agent.
+  If you bootstrapped Flux with the `--path` option, you must pass the same value to the `--manifest-path` option of the
+  `glab cluster agent bootstrap` command.
+- Flux points to the root directory of a project without a `kustomization.yaml`, which causes Flux to traverse subdirectories looking for YAML files.
+  To use the agent, you must have an agent configuration file at `.gitlab/agents/<agent-name>/config.yaml`,
+  which is not a valid Kubernetes manifest. Flux fails to apply this file, which causes an error.
+  To resolve, you should point Flux at a subdirectory instead of the root.

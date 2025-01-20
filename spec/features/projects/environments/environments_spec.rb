@@ -58,11 +58,11 @@ RSpec.describe 'Environments page', :js, feature_category: :continuous_delivery 
         it 'renders second page of pipelines' do
           visit_environments(project, scope: 'active')
 
-          find('.page-link.next-page-item').click
+          find_by_testid('gl-pagination-next').click
           wait_for_requests
 
-          expect(page).to have_selector('.gl-pagination .page-link', count: 4)
-          expect(find('.gl-pagination .page-link.active').text).to eq("2")
+          expect(page).to have_selector('[data-testid="gl-pagination-li"]', count: 4)
+          expect(find('[data-testid="gl-pagination-item"].active').text).to eq("2")
         end
       end
 
@@ -135,8 +135,6 @@ RSpec.describe 'Environments page', :js, feature_category: :continuous_delivery 
     context 'when there are no deployments' do
       before do
         visit_environments(project)
-
-        page.click_button _('Expand')
       end
 
       it 'shows environments names and counters' do
@@ -162,13 +160,11 @@ RSpec.describe 'Environments page', :js, feature_category: :continuous_delivery 
         create(:deployment, :success, environment: environment, sha: project.commit.id)
       end
 
-      it 'shows deployment SHA and internal ID' do
+      it 'shows deployment SHA' do
         visit_environments(project)
-        page.click_button _('Expand')
 
         expect(page).to have_text(deployment.short_sha)
         expect(page).to have_link(deployment.commit.full_title)
-        expect(page).to have_content(deployment.iid)
       end
 
       context 'when builds and manual actions are present' do
@@ -353,7 +349,6 @@ RSpec.describe 'Environments page', :js, feature_category: :continuous_delivery 
       it 'does not show deployments', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/409990' do
         visit_environments(project)
 
-        page.click_button _('Expand')
         expect(page).to have_content(s_('Environments|There are no deployments for this environment yet. Learn more about setting up deployments.'))
       end
     end
@@ -368,10 +363,8 @@ RSpec.describe 'Environments page', :js, feature_category: :continuous_delivery 
       it "renders the upcoming deployment", :aggregate_failures do
         visit_environments(project)
 
-        page.click_button _('Expand')
-
         within(upcoming_deployment_content_selector) do
-          expect(page).to have_content("##{deployment.iid}")
+          expect(page).to have_content(project.commit.short_id)
           expect(page).to have_link(href: /#{deployment.user.username}/)
         end
       end

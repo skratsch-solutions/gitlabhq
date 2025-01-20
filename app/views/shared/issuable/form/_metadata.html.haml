@@ -17,12 +17,12 @@
 - if issuable.respond_to?(:confidential) && can?(current_user, :set_confidentiality, issuable)
   .form-group
     = form.gitlab_ui_checkbox_component :confidential,
-      _('This issue is confidential and should only be visible to team members with at least Reporter access.')
+      _('This issue is confidential and should only be visible to team members with at least the Planner role.')
 
 - if can?(current_user, :"set_#{issuable.to_ability_name}_metadata", issuable)
   .row.gl-pt-4
     %div{ class: (has_due_date ? "col-lg-6" : "col-12") }
-      .form-group.row.merge-request-assignee
+      .form-group.row{ data: { testid: 'merge-request-assignee' } }
         = render "shared/issuable/form/metadata_issuable_assignee", issuable: issuable, form: form, has_due_date: has_due_date
 
       - if issuable.allows_reviewers?
@@ -41,6 +41,15 @@
       .js-issuable-form-label-selector{ data: issuable_label_selector_data(project, issuable) }
 
       = render_if_exists "shared/issuable/form/merge_request_blocks", issuable: issuable, form: form
+
+      - if issuable.is_a?(MergeRequest)
+        .row
+          = form.label :merge_after, s_('MergeRequests|Merge can start'), class: 'col-12'
+          .js-merge-request-schedule-input{ data: {
+            merge_after: issuable.merge_schedule&.merge_after&.strftime('%Y-%m-%dT%H:%M%z'),
+            param_key: issuable.class.model_name.param_key
+          } }
+          %p.gl-text-subtle.col-12= s_('MergeRequests|Requires that merge checks pass.')
 
     - if has_due_date
       .col-lg-6

@@ -58,6 +58,8 @@ RSpec.describe API::Integrations, feature_category: :integrations do
       # You cannot create a GitLab for Slack app. You must install the app from the GitLab UI.
       unavailable_integration_names = [
         Integrations::GitlabSlackApplication.to_param,
+        Integrations::JiraCloudApp.to_param,
+        Integrations::Prometheus.to_param,
         Integrations::Zentao.to_param
       ]
 
@@ -243,21 +245,6 @@ RSpec.describe API::Integrations, feature_category: :integrations do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['inherited']).to eq(true)
       end
-
-      context 'when `integration_api_inheritance` feature is disabled' do
-        before do
-          stub_feature_flags(integration_api_inheritance: false)
-        end
-
-        it 'accepts `branches_to_be_notified` and `notify_only_broken_pipelines` for update' do
-          put api("/projects/#{project.id}/#{endpoint}/#{integration_name}", user),
-            params: params.merge(notify_only_broken_pipelines: true, branches_to_be_notified: 'all')
-
-          expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['properties']['branches_to_be_notified']).to eq('all')
-          expect(json_response['properties']['notify_only_broken_pipelines']).to eq(true)
-        end
-      end
     end
 
     describe 'Hangouts Chat integration' do
@@ -345,6 +332,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
             put api("/projects/#{project.id}/#{endpoint}/gitlab-slack-application", user)
 
             expect(response).to have_gitlab_http_status(:unprocessable_entity)
+            expect(json_response['message']).to eq('You cannot create the GitLab for Slack app integration from the API')
           end
         end
 
@@ -381,6 +369,60 @@ RSpec.describe API::Integrations, feature_category: :integrations do
       end
     end
 
+    describe 'GitLab for Jira Cloud app integration' do
+      before do
+        stub_application_setting(jira_connect_application_key: 'mock_key')
+        create(:jira_cloud_app_integration, project: project)
+      end
+
+      describe "PUT /projects/:id/#{endpoint}/jira-cloud-app" do
+        context 'for integration creation' do
+          before do
+            project.jira_cloud_app_integration.destroy!
+          end
+
+          it 'returns 422' do
+            put api("/projects/#{project.id}/#{endpoint}/jira-cloud-app", user)
+
+            expect(response).to have_gitlab_http_status(:unprocessable_entity)
+            expect(json_response['message']).to eq('You cannot create the GitLab for Jira Cloud app integration from the API')
+          end
+        end
+
+        context 'for integration update' do
+          before do
+            project.jira_cloud_app_integration.update!(active: false)
+          end
+
+          it "does not enable the integration" do
+            put api("/projects/#{project.id}/#{endpoint}/jira-cloud-app", user)
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(project.jira_cloud_app_integration.reload).to have_attributes(active: false)
+          end
+        end
+      end
+
+      describe "GET /projects/:id/#{endpoint}/jira-cloud-app" do
+        it "fetches the integration and returns the correct fields" do
+          get api("/projects/#{project.id}/#{endpoint}/jira-cloud-app", user)
+
+          expect(response).to have_gitlab_http_status(:ok)
+          assert_correct_response_fields(json_response['properties'].keys, project.jira_cloud_app_integration)
+        end
+      end
+
+      describe "DELETE /projects/:id/#{endpoint}/jira-cloud-app" do
+        it "does not disable the integration" do
+          expect { delete api("/projects/#{project.id}/#{endpoint}/jira-cloud-app", user) }
+            .not_to change { project.jira_cloud_app_integration.reload.activated? }.from(true)
+
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
+          expect(json_response['message']).to eq('You cannot disable the GitLab for Jira Cloud app integration from the API')
+        end
+      end
+    end
+
     private
 
     def assert_correct_response_fields(response_keys, integration)
@@ -393,15 +435,11 @@ RSpec.describe API::Integrations, feature_category: :integrations do
     end
 
     def assert_secret_fields_filtered(response_keys, integration)
-      expect(response_keys).not_to include(*integration.secret_fields)
+      expect(response_keys).not_to include(*integration.secret_fields) unless integration.secret_fields.empty?
     end
   end
 
   describe 'POST /slack/trigger' do
-    before_all do
-      create(:gitlab_slack_application_integration, project: project)
-    end
-
     before do
       stub_application_setting(slack_app_verification_token: 'token')
     end

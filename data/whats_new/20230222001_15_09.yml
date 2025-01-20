@@ -1,7 +1,7 @@
 - name: Users with the Guest role can view private repositories
   description: |  # Do not modify this line, instead modify the lines below.
     Users with the Guest role and an Ultimate license can now view private repository content if their administrator gives them permission. Administrators must create a new role through the API, and assign that role to users who the administrator wants to have view repository permissions. Previously, users with the Guest role could not view code in private projects, limiting their utility.
-  stage: manage
+  stage: Foundations
   self-managed: true
   gitlab-com: true
   available_in: [Ultimate]
@@ -20,7 +20,7 @@
     - Policies can be used to require approval for any license that is not specifically allowed.
 
     License approval policies can be used alongside the existing License-Check feature, as the two policies are additive and don't conflict. To get started, verify that the `license_scanning_policies` feature flag is enabled for your instance and then navigate to **Security & Compliance > Policies**, create a new Scan Result type policy, and select **License scanning** for your policy rule.
-  stage: manage
+  stage: Foundations
   self-managed: true
   gitlab-com: true
   available_in: [Ultimate]
@@ -30,7 +30,7 @@
   release: 15.9
 - name: New License Compliance scanner
   description: |  # Do not modify this line, instead modify the lines below.
-    GitLab now supports a new method of detecting licenses that is capable of parsing and identifying over 500 different types of licenses and can extract license information from packages that are dual-licensed or have multiple different licenses that apply. In GitLab's development testing, this has empirically resulted in dramatically improved accuracy and completeness of results. Fewer CI pipeline minutes are consumed because the License Compliance job is no longer required. Additionally the new method has support for the same languages and versions as GitLab Dependency Scanning.
+    GitLab now supports a new method of detecting licenses that is capable of parsing and identifying over 500 different types of licenses and can extract license information from packages that are dual-licensed or have multiple different licenses that apply. In GitLab development testing, this has empirically resulted in dramatically improved accuracy and completeness of results. Fewer CI pipeline minutes are consumed because the License Compliance job is no longer required. Additionally the new method has support for the same languages and versions as GitLab Dependency Scanning.
 
     To use this new scanner, remove the inclusion of the `Jobs/License-Scanning.yml` template in your CI configuration and instead include the `Jobs/Dependency-Scanning.yml` template. After GitLab 16.0, the old method of scanning with the `Jobs/License-Scanning.yml` template will no longer be supported.
 
@@ -50,7 +50,7 @@
     The [Slack notifications integration](https://docs.gitlab.com/ee/user/project/integrations/slack.html) is now deprecated for SaaS customers and will eventually [be removed](https://gitlab.com/groups/gitlab-org/-/epics/8673) as we continue to expand support for our GitLab for Slack app to better meet your needs.
 
     To keep your teams in sync with what's happening in GitLab, get the [GitLab for Slack app](https://gitlab.slack.com/apps/A676ADMV5-gitlab) today!
-  stage: manage
+  stage: Foundations
   self-managed: false
   gitlab-com: true
   available_in: [Free, Premium, Ultimate]

@@ -6,6 +6,8 @@ module API
     include PaginationParams
     include Helpers::Unidiff
 
+    helpers ::API::Helpers::NotesHelpers
+
     feature_category :source_code_management
 
     before do
@@ -60,6 +62,7 @@ module API
         tags %w[commits]
         is_array true
         failure [
+          { code: 400, message: 'Bad request' },
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' }
         ]
@@ -131,6 +134,9 @@ module API
         paginated_commits = Kaminari.paginate_array(commits, total_count: commit_count)
 
         present paginate(paginated_commits, exclude_total_headers: true, without_count: true), with: serializer
+
+      rescue ArgumentError
+        render_api_error!('ref_name is invalid', 400)
       end
 
       desc 'Commit multiple file changes as one commit' do
@@ -526,10 +532,8 @@ module API
 
         note = ::Notes::CreateService.new(user_project, current_user, opts).execute
 
-        if note.save
+        process_note_creation_result(note) do
           present note, with: Entities::CommitNote
-        else
-          render_api_error!("Failed to save note #{note.errors.messages}", 400)
         end
       end
 

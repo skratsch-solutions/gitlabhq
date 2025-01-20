@@ -9,7 +9,7 @@ description: "Integrate GitLab with Beyond Identity to verify GPG keys added to 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/431433) in GitLab 16.9.
 
@@ -27,7 +27,7 @@ Prerequisites:
 To enable the Beyond Identity integration for your instance:
 
 1. Sign in to GitLab as an administrator.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Integrations**.
 1. Select **Beyond Identity**.
 1. Under **Enable integration**, select the **Active** checkbox.
@@ -61,7 +61,7 @@ Prerequisites:
 To skip the push check for [service accounts](../../profile/service_accounts.md):
 
 1. Sign in to GitLab as an administrator.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Integrations**.
 1. Select **Beyond Identity**.
 1. Select the **Exclude service accounts** checkbox.
@@ -71,11 +71,7 @@ To skip the push check for [service accounts](../../profile/service_accounts.md)
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/454372) in GitLab 17.0 [with a flag](../../../administration/feature_flags.md) named `beyond_identity_exclusions`. Enabled by default.
 > - Ability to exclude groups [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/454372) in GitLab 17.1.
-
-FLAG:
-The availability of this feature is controlled by a feature flag.
-For more information, see the history.
-This feature is available for testing, but not ready for production use.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/457893) in GitLab 17.7. Feature flag `beyond_identity_exclusions` removed.
 
 Prerequisites:
 
@@ -84,7 +80,7 @@ Prerequisites:
 To exclude groups or projects from the Beyond Identity check:
 
 1. Sign in to GitLab as an administrator.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Integrations**.
 1. Select **Beyond Identity**.
 1. Select the **Exclusions** tab.

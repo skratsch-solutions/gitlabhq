@@ -67,12 +67,14 @@ describe('GroupItemComponent', () => {
         const group = { ...mockParentGroupItem };
 
         group.childrenCount = 5;
+        group.hasChildren = true;
         wrapper = createComponent({ group });
 
         expect(wrapper.vm.hasChildren).toBe(true);
         wrapper.destroy();
 
         group.childrenCount = 0;
+        group.hasChildren = false;
         wrapper = createComponent({ group });
 
         expect(wrapper.vm.hasChildren).toBe(false);
@@ -186,6 +188,7 @@ describe('GroupItemComponent', () => {
         jest.spyOn(urlUtilities, 'visitUrl').mockImplementation();
         const group = { ...mockParentGroupItem };
         group.childrenCount = 0;
+        group.hasChildren = false;
         wrapper = createComponent({ group });
         jest.spyOn(eventHub, '$emit').mockImplementation(() => {});
 
@@ -382,11 +385,7 @@ describe('GroupItemComponent', () => {
 
               expect(
                 popover.findByRole('link', { name: GroupItem.i18n.learnMore }).attributes('href'),
-              ).toBe(
-                helpPagePath('user/project/members/share_project_with_groups', {
-                  anchor: 'sharing-projects-with-groups-of-a-higher-restrictive-visibility-level',
-                }),
-              );
+              ).toBe(helpPagePath('user/project/members/sharing_projects_groups'));
             });
           } else {
             itDoesNotRenderVisibilityWarningPopover();

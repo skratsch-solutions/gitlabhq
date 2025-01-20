@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab lists all devices that have logged into your account. You can
 review the sessions, and revoke any you don't recognize.
@@ -21,7 +21,7 @@ To list all active sessions:
 1. Select **Edit profile**.
 1. On the left sidebar, select **Active Sessions**.
 
-![Active sessions list](img/active_sessions_list.png)
+![Active sessions list](img/active_sessions_list_v12_7.png)
 
 ## Active sessions limit
 

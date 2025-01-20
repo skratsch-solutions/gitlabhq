@@ -5,11 +5,11 @@ import { debounce, uniq } from 'lodash';
 // eslint-disable-next-line no-restricted-imports
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { visitUrl } from '~/lib/utils/url_utility';
-import { getDatesInRange } from '~/lib/utils/datetime_utility';
+import { getDatesInRange, toISODateFormat } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
 import RefSelector from '~/ref/components/ref_selector.vue';
 import { REF_TYPE_BRANCHES, REF_TYPE_TAGS } from '~/ref/constants';
-import { xAxisLabelFormatter, dateFormatter } from '../utils';
+import { xAxisLabelFormatter } from '../utils';
 import { MASTER_CHART_HEIGHT } from '../constants';
 import ContributorAreaChart from './contributor_area_chart.vue';
 import IndividualChart from './individual_chart.vue';
@@ -136,7 +136,7 @@ export default {
       const firstContributionDate = new Date(dates[0]);
       const lastContributionDate = new Date(dates[dates.length - 1]);
 
-      return getDatesInRange(firstContributionDate, lastContributionDate, dateFormatter);
+      return getDatesInRange(firstContributionDate, lastContributionDate, toISODateFormat);
     },
     firstContributionDate() {
       return this.xAxisRange[0];
@@ -198,29 +198,29 @@ export default {
 
 <template>
   <div>
-    <div v-if="loading" class="gl-text-center gl-pt-13">
+    <div v-if="loading" class="gl-pt-13 gl-text-center">
       <gl-loading-icon :inline="true" size="xl" data-testid="loading-app-icon" />
     </div>
 
     <template v-else-if="showChart">
-      <div class="gl-border-b gl-border-gray-100 gl-mb-6 gl-bg-gray-10 gl-py-5">
-        <div class="gl-display-flex">
-          <div class="gl-mr-3">
-            <ref-selector
-              v-model="selectedBranch"
-              :project-id="projectId"
-              :enabled-ref-types="$options.refTypes"
-              :translations="$options.i18n.refSelectorTranslations"
-              @input="visitBranch"
-            />
-          </div>
-          <gl-button :href="commitsPath" data-testid="history-button"
-            >{{ $options.i18n.history }}
-          </gl-button>
+      <div class="gl-flex">
+        <div class="gl-mr-3">
+          <ref-selector
+            v-model="selectedBranch"
+            :project-id="projectId"
+            :enabled-ref-types="$options.refTypes"
+            :translations="$options.i18n.refSelectorTranslations"
+            @input="visitBranch"
+          />
         </div>
+        <gl-button :href="commitsPath" data-testid="history-button"
+          >{{ $options.i18n.history }}
+        </gl-button>
       </div>
 
-      <h4 class="gl-mb-2 gl-mt-5">{{ __('Commits to') }} {{ branch }}</h4>
+      <h4 class="gl-mb-2 gl-mt-5">
+        {{ __('Commits to') }} <code>{{ branch }}</code>
+      </h4>
       <span>{{ __('Excluding merge commits. Limited to 6,000 commits.') }}</span>
       <contributor-area-chart
         class="gl-mb-5"

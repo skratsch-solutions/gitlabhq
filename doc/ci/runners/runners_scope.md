@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab Runner has the following types of runners, which are available based on who you want to have access:
 
@@ -28,7 +28,7 @@ multiple projects.
 If you are using a self-managed instance of GitLab, administrators can:
 
 - [Install GitLab Runner](https://docs.gitlab.com/runner/install/index.html) and register an instance runner.
-- Configure a maximum number of instance runner [compute minutes for each group](../pipelines/compute_minutes.md#set-the-compute-quota-for-a-specific-namespace).
+- Configure a maximum number of instance runner [compute minutes for each group](../../administration/cicd/compute_minutes.md#set-the-compute-quota-for-a-group).
 
 If you are using GitLab.com:
 
@@ -50,7 +50,7 @@ When you create a runner, it is assigned a runner authentication token that you 
 
 To create an instance runner:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. Select **New instance runner**.
 1. Select the operating system where GitLab Runner is installed.
@@ -75,18 +75,19 @@ the authentication token is stored in the `config.toml`.
 ### Create an instance runner with a registration token (deprecated)
 
 WARNING:
-The ability to pass a runner registration token, and support for certain configuration arguments was
-[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6 and will be removed in GitLab 18.0. Runner authentication tokens
-should be used instead. For more information, see [Migrating to the new runner registration workflow](new_creation_workflow.md).
+The option to pass a runner registration token and support for certain configuration arguments was
+[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6. They are scheduled for removal
+in GitLab 18.0. Use runner authentication tokens instead. For more information, see
+[Migrating to the new runner registration workflow](new_creation_workflow.md).
 
 Prerequisites:
 
-- Runner registration tokens must be [enabled](../../administration/settings/continuous_integration.md#enable-runner-registrations-tokens) in the Admin Area.
+- Runner registration tokens must be [enabled](../../administration/settings/continuous_integration.md#allow-runner-registrations-tokens) in the **Admin** area.
 - You must be an administrator.
 
 To create an instance runner:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. Select **Register an instance runner**.
 1. Copy the registration token.
@@ -100,7 +101,7 @@ Prerequisites:
 
 You can pause a runner so that it does not accept jobs from groups and projects in the GitLab instance.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. In the search box, enter the runner description or filter the runner list.
 1. In the runner list, to the right of the runner:
@@ -119,7 +120,7 @@ jobs, you can [pause](#pause-or-resume-an-instance-runner) the runner instead.
 
 To delete a single or multiple instance runners:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. In the search box, enter the runner description or filter the list of runners.
 1. Delete the instance runner:
@@ -172,7 +173,7 @@ To disable instance runners for a project:
 Instance runners are automatically disabled for a project:
 
 - If the instance runners setting for the parent group is disabled, and
-- If overriding this setting is not permitted at the project level.
+- If overriding this setting is not permitted for projects.
 
 ### Disable instance runners for a group
 
@@ -240,7 +241,7 @@ Prerequisites:
 
 - You must have the Owner role for the group.
 
-You can create a group runner for your self-managed GitLab instance or for GitLab.com.
+You can create a group runner for GitLab Self-Managed or for GitLab.com.
 When you create a runner, it is assigned a runner authentication token that you use to register it.
 The runner uses the token to authenticate with GitLab when it picks up jobs from the job queue.
 
@@ -274,9 +275,10 @@ The runner authentication token displays in the UI for only a short period of ti
 > - Path changed from **Settings > CI/CD > Runners**.
 
 WARNING:
-The ability to pass a runner registration token, and support for certain configuration arguments was
-[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6 and will be removed in GitLab 18.0. Authentication tokens
-should be used instead. For more information, see [Migrating to the new runner registration workflow](new_creation_workflow.md).
+The option to pass a runner registration token and support for certain configuration arguments was
+[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6. They are scheduled for removal
+in GitLab 18.0. Use runner authentication tokens instead. For more information, see
+[Migrating to the new runner registration workflow](new_creation_workflow.md).
 
 Prerequisites:
 
@@ -304,7 +306,7 @@ Prerequisites:
 - You must have the Maintainer or Owner role for the group.
 
 You can view all runners for a group and its subgroups and projects.
-You can do this for your self-managed GitLab instance or for GitLab.com.
+You can do this for GitLab Self-Managed or for GitLab.com.
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Build > Runners**.
@@ -369,7 +371,7 @@ To delete a single or multiple group runners:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363012) in GitLab 15.1.
 
@@ -379,7 +381,7 @@ Prerequisites:
 
 You can clean up group runners that have been inactive for more than three months.
 
-Group runners are those that were created at the group level.
+Group runners are those that were created in a specific group.
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Settings > CI/CD**.
@@ -432,6 +434,16 @@ NOTE:
 Project runners do not get instance with forked projects automatically.
 A fork *does* copy the CI/CD settings of the cloned repository.
 
+### Project runner ownership
+
+When a runner first connects to a project, that project becomes the runner's owner.
+
+If you delete the owner project:
+
+1. GitLab finds all other projects that share the runner.
+1. GitLab assigns ownership to the project with the oldest association.
+1. If no other projects share the runner, GitLab deletes the runner automatically.
+
 ### Create a project runner with a runner authentication token
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/383143) in GitLab 15.10. Deployed behind the `create_runner_workflow_for_namespace` [flag](../../administration/feature_flags.md). Disabled by default.
@@ -442,7 +454,7 @@ Prerequisites:
 
 - You must have the Maintainer role for the project.
 
-You can create a project runner for your self-managed GitLab instance or for GitLab.com. When you create a runner,
+You can create a project runner for GitLab Self-Managed or for GitLab.com. When you create a runner,
 it is assigned a runner authentication token that you use to register to the runner. The runner uses the token to
 authenticate with GitLab when it picks up jobs from the job queue.
 
@@ -476,9 +488,10 @@ The runner authentication token displays in the UI for only a short period of ti
 ### Create a project runner with a registration token (deprecated)
 
 WARNING:
-The ability to pass a runner registration token, and support for certain configuration arguments was
-[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6 and will be removed in GitLab 18.0. Runner authentication tokens
-should be used instead. For more information, see [Migrating to the new runner registration workflow](new_creation_workflow.md).
+The option to pass a runner registration token and support for certain configuration arguments was
+[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6. They are scheduled for removal
+in GitLab 18.0. Use runner authentication tokens instead. For more information, see
+[Migrating to the new runner registration workflow](new_creation_workflow.md).
 
 Prerequisites:
 
@@ -525,6 +538,11 @@ Prerequisites:
 When you delete a project runner, it is permanently deleted from the GitLab instance and can
 no longer be used by projects. If you want to temporarily stop the runner from accepting
 jobs, you can [pause](#pause-or-resume-a-project-runner) the runner instead.
+
+When you delete a runner, its configuration still exists in the runner host's `config.toml` file.
+If the deleted runner's configuration is still present in this file, the runner host continues to contact GitLab.
+To prevent unnecessary API traffic, you must also
+[unregister the deleted runner](https://docs.gitlab.com/runner/commands/#gitlab-runner-unregister).
 
 1. On the left sidebar, select **Search or go to** and
    find the project where you want to enable the runner.
@@ -582,7 +600,7 @@ A runner can have one of the following statuses.
 
 | Status  | Description |
 |---------|-------------|
-| `online`  | The runner has contacted GitLab within the last 2 hours and is available to run jobs. |
+| `online`  | The runner has contacted GitLab in the last 2 hours and is available to run jobs. |
 | `offline` | The runner has not contacted GitLab in more than 2 hours and is not available to run jobs. Check the runner to see if you can bring it online. |
 | `stale`   | The runner has not contacted GitLab in more than 7 days. If the runner was created more than 7 days ago, but it never contacted the instance, it is also considered **stale**. |
 | `never_contacted` | The runner has never contacted GitLab. To make the runner contact GitLab, run `gitlab-runner run`. |
@@ -591,7 +609,7 @@ A runner can have one of the following statuses.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/377963) in GitLab 15.8.
 
@@ -601,13 +619,13 @@ The **Median job queued time** value is calculated by sampling the queue duratio
 most recent 100 jobs that were run by Instance runners. Jobs from only the latest 5000
 runners are considered.
 
-The median is a value that falls into the 50th percentile: half of the jobs
-queued for longer than the median value, and half of the jobs queued for less than the
+The median is a value that falls into the 50th percentile. Half of the jobs
+queue longer than the median value, and half queue for less time than the
 median value.
 
 To view runner statistics:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. Select **View metrics**.
 
@@ -615,7 +633,7 @@ To view runner statistics:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/365078) in GitLab 15.3.
 
@@ -629,7 +647,7 @@ To determine which runners need to be upgraded:
      1. On the left sidebar, select **Search or go to** and find your group.
      1. Select **Build > Runners**.
    - For the instance:
-     1. On the left sidebar, at the bottom, select **Admin Area**.
+     1. On the left sidebar, at the bottom, select **Admin**.
      1. Select **CI/CD > Runners**.
 
 1. Above the list of runners, view the status:
@@ -641,11 +659,10 @@ To determine which runners need to be upgraded:
 
 ## Determine the IP address of a runner
 
-It may be useful to know the IP address of a runner so you can troubleshoot
-issues with that runner. GitLab stores and displays the IP address by viewing
-the source of the HTTP requests it makes to GitLab when polling for jobs. The
-IP address is always kept up to date so if the runner IP changes it
-automatically updates in GitLab.
+To troubleshoot runner issues, you might need to know the runner's IP address.
+GitLab stores and displays the IP address by viewing the source of the
+HTTP requests when the runner polls for jobs.
+GitLab automatically updates the runner's IP address whenever it is updated.
 
 The IP address for instance runners and project runners can be found in
 different places.
@@ -658,7 +675,7 @@ Prerequisites:
 
 To determine the IP address of an instance runner:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. Find the runner in the table and view the **IP Address** column.
 
@@ -673,23 +690,25 @@ project.
 1. Go to the project's **Settings > CI/CD** and expand the **Runners** section.
 1. Select the runner name and find the **IP Address** row.
 
-![Project runner IP address](img/project_runner_ip_address.png)
+![Project runner IP address](img/project_runner_ip_address_v17_6.png)
 
 ## Enable use of runner registration tokens in projects and groups
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148557) in GitLab 16.11
 
 WARNING:
-The ability to pass a runner registration token, and support for certain configuration arguments was deprecated in GitLab 15.6 and will be removed in GitLab 18.0. Runner authentication tokens should be used instead. For more information, see [Migrating to the new runner registration workflow](../../ci/runners/new_creation_workflow.md).
+The option to pass a runner registration token and support for certain configuration arguments was
+[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6. They are scheduled for removal
+in GitLab 18.0. Use runner authentication tokens instead. For more information, see
+[Migrating to the new runner registration workflow](new_creation_workflow.md).
 
-In GitLab 17.0, the use of runner registration tokens to create runners will be disabled in all GitLab instances.
-Users must use runner authentication tokens instead.
-If you have not yet [migrated to the use of runner authentication tokens](../../ci/runners/new_creation_workflow.md),
-you can enable runner registration tokens for projects and groups. This setting and support for runner registration tokens will be removed in GitLab 18.0.
+In GitLab 17.0, the use of runner registration tokens is disabled in all GitLab instances.
 
 Prerequisites:
 
-- Runner registration tokens must be [enabled](../../administration/settings/continuous_integration.md#enable-runner-registrations-tokens) in the Admin Area.
+- Runner registration tokens must be [enabled](../../administration/settings/continuous_integration.md#allow-runner-registrations-tokens) in the **Admin** area.
+
+To enable the use of runner registration token in project and groups:
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Settings > CI/CD**.

@@ -9,12 +9,12 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
       value_type: 'string',
       status: 'active',
       milestone: '14.1',
+      introduced_by_url: 'http://gdk.test',
       key_path: 'uuid',
-      product_group: 'product_analytics',
+      product_group: 'platform_insights',
       time_frame: 'none',
       data_source: 'database',
-      distribution: %w[ee ce],
-      tier: %w[free starter premium ultimate bronze silver gold],
+      tiers: %w[free premium ultimate],
       data_category: 'standard',
       removed_by_url: 'http://gdk.test'
     }
@@ -45,7 +45,7 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
     File.write(path, content)
   end
 
-  describe '.instrumentation_class' do
+  describe '#instrumentation_class' do
     context 'for non internal events' do
       let(:attributes) { { key_path: 'metric1', instrumentation_class: 'RedisHLLMetric', data_source: 'redis_hll' } }
 
@@ -64,16 +64,24 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
       end
 
       context 'for uniq counter' do
-        let(:attributes) { { key_path: 'metric1', data_source: 'internal_events', events: [{ name: 'a', unique: :id }] } }
+        let(:attributes) { { key_path: 'metric1', data_source: 'internal_events', events: [{ name: 'a', unique: 'user.id' }] } }
 
         it 'returns UniqueCountMetric' do
           expect(definition.instrumentation_class).to eq('UniqueCountMetric')
         end
       end
+
+      context 'for sum' do
+        let(:attributes) { { key_path: 'metric1', data_source: 'internal_events', events: [{ name: 'a', operator: 'sum(value)' }] } }
+
+        it 'returns TotalSumMetric' do
+          expect(definition.instrumentation_class).to eq('TotalSumMetric')
+        end
+      end
     end
   end
 
-  describe 'not_removed' do
+  describe '.not_removed' do
     let(:all_definitions) do
       metrics_definitions = [
         { key_path: 'metric1', instrumentation_class: 'RedisHLLMetric', status: 'active' },
@@ -105,7 +113,7 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
     end
   end
 
-  describe '#with_instrumentation_class' do
+  describe '.with_instrumentation_class' do
     let(:all_definitions) do
       metrics_definitions = [
         { key_path: 'metric1', status: 'active', data_source: 'redis_hll', instrumentation_class: 'RedisHLLMetric' },
@@ -190,12 +198,13 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
       :time_frame         | '29d'
       :data_source        | 'other'
       :data_source        | nil
-      :distribution       | nil
       :distribution       | 'test'
-      :tier               | %w[test ee]
+      :tiers              | %w[test ee]
       :repair_issue_url   | nil
       :removed_by_url     | 1
       :another_attribute  | nil
+      :product_categories   | 'bad_category'
+      :product_categories   | ['bad_category']
 
       :performance_indicator_type | nil
       :instrumentation_class      | 'Metric_Class'
@@ -209,6 +218,14 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
 
       it 'has validation errors' do
         expect_validation_errors
+      end
+    end
+
+    context "validation errors" do
+      it "has descriptive error messages" do
+        attributes.delete(:milestone)
+
+        expect(described_class.new(path, attributes).validation_errors.first).to match(/"missing_keys"=>\["milestone"\]/)
       end
     end
 
@@ -324,6 +341,17 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
               expect_validation_errors
             end
           end
+        end
+      end
+
+      # ToDo: Remove once https://gitlab.com/gitlab-org/gitlab/-/issues/469514 is closed
+      context 'when metric has no distribution' do
+        before do
+          attributes[:distribution] = nil
+        end
+
+        it 'has no validation errors' do
+          expect_no_validation_errors
         end
       end
     end
@@ -488,9 +516,37 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
 
       subject
     end
+
+    context "with array time_frame definitions" do
+      let(:yaml_content) { attributes.merge(time_frame: %w[7d 28d all]).deep_stringify_keys.to_yaml }
+
+      it "creates a metric for each of the time frames" do
+        write_metric(metric1, path, yaml_content)
+
+        expected_key_paths = %w[uuid_monthly uuid_weekly uuid]
+
+        expect(subject.length).to eq(3)
+        expect(subject.keys).to match_array(expected_key_paths)
+        expect(subject.values.map(&:key_path)).to match_array(expected_key_paths)
+      end
+
+      context "when array time_frame generates an already used key_path" do
+        let(:yaml_content2) { attributes.merge(key_path: 'uuid_monthly').deep_stringify_keys.to_yaml }
+
+        it "raises an exception" do
+          write_metric(metric1, path, yaml_content)
+          write_metric(metric2, path, yaml_content2)
+
+          expect(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception).with(instance_of(Gitlab::Usage::MetricDefinition::InvalidError))
+
+          subject
+        end
+      end
+    end
   end
 
   describe 'dump_metrics_yaml' do
+    let(:include_paths) { false }
     let(:other_attributes) do
       {
         description: 'Test metric definition',
@@ -498,11 +554,10 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
         status: 'active',
         milestone: '14.1',
         key_path: 'counter.category.event',
-        product_group: 'product_analytics',
+        product_group: 'platform_insights',
         time_frame: 'none',
         data_source: 'database',
-        distribution: %w[ee ce],
-        tier: %w[free starter premium ultimate bronze silver gold],
+        tiers: %w[free starter premium ultimate bronze silver gold],
         data_category: 'optional'
       }
     end
@@ -519,6 +574,9 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
           File.join(metric2, '**', '*.yml')
         ]
       )
+
+      write_metric(metric1, path, yaml_content)
+      write_metric(metric2, other_path, other_yaml_content)
     end
 
     after do
@@ -526,13 +584,31 @@ RSpec.describe Gitlab::Usage::MetricDefinition, feature_category: :service_ping 
       FileUtils.rm_rf(metric2)
     end
 
-    subject { described_class.dump_metrics_yaml }
+    subject { described_class.dump_metrics_yaml(include_paths: include_paths) }
 
     it 'returns a YAML with both metrics in a sequence' do
-      write_metric(metric1, path, yaml_content)
-      write_metric(metric2, other_path, other_yaml_content)
-
       is_expected.to eq([attributes, other_attributes].map(&:deep_stringify_keys).to_yaml)
+    end
+
+    context "with true include_paths" do
+      let(:include_paths) { true }
+
+      it 'returns a YAML including filepaths' do
+        metrics = YAML.safe_load(subject)
+        added_attribute = ['file_path']
+
+        # First metric
+        serialized_metric = metrics[0]
+        expect(serialized_metric).to include(attributes.deep_stringify_keys)
+        expect(serialized_metric.keys - attributes.keys.map(&:to_s)).to eq(added_attribute)
+        expect(serialized_metric['file_path']).to end_with(path)
+
+        # Second metric
+        serialized_metric = metrics[1]
+        expect(serialized_metric).to include(other_attributes.deep_stringify_keys)
+        expect(serialized_metric.keys - other_attributes.keys.map(&:to_s)).to eq(added_attribute)
+        expect(serialized_metric['file_path']).to end_with(other_path)
+      end
     end
   end
 end

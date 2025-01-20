@@ -10,7 +10,6 @@ import {
 } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import { createAlert } from '~/alert';
-import { s__ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { updateHistory } from '~/lib/utils/url_utility';
 
@@ -100,12 +99,13 @@ describe('AdminRunnersApp', () => {
   const findRunnerList = () => wrapper.findComponent(RunnerList);
   const findRunnerListEmptyState = () => wrapper.findComponent(RunnerListEmptyState);
   const findRunnerPagination = () => extendedWrapper(wrapper.findComponent(RunnerPagination));
-  const findRunnerPaginationNext = () => findRunnerPagination().findByText(s__('Pagination|Next'));
+  const findRunnerPaginationNext = () => findRunnerPagination().findByText('Next');
   const findRunnerFilteredSearchBar = () => wrapper.findComponent(RunnerFilteredSearchBar);
 
   const createComponent = ({
     props = {},
     mountFn = shallowMountExtended,
+    stubs,
     provide,
     ...options
   } = {}) => {
@@ -132,6 +132,10 @@ describe('AdminRunnersApp', () => {
         $toast: {
           show: showToast,
         },
+      },
+      stubs: {
+        RunnerFilteredSearchBar: true,
+        ...stubs,
       },
       ...options,
     });
@@ -179,10 +183,11 @@ describe('AdminRunnersApp', () => {
     });
 
     it('shows the runner tabs', () => {
-      const tabs = findRunnerTypeTabs().text();
-      expect(tabs).toMatchInterpolatedText(
-        `All ${mockRunnersCount} ${I18N_INSTANCE_TYPE} ${mockRunnersCount} ${I18N_GROUP_TYPE} ${mockRunnersCount} ${I18N_PROJECT_TYPE} ${mockRunnersCount}`,
-      );
+      const tabs = findRunnerTypeTabs().text().replace(/\s+/g, ' ');
+      expect(tabs).toContain(`All ${mockRunnersCount}`);
+      expect(tabs).toContain(`${I18N_INSTANCE_TYPE} ${mockRunnersCount}`);
+      expect(tabs).toContain(`${I18N_GROUP_TYPE} ${mockRunnersCount}`);
+      expect(tabs).toContain(`${I18N_PROJECT_TYPE} ${mockRunnersCount}`);
     });
 
     it('shows the total', () => {
@@ -208,10 +213,6 @@ describe('AdminRunnersApp', () => {
 
     it('fetches only tab counts', () => {
       expect(mockRunnersCountHandler).toHaveBeenCalledTimes(TAB_COUNT_QUERIES);
-    });
-
-    it('does not shows counters', () => {
-      expect(findRunnerStats().text()).toBe('');
     });
   });
 

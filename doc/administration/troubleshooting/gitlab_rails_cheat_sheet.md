@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This was the GitLab Support Team's collection of information regarding the GitLab Rails
 console, for use while troubleshooting. It is listed here for posterity,
@@ -50,7 +50,7 @@ This content has been moved to [Troubleshooting Repository mirroring](../../user
 
 ## CI
 
-This content has been moved to [Troubleshooting CI/CD](../cicd.md#cicd-troubleshooting-rails-console-commands).
+This content has been moved to [CI/CD maintenance](../cicd/maintenance.md).
 
 ## License
 
@@ -60,11 +60,11 @@ This content has been moved to [Activate GitLab EE with a license file or key](.
 
 ### Registry Disk Space Usage by Project
 
-Find this content in the [container registry troubleshooting documentation](../packages/container_registry.md#registry-disk-space-usage-by-project).
+To view storage space by project in the container registry, see [Registry Disk Space Usage by Project](../packages/container_registry.md#registry-disk-space-usage-by-project).
 
-### Run the Cleanup policy now
+### Run the cleanup policy
 
-Find this content in the [container registry troubleshooting documentation](../packages/container_registry.md#run-the-cleanup-policy-now).
+To reduce storage space in the container registry, see [Run the cleanup policy](../packages/container_registry.md#run-the-cleanup-policy).
 
 ## Sidekiq
 
@@ -74,25 +74,25 @@ This content has been moved to [Troubleshooting Sidekiq](../sidekiq/sidekiq_trou
 
 ### Reverify all uploads (or any SSF data type which is verified)
 
-Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization.md#reverify-all-uploads-or-any-ssf-data-type-which-is-verified).
+Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization_verification.md#reverify-all-uploads-or-any-ssf-data-type-which-is-verified).
 
 ### Artifacts
 
-Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/replication.md#resync-and-reverify-individual-components).
+Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization_verification.md#resync-and-reverify-individual-components).
 
 ### Repository verification failures
 
-Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization.md#find-repository-verification-failures).
+Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization_verification.md#find-repository-verification-failures).
 
 ### Resync repositories
 
-Moved to [Geo replication troubleshooting - Resync repository types](../geo/replication/troubleshooting/replication.md#resync-and-reverify-individual-components).
+Moved to [Geo replication troubleshooting - Resync repository types](../geo/replication/troubleshooting/synchronization_verification.md#resync-and-reverify-individual-components).
 
-Moved to [Geo replication troubleshooting - Resync project and project wiki repositories](../geo/replication/troubleshooting/synchronization.md#resync-project-and-project-wiki-repositories).
+Moved to [Geo replication troubleshooting - Resync project and project wiki repositories](../geo/replication/troubleshooting/synchronization_verification.md#resync-project-and-project-wiki-repositories).
 
 ### Blob types
 
-Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/replication.md#resync-and-reverify-individual-components).
+Moved to [Geo replication troubleshooting](../geo/replication/troubleshooting/synchronization_verification.md#resync-and-reverify-individual-components).
 
 ## Generate Service Ping
 

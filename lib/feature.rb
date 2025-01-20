@@ -4,43 +4,24 @@ require 'flipper/adapters/active_record'
 require 'flipper/adapters/active_support_cache_store'
 
 module Feature
-  module BypassLoadBalancer
-    FLAG = 'FEATURE_FLAGS_BYPASS_LOAD_BALANCER'
-    class FlipperRecord < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord -- This class perfectly replaces
-      # Flipper::Adapters::ActiveRecord::Model, which inherits ActiveRecord::Base
-      include DatabaseReflection
-      self.abstract_class = true
+  class FlipperRecord < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord -- This class perfectly replaces
+    # Flipper::Adapters::ActiveRecord::Model, which inherits ActiveRecord::Base
+    include DatabaseReflection
+    self.abstract_class = true
 
-      # Bypass the load balancer by restoring the default behavior of `connection`
-      # before the load balancer patches ActiveRecord::Base
-      def self.connection
-        retrieve_connection
-      end
-    end
-
-    class FlipperFeature < FlipperRecord
-      self.table_name = 'features'
-    end
-
-    class FlipperGate < FlipperRecord
-      self.table_name = 'feature_gates'
-    end
-
-    def self.enabled?
-      Gitlab::Utils.to_boolean(ENV[FLAG], default: false)
+    # Bypass the load balancer by restoring the default behavior of `connection`
+    # before the load balancer patches ActiveRecord::Base
+    def self.connection
+      retrieve_connection
     end
   end
 
-  # Classes to override flipper table names
-  class FlipperFeature < Flipper::Adapters::ActiveRecord::Feature
-    include DatabaseReflection
+  class FlipperFeature < FlipperRecord
+    self.table_name = 'features'
+  end
 
-    # Using `self.table_name` won't work. ActiveRecord bug?
-    superclass.table_name = 'features'
-
-    def self.feature_names
-      pluck(:key)
-    end
+  class FlipperGate < FlipperRecord
+    self.table_name = 'feature_gates'
   end
 
   class OptOut
@@ -53,10 +34,6 @@ module Feature
     end
   end
 
-  class FlipperGate < Flipper::Adapters::ActiveRecord::Gate
-    superclass.table_name = 'feature_gates'
-  end
-
   # Generates the same flipper_id when in a request
   # If not in a request, it generates a unique flipper_id every time
   class FlipperRequest
@@ -64,6 +41,16 @@ module Feature
       Gitlab::SafeRequestStore.fetch("flipper_request_id") do
         "FlipperRequest:#{SecureRandom.uuid}".freeze
       end
+    end
+  end
+
+  # Generates the same flipper_id for a given kubernetes pod,
+  # or for the entire gitlab application if deployed on a single host.
+  class FlipperPod
+    attr_reader :flipper_id
+
+    def initialize
+      @flipper_id = "FlipperPod:#{Socket.gethostname}".freeze
     end
   end
 
@@ -81,13 +68,22 @@ module Feature
   end
 
   InvalidFeatureFlagError = Class.new(Exception) # rubocop:disable Lint/InheritException
-  InvalidOperation = Class.new(ArgumentError) # rubocop:disable Lint/InheritException
+  InvalidOperation = Class.new(ArgumentError)
 
   class << self
     delegate :group, to: :flipper
 
     def all
       flipper.features.to_a
+    end
+
+    # Preload the features with the given names.
+    #
+    # names - An Array of String or Symbol names of the features.
+    #
+    # https://github.com/flippercloud/flipper/blob/bf6a13f34fc7f45a597c3d66ec291f3e5855e830/lib/flipper/dsl.rb#L229
+    def preload(names)
+      flipper.preload(names) # rubocop:disable CodeReuse/ActiveRecord -- This cop is not relevant in the Flipper context
     end
 
     RecursionError = Class.new(RuntimeError)
@@ -97,8 +93,7 @@ module Feature
     end
 
     def persisted_names
-      model = BypassLoadBalancer.enabled? ? BypassLoadBalancer::FlipperRecord : ApplicationRecord
-      return [] unless model.database.exists?
+      return [] unless FlipperRecord.database.exists?
 
       # This loads names of all stored feature flags
       # and returns a stable Set in the following order:
@@ -268,6 +263,10 @@ module Feature
       end
     end
 
+    def current_pod
+      @flipper_pod ||= FlipperPod.new
+    end
+
     def gitlab_instance
       @flipper_gitlab_instance ||= FlipperGitlabInstance.new
     end
@@ -305,6 +304,8 @@ module Feature
         gitlab_instance
       when :request, :current_request
         current_request
+      when :pod, :current_pod
+        current_pod
       else
         thing
       end
@@ -344,8 +345,7 @@ module Feature
       # During setup the database does not exist yet. So we haven't stored a value
       # for the feature yet and return the default.
 
-      model = BypassLoadBalancer.enabled? ? BypassLoadBalancer::FlipperRecord : ApplicationRecord
-      return unless model.database.exists?
+      return unless FlipperRecord.database.exists?
 
       flag_stack = ::Thread.current[:feature_flag_recursion_check] || []
       Thread.current[:feature_flag_recursion_check] = flag_stack
@@ -379,15 +379,9 @@ module Feature
     end
 
     def build_flipper_instance(memoize: false)
-      active_record_adapter = if BypassLoadBalancer.enabled?
-                                Flipper::Adapters::ActiveRecord.new(
-                                  feature_class: BypassLoadBalancer::FlipperFeature,
-                                  gate_class: BypassLoadBalancer::FlipperGate)
-                              else
-                                Flipper::Adapters::ActiveRecord.new(
-                                  feature_class: FlipperFeature,
-                                  gate_class: FlipperGate)
-                              end
+      active_record_adapter = Flipper::Adapters::ActiveRecord.new(
+        feature_class: FlipperFeature,
+        gate_class: FlipperGate)
       # Redis L2 cache
       redis_cache_adapter =
         ActiveSupportCacheStoreAdapter.new(

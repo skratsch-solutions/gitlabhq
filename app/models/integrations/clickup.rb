@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Clickup < BaseIssueTracker
+  class Clickup < Integration
+    include Base::IssueTracker
     include HasIssueTrackerFields
     include HasAvatar
 
     validates :project_url, :issues_url, presence: true, public_url: true, if: :activated?
 
     def reference_pattern(*)
-      @reference_pattern ||= /((#|CU-)(?<issue>[a-z0-9]+)|(?<issue>[A-Z0-9_]{2,10}-\d+))\b/
+      @reference_pattern ||= /(?:(?:#|CU-)(?<issue>[a-z0-9]+)|(?<issue>[A-Z0-9_]{2,10}-\d+))\b/
     end
 
     def self.title
@@ -20,13 +21,10 @@ module Integrations
     end
 
     def self.help
-      docs_link = ActionController::Base.helpers.link_to _('Learn more.'),
-        Rails.application.routes.url_helpers.help_page_url('user/project/integrations/clickup'),
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      format(s_(
-        "IssueTracker|Use ClickUp as this project's issue tracker. %{docs_link}"
-      ).html_safe, docs_link: docs_link.html_safe)
+      build_help_page_url(
+        'user/project/integrations/clickup.md',
+        s_("IssueTracker|Use ClickUp as this project's issue tracker.")
+      )
     end
 
     def self.to_param

@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Within GitLab, we inform users of available third-party offers they might find valuable in order
 to enhance the development of their projects. An example is the Google Cloud Platform free credit
@@ -19,7 +19,7 @@ questions when creating a group.
 
 To toggle the display of customer experience improvement content and third-party offers:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Customer experience improvement and third-party offers**.
 1. Select **Do not display content for customer experience improvement and offers from third parties**.

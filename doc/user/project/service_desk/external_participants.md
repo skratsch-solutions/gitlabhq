@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3758) in GitLab 17.0.
 
@@ -71,6 +71,9 @@ you can use the `%{UNSUBSCRIBE_URL}` placeholder to add the unsubscribe link to 
 Your GitLab instance must be reachable (for example, from the public internet) for the external participant to successfully unsubscribe.
 If that's not the case, consider removing the unsubscribe link from your template.
 
+Emails from GitLab also contain special headers that allow supported email clients and other software
+to [unsubscribe external participants automatically](../../profile/notifications.md#using-an-email-client-or-other-software).
+
 ## As a GitLab user
 
 To see the email address of an external participant you must have at least the Reporter role for the project.
@@ -117,6 +120,11 @@ To see a list of all external participants:
 
 ### Add an external participant
 
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/350460) in GitLab 13.8 [with a flag](../../../user/feature_flags.md) named `issue_email_participants`. Enabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag. For more information, see the history.
+
 Add an external participant using the `/add_email` [quick action](../quick_actions.md) when you want
 to include them in the conversation at any time.
 
@@ -141,6 +149,11 @@ To add an external participant to an issue or ticket:
 You should see a success message and a new system note with the email address.
 
 ### Remove an external participant
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/350460) in GitLab 13.8 [with a flag](../../../user/feature_flags.md) named `issue_email_participants`. Enabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag. For more information, see the history.
 
 Remove an external participant from an issue or Service Desk ticket using the `/remove_email`
 [quick action](../quick_actions.md) when they should stop receiving notifications.

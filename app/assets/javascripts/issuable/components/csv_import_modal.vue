@@ -64,14 +64,10 @@ export default {
     <form ref="form" :action="importCsvIssuesPath" enctype="multipart/form-data" method="post">
       <input :value="$options.csrf.token" type="hidden" name="authenticity_token" />
       <p>{{ $options.i18n.mainText }}</p>
-      <gl-form-group
-        :label="$options.i18n.uploadCsvFileText"
-        class="gl-text-truncate"
-        label-for="file"
-      >
+      <gl-form-group :label="$options.i18n.uploadCsvFileText" class="gl-truncate" label-for="file">
         <input id="file" type="file" name="file" accept=".csv,text/csv" />
       </gl-form-group>
-      <p class="text-secondary">
+      <p class="gl-text-subtle">
         {{ $options.i18n.helpText }}
         {{ maxFileSizeText }}
       </p>

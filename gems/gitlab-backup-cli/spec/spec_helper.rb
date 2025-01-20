@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require "gitlab/backup/cli"
-require 'active_support/all'
-require 'tmpdir'
-require 'fileutils'
-require 'factory_bot'
+require 'bundler/setup'
+Bundler.require(:default, :development, :test)
+
+require 'thor'
 require 'gitlab/rspec/next_instance_of'
+require 'active_record/base'
+
+ENV["RAILS_ENV"] ||= "test"
+GITLAB_PATH = File.expand_path(File.join(__dir__, '/fixtures/'))
 
 # Load spec support code
 Dir['spec/support/**/*.rb'].each { |f| load f }

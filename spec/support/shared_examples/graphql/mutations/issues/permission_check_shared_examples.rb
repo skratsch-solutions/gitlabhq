@@ -21,7 +21,8 @@ RSpec.shared_examples 'permission level for issue mutation is correctly verified
     )
   end
 
-  let(:expected) { issue_attributes(issue) }
+  # TODO: .reload can be removed after the migration https://gitlab.com/gitlab-org/gitlab/-/issues/497857
+  let(:expected) { issue_attributes(issue.reload) }
 
   shared_examples_for 'when the user does not have access to the resource' do |raise_for_assigned_and_author|
     before do
@@ -35,7 +36,7 @@ RSpec.shared_examples 'permission level for issue mutation is correctly verified
 
     context 'even if assigned to the issue' do
       before do
-        issue.assignees.push(user)
+        issue.assignees.push(current_user)
       end
 
       it 'does not modify issue' do
@@ -49,7 +50,7 @@ RSpec.shared_examples 'permission level for issue mutation is correctly verified
 
     context 'even if author of the issue' do
       before do
-        issue.update!(author: user)
+        issue.update!(author: current_user)
       end
 
       it 'does not modify issue' do
@@ -69,7 +70,7 @@ RSpec.shared_examples 'permission level for issue mutation is correctly verified
   context 'when the user is a project member' do
     context 'with guest role' do
       before do
-        issue.project.add_guest(user)
+        issue.project.add_guest(current_user)
       end
 
       it_behaves_like 'when the user does not have access to the resource', false

@@ -19,6 +19,7 @@ module Projects
       @default_branch = @params.delete(:default_branch)
       @readme_template = @params.delete(:readme_template)
       @repository_object_format = @params.delete(:repository_object_format)
+      @import_export_upload = @params.delete(:import_export_upload)
 
       build_topics
     end
@@ -34,7 +35,16 @@ module Projects
         return ::Projects::CreateFromTemplateService.new(current_user, params).execute
       end
 
-      @project = Project.new(params.merge(creator: current_user))
+      @project = Project.new.tap do |p|
+        # Explicitly build an association for ci_cd_settings
+        # See: https://gitlab.com/gitlab-org/gitlab/-/issues/421050
+        p.build_ci_cd_settings
+        p.assign_attributes(params.merge(creator: current_user))
+      end
+
+      if @import_export_upload
+        @import_export_upload.project = project
+      end
 
       validate_import_source_enabled!
 
@@ -65,7 +75,7 @@ module Projects
       @relations_block&.call(@project)
       yield(@project) if block_given?
 
-      validate_classification_label(@project, :external_authorization_classification_label)
+      validate_classification_label_param!(@project, :external_authorization_classification_label)
 
       # If the block added errors, don't try to save the project
       return @project if @project.errors.any?
@@ -82,7 +92,7 @@ module Projects
 
       @project
     rescue ActiveRecord::RecordInvalid => e
-      message = "Unable to save #{e.inspect}: #{e.record.errors.full_messages.join(", ")}"
+      message = "Unable to save #{e.inspect}: #{e.record.errors.full_messages.join(', ')}"
       fail(error: message)
     rescue ImportSourceDisabledError => e
       @project.errors.add(:import_source_disabled, e.message) if @project
@@ -126,7 +136,7 @@ module Projects
       yield if block_given?
 
       event_service.create_project(@project, current_user)
-      system_hook_service.execute_hooks_for(@project, :create)
+      execute_hooks
 
       setup_authorizations
 
@@ -209,6 +219,10 @@ module Projects
       ::Security::CiConfiguration::SastCreateService.new(@project, current_user, { initialize_with_sast: true }, commit_on_default: true).execute
     end
 
+    def execute_hooks
+      system_hook_service.execute_hooks_for(@project, :create)
+    end
+
     def repository_object_format
       return Repository::FORMAT_SHA1 unless Feature.enabled?(:support_sha256_repositories, current_user)
       return Repository::FORMAT_SHA256 if @repository_object_format == Repository::FORMAT_SHA256
@@ -242,6 +256,7 @@ module Projects
           if @project.saved?
             Integration.create_from_default_integrations(@project, :project_id)
 
+            @import_export_upload.save if @import_export_upload
             @project.create_labels unless @project.gitlab_project_import?
 
             next if @project.import?
@@ -309,12 +324,9 @@ module Projects
       return if INTERNAL_IMPORT_SOURCES.include?(import_type)
 
       # Skip validation when creating project from a built in template
-      return if @params[:import_export_upload].present? && import_type == 'gitlab_project'
+      return if @import_export_upload.present? && import_type == 'gitlab_project'
 
       unless ::Gitlab::CurrentSettings.import_sources&.include?(import_type)
-        return if import_type == 'github' && Feature.enabled?(:override_github_disabled, current_user, type: :ops)
-        return if import_type == 'bitbucket_server' && Feature.enabled?(:override_bitbucket_server_disabled, current_user, type: :ops)
-
         raise ImportSourceDisabledError, "#{import_type} import source is disabled"
       end
     end

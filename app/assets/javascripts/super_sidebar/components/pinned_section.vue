@@ -44,6 +44,11 @@ export default {
       required: false,
       default: false,
     },
+    asyncCount: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
   },
   data() {
     return {
@@ -112,7 +117,7 @@ export default {
     <draggable
       v-if="items.length > 0"
       v-model="draggableItems"
-      class="gl-p-0 gl-m-0 gl-list-none"
+      class="gl-m-0 gl-list-none gl-p-0"
       data-testid="pinned-nav-items"
       handle=".js-draggable-icon"
       tag="ul"
@@ -122,16 +127,13 @@ export default {
         v-for="item of draggableItems"
         :key="item.id"
         :item="item"
+        :async-count="asyncCount"
         is-in-pinned-section
         @pin-remove="onPinRemove(item.id, item.title)"
         @nav-link-click="writePinnedClick"
       />
     </draggable>
-    <li
-      v-else
-      class="gl-text-secondary gl-font-sm gl-py-3 super-sidebar-mix-blend-mode"
-      style="margin-left: 2.5rem"
-    >
+    <li v-else class="gl-py-3 gl-text-sm gl-text-subtle" style="margin-left: 2.5rem">
       {{ $options.i18n.emptyHint }}
     </li>
   </menu-section>

@@ -9,7 +9,7 @@ description: 'Learn how to spin up a pre-configured GitLab VM on Microsoft Azure
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 For users of the Microsoft Azure business cloud, GitLab has a pre-configured offering in
 the [Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/).
@@ -21,9 +21,7 @@ Enterprise Edition in a single Virtual Machine (VM).
 You need an account on Azure. Use of the following methods to obtain an account:
 
 - If you or your company already have an account with a subscription, use that account.
-  If not, you can [open your own Azure account for free](https://azure.microsoft.com/en-us/free/).
-  Azure's free trial gives you $200 credit to explore Azure for 30 days.
-  [Read more in Azure's comprehensive FAQ](https://azure.microsoft.com/en-us/free/free-account-faq/).
+  If not, you can [create a free account](https://azure.microsoft.com/en-us/free/), which grants you a $200 credit to explore Azure for 30 days. For more information, see [Azure free account](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0044p/).
 - If you have an MSDN subscription, you can activate your Azure subscriber benefits. Your MSDN
   subscription gives you recurring Azure credits every month, so you can use
   those credits and try out GitLab.
@@ -66,7 +64,7 @@ The first items you need to configure are the basic settings of the underlying v
 1. In **Availability options**, select **Availability zone** and set it to `1`.
    Read more about the [availability zones](https://learn.microsoft.com/en-us/azure/virtual-machines/availability).
 1. Ensure the selected image is set to **GitLab - Gen1**.
-1. Select the VM size based on the [hardware requirements](../requirements.md#hardware-requirements).
+1. Select the VM size based on the [hardware requirements](../requirements.md).
    Because the minimum system requirements to run a GitLab environment for up to 500 users
    is covered by the `D4s_v3` size, select that option.
 1. Set the authentication type to **SSH public key**.
@@ -162,7 +160,7 @@ to assign a descriptive DNS name to the VM:
 
 Eventually, most users want to use their own domain name. For you to do this, you need to add a DNS `A` record
 with your domain registrar that points to the public IP address of your Azure VM.
-You can use [Azure's DNS](https://learn.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns)
+You can use the [Azure DNS](https://learn.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns)
 or some [other registrar](https://docs.gitlab.com/omnibus/settings/dns.html).
 
 ### Change the GitLab external URL
@@ -251,7 +249,7 @@ in this section whenever you need to update GitLab.
 
 To determine the version of GitLab you're currently running:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Dashboard**.
 1. Find the version under the **Components** table.
 
@@ -291,7 +289,7 @@ To update GitLab to the latest version:
    before anything else.
    ```
 
-Refresh your GitLab instance in the browser and go to the Admin Area. You should now have an
+Refresh your GitLab instance in the browser and go to the **Admin** area. You should now have an
 up-to-date GitLab instance.
 
 ## Next steps and further configuration
@@ -315,14 +313,10 @@ a GPG key [deprecated in April 2020](https://about.gitlab.com/blog/2020/03/30/gp
 
 If you try to update the repositories, the system returns the following error:
 
-<!-- vale gitlab.ReferenceLinks = NO -->
-
 ```plaintext
 [   21.023494] apt-setup[1198]: W: GPG error: https://packages.gitlab.com/gitlab/gitlab-ee/debian buster InRelease: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY 3F01618A51312F3F
 [   21.024033] apt-setup[1198]: E: The repository 'https://packages.gitlab.com/gitlab/gitlab-ee/debian buster InRelease' is not signed.
 ```
-
-<!-- vale gitlab.ReferenceLinks = YES -->
 
 To fix this, fetch the new GPG key:
 

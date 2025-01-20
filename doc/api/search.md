@@ -1,5 +1,5 @@
 ---
-stage: Data Stores
+stage: Foundations
 group: Global Search
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,26 +8,25 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-> [Feature flag `search_filter_by_confidential` removed](https://gitlab.com/gitlab-org/gitlab/-/issues/244923) in GitLab 13.6.
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Every API call to search must be authenticated.
 
-## Additional scopes
+When [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search),
+these additional scopes are available for the [advanced search](#advanced-search-api),
+[group search](#group-search-api), and [project search](#project-search-api) APIs:
 
-DETAILS:
-**Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+- `wiki_blobs`
+- `commits`
+- `blobs`
+- `notes`
 
-Additional scopes are available for the [Advanced Search API](#advanced-search-api)
-and [Group Search API](#group-search-api) if
-[Elasticsearch is enabled](../integration/advanced_search/elasticsearch.md):
-`blobs`, `commits`, `notes`, `wiki_blobs`.
+If you want to use basic search instead, see
+[specify a search type](../user/search/index.md#specify-a-search-type).
 
-## Advanced Search API
+## Advanced search API
 
-Search for an expression globally across the GitLab instance, in a specified scope.
+Search for a [term](../user/search/advanced_search.md#syntax) across the entire GitLab instance.
 The response depends on the requested scope.
 
 ```plaintext
@@ -36,12 +35,13 @@ GET /search
 
 | Attribute     | Type     | Required   | Description |
 | ------------- | -------- | ---------- | ------------|
-| `scope`       | string   | Yes | The scope to search in. Values include `projects`, `issues`, `merge_requests`, `milestones`, `snippet_titles`, `users`. [Additional scopes](#additional-scopes): `blobs`, `commits`, `notes`, `wiki_blobs`. |
-| `search`      | string   | Yes | The search query. |
+| `scope`       | string   | Yes | The scope to search in. Values include `projects`, `issues`, `merge_requests`, `milestones`, `snippet_titles`, and `users`. Additional scopes are `wiki_blobs`, `commits`, `blobs`, and `notes`. |
+| `search`      | string   | Yes | The search term. |
 | `confidential` | boolean   | No | Filter by confidentiality. Supports `issues` scope; other scopes are ignored. |
 | `order_by`    | string   | No | Allowed values are `created_at` only. If not set, results are sorted by `created_at` in descending order for basic search, or by the most relevant documents for advanced search.|
 | `sort`    | string   | No | Allowed values are `asc` or `desc` only. If not set, results are sorted by `created_at` in descending order for basic search, or by the most relevant documents for advanced search.|
 | `state`       | string   | No | Filter by state. Supports `issues` and `merge_requests` scopes; other scopes are ignored. |
+| `fields` | array of strings | No | Array of fields you wish to search, allowed values are `title` only. Supports `issues` and `merge_requests` scopes; other scopes are ignored. Premium and Ultimate only. |
 
 ### Scope: `projects`
 
@@ -277,15 +277,33 @@ Example response:
 ]
 ```
 
+### Scope: `users`
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/search?scope=users&search=doe"
+```
+
+Example response:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "John Doe1",
+    "username": "user1",
+    "state": "active",
+    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+    "web_url": "http://localhost/user1"
+  }
+]
+```
+
 ### Scope: `wiki_blobs`
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/search?scope=wiki_blobs&search=bye"
@@ -313,15 +331,12 @@ Example response:
 NOTE:
 `filename` is deprecated in favor of `path`. Both return the full path of the file inside the repository, but in the future `filename` is intended to be only the filename and not the full path. For details, see [issue 34521](https://gitlab.com/gitlab-org/gitlab/-/issues/34521).
 
-### Scope: commits
+### Scope: `commits`
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/search?scope=commits&search=bye"
@@ -352,21 +367,18 @@ Example response:
 ]
 ```
 
-### Scope: blobs
+### Scope: `blobs`
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+The following filters are available for this scope:
 
-Filters are available for this scope:
-
-- filename
-- path
-- extension
+- `filename`
+- `path`
+- `extension`
 
 To use a filter, include it in your query. For example: `a query filename:some_name*`.
 
@@ -397,15 +409,12 @@ Example response:
 NOTE:
 `filename` is deprecated in favor of `path`. Both return the full path of the file inside the repository, but in the future `filename` is intended to be only the filename and not the full path. For details, see [issue 34521](https://gitlab.com/gitlab-org/gitlab/-/issues/34521).
 
-### Scope: notes
+### Scope: `notes`
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/search?scope=notes&search=maxime"
@@ -438,30 +447,9 @@ Example response:
 ]
 ```
 
-### Scope: users
+## Group search API
 
-```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/search?scope=users&search=doe"
-```
-
-Example response:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "John Doe1",
-    "username": "user1",
-    "state": "active",
-    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
-    "web_url": "http://localhost/user1"
-  }
-]
-```
-
-## Group Search API
-
-Search for an expression in the specified group.
+Search for a [term](../user/search/index.md) in the specified group.
 
 If a user is not a member of a group and the group is private, a `GET` request on that group results in a `404 Not Found` status code.
 
@@ -471,9 +459,9 @@ GET /groups/:id/search
 
 | Attribute | Type | Required | Description  |
 | --------- | ---- | -------- | -------------|
-| `id`                | integer or string   | Yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
-| `scope`       | string   | Yes | The scope to search in. Values include `issues`, `merge_requests`, `milestones`, `projects`, `users`. [Additional scopes](#additional-scopes): `blobs`, `commits`, `notes`, `wiki_blobs`. |
-| `search`      | string   | Yes | The search query. |
+| `id`                | integer or string   | Yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
+| `scope`       | string   | Yes | The scope to search in. Values include `projects`, `issues`, `merge_requests`, `milestones`, and `users`. Additional scopes are `wiki_blobs`, `commits`, `blobs`, and `notes`. |
+| `search`      | string   | Yes | The search term. |
 | `confidential` | boolean   | No | Filter by confidentiality. Supports only `issues` scope; other scopes are ignored. |
 | `order_by`    | string   | No | Allowed values are `created_at` only. If not set, results are sorted by `created_at` in descending order for basic search, or by the most relevant documents for advanced search.|
 | `sort`    | string   | No | Allowed values are `asc` or `desc` only. If not set, results are sorted by `created_at` in descending order for basic search, or by the most relevant documents for advanced search.|
@@ -684,15 +672,33 @@ Example response:
 ]
 ```
 
+### Scope: `users`
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/3/search?scope=users&search=doe"
+```
+
+Example response:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "John Doe1",
+    "username": "user1",
+    "state": "active",
+    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+    "web_url": "http://localhost/user1"
+  }
+]
+```
+
 ### Scope: `wiki_blobs`
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/6/search?scope=wiki_blobs&search=bye"
@@ -724,11 +730,8 @@ NOTE:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/6/search?scope=commits&search=bye"
@@ -763,17 +766,14 @@ Example response:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+The following filters are available for this scope:
 
-Filters are available for this scope:
-
-- filename
-- path
-- extension
+- `filename`
+- `path`
+- `extension`
 
 To use a filter, include it in your query. For example: `a query filename:some_name*`.
 
@@ -808,11 +808,8 @@ NOTE:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/6/search?scope=notes&search=maxime"
@@ -845,30 +842,9 @@ Example response:
 ]
 ```
 
-### Scope: `users`
+## Project search API
 
-```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/3/search?scope=users&search=doe"
-```
-
-Example response:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "John Doe1",
-    "username": "user1",
-    "state": "active",
-    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
-    "web_url": "http://localhost/user1"
-  }
-]
-```
-
-## Project Search API
-
-Search for an expression in the specified project.
+Search for a [term](../user/search/index.md) in the specified project.
 
 If a user is not a member of a project and the project is private, a `GET` request on that project results in a `404` status code.
 
@@ -878,9 +854,9 @@ GET /projects/:id/search
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ------------|
-| `id` | integer or string | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
-| `scope`       | string   | Yes | The scope to search in. Values include `blobs`, `commits`, `issues`, `merge_requests`, `milestones`, `notes`, `users`, and `wiki_blobs`. |
-| `search`      | string   | Yes | The search query. |
+| `id` | integer or string | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
+| `scope`       | string   | Yes | The scope to search in. Values include `issues`, `merge_requests`, `milestones`, and `users`. Additional scopes are `wiki_blobs`, `commits`, `blobs`, and `notes`. |
+| `search`      | string   | Yes | The search term. |
 | `confidential` | boolean   | No | Filter by confidentiality. Supports `issues` scope; other scopes are ignored. |
 | `ref`         | string   | No | The name of a repository branch or tag to search on. The project's default branch is used by default. Applicable only for scopes `blobs`, `commits`, and `wiki_blobs`. |
 | `order_by`    | string   | No | Allowed values are `created_at` only. If not set, results are sorted by `created_at` in descending order for basic search, or by the most relevant documents for advanced search.|
@@ -1059,16 +1035,10 @@ Example response:
 ]
 ```
 
-### Scope: `notes`
-
-DETAILS:
-**Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-> - Moved to GitLab Premium in 13.9.
+### Scope: `users`
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/6/search?scope=notes&search=maxime"
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/6/search?scope=users&search=doe"
 ```
 
 Example response:
@@ -1076,24 +1046,12 @@ Example response:
 ```json
 [
   {
-    "id": 191,
-    "body": "Harum maxime consequuntur et et deleniti assumenda facilis.",
-    "attachment": null,
-    "author": {
-      "id": 23,
-      "name": "User 1",
-      "username": "user1",
-      "state": "active",
-      "avatar_url": "https://www.gravatar.com/avatar/111d68d06e2d317b5a59c2c6c5bad808?s=80&d=identicon",
-      "web_url": "http://localhost:3000/user1"
-    },
-    "created_at": "2017-09-05T08:01:32.068Z",
-    "updated_at": "2017-09-05T08:01:32.068Z",
-    "system": false,
-    "noteable_id": 22,
-    "noteable_type": "Issue",
-    "project_id": 6,
-    "noteable_iid": 2
+    "id": 1,
+    "name": "John Doe1",
+    "username": "user1",
+    "state": "active",
+    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+    "web_url": "http://localhost/user1"
   }
 ]
 ```
@@ -1102,15 +1060,14 @@ Example response:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
-Filters are available for this scope:
+The following filters are available for this scope:
 
-- filename
-- path
-- extension
+- `filename`
+- `path`
+- `extension`
 
 To use a filter, include it in your query. For example: `a query filename:some_name*`.
 You may use wildcards (`*`) to use glob matching.
@@ -1153,11 +1110,8 @@ NOTE:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
-
-This scope is available only if [Elasticsearch](../integration/advanced_search/elasticsearch.md) is enabled.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/6/search?scope=commits&search=bye"
@@ -1192,15 +1146,14 @@ Example response:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
 
-> - Moved to GitLab Premium in 13.9.
+This scope is available only when [advanced search is enabled](../user/search/advanced_search.md#enable-advanced-search).
 
-Filters are available for this scope:
+The following filters are available for this scope:
 
-- Filename
-- Path
-- Extension
+- `filename`
+- `path`
+- `extension`
 
 To use a filter, include it in your query. For example: `a query filename:some_name*`.
 You may use wildcards (`*`) to use glob matching.
@@ -1237,10 +1190,13 @@ Example response:
 NOTE:
 `filename` is deprecated in favor of `path`. Both return the full path of the file inside the repository, but in the future `filename` is intended to be only the filename and not the full path. For details, see [issue 34521](https://gitlab.com/gitlab-org/gitlab/-/issues/34521).
 
-### Scope: `users`
+### Scope: `notes`
+
+DETAILS:
+**Tier:** Premium, Ultimate
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/6/search?scope=users&search=doe"
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/6/search?scope=notes&search=maxime"
 ```
 
 Example response:
@@ -1248,12 +1204,24 @@ Example response:
 ```json
 [
   {
-    "id": 1,
-    "name": "John Doe1",
-    "username": "user1",
-    "state": "active",
-    "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
-    "web_url": "http://localhost/user1"
+    "id": 191,
+    "body": "Harum maxime consequuntur et et deleniti assumenda facilis.",
+    "attachment": null,
+    "author": {
+      "id": 23,
+      "name": "User 1",
+      "username": "user1",
+      "state": "active",
+      "avatar_url": "https://www.gravatar.com/avatar/111d68d06e2d317b5a59c2c6c5bad808?s=80&d=identicon",
+      "web_url": "http://localhost:3000/user1"
+    },
+    "created_at": "2017-09-05T08:01:32.068Z",
+    "updated_at": "2017-09-05T08:01:32.068Z",
+    "system": false,
+    "noteable_id": 22,
+    "noteable_type": "Issue",
+    "project_id": 6,
+    "noteable_iid": 2
   }
 ]
 ```

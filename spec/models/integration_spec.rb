@@ -1271,37 +1271,65 @@ RSpec.describe Integration, feature_category: :integrations do
   describe '.available_integration_names' do
     subject { described_class.available_integration_names }
 
+    it { is_expected.not_to include('jira_cloud_app') }
+
+    context 'when instance is configured for Jira Cloud app' do
+      before do
+        stub_application_setting(jira_connect_application_key: 'mock_app_oauth_key')
+      end
+
+      it { is_expected.to include('jira_cloud_app') }
+    end
+  end
+
+  describe '.available_integration_names (stubbed)' do
+    subject { described_class.available_integration_names }
+
     before do
       allow(described_class).to receive_messages(
         integration_names: %w[foo disabled],
-        project_specific_integration_names: ['bar'],
-        dev_integration_names: ['baz'],
-        instance_specific_integration_names: ['instance-specific'],
+        project_specific_integration_names: ['project'],
+        project_and_group_specific_integration_names: ['project-and-group'],
+        dev_integration_names: ['dev'],
+        instance_specific_integration_names: ['instance'],
         disabled_integration_names: ['disabled']
       )
     end
 
-    it { is_expected.to include('foo', 'bar', 'baz') }
+    it { is_expected.to include('foo', 'project', 'project-and-group', 'instance', 'dev') }
+    it { is_expected.not_to include('disabled') }
 
     context 'when `include_project_specific` is false' do
       subject { described_class.available_integration_names(include_project_specific: false) }
 
-      it { is_expected.to include('foo', 'baz', 'instance-specific') }
-      it { is_expected.not_to include('bar', 'disabled') }
+      it { is_expected.to include('foo', 'dev', 'project-and-group', 'instance') }
+      it { is_expected.not_to include('project', 'disabled') }
     end
 
     context 'when `include_dev` is false' do
       subject { described_class.available_integration_names(include_dev: false) }
 
-      it { is_expected.to include('foo', 'bar', 'instance-specific') }
-      it { is_expected.not_to include('baz', 'disabled') }
+      it { is_expected.to include('foo', 'project', 'project-and-group', 'instance') }
+      it { is_expected.not_to include('dev', 'disabled') }
     end
 
     context 'when `include_instance_specific` is false' do
       subject { described_class.available_integration_names(include_instance_specific: false) }
 
-      it { is_expected.to include('foo', 'baz', 'bar') }
-      it { is_expected.not_to include('instance-specific', 'disabled') }
+      it { is_expected.to include('foo', 'dev', 'project', 'project-and-group') }
+      it { is_expected.not_to include('instance', 'disabled') }
+    end
+
+    context 'when `include_project_specific` and `include_group_specific` are false' do
+      subject do
+        described_class.available_integration_names(
+          include_project_specific: false,
+          include_group_specific: false
+        )
+      end
+
+      it { is_expected.to include('foo', 'dev', 'instance') }
+      it { is_expected.not_to include('project', 'project-and-group', 'disabled') }
     end
 
     context 'when `include_disabled` is true' do
@@ -1314,7 +1342,7 @@ RSpec.describe Integration, feature_category: :integrations do
   describe '.integration_names' do
     subject { described_class.integration_names }
 
-    it { is_expected.to include(*described_class::INTEGRATION_NAMES) }
+    it { is_expected.to include(*described_class::INTEGRATION_NAMES - ['jira_cloud_app']) }
     it { is_expected.to include('gitlab_slack_application') }
 
     context 'when Rails.env is not test' do
@@ -1330,14 +1358,6 @@ RSpec.describe Integration, feature_category: :integrations do
         end
 
         it { is_expected.to include('gitlab_slack_application') }
-
-        context 'when feature flag is disabled' do
-          before do
-            stub_feature_flags(gitlab_for_slack_app_instance_and_group_level: false)
-          end
-
-          it { is_expected.not_to include('gitlab_slack_application') }
-        end
       end
     end
   end
@@ -1345,40 +1365,32 @@ RSpec.describe Integration, feature_category: :integrations do
   describe '.project_specific_integration_names' do
     subject { described_class.project_specific_integration_names }
 
-    it { is_expected.to include(*described_class::PROJECT_SPECIFIC_INTEGRATION_NAMES) }
-    it { is_expected.not_to include('gitlab_slack_application') }
+    it { is_expected.to include(*described_class::PROJECT_LEVEL_ONLY_INTEGRATION_NAMES) }
+  end
 
-    context 'when feature flag is disabled' do
-      before do
-        stub_feature_flags(gitlab_for_slack_app_instance_and_group_level: false)
-      end
+  describe '.all_integration_names' do
+    subject(:names) { described_class.all_integration_names }
 
-      it { is_expected.to include('gitlab_slack_application') }
-
-      context 'when Rails.env is not test' do
-        before do
-          allow(Rails.env).to receive(:test?).and_return(false)
-        end
-
-        it { is_expected.not_to include('gitlab_slack_application') }
-
-        context 'when `slack_app_enabled` setting is enabled' do
-          before do
-            stub_application_setting(slack_app_enabled: true)
-          end
-
-          it { is_expected.to include('gitlab_slack_application') }
-        end
-      end
+    it 'includes project-specific integrations' do
+      expect(names).to include(*described_class::PROJECT_LEVEL_ONLY_INTEGRATION_NAMES)
     end
 
-    context 'when Rails.env is not test and `slack_app_enabled` setting is enabled' do
-      before do
-        allow(Rails.env).to receive(:test?).and_return(false)
-        stub_application_setting(slack_app_enabled: true)
-      end
+    it 'includes group-specific integrations' do
+      expect(names).to include(*described_class::PROJECT_AND_GROUP_LEVEL_ONLY_INTEGRATION_NAMES)
+    end
 
-      it { is_expected.not_to include('gitlab_slack_application') }
+    it 'includes instance-specific integrations' do
+      expect(names).to include(*described_class::INSTANCE_LEVEL_ONLY_INTEGRATION_NAMES)
+    end
+
+    it 'includes development-specific integrations' do
+      expect(names).to include(*described_class::DEV_INTEGRATION_NAMES)
+    end
+
+    it 'includes disabled integrations' do
+      allow(described_class).to receive(:disabled_integration_names).and_return(Integrations::Asana.to_param)
+
+      expect(names).to include(Integrations::Asana.to_param)
     end
   end
 
@@ -1716,6 +1728,18 @@ RSpec.describe Integration, feature_category: :integrations do
     context 'when the Gitlab::SilentMode is enabled' do
       before do
         allow(Gitlab::SilentMode).to receive(:enabled?).and_return(true)
+      end
+
+      it 'does not queue a worker' do
+        expect(Integrations::ExecuteWorker).not_to receive(:perform_async)
+
+        async_execute
+      end
+    end
+
+    context 'when integration is not active' do
+      before do
+        integration.active = false
       end
 
       it 'does not queue a worker' do

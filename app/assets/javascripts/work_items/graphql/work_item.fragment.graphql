@@ -10,15 +10,18 @@ fragment WorkItem on WorkItem {
   description
   confidential
   createdAt
-  updatedAt
   closedAt
   webUrl
   reference(full: true)
   createNoteEmail
+  project {
+    id
+  }
   namespace {
     id
     fullPath
     name
+    fullName
   }
   author {
     ...Author
@@ -35,6 +38,7 @@ fragment WorkItem on WorkItem {
     setWorkItemMetadata
     createNote
     adminWorkItemLink
+    markNoteAsInternal
   }
   widgets {
     ...WorkItemWidgets

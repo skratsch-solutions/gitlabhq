@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Confidential issues are [issues](index.md) visible only to members of a project with
 [sufficient permissions](#who-can-see-confidential-issues).
@@ -17,11 +17,13 @@ keep security vulnerabilities private or prevent surprises from leaking out.
 
 ## Make an issue confidential
 
+> - Minimum role to make an issue confidential [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
+
 You can make an issue confidential when you create or edit an issue.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 - If the issue you want to make confidential has any child [tasks](../../tasks.md),
   you must first make all the child tasks confidential.
   A confidential issue can have only confidential children.
@@ -50,14 +52,15 @@ To change the confidentiality of an existing issue:
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Plan > Issues**.
 1. Select the title of your issue to view it.
-1. On the right sidebar, next to **Confidentiality**, select **Edit**.
-1. Select **Turn on** (or **Turn off** to make the issue non-confidential).
+1. In the upper-right corner, select **Issue actions** (**{ellipsis_v}**) and then **Turn on confidentiality** (or **Turn off confidentiality** to make the issue non-confidential).
 
 Alternatively, you can use the `/confidential` [quick action](../quick_actions.md#issues-merge-requests-and-epics).
 
 ## Who can see confidential issues
 
-When an issue is made confidential, only users with at least the Reporter role
+> - Minimum role to see confidential issues [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
+
+When an issue is made confidential, only users with at least the Planner role
 for the project have access to the issue.
 Users with Guest or [Minimal](../../permissions.md#users-with-minimal-access) roles can't access
 the issue even if they were actively participating before the change.
@@ -73,7 +76,7 @@ Confidential issues are hidden in search results for users without the necessary
 ## Confidential issue indicators
 
 Confidential issues are visually different from regular issues in a few ways.
-In the issues list and boards, you can see the confidential (**{eye-slash}**) icon
+In the **Issues** and **Issue boards** pages, you can see the confidential (**{eye-slash}**) icon
 next to issues marked as confidential.
 
 If you don't have [enough permissions](#who-can-see-confidential-issues),

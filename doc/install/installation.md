@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This is the official installation guide to set up a production GitLab server
 using the source files. It was created for and tested on **Debian/Ubuntu** operating systems.
@@ -49,12 +49,12 @@ If the highest number stable branch is unclear, check the [GitLab blog](https://
 
 | Software                | Minimum version | Notes                                                                                                                                                                                                                                                                                  |
 |:------------------------|:----------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Ruby](#2-ruby)         | `3.1.x`         | From GitLab 16.7, Ruby 3.1 is required. You must use the standard MRI implementation of Ruby. We love [JRuby](https://www.jruby.org/) and [Rubinius](https://github.com/rubinius/rubinius#the-rubinius-language-platform), but GitLab needs several Gems that have native extensions. |
+| [Ruby](#2-ruby)         | `3.2.x`         | In GitLab 17.5 and later, Ruby 3.2 is required. You must use the standard MRI implementation of Ruby. We love [JRuby](https://www.jruby.org/) and [Rubinius](https://github.com/rubinius/rubinius#the-rubinius-language-platform), but GitLab needs several Gems that have native extensions. |
 | [RubyGems](#3-rubygems) | `3.5.x`         | A specific RubyGems version is not required, but you should update to benefit from some known performance improvements. |
-| [Go](#4-go)             | `1.22.x`        | From GitLab 17.1, Go 1.22 or later is required.                                                                                                                                                                                                                                        |
-| [Git](#git)             | `2.44.x`        | From GitLab 17.1, Git 2.44.x and later is required. You should use the [Git version provided by Gitaly](#git).                                                                                                                                                   |
-| [Node.js](#5-node)      | `20.13.x`       | From GitLab 17.0, Node.js 20.13 or later is required.                                                                                                                                                                                                                                  |
-| [PostgreSQL](#7-database) | `14.x`          | From GitLab 17.0, PostgreSQL 14 or later is required.                                                                                                                                                                                                                                  |
+| [Go](#4-go)             | `1.22.x`        | In GitLab 17.1 and later, Go 1.22 or later is required.                                                                                                                                                                                                                                        |
+| [Git](#git)             | `2.47.x`        | In GitLab 17.7 and later, Git 2.47.x and later is required. You should use the [Git version provided by Gitaly](#git).                                                                                                                                                   |
+| [Node.js](#5-node)      | `20.13.x`       | In GitLab 17.0 and later, Node.js 20.13 or later is required.                                                                                                                                                                                                                                  |
+| [PostgreSQL](#7-database) | `14.x`          | In GitLab 17.0 and later, PostgreSQL 14 or later is required.                                                                                                                                                                                                                                  |
 
 ## GitLab directory structure
 
@@ -297,7 +297,7 @@ sudo adduser --disabled-login --gecos 'GitLab' git
 
 NOTE:
 Only PostgreSQL is supported.
-In GitLab 17.0 and later, we [require PostgreSQL 14+](requirements.md#postgresql-requirements).
+In GitLab 17.0 and later, we [require PostgreSQL 14+](requirements.md#postgresql).
 
 1. Install the database packages.
 
@@ -702,7 +702,7 @@ sudo -u git -H bundle exec rake "gitlab:workhorse:install[/home/git/gitlab-workh
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab-Elasticsearch-Indexer uses [GNU Make](https://www.gnu.org/software/make/). The
 following command-line installs GitLab-Elasticsearch-Indexer in `/home/git/gitlab-elasticsearch-indexer`
@@ -1115,6 +1115,9 @@ proxy's IP address.
 You can add trusted proxies in `config/gitlab.yml` by customizing the `trusted_proxies`
 option in section 1. Save the file and [reconfigure GitLab](../administration/restart_gitlab.md)
 for the changes to take effect.
+
+If you encounter problems with improperly encoded characters in URLs, see
+[Error: `404 Not Found` when using a reverse proxy](../api/rest/troubleshooting.md#error-404-not-found-when-using-a-reverse-proxy).
 
 ### Custom Redis Connection
 

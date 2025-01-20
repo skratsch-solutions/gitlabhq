@@ -18,20 +18,19 @@ We rely on different sources to present diffs. These include:
 
 ## Deep Dive
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 In January 2019, Oswaldo Ferreira hosted a Deep Dive (GitLab team members only:
 `https://gitlab.com/gitlab-org/create-stage/-/issues/1`) on GitLab Diffs and Commenting on Diffs
 functionality to share domain-specific knowledge with anyone who works in this part of the
 codebase in the future:
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
   [Recording on YouTube](https://www.youtube.com/watch?v=K6G3gMcFyek)
   <!-- Video published on 2019-01-29 -->
 - Slides on [Google Slides](https://docs.google.com/presentation/d/1bGutFH2AT3bxOPZuLMGl1ANWHqFnrxwQwjiwAZkF-TU/edit)
-- [PDF slides](https://gitlab.com/gitlab-org/create-stage/uploads/b5ad2f336e0afcfe0f99db0af0ccc71a/)
 
 Everything covered in this deep dive was accurate as of GitLab 11.7, and while specific details might
 have changed since then, it should still serve as a good introduction.
@@ -177,28 +176,8 @@ target branch is artificially merged into the source branch, then the resulting
 merge ref is compared to the source branch to calculate an accurate
 diff.
 
-Until we complete the epics ["use merge refs for diffs"](https://gitlab.com/groups/gitlab-org/-/epics/854)
-and ["merge conflicts in diffs"](https://gitlab.com/groups/gitlab-org/-/epics/4893),
-both options `main (base)` and `main (HEAD)` are available to be displayed in merge requests:
-
-![Merge ref head options](../img/merge_ref_head_options_v13_6.png)
-
-The `main (HEAD)` option is meant to replace `main (base)` in the future.
-
 In order to support comments for both options, diff note positions are stored for
 both `main (base)` and `main (HEAD)` versions ([introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/198457) in 12.10).
 The position for `main (base)` version is stored in `Note#position` and
 `Note#original_position` columns, for `main (HEAD)` version `DiffNotePosition`
 has been introduced.
-
-One of the key challenges to deal with when working on merge ref diffs are merge
-conflicts. If the target and source branch contains a merge conflict, the branches
-cannot be automatically merged. The
-<i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [recording on YouTube](https://www.youtube.com/watch?v=GFXIFA4ZuZw&feature=youtu.be&ab_channel=GitLabUnfiltered) <!-- Video published on 2020-07-24 -->
-is a quick introduction to the problem and the motivation behind the [epic](https://gitlab.com/groups/gitlab-org/-/epics/854).
-
-In 13.5 a solution for both-modified merge
-conflict has been
-[introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/232484). However,
-there are more classes of merge conflicts that are to be
-[addressed](https://gitlab.com/groups/gitlab-org/-/epics/4893) in the future.

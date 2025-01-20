@@ -22,8 +22,8 @@ module Projects
       def relation
         @experiments = ::Ml::Experiment
             .by_project(project)
-            .exclude_experiments_for_models
             .including_project
+            .including_user
 
         with_candidate_count
         ordered

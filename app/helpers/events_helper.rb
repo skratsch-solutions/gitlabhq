@@ -193,9 +193,7 @@ module EventsHelper
     elsif event.commit_note?
       project_commit_url(event.project, event.note_target)
     elsif event.note?
-      if event.note_target
-        event_note_target_url(event)
-      end
+      event_note_target_url(event) if event.note_target
     elsif event.push_action?
       push_event_feed_url(event)
     elsif event.created_project_action?
@@ -233,11 +231,17 @@ module EventsHelper
     elsif event.snippet_note?
       gitlab_snippet_url(event.note_target, anchor: dom_id(event.target))
     elsif event.issue_note?
-      project_issue_url(event.project, id: event.note_target, anchor: dom_id(event.target))
+      if event.project
+        project_issue_url(event.project, id: event.note_target, anchor: dom_id(event.target))
+      elsif event.group
+        group_work_item_url(event.group, event.note_target, anchor: dom_id(event.target))
+      end
     elsif event.merge_request_note?
       project_merge_request_url(event.project, id: event.note_target, anchor: dom_id(event.target))
     elsif event.design_note?
       design_url(event.note_target, anchor: dom_id(event.note))
+    elsif event.wiki_page_note?
+      event_wiki_page_target_url(event, target: event.note_target, anchor: dom_id(event.note))
     else
       polymorphic_url([event.project, event.note_target], anchor: dom_id(event.target))
     end
@@ -250,7 +254,7 @@ module EventsHelper
         event.target_title,
         event_wiki_page_target_url(event),
         title: event.target_title,
-        class: 'has-tooltip event-target-link'
+        class: 'event-target-link'
       )
     end
   end
@@ -262,20 +266,20 @@ module EventsHelper
         event.design.reference_link_text,
         design_url(event.design),
         title: event.target_title,
-        class: 'has-tooltip event-design event-target-link'
+        class: 'event-design event-target-link'
       )
     end
   end
 
-  def event_wiki_page_target_url(event)
-    project_wiki_url(event.project, event.target&.canonical_slug || Wiki::HOMEPAGE)
+  def event_wiki_page_target_url(event, target: event.target, **options)
+    project_wiki_url(event.project, target&.canonical_slug || Wiki::HOMEPAGE, **options) if event.project_id.present?
   end
 
   def event_note_title_html(event)
     if event.note_target
       capture do
         concat content_tag(:span, "#{event.note_target_type_name} ", class: "event-target-type #{user_profile_activity_classes}")
-        concat link_to(event.note_target_reference, event_note_target_url(event), title: event.target_title, class: 'has-tooltip event-target-link')
+        concat link_to(event.note_target_reference, event_note_target_url(event), title: event.target_title, class: 'event-target-link')
       end
     else
       content_tag(:strong, '(deleted)')
@@ -308,15 +312,15 @@ module EventsHelper
   def icon_for_profile_event(event)
     base_class = 'system-note-image'
 
-    classes = current_path?('users#activity') ? "#{event.action_name.parameterize}-icon gl-rounded-full gl-bg-gray-50 gl-leading-0" : "user-avatar"
-    content = current_path?('users#activity') ? icon_for_event(event.action_name, size: 14) : author_avatar(event, size: 32, css_class: 'gl-display-inline-block', project: event.project)
+    classes = current_path?('users#activity') ? "#{event.action_name.parameterize}-icon gl-rounded-full gl-bg-strong gl-leading-0" : "user-avatar"
+    content = current_path?('users#activity') ? icon_for_event(event.action_name, size: 14) : author_avatar(event, size: 32, css_class: 'gl-inline-block', project: event.project)
 
     tag.div(class: "#{base_class} #{classes}") { content }
   end
 
   def inline_event_icon(event)
     unless current_path?('users#activity')
-      content_tag :span, class: "system-note-image-inline gl-display-flex gl-mr-2 #{event.action_name.parameterize}-icon align-self-center" do
+      content_tag :span, class: "system-note-image-inline gl-flex gl-mr-2 gl-mt-1 #{event.action_name.parameterize}-icon" do
         next design_event_icon(event.action, size: 14) if event.design?
 
         icon_for_event(event.action_name, size: 14)
@@ -335,7 +339,7 @@ module EventsHelper
   end
 
   def user_profile_activity_classes
-    current_path?('users#activity') ? ' gl-font-semibold gl-text-black-normal' : ''
+    current_path?('users#activity') ? ' gl-font-semibold gl-text-default' : ''
   end
 
   private

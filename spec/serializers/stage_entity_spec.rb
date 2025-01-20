@@ -36,6 +36,10 @@ RSpec.describe StageEntity, feature_category: :continuous_integration do
       expect(subject[:name]).to eq 'test'
     end
 
+    it 'contains valid id' do
+      expect(subject[:id]).to eq stage.id
+    end
+
     it 'contains path to the stage' do
       expect(subject[:path])
         .to include "pipelines/#{pipeline.id}##{stage.name}"
@@ -124,6 +128,40 @@ RSpec.describe StageEntity, feature_category: :continuous_integration do
         create_list(:generic_commit_status, 10, ci_stage: stage, pipeline: pipeline)
 
         expect { serialize(stage) }.not_to exceed_query_limit(control)
+      end
+    end
+
+    context 'when details: true and retried: true' do
+      let(:pipeline) { create(:ci_pipeline) }
+      let(:stage) { create(:ci_stage, pipeline: pipeline, status: :success) }
+      let(:entity) { described_class.new(stage, request: request, details: true, retried: true) }
+
+      before do
+        create(:ci_build, :success, pipeline: pipeline, stage_id: stage.id, name: 'latest_job')
+        create(:ci_build, :retried, pipeline: pipeline, stage_id: stage.id, name: 'retried_job')
+        create(:ci_build, :failed, pipeline: pipeline, stage_id: stage.id, name: 'failed_job')
+      end
+
+      it 'exposes latest_statuses and retried' do
+        result = entity.as_json
+
+        expect(result).to include(:latest_statuses, :retried)
+        expect(result[:latest_statuses].map { |job| job[:name] }).to include('failed_job', 'latest_job')
+        expect(result[:retried].map { |job| job[:name] }).to eq(['retried_job'])
+      end
+
+      it 'does not expose latest_statuses when details is false' do
+        result = described_class.new(stage, request: request, retried: true).as_json
+
+        expect(result).not_to include(:latest_statuses)
+        expect(result).to include(:retried)
+      end
+
+      it 'does not expose retried when retried is false' do
+        result = described_class.new(stage, request: request, details: true).as_json
+
+        expect(result).to include(:latest_statuses)
+        expect(result).not_to include(:retried)
       end
     end
   end

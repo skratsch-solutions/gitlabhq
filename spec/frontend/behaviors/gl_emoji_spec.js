@@ -93,6 +93,7 @@ describe('gl_emoji', () => {
         '<gl-emoji data-fallback-src="https://cultofthepartyparrot.com/parrots/hd/parrot.gif" data-name="party-parrot" data-unicode-version="custom"><img class="emoji" title=":party-parrot:" alt=":party-parrot:" src="https://cultofthepartyparrot.com/parrots/hd/parrot.gif" align="absmiddle"></gl-emoji>',
         '<gl-emoji data-fallback-src="https://cultofthepartyparrot.com/parrots/hd/parrot.gif" data-name="party-parrot" data-unicode-version="custom"><img class="emoji" title=":party-parrot:" alt=":party-parrot:" src="https://cultofthepartyparrot.com/parrots/hd/parrot.gif" align="absmiddle"></gl-emoji>',
       ],
+      // eslint-disable-next-line max-params
     ])('%s', (name, markup, withEmojiSupport, withoutEmojiSupport) => {
       it(`renders correctly with emoji support`, async () => {
         jest.spyOn(EmojiUnicodeSupport, 'default').mockReturnValue(true);
@@ -121,7 +122,7 @@ describe('gl_emoji', () => {
       await waitForPromises();
 
       expect(glEmojiElement.outerHTML).toBe(
-        '<gl-emoji data-name="&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;" data-unicode-version="x"><img class="emoji" title=":&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;:" alt=":&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;:" src="/-/emojis/3/grey_question.png" align="absmiddle"></gl-emoji>',
+        `<gl-emoji data-name="&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;" data-unicode-version="x"><img class="emoji" title=":&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;:" alt=":&quot;x=&quot;y&quot; onload=&quot;alert(document.location.href)&quot;:" src="/-/emojis/${EMOJI_VERSION}/grey_question.png" align="absmiddle"></gl-emoji>`,
       );
     });
 

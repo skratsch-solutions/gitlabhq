@@ -8,15 +8,19 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 When [signing commits with X.509](../user/project/repository/signed_commits/x509.md),
-the trust anchor might change and the signatures stored within the database must be updated.
+the trust anchor might change and the signatures stored in the database must be updated.
 
 ## Update all X.509 signatures
 
-This task loops through all X.509 signed commits and updates their verification based on current
-certificate store.
+This task:
+
+- Iterates through all X.509-signed commits.
+- Updates their verification status based on the current certificate store.
+- Modifies only the database entries for the signatures.
+- Leaves the commits unchanged.
 
 To update all X.509 signatures, run:
 

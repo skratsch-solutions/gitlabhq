@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -85,9 +85,9 @@ and complete an integration with the Secure stage.
    - See detailed [technical directions](secure.md) for this step.
    - Read more about [job report artifacts](../../ci/yaml/index.md#artifactsreports).
    - Read about [job artifacts](../../ci/jobs/job_artifacts.md).
-   - Your report artifact must be in one of our currently supported formats.
+   - Your report artifact must be in one of our supported formats.
      For more information, see the [documentation on reports](secure.md#report).
-     - Documentation for [SAST output](../../user/application_security/sast/index.md#output).
+     - Documentation for [SAST output](../../user/application_security/sast/index.md#download-a-sast-report).
      - Documentation for [Dependency Scanning reports](../../user/application_security/dependency_scanning/index.md#output).
      - Documentation for [Container Scanning reports](../../user/application_security/container_scanning/index.md#reports-json-format).
      - See this [example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Container-Scanning.gitlab-ci.yml).

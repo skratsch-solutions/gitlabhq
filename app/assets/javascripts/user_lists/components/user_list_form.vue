@@ -31,11 +31,11 @@ export default {
   classes: {
     actionContainer: [
       'gl-py-5',
-      'gl-display-flex',
-      'gl-justify-content-space-between',
+      'gl-flex',
+      'gl-justify-between',
       'gl-px-4',
       'gl-border-t-solid',
-      'gl-border-gray-100',
+      'gl-border-default',
       'gl-border-1',
       'gl-bg-gray-10',
     ],
@@ -62,12 +62,12 @@ export default {
 </script>
 <template>
   <div>
-    <div class="gl-display-flex gl-mt-7">
-      <div class="gl-flex-basis-0 gl-mr-7">
+    <div class="gl-mt-7 gl-flex">
+      <div class="gl-mr-7 gl-basis-0">
         <h4 class="gl-min-width-fit-content gl-whitespace-nowrap">
           {{ $options.translations.formLabel }}
         </h4>
-        <gl-sprintf :message="$options.translations.formSubtitle" class="gl-text-gray-500">
+        <gl-sprintf :message="$options.translations.formSubtitle" class="gl-text-subtle">
           <template #link="{ content }">
             <gl-link :href="userListsDocsPath" data-testid="user-list-docs-link">
               {{ content }}
@@ -75,7 +75,7 @@ export default {
           </template>
         </gl-sprintf>
       </div>
-      <div class="gl-flex-grow-1 gl-ml-7">
+      <div class="gl-ml-7 gl-grow">
         <gl-form-group
           label-for="user-list-name"
           :label="$options.translations.nameLabel"

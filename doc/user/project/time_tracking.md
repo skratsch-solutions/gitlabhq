@@ -8,15 +8,18 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Time tracking for tasks [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438577) in GitLab 17.0.
+> - Time tracking for epics [introduced](https://gitlab.com/groups/gitlab-org/-/epics/12396) in GitLab 17.5. Your administrator must have [enabled the new look for epics](../group/epics/epic_work_items.md).
+> - Minimum role to add, edit, and remove estimate [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
 
 You can estimate and track the time you spend on an item, such as:
 
-- [Issue](issues/index.md)
-- [Task](../tasks.md)
-- [Merge request](merge_requests/index.md)
+- [Epic](../group/epics/index.md). Your administrator must have [enabled the new look for epics](../group/epics/epic_work_items.md).
+- [Issue](issues/index.md).
+- [Task](../tasks.md).
+- [Merge request](merge_requests/index.md).
 
 Then you can [view a report](#view-an-items-time-tracking-report) that shows totals over time.
 
@@ -48,8 +51,8 @@ You can see the estimated time remaining when you hover over the time tracking i
 
 Prerequisites:
 
-- In issues, you must have at least the Reporter role for the project.
-- In tasks, you must have at least the Reporter role for the project.
+- In issues, you must have at least the Planner role for the project.
+- In tasks, you must have at least the Planner role for the project.
 - In merge requests, you must have at least the Developer role for the project.
 
 To enter an estimate, use the `/estimate` [quick action](quick_actions.md), followed by the time.
@@ -65,8 +68,8 @@ Every time you enter a new time estimate, it overwrites the previous value.
 
 Prerequisites:
 
-- In issues, you must have at least the Reporter role for the project.
-- In tasks, you must have at least the Reporter role for the project.
+- In issues, you must have at least the Planner role for the project.
+- In tasks, you must have at least the Planner role for the project.
 - In merge requests, you must have at least the Developer role for the project.
 
 To remove an estimate entirely, use the `/remove_estimate` [quick action](quick_actions.md).
@@ -84,7 +87,7 @@ The total amount of time spent on an issue, task, or merge request cannot exceed
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 #### Using the user interface
 
@@ -133,7 +136,7 @@ If you type a future date, no time is logged.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To subtract time, enter a negative value. For example, `/spend -3d` removes three
 days from the total time spent. You can't go below 0 minutes of time spent,
@@ -158,7 +161,7 @@ To delete a timelog, either:
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To delete all the time spent at once, use the `/remove_time_spent` [quick action](quick_actions.md).
 
@@ -166,14 +169,14 @@ To delete all the time spent at once, use the `/remove_time_spent` [quick action
 
 To view a time tracking report of time spent on an item:
 
-- For an issue or merge request:
+- For an issue or a merge request:
 
   1. Go to an issue or a merge request.
   1. In the right sidebar, select **Time tracking report**.
 
-- For a task:
+- For an epic or a task:
 
-  1. Go to a task.
+  1. Go to an epic or a task.
   1. In the right sidebar, select the time next to **Spent**.
 
 ![Time tracking report](img/time_tracking_report_v15_1.png)
@@ -189,13 +192,13 @@ DETAILS:
 > - Enabled on GitLab.com in GitLab 16.5.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `global_time_tracking_report`.
+On GitLab Self-Managed, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `global_time_tracking_report`.
 On GitLab.com, this feature is available. On GitLab Dedicated, this feature is not available.
 This feature is not ready for production use.
 
 View a report of time spent in issues, tasks, and merge requests across all of GitLab.
 
-This feature is an [experiment](../../policy/experiment-beta-support.md).
+This feature is an [experiment](../../policy/development_stages_support.md).
 If you find a bug, let us know in the [feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/435222).
 
 To view the global time tracking report:
@@ -225,9 +228,9 @@ The following time units are available:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
-In GitLab self-managed instances, you can limit the display of time units to hours.
+On GitLab Self-Managed, you can limit the display of time units to hours.
 To do so:
 
 1. On the left sidebar, select **Search or go to**.

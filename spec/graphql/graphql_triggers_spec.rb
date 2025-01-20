@@ -172,4 +172,18 @@ RSpec.describe GraphqlTriggers, feature_category: :shared do
       end
     end
   end
+
+  describe '.issuable_todo_updated' do
+    let_it_be(:user) { create(:user) }
+
+    it 'triggers the issuable_todo_updated subscription' do
+      expect(GitlabSchema.subscriptions).to receive(:trigger).with(
+        :issuable_todo_updated,
+        { issuable_id: issuable.to_gid },
+        issuable
+      ).and_call_original
+
+      described_class.issuable_todo_updated(issuable)
+    end
+  end
 end

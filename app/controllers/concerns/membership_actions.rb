@@ -133,6 +133,10 @@ module MembershipActions
     raise NotImplementedError
   end
 
+  def source
+    raise NotImplementedError
+  end
+
   def members_and_requesters
     membershipable.members_and_requesters
   end
@@ -142,7 +146,7 @@ module MembershipActions
   end
 
   def update_params
-    params.require(root_params_key).permit(:access_level, :expires_at)
+    params.require(root_params_key).permit(:access_level, :expires_at).merge({ source: source })
   end
 
   def requested_relations(inherited_permissions = :with_inherited_permissions)
@@ -159,15 +163,20 @@ module MembershipActions
   def authenticate_user!
     return if current_user
 
+    store_location_for :user, request.fullpath
     redirect_to new_user_session_path
   end
 
   def already_a_member!
-    member = members_and_requesters.find_by(user_id: current_user.id) # rubocop: disable CodeReuse/ActiveRecord
-    return if member.nil?
+    member = members.with_user(current_user)
+    if member.present?
+      redirect_to polymorphic_path(membershipable), notice: _('You already have access.')
+    else
+      requester = requesters.with_user(current_user)
+      return unless requester.present?
 
-    message = member.request? ? _('You have already requested access.') : _('You already have access.')
-    redirect_to polymorphic_path(membershipable), notice: message
+      redirect_to polymorphic_path(membershipable), notice: _('You have already requested access.')
+    end
   end
 
   private
@@ -185,8 +194,6 @@ module MembershipActions
   end
 
   def shared_members_relations
-    return [] unless Feature.enabled?(:webui_members_inherited_users, current_user)
-
     project_relations = [:invited_groups, :shared_into_ancestors]
     [:shared_from_groups, *(project_relations if params[:project_id])]
   end

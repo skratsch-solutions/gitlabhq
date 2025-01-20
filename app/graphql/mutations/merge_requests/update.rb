@@ -29,7 +29,11 @@ module Mutations
       argument :time_estimate, GraphQL::Types::String,
         required: false,
         description: 'Estimated time to complete the merge request. ' \
-                     'Use `null` or `0` to remove the current estimate.'
+          'Use `null` or `0` to remove the current estimate.'
+
+      argument :merge_after, ::Types::TimeType,
+        required: false,
+        description: copy_field_description(Types::MergeRequestType, :merge_after)
 
       def resolve(project_path:, iid:, **args)
         merge_request = authorized_find!(project_path: project_path, iid: iid)

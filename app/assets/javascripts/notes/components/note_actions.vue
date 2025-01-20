@@ -4,6 +4,7 @@ import {
   GlButton,
   GlDisclosureDropdown,
   GlDisclosureDropdownItem,
+  GlDisclosureDropdownGroup,
 } from '@gitlab/ui';
 // eslint-disable-next-line no-restricted-imports
 import { mapActions, mapGetters, mapState } from 'vuex';
@@ -33,6 +34,7 @@ export default {
     GlButton,
     GlDisclosureDropdown,
     GlDisclosureDropdownItem,
+    GlDisclosureDropdownGroup,
     ReplyButton,
     TimelineEventButton,
     UserAccessRoleBadge,
@@ -90,15 +92,18 @@ export default {
     },
     canEdit: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     canAwardEmoji: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     canDelete: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     canResolve: {
       type: Boolean,
@@ -198,9 +203,6 @@ export default {
       }
       return null;
     },
-    resolveVariant() {
-      return this.isResolved ? 'success' : 'default';
-    },
   },
   methods: {
     ...mapActions(['toggleAwardRequest', 'promoteCommentToTimelineEvent']),
@@ -289,14 +291,14 @@ export default {
       v-if="canResolve"
       ref="resolveButton"
       v-gl-tooltip
+      data-testid="resolve-line-button"
       category="tertiary"
-      :variant="resolveVariant"
-      :class="{ 'is-disabled': !resolvable, 'is-active': isResolved }"
+      class="note-action-button"
+      :class="{ '!gl-text-success': isResolved }"
       :title="resolveButtonTitle"
       :aria-label="resolveButtonTitle"
       :icon="resolveIcon"
       :loading="isResolving"
-      class="line-resolve-btn note-action-button"
       @click="onResolve"
     />
     <timeline-event-button
@@ -351,15 +353,6 @@ export default {
         no-caret
       >
         <gl-disclosure-dropdown-item
-          v-if="canReportAsAbuse"
-          data-testid="report-abuse-button"
-          @action="onAbuse"
-        >
-          <template #list-item>
-            {{ $options.i18n.reportAbuse }}
-          </template>
-        </gl-disclosure-dropdown-item>
-        <gl-disclosure-dropdown-item
           v-if="noteUrl"
           class="js-btn-copy-note-link"
           :data-clipboard-text="noteUrl"
@@ -378,11 +371,22 @@ export default {
             {{ displayAssignUserText }}
           </template>
         </gl-disclosure-dropdown-item>
-        <gl-disclosure-dropdown-item v-if="canEdit" class="js-note-delete" @action="onDelete">
-          <template #list-item>
-            <span class="text-danger">{{ __('Delete comment') }}</span>
-          </template>
-        </gl-disclosure-dropdown-item>
+        <gl-disclosure-dropdown-group v-if="canReportAsAbuse || canEdit" bordered>
+          <gl-disclosure-dropdown-item
+            v-if="canReportAsAbuse"
+            data-testid="report-abuse-button"
+            @action="onAbuse"
+          >
+            <template #list-item>
+              {{ $options.i18n.reportAbuse }}
+            </template>
+          </gl-disclosure-dropdown-item>
+          <gl-disclosure-dropdown-item v-if="canEdit" class="js-note-delete" @action="onDelete">
+            <template #list-item>
+              <span class="gl-text-danger">{{ __('Delete comment') }}</span>
+            </template>
+          </gl-disclosure-dropdown-item>
+        </gl-disclosure-dropdown-group>
       </gl-disclosure-dropdown>
     </div>
     <!-- IMPORTANT: show this component lazily because it causes layout thrashing -->

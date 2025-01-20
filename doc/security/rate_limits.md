@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 NOTE:
 For GitLab.com, see
@@ -35,7 +35,7 @@ The rate limits for API requests do not affect requests made by the frontend, be
 
 ## Configurable limits
 
-You can set these rate limits in the Admin Area of your instance:
+You can set these rate limits in the **Admin** area of your instance:
 
 - [Import/Export rate limits](../administration/settings/import_export_rate_limits.md)
 - [Issue rate limits](../administration/settings/rate_limit_on_issues_creation.md)
@@ -53,6 +53,7 @@ You can set these rate limits in the Admin Area of your instance:
 - [Incident management rate limits](../administration/settings/incident_management_rate_limits.md)
 - [Projects API rate limits](../administration/settings/rate_limit_on_projects_api.md)
 - [Groups API rate limits](../administration/settings/rate_limit_on_groups_api.md)
+- [Organizations API rate limits](../administration/settings/rate_limit_on_organizations_api.md)
 
 You can set these rate limits using the Rails console:
 
@@ -204,6 +205,28 @@ The **rate limit** is 60 deletions per minute.
 There is a rate limit for notification emails related to a project or group.
 
 The **rate limit** is 1,000 notifications per 24 hours per project or group per user.
+
+### FogBugz import
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/439101) in GitLab 17.6.
+
+There is a rate limit for triggering project imports from FogBugz.
+
+The **rate limit** is 1 triggered import per minute per user.
+
+### Commit diff files
+
+This is a rate limit for expanded commit diff files (`/[group]/[project]/-/commit/[:sha]/diff_files?expanded=1`),
+which is enforced to prevent from abusing this endpoint.
+
+The **rate limit** is 6 requests per minute per user (authenticated) or per IP address (unauthenticated).
+
+### Changelog generation
+
+There is a rate limit per user per project on the `:id/repository/changelog` endpoint. This is to mitigate attempts to misuse the endpoint.
+The rate limit is shared between GET and POST actions.
+
+The **rate limit** is 5 calls per minute per user per project.
 
 ## Troubleshooting
 

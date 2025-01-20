@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/409913) in GitLab 16.1 [with a flag](../../administration/feature_flags.md) named `ui_for_organizations`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `ui_for_organizations`.
+On GitLab Self-Managed, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `ui_for_organizations`.
 On GitLab.com and GitLab Dedicated, this feature is not available.
 This feature is not ready for production use.
 
@@ -40,6 +40,9 @@ To view the organizations you have access to:
 
 ## Create an organization
 
+NOTE:
+In [Cells 1.0](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/cells/iterations/cells-1.0/) organizations can be only private.
+
 1. On the left sidebar, at the top, select **Create new** (**{plus}**) and **New organization**.
 1. In the **Organization name** text box, enter a name for the organization.
 1. In the **Organization URL** text box, enter a path for the organization.
@@ -66,11 +69,20 @@ To view the organizations you have access to:
 1. In the **Organization URL** text box, edit the URL.
 1. Select **Change organization URL**.
 
+## View an organization's visibility level
+
+NOTE:
+In [Cells 1.0](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/cells/iterations/cells-1.0/) organizations can be only private.
+
+1. On the left sidebar, select **Organizations** and find your organization.
+1. Select **Settings > General**.
+1. Expand the **Visibility** section.
+
 ## Switch organizations
 
 NOTE:
-Switching between organizations is not supported in [Cells 1.0](../../architecture/blueprints/cells/iterations/cells-1.0.md),
-but is supported in [Cells 1.5](../../architecture/blueprints/cells/iterations/cells-1.5.md).
+Switching between organizations is not supported in [Cells 1.0](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/cells/iterations/cells-1.0/),
+but is supported in [Cells 1.5](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/cells/iterations/cells-1.5/).
 
 To switch organizations:
 
@@ -96,10 +108,26 @@ To switch organizations:
 1. Select the [**Visibility level**](../public_access.md) of the group.
 1. Select **Create group**.
 
-## Manage users
+## View users
+
+1. On the left sidebar, select **Organizations** and find the organization you want to view.
+1. Select **Manage > Users**.
+
+## Change a user's role
+
+Prerequisites:
+
+- You must have the Owner role for the organization.
+
+To change a user's role:
 
 1. On the left sidebar, select **Organizations** and find the organization you want to manage.
 1. Select **Manage > Users**.
+1. Find the user whose role you want to update.
+1. From the **Organization role** dropdown list, select a role.
+
+NOTE:
+If you cannot select from the **Organization role** dropdown list, this user is the organization's only Owner. To change this user's role, first assign the Owner role to another user.
 
 ## Supported Markdown for Organization description
 
@@ -112,4 +140,4 @@ The Organization description field supports a limited subset of [GitLab Flavored
 ## Related topics
 
 - [Organization developer documentation](../../development/organization/index.md)
-- [Organization blueprint](../../architecture/blueprints/organization/index.md)
+- [Organization design document](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/organization/)

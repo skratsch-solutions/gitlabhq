@@ -31,7 +31,7 @@ class Clusters::ClustersController < ::Clusters::BaseController
     end
   end
 
-  # Overridding ActionController::Metal#status is NOT a good idea
+  # Overriding ActionController::Metal#status is NOT a good idea
   def cluster_status
     respond_to do |format|
       format.json do
@@ -45,7 +45,7 @@ class Clusters::ClustersController < ::Clusters::BaseController
   end
 
   def show
-    if params[:tab] == 'integrations'
+    if safe_params[:tab] == 'integrations'
       @prometheus_integration = Clusters::IntegrationPresenter.new(@cluster.find_or_build_integration_prometheus)
     end
   end
@@ -123,7 +123,7 @@ class Clusters::ClustersController < ::Clusters::BaseController
     # supported, but the number of clusters are fairly low currently.
     #
     # See https://gitlab.com/gitlab-org/gitlab-foss/issues/55260 also.
-    Kaminari.paginate_array(clusters).page(params[:page]).per(20)
+    Kaminari.paginate_array(clusters).page(safe_params[:page]).per(20)
   end
 
   def destroy_params
@@ -182,30 +182,6 @@ class Clusters::ClustersController < ::Clusters::BaseController
       )
   end
 
-  def proxyable
-    cluster.cluster
-  end
-
-  # During first iteration of dashboard variables implementation
-  # cluster health case was omitted. Existing service for now is tied to
-  # environment, which is not always present for cluster health dashboard.
-  # It is planned to break coupling to environment https://gitlab.com/gitlab-org/gitlab/-/issues/213833.
-  # It is also planned to move cluster health to metrics dashboard section https://gitlab.com/gitlab-org/gitlab/-/issues/220214
-  # but for now I've used dummy class to stub variable substitution service, as there are no variables
-  # in cluster health dashboard
-  def proxy_variable_substitution_service
-    @empty_service ||= Class.new(BaseService) do
-      def initialize(proxyable, params)
-        @proxyable = proxyable
-        @params = params
-      end
-
-      def execute
-        success(params: @params)
-      end
-    end
-  end
-
   def user_cluster
     cluster = Clusters::BuildService.new(clusterable.__subject__).execute
     cluster.build_platform_kubernetes
@@ -219,6 +195,10 @@ class Clusters::ClustersController < ::Clusters::BaseController
   def expires_at_in_session
     @expires_at_in_session ||=
       session[GoogleApi::CloudPlatform::Client.session_key_for_expires_at]
+  end
+
+  def safe_params
+    params.permit(:tab, :page)
   end
 end
 

@@ -41,6 +41,36 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
       subject.execute
     end
 
+    context 'when BranchPushService' do
+      it 'calls BranchPushService with process_commit_worker_pool' do
+        next unless push_service_class == Git::BranchPushService
+
+        expect(push_service_class)
+          .to receive(:new)
+          .with(anything, anything, hash_including(
+            process_commit_worker_pool: a_kind_of(Gitlab::Git::ProcessCommitWorkerPool)
+          )).exactly(changes.count).times
+            .and_return(service)
+
+        subject.execute
+      end
+
+      context 'when feature throttle_with_process_commit_worker_pool is disabled' do
+        before do
+          allow(push_service_class).to receive(:new).and_return(service)
+          stub_feature_flags(throttle_with_process_commit_worker_pool: false)
+        end
+
+        it 'does not call BranchPushService with process_commit_worker_pool' do
+          next unless push_service_class == Git::BranchPushService
+
+          expect(Gitlab::Git::ProcessCommitWorkerPool).not_to receive(:new)
+
+          subject.execute
+        end
+      end
+    end
+
     context 'changes exceed push_event_hooks_limit' do
       let(:push_event_hooks_limit) { 3 }
 
@@ -74,9 +104,9 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
           { oldrev: Gitlab::Git::SHA1_BLANK_SHA, newrev: '789012', ref: "#{ref_prefix}/create" },
           { oldrev: '123456', newrev: '789012', ref: "#{ref_prefix}/update" },
           { oldrev: '123456', newrev: Gitlab::Git::SHA1_BLANK_SHA, ref: "#{ref_prefix}/delete" }
-        ].map do |change|
+        ].flat_map do |change|
           multiple_changes(change, push_event_activities_limit + 1)
-        end.flatten
+        end
       end
 
       before do
@@ -128,13 +158,18 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
           it 'creates pipeline for branches and tags' do
             subject.execute
 
-            expect(Ci::Pipeline.pluck(:ref)).to contain_exactly('create', 'update', 'delete')
+            # We don't run a pipeline for a deletion
+            expect(Ci::Pipeline.pluck(:ref)).to contain_exactly('create', 'update')
           end
 
           it "creates exactly #{described_class::PIPELINE_PROCESS_LIMIT} pipelines" do
             stub_const("#{described_class}::PIPELINE_PROCESS_LIMIT", changes.count - 1)
 
-            expect(Gitlab::AppJsonLogger).not_to receive(:info)
+            # We expect some logs from Gitlab::Ci::Pipeline::CommandLogger,
+            # but no logs from warn_if_over_process_limit
+            expect(Gitlab::AppJsonLogger).to receive(:info).with(
+              hash_including("class" => "Gitlab::Ci::Pipeline::CommandLogger")
+            ).twice
 
             expect { subject.execute }.to change { Ci::Pipeline.count }.by(described_class::PIPELINE_PROCESS_LIMIT)
           end
@@ -146,7 +181,8 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
           end
 
           it 'creates all pipelines' do
-            expect { subject.execute }.to change { Ci::Pipeline.count }.by(changes.count)
+            # We don't run a pipeline for a deletion
+            expect { subject.execute }.to change { Ci::Pipeline.count }.by(changes.count - 1)
           end
         end
       end
@@ -165,10 +201,10 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
     end
 
     describe "housekeeping", :clean_gitlab_redis_cache, :clean_gitlab_redis_queues, :clean_gitlab_redis_shared_state do
-      let(:housekeeping) { Repositories::HousekeepingService.new(project) }
+      let(:housekeeping) { ::Repositories::HousekeepingService.new(project) }
 
       before do
-        allow(Repositories::HousekeepingService).to receive(:new).and_return(housekeeping)
+        allow(::Repositories::HousekeepingService).to receive(:new).and_return(housekeeping)
 
         allow(push_service_class)
           .to receive(:new)
@@ -288,6 +324,8 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
         end
 
         it 'logs a warning' do
+          allow(Gitlab::AppJsonLogger).to receive(:info).and_call_original
+
           expect(Gitlab::AppJsonLogger).to receive(:info).with(
             hash_including(
               message: "Some pipelines may not have been created because ref count exceeded limit",

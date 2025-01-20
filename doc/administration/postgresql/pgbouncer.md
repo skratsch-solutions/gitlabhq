@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Operations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 PgBouncer is bundled in the `gitlab-ee` package, but is free to use.
@@ -275,8 +275,8 @@ Additionally, `current_connections` should be greater than 1.
 
 ### Message: `LOG:  invalid CIDR mask in address`
 
-See the suggested fix [in Geo documentation](../geo/replication/troubleshooting/replication.md#message-log--invalid-cidr-mask-in-address).
+See the suggested fix [in Geo documentation](../geo/replication/troubleshooting/postgresql_replication.md#message-log--invalid-cidr-mask-in-address).
 
 ### Message: `LOG:  invalid IP mask "md5": Name or service not known`
 
-See the suggested fix [in Geo documentation](../geo/replication/troubleshooting/replication.md#message-log--invalid-ip-mask-md5-name-or-service-not-known).
+See the suggested fix [in Geo documentation](../geo/replication/troubleshooting/postgresql_replication.md#message-log--invalid-ip-mask-md5-name-or-service-not-known).

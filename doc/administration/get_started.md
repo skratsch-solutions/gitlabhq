@@ -9,7 +9,7 @@ info: For assistance with this tutorial, see https://handbook.gitlab.com/handboo
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Get started with GitLab administration. Configure your organization and its authentication, then secure, monitor,
 and back up GitLab.
@@ -18,7 +18,7 @@ and back up GitLab.
 
 Authentication is the first step in making your installation secure.
 
-- [Enforce two-factor authentication (2FA) for all users](../security/two_factor_authentication.md). We highly recommended 2FA for self-managed instances.
+- [Enforce two-factor authentication (2FA) for all users](../security/two_factor_authentication.md). We highly recommended 2FA for GitLab Self-Managed instances.
 - Ensure users do the following:
   - Choose a strong, secure password. If possible, store it in a password management system.
   - If it is not configured for everyone, enable [two-factor authentication (2FA)](../user/profile/account/two_factor_authentication.md) for your account.
@@ -53,7 +53,7 @@ Get started:
 - [Run multiple Agile teams](https://www.youtube.com/watch?v=VR2r1TJCDew).
 - [Sync group memberships by using LDAP](../administration/auth/ldap/ldap_synchronization.md#group-sync).
 - Manage user access with inherited permissions. Use up to 20 levels of subgroups to organize both teams and projects.
-  - [Inherited membership](../user/project/members/index.md#inherited-membership).
+  - [Inherited membership](../user/project/members/index.md#membership-types).
   - [Example](../user/group/subgroups/index.md).
 
 ## Import projects
@@ -67,7 +67,7 @@ You may need to import projects from external sources like GitHub, Bitbucket, or
 
 ### Popular project imports
 
-- [GitHub Enterprise to self-managed GitLab](../integration/github.md)
+- [GitHub Enterprise to GitLab Self-Managed](../integration/github.md)
 - [Bitbucket Server](../user/project/import/bitbucket_server.md)
 
 For assistance with these data types, contact your GitLab account manager or GitLab Support about our professional migration services.
@@ -118,7 +118,7 @@ Unlike other monitoring solutions (for example, Zabbix or New Relic), Prometheus
 
 ## Back up your GitLab data
 
-GitLab provides backup methods to keep your data safe and recoverable. Whether you use a self-managed or a GitLab SaaS database, it's crucial to back up your data regularly.
+GitLab provides backup methods to keep your data safe and recoverable. Whether you use a GitLab Self-Managed or a GitLab.com database, it's crucial to back up your data regularly.
 
 - Decide on a backup strategy.
 - Consider writing a cron job to make daily backups.
@@ -129,7 +129,7 @@ GitLab provides backup methods to keep your data safe and recoverable. Whether y
 - Run a test backup and restore.
 - Set up a way to periodically verify the backups.
 
-### Back up a GitLab self-managed instance
+### Back up an instance
 
 The routine differs, depending on whether you deployed with the Linux package or the Helm chart.
 
@@ -195,7 +195,7 @@ It is common for a VM snapshot to require you to power down the server.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Geo provides local, read-only instances of your GitLab instances.
 
@@ -203,18 +203,18 @@ While GitLab Geo helps remote teams work more efficiently by using a local GitLa
 Learn more about using [Geo as a disaster recovery solution](../administration/geo/disaster_recovery/index.md).
 
 Geo replicates your database, your Git repositories, and a few other assets.
-Learn more about [replication limitations](../administration/geo/replication/datatypes.md#limitations-on-replicationverification).
+Learn more about the [data types Geo replicates](../administration/geo/replication/datatypes.md#replicated-data-types).
 
-## Support for GitLab self-managed
+## Support for GitLab Self-Managed
 
-GitLab provides support for self-managed GitLab through different channels.
+GitLab provides support for GitLab Self-Managed through different channels.
 
-- Priority support: [Premium and Ultimate](https://about.gitlab.com/pricing/) self-managed customers receive priority support with tiered response times.
+- Priority support: [Premium and Ultimate](https://about.gitlab.com/pricing/) GitLab Self-Managed customers receive priority support with tiered response times.
   Learn more about [upgrading to priority support](https://about.gitlab.com/support/#upgrading-to-priority-support).
 - Live upgrade assistance: Get one-on-one expert guidance during a production upgrade. With your **priority support plan**,
   you're eligible for a live, scheduled screen-sharing session with a member of our support team.
 
-To get assistance for self-managed GitLab:
+To get assistance for GitLab Self-Managed:
 
 - Use the GitLab documentation for self-service support.
 - Join the [GitLab Forum](https://forum.gitlab.com/) for community support.
@@ -240,16 +240,16 @@ To get assistance for GitLab SaaS:
   - [Account or sign-in issues](https://support.gitlab.com/hc/en-us/requests/new?ticket_form_id=360000803379)
 - Subscribe to [the status page](https://status.gitlab.com/) for the latest on GitLab performance or service interruptions.
 
-## API and rate limits for self-managed GitLab
+## API and rate limits for GitLab Self-Managed
 
 Rate limits prevent denial-of-service or brute-force attacks. In most cases, you can reduce the load on your application
 and infrastructure by limiting the rate of requests from a single IP address.
 
 Rate limits also improve the security of your application.
 
-### Configure rate limits for self-managed GitLab
+### Configure rate limits for GitLab Self-Managed
 
-You can make changes to your default rate limits from the Admin Area. For more information about configuration, see the [Admin Area page](../security/rate_limits.md#configurable-limits).
+You can make changes to your default rate limits from the **Admin** area. For more information about configuration, see the [**Admin** area page](../security/rate_limits.md#configurable-limits).
 
 - Define [issues rate limits](settings/rate_limit_on_issues_creation.md) to set a maximum number of issue creation requests per minute, per user.
 - Enforce [user and IP rate limits](settings/user_and_ip_rate_limits.md) for unauthenticated web requests.
@@ -267,7 +267,7 @@ Rate limits also improve the security of your application.
 
 ### Configure rate limits for GitLab SaaS
 
-You can make changes to your default rate limits from the Admin Area. For more information about configuration, see the [Admin Area page](../security/rate_limits.md#configurable-limits).
+You can make changes to your default rate limits from the **Admin** area. For more information about configuration, see the [**Admin** area page](../security/rate_limits.md#configurable-limits).
 
 - Review the rate limit page.
 - Read our [API page](../api/rest/index.md) for more information about API and rate limiting.

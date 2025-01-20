@@ -19,10 +19,25 @@
       "minimum": 1,
       "description": "Maximum number of simultaneous import jobs for GitHub importer"
     },
+    "concurrent_relation_batch_export_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum number of simultaneous batch export jobs to process"
+    },
+    "create_organization_api_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of requests allowed to the POST /api/v4/organizations API."
+    },
     "group_api_limit": {
       "type": "integer",
       "minimum": 0,
       "description": "Number of requests allowed to the GET /api/v4/groups/:id API."
+    },
+    "group_invited_groups_api_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of requests allowed to the GET /api/v4/groups/:id/invited_groups API."
     },
     "group_projects_api_limit": {
       "type": "integer",
@@ -43,6 +58,11 @@
       "type": "integer",
       "minimum": 0,
       "description": "Number of requests allowed to the GET /api/v4/projects/:id API."
+    },
+    "project_invited_groups_api_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of requests allowed to the GET /api/v4/projects/:id/invited_groups API."
     },
     "projects_api_limit": {
       "type": "integer",

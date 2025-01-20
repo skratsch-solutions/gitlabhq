@@ -2,11 +2,11 @@
 import { GlFormGroup, GlForm, GlButton, GlFormInput, GlFormCheckbox, GlTooltip } from '@gitlab/ui';
 import { __, s__, sprintf } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { fetchPolicies } from '~/lib/graphql';
 import WorkItemTokenInput from '../shared/work_item_token_input.vue';
-import { addHierarchyChild } from '../../graphql/cache_utils';
-import groupWorkItemTypesQuery from '../../graphql/group_work_item_types.query.graphql';
-import projectWorkItemTypesQuery from '../../graphql/project_work_item_types.query.graphql';
-import updateWorkItemMutation from '../../graphql/update_work_item.mutation.graphql';
+import { addHierarchyChild, addHierarchyChildren } from '../../graphql/cache_utils';
+import namespaceWorkItemTypesQuery from '../../graphql/namespace_work_item_types.query.graphql';
+import updateWorkItemHierarchyMutation from '../../graphql/update_work_item_hierarchy.mutation.graphql';
 import createWorkItemMutation from '../../graphql/create_work_item.mutation.graphql';
 import {
   FORM_TYPES,
@@ -18,9 +18,12 @@ import {
   I18N_WORK_ITEM_CONFIDENTIALITY_CHECKBOX_LABEL,
   I18N_WORK_ITEM_CONFIDENTIALITY_CHECKBOX_TOOLTIP,
   WORK_ITEM_TYPE_VALUE_EPIC,
+  I18N_MAX_WORK_ITEMS_ERROR_MESSAGE,
+  MAX_WORK_ITEMS,
   sprintfWorkItem,
 } from '../../constants';
 import WorkItemProjectsListbox from './work_item_projects_listbox.vue';
+import WorkItemGroupsListbox from './work_item_groups_listbox.vue';
 
 export default {
   components: {
@@ -32,13 +35,19 @@ export default {
     GlTooltip,
     WorkItemTokenInput,
     WorkItemProjectsListbox,
+    WorkItemGroupsListbox,
   },
   mixins: [glFeatureFlagsMixin()],
-  inject: ['hasIterationsFeature', 'isGroup'],
+  inject: ['hasIterationsFeature'],
   props: {
     fullPath: {
       type: String,
       required: true,
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     issuableGid: {
       type: String,
@@ -84,11 +93,16 @@ export default {
       required: false,
       default: WORK_ITEM_TYPE_ENUM_TASK,
     },
+    fullName: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   apollo: {
     workItemTypes: {
       query() {
-        return this.isGroup ? groupWorkItemTypesQuery : projectWorkItemTypesQuery;
+        return namespaceWorkItemTypesQuery;
       },
       variables() {
         return {
@@ -105,8 +119,10 @@ export default {
       workItemTypes: [],
       workItemsToAdd: [],
       error: null,
+      isInputValid: true,
       search: '',
-      selectedProject: null,
+      selectedProjectFullPath: this.isGroup ? null : this.fullPath,
+      selectedGroupFullPath: null,
       childToCreateTitle: null,
       confidential: this.parentConfidential,
       submitInProgress: false,
@@ -114,7 +130,7 @@ export default {
   },
   computed: {
     workItemChildIsEpic() {
-      return this.childrenTypeName === WORK_ITEM_TYPE_VALUE_EPIC;
+      return this.childrenTypeValue === WORK_ITEM_TYPE_VALUE_EPIC;
     },
     workItemInput() {
       let workItemInput = {
@@ -126,10 +142,15 @@ export default {
         confidential: this.parentConfidential || this.confidential,
       };
 
-      if (this.selectedProject && !this.workItemChildIsEpic) {
+      if (this.selectedProjectFullPath && !this.workItemChildIsEpic) {
         workItemInput = {
           ...workItemInput,
-          namespacePath: this.selectedProject.fullPath,
+          namespacePath: this.selectedProjectFullPath,
+        };
+      } else if (this.selectedGroupFullPath && this.workItemChildIsEpic) {
+        workItemInput = {
+          ...workItemInput,
+          namespacePath: this.selectedGroupFullPath,
         };
       } else {
         workItemInput = {
@@ -211,7 +232,7 @@ export default {
       return this.search.length > 0;
     },
     hasSelectedProject() {
-      return this.selectedProject !== null && this.selectedProject !== undefined;
+      return Boolean(this.selectedProjectFullPath);
     },
     canSubmitForm() {
       if (this.isCreateForm) {
@@ -235,10 +256,10 @@ export default {
         : [];
     },
     areWorkItemsToAddValid() {
-      return this.invalidWorkItemsToAdd.length === 0;
+      return this.invalidWorkItemsToAdd.length === 0 && this.areWorkItemsToAddWithinLimit;
     },
     showWorkItemsToAddInvalidMessage() {
-      return !this.isCreateForm && !this.areWorkItemsToAddValid;
+      return !this.isCreateForm && this.invalidWorkItemsToAdd.length > 0;
     },
     workItemsToAddInvalidMessage() {
       return sprintf(
@@ -252,10 +273,19 @@ export default {
         },
       );
     },
+    areWorkItemsToAddWithinLimit() {
+      return this.workItemsToAdd.length <= MAX_WORK_ITEMS;
+    },
   },
   watch: {
     workItemsToAdd() {
       this.unsetError();
+    },
+    workItemChildIsEpic: {
+      handler(isEpic) {
+        this.selectedGroupFullPath = isEpic ? this.fullPath : null;
+      },
+      immediate: true,
     },
   },
   methods: {
@@ -266,12 +296,19 @@ export default {
     },
     unsetError() {
       this.error = null;
+      this.isInputValid = true;
+    },
+    markFormSubmitInProgress(value) {
+      this.submitInProgress = value;
+      this.$emit('update-in-progress', this.submitInProgress);
+      if (!value) this.$refs.wiTitleInput?.$el?.focus();
     },
     addChild() {
-      this.submitInProgress = true;
+      this.markFormSubmitInProgress(true);
       this.$apollo
         .mutate({
-          mutation: updateWorkItemMutation,
+          mutation: updateWorkItemHierarchyMutation,
+          fetchPolicy: fetchPolicies.NO_CACHE,
           variables: {
             input: {
               id: this.issuableGid,
@@ -280,8 +317,25 @@ export default {
               },
             },
           },
+          update: (
+            cache,
+            {
+              data: {
+                workItemUpdate: { workItem },
+              },
+            },
+          ) =>
+            addHierarchyChildren({
+              cache,
+              id: this.issuableGid,
+              workItem,
+              childrenIds: this.workItemsToAdd.map((wi) => wi.id),
+            }),
         })
         .then(({ data }) => {
+          // Marking submitInProgress cannot be in finally block
+          // as the form may get close before the event is emitted
+          this.markFormSubmitInProgress(false);
           if (data.workItemUpdate?.errors?.length) {
             [this.error] = data.workItemUpdate.errors;
           } else {
@@ -291,17 +345,18 @@ export default {
         })
         .catch(() => {
           this.error = this.$options.i18n.addChildErrorMessage;
+          this.isInputValid = false;
+          this.markFormSubmitInProgress(false);
         })
         .finally(() => {
           this.search = '';
-          this.submitInProgress = false;
         });
     },
     createChild() {
       if (!this.canSubmitForm) {
         return;
       }
-      this.submitInProgress = true;
+      this.markFormSubmitInProgress(true);
       this.$apollo
         .mutate({
           mutation: createWorkItemMutation,
@@ -311,13 +366,14 @@ export default {
           update: (cache, { data }) =>
             addHierarchyChild({
               cache,
-              fullPath: this.fullPath,
-              iid: this.workItemIid,
-              isGroup: this.isGroup,
+              id: this.issuableGid,
               workItem: data.workItemCreate.workItem,
             }),
         })
         .then(({ data }) => {
+          // Marking submitInProgress cannot be in finally block
+          // as the form may get close before the event is emitted
+          this.markFormSubmitInProgress(false);
           if (data.workItemCreate?.errors?.length) {
             [this.error] = data.workItemCreate.errors;
           } else {
@@ -327,17 +383,22 @@ export default {
         })
         .catch(() => {
           this.error = this.$options.i18n.createChildErrorMessage;
+          this.isInputValid = false;
+          this.markFormSubmitInProgress(false);
         })
         .finally(() => {
           this.search = '';
           this.childToCreateTitle = null;
-          this.submitInProgress = false;
         });
+    },
+    closeForm() {
+      this.$emit('cancel');
     },
   },
   i18n: {
     titleInputLabel: __('Title'),
     projectInputLabel: __('Project'),
+    groupInputLabel: __('Group'),
     addChildErrorMessage: s__(
       'WorkItem|Something went wrong when trying to add a child. Please try again.',
     ),
@@ -346,28 +407,30 @@ export default {
     ),
     titleInputPlaceholder: s__('WorkItem|Add a title'),
     projectInputPlaceholder: s__('WorkItem|Select a project'),
+    groupInputPlaceholder: s__('WorkItem|Select a group'),
     titleInputValidationMessage: __('Maximum of 255 characters'),
+    maxItemsErrorMessage: I18N_MAX_WORK_ITEMS_ERROR_MESSAGE,
   },
 };
 </script>
 
 <template>
-  <gl-form
-    class="gl-new-card-add-form"
-    data-testid="add-item-form"
-    @submit.prevent="addOrCreateMethod"
-  >
+  <gl-form data-testid="add-item-form" @submit.prevent="addOrCreateMethod">
     <template v-if="isCreateForm">
-      <div class="gl-display-flex gl-gap-x-3">
+      <div class="gl-flex gl-gap-x-3">
         <gl-form-group
           class="gl-w-full"
           :label="$options.i18n.titleInputLabel"
           :description="$options.i18n.titleInputValidationMessage"
+          :invalid-feedback="error"
+          :state="isInputValid"
+          data-testid="work-items-create-form-group"
         >
           <gl-form-input
             ref="wiTitleInput"
             v-model="search"
             :placeholder="$options.i18n.titleInputPlaceholder"
+            :state="isInputValid"
             maxlength="255"
             class="gl-mb-3"
             autofocus
@@ -380,10 +443,26 @@ export default {
           :description="$options.i18n.projectValidationMessage"
         >
           <work-item-projects-listbox
-            v-model="selectedProject"
+            v-model="selectedProjectFullPath"
             class="gl-w-full"
             :full-path="fullPath"
+            :current-project-name="fullName"
             :is-group="isGroup"
+          />
+        </gl-form-group>
+        <gl-form-group
+          v-else
+          class="gl-w-full"
+          :label="$options.i18n.groupInputLabel"
+          :description="$options.i18n.groupValidationMessage"
+        >
+          <work-item-groups-listbox
+            v-model="selectedGroupFullPath"
+            class="gl-w-full"
+            :full-path="fullPath"
+            :current-group-name="fullName"
+            :is-group="isGroup"
+            @error="$emit('error', $event)"
           />
         </gl-form-group>
       </div>
@@ -391,7 +470,7 @@ export default {
         ref="confidentialityCheckbox"
         v-model="confidential"
         name="isConfidential"
-        class="gl-md-mt-5 gl-mb-5 gl-md-mb-3!"
+        class="gl-mb-5 md:!gl-mb-3"
         :disabled="parentConfidential"
         >{{ confidentialityCheckboxLabel }}</gl-form-checkbox
       >
@@ -406,6 +485,7 @@ export default {
       <work-item-token-input
         v-model="workItemsToAdd"
         :is-create-form="isCreateForm"
+        :is-group="isGroup"
         :parent-work-item-id="issuableGid"
         :children-type="childrenType"
         :children-ids="childrenIds"
@@ -414,29 +494,37 @@ export default {
       />
       <div
         v-if="showWorkItemsToAddInvalidMessage"
-        class="gl-text-red-500"
+        class="gl-text-danger"
         data-testid="work-items-invalid"
       >
         {{ workItemsToAddInvalidMessage }}
       </div>
-      <div v-if="error" class="gl-text-red-500" data-testid="work-items-error">
+      <div v-if="error" class="gl-mt-3 gl-text-danger" data-testid="work-items-error">
         {{ error }}
       </div>
+      <div
+        v-if="!areWorkItemsToAddWithinLimit"
+        class="gl-mb-2 gl-text-red-500"
+        data-testid="work-items-limit-error"
+      >
+        {{ $options.i18n.maxItemsErrorMessage }}
+      </div>
     </div>
-    <gl-button
-      category="primary"
-      variant="confirm"
-      size="small"
-      type="submit"
-      :disabled="!canSubmitForm"
-      :loading="submitInProgress"
-      data-testid="add-child-button"
-      class="gl-mr-2"
-    >
-      {{ addOrCreateButtonLabel }}
-    </gl-button>
-    <gl-button category="secondary" size="small" @click="$emit('cancel')">
-      {{ s__('WorkItem|Cancel') }}
-    </gl-button>
+    <div class="gl-flex gl-gap-3">
+      <gl-button
+        category="primary"
+        variant="confirm"
+        size="small"
+        type="submit"
+        :disabled="!canSubmitForm"
+        :loading="submitInProgress"
+        data-testid="add-child-button"
+      >
+        {{ addOrCreateButtonLabel }}
+      </gl-button>
+      <gl-button category="secondary" size="small" @click="closeForm">
+        {{ s__('WorkItem|Cancel') }}
+      </gl-button>
+    </div>
   </gl-form>
 </template>

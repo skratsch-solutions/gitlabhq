@@ -3,6 +3,8 @@ data_category: operational
 key_path: counts_monthly.packages
 description: A monthly count of packages published to the registry
 product_group: package_registry
+product_categories:
+- package_registry
 value_type: number
 status: active
 time_frame: 28d
@@ -11,10 +13,11 @@ instrumentation_class: CountPackagesMetric
 distribution:
 - ee
 - ce
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type:
 - customer_health_score
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

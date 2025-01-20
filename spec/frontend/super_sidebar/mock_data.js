@@ -242,8 +242,8 @@ export const frecentGroupsMock = [
     id: 'gid://gitlab/Group/1',
     name: 'Frecent group 1',
     namespace: 'Frecent Namespace 1',
-    webUrl: '/frecent-namespace-1/frecent-group-1',
     avatarUrl: '/uploads/-/avatar1.png',
+    fullPath: 'frecent-namespace-1/frecent-group-1',
   },
 ];
 
@@ -252,8 +252,8 @@ export const frecentProjectsMock = [
     id: 'gid://gitlab/Project/1',
     name: 'Frecent project 1',
     namespace: 'Frecent Namespace 1 / Frecent project 1',
-    webUrl: '/frecent-namespace-1/frecent-project-1',
     avatarUrl: '/uploads/-/avatar1.png',
+    fullPath: 'frecent-namespace-1/frecent-project-1',
   },
 ];
 
@@ -285,3 +285,22 @@ export const sortedFrequentItems = [
   { id: 1, frequency: 12, lastAccessedOn: 1491400843391 },
   { id: 4, frequency: 8, lastAccessedOn: 1497979281815 },
 ];
+
+export const sidebarDataCountResponse = ({
+  openIssuesCount = null,
+  openMergeRequestsCount = null,
+}) => {
+  return {
+    data: {
+      namespace: {
+        id: 'gid://gitlab/Project/11',
+        sidebar: {
+          openIssuesCount,
+          openMergeRequestsCount,
+          __typename: 'NamespaceSidebar',
+        },
+        __typename: 'Namespace',
+      },
+    },
+  };
+};

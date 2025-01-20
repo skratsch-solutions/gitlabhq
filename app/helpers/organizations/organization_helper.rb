@@ -10,7 +10,7 @@ module Organizations
 
     def organization_show_app_data(organization)
       {
-        organization: organization.slice(:id, :name, :description_html)
+        organization: organization.slice(:id, :name, :description_html, :visibility)
           .merge({ avatar_url: organization.avatar_url(size: 128) }),
         groups_and_projects_organization_path: groups_and_projects_organization_path(organization),
         users_organization_path: users_organization_path(organization),
@@ -24,7 +24,7 @@ module Organizations
 
     def organization_settings_general_app_data(organization)
       {
-        organization: organization.slice(:id, :name, :path, :description)
+        organization: organization.slice(:id, :name, :path, :description, :visibility_level)
           .merge({ avatar: organization.avatar_url(size: 192) })
       }.merge(shared_new_settings_general_app_data).to_json
     end
@@ -37,7 +37,7 @@ module Organizations
     end
 
     def organization_index_app_data
-      shared_organization_index_app_data
+      shared_organization_index_app_data.to_json
     end
 
     def organization_user_app_data(organization)
@@ -111,7 +111,9 @@ module Organizations
 
     def shared_organization_index_app_data
       {
-        new_organization_url: new_organization_path
+        new_organization_url: new_organization_path,
+        can_create_organization: Feature.enabled?(:allow_organization_creation, current_user) &&
+          can?(current_user, :create_organization)
       }
     end
 
@@ -146,27 +148,27 @@ module Organizations
     def organization_activity_event_types
       [
         {
-          title: _('Comments'),
+          title: _('Comment'),
           value: EventFilter::COMMENTS
         },
         {
-          title: _('Designs'),
+          title: _('Design'),
           value: EventFilter::DESIGNS
         },
         {
-          title: _('Issue events'),
+          title: _('Issue'),
           value: EventFilter::ISSUE
         },
         {
-          title: _('Merge events'),
+          title: _('Merge'),
           value: EventFilter::MERGED
         },
         {
-          title: _('Push events'),
+          title: _('Repository'),
           value: EventFilter::PUSH
         },
         {
-          title: _('Team'),
+          title: _('Membership'),
           value: EventFilter::TEAM
         },
         {

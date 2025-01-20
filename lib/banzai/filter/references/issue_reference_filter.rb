@@ -22,7 +22,12 @@ module Banzai
         end
 
         def parent_records(parent, ids)
-          parent.issues.where(iid: ids.to_a).includes(:project, :namespace, :work_item_type)
+          # we are treating all group level issues as work items so those would be handled
+          # by the WorkItemReferenceFilter
+          return Issue.none if parent.is_a?(Group)
+
+          parent.issues.where(iid: ids.to_a)
+                .includes(:project, :namespace, ::Gitlab::Issues::TypeAssociationGetter.call)
         end
 
         def object_link_text_extras(issue, matches)

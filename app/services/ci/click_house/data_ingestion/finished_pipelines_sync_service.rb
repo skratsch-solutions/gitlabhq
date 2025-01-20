@@ -50,16 +50,9 @@ module Ci
             )
           end
 
-          if Feature.disabled?(:ci_pipelines_data_ingestion_to_click_house, Feature.current_request)
-            return ServiceResponse.error(
-              message: 'Feature ci_pipelines_data_ingestion_to_click_house is disabled',
-              reason: :disabled
-            )
-          end
-
           # Prevent parallel jobs
           in_lock("#{self.class.name.underscore}/worker/#{@worker_index}", ttl: MAX_TTL, retries: 0) do
-            ::Gitlab::Database::LoadBalancing::Session.without_sticky_writes do
+            ::Gitlab::Database::LoadBalancing::SessionMap.without_sticky_writes do
               report = insert_new_finished_pipelines
 
               ServiceResponse.success(payload: report.merge(service_payload))
@@ -155,6 +148,7 @@ module Ci
               records_yielder << pipeline.attributes.symbolize_keys.tap do |record|
                 # add the project namespace ID segment to the path selected in the query
                 record[:path] += "#{project_namespace_ids[record[:id]]}/"
+                record[:duration] = 0 if record[:duration].nil? || record[:duration] < 0
               end
             end
 
@@ -165,7 +159,7 @@ module Ci
           [
             *PIPELINE_FIELD_NAMES.map { |n| "#{::Ci::Pipeline.table_name}.#{n}" },
             *PIPELINE_EPOCH_FIELD_NAMES
-               .map { |n| "EXTRACT(epoch FROM #{::Ci::Pipeline.table_name}.#{n}) AS casted_#{n}" },
+               .map { |n| "COALESCE(EXTRACT(epoch FROM #{::Ci::Pipeline.table_name}.#{n}), 0) AS casted_#{n}" },
             "ARRAY_TO_STRING(#{::Ci::NamespaceMirror.table_name}.traversal_ids, '/') || '/' AS path"
           ]
         end

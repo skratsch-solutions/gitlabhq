@@ -3,6 +3,8 @@ data_category: optional
 key_path: counts.projects_with_expiration_policy_disabled
 description: The number of projects with cleanup policy for tags turned off
 product_group: container_registry
+product_categories:
+- container_registry
 value_type: number
 status: active
 time_frame: all
@@ -13,9 +15,10 @@ options:
 distribution:
 - ee
 - ce
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

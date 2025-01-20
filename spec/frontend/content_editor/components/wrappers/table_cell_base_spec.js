@@ -4,6 +4,7 @@ import { selectedRect as getSelectedRect } from '@tiptap/pm/tables';
 import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import { stubComponent } from 'helpers/stub_component';
+import { useFakeRequestAnimationFrame } from 'helpers/fake_request_animation_frame';
 import TableCellBaseWrapper from '~/content_editor/components/wrappers/table_cell_base.vue';
 import { createTestEditor, mockChainedCommands, emitEditorEvent } from '../../test_utils';
 
@@ -13,6 +14,9 @@ describe('content/components/wrappers/table_cell_base', () => {
   let wrapper;
   let editor;
   let node;
+
+  // Stubbing requestAnimationFrame because GlDisclosureDropdown uses it to delay its `action` event.
+  useFakeRequestAnimationFrame();
 
   const createWrapper = (propsData = { cellType: 'td' }) => {
     wrapper = mountExtended(TableCellBaseWrapper, {
@@ -57,9 +61,7 @@ describe('content/components/wrappers/table_cell_base', () => {
 
     expect(findDropdown().props()).toMatchObject({
       category: 'tertiary',
-      icon: 'chevron-down',
       size: 'small',
-      noCaret: true,
     });
     expect(findDropdown().attributes()).toMatchObject({
       boundary: 'viewport',
@@ -93,12 +95,12 @@ describe('content/components/wrappers/table_cell_base', () => {
     });
 
     it.each`
-      dropdownItemLabel         | commandName
-      ${'Insert column before'} | ${'addColumnBefore'}
-      ${'Insert column after'}  | ${'addColumnAfter'}
-      ${'Insert row before'}    | ${'addRowBefore'}
-      ${'Insert row after'}     | ${'addRowAfter'}
-      ${'Delete table'}         | ${'deleteTable'}
+      dropdownItemLabel        | commandName
+      ${'Insert column left'}  | ${'addColumnBefore'}
+      ${'Insert column right'} | ${'addColumnAfter'}
+      ${'Insert row above'}    | ${'addRowBefore'}
+      ${'Insert row below'}    | ${'addRowAfter'}
+      ${'Delete table'}        | ${'deleteTable'}
     `(
       'executes $commandName when $dropdownItemLabel button is clicked',
       async ({ dropdownItemLabel, commandName }) => {

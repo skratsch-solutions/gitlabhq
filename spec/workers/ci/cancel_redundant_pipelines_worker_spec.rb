@@ -6,7 +6,7 @@ RSpec.describe Ci::CancelRedundantPipelinesWorker, feature_category: :continuous
   let_it_be(:project) { create(:project) }
 
   let(:prev_pipeline) { create(:ci_pipeline, project: project) }
-  let(:pipeline) { create(:ci_pipeline, project: project) }
+  let(:pipeline) { create(:ci_pipeline, project: project, sha: 'new-sha') }
 
   describe '#perform' do
     subject(:perform) { described_class.new.perform(pipeline.id) }
@@ -22,6 +22,24 @@ RSpec.describe Ci::CancelRedundantPipelinesWorker, feature_category: :continuous
       expect(service).to receive(:execute)
 
       perform
+    end
+
+    context 'with a passed partition_id' do
+      subject(:perform) { described_class.new.perform(pipeline.id, { 'partition_id' => pipeline.partition_id }) }
+
+      it 'finds the passed pipeline in the correct partition and passes it to the service' do
+        expect(Ci::PipelineCreation::CancelRedundantPipelinesService)
+          .to receive(:new)
+          .with(pipeline)
+          .and_return(service)
+
+        expect(service).to receive(:execute)
+
+        recorder = ActiveRecord::QueryRecorder.new { perform }
+
+        expect(recorder.count).to eq(1)
+        expect(recorder.log.first).to match(/^SELECT "p_ci_pipelines".*"partition_id" = #{pipeline.partition_id}/)
+      end
     end
 
     context 'if pipeline is deleted' do

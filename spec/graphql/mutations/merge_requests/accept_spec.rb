@@ -2,21 +2,16 @@
 
 require 'spec_helper'
 
-RSpec.describe Mutations::MergeRequests::Accept do
+RSpec.describe Mutations::MergeRequests::Accept, feature_category: :api do
   include GraphqlHelpers
   include AfterNextHelpers
 
-  subject(:mutation) { described_class.new(context: context, object: nil, field: nil) }
-
   let_it_be(:user) { create(:user) }
-
   let(:project) { create(:project, :public, :repository) }
-  let(:context) do
-    GraphQL::Query::Context.new(
-      query: query_double(schema: GitlabSchema),
-      values: { current_user: user }
-    )
-  end
+  let(:query) { GraphQL::Query.new(empty_schema, document: nil, context: {}, variables: {}) }
+  let(:context) { GraphQL::Query::Context.new(query: query, values: { current_user: user }) }
+
+  subject(:mutation) { described_class.new(context: context, object: nil, field: nil) }
 
   before do
     project.repository.expire_all_method_caches
@@ -100,16 +95,12 @@ RSpec.describe Mutations::MergeRequests::Accept do
         expect(result).to include(errors: be_empty, merge_request: be_auto_merge_enabled)
       end
 
-      context 'when merge_when_checks_pass is off' do
+      context 'when MR is in draft state' do
         before do
-          stub_feature_flags(merge_when_checks_pass: false)
+          merge_request.update!(title: "Draft: Test")
         end
 
-        let(:merge_request) { create(:merge_request, :with_head_pipeline, source_project: project) }
-        let(:strategy) { ::Types::MergeStrategyEnum.values['MERGE_WHEN_PIPELINE_SUCCEEDS'].value }
-        let(:additional_args) { { auto_merge_strategy: strategy } }
-
-        it "can use the MERGE_WHEN_PIPELINE_SUCCEEDS strategy" do
+        it "can use the MERGE_WHEN_CHECKS_PASS strategy" do
           expect_next_found_instance_of(MergeRequest) do |instance|
             expect(instance).not_to receive(:merge_async)
           end

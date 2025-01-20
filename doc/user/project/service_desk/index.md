@@ -8,7 +8,17 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
+
+NOTE:
+This feature is not under active development, but
+[community contributions](https://about.gitlab.com/community/contribute/) are welcome.
+To determine if the feature as it is meets your needs, explore the existing documentation or see the
+[open issues for the Service Desk category](https://gitlab.com/gitlab-org/gitlab/-/issues/?sort=updated_desc&state=opened&label_name%5B%5D=Category%3AService%20Desk&first_page_size=100)
+to learn more about work that hasn't been done yet.
+The decision to deprioritize Service Desk has been made to
+focus on building and extending the work item framework which
+the Service Desk category will also benefit from long-term.
 
 With Service Desk, your customers
 can email you bug reports, feature requests, or general feedback.
@@ -74,12 +84,23 @@ Meanwhile:
 
 ### Emails to Service Desk do not create issues
 
-Your emails might be ignored because they contain one of the
-[email headers that GitLab ignores](../../../administration/incoming_email.md#rejected-headers).
+- Your emails might be ignored because they contain one of the
+  [email headers that GitLab ignores](../../../administration/incoming_email.md#rejected-headers).
+- Emails might get dropped if the sender email domain is using strict DKIM rules and there is a verification
+  failure due to forwarding emails to the project-specific Service Desk address.
+  A typical DKIM failure message, which can be found in email headers, might look like:
 
-### Email ingestion doesn't work in 16.6.0 self-managed
+  ```plaintext
+  dkim=fail (signature did not verify) ... arc=fail
+  ```
 
-GitLab self-managed `16.6.0` introduced a regression that prevents `mail_room` (email ingestion) from starting.
+  The exact wording of the failure message may vary depending on the specific email system or tools in use.
+  Also see [this article on DKIM failures](https://automatedemailwarmup.com/blog/dkim-fail/) for more
+  information and potential solutions.
+
+### Email ingestion doesn't work in 16.6.0
+
+GitLab Self-Managed `16.6.0` introduced a regression that prevents `mail_room` (email ingestion) from starting.
 Service Desk and other reply-by-email features don't work.
 [Issue 432257](https://gitlab.com/gitlab-org/gitlab/-/issues/432257) tracks fixing this problem.
 

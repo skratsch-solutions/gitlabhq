@@ -201,6 +201,7 @@ RSpec.describe BulkImports::Pipeline::Runner, feature_category: :importers do
         expect(subject).to receive(:on_finish)
         expect(context.bulk_import).to receive(:touch)
         expect(context.entity).to receive(:touch)
+        expect(subject).to receive(:delete_existing_records).once
 
         expect_next_instance_of(BulkImports::Logger) do |logger|
           expect(logger).to receive(:with_entity).with(context.entity).and_call_original
@@ -306,6 +307,28 @@ RSpec.describe BulkImports::Pipeline::Runner, feature_category: :importers do
         end
       end
 
+      [Gitlab::Import::SourceUserMapper::FailedToObtainLockError,
+        Gitlab::Import::SourceUserMapper::DuplicatedUserError].each do |exception_class|
+        context "when #{exception_class} is raised" do
+          it 'raises the exception BulkImports::RetryPipelineError' do
+            allow_next_instance_of(BulkImports::Extractor) do |extractor|
+              allow(extractor)
+                .to receive(:extract)
+                .with(context)
+                .and_return(extracted_data)
+            end
+
+            allow_next_instance_of(BulkImports::Transformer) do |transformer|
+              allow(transformer)
+                .to receive(:transform)
+                .and_raise(exception_class)
+            end
+
+            expect { subject.run }.to raise_error(BulkImports::RetryPipelineError)
+          end
+        end
+      end
+
       context 'when the exception BulkImports::NetworkError is raised' do
         before do
           allow_next_instance_of(BulkImports::Extractor) do |extractor|
@@ -392,9 +415,7 @@ RSpec.describe BulkImports::Pipeline::Runner, feature_category: :importers do
 
     context 'when the entry is already processed' do
       before do
-        allow_next_instance_of(BulkImports::MyPipeline) do |klass|
-          allow(klass).to receive(:already_processed?).and_return true
-        end
+        allow(subject).to receive(:already_processed?).and_return(true)
       end
 
       it 'runs pipeline extractor, but not transformer or loader' do
@@ -405,15 +426,8 @@ RSpec.describe BulkImports::Pipeline::Runner, feature_category: :importers do
             .and_return(extracted_data)
         end
 
-        allow_next_instance_of(BulkImports::Transformer) do |transformer|
-          expect(transformer)
-            .not_to receive(:transform)
-        end
-
-        allow_next_instance_of(BulkImports::Loader) do |loader|
-          expect(loader)
-            .not_to receive(:load)
-        end
+        expect(BulkImports::Transformer).not_to receive(:new)
+        expect(BulkImports::Loader).not_to receive(:new)
 
         subject.run
       end
@@ -465,6 +479,21 @@ RSpec.describe BulkImports::Pipeline::Runner, feature_category: :importers do
         expect(tracker.source_objects_count).to eq(1)
         expect(tracker.fetched_objects_count).to eq(1)
         expect(tracker.imported_objects_count).to eq(1)
+      end
+    end
+
+    describe 'delete partial imported records' do
+      it 'calls delete_existing_records method for the first non processed entry' do
+        allow_next_instance_of(BulkImports::Extractor) do |extractor|
+          allow(extractor).to receive(:extract).with(context)
+            .and_return(BulkImports::Pipeline::ExtractedData.new(data: [{ id: 1 }, { id: 2 }, { id: 3 }]))
+        end
+
+        allow(subject).to receive(:already_processed?).and_return(true, false, false)
+
+        expect(subject).to receive(:delete_existing_records).with({ id: 2 }).once
+
+        subject.run
       end
     end
 

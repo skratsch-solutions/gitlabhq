@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Deployment jobs](../jobs/index.md#deployment-jobs) are a specific kind of CI/CD
 job. They can be more sensitive than other jobs in a pipeline,
@@ -102,7 +102,7 @@ can be prevented in some circumstances.
 > - Job retries for rollback deployments checkbox [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/410427) in GitLab 16.3.
 
 You might need to quickly roll back to a stable, outdated deployment.
-By default, pipeline job retries for [deployment rollback](index.md#environment-rollback) are enabled.
+By default, pipeline job retries for [deployment rollback](deployments.md#deployment-rollback) are enabled.
 
 To disable pipeline retries, clear the **Allow job retries for rollback deployments** checkbox. You should disable pipeline retries in sensitive projects.
 
@@ -140,7 +140,7 @@ page.
 Production secrets are needed to deploy successfully. For example, when deploying to the cloud,
 cloud providers require these secrets to connect to their services. In the project settings, you can
 define and protect CI/CD variables for these secrets. [Protected variables](../variables/index.md#protect-a-cicd-variable)
-are only passed to pipelines running on [protected branches](../../user/project/protected_branches.md)
+are only passed to pipelines running on [protected branches](../../user/project/repository/branches/protected.md)
 or [protected tags](../../user/project/protected_tags.md).
 The other pipelines don't get the protected variable. You can also
 [scope variables to specific environments](../variables/where_variables_can_be_used.md#variables-with-an-environment-scope).

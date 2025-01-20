@@ -18,9 +18,9 @@ export default {
 </script>
 
 <template>
-  <div class="gl-display-flex gl-align-items-center">
-    <gl-icon name="folder-o" class="gl-mr-3" />
-    <div class="gl-display-none gl-flex-shrink-0 gl-sm-display-flex gl-mr-3">
+  <div class="gl-flex gl-items-center">
+    <gl-icon name="folder" class="gl-mr-3" />
+    <div class="gl-mr-3 gl-hidden gl-shrink-0 sm:gl-flex">
       <gl-avatar
         :size="32"
         :shape="$options.AVATAR_SHAPE_OPTION_RECT"
@@ -30,11 +30,11 @@ export default {
     </div>
 
     <div>
-      <span class="gl-mr-3 gl-text-gray-900! gl-font-bold">
+      <span class="gl-mr-3 gl-font-bold !gl-text-default">
         {{ group.full_name }}
       </span>
       <div v-if="group.description">
-        <p class="gl-mt-2! gl-mb-0 gl-text-gray-600" v-text="group.description"></p>
+        <p class="!gl-mt-2 gl-mb-0 gl-text-subtle" v-text="group.description"></p>
       </div>
     </div>
   </div>

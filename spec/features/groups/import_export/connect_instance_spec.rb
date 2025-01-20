@@ -6,7 +6,7 @@ RSpec.describe 'Import/Export - Connect to another instance', :js, feature_categ
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group, owners: user) }
 
-  context 'when importing group by direct transfer is enabled' do
+  context 'when importing groups and projects by direct transfer is enabled' do
     before do
       stub_application_setting(bulk_import_enabled: true)
 
@@ -77,7 +77,7 @@ RSpec.describe 'Import/Export - Connect to another instance', :js, feature_categ
     end
   end
 
-  context 'when importing group by direct transfer is disabled' do
+  context 'when importing groups and projects by direct transfer is disabled' do
     before do
       stub_application_setting(bulk_import_enabled: false)
 

@@ -39,9 +39,21 @@ RSpec.describe User, feature_category: :system_access do
       end
     end
 
+    describe '.without_humans' do
+      it 'includes everyone except humans' do
+        expect(described_class.without_humans).to match_array(everyone - [human])
+      end
+    end
+
     describe '.non_internal' do
       it 'includes all non_internal users' do
         expect(described_class.non_internal).to match_array(non_internal)
+      end
+    end
+
+    describe '.with_duo_code_review_bot' do
+      it 'includes all non_internal and duo_code_review_bot users' do
+        expect(described_class.with_duo_code_review_bot).to match_array(non_internal + [duo_code_review_bot])
       end
     end
 

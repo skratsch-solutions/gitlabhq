@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Observability
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Sentry](https://sentry.io/) is an open source error tracking system. GitLab enables
 administrators to connect Sentry to GitLab, so users can view a list of Sentry errors in GitLab.
@@ -41,6 +41,7 @@ To enable the Sentry integration:
    1. For **Sentry API URL**, enter your Sentry hostname. For example,
       enter `https://sentry.example.com`.
       For the SaaS version of Sentry, the hostname is `https://sentry.io`.
+      For the SaaS version of Sentry hosted in the EU, the hostname is `https://de.sentry.io`.
    1. For **Auth Token**, enter the token you generated previously.
    1. To test the connection to Sentry and populate the **Project** dropdown list,
       select **Connect**.

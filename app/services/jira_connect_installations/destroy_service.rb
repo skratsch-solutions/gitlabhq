@@ -18,7 +18,20 @@ module JiraConnectInstallations
         return true
       end
 
-      @installation.destroy
+      # rubocop:disable Database/AvoidUsingPluckWithoutLimit, CodeReuse/ActiveRecord -- Limit of 100 max per page is defined in kaminari config
+      subscriptions_namespace_ids = @installation.subscriptions.pluck(:namespace_id)
+      # rubocop:enable Database/AvoidUsingPluckWithoutLimit, CodeReuse/ActiveRecord
+
+      return false unless @installation.destroy
+
+      deactivate_jira_cloud_app_integrations(subscriptions_namespace_ids)
+      true
+    end
+
+    def deactivate_jira_cloud_app_integrations(subscriptions_namespace_ids)
+      subscriptions_namespace_ids.each do |namespace_id|
+        JiraConnect::JiraCloudAppDeactivationWorker.perform_async(namespace_id)
+      end
     end
   end
 end

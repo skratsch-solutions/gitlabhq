@@ -8,22 +8,24 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab provides an API endpoint for instance-level Dockerfile templates.
 Default templates are defined at
 [`vendor/Dockerfile`](https://gitlab.com/gitlab-org/gitlab-foss/-/tree/master/vendor/Dockerfile)
 in the GitLab repository.
 
+Users with the Guest role can't access the Dockerfiles templates. For more information, see [Project and group visibility](../../user/public_access.md).
+
 ## Override Dockerfile API templates
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 In [GitLab Premium and Ultimate](https://about.gitlab.com/pricing/) tiers, GitLab instance
 administrators can override templates in the
-[Admin Area](../../administration/settings/instance_template_repository.md).
+[**Admin** area](../../administration/settings/instance_template_repository.md).
 
 ## List Dockerfile templates
 
@@ -32,6 +34,8 @@ Get all Dockerfile templates.
 ```plaintext
 GET /templates/dockerfiles
 ```
+
+Example request:
 
 ```shell
 curl "https://gitlab.example.com/api/v4/templates/dockerfiles"
@@ -124,9 +128,11 @@ Get a single Dockerfile template.
 GET /templates/dockerfiles/:key
 ```
 
-| Attribute  | Type   | Required | Description |
-| ---------- | ------ | -------- | ----------- |
-| `key`      | string | yes      | The key of the Dockerfile template |
+| Attribute | Type   | Required | Description |
+|-----------|--------|----------|-------------|
+| `key`     | string | yes      | The key of the Dockerfile template |
+
+Example request:
 
 ```shell
 curl "https://gitlab.example.com/api/v4/templates/dockerfiles/Binary"

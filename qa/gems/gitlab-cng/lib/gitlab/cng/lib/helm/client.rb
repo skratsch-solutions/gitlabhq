@@ -9,31 +9,44 @@ module Gitlab
         include Helpers::Shell
         include Helpers::Output
 
-        HELM_CHART_PREFIX = "gitlab"
-        HELM_CHART = "https://charts.gitlab.io"
-        HELM_CHART_REPO = "https://gitlab.com/gitlab-org/charts/gitlab"
+        GITLAB_CHART_PREFIX = "gitlab"
+        GITLAB_CHART_URL = "https://charts.gitlab.io"
+        GITLAB_CHART_PROJECT_URL = "https://gitlab.com/gitlab-org/charts/gitlab"
+
+        REPOSITORY_CACHE_VARIABLE_NAME = "CNG_HELM_REPOSITORY_CACHE"
 
         # Error raised by helm client class
         Error = Class.new(StandardError)
+
+        # Add helm chart repository
+        #
+        # @param [String] name
+        # @param [String] url
+        # @return [void]
+        def add_helm_chart(name, url)
+          log("Adding helm chart '#{url}'", :info)
+          puts(run_helm(%W[repo add #{name} #{url}]).tap do |output|
+            # when cache is present, the command will skip with 0 exit code but repo update still needs to be performed
+            raise(Error, output) if output.include?("already exists with the same configuration")
+          end)
+        rescue Error => e
+          if e.message.include?("already exists")
+            log("helm chart repo already exists, updating", :warn)
+            return puts(run_helm(%W[repo update #{name}]))
+          end
+
+          raise(Error, e.message)
+        end
 
         # Add helm chart and return reference
         #
         # @param [String] sha fetch and package helm chart using specific repo sha
         # @return [String] chart reference or path to packaged chart tgz
-        def add_helm_chart(sha = nil)
+        def add_gitlab_helm_chart(sha = nil)
           return package_chart(sha) if sha
 
-          log("Adding gitlab helm chart '#{HELM_CHART}'", :info)
-          puts run_helm(%W[repo add #{HELM_CHART_PREFIX} #{HELM_CHART}])
-          "#{HELM_CHART_PREFIX}/gitlab"
-        rescue Error => e
-          if e.message.include?("already exists")
-            log("helm chart repo already exists, updating", :warn)
-            puts(run_helm(%w[repo update gitlab]))
-            return "#{HELM_CHART_PREFIX}/gitlab"
-          end
-
-          raise(Error, e.message)
+          add_helm_chart(GITLAB_CHART_PREFIX, GITLAB_CHART_URL)
+          "#{GITLAB_CHART_PREFIX}/gitlab"
         end
 
         # Run helm upgrade command with --install argument
@@ -57,7 +70,7 @@ module Gitlab
           ], values)
         end
 
-        # Uninstall helm relase
+        # Uninstall helm release
         #
         # @param [String] name
         # @param [String] namespace
@@ -81,6 +94,13 @@ module Gitlab
 
         private
 
+        # Custom repository cache folder
+        #
+        # @return [String]
+        def repository_cache
+          @repository_cache ||= ENV[REPOSITORY_CACHE_VARIABLE_NAME] || ""
+        end
+
         # Temporary directory for helm chart
         #
         # @return [String]
@@ -95,12 +115,20 @@ module Gitlab
         def package_chart(sha)
           log("Packaging chart for git sha '#{sha}'", :info)
           chart_dir = fetch_chart_repo(sha)
+          chart_tar = "gitlab-#{sha}.tgz"
+          cached_chart_tar = File.join(repository_cache, chart_tar)
+
+          if repository_cache.present? && File.exist?(cached_chart_tar)
+            puts "Cached version of chart found at #{cached_chart_tar}, skipping packaging"
+            return cached_chart_tar
+          end
+
           puts run_helm(%W[package --dependency-update --destination #{chart_dir} #{chart_dir}])
+          packaged_chart_tar = Dir.glob("#{chart_dir}/gitlab-*.tgz").first
+          raise "Failed to package chart" unless File.exist?(packaged_chart_tar)
 
-          chart_tar = Dir.glob("#{chart_dir}/gitlab-*.tgz").first
-          raise "Failed to package chart" unless chart_tar
-
-          chart_tar
+          FileUtils.cp(packaged_chart_tar, cached_chart_tar) if File.directory?(repository_cache)
+          packaged_chart_tar
         end
 
         # Download and extract helm chart
@@ -108,7 +136,7 @@ module Gitlab
         # @param [String] sha
         # @return [String] path to extracted repo
         def fetch_chart_repo(sha)
-          uri = URI("#{HELM_CHART_REPO}/-/archive/#{sha}/gitlab-#{sha}.tar")
+          uri = URI("#{GITLAB_CHART_PROJECT_URL}/-/archive/#{sha}/gitlab-#{sha}.tar")
           res = Net::HTTP.get_response(uri)
           raise "Failed to download chart, got response code: #{res.code}" unless res.code == "200"
 
@@ -122,7 +150,9 @@ module Gitlab
         # @param [Array] cmd
         # @return [String]
         def run_helm(cmd, stdin = nil)
-          execute_shell(["helm", *cmd], stdin_data: stdin)
+          helm_cmd = ["helm", *cmd]
+          helm_cmd.push("--repository-cache", repository_cache) if repository_cache.present?
+          execute_shell(helm_cmd, stdin_data: stdin)
         rescue Helpers::Shell::CommandFailure => e
           raise(Error, e.message)
         end

@@ -2,8 +2,10 @@
 require 'spec_helper'
 
 RSpec.describe Mutations::Ci::JobTokenScope::RemoveProject, feature_category: :continuous_integration do
+  include GraphqlHelpers
+
   let(:mutation) do
-    described_class.new(object: nil, context: { current_user: current_user }, field: nil)
+    described_class.new(object: nil, context: query_context, field: nil)
   end
 
   describe '#resolve' do
@@ -53,7 +55,7 @@ RSpec.describe Mutations::Ci::JobTokenScope::RemoveProject, feature_category: :c
             expect(::Ci::JobTokenScope::RemoveProjectService)
               .to receive(:new).with(project, current_user).and_return(service)
             expect(service).to receive(:execute).with(target_project, :outbound)
-              .and_return(instance_double('ServiceResponse', "success?": true))
+              .and_return(instance_double('ServiceResponse', "success?": true, payload: link))
 
             subject
           end
@@ -68,7 +70,7 @@ RSpec.describe Mutations::Ci::JobTokenScope::RemoveProject, feature_category: :c
             expect(::Ci::JobTokenScope::RemoveProjectService)
               .to receive(:new).with(project, current_user).and_return(service)
             expect(service).to receive(:execute).with(target_project, 'inbound')
-              .and_return(instance_double('ServiceResponse', "success?": true))
+              .and_return(instance_double('ServiceResponse', "success?": true, payload: link))
 
             subject
           end

@@ -21,7 +21,7 @@ module IssuesHelper
   end
 
   def confidential_icon(issue)
-    sprite_icon('eye-slash', css_class: 'gl-vertical-align-text-bottom') if issue.confidential?
+    sprite_icon('eye-slash', css_class: 'gl-align-text-bottom') if issue.confidential?
   end
 
   def issue_hidden?(issue)
@@ -54,9 +54,9 @@ module IssuesHelper
   def awards_sort(awards)
     awards.sort_by do |award, award_emojis|
       case award
-      when "thumbsup"
+      when AwardEmoji::THUMBS_UP
         0
-      when "thumbsdown"
+      when AwardEmoji::THUMBS_DOWN
         1
       else
         2
@@ -144,7 +144,7 @@ module IssuesHelper
       is_signed_in: current_user.present?.to_s,
       rss_path: url_for(safe_params.merge(rss_url_options)),
       sign_in_path: new_user_session_path,
-      wi: work_items_show_data(namespace)
+      wi: work_items_show_data(namespace, current_user)
     }
   end
 
@@ -167,17 +167,17 @@ module IssuesHelper
       can_read_crm_contact: can?(current_user, :read_crm_contact, project.group).to_s,
       can_read_crm_organization: can?(current_user, :read_crm_organization, project.group).to_s,
       email: current_user&.notification_email_or_default,
-      emails_help_page_path: help_page_path('development/emails', anchor: 'email-namespace'),
+      emails_help_page_path: help_page_path('development/emails.md', anchor: 'email-namespace'),
       export_csv_path: export_csv_project_issues_path(project),
       has_any_issues: project_issues(project).exists?.to_s,
       import_csv_issues_path: import_csv_namespace_project_issues_path,
       initial_email: project.new_issuable_address(current_user, 'issue'),
       is_project: true.to_s,
-      markdown_help_path: help_page_path('user/markdown'),
+      markdown_help_path: help_page_path('user/markdown.md'),
       max_attachment_size: number_to_human_size(Gitlab::CurrentSettings.max_attachment_size.megabytes),
       new_issue_path: new_project_issue_path(project),
       project_import_jira_path: project_import_jira_path(project),
-      quick_actions_help_path: help_page_path('user/project/quick_actions'),
+      quick_actions_help_path: help_page_path('user/project/quick_actions.md'),
       releases_path: project_releases_path(project, format: :json),
       reset_path: new_issuable_address_project_path(project, issuable_type: 'issue'),
       show_new_issue_link: show_new_issue_link?(project).to_s

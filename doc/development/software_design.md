@@ -54,7 +54,7 @@ for STI, exposed to the user, or if it would be a breaking change.
 ## Bounded contexts
 
 See the [Bounded Contexts working group](https://handbook.gitlab.com/handbook/company/working-groups/bounded-contexts/) and
-[GitLab Modular Monolith blueprint](../architecture/blueprints/modular_monolith/index.md) for more context on the
+[GitLab Modular Monolith design document](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/modular_monolith/) for more context on the
 goals, motivations, and direction related to Bounded Contexts.
 
 ### Use namespaces to define bounded contexts
@@ -181,22 +181,25 @@ In exceptional cases, we may need to add a new bounded context to the list. This
 
 1. **Is there ever a situation where the cop should be disabled?**
 
-    - The cop **should not** be disabled but it **could** be disabled temporarily if the offending class or module is part
-      of a cluster of classes that should otherwise be moved all together.
-      In this case you could disable the cop and create a follow-up issue to move all the classes at once.
+   - The cop **should not** be disabled but it **could** be disabled temporarily if the offending class or module is part
+     of a cluster of classes that should otherwise be moved all together.
+     In this case you could disable the cop and create a follow-up issue to move all the classes at once.
+
 1. **Is there a suggested timeline to get all of the existing code refactored into compliance?**
 
-    - We do not have a timeline defined but the quicker we consolidate code the more consistent it becomes.
+   - We do not have a timeline defined but the quicker we consolidate code the more consistent it becomes.
+
 1. **Do the bounded contexts apply for existing Sidekiq workers?**
 
-    - Existing workers would be already in the RuboCop TODO file so they do not raise offenses. However, they should
-      also be moved into the bounded context whenever possible.
-      Follow the Sidekiq [renaming worker](../development/sidekiq/compatibility_across_updates.md#renaming-worker-classes) guide.
+   - Existing workers would be already in the RuboCop TODO file so they do not raise offenses. However, they should
+     also be moved into the bounded context whenever possible.
+     Follow the Sidekiq [renaming worker](../development/sidekiq/compatibility_across_updates.md#renaming-worker-classes) guide.
+
 1. **We are renaming a feature category and the `config/bounded_contexts.yml` references that. Is it safe to update?**
 
-    - Yes the file only expects that the feature categories mapped to bounded contexts are defined in `config/feature_categories.yml`
-      and nothing specifically depends on these values. This mapping is primarily for contributors to understand where features
-      may be living in the codebase.
+   - Yes the file only expects that the feature categories mapped to bounded contexts are defined in `config/feature_categories.yml`
+     and nothing specifically depends on these values. This mapping is primarily for contributors to understand where features
+     may be living in the codebase.
 
 ## Distinguish domain code from generic code
 
@@ -407,7 +410,7 @@ use cases:
 
 These 2 different use cases support different sets of parameters. It's not likely or expected that
 an instance administrator updates `shared_runners_minutes_limit` and also the group description. Similarly, it's not expected
-for a user to change branch protection rules and shared runners settings at the same time.
+for a user to change branch protection rules and instance runners settings at the same time.
 These represent different use cases, coming from different domains.
 
 ### Solution

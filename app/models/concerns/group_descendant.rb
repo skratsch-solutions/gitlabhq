@@ -36,7 +36,9 @@ module GroupDescendant
 
   def expand_hierarchy_for_child(child, hierarchy, hierarchy_top, preloaded)
     parent = hierarchy_top if hierarchy_top && child.parent_id == hierarchy_top.id
-    parent ||= preloaded.detect { |possible_parent| possible_parent.is_a?(Group) && possible_parent.id == child.parent_id }
+    parent ||= preloaded.detect do |possible_parent|
+      possible_parent.is_a?(Group) && possible_parent.id == child.parent_id
+    end
 
     if parent.nil? && !child.parent_id.nil?
       parent = child.parent
@@ -45,6 +47,8 @@ module GroupDescendant
         Parent was not preloaded for child when rendering group hierarchy.
         This error is not user facing, but causes a +1 query.
       MSG
+      exception.set_backtrace(caller)
+
       extras = {
         parent: parent.inspect,
         child: child.inspect,

@@ -6,6 +6,7 @@ import EmojiPicker from '~/emoji/components/picker.vue';
 import { __, sprintf } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { glEmojiTag } from '~/emoji';
+import { EMOJI_THUMBS_UP, EMOJI_THUMBS_DOWN } from '~/emoji/constants';
 
 // Internal constant, specific to this component, used when no `currentUserId` is given
 const NO_USER_ID = -1;
@@ -65,8 +66,8 @@ export default {
       };
 
       return [
-        ...(thumbsup ? [this.createAwardList('thumbsup', thumbsup)] : []),
-        ...(thumbsdown ? [this.createAwardList('thumbsdown', thumbsdown)] : []),
+        ...(thumbsup ? [this.createAwardList(EMOJI_THUMBS_UP, thumbsup)] : []),
+        ...(thumbsdown ? [this.createAwardList(EMOJI_THUMBS_DOWN, thumbsdown)] : []),
         ...Object.entries(rest).map(([name, list]) => this.createAwardList(name, list)),
       ];
     },
@@ -178,8 +179,8 @@ export default {
     <gl-button
       v-for="awardList in groupedAwards"
       :key="awardList.name"
-      v-gl-tooltip.viewport
-      class="gl-mr-3 gl-my-2"
+      v-gl-tooltip
+      class="gl-my-2 gl-mr-3"
       :class="awardList.classes"
       :title="awardList.title"
       :data-emoji-name="awardList.name"

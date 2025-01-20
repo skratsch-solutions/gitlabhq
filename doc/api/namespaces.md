@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,17 +8,16 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-Usernames and group names fall under a special category called
-[namespaces](../user/namespace/index.md).
+Use this API to interact with namespaces, a special resource category used to organize users and groups. For more information, see [Namespaces](../user/namespace/index.md).
+
+This API uses [Pagination](rest/index.md#pagination) to filter results.
 
 You might also want to view documentation for:
 
 - [Users](users.md)
 - [Groups](groups.md)
-
-[Pagination](rest/index.md#pagination) is used.
 
 ## List namespaces
 
@@ -37,7 +36,7 @@ GET /namespaces?top_level_only=true
 | Attribute        | Type    | Required | Description |
 | ---------------- | ------- | -------- | ----------- |
 | `search`         | string  | no       | Returns a list of namespaces the user is authorized to view based on the search criteria |
-| `owned_only`     | boolean | no       | In GitLab 14.2 and later, returns a list of owned namespaces only |
+| `owned_only`     | boolean | no       | Returns a list of owned namespaces only |
 | `top_level_only` | boolean | no       | In GitLab 16.8 and later, returns a list of top level namespaces only |
 
 Example request:
@@ -154,7 +153,7 @@ GET /namespaces/:id
 
 | Attribute | Type           | Required | Description |
 | --------- | -------------- | -------- | ----------- |
-| `id`      | integer/string | yes      | ID or [URL-encoded path of the namespace](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | yes      | ID or [URL-encoded path of the namespace](rest/index.md#namespaced-paths) |
 
 Example request:
 

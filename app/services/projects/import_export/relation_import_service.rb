@@ -43,6 +43,16 @@ module Projects
 
         tracker = create_status_tracker
 
+        unless tracker.persisted?
+          return error(
+            format(
+              _('Relation import could not be created: %{errors}'),
+              errors: tracker.errors.full_messages.to_sentence
+            ),
+            :bad_request
+          )
+        end
+
         attach_import_file
 
         Projects::ImportExport::RelationImportWorker.perform_async(
@@ -66,7 +76,11 @@ module Projects
       end
 
       def attach_import_file
-        project.update(import_export_upload: ImportExportUpload.new(import_file: params[:file]))
+        import_export_upload = project.import_export_upload_by_user(current_user) ||
+          project.import_export_uploads.new(user: current_user)
+
+        import_export_upload.import_file = params[:file]
+        import_export_upload.save
       end
 
       def create_status_tracker

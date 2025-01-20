@@ -2,7 +2,6 @@
 #import "~/graphql_shared/fragments/user.fragment.graphql"
 #import "~/work_items/graphql/milestone.fragment.graphql"
 #import "~/work_items/graphql/timelog.fragment.graphql"
-#import "ee_else_ce/work_items/graphql/work_item_metadata_widgets.fragment.graphql"
 
 fragment WorkItemWidgets on WorkItemWidget {
   type
@@ -35,13 +34,6 @@ fragment WorkItemWidgets on WorkItemWidget {
       }
     }
   }
-  ... on WorkItemWidgetParticipants {
-    participants {
-      nodes {
-        ...User
-      }
-    }
-  }
   ... on WorkItemWidgetStartAndDueDate {
     dueDate
     startDate
@@ -57,6 +49,19 @@ fragment WorkItemWidgets on WorkItemWidget {
   }
   ... on WorkItemWidgetHierarchy {
     hasChildren
+    hasParent
+    rolledUpCountsByType {
+      countsByState {
+        opened
+        all
+        closed
+      }
+      workItemType {
+        id
+        name
+        iconName
+      }
+    }
     parent {
       id
       iid
@@ -67,34 +72,6 @@ fragment WorkItemWidgets on WorkItemWidget {
         id
         name
         iconName
-      }
-    }
-    children {
-      nodes {
-        id
-        iid
-        confidential
-        workItemType {
-          id
-          name
-          iconName
-        }
-        title
-        state
-        createdAt
-        closedAt
-        webUrl
-        reference(full: true)
-        namespace {
-          fullPath
-        }
-        widgets {
-          ... on WorkItemWidgetHierarchy {
-            type
-            hasChildren
-          }
-          ...WorkItemMetadataWidgets
-        }
       }
     }
   }
@@ -116,60 +93,20 @@ fragment WorkItemWidgets on WorkItemWidget {
       }
     }
   }
-  ... on WorkItemWidgetLinkedItems {
-    linkedItems {
+  ... on WorkItemWidgetCrmContacts {
+    contacts {
       nodes {
-        linkId
-        linkType
-        workItem {
+        id
+        email
+        firstName
+        lastName
+        phone
+        description
+        organization {
           id
-          iid
-          confidential
-          workItemType {
-            id
-            name
-            iconName
-          }
-          title
-          state
-          createdAt
-          closedAt
-          webUrl
-          reference(full: true)
-          widgets {
-            ...WorkItemMetadataWidgets
-          }
-        }
-      }
-    }
-  }
-  ... on WorkItemWidgetDevelopment {
-    type
-    closingMergeRequests {
-      nodes {
-        fromMrDescription
-        mergeRequest {
-          iid
-          id
-          title
-          webUrl
-          state
-          project {
-            id
-            name
-            namespace {
-              path
-            }
-          }
-          assignees {
-            nodes {
-              webUrl
-              id
-              name
-              webPath
-              avatarUrl
-            }
-          }
+          name
+          description
+          defaultRate
         }
       }
     }

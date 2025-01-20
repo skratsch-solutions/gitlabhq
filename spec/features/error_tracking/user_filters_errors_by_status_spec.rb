@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_memory_store_caching, :sidekiq_inline,
-  feature_category: :error_tracking do
+  feature_category: :observability do
   include_context 'sentry error tracking context feature'
 
   let_it_be(:issues_response_body) { fixture_file('sentry/issues_sample_response.json') }
@@ -30,7 +30,7 @@ RSpec.describe 'When a user filters Sentry errors by status', :js, :use_clean_ra
       expect(results.count).to be(3)
     end
 
-    find('.status-dropdown .dropdown-toggle').click
+    find('[data-testid="status-dropdown"] .dropdown-toggle').click
     find('.dropdown-item', text: 'Ignored').click
 
     page.within(find('.gl-table')) do

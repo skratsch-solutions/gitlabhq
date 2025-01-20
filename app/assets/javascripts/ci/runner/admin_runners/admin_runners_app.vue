@@ -3,7 +3,6 @@ import { GlButton, GlLink } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import { updateHistory } from '~/lib/utils/url_utility';
 import { fetchPolicies } from '~/lib/graphql';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { upgradeStatusTokenConfig } from 'ee_else_ce/ci/runner/components/search_tokens/upgrade_status_token_config';
 import {
   fromUrlQueryToSearch,
@@ -60,7 +59,6 @@ export default {
     RunnerDashboardLink: () =>
       import('ee_component/ci/runner/components/runner_dashboard_link.vue'),
   },
-  mixins: [glFeatureFlagMixin()],
   props: {
     newRunnerPath: {
       type: String,
@@ -174,9 +172,6 @@ export default {
       },
     },
   },
-  errorCaptured(error) {
-    this.reportToSentry(error);
-  },
   methods: {
     jobsUrl(runner) {
       const url = new URL(runner.adminUrl);
@@ -225,18 +220,11 @@ export default {
       </template>
     </runner-list-header>
 
-    <div
-      class="gl-display-flex gl-align-items-center gl-flex-direction-column-reverse gl-md-flex-direction-row gl-mt-3 gl-md-mt-0"
-    >
-      <runner-type-tabs
-        v-model="search"
-        :count-scope="$options.INSTANCE_TYPE"
-        :count-variables="countVariables"
-        class="gl-w-full"
-        content-class="gl-display-none"
-        nav-class="gl-border-none!"
-      />
-    </div>
+    <runner-type-tabs
+      v-model="search"
+      :count-scope="$options.INSTANCE_TYPE"
+      :count-variables="countVariables"
+    />
 
     <runner-filtered-search-bar
       v-model="search"

@@ -1,41 +1,5 @@
 .info-well {
-  background: $gray-10;
-  color: $gl-text-color;
-  border: 1px solid $gray-100;
-  border-radius: $gl-border-radius-base;
-
-  .card.card-body-segment {
-    padding: $gl-padding;
-
-    &:not(:last-of-type) {
-      border-bottom: 1px solid $gray-100;
-    }
-
-    &.borderless {
-      border-bottom: 0;
-    }
-
-    &.branch-info {
-      .commit-sha,
-      .commit-info {
-        margin-left: 4px;
-
-        .fork-svg {
-          margin-right: 4px;
-          vertical-align: bottom;
-        }
-      }
-
-      .ref-name {
-        font-size: 12px;
-      }
-    }
-
-    &.admin-well h4 {
-      border-bottom: 1px solid $border-color;
-      padding-bottom: 8px;
-    }
-  }
+  @apply gl-bg-subtle gl-text-default gl-border gl-border-section gl-rounded-base;
 
   .icon-container {
     display: inline-block;
@@ -51,14 +15,10 @@
     &.commit-icon {
       svg {
         path {
-          fill: $gl-text-color;
+          @apply gl-fill-icon-default;
         }
       }
     }
-  }
-
-  .label-gray {
-    background-color: $well-expand-item;
   }
 
   .branches {
@@ -67,13 +27,5 @@
 
   svg {
     vertical-align: text-top;
-  }
-}
-
-.card.card-body-centered {
-  h1 {
-    font-weight: $gl-font-weight-normal;
-    text-align: center;
-    font-size: 48px;
   }
 }

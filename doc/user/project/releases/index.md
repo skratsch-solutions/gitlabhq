@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In GitLab, a release enables you to create a snapshot of your project for your users, including
 installation packages and release notes. You can create a GitLab release on any branch. Creating a
@@ -61,19 +61,28 @@ switch between ascending or descending order, select **Sort order**.
 
 ### Permanent link to latest release
 
-Latest release page is accessible through a permanent URL.
-GitLab redirects to the latest release page URL when it is visited.
+You can access the latest release page through a permanent link.
+GitLab always redirects the permanent link URL to the address of the latest release page.
 
 The format of the URL is:
 
 ```plaintext
-https://host/namespace/project/-/releases/permalink/latest
+https://gitlab.example.com/namespace/project/-/releases/permalink/latest
 ```
 
-We also support, suffix path carry forward on the redirect to the latest release.
-Example if release `v14.8.0-ee` is the latest release and has a readable link `https://host/namespace/project/-/releases/v14.8.0-ee#release` then it can be addressed as `https://host/namespace/project/-/releases/permalink/latest#release`.
+You can also add a suffix to the permanent link URL. For example, if the latest release is `v17.7.0#release` in the `gitlab-org` namespace and `gitlab-runner` project, the readable link would be:
 
-Refer [permanent links to latest release assets](release_fields.md#permanent-links-to-latest-release-assets) section to understand more about the suffix path carry forward usage.
+```plaintext
+https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v17.7.0#release
+```
+
+You can access the latest release URL with the following permanent link:
+
+```plaintext
+https://gitlab.com/gitlab-org/gitlab-runner/-/releases/permalink/latest#release
+```
+
+To learn about adding permanent links to release assets, see [Permanent links to latest release assets](../releases/release_fields.md#permanent-links-to-latest-release-assets).
 
 #### Sorting preferences
 
@@ -98,8 +107,6 @@ You can create a release:
 - [Using a job in your CI/CD pipeline](#creating-a-release-by-using-a-cicd-job).
 - [In the Releases page](#create-a-release-in-the-releases-page).
 - Using the [Releases API](../../../api/releases/index.md#create-a-release).
-
-You should create a release as one of the last steps in your CI/CD pipeline.
 
 ### Create a release in the Releases page
 
@@ -133,11 +140,12 @@ To create a release in the Releases page:
 
 You can create a release directly as part of the GitLab CI/CD pipeline by using the
 [`release` keyword](../../../ci/yaml/index.md#release) in the job definition.
+You should likely create a release as one of the last steps in your CI/CD pipeline.
 
 The release is created only if the job processes without error. If the API returns an error during
 release creation, the release job fails.
 
-Methods for creating a release using a CI/CD job include:
+The following links show typical example configurations for creating a release using a CI/CD job:
 
 - [Create a release when a Git tag is created](release_cicd_examples.md#create-a-release-when-a-git-tag-is-created).
 - [Create a release when a commit is merged to the default branch](release_cicd_examples.md#create-a-release-when-a-commit-is-merged-to-the-default-branch).
@@ -239,6 +247,7 @@ In the UI:
 
 When you delete a release, its assets are also deleted. However, the associated
 Git tag is not deleted.
+Deleting a Git tag associated with a release also deletes the release.
 
 Prerequisites:
 
@@ -403,7 +412,7 @@ and set **Maintainer** in the **Allowed to create** column.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/259703) in GitLab Premium 13.9.
 

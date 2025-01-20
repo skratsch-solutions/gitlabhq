@@ -9,15 +9,16 @@ description: "Use comments to discuss work, mention users, and suggest changes."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Paginated merge request discussions [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/340172) in GitLab 15.1 [with a flag](../../administration/feature_flags.md) named `paginated_mr_discussions`. Disabled by default.
 > - Paginated merge request discussions [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/364497) in GitLab 15.2.
-> - Paginated merge request discussions [enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/364497) in GitLab 15.3.
+> - Paginated merge request discussions [enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/364497) in GitLab 15.3.
 > - Paginated merge request discussions [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/370075) in GitLab 15.8. Feature flag `paginated_mr_discussions` removed.
+> - Comments and threads on Wiki pages [introduced](https://gitlab.com/groups/gitlab-org/-/epics/14461) in GitLab 17.7 [with a flag](../../administration/feature_flags.md) named `wiki_comments`. Disabled by default.
 
 GitLab encourages communication through comments, threads, and
-[Code Suggestions](../project/merge_requests/reviews/suggestions.md).
+[suggesting changes for code](../project/merge_requests/reviews/suggestions.md).
 Comments support [Markdown](../markdown.md) and [quick actions](../project/quick_actions.md).
 
 Two types of comments are available:
@@ -32,15 +33,16 @@ which the user can accept through the user interface.
 
 You can create comments in places like:
 
-- Commit diffs
-- Commits
-- Designs
-- Epics
-- Issues
-- Merge requests
-- Snippets
-- Tasks
-- OKRs
+- Commit diffs.
+- Commits.
+- Designs.
+- Epics.
+- Issues.
+- Merge requests.
+- Snippets.
+- Tasks.
+- OKRs.
+- Wiki pages. The `wiki_comments` feature flag must be enabled. For more information, see the history.
 
 Each object can have as many as 5,000 comments.
 
@@ -181,7 +183,7 @@ reopen the issue or merge request.
 ## Add an internal note
 
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/87403) from "confidential comments" to "internal notes" in GitLab 15.0.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/87383) in GitLab 15.0.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/87383) in GitLab 15.0.
 > - [Feature flag `confidential_notes`](https://gitlab.com/gitlab-org/gitlab/-/issues/362712) removed in GitLab 15.2.
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/363045) permissions in GitLab 15.6 to at least the Reporter role. In GitLab 15.5 and earlier, issue or epic authors and assignees could also read and create internal notes.
 > - Internal comments [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/142003) for merge requests in GitLab 16.9.
@@ -239,7 +241,7 @@ To change the activity sort order:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can see changes to the description listed in the history.
 
@@ -293,14 +295,16 @@ To create a thread:
 ## Resolve a thread
 
 > - Resolvable threads for issues [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/31114) in GitLab 16.3 [with a flag](../../administration/feature_flags.md) named `resolvable_issue_threads`. Disabled by default.
-> - Resolvable threads for issues [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/31114) in GitLab 16.4.
+> - Resolvable threads for issues [enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/31114) in GitLab 16.4.
 > - Resolvable threads for issues [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/31114) in GitLab 16.7. Feature flag `resolvable_issue_threads` removed.
+> - Resolvable threads for tasks, objectives, and key results [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/458818) in GitLab 17.3.
+> - Resolvable threads for epics [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/458818) in GitLab 17.5. Your administrator must have [enabled the new look for epics](../group/epics/epic_work_items.md).
 
 You can resolve a thread when you want to finish a conversation.
 
 Prerequisites:
 
-- You must be in an issue or merge request.
+- You must be in an epic, issue, task, objective, key result, or merge request. For epics, your administrator must have [enabled the new look for epics](../group/epics/epic_work_items.md).
 - You must have at least the Developer role or be the author of the issue or merge request.
 
 To resolve a thread:
@@ -313,3 +317,32 @@ To resolve a thread:
 
 Additionally, in merge requests, you can [do more with threads](../project/merge_requests/index.md#resolve-a-thread),
 such as move unresolved threads to an issue or prevent merging until all threads are resolved.
+
+## Summarize issue discussions with Duo Chat
+
+DETAILS:
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3.5 Sonnet](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10344) in GitLab 16.0 as an [experiment](../../policy/development_stages_support.md#experiment).
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/454550) to GitLab Duo and promoted to [beta](../../policy/development_stages_support.md#beta) in GitLab 17.3 [with a flag](../../administration/feature_flags.md) named `summarize_notes_with_duo`. Disabled by default.
+> - [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/162122) in GitLab 17.4.
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
+
+Generate a summary of discussions on an issue.
+
+Prerequisites:
+
+- You must have permission to view the issue.
+
+To generate a summary of issue discussions:
+
+1. In an issue, scroll to the **Activity** section.
+1. Select **View summary**.
+
+The comments in the issue are summarized in as many as 10 list items.
+You can ask follow up questions based on the response.
+
+**Data usage**: When you use this feature, the text of all comments on the issue are sent to
+the large language model.

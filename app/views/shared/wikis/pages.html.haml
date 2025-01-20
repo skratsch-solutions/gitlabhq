@@ -6,13 +6,13 @@
 .wiki-page-header
   = render ::Layouts::PageHeadingComponent.new(s_("Wiki|Wiki pages")) do |c|
     - c.with_actions do
-      .dropdown.inline.wiki-sort-dropdown
+      .dropdown.gl-inline-block.wiki-sort-dropdown
         .btn-group{ role: 'group' }
           = wiki_sort_controls(@wiki, params[:direction])
 
-        - if can?(current_user, :create_wiki, @project)
-          = render Pajamas::ButtonComponent.new(href: wiki_page_path(@wiki, SecureRandom.uuid, random_title: true), variant: :confirm) do
-            = s_("Wiki|New page")
+      - if can?(current_user, :create_wiki, @project)
+        = render Pajamas::ButtonComponent.new(href: wiki_page_path(@wiki, SecureRandom.uuid, random_title: true), variant: :confirm) do
+          = s_("Wiki|New page")
 
       #js-vue-wiki-more-actions{ data: {
         clone_ssh_url: ssh_clone_url_to_repo(@wiki),

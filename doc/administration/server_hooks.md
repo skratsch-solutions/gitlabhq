@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/372991) from server hooks to Git server hooks in GitLab 15.6.
 
@@ -67,10 +67,10 @@ To set server hooks for a repository:
       in a `custom_hooks` directory that is at the root of the tarball.
    1. Create the custom hooks archive with the tar command. For example, `tar -cf custom_hooks.tar custom_hooks`.
 1. Run the `hooks set` subcommand with required options to set the Git hooks for the repository. For example,
-   `cat custom_hooks.tar | sudo /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>`.
+   `cat custom_hooks.tar | sudo -u git -- /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>`.
 
    - A path to a valid Gitaly configuration for the node is required to connect to the node and provided to the `--config` flag.
-   - Custom hooks tarball must be passed via `stdin`. For example, `cat custom_hooks.tar | sudo /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>`.
+   - Custom hooks tarball must be passed via `stdin`. For example, `cat custom_hooks.tar | sudo -u git -- /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>`.
 1. If you are using Gitaly Cluster, you must run `hooks set` subcommand on all Gitaly nodes. For more information, see
    [Server hooks on a Gitaly Cluster](#server-hooks-on-a-gitaly-cluster).
 
@@ -80,7 +80,7 @@ If you implemented the server hook code correctly, it should execute when the Gi
 
 To create server hooks for a repository:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Go to **Overview > Projects** and select the project you want to add a server hook to.
 1. On the page that appears, locate the value of **Relative path**. This path is where server
    hooks must be located.
@@ -180,7 +180,7 @@ Prerequisites:
 To remove server hooks, pass an empty tarball to `hook set` to indicate that the repository should contain no hooks. For example:
 
 ```shell
-cat empty_hooks.tar | sudo /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>
+cat empty_hooks.tar | sudo -u git -- /opt/gitlab/embedded/bin/gitaly hooks set --storage <storage> --repository <relative path> --config <config path>
 ```
 
 :::TabTitle GitLab 15.10 and earlier
@@ -226,8 +226,8 @@ The following Git environment variables are supported for `pre-receive` and `pos
 |:-----------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `GIT_ALTERNATE_OBJECT_DIRECTORIES` | Alternate object directories in the quarantine environment. See [Git `receive-pack` documentation](https://git-scm.com/docs/git-receive-pack#_quarantine_environment). |
 | `GIT_OBJECT_DIRECTORY`             | GitLab project path in the quarantine environment. See [Git `receive-pack` documentation](https://git-scm.com/docs/git-receive-pack#_quarantine_environment).          |
-| `GIT_PUSH_OPTION_COUNT`            | Number of [push options](../user/project/push_options.md). See [Git `pre-receive` documentation](https://git-scm.com/docs/githooks#pre-receive).                                                          |
-| `GIT_PUSH_OPTION_<i>`              | Value of [push options](../user/project/push_options.md) where `i` is from `0` to `GIT_PUSH_OPTION_COUNT - 1`. See [Git `pre-receive` documentation](https://git-scm.com/docs/githooks#pre-receive).      |
+| `GIT_PUSH_OPTION_COUNT`            | Number of [push options](../topics/git/commit.md#push-options). See [Git `pre-receive` documentation](https://git-scm.com/docs/githooks#pre-receive).                                                          |
+| `GIT_PUSH_OPTION_<i>`              | Value of [push options](../topics/git/commit.md#push-options) where `i` is from `0` to `GIT_PUSH_OPTION_COUNT - 1`. See [Git `pre-receive` documentation](https://git-scm.com/docs/githooks#pre-receive).      |
 
 ## Custom error messages
 

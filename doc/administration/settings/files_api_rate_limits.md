@@ -2,14 +2,14 @@
 stage: Create
 group: Source Code
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
-description: "Configure rate limits for the repository files API on your self-managed GitLab instance."
+description: "Configure rate limits for the repository files API on GitLab Self-Managed."
 ---
 
 # Rate limits on Repository files API
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The [Repository files API](../../api/repository_files.md) enables you to
 fetch, create, update, and delete files in your repository. To improve the security
@@ -31,7 +31,7 @@ Prerequisites:
 
 To override the general user and IP rate limits for requests to the Repository files API:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**.
 1. Expand **Files API Rate Limits**.
 1. Select the checkboxes for the types of rate limits you want to enable:

@@ -9,6 +9,7 @@ RSpec.describe 'getting a collection of projects', feature_category: :source_cod
   let_it_be(:group) { create(:group, name: 'public-group', developers: current_user) }
   let_it_be(:projects) { create_list(:project, 5, :public, group: group) }
   let_it_be(:other_project) { create(:project, :public, group: group) }
+  let_it_be(:archived_project) { create(:project, :archived, group: group) }
 
   let(:filters) { {} }
 
@@ -18,6 +19,80 @@ RSpec.describe 'getting a collection of projects', feature_category: :source_cod
       filters,
       "nodes {#{all_graphql_fields_for('Project', max_depth: 1, excluded: ['productAnalyticsState'])} }"
     )
+  end
+
+  context 'when archived argument is ONLY' do
+    let(:filters) { { archived: :ONLY } }
+
+    it 'returns only archived projects' do
+      post_graphql(query, current_user: current_user)
+
+      expect(graphql_data_at(:projects, :nodes))
+        .to contain_exactly(a_graphql_entity_for(archived_project))
+    end
+  end
+
+  context 'when archived argument is INCLUDE' do
+    let(:filters) { { archived: :INCLUDE } }
+
+    it 'returns archived and non-archived projects' do
+      post_graphql(query, current_user: current_user)
+
+      expect(graphql_data_at(:projects, :nodes))
+      .to contain_exactly(
+        *projects.map { |project| a_graphql_entity_for(project) },
+        a_graphql_entity_for(other_project),
+        a_graphql_entity_for(archived_project)
+      )
+    end
+  end
+
+  context 'when archived argument is EXCLUDE' do
+    let(:filters) { { archived: :EXCLUDE } }
+
+    it 'returns only non-archived projects' do
+      post_graphql(query, current_user: current_user)
+
+      expect(graphql_data_at(:projects, :nodes))
+      .to contain_exactly(
+        *projects.map { |project| a_graphql_entity_for(project) },
+        a_graphql_entity_for(other_project)
+      )
+    end
+  end
+
+  describe 'min_access_level' do
+    let_it_be(:project_with_owner_access) { create(:project, :private) }
+
+    before_all do
+      project_with_owner_access.add_owner(current_user)
+    end
+
+    context 'when min_access_level is OWNER' do
+      let(:filters) { { min_access_level: :OWNER } }
+
+      it 'returns only projects user has owner access to' do
+        post_graphql(query, current_user: current_user)
+
+        expect(graphql_data_at(:projects, :nodes))
+          .to contain_exactly(a_graphql_entity_for(project_with_owner_access))
+      end
+    end
+
+    context 'when min_access_level is DEVELOPER' do
+      let(:filters) { { min_access_level: :DEVELOPER } }
+
+      it 'returns only projects user has developer or higher access to' do
+        post_graphql(query, current_user: current_user)
+
+        expect(graphql_data_at(:projects, :nodes))
+        .to contain_exactly(
+          *projects.map { |project| a_graphql_entity_for(project) },
+          a_graphql_entity_for(other_project),
+          a_graphql_entity_for(project_with_owner_access)
+        )
+      end
+    end
   end
 
   context 'when providing full_paths filter' do
@@ -41,7 +116,7 @@ RSpec.describe 'getting a collection of projects', feature_category: :source_cod
     it 'avoids N+1 queries', :use_sql_query_cache, :clean_gitlab_redis_cache do
       post_graphql(single_project_query, current_user: current_user)
 
-      control = ActiveRecord::QueryRecorder.new do
+      control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
         post_graphql(single_project_query, current_user: current_user)
       end
 
@@ -50,7 +125,7 @@ RSpec.describe 'getting a collection of projects', feature_category: :source_cod
       # https://gitlab.com/gitlab-org/gitlab/-/issues/442164
       expect do
         post_graphql(query, current_user: current_user)
-      end.not_to exceed_all_query_limit(control).with_threshold(17)
+      end.not_to exceed_all_query_limit(control).with_threshold(16)
     end
 
     it 'returns the expected projects' do
@@ -70,6 +145,23 @@ RSpec.describe 'getting a collection of projects', feature_category: :source_cod
           hash_including('message' => _('You cannot provide more than 50 full_paths'))
         )
       end
+    end
+  end
+
+  context 'when providing the programming_language_name argument' do
+    let_it_be(:project) { projects.first }
+    let_it_be(:ruby) { create(:programming_language, name: 'Ruby') }
+    let_it_be(:repository_language) do
+      create(:repository_language, project: project, programming_language: ruby, share: 1)
+    end
+
+    let(:filters) { { programming_language_name: 'ruby' } }
+
+    it 'returns the expected projects' do
+      post_graphql(query, current_user: current_user)
+
+      expect(graphql_data_at(:projects, :nodes))
+        .to contain_exactly(a_graphql_entity_for(project))
     end
   end
 end

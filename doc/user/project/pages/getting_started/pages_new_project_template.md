@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab provides templates for the most popular Static Site Generators (SSGs).
 You can create a new project from a template and run the CI/CD pipeline to generate a Pages website.
@@ -24,7 +24,7 @@ configured to generate a Pages site.
 
 1. Complete the form and select **Create project**.
 1. On the left sidebar, select **Build > Pipelines**
-   and select **Run pipeline** to trigger GitLab CI/CD to build and deploy your
+   and select **New pipeline** to trigger GitLab CI/CD to build and deploy your
    site.
 
 When the pipeline is finished, go to **Deploy > Pages** to find the link to

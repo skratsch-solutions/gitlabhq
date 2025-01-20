@@ -82,6 +82,8 @@ class MergeRequestsFinder < IssuableFinder
     items = by_review_state(items)
     items = by_source_project_id(items)
     items = by_resource_event_state(items)
+    items = by_assignee_or_reviewer(items)
+    items = by_blob_path(items)
 
     by_approved(items)
   end
@@ -266,6 +268,26 @@ class MergeRequestsFinder < IssuableFinder
     else # reviewer not found
       items.none
     end
+  end
+
+  def by_assignee_or_reviewer(items)
+    return items unless current_user&.merge_request_dashboard_enabled?
+    return items unless params.assigned_user
+
+    items.assignee_or_reviewer(
+      params.assigned_user,
+      params.assigned_review_states,
+      params.reviewer_review_states
+    )
+  end
+
+  def by_blob_path(items)
+    blob_path = params[:blob_path]
+
+    return items unless blob_path
+    return items.none unless params.project
+
+    items.by_blob_path(blob_path)
   end
 
   def parse_datetime(input)

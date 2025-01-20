@@ -29,6 +29,7 @@ const commitMessageWithDescription =
   readyToMergeResponse.data.project.mergeRequest.defaultMergeCommitMessageWithDescription;
 const createTestMr = (customConfig) => {
   const mr = {
+    iid: 1,
     isPipelineActive: false,
     pipeline: null,
     isPipelineFailed: false,
@@ -64,6 +65,7 @@ const createTestMr = (customConfig) => {
       removeSourceBranch: true,
       canMerge: true,
     },
+    targetProjectId: 1,
   };
 
   Object.assign(mr, customConfig.mr);
@@ -154,6 +156,10 @@ const findDeleteSourceBranchCheckbox = () =>
 const triggerApprovalUpdated = () => eventHub.$emit('ApprovalUpdated');
 const triggerEditCommitInput = () =>
   wrapper.find('[data-testid="widget_edit_commit_message"]').vm.$emit('input', true);
+const triggerEditSquashInput = (text) =>
+  findCommitEditWithInputId('squash-message-edit').vm.$emit('input', text);
+const triggerEditMergeInput = (text) =>
+  wrapper.find('[data-testid="merge-commit-message"]').vm.$emit('input', text);
 const findMergeHelperText = () => wrapper.find('[data-testid="auto-merge-helper-text"]');
 const findTextareas = () => wrapper.findAllComponents(GlFormTextarea);
 
@@ -401,11 +407,82 @@ describe('ReadyToMerge', () => {
       expect(params).toEqual(
         expect.objectContaining({
           sha: '12345678',
-          commit_message: commitMessage,
           should_remove_source_branch: false,
           auto_merge_strategy: 'merge_when_pipeline_succeeds',
         }),
       );
+    });
+
+    describe('commit message content', () => {
+      describe('with squashing', () => {
+        const NEW_SQUASH_MESSAGE = 'updated squash message';
+
+        beforeEach(async () => {
+          createComponent({
+            mr: { shouldRemoveSourceBranch: false, enableSquashBeforeMerge: true },
+          });
+
+          jest.spyOn(service, 'merge').mockResolvedValue(response('merge_when_pipeline_succeeds'));
+
+          await triggerEditCommitInput();
+          await findCheckboxElement().vm.$emit('input', true);
+        });
+
+        it('sends the user-updated squash message', async () => {
+          await triggerEditSquashInput(NEW_SQUASH_MESSAGE);
+          await findMergeButton().vm.$emit('click');
+
+          expect(service.merge).toHaveBeenCalledWith(
+            expect.objectContaining({
+              squash_commit_message: NEW_SQUASH_MESSAGE,
+            }),
+          );
+        });
+
+        it('does not send the squash message if the user has not updated it', async () => {
+          await findMergeButton().vm.$emit('click');
+
+          expect(service.merge).toHaveBeenCalledTimes(1);
+          expect(service.merge).toHaveBeenCalledWith(
+            expect.not.objectContaining({
+              squash_commit_message: expect.anything(),
+            }),
+          );
+        });
+      });
+
+      describe('without squashing', () => {
+        const NEW_COMMIT_MESSAGE = 'updated commit message';
+
+        beforeEach(async () => {
+          createComponent({ mr: { shouldRemoveSourceBranch: false } });
+
+          jest.spyOn(service, 'merge').mockResolvedValue(response('merge_when_pipeline_succeeds'));
+          await triggerEditCommitInput(); // Note this is intentional: `commit_message` shouldn't send until they actually edit it, even if they check the box
+        });
+
+        it('sends the user-updated commit message', async () => {
+          await triggerEditMergeInput(NEW_COMMIT_MESSAGE);
+          await findMergeButton().vm.$emit('click');
+
+          expect(service.merge).toHaveBeenCalledWith(
+            expect.objectContaining({
+              commit_message: NEW_COMMIT_MESSAGE,
+            }),
+          );
+        });
+
+        it('does not send the commit message if the user has not updated it', async () => {
+          await findMergeButton().vm.$emit('click');
+
+          expect(service.merge).toHaveBeenCalledTimes(1);
+          expect(service.merge).toHaveBeenCalledWith(
+            expect.not.objectContaining({
+              commit_message: expect.anything(),
+            }),
+          );
+        });
+      });
     });
 
     it('should handle merge failed', async () => {
@@ -820,11 +897,15 @@ describe('ReadyToMerge', () => {
     });
 
     it('should display confirmation modal when merge button is clicked', async () => {
-      expect(findPipelineFailedConfirmModal().props()).toEqual({ visible: false });
+      expect(findPipelineFailedConfirmModal().props()).toEqual(
+        expect.objectContaining({ visible: false }),
+      );
 
       await findMergeButton().vm.$emit('click');
 
-      expect(findPipelineFailedConfirmModal().props()).toEqual({ visible: true });
+      expect(findPipelineFailedConfirmModal().props()).toEqual(
+        expect.objectContaining({ visible: true }),
+      );
     });
   });
 
@@ -836,11 +917,15 @@ describe('ReadyToMerge', () => {
     });
 
     it('should display confirmation modal when merge button is clicked', async () => {
-      expect(findPipelineFailedConfirmModal().props()).toEqual({ visible: false });
+      expect(findPipelineFailedConfirmModal().props()).toEqual(
+        expect.objectContaining({ visible: false }),
+      );
 
       await findMergeButton().vm.$emit('click');
 
-      expect(findPipelineFailedConfirmModal().props()).toEqual({ visible: true });
+      expect(findPipelineFailedConfirmModal().props()).toEqual(
+        expect.objectContaining({ visible: true }),
+      );
     });
   });
 

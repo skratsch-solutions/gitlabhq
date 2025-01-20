@@ -17,7 +17,7 @@ import { EVENT_ISSUABLE_VUE_APP_CHANGE } from '~/issuable/constants';
 import { keysFor, ISSUABLE_EDIT_DESCRIPTION } from '~/behaviors/shortcuts/keybindings';
 import { shouldDisableShortcuts } from '~/behaviors/shortcuts/shortcuts_toggle';
 import { sanitize } from '~/lib/dompurify';
-import { STATUS_CLOSED, TYPE_ISSUE, issuableTypeText } from '~/issues/constants';
+import { STATUS_CLOSED, TYPE_ISSUE, TYPE_INCIDENT, issuableTypeText } from '~/issues/constants';
 import { ISSUE_STATE_EVENT_CLOSE, ISSUE_STATE_EVENT_REOPEN } from '~/issues/show/constants';
 import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
 import { isLoggedIn } from '~/lib/utils/common_utils';
@@ -35,6 +35,7 @@ import issuesEventHub from '../event_hub';
 import promoteToEpicMutation from '../queries/promote_to_epic.mutation.graphql';
 import updateIssueMutation from '../queries/update_issue.mutation.graphql';
 import DeleteIssueModal from './delete_issue_modal.vue';
+import HeaderActionsConfidentialityToggle from './header_actions_confidentiality_toggle.vue';
 
 const trackingMixin = Tracking.mixin({ label: 'delete_issue' });
 
@@ -70,6 +71,7 @@ export default {
     AbuseCategorySelector,
     SidebarSubscriptionsWidget,
     IssuableLockForm,
+    HeaderActionsConfidentialityToggle,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -103,6 +105,7 @@ export default {
     };
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     issuableReference: {
       query: issueReferenceQuery,
       variables() {
@@ -177,7 +180,7 @@ export default {
       });
     },
     showLockIssueOption() {
-      return this.issueType === TYPE_ISSUE && this.isUserSignedIn;
+      return this.issueType === TYPE_ISSUE && this.isUserSignedIn && this.canUpdateIssue;
     },
     showMovedSidebarOptions() {
       return this.isUserSignedIn;
@@ -214,6 +217,9 @@ export default {
           disabled: this.isToggleStateButtonLoading,
         },
       };
+    },
+    showConfidentialityToggle() {
+      return [TYPE_ISSUE, TYPE_INCIDENT].includes(this.issueType) && this.canUpdateIssue;
     },
   },
   created() {
@@ -333,9 +339,9 @@ export default {
 
 <template>
   <div
-    class="detail-page-header-actions gl-flex gl-self-start sm:gl-gap-3 gl-w-full md:gl-w-auto gl-mt-1"
+    class="detail-page-header-actions gl-mt-1 gl-flex gl-w-full gl-self-start sm:gl-gap-3 md:gl-w-auto"
   >
-    <div class="md:!gl-hidden gl-w-full">
+    <div class="gl-w-full md:!gl-hidden">
       <gl-disclosure-dropdown
         v-if="hasMobileDropdown"
         ref="issuableActionsDropdownMobile"
@@ -377,6 +383,10 @@ export default {
         <template v-if="showLockIssueOption">
           <issuable-lock-form :is-editable="false" data-testid="lock-issue-toggle" />
         </template>
+        <header-actions-confidentiality-toggle
+          v-if="showConfidentialityToggle"
+          @closeActionsDropdown="closeActionsDropdown"
+        />
         <gl-disclosure-dropdown-item
           :data-clipboard-text="issuableReference"
           class="js-copy-reference"
@@ -477,6 +487,10 @@ export default {
       <template v-if="showLockIssueOption">
         <issuable-lock-form :is-editable="false" data-testid="lock-issue-toggle" />
       </template>
+      <header-actions-confidentiality-toggle
+        v-if="showConfidentialityToggle"
+        @closeActionsDropdown="closeActionsDropdown"
+      />
       <gl-disclosure-dropdown-item
         :data-clipboard-text="issuableReference"
         class="js-copy-reference"
@@ -514,7 +528,7 @@ export default {
           @action="track('click_dropdown')"
         >
           <template #list-item>
-            <span class="text-danger">
+            <span class="gl-text-danger">
               {{ deleteButtonText }}
             </span>
           </template>

@@ -156,18 +156,24 @@ version of the product:
 1. Enable **Allow use of licensed EE features** to make licensed EE features available to projects
    only if the project namespace's plan includes the feature.
 
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. On the left sidebar, select **Settings > General**.
    1. Expand **Account and limit**.
    1. Select the **Allow use of licensed EE features** checkbox.
    1. Select **Save changes**.
 
 1. Ensure the group you want to test the EE feature for is actually using an EE plan:
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. On the left sidebar, select **Overview > Groups**.
    1. Identify the group you want to modify, and select **Edit**.
    1. Scroll to **Permissions and group features**. For **Plan**, select `Ultimate`.
    1. Select **Save changes**.
+
+Here's a [📺 video](https://youtu.be/DHkaqXw_Tmc) demonstrating how to do the steps above.
+
+<figure class="video-container">
+  <iframe src="https://www.youtube-nocookie.com/embed/DHkaqXw_Tmc" frameborder="0" allowfullscreen> </iframe>
+</figure>
 
 ## Implement a new EE feature
 
@@ -187,11 +193,11 @@ Use the following questions to guide you:
 1. Is this a **GitLab Premium** or **GitLab Ultimate** feature?
    - Based on the plan you choose to use the feature in, add the feature identifier to `PREMIUM_FEATURES`
      or `ULTIMATE_FEATURES`.
-1. Will this feature be available globally (system-wide at the GitLab instance level)?
-    - Features such as [Geo](../administration/geo/index.md) and
-      [Database Load Balancing](../administration/postgresql/database_load_balancing.md) are used by the entire instance
-      and cannot be restricted to individual user namespaces. These features are defined in the instance license.
-      Add these features to `GLOBAL_FEATURES`.
+1. Will this feature be available globally (system-wide for the GitLab instance)?
+   - Features such as [Geo](../administration/geo/index.md) and
+     [Database Load Balancing](../administration/postgresql/database_load_balancing.md) are used by the entire instance
+     and cannot be restricted to individual user namespaces. These features are defined in the instance license.
+     Add these features to `GLOBAL_FEATURES`.
 
 ### Guard your EE feature
 
@@ -320,9 +326,10 @@ is applied not only to models. Here's a list of other examples:
 - `ee/app/workers/foo_worker.rb`
 - `ee/app/views/foo.html.haml`
 - `ee/app/views/foo/_bar.html.haml`
+- `ee/config/initializers/foo_bar.rb`
 
-This works because for every path that is present in CE's eager-load/auto-load
-paths, we add the same `ee/`-prepended path in [`config/application.rb`](https://gitlab.com/gitlab-org/gitlab/-/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52).
+This works because for every path in the CE `eager-load/auto-load`
+path, we add the same `ee/`-prepended path in [`config/application.rb`](https://gitlab.com/gitlab-org/gitlab/-/blob/925d3d4ebc7a2c72964ce97623ae41b8af12538d/config/application.rb#L42-52).
 This also applies to views.
 
 #### Testing EE-only backend features
@@ -588,6 +595,24 @@ def internal?
 end
 ```
 
+### Code in `config/initializers`
+
+Rails initialization code is located in
+
+- `config/initializers` for CE-only features
+- `ee/config/initializers` for EE features
+
+Use `Gitlab.ee { ... }`/`Gitlab.ee?` in `config/initializers` only when
+splitting is not possible. For example:
+
+```ruby
+SomeGem.configure do |config|
+  config.base = 'https://example.com'
+
+  config.encryption = true if Gitlab.ee?
+end
+```
+
 ### Code in `config/routes`
 
 When we add `draw :admin` in `config/routes.rb`, the application tries to
@@ -596,7 +621,7 @@ file located in `ee/config/routes/admin.rb`.
 
 In EE, it should at least load one file, at most two files. If it cannot find
 any files, an error is raised. In CE, since we don't know if an
-an EE route exists, it doesn't raise any errors even if it cannot find anything.
+EE route exists, it doesn't raise any errors even if it cannot find anything.
 
 This means if we want to extend a particular CE route file, just add the same
 file located in `ee/config/routes`. If we want to add an EE only route, we
@@ -856,8 +881,7 @@ module EE
 end
 ```
 
-Note that due to namespace differences, we need to use the full qualifier for some
-constants.
+We need to use the full qualifier for some constants due to namespace differences.
 
 #### EE parameters
 
@@ -1005,7 +1029,7 @@ end
 API::MergeRequests.prepend_mod_with('API::MergeRequests')
 ```
 
-Note that `update_merge_request_ee` doesn't do anything in CE, but
+`update_merge_request_ee` doesn't do anything in CE, but
 then we could override it in EE:
 
 ```ruby
@@ -1188,7 +1212,7 @@ Instead place EE specs in the `ee/spec` folder.
 
 Use `FactoryBot.modify` to extend factories already defined in CE.
 
-Note that you cannot define new factories (even nested ones) inside the `FactoryBot.modify` block. You can do so in a
+You cannot define new factories (even nested ones) inside the `FactoryBot.modify` block. You can do so in a
 separate `FactoryBot.define` block as shown in the example below:
 
 ```ruby
@@ -1290,24 +1314,25 @@ Verify your feature appears in `gon.licensed_features` in the browser console.
 EE licensed features that enhance existing functionality in the UI add new
 elements or interactions to your Vue application as components.
 
-To separate template differences, use a child EE component to separate Vue template differences.
-You must import the EE component [asynchronously](https://v2.vuejs.org/v2/guide/components-dynamic-async.html#Async-Components).
+You can import EE components inside CE components to add EE features.
 
-This allows GitLab to load the correct component in EE, while in CE GitLab loads an empty component
-that renders nothing. This code **must** exist in the CE repository, in addition to the EE repository.
+Use an `ee_component` alias to import an EE component. In EE the `ee_component` import alias points
+to the `ee/app/assets/javascripts` directory. While in CE this alias will be resolved to an empty
+component that renders nothing.
 
-A CE component acts as the entry point to your EE feature. To add a EE component,
-locate it the `ee/` directory and add it with `import('ee_component/...')`:
+Here is an example of an EE component imported to a CE component:
 
-```html
+```vue
 <script>
 // app/assets/javascripts/feature/components/form.vue
 
+// In EE this will be resolved as `ee/app/assets/javascripts/feature/components/my_ee_component.vue`
+// In CE as `app/assets/javascripts/vue_shared/components/empty_component.js`
+import MyEeComponent from 'ee_component/feature/components/my_ee_component.vue';
+
 export default {
-  mixins: [glFeatureFlagMixin()],
   components: {
-    // Import an EE component from CE
-    MyEeComponent: () => import('ee_component/components/my_ee_component.vue'),
+    MyEeComponent,
   },
 };
 </script>
@@ -1321,10 +1346,15 @@ export default {
 </template>
 ```
 
+NOTE:
+An EE component can be imported
+[asynchronously](https://v2.vuejs.org/v2/guide/components-dynamic-async.html#Async-Components) if
+its rendering within CE codebase relies on some check (e.g. a feature flag check).
+
 Check `glFeatures` to ensure that the Vue components are guarded. The components render only when
 the license is present.
 
-```html
+```vue
 <script>
 // ee/app/assets/javascripts/feature/components/special_component.vue
 
@@ -1421,11 +1451,8 @@ export default {
 
 **For EE components that need different results for the same computed values, we can pass in props to the CE wrapper as seen in the example.**
 
-- **EE Child components**
-  - Since we are using the asynchronous loading to check which component to load, we'd still use the component's name, check [this example](#extend-vue-applications-with-ee-vue-components).
-
 - **EE extra HTML**
-  - For the templates that have extra HTML in EE we should move it into a new component and use the `ee_else_ce` dynamic import
+  - For the templates that have extra HTML in EE we should move it into a new component and use the `ee_else_ce` import alias
 
 #### Extend other JS code
 
@@ -1521,6 +1548,33 @@ describe('ComponentUnderTest', () => {
   });
 });
 
+```
+
+### Running EE vs CE tests
+
+Whenever you create tests for both CE and EE environments, you need to take some steps to ensure that both tests pass locally and on the pipeline when run.
+
+- By default, tests run in the EE environment, executing both EE and CE tests.
+- If you want to test only the CE file in the FOSS environment, you need to run the following command:
+
+```shell
+FOSS_ONLY=1 yarn jest path/to/spec/file.spec.js
+```
+
+As for CE tests we only add CE features, it may fail in the EE environment if EE-specific mock data is missing. To ensure CE tests work in both environments:
+
+- Use the `ee_else_ce_jest` alias when importing mock data. For example:
+
+```javascript
+import { sidebarDataCountResponse } from 'ee_else_ce_jest/super_sidebar/mock_data';
+```
+
+- Make sure that you have a CE and an EE `mock_data` file with an object (in the example above, `sidebarDataCountResponse`) with the corresponding data. One with only CE features data for the CE file and another with both CE and EE features data.
+
+- In the CE file `expect` blocks, if you need to compare an object, use `toMatchObject` instead of `toEqual`, so it doesn't expect that EE data to exist in the CE data. For example:
+
+```javascript
+expect(findPinnedSection().props('asyncCount')).toMatchObject(asyncCountData);
 ```
 
 #### SCSS code in `assets/stylesheets`

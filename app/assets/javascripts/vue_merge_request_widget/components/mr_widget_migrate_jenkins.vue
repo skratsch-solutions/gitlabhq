@@ -1,6 +1,8 @@
 <script>
 import { GlBadge, GlIcon, GlLink, GlTooltipDirective } from '@gitlab/ui';
+import { reportToSentry } from '~/ci/utils';
 import { s__ } from '~/locale';
+import axios from '~/lib/utils/axios_utils';
 import { InternalEvents } from '~/tracking';
 import { JM_JENKINS_TITLE_ICON_NAME, JM_MIGRATION_LINK, JM_EVENT_NAME } from '../constants';
 
@@ -25,6 +27,14 @@ export default {
       type: String,
       required: true,
     },
+    path: {
+      type: String,
+      required: true,
+    },
+    featureId: {
+      type: String,
+      required: true,
+    },
   },
   i18n: {
     title: s__('mrWidget|Migrate to GitLab CI/CD from Jenkins'),
@@ -36,6 +46,14 @@ export default {
   },
   methods: {
     dismiss() {
+      axios
+        .post(this.path, {
+          feature_name: this.featureId,
+        })
+        .catch((error) => {
+          reportToSentry(this.$options.name, error);
+        });
+
       this.trackEvent(this.$options.JM_EVENT_NAME);
 
       this.$emit('dismiss');
@@ -48,7 +66,7 @@ export default {
     <div class="gl-flex gl-items-center gl-justify-between">
       <gl-badge
         v-gl-tooltip.viewport.left
-        class="ci-icon gl-p-2 ci-icon-variant-info gl-pl-2 gl-mr-3 gl-self-start"
+        class="ci-icon ci-icon-variant-info gl-mr-3 gl-self-start gl-p-2 gl-pl-2"
         variant="info"
         :title="$options.i18n.information"
         :href="$options.MIGRATION_LINK"
@@ -60,7 +78,7 @@ export default {
       </gl-badge>
       <div class="gl-flex gl-items-center gl-justify-between">
         <div class="gl-flex gl-flex-wrap gl-items-center gl-justify-between">
-          <div class="gl-flex gl-flex-wrap gl-w-full">
+          <div class="gl-flex gl-w-full gl-flex-wrap">
             <strong class="gl-flex gl-grow">{{ $options.i18n.title }}</strong>
             <div class="gl-flex">
               <gl-link
@@ -71,12 +89,12 @@ export default {
               >
               <button
                 :aria-label="__('Close')"
-                class="gl-p-0 gl-bg-transparent gl-border-0 gl-ml-4 gl-pl-2 gl-border-l-2 gl-border-solid gl-border-gray-100"
+                class="gl-ml-4 gl-border-0 gl-border-l-2 gl-border-solid gl-bg-transparent gl-p-0 gl-pl-2"
                 type="button"
                 data-testid="close"
                 @click="dismiss"
               >
-                <gl-icon name="close" class="gl-text-gray-500" />
+                <gl-icon name="close" />
               </button>
             </div>
           </div>

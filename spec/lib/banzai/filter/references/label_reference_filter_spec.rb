@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'html/pipeline'
 
-RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_category: :team_planning do
+RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_category: :markdown do
   include FilterSpecHelper
 
   let(:project)   { create(:project, :public, name: 'sample-project') }
@@ -679,7 +679,7 @@ RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_categor
     it 'points to the page defined in label_url_method' do
       reference = "~#{label.name}"
 
-      result = reference_filter("See #{reference}", { project: nil, group: group, label_url_method: :group_url } )
+      result = reference_filter("See #{reference}", { project: nil, group: group, label_url_method: :group_url })
 
       expect(result.css('a').first.attr('href')).to eq(urls.group_url(group, label_name: label.name))
     end
@@ -687,7 +687,7 @@ RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_categor
     it 'finds labels also in ancestor groups' do
       reference = "~#{label.name}"
 
-      result = reference_filter("See #{reference}", { project: nil, group: subgroup, label_url_method: :group_url } )
+      result = reference_filter("See #{reference}", { project: nil, group: subgroup, label_url_method: :group_url })
 
       expect(result.css('a').first.attr('href')).to eq(urls.group_url(subgroup, label_name: label.name))
     end
@@ -697,7 +697,7 @@ RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_categor
       label = create(:label, project: project)
       reference = "#{project.full_path}~#{label.name}"
 
-      result = reference_filter("See #{reference}", { project: nil, group: group } )
+      result = reference_filter("See #{reference}", { project: nil, group: group })
 
       expect(result.css('a').first.attr('href')).to eq(urls.project_issues_url(project, label_name: label.name))
       expect(result.css('a').first.text).to eq "#{label.name} in #{project.full_name}"
@@ -793,14 +793,34 @@ RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_categor
       let_it_be(:context) { { project: nil, group: another_group } }
 
       it 'can not find the label' do
-        reference = "#{group.full_path}~#{group_label.name}"
+        reference = "#{another_group.full_path}~#{group_label.name}"
         result = reference_filter("See #{reference}", context)
 
         expect(result.to_html).to include "See #{reference}"
       end
 
-      it_behaves_like 'absolute group reference' do
-        let_it_be(:reference) { "#{group.full_path}~#{group_label.name}" }
+      it 'finds the label with relative reference' do
+        label_name = group_label.name
+        reference = "#{group.full_path}~#{label_name}"
+        result = reference_filter("See #{reference}", context)
+
+        if context[:label_url_method] == :group_url
+          expect(result.css('a').first.attr('href')).to eq(urls.group_url(group, label_name: label_name))
+        else
+          expect(result.css('a').first.attr('href')).to eq(urls.issues_group_url(group, label_name: label_name))
+        end
+      end
+
+      it 'finds label in ancestors' do
+        label_name = parent_group_label.name
+        reference = "#{group.full_path}~#{label_name}"
+        result = reference_filter("See #{reference}", context)
+
+        if context[:label_url_method] == :group_url
+          expect(result.css('a').first.attr('href')).to eq(urls.group_url(group, label_name: label_name))
+        else
+          expect(result.css('a').first.attr('href')).to eq(urls.issues_group_url(group, label_name: label_name))
+        end
       end
 
       it 'does not find label in ancestors' do
@@ -808,6 +828,10 @@ RSpec.describe Banzai::Filter::References::LabelReferenceFilter, feature_categor
         result = reference_filter("See #{reference}", context)
 
         expect(result.to_html).to include "See #{reference}"
+      end
+
+      it_behaves_like 'absolute group reference' do
+        let_it_be(:reference) { "#{group.full_path}~#{group_label.name}" }
       end
     end
   end

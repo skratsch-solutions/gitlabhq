@@ -291,7 +291,7 @@ RSpec::Matchers.define :issue_same_number_of_queries_as do |expected|
     @expected_count ||= if expected.is_a?(ActiveRecord::QueryRecorder)
                           query_recorder_count(expected)
                         else
-                          ActiveRecord::QueryRecorder.new(&block_arg).count
+                          ActiveRecord::QueryRecorder.new(skip_cached: skip_cached, &block_arg).count
                         end
   end
 
@@ -390,6 +390,10 @@ RSpec::Matchers.define :match_query_count do |expected|
 
   include ExceedQueryLimitHelpers
 
+  chain :ignoring_cached_queries do
+    @skip_cached = true
+  end
+
   def verify_count(&block)
     @subject_block = block
     actual_count == maximum
@@ -402,7 +406,7 @@ RSpec::Matchers.define :match_query_count do |expected|
   end
 
   def skip_cached
-    false
+    @skip_cached || false
   end
 
   match do |block|

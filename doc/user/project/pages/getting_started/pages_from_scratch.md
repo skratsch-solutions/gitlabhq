@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This tutorial shows you how to create a Pages site from scratch using
 the [Jekyll](https://jekyllrb.com/) Static Site Generator (SSG). You start with
@@ -71,10 +71,11 @@ to run scripts and deploy the site.
 
 This specific Ruby image is maintained on [DockerHub](https://hub.docker.com/_/ruby).
 
-Edit your `.gitlab-ci.yml` file and add this text as the first line:
+Add a default image to your pipeline by adding this CI/CD configuration to the beginning of your `.gitlab-ci.yml` file:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 ```
 
 If your SSG needs [NodeJS](https://nodejs.org/) to build, you must specify an
@@ -107,22 +108,25 @@ task.
 ```yaml
 job:
   script:
-  - gem install bundler
-  - bundle install
-  - bundle exec jekyll build
-```
-
-For GitLab Pages, this `job` has a specific name, called `pages`.
-This setting tells the runner you want the job to deploy your website
-with GitLab Pages:
-
-```yaml
-pages:
-  script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build
 ```
+
+For GitLab Pages, this `job` has to include a property, called `pages`.
+This setting tells the runner you want the job to deploy your website
+with GitLab Pages:
+
+```yaml
+deploy-pages:
+  script:
+    - gem install bundler
+    - bundle install
+    - bundle exec jekyll build
+  pages: true  # specifies that this is a Pages job
+```
+
+The example in this page uses [user-defined job names](../index.md#user-defined-job-names).
 
 ## Specify the `public` directory for output
 
@@ -133,11 +137,12 @@ Jekyll uses a destination flag (`-d`) to specify an output directory for the bui
 Add the destination to your `.gitlab-ci.yml` file:
 
 ```yaml
-pages:
+deploy-pages:
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
 ```
 
 ## Specify the `public` directory for artifacts
@@ -147,11 +152,12 @@ the runner needs to know where to get them. The artifacts are stored
 in the `public` directory:
 
 ```yaml
-pages:
+deploy-pages:
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -160,13 +166,15 @@ pages:
 Your `.gitlab-ci.yml` file should now look like this:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 
-pages:
+deploy-pages:
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -190,7 +198,7 @@ GitLab Pages daemon. GitLab runs it in the background and doesn't use a runner.
 
 If you want to do more advanced tasks, you can update your `.gitlab-ci.yml` file
 with [other CI/CD YAML keywords](../../../../ci/yaml/index.md). You can validate
-your `.gitlab-ci.yml` file with the [CI Lint](../../../../ci/lint.md) tool that's included with GitLab.
+your `.gitlab-ci.yml` file with the [CI Lint](../../../../ci/yaml/lint.md) tool that's included with GitLab.
 
 The following topics show other examples of other options you can add to your CI/CD file.
 
@@ -202,17 +210,19 @@ First, add a `workflow` section to force the pipeline to run only when changes a
 pushed to branches:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-pages:
+deploy-pages:
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -222,17 +232,19 @@ Then configure the pipeline to run the job for the
 [default branch](../../repository/branches/default.md) (here, `main`) only.
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-pages:
+deploy-pages:
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -253,18 +265,20 @@ To specify a stage for your job to run in,
 add a `stage` line to your CI file:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-pages:
+deploy-pages:
   stage: deploy
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -277,18 +291,20 @@ Now add another job to the CI file, telling it to
 test every push to every branch **except** the `main` branch:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-pages:
+deploy-pages:
   stage: deploy
   script:
     - gem install bundler
     - bundle install
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -320,29 +336,30 @@ same time.
 
 ### Remove duplicate commands
 
-To avoid duplicating the same scripts in every job, you can add them
-to a `before_script` section.
+To avoid duplicating the same `before_script` commands in every job, you can add them
+to the default section.
 
 In the example, `gem install bundler` and `bundle install` were running
 for both jobs, `pages` and `test`.
 
-Move these commands to a `before_script` section:
+Move these commands to the `default` section:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
+  before_script:
+    - gem install bundler
+    - bundle install
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-before_script:
-  - gem install bundler
-  - bundle install
-
-pages:
+deploy-pages:
   stage: deploy
   script:
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -370,24 +387,25 @@ This example caches Jekyll dependencies in a `vendor` directory
 when you run `bundle install`:
 
 ```yaml
-image: ruby:3.2
+default:
+  image: ruby:3.2
+  before_script:
+    - gem install bundler
+    - bundle install --path vendor
+  cache:
+    paths:
+      - vendor/
 
 workflow:
   rules:
     - if: $CI_COMMIT_BRANCH
 
-cache:
-  paths:
-    - vendor/
 
-before_script:
-  - gem install bundler
-  - bundle install --path vendor
-
-pages:
+deploy-pages:
   stage: deploy
   script:
     - bundle exec jekyll build -d public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -426,6 +444,8 @@ Now GitLab CI/CD not only builds the website, but also:
 
 To view the HTML and other assets that were created for the site,
 [download the job artifacts](../../../../ci/jobs/job_artifacts.md#download-job-artifacts).
+
+The example in this page uses [user-defined job names](../index.md#user-defined-job-names).
 
 ## Related topics
 

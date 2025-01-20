@@ -92,18 +92,42 @@ module Projects
         raise TransferError, s_("TransferProject|Project with same name or path in target namespace already exists")
       end
 
-      if project.has_container_registry_tags?
-        # We currently don't support renaming repository if it contains tags in container registry
-        raise TransferError, s_('TransferProject|Project cannot be transferred, because tags are present in its container registry')
-      end
+      verify_if_container_registry_tags_can_be_handled(project)
 
-      if !new_namespace_has_same_root?(project) && project.has_namespaced_npm_packages?
+      if !new_namespace_has_same_root?(project) && project_has_namespaced_npm_packages?
         raise TransferError, s_("TransferProject|Root namespace can't be updated if the project has NPM packages scoped to the current root level namespace.")
       end
 
       proceed_to_transfer
     end
     # rubocop: enable CodeReuse/ActiveRecord
+
+    def verify_if_container_registry_tags_can_be_handled(project)
+      return unless project.has_container_registry_tags?
+
+      raise_error_due_to_tags_if_transfer_is_not_allowed
+      raise_error_due_to_tags_if_not_in_same_root(project)
+      raise_error_due_to_tags_if_transfer_dry_run_fails(project)
+    end
+
+    def raise_error_due_to_tags_if_transfer_is_not_allowed
+      return if ContainerRegistry::GitlabApiClient.supports_gitlab_api?
+
+      raise TransferError, s_('TransferProject|Project cannot be transferred, because image tags are present in its container registry')
+    end
+
+    def raise_error_due_to_tags_if_not_in_same_root(project)
+      return if new_namespace_has_same_root?(project)
+
+      raise TransferError, s_('TransferProject|Project cannot be transferred to a different top-level namespace, because image tags are present in its container registry')
+    end
+
+    def raise_error_due_to_tags_if_transfer_dry_run_fails(project)
+      dry_run = transfer_project_path_in_registry(project.full_path, new_namespace.full_path, dry_run: true)
+      return if dry_run == :accepted
+
+      raise TransferError, format(s_('TransferProject|Project cannot be transferred because of a container registry error: %{error}'), error: dry_run.to_s.titleize)
+    end
 
     def new_namespace_has_same_root?(project)
       new_namespace.root_ancestor == project.namespace.root_ancestor
@@ -129,6 +153,11 @@ module Projects
           # Move uploads
           move_project_uploads(project)
 
+          # Update Container Registry
+          if project.has_container_registry_tags?
+            transfer_project_path_in_registry(@old_path, @new_namespace.full_path, dry_run: false)
+          end
+
           update_integrations
 
           project.old_path_with_namespace = @old_path
@@ -152,6 +181,14 @@ module Projects
       refresh_permissions
     end
 
+    def transfer_project_path_in_registry(old_project_path, new_namespace_path, dry_run:)
+      ContainerRegistry::GitlabApiClient.move_repository_to_namespace(
+        old_project_path,
+        namespace: new_namespace_path,
+        dry_run: dry_run
+      )
+    end
+
     # Overridden in EE
     def post_update_hooks(project, _old_group)
       ensure_personal_project_owner_membership(project)
@@ -161,8 +198,7 @@ module Projects
     end
 
     # Overridden in EE
-    def remove_paid_features
-    end
+    def remove_paid_features; end
 
     def invalidate_personal_projects_counts
       # If the project was moved out of a personal namespace,
@@ -279,7 +315,7 @@ module Projects
     end
 
     def remove_issue_contacts
-      return unless @old_group&.root_ancestor != @new_namespace&.root_ancestor
+      return unless @old_group&.crm_group != @new_namespace&.crm_group
 
       CustomerRelations::IssueContact.delete_for_project(project.id)
     end
@@ -294,6 +330,13 @@ module Projects
       })
 
       Gitlab::EventStore.publish(event)
+    end
+
+    def project_has_namespaced_npm_packages?
+      ::Packages::Npm::Package.for_projects(project)
+                              .with_npm_scope(project.root_namespace.path)
+                              .not_pending_destruction
+                              .exists?
     end
   end
 end

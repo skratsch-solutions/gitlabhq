@@ -3,14 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe Deployments::UpdateEnvironmentService, feature_category: :continuous_delivery do
-  let(:user) { create(:user) }
-  let(:project) { create(:project, :repository) }
-  let(:options) { { name: environment_name } }
-  let(:pipeline) do
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project) { create(:project, :repository, developers: [user]) }
+  let_it_be(:pipeline) do
     create(
       :ci_pipeline,
       sha: 'b83d6e391c22777fca1ed3012fce84f633d7fed0',
-      project: project
+      project: project,
+      user: user
     )
   end
 
@@ -22,12 +22,14 @@ RSpec.describe Deployments::UpdateEnvironmentService, feature_category: :continu
       tag: false,
       environment: environment_name,
       options: { environment: options },
+      user: user,
       project: project)
   end
 
   let(:deployment) { job.deployment }
   let(:environment) { deployment.environment }
   let(:environment_name) { 'production' }
+  let(:options) { { name: environment_name } }
 
   subject(:service) { described_class.new(deployment) }
 
@@ -178,39 +180,16 @@ RSpec.describe Deployments::UpdateEnvironmentService, feature_category: :continu
     end
 
     context 'when auto_stop_in are used' do
-      let(:options) do
-        { name: 'production', auto_stop_in: '1 day' }
-      end
-
       before do
         environment.update_attribute(:auto_stop_at, nil)
+
+        allow(job).to receive(:expanded_auto_stop_in).and_return('1 day')
       end
 
       it 'renews auto stop at' do
         freeze_time do
           expect { subject.execute }
             .to change { environment.reset.auto_stop_at&.round }.from(nil).to(1.day.since.round)
-        end
-      end
-
-      context 'when value is a variable' do
-        let(:options) { { name: 'production', auto_stop_in: '$TTL' } }
-
-        let(:yaml_variables) do
-          [
-            { key: "TTL", value: '2 days', public: true }
-          ]
-        end
-
-        before do
-          job.update_attribute(:yaml_variables, yaml_variables)
-        end
-
-        it 'renews auto stop at with expanded variable value' do
-          freeze_time do
-            expect { subject.execute }
-              .to change { environment.reset.auto_stop_at&.round }.from(nil).to(2.days.since.round)
-          end
         end
       end
     end
@@ -263,6 +242,189 @@ RSpec.describe Deployments::UpdateEnvironmentService, feature_category: :continu
 
         expect { subject.execute }
           .to change { environment.reset.tier }.from(nil).to('other')
+      end
+    end
+
+    context 'when cluster agent is specified' do
+      let(:agent) { create(:cluster_agent, project: project) }
+
+      let(:options) { { name: environment_name, kubernetes: { agent: agent_path } } }
+
+      context 'when the agent does not exist' do
+        let(:agent_path) { "#{project.full_path}:non-existent-agent" }
+
+        it 'does not assign a cluster agent' do
+          expect { subject.execute }.not_to change { environment.cluster_agent }
+        end
+      end
+
+      context 'when the agent exists' do
+        let(:agent_path) { "#{project.full_path}:#{agent.name}" }
+
+        context 'and the user no longer exists' do
+          before do
+            job.update!(user: nil)
+          end
+
+          it 'does not assign a cluster agent' do
+            expect { subject.execute }.not_to change { environment.cluster_agent }
+          end
+        end
+
+        context 'and the user is not authorized' do
+          it 'does not assign a cluster agent' do
+            expect { subject.execute }.not_to change { environment.cluster_agent }
+          end
+        end
+
+        context 'and the user is authorized' do
+          before do
+            agent.user_access_project_authorizations.create!(project: project, config: {})
+          end
+
+          it 'assigns the cluster agent to the environment' do
+            expect { subject.execute }.to change { environment.cluster_agent }.from(nil).to(agent)
+          end
+
+          context 'when the agent path contains variables' do
+            let(:agent_path) { "$CI_PROJECT_PATH:#{agent.name}" }
+
+            it 'expands variables and assigns the cluster agent to the environment' do
+              expect { subject.execute }.to change { environment.cluster_agent }.from(nil).to(agent)
+            end
+          end
+        end
+      end
+    end
+
+    context 'when kubernetes namespace is specified' do
+      let(:agent) { create(:cluster_agent, project: project) }
+      let(:namespace) { 'my-namespace' }
+      let(:options) { { name: environment_name, kubernetes: { agent: agent_path, namespace: namespace } } }
+
+      context 'when the agent does not exist' do
+        let(:agent_path) { "#{project.full_path}:non-existent-agent" }
+
+        it 'does not assign a kubernetes namespace' do
+          expect { subject.execute }.not_to change { environment.kubernetes_namespace }
+        end
+      end
+
+      context 'when the agent exists' do
+        let(:agent_path) { "#{project.full_path}:#{agent.name}" }
+
+        context 'and the user no longer exists' do
+          before do
+            job.update!(user: nil)
+          end
+
+          it 'does not assign a kubernetes namespace' do
+            expect { subject.execute }.not_to change { environment.kubernetes_namespace }
+          end
+        end
+
+        context 'and the user is not authorized' do
+          it 'does not assign a kubernetes namespace' do
+            expect { subject.execute }.not_to change { environment.kubernetes_namespace }
+          end
+        end
+
+        context 'and the user is authorized' do
+          before do
+            agent.user_access_project_authorizations.create!(project: project, config: {})
+          end
+
+          it 'assigns the kubernetes namespace to the environment' do
+            expect { subject.execute }.to change { environment.kubernetes_namespace }.from(nil).to(namespace)
+          end
+
+          context 'when the agent path contains variables' do
+            let(:agent_path) { "$CI_PROJECT_PATH:#{agent.name}" }
+
+            it 'expands variables and assigns the kubernetes namespace to the environment' do
+              expect { subject.execute }.to change { environment.kubernetes_namespace }.from(nil).to(namespace)
+            end
+          end
+        end
+      end
+    end
+
+    context 'when flux resource path is specified' do
+      let(:agent) { create(:cluster_agent, project: project) }
+      let(:namespace) { 'my-namespace' }
+      let(:flux_resource_path) { 'path/to/flux/resource' }
+      let(:options) do
+        {
+          name: environment_name,
+          kubernetes: {
+            agent: agent_path,
+            namespace: namespace,
+            flux_resource_path: flux_resource_path
+          }
+        }
+      end
+
+      context 'when the agent does not exist' do
+        let(:agent_path) { "#{project.full_path}:non-existent-agent" }
+
+        it 'does not assign a Flux resource path' do
+          expect { subject.execute }.not_to change { environment.flux_resource_path }
+        end
+      end
+
+      context 'when the kubernetes namespace is not specified' do
+        let(:agent_path) { "#{project.full_path}:#{agent.name}" }
+        let(:options) do
+          {
+            name: environment_name,
+            kubernetes: {
+              agent: agent_path,
+              flux_resource_path: flux_resource_path
+            }
+          }
+        end
+
+        it 'does not assign a Flux resource path' do
+          expect { subject.execute }.not_to change { environment.flux_resource_path }
+        end
+      end
+
+      context 'when the agent exists' do
+        let(:agent_path) { "#{project.full_path}:#{agent.name}" }
+
+        context 'and the user no longer exists' do
+          before do
+            job.update!(user: nil)
+          end
+
+          it 'does not assign a Flux resource path' do
+            expect { subject.execute }.not_to change { environment.flux_resource_path }
+          end
+        end
+
+        context 'and the user is not authorized' do
+          it 'does not assign a Flux resource path' do
+            expect { subject.execute }.not_to change { environment.flux_resource_path }
+          end
+        end
+
+        context 'and the user is authorized' do
+          before do
+            agent.user_access_project_authorizations.create!(project: project, config: {})
+          end
+
+          it 'assigns the kubernetes namespace to the environment' do
+            expect { subject.execute }.to change { environment.flux_resource_path }.from(nil).to(flux_resource_path)
+          end
+
+          context 'when the agent path contains variables' do
+            let(:agent_path) { "$CI_PROJECT_PATH:#{agent.name}" }
+
+            it 'expands variables and assigns the kubernetes namespace to the environment' do
+              expect { subject.execute }.to change { environment.flux_resource_path }.from(nil).to(flux_resource_path)
+            end
+          end
+        end
       end
     end
   end

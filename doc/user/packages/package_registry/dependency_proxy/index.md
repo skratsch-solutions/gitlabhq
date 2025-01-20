@@ -8,14 +8,14 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 **Status:** Beta
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3610) in GitLab 16.6 [with a flag](../../../../administration/feature_flags.md) named `packages_dependency_proxy_maven`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/415218) in GitLab 16.8. Feature flag `packages_dependency_proxy_maven` removed.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/415218) in GitLab 16.8. Feature flag `packages_dependency_proxy_maven` removed.
 
 WARNING:
-The dependency proxy is in [beta](../../../../policy/experiment-beta-support.md#beta). Review the documentation carefully before you use this feature.
+The dependency proxy is in [beta](../../../../policy/development_stages_support.md#beta). Review the documentation carefully before you use this feature.
 
 The GitLab dependency proxy for packages is a local proxy for frequently pulled packages.
 It is implemented as a pull-through cache that works at the project level.
@@ -224,6 +224,7 @@ To set those parameters:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > Packages and registries**.
+1. Expand **Package registry**.
 1. Under **Dependency Proxy**, complete the form for your package format:
 
 ::Tabs

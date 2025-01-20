@@ -5,6 +5,12 @@ module Gitlab
     module Tracers
       # This tracer writes logs for certain trace events.
       module InstrumentationTracer
+        MUTATION_REGEXP = /^mutation/
+
+        IGNORED_ERRORS = [
+          ::Subscriptions::BaseSubscription::UNAUTHORIZED_ERROR_MESSAGE
+        ].freeze
+
         # All queries pass through a multiplex, even if only one query is executed
         # https://github.com/rmosolgo/graphql-ruby/blob/43e377b5b743a9102381d6ad3adaaed13ff5b6dd/lib/graphql/schema.rb#L1303
         #
@@ -29,15 +35,16 @@ module Gitlab
 
         def export_query_info(query:, duration_s:, exception:)
           operation = ::Gitlab::Graphql::KnownOperations.default.from_query(query)
-          has_errors = exception || query.result['errors'].present?
+
+          error_type = error_type(query: query, exception: exception)
 
           ::Gitlab::ApplicationContext.with_context(caller_id: operation.to_caller_id) do
             log_execute_query(query: query, duration_s: duration_s, exception: exception)
-            increment_query_sli(operation: operation, duration_s: duration_s, has_errors: has_errors)
+            increment_query_sli(operation: operation, duration_s: duration_s, error_type: error_type)
           end
         end
 
-        def increment_query_sli(operation:, duration_s:, has_errors:)
+        def increment_query_sli(operation:, duration_s:, error_type:)
           query_urgency = operation.query_urgency
           labels = {
             endpoint_id: operation.to_caller_id,
@@ -47,15 +54,27 @@ module Gitlab
 
           Gitlab::Metrics::RailsSlis.graphql_query_error_rate.increment(
             labels: labels,
-            error: has_errors
+            error: error_type == :error
           )
 
-          return if has_errors
+          return if error_type
 
           Gitlab::Metrics::RailsSlis.graphql_query_apdex.increment(
             labels: labels,
             success: duration_s <= query_urgency.duration
           )
+        end
+
+        def error_type(query:, exception:)
+          errors = query.result['errors']&.pluck('message')
+
+          return if errors.blank?
+
+          if exception || (errors - IGNORED_ERRORS).present?
+            :error
+          else
+            :ignored
+          end
         end
 
         def log_execute_query(query: nil, duration_s: 0, exception: nil)
@@ -71,10 +90,10 @@ module Gitlab
             operation_fingerprint: query.operation_fingerprint,
             is_mutation: query.mutation?,
             variables: clean_variables(query.provided_variables),
-            query_string: query.query_string
+            query_string: clean_query_string(query)
           }
 
-          token_info = auth_token_info(query)
+          token_info = ::Current.token_info
           info.merge!(token_info) if token_info
 
           info[:graphql_errors] = query.result['errors'] if query.result['errors']
@@ -87,19 +106,22 @@ module Gitlab
           ::Gitlab::GraphqlLogger.info(info)
         end
 
-        def auth_token_info(query)
-          request_env = query.context[:request]&.env
-          return unless request_env
-
-          request_env[::Gitlab::Auth::AuthFinders::API_TOKEN_ENV]
-        end
-
         def clean_variables(variables)
           filtered = ActiveSupport::ParameterFilter
-            .new(::Rails.application.config.filter_parameters)
+            .new(::Gitlab::Graphql::QueryAnalyzers::AST::LoggerAnalyzer::FILTER_PARAMETERS)
             .filter(variables)
 
           filtered&.to_s
+        end
+
+        def clean_query_string(query)
+          return query.query_string unless mutation?(query)
+
+          query.sanitized_query_string
+        end
+
+        def mutation?(query)
+          query.query_string =~ ::Gitlab::Graphql::Tracers::InstrumentationTracer::MUTATION_REGEXP
         end
       end
     end

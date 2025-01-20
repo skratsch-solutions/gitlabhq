@@ -33,8 +33,11 @@ RSpec.describe MigrationsHelpers, feature_category: :database do
         skip_if_multiple_databases_are_setup(:ci)
       end
 
-      it 'returns the main base model' do
-        expect(helper.active_record_base(database: :ci)).to eq(ActiveRecord::Base)
+      it 'returns the CI base model with a connection to the main model' do
+        model = helper.active_record_base(database: :ci)
+
+        expect(model).to eq(Ci::ApplicationRecord)
+        expect(model.connection_specification_name).to eq('ActiveRecord::Base')
       end
     end
 
@@ -113,7 +116,7 @@ RSpec.describe MigrationsHelpers, feature_category: :database do
 
     before do
       allow(helper).to receive(:described_class)
-      allow(::Gitlab::Database::BackgroundMigration::BatchedBackgroundMigrationDictionary).to(
+      allow(::Gitlab::Utils::BatchedBackgroundMigrationsDictionary).to(
         receive(:entry).and_return(dictionary_entry)
       )
     end
@@ -125,7 +128,7 @@ RSpec.describe MigrationsHelpers, feature_category: :database do
     context 'when finalized_by is a string' do
       let(:dictionary_entry) do
         instance_double(
-          ::Gitlab::Database::BackgroundMigration::BatchedBackgroundMigrationDictionary::Entry,
+          ::Gitlab::Utils::BatchedBackgroundMigrationsDictionary,
           finalized_by: '20240104155616'
         )
       end

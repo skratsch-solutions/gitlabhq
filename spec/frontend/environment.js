@@ -22,10 +22,14 @@ class CustomEnvironment extends TestEnvironment {
     this.jestConsoleWatcher = setupConsoleWatcher(this, context.console, {
       ignores: [
         /The updateQuery callback for fetchMore is deprecated/,
+        /^\[Vue warn\]: Wrong type passed as event handler to .* - did you forget @ or : in front of your prop\?/,
         // TODO: Remove this and replace with localized calls to `ignoreVueConsoleWarnings`
         // https://gitlab.com/gitlab-org/gitlab/-/issues/396779#note_1788506238
         /^\[Vue warn\]: Missing required prop/,
         /^\[Vue warn\]: Invalid prop/,
+        // TODO: Implement robust vue-demi switching logic.
+        // https://gitlab.com/groups/gitlab-org/-/epics/15340
+        /^\[Vue warn\]: \(deprecation GLOBAL_PRIVATE_UTIL\)/,
       ],
       // TODO: Remove this and replace with localized calls to `useConsoleWatcherThrowsImmediately`
       // https://gitlab.com/gitlab-org/gitlab/-/issues/396779#note_1788506238
@@ -100,6 +104,10 @@ class CustomEnvironment extends TestEnvironment {
       }
       this.global[observer] = NoopObserver;
     });
+
+    // This is used internally by Sentry
+    // https://github.com/getsentry/sentry-javascript/blob/8.26.0/packages/browser/src/tracing/browserTracingIntegration.ts#L221
+    this.global.PerformanceObserver.supportedEntryTypes = ['noop'];
   }
 
   async teardown() {

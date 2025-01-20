@@ -40,46 +40,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       context 'when path does not exist' do
         let(:path) { 'bogus' }
 
-        context 'when handle_structured_gitaly_errors feature is disabled' do
-          before do
-            stub_feature_flags(handle_structured_gitaly_errors: false)
-          end
-
-          it 'returns an empty array' do
-            get api("#{route}?path=#{path}", current_user)
-
-            expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to include_pagination_headers
-            expect(json_response).to be_an(Array)
-            expect(json_response).to be_an_empty
-          end
-        end
-
-        context 'when handle_structured_gitaly_errors feature is enabled' do
-          before do
-            stub_feature_flags(handle_structured_gitaly_errors: true)
-          end
-
-          it_behaves_like '404 response' do
-            let(:request) { get api("#{route}?path=#{path}", current_user) }
-            let(:message) { '404 invalid revision or path Not Found' }
-          end
-        end
-      end
-
-      context 'when path is empty directory ' do
-        context 'when handle_structured_gitaly_errors feature is disabled' do
-          before do
-            stub_feature_flags(handle_structured_gitaly_errors: false)
-          end
-
-          it 'returns an empty array' do
-            get api(route, current_user)
-
-            expect(response).to have_gitlab_http_status(:ok)
-            expect(response).to include_pagination_headers
-            expect(json_response).to be_an(Array)
-          end
+        it_behaves_like '404 response' do
+          let(:request) { get api("#{route}?path=#{path}", current_user) }
+          let(:message) { '404 invalid revision or path Not Found' }
         end
       end
 
@@ -675,9 +638,39 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
         expect(first_contributor['deletions']).to eq(0)
       end
 
+      context 'using ref' do
+        new_branch_name = 'feature-test'
+        let(:user) { create(:user, name: "johndoe", email: "johndoe@example.com") }
+
+        before do
+          project.repository.add_branch(user, new_branch_name, 'master')
+          project.repository.commit_files(
+            user,
+            branch_name: new_branch_name,
+            message: 'Message',
+            actions: [{ action: :create, file_path: 'a/new.file', content: 'This is a new file' }]
+          )
+        end
+
+        it 'returns valid data for the ref' do
+          get api(route, current_user), params: { ref: new_branch_name }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to include_pagination_headers
+          expect(json_response).to be_an Array
+
+          first_contributor = json_response.first
+          expect(first_contributor['email']).to eq('johndoe@example.com')
+          expect(first_contributor['name']).to eq('johndoe')
+          expect(first_contributor['commits']).to eq(1)
+          expect(first_contributor['additions']).to eq(0)
+          expect(first_contributor['deletions']).to eq(0)
+        end
+      end
+
       context 'using sorting' do
         context 'by commits desc' do
-          it 'returns the repository contribuors sorted by commits desc' do
+          it 'returns the repository contributors sorted by commits desc' do
             get api(route, current_user), params: { order_by: 'commits', sort: 'desc' }
 
             expect(response).to have_gitlab_http_status(:ok)
@@ -687,7 +680,7 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
         end
 
         context 'by name desc' do
-          it 'returns the repository contribuors sorted by name asc case insensitive' do
+          it 'returns the repository contributors sorted by name asc case insensitive' do
             get api(route, current_user), params: { order_by: 'name', sort: 'asc' }
 
             expect(response).to have_gitlab_http_status(:ok)
@@ -814,11 +807,23 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
   end
 
   describe 'GET /projects/:id/repository/changelog' do
+    it_behaves_like 'enforcing job token policies', :read_releases do
+      before do
+        allow(Repositories::ChangelogService).to receive(:new)
+          .and_return(instance_spy(Repositories::ChangelogService))
+      end
+
+      let(:request) do
+        get api("/projects/#{source_project.id}/repository/changelog"),
+          params: { version: '1.0.0', job_token: target_job.token }
+      end
+    end
+
     it 'generates the changelog for a version' do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
       release_notes = 'Release notes'
 
-      allow(Repositories::ChangelogService)
+      allow(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -848,10 +853,45 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       expect(json_response['notes']).to eq(release_notes)
     end
 
-    it 'supports leaving out the from and to attribute' do
-      spy = instance_spy(Repositories::ChangelogService)
+    it 'returns generated changelog when using JOB-TOKEN auth' do
+      spy = instance_spy(::Repositories::ChangelogService)
+      release_notes = 'Release notes'
 
-      allow(Repositories::ChangelogService)
+      allow(::Repositories::ChangelogService)
+        .to receive(:new)
+        .with(
+          project,
+          user,
+          version: '1.0.0',
+          from: 'foo',
+          to: 'bar',
+          date: DateTime.new(2020, 1, 1),
+          trailer: 'Foo'
+        )
+        .and_return(spy)
+
+      expect(spy).to receive(:execute).with(commit_to_changelog: false).and_return(release_notes)
+
+      job = create(:ci_build, :running, project: project, user: user)
+
+      get api("/projects/#{project.id}/repository/changelog"),
+        params: {
+          job_token: job.token,
+          version: '1.0.0',
+          from: 'foo',
+          to: 'bar',
+          date: '2020-01-01',
+          trailer: 'Foo'
+        }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['notes']).to eq(release_notes)
+    end
+
+    it 'supports leaving out the from and to attribute' do
+      spy = instance_spy(::Repositories::ChangelogService)
+
+      allow(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -878,9 +918,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
     end
 
     it 'supports specified config file path' do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
 
-      expect(Repositories::ChangelogService)
+      expect(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -911,6 +951,19 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       expect(response).to have_gitlab_http_status(:ok)
     end
 
+    it 'rate limits user when thresholds hit' do
+      allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(true)
+
+      get(
+        api("/projects/#{project.id}/repository/changelog", user),
+        params: {
+          version: '1.0.0'
+        }
+      )
+
+      expect(response).to have_gitlab_http_status(:too_many_requests)
+    end
+
     context 'when previous tag version does not exist' do
       it_behaves_like '422 response' do
         let(:request) { get api("/projects/#{project.id}/repository/changelog", user), params: { version: 'v0.0.0' } }
@@ -921,9 +974,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
 
   describe 'POST /projects/:id/repository/changelog' do
     it 'generates the changelog for a version' do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
 
-      allow(Repositories::ChangelogService)
+      allow(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -959,9 +1012,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
     end
 
     it 'supports leaving out the from and to attribute' do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
 
-      allow(Repositories::ChangelogService)
+      allow(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -993,9 +1046,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
     end
 
     it 'produces an error when generating the changelog fails' do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
 
-      allow(Repositories::ChangelogService)
+      allow(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -1034,9 +1087,9 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
     end
 
     it "support specified config file path" do
-      spy = instance_spy(Repositories::ChangelogService)
+      spy = instance_spy(::Repositories::ChangelogService)
 
-      expect(Repositories::ChangelogService)
+      expect(::Repositories::ChangelogService)
         .to receive(:new)
         .with(
           project,
@@ -1071,6 +1124,19 @@ RSpec.describe API::Repositories, feature_category: :source_code_management do
       )
 
       expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    it 'rate limits user when thresholds hit' do
+      allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(true)
+
+      post(
+        api("/projects/#{project.id}/repository/changelog", user),
+        params: {
+          version: '1.0.0'
+        }
+      )
+
+      expect(response).to have_gitlab_http_status(:too_many_requests)
     end
   end
 end

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use project [milestones](../user/project/milestones/index.md) with the REST API.
 There's a separate [group milestones API](group_milestones.md) page.
@@ -33,7 +33,7 @@ Parameters:
 
 | Attribute                         | Type   | Required | Description |
 | ----------------------------      | ------ | -------- | ----------- |
-| `id`                              | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`                              | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `iids[]`                          | integer array | no | Return only the milestones having the given `iid`. Ignored if `include_ancestors` is `true`.  |
 | `state`                           | string | no | Return only `active` or `closed` milestones |
 | `title`                           | string | no | Return only the milestones having the given `title` |
@@ -79,7 +79,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 
 ## Create new milestone
@@ -94,7 +94,7 @@ Parameters:
 
 | Attribute     | Type           | Required | Description                                                                                                     |
 |---------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`          | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`          | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `title`       | string         | yes      | The title of a milestone                                                                                        |
 | `description` | string         | no       | The description of the milestone                                                                                |
 | `due_date`    | string         | no       | The due date of the milestone (`YYYY-MM-DD`)                                                                    |
@@ -112,7 +112,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 | `title`        | string         | no       | The title of a milestone                                                                                        |
 | `description`  | string         | no       | The description of the milestone                                                                                |
@@ -123,8 +123,9 @@ Parameters:
 ## Delete project milestone
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
-Only for users with at least the Reporter role in the project.
+Only for users with at least the Planner role for the project.
 
 ```plaintext
 DELETE /projects/:id/milestones/:milestone_id
@@ -134,7 +135,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 
 ## Get all issues assigned to a single milestone
@@ -149,7 +150,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 
 ## Get all merge requests assigned to a single milestone
@@ -164,14 +165,15 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 
 ## Promote project milestone to a group milestone
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
-Only for users with at least the Reporter role in the group.
+Only for users with at least the Planner role for the group.
 
 ```plaintext
 POST /projects/:id/milestones/:milestone_id/promote
@@ -181,14 +183,14 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |
 
 ## Get all burndown chart events for a single milestone
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Gets all burndown chart events for a single milestone.
 
@@ -200,5 +202,5 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                                                     |
 |----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`           | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `milestone_id` | integer        | yes      | The ID of the project's milestone                                                                               |

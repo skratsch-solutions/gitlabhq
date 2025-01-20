@@ -1,6 +1,5 @@
 <script>
 import { memoize } from 'lodash';
-import { reportToSentry } from '~/ci/utils';
 import { parseData } from '~/ci/pipeline_details/utils/parsing_utils';
 import LinksInner from '~/ci/pipeline_details/graph/components/links_inner.vue';
 
@@ -51,9 +50,6 @@ export default {
       return this.showLinks && !this.containerZero;
     },
   },
-  errorCaptured(err, _vm, info) {
-    reportToSentry(this.$options.name, `error: ${err}, info: ${info}`);
-  },
 };
 </script>
 <template>
@@ -68,7 +64,7 @@ export default {
     <slot></slot>
   </links-inner>
   <div v-else>
-    <div class="gl-display-flex gl-flex-wrap gl-sm-flex-nowrap gl-relative">
+    <div class="gl-relative gl-flex gl-flex-wrap sm:gl-flex-nowrap">
       <slot></slot>
     </div>
   </div>

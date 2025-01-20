@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Security Risk Management
 group: Security Policies
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Policies provide security and compliance teams with a way to enforce controls globally in
 their organization.
@@ -27,9 +27,9 @@ Compliance teams can:
 
 The following policy types are available:
 
-- [Scan execution policy](scan-execution-policies.md). Enforce security scans, either as part of the
+- [Scan execution policy](scan_execution_policies.md). Enforce security scans, either as part of the
   pipeline or on a specified schedule.
-- [Merge request approval policy](scan-result-policies.md). Enforce project-level settings and
+- [Merge request approval policy](merge_request_approval_policies.md). Enforce project-level settings and
   approval rules based on scan results.
 - [Pipeline execution policy](pipeline_execution_policies.md). Enforce CI/CD jobs as part of project pipelines.
 
@@ -47,31 +47,61 @@ Policy changes made in a merge request take effect as soon as the merge request 
 that do not go through a merge request, but instead are committed directly to the default branch,
 may require up to 10 minutes before the policy changes take effect.
 
+## Deleting security policy projects
+
+> - The deletion protection for security policy projects was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/482967) in GitLab 17.8 [with a flag](../../../administration/feature_flags.md) named `reject_security_policy_project_deletion`. Disabled by default.
+> - The deletion protection for groups that contain security policy projects was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/512043) in GitLab 17.9 [with a flag](../../../administration/feature_flags.md) named `reject_security_policy_project_deletion_groups`. Disabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag.
+For more information, see the history.
+
+To delete a security policy project or one of its parent groups, you must remove the link to it
+from all other projects or groups. Otherwise, an error message is displayed when you attempt
+to delete a linked security policy project or a parent group.
+
 ## Policy design guidelines
 
-When designing your policies, your goals should be:
+When designing your policies, your goals should be to:
 
 - Design policy enforcement for minimum overhead but maximum coverage
 - Ensure separation of duties
 
-### Policy enforcement design
+### Enforcement
 
-To maximize policy coverage, link a security policy project at the highest level that achieves your objectives: group
-level, subgroup level, or project level. Enforcement at the highest level minimizes the number of
-security policy projects and therefore the management overhead. Policies cascade down from each level to a project, such that policies may be enforced from the group level, each subgroup above it, and then for any policies created at the project level itself.
+To enforce policies to meet your requirements, consider the following factors:
 
-Policy inheritance of policies not only ensures maximum coverage with the minimum
-number of security policy projects, but also helps when implementing policy changes. For example, to test a policy change
-you could copy an existing policy and enforce the modified policy first to a project, then to a
-subgroup, and, if applicable, to a group.
+- **Inheritance:** By default, a policy is enforced on the organizational units it's linked to, and
+  all their descendent subgroups and their projects.
+- **Scope:** To customize policy enforcement, you can define a policy's scope to match your needs.
+
+#### Inheritance
+
+To maximize policy coverage, link a security policy project to the highest organizational units that
+achieves your objectives: groups, subgroups, or projects. A policy is enforced on the organizational
+units it's linked to, and all their descendent subgroups and their projects. Enforcement at the
+highest point minimizes the number of security policies required, minimizing the management
+overhead.
+
+You can use policy inheritance to incrementally roll out policies. For example, when rolling out a
+new policy, you can enforce it on a single project, then conduct testing. If the tests pass, you can
+then remove it from the project and enforce it on a group, moving up the hierarchy until the policy
+is enforced on all applicable projects.
+
+Policies enforced on an existing group or subgroup are automatically enforced in any new subgroups and projects created under them, provided that all of the following are true:
+
+- The new subgroups and projects are included in the scope definition of the policy (for example, the scope includes all projects in this group).
+- The existing group or subgroup is already linked to the security policy project.
 
 NOTE:
-GitLab SaaS users may enforce policies against their top-level group or across subgroups, but cannot enforce policies across GitLab SaaS top-level groups. GitLab self-managed users can enforce policies across multiple top-level groups in their instance.
+GitLab.com users can enforce policies against their top-level group or across subgroups, but cannot
+enforce policies across GitLab.com top-level groups. GitLab Self-Managed users can enforce policies
+across multiple top-level groups in their instance.
 
 The following example illustrates two groups and their structure:
 
 - Alpha group contains two subgroups, each of which contains multiple projects.
-- Security and Compliance group contains two policies.
+- Security and compliance group contains two policies.
 
 **Alpha** group (contains code projects)
 
@@ -85,7 +115,7 @@ The following example illustrates two groups and their structure:
   - Project L
   - Project M
 
-**Security and Compliance** group (contains security policy projects)
+**Security and compliance** group (contains security policy projects)
 
 - Security Policy Management
 - Security Policy Management - security policy project
@@ -100,33 +130,132 @@ Assuming no policies are enforced, consider the following examples:
   "SAST" policy applies to project A.
 - If the "SAST" policy is enforced at subgroup "Accounts receiving", it applies only to projects B
   and C. No policy applies to project A.
-- If the "Secret Detection" is enforced at project K, it applies only to project K. No other
+- If the "Secret Detection" policy is enforced at project K, it applies only to project K. No other
   subgroups or projects have a policy apply to them.
+
+#### Scope
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/135398) in GitLab 16.7 [with a flag](../../../administration/feature_flags.md) named `security_policies_policy_scope`. Enabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/443594) in GitLab 16.11. Feature flag `security_policies_policy_scope` removed.
+> - Scoping by group [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/468384) in GitLab 17.4.
+
+You can refine a policy's scope by:
+
+- Compliance frameworks: Enforce a policy on projects with selected compliance frameworks.
+- Group:
+  - All projects in a group, including all its descendent subgroups and their projects. Optionally
+    exclude specific projects.
+  - All projects in multiple groups, including their descendent subgroups and their projects. Only
+    groups linked to the same security policy project can be listed in the policy. Optionally
+    exclude specific projects.
+- Projects: Include or exclude specific projects. Only projects linked to the same security policy
+  project can be listed in the policy.
+
+These options can be used together in the same policy. However, exclusion takes precedence over
+inclusion.
+
+##### `policy_scope` keyword
+
+Use the `policy_scope` keyword to enforce the policy on only those groups, projects, compliance
+frameworks, or a combination, that you specify.
+
+| Field                   | Type     | Possible values          | Description |
+|-------------------------|----------|--------------------------|-------------|
+| `compliance_frameworks` | `array`  | Not applicable           | List of IDs of the compliance frameworks in scope for enforcement, in an array of objects with key `id`. |
+| `projects`              | `object` | `including`, `excluding` | Use `excluding:` or `including:` then list the IDs of the projects you wish to include or exclude, in an array of objects with key `id`. |
+| `groups`                | `object` | `including`              | Use `including:` then list the IDs of the groups you wish to include, in an array of objects with key `id`. Only groups linked to the same security policy project can be listed in the policy. |
+
+##### Scope examples
+
+In this example, the scan execution policy enforces a SAST scan in every release pipeline, on
+every project with the compliance frameworks with an ID either `2` or `11` applied to them.
+
+```yaml
+---
+scan_execution_policy:
+- name: Enforce specified scans in every release pipeline
+  description: This policy enforces a SAST scan for release branches
+  enabled: true
+  rules:
+  - type: pipeline
+    branches:
+    - release/*
+  actions:
+  - scan: sast
+  policy_scope:
+    compliance_frameworks:
+      - id: 2
+      - id: 11
+```
+
+In this example, the scan execution policy enforces a secret detection and SAST scan on pipelines
+for the default branch, on all projects in the group with ID `203` (including all descendent
+subgroups and their projects), excluding the project with ID `64`.
+
+```yaml
+- name: Enforce specified scans in every default branch pipeline
+  description: This policy enforces Secret Detection and SAST scans for the default branch
+  enabled: true
+  rules:
+  - type: pipeline
+    branches:
+    - main
+  actions:
+  - scan: secret_detection
+  - scan: sast
+  policy_scope:
+    groups:
+      including:
+        - id: 203
+    projects:
+      excluding:
+        - id: 64
+```
 
 ### Separation of duties
 
-Separation of duties is vital to successfully implementing policies. Security and compliance teams
-should be responsible for defining policies and working with development teams. Development teams
-should not be able to disable, modify, or circumvent the policies, in any way, or for any
-exceptions. Implement policies that achieve the necessary compliance and security requirements, while
-allowing development teams to achieve their goals.
+Separation of duties is vital to successfully implementing policies. Implement policies that achieve
+the necessary compliance and security requirements, while allowing development teams to achieve
+their goals.
 
-By default, to enforce a security policy project on a group, subgroup, or project, you must have the Owner role at the
-same hierarchy level.
+Security and compliance teams:
 
-| Organization unit | Group owner            | Subgroup owner         | Project owner          |
-|-------------------|------------------------|------------------------|------------------------|
-| Group             | **{check-circle}** Yes | **{dotted-circle}** No | **{dotted-circle}** No |
-| Subgroup          | **{check-circle}** Yes | **{check-circle}** Yes | **{dotted-circle}** No |
-| Project           | **{check-circle}** Yes | **{check-circle}** Yes | **{check-circle}** Yes |
+- Should be responsible for defining policies and working with development teams to ensure the
+  policies meet their needs.
 
-Optionally, you can create a custom role with the `manage_security_policy_link` permission. For more
-information, see [Custom roles](../../../user/custom_roles.md).
+Development teams:
+
+- Should not be able to disable, modify, or circumvent the policies in any way.
+
+To enforce a security policy project on a group, subgroup, or project, you must have either:
+
+- The Owner role in that group, subgroup, or project.
+- A [custom role](../../../user/custom_roles.md) in that group, subgroup, or project with the `manage_security_policy_link` permission.
+
+The Owner role and custom roles with the `manage_security_policy_link` permission follow the standard hierarchy rules across groups, subgroups, and projects:
+
+| Organization unit | Group owner or group `manage_security_policy_link` permission | Subgroup owner or subgroup `manage_security_policy_link` permission | Project owner or project `manage_security_policy_link` permission |
+|-------------------|---------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------|
+| Group             | **{check-circle}** Yes                                        | **{dotted-circle}** No                                              | **{dotted-circle}** No                                            |
+| Subgroup          | **{check-circle}** Yes                                        | **{check-circle}** Yes                                              | **{dotted-circle}** No                                            |
+| Project           | **{check-circle}** Yes                                        | **{check-circle}** Yes                                              | **{check-circle}** Yes                                            |
+
+#### Required permissions
+
+To create and manage security policies:
+
+- For policies enforced on groups: You must have at least the Maintainer role for the group.
+- For policies enforced on projects:
+  - You must be the project owner.
+  - You must be a group member with permissions to create projects in the group.
+
+NOTE:
+If you're not a group member, you may face limitations in adding or editing policies for your project. The ability to create and manage policies requires permissions to create projects in the group. Make sure you have the required permissions in the group, even when working with project-level policies.
 
 ## Policy implementation
 
 Implementation options for security policy projects differ slightly between GitLab.com, GitLab
-Dedicated, and GitLab self-managed. The main difference is that on GitLab.com it's only possible to
+Dedicated, and GitLab Self-Managed. The main difference is that on GitLab.com it's only possible to
 create subgroups. Ensuring separation of duties requires more granular permission configuration.
 
 ### Enforce policies globally in your GitLab.com namespace
@@ -137,8 +266,9 @@ DETAILS:
 
 Prerequisites:
 
-- You must have the Owner role with proper permissions to link to the security policy project. For
-  more information, see [separation of duties](#separation-of-duties).
+- You must have the Owner role or [custom role](../../../user/custom_roles.md) with the
+  `manage_security_policy_link` permission to link to the security policy project. For more
+  information, see [separation of duties](#separation-of-duties).
 
 The high-level workflow for enforcing policies globally across all subgroups and projects in your GitLab.com namespace:
 
@@ -174,17 +304,20 @@ The high-level workflow for enforcing policies globally across all subgroups and
    additional review or approval of policy changes, you can create an additional policy scoped only
    to your security policy project and enforce additional approvals.
 
-### Enforce policies globally in GitLab Dedicated or your GitLab self-managed instance
+### Enforce policies globally in GitLab Dedicated or GitLab Self-Managed
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Prerequisites:
 
-- You must have the Owner role (with proper permissions) to link to the security policy project. For more information, see
-  [separation of duties](#separation-of-duties).
-- To support approval groups globally across your instance, enable `security_policy_global_group_approvers_enabled` in your [GitLab instance application settings](../../../api/settings.md).
+- You must have the Owner role or [custom role](../../../user/custom_roles.md) with the
+  `manage_security_policy_link` permission to link to the security policy project. For more
+  information, see [separation of duties](#separation-of-duties).
+- To support approval groups globally across your instance, enable
+  `security_policy_global_group_approvers_enabled` in your
+  [GitLab instance application settings](../../../api/settings.md).
 
 The high-level workflow for enforcing policies across multiple groups:
 
@@ -232,8 +365,7 @@ granularly per policy, you can set a "policy scope" in each policy.
 
 Prerequisites:
 
-- You must have the Owner role (with proper permissions) to link to the security policy project.
-  For more information, see [separation of duties](#separation-of-duties).
+- You must have the Owner role or [custom role](../../../user/custom_roles.md) with the`manage_security_policy_link` permission to link to the security policy project. For more information, see [separation of duties](#separation-of-duties).
 
 To link a group, subgroup, or project to a security policy project:
 
@@ -245,11 +377,41 @@ To link a group, subgroup, or project to a security policy project:
 
 To unlink a security policy project, follow the same steps but instead select the trash can icon in
 the dialog.
+You can link to a security policy project from a different subgroup in the same top-level group, or from an entirely different top-level group.
+However, when you enforce a
+[pipeline execution policy](../policies/pipeline_execution_policies.md#pipeline-execution-policy-schema), users must have at least read-only access to the project that contains the CI/CD configuration referenced in the policy to trigger the pipeline.
 
 ### Viewing the linked security policy project
 
 All users who have access to the project policy page and are not project owners instead view a
 button linking out to the associated security policy project.
+
+## Policy recommendations
+
+When implementing policies, consider the following recommendations.
+
+### Branch names
+
+When specifying branch names in a policy, use a generic category of protected branches, such as
+**default branch** or **all protected branches**, not individual branch names.
+
+A policy is enforced on a project only if the specified branch exists in that project. For example,
+if your policy enforces rules on branch `main` but some projects in scope are using `production` as
+their default branch, the policy is not applied for the latter.
+
+### Push rules
+
+In GitLab 17.3 and earlier, if you use push rules to
+[validate branch names](../../project/repository/push_rules.md#validate-branch-names)
+ensure they allow creation of branches with the prefix `update-policy-`. This branch naming prefix
+is used when a security policy is created or amended. For example, `update-policy-1659094451`, where
+`1659094451` is the timestamp. If push rules block the creation of the branch the following error
+occurs:
+
+> Branch name `update-policy-<timestamp>` does not follow the pattern `<branch_name_regex>`.
+
+In [GitLab 17.4 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/463064), security policy
+projects are excluded from push rules that enforce branch name validation.
 
 ## Policy management
 
@@ -260,7 +422,9 @@ policies:
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Secure > Policies**.
 
-![Policies List Page](img/policies_list_v15_1.png)
+![Policies List Page](img/policies_list_v17_7.png)
+
+A green checkmark in the first column indicates that the policy is enabled and enforced on all groups and projects within its scope. A gray checkmark indicates that the policy is currently not enabled.
 
 ## Policy editor
 
@@ -299,68 +463,18 @@ Use the policy editor to create, edit, and delete policies:
    If you are a project owner and a security policy project is not associated with this project,
    a security policy project is created and linked to this project when the merge request is created.
 
-## Managing projects in bulk by using a script
-
-You can use the [Vulnerability-Check Migration](https://gitlab.com/gitlab-org/gitlab/-/snippets/2328089)
-script to bulk create policies or associate security policy projects with development projects. For
-instructions and a demonstration of how to use the Vulnerability-Check Migration script, see
-<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>[Migration from Vulnerability-Check rules to Scan Result Policies with automated script](https://youtu.be/biU1N26DfBc).
-<!-- Video published on 2022-05-20 -->
-
 ## Troubleshooting
 
-### `Branch name 'update-policy-<timestamp>' does not follow the pattern '<branch_name_regex>'`
+When working with security policies, consider these troubleshooting tips:
 
-When you create a new security policy or change an existing policy, a new branch is automatically
-created with the branch name following the pattern `update-policy-<timestamp>`. For example:
-`update-policy-1659094451`.
-
-If you have group or instance [push rules that do not allow branch name patterns](../../project/repository/push_rules.md#validate-branch-names) that contain the text `update-policy-<timestamp>`, you will get an error that states `Branch name 'update-policy-<timestamp>' does not follow the pattern '<branch_name_regex>'`.
-
-The workaround is to amend your group or instance push rules to allow branches following the pattern `update-policy-` followed by an integer timestamp.
-
-### Troubleshooting common security policy issues
-
-- Confirm that scanners are properly configured and producing results for the latest branch.
-  Security Policies are designed to require approval when there are no results (no security report),
-  as this ensures that no vulnerabilities are introduced. We cannot know if there are any
-  vulnerabilities unless the scans enforced by the policy complete successfully and are evaluated.
-- For merge request approval policies, we require artifacts for each scanner defined in the policy
-  for both the source and target branch. To ensure merge request approval policies capture the
-  necessary results, confirm your scan execution is properly implemented and enforced. If using scan
-  execution policies, enforcing on `all branches` often addresses this need.
-- Comparison in merge request approval policies depends on a successful and completed merge base
-  pipeline. If the merge base pipeline is [skipped](../../../ci/pipelines/index.md#skip-a-pipeline),
-  merge requests with the merge base pipeline are blocked.
-- When running scan execution policies based on a SAST action, ensure target repositories contain
-  proper code files. SAST runs different analyzers
-  [based on the types of files in the repository](../sast/index.md#supported-languages-and-frameworks),
-  and if no supported files are found it does not run any jobs. See the
-  [SAST CI template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/SAST.gitlab-ci.yml)
-  for more details.
-- Check for any branch configuration conflicts. For example, if your policy is configured to enforce
-  rules on `main` but some projects in the scope are using `master` as their default branch, the
-  policy is not applied for the latter. You can define policies to enforce rules generically on
-  `default` branches regardless of the name used in the project or on `all protected branches` to
-  address this issue.
-- Merge request approval policies created at the group or subgroup level can take some time to apply
-  to all the merge requests in the group.
-- Scheduled scan execution policies run with a minimum 15 minute cadence. Learn more
-  [about the schedule rule type](../policies/scan-execution-policies.md#schedule-rule-type).
-- When scheduling pipelines, keep in mind that CRON scheduling is based on UTC on GitLab SaaS and is
-  based on your server time for self managed instances. When testing new policies, it may appear
-  pipelines are not running properly when in fact they are scheduled in your server's time zone.
-- When enforcing scan execution policies, security policies use a bot in the target project to
-  trigger scheduled pipelines to ensure enforcement. When the bot is missing, it is automatically
-  created, and the following scheduled scan uses it.
 - You should not link a security policy project to both a development project and the group or
   subgroup the development project belongs to. Linking this way results in approval
   rules from the merge request approval policies not being applied to merge requests in the development project.
 - When creating a merge request approval policy, neither the array `severity_levels` nor the array
-  `vulnerability_states` in the [`scan_finding` rule](../policies/scan-result-policies.md#scan_finding-rule-type)
-  can be left empty. For a working rule, at least one entry must exist.
-- When merge request approval policies are enforced on projects containing manual jobs in their
-  pipeline, policies evaluate the completed pipeline jobs and ignore the manual jobs. When the
-  manual jobs are run, the policy re-evaluates the MR.
+  `vulnerability_states` in the [`scan_finding` rule](../policies/merge_request_approval_policies.md#scan_finding-rule-type)
+  can be left empty. For a working rule, at least one entry must exist for each array.
+- The owner of a project can enforce policies for that project, provided they also have permissions to create projects in the group.
+  Project owners who are not group members may face limitations in adding or editing policies. If you're unable to manage policies for your project,
+  contact your group administrator to ensure you have the necessary permissions in the group.
 
 If you are still experiencing issues, you can [view recent reported bugs](https://gitlab.com/gitlab-org/gitlab/-/issues/?sort=popularity&state=opened&label_name%5B%5D=group%3A%3Asecurity%20policies&label_name%5B%5D=type%3A%3Abug&first_page_size=20) and raise new unreported issues.

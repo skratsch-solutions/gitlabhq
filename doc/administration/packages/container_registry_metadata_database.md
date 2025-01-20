@@ -8,16 +8,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
-**Status:** Beta
+**Offering:** GitLab Self-Managed
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) in GitLab 16.4 as a [beta feature](../../policy/experiment-beta-support.md) for self-managed GitLab instances.
-
-WARNING:
-The metadata database is a [beta feature](../../policy/experiment-beta-support.md#beta).
-Carefully review the documentation before enabling the registry database in production!
-If you encounter a problem with either the import or operation of the
-registry, please add a comment in the [feedback issue](https://gitlab.com/gitlab-org/gitlab/-/issues/423459).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) in GitLab 16.4 as a [beta feature](../../policy/development_stages_support.md) for GitLab Self-Managed.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/423459) in GitLab 17.3.
 
 The metadata database enables many new registry features, including
 online garbage collection, and increases the efficiency of many registry operations.
@@ -33,6 +27,9 @@ which removes old data automatically with zero downtime.
 
 This database works in conjunction with the object storage already used by the registry, but does not replace object storage.
 You must continue to maintain an object storage solution even after migrating to a metadata database.
+
+For Helm Charts installations, see [Manage the container registry metadata database](https://docs.gitlab.com/charts/charts/registry/metadata_database.html#create-the-database)
+in the Helm Charts documentation.
 
 ## Known Limitations
 
@@ -53,7 +50,7 @@ for the status of features related to the container registry database.
 
 Prerequisites:
 
-- GitLab 16.7 or later.
+- GitLab 17.3 or later.
 - PostgreSQL database version 12 or later. It must be accessible from the registry node.
 
 Follow the instructions that match your situation:
@@ -129,6 +126,14 @@ A few factors affect the duration of the migration:
 - The specifications of your PostgresSQL instance.
 - The number of registry instances running.
 - Network latency between the registry, PostgresSQL and your configured Object Storage.
+
+NOTE:
+The migration only targets tagged images. Untagged and unreferenced manifests, and the layers
+exclusively referenced by them, are left behind and become inaccessible. Untagged images
+were never visible through the GitLab UI or API, but they can become "dangling" and
+left behind in the backend. After migration to the new registry, all images are subject
+to continuous online garbage collection, by default deleting any untagged and unreferenced manifests
+and layers that remain for longer than 24 hours.
 
 Choose the one or three step method according to your registry installation.
 
@@ -282,7 +287,7 @@ Allow enough time for downtime while step two is being executed.
 
    Edit your `/etc/gitlab/gitlab.rb` and add the `maintenance` section to the `registry['storage']`
    configuration. For example, for a `gcs` backed registry using a `gs://my-company-container-registry`
-   bucket , the configuration could be:
+   bucket, the configuration could be:
 
    ```ruby
    ## Object Storage - Container Registry
@@ -417,7 +422,7 @@ pay special attention to logs filtered by `component=registry.gc.*`.
 Use monitoring tools like Prometheus and Grafana to visualize and track garbage collection metrics,
 focusing on metrics with a prefix of `registry_gc_*`. These include the number of objects
 marked for deletion, objects successfully deleted, run intervals, and durations.
-See [enable the registry debug server](container_registry.md#enable-the-registry-debug-server)
+See [enable the registry debug server](container_registry_troubleshooting.md#enable-the-registry-debug-server)
 for how to enable Prometheus.
 
 ### Queue monitoring
@@ -487,9 +492,21 @@ because it only deletes untagged images.
 Implement cleanup policies to remove unneeded tags, which eventually causes images
 to be removed through garbage collection and storage space being recovered.
 
+## Backup with metadata database
+
+When the metadata database is enabled, backups must capture both the object storage
+used by the registry, as before, but also the database. Backups of object storage
+and the database should be coordinated to capture the state of the registry as close as possible
+to each other. To restore the registry, you must apply both backups together.
+
+## Downgrade a registry
+
+To downgrade the registry to a previous version after the migration is complete,
+you must restore to a backup of the desired version in order to downgrade.
+
 ## Troubleshooting
 
-### `there are pending database migrations` error
+### Error: `there are pending database migrations`
 
 If the registry has been updated and there are pending schema migrations,
 the registry fails to start with the following error message:
@@ -500,7 +517,7 @@ FATA[0000] configuring application: there are pending database migrations, use t
 
 To fix this issue, follow the steps to [apply schema migrations](#apply-schema-migrations).
 
-### `offline garbage collection is no longer possible` error
+### Error: `offline garbage collection is no longer possible`
 
 If the registry uses the metadata database and you try to run
 [offline garbage collection](container_registry.md#container-registry-garbage-collection),
@@ -609,3 +626,59 @@ You must truncate the table manually on your PostgreSQL instance:
    ```
 
 1. After truncating the `tags` table, try running the migration process again.
+
+### Error: `database-in-use lockfile exists`
+
+If you try to [migrate existing registries](#existing-registries) and encounter the following error:
+
+```shell
+|  [0s] step two: import tags failed to import metadata: importing all repositories: 1 error occurred:
+    * could not restore lockfiles: database-in-use lockfile exists
+```
+
+This error means that you have previously imported the registry and completed importing all
+repository data (step two) and the `database-in-use` exists in the registry file system.
+You should not run the importer again if you encounter this issue.
+
+If you must proceed, you must delete the `database-in-use` lock file manually from the file system.
+The file is located at `/path/to/rootdirectory/docker/registry/lockfiles/database-in-use`.
+
+### Error: `pre importing all repositories: AccessDenied:`
+
+You might receive an `AccessDenied` error when [importing existing registries](#existing-registries)
+and using AWS S3 as your storage backend:
+
+```shell
+/opt/gitlab/embedded/bin/registry database import --step-one /var/opt/gitlab/registry/config.yml
+  [0s] step one: import manifests
+  [0s] step one: import manifests failed to import metadata: pre importing all repositories: AccessDenied: Access Denied
+```
+
+Ensure that the user executing the command has the
+correct [permission scopes](https://docker-docs.uclv.cu/registry/storage-drivers/s3/#s3-permission-scopes).
+
+### Registry fails to start due to metadata management issues
+
+The registry could fail to start with of the following errors:
+
+#### Error: `registry filesystem metadata in use, please import data before enabling the database`
+
+This error happens when the database is enabled in your configuration `registry['database'] = { 'enabled' => true}`
+but you have not [migrated existing data](#existing-registries) to the metadata database yet.
+
+#### Error: `registry metadata database in use, please enable the database`
+
+This error happens when you have completed [migrating existing data](#existing-registries) to the metadata database,
+but you have not enabled the database in your configuration.
+
+#### Problems checking or creating the lock files
+
+If you encounter any of the following errors:
+
+- `could not check if filesystem metadata is locked`
+- `could not check if database metadata is locked`
+- `failed to mark filesystem for database only usage`
+- `failed to mark filesystem only usage`
+
+The registry cannot access the configured `rootdirectory`. This error is unlikely to happen if you
+had a working registry previously. Review the error logs for any misconfiguration issues.

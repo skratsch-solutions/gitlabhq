@@ -5,6 +5,7 @@ product_group: code_review
 value_type: number
 status: active
 milestone: '16.6'
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/55069
 time_frame: 7d
 data_source: redis_hll
 data_category: optional
@@ -12,10 +13,7 @@ instrumentation_class: RedisHLLMetric
 options:
   events:
     - i_quickactions_request_changes
-distribution:
-  - ce
-  - ee
-tier:
+tiers:
   - free
   - premium
   - ultimate

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module CommitsHelper
+  include Gitlab::Utils::StrongMemoize
+
   # Returns a link to the commit author. If the author has a matching user and
   # is a member of the current @project it will link to the team member page.
   # Otherwise it will link to the author email as specified in the commit.
@@ -22,7 +24,7 @@ module CommitsHelper
       user: committer,
       user_name: committer.name,
       user_email: committer.email,
-      css_class: 'gl-hidden sm:gl-inline-block float-none gl-mr-0! gl-vertical-align-text-bottom'
+      css_class: 'gl-hidden sm:gl-inline-block float-none !gl-mr-0 gl-align-text-bottom'
     }))
   end
 
@@ -98,13 +100,18 @@ module CommitsHelper
     end.join(' ').html_safe
   end
 
+  def commit_blob
+    @repo.blob_at(@ref, @path)
+  end
+  strong_memoize_attr :commit_blob
+
   def link_to_browse_code(project, commit)
     return unless current_controller?(:commits)
 
     if @path.blank?
       url = project_tree_path(project, commit)
       tooltip = _("Browse Files")
-    elsif @repo.blob_at(commit.id, @path)
+    elsif commit_blob.present?
       url = project_blob_path(project, tree_join(commit.id, @path))
       tooltip = _("Browse File")
     elsif @path.present?
@@ -137,10 +144,8 @@ module CommitsHelper
       project = diffs.project
       repo = project.repository
 
-      # While Feature flag increase_diff_file_performance exists, we clear both
       Gitlab::Utils::BatchLoader.clear_key([:repository_blobs, repo, Gitlab::Diff::FileCollection::MergeRequestDiffBase.max_blob_size(project)])
       Gitlab::Utils::BatchLoader.clear_key([:repository_blobs, repo, Gitlab::Git::Blob::MAX_DATA_DISPLAY_SIZE])
-      Gitlab::Utils::BatchLoader.clear_key([:repository_blobs, repo])
 
       Kaminari.paginate_array(diff_files).page(page).per(per).tap do |diff_files|
         diff_files.each(&:add_blobs_to_batch_loader)
@@ -269,9 +274,7 @@ module CommitsHelper
     external_url = environment.external_url_for(diff_new_path, commit_sha)
     return unless external_url
 
-    render Pajamas::ButtonComponent.new(href: external_url, target: '_blank', button_options: { rel: 'noopener noreferrer', title: "View on #{environment.formatted_external_url}", data: { container: 'body' } }) do
-      sprite_icon('external-link')
-    end
+    render Pajamas::ButtonComponent.new(href: external_url, icon: 'external-link', target: '_blank', button_options: { rel: 'noopener noreferrer', title: "View on #{environment.formatted_external_url}", class: 'has-tooltip', data: { container: 'body' } })
   end
 
   def truncate_sha(sha)

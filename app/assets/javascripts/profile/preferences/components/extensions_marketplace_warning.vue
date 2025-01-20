@@ -3,7 +3,7 @@ import { GlIcon, GlLink, GlModal, GlSprintf } from '@gitlab/ui';
 import { s__ } from '~/locale';
 
 export const WARNING_PARAGRAPH_1 = s__(
-  'PreferencesIntegrations|Third-party extensions are now available in the Web IDE. While each extension runs in a secure browser sandbox, %{boldStart}third-party extensions%{boldEnd} may have access to the contents of the files opened in the Web IDE, %{boldStart}including any personal data in those files%{boldEnd}, and may communicate with external servers.',
+  'PreferencesIntegrations|Third-party extensions are now available in the Web IDE and Workspaces. While each extension runs in a secure browser sandbox, %{boldStart}third-party extensions%{boldEnd} may have access to the contents of the files opened in the Web IDE or Workspaces, %{boldStart}including any personal data in those files%{boldEnd}, and may communicate with external servers.',
 );
 
 export const WARNING_PARAGRAPH_2 = s__(
@@ -85,6 +85,11 @@ export default {
   },
   actionPrimary: {
     text: s__('PreferencesIntegrations|I understand'),
+    attributes: {
+      variant: 'confirm',
+      category: 'primary',
+      'data-testid': 'confirm-marketplace-acknowledgement',
+    },
   },
   TITLE: s__('PreferencesIntegrations|Third-Party Extensions Acknowledgement'),
   WARNING_PARAGRAPH_1,

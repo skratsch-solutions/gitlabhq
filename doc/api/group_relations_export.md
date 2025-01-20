@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The group relations export API partially exports a group's structure as separate files for each
 top-level
@@ -29,7 +29,7 @@ POST /groups/:id/export_relations
 
 | Attribute | Type           | Required | Description                                      |
 |-----------|----------------|----------|--------------------------------------------------|
-| `id`      | integer/string | yes      | ID of the group owned by the authenticated user. |
+| `id`      | integer/string | yes      | ID of the group. |
 | `batched` | boolean        | no       | Whether to export in batches.                    |
 
 ```shell
@@ -52,7 +52,7 @@ GET /groups/:id/export_relations/status
 
 | Attribute  | Type           | Required | Description                                      |
 |------------|----------------|----------|--------------------------------------------------|
-| `id`       | integer/string | yes      | ID of the group owned by the authenticated user. |
+| `id`       | integer/string | yes      | ID of the group. |
 | `relation` | string         | no       | Name of the project top-level relation to view.  |
 
 ```shell
@@ -106,7 +106,7 @@ GET /groups/:id/export_relations/download
 
 | Attribute      | Type           | Required | Description                                       |
 |----------------|----------------|----------|---------------------------------------------------|
-| `id`           | integer/string | yes      | ID of the group owned by the authenticated user.  |
+| `id`           | integer/string | yes      | ID of the group.  |
 | `relation`     | string         | yes      | Name of the group top-level relation to download. |
 | `batched`      | boolean        | no       | Whether the export is batched.                    |
 | `batch_number` | integer        | no       | Number of export batch to download.               |

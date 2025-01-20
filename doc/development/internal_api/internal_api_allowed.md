@@ -89,7 +89,7 @@ same manner as the standard repositories, and is more prone to the refs issue.
 ### Parallel push checks
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available,
+On GitLab Self-Managed, by default this feature is not available. To make it available,
 an administrator can [enable the feature flag](../../administration/feature_flags.md) named `parallel_push_checks`.
 On GitLab.com, by default this feature is not available. To make it available
 per project, ask GitLab.com administrator to
@@ -105,5 +105,5 @@ Without it, those projects routinely time out requests to the endpoint. When thi
 feature was deployed to all of GitLab.com, some pushes failed, presumably due to
 exhausting resources like database connection pools.
 
-We recommend you enable this feature flag only if you are experiencing timeouts, and
+You should enable this feature flag only if you are experiencing timeouts, and
 only enable it for that specific project.

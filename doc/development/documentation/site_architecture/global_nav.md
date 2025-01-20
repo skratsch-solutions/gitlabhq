@@ -40,6 +40,11 @@ as helpful as **Get started with runners**.
 
 ## Add a navigation entry
 
+The global nav is stored in the `gitlab-org/gitlab-docs` project, in the file
+`content/_data/navigation.yaml`. The `gitlab-docs` project contains code that assembles documentation
+content from several projects (including `charts`, `gitlab`, `gitlab-runner`, and `omnibus-gitlab`)
+and then builds the `docs.gitlab.com` website from that content.
+
 **Do not** add items to the global nav without
 the consent of one of the technical writers.
 
@@ -55,7 +60,7 @@ Documentation pages can be said to belong in the following groups:
 
 - GitLab users. This is documentation for day-to-day use of GitLab for users with any level
   of permissions, from Reporter to Owner.
-- GitLab administrators. This tends to be documentation for self-managed instances that requires
+- GitLab administrators. This tends to be documentation for GitLab Self-Managed instances that requires
   access to the underlying infrastructure hosting GitLab.
 - Other documentation. This includes documentation for customers outside their day-to-day use of
   GitLab and for contributors. Documentation that doesn't fit in the other groups belongs here.

@@ -42,17 +42,15 @@ describe('ProjectsList', () => {
     );
   });
 
-  describe('when `ProjectListItem` emits `delete` event', () => {
-    const [firstProject] = defaultPropsData.projects;
-
+  describe('when `ProjectListItem` emits `refetch` event', () => {
     beforeEach(() => {
       createComponent();
 
-      wrapper.findComponent(ProjectsListItem).vm.$emit('delete', firstProject);
+      wrapper.findComponent(ProjectsListItem).vm.$emit('refetch');
     });
 
-    it('emits `delete` event', () => {
-      expect(wrapper.emitted('delete')).toEqual([[firstProject]]);
+    it('emits `refetch` event', () => {
+      expect(wrapper.emitted('refetch')).toEqual([[]]);
     });
   });
 });

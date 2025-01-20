@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 If your provider supports the OpenID specification, you should use [`omniauth-openid-connect`](../administration/auth/oidc.md) as your authentication provider.
@@ -37,6 +37,7 @@ This strategy:
 - Only supports the Authorization Grant flow, which is most common for client-server
   applications like GitLab.
 - Cannot fetch user information from more than one URL.
+- Cannot fetch user information from the access token in JWT format.
 - Has not been tested with user information formats, except JSON.
 
 ## Configure the OAuth 2.0 provider

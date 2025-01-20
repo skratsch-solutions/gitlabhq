@@ -14,12 +14,15 @@
 #     milestone_title: string (cannot be simultaneously used with milestone_wildcard_id)
 #     milestone_wildcard_id: 'none', 'any', 'upcoming', 'started' (cannot be simultaneously used with milestone_title)
 #     assignee_id: integer
+#     closed_by_id: integer
 #     search: string
 #     in: 'title', 'description', or a string joining them with comma
 #     label_name: string
 #     sort: string
 #     my_reaction_emoji: string
 #     due_date: date or '0', '', 'overdue', 'week', or 'month'
+#     due_after: datetime
+#     due_before: datetime
 #     created_after: datetime
 #     created_before: datetime
 #     updated_after: datetime
@@ -45,8 +48,10 @@ class IssuesFinder < IssuableFinder
   private
 
   def filter_items(items)
-    issues = super
+    issues = by_service_desk(items) # Call before super because we remove params
+    issues = super(issues)
     issues = by_due_date(issues)
+    issues = by_due_after_or_before(issues)
     issues = by_confidential(issues)
     by_issue_types(issues)
   end
@@ -74,6 +79,13 @@ class IssuesFinder < IssuableFinder
       parent: params.parent,
       assignee_filter: assignee_filter
     ).filter(items)
+  end
+
+  def by_due_after_or_before(items)
+    items = items.due_after(params[:due_after]) if params[:due_after].present?
+    items = items.due_before(params[:due_before]) if params[:due_before].present?
+
+    items
   end
 
   def by_due_date(items)
@@ -106,6 +118,18 @@ class IssuesFinder < IssuableFinder
     return klass.none unless (WorkItems::Type.base_types.keys & issue_type_params).sort == issue_type_params.sort
 
     items.with_issue_type(params[:issue_types])
+  end
+
+  def by_service_desk(items)
+    return items unless params[:author_username] == "support-bot"
+
+    # Delete param so we don't additionally filter by author username
+    params.delete(:author_username)
+    # Also delete from here because we pass original_params to
+    # Issuables::AuthorFilter in IssuableFinder
+    original_params.delete(:author_username)
+
+    items.service_desk
   end
 
   def by_negated_issue_types(items)

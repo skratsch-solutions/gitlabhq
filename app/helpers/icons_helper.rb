@@ -7,6 +7,19 @@ module IconsHelper
 
   DEFAULT_ICON_SIZE = 16
 
+  VARIANT_CLASSES = {
+    current: 'gl-fill-current',
+    default: 'gl-fill-icon-default',
+    subtle: 'gl-fill-icon-subtle',
+    strong: 'gl-fill-icon-strong',
+    disabled: 'gl-fill-icon-disabled',
+    link: 'gl-fill-icon-link',
+    info: 'gl-fill-icon-info',
+    warning: 'gl-fill-icon-warning',
+    danger: 'gl-fill-icon-danger',
+    success: 'gl-fill-icon-success'
+  }.freeze
+
   def custom_icon(icon_name, size: DEFAULT_ICON_SIZE)
     memoized_icon("#{icon_name}_#{size}") do
       render partial: "shared/icons/#{icon_name}", formats: :svg, locals: { size: size }
@@ -29,8 +42,8 @@ module IconsHelper
     ActionController::Base.helpers.image_path('file_icons/file_icons.svg', host: sprite_base_url)
   end
 
-  def sprite_icon(icon_name, size: DEFAULT_ICON_SIZE, css_class: nil, file_icon: false, aria_label: nil)
-    memoized_icon("#{icon_name}_#{size}_#{css_class}") do
+  def sprite_icon(icon_name, size: DEFAULT_ICON_SIZE, css_class: nil, file_icon: false, aria_label: nil, variant: nil)
+    memoized_icon("#{icon_name}_#{size}_#{css_class}_#{variant}") do
       unknown_icon = file_icon ? unknown_file_icon_sprite(icon_name) : unknown_icon_sprite(icon_name)
       if unknown_icon
         exception = ArgumentError.new("#{icon_name} is not a known icon in @gitlab-org/gitlab-svg")
@@ -39,7 +52,10 @@ module IconsHelper
 
       css_classes = []
       css_classes << "s#{size}" if size
+      css_classes << VARIANT_CLASSES[variant&.to_sym]
       css_classes << css_class.to_s unless css_class.blank?
+      css_classes.compact!
+
       sprite_path = file_icon ? sprite_file_icons_path : sprite_icon_path
 
       content_tag(
@@ -84,7 +100,7 @@ module IconsHelper
   end
 
   def external_snippet_icon(name)
-    content_tag(:span, "", class: "gl-snippet-icon gl-snippet-icon-#{name}")
+    content_tag(:span, "", class: "gl-snippet-icon gl-snippet-icon-#{name}") # rubocop:disable Tailwind/StringInterpolation -- Not a CSS utility class
   end
 
   def audit_icon(name, css_class: nil)
@@ -102,9 +118,10 @@ module IconsHelper
 
   def boolean_to_icon(value)
     if value
-      sprite_icon('check', css_class: 'gl-text-green-500')
+      sprite_icon('check',
+        css_class: 'gl-text-success') + content_tag(:span, _('Enabled'), class: 'gl-pl-2 gl-text-subtle')
     else
-      sprite_icon('power', css_class: 'gl-text-gray-500')
+      content_tag(:span, _('Not enabled'), class: 'gl-text-subtle')
     end
   end
 
@@ -126,7 +143,7 @@ module IconsHelper
 
   def file_type_icon_class(type, mode, name)
     if type == 'folder'
-      'folder-o'
+      'folder'
     elsif type == 'archive'
       'archive'
     elsif mode == '120000'

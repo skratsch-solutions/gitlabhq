@@ -18,23 +18,15 @@ import {
   MOCK_LABEL_AGGREGATIONS,
   MOCK_FILTERED_UNSELECTED_LABELS,
 } from 'jest/search/mock_data';
+
 import LabelFilter from '~/search/sidebar/components/label_filter/index.vue';
+
 import LabelDropdownItems from '~/search/sidebar/components/label_filter/label_dropdown_items.vue';
 
 import * as actions from '~/search/store/actions';
 import * as getters from '~/search/store/getters';
 import mutations from '~/search/store/mutations';
 import createState from '~/search/store/state';
-
-import {
-  TRACKING_LABEL_FILTER,
-  TRACKING_LABEL_DROPDOWN,
-  TRACKING_LABEL_CHECKBOX,
-  TRACKING_ACTION_SELECT,
-  TRACKING_ACTION_SHOW,
-} from '~/search/sidebar/components/label_filter/tracking';
-
-import { labelFilterData } from '~/search/sidebar/components/label_filter/data';
 
 import {
   RECEIVE_AGGREGATIONS_SUCCESS,
@@ -62,6 +54,7 @@ describe('GlobalSearchSidebarLabelFilter', () => {
     state = createState({
       query: MOCK_QUERY,
       aggregations: MOCK_LABEL_AGGREGATIONS,
+      navigation: {},
       ...initialState,
     });
 
@@ -106,6 +99,7 @@ describe('GlobalSearchSidebarLabelFilter', () => {
   const findLabelPills = () => wrapper.findAllComponentsByTestId('label');
   const findSelectedUappliedLavelPills = () => wrapper.findAllComponentsByTestId('unapplied-label');
   const findClosedUnappliedPills = () => wrapper.findAllComponentsByTestId('unselected-label');
+  const findSelectedLabelsCheckboxes = () => wrapper.findByTestId('selected-labels-checkboxes');
 
   describe('Renders correctly closed', () => {
     beforeEach(async () => {
@@ -214,8 +208,8 @@ describe('GlobalSearchSidebarLabelFilter', () => {
     });
 
     it('sends tracking information when dropdown is opened', () => {
-      expect(trackingSpy).toHaveBeenCalledWith(TRACKING_ACTION_SHOW, TRACKING_LABEL_DROPDOWN, {
-        label: TRACKING_LABEL_DROPDOWN,
+      expect(trackingSpy).toHaveBeenCalledWith('search:agreggations:label:show', 'Dropdown', {
+        label: 'Dropdown',
       });
     });
   });
@@ -343,22 +337,26 @@ describe('GlobalSearchSidebarLabelFilter', () => {
 
         trackingSpy = mockTracking(undefined, wrapper.element, jest.spyOn);
 
-        await findCheckboxGroup().vm.$emit('input', 6);
+        await findCheckboxGroup().vm.$emit('input', [6]);
         await Vue.nextTick();
       });
 
       it('trigger event', () => {
         expect(actionSpies.setQuery).toHaveBeenCalledWith(
           expect.anything(),
-          expect.objectContaining({ key: labelFilterData?.filterParam, value: 6 }),
+          expect.objectContaining({ key: 'label_name', value: ['Cosche'] }),
         );
       });
 
       it('sends tracking information when checkbox is selected', () => {
-        expect(trackingSpy).toHaveBeenCalledWith(TRACKING_ACTION_SELECT, TRACKING_LABEL_CHECKBOX, {
-          label: TRACKING_LABEL_FILTER,
-          property: 6,
-        });
+        expect(trackingSpy).toHaveBeenCalledWith(
+          'search:agreggations:label:select',
+          'Label Checkbox',
+          {
+            label: 'Label Key',
+            property: [6],
+          },
+        );
       });
     });
 
@@ -383,6 +381,44 @@ describe('GlobalSearchSidebarLabelFilter', () => {
 
       it('has correct pills', () => {
         expect(findLabelPills()).toHaveLength(2);
+      });
+    });
+
+    describe('when applied labels show as slected in dropdown', () => {
+      beforeEach(() => {
+        const mockGetters = {
+          appliedSelectedLabels: jest.fn(() => MOCK_FILTERED_UNSELECTED_LABELS),
+        };
+        createComponent({}, mockGetters);
+        store.commit(RECEIVE_AGGREGATIONS_SUCCESS, MOCK_LABEL_AGGREGATIONS.data);
+      });
+
+      it('has correct checkboxes', async () => {
+        await findSearchBox().vm.$emit('focusin');
+
+        expect(findSelectedLabelsCheckboxes().findAll('li')).toHaveLength(2);
+      });
+    });
+
+    describe('when searching labels', () => {
+      beforeEach(() => {
+        const mockGetters = {
+          appliedSelectedLabels: jest.fn(() => MOCK_FILTERED_UNSELECTED_LABELS),
+        };
+        createComponent({ searchLabelString: 'Cosche' }, mockGetters);
+        store.commit(RECEIVE_AGGREGATIONS_SUCCESS, MOCK_LABEL_AGGREGATIONS.data);
+      });
+
+      it('correctly merges selected and newly selected labels', async () => {
+        await findSearchBox().vm.$emit('focusin');
+        await findCheckboxGroup().vm.$emit('input', [6]);
+        await Vue.nextTick();
+
+        expect(store.state.query.label_name).toEqual(['Aftersync', 'Brist']);
+        expect(actionSpies.setQuery.mock.lastCall[1]).toEqual({
+          key: 'label_name',
+          value: ['Cosche'],
+        });
       });
     });
 

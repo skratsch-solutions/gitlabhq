@@ -10,7 +10,7 @@ module QA
         Flow::Login.sign_in
       end
 
-      it 'can preview markdown side-by-side while editing', :blocking,
+      it 'can preview markdown side-by-side while editing',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/367749',
         quarantine: {
           only: { job: 'gdk' },
@@ -29,7 +29,8 @@ module QA
           file.add_content("# #{edited_readme_content}")
           file.preview
           expect(file.has_markdown_preview?('h1', edited_readme_content)).to be true
-          file.commit_changes
+          file.click_commit_changes_in_header
+          file.commit_changes_through_modal
         end
 
         Page::File::Show.perform do |file|

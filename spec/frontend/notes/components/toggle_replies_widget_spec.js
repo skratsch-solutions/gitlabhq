@@ -1,7 +1,7 @@
+import { GlAvatarsInline } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import ToggleRepliesWidget from '~/notes/components/toggle_replies_widget.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import { note } from '../mock_data';
 
 describe('toggle replies widget for notes', () => {
@@ -18,13 +18,12 @@ describe('toggle replies widget for notes', () => {
 
   const replies = [note, note, note, noteFromOtherUser, noteFromAnotherUser];
 
-  const findCollapseToggleButton = () =>
-    wrapper.findByRole('button', { text: ToggleRepliesWidget.i18n.collapseReplies });
-  const findExpandToggleButton = () =>
-    wrapper.findByRole('button', { text: ToggleRepliesWidget.i18n.expandReplies });
+  // const findCollapseToggleButton = () =>
+  //   wrapper.findComponentByRole('button', { text: ToggleRepliesWidget.i18n.collapseReplies });
+  const findToggleButton = () => wrapper.findByTestId('replies-toggle');
   const findRepliesButton = () => wrapper.findByRole('button', { text: '5 replies' });
   const findTimeAgoTooltip = () => wrapper.findComponent(TimeAgoTooltip);
-  const findUserAvatarLink = () => wrapper.findAllComponents(UserAvatarLink);
+  const findAvatars = () => wrapper.findComponent(GlAvatarsInline);
   const findUserLink = () => wrapper.findByRole('link', { text: noteFromAnotherUser.author.name });
 
   const mountComponent = ({ collapsed = false }) =>
@@ -36,8 +35,9 @@ describe('toggle replies widget for notes', () => {
     });
 
     it('renders collapsed state elements', () => {
-      expect(findExpandToggleButton().exists()).toBe(true);
-      expect(findUserAvatarLink()).toHaveLength(3);
+      expect(findToggleButton().props('icon')).toBe('chevron-right');
+      expect(findToggleButton().attributes('aria-label')).toBe('Expand replies');
+      expect(findAvatars().props('avatars')).toHaveLength(3);
       expect(findRepliesButton().exists()).toBe(true);
       expect(wrapper.text()).toContain('Last reply by');
       expect(findUserLink().exists()).toBe(true);
@@ -45,7 +45,7 @@ describe('toggle replies widget for notes', () => {
     });
 
     it('emits "toggle" event when expand toggle button is clicked', () => {
-      findExpandToggleButton().trigger('click');
+      findToggleButton().trigger('click');
 
       expect(wrapper.emitted('toggle')).toEqual([[]]);
     });
@@ -63,11 +63,12 @@ describe('toggle replies widget for notes', () => {
     });
 
     it('renders expanded state elements', () => {
-      expect(findCollapseToggleButton().exists()).toBe(true);
+      expect(findToggleButton().props('icon')).toBe('chevron-down');
+      expect(findToggleButton().attributes('aria-label')).toBe('Collapse replies');
     });
 
     it('emits "toggle" event when collapse toggle button is clicked', () => {
-      findCollapseToggleButton().trigger('click');
+      findToggleButton().trigger('click');
 
       expect(wrapper.emitted('toggle')).toEqual([[]]);
     });

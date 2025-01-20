@@ -3,15 +3,61 @@
 module WorkItems
   module Widgets
     class StartAndDueDate < Base
-      delegate :start_date, :due_date, to: :work_item
+      include ::Gitlab::Utils::StrongMemoize
 
-      def self.quick_action_commands
-        [:due, :remove_due_date]
+      class << self
+        def quick_action_commands
+          %i[due remove_due_date]
+        end
+
+        def quick_action_params
+          %i[due_date]
+        end
       end
 
-      def self.quick_action_params
-        [:due_date]
+      # rubocop:disable Gitlab/NoCodeCoverageComment -- overridden and tested in EE
+      # :nocov:
+      def fixed?
+        true
+      end
+
+      def can_rollup?
+        false
+      end
+      # :nocov:
+      # rubocop:enable Gitlab/NoCodeCoverageComment
+
+      def start_date
+        return work_item&.start_date unless dates_source_present?
+
+        dates_source.start_date_fixed
+      end
+
+      def due_date
+        return work_item&.due_date unless dates_source_present?
+
+        dates_source.due_date_fixed
+      end
+
+      private
+
+      def dates_source
+        return DatesSource.new if work_item.blank?
+
+        work_item.dates_source || work_item.build_dates_source
+      end
+      strong_memoize_attr :dates_source
+
+      def dates_source_present?
+        return false if work_item&.dates_source.blank?
+
+        work_item
+          .dates_source
+          .slice(:start_date, :start_date_fixed, :due_date, :due_date_fixed)
+          .any? { |_, value| value.present? }
       end
     end
   end
 end
+
+WorkItems::Widgets::StartAndDueDate.prepend_mod

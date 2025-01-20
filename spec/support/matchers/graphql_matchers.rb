@@ -106,16 +106,6 @@ end
 RSpec::Matchers.define :have_graphql_arguments do |*expected|
   include GraphqlHelpers
 
-  def expected_names(field)
-    @names ||= Array.wrap(expected).map { |name| GraphqlHelpers.fieldnamerize(name) }
-
-    if field.try(:type).try(:ancestors)&.include?(GraphQL::Types::Relay::BaseConnection)
-      @names | %w[after before first last]
-    else
-      @names
-    end
-  end
-
   match do |field|
     names = expected_names(field)
 
@@ -123,10 +113,52 @@ RSpec::Matchers.define :have_graphql_arguments do |*expected|
   end
 
   failure_message do |field|
+    expected_values = expected_names(field).sort
+    actual_values = field.arguments.keys.sort
+
+    extra_values = actual_values - expected_values
+    missing_values = expected_values - actual_values
+
+    message = <<~MESSAGE
+    expected #{field.name} to have the following arguments:
+    #{expected_values.inspect}
+    but it has
+    #{actual_values.inspect}
+    MESSAGE
+
+    if extra_values.present?
+      message += <<~MESSAGE
+      \n Extra values:
+      #{extra_values.inspect}
+      MESSAGE
+    end
+
+    if missing_values.present?
+      message += <<~MESSAGE
+      \n Missing values:
+      #{missing_values.inspect}
+      MESSAGE
+    end
+
+    message
+  end
+end
+
+RSpec::Matchers.define :include_graphql_arguments do |*expected|
+  include GraphqlHelpers
+
+  match do |field|
+    names = expected_names(field)
+
+    expect(field.arguments.keys).to include(*names)
+  end
+
+  failure_message do |field|
     names = expected_names(field).inspect
     args = field.arguments.keys.inspect
 
-    "expected #{field.name} to have the following arguments: #{names}, but it has #{args}."
+    missing = names - args
+    "is missing fields: <#{missing.inspect}>" if missing.any?
   end
 end
 
@@ -290,5 +322,15 @@ RSpec::Matchers.define :have_graphql_description do |expected|
     else
       "have_graphql_description expected value cannot be blank"
     end
+  end
+end
+
+def expected_names(field)
+  @names ||= Array.wrap(expected).map { |name| GraphqlHelpers.fieldnamerize(name) }
+
+  if field.try(:type).try(:ancestors)&.include?(GraphQL::Types::Relay::BaseConnection)
+    @names | %w[after before first last]
+  else
+    @names
   end
 end

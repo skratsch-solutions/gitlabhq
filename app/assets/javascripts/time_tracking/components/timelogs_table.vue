@@ -1,11 +1,9 @@
 <script>
 import { GlTable } from '@gitlab/ui';
-import { formatDate, formatTimeSpent } from '~/lib/utils/datetime_utility';
+import { formatTimeSpent, localeDateFormat, newDate } from '~/lib/utils/datetime_utility';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import { s__ } from '~/locale';
 import TimelogSourceCell from './timelog_source_cell.vue';
-
-const TIME_DATE_FORMAT = 'mmmm d, yyyy, HH:MM ("UTC:" o)';
 
 export default {
   components: {
@@ -30,7 +28,7 @@ export default {
         {
           key: 'spentAt',
           label: s__('TimeTrackingReport|Spent at'),
-          tdClass: 'gl-md-w-30',
+          tdClass: 'md:gl-w-30',
         },
         {
           key: 'source',
@@ -39,12 +37,12 @@ export default {
         {
           key: 'user',
           label: s__('TimeTrackingReport|User'),
-          tdClass: 'gl-md-w-20',
+          tdClass: 'md:gl-w-20',
         },
         {
           key: 'timeSpent',
           label: s__('TimeTrackingReport|Time spent'),
-          tdClass: 'gl-md-w-15',
+          tdClass: 'md:gl-w-15',
         },
         {
           key: 'summary',
@@ -55,7 +53,7 @@ export default {
   },
   methods: {
     formatDate(date) {
-      return formatDate(date, TIME_DATE_FORMAT);
+      return localeDateFormat.asDateTimeFull.format(newDate(date));
     },
     formatTimeSpent(seconds) {
       return formatTimeSpent(seconds, this.limitToHours);
@@ -71,7 +69,7 @@ export default {
 <template>
   <gl-table :items="entries" :fields="fields" stacked="md" show-empty>
     <template #cell(spentAt)="{ item: { spentAt } }">
-      <div data-testid="date-container" class="gl-text-left!">{{ formatDate(spentAt) }}</div>
+      <div data-testid="date-container" class="!gl-text-left">{{ formatDate(spentAt) }}</div>
     </template>
 
     <template #cell(source)="{ item }">
@@ -80,7 +78,7 @@ export default {
 
     <template #cell(user)="{ item: { user } }">
       <user-avatar-link
-        class="gl-display-flex gl-text-gray-900 gl-hover-text-gray-900"
+        class="gl-flex gl-text-default hover:gl-text-default"
         :link-href="user.webPath"
         :img-src="user.avatarUrl"
         :img-size="16"
@@ -91,13 +89,13 @@ export default {
     </template>
 
     <template #cell(timeSpent)="{ item: { timeSpent } }">
-      <div data-testid="time-spent-container" class="gl-text-left!">
+      <div data-testid="time-spent-container" class="!gl-text-left">
         {{ formatTimeSpent(timeSpent) }}
       </div>
     </template>
 
     <template #cell(summary)="{ item }">
-      <div data-testid="summary-container" class="gl-text-left!">
+      <div data-testid="summary-container" class="!gl-text-left">
         {{ extractTimelogSummary(item) }}
       </div>
     </template>

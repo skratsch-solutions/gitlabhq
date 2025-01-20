@@ -41,6 +41,7 @@ import {
   I18N_BULK_DELETE_PARTIAL_ERROR,
   I18N_BULK_DELETE_CONFIRMATION_TOAST,
   I18N_BULK_DELETE_MAX_SELECTED,
+  I18N_CHECKBOX,
 } from '../constants';
 import JobCheckbox from './job_checkbox.vue';
 import ArtifactsBulkDelete from './artifacts_bulk_delete.vue';
@@ -145,14 +146,18 @@ export default {
       return Number(this.pageInfo.hasNextPage);
     },
     fields() {
-      return [
-        this.canBulkDestroyArtifacts && {
-          key: 'checkbox',
-          label: '',
-          thClass: 'gl-w-1/20',
-        },
-        ...this.$options.fields,
-      ];
+      if (this.canBulkDestroyArtifacts) {
+        return [
+          {
+            key: 'checkbox',
+            label: I18N_CHECKBOX,
+            thClass: 'gl-w-1/20',
+          },
+          ...this.$options.fields,
+        ];
+      }
+
+      return this.$options.fields;
     },
     anyArtifactsSelected() {
       return Boolean(this.selectedArtifacts.length);
@@ -220,6 +225,7 @@ export default {
 
       scrollToElement(this.$el);
     },
+    // eslint-disable-next-line max-params
     handleRowToggle(toggleDetails, hasArtifacts, id, detailsShowing) {
       if (!hasArtifacts) return;
       toggleDetails();
@@ -345,7 +351,8 @@ export default {
     {
       key: 'size',
       label: I18N_SIZE,
-      thClass: 'gl-w-3/20 gl-text-right',
+      thAlignRight: true,
+      thClass: 'gl-w-3/20',
       tdClass: 'gl-text-right',
     },
     {
@@ -400,7 +407,7 @@ export default {
       :fields="fields"
       :busy="$apollo.queries.jobArtifacts.loading"
       stacked="sm"
-      details-td-class="gl-bg-gray-10! gl-p-0! gl-overflow-auto"
+      details-td-class="!gl-bg-gray-10 !gl-p-0 gl-overflow-auto"
       :tbody-tr-attr="$options.TBODY_TR_ATTR"
     >
       <template #table-busy>
@@ -459,7 +466,7 @@ export default {
         </span>
       </template>
       <template #cell(job)="{ item }">
-        <div class="gl-inline-flex gl-align-items-center gl-mb-3 gl-gap-3">
+        <div class="gl-mb-3 gl-inline-flex gl-items-center gl-gap-3">
           <span data-testid="job-artifacts-job-status">
             <ci-icon :status="item.detailedStatus" />
           </span>
@@ -472,20 +479,17 @@ export default {
           <gl-link :href="item.pipeline.path" class="gl-mr-2">
             {{ pipelineId(item) }}
           </gl-link>
-          <span class="gl-display-inline-block gl-rounded-base gl-px-2 gl-bg-gray-50">
+          <span class="gl-inline-block gl-rounded-base gl-bg-gray-50 gl-px-2">
             <gl-icon name="commit" :size="12" class="gl-mr-2" />
-            <gl-link
-              :href="item.commitPath"
-              class="gl-text-black-normal gl-font-sm gl-font-monospace"
-            >
+            <gl-link :href="item.commitPath" class="gl-text-sm gl-text-default gl-font-monospace">
               {{ item.shortSha }}
             </gl-link>
           </span>
         </div>
         <div>
-          <span class="gl-display-inline-block gl-rounded-base gl-px-2 gl-bg-gray-50">
+          <span class="gl-inline-block gl-rounded-base gl-bg-gray-50 gl-px-2">
             <gl-icon name="branch" :size="12" class="gl-mr-1" />
-            <gl-link :href="item.refPath" class="gl-text-black-normal gl-font-sm gl-font-monospace">
+            <gl-link :href="item.refPath" class="gl-text-sm gl-text-default gl-font-monospace">
               {{ item.refName }}
             </gl-link>
           </span>

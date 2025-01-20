@@ -8,12 +8,15 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-## Validate the CI/CD configuration for a namespace
+## Validate sample CI/CD configuration
 
-Checks if CI/CD YAML configuration is valid. This endpoint has namespace
-specific context.
+Checks if a sample CI/CD YAML configuration is valid. This endpoint validates the
+CI/CD configuration in the context of the project, including:
+
+- Using the project's CI/CD variables.
+- Searching the project's files for `include:local` entries.
 
 ```plaintext
 POST /projects/:id/ci/lint
@@ -22,14 +25,14 @@ POST /projects/:id/ci/lint
 | Attribute      | Type    | Required | Description |
 |----------------|---------|----------|-------------|
 | `content`      | string  | Yes      | The CI/CD configuration content. |
-| `dry_run`      | boolean | No       | Run [pipeline creation simulation](../ci/lint.md#simulate-a-pipeline), or only do static check. Default: `false`. |
+| `dry_run`      | boolean | No       | Run [pipeline creation simulation](../ci/yaml/lint.md#simulate-a-pipeline), or only do static check. Default: `false`. |
 | `include_jobs` | boolean | No       | If the list of jobs that would exist in a static check or pipeline simulation should be included in the response. Default: `false`. |
 | `ref`          | string  | No       | When `dry_run` is `true`, sets the branch or tag context to use to validate the CI/CD YAML configuration. Defaults to the project's default branch when not set. |
 
 Example request:
 
 ```shell
-curl --header "Content-Type: application/json" "https://gitlab.example.com/api/v4/projects/:id/ci/lint" --data '{"content": "{ \"image\": \"ruby:2.6\", \"services\": [\"postgres\"], \"before_script\": [\"bundle install\", \"bundle exec rake db:create\"], \"variables\": {\"DB_NAME\": \"postgres\"}, \"types\": [\"test\", \"deploy\", \"notify\"], \"rspec\": { \"script\": \"rake spec\", \"tags\": [\"ruby\", \"postgres\"], \"only\": [\"branches\"]}}"}'
+curl --header "Content-Type: application/json" "https://gitlab.example.com/api/v4/projects/:id/ci/lint" --data '{"content": "{ \"image\": \"ruby:2.6\", \"services\": [\"postgres\"], \"before_script\": [\"bundle install\", \"bundle exec rake db:create\"], \"variables\": {\"DB_NAME\": \"postgres\"}, \"stages\": [\"test\", \"deploy\", \"notify\"], \"rspec\": { \"script\": \"rake spec\", \"tags\": [\"ruby\", \"postgres\"], \"only\": [\"branches\"]}}"}'
 ```
 
 Example responses:
@@ -41,7 +44,8 @@ Example responses:
     "valid": true,
     "merged_yaml": "---\ntest_job:\n  script: echo 1\n",
     "errors": [],
-    "warnings": []
+    "warnings": [],
+    "includes": []
   }
   ```
 
@@ -50,23 +54,26 @@ Example responses:
   ```json
   {
     "valid": false,
-    "merged_yaml": "---\ntest_job:\n  script: echo 1\n",
     "errors": [
       "jobs config should contain at least one visible job"
     ],
-    "warnings": []
+    "warnings": [],
+    "merged_yaml": "---\n\".job\":\n  script:\n  - echo \"A hidden job\"\n",
+    "includes": []
   }
   ```
 
-## Validate a project's CI configuration
+## Validate a project's CI/CD configuration
 
 > - `sha` attribute [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369212) in GitLab 16.5.
 > - `sha` and `ref` [renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143098) to `content_ref` and `dry_run_ref` in GitLab 16.10.
 
 Checks if a project's `.gitlab-ci.yml` configuration in a given ref (the
 `content_ref` parameter, by default `HEAD` of the project's default branch) is valid.
-This endpoint uses all namespace specific data available, including variables
-and local includes.
+This endpoint validates the CI/CD configuration, including:
+
+- Using the project's CI/CD variables.
+- Searching the project's files for `include:local` entries.
 
 ```plaintext
 GET /projects/:id/ci/lint
@@ -89,29 +96,81 @@ curl "https://gitlab.example.com/api/v4/projects/:id/ci/lint"
 
 Example responses:
 
-- Valid configuration:
+- Valid configuration, with `include.yml` as an [included file](../ci/yaml/index.md#include)
+  and `include_jobs` set to `true`:
 
-```json
-{
-  "valid": true,
-  "merged_yaml": "---\ntest_job:\n  script: echo 1\n",
-  "errors": [],
-  "warnings": []
-}
-```
+  ```json
+  {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "merged_yaml": "---\ninclude-job:\n  script:\n  - echo \"An included job\"\njob:\n  rules:\n  - if: \"$CI_COMMIT_BRANCH\"\n  script:\n  - echo \"A test job\"\n",
+    "includes": [
+      {
+        "type": "local",
+        "location": "include.yml",
+        "blob": "https://gitlab.example.com/test-group/test-project/-/blob/ef5014c045873c5c4ffeb7a2f5be021a1d3ed703/include.yml",
+        "raw": "https://gitlab.example.com/test-group/test-project/-/raw/ef5014c045873c5c4ffeb7a2f5be021a1d3ed703/include.yml",
+        "extra": {},
+        "context_project": "test-group/test-project",
+        "context_sha": "ef5014c045873c5c4ffeb7a2f5be021a1d3ed703"
+      }
+    ],
+    "jobs": [
+      {
+        "name": "include-job",
+        "stage": "test",
+        "before_script": [],
+        "script": [
+          "echo \"An included job\""
+        ],
+        "after_script": [],
+        "tag_list": [],
+        "only": {
+          "refs": [
+            "branches",
+            "tags"
+          ]
+        },
+        "except": null,
+        "environment": null,
+        "when": "on_success",
+        "allow_failure": false,
+        "needs": null
+      },
+      {
+        "name": "job",
+        "stage": "test",
+        "before_script": [],
+        "script": [
+          "echo \"A test job\""
+        ],
+        "after_script": [],
+        "tag_list": [],
+        "only": null,
+        "except": null,
+        "environment": null,
+        "when": "on_success",
+        "allow_failure": false,
+        "needs": null
+      }
+    ]
+  }
+  ```
 
 - Invalid configuration:
 
-```json
-{
-  "valid": false,
-  "merged_yaml": "---\ntest_job:\n  script: echo 1\n",
-  "errors": [
-    "jobs config should contain at least one visible job"
-  ],
-  "warnings": []
-}
-```
+  ```json
+  {
+    "valid": false,
+    "errors": [
+      "jobs config should contain at least one visible job"
+    ],
+    "warnings": [],
+    "merged_yaml": "---\n\".job\":\n  script:\n  - echo \"A hidden job\"\n",
+    "includes": []
+  }
+  ```
 
 ## Use jq to create and process YAML & JSON payloads
 

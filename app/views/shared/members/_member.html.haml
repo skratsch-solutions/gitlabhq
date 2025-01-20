@@ -17,7 +17,7 @@
         %span
           = link_to user.name, user_path(user), class: 'member js-user-link', data: { user_id: user.id }
           = user_status(user)
-          %span.gl-text-secondary= user.to_reference
+          %span.gl-text-subtle= user.to_reference
 
         .gl-inline-flex.gl-flex-wrap.gl-gap-2
           = render_if_exists 'shared/members/ee/sso_badge', member: member
@@ -34,14 +34,14 @@
 
         - if source.instance_of?(Group) && source != membership_source
           &middot;
-          = link_to source.full_name, source, class: "gl-display-inline-block inline-link"
+          = link_to source.full_name, source, class: "gl-inline-block inline-link"
 
-        .gl-text-secondary.gl-text-sm
+        .gl-text-subtle.gl-text-sm
           - if member.request?
             = _("Requested %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.requested_at) }
           - else
             = _("Given access %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.created_at) }
-          %span.js-expires-in{ class: ('gl-display-none' unless member.expires?) }
+          %span.js-expires-in{ class: ('gl-hidden' unless member.expires?) }
             &middot;
             %span.js-expires-in-text{ class: "has-tooltip#{' text-warning' if member.expires_soon?}", title: (member.expires_at.to_time.in_time_zone.to_fs(:medium) if member.expires?) }
               - if member.expires?
@@ -52,7 +52,7 @@
       = render Pajamas::AvatarComponent.new(Pajamas::AvatarEmail.new(member.invite_email), size: 32, class: 'gl-mr-3 flex-shrink-0 flex-grow-0')
       .user-info
         .member= member.invite_email
-        .gl-text-secondary
+        .gl-text-subtle
           Invited
           - if member.created_by
             by
@@ -61,4 +61,4 @@
   - if show_roles
     .controls.member-controls.gl-items-center.gl-self-end
       = render_if_exists 'shared/members/ee/ldap_tag', can_override: member.can_override?
-      = render Pajamas::BadgeComponent.new(member.human_access, variant: 'neutral', class: 'gl-bg-transparent! !gl-shadow-inner-1-gray-100')
+      = render Pajamas::BadgeComponent.new(member.human_access, variant: 'muted')

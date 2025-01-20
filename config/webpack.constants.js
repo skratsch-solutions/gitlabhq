@@ -11,6 +11,8 @@ const SOURCEGRAPH_PUBLIC_PATH = path.join(WEBPACK_PUBLIC_PATH, SOURCEGRAPH_PATH)
 
 const GITLAB_WEB_IDE_VERSION = require('@gitlab/web-ide/package.json').version;
 
+const { pdfJsCopyFilesPatterns } = require('./pdfjs.constants');
+
 const GITLAB_WEB_IDE_PATH = path.join('gitlab-vscode', GITLAB_WEB_IDE_VERSION, '/');
 const GITLAB_WEB_IDE_OUTPUT_PATH = path.join(WEBPACK_OUTPUT_PATH, GITLAB_WEB_IDE_PATH);
 const GITLAB_WEB_IDE_PUBLIC_PATH = path.join(WEBPACK_PUBLIC_PATH, GITLAB_WEB_IDE_PATH);
@@ -22,14 +24,7 @@ const SOURCEGRAPH_PACKAGE = '@sourcegraph/code-host-integration';
 const GITLAB_WEB_IDE_PACKAGE = '@gitlab/web-ide';
 
 const copyFilesPatterns = [
-  {
-    from: path.join(ROOT_PATH, 'node_modules/pdfjs-dist/cmaps/'),
-    to: path.join(WEBPACK_OUTPUT_PATH, 'pdfjs/cmaps/'),
-  },
-  {
-    from: path.join(ROOT_PATH, 'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.js'),
-    to: path.join(WEBPACK_OUTPUT_PATH, 'pdfjs/'),
-  },
+  ...pdfJsCopyFilesPatterns,
   {
     from: path.join(ROOT_PATH, 'node_modules', SOURCEGRAPH_PACKAGE, '/'),
     to: SOURCEGRAPH_OUTPUT_PATH,

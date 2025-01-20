@@ -10,7 +10,7 @@ FactoryBot.define do
       create(:board, project: projects[0])
       create(:jira_integration, project: projects[0])
       create(:jira_integration, :without_properties_callback, project: projects[1])
-      create(:jira_integration, :jira_cloud_service, project: projects[2])
+      create(:jira_integration, :jira_cloud, project: projects[2])
       create(:jira_integration, :without_properties_callback, project: projects[3], properties: { url: 'https://mysite.atlassian.net' })
       jira_label = create(:label, project: projects[0])
       create(:jira_import_state, :finished, project: projects[0], label: jira_label, failed_to_import_count: 2, imported_issues_count: 7, total_issue_count: 9)
@@ -35,11 +35,9 @@ FactoryBot.define do
       create(:custom_issue_tracker_integration, project: projects[2], active: true)
       create(:project_error_tracking_setting, project: projects[0])
       create(:project_error_tracking_setting, project: projects[1], enabled: false)
-      alert_bot_issues = create_list(:incident, 2, project: projects[0], author: Users::Internal.alert_bot)
+      create_list(:incident, 2, project: projects[0], author: Users::Internal.alert_bot)
       create_list(:incident, 2, project: projects[1], author: Users::Internal.alert_bot)
-      issues = create_list(:issue, 4, project: projects[0])
-      create_list(:prometheus_alert, 2, project: projects[0])
-      create(:prometheus_alert, project: projects[1])
+      create_list(:issue, 4, project: projects[0])
       create(:merge_request, :simple, :with_terraform_reports, source_project: projects[0])
       create(:merge_request, :rebased, :with_terraform_reports, source_project: projects[0])
       create(:merge_request, :simple, :with_terraform_reports, source_project: projects[1])
@@ -58,10 +56,6 @@ FactoryBot.define do
       create(:alert_management_http_integration, project: projects[0], name: 'DataDog')
       create(:alert_management_http_integration, project: projects[0], name: 'DataCat')
       create(:alert_management_http_integration, :inactive, project: projects[1], name: 'DataFox')
-
-      # Alert Issues
-      create(:alert_management_alert, issue: issues[0], project: projects[0])
-      create(:alert_management_alert, issue: alert_bot_issues[0], project: projects[0])
 
       # Kubernetes agents
       create(:cluster_agent, project: projects[0])

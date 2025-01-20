@@ -1,15 +1,7 @@
 <script>
 // eslint-disable-next-line no-restricted-imports
 import { mapActions } from 'vuex';
-import {
-  GlSprintf,
-  GlLink,
-  GlLoadingIcon,
-  GlCard,
-  GlButton,
-  GlModal,
-  GlModalDirective,
-} from '@gitlab/ui';
+import { GlSprintf, GlLink, GlLoadingIcon, GlButton, GlModal, GlModalDirective } from '@gitlab/ui';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { sprintf, n__, s__ } from '~/locale';
 import {
@@ -18,31 +10,42 @@ import {
   visitUrl,
   setUrlParams,
 } from '~/lib/utils/url_utility';
+import { InternalEvents } from '~/tracking';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import branchRulesQuery from 'ee_else_ce/projects/settings/branch_rules/queries/branch_rules_details.query.graphql';
 import { createAlert } from '~/alert';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import PageHeading from '~/vue_shared/components/page_heading.vue';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
+import SettingsSection from '~/vue_shared/components/settings/settings_section.vue';
 import editBranchRuleMutation from 'ee_else_ce/projects/settings/branch_rules/mutations/edit_branch_rule.mutation.graphql';
+import { getAccessLevels, getAccessLevelInputFromEdges } from 'ee_else_ce/projects/settings/utils';
+import {
+  BRANCH_RULE_DETAILS_LABEL,
+  CHANGED_BRANCH_RULE_TARGET,
+  CHANGED_ALLOWED_TO_MERGE,
+  CHANGED_ALLOWED_TO_PUSH_AND_MERGE,
+  CHANGED_ALLOW_FORCE_PUSH,
+  UNPROTECTED_BRANCH,
+  CHANGED_REQUIRE_CODEOWNER_APPROVAL,
+} from 'ee_else_ce/projects/settings/branch_rules/tracking/constants';
 import deleteBranchRuleMutation from '../../mutations/branch_rule_delete.mutation.graphql';
-import { getAccessLevels, getAccessLevelInputFromEdges } from '../../../utils';
 import BranchRuleModal from '../../../components/branch_rule_modal.vue';
 import Protection from './protection.vue';
-import RuleDrawer from './rule_drawer.vue';
+import AccessLevelsDrawer from './access_levels_drawer.vue';
 import ProtectionToggle from './protection_toggle.vue';
 import {
   I18N,
   ALL_BRANCHES_WILDCARD,
   BRANCH_PARAM_NAME,
-  PROTECTED_BRANCHES_HELP_PATH,
-  CODE_OWNERS_HELP_PATH,
-  PUSH_RULES_HELP_PATH,
   DELETE_RULE_MODAL_ID,
   EDIT_RULE_MODAL_ID,
 } from './constants';
 
-const protectedBranchesHelpDocLink = helpPagePath(PROTECTED_BRANCHES_HELP_PATH);
-const codeOwnersHelpDocLink = helpPagePath(CODE_OWNERS_HELP_PATH);
-const pushRulesHelpDocLink = helpPagePath(PUSH_RULES_HELP_PATH);
+const protectedBranchesHelpDocLink = helpPagePath('user/project/repository/branches/protected');
+const codeOwnersHelpDocLink = helpPagePath('user/project/codeowners/index');
+const pushRulesHelpDocLink = helpPagePath('user/project/repository/push_rules');
+const squashSettingsHelpDocLink = helpPagePath('user/project/merge_requests/squash_and_merge');
 
 export default {
   name: 'RuleView',
@@ -51,6 +54,7 @@ export default {
   protectedBranchesHelpDocLink,
   codeOwnersHelpDocLink,
   pushRulesHelpDocLink,
+  squashSettingsHelpDocLink,
   directives: {
     GlModal: GlModalDirective,
   },
@@ -61,16 +65,21 @@ export default {
     GlSprintf,
     GlLink,
     GlLoadingIcon,
-    GlCard,
     GlModal,
     GlButton,
     BranchRuleModal,
-    RuleDrawer,
+    AccessLevelsDrawer,
+    PageHeading,
+    CrudComponent,
+    SettingsSection,
   },
   mixins: [glFeatureFlagsMixin()],
   inject: {
     projectPath: {
       default: '',
+    },
+    projectId: {
+      default: null,
     },
     protectedBranchesPath: {
       default: '',
@@ -84,13 +93,16 @@ export default {
     showStatusChecks: { default: false },
     showApprovers: { default: false },
     showCodeOwners: { default: false },
+    canAdminProtectedBranches: { default: false },
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     project: {
       query: branchRulesQuery,
       variables() {
         return {
           projectPath: this.projectPath,
+          buildMissing: this.isAllBranchesRule,
         };
       },
       update({ project: { branchRules, group } }) {
@@ -171,16 +183,6 @@ export default {
       const { pushAccessLevels } = this.branchProtection || {};
       return this.getAccessLevels(pushAccessLevels);
     },
-    allowedToMergeHeader() {
-      return sprintf(this.$options.i18n.allowedToMergeHeader, {
-        total: this.mergeAccessLevels?.total || 0,
-      });
-    },
-    allowedToPushHeader() {
-      return sprintf(this.$options.i18n.allowedToPushHeader, {
-        total: this.pushAccessLevels?.total || 0,
-      });
-    },
     allBranches() {
       return this.branch === ALL_BRANCHES_WILDCARD;
     },
@@ -196,11 +198,15 @@ export default {
     statusChecksHeader() {
       return '';
     },
+    // needed to override EE component
+    statusChecksCount() {
+      return '0';
+    },
+    isAllBranchesRule() {
+      return this.branch === this.$options.i18n.allBranches;
+    },
     isPredefinedRule() {
-      return (
-        this.branch === this.$options.i18n.allBranches ||
-        this.branch === this.$options.i18n.allProtectedBranches
-      );
+      return this.isAllBranchesRule || this.branch === this.$options.i18n.allProtectedBranches;
     },
     hasPushAccessLevelSet() {
       return this.pushAccessLevels?.total > 0;
@@ -212,6 +218,18 @@ export default {
     },
     accessLevelsDrawerData() {
       return this.isAllowedToMergeDrawerOpen ? this.mergeAccessLevels : this.pushAccessLevels;
+    },
+    showStatusChecksSection() {
+      return this.showStatusChecks && this.branch !== this.$options.i18n.allProtectedBranches;
+    },
+    showMergeRequestsSection() {
+      return this.showApprovers || this.showSquashSetting;
+    },
+    showSquashSetting() {
+      return this.glFeatures.branchRuleSquashSettings && !this.branch?.includes('*'); // Squash settings are not available for wildcards
+    },
+    squashOption() {
+      return this.branchRule?.squashOption;
     },
   },
   methods: {
@@ -231,6 +249,9 @@ export default {
         .then(
           // eslint-disable-next-line consistent-return
           ({ data: { branchRuleDelete } = {} } = {}) => {
+            InternalEvents.trackEvent(UNPROTECTED_BRANCH, {
+              label: BRANCH_RULE_DETAILS_LABEL,
+            });
             const [error] = branchRuleDelete.errors;
             if (error) {
               return createAlert({
@@ -258,6 +279,12 @@ export default {
     openAllowedToPushAndMergeDrawer() {
       this.isAllowedToPushAndMergeDrawerOpen = true;
     },
+    onEditRuleTarget(ruleTarget) {
+      this.editBranchRule({
+        name: ruleTarget,
+        trackEvent: CHANGED_BRANCH_RULE_TARGET,
+      });
+    },
     onEnableForcePushToggle(isChecked) {
       this.isAllowForcePushLoading = true;
       const toastMessage = isChecked
@@ -267,6 +294,7 @@ export default {
       this.editBranchRule({
         branchProtection: { allowForcePush: isChecked },
         toastMessage,
+        trackEvent: CHANGED_ALLOW_FORCE_PUSH,
       });
     },
     onEnableCodeOwnersToggle(isChecked) {
@@ -278,6 +306,7 @@ export default {
       this.editBranchRule({
         branchProtection: { codeOwnerApprovalRequired: isChecked },
         toastMessage,
+        trackEvent: CHANGED_REQUIRE_CODEOWNER_APPROVAL,
       });
     },
     onEditAccessLevels(accessLevels) {
@@ -287,15 +316,22 @@ export default {
         this.editBranchRule({
           branchProtection: { mergeAccessLevels: accessLevels },
           toastMessage: s__('BranchRules|Allowed to merge updated'),
+          trackEvent: CHANGED_ALLOWED_TO_MERGE,
         });
       } else if (this.isAllowedToPushAndMergeDrawerOpen) {
         this.editBranchRule({
           branchProtection: { pushAccessLevels: accessLevels },
           toastMessage: s__('BranchRules|Allowed to push and merge updated'),
+          trackEvent: CHANGED_ALLOWED_TO_PUSH_AND_MERGE,
         });
       }
     },
-    editBranchRule({ name = this.branchRule.name, branchProtection = null, toastMessage = '' }) {
+    editBranchRule({
+      name = this.branchRule.name,
+      branchProtection = null,
+      toastMessage = '',
+      trackEvent = '',
+    }) {
       this.$apollo
         .mutate({
           mutation: editBranchRuleMutation,
@@ -323,6 +359,12 @@ export default {
             return;
           }
 
+          if (trackEvent.length) {
+            InternalEvents.trackEvent(trackEvent, {
+              label: BRANCH_RULE_DETAILS_LABEL,
+            });
+          }
+
           const isRedirectNeeded = !branchProtection;
           if (isRedirectNeeded) {
             visitUrl(setUrlParams({ branch: name }));
@@ -346,103 +388,109 @@ export default {
 
 <template>
   <div>
-    <div class="gl-display-flex gl-justify-content-space-between gl-align-items-center">
-      <h1 class="h3 gl-mb-5">{{ $options.i18n.pageTitle }}</h1>
-      <gl-button
-        v-if="glFeatures.editBranchRules && branchRule"
-        v-gl-modal="$options.deleteModalId"
-        data-testid="delete-rule-button"
-        category="secondary"
-        variant="danger"
-        :disabled="$apollo.loading"
-        >{{ $options.i18n.deleteRule }}
-      </gl-button>
-    </div>
+    <page-heading :heading="$options.i18n.pageTitle">
+      <template #actions>
+        <gl-button
+          v-if="glFeatures.editBranchRules && branchRule && canAdminProtectedBranches"
+          v-gl-modal="$options.deleteModalId"
+          data-testid="delete-rule-button"
+          category="secondary"
+          variant="danger"
+          :disabled="$apollo.loading"
+          >{{ $options.i18n.deleteRule }}
+        </gl-button>
+      </template>
+    </page-heading>
+
     <gl-loading-icon v-if="$apollo.loading" size="lg" />
     <div v-else-if="!branchRule && !isPredefinedRule">{{ $options.i18n.noData }}</div>
     <div v-else>
-      <gl-card
-        class="gl-new-card"
-        header-class="gl-new-card-header"
-        body-class="gl-new-card-body gl-p-5"
-        data-testid="rule-target-card"
-      >
-        <template #header>
-          <strong>{{ $options.i18n.ruleTarget }}</strong>
+      <crud-component :title="$options.i18n.ruleTarget" data-testid="rule-target-card">
+        <template #actions>
           <gl-button
-            v-if="glFeatures.editBranchRules && !isPredefinedRule"
+            v-if="glFeatures.editBranchRules && !isPredefinedRule && canAdminProtectedBranches"
             v-gl-modal="$options.editModalId"
             data-testid="edit-rule-name-button"
             size="small"
             >{{ $options.i18n.edit }}</gl-button
           >
         </template>
-        <div v-if="allBranches" class="gl-mt-2" data-testid="all-branches">
-          {{ $options.i18n.allBranches }}
-        </div>
-        <code v-else class="gl-bg-transparent p-0 gl-font-base" data-testid="branch">{{
+
+        <div v-if="allBranches" class="gl-mt-2" data-testid="all-branches">*</div>
+        <code v-else class="gl-bg-transparent gl-p-0 gl-text-base" data-testid="branch">{{
           branch
         }}</code>
-        <p v-if="matchingBranchesCount" class="gl-mt-3 gl-mb-0">
+        <p v-if="matchingBranchesCount" class="gl-mb-0 gl-mt-3">
           <gl-link :href="matchingBranchesLinkHref">{{ matchingBranchesLinkTitle }}</gl-link>
         </p>
-      </gl-card>
+      </crud-component>
 
-      <section v-if="!isPredefinedRule">
-        <h2 class="h4 gl-mb-1 gl-mt-5">{{ $options.i18n.protectBranchTitle }}</h2>
-        <gl-sprintf :message="$options.i18n.protectBranchDescription">
-          <template #link="{ content }">
-            <gl-link :href="$options.protectedBranchesHelpDocLink">
-              {{ content }}
-            </gl-link>
-          </template>
-        </gl-sprintf>
+      <settings-section
+        v-if="!isPredefinedRule"
+        :heading="$options.i18n.protectBranchTitle"
+        class="gl-mt-5"
+      >
+        <template #description>
+          <gl-sprintf :message="$options.i18n.protectBranchDescription">
+            <template #link="{ content }">
+              <gl-link :href="$options.protectedBranchesHelpDocLink">
+                {{ content }}
+              </gl-link>
+            </template>
+          </gl-sprintf>
+        </template>
 
         <!-- Allowed to merge -->
         <protection
-          :header="allowedToMergeHeader"
+          :header="$options.i18n.allowedToMergeHeader"
+          :count="mergeAccessLevels.total"
           :header-link-title="$options.i18n.manageProtectionsLinkTitle"
           :header-link-href="protectedBranchesPath"
           :roles="mergeAccessLevels.roles"
           :users="mergeAccessLevels.users"
           :groups="mergeAccessLevels.groups"
           :empty-state-copy="$options.i18n.allowedToMergeEmptyState"
-          is-edit-available
+          :is-edit-available="canAdminProtectedBranches"
           data-testid="allowed-to-merge-content"
           @edit="openAllowedToMergeDrawer"
         />
 
-        <rule-drawer
-          :is-open="isAllowedToMergeDrawerOpen || isAllowedToPushAndMergeDrawerOpen"
-          :roles="accessLevelsDrawerData.roles"
-          :users="accessLevelsDrawerData.users"
-          :groups="accessLevelsDrawerData.groups"
-          :is-loading="isRuleUpdating"
-          :group-id="groupId"
-          :title="accessLevelsDrawerTitle"
-          @editRule="onEditAccessLevels"
-          @close="closeAccessLevelsDrawer"
-        />
-
         <!-- Allowed to push -->
         <protection
-          class="gl-mt-3"
-          :header="allowedToPushHeader"
+          class="gl-mt-5"
+          :header="$options.i18n.allowedToPushHeader"
+          :count="pushAccessLevels.total"
           :header-link-title="$options.i18n.manageProtectionsLinkTitle"
           :header-link-href="protectedBranchesPath"
           :roles="pushAccessLevels.roles"
           :users="pushAccessLevels.users"
           :groups="pushAccessLevels.groups"
+          :deploy-keys="pushAccessLevels.deployKeys"
           :empty-state-copy="$options.i18n.allowedToPushEmptyState"
           :help-text="$options.i18n.allowedToPushDescription"
-          is-edit-available
+          :is-edit-available="canAdminProtectedBranches"
           data-testid="allowed-to-push-content"
           @edit="openAllowedToPushAndMergeDrawer"
+        />
+
+        <access-levels-drawer
+          :is-open="isAllowedToMergeDrawerOpen || isAllowedToPushAndMergeDrawerOpen"
+          :roles="accessLevelsDrawerData.roles"
+          :users="accessLevelsDrawerData.users"
+          :groups="accessLevelsDrawerData.groups"
+          :deploy-keys="accessLevelsDrawerData.deployKeys"
+          :is-loading="isRuleUpdating"
+          :group-id="groupId"
+          :title="accessLevelsDrawerTitle"
+          :is-push-access-levels="isAllowedToPushAndMergeDrawerOpen"
+          @editRule="onEditAccessLevels"
+          @close="closeAccessLevelsDrawer"
         />
 
         <!-- Force push -->
         <protection-toggle
           v-if="hasPushAccessLevelSet"
+          class="gl-mt-6"
           data-testid="force-push-content"
           data-test-id-prefix="force-push"
           :is-protected="branchProtection.allowForcePush"
@@ -468,53 +516,106 @@ export default {
           :is-loading="isCodeOwnersLoading"
           @toggle="onEnableCodeOwnersToggle"
         />
-      </section>
+      </settings-section>
 
-      <!-- Approvals -->
-      <template v-if="showApprovers">
-        <h2 class="h4 gl-mb-1 gl-mt-5">{{ $options.i18n.approvalsTitle }}</h2>
-        <gl-sprintf :message="$options.i18n.approvalsDescription">
-          <template #link="{ content }">
-            <gl-link :href="$options.approvalsHelpDocLink">
-              {{ content }}
-            </gl-link>
-          </template>
-        </gl-sprintf>
-
+      <!-- Merge requests -->
+      <settings-section
+        v-if="showMergeRequestsSection"
+        :heading="$options.i18n.mergeRequestsTitle"
+        class="gl-mt-5"
+      >
         <!-- eslint-disable-next-line vue/no-undef-components -->
         <approval-rules-app
+          v-if="showApprovers"
           :is-mr-edit="false"
           :is-branch-rules-edit="true"
+          class="!gl-mt-0"
           @submitted="$apollo.queries.project.refetch()"
         >
+          <template #description>
+            <gl-sprintf :message="$options.i18n.approvalsDescription">
+              <template #link="{ content }">
+                <gl-link :href="$options.approvalsHelpDocLink">
+                  {{ content }}
+                </gl-link>
+              </template>
+            </gl-sprintf>
+          </template>
+
           <template #rules>
             <!-- eslint-disable-next-line vue/no-undef-components -->
             <project-rules :is-branch-rules-edit="true" />
           </template>
         </approval-rules-app>
-      </template>
+
+        <!-- Squash setting-->
+        <protection
+          v-if="showSquashSetting"
+          :header="$options.i18n.squashSettingHeader"
+          :empty-state-copy="$options.i18n.squashSettingEmptyState"
+          :is-edit-available="false"
+          :icon="null"
+          class="gl-mt-5"
+          data-testid="squash-setting-content"
+        >
+          <template #description>
+            <gl-sprintf :message="$options.i18n.squashSettingHelpText">
+              <template #link="{ content }">
+                <gl-link :href="$options.squashSettingsHelpDocLink">
+                  {{ content }}
+                </gl-link>
+              </template>
+            </gl-sprintf>
+          </template>
+          <template v-if="squashOption && squashOption.option" #content>
+            <div>
+              <span>{{ squashOption.option }}</span>
+              <p class="gl-text-subtle">{{ squashOption.helpText }}</p>
+            </div>
+          </template>
+        </protection>
+      </settings-section>
 
       <!-- Status checks -->
-      <template v-if="showStatusChecks">
-        <h2 class="h4 gl-mb-1 gl-mt-5">{{ $options.i18n.statusChecksTitle }}</h2>
-        <gl-sprintf :message="$options.i18n.statusChecksDescription">
-          <template #link="{ content }">
-            <gl-link :href="$options.statusChecksHelpDocLink">
-              {{ content }}
-            </gl-link>
-          </template>
-        </gl-sprintf>
+      <settings-section
+        v-if="showStatusChecksSection"
+        :heading="$options.i18n.statusChecksTitle"
+        class="-gl-mt-5"
+      >
+        <template #description>
+          <gl-sprintf :message="$options.i18n.statusChecksDescription">
+            <template #link="{ content }">
+              <gl-link :href="$options.statusChecksHelpDocLink">
+                {{ content }}
+              </gl-link>
+            </template>
+          </gl-sprintf>
+        </template>
+
+        <!-- eslint-disable-next-line vue/no-undef-components -->
+        <status-checks
+          v-if="glFeatures.editBranchRules"
+          :branch-rule-id="branchRule && branchRule.id"
+          :status-checks="statusChecks"
+          :project-path="projectPath"
+          :is-all-branches-rule="isAllBranchesRule"
+          class="gl-mt-3"
+        />
 
         <protection
+          v-else
           data-testid="status-checks-content"
-          class="gl-mt-3"
+          class="gl-mt-0"
           :header="statusChecksHeader"
+          icon="check-circle"
+          :count="statusChecksCount"
           :header-link-title="$options.i18n.statusChecksLinkTitle"
           :header-link-href="statusChecksPath"
           :status-checks="statusChecks"
           :empty-state-copy="$options.i18n.statusChecksEmptyState"
         />
-      </template>
+      </settings-section>
+
       <!-- EE end -->
       <gl-modal
         v-if="glFeatures.editBranchRules"
@@ -534,7 +635,7 @@ export default {
         :ref="$options.editModalId"
         :title="$options.i18n.updateTargetRule"
         :action-primary-text="$options.i18n.update"
-        @primary="editBranchRule({ name: $event })"
+        @primary="onEditRuleTarget"
       />
     </div>
   </div>

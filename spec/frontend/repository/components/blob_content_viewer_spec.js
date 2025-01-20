@@ -18,8 +18,13 @@ import { loadViewer } from '~/repository/components/blob_viewers';
 import DownloadViewer from '~/repository/components/blob_viewers/download_viewer.vue';
 import EmptyViewer from '~/repository/components/blob_viewers/empty_viewer.vue';
 import SourceViewer from '~/vue_shared/components/source_viewer/source_viewer.vue';
+import TooLargeViewer from '~/repository/components/blob_viewers/too_large_viewer.vue';
+import LfsViewer from '~/repository/components/blob_viewers/lfs_viewer.vue';
 import blobInfoQuery from 'shared_queries/repository/blob_info.query.graphql';
 import projectInfoQuery from '~/repository/queries/project_info.query.graphql';
+import highlightMixin from '~/repository/mixins/highlight_mixin';
+import getRefMixin from '~/repository/mixins/get_ref';
+import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import CodeIntelligence from '~/code_navigation/components/app.vue';
 import * as urlUtility from '~/lib/utils/url_utility';
 import { isLoggedIn, handleLocationHash } from '~/lib/utils/common_utils';
@@ -34,7 +39,6 @@ import {
   projectMock,
   userPermissionsMock,
   propsMock,
-  refMock,
   axiosMockResponse,
 } from '../mock_data';
 
@@ -90,22 +94,12 @@ const createComponent = async (mockData = {}, mountFn = shallowMount, mockRoute 
   };
 
   const projectInfo = {
-    __typename: 'Project',
-    id: projectMock.id,
+    ...projectMock,
     userPermissions: {
       pushCode,
       forkProject,
       downloadCode,
       createMergeRequestIn,
-    },
-    pathLocks: {
-      nodes: [
-        {
-          id: 'test',
-          path: 'locked_file.js',
-          user: { id: '123', username: 'root' },
-        },
-      ],
     },
   };
 
@@ -127,7 +121,7 @@ const createComponent = async (mockData = {}, mountFn = shallowMount, mockRoute 
       store: createMockStore(),
       apolloProvider: fakeApollo,
       propsData: propsMock,
-      mixins: [{ data: () => ({ ref: refMock }) }],
+      mixins: [getRefMixin, highlightMixin, glFeatureFlagMixin()],
       mocks: {
         $route: mockRoute,
         $router: mockRouter,
@@ -135,6 +129,7 @@ const createComponent = async (mockData = {}, mountFn = shallowMount, mockRoute 
       provide: {
         targetBranch: 'test',
         originalBranch: 'default-ref',
+        glFeatures: { inlineBlame: true },
         ...inject,
       },
     }),
@@ -411,29 +406,47 @@ describe('Blob content viewer component', () => {
     });
 
     it.each`
-      viewer        | loadViewerReturnValue
-      ${'empty'}    | ${EmptyViewer}
-      ${'download'} | ${DownloadViewer}
-      ${'text'}     | ${SourceViewer}
-    `('renders viewer component for $viewer files', async ({ viewer, loadViewerReturnValue }) => {
-      loadViewer.mockReturnValue(loadViewerReturnValue);
+      viewer        | fileType      | storedExternally | tooLarge | renderError    | expectedTooLarge | loadViewerReturnValue
+      ${'empty'}    | ${'null'}     | ${false}         | ${false} | ${null}        | ${false}         | ${EmptyViewer}
+      ${'download'} | ${'download'} | ${false}         | ${false} | ${null}        | ${false}         | ${DownloadViewer}
+      ${'text'}     | ${'text'}     | ${false}         | ${false} | ${null}        | ${false}         | ${SourceViewer}
+      ${'unknown'}  | ${'unknown'}  | ${true}          | ${false} | ${null}        | ${false}         | ${LfsViewer}
+      ${'text'}     | ${'text'}     | ${false}         | ${true}  | ${null}        | ${true}          | ${TooLargeViewer}
+      ${'text'}     | ${'text'}     | ${true}          | ${true}  | ${null}        | ${true}          | ${TooLargeViewer}
+      ${'text'}     | ${'text'}     | ${false}         | ${false} | ${'collapsed'} | ${true}          | ${TooLargeViewer}
+    `(
+      'renders viewer component for $viewer files with storedExternally=$storedExternally, tooLarge=$tooLarge, and renderError=$renderError',
+      async ({
+        viewer,
+        fileType,
+        storedExternally,
+        tooLarge,
+        renderError,
+        expectedTooLarge,
+        loadViewerReturnValue,
+      }) => {
+        loadViewer.mockReturnValue(loadViewerReturnValue);
 
-      createComponent({
-        blob: {
-          ...simpleViewerMock,
-          fileType: 'null',
-          simpleViewer: {
-            ...simpleViewerMock.simpleViewer,
-            fileType: viewer,
+        await createComponent({
+          blob: {
+            ...simpleViewerMock,
+            fileType,
+            storedExternally,
+            simpleViewer: {
+              ...simpleViewerMock.simpleViewer,
+              fileType: viewer,
+              tooLarge,
+              renderError,
+            },
           },
-        },
-      });
+        });
 
-      await waitForPromises();
+        await waitForPromises();
 
-      expect(loadViewer).toHaveBeenCalledWith(viewer, false);
-      expect(wrapper.findComponent(loadViewerReturnValue).exists()).toBe(true);
-    });
+        expect(loadViewer).toHaveBeenCalledWith(viewer, storedExternally, expectedTooLarge);
+        expect(wrapper.findComponent(loadViewerReturnValue).exists()).toBe(true);
+      },
+    );
   });
 
   describe('BlobHeader action slot', () => {
@@ -473,7 +486,7 @@ describe('Blob content viewer component', () => {
       } = projectMock;
 
       it('renders component', async () => {
-        window.gon.current_user_id = 1;
+        window.gon.current_user_id = 'gid://gitlab/User/1';
         window.gon.current_username = 'root';
 
         await createComponent({ pushCode, downloadCode, empty }, mount);
@@ -544,24 +557,27 @@ describe('Blob content viewer component', () => {
     });
 
     it.each`
-      loggedIn | canModifyBlob | createMergeRequestIn | forkProject | showForkSuggestion
-      ${true}  | ${false}      | ${true}              | ${true}     | ${true}
-      ${false} | ${false}      | ${true}              | ${true}     | ${false}
-      ${true}  | ${true}       | ${false}             | ${true}     | ${false}
-      ${true}  | ${true}       | ${true}              | ${false}    | ${false}
+      loggedIn | canModifyBlob | isUsingLfs | createMergeRequestIn | forkProject | showSingleFileEditorForkSuggestion
+      ${true}  | ${true}       | ${false}   | ${true}              | ${true}     | ${false}
+      ${true}  | ${false}      | ${false}   | ${true}              | ${true}     | ${true}
+      ${false} | ${false}      | ${false}   | ${true}              | ${true}     | ${false}
+      ${true}  | ${false}      | ${false}   | ${false}             | ${true}     | ${false}
+      ${true}  | ${false}      | ${false}   | ${true}              | ${false}    | ${false}
+      ${true}  | ${false}      | ${true}    | ${true}              | ${true}     | ${false}
     `(
       'shows/hides a fork suggestion according to a set of conditions',
       async ({
         loggedIn,
         canModifyBlob,
+        isUsingLfs,
         createMergeRequestIn,
         forkProject,
-        showForkSuggestion,
+        showSingleFileEditorForkSuggestion,
       }) => {
         isLoggedIn.mockReturnValueOnce(loggedIn);
         await createComponent(
           {
-            blob: { ...simpleViewerMock, canModifyBlob },
+            blob: { ...simpleViewerMock, canModifyBlob, storedExternally: isUsingLfs },
             createMergeRequestIn,
             forkProject,
           },
@@ -571,7 +587,42 @@ describe('Blob content viewer component', () => {
         findBlobHeader().vm.$emit('edit', 'simple');
         await nextTick();
 
-        expect(findForkSuggestion().exists()).toBe(showForkSuggestion);
+        expect(findForkSuggestion().exists()).toBe(showSingleFileEditorForkSuggestion);
+      },
+    );
+
+    it.each`
+      loggedIn | canModifyBlobWithWebIde | isUsingLfs | createMergeRequestIn | forkProject | showWebIdeForkSuggestion
+      ${true}  | ${true}                 | ${false}   | ${true}              | ${true}     | ${false}
+      ${true}  | ${false}                | ${false}   | ${true}              | ${true}     | ${true}
+      ${false} | ${false}                | ${false}   | ${true}              | ${true}     | ${false}
+      ${true}  | ${false}                | ${false}   | ${false}             | ${true}     | ${false}
+      ${true}  | ${false}                | ${false}   | ${true}              | ${false}    | ${false}
+      ${true}  | ${false}                | ${true}    | ${true}              | ${true}     | ${false}
+    `(
+      'shows/hides a fork suggestion for WebIDE according to a set of conditions',
+      async ({
+        loggedIn,
+        canModifyBlobWithWebIde,
+        isUsingLfs,
+        createMergeRequestIn,
+        forkProject,
+        showWebIdeForkSuggestion,
+      }) => {
+        isLoggedIn.mockReturnValueOnce(loggedIn);
+        await createComponent(
+          {
+            blob: { ...simpleViewerMock, canModifyBlobWithWebIde, storedExternally: isUsingLfs },
+            createMergeRequestIn,
+            forkProject,
+          },
+          mount,
+        );
+
+        findBlobHeader().vm.$emit('edit', 'ide');
+        await nextTick();
+
+        expect(findForkSuggestion().exists()).toBe(showWebIdeForkSuggestion);
       },
     );
   });

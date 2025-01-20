@@ -4,7 +4,7 @@ import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import Api from '~/api';
 import InviteGroupsModal from '~/invite_members/components/invite_groups_modal.vue';
 import InviteModalBase from '~/invite_members/components/invite_modal_base.vue';
-import ContentTransition from '~/vue_shared/components/content_transition.vue';
+import ContentTransition from '~/invite_members/components/content_transition.vue';
 import GroupSelect from '~/invite_members/components/group_select.vue';
 import InviteGroupNotification from '~/invite_members/components/invite_group_notification.vue';
 import { stubComponent } from 'helpers/stub_component';
@@ -18,6 +18,7 @@ import {
   GROUP_MODAL_TO_PROJECT_ALERT_BODY,
   GROUP_MODAL_TO_PROJECT_ALERT_LINK,
 } from '~/invite_members/constants';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import { propsData, sharedGroup } from '../mock_data/group_modal';
 
 jest.mock('~/invite_members/utils/trigger_successful_invite_alert');
@@ -83,6 +84,30 @@ describe('InviteGroupsModal', () => {
 
       expect(findBase().props('accessLevels')).toMatchObject({
         validRoles: propsData.accessLevels,
+      });
+    });
+
+    describe('when inviting a group to a project', () => {
+      it('set accessExpirationHelpLink for projects', () => {
+        createInviteGroupToProjectWrapper();
+
+        expect(findBase().props('accessExpirationHelpLink')).toBe(
+          helpPagePath('user/project/members/sharing_projects_groups', {
+            anchor: 'invite-a-group-to-a-project',
+          }),
+        );
+      });
+    });
+
+    describe('when inviting a group to a group', () => {
+      it('set accessExpirationHelpLink for groups', () => {
+        createInviteGroupToGroupWrapper();
+
+        expect(findBase().props('accessExpirationHelpLink')).toBe(
+          helpPagePath('user/project/members/sharing_projects_groups', {
+            anchor: 'invite-a-group-to-a-group',
+          }),
+        );
       });
     });
   });
@@ -186,7 +211,7 @@ describe('InviteGroupsModal', () => {
       });
 
       it('displays the successful toastMessage', () => {
-        expect(mockToastShow).toHaveBeenCalledWith('Members were successfully added', {
+        expect(mockToastShow).toHaveBeenCalledWith('Members were successfully added.', {
           onComplete: expect.any(Function),
         });
       });
@@ -234,6 +259,7 @@ describe('InviteGroupsModal', () => {
       group_id: sharedGroup.id,
       group_access: propsData.defaultAccessLevel,
       expires_at: undefined,
+      member_role_id: null,
       format: 'json',
     };
 

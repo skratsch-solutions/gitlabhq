@@ -7,7 +7,6 @@ import {
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import InviteMembersTrigger from '~/invite_members/components/invite_members_trigger.vue';
 import CreateWorkItemModal from '~/work_items/components/create_work_item_modal.vue';
-import { __ } from '~/locale';
 import CreateMenu from '~/super_sidebar/components/create_menu.vue';
 import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import { createNewMenuGroups } from '../mock_data';
@@ -19,6 +18,10 @@ describe('CreateMenu component', () => {
   const findGlDisclosureDropdownGroups = () => wrapper.findAllComponents(GlDisclosureDropdownGroup);
   const findGlDisclosureDropdownItems = () => wrapper.findAllComponents(GlDisclosureDropdownItem);
   const findInviteMembersTrigger = () => wrapper.findComponent(InviteMembersTrigger);
+  const findCreateWorkItemModalTrigger = () =>
+    findGlDisclosureDropdownItems()
+      .filter((item) => item.props('item').text === 'New epic')
+      .at(0);
   const findCreateWorkItemModal = () => wrapper.findComponent(CreateWorkItemModal);
 
   const createWrapper = ({ provide = {} } = {}) => {
@@ -59,7 +62,7 @@ describe('CreateMenu component', () => {
     });
 
     it("sets the toggle's label", () => {
-      expect(findGlDisclosureDropdown().props('toggleText')).toBe(__('Create new...'));
+      expect(findGlDisclosureDropdown().props('toggleText')).toBe('Create new...');
     });
     it('has correct amount of dropdown groups', () => {
       const items = findGlDisclosureDropdownGroups();
@@ -82,8 +85,36 @@ describe('CreateMenu component', () => {
       expect(findInviteMembersTrigger().exists()).toBe(true);
     });
 
-    it('renders the create new work item modal', () => {
-      expect(findCreateWorkItemModal().exists()).toBe(true);
+    describe('create new work item modal', () => {
+      it('renders work item menu item correctly', () => {
+        expect(findCreateWorkItemModalTrigger().exists()).toBe(true);
+      });
+
+      it('does not render the modal by default', () => {
+        expect(findCreateWorkItemModal().exists()).toBe(false);
+      });
+
+      it('shows modal when clicking work item dropdown item', async () => {
+        findCreateWorkItemModalTrigger().vm.$emit('action');
+        await nextTick();
+
+        expect(findCreateWorkItemModal().exists()).toBe(true);
+        expect(findCreateWorkItemModal().props('isGroup')).toBe(true);
+        expect(findCreateWorkItemModal().props('visible')).toBe(true);
+        expect(findCreateWorkItemModal().props('hideButton')).toBe(true);
+      });
+
+      it('hides modal when hideModal event is emitted', async () => {
+        findCreateWorkItemModalTrigger().vm.$emit('action');
+        await nextTick();
+
+        expect(findCreateWorkItemModal().exists()).toBe(true);
+
+        findCreateWorkItemModal().vm.$emit('hideModal');
+        await nextTick();
+
+        expect(findCreateWorkItemModal().exists()).toBe(false);
+      });
     });
 
     it('hides the tooltip when the dropdown is opened', async () => {

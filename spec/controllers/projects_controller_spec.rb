@@ -449,6 +449,15 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       end
     end
 
+    context 'redirection from http://someproject.git?ref=master' do
+      it 'redirects to project without .git extension' do
+        get :show, params: { namespace_id: public_project.namespace, id: public_project, ref: 'master', path: '/.gitlab-ci.yml' }, format: :git
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(response).to redirect_to(project_path(public_project, ref: 'master', path: '/.gitlab-ci.yml'))
+      end
+    end
+
     context 'when project is moved and git format is requested' do
       let(:old_path) { project.path + 'old' }
 
@@ -645,7 +654,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
   describe '#housekeeping' do
     let_it_be(:group) { create(:group) }
-    let(:housekeeping_service_dbl) { instance_double(Repositories::HousekeepingService) }
+    let(:housekeeping_service_dbl) { instance_double(::Repositories::HousekeepingService) }
     let(:params) do
       {
         namespace_id: project.namespace.path,
@@ -656,7 +665,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
     let(:prune) { nil }
     let_it_be(:project) { create(:project, group: group) }
-    let(:housekeeping) { Repositories::HousekeepingService.new(project) }
+    let(:housekeeping) { ::Repositories::HousekeepingService.new(project) }
 
     subject { post :housekeeping, params: params }
 
@@ -665,7 +674,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
         group.add_owner(user)
         sign_in(user)
 
-        allow(Repositories::HousekeepingService).to receive(:new).with(project, :eager).and_return(housekeeping)
+        allow(::Repositories::HousekeepingService).to receive(:new).with(project, :eager).and_return(housekeeping)
       end
 
       it 'forces a full garbage collection' do
@@ -698,7 +707,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
         let(:prune) { true }
 
         it 'enqueues pruning' do
-          allow(Repositories::HousekeepingService).to receive(:new).with(project, :prune).and_return(housekeeping_service_dbl)
+          allow(::Repositories::HousekeepingService).to receive(:new).with(project, :prune).and_return(housekeeping_service_dbl)
           expect(housekeeping_service_dbl).to receive(:execute)
 
           subject
@@ -1340,7 +1349,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     it 'renders json in a correct format' do
-      post :preview_markdown, params: { namespace_id: public_project.namespace, id: public_project, text: '*Markdown* text' }
+      post :preview_markdown, params: { namespace_id: public_project.namespace, project_id: public_project, text: '*Markdown* text' }
 
       expect(json_response.keys).to match_array(%w[body references])
     end
@@ -1349,7 +1358,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       let(:private_project) { create(:project, :private) }
 
       it 'returns 404' do
-        post :preview_markdown, params: { namespace_id: private_project.namespace, id: private_project, text: '*Markdown* text' }
+        post :preview_markdown, params: { namespace_id: private_project.namespace, project_id: private_project, text: '*Markdown* text' }
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
@@ -1363,7 +1372,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       it 'renders JSON body with state filter for issues' do
         post :preview_markdown, params: {
                                   namespace_id: public_project.namespace,
-                                  id: public_project,
+                                  project_id: public_project,
                                   text: issue.to_reference
                                 }
 
@@ -1373,7 +1382,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       it 'renders JSON body with state filter for MRs' do
         post :preview_markdown, params: {
                                   namespace_id: public_project.namespace,
-                                  id: public_project,
+                                  project_id: public_project,
                                   text: merge_request.to_reference
                                 }
 
@@ -1385,8 +1394,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       let(:project_with_repo) { create(:project, :repository) }
       let(:preview_markdown_params) do
         {
-          namespace_id: project_with_repo.namespace,
-          id: project_with_repo,
+          namespace_id: project_with_repo.namespace.full_path,
+          project_id: project_with_repo.path,
           text: "![](./logo-white.png)\n",
           path: 'files/images/README.md'
         }
@@ -1409,8 +1418,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
       let(:project_with_repo) { create(:project, :repository) }
       let(:preview_markdown_params) do
         {
-          namespace_id: project_with_repo.namespace,
-          id: project_with_repo,
+          namespace_id: project_with_repo.namespace.full_path,
+          project_id: project_with_repo.path,
           text: "![](./logo-white.png)\n",
           ref: 'other_branch',
           path: 'files/images/README.md'
@@ -1623,7 +1632,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     describe '#download_export', :clean_gitlab_redis_rate_limiting do
-      let(:project) { create(:project, :with_export, service_desk_enabled: false) }
+      let(:project) { create(:project, service_desk_enabled: false, creator: user) }
+      let!(:export) { create(:import_export_upload, project: project, user: user) }
       let(:action) { :download_export }
 
       context 'object storage enabled' do
@@ -1637,7 +1647,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
         context 'when project export file is absent' do
           it 'alerts the user and returns 302' do
-            project.export_file.file.delete
+            project.export_file(user).file.delete
 
             get action, params: { namespace_id: project.namespace, id: project }
 

@@ -168,12 +168,12 @@ RSpec.shared_examples 'graphql issue list request spec' do
       using RSpec::Parameterized::TableSyntax
 
       where(:value, :issue_list) do
-        'thumbsup'   | lazy { voted_issues }
-        'ANY'        | lazy { voted_issues }
-        'any'        | lazy { voted_issues }
-        'AnY'        | lazy { voted_issues }
-        'NONE'       | lazy { no_award_issues }
-        'thumbsdown' | lazy { [] }
+        AwardEmoji::THUMBS_UP   | lazy { voted_issues }
+        'ANY'                   | lazy { voted_issues }
+        'any'                   | lazy { voted_issues }
+        'AnY'                   | lazy { voted_issues }
+        'NONE'                  | lazy { no_award_issues }
+        AwardEmoji::THUMBS_DOWN | lazy { [] }
       end
 
       with_them do
@@ -195,6 +195,36 @@ RSpec.shared_examples 'graphql issue list request spec' do
         let(:user) { current_user }
         let(:issuable) { title_search_issue }
         let(:ids) { issue_ids }
+      end
+    end
+
+    context 'when filtering by subscribed' do
+      context 'with no filtering' do
+        it 'returns all items' do
+          post_query
+
+          expect(issue_ids).to match_array(to_gid_list(issues))
+        end
+      end
+
+      context 'with user filters for subscribed items' do
+        let(:issue_filter_params) { { subscribed: :EXPLICITLY_SUBSCRIBED } }
+
+        it 'returns only subscribed items' do
+          post_query
+
+          expect(issue_ids).to match_array(to_gid_list(subscribed_issues))
+        end
+      end
+
+      context 'with user filters out subscribed items' do
+        let(:issue_filter_params) { { subscribed: :EXPLICITLY_UNSUBSCRIBED } }
+
+        it 'returns only unsubscribed items' do
+          post_query
+
+          expect(issue_ids).to match_array(to_gid_list(unsubscribed_issues))
+        end
       end
     end
 
@@ -233,6 +263,29 @@ RSpec.shared_examples 'graphql issue list request spec' do
             expect(issue_ids).to match_array(to_gid_list(public_non_confidential_issues))
           end
         end
+      end
+    end
+
+    # Querying Service Desk issues uses `support-bot` `author_username`.
+    # This is a workaround that selects both legacy Service Desk issues and ticket work items
+    # until we migrated Service Desk issues to work items of type ticket.
+    # Will be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/505024
+    context 'when filtering by Service Desk issues/tickets' do
+      # Use items only for this context because it's temporary. This way we don't need to modify other examples.
+      let_it_be(:service_desk_issue) { create(:issue, project: project, author: ::Users::Internal.support_bot) }
+      # don't use support bot because this isn't a req for ticket WIT
+      let_it_be(:ticket) { create(:work_item, :ticket, project: project, author: current_user) }
+      # Get work item as issue because this query only returns issues.
+      let_it_be(:service_desk_items) { [service_desk_issue, Issue.find(ticket.id)] }
+
+      let_it_be(:base_params) { { iids: service_desk_items.map { |issue| issue.iid.to_s } } }
+
+      let(:issue_filter_params) { { author_username: 'support-bot' } }
+
+      it 'returns Service Desk issue and ticket work item' do
+        post_query
+
+        expect(issue_ids).to match_array(to_gid_list(service_desk_items))
       end
     end
   end
@@ -416,8 +469,8 @@ RSpec.shared_examples 'graphql issue list request spec' do
       let(:requested_fields) { 'upvotes downvotes' }
 
       before do
-        create_list(:award_emoji, 2, name: 'thumbsup', awardable: issue_a)
-        create_list(:award_emoji, 2, name: 'thumbsdown', awardable: issue_b)
+        create_list(:award_emoji, 2, name: AwardEmoji::THUMBS_UP, awardable: issue_a)
+        create_list(:award_emoji, 2, name: AwardEmoji::THUMBS_DOWN, awardable: issue_b)
       end
 
       include_examples 'N+1 query check'
@@ -677,13 +730,13 @@ RSpec.shared_examples 'graphql issue list request spec' do
     end
 
     def response_label_ids(response_data)
-      response_data.map do |node|
+      response_data.flat_map do |node|
         node['labels']['nodes'].pluck('id')
-      end.flatten
+      end
     end
 
     def labels_as_global_ids(issues)
-      issues.map(&:labels).flatten.map(&:to_global_id).map(&:to_s)
+      issues.flat_map { |issue| issue.labels.map { |label| label.to_global_id.to_s } }
     end
 
     it 'avoids N+1 queries', :aggregate_failures do
@@ -726,13 +779,13 @@ RSpec.shared_examples 'graphql issue list request spec' do
     end
 
     def response_assignee_ids(response_data)
-      response_data.map do |node|
+      response_data.flat_map do |node|
         node['assignees']['nodes'].pluck('id')
-      end.flatten
+      end
     end
 
     def assignees_as_global_ids(issues)
-      issues.map(&:assignees).flatten.map(&:to_global_id).map(&:to_s)
+      issues.flat_map(&:assignees).map(&:to_global_id).map(&:to_s)
     end
 
     it 'avoids N+1 queries', :aggregate_failures do

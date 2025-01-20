@@ -3,7 +3,7 @@
 Doorkeeper::OpenidConnect.configure do
   issuer Gitlab.config.gitlab.url
 
-  signing_key Rails.application.secrets.openid_connect_signing_key
+  signing_key Rails.application.credentials.openid_connect_signing_key
 
   resource_owner_from_access_token do |access_token|
     User.active.find_by(id: access_token.resource_owner_id)
@@ -23,12 +23,14 @@ Doorkeeper::OpenidConnect.configure do
     user.id
   end
 
+  expiration Gitlab.config.oidc_provider.openid_id_token_expire_in_seconds
+
   claims do
     with_options scope: :openid do |o|
       o.claim(:sub_legacy, response: [:id_token, :user_info]) do |user|
         # provide the previously hashed 'sub' claim to allow third-party apps
         # to migrate to the new unhashed value
-        Digest::SHA256.hexdigest "#{user.id}-#{Rails.application.secrets.secret_key_base}"
+        Digest::SHA256.hexdigest "#{user.id}-#{Rails.application.credentials.secret_key_base}"
       end
 
       o.claim(:name, response: [:id_token, :user_info]) { |user| user.name }
@@ -55,7 +57,9 @@ Doorkeeper::OpenidConnect.configure do
         end
       end
 
-      o.claim(:website, response: [:id_token, :user_info]) { |user| user.full_website_url if user.website_url.present? }
+      o.claim(:website, response: [:id_token, :user_info]) do |user|
+        user.full_website_url if user.website_url.present?
+      end
       o.claim(:profile, response: [:id_token, :user_info]) { |user| Gitlab::Routing.url_helpers.user_url user }
       o.claim(:picture, response: [:id_token, :user_info]) { |user| user.avatar_url(only_path: false) }
       o.claim(:groups) do |user|

@@ -8,14 +8,9 @@ import {
   GlEmptyState,
 } from '@gitlab/ui';
 import { DEFAULT_PER_PAGE } from '~/api';
-import { NEXT, PREV } from '~/vue_shared/components/pagination/constants';
 import { isCurrentUser } from '~/lib/utils/common_utils';
 
 export default {
-  i18n: {
-    prev: PREV,
-    next: NEXT,
-  },
   components: {
     GlAvatarLabeled,
     GlAvatarLink,
@@ -87,11 +82,11 @@ export default {
     :title="emptyStateTitle"
   />
   <div v-else>
-    <div class="-gl-my-3 -gl-mx-3 gl-display-flex gl-flex-wrap">
-      <div v-for="user in users" :key="user.id" class="gl-p-3 gl-w-full gl-md-w-half gl-lg-w-25p">
+    <div class="-gl-mx-3 -gl-my-3 gl-flex gl-flex-wrap">
+      <div v-for="user in users" :key="user.id" class="gl-w-full gl-p-3 md:gl-w-1/2 lg:gl-w-1/4">
         <gl-avatar-link
           :href="user.web_url"
-          class="js-user-link gl-border gl-rounded-base gl-w-full gl-p-5"
+          class="js-user-link gl-border gl-w-full gl-rounded-base gl-p-5"
           :data-user-id="user.id"
           :data-username="user.username"
         >
@@ -112,8 +107,6 @@ export default {
       :value="page"
       :total-items="totalItems"
       :per-page="perPage"
-      :prev-text="$options.i18n.prev"
-      :next-text="$options.i18n.next"
       @input="$emit('pagination-input', $event)"
     />
   </div>

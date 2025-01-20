@@ -16,7 +16,7 @@ module Types
     field :organization_edit_path, GraphQL::Types::String,
       null: true,
       description: 'Path for editing group at the organization level.',
-      alpha: { milestone: '17.1' }
+      experiment: { milestone: '17.1' }
 
     field :avatar_url,
       type: GraphQL::Types::String,
@@ -151,7 +151,7 @@ module Types
       resolver: Resolvers::GroupMembersResolver
 
     field :container_repositories,
-      Types::ContainerRepositoryType.connection_type,
+      Types::ContainerRegistry::ContainerRepositoryType.connection_type,
       null: true,
       description: 'Container repositories of the group.',
       resolver: Resolvers::ContainerRepositoriesResolver,
@@ -302,21 +302,21 @@ module Types
     field :work_items,
       null: true,
       description: 'Work items that belong to the namespace.',
-      alpha: { milestone: '16.3' },
+      experiment: { milestone: '16.3' },
       resolver: ::Resolvers::Namespaces::WorkItemsResolver
 
     field :work_item, Types::WorkItemType,
       resolver: Resolvers::Namespaces::WorkItemResolver,
-      alpha: { milestone: '16.4' },
+      experiment: { milestone: '16.4' },
       description: 'Find a work item by IID directly associated with the group. Returns `null` if the ' \
-                   '`namespace_level_work_items` feature flag is disabled.'
+        '`namespace_level_work_items` feature flag is disabled.'
 
     field :work_item_state_counts,
       Types::WorkItemStateCountsType,
       null: true,
-      alpha: { milestone: '16.7' },
+      experiment: { milestone: '16.7' },
       description: 'Counts of work items by state for the namespace. Returns `null` if the ' \
-                   '`namespace_level_work_items` feature flag is disabled.',
+        '`namespace_level_work_items` feature flag is disabled.',
       resolver: Resolvers::Namespaces::WorkItemStateCountsResolver
 
     field :autocomplete_users,
@@ -335,6 +335,16 @@ module Types
       null: true,
       method: :math_rendering_limits_enabled?,
       description: 'Indicates if math rendering limits are used for this group.'
+
+    field :is_linked_to_subscription,
+      GraphQL::Types::Boolean,
+      null: true,
+      method: :linked_to_subscription?,
+      description: 'Indicates if group is linked to a subscription.'
+
+    field :allowed_custom_statuses, Types::WorkItems::Widgets::CustomStatusType.connection_type,
+      null: true, description: 'Allowed custom statuses for the group.',
+      experiment: { milestone: '17.8' }, resolver: Resolvers::WorkItems::Widgets::CustomStatusResolver
 
     def label(title:)
       BatchLoader::GraphQL.for(title).batch(key: group) do |titles, loader, args|

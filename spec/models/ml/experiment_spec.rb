@@ -30,6 +30,7 @@ RSpec.describe Ml::Experiment, feature_category: :mlops do
       experiment = create(:ml_models, project: exp.project).default_experiment
 
       expect { experiment.destroy! }.to raise_error(ActiveRecord::ActiveRecordError)
+      expect(experiment.errors.full_messages).to include('Cannot delete an experiment associated to a model')
     end
   end
 
@@ -64,6 +65,14 @@ RSpec.describe Ml::Experiment, feature_category: :mlops do
 
     it 'loads latest version' do
       expect(subject.first.association_cached?(:project)).to be(true)
+    end
+  end
+
+  describe '.including_user' do
+    subject { described_class.including_user }
+
+    it 'loads latest version' do
+      expect(subject.first.association_cached?(:user)).to be(true)
     end
   end
 
@@ -175,5 +184,11 @@ RSpec.describe Ml::Experiment, feature_category: :mlops do
     it 'excludes experiments that belongs to a model' do
       is_expected.to match_array([exp, exp2])
     end
+  end
+
+  describe '.count_for_project' do
+    subject { described_class.count_for_project(exp.project_id) }
+
+    it { is_expected.to be(3) }
   end
 end

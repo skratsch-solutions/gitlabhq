@@ -674,6 +674,7 @@ RSpec.describe ProjectPresenter do
             label: a_string_including('Upload file'),
             data: {
               "can_push_code" => "true",
+              "can_push_to_branch" => "true",
               "original_branch" => "master",
               "path" => "/#{project.full_path}/-/create/master",
               "project_path" => project.full_path,
@@ -751,7 +752,7 @@ RSpec.describe ProjectPresenter do
           label: a_string_ending_with('GitLab Pages'),
           link: Gitlab::Pages::UrlBuilder
           .new(project)
-          .pages_url(with_unique_domain: true),
+          .pages_url,
           class_modifier: 'btn-default'
         )
       end

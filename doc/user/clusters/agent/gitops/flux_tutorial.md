@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This tutorial teaches you how to set up Flux for GitOps. You'll complete a bootstrap installation,
 install `agentk` in your cluster, and deploy a simple `nginx` application.
@@ -24,7 +24,7 @@ To set up Flux for GitOps:
 1. [Install `agentk`](#install-agentk)
 1. [Deploy an example project](#deploy-an-example-project)
 
-Prerequisites:
+Before you begin:
 
 - You must have a Kubernetes cluster you can access locally with `kubectl`.
 - You must [install the Flux CLI](https://fluxcd.io/flux/installation/#install-the-flux-cli). Be sure to install Flux v2 or higher.
@@ -36,7 +36,7 @@ the `api` scope:
 
 1. On the left sidebar, select your avatar.
 1. Select **Edit profile**.
-1. On the left sidebar, select **Access Tokens**.
+1. On the left sidebar, select **Access tokens**.
 1. Enter a name and optional expiry date for the token.
 1. Select the `api` scope.
 1. Select **Create personal access token**.

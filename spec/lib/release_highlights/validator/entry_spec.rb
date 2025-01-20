@@ -33,16 +33,15 @@ RSpec.describe ReleaseHighlights::Validator::Entry, type: :model, feature_catego
       it { is_expected.to validate_presence_of(:gitlab_com).with_message(/must be a boolean/) }
       it { is_expected.to allow_value(nil).for(:image_url) }
 
-      it {
+      it do
         is_expected.to validate_presence_of(:available_in)
           .with_message(/must be one of \["Free", "Premium", "Ultimate"\]/)
-      }
+      end
 
       it { is_expected.to validate_presence_of(:published_at).with_message(/must be valid Date/) }
       it { is_expected.to validate_numericality_of(:release).with_message(/is not a number/) }
 
       it 'validates URI of "documentation_link" and "image_url"' do
-        stub_env('RSPEC_ALLOW_INVALID_URLS', 'false')
         allow(entry).to receive(:value_for).with(:image_url).and_return('https://foobar.x/images/ci/gitlab-ci-cd-logo_2x.png')
         allow(entry).to receive(:value_for).with(:documentation_link).and_return('')
 

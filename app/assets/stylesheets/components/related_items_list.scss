@@ -16,6 +16,7 @@ $item-remove-button-space: 42px;
 
 .related-items-tree {
   .card-header {
+    // stylelint-disable-next-line gitlab/no-gl-class
     .gl-label {
       line-height: $gl-line-height;
     }
@@ -39,8 +40,8 @@ $item-remove-button-space: 42px;
 
   &:hover,
   &:focus-within {
-    background-color: $white;
-    border-color: $gray-50;
+    background-color: var(--gl-background-color-section);
+    border-color: var(--gl-border-color-section);
   }
 
   .merge-request-status.closed {
@@ -49,19 +50,14 @@ $item-remove-button-space: 42px;
 
   .issue-token-state-icon-open,
   .issue-token-state-icon-closed,
-  .confidential-icon,
   .item-milestone .icon,
   .item-weight .board-card-info-icon {
     min-width: $gl-padding;
     cursor: help;
 
     &:focus {
-      @include gl-focus;
+      @apply gl-focus;
     }
-  }
-
-  .confidential-icon {
-    color: $orange-500;
   }
 
   .item-title {
@@ -78,7 +74,7 @@ $item-remove-button-space: 42px;
   .item-milestone .milestone-title,
   .item-due-date,
   .item-weight .board-card-info-text {
-    color: $gl-text-color-secondary;
+    @apply gl-text-subtle;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -88,7 +84,7 @@ $item-remove-button-space: 42px;
 .item-meta {
   flex-basis: 100%;
   font-size: $gl-font-size;
-  color: $gl-text-color-secondary;
+  @apply gl-text-subtle;
 
   .item-due-date,
   .board-card-weight {
@@ -161,7 +157,7 @@ $item-remove-button-space: 42px;
 
   a:focus {
     border-radius: $gl-border-radius-full;
-    @include gl-focus;
+    @apply gl-focus;
   }
 }
 

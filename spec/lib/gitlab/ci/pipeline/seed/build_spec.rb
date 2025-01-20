@@ -16,7 +16,7 @@ RSpec.describe Gitlab::Ci::Pipeline::Seed::Build, feature_category: :pipeline_co
   let(:seed_build) { described_class.new(seed_context, attributes, previous_stages + [current_stage]) }
 
   describe '#attributes' do
-    subject { seed_build.attributes }
+    subject(:seed_attributes) { seed_build.attributes }
 
     it { is_expected.to be_a(Hash) }
     it { is_expected.to include(:name, :project, :ref) }
@@ -44,6 +44,46 @@ RSpec.describe Gitlab::Ci::Pipeline::Seed::Build, feature_category: :pipeline_co
         let(:attributes) { { name: 'rspec', ref: 'master', rules: [{ if: '$VAR != null', when: 'always' }] } }
 
         it { is_expected.to include(when: 'never') }
+      end
+    end
+
+    context 'with job:run attribute' do
+      let(:run_value) do
+        [
+          { name: 'step1', step: 'some_step_reference', env: { VAR1: 'value1', VAR2: 'value2' } },
+          { name: 'step2', script: "echo 'Hello, World!'", inputs: { input1: 'input_value1', input2: 'input_value1223' } }
+        ].map(&:deep_stringify_keys)
+      end
+
+      let(:attributes) do
+        {
+          name: 'rspec',
+          ref: 'master',
+          execution_config: {
+            run_steps: run_value
+          }
+        }
+      end
+
+      it 'includes execution_config attribute with run steps' do
+        expect(subject[:execution_config]).to an_object_having_attributes(
+          project: pipeline.project,
+          pipeline: pipeline,
+          run_steps: run_value
+        )
+      end
+
+      context 'when job:run attribute is not specified' do
+        let(:attributes) do
+          {
+            name: 'rspec',
+            ref: 'master'
+          }
+        end
+
+        it 'does not include execution_config attribute' do
+          expect(subject).not_to include(:execution_config)
+        end
       end
     end
 
@@ -320,7 +360,7 @@ RSpec.describe Gitlab::Ci::Pipeline::Seed::Build, feature_category: :pipeline_co
           }
         end
 
-        it { is_expected.to include(options: { cache: [a_hash_including( key: 'something-default' )] }) }
+        it { is_expected.to include(options: { cache: [a_hash_including(key: 'something-default')] }) }
       end
 
       context 'with cache:key:files and prefix' do
@@ -515,6 +555,22 @@ RSpec.describe Gitlab::Ci::Pipeline::Seed::Build, feature_category: :pipeline_co
             expect(subject[:yaml_variables]).to contain_exactly({ key: 'VAR1', value: 'var 1' })
           end
         end
+      end
+    end
+
+    describe 'propagating composite identity', :request_store do
+      let_it_be(:user) { create(:user) }
+
+      let(:attributes) do
+        { name: 'rspec', options: { test: 123 } }
+      end
+
+      before do
+        pipeline.update!(user: user)
+      end
+
+      it 'does not propagate composite identity by default' do
+        expect(seed_attributes[:options].key?(:scoped_user_id)).to be(false)
       end
     end
   end

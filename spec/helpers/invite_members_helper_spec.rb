@@ -19,13 +19,13 @@ RSpec.describe InviteMembersHelper do
         name: project.name,
         default_access_level: Gitlab::Access::GUEST,
         invalid_groups: project.related_group_ids,
-        help_link: help_page_url('user/permissions'),
+        help_link: help_page_url('user/permissions.md'),
         is_project: 'true',
         access_levels: ProjectMember.access_level_roles.to_json,
         full_path: project.full_path
       }
 
-      expect(helper.common_invite_group_modal_data(project, ProjectMember, 'true')).to include(attributes)
+      expect(helper.common_invite_group_modal_data(project, ProjectMember)).to include(attributes)
     end
 
     context 'when sharing with groups outside the hierarchy is disabled' do
@@ -36,7 +36,7 @@ RSpec.describe InviteMembersHelper do
       end
 
       it 'provides the correct attributes' do
-        expect(helper.common_invite_group_modal_data(group, GroupMember, 'false'))
+        expect(helper.common_invite_group_modal_data(group, GroupMember))
           .to include({ groups_filter: 'descendant_groups', parent_id: group.id })
       end
     end
@@ -47,7 +47,7 @@ RSpec.describe InviteMembersHelper do
       end
 
       it 'does not return filter attributes' do
-        expect(helper.common_invite_group_modal_data(project.group, ProjectMember, 'true').keys)
+        expect(helper.common_invite_group_modal_data(project.group, ProjectMember).keys)
           .not_to include(:groups_filter, :parent_id)
       end
     end

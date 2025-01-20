@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This section contains possible solutions for problems you might encounter.
 
@@ -30,9 +30,9 @@ When that user is added back to the SCIM app:
 For users de-provisioned by SCIM before that date, their SAML identity is destroyed.
 To solve this problem, the user must [link SAML to their existing GitLab.com account](index.md#link-saml-to-your-existing-gitlabcom-account).
 
-### Self-managed GitLab
+### GitLab Self-Managed
 
-For a self-managed GitLab instance, administrators of that instance can instead [add the user identity themselves](../../../administration/admin_area.md#user-identities). This might save time if administrators need to re-add multiple identities.
+For GitLab Self-Managed, administrators of that instance can instead [add the user identity themselves](../../../administration/admin_area.md#user-identities). This might save time if administrators need to re-add multiple identities.
 
 ## User cannot sign in
 
@@ -53,7 +53,7 @@ The following are possible solutions for problems where users cannot sign in:
 
 To check if a user's SAML `NameId` matches their SCIM `externalId`:
 
-- Administrators can use the Admin Area to [list SCIM identities for a user](../../../administration/admin_area.md#user-identities).
+- Administrators can use the **Admin** area to [list SCIM identities for a user](../../../administration/admin_area.md#user-identities).
 - Group owners can see the list of users and the identifier stored for each user in the group SAML SSO Settings page.
 - You can use the [SCIM API](../../../api/scim.md) to manually retrieve the `extern_uid` GitLab has stored for users and compare the value for each user from the [SAML API](../../../api/saml.md) .
 - Have the user use a [SAML Tracer](troubleshooting.md#saml-debugging-tools) and compare the `extern_uid` to
@@ -63,12 +63,12 @@ To check if a user's SAML `NameId` matches their SCIM `externalId`:
 
 Whether the value was changed or you need to map to a different field, the following must map to the same field:
 
-- `externalId`
+- `extern_Id`
 - `NameId`
 
-If the GitLab `extern_uid` does not match the SAML `NameId`, you must update the GitLab `extern_uid` to enable the user to sign in.
+If the SCIM `extern_uid` does not match the SAML `NameId`, you must update the SCIM `extern_uid` to enable the user to sign in.
 
-Be cautious if you revise the fields used by your SCIM identity provider, typically `externalId`.
+Be cautious if you revise the fields used by your SCIM identity provider, typically `extern_Id`.
 Your identity provider should be configured to do this update.
 In some cases the identity provider cannot do the update, for example when a user lookup fails.
 
@@ -84,7 +84,7 @@ To change the identifier values to match, you can do one of the following:
 - Unlink all users simultaneously by removing all users from the SCIM app while provisioning is turned on.
 
   WARNING:
-  This resets all users' roles in the top level group and subgroups to the [configured default membership role](index.md#configure-gitlab).
+  This resets all users' roles in the top-level group and subgroups to the [configured default membership role](index.md#configure-gitlab).
 - Use the [SAML API](../../../api/saml.md) or [SCIM API](../../../api/scim.md) to manually correct the `extern_uid` stored for users to match the SAML
   `NameId` or SCIM `externalId`.
 
@@ -103,7 +103,7 @@ When the SCIM app changes:
 - Administrators of the identity provider can:
   1. Remove users from the SCIM app, which:
      - In GitLab.com, removes all removed users from the group.
-     - In GitLab self-managed, blocks users.
+     - In GitLab Self-Managed, blocks users.
   1. Turn on sync for the new SCIM app to [link existing users](scim_setup.md#link-scim-and-saml-identities).
 
 ## SCIM app returns `"User has already been taken","status":409` error
@@ -205,22 +205,6 @@ this:
 1. If the update returns a status code `204`, have the user attempt to sign in
    using SAML SSO.
 
-## 403 Forbidden response for disable action
-
-If you [restrict group access by IP address](../access_and_permissions.md#restrict-group-access-by-ip-address),
-SCIM deprovisioning might fail with the error response:
-
-```plaintext
-{"message":"403 Forbidden"}
-```
-
-This is a [known issue](https://gitlab.com/gitlab-org/gitlab/-/issues/429607) when restricting group access by IP
-address.
-
-To work around this issue, use the Group SCIM API to
-[update a single SCIM provisioned user](../../../development/internal_api/index.md#update-a-single-scim-provisioned-user)
-to set the user's `active` state to `false`.
-
 ## Azure Active Directory
 
 The following troubleshooting information is specifically for SCIM provisioned through Azure Active Directory.
@@ -291,8 +275,8 @@ In your Okta SCIM application, check that the SCIM **Base URL** is correct and p
 SCIM API endpoint URL. Check the following documentation to find information on this URL for:
 
 - [GitLab.com groups](scim_setup.md#configure-gitlab).
-- [Self-managed GitLab instances](../../../administration/settings/scim_setup.md#configure-gitlab).
+- [GitLab Self-Managed](../../../administration/settings/scim_setup.md#configure-gitlab).
 
-For self-managed GitLab instances, ensure that GitLab is publicly available so Okta can connect to it. If needed,
+For GitLab Self-Managed, ensure your instance is publicly available so Okta can connect to it. If needed,
 you can [allow access to Okta IP addresses](https://help.okta.com/en-us/Content/Topics/Security/ip-address-allow-listing.htm)
 on your firewall.

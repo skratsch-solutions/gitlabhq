@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use Harbor as the container registry for your GitLab project.
 
@@ -75,7 +75,7 @@ docker:
     entrypoint: ['']
   script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"${HARBOR_HOST}\":{\"auth\":\"$(echo -n ${HARBOR_USERNAME}:${HARBOR_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+    - echo "{\"auths\":{\"${HARBOR_HOST}\":{\"auth\":\"$(echo -n ${HARBOR_USERNAME}:${HARBOR_PASSWORD} | base64 -w 0)\"}}}" > /kaniko/.docker/config.json
     - >-
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"

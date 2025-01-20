@@ -58,10 +58,12 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { is_expected.to have_one(:catalog_resource) }
     it { is_expected.to have_many(:ci_components).class_name('Ci::Catalog::Resources::Component') }
     it { is_expected.to have_many(:ci_component_usages).class_name('Ci::Catalog::Resources::Components::Usage') }
+    it { is_expected.to have_many(:ci_component_last_usages).class_name('Ci::Catalog::Resources::Components::LastUsage').inverse_of(:component_project) }
     it { is_expected.to have_many(:catalog_resource_versions).class_name('Ci::Catalog::Resources::Version') }
     it { is_expected.to have_many(:catalog_resource_sync_events).class_name('Ci::Catalog::Resources::SyncEvent') }
     it { is_expected.to have_one(:microsoft_teams_integration) }
     it { is_expected.to have_one(:mattermost_integration) }
+    it { is_expected.to have_one(:matrix_integration) }
     it { is_expected.to have_one(:hangouts_chat_integration) }
     it { is_expected.to have_one(:telegram_integration) }
     it { is_expected.to have_one(:unify_circuit_integration) }
@@ -117,6 +119,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { is_expected.to have_one(:service_desk_custom_email_verification).class_name('ServiceDesk::CustomEmailVerification') }
     it { is_expected.to have_one(:container_registry_data_repair_detail).class_name('ContainerRegistry::DataRepairDetail') }
     it { is_expected.to have_many(:container_registry_protection_rules).class_name('ContainerRegistry::Protection::Rule') }
+    it { is_expected.to have_many(:container_registry_protection_tag_rules).class_name('ContainerRegistry::Protection::TagRule') }
     it { is_expected.to have_many(:commit_statuses) }
     it { is_expected.to have_many(:ci_pipelines) }
     it { is_expected.to have_many(:ci_refs) }
@@ -154,7 +157,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { is_expected.to have_many(:external_pull_requests) }
     it { is_expected.to have_many(:sourced_pipelines) }
     it { is_expected.to have_many(:source_pipelines) }
-    it { is_expected.to have_many(:prometheus_alert_events) }
     it { is_expected.to have_many(:alert_management_alerts) }
     it { is_expected.to have_many(:alert_management_http_integrations) }
     it { is_expected.to have_many(:jira_imports) }
@@ -198,6 +200,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { is_expected.to have_many(:incident_hooks_integrations).class_name('Integration') }
     it { is_expected.to have_many(:relation_import_trackers).class_name('Projects::ImportExport::RelationImportTracker') }
     it { is_expected.to have_many(:all_protected_branches).class_name('ProtectedBranch') }
+    it { is_expected.to have_many(:import_export_uploads).dependent(:destroy) }
 
     # GitLab Pages
     it { is_expected.to have_many(:pages_domains) }
@@ -542,6 +545,35 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       it_behaves_like 'member_namespace membership relationship'
     end
 
+    shared_examples 'share with group lock' do
+      let_it_be(:group) { create(:group) }
+      let_it_be_with_reload(:project) { create(:project, group: group) }
+
+      context 'without share with group lock' do
+        it { is_expected.to be_truthy }
+      end
+
+      context 'with share with group lock' do
+        before do
+          group.update!(share_with_group_lock: true)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    describe '#allowed_to_share_with_group?' do
+      subject { project.allowed_to_share_with_group? }
+
+      it_behaves_like 'share with group lock'
+    end
+
+    describe '#share_with_group_enabled?' do
+      subject { project.share_with_group_enabled? }
+
+      it_behaves_like 'share with group lock'
+    end
+
     describe '#namespace_members_and_requesters setters' do
       let_it_be(:requested_at) { Time.current }
       let_it_be(:project) { create(:project) }
@@ -705,6 +737,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it { is_expected.not_to allow_value('/test/foo').for(:ci_config_path) }
     it { is_expected.to validate_presence_of(:creator) }
     it { is_expected.to validate_presence_of(:namespace) }
+    it { is_expected.to validate_presence_of(:organization) }
     it { is_expected.to validate_presence_of(:repository_storage) }
     it { is_expected.to validate_numericality_of(:max_artifacts_size).only_integer.is_greater_than(0) }
     it { is_expected.to validate_length_of(:suggestion_commit_message).is_at_most(255) }
@@ -1013,6 +1046,12 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
   it_behaves_like 'a BulkUsersByEmailLoad model'
 
+  describe '#notification_group' do
+    it 'is expected to be an alias' do
+      expect(build(:project).method(:notification_group).original_name).to eq(:group)
+    end
+  end
+
   describe '#all_pipelines' do
     let_it_be(:project) { create(:project) }
 
@@ -1206,7 +1245,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   describe 'delegation' do
     let_it_be(:project) { create(:project) }
 
-    [:add_guest, :add_reporter, :add_developer, :add_maintainer, :add_member, :add_members].each do |method|
+    [:add_guest, :add_planner, :add_reporter, :add_developer, :add_maintainer, :add_member, :add_members].each do |method|
       it { is_expected.to delegate_method(method).to(:team) }
     end
 
@@ -1267,7 +1306,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
           'allow_fork_pipelines_to_run_in_parent_project' => 'ci_',
           'inbound_job_token_scope_enabled' => 'ci_',
           'push_repository_for_job_token_allowed' => 'ci_',
-          'job_token_scope_enabled' => 'ci_outbound_'
+          'job_token_scope_enabled' => 'ci_outbound_',
+          'id_token_sub_claim_components' => 'ci_',
+          'delete_pipelines_in_seconds' => 'ci_'
         }
       end
 
@@ -1310,6 +1351,31 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     describe '#ci_inbound_job_token_scope_enabled?' do
       it_behaves_like 'a ci_cd_settings predicate method', prefix: 'ci_', default: true do
         let(:delegated_method) { :inbound_job_token_scope_enabled? }
+      end
+
+      where(:ci_cd_settings_attrs, :instance_enabled, :expectation) do
+        nil | true | true
+        nil | false | true
+        { inbound_job_token_scope_enabled: true } | true | true
+        { inbound_job_token_scope_enabled: true } | false | true
+        { inbound_job_token_scope_enabled: false } | true | true
+        { inbound_job_token_scope_enabled: false } | false | false
+      end
+
+      with_them do
+        let_it_be(:project) { create(:project) }
+
+        before do
+          if ci_cd_settings_attrs.nil?
+            allow(project).to receive(:ci_cd_settings).and_return(nil)
+          else
+            project.ci_cd_settings.update_attribute(:inbound_job_token_scope_enabled, ci_cd_settings_attrs[:inbound_job_token_scope_enabled])
+          end
+
+          allow(::Gitlab::CurrentSettings).to receive(:enforce_ci_inbound_job_token_scope_enabled?).and_return(instance_enabled)
+        end
+
+        it { expect(project.ci_inbound_job_token_scope_enabled?).to be(expectation) }
       end
     end
 
@@ -1572,8 +1638,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#to_reference_base' do
-    using RSpec::Parameterized::TableSyntax
-
     let_it_be(:user) { create(:user) }
     let_it_be(:user_namespace) { user.namespace }
 
@@ -1639,6 +1703,26 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       subject { project.merge_method }
 
       it { is_expected.to eq(method) }
+    end
+  end
+
+  describe '#merge_method=' do
+    where(:merge_method, :ff_only_enabled, :rebase_enabled) do
+      :ff           | true | true
+      :rebase_merge | false | true
+      :merge        | false | false
+    end
+
+    with_them do
+      let(:project) { build :project }
+
+      subject { project.merge_method = merge_method }
+
+      it 'sets merge_requests_ff_only_enabled and merge_requests_rebase_enabled' do
+        subject
+        expect(project.merge_requests_ff_only_enabled).to eq(ff_only_enabled)
+        expect(project.merge_requests_rebase_enabled).to eq(rebase_enabled)
+      end
     end
   end
 
@@ -1987,7 +2071,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         create(:jira_integration, project: project, category: 'issue_tracker')
       end
 
-      specify { is_expected.to eq(true) }
+      it { is_expected.to eq(true) }
 
       it 'becomes false when external issue tracker integration is destroyed' do
         expect do
@@ -2260,6 +2344,19 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       projects = described_class.sort_by_attribute(:storage_size_desc)
 
       expect(projects).to eq([project2, project3, project1])
+    end
+  end
+
+  describe '.by_not_in_root_id' do
+    let_it_be(:group1) { create(:group) }
+    let_it_be(:group2) { create(:group) }
+    let_it_be(:group1_project) { create(:project, namespace: group1) }
+    let_it_be(:group2_project) { create(:project, namespace: group2) }
+    let_it_be(:subgroup_project) { create(:project, namespace: create(:group, parent: group1)) }
+
+    it 'returns correct namespaces' do
+      expect(described_class.by_not_in_root_id(group1.id)).to contain_exactly(group2_project)
+      expect(described_class.by_not_in_root_id(group2.id)).to contain_exactly(group1_project, subgroup_project)
     end
   end
 
@@ -2563,7 +2660,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   describe '#service_desk_enabled?' do
     let_it_be(:namespace) { create(:namespace) }
 
-    subject(:project) { build(:project, :private, namespace: namespace, service_desk_enabled: true) }
+    subject(:project) { build(:project, :private, :service_desk_enabled, namespace: namespace) }
 
     before do
       allow(Gitlab::Email::IncomingEmail).to receive(:enabled?).and_return(true)
@@ -2576,8 +2673,18 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe '#default_service_desk_subaddress_part', feature_category: :service_desk do
+    let_it_be(:project) { create(:project, :service_desk_enabled) }
+
+    subject { project.default_service_desk_subaddress_part }
+
+    it 'contains the full path slug, project id and default suffix' do
+      is_expected.to eq("#{project.full_path_slug}-#{project.id}-issue-")
+    end
+  end
+
   describe '#service_desk_address', feature_category: :service_desk do
-    let_it_be(:project, reload: true) { create(:project, service_desk_enabled: true) }
+    let_it_be(:project, reload: true) { create(:project, :service_desk_enabled) }
 
     subject { project.service_desk_address }
 
@@ -2750,7 +2857,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
-  describe '#any_online_runners?' do
+  describe '#any_online_runners?', :freeze_time do
     subject { project.any_online_runners? }
 
     context 'shared runners' do
@@ -3006,6 +3113,28 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     context "if public folder doesn't exist" do
       it { is_expected.to be_falsey }
+    end
+  end
+
+  describe '#pages_unique_domain_enabled?' do
+    let(:project) { create(:project) }
+
+    subject { project.pages_unique_domain_enabled? }
+
+    context 'if unique domain is enabled' do
+      before do
+        project.project_setting.update!(pages_unique_domain_enabled: true, pages_unique_domain: 'foo123.example.com')
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'if unique domain is disabled' do
+      before do
+        project.project_setting.update!(pages_unique_domain_enabled: false)
+      end
+
+      it { is_expected.to be(false) }
     end
   end
 
@@ -3964,6 +4093,61 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe '#notify_project_import_complete?' do
+    let(:import_type) { 'gitlab_project' }
+    let(:project) { build(:project, import_type: import_type) }
+
+    before do
+      allow(project).to receive(:forked?).and_return(false)
+    end
+
+    it 'returns false for forked projects' do
+      allow(project).to receive(:forked?).and_return(true)
+
+      expect(project.notify_project_import_complete?).to be(false)
+    end
+
+    it 'returns false for projects with a remote mirror' do
+      allow(project).to receive(:mirror?).and_return(true)
+
+      expect(project.notify_project_import_complete?).to be(false)
+    end
+
+    it 'returns false for unsupported import types' do
+      project.import_type = 'gitlab_project'
+
+      expect(project.notify_project_import_complete?).to be(false)
+    end
+
+    %w[github gitea bitbucket bitbucket_server].each do |import_type|
+      it "returns true for #{import_type}" do
+        project.import_type = import_type
+        expect(project.notify_project_import_complete?).to be(true)
+      end
+    end
+  end
+
+  describe '#safe_import_url' do
+    let_it_be(:import_url) { 'https://example.com' }
+    let_it_be(:project) do
+      create(
+        :project,
+        import_url: import_url,
+        import_data_attributes: { credentials: { user: 'user', password: 'password' } }
+      )
+    end
+
+    it 'returns import_url with credentials masked' do
+      expect(project.safe_import_url).to include('*****:*****')
+    end
+
+    it 'returns import_url with no credentials, masked or not' do
+      safe_import_url = project.safe_import_url(masked: false)
+
+      expect(safe_import_url).to eq(import_url)
+    end
+  end
+
   describe '#jira_import?' do
     let_it_be(:project) { build(:project, import_type: 'jira') }
     let_it_be(:jira_import) { build(:jira_import_state, project: project) }
@@ -4041,6 +4225,18 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     subject(:project) { build(:project, import_type: 'gitea') }
 
     it { expect(project.gitea_import?).to be true }
+  end
+
+  describe '#bitbucket_import?' do
+    subject(:project) { build(:project, import_type: 'bitbucket') }
+
+    it { expect(project.bitbucket_import?).to be true }
+  end
+
+  describe '#bitbucket_server_import?' do
+    subject(:project) { build(:project, import_type: 'bitbucket_server') }
+
+    it { expect(project.bitbucket_server_import?).to be true }
   end
 
   describe '#any_import_in_progress?' do
@@ -4353,7 +4549,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     let_it_be(:project) { create(:project) }
 
     it 'updates commit count' do
-      expect(ProjectCacheWorker).to receive(:perform_async).with(project.id, [], [:commit_count])
+      expect(ProjectCacheWorker).to receive(:perform_async).with(project.id, [], %w[commit_count])
 
       project.after_repository_change_head
     end
@@ -5389,9 +5585,13 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#remove_export' do
-    let(:project) { create(:project, :with_export) }
+    let(:project) { create(:project) }
+    let(:export_file) { fixture_file_upload('spec/fixtures/project_export.tar.gz') }
+    let(:export) { create(:import_export_upload, project: project, export_file: export_file) }
 
     before do
+      export
+
       allow_next_instance_of(ProjectExportWorker) do |job|
         allow(job).to receive(:jid).and_return(SecureRandom.hex(8))
       end
@@ -5400,19 +5600,42 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     it 'removes the export' do
       project.remove_exports
 
-      expect(project.export_file_exists?).to be_falsey
+      expect(project.export_file_exists?(export.user)).to be_falsey
+    end
+  end
+
+  describe '#remove_export_for_user' do
+    let(:project) { create(:project) }
+    let(:export_file) { fixture_file_upload('spec/fixtures/project_export.tar.gz') }
+    let(:user) { create(:user) }
+    let(:export) { create(:import_export_upload, project: project, export_file: export_file, user: user) }
+
+    before do
+      export
+
+      allow_next_instance_of(ProjectExportWorker) do |job|
+        allow(job).to receive(:jid).and_return(SecureRandom.hex(8))
+      end
+    end
+
+    it 'removes the export' do
+      project.remove_export_for_user(user)
+
+      expect(project.export_file_exists?(export.user)).to be_falsey
     end
   end
 
   context 'with export' do
-    let(:project) { create(:project, :with_export) }
+    let(:project) { create(:project) }
+    let(:export_file) { fixture_file_upload('spec/fixtures/project_export.tar.gz') }
+    let!(:export) { create(:import_export_upload, project: project, export_file: export_file) }
 
     it '#export_file_exists? returns true' do
-      expect(project.export_file_exists?).to be true
+      expect(project.export_file_exists?(export.user)).to be true
     end
 
     it '#export_archive_exists? returns false' do
-      expect(project.export_archive_exists?).to be true
+      expect(project.export_archive_exists?(export.user)).to be true
     end
   end
 
@@ -5610,10 +5833,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     subject { project.predefined_project_variables.to_runner_variables }
 
     specify do
-      expect(subject).to include
-      [
+      expect(subject).to include(
         { key: 'CI_CONFIG_PATH', value: Ci::Pipeline::DEFAULT_CONFIG_PATH, public: true, masked: false }
-      ]
+      )
     end
 
     context 'when ci config path is overridden' do
@@ -5622,10 +5844,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       end
 
       it do
-        expect(subject).to include
-        [
+        expect(subject).to include(
           { key: 'CI_CONFIG_PATH', value: 'random.yml', public: true, masked: false }
-        ]
+        )
       end
     end
   end
@@ -6057,13 +6278,13 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     it 'runs the correct hooks' do
       expect(project.repository).to receive(:expire_content_cache).ordered
-      expect(project.repository).to receive(:remove_prohibited_branches).ordered
+      expect(project.repository).to receive(:remove_prohibited_refs).ordered
       expect(project.wiki.repository).to receive(:expire_content_cache)
       expect(import_state).to receive(:finish)
       expect(project).to receive(:reset_counters_and_iids)
       expect(project).to receive(:after_create_default_branch)
       expect(project).to receive(:refresh_markdown_cache!)
-      expect(ProjectCacheWorker).to receive(:perform_async).with(project.id, [], [:repository_size, :wiki_size])
+      expect(ProjectCacheWorker).to receive(:perform_async).with(project.id, [], %w[repository_size wiki_size])
       expect(DetectRepositoryLanguagesWorker).to receive(:perform_async).with(project.id)
       expect(AuthorizedProjectUpdate::ProjectRecalculateWorker).to receive(:perform_async).with(project.id)
 
@@ -6786,6 +7007,31 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe '#pages_url' do
+    let_it_be(:project) { create(:project) }
+
+    let(:pages_url_config) { nil }
+    let(:url_builder) { ::Gitlab::Pages::UrlBuilder.new(project, pages_url_config) }
+
+    subject(:pages_url) { project.pages_url(pages_url_config) }
+
+    it "lets URL builder handle the URL resolution" do
+      expect(::Gitlab::Pages::UrlBuilder).to receive(:new).with(project, pages_url_config).and_return(url_builder)
+      expect(url_builder).to receive(:pages_url).and_return('http://namespace1.example.com/project-1/foo')
+      expect(pages_url).to eq('http://namespace1.example.com/project-1/foo')
+    end
+
+    context "when a config argument is passed" do
+      let(:pages_url_config) { { path_prefix: 'foo' } }
+
+      it "lets URL builder handle the URL resolution" do
+        expect(::Gitlab::Pages::UrlBuilder).to receive(:new).with(project, pages_url_config).and_return(url_builder)
+        expect(url_builder).to receive(:pages_url).and_return('http://namespace1.example.com/project-1/foo')
+        expect(pages_url).to eq('http://namespace1.example.com/project-1/foo')
+      end
+    end
+  end
+
   describe '#toggle_ci_cd_settings!' do
     it 'toggles the value on #settings' do
       project = create(:project, group_runners_enabled: false)
@@ -7419,7 +7665,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
-  describe 'validation #changing_shared_runners_enabled_is_allowed' do
+  describe '#changing_shared_runners_enabled_is_allowed' do
     where(:shared_runners_setting, :project_shared_runners_enabled, :valid_record) do
       :shared_runners_enabled     | true  | true
       :shared_runners_enabled     | false | true
@@ -7439,6 +7685,27 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         unless valid_record
           expect(project.errors[:shared_runners_enabled]).to contain_exactly('cannot be enabled because parent group does not allow it')
         end
+      end
+    end
+  end
+
+  describe '#parent_organization_match' do
+    let_it_be(:group) { create(:group, :with_organization) }
+
+    subject(:project) { build(:project, namespace: group, organization: organization) }
+
+    context "when project belongs to parent's organization" do
+      let(:organization) { group.organization }
+
+      it { is_expected.to be_valid }
+    end
+
+    context "when project does not belong to parent's organization" do
+      let(:organization) { build(:organization) }
+
+      it 'is not valid and adds an error message' do
+        expect(project).not_to be_valid
+        expect(project.errors[:organization_id]).to include("must match the parent organization's ID")
       end
     end
   end
@@ -7541,29 +7808,43 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  # this describe block tests the legacy behavior, it is to be removed with the
+  # fix_pages_ci_variables Feature flag.
   describe '#pages_variables' do
     let(:group) { build(:group, path: 'group') }
     let(:project) { build(:project, path: 'project', namespace: group) }
 
     it 'returns the pages variables' do
       expect(project.pages_variables.to_hash).to eq({
-        'CI_PAGES_DOMAIN' => 'example.com',
-        'CI_PAGES_URL' => 'http://group.example.com/project'
+        'CI_PAGES_DOMAIN' => 'example.com'
       })
     end
 
-    it 'returns the pages variables' do
-      build(
-        :project_setting,
-        project: project,
-        pages_unique_domain_enabled: true,
-        pages_unique_domain: 'unique-domain'
-      )
+    context 'with fix_pages_ci_variables disabled' do
+      before do
+        stub_feature_flags(fix_pages_ci_variables: false)
+      end
 
-      expect(project.pages_variables.to_hash).to eq({
-        'CI_PAGES_DOMAIN' => 'example.com',
-        'CI_PAGES_URL' => 'http://unique-domain.example.com'
-      })
+      it 'returns the pages variables' do
+        expect(project.pages_variables.to_hash).to eq({
+          'CI_PAGES_DOMAIN' => 'example.com',
+          'CI_PAGES_URL' => 'http://group.example.com/project'
+        })
+      end
+
+      it 'returns the pages variables' do
+        build(
+          :project_setting,
+          project: project,
+          pages_unique_domain_enabled: true,
+          pages_unique_domain: 'unique-domain'
+        )
+
+        expect(project.pages_variables.to_hash).to eq({
+          'CI_PAGES_DOMAIN' => 'example.com',
+          'CI_PAGES_URL' => 'http://unique-domain.example.com'
+        })
+      end
     end
   end
 
@@ -7578,7 +7859,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       before do
         allow(project).to receive(:read_attribute).with(setting_name).and_return(project_setting)
         allow(namespace).to receive(:closest_setting).with(setting_name).and_return(group_setting)
-        allow(Gitlab::CurrentSettings).to receive(setting_name).and_return(global_setting)
+        stub_application_setting(setting_name => global_setting)
       end
 
       it 'returns closest non-nil value' do
@@ -7737,26 +8018,8 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     subject { create(:project, group: group) }
 
-    context 'when feature flag `group_protected_branches` enabled' do
-      before do
-        stub_feature_flags(group_protected_branches: true)
-        stub_feature_flags(allow_protected_branches_for_group: true)
-      end
-
-      it 'return all protected branches' do
-        expect(subject.all_protected_branches).to match_array([group_protected_branch, project_protected_branch])
-      end
-    end
-
-    context 'when feature flag `group_protected_branches` disabled' do
-      before do
-        stub_feature_flags(group_protected_branches: false)
-        stub_feature_flags(allow_protected_branches_for_group: false)
-      end
-
-      it 'return only project-level protected branches' do
-        expect(subject.all_protected_branches).to match_array([project_protected_branch])
-      end
+    it 'return all protected branches' do
+      expect(subject.all_protected_branches).to match_array([group_protected_branch, project_protected_branch])
     end
   end
 
@@ -7829,87 +8092,63 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     let_it_be(:user) { create(:user) }
     let_it_be_with_reload(:project) { create(:project) }
 
-    context 'when parallel_project_export feature flag is enabled' do
-      it 'enqueues CreateionProjectExportWorker' do
+    it 'enqueues CreateionProjectExportWorker' do
+      expect(Projects::ImportExport::CreateRelationExportsWorker)
+        .to receive(:perform_async)
+        .with(user.id, project.id, nil, { exported_by_admin: false })
+
+      project.add_export_job(current_user: user)
+    end
+
+    context 'when user is admin', :enable_admin_mode do
+      let_it_be(:user) { create(:admin) }
+
+      it 'passes `exported_by_admin` correctly in the `params` hash' do
         expect(Projects::ImportExport::CreateRelationExportsWorker)
-          .to receive(:perform_async)
-          .with(user.id, project.id, nil, { exported_by_admin: false })
+        .to receive(:perform_async)
+        .with(user.id, project.id, nil, { exported_by_admin: true })
 
         project.add_export_job(current_user: user)
-      end
-
-      context 'when user is admin', :enable_admin_mode do
-        let_it_be(:user) { create(:admin) }
-
-        it 'passes `exported_by_admin` correctly in the `params` hash' do
-          expect(Projects::ImportExport::CreateRelationExportsWorker)
-          .to receive(:perform_async)
-          .with(user.id, project.id, nil, { exported_by_admin: true })
-
-          project.add_export_job(current_user: user)
-        end
       end
     end
 
-    context 'when parallel_project_export feature flag is disabled' do
-      before do
-        stub_feature_flags(parallel_project_export: false)
-      end
+    context 'when project storage_size does not exceed the application setting max_export_size' do
+      it 'starts project export worker' do
+        stub_application_setting(max_export_size: 1)
+        allow(project.statistics).to receive(:storage_size).and_return(0.megabytes)
 
-      it 'enqueues ProjectExportWorker' do
-        expect(ProjectExportWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: false })
+        expect(Projects::ImportExport::CreateRelationExportsWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: false })
 
         project.add_export_job(current_user: user)
       end
+    end
 
-      context 'when user is admin', :enable_admin_mode do
-        let_it_be(:user) { create(:admin) }
+    context 'when project storage_size exceeds the application setting max_export_size' do
+      it 'raises Project::ExportLimitExceeded' do
+        stub_application_setting(max_export_size: 1)
+        allow(project.statistics).to receive(:storage_size).and_return(2.megabytes)
 
-        it 'passes `exported_by_admin` correctly in the `params` hash' do
-          expect(ProjectExportWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: true })
-
-          project.add_export_job(current_user: user)
-        end
+        expect(Projects::ImportExport::CreateRelationExportsWorker).not_to receive(:perform_async)
+        expect { project.add_export_job(current_user: user) }.to raise_error(Project::ExportLimitExceeded)
       end
+    end
 
-      context 'when project storage_size does not exceed the application setting max_export_size' do
-        it 'starts project export worker' do
-          stub_application_setting(max_export_size: 1)
-          allow(project.statistics).to receive(:storage_size).and_return(0.megabytes)
+    context 'when application setting max_export_size is not set' do
+      it 'starts project export worker' do
+        allow(project.statistics).to receive(:storage_size).and_return(2.megabytes)
+        expect(Projects::ImportExport::CreateRelationExportsWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: false })
 
-          expect(ProjectExportWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: false })
-
-          project.add_export_job(current_user: user)
-        end
-      end
-
-      context 'when project storage_size exceeds the application setting max_export_size' do
-        it 'raises Project::ExportLimitExceeded' do
-          stub_application_setting(max_export_size: 1)
-          allow(project.statistics).to receive(:storage_size).and_return(2.megabytes)
-
-          expect(ProjectExportWorker).not_to receive(:perform_async)
-          expect { project.add_export_job(current_user: user) }.to raise_error(Project::ExportLimitExceeded)
-        end
-      end
-
-      context 'when application setting max_export_size is not set' do
-        it 'starts project export worker' do
-          allow(project.statistics).to receive(:storage_size).and_return(2.megabytes)
-          expect(ProjectExportWorker).to receive(:perform_async).with(user.id, project.id, nil, { exported_by_admin: false })
-
-          project.add_export_job(current_user: user)
-        end
+        project.add_export_job(current_user: user)
       end
     end
   end
 
   describe '#export_in_progress?' do
     let(:project) { build(:project) }
-    let!(:project_export_job) { create(:project_export_job, project: project) }
+    let!(:project_export_job) { create(:project_export_job, project: project, user: project.creator) }
 
     context 'when project export is enqueued' do
-      it { expect(project.export_in_progress?).to be false }
+      it { expect(project.export_in_progress?(project_export_job.user)).to be false }
     end
 
     context 'when project export is in progress' do
@@ -7917,7 +8156,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         project_export_job.start!
       end
 
-      it { expect(project.export_in_progress?).to be true }
+      it { expect(project.export_in_progress?(project_export_job.user)).to be true }
     end
 
     context 'when project export is completed' do
@@ -7925,16 +8164,16 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         finish_job(project_export_job)
       end
 
-      it { expect(project.export_in_progress?).to be false }
+      it { expect(project.export_in_progress?(project_export_job.user)).to be false }
     end
   end
 
   describe '#export_status' do
     let(:project) { build(:project) }
-    let!(:project_export_job) { create(:project_export_job, project: project) }
+    let!(:project_export_job) { create(:project_export_job, project: project, user: project.creator) }
 
     context 'when project export is enqueued' do
-      it { expect(project.export_status).to eq :queued }
+      it { expect(project.export_status(project.creator)).to eq :queued }
     end
 
     context 'when project export is failed' do
@@ -7942,7 +8181,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         project_export_job.fail_op!
       end
 
-      it { expect(project.export_status).to eq :failed }
+      it { expect(project.export_status(project.creator)).to eq :failed }
     end
 
     context 'when project export is in progress' do
@@ -7950,7 +8189,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         project_export_job.start!
       end
 
-      it { expect(project.export_status).to eq :started }
+      it { expect(project.export_status(project.creator)).to eq :started }
     end
 
     context 'when project export is completed' do
@@ -7959,18 +8198,36 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         allow(project).to receive(:export_file_exists?).and_return(true)
       end
 
-      it { expect(project.export_status).to eq :finished }
+      it { expect(project.export_status(project.creator)).to eq :finished }
     end
 
     context 'when project export is being regenerated' do
-      let!(:new_project_export_job) { create(:project_export_job, project: project) }
+      let!(:new_project_export_job) { create(:project_export_job, project: project, user: project.creator) }
 
       before do
         finish_job(project_export_job)
         allow(project).to receive(:export_file_exists?).and_return(true)
       end
 
-      it { expect(project.export_status).to eq :regeneration_in_progress }
+      it { expect(project.export_status(new_project_export_job.user)).to eq :regeneration_in_progress }
+    end
+  end
+
+  describe '#import_export_upload_by_user' do
+    let(:project) { create(:project) }
+    let(:user) { create(:user) }
+    let!(:import_export_upload) { create(:import_export_upload, project: project, user: user) }
+
+    it 'returns the import_export_upload' do
+      expect(project.import_export_upload_by_user(user)).to eq import_export_upload
+    end
+
+    context 'when import_export_upload does not exist for user' do
+      let(:import_export_upload) { create(:import_export_upload, project: project) }
+
+      it 'returns nil' do
+        expect(project.import_export_upload_by_user(user)).to be nil
+      end
     end
   end
 
@@ -8091,29 +8348,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       it 'includes self, ancestors and linked groups' do
         expect(project.related_group_ids).to contain_exactly(group.id, sub_group.id, linked_group.id)
       end
-    end
-  end
-
-  describe '#has_namespaced_npm_packages?' do
-    let_it_be(:namespace) { create(:namespace, path: 'test') }
-    let_it_be(:project) { create(:project, :public, namespace: namespace) }
-
-    subject { project.has_namespaced_npm_packages? }
-
-    context 'with scope of the namespace path' do
-      let_it_be(:package) { create(:npm_package, project: project, name: "@#{namespace.path}/foo") }
-
-      it { is_expected.to be true }
-    end
-
-    context 'without scope of the namespace path' do
-      let_it_be(:package) { create(:npm_package, project: project, name: "@someotherscope/foo") }
-
-      it { is_expected.to be false }
-    end
-
-    context 'without packages' do
-      it { is_expected.to be false }
     end
   end
 
@@ -8310,8 +8544,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'topic_list=' do
-      using RSpec::Parameterized::TableSyntax
-
       where(:topic_list, :expected_result) do
         ['topicA', 'topicB']              | %w[topicA topicB] # rubocop:disable Style/WordArray
         ['topicB', 'topicA']              | %w[topicB topicA] # rubocop:disable Style/WordArray
@@ -8369,7 +8601,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       end
 
       it 'assigns slug value for new topics' do
-        topic = create(:topic, name: 'old topic', title: 'old topic', slug: nil)
+        topic = create(:topic, name: 'old topic', title: 'old topic', slug: nil, organization: project.organization)
         project.topic_list = topic.name
         project.save!
 
@@ -8388,9 +8620,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'public topics counter' do
-      let_it_be(:topic_1) { create(:topic, name: 't1') }
-      let_it_be(:topic_2) { create(:topic, name: 't2') }
-      let_it_be(:topic_3) { create(:topic, name: 't3') }
+      let_it_be(:topic_1) { create(:topic, name: 't1', organization: project.organization) }
+      let_it_be(:topic_2) { create(:topic, name: 't2', organization: project.organization) }
+      let_it_be(:topic_3) { create(:topic, name: 't3', organization: project.organization) }
 
       let(:private) { Gitlab::VisibilityLevel::PRIVATE }
       let(:internal) { Gitlab::VisibilityLevel::INTERNAL }
@@ -8404,8 +8636,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
         project.update!(project_updates)
       end
-
-      using RSpec::Parameterized::TableSyntax
 
       where(:initial_visibility, :new_visibility, :new_topic_list, :expected_count_changes) do
         ref(:private)  | nil            | 't2, t3' | [0, 0, 0]
@@ -8445,15 +8675,45 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         end
       end
     end
+
+    context 'having the same topics for different organizations' do
+      let_it_be(:namespace_one) { create(:namespace, organization: create(:organization)) }
+      let_it_be(:namespace_two) { create(:namespace, organization: create(:organization)) }
+
+      let_it_be(:project_one) do
+        create(:project, name: 'project-1', topic_list: 'topic-1, topic-2', namespace: namespace_one)
+      end
+
+      let_it_be(:project_two) do
+        create(:project, name: 'project-2', topic_list: 'topic-1, topic-2', namespace: namespace_two)
+      end
+
+      let_it_be(:project_three) do
+        create(:project, name: 'project-3', topic_list: 'topic-1, topic-2', namespace: namespace_two)
+      end
+
+      let(:project_list) { [project_one, project_two, project_three] }
+
+      it 'associate topics to the same organization as the project' do
+        project_list.each do |project_from_list|
+          project_from_list.topics.each do |topic|
+            expect(topic.organization_id).to eq(project_from_list.organization_id)
+          end
+        end
+      end
+    end
   end
 
   shared_examples 'all_runners' do
-    let_it_be_with_refind(:project) { create(:project, group: create(:group)) }
+    let_it_be(:group) { create(:group) }
+    let_it_be_with_refind(:project) { create(:project, group: group) }
+    let_it_be(:other_group) { create(:group) }
+    let_it_be(:other_project) { create(:project) }
     let_it_be(:instance_runner) { create(:ci_runner, :instance) }
-    let_it_be(:group_runner) { create(:ci_runner, :group, groups: [project.group]) }
-    let_it_be(:other_group_runner) { create(:ci_runner, :group) }
+    let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group]) }
+    let_it_be(:other_group_runner) { create(:ci_runner, :group, groups: [other_group]) }
     let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project]) }
-    let_it_be(:other_project_runner) { create(:ci_runner, :project) }
+    let_it_be(:other_project_runner) { create(:ci_runner, :project, projects: [other_project]) }
 
     subject { project.all_runners }
 
@@ -8869,30 +9129,30 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   describe '#work_items_feature_flag_enabled?' do
     let_it_be(:group_project) { create(:project, :in_subgroup) }
 
-    it_behaves_like 'checks parent group feature flag' do
+    it_behaves_like 'checks parent group and self feature flag' do
       let(:feature_flag_method) { :work_items_feature_flag_enabled? }
       let(:feature_flag) { :work_items }
       let(:subject_project) { group_project }
     end
+  end
 
-    context 'when feature flag is enabled for the project' do
-      subject { subject_project.work_items_feature_flag_enabled? }
+  describe '#glql_integration_feature_flag_enabled?' do
+    let_it_be(:group_project) { create(:project, :in_subgroup) }
 
-      before do
-        stub_feature_flags(work_items: subject_project)
-      end
+    it_behaves_like 'checks parent group and self feature flag' do
+      let(:feature_flag_method) { :glql_integration_feature_flag_enabled? }
+      let(:feature_flag) { :glql_integration }
+      let(:subject_project) { group_project }
+    end
+  end
 
-      context 'when project belongs to a group' do
-        let(:subject_project) { group_project }
+  describe '#wiki_comments_feature_flag_enabled?' do
+    let_it_be(:group_project) { create(:project, :in_subgroup) }
 
-        it { is_expected.to be_truthy }
-      end
-
-      context 'when project does not belong to a group' do
-        let(:subject_project) { create(:project, namespace: create(:namespace)) }
-
-        it { is_expected.to be_truthy }
-      end
+    it_behaves_like 'checks parent group and self feature flag' do
+      let(:feature_flag_method) { :wiki_comments_feature_flag_enabled? }
+      let(:feature_flag) { :wiki_comments }
+      let(:subject_project) { group_project }
     end
   end
 
@@ -9018,7 +9278,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       let_it_be(:project) { create(:project, group: group) }
 
       it 'returns group links of group' do
-        expect(group).to receive_message_chain(:shared_with_group_links, :of_ancestors_and_self)
+        expect(group).to receive(:shared_with_group_links_of_ancestors_and_self)
 
         project.group_group_links
       end
@@ -9341,14 +9601,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
-  context 'with loose foreign key on organization_id' do
-    it_behaves_like 'cleanup by a loose foreign key' do
-      let_it_be(:parent) { create(:organization) }
-      let_it_be(:group) { create(:group, organization: parent) }
-      let_it_be(:model) { create(:project, group: group, organization: parent) }
-    end
-  end
-
   describe 'catalog resource process sync events worker' do
     let_it_be_with_reload(:project) { create(:project, name: 'Test project', description: 'Test description') }
 
@@ -9512,5 +9764,130 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     let_it_be(:project) { create(:project) }
 
     it { expect(project.merge_trains_enabled?).to eq(false) }
+  end
+
+  describe '#lfs_file_locks_changed_epoch', :clean_gitlab_redis_cache do
+    let(:project) { build(:project, id: 1) }
+    let(:epoch) { Time.current.strftime('%s%L').to_i }
+
+    it 'returns a cached epoch value in milliseconds', :aggregate_failures, :freeze_time do
+      cold_cache_control = RedisCommands::Recorder.new do
+        expect(project.lfs_file_locks_changed_epoch).to eq epoch
+      end
+
+      expect(cold_cache_control.by_command('get').count).to eq 1
+      expect(cold_cache_control.by_command('set').count).to eq 1
+
+      warm_cache_control = RedisCommands::Recorder.new do
+        expect(project.lfs_file_locks_changed_epoch).to eq epoch
+      end
+
+      expect(warm_cache_control.by_command('get').count).to eq 1
+      expect(warm_cache_control.by_command('set').count).to eq 0
+    end
+  end
+
+  describe '#refresh_lfs_file_locks_changed_epoch' do
+    let(:project) { build(:project, id: 1) }
+    let(:original_time) { Time.current }
+    let(:refresh_time) { original_time + 1.second }
+    let(:original_epoch) { original_time.strftime('%s%L').to_i }
+    let(:refreshed_epoch) { original_epoch + 1.second.in_milliseconds }
+
+    it 'refreshes the cache and returns the new epoch value', :aggregate_failures, :freeze_time do
+      expect(project.lfs_file_locks_changed_epoch).to eq(original_epoch)
+
+      travel_to(refresh_time)
+
+      expect(project.lfs_file_locks_changed_epoch).to eq(original_epoch)
+
+      control = RedisCommands::Recorder.new do
+        expect(project.refresh_lfs_file_locks_changed_epoch).to eq(refreshed_epoch)
+      end
+      expect(control.by_command('get').count).to eq 0
+      expect(control.by_command('set').count).to eq 1
+
+      expect(project.lfs_file_locks_changed_epoch).to eq(refreshed_epoch)
+    end
+  end
+
+  describe '.by_any_traversal_id_overlap' do
+    let_it_be(:project_1) { create(:project, :in_group) }
+    let_it_be(:sub_group) { create(:group, parent: project_1.namespace) }
+    let_it_be(:project_2) { create(:project, group: sub_group) }
+
+    it 'returns projects that contain any overlap with the provided traversal_ids array' do
+      expect(described_class.by_any_overlap_with_traversal_ids(project_1.namespace_id)).to contain_exactly(project_1, project_2)
+    end
+  end
+
+  describe '#crm_group' do
+    context 'when project does not belong to group' do
+      let(:project) { build(:project) }
+
+      it 'returns nil' do
+        expect(project.crm_group).to be_nil
+      end
+    end
+
+    context 'when project belongs to a group' do
+      let(:group) { build(:group) }
+      let(:project) { build(:project, group: group) }
+
+      it 'returns the group.crm_group' do
+        expect(project.crm_group).to be(group.crm_group)
+      end
+    end
+  end
+
+  describe '#placeholder_reference_store' do
+    context 'when the project has an import state' do
+      let(:project) { build(:project, import_state: build(:import_state)) }
+
+      it { expect(project.placeholder_reference_store).to be_a(::Import::PlaceholderReferences::Store) }
+    end
+
+    context 'when the project has no import state' do
+      let(:project) { build(:project, import_state: nil) }
+
+      it { expect(project.placeholder_reference_store).to be_nil }
+    end
+  end
+
+  describe '#uploads_sharding_key' do
+    it 'returns namespace_id' do
+      namespace = build_stubbed(:namespace)
+      project = build_stubbed(:project, namespace: namespace)
+
+      expect(project.uploads_sharding_key).to eq(namespace_id: namespace.id)
+    end
+  end
+
+  describe '#pages_domain_present?' do
+    let_it_be(:project) { create(:project) }
+
+    before do
+      allow(project).to receive(:pages_url).and_return('https://example.com')
+    end
+
+    context 'when the domain matches pages_url' do
+      it 'returns true' do
+        expect(project.pages_domain_present?('https://example.com')).to be(true)
+      end
+    end
+
+    context 'when the domain exists in pages_domains' do
+      let!(:pages_domain) { create(:pages_domain, project: project, domain: 'custom.com') }
+
+      it 'returns true' do
+        expect(project.pages_domain_present?('https://custom.com')).to be(true)
+      end
+    end
+
+    context 'when the domain does not match pages_url or pages_domains' do
+      it 'returns false' do
+        expect(project.pages_domain_present?('https://unknown.com')).to be(false)
+      end
+    end
   end
 end

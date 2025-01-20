@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Infrastructure as Code (IaC) scanning runs in your CI/CD pipeline, checking your infrastructure
 definition files for known vulnerabilities. Identify vulnerabilities before they're committed to
@@ -30,7 +30,7 @@ Prerequisites:
 - IaC scanning requires the AMD64 architecture. Microsoft Windows is not supported.
 - Minimum of 4 GB RAM to ensure consistent performance.
 - The `test` stage is required in the `.gitlab-ci.yml` file.
-- On GitLab self-managed you need GitLab Runner with the
+- On GitLab Self-Managed you need GitLab Runner with the
   [`docker`](https://docs.gitlab.com/runner/executors/docker.html) or
   [`kubernetes`](https://docs.gitlab.com/runner/install/kubernetes.html) executor.
 - If you're using SaaS runners on GitLab.com, this is enabled by default.
@@ -86,7 +86,7 @@ Supported configuration formats:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can customize the default IaC scanning rules provided with GitLab.
 
@@ -182,6 +182,61 @@ In the following example `sast-ruleset.toml` file, rules are matched by the `typ
       name = "OVERRIDDEN name"
       severity = "Info"
 ```
+
+### Offline configuration
+
+DETAILS:
+**Tier:** Premium, Ultimate
+**Offering:** GitLab Self-Managed
+
+An offline environment has limited, restricted, or intermittent access to external resources through
+the internet. For instances in such an environment, IaC requires
+some configuration changes. The instructions in this section must be completed together with the
+instructions detailed in [offline environments](../offline_deployments/index.md).
+
+#### Configure GitLab Runner
+
+By default, a runner tries to pull Docker images from the GitLab container registry even if a local
+copy is available. You should use this default setting, to ensure Docker images remain current.
+However, if no network connectivity is available, you must change the default GitLab Runner
+`pull_policy` variable.
+
+Configure the GitLab Runner CI/CD variable `pull_policy` to
+[`if-not-present`](https://docs.gitlab.com/runner/executors/docker.html#using-the-if-not-present-pull-policy).
+
+#### Use local IaC analyzer image
+
+Use a local IaC analyzer image if you want to obtain the image from a local Docker
+registry instead of the GitLab container registry.
+
+Prerequisites:
+
+- Importing Docker images into a local offline Docker registry depends on your
+  network security policy. Consult your IT staff to find an accepted and approved process
+  to import or temporarily access external resources.
+
+1. Import the default IaC analyzer image from `registry.gitlab.com` into your
+   [local Docker container registry](../../packages/container_registry/index.md):
+
+   ```plaintext
+   registry.gitlab.com/security-products/kics:5
+   ```
+
+   The IaC analyzer's image is [periodically updated](../index.md#vulnerability-scanner-maintenance)
+   so you should periodically update the local copy.
+
+1. Set the CI/CD variable `SECURE_ANALYZERS_PREFIX` to the local Docker container registry.
+
+   ```yaml
+   include:
+     - template: Jobs/SAST-IaC.gitlab-ci.yml
+
+   variables:
+     SECURE_ANALYZERS_PREFIX: "localhost:5000/analyzers"
+   ```
+
+The IaC job should now use the local copy of the analyzer Docker image,
+without requiring internet access.
 
 ## Use a specific analyzer version
 

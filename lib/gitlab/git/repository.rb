@@ -47,7 +47,7 @@ module Gitlab
 
       attr_reader :storage, :gl_repository, :gl_project_path, :container
 
-      delegate :list_all_blobs, :list_blobs, to: :gitaly_blob_client
+      delegate :list_oversized_blobs, :list_all_blobs, :list_blobs, to: :gitaly_blob_client
 
       # This remote name has to be stable for all types of repositories that
       # can join an object pool. If it's structure ever changes, a migration
@@ -503,6 +503,15 @@ module Gitlab
         Set.new(branches)
       end
 
+      # Returns an array of DiffBlob objects that represent a diff between
+      # two blobs in a repository. For each diff generated, the pre-image and
+      # post-image blob IDs should be obtained using `find_changed_paths` method.
+      def diff_blobs(...)
+        wrapped_gitaly_errors do
+          gitaly_diff_client.diff_blobs(...)
+        end
+      end
+
       # Return an array of Diff objects that represent the diff
       # between +from+ and +to+.  See Diff::filter_diff_options for the allowed
       # diff options.  The +options+ hash can also include :break_rewrites to
@@ -527,13 +536,13 @@ module Gitlab
         empty_diff_stats
       end
 
-      def find_changed_paths(treeish_objects, merge_commit_diff_mode: nil)
+      def find_changed_paths(treeish_objects, merge_commit_diff_mode: nil, find_renames: false)
         processed_objects = treeish_objects.compact
 
         return [] if processed_objects.empty?
 
         wrapped_gitaly_errors do
-          gitaly_commit_client.find_changed_paths(processed_objects, merge_commit_diff_mode: merge_commit_diff_mode)
+          gitaly_commit_client.find_changed_paths(processed_objects, merge_commit_diff_mode: merge_commit_diff_mode, find_renames: find_renames)
         end
       rescue CommandError, TypeError, NoRepository
         []
@@ -647,9 +656,9 @@ module Gitlab
         end
       end
 
-      def rm_branch(branch_name, user:)
+      def rm_branch(branch_name, user:, target_sha: nil)
         wrapped_gitaly_errors do
-          gitaly_operation_client.user_delete_branch(branch_name, user)
+          gitaly_operation_client.user_delete_branch(branch_name, user, target_sha: target_sha)
         end
       end
 
@@ -867,9 +876,9 @@ module Gitlab
       end
 
       # peel_tags slows down the request by a factor of 3-4
-      def list_refs(patterns = [Gitlab::Git::BRANCH_REF_PREFIX], pointing_at_oids: [], peel_tags: false)
+      def list_refs(...)
         wrapped_gitaly_errors do
-          gitaly_ref_client.list_refs(patterns, pointing_at_oids: pointing_at_oids, peel_tags: peel_tags)
+          gitaly_ref_client.list_refs(...)
         end
       end
 
@@ -1005,6 +1014,7 @@ module Gitlab
       # @param [String] start_sha: The sha to be used as the parent of the commit.
       # @param [Gitlab::Git::Repository] start_repository: The repository that contains the start branch or sha. Defaults to use this repository.
       # @param [Boolean] force: Force update the branch.
+      # @param [String] target_sha: The latest sha of the target branch (optional). Used to prevent races in updates between different clients.
       # @return [Gitlab::Git::OperationService::BranchUpdate]
       #
       # rubocop:disable Metrics/ParameterLists
@@ -1012,12 +1022,12 @@ module Gitlab
         user, branch_name:, message:, actions:,
         author_email: nil, author_name: nil,
         start_branch_name: nil, start_sha: nil, start_repository: nil,
-        force: false, sign: true)
+        force: false, sign: true, target_sha: nil)
 
         wrapped_gitaly_errors do
           gitaly_operation_client.user_commit_files(user, branch_name,
-            message, actions, author_email, author_name,
-            start_branch_name, start_repository, force, start_sha, sign)
+            message, actions, author_email, author_name, start_branch_name,
+            start_repository, force, start_sha, sign, target_sha)
         end
       end
       # rubocop:enable Metrics/ParameterLists
@@ -1054,6 +1064,10 @@ module Gitlab
 
       def gitaly_blob_client
         @gitaly_blob_client ||= Gitlab::GitalyClient::BlobService.new(self)
+      end
+
+      def gitaly_diff_client
+        @gitaly_diff_client ||= Gitlab::GitalyClient::DiffService.new(self)
       end
 
       def gitaly_conflicts_client(our_commit_oid, their_commit_oid)
@@ -1245,7 +1259,70 @@ module Gitlab
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
+      def diffs_by_changed_paths(diff_refs, offset, batch_size = 30)
+        changed_paths = find_changed_paths(
+          [Gitlab::Git::DiffTree.new(diff_refs.base_sha, diff_refs.head_sha)],
+          find_renames: true
+        )
+
+        changed_paths.drop(offset).each_slice(batch_size) do |batched_changed_paths|
+          blob_pairs = batched_changed_paths.reject(&:submodule_change?).map do |changed_path|
+            Gitaly::DiffBlobsRequest::BlobPair.new(
+              left_blob: changed_path.old_blob_id,
+              right_blob: changed_path.new_blob_id
+            )
+          end
+
+          yield diff_files_by_blob_pairs(blob_pairs, batched_changed_paths, diff_refs)
+        end
+      end
+
       private
+
+      def diff_files_by_blob_pairs(blob_pairs, changed_paths, diff_refs)
+        non_submodule_paths = changed_paths.reject(&:submodule_change?)
+        diff_blobs = diff_blobs(blob_pairs, patch_bytes_limit: Gitlab::Git::Diff.patch_hard_limit_bytes)
+
+        changed_diff_blobs = diff_blobs.zip(non_submodule_paths)
+        diff_blob_lookup = changed_diff_blobs.to_h { |diff_blob, path| [path.path, diff_blob] }
+
+        changed_paths.map do |changed_path|
+          if changed_path.submodule_change?
+            create_diff(changed_path, diff_refs, diff: generate_submodule_diff(changed_path))
+          else
+            diff_blob = diff_blob_lookup[changed_path.path]
+            create_diff(changed_path, diff_refs, diff: diff_blob.patch, too_large: diff_blob.over_patch_bytes_limit)
+          end
+        end
+      end
+
+      def create_diff(changed_path, diff_refs, options = {})
+        diff_options = {
+          new_path: changed_path.path,
+          old_path: changed_path.old_path,
+          a_mode: changed_path.old_mode,
+          b_mode: changed_path.new_mode,
+          new_file: changed_path.new_file?,
+          renamed_file: changed_path.renamed_file?,
+          deleted_file: changed_path.deleted_file?
+        }.merge(options)
+
+        diff = Gitlab::Git::Diff.new(diff_options)
+
+        Gitlab::Diff::File.new(
+          diff,
+          repository: container.repository,
+          diff_refs: diff_refs
+        )
+      end
+
+      def generate_submodule_diff(changed_path)
+        diff_lines = []
+        diff_lines << "- Subproject commit #{changed_path.old_blob_id}" if changed_path.deleted_file? || changed_path.modified_file?
+        diff_lines << "+ Subproject commit #{changed_path.new_blob_id}" if changed_path.new_file? || changed_path.modified_file?
+
+        diff_lines.join("\n")
+      end
 
       def check_blobs_generated(base, head, changed_paths)
         wrapped_gitaly_errors do

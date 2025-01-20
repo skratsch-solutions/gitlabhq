@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-<!-- vale gitlab.FutureTense = NO -->
+<!-- vale gitlab_base.FutureTense = NO -->
 
 Issue triage is the process of categorization according to type and severity.
 As your project grows and people create more issues, it's worth creating a workflow for how you'll
@@ -87,7 +87,7 @@ handbook published with [GitLab Pages](../../user/project/pages/index.md).
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Next, you'll create labels to add to issues to categorize them.
 

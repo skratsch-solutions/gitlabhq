@@ -31,32 +31,14 @@ RSpec.describe "projectTextReplace", feature_category: :source_code_management d
   subject(:post_mutation) { post_graphql_mutation(mutation, current_user: current_user) }
 
   describe 'Replacing text' do
-    before do
-      ::Gitlab::GitalyClient.clear_stubs!
-    end
-
-    it 'prepends `literal:` to implicit replacements before submitting to rewriteHistory RPC' do
-      expect_next_instance_of(Gitaly::CleanupService::Stub) do |instance|
-        redactions = array_including(gitaly_request_with_params(redactions: literal_replacements))
-        expect(instance).to receive(:rewrite_history)
-          .with(redactions, kind_of(Hash))
-          .and_return(Gitaly::RewriteHistoryResponse.new)
-      end
+    it 'processes text redaction asynchoronously' do
+      expect(::Repositories::RewriteHistoryWorker).to receive(:perform_async).with(
+        project_id: project.id, user_id: current_user.id, redactions: literal_replacements, blob_oids: []
+      )
 
       post_mutation
 
       expect(graphql_mutation_response(:project_text_replace)['errors']).not_to be_present
-    end
-
-    it 'does not audit the change in CE' do
-      allow_next_instance_of(Gitaly::CleanupService::Stub) do |instance|
-        redactions = array_including(gitaly_request_with_params(redactions: literal_replacements))
-        allow(instance).to receive(:rewrite_history)
-          .with(redactions, kind_of(Hash))
-          .and_return(Gitaly::RewriteHistoryResponse.new)
-      end
-
-      expect { post_mutation }.not_to change { AuditEvent.count }
     end
   end
 
@@ -136,26 +118,6 @@ RSpec.describe "projectTextReplace", feature_category: :source_code_management d
         expect(graphql_errors).to include(a_hash_including('message' => <<~MESSAGE))
           Argument 'replacements' on InputObject 'projectTextReplaceInput' does not support 'regex:' or 'glob:' values.
         MESSAGE
-      end
-    end
-
-    context 'when Gitaly RPC returns an error' do
-      let(:error_message) { 'error message' }
-
-      before do
-        ::Gitlab::GitalyClient.clear_stubs!
-      end
-
-      it 'returns a generic error message' do
-        expect_next_instance_of(Gitaly::CleanupService::Stub) do |instance|
-          redactions = array_including(gitaly_request_with_params(redactions: literal_replacements))
-          generic_error = GRPC::BadStatus.new(GRPC::Core::StatusCodes::FAILED_PRECONDITION, error_message)
-          expect(instance).to receive(:rewrite_history).with(redactions, kind_of(Hash)).and_raise(generic_error)
-        end
-
-        post_mutation
-
-        expect(graphql_errors).to include(a_hash_including('message' => "Internal server error: 9:#{error_message}"))
       end
     end
   end

@@ -320,7 +320,8 @@ RSpec.describe Gitlab::ReferenceExtractor do
     it 'does not allow one prefix for multiple referables if not allowed specificly' do
       # make sure you are not overriding existing prefix before changing this hash
       multiple_allowed = {
-        '@' => 3
+        '@' => 3,
+        '#' => 2
       }
 
       prefixes.each do |prefix, referables|
@@ -402,6 +403,37 @@ RSpec.describe Gitlab::ReferenceExtractor do
         it 'returns true' do
           expect(subject.all_visible?).to be_truthy
         end
+      end
+    end
+  end
+
+  describe '#has_work_item_references?' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:project) { create(:project, :public) }
+    let(:work_item) { create(:work_item, project: project) }
+    let(:work_item_path) { "/#{work_item.project.namespace.path}/#{work_item.project.path}/-/work_items/#{work_item.iid}" }
+    let(:work_item_url) { "http://#{Gitlab.config.gitlab.host}#{work_item_path}" }
+    let(:text) { "Ref. #{work_item_url}" }
+
+    subject { described_class.new(project, user) }
+
+    context 'when work item references are present' do
+      before do
+        subject.analyze(text)
+      end
+
+      it 'returns true' do
+        expect(subject.has_work_item_references?).to be_truthy
+      end
+    end
+
+    context 'when work item references are not present' do
+      before do
+        subject.analyze("No work item references here")
+      end
+
+      it 'returns false' do
+        expect(subject.has_work_item_references?).to be_falsey
       end
     end
   end

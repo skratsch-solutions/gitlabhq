@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 WARNING:
 This feature was deprecated in GitLab 14.5. Use [Infrastructure as Code](../../infrastructure/iac/index.md)
@@ -57,7 +57,7 @@ cluster certificates:
 1. Go to your:
    - Project's **Operate > Kubernetes clusters** page, for a project-level cluster.
    - Group's **Kubernetes** page, for a group-level cluster.
-   - The Admin Area's **Kubernetes** page, for an instance-level cluster.
+   - The **Admin** area's **Kubernetes** page, for an instance-level cluster.
 1. Select **Integrate with a cluster certificate**.
 1. Under the **Create new cluster** tab, select **Amazon EKS** to display an
    `Account ID` and `External ID` needed for later steps.
@@ -191,9 +191,7 @@ requests for persistent volumes are not automatically fulfilled. As part
 of Auto DevOps, the deployed PostgreSQL instance requests persistent storage,
 and without a default storage class it cannot start.
 
-If a default Storage Class doesn't already exist and is desired, follow Amazon's
-[guide on storage classes](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)
-to create one.
+To create a default storage class if one doesn't already exist, see [Storage Classes](https://docs.aws.amazon.com/eks/latest/userguide/storage.html#storage-classes).
 
 Alternatively, disable PostgreSQL by setting the project variable
 [`POSTGRES_ENABLED`](../../../topics/autodevops/cicd_variables.md#cicd-variables) to `false`.
@@ -204,19 +202,19 @@ With RBAC disabled and services deployed,
 [Auto DevOps](../../../topics/autodevops/index.md) can now be leveraged
 to build, test, and deploy the app.
 
-[Enable Auto DevOps](../../../topics/autodevops/index.md#at-the-project-level)
+[Enable Auto DevOps](../../../topics/autodevops/index.md#per-project)
 if not already enabled. If a wildcard DNS entry was created resolving to the
 Load Balancer, enter it in the `domain` field under the Auto DevOps settings.
 Otherwise, the deployed app isn't externally available outside of the cluster.
 
-![Deploy Pipeline](img/pipeline.png)
+![Deploy Pipeline](img/pipeline_v11_0.png)
 
 GitLab creates a new pipeline, which begins to build, test, and deploy the app.
 
 After the pipeline has finished, your app runs in EKS, and is available
 to users. Select **Operate > Environments**.
 
-![Deployed Environment](img/environment.png)
+![Deployed Environment](img/environment_v11_0.png)
 
 GitLab displays a list of the environments and their deploy status, as well as
 options to browse to the app, view monitoring metrics, and even access a shell
@@ -226,9 +224,9 @@ on the running pod.
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
-If you are using a self-managed GitLab instance, you need to configure
+If you are using GitLab Self-Managed, you need to configure
 Amazon credentials. GitLab uses these credentials to assume an Amazon IAM role to create your cluster.
 
 Create an IAM user and ensure it has permissions to assume the roles that
@@ -253,7 +251,7 @@ For example, the following policy document allows assuming a role whose name sta
 To configure Amazon authentication in GitLab, generate an access key for the
 IAM user in the Amazon AWS console, and follow these steps:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Amazon EKS**.
 1. Check **Enable Amazon EKS integration**.
@@ -299,7 +297,7 @@ Check that:
    [external ID](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html)
    match the value defined in the **Trust relationships** tab in AWS:
 
-   ![AWS IAM Trust relationships](img/aws_iam_role_trust.png)
+   ![AWS IAM Trust relationships](img/aws_iam_role_trust_v13_7.png)
 
 ### Could not load Security Groups for this VPC
 

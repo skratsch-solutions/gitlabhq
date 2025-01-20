@@ -40,6 +40,11 @@ export default {
       required: false,
       default: true,
     },
+    sectionSelector: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
@@ -69,7 +74,13 @@ export default {
     setSelected({ data }) {
       if (!data) return;
       this.selected = data[ACCESS_LEVELS.CREATE].map(
-        ({ id, user_id: userId, group_id: groupId, access_level: accessLevel }) => {
+        ({
+          id,
+          user_id: userId,
+          group_id: groupId,
+          access_level: accessLevel,
+          deploy_key_id: deployKeyId,
+        }) => {
           if (userId) {
             return {
               id,
@@ -83,6 +94,14 @@ export default {
               id,
               group_id: groupId,
               type: LEVEL_TYPES.GROUP,
+            };
+          }
+
+          if (deployKeyId) {
+            return {
+              id,
+              deploy_key_id: deployKeyId,
+              type: LEVEL_TYPES.DEPLOY_KEY,
             };
           }
 
@@ -109,6 +128,7 @@ export default {
     :search-enabled="searchEnabled"
     groups-with-project-access
     :block="true"
+    :section-selector="sectionSelector"
     @hidden="updatePermissions"
   />
 </template>

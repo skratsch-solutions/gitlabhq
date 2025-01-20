@@ -16,8 +16,8 @@ module BulkImports
 
       return unless export
       return if export.finished? || export.failed?
-      return re_enqueue if export_in_progress?
       return fail_export! if export_timeout?
+      return re_enqueue if export_in_progress?
 
       finish_export!
     end
@@ -42,7 +42,7 @@ module BulkImports
     end
 
     def export_in_progress?
-      export.batches.any?(&:started?)
+      export.batches.in_progress.any?
     end
 
     def finish_export!

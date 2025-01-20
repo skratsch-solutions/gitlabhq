@@ -39,7 +39,7 @@ RSpec.describe Groups::OpenIssuesCountService, :use_clean_rails_memory_store_cac
     context 'when user is provided' do
       context 'when user can read confidential issues' do
         before do
-          group.add_reporter(user)
+          group.add_planner(user)
         end
 
         it 'returns the right count with confidential issues' do
@@ -58,6 +58,16 @@ RSpec.describe Groups::OpenIssuesCountService, :use_clean_rails_memory_store_cac
       end
 
       it_behaves_like 'a counter caching service with threshold'
+    end
+
+    context 'when fast_timeout is enabled' do
+      subject { described_class.new(group, fast_timeout: true) }
+
+      it 'executes the query with a fast timeout' do
+        expect(ApplicationRecord).to receive(:with_fast_read_statement_timeout).and_call_original
+
+        expect(subject.count).to eq(1)
+      end
     end
   end
 

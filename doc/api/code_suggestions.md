@@ -34,13 +34,13 @@ This endpoint rate-limits each user to 60 requests per 1-minute window.
 Use the AI abstraction layer to generate code completions.
 
 Requests to this endpoint are proxied to the
-[AI Gateway](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/docs/api.md).
+[AI gateway](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/blob/main/docs/api.md).
 
 Parameters:
 
 | Attribute          | Type    | Required | Description |
 |--------------------|---------|----------|-------------|
-| `current_file`     | hash    | yes      | Attributes of file for which Code Suggestions are being generated. See [File attributes](#file-attributes) for a list of strings this attribute accepts. |
+| `current_file`     | hash    | yes      | Attributes of file that suggestions are being generated for. See [File attributes](#file-attributes) for a list of strings this attribute accepts. |
 | `intent`           | string  | no       | The intent of the completion request. This can be either `completion` or `generation`. |
 | `stream`           | boolean | no       | Whether to stream the response as smaller chunks as they are ready (if applicable). Default: `false`. |
 | `project_path`     | string  | no       | The path of the project. |
@@ -122,10 +122,10 @@ Supported attributes:
 
 If successful, returns:
 
-- [`200`](rest/index.md#status-codes) if the feature is enabled.
-- [`403`](rest/index.md#status-codes) if the feature is disabled.
+- [`200`](rest/troubleshooting.md#status-codes) if the feature is enabled.
+- [`403`](rest/troubleshooting.md#status-codes) if the feature is disabled.
 
-Additionally, returns a [`404`](rest/index.md#status-codes) if the path is empty or the project does not exist.
+Additionally, returns a [`404`](rest/troubleshooting.md#status-codes) if the path is empty or the project does not exist.
 
 Example request:
 
@@ -152,7 +152,7 @@ POST /code_suggestions/direct_access
 NOTE:
 This endpoint rate-limits each user to 10 requests per 5-minute window.
 
-Returns user-specific connection details which can be used by IDEs/clients to send completion requests directly to AI Gateway.
+Returns user-specific connection details which can be used by IDEs/clients to send completion requests directly to AI gateway.
 
 Example request:
 

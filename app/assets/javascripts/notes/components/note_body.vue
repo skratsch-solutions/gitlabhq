@@ -18,6 +18,8 @@ export default {
     NoteAttachment,
     NoteForm,
     Suggestions,
+    DuoCodeReviewFeedback: () =>
+      import('ee_component/notes/components/duo_code_review_feedback.vue'),
   },
   directives: {
     SafeHtml,
@@ -50,6 +52,16 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+    autosaveKey: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    restoreFromAutosave: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   computed: {
@@ -112,6 +124,7 @@ export default {
     renderGFM() {
       renderGFM(this.$refs['note-body']);
     },
+    // eslint-disable-next-line max-params
     handleFormUpdate(noteText, parentElement, callback, resolveDiscussion) {
       this.$emit('handleFormUpdate', { noteText, parentElement, callback, resolveDiscussion });
     },
@@ -171,6 +184,11 @@ export default {
       @removeFromBatch="removeSuggestionFromBatch"
     />
     <div v-else v-safe-html:[$options.safeHtmlConfig]="note.note_html" class="note-text md"></div>
+    <duo-code-review-feedback
+      v-if="note.author.user_type === 'duo_code_review_bot' && note.type !== 'DiffNote'"
+      class="gl-mt-3"
+      data-testid="code-review-feedback"
+    />
     <note-form
       v-if="isEditing"
       ref="noteForm"
@@ -183,6 +201,8 @@ export default {
       :help-page-path="helpPagePath"
       :discussion="discussion"
       :resolve-discussion="note.resolve_discussion"
+      :autosave-key="autosaveKey"
+      :restore-from-autosave="restoreFromAutosave"
       @handleFormUpdate="handleFormUpdate"
       @cancelForm="formCancelHandler"
     />

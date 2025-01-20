@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab Inc. periodically collects information about your instance in order
 to perform various actions.
@@ -18,7 +18,7 @@ For information about other tiers, see [Customer Product Usage Information](http
 
 ## Service Ping
 
-Service Ping is a process that collects and sends a weekly payload to GitLab Inc. 
+Service Ping is a process that collects and sends a weekly payload to GitLab Inc.
 For more information, see the [Service Ping guide](../../development/internal_analytics/service_ping/index.md). When Service Ping is enabled, GitLab gathers data from other instances and enables certain [instance-level analytics features](../../user/analytics/index.md)
 that are dependent on Service Ping.
 
@@ -84,7 +84,7 @@ In the following table, you can see:
 ### Enable registration features
 
 1. Sign in as a user with administrator access.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling**.
 1. Expand the **Usage statistics** section.
 1. If not enabled, select the **Enable Service Ping** checkbox.
@@ -95,18 +95,18 @@ In the following table, you can see:
 
 If enabled, version check informs you if a new version is available and the
 importance of it through a status. The status displays on the help pages (`/help`)
-for all authenticated users, and on the Admin Area pages. The statuses are:
+for all authenticated users, and on the **Admin** area pages. The statuses are:
 
 - Green: You are running the latest version of GitLab.
 - Orange: An updated version of GitLab is available.
 - Red: The version of GitLab you are running is vulnerable. You should install
   the latest version with security fixes as soon as possible.
 
-![Orange version check example](../settings/img/update-available.png)
+![Version check showing that a non-critical update is available for the GitLab instance](../settings/img/non_critical_update_available_v10_6.png)
 
 ### Enable or disable version check
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling**.
 1. Expand **Usage statistics**.
 1. Select or clear the **Enable version check** checkbox.
@@ -114,8 +114,8 @@ for all authenticated users, and on the Admin Area pages. The statuses are:
 
 ### Request flow example
 
-The following example shows a basic request/response flow between a
-self-managed GitLab instance and the GitLab Version Application:
+The following example shows a basic request/response flow between your
+instance and the GitLab Version Application:
 
 ```mermaid
 sequenceDiagram
@@ -146,16 +146,16 @@ The payload is available in the [Metrics and profiling](#manually-upload-service
 
 To enable or disable Service Ping:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling**.
 1. Expand **Usage statistics**.
-1. Select or clear the  **Enable Service Ping** checkbox.
+1. Select or clear the **Enable Service Ping** checkbox.
 1. Select **Save changes**.
 
 ### Through the configuration file
 
 To disable Service Ping and prevent it from being configured in the future through
-the Admin Area.
+the **Admin** area.
 
 ::Tabs
 
@@ -202,7 +202,7 @@ For more information, see [Customer product usage information](https://handbook.
 
 To enable or disable optional data in Service Ping:
 
-1. In the left sidebar, at the bottom, select on **Admin Area**.
+1. In the left sidebar, at the bottom, select **Admin**.
 1. Go to **Settings > Metrics and Profiling**.
 1. Expand the **Usage Statistics** section.
 1. To enable optional data, select the **Include optional data in Service Ping** checkbox. To disable it, clear the box.
@@ -248,13 +248,13 @@ To enable or disable optional data in Service Ping:
 
 ## Access the Service Ping payload
 
-You can access the exact JSON payload sent to GitLab Inc. in the Admin Area or through the API.
+You can access the exact JSON payload sent to GitLab Inc. in the **Admin** area or through the API.
 See an [example Service Ping payload](../../development/internal_analytics/service_ping/index.md#example-service-ping-payload).
 
 ### In the UI
 
 1. Sign in as a user with administrator access.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling > Usage statistics**.
 1. Select **Preview payload**.
 
@@ -270,7 +270,7 @@ or if the Service Ping [cron job](../../development/internal_analytics/service_p
 To upload the payload manually:
 
 1. Sign in as a user with administrator access.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Metrics and profiling > Usage statistics**.
 1. Select **Download payload**.
 1. Save the JSON file.

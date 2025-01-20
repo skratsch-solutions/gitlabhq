@@ -16,6 +16,7 @@ module API
 
         included do
           helpers ::API::Helpers::Packages::DependencyProxyHelpers
+          helpers ::API::Helpers::Packages::Npm
 
           rescue_from ActiveRecord::RecordInvalid do |e|
             render_structured_api_error!({ message: e.message, error: e.message }, 400)
@@ -27,8 +28,6 @@ module API
           end
 
           helpers do
-            include Gitlab::Utils::StrongMemoize
-
             params :package_name do
               requires :package_name, type: String, file_path: true, desc: 'Package name',
                 documentation: { example: 'mypackage' }
@@ -54,11 +53,11 @@ module API
               ::Packages::Npm::GenerateMetadataService.new(params[:package_name], packages)
             end
 
-            def metadata_cache
-              ::Packages::Npm::MetadataCache
-                .find_by_package_name_and_project_id(params[:package_name], project.id)
+            def bad_request_missing_attribute!(attribute)
+              reason = "\"#{attribute}\" not given"
+              message = "400 Bad request - #{reason}"
+              render_structured_api_error!({ message: message, error: reason }, 400)
             end
-            strong_memoize_attr :metadata_cache
           end
 
           params do
@@ -80,6 +79,7 @@ module API
             end
             route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true,
               authenticate_non_public: true
+            route_setting :authorization, job_token_policies: :read_packages
             get 'dist-tags', format: false, requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS do
               package_name = params[:package_name]
 
@@ -87,7 +87,7 @@ module API
 
               authorize_read_package!(project)
 
-              packages = ::Packages::Npm::PackageFinder.new(package_name, project: project)
+              packages = ::Packages::Npm::PackageFinder.new(project: project, params: { package_name: package_name })
                                                        .execute
 
               not_found!('Package') if packages.empty?
@@ -114,6 +114,7 @@ module API
                 tags %w[npm_packages]
               end
               route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+              route_setting :authorization, job_token_policies: :admin_packages
               put format: false do
                 package_name = params[:package_name]
                 version = env['api.request.body']
@@ -125,8 +126,9 @@ module API
 
                 authorize_create_package!(project)
 
-                package = ::Packages::Npm::PackageFinder.new(package_name, project: project)
-                                                        .find_by_version(version)
+                package = ::Packages::Npm::PackageFinder.new(
+                  project: project, params: { package_name: package_name, package_version: version }
+                ).last
                 not_found!('Package') unless package
 
                 track_package_event(:create_tag, :npm, project: project, namespace: project.namespace)
@@ -150,6 +152,7 @@ module API
                 tags %w[npm_packages]
               end
               route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+              route_setting :authorization, job_token_policies: :admin_packages
               delete format: false do
                 package_name = params[:package_name]
                 tag = params[:tag]
@@ -191,6 +194,7 @@ module API
             tags %w[npm_packages]
           end
           route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+          route_setting :authorization, job_token_policies: :read_packages
           post '-/npm/v1/security/advisories/bulk' do
             redirect_or_present_audit_report
           end
@@ -210,6 +214,7 @@ module API
             tags %w[npm_packages]
           end
           route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+          route_setting :authorization, job_token_policies: :read_packages
           post '-/npm/v1/security/audits/quick' do
             redirect_or_present_audit_report
           end

@@ -11,6 +11,7 @@
     # https://github.com/browserslist/browserslist/blob/a287ec6/node.js#L367-L384
     BROWSERSLIST_IGNORE_OLD_DATA: "true"
     GRAPHQL_SCHEMA_APOLLO_FILE: "tmp/tests/graphql/gitlab_schema_apollo.graphql"
+    RUBYOPT: "--yjit"
 
 update-static-analysis-cache:
   extends:
@@ -71,9 +72,24 @@ eslint:
   needs: ['generate-apollo-graphql-schema']
   variables:
     USE_BUNDLE_INSTALL: "false"
+    ESLINT_CODE_QUALITY_REPORT: "gl-code-quality-report.json"
   script:
     - yarn_install_script
-    - run_timed_command "yarn run lint:eslint:all"
+    - run_timed_command "yarn run lint:eslint:all --format gitlab"
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+eslint-docs:
+  extends:
+    - .static-analysis-base
+    - .yarn-cache
+    - .frontend:rules:default-frontend-jobs-with-docs-changes
+  variables:
+    USE_BUNDLE_INSTALL: "false"
+  script:
+    - yarn_install_script
+    - run_timed_command "scripts/frontend/lint_docs_links.mjs"
 
 haml-lint:
   extends:
@@ -124,6 +140,34 @@ rubocop:
         fi
       fi
 
+rubocop-docs:
+  extends:
+    - .static-analysis-base
+    - .rubocop-job-cache
+    - .docs:rules:docs-lint
+  script:
+    - bundle exec rubocop --only Gitlab/DocumentationLinks/Link
+
+rails-next-dependency-check:
+  stage: lint
+  needs: []
+  extends:
+    - .ruby-cache
+    - .rails:rules:rails-next-dependency-check
+  variables:
+    BUNDLE_GEMFILE: Gemfile.next
+  script:
+    - bundle install
+    - cp Gemfile.lock Gemfile.next.lock
+    - bundle lock
+    - bundle install
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" == "failed" ]; then
+        echo "Gemfile.next.lock contains outdated dependencies, please run the following command and push the changes:"
+        echo "bundle exec rake bundler:gemfile:sync"
+      fi
+
 feature-flags-usage:
   extends:
     - .static-analysis-base
@@ -138,6 +182,16 @@ feature-flags-usage:
     when: always
     paths:
       - tmp/feature_flags/
+
+ensure-application-settings-have-definition-file:
+  image: ruby:${RUBY_VERSION}-alpine
+  extends:
+    - .static-analysis-base
+    - .static-analysis:rules:ensure-application-settings-have-definition-file
+  variables:
+    USE_BUNDLE_INSTALL: "false"
+  script:
+    - run_timed_command "scripts/cells/ci-ensure-application-settings-have-definition-file.rb"
 
 semgrep-appsec-custom-rules:
   stage: lint
@@ -188,6 +242,19 @@ custom-roles-verify:
   needs: []
   script:
     - bundle exec rake gitlab:custom_roles:check_docs
+
+ci-job-token-policies-verify:
+  variables:
+    SETUP_DB: "false"
+  extends:
+    - .default-retry
+    - .ruby-cache
+    - .default-before_script
+    - .ci-job-token-policies:rules:ci-job-token-policies-verify
+  stage: lint
+  needs: []
+  script:
+    - bundle exec rake ci:job_tokens:check_policies
 
 templates-shellcheck:
   extends:

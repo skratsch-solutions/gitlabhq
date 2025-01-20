@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can update your preferences to change the look and feel of GitLab.
 
@@ -70,7 +70,7 @@ To change back to the default colors, clear the **Color for removed lines** and 
 
 ## Behavior
 
-Use the **Behavior** section to customize the behavior and layout of your GitLab self-managed instance. You can change your layout width and choose the default content for your homepage, group and project overview pages. You have options to customize appearance and function, like whitespace rendering, file display, and text automation.
+Use the **Behavior** section to customize the behavior of the system layout and default views. You can change your layout width and choose the default content for your homepage, group and project overview pages. You have options to customize appearance and function, like whitespace rendering, file display, and text automation.
 
 ### Change the layout width on the UI
 
@@ -84,12 +84,26 @@ To change the layout width of your UI:
 1. Under **Layout width**, choose **Fixed** or **Fluid**.
 1. Select **Save changes**.
 
+### Set the default text editor
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/423104) in GitLab 17.7.
+
+You can set a default editor for editing content in GitLab.
+If you do not choose a default text editor, your last used choice is preserved.
+
+1. On the left sidebar, select your avatar.
+1. Select **Preferences**.
+1. Scroll to the **Behavior** section.
+1. Under **Default text editor**, select the **Enable default text editor** checkbox.
+1. Choose either **Rich text editor** or **Plain text editor** as your default.
+1. Select **Save changes**.
+
 ### Choose your home organization
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/419079) in GitLab 16.6 [with a flag](../../administration/feature_flags.md) named `ui_for_organizations`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `ui_for_organizations`.
+The availability of this feature is controlled by a feature flag. For more information, see the history.
 On GitLab.com and GitLab Dedicated, this feature is not available.
 This feature is not ready for production use.
 
@@ -230,7 +244,7 @@ To add a new list item when you press the <kbd>Enter</kbd> key:
 
 ### Change the tab width
 
-Change the default size of tabs in diffs, blobs, and snippets. The WebIDE, file editor, and Markdown editor do not support this feature.
+Change the default size of tabs in diffs, blobs, and snippets. The Web IDE, file editor, and Markdown editor do not support this feature.
 
 To adjust the default tab width:
 
@@ -313,20 +327,20 @@ To customize the time format:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 **Status:** Beta
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/105049) as a [beta](../../policy/experiment-beta-support.md#beta) in GitLab 15.9 [with flags](../../administration/feature_flags.md) named `index_code_with_zoekt` and `search_code_with_zoekt`. Disabled by default.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/105049) as a [beta](../../policy/development_stages_support.md#beta) in GitLab 15.9 [with flags](../../administration/feature_flags.md) named `index_code_with_zoekt` and `search_code_with_zoekt`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/388519) in GitLab 16.6.
 > - Feature flags `index_code_with_zoekt` and `search_code_with_zoekt` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148378) in GitLab 17.1.
 
 WARNING:
-This feature is in [beta](../../policy/experiment-beta-support.md#beta) and subject to change without notice.
+This feature is in [beta](../../policy/development_stages_support.md#beta) and subject to change without notice.
 For more information, see [epic 9404](https://gitlab.com/groups/gitlab-org/-/epics/9404).
 
 Prerequisites:
 
-- For [GitLab self-managed](../../subscriptions/self_managed/index.md), an administrator must
+- For [GitLab Self-Managed](../../subscriptions/self_managed/index.md), an administrator must
   [enable exact code search](../../integration/exact_code_search/zoekt.md#enable-exact-code-search).
 
 To disable [exact code search](../../user/search/exact_code_search.md) in user preferences:
@@ -400,18 +414,23 @@ You must be the administrator of the GitLab instance to configure GitLab with So
 
 ### Integrate with the extension marketplace
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151352) in GitLab 17.0 [with flags](../../administration/feature_flags.md) named `web_ide_oauth` and `web_ide_extensions_marketplace`. Disabled by default.
-> - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/459028) in GitLab 17.0.
+DETAILS:
+**Offering:** GitLab.com
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151352) as a [beta](../../policy/development_stages_support.md#beta) in GitLab 17.0 [with flags](../../administration/feature_flags.md) named `web_ide_oauth` and `web_ide_extensions_marketplace`. Disabled by default.
+> - Feature flag `web_ide_oauth` [enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163181) and feature flag `web_ide_extensions_marketplace` [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/459028) in GitLab 17.4.
+> - Feature flag `web_ide_oauth` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/167464) in GitLab 17.5.
+> - Enabled by default for [workspaces](../workspace/index.md) in GitLab 17.6. Workspaces do not require any feature flags for the extension marketplace to be available.
 
 FLAG:
-The availability of this feature is controlled by feature flags.
+The availability of this feature is controlled by a feature flag.
 For more information, see the history.
 
-You can use the [extension marketplace](../project/web_ide/index.md#extension-marketplace)
-to search and manage extensions for the Web IDE.
+You can use the [extension marketplace](../project/web_ide/index.md#extension-marketplace) to search and
+manage extensions for the [Web IDE](../project/web_ide/index.md) and [workspaces](../workspace/index.md).
 For third-party extensions, you must enable the marketplace in user preferences.
 
-To enable the extension marketplace for the Web IDE:
+To enable the extension marketplace for the Web IDE and workspaces:
 
 1. On the left sidebar, select your avatar.
 1. Select **Preferences**.
@@ -419,6 +438,9 @@ To enable the extension marketplace for the Web IDE:
 1. Select the **Enable extension marketplace** checkbox.
 1. In the third-party extension acknowledgement, select **I understand**.
 1. Select **Save changes**.
+
+NOTE:
+This preferences checkbox will always be available, even if the feature flags are disabled.
 
 <!-- ## Troubleshooting
 

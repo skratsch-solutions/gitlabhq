@@ -13,20 +13,25 @@ export const splitDocument = (htmlString) => {
 };
 
 export const getRenderedMarkdown = (documentPath) => {
-  return axios
-    .get(helpPagePath(documentPath))
-    .then(({ data }) => {
-      const { body, title } = splitDocument(data);
-      return {
-        body,
-        title,
-        hasFetchError: false,
-      };
-    })
-    .catch((e) => {
-      Sentry.captureException(e);
-      return {
-        hasFetchError: true,
-      };
-    });
+  return (
+    axios
+      // It is okay to disable `require-valid-help-page-path` here because drawer help docs are served
+      // through their own `HelpController#drawers` resource, which we can't reliably lint against.
+      // eslint-disable-next-line local-rules/require-valid-help-page-path
+      .get(helpPagePath(documentPath))
+      .then(({ data }) => {
+        const { body, title } = splitDocument(data);
+        return {
+          body,
+          title,
+          hasFetchError: false,
+        };
+      })
+      .catch((e) => {
+        Sentry.captureException(e);
+        return {
+          hasFetchError: true,
+        };
+      })
+  );
 };

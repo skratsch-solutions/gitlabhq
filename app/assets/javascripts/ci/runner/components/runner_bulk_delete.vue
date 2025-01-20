@@ -166,9 +166,9 @@ export default {
     <div
       v-if="checkedCount"
       data-testid="runner-bulk-delete-banner"
-      class="gl-my-4 gl-p-4 gl-border-1 gl-border-solid gl-border-gray-100"
+      class="gl-my-4 gl-border-1 gl-border-solid gl-border-default gl-p-4"
     >
-      <div class="gl-display-flex gl-align-items-center">
+      <div class="gl-flex gl-items-center">
         <div>
           <gl-sprintf :message="bannerMessage">
             <template #strong="{ content }">
@@ -177,12 +177,15 @@ export default {
           </gl-sprintf>
         </div>
         <div class="gl-ml-auto">
-          <gl-button variant="default" @click="onClearChecked">{{
+          <gl-button data-testid="clear-selection" variant="default" @click="onClearChecked">{{
             s__('Runners|Clear selection')
           }}</gl-button>
-          <gl-button v-gl-modal="$options.BULK_DELETE_MODAL_ID" variant="danger">{{
-            s__('Runners|Delete selected')
-          }}</gl-button>
+          <gl-button
+            v-gl-modal="$options.BULK_DELETE_MODAL_ID"
+            variant="danger"
+            data-testid="delete-selected"
+            >{{ s__('Runners|Delete selected') }}</gl-button
+          >
         </div>
       </div>
     </div>

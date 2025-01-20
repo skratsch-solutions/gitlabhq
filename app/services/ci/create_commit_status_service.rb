@@ -8,6 +8,9 @@ module Ci
 
     delegate :sha, to: :commit
 
+    # Default number of pipelines to return
+    DEFAULT_LIMIT_PIPELINES = 100
+
     def execute(optional_commit_status_params:)
       in_lock(pipeline_lock_key, **pipeline_lock_params) do
         @optional_commit_status_params = optional_commit_status_params
@@ -60,7 +63,8 @@ module Ci
     strong_memoize_attr :commit
 
     def first_matching_pipeline
-      pipelines = project.ci_pipelines.newest_first(sha: sha)
+      limit = params[:pipeline_id] ? nil : DEFAULT_LIMIT_PIPELINES
+      pipelines = project.ci_pipelines.newest_first(sha: sha, limit: limit)
       pipelines = pipelines.for_ref(params[:ref]) if params[:ref]
       pipelines = pipelines.id_in(params[:pipeline_id]) if params[:pipeline_id]
       pipelines.first
@@ -105,7 +109,6 @@ module Ci
         protected: project.protected_for?(ref),
         ci_stage: stage,
         stage_idx: stage.position,
-        stage: 'external',
         partition_id: pipeline.partition_id
       ).tap do |new_commit_status|
         new_commit_status.assign_attributes(optional_commit_status_params)
@@ -131,6 +134,8 @@ module Ci
         job.drop!(:api_failure)
       when 'canceled'
         job.cancel!
+      when 'skipped'
+        job.skip!
       else
         raise('invalid state')
       end

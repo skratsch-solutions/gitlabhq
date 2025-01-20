@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 To enable the Atlassian OmniAuth provider for passwordless authentication you must register an application with Atlassian.
 
@@ -24,9 +24,9 @@ To enable the Atlassian OmniAuth provider for passwordless authentication you mu
 1. Select **+ Add** in the left sidebar under **APIS AND FEATURES**.
 1. Select **Add** for **Jira platform REST API** and then **Configure**.
 1. Select **Add** next to the following scopes:
-    - **View Jira issue data**
-    - **View user profiles**
-    - **Create and manage issues**
+   - **View Jira issue data**
+   - **View user profiles**
+   - **Create and manage issues**
 
 ## GitLab configuration
 

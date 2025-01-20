@@ -9,10 +9,10 @@ description: "System notes track the history of changes made to an object, like 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 System notes are short descriptions that help you understand the history of events
-that occur during the life cycle of a GitLab object, such as:
+that occur during the lifecycle of a GitLab object, such as:
 
 - [Alerts](../../operations/incident_management/alerts.md).
 - [Designs](issues/design_management.md).

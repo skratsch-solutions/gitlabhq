@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe BulkImports::Common::Pipelines::MembersPipeline, feature_category: :importers do
   let_it_be(:user) { create(:user) }
-  let_it_be(:bulk_import) { create(:bulk_import, user: user) }
+  let_it_be(:bulk_import) { create(:bulk_import, :with_configuration, user: user) }
   let_it_be(:member_user1) { create(:user, email: 'email1@email.com') }
   let_it_be(:member_user2) { create(:user, email: 'email2@email.com') }
   let_it_be(:member_data) do
@@ -29,7 +29,7 @@ RSpec.describe BulkImports::Common::Pipelines::MembersPipeline, feature_category
     allow(pipeline).to receive(:set_source_objects_counter)
   end
 
-  def extracted_data(email:, has_next_page: false)
+  def extracted_data(email: '', id: 1, has_next_page: false)
     data = {
       'created_at' => '2020-01-01T00:00:00Z',
       'updated_at' => '2020-01-02T00:00:00Z',
@@ -38,7 +38,10 @@ RSpec.describe BulkImports::Common::Pipelines::MembersPipeline, feature_category
         'integer_value' => 30
       },
       'user' => {
-        'public_email' => email
+        'user_gid' => "gid://gitlab/User/#{id}",
+        'public_email' => email,
+        'name' => 'source_name',
+        'username' => 'source_username'
       }
     }
 
@@ -70,6 +73,112 @@ RSpec.describe BulkImports::Common::Pipelines::MembersPipeline, feature_category
           { user_id: member_user1.id, access_level: 30 },
           { user_id: member_user2.id, access_level: 30 }
         )
+      end
+
+      context 'when importer_user_mapping is enabled' do
+        let!(:import_source_user) do
+          create(:import_source_user,
+            namespace: context.portable.root_ancestor,
+            source_hostname: bulk_import.configuration.url,
+            import_type: Import::SOURCE_DIRECT_TRANSFER,
+            source_user_identifier: '101'
+          )
+        end
+
+        let!(:reassigned_import_source_user) do
+          create(:import_source_user,
+            :completed,
+            namespace: context.portable.root_ancestor,
+            source_hostname: bulk_import.configuration.url,
+            import_type: Import::SOURCE_DIRECT_TRANSFER,
+            source_user_identifier: '102'
+          )
+        end
+
+        before do
+          allow(context).to receive(:importer_user_mapping_enabled?).and_return(true)
+          allow_next_instance_of(BulkImports::Common::Extractors::GraphqlExtractor) do |extractor|
+            allow(extractor).to receive(:extract).and_return(page)
+          end
+        end
+
+        context 'when an import source user with a source_user_identifier equal to the source member user ID exists' do
+          let(:page) { extracted_data(id: import_source_user.source_user_identifier) }
+
+          it 'does not create an import source user and creates a placeholder membership' do
+            expect { pipeline.run }.to change { Import::Placeholders::Membership.count }.by(1)
+              .and not_change { Import::SourceUser.count }
+              .and not_change { portable.members.count }
+
+            expect(Import::Placeholders::Membership.last).to have_attributes(
+              source_user_id: import_source_user.id,
+              access_level: 30,
+              expires_at: nil,
+              project_id: portable.is_a?(Project) ? portable.id : nil,
+              group_id: portable.is_a?(Group) ? portable.id : nil
+            )
+          end
+        end
+
+        context 'when an import source user with a source_user_identifier equal to the source member user ID does not ' \
+          'exist' do
+          let(:page) { extracted_data(id: 103) }
+
+          it 'creates an import source user and creates a placeholder membership' do
+            expect { pipeline.run }.to change { Import::Placeholders::Membership.count }.by(1)
+              .and change { Import::SourceUser.count }.by(1)
+              .and not_change { portable.members.count }
+
+            import_source_user = Import::SourceUser.last
+
+            expect(import_source_user).to have_attributes(
+              source_user_identifier: '103',
+              namespace: context.portable.root_ancestor,
+              source_hostname: bulk_import.configuration.url,
+              import_type: Import::SOURCE_DIRECT_TRANSFER.to_s
+            )
+
+            expect(Import::Placeholders::Membership.last).to have_attributes(
+              source_user_id: import_source_user.id,
+              access_level: 30,
+              expires_at: nil,
+              project_id: portable.is_a?(Project) ? portable.id : nil,
+              group_id: portable.is_a?(Group) ? portable.id : nil
+            )
+          end
+        end
+
+        context 'when placeholder membership fails to be created' do
+          let(:page) { extracted_data(id: import_source_user.source_user_identifier) }
+
+          before do
+            allow_next_instance_of(Import::PlaceholderMemberships::CreateService) do |service|
+              allow(service).to receive(:execute).and_return(ServiceResponse.error(message: 'Error!'))
+            end
+          end
+
+          it 'does not create a placeholder membership and logs the import failure' do
+            expect { pipeline.run }.to not_change { Import::Placeholders::Membership.count }
+              .and change { BulkImports::Failure.count }.by(1)
+
+            expect(BulkImports::Failure.last).to have_attributes(
+              exception_message: 'Error!'
+            )
+          end
+        end
+
+        context 'when import source user is mapped to a user' do
+          let(:page) { extracted_data(id: reassigned_import_source_user.source_user_identifier) }
+
+          it 'creates membership for the reassigned user' do
+            expect { pipeline.run }.to change { portable.members.count }.by(1)
+              .and not_change { Import::Placeholders::Membership.count }
+
+            expect(members).to contain_exactly(
+              { user_id: reassigned_import_source_user.reassign_to_user.id, access_level: 30 }
+            )
+          end
+        end
       end
     end
 
@@ -146,6 +255,32 @@ RSpec.describe BulkImports::Common::Pipelines::MembersPipeline, feature_category
 
             expect { pipeline.load(context, data) }.not_to change(portable_with_parent.members, :count)
           end
+        end
+      end
+
+      context 'when source_user key is present' do
+        let(:source_user) { build(:import_source_user) }
+        let(:data) do
+          {
+            source_user: source_user,
+            access_level: 30,
+            expires_at: '2020-01-01T00:00:00Z',
+            group: portable.is_a?(Group) ? portable : nil,
+            project: portable.is_a?(Project) ? portable : nil
+          }
+        end
+
+        it 'creates a placeholder user membership' do
+          expect_next_instance_of(Import::PlaceholderMemberships::CreateService,
+            source_user: source_user,
+            access_level: 30,
+            expires_at: '2020-01-01T00:00:00Z',
+            group: portable.is_a?(Group) ? portable : nil,
+            project: portable.is_a?(Project) ? portable : nil) do |service|
+              expect(service).to receive(:execute).and_return(ServiceResponse.success)
+            end
+
+          pipeline.load(context, data)
         end
       end
     end

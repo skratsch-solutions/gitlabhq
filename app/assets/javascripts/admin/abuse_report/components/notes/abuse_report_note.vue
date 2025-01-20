@@ -42,6 +42,7 @@ export default {
   data() {
     return {
       isEditing: false,
+      updatedNote: this.note,
     };
   },
   computed: {
@@ -55,10 +56,10 @@ export default {
       return getIdFromGraphQLId(this.author.id);
     },
     showEditButton() {
-      return this.note.userPermissions.resolveNote;
+      return true;
     },
     editedAtClasses() {
-      return this.showReplyButton ? 'gl-text-secondary gl-pl-3' : 'gl-text-secondary gl-pl-8';
+      return this.showReplyButton ? 'gl-text-subtle gl-pl-3' : 'gl-text-subtle gl-pl-8';
     },
   },
   methods: {
@@ -66,6 +67,10 @@ export default {
       this.isEditing = true;
     },
     cancelEditing() {
+      this.isEditing = false;
+    },
+    updateNote(note) {
+      this.updatedNote = note;
       this.isEditing = false;
     },
   },
@@ -89,12 +94,13 @@ export default {
         />
       </gl-avatar-link>
     </div>
-    <div class="timeline-content gl-pb-4!">
+    <div class="timeline-content !gl-pb-4">
       <abuse-report-edit-note
         v-if="isEditing"
         :abuse-report-id="abuseReportId"
-        :note="note"
+        :note="updatedNote"
         @cancelEditing="cancelEditing"
+        @updateNote="updateNote"
       />
       <div v-else data-testid="note-wrapper">
         <div class="note-header">
@@ -117,7 +123,7 @@ export default {
         </div>
 
         <div class="timeline-discussion-body">
-          <note-body ref="noteBody" :note="note" />
+          <note-body ref="noteBody" :note="updatedNote" />
         </div>
 
         <edited-at

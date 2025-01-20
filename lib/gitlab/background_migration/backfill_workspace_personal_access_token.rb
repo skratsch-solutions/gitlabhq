@@ -4,10 +4,10 @@ module Gitlab
   module BackgroundMigration
     # No op on ce
     class BackfillWorkspacePersonalAccessToken < BatchedMigrationJob
-      feature_category :remote_development
+      feature_category :workspaces
       def perform; end
     end
   end
 end
 
-Gitlab::BackgroundMigration::BackfillWorkspacePersonalAccessToken.prepend_mod_with('Gitlab::BackgroundMigration::BackfillWorkspacePersonalAccessToken') # rubocop:disable Layout/LineLength
+Gitlab::BackgroundMigration::BackfillWorkspacePersonalAccessToken.prepend_mod_with('Gitlab::BackgroundMigration::BackfillWorkspacePersonalAccessToken')

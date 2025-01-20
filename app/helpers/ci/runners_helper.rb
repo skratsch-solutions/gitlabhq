@@ -16,7 +16,7 @@ module Ci
       when :online
         title = s_("Runners|Runner is online; last contact was %{runner_contact} ago") % { runner_contact: time_ago_in_words(contacted_at) }
         icon = 'status-active'
-        span_class = 'gl-text-green-500'
+        span_class = 'gl-text-success'
       when :never_contacted
         title = s_("Runners|Runner has never contacted this instance")
         icon = 'warning-solid'
@@ -29,12 +29,12 @@ module Ci
           end
 
         icon = 'status-waiting'
-        span_class = 'gl-text-gray-500'
+        span_class = 'gl-text-subtle'
       when :stale
         # runner may have contacted (or not) and be stale: consider both cases.
         title = contacted_at ? s_("Runners|Runner is stale; last contact was %{runner_contact} ago") % { runner_contact: time_ago_in_words(contacted_at) } : s_("Runners|Runner is stale; it has never contacted this instance")
         icon = 'time-out'
-        span_class = 'gl-text-orange-500'
+        span_class = 'gl-text-warning'
       end
 
       content_tag(:span, class: span_class, title: title, data: { toggle: 'tooltip', container: 'body', testid: 'runner-status-icon', qa_status: status }) do

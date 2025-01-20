@@ -8,11 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This document is relevant if you are using a PostgreSQL instance that is not
 managed by the Linux package. This includes
-[cloud-managed instances](../../reference_architectures/index.md#recommendation-notes-for-the-database-services),
+[cloud-managed instances](../../reference_architectures/index.md#best-practices-for-the-database-services),
 or manually installed and configured PostgreSQL instances.
 
 Ensure that you are using one of the PostgreSQL versions that
@@ -89,7 +89,7 @@ When your read-only replica is set up, you can skip to [configure your secondary
 WARNING:
 The use of logical replication methods such as [AWS Database Migration Service](https://aws.amazon.com/dms/)
 or [Google Cloud Database Migration Service](https://cloud.google.com/database-migration) to, for instance,
-replicate from an on-premise primary database to an RDS secondary are not supported.  
+replicate from an on-premise primary database to an RDS secondary are not supported.
 
 #### Manually configure the primary database for replication
 
@@ -225,7 +225,7 @@ the tracking database on port 5432.
 Create and configure the tracking database in your PostgreSQL instance:
 
 1. Set up PostgreSQL according to the
-   [database requirements document](../../../install/requirements.md#database).
+   [database requirements document](../../../install/requirements.md#postgresql).
 1. Set up a `gitlab_geo` user with a password of your choice, create the `gitlabhq_geo_production` database, and make the user an owner of the database.
    You can see an example of this setup in the [self-compiled installation documentation](../../../install/installation.md#7-database).
 1. If you are **not** using a cloud-managed PostgreSQL database, ensure that your secondary

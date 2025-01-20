@@ -9,15 +9,10 @@ description: "Use repository mirroring to push or pull the contents of a Git rep
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can _mirror_ a repository to and from external sources. You can select which repository
 serves as the source. Branches, tags, and commits are synced automatically.
-
-NOTE:
-SCP-style URLs are **not** supported. However, the work for implementing SCP-style URLs is tracked
-in [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/18993).
-Subscribe to the issue to follow its progress.
 
 Several mirroring methods exist:
 
@@ -37,6 +32,13 @@ Mirror a repository when:
   Your GitLab repository pulls copies of the commits, tags, and branches of project.
   They become available to use on GitLab.
 
+The following is not supported:
+
+- SCP-style URLs. The work to implement SCP-style URLs is ongoing.
+  For more information and to track its progress, see
+  [issue 18993](https://gitlab.com/gitlab-org/gitlab/-/issues/18993).
+- Mirroring repositories over [dumb HTTP protocol](https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols#_dumb_http).
+
 ## Create a repository mirror
 
 Prerequisites:
@@ -49,34 +51,52 @@ Prerequisites:
 1. Select **Settings > Repository**.
 1. Expand **Mirroring repositories**.
 1. Select **Add new**.
-1. Enter a **Git repository URL**. For security reasons, the URL to the original
-   repository is only displayed to users with the Maintainer role
-   or the Owner role for the mirrored project.
-1. Select a **Mirror direction**.
-1. If you entered a `ssh://` URL, select either:
+1. Enter a **Git repository URL**. The repository must be accessible over `http://`, `https://`, `ssh://`, or `git://`.
+1. Select a **Mirror direction**. For more information, see [Pull mirroring](pull.md) and [Push mirroring](push.md).
+1. If you entered an `ssh://` URL, select either:
    - **Detect host keys**: GitLab fetches the host keys from the server and displays the fingerprints.
    - **Input host keys manually**, and enter the host key into **SSH host key**.
 
-   When mirroring the repository, GitLab confirms at least one of the stored host keys
-   matches before connecting. This check can protect your mirror from malicious code injections,
+   When mirroring the repository, GitLab confirms that at least one of the stored host keys
+   matches before connecting. This check protects your mirror from malicious code injections,
    or your password from being stolen.
+
+   - To create a repository mirror with SSH authentication, see the [following example](#example-create-mirror-with-ssh-authentication).
+
 1. Select an **Authentication method**. For more information, see
    [Authentication methods for mirrors](#authentication-methods-for-mirrors).
 1. If you authenticate with SSH host keys, [verify the host key](#verify-a-host-key)
    to ensure it is correct.
-1. To prevent force-pushing over diverged refs, select [**Keep divergent refs**](push.md#keep-divergent-refs).
+1. To prevent force-pushing over diverged refs, select **Keep divergent refs**. For more information, see [Keep divergent refs](push.md#keep-divergent-refs).
 1. Optional. To limit the number of branches mirrored, select
    **Mirror only protected branches** or enter a regex in **Mirror specific branches**.
 1. Select **Mirror repository**.
+
+### Example: Create mirror with SSH authentication
 
 If you select `SSH public key` as your authentication method, GitLab generates a
 public key for your GitLab repository. You must provide this key to the non-GitLab server.
 For more information, see [Get your SSH public key](#get-your-ssh-public-key).
 
+To mirror a repository with SSH authentication:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > Repository**.
+1. Expand **Mirroring repositories**.
+1. Select **Add new**.
+1. Enter a **Git repository URL**. Provide a URL in the following format: `ssh://gitlab.com/gitlab-org/gitlab.git`
+1. Select a **Mirror direction**. For more information, see [Pull mirroring](pull.md) and [Push mirroring](push.md).
+1. Select either **Detect host keys** or **Input host keys manually**.
+1. In the **Authentication method** field, select **SSH public key**
+1. In the **Username** field, add `git`.
+1. Optional. Configure the **Mirror user** and **Mirror branches** settings.
+1. Select **Mirror repository**.
+1. Copy the SSH public key and provide it to your non-GitLab server.
+
 ### Mirror only protected branches
 
 You can choose to mirror only the
-[protected branches](../../protected_branches.md) in the mirroring project,
+[protected branches](../branches/protected.md) in the mirroring project,
 either from or to your remote repository. For [pull mirroring](pull.md),
 non-protected branches in the mirroring project are not mirrored and can diverge.
 
@@ -86,7 +106,7 @@ To use this option, select **Only mirror protected branches** when you create a 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Mirroring branches matching a regex as an option in API [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/102608) in GitLab 15.8 [with a flag](../../../../administration/feature_flags.md) named `mirror_only_branches_match_regex`. Disabled by default.
 > - Option in the project setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/102499) in GitLab 15.9.
@@ -127,7 +147,7 @@ Prerequisites:
 1. Expand **Mirroring repositories**.
 1. Scroll to **Mirrored repositories** and identify the mirror to update.
 1. Select **Update now** (**{retry}**):
-   ![Repository mirroring force update user interface](img/repository_mirroring_force_update.png)
+   ![Repository mirroring force update user interface](img/repository_mirroring_force_update_v11_5.png)
 
 ## Authentication methods for mirrors
 
@@ -202,7 +222,7 @@ for you to check:
 Other providers vary. You can securely gather key fingerprints with the following
 command if you:
 
-- Run self-managed GitLab.
+- Run GitLab Self-Managed.
 - Have access to the server for the other repository.
 
 ```shell

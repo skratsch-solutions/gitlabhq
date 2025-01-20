@@ -6,8 +6,8 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
   include GitlabShellHelpers
   include APIInternalBaseHelpers
 
-  let_it_be(:user, reload: true) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, :repository, :wiki_repo) }
+  let_it_be(:user, reload: true) { create(:user, organizations: [project.organization]) }
   let_it_be(:personal_snippet) { create(:personal_snippet, :repository, author: user) }
   let_it_be(:project_snippet) { create(:project_snippet, :repository, author: user, project: project) }
   let_it_be(:max_pat_access_token_lifetime) do
@@ -210,8 +210,6 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
 
     it 'returns a token with expiry when it receives a valid expires_at parameter' do
       freeze_time do
-        token_size = (PersonalAccessToken.token_prefix || '').size + 20
-
         post api('/internal/personal_access_token'),
           params: {
             key_id: key.id,
@@ -222,7 +220,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
           headers: gitlab_shell_internal_api_request_header
 
         expect(json_response['success']).to be_truthy
-        expect(json_response['token']).to match(/\A\S{#{token_size}}\z/)
+        expect(json_response['token']).to start_with(PersonalAccessToken.token_prefix)
         expect(json_response['scopes']).to match_array(%w[read_api read_repository])
         expect(json_response['expires_at']).to eq(max_pat_access_token_lifetime.iso8601)
       end
@@ -230,8 +228,6 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
 
     it 'returns token with expiry as PersonalAccessToken::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS' do
       freeze_time do
-        token_size = (PersonalAccessToken.token_prefix || '').size + 20
-
         post api('/internal/personal_access_token'),
           params: {
             key_id: key.id,
@@ -242,7 +238,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
           headers: gitlab_shell_internal_api_request_header
 
         expect(json_response['success']).to be_truthy
-        expect(json_response['token']).to match(/\A\S{#{token_size}}\z/)
+        expect(json_response['token']).to start_with(PersonalAccessToken.token_prefix)
         expect(json_response['scopes']).to match_array(%w[read_api read_repository])
         expect(json_response['expires_at']).to eq(max_pat_access_token_lifetime.iso8601)
       end
@@ -263,7 +259,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
         expect(json_response['username']).to eq(user.username)
         expect(json_response['repository_http_path']).to eq(project.http_url_to_repo)
         expect(json_response['expires_in']).to eq(Gitlab::LfsToken::DEFAULT_EXPIRE_TIME)
-        expect(Gitlab::LfsToken.new(key).token_valid?(json_response['lfs_token'])).to be_truthy
+        expect(Gitlab::LfsToken.new(key, project).token_valid?(json_response['lfs_token'])).to be_truthy
       end
 
       it 'returns the correct information about the user' do
@@ -272,7 +268,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['username']).to eq(user.username)
         expect(json_response['repository_http_path']).to eq(project.http_url_to_repo)
-        expect(Gitlab::LfsToken.new(user).token_valid?(json_response['lfs_token'])).to be_truthy
+        expect(Gitlab::LfsToken.new(user, project).token_valid?(json_response['lfs_token'])).to be_truthy
       end
 
       it 'returns a 404 when no key or user is provided' do
@@ -309,7 +305,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
           expect(json_response['username']).to eq(user.username)
           expect(json_response['repository_http_path']).to eq(wiki.http_url_to_repo)
           expect(json_response['expires_in']).to eq(Gitlab::LfsToken::DEFAULT_EXPIRE_TIME)
-          expect(Gitlab::LfsToken.new(user).token_valid?(json_response['lfs_token'])).to be_truthy
+          expect(Gitlab::LfsToken.new(user, wiki).token_valid?(json_response['lfs_token'])).to be_truthy
         end
 
         it 'returns a 404 when the container does not support LFS' do
@@ -330,7 +326,7 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['username']).to eq("lfs+deploy-key-#{key.id}")
         expect(json_response['repository_http_path']).to eq(project.http_url_to_repo)
-        expect(Gitlab::LfsToken.new(key).token_valid?(json_response['lfs_token'])).to be_truthy
+        expect(Gitlab::LfsToken.new(key, project).token_valid?(json_response['lfs_token'])).to be_truthy
       end
     end
   end
@@ -893,8 +889,6 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
     end
 
     context 'with a pending membership' do
-      let_it_be(:project) { create(:project, :repository) }
-
       before_all do
         create(:project_member, :awaiting, :developer, source: project, user: user)
       end
@@ -1132,11 +1126,13 @@ RSpec.describe API::Internal::Base, feature_category: :system_access do
     end
 
     context 'project does not exist' do
+      let_it_be(:destroy_project) { create(:project, :repository, :wiki_repo) }
+
       context 'git pull' do
         it 'returns a 200 response with status: false' do
-          project.destroy!
+          destroy_project.destroy!
 
-          pull(key, project)
+          pull(key, destroy_project)
 
           expect(response).to have_gitlab_http_status(:not_found)
           expect(json_response["status"]).to be_falsey

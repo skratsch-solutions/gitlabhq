@@ -16,35 +16,49 @@ FactoryBot.define do
       projects { [] }
       token_expires_at { nil }
       creator { nil }
+      without_projects { false }
     end
 
     after(:build) do |runner, evaluator|
+      runner.sharding_key_id ||= evaluator.projects.first&.id if runner.project_type?
       evaluator.projects.each do |proj|
         runner.runner_projects << build(:ci_runner_project, runner: runner, project: proj)
       end
 
+      runner.sharding_key_id ||= evaluator.groups.first&.id if runner.group_type?
       evaluator.groups.each do |group|
         runner.runner_namespaces << build(:ci_runner_namespace, runner: runner, namespace: group)
       end
 
       runner.creator = evaluator.creator if evaluator.creator
+
+      case runner.runner_type
+      when 'group_type'
+        raise ':groups is mandatory' unless evaluator.groups&.any?
+      when 'project_type'
+        raise ':projects is mandatory' unless evaluator.projects&.any? || evaluator.without_projects
+      end
     end
 
     after(:create) do |runner, evaluator|
       runner.update!(token_expires_at: evaluator.token_expires_at) if evaluator.token_expires_at
     end
 
+    trait :unregistered do
+      contacted_at { nil }
+      creation_state { :started }
+    end
+
     trait :online do
-      contacted_at { Time.now }
+      contacted_at { Time.current }
+    end
+
+    trait :almost_offline do
+      contacted_at { 0.001.seconds.after(Ci::Runner.online_contact_time_deadline) }
     end
 
     trait :offline do
       contacted_at { Ci::Runner.online_contact_time_deadline }
-    end
-
-    trait :unregistered do
-      contacted_at { nil }
-      creation_state { :started }
     end
 
     trait :stale do
@@ -59,11 +73,11 @@ FactoryBot.define do
     end
 
     trait :contacted_within_stale_deadline do
-      contacted_at { 1.second.after(Ci::Runner.stale_deadline) }
+      contacted_at { 0.001.seconds.after(Ci::Runner.stale_deadline) }
     end
 
     trait :created_within_stale_deadline do
-      created_at { 1.second.after(Ci::Runner.stale_deadline) }
+      created_at { 0.001.seconds.after(Ci::Runner.stale_deadline) }
     end
 
     trait :instance do
@@ -75,7 +89,7 @@ FactoryBot.define do
 
       after(:build) do |runner, evaluator|
         if runner.runner_namespaces.empty?
-          runner.runner_namespaces << build(:ci_runner_namespace)
+          runner.runner_namespaces << build(:ci_runner_namespace, runner: runner)
         end
       end
     end
@@ -85,14 +99,25 @@ FactoryBot.define do
 
       after(:build) do |runner, evaluator|
         if runner.runner_projects.empty?
-          runner.runner_projects << build(:ci_runner_project)
+          runner.runner_projects << build(:ci_runner_project, runner: runner)
         end
       end
     end
 
+    # we use without_projects to create invalid runner: the one without projects
     trait :without_projects do
-      # we use that to create invalid runner:
-      # the one without projects
+      transient do
+        without_projects { true }
+      end
+
+      after(:build) do |runner, evaluator|
+        next if runner.sharding_key_id
+
+        # Point to a "no longer existing" project ID, as a project runner must always have been created
+        # with a sharding key id
+        runner.sharding_key_id = (2**63) - 1
+      end
+
       after(:create) do |runner, evaluator|
         runner.runner_projects.delete_all
       end
@@ -104,7 +129,7 @@ FactoryBot.define do
       end
     end
 
-    trait :inactive do
+    trait :paused do
       active { false }
     end
 

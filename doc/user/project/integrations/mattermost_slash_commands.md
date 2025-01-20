@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use [slash commands](gitlab_slack_application.md#slash-commands) to run common GitLab operations,
 like creating an issue, from a [Mattermost](https://mattermost.com/) chat environment.
@@ -71,7 +71,7 @@ To get configuration values from GitLab:
 
 1. In a different browser tab, sign in to
    GitLab as a user with administrator access.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Integrations**.
 1. Select **Mattermost slash commands**. GitLab displays potential values for Mattermost settings.
 1. Copy the **Request URL** value. All other values are suggestions.

@@ -12,7 +12,12 @@ import {
   PARALLEL_DIFF_VIEW_TYPE,
   EVT_MR_PREPARED,
 } from '~/diffs/constants';
-import { BUILDING_YOUR_MR, SOMETHING_WENT_WRONG } from '~/diffs/i18n';
+import {
+  BUILDING_YOUR_MR,
+  SOMETHING_WENT_WRONG,
+  ENCODED_FILE_PATHS_TITLE,
+  ENCODED_FILE_PATHS_MESSAGE,
+} from '~/diffs/i18n';
 import * as diffActions from '~/diffs/store/actions';
 import * as types from '~/diffs/store/mutation_types';
 import * as utils from '~/diffs/store/utils';
@@ -576,6 +581,44 @@ describe('DiffsStoreActions', () => {
       );
     });
 
+    describe('when diff metadata returns has_encoded_file_paths as true', () => {
+      beforeEach(() => {
+        mock
+          .onGet(endpointMetadata)
+          .reply(HTTP_STATUS_OK, { ...diffMetadata, has_encoded_file_paths: true });
+      });
+
+      it('should show a non-dismissible alert', async () => {
+        await testAction(
+          diffActions.fetchDiffFilesMeta,
+          {},
+          { endpointMetadata, diffViewType: 'inline', showWhitespace: true },
+          [
+            { type: types.SET_LOADING, payload: true },
+            { type: types.SET_LOADING, payload: false },
+            { type: types.SET_MERGE_REQUEST_DIFFS, payload: diffMetadata.merge_request_diffs },
+            {
+              type: types.SET_DIFF_METADATA,
+              payload: { ...noFilesData, has_encoded_file_paths: true },
+            },
+            // Workers are synchronous in Jest environment (see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/58805)
+            {
+              type: types.SET_TREE_DATA,
+              payload: treeWorkerUtils.generateTreeList(diffMetadata.diff_files),
+            },
+          ],
+          [],
+        );
+
+        expect(createAlert).toHaveBeenCalledTimes(1);
+        expect(createAlert).toHaveBeenCalledWith({
+          title: ENCODED_FILE_PATHS_TITLE,
+          message: ENCODED_FILE_PATHS_MESSAGE,
+          dismissible: false,
+        });
+      });
+    });
+
     describe('on a 404 response', () => {
       let dismissAlert;
 
@@ -701,6 +744,27 @@ describe('DiffsStoreActions', () => {
         { type: types.SET_HIGHLIGHTED_ROW, payload: 'ABC_123' },
         { type: types.SET_CURRENT_DIFF_FILE, payload: 'ABC' },
       ]);
+    });
+
+    it('should prevent default event', () => {
+      const preventDefault = jest.fn();
+      const target = { href: TEST_HOST };
+      const event = { target, preventDefault };
+      testAction(diffActions.setHighlightedRow, { lineCode: 'ABC_123', event }, {}, [
+        { type: types.SET_HIGHLIGHTED_ROW, payload: 'ABC_123' },
+        { type: types.SET_CURRENT_DIFF_FILE, payload: 'ABC' },
+      ]);
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('should filter out linked file param', () => {
+      const target = { href: `${TEST_HOST}/diffs?file=foo#abc_11` };
+      const event = { target, preventDefault: jest.fn() };
+      testAction(diffActions.setHighlightedRow, { lineCode: 'ABC_123', event }, {}, [
+        { type: types.SET_HIGHLIGHTED_ROW, payload: 'ABC_123' },
+        { type: types.SET_CURRENT_DIFF_FILE, payload: 'ABC' },
+      ]);
+      expect(window.location.href).toBe(`${TEST_HOST}/diffs#abc_11`);
     });
   });
 
@@ -1226,6 +1290,18 @@ describe('DiffsStoreActions', () => {
     });
   });
 
+  describe('setTreeOpen', () => {
+    it('commits SET_FOLDER_OPEN', () => {
+      return testAction(
+        diffActions.setTreeOpen,
+        { path: 'path', opened: true },
+        {},
+        [{ type: types.SET_FOLDER_OPEN, payload: { path: 'path', opened: true } }],
+        [],
+      );
+    });
+  });
+
   describe('goToFile', () => {
     const getters = {};
     const file = { path: 'path' };
@@ -1298,9 +1374,9 @@ describe('DiffsStoreActions', () => {
           expect(dispatch).toHaveBeenCalledWith('fetchFileByFile');
         });
 
-        it('unpins the file', () => {
+        it('unlink the file', () => {
           diffActions.goToFile({ state, commit, getters, dispatch }, file);
-          expect(dispatch).toHaveBeenCalledWith('unpinFile');
+          expect(dispatch).toHaveBeenCalledWith('unlinkFile');
         });
       });
     });
@@ -1923,7 +1999,7 @@ describe('DiffsStoreActions', () => {
         0,
         { flatBlobsList: [{ fileHash: '123' }] },
         [{ type: types.SET_CURRENT_DIFF_FILE, payload: '123' }],
-        [{ type: 'unpinFile' }],
+        [{ type: 'unlinkFile' }],
       );
     });
 
@@ -1933,7 +2009,7 @@ describe('DiffsStoreActions', () => {
         0,
         { viewDiffsFileByFile: true, flatBlobsList: [{ fileHash: '123' }] },
         [{ type: types.SET_CURRENT_DIFF_FILE, payload: '123' }],
-        [{ type: 'unpinFile' }, { type: 'fetchFileByFile' }],
+        [{ type: 'unlinkFile' }, { type: 'fetchFileByFile' }],
       );
     });
   });
@@ -2075,17 +2151,17 @@ describe('DiffsStoreActions', () => {
     });
   });
 
-  describe('fetchPinnedFile', () => {
-    it('fetches pinned file', async () => {
-      const pinnedFileHref = `${TEST_HOST}/pinned-file`;
-      const pinnedFile = getDiffFileMock();
-      const diffFiles = [pinnedFile];
+  describe('fetchLinkedFile', () => {
+    it('fetches linked file', async () => {
+      const linkedFileHref = `${TEST_HOST}/linked-file`;
+      const linkedFile = getDiffFileMock();
+      const diffFiles = [linkedFile];
       const hubSpy = jest.spyOn(diffsEventHub, '$emit');
-      mock.onGet(new RegExp(pinnedFileHref)).reply(HTTP_STATUS_OK, { diff_files: diffFiles });
+      mock.onGet(new RegExp(linkedFileHref)).reply(HTTP_STATUS_OK, { diff_files: diffFiles });
 
       await testAction(
-        diffActions.fetchPinnedFile,
-        pinnedFileHref,
+        diffActions.fetchLinkedFile,
+        linkedFileHref,
         {},
         [
           { type: types.SET_BATCH_LOADING_STATE, payload: 'loading' },
@@ -2094,8 +2170,8 @@ describe('DiffsStoreActions', () => {
             type: types.SET_DIFF_DATA_BATCH,
             payload: { diff_files: diffFiles, updatePosition: false },
           },
-          { type: types.SET_PINNED_FILE_HASH, payload: pinnedFile.file_hash },
-          { type: types.SET_CURRENT_DIFF_FILE, payload: pinnedFile.file_hash },
+          { type: types.SET_LINKED_FILE_HASH, payload: linkedFile.file_hash },
+          { type: types.SET_CURRENT_DIFF_FILE, payload: linkedFile.file_hash },
           { type: types.SET_BATCH_LOADING_STATE, payload: 'loaded' },
           { type: types.SET_RETRIEVING_BATCHES, payload: false },
         ],
@@ -2108,14 +2184,14 @@ describe('DiffsStoreActions', () => {
     });
 
     it('handles load error', async () => {
-      const pinnedFileHref = `${TEST_HOST}/pinned-file`;
+      const linkedFileHref = `${TEST_HOST}/linked-file`;
       const hubSpy = jest.spyOn(diffsEventHub, '$emit');
-      mock.onGet(new RegExp(pinnedFileHref)).reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
+      mock.onGet(new RegExp(linkedFileHref)).reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
 
       try {
         await testAction(
-          diffActions.fetchPinnedFile,
-          pinnedFileHref,
+          diffActions.fetchLinkedFile,
+          linkedFileHref,
           {},
           [
             { type: types.SET_BATCH_LOADING_STATE, payload: 'loading' },
@@ -2133,25 +2209,306 @@ describe('DiffsStoreActions', () => {
       expect(hubSpy).not.toHaveBeenCalledWith('diffFilesModified');
       expect(handleLocationHash).not.toHaveBeenCalled();
     });
+
+    it('fetches linked context lines', async () => {
+      const linkedFile = getDiffFileMock();
+      const diffFiles = [linkedFile];
+      window.location.hash = `#${linkedFile.file_hash}_10_10`;
+      const linkedFileHref = `${TEST_HOST}/linked-file`;
+      jest.spyOn(diffsEventHub, '$emit');
+      mock.onGet(new RegExp(linkedFileHref)).reply(HTTP_STATUS_OK, { diff_files: diffFiles });
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedFile({ dispatch, state: {}, commit: jest.fn() }, linkedFileHref);
+      expect(dispatch).toHaveBeenCalledWith('fetchLinkedExpandedLine', {
+        fileHash: linkedFile.file_hash,
+        oldLine: 10,
+        newLine: 10,
+      });
+    });
   });
 
-  describe('unpinFile', () => {
-    it('unpins pinned file', () => {
-      const pinnedFile = getDiffFileMock();
-      setWindowLocation(`${TEST_HOST}/?pin=${pinnedFile.file_hash}#${pinnedFile.file_hash}_10_10`);
+  describe('unlinkFile', () => {
+    it('unlinks linked file', () => {
+      const linkedFile = getDiffFileMock();
+      setWindowLocation(`${TEST_HOST}/?file=${linkedFile.file_hash}#${linkedFile.file_hash}_10_10`);
       testAction(
-        diffActions.unpinFile,
+        diffActions.unlinkFile,
         undefined,
-        { pinnedFile },
-        [{ type: types.SET_PINNED_FILE_HASH, payload: null }],
+        { linkedFile },
+        [{ type: types.SET_LINKED_FILE_HASH, payload: null }],
         [],
       );
       expect(window.location.hash).toBe('');
       expect(window.location.search).toBe('');
     });
 
-    it('does nothing when no pinned file present', () => {
-      testAction(diffActions.unpinFile, undefined, {}, [], []);
+    it('does nothing when no linked file present', () => {
+      testAction(diffActions.unlinkFile, undefined, {}, [], []);
+    });
+  });
+
+  describe('expandAllFiles', () => {
+    it('triggers mutation', () => {
+      testAction(
+        diffActions.expandAllFiles,
+        undefined,
+        {},
+        [
+          {
+            type: types.SET_COLLAPSED_STATE_FOR_ALL_FILES,
+            payload: { collapsed: false },
+          },
+        ],
+        [],
+      );
+    });
+  });
+
+  describe('collapseAllFiles', () => {
+    it('triggers mutation', () => {
+      testAction(
+        diffActions.collapseAllFiles,
+        undefined,
+        {},
+        [
+          {
+            type: types.SET_COLLAPSED_STATE_FOR_ALL_FILES,
+            payload: { collapsed: true },
+          },
+        ],
+        [],
+      );
+    });
+  });
+
+  describe('fetchLinkedExpandedLine', () => {
+    it('does nothing when no linked file is present', () => {
+      return testAction(
+        diffActions.fetchLinkedExpandedLine,
+        { fileHash: 'foo', oldLine: 10, newLine: 10 },
+        { linkedFileHash: null },
+        [],
+        [],
+      );
+    });
+
+    it("does nothing when fragment doesn't match linked file hash", () => {
+      return testAction(
+        diffActions.fetchLinkedExpandedLine,
+        { fileHash: 'foo', oldLine: 10, newLine: 10 },
+        { linkedFileHash: 'foobar' },
+        [],
+        [],
+      );
+    });
+
+    it('does nothing when line is already present', () => {
+      return testAction(
+        diffActions.fetchLinkedExpandedLine,
+        { fileHash: 'foo', oldLine: 10, newLine: 10 },
+        {
+          linkedFileHash: 'foo',
+          diffFiles: [
+            { file_hash: 'foo', highlighted_diff_lines: [{ old_line: 10, new_line: 10 }] },
+          ],
+        },
+        [],
+        [],
+      );
+    });
+
+    it('propagates the error when fetching expanded line data', () => {
+      const fakeError = new Error();
+      const linkedFile = {
+        file_hash: 'abc123',
+        highlighted_diff_lines: [
+          { new_line: 1, old_line: 1 },
+          { meta_data: { old_pos: 2, new_pos: 2 } },
+        ],
+      };
+      const dispatch = jest.fn().mockRejectedValue(fakeError);
+
+      return diffActions
+        .fetchLinkedExpandedLine(
+          { getters: { linkedFile }, dispatch },
+          { fileHash: linkedFile.file_hash, oldLine: 10, newLine: 10 },
+        )
+        .catch((error) => {
+          expect(error).toBe(fakeError);
+        });
+    });
+
+    it('expands lines at the very top', async () => {
+      const linkedFile = {
+        file_hash: 'abc123',
+        context_lines_path: `${TEST_HOST}/linked-file`,
+        highlighted_diff_lines: [
+          { meta_data: { old_pos: 5, new_pos: 6 } },
+          { old_line: 5, new_line: 6 },
+        ],
+      };
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedExpandedLine(
+        { getters: { linkedFile }, dispatch },
+        { fileHash: linkedFile.file_hash, oldLine: 1, newLine: 1 },
+      );
+      expect(dispatch).toHaveBeenCalledWith('loadMoreLines', {
+        endpoint: linkedFile.context_lines_path,
+        fileHash: linkedFile.file_hash,
+        isExpandDown: false,
+        lineNumbers: {
+          oldLineNumber: 5,
+          newLineNumber: 6,
+        },
+        params: {
+          bottom: false,
+          offset: 1,
+          since: 1,
+          to: 5,
+          unfold: true,
+        },
+      });
+    });
+
+    it('expands lines upwards in the middle of the file', async () => {
+      const linkedFile = {
+        file_hash: 'abc123',
+        context_lines_path: `${TEST_HOST}/linked-file`,
+        highlighted_diff_lines: [
+          { old_line: 5, new_line: 6 },
+          { meta_data: { old_pos: 50, new_pos: 51 } },
+          { old_line: 50, new_line: 51 },
+        ],
+      };
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedExpandedLine(
+        { getters: { linkedFile }, dispatch },
+        { fileHash: linkedFile.file_hash, oldLine: 45, newLine: 45 },
+      );
+      expect(dispatch).toHaveBeenCalledWith('loadMoreLines', {
+        endpoint: linkedFile.context_lines_path,
+        fileHash: linkedFile.file_hash,
+        isExpandDown: false,
+        lineNumbers: {
+          oldLineNumber: 50,
+          newLineNumber: 51,
+        },
+        params: {
+          bottom: false,
+          offset: 1,
+          since: 45,
+          to: 50,
+          unfold: true,
+        },
+      });
+    });
+
+    it('expands lines in both directions', async () => {
+      const linkedFile = {
+        file_hash: 'abc123',
+        context_lines_path: `${TEST_HOST}/linked-file`,
+        highlighted_diff_lines: [
+          { old_line: 5, new_line: 6 },
+          { meta_data: { old_pos: 10, new_pos: 11 } },
+          { new_line: 10, old_line: 11 },
+        ],
+      };
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedExpandedLine(
+        { getters: { linkedFile }, dispatch },
+        { fileHash: linkedFile.file_hash, oldLine: 7, newLine: 8 },
+      );
+      expect(dispatch).toHaveBeenCalledWith('loadMoreLines', {
+        endpoint: linkedFile.context_lines_path,
+        fileHash: linkedFile.file_hash,
+        isExpandDown: false,
+        lineNumbers: {
+          oldLineNumber: 10,
+          newLineNumber: 11,
+        },
+        params: {
+          bottom: false,
+          offset: 1,
+          since: 7,
+          to: 10,
+          unfold: false,
+        },
+      });
+    });
+
+    it('expands lines downwards in the middle of the file', async () => {
+      const linkedFile = {
+        file_hash: 'abc123',
+        context_lines_path: `${TEST_HOST}/linked-file`,
+        highlighted_diff_lines: [
+          { old_line: 5, new_line: 6 },
+          { meta_data: { old_pos: 50, new_pos: 51 } },
+          { old_line: 50, new_line: 51 },
+        ],
+      };
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedExpandedLine(
+        { getters: { linkedFile }, dispatch },
+        { fileHash: linkedFile.file_hash, oldLine: 7, newLine: 8 },
+      );
+      expect(dispatch).toHaveBeenCalledWith('loadMoreLines', {
+        endpoint: linkedFile.context_lines_path,
+        fileHash: linkedFile.file_hash,
+        isExpandDown: true,
+        lineNumbers: {
+          oldLineNumber: 5,
+          newLineNumber: 6,
+        },
+        nextLineNumbers: {
+          old_line: 50,
+          new_line: 51,
+        },
+        params: {
+          bottom: true,
+          offset: 1,
+          since: 7,
+          to: 8,
+          unfold: true,
+        },
+      });
+    });
+
+    it('expands lines at the very bottom', async () => {
+      const linkedFile = {
+        file_hash: 'abc123',
+        context_lines_path: `${TEST_HOST}/linked-file`,
+        highlighted_diff_lines: [
+          { old_line: 5, new_line: 6 },
+          { meta_data: { old_pos: 5, new_pos: 6 } },
+        ],
+      };
+      const dispatch = jest.fn();
+
+      await diffActions.fetchLinkedExpandedLine(
+        { getters: { linkedFile }, dispatch },
+        { fileHash: linkedFile.file_hash, oldLine: 20, newLine: 21 },
+      );
+      expect(dispatch).toHaveBeenCalledWith('loadMoreLines', {
+        endpoint: linkedFile.context_lines_path,
+        fileHash: linkedFile.file_hash,
+        isExpandDown: false,
+        lineNumbers: {
+          oldLineNumber: 5,
+          newLineNumber: 6,
+        },
+        params: {
+          bottom: true,
+          offset: 1,
+          since: 7,
+          to: 21,
+          unfold: true,
+        },
+      });
     });
   });
 });

@@ -3,6 +3,7 @@ import { createAlert } from '~/alert';
 import eventHub from '~/ci/event_hub';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { historyPushState, buildUrlWithCurrentLocation } from '~/lib/utils/common_utils';
+import { reportToSentry } from '~/ci/utils';
 import { HTTP_STATUS_UNAUTHORIZED } from '~/lib/utils/http_status';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
@@ -52,13 +53,11 @@ export default {
     });
 
     eventHub.$on('postAction', this.postAction);
-    eventHub.$on('clickedDropdown', this.updateTable);
     eventHub.$on('updateTable', this.updateTable);
     eventHub.$on('runMergeRequestPipeline', this.runMergeRequestPipeline);
   },
   beforeDestroy() {
     eventHub.$off('postAction', this.postAction);
-    eventHub.$off('clickedDropdown', this.updateTable);
     eventHub.$off('updateTable', this.updateTable);
     eventHub.$off('runMergeRequestPipeline', this.runMergeRequestPipeline);
   },
@@ -114,9 +113,9 @@ export default {
 
           this.poll.enable({ data: this.requestData, response });
         })
-        .catch(() => {
+        .catch((error) => {
           this.isLoading = false;
-          this.errorCallback();
+          this.errorCallback(error);
 
           // restart polling
           this.poll.restart({ data: this.requestData });
@@ -145,8 +144,8 @@ export default {
         .then((response) => this.successCallback(response))
         .catch((error) => this.errorCallback(error));
     },
-    setCommonData(pipelines) {
-      this.store.storePipelines(pipelines);
+    setCommonData(pipelines, isUsingAsyncPipelineCreation = false) {
+      this.store.storePipelines(pipelines, isUsingAsyncPipelineCreation);
       this.isLoading = false;
       this.updateGraphDropdown = true;
       this.hasMadeRequest = true;
@@ -164,6 +163,7 @@ export default {
         this.hasError = true;
         this.updateGraphDropdown = false;
       }
+      reportToSentry('pipelines_list', error);
     },
     setIsMakingRequest(isMakingRequest) {
       this.isMakingRequest = isMakingRequest;
@@ -199,7 +199,10 @@ export default {
       this.service
         .runMRPipeline(options)
         .then(() => {
-          this.$toast.show(TOAST_MESSAGE);
+          if (!options.isAsync) {
+            this.$toast.show(TOAST_MESSAGE);
+          }
+
           this.updateTable();
         })
         .catch((e) => {
@@ -219,8 +222,13 @@ export default {
               link: helpPagePath('ci/pipelines/merge_request_pipelines.md'),
             },
           });
+          reportToSentry('run_mr_pipeline', e);
         })
-        .finally(() => this.store.toggleIsRunningPipeline(false));
+        .finally(() => {
+          if (!options.isAsync) {
+            this.store.toggleIsRunningPipeline(false);
+          }
+        });
     },
     onChangePage(page) {
       /* URLS parameters are strings, we need to parse to match types */

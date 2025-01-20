@@ -9,19 +9,27 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
   def create_ci_runner(version:, revision: nil, ip_address: nil, **args)
     runner_manager_args = { version: version, revision: revision, ip_address: ip_address }.compact
 
-    create(:ci_runner, :project, **args).tap do |runner|
+    create(:ci_runner, **args).tap do |runner|
       create(:ci_runner_machine, runner: runner, **runner_manager_args)
     end
   end
 
-  describe 'Query.runners' do
+  describe 'Query.runners', :freeze_time do
+    before_all do
+      freeze_time # Freeze time before `let_it_be` runs, so that runner statuses are frozen during execution
+    end
+
+    after :all do
+      unfreeze_time
+    end
+
     let_it_be(:project) { create(:project, :repository, :public) }
-    let_it_be(:instance_runner) { create(:ci_runner, :instance, description: 'Instance runner') }
+    let_it_be(:instance_runner) { create(:ci_runner, :instance, :almost_offline, description: 'Instance runner') }
     let_it_be(:instance_runner_manager) do
       create(:ci_runner_machine, runner: instance_runner, version: 'abc', revision: '123', ip_address: '127.0.0.1')
     end
 
-    let_it_be(:project_runner) { create(:ci_runner, :project, active: false, description: 'Project runner', projects: [project]) }
+    let_it_be(:project_runner) { create(:ci_runner, :project, :paused, description: 'Project runner', projects: [project]) }
     let_it_be(:project_runner_manager) do
       create(:ci_runner_machine, runner: project_runner, version: 'def', revision: '456', ip_address: '127.0.0.1')
     end
@@ -57,12 +65,15 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
     it 'returns expected runners' do
       post_graphql(query, current_user: current_user)
 
-      expect(runners_graphql_data['nodes']).to contain_exactly(
-        *Ci::Runner.all.map { |expected_runner| a_graphql_entity_for(expected_runner) }
+      expect(runners_graphql_data['nodes']).to match_array(
+        Ci::Runner.all.map { |expected_runner| a_graphql_entity_for(expected_runner) }
       )
     end
 
     context 'with filters' do
+      let_it_be(:admin) { create(:admin) }
+      let_it_be(:user) { create(:user) }
+
       shared_examples 'a working graphql query returning expected runners' do
         it_behaves_like 'a working graphql query' do
           before do
@@ -73,8 +84,8 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
         it 'returns expected runners' do
           post_graphql(query, current_user: current_user)
 
-          expect(runners_graphql_data['nodes']).to contain_exactly(
-            *Array(expected_runners).map { |expected_runner| a_graphql_entity_for(expected_runner) }
+          expect(runners_graphql_data['nodes']).to match_array(
+            Array(expected_runners).map { |expected_runner| a_graphql_entity_for(expected_runner) }
           )
         end
       end
@@ -96,9 +107,9 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
           end
         end
 
-        context 'runner_type is INSTANCE_TYPE and status is ACTIVE' do
+        context 'runner_type is INSTANCE_TYPE and status is ONLINE' do
           let(:runner_type) { 'INSTANCE_TYPE' }
-          let(:status) { 'ACTIVE' }
+          let(:status) { 'ONLINE' }
 
           let(:expected_runners) { instance_runner }
 
@@ -177,8 +188,7 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
       end
 
       context 'when filtered by creator' do
-        let_it_be(:user) { create(:user) }
-        let_it_be(:runner_created_by_user) { create(:ci_runner, :project, creator: user) }
+        let_it_be(:runner_created_by_user) { create(:ci_runner, creator: user) }
 
         let(:query) do
           %(
@@ -194,7 +204,7 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
           let(:creator) { user }
 
           before do
-            create(:ci_runner, :project, creator: create(:user)) # Should not be returned
+            create(:ci_runner, creator: create(:user)) # Should not be returned
           end
 
           it_behaves_like 'a working graphql query returning expected runners' do
@@ -209,6 +219,85 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
             post_graphql(query, current_user: current_user)
 
             expect(graphql_data_at(:runners, :nodes)).to be_empty
+          end
+        end
+      end
+
+      context 'when filtered by owner' do
+        let_it_be(:runner_created_by_user) { create(:ci_runner, creator: user) }
+        let_it_be(:runner_created_by_admin) { create(:ci_runner, creator: admin) }
+        let_it_be(:project) { create(:project, :in_group) }
+        let_it_be(:group) { project.parent }
+        let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project], creator: user) }
+        let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group], creator: admin) }
+
+        context 'when filtered by ownerWildcard' do
+          let(:query) do
+            %(
+              query {
+                runners(ownerWildcard: ADMINISTRATORS) {
+                  #{fields}
+                }
+              }
+            )
+          end
+
+          it_behaves_like 'a working graphql query returning expected runners' do
+            let(:expected_runners) { runner_created_by_admin }
+          end
+        end
+
+        context 'when filtered by ownerFullPath' do
+          let(:query) do
+            %(
+              query {
+                runners(ownerFullPath: "#{owner_full_path}") {
+                  #{fields}
+                }
+              }
+            )
+          end
+
+          context 'when ownerFullPath refers to group' do
+            let(:owner_full_path) { group.full_path }
+
+            it_behaves_like 'a working graphql query returning expected runners' do
+              let(:expected_runners) { group_runner }
+            end
+          end
+
+          context 'when ownerFullPath refers to project' do
+            let(:owner_full_path) { project.full_path }
+
+            it_behaves_like 'a working graphql query returning expected runners' do
+              let(:expected_runners) { project_runner }
+            end
+          end
+
+          context 'when ownerFullPath is invalid' do
+            let(:owner_full_path) { 'invalid' }
+
+            it_behaves_like 'a working graphql query returning expected runners' do
+              let(:expected_runners) { [] }
+            end
+          end
+        end
+
+        context 'when filtered by both ownerWildcard and ownerFullPath' do
+          let(:query) do
+            %(
+              query {
+                runners(ownerWildcard: ADMINISTRATORS, ownerFullPath: "some-path") {
+                  #{fields}
+                }
+              }
+            )
+          end
+
+          it 'returns error' do
+            post_graphql(query, current_user: current_user)
+
+            expect_graphql_errors_to_include('The ownerFullPath and ownerWildcardPath arguments are mutually exclusive.')
           end
         end
       end
@@ -347,14 +436,14 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
   end
 end
 
-RSpec.describe 'Group.runners' do
+RSpec.describe 'Group.runners', feature_category: :fleet_visibility do
   include GraphqlHelpers
 
   let_it_be(:group) { create(:group) }
   let_it_be(:group_owner) { create_default(:user, owner_of: group) }
 
   describe 'edges' do
-    let_it_be(:runner) { create(:ci_runner, :group, active: false, description: 'Project runner', groups: [group]) }
+    let_it_be(:runner) { create(:ci_runner, :group, :paused, description: 'Project runner', groups: [group]) }
 
     let(:query) do
       %(

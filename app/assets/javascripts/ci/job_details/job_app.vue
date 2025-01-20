@@ -5,7 +5,9 @@ import { throttle, isEmpty } from 'lodash';
 // eslint-disable-next-line no-restricted-imports
 import { mapGetters, mapState, mapActions } from 'vuex';
 import JobLogTopBar from 'ee_else_ce/ci/job_details/components/job_log_top_bar.vue';
+import RootCauseAnalysisButton from 'ee_else_ce/ci/job_details/components/root_cause_analysis_button.vue';
 import SafeHtml from '~/vue_shared/directives/safe_html';
+import glAbilitiesMixin from '~/vue_shared/mixins/gl_abilities_mixin';
 import { isScrolledToBottom } from '~/lib/utils/scroll_utils';
 import { __, sprintf } from '~/locale';
 import delayedJobMixin from '~/ci/mixins/delayed_job_mixin';
@@ -29,6 +31,7 @@ export default {
     GlIcon,
     Log,
     JobLogTopBar,
+    RootCauseAnalysisButton,
     StuckBlock,
     UnmetPrerequisitesBlock,
     Sidebar,
@@ -39,7 +42,7 @@ export default {
   directives: {
     SafeHtml,
   },
-  mixins: [delayedJobMixin],
+  mixins: [delayedJobMixin, glAbilitiesMixin()],
   props: {
     artifactHelpUrl: {
       type: String,
@@ -226,16 +229,14 @@ export default {
       <div class="build-page" data-testid="job-content">
         <!-- Header Section -->
         <header>
-          <div class="build-header gl-display-flex">
-            <job-header
-              :status="job.status"
-              :time="headerTime"
-              :user="job.user"
-              :should-render-triggered-label="shouldRenderTriggeredLabel"
-              :name="jobName"
-              @clickedSidebarButton="toggleSidebar"
-            />
-          </div>
+          <job-header
+            :status="job.status"
+            :time="headerTime"
+            :user="job.user"
+            :should-render-triggered-label="shouldRenderTriggeredLabel"
+            :name="jobName"
+            @clickedSidebarButton="toggleSidebar"
+          />
           <gl-alert
             v-if="shouldRenderHeaderCallout"
             variant="danger"
@@ -283,8 +284,8 @@ export default {
 
         <div
           v-if="job.archived"
-          class="gl-mt-3 gl-py-2 gl-px-3 gl-align-items-center gl-z-1 gl-m-auto archived-job"
-          :class="{ 'sticky-top gl-border-bottom-0': hasJobLog }"
+          class="archived-job gl-z-1 gl-m-auto gl-mt-3 gl-items-center gl-px-3 gl-py-2"
+          :class="{ 'sticky-top gl-border-b-0': hasJobLog }"
           data-testid="archived-job"
         >
           <gl-icon name="lock" class="gl-align-bottom" />
@@ -313,7 +314,14 @@ export default {
             @enterFullscreen="enterFullscreen"
             @exitFullscreen="exitFullscreen"
           />
+
           <log :search-results="searchResults" />
+
+          <root-cause-analysis-button
+            :job-id="job.id"
+            :job-status-group="job.status.group"
+            :can-troubleshoot-job="glAbilities.troubleshootJobWithAi"
+          />
         </div>
         <!-- EO job log -->
 

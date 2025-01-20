@@ -5,6 +5,7 @@ RSpec.shared_examples 'WikiPages::DestroyService#execute' do |container_type|
 
   let(:user) { create(:user) }
   let(:page) { create(:wiki_page) }
+  let!(:wiki_page_meta) { create(:wiki_page_meta, container: container) }
 
   subject(:service) { described_class.new(container: container, current_user: user) }
 
@@ -14,18 +15,46 @@ RSpec.shared_examples 'WikiPages::DestroyService#execute' do |container_type|
     service.execute(page)
   end
 
-  it_behaves_like 'internal event tracking' do
-    let(:event) { 'delete_wiki_page' }
+  describe 'internal event tracking' do
     let(:project) { container if container.is_a?(Project) }
     let(:namespace) { container.is_a?(Group) ? container : container.namespace }
 
     subject(:track_event) { service.execute(page) }
+
+    it_behaves_like 'internal event tracking' do
+      let(:event) { 'delete_wiki_page' }
+    end
+
+    context 'with group container', if: container_type == :group do
+      it_behaves_like 'internal event tracking' do
+        let(:event) { 'delete_group_wiki_page' }
+      end
+    end
+
+    context 'with project container', if: container_type == :project do
+      it_behaves_like 'internal event not tracked' do
+        let(:event) { 'delete_group_wiki_page' }
+      end
+    end
+
+    context 'when the deleted page is a template' do
+      let(:page) { create(:wiki_page, title: "#{Wiki::TEMPLATES_DIR}/foobar") }
+
+      it_behaves_like 'internal event tracking' do
+        let(:event) { 'delete_wiki_page' }
+        let(:label) { 'template' }
+        let(:property) { 'markdown' }
+      end
+    end
+  end
+
+  # This test fails, because deleting a page seems to orphan WikiPage;:Meta and WikiPage::Slug records,
+  # but it's included for completeness for now.
+  pending 'deletes a WikiPage::Meta record' do
+    expect { service.execute(page) }.to change { WikiPage::Meta.count }.by(-1)
   end
 
   it 'creates a new wiki page deletion event' do
-    # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/216904
-    pending('group wiki support') if container_type == :group
-
     expect { service.execute(page) }.to change { Event.count }.by 1
 
     expect(Event.recent.first).to have_attributes(
@@ -48,6 +77,22 @@ RSpec.shared_examples 'WikiPages::DestroyService#execute' do |container_type|
       expect(Gitlab::InternalEvents).not_to receive(:track_event)
 
       service.execute(page)
+    end
+  end
+
+  context 'when wiki delete fails due to git error' do
+    it 'catches the thrown error and returns a ServiceResponse error' do
+      container = create(container_type, :wiki_repo)
+      page = create(:wiki_page, container: container)
+      service = described_class.new(container: container, current_user: user)
+
+      allow(Gitlab::GitalyClient).to receive(:call) do
+        raise GRPC::Unavailable, 'Gitaly broken in this spec'
+      end
+
+      result = service.execute(page)
+      expect(result).to be_error
+      expect(result.message).to eq('Could not delete wiki page')
     end
   end
 end

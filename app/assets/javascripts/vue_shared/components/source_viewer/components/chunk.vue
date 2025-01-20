@@ -1,134 +1,165 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script>
+// eslint-disable-next-line no-restricted-imports
+import { mapState } from 'vuex';
 import { GlIntersectionObserver } from '@gitlab/ui';
-import LineHighlighter from '~/blob/line_highlighter';
-import ChunkLine from './chunk_line.vue';
+import SafeHtml from '~/vue_shared/directives/safe_html';
+import { getPageParamValue, getPageSearchString } from '~/blob/utils';
+import { addInteractionClass } from '~/code_navigation/utils';
 
 /*
  * We only highlight the chunk that is currently visible to the user.
  * By making use of the Intersection Observer API we can determine when a chunk becomes visible and highlight it accordingly.
  *
- * Content that is not visible to the user (i.e. not highlighted) do not need to look nice,
- * so by making text transparent and rendering raw (non-highlighted) text,
- * the browser spends less resources on painting content that is not immediately relevant.
- *
- * Why use transparent text as opposed to hiding content entirely?
- * 1. If content is hidden entirely, native find text (⌘ + F) won't work.
- * 2. When URL contains line numbers, the browser needs to be able to jump to the correct line.
+ * Content that is not visible to the user (i.e. not highlighted) does not need to look nice,
+ * so by rendering raw (non-highlighted) text, the browser spends less resources on painting
+ * content that is not immediately relevant.
+ * Why use plaintext as opposed to hiding content entirely?
+ * If content is hidden entirely, native find text (⌘ + F) won't work.
  */
 export default {
   components: {
-    ChunkLine,
     GlIntersectionObserver,
   },
+  directives: {
+    SafeHtml,
+  },
   props: {
-    isFirstChunk: {
+    isHighlighted: {
       type: Boolean,
-      required: false,
-      default: false,
+      required: true,
     },
     chunkIndex: {
       type: Number,
       required: false,
       default: 0,
     },
-    isHighlighted: {
-      type: Boolean,
-      required: true,
-    },
-    content: {
+    rawContent: {
       type: String,
       required: true,
     },
-    startingFrom: {
-      type: Number,
-      required: false,
-      default: 0,
+    highlightedContent: {
+      type: String,
+      required: true,
     },
     totalLines: {
       type: Number,
       required: false,
       default: 0,
     },
-    totalChunks: {
+    startingFrom: {
       type: Number,
       required: false,
       default: 0,
     },
-    language: {
-      type: String,
-      required: false,
-      default: null,
-    },
     blamePath: {
+      type: String,
+      required: true,
+    },
+    blobPath: {
       type: String,
       required: true,
     },
   },
   data() {
     return {
-      isLoading: true,
+      number: undefined,
+      hasAppeared: false,
     };
   },
   computed: {
-    lines() {
-      return this.content.split('\n');
+    ...mapState(['data', 'blobs']),
+    shouldHighlight() {
+      return Boolean(this.highlightedContent) && (this.hasAppeared || this.isHighlighted);
+    },
+    pageSearchString() {
+      const page = getPageParamValue(this.number);
+      return getPageSearchString(this.blamePath, page);
+    },
+    codeStyling() {
+      const defaultGutterWidth = 96;
+      return { marginLeft: `${this.$refs.lineNumbers?.offsetWidth || defaultGutterWidth}px` };
     },
   },
+  watch: {
+    shouldHighlight: {
+      handler(newVal) {
+        if (!this.blobs?.length) return;
 
-  created() {
-    if (this.isFirstChunk) {
-      this.isLoading = false;
-      return;
-    }
-
-    window.requestIdleCallback(async () => {
-      this.isLoading = false;
-      const { hash } = this.$route;
-      if (hash && this.totalChunks > 0 && this.totalChunks === this.chunkIndex + 1) {
-        // when the last chunk is loaded scroll to the hash
-        await this.$nextTick();
-        const lineHighlighter = new LineHighlighter({ scrollBehavior: 'auto' });
-        lineHighlighter.highlightHash(hash);
-      }
-    });
+        if (newVal) {
+          if (this.data) {
+            this.addCodeNavigationClasses();
+          } else {
+            // If there the code navigation hasn't loaded yet we need to watch
+            // for the data to be set in the state
+            this.codeNavigationDataWatcher = this.$watch('data', () => {
+              this.addCodeNavigationClasses();
+              this.codeNavigationDataWatcher();
+            });
+          }
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     handleChunkAppear() {
-      if (!this.isHighlighted) {
-        this.$emit('appear', this.chunkIndex);
-      }
+      this.hasAppeared = true;
+      this.$emit('appear');
     },
     calculateLineNumber(index) {
       return this.startingFrom + index + 1;
+    },
+    async addCodeNavigationClasses() {
+      await this.$nextTick();
+
+      Object.keys(this.data[this.blobPath]).forEach((key) => {
+        const startLine = Number(key.split(':')[0]);
+
+        if (startLine >= this.startingFrom && startLine < this.startingFrom + this.totalLines + 1) {
+          addInteractionClass({
+            path: this.blobPath,
+            d: this.data[this.blobPath][key],
+          });
+        }
+      });
     },
   },
 };
 </script>
 <template>
-  <gl-intersection-observer @appear="handleChunkAppear">
-    <div v-if="isHighlighted">
-      <chunk-line
-        v-for="(line, index) in lines"
+  <div class="gl-flex">
+    <div v-if="shouldHighlight" class="gl-absolute gl-flex gl-flex-col">
+      <div
+        v-for="(n, index) in totalLines"
         :key="index"
-        :number="calculateLineNumber(index)"
-        :content="line"
-        :language="language"
-        :blame-path="blamePath"
-      />
-    </div>
-    <div v-else-if="!isLoading" class="gl-display-flex gl-text-transparent">
-      <div class="gl-display-flex gl-flex-direction-column content-visibility-auto">
-        <span
-          v-for="(n, index) in totalLines"
-          v-once
+        data-testid="line-numbers"
+        class="diff-line-num line-links line-numbers gl-border-r gl-z-3 gl-flex !gl-p-0"
+      >
+        <a
+          class="file-line-blame gl-select-none !gl-shadow-none"
+          data-event-tracking="click_chunk_blame_on_blob_page"
+          :href="`${blamePath}${pageSearchString}#L${calculateLineNumber(index)}`"
+        ></a>
+        <a
           :id="`L${calculateLineNumber(index)}`"
-          :key="index"
-          data-testid="line-number"
-          v-text="calculateLineNumber(index)"
-        ></span>
+          class="file-line-num gl-select-none !gl-shadow-none"
+          :href="`#L${calculateLineNumber(index)}`"
+          :data-line-number="calculateLineNumber(index)"
+        >
+          {{ calculateLineNumber(index) }}
+        </a>
       </div>
-      <div v-once class="gl-whitespace-pre-wrap!" data-testid="content">{{ content }}</div>
     </div>
-  </gl-intersection-observer>
+
+    <div v-else ref="lineNumbers" class="line-numbers gl-mr-3 !gl-p-0 gl-text-transparent">
+      <!-- Placeholder for line numbers while content is not highlighted -->
+    </div>
+
+    <gl-intersection-observer class="gl-w-full" @appear="handleChunkAppear">
+      <pre
+        class="code highlight gl-m-0 gl-w-full !gl-overflow-visible !gl-border-none !gl-p-0 gl-leading-0"
+      ><code v-if="shouldHighlight" v-safe-html="highlightedContent" :style="codeStyling" data-testid="content"></code><code v-else v-once class="line !gl-whitespace-pre-wrap gl-ml-1" data-testid="content" v-text="rawContent"></code></pre>
+    </gl-intersection-observer>
+  </div>
 </template>

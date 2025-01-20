@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ErrorTracking::SentryClient::Issue, feature_category: :error_tracking do
+RSpec.describe ErrorTracking::SentryClient::Issue, feature_category: :observability do
   include SentryClientHelpers
 
   let(:token) { 'test-token' }
@@ -175,8 +175,10 @@ RSpec.describe ErrorTracking::SentryClient::Issue, feature_category: :error_trac
       end
 
       it 'raises exception' do
-        expect { subject }.to raise_error(ErrorTracking::SentryClient::MissingKeysError,
-                                          'Sentry API response is missing keys. key not found: "id"')
+        expect { subject }.to raise_error(
+          ErrorTracking::SentryClient::MissingKeysError,
+          'Sentry API response is missing keys. key not found: "id"'
+        )
       end
     end
 

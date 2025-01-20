@@ -71,6 +71,22 @@ module Gitlab
           WorkItems::Type
         ].freeze
 
+        RELATIONS_WITH_REWRITABLE_USERNAMES = %i[
+          milestones
+          milestone
+          merge_requests
+          merge_request
+          issues
+          issue
+          notes
+          note
+          epics
+          epic
+          snippets
+          snippet
+          WorkItems::Type
+        ].freeze
+
         def create
           @object = super
 
@@ -89,7 +105,7 @@ module Gitlab
           legacy_trigger?
         end
 
-        def setup_models
+        def setup_models # rubocop:disable Metrics/CyclomaticComplexity -- real sum complexity not as high as rubocop thinks.
           case @relation_name
           when :merge_request_diff_files then setup_diff
           when :note_diff_file then setup_diff
@@ -98,8 +114,9 @@ module Gitlab
           when *BUILD_MODELS then setup_build
           when :issues then setup_work_item
           when :'Ci::PipelineSchedule' then setup_pipeline_schedule
-          when :'ProtectedBranch::MergeAccessLevel' then setup_protected_branch_access_level
-          when :'ProtectedBranch::PushAccessLevel' then setup_protected_branch_access_level
+          when :'ProtectedBranch::MergeAccessLevel' then setup_protected_ref_access_level
+          when :'ProtectedBranch::PushAccessLevel' then setup_protected_ref_access_level
+          when :'ProtectedTag::CreateAccessLevel' then setup_protected_ref_access_level
           when :ApprovalProjectRulesProtectedBranch then setup_merge_approval_protected_branch
           when :releases then setup_release
           when :merge_requests, :MergeRequest, :merge_request then setup_merge_request
@@ -107,6 +124,10 @@ module Gitlab
 
           update_project_references
           update_group_references
+
+          return unless RELATIONS_WITH_REWRITABLE_USERNAMES.include?(@relation_name) && @rewrite_mentions
+
+          update_username_mentions(@relation_hash)
         end
 
         def generate_imported_object
@@ -199,13 +220,14 @@ module Gitlab
         def setup_pipeline_schedule
           @relation_hash['active'] = false
           @relation_hash['owner_id'] = @user.id
+          @original_user.delete('owner_id') # unset original user to not push placeholder references
         end
 
         def setup_merge_request
           @relation_hash['merge_when_pipeline_succeeds'] = false
         end
 
-        def setup_protected_branch_access_level
+        def setup_protected_ref_access_level
           return if root_group_owner?
           return if @relation_hash['access_level'] == Gitlab::Access::NO_ACCESS
           return if @relation_hash['access_level'] == Gitlab::Access::MAINTAINER

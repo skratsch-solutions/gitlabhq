@@ -6,11 +6,24 @@ export const RESOURCE_TYPE_PROJECTS = 'projects';
 
 export const ORGANIZATION_ROOT_ROUTE_NAME = 'root';
 
+export const ACCESS_LEVEL_DEFAULT = 'default';
+export const ACCESS_LEVEL_OWNER = 'owner';
+
+// Matches `app/graphql/types/organizations/organization_user_access_level_enum.rb
+export const ACCESS_LEVEL_DEFAULT_STRING = 'DEFAULT';
+export const ACCESS_LEVEL_OWNER_STRING = 'OWNER';
+
+export const ACCESS_LEVEL_LABEL = {
+  [ACCESS_LEVEL_DEFAULT_STRING]: __('User'),
+  [ACCESS_LEVEL_OWNER_STRING]: __('Owner'),
+};
+
 export const FORM_FIELD_NAME = 'name';
 export const FORM_FIELD_ID = 'id';
 export const FORM_FIELD_PATH = 'path';
 export const FORM_FIELD_DESCRIPTION = 'description';
 export const FORM_FIELD_AVATAR = 'avatar';
+export const FORM_FIELD_VISIBILITY_LEVEL = 'visibilityLevel';
 
 export const MAX_DESCRIPTION_COUNT = 1024;
 
@@ -28,9 +41,6 @@ export const FORM_FIELD_DESCRIPTION_VALIDATORS = [
     (val) => val.length <= MAX_DESCRIPTION_COUNT,
   ),
 ];
-
-export const QUERY_PARAM_START_CURSOR = 'start_cursor';
-export const QUERY_PARAM_END_CURSOR = 'end_cursor';
 
 export const SORT_DIRECTION_ASC = 'asc';
 export const SORT_DIRECTION_DESC = 'desc';

@@ -12,26 +12,52 @@ module PersonalAccessTokens
     feature_category :system_access
 
     MAX_TOKENS = 100
+    MAX_RUNTIME = 3.minutes
+    REQUEUE_DELAY = 2.minutes
 
     # For the worker is timing out with a bigger batch size
     # https://gitlab.com/gitlab-org/gitlab/-/issues/432518
     BATCH_SIZE = 100
 
+    # allows easier stubbing in specs
+    def self.batch_size
+      BATCH_SIZE
+    end
+
     def perform(*args)
-      process_user_tokens
-      process_project_bot_tokens
+      @runtime_limiter = Gitlab::Metrics::RuntimeLimiter.new(MAX_RUNTIME)
+      notification_intervals.each do |interval|
+        process_user_tokens(interval)
+        break if over_time?
+
+        process_project_bot_tokens(interval)
+        break if over_time?
+      end
+
+      self.class.perform_in(REQUEUE_DELAY, *args) if over_time?
     end
 
     private
 
-    def process_user_tokens
+    attr_reader :runtime_limiter
+
+    delegate :over_time?, to: :runtime_limiter
+
+    def notification_intervals
+      PersonalAccessToken::NOTIFICATION_INTERVALS.keys
+    end
+
+    def process_user_tokens(interval = :seven_days)
+      min_expires_at = nil
+
       # rubocop: disable CodeReuse/ActiveRecord -- We need to specify batch size to avoid timing out of worker
       loop do
         tokens = PersonalAccessToken
-                   .expiring_and_not_notified_without_impersonation
+                   .scope_for_notification_interval(interval, min_expires_at: min_expires_at)
                    .owner_is_human
-                   .select(:user_id)
-                   .limit(BATCH_SIZE)
+                   .select(:user_id, :expires_at)
+                   .order(expires_at: :asc)
+                   .limit(self.class.batch_size)
                    .load
 
         break if tokens.empty?
@@ -40,9 +66,8 @@ module PersonalAccessTokens
 
         users.each do |user|
           with_context(user: user) do
-            expiring_user_tokens = user.expiring_soon_and_unnotified_personal_access_tokens
-
-            next if expiring_user_tokens.empty?
+            expiring_user_tokens = PersonalAccessToken.scope_for_notification_interval(interval,
+              min_expires_at: min_expires_at).for_user(user)
 
             # We never materialise the token instances. We need the names to mention them in the
             # email. Later we trigger an update query on the entire relation, not on individual instances.
@@ -50,34 +75,74 @@ module PersonalAccessTokens
             # We're limiting to 100 tokens so we avoid loading too many tokens into memory.
             # At the time of writing this would only affect 69 users on GitLab.com
 
-            deliver_user_notifications(user, token_names)
+            next if token_names.empty?
 
-            expiring_user_tokens.update_all(expire_notification_delivered: true)
+            interval_days = PersonalAccessToken.notification_interval(interval)
+            deliver_user_notifications(user, token_names, days_to_expire: interval_days)
+
+            # we are in the process of deprecating expire_notification_delivered column
+            # https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166683
+            notification_updates = { "#{interval}_notification_sent_at" => Time.current }
+            notification_updates[:expire_notification_delivered] = true if interval == :seven_days
+            expiring_user_tokens.update_all(notification_updates)
           end
         end
+
+        # manually adjust query interval in case indexes don't update between loops
+        min_expires_at = tokens.last&.expires_at
+        return if over_time?
       end
       # rubocop: enable CodeReuse/ActiveRecord
     end
 
-    def process_project_bot_tokens
-      # rubocop: disable CodeReuse/ActiveRecord -- We need to specify batch size to avoid timing out of worker
+    # this code is quite messy, and should be refactored along with the split out
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/495766
+    #
+    # rubocop: disable CodeReuse/ActiveRecord -- We need to specify batch size to avoid timing out of worker
+    # rubocop: disable Metrics/AbcSize -- complexity is necessary to add debugging info without doing so much refactoring that we potentially change the behavior
+    def process_project_bot_tokens(interval = :seven_days)
       notifications_delivered = 0
       project_bot_ids_without_resource = []
       project_bot_ids_with_failed_delivery = []
-      loop do
-        tokens = PersonalAccessToken
-                   .where.not(user_id: project_bot_ids_without_resource | project_bot_ids_with_failed_delivery)
-                   .expiring_and_not_notified_without_impersonation
-                   .project_access_token
-                   .select(:id, :user_id)
-                   .limit(BATCH_SIZE)
-                   .load
+      min_expires_at = nil
+      interval_field = "#{interval}_notification_sent_at"
+      bot_user_notified_ids = []
 
+      loop do
+        exclude_user_ids = project_bot_ids_without_resource | project_bot_ids_with_failed_delivery
+        tokens = fetch_bot_tokens(interval, min_expires_at, exclude_user_ids)
         break if tokens.empty?
 
-        bot_users = User.id_in(tokens.pluck(:user_id).uniq).with_personal_access_tokens_and_resources
+        token_ids = tokens.pluck(:id)
+        bot_user_ids = tokens.pluck(:user_id).uniq
+
+        extended_log(
+          "Checking #{interval} resource access token expiration email for tokens",
+          token_ids: token_ids,
+          bot_user_ids: bot_user_ids
+        )
+
+        bot_users = User.id_in(bot_user_ids).with_personal_access_tokens_and_resources
+
+        if bot_users.count != bot_user_ids.count
+          extended_log(
+            "Bot users mismatch for #{interval}",
+            bot_user_ids: bot_user_ids,
+            returned_bot_ids: bot_users.map(&:id)
+          )
+        end
 
         bot_users.each do |project_bot|
+          if bot_user_notified_ids.include?(project_bot.id)
+            extended_log(
+              "Attempted duplicate delivery for #{interval} to bot user #{project_bot.id}",
+              bot_user_notified_ids: bot_user_notified_ids,
+              project_bot_id: project_bot.id
+            )
+
+            next
+          end
+
           if project_bot.resource_bot_resource.nil?
             project_bot_ids_without_resource << project_bot.id
 
@@ -89,8 +154,13 @@ module PersonalAccessTokens
               # project bot does not have more than 1 token
               expiring_user_token = project_bot.personal_access_tokens.first
 
-              execute_web_hooks(project_bot, expiring_user_token)
-              deliver_bot_notifications(project_bot, expiring_user_token.name)
+              # webhooks do not include information about when the token expires, so
+              # only trigger on seven_days interval to avoid changing existing behavior
+              execute_web_hooks(project_bot, expiring_user_token) if interval == :seven_days
+
+              interval_days = PersonalAccessToken.notification_interval(interval)
+              deliver_bot_notifications(project_bot, expiring_user_token.name, days_to_expire: interval_days)
+              bot_user_notified_ids << project_bot.id
             end
           rescue StandardError => e
             project_bot_ids_with_failed_delivery << project_bot.id
@@ -100,11 +170,21 @@ module PersonalAccessTokens
         end
 
         tokens_with_delivered_notifications =
-          tokens
+          PersonalAccessToken
+            .where(id: token_ids)
             .where.not(user_id: project_bot_ids_without_resource | project_bot_ids_with_failed_delivery)
-        tokens_with_delivered_notifications.update_all(expire_notification_delivered: true)
+
+        # we are in the process of deprecating expire_notification_delivered column
+        # https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166683
+        notification_updates = { interval_field => Time.current }
+        notification_updates[:expire_notification_delivered] = true if interval == :seven_days
+        tokens_with_delivered_notifications.update_all(notification_updates)
 
         notifications_delivered += tokens_with_delivered_notifications.count
+
+        # manually adjust query interval in case indexes don't update between loops
+        min_expires_at = tokens.last&.expires_at
+        break if over_time?
       end
 
       log_extra_metadata_on_done(
@@ -113,24 +193,41 @@ module PersonalAccessTokens
         :total_resource_bot_without_membership, project_bot_ids_without_resource.count)
       log_extra_metadata_on_done(
         :total_failed_notifications_for_resource_bots, project_bot_ids_with_failed_delivery.count)
+    end
+    # rubocop: enable Metrics/AbcSize
 
-      # rubocop: enable CodeReuse/ActiveRecord
+    def fetch_bot_tokens(interval, min_expires_at = nil, exclude_user_ids = [])
+      PersonalAccessToken
+        .where.not(user_id: exclude_user_ids)
+        .scope_for_notification_interval(interval, min_expires_at: min_expires_at)
+        .project_access_token
+        .select(:id, :user_id, :expires_at)
+        .limit(self.class.batch_size)
+        .order(expires_at: :asc)
+        .load
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
+
+    def deliver_bot_notifications(bot_user, token_name, days_to_expire: 7)
+      notification_service.bot_resource_access_token_about_to_expire(
+        bot_user,
+        token_name,
+        days_to_expire: days_to_expire
+      )
     end
 
-    def deliver_bot_notifications(bot_user, token_name)
-      notification_service.bot_resource_access_token_about_to_expire(bot_user, token_name)
+    def deliver_user_notifications(user, token_names, days_to_expire: 7)
+      notification_service.access_token_about_to_expire(user, token_names, days_to_expire: days_to_expire)
     end
 
-    def deliver_user_notifications(user, token_names)
-      notification_service.access_token_about_to_expire(user, token_names)
-      log_info("Notifying User about expiring tokens", user)
-    end
+    def extended_log(message, extra_data = {})
+      return unless Feature.enabled?(:pats_expiring_worker_extended_logging, :instance)
 
-    def log_info(message_text, user)
       Gitlab::AppLogger.info(
-        message: message_text,
-        class: self.class,
-        user_id: user.id
+        extra_data.merge(
+          message: message,
+          class: self.class
+        )
       )
     end
 

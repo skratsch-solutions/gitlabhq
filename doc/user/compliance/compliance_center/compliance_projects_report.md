@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,28 +8,29 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/387910) in GitLab 15.10.
 > - [Renamed from **compliance frameworks report**](https://gitlab.com/gitlab-org/gitlab/-/issues/422963) in GitLab 16.5.
 
-With compliance projects report, you can see the compliance frameworks that are applied to projects in a group. Each row of the report shows:
+With the compliance projects report, you can see the compliance frameworks that are applied to projects in a group or subgroup.
+Each row of the report shows:
 
 - Project name.
 - Project path.
-- Compliance framework label if the project has one assigned.
+- Compliance framework labels if the project has one or more assigned.
 
 The default framework for the group has a **default** badge.
 
-## View the compliance projects report for a group
+## View the compliance projects report
 
 Prerequisites:
 
-- You must be an administrator or have the Owner role for the group.
+- You must be an administrator or have the Owner role for the project or group.
 
 To view the compliance projects report:
 
-1. On the left sidebar, select **Search or go to** and find your group.
+1. On the left sidebar, select **Search or go to** and find your project or group.
 1. Select **Secure > Compliance center**.
 1. On the page, select the **Projects** tab.
 
@@ -37,8 +38,9 @@ To view the compliance projects report:
 
 > - Adding compliance frameworks using bulk actions [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/383209) in GitLab 15.11.
 > - Adding compliance frameworks without using bulk actions [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/394795) in GitLab 16.0.
+> - Ability to add compliance frameworks to subgroups [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/469004) in GitLab 17.2.
 
-You can apply a compliance framework to projects in a group.
+You can apply one or more compliance frameworks to projects in a group or subgroup.
 
 Prerequisites:
 
@@ -49,8 +51,8 @@ To apply a compliance framework to one project in a group:
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Secure > Compliance center**.
 1. On the page, select the **Projects** tab.
-1. Next to the project you want to add the compliance framework to, select **{plus}** **Add framework**.
-1. Select an existing compliance framework or create a new one.
+1. Next to the project you want to add the compliance framework to, select **{pencil}** action.
+1. Select one or more existing compliance frameworks or create a new one.
 
 To apply a compliance framework to multiple projects in a group:
 
@@ -66,8 +68,9 @@ To apply a compliance framework to multiple projects in a group:
 
 > - Removing compliance frameworks using bulk actions [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/383209) in GitLab 15.11.
 > - Removing compliance frameworks without using bulk actions [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/394795) in GitLab 16.0.
+> - Ability to remove compliance frameworks from subgroups [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/469004) in GitLab 17.2.
 
-You can remove a compliance framework from projects in a group.
+You can remove a compliance framework from projects in a group or subgroup.
 
 Prerequisites:
 
@@ -130,6 +133,8 @@ Repeat this process to filter by multiple attributes.
 
 ## Create a new compliance framework
 
+You can create new compliance frameworks on top-level groups.
+
 Prerequisites:
 
 - You must be an administrator or have the Owner role for the group.
@@ -145,6 +150,8 @@ To create a new compliance framework from the compliance projects report:
 
 ## Edit a compliance framework
 
+You can edit compliance frameworks on top-level groups.
+
 Prerequisites:
 
 - You must be an administrator or have the Owner role for the group.
@@ -158,6 +165,8 @@ To edit a compliance framework from the compliance projects report:
 1. Select the **Save changes** to edit compliance framework.
 
 ## Delete a compliance framework
+
+You can delete compliance frameworks from top-level groups.
 
 Prerequisites:
 

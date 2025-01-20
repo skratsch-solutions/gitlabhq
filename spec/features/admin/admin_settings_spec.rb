@@ -467,6 +467,7 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
           fill_in 'application_setting_auto_devops_domain', with: 'domain.com'
           uncheck 'Keep the latest artifacts for all jobs in the latest successful pipelines'
           uncheck 'Enable pipeline suggestion banner'
+          uncheck 'Show the migrate from Jenkins banner'
           fill_in 'application_setting_ci_max_includes', with: 200
           fill_in 'application_setting_downstream_pipeline_trigger_limit_per_project_user_sha', with: 500
           click_button 'Save changes'
@@ -476,6 +477,7 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
         expect(current_settings.auto_devops_domain).to eq('domain.com')
         expect(current_settings.keep_latest_artifact).to be false
         expect(current_settings.suggest_pipeline_enabled).to be false
+        expect(current_settings.show_migrate_from_jenkins_banner).to be false
         expect(current_settings.ci_max_includes).to be 200
         expect(current_settings.downstream_pipeline_trigger_limit_per_project_user_sha).to be 500
         expect(page).to have_content 'Application settings saved successfully'
@@ -541,6 +543,22 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
           end
 
           expect(current_settings.valid_runner_registrars).to eq([])
+          expect(page).to have_content 'Application settings saved successfully'
+        end
+      end
+
+      context 'Job token permissions' do
+        it 'allows admin to set allowlist enforcement' do
+          visit ci_cd_admin_application_settings_path
+
+          expect(current_settings.enforce_ci_inbound_job_token_scope_enabled).to eq(false)
+
+          within_testid('job-token-permissions-settings') do
+            find('input[type="checkbox"]').click
+            click_button 'Save changes'
+          end
+
+          expect(current_settings.enforce_ci_inbound_job_token_scope_enabled).to eq(true)
           expect(page).to have_content 'Application settings saved successfully'
         end
       end
@@ -878,6 +896,20 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
         end
       end
 
+      describe 'organizations API rate limits' do
+        let_it_be(:network_settings_section) { 'organizations-api-limits-settings' }
+
+        context 'for POST /organizations API requests' do
+          let(:rate_limit_field) do
+            format(_('Maximum requests to the %{api_name} API per %{timeframe} per user'), api_name: 'POST /organizations', timeframe: 'minute')
+          end
+
+          let(:application_setting_key) { :create_organization_api_limit }
+
+          it_behaves_like 'API rate limit setting'
+        end
+      end
+
       describe 'groups API rate limits' do
         let_it_be(:network_settings_section) { 'groups-api-limits-settings' }
 
@@ -920,6 +952,16 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
 
           it_behaves_like 'API rate limit setting'
         end
+
+        context 'for GET /groups/:id/invited_groups API requests' do
+          let(:rate_limit_field) do
+            format(_('Maximum requests to the %{api_name} API per %{timeframe} per user or IP address'), api_name: 'GET /groups/:id/invited_groups', timeframe: 'minute')
+          end
+
+          let(:application_setting_key) { :group_invited_groups_api_limit }
+
+          it_behaves_like 'API rate limit setting'
+        end
       end
 
       describe 'projects API rate limits' do
@@ -951,6 +993,16 @@ RSpec.describe 'Admin updates settings', feature_category: :shared do
           end
 
           let_it_be(:application_setting_key) { :project_api_limit }
+
+          it_behaves_like 'API rate limit setting'
+        end
+
+        context 'for GET /projects/:id/invited_groups API requests' do
+          let_it_be(:rate_limit_field) do
+            format(_('Maximum requests to the %{api_name} API per %{timeframe} per user or IP address'), api_name: 'GET /projects/:id/invited_groups', timeframe: 'minute')
+          end
+
+          let_it_be(:application_setting_key) { :project_invited_groups_api_limit }
 
           it_behaves_like 'API rate limit setting'
         end

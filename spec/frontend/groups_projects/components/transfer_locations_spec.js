@@ -14,10 +14,10 @@ import transferLocationsResponsePage2 from 'test_fixtures/api/projects/transfer_
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import createMockApollo from 'helpers/mock_apollo_helper';
-import { __ } from '~/locale';
 import TransferLocations, { i18n } from '~/groups_projects/components/transfer_locations.vue';
 import { getTransferLocations } from '~/api/projects_api';
 import currentUserNamespaceQuery from '~/projects/settings/graphql/queries/current_user_namespace.query.graphql';
+import { ENTER_KEY } from '~/lib/utils/keys';
 
 jest.mock('~/api/projects_api', () => ({
   getTransferLocations: jest.fn(),
@@ -34,7 +34,7 @@ describe('TransferLocations', () => {
   };
   const additionalDropdownItem = {
     id: -1,
-    humanName: __('No parent group'),
+    humanName: 'No parent group',
   };
 
   // Mock requests
@@ -294,6 +294,23 @@ describe('TransferLocations', () => {
       await waitForPromises();
 
       expect(findDropdownItemByText(additionalDropdownItem.humanName).exists()).toBe(true);
+    });
+  });
+
+  describe('when enter key is pressed in search', () => {
+    beforeEach(async () => {
+      createComponent();
+      await showDropdown();
+    });
+
+    it('prevents default to avoid submitting the form', () => {
+      const event = new KeyboardEvent('keydown', {
+        key: ENTER_KEY,
+      });
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      findSearch().vm.$emit('keydown', event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
     });
   });
 

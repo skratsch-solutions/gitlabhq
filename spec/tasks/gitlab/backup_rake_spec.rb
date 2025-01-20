@@ -60,7 +60,7 @@ RSpec.describe 'gitlab:backup namespace rake tasks', :reestablished_active_recor
 
   describe 'lock parallel backups' do
     let(:progress) { $stdout }
-    let(:delete_message) { /-- Deleting backup and restore PID file/ }
+    let(:delete_message) { /-- Deleting backup and restore PID file at/ }
     let(:pid_file) do
       File.open(backup_restore_pid_path, File::RDWR | File::CREAT)
     end
@@ -211,10 +211,8 @@ RSpec.describe 'gitlab:backup namespace rake tasks', :reestablished_active_recor
 
     context 'when the restore directory is not empty' do
       before do
-        # We only need a backup of the repositories for this test
-        stub_env('SKIP', 'db,uploads,builds,artifacts,lfs,terraform_state,registry')
-
-        create(:project_with_design, :repository)
+        # We only need a backup of the repositories and the DB for this test
+        stub_env('SKIP', 'uploads,builds,artifacts,lfs,terraform_state,registry')
       end
 
       it 'removes stale data' do
@@ -226,6 +224,7 @@ RSpec.describe 'gitlab:backup namespace rake tasks', :reestablished_active_recor
 
         raw_repo = excluded_project.repository.raw
 
+        expect(Project.find_by_full_path(excluded_project.full_path)).to be_nil
         expect(raw_repo).not_to exist
       end
     end
@@ -724,9 +723,11 @@ RSpec.describe 'gitlab:backup namespace rake tasks', :reestablished_active_recor
   end
 
   def expect_logger_to_receive_messages(messages)
-    expect_any_instance_of(Gitlab::BackupLogger) do |logger|
-      messages.each do |message|
-        allow(logger).to receive(:info).with(message).ordered
+    [Gitlab::BackupLogger, Gitlab::Backup::JsonLogger].each do |log_class|
+      expect_any_instance_of(log_class) do |logger|
+        messages.each do |message|
+          allow(logger).to receive(:info).with(message).ordered
+        end
       end
     end
   end

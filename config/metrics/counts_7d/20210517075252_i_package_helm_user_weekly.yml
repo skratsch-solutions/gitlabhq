@@ -1,8 +1,10 @@
 ---
 data_category: optional
 key_path: redis_hll_counters.user_packages.i_package_helm_user_weekly
-description: Distinct user count events for Helm packages in recent 7 days
+description: Count of distinct users that have interacted with Helm charts in the package registry in the last 7 days
 product_group: package_registry
+product_categories:
+- package_registry
 value_type: number
 status: active
 milestone: "14.0"
@@ -16,7 +18,7 @@ options:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate

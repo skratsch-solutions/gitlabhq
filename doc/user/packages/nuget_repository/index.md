@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Publish NuGet packages in your project's package registry. Then, install the
 packages whenever you need to use them as a dependency.
@@ -306,7 +306,7 @@ Prerequisites:
 When publishing packages:
 
 - The package registry on GitLab.com can store up to 5 GB of content.
-  This limit is [configurable for self-managed GitLab instances](../../../administration/instance_limits.md#package-registry-limits).
+  This limit is [configurable for GitLab Self-Managed](../../../administration/instance_limits.md#package-registry-limits).
 - If you publish the same package with the same version multiple times, each
   consecutive upload is saved as a separate file. When installing a package,
   GitLab serves the most recent file.
@@ -381,7 +381,8 @@ updated:
 1. Add a `deploy` job to your `.gitlab-ci.yml` file:
 
    ```yaml
-   image: mcr.microsoft.com/dotnet/core/sdk:3.1
+   default:
+     image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
    stages:
      - deploy
@@ -392,8 +393,8 @@ updated:
        - dotnet pack -c Release
        - dotnet nuget add source "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json" --name gitlab --username gitlab-ci-token --password $CI_JOB_TOKEN --store-password-in-clear-text
        - dotnet nuget push "bin/Release/*.nupkg" --source gitlab
-     only:
-       - main
+     rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
      environment: production
    ```
 

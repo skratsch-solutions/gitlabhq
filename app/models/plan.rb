@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Plan < MainClusterwide::ApplicationRecord
+class Plan < ApplicationRecord
   DEFAULT = 'default'
 
   has_one :limits, class_name: 'PlanLimits'
@@ -27,6 +27,20 @@ class Plan < MainClusterwide::ApplicationRecord
   def self.default_plans
     DEFAULT_PLANS
   end
+
+  # rubocop: disable Database/AvoidUsingPluckWithoutLimit -- This method is prepared for manual usage in
+  # Rails console on SaaS. Using pluck without limit in this case should be enough safe.
+  def self.ids_for_names(names)
+    self.where(name: names).pluck(:id)
+  end
+  # rubocop: enable Database/AvoidUsingPluckWithoutLimit
+
+  # rubocop: disable Database/AvoidUsingPluckWithoutLimit -- This method is prepared for manual usage in
+  # Rails console on SaaS. Using pluck without limit in this case should be enough safe.
+  def self.names_for_ids(plan_ids)
+    self.id_in(plan_ids).pluck(:name)
+  end
+  # rubocop: enable Database/AvoidUsingPluckWithoutLimit
 
   def actual_limits
     self.limits || self.build_limits

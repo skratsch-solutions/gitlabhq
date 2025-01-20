@@ -1,6 +1,6 @@
 import { GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
-import organizationsGraphQlResponse from 'test_fixtures/graphql/organizations/organizations.query.graphql.json';
+import currentUserOrganizationsGraphQlResponse from 'test_fixtures/graphql/organizations/current_user_organizations.query.graphql.json';
 import OrganizationsView from '~/organizations/shared/components/organizations_view.vue';
 import OrganizationsList from '~/organizations/shared/components/list/organizations_list.vue';
 import { MOCK_NEW_ORG_URL } from '../mock_data';
@@ -19,15 +19,17 @@ describe('OrganizationsView', () => {
         organizations: { nodes: organizations },
       },
     },
-  } = organizationsGraphQlResponse;
+  } = currentUserOrganizationsGraphQlResponse;
 
-  const createComponent = (props = {}) => {
+  const createComponent = (props = {}, provide = {}) => {
     wrapper = shallowMount(OrganizationsView, {
       propsData: {
         ...props,
       },
       provide: {
         newOrganizationUrl: MOCK_NEW_ORG_URL,
+        canCreateOrganization: true,
+        ...provide,
       },
     });
   };
@@ -35,10 +37,6 @@ describe('OrganizationsView', () => {
   const findGlLoading = () => wrapper.findComponent(GlLoadingIcon);
   const findOrganizationsList = () => wrapper.findComponent(OrganizationsList);
   const findGlEmptyState = () => wrapper.findComponent(GlEmptyState);
-
-  beforeEach(() => {
-    gon.features = { allowOrganizationCreation: true };
-  });
 
   describe.each`
     description                                    | loading  | orgsData         | emptyStateSvg                   | emptyStateUrl
@@ -71,10 +69,12 @@ describe('OrganizationsView', () => {
     });
   });
 
-  describe('when `allowOrganizationCreation` feature flag is disabled', () => {
+  describe('when `canCreateOrganization` feature flag is false', () => {
     beforeEach(() => {
-      gon.features = { allowOrganizationCreation: false };
-      createComponent({ loading: false, organizations: { nodes: [], pageInfo: {} } });
+      createComponent(
+        { loading: false, organizations: { nodes: [], pageInfo: {} } },
+        { canCreateOrganization: false },
+      );
     });
 
     it('does not render `New organization` button in empty state', () => {

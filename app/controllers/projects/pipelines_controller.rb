@@ -7,9 +7,13 @@ class Projects::PipelinesController < Projects::ApplicationController
 
   urgency :low, [
     :index, :new, :builds, :show, :failures, :create,
-    :stage, :retry, :dag, :cancel, :test_report,
-    :charts, :destroy, :status
+    :stage, :retry, :cancel, :test_report,
+    :charts, :destroy, :status, :manual_variables
   ]
+
+  before_action only: [:charts] do
+    push_frontend_feature_flag(:ci_improved_project_pipeline_analytics, project)
+  end
 
   before_action :disable_query_limiting, only: [:create, :retry]
   before_action :pipeline, except: [:index, :new, :create, :charts]
@@ -23,6 +27,9 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_cancel_pipeline!, only: [:cancel]
   before_action :ensure_pipeline, only: [:show, :downloadable_artifacts]
   before_action :reject_if_build_artifacts_size_refreshing!, only: [:destroy]
+  before_action only: [:show, :builds, :failures, :test_report, :manual_variables] do
+    push_frontend_feature_flag(:ci_show_manual_variables_in_pipeline, project)
+  end
 
   # Will be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/225596
   before_action :redirect_for_legacy_scope_filter, only: [:index], if: -> { request.format.html? }
@@ -47,8 +54,8 @@ class Projects::PipelinesController < Projects::ApplicationController
 
   feature_category :continuous_integration, [
     :charts, :show, :stage, :cancel, :retry,
-    :builds, :dag, :failures, :status,
-    :index, :new, :destroy
+    :builds, :failures, :status,
+    :index, :new, :destroy, :manual_variables
   ]
   feature_category :pipeline_composition, [:create]
   feature_category :code_testing, [:test_report]
@@ -137,19 +144,6 @@ class Projects::PipelinesController < Projects::ApplicationController
     render_show
   end
 
-  def dag
-    respond_to do |format|
-      format.html do
-        render_show
-      end
-      format.json do
-        render json: Ci::DagPipelineSerializer
-          .new(project: @project, current_user: @current_user)
-          .represent(@pipeline)
-      end
-    end
-  end
-
   def failures
     if @pipeline.failed_builds.present?
       render_show
@@ -218,6 +212,12 @@ class Projects::PipelinesController < Projects::ApplicationController
     end
   end
 
+  def manual_variables
+    return render_404 unless ::Feature.enabled?(:ci_show_manual_variables_in_pipeline, project)
+
+    render_show
+  end
+
   def downloadable_artifacts
     render json: Ci::DownloadableArtifactSerializer.new(
       project: project,
@@ -284,7 +284,7 @@ class Projects::PipelinesController < Projects::ApplicationController
 
     pipelines =
       if find_latest_pipeline?
-        project.latest_pipelines(params['ref'])
+        project.latest_pipelines(ref: params['ref'], limit: 100)
       else
         project.all_pipelines.id_in(params[:id])
       end

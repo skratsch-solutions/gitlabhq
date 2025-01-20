@@ -276,6 +276,7 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
       it_behaves_like 'updates boolean attribute', :admin_mode
       it_behaves_like 'updates boolean attribute', :require_admin_approval_after_user_signup
       it_behaves_like 'updates boolean attribute', :remember_me_enabled
+      it_behaves_like 'updates boolean attribute', :require_personal_access_token_expiry
     end
 
     context "personal access token prefix settings" do
@@ -444,7 +445,7 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
     end
   end
 
-  describe 'PUT #reset_error_tracking_access_token', feature_category: :error_tracking do
+  describe 'PUT #reset_error_tracking_access_token', feature_category: :observability do
     before do
       sign_in(admin)
     end

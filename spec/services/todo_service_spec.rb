@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe TodoService, feature_category: :team_planning do
+RSpec.describe TodoService, feature_category: :notifications do
   include AfterNextHelpers
 
   let_it_be(:group) { create(:group) }
@@ -381,6 +381,12 @@ RSpec.describe TodoService, feature_category: :team_planning do
 
         expect(first_todo.reload).to be_done
         expect(second_todo.reload).to be_done
+      end
+
+      it 'calls GraphQL.issuable_todo_updated' do
+        expect(GraphqlTriggers).to receive(:issuable_todo_updated).with(issue)
+
+        service.resolve_todos_for_target(issue, john_doe)
       end
 
       describe 'cached counts' do
@@ -1115,6 +1121,74 @@ RSpec.describe TodoService, feature_category: :team_planning do
       end
     end
 
+    describe '#ssh_key_expiring_soon' do
+      let_it_be(:ssh_key) { create(:key, user: author) }
+
+      context 'when given a single key' do
+        it 'creates a pending todo for the user' do
+          service.ssh_key_expiring_soon(ssh_key)
+
+          should_create_todo(user: author, author: author, target: ssh_key, project: nil, action: Todo::SSH_KEY_EXPIRING_SOON)
+        end
+      end
+
+      context 'when given an array of keys' do
+        let_it_be(:ssh_key_of_member) { create(:key, user: member) }
+        let_it_be(:ssh_key_of_guest) { create(:key, user: guest) }
+
+        it 'creates a pending todo for each key with the correct user' do
+          service.ssh_key_expiring_soon([ssh_key, ssh_key_of_member, ssh_key_of_guest])
+
+          should_create_todo(user: author, author: author, target: ssh_key, project: nil, action: Todo::SSH_KEY_EXPIRING_SOON)
+          should_create_todo(user: member, author: member, target: ssh_key_of_member, project: nil, action: Todo::SSH_KEY_EXPIRING_SOON)
+          should_create_todo(user: guest, author: guest, target: ssh_key_of_guest, project: nil, action: Todo::SSH_KEY_EXPIRING_SOON)
+        end
+      end
+    end
+
+    describe '#ssh_key_expired' do
+      let_it_be(:ssh_key) { create(:key, user: author) }
+
+      context 'when given a single key' do
+        it 'creates a pending todo for the user' do
+          service.ssh_key_expired(ssh_key)
+
+          should_create_todo(user: author, author: author, target: ssh_key, project: nil, action: Todo::SSH_KEY_EXPIRED)
+        end
+      end
+
+      context 'when given an array of keys' do
+        let_it_be(:ssh_key_of_member) { create(:key, user: member) }
+        let_it_be(:ssh_key_of_guest) { create(:key, user: guest) }
+
+        it 'creates a pending todo for each key with the correct user' do
+          service.ssh_key_expired([ssh_key, ssh_key_of_member, ssh_key_of_guest])
+
+          should_create_todo(user: author, author: author, target: ssh_key, project: nil, action: Todo::SSH_KEY_EXPIRED)
+          should_create_todo(user: member, author: member, target: ssh_key_of_member, project: nil, action: Todo::SSH_KEY_EXPIRED)
+          should_create_todo(user: guest, author: guest, target: ssh_key_of_guest, project: nil, action: Todo::SSH_KEY_EXPIRED)
+        end
+      end
+
+      describe 'auto-resolve behavior' do
+        let_it_be(:ssh_key_2) { create(:key, user: author) }
+        let_it_be(:todo_for_expiring_key_1) { create(:todo, target: ssh_key, action: Todo::SSH_KEY_EXPIRING_SOON, user: author) }
+        let_it_be(:todo_for_expiring_key_2) { create(:todo, target: ssh_key_2, action: Todo::SSH_KEY_EXPIRING_SOON, user: author) }
+
+        it 'resolves the "expiring soon" todo for the same key' do
+          service.ssh_key_expired(ssh_key)
+
+          expect(todo_for_expiring_key_1.reload.state).to eq 'done'
+        end
+
+        it 'does not resolve "expiring soon" todos of other keys' do
+          service.ssh_key_expired(ssh_key)
+
+          expect(todo_for_expiring_key_2.state).to eq 'pending'
+        end
+      end
+    end
+
     describe '#merge_request_build_failed' do
       let(:merge_participants) { [unassigned_mr.author, admin] }
 
@@ -1209,6 +1283,32 @@ RSpec.describe TodoService, feature_category: :team_planning do
         service.new_note(note_on_merge_request, author)
 
         should_not_create_todo(user: guest, target: mentioned_mr, action: Todo::MENTIONED)
+      end
+    end
+
+    describe '#new_review' do
+      it 'marks related pending todos to the target MR for the user as done' do
+        first_todo = create(:todo, :pending, :assigned, user: john_doe, project: project, target: mentioned_mr, author: author)
+        second_todo = create(:todo, :pending, :review_requested, user: john_doe, project: project, target: mentioned_mr, author: author)
+        third_todo = create(:todo, :pending, :mentioned, user: john_doe, project: project, target: mentioned_mr, author: author)
+
+        review = Review.new(merge_request: mentioned_mr)
+        service.new_review(review, john_doe)
+
+        expect(first_todo.reload).to be_done
+        expect(second_todo.reload).to be_done
+        expect(third_todo.reload).to be_done
+      end
+
+      it 'marks related pending todo to the target MR for the user as done when the multiple_todos feature is off' do
+        stub_feature_flags(multiple_todos: false)
+
+        only_todo = create(:todo, :pending, :assigned, user: john_doe, project: project, target: mentioned_mr, author: author)
+
+        review = Review.new(merge_request: mentioned_mr)
+        service.new_review(review, john_doe)
+
+        expect(only_todo.reload).to be_done
       end
     end
   end
@@ -1413,6 +1513,12 @@ RSpec.describe TodoService, feature_category: :team_planning do
         service.resolve_todo(todo, john_doe, resolved_by_action: :mark_done)
         todo.reload
       end.to change { todo.resolved_by_mark_done? }.to(true)
+    end
+
+    it 'calls GraphQL.issuable_todo_updated' do
+      expect(GraphqlTriggers).to receive(:issuable_todo_updated).with(todo.target)
+
+      service.resolve_todo(todo, john_doe)
     end
 
     context 'cached counts' do

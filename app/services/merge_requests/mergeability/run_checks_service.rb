@@ -21,18 +21,18 @@ module MergeRequests
 
           result_hash << check_result
 
-          break result_hash if check_result.failed? && !execute_all
+          break result_hash if check_result.unsuccessful? && !execute_all
         end
 
         logger.commit
 
-        return ServiceResponse.success(payload: { results: results }) if all_results_success?
+        return ServiceResponse.success(payload: { results: results }) if no_result_unsuccessful?
 
         ServiceResponse.error(
-          message: 'Checks failed.',
+          message: 'Checks were not successful',
           payload: {
             results: results,
-            failed_check: failed_check
+            unsuccessful_check: unsuccessful_check
           }
         )
       end
@@ -53,25 +53,25 @@ module MergeRequests
       end
 
       def cached_results
-        strong_memoize(:cached_results) do
-          Gitlab::MergeRequests::Mergeability::ResultsStore.new(merge_request: merge_request)
-        end
+        Gitlab::MergeRequests::Mergeability::ResultsStore.new(merge_request: merge_request)
       end
+      strong_memoize_attr :cached_results
 
       def logger
-        strong_memoize(:logger) do
-          MergeRequests::Mergeability::Logger.new(merge_request: merge_request)
-        end
+        MergeRequests::Mergeability::Logger.new(merge_request: merge_request)
+      end
+      strong_memoize_attr :logger
+
+      # This name may seem like a double-negative, but it is meaningful because
+      # #success? is _not_ the inverse of #unsuccessful?
+      def no_result_unsuccessful?
+        results.none?(&:unsuccessful?)
       end
 
-      def all_results_success?
-        results.none?(&:failed?)
-      end
-
-      def failed_check
+      def unsuccessful_check
         # NOTE: the identifier could be string when we retrieve it from the cache
         # so let's make sure we always return symbols here.
-        results.find(&:failed?)&.payload&.fetch(:identifier)&.to_sym
+        results.find(&:unsuccessful?)&.payload&.fetch(:identifier)&.to_sym
       end
     end
   end

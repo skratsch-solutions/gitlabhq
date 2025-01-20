@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Coverage-guided fuzz testing](../../user/application_security/coverage_fuzzing/index.md#coverage-guided-fuzz-testing-process) sends unexpected, malformed, or random data to your application, and then monitors
 your application for unstable behaviors and crashes.
@@ -123,7 +123,8 @@ To create the pipeline file:
 1. Name the file `.gitlab-ci.yml` and add the following code:
 
    ```yaml
-   image: node:18
+   default:
+     image: node:18
 
    stages:
      - fuzz

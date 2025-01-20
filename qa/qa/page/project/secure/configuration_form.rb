@@ -88,7 +88,15 @@ module QA
             card = find_security_testing_card('Secret push protection')
             within(card) do
               # The GitLabUI toggle uses a Close Icon button
-              click_element('close-icon')
+              click_element('close-xs-icon')
+            end
+          end
+
+          def enable_reg_scan
+            card = find_security_testing_card('Container Scanning For Registry')
+            within(card) do
+              # The GitLabUI toggle uses a Close Icon button
+              click_element('close-xs-icon')
             end
           end
 

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The Geo team performs manual testing and validation on common deployment configurations to ensure
 that Geo works when upgrading between minor GitLab versions and major PostgreSQL database versions.
@@ -18,6 +18,8 @@ This section contains a journal of validation tests and links to the relevant is
 ## GitLab upgrades
 
 The following are GitLab upgrade validation tests we performed.
+
+<!-- vale gitlab_base.OutdatedVersions = NO -->
 
 ### July 2020
 

@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe Oauth::AuthorizationsController do
-  let(:user) { create(:user) }
+RSpec.describe Oauth::AuthorizationsController, :with_current_organization, feature_category: :system_access do
+  let(:user) { create(:user, organizations: [current_organization]) }
   let(:application_scopes) { 'api read_user' }
   let(:confidential) { true }
 
@@ -128,6 +128,10 @@ RSpec.describe Oauth::AuthorizationsController do
           expect(response).to render_template('doorkeeper/authorizations/redirect')
         end
 
+        it "creates access grant on the Current.organization" do
+          expect { subject }.to change { OauthAccessGrant.where(organization: current_organization).count }
+        end
+
         context 'when showing applications as provided' do
           let!(:application) do
             create(
@@ -147,8 +151,20 @@ RSpec.describe Oauth::AuthorizationsController do
 
             it 'displays the provided application message' do
               subject
-              expect(response.body).to have_css('p.gl-text-green-500', text: 'This application is provided by GitLab.')
+              expect(response.body).to have_css('p.gl-text-success', text: 'This application is provided by GitLab.')
               expect(response.body).to have_css('[data-testid="tanuki-verified-icon"]')
+            end
+
+            context 'when redirect uri has www pattern' do
+              before do
+                application.redirect_uri = "http://www.examplewww.com"
+                application.save!
+              end
+
+              it 'substitutes pattern correctly on display' do
+                subject
+                expect(response.body).to have_css('p', text: "You will be redirected to examplewww.com")
+              end
             end
           end
 
@@ -160,7 +176,7 @@ RSpec.describe Oauth::AuthorizationsController do
             it 'displays the warning message' do
               subject
               expect(response.body).to have_css(
-                'p.gl-text-orange-500', text: "Make sure you trust #{application.name} before authorizing.")
+                'p.gl-text-warning', text: "Make sure you trust #{application.name} before authorizing.")
               expect(response.body).to have_css('[data-testid="warning-solid-icon"]')
             end
           end
@@ -255,6 +271,8 @@ RSpec.describe Oauth::AuthorizationsController do
     end
 
     context 'when the user is admin' do
+      let_it_be(:user) { create(:user, :admin, organizations: [current_organization]) }
+
       context 'when disable_admin_oauth_scopes is set' do
         before do
           stub_application_setting(disable_admin_oauth_scopes: true)
@@ -262,8 +280,6 @@ RSpec.describe Oauth::AuthorizationsController do
 
           allow(Doorkeeper.configuration).to receive(:scopes).and_return(scopes)
         end
-
-        let(:user) { create(:user, :admin) }
 
         it 'returns 200 and renders forbidden view' do
           subject
@@ -281,7 +297,6 @@ RSpec.describe Oauth::AuthorizationsController do
         end
 
         let(:application_scopes) { 'api' }
-        let(:user) { create(:user, :admin) }
 
         it 'returns 200 and renders redirect view' do
           subject
@@ -297,7 +312,6 @@ RSpec.describe Oauth::AuthorizationsController do
         end
 
         let(:application_scopes) { 'api' }
-        let(:user) { create(:user, :admin) }
 
         it 'returns 200 and renders new view' do
           subject

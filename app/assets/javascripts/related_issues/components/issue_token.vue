@@ -1,5 +1,5 @@
 <script>
-import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
+import { GlButton, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import relatedIssuableMixin from '~/issuable/mixins/related_issuable_mixin';
 
@@ -7,6 +7,7 @@ export default {
   name: 'IssueToken',
   components: {
     GlIcon,
+    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -48,9 +49,9 @@ export default {
 <template>
   <div
     :class="{
-      'issue-token gl-inline-flex gl-align-items-stretch gl-max-w-full gl-leading-24 gl-whitespace-nowrap':
+      'issue-token gl-inline-flex gl-max-w-full gl-items-stretch gl-whitespace-nowrap gl-leading-24':
         isCondensed,
-      'flex-row issuable-info-container': !isCondensed,
+      'issuable-info-container flex-row': !isCondensed,
     }"
   >
     <component
@@ -58,7 +59,7 @@ export default {
       ref="link"
       v-gl-tooltip
       :class="{
-        'issue-token-link gl-inline-flex gl-min-w-0 gl-text-gray-500': isCondensed,
+        'issue-token-link gl-inline-flex gl-min-w-0 gl-text-subtle': isCondensed,
         'issuable-main-info': !isCondensed,
       }"
       :href="computedPath"
@@ -70,20 +71,20 @@ export default {
         v-if="hasTitle"
         ref="title"
         :class="{
-          'issue-token-title issue-token-end gl-overflow-hidden gl-display-flex gl-align-items-baseline gl-text-gray-500 gl-pl-3':
+          'issue-token-title issue-token-end gl-flex gl-items-baseline gl-overflow-hidden gl-pl-3 gl-text-subtle':
             isCondensed,
           'issue-title block-truncated': !isCondensed,
-          'gl-rounded-top-right-small gl-rounded-bottom-right-small gl-pr-3': !canRemove,
+          'gl-rounded-br-small gl-rounded-tr-small gl-pr-3': !canRemove,
         }"
         class="js-issue-token-title"
       >
-        <span class="gl-text-truncate">{{ title }}</span>
+        <span class="gl-truncate">{{ title }}</span>
       </component>
       <component
         :is="innerComponentType"
         ref="reference"
         :class="{
-          'issue-token-reference gl-display-flex gl-align-items-center gl-rounded-top-left-small gl-rounded-bottom-left-small gl-px-3':
+          'issue-token-reference gl-flex gl-items-center gl-rounded-bl-small gl-rounded-tl-small gl-px-3':
             isCondensed,
           'issuable-info': !isCondensed,
         }"
@@ -101,23 +102,23 @@ export default {
         {{ displayReference }}
       </component>
     </component>
-    <button
+    <gl-button
       v-if="canRemove"
       ref="removeButton"
       v-gl-tooltip
       :class="{
-        'issue-token-remove-button gl-display-flex gl-align-items-center gl-px-3 gl-border-0 gl-rounded-top-right-small gl-rounded-bottom-right-small gl-text-gray-500':
+        'issue-token-remove-button !gl-rounded-l-none !gl-rounded-r-small gl-text-subtle':
           isCondensed,
-        'btn btn-default': !isCondensed,
       }"
       :title="removeButtonLabel"
       :aria-label="removeButtonLabel"
       :disabled="removeDisabled"
       data-testid="removeBtn"
       type="button"
+      category="tertiary"
+      size="small"
+      icon="close"
       @click="onRemoveRequest"
-    >
-      <gl-icon name="close" />
-    </button>
+    />
   </div>
 </template>

@@ -17,83 +17,6 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
       allow(fake_duplicate_job).to receive(:reschedulable?).and_return(true)
     end
 
-    context "when until_executed", if: strategy_name == :until_executed do
-      context 'with use_sidekiq_dedup_lock feature flag disabled' do
-        before do
-          stub_feature_flags(use_sidekiq_dedup_lock: false)
-        end
-
-        it 'does not obtain exclusive lease' do
-          expect(fake_duplicate_job).to receive(:scheduled?).exactly(3).times.ordered.and_return(false)
-          expect(fake_duplicate_job).to(
-            receive(:check!)
-              .with(fake_duplicate_job.duplicate_key_ttl)
-              .ordered
-              .and_return('a jid'))
-          expect(fake_duplicate_job).to receive(:duplicate?).ordered.and_return(false)
-          expect(Gitlab::ExclusiveLeaseHelpers::SleepingLock).not_to receive(:new)
-
-          expect { |b| strategy.schedule({}, &b) }.to yield_control
-        end
-      end
-
-      context 'with use_sidekiq_dedup_lock feature flag enabled' do
-        before do
-          stub_feature_flags(use_sidekiq_dedup_lock: true)
-          allow(fake_duplicate_job).to receive(:options).ordered.and_return({})
-        end
-
-        context 'when until_executed job is not reschedulable' do
-          before do
-            allow(fake_duplicate_job).to receive(:reschedulable?).and_return(false)
-          end
-
-          it 'does not obtain exclusive lease' do
-            expect(fake_duplicate_job).to receive(:scheduled?).exactly(3).times.ordered.and_return(false)
-            expect(fake_duplicate_job).to(
-              receive(:check!)
-                .with(fake_duplicate_job.duplicate_key_ttl)
-                .ordered
-                .and_return('a jid'))
-            expect(fake_duplicate_job).to receive(:duplicate?).ordered.and_return(false)
-            expect(Gitlab::ExclusiveLeaseHelpers::SleepingLock).not_to receive(:new)
-
-            expect { |b| strategy.schedule({}, &b) }.to yield_control
-          end
-        end
-
-        it 'obtains exclusive lease when checking for duplicates' do
-          # twice in `.deduplicatable_job?`, once in `.expiry`
-          expect(fake_duplicate_job).to receive(:scheduled?).exactly(3).times.ordered.and_return(false)
-          expect(fake_duplicate_job).to(
-            receive(:check!)
-              .with(fake_duplicate_job.duplicate_key_ttl)
-              .ordered
-              .and_return('a jid'))
-          expect(fake_duplicate_job).to receive(:duplicate?).ordered.and_return(false)
-          expect_next_instance_of(Gitlab::ExclusiveLeaseHelpers::SleepingLock) do |sl|
-            expect(sl).to receive(:obtain).and_call_original
-          end
-
-          expect { |b| strategy.schedule({}, &b) }.to yield_control
-        end
-
-        it 'reschedules jobs after failing to acquire lock' do
-          # twice in `.deduplicatable_job?`
-          expect(fake_duplicate_job).to receive(:scheduled?).twice.ordered.and_return(false)
-
-          expect_next_instance_of(Gitlab::ExclusiveLeaseHelpers::SleepingLock) do |sl|
-            expect(sl).to receive(:obtain)
-              .and_raise(Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError)
-          end
-
-          expect(Gitlab::SidekiqLogging::DeduplicationLogger.instance).to receive(:lock_error_log)
-
-          expect { |b| strategy.schedule({}, &b) }.to yield_control
-        end
-      end
-    end
-
     it 'checks for duplicates before yielding' do
       # twice in `.deduplicatable_job?`, once in `.expiry`
       expect(fake_duplicate_job).to receive(:scheduled?).exactly(3).times.ordered.and_return(false)
@@ -103,6 +26,7 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
           .ordered
           .and_return('a jid'))
       expect(fake_duplicate_job).to receive(:duplicate?).ordered.and_return(false)
+      expect(fake_duplicate_job).to receive(:clear_signaling_key).ordered
 
       expect { |b| strategy.schedule({}, &b) }.to yield_control
     end
@@ -113,6 +37,7 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
       expect(fake_duplicate_job).to receive(:scheduled?).ordered.and_return(true)
       expect(fake_duplicate_job).to receive(:options).ordered.and_return({})
       expect(fake_duplicate_job).not_to receive(:check!)
+      expect(fake_duplicate_job).to receive(:clear_signaling_key).ordered
 
       expect { |b| strategy.schedule({}, &b) }.to yield_control
     end
@@ -123,12 +48,12 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
         allow(fake_duplicate_job).to receive(:check!).and_return('the jid')
         allow(fake_duplicate_job).to receive(:idempotent?).and_return(true)
         allow(fake_duplicate_job).to receive(:update_latest_wal_location!)
-        allow(fake_duplicate_job).to receive(:set_deduplicated_flag!)
         allow(fake_duplicate_job).to receive(:options).and_return({})
         job_hash = {}
 
         expect(fake_duplicate_job).to receive(:duplicate?).and_return(true)
         expect(fake_duplicate_job).to receive(:existing_jid).and_return('the jid')
+        expect(fake_duplicate_job).not_to receive(:clear_signaling_key)
 
         strategy.schedule(job_hash) {}
 
@@ -149,12 +74,12 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
                 .and_return('the jid'))
             allow(fake_duplicate_job).to receive(:idempotent?).and_return(true)
             allow(fake_duplicate_job).to receive(:update_latest_wal_location!)
-            allow(fake_duplicate_job).to receive(:set_deduplicated_flag!)
             allow(fake_duplicate_job).to receive(:deferred?)
             job_hash = {}
 
             expect(fake_duplicate_job).to receive(:duplicate?).and_return(true)
             expect(fake_duplicate_job).to receive(:existing_jid).and_return('the jid')
+            expect(fake_duplicate_job).not_to receive(:clear_signaling_key)
 
             strategy.schedule(job_hash) {}
 
@@ -172,12 +97,12 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
                 receive(:check!).with(time_diff.to_i + fake_duplicate_job.duplicate_key_ttl).and_return('the jid'))
               allow(fake_duplicate_job).to receive(:idempotent?).and_return(true)
               allow(fake_duplicate_job).to receive(:update_latest_wal_location!)
-              allow(fake_duplicate_job).to receive(:set_deduplicated_flag!)
               allow(fake_duplicate_job).to receive(:deferred?)
               job_hash = {}
 
               expect(fake_duplicate_job).to receive(:duplicate?).and_return(true)
               expect(fake_duplicate_job).to receive(:existing_jid).and_return('the jid')
+              expect(fake_duplicate_job).not_to receive(:clear_signaling_key)
 
               strategy.schedule(job_hash) {}
 
@@ -201,7 +126,7 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
       it 'does not return false nor drop the job' do
         schedule_result = nil
 
-        expect(fake_duplicate_job).not_to receive(:set_deduplicated_flag!)
+        allow(fake_duplicate_job).to receive(:clear_signaling_key)
 
         expect { |b| schedule_result = strategy.schedule({}, &b) }.to yield_control
 
@@ -218,7 +143,6 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
         allow(fake_duplicate_job).to receive(:existing_jid).and_return('the jid')
         allow(fake_duplicate_job).to receive(:idempotent?).and_return(true)
         allow(fake_duplicate_job).to receive(:update_latest_wal_location!)
-        allow(fake_duplicate_job).to receive(:set_deduplicated_flag!)
         allow(fake_duplicate_job).to receive(:idempotency_key).and_return('abc123')
       end
 
@@ -232,7 +156,6 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
         schedule_result = nil
 
         expect(fake_duplicate_job).to receive(:idempotent?).and_return(true)
-        expect(fake_duplicate_job).to receive(:set_deduplicated_flag!).once
 
         expect { |b| schedule_result = strategy.schedule({}, &b) }.not_to yield_control
         expect(schedule_result).to be(false)
@@ -273,8 +196,7 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
       allow(fake_duplicate_job).to receive(:delete!)
       allow(fake_duplicate_job).to receive(:scheduled?) { false }
       allow(fake_duplicate_job).to receive(:options) { {} }
-      allow(fake_duplicate_job).to receive(:should_reschedule?) { false }
-      allow(fake_duplicate_job).to receive(:latest_wal_locations).and_return( wal_locations )
+      allow(fake_duplicate_job).to receive(:latest_wal_locations).and_return(wal_locations)
       allow(fake_duplicate_job).to receive(:idempotency_key).and_return('abc123')
       allow(fake_duplicate_job).to receive(:strategy).and_return(:until_executed)
       allow(fake_duplicate_job).to receive(:reschedulable?) { false }
@@ -300,7 +222,7 @@ RSpec.shared_examples 'deduplicating jobs when scheduling' do |strategy_name|
 
     context 'when latest_wal_location is empty' do
       before do
-        allow(fake_duplicate_job).to receive(:latest_wal_locations).and_return( {} )
+        allow(fake_duplicate_job).to receive(:latest_wal_locations).and_return({})
       end
 
       include_examples 'does not update job hash'

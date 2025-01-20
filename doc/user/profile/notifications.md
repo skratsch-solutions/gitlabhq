@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Personal Productivity
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,11 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Enhanced email styling [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/78604) in GitLab 14.9 [with a feature flag](../../administration/feature_flags.md) named `enhanced_notify_css`. Disabled by default.
 > - Enhanced email styling [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 14.9.
-> - Enhanced email styling [enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 15.0.
+> - Enhanced email styling [enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/355907) in GitLab 15.0.
 > - Product marketing emails [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/418137) in GitLab 16.6.
 
 Stay informed about what's happening in GitLab with email notifications.
@@ -35,13 +35,14 @@ You might receive notifications for one of the following reasons:
   or edit, or someone mentions <sup>1</sup> you.
 - You've [enabled notifications in an issue, merge request, or epic](#notifications-on-issues-merge-requests-and-epics).
 - You've configured notifications for the [project](#change-level-of-project-notifications) or [group](#group-notifications).
-- You're subscribed to group or project pipeline notifications via the pipeline emails [integration](../project/integrations/index.md).
+- You're subscribed to group or project pipeline notifications through the pipeline emails [integration](../project/integrations/index.md).
 
-1. GitLab doesn't send a notification when
-   [a comment is edited to include a user mention](../discussions/index.md#edit-a-comment-to-add-a-mention).
-
-NOTE:
-Administrators can block notifications, preventing them from being sent.
+> GitLab does not send a notification when:
+>
+> - The account is a project bot or service account. 
+> - The account is blocked (banned) or deactivated.
+> - [A comment is edited to include a user mention](../discussions/index.md#edit-a-comment-to-add-a-mention).
+> - An administrator has blocked notifications.
 
 ## Edit notification settings
 
@@ -172,8 +173,8 @@ Users are notified of the following events:
 | Personal access tokens have been created | User            | Security email, always sent.                                                                                                            |
 | Personal access tokens have expired      | User            | Security email, always sent.                                                                                                            |
 | Personal access token has been revoked   | User            | Security email, always sent.  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/98911) in GitLab 15.5.                 |
-| Group access tokens expiring soon        | Group owners, maintainers, and administrators | Security email, always sent.  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367705) in GitLab 16.4.                 |
-| Project access tokens expiring soon      | Group owners, maintainers, and administrators | Security email, always sent.  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367705) in GitLab 16.4.                 |
+| Group access tokens expiring soon        | Direct Group Owners | Security email, always sent.  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367705) in GitLab 16.4.                 |
+| Project access tokens expiring soon      | Direct Project Owners and Maintainers | Security email, always sent.  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/367706) in GitLab 16.4.                 |
 | Project access level changed             | User            | Sent when user project access level is changed.                                                                                         |
 | SSH key has expired                      | User            | Security email, always sent.                                                                                                            |
 | Two-factor authentication disabled       | User            | Security email, always sent.                                                                                                            |
@@ -208,7 +209,17 @@ to change their user notification settings to **Watch** instead.
 ### Edit notification settings for issues, merge requests, and epics
 
 To toggle notifications on an issue, merge request, or epic: on the right sidebar,
-turn on or off the **Notifications** (**{notifications}**) toggle.
+select the vertical ellipsis (**{ellipsis_v}**), then turn on or off the **Notifications** toggle.
+
+#### Moved notifications
+
+DETAILS:
+**Offering:** GitLab Self-Managed
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/132678) in GitLab 16.5 [with a flag](../../administration/feature_flags.md) named `notifications_todos_buttons`. Disabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag. For more information, see the history. Enabling this feature flag moves the notifications and to-do item buttons to the upper-right corner of the page.
 
 When you **turn on** notifications, you start receiving notifications on each update, even if you
 haven't participated in the discussion.
@@ -265,6 +276,7 @@ To always receive notifications on your own issues, merge requests, and so on, t
 ## Notifications for unknown sign-ins
 
 > - Listing the full name and username of the signed-in user [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/225183) in GitLab 15.10.
+> - Geographic location [added](https://gitlab.com/gitlab-org/gitlab/-/issues/296128) in GitLab 17.5.
 
 NOTE:
 This feature is enabled by default for self-managed instances. Administrators may disable this feature
@@ -278,6 +290,7 @@ malicious or unauthorized sign-ins. This notification email includes the:
 - Hostname.
 - User's name and username.
 - IP address.
+- Geographic location.
 - Date and time of sign-in.
 
 GitLab uses several methods to identify a known sign-in. All methods must fail for a notification email to be sent.
@@ -326,9 +339,44 @@ If you no longer wish to receive any email notifications:
 1. If you belong to any groups or projects, set their notification setting to **Global** or
    **Disabled**.
 
-On self-managed installations, even after doing this, your instance administrator
+On GitLab Self-Managed instances, even after doing this, your instance administrator
 [can still email you](../../administration/email_from_gitlab.md).
-To unsubscribe, select the unsubscribe link in one of these emails.
+
+## Unsubscribe from notification emails
+
+You can unsubscribe from notification emails from GitLab on a per-resource basis (for example a specific issue).
+
+### Using the unsubscribe link
+
+Every notification email from GitLab contains an unsubscribe link at the bottom.
+
+To unsubscribe:
+
+1. Select the unsubscribe link in the email.
+1. If you are signed in to GitLab in your browser, you are unsubscribed immediately.
+1. If you are not signed in, you need to confirm the action.
+
+### Using an email client or other software
+
+Your email client might show an **Unsubscribe** button when you view an email from GitLab.
+To unsubscribe, select this button.
+
+Notification emails from GitLab contain special headers.
+These headers allow supported email clients and other software
+to unsubscribe users automatically. Here's an example:
+
+```plaintext
+List-Unsubscribe: <https://gitlab.com/-/sent_notifications/[REDACTED]/unsubscribe>,<mailto:incoming+[REDACTED]-unsubscribe@incoming.gitlab.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+```
+
+The `List-Unsubscribe` header has two entries:
+
+- A link for software to send a `POST` request.
+  This action directly unsubscribes the user from the resource.
+  Sending a `GET` request to this link shows a confirmation dialog instead of unsubscribing.
+- An email address for software to send an unsubscribe email.
+  The content of the email is ignored.
 
 ## Email headers you can use to filter email
 
@@ -336,7 +384,7 @@ Notification email messages include GitLab-specific headers. To better manage yo
 you can filter the notification emails based on the content of these headers.
 
 For example, you could filter all emails from a specific project where you are being assigned a
-a merge request or an issue.
+merge request or an issue.
 
 The following table lists all GitLab-specific email headers:
 
@@ -376,7 +424,7 @@ For example, an email with the reason `assigned` has this sentence in the footer
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 An [on-call alert](../../operations/incident_management/oncall_schedules.md)
 notification email can have one of [the alert's](../../operations/incident_management/alerts.md) statuses:
@@ -390,7 +438,7 @@ notification email can have one of [the alert's](../../operations/incident_manag
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 An [incident escalation](../../operations/incident_management/escalation_policies.md)
 notification email can have one of [the incident's](../../operations/incident_management/incidents.md) status:

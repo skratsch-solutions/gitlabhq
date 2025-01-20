@@ -8,7 +8,7 @@ info: For assistance with this What's new page, see https://handbook.gitlab.com/
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can view some of the highlights from the last 10
 GitLab versions in the **What's new** feature. It lists new features available in different
@@ -16,12 +16,12 @@ GitLab versions in the **What's new** feature. It lists new features available i
 
 All users can see the feature list, but the entries might differ depending on the subscription type:
 
-- Features only available on GitLab.com are not shown to self-managed installations.
-- Features only available to self-managed installations are not shown on GitLab.com.
+- Features only available on GitLab.com are not shown on GitLab Self-Managed instances.
+- Features only available to GitLab Self-Managed instances are not shown on GitLab.com.
 
-   NOTE:
-   For self-managed installations, the updated **What's new** is included
-   in the first patch release after a new version, such as `13.10.1`.
+  NOTE:
+  For GitLab Self-Managed, the updated **What's new** is included
+  in the first patch release after a new version, such as `13.10.1`.
 
 ## Access What's new
 
@@ -35,7 +35,7 @@ To access the **What's new** feature:
 You can configure **What's new** to display features based on the tier,
 or you can hide it. To configure it:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Preferences**.
 1. Expand **What's new**, and choose one of the following options:
 

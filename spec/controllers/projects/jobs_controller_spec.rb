@@ -16,6 +16,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
   let_it_be(:guest) { create(:user) }
 
   before_all do
+    project.update!(ci_pipeline_variables_minimum_override_role: :developer)
     project.add_owner(owner)
     project.add_maintainer(maintainer)
     project.add_developer(developer)
@@ -23,7 +24,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
     project.add_guest(guest)
     create_default(:owner)
     create_default(:user)
-    create_default(:ci_trigger_request)
+    create_default(:ci_trigger_request, project_id: project.id)
     create_default(:ci_stage)
   end
 
@@ -182,7 +183,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
 
         json_response.dig('pipeline', 'details', 'stages').tap do |stages|
           expect(stages.flat_map(&:keys))
-            .to eq %w[name title status path dropdown_path]
+            .to eq %w[name id title status path dropdown_path]
         end
       end
 
@@ -196,6 +197,16 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
           expect(json_response['merge_request']['path']).to match(%r{merge_requests/\d+\z})
           expect(json_response['new_issue_path']).to include('/issues/new')
         end
+      end
+
+      it "avoids N+1 database queries", :use_sql_query_cache do
+        get_show_json
+
+        control = ActiveRecord::QueryRecorder.new(skip_cached: false) { get_show_json }
+
+        create_list(:ci_build, 5, :failed, pipeline: pipeline)
+
+        expect { get_show_json }.to issue_same_number_of_queries_as(control)
       end
 
       context 'when job is running' do
@@ -415,7 +426,7 @@ RSpec.describe Projects::JobsController, :clean_gitlab_redis_shared_state, featu
       end
 
       context 'when no runners are available' do
-        let(:runner) { create(:ci_runner, :instance, active: false) }
+        let(:runner) { create(:ci_runner, :instance, :paused) }
         let(:job) { create(:ci_build, :pending, pipeline: pipeline, runner: runner) }
 
         it 'exposes needed information' do

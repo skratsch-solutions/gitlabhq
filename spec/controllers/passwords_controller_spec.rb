@@ -83,17 +83,6 @@ RSpec.describe PasswordsController, feature_category: :system_access do
           )
         end
       end
-
-      it 'sets the username and caller_id in the context' do
-        expect(controller).to receive(:update).and_wrap_original do |m, *args|
-          m.call(*args)
-
-          expect(Gitlab::ApplicationContext.current)
-            .to include('meta.user' => user.username, 'meta.caller_id' => 'PasswordsController#update')
-        end
-
-        subject
-      end
     end
   end
 
@@ -102,6 +91,72 @@ RSpec.describe PasswordsController, feature_category: :system_access do
     let(:email) { user.email }
 
     subject(:perform_request) { post(:create, params: { user: { email: email } }) }
+
+    context 'when parameter sanitization is applied' do
+      let(:password) { User.random_password }
+      let(:password_confirmation) { password }
+      let(:reset_password_token) { user.send_reset_password_instructions }
+
+      let(:user_hash) do
+        {
+          user: {
+            email: email,
+            password: password,
+            password_confirmation: password_confirmation,
+            reset_password_token: reset_password_token,
+            admin: true
+          }
+        }
+      end
+
+      let(:malicious_user_hash) do
+        {
+          user: {
+            email: [email, 'malicious_user@example.com'],
+            password: password,
+            password_confirmation: password_confirmation,
+            reset_password_token: reset_password_token,
+            admin: true,
+            require_two_factor_authentication: false
+          }
+        }
+      end
+
+      let(:sanitized_params) { controller.send(:resource_params) }
+
+      it 'returns a hash with permitted keys', :aggregate_failures do
+        put :create, params: user_hash
+
+        expect(sanitized_params.to_h).to include({
+          email: email,
+          password: password,
+          password_confirmation: password_confirmation,
+          reset_password_token: reset_password_token
+        })
+
+        expect(sanitized_params.to_h).not_to include({
+          admin: true
+        })
+      end
+
+      it 'returns a hash of only permitted scalars', :aggregate_failures do
+        # PERMITTED_SCALAR_TYPES = [ String, Symbol, NilClass, Numeric, TrueClass, FalseClass, Date, Time]
+
+        put :create, params: malicious_user_hash
+
+        expect(sanitized_params.to_h).to include({
+          password: password,
+          password_confirmation: password_confirmation,
+          reset_password_token: reset_password_token
+        })
+
+        expect(sanitized_params.to_h).not_to include({
+          email: [email, 'malicious_user@example.com'],
+          admin: true,
+          require_two_factor_authentication: false
+        })
+      end
+    end
 
     context 'when reCAPTCHA is disabled' do
       before do

@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -132,12 +132,6 @@ result in a `Key is still referenced from table ...` error and updating the
 partition column on the source table would raise a
 `Key is not present in table ...` error.
 
-This migration can be automatically generated using:
-
-```shell
-./scripts/partitioning/generate-fk --source source_table_name --target target_table_name
-```
-
 ### Step 5 - Swap primary key
 
 Swap the primary key including the partitioning key column. This can be done only after
@@ -221,7 +215,6 @@ class ConvertTableToListPartitioning < Gitlab::Database::Migration[2.1]
   disable_ddl_transaction!
 
   TABLE_NAME = :table_name
-  TABLE_FK = :table_references_by_fk
   PARENT_TABLE_NAME = :p_table_name
   FIRST_PARTITION = 100
   PARTITION_COLUMN = :partition_id
@@ -231,8 +224,7 @@ class ConvertTableToListPartitioning < Gitlab::Database::Migration[2.1]
       table_name: TABLE_NAME,
       partitioning_column: PARTITION_COLUMN,
       parent_table_name: PARENT_TABLE_NAME,
-      initial_partitioning_value: FIRST_PARTITION,
-      lock_tables: [TABLE_FK, TABLE_NAME]
+      initial_partitioning_value: FIRST_PARTITION
     )
   end
 

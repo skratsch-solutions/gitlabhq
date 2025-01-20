@@ -5,14 +5,18 @@ module Gitlab
     # Converts a credit card's expiration_date, last_digits, network & holder_name
     # to hash and store values in new columns
     class ConvertCreditCardValidationDataToHashes < BatchedMigrationJob
+      COLUMN_NAMES = %w[last_digits holder_name network expiration_date].freeze
+
       operation_name :convert_credit_card_data
       feature_category :user_profile
 
-      class CreditCardValidation < ApplicationRecord # rubocop:disable Style/Documentation
+      class CreditCardValidation < ApplicationRecord
         self.table_name = 'user_credit_card_validations'
       end
 
       def perform
+        return unless COLUMN_NAMES.all? { |column| CreditCardValidation.column_names.include?(column) }
+
         each_sub_batch do |sub_batch|
           credit_cards = CreditCardValidation.where(user_id: sub_batch)
 

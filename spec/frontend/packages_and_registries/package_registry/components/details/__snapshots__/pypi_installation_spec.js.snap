@@ -3,10 +3,10 @@
 exports[`PypiInstallation renders all the messages 1`] = `
 <div>
   <div
-    class="gl-align-items-center gl-display-flex gl-justify-content-space-between"
+    class="gl-flex gl-items-center gl-justify-between"
   >
     <h3
-      class="gl-font-lg"
+      class="gl-text-lg"
     >
       Installation
     </h3>
@@ -45,7 +45,7 @@ exports[`PypiInstallation renders all the messages 1`] = `
           </span>
         </button>
         <div
-          class="gl-new-dropdown-panel gl-w-31!"
+          class="!gl-w-31 gl-new-dropdown-panel"
           data-testid="base-dropdown-menu"
           id="reference-1"
         >
@@ -83,7 +83,7 @@ exports[`PypiInstallation renders all the messages 1`] = `
                 >
                   <svg
                     aria-hidden="true"
-                    class="gl-align-self-start gl-fill-current gl-icon gl-mt-3 gl-new-dropdown-item-check-icon s16"
+                    class="gl-fill-current gl-icon gl-mt-3 gl-new-dropdown-item-check-icon gl-self-start s16"
                     data-testid="dropdown-item-checkbox"
                     role="img"
                   >
@@ -121,7 +121,7 @@ exports[`PypiInstallation renders all the messages 1`] = `
     id="reference-3"
   >
     <legend
-      class="bv-no-focus-ring col-form-label pt-0"
+      class="!gl-pt-0 bv-no-focus-ring col-form-label"
       id="reference-4"
       tabindex="-1"
     />
@@ -178,7 +178,7 @@ exports[`PypiInstallation renders all the messages 1`] = `
         </div>
       </div>
       <small
-        class="form-text text-gl-muted"
+        class="form-text text-muted"
         id="reference-8"
         tabindex="-1"
       >
@@ -195,7 +195,7 @@ exports[`PypiInstallation renders all the messages 1`] = `
     </div>
   </fieldset>
   <h3
-    class="gl-font-lg"
+    class="gl-text-lg"
   >
     Registry setup
   </h3>

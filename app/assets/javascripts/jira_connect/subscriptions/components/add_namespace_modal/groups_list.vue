@@ -96,6 +96,10 @@ export default {
       this.searchValue = newSearchValue;
       this.loadGroups();
     },
+    setPage(page) {
+      this.page = page;
+      this.loadGroups();
+    },
   },
   DEFAULT_GROUPS_PER_PAGE,
 };
@@ -133,7 +137,7 @@ export default {
     </div>
     <ul
       v-else
-      class="gl-list-none gl-pl-0 gl-border-t-1 gl-border-t-solid gl-border-t-gray-100"
+      class="gl-list-none gl-border-t-1 gl-border-t-default gl-pl-0 gl-border-t-solid"
       :class="{ 'gl-opacity-5': isLoadingMore }"
       data-testid="groups-list"
     >
@@ -146,14 +150,14 @@ export default {
       />
     </ul>
 
-    <div class="gl-display-flex gl-justify-content-center gl-mt-5">
+    <div class="gl-mt-5 gl-flex gl-justify-center">
       <gl-pagination
         v-if="showPagination"
-        v-model="page"
+        :value="page"
         class="gl-mb-0"
         :per-page="$options.DEFAULT_GROUPS_PER_PAGE"
         :total-items="totalItems"
-        @input="loadGroups"
+        @input="setPage"
       />
     </div>
   </div>

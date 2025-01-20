@@ -3,7 +3,10 @@
 
 require 'json'
 
-TESTCASE_FORMAT = %r{https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/\d+}
+TESTCASE_FORMAT = %r{
+  (https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/\d+)|
+  (https://jihulab.com/gitlab-cn/quality/testcases/-/quality/test_cases/\d+)
+}x
 
 testcases = []
 missing_testcases = []
@@ -22,7 +25,7 @@ end
 
 file = File.read(test_metadata_file)
 
-unless file =~ %r{.*\"examples\":\[\{\"id\"\:.*}
+unless %r{.*\"examples\":\[\{\"id\"\:.*}.match?(file)
   puts "\nRspec output did not match regex. Check test-metadata.json file.\n"
   exit 1
 end
@@ -33,12 +36,12 @@ data_hash = JSON.parse(file)
 tests = data_hash['examples']
 
 tests.each do |test|
-  next if test['id'] =~ %r{.\/qa\/specs\/features\/sanity\/*}
+  next if %r{.\/qa\/specs\/features\/sanity\/*}.match?(test['id'])
 
   if test['testcase']
     testcases.push([(test['testcase']).to_s, "#{test['id']} - #{test['full_description']}"])
 
-    unless TESTCASE_FORMAT =~ test['testcase']
+    unless TESTCASE_FORMAT.match?(test['testcase'])
       testcase_format_errors.push(
         <<~FORMAT_ERRORS
            ==> #{test['testcase']} in file: #{test['id']} with title:

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -23,7 +23,7 @@ When SCIM is enabled for a GitLab group, membership of that group is synchronize
 The [internal GitLab group SCIM API](../../../development/internal_api/index.md#group-scim-api) implements part of [the RFC7644 protocol](https://www.rfc-editor.org/rfc/rfc7644).
 Identity providers can use the [internal GitLab group SCIM API](../../../development/internal_api/index.md#group-scim-api) to develop a SCIM app.
 
-To set up SCIM on GitLab self-managed, see [Configure SCIM for self-managed GitLab instances](../../../administration/settings/scim_setup.md).
+To set up SCIM on GitLab Self-Managed, see [Configure SCIM for GitLab Self-Managed](../../../administration/settings/scim_setup.md).
 
 ## Configure GitLab
 
@@ -195,7 +195,7 @@ Prerequisites:
 To configure Okta for SCIM:
 
 1. Sign in to Okta.
-1. In the upper-right corner, select **Admin**. The button is not visible from the Admin Area.
+1. In the upper-right corner, select **Admin**. The button is not visible from the **Admin** area.
 1. In the **Application** tab, select **Browse App Catalog**.
 1. Search for **GitLab**, find and select the **GitLab** application.
 1. On the GitLab application overview page, select **Add**.

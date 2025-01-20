@@ -163,10 +163,10 @@ module Gitlab
                 { service: 'gitaly.RepositoryService', method: 'RepositorySize' },
                 { service: 'gitaly.RepositoryService', method: 'SearchFilesByContent' },
                 { service: 'gitaly.RepositoryService', method: 'SearchFilesByName' },
-                { service: 'gitaly.ServerService', method: 'ClockSynced' },
                 { service: 'gitaly.ServerService', method: 'DiskStatistics' },
                 { service: 'gitaly.ServerService', method: 'ReadinessCheck' },
                 { service: 'gitaly.ServerService', method: 'ServerInfo' },
+                { service: 'gitaly.ServerService', method: 'ServerSignature' },
                 { service: 'grpc.health.v1.Health', method: 'Check' }
               ],
               retryPolicy: {
@@ -215,6 +215,7 @@ module Gitlab
 
     def self.clear_stubs!
       MUTEX.synchronize do
+        @channels&.each_value(&:close)
         @stubs = nil
         @channels = nil
       end
@@ -328,8 +329,12 @@ module Gitlab
         'authorization' => "Bearer #{authorization_token(storage)}",
         'client_name' => CLIENT_NAME
       }
-
+      gitaly_context = {}
       relative_path = fetch_relative_path
+
+      ::Gitlab::Auth::Identity.currently_linked do |identity|
+        gitaly_context['scoped-user-id'] = identity.scoped_user.id.to_s
+      end
 
       context_data = Gitlab::ApplicationContext.current
 
@@ -343,6 +348,8 @@ module Gitlab
       metadata['user_id'] = context_data['meta.user_id'].to_s if context_data&.fetch('meta.user_id', nil)
       metadata['remote_ip'] = context_data['meta.remote_ip'] if context_data&.fetch('meta.remote_ip', nil)
       metadata['relative-path-bin'] = relative_path if relative_path
+      metadata['gitaly-client-context-bin'] = gitaly_context.to_json if gitaly_context.present?
+
       metadata.merge!(Feature::Gitaly.server_feature_flags(**feature_flag_actors))
       metadata.merge!(route_to_primary)
 
@@ -603,6 +610,7 @@ module Gitlab
 
       stack_counter.select { |_, v| v == max }.keys
     end
+    private_class_method :max_stacks
 
     def self.decode_detailed_error(err)
       # details could have more than one in theory, but we only have one to worry about for now.
@@ -619,7 +627,19 @@ module Gitlab
       nil
     end
 
-    private_class_method :max_stacks
+    # This method attempts to unwrap a detailed error from a Gitaly RPC error.
+    # It first decodes the detailed error using decode_detailed_error. If successful,
+    # it tries to extract the unwrapped error by calling the method named by the
+    # error attribute on the decoded error object.
+    def self.unwrap_detailed_error(err)
+      e = decode_detailed_error(err)
+
+      return e if e.nil? || !e.respond_to?(:error) || e.error.nil? || !e.error.respond_to?(:to_s)
+
+      unwrapped_error = e[e.error.to_s]
+
+      unwrapped_error || e
+    end
 
     def self.with_feature_flag_actors(repository: nil, user: nil, project: nil, group: nil, &block)
       feature_flag_actors[:repository] = repository

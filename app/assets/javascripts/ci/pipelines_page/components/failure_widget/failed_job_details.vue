@@ -1,22 +1,24 @@
 <script>
-import { GlButton, GlIcon, GlLink, GlTooltip } from '@gitlab/ui';
+import { GlButton, GlLink, GlTooltip, GlTooltipDirective } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import { __, s__, sprintf } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
 import SafeHtml from '~/vue_shared/directives/safe_html';
-import { BRIDGE_KIND } from '~/ci/pipeline_details/graph/constants';
+import { BRIDGE_KIND, BUILD_KIND } from '~/ci/pipeline_details/graph/constants';
 import RetryMrFailedJobMutation from '~/ci/merge_requests/graphql/mutations/retry_mr_failed_job.mutation.graphql';
+import RootCauseAnalysisButton from 'ee_else_ce/ci/job_details/components/root_cause_analysis_button.vue';
 
 export default {
   components: {
     CiIcon,
     GlButton,
-    GlIcon,
     GlLink,
     GlTooltip,
+    RootCauseAnalysisButton,
   },
   directives: {
+    GlTooltip: GlTooltipDirective,
     SafeHtml,
   },
   props: {
@@ -24,33 +26,31 @@ export default {
       type: Object,
       required: true,
     },
+    canTroubleshootJob: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
-      isHovered: false,
-      isJobLogVisible: false,
       isLoadingAction: false,
     };
   },
   computed: {
-    canReadBuild() {
-      return this.job.userPermissions.readBuild;
-    },
     canRetryJob() {
       return this.job.retryable && this.job.userPermissions.updateBuild && !this.isBridgeJob;
     },
+    detailedStatus() {
+      return this.job?.detailedStatus;
+    },
+    detailsPath() {
+      return this.detailedStatus?.detailsPath;
+    },
+    statusGroup() {
+      return this.detailedStatus?.group;
+    },
     isBridgeJob() {
       return this.job.kind === BRIDGE_KIND;
-    },
-    jobChevronName() {
-      return this.isJobLogVisible ? 'chevron-down' : 'chevron-right';
-    },
-    jobTrace() {
-      if (this.canReadBuild) {
-        return this.job?.trace?.htmlSummary || this.$options.i18n.noTraceText;
-      }
-
-      return this.$options.i18n.cannotReadBuild;
     },
     parsedJobId() {
       return getIdFromGraphQLId(this.job.id);
@@ -63,14 +63,11 @@ export default {
     tooltipText() {
       return sprintf(this.$options.i18n.jobActionTooltipText, { jobName: this.job.name });
     },
+    isBuildJob() {
+      return this.job.kind === BUILD_KIND;
+    },
   },
   methods: {
-    setActiveRow() {
-      this.isHovered = true;
-    },
-    resetActiveRow() {
-      this.isHovered = false;
-    },
     async retryJob() {
       try {
         this.isLoadingAction = true;
@@ -95,71 +92,63 @@ export default {
         this.isLoadingAction = false;
       }
     },
-    toggleJobLog(event) {
-      // Do not toggle the log visibility when clicking on a link
-      if (event.target.tagName === 'A') {
-        return;
-      }
-      this.isJobLogVisible = !this.isJobLogVisible;
-    },
   },
   i18n: {
     cannotReadBuild: s__("Job|You do not have permission to read this job's log."),
     cannotRetry: s__('Job|You do not have permission to run this job again.'),
     cannotRetryTrigger: s__('Job|You cannot rerun trigger jobs from this list.'),
     jobActionTooltipText: s__('Pipelines|Retry %{jobName} Job'),
-    noTraceText: s__('Job|No job log'),
-    retry: __('Retry'),
-    retryError: __('There was an error while retrying this job'),
+    retry: __('Run again'),
+    retryError: __('There was an error while running this job again'),
   },
 };
 </script>
 <template>
-  <div class="container-fluid gl-grid-rows-auto">
+  <div class="container-fluid gl-my-1 gl-grid-rows-auto">
     <div
-      class="row gl-my-3 gl-cursor-pointer gl-display-flex gl-align-items-center"
-      :aria-pressed="isJobLogVisible"
-      role="button"
-      tabindex="0"
+      class="row gl-my-3 gl-flex gl-flex-wrap gl-items-center gl-gap-y-4"
       data-testid="widget-row"
-      @click="toggleJobLog"
-      @keyup.enter="toggleJobLog"
-      @keyup.space="toggleJobLog"
-      @mouseover="setActiveRow"
-      @mouseout="resetActiveRow"
     >
-      <div class="col-6 gl-text-gray-900 gl-font-bold gl-text-left">
-        <gl-icon :name="jobChevronName" />
+      <div class="align-items-center col-4 gl-flex gl-text-default">
         <ci-icon :status="job.detailedStatus" />
-        {{ job.name }}
+        <gl-link
+          class="gl-ml-2 !gl-text-default !gl-no-underline"
+          :href="detailsPath"
+          data-testid="job-name-link"
+          >{{ job.name }}</gl-link
+        >
       </div>
-      <div class="col-2 gl-text-left">{{ job.stage.name }}</div>
-      <div class="col-2 gl-text-left">
-        <gl-link :href="job.detailedStatus.detailsPath">#{{ parsedJobId }}</gl-link>
+      <div class="col-2 gl-flex gl-items-center" data-testid="job-stage-name">
+        {{ job.stage.name }}
+      </div>
+      <div class="col-2 gl-flex gl-items-center">
+        <gl-link :href="detailsPath" data-testid="job-id-link">#{{ parsedJobId }}</gl-link>
       </div>
       <gl-tooltip v-if="!canRetryJob" :target="() => $refs.retryBtn" placement="top">
         {{ tooltipErrorText }}
       </gl-tooltip>
-      <div class="col-2 gl-text-right">
+      <div class="col-4 gl-flex gl-max-w-full gl-flex-grow gl-justify-end gl-gap-3">
+        <root-cause-analysis-button
+          :job-gid="job.id"
+          :job-status-group="statusGroup"
+          :can-troubleshoot-job="canTroubleshootJob"
+          :is-build="isBuildJob"
+        />
+
         <span ref="retryBtn">
           <gl-button
+            v-gl-tooltip
             :disabled="!canRetryJob"
             icon="retry"
-            category="tertiary"
+            category="secondary"
             :loading="isLoadingAction"
             :title="$options.i18n.retry"
             :aria-label="$options.i18n.retry"
+            data-testid="retry-button"
             @click.stop="retryJob"
           />
         </span>
       </div>
-    </div>
-    <div v-if="isJobLogVisible" class="row">
-      <pre
-        v-safe-html="jobTrace"
-        class="gl-bg-gray-900 gl-text-white gl-w-full"
-        data-testid="job-log"
-      ></pre>
     </div>
   </div>
 </template>

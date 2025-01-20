@@ -4,18 +4,24 @@ module BulkImports
   class PipelineBatchWorker
     include ApplicationWorker
     include ExclusiveLeaseGuard
+    include Sidekiq::InterruptionsExhausted
 
     DEFER_ON_HEALTH_DELAY = 5.minutes
 
-    data_consistency :always # rubocop:disable SidekiqLoadBalancing/WorkerDataConsistency
+    data_consistency :sticky
     feature_category :importers
     sidekiq_options dead: false, retry: 6
+    sidekiq_options max_retries_after_interruption: 20
     worker_has_external_dependencies!
     worker_resource_boundary :memory
     idempotent!
 
-    sidekiq_retries_exhausted do |msg, exception|
-      new.perform_failure(msg['args'].first, exception)
+    sidekiq_retries_exhausted do |job, exception|
+      new.perform_failure(job['args'].first, exception)
+    end
+
+    sidekiq_interruptions_exhausted do |job|
+      new.perform_failure(job['args'].first, Import::Exceptions::SidekiqExhaustedInterruptionsError.new)
     end
 
     defer_on_database_health_signal(:gitlab_main, [], DEFER_ON_HEALTH_DELAY) do |job_args, schema, tables|
@@ -108,6 +114,10 @@ module BulkImports
 
     def retry_batch(exception)
       batch.retry!
+
+      logger.error(log_attributes(
+        message: "Retrying pipeline", exception: { message: exception.message, class: exception.class.name }
+      ))
 
       re_enqueue(exception.retry_delay)
     end

@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Every API call to [project](../user/project/index.md) statistics must be authenticated.
 Retrieving these statistics requires read access to the repository.
@@ -28,7 +28,7 @@ GET /projects/:id/statistics
 
 | Attribute  | Type   | Required | Description |
 | ---------- | ------ | -------- | ----------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 
 Example response:
 

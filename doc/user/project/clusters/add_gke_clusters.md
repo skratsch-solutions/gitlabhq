@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 > - [Deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8) in GitLab 14.5.
 
@@ -65,7 +65,7 @@ cluster certificates:
    - Project's **{cloud-gear}** **Operate > Kubernetes clusters** page, for a project-level
      cluster.
    - Group's **{cloud-gear}** **Kubernetes** page, for a group-level cluster.
-   - The Admin Area's **Kubernetes** page, for an instance-level cluster.
+   - The **Admin** area's **Kubernetes** page, for an instance-level cluster.
 1. Select **Integrate with a cluster certificate**.
 1. Under the **Create new cluster** tab, select **Google GKE**.
 1. Connect your Google account if you haven't done already by selecting the

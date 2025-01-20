@@ -8,12 +8,12 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19185) in GitLab 15.4.
 > - Displaying **Verified** badge for signed GitLab UI commits [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/124218) in GitLab 16.3 [with a flag](../../../../administration/feature_flags.md) named `gitaly_gpg_signing`. Disabled by default.
 > - Verifying the signatures using multiple keys specified in `rotated_signing_keys` option [introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6163) in GitLab 16.3.
-> - [Enabled by default](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6876) on self-managed and GitLab Dedicated in GitLab 17.0.
+> - [Enabled by default](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6876) on GitLab Self-Managed and GitLab Dedicated in GitLab 17.0.
 
 FLAG:
 The availability of this feature is controlled by a feature flag.
@@ -49,7 +49,7 @@ To avoid confusion, when the commit is signed, the signature should belong to th
 
 This is why you should [configure](../../../../administration/gitaly/configure_gitaly.md#configure-commit-signing-for-gitlab-ui-commits)
 the `Committer` field to point to the instance itself.
-For example, when this feature becomes enabled on GitLab.com, the `Committer` field will be: `GitLab <noreply@gitlab.com>`.
+For example, when this feature becomes enabled on GitLab.com, the `Committer` field is: `GitLab <noreply@gitlab.com>`.
 
 GitLab provides multiple security features that rely on the `Committer` field to be set to the user who creates the commit.
 For example:

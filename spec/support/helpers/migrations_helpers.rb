@@ -1,20 +1,49 @@
 # frozen_string_literal: true
 
 module MigrationsHelpers
-  def active_record_base(database: nil)
-    database_name = database || self.class.metadata[:database] || :main
+  FINALIZE_FIRST_ERROR = <<ERROR
+Schema should not be specified for background migrations, finalize the migration first.
+The schema will be defaulted to the finalizing migration.
 
-    unless ::Gitlab::Database.all_database_connections.include?(database_name)
-      raise ArgumentError, "#{database_name} is not a valid argument"
-    end
+See https://docs.gitlab.com/ee/development/database/batched_background_migrations.html#finalize-a-batched-background-migration
+ERROR
 
-    Gitlab::Database.database_base_models[database_name] || Gitlab::Database.database_base_models[:main]
+  def migration_out_of_test_window?(migration_class)
+    # Skip unless database migration (e.g background migration)
+    return false unless migration_class < Gitlab::Database::Migration[1.0]
+
+    return false if ENV.fetch('RUN_ALL_MIGRATION_TESTS', false)
+
+    milestone = migration_class.try(:milestone)
+
+    # Missing milestone indicates that the migration is pre-16.7,
+    # which is old enough not to execute its tests
+    return true unless milestone
+
+    migration_milestone = Gitlab::VersionInfo.parse_from_milestone(milestone)
+    min_milestone = Gitlab::Database.min_schema_gitlab_version
+
+    migration_milestone < min_milestone
   end
 
-  def table(name, database: nil)
+  def active_record_base(database: nil)
+    if database.present?
+      conn = Gitlab::Database.all_database_connections[database]
+      raise ArgumentError, "#{database} is not a valid argument" unless conn
+
+      return conn.klass
+    end
+
+    migration_schema = self.class.metadata[:migration]
+    Gitlab::Database.schemas_to_base_models.dig(migration_schema, 0) ||
+      Gitlab::Database.database_base_models[:main]
+  end
+
+  def table(name, database: nil, primary_key: nil)
     Class.new(active_record_base(database: database)) do
       self.table_name = name
       self.inheritance_column = :_type_disabled
+      self.primary_key = primary_key if primary_key.present?
 
       def self.name
         table_name.singularize.camelcase
@@ -24,11 +53,12 @@ module MigrationsHelpers
     end
   end
 
-  def partitioned_table(name, by: :created_at, strategy: :monthly)
-    klass = Class.new(active_record_base) do
+  def partitioned_table(name, database: nil, by: :created_at, strategy: :monthly)
+    klass = Class.new(active_record_base(database: database)) do
       include PartitionedTable
 
       self.table_name = name
+      self.inheritance_column = :_type_disabled
       self.primary_key = :id
 
       partitioned_by by, strategy: strategy
@@ -46,7 +76,7 @@ module MigrationsHelpers
   end
 
   def migration_context
-    ActiveRecord::MigrationContext.new(migrations_paths, ActiveRecord::SchemaMigration)
+    ActiveRecord::MigrationContext.new(migrations_paths)
   end
 
   def migrations
@@ -121,10 +151,10 @@ module MigrationsHelpers
   end
 
   def finalized_by_version
-    finalized_by = ::Gitlab::Database::BackgroundMigration::BatchedBackgroundMigrationDictionary
+    finalized_by = ::Gitlab::Utils::BatchedBackgroundMigrationsDictionary
       .entry(described_class.to_s.demodulize)&.finalized_by
 
-    finalized_by.to_i if finalized_by
+    finalized_by.to_i if finalized_by.present?
   end
 
   def migration_schema_version
@@ -133,6 +163,8 @@ module MigrationsHelpers
     if metadata_schema == :latest
       migrations.last.version
     elsif self.class.metadata[:level] == :background_migration
+      raise FINALIZE_FIRST_ERROR if ENV['CI'].nil? && !metadata_schema.nil?
+
       metadata_schema || finalized_by_version || migrations.last.version
     else
       metadata_schema || previous_migration.version

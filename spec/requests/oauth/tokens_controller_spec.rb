@@ -3,7 +3,57 @@
 require 'spec_helper'
 
 RSpec.describe Oauth::TokensController, feature_category: :system_access do
+  # The logic is still depending on the database default
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/507325
+  let_it_be(:organization) { create(:organization, :default) }
+
   describe 'POST /oauth/token' do
+    context 'with dynamic user scope', :aggregate_failures do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:scopes) { "api user:#{user.id}" }
+      let_it_be(:oauth_application) { create(:oauth_application, owner: nil, scopes: "api user:*") }
+      let_it_be(:oauth_access_grant) { create(:oauth_access_grant, scopes: scopes, application: oauth_application, redirect_uri: oauth_application.redirect_uri) }
+
+      context 'when authorization code flow' do
+        it 'returns an access token with the dynamic scopes' do
+          post(
+            '/oauth/token',
+            params: {
+              grant_type: 'authorization_code',
+              client_secret: oauth_application.secret,
+              client_id: oauth_application.uid,
+              redirect_uri: oauth_application.redirect_uri,
+              code: oauth_access_grant.token
+            }
+          )
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response.parsed_body['scope']).to eq scopes
+        end
+      end
+
+      context 'when refresh token flow' do
+        let_it_be(:oauth_token) { create(:oauth_access_token, application: oauth_application, scopes: scopes) }
+
+        it 'returns an access token with the dynamic scopes' do
+          post(
+            '/oauth/token',
+            params: {
+              grant_type: 'refresh_token',
+              refresh_token: oauth_token.refresh_token,
+              client_secret: oauth_application.secret,
+              client_id: oauth_application.uid,
+              redirect_uri: oauth_application.redirect_uri,
+              scopes: scopes # must be passed for refresh token to have correct scopes until https://github.com/doorkeeper-gem/doorkeeper/pull/1754 is merged
+            }
+          )
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response.parsed_body['scope']).to eq scopes
+        end
+      end
+    end
+
     context 'for resource owner password credential flow', :aggregate_failures do
       let_it_be(:password) { User.random_password }
 
@@ -110,8 +160,11 @@ RSpec.describe Oauth::TokensController, feature_category: :system_access do
       it 'allows cross-origin requests' do
         expect(response.headers['Access-Control-Allow-Origin']).to eq '*'
         expect(response.headers['Access-Control-Allow-Methods']).to eq allowed_methods
-        expect(response.headers['Access-Control-Allow-Headers']).to eq authorization_methods
         expect(response.headers['Access-Control-Allow-Credentials']).to be_nil
+
+        expect(
+          Array.wrap(response.headers['Access-Control-Allow-Headers']).join("\n")
+        ).to eq authorization_methods.join("\n")
       end
     end
 

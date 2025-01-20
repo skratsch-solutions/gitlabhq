@@ -20,7 +20,7 @@
 .gl-responsive-table-row {
   margin-top: 10px;
   border: 1px solid $border-color;
-  color: $gray-500;
+  @apply gl-text-subtle;
 
   &.gl-responsive-table-row-clickable {
     &:hover {
@@ -80,10 +80,6 @@
       flex-wrap: wrap;
     }
   }
-
-  &.section-align-top {
-    align-self: flex-start;
-  }
 }
 
 .table-button-footer {
@@ -140,7 +136,7 @@
 
 .table-mobile-header {
   @include flex-max-width(40);
-  color: $gl-text-color-secondary;
+  @apply gl-text-strong;
   text-align: left;
 
   @include media-breakpoint-up(md) {
@@ -153,10 +149,6 @@
     @include flex-max-width(60);
     text-align: right;
   }
-}
-
-.flex-truncate-parent {
-  display: flex;
 }
 
 .flex-truncate-child {

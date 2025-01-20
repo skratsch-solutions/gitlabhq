@@ -24,7 +24,7 @@ RSpec.describe Gitlab::LegacyGithubImport::ProjectCreator do
       allow(project).to receive(:add_import_job)
     end
 
-    stub_application_setting(import_sources: ['github'])
+    stub_application_setting(import_sources: %w[github gitea])
   end
 
   describe '#execute' do

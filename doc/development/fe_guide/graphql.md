@@ -17,7 +17,7 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 
 **GraphQL at GitLab**:
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [GitLab Unfiltered GraphQL playlist](https://www.youtube.com/watch?v=wHPKZBDMfxE&list=PL05JrBw4t0KpcjeHjaRMB7IGB2oDWyJzv)
 - <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [GraphQL at GitLab: Deep Dive](../api_graphql_styleguide.md#deep-dive) (video) by Nick Thomas
@@ -30,7 +30,7 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 - [🛠 Vuex -> Apollo Migration: a proof-of-concept project](https://gitlab.com/ntepluhina/vuex-to-apollo/blob/master/README.md)
   - A collection of examples that show the possible approaches for state management with Vue+GraphQL+(Vuex or Apollo) apps
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 ### Libraries
 
@@ -47,15 +47,15 @@ see [Immutability and cache updates](#immutability-and-cache-updates) for more i
 
 ### Tooling
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 - [Apollo Client Devtools](https://github.com/apollographql/apollo-client-devtools)
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
-#### [Apollo GraphQL VS Code extension](https://marketplace.visualstudio.com/items?itemName=apollographql.vscode-apollo)
+#### Apollo GraphQL VS Code extension
 
-If you use VS Code, the Apollo GraphQL extension supports autocompletion in `.graphql` files. To set up
+If you use VS Code, the [Apollo GraphQL extension](https://marketplace.visualstudio.com/items?itemName=apollographql.vscode-apollo) supports autocompletion in `.graphql` files. To set up
 the GraphQL extension, follow these steps:
 
 1. Generate the schema: `bundle exec rake gitlab:graphql:schema:dump`
@@ -203,6 +203,159 @@ query allReleases(...) {
   }
 }
 ```
+
+## Skip query with async variables
+
+Whenever a query has one or more variable that requires another query to have executed before it can run, it is **vital** to add a `skip()` property to the query with all relations.
+
+Failing to do so will result in the query executing twice: once with the default value (whatever was defined on the `data` property or `undefined`) and once more once the initial query is resolved, triggering a new variable value to be injected in the smart query and then refetched by Apollo.
+
+```javascript
+data() {
+  return {
+    // Define data properties for all apollo queries
+    project: null,
+    issues: null
+  }
+},
+apollo: {
+  project: {
+    query: getProject,
+    variables() {
+      return {
+        projectId: this.projectId
+      }
+    }
+  },
+  releaseName: {
+    query: getReleaseName,
+    // Without this skip, the query would run initially with `projectName: null`
+    // Then when `getProject` resolves, it will run again.
+    skip() {
+      return !this.project?.name
+    },
+    variables() {
+      return {
+        projectName: this.project?.name
+      }
+    }
+  }
+}
+```
+
+## Splitting queries in GraphQL
+
+Splitting queries in Apollo is often done to optimize data fetching by breaking down larger, monolithic queries into smaller, more manageable pieces.
+
+### Why split queries in GraphQL
+
+1. **Increased query complexity** We have [limits](../../api/graphql#limits) for GraphQL queries which should be adhered to.
+1. **Performance** Smaller, targeted queries often result in faster response times from the server, which directly benefits the frontend by getting data to the client sooner.
+1. **Better Component Decoupling and Maintainability** Each component can handle its own data needs, making it easier to reuse components across your app without requiring access to a large, shared query.
+
+### How to split queries
+
+1. Define multiple queries and use them independently in various parts of your component hierarchy. This way, each component fetches only the data it needs.
+
+If you look at [work item query architecture](../work_items_widgets.md#frontend-architecture) , we have [split the queries](../work_items_widgets.md#widget-responsibility-and-structure) for most of the widgets for the same reason of query complexity and splitting of concerned data.
+
+```javascript
+#import "ee_else_ce/work_items/graphql/work_item_development.fragment.graphql"
+
+query workItemDevelopment($id: WorkItemID!) {
+  workItem(id: $id) {
+    id
+    iid
+    namespace {
+      id
+    }
+    widgets {
+      ... on WorkItemWidgetDevelopment {
+        ...WorkItemDevelopmentFragment
+      }
+    }
+  }
+}
+```
+
+```javascript
+#import "~/graphql_shared/fragments/user.fragment.graphql"
+
+query workItemParticipants($fullPath: ID!, $iid: String!) {
+  workspace: namespace(fullPath: $fullPath) {
+    id
+    workItem(iid: $iid) {
+      id
+      widgets {
+        ... on WorkItemWidgetParticipants {
+          type
+          participants {
+            nodes {
+              ...User
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+1. Conditional Queries Using the `@include` and `@skip` Directives
+
+Apollo supports conditional queries using these directives, allowing you to split queries based on a component's state or other conditions
+
+```javascript
+query projectWorkItems(
+  $searchTerm: String
+  $fullPath: ID!
+  $types: [IssueType!]
+  $in: [IssuableSearchableField!]
+  $iid: String = null
+  $searchByIid: Boolean = false
+  $searchByText: Boolean = true
+) {
+  workspace: project(fullPath: $fullPath) {
+    id
+    workItems(search: $searchTerm, types: $types, in: $in) @include(if: $searchByText) {
+      nodes {
+        ...
+      }
+    }
+    workItemsByIid: workItems(iid: $iid, types: $types) @include(if: $searchByIid) {
+      nodes {
+        ...
+      }
+    }
+  }
+}
+```
+
+```javascript
+#import "../fragments/user.fragment.graphql"
+#import "~/graphql_shared/fragments/user_availability.fragment.graphql"
+
+query workspaceAutocompleteUsersSearch(
+  $search: String!
+  $fullPath: ID!
+  $isProject: Boolean = true
+) {
+  groupWorkspace: group(fullPath: $fullPath) @skip(if: $isProject) {
+    id
+    users: autocompleteUsers(search: $search) {
+      ...
+    }
+  }
+  workspace: project(fullPath: $fullPath) {
+    id
+    users: autocompleteUsers(search: $search) {
+      ...
+    }
+  }
+}
+```
+
+**CAUTION** We have to be careful to make sure that we do not invalidate the existing GraphQL queries when we split queries. We should ensure to check the inspector that the same quries are not called multiple times when we split queries.
 
 ## Immutability and cache updates
 
@@ -413,13 +566,16 @@ For each attempt to fetch a version, our client fetches `id` and `sha` from the 
 
 Read more about local state management with Apollo in the [Vue Apollo documentation](https://vue-apollo.netlify.app/guide/local-state.html#local-state).
 
+### Using with Pinia
+
+Combining [Pinia](pinia.md) and Apollo in a single Vue application is generally discouraged.
+[Learn about the restrictions and circumstances around combining Apollo and Pinia](state_management.md#combining-pinia-and-apollo).
+
 ### Using with Vuex
 
-We do not recommend creating new applications with Vuex and Apollo Client combined. There are a few reasons:
-
-- VueX and Apollo are both **global stores**, which means sharing responsibilities and having two sources of truth.
-- Keeping VueX and Apollo in sync can be high maintenance.
-- Bugs that would come from the communication between Apollo and VueX would be subtle and hard to debug.
+We do not recommend combining Vuex and Apollo Client. [Vuex is deprecated in GitLab](vuex.md#deprecated).
+If you have an existing Vuex store that's used alongside Apollo we strongly recommend [migrating away from Vuex entirely](migrating_from_vuex.md).
+[Learn more about state management in GitLab](state_management.md).
 
 ### Working on GraphQL-based features when frontend and backend are not in sync
 
@@ -1052,7 +1208,7 @@ query getPipelineEtag {
 ```
 
 ```javascript
-/* pipeline_editor/components/header/pipeline_status.vue */
+/* pipeline_editor/components/header/pipeline_editor_header.vue */
 
 import getPipelineEtag from '~/ci/pipeline_editor/graphql/queries/client/pipeline_etag.query.graphql';
 
@@ -1064,8 +1220,8 @@ apollo: {
     context() {
       return getQueryHeaders(this.pipelineEtag);
     },
-    query: getPipelineQuery,
-    pollInterval: POLL_INTERVAL,
+    query: getPipelineIidQuery,
+    pollInterval: PIPELINE_POLL_INTERVAL,
   },
 }
 
@@ -1115,9 +1271,6 @@ If you are using Chrome and keep seeing `200` HTTP status codes, it might be thi
 #### Subscriptions
 
 We use [subscriptions](https://www.apollographql.com/docs/react/data/subscriptions/) to receive real-time updates from GraphQL API via websockets. Currently, the number of existing subscriptions is limited, you can check a list of available ones in [GraphqiQL explorer](https://gitlab.com/-/graphql-explorer)
-
-**NOTE:**
-We cannot test subscriptions using GraphiQL, because they require an ActionCable client, which GraphiQL does not support at the moment.
 
 Refer to the [Real-time widgets developer guide](../real_time.md) for a comprehensive introduction to subscriptions.
 
@@ -1674,8 +1827,7 @@ When [using Vuex](#using-with-vuex), disable the cache when:
   if the data is being cached elsewhere, or if there is no need for it for the given use case.
 
 ```javascript
-import createDefaultClient from '~/lib/graphql';
-import fetchPolicies from '~/graphql_shared/fetch_policy_constants';
+import createDefaultClient, { fetchPolicies } from '~/lib/graphql';
 
 const defaultClient = createDefaultClient(
   {},

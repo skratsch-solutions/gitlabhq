@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 type: reference, howto
@@ -17,6 +17,8 @@ type: reference, howto
   - [GraphQL Schema](enabling_the_analyzer.md#graphql-schema)
   - [HTTP Archive (HAR)](enabling_the_analyzer.md#http-archive-har)
   - [Postman Collection v2.0 or v2.1](enabling_the_analyzer.md#postman-collection)
+
+  Each scan supports exactly one specification. To scan more than one specification, use multiple scans.
 - [GitLab Runner](../../../../ci/runners/index.md) available, with the
   [`docker` executor](https://docs.gitlab.com/runner/executors/docker.html) on Linux/amd64.
 - Target application deployed. For more details, read [Deployment options](#application-deployment-options).
@@ -33,10 +35,11 @@ type: reference, howto
 ## Recommendations
 
 - Configure runners to use the [always pull policy](https://docs.gitlab.com/runner/executors/docker.html#using-the-always-pull-policy) to run the latest versions of the analyzers.
-- By default, API security testing downloads all artifacts defined by previous jobs in the pipeline. If
-  your DAST job does not rely on `environment_url.txt` to define the URL under test or any other files created
-  in previous jobs, we recommend you don't download artifacts. To avoid downloading
-  artifacts, extend the analyzer CI/CD job to specify no dependencies. For example, for the DAST proxy-based analyzer add the following to your `.gitlab-ci.yml` file:
+- By default, API security testing downloads all artifacts defined by previous jobs in the pipeline.
+  If your DAST job does not rely on `environment_url.txt` to define the URL under test or any other
+  files created in previous jobs, you should not download artifacts. To avoid downloading artifacts,
+  extend the analyzer CI/CD job to specify no dependencies. For example, for the API security
+  testing analyzer, add the following to your `.gitlab-ci.yml` file:
 
   ```yaml
   api_security:

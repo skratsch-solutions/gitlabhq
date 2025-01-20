@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 description: Third-party authorization to GitLab.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
@@ -9,13 +9,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-GitLab provides an API to allow third-party services to access GitLab resources on a user's behalf
+Use this API to allow third-party services to access GitLab resources for a user
 with the [OAuth 2.0](https://oauth.net/2/) protocol.
-
-To configure GitLab for this, see
-[Configure GitLab as an OAuth 2.0 authentication identity provider](../integration/oauth_provider.md).
+For more information, see [Configure GitLab as an OAuth 2.0 authentication identity provider](../integration/oauth_provider.md).
 
 This functionality is based on the [doorkeeper Ruby gem](https://github.com/doorkeeper-gem/doorkeeper).
 
@@ -261,7 +259,8 @@ You can now make requests to the API with the access token returned.
 
 ### Device authorization grant flow
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/332682) in GitLab 17.2 [with a flag](../administration/feature_flags.md) named `oauth2_device_grant_flow`. Disabled by default.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/332682) in GitLab 17.2 [with a flag](../administration/feature_flags.md) named `oauth2_device_grant_flow`.
+> - [Enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/468479) by default in 17.3.
 
 FLAG:
 The availability of this feature is controlled by a feature flag.
@@ -486,7 +485,7 @@ curl --header "Authorization: Bearer OAUTH-TOKEN" "https://gitlab.example.com/ap
 
 A token with [scope](../integration/oauth_provider.md#view-all-authorized-applications)
 `read_repository` or `write_repository` can access Git over HTTPS. Use the token as the password.
-The username must be `oauth2`. The username must not be your username:
+You can set the username to any string value. You should use `oauth2`:
 
 ```plaintext
 https://oauth2:<your_access_token>@gitlab.example.com/project_path/project_name.git
@@ -506,15 +505,15 @@ You must supply the access token, either:
 
 - As a parameter:
 
-   ```plaintext
-   GET https://gitlab.example.com/oauth/token/info?access_token=<OAUTH-TOKEN>
-   ```
+  ```plaintext
+  GET https://gitlab.example.com/oauth/token/info?access_token=<OAUTH-TOKEN>
+  ```
 
 - In the Authorization header:
 
-   ```shell
-   curl --header "Authorization: Bearer <OAUTH-TOKEN>" "https://gitlab.example.com/oauth/token/info"
-   ```
+  ```shell
+  curl --header "Authorization: Bearer <OAUTH-TOKEN>" "https://gitlab.example.com/oauth/token/info"
+  ```
 
 The following is an example response:
 

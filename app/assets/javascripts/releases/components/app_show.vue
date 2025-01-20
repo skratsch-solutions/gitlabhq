@@ -14,19 +14,27 @@ export default {
     ReleaseSkeletonLoader,
   },
   inject: {
-    fullPath: {
+    projectPath: {
       default: '',
     },
     tagName: {
       default: '',
     },
   },
+  props: {
+    deployments: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+  },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     release: {
       query: oneReleaseQuery,
       variables() {
         return {
-          fullPath: this.fullPath,
+          fullPath: this.projectPath,
           tagName: this.tagName,
         };
       },
@@ -41,7 +49,9 @@ export default {
         // Handle the case where the query succeeded but didn't return any data
         if (!result.error && !this.release) {
           this.showFlash(
-            new Error(`No release found in project "${this.fullPath}" with tag "${this.tagName}"`),
+            new Error(
+              `No release found in project "${this.projectPath}" with tag "${this.tagName}"`,
+            ),
           );
         }
       },
@@ -51,7 +61,7 @@ export default {
     },
   },
   mounted() {
-    popCreateReleaseNotification(this.fullPath);
+    popCreateReleaseNotification(this.projectPath);
   },
   methods: {
     showFlash(error) {
@@ -68,6 +78,6 @@ export default {
   <div class="gl-mt-3">
     <release-skeleton-loader v-if="$apollo.queries.release.loading" />
 
-    <release-block v-else-if="release" :release="release" />
+    <release-block v-else-if="release" :release="release" :deployments="deployments" />
   </div>
 </template>

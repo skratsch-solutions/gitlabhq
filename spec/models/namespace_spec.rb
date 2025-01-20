@@ -11,6 +11,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   let_it_be(:project_sti_name) { Namespaces::ProjectNamespace.sti_name }
   let_it_be(:user_sti_name) { Namespaces::UserNamespace.sti_name }
 
+  let_it_be(:organization) { create(:organization) }
   let!(:namespace) { create(:namespace, :with_namespace_settings) }
   let(:gitlab_shell) { Gitlab::Shell.new }
   let(:repository_storage) { 'default' }
@@ -29,7 +30,6 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to have_one(:catalog_verified_namespace) }
     it { is_expected.to have_many :custom_emoji }
     it { is_expected.to have_one :package_setting_relation }
-    it { is_expected.to have_one :onboarding_progress }
     it { is_expected.to have_one :admin_note }
     it { is_expected.to have_many :pending_builds }
     it { is_expected.to have_one :namespace_route }
@@ -42,6 +42,14 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to have_many(:cycle_analytics_stages) }
     it { is_expected.to have_many(:value_streams) }
     it { is_expected.to have_many(:non_archived_projects).class_name('Project') }
+    it { is_expected.to have_many(:bot_users).through(:bot_user_details).source(:user) }
+
+    it do
+      is_expected.to have_many(:bot_user_details)
+                       .class_name('UserDetail')
+                       .with_foreign_key(:bot_namespace_id)
+                       .inverse_of(:bot_namespace)
+    end
 
     it do
       is_expected.to have_one(:ci_cd_settings).class_name('NamespaceCiCdSetting').inverse_of(:namespace).autosave(true)
@@ -90,6 +98,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to validate_presence_of(:path) }
     it { is_expected.to validate_length_of(:path).is_at_most(255) }
     it { is_expected.to validate_presence_of(:owner) }
+    it { is_expected.to validate_presence_of(:organization) }
     it { is_expected.to validate_numericality_of(:max_artifacts_size).only_integer.is_greater_than(0) }
 
     context 'validating the parent of a namespace' do
@@ -252,6 +261,27 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         end
       end
     end
+
+    describe '#parent_organization_match' do
+      let_it_be(:group) { create(:group, :with_organization) }
+
+      subject(:namespace) { build(:group, parent: group, organization: organization) }
+
+      context "when namespace belongs to parent's organization" do
+        let(:organization) { group.organization }
+
+        it { is_expected.to be_valid }
+      end
+
+      context "when namespace does not belong to parent's organization" do
+        let(:organization) { build(:organization) }
+
+        it 'is not valid and adds an error message' do
+          expect(namespace).not_to be_valid
+          expect(namespace.errors[:organization_id]).to include("must match the parent organization's ID")
+        end
+      end
+    end
   end
 
   describe "ReferencePatternValidation" do
@@ -312,7 +342,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       ref(:group)             | true  | nil                                       | lazy { group.full_path }
       ref(:group)             | false | ref(:group)                               | nil
       ref(:group)             | true  | ref(:group)                               | lazy { group.full_path }
-      ref(:group)             | false | ref(:parent)                              | lazy { group.path }
+      ref(:group)             | false | ref(:parent)                              | lazy { group.full_path }
       ref(:group)             | true  | ref(:parent)                              | lazy { group.full_path }
       ref(:group)             | false | ref(:project)                             | lazy { group.path }
       ref(:group)             | true  | ref(:project)                             | lazy { group.full_path }
@@ -437,7 +467,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     describe '.without_deleted' do
       before do
-        namespace1.namespace_details.update!(pending_delete: true)
+        namespace1.namespace_details.update!(deleted_at: Time.current)
       end
 
       it 'does not include namespace marked as deleted' do
@@ -453,12 +483,26 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
     end
 
+    describe '.top_level' do
+      it 'includes correct namespaces' do
+        expect(described_class.top_level).to match_array([namespace, namespace1, namespace2])
+      end
+    end
+
     describe '.by_root_id' do
       it 'returns correct namespaces' do
         expect(described_class.by_root_id(namespace1.id)).to match_array([namespace1, namespace1sub])
         expect(described_class.by_root_id(namespace2.id)).to match_array([namespace2, namespace2sub])
         expect(described_class.by_root_id(namespace1sub.id)).to be_empty
         expect(described_class.by_root_id(nil)).to be_empty
+      end
+    end
+
+    describe '.by_not_in_root_id' do
+      it 'returns correct namespaces' do
+        expect(described_class.by_not_in_root_id(namespace1.id)).to contain_exactly(namespace, namespace2, namespace2sub)
+        expect(described_class.by_not_in_root_id(namespace2.id)).to contain_exactly(namespace, namespace1, namespace1sub)
+        expect(described_class.by_not_in_root_id(namespace1sub.id)).to match_array(described_class.all)
       end
     end
 
@@ -511,6 +555,19 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
     end
 
+    describe '.project_namespaces' do
+      let_it_be(:user_namespace) { create(:user_namespace) }
+      let_it_be(:project) { create(:project) }
+      let_it_be(:project_namespace) { project.project_namespace }
+      let_it_be(:group_namespace) { create(:group) }
+
+      it 'only returns project namespaces' do
+        project_namespaces = described_class.project_namespaces
+        expect(project_namespaces).to include(project_namespace)
+        expect(project_namespaces).not_to include(group_namespace, user_namespace)
+      end
+    end
+
     describe '.without_project_namespaces' do
       let_it_be(:user_namespace) { create(:user_namespace) }
       let_it_be(:project) { create(:project) }
@@ -560,8 +617,12 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to delegate_method(:math_rendering_limits_enabled?).to(:namespace_settings) }
     it { is_expected.to delegate_method(:lock_math_rendering_limits_enabled?).to(:namespace_settings) }
     it { is_expected.to delegate_method(:add_creator).to(:namespace_details) }
-    it { is_expected.to delegate_method(:pending_delete).to(:namespace_details) }
-    it { is_expected.to delegate_method(:pending_delete=).to(:namespace_details).with_arguments(:args) }
+    it { is_expected.to delegate_method(:deleted_at).to(:namespace_details) }
+    it { is_expected.to delegate_method(:deleted_at=).to(:namespace_details).with_arguments(:args) }
+    it { is_expected.to delegate_method(:resource_access_token_notify_inherited?).to(:namespace_settings) }
+    it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked?).to(:namespace_settings) }
+    it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_ancestor?).to(:namespace_settings) }
+    it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_application_setting?).to(:namespace_settings) }
 
     it do
       is_expected.to delegate_method(:prevent_sharing_groups_outside_hierarchy=).to(:namespace_settings)
@@ -735,8 +796,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'when made a child group' do
-      let!(:namespace) { create(:group) }
-      let!(:parent_namespace) { create(:group, children: [namespace]) }
+      let!(:parent_namespace) { create(:group) }
+      let!(:namespace) { create(:group, parent: parent_namespace) }
 
       it 'returns database value' do
         expect(namespace.traversal_ids).to eq [parent_namespace.id, namespace.id]
@@ -744,9 +805,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'when root_ancestor changes' do
-      let(:old_root) { create(:group) }
+      let(:old_root) { create(:group, organization: organization) }
       let(:namespace) { create(:group, parent: old_root) }
-      let(:new_root) { create(:group) }
+      let(:new_root) { create(:group, organization: organization) }
 
       it 'resets root_ancestor memo' do
         expect(namespace.root_ancestor).to eq old_root
@@ -806,8 +867,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   context 'traversal_ids on update' do
-    let(:namespace1) { create(:group) }
-    let(:namespace2) { create(:group) }
+    let(:namespace1) { create(:group, organization: organization) }
+    let(:namespace2) { create(:group, organization: organization) }
 
     context 'when parent_id is changed' do
       subject { namespace1.update!(parent: namespace2) }
@@ -847,7 +908,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   describe "after_commit :expire_child_caches" do
-    let(:namespace) { create(:group) }
+    let(:namespace) { create(:group, organization: organization) }
 
     it "expires the child caches when updated" do
       child_1 = create(:group, parent: namespace, updated_at: 1.week.ago)
@@ -881,7 +942,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it "expires on parent changes" do
       expect(namespace).to receive(:expire_child_caches).once
 
-      namespace.update!(parent: create(:group))
+      new_parent = create(:group, organization: organization)
+      namespace.update!(parent: new_parent)
     end
 
     it "doesn't expire on other field changes" do
@@ -1341,38 +1403,47 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
   end
 
-  describe '.top_most' do
-    let_it_be(:namespace) { create(:namespace) }
-    let_it_be(:group) { create(:group) }
-    let_it_be(:subgroup) { create(:group, parent: group) }
+  describe '.find_by_path_or_name' do
+    let_it_be(:namespace) { create(:namespace, name: 'WoW', path: 'woW') }
 
-    subject { described_class.top_most.ids }
-
-    it 'only contains root namespaces' do
-      is_expected.to contain_exactly(group.id, namespace.id)
-    end
+    it { expect(described_class.find_by_path_or_name('wow')).to eq(namespace) }
+    it { expect(described_class.find_by_path_or_name('WOW')).to eq(namespace) }
+    it { expect(described_class.find_by_path_or_name('unknown')).to be_nil }
   end
 
-  describe '.find_by_path_or_name' do
-    before do
-      @namespace = create(:namespace, name: 'WoW', path: 'woW')
+  describe '.find_top_level' do
+    # Due to the top level scope of this spec having a create of namespace, we'll avoid possible future flakiness here.
+    let(:namespace) { nil }
+
+    subject { described_class.find_top_level }
+
+    context 'when there are top level namespaces' do
+      # Order of creation matters here as we are only taking the first result and the single
+      # threaded FIFO order of creation in specs.
+      let_it_be(:sub_group) { create(:group, :nested) }
+      let_it_be(:another_parent_namespace) { create(:group) }
+      let(:parent_namespace) { sub_group.parent }
+
+      it { is_expected.to eq(parent_namespace) }
     end
 
-    it { expect(described_class.find_by_path_or_name('wow')).to eq(@namespace) }
-    it { expect(described_class.find_by_path_or_name('WOW')).to eq(@namespace) }
-    it { expect(described_class.find_by_path_or_name('unknown')).to eq(nil) }
+    context 'when there are no top level namespaces' do
+      it { is_expected.to be_nil }
+    end
   end
 
   describe ".clean_path" do
     it "cleans the path and makes sure it's available", time_travel_to: '2023-04-20 00:07 -0700' do
       create :user, username: "johngitlab-etc"
       create :namespace, path: "JohnGitLab-etc1"
+      create :project_setting, pages_unique_domain: 'existing-domain'
       [nil, 1, 2, 3].each do |count|
         create :namespace, path: "pickle#{count}"
       end
 
       expect(described_class.clean_path("-john+gitlab-ETC%.git@gmail.com")).to eq("johngitlab-ETC2")
       expect(described_class.clean_path("--%+--valid_*&%name=.git.%.atom.atom.@email.com")).to eq("valid_name")
+      expect(described_class.clean_path("existing-domain")).to eq("existing-domain1")
 
       # when we have more than MAX_TRIES count of a path use a more randomized suffix
       expect(described_class.clean_path("pickle@gmail.com")).to eq("pickle4")
@@ -1396,6 +1467,47 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       it "sanitizes the name by replacing all invalid char sequences with a space" do
         expect(described_class.clean_name("Green'! Test~~~")).to eq("Green Test")
       end
+    end
+  end
+
+  describe ".username_reserved?" do
+    subject(:username_reserved) { described_class.username_reserved?(username) }
+
+    let(:username) { 'capyabra' }
+
+    let_it_be(:user) { create(:user, name: 'capybara') }
+    let_it_be(:group) { create(:group, name: 'capybara-group') }
+    let_it_be(:subgroup) { create(:group, parent: group, name: 'capybara-subgroup') }
+    let_it_be(:project) { create(:project, group: group, name: 'capybara-project') }
+
+    context 'when given a project name' do
+      let(:username) { 'capyabra-project' }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when given a sub-group name' do
+      let(:username) { 'capybara-subgroup' }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when given a top-level group' do
+      let(:username) { 'capybara-group' }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when given an existing username' do
+      let(:username) { 'capybara' }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when given a username with varying capitalization' do
+      let(:username) { 'CaPyBaRa' }
+
+      it { is_expected.to eq(true) }
     end
   end
 
@@ -1607,28 +1719,6 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
       execute_update
     end
-
-    context 'when the feature flag `specialized_worker_for_group_lock_update_auth_recalculation` is disabled' do
-      before do
-        stub_feature_flags(specialized_worker_for_group_lock_update_auth_recalculation: false)
-      end
-
-      it 'updates authorizations leading to users from shared groups losing access', :sidekiq_inline do
-        expect { execute_update }
-          .to change { group_one_user.authorized_projects.include?(project) }.from(true).to(false)
-          .and change { group_two_user.authorized_projects.include?(project) }.from(true).to(false)
-      end
-
-      it 'updates the authorizations in a non-blocking manner' do
-        expect(AuthorizedProjectsWorker).to(
-          receive(:bulk_perform_async).with([[group_one_user.id]])).once
-
-        expect(AuthorizedProjectsWorker).to(
-          receive(:bulk_perform_async).with([[group_two_user.id]])).once
-
-        execute_update
-      end
-    end
   end
 
   describe '#share_with_group_lock with subgroups' do
@@ -1689,10 +1779,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     context 'when a group is transferred into a root group' do
       context 'when the root group "Share with group lock" is enabled' do
-        let(:root_group) { create(:group, share_with_group_lock: true) }
+        let(:root_group) { create(:group, share_with_group_lock: true, organization: organization) }
 
         context 'when the subgroup "Share with group lock" is enabled' do
-          let(:subgroup) { create(:group, share_with_group_lock: true) }
+          let(:subgroup) { create(:group, share_with_group_lock: true, organization: organization) }
 
           it 'the subgroup "Share with group lock" does not change' do
             subgroup.parent = root_group
@@ -1703,7 +1793,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         end
 
         context 'when the subgroup "Share with group lock" is disabled' do
-          let(:subgroup) { create(:group) }
+          let(:subgroup) { create(:group, organization: organization) }
 
           it 'the subgroup "Share with group lock" becomes enabled' do
             subgroup.parent = root_group
@@ -1715,10 +1805,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
 
       context 'when the root group "Share with group lock" is disabled' do
-        let(:root_group) { create(:group) }
+        let(:root_group) { create(:group, organization: organization) }
 
         context 'when the subgroup "Share with group lock" is enabled' do
-          let(:subgroup) { create(:group, share_with_group_lock: true) }
+          let(:subgroup) { create(:group, share_with_group_lock: true, organization: organization) }
 
           it 'the subgroup "Share with group lock" does not change' do
             subgroup.parent = root_group
@@ -1729,7 +1819,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         end
 
         context 'when the subgroup "Share with group lock" is disabled' do
-          let(:subgroup) { create(:group) }
+          let(:subgroup) { create(:group, organization: organization) }
 
           it 'the subgroup "Share with group lock" does not change' do
             subgroup.parent = root_group
@@ -1773,7 +1863,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
   describe '#root_ancestor' do
     context 'with persisted root group' do
-      let!(:root_group) { create(:group) }
+      let_it_be(:root_group) { create(:group) }
 
       it 'returns root_ancestor for root group without a query' do
         expect { root_group.root_ancestor }.not_to exceed_query_limit(0)
@@ -1795,6 +1885,19 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         expect(nested_group.root_ancestor).to eq(root_group)
         expect(deep_nested_group.root_ancestor).to eq(root_group)
         expect(very_deep_nested_group.root_ancestor).to eq(root_group)
+      end
+
+      context 'when nested group references parent by id' do
+        let_it_be(:nested_group) { create(:group, parent: root_group) }
+        let_it_be(:deep_nested_group) { Group.new(attributes_for(:group, parent_id: nested_group.id)) }
+
+        it 'performs a single query' do
+          expect { deep_nested_group.root_ancestor }.not_to exceed_query_limit(1)
+        end
+
+        it 'returns the root ancestor' do
+          expect(deep_nested_group.root_ancestor).to eq root_group
+        end
       end
     end
 
@@ -1887,8 +1990,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     context 'when a parent is assigned to a group with no previous parent' do
       it 'returns the path before last save' do
-        group = create(:group, parent: nil)
-        parent = create(:group)
+        group = create(:group, parent: nil, organization: organization)
+        parent = create(:group, organization: organization)
 
         group.update!(parent: parent)
 
@@ -1909,9 +2012,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     context 'when changing parents' do
       it 'returns the previous parent full path' do
-        parent = create(:group)
+        parent = create(:group, organization: organization)
         group = create(:group, parent: parent)
-        new_parent = create(:group)
+        new_parent = create(:group, organization: organization)
 
         group.update!(parent: new_parent)
 
@@ -2337,10 +2440,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   context 'Namespaces::SyncEvent' do
-    let!(:namespace) { create(:group) }
+    let!(:namespace) { create(:group, organization: organization) }
 
-    let_it_be(:new_namespace1) { create(:group) }
-    let_it_be(:new_namespace2) { create(:group) }
+    let_it_be(:new_namespace1) { create(:group, organization: organization) }
+    let_it_be(:new_namespace2) { create(:group, organization: organization) }
 
     context 'when creating the namespace' do
       it 'creates a namespaces_sync_event record' do
@@ -2364,8 +2467,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
 
       it 'creates a namespaces_sync_event for the parent and all the descendent namespaces' do
-        children_namespaces = create_list(:group, 2, parent_id: namespace.id)
-        grand_children_namespaces = create_list(:group, 2, parent_id: children_namespaces.first.id)
+        children_namespaces = create_list(:group, 2, parent_id: namespace.id, organization: organization)
+        grand_children_namespaces = create_list(:group, 2, parent_id: children_namespaces.first.id, organization:
+                                                organization)
         expect(Namespaces::ProcessSyncEventsWorker).to receive(:perform_async).exactly(:once)
         Namespaces::SyncEvent.delete_all
 
@@ -2469,10 +2573,26 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
   end
 
-  context 'with loose foreign key on organization_id' do
-    it_behaves_like 'cleanup by a loose foreign key' do
-      let_it_be(:parent) { create(:organization) }
-      let_it_be(:model) { create(:namespace, organization: parent) }
+  describe '#web_url' do
+    let_it_be(:group) { create(:group) }
+
+    it 'returns the canonical URL' do
+      expect(group.web_url).to include("groups/#{group.name}")
+    end
+
+    context 'nested group' do
+      let(:nested_group) { create(:group, :nested) }
+
+      it { expect(nested_group.web_url).to include("groups/#{nested_group.full_path}") }
+    end
+  end
+
+  describe '#uploads_sharding_key' do
+    it 'returns organization_id' do
+      organization = build_stubbed(:organization)
+      namespace = build_stubbed(:namespace, organization: organization)
+
+      expect(namespace.uploads_sharding_key).to eq(organization_id: organization.id)
     end
   end
 end

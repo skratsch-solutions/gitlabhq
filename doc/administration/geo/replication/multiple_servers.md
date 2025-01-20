@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This document describes a minimal reference architecture for running Geo
 in a multi-node configuration. If your multi-node setup differs from the one
@@ -16,7 +16,7 @@ described, it is possible to adapt these instructions to your needs.
 
 ## Architecture overview
 
-![Geo multi-node diagram](img/geo-ha-diagram.png)
+![Architecture for running Geo in a multi-node configuration with primary and secondary backend services](img/geo-ha-diagram_v12.png)
 
 _[diagram source - GitLab employees only](https://docs.google.com/drawings/d/1z0VlizKiLNXVVVaERFwgsIOuEgjcUqDTWPdQYsE7Z4c/edit)_
 

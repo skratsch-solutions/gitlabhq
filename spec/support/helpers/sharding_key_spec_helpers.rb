@@ -29,7 +29,11 @@ module ShardingKeySpecHelpers
     INNER JOIN pg_class ON pg_constraint.conrelid = pg_class.oid
     WHERE pg_class.relname = '#{table_name}'
     AND contype = 'c'
-    AND pg_get_constraintdef(pg_constraint.oid) ILIKE '%#{column_name} IS NOT NULL%'
+    AND (
+      pg_get_constraintdef(pg_constraint.oid) ILIKE '%#{column_name} IS NOT NULL%'
+      OR
+      pg_get_constraintdef(pg_constraint.oid) ILIKE '%num_nonnulls%#{column_name}%> 0%'
+    )
     SQL
 
     result = ApplicationRecord.connection.execute(sql)
@@ -67,13 +71,17 @@ module ShardingKeySpecHelpers
     end
   end
 
-  def has_foreign_key?(from_table_name, column_name, to_table_name: nil)
+  def has_foreign_key?(from_table_name, column_name, to_table_name: nil, foreign_key_name: nil)
     where_clause = {
       constrained_table_name: from_table_name,
       constrained_columns: [column_name]
     }
 
     where_clause[:referenced_table_name] = to_table_name if to_table_name
+    if foreign_key_name
+      where_clause[:name] = foreign_key_name
+      where_clause.delete(:constrained_columns)
+    end
 
     fk = ::Gitlab::Database::PostgresForeignKey.where(where_clause).first
 

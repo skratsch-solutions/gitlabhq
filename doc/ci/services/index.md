@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you configure CI/CD, you specify an image, which is used to create the container
 where your jobs run. To specify this image, you use the `image` keyword.
@@ -25,8 +25,12 @@ case is to run a database container, for example:
 - [Redis](redis.md)
 - [GitLab](gitlab.md) as an example for a microservice offering a JSON API
 
-It's easier and faster to use an existing image and run it as an additional container
-than to install `mysql`, for example, every time the project is built.
+Consider that you're developing a content management system that uses database for storage.
+You need a database to test all features in the application. Running a database
+container as a service image is a good use case in this scenario.
+
+Use an existing image and run it as an additional container
+instead of installing `mysql` every time you build a project.
 
 You're not limited to only database services. You can add as many
 services you need to `.gitlab-ci.yml` or manually modify the [`config.toml`](https://docs.gitlab.com/runner/configuration/advanced-configuration.html).
@@ -52,7 +56,7 @@ socket or `localhost`. Read more in [accessing the services](#accessing-the-serv
 
 Services are designed to provide additional features which are **network accessible**.
 They may be a database like MySQL, or Redis, and even `docker:dind` which
-allows you to use Docker-in-Docker. It can be practically anything that's
+allows you to use Docker-in-Docker (DinD). It can be practically anything that's
 required for the CI/CD job to proceed, and is accessed by network.
 
 To make sure this works, the runner:
@@ -150,7 +154,7 @@ default:
     entrypoint: ["/bin/bash"]
   services:
     - name: my-postgres:11.7
-      alias: db-postgres
+      alias: db,postgres,pg
       entrypoint: ["/usr/local/bin/db-postgres"]
       command: ["start"]
   before_script:
@@ -193,7 +197,7 @@ following these rules:
   created (requires GitLab Runner v1.1.0 or later).
 
 To override the default behavior, you can
-[specify a service alias](#available-settings-for-services).
+[specify one or more service aliases](#available-settings-for-services).
 
 ### Connecting services
 
@@ -210,7 +214,8 @@ end-to-end-tests:
       alias: firefox
     - name: registry.gitlab.com/organization/private-api:latest
       alias: backend-api
-    - postgres:14.3
+    - name: postgres:14.3
+      alias: db postgres db
   variables:
     FF_NETWORK_PER_BUILD: 1
     POSTGRES_PASSWORD: supersecretpassword
@@ -267,7 +272,7 @@ test:
 | `name`          | yes, when used with any other option | 9.4            | Full name of the image to use. If the full image name includes a registry hostname, use the `alias` option to define a shorter service access name. For more information, see [Accessing the services](#accessing-the-services). |
 | `entrypoint`    | no                                   | 9.4            | Command or script to execute as the container's entrypoint. It's translated to the Docker `--entrypoint` option while creating the container. The syntax is similar to [`Dockerfile`'s `ENTRYPOINT`](https://docs.docker.com/reference/dockerfile/#entrypoint) directive, where each shell token is a separate string in the array. |
 | `command`       | no                                   | 9.4            | Command or script that should be used as the container's command. It's translated to arguments passed to Docker after the image's name. The syntax is similar to [`Dockerfile`'s `CMD`](https://docs.docker.com/reference/dockerfile/#cmd) directive, where each shell token is a separate string in the array. |
-| `alias` (1)     | no                                   | 9.4            | Additional alias that can be used to access the service from the job's container. Read [Accessing the services](#accessing-the-services) for more information. |
+| `alias` (1)     | no                                   | 9.4            | Additional aliases to access the service from the job's container. Multiple aliases can be separated by spaces or commas. For more information, see [Accessing the services](#accessing-the-services). |
 | `variables` (2) | no                                   | 14.5           | Additional environment variables that are passed exclusively to the service. The syntax is the same as [Job Variables](../variables/index.md). Service variables cannot reference themselves. |
 
 (1) Alias support for the Kubernetes executor was [introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2229) in GitLab Runner 12.8, and is only available for Kubernetes version 1.7 or later.
@@ -352,9 +357,9 @@ The syntax of `command` is similar to [Dockerfile `CMD`](https://docs.docker.com
 
 Containers started with `docker run` can also connect to services provided by GitLab.
 
-When booting the service is expensive or time consuming, you can use
-this technique to run tests from different client environments,
-while only booting up the tested service once.
+If booting a service is expensive or time consuming, you can
+run tests from different client environments,
+while booting up the tested service only once.
 
 ```yaml
 access-service:
@@ -400,9 +405,9 @@ time.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3680) in GitLab Runner 15.6.
 
 Logs generated by applications running in service containers can be captured for subsequent examination and debugging.
-You might want to look at service container's logs when the service container has started successfully, but is not
-behaving as expected, leading to job failures. The logs can indicate missing or incorrect configuration of the service
-within the container.
+View service container logs when a service container starts successfully but causes job failures due to unexpected behavior.
+The logs can indicate missing or incorrect configuration of the service
+in the container.
 
 `CI_DEBUG_SERVICES` should only be enabled when service containers are being actively debugged as there are both storage
 and performance consequences to capturing service container logs.
@@ -422,24 +427,24 @@ Accepted values are:
 
 Any other values result in an error message and effectively disable the feature.
 
-When enabled, logs for _all_ service containers are captured and streamed into the jobs trace log concurrently with
+When enabled, logs for all service containers are captured and streamed into the jobs trace log concurrently with
 other logs. Logs from each container are prefixed with the container's aliases, and displayed in a different color.
 
 NOTE:
-You may want to adjust the logging level in the service container for which you want to capture logs since the default
-logging level may not provide sufficient details to diagnose job failures.
+To diagnose job failures, you can adjust the logging level in your service container for which you want to capture logs.
+The default logging level might not provide sufficient troubleshooting information.
 
 WARNING:
-Enabling `CI_DEBUG_SERVICES` _may_ result in masked variables being revealed. When `CI_DEBUG_SERVICES` is enabled,
-service container logs and the CI job's logs are streamed to the job's trace log _concurrently_, which makes it possible
-for a service container log to be inserted _inside_ a job's masked log. This would thwart the variable masking mechanism
+Enabling `CI_DEBUG_SERVICES` might reveal masked variables. When `CI_DEBUG_SERVICES` is enabled,
+service container logs and the CI job's logs are streamed to the job's trace log concurrently. This means that the
+service container logs might get inserted into a job's masked log. This would thwart the variable masking mechanism
 and result in the masked variable being revealed.
 
 See [Mask a CI/CD Variable](../variables/index.md#mask-a-cicd-variable)
 
 ## Debug a job locally
 
-The following commands are run without root privileges. You should be able to run Docker with your user account.
+The following commands are run without root privileges. Verify that you can run Docker commands with your user account.
 
 First start by creating a file named `build_script`:
 
@@ -473,7 +478,7 @@ The above command creates a container named `build` that is spawned from the `go
 linked to it. The `build_script` is piped using `stdin` to the bash interpreter which in turn executes the
 `build_script` in the `build` container.
 
-When you finish testing and no longer need the containers, you can remove them with:
+Use the following command to remove containers after testing is complete:
 
 ```shell
 docker rm -f -v build service-redis
@@ -486,12 +491,27 @@ with the container creation.
 
 Docker privileged mode applies to services. This means that the service image container can access the host system. You should use container images from trusted sources only.
 
-## Shared /builds directory
+## Shared `/builds` directory
 
 The build directory is mounted as a volume under `/builds` and is shared
 between the job and services. The job checks the project out into
-`/builds/$CI_PROJECT_PATH` after the services are running. As a result, if your
-service needs files from the project or, for example, wants to put files there
-to serve as artifacts, it may need to wait for that directory to exist and
-have `$CI_COMMIT_SHA` checked out. Any changes made before the job finishes its
-checkout process are removed by the checkout process.
+`/builds/$CI_PROJECT_PATH` after the services are running. Your service might
+need to access project files or store artifacts. If so, wait for the directory
+to exist and for `$CI_COMMIT_SHA` to be checked out. Any changes made before
+the job finishes its checkout process are removed by the checkout process.
+
+The service must detect when the job directory is populated and
+ready for processing. For example, wait for a specific file to become available.
+
+Services that start working immediately when launched are likely to fail, as the
+job data may not be available yet. For example, containers use the `docker build`
+command to make a network connection to the DinD service.
+The service instructs its API to start a container image build. The Docker Engine
+must have access to the files you're referencing in your Dockerfile. Hence, you
+need access to the `CI_PROJECT_DIR` in the service. However, Docker Engine does not try to access it until
+the `docker build` command is called in a job. At this time, the `/builds` directory
+is already populated with data. The service that tries to write the `CI_PROJECT_DIR`
+immediately after it started might fail with a `No such file or directory` error.
+
+In scenarios where services that interact with job data are not controlled by the job itself, consider the
+[Docker executor workflow](https://docs.gitlab.com/runner/executors/docker.html#docker-executor-workflow).

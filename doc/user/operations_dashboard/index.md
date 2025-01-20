@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The Operations Dashboard provides a summary of each project's operational health,
 including pipeline and alert status.
@@ -35,7 +35,7 @@ last commit, pipeline status, and when it was last deployed.
 
 The Operations and [Environments](../../ci/environments/environments_dashboard.md) dashboards share the same list of projects. Adding or removing a project from one adds or removes the project from the other.
 
-![Operations Dashboard with projects](img/index_operations_dashboard_with_projects.png)
+![Operations Dashboard with projects](img/index_operations_dashboard_with_projects_v11_10.png)
 
 ## Arranging projects on a dashboard
 

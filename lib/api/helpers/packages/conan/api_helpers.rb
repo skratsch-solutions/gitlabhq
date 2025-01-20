@@ -69,7 +69,7 @@ module API
           def build_package_file_upload_url(file_name)
             options = url_options(file_name).merge(
               conan_package_reference: params[:conan_package_reference],
-              package_revision: ::Packages::Conan::FileMetadatum::DEFAULT_PACKAGE_REVISION
+              package_revision: ::Packages::Conan::FileMetadatum::DEFAULT_REVISION
             )
 
             package_file_url(options)
@@ -86,7 +86,7 @@ module API
               package_username: params[:package_username],
               package_channel: params[:package_channel],
               file_name: file_name,
-              recipe_revision: ::Packages::Conan::FileMetadatum::DEFAULT_RECIPE_REVISION
+              recipe_revision: ::Packages::Conan::FileMetadatum::DEFAULT_REVISION
             }
           end
 
@@ -149,11 +149,13 @@ module API
           strong_memoize_attr :package
 
           def token
-            token = nil
-            token = ::Gitlab::ConanToken.from_personal_access_token(find_personal_access_token.user_id, access_token_from_request) if find_personal_access_token
-            token = ::Gitlab::ConanToken.from_deploy_token(deploy_token_from_request) if deploy_token_from_request
-            token = ::Gitlab::ConanToken.from_job(find_job_from_token) if find_job_from_token
-            token
+            if find_personal_access_token
+              ::Gitlab::ConanToken.from_personal_access_token(access_token_from_request, find_personal_access_token)
+            elsif deploy_token_from_request
+              ::Gitlab::ConanToken.from_deploy_token(deploy_token_from_request)
+            else
+              ::Gitlab::ConanToken.from_job(find_job_from_token)
+            end
           end
           strong_memoize_attr :token
 
@@ -174,11 +176,20 @@ module API
           end
 
           def find_or_create_package
-            package || ::Packages::Conan::CreatePackageService.new(
+            return package if package
+
+            service_response = ::Packages::Conan::CreatePackageService.new(
               project,
               current_user,
               params.merge(build: current_authenticated_job)
             ).execute
+
+            if service_response.error?
+              forbidden!(service_response.message) if service_response.cause.package_protected?
+              bad_request!(service_response.message)
+            end
+
+            service_response[:package]
           end
 
           def track_push_package_event
@@ -219,7 +230,12 @@ module API
 
             track_push_package_event unless params[:file].empty_size?
 
-            create_package_file_with_type(file_type, current_package)
+            service_response = create_package_file_with_type(file_type, current_package)
+            return unless service_response
+
+            bad_request!(service_response.message) if service_response.error?
+
+            service_response[:package_file]
           rescue ObjectStorage::RemoteStoreError => e
             Gitlab::ErrorTracking.track_exception(e, file_name: params[:file_name], project_id: project.id)
 
@@ -229,7 +245,7 @@ module API
           # We override this method from auth_finders because we need to
           # extract the token from the Conan JWT which is specific to the Conan API
           def find_personal_access_token
-            PersonalAccessToken.find_by_token(access_token_from_request)
+            PersonalAccessToken.active.find_by_token(access_token_from_request)
           end
           strong_memoize_attr :find_personal_access_token
 
@@ -266,8 +282,7 @@ module API
 
           # We need to override this one because it
           # looks into Bearer authorization header
-          def find_oauth_access_token
-          end
+          def find_oauth_access_token; end
 
           def find_personal_access_token_from_conan_jwt
             token = decode_oauth_token_from_jwt
@@ -311,6 +326,10 @@ module API
 
           def package_scope
             params[:id].present? ? :project : :instance
+          end
+
+          def search_project
+            project
           end
         end
       end

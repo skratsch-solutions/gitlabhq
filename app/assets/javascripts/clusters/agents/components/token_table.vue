@@ -96,7 +96,7 @@ export default {
 <template>
   <div>
     <div v-if="tokens.length">
-      <create-token-button class="gl-text-right gl-my-5" />
+      <create-token-button class="gl-my-5 gl-text-right" />
 
       <gl-table
         :items="tokens"
@@ -104,7 +104,7 @@ export default {
         fixed
         stacked="md"
         head-variant="white"
-        thead-class="gl-border-b-solid gl-border-b-2 gl-border-b-gray-100"
+        thead-class="gl-border-b-solid gl-border-b-2 gl-border-b-default"
       >
         <template #cell(lastUsed)="{ item }">
           <time-ago-tooltip v-if="item.lastUsedAt" :time="item.lastUsedAt" />

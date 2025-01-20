@@ -46,7 +46,7 @@ export default {
       return this.suggestion.state === STATUS_CLOSED;
     },
     stateIconClass() {
-      return this.isClosed ? 'gl-text-blue-500' : 'gl-text-green-500';
+      return this.isClosed ? 'gl-fill-icon-info' : 'gl-fill-icon-success';
     },
     stateIconName() {
       return this.isClosed ? 'issue-close' : 'issue-open-m';
@@ -66,29 +66,33 @@ export default {
 
 <template>
   <div class="suggestion-item">
-    <div class="gl-flex gl-align-items-center">
+    <div class="gl-flex gl-items-center">
       <gl-icon
         v-if="suggestion.confidential"
         v-gl-tooltip.bottom
         :title="__('Confidential')"
         name="eye-slash"
-        class="gl-cursor-help gl-mr-2 gl-text-orange-500"
+        class="gl-mr-2 gl-cursor-help"
+        variant="warning"
       />
       <gl-link
         :href="suggestion.webUrl"
         target="_blank"
-        class="suggestion bold str-truncated-100 gl-text-gray-900!"
+        class="suggestion str-truncated-100 gl-font-bold !gl-text-default"
       >
         {{ suggestion.title }}
       </gl-link>
     </div>
-    <div class="text-secondary suggestion-footer">
-      <gl-icon ref="state" :name="stateIconName" :class="stateIconClass" class="gl-cursor-help" />
+    <div class="suggestion-footer gl-text-subtle">
+      <span ref="state">
+        <gl-icon :name="stateIconName" :class="stateIconClass" class="gl-cursor-help" />
+      </span>
       <gl-tooltip :target="() => $refs.state" placement="bottom">
         <span class="gl-block">
-          <span class="bold"> {{ stateTitle }} </span> {{ timeFormatted(closedOrCreatedDate) }}
+          <span class="gl-font-bold"> {{ stateTitle }} </span>
+          {{ timeFormatted(closedOrCreatedDate) }}
         </span>
-        <span class="text-tertiary">{{ tooltipTitle(closedOrCreatedDate) }}</span>
+        <span class="gl-text-tertiary">{{ tooltipTitle(closedOrCreatedDate) }}</span>
       </gl-tooltip>
       #{{ suggestion.iid }} &bull;
       <timeago-tooltip
@@ -105,8 +109,8 @@ export default {
           tooltip-placement="bottom"
           class="gl-inline-block"
         >
-          <span class="bold gl-block">{{ __('Author') }}</span> {{ suggestion.author.name }}
-          <span class="text-tertiary">@{{ suggestion.author.username }}</span>
+          <span class="gl-block gl-font-bold">{{ __('Author') }}</span> {{ suggestion.author.name }}
+          <span class="gl-text-tertiary">@{{ suggestion.author.username }}</span>
         </user-avatar-image>
       </gl-link>
       <template v-if="hasUpdated">
@@ -123,7 +127,7 @@ export default {
           :key="id"
           v-gl-tooltip.bottom
           :title="tooltipTitle"
-          class="gl-cursor-help gl-ml-3 text-tertiary"
+          class="gl-ml-3 gl-cursor-help gl-text-subtle"
         >
           <gl-icon :name="icon" /> {{ count }}
         </span>

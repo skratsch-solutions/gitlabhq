@@ -34,7 +34,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
   feature_category :service_ping, [:usage_data]
   feature_category :integrations, [:integrations, :slack_app_manifest_share, :slack_app_manifest_download]
   feature_category :pages, [:lets_encrypt_terms_of_service]
-  feature_category :error_tracking, [:reset_error_tracking_access_token]
+  feature_category :observability, [:reset_error_tracking_access_token]
 
   VALID_SETTING_PANELS = %w[general repository
     ci_cd reporting metrics_and_profiling
@@ -56,7 +56,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
 
     @integrations = Integration.find_or_initialize_all_non_project_specific(
       Integration.for_instance, include_instance_specific: true
-    ).sort_by(&:title)
+    ).sort_by { |int| int.title.downcase }
   end
 
   def update
@@ -136,7 +136,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
     Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/29418')
   end
 
-  def application_setting_params # rubocop:disable Metrics/AbcSize
+  def application_setting_params # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     params[:application_setting] ||= {}
 
     if params[:application_setting].key?(:enabled_oauth_sign_in_sources)
@@ -156,6 +156,10 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
     params[:application_setting][:package_metadata_purl_types]&.map!(&:to_i)
 
     normalize_default_branch_params!(:application_setting)
+
+    if params[:application_setting][:required_instance_ci_template].blank?
+      params[:application_setting][:required_instance_ci_template] = nil
+    end
 
     remove_blank_params_for!(:elasticsearch_aws_secret_access_key, :eks_secret_access_key)
 
@@ -187,7 +191,6 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
           allowed_to_push: [:access_level]
         }
       ] },
-      :can_create_organization,
       :lets_encrypt_notification_email,
       :lets_encrypt_terms_of_service_accepted,
       :domain_denylist_file,
@@ -196,6 +199,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       :notes_create_limit,
       :pipeline_limit_per_project_user_sha,
       :default_branch_name,
+      :auto_approve_pending_users,
       { disabled_oauth_sign_in_sources: [],
         import_sources: [],
         package_metadata_purl_types: [],

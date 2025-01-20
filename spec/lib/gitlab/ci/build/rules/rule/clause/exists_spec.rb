@@ -6,11 +6,15 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, :small_repo, files: { 'subdir/my_file.txt' => '' }) }
   let_it_be(:other_project) { create(:project, :small_repo, files: { 'file.txt' => '' }) }
+  let(:pipeline) { instance_double(Ci::Pipeline, project: project, sha: 'sha', user: user) }
 
   let(:variables) do
     Gitlab::Ci::Variables::Collection.new([
       { key: 'SUBDIR', value: 'subdir' },
       { key: 'FILE_TXT', value: 'file.txt' },
+      { key: 'FULL_PATH_VALID', value: 'subdir/my_file.txt' },
+      { key: 'FULL_PATH_INVALID', value: 'subdir/does_not_exist.txt' },
+      { key: 'NESTED_FULL_PATH_VALID', value: '$SUBDIR/my_file.txt' },
       { key: 'NEW_BRANCH', value: 'new_branch' },
       { key: 'MASKED_VAR', value: 'masked_value', masked: true }
     ])
@@ -27,7 +31,7 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
   end
 
   describe '#satisfied_by?' do
-    subject(:satisfied_by?) { described_class.new(clause).satisfied_by?(nil, context) }
+    subject(:satisfied_by?) { described_class.new(clause).satisfied_by?(pipeline, context) }
 
     before do
       allow(context).to receive(:variables).and_return(variables)
@@ -49,6 +53,26 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
     shared_examples 'a rules:exists with a context' do
       it_behaves_like 'a glob matching rule' do
         let(:project) { create(:project, :small_repo, files: files) }
+      end
+
+      context 'when a file path is in a variable' do
+        let(:globs) { ['$FULL_PATH_VALID'] }
+
+        context 'when the variable matches' do
+          it { is_expected.to be_truthy }
+        end
+
+        context 'when the variable does not match' do
+          let(:globs) { ['$FULL_PATH_INVALID'] }
+
+          it { is_expected.to be_falsey }
+        end
+
+        context 'when the variable is nested and matches' do
+          let(:globs) { ['$NESTED_FULL_PATH_VALID'] }
+
+          it { is_expected.to be_truthy }
+        end
       end
 
       context 'when a file path has a variable' do
@@ -75,6 +99,19 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
         end
 
         it { is_expected.to be_truthy }
+
+        it 'logs the pattern comparison limit exceeded' do
+          expect(Gitlab::AppJsonLogger).to receive(:info).with(
+            class: described_class.name,
+            message: 'rules:exists pattern comparisons limit exceeded',
+            project_id: project.id,
+            paths_size: kind_of(Integer),
+            globs_size: 1,
+            comparisons: kind_of(Integer)
+          )
+
+          satisfied_by?
+        end
       end
 
       context 'when rules:exists:project is provided' do
@@ -106,7 +143,7 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
             it 'raises an error' do
               expect { satisfied_by? }.to raise_error(
                 Gitlab::Ci::Build::Rules::Rule::Clause::ParseError,
-                "rules:exists:project `invalid/path` is not a valid project path"
+                "rules:exists:project `invalid/path` not found or access denied"
               )
             end
 
@@ -116,7 +153,7 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
               it 'raises an error' do
                 expect { satisfied_by? }.to raise_error(
                   Gitlab::Ci::Build::Rules::Rule::Clause::ParseError,
-                  "rules:exists:project `invalid/path/subdir` is not a valid project path"
+                  "rules:exists:project `invalid/path/subdir` not found or access denied"
                 )
               end
             end
@@ -127,7 +164,7 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
               it 'raises an error with the variable masked' do
                 expect { satisfied_by? }.to raise_error(
                   Gitlab::Ci::Build::Rules::Rule::Clause::ParseError,
-                  "rules:exists:project `invalid/path/xxxxxxxxxxxx` is not a valid project path"
+                  "rules:exists:project `invalid/path/[MASKED]xxxx` not found or access denied"
                 )
               end
             end
@@ -176,10 +213,10 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
               context 'when the ref contains a masked variable' do
                 let(:ref) { 'invalid/ref/$MASKED_VAR' }
 
-                it 'raises an error' do
+                it 'raises an error with the variable masked' do
                   expect { satisfied_by? }.to raise_error(
                     Gitlab::Ci::Build::Rules::Rule::Clause::ParseError,
-                    "rules:exists:ref `invalid/ref/xxxxxxxxxxxx` is not a valid ref " \
+                    "rules:exists:ref `invalid/ref/[MASKED]xxxx` is not a valid ref " \
                     "in project `#{other_project.full_path}`"
                   )
                 end
@@ -189,10 +226,10 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Exists, feature_category:
         end
 
         context 'when the user does not have access to the project' do
-          it 'raises an error' do
+          it 'raises an error without leaking information' do
             expect { satisfied_by? }.to raise_error(
               Gitlab::Ci::Build::Rules::Rule::Clause::ParseError,
-              "rules:exists:project access denied to project `#{other_project.full_path}`"
+              "rules:exists:project `#{other_project.full_path}` not found or access denied"
             )
           end
         end

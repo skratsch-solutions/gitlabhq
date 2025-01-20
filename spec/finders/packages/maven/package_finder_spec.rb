@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe ::Packages::Maven::PackageFinder, feature_category: :package_registry do
-  let_it_be(:user)    { create(:user) }
-  let_it_be(:group)   { create(:group) }
-  let_it_be(:project) { create(:project, namespace: group) }
+  let_it_be(:user) { create(:user) }
+  let_it_be_with_reload(:group) { create(:group) }
+  let_it_be_with_reload(:project) { create(:project, namespace: group) }
   let_it_be_with_refind(:package) { create(:maven_package, project: project) }
 
   let(:param_path) { nil }
@@ -110,6 +110,24 @@ RSpec.describe ::Packages::Maven::PackageFinder, feature_category: :package_regi
 
         it { expect(subject.last).to eq(package2) }
       end
+    end
+
+    context 'with anonymous access to public registry in private group/project' do
+      let(:project_or_group) { group }
+      let(:user) { nil }
+
+      before_all do
+        [group, project].each do |entity|
+          entity.update_column(:visibility_level, Gitlab::VisibilityLevel.const_get(:PRIVATE, false))
+        end
+        project.project_feature.update!(package_registry_access_level: ::ProjectFeature::PUBLIC)
+      end
+
+      before do
+        stub_feature_flags(maven_remove_permissions_check_from_finder: false)
+      end
+
+      it_behaves_like 'handling valid and invalid paths'
     end
   end
 

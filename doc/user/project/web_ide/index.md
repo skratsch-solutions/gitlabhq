@@ -1,6 +1,6 @@
 ---
 stage: Create
-group: IDE
+group: Remote Development
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 description: "Use the Web IDE to edit multiple files in the GitLab UI, stage commits, and create merge requests."
 ---
@@ -9,11 +9,11 @@ description: "Use the Web IDE to edit multiple files in the GitLab UI, stage com
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/95169) in GitLab 15.7 [with a flag](../../../administration/feature_flags.md) named `vscode_web_ide`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/371084) in GitLab 15.7.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/115741) in GitLab 15.11.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/115741) in GitLab 15.11.
 
 FLAG:
 The availability of this feature is controlled by a feature flag.
@@ -23,7 +23,8 @@ The Web IDE is an advanced editor with commit staging.
 You can use the Web IDE to make changes to multiple files directly from the GitLab UI.
 For a more basic implementation, see [Web Editor](../repository/web_editor.md).
 
-To pair the Web IDE with a remote development environment, see [Remote development](../remote_development/index.md).
+Support for [GitLab Flavored Markdown](../../markdown.md) preview in the Web IDE is proposed in
+[issue 645](https://gitlab.com/gitlab-org/gitlab-vscode-extension/-/issues/645).
 
 ## Open the Web IDE
 
@@ -49,10 +50,9 @@ To open the Web IDE from a merge request:
 1. In the upper right, select **Code > Open in Web IDE**.
 
 The Web IDE opens new and modified files in separate tabs and displays changes side by side.
-To reduce load time, only 10 files with the most lines changed are opened automatically.
+To reduce load time, only 10 files with the most lines changed open automatically.
 
-On the left **Explorer** sidebar, any new or modified file is indicated
-by the merge request icon (**{merge-request}**) next to the filename.
+The left **Explorer** sidebar adds a merge request icon (**{merge-request}**) next to new or modified files.
 To view changes to a file, right-click the file and select **Compare with merge request base**.
 
 ## Open a file
@@ -81,9 +81,9 @@ For more information, see the [VS Code documentation](https://code.visualstudio.
 
 ## Restore uncommitted changes
 
-You do not have to manually save any file you modify in the Web IDE.
-Modified files are automatically staged and can be [committed](#commit-changes).
-Uncommitted changes are saved in your browser's local storage and persist
+You do not have to manually save any file you edit in the Web IDE.
+The Web IDE stages the files you modify, so you can [commit the changes](#commit-changes).
+Uncommitted changes are saved in your browser's local storage, and persist
 even if you close the browser tab or refresh the Web IDE.
 
 If your uncommitted changes are not available, you can restore the changes from local history.
@@ -147,27 +147,27 @@ To create a [merge request](../merge_requests/index.md) in the Web IDE:
 
 For more information, see [View missed notifications](#view-missed-notifications).
 
-## Use the command palette
+## Use the Command Palette
 
-You can use the command palette to access many commands.
-To open the command palette and run a command in the Web IDE:
+You can use the Command Palette to access many commands.
+To open the Command Palette and run a command in the Web IDE:
 
 1. Press <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>P</kbd>.
 1. Enter or select the command.
 
 ## Edit settings
 
-You can use the settings editor to view and modify your user and workspace settings.
+You can use the settings editor to view and edit your user and workspace settings.
 To open the settings editor in the Web IDE:
 
 - On the top menu bar, select **File > Preferences > Settings**,
   or press <kbd>Command</kbd>+<kbd>,</kbd>.
 
-In the settings editor, you can search for the settings you want to modify.
+In the settings editor, you can search for the settings you want to change.
 
 ## Edit keyboard shortcuts
 
-You can use the keyboard shortcuts editor to view and modify
+You can use the keyboard shortcuts editor to view and change
 the default keybindings for all available commands.
 To open the keyboard shortcuts editor in the Web IDE:
 
@@ -194,7 +194,25 @@ To change the color theme in the Web IDE:
 1. From the dropdown list, preview the themes with the arrow keys.
 1. Select a theme.
 
-The active color theme is stored in the [user settings](#edit-settings).
+The Web IDE stores your active color theme in your [user settings](#edit-settings).
+
+## Configure sync settings
+
+To configure sync settings in the Web IDE:
+
+1. Press <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>P</kbd>.
+1. In the search box, enter `Settings Sync: Configure`.
+1. Select or clear the checkbox for:
+   - **Settings**
+   - **Keyboard shortcuts**
+   - **User snippets**
+   - **User tasks**
+   - **UI state**
+   - **Extensions**
+   - **Profiles**
+
+These settings sync automatically across multiple Web IDE instances.
+You cannot sync user profiles or go back to an earlier version of synced settings.
 
 ## View missed notifications
 
@@ -204,40 +222,29 @@ To view any notification you might have missed:
 1. On the bottom status bar, on the right, select the bell icon (**{notifications}**) for a list of notifications.
 1. Select the notification you want to view.
 
-## Interactive web terminals
-
-DETAILS:
-**Status**: Beta
-
-When you set up a remote development server in the Web IDE, you can use interactive web terminals to:
-
-- Access a remote shell on the server.
-- Interact with the server's file system and execute commands remotely.
-
-You cannot use interactive web terminals to interact with a runner.
-However, you can use a terminal to install dependencies and compile and debug code.
-
-For more information, see [Remote development](../remote_development/index.md).
-
 ## Extension marketplace
 
 DETAILS:
-**Status**: Beta
+**Offering:** GitLab.com
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151352) in GitLab 17.0 [with flags](../../../administration/feature_flags.md) named `web_ide_oauth` and `web_ide_extensions_marketplace`. Disabled by default.
-> - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/459028) in GitLab 17.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151352) as a [beta](../../../policy/development_stages_support.md#beta) in GitLab 17.0 [with flags](../../../administration/feature_flags.md) named `web_ide_oauth` and `web_ide_extensions_marketplace`. Disabled by default.
+> - Feature flag `web_ide_oauth` [enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163181) and feature flag `web_ide_extensions_marketplace` [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/459028) in GitLab 17.4.
+> - Feature flag `web_ide_oauth` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/167464) in GitLab 17.5.
 
 FLAG:
-The availability of this feature is controlled by feature flags.
+The availability of this feature is controlled by a feature flag.
 For more information, see the history.
 
 Prerequisites:
 
-- You must [enable the extension marketplace](../../profile/preferences.md#integrate-with-the-extension-marketplace) in user preferences.
+- In user preferences, you must
+  [enable the extension marketplace](../../profile/preferences.md#integrate-with-the-extension-marketplace).
+- In group settings, users with the Owner role must
+  [enable the extension marketplace](../../enterprise_user/index.md#enable-the-extension-marketplace-for-the-web-ide-and-workspaces) for enterprise users.
 
 You can use the extension marketplace to download and run VS Code extensions in the Web IDE.
 
-The extension marketplace is preconfigured at the GitLab instance level
+The extension marketplace is preconfigured for GitLab instances,
 and is hardcoded to [`https://open-vsx.org/`](https://open-vsx.org/).
 [Epic 11770](https://gitlab.com/groups/gitlab-org/-/epics/11770) proposes to change this behavior.
 
@@ -277,9 +284,48 @@ As a workaround:
    or press <kbd>Command</kbd>+<kbd>,</kbd>.
 1. In the upper-right corner, select **Open Settings (JSON)**.
 1. In the `settings.json` file, add `"editor.disableMonospaceOptimizations": true`
-   or modify the `"editor.fontFamily"` setting.
+   or change the `"editor.fontFamily"` setting.
 
 For more information, see [VS Code issue 80170](https://github.com/microsoft/vscode/issues/80170).
+
+### Update the OAuth callback URL
+
+DETAILS:
+**Offering:** GitLab Self-Managed
+
+Prerequisites:
+
+- You must have administrator access to the instance.
+
+The Web IDE uses an [instance-wide OAuth application](../../../integration/oauth_provider.md#create-an-instance-wide-application) for authentication.
+If the OAuth callback URL is misconfigured, you might encounter a `Cannot open Web IDE` error page with the following message:
+
+```plaintext
+The URL you're using to access the Web IDE and the configured OAuth callback URL do not match. This issue often occurs when you're using a proxy.
+```
+
+To resolve this issue, you must update the OAuth callback URL to match the URL used to access the GitLab instance.
+
+To update the OAuth callback URL:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Applications**.
+1. For **GitLab Web IDE**, select **Edit**.
+1. Enter the OAuth callback URL.
+   You can enter multiple URLs separated by newlines.
+
+### Workhorse dependency
+
+DETAILS:
+**Offering:** GitLab Self-Managed
+
+On GitLab Self-Managed, [Workhorse](../../../development/workhorse/index.md) must be installed
+and running in front of the GitLab Rails server.
+Otherwise, you might encounter issues when you open the Web IDE or
+use certain features like Markdown preview.
+
+For more information about this dependency,
+see [features that rely on Workhorse](../../../development/workhorse/gitlab_features.md#5-web-ide).
 
 ### Report a problem
 

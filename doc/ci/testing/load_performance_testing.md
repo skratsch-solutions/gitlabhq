@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 With Load Performance Testing, you can test the impact of any pending code changes
 to your application's backend in [GitLab CI/CD](../index.md).
@@ -33,7 +33,7 @@ First, define a job in your `.gitlab-ci.yml` file that generates the
 GitLab checks this report, compares key load performance metrics
 between the source and target branches, and then shows the information in a merge request widget:
 
-![Load Performance Widget](img/load_performance_testing.png)
+![Load Performance Widget](img/load_performance_testing_v13_2.png)
 
 Next, you need to configure the test environment and write the k6 test.
 

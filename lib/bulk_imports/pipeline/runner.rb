@@ -22,6 +22,8 @@ module BulkImports
             raw_entry = entry.dup
             next if already_processed?(raw_entry, index)
 
+            delete_partial_imported_records(entry)
+
             increment_fetched_objects_counter
 
             transformers.each do |transformer|
@@ -64,7 +66,7 @@ module BulkImports
 
       def on_finish; end
 
-      private # rubocop:disable Lint/UselessAccessModifier
+      private
 
       def run_pipeline_step(step, class_name = nil, entry = nil)
         raise MarkedAsFailedError if context.entity.failed?
@@ -80,9 +82,13 @@ module BulkImports
           importer: 'gitlab_migration'
         )
       rescue BulkImports::NetworkError => e
-        raise BulkImports::RetryPipelineError.new(e.message, e.retry_delay) if e.retriable?(context.tracker)
+        raise BulkImports::RetryPipelineError.new(e.message, e.retry_delay), cause: e if e.retriable?(context.tracker)
 
         log_and_fail(e, step, entry)
+      rescue Gitlab::Import::SourceUserMapper::FailedToObtainLockError,
+        Gitlab::Import::SourceUserMapper::DuplicatedUserError => e
+
+        raise BulkImports::RetryPipelineError.new(e.message), cause: e
       rescue BulkImports::RetryPipelineError
         raise
       rescue StandardError => e
@@ -107,6 +113,21 @@ module BulkImports
       end
 
       def save_processed_entry(*); end
+
+      # Overridden by child pipelines
+      # This method is called once for the first non-processed item returned in the extract step,
+      # meaning that, in the case of a pipeline retrial, it is called again for the latest partially
+      # processed item.
+      def delete_existing_records(*); end
+
+      def delete_partial_imported_records(entry)
+        # Using memoization to execute delete_existing_records method only once
+        @clean_up_upon_retry ||= begin
+          delete_existing_records(entry)
+
+          true
+        end
+      end
 
       def after_run(extracted_data)
         run if extracted_data.has_next_page?

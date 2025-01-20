@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby 3.1 and earlier needs this. Drop this line after Ruby 3.2+ is only supported.
-
 class Compare
   include Gitlab::Utils::StrongMemoize
   include ActsAsPaginatedDiff
+  include ::Repositories::StreamableDiff
 
   delegate :same, :head, :base, :generated_files, to: :@compare
 
@@ -90,12 +89,25 @@ class Compare
       diff_refs: diff_refs)
   end
 
+  def repository
+    project.repository
+  end
+
   def diff_refs
     Gitlab::Diff::DiffRefs.new(
       base_sha: @straight ? start_commit_sha : base_commit_sha,
       start_sha: start_commit_sha,
       head_sha: head_commit_sha
     )
+  end
+
+  def changed_paths
+    project
+      .repository
+      .find_changed_paths(
+        [Gitlab::Git::DiffTree.new(diff_refs.base_sha, diff_refs.head_sha)],
+        find_renames: true
+      )
   end
 
   def modified_paths

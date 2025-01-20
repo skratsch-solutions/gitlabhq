@@ -26,8 +26,8 @@ module Network
     def collect_commits
       # https://gitlab.com/gitlab-org/gitlab-foss/issues/58013
       Gitlab::GitalyClient.allow_n_plus_1_calls do
-        find_commits(count_to_display_commit_in_center).map do |commit|
-          # Decorate with app/model/network/commit.rb
+        # Decorate with app/model/network/commit.rb
+        list_commits(count_to_display_commit_in_center).map do |commit|
           Network::Commit.new(commit)
         end
       end
@@ -62,12 +62,15 @@ module Network
       days
     end
 
+    # TODO: `skip` is not a valid parameter for `ListCommitsRequest` RPC
+    # Issue: https://gitlab.com/gitlab-org/gitlab/-/issues/481720
+
     # Skip count that the target commit is displayed in center.
     def count_to_display_commit_in_center
       offset = -1
       skip = 0
       while offset == -1
-        tmp_commits = find_commits(skip)
+        tmp_commits = list_commits(skip)
 
         if tmp_commits.present?
           index = tmp_commits.index do |c|
@@ -105,6 +108,27 @@ module Network
         opts[:ref] = @commit.id if @filter_ref
 
         Gitlab::Git::Commit.find_all(@repo.raw_repository, opts)
+      end
+    end
+
+    def list_commits(skip = 0)
+      Gitlab::SafeRequestStore.fetch([@project, :network_graph_commits, skip]) do
+        opts = {
+          revisions: %w[--tags --branches],
+          pagination_params: { limit: self.class.max_count },
+          reverse: false,
+          order: :date,
+          skip: skip
+        }
+
+        if @filter_ref
+          opts[:ref] = @commit.id
+          opts[:before] = @commit.committed_date
+        else
+          opts[:ref] = @ref
+        end
+
+        Gitlab::Git::Commit.list_all(@repo.raw_repository, opts)
       end
     end
 

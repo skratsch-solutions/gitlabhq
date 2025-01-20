@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,12 +8,12 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab supports [Google actions in email](https://developers.google.com/gmail/markup/actions/actions-overview).
 When you configure this integration, emails that require an action are marked in Gmail.
 
-![Gmail actions button](img/gmail_action_buttons_for_gitlab.png)
+![Gmail actions button](img/gmail_action_buttons_for_gitlab_v8.png)
 
 To get this functioning, you must be registered with Google. For instructions, see
 [Register with Google](https://developers.google.com/gmail/markup/registering-with-google).
@@ -23,7 +23,7 @@ Google to avoid your application being rejected by Google.
 
 In particular, note:
 
-<!-- vale gitlab.InclusionCultural = NO -->
+<!-- vale gitlab_base.InclusiveLanguage = NO -->
 
 - The email account used by GitLab to send notification emails must:
   - Have a "Consistent history of sending a high volume of mail from your domain
@@ -37,6 +37,6 @@ In particular, note:
   registering. You can also go into the Rails console on the GitLab server and
   trigger sending the email from there.
 
-<!-- vale gitlab.InclusionCultural = YES -->
+<!-- vale gitlab_base.InclusiveLanguage = YES -->
 
 You can check how it looks going through all the steps laid out in the "Registering with Google" doc in [this GitLab.com issue](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/1517).

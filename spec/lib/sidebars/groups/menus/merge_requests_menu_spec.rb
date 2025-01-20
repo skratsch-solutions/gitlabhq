@@ -30,18 +30,21 @@ RSpec.describe Sidebars::Groups::Menus::MergeRequestsMenu, feature_category: :na
     end
   end
 
-  it_behaves_like 'pill_count formatted results' do
-    let(:count_service) { ::Groups::MergeRequestsCountService }
-  end
-
   it_behaves_like 'serializable as super_sidebar_menu_args' do
     let(:extra_attrs) do
       {
         item_id: :group_merge_request_list,
         pill_count: menu.pill_count,
+        pill_count_field: menu.pill_count_field,
         has_pill: menu.has_pill?,
         super_sidebar_parent: Sidebars::Groups::SuperSidebarMenus::CodeMenu
       }
+    end
+  end
+
+  describe '#pill_count_field' do
+    it 'returns the correct GraphQL field name' do
+      expect(menu.pill_count_field).to eq('openMergeRequestsCount')
     end
   end
 end

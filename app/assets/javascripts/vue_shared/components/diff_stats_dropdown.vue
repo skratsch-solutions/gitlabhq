@@ -11,8 +11,8 @@ export const i18n = {
 };
 
 const variantCssColorMap = {
-  success: 'gl-text-green-500',
-  danger: 'gl-text-red-500',
+  success: 'gl-text-success',
+  danger: 'gl-text-danger',
 };
 
 export default {
@@ -101,7 +101,7 @@ export default {
           variant="confirm"
           data-testid="diff-stats-dropdown"
           class="gl-align-baseline"
-          toggle-class="gl-px-0! !gl-font-bold"
+          toggle-class="!gl-px-0 !gl-font-bold"
           fluid-width
           @shown="focusInput"
         >
@@ -118,24 +118,24 @@ export default {
             </span>
           </template>
           <template #list-item="{ item }">
-            <div class="gl-display-flex gl-gap-3 gl-align-items-center gl-overflow-hidden">
-              <gl-icon :name="item.icon" :class="item.iconColor" class="gl-flex-shrink-0" />
-              <div class="gl-flex-grow-1 gl-overflow-hidden">
-                <div class="gl-display-flex">
+            <div class="gl-flex gl-items-center gl-gap-3 gl-overflow-hidden">
+              <gl-icon :name="item.icon" :class="item.iconColor" class="gl-shrink-0" />
+              <div class="gl-grow gl-overflow-hidden">
+                <div class="gl-flex">
                   <span
-                    class="gl-font-bold gl-mr-3 gl-flex-grow-1"
-                    :class="item.name ? 'gl-text-truncate' : 'gl-italic gl-gray-400'"
+                    class="gl-mr-3 gl-grow gl-font-bold"
+                    :class="item.name ? 'gl-truncate' : 'gl-italic gl-text-subtle'"
                     >{{ item.text }}</span
                   >
                   <span class="gl-ml-auto gl-whitespace-nowrap" aria-hidden="true">
-                    <span class="gl-text-green-600">+{{ item.added }}</span>
-                    <span class="gl-text-red-500">-{{ item.removed }}</span>
+                    <span class="gl-text-success">+{{ item.added }}</span>
+                    <span class="gl-text-danger">-{{ item.removed }}</span>
                   </span>
                   <span class="gl-sr-only"
                     >{{ additionsText(item.added) }}, {{ deletionsText(item.removed) }}</span
                   >
                 </div>
-                <div class="gl-text-gray-700 gl-overflow-hidden gl-text-overflow-ellipsis">
+                <div class="gl-overflow-hidden gl-text-ellipsis gl-text-subtle">
                   {{ item.path }}
                 </div>
               </div>
@@ -150,10 +150,10 @@ export default {
     >
       <gl-sprintf :message="$options.i18n.messageAdditionsDeletions">
         <template #additions>
-          <span class="gl-text-green-600 gl-font-bold">{{ additionsText() }}</span>
+          <span class="gl-font-bold gl-text-success">{{ additionsText() }}</span>
         </template>
         <template #deletions>
-          <span class="gl-text-red-500 gl-font-bold">{{ deletionsText() }}</span>
+          <span class="gl-font-bold gl-text-danger">{{ deletionsText() }}</span>
         </template>
       </gl-sprintf>
     </span>

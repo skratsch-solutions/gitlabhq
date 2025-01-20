@@ -79,7 +79,7 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Groups' }
-        let(:div) { '#groups' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { group.name }
       end
     end
@@ -98,7 +98,7 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Contributed projects' }
-        let(:div) { '#contributed' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { project.name }
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Personal projects' }
-        let(:div) { '#projects' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { project.name }
       end
     end
@@ -124,17 +124,17 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Starred projects' }
-        let(:div) { '#starred' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { project.name }
       end
     end
 
     context 'for snippets' do
-      let_it_be(:snippet) { create(:snippet, :public, author: user) }
+      let_it_be(:snippet) { create(:personal_snippet, :public, author: user) }
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Snippets' }
-        let(:div) { '#snippets' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { snippet.title }
       end
     end
@@ -148,7 +148,7 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Followers' }
-        let(:div) { '#followers' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { fan.name }
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe 'User visits their profile', feature_category: :user_profile do
 
       it_behaves_like 'shows expected content' do
         let(:link) { 'Following' }
-        let(:div) { '#following' }
+        let(:div) { '#js-legacy-tabs-container' }
         let(:expected_content) { star.name }
       end
     end

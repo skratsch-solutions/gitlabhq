@@ -69,13 +69,13 @@ RSpec.describe Gitlab::Git::WrapsGitalyErrors, feature_category: :gitaly do
       end
 
       context 'without Gitaly::LimitError detail' do
-        it("wraps in a Gitlab::Git::ResourceExhaustedError with default message") {
+        it "wraps in a Gitlab::Git::ResourceExhaustedError with default message" do
           expect { wrapper.wrapped_gitaly_errors { raise GRPC::ResourceExhausted } }.to raise_error do |wrapped_error|
             expect(wrapped_error).to be_a(Gitlab::Git::ResourceExhaustedError)
             expect(wrapped_error.message).to eql("Upstream Gitaly has been exhausted. Try again later")
             expect(wrapped_error.headers).to eql({})
           end
-        }
+        end
       end
     end
 
@@ -104,6 +104,22 @@ RSpec.describe Gitlab::Git::WrapsGitalyErrors, feature_category: :gitaly do
         it 'wraps in a Gitlab::Git::Repository::NoRepository' do
           expect { wrapped_gitaly_errors }.to raise_error do |wrapped_error|
             expect(wrapped_error).to be_a(Gitlab::Git::Repository::NoRepository)
+          end
+        end
+      end
+
+      context 'with wrapped Gitaly::FindCommitsError' do
+        let(:original_error) do
+          new_detailed_error(
+            GRPC::Core::StatusCodes::NOT_FOUND,
+            'ambiguous reference',
+            Gitaly::FindCommitsError.new(ambiguous_ref: Gitaly::AmbiguousReferenceError.new)
+          )
+        end
+
+        it 'wraps the unwrapped ambiguous reference error' do
+          expect { wrapped_gitaly_errors }.to raise_error do |wrapped_error|
+            expect(wrapped_error).to be_a(Gitlab::Git::AmbiguousRef)
           end
         end
       end

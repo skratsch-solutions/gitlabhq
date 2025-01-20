@@ -1,4 +1,5 @@
-#import "ee_else_ce/vue_merge_request_widget/queries/states/merge_train_position.fragment.graphql"
+#import "ee_else_ce/vue_merge_request_widget/queries/states/merge_train_car_index.fragment.graphql"
+#import "ee_else_ce/vue_merge_request_widget/queries/states/merge_train_car_count.fragment.graphql"
 
 query getState($projectPath: ID!, $iid: String!) {
   project(fullPath: $projectPath) {
@@ -6,6 +7,7 @@ query getState($projectPath: ID!, $iid: String!) {
     archived
     onlyAllowMergeIfPipelineSucceeds
     allowMergeOnSkippedPipeline
+    ...MergeTrainCarCount
     mergeRequest(iid: $iid) {
       id
       autoMergeEnabled
@@ -14,21 +16,11 @@ query getState($projectPath: ID!, $iid: String!) {
       conflicts
       detailedMergeStatus
       diffHeadSha
+      mergeAfter
       mergeError
       mergeStatus
       mergeable
       mergeableDiscussionsState
-      headPipeline {
-        id
-        status
-        warnings
-      }
-      pipelines(first: 1) {
-        nodes {
-          id
-          mergeRequestEventType
-        }
-      }
       shouldBeRebased
       sourceBranchExists
       state
@@ -37,8 +29,7 @@ query getState($projectPath: ID!, $iid: String!) {
         canMerge
       }
       draft
-
-      ...MergeTrainPosition
+      ...MergeTrainCarIndex
     }
   }
 }

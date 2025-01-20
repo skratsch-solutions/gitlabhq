@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Before a new pipeline starts, GitLab checks the pipeline configuration to determine
 which jobs can run in that pipeline. You can configure jobs to run depending on
@@ -24,7 +24,7 @@ in the `.gitlab-ci.yml` file.
 
 By default, manual jobs display as skipped when the pipeline starts.
 
-You can use [protected branches](../../user/project/protected_branches.md) to more strictly
+You can use [protected branches](../../user/project/repository/branches/protected.md) to more strictly
 [protect manual deployments](#protect-manual-jobs) from being run by unauthorized users.
 
 ### Types of manual jobs
@@ -55,11 +55,27 @@ the type of manual job can affect the trigger job's status while the pipeline ru
 
 To run a manual job, you must have permission to merge to the assigned branch:
 
-1. Go to the pipeline, job, [environment](../environments/index.md#configure-manual-deployments),
+1. Go to the pipeline, job, [environment](../environments/deployments.md#configure-manual-deployments),
    or deployment view.
 1. Next to the manual job, select **Run** (**{play}**).
 
-You can also [add custom CI/CD variables when running a manual job](index.md#specifying-variables-when-running-manual-jobs).
+### Specify variables when running manual jobs
+
+When running manual jobs you can supply additional job specific variables.
+
+You can do this from the job page of the manual job you want to run with
+additional variables. To access this page, select the **name** of the manual job in
+the pipeline view, *not* **Run** (**{play}**).
+
+Define CI/CD variables here when you want to alter the execution of a job that uses
+[CI/CD variables](../variables/index.md).
+
+If you add a variable that is already defined in the CI/CD settings or `.gitlab-ci.yml` file,
+the [variable is overridden](../variables/index.md#use-pipeline-variables) with the new value.
+Any variables overridden by using this process are [expanded](../variables/index.md#prevent-cicd-variable-expansion)
+and not [masked](../variables/index.md#mask-a-cicd-variable).
+
+![The run manual job page with fields for specifying CI/CD variables.](img/manual_job_variables_v13_10.png)
 
 ### Add a confirmation dialog for manual jobs
 
@@ -73,7 +89,7 @@ Users are prompted to confirm the action before the manual job runs, which provi
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use [protected environments](../environments/protected_environments.md)
 to define a list of users authorized to run a manual job. You can authorize only

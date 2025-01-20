@@ -1,18 +1,24 @@
+import { debounce } from 'lodash';
 import Tracking from '~/tracking';
+import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import { convertToSnakeCase } from '~/lib/utils/text_utility';
 
 export default class FormErrorTracker {
   constructor() {
     this.elements = document.querySelectorAll('.js-track-error');
-    this.trackErrorOnChange = FormErrorTracker.trackErrorOnChange.bind(this);
     this.trackErrorOnEmptyField = FormErrorTracker.trackErrorOnEmptyField.bind(this);
 
+    this.trackErrorOnChange = debounce(
+      FormErrorTracker.trackErrorOnChange.bind(this),
+      DEFAULT_DEBOUNCE_AND_THROTTLE_MS,
+    );
+
     this.elements.forEach((element) => {
-      // on input change
+      // on item change
       element.addEventListener('input', this.trackErrorOnChange);
 
-      // on invalid input - adding separately to track submit click without
-      // changing any input field
+      // on invalid item - adding separately to track submit click without
+      // changing any field
       element.addEventListener('invalid', this.trackErrorOnEmptyField);
     });
   }
@@ -39,22 +45,28 @@ export default class FormErrorTracker {
   static trackErrorOnEmptyField(event) {
     const inputDomElement = event.target;
 
-    if (inputDomElement.value === '') {
-      const message = FormErrorTracker.inputErrorMessage(inputDomElement);
+    const uncheckedRadio =
+      !inputDomElement.checked && FormErrorTracker.isRadio(inputDomElement.type);
 
+    if (inputDomElement.value === '' || uncheckedRadio) {
       Tracking.event(undefined, FormErrorTracker.action(inputDomElement), {
-        label: FormErrorTracker.label(inputDomElement, message),
+        label: FormErrorTracker.label(inputDomElement, 'is_required'),
       });
     }
   }
 
   static errorMessage(element) {
-    if (element.id.includes('email')) {
-      return 'invalid_email_address';
-    }
+    const inputsWithTranslation = [
+      'first_name',
+      'last_name',
+      'username',
+      'email',
+      'password',
+      'company_name',
+    ];
 
-    if (element.id.includes('password')) {
-      return 'password_is_too_short';
+    if (inputsWithTranslation.some((input) => element.id.includes(input))) {
+      return 'is_invalid';
     }
 
     return FormErrorTracker.inputErrorMessage(element);
@@ -69,6 +81,19 @@ export default class FormErrorTracker {
   }
 
   static label(element, message) {
+    if (FormErrorTracker.isRadio(element.type)) {
+      const forAttribute = element
+        .closest('.form-group')
+        .querySelector('label')
+        .getAttribute('for');
+
+      return `missing_${convertToSnakeCase(forAttribute)}`;
+    }
+
     return `${element.id}_${message}`;
+  }
+
+  static isRadio(type) {
+    return type === 'radio';
   }
 }

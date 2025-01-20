@@ -20,8 +20,8 @@ RSpec.describe Gitlab::Pagination::Keyset::Iterator do
         Gitlab::Pagination::Keyset::ColumnOrderDefinition.new(
           attribute_name: column,
           column_expression: klass.arel_table[column],
-          order_expression: klass.arel_table[column].public_send(direction).public_send(nulls_position), # rubocop:disable GitlabSecurity/PublicSend
-          reversed_order_expression: klass.arel_table[column].public_send(reverse_direction).public_send(reverse_nulls_position), # rubocop:disable GitlabSecurity/PublicSend
+          order_expression: klass.arel_table[column].public_send(direction).public_send(nulls_position),
+          reversed_order_expression: klass.arel_table[column].public_send(reverse_direction).public_send(reverse_nulls_position),
           order_direction: direction,
           nullable: nulls_position
         ),
@@ -51,6 +51,22 @@ RSpec.describe Gitlab::Pagination::Keyset::Iterator do
         iterator.each_batch(of: 2) { |relation| count += relation.count(:all) }
 
         expect(count).to eq(9)
+      end
+
+      it 'does not yield an empty relation' do
+        iteration_count = 0
+
+        iterator.each_batch(of: 1) { iteration_count += 1 }
+
+        expect(iteration_count).to eq(9)
+      end
+
+      it 'loads the batch relation' do
+        loaded = false
+
+        iterator.each_batch { |batch| loaded = batch.loaded? }
+
+        expect(loaded).to be(true)
       end
 
       it 'continues after the cursor' do
@@ -145,6 +161,24 @@ RSpec.describe Gitlab::Pagination::Keyset::Iterator do
 
             expect(positions).to eq(project.issues.reorder(id: :desc).pluck(:id))
           end
+        end
+      end
+
+      context 'when the `load_batch` kwarg is set as `false`' do
+        it 'does not load the batch relation' do
+          loaded = true
+
+          iterator.each_batch(load_batch: false) { |batch| loaded = batch.loaded? }
+
+          expect(loaded).to be_nil
+        end
+
+        it 'does not yield an empty relation' do
+          iteration_count = 0
+
+          iterator.each_batch(of: 1, load_batch: false) { iteration_count += 1 }
+
+          expect(iteration_count).to eq(9)
         end
       end
     end

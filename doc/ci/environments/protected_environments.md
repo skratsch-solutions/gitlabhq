@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Environments](../environments/index.md) can be used for both testing and
 production reasons.
@@ -30,8 +30,10 @@ Maintainer role.
 
 Prerequisites:
 
-- When granting the **Allowed to deploy** permission to a group or subgroup, the user configuring the protected environment must be a **direct member** of the group or subgroup to be added. Otherwise, the group or subgroup does not show up in the dropdown list. For more information see [issue #345140](https://gitlab.com/gitlab-org/gitlab/-/issues/345140).
-- When granting **Allowed to deploy** permissions to a group or project by using the settings UI, only direct members of the group or project receive these permissions. To grant these permissions to inherited members also, [use the API](../../api/protected_environments.md#group-inheritance-types). For more information see [issue #422392](https://gitlab.com/gitlab-org/gitlab/-/issues/422392).
+- When granting the **Allowed to deploy** permission to an approver group, the user configuring the protected environment must be a **direct member** of the approver group to be added. Otherwise, the group or subgroup does not show up in the dropdown list. For more information see [issue #345140](https://gitlab.com/gitlab-org/gitlab/-/issues/345140).
+- When granting **Approvers** permissions to an approver group or project, by default only direct members of the approver group or project receive these permissions. To also grant these permissions to inherited members of the approver group or project:
+  - Select the **Enable group inheritance** checkbox.
+  - [Use the API](../../api/protected_environments.md#group-inheritance-types).
 
 To protect an environment:
 
@@ -45,7 +47,7 @@ To protect an environment:
    - There are two roles to choose from:
      - **Maintainers**: Allows access to all of the project's users with the Maintainer role.
      - **Developers**: Allows access to all of the project's users with the Maintainer and Developer role.
-   - You can also select groups that are already [invited](../../user/project/members/share_project_with_groups.md#share-a-project-with-a-group) to the project. Invited groups added to the project with the Reporter role appear in the dropdown list for [deployment-only access](#deployment-only-access-to-protected-environments).
+   - You can also select groups that are already [invited](../../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-project) to the project. Invited groups added to the project with the Reporter role appear in the dropdown list for [deployment-only access](#deployment-only-access-to-protected-environments).
    - You can also select specific users. The users must have at least the Developer role to appear in
      the **Allowed to deploy** list.
 1. In the **Approvers** list, select the role, users, or groups you
@@ -54,7 +56,7 @@ To protect an environment:
    - There are two roles to choose from:
      - **Maintainers**: Allows access to all of the project's users with the Maintainer role.
      - **Developers**: Allows access to all of the project's users with the Maintainer and Developer role.
-   - You can only select groups that are already [invited](../../user/project/members/share_project_with_groups.md#share-a-project-with-a-group) to the project.
+   - You can only select groups that are already [invited](../../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-project) to the project.
    - Users must have at least the Developer role to appear in
      the **Approvers** list.
 
@@ -151,13 +153,13 @@ they have the following privileges:
 
 Users granted access to a protected environment, but not push or merge access
 to the branch deployed to it, are only granted access to deploy the environment.
-[Invited groups](../../user/project/members/share_project_with_groups.md#share-a-project-with-a-group) added
+[Invited groups](../../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-project) added
 to the project with [Reporter role](../../user/permissions.md#project-members-permissions), appear in the dropdown list for deployment-only access.
 
 To add deployment-only access:
 
 1. Create a group with members who are granted to access to the protected environment, if it doesn't exist yet.
-1. [Invite the group](../../user/project/members/share_project_with_groups.md#share-a-project-with-a-group) to the project with the Reporter role.
+1. [Invite the group](../../user/project/members/sharing_projects_groups.md#invite-a-group-to-a-project) to the project with the Reporter role.
 1. Follow the steps in [Protecting Environments](#protecting-environments).
 
 ## Modifying and unprotecting environments
@@ -169,7 +171,11 @@ Maintainers can:
 - Unprotect a protected environment by selecting the **Unprotect** button for that environment.
 
 After an environment is unprotected, all access entries are deleted and must
-be re-entered if the environment is re-protected.
+be re-entered if the environment is re-protected. 
+
+After an approval rule is deleted, previously approved deployments do not show who approved the deployment. 
+Information on who approved a deployment is still available in the [project audit events](../../user/compliance/audit_events.md#project-audit-events).
+If a new rule is added, previous deployments show the new rules without the option to approve the deployment. [Issue 506687](https://gitlab.com/gitlab-org/gitlab/-/issues/506687) proposes to show the full approval history of deployments, even if an approval rule is deleted.
 
 For more information, see [Deployment safety](deployment_safety.md).
 
@@ -276,6 +282,6 @@ Protected environments can also be used to require manual approvals before deplo
 
 ### Reporter can't run a trigger job that deploys to a protected environment in downstream pipeline
 
-A user who has [deployment-only access to protected environments](#deployment-only-access-to-protected-environments) might **not** be able to run a job if it's with a [`trigger`](../yaml/index.md#trigger) keyword. This is because the job is missing the [`environment`](../yaml/index.md#environment) keyword definition to associate the job with the protected environment, therefore the job is recognized as a standard job that uses [regular CI/CD permission model](../../user/permissions.md#gitlab-cicd-permissions).
+A user who has [deployment-only access to protected environments](#deployment-only-access-to-protected-environments) might **not** be able to run a job if it's with a [`trigger`](../yaml/index.md#trigger) keyword. This is because the job is missing the [`environment`](../yaml/index.md#environment) keyword definition to associate the job with the protected environment, therefore the job is recognized as a standard job that uses [regular CI/CD permission model](../../user/permissions.md#cicd).
 
 See [this issue](https://gitlab.com/groups/gitlab-org/-/epics/8483) for more information about supporting `environment` keyword with `trigger` keyword.

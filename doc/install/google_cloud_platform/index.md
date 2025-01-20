@@ -9,7 +9,7 @@ description: 'Learn how to install a GitLab instance on Google Cloud Platform.'
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can install GitLab on a [Google Cloud Platform (GCP)](https://cloud.google.com/) using the official Linux package. You should customize it to accommodate your needs.
 
@@ -38,13 +38,13 @@ To deploy GitLab on GCP you must create a virtual machine:
 1. Go to <https://console.cloud.google.com/compute/instances> and sign in with your Google credentials.
 1. Select **Create**
 
-   ![Search for GitLab](img/launch_vm.png)
+   ![Search for GitLab](img/launch_vm_v10_6.png)
 
 1. On the next page, you can select the type of VM as well as the
    estimated costs. Provide the name of the instance, desired data center, and machine type.
-   Note our [hardware requirements for different user base sizes](../requirements.md#hardware-requirements).
+   Note our [hardware requirements for different user base sizes](../requirements.md).
 
-   ![Launch on Compute Engine](img/vm_details.png)
+   ![Launch on Compute Engine](img/vm_details_v13_1.png)
 
 1. To select the size, type, and desired [operating system](../../administration/package_information/supported_os.md#supported-operating-systems),
    select **Change** under `Boot disk`. select **Select** when finished.
@@ -55,19 +55,19 @@ To deploy GitLab on GCP you must create a virtual machine:
 
 After a few seconds, the instance is created and available to sign in. The next step is to install GitLab onto the instance.
 
-![Deploy settings](img/vm_created.png)
+![Deploy settings](img/vm_created_v10_6.png)
 
 1. Make a note of the external IP address of the instance, as you will need that in a later step. <!-- using future tense is okay here -->
 1. Select **SSH** under the connect column to connect to the instance.
 1. A new window appears, with you logged into the instance.
 
-   ![GitLab first sign in](img/ssh_terminal.png)
+   ![GitLab first sign in](img/ssh_terminal_v10_6.png)
 
 1. Next, follow the instructions for installing GitLab for the operating system you choose, at <https://about.gitlab.com/install/>. You can use the external IP address you noted before as the hostname.
 
 1. Congratulations! GitLab is now installed and you can access it via your browser. To finish installation, open the URL in your browser and provide the initial administrator password. The username for this account is `root`.
 
-   ![GitLab first sign in](img/first_signin.png)
+   ![GitLab first sign in](img/first_signin_v10_6.png)
 
 ## Next steps
 
@@ -80,7 +80,7 @@ By default, Google assigns an ephemeral IP to your instance. It is strongly
 recommended to assign a static IP if you are using GitLab in production
 and use a domain name as shown below.
 
-Read Google's documentation on how to [promote an ephemeral IP address](https://cloud.google.com/vpc/docs/reserve-static-external-ip-address#promote_ephemeral_ip).
+For more information, see [Promote an ephemeral external IP address](https://cloud.google.com/vpc/docs/reserve-static-external-ip-address#promote_ephemeral_ip).
 
 ### Using a domain name
 
@@ -91,7 +91,7 @@ here's how you configure GitLab to be aware of the change:
 1. SSH into the VM. You can select **SSH** in the Google console
    and a new window pops up.
 
-   ![SSH button](img/vm_created.png)
+   ![SSH button](img/vm_created_v10_6.png)
 
    In the future you might want to set up [connecting with an SSH key](https://cloud.google.com/compute/docs/connect/standard-ssh)
    instead.

@@ -6,24 +6,26 @@ module Gitlab
     class ProjectConfig
       # The order of sources is important:
       # - EE uses Compliance first since it must be used first if compliance templates are enabled.
-      #   (see ee/lib/ee/gitlab/ci/project_config.rb)
       # - Parameter is used by on-demand security scanning which passes the actual CI YAML to use as argument.
       # - Bridge is used for downstream pipelines since the config is defined in the bridge job. If lower in priority,
       #   it would evaluate the project's YAML file instead.
-      # - Repository / ExternalProject / Remote: their order is not important between each other.
+      # - ProjectSetting takes care of CI config coming defined in a project.
+      #   This can be the project itself, remote or external.
       # - AutoDevops is used as default option if nothing else is found and if AutoDevops is enabled.
+      # - EE uses SecurityPolicyDefault and it should come last. It is only necessary if no other source is available.
+      #   Based on the policy configuration different source can be used.
       SOURCES = [
+        ProjectConfig::Compliance,
         ProjectConfig::Parameter,
         ProjectConfig::Bridge,
-        ProjectConfig::Repository,
-        ProjectConfig::ExternalProject,
-        ProjectConfig::Remote,
-        ProjectConfig::AutoDevops
+        ProjectConfig::ProjectSetting,
+        ProjectConfig::AutoDevops,
+        ProjectConfig::SecurityPolicyDefault
       ].freeze
 
       def initialize(
         project:, sha:, custom_content: nil, pipeline_source: nil, pipeline_source_bridge: nil,
-        triggered_for_branch: nil, ref: nil, has_pipeline_execution_policies: nil)
+        triggered_for_branch: nil, ref: nil, pipeline_policy_context: nil)
         @config = nil
 
         sources.each do |source|
@@ -34,7 +36,8 @@ module Gitlab
             pipeline_source_bridge: pipeline_source_bridge,
             triggered_for_branch: triggered_for_branch,
             ref: ref,
-            has_pipeline_execution_policies: has_pipeline_execution_policies)
+            pipeline_policy_context: pipeline_policy_context
+          )
 
           if source_config.exists?
             @config = source_config
@@ -43,7 +46,7 @@ module Gitlab
         end
       end
 
-      delegate :content, :source, :url, to: :@config, allow_nil: true
+      delegate :content, :source, :url, :pipeline_policy_context, to: :@config, allow_nil: true
       delegate :internal_include_prepended?, to: :@config
 
       def exists?
@@ -59,4 +62,4 @@ module Gitlab
   end
 end
 
-Gitlab::Ci::ProjectConfig.prepend_mod_with('Gitlab::Ci::ProjectConfig')
+Gitlab::Ci::ProjectConfig.prepend_mod

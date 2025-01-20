@@ -4,7 +4,7 @@ require 'spec_helper'
 
 require 'googleauth'
 
-RSpec.describe Integrations::Prometheus, :use_clean_rails_memory_store_caching, :snowplow, feature_category: :metrics do
+RSpec.describe Integrations::Prometheus, :use_clean_rails_memory_store_caching, :snowplow, feature_category: :observability do
   include PrometheusHelpers
   include ReactiveCachingHelpers
 
@@ -12,7 +12,7 @@ RSpec.describe Integrations::Prometheus, :use_clean_rails_memory_store_caching, 
 
   let(:integration) { project.prometheus_integration }
 
-  it_behaves_like Integrations::BaseMonitoring
+  it_behaves_like Integrations::Base::Monitoring
 
   context 'redirects' do
     it 'does not follow redirects' do

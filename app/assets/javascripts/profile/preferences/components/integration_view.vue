@@ -1,17 +1,18 @@
 <script>
-import { GlIcon, GlLink, GlFormGroup, GlFormCheckbox } from '@gitlab/ui';
+import { GlLink, GlFormGroup, GlFormCheckbox } from '@gitlab/ui';
 import IntegrationHelpText from '~/vue_shared/components/integrations_help_text.vue';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 
 const toCheckboxValue = (bool) => (bool ? '1' : false);
 
 export default {
   name: 'IntegrationView',
   components: {
-    GlIcon,
     GlLink,
     GlFormGroup,
     GlFormCheckbox,
     IntegrationHelpText,
+    HelpIcon,
   },
   props: {
     helpLink: {
@@ -33,6 +34,11 @@ export default {
     value: {
       type: Boolean,
       required: true,
+    },
+    title: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   data() {
@@ -65,9 +71,9 @@ export default {
 <template>
   <gl-form-group>
     <template #label>
-      {{ config.title }}
+      {{ title || config.title }}
       <gl-link class="has-tooltip" title="More information" :href="helpLink">
-        <gl-icon name="question-o" class="vertical-align-middle" />
+        <help-icon class="vertical-align-middle" />
       </gl-link>
     </template>
     <!-- Necessary for Rails to receive the value when not checked -->

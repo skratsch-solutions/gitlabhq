@@ -69,6 +69,7 @@ module API
       end
 
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: :read_deployments
       get ':id/deployments' do
         authorize! :read_deployment, user_project
 
@@ -94,6 +95,7 @@ module API
         requires :deployment_id, type: Integer, desc: 'The ID of the deployment'
       end
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: :read_deployments
       get ':id/deployments/:deployment_id' do
         authorize! :read_deployment, user_project
 
@@ -135,6 +137,7 @@ module API
           values: %w[running success failed canceled]
       end
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: [:admin_deployments, :admin_environments]
       post ':id/deployments' do
         authorize!(:create_deployment, user_project)
         authorize!(:create_environment, user_project)
@@ -181,6 +184,7 @@ module API
           values: %w[running success failed canceled]
       end
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: :admin_deployments
       put ':id/deployments/:deployment_id' do
         authorize!(:read_deployment, user_project)
 
@@ -214,6 +218,7 @@ module API
         requires :deployment_id, type: Integer, desc: 'The ID of the deployment'
       end
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: :admin_deployments
       delete ':id/deployments/:deployment_id' do
         deployment = user_project.deployments.find(params[:deployment_id])
 
@@ -248,6 +253,7 @@ module API
         use :merge_requests_base_params
       end
       route_setting :authentication, job_token_allowed: true
+      route_setting :authorization, job_token_policies: :read_deployments
       get ':id/deployments/:deployment_id/merge_requests' do
         authorize! :read_deployment, user_project
 

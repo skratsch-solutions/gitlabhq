@@ -1,5 +1,6 @@
 - add_page_specific_style 'page_bundles/branches'
 - page_title _('Branches')
+- search = params[:search]
 
 -# Possible values for variables passed down from the projects/branches_controller.rb
 -#
@@ -7,15 +8,15 @@
 -#   @sort   - name_asc|updated_asc|updated_desc
 
 .top-area
-  = gl_tabs_nav({ class: 'gl-flex-grow-1 gl-border-b-0' }) do
+  = gl_tabs_nav({ class: 'gl-grow gl-border-b-0' }) do
     = gl_tab_link_to s_('Branches|Overview'), project_branches_path(@project), { item_active: @mode == 'overview', title: s_('Branches|Show overview of the branches') }
-    = gl_tab_link_to s_('Branches|Active'), project_branches_filtered_path(@project, state: 'active'), { title: s_('Branches|Show active branches') }
-    = gl_tab_link_to s_('Branches|Stale'), project_branches_filtered_path(@project, state: 'stale'), { title: s_('Branches|Show stale branches') }
+    = gl_tab_link_to s_('Branches|Active'), project_branches_filtered_path(@project, state: 'active'), { item_active: @mode == 'active', title: s_('Branches|Show active branches') }
+    = gl_tab_link_to s_('Branches|Stale'), project_branches_filtered_path(@project, state: 'stale'), { item_active: @mode == 'stale', title: s_('Branches|Show stale branches') }
     = gl_tab_link_to s_('Branches|All'), project_branches_filtered_path(@project, state: 'all'), { item_active: %w[overview active stale].exclude?(@mode), title: s_('Branches|Show all branches') }
 
   .nav-controls
     #js-branches-sort-dropdown{ data: {
-        project_branches_filtered_path: project_branches_path(@project, state: 'all'),
+        project_branches_filtered_path: project_branches_path(@project, state: @mode),
         sort_options: branches_sort_options_hash.to_json,
         show_dropdown: @mode == 'overview' ? 'false' : 'true',
         sorted_by: @sort }
@@ -52,12 +53,14 @@
     - @branches.each do |branch|
       = render "projects/branches/branch", branch: branch, merged: @merged_branch_names.include?(branch.name), commit_status: @branch_pipeline_statuses[branch.name], show_commit_status: @branch_pipeline_statuses.any?
   - if Feature.enabled?(:branch_list_keyset_pagination, @project)
-    = render('kaminari/gitlab/without_count', previous_path: @prev_path, next_path: @next_path)
+    = render('kaminari/gitlab/without_count', previous_path: @prev_path, next_path: @next_path, event_tracking: nil)
   - else
     = paginate @branches, theme: 'gitlab'
+- elsif search.present?
+  = render ::Layouts::EmptyResultComponent.new(type: :search)
 - else
-  .nothing-here-block
-    = s_('Branches|No branches to show')
+  = render Pajamas::EmptyStateComponent.new(svg_path: 'illustrations/status/status-nothing-md.svg',
+    title: s_('Branches|No branches to show'))
 
 - if can?(current_user, :push_code, @project)
   .js-delete-branch-modal

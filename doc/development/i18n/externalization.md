@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -504,8 +504,9 @@ A namespace:
   area, rather than arbitrary ones.
 - Gives a linguistic context to help the translator.
 
-In some cases, namespaces don't make sense. For example, for ubiquitous UI words and phrases such as
-"Cancel" or phrases like "Save changes," a namespace could be counterproductive.
+Some languages are more contextual than English.
+For example, `cancel` can be translated in different ways depending on how it's used.
+To define the context of use, always add a namespace to UI text in English.
 
 Namespaces should be PascalCase.
 
@@ -567,11 +568,11 @@ instead:
 
 - In Ruby/HAML:
 
-   ```ruby
-   safe_format(_('In &lt; 1 hour'))
+  ```ruby
+  safe_format(_('In &lt; 1 hour'))
 
-   # => 'In < 1 hour'
-   ```
+  # => 'In < 1 hour'
+  ```
 
 - In JavaScript:
 

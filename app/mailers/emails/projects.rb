@@ -7,7 +7,7 @@ module Emails
       @project = Project.find project_id
       @target_url = project_url(@project)
       @old_path_with_namespace = old_path_with_namespace
-      mail_with_locale(
+      email_with_layout(
         to: @user.notification_email_for(@project.group),
         subject: subject("Project was moved")
       )
@@ -15,7 +15,7 @@ module Emails
 
     def project_was_exported_email(current_user, project)
       @project = project
-      mail_with_locale(
+      email_with_layout(
         to: current_user.notification_email_for(project.group),
         subject: subject("Project was exported")
       )
@@ -24,7 +24,7 @@ module Emails
     def project_was_not_exported_email(current_user, project, errors)
       @project = project
       @errors = errors
-      mail_with_locale(
+      email_with_layout(
         to: current_user.notification_email_for(@project.group),
         subject: subject("Project export error")
       )
@@ -48,6 +48,25 @@ module Emails
       mail_with_locale(to: user.notification_email_for(project.group), subject: subject("Project cleanup failure"))
     end
 
+    def repository_rewrite_history_success_email(project, user)
+      @project = project
+
+      email_with_layout(
+        to: user.notification_email_for(project.group),
+        subject: subject("Project history rewrite has completed")
+      )
+    end
+
+    def repository_rewrite_history_failure_email(project, user, error)
+      @project = project
+      @error = error
+
+      email_with_layout(
+        to: user.notification_email_for(project.group),
+        subject: subject("Project history rewrite failure")
+      )
+    end
+
     def repository_push_email(project_id, opts = {})
       @message =
         Gitlab::Email::Message::RepositoryPush.new(self, project_id, opts)
@@ -63,7 +82,7 @@ module Emails
       mail_with_locale(
         from: sender(@message.author_id, send_from_user_email: @message.send_from_committer_email?),
         reply_to: @message.reply_to,
-        subject: @message.subject
+        subject: subject_with_suffix([@message.subject])
       )
     end
 
@@ -84,7 +103,7 @@ module Emails
       @user = user
       @deletion_date = deletion_date
       subject_text = "Action required: Project #{project.name} is scheduled to be deleted on " \
-      "#{deletion_date} due to inactivity"
+        "#{deletion_date} due to inactivity"
 
       email_with_layout(
         to: user.notification_email_for(project.group),

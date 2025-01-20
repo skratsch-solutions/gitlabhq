@@ -17,6 +17,8 @@ RSpec.describe "User browses files", :js, feature_category: :source_code_managem
 
   before do
     sign_in(user)
+
+    stub_feature_flags(blob_overflow_menu: false)
   end
 
   it "shows last commit for current directory", :js do
@@ -31,7 +33,7 @@ RSpec.describe "User browses files", :js, feature_category: :source_code_managem
     end
   end
 
-  context "when browsing the master branch", :js do
+  context "when browsing a branch", :js do
     before do
       visit(tree_path_root_ref)
     end
@@ -51,6 +53,8 @@ RSpec.describe "User browses files", :js, feature_category: :source_code_managem
 
       click_link("History")
 
+      history_path = project_commits_path(project, "master/files")
+      expect(page).to have_current_path(history_path)
       expect(page).to have_link("Browse Directory").and have_no_link("Browse Code")
     end
 
@@ -59,14 +63,20 @@ RSpec.describe "User browses files", :js, feature_category: :source_code_managem
         click_link("README.md")
       end
 
-      click_link("History")
+      page.within(".commit-actions") do
+        click_link("History")
+      end
 
+      history_path = project_commits_path(project, "master/README.md")
+      expect(page).to have_current_path(history_path)
       expect(page).to have_link("Browse File").and have_no_link("Browse Files")
     end
 
     it "shows the `Browse Files` link" do
       click_link("History")
 
+      history_path = project_commits_path(project, "master")
+      expect(page).to have_current_path(history_path)
       expect(page).to have_link("Browse Files").and have_no_link("Browse Directory")
     end
 
@@ -77,6 +87,54 @@ RSpec.describe "User browses files", :js, feature_category: :source_code_managem
       permalink_path = project_blob_path(project, "#{project.repository.commit.sha}/.gitignore")
 
       expect(page).to have_current_path(permalink_path, ignore_query: true)
+    end
+  end
+
+  context "when browsing a tag", :js do
+    before do
+      visit(project_tree_path(project, "v1.0.0"))
+    end
+
+    it "shows history button that points to correct url" do
+      click_link("History")
+
+      history_path = project_commits_path(project, "v1.0.0")
+      expect(page).to have_current_path(history_path)
+    end
+
+    it "shows history button that points to correct url for directory" do
+      click_link("files")
+
+      click_link("History")
+
+      history_path = project_commits_path(project, "v1.0.0/files")
+      expect(page).to have_current_path(history_path)
+    end
+
+    it "shows history button that points to correct url for a file" do
+      page.within(".tree-table") do
+        click_link("README.md")
+      end
+
+      click_link("History")
+
+      history_path = project_commits_path(project, "v1.0.0/README.md")
+      expect(page).to have_current_path(history_path)
+    end
+  end
+
+  context "when browsing a commit", :js do
+    let(:last_commit) { project.repository.last_commit_for_path(project.default_branch, "files") }
+
+    before do
+      visit(project_tree_path(project, last_commit))
+    end
+
+    it "shows history button that points to correct url" do
+      click_link("History")
+
+      history_path = project_commits_path(project, last_commit)
+      expect(page).to have_current_path(history_path)
     end
   end
 

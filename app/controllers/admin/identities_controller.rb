@@ -32,8 +32,7 @@ class Admin::IdentitiesController < Admin::ApplicationController
                                 end
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     if @identity.update(identity_params)
@@ -60,12 +59,12 @@ class Admin::IdentitiesController < Admin::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def user
-    @user ||= User.find_by!(username: params[:user_id])
+    @user ||= User.find_by!(username: params.permit(:user_id)[:user_id])
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
   def identity
-    @identity ||= user.identities.find(params[:id])
+    @identity ||= user.identities.find(params.permit(:id)[:id])
   end
 
   def identity_params

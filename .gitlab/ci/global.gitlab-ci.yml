@@ -8,6 +8,9 @@
       - scheduler_failure
       - stuck_or_timeout_failure
       - unknown_failure
+    exit_codes:
+      - 110  # known infrastructure error https://gitlab.com/gitlab-org/gitlab/-/issues/501325
+      - 111  # low free disk space https://gitlab.com/gitlab-org/gitlab/-/issues/498142
 
 .default-utils-before_script:
   before_script:
@@ -16,6 +19,7 @@
     - export GOPATH=$CI_PROJECT_DIR/.go
     - mkdir -p $GOPATH
     - source scripts/utils.sh
+    - log_disk_usage "true"  # https://gitlab.com/gitlab-org/gitlab/-/issues/478880
 
 .default-before_script:
   before_script:
@@ -29,7 +33,7 @@
     # If the job extending this also defines `needs`, make sure to update
     # its `needs` to include `clone-gitlab-repo` because it'll be overridden.
     - job: clone-gitlab-repo
-      optional: true # Optional so easier to switch in between
+      optional: true  # Optional so easier to switch in between
 
 .production:
   variables:
@@ -38,7 +42,7 @@
     GITLAB_ALLOW_SEPARATE_CI_DATABASE: "true"
 
 .ruby-gems-cache: &ruby-gems-cache
-  key: "ruby-gems-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}"
+  key: "ruby-gems-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}-gemfile-${BUNDLE_GEMFILE}"
   paths:
     - vendor/ruby/
   policy: pull
@@ -48,7 +52,7 @@
   policy: push  # We want to rebuild the cache from scratch to ensure stale dependencies are cleaned up.
 
 .ruby-coverage-gems-cache: &ruby-coverage-gems-cache
-  key: "ruby-coverage-gems-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}"
+  key: "ruby-coverage-gems-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}-gemfile-${BUNDLE_GEMFILE}"
   paths:
     - vendor/ruby/
   policy: pull
@@ -100,7 +104,7 @@
   policy: push  # We want to rebuild the cache from scratch to ensure stale dependencies are cleaned up.
 
 .assets-tmp-cache: &assets-tmp-cache
-  key: "assets-tmp-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}-node-${NODE_ENV}-v1"
+  key: "assets-tmp-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}-gemfile-${BUNDLE_GEMFILE}-node-${NODE_ENV}-v1"
   paths:
     - tmp/cache/assets/sprockets/
     - tmp/cache/babel-loader/
@@ -122,7 +126,7 @@
   policy: push  # We want to rebuild the cache from scratch to ensure stale dependencies are cleaned up.
 
 .rubocop-cache: &rubocop-cache
-  key: "rubocop-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}"
+  key: "rubocop-${BUILD_OS}-${OS_VERSION}-ruby-${RUBY_VERSION}-gemfile-${BUNDLE_GEMFILE}"
   paths:
     - tmp/rubocop_cache/
   policy: pull
@@ -141,10 +145,6 @@
   paths:
     - qa/vendor/ruby
   policy: pull
-
-.qa-ruby-gems-cache-push: &qa-ruby-gems-cache-push
-  <<: *qa-ruby-gems-cache
-  policy: pull-push
 
 .setup-test-env-cache:
   cache:
@@ -196,21 +196,44 @@
     - *node-modules-cache
 
 .qa-bundler-variables: &qa-bundler-variables
-  variables:
-    BUNDLE_SUPPRESS_INSTALL_USING_MESSAGES: "true"
-    BUNDLE_SILENCE_ROOT_WARNING: "true"
-    BUNDLE_PATH: vendor
-    BUNDLE_WITHOUT: development
+  BUNDLE_SUPPRESS_INSTALL_USING_MESSAGES: "true"
+  BUNDLE_SILENCE_ROOT_WARNING: "true"
+  BUNDLE_PATH: vendor
+  BUNDLE_WITHOUT: development
+
+.cng-helm-cache: &cng-helm-cache
+  key: cng-helm-cache-${GITLAB_HELM_CHART_REF}
+  paths:
+    - $CNG_HELM_REPOSITORY_CACHE
+  policy: pull
 
 .qa-cache:
-  <<: *qa-bundler-variables
+  variables: *qa-bundler-variables
   cache:
     - *qa-ruby-gems-cache
 
 .qa-cache-push:
-  <<: *qa-bundler-variables
+  variables: *qa-bundler-variables
   cache:
-    - *qa-ruby-gems-cache-push
+    - <<: *qa-ruby-gems-cache
+      policy: pull-push
+
+.cng-qa-cache:
+  variables:
+    CNG_HELM_REPOSITORY_CACHE: $CI_PROJECT_DIR/qa/tmp/helm-cng
+    <<: *qa-bundler-variables
+  cache:
+    - *qa-ruby-gems-cache
+    - *cng-helm-cache
+
+.cng-qa-cache-push:
+  variables:
+    CNG_HELM_REPOSITORY_CACHE: $CI_PROJECT_DIR/qa/tmp/helm-cng
+    <<: *qa-bundler-variables
+  cache:
+    - *qa-ruby-gems-cache
+    - <<: *cng-helm-cache
+      policy: pull-push
 
 .yarn-cache:
   cache:
@@ -237,22 +260,6 @@
   cache:
     - *node-modules-cache  # We don't push this cache as it's already rebuilt by `update-assets-compile-*-cache`
     - *storybook-node-modules-cache-push
-
-.code-quality-cache: &code-quality-cache
-  paths:
-    - gl-code-quality-report.json
-
-.code-quality-cache-push:
-  cache:
-    - key: $CI_COMMIT_BRANCH-code-quality-cache
-      <<: *code-quality-cache
-      policy: push
-
-.code-quality-cache-master-pull:
-  cache:
-    - key: master-code-quality-cache
-      <<: *code-quality-cache
-      policy: pull  # Docs pipelines can save time by pulling a copy of the code quality report from the latest master pipeline.
 
 .redis-services:
   services:
@@ -306,7 +313,7 @@
 
 .zoekt-services:
   services:
-    - name: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:zoekt-ci-image-1.8
+    - name: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:zoekt-ci-image-1.9
       alias: zoekt-ci-image
 
 .ai-gateway-variables:
@@ -318,12 +325,34 @@
     AIGW_FASTAPI__OPENAPI_URL: "/openapi.json"
     AIGW_FASTAPI__API_PORT: 5052
     ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY_FOR_SERVICE
-    # CI_DEBUG_SERVICES: "true" # Enable this variable when you debug ai-gateway boot failure.
+    # CI_DEBUG_SERVICES: "true"  # Enable this variable when you debug ai-gateway boot failure.
 
 .ai-gateway-services:
   services:
-    - name: registry.gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/model-gateway:v1.10.0
+    - name: registry.gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/model-gateway:v1.18.0
       alias: ai-gateway
+
+.litellm-proxy-variables:
+  variables:
+    LITELLM_CONFIG_CONTENT: |
+      model_list:
+        - model_name: codestral
+          litellm_params:
+            model: ollama/codestral
+            mock_response: "Mock response from codestral"
+        - model_name: mistral
+          litellm_params:
+            model: ollama/mistral
+            mock_response: "Mock response from mistral"
+
+.litellm-proxy-services:
+  services:
+    - name: ghcr.io/berriai/litellm:main-latest
+      alias: litellm-proxy
+      entrypoint: ["/bin/sh", "-c"]
+      command:
+        - |
+          mkdir -p /tmp && echo "${LITELLM_CONFIG_CONTENT}" > /tmp/config.yaml && litellm --config /tmp/config.yaml
 
 .use-pg13:
   extends:
@@ -367,23 +396,17 @@
     - name: elasticsearch:7.17.6
       command: ["elasticsearch", "-E", "discovery.type=single-node", "-E", "xpack.security.enabled=false", "-E", "cluster.routing.allocation.disk.threshold_enabled=false"]
 
-.use-pg13-es7-ee:
-  extends:
-    - .use-pg13
-    - .zoekt-variables
-  services:
-    - !reference [.db-services, services]
-    - !reference [.es7-services, services]
-
 .use-pg14-es7-ee:
   extends:
     - .use-pg14
     - .zoekt-variables
     - .ai-gateway-variables
+    - .litellm-proxy-variables
   services:
     - !reference [.db-services-with-auto-explain, services]
     - !reference [.es7-services, services]
     - !reference [.ai-gateway-services, services]
+    - !reference [.litellm-proxy-services, services]
 
 .use-pg15-es7-ee:
   extends:
@@ -412,14 +435,6 @@
     ES_SETTING_XPACK_SECURITY_ENABLED: "false"
     ES_SETTING_CLUSTER_ROUTING_ALLOCATION_DISK_THRESHOLD__ENABLED: "false"
 
-.use-pg13-es8-ee:
-  extends:
-    - .use-pg13
-    - .zoekt-variables
-    - .es8-variables
-  services:
-    - !reference [.db-services, services]
-    - !reference [.es8-services, services]
 
 .use-pg14-es8-ee:
   extends:
@@ -451,17 +466,9 @@
 .os1-services:
   services:
     - !reference [.zoekt-services, services]
-    - name: opensearchproject/opensearch:1.3.5
+    - name: opensearchproject/opensearch:1.3.18
       alias: elasticsearch
       command: ["bin/opensearch", "-E", "discovery.type=single-node", "-E", "plugins.security.disabled=true", "-E", "cluster.routing.allocation.disk.threshold_enabled=false"]
-
-.use-pg13-opensearch1-ee:
-  extends:
-    - .use-pg13
-    - .zoekt-variables
-  services:
-    - !reference [.db-services, services]
-    - !reference [.os1-services, services]
 
 .use-pg14-opensearch1-ee:
   extends:
@@ -490,17 +497,9 @@
 .os2-services:
   services:
     - !reference [.zoekt-services, services]
-    - name: opensearchproject/opensearch:2.2.1
+    - name: opensearchproject/opensearch:2.15.0
       alias: elasticsearch
       command: ["bin/opensearch", "-E", "discovery.type=single-node", "-E", "plugins.security.disabled=true", "-E", "cluster.routing.allocation.disk.threshold_enabled=false"]
-
-.use-pg13-opensearch2-ee:
-  extends:
-    - .use-pg13
-    - .zoekt-variables
-  services:
-    - !reference [.db-services, services]
-    - !reference [.os2-services, services]
 
 .use-pg14-opensearch2-ee:
   extends:
@@ -533,8 +532,7 @@
     - name: clickhouse/clickhouse-server:23.11.3.23-alpine
       alias: clickhouse
   variables:
-    CLICKHOUSE_USER: clickhouse
-    CLICKHOUSE_PASSWORD: clickhouse
+    CLICKHOUSE_USER: default
     CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     CLICKHOUSE_DB: gitlab_clickhouse_test
 

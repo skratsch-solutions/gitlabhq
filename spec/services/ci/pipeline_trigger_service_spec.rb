@@ -9,6 +9,7 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
 
   before do
     stub_ci_pipeline_to_return_yaml_file
+    project.update!(ci_pipeline_variables_minimum_override_role: :developer)
   end
 
   describe '#execute' do
@@ -70,12 +71,15 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
           let(:params) { { token: trigger.token, ref: 'master', variables: nil } }
 
           it 'triggers a pipeline' do
-            expect { result }.to change { Ci::Pipeline.count }.by(1)
+            expect { result }
+              .to change { Ci::Pipeline.count }.by(1)
+              .and change { Ci::TriggerRequest.count }.by(1)
             expect(result[:pipeline].ref).to eq('master')
             expect(result[:pipeline].project).to eq(project)
             expect(result[:pipeline].user).to eq(trigger.owner)
             expect(result[:pipeline].trigger_requests.to_a)
               .to eq(result[:pipeline].builds.map(&:trigger_request).uniq)
+            expect(result[:pipeline].trigger).to eq(trigger)
             expect(result[:status]).to eq(:success)
           end
 
@@ -172,21 +176,8 @@ RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integra
         end
       end
 
-      context 'when job does not have a project' do
-        let(:params) { { token: job.token, ref: 'master', variables: nil } }
-        let(:job) { create(:ci_build, status: :running, pipeline: pipeline, user: user) }
-
-        it 'does nothing', :aggregate_failures do
-          job.update!(project: nil)
-
-          expect { result }.not_to change { Ci::Pipeline.count }
-          expect(result[:message]).to eq('Project has been deleted!')
-          expect(result[:http_status]).to eq(401)
-        end
-      end
-
-      context 'when params have an existsed job token' do
-        context 'when params have an existsed ref' do
+      context 'when params have a valid job token' do
+        context 'when params have an existing ref' do
           let(:params) { { token: job.token, ref: 'master', variables: nil } }
 
           it 'triggers a pipeline' do

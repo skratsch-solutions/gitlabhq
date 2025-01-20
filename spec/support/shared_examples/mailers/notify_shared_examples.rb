@@ -36,6 +36,16 @@ RSpec.shared_examples 'an email sent to a user' do
   end
 end
 
+RSpec.shared_examples 'an email with suffix' do
+  before do
+    stub_config_setting(email_subject_suffix: 'Suffix')
+  end
+
+  it 'adds a correct suffix to subject' do
+    expect(subject.subject).to end_with('| Suffix')
+  end
+end
+
 RSpec.shared_examples 'an email that contains a header with author username' do
   it 'has X-GitLab-Author header containing author\'s username' do
     is_expected.to have_header 'X-GitLab-Author', user.username
@@ -83,7 +93,7 @@ RSpec.shared_examples 'a new thread email with reply-by-email enabled' do
 
     aggregate_failures do
       is_expected.to have_header('Message-ID', "<#{route_key}@#{host}>")
-      is_expected.to have_header('References', /\A<reply-.*@#{host}>\Z/ )
+      is_expected.to have_header('References', /\A<reply-.*@#{host}>\Z/)
     end
   end
 end
@@ -99,7 +109,7 @@ RSpec.shared_examples 'a thread answer email with reply-by-email enabled' do |gr
     aggregate_failures do
       is_expected.to have_header('Message-ID', /\A<.*@#{host}>\Z/)
       is_expected.to have_header('In-Reply-To', "<#{route_key}@#{host}>")
-      is_expected.to have_header('References', /\A<reply-.*@#{host}> <#{route_key}@#{host}>\Z/ )
+      is_expected.to have_header('References', /\A<reply-.*@#{host}> <#{route_key}@#{host}>\Z/)
       is_expected.to have_subject(/^Re: /)
     end
   end
@@ -205,6 +215,9 @@ RSpec.shared_examples 'an unsubscribeable thread' do
       is_expected.to have_header('List-Unsubscribe', /unsubscribe/)
       is_expected.to have_header('List-Unsubscribe', /mailto/)
       is_expected.to have_header('List-Unsubscribe', /^<.+,.+>$/)
+      # Ensure force parameter is not present because some firewall scans access header links
+      # and so would automatically unsubscribe participants.
+      is_expected.not_to have_header('List-Unsubscribe', /force=true/)
       is_expected.to have_header('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click')
       is_expected.to have_body_text('unsubscribe')
     end

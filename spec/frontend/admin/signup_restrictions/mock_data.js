@@ -10,6 +10,7 @@ export const rawMockData = {
   minimumPasswordLengthHelpLink: 'help/link',
   domainAllowlistRaw: 'domain1.com, domain2.com',
   newUserSignupsCap: '8',
+  seatControl: '1',
   domainDenylistEnabled: 'true',
   denylistTypeRawSelected: 'true',
   domainDenylistRaw: 'domain2.com, domain3.com',
@@ -24,6 +25,9 @@ export const rawMockData = {
   passwordSymbolRequired: 'true',
   promotionManagementAvailable: 'true',
   enableMemberPromotionManagement: 'true',
+  canDisableMemberPromotionManagement: false,
+  rolePromotionRequestsPath: '/admin/role_promotion',
+  licensedUserCount: '',
 };
 
 export const mockData = {
@@ -38,6 +42,7 @@ export const mockData = {
   minimumPasswordLengthHelpLink: 'help/link',
   domainAllowlistRaw: 'domain1.com, domain2.com',
   newUserSignupsCap: '8',
+  seatControl: '1',
   domainDenylistEnabled: true,
   denylistTypeRawSelected: true,
   domainDenylistRaw: 'domain2.com, domain3.com',
@@ -52,4 +57,29 @@ export const mockData = {
   passwordSymbolRequired: true,
   promotionManagementAvailable: true,
   enableMemberPromotionManagement: true,
+  canDisableMemberPromotionManagement: false,
+  rolePromotionRequestsPath: '/admin/role_promotion',
+  licensedUserCount: '',
+};
+
+export const formData = {
+  signupEnabled: true,
+  requireAdminApproval: true,
+  emailConfirmationSetting: 'hard',
+  minimumPasswordLength: '8',
+  minimumPasswordLengthMin: '3',
+  minimumPasswordLengthMax: '10',
+  minimumPasswordLengthHelpLink: 'help/link',
+  domainAllowlistRaw: 'domain1.com, domain2.com',
+  userCap: '8',
+  domainDenylistEnabled: true,
+  denylistTypeRawSelected: true,
+  denylistType: 'raw',
+  domainDenylistRaw: 'domain2.com, domain3.com',
+  emailRestrictionsEnabled: true,
+  supportedSyntaxLinkUrl: '/supported/syntax/link',
+  emailRestrictions: 'user1@domain.com, user2@domain.com',
+  afterSignUpText: 'Congratulations on your successful sign-up!',
+  seatControl: '0',
+  shouldProceedWithAutoApproval: false,
 };

@@ -1,5 +1,5 @@
 ---
-stage: Data Stores
+stage: Foundations
 group: Global Search
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -28,7 +28,7 @@ graph LR
   E[cron worker every minute] <-->|pull from queue| N
   E --> G[deserialize reference]
   G --> H[generate embedding]
-  H <--> I[AI Gateway]
+  H <--> I[AI gateway]
   I <--> J[Vertex API]
   H --> K[upsert document with embedding]
   K --> L[Elasticsearch]
@@ -56,7 +56,7 @@ graph LR
   D -->|no| E[fetch 19 references from queue]
   E ..->|each reference| F[increment endpoint]
   F --> G{endpoint throttled?}
-  G -->|no| H[call AI Gateway to generate embedding]
+  G -->|no| H[call AI gateway to generate embedding]
 ```
 
 Therefore we always make sure that we don't exceed the rate limit setting of 450 embeddings per minute even with 16 concurrent processes generating embeddings at the same time.
@@ -72,48 +72,48 @@ The following process outlines the steps to get embeddings generated and stored 
 1. Do a cost and resource calculation to see if the Elasticsearch cluster can handle embedding generation or if it needs additional resources.
 1. Decide where to store embeddings. Look at the [existing indices in Elasticsearch](../../integration/advanced_search/elasticsearch.md#advanced-search-index-scopes) and if there isn't a suitable existing index, [create a new index](../advanced_search.md#add-a-new-document-type-to-elasticsearch).
 1. Add embedding fields to the index: [example](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/149209).
-1. Update the way [content](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/search/elastic/references/embedding.rb#L75-77) is generated to accommodate the new type.
+1. Update the way [content](https://gitlab.com/gitlab-org/gitlab/-/blob/616f92a2251fcadfec5ef3792ff3d2e4a879920a/ee/lib/search/elastic/references/embedding.rb#L43-59) is generated to accommodate the new type.
 1. Add a new unit primitive: [here](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/918) and [here](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/155835).
 1. Use `Elastic::ApplicationVersionedSearch` to access callbacks and add the necessary checks for when to generate embeddings. See [`Search::Elastic::IssuesSearch`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/models/concerns/search/elastic/issues_search.rb) for an example.
 1. Backfill embeddings: [example](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/154940).
 
-## Adding issue embeddings locally
+## Adding work item embeddings locally
 
 ### Prerequisites
 
 1. [Make sure Elasticsearch is running](../advanced_search.md#setting-up-development-environment).
-1. If you have an existing Elasticsearch setup, make sure the `AddEmbeddingToIssues` migration has been completed by executing the following until it returns:
+1. If you have an existing Elasticsearch setup, make sure the `AddEmbeddingToWorkItems` migration has been completed by executing the following until it returns:
 
-    ```ruby
-    Elastic::MigrationWorker.new.perform
-    ```
+   ```ruby
+   Elastic::MigrationWorker.new.perform
+   ```
 
 1. Make sure you can run [GitLab Duo features on your local environment](../ai_features/index.md#instructions-for-setting-up-gitlab-duo-features-in-the-local-development-environment).
 1. Ensure running the following in a rails console outputs an embedding (a vector of 768 dimensions). If not, there is a problem with the AI setup.
 
-    ```ruby
-    Gitlab::Llm::VertexAi::Embeddings::Text.new('text', user: nil, tracking_context: {}, unit_primitive: 'semantic_search_issue').execute
-    ```
+   ```ruby
+   Gitlab::Llm::VertexAi::Embeddings::Text.new('text', user: nil, tracking_context: {}, unit_primitive: 'semantic_search_issue').execute
+   ```
 
 ### Running the backfill
 
-To backfill issue embeddings for a project's issues, run the following in a rails console:
+To backfill work item embeddings for a project's work items, run the following in a rails console:
 
 ```ruby
-Gitlab::Duo::Developments::BackfillIssueEmbeddings.execute(project_id: project_id)
+Gitlab::Duo::Developments::BackfillWorkItemEmbeddings.execute(project_id: project_id)
 ```
 
-The task adds the issues to a queue and processes them in batches, indexing embeddings into Elasticsearch.
-It respects a rate limit of 450 embeddings per minute. Reach out to `@maddievn` or `#g_global_search` in Slack if there are any issues.
+The task adds the work items to a queue and processes them in batches, indexing embeddings into Elasticsearch.
+It respects a rate limit of 450 embeddings per minute. Reach out to `#g_global_search` in Slack if there are any issues.
 
 ### Verify
 
-If the following returns 0, all issues for the project have embeddings:
+If the following returns 0, all work items for the project have embeddings:
 
 ```shell
-curl "http://localhost:9200/gitlab-development-issues/_count" \
+curl "http://localhost:9200/gitlab-development-work_items/_count" \
 --header "Content-Type: application/json" \
---data '{"query": {"bool": {"filter": [{"term": {"project_id": PROJECT_ID}}], "must_not": [{"exists": {"field": "embedding"}}]}}}' | jq '.count'
+--data '{"query": {"bool": {"filter": [{"term": {"project_id": PROJECT_ID}}], "must_not": [{"exists": {"field": "embedding_0"}}]}}}' | jq '.count'
 ```
 
 Replacing `PROJECT_ID` with your project ID.

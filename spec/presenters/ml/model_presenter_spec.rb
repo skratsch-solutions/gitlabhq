@@ -93,4 +93,16 @@ RSpec.describe Ml::ModelPresenter, feature_category: :mlops do
 
     it { is_expected.to eq("/#{project.full_path}/-/ml/models/#{model1.id}") }
   end
+
+  describe '#author' do
+    subject { model1.present.author }
+
+    it { is_expected.to eq(model1.user) }
+  end
+
+  describe '#default_experiment_path' do
+    subject { model1.present.default_experiment_path }
+
+    it { is_expected.to eq("/#{model1.project.full_path}/-/ml/experiments/#{model1.default_experiment.id}") }
+  end
 end

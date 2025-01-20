@@ -24,6 +24,8 @@ RSpec.describe Mattermost::Session, type: :request do
   it { is_expected.to respond_to(:strategy) }
 
   describe '#with session' do
+    let_it_be(:organization) { create(:organization, :default) }
+
     let(:location) { 'http://location.tld' }
     let(:cookie_header) { 'MMOAUTH=taskik8az7rq8k6rkpuas7htia; Path=/;' }
     let!(:stub) do

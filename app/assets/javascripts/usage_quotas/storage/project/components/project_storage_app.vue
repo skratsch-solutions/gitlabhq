@@ -1,24 +1,16 @@
 <script>
-import { GlAlert, GlButton, GlLink, GlLoadingIcon } from '@gitlab/ui';
-import { getPreferredLocales, sprintf } from '~/locale';
+import { GlAlert, GlButton, GlLoadingIcon } from '@gitlab/ui';
+import { getPreferredLocales, sprintf, s__, __ } from '~/locale';
 import { updateRepositorySize } from '~/api/projects_api';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import SectionedPercentageBar from '~/usage_quotas/components/sectioned_percentage_bar.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import getProjectStorageStatistics from 'ee_else_ce/usage_quotas/storage/project/queries/project_storage.query.graphql';
 import getCostFactoredProjectStorageStatistics from 'ee_else_ce/usage_quotas/storage/project/queries/cost_factored_project_storage.query.graphql';
+import HelpPageLink from '~/vue_shared/components/help_page_link/help_page_link.vue';
 import {
-  ERROR_MESSAGE,
-  LEARN_MORE_LABEL,
-  USAGE_QUOTAS_LABEL,
-  TOTAL_USAGE_TITLE,
-  TOTAL_USAGE_SUBTITLE,
-  TOTAL_USAGE_DEFAULT_TEXT,
-  HELP_LINK_ARIA_LABEL,
-  RECALCULATE_REPOSITORY_LABEL,
   PROJECT_STORAGE_TYPES,
   NAMESPACE_STORAGE_TYPES,
-  usageQuotasHelpPaths,
   storageTypeHelpPaths,
 } from '../../constants';
 import { getStorageTypesFromProjectStatistics, descendingStorageUsageSort } from '../utils';
@@ -29,7 +21,7 @@ export default {
   components: {
     GlAlert,
     GlButton,
-    GlLink,
+    HelpPageLink,
     GlLoadingIcon,
     ProjectStorageDetail,
     SectionedPercentageBar,
@@ -49,7 +41,9 @@ export default {
         };
       },
       error() {
-        this.error = ERROR_MESSAGE;
+        this.error = s__(
+          'UsageQuota|Something went wrong while fetching project storage statistics',
+        );
       },
     },
   },
@@ -69,7 +63,7 @@ export default {
         return numberToHumanSize(this.project?.statistics?.storageSize, 1, getPreferredLocales());
       }
 
-      return TOTAL_USAGE_DEFAULT_TEXT;
+      return __('Not applicable.');
     },
     projectStorageTypes() {
       if (this.isStatisticsEmpty) {
@@ -162,7 +156,7 @@ export default {
       this.error = '';
     },
     helpLinkAriaLabel(linkTitle) {
-      return sprintf(HELP_LINK_ARIA_LABEL, {
+      return sprintf(s__('UsageQuota|%{linkTitle} help link'), {
         linkTitle,
       });
     },
@@ -174,15 +168,9 @@ export default {
       await updateRepositorySize(this.projectPath);
 
       this.loadingRecalculateSize = false;
-      alertEl?.classList.remove('gl-display-none');
+      alertEl?.classList.remove('gl-hidden');
     },
   },
-  usageQuotasHelpPaths,
-  LEARN_MORE_LABEL,
-  USAGE_QUOTAS_LABEL,
-  TOTAL_USAGE_TITLE,
-  TOTAL_USAGE_SUBTITLE,
-  RECALCULATE_REPOSITORY_LABEL,
 };
 </script>
 <template>
@@ -192,23 +180,20 @@ export default {
   </gl-alert>
   <div v-else>
     <div class="gl-pt-5">
-      <div class="gl-display-flex gl-justify-content-space-between">
+      <div class="gl-flex gl-justify-between">
         <div>
-          <h4 class="gl-font-lg gl-mb-3 gl-mt-0">{{ $options.TOTAL_USAGE_TITLE }}</h4>
-          <p>
-            {{ $options.TOTAL_USAGE_SUBTITLE }}
-            <gl-link
-              :href="$options.usageQuotasHelpPaths.usageQuotas"
+          <h2 class="gl-heading-2 gl-mb-3">{{ s__('UsageQuota|Usage breakdown') }}</h2>
+          <p class="gl-text-subtle">
+            {{ s__('UsageQuota|Includes artifacts, repositories, wiki, and other items.') }}
+            <help-page-link
+              href="user/storage_usage_quotas"
               target="_blank"
-              :aria-label="helpLinkAriaLabel($options.USAGE_QUOTAS_LABEL)"
-              >{{ $options.LEARN_MORE_LABEL }}</gl-link
+              :aria-label="helpLinkAriaLabel(s__('UsageQuota|Usage Quotas'))"
+              >{{ __('Learn more.') }}</help-page-link
             >
           </p>
         </div>
-        <p
-          class="gl-m-0 gl-font-size-h-display gl-font-bold gl-whitespace-nowrap"
-          data-testid="total-usage"
-        >
+        <p class="gl-heading-2 gl-m-0 gl-whitespace-nowrap" data-testid="total-usage">
           {{ totalUsage }}
         </p>
       </div>
@@ -216,21 +201,21 @@ export default {
     <div v-if="!isStatisticsEmpty" class="gl-w-full">
       <sectioned-percentage-bar class="gl-mt-5" :sections="sections" />
     </div>
-    <div class="gl-w-full gl-my-5">
+    <div class="gl-my-5 gl-w-full">
       <gl-button
         :loading="loadingRecalculateSize"
         category="secondary"
         @click="postRecalculateSize"
       >
-        {{ $options.RECALCULATE_REPOSITORY_LABEL }}
+        {{ s__('UsageQuota|Recalculate repository usage') }}
       </gl-button>
     </div>
     <project-storage-detail
       :storage-types="projectStorageTypes"
       data-testid="usage-quotas-project-usage-details"
     />
-    <div>
-      <h2 class="gl-mb-2 gl-mt-5 gl-font-lg gl-font-bold">
+    <div class="gl-mt-7">
+      <h2 class="gl-heading-2">
         {{ s__('UsageQuota|Namespace entities') }}
       </h2>
 

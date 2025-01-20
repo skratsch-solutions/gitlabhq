@@ -8,10 +8,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 **Status:** Beta
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/390769) in GitLab 16.1, with [flags](../../../administration/feature_flags.md) named `environment_settings_to_graphql`, `kas_user_access`, `kas_user_access_project`, and `expose_authorized_cluster_agents`. This feature is in [beta](../../../policy/experiment-beta-support.md#beta).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/390769) in GitLab 16.1, with [flags](../../../administration/feature_flags.md) named `environment_settings_to_graphql`, `kas_user_access`, `kas_user_access_project`, and `expose_authorized_cluster_agents`. This feature is in [beta](../../../policy/development_stages_support.md#beta).
 > - Feature flag `environment_settings_to_graphql` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/124177) in GitLab 16.2.
 > - Feature flags `kas_user_access`, `kas_user_access_project`, and `expose_authorized_cluster_agents` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/125835) in GitLab 16.2.
 > - The [limit of agent connection sharing was raised](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/149844) from 100 to 500 in GitLab 17.0
@@ -41,7 +41,7 @@ To configure access:
 - In the agent configuration file, define a `user_access` keyword with the following parameters:
 
   - `projects`: A list of projects whose members should have access. You can authorize up to 500 projects.
-  - `groups`: A list of groups whose members should have access. You can authorize up to 500 projects.
+  - `groups`: A list of groups whose members should have access. You can authorize up to 500 groups. It grants access to the group and all its descendants.
   - `access_as`: Required. For plain access, the value is `{ agent: {...} }`.
 
 After you configure access, requests are forwarded to the API server using
@@ -66,7 +66,7 @@ user_access:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can grant access to a Kubernetes cluster and transform
 requests into impersonation requests for authenticated users.
@@ -100,8 +100,7 @@ The installed `agentk` impersonates the given users as follows:
   - `agent.gitlab.com/id`: The agent ID.
   - `agent.gitlab.com/username`: The username of the GitLab user.
   - `agent.gitlab.com/config_project_id`: The agent configuration project ID.
-  - `agent.gitlab.com/access_type`: One of `personal_access_token`,
-    `oidc_id_token`, or `session_cookie`.
+  - `agent.gitlab.com/access_type`: One of `personal_access_token` or `session_cookie`. Ultimate only.
 
 Only projects and groups directly listed in the under `user_access` in the configuration
 file are impersonated. For example:
@@ -250,9 +249,9 @@ You can configure access to a Kubernetes cluster using a long-lived personal acc
 
 1. Check that the configuration works:
 
-    ```shell
-    kubectl get nodes
-    ```
+   ```shell
+   kubectl get nodes
+   ```
 
 The configured user can access your cluster with the Kubernetes API.
 

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 When [monitoring GitLab with Prometheus](index.md), GitLab runs various collectors that
 sample the application for data related to usage, load and performance. GitLab can then make
@@ -80,6 +80,6 @@ The metrics server cannot serve both HTTP and HTTPS at the same time.
 
 ### Docker container runs out of space
 
-When running [GitLab in Docker](../../../install/docker.md), your container might run out of space. This can happen if you enable certain features which increase your space consumption, for example Web Exporter.
+When running [GitLab in Docker](../../../install/docker/index.md), your container might run out of space. This can happen if you enable certain features which increase your space consumption, for example Web Exporter.
 
-To work around this issue, [update your `shm-size`](../../../install/docker_troubleshooting.md#devshm-mount-not-having-enough-space-in-docker-container).
+To work around this issue, [update your `shm-size`](../../../install/docker/troubleshooting.md#devshm-mount-not-having-enough-space-in-docker-container).

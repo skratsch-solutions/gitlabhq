@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 At the heart of GitLab is a web application
 [built using the Ruby on Rails framework](https://about.gitlab.com/blog/2018/10/29/why-we-use-rails-to-build-gitlab/).
@@ -160,7 +160,7 @@ Enter the following command on the rails console to display
 your command history.
 
 ```ruby
-puts Readline::HISTORY.to_a
+puts Reline::HISTORY.to_a
 ```
 
 You can then copy it to your clipboard and save for future reference.
@@ -448,7 +448,7 @@ We also see that the save operation triggered some other action -- in this case
 a background job to deliver an email notification. This is an example of an
 [Active Record callback](https://guides.rubyonrails.org/active_record_callbacks.html)
 -- code which is designated to run in response to events in the Active Record
-object life cycle. This is also why using the Rails console is preferred when
+object lifecycle. This is also why using the Rails console is preferred when
 direct changes to data is necessary as changes made via direct database queries
 do not trigger these callbacks.
 

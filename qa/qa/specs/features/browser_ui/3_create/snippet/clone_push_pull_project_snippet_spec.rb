@@ -26,10 +26,10 @@ module QA
       end
 
       after do
-        ssh_key.remove_via_api!
+        ssh_key&.remove_via_api!
       end
 
-      it 'clones, pushes, and pulls a project snippet over HTTP, edits via UI', :blocking, testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347797' do
+      it 'clones, pushes, and pulls a project snippet over HTTP, edits via UI', testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347797' do
         Resource::Repository::Push.fabricate! do |push|
           push.repository_http_uri = repository_uri_http
           push.file_name = new_file
@@ -52,7 +52,7 @@ module QA
           repository.init_repository
           repository.pull(repository_uri_http, branch_name)
 
-          expect(repository.commits.size).to eq 3
+          expect(repository.commits.size).to eq(3), "Expected 3 commits, got: #{repository.commits.size}"
           expect(repository.commits.first).to include 'Update snippet'
           expect(repository.file_content(new_file)).to include "#{added_content}#{changed_content}"
         end
@@ -60,7 +60,7 @@ module QA
         snippet.remove_via_api!
       end
 
-      it 'clones, pushes, and pulls a project snippet over SSH, deletes via UI', :blocking, testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347796' do
+      it 'clones, pushes, and pulls a project snippet over SSH, deletes via UI', testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347796' do
         Resource::Repository::Push.fabricate! do |push|
           push.repository_ssh_uri = repository_uri_ssh
           push.ssh_key = ssh_key

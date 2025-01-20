@@ -1,17 +1,23 @@
 <script>
-import { GlCollapsibleListbox } from '@gitlab/ui';
+import { GlCollapsibleListbox, GlButton } from '@gitlab/ui';
 import { escape } from 'lodash';
 import { __, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import SafeHtml from '~/vue_shared/directives/safe_html';
+import { InternalEvents } from '~/tracking';
+
+const trackingMixin = InternalEvents.mixin();
 
 export default {
   components: {
     GlCollapsibleListbox,
+    GlButton,
   },
   directives: {
     SafeHtml,
   },
+  mixins: [trackingMixin],
+  inject: ['templatesUrl'],
   props: {
     templates: {
       type: Array,
@@ -54,6 +60,7 @@ export default {
     },
     async selectTemplate(templatePath) {
       const template = await axios.get(templatePath);
+      this.trackEvent('apply_wiki_template');
       this.$emit('input', template.data);
     },
     highlight(text) {
@@ -89,6 +96,19 @@ export default {
   >
     <template #list-item="{ item }">
       <span v-safe-html:[$options.safeHtmlConfig]="highlight(item.text)"> </span>
+    </template>
+    <template #footer>
+      <div class="gl-border-t gl-px-2 gl-py-2">
+        <gl-button
+          data-testid="manage-templates-link"
+          :href="templatesUrl"
+          target="_blank"
+          block
+          class="!gl-justify-start"
+          category="tertiary"
+          >{{ __('Manage templates...') }}</gl-button
+        >
+      </div>
     </template>
   </gl-collapsible-listbox>
 </template>

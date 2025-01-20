@@ -11,10 +11,17 @@ RSpec.describe Note, feature_category: :team_planning do
 
     let_it_be(:note1) { create(:note_on_issue) }
     let_it_be(:note2) { create(:note_on_issue) }
-    let_it_be(:reply) { create(:note_on_issue, in_reply_to: note1) }
+    let_it_be(:reply) { create(:note_on_issue, in_reply_to: note1, project: note1.project) }
 
-    let_it_be(:discussion_note) { create(:discussion_note_on_issue) }
-    let_it_be(:discussion_reply) { create(:discussion_note_on_issue, in_reply_to: discussion_note) }
+    let_it_be_with_reload(:discussion_note) { create(:discussion_note_on_issue) }
+    let_it_be_with_reload(:discussion_note_2) do
+      create(:discussion_note_on_issue, project: discussion_note.project, noteable: discussion_note.noteable)
+    end
+
+    let_it_be_with_reload(:discussion_reply) do
+      create(:discussion_note_on_issue,
+        project: discussion_note.project, noteable: discussion_note.noteable, in_reply_to: discussion_note)
+    end
 
     it_behaves_like 'Notes::ActiveRecord'
     it_behaves_like 'Notes::Discussion'
@@ -27,6 +34,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
     it { is_expected.to have_one(:note_metadata).inverse_of(:note).class_name('Notes::NoteMetadata') }
     it { is_expected.to belong_to(:review).inverse_of(:notes) }
+    it { is_expected.to have_many(:events) }
   end
 
   describe 'modules' do
@@ -97,6 +105,14 @@ RSpec.describe Note, feature_category: :team_planning do
       end
     end
 
+    context 'when noteable is a wiki page' do
+      subject { build(:note, noteable: build_stubbed(:wiki_page_meta), project: nil, namespace: nil) }
+
+      it 'is not valid without project or namespace' do
+        is_expected.to be_invalid
+      end
+    end
+
     describe 'max notes limit' do
       let_it_be(:noteable) { create(:issue) }
       let_it_be(:existing_note) { create(:note, project: noteable.project, noteable: noteable) }
@@ -112,7 +128,7 @@ RSpec.describe Note, feature_category: :team_planning do
       end
 
       context 'when creating a user note' do
-        subject { build(:note, project: noteable.project, noteable: noteable) }
+        subject { build(:note, project: noteable.project, noteable: noteable.reload) }
 
         it { is_expected.not_to be_valid }
       end
@@ -193,7 +209,7 @@ RSpec.describe Note, feature_category: :team_planning do
         end
 
         context 'when noteable is not allowed to have confidential notes' do
-          let_it_be(:noteable) { create(:snippet) }
+          let_it_be(:noteable) { create(:project_snippet) }
 
           it 'can not be set confidential' do
             expect(subject).not_to be_valid
@@ -965,16 +981,16 @@ RSpec.describe Note, feature_category: :team_planning do
         create :note, noteable: ext_issue, project: ext_proj, note: "mentioned in merge request !1", system: true
       end
 
-      it "returns true for other users" do
-        expect(note.system_note_visible_for?(private_user)).to be_truthy
+      it "returns false" do
+        expect(note.system_note_visible_for?(private_user)).to be_falsey
       end
 
-      it "returns true if user visible reference count set" do
+      it "returns false if user visible reference count set" do
         note.user_visible_reference_count = 0
         note.total_reference_count = 0
 
         expect(note).not_to receive(:reference_mentionables)
-        expect(note.system_note_visible_for?(ext_issue.author)).to be_truthy
+        expect(note.system_note_visible_for?(ext_issue.author)).to be_falsey
       end
     end
   end
@@ -1066,6 +1082,62 @@ RSpec.describe Note, feature_category: :team_planning do
           it { expect(note.system_note_with_references?).to be_truthy }
         end
       end
+    end
+  end
+
+  describe 'all_referenced_mentionables_allowed?' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:issue) { create(:issue) }
+
+    RSpec.shared_examples 'does not generate N+1 queries for reference parsing' do
+      it 'does not generate N+1 queries for reference parsing', :request_store do
+        ref1 = milestone1.to_reference(issue.project, format: :name, full: true, absolute_path: true)
+        ref2 = milestone2.to_reference(issue.project, format: :name, full: true, absolute_path: true)
+        ref3 = milestone3.to_reference(issue.project, format: :name, full: true, absolute_path: true)
+
+        text = "mentioned in #{ref1}"
+        note = create(:note, :system, noteable: issue, note: text, project: issue.project)
+
+        note.system_note_visible_for?(user)
+
+        text = "mentioned in #{ref1} and #{ref2}"
+        note.update!(note: text)
+
+        control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+          note.system_note_visible_for?(user)
+        end
+
+        text = "mentioned in #{ref1} and #{ref2} and #{ref3}"
+        note.update!(note: text)
+
+        expect do
+          note.system_note_visible_for?(user)
+        end.to issue_same_number_of_queries_as(control).or_fewer
+      end
+    end
+
+    context 'with a project level milestone' do
+      let_it_be(:milestone1) { create(:milestone, project: create(:project, :private)) }
+      let_it_be(:milestone2) { create(:milestone, project: create(:project, :private)) }
+      let_it_be(:milestone3) { create(:milestone, project: create(:project, :private)) }
+      let_it_be(:milestone_event) { create(:resource_milestone_event, issue: issue, milestone: milestone1) }
+      let_it_be(:note) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
+
+      it { expect(note.system_note_visible_for?(user)).to be false }
+
+      it_behaves_like 'does not generate N+1 queries for reference parsing'
+    end
+
+    context 'with a group level milestone' do
+      let_it_be(:milestone1) { create(:milestone, group: create(:group, :private)) }
+      let_it_be(:milestone2) { create(:milestone, group: create(:group, :private)) }
+      let_it_be(:milestone3) { create(:milestone, group: create(:group, :private)) }
+      let_it_be(:milestone_event) { create(:resource_milestone_event, issue: issue, milestone: milestone1) }
+      let_it_be(:note) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
+
+      it { expect(note.system_note_visible_for?(user)).to be false }
+
+      it_behaves_like 'does not generate N+1 queries for reference parsing'
     end
   end
 
@@ -1388,6 +1460,12 @@ RSpec.describe Note, feature_category: :team_planning do
     end
   end
 
+  describe '#for_wiki_page?' do
+    it 'returns true for a wiki_page' do
+      expect(build(:note_on_wiki_page).for_wiki_page?).to be_truthy
+    end
+  end
+
   describe '#for_design' do
     it 'is true when the noteable is a design' do
       note = build(:note, noteable: build(:design))
@@ -1425,6 +1503,10 @@ RSpec.describe Note, feature_category: :team_planning do
 
     it 'returns alert_management_alert for an alert note' do
       expect(build(:note_on_alert).noteable_ability_name).to eq('alert_management_alert')
+    end
+
+    it 'returns wiki page for a wiki page note' do
+      expect(build(:note_on_wiki_page).noteable_ability_name).to eq('wiki_page')
     end
   end
 
@@ -1986,6 +2068,15 @@ RSpec.describe Note, feature_category: :team_planning do
 
         it { is_expected.to be_truthy }
       end
+    end
+  end
+
+  describe '#uploads_sharding_key' do
+    it 'returns namespace_id' do
+      namespace = build_stubbed(:namespace)
+      note = build_stubbed(:note, namespace: namespace)
+
+      expect(note.uploads_sharding_key).to eq(namespace_id: namespace.id)
     end
   end
 end

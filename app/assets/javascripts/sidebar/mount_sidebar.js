@@ -16,7 +16,6 @@ import Translate from '~/vue_shared/translate';
 import UserSelect from '~/vue_shared/components/user_select/user_select.vue';
 import CollapsedAssigneeList from './components/assignees/collapsed_assignee_list.vue';
 import SidebarAssigneesWidget from './components/assignees/sidebar_assignees_widget.vue';
-import SidebarConfidentialityWidget from './components/confidential/sidebar_confidentiality_widget.vue';
 import CopyEmailToClipboard from './components/copy/copy_email_to_clipboard.vue';
 import SidebarDueDateWidget from './components/date/sidebar_date_widget.vue';
 import SidebarEscalationStatus from './components/incidents/sidebar_escalation_status.vue';
@@ -134,7 +133,13 @@ function mountSidebarReviewers(mediator) {
     return;
   }
 
-  const { id, iid, fullPath, multipleApprovalRulesAvailable = false } = getSidebarOptions();
+  const {
+    id,
+    iid,
+    fullPath,
+    multipleApprovalRulesAvailable = false,
+    directlyInviteMembers = false,
+  } = getSidebarOptions();
   // eslint-disable-next-line no-new
   new Vue({
     el,
@@ -145,6 +150,7 @@ function mountSidebarReviewers(mediator) {
       issuableId: String(id),
       projectPath: fullPath,
       multipleApprovalRulesAvailable: parseBoolean(multipleApprovalRulesAvailable),
+      directlyInviteMembers: parseBoolean(directlyInviteMembers),
     },
     render: (createElement) =>
       createElement(SidebarReviewers, {
@@ -320,39 +326,6 @@ export function mountSidebarLabelsWidget() {
   });
 }
 
-function mountSidebarConfidentialityWidget() {
-  const el = document.querySelector('.js-sidebar-confidential-widget-root');
-
-  if (!el) {
-    return null;
-  }
-
-  const { fullPath, iid } = getSidebarOptions();
-  const dataNode = document.getElementById('js-confidential-issue-data');
-  const initialData = JSON.parse(dataNode.innerHTML);
-
-  return new Vue({
-    el,
-    name: 'SidebarConfidentialityWidgetRoot',
-    apolloProvider,
-    provide: {
-      canUpdate: initialData.is_editable,
-      isClassicSidebar: true,
-    },
-    render: (createElement) =>
-      createElement(SidebarConfidentialityWidget, {
-        props: {
-          iid: String(iid),
-          fullPath,
-          issuableType:
-            isInIssuePage() || isInIncidentPage() || isInDesignPage()
-              ? TYPE_ISSUE
-              : TYPE_MERGE_REQUEST,
-        },
-      }),
-  });
-}
-
 function mountSidebarDueDateWidget() {
   const el = document.querySelector('.js-sidebar-due-date-widget-root');
 
@@ -409,7 +382,7 @@ function mountSidebarReferenceWidget() {
   });
 }
 
-function mountIssuableLockForm(store) {
+function mountIssuableLockForm(store, pinia) {
   const el = document.querySelector('.js-sidebar-lock-root');
 
   if (!el || !store) {
@@ -421,6 +394,7 @@ function mountIssuableLockForm(store) {
   return new Vue({
     el,
     name: 'SidebarLockRoot',
+    pinia,
     store,
     provide: {
       fullPath,
@@ -748,17 +722,16 @@ export function mountAssigneesDropdown() {
   });
 }
 
-export function mountSidebar(mediator, store) {
+export function mountSidebar(mediator, store, pinia) {
   mountSidebarTodoWidget();
   mountSidebarAssigneesWidget();
   mountSidebarReviewers(mediator);
   mountSidebarCrmContacts();
   mountSidebarLabelsWidget();
   mountSidebarMilestoneWidget();
-  mountSidebarConfidentialityWidget();
   mountSidebarDueDateWidget();
   mountSidebarReferenceWidget();
-  mountIssuableLockForm(store);
+  mountIssuableLockForm(store, pinia);
   mountSidebarParticipantsWidget();
   mountSidebarSubscriptionsWidget();
   mountCopyEmailToClipboard();

@@ -13,12 +13,19 @@ fragment WorkItemNote on Note {
   url
   authorIsContributor
   maxAccessLevelOfAuthor
+  externalAuthor
   lastEditedBy {
     ...User
     webPath
   }
   discussion {
     id
+    resolved
+    resolvable
+    resolvedBy {
+      id
+      name
+    }
   }
   author {
     ...User
@@ -38,9 +45,5 @@ fragment WorkItemNote on Note {
   }
   systemNoteMetadata {
     id
-    descriptionVersion {
-      id
-      description
-    }
   }
 }

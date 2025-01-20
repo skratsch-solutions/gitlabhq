@@ -9,7 +9,7 @@ description: "Propose, review, and collaborate on changes to a project."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Sidebar actions menu [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/373757) to also move actions on issues, incidents, and epics in GitLab 16.0.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127001) in GitLab 16.9. Feature flag `moved_mr_sidebar` removed.
@@ -49,7 +49,22 @@ Items marked with an asterisk (\*) also append an [issue closing pattern](../iss
 
 You can view merge requests for your project, group, or yourself.
 
-### For a project
+::Tabs
+
+:::TabTitle Assigned to you
+
+To view all merge requests assigned to you, use the <kbd>Shift</kbd> + <kbd>m</kbd>
+[keyboard shortcut](../../shortcuts.md), or:
+
+1. On the left sidebar, select **Search or go to**.
+1. From the dropdown list, select **Merge requests assigned to me**.
+
+or:
+
+1. On the left sidebar, select **Code > Merge requests** (**{merge-request}**).
+1. From the dropdown list, select **Assigned**.
+
+:::TabTitle For a project
 
 To view all merge requests for a project:
 
@@ -58,7 +73,7 @@ To view all merge requests for a project:
 
 Or, to use a [keyboard shortcut](../../shortcuts.md), press <kbd>g</kbd> + <kbd>m</kbd>.
 
-### For all projects in a group
+:::TabTitle For all projects in a group
 
 To view merge requests for all projects in a group:
 
@@ -67,21 +82,7 @@ To view merge requests for all projects in a group:
 
 If your group contains subgroups, this view also displays merge requests from the subgroup projects.
 
-### Assigned to you
-
-To view all merge requests assigned to you:
-
-1. On the left sidebar, select **Search or go to**.
-1. From the dropdown list, select **Merge requests assigned to me**.
-
-or:
-
-- To use a [keyboard shortcut](../../shortcuts.md), press <kbd>Shift</kbd> + <kbd>m</kbd>.
-
-or:
-
-1. On the left sidebar, select **Code > Merge requests** (**{merge-request}**).
-1. From the dropdown list, select **Assigned**.
+::EndTabs
 
 ## Filter the list of merge requests
 
@@ -151,8 +152,8 @@ change, and whether you need access to a development environment:
 - [Edit changes in Gitpod](../../../integration/gitpod.md#launch-gitpod-in-gitlab), if you
   need a fully-featured environment to both edit files, and run tests afterward. Gitpod
   supports running the [GitLab Development Kit (GDK)](https://gitlab.com/gitlab-org/gitlab-development-kit).
-  To use Gitpod, you must [enable Gitpod in your user account](../../../integration/gitpod.md#enable-gitpod-in-your-user-settings).
-- [Push changes from the command line](../../../gitlab-basics/start-using-git.md), if you are
+  To use Gitpod, you must [enable Gitpod in your user account](../../../integration/gitpod.md#enable-gitpod-in-your-user-preferences).
+- [Push changes from the command line](../../../topics/git/commands.md), if you are
   familiar with Git and the command line.
 
 ## Assign a user to a merge request
@@ -165,30 +166,30 @@ a merge request, or:
 1. Select **Code > Merge requests** and find your merge request.
 1. On the right sidebar, expand the right sidebar and locate the **Assignees** section.
 1. Select **Edit**.
-1. Search for the user you want to assign, and select the user.
+1. Search for the user you want to assign, and select the user. GitLab Free allows one
+   assignee per merge request, but GitLab Premium and GitLab Ultimate allow multiple assignees:
 
-GitLab adds the merge request to the user's assigned merge request list.
+   ![Two assignees for merge requests sidebar](img/merge_request_assignees_v16_0.png)
 
-### Assign multiple users
+GitLab adds the merge request to the user's **Assigned merge requests** page.
 
-DETAILS:
-**Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+## Merge a merge request
 
-If more than one person is accountable for a merge request, use multiple assignees:
+During the [merge request review process](reviews/index.md), reviewers provide
+feedback on your changes. When a reviewer is satisfied with the changes,
+they can enable [auto-merge](auto_merge.md), even if some merge checks are failing.
+After all merge checks pass, the merge request is automatically merged, without further action from you.
 
-![Two assignees for merge requests sidebar](img/merge_request_assignees_v16_0.png)
+Default merge permissions:
 
-To add more assignees to a merge request, use the `/assign @user`
-[quick action](../quick_actions.md#issues-merge-requests-and-epics) in a text area, or:
+- The default branch, typically `main`, is protected.
+- Only Maintainers and higher roles can merge into the default branch.
+- Developers can merge any merge requests targeting non-protected branches.
 
-1. On the left sidebar, select **Search or go to** and find your project.
-1. Select **Code > Merge requests** and find your merge request.
-1. On the right sidebar, expand the right sidebar and locate the **Assignees** section.
-1. Select **Edit** and, from the dropdown list, select all users you want
-   to assign the merge request to.
+To determine if you have permission to merge a specific merge request, GitLab checks:
 
-To remove an assignee, clear the user from the same dropdown list.
+- Your [role in the project](../../permissions.md#roles). For example, Developer, Maintainer, or Owner.
+- The [branch protections](../repository/branches/protected.md) of the target branch.
 
 ## Close a merge request
 
@@ -219,11 +220,14 @@ You can delete the source branch for a merge request:
 
 An administrator can make this option the default in the project's settings.
 
+The delete-branch action is performed by the user who sets auto-merge, or merges the merge request.
+If the user lacks the correct role, such as in a forked project, the source branch deletion fails.
+
 ### Update merge requests when target branch merges
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Merge requests are often chained together, with one merge request depending on
 the code added or changed in another merge request. To support keeping individual
@@ -261,7 +265,7 @@ For a software developer working in a team:
 1. Your manager:
    1. Pushes a commit with their final review.
    1. [Approves the merge request](approvals/index.md).
-   1. Sets it to [auto-merge](merge_when_pipeline_succeeds.md) (formerly **Merge when pipeline succeeds**).
+   1. Sets it to [auto-merge](auto_merge.md) (formerly **Merge when pipeline succeeds**).
 1. Your changes get deployed to production with [manual jobs](../../../ci/jobs/job_control.md#create-a-job-that-must-be-run-manually) for GitLab CI/CD.
 1. Your implementations were successfully shipped to your customer.
 
@@ -282,7 +286,7 @@ For a web developer writing a webpage for your company's website:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/115383) in GitLab 15.11 [with a flag](../../../administration/feature_flags.md) named `mr_activity_filters`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/387070) in GitLab 16.0.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/126998) in GitLab 16.3 by default.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/126998) in GitLab 16.3 by default.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/132355) in GitLab 16.5. Feature flag `mr_activity_filters` removed.
 > - Filtering bot comments [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/128473) in GitLab 16.9.
 
@@ -380,15 +384,15 @@ Threads on lines that don't change and top-level resolvable threads are not reso
 
 ## Move notifications and to-dos
 
-DETAILs:
+DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/132678) in GitLab 16.5 [with a flag](../../../administration/feature_flags.md) named `notifications_todos_buttons`. Disabled by default.
 > - [Issues, incidents](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/133474), and [epics](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/133881) also updated.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../../administration/feature_flags.md) named `notifications_todos_buttons`.
+On GitLab Self-Managed, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../../administration/feature_flags.md) named `notifications_todos_buttons`.
 On GitLab.com and GitLab Dedicated, this feature is not available.
 
 Enabling this feature flag moves the notifications and to-do item buttons to the upper right corner of the page.
@@ -406,4 +410,4 @@ Enabling this feature flag moves the notifications and to-do item buttons to the
 - [Comments and threads](../../discussions/index.md)
 - [Suggest code changes](reviews/suggestions.md)
 - [CI/CD pipelines](../../../ci/index.md)
-- [Push options](../push_options.md) for merge requests
+- [Push options](../../../topics/git/commit.md) for merge requests

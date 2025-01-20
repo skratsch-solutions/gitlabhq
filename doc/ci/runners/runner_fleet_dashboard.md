@@ -6,15 +6,15 @@ info: >-
   this page, see
   https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
-# Runner fleet dashboard
+# Runner fleet dashboard for administrators
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/424495) in GitLab 16.6
 
-GitLab administrators can use the runner fleet dashboard to assess the health of your instance runners.
+As a GitLab administrator, you can use the runner fleet dashboard to assess the health of your instance runners.
 The runner fleet dashboard shows:
 
 - Recent CI errors caused by runner infrastructure
@@ -22,7 +22,19 @@ The runner fleet dashboard shows:
 - Compute minutes used by instance runners
 - Job queue times (available only with [ClickHouse](#enable-more-ci-analytics-features-with-clickhouse))
 
-![Runner fleet dashboard](img/runner_fleet_dashboard.png)
+![Runner fleet dashboard](img/runner_fleet_dashboard_v17_1.png)
+
+## Dashboard metrics
+
+The following metrics are available in the runner fleet dashboard:
+
+| Metric                        | Description |
+|-------------------------------|-------------|
+| Online                        | Number of runners that are online for the entire instance. |
+| Offline                       | Number of runners that are currently offline. Runners that were registered but never connected to GitLab are not included in this count. |
+| Active runners                | The total number of runners that are currently active. |
+| Runner usage (previous month) | The total compute minutes used by each project or group runner in the previous month. You can export this data as a CSV file for cost analysis. |
+| Wait time to pick a job       | The average time a job waits in the queue before a runner picks it up. This metric provides insights into whether your runners are capable of servicing the CI/CD job queue in your organization's target service-level objectives (SLOs). This data is updated every 24 hours. |
 
 ## View the runner fleet dashboard
 
@@ -32,7 +44,7 @@ Prerequisites:
 
 To view the runner fleet dashboard:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Runners**.
 1. Select **Fleet dashboard**.
 
@@ -52,7 +64,7 @@ CSV file shows the runner type and job status for each project. The CSV is sent 
 
 To export compute minutes used by instance runners:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Runners**.
 1. Select **Fleet dashboard**.
 1. Select **Export CSV**.
@@ -61,15 +73,15 @@ To export compute minutes used by instance runners:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed
 **Status:** Beta
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11180) as an [experiment](../../policy/experiment-beta-support.md#experiment) in GitLab 16.7 with [flags](../../administration/feature_flags.md) named `ci_data_ingestion_to_click_house` and `clickhouse_ci_analytics`. Disabled by default.
-> - [Enabled on GitLab.com, self-managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/424866) in GitLab 16.10. Feature flags `ci_data_ingestion_to_click_house` and `clickhouse_ci_analytics` removed.
-> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/424789) to [beta](../../policy/experiment-beta-support.md#beta) in GitLab 17.1.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11180) as an [experiment](../../policy/development_stages_support.md#experiment) in GitLab 16.7 with [flags](../../administration/feature_flags.md) named `ci_data_ingestion_to_click_house` and `clickhouse_ci_analytics`. Disabled by default.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/424866) in GitLab 16.10. Feature flags `ci_data_ingestion_to_click_house` and `clickhouse_ci_analytics` removed.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/424789) to [beta](../../policy/development_stages_support.md#beta) in GitLab 17.1.
 
 WARNING:
-This feature is in [beta](../../policy/experiment-beta-support.md#beta) and subject to change without notice.
+This feature is in [beta](../../policy/development_stages_support.md#beta) and subject to change without notice.
 For more information, see [epic 11180](https://gitlab.com/groups/gitlab-org/-/epics/11180).
 
 To enable additional CI analytics features, [configure the ClickHouse integration](../../integration/clickhouse.md).

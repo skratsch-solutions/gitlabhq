@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: none
+group: unassigned
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -168,7 +168,9 @@ What's behind the implementation of `ClickHouse::Event` is not decided yet, it c
 
 - ActiveRecord model directly connecting the ClickHouse database.
 - REST API call to an intermediate service.
+<!-- vale gitlab_base.Spelling = NO -->
 - Enqueueing an event to an event-streaming tool (like Kafka).
+<!-- vale gitlab_base.Spelling = YES -->
 
 #### Replication of `events` rows
 

@@ -9,7 +9,7 @@ module QA
   # pipeline created (Sidekiq read/write) ->
   # runner picks up pipeline (API read/write) ->
   # User views pipeline succeeds (Web read)
-  RSpec.describe 'Verify', :runner, product_group: :pipeline_security do
+  RSpec.describe 'Verify', :runner, product_group: :pipeline_authoring do
     context 'Endpoint Coverage' do
       let!(:project) { create(:project, name: 'endpoint-coverage') }
       let!(:runner) { create(:project_runner, project: project, name: project.name, tags: [project.name]) }
@@ -24,7 +24,7 @@ module QA
       end
 
       it(
-        'spans r/w postgres web sidekiq git api', :blocking,
+        'spans r/w postgres web sidekiq git api',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/360837'
       ) do
         # create a CI variable via UI

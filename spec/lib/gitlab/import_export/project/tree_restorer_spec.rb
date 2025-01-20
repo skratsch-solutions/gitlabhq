@@ -64,6 +64,14 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, feature_category: :i
           expect(Project.find_by_path('project').description).to eq('Nisi et repellendus ut enim quo accusamus vel magnam.')
         end
 
+        it 'has the project merge commit message template' do
+          expect(Project.find_by_path('project').merge_commit_template).to eq('merge commit message template')
+        end
+
+        it 'has the project squash commit message template' do
+          expect(Project.find_by_path('project').squash_commit_template).to eq('squash commit message template')
+        end
+
         it 'has the same label associated to two issues' do
           expect(ProjectLabel.find_by_title('test2').issues.count).to eq(2)
         end
@@ -305,7 +313,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, feature_category: :i
           end
         end
 
-        it 'sets MWPS to false for all merge requests' do
+        it 'sets auto merge to false for all merge requests' do
           MergeRequest.find_each do |merge_request|
             expect(merge_request.merge_when_pipeline_succeeds).to eq(false)
           end
@@ -366,7 +374,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, feature_category: :i
         it 'has award emoji for a snippet' do
           award_emoji = @project.snippets.first.award_emoji
 
-          expect(award_emoji.map(&:name)).to contain_exactly('thumbsup', 'coffee')
+          expect(award_emoji.map(&:name)).to contain_exactly(AwardEmoji::THUMBS_UP, 'coffee')
         end
 
         it 'snippet has notes' do
@@ -376,7 +384,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, feature_category: :i
         it 'snippet has award emojis on notes' do
           award_emoji = @project.snippets.first.notes.first.award_emoji.first
 
-          expect(award_emoji.name).to eq('thumbsup')
+          expect(award_emoji.name).to eq(AwardEmoji::THUMBS_UP)
         end
 
         it 'restores `ci_cd_settings` : `group_runners_enabled` setting' do
@@ -526,7 +534,7 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer, feature_category: :i
           it 'has award emoji' do
             award_emoji = MergeRequest.find_by_title('MR1').award_emoji
 
-            expect(award_emoji.map(&:name)).to contain_exactly('thumbsup', 'drum')
+            expect(award_emoji.map(&:name)).to contain_exactly(AwardEmoji::THUMBS_UP, 'drum')
           end
 
           context 'notes' do

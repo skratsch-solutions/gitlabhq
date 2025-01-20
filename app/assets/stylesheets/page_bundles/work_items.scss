@@ -1,15 +1,9 @@
 @import 'mixins_and_variables_and_functions';
-@import 'system_note_styles';
 
 $work-item-field-inset-shadow: inset 0 0 0 $gl-border-size-1 var(--gray-200, $gray-200) !important;
-$work-item-overview-right-sidebar-width: 20rem;
+$work-item-overview-right-sidebar-width: px-to-rem(290px);
 $work-item-sticky-header-height: 52px;
 $work-item-overview-gap-width: 2rem;
-
-.gl-token-selector-token-container {
-  display: flex;
-  align-items: center;
-}
 
 .hide-unfocused-input-decoration:not(:focus, :hover),
 .hide-unfocused-input-decoration:disabled {
@@ -19,57 +13,7 @@ $work-item-overview-gap-width: 2rem;
   box-shadow: none;
 }
 
-.work-item-assignees {
-  .assign-myself {
-    display: none;
-  }
-
-  @include media-breakpoint-up(sm) {
-    .assignees-selector:hover .assign-myself {
-      display: block;
-    }
-  }
-}
-
-.work-item-due-date {
-  .gl-datepicker-input.gl-form-input.form-control {
-    width: 10rem;
-
-    &:not(:focus, :hover) {
-      box-shadow: none;
-
-      ~ .gl-datepicker-actions {
-        display: none;
-      }
-    }
-
-    &[disabled] {
-      background-color: var(--white, $white);
-      box-shadow: none;
-
-      ~ .gl-datepicker-actions {
-        display: none;
-      }
-    }
-  }
-
-  .gl-datepicker-actions:focus,
-  .gl-datepicker-actions:hover {
-    display: flex !important;
-  }
-}
-
-.work-item-labels {
-  .gl-token {
-    padding-left: $gl-spacing-scale-1;
-  }
-
-  .gl-token-close {
-    display: none;
-  }
-}
-
-// sticky error placement for errors in modals , by default it is 83px for full view
+// sticky error placement for errors in modals, by default it is 83px for full view
 #work-item-detail-modal {
   .flash-container.flash-container-page.sticky {
     top: -8px;
@@ -77,16 +21,7 @@ $work-item-overview-gap-width: 2rem;
 }
 
 
-.work-item-notifications-form {
-  .gl-toggle {
-    margin-left: auto;
-  }
-
-  .gl-toggle-label {
-    font-weight: $gl-font-weight-normal;
-  }
-}
-
+// stylelint-disable-next-line gitlab/no-gl-class
 .gl-modal .work-item-view,
 .work-item-drawer .work-item-view:not(:has(.design-detail)) {
   container-name: work-item-view;
@@ -103,7 +38,7 @@ $work-item-overview-gap-width: 2rem;
   }
 }
 
-@include container-and-media("max-width: #{calc($breakpoint-md - 0.02px)}") {
+@include container-and-media("max-width: #{calc($breakpoint-md - 4rem - 0.02px)}") {
   .work-item-overview {
     display: block !important;
   }
@@ -129,6 +64,16 @@ $work-item-overview-gap-width: 2rem;
 
 .work-item-overview-right-sidebar {
   margin-top: $gl-spacing-scale-5;
+
+  .work-item-attributes-item {
+    @apply gl-mb-4;
+
+    &:not(:first-child) {
+      @apply gl-pt-4;
+      @apply gl-border-t;
+      @apply gl-border-subtle;
+    }
+  }
 }
 
 @include container-and-media("min-width: #{calc($breakpoint-md)}") {
@@ -136,14 +81,10 @@ $work-item-overview-gap-width: 2rem;
     top: calc(#{$calc-application-header-height} + #{$work-item-sticky-header-height});
     height: calc(#{$calc-application-viewport-height} - #{$work-item-sticky-header-height});
     margin-bottom: calc(#{$content-wrapper-padding} * -1);
-    padding-inline: 0.5rem;
+    padding-inline: $gl-spacing-scale-3;
     position: sticky;
     overflow-y: auto;
     overflow-x: hidden;
-  }
-
-  .work-item-date-picker {
-    max-width: 175px;
   }
 
   .work-item-overview-right-sidebar {
@@ -160,18 +101,12 @@ $work-item-overview-gap-width: 2rem;
   }
 }
 
-.work-item-field-label {
-  .work-item-overview & {
-    max-width: 30%;
-    flex: none;
-  }
-}
-
 .work-item-field-value {
   .work-item-overview & {
     max-width: 65%;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   &.gl-form-select {
     &:hover,
     &:focus {
@@ -180,26 +115,17 @@ $work-item-overview-gap-width: 2rem;
   }
 }
 
-.work-item-parent-field-value {
-  .work-item-overview & {
-    max-width: 75%;
-  }
-}
-
-.token-selector-menu-class {
-  .work-item-overview & {
-    width: 100%;
-    min-width: 100%;
-  }
-}
-
-.work-item-notification-toggle {
-  .gl-toggle {
-    margin-left: auto;
-  }
-
+// There is no props to set the font weight class in GlToggle
+// Here, we are overriding the font weight
+.work-item-dropdown-toggle {
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-toggle-label {
     font-weight: normal;
+  }
+
+  a, a:hover {
+    @apply gl-text-default;
+    text-decoration: none;
   }
 }
 
@@ -219,17 +145,6 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
   &::after {
     background-color: var(--gray-50, $gray-50);
   }
-}
-
-@mixin hierarchy-path-chevron {
-  content: '';
-  position: absolute;
-  background-color: inherit;
-  top: 0.39rem;
-  right: px-to-rem(-9px);
-  width: $disclosure-hierarchy-chevron-dimension;
-  height: $disclosure-hierarchy-chevron-dimension;
-  transform: rotate(45deg) skew(14deg, 14deg);
 }
 
 .disclosure-hierarchy {
@@ -259,10 +174,18 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
   line-height: $gl-line-height-16;
   padding-right: $grid-size;
   background: var(--gl-background-color-default);
+  color: var(--gl-action-neutral-foreground-color-default);
 
   &::before,
   &::after {
-    @include hierarchy-path-chevron;
+    content: '';
+    position: absolute;
+    background-color: inherit;
+    top: 0.39rem;
+    right: px-to-rem(-9px);
+    width: $disclosure-hierarchy-chevron-dimension;
+    height: $disclosure-hierarchy-chevron-dimension;
+    transform: rotate(45deg) skew(14deg, 14deg);
     border: 1px solid var(--gray-100, $gray-100);
     border-color: inherit;
     border-bottom-color: transparent;
@@ -311,14 +234,14 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
   }
 
   &[disabled] {
-    color: $gl-text-color-disabled;
+    @apply gl-text-disabled;
     cursor: not-allowed;
   }
 
   &:not([disabled]):hover {
     border-color: var(--gray-400, $gray-400);
     @include hierarchy-active-item-color;
-    color: var(--gray-900, $gray-900);
+    color: var(--gl-action-neutral-foreground-color-hover);
 
     &::after {
       border-left: 1px solid var(--gray-50, $gray-50);
@@ -338,6 +261,7 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
     @include hierarchy-active-item-color;
     z-index: 2;
     border-radius: $gl-border-radius-small;
+    color: var(--gl-action-neutral-foreground-color-focus);
 
     &::before, &::after {
       box-shadow: 2px -2px 0 1px $blue-400;
@@ -345,9 +269,10 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
   }
 }
 
+// stylelint-disable-next-line gitlab/no-gl-class
 .work-item-sidebar-dropdown .gl-new-dropdown-panel {
     width: 100% !important;
-    max-width: 19rem !important;
+    max-width: 17rem !important;
 }
 
 .container-limited {
@@ -357,7 +282,8 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
 }
 
 .work-item-description .truncated{
-  max-height: clamp(16rem, 40vh, 32rem);
+  min-height: 16rem;
+  max-height: 80vh;
   overflow: hidden;
 }
 
@@ -373,6 +299,7 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
     width: 100%;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, $white 100%);
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     .gl-dark & {
       background: linear-gradient(180deg, rgba(31, 30, 36, 0.00) 0%, $gray-950 100%);
     }
@@ -382,6 +309,7 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
     pointer-events: auto;
     background-color: $white;
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     .gl-dark & {
       background-color: $gray-950;
     }
@@ -392,6 +320,7 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
       flex: 1;
       border-top: 1px solid $gray-50;
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       .gl-dark & {
         border-top: 1px solid $gray-900;
       }
@@ -402,4 +331,16 @@ $disclosure-hierarchy-chevron-dimension: 1.2rem;
 .is-ghost {
   opacity: 0.3;
   pointer-events: none;
+}
+
+.design-scaler-wrapper {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.create-work-item-modal {
+  .note-textarea {
+    overflow-y: scroll !important;
+  }
 }

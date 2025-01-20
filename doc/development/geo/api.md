@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 **Status:** Beta
 
 The Geo API is used internally by GitLab components to assist in coordinating Geo actions. It is inaccessible to admins or users.
@@ -29,7 +29,7 @@ Supported attributes:
 |--------------------------|----------|----------|-----------------------|
 | `gl_repository`          | string   | Yes      | The `gl_repository` ID of the repository to query |
 
-If successful, returns [`200`](../../api/rest/index.md#status-codes) and the following
+If successful, returns [`200`](../../api/rest/troubleshooting.md#status-codes) and the following
 response attributes:
 
 | Attribute                | Type     | Description           |

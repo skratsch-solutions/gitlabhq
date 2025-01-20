@@ -9,20 +9,31 @@ import {
   GlPopover,
   GlBadge,
   GlPagination,
+  GlDisclosureDropdown,
+  GlDisclosureDropdownItem,
+  GlModalDirective,
 } from '@gitlab/ui';
-import semverLt from 'semver/functions/lt';
-import semverInc from 'semver/functions/inc';
-import semverPrerelease from 'semver/functions/prerelease';
+import { __, s__, sprintf } from '~/locale';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
-import { MAX_LIST_COUNT, AGENT_STATUSES, I18N_AGENT_TABLE } from '../constants';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
+import { MAX_LIST_COUNT, AGENT_STATUSES, I18N_AGENT_TABLE, CONNECT_MODAL_ID } from '../constants';
 import { getAgentConfigPath } from '../clusters_util';
 import DeleteAgentButton from './delete_agent_button.vue';
+import ConnectToAgentModal from './connect_to_agent_modal.vue';
 
 export default {
-  i18n: I18N_AGENT_TABLE,
+  i18n: {
+    ...I18N_AGENT_TABLE,
+    connectActionText: s__('ClusterAgents|Connect to %{agentName}'),
+    deleteActionText: s__('ClusterAgents|Delete agent'),
+    actions: __('Actions'),
+    receptiveAgentTooltip: s__(
+      'ClusterAgents|GitLab will establish the connection to this agent. A URL configuration is required.',
+    ),
+  },
   components: {
     GlLink,
     GlTable,
@@ -32,11 +43,16 @@ export default {
     GlPopover,
     GlBadge,
     GlPagination,
+    GlDisclosureDropdown,
+    GlDisclosureDropdownItem,
     TimeAgoTooltip,
     DeleteAgentButton,
+    ConnectToAgentModal,
+    HelpIcon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
+    GlModalDirective,
   },
   mixins: [timeagoMixin],
   AGENT_STATUSES,
@@ -47,7 +63,6 @@ export default {
   configHelpLink: helpPagePath('user/clusters/agent/install/index', {
     anchor: 'create-an-agent-configuration-file',
   }),
-  inject: ['kasCheckVersion'],
   props: {
     agents: {
       required: true,
@@ -68,46 +83,55 @@ export default {
     return {
       currentPage: 1,
       limit: this.maxAgents ?? MAX_LIST_COUNT,
+      selectedAgent: null,
     };
   },
   computed: {
     fields() {
-      const tdClass = 'gl-pt-3! gl-pb-4! !gl-align-middle';
+      const tdClass = '!gl-pt-3 !gl-pb-4 !gl-align-middle';
+      const thClass = '!gl-border-t-0';
       return [
         {
           key: 'name',
           label: this.$options.i18n.nameLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'status',
           label: this.$options.i18n.statusLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'lastContact',
           label: this.$options.i18n.lastContactLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'version',
           label: this.$options.i18n.versionLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'agentID',
           label: this.$options.i18n.agentIdLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'configuration',
           label: this.$options.i18n.configurationLabel,
           tdClass,
+          thClass,
         },
         {
           key: 'options',
           label: '',
           tdClass,
+          thClass,
         },
       ];
     },
@@ -117,8 +141,8 @@ export default {
       }
 
       return this.agents.map((agent) => {
-        const versions = this.getAgentVersions(agent);
-        return { ...agent, versions };
+        const { versions, warnings } = this.getAgentVersions(agent);
+        return { ...agent, versions, warnings };
       });
     },
     showPagination() {
@@ -130,6 +154,9 @@ export default {
     nextPage() {
       const nextPage = this.currentPage + 1;
       return nextPage > Math.ceil(this.agents.length / this.limit) ? null : nextPage;
+    },
+    isUserAccessConfigured() {
+      return Boolean(this.selectedAgent?.userAccessAuthorizations);
     },
   },
   methods: {
@@ -148,14 +175,27 @@ export default {
     getAgentConfigPath,
     getAgentVersions(agent) {
       const agentConnections = agent.connections?.nodes || [];
+      const versions = [];
+      const warnings = [];
 
-      const agentVersions = agentConnections.map((agentConnection) =>
-        agentConnection.metadata.version.replace('v', ''),
-      );
+      agentConnections.forEach((connection) => {
+        const version = connection.metadata.version?.replace('v', '');
+        if (version && !versions.includes(version)) {
+          versions.push(version);
+        }
 
-      const uniqueAgentVersions = [...new Set(agentVersions)];
+        connection.warnings?.forEach((warning) => {
+          const message = warning?.version?.message;
+          if (message && !warnings.includes(message)) {
+            warnings.push(message);
+          }
+        });
+      });
 
-      return uniqueAgentVersions.sort((a, b) => a.localeCompare(b));
+      return {
+        versions: versions.sort((a, b) => a.localeCompare(b)),
+        warnings,
+      };
     },
     getAgentVersionString(agent) {
       return agent.versions[0] || '';
@@ -163,40 +203,46 @@ export default {
     isVersionMismatch(agent) {
       return agent.versions.length > 1;
     },
-    // isVersionOutdated determines if the agent version is outdated compared to the KAS / GitLab version
-    // using the following heuristics:
-    // - KAS Version is used as *server* version if available, otherwise the GitLab version is used.
-    // - returns `outdated` if the agent has a different major version than the server
-    // - returns `outdated` if the agents minor version is at least two proper versions older than the server
-    //   - *proper* -> not a prerelease version. Meaning that server prereleases (with `-rcN`) suffix are counted as the previous minor version
-    //
-    // Note that it does NOT support if the agent is newer than the server version.
-    isVersionOutdated(agent) {
-      if (!agent.versions.length) return false;
-
-      const agentVersion = this.getAgentVersionString(agent);
-      let allowableAgentVersion = semverInc(agentVersion, 'minor');
-
-      const isServerPrerelease = Boolean(semverPrerelease(this.kasCheckVersion));
-      if (isServerPrerelease) {
-        allowableAgentVersion = semverInc(allowableAgentVersion, 'minor');
-      }
-
-      return semverLt(allowableAgentVersion, this.kasCheckVersion);
+    hasWarnings(agent) {
+      return agent.warnings.length > 0;
     },
-
     getVersionPopoverTitle(agent) {
-      if (this.isVersionMismatch(agent) && this.isVersionOutdated(agent)) {
-        return this.$options.i18n.versionMismatchOutdatedTitle;
+      if (this.isVersionMismatch(agent) && this.hasWarnings(agent)) {
+        return this.$options.i18n.versionWarningsMismatchTitle;
       }
       if (this.isVersionMismatch(agent)) {
         return this.$options.i18n.versionMismatchTitle;
       }
-      if (this.isVersionOutdated(agent)) {
-        return this.$options.i18n.versionOutdatedTitle;
+      if (this.hasWarnings(agent)) {
+        return this.$options.i18n.versionWarningsTitle;
       }
 
       return null;
+    },
+
+    getActions(item) {
+      const connectAction = {
+        text: sprintf(this.$options.i18n.connectActionText, { agentName: item.name }),
+        name: 'connect-agent',
+        modalId: CONNECT_MODAL_ID,
+        action: () => {
+          this.selectedAgent = item;
+        },
+      };
+      const deleteAction = {
+        text: this.$options.i18n.deleteActionText,
+        name: 'delete-agent',
+        action: () => {
+          this.selectedAgent = item;
+        },
+      };
+
+      const actions = [connectAction];
+      if (!item.isShared) {
+        actions.push(deleteAction);
+      }
+
+      return actions;
     },
   },
 };
@@ -210,20 +256,30 @@ export default {
       :per-page="limit"
       :current-page="currentPage"
       stacked="md"
-      class="gl-mb-4!"
+      class="!gl-mb-4"
       data-testid="cluster-agent-list-table"
     >
       <template #cell(name)="{ item }">
-        <gl-link :href="item.webPath" data-testid="cluster-agent-name-link">{{ item.name }}</gl-link
-        ><gl-badge v-if="item.isShared" class="gl-ml-3">{{
-          $options.i18n.sharedBadgeText
-        }}</gl-badge>
+        <div class="gl-flex gl-flex-wrap gl-justify-end gl-gap-3 md:gl-justify-start">
+          <gl-link :href="item.webPath" data-testid="cluster-agent-name-link">{{
+            item.name
+          }}</gl-link
+          ><gl-badge v-if="item.isShared">{{ $options.i18n.sharedBadgeText }}</gl-badge>
+          <gl-badge
+            v-if="item.isReceptive"
+            v-gl-tooltip
+            :title="$options.i18n.receptiveAgentTooltip"
+            :aria-label="$options.i18n.receptiveAgentTooltip"
+            data-testid="cluster-agent-is-receptive"
+            >{{ $options.i18n.receptiveBadgeText }}</gl-badge
+          >
+        </div>
       </template>
 
       <template #cell(status)="{ item }">
         <span
           :id="getStatusCellId(item)"
-          class="gl-md-pr-5"
+          class="md:gl-pr-5"
           data-testid="cluster-agent-connection-status"
         >
           <span :class="$options.AGENT_STATUSES[item.status].class" class="gl-mr-3">
@@ -252,7 +308,7 @@ export default {
             >
           </p>
           <p class="gl-mb-0">
-            <gl-link :href="$options.troubleshootingLink" target="_blank" class="gl-font-sm">
+            <gl-link :href="$options.troubleshootingLink" target="_blank" class="gl-text-sm">
               {{ $options.i18n.troubleshootingText }}</gl-link
             >
           </p>
@@ -271,44 +327,32 @@ export default {
           {{ getAgentVersionString(item) }}
 
           <gl-icon
-            v-if="isVersionMismatch(item) || isVersionOutdated(item)"
+            v-if="isVersionMismatch(item) || hasWarnings(item)"
             name="warning"
-            class="gl-text-orange-500 gl-ml-2"
+            class="gl-ml-2"
+            variant="warning"
           />
         </span>
 
         <gl-popover
-          v-if="isVersionMismatch(item) || isVersionOutdated(item)"
+          v-if="isVersionMismatch(item) || hasWarnings(item)"
           :target="getVersionCellId(item)"
           :title="getVersionPopoverTitle(item)"
           :data-testid="getPopoverTestId(item)"
           placement="right"
           container="viewport"
         >
-          <div v-if="isVersionMismatch(item) && isVersionOutdated(item)">
-            <p>{{ $options.i18n.versionMismatchText }}</p>
-
-            <p class="gl-mb-0">
-              <gl-sprintf :message="$options.i18n.versionOutdatedText">
-                <template #version>{{ kasCheckVersion }}</template>
-              </gl-sprintf>
-              <gl-link :href="$options.versionUpdateLink" class="gl-font-sm">
-                {{ $options.i18n.viewDocsText }}</gl-link
-              >
-            </p>
-          </div>
-          <p v-else-if="isVersionMismatch(item)" class="gl-mb-0">
+          <p v-if="isVersionMismatch(item)" class="gl-mb-0">
             {{ $options.i18n.versionMismatchText }}
           </p>
-
-          <p v-else-if="isVersionOutdated(item)" class="gl-mb-0">
-            <gl-sprintf :message="$options.i18n.versionOutdatedText">
-              <template #version>{{ kasCheckVersion }}</template>
-            </gl-sprintf>
-            <gl-link :href="$options.versionUpdateLink" class="gl-font-sm">
+          <div v-if="hasWarnings(item)">
+            <p v-for="(warning, index) of item.warnings" :key="index" class="gl-mb-0">
+              {{ warning }}
+            </p>
+            <gl-link :href="$options.versionUpdateLink" class="gl-text-sm">
               {{ $options.i18n.viewDocsText }}</gl-link
             >
-          </p>
+          </div>
         </gl-popover>
       </template>
 
@@ -336,17 +380,38 @@ export default {
               :title="$options.i18n.defaultConfigTooltip"
               :aria-label="$options.i18n.defaultConfigTooltip"
               class="gl-align-middle"
-              ><gl-icon name="question-o" :size="14" /></gl-link
+              ><help-icon /></gl-link
           ></span>
         </span>
       </template>
 
       <template #cell(options)="{ item }">
-        <delete-agent-button
-          v-if="!item.isShared"
-          :agent="item"
-          :default-branch-name="defaultBranchName"
-        />
+        <gl-disclosure-dropdown
+          :title="$options.i18n.actions"
+          text-sr-only
+          category="tertiary"
+          no-caret
+          icon="ellipsis_v"
+        >
+          <template v-for="action in getActions(item)">
+            <delete-agent-button
+              v-if="action.name === 'delete-agent'"
+              :key="action.name"
+              :agent="item"
+              :default-branch-name="defaultBranchName"
+            />
+            <gl-disclosure-dropdown-item
+              v-else
+              :key="action.name"
+              v-gl-modal-directive="action.modalId"
+              @action="action.action"
+            >
+              <template #list-item>
+                {{ action.text }}
+              </template>
+            </gl-disclosure-dropdown-item>
+          </template>
+        </gl-disclosure-dropdown>
       </template>
     </gl-table>
 
@@ -357,6 +422,13 @@ export default {
       :next-page="nextPage"
       align="center"
       class="gl-mt-5"
+    />
+
+    <connect-to-agent-modal
+      v-if="selectedAgent"
+      :agent-id="selectedAgent.id"
+      :project-path="selectedAgent.project.fullPath"
+      :is-configured="isUserAccessConfigured"
     />
   </div>
 </template>

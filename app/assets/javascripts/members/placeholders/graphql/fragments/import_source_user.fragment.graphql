@@ -5,7 +5,9 @@ fragment ImportSourceUser on ImportSourceUser {
   sourceUsername
   sourceName
   sourceHostname
+  sourceUserIdentifier
   status
+  reassignmentError
   placeholderUser {
     ...User
   }

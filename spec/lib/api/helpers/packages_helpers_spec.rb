@@ -114,17 +114,25 @@ RSpec.describe API::Helpers::PackagesHelpers, feature_category: :package_registr
   end
 
   describe '#authorize_workhorse!' do
-    let_it_be(:headers) { {} }
+    let_it_be(:headers) { { 'HTTP_GITLAB_WORKHORSE' => 1 } }
     let_it_be(:params) { { subject: project } }
+
+    let(:env) { headers }
+    let(:request) { ActionDispatch::Request.new(env) }
 
     subject { helper.authorize_workhorse!(**params) }
 
     shared_examples 'workhorse authorize' do
+      before do
+        allow(helper).to receive(:request).and_return(request)
+        allow(helper).to receive(:env).and_return(env)
+      end
+
       it 'authorizes workhorse' do
-        expect(helper).to receive(:authorize_upload!).with(project)
+        expect(helper).to receive(:authorize_create_package!).with(project)
         expect(helper).to receive(:status).with(200)
         expect(helper).to receive(:content_type).with(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
-        expect(Gitlab::Workhorse).to receive(:verify_api_request!).with(headers)
+        expect(Gitlab::Workhorse).to receive(:verify_api_request!).with(request.headers)
         expect(::Packages::PackageFileUploader).to receive(:workhorse_authorize).with(workhorse_authorize_params)
 
         expect(subject).to eq nil
@@ -254,10 +262,8 @@ RSpec.describe API::Helpers::PackagesHelpers, feature_category: :package_registr
             project.add_guest(user)
           end
 
-          it 'returns Forbidden' do
-            expect(helper).to receive(:render_api_error!).with('403 Forbidden', 403)
-
-            is_expected.to be_nil
+          it 'returns project' do
+            is_expected.to eq(project)
           end
         end
       end

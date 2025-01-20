@@ -280,11 +280,7 @@ module Gitlab
     end
 
     def ml_model_file_name_regex
-      maven_file_name_regex
-    end
-
-    def vs_code_user_agent_regex
-      /\Avs-code-gitlab-workflow/
+      @ml_model_file_name_regex ||= %r{\A[A-Za-z0-9\.\_\-\+ ]+\z}
     end
   end
 end

@@ -9,21 +9,21 @@
   = @message.reverse_compare? ? "Deleted commits:" : "Commits:"
   - @message.commits.each do |commit|
     #{commit.short_id} by #{commit.author_name} at #{commit.committed_date.to_fs(:iso8601)}
-    #{commit.safe_message}
+    #{commit.safe_message.html_safe}
     \- - - - -
   \
   \
   #{pluralize @message.diffs_count, 'changed file'}:
   \
-  - @message.diffs.each do |diff_file|
+  - @message.changed_files.each do |diff_file|
     - if diff_file.deleted_file?
       \- − #{diff_file.old_path}
     - elsif diff_file.renamed_file?
-      \- #{diff_file.old_path} → #{diff_file.new_path}
+      \- #{diff_file.old_path} → #{diff_file.path}
     - elsif diff_file.new_file?
-      \- + #{diff_file.new_path}
+      \- + #{diff_file.path}
     - else
-      \- #{diff_file.new_path}
+      \- #{diff_file.path}
   - unless @message.disable_diffs?
     - if @message.compare_timeout
       \

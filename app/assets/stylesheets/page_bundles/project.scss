@@ -9,12 +9,6 @@
     .icon {
       vertical-align: 1px;
     }
-
-    .home-panel-topic-list {
-      .icon {
-        top: 3px;
-      }
-    }
   }
 
   .home-panel-description {
@@ -116,13 +110,13 @@
       background-color: transparent;
       font-size: $gl-font-size;
       line-height: $gl-btn-line-height;
-      color: var(--gray-500, $gl-text-color-secondary);
+      @apply gl-text-subtle;
       white-space: pre-wrap;
     }
 
     .stat-link {
       border-bottom: 0;
-      color: var(--black, $black);
+      @apply gl-text-default;
 
       &:hover,
       &:focus {
@@ -130,11 +124,11 @@
       }
 
       .project-stat-value {
-        color: var(--gl-text-color, $gl-text-color);
+        @apply gl-text-default;
       }
 
       .icon {
-        color: var(--gray-500, $gl-text-color-secondary);
+        @apply gl-fill-icon-subtle;
       }
     }
 
@@ -153,7 +147,7 @@
   margin-bottom: 7px;
 
   h5 {
-    color: var(--gl-text-color, $gl-text-color);
+    @apply gl-text-heading;
   }
 }
 
@@ -170,26 +164,19 @@
 
     .project-page-layout-sidebar {
       order: 2;
-      overflow-x: clip;
-      margin-right: -$gl-padding-8;
     }
 
     .project-page-sidebar {
       position: sticky;
       top: calc(#{$calc-application-header-height} + #{$gl-spacing-scale-4});
-      width: calc(100% + 100px);
+      width: 100%;
       height: calc(
         #{$calc-application-viewport-height} - #{$gl-spacing-scale-4}
       );
-      padding-inline: $gl-padding-4;
+      padding-inline: $gl-spacing-scale-3;
       padding-block-end: $gl-spacing-scale-11;
-      overflow-y: scroll;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-
-      .project-page-sidebar-block {
-        width: $right-sidebar-width - 1px;
-      }
+      overflow-y: auto;
+      overscroll-behavior: contain;
 
       .nav {
         > li {
@@ -203,6 +190,10 @@
             box-shadow: none;
           }
         }
+      }
+
+      mark {
+        @include str-highlighted;
       }
     }
   }

@@ -106,11 +106,11 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
 
             context 'when job has artifacts exceeding the max allowed size' do
               let(:expected_error) do
-                "Artifacts archive for job `generator` is too large: max 1 KiB"
+                "Artifacts archive for job `generator` is too large: 2.28 KiB exceeds maximum of 1 KiB"
               end
 
               before do
-                stub_const("#{Gitlab::Ci::ArtifactFileReader}::MAX_ARCHIVE_SIZE", 1.kilobyte)
+                stub_application_setting(max_artifacts_content_include_size: 1.kilobyte)
               end
 
               it_behaves_like 'is invalid'
@@ -145,7 +145,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
                   end
 
                   let(:expected_error) do
-                    'File `xxxxxxxxxxxx/generated.yml` is empty!'
+                    'File `[MASKED]xxxx/generated.yml` is empty!'
                   end
 
                   it_behaves_like 'is invalid'
@@ -188,7 +188,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
 
         context 'when job does not exist in the parent pipeline' do
           let(:expected_error) do
-            'Job `xxxxxxxxxxxxxxxxxxxxxxx` not found in parent pipeline or does not have artifacts!'
+            'Job `[MASKED]xxxxxxxxxxxxxxx` not found in parent pipeline or does not have artifacts!'
           end
 
           it_behaves_like 'is invalid'
@@ -202,7 +202,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
 
     subject(:metadata) { external_file.metadata }
 
-    it {
+    it do
       is_expected.to eq(
         context_project: project.full_path,
         context_sha: nil,
@@ -210,7 +210,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
         location: 'generated.yml',
         extra: { job_name: nil }
       )
-    }
+    end
 
     context 'when job name includes a masked variable' do
       let(:variables) do
@@ -219,15 +219,15 @@ RSpec.describe Gitlab::Ci::Config::External::File::Artifact, feature_category: :
 
       let(:params) { { artifact: 'generated.yml', job: 'a_secret_variable_value' } }
 
-      it {
+      it do
         is_expected.to eq(
           context_project: project.full_path,
           context_sha: nil,
           type: :artifact,
           location: 'generated.yml',
-          extra: { job_name: 'xxxxxxxxxxxxxxxxxxxxxxx' }
+          extra: { job_name: '[MASKED]xxxxxxxxxxxxxxx' }
         )
-      }
+      end
     end
   end
 

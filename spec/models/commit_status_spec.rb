@@ -22,12 +22,18 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
       .with_foreign_key(:commit_id).inverse_of(:statuses)
   end
 
+  it do
+    is_expected.to belong_to(:ci_stage).class_name('Ci::Stage')
+      .with_foreign_key(:stage_id)
+  end
+
   it { is_expected.to belong_to(:user) }
   it { is_expected.to belong_to(:project) }
   it { is_expected.to belong_to(:auto_canceled_by) }
 
   it { is_expected.to validate_presence_of(:name) }
   it { is_expected.to validate_presence_of(:ci_stage) }
+  it { is_expected.to validate_presence_of(:project) }
   it { is_expected.to validate_inclusion_of(:status).in_array(%w[pending running failed success canceled]) }
 
   it { is_expected.to validate_length_of(:ref).is_at_most(255) }
@@ -43,6 +49,13 @@ RSpec.describe CommitStatus, feature_category: :continuous_integration do
   it { is_expected.to respond_to :pending? }
   it { is_expected.not_to be_retried }
   it { expect(described_class.primary_key).to eq('id') }
+
+  describe 'partition query' do
+    subject { commit_status.reload }
+
+    it_behaves_like 'including partition key for relation', :pipeline
+    it_behaves_like 'including partition key for relation', :ci_stage
+  end
 
   describe '#author' do
     subject { commit_status.author }

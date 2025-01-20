@@ -2,10 +2,14 @@ import { select } from 'd3-selection';
 import $ from 'jquery';
 import { last } from 'lodash';
 import { createAlert } from '~/alert';
-import dateFormat from '~/lib/dateformat';
 import axios from '~/lib/utils/axios_utils';
-import { getDayName, getDayDifference } from '~/lib/utils/datetime_utility';
-import { formatDate } from '~/lib/utils/datetime/date_format_utility';
+import {
+  getDayName,
+  getDayDifference,
+  localeDateFormat,
+  toISODateFormat,
+  newDate,
+} from '~/lib/utils/datetime_utility';
 import { n__, s__, __ } from '~/locale';
 import { loadingIconForLegacyJS } from '~/loading_icon_for_legacy_js';
 
@@ -34,15 +38,14 @@ function getSystemDate(systemUtcOffsetSeconds) {
 }
 
 function formatTooltipText({ date, count }) {
-  const dateObject = new Date(date);
-  const dateDayName = getDayName(dateObject);
-  const dateText = dateFormat(dateObject, 'mmm d, yyyy');
+  const dateDayName = getDayName(date);
+  const dateText = localeDateFormat.asDate.format(date);
 
   let contribText = __('No contributions');
   if (count > 0) {
     contribText = n__('%d contribution', '%d contributions', count);
   }
-  return `${contribText}<br /><span class="gl-text-gray-300">${dateDayName} ${dateText}</span>`;
+  return `${contribText}<br /><span class="gl-text-neutral-300">${dateDayName} ${dateText}</span>`;
 }
 
 // Return the contribution level from the number of contributions
@@ -61,6 +64,7 @@ export default class ActivityCalendar {
   constructor({
     container,
     activitiesContainer,
+    recentActivitiesContainer,
     timestamps,
     calendarActivitiesPath,
     utcOffset = 0,
@@ -91,6 +95,7 @@ export default class ActivityCalendar {
     this.months = [];
     this.firstDayOfWeek = firstDayOfWeek;
     this.activitiesContainer = activitiesContainer;
+    this.recentActivitiesContainer = recentActivitiesContainer;
     this.container = container;
     this.onClickDay = onClickDay;
 
@@ -112,7 +117,7 @@ export default class ActivityCalendar {
       date.setDate(date.getDate() + i);
 
       const day = date.getDay();
-      const count = timestamps[dateFormat(date, 'yyyy-mm-dd')] || 0;
+      const count = timestamps[toISODateFormat(date)] || 0;
 
       // Create a new group array if this is the first day of the week
       // or if is first object
@@ -190,6 +195,8 @@ export default class ActivityCalendar {
       .append('rect')
       .attr('x', '0')
       .attr('y', (stamp) => this.dayYPos(stamp.day))
+      .attr('rx', '2')
+      .attr('ry', '2')
       .attr('width', this.daySize)
       .attr('height', this.daySize)
       .attr('data-level', (stamp) => getLevelFromContributions(stamp.count))
@@ -272,9 +279,18 @@ export default class ActivityCalendar {
         return;
       }
 
+      // Remove is-active class from all other cells
+      this.svg.selectAll('.user-contrib-cell.is-active').classed('is-active', false);
+
+      // Add is-active class to the clicked cell
+      // eslint-disable-next-line no-restricted-globals
+      d3.select(event.currentTarget).classed('is-active', true);
+
       $(this.activitiesContainer)
         .empty()
         .append(loadingIconForLegacyJS({ size: 'lg' }));
+
+      $(this.recentActivitiesContainer).hide();
 
       axios
         .get(this.calendarActivitiesPath, {
@@ -289,7 +305,10 @@ export default class ActivityCalendar {
             .querySelector(this.activitiesContainer)
             .querySelectorAll('.js-localtime')
             .forEach((el) => {
-              el.setAttribute('title', formatDate(el.dataset.datetime));
+              el.setAttribute(
+                'title',
+                localeDateFormat.asDateTimeFull.format(newDate(el.dataset.datetime)),
+              );
             });
         })
         .catch(() =>
@@ -300,6 +319,10 @@ export default class ActivityCalendar {
     } else {
       this.currentSelectedDate = '';
       $(this.activitiesContainer).html('');
+      $(this.recentActivitiesContainer).show();
+
+      // Remove is-active class from all other cells
+      this.svg.selectAll('.user-contrib-cell.is-active').classed('is-active', false);
     }
   }
 }

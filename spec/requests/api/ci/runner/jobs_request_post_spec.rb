@@ -14,6 +14,8 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
     stub_gitlab_calls
     stub_application_setting(runners_registration_token: registration_token)
     allow_any_instance_of(::Ci::Runner).to receive(:cache_attributes)
+    allow(Ci::Build).to receive(:find_by!).and_call_original
+    allow(Ci::Build).to receive(:find_by!).with(partition_id: instance_of(Integer), id: job.id).and_return(job)
   end
 
   describe '/api/v4/jobs' do
@@ -123,7 +125,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
       end
 
       context 'when valid token is provided' do
-        context 'when Runner is not active' do
+        context 'when runner is paused' do
           let(:runner) { create(:ci_runner, :inactive) }
           let(:update_value) { runner.ensure_runner_queue_value }
 
@@ -148,6 +150,65 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
               expect(runner_manager.system_xid).to eq args[:system_id]
               expect(runner_manager.runner).to eq runner
               expect(runner_manager.contacted_at).to eq Time.current
+            end
+
+            # TODO: Remove once https://gitlab.com/gitlab-org/gitlab/-/issues/504277 is closed.
+            context 'when runner is not yet synced to partitioned table', :aggregate_failures do
+              let(:connection) { Ci::ApplicationRecord.connection }
+              let(:non_partitioned_runner) { runner }
+
+              before do
+                # Allow creating legacy runners that are not present in the partitioned table (created when FK was not
+                # present)
+                connection.transaction do
+                  connection.execute(<<~SQL)
+                    ALTER TABLE ci_runners DISABLE TRIGGER ALL;
+                  SQL
+
+                  non_partitioned_runner
+
+                  connection.execute(<<~SQL)
+                    ALTER TABLE ci_runners ENABLE TRIGGER ALL;
+                  SQL
+                end
+              end
+
+              it 'creates respective ci_runner_machines record and syncs runner to partitioned table' do
+                expect { request }
+                  .to change { runner.runner_managers.reload.count }.from(0).to(1)
+                  .and change { partitioned_runner_exists?(non_partitioned_runner) }.from(false).to(true)
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(non_partitioned_runner.contacted_at).to be_nil
+              end
+
+              context 'when project runner is missing sharding_key_id' do
+                let(:params) { { token: 'foo' } }
+                let(:runner) { Ci::Runner.project_type.last }
+                let(:non_partitioned_runner) do
+                  connection.execute(<<~SQL)
+                    INSERT INTO ci_runners(created_at, runner_type, token, sharding_key_id) VALUES(NOW(), 3, 'foo', NULL);
+                  SQL
+
+                  runner
+                end
+
+                it 'returns unprocessable entity status code', :aggregate_failures do
+                  expect { request }.not_to change { Ci::RunnerManager.count }.from(0)
+                  expect(response).to have_gitlab_http_status(:unprocessable_entity)
+                  expect(response.body).to eq({ message: 'Runner is orphaned' }.to_json)
+                end
+              end
+
+              private
+
+              def partitioned_runner_exists?(runner)
+                result = connection.execute(<<~SQL)
+                  SELECT COUNT(*) FROM ci_runners_e59bb2812d WHERE id = #{runner.id};
+                SQL
+
+                result.first['count'].positive?
+              end
             end
           end
 
@@ -308,6 +369,18 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
             expect(json_response['id']).to eq(job.id)
           end
 
+          describe 'composite identity', :request_store, :sidekiq_inline do
+            it 'is propagated to downstream Sidekiq workers' do
+              expect(::Gitlab::Auth::Identity).to receive(:link_from_job).and_call_original
+              expect(::Gitlab::Auth::Identity).to receive(:sidekiq_restore!).at_least(:once).and_call_original
+              expect(::PipelineProcessWorker).to receive(:perform_async).and_call_original
+
+              request_job
+
+              expect(response).to have_gitlab_http_status(:created)
+            end
+          end
+
           context 'when job is made for tag' do
             let!(:job) { create(:ci_build, :pending, :queued, :tag, pipeline: pipeline, name: 'spinach', stage: 'test', stage_idx: 0) }
 
@@ -430,7 +503,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
                     {
                       "name" => "release",
                       "script" =>
-                      ["release-cli create --name \"Release $CI_COMMIT_SHA\" --description \"Created using the release-cli $EXTRA_DESCRIPTION\" --tag-name \"release-$CI_COMMIT_SHA\" --ref \"$CI_COMMIT_SHA\" --assets-link \"{\\\"url\\\":\\\"https://example.com/assets/1\\\",\\\"name\\\":\\\"asset1\\\"}\""],
+                      ["release-cli create --name \"Release $CI_COMMIT_SHA\" --description \"Created using the release-cli $EXTRA_DESCRIPTION\" --tag-name \"release-$CI_COMMIT_SHA\" --ref \"$CI_COMMIT_SHA\" --assets-link \"{\\\"name\\\":\\\"asset1\\\",\\\"url\\\":\\\"https://example.com/assets/1\\\"}\""],
                       "timeout" => 3600,
                       "when" => "on_success",
                       "allow_failure" => false
@@ -471,6 +544,72 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
 
                 expect(response).to have_gitlab_http_status(:created)
                 expect(json_response['git_info']['depth']).to eq(1)
+              end
+            end
+          end
+
+          context 'with run keyword' do
+            let(:execution_config) { create(:ci_builds_execution_configs, :with_step_and_script) }
+
+            context 'when job has execution_config with run_steps' do
+              let(:job) do
+                create(
+                  :ci_build,
+                  :pending,
+                  :queued,
+                  pipeline: pipeline,
+                  name: 'spinach',
+                  stage: 'test',
+                  stage_idx: 0,
+                  execution_config: execution_config
+                )
+              end
+
+              it 'returns job with the run steps' do
+                request_job
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(json_response['run']).to eq(execution_config.run_steps.to_json)
+              end
+
+              it 'returns nil for the steps' do
+                request_job
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(json_response['steps']).to be_nil
+              end
+            end
+
+            context 'when job does not have execution config' do
+              let(:job) do
+                create(
+                  :ci_build,
+                  :pending,
+                  :queued,
+                  pipeline: pipeline,
+                  name: 'spinach',
+                  stage: 'test',
+                  stage_idx: 0
+                )
+              end
+
+              let(:expected_steps) do
+                [
+                  {
+                    "name" => "script",
+                    "script" => ["ls -a"],
+                    "timeout" => 3600,
+                    "when" => "on_success",
+                    "allow_failure" => false
+                  }
+                ]
+              end
+
+              it 'returns nil for run steps' do
+                request_job
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(json_response['run']).to be_nil
               end
             end
           end
@@ -548,8 +687,8 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
               expect(json_response['id']).to eq(test_job.id)
               expect(json_response['dependencies'].count).to eq(2)
               expect(json_response['dependencies']).to include(
-                { 'id' => job.id, 'name' => job.name, 'token' => test_job.token },
-                { 'id' => job2.id, 'name' => job2.name, 'token' => test_job.token })
+                { 'id' => job.id, 'name' => job.name, 'token' => instance_of(String) },
+                { 'id' => job2.id, 'name' => job2.name, 'token' => instance_of(String) })
             end
 
             describe 'preloading job_artifacts_archive' do
@@ -578,7 +717,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
               expect(json_response['id']).to eq(test_job.id)
               expect(json_response['dependencies'].count).to eq(1)
               expect(json_response['dependencies']).to include(
-                { 'id' => job.id, 'name' => job.name, 'token' => test_job.token,
+                { 'id' => job.id, 'name' => job.name, 'token' => instance_of(String),
                   'artifacts_file' => { 'filename' => 'ci_build_artifacts.zip', 'size' => ci_artifact_fixture_size } })
             end
           end
@@ -606,7 +745,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
               expect(response).to have_gitlab_http_status(:created)
               expect(json_response['id']).to eq(test_job.id)
               expect(json_response['dependencies'].count).to eq(1)
-              expect(json_response['dependencies'][0]).to include('id' => job2.id, 'name' => job2.name, 'token' => test_job.token)
+              expect(json_response['dependencies'][0]).to include('id' => job2.id, 'name' => job2.name, 'token' => instance_of(String))
             end
           end
 
@@ -1032,7 +1171,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
                 request_job info: { features: { artifacts_exclude: true } }
 
                 expect(response).to have_gitlab_http_status(:created)
-                expect(json_response.dig('artifacts').first).to include('exclude' => ['cde'])
+                expect(json_response['artifacts'].first).to include('exclude' => ['cde'])
               end
             end
 
@@ -1049,7 +1188,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
             request_job
 
             expect(response).to have_gitlab_http_status(:created)
-            expect(json_response.dig('artifacts').first).not_to have_key('exclude')
+            expect(json_response['artifacts'].first).not_to have_key('exclude')
           end
         end
 
@@ -1146,7 +1285,7 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state, feature_catego
         let(:service) { ::Ci::CreateWebIdeTerminalService.new(project, user, ref: 'master').execute }
         let(:pipeline) { service[:pipeline] }
         let(:build) { pipeline.builds.first }
-        let(:job) { {} }
+        let(:job) { build_stubbed(:ci_build) }
         let(:config_content) do
           'terminal: { image: ruby, services: [mysql], before_script: [ls], tags: [tag-1], variables: { KEY: value } }'
         end

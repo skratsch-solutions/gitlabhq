@@ -6,13 +6,15 @@ module Pages
       @project = project
     end
 
-    def url = url_builder.pages_url(with_unique_domain: true)
+    def url = url_builder.pages_url
 
     def deployments = project.pages_deployments.active
 
     def unique_domain_enabled? = project.project_setting.pages_unique_domain_enabled?
 
     def force_https? = project.pages_https_only?
+
+    def pages_primary_domain = project.project_setting.pages_primary_domain
 
     private
 

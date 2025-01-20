@@ -155,6 +155,14 @@ RSpec.describe Feature::Definition do
         .to raise_error(/Feature flag is missing name/)
     end
 
+    it "when one flag has an invalid milestone it does raise exception" do
+      attributes['milestone'] = 17.1
+      write_feature_flag(store1, path, yaml_content)
+
+      expect { subject }
+        .to raise_error(/Feature flag 'feature_flag' milestone must be a string/)
+    end
+
     def write_feature_flag(store, path, content)
       path = File.join(store, path)
       dir = File.dirname(path)
@@ -167,11 +175,13 @@ RSpec.describe Feature::Definition do
     using RSpec::Parameterized::TableSyntax
 
     let(:definition) do
-      described_class.new("development/enabled_feature_flag.yml",
-                          name: :enabled_feature_flag,
-                          type: 'development',
-                          milestone: milestone,
-                          default_enabled: false)
+      described_class.new(
+        "development/enabled_feature_flag.yml",
+        name: :enabled_feature_flag,
+        type: 'development',
+        milestone: milestone,
+        default_enabled: false
+      )
     end
 
     before do
@@ -252,12 +262,14 @@ RSpec.describe Feature::Definition do
     using RSpec::Parameterized::TableSyntax
 
     let(:definition) do
-      described_class.new("development/enabled_feature_flag.yml",
-                          name: :enabled_feature_flag,
-                          type: 'development',
-                          milestone: milestone,
-                          log_state_changes: log_state_change,
-                          default_enabled: false)
+      described_class.new(
+        "development/enabled_feature_flag.yml",
+        name: :enabled_feature_flag,
+        type: 'development',
+        milestone: milestone,
+        log_state_changes: log_state_change,
+        default_enabled: false
+      )
     end
 
     before do

@@ -276,6 +276,21 @@ module QA
         find_element(name).set(content)
       end
 
+      # fill in editor element, whether plain text or rich text
+      def fill_editor_element(name, content)
+        element = find_element name
+
+        if element.tag_name == 'textarea'
+          element.set content
+        else
+          mod = page.driver.browser.capabilities.platform_name.include?("mac") ? :command : :control
+          prosemirror = element.find '[contenteditable].ProseMirror'
+          prosemirror.send_keys [mod, 'a']
+          prosemirror.send_keys :delete
+          prosemirror.send_keys content
+        end
+      end
+
       def select_element(name, value)
         element = find_element(name)
 
@@ -295,7 +310,7 @@ module QA
         text = kwargs.delete(:text)
         klass = kwargs.delete(:class)
         visible = kwargs.delete(:visible)
-        visible = visible.nil? && true
+        visible = true if visible.nil?
 
         try_find_element = ->(wait) do
           if disabled.nil?
@@ -441,6 +456,14 @@ module QA
       end
 
       class << self
+        def skip_selectors_check!
+          @check_selectors = false
+        end
+
+        def check_selectors?
+          @check_selectors.nil? ? true : @check_selectors
+        end
+
         def path
           raise NotImplementedError
         end
@@ -450,6 +473,7 @@ module QA
         end
 
         def errors
+          return [] unless check_selectors?
           return ["Page class does not have views / elements defined!"] if views.empty?
 
           views.flat_map(&:errors)

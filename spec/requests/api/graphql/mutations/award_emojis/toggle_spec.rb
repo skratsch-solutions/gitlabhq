@@ -11,7 +11,7 @@ RSpec.describe 'Toggling an AwardEmoji', feature_category: :shared do
   let_it_be(:issue_note) { create(:note, project: project) }
 
   let(:awardable) { issue_note }
-  let(:emoji_name) { 'thumbsup' }
+  let(:emoji_name) { AwardEmoji::THUMBS_UP }
   let(:mutation) do
     variables = {
       awardable_id: GitlabSchema.id_from_object(awardable).to_s,
@@ -62,7 +62,11 @@ RSpec.describe 'Toggling an AwardEmoji', feature_category: :shared do
     end
 
     context 'when the given awardable is an Awardable' do
-      context 'when the awardable is a work item' do
+      context 'when the awardable is a work item', if: Gitlab.ee? do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
         context 'when the work item is associated directly with a group' do
           let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
           let(:awardable) { group_work_item }

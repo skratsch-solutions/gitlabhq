@@ -1,25 +1,3 @@
-@mixin btn-comment-icon {
-  border-radius: 50%;
-  background: $white;
-  padding: 1px;
-  font-size: 12px;
-  color: $blue-500;
-  border: 1px solid $blue-500;
-  width: 24px;
-  height: 24px;
-
-  &:hover,
-  &.inverted {
-    background: $blue-500;
-    border-color: $blue-600;
-    color: $white;
-  }
-
-  &:active {
-    outline: 0;
-  }
-}
-
 @mixin btn-default {
   border-radius: $gl-border-radius-base;
   font-size: $gl-font-size;
@@ -29,22 +7,13 @@
   &:focus,
   &:active {
     background-color: $btn-active-gray;
-    box-shadow: none;
   }
-}
-
-@mixin btn-middle {
-  @include btn-default;
 }
 
 @mixin btn-outline($background, $text, $border, $hover-background, $hover-text, $hover-border, $active-background, $active-border, $active-text) {
   background-color: $background;
   color: $text;
   border-color: $border;
-
-  &.btn-border-color {
-    border-color: $border-color;
-  }
 
   > .icon {
     color: $text;
@@ -81,50 +50,6 @@
   }
 }
 
-@mixin btn-color($light, $border-light, $normal, $border-normal, $dark, $border-dark, $color) {
-  background-color: $light;
-  border-color: $border-light;
-  color: $color;
-
-  &:hover,
-  &:focus {
-    background-color: $normal;
-    border-color: $border-normal;
-    color: $color;
-  }
-
-  &:active,
-  &.active {
-    background-color: $dark;
-    border-color: $border-dark;
-    color: $color;
-  }
-}
-
-@mixin btn-green {
-  @include btn-color($green-500, $green-600, $green-600, $green-700, $green-700, $green-800, $white);
-}
-
-@mixin btn-blue {
-  @include btn-color($blue-500, $blue-600, $blue-600, $blue-700, $blue-700, $blue-800, $white-contrast);
-}
-
-@mixin btn-orange {
-  @include btn-color($orange-500, $orange-600, $orange-500, $orange-600, $orange-600, $orange-800, $white-contrast);
-}
-
-@mixin btn-red {
-  @include btn-color($red-500, $red-600, $red-600, $red-700, $red-700, $red-800, $white-contrast);
-}
-
-@mixin btn-white {
-  @include btn-color($white, $gray-200, $gray-50, $gray-200, $gray-100, $gray-300, $gl-text-color);
-}
-
-@mixin btn-purple {
-  @include btn-color($purple-700, $purple-800, $purple-800, $purple-900, $purple-900, $purple-950, $white-contrast);
-}
-
 @mixin btn-with-margin {
   margin-left: $gl-spacing-scale-3;
   float: left;
@@ -135,52 +60,17 @@
 }
 
 .btn {
-  @include btn-default;
-  @include btn-white;
-
-  color: $gl-text-color;
   white-space: nowrap;
+  @include btn-default;
 
   &:focus:active {
     outline: 0;
   }
 
-  &.btn-sm {
-    padding: 4px 10px;
-    font-size: $gl-btn-small-font-size;
-    line-height: $gl-btn-small-line-height;
-  }
-
-  &.btn-success {
-    @include btn-green;
-  }
-
   &.btn-inverted:not(.disabled):not(:disabled) {
-    &.btn-success {
-      @include btn-outline($white, $green-600, $green-500, $green-100, $green-700, $green-500, $green-200, $green-600, $green-800);
-    }
-
     &.btn-danger {
       @include btn-outline($white, $red-500, $red-500, $red-100, $red-700, $red-500, $red-200, $red-600, $red-800);
     }
-
-    &.btn-primary,
-    &.btn-info {
-      @include btn-outline($white, $blue-500, $blue-500, $blue-100, $blue-700, $blue-500, $blue-200, $blue-600, $blue-800);
-    }
-  }
-
-  &.btn-info,
-  &.btn-primary {
-    @include btn-blue;
-  }
-
-  &.btn-danger {
-    @include btn-red;
-  }
-
-  &.btn-purple {
-    @include btn-purple;
   }
 
   &.btn-grouped {
@@ -201,42 +91,57 @@
   }
 }
 
-.btn-lg {
-  padding: 12px 20px;
-}
-
-.btn-transparent {
-  color: $gl-text-color-secondary;
-  background-color: transparent;
-  border: 0;
-
-  &:hover,
-  &:active,
-  &:focus {
-    background-color: transparent;
-    box-shadow: none;
-  }
-}
-
-.btn-block {
-  width: 100%;
-  margin: 0;
-
-  &.btn {
-    padding: 6px 0;
-  }
-}
-
 .btn-group {
   &.btn-grouped {
     @include btn-with-margin;
   }
 }
 
+/**
+ * Use `gl-button-theme` mixin from GitLab UI to apply same styles to
+ * <button class="btn"> and <button class="btn btn-danger"> as GlButton.
+ * Use `:not(.gl-button)` selector to avoid overriding GlButton usage.
+ * Use `.btn-danger.btn-danger` double selector to increase specificity
+ * against Bootstrap default .btn-danger styles for hover/focus states.
+ */
+.btn:not(.gl-button) {
+  @include gl-button-theme(
+    $color: var(--gl-button-default-primary-foreground-color-default),
+    $background-color: var(--gl-button-default-primary-background-color-default),
+    $border-color: var(--gl-button-default-primary-border-color-default),
+    $hover-color: var(--gl-button-default-primary-foreground-color-hover),
+    $hover-background-color: var(--gl-button-default-primary-background-color-hover),
+    $hover-border-color: var(--gl-button-default-primary-border-color-hover),
+    $focus-color: var(--gl-button-default-primary-foreground-color-focus),
+    $focus-background-color: var(--gl-button-default-primary-background-color-focus),
+    $focus-border-color: var(--gl-button-default-primary-border-color-focus),
+    $active-color: var(--gl-button-default-primary-foreground-color-active),
+    $active-background-color: var(--gl-button-default-primary-background-color-active),
+    $active-border-color: var(--gl-button-default-primary-border-color-active),
+  );
+
+  &.btn-danger.btn-danger {
+    @include gl-button-theme(
+      $color: var(--gl-button-danger-primary-foreground-color-default),
+      $background-color: var(--gl-button-danger-primary-background-color-default),
+      $border-color: var(--gl-button-danger-primary-border-color-default),
+      $hover-color: var(--gl-button-danger-primary-foreground-color-hover),
+      $hover-background-color: var(--gl-button-danger-primary-background-color-hover),
+      $hover-border-color: var(--gl-button-danger-primary-border-color-hover),
+      $focus-color: var(--gl-button-danger-primary-foreground-color-focus),
+      $focus-background-color: var(--gl-button-danger-primary-background-color-focus),
+      $focus-border-color: var(--gl-button-danger-primary-border-color-focus),
+      $active-color: var(--gl-button-danger-primary-foreground-color-active),
+      $active-background-color: var(--gl-button-danger-primary-background-color-active),
+      $active-border-color: var(--gl-button-danger-primary-border-color-active),
+    );
+  }
+}
+
 .input-group-prepend,
 .input-group-append {
   .btn {
-    @include btn-middle;
+    @include btn-default;
 
     &:hover {
       outline: none;
@@ -255,43 +160,6 @@
   }
 }
 
-.btn-loading {
-  &:not(.disabled) {
-    .gl-spinner {
-      display: none;
-    }
-  }
-}
-
-.clone-dropdown-btn a {
-  color: $gray-700;
-
-  &:hover {
-    text-decoration: none;
-  }
-}
-
-.btn-inverted {
-  &-secondary {
-    @include btn-outline($white, $blue-500, $blue-500, $blue-100, $blue-700, $blue-500, $blue-200, $blue-600, $blue-800);
-  }
-}
-
-.btn-blank {
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-
-  &:hover,
-  &:active,
-  &:focus {
-    outline: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-}
-
 // All disabled buttons, regardless of color, type, etc
 .btn.disabled,
 .btn[disabled],
@@ -302,7 +170,7 @@ fieldset[disabled] .btn,
   &:hover {
     background-color: $gray-10;
     border-color: $gray-100;
-    color: $gl-text-color-disabled;
+    @apply gl-text-disabled;
     opacity: 1;
     text-decoration: none;
     cursor: default;
@@ -312,48 +180,7 @@ fieldset[disabled] .btn,
     }
 
     i {
-      color: $gl-text-color-disabled;
+      @apply gl-text-disabled;
     }
-  }
-
-  &.btn-link {
-    background-color: transparent;
-  }
-}
-
-[readonly] {
-  cursor: default;
-}
-
-copy-code {
-  position: absolute;
-  @apply gl-transition-all;
-  opacity: 0;
-
-  top: 7px;
-  right: $input-horizontal-padding;
-
-  .markdown-code-block:hover &,
-  &:focus-within {
-    opacity: 1;
-  }
-}
-
-.btn-link {
-  padding: 0;
-  background-color: transparent;
-  color: $blue-600;
-  font-weight: normal;
-  border-radius: 0;
-  border-color: transparent;
-  border-width: 0;
-
-  &:hover,
-  &:active,
-  &:focus {
-    color: $blue-800;
-    text-decoration: underline;
-    background-color: transparent;
-    border-color: transparent;
   }
 }

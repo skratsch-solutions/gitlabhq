@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the Import API to import repositories from GitHub or Bitbucket Server.
 
@@ -18,7 +18,7 @@ Use the Import API to import repositories from GitHub or Bitbucket Server.
 > - Requirement for Maintainer role instead of Developer role introduced in GitLab 16.0 and backported to GitLab 15.11.1 and GitLab 15.10.5.
 > - `collaborators_import` key in `optional_stages` was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/398154) in GitLab 16.0.
 > - Feature flag `github_import_extended_events` was introduced in GitLab 16.8. Disabled by default. This flag improves the performance of imports but disables the `single_endpoint_issue_events_import` optional stage.
-> - Feature flag `github_import_extended_events` was [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/435089) in GitLab 16.9.
+> - Feature flag `github_import_extended_events` was [enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/435089) in GitLab 16.9.
 > - Improved import performance made [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/435089) in GitLab 16.11. Feature flag `github_import_extended_events` removed.
 
 Import your projects from GitHub to GitLab using the API.
@@ -42,6 +42,7 @@ POST /import/github
 | `github_hostname`          | string  | no  | Custom GitHub Enterprise hostname. Do not set for GitHub.com. From GitLab 16.5 to GitLab 17.1, you must include the path `/api/v3`.                                                                    |
 | `optional_stages`          | object  | no  | [Additional items to import](../user/project/import/github.md#select-additional-items-to-import). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/373705) in GitLab 15.5 |
 | `timeout_strategy`          | string | no  | Strategy for handling import timeouts. Valid values are `optimistic` (continue to next stage of import) or `pessimistic` (fail immediately). Defaults to `pessimistic`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/422979) in GitLab 16.5. |
+| `pagination_limit`          | integer | no  | Number of items retrieved per API request to GitHub. The default value is 100 items per page. For project imports from large repositories, reducing this to a lower number can reduce the risk of GitHub API endpoints returning `500` or `502` errors. However, decreasing the page size will result in longer migration times. |
 
 ```shell
 curl --request POST \
@@ -147,7 +148,7 @@ Returns the following status codes:
 ### Import GitHub gists into GitLab snippets
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/371099) in GitLab 15.8 [with a flag](../administration/feature_flags.md) named `github_import_gists`. Disabled by default. Enabled on GitLab.com.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/386579) in GitLab 15.10.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/386579) in GitLab 15.10.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/386579) in GitLab 15.11. Feature flag `github_import_gists` removed.
 
 You can use the GitLab API to import personal GitHub gists (with up to 10 files) into personal GitLab snippets.
@@ -253,8 +254,8 @@ curl --request POST \
   --data '{
     "bitbucket_username": "bitbucket_username",
     "bitbucket_app_password": "bitbucket_app_password",
-    "repo_path": "username/my_project"
-    "target_namespace": "my_group/my_subgroup"
+    "repo_path": "username/my_project",
+    "target_namespace": "my_group/my_subgroup",
     "new_name": "new_project_name"
 }'
 ```

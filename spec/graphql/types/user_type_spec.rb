@@ -15,6 +15,8 @@ RSpec.describe GitlabSchema.types['User'], feature_category: :user_profile do
     expected_fields = %w[
       id
       bot
+      active
+      human
       user_permissions
       snippets
       name
@@ -59,6 +61,8 @@ RSpec.describe GitlabSchema.types['User'], feature_category: :user_profile do
       lastActivityOn
       pronouns
       ide
+      userPreferences
+      type
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)
@@ -92,7 +96,9 @@ RSpec.describe GitlabSchema.types['User'], feature_category: :user_profile do
       GQL
     end
 
-    subject(:user_name) { GitlabSchema.execute(query, context: { current_user: current_user }).as_json.dig('data', 'user', 'name') }
+    subject(:user_name) do
+      GitlabSchema.execute(query, context: { current_user: current_user }).as_json.dig('data', 'user', 'name')
+    end
 
     context 'user requests' do
       let(:current_user) { user }
@@ -382,6 +388,66 @@ RSpec.describe GitlabSchema.types['User'], feature_category: :user_profile do
         expect(current_user).to receive(:can?).with(:access_code_suggestions).and_return(true)
         expect(code_suggestions_enabled).to be true
       end
+    end
+  end
+
+  describe 'userPreferences field' do
+    subject { described_class.fields['userPreferences'] }
+
+    it 'returns userPreferences field' do
+      is_expected.to have_graphql_type(Types::UserPreferencesType)
+    end
+  end
+
+  describe 'type field' do
+    subject { described_class.fields['type'] }
+
+    let_it_be(:admin) { create(:user, :admin) }
+    let_it_be(:regular_user) { create(:user) }
+    let_it_be(:placeholder_user) { create(:user, :placeholder) }
+    let_it_be(:import_user) { create(:user, :import_user) }
+    let_it_be(:ghost_user) { create(:user, :ghost) }
+
+    let(:query) do
+      <<~GQL
+      query($id: UserID!) {
+        user(id: $id) {
+          type
+        }
+      }
+      GQL
+    end
+
+    it 'returns type field' do
+      is_expected.to have_graphql_type(Types::Users::TypeEnum.to_non_null_type)
+    end
+
+    it 'returns HUMAN for regular users' do
+      result = GitlabSchema.execute(query, variables: { id: regular_user.to_global_id.to_s },
+        context: { current_user: admin }).as_json
+
+      expect(result.dig('data', 'user', 'type')).to eq('HUMAN')
+    end
+
+    it 'returns PLACEHOLDER for placeholder users' do
+      result = GitlabSchema.execute(query, variables: { id: placeholder_user.to_global_id.to_s },
+        context: { current_user: admin }).as_json
+
+      expect(result.dig('data', 'user', 'type')).to eq('PLACEHOLDER')
+    end
+
+    it 'returns IMPORT_USER for import users' do
+      result = GitlabSchema.execute(query, variables: { id: import_user.to_global_id.to_s },
+        context: { current_user: admin }).as_json
+
+      expect(result.dig('data', 'user', 'type')).to eq('IMPORT_USER')
+    end
+
+    it 'returns GHOST for ghost users' do
+      result = GitlabSchema.execute(query, variables: { id: ghost_user.to_global_id.to_s },
+        context: { current_user: admin }).as_json
+
+      expect(result.dig('data', 'user', 'type')).to eq('GHOST')
     end
   end
 end

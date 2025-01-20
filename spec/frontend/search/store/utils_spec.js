@@ -1,3 +1,8 @@
+import subItemActive from 'test_fixtures/search_navigation/sub_item_active.json';
+import noActiveItems from 'test_fixtures/search_navigation/no_active_items.json';
+import partialNavigationActive from 'test_fixtures/search_navigation/partial_navigation_active.json';
+import rootLevelActive from 'test_fixtures/search_navigation/root_level_active.json';
+
 import { useLocalStorageSpy } from 'helpers/local_storage_helper';
 import { MAX_FREQUENCY, SIDEBAR_PARAMS, LS_REGEX_HANDLE } from '~/search/store/constants';
 import {
@@ -10,9 +15,11 @@ import {
   prepareSearchAggregations,
   addCountOverLimit,
   injectRegexSearch,
+  scopeCrawler,
 } from '~/search/store/utils';
 import { useMockLocationHelper } from 'helpers/mock_window_location_helper';
 import { TEST_HOST } from 'helpers/test_constants';
+
 import {
   MOCK_LS_KEY,
   MOCK_GROUPS,
@@ -354,6 +361,29 @@ describe('Global Search Store Utils', () => {
         localStorage.setItem(LS_REGEX_HANDLE, JSON.stringify(false));
         expect(injectRegexSearch(urlIn)).toEqual(urlOut);
       });
+    });
+  });
+
+  describe('scopeCrawler', () => {
+    it('returns the correct scope when active item is at root level', () => {
+      const result = scopeCrawler(rootLevelActive);
+      expect(result).toBe('merge_requests');
+    });
+
+    it('returns the correct parent scope when active item is in sub_items', () => {
+      const result = scopeCrawler(subItemActive);
+      expect(result).toBe('issues');
+    });
+
+    it('returns null when no items are active', () => {
+      const result = scopeCrawler(noActiveItems);
+      expect(result).toBeNull();
+    });
+
+    it('returns parentScope if provided and active item is found', () => {
+      const parentScope = 'customScope';
+      const result = scopeCrawler(partialNavigationActive, parentScope);
+      expect(result).toBe(parentScope);
     });
   });
 });

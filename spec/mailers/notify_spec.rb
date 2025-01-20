@@ -89,16 +89,16 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     end
   end
 
-  describe 'with HTML-encoded entities' do
+  describe 'with non-ASCII characters' do
     before do
-      described_class.test_email('test@test.com', 'Subject', 'Some body with &mdash;').deliver
+      described_class.test_email('test@test.com', 'Subject', 'Some body with 中文 &mdash;').deliver
     end
 
     subject { ActionMailer::Base.deliveries.last }
 
-    it 'retains 7bit encoding' do
-      expect(subject.body.ascii_only?).to eq(true)
-      expect(subject.body.encoding).to eq('7bit')
+    it 'removes HTML encoding and uses UTF-8 charset' do
+      expect(subject.charset).to eq('UTF-8')
+      expect(subject.body).to include('中文 —')
     end
   end
 
@@ -585,40 +585,11 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
     end
 
-    describe 'project access denied' do
-      let_it_be(:project) { create(:project, :public) }
-      let_it_be(:project_member) { create(:project_member, :developer, :access_request, user: user, source: project) }
-
-      subject { described_class.member_access_denied_email('project', project.id, user.id) }
-
-      it_behaves_like 'an email sent from GitLab'
-      it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
-      it_behaves_like 'appearance header and footer enabled'
-      it_behaves_like 'appearance header and footer not enabled'
-
-      it 'contains all the useful information' do
-        is_expected.to have_subject "Access to the #{project.full_name} project was denied"
-        is_expected.to have_body_text project.full_name
-        is_expected.to have_body_text project.web_url
-      end
-
-      context 'when user can not read project' do
-        let_it_be(:project) { create(:project, :private) }
-
-        it 'hides project name from subject and body' do
-          is_expected.to have_subject "Access to the Hidden project was denied"
-          is_expected.to have_body_text "Hidden project"
-          is_expected.not_to have_body_text project.full_name
-          is_expected.not_to have_body_text project.web_url
-        end
-      end
-    end
-
     describe 'project access changed' do
       let(:owner) { create(:user, name: "Chang O'Keefe") }
       let(:project) { create(:project, :public, namespace: owner.namespace) }
       let(:project_member) { create(:project_member, project: project, user: user) }
+      let(:organization) { project.organization }
 
       subject { described_class.member_access_granted_email('project', project_member.id) }
 
@@ -628,14 +599,31 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
-      it 'contains all the useful information' do
+      it 'contains all the useful information', :aggregate_failures do
         is_expected.to have_subject "Access to the #{project.full_name} project was granted"
         is_expected.to have_body_text project.full_name
         is_expected.to have_body_text project.web_url
+        is_expected.to have_body_text organization.name
+        is_expected.to have_body_text organization.web_url
         is_expected.to have_body_text project_member.human_access
-        is_expected.to have_body_text 'default role'
         is_expected.to have_body_text 'leave the project'
         is_expected.to have_body_text project_url(project, leave: 1)
+      end
+
+      context 'when ui_for_organizations feature is disabled' do
+        before do
+          stub_feature_flags(ui_for_organizations: false)
+        end
+
+        it 'contains all the useful information', :aggregate_failures do
+          is_expected.to have_subject "Access to the #{project.full_name} project was granted"
+          is_expected.to have_body_text project.full_name
+          is_expected.to have_body_text project.web_url
+          is_expected.to have_body_text project_member.human_access
+          is_expected.to have_body_text 'default role'
+          is_expected.to have_body_text 'leave the project'
+          is_expected.to have_body_text project_url(project, leave: 1)
+        end
       end
     end
 
@@ -794,8 +782,9 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
         it 'contains an introduction' do
           issuable_url = "project_#{note.noteable_type.underscore}_url"
+          anchor = "note_#{note.id}"
 
-          is_expected.to have_body_text "started a new <a href=\"#{public_send(issuable_url, project, note.noteable, anchor: "note_#{note.id}")}\">discussion</a>"
+          is_expected.to have_body_text "started a new <a href=\"#{public_send(issuable_url, project, note.noteable, anchor: anchor)}\">discussion</a>"
         end
 
         context 'when a comment on an existing discussion' do
@@ -922,7 +911,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
           end
 
           it 'does not include diffs with character-level highlighting' do
-            is_expected.not_to have_body_text '<span class="p">}</span></span>'
+            is_expected.not_to have_body_text '<span class="n">path</span>'
           end
         end
 
@@ -933,12 +922,12 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
           it "does not show diff and displays a separate message" do
             is_expected.to have_body_text 'This project does not include diff previews in email notifications'
-            is_expected.not_to have_body_text '<span class="p">}</span></span>'
+            is_expected.not_to have_body_text '<span class="n">path</span>'
           end
         end
 
         it 'includes diffs with character-level highlighting' do
-          is_expected.to have_body_text '<span class="p">}</span></span>'
+          is_expected.to have_body_text '<span class="n">path</span>'
         end
 
         it 'contains a link to the diff file' do
@@ -1054,7 +1043,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
 
         context 'when custom email is enabled' do
-          let_it_be(:credentials) { create(:service_desk_custom_email_credential, project: project) }
+          let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification) { create(:service_desk_custom_email_verification, project: project) }
 
           let_it_be(:settings) do
@@ -1107,7 +1096,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
 
         context 'when custom email is enabled' do
-          let_it_be(:credentials) { create(:service_desk_custom_email_credential, project: project) }
+          let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification) { create(:service_desk_custom_email_verification, project: project) }
 
           let_it_be(:settings) do
@@ -1619,6 +1608,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
   context 'for a group' do
     describe 'group access requested' do
       let(:group) { create(:group, :public) }
+      let(:organization) { group.organization }
       let(:group_member) do
         group.request_access(user)
         group.requesters.find_by(user_id: user.id)
@@ -1644,40 +1634,8 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
     end
 
-    describe 'group access denied' do
-      let_it_be(:group) { create(:group, :public) }
-      let_it_be(:group_member) { create(:group_member, :developer, :access_request, user: user, source: group) }
-
-      let(:recipient) { user }
-
-      subject { described_class.member_access_denied_email('group', group.id, user.id) }
-
-      it_behaves_like 'an email sent from GitLab'
-      it_behaves_like 'an email sent to a user'
-      it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
-      it_behaves_like 'appearance header and footer enabled'
-      it_behaves_like 'appearance header and footer not enabled'
-
-      it 'contains all the useful information' do
-        is_expected.to have_subject "Access to the #{group.name} group was denied"
-        is_expected.to have_body_text group.name
-        is_expected.to have_body_text group.web_url
-      end
-
-      context 'when user can not read group' do
-        let_it_be(:group) { create(:group, :private) }
-
-        it 'hides group name from subject and body' do
-          is_expected.to have_subject "Access to the Hidden group was denied"
-          is_expected.to have_body_text "Hidden group"
-          is_expected.not_to have_body_text group.name
-          is_expected.not_to have_body_text group.web_url
-        end
-      end
-    end
-
     describe 'group access changed' do
+      let(:organization) { group.organization }
       let(:group_member) { create(:group_member, group: group, user: user) }
       let(:recipient) { user }
 
@@ -1690,13 +1648,30 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
-      it 'contains all the useful information' do
+      it 'contains all the useful information', :aggregate_failures do
         is_expected.to have_subject "Access to the #{group.name} group was granted"
         is_expected.to have_body_text group.name
         is_expected.to have_body_text group.web_url
+        is_expected.to have_body_text organization.name
+        is_expected.to have_body_text organization.web_url
         is_expected.to have_body_text group_member.human_access
         is_expected.to have_body_text 'leave the group'
         is_expected.to have_body_text group_url(group, leave: 1)
+      end
+
+      context 'when ui_for_organizations feature is disabled' do
+        before do
+          stub_feature_flags(ui_for_organizations: false)
+        end
+
+        it 'contains all the useful information', :aggregate_failures do
+          is_expected.to have_subject "Access to the #{group.name} group was granted"
+          is_expected.to have_body_text group.name
+          is_expected.to have_body_text group.web_url
+          is_expected.to have_body_text group_member.human_access
+          is_expected.to have_body_text 'leave the group'
+          is_expected.to have_body_text group_url(group, leave: 1)
+        end
       end
     end
 
@@ -1710,88 +1685,6 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         user: user,
         created_by: inviter
       )
-    end
-
-    describe 'group invitation reminders' do
-      let_it_be(:inviter) { create(:user, owner_of: group) }
-
-      let(:group_member) { invite_to_group(group, inviter: inviter) }
-
-      subject { described_class.member_invited_reminder_email('Group', group_member.id, group_member.invite_token, reminder_index) }
-
-      describe 'not sending a reminder' do
-        let(:reminder_index) { 0 }
-
-        context 'member does not exist' do
-          let(:group_member) { double(id: nil, invite_token: nil) }
-
-          it_behaves_like 'no email is sent'
-        end
-
-        context 'member is not created by a user' do
-          before do
-            group_member.update!(created_by: nil)
-          end
-
-          it_behaves_like 'no email is sent'
-        end
-
-        context 'member is a known user' do
-          before do
-            group_member.update!(user: create(:user))
-          end
-
-          it_behaves_like 'no email is sent'
-        end
-      end
-
-      describe 'the first reminder' do
-        let(:reminder_index) { 0 }
-
-        it_behaves_like 'an email sent from GitLab'
-        it_behaves_like 'it should not have Gmail Actions links'
-        it_behaves_like 'a user cannot unsubscribe through footer link'
-
-        it 'contains all the useful information' do
-          is_expected.to have_subject "#{inviter.name}'s invitation to GitLab is pending"
-          is_expected.to have_body_text group.human_name
-          is_expected.to have_body_text group_member.human_access.downcase
-          is_expected.to have_body_text invite_url(group_member.invite_token)
-          is_expected.to have_body_text decline_invite_url(group_member.invite_token)
-        end
-      end
-
-      describe 'the second reminder' do
-        let(:reminder_index) { 1 }
-
-        it_behaves_like 'an email sent from GitLab'
-        it_behaves_like 'it should not have Gmail Actions links'
-        it_behaves_like 'a user cannot unsubscribe through footer link'
-
-        it 'contains all the useful information' do
-          is_expected.to have_subject "#{inviter.name} is waiting for you to join GitLab"
-          is_expected.to have_body_text group.human_name
-          is_expected.to have_body_text group_member.human_access.downcase
-          is_expected.to have_body_text invite_url(group_member.invite_token)
-          is_expected.to have_body_text decline_invite_url(group_member.invite_token)
-        end
-      end
-
-      describe 'the third reminder' do
-        let(:reminder_index) { 2 }
-
-        it_behaves_like 'an email sent from GitLab'
-        it_behaves_like 'it should not have Gmail Actions links'
-        it_behaves_like 'a user cannot unsubscribe through footer link'
-
-        it 'contains all the useful information' do
-          is_expected.to have_subject "#{inviter.name} is still waiting for you to join GitLab"
-          is_expected.to have_body_text group.human_name
-          is_expected.to have_body_text group_member.human_access.downcase
-          is_expected.to have_body_text invite_url(group_member.invite_token)
-          is_expected.to have_body_text decline_invite_url(group_member.invite_token)
-        end
-      end
     end
 
     describe 'group invitation accepted' do
@@ -1994,11 +1887,10 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
       subject { @email = described_class.send_admin_notification(user.id, 'Admin announcement', 'Text') }
 
-      it 'is sent as the author' do
-        sender = subject.header[:from].addrs[0]
-        expect(sender.display_name).to eq("GitLab")
-        expect(sender.address).to eq(gitlab_sender)
-      end
+      it_behaves_like 'an email sent from GitLab'
+      it_behaves_like 'it should not have Gmail Actions links'
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'is sent to recipient' do
         is_expected.to deliver_to user.email
@@ -2012,6 +1904,21 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         unsubscribe_link = "http://localhost/unsubscribes/#{Base64.urlsafe_encode64(user.email)}"
         is_expected.to have_body_text(unsubscribe_link)
       end
+    end
+  end
+
+  describe 'admin unsubscribe notification' do
+    let(:user) { create(:user) }
+
+    subject { @email = described_class.send_unsubscribed_notification(user.id) }
+
+    it_behaves_like 'an email sent from GitLab'
+    it_behaves_like 'it should not have Gmail Actions links'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
+
+    it 'is sent to recipient' do
+      is_expected.to deliver_to user.email
     end
   end
 

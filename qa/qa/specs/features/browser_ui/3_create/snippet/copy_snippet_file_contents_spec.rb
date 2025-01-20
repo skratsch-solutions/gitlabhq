@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Create', :blocking, product_group: :source_code do
+  RSpec.describe 'Create', product_group: :source_code do
     describe 'Multiple file snippet' do
       let(:first_file_content) { 'First file content' }
       let(:second_file_content) { 'Second file content' }
       let(:third_file_content) { 'Third file content' }
 
       let(:personal_snippet) do
-        create(:snippet,
+        create(:project_snippet,
           title: 'Personal snippet to copy file contents from',
           file_name: 'First file name',
           file_content: first_file_content,

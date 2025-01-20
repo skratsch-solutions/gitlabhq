@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Security Risk Management
 group: Security Policies
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Get project external status check services
 
@@ -31,6 +31,7 @@ GET /projects/:id/external_status_checks
     "name": "Compliance Tool",
     "project_id": 6,
     "external_url": "https://gitlab.com/example/compliance-tool",
+    "hmac": true,
     "protected_branches": [
       {
         "id": 14,
@@ -62,6 +63,7 @@ defined external service. This includes confidential merge requests.
 | `id`                   | integer          | yes      | ID of a project                                |
 | `name`                 | string           | yes      | Display name of external status check service  |
 | `external_url`         | string           | yes      | URL of external status check service           |
+| `shared_secret`        | string           | no       | HMAC secret for external status check          |
 | `protected_branch_ids` | `array<Integer>` | no       | IDs of protected branches to scope the rule by |
 
 ## Update external status check service
@@ -78,6 +80,7 @@ PUT /projects/:id/external_status_checks/:check_id
 | `check_id`             | integer          | yes      | ID of an external status check service         |
 | `name`                 | string           | no       | Display name of external status check service  |
 | `external_url`         | string           | no       | URL of external status check service           |
+| `shared_secret`        | string           | no       | HMAC secret for external status check          |
 | `protected_branch_ids` | `array<Integer>` | no       | IDs of protected branches to scope the rule by |
 
 ## Delete external status check service

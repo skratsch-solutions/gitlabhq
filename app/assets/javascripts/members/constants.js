@@ -61,7 +61,7 @@ export const FIELDS = [
   },
   {
     key: FIELD_KEY_MAX_ROLE,
-    label: __('Max role'),
+    label: __('Role'),
     thClass: 'col-max-role',
     tdClass: 'col-max-role !gl-align-middle',
     sort: {
@@ -139,12 +139,7 @@ export const FILTERED_SEARCH_TOKEN_WITH_INHERITED_PERMISSIONS = {
   operators: OPERATORS_IS,
   options: [
     { value: 'exclude', title: s__('Members|Direct') },
-    {
-      value: 'only',
-      title: gon.features?.webuiMembersInheritedUsers
-        ? s__('Members|Indirect')
-        : s__('Members|Inherited'),
-    },
+    { value: 'only', title: s__('Members|Indirect') },
   ],
 };
 
@@ -153,13 +148,25 @@ export const FILTERED_SEARCH_TOKEN_GROUPS_WITH_INHERITED_PERMISSIONS = {
   type: 'groups_with_inherited_permissions',
 };
 
+export const FILTERED_SEARCH_MAX_ROLE = {
+  type: 'max_role',
+  icon: 'shield',
+  title: __('Role'),
+  token: GlFilteredSearchToken,
+  unique: true,
+  operators: OPERATORS_IS,
+};
+
 export const AVAILABLE_FILTERED_SEARCH_TOKENS = [
   FILTERED_SEARCH_TOKEN_TWO_FACTOR,
   FILTERED_SEARCH_TOKEN_WITH_INHERITED_PERMISSIONS,
   FILTERED_SEARCH_TOKEN_GROUPS_WITH_INHERITED_PERMISSIONS,
+  FILTERED_SEARCH_MAX_ROLE,
 ];
 
 export const AVATAR_SIZE = 48;
+
+export const DEFAULT_PAGE_SIZE = 20;
 
 export const MEMBERS_TAB_TYPES = Object.freeze({
   user: 'user',
@@ -205,6 +212,7 @@ export const REMOVE_GROUP_LINK_MODAL_ID = 'remove-group-link-modal-id';
 
 export const SORT_QUERY_PARAM_NAME = 'sort';
 export const ACTIVE_TAB_QUERY_PARAM_NAME = 'tab';
+export const ACTIVE_SUBTAB_QUERY_PARAM = 'subtab';
 
 export const MEMBER_ACCESS_LEVEL_PROPERTY_NAME = 'access_level';
 
@@ -217,3 +225,8 @@ export const I18N_USER_BOT = __('Bot');
 export const I188N_USER_2FA = __('2FA');
 export const I18N_ROLE_SAVE_SUCCESS = s__('Members|Role was successfully updated.');
 export const I18N_ROLE_SAVE_ERROR = s__('MemberRole|Could not update role.');
+
+export const CONTEXT_TYPE = Object.freeze({
+  PROJECT: 'PROJECT',
+  GROUP: 'GROUP',
+});

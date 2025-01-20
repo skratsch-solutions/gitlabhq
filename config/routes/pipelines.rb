@@ -14,10 +14,10 @@ resources :pipelines, only: [:index, :new, :create, :show, :destroy] do
     post :cancel
     post :retry
     get :builds
-    get :dag
     get :failures
     get :status
     get :test_report
+    get :manual_variables
     get :downloadable_artifacts
   end
 

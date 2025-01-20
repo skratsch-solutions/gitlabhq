@@ -29,7 +29,9 @@ module Groups
         if update_group_service.execute
           flash[:notice] = s_('GroupSettings|Group CI/CD settings were successfully updated.')
         else
-          flash[:alert] = format(s_("GroupSettings|There was a problem updating the group CI/CD settings: %{error_messages}."), error_messages: group.errors.full_messages)
+          flash[:alert] =
+            format(s_("GroupSettings|There was a problem updating the group CI/CD settings: %{error_messages}."),
+              error_messages: group.errors.full_messages)
         end
 
         redirect_to group_settings_ci_cd_path
@@ -39,7 +41,9 @@ module Groups
         if auto_devops_service.execute
           flash[:notice] = s_('GroupSettings|Auto DevOps pipeline was updated for the group')
         else
-          flash[:alert] = format(s_("GroupSettings|There was a problem updating Auto DevOps pipeline: %{error_messages}."), error_messages: group.errors.full_messages)
+          flash[:alert] =
+            format(s_("GroupSettings|There was a problem updating Auto DevOps pipeline: %{error_messages}."),
+              error_messages: group.errors.full_messages)
         end
 
         redirect_to group_settings_ci_cd_path
@@ -94,12 +98,10 @@ module Groups
       end
 
       # Overridden in EE
-      def push_licensed_features
-      end
+      def push_licensed_features; end
 
       # Overridden in EE
-      def assign_variables_to_gon
-      end
+      def assign_variables_to_gon; end
     end
   end
 end

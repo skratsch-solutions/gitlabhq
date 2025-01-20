@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This guide demonstrates basic usage of the GitLab GraphQL API.
 
@@ -34,7 +34,7 @@ For most people, using GraphiQL will be the easiest way to explore the GitLab Gr
 You can either use GraphiQL:
 
 - [On GitLab.com](https://gitlab.com/-/graphql-explorer).
-- On your self-managed GitLab instance on `https://<your-gitlab-site.com>/-/graphql-explorer`.
+- On GitLab Self-Managed on `https://<your-gitlab-site.com>/-/graphql-explorer`.
 
 Sign in to GitLab first to authenticate the requests with your GitLab account.
 
@@ -71,7 +71,7 @@ curl "https://gitlab.com/api/graphql" --header "Authorization: Bearer $GRAPHQL_T
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 GraphQL queries can be run in a [Rails console session](../../administration/operations/rails_console.md#starting-a-rails-console-session). For example, to search projects:
 
@@ -286,7 +286,7 @@ More about mutations:
 ### Update project settings
 
 You can update multiple project settings in a single GraphQL mutation.
-This example is a workaround for [the major change](../../update/deprecations.md#default-cicd-job-token-ci_job_token-scope-changed)
+This example is a workaround for [the major change](../../update/deprecations.md#cicd-job-token---authorized-groups-and-projects-allowlist-enforcement)
 in `CI_JOB_TOKEN` scoping behavior.
 
 ```graphql

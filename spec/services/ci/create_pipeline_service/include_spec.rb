@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Ci::CreatePipelineService,
-  :ci_config_feature_flag_correctness, feature_category: :pipeline_composition do
+RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_composition do
   include RepoHelpers
 
   context 'include:' do
@@ -30,6 +29,10 @@ RSpec.describe Ci::CreatePipelineService,
       create_and_delete_files(project, project_files) do
         example.run
       end
+    end
+
+    before do
+      project.update!(ci_pipeline_variables_minimum_override_role: :maintainer)
     end
 
     shared_examples 'not including the file' do

@@ -1,32 +1,46 @@
 <script>
-import { GlCard, GlLink, GlButton } from '@gitlab/ui';
+import { GlLink, GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import ProtectionRow from './protection_row.vue';
 
 export const i18n = {
   rolesTitle: s__('BranchRules|Roles'),
   usersAndGroupsTitle: s__('BranchRules|Users & groups'),
   groupsTitle: s__('BranchRules|Groups'),
+  deployKeysTitle: s__('BranchRules|Deploy keys'),
 };
 
 export default {
   name: 'ProtectionDetail',
   i18n,
-  components: { GlCard, GlLink, GlButton, ProtectionRow },
+  components: { GlLink, GlButton, ProtectionRow, CrudComponent },
   mixins: [glFeatureFlagsMixin()],
   props: {
     header: {
       type: String,
       required: true,
     },
+    icon: {
+      type: String,
+      required: false,
+      default: 'shield',
+    },
+    count: {
+      type: Number,
+      required: false,
+      default: null,
+    },
     headerLinkTitle: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     headerLinkHref: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     roles: {
       type: Array,
@@ -39,6 +53,11 @@ export default {
       default: () => [],
     },
     groups: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    deployKeys: {
       type: Array,
       required: false,
       default: () => [],
@@ -73,6 +92,9 @@ export default {
     hasGroups() {
       return Boolean(this.groups.length);
     },
+    hasDeployKeys() {
+      return Boolean(this.deployKeys.length);
+    },
     hasStatusChecks() {
       return Boolean(this.statusChecks.length);
     },
@@ -80,39 +102,44 @@ export default {
       return this.hasRoles || this.hasUsers;
     },
     showEmptyState() {
-      return !this.hasRoles && !this.hasUsers && !this.hasGroups && !this.hasStatusChecks;
+      return (
+        !this.hasRoles &&
+        !this.hasUsers &&
+        !this.hasGroups &&
+        !this.hasStatusChecks &&
+        !this.hasDeployKeys
+      );
     },
-    showHelpText() {
-      return Boolean(this.helpText.length);
+    showDescriptionSlot() {
+      return this.helpText || this.$scopedSlots.description;
     },
   },
 };
 </script>
 
 <template>
-  <gl-card
-    class="gl-new-card gl-mb-5"
-    header-class="gl-new-card-header gl-flex-wrap"
-    body-class="gl-new-card-body gl-px-5 gl-pt-4"
-  >
-    <template #header>
-      <strong>{{ header }}</strong>
+  <crud-component :title="header" :icon="icon" :count="count" data-testid="status-checks">
+    <template v-if="showDescriptionSlot" #description>
+      <slot v-if="$scopedSlots.description" name="description"></slot>
+      <template v-else>{{ helpText }}</template>
+    </template>
+    <template #actions>
       <gl-button
         v-if="glFeatures.editBranchRules && isEditAvailable"
         size="small"
         data-testid="edit-rule-button"
         @click="$emit('edit')"
-        >{{ __('Edit') }}</gl-button
-      >
+        >{{ __('Edit') }}
+      </gl-button>
       <gl-link v-else :href="headerLinkHref">{{ headerLinkTitle }}</gl-link>
-      <p v-if="showHelpText" class="gl-flex-basis-full gl-mb-0 gl-text-secondary">
-        {{ helpText }}
-      </p></template
+    </template>
+    <span
+      v-if="showEmptyState && !$scopedSlots.content"
+      class="gl-text-subtle"
+      data-testid="protection-empty-state"
     >
-
-    <p v-if="showEmptyState" class="gl-text-secondary" data-testid="protection-empty-state">
       {{ emptyStateCopy }}
-    </p>
+    </span>
 
     <!-- Roles -->
     <protection-row v-if="roles.length" :title="$options.i18n.rolesTitle" :access-levels="roles" />
@@ -126,6 +153,14 @@ export default {
       :title="$options.i18n.usersAndGroupsTitle"
     />
 
+    <!-- Deploy keys -->
+    <protection-row
+      v-if="hasDeployKeys"
+      :show-divider="showDivider"
+      :deploy-keys="deployKeys"
+      :title="$options.i18n.deployKeysTitle"
+    />
+
     <!-- Status checks -->
     <protection-row
       v-for="(statusCheck, index) in statusChecks"
@@ -133,6 +168,9 @@ export default {
       :show-divider="index !== 0"
       :title="statusCheck.name"
       :status-check-url="statusCheck.externalUrl"
+      :hmac="statusCheck.hmac"
     />
-  </gl-card>
+
+    <slot name="content"></slot>
+  </crud-component>
 </template>

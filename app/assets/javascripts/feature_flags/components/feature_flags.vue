@@ -11,12 +11,13 @@ import {
 import { isEmpty } from 'lodash';
 // eslint-disable-next-line no-restricted-imports
 import { mapState, mapActions } from 'vuex';
-
+import PageHeading from '~/vue_shared/components/page_heading.vue';
 import { n__, s__ } from '~/locale';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import { buildUrlWithCurrentLocation, historyPushState } from '~/lib/utils/common_utils';
-import { getParameterByName, PROMO_URL } from '~/lib/utils/url_utility';
+import { getParameterByName } from '~/lib/utils/url_utility';
 import TablePagination from '~/vue_shared/components/pagination/table_pagination.vue';
+import PromoPageLink from '~/vue_shared/components/promo_page_link/promo_page_link.vue';
 import ConfigureFeatureFlagsModal from './configure_feature_flags_modal.vue';
 import EmptyState from './empty_state.vue';
 import FeatureFlagsTable from './feature_flags_table.vue';
@@ -26,12 +27,14 @@ export default {
     ConfigureFeatureFlagsModal,
     EmptyState,
     FeatureFlagsTable,
+    PromoPageLink,
     GlAlert,
     GlBadge,
     GlButton,
     GlLink,
     GlSprintf,
     TablePagination,
+    PageHeading,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -64,7 +67,7 @@ export default {
       'rotateEndpoint',
     ]),
     topAreaBaseClasses() {
-      return ['gl-display-flex', 'gl-flex-direction-column'];
+      return ['gl-flex', 'gl-flex-col'];
     },
     canUserRotateToken() {
       return this.rotateEndpoint !== '';
@@ -114,9 +117,6 @@ export default {
         anchor: 'maximum-number-of-feature-flags',
       });
     },
-    pricingLink() {
-      return `${PROMO_URL}/pricing`;
-    },
   },
   created() {
     this.setFeatureFlagsOptions({ page: this.page });
@@ -162,7 +162,7 @@ export default {
           <span>{{ featureFlagsLimit }}</span>
         </template>
         <template #pricingLink="{ content }">
-          <gl-link :href="pricingLink" target="_blank">{{ content }}</gl-link>
+          <promo-page-link path="/pricing" target="_blank">{{ content }}</promo-page-link>
         </template>
       </gl-sprintf>
     </gl-alert>
@@ -176,7 +176,7 @@ export default {
       @token="rotateInstanceId()"
     />
     <div :class="topAreaBaseClasses">
-      <div class="gl-flex md:!gl-hidden gl-flex-direction-column">
+      <div class="gl-flex gl-flex-col md:!gl-hidden">
         <gl-button
           v-if="userListPath"
           :href="userListPath"
@@ -207,28 +207,26 @@ export default {
           {{ s__('FeatureFlags|New feature flag') }}
         </gl-button>
       </div>
-      <div
-        class="gl-display-flex gl-align-items-baseline gl-flex-direction-row gl-justify-content-space-between gl-mt-6"
-      >
-        <div class="gl-display-flex gl-align-items-center">
-          <h2 class="page-title gl-font-size-h-display gl-my-0">
+
+      <page-heading>
+        <template #heading>
+          <span>
             {{ s__('FeatureFlags|Feature flags') }}
-          </h2>
+          </span>
           <gl-badge
             v-if="count"
             v-gl-tooltip="{ disabled: !isFeatureFlagsLimitSet }"
             :title="countBadgeTooltipMessage"
-            class="gl-ml-4"
+            class="gl-ml-3 gl-align-middle"
             >{{ countBadgeContents }}</gl-badge
           >
-        </div>
-        <div class="gl-hidden md:gl-flex gl-align-items-center gl-justify-content-end">
+        </template>
+        <template #actions>
           <gl-button
             v-if="userListPath"
             :href="userListPath"
             variant="confirm"
             category="tertiary"
-            class="gl-mb-0 gl-mr-3"
             data-testid="ff-user-list-button"
           >
             {{ s__('FeatureFlags|View user lists') }}
@@ -239,7 +237,6 @@ export default {
             variant="confirm"
             category="secondary"
             data-testid="ff-configure-button"
-            class="gl-mb-0 gl-mr-3"
           >
             {{ s__('FeatureFlags|Configure') }}
           </gl-button>
@@ -252,9 +249,10 @@ export default {
             data-testid="ff-new-button"
           >
             {{ s__('FeatureFlags|New feature flag') }}
-          </gl-button>
-        </div>
-      </div>
+          </gl-button></template
+        >
+      </page-heading>
+
       <empty-state
         :alerts="alerts"
         :is-loading="isLoading"

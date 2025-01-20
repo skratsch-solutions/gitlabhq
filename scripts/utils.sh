@@ -107,6 +107,9 @@ function bundle_install_script() {
   run_timed_command "bundle install ${BUNDLE_INSTALL_FLAGS} ${extra_install_args}"
 
   if [[ $(bundle info pg) ]]; then
+    # Bundler will complain about replacing gems in world-writeable directories, so lock down access.
+    # This appears to happen when the gems are uncached, since the Runner uses a restrictive umask.
+    find vendor -type d -exec chmod 700 {} +
     # When we test multiple versions of PG in the same pipeline, we have a single `setup-test-env`
     # job but the `pg` gem needs to be rebuilt since it includes extensions (https://guides.rubygems.org/gems-with-extensions).
     # Uncomment the following line if multiple versions of PG are tested in the same pipeline.
@@ -142,9 +145,9 @@ function assets_compile_script() {
 
 function setup_database_yml() {
   if [ "$DECOMPOSED_DB" == "true" ]; then
-    if [ "$CLUSTERWIDE_DB" == "true" ]; then
-      echo "Using decomposed database config, containing clusterwide connection (config/database.yml.decomposed-clusterwide-postgresql)"
-      cp config/database.yml.decomposed-clusterwide-postgresql config/database.yml
+    if [ "$SEC_DECOMPOSED_DB" == "true" ]; then
+      echo "Using SEC decomposed database config (config/database.yml.decomposed-sec-postgresql)"
+      cp config/database.yml.decomposed-sec-postgresql config/database.yml
     else
       echo "Using decomposed database config (config/database.yml.decomposed-postgresql)"
       cp config/database.yml.decomposed-postgresql config/database.yml
@@ -212,7 +215,7 @@ function install_tff_gem() {
 }
 
 function install_activesupport_gem() {
-  run_timed_command "gem install activesupport --no-document --version 6.1.7.2"
+  run_timed_command "gem install activesupport --no-document --version 7.0.8.4"
 }
 
 function install_junit_merge_gem() {
@@ -353,7 +356,7 @@ function fail_pipeline_early() {
   fi
 }
 
-# We're inlining this function in `.gitlab/ci/package-and-test/main.gitlab-ci.yml` so make sure to reflect any changes there
+# We're inlining this function in `.gitlab/ci/test-on-omnibus/main.gitlab-ci.yml` so make sure to reflect any changes there
 function assets_image_tag() {
   local cache_assets_hash_file="cached-assets-hash.txt"
 
@@ -482,4 +485,95 @@ function define_trigger_branch_in_build_env() {
   if [ -f "$BUILD_ENV" ]; then
     echo "TRIGGER_BRANCH=${TRIGGER_BRANCH}" >> $BUILD_ENV
   fi
+}
+
+function log_disk_usage() {
+  local exit_on_low_space="${1:-false}"
+  local space_threshold_gb=2 # 2GB
+
+  available_space=$(df -h | awk 'NR==2 {print $4}') # value at the 2nd row 4th column of the df -h output
+
+  echo "*******************************************************"
+  echo "This runner currently has ${available_space} free disk space."
+  echo "*******************************************************"
+
+  section_start "log_disk_usage" "Disk usage detail" "true"
+  echo -e "df -h"
+  df -h
+
+  echo -e "du -h -d 1"
+  du -h -d 1
+  section_end "log_disk_usage"
+
+  if [[ "$exit_on_low_space" = "true" ]]; then
+
+    if [[ $OSTYPE == 'darwin'* ]]; then
+      available_space_gb=$(df -g | awk 'NR==2 {print $4}')
+    else
+      available_space_gb=$(df -BG | awk 'NR==2 {print $4}' | sed 's/G//')
+    fi
+
+    if (( $(echo "$available_space_gb < $space_threshold_gb") )); then
+      echo "********************************************************************"
+      echo "This job requires ${space_threshold_gb}G free disk space, but the runner only has ${available_space}."
+      echo "Exiting now in anticipation of a 'no space left on device' error."
+      echo "If this problem persists, please contact #g_hosted_runners team."
+      echo "NOTE: This job will be retried automatically."
+      echo "********************************************************************"
+
+      exit_code=111
+      alert_job_in_slack $exit_code "Auto-retried due to low free disk space."
+
+      exit $exit_code
+    fi
+  fi
+}
+
+function alert_job_in_slack() {
+  exit_code=$1
+  alert_reason=$2
+  local slack_channel="#dx_development-analytics_alerts"
+
+  echo "Reporting ${CI_JOB_URL} to Slack channel ${slack_channel}"
+
+  json_payload=$(cat <<JSON
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Job <${CI_JOB_URL}|${CI_JOB_NAME}> in pipeline <${CI_PIPELINE_URL}|#${CI_PIPELINE_ID}> needs attention*"
+			}
+		},
+		{
+			"type": "section",
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": "*Branch:* \n\`${CI_COMMIT_REF_NAME}\`"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*Project:* \n<${CI_PROJECT_URL}|${CI_PROJECT_PATH}>"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*Error code:* \n\`${exit_code}\`"
+				},
+				{
+					"type": "mrkdwn",
+					"text": "*Reason:* \n${alert_reason}"
+				}
+			]
+		}
+	],
+  "channel": "${slack_channel}"
+}
+JSON
+)
+
+  curl --silent -o /dev/null -X POST "${CI_SLACK_WEBHOOK_URL}" \
+    -H 'Content-type: application/json' \
+    -d "${json_payload}"
 }

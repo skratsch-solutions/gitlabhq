@@ -1,14 +1,14 @@
 <script>
-import { GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
+import { GlLink, GlSprintf, GlAnimatedUploadIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { VALID_DATA_TRANSFER_TYPE, VALID_IMAGE_FILE_MIMETYPE } from './constants';
 import { isValidImage } from './utils';
 
 export default {
   components: {
-    GlIcon,
     GlLink,
     GlSprintf,
+    GlAnimatedUploadIcon,
   },
   props: {
     displayAsCard: {
@@ -61,11 +61,37 @@ export default {
       required: false,
       default: false,
     },
+    showUploadDesignOverlay: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    uploadDesignOverlayText: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    validateDesignUploadOnDragover: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    acceptDesignFormats: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    hideUploadTextOnDragging: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       dragCounter: 0,
       isDragDataValid: true,
+      animateUploadIcon: false,
     };
   },
   computed: {
@@ -74,12 +100,17 @@ export default {
     },
     iconStyles() {
       return {
-        size: this.displayAsCard ? 24 : 16,
-        class: this.displayAsCard ? 'gl-mb-2' : 'gl-mr-3 gl-text-gray-500',
+        class: this.displayAsCard ? 'gl-mb-3' : 'gl-mr-3',
       };
     },
     validMimeTypeString() {
       return this.validFileMimetypes.join();
+    },
+    showDropzoneOverlay() {
+      if (this.validateDesignUploadOnDragover && this.acceptDesignFormats) {
+        return this.dragging && this.isDragDataValid && !this.enableDragBehavior;
+      }
+      return this.dragging && !this.enableDragBehavior;
     },
   },
   methods: {
@@ -131,10 +162,19 @@ export default {
       this.$emit('change', this.singleFileSelection ? files[0] : files);
     },
     ondragenter(e) {
+      this.$emit('dragenter', e);
       this.dragCounter += 1;
       this.isDragDataValid = this.isValidDragDataType(e);
     },
-    ondragleave() {
+    ondragover({ dataTransfer }) {
+      if (this.validateDesignUploadOnDragover) {
+        this.isDragDataValid = Array.from(dataTransfer.items).some((item) =>
+          this.acceptDesignFormats.includes(item.type),
+        );
+      }
+    },
+    ondragleave(e) {
+      this.$emit('dragleave', e);
       this.dragCounter -= 1;
     },
     openFileUpload() {
@@ -143,33 +183,49 @@ export default {
     onFileInputChange(e) {
       this.$emit('change', this.singleFileSelection ? e.target.files[0] : e.target.files);
     },
+    onMouseEnter() {
+      this.animateUploadIcon = true;
+    },
+    onMouseLeave() {
+      this.animateUploadIcon = false;
+    },
   },
 };
 </script>
 
 <template>
   <div
-    class="gl-w-full gl-relative"
+    class="gl-w-full"
+    :class="{ 'gl-relative': !showUploadDesignOverlay }"
     @dragstart.prevent.stop
     @dragend.prevent.stop
-    @dragover.prevent.stop
+    @dragover.prevent.stop="ondragover"
     @dragenter.prevent.stop="ondragenter"
     @dragleave.prevent.stop="ondragleave"
     @drop.prevent.stop="ondrop"
   >
     <slot>
       <button
-        class="card upload-dropzone-card upload-dropzone-border gl-w-full gl-h-full gl-align-items-center gl-justify-content-center gl-px-5 gl-py-4 gl-mb-0"
+        class="card upload-dropzone-card upload-dropzone-border gl-mb-0 gl-h-full gl-w-full gl-items-center gl-justify-center gl-px-5 gl-py-4"
         type="button"
         @click="openFileUpload"
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
       >
         <div
-          :class="{ 'gl-flex-direction-column': displayAsCard }"
-          class="gl-display-flex gl-align-items-center gl-justify-content-center gl-text-center"
+          :class="{ 'gl-flex-col': displayAsCard }"
+          class="gl-flex gl-items-center gl-justify-center gl-text-center"
           data-testid="dropzone-area"
         >
-          <gl-icon name="upload" :size="iconStyles.size" :class="iconStyles.class" />
-          <p class="gl-mb-0" data-testid="upload-text">
+          <gl-animated-upload-icon
+            :is-on="animateUploadIcon || hideUploadTextOnDragging"
+            :class="iconStyles.class"
+          />
+          <p
+            v-if="!hideUploadTextOnDragging || !dragging"
+            class="gl-mb-0"
+            data-testid="upload-text"
+          >
             <slot name="upload-text" :open-file-upload="openFileUpload">
               <gl-sprintf
                 :message="singleFileSelection ? uploadSingleMessage : uploadMultipleMessage"
@@ -180,6 +236,9 @@ export default {
               </gl-sprintf>
             </slot>
           </p>
+          <span v-if="hideUploadTextOnDragging && dragging">
+            {{ s__('DesignManagement|Drop your images to start the upload.') }}
+          </span>
         </div>
       </button>
 
@@ -195,29 +254,48 @@ export default {
     </slot>
     <transition name="upload-dropzone-fade">
       <div
-        v-show="dragging && !enableDragBehavior"
-        class="card upload-dropzone-border upload-dropzone-overlay gl-w-full gl-h-full gl-absolute gl-display-flex gl-align-items-center gl-justify-content-center gl-p-4"
+        v-show="showDropzoneOverlay"
+        class="card gl-absolute gl-flex gl-h-full gl-w-full gl-items-center gl-justify-center gl-p-4"
+        :class="{
+          'design-upload-dropzone-overlay gl-z-200 gl-border-1 gl-border-dashed gl-border-blue-500':
+            showUploadDesignOverlay && isDragDataValid,
+          'upload-dropzone-overlay upload-dropzone-border': !showUploadDesignOverlay,
+        }"
       >
-        <div v-show="!isDragDataValid" class="mw-50 gl-text-center">
-          <slot name="invalid-drag-data-slot">
-            <h3 :class="{ 'gl-font-base gl-display-inline': !displayAsCard }">
-              {{ __('Oh no!') }}
-            </h3>
-            <span>{{
-              __(
-                'You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, .bmp, .tiff or .ico.',
-              )
-            }}</span>
-          </slot>
-        </div>
-        <div v-show="isDragDataValid" class="mw-50 gl-text-center">
-          <slot name="valid-drag-data-slot">
-            <h3 :class="{ 'gl-font-base gl-display-inline': !displayAsCard }">
-              {{ __('Incoming!') }}
-            </h3>
-            <span>{{ dropToStartMessage }}</span>
-          </slot>
-        </div>
+        <!-- Design Upload Overlay Style for Work Items -->
+        <template v-if="showUploadDesignOverlay">
+          <div
+            v-if="isDragDataValid && !hideUploadTextOnDragging"
+            class="gl-absolute gl-bottom-6 gl-flex gl-items-center gl-rounded-base gl-bg-blue-950 gl-px-3 gl-py-2 gl-text-white"
+            data-testid="design-upload-overlay"
+          >
+            <gl-animated-upload-icon :is-on="true" name="upload" />
+            <span class="gl-ml-2">{{ uploadDesignOverlayText }}</span>
+          </div>
+        </template>
+        <!-- Design Upload Overlay Style for Legacy Issues -->
+        <template v-else>
+          <div v-if="isDragDataValid" class="gl-max-w-1/2 gl-text-center">
+            <slot name="valid-drag-data-slot">
+              <h3 :class="{ 'gl-inline gl-text-base': !displayAsCard }">
+                {{ __('Incoming!') }}
+              </h3>
+              <span>{{ dropToStartMessage }}</span>
+            </slot>
+          </div>
+          <div v-else class="gl-max-w-1/2 gl-text-center">
+            <slot name="invalid-drag-data-slot">
+              <h3 :class="{ 'gl-inline gl-text-base': !displayAsCard }">
+                {{ __('Oh no!') }}
+              </h3>
+              <span>{{
+                __(
+                  'You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, .bmp, .tiff or .ico.',
+                )
+              }}</span>
+            </slot>
+          </div>
+        </template>
       </div>
     </transition>
   </div>

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Verify', :runner, product_group: :pipeline_security do
+  RSpec.describe 'Verify', :runner, product_group: :pipeline_execution do
     describe 'Job artifacts' do
       context 'when exposed' do
         let(:total_jobs_count) { 3 }
@@ -35,9 +35,7 @@ module QA
           runner.remove_via_api!
         end
 
-        it 'show up in MR widget',
-          :blocking,
-          testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/426999' do
+        it 'show up in MR widget', testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/426999' do
           Page::MergeRequest::Show.perform do |show|
             Support::Waiter.wait_until(reload_page: false) do
               show.has_pipeline_status?('passed')

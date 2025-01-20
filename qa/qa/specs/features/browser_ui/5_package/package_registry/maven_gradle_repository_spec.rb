@@ -12,15 +12,16 @@ module QA
       include Runtime::Fixtures
       include Support::Helpers::MaskToken
 
+      let(:personal_access_token) { Runtime::User::Store.default_api_client.personal_access_token }
       let(:group_id) { 'com.gitlab.qa' }
       let(:artifact_id) { "maven_gradle-#{SecureRandom.hex(8)}" }
       let(:package_name) { "#{group_id}/#{artifact_id}".tr('.', '/') }
       let(:package_version) { '1.3.7' }
       let(:package_type) { 'maven_gradle' }
       let(:project) { create(:project, :private, :with_readme, name: "#{package_type}_project") }
-      let(:runner) do
+      let!(:runner) do
         create(:project_runner,
-          name: "qa-runner-#{Time.now.to_i}",
+          name: "qa-runner-#{SecureRandom.hex(6)}",
           tags: ["runner-for-#{project.name}"],
           executor: :docker,
           project: project)
@@ -50,7 +51,6 @@ module QA
 
       before do
         Flow::Login.sign_in_unless_signed_in
-        runner
       end
 
       where(:case_name, :authentication_token_type, :maven_header_name, :testcase) do
@@ -63,7 +63,7 @@ module QA
         let(:token) do
           case authentication_token_type
           when :personal_access_token
-            use_ci_variable(name: 'PERSONAL_ACCESS_TOKEN', value: Runtime::Env.personal_access_token, project: project)
+            use_ci_variable(name: 'PERSONAL_ACCESS_TOKEN', value: personal_access_token, project: project)
           when :ci_job_token
             project_inbound_job_token_disabled
             '${CI_JOB_TOKEN}'
@@ -72,41 +72,30 @@ module QA
           end
         end
 
-        it 'pushes and pulls a maven package via gradle', :blocking, testcase: params[:testcase] do
-          Support::Retrier.retry_on_exception(max_attempts: 3, sleep_interval: 2) do
-            gradle_publish_install_yaml = ERB.new(read_fixture('package_managers/maven/gradle', 'gradle_upload_install_package.yaml.erb')).result(binding)
-            build_gradle = ERB.new(read_fixture('package_managers/maven/gradle', 'build.gradle.erb')).result(binding)
+        it 'pushes and pulls a maven package via gradle', testcase: params[:testcase] do
+          gradle_publish_install_yaml = ERB.new(read_fixture('package_managers/maven/gradle',
+            'gradle_upload_install_package.yaml.erb')).result(binding)
+          build_gradle = ERB.new(read_fixture('package_managers/maven/gradle', 'build.gradle.erb')).result(binding)
 
-            create(:commit, project: project, commit_message: 'Add .gitlab-ci.yml', actions: [
-              { action: 'create', file_path: '.gitlab-ci.yml', content: gradle_publish_install_yaml },
-              { action: 'create', file_path: 'build.gradle', content: build_gradle }
-            ])
-          end
+          create(:commit, project: project, commit_message: 'Add .gitlab-ci.yml', actions: [
+            { action: 'create', file_path: '.gitlab-ci.yml', content: gradle_publish_install_yaml },
+            { action: 'create', file_path: 'build.gradle', content: build_gradle }
+          ])
 
           project.visit!
+          Flow::Pipeline.wait_for_pipeline_creation_via_api(project: project)
 
-          Flow::Pipeline.visit_latest_pipeline
-
-          Page::Project::Pipeline::Show.perform do |pipeline|
-            pipeline.click_job('publish')
-          end
-
+          project.visit_job('publish')
           Page::Project::Job::Show.perform do |job|
             expect(job).to be_successful(timeout: 800)
-
-            job.go_to_pipeline
           end
 
-          Page::Project::Pipeline::Show.perform do |pipeline|
-            pipeline.click_job('install')
-          end
-
+          project.visit_job('install')
           Page::Project::Job::Show.perform do |job|
             expect(job).to be_successful(timeout: 800)
           end
 
           Page::Project::Menu.perform(&:go_to_package_registry)
-
           Page::Project::Packages::Index.perform do |index|
             expect(index).to have_package(package_name)
 

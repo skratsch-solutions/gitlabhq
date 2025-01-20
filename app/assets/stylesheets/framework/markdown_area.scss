@@ -14,43 +14,15 @@
       pointer-events: none;
     }
 
-    .div-dropzone-spinner {
-      position: absolute;
-      bottom: 10px;
-      right: 5px;
-      opacity: 0;
-      font-size: 20px;
-      transition: opacity 200ms ease-in-out;
-    }
-
     .div-dropzone-icon {
       display: block;
       text-align: center;
       font-size: inherit;
     }
 
-    .div-dropzone-progress {
-      position: absolute;
-      top: 7px;
-      left: -40px;
-      width: 35px;
-      font-size: 13px;
-      text-align: right;
-    }
-
     .dz-preview {
       display: none;
     }
-  }
-}
-
-.md-header-tab {
-  @include media-breakpoint-down(xs) {
-    flex: 1;
-    flex-direction: column;
-    width: 100%;
-    border-bottom: 1px solid $border-color;
-    text-align: center;
   }
 }
 
@@ -75,7 +47,7 @@
 }
 
 .referenced-users {
-  color: $gl-text-color;
+  @apply gl-text-default;
   padding: 0 $gl-padding $gl-padding-8;
 }
 
@@ -93,19 +65,25 @@
   min-height: 177px;
   padding: 10px 0;
   overflow-x: auto;
+
+  a.anchor {
+    margin-left: -1rem !important;
+  }
+
+  details a.anchor {
+    margin-left: -1.75rem !important;
+  }
 }
 
 .markdown-area {
   border-radius: 0;
-  background: $white;
-  border: 1px solid $gray-50;
   min-height: 140px;
   max-height: 500px;
   padding: 5px;
   box-shadow: none;
   width: 100%;
   resize: none !important;
-  @apply gl-transition-box-shadow;
+  @apply gl-bg-transparent gl-border gl-border-subtle gl-transition-box-shadow;
 }
 
 .md-suggestion-diff {

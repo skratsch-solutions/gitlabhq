@@ -45,6 +45,10 @@ export default {
 
       urlParams.search = this.searchTerm.length > 0 ? this.searchTerm : null;
 
+      if (urlParams.search) {
+        urlParams.state = 'all';
+      }
+
       const newUrl = mergeUrlParams(urlParams, this.projectBranchesFilteredPath);
       visitUrl(newUrl);
     },
@@ -52,7 +56,7 @@ export default {
 };
 </script>
 <template>
-  <div class="gl-display-flex gl-flex-grow-1">
+  <div class="gl-flex gl-grow">
     <gl-search-box-by-click
       v-model="searchTerm"
       :placeholder="$options.i18n.searchPlaceholder"

@@ -59,14 +59,7 @@ RSpec.describe 'Group empty states', feature_category: :groups_and_projects do
 
             wait_for_all_requests
 
-            within_testid('issuable-empty-state') do
-              expect(page).to have_content(/Sorry, your filter produced no results/)
-              new_issuable_path = issuable == :issue ? 'new_project_issue_path' : 'project_new_merge_request_path'
-
-              path = public_send(new_issuable_path, project)
-
-              expect(page.find('a')['href']).to have_content(path)
-            end
+            expect(page.find('.gl-empty-state')).to have_content("No results found")
           end
 
           it "displays conditional text when no closed #{issuable} is found", :js do
@@ -93,11 +86,11 @@ RSpec.describe 'Group empty states', feature_category: :groups_and_projects do
             expect(page).to have_selector('[data-testid="issuable-empty-state"]')
           end
 
-          it "shows a new #{issuable_name} button" do
+          it "shows a new #{issuable_name} button", skip: 'Button does not exist in Vue version' do
             expect(page).to have_content("create #{issuable_name}")
           end
 
-          it "the new #{issuable_name} button opens a project dropdown" do
+          it "the new #{issuable_name} button opens a project dropdown", skip: 'Button does not exist in Vue version' do
             click_button "Select project to create #{issuable_name}"
 
             expect(page).to have_button project.name

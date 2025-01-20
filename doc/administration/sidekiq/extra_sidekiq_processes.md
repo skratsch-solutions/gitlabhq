@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab allows you to start multiple Sidekiq processes to process background jobs
 at a higher rate on a single instance. By default, Sidekiq starts one worker
@@ -48,8 +48,8 @@ to all available queues:
 
 To view the Sidekiq processes in GitLab:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Monitoring > Background Jobs**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Monitoring > Background jobs**.
 
 ## Concurrency
 
@@ -101,51 +101,6 @@ For example, to set the concurrency to `20`:
    ```shell
    sudo gitlab-ctl reconfigure
    ```
-
-<!--- start_remove The following content will be removed on remove_date: '2024-08-16' -->
-
-#### Manage thread counts with `min_concurrency` and `max_concurrency` fields (deprecated)
-
-WARNING:
-The `min_concurrency` and `max_concurrency` settings were deprecated in GitLab 16.9 and are planned
-for removal in 17.0. Use [`concurrency`](#manage-thread-counts-with-concurrency-field) instead.
-
-We only recommend setting explicit concurrency by setting `min_concurrency` and
-`max_concurrency` to the same value. The two distinct settings are kept for
-backward compatibility reasons. For more predictable results, use the same
-values, or you might run into issues with Sidekiq jobs piling up.
-
-For example, to set the concurrency to `20`:
-
-1. Edit `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   sidekiq['min_concurrency'] = 20
-   sidekiq['max_concurrency'] = 20
-   ```
-
-1. Save the file and reconfigure GitLab:
-
-   ```shell
-   sudo gitlab-ctl reconfigure
-   ```
-
-`min_concurrency` and `max_concurrency` are independent; one can be set without
-the other. Setting `min_concurrency` to `0` disables the limit. Not explicitly
-setting `min_concurrency` is the same as setting it to `0`.
-
-For each queue group, let `N` be one more than the number of queues. The
-concurrency is set to:
-
-1. `min_concurrency`, if it's equal to `max_concurrency`.
-1. `N`, if it's between `min_concurrency` and `max_concurrency`.
-1. `max_concurrency`, if `N` exceeds this value.
-1. `min_concurrency`, if `N` is less than this value.
-
-When `min_concurrency` is greater than `max_concurrency`, it is treated as
-being equal to `max_concurrency`.
-
-<!-- end_remove -->
 
 ## Modify the check interval
 

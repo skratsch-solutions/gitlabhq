@@ -117,7 +117,7 @@ func buildConfig(arg0 string, args []string) (*bootConfig, *config.Config, error
 	}
 	if fset.NArg() > 0 {
 		err := alreadyPrintedError{fmt.Errorf("unexpected arguments: %v", fset.Args())}
-		fmt.Fprintln(fset.Output(), err)
+		_, _ = fmt.Fprintln(fset.Output(), err)
 		fset.Usage()
 		return nil, nil, err
 	}
@@ -152,6 +152,7 @@ func buildConfig(arg0 string, args []string) (*bootConfig, *config.Config, error
 	}
 
 	cfg.Redis = cfgFromFile.Redis
+	cfg.Sentinel = cfgFromFile.Sentinel
 	cfg.ObjectStorageCredentials = cfgFromFile.ObjectStorageCredentials
 	cfg.ImageResizerConfig = cfgFromFile.ImageResizerConfig
 	cfg.AltDocumentRoot = cfgFromFile.AltDocumentRoot
@@ -169,7 +170,7 @@ func run(boot bootConfig, cfg config.Config) error {
 	if err != nil {
 		return err
 	}
-	defer closer.Close()
+	defer closer.Close() //nolint:errcheck
 
 	tracing.Initialize(tracing.WithServiceName("gitlab-workhorse"))
 	log.WithField("version", Version).WithField("build_time", BuildTime).Print("Starting")
@@ -177,7 +178,7 @@ func run(boot bootConfig, cfg config.Config) error {
 
 	// Good housekeeping for Unix sockets: unlink before binding
 	if boot.listenNetwork == "unix" {
-		if err := os.Remove(boot.listenAddr); err != nil && !os.IsNotExist(err) {
+		if err = os.Remove(boot.listenAddr); err != nil && !os.IsNotExist(err) {
 			return err
 		}
 	}
@@ -188,8 +189,10 @@ func run(boot bootConfig, cfg config.Config) error {
 	// requests can only reach the profiler if we start a listener. So by
 	// having no profiler HTTP listener by default, the profiler is
 	// effectively disabled by default.
+	var l net.Listener
+
 	if boot.pprofListenAddr != "" {
-		l, err := net.Listen("tcp", boot.pprofListenAddr)
+		l, err = net.Listen("tcp", boot.pprofListenAddr)
 		if err != nil {
 			return fmt.Errorf("pprofListenAddr: %v", err)
 		}
@@ -199,16 +202,17 @@ func run(boot bootConfig, cfg config.Config) error {
 
 	monitoringOpts := []monitoring.Option{monitoring.WithBuildInformation(Version, BuildTime)}
 	if cfg.MetricsListener != nil {
-		l, err := newListener("metrics", *cfg.MetricsListener)
+		l, err = newListener("metrics", *cfg.MetricsListener)
 		if err != nil {
 			return err
 		}
 		monitoringOpts = append(monitoringOpts, monitoring.WithListener(l))
 	}
+
 	go func() {
 		// Unlike http.Serve, which always returns a non-nil error,
 		// monitoring.Start may return nil in which case we should not shut down.
-		if err := monitoring.Start(monitoringOpts...); err != nil {
+		if err = monitoring.Start(monitoringOpts...); err != nil {
 			finalErrors <- err
 		}
 	}()
@@ -217,7 +221,7 @@ func run(boot bootConfig, cfg config.Config) error {
 
 	log.Info("Using redis/go-redis")
 
-	rdb, err := redis.Configure(cfg.Redis)
+	rdb, err := redis.Configure(&cfg)
 	if err != nil {
 		log.WithError(err).Error("unable to configure redis client")
 	}
@@ -229,7 +233,7 @@ func run(boot bootConfig, cfg config.Config) error {
 
 	watchKeyFn := redisKeyWatcher.WatchKey
 
-	if err := cfg.RegisterGoCloudURLOpeners(); err != nil {
+	if err = cfg.RegisterGoCloudURLOpeners(); err != nil {
 		return fmt.Errorf("register cloud credentials: %v", err)
 	}
 
@@ -237,7 +241,7 @@ func run(boot bootConfig, cfg config.Config) error {
 	if err != nil {
 		return fmt.Errorf("configure access logger: %v", err)
 	}
-	defer accessCloser.Close()
+	defer accessCloser.Close() //nolint:errcheck
 
 	gitaly.InitializeSidechannelRegistry(accessLogger)
 

@@ -8,8 +8,7 @@
       margin-bottom: $gl-padding-4;
     }
 
-    .milestone-progress,
-    .milestone-release-links {
+    .milestone-progress {
       a {
         color: var(--blue-600, $blue-600);
       }
@@ -25,6 +24,7 @@
         word-wrap: break-word;
       }
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       .gl-label-link {
         color: inherit;
       }
@@ -102,7 +102,7 @@
     }
 
     .issuable-number {
-      color: var(--gray-500, $gray-500);
+      @apply gl-text-subtle;
       margin-right: 5px;
     }
 
@@ -113,35 +113,5 @@
     > a:not(:last-of-type) {
       margin-right: 5px;
     }
-  }
-}
-
-@include media-breakpoint-down(md) {
-  .milestone-actions {
-    @include clearfix();
-    padding-top: $gl-vert-padding;
-
-    .btn:first-child {
-      margin-left: 0;
-    }
-  }
-}
-
-.issuable-row {
-  background-color: var(--white, $white);
-}
-
-.milestone-popover-instructions-list {
-  padding-left: 2em;
-
-  > li {
-    padding-left: 1em;
-  }
-}
-
-@include media-breakpoint-down(xs) {
-  .milestone-banner-text,
-  .milestone-banner-link {
-    display: inline;
   }
 }

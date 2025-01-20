@@ -19,7 +19,7 @@ module QA
         end
 
         def go_to_access_token_settings
-          open_settings_submenu('Access Tokens')
+          open_settings_submenu('Access tokens')
         end
 
         def go_to_repository_settings
@@ -32,6 +32,10 @@ module QA
 
         def go_to_package_settings
           open_settings_submenu('Packages and registries')
+        end
+
+        def go_to_workspaces_settings
+          open_settings_submenu('Workspaces')
         end
 
         private

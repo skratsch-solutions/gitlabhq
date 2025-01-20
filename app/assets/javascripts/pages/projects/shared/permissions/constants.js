@@ -8,7 +8,7 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 
 export const visibilityLevelDescriptions = {
   [VISIBILITY_LEVEL_PRIVATE_INTEGER]: __(
-    `Only accessible by %{membersPageLinkStart}project members%{membersPageLinkEnd}. Membership must be explicitly granted to each user.`,
+    `Only accessible by %{membersPageLinkStart}project members%{membersPageLinkEnd}. Membership must be explicitly granted.`,
   ),
   [VISIBILITY_LEVEL_INTERNAL_INTEGER]: __('Accessible by any user who is logged in.'),
   [VISIBILITY_LEVEL_PUBLIC_INTEGER]: __('Accessible by anyone, regardless of authentication.'),
@@ -26,20 +26,20 @@ export const featureAccessLevelDescriptions = {
   [featureAccessLevel.EVERYONE]: __('Everyone With Access'),
 };
 
-export const featureAccessLevelNone = [
-  featureAccessLevel.NOT_ENABLED,
-  featureAccessLevelDescriptions[featureAccessLevel.NOT_ENABLED],
-];
+export const featureAccessLevelNone = {
+  value: featureAccessLevel.NOT_ENABLED,
+  label: featureAccessLevelDescriptions[featureAccessLevel.NOT_ENABLED],
+};
 
-export const featureAccessLevelMembers = [
-  featureAccessLevel.PROJECT_MEMBERS,
-  featureAccessLevelDescriptions[featureAccessLevel.PROJECT_MEMBERS],
-];
+export const featureAccessLevelMembers = {
+  value: featureAccessLevel.PROJECT_MEMBERS,
+  label: featureAccessLevelDescriptions[featureAccessLevel.PROJECT_MEMBERS],
+};
 
-export const featureAccessLevelEveryone = [
-  featureAccessLevel.EVERYONE,
-  featureAccessLevelDescriptions[featureAccessLevel.EVERYONE],
-];
+export const featureAccessLevelEveryone = {
+  value: featureAccessLevel.EVERYONE,
+  label: featureAccessLevelDescriptions[featureAccessLevel.EVERYONE],
+};
 
 export const CVE_ID_REQUEST_BUTTON_I18N = {
   cve_request_toggle_label: s__('CVE|Enable CVE ID requests in the issue sidebar'),
@@ -52,3 +52,9 @@ export const modelExperimentsHelpPath = helpPagePath(
 export const modelRegistryHelpPath = helpPagePath('user/project/ml/model_registry/index.md');
 
 export const duoHelpPath = helpPagePath('user/ai_features');
+export const amazonQHelpPath = helpPagePath('user/duo_amazon_q/index.md');
+
+export const pipelineExecutionPoliciesHelpPath = helpPagePath(
+  'user/application_security/policies/pipeline_execution_policies',
+  { anchor: 'content-type' },
+);

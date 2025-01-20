@@ -5,7 +5,6 @@ import IssuableForm from '~/vue_shared/issuable/create/components/issuable_form.
 import MarkdownEditor from '~/vue_shared/components/markdown/markdown_editor.vue';
 import LabelsSelect from '~/sidebar/components/labels/labels_select_vue/labels_select_root.vue';
 import { TYPE_TEST_CASE } from '~/issues/constants';
-import { __ } from '~/locale';
 
 const createComponent = ({
   descriptionPreviewPath = '/gitlab-org/gitlab-shell/preview_markdown',
@@ -54,7 +53,7 @@ describe('IssuableForm', () => {
 
         wrapper.vm.handleUpdateSelectedLabels(labels);
 
-        expect(wrapper.vm.selectedLabels).toBe(labels);
+        expect(wrapper.vm.selectedLabels).toStrictEqual(labels);
       });
     });
   });
@@ -81,9 +80,9 @@ describe('IssuableForm', () => {
         markdownDocsPath: wrapper.vm.descriptionHelpPath,
         value: '',
         formFieldProps: {
-          ariaLabel: __('Description'),
+          ariaLabel: 'Description',
           class: 'rspec-issuable-form-description',
-          placeholder: __('Write a comment or drag your files here…'),
+          placeholder: 'Write a comment or drag your files here…',
           dataTestid: 'issuable-form-description-field',
           id: 'issuable-description',
           name: 'issuable-description',
@@ -102,7 +101,7 @@ describe('IssuableForm', () => {
 
       expect(confidentialCheckboxEl.findComponent(GlFormCheckbox).exists()).toBe(true);
       expect(confidentialCheckboxEl.findComponent(GlFormCheckbox).text()).toBe(
-        'This test case is confidential and should only be visible to team members with at least Reporter access.',
+        'This test case is confidential and should only be visible to team members with at least the Planner role.',
       );
     });
 

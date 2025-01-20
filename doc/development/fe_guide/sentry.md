@@ -22,7 +22,7 @@ The [Frontend Observability Working Group](https://handbook.gitlab.com/handbook/
 Our Sentry instance is located at [https://new-sentry.gitlab.net/](https://new-sentry.gitlab.net/).
 Only GitLab team members can access Sentry.
 
-After your first log-in you can join the `#gitlab` team by selecting **Join a team**. Confirm that
+After your first sign in you can join the `#gitlab` team by selecting **Join a team**. Confirm that
 `#gitlab` appears under `YOUR TEAMS` in the [teams page](https://new-sentry.gitlab.net/settings/gitlab/teams/).
 
 ## Error reporting
@@ -98,3 +98,7 @@ Frontend engineering team members can filter errors relevant to their group and/
 We use [BrowserTracing](https://docs.sentry.io/platforms/javascript/performance/) to report performance metrics to Sentry.
 
 You can visit [our performance data of the last 24 hours](https://new-sentry.gitlab.net/organizations/gitlab/performance/?environment=gprd-cny&environment=gprd&project=4&statsPeriod=24h) and use the filters to drill down and learn more.
+
+## Sentry instance infrastructure
+
+The GitLab infrastructure team manages the Sentry instance, you can find more details about its architecture and data management in its [runbook documentation](https://gitlab.com/gitlab-com/runbooks/-/blob/master/docs/sentry/sentry.md).

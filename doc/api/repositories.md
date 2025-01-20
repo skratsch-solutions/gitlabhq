@@ -9,7 +9,7 @@ description: "Documentation for the REST API for Git repositories in GitLab."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## List repository tree
 
@@ -20,7 +20,7 @@ be accessed without authentication if the repository is publicly accessible.
 
 This command provides essentially the same features as the `git ls-tree`
 command. For more information, refer to the section
-[Tree Objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects/#_tree_objects)
+[Tree Objects](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects.html#_tree_objects)
 in the Git internals documentation.
 
 WARNING:
@@ -35,7 +35,7 @@ Supported attributes:
 
 | Attribute   | Type           | Required | Description |
 | :---------- | :------------- | :------- | :---------- |
-| `id`        | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`        | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `page_token` | string        | no       | The tree record ID at which to fetch the next page. Used only with keyset pagination. |
 | `pagination` | string        | no       | If `keyset`, use the [keyset-based pagination method](rest/index.md#keyset-based-pagination). |
 | `path`      | string         | no       | The path inside the repository. Used to get content of subdirectories. |
@@ -111,7 +111,7 @@ Supported attributes:
 
 | Attribute | Type           | Required | Description |
 | :-------- | :------------- | :------- | :---------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `sha`     | string         | yes      | The blob SHA. |
 
 ## Raw blob content
@@ -127,7 +127,7 @@ Supported attributes:
 
 | Attribute | Type     | Required | Description |
 | :-------- | :------- | :------- | :---------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `sha`     | string | yes      | The blob SHA. |
 
 ## Get file archive
@@ -158,7 +158,7 @@ Supported attributes:
 
 | Attribute   | Type           | Required | Description           |
 |:------------|:---------------|:---------|:----------------------|
-| `id`        | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`        | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `path`      | string         | no       | The subpath of the repository to download. If an empty string, defaults to the whole repository.  |
 | `sha`       | string         | no       | The commit SHA to download. A tag, branch reference, or SHA can be used. If not specified, defaults to the tip of the default branch. |
 
@@ -183,7 +183,7 @@ Supported attributes:
 
 | Attribute         | Type           | Required | Description |
 | :---------        | :------------- | :------- | :---------- |
-| `id`              | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`              | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `from`            | string         | yes      | The commit SHA or branch name. |
 | `to`              | string         | yes      | The commit SHA or branch name. |
 | `from_project_id` | integer        | no       | The ID to compare from. |
@@ -232,6 +232,8 @@ Example response:
 
 ## Contributors
 
+> - `ref` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/156852) in GitLab 17.4.
+
 Get repository contributors list. This endpoint can be accessed without
 authentication if the repository is publicly accessible.
 
@@ -245,9 +247,17 @@ Supported attributes:
 
 | Attribute  | Type           | Required | Description |
 | :--------- | :------------- | :------- | :---------- |
-| `id`       | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`       | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
+| `ref`      | string         | no       | The name of a repository branch or tag. If not given, the default branch. |
 | `order_by` | string         | no       | Return contributors ordered by `name`, `email`, or `commits` (orders by commit date) fields. Default is `commits`. |
 | `sort`     | string         | no       | Return contributors sorted in `asc` or `desc` order. Default is `asc`. |
+
+Example request:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/projects/7/repository/contributors"
+```
 
 Example response:
 
@@ -277,7 +287,7 @@ GET /projects/:id/repository/merge_base
 
 | Attribute | Type           | Required | Description |
 | --------- | -------------- | -------- | ---------------------------------------------------------------------------------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `refs`    | array          | yes      | The refs to find the common ancestor of. Accepts multiple refs.                    |
 
 Example request, with the refs truncated for readability:
@@ -308,7 +318,9 @@ Example response:
 
 ## Add changelog data to a changelog file
 
-> - Commit range limits [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89032) in GitLab 15.1 [with a flag](../administration/feature_flags.md) named `changelog_commits_limitation`. Enabled by default.
+> - Commit range limits [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89032) in GitLab 15.1 [with a flag](../administration/feature_flags.md) named `changelog_commits_limitation`. Disabled by default.
+> - [Enabled on GitLab.com and by default on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/33893) in GitLab 15.3.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/364101) in GitLab 17.3. Feature flag `changelog_commits_limitation` removed.
 
 Generate changelog data based on commits in a repository.
 
@@ -317,6 +329,10 @@ of commits, GitLab generates a changelog for all commits that use a particular
 [Git trailer](https://git-scm.com/docs/git-interpret-trailers). GitLab adds
 a new Markdown-formatted section to a changelog file in the Git repository of
 the project. The output format can be customized.
+
+For performance and security reasons, parsing the changelog configuration is limited to `2` seconds.
+This limitation helps prevent potential DoS attacks from malformed changelog templates.
+If the request times out, consider reducing the size of your `changelog_config.yml` file.
 
 For user-facing documentation, see [Changelogs](../user/project/changelogs.md).
 
@@ -337,7 +353,7 @@ Changelogs support these attributes:
 | `file`    | string   | no | The file to commit the changes to. Defaults to `CHANGELOG.md`. |
 | `from`    | string   | no | The SHA of the commit that marks the beginning of the range of commits to include in the changelog. This commit isn't included in the changelog. |
 | `message` | string   | no | The commit message to use when committing the changes. Defaults to `Add changelog for version X`, where `X` is the value of the `version` argument. |
-| `to`      | string   | no | The SHA of the commit that marks the end of the range of commits to include in the changelog. This commit _is_ included in the changelog. Defaults to the branch specified in the `branch` attribute. Limited to 15000 commits unless the feature flag `changelog_commits_limitation` is disabled. |
+| `to`      | string   | no | The SHA of the commit that marks the end of the range of commits to include in the changelog. This commit _is_ included in the changelog. Defaults to the branch specified in the `branch` attribute. Limited to 15000 commits. |
 | `trailer` | string   | no | The Git trailer to use for including commits. Defaults to `Changelog`. Case-sensitive: `Example` does not match `example` or `eXaMpLE`. |
 
 ### Requirements for `from` attribute
@@ -402,7 +418,8 @@ If the last tag is `v0.9.0` and the default branch is `main`, the range of commi
 included in this example is `v0.9.0..main`:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: token" \
+curl --request POST \
+  --header "PRIVATE-TOKEN: token" \
   --data "version=1.0.0" \
   --url "https://gitlab.com/api/v4/projects/42/repository/changelog"
 ```
@@ -411,7 +428,8 @@ To generate the data on a different branch, specify the `branch` parameter. This
 command generates data from the `foo` branch:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: token" \
+curl --request POST \
+  --header "PRIVATE-TOKEN: token" \
   --data "version=1.0.0&branch=foo" \
   --url "https://gitlab.com/api/v4/projects/42/repository/changelog"
 ```
@@ -427,12 +445,15 @@ curl --request POST --header "PRIVATE-TOKEN: token" \
 To store the results in a different file, use the `file` parameter:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: token" \
+curl --request POST \
+  --header "PRIVATE-TOKEN: token" \
   --data "version=1.0.0&file=NEWS" \
   --url "https://gitlab.com/api/v4/projects/42/repository/changelog"
 ```
 
 ## Generate changelog data
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/172842) authentiation through [CI/CD job token](../ci/jobs/ci_job_token.md) in GitLab 17.7.
 
 Generate changelog data based on commits in a repository, without committing
 them to a changelog file.

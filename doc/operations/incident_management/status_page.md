@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 With a GitLab Status Page, you can create and deploy a static website to communicate
 efficiently to users during an incident. The Status Page landing page displays an
@@ -87,7 +87,7 @@ the necessary CI/CD variables to deploy the Status Page to AWS S3:
    - `AWS_ACCESS_KEY_ID` - The AWS access key ID.
    - `AWS_SECRET_ACCESS_KEY` - The AWS secret.
 1. On the left sidebar, select **Build > Pipelines**.
-1. To deploy the Status Page to S3, select **Run pipeline**.
+1. To deploy the Status Page to S3, select **New pipeline**.
 
 WARNING:
 Consider limiting who can access issues in this project, as any user who can view

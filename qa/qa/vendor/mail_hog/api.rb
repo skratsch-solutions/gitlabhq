@@ -14,11 +14,11 @@ module QA
         end
 
         def total
-          data.dig('total')
+          data['total']
         end
 
         def each
-          data.dig('items')&.each do |item|
+          data['items']&.each do |item|
             yield MessageItem.new(item)
           end
         end
@@ -38,6 +38,10 @@ module QA
 
         def subject
           data.dig('Content', 'Headers', 'Subject', 0)
+        end
+
+        def body
+          data.dig('Content', 'Body')
         end
       end
 

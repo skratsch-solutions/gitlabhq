@@ -22,7 +22,6 @@ module Types
         description: 'Name of the pipeline.'
 
       field :sha, GraphQL::Types::String, null: true,
-        method: :sha,
         description: "SHA of the pipeline's commit." do
         argument :format,
           type: Types::ShaFormatEnum,
@@ -107,7 +106,7 @@ module Types
         type: ::Types::Ci::JobType,
         null: true,
         authorize: :read_build,
-        description: 'Specific job in this pipeline, either by name or ID.' do
+        description: 'Specific job in the pipeline, either by name or ID.' do
         argument :id,
           type: ::Types::GlobalIDType[::CommitStatus],
           required: false,
@@ -130,7 +129,7 @@ module Types
         description: 'Job where pipeline was triggered from.'
 
       field :downstream, Types::Ci::PipelineType.connection_type, null: true,
-        description: 'Pipelines this pipeline will trigger.',
+        description: 'Pipelines the pipeline will trigger.',
         method: :triggered_pipelines_with_preloads
 
       field :upstream, Types::Ci::PipelineType, null: true,
@@ -140,7 +139,7 @@ module Types
       field :path, GraphQL::Types::String, null: true,
         description: "Relative path to the pipeline's page."
 
-      field :commit, Types::CommitType, null: true,
+      field :commit, Types::Repositories::CommitType, null: true,
         description: "Git commit of the pipeline.",
         calls_gitaly: true
 
@@ -176,40 +175,54 @@ module Types
         description: 'Reference path to the branch from which the pipeline was triggered.',
         method: :source_ref_path
 
-      field :warning_messages, [Types::Ci::PipelineMessageType], null: true,
+      field :warning_messages, Types::Ci::PipelineMessageType.connection_type, null: true,
         description: 'Pipeline warning messages.'
+
+      field :error_messages, Types::Ci::PipelineMessageType.connection_type, null: true,
+        description: 'Pipeline error messages.'
 
       field :merge_request_event_type, Types::Ci::PipelineMergeRequestEventTypeEnum, null: true,
         description: "Event type of the pipeline associated with a merge request."
 
-      field :total_jobs, GraphQL::Types::Int, null: false, method: :total_size, description: "The total number of jobs in the pipeline"
+      field :total_jobs, GraphQL::Types::Int, null: false, method: :total_size, description: "Total number of jobs in the pipeline."
 
-      field :failure_reason, GraphQL::Types::String, null: true, description: "The reason why the pipeline failed"
+      field :failure_reason, GraphQL::Types::String, null: true, description: "Reason why the pipeline failed."
 
-      field :triggered_by_path, GraphQL::Types::String, null: true, description: "The path that triggered this pipeline"
+      field :triggered_by_path, GraphQL::Types::String, null: true, description: "Path that triggered the pipeline."
 
-      field :source, GraphQL::Types::String, null: true, method: :source, description: "The source of the pipeline"
+      field :source, GraphQL::Types::String, null: true, description: "Source of the pipeline."
 
-      field :child, GraphQL::Types::Boolean, null: false, method: :child?, description: "If the pipeline is a child or not"
+      field :child, GraphQL::Types::Boolean, null: false, method: :child?, description: "If the pipeline is a child or not."
 
-      field :latest, GraphQL::Types::Boolean, null: false, method: :latest?, calls_gitaly: true, description: "If the pipeline is the latest one or not"
+      field :latest, GraphQL::Types::Boolean, null: false, method: :latest?, calls_gitaly: true, description: "If the pipeline is the latest one or not."
 
-      field :ref_text, GraphQL::Types::String, null: false, method: :ref_text, description: "The reference text from the presenter", calls_gitaly: true
+      field :ref_text, GraphQL::Types::String, null: false, description: "Reference text from the presenter.", calls_gitaly: true
 
-      field :merge_request, Types::MergeRequestType, null: true, description: "The MR which the Pipeline is attached to"
+      field :merge_request, Types::MergeRequestType, null: true, description: "MR which the Pipeline is attached to."
 
       field :stuck, GraphQL::Types::Boolean, method: :stuck?, null: false, description: "If the pipeline is stuck."
 
       field :yaml_errors, GraphQL::Types::Boolean, method: :yaml_errors?, null: false, description: "If the pipeline has YAML errors."
 
-      field :yaml_error_messages, GraphQL::Types::String, method: :yaml_errors, null: true, description: "The pipeline YAML errors."
+      field :yaml_error_messages, GraphQL::Types::String, method: :yaml_errors, null: true, description: "Pipeline YAML errors."
 
       field :trigger, GraphQL::Types::Boolean, method: :trigger?, null: false, description: "If the pipeline was created by a Trigger request."
 
-      field :manual_variables, ManualVariableType.connection_type, null: true, description: 'CI/CD variables added to a manual pipeline.'
+      field :manual_variables, PipelineManualVariableType.connection_type, null: true, method: :variables, description: 'CI/CD variables added to a manual pipeline.'
 
       def commit
         BatchLoader::GraphQL.wrap(object.commit)
+      end
+
+      def error_messages
+        BatchLoader::GraphQL.for(object).batch do |pipelines, loader|
+          # rubocop: disable CodeReuse/ActiveRecord -- no need to bloat the Pipeline model, we only need this functionality for GraphQL
+          messages = ::Ci::PipelineMessage.where(pipeline: pipelines, severity: :error)
+          # rubocop: enable CodeReuse/ActiveRecord
+          pipelines.each do |pipeline|
+            loader.call(pipeline, messages.select { |m| m.pipeline_id == pipeline.id })
+          end
+        end
       end
 
       def detailed_status
@@ -228,6 +241,18 @@ module Types
         ::Gitlab::Routing.url_helpers.project_pipeline_path(object.project, object)
       end
 
+      def warning_messages
+        BatchLoader::GraphQL.for(object).batch do |pipelines, loader|
+          # rubocop: disable CodeReuse/ActiveRecord -- context specific
+          messages = ::Ci::PipelineMessage.where(pipeline: pipelines, severity: :warning)
+          # rubocop: enable CodeReuse/ActiveRecord
+
+          pipelines.each do |pipeline|
+            loader.call(pipeline, messages.select { |m| m.pipeline_id == pipeline.id })
+          end
+        end
+      end
+
       def job(id: nil, name: nil)
         raise ::Gitlab::Graphql::Errors::ArgumentError, 'One of id or name is required' unless id || name
 
@@ -242,13 +267,6 @@ module Types
         return pipeline.short_sha if format == Types::ShaFormatEnum.enum[:short]
 
         pipeline.sha
-      end
-
-      def manual_variables
-        variables = object.variables
-        return variables if Ability.allowed?(current_user, :read_pipeline_variable, pipeline)
-
-        variables.map { |variable| { key: variable.key, value: nil } }
       end
 
       alias_method :pipeline, :object

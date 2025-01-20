@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Puma is a fast, multi-threaded, and highly concurrent HTTP 1.1 server for
 Ruby applications. It runs the core Rails application that provides the user-facing
@@ -103,7 +103,7 @@ To change the worker timeout to 600 seconds:
 ## Disable Puma clustered mode in memory-constrained environments
 
 WARNING:
-This feature is an [experiment](../../policy/experiment-beta-support.md#experiment) and subject to change without notice. This feature
+This feature is an [experiment](../../policy/development_stages_support.md#experiment) and subject to change without notice. This feature
 is not ready for production use. If you want to use this feature, you should test
 outside of production first. See the [known issues](#puma-single-mode-known-issues)
 for additional details.
@@ -126,7 +126,7 @@ Set the number of `workers` to `0` to reduce memory usage by hundreds of MB:
    ```
 
 Unlike in a clustered mode, which is set up by default, only a single Puma process would serve the application.
-For details on Puma worker and thread settings, see the [Puma requirements](../../install/requirements.md#puma-settings).
+For details on Puma worker and thread settings, see the [Puma requirements](../../install/requirements.md#puma).
 
 The downside of running Puma in this configuration is the reduced throughput, which can be
 considered a fair tradeoff in a memory-constrained environment.
@@ -211,8 +211,7 @@ configure this:
    echo some-password-here
    ```
 
-   Note that in production, you should avoid storing the password on
-   disk and use a secure mechanism for retrieving a password, such as
+   Avoid storing the password on disk, and use a secure mechanism for retrieving a password, such as
    Vault. For example, the script might look like:
 
    ```shell
@@ -269,7 +268,7 @@ automatically, due to differences between the two application servers.
 
 To switch from Unicorn to Puma:
 
-1. Determine suitable Puma [worker and thread settings](../../install/requirements.md#puma-settings).
+1. Determine suitable Puma [worker and thread settings](../../install/requirements.md#puma).
 1. Convert any custom Unicorn settings to Puma in `/etc/gitlab/gitlab.rb`.
 
    The table below summarizes which Unicorn configuration keys correspond to those
@@ -378,9 +377,9 @@ undesirable effects on users trying to access GitLab during this time. If you
 are concerned about affecting others during a production system, you can run a
 separate Rails process to debug the issue:
 
-1. Log in to your GitLab account.
+1. Sign in to your GitLab account.
 1. Copy the URL that is causing problems (for example, `https://gitlab.com/ABC`).
-1. Create a Personal Access Token for your user (User Settings -> Access Tokens).
+1. Create a personal access token for your user (User Settings -> Access tokens).
 1. Bring up the [GitLab Rails console.](../operations/rails_console.md#starting-a-rails-console-session)
 1. At the Rails console, run:
 

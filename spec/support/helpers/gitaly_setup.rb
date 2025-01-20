@@ -152,6 +152,7 @@ module GitalySetup
     begin
       try_connect!(service, toml)
     rescue StandardError
+      process_details(pid)
       Process.kill('TERM', pid)
       raise
     end
@@ -198,7 +199,7 @@ module GitalySetup
 
   def try_connect!(service, toml)
     LOGGER.debug "Trying to connect to #{service}: "
-    timeout = 20
+    timeout = 40
     delay = 0.1
     connect = connect_proc(toml)
 
@@ -363,6 +364,8 @@ module GitalySetup
       # running until `make test` cleans it up.
       next if ENV['GITALY_PID_FILE']
 
+      ::Gitlab::GitalyClient.clear_stubs!
+
       pids.each { |pid| stop(pid) }
 
       [storage_path, second_storage_path].each { |storage_dir| FileUtils.rm_rf(storage_dir) }
@@ -378,7 +381,9 @@ module GitalySetup
     message += "- The `praefect` binary does not exist: #{praefect_binary}\n" unless File.exist?(praefect_binary)
     message += "- No `git` binaries exist\n" if git_binaries.empty?
 
-    message += "\nCheck log/gitaly-test.log & log/praefect-test.log for errors.\n"
+    message += read_log_file('log/gitaly-test.log')
+    message += read_log_file('log/gitaly2-test.log')
+    message += read_log_file('log/praefect-test.log')
 
     unless ENV['CI']
       message += "\nIf binaries are missing, try running `make -C tmp/tests/gitaly all WITH_BUNDLED_GIT=YesPlease`.\n"
@@ -386,6 +391,15 @@ module GitalySetup
     end
 
     message
+  end
+
+  def read_log_file(logs_path)
+    return '' unless File.exist?(logs_path)
+
+    <<~LOGS
+      \n#{logs_path}:\n
+      #{File.read(logs_path)}
+    LOGS
   end
 
   def git_binaries
@@ -406,5 +420,13 @@ module GitalySetup
 
   def gitaly_with_transactions?
     Gitlab::Utils.to_boolean(ENV['GITALY_TRANSACTIONS_ENABLED'], default: false)
+  end
+
+  private
+
+  # Logs the details of the process with the given pid.
+  def process_details(pid)
+    output = `ps -p #{pid} -o pid,ppid,state,%cpu,%mem,etime,args`
+    LOGGER.debug output
   end
 end

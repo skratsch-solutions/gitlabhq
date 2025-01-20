@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can move all repositories managed by GitLab to another file system or another server.
 
@@ -56,7 +56,7 @@ To move repositories:
    - [All groups](#move-all-groups) or
      [individual groups](../../api/group_repository_storage_moves.md#schedule-a-repository-storage-move-for-a-group).
 1. If [Geo](../geo/index.md) is enabled,
-   [resync all repositories](../geo/replication/troubleshooting/synchronization.md#queue-up-all-repositories-for-resync).
+   [resync all repositories](../geo/replication/troubleshooting/synchronization_verification.md#queue-up-all-repositories-for-resync).
 
 #### Move all projects
 
@@ -128,7 +128,7 @@ To move all snippets by using the API:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 To move all groups by using the API:
 

@@ -3,7 +3,6 @@
 Style/NumericLiteralPrefix:
   Exclude:
     - 'app/services/packages/debian/generate_distribution_key_service.rb'
-    - 'config/initializers/01_secret_token.rb'
     - 'config/initializers/1_settings.rb'
     - 'ee/lib/gitlab/geo/replication/blob_downloader.rb'
     - 'ee/spec/lib/bulk_imports/groups/pipelines/iterations_pipeline_spec.rb'
@@ -34,7 +33,6 @@ Style/NumericLiteralPrefix:
     - 'spec/lib/gitlab/github_import/importer/issues_importer_spec.rb'
     - 'spec/lib/gitlab/github_import/importer/milestones_importer_spec.rb'
     - 'spec/lib/gitlab/github_import/importer/note_importer_spec.rb'
-    - 'spec/lib/gitlab/github_import/importer/pull_request_importer_spec.rb'
     - 'spec/lib/gitlab/github_import/importer/releases_importer_spec.rb'
     - 'spec/lib/gitlab/github_import/representation/diff_note_spec.rb'
     - 'spec/lib/gitlab/github_import/representation/issue_spec.rb'
@@ -52,4 +50,3 @@ Style/NumericLiteralPrefix:
     - 'spec/models/personal_access_token_spec.rb'
     - 'spec/requests/api/personal_access_tokens_spec.rb'
     - 'spec/support/import_export/export_file_helper.rb'
-    - 'spec/support/shared_examples/requests/api/nuget_packages_shared_examples.rb'

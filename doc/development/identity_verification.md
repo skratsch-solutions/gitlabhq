@@ -1,23 +1,12 @@
 ---
-stage: Govern
-group: Anti-Abuse
+stage: Software Supply Chain Security
+group: Authorization
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
 # Identity verification development
 
 For information on this feature that are not development-specific, see the [feature documentation](../security/identity_verification.md).
-
-## Feature flags
-
-Because of the many registration paths and multiple verification stages, identity verification has several feature flags.
-
-Before you enable these features, ensure [hard email confirmation](../security/user_email_confirmation.md) is enabled and [Arkose](../integration/arkose.md#configuration) is configured properly.
-
-| Feature flag name | Description |
-|---------|-------------|
-| `identity_verification_phone_number` | Turns on phone verification for medium risk users for all flows. |
-| `identity_verification_credit_card` | Turns on credit card verification for high risk users for all flows. |
 
 ## Logging
 
@@ -30,7 +19,7 @@ To view logs associated to the [email stage](../security/identity_verification.m
 - Query the GitLab production logs with the following KQL:
 
   ```plaintext
-  KQL: json.controller:"RegistrationsIdentityVerificationController" AND json.username:replace_username_here
+  json.controller:"RegistrationsIdentityVerificationController" AND json.username:replace_username_here
   ```
 
 Valuable debugging information can be found in the `json.action` and `json.location` columns.
@@ -42,7 +31,7 @@ To view logs associated to the [phone stage](../security/identity_verification.m
 - Query the GitLab production logs with the following KQL:
 
   ```plaintext
-  KQL: json.message: "IdentityVerification::Phone" AND json.username:replace_username_here
+  json.message: "IdentityVerification::Phone" AND json.username:replace_username_here
   ```
 
 On rows where `json.event` is `Failed Attempt`, you can find valuable debugging information in the `json.reason` column such as:
@@ -77,7 +66,7 @@ To view logs associated to the [credit card stage](../security/identity_verifica
 - Query the GitLab production logs with the following KQL:
 
   ```plaintext
-  KQL: json.message: "IdentityVerification::CreditCard" AND json.username:replace_username_here
+  json.message: "IdentityVerification::CreditCard" AND json.username:replace_username_here
   ```
 
 On rows where `json.event` is `Failed Attempt`, you can find valuable debugging information in the `json.reason` column such as:
@@ -94,7 +83,7 @@ To view logs associated with the [credit card stage](../security/identity_verifi
 - Query the GitLab production logs with the following KQL:
 
   ```plaintext
-  json.controller:"SubscriptionsController" AND json.action:"payment_form" AND json.params.value:"cc_registration_validation"
+  json.controller:"GitlabSubscriptions::SubscriptionsController" AND json.action:"payment_form" AND json.params.value:"cc_registration_validation"
   ```
 
 ## Code walkthrough

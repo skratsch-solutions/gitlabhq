@@ -5,25 +5,59 @@ description: Latest version instructions.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Upgrade GitLab
+# Upgrading GitLab
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-Upgrading GitLab is a relatively straightforward process, but the complexity
-can increase based on the installation method you have used, how old your
-GitLab version is, if you're upgrading to a major version, and so on.
+Upgrading GitLab is a relatively straightforward process, but the complexity can increase based on:
+
+- The installation method you have used.
+- How old your GitLab version is.
+- If you're upgrading to a major version.
+
+If possible, you should test out the upgrade in a test environment before updating your production instance. Your test
+environment should mimic your production environment as closely as possible.
 
 Make sure to read the whole page as it contains information related to every upgrade method.
 
-The [maintenance policy documentation](../policy/maintenance.md)
-has additional information about upgrading, including:
+## Upgrade GitLab
 
-- How to interpret GitLab product versioning.
-- Recommendations on what release to run.
-- How we use patch and security patch releases.
-- When we backport code changes.
+To upgrade GitLab:
+
+1. Create an [upgrade plan](plan_your_upgrade.md) to document your upgrade steps.
+1. Familiarize yourself with the [maintenance policy documentation](../policy/maintenance.md).
+1. Read the [release posts](https://about.gitlab.com/releases/categories/releases/) for versions you're passing over.
+   In particular, deprecations, removals, and important notes on upgrading.
+1. Determine what [upgrade path](upgrade_paths.md) you should take. If your upgrade path includes required upgrade stops, you might have to perform multiple
+   upgrades to move from your current version to your target version. If
+   relevant, check [OS compatibility with the target GitLab version](../administration/package_information/supported_os.md).
+1. Check for [background migrations](background_migrations.md). All migrations must finish running before each upgrade.
+   You must spread out upgrades between major and minor releases to allow time for background migrations to finish.
+1. Test your upgrade in a test environment first, and have a [rollback plan](plan_your_upgrade.md#rollback-plan)
+   to reduce the risk of unplanned outages and extended downtime.
+1. If available in your starting version, consider [turning on maintenance mode](../administration/maintenance_mode/index.md)
+   during the upgrade.
+1. Consult changes for different versions of GitLab to ensure compatibility before upgrading:
+   - [GitLab 17 changes](versions/gitlab_17_changes.md)
+   - [GitLab 16 changes](versions/gitlab_16_changes.md)
+   - [GitLab 15 changes](versions/gitlab_15_changes.md)
+1. Perform [pre-upgrade checks](#pre-upgrade-and-post-upgrade-checks).
+1. Pause [running CI/CD pipelines and jobs](#cicd-pipelines-and-jobs-during-upgrades).
+1. If relevant, follow [upgrade steps for additional features](#upgrade-steps-for-additional-features):
+   - [Advanced search (Elasticsearch)](#elasticsearch).
+   - [Geo](#geo).
+   - [Gitaly running on its own server](#external-gitaly).
+   - [GitLab agent for Kubernetes](#gitlab-agent-for-kubernetes).
+1. Follow the [upgrade steps based on your installation method](#upgrade-based-on-installation-method).
+1. If your GitLab instance has any runners associated with it, upgrade them to match the current GitLab version.
+   This step ensures [compatibility with GitLab versions](https://docs.gitlab.com/runner/#gitlab-runner-versions).
+1. If you encounter problems with the upgrade, [get support](#getting-support).
+1. [Disable maintenance mode](../administration/maintenance_mode/index.md#disable-maintenance-mode) if you had enabled
+   it.
+1. Unpause [running CI/CD pipelines and jobs](#cicd-pipelines-and-jobs-during-upgrades).
+1. Perform [post-upgrade checks](#pre-upgrade-and-post-upgrade-checks).
 
 ## Upgrade based on installation method
 
@@ -34,12 +68,8 @@ official ways to upgrade GitLab:
 
 :::TabTitle Linux packages (Omnibus)
 
-The [package upgrade guide](package/index.md)
-contains the steps needed to upgrade a package installed by official GitLab
-repositories.
-
-There are also instructions when you want to
-[upgrade to a specific version](package/index.md#upgrade-to-a-specific-version-using-the-official-repositories).
+As part of a GitLab upgrade, the [Linux package upgrade guide](package/index.md) contains the specific steps to follow
+to upgrade a Linux package instance.
 
 :::TabTitle Helm chart (Kubernetes)
 
@@ -50,7 +80,7 @@ the GitLab Helm chart, and stateful components are deployed in compute VMs with 
 Linux package.
 
 Use the [version mapping](https://docs.gitlab.com/charts/installation/version_mappings.html)
-from the chart version to GitLab version to determine the [upgrade path](#upgrade-paths).
+from the chart version to GitLab version to determine the [upgrade path](upgrade_paths.md).
 
 Follow [Multi-node upgrades with downtime](with_downtime.md) to perform the upgrade in a Cloud Native Hybrid setup.
 
@@ -62,7 +92,7 @@ for production. However, instructions on how to upgrade such an environment are 
 
 GitLab provides official Docker images for both Community and Enterprise
 editions, and they are based on the Omnibus package. See how to
-[install GitLab using Docker](../install/docker.md).
+[install GitLab using Docker](../install/docker/index.md).
 
 :::TabTitle Self-compiled (source)
 
@@ -81,18 +111,45 @@ can still be found in the Git repository:
 
 ::EndTabs
 
-## Plan your upgrade
+## Pre-upgrade and post-upgrade checks
 
-See the guide to [plan your GitLab upgrade](plan_your_upgrade.md).
+Immediately before and after the upgrade, perform the pre-upgrade and post-upgrade checks
+to ensure the major components of GitLab are working:
 
-## Check for background migrations before upgrading
+1. [Check the general configuration](../administration/raketasks/maintenance.md#check-gitlab-configuration):
 
-Certain releases may require different migrations to be
-finished before you upgrade to the newer version.
+   ```shell
+   sudo gitlab-rake gitlab:check
+   ```
 
-For more information, see [background migrations](background_migrations.md).
+1. Confirm that encrypted database values [can be decrypted](../administration/raketasks/check.md#verify-database-values-can-be-decrypted-using-the-current-secrets):
 
-## Dealing with running CI/CD pipelines and jobs
+   ```shell
+   sudo gitlab-rake gitlab:doctor:secrets
+   ```
+
+1. In GitLab UI, check that:
+   - Users can sign in.
+   - The project list is visible.
+   - Project issues and merge requests are accessible.
+   - Users can clone repositories from GitLab.
+   - Users can push commits to GitLab.
+
+1. For GitLab CI/CD, check that:
+   - Runners pick up jobs.
+   - Docker images can be pushed and pulled from the registry.
+
+1. If using Geo, run the relevant checks on the primary and each secondary:
+
+   ```shell
+   sudo gitlab-rake gitlab:geo:check
+   ```
+
+1. If using Elasticsearch, verify that searches are successful.
+
+If something goes wrong, [get support](#getting-support).
+
+## CI/CD pipelines and jobs during upgrades
 
 If you upgrade your GitLab instance while the GitLab Runner is processing jobs, the trace updates fail. When GitLab is back online, the trace updates should self-heal. However, depending on the error, the GitLab Runner either retries, or eventually terminates, job handling.
 
@@ -119,136 +176,6 @@ To address the above two scenarios, it is advised to do the following prior to u
    as your GitLab version. Both versions [should be the same](https://docs.gitlab.com/runner/#gitlab-runner-versions).
 1. Unpause your runners and unblock new jobs from starting by reverting the previous `/etc/gitlab/gitlab.rb` change.
 
-## Checking for pending advanced search migrations
-
-DETAILS:
-**Tier:** Premium, Ultimate
-**Offering:** Self-managed
-
-This section is only applicable if you have enabled the [Elasticsearch integration](../integration/advanced_search/elasticsearch.md).
-Major releases require all [advanced search migrations](../integration/advanced_search/elasticsearch.md#advanced-search-migrations)
-to be finished from the most recent minor release in your current version
-before the major version upgrade. You can find pending migrations by
-running the following command.
-
-::Tabs
-
-:::TabTitle Linux package (Omnibus)
-
-```shell
-sudo gitlab-rake gitlab:elastic:list_pending_migrations
-```
-
-:::TabTitle Self-compiled (source)
-
-```shell
-cd /home/git/gitlab
-sudo -u git -H bundle exec rake gitlab:elastic:list_pending_migrations
-```
-
-::EndTabs
-
-### What do you do if your advanced search migrations are stuck?
-
-In GitLab 15.0, an advanced search migration named `DeleteOrphanedCommit` can be permanently stuck
-in a pending state across upgrades. This issue
-[is corrected in GitLab 15.1](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89539).
-
-If you are a self-managed customer who uses GitLab 15.0 with advanced search, you will experience performance degradation.
-To clean up the migration, upgrade to 15.1 or later.
-
-For other advanced search migrations stuck in pending, see [how to retry a halted migration](../integration/advanced_search/elasticsearch.md#retry-a-halted-migration).
-
-If you upgrade GitLab before all pending advanced search migrations are completed, any pending migrations
-that have been removed in the new version cannot be executed or retried.
-In this case, you must
-[re-create your index from scratch](../integration/advanced_search/elasticsearch_troubleshooting.md#last-resort-to-recreate-an-index).
-
-### What do you do for the error `Elasticsearch version not compatible`
-
-Confirm that your version of Elasticsearch or OpenSearch is [compatible with your version of GitLab](../integration/advanced_search/elasticsearch.md#version-requirements).
-
-## Upgrading without downtime
-
-Read how to [upgrade without downtime](zero_downtime.md).
-
-## Upgrading to a new major version
-
-Upgrading the *major* version requires more attention.
-Backward-incompatible changes are reserved for major versions.
-Follow the directions carefully as we
-cannot guarantee that upgrading between major versions is seamless.
-
-A *major* upgrade requires the following steps:
-
-1. Identify a [supported upgrade path](#upgrade-paths). The last minor release of the previous major version is always a required stop due to the background migrations being introduced in the last minor version.
-1. Ensure that any [background migrations have been fully completed](background_migrations.md)
-   before upgrading to a new major version.
-1. If you have enabled the [Elasticsearch integration](../integration/advanced_search/elasticsearch.md), then
-   before proceeding with the major version upgrade, [ensure that all advanced search migrations are completed](#checking-for-pending-advanced-search-migrations).
-1. If your GitLab instance has any runners associated with it, it is very
-   important to upgrade them to match the current GitLab version. This ensures
-   [compatibility with GitLab versions](https://docs.gitlab.com/runner/#gitlab-runner-versions).
-
-## Upgrade paths
-
-Upgrading across multiple GitLab versions in one go is *only possible by accepting downtime*.
-If you don't want any downtime, read how to [upgrade with zero downtime](zero_downtime.md).
-
-Upgrade paths include required upgrade stops, which are versions of GitLab that you must upgrade to before upgrading to
-later versions. When moving through an upgrade path:
-
-1. Upgrade to the required upgrade stop after your current version.
-1. Allow the background migrations for the upgrade to finish.
-1. Upgrade to the next required upgrade stop.
-
-To determine your upgrade path:
-
-1. Note where in the upgrade path your current version sits, including required upgrade stops:
-
-   - GitLab 15 includes the following required upgrade stops:
-     - [`15.0.5`](versions/gitlab_15_changes.md#1500).
-     - [`15.1.6`](versions/gitlab_15_changes.md#1510). GitLab instances with multiple web nodes.
-     - [`15.4.6`](versions/gitlab_15_changes.md#1540).
-     - [`15.11.13`](versions/gitlab_15_changes.md#15110). The latest GitLab 15.11 release.
-   - GitLab 16 includes the following required upgrade stops:
-     - [`16.0.8`](versions/gitlab_16_changes.md#1600). Instances with
-       [lots of users](versions/gitlab_16_changes.md#long-running-user-type-data-change) or
-       [large pipeline variables history](versions/gitlab_16_changes.md#1610).
-     - [`16.1.6`](versions/gitlab_16_changes.md#1610). Instances with NPM packages in their package registry.
-     - [`16.2.9`](versions/gitlab_16_changes.md#1620). Instances with [large pipeline variables history](versions/gitlab_16_changes.md#1630).
-     - [`16.3.7`](versions/gitlab_16_changes.md#1630).
-     - [`16.7.z`](versions/gitlab_16_changes.md#1670). The latest GitLab 16.7 release.
-     - [`16.11.z`](https://gitlab.com/gitlab-org/gitlab/-/releases). The latest GitLab 16.11 release.
-   - GitLab 17: [`17.y.z`](versions/gitlab_17_changes.md). The latest GitLab 17 release.
-
-1. Consult the [version-specific upgrade instructions](#version-specific-upgrading-instructions).
-
-Even when not explicitly specified, upgrade GitLab to the latest available patch release of the `major`.`minor` release
-rather than the first patch release. For example, `16.8.7` instead of `16.8.0`.
-
-This includes `major`.`minor` versions you must stop at on the upgrade path because there may
-be fixes for issues relating to the upgrade process.
-
-Specifically around a [major version](#upgrading-to-a-new-major-version),
-crucial database schema and migration patches may be included in the latest patch releases.
-
-### Upgrade Path tool
-
-To quickly calculate which upgrade stops are required based on your current and desired target GitLab version, see the
-[Upgrade Path tool](https://gitlab-com.gitlab.io/support/toolbox/upgrade-path/). This tool is
-maintained by the [GitLab Support team](https://handbook.gitlab.com/handbook/support/#about-the-support-team).
-
-To share feedback and help improve the tool, create an issue or merge request in the [upgrade-path project](https://gitlab.com/gitlab-com/support/toolbox/upgrade-path).
-
-### Earlier GitLab versions
-
-For information on upgrading to earlier GitLab versions, see the [documentation archives](https://archives.docs.gitlab.com).
-The versions of the documentation in the archives contain version-specific information for even earlier versions of GitLab.
-
-For example, the [documentation for GitLab 15.11](https://archives.docs.gitlab.com/15.11/ee/update/#upgrade-paths)
-contains information on versions back to GitLab 12.
-
 ## Upgrading between editions
 
 GitLab comes in two flavors: [Community Edition](https://about.gitlab.com/features/#community) which is MIT licensed,
@@ -271,7 +198,7 @@ Edition, follow the guides below based on the installation method:
   script, start the application and check its status.
 - [Omnibus CE to EE](package/convert_to_ee.md) - Follow this guide to upgrade your Omnibus
   GitLab Community Edition to the Enterprise Edition.
-- [Docker CE to EE](../install/docker.md#convert-community-edition-to-enterprise-edition) -
+- [Docker CE to EE](../install/docker/upgrade.md#convert-community-edition-to-enterprise-edition) -
   Follow this guide to upgrade your GitLab Community Edition container to an Enterprise Edition container.
 - [Helm chart (Kubernetes) CE to EE](https://docs.gitlab.com/charts/installation/deployment.html#convert-community-edition-to-enterprise-edition) -
   Follow this guide to upgrade your GitLab Community Edition Helm deployment to Enterprise Edition.
@@ -282,47 +209,58 @@ To downgrade your Enterprise Edition installation back to Community
 Edition, you can follow [this guide](../downgrade_ee_to_ce/index.md) to make the process as smooth as
 possible.
 
-## Version-specific upgrading instructions
+## Upgrade steps for additional features
 
-Each month, major or minor as well as possibly patch releases of GitLab are published along with a
-[release post](https://about.gitlab.com/releases/categories/releases/).
-You should read the release posts for all versions you're passing over.
-At the end of major and minor release posts, there are three sections to look for specifically:
+Some GitLab features have additional steps.
 
-- Deprecations
-- Removals
-- Important notes on upgrading
+### External Gitaly
 
-These include:
+Upgrade Gitaly servers to the newer version before upgrading the application server. This prevents the gRPC client
+on the application server from sending RPCs that the old Gitaly version does not support.
 
-- Steps you must perform as part of an upgrade.
-  For example [8.12](https://about.gitlab.com/releases/2016/09/22/gitlab-8-12-released/#upgrade-barometer)
-  required the Elasticsearch index to be recreated. Any older version of GitLab upgrading to 8.12 or later would require this.
-- Changes to the versions of software we support such as
-  [ceasing support for IE11 in GitLab 13](https://about.gitlab.com/releases/2020/03/22/gitlab-12-9-released/#ending-support-for-internet-explorer-11).
+### Geo
 
-Apart from the instructions in this section, you should also check the
-installation-specific upgrade instructions, based on how you installed GitLab:
+If you're using Geo:
 
-- [Linux packages (Omnibus GitLab)](../update/package/index.md#version-specific-changes)
-- [Helm charts](https://docs.gitlab.com/charts/installation/upgrade.html)
+- Review [Geo upgrade documentation](../administration/geo/replication/upgrading_the_geo_sites.md).
+- Read about the Geo version-specific update instructions:
+  - [GitLab 17](versions/gitlab_17_changes.md)
+  - [GitLab 16](versions/gitlab_16_changes.md)
+  - [GitLab 15](versions/gitlab_15_changes.md)
+- Review Geo-specific steps when [upgrading the database](https://docs.gitlab.com/omnibus/settings/database.html#upgrading-a-geo-instance).
+- Create an upgrade and rollback plan for _each_ Geo site (primary and each secondary).
 
-NOTE:
-Specific information that follow related to Ruby and Git versions do not apply to [Omnibus installations](https://docs.gitlab.com/omnibus/)
-and [Helm Chart deployments](https://docs.gitlab.com/charts/). They come with appropriate Ruby and Git versions and are not using system binaries for Ruby and Git. There is no need to install Ruby or Git when utilizing these two approaches.
+### GitLab agent for Kubernetes
 
-### GitLab 17
+If you have Kubernetes clusters connected with GitLab, [upgrade your GitLab agents for Kubernetes](../user/clusters/agent/install/index.md#update-the-agent-version) to match your new GitLab version.
 
-Before upgrading to GitLab 17, see [GitLab 17 changes](versions/gitlab_17_changes.md).
+### Elasticsearch
 
-### GitLab 16
+Before updating GitLab, confirm advanced search migrations are complete by
+[checking for pending advanced search migrations](background_migrations.md#check-for-pending-advanced-search-migrations).
 
-Before upgrading to GitLab 16, see [GitLab 16 changes](versions/gitlab_16_changes.md).
+After updating GitLab, you may have to upgrade
+[Elasticsearch if the new version breaks compatibility](../integration/advanced_search/elasticsearch.md#version-requirements).
+Updating Elasticsearch is **out of scope for GitLab Support**.
 
-### GitLab 15
+## Getting support
 
-Before upgrading to GitLab 15, see [GitLab 15 changes](versions/gitlab_15_changes.md).
+If something goes wrong:
 
-## Miscellaneous
+- Copy any errors and gather any logs to later analyze, and then [roll back to the last working version](plan_your_upgrade.md#rollback-plan).
+  You can use the following tools to help you gather data:
+  - [`gitlabsos`](https://gitlab.com/gitlab-com/support/toolbox/gitlabsos) if
+    you installed GitLab using the Linux package or Docker.
+  - [`kubesos`](https://gitlab.com/gitlab-com/support/toolbox/kubesos/) if
+    you installed GitLab using the Helm Charts.
+
+For support:
+
+- [Contact GitLab Support](https://support.gitlab.com/hc/en-us) and, if you have one, your Customer Success Manager.
+- If [the situation qualifies](https://about.gitlab.com/support/#definitions-of-support-impact) and
+  [your plan includes emergency support](https://about.gitlab.com/support/#priority-support),
+  create an emergency ticket.
+
+## Related topics
 
 - [Managing PostgreSQL extensions](../install/postgresql_extensions.md)

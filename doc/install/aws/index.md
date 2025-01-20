@@ -5,13 +5,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 description: Read through the GitLab installation methods.
 ---
 
-{::options parse_block_html="true" /}
-
 # Installing a GitLab POC on Amazon Web Services (AWS)
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This page offers a walkthrough of a common configuration for GitLab on AWS using the official Linux package. You should customize it to accommodate your needs.
 
@@ -65,7 +63,7 @@ It can take a few hours to validate a certificate provisioned through ACM. To av
 
 Below is a diagram of the recommended architecture.
 
-![AWS architecture diagram](img/aws_ha_architecture_diagram.png)
+![Scaled down 2 Availability Zone Non-HA AWS architecture](img/aws_ha_architecture_diagram_v17_0.png)
 
 ## AWS costs
 
@@ -151,7 +149,7 @@ We now create a VPC, a virtual networking environment that you control:
    `10.0.0.0/16`. If you don't require dedicated hardware, you can leave
    "Tenancy" as default. Select **Create VPC** when ready.
 
-   ![Create VPC](img/create_vpc.png)
+   ![Create a VPC for GitLab cloud infrastructure](img/create_vpc_v17_0.png)
 
 1. Select the VPC, select **Actions**, select **Edit VPC Settings** and check **Enable DNS resolution**. Select **Save** when done.
 
@@ -170,7 +168,7 @@ RDS instances as well:
    for example `gitlab-public-10.0.0.0`, select the VPC we created previously, select an availability zone (we use `us-west-2a`),
    and at the IPv4 CIDR block let's give it a 24 subnet `10.0.0.0/24`:
 
-   ![Create subnet](img/create_subnet.png)
+   ![Create subnet](img/create_subnet_v17_0.png)
 
 1. Follow the same steps to create all subnets:
 
@@ -195,7 +193,7 @@ create a new one:
 1. Select it from the table, and then under the **Actions** dropdown list choose
    "Attach to VPC".
 
-   ![Create gateway](img/create_gateway.png)
+   ![Create an internet gateway](img/create_gateway_v17_0.png)
 
 1. Choose `gitlab-vpc` from the list and hit **Attach**.
 
@@ -271,9 +269,9 @@ On the EC2 dashboard, look for **Load Balancers** in the left navigation bar:
 
    | Protocol | Port | Target group |
    | ------ | ------ | ------ |
-   | TCP | 80 | `gitlab-loadbalancer-ssh-target` |
-   | TCP | 22 | `gitlab-loadbalancer-http-target` |
-   | TLC | 443 | `gitlab-loadbalancer-http-target` |
+   | TCP | 22 | `gitlab-loadbalancer-ssh-target` |
+   | TCP | 80 | `gitlab-loadbalancer-http-target` |
+   | TLS | 443 | `gitlab-loadbalancer-http-target` |
 
    1. For the TLS listener on port `443`, under **Security Policy** settings:
       1. **Policy name:** Pick a predefined security policy from the dropdown list. You can see a breakdown of [Predefined SSL Security Policies for Network Load Balancers](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/create-tls-listener.html#describe-ssl-policies) in the AWS documentation. Check the GitLab codebase for a list of [supported SSL ciphers and protocols](https://gitlab.com/gitlab-org/gitlab/-/blob/9ee7ad433269b37251e0dd5b5e00a0f00d8126b4/lib/support/nginx/gitlab-ssl#L97-99).
@@ -286,7 +284,7 @@ On the EC2 dashboard, look for **Load Balancers** in the left navigation bar:
       - `gitlab-loadbalancer-ssh-target` - TCP Protocol for port 22
    1. Select **IPv4** as the IP address type.
    1. Select `gitlab-vpc` from the VPC dropdown list.
-   1. For `gitlab-loadbalancer-http-target` Health checks, you should [use the Readiness check endpoint](../../administration/load_balancer.md#readiness-check). You must add [the VPC IP Address Range (CIDR)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-security-groups.html) to the [IP allowlist](../../administration/monitoring/ip_allowlist.md) for the [Health Check endpoints](../../administration/monitoring/health_check.md)
+   1. For `gitlab-loadbalancer-http-target` Health checks, you should [use the Readiness check endpoint](../../administration/load_balancer.md#readiness-check). You must add [the VPC IP Address Range (CIDR)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-security-groups.html) to the [IP allowlist](../../administration/monitoring/ip_allowlist.md) for the [Health check endpoints](../../administration/monitoring/health_check.md)
    1. For `gitlab-loadbalancer-ssh-target` Health checks, select **TCP**.
       - Assign `gitlab-loadbalancer-http-target` to both port 80 and 443 listener.
       - Assign `gitlab-loadbalancer-ssh-target` to port 22 listener.
@@ -325,7 +323,7 @@ The steps for doing this vary depending on which registrar you use and is beyond
 ## PostgreSQL with RDS
 
 For our database server we use Amazon RDS for PostgreSQL which offers Multi AZ
-for redundancy ([Aurora is **not** supported](https://gitlab.com/gitlab-com/partners/alliance/aws/public-tracker/-/issues/12)). First we create a security group and subnet group, then we
+for redundancy ([Aurora is **not** supported](https://gitlab.com/gitlab-partners-public/aws/aws-known-issues/-/issues/10)). First we create a security group and subnet group, then we
 create the actual RDS instance.
 
 ### RDS Security Group
@@ -359,7 +357,7 @@ Now, it's time to create the database:
 
 1. Go to the RDS dashboard, select **Databases** from the left menu, and select **Create database**.
 1. Select **Standard Create** for the database creation method.
-1. Select **PostgreSQL** as the database engine and select the minimum PostgreSQL version as defined for your GitLab version in our [database requirements](../../install/requirements.md#postgresql-requirements).
+1. Select **PostgreSQL** as the database engine and select the minimum PostgreSQL version as defined for your GitLab version in our [database requirements](../../install/requirements.md#postgresql).
 1. Because this is a production server, let's choose **Production** from the **Templates** section.
 1. Under **Availability & durability**, select **Multi-AZ DB instance** to have a standby RDS instance provisioned in a different [Availability Zone](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html).
 1. Under **Settings**, use:
@@ -411,7 +409,7 @@ persistence and is used to store session data, temporary cache information, and 
    Select the VPC we created earlier (`gitlab-vpc`) and ensure the selected subnets table only contains the [private subnets](#subnets).
 1. Select **Create** when ready.
 
-   ![ElastiCache subnet](img/ec_subnet.png)
+   ![Create a subnet group](img/ec_subnet_v17_0.png)
 
 ### Create the Redis Cluster
 
@@ -420,7 +418,7 @@ persistence and is used to store session data, temporary cache information, and 
    Redis cluster.
 1. Under **Deployment option** select **Design your own cache**.
 1. Under **Creation method** select **Cluster cache**.
-1. Under **Cluster mode**  select **Disabled** as it is [not supported](../../administration/redis/replication_and_failover_external.md#requirements). Even without cluster mode on, you still get the
+1. Under **Cluster mode** select **Disabled** as it is [not supported](../../administration/redis/replication_and_failover_external.md#requirements). Even without cluster mode on, you still get the
    chance to deploy Redis in multiple availability zones.
 1. Under **Cluster info** give the cluster a name (`gitlab-redis`) and a description.
 1. Under **Location** select **AWS Cloud** and enable **Multi-AZ** option.
@@ -435,7 +433,7 @@ persistence and is used to store session data, temporary cache information, and 
    1. Manually select the preferred availability zones, and under "Replica 2"
       choose a different zone than the other two.
 
-      ![Redis availability zones](img/ec_az.png)
+      ![Redis availability zones](img/ec_az_v17_0.png)
 1. Select **Next**.
 1. In the security settings, edit the security groups and choose the
    `gitlab-redis-sec-group` we had previously created. Select **Next**.
@@ -517,7 +515,7 @@ From the EC2 dashboard:
 
 1. Use the section below titled "[Find official GitLab-created AMI IDs on AWS](#find-official-gitlab-created-ami-ids-on-aws)" to find the correct AMI and select **Launch**.
 1. In the **Name and tags** section, set the **Name** to `GitLab`.
-1. In the **Instance type** dropdown list, select an instance type based on your workload. Consult the [hardware requirements](../../install/requirements.md#hardware-requirements) to choose one that fits your needs (at least `c5.2xlarge`, which is sufficient to accommodate 100 users).
+1. In the **Instance type** dropdown list, select an instance type based on your workload. Consult the [hardware requirements](../../install/requirements.md) to choose one that fits your needs (at least `c5.2xlarge`, which is sufficient to accommodate 100 users).
 1. In the **Key pair** section, select **Create new key pair**.
    1. Give the key pair a name (we use `gitlab`) and save the `gitlab.pem` file for later use.
 1. In the **Network settings** section:
@@ -713,7 +711,7 @@ That concludes the configuration changes for our GitLab instance. Next, we creat
 
 ### IP allowlist
 
-We must add [the VPC IP Address Range (CIDR)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-security-groups.html) of the `gitlab-vpc` we created earlier to the [IP allowlist](../../administration/monitoring/ip_allowlist.md) for the [Health Check endpoints](../../administration/monitoring/health_check.md)
+We must add [the VPC IP Address Range (CIDR)](https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-security-groups.html) of the `gitlab-vpc` we created earlier to the [IP allowlist](../../administration/monitoring/ip_allowlist.md) for the [Health check endpoints](../../administration/monitoring/health_check.md)
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
@@ -744,7 +742,7 @@ If Proxy protocol is enabled in the [load balancer](#load-balancer) we created e
    sudo gitlab-ctl reconfigure
    ```
 
-### Log in for the first time
+### Sign in for the first time
 
 Using the domain name you used when setting up [DNS for the load balancer](#configure-dns-for-load-balancer), you should now be able to visit GitLab in your browser.
 
@@ -753,7 +751,7 @@ Depending on how you installed GitLab and if you did not change the password by 
 - Your instance ID if you used the official GitLab AMI.
 - A randomly generated password stored for 24 hours in `/etc/gitlab/initial_root_password`.
 
-To change the default password, log in as the `root` user with the default password and [change it in the user profile](../../user/profile/user_passwords.md#change-your-password).
+To change the default password, sign in as the `root` user with the default password and [change it in the user profile](../../user/profile/user_passwords.md#change-your-password).
 
 When our [auto scaling group](#create-an-auto-scaling-group) spins up new instances, we are able to sign in with username `root` and the newly created password.
 
@@ -819,13 +817,13 @@ From the EC2 dashboard:
       1. **Add** `1` capacity unit when `CPUUtilization` is greater than or equal to 60%.
       1. Set the **Scaling policy name** to `Scale Up Policy`.
 
-   ![Scale Up Policy](img/scale_up_policy.png)
+   ![Scale Up Policy](img/scale_up_policy_v17_0.png)
 
    1. Create a [scale down policy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-scaling-simple-step.html#step-scaling-create-scale-in-policy) using the following conditions:
       1. **Remove** `1` capacity unit when `CPUUtilization` is less than or equal to 45%.
       1. Set the **Scaling policy name** to `Scale Down Policy`.
 
-   ![Scale Down Policy](img/scale_down_policy.png)
+   ![Scale Down Policy](img/scale_down_policy_v17_0.png)
 
    1. Assign the new dynamic scaling policy to the auto scaling group we created earlier.
 
@@ -835,7 +833,7 @@ Because our instances are created by the auto scaling group, go back to your ins
 
 ## Health check and monitoring with Prometheus
 
-Apart from Amazon's Cloudwatch which you can enable on various services,
+Apart from Amazon CloudWatch, which you can enable on various services,
 GitLab provides its own integrated monitoring solution based on Prometheus.
 For more information about how to set it up, see
 [GitLab Prometheus](../../administration/monitoring/prometheus/index.md).
@@ -946,4 +944,4 @@ If you see this page when trying to set a password via the web interface, make s
 
 When the GitLab deployment is scaled up to more than one node, some job logs may not be uploaded to [object storage](../../administration/object_storage.md) properly. [Incremental logging is required](../../administration/object_storage.md#alternatives-to-file-system-storage) for CI to use object storage.
 
-Enable [incremental logging](../../administration/job_logs.md#enable-or-disable-incremental-logging) if it has not already been enabled.
+Enable [incremental logging](../../administration/cicd/job_logs.md#enable-or-disable-incremental-logging) if it has not already been enabled.

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,14 +8,14 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 All methods require administrator authorization.
 
 You can configure the URL endpoint of the system hooks from the GitLab user interface:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **System Hooks** (`/admin/hooks`).
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **System hooks** (`/admin/hooks`).
 
 Read more about [system hooks](../administration/system_hooks.md).
 
@@ -47,7 +47,8 @@ Example response:
     "tag_push_events":false,
     "merge_requests_events": true,
     "repository_update_events": true,
-    "enable_ssl_verification":true
+    "enable_ssl_verification":true,
+    "url_variables": []
   }
 ]
 ```
@@ -84,7 +85,8 @@ Example response:
     "tag_push_events": false,
     "merge_requests_events": true,
     "repository_update_events": true,
-    "enable_ssl_verification": true
+    "enable_ssl_verification": true,
+    "url_variables": []
   }
 ]
 ```
@@ -131,7 +133,8 @@ Example response:
     "tag_push_events":false,
     "merge_requests_events": true,
     "repository_update_events": true,
-    "enable_ssl_verification":true
+    "enable_ssl_verification":true,
+    "url_variables": []
   }
 ]
 ```
@@ -205,3 +208,38 @@ Example request:
 ```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/hooks/2"
 ```
+
+## Set a URL variable
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/90310) in GitLab 15.2.
+
+```plaintext
+PUT /hooks/:hook_id/url_variables/:key
+```
+
+Supported attributes:
+
+| Attribute | Type              | Required | Description |
+|:----------|:------------------|:---------|:------------|
+| `hook_id` | integer           | Yes      | ID of the system hook. |
+| `key`     | string            | Yes      | Key of the URL variable. |
+| `value`   | string            | Yes      | Value of the URL variable. |
+
+On success, this endpoint returns the response code `204 No Content`.
+
+## Delete a URL variable
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/90310) in GitLab 15.2.
+
+```plaintext
+DELETE /hooks/:hook_id/url_variables/:key
+```
+
+Supported attributes:
+
+| Attribute | Type              | Required | Description |
+|:----------|:------------------|:---------|:------------|
+| `hook_id` | integer           | Yes      | ID of the system hook. |
+| `key`     | string            | Yes      | Key of the URL variable. |
+
+On success, this endpoint returns the response code `204 No Content`.

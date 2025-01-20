@@ -3,6 +3,8 @@ data_category: optional
 key_path: redis_hll_counters.ecosystem.ecosystem_total_unique_counts_monthly
 description: Number of users for Jira and Slack by month
 product_group: import_and_integrate
+product_categories:
+- integrations
 value_type: number
 status: active
 time_frame: 28d
@@ -38,7 +40,7 @@ events:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
@@ -46,3 +48,4 @@ performance_indicator_type:
 - gmau
 - paid_gmau
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

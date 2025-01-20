@@ -1,5 +1,5 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,11 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/350748) and feature flag `ci_secure_files` removed in GitLab 15.7.
 
-This feature is part of [Mobile DevOps](../mobile_devops.md) developed by [GitLab Incubation Engineering](https://handbook.gitlab.com/handbook/engineering/development/incubation/).
+This feature is part of [Mobile DevOps](../jobs/mobile_devops.md) developed by [GitLab Incubation Engineering](https://handbook.gitlab.com/handbook/engineering/development/incubation/).
 The feature is still in development, but you can:
 
 - [Request a feature](https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/feedback/-/issues/new?issuable_template=feature_request).
@@ -74,7 +74,7 @@ of the file when downloaded.
 
 A [unique encryption key](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/ci/secure_file.rb#L27)
 is generated for each file when it is created and persisted in the database. The encrypted uploaded files
-are stored in either local storage or object storage depending on the [GitLab instance configuration](../../administration/secure_files.md).
+are stored in either local storage or object storage depending on the [GitLab instance configuration](../../administration/cicd/secure_files.md).
 
 Individual files can be retrieved with the [secure files download API](../../api/secure_files.md#download-secure-file).
 Metadata can be retrieved with the [list](../../api/secure_files.md#list-project-secure-files)

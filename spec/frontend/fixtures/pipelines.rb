@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :controller do
+RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :controller, feature_category: :pipeline_composition do
   include ApiHelpers
   include GraphqlHelpers
   include JavaScriptFixturesHelpers
@@ -75,8 +75,13 @@ RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :co
   describe GraphQL::Query, type: :request do # rubocop:disable RSpec/MultipleMemoizedHelpers -- new rule, will be fixed in follow-up
     fixtures_path = 'graphql/pipelines/'
     get_pipeline_actions_query = 'get_pipeline_actions.query.graphql'
+    get_pipeline_summary_query = 'get_pipeline_summary.query.graphql'
+    get_pipeline_iid_query = 'get_pipeline_iid.query.graphql'
 
     let!(:pipeline_with_manual_actions) { create(:ci_pipeline, project: project, user: user) }
+    let!(:pipeline_summary) { create(:ci_pipeline, project: project, finished_at: 1.hour.ago) }
+    let(:commit) { create(:commit, project: project) }
+
     let!(:build_stage) do
       create(:ci_stage, name: 'build', pipeline: pipeline_with_manual_actions, project:
                                 pipeline_with_manual_actions.project)
@@ -100,9 +105,31 @@ RSpec.describe Projects::PipelinesController, '(JavaScript fixtures)', type: :co
       get_graphql_query_as_string("ci/pipelines_page/graphql/queries/#{get_pipeline_actions_query}")
     end
 
+    let_it_be(:pipeline_summary_query) do
+      get_graphql_query_as_string("ci/common/pipeline_summary/graphql/queries/#{get_pipeline_summary_query}")
+    end
+
+    let_it_be(:pipeline_iid_query) do
+      get_graphql_query_as_string("ci/pipeline_editor/graphql/queries/#{get_pipeline_iid_query}")
+    end
+
     it "#{fixtures_path}#{get_pipeline_actions_query}.json" do
       post_graphql(query, current_user: user,
         variables: { fullPath: project.full_path, iid: pipeline_with_manual_actions.iid })
+
+      expect_graphql_errors_to_be_empty
+    end
+
+    it "#{fixtures_path}#{get_pipeline_summary_query}.json" do
+      post_graphql(pipeline_summary_query, current_user: user,
+        variables: { fullPath: project.full_path, iid: pipeline_summary.iid, includeCommitInfo: true })
+
+      expect_graphql_errors_to_be_empty
+    end
+
+    it "#{fixtures_path}#{get_pipeline_iid_query}.json" do
+      post_graphql(pipeline_iid_query, current_user: user,
+        variables: { fullPath: project.full_path, sha: commit.sha })
 
       expect_graphql_errors_to_be_empty
     end

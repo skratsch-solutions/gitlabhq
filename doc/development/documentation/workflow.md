@@ -13,11 +13,46 @@ Documentation at GitLab follows a workflow.
 Ensure your documentation includes:
 
 - [Product availability details](styleguide/availability_details.md).
-- The GitLab [version](versions.md) that introduced the feature.
+- The GitLab [version](styleguide/availability_details.md) that introduced the feature.
 - Accurate [links](styleguide/index.md#links).
 - Accurate [user permissions](../../user/permissions.md).
 
 Ensure you've followed the [style guide](styleguide/index.md) and [word list](styleguide/word_list.md).
+
+### Branch naming
+
+The [CI/CD pipeline for the main GitLab project](../pipelines/index.md) is configured to
+run shorter, faster pipelines on merge requests that contain only documentation changes.
+
+If you submit documentation-only changes to Omnibus, Charts, or Operator,
+to make the shorter pipeline run, you must follow these guidelines when naming your branch:
+
+| Branch name           | Valid example                |
+|:----------------------|:-----------------------------|
+| Starting with `docs/` | `docs/update-api-issues`     |
+| Starting with `docs-` | `docs-update-api-issues`     |
+| Ending in `-docs`     | `123-update-api-issues-docs` |
+
+### Moving content
+
+When you move content to a new location, and edit the content in the same merge request,
+use separate commits.
+
+Separate commits help the reviewer, because the MR diff for moved content
+does not clearly highlight edits.
+When you use separate commits, the reviewer can verify the location change
+in the first commit diff, then the content changes in subsequent commits.
+
+For example, if you move a page, but also update the content of the page:
+
+1. In the first commit: Move the content to its new location and put [redirects](redirects.md) in place if required.
+   If you can, fix broken links in this commit.
+1. In subsequent commits: Make content changes. Fix broken links if you haven't already.
+1. In the merge request: Explain the commits in the MR description and in a
+   comment to the reviewer.
+
+You can add as many commits as you want, but make sure the first commit only moves the content,
+and does not edit it.
 
 ## Documentation labels
 
@@ -30,11 +65,7 @@ It includes these labels, which are added to the merge request:
   For example, `~devops::create` and `~group::source code`.
 - A `~documentation` [specialization label](../labels/index.md#specialization-labels).
 
-A member of the Technical Writing team adds these labels:
-
-- A [documentation scoped label](../../user/project/labels.md#scoped-labels) with the
-  `docs::` prefix. For example, `~docs::improvement`.
-- The [`~Technical Writing` team label](../labels/index.md#team-labels).
+A member of the Technical Writing team adds the [`~Technical Writing` team label](../labels/index.md#team-labels).
 
 NOTE:
 With the exception of `/doc/development/documentation`,
@@ -89,4 +120,4 @@ GitLab team members must follow the guidelines documented in the [internal handb
 - [Technical writing assignments](https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments)
 - The [Style Guide](styleguide/index.md)
 - The [Word list](styleguide/word_list.md)
-- The [Markdown Guide](https://handbook.gitlab.com/handbook/markdown-guide/)
+- The [Markdown Guide](https://handbook.gitlab.com/docs/markdown-guide/)

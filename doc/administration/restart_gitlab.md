@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Depending on how you installed GitLab, there are different methods to restart
 its services.
@@ -132,7 +132,7 @@ The release name can be obtained from the output of the `helm list` command.
 
 ## Docker installation
 
-If you change the configuration on your [Docker installation](../install/docker.md), for that change to take effect you must restart:
+If you change the configuration on your [Docker installation](../install/docker/index.md), for that change to take effect you must restart:
 
 - The main `gitlab` container.
 - Any separate component containers.

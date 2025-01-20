@@ -15,6 +15,7 @@ RSpec.describe Atlassian::JiraConnect::Serializers::DeploymentEntity, feature_ca
       before do
         allow(subject).to receive(:issue_keys).and_return([])
         allow(subject).to receive(:service_ids_from_integration_configuration).and_return([])
+        allow(subject).to receive(:generate_deployment_commands).and_return(nil)
       end
 
       it 'can encode the object' do
@@ -33,15 +34,6 @@ RSpec.describe Atlassian::JiraConnect::Serializers::DeploymentEntity, feature_ca
       end
 
       it 'is valid according to the deployment info schema' do
-        expect(subject.to_json).to be_valid_json.and match_schema(Atlassian::Schemata.deployment_info)
-      end
-    end
-
-    context 'with/without enable_jira_connect_configuration FF still valid' do
-      it 'is valid according to the deployment info schema' do
-        allow(Feature).to receive(:enabled?).and_return(true)
-        allow(Feature).to receive(:enabled?).with(:enable_jira_connect_configuration).and_return(false)
-
         expect(subject.to_json).to be_valid_json.and match_schema(Atlassian::Schemata.deployment_info)
       end
     end
@@ -114,6 +106,83 @@ RSpec.describe Atlassian::JiraConnect::Serializers::DeploymentEntity, feature_ca
 
         it 'does not include the serviceIdOrKeys association type' do
           expect(associations.any? { |association| association['associationType'] == 'serviceIdOrKeys' }).to be_falsey
+        end
+      end
+    end
+
+    context 'when the project has Jira Cloud app, deployment gating configured and state is pending' do
+      before do
+        deployment.update!(status: 'blocked')
+      end
+
+      let_it_be_with_reload(:integration) do
+        create(:jira_cloud_app_integration, jira_cloud_app_enable_deployment_gating: true,
+          jira_cloud_app_deployment_gating_environments: "production", project: project)
+      end
+
+      let(:commands) { Gitlab::Json.parse(subject.to_json)['commands'] }
+
+      it 'is valid according to the deployment info schema' do
+        expect(subject.to_json).to be_valid_json.and match_schema(Atlassian::Schemata.deployment_info)
+      end
+
+      it 'includes initiate_deployment_gating in the commands' do
+        expect(commands).to include(
+          { 'command' => 'initiate_deployment_gating' }
+        )
+      end
+
+      context 'when the integration has comma-separated environments' do
+        before do
+          integration.update!(jira_cloud_app_deployment_gating_environments: 'production,development')
+        end
+
+        it 'includes initiate_deployment_gating in the commands' do
+          expect(commands).to include(
+            { 'command' => 'initiate_deployment_gating' }
+          )
+        end
+      end
+
+      context 'when the integration jira_cloud_app_enable_deployment_gating is false' do
+        before do
+          integration.update!(jira_cloud_app_enable_deployment_gating: false)
+        end
+
+        it 'does not includes initiate_deployment_gating in the commands' do
+          expect(commands).to be(nil)
+        end
+      end
+
+      context 'when the integration jira_cloud_app_deployment_gating_environments is not matching with tier' do
+        before do
+          integration.update!(jira_cloud_app_deployment_gating_environments: "development")
+        end
+
+        it 'does not include initiate_deployment_gating in the commands' do
+          expect(commands).to be(nil)
+        end
+      end
+
+      context 'when the integration jira_cloud_app_deployment_gating_environments state is not pending' do
+        before do
+          deployment.update!(status: 'running')
+        end
+
+        it 'does not include initiate_deployment_gating in the commands' do
+          expect(commands).to be(nil)
+        end
+      end
+
+      context 'when the deployment status is created' do
+        before do
+          deployment.update!(status: 'created')
+        end
+
+        it 'does include initiate_deployment_gating in the commands' do
+          expect(commands).to include(
+            { 'command' => 'initiate_deployment_gating' }
+          )
         end
       end
     end

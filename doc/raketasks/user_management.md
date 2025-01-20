@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-GitLab provides Rake tasks for managing users. Administrators can also use the Admin Area to
+GitLab provides Rake tasks for managing users. Administrators can also use the **Admin** area to
 [manage users](../administration/admin_area.md#administering-users).
 
 ## Add user as a developer to all projects
@@ -186,7 +186,7 @@ sudo /etc/init.d/gitlab start
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/142189) in GitLab 16.9.
 
@@ -227,4 +227,4 @@ The task might raise the following error messages:
 
 ## Related topics
 
-- [Reset a user's password](../security/reset_user_password.md#use-a-rake-task)
+- [Reset user passwords](../security/reset_user_password.md#use-a-rake-task)

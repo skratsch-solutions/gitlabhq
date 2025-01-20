@@ -13,7 +13,7 @@ Learn how to create a new cluster on Civo Kubernetes through
 and Kubernetes Terraform providers to create Civo Kubernetes clusters. You connect the clusters to GitLab
 by using the GitLab agent for Kubernetes.
 
-**Prerequisites:**
+**Before you begin:**
 
 - A [Civo account](https://dashboard.civo.com/signup).
 - [A runner](https://docs.gitlab.com/runner/install/) you can use to run the GitLab CI/CD pipeline.
@@ -53,9 +53,9 @@ This project provides you with:
 To create a GitLab agent for Kubernetes:
 
 1. On the left sidebar, select **Operate > Kubernetes clusters**.
-1. Select **Connect a cluster (agent)**.
-1. From the **Select an agent** dropdown list, select `civo-agent` and select **Register an agent**.
-1. GitLab generates a registration token for the agent. Securely store this secret token, as you will need it later.
+1. Select **Connect a cluster**.
+1. From the **Select an agent** dropdown list, select `civo-agent` and select **Register**.
+1. GitLab generates an agent access token for the agent. Securely store this secret token, as you will need it later.
 1. GitLab provides an address for the agent server (KAS), which you will also need later.
 
 ## Configure your project
@@ -66,11 +66,11 @@ Use CI/CD environment variables to configure your project.
 
 1. On the left sidebar, select **Settings > CI/CD**.
 1. Expand **Variables**.
-1. Set the variable `BASE64_CIVO_TOKEN` to the token from your Civo account.
+1. Set the variable `CIVO_TOKEN` to the token from your Civo account.
 1. Set the variable `TF_VAR_agent_token` to the agent token you received in the previous task.
 1. Set the variable `TF_VAR_kas_address` to the agent server address in the previous task.
 
-![img/variables_civo.png](img/variables_civo.png)
+![Required configuration](img/variables_civo_v17_3.png)
 
 **Optional configuration:**
 
@@ -91,14 +91,17 @@ Refer to the [Civo Terraform provider](https://registry.terraform.io/providers/c
 
 After configuring your project, manually trigger the provisioning of your cluster. In GitLab:
 
-1. On the left sidebar, go to **Build > Pipelines**.
-1. Next to **Play** (**{play}**), select the dropdown list icon (**{chevron-lg-down}**).
-1. Select **Deploy** to manually trigger the deployment job.
+1. On the left sidebar, select **Build > Pipelines**.
+1. Select **New pipeline**.
+1. Select **Run pipeline**, and then select the newly created pipeline from the list.
+1. Next to the **deploy** job, select **Manual action** (**{status_manual}**).
 
 When the pipeline finishes successfully, you can see your new cluster:
 
 - In Civo dashboard: on your Kubernetes tab.
 - In GitLab: from your project's sidebar, select **Operate > Kubernetes clusters**.
+
+If you didn't set the `TF_VAR_civo_region` variable, the cluster will be created in the 'lon1' region.
 
 ## Use your cluster
 
@@ -111,28 +114,12 @@ For more information about the capabilities of the connection, see [the GitLab a
 
 ## Remove the cluster
 
-A cleanup job is not included in your pipeline by default. To remove all created resources, you
-must modify your GitLab CI/CD template before running the cleanup job.
+A cleanup job is included in your pipeline by default.
 
-To remove all resources:
+To remove all created resources:
 
-1. Add the following to your `.gitlab-ci.yml` file:
-
-   ```yaml
-   stages:
-     - init
-     - validate
-     - build
-     - deploy
-     - cleanup
-
-   destroy:
-     extends: .destroy
-     needs: []
-   ```
-
-1. On the left sidebar, select **Build > Pipelines** and select the most recent pipeline.
-1. For the `destroy` job, select **Play** (**{play}**).
+1. On the left sidebar, select **Build > Pipelines**, and then select the most recent pipeline.
+1. Next to the **destroy-environment** job, select **Manual action** (**{status_manual}**).
 
 ## Civo support
 

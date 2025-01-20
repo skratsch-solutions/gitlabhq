@@ -1,13 +1,15 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script>
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf';
-
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import Page from './page/index.vue';
 
-GlobalWorkerOptions.workerSrc = '/assets/webpack/pdfjs/pdf.worker.min.js';
+let pdfjs;
+let getDocument;
+let GlobalWorkerOptions;
 
 export default {
   components: { Page },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     pdf: {
       type: [String, Uint8Array],
@@ -35,13 +37,20 @@ export default {
     if (this.hasPDF) this.load();
   },
   methods: {
-    load() {
+    async loadPDFJS() {
+      // eslint-disable-next-line import/extensions
+      pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+      ({ getDocument, GlobalWorkerOptions } = pdfjs);
+      GlobalWorkerOptions.workerSrc = process.env.PDF_JS_WORKER_PUBLIC_PATH;
+    },
+    async load() {
+      await this.loadPDFJS();
       this.pages = [];
       return getDocument({
         url: this.document,
-        cMapUrl: '/assets/webpack/pdfjs/cmaps/',
+        cMapUrl: process.env.PDF_JS_CMAPS_PUBLIC_PATH,
         cMapPacked: true,
-        isEvalSupported: false,
+        isEvalSupported: true,
       })
         .promise.then(this.renderPages)
         .then((pages) => {

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 You can enable the AliCloud OAuth 2.0 OmniAuth provider and sign in to
 GitLab using your AliCloud account.
@@ -38,7 +38,7 @@ Sign in to the AliCloud platform and create an application on it. AliCloud gener
    1. Select the **aliuid** and **profile** checkboxes.
    1. Select **OK**.
 
-   ![AliCloud OAuth scope](img/alicloud_scope.png)
+   ![AliCloud OAuth scope](img/alicloud_scope_v14_10.png)
 
 1. Create a secret in the application details page:
 

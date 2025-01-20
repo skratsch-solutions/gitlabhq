@@ -1,5 +1,5 @@
 import { nextTick } from 'vue';
-import { GlCollapsibleListbox, GlFormGroup } from '@gitlab/ui';
+import { GlCollapsibleListbox, GlFormGroup, GlLoadingIcon } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import EntitySelect from '~/vue_shared/components/entity_select/entity_select.vue';
 import { QUERY_TOO_SHORT_MESSAGE } from '~/vue_shared/components/entity_select/constants';
@@ -34,6 +34,7 @@ describe('EntitySelect', () => {
   // Finders
   const findListbox = () => wrapper.findComponent(GlCollapsibleListbox);
   const findInput = () => wrapper.findByTestId('input');
+  const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
 
   // Helpers
   const createComponent = ({ props = {}, slots = {}, stubs = {} } = {}) => {
@@ -107,6 +108,27 @@ describe('EntitySelect', () => {
 
       expect(fetchInitialSelectionMock).toHaveBeenCalledTimes(1);
       expect(findListbox().props('toggleText')).toBe(itemMock.text);
+    });
+
+    describe('when initialSelection is an object', () => {
+      beforeEach(async () => {
+        fetchInitialSelectionMock = jest.fn().mockImplementation(() => itemMock);
+        createComponent({
+          props: {
+            fetchInitialSelection: fetchInitialSelectionMock,
+            initialSelection: itemMock,
+          },
+        });
+        await nextTick();
+      });
+
+      it('does not fetch initial selection', () => {
+        expect(fetchInitialSelectionMock).not.toHaveBeenCalled();
+      });
+
+      it('shows initial selection as selected', () => {
+        expect(findListbox().props('toggleText')).toBe(itemMock.text);
+      });
     });
   });
 
@@ -239,6 +261,23 @@ describe('EntitySelect', () => {
 
       expect(fetchItemsMock).toHaveBeenCalledTimes(1);
       expect(findListbox().props('noResultsText')).toBe(QUERY_TOO_SHORT_MESSAGE);
+    });
+
+    describe('when searchable prop is false', () => {
+      beforeEach(() => {
+        createComponent({ props: { searchable: false } });
+      });
+
+      it('sets searchable prop on GlCollapsibleListbox to false', () => {
+        expect(findListbox().props('searchable')).toBe(false);
+      });
+
+      it('shows loading icon when first opening the dropdown', async () => {
+        openListbox();
+        await nextTick();
+
+        expect(findLoadingIcon().exists()).toBe(true);
+      });
     });
   });
 

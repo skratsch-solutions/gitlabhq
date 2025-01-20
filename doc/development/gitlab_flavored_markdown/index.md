@@ -5,7 +5,7 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 description: "Development guidelines for GitLab Flavored Markdown (GLFM)."
 ---
 
-<!-- vale gitlab.GitLabFlavoredMarkdown = NO -->
+<!-- vale gitlab_base.GitLabFlavoredMarkdown = NO -->
 
 # GitLab Flavored Markdown (GLFM) development guidelines
 
@@ -49,5 +49,13 @@ Great pains are taken not to add new syntax unless truly necessary.
 And in such cases research should be done to find the most
 acceptable "Markdown" syntax, closely adhering to a common implementation if available.
 The [CommonMark forum](https://talk.commonmark.org) is a good place to research discussions on different topics.
+
+## Additional resources
+
+- [GitLab Flavored Markdown](../../user/markdown.md)
+- [Rich text editor development guidelines](../fe_guide/content_editor.md)
+- [Emojis](../fe_guide/emojis.md)
+- [How to render GitLab-flavored Markdown on the frontend?](../fe_guide/frontend_faq.md#10-how-to-render-gitlab-flavored-markdown)
+- [Diagrams.net integration](../fe_guide/diagrams_net_integration.md)
 
 Please contact the [Plan:Knowledge team](https://handbook.gitlab.com/handbook/engineering/development/dev/plan/knowledge/) if you have any questions.

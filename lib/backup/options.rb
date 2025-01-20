@@ -149,6 +149,13 @@ module Backup
     # @return [Boolean] whether to use `--rsyncable` flag with gzip
     attr_accessor :gzip_rsyncable
 
+    # If the container registry is using object storage, this is the bucket that is used
+    # @return [String|Nil]
+    attr_accessor :container_registry_bucket
+
+    # If we are backing up object storage in GCP, this is a file containing the service account credentials to use
+    attr_accessor :service_account_file
+
     # rubocop:disable Metrics/ParameterLists -- This is a data object with all possible CMD options
     def initialize(
       backup_id: nil, previous_backup: nil, incremental: false, force: false, strategy: Strategy::STREAM,
@@ -156,7 +163,8 @@ module Backup
       max_parallelism: nil, max_storage_parallelism: nil,
       repository_storages: [], repository_paths: [], skip_repository_paths: [],
       repositories_server_side_backup: false, remote_directory: nil,
-      compression_options: CompressionOptions.new, gzip_rsyncable: false)
+      compression_options: CompressionOptions.new, gzip_rsyncable: false, container_registry_bucket: nil,
+      service_account_file: nil)
       @backup_id = backup_id
       @previous_backup = previous_backup
       @incremental = incremental
@@ -173,10 +181,12 @@ module Backup
       @skip_repositories_paths = skip_repository_paths
       @compression_options = compression_options
       @gzip_rsyncable = gzip_rsyncable
+      @container_registry_bucket = container_registry_bucket
+      @service_account_file = service_account_file
     end
     # rubocop:enable Metrics/ParameterLists
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize -- TODO: Complexity will be solved in the Unified Backup implementation (https://gitlab.com/groups/gitlab-org/-/epics/11635)
+    # rubocop:disable Metrics/AbcSize -- TODO: Complexity will be solved in the Unified Backup implementation (https://gitlab.com/groups/gitlab-org/-/epics/11635)
     # Extract supported options from defined ENV variables
     def extract_from_env!
       # We've used lowercase `force` as the key while ENV normally is defined using UPPERCASE letters
@@ -202,7 +212,7 @@ module Backup
 
       extract_skippables!(ENV['SKIP']) if ENV['SKIP'].present?
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize
 
     def update_from_backup_information!(backup_information)
       self.repositories_storages += backup_information[:repositories_storages]&.split(',') || []

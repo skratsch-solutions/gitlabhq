@@ -13,7 +13,7 @@ import { confidentialWidget } from '~/sidebar/components/confidential/sidebar_co
 import updateIssueLockMutation from '~/sidebar/queries/update_issue_lock.mutation.graphql';
 import updateMergeRequestLockMutation from '~/sidebar/queries/update_merge_request_lock.mutation.graphql';
 import loadAwardsHandler from '~/awards_handler';
-import { isInViewport, scrollToElement, isInMRPage } from '~/lib/utils/common_utils';
+import { isInMRPage } from '~/lib/utils/common_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import sidebarTimeTrackingEventHub from '~/sidebar/event_hub';
 import TaskList from '~/task_list';
@@ -207,6 +207,8 @@ export const fetchDiscussionsBatch = ({ commit, dispatch }, { path, config, curs
 };
 
 export const updateDiscussion = ({ commit, state }, discussion) => {
+  if (discussion == null) return null;
+
   commit(types.UPDATE_DISCUSSION, discussion);
 
   return utils.findNoteObjectById(state.discussions, discussion.id);
@@ -467,7 +469,6 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
     methodToDispatch = replyId ? 'replyToDiscussion' : 'createNewNote';
   }
 
-  $('.notes-form .flash-container').hide(); // hide previous flash notification
   commit(types.REMOVE_PLACEHOLDER_NOTES); // remove previous placeholders
 
   if (hasQuickActions) {
@@ -490,15 +491,8 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
   }
 
   const processQuickActions = (res) => {
-    const {
-      errors: { commands_only: commandsOnly } = {
-        commands_only: null,
-        command_names: [],
-      },
-      command_names: commandNames,
-    } = res;
-    const message = commandsOnly;
-
+    const { quick_actions_status: { messages = null, command_names: commandNames = [] } = {} } =
+      res;
     if (commandNames?.indexOf('submit_review') >= 0) {
       dispatch('batchComments/clearDrafts');
     }
@@ -506,14 +500,14 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
     /*
      The following reply means that quick actions have been successfully applied:
 
-     {"commands_changes":{},"valid":false,"errors":{"commands_only":["Commands applied"]}}
+     {"commands_changes":{},"valid":false,"errors":{},"quick_actions_status":{"messages":["Commands applied"],"command_names":["due"],"commands_only":true}}
      */
-    if (hasQuickActions && message) {
+    if (hasQuickActions && messages) {
       // synchronizing the quick action with the sidebar widget
       // this is a temporary solution until we have confidentiality real-time updates
       if (
         confidentialWidget.setConfidentiality &&
-        message.some((m) => m.includes('Made this issue confidential'))
+        messages.some((m) => m.includes('Made this issue confidential'))
       ) {
         confidentialWidget.setConfidentiality();
       }
@@ -521,7 +515,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
       $('.js-gfm-input').trigger('clear-commands-cache.atwho');
 
       createAlert({
-        message: message || __('Commands applied'),
+        message: messages || __('Commands applied'),
         variant: VARIANT_INFO,
         parent: noteData.flashContainer,
       });
@@ -581,6 +575,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
 export const setFetchingState = ({ commit }, fetchingState) =>
   commit(types.SET_NOTES_FETCHING_STATE, fetchingState);
 
+// eslint-disable-next-line max-params
 const pollSuccessCallBack = async (resp, commit, state, getters, dispatch) => {
   if (state.isResolvingDiscussion) {
     return null;
@@ -629,12 +624,6 @@ export const toggleAwardRequest = ({ dispatch }, data) => {
   return axios.post(endpoint, { name: awardName }).then(() => {
     dispatch('toggleAward', data);
   });
-};
-
-export const scrollToNoteIfNeeded = (context, el) => {
-  if (!isInViewport(el[0])) {
-    scrollToElement(el);
-  }
 };
 
 export const fetchDiscussionDiffLines = ({ commit }, discussion) =>

@@ -2,7 +2,9 @@
 
 require 'spec_helper'
 
-RSpec.describe ProfilesHelper do
+RSpec.describe ProfilesHelper, feature_category: :user_profile do
+  include SafeFormatHelper
+
   describe '#commit_email_select_options' do
     it 'returns an array with private commit email along with all the verified emails' do
       user = create(:user)
@@ -14,7 +16,7 @@ RSpec.describe ProfilesHelper do
 
       emails = [
         [s_('Use primary email (%{email})') % { email: user.email }, ''],
-        [s_("Profiles|Use a private email - %{email}").html_safe % { email: private_email }, Gitlab::PrivateCommitEmail::TOKEN],
+        [safe_format(s_("Profiles|Use a private email - %{email}"), email: private_email), Gitlab::PrivateCommitEmail::TOKEN],
         user.email,
         confirmed_email1.email,
         confirmed_email2.email
@@ -106,9 +108,9 @@ RSpec.describe ProfilesHelper do
     using RSpec::Parameterized::TableSyntax
 
     where(:stacking, :breakpoint, :expected) do
-      nil  | nil | %w[gl-mb-3 gl-display-inline-block middle-dot-divider]
+      nil  | nil | %w[gl-mb-3 gl-inline-block middle-dot-divider]
       true | nil | %w[gl-mb-3 middle-dot-divider-sm gl-block sm:gl-inline-block]
-      nil  | :sm | %w[gl-mb-3 gl-display-inline-block middle-dot-divider-sm]
+      nil  | :sm | %w[gl-mb-3 gl-inline-block middle-dot-divider-sm]
     end
 
     with_them do

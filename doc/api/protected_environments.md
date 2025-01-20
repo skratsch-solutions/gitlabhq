@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Valid access levels
 
@@ -41,7 +41,7 @@ GET /projects/:id/protected_environments
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/protected_environments/"
@@ -78,7 +78,7 @@ GET /projects/:id/protected_environments/:name
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `name` | string | yes | The name of the protected environment |
 
 ```shell
@@ -114,7 +114,7 @@ POST /projects/:id/protected_environments
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`                            | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                            | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name`                          | string         | yes | The name of the environment. |
 | `deploy_access_levels`          | array          | yes | Array of access levels allowed to deploy, with each described by a hash. |
 | `approval_rules`                | array          | no  | Array of access levels allowed to approve, with each described by a hash. See [Multiple approval rules](../ci/environments/deployment_approvals.md#add-multiple-approval-rules). |
@@ -123,7 +123,7 @@ Elements in the `deploy_access_levels` and `approval_rules` array should be one 
 `access_level`, and take the form `{user_id: integer}`, `{group_id: integer}` or
 `{access_level: integer}`. Optionally, you can specify the `group_inheritance_type` on each as one of the [valid group inheritance types](#group-inheritance-types).
 
-Each user must have access to the project and each group must [have this project shared](../user/project/members/share_project_with_groups.md).
+Each user must have access to the project and each group must [have this project shared](../user/project/members/sharing_projects_groups.md).
 
 ```shell
 curl --header 'Content-Type: application/json' --request POST \
@@ -183,7 +183,7 @@ PUT /projects/:id/protected_environments/:name
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`                            | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                            | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name`                          | string         | yes | The name of the environment. |
 | `deploy_access_levels`          | array          | no  | Array of access levels allowed to deploy, with each described by a hash. |
 | `approval_rules`                | array          | no  | Array of access levels allowed to approve, with each described by a hash. See [Multiple approval rules](../ci/environments/deployment_approvals.md#add-multiple-approval-rules) for more information. |
@@ -195,7 +195,7 @@ Elements in the `deploy_access_levels` and `approval_rules` array should be one 
 To update:
 
 - **`user_id`**: Ensure the updated user has access to the project. You must also pass the `id` of either a `deploy_access_level` or `approval_rule` in the respective hash.
-- **`group_id`**: Ensure the updated group [have this project shared](../user/project/members/share_project_with_groups.md). You must also pass the `id` of either a `deploy_access_level` or `approval_rule` in the respective hash.
+- **`group_id`**: Ensure the updated group [have this project shared](../user/project/members/sharing_projects_groups.md). You must also pass the `id` of either a `deploy_access_level` or `approval_rule` in the respective hash.
 
 To delete:
 
@@ -352,7 +352,7 @@ DELETE /projects/:id/protected_environments/:name
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the protected environment. |
 
 ```shell

@@ -1,6 +1,6 @@
 ---
 stage: Create
-group: IDE
+group: Remote Development
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 description: "Workspaces are virtual sandbox environments for creating and managing your GitLab development environments."
 ---
@@ -9,10 +9,10 @@ description: "Workspaces are virtual sandbox environments for creating and manag
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112397) in GitLab 15.11 [with a flag](../../administration/feature_flags.md) named `remote_development_feature_flag`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/391543) in GitLab 16.0.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/391543) in GitLab 16.0.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136744) in GitLab 16.7. Feature flag `remote_development_feature_flag` removed.
 
 A workspace is a virtual sandbox environment for your code in GitLab.
@@ -48,12 +48,12 @@ To manage workspaces from a project:
    - Create a new workspace.
 
 WARNING:
-When you terminate a workspace, any unsaved or uncommitted data
-in that workspace is deleted and cannot be recovered.
+When you terminate a workspace, GitLab deletes any unsaved or uncommitted data
+in that workspace. The data cannot be recovered.
 
 ### Deleting resources associated with a workspace
 
-When you terminate a workspace, all resources associated with the workspace are deleted.
+When you terminate a workspace, you delete all resources associated with the workspace.
 When you delete a project, agent, user, or token associated with a running workspace:
 
 - The workspace is deleted from the user interface.
@@ -76,8 +76,8 @@ To manage all workspaces associated with an agent:
 1. From the list, you can restart, stop, or terminate an existing workspace.
 
 WARNING:
-When you terminate a workspace, any unsaved or uncommitted data
-in that workspace is deleted and cannot be recovered.
+When you terminate a workspace, GitLab deletes any unsaved or uncommitted data
+in that workspace. The data cannot be recovered.
 
 ### Identify an agent from a running workspace
 
@@ -92,15 +92,12 @@ To identify an agent associated with a running workspace, use one of the followi
 
 ## Devfile
 
-A devfile is a file that defines a development environment by specifying the necessary
-tools, languages, runtimes, and other components for a GitLab project.
+Workspaces have built-in support for devfiles. Devfiles are files that define a development environment
+by specifying the necessary tools, languages, runtimes, and other components for a GitLab project.
+Use them to automatically configure your development environment with your defined specifications.
+They create consistent and reproducible development environments, regardless of the machine or platform you use.
 
-Workspaces have built-in support for devfiles.
 The default location is `.devfile.yaml`, but you can also use a custom location.
-The devfile is used to automatically configure the development environment with the defined specifications.
-
-This way, you can create consistent and reproducible development environments
-regardless of the machine or platform you use.
 
 ### Validation rules
 
@@ -115,6 +112,9 @@ regardless of the machine or platform you use.
   - Only `preStart` is supported.
 - `parent`, `projects`, and `starterProjects` are not supported.
 - For `variables`, keys must not start with `gl-`, `gl_`, `GL-`, or `GL_`.
+- For `attributes`:
+  - `pod-overrides` must not be set at the root level or in `components`.
+  - `container-overrides` must not be set in `components`.
 
 ### `container` component type
 
@@ -191,14 +191,15 @@ For more information, see [GitLab Workflow extension for VS Code](https://gitlab
 
 ## Extension marketplace
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438491) in GitLab 16.9 [with a flag](../../administration/feature_flags.md) named `allow_extensions_marketplace_in_workspace`. Disabled by default.
+DETAILS:
+**Status:** Beta
 
-FLAG:
-The availability of this feature is controlled by a feature flag.
-For more information, see the history.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/438491) as a [beta](../../policy/development_stages_support.md#beta) in GitLab 16.9 [with a flag](../../administration/feature_flags.md) named `allow_extensions_marketplace_in_workspace`. Disabled by default.
+> - Feature flag `allow_extensions_marketplace_in_workspace` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/454669) in GitLab 17.6.
 
-When `allow_extensions_marketplace_in_workspace` is enabled, you can use the extension marketplace in workspaces.
-An administrator can enable or disable the flag for top-level groups only.
+You can use the
+[extension marketplace](../project/web_ide/index.md#extension-marketplace) in workspaces
+when it is [enabled](../profile/preferences.md#integrate-with-the-extension-marketplace).
 
 The extension marketplace connects to the [Open VSX Registry](https://open-vsx.org/).
 
@@ -209,24 +210,23 @@ The extension marketplace connects to the [Open VSX Registry](https://open-vsx.o
 
 When you [create a workspace](configuration.md#create-a-workspace), you get a personal access token
 with `write_repository` and `api` permissions.
-This token is used to initially clone the project while starting the workspace
+Use this token to clone the project initially, while starting the workspace,
 and to configure the GitLab Workflow extension for VS Code.
 
 Any Git operation you perform in the workspace uses this token for authentication and authorization.
-When you terminate the workspace, the token is revoked.
+Terminating the workspace revokes the token.
 
-The `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_n`, and `GIT_CONFIG_VALUE_n`
+Use the `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_n`, and `GIT_CONFIG_VALUE_n`
 [environment variables](https://git-scm.com/docs/git-config/#Documentation/git-config.txt-GITCONFIGCOUNT)
-are used for Git authentication in the workspace.
-Support for these variables was added in Git 2.31, so the Git version
-you use in the workspace container must be 2.31 and later.
+for Git authentication in the workspace. Git added support for these variables in Git 2.31, so the Git version
+you use in the workspace container must be 2.31 or later.
 
 ## Pod interaction in a cluster
 
 Workspaces run as pods in a Kubernetes cluster.
 GitLab does not impose any restrictions on the manner in which pods interact with each other.
 
-Because of this requirement, you might want to isolate this feature from other containers in your cluster.
+Consider isolating this feature from other containers in your cluster, because of this requirement.
 
 ## Network access and workspace authorization
 
@@ -238,17 +238,28 @@ The workspace creator is only authorized to access the workspace after user auth
 
 ## Compute resources and volume storage
 
-When you stop a workspace, the compute resources for that workspace are scaled down to zero.
+When you stop a workspace, GitLab scales the compute resources for that workspace down to zero.
 However, the volume provisioned for the workspace still exists.
 
 To delete the provisioned volume, you must terminate the workspace.
+
+## Automatic workspace stop and termination
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14910) in GitLab 17.6.
+
+By default, a workspace automatically:
+
+- Stops 36 hours after the workspace was last started or restarted.
+  For more information, see [`max_active_hours_before_stop`](gitlab_agent_configuration.md#max_active_hours_before_stop).
+- Terminates 722 hours after the workspace was last stopped.
+  For more information, see [`max_stopped_hours_before_termination`](gitlab_agent_configuration.md#max_stopped_hours_before_termination).
 
 ## Arbitrary user IDs
 
 You can provide your own container image, which can run as any Linux user ID.
 
 It's not possible for GitLab to predict the Linux user ID for a container image.
-GitLab uses the Linux root group ID permission to create, update, or delete files in a container.
+GitLab uses the Linux `root` group ID permission to create, update, or delete files in a container.
 The container runtime used by the Kubernetes cluster must ensure all containers have a default Linux group ID of `0`.
 
 If you have a container image that does not support arbitrary user IDs,

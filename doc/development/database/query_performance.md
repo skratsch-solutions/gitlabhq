@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -73,3 +73,21 @@ In `psql`:
 ```sql
 Buffers: shared hit=7202 read=121
 ```
+
+## Slow list views and APIs
+
+We often build filtered list views and APIs in GitLab which need to have many
+different filter and sorting options. All these options are usually
+encapsulated in finders and exposed by API/GraphQL arguments. While we have many possible
+[pagination performance optimizations](pagination_performance_guidelines.md)
+, there is
+often no way to make all combinations of sorting and filtering performant.
+Attempts to make many options performant might involve
+[adding too many indexes](adding_database_indexes.md)
+which sacrifices performance of our primary database. This is only justified
+for common use cases and should not be considered as a way to make all
+permutations of filter and sort performant. What this means practically is that
+there will likely be filtered views and API requests that timeout when certain
+sorting or filtering options are applied. We still allow them to be added by
+teams where they benefit certain customers with specific combinations of
+filtering/sorting, but we need to accept that they will timeout for some users.

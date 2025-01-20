@@ -122,7 +122,7 @@ RSpec.describe 'User searches for code', :js, :disable_rate_limiter, feature_cat
 
       expect(page).to have_selector('.ref-selector')
 
-      select_search_scope('Issues')
+      select_search_scope('Issue')
 
       expect(find(:css, '.results')).to have_link(issue.title)
       expect(page).not_to have_selector('.ref-selector')
@@ -134,7 +134,7 @@ RSpec.describe 'User searches for code', :js, :disable_rate_limiter, feature_cat
       it 'is redirected to login page' do
         visit(search_path)
 
-        expect(page).to have_content('You must be logged in to search across all of GitLab')
+        expect(page).to have_content('You need to sign in or sign up before continuing.')
       end
     end
   end

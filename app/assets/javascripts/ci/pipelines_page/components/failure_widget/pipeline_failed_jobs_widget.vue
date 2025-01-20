@@ -1,28 +1,26 @@
 <script>
-import { GlButton, GlCard, GlIcon, GlLink, GlPopover, GlSprintf } from '@gitlab/ui';
-import { __, s__, sprintf } from '~/locale';
+import { GlBadge, GlButton, GlIcon } from '@gitlab/ui';
+import { createAlert } from '~/alert';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
+import { __ } from '~/locale';
+import { getQueryHeaders } from '~/ci/pipeline_details/graph/utils';
+import { graphqlEtagPipelinePath } from '~/ci/pipeline_details/utils';
+import { toggleQueryPollingByVisibility } from '~/graphql_shared/utils';
+import getPipelineFailedJobsCount from '../../graphql/queries/get_pipeline_failed_jobs_count.query.graphql';
 import FailedJobsList from './failed_jobs_list.vue';
+import { POLL_INTERVAL } from './constants';
 
 export default {
+  fetchError: __('An error occured fetching failed jobs count'),
   components: {
+    GlBadge,
     GlButton,
-    GlCard,
     GlIcon,
-    GlLink,
-    GlPopover,
-    GlSprintf,
     FailedJobsList,
+    CrudComponent,
   },
-  inject: ['fullPath'],
+  inject: ['fullPath', 'graphqlPath'],
   props: {
-    failedJobsCount: {
-      required: true,
-      type: Number,
-    },
-    isPipelineActive: {
-      required: true,
-      type: Boolean,
-    },
     pipelineIid: {
       required: true,
       type: Number,
@@ -36,84 +34,136 @@ export default {
       type: String,
     },
   },
+  apollo: {
+    failedJobsCount: {
+      context() {
+        return getQueryHeaders(this.graphqlResourceEtag);
+      },
+      query: getPipelineFailedJobsCount,
+      variables() {
+        return {
+          fullPath: this.projectPath,
+          pipelineIid: this.pipelineIid,
+        };
+      },
+      update({ project }) {
+        this.isPipelineActive = project?.pipeline?.active || false;
+
+        return project?.pipeline?.jobs?.count || 0;
+      },
+      error() {
+        createAlert({ message: this.$options.fetchError });
+      },
+    },
+  },
   data() {
     return {
-      currentFailedJobsCount: this.failedJobsCount,
-      isActive: false,
+      failedJobsCount: 0,
       isExpanded: false,
+      // explicity set to null so watcher can detect
+      // reactivity changes for polling
+      isPipelineActive: null,
     };
   },
   computed: {
-    bodyClasses() {
-      return this.isExpanded ? '' : 'gl-display-none';
+    graphqlResourceEtag() {
+      return graphqlEtagPipelinePath(this.graphqlPath, this.pipelineIid);
     },
-    failedJobsCountText() {
-      return sprintf(this.$options.i18n.failedJobsLabel, { count: this.currentFailedJobsCount });
+    bodyClasses() {
+      return this.isExpanded ? '' : 'gl-hidden';
+    },
+    failedJobsCountBadge() {
+      return `${this.isMaximumJobLimitReached ? '100+' : this.failedJobsCount}`;
     },
     iconName() {
       return this.isExpanded ? 'chevron-down' : 'chevron-right';
     },
-    popoverId() {
-      return `popover-${this.pipelineIid}`;
-    },
-    maximumJobs() {
-      return this.currentFailedJobsCount > 100;
+    isMaximumJobLimitReached() {
+      return this.failedJobsCount > 100;
     },
   },
   watch: {
-    failedJobsCount(val) {
-      this.currentFailedJobsCount = val;
+    isPipelineActive(active) {
+      if (!active) {
+        this.$apollo.queries.failedJobsCount.stopPolling();
+      } else {
+        this.$apollo.queries.failedJobsCount.startPolling(POLL_INTERVAL);
+        // ensure we only toggle polling back on tab switch
+        // if the pipeline is active
+        toggleQueryPollingByVisibility(this.$apollo.queries.failedJobsCount, POLL_INTERVAL);
+      }
     },
   },
+  beforeDestroy() {
+    this.$apollo.queries.failedJobsCount.stopPolling();
+  },
   methods: {
-    setFailedJobsCount(count) {
-      this.currentFailedJobsCount = count;
-    },
     toggleWidget() {
       this.isExpanded = !this.isExpanded;
     },
+    async refetchCount() {
+      try {
+        // "pause" polling during manual refetch of count
+        // to avoid redundant calls
+        this.$apollo.queries.failedJobsCount.stopPolling();
+        await this.$apollo.queries.failedJobsCount.refetch();
+      } catch {
+        createAlert({ message: this.$options.fetchError });
+      } finally {
+        if (this.isPipelineActive) {
+          this.$apollo.queries.failedJobsCount.startPolling(POLL_INTERVAL);
+        }
+      }
+    },
   },
-  i18n: {
-    additionalInfoPopover: s__(
-      'Pipelines|You will see a maximum of 100 jobs in this list. To view all failed jobs, %{linkStart}go to the details page%{linkEnd} of this pipeline.',
-    ),
-    additionalInfoTitle: __('Limitation on this view'),
-    failedJobsLabel: __('Failed jobs (%{count})'),
-  },
+  ariaControlsId: 'pipeline-failed-jobs-widget',
 };
 </script>
 <template>
-  <gl-card
-    class="gl-new-card"
-    :class="{ 'gl-border-white gl-hover-border-gray-100': !isExpanded }"
-    header-class="gl-new-card-header gl-px-3 gl-py-3"
-    body-class="gl-new-card-body"
+  <crud-component
+    :id="$options.ariaControlsId"
+    class="expandable-card"
+    :class="{ 'is-collapsed gl-border-transparent hover:gl-border-default': !isExpanded }"
     data-testid="failed-jobs-card"
-    :aria-expanded="isExpanded.toString()"
+    @click="toggleWidget"
   >
-    <template #header>
-      <gl-button variant="link" class="gl-text-gray-500! gl-font-semibold" @click="toggleWidget">
-        <gl-icon :name="iconName" />{{ failedJobsCountText
-        }}<gl-icon v-if="maximumJobs" :id="popoverId" name="information-o" class="gl-ml-2" />
-        <gl-popover :target="popoverId" placement="top">
-          <template #title> {{ $options.i18n.additionalInfoTitle }} </template>
-          <slot>
-            <gl-sprintf :message="$options.i18n.additionalInfoPopover">
-              <template #link="{ content }">
-                <gl-link class="gl-font-sm" :href="pipelinePath">{{ content }}</gl-link>
-              </template>
-            </gl-sprintf>
-          </slot>
-        </gl-popover>
+    <template #title>
+      <gl-button
+        variant="link"
+        class="!gl-text-subtle"
+        :aria-expanded="isExpanded.toString()"
+        :aria-controls="$options.ariaControlsId"
+        data-testid="toggle-button"
+        @click="toggleWidget"
+      >
+        <gl-icon :name="iconName" class="gl-mr-2" />
+        <span class="gl-font-bold gl-text-subtle">
+          {{ __('Failed jobs') }}
+        </span>
+      </gl-button>
+    </template>
+    <template #count>
+      <gl-badge>
+        {{ failedJobsCountBadge }}
+      </gl-badge>
+    </template>
+    <template #actions>
+      <gl-button
+        v-if="isExpanded"
+        href="https://gitlab.com/gitlab-org/gitlab/-/issues/502436"
+        data-testid="feedback-button"
+        size="small"
+      >
+        {{ __('Leave feedback') }}
       </gl-button>
     </template>
     <failed-jobs-list
       v-if="isExpanded"
-      :failed-jobs-count="failedJobsCount"
-      :is-pipeline-active="isPipelineActive"
+      :is-maximum-job-limit-reached="isMaximumJobLimitReached"
       :pipeline-iid="pipelineIid"
+      :pipeline-path="pipelinePath"
       :project-path="projectPath"
-      @failed-jobs-count="setFailedJobsCount"
+      @job-retried="refetchCount"
     />
-  </gl-card>
+  </crud-component>
 </template>

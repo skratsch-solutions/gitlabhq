@@ -54,12 +54,12 @@ module JiraConnectSubscriptions
     # We also still queue a PropagateIntegrationWorker in order to create integrations
     # (the Integration.descendants_from_self_or_ancestors_from only updates existing ones).
     def create_jira_cloud_integration!
-      return unless Feature.enabled?(:enable_jira_connect_configuration) # rubocop:disable Gitlab/FeatureFlagWithoutActor -- flag must be global
-
       integration = Integration.find_or_initialize_non_project_specific_integration(
         'jira_cloud_app',
         group_id: namespace.id
       )
+
+      return unless integration
 
       Integrations::JiraCloudApp.transaction do
         integration.inherit_from_id = nil

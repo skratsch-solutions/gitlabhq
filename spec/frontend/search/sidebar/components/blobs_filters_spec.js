@@ -6,11 +6,7 @@ import { MOCK_QUERY } from 'jest/search/mock_data';
 import BlobsFilters from '~/search/sidebar/components/blobs_filters.vue';
 import LanguageFilter from '~/search/sidebar/components/language_filter/index.vue';
 import ArchivedFilter from '~/search/sidebar/components/archived_filter/index.vue';
-import {
-  SEARCH_TYPE_ZOEKT,
-  SEARCH_TYPE_ADVANCED,
-  SEARCH_TYPE_BASIC,
-} from '~/search/sidebar/constants';
+import ForksFilter from '~/search/sidebar/components/forks_filter/index.vue';
 
 Vue.use(Vuex);
 
@@ -19,10 +15,10 @@ describe('GlobalSearch BlobsFilters', () => {
 
   const defaultGetters = {
     currentScope: () => 'blobs',
-    showArchived: () => true,
+    hasMissingProjectContext: () => true,
   };
 
-  const createComponent = (initialState = { searchType: SEARCH_TYPE_ADVANCED }) => {
+  const createComponent = (initialState = { searchType: 'advanced' }) => {
     const store = new Vuex.Store({
       state: {
         urlQuery: MOCK_QUERY,
@@ -38,16 +34,17 @@ describe('GlobalSearch BlobsFilters', () => {
 
   const findLanguageFilter = () => wrapper.findComponent(LanguageFilter);
   const findArchivedFilter = () => wrapper.findComponent(ArchivedFilter);
+  const findForksFilter = () => wrapper.findComponent(ForksFilter);
 
   beforeEach(() => {
     createComponent();
   });
 
   describe.each`
-    searchType              | isShown
-    ${SEARCH_TYPE_BASIC}    | ${false}
-    ${SEARCH_TYPE_ADVANCED} | ${true}
-    ${SEARCH_TYPE_ZOEKT}    | ${false}
+    searchType    | isShown
+    ${'basic'}    | ${false}
+    ${'advanced'} | ${true}
+    ${'zoekt'}    | ${false}
   `('sidebar blobs language filter:', ({ searchType, isShown }) => {
     beforeEach(() => {
       createComponent({ searchType });
@@ -58,18 +55,41 @@ describe('GlobalSearch BlobsFilters', () => {
     });
   });
 
-  it('renders ArchivedFilter', () => {
-    expect(findArchivedFilter().exists()).toBe(true);
-  });
-
-  describe('ShowArchived getter', () => {
+  describe.each`
+    searchType    | hasProjectContent | isShown
+    ${'basic'}    | ${true}           | ${false}
+    ${'basic'}    | ${false}          | ${false}
+    ${'advanced'} | ${true}           | ${false}
+    ${'advanced'} | ${false}          | ${false}
+    ${'zoekt'}    | ${true}           | ${true}
+    ${'zoekt'}    | ${false}          | ${false}
+  `('sidebar blobs fork filter:', ({ searchType, hasProjectContent, isShown }) => {
     beforeEach(() => {
-      defaultGetters.showArchived = () => false;
-      createComponent();
+      defaultGetters.hasMissingProjectContext = () => hasProjectContent;
+      createComponent({ searchType });
     });
 
-    it('hides archived filter', () => {
-      expect(findArchivedFilter().exists()).toBe(false);
+    it(`does ${isShown ? '' : 'not '}render ForksFilter when search_type ${searchType} and hasProjectContent ${hasProjectContent}}`, () => {
+      expect(findForksFilter().exists()).toBe(isShown);
+    });
+  });
+
+  describe.each`
+    searchType    | hasProjectContent | isShown
+    ${'basic'}    | ${true}           | ${true}
+    ${'basic'}    | ${false}          | ${false}
+    ${'advanced'} | ${true}           | ${true}
+    ${'advanced'} | ${false}          | ${false}
+    ${'zoekt'}    | ${true}           | ${true}
+    ${'zoekt'}    | ${false}          | ${false}
+  `('sidebar blobs archived filter:', ({ searchType, hasProjectContent, isShown }) => {
+    beforeEach(() => {
+      defaultGetters.hasMissingProjectContext = () => hasProjectContent;
+      createComponent({ searchType });
+    });
+
+    it(`does ${isShown ? '' : 'not '}render ArchivedFilter when search_type ${searchType} and hasProjectContent ${hasProjectContent}}`, () => {
+      expect(findArchivedFilter().exists()).toBe(isShown);
     });
   });
 });

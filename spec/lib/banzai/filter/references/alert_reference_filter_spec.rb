@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Banzai::Filter::References::AlertReferenceFilter, feature_category: :team_planning do
+RSpec.describe Banzai::Filter::References::AlertReferenceFilter, feature_category: :markdown do
   include FilterSpecHelper
 
   let_it_be(:project)   { create(:project, :public) }
@@ -209,7 +209,7 @@ RSpec.describe Banzai::Filter::References::AlertReferenceFilter, feature_categor
 
     it 'links to a valid reference' do
       reference = "#{project.full_path}^alert##{alert.iid}"
-      result = reference_filter("See #{reference}", { project: nil, group: group } )
+      result = reference_filter("See #{reference}", { project: nil, group: group })
 
       expect(result.css('a').first.attr('href')).to eq(alert.details_url)
     end

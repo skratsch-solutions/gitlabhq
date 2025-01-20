@@ -9,14 +9,14 @@ description: "Use push rules to control the content and format of Git commits yo
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Maximum regular expression length for push rules [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/411901) from 255 to 511 characters in GitLab 16.3.
 
-Push rules are [pre-receive Git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) you
+Push rules are [`pre-receive` Git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks#:~:text=pre%2Dreceive,with%20the%20push.) you
 can enable in a user-friendly interface. Push rules give you more control over what
 can and can't be pushed to your repository. While GitLab offers
-[protected branches](../protected_branches.md), you may need more specific rules, such as:
+[protected branches](../repository/branches/protected.md), you may need more specific rules, such as:
 
 - Evaluating the contents of a commit.
 - Confirming commit messages match expected formats.
@@ -33,7 +33,7 @@ For custom push rules use [server hooks](../../../administration/server_hooks.md
 ## Enable global push rules
 
 You can create push rules for all new projects to inherit, but they can be overridden
-at the project level or the [group level](../../group/access_and_permissions.md#group-push-rules).
+in a project or [group](../../group/access_and_permissions.md#group-push-rules).
 All projects created after you configure global push rules inherit this
 configuration. However, each existing project must be updated manually, using the
 process described in [Override global push rules per project](#override-global-push-rules-per-project).
@@ -44,8 +44,8 @@ Prerequisites:
 
 To create global push rules:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Push Rules**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Push rules**.
 1. Expand **Push rules**.
 1. Set the rule you want.
 1. Select **Save push rules**.
@@ -66,9 +66,12 @@ for an existing project to match new global push rules:
 
 Use these rules to validate users who make commits.
 
+NOTE:
+These push rules apply only to commits and not [tags](tags/index.md).
+
 - **Reject unverified users**: Users must have a [confirmed email address](../../../security/user_email_confirmation.md).
 - **Check whether the commit author is a GitLab user**: The commit author and committer must have an email address that's been verified by GitLab.
-- **Commit author's email**: Both the author's and committer's email addresses must match the regular expression.
+- **Commit author's email**: Both the author and committer email addresses must match the regular expression.
   To allow any email address, leave empty.
 
 ## Validate commit messages
@@ -101,7 +104,7 @@ Use these rules for your commit messages.
   the expression. To allow any commit message, leave empty.
   Uses multiline mode, which can be disabled by using `(?-m)`.
 
-## Reject commits that aren't DCO certified
+## Reject commits that aren't signed-off
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/98810) in GitLab 15.5.
 
@@ -238,51 +241,72 @@ In Git, filenames include both the file's name, and all directories preceding th
 When you `git push`, each filename in the push is compared to the regular expression
 in **Prohibited filenames**.
 
-The regular expression in your **Prohibited filenames** push rule can contain multiple,
-independent matches to exclude. You can match filenames broadly to any location in
-your repository, or restrict only in certain locations. Filename matches can also
-be partial, and exclude file types by extension.
+The regular expression can:
 
-These examples use regex (regular expressions) string boundary characters to match
-the beginning of a string (`^`), and its end (`$`). They also include instances
-where either the directory path or the filename can include `.` or `/`. Both of
-these special regex characters must be escaped with a backslash `\\` if you want
-to use them as standard characters in a match condition.
+- Match file names in any location in your repository.
+- Match file names in specific locations.
+- Match partial file names.
+- Exclude specific file types by extension.
+- Combine multiple expressions to exclude several patterns.
+- Allow only specific file types, and act as an allow list.
 
-- **Prevent pushing `.exe` files to any location in the repository** - This regex
-  matches any filename that contains `.exe` at the end:
+#### Regular expression examples
+
+These examples use common regex string boundary patterns:
+
+- `^`: Matches the beginning of a string.
+- `$`: Matches the end of a string.
+- `\.`: Matches a literal period character. The backslash escapes the period.
+- `\/`: Matches a literal forward slash. The backslash escapes the forward slash.
+
+##### Prevent specific file types
+
+- To prevent pushing `.exe` files to any location in the repository:
 
   ```plaintext
   \.exe$
   ```
 
-- **Prevent pushing a specific configuration file in the repository root**
+##### Prevent specific files
 
-  ```plaintext
-  ^config\.yml$
-  ```
+- To prevent pushing a specific configuration file:
 
-- **Prevent pushing a specific configuration file in a known directory**
+  - In the repository root:
 
-  ```plaintext
-  ^directory-name\/config\.yml$
-  ```
+    ```plaintext
+    ^config\.yml$
+    ```
 
-- **Prevent pushing a specific file to any location in the repository** - This example tests
-  for any file named `install.exe`. The parenthesized expression `(^|\/)` matches either
-  a file following a directory separator, or a file in the root directory of the repository:
+  - In a specific directory:
+
+    ```plaintext
+    ^directory-name\/config\.yml$
+    ```
+
+- In any location - This example prevents pushing any file named `install.exe`:
 
   ```plaintext
   (^|\/)install\.exe$
   ```
 
-- **Combine all previous expressions into one expression** - The preceding expressions rely
-  on the end-of-string character `$`. We can move that part of each expression to the
-  end of the grouped collection of match conditions, where it is appended to all matches:
+##### Combine patterns
 
-  ```plaintext
-  (\.exe|^config\.yml|^directory-name\/config\.yml|(^|\/)install\.exe)$
-  ```
+You can combine multiple patterns into one expression. This example combines all the previous expressions:
+
+```plaintext
+(\.exe|^config\.yml|^directory-name\/config\.yml|(^|\/)install\.exe)$
+```
+
+##### Allow specific file types
+
+You can use the prohibited file names feature as an allow list. This example allows only `.sh` and `.exe` files,
+regardless of their location or the operating system's directory format:
+
+```plaintext
+^.*\.(?!(exe|sh)$)[^.]+$
+```
+
+To prevent these file types instead of allowing them, change `!` to `=`.
 
 ## Related topics
 
@@ -290,7 +314,8 @@ to use them as standard characters in a match condition.
 - [Signing commits with GPG](signed_commits/gpg.md)
 - [Signing commits with SSH](signed_commits/ssh.md)
 - [Signing commits with X.509](signed_commits/x509.md)
-- [Protected branches](../protected_branches.md)
+- [Protected branches](../repository/branches/protected.md)
+- [Secret detection](../../application_security/secret_detection/index.md)
 
 ## Troubleshooting
 
@@ -318,8 +343,8 @@ read [issue #19185](https://gitlab.com/gitlab-org/gitlab/-/issues/19185).
 ### Bulk update push rules for _all_ projects
 
 To update the push rules to be the same for all projects,
-you need to use [the rails console](../../../administration/operations/rails_console.md#starting-a-rails-console-session),
-or write a script to update each project using the [Push Rules API endpoint](../../../api/projects.md#push-rules).
+use the [Rails console](../../../administration/operations/rails_console.md#starting-a-rails-console-session),
+or write a script to update each project using the [push rules API endpoint](../../../api/project_push_rules.md).
 
 For example, to enable **Check whether the commit author is a GitLab user** and **Do not allow users to remove Git tags with `git push`** checkboxes,
 and create a filter for allowing commits from a specific email domain only through rails console:

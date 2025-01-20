@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 As it's described in the [CI/CD variables](index.md) documentation, you can
 define many different variables. Some of them can be used for all GitLab CI/CD
@@ -30,23 +30,22 @@ There are two places defined variables can be used. On the:
 | Definition                                                            | Can be expanded? | Expansion place        | Description |
 |:----------------------------------------------------------------------|:-----------------|:-----------------------|:------------|
 | [`after_script`](../yaml/index.md#after_script)                       | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment). |
-| [`artifacts:name`](../yaml/index.md#artifactsname)                    | yes              | Runner                 | The variable expansion is made by GitLab Runner's shell environment. |
-| [`artifacts:paths`](../yaml/index.md#artifactspaths)                  | yes              | Runner                 | The variable expansion is made by GitLab Runner's shell environment. |
+| [`artifacts:name`](../yaml/index.md#artifactsname)                    | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
+| [`artifacts:paths`](../yaml/index.md#artifactspaths)                  | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
 | [`before_script`](../yaml/index.md#before_script)                     | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment) |
 | [`cache:key`](../yaml/index.md#cachekey)                              | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
+| [`cache:paths`](../yaml/index.md#cachepaths)                          | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
 | [`cache:policy`](../yaml/index.md#cachepolicy)                        | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
 | [`environment:name`](../yaml/index.md#environmentname)                | yes              | GitLab                 | Similar to `environment:url`, but the variables expansion doesn't support the following:<br/><br/>- `CI_ENVIRONMENT_*` variables.<br/>- [Persisted variables](#persisted-variables). |
 | [`environment:url`](../yaml/index.md#environmenturl)                  | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab.<br/><br/>Supported are all variables defined for a job (project/group variables, variables from `.gitlab-ci.yml`, variables from triggers, variables from pipeline schedules).<br/><br/>Not supported are variables defined in the GitLab Runner `config.toml` and variables created in the job's `script`. |
-| [`environment:auto_stop_in`](../yaml/index.md#environmentauto_stop_in)| yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab.<br/><br/> The value of the variable being substituted should be a period of time in a human readable natural language form. See [possible inputs](../yaml/index.md#environmentauto_stop_in) for more information.|
-| [`except:variables`](../yaml/index.md#onlyvariables--exceptvariables) (Deprecated) | no  | Not applicable         | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- `CI_ENVIRONMENT_SLUG` variable.<br/>- [Persisted variables](#persisted-variables). |
+| [`environment:auto_stop_in`](../yaml/index.md#environmentauto_stop_in)| yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab.<br/><br/> The value of the variable being substituted should be a period of time in a human readable natural language form. See [supported values](../yaml/index.md#environmentauto_stop_in) for more information.|
 | [`id_tokens:aud`](../yaml/index.md#id_tokens)                         | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. Variable expansion [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414293) in GitLab 16.1. |
 | [`image`](../yaml/index.md#image)                                     | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
 | [`include`](../yaml/index.md#include)                                 | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. <br/><br/>See [Use variables with include](../yaml/includes.md#use-variables-with-include) for more information on supported variables. |
-| [`only:variables`](../yaml/index.md#onlyvariables--exceptvariables) (Deprecated) | no    | Not applicable         | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- `CI_ENVIRONMENT_SLUG` variable.<br/>- [Persisted variables](#persisted-variables). |
 | [`resource_group`](../yaml/index.md#resource_group)                   | yes              | GitLab                 | Similar to `environment:url`, but the variables expansion doesn't support the following:<br/>- `CI_ENVIRONMENT_URL`<br/>- [Persisted variables](#persisted-variables). |
-| [`rules:changes`](../yaml/index.md#ruleschanges)                      | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
-| [`rules:changes:compare_to`](../yaml/index.md#ruleschangescompare_to) | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
-| [`rules:exists`](../yaml/index.md#rulesexists)                        | yes              | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
+| [`rules:changes`](../yaml/index.md#ruleschanges)                      | no               | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
+| [`rules:changes:compare_to`](../yaml/index.md#ruleschangescompare_to) | no               | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
+| [`rules:exists`](../yaml/index.md#rulesexists)                        | no               | GitLab                 | The variable expansion is made by the [internal variable expansion mechanism](#gitlab-internal-variable-expansion-mechanism) in GitLab. |
 | [`rules:if`](../yaml/index.md#rulesif)                                | no               | Not applicable         | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- `CI_ENVIRONMENT_SLUG` variable.<br/>- [Persisted variables](#persisted-variables). |
 | [`script`](../yaml/index.md#script)                                   | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment). |
 | [`services:name`](../yaml/index.md#services)                          | yes              | Runner                 | The variable expansion is made by GitLab Runner's [internal variable expansion mechanism](#gitlab-runner-internal-variable-expansion-mechanism). |
@@ -171,28 +170,6 @@ Job-level persisted variables:
 - `CI_REGISTRY_PASSWORD`
 - `CI_REGISTRY_USER`
 - `CI_REPOSITORY_URL`
-
-Persisted variables for specific integrations:
-
-- [Harbor](../../user/project/integrations/harbor.md):
-  - `HARBOR_URL`
-  - `HARBOR_HOST`
-  - `HARBOR_OCI`
-  - `HARBOR_PROJECT`
-  - `HARBOR_USERNAME`
-  - `HARBOR_PASSWORD`
-- [Apple App Store Connect](../../user/project/integrations/apple_app_store.md):
-  - `APP_STORE_CONNECT_API_KEY_ISSUER_ID`
-  - `APP_STORE_CONNECT_API_KEY_KEY_ID`
-  - `APP_STORE_CONNECT_API_KEY_KEY`
-  - `APP_STORE_CONNECT_API_KEY_IS_KEY_CONTENT_BASE64`
-- [Google Play](../../user/project/integrations/google_play.md):
-  - `SUPPLY_PACKAGE_NAME`
-  - `SUPPLY_JSON_KEY_DATA`
-- [Diffblue Cover](../../integration/diffblue_cover.md):
-  - `DIFFBLUE_LICENSE_KEY`
-  - `DIFFBLUE_ACCESS_TOKEN_NAME`
-  - `DIFFBLUE_ACCESS_TOKEN`
 
 ## Variables with an environment scope
 

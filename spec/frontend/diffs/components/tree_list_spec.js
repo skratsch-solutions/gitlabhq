@@ -6,7 +6,7 @@ import createStore from '~/diffs/store/modules';
 import DiffFileRow from '~/diffs/components//diff_file_row.vue';
 import { stubComponent } from 'helpers/stub_component';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
-import { SET_PINNED_FILE_HASH, SET_TREE_DATA, SET_DIFF_FILES } from '~/diffs/store/mutation_types';
+import { SET_LINKED_FILE_HASH, SET_TREE_DATA, SET_DIFF_FILES } from '~/diffs/store/mutation_types';
 import { generateTreeList } from '~/diffs/utils/tree_worker_utils';
 import { sortTree } from '~/ide/stores/utils';
 
@@ -62,11 +62,12 @@ describe('Diffs tree list component', () => {
           getters: {
             allBlobs: getters.allBlobs,
             flatBlobsList: getters.flatBlobsList,
-            pinnedFile: getters.pinnedFile,
+            linkedFile: getters.linkedFile,
           },
           mutations: { ...mutations },
           actions: {
             toggleTreeOpen: actions.toggleTreeOpen,
+            setTreeOpen: actions.setTreeOpen,
             goToFile: actions.goToFile,
             setRenderTreeList: setRenderTreeListMock,
           },
@@ -83,6 +84,31 @@ describe('Diffs tree list component', () => {
         name: 'app',
         type: 'tree',
         tree: [],
+        opened: true,
+      },
+      javascript: {
+        key: 'appjavascript',
+        path: 'app/javascript',
+        name: 'javascript',
+        type: 'tree',
+        tree: [
+          {
+            addedLines: 0,
+            changed: true,
+            deleted: false,
+            fileHash: 'appjavascriptfile',
+            key: 'file.js',
+            name: 'file.js',
+            path: 'app/javascript/file.rb',
+            removedLines: 0,
+            tempFile: true,
+            type: 'blob',
+            parentPath: 'app/javascript',
+            tree: [],
+            file_path: 'app/javascript/file.js',
+            file_hash: 'appjavascriptfile',
+          },
+        ],
         opened: true,
       },
       'index.js': {
@@ -105,7 +131,7 @@ describe('Diffs tree list component', () => {
         addedLines: 0,
         changed: true,
         deleted: false,
-        fileHash: 'test',
+        fileHash: 'apptest',
         key: 'test.rb',
         name: 'test.rb',
         path: 'app/test.rb',
@@ -141,7 +167,7 @@ describe('Diffs tree list component', () => {
         treeEntries.LICENSE,
         {
           ...treeEntries.app,
-          tree: [treeEntries['index.js'], treeEntries['test.rb']],
+          tree: [treeEntries.javascript, treeEntries['index.js'], treeEntries['test.rb']],
         },
       ],
     });
@@ -201,7 +227,7 @@ describe('Diffs tree list component', () => {
     });
 
     it('renders tree', () => {
-      expect(getScroller().props('items')).toHaveLength(4);
+      expect(getScroller().props('items')).toHaveLength(6);
     });
 
     it('hides file stats', () => {
@@ -223,6 +249,23 @@ describe('Diffs tree list component', () => {
       await nextTick();
       expect(getScroller().props('items')).toHaveLength(5);
     });
+
+    it('dispatches setTreeOpen with all paths for the current diff file', async () => {
+      jest.spyOn(store, 'dispatch').mockReturnValue(undefined);
+
+      store.state.diffs.currentDiffFileId = 'appjavascriptfile';
+
+      await nextTick();
+
+      expect(store.dispatch).toHaveBeenCalledWith('diffs/setTreeOpen', {
+        opened: true,
+        path: 'app',
+      });
+      expect(store.dispatch).toHaveBeenCalledWith('diffs/setTreeOpen', {
+        opened: true,
+        path: 'app/javascript',
+      });
+    });
   });
 
   describe('with viewedDiffFileIds', () => {
@@ -241,7 +284,45 @@ describe('Diffs tree list component', () => {
     });
   });
 
-  describe('pinned file', () => {
+  describe('diff tree set current file auto scoll', () => {
+    const filePaths = [];
+
+    for (let i = 1; i <= 10; i += 1) {
+      const fileName = `${i.toString().padStart(2, '0')}.txt`;
+      filePaths.push([fileName, 'folder/']);
+    }
+
+    const createFile = (name, path = '') => ({
+      file_hash: name,
+      path: `${path}${name}`,
+      new_path: `${path}${name}`,
+      file_path: `${path}${name}`,
+    });
+
+    const setupFiles = (diffFiles) => {
+      const { treeEntries, tree } = generateTreeList(diffFiles);
+      store.commit(`diffs/${SET_TREE_DATA}`, {
+        treeEntries,
+        tree: sortTree(tree),
+      });
+    };
+
+    beforeEach(() => {
+      createComponent();
+      setupFiles(filePaths.map(([name, path]) => createFile(name, path)));
+    });
+
+    it('auto scroll', async () => {
+      wrapper.vm.$refs.scroller.scrollToItem = jest.fn();
+      store.state.diffs.currentDiffFileId = '05.txt';
+      await nextTick();
+
+      expect(wrapper.vm.currentDiffFileId).toBe('05.txt');
+      expect(wrapper.vm.$refs.scroller.scrollToItem).toHaveBeenCalledWith(5);
+    });
+  });
+
+  describe('linked file', () => {
     const filePaths = [
       ['nested-1.rb', 'folder/sub-folder/'],
       ['nested-2.rb', 'folder/sub-folder/'],
@@ -254,8 +335,8 @@ describe('Diffs tree list component', () => {
       ['root-last.rb'],
     ];
 
-    const pinFile = (fileHash) => {
-      store.commit(`diffs/${SET_PINNED_FILE_HASH}`, fileHash);
+    const linkFile = (fileHash) => {
+      store.commit(`diffs/${SET_LINKED_FILE_HASH}`, fileHash);
     };
 
     const setupFiles = (diffFiles) => {
@@ -280,8 +361,8 @@ describe('Diffs tree list component', () => {
     });
 
     describe('files in folders', () => {
-      it.each(filePaths.map((path) => path[0]))('pins %s file', async (pinnedFile) => {
-        pinFile(pinnedFile);
+      it.each(filePaths.map((path) => path[0]))('links %s file', async (linkedFile) => {
+        linkFile(linkedFile);
         await nextTick();
         const items = getScroller().props('items');
         expect(

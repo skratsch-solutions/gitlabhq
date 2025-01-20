@@ -17,7 +17,6 @@ export const WIDGET_TYPE_CURRENT_USER_TODOS = 'CURRENT_USER_TODOS';
 export const WIDGET_TYPE_LABELS = 'LABELS';
 export const WIDGET_TYPE_START_AND_DUE_DATE = 'START_AND_DUE_DATE';
 export const WIDGET_TYPE_TIME_TRACKING = 'TIME_TRACKING';
-export const WIDGET_TYPE_ROLLEDUP_DATES = 'ROLLEDUP_DATES';
 export const WIDGET_TYPE_WEIGHT = 'WEIGHT';
 export const WIDGET_TYPE_PARTICIPANTS = 'PARTICIPANTS';
 export const WIDGET_TYPE_PROGRESS = 'PROGRESS';
@@ -30,29 +29,28 @@ export const WIDGET_TYPE_LINKED_ITEMS = 'LINKED_ITEMS';
 export const WIDGET_TYPE_COLOR = 'COLOR';
 export const WIDGET_TYPE_DESIGNS = 'DESIGNS';
 export const WIDGET_TYPE_DEVELOPMENT = 'DEVELOPMENT';
+export const WIDGET_TYPE_CRM_CONTACTS = 'CRM_CONTACTS';
+export const WIDGET_TYPE_EMAIL_PARTICIPANTS = 'EMAIL_PARTICIPANTS';
 
+export const WORK_ITEM_TYPE_ENUM_EPIC = 'EPIC';
 export const WORK_ITEM_TYPE_ENUM_INCIDENT = 'INCIDENT';
 export const WORK_ITEM_TYPE_ENUM_ISSUE = 'ISSUE';
+export const WORK_ITEM_TYPE_ENUM_KEY_RESULT = 'KEY_RESULT';
+export const WORK_ITEM_TYPE_ENUM_OBJECTIVE = 'OBJECTIVE';
+export const WORK_ITEM_TYPE_ENUM_REQUIREMENTS = 'REQUIREMENT';
 export const WORK_ITEM_TYPE_ENUM_TASK = 'TASK';
 export const WORK_ITEM_TYPE_ENUM_TEST_CASE = 'TEST_CASE';
-export const WORK_ITEM_TYPE_ENUM_REQUIREMENTS = 'REQUIREMENT';
-export const WORK_ITEM_TYPE_ENUM_OBJECTIVE = 'OBJECTIVE';
-export const WORK_ITEM_TYPE_ENUM_KEY_RESULT = 'KEY_RESULT';
-export const WORK_ITEM_TYPE_ENUM_EPIC = 'EPIC';
+export const WORK_ITEM_TYPE_ENUM_TICKET = 'TICKET';
 
 export const WORK_ITEM_TYPE_VALUE_EPIC = 'Epic';
 export const WORK_ITEM_TYPE_VALUE_INCIDENT = 'Incident';
 export const WORK_ITEM_TYPE_VALUE_ISSUE = 'Issue';
-export const WORK_ITEM_TYPE_VALUE_TASK = 'Task';
-export const WORK_ITEM_TYPE_VALUE_TEST_CASE = 'Test case';
-export const WORK_ITEM_TYPE_VALUE_REQUIREMENTS = 'Requirements';
 export const WORK_ITEM_TYPE_VALUE_KEY_RESULT = 'Key Result';
 export const WORK_ITEM_TYPE_VALUE_OBJECTIVE = 'Objective';
-
-export const WORK_ITEM_TITLE_MAX_LENGTH = 255;
-
-export const WORK_ITEM_ROUTE_NAME = 'workItem';
-export const DESIGN_ROUTE_NAME = 'design';
+export const WORK_ITEM_TYPE_VALUE_REQUIREMENTS = 'Requirement';
+export const WORK_ITEM_TYPE_VALUE_TASK = 'Task';
+export const WORK_ITEM_TYPE_VALUE_TEST_CASE = 'Test Case';
+export const WORK_ITEM_TYPE_VALUE_TICKET = 'Ticket';
 
 export const SEARCH_DEBOUNCE = 500;
 
@@ -62,10 +60,14 @@ export const i18n = {
     "WorkItem|This work item is not available. It either doesn't exist or you don't have permission to view it.",
   ),
   updateError: s__('WorkItem|Something went wrong while updating the work item. Please try again.'),
+  addDesignEmptyState: s__('DesignManagement|Drag images here to add designs.'),
 };
 
 export const I18N_WORK_ITEM_ERROR_FETCHING_LABELS = s__(
   'WorkItem|Something went wrong when fetching labels. Please try again.',
+);
+export const I18N_WORK_ITEM_ERROR_FETCHING_CRM_CONTACTS = s__(
+  'WorkItem|Something went wrong when fetching CRM contacts. Please try again.',
 );
 export const I18N_WORK_ITEM_ERROR_FETCHING_TYPES = s__(
   'WorkItem|Something went wrong when fetching work item types. Please try again',
@@ -102,6 +104,7 @@ export const I18N_WORK_ITEM_FETCH_AWARD_EMOJI_ERROR = s__(
 
 export const I18N_NEW_WORK_ITEM_BUTTON_LABEL = s__('WorkItem|New %{workItemType}');
 export const I18N_WORK_ITEM_CREATE_BUTTON_LABEL = s__('WorkItem|Create %{workItemType}');
+export const I18N_WORK_ITEM_NEW_RELATED_ITEM = s__('WorkItem|New related %{workItemType}');
 export const I18N_WORK_ITEM_ADD_BUTTON_LABEL = s__('WorkItem|Add %{workItemType}');
 export const I18N_WORK_ITEM_ADD_MULTIPLE_BUTTON_LABEL = s__('WorkItem|Add %{workItemType}s');
 export const I18N_WORK_ITEM_SEARCH_INPUT_PLACEHOLDER = s__(
@@ -112,7 +115,7 @@ export const I18N_WORK_ITEM_SEARCH_ERROR = s__(
 );
 export const I18N_WORK_ITEM_NO_MATCHES_FOUND = s__('WorkItem|No matches found');
 export const I18N_WORK_ITEM_CONFIDENTIALITY_CHECKBOX_LABEL = s__(
-  'WorkItem|This %{workItemType} is confidential and should only be visible to team members with at least Reporter access',
+  'WorkItem|This %{workItemType} is confidential and should only be visible to team members with at least the Planner role',
 );
 export const I18N_WORK_ITEM_CONFIDENTIALITY_CHECKBOX_TOOLTIP = s__(
   'WorkItem|A non-confidential %{workItemType} cannot be assigned to a confidential parent %{parentWorkItemType}.',
@@ -123,11 +126,6 @@ export const I18N_WORK_ITEM_ERROR_COPY_REFERENCE = s__(
 );
 export const I18N_WORK_ITEM_ERROR_COPY_EMAIL = s__(
   'WorkItem|Something went wrong while copying the %{workItemType} email address. Please try again.',
-);
-
-export const I18N_MAX_CHARS_IN_WORK_ITEM_TITLE_MESSAGE = sprintf(
-  s__('WorkItem|Title cannot have more than %{WORK_ITEM_TITLE_MAX_LENGTH} characters.'),
-  { WORK_ITEM_TITLE_MAX_LENGTH },
 );
 
 export const I18N_WORK_ITEM_COPY_CREATE_NOTE_EMAIL = s__(
@@ -141,10 +139,21 @@ export const I18N_MAX_WORK_ITEMS_ERROR_MESSAGE = sprintf(
   { MAX_WORK_ITEMS },
 );
 export const I18N_MAX_WORK_ITEMS_NOTE_LABEL = sprintf(
-  s__('WorkItem|Add a maximum of %{MAX_WORK_ITEMS} items at a time.'),
+  s__('WorkItem|Add up to %{MAX_WORK_ITEMS} items at a time.'),
   { MAX_WORK_ITEMS },
 );
-export const I18N_WORK_ITEM_SHOW_LABELS = s__('WorkItem|Show labels');
+
+export const I18N_WORK_ITEM_CHANGE_TYPE_PARENT_ERROR = s__(
+  'WorkItem|Parent item type %{parentWorkItemType} is not supported on %{workItemType}. Remove the parent item to change type.',
+);
+
+export const I18N_WORK_ITEM_CHANGE_TYPE_CHILD_ERROR = s__(
+  'WorkItem|%{workItemType} does not support the %{childItemType} child item types. Remove child items to change type.',
+);
+
+export const I18N_WORK_ITEM_CHANGE_TYPE_MISSING_FIELDS_ERROR = s__(
+  'WorkItem|Some fields are not present in %{workItemType}. If you change type now, this information will be lost.',
+);
 
 export const sprintfWorkItem = (msg, workItemTypeArg, parentWorkItemType = '') => {
   const workItemType = workItemTypeArg || s__('WorkItem|item');
@@ -175,6 +184,7 @@ export const WORK_ITEMS_TYPE_MAP = {
     icon: `issue-type-issue`,
     name: s__('WorkItem|Issue'),
     value: WORK_ITEM_TYPE_VALUE_ISSUE,
+    routeParamName: 'issues',
   },
   [WORK_ITEM_TYPE_ENUM_TASK]: {
     icon: `issue-type-task`,
@@ -205,32 +215,27 @@ export const WORK_ITEMS_TYPE_MAP = {
     icon: `epic`,
     name: s__('WorkItem|Epic'),
     value: WORK_ITEM_TYPE_VALUE_EPIC,
+    routeParamName: 'epics',
   },
 };
 
 export const WORK_ITEM_TYPE_VALUE_MAP = {
-  [WORK_ITEM_TYPE_VALUE_OBJECTIVE]: WORK_ITEM_TYPE_ENUM_OBJECTIVE,
-  [WORK_ITEM_TYPE_VALUE_KEY_RESULT]: WORK_ITEM_TYPE_ENUM_KEY_RESULT,
-  [WORK_ITEM_TYPE_VALUE_ISSUE]: WORK_ITEM_TYPE_ENUM_ISSUE,
   [WORK_ITEM_TYPE_VALUE_EPIC]: WORK_ITEM_TYPE_ENUM_EPIC,
+  [WORK_ITEM_TYPE_VALUE_INCIDENT]: WORK_ITEM_TYPE_ENUM_INCIDENT,
+  [WORK_ITEM_TYPE_VALUE_ISSUE]: WORK_ITEM_TYPE_ENUM_ISSUE,
+  [WORK_ITEM_TYPE_VALUE_KEY_RESULT]: WORK_ITEM_TYPE_ENUM_KEY_RESULT,
+  [WORK_ITEM_TYPE_VALUE_OBJECTIVE]: WORK_ITEM_TYPE_ENUM_OBJECTIVE,
+  [WORK_ITEM_TYPE_VALUE_REQUIREMENTS]: WORK_ITEM_TYPE_ENUM_REQUIREMENTS,
   [WORK_ITEM_TYPE_VALUE_TASK]: WORK_ITEM_TYPE_ENUM_TASK,
+  [WORK_ITEM_TYPE_VALUE_TEST_CASE]: WORK_ITEM_TYPE_ENUM_TEST_CASE,
+  [WORK_ITEM_TYPE_VALUE_TICKET]: WORK_ITEM_TYPE_ENUM_TICKET,
 };
 
-export const WORK_ITEMS_TREE_TEXT_MAP = {
-  [WORK_ITEM_TYPE_VALUE_OBJECTIVE]: {
-    title: s__('WorkItem|Child objectives and key results'),
-    empty: s__('WorkItem|No objectives or key results are currently assigned.'),
-  },
-  [WORK_ITEM_TYPE_VALUE_ISSUE]: {
-    title: s__('WorkItem|Tasks'),
-    empty: s__(
-      'WorkItem|No tasks are currently assigned. Use tasks to break down this issue into smaller parts.',
-    ),
-  },
-  [WORK_ITEM_TYPE_VALUE_EPIC]: {
-    title: s__('WorkItem|Child items'),
-    empty: s__('WorkItem|No epics or issues are currently assigned.'),
-  },
+export const WORK_ITEMS_TREE_TEXT = {
+  title: s__('WorkItem|Child items'),
+  empty: s__(
+    'WorkItem|No child items are currently assigned. Use child items to break down work into smaller parts.',
+  ),
 };
 
 export const FORM_TYPES = {
@@ -242,9 +247,9 @@ export const FORM_TYPES = {
   },
 };
 
-export const DEFAULT_PAGE_SIZE_ASSIGNEES = 10;
-export const DEFAULT_PAGE_SIZE_NOTES = 30;
+export const DEFAULT_PAGE_SIZE_NOTES = 20; // Set to 20 to not exceed query complexity
 export const DEFAULT_PAGE_SIZE_EMOJIS = 100;
+export const DEFAULT_PAGE_SIZE_CHILD_ITEMS = 50;
 
 export const WORK_ITEM_NOTES_SORT_ORDER_KEY = 'sort_direction_work_item';
 
@@ -278,33 +283,42 @@ export const TEST_ID_CONFIDENTIALITY_TOGGLE_ACTION = 'confidentiality-toggle-act
 export const TEST_ID_NOTIFICATIONS_TOGGLE_FORM = 'notifications-toggle-form';
 export const TEST_ID_DELETE_ACTION = 'delete-action';
 export const TEST_ID_PROMOTE_ACTION = 'promote-action';
+export const TEST_ID_CHANGE_TYPE_ACTION = 'change-type-action';
 export const TEST_ID_LOCK_ACTION = 'lock-action';
 export const TEST_ID_COPY_REFERENCE_ACTION = 'copy-reference-action';
 export const TEST_ID_COPY_CREATE_NOTE_EMAIL_ACTION = 'copy-create-note-email-action';
 export const TEST_ID_TOGGLE_ACTION = 'state-toggle-action';
+export const TEST_ID_REPORT_ABUSE = 'report-abuse-action';
+export const TEST_ID_NEW_RELATED_WORK_ITEM = 'new-related-work-item';
 
 export const TODO_ADD_ICON = 'todo-add';
 export const TODO_DONE_ICON = 'todo-done';
 export const TODO_DONE_STATE = 'done';
 export const TODO_PENDING_STATE = 'pending';
 
-export const EMOJI_THUMBSUP = 'thumbsup';
-export const EMOJI_THUMBSDOWN = 'thumbsdown';
-
-export const WORK_ITEM_TO_ISSUE_MAP = {
+export const WORK_ITEM_TO_ISSUABLE_MAP = {
   [WIDGET_TYPE_ASSIGNEES]: 'assignees',
   [WIDGET_TYPE_LABELS]: 'labels',
   [WIDGET_TYPE_MILESTONE]: 'milestone',
   [WIDGET_TYPE_WEIGHT]: 'weight',
+  [WIDGET_TYPE_ITERATION]: 'iteration',
   [WIDGET_TYPE_START_AND_DUE_DATE]: 'dueDate',
   [WIDGET_TYPE_HEALTH_STATUS]: 'healthStatus',
   [WIDGET_TYPE_AWARD_EMOJI]: 'awardEmoji',
+  [WIDGET_TYPE_TIME_TRACKING]: 'timeEstimate',
+  [WIDGET_TYPE_COLOR]: 'color',
 };
 
 export const LINKED_CATEGORIES_MAP = {
   RELATES_TO: 'relates_to',
   IS_BLOCKED_BY: 'is_blocked_by',
   BLOCKS: 'blocks',
+};
+
+export const RELATIONSHIP_TYPE_ENUM = {
+  relates_to: 'RELATED',
+  blocks: 'BLOCKS',
+  is_blocked_by: 'BLOCKED_BY',
 };
 
 export const LINKED_ITEM_TYPE_VALUE = {
@@ -319,17 +333,10 @@ export const LINK_ITEM_FORM_HEADER_LABEL = {
   [WORK_ITEM_TYPE_VALUE_TASK]: s__('WorkItem|The current task'),
 };
 
-export const SUPPORTED_PARENT_TYPE_MAP = {
-  [WORK_ITEM_TYPE_VALUE_OBJECTIVE]: [WORK_ITEM_TYPE_ENUM_OBJECTIVE],
-  [WORK_ITEM_TYPE_VALUE_KEY_RESULT]: [WORK_ITEM_TYPE_ENUM_OBJECTIVE],
-  [WORK_ITEM_TYPE_VALUE_TASK]: [WORK_ITEM_TYPE_ENUM_ISSUE],
-  [WORK_ITEM_TYPE_VALUE_EPIC]: [WORK_ITEM_TYPE_ENUM_EPIC],
-  [WORK_ITEM_TYPE_VALUE_ISSUE]: [WORK_ITEM_TYPE_ENUM_EPIC],
-};
-
 export const LINKED_ITEMS_ANCHOR = 'linkeditems';
 export const CHILD_ITEMS_ANCHOR = 'childitems';
 export const TASKS_ANCHOR = 'tasks';
+export const DEVELOPMENT_ITEMS_ANCHOR = 'developmentitems';
 
 export const ISSUABLE_EPIC = 'issue-type-epic';
 
@@ -354,9 +361,82 @@ export const DEFAULT_EPIC_COLORS = '#1068bf';
 
 export const MAX_FREQUENT_PROJECTS = 3;
 export const CREATE_NEW_WORK_ITEM_MODAL = 'create_new_work_item_modal';
+export const RELATED_ITEM_ID_URL_QUERY_PARAM = 'related_item_id';
 
 export const WORK_ITEM_REFERENCE_CHAR = '#';
 
 export const NEW_WORK_ITEM_IID = 'new-work-item-iid';
 
 export const NEW_WORK_ITEM_GID = 'gid://gitlab/WorkItem/new';
+
+export const NEW_EPIC_FEEDBACK_PROMPT_EXPIRY = '2024-12-31';
+export const FEATURE_NAME = 'work_item_epic_feedback';
+
+export const DETAIL_VIEW_QUERY_PARAM_NAME = 'show';
+export const ROUTES = {
+  index: 'workItemList',
+  workItem: 'workItem',
+  new: 'new',
+  design: 'design',
+};
+
+export const WORK_ITEM_TYPE_ROUTE_WORK_ITEM = 'work_items';
+export const WORK_ITEM_TYPE_ROUTE_ISSUE = 'issues';
+export const WORK_ITEM_TYPE_ROUTE_EPIC = 'epics';
+
+export const WORK_ITEM_BASE_ROUTE_MAP = {
+  [WORK_ITEM_TYPE_ROUTE_WORK_ITEM]: null,
+  [WORK_ITEM_TYPE_ROUTE_ISSUE]: WORK_ITEM_TYPE_ENUM_ISSUE,
+  [WORK_ITEM_TYPE_ROUTE_EPIC]: WORK_ITEM_TYPE_ENUM_EPIC,
+};
+
+export const WORKITEM_LINKS_SHOWLABELS_LOCALSTORAGEKEY = 'workItemLinks.showLabels';
+export const WORKITEM_TREE_SHOWLABELS_LOCALSTORAGEKEY = 'workItemTree.showLabels';
+export const WORKITEM_TREE_SHOWCLOSED_LOCALSTORAGEKEY = 'workItemTree.showClosed';
+export const WORKITEM_RELATIONSHIPS_SHOWLABELS_LOCALSTORAGEKEY = 'workItemRelationships.showLabels';
+export const WORKITEM_RELATIONSHIPS_SHOWCLOSED_LOCALSTORAGEKEY = 'workItemRelationships.showClosed';
+
+export const INJECTION_LINK_CHILD_PREVENT_ROUTER_NAVIGATION = Symbol(
+  'injection:prevent-router-navigation',
+);
+
+export const WORK_ITEM_CREATE_ENTITY_MODAL_TARGET_SOURCE = 'source';
+export const WORK_ITEM_CREATE_ENTITY_MODAL_TARGET_BRANCH = 'branch';
+
+export const BASE_ALLOWED_CREATE_TYPES = [
+  WORK_ITEM_TYPE_VALUE_INCIDENT,
+  WORK_ITEM_TYPE_VALUE_ISSUE,
+  WORK_ITEM_TYPE_VALUE_TASK,
+];
+
+export const WORK_ITEM_ALLOWED_CHANGE_TYPE_MAP = [
+  WORK_ITEM_TYPE_ENUM_KEY_RESULT,
+  WORK_ITEM_TYPE_ENUM_OBJECTIVE,
+  WORK_ITEM_TYPE_ENUM_TASK,
+  WORK_ITEM_TYPE_ENUM_ISSUE,
+];
+
+export const WORK_ITEM_WIDGETS_NAME_MAP = {
+  [WIDGET_TYPE_ASSIGNEES]: s__('WorkItem|Assignees'),
+  [WIDGET_TYPE_DESCRIPTION]: s__('WorkItem|Description'),
+  [WIDGET_TYPE_AWARD_EMOJI]: s__('WorkItem|Emoji reactions'),
+  [WIDGET_TYPE_NOTIFICATIONS]: s__('WorkItem|Notifications'),
+  [WIDGET_TYPE_CURRENT_USER_TODOS]: s__('WorkItem|To-do item'),
+  [WIDGET_TYPE_LABELS]: s__('WorkItem|Labels'),
+  [WIDGET_TYPE_START_AND_DUE_DATE]: s__('WorkItem|Dates'),
+  [WIDGET_TYPE_TIME_TRACKING]: s__('WorkItem|Time tracking'),
+  [WIDGET_TYPE_WEIGHT]: s__('WorkItem|Weight'),
+  [WIDGET_TYPE_PARTICIPANTS]: s__('WorkItem|Participants'),
+  [WIDGET_TYPE_EMAIL_PARTICIPANTS]: s__('WorkItem|Email participants'),
+  [WIDGET_TYPE_PROGRESS]: s__('WorkItem|Progress'),
+  [WIDGET_TYPE_HIERARCHY]: s__('WorkItem|Child items'),
+  [WIDGET_TYPE_MILESTONE]: s__('WorkItem|Milestone'),
+  [WIDGET_TYPE_ITERATION]: s__('WorkItem|Iteration'),
+  [WIDGET_TYPE_NOTES]: s__('WorkItem|Comments and threads'),
+  [WIDGET_TYPE_HEALTH_STATUS]: s__('WorkItem|Health status'),
+  [WIDGET_TYPE_LINKED_ITEMS]: s__('WorkItem|Linked items'),
+  [WIDGET_TYPE_COLOR]: s__('WorkItem|Color'),
+  [WIDGET_TYPE_DESIGNS]: s__('WorkItem|Designs'),
+  [WIDGET_TYPE_DEVELOPMENT]: s__('WorkItem|Development'),
+  [WIDGET_TYPE_CRM_CONTACTS]: s__('WorkItem|Contacts'),
+};

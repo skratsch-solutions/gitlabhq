@@ -22,7 +22,10 @@ module WikiHelper
   end
 
   def wiki_sidebar_toggle_button
-    render Pajamas::ButtonComponent.new(icon: 'chevron-double-lg-left', button_options: { class: 'sidebar-toggle js-sidebar-wiki-toggle' })
+    render Pajamas::ButtonComponent.new(
+      icon: 'chevron-double-lg-left',
+      button_options: { class: 'sidebar-toggle js-sidebar-wiki-toggle' }
+    )
   end
 
   # Produces a pure text breadcrumb for a given page.
@@ -68,14 +71,25 @@ module WikiHelper
 
     link_options = { action: action, direction: reversed_direction }
 
-    render Pajamas::ButtonComponent.new(href: wiki_path(wiki, **link_options), icon: "sort-#{icon_class}", button_options: { class: link_class, title: title })
+    render Pajamas::ButtonComponent.new(
+      href: wiki_path(wiki, **link_options),
+      icon: "sort-#{icon_class}",
+      button_options: { class: link_class, title: title }
+    )
   end
 
   def wiki_empty_state_messages(wiki)
     case wiki.container
     when Project
-      writable_body = s_("WikiEmpty|Use GitLab Wiki to collaborate on documentation in a project or group. You can store wiki pages written in markup formats like Markdown or AsciiDoc in a separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.")
-      writable_body += s_("WikiEmpty| Have a Confluence wiki already? Use that instead.") if show_enable_confluence_integration?(wiki.container)
+      writable_body = s_(
+        "WikiEmpty|Use GitLab Wiki to collaborate on documentation in a project or group. " \
+          "You can store wiki pages written in markup formats like Markdown or AsciiDoc in a " \
+          "separate Git repository, and access the wiki through Git, the GitLab web interface, or the API."
+      )
+
+      if show_enable_confluence_integration?(wiki.container)
+        writable_body += s_("WikiEmpty| Have a Confluence wiki already? Use that instead.")
+      end
 
       {
         writable: {
@@ -84,18 +98,29 @@ module WikiHelper
         },
         readonly: {
           title: s_('WikiEmpty|This wiki doesn\'t have any content yet'),
-          body: s_('WikiEmpty|You can use GitLab Wiki to collaborate on documentation in a project or group. You can store wiki pages written in markup formats like Markdown or AsciiDoc in a separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.')
+          body: s_(
+            'WikiEmpty|You can use GitLab Wiki to collaborate on documentation in a project or group. ' \
+              'You can store wiki pages written in markup formats like Markdown or AsciiDoc in a ' \
+              'separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.'
+          )
         }
       }
     when Group
       {
         writable: {
           title: s_('WikiEmpty|Get started with wikis'),
-          body: s_("WikiEmpty|Use GitLab Wiki to collaborate on documentation in a project or group. You can store wiki pages written in markup formats like Markdown or AsciiDoc in a separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.")
+          body: s_(
+            "WikiEmpty|Use GitLab Wiki to collaborate on documentation in a project or group. " \
+              "You can store wiki pages written in markup formats like Markdown or AsciiDoc in a " \
+              "separate Git repository, and access the wiki through Git, the GitLab web interface, or the API."
+          )
         },
         readonly: {
           title: s_('WikiEmpty|This wiki doesn\'t have any content yet'),
-          body: s_('WikiEmpty|You can use GitLab Wiki to collaborate on documentation in a project or group. You can store wiki pages written in markup formats like Markdown or AsciiDoc in a separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.')
+          body: s_('WikiEmpty|You can use GitLab Wiki to collaborate on documentation in a project or group. ' \
+            'You can store wiki pages written in markup formats like Markdown or AsciiDoc in a ' \
+            'separate Git repository, and access the wiki through Git, the GitLab web interface, or the API.'
+                  )
         }
       }
     else
@@ -130,7 +155,11 @@ module WikiHelper
   private
 
   def wiki_page_render_api_endpoint_params(page)
-    { id: page.container.id, slug: ERB::Util.url_encode(page.slug), params: { version: page.version.id } }
+    {
+      id: page.container.id,
+      slug: ERB::Util.url_encode(page.slug).gsub(/%2f/i, '/'),
+      params: { version: page.version.id }
+    }
   end
 
   def wiki_page_info(page, uploads_path: '')
@@ -145,8 +174,8 @@ module WikiHelper
       slug: page.slug,
       path: wiki_page_path(page.wiki, page),
       wiki_path: wiki_path(page.wiki),
-      help_path: help_page_path('user/project/wiki/index'),
-      markdown_help_path: help_page_path('user/markdown'),
+      help_path: help_page_path('user/project/wiki/index.md'),
+      markdown_help_path: help_page_path('user/markdown.md'),
       markdown_preview_path: wiki_page_path(page.wiki, page, action: :preview_markdown),
       create_path: wiki_path(page.wiki, action: :create)
     }

@@ -1,7 +1,8 @@
 <script>
 import { GlButton, GlTooltipDirective, GlSprintf, GlSkeletonLoader } from '@gitlab/ui';
+import ProtectedBadge from '~/vue_shared/components/badges/protected_badge.vue';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
-import { n__ } from '~/locale';
+import { n__, s__ } from '~/locale';
 import Tracking from '~/tracking';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import ListItem from '~/vue_shared/components/registry/list_item.vue';
@@ -33,6 +34,8 @@ export default {
     GlSkeletonLoader,
     CleanupStatus,
     PublishMessage,
+
+    ProtectedBadge,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -60,6 +63,9 @@ export default {
     ROW_SCHEDULED_FOR_DELETION,
     COPY_IMAGE_PATH_TITLE,
     IMAGE_FULL_PATH_LABEL,
+    badgeProtectedTooltipText: s__(
+      'ContainerRegistry|A protection rule exists for this container repository.',
+    ),
   },
   data() {
     return {
@@ -109,6 +115,9 @@ export default {
     projectUrl() {
       return this.config.isGroupPage ? this.item.project?.webUrl : '';
     },
+    showBadgeProtected() {
+      return Boolean(this.item.protectionRuleExists);
+    },
   },
   methods: {
     hideButton() {
@@ -137,11 +146,11 @@ export default {
         :aria-label="$options.i18n.IMAGE_FULL_PATH_LABEL"
         @click="hideButton"
       />
-      <span v-if="deleting" class="gl-text-gray-500">{{ imageName }}</span>
+      <span v-if="deleting" class="gl-text-subtle">{{ imageName }}</span>
       <router-link
         v-else
         ref="imageName"
-        class="gl-text-body gl-font-bold"
+        class="gl-font-bold gl-text-default"
         data-testid="details-link"
         :to="{ name: 'details', params: { id } }"
       >
@@ -153,13 +162,15 @@ export default {
         :text="item.location"
         :title="$options.i18n.COPY_IMAGE_PATH_TITLE"
         category="tertiary"
+        class="gl-ml-2"
+        size="small"
       />
     </template>
     <template #left-secondary>
       <template v-if="!metadataLoading">
         <span v-if="deleting">{{ $options.i18n.ROW_SCHEDULED_FOR_DELETION }}</span>
         <template v-else>
-          <span class="gl-display-flex gl-align-items-center" data-testid="tags-count">
+          <span class="gl-flex gl-items-center" data-testid="tags-count">
             <gl-sprintf :message="tagsCountText">
               <template #count>
                 {{ item.tagsCount }}
@@ -169,9 +180,13 @@ export default {
 
           <cleanup-status
             v-if="item.expirationPolicyCleanupStatus"
-            class="gl-ml-2"
             :status="item.expirationPolicyCleanupStatus"
             :expiration-policy="expirationPolicy"
+          />
+
+          <protected-badge
+            v-if="showBadgeProtected"
+            :tooltip-text="$options.i18n.badgeProtectedTooltipText"
           />
         </template>
       </template>

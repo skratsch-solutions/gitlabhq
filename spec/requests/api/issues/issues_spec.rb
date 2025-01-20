@@ -378,7 +378,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
       it 'returns issues reacted by the authenticated user' do
         issue2 = create(:issue, project: project, author: user, assignees: [user])
         create(:award_emoji, awardable: issue2, user: user2, name: 'star')
-        create(:award_emoji, awardable: issue, user: user2, name: 'thumbsup')
+        create(:award_emoji, awardable: issue, user: user2, name: AwardEmoji::THUMBS_UP)
 
         get api('/issues', user2), params: { my_reaction_emoji: 'Any', scope: 'all' }
 
@@ -1095,6 +1095,32 @@ RSpec.describe API::Issues, feature_category: :team_planning do
         let(:target_issue) { issue }
       end
     end
+
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      subject(:get_issues) { get api('/issues', oauth_access_token: oauth_token) }
+
+      it 'is successful' do
+        get_issues
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'GET /projects/:id/issues' do
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      subject(:get_project_issues) { get api("/projects/#{project.id}/issues", oauth_access_token: oauth_token) }
+
+      it 'is successful' do
+        get_project_issues
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
   end
 
   describe 'GET /projects/:id/issues/:issue_iid' do
@@ -1172,6 +1198,18 @@ RSpec.describe API::Issues, feature_category: :team_planning do
         expect(json_response['message']).to eq('some error')
       end
     end
+
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      subject(:create_issue) { post api("/projects/#{project.id}/issues", oauth_access_token: oauth_token), params: { title: 'new issue' } }
+
+      it 'is successful' do
+        create_issue
+
+        expect(response).to have_gitlab_http_status(:created)
+      end
+    end
   end
 
   describe 'PUT /projects/:id/issues/:issue_iid' do
@@ -1217,6 +1255,18 @@ RSpec.describe API::Issues, feature_category: :team_planning do
         put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: { issue_type: 'incident' }
 
         expect(issue.reload.work_item_type.incident?).to be(true)
+      end
+    end
+
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      subject(:update_issue) { put api("/projects/#{project.id}/issues/#{issue.iid}", oauth_access_token: oauth_token), params: { title: 'updated issue' } }
+
+      it 'is successful' do
+        update_issue
+
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
   end

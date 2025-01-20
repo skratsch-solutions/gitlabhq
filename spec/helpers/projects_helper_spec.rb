@@ -119,7 +119,6 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
   end
 
   describe '#can_set_diff_preview_in_email?' do
-    stub_feature_flags(diff_preview_in_email: true)
     let_it_be(:user) { create(:project_member, :maintainer, user: create(:user), project: project).user }
 
     it 'returns true for the project owner' do
@@ -248,7 +247,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
   describe '#show_no_ssh_key_message?' do
     context 'user has no keys' do
       it 'returns true' do
-        expect(helper.show_no_ssh_key_message?).to be_truthy
+        expect(helper.show_no_ssh_key_message?(project)).to be_truthy
       end
     end
 
@@ -256,7 +255,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
       it 'returns false' do
         create(:personal_key, user: user)
 
-        expect(helper.show_no_ssh_key_message?).to be_falsey
+        expect(helper.show_no_ssh_key_message?(project)).to be_falsey
       end
     end
   end
@@ -301,7 +300,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
       it 'returns message prompting user to set password or set up a PAT' do
         stub_application_setting(password_authentication_enabled_for_git?: true)
 
-        expect(helper.no_password_message).to eq('Your account is authenticated with SSO or SAML. To <a href="/help/topics/git/terminology#pull-and-push" target="_blank" rel="noopener noreferrer">push and pull</a> over HTTP with Git using this account, you must <a href="/-/user_settings/password/edit">set a password</a> or <a href="/-/user_settings/personal_access_tokens">set up a Personal Access Token</a> to use instead of a password. For more information, see <a href="/help/gitlab-basics/start-using-git#clone-with-https" target="_blank" rel="noopener noreferrer">Clone with HTTPS</a>.')
+        expect(helper.no_password_message).to eq('Your account is authenticated with SSO or SAML. To push and pull over HTTP with Git using this account, you must <a href="/-/user_settings/password/edit">set a password</a> or <a href="/-/user_settings/personal_access_tokens">set up a personal access token</a> to use instead of a password.')
       end
     end
 
@@ -309,7 +308,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
       it 'returns message prompting user to set up a PAT' do
         stub_application_setting(password_authentication_enabled_for_git?: false)
 
-        expect(helper.no_password_message).to eq('Your account is authenticated with SSO or SAML. To <a href="/help/topics/git/terminology#pull-and-push" target="_blank" rel="noopener noreferrer">push and pull</a> over HTTP with Git using this account, you must <a href="/-/user_settings/personal_access_tokens">set up a Personal Access Token</a> to use instead of a password. For more information, see <a href="/help/gitlab-basics/start-using-git#clone-with-https" target="_blank" rel="noopener noreferrer">Clone with HTTPS</a>.')
+        expect(helper.no_password_message).to eq('Your account is authenticated with SSO or SAML. To push and pull over HTTP with Git using this account, you must <a href="/-/user_settings/personal_access_tokens">set up a personal access token</a> to use instead of a password.')
       end
     end
   end
@@ -355,13 +354,13 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
 
     describe 'using the default options' do
       it 'returns an HTML link to the user' do
-        link = helper.link_to_member(project, user)
+        link = helper.link_to_member(user)
 
         expect(link).to match(%r{/#{user.username}})
       end
 
       it 'HTML escapes the name of the user' do
-        link = helper.link_to_member(project, user)
+        link = helper.link_to_member(user)
 
         expect(link).to include(ERB::Util.html_escape(user.name))
         expect(link).not_to include(user.name)
@@ -370,7 +369,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
 
     context 'when user is nil' do
       it 'returns "(deleted)"' do
-        link = helper.link_to_member(project, nil)
+        link = helper.link_to_member(nil)
 
         expect(link).to eq("(deleted)")
       end
@@ -434,6 +433,10 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
 
     it 'returns false when there are no projects and there is no name' do
       expect(helper.show_projects?(Project.none, {})).to eq(false)
+    end
+
+    it 'returns true when there are no projects but archived param is "only"' do
+      expect(helper.show_projects?(Project.none, archived: 'only')).to eq(true)
     end
   end
 
@@ -872,6 +875,78 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
   end
 
+  describe '#show_lfs_misconfiguration_banner?' do
+    before do
+      allow(project).to receive(:lfs_enabled?).and_return(true)
+      allow(project.repository).to receive(:has_gitattributes?).and_return(true)
+    end
+
+    subject { helper.show_lfs_misconfiguration_banner?(project) }
+
+    it { is_expected.to be_falsey }
+
+    context 'when the project contains an lfs_object' do
+      context 'which belongs to the project repository' do
+        before do
+          create(:lfs_objects_project, :project_repository_type, project: project)
+        end
+
+        it { is_expected.to be_falsey }
+
+        context 'when it does not have a .gitattributes file' do
+          before do
+            allow(project.repository).to receive(:has_gitattributes?).and_return(false)
+          end
+
+          it { is_expected.to be_truthy }
+
+          context 'when lfs is not enabled' do
+            before do
+              allow(project).to receive(:lfs_enabled?).and_return(false)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+
+          context 'when lfs_misconfiguration_banner feature flag is disabled' do
+            before do
+              stub_feature_flags(lfs_misconfiguration_banner: false)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+        end
+      end
+
+      context 'which belongs to the wiki repository' do
+        before do
+          allow(project.repository).to receive(:has_gitattributes?).and_return(false)
+          create(:lfs_objects_project, :wiki_repository_type, project: project)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'which belongs to the design repository' do
+        before do
+          allow(project.repository).to receive(:has_gitattributes?).and_return(false)
+          create(:lfs_objects_project, :design_repository_type, project: project)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'which does not have a repository_type' do
+        before do
+          allow(project.repository).to receive(:has_gitattributes?).and_return(false)
+          create(:lfs_objects_project, :null_repository_type, project: project)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+    end
+  end
+
   describe '#project_title' do
     subject { helper.project_title(project) }
 
@@ -901,7 +976,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
 
     it 'includes project_permissions_settings' do
-      settings = subject.dig(:currentSettings)
+      settings = subject[:currentSettings]
 
       expect(settings).to include(
         packagesEnabled: !!project.packages_enabled,
@@ -1057,7 +1132,6 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
       forks_count: 4,
       project_full_path: project_path,
       project_forks_url: project_forks_path,
-      can_create_fork: "true",
       can_fork_project: "true",
       can_read_code: "true",
       new_fork_url: project_new_fork_path
@@ -1068,14 +1142,12 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
 
     subject { helper.fork_button_data_attributes(project) }
 
-    # The stubs for the forkable namespaces seem not to make sense (they're just numbers),
-    # but they're set up that way because we don't really care about what the array contains, only about its length
-    where(:has_user, :project_already_forked, :forkable_namespaces, :expected) do
-      false | false | []     | nil
-      true  | false | [0]    | data_attributes_without_user_fork_url
-      true  | false | [0, 1] | data_attributes_without_user_fork_url
-      true  | true  | [0]    | data_attributes_with_user_fork_url
-      true  | true  | [0, 1] | data_attributes_without_user_fork_url
+    where(:has_user, :project_already_forked, :has_forkable_groups, :expected) do
+      false | false | false | nil
+      true  | false | false | data_attributes_without_user_fork_url
+      true  | false | true  | data_attributes_without_user_fork_url
+      true  | true  | false | data_attributes_with_user_fork_url
+      true  | true  | true  | data_attributes_without_user_fork_url
     end
 
     with_them do
@@ -1085,10 +1157,9 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
         allow(helper).to receive(:current_user).and_return(current_user)
         allow(user).to receive(:can?).and_call_original
         allow(user).to receive(:can?).with(:fork_project, project).and_return(true)
-        allow(user).to receive(:can?).with(:create_fork).and_return(true)
         allow(user).to receive(:can?).with(:create_projects, anything).and_return(true)
         allow(user).to receive(:already_forked?).with(project).and_return(project_already_forked)
-        allow(user).to receive(:forkable_namespaces).and_return(forkable_namespaces)
+        allow(user).to receive(:has_forkable_groups?).and_return(has_forkable_groups)
 
         allow(project).to receive(:forks_count).and_return(4)
         allow(project).to receive(:full_path).and_return(project_path)
@@ -1894,16 +1965,115 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
   end
 
-  describe '#projects_explore_filtered_search_and_sort_app_data' do
+  describe '#projects_filtered_search_and_sort_app_data' do
     it 'returns expected json' do
-      expect(Gitlab::Json.parse(helper.projects_explore_filtered_search_and_sort_app_data)).to eq(
+      expect(Gitlab::Json.parse(helper.projects_filtered_search_and_sort_app_data)).to eq(
         {
           'initial_sort' => 'created_desc',
           'programming_languages' => ProgrammingLanguage.most_popular,
-          'starred_explore_projects_path' => starred_explore_projects_path,
-          'explore_root_path' => explore_root_path
+          'paths_to_exclude_sort_on' => [starred_explore_projects_path, explore_root_path]
         }
       )
+    end
+  end
+
+  describe '#dashboard_projects_app_data' do
+    it 'returns expected json' do
+      expect(Gitlab::Json.parse(helper.dashboard_projects_app_data)).to eq(
+        {
+          'initial_sort' => 'created_desc',
+          'programming_languages' => ProgrammingLanguage.most_popular,
+          'empty_state_projects_svg_path' => helper.image_path('illustrations/empty-state/empty-projects-md.svg'),
+          'empty_state_search_svg_path' => helper.image_path('illustrations/empty-state/empty-search-md.svg')
+        }
+      )
+    end
+  end
+
+  describe '#show_dashboard_projects_welcome_page?' do
+    where(:request_path, :authorized_projects, :result) do
+      [
+        [:root_path, [], true],
+        [:root_dashboard_path, [], true],
+        [:dashboard_projects_path, [], true],
+        [:contributed_dashboard_projects_path, [], true],
+        [:root_path, [ref(:project)], false],
+        [:root_dashboard_path, [ref(:project)], false],
+        [:dashboard_projects_path, [ref(:project)], false],
+        [:contributed_dashboard_projects_path, [ref(:project)], false],
+        [:starred_dashboard_projects_path, [], false],
+        [:starred_dashboard_projects_path, [ref(:project)], false]
+      ]
+    end
+
+    with_them do
+      let(:request) { instance_double(ActionDispatch::Request, path: helper.send(request_path)) }
+
+      before do
+        allow(helper).to receive(:request).and_return(request)
+        allow(user).to receive(:authorized_projects).and_return(authorized_projects)
+      end
+
+      it 'returns the correct boolean response' do
+        expect(helper.show_dashboard_projects_welcome_page?).to eq(result)
+      end
+    end
+  end
+
+  describe '#delete_immediately_message' do
+    subject { helper.delete_immediately_message(project) }
+
+    it 'returns correct message' do
+      expect(subject).to eq "This action deletes <code>#{project.path_with_namespace}</code> and everything this project contains. <strong>There is no going back.</strong>"
+    end
+  end
+
+  describe '#project_delete_immediately_button_data' do
+    subject { helper.project_delete_immediately_button_data(project) }
+
+    it 'returns expected hash' do
+      expect(subject).to match({
+        form_path: project_path(project, permanently_delete: true),
+        confirm_phrase: project.path_with_namespace,
+        is_fork: 'false',
+        issues_count: '0',
+        merge_requests_count: '0',
+        forks_count: '0',
+        stars_count: '0'
+      })
+    end
+  end
+
+  describe '#project_pages_domain_choices' do
+    subject { helper.project_pages_domain_choices }
+
+    let(:pages_url) { "http://pages.example.com" }
+    let(:blank_option) { [['Don’t enforce a primary domain', '']] }
+    let(:gitlab_default_option) { [[pages_url, pages_url]] }
+
+    before do
+      allow(helper).to receive(:build_pages_url).with(project).and_return(pages_url)
+    end
+
+    context 'when the project has no pages domains' do
+      it 'returns only the default options' do
+        expect(subject).to eq(options_for_select(blank_option + gitlab_default_option))
+      end
+    end
+
+    context 'when the project has pages domains' do
+      let!(:pages_domains) do
+        [
+          create(:pages_domain, project: project, domain: 'custom1.com'),
+          create(:pages_domain, project: project, domain: 'custom2.com')
+        ]
+      end
+
+      it 'returns default options and additional domain options' do
+        domain_options = pages_domains.map { |domain| [domain.url, domain.url] }
+
+        expect(subject).to eq(options_for_select(blank_option + domain_options + gitlab_default_option))
+      end
     end
   end
 end

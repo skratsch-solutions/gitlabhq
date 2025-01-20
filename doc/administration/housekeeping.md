@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab supports and automates housekeeping tasks in Git repositories to ensure
 that they can be served as efficiently as possible. Housekeeping tasks include:
@@ -80,7 +80,7 @@ frequently.
 
 You can change how often Gitaly is asked to optimize a repository.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand **Repository maintenance**.
 1. In the **Housekeeping** section, configure the housekeeping options.
@@ -177,7 +177,7 @@ staggered across Gitaly nodes so the scheduled housekeeping is not running
 simultaneously on multiple nodes.
 
 If a scheduled housekeeping run reaches the `duration` specified, the running tasks are
-gracefully cancelled. On subsequent scheduled housekeeping runs, Gitaly randomly shuffles
+gracefully canceled. On subsequent scheduled housekeeping runs, Gitaly randomly shuffles
 the repository list to process.
 
 The following snippet enables daily background repository maintenance starting at
@@ -252,7 +252,7 @@ of a repository. When creating the first fork, we:
 
 1. Create an object pool repository that contains all objects of the repository
    that is about to be forked.
-1. Link the repository to this new object pool via the alternates mechanism of Git.
+1. Link the repository to this new object pool by using the alternates mechanism of Git.
 1. Repack the repository so that it uses objects from the object pool. It thus
    can drop its own copy of the objects.
 

@@ -25,6 +25,7 @@ FactoryBot.define do
   factory :datadog_integration, class: 'Integrations::Datadog' do
     project
     active { true }
+    datadog_ci_visibility { false }
     datadog_site { 'datadoghq.com' }
     datadog_tags { 'key:value' }
     api_key { 'secret' }
@@ -139,6 +140,13 @@ FactoryBot.define do
       deployment_type { 'cloud' }
     end
 
+    trait :jira_cloud do
+      url { 'https://mysite.atlassian.net' }
+      username { 'jira_user' }
+      password { 'my-secret-password' }
+      jira_auth_type { 0 }
+    end
+
     after(:build) do |integration, evaluator|
       integration.instance_variable_set(:@old_data_fields, nil)
 
@@ -248,13 +256,6 @@ FactoryBot.define do
     type { 'Integrations::ExternalWiki' }
     active { true }
     external_wiki_url { 'http://external-wiki-url.com' }
-  end
-
-  trait :jira_cloud_service do
-    url { 'https://mysite.atlassian.net' }
-    username { 'jira_user' }
-    password { 'my-secret-password' }
-    jira_auth_type { 0 }
   end
 
   trait :chat_notification do
@@ -467,6 +468,15 @@ FactoryBot.define do
     google_play_protected_refs { true }
   end
 
+  factory :matrix_integration, class: 'Integrations::Matrix' do
+    project
+    type { 'Integrations::Matrix' }
+    active { true }
+
+    token { 'syt-zyx57W2v1u123ew11' }
+    room { '!qPKKM111FFKKsfoCVy:matrix.org' }
+  end
+
   factory :squash_tm_integration, class: 'Integrations::SquashTm' do
     project
     active { true }
@@ -500,14 +510,14 @@ FactoryBot.define do
     issue_tracker_data { nil }
     create_data { false }
 
-    after(:build) do
-      Integrations::BaseIssueTracker.skip_callback(:validation, :before, :handle_properties)
+    after(:build) do |integration|
+      integration.class.skip_callback(:validation, :before, :handle_properties)
     end
 
     to_create { |instance| instance.save!(validate: false) }
 
-    after(:create) do
-      Integrations::BaseIssueTracker.set_callback(:validation, :before, :handle_properties)
+    after(:create) do |integration|
+      integration.class.set_callback(:validation, :before, :handle_properties)
     end
   end
 

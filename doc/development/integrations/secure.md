@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -66,8 +66,7 @@ The [`stage`](../../ci/yaml/index.md#stage) keyword can be omitted because `test
 
 ### Fail-safe
 
-To be aligned with the [GitLab Security paradigm](https://about.gitlab.com/direction/secure/#security-paradigm),
-scanning jobs should not block the pipeline when they fail,
+By default, scanning jobs do not block the pipeline when they fail,
 so the [`allow_failure`](../../ci/yaml/index.md#allow_failure) parameter should be set to `true`.
 
 ### Artifacts
@@ -100,8 +99,8 @@ it's declared under the `reports:sast` key in the job definition, not because of
 
 ### Policies
 
-Certain GitLab workflows, such as [AutoDevOps](../../topics/autodevops/cicd_variables.md#job-disabling-variables),
-define CI/CD variables to indicate that given scans should be disabled. You can check for this by looking
+Certain GitLab workflows, such as [AutoDevOps](../../topics/autodevops/cicd_variables.md#job-skipping-variables),
+define CI/CD variables to indicate that given scans should be skipped. You can check for this by looking
 for variables such as:
 
 - `DEPENDENCY_SCANNING_DISABLED`
@@ -109,7 +108,7 @@ for variables such as:
 - `SAST_DISABLED`
 - `DAST_DISABLED`
 
-If appropriate based on the scanner type, you should then disable running the custom scanner.
+If appropriate based on the scanner type, you should then skip running the custom scanner.
 
 GitLab also defines a `CI_PROJECT_REPOSITORY_LANGUAGES` variable, which provides the list of
 languages in the repository. Depending on this value, your scanner may or may not do something different.
@@ -178,6 +177,13 @@ Here are some examples to get you started:
 As documented in the [Docker Official Images](https://github.com/docker-library/official-images#tags-and-aliases) project,
 it is strongly encouraged that version number tags be given aliases which allows the user to easily refer to the "most recent" release of a particular series.
 See also [Docker Tagging: Best practices for tagging and versioning Docker images](https://learn.microsoft.com/en-us/archive/blogs/stevelasker/docker-tagging-best-practices-for-tagging-and-versioning-docker-images).
+
+### Permissions
+
+To run a Docker container with non-root privileges the following user and group must be present in the container:
+
+- User `gitlab` with user ID `1000`
+- Group `gitlab` with group ID `1000`
 
 ## Command line
 
@@ -288,8 +294,8 @@ The report is a JSON document that combines vulnerabilities with possible remedi
 This documentation gives an overview of the report JSON format, recommendations, and examples to
 help integrators set its fields.
 The format is extensively described in the documentation of
-[SAST](../../user/application_security/sast/index.md#output),
-[DAST](../../user/application_security/dast/proxy-based.md#reports),
+[SAST](../../user/application_security/sast/index.md#download-a-sast-report),
+[DAST](../../user/application_security/dast/browser/index.md),
 [Dependency Scanning](../../user/application_security/dependency_scanning/index.md#output),
 and [Container Scanning](../../user/application_security/container_scanning/index.md#reports-json-format)
 
@@ -321,47 +327,44 @@ If a report uses a `PATCH` version that doesn't match any vendored schema versio
 the latest vendored `PATCH` version. For example, if a report version is 15.0.23 and the latest vendored
 version is 15.0.6, the report is validated against version 15.0.6.
 
-GitLab uses the
-[`json_schemer`](https://www.rubydoc.info/gems/json_schemer) gem to perform validation.
+GitLab validates reports against security report JSON schemas
+it reads from the [`gitlab-security_report_schemas`](https://rubygems.org/gems/gitlab-security_report_schemas)
+gem. You can see which schema versions are supported in your GitLab version
+by looking at the version of the gem in your GitLab installation. For example,
+[GitLab 15.4](https://gitlab.com/gitlab-org/gitlab/-/blob/93a2a651a48bd03d9d84847e1cade19962ab4292/Gemfile#L431)
+uses version `0.1.2.min15.0.0.max15.2.0`, which means it has versions in the range `15.0.0` and `15.2.0`.
 
-Ongoing improvements to report validation are tracked [in this epic](https://gitlab.com/groups/gitlab-org/-/epics/8900).
-In the meantime, you can see which versions are supported in the
-[source code](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/parsers/security/validators/schema_validator.rb#L9). Remember to pick the correct version for your instance, for example [`v15.7.3-ee`](https://gitlab.com/gitlab-org/gitlab/-/blob/v15.7.3-ee/lib/gitlab/ci/parsers/security/validators/schema_validator.rb#L9).
+To see the exact versions, read the [validate locally](#validate-locally) section.
 
 #### Validate locally
 
 Before running your analyzer in GitLab, you should validate the report produced by your analyzer to
 ensure it complies with the declared schema version.
 
-Use the script below to validate JSON files against a given schema.
+1. Install [`gitlab-security_report_schemas`](https://rubygems.org/gems/gitlab-security_report_schemas).
+1. Run `security-report-schemas` to see what schema versions are supported.
+1. Run `security-report-schemas <report.json>` to validate a report.
 
-```ruby
-require 'bundler/inline'
+```shell
+$ gem install gitlab-security_report_schemas -v 0.1.2.min15.0.0.max15.2.1
+Successfully installed gitlab-security_report_schemas-0.1.2.min15.0.0.max15.2.1
+Parsing documentation for gitlab-security_report_schemas-0.1.2.min15.0.0.max15.2.1
+Done installing documentation for gitlab-security_report_schemas after 0 seconds
+1 gem installed
 
-gemfile do
-  source 'https://rubygems.org'
-  gem 'json_schemer'
-end
+$ security-report-schemas
+SecurityReportSchemas 0.1.2.min15.0.0.max15.2.1.
+Supported schema versions: ["15.0.0", "15.0.1", "15.0.2", "15.0.4", "15.0.5", "15.0.6", "15.0.7", "15.1.0", "15.1.1", "15.1.2", "15.1.3", "15.1.4", "15.2.0", "15.2.1"]
 
-require 'json'
-require 'pathname'
+Usage: security-report-schemas REPORT_FILE_PATH [options]
+    -r, --report_type=REPORT_TYPE    Override the report type
+    -w, --warnings                   Prints the warning messages
 
-raise 'Usage: ruby script.rb <security schema filename> <report filename>' unless ARGV.size == 2
-
-schema = JSONSchemer.schema(Pathname.new(ARGV[0]))
-report = JSON.parse(File.open(ARGV[1]).read)
-schema_validation_errors = schema.validate(report).map { |error| JSONSchemer::Errors.pretty(error) }
-puts(schema_validation_errors)
+$ security-report-schemas ~/Downloads/gl-dependency-scanning-report.json
+Validating dependency_scanning v15.0.0 against schema v15.0.0
+Content is invalid
+* root is missing required keys: dependency_files
 ```
-
-1. Download the appropriate schema that matches your report type and declared version. For
-   example, you can find version `15.0.6` of the `container_scanning` report schema at
-   `https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/raw/v15.0.6/dist/container-scanning-report-format.json?inline=false`.
-1. Save the Ruby script above in a file, for example, `validate.rb`.
-1. Run the script, passing the schema and report filenames as arguments in order. For example:
-   1. Using your local Ruby interpreter: `ruby validate.rb container-scanning-format_15-0-6.json gl-container-scanning-report.json`.
-   1. Using Docker: `docker run -it --rm -v $(pwd):/ci ruby:3 ruby /ci/validate.rb /ci/container-scanning-format_15-0-6.json  /ci/gl-container-scanning-report.json`
-1. Validation errors are shown on the screen. You must resolve these errors before GitLab can ingest your report.
 
 ### Report Fields
 
@@ -425,7 +428,7 @@ whereas the `message` may repeat the location.
 As a visual example, this screenshot highlights where these fields are used when viewing a
 vulnerability as part of a pipeline view.
 
-![Example Vulnerability](img/example_vuln.png)
+![Example Vulnerability](img/example_vuln_v13_0.png)
 
 For instance, a `message` for a vulnerability
 reported by Dependency Scanning gives information on the vulnerable dependency,
@@ -470,18 +473,19 @@ The `identifiers` array describes the detected vulnerability. An identifier obje
 `value` fields are used to [tell if two identifiers are the same](../../user/application_security/vulnerability_report/pipeline.md#deduplication-process).
 The user interface uses the object's `name` and `url` fields to display the identifier.
 
-We recommend that you use the identifiers the GitLab scanners already define:
+We recommend that you use the identifiers the GitLab scanners already [define](https://gitlab.com/gitlab-org/security-products/analyzers/report/-/blob/main/identifier.go):
 
-| Identifier | Type | Example value |
-|------------|------|---------------|
-| [CVE](https://cve.mitre.org/cve/) | `cve` | CVE-2019-10086 |
-| [CWE](https://cwe.mitre.org/data/index.html) | `cwe` | CWE-1026 |
-| [ELSA](https://linux.oracle.com/security/) | `elsa` | ELSA-2020-0085 |
-| [OSVD](https://cve.mitre.org/data/refs/refmap/source-OSVDB.html) | `osvdb` | OSVDB-113928 |
-| [OWASP](https://owasp.org/Top10/) | `owasp` | A01:2021–Broken Access Control Design |
-| [RHSA](https://access.redhat.com/errata-search/#/) | `rhsa` | RHSA-2020:0111 |
-| [USN](https://ubuntu.com/security/notices) | `usn` | USN-4234-1 |
-| [WASC](http://projects.webappsec.org/Threat-Classification-Reference-Grid)  | `wasc` | WASC-19 |
+| Identifier | Type | Example value | Example name |
+|------------|------|---------------|--------------|
+| [CVE](https://cve.mitre.org/cve/) | `cve` | CVE-2019-10086 | CVE-2019-10086 |
+| [CWE](https://cwe.mitre.org/data/index.html) | `cwe` | 1026 | CWE-1026 |
+| [ELSA](https://linux.oracle.com/security/) | `elsa` | ELSA-2020-0085 | ELSA-2020-0085 |
+| [OSVD](https://cve.mitre.org/data/refs/refmap/source-OSVDB.html) | `osvdb` | OSVDB-113928 | OSVDB-113928 |
+| [OWASP](https://owasp.org/Top10/) | `owasp` | A01:2021 | A01:2021 - Broken Access Control |
+| [RHSA](https://access.redhat.com/errata-search/#/) | `rhsa` | RHSA-2020:0111 | RHSA-2020:0111 |
+| [USN](https://ubuntu.com/security/notices) | `usn` | USN-4234-1 | USN-4234-1 |
+| [GHSA](https://github.com/advisories) | `ghsa` | GHSA-38jh-8h67-m7mj | GHSA-38jh-8h67-m7mj |
+| [HACKERONE](https://hackerone.com/hacktivity/overview) | `hackerone` | 698789 | HACKERONE-698789 |
 
 The generic identifiers listed above are defined in the [common library](https://gitlab.com/gitlab-org/security-products/analyzers/common),
 which is shared by some of the analyzers that GitLab maintains. You can [contribute](https://gitlab.com/gitlab-org/security-products/analyzers/common/blob/master/issue/identifier.go)

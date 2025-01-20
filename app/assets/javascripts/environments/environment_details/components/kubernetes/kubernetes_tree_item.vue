@@ -36,11 +36,11 @@ export default {
 </script>
 <template>
   <div
-    class="gl-border-1 gl-border-solid gl-border-gray-200 gl-rounded gl-p-3 gl-bg-white gl-flex gl-w-28 gl-z-1 gl-relative"
+    class="gl-rounded gl-relative gl-z-1 gl-flex gl-w-28 gl-border-1 gl-border-solid gl-border-strong gl-bg-white gl-p-3"
   >
     <gl-icon :name="kindIcon" data-testid="resource-kind-icon" />
     <div class="gl-ml-4">
-      <span class="gl-text-secondary gl-block gl-mb-2">{{ kind }}:</span>
+      <span class="gl-mb-2 gl-block gl-text-subtle">{{ kind }}:</span>
       <div class="gl-flex gl-items-center">
         <span class="gl-line-clamp-1 gl-break-all" :title="name">{{ name }}</span>
         <gl-icon
@@ -49,7 +49,7 @@ export default {
           :title="status"
           :name="statusBadge.icon"
           :size="12"
-          :class="statusBadge.class"
+          :variant="statusBadge.variant"
           class="gl-ml-2"
           data-testid="resource-status-icon"
         />

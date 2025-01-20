@@ -15,17 +15,13 @@ module Gitlab
         extend Helpers::Shell
 
         LICENSE_SECRET = "gitlab-license"
+        TROUBLESHOOTING_LINK = "https://gitlab.com/gitlab-org/gitlab/-/tree/master/qa/gems/gitlab-cng?ref_type=heads#troubleshooting"
 
-        def initialize(name, configuration:, namespace:, ci:, gitlab_domain:, timeout:, set: [], chart_sha: nil)
-          @name = name
-          @configuration = configuration
-          @namespace = namespace
-          @ci = ci
-          @gitlab_domain = gitlab_domain
-          @timeout = timeout
-          @set = set
-          @chart_sha = chart_sha
-        end
+        # Ignore metrics events when logging events on deploy failure,
+        # these get generated on pod startup due to various reasons like pod not ready and don't affect deployment state
+        #
+        # @return [Array]
+        IGNORED_EVENTS = %w[FailedComputeMetricsReplicas FailedGetResourceMetric].freeze
 
         # Delete installation
         #
@@ -54,6 +50,20 @@ module Gitlab
           Helpers::Spinner.spin("removing namespace '#{namespace}'") do
             puts cleanup_configuration.kubeclient.delete_resource("namespace", namespace)
           end
+        end
+
+        def initialize(name, configuration:, namespace:, ci:, gitlab_domain:, timeout:, **args)
+          @name = name
+          @configuration = configuration
+          @namespace = namespace
+          @ci = ci
+          @gitlab_domain = gitlab_domain
+          @timeout = timeout
+          @set = args[:set] || []
+          @extra_env = args[:env] || []
+          @chart_sha = args[:chart_sha]
+          @retry_attempts = args[:retry] || 0
+          @deployment_attempts = 0
         end
 
         # Perform deployment with all the additional setup
@@ -85,7 +95,9 @@ module Gitlab
           :set,
           :gitlab_domain,
           :timeout,
-          :chart_sha
+          :chart_sha,
+          :extra_env,
+          :retry_attempts
 
         alias_method :cli_values, :set
 
@@ -131,6 +143,22 @@ module Gitlab
           }
         end
 
+        # Additional environment variables for deployment
+        #
+        # @return [Hash]
+        def env_values
+          return {} if extra_env.empty?
+
+          env = extra_env.map { |e| e.split("=") }.reject { |e| e.size != 2 }.to_h
+          return {} if env.empty?
+
+          {
+            global: {
+              extraEnv: env
+            }
+          }
+        end
+
         # Execute pre-deployment setup which consists of:
         #   * chart setup
         #   * namespace and license creation
@@ -139,7 +167,7 @@ module Gitlab
         # @return [String] chart reference
         def run_pre_deploy_setup
           Helpers::Spinner.spin("running pre-deployment setup") do
-            chart_reference = helm.add_helm_chart(chart_sha)
+            chart_reference = helm.add_gitlab_helm_chart(chart_sha)
             create_namespace
             create_license
 
@@ -154,17 +182,33 @@ module Gitlab
         # @param [String] chart_reference
         # @return [void]
         def run_deploy(chart_reference)
-          args = []
+          args = ["--atomic"]
           args.push(*component_version_values.flat_map { |v| ["--set", v] }) if ci
           args.push("--set", cli_values.join(",")) unless cli_values.empty?
           values = DefaultValues.common_values(gitlab_domain)
             .deep_merge(license_values)
+            .deep_merge(env_values)
             .deep_merge(configuration.values)
+            .deep_merge(ResourcePresets.resource_values(ci ? ResourcePresets::HIGH : ResourcePresets::DEFAULT))
             .deep_stringify_keys
             .to_yaml
 
           Helpers::Spinner.spin("running helm deployment") do
-            helm.upgrade(name, chart_reference, namespace: namespace, timeout: timeout, values: values, args: args)
+            opts = {
+              namespace: namespace,
+              timeout: timeout,
+              values: values,
+              # remove --atomic on last attempt so failed deployment is not removed on failure
+              args: @deployment_attempts == retry_attempts ? args.reject { |a| a == "--atomic" } : args
+            }
+            helm.upgrade(name, chart_reference, **opts)
+          rescue Helm::Client::Error => e
+            @deployment_attempts += 1
+            handle_deploy_failure(e) if @deployment_attempts > retry_attempts
+
+            log("Deployment failed, retrying...", :warn)
+            log("Error: #{e}", :warn)
+            retry
           end
           log("Deployment successful and app is available via: #{configuration.gitlab_url}", :success, bright: true)
         end
@@ -197,6 +241,46 @@ module Gitlab
 
           secret = Kubectl::Resources::Secret.new(LICENSE_SECRET, "license", license)
           puts mask_secrets(kubeclient.create_resource(secret), [license, Base64.encode64(license)])
+        end
+
+        # Handle helm upgrade failure
+        #
+        # @param [StandardError] error
+        # @return [void]
+        def handle_deploy_failure(error)
+          log("Helm deployment failed!", :error)
+          log("For more information on troubleshooting failures, see: '#{TROUBLESHOOTING_LINK}'", :warn)
+
+          events = get_warning_events
+          if events
+            log("Following events of Warning type present in cluster:", :warn)
+            log(events)
+          end
+
+          raise error
+        end
+
+        # Get cluster events with warning type
+        #
+        # @return [String]
+        def get_warning_events
+          items = JSON.parse(kubeclient.events(json_format: true), symbolize_names: true)[:items]
+
+          events = items
+            .select { |item| item[:kind] == "Event" && item[:type] == "Warning" }
+            .reject { |item| IGNORED_EVENTS.include?(item[:reason]) }
+            .map do |item|
+              object = item[:involvedObject]
+
+              {
+                **item.slice(:type, :reason),
+                name: "#{object[:kind]}/#{object[:name]}",
+                message: item[:message]
+              }
+            end
+          return if events.empty?
+
+          JSON.pretty_generate(events)
         end
       end
     end

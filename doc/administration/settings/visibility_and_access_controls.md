@@ -2,14 +2,14 @@
 stage: Create
 group: Source Code
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
-description: "Control project visibility, creation, retention, and deletion on your self-managed GitLab instance."
+description: "Control project visibility, creation, retention, and deletion on GitLab Self-Managed."
 ---
 
 # Control access and visibility
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab enables users with administrator access to enforce
 specific controls on branches, projects, snippets, groups, and more.
@@ -20,7 +20,7 @@ Prerequisites:
 
 To access the visibility and access control options:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 
@@ -34,20 +34,26 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Default project creation protection**, select the desired roles:
    - No one.
+   - Administrators.
+   - Owners.
    - Maintainers.
    - Developers and Maintainers.
 1. Select **Save changes**.
+
+NOTE:
+If you select **Administrators** and [Admin Mode](sign_in_restrictions.md#admin-mode)
+is turned on, administrators must enter Admin Mode to create new projects.
 
 ## Restrict project deletion to administrators
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - User interface [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/352960) in GitLab 15.1.
 
@@ -57,7 +63,7 @@ Prerequisites:
 
 To restrict project deletion to only administrators:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Scroll to:
@@ -65,17 +71,22 @@ To restrict project deletion to only administrators:
    - (GitLab 15.0 and earlier) **Default project deletion protection**, and select **Only admins can delete project**.
 1. Select **Save changes**.
 
+To disable the restriction:
+
+1. Select **Owners and administrators**.
+1. Select **Save changes**.
+
 ## Deletion protection
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/352960) from default delayed project deletion in GitLab 15.1.
 > - [Enabled for projects in personal namespaces](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89466) in GitLab 15.1.
 > - [Disabled for projects in personal namespaces](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/95495) in GitLab 15.3.
 > - [Removed option to delete immediately](https://gitlab.com/gitlab-org/gitlab/-/issues/389557) in GitLab 15.11 [with a flag](../feature_flags.md) named `always_perform_delayed_deletion`. Disabled by default.
-> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 These protections help guard against accidental deletion of groups and projects on your instance.
 
@@ -97,7 +108,7 @@ any application setting, GitLab:
 ### Delayed project deletion
 
 > - User interface [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/352960) in GitLab 15.1.
-> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 Prerequisites:
 
@@ -112,7 +123,7 @@ To configure delayed project deletion:
 
 :::TabTitle GitLab 16.0 and later
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Scroll to **Deletion protection** and set the retention period to a value between `1` and `90` days.
@@ -120,7 +131,7 @@ To configure delayed project deletion:
 
 :::TabTitle GitLab 15.11 and earlier
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Scroll to:
@@ -144,7 +155,7 @@ In GitLab 16.0 and later, the **Keep deleted** option is removed, and delayed gr
 To enable delayed group deletion in GitLab 15:
 
 1. GitLab 15.11 only: enable the `always_perform_delayed_deletion` feature flag.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Deletion projection**, select **Keep deleted**.
@@ -166,7 +177,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Select the desired default project visibility:
@@ -184,7 +195,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Default snippet visibility**, select your desired visibility level:
@@ -203,7 +214,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Default group visibility**, select your desired visibility level:
@@ -225,13 +236,17 @@ When restricting visibility levels, consider how these restrictions interact
 with permissions for subgroups and projects that inherit their visibility from
 the item you're changing.
 
+This setting does not apply to groups and projects created under a personal namespace.
+There is a [feature request](https://gitlab.com/gitlab-org/gitlab/-/issues/382749) to extend this
+functionality to [enterprise users](../../user/enterprise_user/index.md).
+
 To restrict visibility levels for groups, projects, snippets, and selected pages:
 
 Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Restricted visibility levels**, select the desired visibility levels to restrict.
@@ -248,7 +263,8 @@ Prerequisites:
 1. Select **Save changes**.
 
 NOTE:
-You cannot select the restricted default visibility level for new projects and groups.
+You cannot restrict a visibility level that is set as the default for new projects or groups.
+Conversely, you cannot set a restricted visibility level as the default for new projects or groups.
 
 ## Configure enabled Git access protocols
 
@@ -269,7 +285,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. For **Enabled Git access protocols**, select your desired protocols:
@@ -300,7 +316,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Enter a root URL for **Custom Git clone URL for HTTP(S)**.
@@ -312,7 +328,7 @@ These options specify the [permitted types and lengths](../../security/ssh_keys_
 
 To specify a restriction for each key type:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. Go to **RSA SSH keys**.
@@ -337,7 +353,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand **Repository mirroring**.
 1. Select **Allow project maintainers to configure repository mirroring**.
@@ -363,7 +379,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. In **Globally-allowed IP ranges**, provide a list of IP address ranges. This list:

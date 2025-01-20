@@ -9,10 +9,10 @@ import {
   FORM_FIELD_DESCRIPTION,
   FORM_FIELD_AVATAR,
 } from '~/organizations/shared/constants';
+import FormErrorsAlert from '~/organizations/shared/components/errors_alert.vue';
 import SettingsBlock from '~/vue_shared/components/settings/settings_block.vue';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPE_ORGANIZATION } from '~/graphql_shared/constants';
-import FormErrorsAlert from '~/vue_shared/components/form/errors_alert.vue';
 import organizationUpdateMutation from '../graphql/mutations/organization_update.mutation.graphql';
 
 export default {
@@ -100,8 +100,11 @@ export default {
 </script>
 
 <template>
-  <settings-block id="organization-settings" default-expanded>
-    <template #title>{{ $options.i18n.settingsBlock.title }}</template>
+  <settings-block
+    id="organization-settings"
+    :title="$options.i18n.settingsBlock.title"
+    default-expanded
+  >
     <template #description>{{ $options.i18n.settingsBlock.description }}</template>
     <template #default>
       <form-errors-alert v-model="errors" :scroll-on-error="true" />

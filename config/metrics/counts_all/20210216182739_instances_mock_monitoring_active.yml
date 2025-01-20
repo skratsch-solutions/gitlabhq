@@ -3,6 +3,8 @@ data_category: optional
 key_path: counts.instances_mock_monitoring_active
 description: Count of active instance-level integrations for  Mock Monitoring
 product_group: import_and_integrate
+product_categories:
+- integrations
 value_type: number
 status: removed
 milestone_removed: '13.12'
@@ -11,9 +13,10 @@ data_source: database
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332
 removed_by_url:

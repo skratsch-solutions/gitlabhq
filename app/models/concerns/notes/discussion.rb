@@ -6,14 +6,12 @@ module Notes
     include Gitlab::Utils::StrongMemoize
 
     included do
-      validate :ensure_confidentiality_discussion_compliance
-
       scope :with_discussion_ids, ->(discussion_ids) { where(discussion_id: discussion_ids) }
     end
 
     class_methods do
       def discussions(context_noteable = nil)
-        ::Discussion.build_collection(all.includes(:noteable).fresh, context_noteable)
+        ::Discussion.build_collection(all.includes(parent_object_field).fresh, context_noteable)
       end
 
       def find_discussion(discussion_id)
@@ -83,13 +81,13 @@ module Notes
 
     def in_reply_to?(other)
       case other
-      when Note
+      when Note, AntiAbuse::Reports::Note
         if part_of_discussion?
           in_reply_to?(other.noteable) && in_reply_to?(other.to_discussion)
         else
           in_reply_to?(other.noteable)
         end
-      when ::Discussion
+      when ::Discussion, AntiAbuse::Reports::Discussion
         discussion_id == other.id
       when Noteable
         noteable == other

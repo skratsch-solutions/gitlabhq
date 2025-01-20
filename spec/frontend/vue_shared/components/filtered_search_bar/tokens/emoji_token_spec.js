@@ -10,6 +10,7 @@ import { nextTick } from 'vue';
 import waitForPromises from 'helpers/wait_for_promises';
 import { createAlert } from '~/alert';
 import axios from '~/lib/utils/axios_utils';
+import { EMOJI_THUMBS_UP } from '~/emoji/constants';
 
 import {
   OPTION_NONE,
@@ -154,7 +155,7 @@ describe('EmojiToken', () => {
 
       expect(tokenSegments).toHaveLength(3); // My Reaction, =, "thumbsup"
       expect(tokenSegments.at(2).findComponent(GlEmoji).attributes('data-name')).toEqual(
-        'thumbsup',
+        EMOJI_THUMBS_UP,
       );
     });
 

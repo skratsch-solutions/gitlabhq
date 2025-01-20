@@ -28,13 +28,13 @@ RSpec.describe Gitlab::Cng::Commands::Subcommands::Deployment do
     it "defines kind deployment" do
       expect_command_to_include_attributes(command_name, {
         description: "Create CNG deployment against local kind k8s cluster where NAME is helm release name. " \
-                     "Default: gitlab",
+          "Default: gitlab",
         name: command_name,
         usage: "#{command_name} [NAME]"
       })
     end
 
-    it "invokes kind cluster creation with correct arguments" do
+    it "invokes kind deployment creation with correct arguments" do
       invoke_command(command_name, [], {
         namespace: "gitlab",
         ci: false
@@ -46,7 +46,8 @@ RSpec.describe Gitlab::Cng::Commands::Subcommands::Deployment do
         namespace: "gitlab",
         ci: false,
         gitlab_domain: "127.0.0.1.nip.io",
-        timeout: "10m"
+        timeout: "10m",
+        retry: 0
       )
       expect(Gitlab::Cng::Deployment::Configurations::Kind).to have_received(:new).with(
         namespace: "gitlab",
@@ -55,20 +56,33 @@ RSpec.describe Gitlab::Cng::Commands::Subcommands::Deployment do
         admin_password: "5iveL!fe",
         admin_token: "ypCa3Dzb23o5nvsixwPA",
         host_http_port: 80,
-        host_ssh_port: 22
+        host_ssh_port: 22,
+        host_registry_port: 5000
       )
       expect(installation_instance).to have_received(:create)
     end
 
-    it "create kind cluster before deployment" do
+    it "creates kind cluster before deployment" do
       invoke_command(command_name, [], {
         namespace: "gitlab",
         ci: true
       })
 
-      expect(Gitlab::Cng::Kind::Cluster).to have_received(:new)
-        .with(name: "gitlab", ci: true, host_http_port: 80, host_ssh_port: 22)
+      expect(Gitlab::Cng::Kind::Cluster).to have_received(:new).with(ci: true, host_http_port: 80, host_ssh_port: 22,
+        host_registry_port: 5000)
       expect(cluster_instance).to have_received(:create)
+    end
+
+    it "passes extra environment options" do
+      invoke_command(command_name, [], {
+        namespace: "gitlab",
+        env: ["env1=val1", "env2=val2"]
+      })
+
+      expect(Gitlab::Cng::Deployment::Installation).to have_received(:new).with(
+        "gitlab",
+        hash_including(env: ["env1=val1", "env2=val2"])
+      )
     end
 
     it "only print arguments with --print-deploy-args option" do

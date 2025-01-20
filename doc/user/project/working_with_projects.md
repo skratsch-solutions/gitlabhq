@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
 
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Most work in GitLab is done in a [project](../../user/project/index.md). Files and
 code are saved in projects, and most features are in the scope of projects.
@@ -57,6 +57,9 @@ You can access a project by using its ID instead of its name at `https://gitlab.
 For example, if in your personal namespace `alex` you have a project `my-project` with the ID `123456`,
 you can access the project either at `https://gitlab.example.com/alex/my-project` or `https://gitlab.example.com/projects/123456`.
 
+NOTE:
+In GitLab 17.5 and later, you can also use `https://gitlab.example.com/-/p/<id>` for this endpoint.
+
 You might also need the project ID if you want to interact with the project using the [GitLab API](../../api/index.md).
 
 To copy the project ID:
@@ -72,17 +75,17 @@ To view all projects for the GitLab instance:
 1. On the left sidebar, select **Search or go to**.
 1. Select **Explore**.
 
-On the left sidebar, **Projects** is selected. On the right, the list shows
-all projects for the instance.
+On the left sidebar, **Projects** is selected.
+A list of all projects for the instance is displayed.
 
-If you are not authenticated, then the list shows public projects only.
+If you are not authenticated, the list shows public projects only.
 
 ## View projects you are a member of
 
 To view projects you are a member of:
 
 1. On the left sidebar, select **Search or go to**.
-1. Select **Your work**.
+1. Select **View all my projects**.
 
 On the left sidebar, **Projects** is selected. On the list, on the **Yours** tab,
 all the projects you are a member of are displayed.
@@ -96,6 +99,12 @@ called `my-project` under your username, the project is created at `https://gitl
 
 To view your personal projects:
 
+1. On the left sidebar, select **Search or go to**.
+1. Select **View all my projects**.
+1. Select the **Personal** tab.
+
+Or
+
 1. On the left sidebar, select your avatar and then your username.
 1. On the left sidebar, select **Personal projects**.
 
@@ -103,10 +112,16 @@ To view your personal projects:
 
 To view projects you have [starred](#star-a-project):
 
+1. On the left sidebar, select **Search or go to**.
+1. Select **View all my projects**.
+1. Select the **Starred** tab.
+
+Or
+
 1. On the left sidebar, select your avatar and then your username.
 1. On the left sidebar, select **Starred projects**.
 
-## Edit project name, description, and avatar
+## Edit project name and description
 
 Use the project general settings to edit your project details.
 
@@ -118,14 +133,60 @@ Prerequisites:
 1. Select **Settings > General**.
 1. In the **Project name** text box, enter your project name. See the [limitations on project names](../../user/reserved_names.md).
 1. Optional. In the **Project description** text box, enter your project description. The description is limited to 2,000 characters.
-1. Optional. Under **Project avatar**, to change your project avatar, select **Choose file**. The ideal image size is 192 x 192 pixels, and the maximum file size allowed is 200 KB.
+Components published in the CI/CD catalog require a project description.
+1. Select **Save changes**.
+
+## Add a project avatar
+
+Add a project avatar to help visually identify your project. If you do not add an avatar, GitLab displays the first letter of your project name as the default project avatar.
+
+To add a project avatar, use one of the following methods:
+
+- [Add a logo](#add-a-logo-to-your-repository) to your repository.
+- [Upload an avatar](#upload-an-avatar-in-project-settings) in your project settings.
+
+### Add a logo to your repository
+
+If you haven't uploaded an avatar to your project settings, GitLab looks for a file named `logo` in your repository to use as the default project avatar.
+
+Prerequisites:
+
+- You must have at least the Maintainer role for the project.
+- Your file must be 200 KB or smaller. The ideal image size is 192 x 192 pixels.
+- The file must be named `logo` with the extension `.png`, `.jpg`, or `.gif`. For example, `logo.gif`.
+
+To add a logo file to use as your project avatar:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. In the root of your project repository, upload the logo file.
+
+### Upload an avatar in project settings
+
+Prerequisites:
+
+- You must have at least the Maintainer role for the project.
+- Your file must be 200 KB or smaller. The ideal image size is 192 x 192 pixels.
+- The image must be one of the following file types:
+  - `.bmp`
+  - `.gif`
+  - `.ico`
+  - `.jpeg`
+  - `.png`
+  - `.tiff`
+
+To upload an avatar in your project settings:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > General**.
+1. In the **Project avatar** section, select **Choose file**.
+1. Select your avatar file.
 1. Select **Save changes**.
 
 ## Star a project
 
-You can add a star to projects you use frequently to make them easier to find.
+You can star projects you use frequently to make them easier to find.
 
-To add a star to a project:
+To star a project:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. In the upper-right corner of the page, select **Star**.
@@ -133,7 +194,7 @@ To add a star to a project:
 ## Delete a project
 
 > - Default deletion behavior for projects on the Premium and Ultimate tier changed to [delayed project deletion](https://gitlab.com/gitlab-org/gitlab/-/issues/389557) in GitLab 16.0.
-> - Default deletion behavior changed to delayed deletion on the Premium and Ultimate tier [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Default deletion behavior changed to delayed deletion on the Premium and Ultimate tier [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 You can mark a project to be deleted.
 After you delete a project:
@@ -144,6 +205,7 @@ After you delete a project:
 Prerequisites:
 
 - You must have the Owner role for a project.
+- Owners must be [allowed to delete projects](../../administration/settings/visibility_and_access_controls.md#restrict-project-deletion-to-administrators).
 
 To delete a project:
 
@@ -161,11 +223,11 @@ You can also [delete projects using the Rails console](troubleshooting.md#delete
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Enabled for projects in personal namespaces](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89466) in GitLab 15.1.
 > - [Disabled for projects in personal namespaces](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/95495) in GitLab 15.3.
-> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 Prerequisites:
 
@@ -180,23 +242,29 @@ You can [view projects that are pending deletion](#view-projects-pending-deletio
 and use the Rails console to
 [find projects that are pending deletion](troubleshooting.md#find-projects-that-are-pending-deletion).
 
+If the user who scheduled the project deletion loses access to the project (for example, by leaving the project, having their role downgraded, or being banned from the project) before the deletion occurs,
+the deletion job will instead restore and unarchive the project, so the project will no longer be scheduled for deletion.
+
+   WARNING:
+   If the user who scheduled the project deletion regains Owner role or administrator access before the job runs, then the job removes the project permanently.
+
 ### Delete a project immediately
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-> - Option to delete projects immediately from the Admin Area and as a group setting removed [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
-
-Prerequisites:
-
-- You must have the Owner role for the project.
-- The project must be [marked for deletion](#delete-a-project).
+> - Option to delete projects immediately from the **Admin** area and as a group setting removed [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 If you don't want to wait for delayed deletion, you can delete a project immediately. To do this, perform the steps for [deleting a projects](#delete-a-project) again.
 
 In the first cycle of deleting a project, the project is moved to the delayed deletion queue and automatically deleted after the retention period has passed.
 If during this delayed deletion time you run a second deletion cycle, the project is deleted immediately.
+
+Prerequisites:
+
+- You must have the Owner role for the project.
+- The project must be [marked for deletion](#delete-a-project).
 
 To immediately delete a project marked for deletion:
 
@@ -210,7 +278,7 @@ To immediately delete a project marked for deletion:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To view a list of all projects that are pending deletion:
 
@@ -228,7 +296,7 @@ Each project in the list shows:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Prerequisites:
 
@@ -244,6 +312,8 @@ To restore a project marked for deletion:
 
 ## Archive a project
 
+> - Pages removal [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/343109) in GitLab 17.5.
+
 When you archive a project, some features become read-only.
 These features are still accessible, but not writable.
 
@@ -252,15 +322,18 @@ These features are still accessible, but not writable.
 - Issues
 - Merge requests
 - Feature flags
+- Pull mirroring
 - All other project features
 
 Active pipeline schedules of archived projects don't become read-only.
 
+If the project has deployed Pages, they are removed along with any custom domains,
+and the Pages link is no longer accessible.
+
 Archived projects are:
 
 - Labeled with an `archived` badge on the project page.
-- Listed on the group page in the **Inactive** tab.
-- Hidden from project lists in **Your Work** and **Explore**.
+- Listed in the **Inactive** tab on the group page, **Your work** page, and **Explore** page.
 - Read-only.
 
 Prerequisites:
@@ -297,6 +370,10 @@ Prerequisites:
 1. In the **Unarchive project** section, select **Unarchive project**.
 1. To confirm, select **OK**.
 
+The deployed Pages are not restored and you must rerun the pipeline.
+
+When a project is unarchived, its pull mirroring process will automatically resume.
+
 ## View project activity
 
 To view the activity of a project:
@@ -328,9 +405,7 @@ You can sort projects by:
 - Name
 - Created date
 - Updated date
-- Owner
-
-You can also choose to hide or show archived projects.
+- Stars
 
 ### Filter projects by language
 
@@ -343,9 +418,21 @@ You can filter projects by the programming language they use. To do this:
 1. Select either:
    - **View all your projects**, to filter your projects.
    - **Explore**, to filter all projects you can access.
+1. Above the list of projects, select **Search or filter results**.
 1. From the **Language** dropdown list, select the language you want to filter projects by.
 
 A list of projects that use the selected language is displayed.
+
+### View only projects you own
+
+To view only the projects you are the owner of:
+
+1. On the left sidebar, select **Search or go to**.
+1. Select either:
+   - **View all your projects**, to filter your projects.
+   - **Explore**, to filter all projects you can access.
+1. Above the list of projects, select **Search or filter results**.
+1. From the **Role** dropdown list, select **Owner**.
 
 ## Rename a repository
 
@@ -358,7 +445,7 @@ Prerequisites:
 
 NOTE:
 When you change the repository path, users may experience issues if they push to, or pull from, the old URL. For more information, see
-[redirects when renaming repositories](../project/repository/index.md#what-happens-when-a-repository-path-changes).
+[redirects when renaming repositories](../project/repository/index.md#repository-path-changes).
 
 To rename a repository:
 
@@ -393,13 +480,13 @@ To leave a project:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can add compliance frameworks to projects in a group that has a [compliance framework](../group/compliance_frameworks.md).
 
 ## Manage project access through LDAP groups
 
-You can [use LDAP to manage group membership](../group/access_and_permissions.md#manage-group-memberships-via-ldap).
+You can [use LDAP to manage group membership](../group/access_and_permissions.md#manage-group-memberships-with-ldap).
 
 You cannot use LDAP groups to manage project access, but you can use the following workaround.
 
@@ -417,7 +504,7 @@ Prerequisites:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 GitLab repositories are usually accessed with a namespace and a project name. When migrating
 frequently accessed repositories to GitLab, however, you can use project aliases to access those
@@ -439,4 +526,4 @@ repository. For example, if an administrator creates the alias `gitlab` for the 
 - [Connect an external repository to GitLab CI/CD](../../ci/ci_cd_for_external_repos/index.md).
 - [Fork a project](repository/forking_workflow.md#create-a-fork).
 - Adjust [project visibility](../../user/public_access.md#change-project-visibility) and [permissions](settings/index.md#configure-project-features-and-permissions).
-- [Limitations on project and group names](../../user/reserved_names.md#limitations-on-usernames-project-and-group-names)
+- [Rules for project and group names](../../user/reserved_names.md#rules-for-usernames-project-and-group-names-and-slugs)

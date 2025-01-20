@@ -8,15 +8,15 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 **Status:** Beta
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151640) as a [beta](../../policy/experiment-beta-support.md#beta) in GitLab 17.0 [with a flag](../../administration/feature_flags.md) named `runners_dashboard_for_groups`. Disabled by default.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/151640) as a [beta](../../policy/development_stages_support.md#beta) in GitLab 17.0 [with a flag](../../administration/feature_flags.md) named `runners_dashboard_for_groups`. Disabled by default.
 > - Feature flag `runners_dashboard_for_groups` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/459052) in GitLab 17.2.
 
 Users with at least the Maintainer role for a group can use the runner fleet dashboard to assess the health of group runners.
 
-![Runner fleet dashboard for groups](img/runner_fleet_dashboard_groups.png)
+![Runner fleet dashboard for groups](img/runner_fleet_dashboard_groups_v17_1.png)
 
 ## Dashboard metrics
 
@@ -24,7 +24,7 @@ The following metrics are available in the runner fleet dashboard:
 
 | Metric                        | Description |
 |-------------------------------|-------------|
-| Online                        | Number of online runners. In the Admin Area, this metric displays the number of runners for the entire instance. In a group, this metric displays the number of runners for the group and its subgroups. |
+| Online                        | Number of online runners. In the **Admin** area, this metric displays the number of runners for the entire instance. In a group, this metric displays the number of runners for the group and its subgroups. |
 | Offline                       | Number of offline runners. |
 | Active runners                | Number of active runners. |
 | Runner usage (previous month) | Number of compute minutes used by each project on group runners. Includes the option to export as CSV for cost analysis. |
@@ -42,6 +42,6 @@ To view the runner fleet dashboard for groups:
 1. Select **Build > Runners**.
 1. Select **Fleet dashboard**.
 
-For self-managed GitLab instances, most of the dashboard metrics work without any additional configuration.
+For GitLab Self-Managed, most of the dashboard metrics work without any additional configuration.
 To use the **Runner usage** and **Wait time to pick a job** metrics,
 you must [configure the ClickHouse analytics database](runner_fleet_dashboard.md#enable-more-ci-analytics-features-with-clickhouse).

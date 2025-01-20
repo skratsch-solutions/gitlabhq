@@ -21,9 +21,10 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
   end
 
   let_it_be(:issue) do
+    # TODO: .reload can be removed after the migration https://gitlab.com/gitlab-org/gitlab/-/issues/497857
     create(:issue,
       assignees: [user],
-      project: exportable)
+      project: exportable).reload
   end
 
   let(:exportable_path) { 'project' }
@@ -70,7 +71,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
         create_list(:issue, 3, project: exportable, relative_position: -5000) # ascending ids, same position negative
         create_list(:issue, 3, project: exportable, relative_position: 0) # ascending ids, duplicate positions
         create_list(:issue, 3, project: exportable, relative_position: nil, closed_by: closing_user) # no position, closed by a user
-        create_list(:issue, 3, :with_desc_relative_position, project: exportable ) # ascending ids, descending position
+        create_list(:issue, 3, :with_desc_relative_position, project: exportable) # ascending ids, descending position
       end
 
       it 'calls json_writer.write_relation_array with proper params and clears SafeRequestStore' do
@@ -78,6 +79,51 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
         expect(Gitlab::SafeRequestStore).to receive(:clear!)
 
         subject.execute
+      end
+
+      context 'when batch export raises an error' do
+        it 'does not raise an error and logs' do
+          allow(json_writer).to receive(:write_relation_array).and_raise(StandardError, 'Error!')
+          allow(logger).to receive(:error)
+
+          expect { subject.execute }.not_to raise_error
+
+          expect(logger).to have_received(:error).with(
+            importer: 'Import/Export',
+            message: 'Error exporting relation batch',
+            exception_message: 'Error!',
+            exception_class: 'StandardError',
+            relation: :issues,
+            project_id: exportable.id,
+            project_name: exportable.name,
+            project_path: exportable.full_path,
+            sql: nil
+          )
+        end
+
+        context 'when error has sql query' do
+          it 'logs the error message and the sql query' do
+            allow(json_writer)
+              .to receive(:write_relation_array)
+              .and_raise(ActiveRecord::QueryCanceled.new('PG::QueryCanceled: statement timeout', sql: 'SQL query'))
+
+            allow(logger).to receive(:error)
+
+            expect { subject.execute }.not_to raise_error
+
+            expect(logger).to have_received(:error).with(
+              importer: 'Import/Export',
+              message: 'Error exporting relation batch',
+              exception_message: 'PG::QueryCanceled: statement timeout',
+              exception_class: 'ActiveRecord::QueryCanceled',
+              relation: :issues,
+              project_id: exportable.id,
+              project_name: exportable.name,
+              project_path: exportable.full_path,
+              sql: 'SQL query'
+            )
+          end
+        end
       end
 
       it 'logs the relation name and the number of records to export' do
@@ -149,12 +195,12 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
         let(:json_writer) do
           Class.new do
             def write_relation_array(_, _, enumerator)
-              enumerator.each { _1 }
+              enumerator.each(&:itself)
             end
           end.new
         end
 
-        context 'when :bulk_import_user_mapping feature flag is enabled' do
+        context 'when :importer_user_mapping feature flag is enabled' do
           it 'caches existing referenced user_ids' do
             expected_user_ref_ids = Issue.all.pluck(
               :author_id, :updated_by_id, :last_edited_by_id, :closed_by_id
@@ -168,9 +214,9 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           end
         end
 
-        context 'when :bulk_import_user_mapping feature flag is disabled' do
+        context 'when :importer_user_mapping feature flag is disabled' do
           it 'does not cache any contributing user ids' do
-            stub_feature_flags(bulk_import_user_mapping: false)
+            stub_feature_flags(importer_user_mapping: false)
 
             expect(BulkImports::UserContributionsExportMapper).not_to receive(:new)
             subject.execute
@@ -216,7 +262,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           allow(json_writer).to receive(:write_relation)
         end
 
-        context 'when :bulk_import_user_mapping feature flag is enabled' do
+        context 'when :importer_user_mapping feature flag is enabled' do
           it 'caches existing referenced user_ids' do
             expect_next_instance_of(BulkImports::UserContributionsExportMapper) do |contribution_mapper|
               expect(contribution_mapper).to receive(:cache_user_contributions_on_record).with(group).once
@@ -226,9 +272,9 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           end
         end
 
-        context 'when :bulk_import_user_mapping feature flag is disabled' do
+        context 'when :importer_user_mapping feature flag is disabled' do
           it 'does not cache any contributing user ids' do
-            stub_feature_flags(bulk_import_user_mapping: false)
+            stub_feature_flags(importer_user_mapping: false)
 
             expect(BulkImports::UserContributionsExportMapper).not_to receive(:new)
             subject.execute
@@ -272,7 +318,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
         let(:json_writer) do
           Class.new do
             def write_relation_array(_, _, enumerator)
-              enumerator.each { _1 }
+              enumerator.each(&:itself)
             end
           end.new
         end
@@ -281,7 +327,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           project_member.update!(created_by: create(:user))
         end
 
-        context 'when :bulk_import_user_mapping feature flag is enabled' do
+        context 'when :importer_user_mapping feature flag is enabled' do
           it 'caches existing referenced user_ids' do
             expected_user_ref_ids = [project_member.user_id, project_member.created_by_id].map(&:to_s)
 
@@ -293,9 +339,9 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
           end
         end
 
-        context 'when :bulk_import_user_mapping feature flag is disabled' do
+        context 'when :importer_user_mapping feature flag is disabled' do
           it 'does not cache any contributing user ids' do
-            stub_feature_flags(bulk_import_user_mapping: false)
+            stub_feature_flags(importer_user_mapping: false)
 
             expect(BulkImports::UserContributionsExportMapper).not_to receive(:new)
             subject.execute
@@ -308,7 +354,12 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
 
     describe 'load balancing' do
       it 'reads from replica' do
-        expect(Gitlab::Database::LoadBalancing::Session.current).to receive(:use_replicas_for_read_queries).and_call_original
+        expect(Gitlab::Database::LoadBalancing::SessionMap)
+          .to receive(:with_sessions).with(Gitlab::Database::LoadBalancing.base_models).and_call_original
+
+        expect_next_instance_of(Gitlab::Database::LoadBalancing::ScopedSessions) do |inst|
+          expect(inst).to receive(:use_replicas_for_read_queries).and_call_original
+        end
 
         subject.execute
       end
@@ -316,7 +367,8 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
 
     describe 'with inaccessible associations' do
       let_it_be(:milestone) { create(:milestone, project: exportable) }
-      let_it_be(:issue) { create(:issue, assignees: [user], project: exportable, milestone: milestone) }
+      # TODO: .reload can be removed after the migration https://gitlab.com/gitlab-org/gitlab/-/issues/497857
+      let_it_be(:issue) { create(:issue, assignees: [user], project: exportable, milestone: milestone).reload }
       let_it_be(:label1) { create(:label, project: exportable) }
       let_it_be(:label2) { create(:label, project: exportable) }
       let_it_be(:link1) { create(:label_link, label: label1, target: issue) }
@@ -461,7 +513,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
       let(:json_writer) do
         Class.new do
           def write_relation_array(_, _, enumerator)
-            enumerator.each { _1 }
+            enumerator.each(&:itself)
           end
         end.new
       end
@@ -482,7 +534,7 @@ RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_re
       let(:json_writer) do
         Class.new do
           def write_relation_array(_, _, enumerator)
-            enumerator.each { _1 }
+            enumerator.each(&:itself)
           end
         end.new
       end

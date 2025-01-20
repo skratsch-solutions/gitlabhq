@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 The Service Ping API is associated with [Service Ping](../development/internal_analytics/service_ping/index.md).
 
@@ -16,7 +16,7 @@ The Service Ping API is associated with [Service Ping](../development/internal_a
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141446) in GitLab 16.9.
 
-Requires a Personal Access Token with `read_service_ping` scope.
+Requires a personal access token with `read_service_ping` scope.
 
 Returns the JSON payload collected in Service Ping. If no payload data is available in the application cache, it returns empty response.
 If payload data is empty, make sure the [Service Ping feature is enabled](../administration/settings/usage_statistics.md#enable-or-disable-service-ping) and
@@ -44,6 +44,16 @@ Example response:
 ...
 ```
 
+### Interpreting `schema_inconsistencies_metric`
+
+The Service Ping JSON payload includes `schema_inconsistencies_metric`. Database schema inconsistencies are expected, and are unlikely to indicate a problem with your instance.
+
+This metric is designed only for troubleshooting ongoing issues, and shouldn't be used as a regular health check. The metric should only be interpreted with
+the guidance of GitLab Support. The metric reports the same database schema inconsistencies as the
+[database schema checker Rake task](../administration/raketasks/maintenance.md#check-the-database-for-schema-inconsistencies). 
+
+For more information, see [issue 467544](https://gitlab.com/gitlab-org/gitlab/-/issues/467544).
+
 ## Export metric definitions as a single YAML file
 
 Export all metric definitions as a single YAML file, similar to the [Metrics Dictionary](https://metrics.gitlab.com/), for easier importing.
@@ -70,8 +80,6 @@ Example response:
   status: active
   time_frame: 28d
   data_source: redis_hll
-  distribution:
-  - ee
   tier:
   - premium
   - ultimate
@@ -191,4 +199,57 @@ Sample response:
     "operating_system": "mac_os_x-11.2.2"
   },
 ...
+```
+
+## Events Tracking API
+
+Tracks internal events in GitLab. Requires a personal access token with the `api` or `ai_workflows` scope.
+
+To track events to Snowplow, set the `send_to_snowplow` parameter to `true`.
+
+Example request:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "Content-Type: application/json" \
+     --request POST \
+     --data '{
+       "event": "mr_name_changed",
+       "send_to_snowplow": true,
+       "namespace_id": 1,
+       "project_id": 1,
+       "additional_properties": {
+         "lang": "eng"
+       }
+     }' \
+     "https://gitlab.example.com/api/v4/usage_data/track_event"
+```
+
+If multiple events tracking is required, send an array of events to the `/track_events` endpoint:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "Content-Type: application/json" \
+     --request POST \
+     --data '{
+       "events": [
+         {
+           "event": "mr_name_changed",
+           "namespace_id": 1,
+           "project_id": 1,
+           "additional_properties": {
+             "lang": "eng"
+           }
+         },
+         {
+           "event": "mr_name_changed",
+           "namespace_id": 2,
+           "project_id": 2,
+           "additional_properties": {
+             "lang": "eng"
+           }
+         }
+       ]
+     }' \
+     "https://gitlab.example.com/api/v4/usage_data/track_events"
 ```

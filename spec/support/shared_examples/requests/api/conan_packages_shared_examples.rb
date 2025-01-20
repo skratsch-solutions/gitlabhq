@@ -9,7 +9,7 @@ RSpec.shared_examples 'conan ping endpoint' do
     get api(url)
 
     expect(response).to have_gitlab_http_status(:ok)
-    expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+    expect(response.headers['X-Conan-Server-Capabilities']).to eq(x_conan_server_capabilities_header)
   end
 
   context 'packages feature disabled' do
@@ -63,7 +63,7 @@ RSpec.shared_examples 'conan search endpoint' do
       :maintainer | true
       :developer  | true
       :reporter   | true
-      :guest      | false
+      :guest      | true
       :anonymous  | false
     end
 
@@ -83,6 +83,29 @@ RSpec.shared_examples 'conan search endpoint' do
         it { is_expected.to be_blank }
       end
     end
+  end
+end
+
+RSpec.shared_examples 'conan search endpoint with access to package registry for everyone' do
+  before do
+    project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
+    project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+
+    get api(url), params: params
+  end
+
+  subject { json_response['results'] }
+
+  context 'with a matching name' do
+    let(:params) { { q: package.conan_recipe } }
+
+    it { is_expected.to contain_exactly(package.conan_recipe) }
+  end
+
+  context 'with a * wildcard' do
+    let(:params) { { q: "#{package.name[0, 3]}*" } }
+
+    it { is_expected.to contain_exactly(package.conan_recipe) }
   end
 end
 
@@ -136,9 +159,7 @@ RSpec.shared_examples 'conan authenticate endpoint' do
           response.body, jwt_secret).first
         expect(payload['access_token']).to eq(personal_access_token.token)
         expect(payload['user_id']).to eq(personal_access_token.user_id)
-
-        duration = payload['exp'] - payload['iat']
-        expect(duration).to eq(::Gitlab::ConanToken::CONAN_TOKEN_EXPIRE_TIME)
+        expect(payload['exp']).to eq(personal_access_token.expires_at.at_beginning_of_day.to_i)
       end
     end
   end
@@ -169,10 +190,12 @@ RSpec.shared_examples 'conan check_credentials endpoint' do
     subject { get api(url), headers: headers }
   end
 
-  it 'responds with a 200 OK with PAT' do
+  it 'responds with a 200 OK with PAT', :aggregate_failures do
     get api(url), headers: headers
 
     expect(response).to have_gitlab_http_status(:ok)
+    expect(response.header['Content-Type']).to eq('text/plain')
+    expect(response.body).to eq('ok')
   end
 
   context 'with job token' do
@@ -229,6 +252,21 @@ RSpec.shared_examples 'handling validation error for package' do
 
       expect(response).to have_gitlab_http_status(:bad_request)
       expect(json_response['message']).to include('Validation failed')
+    end
+  end
+
+  context 'with ActiveRecord::RecordInvalid error' do
+    before do
+      allow_next_instance_of(::Packages::Conan::CreatePackageFileService) do |service|
+        allow(service).to receive(:execute).and_raise(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    it 'returns 400' do
+      subject
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect(json_response['message']).to include('Record invalid')
     end
   end
 end
@@ -353,6 +391,8 @@ end
 RSpec.shared_examples 'recipe download_urls' do
   let(:recipe_path) { package.conan_recipe_path }
 
+  it_behaves_like 'enforcing read_packages job token policy'
+
   it 'returns the download_urls for the recipe files' do
     expected_response = {
       'conanfile.py' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/export/conanfile.py",
@@ -370,11 +410,13 @@ end
 RSpec.shared_examples 'package download_urls' do
   let(:recipe_path) { package.conan_recipe_path }
 
+  it_behaves_like 'enforcing read_packages job token policy'
+
   it 'returns the download_urls for the package files' do
     expected_response = {
-      'conaninfo.txt' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conaninfo.txt",
-      'conanmanifest.txt' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conanmanifest.txt",
-      'conan_package.tgz' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conan_package.tgz"
+      'conaninfo.txt' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/#{conan_package_reference}/0/conaninfo.txt",
+      'conanmanifest.txt' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/#{conan_package_reference}/0/conanmanifest.txt",
+      'conan_package.tgz' => "#{url_prefix}/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/#{conan_package_reference}/0/conan_package.tgz"
     }
 
     subject
@@ -398,8 +440,9 @@ RSpec.shared_examples 'rejects invalid upload_url params' do
 end
 
 RSpec.shared_examples 'recipe snapshot endpoint' do
-  subject { get api(url), headers: headers }
+  subject(:request) { get api(url), headers: headers }
 
+  it_behaves_like 'enforcing read_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
@@ -424,8 +467,9 @@ RSpec.shared_examples 'recipe snapshot endpoint' do
 end
 
 RSpec.shared_examples 'package snapshot endpoint' do
-  subject { get api(url), headers: headers }
+  subject(:request) { get api(url), headers: headers }
 
+  it_behaves_like 'enforcing read_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects recipe for invalid project'
@@ -477,6 +521,7 @@ RSpec.shared_examples 'recipe upload_urls endpoint' do
       'conanmanifest.txt': 123 }
   end
 
+  it_behaves_like 'enforcing read_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid upload_url params'
@@ -540,6 +585,7 @@ RSpec.shared_examples 'package upload_urls endpoint' do
       'conan_package.tgz': 523 }
   end
 
+  it_behaves_like 'enforcing read_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid upload_url params'
@@ -593,10 +639,18 @@ RSpec.shared_examples 'delete package endpoint' do
       project.add_maintainer(user)
     end
 
-    it_behaves_like 'a package tracking event', 'API::ConanPackages', 'delete_package'
+    it_behaves_like 'enforcing job token policies', :admin_packages do
+      let(:headers) { job_basic_auth_header(target_job) }
+    end
+
+    it 'triggers an internal event' do
+      expect { subject }
+        .to trigger_internal_events('delete_package_from_registry')
+          .with(user: user, project: project, property: 'user', label: 'conan', category: 'InternalEventTracking')
+    end
 
     it 'deletes a package' do
-      expect { subject }.to change { Packages::Package.count }.from(2).to(1)
+      expect { subject }.to change { Packages::Package.count }.by(-1)
     end
   end
 end
@@ -663,6 +717,7 @@ RSpec.shared_examples 'a private project with packages' do
     project.update_column(:visibility_level, Gitlab::VisibilityLevel::PRIVATE)
   end
 
+  it_behaves_like 'enforcing read_packages job token policy'
   it_behaves_like 'denies download with no token'
   it_behaves_like 'bumping the package last downloaded at field'
 
@@ -673,12 +728,18 @@ RSpec.shared_examples 'a private project with packages' do
     expect(response.media_type).to eq('application/octet-stream')
   end
 
-  it 'denies download when not enough permissions' do
-    project.add_guest(user)
+  context 'when allow_guest_plus_roles_to_pull_packages is disabled' do
+    before do
+      stub_feature_flags(allow_guest_plus_roles_to_pull_packages: false)
+    end
 
-    subject
+    it 'denies download when not enough permissions' do
+      project.add_guest(user)
 
-    expect(response).to have_gitlab_http_status(:forbidden)
+      subject
+
+      expect(response).to have_gitlab_http_status(:forbidden)
+    end
   end
 end
 
@@ -725,6 +786,7 @@ RSpec.shared_examples 'project not found by project id' do
 end
 
 RSpec.shared_examples 'workhorse authorize endpoint' do
+  it_behaves_like 'enforcing admin_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid file_name', 'conanfile.py.git%2fgit-upload-pack'
@@ -732,11 +794,81 @@ RSpec.shared_examples 'workhorse authorize endpoint' do
   it_behaves_like 'handling empty values for username and channel'
 end
 
+RSpec.shared_examples 'protected package main example' do
+  context 'with package protection rule for different roles and package_name_patterns', :enable_admin_mode do
+    using RSpec::Parameterized::TableSyntax
+
+    let_it_be(:pat_project_developer) { personal_access_token }
+    let_it_be(:pat_project_maintainer) { create(:personal_access_token, user: create(:user, maintainer_of: [project])) }
+    let_it_be(:pat_project_owner) { create(:personal_access_token, user: create(:user, owner_of: [project])) }
+    let_it_be(:pat_instance_admin) { create(:personal_access_token, :admin_mode, user: create(:admin)) }
+
+    let(:package_protection_rule) do
+      create(:package_protection_rule, package_type: :conan, project: project)
+    end
+
+    let(:conan_package_name) { recipe_path_name }
+    let(:conan_package_name_no_match) { "#{conan_package_name}_no_match" }
+
+    before do
+      package_protection_rule.update!(
+        package_name_pattern: package_name_pattern,
+        minimum_access_level_for_push: minimum_access_level_for_push
+      )
+    end
+
+    shared_examples 'protected package' do
+      it_behaves_like 'returning response status', 403
+
+      it 'does not create any conan-related package records' do
+        expect { subject }
+          .to not_change { Packages::Package.count }
+          .and not_change { Packages::Package.conan.count }
+          .and not_change { Packages::PackageFile.count }
+      end
+    end
+
+    where(:package_name_pattern, :minimum_access_level_for_push, :personal_access_token, :shared_examples_name) do
+      ref(:conan_package_name)          | :maintainer | ref(:pat_project_developer)  | 'protected package'
+      ref(:conan_package_name)          | :maintainer | ref(:pat_project_owner)      | 'uploads a package file'
+      ref(:conan_package_name)          | :maintainer | ref(:pat_instance_admin)     | 'uploads a package file'
+      ref(:conan_package_name)          | :owner      | ref(:pat_project_maintainer) | 'protected package'
+      ref(:conan_package_name)          | :owner      | ref(:pat_project_owner)      | 'uploads a package file'
+      ref(:conan_package_name)          | :owner      | ref(:pat_instance_admin)     | 'uploads a package file'
+      ref(:conan_package_name)          | :admin      | ref(:pat_project_owner)      | 'protected package'
+      ref(:conan_package_name)          | :admin      | ref(:pat_instance_admin)     | 'uploads a package file'
+      ref(:conan_package_name_no_match) | :maintainer | ref(:pat_project_owner)      | 'uploads a package file'
+      ref(:conan_package_name_no_match) | :admin      | ref(:pat_project_owner)      | 'uploads a package file'
+    end
+
+    with_them do
+      it_behaves_like params[:shared_examples_name]
+    end
+
+    context 'when feature flag :packages_protected_packages_conan is disabled' do
+      before do
+        stub_feature_flags(packages_protected_packages_conan: false)
+      end
+
+      where(:package_name_pattern, :minimum_access_level_for_push, :personal_access_token, :shared_examples_name) do
+        ref(:conan_package_name)          | :maintainer | ref(:pat_project_developer) | 'uploads a package file'
+        ref(:conan_package_name)          | :admin      | ref(:pat_project_owner)     | 'uploads a package file'
+        ref(:conan_package_name_no_match) | :maintainer | ref(:pat_project_developer) | 'uploads a package file'
+        ref(:conan_package_name_no_match) | :admin      | ref(:pat_project_owner)     | 'uploads a package file'
+      end
+
+      with_them do
+        it_behaves_like params[:shared_examples_name]
+      end
+    end
+  end
+end
+
 RSpec.shared_examples 'workhorse recipe file upload endpoint' do
   let(:file_name) { 'conanfile.py' }
   let(:params) { { file: temp_file(file_name) } }
 
-  subject do
+  subject(:request) do
     workhorse_finalize(
       url,
       method: :put,
@@ -747,6 +879,7 @@ RSpec.shared_examples 'workhorse recipe file upload endpoint' do
     )
   end
 
+  it_behaves_like 'enforcing admin_packages job token policy'
   it_behaves_like 'conan FIPS mode'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid file_name', 'conanfile.py.git%2fgit-upload-pack'
@@ -754,13 +887,14 @@ RSpec.shared_examples 'workhorse recipe file upload endpoint' do
   it_behaves_like 'creates build_info when there is a job'
   it_behaves_like 'handling empty values for username and channel'
   it_behaves_like 'handling validation error for package'
+  it_behaves_like 'protected package main example'
 end
 
 RSpec.shared_examples 'workhorse package file upload endpoint' do
   let(:file_name) { 'conaninfo.txt' }
   let(:params) { { file: temp_file(file_name) } }
 
-  subject do
+  subject(:request) do
     workhorse_finalize(
       url,
       method: :put,
@@ -771,12 +905,14 @@ RSpec.shared_examples 'workhorse package file upload endpoint' do
     )
   end
 
+  it_behaves_like 'enforcing admin_packages job token policy'
   it_behaves_like 'rejects invalid recipe'
   it_behaves_like 'rejects invalid file_name', 'conaninfo.txttest'
   it_behaves_like 'uploads a package file'
   it_behaves_like 'creates build_info when there is a job'
   it_behaves_like 'handling empty values for username and channel'
   it_behaves_like 'handling validation error for package'
+  it_behaves_like 'protected package main example'
 
   context 'tracking the conan_package.tgz upload' do
     let(:file_name) { ::Packages::Conan::FileMetadatum::PACKAGE_BINARY }
@@ -786,7 +922,7 @@ RSpec.shared_examples 'workhorse package file upload endpoint' do
 end
 
 RSpec.shared_examples 'creates build_info when there is a job' do
-  context 'with job token', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/294047' do
+  context 'with job token' do
     let(:jwt) { build_jwt_from_job(job) }
 
     it 'creates a build_info record' do
@@ -850,10 +986,10 @@ RSpec.shared_examples 'uploads a package file' do
       end
 
       context 'with existing package' do
-        let!(:existing_package) { create(:conan_package, name: 'foo', version: 'bar', project: project) }
+        let!(:existing_package) { create(:conan_package, name: recipe_path_name, version: recipe_path_version, project: project) }
 
         before do
-          existing_package.conan_metadatum.update!(package_username: project.full_path.tr('/', '+'), package_channel: 'baz')
+          existing_package.conan_metadatum.update!(package_username: recipe_path_username, package_channel: recipe_path_channel)
         end
 
         it 'does not create a new package' do
@@ -1005,5 +1141,17 @@ end
 RSpec.shared_examples 'conan FIPS mode' do
   context 'when FIPS mode is enabled', :fips_mode do
     it_behaves_like 'returning response status', :not_found
+  end
+end
+
+RSpec.shared_examples 'enforcing read_packages job token policy' do
+  it_behaves_like 'enforcing job token policies', :read_packages do
+    let(:headers) { job_basic_auth_header(target_job) }
+  end
+end
+
+RSpec.shared_examples 'enforcing admin_packages job token policy' do
+  it_behaves_like 'enforcing job token policies', :admin_packages do
+    let(:headers_with_token) { job_basic_auth_header(target_job).merge(workhorse_headers) }
   end
 end

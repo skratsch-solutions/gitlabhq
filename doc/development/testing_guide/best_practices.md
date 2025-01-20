@@ -59,6 +59,7 @@ When using spring and guard together, use `SPRING=1 bundle exec guard` instead t
 - Try to follow the [Four-Phase Test](https://thoughtbot.com/blog/four-phase-test) pattern, using newlines
   to separate phases.
 - Use `Gitlab.config.gitlab.host` rather than hard coding `'localhost'`.
+- For literal URLs in tests, use `example.com`, `gitlab.example.com`. This will ensure that we do not utilize any real URLs.
 - Don't assert against the absolute value of a sequence-generated attribute (see
   [Gotchas](../gotchas.md#do-not-assert-against-the-absolute-value-of-a-sequence-generated-attribute)).
 - Avoid using `expect_any_instance_of` or `allow_any_instance_of` (see
@@ -663,7 +664,7 @@ find_field _('Checkbox label'), checked: true
 find_field _('Checkbox label'), unchecked: true
 
 # acceptable when finding a element that is not a button, link, or field
-find('[data-testid="element"]')
+find_by_testid('element')
 ```
 
 ##### Matchers
@@ -843,6 +844,9 @@ really fast because:
 - GitLab Shell and Gitaly setup are skipped
 - Test repositories setup are skipped
 
+It takes around one second to load tests that are using `fast_spec_helper`
+instead of 30+ seconds in case of a regular `spec_helper`.
+
 `fast_spec_helper` also support autoloading classes that are located inside the
 `lib/` directory. If your class or module is using only
 code from the `lib/` directory, you don't need to explicitly load any
@@ -860,15 +864,27 @@ should either:
 - Add `require_dependency 're2'` to files in your library that need `re2` gem,
   to make this requirement explicit. This approach is preferred.
 - Add it to the spec itself.
-- Use `rubocop_spec_helper` for RuboCop related specs.
 
-It takes around one second to load tests that are using `fast_spec_helper`
-instead of 30+ seconds in case of a regular `spec_helper`.
+Alternately, if it is a dependency which is required by many different `fast_spec_helper`
+specs in your domain, and you don't want to have to manually add the dependency many
+times, you can add it to be called directly from `fast_spec_helper` itself. To do
+this, you can create a `spec/support/fast_spec/YOUR_DOMAIN/fast_spec_helper_support.rb`
+file, and require it from `fast_spec_helper`. There are existing examples of this
+you can follow.
+
+Use `rubocop_spec_helper` for RuboCop related specs.
 
 WARNING:
 To verify that code and its specs are well-isolated from Rails, run the spec
 individually via `bin/rspec`. Don't use `bin/spring rspec` as it loads
 `spec_helper` automatically.
+
+#### Maintaining fast_spec_helper specs
+
+There is a utility script `scripts/run-fast-specs.sh` which can be used to run
+all specs which use `fast_spec_helper`, in various ways. This script is useful
+to help identify `fast_spec_helper` specs which have problems, such as not
+running successfully in isolation. See the script for more details.
 
 ### `subject` and `let` variables
 
@@ -1029,7 +1045,7 @@ and as the docs state, may include fractional seconds.
 
 When Rails models are saved to the database,
 any timestamps they have are stored using a type in PostgreSQL called `timestamp without time zone`,
-which has microsecond resolution—i.e., six digits after the decimal.
+which has microsecond resolution—that is six digits after the decimal.
 So if `1577987974.6472975` is sent to PostgreSQL,
 it truncates the last digit of the fractional part and instead saves `1577987974.647297`.
 
@@ -1330,7 +1346,12 @@ You can use the `SEARCH_SPEC_BENCHMARK` environment variable to benchmark test s
 SEARCH_SPEC_BENCHMARK=1 bundle exec rspec ee/spec/lib/elastic/latest/merge_request_class_proxy_spec.rb
 ```
 
-#### Test Snowplow events
+#### Test Legacy Snowplow events
+
+This section describes how to test with events that have yet to convert to
+[internal events](../internal_analytics/internal_event_instrumentation/quick_start.md).
+
+##### Backend
 
 WARNING:
 Snowplow performs **runtime type checks** by using the [contracts gem](https://rubygems.org/gems/contracts).
@@ -1380,6 +1401,39 @@ specify a `category` to avoid flaky tests. For example,
 `Users::ActivityService` may track a Snowplow event after an API
 request, and `expect_no_snowplow_event` will fail if that happens to run
 when no arguments are specified.
+
+##### View layer with data attributes
+
+If you are using the data attributes to register tracking at the Haml layer,
+you can use the `have_tracking` matcher method to assert if expected data attributes are assigned.
+
+For example, if we need to test the below Haml,
+
+```haml
+%div{ data: { testid: '_testid_', track_action: 'render', track_label: '_tracking_label_' } }
+```
+
+- [RSpec view specs](https://rspec.info/features/6-0/rspec-rails/view-specs/view-spec/)
+
+```ruby
+    it 'assigns the tracking items' do
+      render
+
+      expect(rendered).to have_tracking(action: 'render', label: '_tracking_label_', testid: '_testid_')
+    end
+```
+
+- [ViewComponent](https://viewcomponent.org/) specs
+
+```ruby
+  it 'assigns the tracking items' do
+    render_inline(component)
+
+    expect(page).to have_tracking(action: 'render', label: '_tracking_label_', testid: '_testid_')
+  end
+```
+
+When you want to ensure that tracking isn't assigned, you can use `not_to` with the above matchers.
 
 #### Test Snowplow context against the schema
 
@@ -1452,14 +1506,14 @@ NoMethodError:
 
 That indicates that you need to include the line `using RSpec::Parameterized::TableSyntax` in the spec file.
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 WARNING:
 Only use simple values as input in the `where` block. Using procs, stateful
 objects, FactoryBot-created objects, and similar items can lead to
 [unexpected results](https://github.com/tomykaira/rspec-parameterized/issues/8).
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 ### Prometheus tests
 

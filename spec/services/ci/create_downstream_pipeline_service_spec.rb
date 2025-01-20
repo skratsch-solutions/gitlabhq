@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category: :continuous_integration do
   include Ci::SourcePipelineHelpers
+  include Ci::PipelineMessageHelpers
 
   # Using let_it_be on user and projects for these specs can cause
   # spec-ordering failures due to the project-based permissions
@@ -203,7 +204,8 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
         expect { subject }
           .to change { Ci::Pipeline.count }.by(1)
         expect(subject).to be_error
-        expect(subject.message).to match_array(["jobs job config should implement a script: or a trigger: keyword"])
+        expect(subject.message)
+          .to match_array(["jobs job config should implement the script:, run:, or trigger: keyword"])
       end
 
       it 'creates a new pipeline in a downstream project' do
@@ -429,7 +431,8 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
           before do
             bridge.yaml_variables = [{ key: 'BRIDGE', value: '$PIPELINE_VARIABLE-var', public: true }]
 
-            upstream_pipeline.project.update!(restrict_user_defined_variables: true)
+            upstream_pipeline.project.update!(restrict_user_defined_variables: true,
+              ci_pipeline_variables_minimum_override_role: :maintainer)
           end
 
           it 'creates a new pipeline allowing variables to be passed downstream' do
@@ -590,7 +593,8 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
         expect { subject }
           .to change { Ci::Pipeline.count }.by(1)
         expect(subject).to be_error
-        expect(subject.message).to match_array(["jobs invalid config should implement a script: or a trigger: keyword"])
+        expect(subject.message)
+          .to match_array(["jobs invalid config should implement the script:, run:, or trigger: keyword"])
       end
 
       it 'creates a new pipeline in the downstream project' do
@@ -623,6 +627,7 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
     context 'when bridge job has YAML variables defined' do
       before do
         bridge.yaml_variables = [{ key: 'BRIDGE', value: 'var', public: true }]
+        downstream_project.update!(ci_pipeline_variables_minimum_override_role: :developer)
       end
 
       it 'passes bridge variables to downstream pipeline' do
@@ -645,6 +650,7 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
       context 'when using YAML variables interpolation' do
         before do
           bridge.yaml_variables = [{ key: 'BRIDGE', value: '$PIPELINE_VARIABLE-var', public: true }]
+          downstream_project.update!(ci_pipeline_variables_minimum_override_role: :developer)
         end
 
         it 'makes it possible to pass pipeline variable downstream' do
@@ -655,7 +661,8 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
 
         context 'when downstream project does not allow user-defined variables for multi-project pipelines' do
           before do
-            downstream_project.update!(restrict_user_defined_variables: true)
+            downstream_project.update!(restrict_user_defined_variables: true,
+              ci_pipeline_variables_minimum_override_role: :maintainer)
           end
 
           it 'does not create a new pipeline' do
@@ -775,13 +782,12 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
       it 'does not create a pipeline and drops the bridge' do
         expect { subject }.not_to change(downstream_project.ci_pipelines, :count)
         expect(subject).to be_error
-        expect(subject.message).to match_array(['Pipeline will not run for the selected trigger. ' \
-          'The rules configuration prevented any jobs from being added to the pipeline.'])
+        expect(subject.message).to match_array([sanitize_message(Ci::Pipeline.rules_failure_message)])
 
         expect(bridge.reload).to be_failed
         expect(bridge.failure_reason).to eq('downstream_pipeline_creation_failed')
-        expect(bridge.options[:downstream_errors]).to match_array(['Pipeline will not run for the selected trigger. ' \
-          'The rules configuration prevented any jobs from being added to the pipeline.'])
+        expect(bridge.options[:downstream_errors]).to match_array(
+          [sanitize_message(Ci::Pipeline.rules_failure_message)])
       end
     end
 
@@ -802,13 +808,13 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
         expect { subject }.to change(downstream_project.ci_pipelines, :count).by(1)
         expect(subject).to be_error
         expect(subject.message).to eq(
-          ["test job: chosen stage does not exist; available stages are .pre, build, test, deploy, .post"]
+          ["test job: chosen stage testx does not exist; available stages are .pre, build, test, deploy, .post"]
         )
 
         expect(bridge.reload).to be_failed
         expect(bridge.failure_reason).to eq('downstream_pipeline_creation_failed')
         expect(bridge.options[:downstream_errors]).to eq(
-          ['test job: chosen stage does not exist; available stages are .pre, build, test, deploy, .post']
+          ['test job: chosen stage testx does not exist; available stages are .pre, build, test, deploy, .post']
         )
       end
     end
@@ -816,6 +822,7 @@ RSpec.describe Ci::CreateDownstreamPipelineService, '#execute', feature_category
     context 'when downstream pipeline has workflow rule' do
       before do
         stub_ci_pipeline_yaml_file(config)
+        downstream_project.update!(ci_pipeline_variables_minimum_override_role: :developer)
       end
 
       let(:config) do

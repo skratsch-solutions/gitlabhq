@@ -2,7 +2,7 @@
 
 module QA
   RSpec.describe 'Create' do
-    describe 'Merge request squashing', :blocking, product_group: :code_review do
+    describe 'Merge request squashing', product_group: :code_review do
       let(:project) { create(:project, name: 'squash-before-merge') }
       let(:merge_request) { create(:merge_request, project: project, title: 'Squashing commits') }
 
@@ -40,7 +40,7 @@ module QA
             repository.use_default_credentials
             repository.clone
 
-            expect(repository.commits.size).to eq 3
+            expect(repository.commits.size).to eq(3), "Expected 3 commits, got: #{repository.commits.size}"
           end
         end
       end

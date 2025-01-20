@@ -164,7 +164,7 @@ RSpec.describe 'Edit group settings', feature_category: :groups_and_projects do
         click_button s_('GroupSettings|Transfer group')
 
         page.within(confirm_modal) do
-          expect(page).to have_text "You are about to transfer #{selected_group.full_path} to another namespace. This action changes the project's path and can lead to data loss."
+          expect(page).to have_text "You are about to transfer #{selected_group.full_path} to another namespace. This action changes the group's path and can lead to data loss."
 
           fill_in 'confirm_name_input', with: selected_group.full_path
           click_button 'Transfer group'
@@ -307,93 +307,23 @@ RSpec.describe 'Edit group settings', feature_category: :groups_and_projects do
     end
   end
 
-  context 'Dormant members', :saas, :aggregate_failures, feature_category: :user_management do
-    before do
-      visit edit_group_path(group)
-    end
-
-    context "when feature flag is disabled" do
-      before do
-        stub_feature_flags(group_remove_dormant_members: false)
-        visit edit_group_path(group)
-      end
-
-      it 'does not expose the setting section' do
-        expect(page).not_to have_content('Dormant members')
-        expect(page).not_to have_field('Remove dormant members after a period of inactivity')
-        expect(page).not_to have_field('Days of inactivity before removal', disabled: true)
-      end
-    end
-
-    it 'exposes the setting section' do
-      expect(page).to have_content('Dormant members')
-      expect(page).to have_field('Remove dormant members after a period of inactivity')
-      expect(page).to have_field('Days of inactivity before removal', disabled: true)
-    end
-
-    it 'changes dormant members', :js do
-      expect(page).to have_unchecked_field(_('Remove dormant members after a period of inactivity'))
-      expect(group.namespace_settings.remove_dormant_members).to be_falsey
-
-      within_testid('permissions-settings') do
-        check _('Remove dormant members after a period of inactivity')
-        fill_in _('Days of inactivity before removal'), with: '90'
-        click_button _('Save changes')
-      end
-
-      expect(page).to have_content(
-        format(
-          _("Group '%{group_name}' was successfully updated."),
-          group_name: group.name
-        )
-      )
-
-      page.refresh
-
-      expect(page).to have_checked_field(_('Remove dormant members after a period of inactivity'))
-      expect(page).to have_field(_('Days of inactivity before removal'), disabled: false, with: '90')
-    end
-
-    it 'displays dormant members period field validation error', :js do
-      selector = '#group_remove_dormant_members_period_error'
-      expect(page).not_to have_selector(selector, visible: :visible)
-
-      within_testid('permissions-settings') do
-        check _('Remove dormant members after a period of inactivity')
-        fill_in _('Days of inactivity before removal'), with: '30'
-        click_button 'Save changes'
-      end
-
-      expect(page).to have_selector(selector, visible: :visible)
-      expect(page).to have_content _('Please enter a value of 90 days or more')
-    end
-
-    it 'auto disables dormant members period field depending on parent checkbox', :js do
-      uncheck _('Remove dormant members after a period of inactivity')
-      expect(page).to have_field(_('Days of inactivity before removal'), disabled: true)
-
-      check _('Remove dormant members after a period of inactivity')
-      expect(page).to have_field(_('Days of inactivity before removal'), disabled: false)
-    end
-  end
-
   def update_path(new_group_path)
     visit edit_group_path(group)
 
-    page.within('.gs-advanced') do
+    within_testid('advanced-settings-content') do
       fill_in 'group_path', with: new_group_path
       click_button 'Change group URL'
     end
   end
 
   def save_general_group
-    page.within('.gs-general') do
+    within_testid('general-settings') do
       click_button 'Save changes'
     end
   end
 
   def save_permissions_group
-    page.within('.gs-permissions') do
+    within_testid('permissions-settings') do
       click_button 'Save changes'
     end
   end

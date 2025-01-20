@@ -8,9 +8,16 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can delete container images from your container registry.
+
+To automatically delete container images based on specific criteria, use [garbage collection](#garbage-collection).
+Alternatively, you can use a 3rd-party tool to [create a CI/CD job](#use-gitlab-cicd)
+for deleting container images from specific projects.
+
+To delete specific container images from a project or group, you can use [the GitLab UI](#use-the-gitlab-ui)
+or [GitLab API](#use-the-gitlab-api).
 
 WARNING:
 Deleting container images is a destructive action and can't be undone. To restore
@@ -19,12 +26,12 @@ a deleted container image, you must rebuild and re-upload it.
 ## Garbage collection
 
 Deleting a container image on self-managed instances doesn't free up storage space, it only marks the image
-as eligible for deletion. To actually delete unreferenced container images and recover storage space, administrators
+as eligible for deletion. To actually delete unreferenced container images and recover storage space, self-managed instance administrators
 must run [garbage collection](../../../administration/packages/container_registry.md#container-registry-garbage-collection).
 
-On GitLab.com, the latest version of the container registry includes an automatic online garbage
-collector. For more information, see [this blog post](https://about.gitlab.com/blog/2021/10/25/gitlab-com-container-registry-update/).
-In this new version of the container registry, the following are automatically scheduled
+The container registry on GitLab.com includes an automatic online garbage
+collector.
+With the automatic garbage collector, the following are automatically scheduled
 for deletion in 24 hours if left unreferenced:
 
 - Layers that aren't referenced by any image manifest.
@@ -50,6 +57,9 @@ To delete container images using the GitLab UI:
      to delete.
 
 1. On the dialog, select **Remove tag**.
+
+Container repositories that [fail deletion more than 10 times](../../../administration/packages/container_registry.md#max-retries-for-deleting-container-images)
+automatically stop attempting to delete images.
 
 ## Use the GitLab API
 
@@ -90,10 +100,10 @@ build_image:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
-  only:
-    - branches
-  except:
-    - main
+  rules:
+      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+        when: never
+      - if: $CI_COMMIT_BRANCH
 
 delete_image:
   stage: clean

@@ -6,6 +6,8 @@ module Types
       graphql_name 'PackageBase'
       description 'Represents a package in the Package Registry'
 
+      PROTECTION_RULE_EXISTS_BATCH_SIZE = 20
+
       connection_type_class Types::CountableConnectionType
 
       authorize :read_package
@@ -25,10 +27,7 @@ module Types
       field :project, Types::ProjectType, null: false, description: 'Project where the package is stored.'
       field :protection_rule_exists, GraphQL::Types::Boolean,
         null: false,
-        alpha: { milestone: '17.0' },
-        description:
-        'Whether any matching package protection rule exists for this package. ' \
-        'Available only when feature flag `packages_protected_packages` is enabled.'
+        description: 'Whether any matching package protection rule exists for the package.'
       field :status, Types::Packages::PackageStatusEnum, null: false, description: 'Package status.'
       field :status_message, GraphQL::Types::String, null: true, description: 'Status message.'
       field :tags, Types::Packages::PackageTagType.connection_type, null: true, description: 'Package tags.'
@@ -40,16 +39,16 @@ module Types
       end
 
       def protection_rule_exists
-        return false if Feature.disabled?(:packages_protected_packages, object.project)
-
         object_package_type_value = ::Packages::Package.package_types[object.package_type]
 
-        BatchLoader::GraphQL.for([object.name, object_package_type_value]).batch do |inputs, loader|
-          ::Packages::Protection::Rule
-            .for_push_exists_for_multiple_packages(
-              package_names: inputs.map(&:first), package_types: inputs.map(&:last), project_id: object.project_id
-            )
-            .each { |row| loader.call([row['package_name'], row['package_type']], row['protected']) }
+        BatchLoader::GraphQL.for([object.project_id, object.name, object_package_type_value]).batch do |tuples, loader|
+          tuples.each_slice(PROTECTION_RULE_EXISTS_BATCH_SIZE) do |projects_and_packages|
+            ::Packages::Protection::Rule
+              .for_push_exists_for_projects_and_packages(projects_and_packages)
+              .each do |row|
+                loader.call([row['project_id'], row['package_name'], row['package_type']], row['protected'])
+              end
+          end
         end
       end
 
@@ -70,6 +69,8 @@ module Types
           object.nuget_metadatum
         when 'pypi'
           object.pypi_metadatum
+        when 'terraform_module'
+          object.terraform_module_metadatum
         end
       end
       # rubocop: enable GraphQL/ResolverMethodLength

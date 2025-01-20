@@ -1,6 +1,6 @@
 <script>
 import { GlFormRadio } from '@gitlab/ui';
-import { dateInWords, parsePikadayDate } from '~/lib/utils/datetime_utility';
+import { localeDateFormat, newDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
 import { dateFields } from '../../constants';
 import SidebarFormattedDate from './sidebar_formatted_date.vue';
@@ -45,7 +45,7 @@ export default {
         return this.$options.i18n.noDate;
       }
 
-      return dateInWords(parsePikadayDate(dateFixed), true);
+      return localeDateFormat.asDate.format(newDate(dateFixed));
     },
     formattedInheritedDate() {
       const dateFromMilestones = this.issuable[dateFields[this.dateType].dateFromMilestones];
@@ -53,7 +53,7 @@ export default {
         return this.$options.i18n.noDate;
       }
 
-      return dateInWords(parsePikadayDate(dateFromMilestones), true);
+      return localeDateFormat.asDate.format(newDate(dateFromMilestones));
     },
   },
   i18n: {
@@ -67,14 +67,14 @@ export default {
 
 <template>
   <div class="hide-collapsed gl-mt-3">
-    <div class="gl-display-flex gl-align-items-baseline" data-testid="sidebar-fixed-date">
+    <div class="gl-flex gl-items-baseline" data-testid="sidebar-fixed-date">
       <gl-form-radio
         v-model="dateIsFixed"
         :value="true"
         :disabled="!canUpdate || isLoading"
         class="gl-pr-2"
       >
-        <span :class="dateIsFixed ? 'gl-text-gray-900 gl-font-bold' : 'gl-text-gray-500'">
+        <span :class="dateIsFixed ? 'gl-font-bold gl-text-default' : 'gl-text-subtle'">
           {{ $options.i18n.fixed }}
         </span>
       </gl-form-radio>
@@ -88,14 +88,14 @@ export default {
         @reset-date="$emit('reset-date', $event)"
       />
     </div>
-    <div class="gl-display-flex gl-align-items-baseline" data-testid="sidebar-inherited-date">
+    <div class="gl-flex gl-items-baseline" data-testid="sidebar-inherited-date">
       <gl-form-radio
         v-model="dateIsFixed"
         :value="false"
         :disabled="!canUpdate || isLoading"
         class="gl-pr-2"
       >
-        <span :class="!dateIsFixed ? 'gl-text-gray-900 gl-font-bold' : 'gl-text-gray-500'">
+        <span :class="!dateIsFixed ? 'gl-font-bold gl-text-default' : 'gl-text-disalbed'">
           {{ $options.i18n.inherited }}
         </span>
       </gl-form-radio>

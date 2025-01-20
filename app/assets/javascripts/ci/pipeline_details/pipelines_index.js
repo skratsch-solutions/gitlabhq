@@ -3,9 +3,9 @@ import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createDefaultClient from '~/lib/graphql';
 import {
-  parseBoolean,
-  historyReplaceState,
   buildUrlWithCurrentLocation,
+  historyReplaceState,
+  parseBoolean,
 } from '~/lib/utils/common_utils';
 import { doesHashExistInUrl } from '~/lib/utils/url_utility';
 import { __ } from '~/locale';
@@ -46,6 +46,7 @@ export const initPipelinesIndex = (selector = '#pipelines-list-vue') => {
     showJenkinsCiPrompt,
     identityVerificationPath,
     identityVerificationRequired,
+    pipelinesAnalyticsPath,
   } = el.dataset;
 
   return new Vue({
@@ -54,15 +55,18 @@ export const initPipelinesIndex = (selector = '#pipelines-list-vue') => {
     provide: {
       artifactsEndpoint,
       artifactsEndpointPlaceholder,
+      canCreatePipeline: parseBoolean(canCreatePipeline),
+      defaultBranchName,
       fullPath,
       manualActionsLimit: 50,
       pipelineEditorPath,
       pipelineSchedulesPath,
+      pipelinesAnalyticsPath,
+      projectId,
       identityVerificationPath,
       identityVerificationRequired: parseBoolean(identityVerificationRequired),
       suggestedCiTemplates: JSON.parse(suggestedCiTemplates),
       showJenkinsCiPrompt: parseBoolean(showJenkinsCiPrompt),
-      targetProjectFullPath: fullPath,
     },
     data() {
       return {
@@ -78,14 +82,11 @@ export const initPipelinesIndex = (selector = '#pipelines-list-vue') => {
     render(createElement) {
       return createElement(Pipelines, {
         props: {
-          canCreatePipeline: parseBoolean(canCreatePipeline),
-          defaultBranchName,
           defaultVisibilityPipelineIdType: visibilityPipelineIdType,
           endpoint,
           hasGitlabCi: parseBoolean(hasGitlabCi),
           newPipelinePath,
           params: JSON.parse(params),
-          projectId,
           resetCachePath,
           store: this.store,
         },

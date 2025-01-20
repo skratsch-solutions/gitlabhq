@@ -2,6 +2,7 @@
 import { GlAvatarLabeled, GlBadge, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { truncate } from '~/lib/utils/text_utility';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { USER_AVATAR_SIZE, LENGTH_OF_USER_NOTE_TOOLTIP } from './constants';
 
 export default {
@@ -43,6 +44,9 @@ export default {
     userNoteShort() {
       return truncate(this.user.note, LENGTH_OF_USER_NOTE_TOOLTIP);
     },
+    userId() {
+      return getIdFromGraphQLId(this.user.id);
+    },
   },
   USER_AVATAR_SIZE,
 };
@@ -51,8 +55,8 @@ export default {
 <template>
   <div
     v-if="user"
-    class="js-user-popover gl-display-inline-block"
-    :data-user-id="user.id"
+    class="js-user-popover gl-inline-block"
+    :data-user-id="userId"
     :data-username="user.username"
   >
     <gl-avatar-labeled
@@ -64,7 +68,7 @@ export default {
       :sub-label-link="subLabel.link"
     >
       <template #meta>
-        <div v-if="user.note" class="gl-text-gray-500 gl-p-1">
+        <div v-if="user.note" class="gl-p-1 gl-text-subtle">
           <gl-icon v-gl-tooltip="userNoteShort" name="document" />
         </div>
         <div
@@ -73,7 +77,7 @@ export default {
           class="gl-p-1"
           :class="{ 'gl-pb-0': glFeatures.simplifiedBadges }"
         >
-          <gl-badge class="gl-display-flex!" :variant="badge.variant">{{ badge.text }}</gl-badge>
+          <gl-badge class="!gl-flex" :variant="badge.variant">{{ badge.text }}</gl-badge>
         </div>
       </template>
     </gl-avatar-labeled>

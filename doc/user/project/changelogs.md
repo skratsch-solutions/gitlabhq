@@ -9,7 +9,7 @@ description: "Build, automate, and customize changelogs in your GitLab project."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Changelogs are generated based on commit titles and Git trailers. To be included
 in a changelog, a commit must contain a specific Git trailer. Changelogs are generated
@@ -111,9 +111,11 @@ for definitions and usage.
 
 ## Customize the changelog output
 
-To customize the changelog output, edit the changelog configuration file, and commit these changes to your project's Git repository.
-The default location for this configuration is `.gitlab/changelog_config.yml`. The file supports
-these variables:
+To customize the changelog output, edit the changelog configuration file, and commit these changes to your project's Git repository. The default location for this configuration is `.gitlab/changelog_config.yml`.
+
+For performance and security reasons, parsing the changelog configuration is limited to `2` seconds.
+If parsing the configuration results in timeout errors, consider reducing the size of the configuration.
+The file supports these variables:
 
 - `date_format`: The date format, in `strftime` format, used in the title of the newly added changelog data.
 - `template`: A custom template to use when generating the changelog data.

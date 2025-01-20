@@ -11,6 +11,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
   let_it_be(:group) { create(:group, :public) }
   let_it_be(:admin) { create(:user, :admin) }
   let_it_be(:guest) { create(:user) }
+  let_it_be(:planner) { create(:user) }
   let_it_be(:author) { create(:user) }
   let_it_be(:assignee) { create(:user) }
   let_it_be(:reporter) { create(:user) }
@@ -34,25 +35,25 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     it 'allows support_bot to read issues, create and set metadata on new issues' do
-      expect(permissions(support_bot, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(support_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(support_bot, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(support_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(support_bot, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
   end
 
   shared_examples 'support bot with service desk disabled' do
     it 'does not allow support_bot to read issues, create and set metadata on new issues' do
-      expect(permissions(support_bot, issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(support_bot, issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(support_bot, issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(support_bot, issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(support_bot, new_issue)).to be_disallowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
   end
 
   shared_examples 'alert bot' do
     it 'allows alert_bot to read and set metadata on issues' do
-      expect(permissions(alert_bot, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
-      expect(permissions(alert_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
-      expect(permissions(alert_bot, new_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+      expect(permissions(alert_bot, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+      expect(permissions(alert_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+      expect(permissions(alert_bot, new_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
     end
   end
 
@@ -80,6 +81,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
       project.add_guest(guest)
       project.add_guest(author)
       project.add_guest(assignee)
+      project.add_planner(planner)
       project.add_reporter(reporter)
 
       group.add_reporter(reporter_from_group_link)
@@ -92,49 +94,55 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     it 'allows guests to read issues' do
-      expect(permissions(guest, issue)).to be_allowed(:read_issue, :read_issue_iid, :admin_issue_relation, :admin_issue_link)
+      expect(permissions(guest, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :admin_issue_relation, :admin_issue_link)
       expect(permissions(guest, issue)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :mark_note_as_internal)
 
-      expect(permissions(guest, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :admin_issue_relation)
+      expect(permissions(guest, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :admin_issue_relation)
       expect(permissions(guest, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(guest, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality)
     end
 
+    it 'allows planners to read, update, admin and create confidential notes' do
+      expect(permissions(planner, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(planner, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(planner, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :mark_note_as_internal, :admin_issue_relation)
+    end
+
     it 'allows reporters to read, update, admin and create confidential notes' do
-      expect(permissions(reporter, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(reporter, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(reporter, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :mark_note_as_internal, :admin_issue_relation)
     end
 
     it 'allows reporters from group links to read, update, and admin issues' do
-      expect(permissions(reporter_from_group_link, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter_from_group_link, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(reporter_from_group_link, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
     it 'allows issue authors to read and update their issues' do
-      expect(permissions(author, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue_relation)
+      expect(permissions(author, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue_relation)
       expect(permissions(author, issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(author, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :admin_issue_relation)
+      expect(permissions(author, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :admin_issue_relation)
       expect(permissions(author, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(author, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
     it 'allows issue assignees to read and update their issues' do
-      expect(permissions(assignee, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue_relation)
+      expect(permissions(assignee, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue_relation)
       expect(permissions(assignee, issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(assignee, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(assignee, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(assignee, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(assignee, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
     it 'does not allow non-members to read, update or create issues' do
-      expect(permissions(non_member, issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(non_member, issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(non_member, issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(non_member, issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(non_member, new_issue)).to be_disallowed(:create_issue, :set_issue_metadata, :set_confidentiality)
     end
 
@@ -147,50 +155,55 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
       let(:confidential_issue_no_assignee) { create(:issue, :confidential, project: project) }
 
       it 'does not allow non-members to read confidential issues' do
-        expect(permissions(non_member, confidential_issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji, :admin_issue_link)
-        expect(permissions(non_member, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji, :admin_issue_link)
+        expect(permissions(non_member, confidential_issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji, :admin_issue_link)
+        expect(permissions(non_member, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji, :admin_issue_link)
       end
 
       it 'does not allow guests to read confidential issues' do
-        expect(permissions(guest, confidential_issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji, :admin_issue_link)
-        expect(permissions(guest, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji, :admin_issue_link)
+        expect(permissions(guest, confidential_issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji, :admin_issue_link)
+        expect(permissions(guest, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji, :admin_issue_link)
+      end
+
+      it 'allows planners to read, update, and admin confidential issues' do
+        expect(permissions(planner, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(planner, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
 
       it 'allows reporters to read, update, and admin confidential issues' do
-        expect(permissions(reporter, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
-        expect(permissions(reporter, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(reporter, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(reporter, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
 
       it 'allows reporters from group links to read, update, and admin confidential issues' do
-        expect(permissions(reporter_from_group_link, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
-        expect(permissions(reporter_from_group_link, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(reporter_from_group_link, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(reporter_from_group_link, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
 
       it 'allows issue authors to read and update their confidential issues' do
-        expect(permissions(author, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue_relation, :award_emoji)
+        expect(permissions(author, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue_relation, :award_emoji)
         expect(permissions(author, confidential_issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji)
-        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality, :award_emoji)
+        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation, :award_emoji)
+        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:admin_issue, :read_note, :set_issue_metadata, :set_confidentiality, :award_emoji)
       end
 
       it 'does not allow issue author to read or update confidential issue moved to an private project' do
         confidential_issue.project = create(:project, :private)
 
-        expect(permissions(author, confidential_issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(author, confidential_issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
 
       it 'allows issue assignees to read and update their confidential issues' do
-        expect(permissions(assignee, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :award_emoji)
+        expect(permissions(assignee, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :award_emoji)
         expect(permissions(assignee, confidential_issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-        expect(permissions(assignee, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(assignee, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
 
       it 'does not allow issue assignees to read or update confidential issue moved to an private project' do
         confidential_issue.project = create(:project, :private)
 
-        expect(permissions(assignee, confidential_issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
+        expect(permissions(assignee, confidential_issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation, :award_emoji)
       end
     end
   end
@@ -205,6 +218,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
 
     before_all do
       project.add_guest(guest)
+      project.add_planner(planner)
       project.add_reporter(reporter)
       project.add_maintainer(maintainer)
       project.add_owner(owner)
@@ -215,7 +229,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     it 'does not allow anonymous user to create todos' do
-      expect(permissions(nil, issue)).to be_allowed(:read_issue)
+      expect(permissions(nil, issue)).to be_allowed(:read_issue, :read_note)
       expect(permissions(nil, issue)).to be_disallowed(:create_todo, :update_subscription, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(nil, new_issue)).to be_disallowed(:create_issue, :set_issue_metadata, :set_confidentiality)
     end
@@ -234,42 +248,50 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     it 'allows guests to read issues' do
-      expect(permissions(guest, issue)).to be_allowed(:read_issue, :read_issue_iid, :create_todo, :update_subscription, :admin_issue_relation)
+      expect(permissions(guest, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :create_todo, :update_subscription, :admin_issue_relation)
       expect(permissions(guest, issue)).to be_disallowed(:update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(guest, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :admin_issue_relation)
+      expect(permissions(guest, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :admin_issue_relation)
       expect(permissions(guest, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(guest, issue_locked)).to be_allowed(:read_issue, :read_issue_iid, :admin_issue_relation)
+      expect(permissions(guest, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :admin_issue_relation)
       expect(permissions(guest, issue_locked)).to be_disallowed(:update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(guest, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
+    it 'allows planners to read, update, reopen, and admin issues' do
+      expect(permissions(planner, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(planner, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(planner, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(planner, issue_locked)).to be_disallowed(:reopen_issue)
+      expect(permissions(planner, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+    end
+
     it 'allows reporters to read, update, reopen, and admin issues' do
-      expect(permissions(reporter, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(reporter, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
-      expect(permissions(reporter, issue_locked)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(reporter, issue_locked)).to be_disallowed(:reopen_issue)
       expect(permissions(reporter, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
     it 'allows reporters from group links to read, update, reopen and admin issues' do
-      expect(permissions(reporter_from_group_link, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter_from_group_link, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(reporter_from_group_link, issue_no_assignee)).to be_allowed(:reopen_issue)
-      expect(permissions(reporter_from_group_link, issue_locked)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+      expect(permissions(reporter_from_group_link, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       expect(permissions(reporter_from_group_link, issue_locked)).to be_disallowed(:reopen_issue)
       expect(permissions(reporter, new_issue)).to be_allowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
     end
 
     it 'allows issue authors to read, reopen and update their issues' do
-      expect(permissions(author, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :reopen_issue)
+      expect(permissions(author, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :reopen_issue)
       expect(permissions(author, issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(author, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(author, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(author, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(author, issue_locked)).to be_allowed(:read_issue, :read_issue_iid, :update_issue)
+      expect(permissions(author, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue)
       expect(permissions(author, issue_locked)).to be_disallowed(:admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(author, new_issue)).to be_allowed(:create_issue)
@@ -277,25 +299,25 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     it 'allows issue assignees to read, reopen and update their issues' do
-      expect(permissions(assignee, issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :reopen_issue)
+      expect(permissions(assignee, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :reopen_issue)
       expect(permissions(assignee, issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(assignee, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(assignee, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(assignee, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(assignee, issue_locked)).to be_allowed(:read_issue, :read_issue_iid, :update_issue)
+      expect(permissions(assignee, issue_locked)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue)
       expect(permissions(assignee, issue_locked)).to be_disallowed(:admin_issue, :reopen_issue, :set_issue_metadata, :set_confidentiality)
     end
 
     it 'allows non-members to read and create issues' do
-      expect(permissions(non_member, issue)).to be_allowed(:read_issue, :read_issue_iid)
-      expect(permissions(non_member, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(non_member, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
+      expect(permissions(non_member, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(non_member, new_issue)).to be_allowed(:create_issue)
     end
 
     it 'allows non-members to read issues' do
-      expect(permissions(non_member, issue)).to be_allowed(:read_issue, :read_issue_iid)
-      expect(permissions(non_member, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(non_member, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
+      expect(permissions(non_member, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
     end
 
     it 'does not allow non-members to update, admin or set metadata except for set confidential flag' do
@@ -310,10 +332,10 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     it 'allows support_bot to read issues' do
       # support_bot is still allowed read access in public projects through :public_access permission,
       # see project_policy public_access rules policy (rule { can?(:public_access) }.policy {...})
-      expect(permissions(support_bot, issue)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(support_bot, issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(support_bot, issue)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
 
-      expect(permissions(support_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid)
+      expect(permissions(support_bot, issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid)
       expect(permissions(support_bot, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
 
       expect(permissions(support_bot, new_issue)).to be_disallowed(:create_issue, :set_issue_metadata, :set_confidentiality)
@@ -383,7 +405,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
       end
 
       it 'does not allow non-members to update or create issues' do
-        expect(permissions(non_member, issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
+        expect(permissions(non_member, issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
         expect(permissions(non_member, issue_no_assignee)).to be_disallowed(:update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
         expect(permissions(non_member, new_issue)).to be_disallowed(:create_issue, :set_issue_metadata, :set_confidentiality, :admin_issue_relation)
       end
@@ -398,32 +420,37 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
       let(:confidential_issue_no_assignee) { create(:issue, :confidential, project: project) }
 
       it 'does not allow guests to read confidential issues' do
-        expect(permissions(guest, confidential_issue)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
-        expect(permissions(guest, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+        expect(permissions(guest, confidential_issue)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
+        expect(permissions(guest, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+      end
+
+      it 'allows planners to read, update, and admin confidential issues' do
+        expect(permissions(planner, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
+        expect(permissions(planner, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
       end
 
       it 'allows reporters to read, update, and admin confidential issues' do
-        expect(permissions(reporter, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
-        expect(permissions(reporter, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+        expect(permissions(reporter, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
+        expect(permissions(reporter, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
       end
 
       it 'allows reporter from group links to read, update, and admin confidential issues' do
-        expect(permissions(reporter_from_group_link, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
-        expect(permissions(reporter_from_group_link, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+        expect(permissions(reporter_from_group_link, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :admin_issue_relation)
+        expect(permissions(reporter_from_group_link, confidential_issue_no_assignee)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
       end
 
       it 'allows issue authors to read and update their confidential issues' do
-        expect(permissions(author, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue)
+        expect(permissions(author, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue)
         expect(permissions(author, confidential_issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+        expect(permissions(author, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
       end
 
       it 'allows issue assignees to read and update their confidential issues' do
-        expect(permissions(assignee, confidential_issue)).to be_allowed(:read_issue, :read_issue_iid, :update_issue)
+        expect(permissions(assignee, confidential_issue)).to be_allowed(:read_issue, :read_note, :read_issue_iid, :update_issue)
         expect(permissions(assignee, confidential_issue)).to be_disallowed(:admin_issue, :set_issue_metadata, :set_confidentiality)
 
-        expect(permissions(assignee, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
+        expect(permissions(assignee, confidential_issue_no_assignee)).to be_disallowed(:read_issue, :read_note, :read_issue_iid, :update_issue, :admin_issue, :set_issue_metadata, :set_confidentiality)
       end
 
       it 'allows admins to read confidential issues' do
@@ -453,8 +480,8 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
 
         it 'does not allow accessing notes' do
           # if notes widget is disabled not even maintainer can access notes
-          expect(permissions(maintainer, issue)).to be_disallowed(:create_note, :read_note, :mark_note_as_internal, :read_internal_note)
-          expect(permissions(admin, issue)).to be_disallowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal, :set_note_created_at)
+          expect(permissions(maintainer, issue)).to be_disallowed(:create_note, :read_note, :mark_note_as_internal, :read_internal_note, :admin_note)
+          expect(permissions(admin, issue)).to be_disallowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal, :set_note_created_at, :admin_note)
         end
       end
 
@@ -462,26 +489,60 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
         it 'allows accessing notes' do
           # with notes widget enabled, even guests can access notes
           expect(permissions(guest, issue)).to be_allowed(:create_note, :read_note)
-          expect(permissions(guest, issue)).to be_disallowed(:read_internal_note, :mark_note_as_internal, :set_note_created_at)
+          expect(permissions(guest, issue)).to be_disallowed(:read_internal_note, :mark_note_as_internal, :set_note_created_at, :admin_note)
+          expect(permissions(planner, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal)
           expect(permissions(reporter, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal)
-          expect(permissions(maintainer, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal)
-          expect(permissions(owner, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal, :set_note_created_at)
+          expect(permissions(reporter, issue)).to be_disallowed(:admin_note)
+          expect(permissions(maintainer, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal, :admin_note)
+          expect(permissions(owner, issue)).to be_allowed(:create_note, :read_note, :read_internal_note, :mark_note_as_internal, :set_note_created_at, :admin_note)
         end
       end
     end
   end
 
-  context 'when issue belongs to a group' do
-    let_it_be_with_reload(:issue) { create(:issue, :group_level, namespace: group) }
+  # rubocop:disable RSpec/MultipleMemoizedHelpers -- Need helpers for testing multiple scenarios
+  context 'with group level issues' do
+    let_it_be(:private_group) { create(:group, :private) }
+    let_it_be(:public_group) { create(:group, :public) }
+    let_it_be(:private_project) { create(:project, :private, group: private_group) }
+    let_it_be(:public_project) { create(:project, :public, group: public_group) }
 
-    before_all do
-      group.add_guest(guest)
+    let_it_be(:admin) { create(:user, :admin) }
+    let_it_be(:non_member_user) { create(:user) }
+
+    let_it_be(:guest) { create(:user, guest_of: [private_project, public_project]) }
+    let_it_be(:planner) { create(:user, planner_of: [private_project, public_project]) }
+    let_it_be(:guest_author) { create(:user, guest_of: [private_project, public_project]) }
+    let_it_be(:reporter) { create(:user, reporter_of: [private_project, public_project]) }
+
+    let_it_be(:group_guest) { create(:user, guest_of: [private_group, public_group]) }
+    let_it_be(:group_planner) { create(:user, planner_of: [private_group, public_group]) }
+    let_it_be(:group_guest_author) { create(:user, guest_of: [private_group, public_group]) }
+    let_it_be(:group_reporter) { create(:user, reporter_of: [private_group, public_group]) }
+
+    context 'with public group' do
+      let(:work_item) { create(:issue, :group_level, namespace: public_group) }
+      let(:confidential_work_item) { create(:issue, :group_level, confidential: true, namespace: public_group) }
+      let(:authored_work_item) { create(:issue, :group_level, namespace: public_group, author: group_guest_author) }
+      let(:authored_confidential_work_item) { create(:issue, :group_level, confidential: true, namespace: public_group, author: group_guest_author) }
+      let(:not_persisted_work_item) { build(:issue, :group_level, namespace: public_group) }
+
+      # only checking abilities without group level work items license, because in FOSS there is no license available
+      it_behaves_like 'abilities without group level work items license'
     end
 
-    it 'allows guests to award emoji' do
-      expect(permissions(guest, issue)).to be_allowed(:award_emoji)
+    context 'with private group' do
+      let(:work_item) { create(:issue, :group_level, namespace: private_group) }
+      let(:confidential_work_item) { create(:issue, :group_level, confidential: true, namespace: private_group) }
+      let(:authored_work_item) { create(:issue, :group_level, namespace: private_group, author: group_guest_author) }
+      let(:authored_confidential_work_item) { create(:issue, :group_level, confidential: true, namespace: private_group, author: group_guest_author) }
+      let(:not_persisted_work_item) { build(:issue, :group_level, namespace: private_group) }
+
+      # only checking abilities without group level work items license, because in FOSS there is no license available
+      it_behaves_like 'abilities without group level work items license'
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   context 'with external authorization enabled' do
     let(:user) { create(:user) }
@@ -507,52 +568,80 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     let(:issue) { create(:issue, project: project) }
     let(:policies) { described_class.new(user, issue) }
 
-    context 'when project reporter' do
-      it 'is disallowed' do
-        project.add_reporter(user)
+    %i[planner reporter].each do |role|
+      context "when project #{role}" do
+        it 'is disallowed' do
+          project.try(:"add_#{role}", user)
 
-        expect(policies).to be_disallowed(:read_crm_contacts)
-        expect(policies).to be_disallowed(:set_issue_crm_contacts)
+          expect(policies).to be_disallowed(:read_crm_contacts)
+          expect(policies).to be_disallowed(:set_issue_crm_contacts)
+        end
       end
-    end
 
-    context 'when subgroup reporter' do
-      it 'is allowed' do
-        subgroup.add_reporter(user)
+      context "when subgroup #{role}" do
+        it 'is allowed' do
+          subgroup.try(:"add_#{role}", user)
 
-        expect(policies).to be_disallowed(:read_crm_contacts)
-        expect(policies).to be_disallowed(:set_issue_crm_contacts)
+          expect(policies).to be_disallowed(:read_crm_contacts)
+          expect(policies).to be_disallowed(:set_issue_crm_contacts)
+        end
       end
-    end
 
-    context 'when root group reporter' do
-      it 'is allowed' do
-        subgroup.parent.add_reporter(user)
+      context "when root group #{role}" do
+        it 'is allowed' do
+          subgroup.parent.try(:"add_#{role}", user)
 
-        expect(policies).to be_allowed(:read_crm_contacts)
-        expect(policies).to be_allowed(:set_issue_crm_contacts)
+          expect(policies).to be_allowed(:read_crm_contacts)
+          expect(policies).to be_allowed(:set_issue_crm_contacts)
+        end
       end
-    end
 
-    context 'when crm disabled on subgroup' do
-      let(:subgroup) { create(:group, :crm_disabled, parent: create(:group)) }
+      context 'when crm disabled on subgroup' do
+        let(:subgroup) { create(:group, :crm_disabled, parent: create(:group)) }
 
-      it 'is disallowed' do
-        subgroup.parent.add_reporter(user)
+        it 'is disallowed' do
+          subgroup.parent.try(:"add_#{role}", user)
 
-        expect(policies).to be_disallowed(:read_crm_contacts)
-        expect(policies).to be_disallowed(:set_issue_crm_contacts)
+          expect(policies).to be_disallowed(:read_crm_contacts)
+          expect(policies).to be_disallowed(:set_issue_crm_contacts)
+        end
       end
-    end
 
-    context 'when personal namespace' do
-      let(:project) { create(:project) }
+      context 'when personal namespace' do
+        let(:project) { create(:project) }
 
-      it 'is disallowed' do
-        project.add_reporter(user)
+        it 'is disallowed' do
+          project.try(:"add_#{role}", user)
 
-        expect(policies).to be_disallowed(:read_crm_contacts)
-        expect(policies).to be_disallowed(:set_issue_crm_contacts)
+          expect(policies).to be_disallowed(:read_crm_contacts)
+          expect(policies).to be_disallowed(:set_issue_crm_contacts)
+        end
+      end
+
+      context 'when custom crm_group configured' do
+        let_it_be(:crm_settings) { create(:crm_settings, source_group: create(:group)) }
+        let_it_be(:subgroup) { create(:group, parent: create(:group), crm_settings: crm_settings) }
+        let_it_be(:project) { create(:project, group: subgroup) }
+
+        context 'when custom crm_group guest' do
+          it 'is disallowed' do
+            subgroup.parent.try(:"add_#{role}", user)
+            crm_settings.source_group.add_guest(user)
+
+            expect(policies).to be_disallowed(:read_crm_contacts)
+            expect(policies).to be_disallowed(:set_issue_crm_contacts)
+          end
+        end
+
+        context "when custom crm_group #{role}" do
+          it 'is allowed' do
+            subgroup.parent.try(:"add_#{role}", user)
+            crm_settings.source_group.try(:"add_#{role}", user)
+
+            expect(policies).to be_allowed(:read_crm_contacts)
+            expect(policies).to be_allowed(:set_issue_crm_contacts)
+          end
+        end
       end
     end
   end

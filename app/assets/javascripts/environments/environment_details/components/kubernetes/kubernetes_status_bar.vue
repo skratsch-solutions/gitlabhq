@@ -1,5 +1,13 @@
 <script>
-import { GlLoadingIcon, GlBadge, GlPopover, GlSprintf, GlLink } from '@gitlab/ui';
+import {
+  GlLoadingIcon,
+  GlBadge,
+  GlPopover,
+  GlSprintf,
+  GlLink,
+  GlButton,
+  GlResizeObserverDirective,
+} from '@gitlab/ui';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { s__ } from '~/locale';
 import {
@@ -17,6 +25,7 @@ import {
   k8sResourceType,
   connectionStatus,
 } from '~/environments/graphql/resolvers/kubernetes/constants';
+import { WORKLOAD_DETAILS_SECTIONS } from '~/kubernetes_dashboard/constants';
 
 export default {
   components: {
@@ -27,6 +36,10 @@ export default {
     GlPopover,
     GlSprintf,
     GlLink,
+    GlButton,
+  },
+  directives: {
+    GlResizeObserver: GlResizeObserverDirective,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -60,9 +73,14 @@ export default {
       required: true,
     },
     fluxResourceStatus: {
-      type: Array,
+      type: Object,
       required: false,
-      default: () => [],
+      default: () => {},
+    },
+    fluxNamespace: {
+      type: String,
+      required: false,
+      default: '',
     },
     fluxApiError: {
       type: String,
@@ -94,6 +112,7 @@ export default {
           },
         },
       },
+      showFluxExtendButton: false,
     };
   },
   computed: {
@@ -129,16 +148,18 @@ export default {
       return `${this.environmentName}-flux-sync-badge`;
     },
     syncStatusBadge() {
-      if (!this.fluxResourceStatus.length && this.fluxApiError) {
+      if (!this.fluxResourcePresent && this.fluxApiError) {
         return { ...SYNC_STATUS_BADGES.unavailable, popoverText: this.fluxApiError };
       }
-      if (!this.fluxResourceStatus.length) {
+      if (!this.fluxResourcePresent) {
         return SYNC_STATUS_BADGES.unavailable;
       }
 
       const fluxStatus = fluxSyncStatus(this.fluxResourceStatus);
 
       switch (fluxStatus.status) {
+        case 'suspended':
+          return SYNC_STATUS_BADGES.suspended;
         case 'failed':
           return {
             ...SYNC_STATUS_BADGES.failed,
@@ -165,20 +186,36 @@ export default {
     isFluxConnectionStatus() {
       return Boolean(this.fluxConnectionParams.resourceType);
     },
+    fluxResourcePresent() {
+      return Boolean(this.fluxResourceStatus?.conditions?.length);
+    },
+    fluxBadgeHref() {
+      return this.fluxResourcePresent ? '#' : null;
+    },
   },
   methods: {
     handleError(error) {
       this.$emit('error', error);
+    },
+    toggleFluxResource(section = null) {
+      if (!this.fluxResourcePresent) return;
+
+      this.$emit('show-flux-resource-details', section);
+    },
+    onResize({ target: { scrollHeight, offsetHeight } }) {
+      this.showFluxExtendButton = scrollHeight > offsetHeight;
     },
   },
   i18n: {
     healthLabel: s__('Environment|Environment status'),
     syncStatusLabel: s__('Environment|Flux Sync'),
     dashboardStatusLabel: s__('Environment|Dashboard'),
+    viewDetails: s__('Environment|View details.'),
   },
   k8sResourceType,
   connectionStatus,
   badgeContainerClasses: 'gl-flex gl-items-center gl-shrink-0 gl-mr-3 gl-mb-2',
+  WORKLOAD_DETAILS_SECTIONS,
 };
 </script>
 <template>
@@ -199,7 +236,7 @@ export default {
       data-testid="flux-connection-status"
       :class="$options.badgeContainerClasses"
       :configuration="configuration"
-      :namespace="namespace"
+      :namespace="fluxNamespace"
       :resource-type-param="fluxConnectionParams"
     >
       <span class="gl-mr-3">{{ $options.i18n.syncStatusLabel }}</span>
@@ -220,17 +257,33 @@ export default {
           :variant="syncStatusBadge.variant"
           data-testid="sync-badge"
           tabindex="0"
+          :href="fluxBadgeHref"
+          @click.native="toggleFluxResource('')"
           >{{ syncStatusBadge.text }}
-        </gl-badge>
-        <gl-popover :target="fluxBadgeId" :title="syncStatusBadge.popoverTitle">
-          <gl-sprintf :message="syncStatusBadge.popoverText">
-            <template #link="{ content }">
-              <gl-link :href="syncStatusBadge.popoverLink" class="gl-font-sm">{{
-                content
-              }}</gl-link></template
+          <gl-popover :target="fluxBadgeId" :title="syncStatusBadge.popoverTitle">
+            <span
+              v-gl-resize-observer="onResize"
+              class="gl-line-clamp-3 gl-overflow-hidden"
+              data-testid="flux-popover-text"
             >
-          </gl-sprintf>
-        </gl-popover>
+              <gl-sprintf :message="syncStatusBadge.popoverText"
+                ><template #link="{ content }"
+                  ><gl-link :href="syncStatusBadge.popoverLink" class="gl-text-sm">{{
+                    content
+                  }}</gl-link></template
+                ></gl-sprintf
+              >
+            </span>
+            <gl-button
+              v-if="showFluxExtendButton"
+              variant="link"
+              class="gl-align-self-end gl-ml-auto !gl-text-sm"
+              @click="toggleFluxResource($options.WORKLOAD_DETAILS_SECTIONS.STATUS)"
+            >
+              {{ $options.i18n.viewDetails }}
+            </gl-button>
+          </gl-popover>
+        </gl-badge>
       </template>
     </kubernetes-connection-status>
     <kubernetes-connection-status

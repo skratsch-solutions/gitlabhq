@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,14 +8,23 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Migrating groups and projects by using [direct transfer](../../group/import/index.md) is recommended. However, in some
 situations, you might need to migrate groups and project by using file exports.
 
+## Known issues
+
+- Due to a known issue, you might encounter a
+  `PG::QueryCanceled: ERROR: canceling statement due to statement timeout` error.
+  For more information, see the
+  [troubleshooting documentation](import_export_troubleshooting.md#error-pgquerycanceled-error-canceling-statement-due-to-statement-timeout).
+- In GitLab 17.0, 17.1, and 17.2, imported epics and work items are mapped
+  to the importing user rather than the original author.
+
 ## Migrate projects by uploading an export file
 
-Existing projects on any self-managed GitLab instance or GitLab.com can be exported to a file and
+Existing projects can be exported to a file and
 then imported into another GitLab instance.
 
 ### Preserving user contributions
@@ -23,7 +32,7 @@ then imported into another GitLab instance.
 The requirements for preserving user contribution depends on whether you're migrating to GitLab.com or to a GitLab
 self-managed instance.
 
-#### When migrating from GitLab self-managed to GitLab.com
+#### When migrating from GitLab Self-Managed to GitLab.com
 
 When migrating projects by using file exports, an administrator's access token is required for user contributions to map correctly.
 
@@ -35,7 +44,7 @@ contribution history, do one of the following:
 - Consider engaging Professional Services. For more information, see the
   [Professional Services Full Catalog](https://about.gitlab.com/services/catalog/).
 
-#### When migrating to GitLab self-managed
+#### When migrating to GitLab Self-Managed
 
 To ensure GitLab maps users and their contributions correctly:
 
@@ -93,10 +102,9 @@ For example:
 ### Configure file exports as an import source
 
 DETAILS:
-**Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
-Before you can migrate projects on a self-managed GitLab instance using file exports, GitLab administrators must:
+Before you can migrate projects on GitLab Self-Managed using file exports, GitLab administrators must:
 
 1. [Enable file exports](../../../administration/settings/import_and_export_settings.md#enable-project-export) on the source
    instance.
@@ -105,7 +113,7 @@ Before you can migrate projects on a self-managed GitLab instance using file exp
 
 To enable file exports as an import source for the destination instance:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Import and export settings**.
 1. Scroll to **Import sources**.
@@ -178,12 +186,19 @@ For a quick overview, items that are exported include:
 - Design management files and data
 - LFS objects
 - Issue boards
-- CI/CD pipelines and pipeline schedules
+- CI/CD pipelines
+- Pipeline schedules (inactive and assigned to the user who initiated the import)
 - Protected branches and tags
 - Push rules
 - Emoji reactions
-- Project and inherited group members, as long as the user has the Maintainer role in the
-  exported project's group or is an administrator
+- Direct project members
+  (if you have at least the Maintainer role for the exported project's group)
+- Inherited project members as direct project members
+  (if you have the Owner role for the exported project's group or administrator access to the instance)
+- Some merge request approval rules:
+  - [Approvals for protected branches](../merge_requests/approvals/rules.md#approvals-for-protected-branches)
+  - [Eligible approvers](../merge_requests/approvals/rules.md#eligible-approvers)
+- Vulnerability report ([introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/501466) in GitLab 17.7)
 
 #### Project items that are not exported
 
@@ -204,6 +219,7 @@ Items that are **not** exported include:
 - Security policies associated with your project
 - Links between issues and linked items
 - Links to related merge requests
+- Pipeline schedule variables
 
 Migrating projects with file exports uses the same export and import mechanisms as creating projects from templates at the [group](../../group/custom_project_templates.md) and
 [instance](../../../administration/custom_project_templates.md) levels. Therefore, the list of exported items is the same.
@@ -212,7 +228,7 @@ Migrating projects with file exports uses the same export and import mechanisms 
 
 You can import a project and its data. The amount of data you can import depends on the maximum import file size:
 
-- On GitLab self-managed instances, administrators of self-managed instances can
+- On GitLab Self-Managed, administrators can
   [set maximum import file size](#set-maximum-import-file-size).
 - On GitLab.com, the value is [set to 5 GB](../../gitlab_com/index.md#account-and-limit-settings).
 
@@ -259,21 +275,19 @@ Deploy keys aren't imported. To use deploy keys, you must enable them in your im
 #### Import large projects
 
 DETAILS:
-**Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 If you have a larger project, consider [using a Rake task](../../../administration/raketasks/project_import_export.md#import-large-projects).
 
 ### Set maximum import file size
 
 DETAILS:
-**Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Administrators can set the maximum import file size one of two ways:
 
 - With the `max_import_size` option in the [Application settings API](../../../api/settings.md#change-application-settings).
-- In the [Admin Area UI](../../../administration/settings/import_and_export_settings.md#max-import-size).
+- In the [**Admin** area UI](../../../administration/settings/import_and_export_settings.md#max-import-size).
 
 The default is `0` (unlimited).
 
@@ -324,12 +338,12 @@ Professional Services team.
   exporting a group from the Enterprise Edition to the Community Edition, you may lose this data. For more information,
   see [downgrading from EE to CE](../../../index.md).
 
-The maximum import file size depends on whether you import to a GitLab self-managed instance or GitLab.com:
+The maximum import file size depends on whether you import to GitLab Self-Managed or GitLab.com:
 
-- If importing to a GitLab self-managed instance, you can import a import file of any size. Administrators can change
+- If importing to a GitLab Self-Managed instance, you can import a import file of any size. Administrators can change
   this behavior using either:
   - The `max_import_size` option in the [Application settings API](../../../api/settings.md#change-application-settings).
-  - The [Admin Area](../../../administration/settings/account_and_limit_settings.md).
+  - The [**Admin** area](../../../administration/settings/account_and_limit_settings.md).
 - On GitLab.com, you can import groups using import files of no more than
   [5 GB](../../gitlab_com/index.md#account-and-limit-settings) in size.
 

@@ -1,7 +1,7 @@
 @import 'mixins_and_variables_and_functions';
 
 .ci-status {
-  border: 1px solid var(--border-color, $border-color);
+  border: 1px solid var(--gl-border-color-default);
 
   &:hover,
   &:focus {
@@ -21,7 +21,11 @@
   }
 
   &.ci-success {
-    @include green-status-color;
+    @include status-color(
+      var(--green-100, $green-100),
+      var(--green-500, $green-500),
+      var(--green-700, $green-700)
+    );
   }
 
   &.ci-canceling,
@@ -29,11 +33,11 @@
   &.ci-disabled,
   &.ci-scheduled,
   &.ci-manual {
-    color: var(--gl-text-color, $gl-text-color);
+    color: var(--gl-text-color-default);
     border-color: currentColor;
 
     &:not(span):hover {
-      background-color: rgba($gl-text-color, 0.07);
+      @apply gl-bg-alpha-dark-8;
     }
   }
 
@@ -62,11 +66,11 @@
 
   &.ci-created,
   &.ci-skipped {
-    color: var(--gray-500, $gray-500);
+    @apply gl-text-subtle;
     border-color: currentColor;
 
     &:not(span):hover {
-      background-color: rgba($gl-text-color-secondary, 0.07);
+      @apply gl-bg-alpha-dark-4;
     }
   }
 }

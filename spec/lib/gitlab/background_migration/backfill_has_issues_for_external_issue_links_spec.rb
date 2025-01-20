@@ -3,14 +3,28 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::BackgroundMigration::BackfillHasIssuesForExternalIssueLinks, feature_category: :vulnerability_management do
+  before(:all) do
+    # This migration will not work if a sec database is configured. It should be finalized and removed prior to
+    # sec db rollout.
+    # Consult https://gitlab.com/gitlab-org/gitlab/-/merge_requests/171707 for more info.
+    skip_if_multiple_databases_are_setup(:sec)
+  end
+
   let(:users) { table(:users) }
   let(:user) { create_user(email: "test1@example.com", username: "test1") }
 
+  let(:organizations) { table(:organizations) }
+  let(:organization) { organizations.create!(name: 'organization', path: 'organization') }
+
   let(:namespaces) { table(:namespaces) }
-  let(:namespace) { namespaces.create!(name: 'test-1', path: 'test-1', owner_id: user.id) }
+  let(:namespace) do
+    namespaces.create!(name: 'test-1', path: 'test-1', owner_id: user.id, organization_id: organization.id)
+  end
 
   let(:projects) { table(:projects) }
-  let(:project) { projects.create!(namespace_id: namespace.id, project_namespace_id: namespace.id) }
+  let(:project) do
+    projects.create!(namespace_id: namespace.id, project_namespace_id: namespace.id, organization_id: organization.id)
+  end
 
   let(:members) { table(:members) }
   let!(:membership) do
@@ -112,7 +126,6 @@ RSpec.describe Gitlab::BackgroundMigration::BackfillHasIssuesForExternalIssueLin
       project_id: project.id,
       scanner_id: create_scanner(project).id,
       severity: 5, # medium
-      confidence: 2, # unknown,
       report_type: 99, # generic
       primary_identifier_id: create_identifier(project).id,
       project_fingerprint: SecureRandom.hex(20),

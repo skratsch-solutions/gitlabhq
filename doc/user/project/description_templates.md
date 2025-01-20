@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can define templates to use as descriptions
 for your [issues](issues/index.md) and [merge requests](merge_requests/index.md).
@@ -91,7 +91,6 @@ For example: `https://gitlab.com/gitlab-org/gitlab/-/issues/new?issuable_templat
 ### Supported variables in merge request templates
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/89810) in GitLab 15.7.
-> - `merge_request_author` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/152510) in GitLab 17.1.
 
 NOTE:
 This feature is available only for
@@ -106,7 +105,6 @@ your merge request template with their values:
 | `%{co_authored_by}` | Names and emails of commit authors in a `Co-authored-by` Git commit trailer format. Limited to authors of 100 most recent commits in merge request. | `Co-authored-by: Zane Doe <zdoe@example.com>` <br> `Co-authored-by: Blake Smith <bsmith@example.com>` |
 | `%{first_commit}` | Full message of the first commit in merge request diff. | `Update README.md` |
 | `%{first_multiline_commit}` | Full message of the first commit that's not a merge commit and has more than one line in message body. Merge request title if all commits aren't multiline. | `Update README.md` <br><br> `Improved project description in readme file.` |
-| `%{merge_request_author}` | Name and email of the merge request author. | `Zane Doe <zdoe@example.com>` |
 | `%{source_branch}` | The name of the branch being merged. | `my-feature-branch`  |
 | `%{target_branch}` | The name of the branch that the changes are applied to. | `main` |
 
@@ -114,7 +112,7 @@ your merge request template with their values:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 You can set a description template at the **instance level** for issues
 and merge requests by using an [instance template repository](../../administration/settings/instance_template_repository.md).
@@ -127,7 +125,7 @@ that you can use when creating a new project in the instance.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 With **group-level** description templates, you can select a project within the group to store
 your templates. Then, you can access these templates in other projects in the group.
@@ -146,7 +144,7 @@ To re-use templates [you've created](../project/description_templates.md#create-
 1. From the dropdown list, select your template project as the template repository at group level.
 1. Select **Save changes**.
 
-![Group template settings](../group/img/group_file_template_settings.png)
+![Group template settings](../group/img/group_file_template_settings_v11_5.png)
 
 You might also be interested in templates for various
 [file types in groups](../group/manage.md#group-file-templates).

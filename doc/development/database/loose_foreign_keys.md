@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -377,7 +377,7 @@ end
 ```
 
 This endpoint still works when the parent `Project` model is deleted. This can be considered a
-a data leak which should not happen under typical circumstances:
+data leak which should not happen under typical circumstances:
 
 ```ruby
 def show
@@ -403,6 +403,31 @@ For non-trivial objects that need to clean up data outside the
 database (for example, object storage) where you might wish to use `dependent: :destroy`,
 see alternatives in
 [Avoid `dependent: :nullify` and `dependent: :destroy` across databases](multiple_databases.md#avoid-dependent-nullify-and-dependent-destroy-across-databases).
+
+## Update target column to a value
+
+A loose foreign key might be used to update a target column to a value when an
+entry in parent table is deleted.
+
+It's important to add an index (if it doesn't exist yet) on
+(`column`, `target_column`) to avoid any performance issues.
+Any index starting with these two columns will work.
+
+The configuration requires additional information:
+
+- Column to be updated (`target_column`)
+- Value to be set in the target column (`target_value`)
+
+Example definition:
+
+```yaml
+packages:
+  - table: projects
+    column: project_id
+    on_delete: update_column_to
+    target_column: status
+    target_value: 4
+```
 
 ## Risks of loose foreign keys and possible mitigations
 
@@ -759,7 +784,7 @@ We have Prometheus metrics in place to monitor the deleted record cleanup:
 - `loose_foreign_key_rescheduled_deleted_records`: Number of deleted records that had to be
   rescheduled at a later time after 3 cleanup attempts.
 
-Example Thanos query:
+Example PromQL query:
 
 ```plaintext
 loose_foreign_key_rescheduled_deleted_records{env="gprd", table="ci_runners"}
@@ -799,7 +824,7 @@ Steps to diagnose the problem:
 
 - Check which records are accumulating.
 - Try to get an estimate of the number of remaining records.
-- Looking into the worker performance stats (Kibana or Thanos).
+- Looking into the worker performance stats (Kibana or Grafana).
 
 Possible solutions:
 

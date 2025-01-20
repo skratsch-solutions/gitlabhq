@@ -1,6 +1,6 @@
 ---
 stage: AI-powered
-group: AI Model Validation
+group: AI Framework
 description: AI-powered features and functionality.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -17,226 +17,102 @@ These features aim to help increase velocity and solve key pain points across th
 GitLab Duo features are available in [IDE extensions](../../editor_extensions/index.md) and the GitLab UI.
 Some features are also available as part of [GitLab Duo Chat](../gitlab_duo_chat_examples.md).
 
+- [Get started with GitLab Duo](../get_started/getting_started_gitlab_duo.md).
+- [View a walkthrough of GitLab Duo Enterprise features](https://gitlab.navattic.com/duo-enterprise).
+
 GitLab is [transparent](https://handbook.gitlab.com/handbook/values/#transparency).
 As GitLab Duo features mature, the documentation will be updated to clearly state
 how and where you can access these features.
 
-## Generally available features
+## Working across the entire software development lifecycle
 
-### GitLab Duo Chat
+To improve your workflow across the entire software development lifecycle, try these features:
 
-DETAILS:
-**Tier:** GitLab.com and Self-managed: For a limited time, Premium and Ultimate. In the future, [GitLab Duo Pro or Enterprise](../../subscriptions/subscription-add-ons.md). <br>GitLab Dedicated: GitLab Duo Pro or Enterprise.
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+- [GitLab Duo Chat](../gitlab_duo_chat/index.md): Write and understand code, get up to speed on the status of projects,
+  and learn about GitLab by asking your questions in a chat window.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=ZQBAuf-CTAY)
+- [Self-Hosted Models](../../administration/self_hosted_models/index.md): Host the language models that power AI features in GitLab.
+  Code Suggestions and Chat are supported. Use GitLab model vendors or self-host a supported language model.
+- [GitLab Duo Workflow](../duo_workflow/index.md): Automate tasks and help increase productivity in your development workflow.
+- [AI Impact Dashboard](../analytics/ai_impact_analytics.md): Measure the AI effectiveness and impact on SDLC metrics.
 
-- Help you write and understand code faster, get up to speed on the status of projects,
-  and quickly learn about GitLab by answering your questions in a chat window.
-- LLM: Anthropic [`claude-3-sonnet-20240229`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-sonnet),
-  Anthropic [`claude-3-haiku-20240307`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-haiku),
-  [`claude-2.1`](https://docs.anthropic.com/en/docs/legacy-model-guide#anthropics-legacy-models),
-  and [Vertex AI Search](https://cloud.google.com/enterprise-search).
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=ZQBAuf-CTAY&list=PLFGfElNsQthYDx0A_FaNNfUm9NHsK6zED)
-- [View documentation](../gitlab_duo_chat.md).
+## Planning work
 
-NOTE:
-The LLM for GitLab Duo Chat depends on the question asked. For more information, see
-the [Duo Chat examples](../gitlab_duo_chat_examples.md).
-For self-managed, the models also depend on your GitLab version.
-For the most benefit, use the latest GitLab version whenever possible.
+To improve your workflow while planning work, try these features:
 
-### Code Suggestions
+- [Issue Description Generation](../project/issues/managing_issues.md#populate-an-issue-with-issue-description-generation): Generate a more in-depth issue description based on a short summary.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=-BWBQat7p5M)
+  <!-- Video published on 2024-12-18 -->
+- [Discussion Summary](../discussions/index.md#summarize-issue-discussions-with-duo-chat): Summarize lengthy conversations in an issue.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=IcdxLfTIUgc)
+  <!-- Video published on 2024-03-28 -->
 
-DETAILS:
-**Tier:** Premium and Ultimate with [GitLab Duo Pro or Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+## Authoring code
 
-- Helps you write code more efficiently by generating code and showing suggestions as you type.
-- Large language model (LLM) for code completion: Vertex AI Codey [`code-gecko`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/code-gecko)
-- LLM for code generation: Anthropic [`claude-3-5-sonnet-20240620`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://youtu.be/ds7SG1wgcVM)
-- [View documentation](../project/repository/code_suggestions/index.md).
+To improve your workflow while authoring code, try these features:
 
-### Code explanation in the IDE
+- [Code Suggestions](../project/repository/code_suggestions/index.md): Generate code and show suggestions as you type.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://youtu.be/ds7SG1wgcVM)
+- Code Explanation: Have code explained. View docs for explaining code in:
 
-DETAILS:
-**Tier:** GitLab.com and Self-managed: For a limited time, Premium and Ultimate. In the future, [GitLab Duo Pro or Enterprise](../../subscriptions/subscription-add-ons.md). <br>GitLab Dedicated: GitLab Duo Pro or Enterprise.
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-- Helps you understand the selected code by explaining it more clearly.
-- LLM: Anthropic: [`claude-3-haiku-20240307`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-haiku)
-- View documentation for [explaining code in the IDE](../gitlab_duo_chat/examples.md#explain-code-in-the-ide).
-
-### Test generation
-
-DETAILS:
-**Tier:** GitLab.com and Self-managed: For a limited time, Premium and Ultimate. In the future, [GitLab Duo Pro or Enterprise](../../subscriptions/subscription-add-ons.md). <br>GitLab Dedicated: GitLab Duo Pro or Enterprise.
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-- Helps catch bugs early by generating tests for the selected code.
-- LLM: Anthropic [`Claude-2.1`](https://docs.anthropic.com/en/docs/about-claude/models#legacy-models)
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=zWhwuixUkYU&list=PLFGfElNsQthYDx0A_FaNNfUm9NHsK6zED)
-- [View documentation](../gitlab_duo_chat/examples.md#write-tests-in-the-ide).
-
-### Suggested Reviewers
-
-DETAILS:
-**Tier:** Ultimate
-**Offering:** GitLab.com
-
-- Helps create faster and higher-quality reviews by automatically suggesting reviewers for your merge request.
-- LLM: GitLab creates a machine learning model for each project, which is used to generate reviewers. [View the issue](https://gitlab.com/gitlab-org/modelops/applied-ml/applied-ml-updates/-/issues/10).
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=ivwZQgh4Rxw)
-- [View documentation](../project/merge_requests/reviews/index.md#gitlab-duo-suggested-reviewers).
-
-### Merge commit generation
-
-DETAILS:
-**Tier:** Premium and Ultimate with [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-- Helps you merge more quickly by generating meaningful commit messages.
-- LLM: Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison).
-- [View documentation](../project/merge_requests/duo_in_merge_requests.md#generate-a-merge-commit-message).
-
-### Vulnerability explanation
-
-DETAILS:
-**Tier:** Ultimate with [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md)
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-- Helps you understand vulnerabilities, how they can be exploited, and how to fix them.
-- LLM: Anthropic's [`claude-3-haiku`](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai).
-- [View documentation](../application_security/vulnerabilities/index.md#explaining-a-vulnerability).
-
-### Vulnerability resolution
-
-DETAILS:
-**Tier:** Ultimate with [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md) add-on
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-- Help resolve a vulnerability by generating a merge request that addresses it.
-- LLM: Anthropic's [`claude-3-haiku`](https://docs.anthropic.com/en/docs/about-claude/models#claude-3-a-new-generation-of-ai).
-- [View documentation](../application_security/vulnerabilities/index.md#vulnerability-resolution).
-
-## Beta features
-
-### Merge request template population
-
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Beta
-
-- Helps populate a merge request more quickly by generating a description based on the contents of the template.
-- LLM: Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
-- [View documentation](../project/merge_requests/duo_in_merge_requests.md#generate-a-description-from-a-template).
-
-### Merge request summary
-
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Beta
-
-- Helps populate a merge request more quickly by generating a description based on the code changes.
-- LLM: Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
-- [View documentation](../project/merge_requests/duo_in_merge_requests.md#generate-a-description-by-summarizing-code-changes).
-
-## Experimental features
-
-### Issue description generation
-
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
-
-- Helps populate an issue more quickly by generating a more in-depth description, based on a short summary you provide.
-- LLM: Anthropic [`Claude-2.1`](https://docs.anthropic.com/en/docs/about-claude/models#legacy-models)
-- [View documentation](experiments.md#summarize-an-issue-with-issue-description-generation).
-
-### Discussion summary
-
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
-
-- Helps everyone get up to speed by summarizing the lengthy conversations in an issue.
-- LLM: Anthropic [`Claude-2.1`](https://docs.anthropic.com/en/docs/about-claude/models#legacy-models)
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=IcdxLfTIUgc)
-- [View documentation](experiments.md#summarize-issue-discussions-with-discussion-summary).
-
-### Code explanation in a file or merge request
-
-DETAILS:
-**Tier:** For a limited time, Premium and Ultimate. In the future, [GitLab Duo Pro or Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
-
-- Helps you understand the selected code by explaining it more clearly.
-- LLM: Anthropic: [`claude-3-haiku-20240307`](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-haiku)
-- View documentation for explaining code in:
+  - [The IDE](../gitlab_duo_chat/examples.md#explain-selected-code).
   - [A file](../../user/project/repository/code_explain.md).
   - [A merge request](../../user/project/merge_requests/changes.md#explain-code-in-a-merge-request).
+- [Test Generation](../gitlab_duo_chat/examples.md#write-tests-in-the-ide): Test your code by generating tests.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=zWhwuixUkYU)
+- [Refactor Code](../gitlab_duo_chat/examples.md#refactor-code-in-the-ide): Improve or refactor the selected code.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=zWhwuixUkYU)
+- [Fix Code](../gitlab_duo_chat/examples.md#fix-code-in-the-ide): Fix quality problems, like bugs or typos, in the selected code.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=zWhwuixUkYU)
+- [GitLab Duo for the CLI](../../editor_extensions/gitlab_cli/index.md#gitlab-duo-for-the-cli): Discover or recall `git` commands.
 
-### GitLab Duo for the CLI
+## Reviewing code
 
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
+To improve your workflow while reviewing code in merge requests, try these features:
 
-- `glab duo ask` helps you discover or recall `git` commands when and where you need them.
-- LLM: Vertex AI Codey [`codechat-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/codechat-bison)
-- [View documentation](../../editor_extensions/gitlab_cli/index.md#gitlab-duo-for-the-cli).
+- [Merge Request Summary](../project/merge_requests/duo_in_merge_requests.md#generate-a-description-by-summarizing-code-changes): Generate a description based on the code changes.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=CKjkVsfyFd8&list=PLFGfElNsQthZGazU1ZdfDpegu0HflunXW)
+- [Code Review](../project/merge_requests/duo_in_merge_requests.md#have-gitlab-duo-review-your-code): Review proposed code changes.
+- [Code Review Summary](../project/merge_requests/duo_in_merge_requests.md#summarize-a-code-review): Summarize all the comments in a review.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=Bx6Zajyuy9k)
+- [Merge Commit Message Generation](../project/merge_requests/duo_in_merge_requests.md#generate-a-merge-commit-message): Generate commit messages.
 
-### Code review summary
+## Testing and deploying code
 
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
+To improve your testing and deployment workflow, try these features:
 
-- Helps make merge request handover to reviewers easier by summarizing all the comments in a merge request review.
-- LLM: Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=Bx6Zajyuy9k&list=PLFGfElNsQthYDx0A_FaNNfUm9NHsK6zED)
-- [View documentation](../project/merge_requests/duo_in_merge_requests.md#summarize-a-code-review).
+- [Root Cause Analysis](../gitlab_duo_chat/examples.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis): Research the root cause for a CI/CD job failure by analyzing the logs.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=MLjhVbMjFAY&list=PLFGfElNsQthZGazU1ZdfDpegu0HflunXW)
 
-### Root cause analysis
+## Securing code
 
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
+To improve your security, try these features:
 
-- Helps you determine the root cause for a CI/CD job failure by analyzing the logs.
-- LLM: Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
-- [View documentation](experiments.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis).
+- [Vulnerability Explanation](../application_security/vulnerabilities/index.md#explaining-a-vulnerability): Learn more about vulnerabilities, how they can be exploited, and how to fix them.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=MMVFvGrmMzw&list=PLFGfElNsQthZGazU1ZdfDpegu0HflunXW)
+- [Vulnerability Resolution](../application_security/vulnerabilities/index.md#vulnerability-resolution): Generate a merge request that addresses a vulnerability.
+  <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=VJmsw_C125E&list=PLFGfElNsQthZGazU1ZdfDpegu0HflunXW)
 
-### Product Analytics
+## Summary of all GitLab Duo features
 
-DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
-
-- Processes and responds to your questions about your application's usage data.
-- LLM: Vertex AI Codey [`codechat-bison`](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/code-chat)
-- [View documentation](../analytics/analytics_dashboards.md#generate-a-custom-visualization-with-gitlab-duo).
-
-### Value stream forecasting
-
-DETAILS:
-**Tier:** GitLab.com and Self-managed: For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md). <br>GitLab Dedicated: GitLab Duo Enterprise.
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-**Status:** Experiment
-
-- Helps you improve planning and decision-making by predicting productivity metrics and identifying anomalies across your software development lifecycle.
-- LLM: Statistical forecasting
-- <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> [Watch overview](https://www.youtube.com/watch?v=6u8_8QQ5pEQ&list=PLFGfElNsQthYDx0A_FaNNfUm9NHsK6zED)
-- [View documentation](experiments.md#forecast-deployment-frequency-with-value-stream-forecasting).
-
-## Disable GitLab Duo features for specific groups or projects or an entire instance
-
-Disable GitLab Duo features by [following these instructions](turn_on_off.md).
+| Feature | Tier | Add-on | Offering | Status |
+| ------- | ---- | ------ | -------- | ------ |
+| [GitLab Duo Chat](../gitlab_duo_chat/index.md) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Self-Hosted Models](../../administration/self_hosted_models/index.md) | Ultimate | GitLab Duo Enterprise | Self-managed | Beta |
+| [GitLab Duo Workflow](../duo_workflow/index.md) | Ultimate | - | GitLab.com | Experiment |
+| [Issue Description Generation](../project/issues/managing_issues.md#populate-an-issue-with-issue-description-generation) | Ultimate | GitLab Duo Enterprise | GitLab.com | Experiment |
+| [Discussion Summary](../discussions/index.md#summarize-issue-discussions-with-duo-chat) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Code Suggestions](../project/repository/code_suggestions/index.md) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Code Explanation](../../user/project/repository/code_explain.md) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Test Generation](../gitlab_duo_chat/examples.md#write-tests-in-the-ide) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Refactor Code](../gitlab_duo_chat/examples.md#refactor-code-in-the-ide) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Fix Code](../gitlab_duo_chat/examples.md#fix-code-in-the-ide) | Premium, Ultimate | GitLab Duo Pro or Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [GitLab Duo for the CLI](../../editor_extensions/gitlab_cli/index.md#gitlab-duo-for-the-cli) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Merge Request Summary](../project/merge_requests/duo_in_merge_requests.md#generate-a-description-by-summarizing-code-changes) | Ultimate | GitLab Duo Enterprise | GitLab.com | Beta |
+| [Code Review](../project/merge_requests/duo_in_merge_requests.md#have-gitlab-duo-review-your-code) | Ultimate | GitLab Duo Enterprise | GitLab.com | Experiment |
+| [Code Review Summary](../project/merge_requests/duo_in_merge_requests.md#summarize-a-code-review) | Ultimate | GitLab Duo Enterprise | GitLab.com | Experiment |
+| [Merge Commit Message Generation](../project/merge_requests/duo_in_merge_requests.md#generate-a-merge-commit-message) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Root Cause Analysis](../gitlab_duo_chat/examples.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Vulnerability Explanation](../application_security/vulnerabilities/index.md#explaining-a-vulnerability) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [Vulnerability Resolution](../application_security/vulnerabilities/index.md#vulnerability-resolution) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed, GitLab Dedicated | General availability |
+| [AI Impact Dashboard](../analytics/ai_impact_analytics.md) | Ultimate | GitLab Duo Enterprise | GitLab.com, Self-managed | General availability |

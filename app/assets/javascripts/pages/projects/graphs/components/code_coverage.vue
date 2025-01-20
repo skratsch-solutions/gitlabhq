@@ -143,9 +143,7 @@ export default {
 
 <template>
   <div>
-    <div
-      class="gl-display-flex gl-justify-content-space-between gl-align-items-center gl-border-t gl-pt-4 gl-mb-3"
-    >
+    <div class="gl-border-t gl-mb-3 gl-flex gl-items-center gl-justify-between gl-pt-4">
       <h4 class="gl-m-0" sub-header>
         <gl-sprintf
           :message="__('Code coverage statistics for %{ref} %{start_date} - %{end_date}')"
@@ -165,7 +163,7 @@ export default {
         {{ __('Download raw data (.csv)') }}
       </gl-button>
     </div>
-    <div class="gl-mt-3 gl-mb-3">
+    <div class="gl-mb-3 gl-mt-3">
       <gl-alert
         v-if="hasFetchError"
         variant="danger"
@@ -175,11 +173,11 @@ export default {
       <gl-alert
         v-if="noDataAvailable"
         variant="info"
-        :title="s__('Code Coverage| Empty code coverage data')"
+        :title="s__('Code Coverage|No code coverage data')"
         :dismissible="false"
       >
         <span>
-          {{ __('It seems that there is currently no available data for code coverage') }}
+          {{ __('Code coverage results are not yet available. Try again later.') }}
         </span>
       </gl-alert>
       <gl-collapsible-listbox

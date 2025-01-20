@@ -5,9 +5,17 @@ require 'spec_helper'
 RSpec.describe Group, feature_category: :groups_and_projects do
   include ReloadHelpers
   include StubGitlabCalls
+  include AdminModeHelper
   using RSpec::Parameterized::TableSyntax
 
+  let_it_be(:organization) { create(:organization) }
   let!(:group) { create(:group) }
+
+  let(:developer_access) { Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS }
+  let(:maintainer_access) { Gitlab::Access::MAINTAINER_PROJECT_ACCESS }
+  let(:owner_access) { Gitlab::Access::OWNER_PROJECT_ACCESS }
+  let(:admin_access) { Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS }
+  let(:no_one_access) { Gitlab::Access::NO_ONE_PROJECT_ACCESS }
 
   describe 'associations' do
     it { is_expected.to have_many :projects }
@@ -15,6 +23,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     it { is_expected.to have_many(:all_owner_members) }
     it { is_expected.to have_many(:group_members).dependent(:destroy) }
     it { is_expected.to have_many(:non_invite_group_members).class_name('GroupMember') }
+    it { is_expected.to have_many(:request_group_members).class_name('GroupMember').inverse_of(:group) }
     it { is_expected.to have_many(:namespace_members) }
     it { is_expected.to have_many(:users).through(:group_members) }
     it { is_expected.to have_many(:owners).through(:all_owner_members) }
@@ -44,6 +53,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     it { is_expected.to have_many(:debian_distributions).class_name('Packages::Debian::GroupDistribution').dependent(:destroy) }
     it { is_expected.to have_many(:daily_build_group_report_results).class_name('Ci::DailyBuildGroupReportResult') }
     it { is_expected.to have_many(:group_callouts).class_name('Users::GroupCallout').with_foreign_key(:group_id) }
+    it { is_expected.to have_many(:import_export_uploads).dependent(:destroy) }
 
     it { is_expected.to have_many(:bulk_import_exports).class_name('BulkImports::Export') }
 
@@ -54,6 +64,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     it { is_expected.to have_many(:contacts).class_name('CustomerRelations::Contact') }
     it { is_expected.to have_many(:crm_organizations).class_name('CustomerRelations::Organization') }
+    it { is_expected.to have_many(:crm_targets).class_name('Group::CrmSettings').inverse_of(:source_group) }
     it { is_expected.to have_many(:protected_branches).inverse_of(:group).with_foreign_key(:namespace_id) }
     it { is_expected.to have_one(:crm_settings) }
     it { is_expected.to have_one(:group_feature) }
@@ -73,6 +84,21 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
       it 'includes the correct members' do
         expect(group.non_invite_group_members).to contain_exactly(non_invited_member, non_requested_member, non_minimal_access_member)
+      end
+    end
+
+    describe '#request_group_members' do
+      let_it_be(:group) { create(:group) }
+      let_it_be(:requested_member) { create(:group_member, :access_request, group: group) }
+
+      before do
+        create(:group_member, group: group) # regular member
+        create(:group_member, :invited, group: group)
+        create(:group_member, :minimal_access, group: group)
+      end
+
+      it 'includes the correct members' do
+        expect(group.request_group_members).to contain_exactly(requested_member)
       end
     end
 
@@ -123,7 +149,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#namespace_members_and_requesters' do
-      let_it_be(:group) { create(:group) }
+      let_it_be_with_reload(:group) { create(:group) }
       let_it_be(:requester) { create(:user) }
       let_it_be(:developer) { create(:user) }
       let_it_be(:invited_member) { create(:group_member, :invited, :owner, group: group) }
@@ -271,7 +297,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
         it 'does not allow a subgroup to have the same name as an existing subgroup' do
           sub_group1 = create(:group, parent: group, name: "SG", path: 'api')
-          sub_group2 = described_class.new(parent: group, name: "SG", path: 'api2')
+          sub_group2 = described_class.new(parent: group, name: "SG", path: 'api2', organization: organization)
 
           expect(sub_group1).to be_valid
           expect(sub_group2).not_to be_valid
@@ -297,6 +323,16 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         group = build(:group, path: 'tree', parent: create(:group))
 
         expect(group).not_to be_valid
+      end
+
+      it 'rejects paths already assigned to any pages unique domain' do
+        # Simulate the existing domain being in use
+        create(:project_setting, pages_unique_domain: 'existing-domain')
+
+        group = build(:group, path: 'existing-domain')
+
+        expect(group).not_to be_valid
+        expect(group.errors.full_messages.to_sentence).to eq('Group URL has already been taken')
       end
     end
 
@@ -891,6 +927,14 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
   end
 
+  describe '#notification_group' do
+    it 'is expected to reference itself' do
+      group = build(:group)
+
+      expect(group.notification_group).to eq(group)
+    end
+  end
+
   describe '.public_or_visible_to_user' do
     let!(:private_group) { create(:group, :private) }
     let!(:private_subgroup) { create(:group, :private, parent: private_group) }
@@ -936,17 +980,19 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       group.destroy!
     end
 
-    let!(:group_1) { create(:group, name: 'Y group') }
-    let!(:group_2) { create(:group, name: 'J group', created_at: 2.days.ago, updated_at: 1.day.ago) }
-    let!(:group_3) { create(:group, name: 'A group') }
-    let!(:group_4) { create(:group, name: 'F group', created_at: 1.day.ago, updated_at: 1.day.ago) }
+    let!(:group_1) { create(:group, id: 10, name: 'Y group') }
+    let!(:group_2) { create(:group, id: 11, name: 'J group', created_at: 2.days.ago, updated_at: 1.day.ago) }
+    let!(:group_3) { create(:group, id: 12, name: 'A group') }
+    let!(:group_4) { create(:group, id: 13, name: 'F group', created_at: 1.day.ago, updated_at: 1.day.ago) }
 
     subject { described_class.with_statistics.with_route.sort_by_attribute(sort) }
 
-    context 'when sort by is not provided (id desc by default)' do
+    context 'when sort by is not provided' do
       let(:sort) { nil }
 
-      it { is_expected.to eq([group_1, group_2, group_3, group_4]) }
+      it 'results are not ordered' do
+        is_expected.to contain_exactly(group_1, group_2, group_3, group_4)
+      end
     end
 
     context 'when sort by name_asc' do
@@ -973,28 +1019,16 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       it { is_expected.to eq([group_1, group_2, group_3, group_4].sort_by(&:path).reverse) }
     end
 
-    context 'when sort by recently_created' do
+    context 'when sort by created_desc' do
       let(:sort) { 'created_desc' }
 
       it { is_expected.to eq([group_3, group_1, group_4, group_2]) }
     end
 
-    context 'when sort by oldest_created' do
+    context 'when sort by created_asc' do
       let(:sort) { 'created_asc' }
 
       it { is_expected.to eq([group_2, group_4, group_1, group_3]) }
-    end
-
-    context 'when sort by latest_activity' do
-      let(:sort) { 'latest_activity_desc' }
-
-      it { is_expected.to eq([group_1, group_2, group_3, group_4]) }
-    end
-
-    context 'when sort by oldest_activity' do
-      let(:sort) { 'latest_activity_asc' }
-
-      it { is_expected.to eq([group_1, group_2, group_3, group_4]) }
     end
 
     context 'when sort by storage_size_desc' do
@@ -1110,16 +1144,6 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       it { is_expected.to match_array([private_group]) }
     end
 
-    describe 'with_onboarding_progress' do
-      subject { described_class.with_onboarding_progress }
-
-      it 'joins onboarding_progress' do
-        create(:onboarding_progress, namespace: group)
-
-        expect(subject).to eq([group])
-      end
-    end
-
     describe 'with_non_archived_projects' do
       let_it_be(:project) { create(:project, group: private_group, archived: false) }
 
@@ -1138,6 +1162,17 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
       it 'loads the records of non invite group members' do
         associations = subject.map { |group| group.association(:non_invite_group_members) }
+        expect(associations).to all(be_loaded)
+      end
+    end
+
+    describe '.with_request_group_members' do
+      let_it_be(:group_member) { create(:group_member, :access_request, member_namespace: private_group) }
+
+      subject(:with_request_group_members) { described_class.with_request_group_members }
+
+      it 'loads the records of non invite group members' do
+        associations = with_request_group_members.map { |group| group.association(:request_group_members) }
         expect(associations).to all(be_loaded)
       end
     end
@@ -1167,7 +1202,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       let_it_be(:group_1) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
       let_it_be(:group_2) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS) }
       let_it_be(:group_3) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-      let_it_be(:group_4) { create(:group, project_creation_level: nil) }
+      let_it_be(:group_4) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
+      let_it_be(:group_5) { create(:group, project_creation_level: nil) }
 
       it 'returns groups with the specified project creation levels' do
         result = described_class.with_project_creation_levels([
@@ -1176,7 +1212,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         ])
 
         expect(result).to include(group_1, group_3)
-        expect(result).not_to include(group_2, group_4)
+        expect(result).not_to include(group_2, group_4, group_5)
       end
     end
 
@@ -1190,9 +1226,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       subject { described_class.excluding_restricted_visibility_levels_for_user(user1) }
 
       context 'with table syntax' do
-        using RSpec::Parameterized::TableSyntax
-
         where(:restricted_visibility_levels, :expected_groups) do
+          nil                                     | lazy { [private_group, internal_group, group] }
           []                                      | lazy { [private_group, internal_group, group] }
           [private_vis]                           | lazy { [internal_group, group] }
           [internal_vis]                          | lazy { [private_group, internal_group, group] }
@@ -1223,32 +1258,43 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       let_it_be(:group_1) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
       let_it_be(:group_2) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS) }
       let_it_be(:group_3) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-      let_it_be(:group_4) { create(:group, project_creation_level: nil) }
+      let_it_be(:group_4) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
+      let_it_be(:group_5) { create(:group, project_creation_level: Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS) }
+      let_it_be(:group_6) { create(:group, project_creation_level: nil) } # `nil` inherits `default_project_creation`
+      let_it_be(:all_groups) { described_class.id_in([group_1, group_2, group_3, group_4, group_5, group_6]) }
 
-      it 'only includes groups where project creation is allowed' do
-        expect(described_class).to receive(:excluding_restricted_visibility_levels_for_user).and_call_original
-
-        result = described_class.project_creation_allowed(user1)
-
-        expect(result).to include(group_2, group_3, group_4)
-        expect(result).not_to include(group_1)
+      where(:admin_user?, :admin_mode, :default_project_creation, :expected_groups) do
+        false | false | Gitlab::Access::NO_ONE_PROJECT_ACCESS               | lazy { [group_2, group_3, group_4] }
+        false | false | Gitlab::Access::OWNER_PROJECT_ACCESS                | lazy { [group_2, group_3, group_4, group_6] }
+        false | false | Gitlab::Access::MAINTAINER_PROJECT_ACCESS           | lazy { [group_2, group_3, group_4, group_6] }
+        false | false | Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS | lazy { [group_2, group_3, group_4, group_6] }
+        false | false | Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS        | lazy { [group_2, group_3, group_4] }
+        true  | false | Gitlab::Access::NO_ONE_PROJECT_ACCESS               | lazy { [group_2, group_3, group_4] }
+        true  | false | Gitlab::Access::OWNER_PROJECT_ACCESS                | lazy { [group_2, group_3, group_4, group_6] }
+        true  | false | Gitlab::Access::MAINTAINER_PROJECT_ACCESS           | lazy { [group_2, group_3, group_4, group_6] }
+        true  | false | Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS | lazy { [group_2, group_3, group_4, group_6] }
+        true  | false | Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS        | lazy { [group_2, group_3, group_4] }
+        true  | true  | Gitlab::Access::NO_ONE_PROJECT_ACCESS               | lazy { [group_2, group_3, group_4, group_5] }
+        true  | true  | Gitlab::Access::OWNER_PROJECT_ACCESS                | lazy { [group_2, group_3, group_4, group_5, group_6] }
+        true  | true  | Gitlab::Access::MAINTAINER_PROJECT_ACCESS           | lazy { [group_2, group_3, group_4, group_5, group_6] }
+        true  | true  | Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS | lazy { [group_2, group_3, group_4, group_5, group_6] }
+        true  | true  | Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS        | lazy { [group_2, group_3, group_4, group_5, group_6] }
       end
 
-      context 'when the application_setting is set to `NO_ONE_PROJECT_ACCESS`' do
+      with_them do
+        let(:user) { admin_user? ? create(:admin) : create(:user) }
+
         before do
-          stub_application_setting(default_project_creation: Gitlab::Access::NO_ONE_PROJECT_ACCESS)
+          enable_admin_mode!(user) if admin_mode
+          stub_application_setting(default_project_creation: default_project_creation)
         end
 
-        it 'only includes groups where project creation is allowed' do
+        it 'returns expected groups' do
           expect(described_class).to receive(:excluding_restricted_visibility_levels_for_user).and_call_original
 
-          result = described_class.project_creation_allowed(user1)
+          result = all_groups.project_creation_allowed(user)
 
-          expect(result).to include(group_2, group_3)
-
-          # group_4 won't be included because it has `project_creation_level: nil`,
-          # and that means it behaves like the value of the application_setting will inherited.
-          expect(result).not_to include(group_1, group_4)
+          expect(result).to match_array(expected_groups)
         end
       end
     end
@@ -1355,16 +1401,43 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.in_organization' do
-      let_it_be(:organization) { create(:organization) }
-      let_it_be(:groups) { create_pair(:group, organization: organization) }
+      let_it_be(:org1) { create(:organization) }
+      let_it_be(:org2) { create(:organization) }
+      let_it_be(:groups) { create_pair(:group, organization: org1) }
 
       before do
-        create(:group)
+        create(:group, organization: org2)
       end
 
-      subject { described_class.in_organization(organization) }
+      subject { described_class.in_organization(org1) }
 
       it { is_expected.to match_array(groups) }
+    end
+
+    describe '.by_min_access_level' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:group1) { create(:group) }
+      let_it_be(:group2) { create(:group) }
+
+      let(:owner_access_level) { Gitlab::Access::OWNER }
+      let(:developer_access_level) { Gitlab::Access::DEVELOPER }
+
+      before do
+        create(:group_member, user: user, group: group1, access_level: owner_access_level)
+        create(:group_member, user: user, group: group2, access_level: developer_access_level)
+      end
+
+      it 'returns groups where the user has the specified access level' do
+        result = described_class.by_min_access_level(user, owner_access_level)
+
+        expect(result).to contain_exactly(group1)
+      end
+
+      it 'returns groups if the user has greater or equal specified access level' do
+        result = described_class.by_min_access_level(user, developer_access_level)
+
+        expect(result).to contain_exactly(group1, group2)
+      end
     end
 
     describe 'descendants_with_shared_with_groups' do
@@ -1399,6 +1472,71 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
   end
 
+  describe '.project_creation_levels_for_user' do
+    where(:admin_user?, :admin_mode, :default_project_creation, :expected_levels) do
+      false | false | no_one_access     | lazy { [developer_access, maintainer_access, owner_access] }
+      false | false | admin_access      | lazy { [developer_access, maintainer_access, owner_access] }
+      false | false | maintainer_access | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      false | false | owner_access      | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      false | false | developer_access  | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      true  | false | no_one_access     | lazy { [developer_access, maintainer_access, owner_access] }
+      true  | false | admin_access      | lazy { [developer_access, maintainer_access, owner_access] }
+      true  | false | maintainer_access | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      true  | false | owner_access      | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      true  | false | developer_access  | lazy { [developer_access, maintainer_access, owner_access, nil] }
+      true  | true  | no_one_access     | lazy { [developer_access, maintainer_access, owner_access, admin_access] }
+      true  | true  | admin_access      | lazy { [developer_access, maintainer_access, owner_access, admin_access, nil] }
+      true  | true  | maintainer_access | lazy { [developer_access, maintainer_access, owner_access, admin_access, nil] }
+      true  | true  | owner_access      | lazy { [developer_access, maintainer_access, owner_access, admin_access, nil] }
+      true  | true  | developer_access  | lazy { [developer_access, maintainer_access, owner_access, admin_access, nil] }
+    end
+
+    with_them do
+      let(:user) { admin_user? ? create(:admin) : create(:user) }
+
+      before do
+        stub_application_setting(default_project_creation: default_project_creation)
+        enable_admin_mode!(user) if admin_mode
+      end
+
+      it 'returns correct project creation levels' do
+        expect(described_class.project_creation_levels_for_user(user)).to match_array(expected_levels)
+      end
+    end
+  end
+
+  describe '.prevent_project_creation?' do
+    where(:admin_user?, :admin_mode, :project_creation_setting, :expected_result) do
+      false | false | lazy { no_one_access }     | true
+      false | false | lazy { admin_access }      | true
+      false | false | lazy { owner_access }      | false
+      false | false | lazy { maintainer_access } | false
+      false | false | lazy { developer_access }  | false
+      true  | false | lazy { no_one_access }     | true
+      true  | false | lazy { admin_access }      | true
+      true  | false | lazy { owner_access }      | false
+      true  | false | lazy { maintainer_access } | false
+      true  | false | lazy { developer_access }  | false
+      true  | true  | lazy { no_one_access }     | true
+      true  | true  | lazy { admin_access }      | false
+      true  | true  | lazy { owner_access }      | false
+      true  | true  | lazy { maintainer_access } | false
+      true  | true  | lazy { developer_access }  | false
+    end
+
+    with_them do
+      let(:user) { admin_user? ? create(:admin) : create(:user) }
+
+      before do
+        enable_admin_mode!(user) if admin_mode
+      end
+
+      subject { described_class.prevent_project_creation?(user, project_creation_setting) }
+
+      it { is_expected.to be(expected_result) }
+    end
+  end
+
   describe '#to_reference' do
     it 'returns a String reference to the object' do
       expect(group.to_reference).to eq "@#{group.name}"
@@ -1414,6 +1552,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
   describe '#human_name' do
     it { expect(group.human_name).to eq(group.name) }
+  end
+
+  describe '#to_human_reference' do
+    let_it_be(:new_group) { create(:group) }
+
+    it { expect(group.to_human_reference).to be_nil }
+    it { expect(group.to_human_reference(new_group)).to eq(group.full_name) }
   end
 
   describe '#add_user' do
@@ -1821,18 +1966,6 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     members
   end
 
-  describe '#web_url' do
-    it 'returns the canonical URL' do
-      expect(group.web_url).to include("groups/#{group.name}")
-    end
-
-    context 'nested group' do
-      let(:nested_group) { create(:group, :nested) }
-
-      it { expect(nested_group.web_url).to include("groups/#{nested_group.full_path}") }
-    end
-  end
-
   describe 'nested group' do
     subject { build(:group, :nested) }
 
@@ -1982,23 +2115,36 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when organization owner' do
-      let_it_be(:admin) { create(:admin) }
-
-      context 'when admin mode is enabled', :enable_admin_mode do
-        it 'returns OWNER by default' do
-          expect(group.max_member_access_for_user(admin)).to eq(Gitlab::Access::OWNER)
-        end
+      let_it_be(:group) { create(:group) }
+      let_it_be(:org_owner) do
+        create(:organization_owner, organization: organization).user
       end
 
-      context 'when admin mode is disabled' do
-        it 'returns NO_ACCESS by default' do
-          expect(group.max_member_access_for_user(admin)).to eq(Gitlab::Access::NO_ACCESS)
+      it 'returns OWNER by default' do
+        expect(group.max_member_access_for_user(org_owner)).to eq(Gitlab::Access::OWNER)
+      end
+
+      context 'when organization owner is also an admin' do
+        before do
+          org_owner.update!(admin: true)
+        end
+
+        context 'when admin mode is enabled', :enable_admin_mode do
+          it 'returns OWNER by default' do
+            expect(group.max_member_access_for_user(org_owner)).to eq(Gitlab::Access::OWNER)
+          end
+        end
+
+        context 'when admin mode is disabled' do
+          it 'returns NO_ACCESS by default' do
+            expect(group.max_member_access_for_user(org_owner)).to eq(Gitlab::Access::NO_ACCESS)
+          end
         end
       end
 
       context 'when only concrete members' do
         it 'returns NO_ACCESS' do
-          expect(group.max_member_access_for_user(admin, only_concrete_membership: true))
+          expect(group.max_member_access_for_user(org_owner, only_concrete_membership: true))
             .to eq(Gitlab::Access::NO_ACCESS)
         end
       end
@@ -2700,6 +2846,18 @@ RSpec.describe Group, feature_category: :groups_and_projects do
           group.update!(name: 'new name')
         end
       end
+
+      context 'when the path is changed to existing pages unique domain' do
+        let(:new_path) { 'existing-domain' }
+
+        it 'rejects path' do
+          # Simulate the existing domain being in use
+          create(:project_setting, pages_unique_domain: 'existing-domain')
+
+          expect(group.update(path: new_path)).to be_falsey
+          expect(group.errors.full_messages.to_sentence).to eq('Group URL has already been taken')
+        end
+      end
     end
   end
 
@@ -3081,6 +3239,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       expect(group.access_level_roles).to eq(
         {
           'Guest' => 10,
+          'Planner' => 15,
           'Reporter' => 20,
           'Developer' => 30,
           'Maintainer' => 40,
@@ -3279,14 +3438,34 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   context 'with export' do
-    let(:group) { create(:group, :with_export) }
+    let(:group) { create(:group) }
+    let(:export_file) { fixture_file_upload('spec/fixtures/group_export.tar.gz') }
+    let(:export) { create(:import_export_upload, group: group, export_file: export_file) }
 
     it '#export_file_exists? returns true' do
-      expect(group.export_file_exists?).to be true
+      expect(group.export_file_exists?(export.user)).to be true
     end
 
     it '#export_archive_exists? returns true' do
-      expect(group.export_archive_exists?).to be true
+      expect(group.export_archive_exists?(export.user)).to be true
+    end
+  end
+
+  describe '#import_export_upload_by_user' do
+    let(:group) { create(:group) }
+    let(:user) { create(:user) }
+    let!(:import_export_upload) { create(:import_export_upload, group: group, user: user) }
+
+    it 'returns the import_export_upload' do
+      expect(group.import_export_upload_by_user(user)).to eq import_export_upload
+    end
+
+    context 'when import_export_upload does not exist for user' do
+      let(:import_export_upload) { create(:import_export_upload, group: group) }
+
+      it 'returns nil' do
+        expect(group.import_export_upload_by_user(user)).to be nil
+      end
     end
   end
 
@@ -3776,6 +3955,20 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
   end
 
+  describe '#glql_integration_feature_flag_enabled?' do
+    it_behaves_like 'checks self and root ancestor feature flag' do
+      let(:feature_flag) { :glql_integration }
+      let(:feature_flag_method) { :glql_integration_feature_flag_enabled? }
+    end
+  end
+
+  describe '#wiki_comments_feature_flag_enabled?' do
+    it_behaves_like 'checks self and root ancestor feature flag' do
+      let(:feature_flag) { :wiki_comments }
+      let(:feature_flag_method) { :wiki_comments_feature_flag_enabled? }
+    end
+  end
+
   describe '#supports_lock_on_merge?' do
     it_behaves_like 'checks self and root ancestor feature flag' do
       let(:feature_flag) { :enforce_locked_labels_on_merge }
@@ -3796,7 +3989,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       sub_sub_group.shared_with_groups << shared_group_3
     end
 
-    describe '#shared_with_group_links.of_ancestors' do
+    describe '#shared_with_groups_of_ancestors' do
       where(:subject_group, :result) do
         ref(:group)         | []
         ref(:sub_group)     | lazy { [shared_group_1].map(&:id) }
@@ -3805,12 +3998,12 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
       with_them do
         it 'returns correct group shares' do
-          expect(subject_group.shared_with_group_links.of_ancestors.map(&:shared_with_group_id)).to match_array(result)
+          expect(subject_group.shared_with_groups_of_ancestors.ids).to match_array(result)
         end
       end
     end
 
-    describe '#shared_with_group_links.of_ancestors_and_self' do
+    describe '#shared_with_groups_of_ancestors_and_self' do
       where(:subject_group, :result) do
         ref(:group)         | lazy { [shared_group_1].map(&:id) }
         ref(:sub_group)     | lazy { [shared_group_1, shared_group_2].map(&:id) }
@@ -3819,7 +4012,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
       with_them do
         it 'returns correct group shares' do
-          expect(subject_group.shared_with_group_links.of_ancestors_and_self.map(&:shared_with_group_id)).to match_array(result)
+          expect(subject_group.shared_with_groups_of_ancestors_and_self.ids).to match_array(result)
         end
       end
     end
@@ -3905,6 +4098,81 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       create(:project, :repository, namespace: group)
 
       expect(group.group_readme).to be(nil)
+    end
+  end
+
+  describe '#hook_attrs' do
+    it 'returns the hook attributes' do
+      expect(group.hook_attrs).to eq({
+        group_name: group.name,
+        group_path: group.path,
+        group_id: group.id,
+        full_path: group.full_path
+      })
+    end
+  end
+
+  describe '#crm_group' do
+    let!(:crm_group) { create(:group) }
+    let!(:root_group) { create(:group) }
+    let!(:parent_group) { create(:group, parent: root_group) }
+    let!(:child_group) { create(:group, parent: parent_group) }
+
+    context 'when the group has a source_group_id' do
+      let!(:crm_settings) { create(:crm_settings, group: child_group, source_group: crm_group) }
+
+      it 'returns the source_group' do
+        expect(child_group.crm_group).to eq(crm_group)
+      end
+    end
+
+    context 'when the group does not have a source_group_id but is a root group' do
+      it 'returns the root group' do
+        expect(root_group.crm_group).to eq(root_group)
+      end
+    end
+
+    context 'when the group has no source_group_id and is not a root group' do
+      context 'when a parent group has a source_group_id' do
+        let!(:crm_settings) { create(:crm_settings, group: parent_group, source_group: crm_group) }
+
+        it 'traverses up the hierarchy and returns the first group with a source_group_id' do
+          expect(child_group.crm_group).to eq(crm_group)
+        end
+      end
+
+      it 'returns the root group if no groups in the hierarchy have a source_group_id' do
+        expect(child_group.crm_group).to eq(root_group)
+      end
+    end
+  end
+
+  describe '#has_issues_with_contacts?' do
+    context 'when group has no issues with contacts' do
+      it 'returns false' do
+        expect(group.has_issues_with_contacts?).to be_falsey
+      end
+    end
+
+    context 'when group has issues with contacts' do
+      let!(:issue) { create(:issue, project: create(:project, group: group)) }
+      let!(:contact) { create(:contact, group: group) }
+      let!(:issue_contact) { create(:issue_customer_relations_contact, issue: issue, contact: contact) }
+
+      it 'returns true' do
+        expect(group.has_issues_with_contacts?).to be_truthy
+      end
+    end
+
+    context 'when a subgroup has issues with contacts' do
+      let!(:subgroup) { create(:group, parent: group) }
+      let!(:issue) { create(:issue, project: create(:project, group: subgroup)) }
+      let!(:contact) { create(:contact, group: group) }
+      let!(:issue_contact) { create(:issue_customer_relations_contact, issue: issue, contact: contact) }
+
+      it 'returns true' do
+        expect(group.has_issues_with_contacts?).to be_truthy
+      end
     end
   end
 end

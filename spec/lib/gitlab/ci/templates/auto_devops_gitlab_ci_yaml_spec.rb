@@ -16,7 +16,7 @@ RSpec.describe 'Auto-DevOps.gitlab-ci.yml', feature_category: :auto_devops do
       let(:pipeline_branch) { default_branch }
       let(:project) { create(:project, :auto_devops, :custom_repo, files: { 'README.md' => '' }) }
       let(:user) { project.first_owner }
-      let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch ) }
+      let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch) }
       let(:pipeline) { service.execute(:push).payload }
       let(:build_names) { pipeline.builds.pluck(:name) }
 
@@ -297,7 +297,7 @@ RSpec.describe 'Auto-DevOps.gitlab-ci.yml', feature_category: :auto_devops do
       with_them do
         let(:project) { create(:project, :custom_repo, files: files) }
         let(:user) { project.first_owner }
-        let(:service) { Ci::CreatePipelineService.new(project, user, ref: default_branch ) }
+        let(:service) { Ci::CreatePipelineService.new(project, user, ref: default_branch) }
         let(:pipeline) { service.execute(:push).payload }
         let(:build_names) { pipeline.builds.pluck(:name) }
 
@@ -311,8 +311,8 @@ RSpec.describe 'Auto-DevOps.gitlab-ci.yml', feature_category: :auto_devops do
         end
 
         it 'creates a pipeline with the expected jobs' do
-          expect(build_names).to include(*include_build_names)
-          expect(build_names).not_to include(*not_include_build_names)
+          expect(build_names).to include(*include_build_names) unless include_build_names.empty?
+          expect(build_names).not_to include(*not_include_build_names) unless not_include_build_names.empty?
         end
       end
     end

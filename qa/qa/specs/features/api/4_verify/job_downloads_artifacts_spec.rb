@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Verify', product_group: :pipeline_security do
+  RSpec.describe 'Verify', product_group: :pipeline_execution do
     describe 'Job artifacts' do
       let(:executor) { "qa-runner-#{Faker::Alphanumeric.alphanumeric(number: 8)}" }
       let(:project) { create(:project, name: 'project-for-job-artifacts-fetching') }
@@ -65,7 +65,7 @@ module QA
         runner.remove_via_api!
       end
 
-      it 'are not downloaded when dependencies array is set to empty', :blocking,
+      it 'are not downloaded when dependencies array is set to empty',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/424958' do
         # If this job fails, the 'failed' status of pipeline is no longer helpful
         # We should exit the test case here

@@ -64,12 +64,12 @@ describe('PackageTags', () => {
   });
 
   describe('tagBadgeStyle', () => {
-    const defaultStyle = ['badge', 'badge-info', 'gl-display-none'];
+    const defaultStyle = ['badge', 'badge-info', 'gl-hidden'];
 
     it('shows tag badge when there is only one', () => {
       createComponent([mockTags[0]]);
 
-      const expectedStyle = [...defaultStyle, 'gl-display-flex', 'gl-ml-3'];
+      const expectedStyle = [...defaultStyle, '!gl-flex', 'gl-ml-3'];
 
       expect(tagBadges().at(0).classes()).toEqual(expect.arrayContaining(expectedStyle));
     });

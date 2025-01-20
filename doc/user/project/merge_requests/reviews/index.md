@@ -9,12 +9,12 @@ description: "Use merge request reviews to discuss and improve code before it is
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Merge requests are the primary method of making changes to files in a
 GitLab project. [Create and submit](../creating_merge_requests.md) a merge request
 to propose changes. Your team leaves [comments](../../../discussions/index.md) on
-your merge request, and makes [Code Suggestions](suggestions.md) you can accept
+your merge request, and makes [suggestions](suggestions.md) you can accept
 from the user interface. When a teammate reviews your work, they can choose
 to accept or reject it.
 
@@ -22,50 +22,82 @@ To review merge requests, you can use:
 
 - The GitLab interface.
 - Visual Studio Code, if you have configured the
-  [GitLab Workflow VS Code extension](../../../../editor_extensions/visual_studio_code/index.md).
+  [GitLab Workflow extension for VS Code](../../../../editor_extensions/visual_studio_code/index.md).
 - Your terminal window, if you have configured the [GitLab CLI](../../../../editor_extensions/gitlab_cli/index.md).
 
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
 For an overview, see [Merge request review](https://www.youtube.com/watch?v=2MayfXKpU08&list=PLFGfElNsQthYDx0A_FaNNfUm9NHsK6zED&index=183).
 <!-- Video published on 2023-04-29 -->
 
-## Request a review
+## View the review status of a merge request
 
-To assign a reviewer to a merge request, in a text area in
-the merge request, use the `/assign_reviewer @user`
-[quick action](../../quick_actions.md#issues-merge-requests-and-epics), or:
+To do this:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Code > Merge requests** and find your merge request.
 1. Select the title of the merge request to view it.
-1. On the right sidebar, in the **Reviewers** section, select **Edit**.
-1. Search for the user you want to assign, and select the user.
+1. Scroll to the [merge request widget](../widgets.md) to see the mergeability and
+   approval status for the merge request. For example, the lack of required approvals blocks this merge request:
+
+   ![The merge request widget displays 'All required approvals must be given'.](img/reviews_missing_v17_3.png)
+
+To see the individual review status for each reviewer, check the right sidebar
+of a merge request. Each **Reviewer** shows the status to the right of the user's name:
+
+- **{dash-circle}** Awaiting review from this user.
+- **{status_running}** The user's review is in progress.
+- **{check-circle}** Approved by this user.
+- **{comment-lines}** User has requested changes, and [blocked this merge request](#prevent-merge-when-you-request-changes).
+  (If needed, you can [bypass this block](#prevent-merge-when-you-request-changes).)
+
+## Request a review
+
+> - Enhanced reviewer drawer [introduced](https://gitlab.com/groups/gitlab-org/-/epics/12878) in GitLab 17.5 [with a flag](../../../../administration/feature_flags.md) named `reviewer_assign_drawer`.
+> - [Enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/467205) on GitLab.com and GitLab Self-Managed in GitLab 17.5.
+> - [Feature flag](https://gitlab.com/gitlab-org/gitlab/-/issues/467205) `reviewer_assign_drawer` removed in GitLab 17.8.
+
+When you've finished preparing your changes, it's time to request a review. To assign a reviewer to your merge request,
+either use the `/assign_reviewer @user`
+[quick action](../../quick_actions.md#issues-merge-requests-and-epics) in any text field, or:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Code > Merge requests** and find your merge request.
+1. Select the title of the merge request to view it.
+1. On the right sidebar, in the **Reviewers** section:
+   - To find a specific reviewer by name, select **Edit**.
+   - In GitLab Premium and Ultimate, to find a reviewer
+     [who fulfills approval rules](#find-reviewers-who-fulfill-approval-rules), select **Assign** to
+     open the reviewer drawer.
 
 GitLab adds the merge request to the user's review requests.
 
-### From multiple users
+### Find reviewers who fulfill approval rules
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-To assign multiple reviewers to a merge request, in a text area in
-the merge request, use the `/assign_reviewer @user1 @user2`
-[quick action](../../quick_actions.md#issues-merge-requests-and-epics), or:
+GitLab Premium and Ultimate help you more quickly find the best reviewers for your merge request.
+Use the **Assign reviewers** drawer to filter lists of reviewers. See the Code Owners for the files
+changed in your merge request, and the users who satisfy your project's approval rules.
 
-1. On the left sidebar, select **Search or go to** and find your project.
-1. Select **Code > Merge requests** and find your merge request.
-1. Select the title of the merge request to view it.
-1. On the right sidebar, in the **Reviewers** section, select **Edit**.
-1. From the dropdown list, select all the users you want
-   to assign to the merge request.
+In this example, the merge request requires 3 Code Owner approvals, but has none so far:
 
-To remove a reviewer, clear the user from the same dropdown list.
+![The Assign Reviewers drawer for a merge request that requires 3 Code Owner approvals, but has none. It shows one line per Code Owner rule, and one line per approval rule. You can select reviewers for each rule.](img/select_good_reviewers_v17_5.png)
+
+1. To see optional approval rules or Code Owners, select **Optional approval rules** (**{chevron-lg-up}**) to show them.
+1. Next to the reviewer type you need, select **Edit**:
+   - **Code Owners** shows only the Code Owners for that file type.
+   - **Approval rules** shows only users who fulfill that approval rule.
+1. Select your desired reviewers. (GitLab Premium and Ultimate enable you to select multiple reviewers.)
+1. Repeat for each required **Code Owner** and **Approval rule** item.
+1. When you've selected your reviewers, on the top right, select **Close** (**{close}**) to hide the drawer.
 
 ### Re-request a review
 
 After a reviewer completes their [merge request reviews](../../../discussions/index.md),
-the author of the merge request can request a new review from the reviewer:
+the author of the merge request can request a new review from the reviewer.
+To do this, either use the `/request_review @user` quick action in any text field on the merge request, or:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Code > Merge requests** and find your merge request.
@@ -112,7 +144,7 @@ To resolve or unresolve a thread when replying to a comment:
 1. Select or clear **Resolve thread**.
 1. Select **Add comment now** or **Add to review**.
 
-Pending comments display information about the actions that are delayed until comment is published:
+Pending comments display information about delayed actions. GitLab does not perform these actions until you publish the comment:
 
 - **{check-circle-filled}** Thread is resolved.
 - **{check-circle}** Thread stays unresolved.
@@ -144,19 +176,41 @@ When you submit your review, GitLab:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/430728) in GitLab 16.11 [with a flag](../../../../administration/feature_flags.md) named `mr_reviewer_requests_changes`. Disabled by default.
-> - Enabled by default [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/451211) and [self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158226) in GitLab 17.2.
+> - Enabled by default [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/451211) and [GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158226) in GitLab 17.2.
+> - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/451211) in GitLab 17.3.
 
 A reviewer [requesting changes](#submit-a-review) blocks a merge request from merging.
 When this happens, the merge request reports area shows the message
 **The change requests must be completed or resolved.** To unblock the merge request,
 the reviewer who requested changes should [re-review and approve](#re-request-a-review) the merge request.
 
-If the user who requested changes is unable to re-review or provide an approval,
-another user with permission to merge the merge request can override this check in the
-merge request reports area by selecting **Bypass**:
+### Remove a change request
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/480412) in GitLab 17.8.
+
+If you previously requested changes, you can remove your change request. You might need to do this
+if both of the following are true:
+
+- You can no longer approve the merge request.
+- You want to cancel your change request, but don't want to submit a new review.
+
+To remove your change request without submitting a new review:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Code > Merge requests** and find your merge request.
+1. Select the title of the merge request to view it.
+1. On the merge request **Overview**, scroll to the merge request reports area.
+1. Next to **The change requests must be completed or resolved**, select **Remove**:
+
+   ![A merge request that is blocked because a user requested changes](img/remove_v17_8.png)
+
+### Bypass a request for changes
+
+If the user who requested changes is unavailable to re-review or approve,
+another user with permission to merge the merge request can override this check:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Code > Merge requests** and find your merge request.
@@ -164,44 +218,14 @@ merge request reports area by selecting **Bypass**:
 1. On the merge request **Overview**, scroll to the merge request reports area.
 1. Next to **The change requests must be completed or resolved**, select **Bypass**:
 
-   ![A merge request that has been blocked by a user requesting changes](img/bypass_17_2.png)
+   ![A merge request that is blocked because a user requested changes](img/bypass_v17_2.png)
 
-### See how reviewers map to approval rules
+1. The merge reports area shows `Merge with caution: Override added`. To see which check a user
+   bypassed, select **Expand merge checks** (**{chevron-lg-down}**) and find the
+   check that contains a warning (**{status_warning}**) icon. In this example, the
+   author bypassed **The change requests must be completed or resolved**:
 
-DETAILS:
-**Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-
-When you create a merge request, you want to request reviews from
-subject matter experts for the changes you're making. To decrease the number of
-review cycles for your merge request, consider requesting reviews from users
-listed in the project's approval rules.
-
-When you edit the **Reviewers** field in a new or existing merge request, GitLab shows you
-the matching [approval rule](../approvals/rules.md) below the name of each reviewer.
-[Code Owners](../../codeowners/index.md) display as `Codeowner` without any group detail.
-
-::Tabs
-
-:::TabTitle Create or edit a merge request
-
-1. When you create a new merge request, or edit an existing one, select **Reviewers**.
-1. Begin entering the name of your desired reviewer. Users who are Code Owners, or match an approval rule, show more information below the username:
-
-   ![Reviewer approval rules in new/edit form](img/reviewer_approval_rules_form_v15_9.png)
-
-:::TabTitle Reviewing a merge request
-
-1. On the left sidebar, select **Search or go to** and find your project.
-1. Select **Code > Merge requests**.
-1. Select your merge request.
-1. On the right sidebar, next to **Reviewers**, select **Edit**.
-1. Begin entering the name of your desired reviewer. Users who are Code Owners,
-   or who match an approval rule, show more information below the username:
-
-   ![Reviewer approval rules in sidebar](img/reviewer_approval_rules_sidebar_v15_9.png)
-
-::EndTabs
+   ![This merge request contains a bypassed check, and should be merged with caution.](img/status_warning_v17_4.png)
 
 ## Download merge request changes
 
@@ -250,58 +274,6 @@ To download and apply the patch in a one-line CLI command using [`git am`](https
 ```shell
 curl "https://gitlab.com/gitlab-org/gitlab/-/merge_requests/000000.patch" | git am
 ```
-
-## GitLab Duo Suggested Reviewers
-
-DETAILS:
-**Tier:** Ultimate
-**Offering:** GitLab.com
-
-> - [Introduced](https://gitlab.com/groups/gitlab-org/modelops/applied-ml/review-recommender/-/epics/3) in GitLab 15.4 as a [beta](../../../../policy/experiment-beta-support.md#beta) feature [with a flag](../../../../administration/feature_flags.md) named `suggested_reviewers_control`. Disabled by default.
-> - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/368356) in GitLab 15.6.
-> - Beta designation [removed from the UI](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/113058) in GitLab 15.10.
-> - Feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/134728) in GitLab 16.6.
-
-GitLab uses machine learning to suggest reviewers for your merge request.
-
-<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
-For an overview, see [GitLab Duo Suggested Reviewers](https://www.youtube.com/embed/ivwZQgh4Rxw).
-<!-- Video published on 2023-11-03 -->
-
-To suggest reviewers, GitLab uses:
-
-- The changes in the merge request
-- The project's contribution graph
-
-GitLab Duo Suggested Reviewers also integrates with Code Owners, profile status,
-and merge request rules. It helps you make a more informed decision when choosing
-reviewers who can meet your review criteria.
-
-![GitLab Duo Suggested Reviewers](img/suggested_reviewers_v16_3.png)
-
-For more information, see [Data usage in GitLab Duo Suggested Reviewers](data_usage.md).
-
-### Enable Suggested Reviewers
-
-Enabling Suggested Reviewers triggers GitLab to create the machine learning model your
-project uses to generate reviewers. The larger your project, the longer
-this process can take. Usually, the model is ready to generate suggestions
-after a few hours.
-
-Prerequisites:
-
-- You have the Owner or Maintainer role in the project.
-
-To do this:
-
-1. On the left sidebar, select **Search or go to** and find your project.
-1. Select **Settings > Merge requests**.
-1. Scroll to **Suggested reviewers**, and select **Enable suggested reviewers**.
-1. Select **Save changes**.
-
-After you enable the feature, no action is needed. After the model is ready,
-recommendations populate the **Reviewer** dropdown list in the right-hand sidebar
-of a merge request with new commits.
 
 ## Associated features
 

@@ -9,8 +9,9 @@ class Packages::Package < ApplicationRecord
   include Packages::Downloadable
   include EnumInheritance
 
-  DISPLAYABLE_STATUSES = [:default, :error].freeze
-  INSTALLABLE_STATUSES = [:default, :hidden].freeze
+  DISPLAYABLE_STATUSES = [:default, :error, :deprecated].freeze
+  INSTALLABLE_STATUSES = [:default, :hidden, :deprecated].freeze
+  DETAILED_INFO_STATUSES = [:default, :deprecated].freeze
   STATUS_MESSAGE_MAX_LENGTH = 255
 
   enum package_type: {
@@ -30,32 +31,27 @@ class Packages::Package < ApplicationRecord
     ml_model: 14
   }
 
-  enum status: { default: 0, hidden: 1, processing: 2, error: 3, pending_destruction: 4 }
+  enum status: { default: 0, hidden: 1, processing: 2, error: 3, pending_destruction: 4, deprecated: 5 }
 
   belongs_to :project
   belongs_to :creator, class_name: 'User'
-
-  after_create_commit :publish_creation_event, if: :generic?
 
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   # TODO: put the installable default scope on the :package_files association once the dependent: :destroy is removed
   # See https://gitlab.com/gitlab-org/gitlab/-/issues/349191
   has_many :installable_package_files, -> { installable }, class_name: 'Packages::PackageFile', inverse_of: :package
-  has_many :installable_nuget_package_files, -> { installable.with_nuget_format }, class_name: 'Packages::PackageFile', inverse_of: :package
   has_many :dependency_links, inverse_of: :package, class_name: 'Packages::DependencyLink'
   has_many :tags, inverse_of: :package, class_name: 'Packages::Tag'
-  has_one :pypi_metadatum, inverse_of: :package, class_name: 'Packages::Pypi::Metadatum'
+
   has_one :maven_metadatum, inverse_of: :package, class_name: 'Packages::Maven::Metadatum'
-  has_one :nuget_metadatum, inverse_of: :package, class_name: 'Packages::Nuget::Metadatum'
-  has_many :nuget_symbols, inverse_of: :package, class_name: 'Packages::Nuget::Symbol'
-  has_one :npm_metadatum, inverse_of: :package, class_name: 'Packages::Npm::Metadatum'
-  has_one :terraform_module_metadatum, inverse_of: :package, class_name: 'Packages::TerraformModule::Metadatum'
+
   has_many :build_infos, inverse_of: :package
   has_many :pipelines, through: :build_infos, disable_joins: true
-  has_many :matching_package_protection_rules, ->(package) { where(package_type: package.package_type).for_package_name(package.name) }, through: :project, source: :package_protection_rules
 
   accepts_nested_attributes_for :maven_metadatum
+
+  before_validation :prevent_concurrent_inserts, on: :create, if: :maven?
 
   validates :project, presence: true
   validates :name, presence: true
@@ -69,36 +65,11 @@ class Packages::Package < ApplicationRecord
     },
     unless: -> { pending_destruction? || conan? }
 
-  validate :npm_package_already_taken, if: :npm?
-
-  validates :name, format: { with: Gitlab::Regex.generic_package_name_regex }, if: :generic?
-  validates :name, format: { with: Gitlab::Regex.helm_package_regex }, if: :helm?
-  validates :name, format: { with: Gitlab::Regex.npm_package_name_regex, message: Gitlab::Regex.npm_package_name_regex_message }, if: :npm?
-  validates :name, format: { with: Gitlab::Regex.nuget_package_name_regex }, if: :nuget?
-  validates :name, format: { with: Gitlab::Regex.terraform_module_package_name_regex }, if: :terraform_module?
-  validates :version, format: { with: Gitlab::Regex.nuget_version_regex }, if: :nuget?
   validates :version, format: { with: Gitlab::Regex.maven_version_regex }, if: -> { version? && maven? }
-  validates :version, format: { with: Gitlab::Regex.pypi_version_regex }, if: :pypi?
-  validates :version, format: { with: Gitlab::Regex.helm_version_regex }, if: :helm?
-  validates :version, format: { with: Gitlab::Regex.semver_regex, message: Gitlab::Regex.semver_regex_message },
-    if: -> { npm? || terraform_module? }
-
-  validates :version,
-    presence: true,
-    format: { with: Gitlab::Regex.generic_package_version_regex },
-    if: :generic?
 
   scope :for_projects, ->(project_ids) { where(project_id: project_ids) }
   scope :with_name, ->(name) { where(name: name) }
   scope :with_name_like, ->(name) { where(arel_table[:name].matches(name)) }
-
-  scope :with_normalized_pypi_name, ->(name) do
-    where(
-      "LOWER(regexp_replace(name, ?, '-', 'g')) = ?",
-      Gitlab::Regex::Packages::PYPI_NORMALIZED_NAME_REGEX_STRING,
-      name.downcase
-    )
-  end
 
   scope :with_case_insensitive_version, ->(version) do
     where('LOWER(version) = ?', version.downcase)
@@ -106,18 +77,6 @@ class Packages::Package < ApplicationRecord
 
   scope :with_case_insensitive_name, ->(name) do
     where(arel_table[:name].lower.eq(name.downcase))
-  end
-
-  scope :with_nuget_version_or_normalized_version, ->(version, with_normalized: true) do
-    relation = with_case_insensitive_version(version)
-
-    return relation unless with_normalized
-
-    relation
-      .left_joins(:nuget_metadatum)
-      .or(
-        merge(Packages::Nuget::Metadatum.normalized_version_in(version))
-      )
   end
 
   scope :search_by_name, ->(query) { fuzzy_search(query, [:name], use_minimum_char_limit: false) }
@@ -130,21 +89,8 @@ class Packages::Package < ApplicationRecord
   scope :including_project_namespace_route, -> { includes(project: { namespace: :route }) }
   scope :including_tags, -> { includes(:tags) }
   scope :including_dependency_links, -> { includes(dependency_links: :dependency) }
-  scope :including_dependency_links_with_nuget_metadatum, -> { includes(dependency_links: [:dependency, :nuget_metadatum]) }
-
-  scope :preload_npm_metadatum, -> { preload(:npm_metadatum) }
-  scope :preload_nuget_metadatum, -> { preload(:nuget_metadatum) }
-  scope :preload_pypi_metadatum, -> { preload(:pypi_metadatum) }
-
-  scope :with_npm_scope, ->(scope) do
-    npm.where("position('/' in packages_packages.name) > 0 AND split_part(packages_packages.name, '/', 1) = :package_scope", package_scope: "@#{sanitize_sql_like(scope)}")
-  end
-
-  scope :without_nuget_temporary_name, -> { where.not(name: Packages::Nuget::TEMPORARY_PACKAGE_NAME) }
-
   scope :has_version, -> { where.not(version: nil) }
   scope :preload_files, -> { preload(:installable_package_files) }
-  scope :preload_nuget_files, -> { preload(:installable_nuget_package_files) }
   scope :preload_pipelines, -> { preload(pipelines: :user) }
   scope :preload_tags, -> { preload(:tags) }
   scope :limit_recent, ->(limit) { order_created_desc.limit(limit) }
@@ -185,15 +131,23 @@ class Packages::Package < ApplicationRecord
 
   def self.inheritance_column = 'package_type'
 
-  def self.inheritance_column_to_class_map = {
-    ml_model: 'Packages::MlModel::Package',
-    golang: 'Packages::Go::Package',
-    rubygems: 'Packages::Rubygems::Package',
-    conan: 'Packages::Conan::Package',
-    rpm: 'Packages::Rpm::Package',
-    debian: 'Packages::Debian::Package',
-    composer: 'Packages::Composer::Package'
-  }.freeze
+  def self.inheritance_column_to_class_map
+    {
+      ml_model: 'Packages::MlModel::Package',
+      golang: 'Packages::Go::Package',
+      rubygems: 'Packages::Rubygems::Package',
+      conan: 'Packages::Conan::Package',
+      rpm: 'Packages::Rpm::Package',
+      debian: 'Packages::Debian::Package',
+      composer: 'Packages::Composer::Package',
+      helm: 'Packages::Helm::Package',
+      generic: 'Packages::Generic::Package',
+      pypi: 'Packages::Pypi::Package',
+      terraform_module: 'Packages::TerraformModule::Package',
+      nuget: 'Packages::Nuget::Package',
+      npm: 'Packages::Npm::Package'
+    }.freeze
+  end
 
   def self.only_maven_packages_with_path(path, use_cte: false)
     if use_cte
@@ -252,6 +206,10 @@ class Packages::Package < ApplicationRecord
     end
   end
 
+  def self.installable_statuses
+    INSTALLABLE_STATUSES
+  end
+
   def versions
     project.packages
            .preload_pipelines
@@ -278,10 +236,6 @@ class Packages::Package < ApplicationRecord
     tags.pluck(:name)
   end
 
-  def infrastructure_package?
-    terraform_module?
-  end
-
   def package_settings
     project.namespace.package_settings
   end
@@ -291,12 +245,6 @@ class Packages::Package < ApplicationRecord
     return unless maven? && version? && user
 
     ::Packages::Maven::Metadata::SyncWorker.perform_async(user.id, project_id, name)
-  end
-
-  def sync_npm_metadata_cache
-    return unless npm?
-
-    ::Packages::Npm::CreateMetadataCacheWorker.perform_async(project_id, name)
   end
 
   def create_build_infos!(build)
@@ -312,19 +260,6 @@ class Packages::Package < ApplicationRecord
     ::Packages::MarkPackageFilesForDestructionWorker.perform_async(id)
   end
 
-  # As defined in PEP 503 https://peps.python.org/pep-0503/#normalized-names
-  def normalized_pypi_name
-    return name unless pypi?
-
-    name.gsub(/#{Gitlab::Regex::Packages::PYPI_NORMALIZED_NAME_REGEX_STRING}/o, '-').downcase
-  end
-
-  def normalized_nuget_version
-    return unless nuget?
-
-    nuget_metadatum&.normalized_version
-  end
-
   def publish_creation_event
     ::Gitlab::EventStore.publish(
       ::Packages::PackageCreatedEvent.new(data: {
@@ -337,21 +272,25 @@ class Packages::Package < ApplicationRecord
     )
   end
 
-  private
-
-  def npm_package_already_taken
-    return unless project
-    return unless follows_npm_naming_convention?
-
-    if project.package_already_taken?(name, version, package_type: :npm)
-      errors.add(:base, _('Package already exists'))
-    end
+  def detailed_info?
+    DETAILED_INFO_STATUSES.include?(status.to_sym)
   end
 
-  # https://docs.gitlab.com/ee/user/packages/npm_registry/#package-naming-convention
-  def follows_npm_naming_convention?
-    return false unless project&.root_namespace&.path
+  private
 
-    project.root_namespace.path == ::Packages::Npm.scope_of(name)
+  # This method will block while another database transaction attempts to insert the same data.
+  # After the lock is released by the other transaction, the uniqueness validation may fail
+  # with record not unique validation error.
+
+  # Without this block the uniqueness validation wouldn't be able to detect duplicated
+  # records as transactions can't see each other's changes.
+
+  # This is a temp advisory lock to prevent race conditions. We will switch to use database `upsert`
+  # once we have a database unique index: https://gitlab.com/gitlab-org/gitlab/-/issues/424238#note_2187274213
+  def prevent_concurrent_inserts
+    lock_key = [self.class.table_name, project_id, name, version].join('-')
+    lock_expression = "hashtext(#{connection.quote(lock_key)})"
+
+    connection.execute("SELECT pg_advisory_xact_lock(#{lock_expression})")
   end
 end

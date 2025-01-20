@@ -35,12 +35,12 @@ RSpec.describe Sidebars::Groups::Menus::SettingsMenu, :with_license, feature_cat
     subject { menu.renderable_items.find { |e| e.item_id == item_id } }
 
     shared_examples 'access rights checks' do
-      specify { is_expected.not_to be_nil }
+      it { is_expected.not_to be_nil }
 
       context 'when the user does not have access' do
         let(:user) { nil }
 
-        specify { is_expected.to be_nil }
+        it { is_expected.to be_nil }
       end
     end
 
@@ -62,7 +62,7 @@ RSpec.describe Sidebars::Groups::Menus::SettingsMenu, :with_license, feature_cat
       it_behaves_like 'access rights checks'
     end
 
-    describe 'Access Tokens' do
+    describe 'Access tokens' do
       let(:item_id) { :access_tokens }
 
       it_behaves_like 'access rights checks'
@@ -96,7 +96,7 @@ RSpec.describe Sidebars::Groups::Menus::SettingsMenu, :with_license, feature_cat
       describe 'when packages feature is disabled' do
         let(:packages_enabled) { false }
 
-        specify { is_expected.to be_nil }
+        it { is_expected.to be_nil }
       end
 
       describe 'when packages feature is enabled' do

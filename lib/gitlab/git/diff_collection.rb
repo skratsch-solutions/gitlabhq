@@ -162,9 +162,9 @@ module Gitlab
       end
 
       def each_gitaly_patch
-        i = @array.length
+        @iterator.each_with_index do |raw, iterator_index|
+          @empty = false
 
-        @iterator.each do |raw|
           options = { expanded: expand_diff? }
           options[:generated] = @generated_files.include?(raw.from_path) if @generated_files
 
@@ -173,15 +173,17 @@ module Gitlab
           if raw.overflow_marker
             @overflow = true
             # If we're requesting patches with `collect_all_paths` enabled, then
-            # Once we hit the overflow marker, gitlay has still returned diffs, just without
+            # Once we hit the overflow marker, gitaly has still returned diffs, just without
             # patches, only metadata
             unless @limits[:collect_all_paths]
               break
             end
           end
 
-          yield @array[i] = diff
-          i += 1
+          if iterator_index >= @offset_index
+            @array << diff
+            yield diff
+          end
         end
       end
 

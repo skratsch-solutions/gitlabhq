@@ -123,6 +123,7 @@ RSpec.describe ObjectStorage::DirectUpload, feature_category: :shared do
         expect(s3_config[:Region]).to eq(region)
         expect(s3_config[:PathStyle]).to eq(path_style)
         expect(s3_config[:UseIamProfile]).to eq(use_iam_profile)
+        expect(s3_config[:AwsSDK]).to eq("v2")
         expect(s3_config.keys).not_to include(%i[ServerSideEncryption SSEKMSKeyID])
       end
 
@@ -236,7 +237,7 @@ RSpec.describe ObjectStorage::DirectUpload, feature_category: :shared do
           expect(subject[:GetURL]).to start_with(storage_url)
 
           uri = Addressable::URI.parse(subject[:GetURL])
-          expect(uri.path).to include("tmp/uploads/#{CGI.escape("テスト")}")
+          expect(uri.path).to include("tmp/uploads/#{CGI.escape('テスト')}")
         end
       end
     end

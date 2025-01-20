@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,18 +8,18 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed
 **Status:** Experiment
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/113156) in GitLab 15.10 [with a flag](../../administration/feature_flags.md) named `achievements`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available,
+On GitLab Self-Managed, by default this feature is not available. To make it available,
 an administrator can [enable the feature flag](../../administration/feature_flags.md) named `achievements`.
-This feature is not ready for production use.
 
 Achievements are a way to reward users for their activity on GitLab.
-As a namespace maintainer or owner, you can create custom achievements for specific contributions, which you can award to or revoke from users based on your criteria.
+As a namespace maintainer or owner, you can create custom achievements for specific contributions. You can award these
+achievements to users or revoke them based on defined criteria.
 
 As a user, you can collect achievements to highlight your contributions to different projects or groups on your profile.
 An achievement consists of a name, a description, and an avatar.
@@ -302,6 +302,31 @@ If you don't want to display achievements on your profile, you can opt out. To d
 1. Select **Edit profile**.
 1. In the **Main settings** section, clear the **Display achievements on your profile** checkbox.
 1. Select **Update profile settings**.
+
+## Change visibility of specific achievements
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/161225) in GitLab 17.3.
+
+If you don't want to display all achievements on your profile, you can change the visibility of specific achievements.
+
+To hide one of your achievements, call the [`userAchievementsUpdate` GraphQL mutation](../../api/graphql/reference/index.md#mutationuserachievementsupdate).
+
+```graphql
+mutation {
+  userAchievementsUpdate(input: {
+    userAchievementId: "gid://gitlab/Achievements::UserAchievement/<user achievement id>"
+    showOnProfile: false
+  }) {
+    userAchievement {
+      id
+      showOnProfile
+    }
+    errors
+  }
+}
+```
+
+To show one of your achievements again, call the same mutation with the value `true` for the `showOnProfile` argument.
 
 ## Reorder achievements
 

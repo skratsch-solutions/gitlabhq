@@ -8,9 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Milestones and iterations shown on issue cards [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/25758) in GitLab 16.11.
+> - Ability to delete the last board in a group or project [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/499579) in GitLab 17.6.
+> - Minimum role to manage issue boards [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
 
 The issue board is a software project management tool used to plan,
 organize, and visualize a workflow for a feature or product release.
@@ -77,7 +79,7 @@ GitLab automatically loads the last board you visited.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To create a new issue board:
 
@@ -89,13 +91,15 @@ To create a new issue board:
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
-To delete the currently active issue board:
+To delete the open issue board:
 
 1. In the upper-right corner of the issue board page, select **Configure board** (**{settings}**).
 1. Select **Delete board**.
 1. Select **Delete** to confirm.
+
+If the board you've deleted was the last one, a new `Development` board is created.
 
 ## Issue boards use cases
 
@@ -126,7 +130,7 @@ For example, let's consider this simplified development workflow:
 If you have the labels **Backend**, **Frontend**, **Staging**, and
 **Production**, and an issue board with a list for each, you can:
 
-- Visualize the entire flow of implementations since the beginning of the development life cycle
+- Visualize the entire flow of implementations since the beginning of the development lifecycle
   until deployed to production.
 - Prioritize the issues in a list by moving them vertically.
 - Move issues between lists to organize them according to the labels you've set.
@@ -227,10 +231,10 @@ card includes:
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 When an issue is created, the system assigns a relative order value that is greater than the maximum value
-of that issue's project or root group. This means the issue is at the bottom of any issue list that
+of that issue's project or top-level group. This means the issue is at the bottom of any issue list that
 it appears in.
 
 When you visit a board, issues appear ordered in any list. You're able to change
@@ -270,7 +274,7 @@ advanced functionality is present in [higher tiers only](https://about.gitlab.co
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 An issue board can be associated with a [milestone](milestones/index.md),
 [labels](labels.md), assignee, weight, and current [iteration](../group/iterations/index.md),
@@ -295,7 +299,7 @@ the configurable issue board feature.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The top of each list indicates the sum of issue weights for the issues that
 belong to that list. This is useful when using boards for capacity allocation,
@@ -307,7 +311,7 @@ especially in combination with [assignee lists](#assignee-lists).
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 As in a regular list showing all issues with a chosen label, you can add
 an assignee list that shows all issues assigned to a user.
@@ -315,11 +319,11 @@ You can have a board with both label lists and assignee lists.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To add an assignee list:
 
-1. Select **Create list**.
+1. Select **New list**.
 1. Select **Assignee**.
 1. In the dropdown list, select a user.
 1. Select **Add to board**.
@@ -334,18 +338,18 @@ To remove an assignee list, just as with a label list, select the trash icon.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-You're also able to create lists of a milestone. These are lists that filter issues by the assigned
+You can create milestone lists that filter issues by the assigned
 milestone, giving you more freedom and visibility on the issue board.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To add a milestone list:
 
-1. Select **Create list**.
+1. Select **New list**.
 1. Select **Milestone**.
 1. In the dropdown list, select a milestone.
 1. Select **Add to board**.
@@ -360,17 +364,17 @@ As in other list types, select the trash icon to remove a list.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can create lists of issues in an iteration.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To add an iteration list:
 
-1. Select **Create list**.
+1. Select **New list**.
 1. Select **Iteration**.
 1. In the dropdown list, select an iteration.
 1. Select **Add to board**.
@@ -384,7 +388,7 @@ to and from a iteration list to manipulate the iteration of the dragged issues.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 With swimlanes you can visualize issues grouped by epic.
 Your issue board keeps all the other features, but with a different visual organization of issues.
@@ -395,7 +399,7 @@ For a video overview, see [Epics Swimlanes Walkthrough - 13.6](https://www.youtu
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To group issues by epic in an issue board:
 
@@ -404,33 +408,21 @@ To group issues by epic in an issue board:
 
 ![Epics Swimlanes](img/epics_swimlanes_v17_1.png)
 
-To edit an issue without leaving this view, select the issue card (not its title), and a sidebar
-appears on the right. There you can see and edit the issue's:
+You can then [edit](#edit-an-issue) issues without leaving this view and [drag](#move-issues-and-lists)
+them to change their position and epic assignment:
 
-- Title
-- Assignees
-- [Epic](../group/epics/index.md)
-- Milestone
-- Time tracking value (view only)
-- Due date
-- Labels
-- Weight
-- Notifications setting
-
-You can also [drag issues](#move-issues-and-lists) to change their position and epic assignment:
-
-- To reorder an issue, drag it to the new position within a list.
+- To reorder an issue, drag it to the new position in a list.
 - To assign an issue to another epic, drag it to the epic's horizontal lane.
-- To unassign an issue from an epic, drag it to the **Issues with no epic assigned** lane.
+- To remove an issue from an epic, drag it to the **Issues with no epic assigned** lane.
 - To move an issue to another epic _and_ another list, at the same time, drag the issue diagonally.
 
-![Drag issues between swimlanes](img/epics_swimlanes_drag_and_drop.png)
+![Drag issues between swimlanes](img/epics_swimlanes_drag_and_drop_v13_6.png)
 
 ## Work in progress limits
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can set a work in progress (WIP) limit for each issue list on an issue board. When a limit is
 set, the list's header shows the number of issues in the list and the soft limit of issues. A line in the list separates items within the limit from those in excess of the limit.
@@ -445,7 +437,7 @@ Examples:
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To set a WIP limit for a list, in an issue board:
 
@@ -459,14 +451,14 @@ To set a WIP limit for a list, in an issue board:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If an issue is [blocked by another issue](issues/related_issues.md#blocking-issues), an icon appears next to its title to indicate its blocked
 status.
 
-When you hover over the blocked icon (**{issue-block}**), a detailed information popover is displayed.
+When you hover over the blocked icon (**{entity-blocked}**), a detailed information popover is displayed.
 
-![Blocked issues](img/issue_boards_blocked_icon_v17_1.png)
+![Blocked issues](img/issue_boards_blocked_icon_v17_3.png)
 
 ## Actions you can take on an issue board
 
@@ -488,7 +480,7 @@ To open the right sidebar, select an issue card (not its title).
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 You can edit the following issue attributes in the right sidebar:
 
@@ -506,20 +498,38 @@ You can edit the following issue attributes in the right sidebar:
 
 Additionally, you can also see the time tracking value.
 
+<!-- When issues_list_drawer feature flag is removed, use the info below
+and in issues/managing_issues.md#open-issues-in-a-drawer to update the main topic above -->
+
+If your administrator enabled the [issue drawer](issues/managing_issues.md#open-issues-in-a-drawer),
+when you select an issue card from the issue board, the issue opens in a drawer.
+There, you can edit all the fields, including the description, comments, or related items.
+
 ### Create a new list
 
-To create a new list:
+> - Creating a list between existing lists [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/462515) in GitLab 17.5.
 
-1. Scroll to the right of the board, and then select **New list**.
+You can create a new list between two existing lists or at the right of an issue board.
+
+To create a new list between two lists:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Plan > Issue boards**.
+1. Hover or move keyboard focus between two lists.
+1. Select **New list**.
    The new list panel opens.
 
-   ![creating a new list in an issue board](img/issue_board_add_list_v17_1.png)
+   ![creating a new list between two lists in an issue board](img/issue_board_add_list_between_lists_v17_6.png)
 
-1. Choose the label, user, milestone or iteration to base the new list on.
+1. Choose the label, user, milestone, or iteration to base the new list on.
 1. Select **Add to board**.
 
-The new list is inserted at the right end of the lists, before **Closed**.
+The new list is inserted in the same position on the board as the new list panel.
+
 To move and reorder lists, drag them around.
+
+Alternatively, you can select the **New list** at the right end of the board.
+The new list is inserted at the right end of the lists, before **Closed**.
 
 ### Remove a list
 
@@ -528,7 +538,7 @@ list view that's removed. You can always create it again later if you need.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To remove a list from an issue board:
 
@@ -541,7 +551,7 @@ To remove a list from an issue board:
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 If your board is scoped to one or more attributes, go to the issues you want to add and apply the
 same attributes as your board scope.
@@ -559,7 +569,7 @@ When an issue should no longer belong to a list, you can remove it.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 The steps depend on the scope of the list:
 
@@ -574,7 +584,7 @@ the results you want. It's similar to the filtering used in the [issue tracker](
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 You can filter by the following:
 
@@ -605,7 +615,7 @@ You can move issues and lists by dragging them.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a project in GitLab.
+- You must have at least the Planner role for a project in GitLab.
 
 To move an issue, select the issue card and drag it to another position in its current list or
 into a different list. Learn about possible effects in [Dragging issues between lists](#dragging-issues-between-lists).
@@ -623,7 +633,7 @@ Your issue is moved to the top of the list even if other issues are hidden by a 
 
 Prerequisites:
 
-- You must at least have the Reporter role for the project.
+- You must at least have the Planner role for the project.
 
 To move an issue to the start of the list:
 
@@ -640,7 +650,7 @@ Your issue is moved to the bottom of the list even if other issues are hidden by
 
 Prerequisites:
 
-- You must at least have the Reporter role for the project.
+- You must at least have the Planner role for the project.
 
 To move an issue to the end of the list:
 
@@ -666,7 +676,7 @@ and the target list.
 > - [Moved](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/61955) behind a [feature flag](../feature_flags.md) named `board_multi_select` in GitLab 14.0. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, ask an
+On GitLab Self-Managed, by default this feature is not available. To make it available, ask an
 administrator to [enable the feature flag](../../administration/feature_flags.md) named `board_multi_select`.
 On GitLab.com and GitLab Dedicated, this feature is not available.
 This feature is not ready for production use.
@@ -676,7 +686,7 @@ another list. This makes it faster to reorder many issues at once.
 
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To select and move multiple cards:
 

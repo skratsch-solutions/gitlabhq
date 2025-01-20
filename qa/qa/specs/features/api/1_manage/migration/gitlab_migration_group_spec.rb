@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe "Manage", :blocking, product_group: :import_and_integrate do
+  RSpec.describe "Manage", product_group: :import_and_integrate do
     include_context "with gitlab group migration"
 
-    describe "Gitlab migration" do
+    describe "Gitlab migration", :import, :orchestrated, requires_admin: 'creates a user via API' do
       context 'with subgroups and labels' do
         let(:subgroup) do
           create(:group,
@@ -31,6 +31,10 @@ module QA
 
         it(
           'successfully imports groups and labels',
+          quarantine: {
+            issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/475036',
+            type: :investigating
+          },
           testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347674'
         ) do
           expect_group_import_finished_successfully

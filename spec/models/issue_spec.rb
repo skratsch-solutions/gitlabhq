@@ -10,6 +10,101 @@ RSpec.describe Issue, feature_category: :team_planning do
   let_it_be(:user) { create(:user) }
   let_it_be_with_reload(:reusable_project) { create(:project) }
 
+  before_all do
+    # Ensure support bot user is created so creation doesn't count towards query limit
+    # and we don't try to obtain an exclusive lease within a transaction.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.support_bot_id
+  end
+
+  # TODO: Remove when issues.work_item_type_id cleanup is complete
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/499911
+  describe 'database triggers' do
+    let_it_be(:type1) { create(:work_item_type, :non_default).tap { |type| type.update!(id: -type.id) } }
+    let_it_be(:type2) { create(:work_item_type, :non_default).tap { |type| type.update!(id: -type.id) } }
+
+    context 'when creating an issue' do
+      let(:basic_issue_attributes) do
+        { project_id: reusable_project.id, namespace_id: reusable_project.project_namespace_id }
+      end
+
+      let(:issue) do
+        id = ApplicationRecord.legacy_bulk_insert( # rubocop:disable Gitlab/BulkInsert -- Necessary for raw insert in test
+          described_class.table_name,
+          [basic_issue_attributes.merge(type_attributes)],
+          return_ids: true
+        ).first
+        described_class.find(id)
+      end
+
+      context 'when only work_item_type_id is provided' do
+        let(:type_attributes) { { work_item_type_id: type1.id } }
+
+        it 'sets correct_work_item_type_id with the correct value' do
+          expect(issue.work_item_type_id).to eq(type1.id)
+          expect(issue.correct_work_item_type_id).to eq(type1.correct_id)
+        end
+      end
+
+      context 'when only correct_work_item_type_id is provided' do
+        let(:type_attributes) { { correct_work_item_type_id: type1.correct_id } }
+
+        it 'sets correct_work_item_type_id with the correct value' do
+          expect(issue.work_item_type_id).to eq(type1.id)
+          expect(issue.correct_work_item_type_id).to eq(type1.correct_id)
+        end
+      end
+
+      context 'when both work_item_type_id and correct_work_item_type_id are provided' do
+        let(:type_attributes) { { work_item_type_id: type1.id, correct_work_item_type_id: type2.correct_id } }
+
+        it 'does not overwrite any of the provided values' do
+          expect(issue.attributes['work_item_type_id']).to eq(type1.id)
+          expect(issue.correct_work_item_type_id).to eq(type2.correct_id)
+        end
+      end
+    end
+
+    context 'when updating an issue' do
+      let_it_be_with_reload(:issue) do
+        create(:issue, project: reusable_project, work_item_type: create(:work_item_type, :non_default))
+      end
+
+      context 'when only work_item_type_id is update' do
+        it 'updates correct_work_item_type_id with the correct value' do
+          expect do
+            issue.update_columns(work_item_type_id: type1.id)
+            issue.reload
+          end.to change { issue.work_item_type_id }.to(type1.id).and(
+            change { issue.correct_work_item_type_id }.to(type1.correct_id)
+          )
+        end
+      end
+
+      context 'when only correct_work_item_type_id is update' do
+        it 'updates work_item_type_id with the correct value' do
+          expect do
+            issue.update_columns(correct_work_item_type_id: type1.correct_id)
+            issue.reload
+          end.to change { issue.work_item_type_id }.to(type1.id).and(
+            change { issue.correct_work_item_type_id }.to(type1.correct_id)
+          )
+        end
+      end
+
+      context 'when both work_item_type_id correct_work_item_type_id are updated' do
+        it 'updates both columns with the specified value, no overwrites by the trigger' do
+          expect do
+            issue.update_columns(work_item_type_id: type1.id, correct_work_item_type_id: type2.correct_id)
+            issue.reload
+          end.to change { issue.attributes['work_item_type_id'] }.to(type1.id).and(
+            change { issue.correct_work_item_type_id }.to(type2.correct_id)
+          )
+        end
+      end
+    end
+  end
+
   describe "Associations" do
     it { is_expected.to belong_to(:milestone) }
     it { is_expected.to belong_to(:project) }
@@ -27,8 +122,6 @@ RSpec.describe Issue, feature_category: :team_planning do
     it { is_expected.to have_many(:alert_management_alerts).validate(false) }
     it { is_expected.to have_many(:resource_milestone_events) }
     it { is_expected.to have_many(:resource_state_events) }
-    it { is_expected.to have_and_belong_to_many(:prometheus_alert_events) }
-    it { is_expected.to have_many(:prometheus_alerts) }
     it { is_expected.to have_many(:issue_email_participants) }
     it { is_expected.to have_one(:email) }
     it { is_expected.to have_many(:timelogs).autosave(true) }
@@ -37,6 +130,18 @@ RSpec.describe Issue, feature_category: :team_planning do
     it { is_expected.to have_many(:customer_relations_contacts) }
     it { is_expected.to have_many(:incident_management_timeline_events) }
     it { is_expected.to have_many(:assignment_events).class_name('ResourceEvents::IssueAssignmentEvent').inverse_of(:issue) }
+
+    describe '#assignees_by_name_and_id' do
+      it 'returns users ordered by name ASC, id DESC' do
+        user1 = create(:user, name: 'BBB')
+        user2 = create(:user, name: 'AAA')
+        user3 = create(:user, name: 'BBB')
+        users = [user1, user2, user3]
+        issue = create(:issue, project: reusable_project, assignees: users)
+
+        expect(issue.assignees_by_name_and_id).to match([user2, user3, user1])
+      end
+    end
 
     describe 'versions.most_recent' do
       it 'returns the most recent version' do
@@ -66,10 +171,6 @@ RSpec.describe Issue, feature_category: :team_planning do
       let(:scope_attrs) { { namespace: instance.project.project_namespace } }
       let(:usage) { :issues }
     end
-  end
-
-  describe 'validations' do
-    it { is_expected.to validate_inclusion_of(:confidential).in_array([true, false]) }
   end
 
   describe 'custom validations' do
@@ -236,8 +337,8 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
 
     describe '#ensure_work_item_type' do
-      let_it_be(:issue_type) { create(:work_item_type, :issue, :default) }
-      let_it_be(:incident_type) { create(:work_item_type, :incident, :default) }
+      let_it_be(:issue_type) { create(:work_item_type, :issue) }
+      let_it_be(:incident_type) { create(:work_item_type, :incident) }
       let_it_be(:project) { create(:project) }
 
       context 'when a type was already set' do
@@ -404,6 +505,28 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
   end
 
+  describe '.due_before' do
+    subject { described_class.due_before(Date.current) }
+
+    let!(:issue) { create(:issue, project: reusable_project, due_date: 1.day.ago) }
+    let!(:issue2) { create(:issue, project: reusable_project, due_date: 1.day.from_now) }
+
+    it 'returns issues which are over due' do
+      expect(subject).to contain_exactly(issue)
+    end
+  end
+
+  describe '.due_after' do
+    subject { described_class.due_after(Date.current) }
+
+    let!(:issue) { create(:issue, project: reusable_project, due_date: 1.day.ago) }
+    let!(:issue2) { create(:issue, project: reusable_project, due_date: 1.day.from_now) }
+
+    it 'returns issues which are due in the future' do
+      expect(subject).to contain_exactly(issue2)
+    end
+  end
+
   describe '.simple_sorts' do
     it 'includes all keys' do
       expect(described_class.simple_sorts.keys).to include(
@@ -433,18 +556,18 @@ RSpec.describe Issue, feature_category: :team_planning do
         .to contain_exactly(issue)
     end
 
-    it 'returns issues with the given issue types' do
-      expect(described_class.with_issue_type(%w[issue incident]))
-        .to contain_exactly(issue, incident)
-    end
-
     context 'when multiple issue_types are provided' do
-      it 'joins the work_item_types table for filtering' do
+      it 'returns issues with the given issue types' do
+        expect(described_class.with_issue_type(%w[issue incident]))
+          .to contain_exactly(issue, incident)
+      end
+
+      it 'joins the work_item_types table for filtering with issues.correct_work_item_type_id column' do
         expect do
           described_class.with_issue_type([:issue, :incident]).to_a
         end.to make_queries_matching(
           %r{
-            INNER\sJOIN\s"work_item_types"\sON\s"work_item_types"\."id"\s=\s"issues"\."work_item_type_id"
+            INNER\sJOIN\s"work_item_types"\sON\s"work_item_types"\."correct_id"\s=\s"issues"\."correct_work_item_type_id"
             \sWHERE\s"work_item_types"\."base_type"\sIN\s\(0,\s1\)
           }x
         )
@@ -452,13 +575,14 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
 
     context 'when a single issue_type is provided' do
-      it 'uses an optimized query for a single work item type' do
+      it 'uses an optimized query for a single work item type using issues.correct_work_item_type_id column' do
         expect do
           described_class.with_issue_type([:incident]).to_a
         end.to make_queries_matching(
           %r{
-            WHERE\s\("issues"\."work_item_type_id"\s=
-            \s\(SELECT\s"work_item_types"\."id"\sFROM\s"work_item_types"\sWHERE\s"work_item_types"\."base_type"\s=\s1
+            WHERE\s\("issues"\."correct_work_item_type_id"\s=
+            \s\(SELECT\s"work_item_types"\."correct_id"\sFROM\s"work_item_types"
+            \sWHERE\s"work_item_types"\."base_type"\s=\s1
             \sLIMIT\s1\)\)
           }x
         )
@@ -487,12 +611,12 @@ RSpec.describe Issue, feature_category: :team_planning do
         .to contain_exactly(task)
     end
 
-    it 'uses the work_item_types table for filtering' do
+    it 'uses the work_item_types table and issues.correct_work_item_type_id for filtering' do
       expect do
         described_class.without_issue_type(:issue).to_a
       end.to make_queries_matching(
         %r{
-          INNER\sJOIN\s"work_item_types"\sON\s"work_item_types"\."id"\s=\s"issues"\."work_item_type_id"
+          INNER\sJOIN\s"work_item_types"\sON\s"work_item_types"\."correct_id"\s=\s"issues"\."correct_work_item_type_id"
           \sWHERE\s"work_item_types"\."base_type"\s!=\s0
         }x
       )
@@ -793,7 +917,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       ref(:group_issue) | true  | ref(:user_namespace)                        | ref(:group_issue_full_reference)
       ref(:group_issue) | false | ref(:group)                                 | lazy { "##{issue.iid}" }
       ref(:group_issue) | true  | ref(:group)                                 | ref(:group_issue_full_reference)
-      ref(:group_issue) | false | ref(:parent)                                | lazy { "#{group.path}##{issue.iid}" }
+      ref(:group_issue) | false | ref(:parent)                                | ref(:group_issue_full_reference)
       ref(:group_issue) | true  | ref(:parent)                                | ref(:group_issue_full_reference)
       ref(:group_issue) | false | ref(:project)                               | lazy { "#{group.path}##{issue.iid}" }
       ref(:group_issue) | true  | ref(:project)                               | ref(:group_issue_full_reference)
@@ -1027,6 +1151,32 @@ RSpec.describe Issue, feature_category: :team_planning do
       let(:issue) { create(:issue, project: reusable_project) }
 
       it { is_expected.to be_falsey }
+    end
+  end
+
+  describe '#autoclose_by_merged_closing_merge_request?' do
+    subject { issue.autoclose_by_merged_closing_merge_request? }
+
+    context 'when issue belongs to a group' do
+      let(:issue) { build_stubbed(:issue, :group_level, namespace: build_stubbed(:group)) }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when issue belongs to a project' do
+      let(:issue) { build_stubbed(:issue, project: reusable_project) }
+
+      context 'when autoclose_referenced_issues is enabled for the project' do
+        it { is_expected.to eq(true) }
+      end
+
+      context 'when autoclose_referenced_issues is disabled for the project' do
+        before do
+          issue.project.update!(autoclose_referenced_issues: false)
+        end
+
+        it { is_expected.to eq(false) }
+      end
     end
   end
 
@@ -1589,12 +1739,12 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#publicly_visible?' do
-    let(:project) { build(:project, project_visiblity) }
+    let(:project) { build(:project, project_visibility) }
     let(:issue) { build(:issue, confidential: confidential, project: project) }
 
     subject { issue.send(:publicly_visible?) }
 
-    where(:project_visiblity, :confidential, :expected_value) do
+    where(:project_visibility, :confidential, :expected_value) do
       :public   | false | true
       :public   | true  | false
       :internal | false | false
@@ -1605,6 +1755,28 @@ RSpec.describe Issue, feature_category: :team_planning do
 
     with_them do
       it { is_expected.to eq(expected_value) }
+    end
+
+    context 'with group level issues' do
+      let(:group) { build(:group, group_visibility) }
+      let(:issue) { build(:issue, :group_level, confidential: confidential, namespace: group) }
+
+      before do
+        stub_licensed_features(epics: false)
+      end
+
+      where(:group_visibility, :confidential, :expected_value) do
+        :public   | false | false
+        :public   | true  | false
+        :internal | false | false
+        :internal | true  | false
+        :private  | false | false
+        :private  | true  | false
+      end
+
+      with_them do
+        it { is_expected.to eq(expected_value) }
+      end
     end
   end
 
@@ -1757,11 +1929,12 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '.service_desk' do
-    it 'returns the service desk issue' do
-      service_desk_issue = create(:issue, project: reusable_project, author: ::Users::Internal.support_bot)
-      regular_issue = create(:issue, project: reusable_project)
+    let_it_be(:service_desk_issue) { create(:issue, project: reusable_project, author: ::Users::Internal.support_bot) }
+    let_it_be(:regular_issue) { create(:issue, project: reusable_project) }
+    let_it_be(:ticket) { create(:work_item, :ticket, project: reusable_project, author: user) }
 
-      expect(described_class.service_desk).to include(service_desk_issue)
+    it 'returns the service desk issue and ticket work item' do
+      expect(described_class.service_desk).to contain_exactly(service_desk_issue, described_class.find(ticket.id))
       expect(described_class.service_desk).not_to include(regular_issue)
     end
   end
@@ -1990,6 +2163,25 @@ RSpec.describe Issue, feature_category: :team_planning do
 
       specify do
         expect(issue.supports_time_tracking?).to eq(supports_time_tracking)
+      end
+    end
+  end
+
+  describe '#time_estimate' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:issue) { create(:issue, project: project) }
+
+    context 'when time estimate on the issue record is NULL' do
+      before do
+        issue.update_column(:time_estimate, nil)
+      end
+
+      it 'sets time estimate to zeor on save' do
+        expect(issue.read_attribute(:time_estimate)).to be_nil
+
+        issue.save!
+
+        expect(issue.reload.read_attribute(:time_estimate)).to eq(0)
       end
     end
   end
@@ -2282,7 +2474,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#has_widget?' do
-    let_it_be(:work_item_type) { create(:work_item_type) }
+    let_it_be(:work_item_type) { create(:work_item_type, :non_default) }
     let_it_be_with_reload(:issue) { create(:issue, project: reusable_project, work_item_type: work_item_type) }
 
     # Setting a fixed widget here so we don't get a licensed widget from the list as that could break the specs.
@@ -2300,8 +2492,7 @@ RSpec.describe Issue, feature_category: :team_planning do
         create(
           :widget_definition,
           widget_type: widget_type,
-          work_item_type: work_item_type,
-          namespace: work_item_type.namespace
+          work_item_type: work_item_type
         )
       end
 
@@ -2402,6 +2593,105 @@ RSpec.describe Issue, feature_category: :team_planning do
       let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
       let_it_be(:project_work_item) { create(:work_item, :task, project: reusable_project) }
       let(:field) { :description }
+    end
+  end
+
+  describe '#work_item_type' do
+    let_it_be_with_reload(:issue) { create(:issue, project: reusable_project) }
+
+    it 'uses the correct_work_item_type_id column to fetch the associated type' do
+      expect do
+        issue.work_item_type
+      end.to make_queries_matching(/FROM "work_item_types" WHERE "work_item_types"\."correct_id" =/)
+    end
+  end
+
+  describe '#work_item_type_id' do
+    let_it_be(:work_item_type) { create(:work_item_type, :non_default) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
+
+    it 'returns the correct work_item_types.id value even if the value in the column is wrong' do
+      issue.update_columns(
+        work_item_type_id: non_existing_record_id,
+        correct_work_item_type_id: work_item_type.correct_id
+      )
+
+      expect(issue.work_item_type_id).to eq(work_item_type.id)
+    end
+  end
+
+  describe '#work_item_type_id=', :aggregate_failures do
+    let_it_be(:type1) do
+      create(:work_item_type, :non_default).tap do |type|
+        type.update!(old_id: type.id, id: -type.id, correct_id: type.id * 1000)
+      end
+    end
+
+    it 'assigns correct values if a correct_id is passed' do
+      issue = build(:issue, project: reusable_project, work_item_type: nil)
+
+      expect(issue.work_item_type_id).to be_nil
+      expect(issue.correct_work_item_type_id).to be_nil
+
+      issue.work_item_type_id = type1.correct_id
+
+      expect(issue.work_item_type_id).to eq(type1.id)
+      expect(issue.correct_work_item_type_id).to eq(type1.correct_id)
+    end
+
+    it 'fallbacks to work_item_types.old_id if passed' do
+      issue = build(:issue, project: reusable_project, work_item_type: nil)
+
+      expect(issue.work_item_type_id).to be_nil
+      expect(issue.correct_work_item_type_id).to be_nil
+
+      issue.work_item_type_id = type1.old_id
+
+      expect(issue.work_item_type_id).to eq(type1.id)
+      expect(issue.correct_work_item_type_id).to eq(type1.correct_id)
+    end
+
+    it 'does not assign default type when only setting the correct_work_item_type_id column' do
+      issue = build(:issue, project: reusable_project, work_item_type: nil)
+
+      expect(issue.work_item_type_id).to be_nil
+      expect(issue.correct_work_item_type_id).to be_nil
+
+      issue.work_item_type_id = type1.correct_id
+      issue.save!
+      issue.reload
+
+      expect(issue.work_item_type_id).to eq(type1.id)
+      expect(issue.correct_work_item_type_id).to eq(type1.correct_id)
+    end
+
+    context 'when work_item_type_id does not exist in the DB' do
+      it 'does not set type id values' do
+        issue = build(:issue, project: reusable_project, work_item_type: nil)
+
+        expect(issue.work_item_type_id).to be_nil
+        expect(issue.correct_work_item_type_id).to be_nil
+
+        issue.work_item_type_id = non_existing_record_id
+
+        expect(issue.work_item_type_id).to be_nil
+        expect(issue.correct_work_item_type_id).to be_nil
+      end
+    end
+  end
+
+  describe '#work_item_type=' do
+    it 'also sets correct_work_item_type', :aggregate_failures do
+      issue = build(:issue, project: reusable_project, work_item_type: nil)
+      work_item_type = create(:work_item_type, :non_default)
+
+      expect(issue.work_item_type).to be_nil
+      expect(issue.correct_work_item_type).to be_nil
+
+      issue.work_item_type = work_item_type
+
+      expect(issue.work_item_type).to eq(work_item_type)
+      expect(issue.correct_work_item_type).to eq(work_item_type)
     end
   end
 end

@@ -29,6 +29,7 @@
 # public groups instead, even if `all_available` is set to false.
 class GroupsFinder < UnionFinder
   include CustomAttributesFilter
+  include Namespaces::GroupsFilter
 
   attr_reader :current_user, :params
 
@@ -73,10 +74,12 @@ class GroupsFinder < UnionFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def groups_with_min_access_level
-    current_user
+    inner_query = current_user
       .groups
       .where('members.access_level >= ?', params[:min_access_level])
       .self_and_descendants
+    cte = Gitlab::SQL::CTE.new(:groups_with_min_access_level_cte, inner_query)
+    cte.apply_to(Group.where({}))
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -105,7 +108,15 @@ class GroupsFinder < UnionFinder
     groups = filter_group_ids(groups)
     groups = exclude_group_ids(groups)
     groups = by_visibility(groups)
+    groups = by_ids(groups)
+    groups = top_level_only(groups)
     by_search(groups)
+  end
+
+  def by_ids(items)
+    ids = params[:ids]
+    items = items.id_in(ids) if ids
+    items
   end
 
   def by_organization(groups)
@@ -113,12 +124,6 @@ class GroupsFinder < UnionFinder
     return groups unless organization
 
     groups.in_organization(organization)
-  end
-
-  def by_visibility(groups)
-    return groups unless params[:visibility]
-
-    groups.by_visibility_level(params[:visibility])
   end
 
   def by_parent(groups)
@@ -129,6 +134,10 @@ class GroupsFinder < UnionFinder
     else
       by_parent_children(groups, params[:parent])
     end
+  end
+
+  def top_level_only(groups)
+    params[:top_level_only].present? ? groups.by_parent(nil) : groups
   end
 
   def by_parent_descendants(groups, parent)
@@ -155,28 +164,12 @@ class GroupsFinder < UnionFinder
     groups.id_not_in(params[:exclude_group_ids])
   end
 
-  def by_search(groups)
-    return groups unless params[:search].present?
-
-    groups.search(params[:search], include_parents: params[:parent].blank?)
-  end
-
-  def sort(groups)
-    return groups.order_id_desc unless params[:sort]
-
-    groups.sort_by_attribute(params[:sort])
-  end
-
   def include_parent_shared_groups?
     params.fetch(:include_parent_shared_groups, false)
   end
 
   def include_parent_descendants?
     params.fetch(:include_parent_descendants, false)
-  end
-
-  def min_access_level?
-    current_user && params[:min_access_level].present?
   end
 
   def include_public_groups?

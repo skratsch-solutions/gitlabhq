@@ -8,12 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 When working with Geo, you might encounter the following issues:
 
 - Basic troubleshooting and [common errors](common.md)
 - [Client and HTTP response code errors](client_http.md)
-- [Replication errors](replication.md)
-- [Synchronization errors](synchronization.md)
-- [Failover errors](failover.md)
+- [PostgreSQL replication errors](postgresql_replication.md)
+- [Synchronization and verification errors](synchronization_verification.md)

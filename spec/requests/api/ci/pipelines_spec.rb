@@ -384,6 +384,17 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
         expect(json_response).to be_an Array
       end
 
+      context 'with oauth token that has ai_workflows scope' do
+        let(:token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+        it "allows access", :skip_before_request do
+          get api("/projects/#{project.id}/pipelines/#{pipeline.id}/jobs", oauth_access_token: token), params: query
+          project.update!(public_builds: false)
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
       it 'returns correct values', :aggregate_failures do
         expect(json_response).not_to be_empty
         expect(json_response.first['commit']['id']).to eq project.commit.id
@@ -764,6 +775,10 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
         context 'variables given' do
           let(:variables) { [{ 'variable_type' => 'file', 'key' => 'UPLOAD_TO_S3', 'value' => 'true' }] }
 
+          before do
+            project.update!(ci_pipeline_variables_minimum_override_role: :maintainer)
+          end
+
           it 'creates and returns a new pipeline using the given variables', :aggregate_failures do
             expect do
               post api("/projects/#{project.id}/pipeline", user), params: { ref: project.default_branch, variables: variables }
@@ -783,6 +798,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
           before do
             config = YAML.dump(test: { script: 'test', only: { variables: ['$STAGING'] } })
             stub_ci_pipeline_yaml_file(config)
+            project.update!(ci_pipeline_variables_minimum_override_role: :maintainer)
           end
 
           it 'creates and returns a new pipeline using the given variables', :aggregate_failures do
@@ -871,6 +887,16 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['sha']).to match(/\A\h{40}\z/)
         expect(json_response['name']).to eq('Build pipeline')
+      end
+
+      context 'with oauth token that has ai_workflows scope' do
+        let(:token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+        it "allows access", :skip_before_request do
+          get api("/projects/#{project.id}/pipelines/#{pipeline.id}", oauth_access_token: token)
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
       end
 
       it 'returns 404 when it does not exist', :aggregate_failures do
@@ -1138,6 +1164,13 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
       put api("/projects/#{project.id}/pipelines/#{pipeline.id}/metadata", current_user), params: { name: name }
     end
 
+    it_behaves_like 'enforcing job token policies', :admin_jobs do
+      let(:request) do
+        put api("/projects/#{source_project.id}/pipelines/#{pipeline.id}/metadata"),
+          params: { name: name, job_token: target_job.token }
+      end
+    end
+
     context 'authorized user' do
       let(:current_user) { create(:user) }
 
@@ -1265,11 +1298,7 @@ RSpec.describe API::Ci::Pipelines, feature_category: :continuous_integration do
           expect(json_response['status']).to eq('canceling')
         end
 
-        context 'when ci_canceling_status is disabled' do
-          before do
-            stub_feature_flags(ci_canceling_status: false)
-          end
-
+        context 'when cancel_gracefully is not supported by the runner' do
           it 'cancels builds', :sidekiq_inline do
             post api("/projects/#{project.id}/pipelines/#{pipeline.id}/cancel", user)
 

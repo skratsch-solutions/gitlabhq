@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the group import and export API to export a group structure and import it to a new location.
 When you use the group import and export API with the [project import and export API](project_import_export.md), you can preserve connections with
@@ -48,7 +48,7 @@ POST /groups/:id/export
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer/string | yes      | ID of the group owned by the authenticated user |
+| `id`      | integer/string | yes      | ID of the group |
 
 ```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/1/export"
@@ -70,7 +70,7 @@ GET /groups/:id/export/download
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer/string | yes      | ID of the group owned by the authenticated user |
+| `id`      | integer/string | yes      | ID of the group |
 
 ```shell
 group=1
@@ -97,7 +97,7 @@ returns either:
 The maximum import file size can be set by the Administrator on self-managed instances (default is `0` (unlimited)).
 As an administrator, you can modify the maximum import file size either:
 
-- In the [Admin Area](../administration/settings/import_and_export_settings.md).
+- In the [**Admin** area](../administration/settings/import_and_export_settings.md).
 - By using the `max_import_size` option in the [Application settings API](settings.md#change-application-settings).
 
 For information on the maximum import file size on GitLab.com, see

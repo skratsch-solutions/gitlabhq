@@ -185,9 +185,9 @@ export default {
 
 <template>
   <div>
-    <div class="gl-display-flex gl-align-items-center gl-gap-3">
+    <div class="gl-flex gl-items-center gl-gap-3">
       <!-- hide header when editing, since we then have a form label. Keep it reachable for screenreader nav  -->
-      <h3 :class="{ 'gl-sr-only': isEditing }" class="gl-mb-0! gl-heading-5">
+      <h3 :class="{ 'gl-sr-only': isEditing }" class="gl-heading-5 !gl-mb-0">
         {{ dropdownLabel }}
       </h3>
       <gl-loading-icon v-if="updateInProgress" />
@@ -196,15 +196,15 @@ export default {
         data-testid="edit-button"
         category="tertiary"
         size="small"
-        class="gl-ml-auto shortcut-sidebar-dropdown-toggle"
+        class="shortcut-sidebar-dropdown-toggle gl-ml-auto"
         :disabled="updateInProgress"
         @click="isEditing = true"
         >{{ $options.i18n.editButtonLabel }}</gl-button
       >
     </div>
     <gl-form v-if="isEditing">
-      <div class="gl-display-flex gl-justify-content-space-between gl-align-items-center">
-        <label :for="inputId" class="gl-mb-0! gl-heading-5">{{ dropdownLabel }}</label>
+      <div class="gl-flex gl-items-center gl-justify-between">
+        <label :for="inputId" class="gl-heading-5 !gl-mb-0">{{ dropdownLabel }}</label>
         <gl-button
           data-testid="apply-button"
           category="tertiary"
@@ -229,7 +229,6 @@ export default {
           :header-text="headerText"
           :toggle-text="toggleText"
           :no-results-text="$options.i18n.noMatchingResults"
-          positioning-strategy="fixed"
           :items="listItems"
           :selected="localSelectedItem"
           :reset-button-label="resetButton"
@@ -245,7 +244,7 @@ export default {
             <slot name="list-item" :item="item">{{ item.text }}</slot>
           </template>
           <template v-if="showFooter" #footer>
-            <div class="gl-border-t-solid gl-border-t-1 gl-border-t-gray-200 gl-p-2!">
+            <div class="gl-border-t-1 gl-border-t-dropdown !gl-p-2 gl-border-t-solid">
               <slot name="footer"></slot>
             </div>
           </template>
@@ -254,7 +253,7 @@ export default {
     </gl-form>
     <slot v-else-if="hasValue" name="readonly"></slot>
     <slot v-else name="none">
-      <span class="gl-text-secondary">{{ $options.i18n.none }}</span>
+      <span class="gl-text-subtle">{{ $options.i18n.none }}</span>
     </slot>
   </div>
 </template>

@@ -12,6 +12,7 @@ module Ci
     self.table_name = 'ci_runner_machines'
 
     AVAILABLE_STATUSES = %w[online offline never_contacted stale].freeze
+    AVAILABLE_STATUSES_INCL_DEPRECATED = AVAILABLE_STATUSES
 
     # The `UPDATE_CONTACT_COLUMN_EVERY` defines how often the Runner Machine DB entry can be updated
     UPDATE_CONTACT_COLUMN_EVERY = (40.minutes)..(55.minutes)
@@ -35,12 +36,14 @@ module Ci
 
     EXECUTOR_TYPE_TO_NAMES = EXECUTOR_NAME_TO_TYPES.invert.freeze
 
-    belongs_to :runner
+    belongs_to :runner, class_name: 'Ci::Runner', inverse_of: :runner_managers
 
     enum creation_state: {
       started: 0,
       finished: 100
     }, _suffix: true
+
+    enum runner_type: Runner.runner_types
 
     has_many :runner_manager_builds, inverse_of: :runner_manager, foreign_key: :runner_machine_id,
       class_name: 'Ci::RunnerManagerBuild'
@@ -49,13 +52,17 @@ module Ci
       class_name: 'Ci::RunnerVersion'
 
     validates :runner, presence: true
+    validates :runner_type, presence: true, on: :create
     validates :system_xid, presence: true, length: { maximum: 64 }
+    validates :sharding_key_id, presence: true, on: :create, unless: :instance_type?
     validates :version, length: { maximum: 2048 }
     validates :revision, length: { maximum: 255 }
     validates :platform, length: { maximum: 255 }
     validates :architecture, length: { maximum: 255 }
     validates :ip_address, length: { maximum: 1024 }
     validates :config, json_schema: { filename: 'ci_runner_config' }
+
+    validate :no_sharding_key_id, if: :instance_type?
 
     cached_attr_reader :version, :revision, :platform, :architecture, :ip_address, :contacted_at, :executor_type
 
@@ -66,18 +73,18 @@ module Ci
     scope :stale, -> do
       stale_timestamp = stale_deadline
 
-      created_before_stale_deadline = arel_table[:created_at].lteq(stale_timestamp)
-      contacted_before_stale_deadline = arel_table[:contacted_at].lteq(stale_timestamp)
-
       from_union(
         never_contacted,
-        where(contacted_before_stale_deadline),
+        where(contacted_at: ..stale_timestamp),
         remove_duplicates: false
-      ).where(created_before_stale_deadline)
+      ).where(created_at: ..stale_timestamp)
     end
 
-    scope :for_runner, ->(runner_id) do
-      where(runner_id: runner_id)
+    scope :for_runner, ->(runner) do
+      scope = where(runner_id: runner)
+      scope = scope.where(runner_type: runner.runner_type) if runner.is_a?(Ci::Runner) # Use unique index if possible
+
+      scope
     end
 
     scope :with_system_xid, ->(system_xid) do
@@ -126,13 +133,17 @@ module Ci
         .transform_values { |s| Ci::RunnerVersion.statuses.key(s).to_sym }
     end
 
+    def uncached_contacted_at
+      read_attribute(:contacted_at)
+    end
+
     def heartbeat(values, update_contacted_at: true)
       ##
       # We can safely ignore writes performed by a runner heartbeat. We do
       # not want to upgrade database connection proxy to use the primary
       # database after heartbeat write happens.
       #
-      ::Gitlab::Database::LoadBalancing::Session.without_sticky_writes do
+      ::Gitlab::Database::LoadBalancing::SessionMap.current(load_balancer).without_sticky_writes do
         values = values&.slice(:version, :revision, :platform, :architecture, :ip_address, :config, :executor) || {}
 
         values.merge!(contacted_at: Time.current, creation_state: :finished) if update_contacted_at
@@ -157,7 +168,7 @@ module Ci
       # Use a random threshold to prevent beating DB updates.
       contacted_at_max_age = Random.rand(UPDATE_CONTACT_COLUMN_EVERY)
 
-      real_contacted_at = read_attribute(:contacted_at)
+      real_contacted_at = uncached_contacted_at
       real_contacted_at.nil? ||
         (Time.current - real_contacted_at) >= contacted_at_max_age
     end
@@ -166,6 +177,12 @@ module Ci
       return unless new_version && Gitlab::Ci::RunnerReleases.instance.enabled?
 
       Ci::Runners::ProcessRunnerVersionUpdateWorker.perform_async(new_version)
+    end
+
+    def no_sharding_key_id
+      return if sharding_key_id.nil?
+
+      errors.add(:runner_manager, 'cannot have sharding_key_id assigned')
     end
 
     def self.version_regex_expression_for_version(version)

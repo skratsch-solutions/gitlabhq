@@ -33,9 +33,7 @@ module Issuable
   include Import::HasImportSource
 
   TITLE_LENGTH_MAX = 255
-  TITLE_HTML_LENGTH_MAX = 800
   DESCRIPTION_LENGTH_MAX = 1.megabyte
-  DESCRIPTION_HTML_LENGTH_MAX = 5.megabytes
   SEARCHABLE_FIELDS = %w[title description].freeze
   MAX_NUMBER_OF_ASSIGNEES_OR_REVIEWERS = 200
 
@@ -285,6 +283,27 @@ module Issuable
     # Returns an ActiveRecord::Relation.
     def search(query)
       fuzzy_search(query, [:title])
+    end
+
+    def gfm_autocomplete_search(query)
+      issuables_cte = Gitlab::SQL::CTE.new(table_name, self.without_order)
+
+      search_conditions = unscoped.where(
+        'title ILIKE :pattern',
+        pattern: "%#{sanitize_sql_like(query)}%"
+      )
+
+      if query.match?(/\A\d+\z/)
+        search_conditions = search_conditions.or(
+          unscoped.where('iid::text LIKE :pattern', pattern: "#{query}%")
+        )
+      end
+
+      unscoped
+        .with(issuables_cte.to_arel)
+        .from(issuables_cte.table)
+        .merge(search_conditions)
+        .order(issuables_cte.table[:id].desc)
     end
 
     def available_states
@@ -624,7 +643,7 @@ module Issuable
     includes << :project unless notes.projects_loaded?
     includes << :system_note_metadata unless notes.system_note_metadata_loaded?
 
-    if includes.any?
+    if persisted? && includes.any?
       notes.includes(includes)
     else
       notes
@@ -691,15 +710,15 @@ module Issuable
   end
 
   def old_escalation_status(assoc)
-    @_old_escalation_status ||= assoc.fetch(:escalation_status, escalation_status.status_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables -- This is only used here
+    @_old_escalation_status ||= assoc.fetch(:escalation_status, escalation_status.status_name)
   end
 
   def old_total_time_spent(assoc)
-    @_old_total_time_spent ||= assoc.fetch(:total_time_spent, total_time_spent) # rubocop:disable Gitlab/ModuleWithInstanceVariables -- This is only used here
+    @_old_total_time_spent ||= assoc.fetch(:total_time_spent, total_time_spent)
   end
 
   def old_time_change(assoc)
-    @_old_time_change ||= assoc.fetch(:time_change, time_change) # rubocop:disable Gitlab/ModuleWithInstanceVariables -- This is only used here
+    @_old_time_change ||= assoc.fetch(:time_change, time_change)
   end
 end
 

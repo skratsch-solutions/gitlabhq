@@ -13,10 +13,7 @@ instrumentation_class: RedisHLLMetric
 options:
   events:
     - i_quickactions_ready
-distribution:
-  - ce
-  - ee
-tier:
+tiers:
   - free
   - premium
   - ultimate

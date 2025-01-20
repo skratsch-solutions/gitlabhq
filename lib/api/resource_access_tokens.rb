@@ -112,6 +112,10 @@ module API
             desc: "The expiration date of the token",
             default: PersonalAccessToken::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now,
             documentation: { example: '"2021-01-31' }
+          optional :description,
+            type: String,
+            desc: "Resource access token description",
+            documentation: { example: 'test description' }
           optional :access_level,
             type: Integer,
             values: ALLOWED_RESOURCE_ACCESS_LEVELS.values,
@@ -156,14 +160,14 @@ module API
 
           if token
             response = if source_type == "project"
-                         ::ProjectAccessTokens::RotateService.new(current_user, token, resource)
-                                   .execute(declared_params)
+                         ::ProjectAccessTokens::RotateService.new(
+                           current_user, token, resource, declared_params).execute
                        elsif source_type == "group"
-                         ::GroupAccessTokens::RotateService.new(current_user, token, resource)
-                                   .execute(declared_params)
+                         ::GroupAccessTokens::RotateService.new(
+                           current_user, token, resource, declared_params).execute
                        else
-                         ::PersonalAccessTokens::RotateService.new(current_user, token)
-                                     .execute(declared_params)
+                         ::PersonalAccessTokens::RotateService.new(
+                           current_user, token, nil, declared_params).execute
                        end
 
             if response.success?

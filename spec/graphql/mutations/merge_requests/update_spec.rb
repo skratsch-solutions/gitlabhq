@@ -3,10 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe Mutations::MergeRequests::Update, feature_category: :team_planning do
+  include GraphqlHelpers
+
   let(:merge_request) { create(:merge_request) }
   let(:user) { create(:user) }
+  let(:query) { GraphQL::Query.new(empty_schema, document: nil, context: {}, variables: {}) }
+  let(:context) { GraphQL::Query::Context.new(query: query, values: { current_user: user }) }
 
-  subject(:mutation) { described_class.new(object: nil, context: { current_user: user }, field: nil) }
+  subject(:mutation) { described_class.new(object: nil, context: context, field: nil) }
 
   specify { expect(described_class).to require_graphql_authorizations(:update_merge_request) }
 
@@ -87,6 +91,15 @@ RSpec.describe Mutations::MergeRequests::Update, feature_category: :team_plannin
             expect(mutated_merge_request.time_estimate).to eq(5400)
             expect(subject[:errors]).to be_empty
           end
+        end
+      end
+
+      context 'when optional merge_after field is set' do
+        let(:attributes) { { merge_after: '2025-01-09T20:47:00+0100' } }
+
+        it 'returns a new merge request with merge_after' do
+          expect(mutated_merge_request.merge_schedule.merge_after).to eq('2025-01-09T19:47:00.000Z')
+          expect(subject[:errors]).to be_empty
         end
       end
 

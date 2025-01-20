@@ -15,7 +15,7 @@ export const I18N_CREATE_ERROR = s__(
 );
 
 export const FILTER_CSS_CLASSES =
-  'gl-bg-gray-10 gl-p-5 gl-border-solid gl-border-gray-100 gl-border-0 gl-border-t-1';
+  'gl-bg-gray-10 gl-p-5 gl-border-solid gl-border-default gl-border-0 gl-border-t-1';
 
 // Type
 
@@ -103,10 +103,6 @@ export const I18N_CONTACT_ADMIN_TO_REGISTER = s__(
   'Runners|To register new runners, contact your administrator.',
 );
 
-// No runners found
-export const I18N_NO_RESULTS = s__('Runners|No results found');
-export const I18N_EDIT_YOUR_SEARCH = s__('Runners|Edit your search and try again');
-
 // Runner details
 
 export const JOBS_ROUTE_PATH = '/jobs'; // vue-router route path
@@ -164,7 +160,6 @@ export const STATUS_STALE = 'STALE';
 // CiRunnerJobExecutionStatus
 
 export const JOB_STATUS_ACTIVE = 'ACTIVE';
-export const JOB_STATUS_RUNNING = 'RUNNING';
 export const JOB_STATUS_IDLE = 'IDLE';
 
 // CiRunnerAccessLevel
@@ -201,6 +196,7 @@ export const LINUX_PLATFORM = 'linux';
 export const MACOS_PLATFORM = 'osx';
 export const WINDOWS_PLATFORM = 'windows';
 export const GOOGLE_CLOUD_PLATFORM = 'google_cloud';
+export const GOOGLE_KUBERNETES_ENGINE = 'gke';
 
 // Stages for the google cloud setup
 export const GOOGLE_CLOUD_SETUP_START = 'google_cloud_setup_start';
@@ -220,3 +216,4 @@ export const CHANGELOG_URL = `https://gitlab.com/gitlab-org/gitlab-runner/blob/m
 export const DOCKER_HELP_URL = `${DOCS_URL}/runner/install/docker.html`;
 export const KUBERNETES_HELP_URL = `${DOCS_URL}/runner/install/kubernetes.html`;
 export const RUNNER_MANAGERS_HELP_URL = `${DOCS_URL}/runner/fleet_scaling/#workers-executors-and-autoscaling-capabilities`;
+export const SINGLE_RUNNER_ENTRY_HELP_URL = `${DOCS_URL}/runner/configuration/advanced-configuration#the-runners-section`;

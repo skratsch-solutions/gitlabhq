@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > Support for [GitLab CI/CD job token](../ci/jobs/ci_job_token.md) authentication [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414549) in GitLab 16.2.
 
@@ -22,7 +22,7 @@ GET /projects/:id/deployments
 
 | Attribute         | Type           | Required | Description                                                                                                     |
 |-------------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`              | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`              | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `order_by`        | string         | no       | Return deployments ordered by either one of `id`, `iid`, `created_at`, `updated_at`, `finished_at` or `ref` fields. Default is `id`.    |
 | `sort`            | string         | no       | Return deployments sorted in `asc` or `desc` order. Default is `asc`.                                            |
 | `updated_after`   | datetime       | no       | Return deployments updated after the specified date. Expected in ISO 8601 format (`2019-03-15T08:00:00Z`). |
@@ -200,7 +200,7 @@ GET /projects/:id/deployments/:deployment_id
 
 | Attribute | Type    | Required | Description         |
 |-----------|---------|----------|---------------------|
-| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `deployment_id` | integer | yes      | The ID of the deployment |
 
 ```shell
@@ -334,7 +334,7 @@ POST /projects/:id/deployments
 
 | Attribute     | Type           | Required | Description                                                                                                     |
 |---------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user.|
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths).|
 | `environment` | string         | yes      | The [name of the environment](../ci/environments/index.md) to create the deployment for.                        |
 | `sha`         | string         | yes      | The SHA of the commit that is deployed.                                                                         |
 | `ref`         | string         | yes      | The name of the branch or tag that is deployed.                                                                 |
@@ -392,7 +392,7 @@ PUT /projects/:id/deployments/:deployment_id
 
 | Attribute        | Type           | Required | Description         |
 |------------------|----------------|----------|---------------------|
-| `id`             | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`             | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `deployment_id`  | integer        | yes      | The ID of the deployment to update. |
 | `status`         | string         | yes      | The new status of the deployment. One of `running`, `success`, `failed`, or `canceled`.                         |
 
@@ -462,7 +462,7 @@ DELETE /projects/:id/deployments/:deployment_id
 
 | Attribute | Type    | Required | Description         |
 |-----------|---------|----------|---------------------|
-| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `deployment_id` | integer | yes      | The ID of the deployment |
 
 ```shell
@@ -491,7 +491,7 @@ Example responses:
 
 NOTE:
 Not all deployments can be associated with merge requests. See
-[Track what merge requests were deployed to an environment](../ci/environments/index.md#track-newly-included-merge-requests-per-deployment)
+[Track what merge requests were deployed to an environment](../ci/environments/deployments.md#track-newly-included-merge-requests-per-deployment)
 for more information.
 
 This API retrieves the list of merge requests shipped with a given deployment:
@@ -500,7 +500,7 @@ This API retrieves the list of merge requests shipped with a given deployment:
 GET /projects/:id/deployments/:deployment_id/merge_requests
 ```
 
-It supports the same parameters as the [Merge Requests API](merge_requests.md#list-merge-requests) and returns a response using the same format:
+It supports the same parameters as the [Merge requests API](merge_requests.md#list-merge-requests) and returns a response using the same format:
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments/42/merge_requests"
@@ -510,7 +510,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/a
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/343864) in GitLab 14.7 [with a flag](../administration/feature_flags.md) named `deployment_approvals`. Disabled by default.
 > - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/347342) in GitLab 14.8.
@@ -523,7 +523,7 @@ POST /projects/:id/deployments/:deployment_id/approval
 
 | Attribute       | Type           | Required | Description                                                                                                     |
 |-----------------|----------------|----------|-----------------------------------------------------------------------------------------------------------------|
-| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `deployment_id` | integer        | yes      | The ID of the deployment.                                                                                       |
 | `status`        | string         | yes      | The status of the approval (either `approved` or `rejected`).                                                   |
 | `comment`       | string         | no       | A comment to go with the approval                                                                               |

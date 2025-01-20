@@ -36,14 +36,14 @@ module SidebarsHelper
     Sidebars::Context.new(**context_data, **args)
   end
 
-  def super_sidebar_context(user, group:, project:, panel:, panel_type:) # rubocop:disable Metrics/AbcSize
+  def super_sidebar_context(user, group:, project:, panel:, panel_type:)
     return super_sidebar_logged_out_context(panel: panel, panel_type: panel_type) unless user
 
     super_sidebar_logged_in_context(user, group: group, project: project, panel: panel, panel_type: panel_type)
   end
 
-  def super_sidebar_logged_out_context(panel:, panel_type:) # rubocop:disable Metrics/AbcSize
-    {
+  def super_sidebar_logged_out_context(panel:, panel_type:)
+    super_sidebar_instance_version_data.merge(super_sidebar_whats_new_data).merge({
       is_logged_in: false,
       context_switcher_links: context_switcher_links,
       current_menu_items: panel.super_sidebar_menu_items,
@@ -51,18 +51,15 @@ module SidebarsHelper
       support_path: support_url,
       docs_path: help_docs_path,
       display_whats_new: display_whats_new?,
-      whats_new_most_recent_release_items_count: whats_new_most_recent_release_items_count,
-      whats_new_version_digest: whats_new_version_digest,
       show_version_check: show_version_check?,
-      gitlab_version: Gitlab.version_info,
-      gitlab_version_check: gitlab_version_check,
       search: search_data,
       panel_type: panel_type,
-      shortcut_links: shortcut_links
-    }
+      shortcut_links: shortcut_links,
+      terms: terms_link
+    })
   end
 
-  def super_sidebar_logged_in_context(user, group:, project:, panel:, panel_type:) # rubocop:disable Metrics/AbcSize
+  def super_sidebar_logged_in_context(user, group:, project:, panel:, panel_type:)
     super_sidebar_logged_out_context(panel: panel, panel_type: panel_type).merge({
       is_logged_in: true,
       is_admin: user.can_admin_all_resources?,
@@ -100,7 +97,9 @@ module SidebarsHelper
       sign_out_link: destroy_user_session_path,
       issues_dashboard_path: issues_dashboard_path(assignee_username: user.username),
       merge_request_dashboard_path: user.merge_request_dashboard_enabled? ? merge_requests_dashboard_path : nil,
+
       todos_dashboard_path: dashboard_todos_path,
+
       create_new_menu_groups: create_new_menu_groups(group: group, project: project),
       merge_request_menu: create_merge_request_menu(user),
       projects_path: dashboard_projects_path,
@@ -117,6 +116,24 @@ module SidebarsHelper
       track_visits_path: track_namespace_visits_path,
       work_items: work_items_modal_data(group)
     })
+  end
+
+  def super_sidebar_instance_version_data
+    return {} unless show_version_check?
+
+    {
+      gitlab_version: Gitlab.version_info,
+      gitlab_version_check: gitlab_version_check
+    }
+  end
+
+  def super_sidebar_whats_new_data
+    return {} unless display_whats_new?
+
+    {
+      whats_new_most_recent_release_items_count: whats_new_most_recent_release_items_count,
+      whats_new_version_digest: whats_new_version_digest
+    }
   end
 
   def work_items_modal_data(group)
@@ -149,7 +166,14 @@ module SidebarsHelper
               context = Sidebars::Context.new(current_user: user, container: viewed_user, **context_adds)
               Sidebars::UserProfile::Panel.new(context)
             when 'explore'
-              Sidebars::Explore::Panel.new(Sidebars::Context.new(current_user: user, container: nil, **context_adds))
+              Sidebars::Explore::Panel.new(
+                Sidebars::Context.new(
+                  current_user: user,
+                  container: nil,
+                  current_organization: Current.organization,
+                  **context_adds
+                )
+              )
             when 'search'
               context = Sidebars::Context.new(current_user: user, container: nil, **context_adds)
               Sidebars::Search::Panel.new(context)
@@ -171,7 +195,14 @@ module SidebarsHelper
       context = your_work_sidebar_context(user, **context_adds)
       Sidebars::YourWork::Panel.new(context)
     else
-      Sidebars::Explore::Panel.new(Sidebars::Context.new(current_user: nil, container: nil, **context_adds))
+      Sidebars::Explore::Panel.new(
+        Sidebars::Context.new(
+          current_user: nil,
+          container: nil,
+          current_organization: Current.organization,
+          **context_adds
+        )
+      )
     end
   end
 
@@ -351,6 +382,7 @@ module SidebarsHelper
           id: project.id,
           name: project.name,
           namespace: project.full_name,
+          fullPath: project.full_path,
           webUrl: project_path(project),
           avatarUrl: project.avatar_url
         }
@@ -364,6 +396,7 @@ module SidebarsHelper
           id: group.id,
           name: group.name,
           namespace: group.full_name,
+          fullPath: group.full_path,
           webUrl: group_path(group),
           avatarUrl: group.avatar_url
         }
@@ -381,9 +414,9 @@ module SidebarsHelper
       ({ title: s_('Navigation|Preferences'), link: profile_preferences_path, icon: 'preferences' } if current_user)
     ]
 
-    if current_user&.can_admin_all_resources?
+    if display_admin_area_link?
       links.append(
-        { title: s_('Navigation|Admin Area'), link: admin_root_path, icon: 'admin' }
+        { title: s_('Navigation|Admin area'), link: admin_area_link, icon: 'admin' }
       )
     end
 
@@ -465,6 +498,18 @@ module SidebarsHelper
     else
       []
     end
+  end
+
+  def terms_link
+    Gitlab::CurrentSettings.terms ? '/-/users/terms' : nil
+  end
+
+  def admin_area_link
+    admin_root_path
+  end
+
+  def display_admin_area_link?
+    current_user&.can_admin_all_resources?
   end
 end
 

@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Members are the users and groups who have access to your project.
 
@@ -17,22 +17,19 @@ Each member gets a role, which determines what they can do in the project.
 ## Membership types
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) to display invited group members on the Members tab of the Members page in GitLab 16.10 [with a flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`. Disabled by default.
-> - Feature flag `webui_members_inherited_users` was [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature per user, an administrator can [disable the feature flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`.
-On GitLab.com and GitLab Dedicated, this feature is available.
+> - Feature flag `webui_members_inherited_users` was [enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
+> - Feature flag `webui_members_inherited_users` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163627) in GitLab 17.4. Members of invited groups displayed by default.
 
 Users can become members of a group or project directly or indirectly.
 Indirect membership can be inherited, shared, or inherited shared.
 
 | Membership type                               | Membership process |
 | --------------------------------------------- | ------------------ |
-| [Direct](#add-users-to-a-project)             | The user is added directly to the current group or project. |
-| [Indirect](#indirect-membership)  | The user is not added directly to the current group or project. Instead, the user becomes a member by inheriting from a parent group, or inviting the current group or project to another group. |
-| [Inherited](#inherited-membership)            | The user is a member of a parent group that contains the current group or project. |
-| [Shared](share_project_with_groups.md) | The user is a member of a group or project invited to the current group or project or one of its ancestors. |
-| [Inherited shared](../../group/manage.md#share-a-group-with-another-group) | The user is a member of a parent of a group or project invited to the current group or project. |
+| Direct | The user is added directly to the current group or project. |
+| Inherited | The user is a member of a parent group that contains the current group or project. |
+| [Shared](sharing_projects_groups.md) | The user is a member of a group invited to the current group or project. |
+| [Inherited shared](../members/sharing_projects_groups.md#invite-a-group-to-a-group) | The user is a member of a group invited to an ancestor of the current group or project. |
+| Indirect | An umbrella term for inherited, shared, or inherited shared members. |
 
 ```mermaid
 %%{init: { "fontFamily": "GitLab Sans" }}%%
@@ -62,9 +59,20 @@ flowchart RL
   G-->|Group C invited to Project X|E
 ```
 
+![Project members page](img/project_members_v17_4.png)
+
+In the above example:
+
+- **Administrator** is an inherited member from the **demo** group.
+- **User 0** is an inherited member from the **demo** group.
+- **User 1** is a shared member from the **Acme** group that is invited to this project.
+- **User 2** is an inherited shared member from the **Toolbox** group that is invited to the **demo** group.
+- **User 3** is a direct member added to this project.
+
 ## Add users to a project
 
 > - Expiring access email notification [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.2.
+> - Access expiration date for direct members of subgroups and projects [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/471051) in GitLab 17.4.
 
 Add users to a project so they become direct members and have permission
 to perform actions.
@@ -74,6 +82,7 @@ Prerequisites:
 - You must have the Owner or Maintainer role.
 - [Group membership lock](../../group/access_and_permissions.md#prevent-members-from-being-added-to-projects-in-a-group) must be disabled.
 - If [sign-up is disabled](../../../administration/settings/sign_up_restrictions.md#disable-new-sign-ups), an administrator must add the user by email first.
+- If [approval for role promotion](../../../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) is enabled, an administrator must approve the invite.
 
 To add a user to a project:
 
@@ -93,9 +102,8 @@ To add a user to a project:
    seven days before their access expires.
 
    WARNING:
-   If you give a member the Maintainer role and select an expiration date, that member
-   has full permissions for the time they are in the role. This includes the ability
-   to extend their own time in the Maintainer role.
+   Maintainers have full permissions until their role expires, including the ability to
+   extend their own access expiration date.
 
 1. Select **Invite**.
    If you invited the user using their:
@@ -115,98 +123,28 @@ role for the group. For example, the maximum role you can set is:
 
 The Owner [role](../../permissions.md#project-members-permissions) can be added for the group only.
 
-## Inherited membership
+### View users pending promotion
 
-When your project belongs to a group, project members inherit their role
-from the group.
+If [administrator approval for role promotions](../../../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) is turned on, membership requests that promote existing users into a billable role require administrator approval.
 
-![Project members page](img/project_members_v14_4.png)
-
-In this example:
-
-- Three members have access to the project.
-- **User 0** is a Reporter and has inherited their role in the project from the **demo** group,
-  which contains the project.
-- **User 1** has been added directly to the project. In the **Source** column, they are listed
-  as a **Direct member**.
-- **Administrator** is the [Owner](../../permissions.md) and member of all groups.
-  They have inherited their role in the project from the **demo** group.
-
-If a user is:
-
-- A direct member of a project, the **Expiration** and **Max role** fields can be updated directly on the project.
-- An inherited member from a parent group, the **Expiration** and **Max role** fields must be updated on the parent group that the member originates from.
-
-## Indirect membership
-
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/444476) in GitLab 16.10 [with a flag](../../feature_flags.md) named `webui_members_inherited_users`. Disabled by default.
-> - Feature flag `webui_members_inherited_users` was [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature per user, an administrator can [disable the feature flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`.
-On GitLab.com and GitLab Dedicated, this feature is available.
-
-If your project belongs to a group, the users gain membership to the project through either inheritance from a parent group or through sharing the project or the project's parent group with another group.
-
-![Project members page](img/project_members_v16_10.png)
-
-In this example:
-
-- Three members have access to the project.
-- **User 0** and **User 1** have the Guest role in the project. They have indirect membership through **Twitter** group, which contains the project.
-- **Administrator** is the [Owner](../../permissions.md) of the group.
-
-If a user is:
-
-- A direct member of a project, the **Expiration** and **Max role** fields can be updated directly in the project.
-- An indirect member from a parent group or shared group, the **Expiration** and **Max role** fields must be updated in the group that the member originates from.
-
-## Add groups to a project
-
-> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) to display invited group members on the Members tab of the Members page in GitLab 16.10 [with a flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`. Disabled by default.
-> - Feature flag `webui_members_inherited_users` was [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature per user, an administrator can [disable the feature flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`.
-On GitLab.com and GitLab Dedicated, this feature is available.
-
-When you add a group to a project, every group member (direct or inherited) gets access to the project.
-Each member's access is based on the:
-
-- Role they're assigned in the group.
-- Maximum role you choose when you invite the group.
-
-If a group member has a role in the group with fewer permissions than the maximum project role, the member keeps the permissions of their group role.
-For example, if you add a member with the Guest role to a project with a maximum role of Maintainer, the member has only the permissions of the Guest role in the project.
-
-Prerequisites:
-
-- You must have the Maintainer or Owner role.
-- Sharing the project with other groups must not be [prevented](../../group/access_and_permissions.md#prevent-a-project-from-being-shared-with-groups).
-
-To add a group to a project:
+To view users pending promotion:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Manage > Members**.
-1. Select **Invite a group**.
-1. Select a group.
-1. Select the highest [role](../../permissions.md) for users in the group.
-1. Optional. Select an **Access expiration date**.
-   From that date onward, the group can no longer access the project.
-1. Select **Invite**.
+1. Select **Role promotions** tab.
 
-The invited group is displayed on the **Groups** tab.
-Private groups are masked from unauthorized users.
-Private groups are displayed in project settings for protected branches, protected tags, and protected environments.
-The members of the invited group are not displayed on the **Members** tab, but are displayed if the `webui_members_inherited_users` feature flag is enabled.
-The **Members** tab shows:
+If the **Role promotions** tab is not displayed, the project has no pending promotions.
 
-- Members who were directly added to the project.
-- Inherited members of the group [namespace](../../namespace/index.md) that the project was added to.
+## Updating expiration and role
+
+If a user is:
+
+- A direct member of a project, the **Expiration** and **Role** fields can be updated directly on the project.
+- An inherited, shared, or inherited shared member, the **Expiration** and **Role** fields must be updated on the group that the member originates from.
 
 ## Share a project with a group
 
-Instead of adding users one by one, you can [share a project with an entire group](share_project_with_groups.md).
+Instead of adding users one by one, you can [share a project with an entire group](sharing_projects_groups.md).
 
 ## Import members from another project
 
@@ -220,10 +158,10 @@ Prerequisites:
 
 - You must have the Maintainer or Owner role.
 
-If the importing member's role in the target project is:
+If the importing member's role for the target project is:
 
-- Maintainer, then members with the Owner role in the source project are imported with the Maintainer role.
-- Owner, then members with the Owner role in the source project are imported with the Owner role.
+- Maintainer, then members with the Owner role for the source project are imported with the Maintainer role.
+- Owner, then members with the Owner role for the source project are imported with the Owner role.
 
 To import a project's members:
 
@@ -246,7 +184,7 @@ If a user is:
 Prerequisites:
 
 - To remove direct members that have the:
-  - Maintainer, Developer, Reporter, or Guest role, you must have the Maintainer role.
+  - Maintainer, Developer, Reporter, Planner, or Guest role, you must have the Maintainer role.
   - Owner role, you must have the Owner role.
 - Optional. Unassign the member from all issues and merge requests that
   are assigned to them.
@@ -267,8 +205,8 @@ To remove a member from a project:
 
 ## Ensure removed users cannot invite themselves back
 
-Malicious users with the Maintainer or Owner role could exploit a race condition that allows
-them to invite themselves back to a group or project that a GitLab administrator has removed them from.
+Users with the Maintainer or Owner role could exploit a race condition that allows
+them to rejoin groups or projects after an administrator removes them.
 
 To avoid this problem, GitLab administrators can:
 
@@ -291,11 +229,11 @@ You can filter and sort members in a project.
 1. In the **Filter members** box, select `Membership` `=` `Direct`.
 1. Press <kbd>Enter</kbd>.
 
-### Display inherited members
+### Display indirect members
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Manage > Members**.
-1. In the **Filter members** box, select `Membership` `=` `Inherited`.
+1. In the **Filter members** box, select `Membership` `=` `Indirect`.
 1. Press <kbd>Enter</kbd>.
 
 ### Search for members in a project
@@ -313,7 +251,7 @@ You can sort members in ascending or descending order by:
 
 - **Account** name
 - **Access granted** date
-- **Max role** the members have in the group
+- **Role** the members have in the project
 - **User created** date
 - **Last activity** date
 - **Last sign-in** date
@@ -336,8 +274,7 @@ Up to ten project Maintainers or Owners are notified.
 Any project Owner or Maintainer can approve or decline the request.
 Project Maintainers cannot approve Owner role access requests.
 
-If a project does not have any direct Owners or Maintainers, the notification is sent to the
-most recently active Owners of the project's parent group.
+If a project does not have any direct Owners or Maintainers, the most recently active Owners of the project's parent group receive the notification.
 
 ### Withdraw an access request to a project
 
@@ -354,11 +291,12 @@ You can prevent users from requesting access to a project.
 Prerequisites:
 
 - You must have the Owner role for the project.
+- The project must be public.
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > General**.
 1. Expand **Visibility, project features, permissions**.
-1. Under **Project visibility**, select **Users can request access**.
+1. Under **Project visibility**, ensure the **Users can request access** checkbox is not selected.
 1. Select **Save changes**.
 
 ## Membership and visibility rights

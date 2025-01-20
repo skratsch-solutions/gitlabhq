@@ -1,6 +1,5 @@
 <script>
 import {
-  GlIcon,
   GlLink,
   GlModal,
   GlButton,
@@ -12,7 +11,6 @@ import { TYPE_ISSUE, TYPE_MERGE_REQUEST } from '~/issues/constants';
 import { BV_SHOW_MODAL } from '~/lib/utils/constants';
 import { s__, __ } from '~/locale';
 
-import { HOW_TO_TRACK_TIME } from '../../constants';
 import { timeTrackingQueries } from '../../queries/constants';
 import eventHub from '../../event_hub';
 import TimeTrackingCollapsedState from './collapsed_state.vue';
@@ -30,7 +28,6 @@ export default {
     estimatedOnlyText: s__('TimeTracking|Estimated:'),
   },
   components: {
-    GlIcon,
     GlLink,
     GlModal,
     GlButton,
@@ -105,13 +102,13 @@ export default {
   },
   data() {
     return {
-      showHelp: false,
       timeTracking: {
         ...this.initialTimeTracking,
       },
     };
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     issuableTimeTracking: {
       query() {
         return timeTrackingQueries[this.issuableType].query;
@@ -179,17 +176,8 @@ export default {
     showNoTimeTrackingState() {
       return !this.hasTimeEstimate && !this.hasTotalTimeSpent;
     },
-    showHelpState() {
-      return Boolean(this.showHelp);
-    },
     isTimeReportSupported() {
       return [TYPE_ISSUE, TYPE_MERGE_REQUEST].includes(this.issuableType) && this.issuableId;
-    },
-    timeTrackingIconTitle() {
-      return this.showHelpState ? '' : HOW_TO_TRACK_TIME;
-    },
-    timeTrackingIconName() {
-      return this.showHelpState ? 'close' : 'question-o';
     },
     timeEstimateTooltip() {
       return this.hasTimeEstimate
@@ -228,53 +216,48 @@ export default {
       v-if="showCollapsed"
       :show-comparison-state="showComparisonState"
       :show-no-time-tracking-state="showNoTimeTrackingState"
-      :show-help-state="showHelpState"
       :show-spent-only-state="showSpentOnlyState"
       :show-estimate-only-state="showEstimateOnlyState"
       :time-spent-human-readable="humanTotalTimeSpent"
       :time-estimate-human-readable="humanTimeEstimate"
     />
-    <div
-      class="hide-collapsed gl-leading-20 gl-text-gray-900 gl-display-flex gl-align-items-center gl-font-bold"
-    >
+    <div class="hide-collapsed gl-flex gl-items-center gl-font-bold gl-leading-20 gl-text-default">
       {{ __('Time tracking') }}
       <gl-loading-icon v-if="isTimeTrackingInfoLoading" size="sm" class="gl-ml-2" inline />
-      <div v-if="canSetTimeEstimate || canAddTimeEntries" class="gl-ml-auto gl-display-flex">
+      <div v-if="canSetTimeEstimate || canAddTimeEntries" class="gl-ml-auto gl-flex">
         <gl-button
           v-if="canSetTimeEstimate"
           v-gl-modal="$options.setTimeEstimateModalId"
           v-gl-tooltip.top
           category="tertiary"
+          icon="timer"
           size="small"
           data-testid="set-time-estimate-button"
           :title="timeEstimateTooltip"
           :aria-label="timeEstimateTooltip"
-        >
-          <gl-icon name="timer" class="gl-text-gray-900!" />
-        </gl-button>
+        />
         <gl-button
           v-if="canAddTimeEntries"
           v-gl-tooltip.top
           category="tertiary"
+          icon="plus"
           size="small"
           data-testid="add-time-entry-button"
           :title="__('Add time entry')"
           @click="openRegisterTimeSpentModal()"
-        >
-          <gl-icon name="plus" class="gl-text-gray-900!" />
-        </gl-button>
+        />
       </div>
     </div>
     <div v-if="!isTimeTrackingInfoLoading" class="hide-collapsed">
       <div v-if="showEstimateOnlyState" data-testid="estimateOnlyPane">
-        <span>{{ $options.i18n.estimatedOnlyText }} </span>{{ humanTimeEstimate }}
+        {{ $options.i18n.estimatedOnlyText }} {{ humanTimeEstimate }}
       </div>
       <time-tracking-spent-only-pane
         v-if="showSpentOnlyState"
         :time-spent-human-readable="humanTotalTimeSpent"
       />
       <div v-if="showNoTimeTrackingState" data-testid="noTrackingPane">
-        <span class="gl-text-gray-500">{{ $options.i18n.noTimeTrackingText }}</span>
+        <span class="gl-text-subtle">{{ $options.i18n.noTimeTrackingText }}</span>
       </div>
       <time-tracking-comparison-pane
         v-if="showComparisonState"
@@ -288,7 +271,7 @@ export default {
         <gl-link
           v-if="hasTotalTimeSpent"
           v-gl-modal="'time-tracking-report'"
-          class="gl-text-black-normal"
+          class="gl-text-default"
           data-testid="reportLink"
           href="#"
         >

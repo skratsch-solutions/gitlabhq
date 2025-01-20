@@ -8,6 +8,9 @@
 spec:
   inputs:
     gem_name:
+    bundle_gemfiles:
+      type: array
+      default: ['Gemfile']
     gem_path_prefix:
       default: "gems/"
     skip_gem_validation:
@@ -33,7 +36,7 @@ variables:
 include:
   - local: .gitlab/ci/version.yml
 
-default:
+.default: &default
   tags:
     - gitlab-org
   image: "ruby:${RUBY_VERSION}"
@@ -44,15 +47,25 @@ default:
   before_script:
     - cd $[[inputs.gem_path_prefix]]$[[inputs.gem_name]]
     - ruby -v                                   # Print out ruby version for debugging
+    - gem update --system
     - bundle_version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1 | sed -e 's/[[:space:]]//')
     - gem install bundler --version "$bundle_version" --no-document # Bundler is not installed with the image
     - bundle config                             # Show bundler configuration
     - bundle install --jobs=$(nproc) --retry=3
 
+default:
+  <<: *default
+
 .ruby_matrix:
   parallel:
     matrix:
       - RUBY_VERSION: ["${RUBY_VERSION_DEFAULT}", "${RUBY_VERSION_NEXT}"]
+
+.ruby_on_rails_matrix:
+  parallel:
+    matrix:
+      - RUBY_VERSION: ["${RUBY_VERSION_DEFAULT}", "${RUBY_VERSION_NEXT}"]
+      - BUNDLE_GEMFILE: $[[inputs.bundle_gemfiles]]
 
 validate-gem:
   rules:
@@ -71,7 +84,7 @@ rubocop:
     - bundle exec rubocop
 
 rspec:
-  extends: .ruby_matrix
+  extends: .ruby_on_rails_matrix
   script:
     - RAILS_ENV=test bundle exec rspec
   coverage: '/LOC \((\d+\.\d+%)\) covered.$/'

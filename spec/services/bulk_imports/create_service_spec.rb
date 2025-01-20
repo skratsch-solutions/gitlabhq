@@ -2,13 +2,15 @@
 
 require 'spec_helper'
 
-RSpec.describe BulkImports::CreateService, feature_category: :importers do
+RSpec.describe BulkImports::CreateService, :clean_gitlab_redis_shared_state, feature_category: :importers do
   include GraphqlHelpers
 
   let(:user) { create(:user) }
+  let(:fallback_organization) { create(:organization) }
   let(:credentials) { { url: 'http://gitlab.example', access_token: 'token' } }
   let(:destination_group) { create(:group, path: 'destination1') }
   let(:migrate_projects) { true }
+  let(:migrate_memberships) { true }
   let_it_be(:parent_group) { create(:group, path: 'parent-group') }
   # note: destination_name and destination_slug are currently interchangable so we need to test for both possibilities
   let(:params) do
@@ -18,21 +20,24 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
         source_full_path: 'full/path/to/group1',
         destination_slug: 'destination-group-1',
         destination_namespace: 'parent-group',
-        migrate_projects: migrate_projects
+        migrate_projects: migrate_projects,
+        migrate_memberships: migrate_memberships
       },
       {
         source_type: 'group_entity',
         source_full_path: 'full/path/to/group2',
         destination_name: 'destination-group-2',
         destination_namespace: 'parent-group',
-        migrate_projects: migrate_projects
+        migrate_projects: migrate_projects,
+        migrate_memberships: migrate_memberships
       },
       {
         source_type: 'project_entity',
         source_full_path: 'full/path/to/project1',
         destination_slug: 'destination-project-1',
         destination_namespace: 'parent-group',
-        migrate_projects: migrate_projects
+        migrate_projects: migrate_projects,
+        migrate_memberships: migrate_memberships
       }
     ]
   end
@@ -40,7 +45,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
   let(:source_entity_identifier) { ERB::Util.url_encode(params[0][:source_full_path]) }
   let(:source_entity_type) { BulkImports::CreateService::ENTITY_TYPES_MAPPING.fetch(params[0][:source_type]) }
 
-  subject { described_class.new(user, params, credentials) }
+  subject { described_class.new(user, params, credentials, fallback_organization:) }
 
   describe '#execute' do
     context 'when gitlab version is 15.5 or higher' do
@@ -107,7 +112,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
              .to receive(:execute)
              .and_return(instance_double(GraphQL::Client::Response, original_hash: {
                'data' => { 'group' => { 'id' => 'gid://gitlab/Group/165' } }
-             } ))
+             }))
 
             allow(client).to receive(:parse)
           end
@@ -137,7 +142,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
              .to receive(:execute)
              .and_return(instance_double(GraphQL::Client::Response, original_hash: {
                'data' => { 'group' => { 'id' => 'gid://gitlab/Group/165' } }
-             } ))
+             }))
 
             allow(client).to receive(:parse)
           end
@@ -169,7 +174,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
              .to receive(:execute)
              .and_return(instance_double(GraphQL::Client::Response, original_hash: {
                'data' => { 'group' => { 'id' => 'gid://gitlab/Group/165' } }
-             } ))
+             }))
 
             allow(client).to receive(:parse)
           end
@@ -243,6 +248,44 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
           )
         end
 
+        context 'when a destination_namespace is provided' do
+          it 'uses the organization of the provided namespace for the bulk import entites' do
+            expect { subject.execute }.to change { BulkImports::Entity.count }
+
+            last_bulk_import = BulkImports::Entity.last
+
+            expect(last_bulk_import.organization).to eq(parent_group.organization)
+          end
+        end
+
+        context 'when no destination_namespace is provided' do
+          let(:params) do
+            [
+              {
+                source_type: 'group_entity',
+                source_full_path: 'full/path/to/group1',
+                destination_slug: 'destination-group-1',
+                destination_namespace: '',
+                migrate_projects: migrate_projects
+              }
+            ]
+          end
+
+          it 'uses the fallback_organization for the bulk import entites' do
+            expect { subject.execute }.to change { BulkImports::Entity.count }
+
+            last_bulk_import = BulkImports::Entity.last
+
+            expect(last_bulk_import.organization).to eq(fallback_organization)
+          end
+
+          it 'does not look up the empty namespace' do
+            expect(Group).not_to receive(:find_by_full_path).with('')
+
+            subject.execute
+          end
+        end
+
         context 'on the same instance' do
           before do
             allow(Settings.gitlab).to receive(:base_url).and_return('http://gitlab.example')
@@ -293,6 +336,40 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
             end
           end
         end
+
+        describe 'memberships migration flag' do
+          let(:import) { BulkImport.last }
+
+          context 'when false' do
+            let(:migrate_memberships) { false }
+
+            it 'sets false' do
+              subject.execute
+
+              expect(import.entities.pluck(:migrate_memberships)).to contain_exactly(false, false, false)
+            end
+          end
+
+          context 'when true' do
+            let(:migrate_memberships) { true }
+
+            it 'sets true' do
+              subject.execute
+
+              expect(import.entities.pluck(:migrate_memberships)).to contain_exactly(true, true, true)
+            end
+          end
+
+          context 'when nil' do
+            let(:migrate_memberships) { nil }
+
+            it 'sets true' do
+              subject.execute
+
+              expect(import.entities.pluck(:migrate_memberships)).to contain_exactly(true, true, true)
+            end
+          end
+        end
       end
     end
 
@@ -314,7 +391,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
              .to receive(:execute)
              .and_return(instance_double(GraphQL::Client::Response, original_hash: {
                'data' => { 'group' => { 'id' => 'gid://gitlab/Group/165' } }
-             } ))
+             }))
 
             allow(client).to receive(:parse)
           end
@@ -330,7 +407,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
             .to receive(:execute)
             .and_return(instance_double(GraphQL::Client::Response, original_hash: {
               'data' => { 'group' => { 'id' => 'gid://gitlab/Group/165' } }
-            } ))
+            }))
 
           allow(client).to receive(:parse)
         end
@@ -367,6 +444,48 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
           user: user,
           extra: { user_role: 'Owner', import_type: 'bulk_import_group' }
         )
+      end
+
+      it 'enables importer_user_mapping' do
+        subject.execute
+
+        expect(Import::BulkImports::EphemeralData.new(BulkImport.last.id).importer_user_mapping_enabled?).to eq(true)
+      end
+
+      it 'enqueues SourceUsersAttributesWorker' do
+        expect(Import::BulkImports::SourceUsersAttributesWorker).to receive(:perform_async)
+
+        subject.execute
+      end
+
+      context 'when importer_user_mapping feature flag is disable' do
+        before do
+          stub_feature_flags(importer_user_mapping: false)
+        end
+
+        it 'does not enable importer_user_mapping' do
+          subject.execute
+
+          expect(Import::BulkImports::EphemeralData.new(BulkImport.last.id).importer_user_mapping_enabled?).to eq(false)
+        end
+
+        it 'does not enqueue SourceUsersAttributesWorker' do
+          expect(Import::BulkImports::SourceUsersAttributesWorker).not_to receive(:perform_async)
+
+          subject.execute
+        end
+      end
+
+      context 'when bulk_import_importer_user_mapping feature flag is disable' do
+        before do
+          stub_feature_flags(bulk_import_importer_user_mapping: false)
+        end
+
+        it 'does not enable importer_user_mapping' do
+          subject.execute
+
+          expect(Import::BulkImports::EphemeralData.new(BulkImport.last.id).importer_user_mapping_enabled?).to eq(false)
+        end
       end
 
       context 'on the same instance' do
@@ -423,7 +542,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
 
       describe '#user-role' do
         context 'when there is a parent_namespace and the user is a member' do
-          let(:group2) { create(:group, path: 'destination200', source_id: parent_group.id ) }
+          let(:group2) { create(:group, path: 'destination200', source_id: parent_group.id) }
           let(:params) do
             [
               {
@@ -628,7 +747,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                 source_full_path: 'full/path/to/source',
                 destination_slug: 'destination-slug',
                 destination_namespace: 'destination-namespace',
-                migrate_projects: migrate_projects
+                migrate_projects: migrate_projects,
+                migrate_memberships: migrate_memberships
               }
             ]
           end
@@ -652,7 +772,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                 source_full_path: 'full/path/to/source',
                 destination_slug: 'destination-slug',
                 destination_namespace: parent_group.path,
-                migrate_projects: migrate_projects
+                migrate_projects: migrate_projects,
+                migrate_memberships: migrate_memberships
               }
             ]
           end
@@ -678,7 +799,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                 source_full_path: 'full/path/to/source',
                 destination_slug: 'destination-slug',
                 destination_namespace: parent_group.path,
-                migrate_projects: migrate_projects
+                migrate_projects: migrate_projects,
+                migrate_memberships: migrate_memberships
               }
             ]
           end
@@ -706,7 +828,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                 source_full_path: 'full/path/to/source',
                 destination_slug: 'destin-*-ation-slug',
                 destination_namespace: parent_group.path,
-                migrate_projects: migrate_projects
+                migrate_projects: migrate_projects,
+                migrate_memberships: migrate_memberships
               }
             ]
           end
@@ -733,8 +856,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
 
         context 'when the source_type is a group' do
           context 'when the provided destination_slug already exists in the destination_namespace' do
-            let_it_be(:existing_subgroup) { create(:group, path: 'existing-subgroup', parent_id: parent_group.id ) }
-            let_it_be(:existing_subgroup_2) { create(:group, path: 'existing-subgroup_2', parent_id: parent_group.id ) }
+            let_it_be(:existing_subgroup) { create(:group, path: 'existing-subgroup', parent_id: parent_group.id) }
+            let_it_be(:existing_subgroup_2) { create(:group, path: 'existing-subgroup_2', parent_id: parent_group.id) }
             let(:params) do
               [
                 {
@@ -742,7 +865,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                   source_full_path: 'full/path/to/source',
                   destination_slug: existing_subgroup.path,
                   destination_namespace: parent_group.path,
-                  migrate_projects: migrate_projects
+                  migrate_projects: migrate_projects,
+                  migrate_memberships: migrate_memberships
                 }
               ]
             end
@@ -769,7 +893,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                   source_full_path: 'full/path/to/source',
                   destination_slug: existing_top_level_group.path,
                   destination_namespace: '',
-                  migrate_projects: migrate_projects
+                  migrate_projects: migrate_projects,
+                  migrate_memberships: migrate_memberships
                 }
               ]
             end
@@ -795,7 +920,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                   source_full_path: 'full/path/to/source',
                   destination_slug: 'new-group',
                   destination_namespace: parent_group.path,
-                  migrate_projects: migrate_projects
+                  migrate_projects: migrate_projects,
+                  migrate_memberships: migrate_memberships
                 }
               ]
             end
@@ -811,8 +937,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
 
         context 'when the source_type is a project' do
           context 'when the provided destination_slug already exists in the destination_namespace' do
-            let_it_be(:existing_group) { create(:group, path: 'existing-group' ) }
-            let_it_be(:existing_project) { create(:project, path: 'existing-project', parent_id: existing_group.id ) }
+            let_it_be(:existing_group) { create(:group, path: 'existing-group') }
+            let_it_be(:existing_project) { create(:project, path: 'existing-project', parent_id: existing_group.id) }
             let(:params) do
               [
                 {
@@ -820,7 +946,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                   source_full_path: 'full/path/to/source',
                   destination_slug: existing_project.path,
                   destination_namespace: existing_group.path,
-                  migrate_projects: migrate_projects
+                  migrate_projects: migrate_projects,
+                  migrate_memberships: migrate_memberships
                 }
               ]
             end
@@ -841,7 +968,7 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
           end
 
           context 'when the destination_slug does not conflict with an existing project' do
-            let_it_be(:existing_group) { create(:group, path: 'existing-group' ) }
+            let_it_be(:existing_group) { create(:group, path: 'existing-group') }
             let(:params) do
               [
                 {
@@ -849,7 +976,8 @@ RSpec.describe BulkImports::CreateService, feature_category: :importers do
                   source_full_path: 'full/path/to/source',
                   destination_slug: 'new-project',
                   destination_namespace: 'existing-group',
-                  migrate_projects: migrate_projects
+                  migrate_projects: migrate_projects,
+                  migrate_memberships: migrate_memberships
                 }
               ]
             end

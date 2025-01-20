@@ -166,14 +166,33 @@ usually a good idea.
 - [Example 1](https://gitlab.com/gitlab-org/gitlab/-/issues/363214): The runner is under heavy load at this time.
 - [Example 2](https://gitlab.com/gitlab-org/gitlab/-/issues/360559): The runner is having networking issues, making a job failing early
 
+#### Improper Synchronization
+
+**Label:** `flaky-test::improper synchronization`
+
+**Description:** A flaky test issue arising from timing-related factors, such as delays, eventual consistency, asynchronous operations, or race conditions.
+These issues may stem from shortcomings in the test logic, the system under test, or their interaction.
+While tests can sometimes address these issues through improved synchronization, they may also reveal underlying system bugs that require resolution.
+
+**Difficulty to reproduce:** Moderate. It can be reproduced, for example, in feature tests by attempting to reference an
+element on a page that is not yet rendered, or in unit tests by failing to wait for an asynchronous operation to complete.
+
+**Resolution:** In the end-to-end test suite, using [an eventually matcher](end_to_end/best_practices/index.md#use-eventually_-matchers-for-expectations-that-require-waiting).
+
+**Examples:**
+
+- [Example 1](https://gitlab.com/gitlab-org/gitlab/-/issues/502844): Text was not appearing on a page in time.
+- [Example 2](https://gitlab.com/gitlab-org/gitlab/-/issues/496393): Text was not appearing on a page in time.
+
 ### How to reproduce a flaky test locally?
 
 1. Reproduce the failure locally
    - Find RSpec `seed` from the CI job log
    - OR Run `while :; do bin/rspec <spec> || break; done` in a loop to find a `seed`
-1. Reduce the examples by bisecting the spec failure with `bin/rspec --seed <previously found> --bisect <spec>`
+1. Reduce the examples by bisecting the spec failure with
+   `bin/rspec --seed <previously found> --require ./config/initializers/macos.rb --bisect <spec>`
 1. Look at the remaining examples and watch for state leakage
-    - e.g. Updating records created with `let_it_be` is a common source of problems
+   - e.g. Updating records created with `let_it_be` is a common source of problems
 1. Once fixed, rerun the specs with `seed`
 1. Run `scripts/rspec_check_order_dependence` to ensure the spec can be run in [random order](best_practices.md#test-order)
 1. Run `while :; do bin/rspec <spec> || break; done` in a loop again (and grab lunch) to verify it's no longer flaky
@@ -208,17 +227,47 @@ Then, you can use the `quarantine: '<issue url>'` metadata with the URL of the
 ~"failure::flaky-test" issue you created previously.
 
 ```ruby
+# Quarantine a single spec
 it 'succeeds', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/12345' do
   expect(response).to have_gitlab_http_status(:ok)
 end
+
+# Quarantine a describe/context block
+describe '#flaky-method', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/12345' do
+  [...]
+end
 ```
 
-This means it is skipped in CI. By default, the quarantined tests will run locally.
+This means it will be skipped in CI. By default, the quarantined tests will run locally.
 
 We can skip them in local development as well by running with `--tag ~quarantine`:
 
 ```shell
+# Bash
 bin/rspec --tag ~quarantine
+
+# ZSH
+bin/rspec --tag \~quarantine
+```
+
+Also, please ensure that:
+
+1. The ~"quarantine" label is present on the merge request.
+1. The MR description mentions the flaky test issue with [the usual terms to link a merge request to an issue](https://gitlab.com/gitlab-org/quality/triage-ops/-/blob/8b8621ba5c0db3c044a771ebf84887a0a07353b3/triage/triage/related_issue_finder.rb#L8-18).
+
+Note that we [should not quarantine a shared example/context](https://gitlab.com/gitlab-org/gitlab/-/issues/404388), and [we cannot quarantine a call to `it_behaves_like` or `include_examples`](https://github.com/rspec/rspec-core/pull/2307#issuecomment-236006902):
+
+```ruby
+# Will be flagged by Rubocop
+shared_examples 'loads all the users when opened', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/12345' do
+  [...]
+end
+
+# Does not work
+it_behaves_like 'a shared example', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/12345'
+
+# Does not work
+include_examples 'a shared example', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/12345'
 ```
 
 After the long-term quarantining MR has reached production, you should revert the fast-quarantine MR you created earlier.
@@ -304,11 +353,14 @@ once per day, for monitoring with the
 
 #### Order-dependent flaky tests
 
-These flaky tests can fail depending on the order they run with other tests. For example:
+To identify ordering issues in a single file read about
+[how to reproduce a flaky test locally](#how-to-reproduce-a-flaky-test-locally).
+
+Some flaky tests can fail depending on the order they run with other tests. For example:
 
 - <https://gitlab.com/gitlab-org/gitlab/-/issues/327668>
 
-To identify the tests that lead to such failure, we can use `scripts/rspec_bisect_flaky`,
+To identify the ordering issues across different files, you can use `scripts/rspec_bisect_flaky`,
 which would give us the minimal test combination to reproduce the failure:
 
 1. First obtain the list of specs that ran before the flaky test. You can search
@@ -359,9 +411,36 @@ reproduction.
 
 #### Hanging specs
 
-If a spec hangs, it might be caused by a [bug in Rails](https://github.com/rails/rails/issues/45994):
+If a spec hangs, or times out in CI, it might be caused by a
+[LoadInterlockAwareMonitor deadlock bug in Rails](https://github.com/rails/rails/issues/45994).
+
+To diagnose, you can use
+[sigdump](https://github.com/fluent/sigdump/blob/master/README.md#usage)
+to print the Ruby thread dump :
+
+1. Run the hanging spec locally.
+1. Trigger the Ruby thread dump by running this command:
+
+   ```shell
+   kill -CONT <pid>
+   ```
+
+1. The thread dump will be saved to the `/tmp/sigdump-<pid>.log` file.
+
+If you see lines with `load_interlock_aware_monitor.rb`, this is likely related:
+
+```shell
+/builds/gitlab-org/gitlab/vendor/ruby/3.2.0/gems/activesupport-7.0.8.4/lib/active_support/concurrency/load_interlock_aware_monitor.rb:17:in `mon_enter'
+/builds/gitlab-org/gitlab/vendor/ruby/3.2.0/gems/activesupport-7.0.8.4/lib/active_support/concurrency/load_interlock_aware_monitor.rb:22:in `block in synchronize'
+/builds/gitlab-org/gitlab/vendor/ruby/3.2.0/gems/activesupport-7.0.8.4/lib/active_support/concurrency/load_interlock_aware_monitor.rb:21:in `handle_interrupt'
+/builds/gitlab-org/gitlab/vendor/ruby/3.2.0/gems/activesupport-7.0.8.4/lib/active_support/concurrency/load_interlock_aware_monitor.rb:21:in `synchronize'
+```
+
+See examples where we worked around by creating the factories before making
+requests:
 
 - <https://gitlab.com/gitlab-org/gitlab/-/merge_requests/81112>
+- <https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158890>
 - <https://gitlab.com/gitlab-org/gitlab/-/issues/337039>
 
 ### Suggestions
@@ -380,6 +459,15 @@ Reproducing a job failure in CI always helps with troubleshooting why and how a 
 1. Skip the tests in `spec/tooling/lib/tooling/parallel_rspec_runner_spec.rb` so it doesn't cause your pipeline to fail early.
 1. Since we want to force the pipeline to run against a specific version, we do not want to run a merged results pipeline. We can introduce a merge conflict into the MR to achieve this.
 1. To preserve spec ordering, update the `spec/support/rspec_order.rb` file by hard coding `Kernel.srand` with the value shown in the originally failing job, as done [here](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/128428/diffs#32f6fa4961481518204e227252552dba7483c3b0_62_62). You can fine the srand value in the job log by searching `Randomized with seed` which is followed by this value.
+
+### Metrics & Tracking
+
+- [(Snowflake) Flaky tests Dashboard](https://app.snowflake.com/ys68254/gitlab/#/flaky-tests-dcwtdvVO6) (internal)
+- [(Snowflake) Unhealthy tests Dashboard](https://app.snowflake.com/ys68254/gitlab/#/dx-unhealthy-tests-d9MEFZz14) (internal)
+- [(GitLab) GitLab.org Group Flaky Test Issue Board](https://gitlab.com/groups/gitlab-org/-/boards/1487067?label_name%5B%5D=failure::flaky-test)
+- [(GitLab) "Most flaky tests" Issue Board](https://gitlab.com/groups/gitlab-org/-/boards/7518854?label_name%5B%5D=flakiness::1)
+- [(Grafana) End-to-end test flakiness Dashboard](https://dashboards.quality.gitlab.net/d/tR_SmBDVk/main-runs?orgId=1) (internal)
+- [(Tableau) Flaky test issues](https://10az.online.tableau.com/#/site/gitlab/workbooks/2283052/views) (internal)
 
 ### Resources
 
@@ -406,6 +494,13 @@ For tests that are slow for a legitimate reason and to skip issue creation, add 
 | :-: | :-: | :-: | :-: | :-: | :-: |
 | 2023-02-15 | 67.42 seconds | 44.66 seconds | - | 76.86 seconds | Top slow test eliminating the maximum |
 | 2023-06-15 | 50.13 seconds | 19.20 seconds | 27.12 | 45.40 seconds | Avg for top 100 slow tests|
+
+## Handling issues for flaky or slow tests
+
+The process around these issues is very lightweight. Feel free to close them or not, they're [managed automatically](https://gitlab.com/gitlab-org/ruby/gems/gitlab_quality-test_tooling/-/blob/main/lib/gitlab_quality/test_tooling/report/flaky_test_issue.rb):
+
+- If a flaky or slow test is fixed and the associated `[Test]` issue isn't closed manually, it will be closed automatically after [30 days of inactivity](https://gitlab.com/gitlab-org/quality/triage-ops/-/blob/master/policies/stages/hygiene/close-stale-unhealthy-test-issues.yml).
+- If the problem reoccurs, the closed issue is reopened automatically. This means, it is also okay to close an issue when you think you fixed it.
 
 ---
 

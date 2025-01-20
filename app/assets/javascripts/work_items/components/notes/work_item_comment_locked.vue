@@ -23,7 +23,7 @@ export default {
     },
   },
   constantOptions: {
-    archivedProjectDocsPath: helpPagePath('user/project/settings/index.md', {
+    archivedProjectDocsPath: helpPagePath('user/project/working_with_projects', {
       anchor: 'archive-a-project',
     }),
     lockedIssueDocsPath: helpPagePath('user/discussions/index.md', {
@@ -48,7 +48,7 @@ export default {
 </script>
 
 <template>
-  <div class="issuable-note-warning gl-relative gl-py-4 gl-rounded-base">
+  <div class="issuable-note-warning gl-relative gl-rounded-base gl-py-4">
     <gl-icon name="lock" class="gl-mr-2" />
     <template v-if="isProjectArchived">
       {{ $options.constantOptions.projectArchivedWarning }}

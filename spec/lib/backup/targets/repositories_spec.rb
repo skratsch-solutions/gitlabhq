@@ -76,7 +76,7 @@ RSpec.describe Backup::Targets::Repositories, feature_category: :backup_restore 
       end
 
       create_list(:project, 2, :repository)
-      create_list(:snippet, 2, :repository)
+      create_list(:personal_snippet, 2, :repository)
 
       # Number of expected queries are 2 more than control.count
       # to account for the queries for project.design_management_repository
@@ -231,6 +231,15 @@ RSpec.describe Backup::Targets::Repositories, feature_category: :backup_restore 
       expect(strategy).to have_received(:enqueue).with(project_snippet, Gitlab::GlRepository::SNIPPET)
       expect(strategy).to have_received(:enqueue).with(personal_snippet, Gitlab::GlRepository::SNIPPET)
       expect(strategy).to have_received(:finish!)
+    end
+
+    it 'logs an error if gitaly-backup exits with non-zero error code' do
+      expect(strategy).to receive(:finish!).and_raise(::Backup::Error, 'gitaly-backup exit status 1')
+
+      allow(repositories).to receive(:logger).and_return(Gitlab::BackupLogger)
+
+      expect(Gitlab::BackupLogger).to receive(:error).with('gitaly-backup exit status 1')
+      repositories.restore(destination, backup_id)
     end
 
     context 'when restoring object pools' do

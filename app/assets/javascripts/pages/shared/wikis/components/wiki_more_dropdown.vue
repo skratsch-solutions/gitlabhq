@@ -107,19 +107,20 @@ export default {
     placement="bottom-end"
     no-caret
     data-testid="wiki-more-dropdown"
+    class="print:gl-hidden"
     @shown="showDropdown"
     @hidden="hideDropdown"
   >
     <gl-disclosure-dropdown-item v-if="newUrl" :item="newItem">
       <template #list-item>
-        <gl-icon name="plus" class="gl-mr-2 gl-text-secondary" />
+        <gl-icon name="plus" class="gl-mr-2" variant="subtle" />
         {{ newItem.text }}
       </template>
     </gl-disclosure-dropdown-item>
 
     <gl-disclosure-dropdown-item v-if="templatesUrl" :item="templateItem">
       <template #list-item>
-        <gl-icon name="template" class="gl-mr-2 gl-text-secondary" />
+        <gl-icon name="template" class="gl-mr-2" variant="subtle" />
         {{ templateItem.text }}
       </template>
     </gl-disclosure-dropdown-item>
@@ -129,13 +130,17 @@ export default {
     <gl-disclosure-dropdown-group v-if="historyUrl || showPrintItem" bordered>
       <gl-disclosure-dropdown-item v-if="historyUrl" :item="historyItem">
         <template #list-item>
-          <gl-icon name="history" class="gl-mr-2 gl-text-secondary" />
+          <gl-icon name="history" class="gl-mr-2" variant="subtle" />
           {{ historyItem.text }}
         </template>
       </gl-disclosure-dropdown-item>
-      <gl-disclosure-dropdown-item v-if="showPrintItem" :item="printItem">
+      <gl-disclosure-dropdown-item
+        v-if="showPrintItem"
+        :item="printItem"
+        data-event-tracking="click_print_as_pdf_in_wiki_page"
+      >
         <template #list-item>
-          <gl-icon name="document" class="gl-mr-2 gl-text-secondary" />
+          <gl-icon name="document" class="gl-mr-2" variant="subtle" />
           {{ printItem.text }}
         </template>
       </gl-disclosure-dropdown-item>

@@ -1,69 +1,60 @@
 <script>
-import { GlLink, GlIcon, GlTooltipDirective } from '@gitlab/ui';
+import { GlIcon } from '@gitlab/ui';
 import { STATUS_CLOSED } from '~/issues/constants';
-import {
-  dateInWords,
-  getTimeRemainingInWords,
-  humanTimeframe,
-  isInFuture,
-  isInPast,
-  isToday,
-  newDateAsLocaleTime,
-} from '~/lib/utils/datetime_utility';
+import { humanTimeframe, isInPast, localeDateFormat, newDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
 import { STATE_CLOSED } from '~/work_items/constants';
 import { isMilestoneWidget, isStartAndDueDateWidget } from '~/work_items/utils';
+import IssuableMilestone from '~/vue_shared/issuable/list/components/issuable_milestone.vue';
+import WorkItemAttribute from '~/vue_shared/components/work_item_attribute.vue';
 
 export default {
   components: {
-    GlLink,
+    IssuableMilestone,
+    WorkItemAttribute,
     GlIcon,
-  },
-  directives: {
-    GlTooltip: GlTooltipDirective,
   },
   props: {
     issue: {
       type: Object,
       required: true,
     },
+    isWorkItemList: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   computed: {
     milestone() {
       return this.issue.milestone || this.issue.widgets?.find(isMilestoneWidget)?.milestone;
-    },
-    milestoneDate() {
-      if (this.milestone.dueDate) {
-        const { dueDate, startDate } = this.milestone;
-        const date = dateInWords(newDateAsLocaleTime(dueDate), true);
-        const remainingTime = this.milestoneRemainingTime(dueDate, startDate);
-        return `${date} (${remainingTime})`;
-      }
-      return __('Milestone');
-    },
-    milestoneLink() {
-      return this.milestone.webPath || this.milestone.webUrl;
     },
     dueDate() {
       return this.issue.dueDate || this.issue.widgets?.find(isStartAndDueDateWidget)?.dueDate;
     },
     dueDateText() {
       if (this.startDate) {
-        return humanTimeframe(this.startDate, this.dueDate);
+        return humanTimeframe(newDate(this.startDate), newDate(this.dueDate));
       }
       if (this.dueDate) {
-        return dateInWords(newDateAsLocaleTime(this.dueDate), true);
+        return localeDateFormat.asDate.format(newDate(this.dueDate));
       }
       return null;
     },
     isClosed() {
       return this.issue.state === STATUS_CLOSED || this.issue.state === STATE_CLOSED;
     },
-    showDueDateInRed() {
+    isOverdue() {
       if (!this.dueDate) {
         return false;
       }
-      return isInPast(newDateAsLocaleTime(this.dueDate)) && !this.isClosed;
+      return isInPast(newDate(this.dueDate)) && !this.isClosed;
+    },
+    dueDateTitle() {
+      return this.isOverdue ? `${__('Due date')} (${__('overdue')})` : __('Due date');
+    },
+    dateIcon() {
+      return this.isOverdue ? 'calendar-overdue' : 'calendar';
     },
     startDate() {
       return this.issue.widgets?.find(isStartAndDueDateWidget)?.startDate;
@@ -72,67 +63,36 @@ export default {
       return this.issue.humanTimeEstimate || this.issue.timeStats?.humanTimeEstimate;
     },
   },
-  methods: {
-    milestoneRemainingTime(dueDate, startDate) {
-      const due = newDateAsLocaleTime(dueDate);
-      const start = newDateAsLocaleTime(startDate);
-
-      if (dueDate && isInPast(due)) {
-        return __('Past due');
-      }
-      if (dueDate && isToday(due)) {
-        return __('Today');
-      }
-      if (startDate && isInFuture(start)) {
-        return __('Upcoming');
-      }
-      if (dueDate) {
-        return getTimeRemainingInWords(due);
-      }
-      return '';
-    },
-  },
 };
 </script>
 
 <template>
   <span>
-    <span
-      v-if="milestone"
-      class="issuable-milestone gl-mr-3 gl-text-truncate gl-max-w-26 gl-display-inline-block gl-align-bottom"
-      data-testid="issuable-milestone"
-    >
-      <gl-link
-        v-gl-tooltip
-        :href="milestoneLink"
-        :title="milestoneDate"
-        class="gl-font-sm gl-text-gray-500!"
-      >
-        <gl-icon name="milestone" :size="12" />
-        {{ milestone.title }}
-      </gl-link>
-    </span>
-    <span
+    <issuable-milestone v-if="milestone" :milestone="milestone" />
+    <work-item-attribute
       v-if="dueDateText"
-      v-gl-tooltip
-      class="issuable-due-date gl-mr-3"
-      :class="{ 'gl-text-red-500': showDueDateInRed }"
-      :title="__('Due date')"
-      data-testid="issuable-due-date"
+      anchor-id="issuable-due-date"
+      :title="dueDateText"
+      title-component-class="issuable-due-date gl-mr-3"
+      :tooltip-text="dueDateTitle"
+      tooltip-placement="top"
     >
-      <gl-icon name="calendar" :size="12" />
-      {{ dueDateText }}
-    </span>
-    <span
+      <template #icon>
+        <gl-icon :variant="isOverdue ? 'danger' : 'current'" :name="dateIcon" :size="12" />
+      </template>
+    </work-item-attribute>
+    <work-item-attribute
       v-if="timeEstimate"
-      v-gl-tooltip
-      class="gl-mr-3"
-      :title="__('Estimate')"
-      data-testid="time-estimate"
+      anchor-id="time-estimate"
+      :title="timeEstimate"
+      title-component-class="gl-mr-3"
+      :tooltip-text="__('Estimate')"
+      tooltip-placement="top"
     >
-      <gl-icon name="timer" :size="12" />
-      {{ timeEstimate }}
-    </span>
+      <template #icon>
+        <gl-icon name="timer" :size="12" />
+      </template>
+    </work-item-attribute>
     <slot></slot>
   </span>
 </template>

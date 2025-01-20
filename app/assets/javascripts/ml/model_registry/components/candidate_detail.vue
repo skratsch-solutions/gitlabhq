@@ -24,7 +24,7 @@ import {
 import DetailRow from './candidate_detail_row.vue';
 
 export default {
-  HEADER_CLASSES: ['gl-font-lg', 'gl-mt-5'],
+  HEADER_CLASSES: ['gl-text-lg', 'gl-mt-5'],
   name: 'MlCandidateDetail',
   components: {
     DetailRow,
@@ -36,11 +36,6 @@ export default {
     candidate: {
       type: Object,
       required: true,
-    },
-    showInfoSection: {
-      type: Boolean,
-      required: false,
-      default: true,
     },
   },
   i18n: {
@@ -80,7 +75,7 @@ export default {
     },
     metricsTableFields() {
       const maxStep = maxBy(this.candidate.metrics, 'step').step;
-      const rowClass = 'gl-p-3!';
+      const rowClass = '!gl-p-3';
 
       const cssClasses = { thClass: rowClass, tdClass: rowClass };
 
@@ -108,32 +103,6 @@ export default {
 
 <template>
   <div>
-    <section v-if="showInfoSection" class="gl-mb-6">
-      <table class="candidate-details">
-        <tbody>
-          <detail-row :label="$options.i18n.ID_LABEL">
-            {{ info.iid }}
-          </detail-row>
-
-          <detail-row :label="$options.i18n.MLFLOW_ID_LABEL">{{ info.eid }}</detail-row>
-
-          <detail-row :label="$options.i18n.STATUS_LABEL">{{ info.status }}</detail-row>
-
-          <detail-row :label="$options.i18n.EXPERIMENT_LABEL">
-            <gl-link :href="info.pathToExperiment">
-              {{ info.experimentName }}
-            </gl-link>
-          </detail-row>
-
-          <detail-row v-if="info.pathToArtifact" :label="$options.i18n.ARTIFACTS_LABEL">
-            <gl-link :href="info.pathToArtifact">
-              {{ $options.i18n.ARTIFACTS_LABEL }}
-            </gl-link>
-          </detail-row>
-        </tbody>
-      </table>
-    </section>
-
     <section class="gl-mb-6">
       <h3 :class="$options.HEADER_CLASSES">{{ $options.i18n.CI_SECTION_LABEL }}</h3>
 
@@ -164,7 +133,7 @@ export default {
         </tbody>
       </table>
 
-      <div v-else class="gl-text-secondary">{{ $options.i18n.NO_CI_MESSAGE }}</div>
+      <div v-else class="gl-text-subtle">{{ $options.i18n.NO_CI_MESSAGE }}</div>
     </section>
 
     <section class="gl-mb-6">
@@ -178,7 +147,7 @@ export default {
         </tbody>
       </table>
 
-      <div v-else class="gl-text-secondary">{{ $options.i18n.NO_PARAMETERS_MESSAGE }}</div>
+      <div v-else class="gl-text-subtle">{{ $options.i18n.NO_PARAMETERS_MESSAGE }}</div>
     </section>
 
     <section class="gl-mb-6">
@@ -192,7 +161,7 @@ export default {
         </tbody>
       </table>
 
-      <div v-else class="gl-text-secondary">{{ $options.i18n.NO_METADATA_MESSAGE }}</div>
+      <div v-else class="gl-text-subtle">{{ $options.i18n.NO_METADATA_MESSAGE }}</div>
     </section>
 
     <section class="gl-mb-6">
@@ -207,7 +176,7 @@ export default {
         />
       </div>
 
-      <div v-else class="gl-text-secondary">{{ $options.i18n.NO_METRICS_MESSAGE }}</div>
+      <div v-else class="gl-text-subtle">{{ $options.i18n.NO_METRICS_MESSAGE }}</div>
     </section>
   </div>
 </template>

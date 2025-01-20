@@ -2,173 +2,6 @@
 
 require 'spec_helper'
 
-RSpec.shared_examples "a measurable object" do
-  context 'when the table is not allowed' do
-    let(:source_table) { :_test_this_table_is_not_allowed }
-
-    it 'raises an error' do
-      expect(migration).to receive(:assert_table_is_allowed).with(source_table).and_call_original
-
-      expect do
-        subject
-      end.to raise_error(/#{source_table} is not allowed for use/)
-    end
-  end
-
-  context 'when run inside a transaction block' do
-    it 'raises an error' do
-      expect(migration).to receive(:transaction_open?).and_return(true)
-
-      expect do
-        subject
-      end.to raise_error(/can not be run inside a transaction/)
-    end
-  end
-
-  context 'when the given table does not have a primary key' do
-    it 'raises an error' do
-      migration.execute(<<~SQL)
-        ALTER TABLE #{source_table}
-        DROP CONSTRAINT #{source_table}_pkey
-      SQL
-
-      expect do
-        subject
-      end.to raise_error(/primary key not defined for #{source_table}/)
-    end
-  end
-
-  it 'creates the partitioned table with the same non-key columns' do
-    subject
-
-    copied_columns = filter_columns_by_name(connection.columns(partitioned_table), new_primary_key)
-    original_columns = filter_columns_by_name(connection.columns(source_table), new_primary_key)
-
-    expect(copied_columns).to match_array(original_columns)
-  end
-
-  it 'removes the default from the primary key column' do
-    subject
-
-    pk_column = connection.columns(partitioned_table).find { |c| c.name == old_primary_key }
-
-    expect(pk_column.default_function).to be_nil
-  end
-
-  describe 'constructing the partitioned table' do
-    it 'creates a table partitioned by the proper column' do
-      subject
-
-      expect(connection.table_exists?(partitioned_table)).to be(true)
-      expect(connection.primary_key(partitioned_table)).to eq(new_primary_key)
-
-      expect_table_partitioned_by(partitioned_table, [partition_column_name])
-    end
-
-    it 'requires the migration helper to be run in DDL mode' do
-      expect(Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas).to receive(:require_ddl_mode!)
-
-      subject
-
-      expect(connection.table_exists?(partitioned_table)).to be(true)
-      expect(connection.primary_key(partitioned_table)).to eq(new_primary_key)
-
-      expect_table_partitioned_by(partitioned_table, [partition_column_name])
-    end
-
-    it 'changes the primary key datatype to bigint' do
-      subject
-
-      pk_column = connection.columns(partitioned_table).find { |c| c.name == old_primary_key }
-
-      expect(pk_column.sql_type).to eq('bigint')
-    end
-
-    it 'removes the default from the primary key column' do
-      subject
-
-      pk_column = connection.columns(partitioned_table).find { |c| c.name == old_primary_key }
-
-      expect(pk_column.default_function).to be_nil
-    end
-
-    it 'creates the partitioned table with the same non-key columns' do
-      subject
-
-      copied_columns = filter_columns_by_name(connection.columns(partitioned_table), new_primary_key)
-      original_columns = filter_columns_by_name(connection.columns(source_table), new_primary_key)
-
-      expect(copied_columns).to match_array(original_columns)
-    end
-  end
-
-  describe 'keeping data in sync with the partitioned table' do
-    before do
-      partitioned_model.primary_key = :id
-      partitioned_model.table_name = partitioned_table
-    end
-
-    it 'creates a trigger function on the original table' do
-      expect_function_not_to_exist(function_name)
-      expect_trigger_not_to_exist(source_table, trigger_name)
-
-      subject
-
-      expect_function_to_exist(function_name)
-      expect_valid_function_trigger(source_table, trigger_name, function_name, after: %w[delete insert update])
-    end
-
-    it 'syncs inserts to the partitioned tables' do
-      subject
-
-      expect(partitioned_model.count).to eq(0)
-
-      first_record = source_model.create!(name: 'Bob', age: 20, created_at: timestamp, external_id: 1, updated_at: timestamp)
-      second_record = source_model.create!(name: 'Alice', age: 30, created_at: timestamp, external_id: 2, updated_at: timestamp)
-
-      expect(partitioned_model.count).to eq(2)
-      expect(partitioned_model.find(first_record.id).attributes).to eq(first_record.attributes)
-      expect(partitioned_model.find(second_record.id).attributes).to eq(second_record.attributes)
-    end
-
-    it 'syncs updates to the partitioned tables' do
-      subject
-
-      first_record = source_model.create!(name: 'Bob', age: 20, created_at: timestamp, external_id: 1, updated_at: timestamp)
-      second_record = source_model.create!(name: 'Alice', age: 30, created_at: timestamp, external_id: 2, updated_at: timestamp)
-
-      expect(partitioned_model.count).to eq(2)
-
-      first_copy = partitioned_model.find(first_record.id)
-      second_copy = partitioned_model.find(second_record.id)
-
-      expect(first_copy.attributes).to eq(first_record.attributes)
-      expect(second_copy.attributes).to eq(second_record.attributes)
-
-      first_record.update!(age: 21, updated_at: timestamp + 1.hour, external_id: 3)
-
-      expect(partitioned_model.count).to eq(2)
-      expect(first_copy.reload.attributes).to eq(first_record.attributes)
-      expect(second_copy.reload.attributes).to eq(second_record.attributes)
-    end
-
-    it 'syncs deletes to the partitioned tables' do
-      subject
-
-      first_record = source_model.create!(name: 'Bob', age: 20, created_at: timestamp, external_id: 1, updated_at: timestamp)
-      second_record = source_model.create!(name: 'Alice', age: 30, created_at: timestamp, external_id: 2, updated_at: timestamp)
-
-      expect(partitioned_model.count).to eq(2)
-
-      first_record.destroy!
-
-      expect(partitioned_model.count).to eq(1)
-      expect(partitioned_model.find_by_id(first_record.id)).to be_nil
-      expect(partitioned_model.find(second_record.id).attributes).to eq(second_record.attributes)
-    end
-  end
-end
-
 RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHelpers, feature_category: :database do
   include Database::PartitioningHelpers
   include Database::TriggerHelpers
@@ -193,6 +26,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
 
   before do
     allow(migration).to receive(:puts)
+    allow(described_class).to receive(:allowed_gitlab_schemas).and_return([:gitlab_main])
 
     migration.create_table source_table do |t|
       t.string :name, null: false
@@ -334,7 +168,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
         }
       end
 
-      let(:new_table_defition) do
+      let(:new_table_definition) do
         {
           new_path: { default: 'test', null: true, sql_type: 'text' },
           merge_request_diff_id: { default: nil, null: false, sql_type: 'bigint' },
@@ -365,7 +199,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
           table_name, partition_column_name, partition_size: partition_size, primary_key: primary_key
         )
 
-        expect(connection.primary_key(:_test_migration_partitioned_table))
+        expect(connection.primary_key(partitioned_table))
           .to eql(%w[merge_request_diff_id relative_order])
       end
 
@@ -374,14 +208,14 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
           table_name, partition_column_name, partition_size: partition_size, primary_key: primary_key
         )
 
-        columns = connection.columns(:_test_migration_partitioned_table)
+        columns = connection.columns(partitioned_table)
 
         columns.each do |column|
-          column_name = column.name.to_sym
+          column_definition = new_table_definition[column.name.to_sym]
 
-          expect(column.default).to eql(new_table_defition[column_name][:default])
-          expect(column.null).to eql(new_table_defition[column_name][:null])
-          expect(column.sql_type).to eql(new_table_defition[column_name][:sql_type])
+          expect(column.default).to eql(column_definition[:default])
+          expect(column.null).to eql(column_definition[:null])
+          expect(column.sql_type).to eql(column_definition[:sql_type])
         end
       end
 
@@ -489,8 +323,9 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
     let(:partition_column_name) { 'created_at' }
     let(:partitioned_model) { Class.new(ActiveRecord::Base) }
     let(:timestamp) { Time.utc(2019, 12, 1, 12).round }
+    let(:opts) { { min_date: min_date, max_date: max_date } }
 
-    subject { migration.partition_table_by_date source_table, partition_column, min_date: min_date, max_date: max_date }
+    subject { migration.partition_table_by_date source_table, partition_column, **opts }
 
     include_examples "a measurable object"
 
@@ -498,11 +333,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       let(:max_date) { Time.utc(2019, 6) }
 
       it 'raises an error' do
-        expect do
-          migration.partition_table_by_date(
-            source_table, partition_column, min_date: min_date, max_date: max_date
-          )
-        end.to raise_error(/max_date #{max_date} must be greater than min_date #{min_date}/)
+        expect { subject }.to raise_error(/max_date #{max_date} must be greater than min_date #{min_date}/)
       end
     end
 
@@ -510,11 +341,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       let(:max_date) { min_date }
 
       it 'raises an error' do
-        expect do
-          migration.partition_table_by_date(
-            source_table, partition_column, min_date: min_date, max_date: max_date
-          )
-        end.to raise_error(/max_date #{max_date} must be greater than min_date #{min_date}/)
+        expect { subject }.to raise_error(/max_date #{max_date} must be greater than min_date #{min_date}/)
       end
     end
 
@@ -556,9 +383,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       end
 
       it 'creates a partition spanning over each month in the range given' do
-        migration.partition_table_by_date(
-          source_table, partition_column, min_date: min_date, max_date: max_date
-        )
+        subject
 
         expect_range_partitions_for(partitioned_table, {
           '000000' => ['MINVALUE', "'2019-12-01 00:00:00'"],
@@ -570,6 +395,8 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       end
 
       context 'when min_date is not given' do
+        let(:opts) { { max_date: max_date } }
+
         context 'with records present already' do
           before do
             source_model.create!(name: 'Test', age: 10, created_at: Date.parse('2019-11-05'))
@@ -578,9 +405,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
           it 'creates a partition spanning over each month from the first record' do
             expect(Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas).to receive(:with_suppressed).and_yield
 
-            migration.partition_table_by_date(
-              source_table, partition_column, max_date: max_date
-            )
+            subject
 
             expect_range_partitions_for(partitioned_table, {
               '000000' => ['MINVALUE', "'2019-11-01 00:00:00'"],
@@ -597,7 +422,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
           it 'creates the catchall partition plus two actual partition' do
             expect(Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas).to receive(:with_suppressed).and_yield
 
-            migration.partition_table_by_date(source_table, partition_column, max_date: max_date)
+            subject
 
             expect_range_partitions_for(partitioned_table, {
               '000000' => ['MINVALUE', "'2020-02-01 00:00:00'"],
@@ -609,11 +434,13 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       end
 
       context 'when max_date is not given' do
+        let(:opts) { { min_date: min_date } }
+
         it 'creates partitions including the next month from today' do
           today = Date.new(2020, 5, 8)
 
           travel_to(today) do
-            migration.partition_table_by_date(source_table, partition_column, min_date: min_date)
+            subject
 
             expect_range_partitions_for(partitioned_table, {
               '000000' => ['MINVALUE', "'2019-12-01 00:00:00'"],
@@ -630,10 +457,12 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       end
 
       context 'without min_date, max_date' do
+        let(:opts) { {} }
+
         it 'creates partitions for the current and next month' do
           current_date = Date.new(2020, 05, 22)
           travel_to(current_date.to_time) do
-            migration.partition_table_by_date(source_table, partition_column)
+            subject
 
             expect_range_partitions_for(partitioned_table, {
               '000000' => ['MINVALUE', "'2020-05-01 00:00:00'"],
@@ -646,9 +475,216 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
     end
   end
 
+  describe '#partition_table_by_list' do
+    let(:table_name) { source_table }
+    let(:old_primary_key) { 'id' }
+    let(:new_primary_key) { ['id', partition_column2] }
+    let(:partition_column_name) { partition_column2 }
+    let(:partitioned_model) { Class.new(ActiveRecord::Base) }
+    let(:timestamp) { Time.utc(2019, 12, 1, 12).round }
+    let(:opts) { { partition_mappings: partitions } }
+    let(:partition_name_format) { "_test_migration_%{partition_name}_partitioned_table" }
+    let(:partitions) do
+      { a: 1, b: 2, c: 3 }
+    end
+
+    subject(:partition_table_by_list) do
+      migration.partition_table_by_list(table_name, partition_column_name, primary_key: new_primary_key,
+        partition_name_format: partition_name_format, **opts)
+    end
+
+    include_examples "a measurable object" do
+      let(:part_type) { :list }
+    end
+
+    context 'simulates the ci_runners migration' do
+      let(:table_name) { '_test_ci_runners' }
+      let(:new_primary_key) { %w[id runner_type] }
+      let(:partition_column_name) { :runner_type }
+      let(:partitions) do
+        { instance_type: 1, group_type: 2, project_type: 3 }
+      end
+
+      let(:new_table_definition) do
+        {
+          name: { default: 'test', null: true, sql_type: 'text' },
+          id: { default: nil, null: false, sql_type: 'bigint' }, # The primary key columns get added last to the table
+          runner_type: { default: nil, null: false, sql_type: 'integer' }
+        }
+      end
+
+      before do
+        migration.create_table table_name, primary_key: new_primary_key do |t|
+          t.integer :id, null: false, default: 1
+          t.text :name, null: true, default: 'test'
+          t.integer :runner_type, null: false
+        end
+
+        source_model.table_name = table_name
+      end
+
+      shared_examples 'a correct list partitioning method' do
+        it 'creates the partitions' do
+          partition_table_by_list
+
+          expect_list_partitions_for(partitioned_table, partitions, partition_name_format: partition_name_format)
+        end
+
+        it 'creates a composite primary key' do
+          partition_table_by_list
+
+          expect(connection.primary_key(partitioned_table)).to eql(new_primary_key)
+        end
+
+        it 'applies the correct column schema for the new table' do
+          partition_table_by_list
+
+          columns = connection.columns(partitioned_table)
+          expect(columns.map(&:name)).to eq(new_table_definition.keys.map(&:to_s))
+
+          columns.each do |column|
+            column_definition = new_table_definition[column.name.to_sym]
+
+            expect(column.default).to eql(column_definition[:default])
+            expect(column.null).to eql(column_definition[:null])
+            expect(column.sql_type).to eql(column_definition[:sql_type])
+          end
+        end
+      end
+
+      it_behaves_like 'a correct list partitioning method'
+
+      context 'when create_partitioned_table_fn is specified' do
+        let(:partitioned_table_opts) { 'PARTITION BY LIST (runner_type)' }
+        let(:opts) do
+          { partition_mappings: partitions, create_partitioned_table_fn: ->(name) { create_partitioned_table(name) } }
+        end
+
+        # the new partition should be created with the column order specified in create_partitioned_table
+        let(:new_table_definition) do
+          {
+            id: { default: nil, null: false, sql_type: 'integer' },
+            runner_type: { default: nil, null: false, sql_type: 'integer' },
+            name: { default: 'test', null: true, sql_type: 'text' }
+          }
+        end
+
+        def create_partitioned_table(name)
+          migration.create_table name, primary_key: new_primary_key, options: partitioned_table_opts do |t|
+            t.integer :id, null: false
+            t.integer :runner_type, null: false
+            t.text :name, null: true, default: 'test'
+          end
+        end
+
+        it_behaves_like 'a correct list partitioning method'
+
+        context 'when partitioned table is already present' do
+          before do
+            create_partitioned_table(partitioned_table)
+          end
+
+          it 'raises an error' do
+            expect(Gitlab::AppLogger).to receive(:warn).with(
+              /\APartitioned table not created because it already exists.*table_name: _test_migration_partitioned_table/)
+
+            partition_table_by_list
+
+            expect_total_partitions(partitioned_table, 3, schema: :public)
+          end
+        end
+
+        context 'when new table is not partitioned' do
+          let(:partitioned_table_opts) { '' }
+
+          it 'raises an error' do
+            expect do
+              partition_table_by_list
+            end.to raise_error(ActiveRecord::StatementInvalid, /"_test_migration_partitioned_table" is not partitioned/)
+          end
+        end
+      end
+
+      context 'with different partitions' do
+        let(:partitions) do
+          { group_type: 2, project_type: 3 }
+        end
+
+        it 'creates multiple partitions' do
+          partition_table_by_list
+
+          expect_list_partitions_for(partitioned_table, partitions, partition_name_format: partition_name_format)
+        end
+      end
+
+      context 'when the table is not empty' do
+        before do
+          if ::Gitlab.next_rails?
+            source_model.create!(id: [1, 2])
+            source_model.create!(id: [2, 3])
+          else
+            source_model.create!(id: 1, runner_type: 2)
+            source_model.create!(id: 2, runner_type: 3)
+          end
+        end
+
+        let(:opts) { {} }
+        let(:partition_name_format) { nil }
+        let(:partitions) do
+          {
+            2 => 2,
+            3 => 3
+          }
+        end
+
+        it 'defaults the partitions to the existing runner types' do
+          partition_table_by_list
+
+          expect_list_partitions_for(partitioned_table, partitions)
+        end
+      end
+    end
+
+    context 'when an invalid partition column is given' do
+      let(:partition_column_name) { :_this_is_not_real }
+
+      it 'raises an error' do
+        expect { partition_table_by_list }.to raise_error(/partition column #{partition_column_name} does not exist/)
+      end
+    end
+
+    context 'when partitions has less than 2 partitions' do
+      let(:partitions) { { a: 1 } }
+
+      it 'raises an error' do
+        expect do
+          partition_table_by_list
+        end.to raise_error('partition_mappings must contain more than one partition')
+      end
+    end
+
+    context 'when the partitioned table already exists' do
+      before do
+        migration.send(
+          :create_list_partitioned_copy,
+          source_table,
+          migration.send(:make_partitioned_table_name, source_table),
+          connection.columns(source_table).find { |c| c.name == partition_column2 },
+          connection.columns(source_table).select { |c| new_primary_key.include?(c.name) }
+        )
+      end
+
+      it 'raises an error' do
+        expect(Gitlab::AppLogger).to receive(:warn).with(/Partitioned table not created because it already exists/)
+        expect { partition_table_by_list }.not_to raise_error
+      end
+    end
+  end
+
   describe '#drop_partitioned_table_for' do
+    let(:parent_table) { partitioned_table.to_s }
     let(:expected_tables) do
-      %w[000000 201912 202001 202002].map { |suffix| "#{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}.#{partitioned_table}_#{suffix}" }.unshift(partitioned_table)
+      %w[000000 201912 202001 202002].map { |suffix| "#{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}.#{parent_table}_#{suffix}" }.unshift(parent_table)
     end
 
     let(:migration_class) { 'Gitlab::Database::PartitioningMigrationHelpers::BackfillPartitionedTable' }
@@ -684,15 +720,11 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
         source_table, partition_column, min_date: min_date, max_date: max_date
       )
 
-      expected_tables.each do |table|
-        expect(connection.table_exists?(table)).to be(true)
-      end
+      expect(expected_tables.select { |table| connection.table_exists?(table) }).to eq(expected_tables)
 
       migration.drop_partitioned_table_for(source_table)
 
-      expected_tables.each do |table|
-        expect(connection.table_exists?(table)).to be(false)
-      end
+      expect(expected_tables.select { |table| connection.table_exists?(table) }).to be_empty
     end
   end
 
@@ -725,19 +757,21 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       let!(:first_id) { source_model.create!(name: 'Bob', age: 20).id }
       let!(:second_id) { source_model.create!(name: 'Alice', age: 30).id }
       let!(:third_id) { source_model.create!(name: 'Sam', age: 40).id }
+      let(:migration_class_jobs) do
+        ::Gitlab::Database::BackgroundMigration::BatchedMigration.where(job_class_name: migration_class)
+      end
 
       before do
         stub_const("#{described_class.name}::BATCH_SIZE", 2)
         stub_const("#{described_class.name}::SUB_BATCH_SIZE", 1)
+
+        migration.partition_table_by_date(source_table, partition_column, min_date: min_date, max_date: max_date)
       end
 
       it 'enqueues jobs to copy each batch of data' do
-        migration.partition_table_by_date(
-          source_table, partition_column, min_date: min_date, max_date: max_date
-        )
-
         Sidekiq::Testing.fake! do
-          migration.enqueue_partitioning_data_migration(source_table)
+          expect { migration.enqueue_partitioning_data_migration(source_table) }
+            .to change { migration_class_jobs.count }.by(1)
 
           expect(migration_class).to have_scheduled_batched_migration(
             table_name: source_table,
@@ -746,6 +780,29 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
             batch_size: described_class::BATCH_SIZE,
             sub_batch_size: described_class::SUB_BATCH_SIZE
           )
+        end
+      end
+
+      context 'when alternative migration class is specified' do
+        let(:migration_class) { 'TestBackfillPartitionedTable' }
+        let!(:migration_klass) do
+          Gitlab::BackgroundMigration.const_set(
+            migration_class, ::Class.new(Gitlab::Database::PartitioningMigrationHelpers::BackfillPartitionedTable))
+        end
+
+        it 'enqueues jobs to copy each batch of data' do
+          Sidekiq::Testing.fake! do
+            expect { migration.enqueue_partitioning_data_migration(source_table, migration_class) }
+              .to change { migration_class_jobs.count }.by(1)
+
+            expect(migration_class).to have_scheduled_batched_migration(
+              table_name: source_table,
+              column_name: :id,
+              job_arguments: [partitioned_table],
+              batch_size: described_class::BATCH_SIZE,
+              sub_batch_size: described_class::SUB_BATCH_SIZE
+            )
+          end
         end
       end
     end
@@ -766,6 +823,9 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
 
     context 'when tracking records exist in the batched_background_migrations table' do
       let(:migration_class) { described_class::MIGRATION }
+      let(:migration_class_jobs) do
+        ::Gitlab::Database::BackgroundMigration::BatchedMigration.where(job_class_name: migration_class)
+      end
 
       before do
         create(
@@ -785,15 +845,31 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
         )
       end
 
-      it 'deletes those pertaining to the given table' do
+      it 'deletes those pertaining to the given table and migration class' do
         expect { migration.cleanup_partitioning_data_migration(source_table) }
-          .to change { ::Gitlab::Database::BackgroundMigration::BatchedMigration.count }.by(-1)
+          .to change { migration_class_jobs.count }.by(-1)
 
-        expect(::Gitlab::Database::BackgroundMigration::BatchedMigration.where(table_name: 'other_table').any?)
-          .to be_truthy
+        expect(migration_class_jobs.where(table_name: 'other_table').any?).to be_truthy
 
-        expect(::Gitlab::Database::BackgroundMigration::BatchedMigration.where(table_name: source_table).any?)
-          .to be_falsy
+        expect(migration_class_jobs.where(table_name: source_table).any?).to be_falsy
+      end
+
+      context 'when alternative migration class is specified' do
+        let(:migration_class) { 'TestBackfillPartitionedTable' }
+        let!(:migration_klass) do
+          Gitlab::BackgroundMigration.const_set(
+            migration_class,
+            ::Class.new(Gitlab::Database::PartitioningMigrationHelpers::BackfillPartitionedTable))
+        end
+
+        it 'deletes those pertaining to the given table and migration class' do
+          expect { migration.cleanup_partitioning_data_migration(source_table, migration_class) }
+            .to change { migration_class_jobs.count }.by(-1)
+
+          expect(migration_class_jobs.where(table_name: 'other_table').any?).to be_truthy
+
+          expect(migration_class_jobs.where(table_name: source_table).any?).to be_falsy
+        end
       end
     end
   end
@@ -813,7 +889,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       migration.create_hash_partitions(partitioned_table, partitions)
 
       (0..partitions - 1).each do |partition|
-        partition_name = "#{partitioned_table}_#{"%01d" % partition}"
+        partition_name = "#{partitioned_table}_#{'%01d' % partition}"
         expect_hash_partition_of(partition_name, partitioned_table, partitions, partition)
       end
     end
@@ -824,7 +900,7 @@ RSpec.describe Gitlab::Database::PartitioningMigrationHelpers::TableManagementHe
       migration.create_hash_partitions(partitioned_table, partitions)
 
       (0..partitions - 1).each do |partition|
-        partition_name = "#{partitioned_table}_#{"%02d" % partition}"
+        partition_name = "#{partitioned_table}_#{'%02d' % partition}"
         expect_hash_partition_of(partition_name, partitioned_table, partitions, partition)
       end
     end

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [kaniko](https://github.com/GoogleContainerTools/kaniko) is a tool to build
 container images from a Dockerfile, inside a container or Kubernetes cluster.
@@ -59,7 +59,7 @@ project's container registry while tagging it with the Git tag:
 build:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
   script:
     - /kaniko/executor
@@ -97,7 +97,7 @@ build:
     https_proxy: <your-proxy>
     no_proxy: <your-no-proxy>
   image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
   script:
     - /kaniko/executor
@@ -157,7 +157,7 @@ on what other GitLab CI patterns are demonstrated are available at the project p
 ### 403 error: "error checking push permissions"
 
 If you receive this error, it might be due to an outside proxy. Setting the `http_proxy`
-and `https_proxy` [environment variables](../../administration/packages/container_registry.md#running-the-docker-daemon-with-a-proxy)
+and `https_proxy` [environment variables](../../administration/packages/container_registry_troubleshooting.md#running-the-docker-daemon-with-a-proxy)
 can fix the problem.
 
 ### Error: kaniko should only be run inside of a container
@@ -174,9 +174,9 @@ kaniko should only be run inside of a container, run with the --force flag if yo
 ```
 
 To resolve this issue, update the `gcr.io/kaniko-project/executor:debug` container to version at least v1.9.0,
-for example `gcr.io/kaniko-project/executor:v1.14.0-debug`.
+for example `gcr.io/kaniko-project/executor:v1.23.2-debug`.
 
-The opposite configuration (`gcr.io/kaniko-project/executor:v1.14.0-debug` image and Docker Engine
+The opposite configuration (`gcr.io/kaniko-project/executor:v1.23.2-debug` image and Docker Engine
 on the host in version 19.06.x or older) works without problems. For the best strategy, you should
 frequently test and update job environment versions to the newest. This brings new features, improved
 security and - for this specific case - makes the upgrade on underlying Docker Engine on the runner's

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 This page contains administrator documentation for the GitLab for Jira Cloud app. For user documentation, see [GitLab for Jira Cloud app](../../integration/jira/connect-app.md).
@@ -20,8 +20,17 @@ To set up the GitLab for Jira Cloud app on your self-managed instance, do one of
 - [Install the GitLab for Jira Cloud app from the Atlassian Marketplace](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace) (GitLab 15.7 and later).
 - [Install the GitLab for Jira Cloud app manually](#install-the-gitlab-for-jira-cloud-app-manually).
 
-After you set up the app, you can use the [project toolchain](https://support.atlassian.com/jira-software-cloud/docs/what-is-the-connections-feature/)
-developed and maintained by Atlassian to [link GitLab repositories to Jira projects](https://support.atlassian.com/jira-software-cloud/docs/link-repositories-to-a-project/#Link-repositories-using-the-toolchain-feature).
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+For an overview, see:
+
+- [Installing the GitLab for Jira Cloud app from the Atlassian Marketplace for a self-managed instance](https://youtu.be/RnDw4PzmdW8?list=PL05JrBw4t0Koazgli_PmMQCER2pVH7vUT)
+  <!-- Video published on 2024-10-30 -->
+- [Installing the GitLab for Jira Cloud app manually for a self-managed instance](https://youtu.be/fs02xS8BElA?list=PL05JrBw4t0Koazgli_PmMQCER2pVH7vUT)
+  <!-- Video published on 2024-10-30 -->
+
+If you [install the GitLab for Jira Cloud app from the Atlassian Marketplace](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace),
+you can use the [project toolchain](https://support.atlassian.com/jira-software-cloud/docs/what-is-the-connections-feature/) developed and maintained
+by Atlassian to [link GitLab repositories to Jira projects](https://support.atlassian.com/jira-software-cloud/docs/link-repositories-to-a-project/#Link-repositories-using-the-toolchain-feature).
 The project toolchain does not affect how development information is synced between GitLab and Jira Cloud.
 
 For Jira Data Center or Jira Server, use the [Jira DVCS connector](../../integration/jira/dvcs/index.md) developed and maintained by Atlassian.
@@ -32,7 +41,7 @@ Whether you want to install the GitLab for Jira Cloud app [from the Atlassian Ma
 
 To create an OAuth application on your self-managed instance:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Applications**.
 1. Select **New application**.
 1. In **Redirect URI**:
@@ -41,7 +50,8 @@ To create an OAuth application on your self-managed instance:
 1. Clear the **Trusted** and **Confidential** checkboxes.
 
    NOTE:
-   You must clear these checkboxes to avoid errors.
+   You must clear these checkboxes to avoid [errors](jira_cloud_app_troubleshooting.md#error-failed-to-sign-in-to-gitlab).
+
 1. In **Scopes**, select the `api` checkbox only.
 1. Select **Save application**.
 1. Copy the **Application ID** value.
@@ -60,7 +70,7 @@ either:
 - The Organization Administrators (`org-admins`) group. Newer Atlassian organizations are using
   [centralized user management](https://support.atlassian.com/user-management/docs/give-users-admin-permissions/#Centralized-user-management-content),
   which contains the `org-admins` group. Existing Atlassian organizations are being migrated to centralized user management.
-  If available, you should use the `org-admins` group to indicate which Jira users can manage the GitLab for Jira app. Alternatively you can use the
+  If available, you should use the `org-admins` group to indicate which Jira users can manage the GitLab for Jira Cloud app. Alternatively you can use the
   `site-admins` group.
 - The Site Administrators (`site-admins`) group. The `site-admins` group was used under
   [original user management](https://support.atlassian.com/user-management/docs/give-users-admin-permissions/#Original-user-management-content).
@@ -81,6 +91,7 @@ You can use the official GitLab for Jira Cloud app from the Atlassian Marketplac
 With this method:
 
 - GitLab.com [handles the install and uninstall lifecycle events](#gitlabcom-handling-of-app-lifecycle-events) sent from Jira Cloud and forwards them to your GitLab instance. All data from your self-managed instance is still sent directly to Jira Cloud.
+- GitLab.com [handles branch creation links](#gitlabcom-handling-of-branch-creation) by redirecting them to your instance.
 - With any version of GitLab prior to 17.2 it is not possible to create branches from Jira Cloud on self-managed instances.
   For more information, see [issue 391432](https://gitlab.com/gitlab-org/gitlab/-/issues/391432).
 
@@ -89,20 +100,21 @@ Alternatively, you might want to [install the GitLab for Jira Cloud app manually
 - Your instance does not meet the [prerequisites](#prerequisites).
 - You do not want to use the official Atlassian Marketplace listing.
 - You do not want GitLab.com to [handle the app lifecycle events](#gitlabcom-handling-of-app-lifecycle-events) or to know that your instance has installed the app.
-- You want to create branches from Jira Cloud.
+- You do not want GitLab.com to [redirect branch creation links](#gitlabcom-handling-of-branch-creation) to your instance.
 
 ### Prerequisites
 
 - The instance must be publicly available.
 - The instance must be on GitLab version 15.7 or later.
 - You must set up [OAuth authentication](#set-up-oauth-authentication).
-- If your instance uses HTTPS, your GitLab certificate must be publicly trusted or contain the full chain certificate.
-- Your network must allow inbound and outbound connections between your self-managed instance,
-  Jira, and GitLab.com. For self-managed instances that are behind a
-  firewall and cannot be directly accessed from the internet, you must:
-  1. Set up an internet-facing [reverse proxy](#using-a-reverse-proxy) in front of your self-managed instance.
-  1. Open your firewall and allow inbound traffic from [Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections) only.
-  1. Add [GitLab IP addresses](../../user/gitlab_com/index.md#ip-range) to the allowlist of your firewall.
+- Your GitLab instance must use HTTPS _and_ your GitLab certificate must be publicly trusted or contain the full chain certificate.
+- Your network configuration must allow:
+  - Outbound connections from your self-managed instance to Jira Cloud ([Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections))
+  - Inbound and outbound connections between your self-managed instance and GitLab.com ([GitLab.com IP addresses](../../user/gitlab_com/index.md#ip-range))
+  - For self-managed instances behind a firewall:
+    1. Set up an internet-facing [reverse proxy](#using-a-reverse-proxy) in front of your self-managed instance.
+    1. Configure the reverse proxy to allow inbound connections from GitLab.com ([GitLab.com IP addresses](../../user/gitlab_com/index.md#ip-range))
+    1. Ensure your self-managed instance can still make the outbound connections described above.
 - The Jira user that installs and configures the app must meet certain [requirements](#jira-user-requirements).
 
 ### Set up your instance
@@ -111,7 +123,7 @@ Alternatively, you might want to [install the GitLab for Jira Cloud app manually
 
 To set up your self-managed instance for the GitLab for Jira Cloud app in GitLab 15.7 and later:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **GitLab for Jira App**.
 1. In **Jira Connect Proxy URL**, enter `https://gitlab.com`.
@@ -153,6 +165,11 @@ to check if Jira Cloud is linked to:
 
 ## Install the GitLab for Jira Cloud app manually
 
+WARNING:
+In GitLab 17.5 and earlier, you might encounter an issue when you install the GitLab for Jira Cloud app manually.
+For more information, see [issue 505372](https://gitlab.com/gitlab-org/gitlab/-/issues/505372).
+This issue does not affect [installations from the Atlassian Marketplace](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace).
+
 If you do not want to [use the official Atlassian Marketplace listing](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace),
 install the GitLab for Jira Cloud app manually.
 
@@ -169,10 +186,12 @@ To support your self-managed instance with Jira Cloud, do one of the following:
 
 - The instance must be publicly available.
 - You must set up [OAuth authentication](#set-up-oauth-authentication).
-- Your network must allow inbound and outbound connections between GitLab and Jira. For self-managed instances that are behind a
-  firewall and cannot be directly accessed from the internet, you must:
-  1. Set up an internet-facing [reverse proxy](#using-a-reverse-proxy) in front of your self-managed instance.
-  1. Open your firewall and allow inbound traffic from [Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections) only.
+- Your network configuration must allow:
+  - Inbound and outbound connections between your self-managed instance and Jira Cloud ([Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections)).
+  - For self-managed instances behind a firewall:
+    1. Set up an internet-facing [reverse proxy](#using-a-reverse-proxy) in front of your self-managed instance.
+    1. Configure the reverse proxy to allow inbound connections from Jira Cloud ([Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections)).
+    1. Ensure your self-managed instance can still make the outbound connections described above.
 - The Jira user that installs and configures the app must meet certain [requirements](#jira-user-requirements).
 
 ### Set up your instance
@@ -181,7 +200,7 @@ To support your self-managed instance with Jira Cloud, do one of the following:
 
 To set up your self-managed instance for the GitLab for Jira Cloud app in GitLab 15.7 and later:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **GitLab for Jira App**.
 1. In **Jira Connect Proxy URL**, ensure this is blank.
@@ -203,7 +222,7 @@ To configure your Jira instance so you can install apps from outside the Atlassi
       on your instance configuration.
 
       By default, your manifest file is located at `/-/jira_connect/app_descriptor.json`.
-      For example, if your GitLab self-managed instance domain is `app.pet-store.cloud`,
+      For example, if your instance domain is `app.pet-store.cloud`,
       your manifest file is located at `https://app.pet-store.cloud/-/jira_connect/app_descriptor.json`.
 
    1. Select **Upload**.
@@ -246,7 +265,7 @@ You might want to use a proxy if you're managing multiple GitLab instances but o
 
 To configure your GitLab instance to serve as a proxy:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **GitLab for Jira App**.
 1. Select **Enable public key storage**.
@@ -297,6 +316,14 @@ accDescr: How GitLab.com handles lifecycle events when the GitLab for Jira Cloud
     Your instance->>Jira: Your development data
 ```
 
+### GitLab.com handling of branch creation
+
+When you have
+[installed the GitLab for Jira Cloud app from the Atlassian Marketplace](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace),
+the links to create a branch from the development panel initially send the user to GitLab.com.
+
+Jira sends GitLab.com a JWT token. GitLab.com handles the request by verifying the token and then redirects the request to your GitLab instance.
+
 ### Access to GitLab through OAuth
 
 GitLab does not share an access token with Jira. However, users must authenticate through OAuth to configure the app.
@@ -315,9 +342,11 @@ Access through OAuth is only needed for the time a user configures the GitLab fo
 
 ## Using a reverse proxy
 
-To use the GitLab for Jira Cloud app on a self-managed instance that cannot be accessed
-from the internet, the self-managed instance must be accessible from Jira Cloud.
-You can use a reverse proxy, but keep the following in mind:
+You should avoid using a reverse proxy in front of your self-managed instance if possible.
+Instead, consider using a public IP address and securing the domain with a firewall.
+
+If you must use a reverse proxy for the GitLab for Jira Cloud app on a self-managed instance
+that cannot be accessed directly from the internet, keep the following in mind:
 
 - When you [install the GitLab for Jira Cloud app from the Atlassian Marketplace](#install-the-gitlab-for-jira-cloud-app-from-the-atlassian-marketplace),
   use a client with access to both the internal GitLab FQDN and the reverse proxy FQDN.
@@ -333,7 +362,9 @@ You can use a reverse proxy, but keep the following in mind:
   [Atlassian IP addresses](https://support.atlassian.com/organization-administration/docs/ip-addresses-and-domains-for-atlassian-cloud-products/#Outgoing-Connections) only.
 - If you use a rewrite or subfilter with your proxy, ensure the proxy
   does not rewrite or replace the `gitlab-jira-connect-${host}` app key.
-  Otherwise, you might get a [`Failed to link group`](jira_cloud_app_troubleshooting.md#failed-to-link-group) error.
+  Otherwise, you might get a [`Failed to link group`](jira_cloud_app_troubleshooting.md#error-failed-to-link-group) error.
+- When you select [**Create branch**](https://support.atlassian.com/jira-software-cloud/docs/view-development-information-for-an-issue/#Create-feature-branches) in the Jira development panel,
+  you are redirected to the reverse proxy FQDN rather than the internal GitLab FQDN.
 
 ### External NGINX
 
@@ -388,3 +419,22 @@ You must use the reverse proxy FQDN only to connect Jira Cloud to GitLab.
 You must continue to access GitLab from the internal GitLab FQDN.
 If you access GitLab from the reverse proxy FQDN, GitLab might not work as expected.
 For more information, see [issue 21319](https://gitlab.com/gitlab-org/gitlab/-/issues/21319).
+
+### Set an additional JWT audience
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/498587) in GitLab 17.7.
+
+When GitLab receives a JWT token from Jira,
+GitLab verifies the token by checking the JWT audience.
+By default, the audience is derived from your internal GitLab FQDN.
+
+In some reverse proxy configurations, you might have to set
+the reverse proxy FQDN as an additional JWT audience.
+To set an additional JWT audience:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings > General**.
+1. Expand **GitLab for Jira App**.
+1. In **Jira Connect Additional Audience URL**, enter the additional audience
+   (for example, `https://gitlab.mycompany.com`).
+1. Select **Save changes**.

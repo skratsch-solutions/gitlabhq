@@ -81,14 +81,14 @@ module MergeRequests
       notification_service.async.changed_reviewer_of_merge_request(merge_request, current_user, old_reviewers)
       todo_service.reassigned_reviewable(merge_request, current_user, old_reviewers)
       invalidate_cache_counts(merge_request, users: affected_reviewers.compact)
+      invalidate_cache_counts(merge_request, users: merge_request.assignees)
 
       new_reviewers = merge_request.reviewers - old_reviewers
       merge_request_activity_counter.track_users_review_requested(users: new_reviewers)
       merge_request_activity_counter.track_reviewers_changed_action(user: current_user)
       trigger_merge_request_reviewers_updated(merge_request)
 
-      capture_suggested_reviewers_accepted(merge_request)
-      set_first_reviewer_assigned_at_metrics(merge_request, current_user) if new_reviewers.any?
+      set_first_reviewer_assigned_at_metrics(merge_request) if new_reviewers.any?
     end
 
     def cleanup_environments(merge_request)
@@ -171,6 +171,10 @@ module MergeRequests
       end
     end
 
+    def request_duo_code_review(merge_request)
+      # Overriden in EE
+    end
+
     def filter_params(merge_request)
       super
 
@@ -195,7 +199,9 @@ module MergeRequests
         params[:reviewer_ids] = params[:reviewer_ids].first(1)
       end
 
-      reviewer_ids = params[:reviewer_ids].select { |reviewer_id| user_can_read?(merge_request, reviewer_id) }
+      reviewer_ids = User.id_in(params[:reviewer_ids]).select do |reviewer|
+        user_can_read?(merge_request, reviewer)
+      end.map(&:id)
 
       if params[:reviewer_ids].map(&:to_s) == [IssuableFinder::Params::NONE]
         params[:reviewer_ids] = []
@@ -275,13 +281,7 @@ module MergeRequests
       GraphqlTriggers.merge_request_approval_state_updated(merge_request)
     end
 
-    def capture_suggested_reviewers_accepted(merge_request)
-      # Implemented in EE
-    end
-
-    def set_first_reviewer_assigned_at_metrics(merge_request, user)
-      return unless Feature.enabled?(:store_first_reviewer_assignment_timestamp_in_metrics, user, type: :beta)
-
+    def set_first_reviewer_assigned_at_metrics(merge_request)
       metrics = merge_request.metrics
       return unless metrics
 

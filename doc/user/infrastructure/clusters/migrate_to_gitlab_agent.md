@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To connect your Kubernetes cluster with GitLab, you can use:
 
@@ -89,7 +89,7 @@ In your Auto DevOps project, you can use the GitLab agent to connect with your K
      KUBE_NAMESPACE: "demo-agent"
    ```
 
-1. To test your pipeline, on the left sidebar, select **Build > Pipelines** and then **Run pipeline**.
+1. To test your pipeline, on the left sidebar, select **Build > Pipelines** and then **New pipeline**.
 
 For an example, [view this project](https://gitlab.com/gitlab-examples/ops/gitops-demo/hello-world-service).
 

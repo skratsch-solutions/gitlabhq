@@ -1,6 +1,6 @@
 - show_cancel_button = local_assigns.fetch(:cancel, false)
 
-= gitlab_ui_form_for @application, url: url, html: { role: 'form', class: 'doorkeeper-app-form gl-max-w-80 gl-display-inline-block' } do |f|
+= gitlab_ui_form_for @application, url: url, html: { role: 'form', class: 'doorkeeper-app-form gl-max-w-80 gl-inline-block' } do |f|
   = form_errors(@application)
 
   .form-group
@@ -11,7 +11,7 @@
     = f.label :redirect_uri, class: 'label-bold'
     = f.text_area :redirect_uri, class: 'form-control gl-form-input gl-form-textarea', required: true
 
-    %span.form-text.text-muted
+    %span.form-text.gl-text-subtle
       = _('Use one line per URI')
 
   .form-group

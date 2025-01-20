@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Refer to the information below when troubleshooting Gitaly. For information on troubleshooting Gitaly Cluster (Praefect),
 see [Troubleshooting Gitaly Cluster](troubleshooting_gitaly_cluster.md).
@@ -23,8 +23,8 @@ and our advice on [parsing the `gitaly/current` file](../logs/log_parsing.md#par
 When using standalone Gitaly servers, you must make sure they are the same version
 as GitLab to ensure full compatibility:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Overview > Gitaly Servers**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Overview > Gitaly servers**.
 1. Confirm all Gitaly servers indicate that they are up to date.
 
 ## Find storage resource details
@@ -48,6 +48,24 @@ To see the help page of `gitaly-debug` for a list of supported sub-commands, run
 
 ```shell
 gitaly-debug -h
+```
+
+## Use `gitaly git` when Git is required for troubleshooting
+
+Use `gitaly git` to execute Git commands by using the same Git execution environment as Gitaly for debugging or
+testing purposes. `gitaly git` is the preferred method to ensure version compatibility.
+
+`gitaly git` passes all arguments through to the underlying Git invocation and
+supports all forms of input that Git supports. To use `gitaly git`, run:
+
+```shell
+sudo -u git -- /opt/gitlab/embedded/bin/gitaly git <git-command>
+```
+
+For example, to run `git ls-tree` through Gitaly on a Linux package instance in the working directory of a repository:
+
+```shell
+sudo -u git -- /opt/gitlab/embedded/bin/gitaly git ls-tree --name-status HEAD
 ```
 
 ## Commits, pushes, and clones return a 401
@@ -224,8 +242,6 @@ update the secrets file on the Gitaly server to match the Gitaly client, then
 If you've confirmed that your `gitlab-secrets.json` file is the same on all Gitaly servers and clients,
 the application might be fetching this secret from a different file. Your Gitaly server's
 `config.toml file` indicates the secrets file in use.
-If that setting is missing, GitLab defaults to using `.gitlab_shell_secret` under
-`/opt/gitlab/embedded/service/gitlab-rails/.gitlab_shell_secret`.
 
 ## Repository pushes fail with `401 Unauthorized` and `JWT::VerificationError`
 
@@ -246,7 +262,7 @@ When attempting `git push`, you can see:
 This combination of errors occurs when the GitLab server has been upgraded to GitLab 15.5 or later but Gitaly has not yet been upgraded.
 
 From GitLab 15.5, GitLab [authenticates with GitLab Shell using a JWT token instead of a shared secret](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/86148).
-You should follow the [recommendations on upgrading external Gitaly](../../update/plan_your_upgrade.md#external-gitaly) and upgrade Gitaly before the GitLab
+You should follow the [recommendations on upgrading external Gitaly](../../update/index.md#external-gitaly) and upgrade Gitaly before the GitLab
 server.
 
 ## Repository pushes fail with a `deny updating a hidden ref` error
@@ -315,7 +331,7 @@ You might see the following in Gitaly and Praefect logs:
 ```shell
 {
   ...
-  "error":"rpc error: code = PermissionDenied desc = permission denied",
+  "error":"rpc error: code = PermissionDenied desc = permission denied: token has expired",
   "grpc.code":"PermissionDenied",
   "grpc.meta.client_name":"gitlab-web",
   "grpc.request.fullMethod":"/gitaly.ServerService/ServerInfo",
@@ -344,16 +360,6 @@ continue to listen on the old address after a `sudo gitlab-ctl reconfigure`.
 When this occurs, run `sudo gitlab-ctl restart` to resolve the issue. This should no longer be
 necessary because [this issue](https://gitlab.com/gitlab-org/gitaly/-/issues/2521) is resolved.
 
-## Errors in Gitaly logs when accessing repositories from a standalone Gitaly node
-
-You might see permission-denied errors in the Gitaly logs when you access a repository
-from a standalone Gitaly node. This error occurs even though file permissions are correct.
-It's likely that the Gitaly node is
-experiencing [clock drift](https://en.wikipedia.org/wiki/Clock_drift).
-
-Ensure that the GitLab and Gitaly nodes are synchronized and use an NTP time
-server to keep them synchronized if possible.
-
 ## Health check warnings
 
 The following warning in `/var/log/gitlab/praefect/current` can be ignored.
@@ -377,7 +383,7 @@ that do not exist in a repository.
 
 ## Git pushes are slow when Dynatrace is enabled
 
-Dynatrace can cause the `/opt/gitlab/embedded/bin/gitaly-hooks` reference transaction hook,
+Dynatrace can cause the `sudo -u git -- /opt/gitlab/embedded/bin/gitaly-hooks` reference transaction hook,
 to take several seconds to start up and shut down. `gitaly-hooks` is executed twice when users
 push, which causes a significant delay.
 
@@ -513,7 +519,7 @@ go tool trace heap.bin
 > - [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/5700) in GitLab 16.9 [with a flag](../../administration/feature_flags.md) named `log_git_traces`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md)
+On GitLab Self-Managed, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../administration/feature_flags.md)
 named `log_git_traces`. On GitLab.com, this feature is available but can be configured by GitLab.com administrators only. On GitLab Dedicated, this feature is not available.
 
 You can profile Git operations that Gitaly performs by sending additional information about Git operations to Gitaly logs. With this information, users have more insight

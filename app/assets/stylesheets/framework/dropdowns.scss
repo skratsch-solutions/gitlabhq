@@ -21,11 +21,6 @@
   display: block;
 }
 
-@mixin set-invisible {
-  transform: translateY(-10px);
-  display: none;
-}
-
 .show.dropdown {
   .dropdown-menu {
     @include set-visible;
@@ -79,33 +74,54 @@
 .dropdown-menu-close {
   &:active,
   &:focus {
-    @include gl-focus;
+    @apply gl-focus;
   }
 }
 
-// Get search dropdown to line up with other nav dropdowns
-.search-input-container .dropdown-menu {
-  margin-top: 11px;
+@mixin gl-dropdown-toggle-button {
+  color: var(--gl-button-default-primary-foreground-color-default);
+  background-color: var(--gl-button-default-primary-background-color-default);
+  border: 1px solid var(--gl-button-default-primary-border-color-default);
+  transition: color $gl-transition-duration-medium $gl-easing-out-cubic,
+    background-color $gl-transition-duration-medium $gl-easing-out-cubic,
+    border-color $gl-transition-duration-medium $gl-easing-out-cubic,
+    box-shadow $gl-transition-duration-medium $gl-easing-out-cubic;
+
+  &:hover {
+    color: var(--gl-button-default-primary-foreground-color-hover);
+    background-color: var(--gl-button-default-primary-background-color-hover);
+    border-color: var(--gl-button-default-primary-border-color-hover);
+  }
+
+  &:focus {
+    color: var(--gl-button-default-primary-foreground-color-focus);
+    background-color: var(--gl-button-default-primary-background-color-focus);
+    border-color: var(--gl-button-default-primary-border-color-focus);
+  }
+
+  &:active,
+  &.active {
+    color: var(--gl-button-default-primary-foreground-color-active);
+    background-color: var(--gl-button-default-primary-background-color-active);
+    border-color: var(--gl-button-default-primary-border-color-active);
+
+    &:focus {
+      @apply gl-focus;
+    }
+  }
 }
 
 .dropdown-toggle,
 .dropdown-menu-toggle,
 .confidential-merge-request-fork-group .dropdown-toggle {
+  @apply gl-rounded-base;
   padding: 6px 8px 6px 10px;
-  background-color: $white;
-  color: $gl-text-color;
-  font-size: 14px;
   text-align: left;
-  border: 1px solid $gray-200;
-  border-radius: $border-radius-base;
   white-space: nowrap;
+  @include gl-dropdown-toggle-button;
 
   &:disabled.read-only {
-    color: $gl-text-color !important;
-  }
-
-  &.no-outline {
-    outline: 0;
+    @apply gl-text-default #{!important};
   }
 
   &.large {
@@ -128,15 +144,6 @@
     max-width: 100%;
     padding-right: 25px;
   }
-
-  &:hover {
-    border-color: $gray-200;
-  }
-
-  &:focus:active {
-    border-color: $dropdown-toggle-active-border-color;
-    outline: 0;
-  }
 }
 
 // This is double classed to solve a specificity issue with the gitlab ui buttons
@@ -150,16 +157,7 @@
   text-overflow: ellipsis;
   line-height: $gl-line-height;
   width: 160px;
-
-  &:hover {
-    @apply gl-shadow-inner-1-gray-400;
-  }
-
-  &:hover,
-  &:focus {
-    background-color: $gray-50;
-    border-color: $gray-400;
-  }
+  @include gl-dropdown-toggle-button;
 
   .gl-spinner {
     position: absolute;
@@ -170,7 +168,7 @@
   .dropdown-menu-toggle-icon {
     position: absolute;
     right: $gl-padding-8;
-    color: $gray-500;
+    color: currentColor;
   }
 }
 
@@ -190,8 +188,8 @@
 }
 
 @mixin dropdown-item-hover {
-  background-color: $gray-50;
-  color: $gl-text-color;
+  background-color: var(--gl-dropdown-option-background-color-unselected-hover);
+  color: var(--gl-dropdown-option-text-color-hover);
   outline: 0;
 }
 
@@ -204,7 +202,7 @@
   font-weight: $gl-font-weight-normal;
   position: relative;
   padding: $dropdown-item-padding-y $dropdown-item-padding-x;
-  color: $gl-text-color;
+  @apply gl-text-default;
   line-height: $gl-btn-line-height;
   white-space: normal;
   overflow: hidden;
@@ -241,13 +239,6 @@
       display: block;
     }
   }
-
-  .icon-play {
-    fill: $gl-text-color-secondary;
-    margin-right: 6px;
-    height: 12px;
-    width: 11px;
-  }
 }
 
 .dropdown-menu {
@@ -263,18 +254,10 @@
   font-size: 0.875rem;
   font-weight: $gl-font-weight-normal;
   padding: 8px 0;
-  background-color: $white;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-base;
-  box-shadow: 0 2px 4px $dropdown-shadow-color;
+  @apply gl-bg-dropdown gl-border gl-border-dropdown gl-rounded-base gl-shadow-md;
 
   &.dropdown-open-top {
     margin-bottom: $dropdown-vertical-offset;
-  }
-
-  &.dropdown-open-left {
-    right: 0;
-    left: auto;
   }
 
   &.is-loading {
@@ -326,11 +309,7 @@
     height: 1px;
     margin: #{$grid-size / 2} 0;
     padding: 0;
-    background-color: $dropdown-divider-bg;
-
-    &:hover {
-      background-color: $dropdown-divider-bg;
-    }
+    @apply gl-border-t gl-border-t-dropdown;
   }
 
   .separator {
@@ -338,7 +317,7 @@
     height: 1px;
     margin-top: 8px;
     margin-bottom: 8px;
-    background-color: $dropdown-divider-bg;
+    background-color: var(--gl-dropdown-border-color);
   }
 
   .dropdown-menu-empty-item a {
@@ -349,9 +328,8 @@
   }
 
   .dropdown-header {
-    color: $black;
+    @apply gl-text-strong gl-font-bold;
     font-size: 13px;
-    font-weight: $gl-font-weight-bold;
     line-height: $gl-line-height;
     padding: $dropdown-item-padding-y $dropdown-item-padding-x;
   }
@@ -360,25 +338,15 @@
     text-transform: capitalize;
   }
 
-  .dropdown-bold-header {
-    font-weight: $gl-font-weight-bold;
-    line-height: $gl-line-height;
-    padding: $dropdown-item-padding-y $dropdown-item-padding-x;
-  }
-
   .unclickable {
     cursor: not-allowed;
     padding: 5px 8px;
-    color: $gl-text-color-secondary;
+    @apply gl-text-subtle;
   }
 
   .badge.badge-pill + span:not(.badge):not(.badge-pill) {
     // Expects up to 3 digits on the badge
     margin-right: 40px;
-  }
-
-  .dropdown-menu-content {
-    padding: $dropdown-item-padding-y $dropdown-item-padding-x;
   }
 }
 
@@ -419,7 +387,7 @@
         flex-direction: column;
 
         .reference {
-          color: $gray-300;
+          @apply gl-text-disabled;
           margin-top: $gl-padding-4;
         }
       }
@@ -460,10 +428,6 @@
   .dropdown-menu {
     max-width: 280px;
   }
-}
-
-.dropdown-menu-large {
-  width: 340px;
 }
 
 .dropdown-menu-full-width {
@@ -537,13 +501,13 @@
   li {
     a,
     button,
-    .dropdown-item:not(.open-with-link) {
+    .dropdown-item {
       padding: 8px 40px;
       position: relative;
 
       &.is-indeterminate,
       &.is-active {
-        color: $gl-text-color;
+        @apply gl-text-default;
 
         &.dropdown-menu-user-link::before {
           top: 50%;
@@ -579,7 +543,7 @@
           mask-repeat: no-repeat;
           mask-size: cover;
           mask-position: center center;
-          background: $black-normal;
+          background: var(--gl-dropdown-option-indicator-color-selected-default);
         }
       }
     }
@@ -596,7 +560,7 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-bottom: 1px solid $dropdown-divider-bg;
+  @apply gl-text-strong gl-border-b gl-border-b-dropdown;
   overflow: hidden;
 }
 
@@ -628,7 +592,7 @@
     position: absolute;
     top: $gl-padding-8;
     right: 20px;
-    color: $gray-500;
+    @apply gl-fill-icon-subtle;
     font-size: 12px;
     pointer-events: none;
   }
@@ -656,9 +620,8 @@
   }
 }
 
-.dropdown-input-field,
-.default-dropdown-input {
-  background-color: $input-bg;
+.dropdown-input-field {
+  background-color: var(--gl-control-background-color-default);
   display: block;
   width: 100%;
   min-height: 30px;
@@ -666,19 +629,19 @@
   padding-bottom: 0;
   padding-left: $gl-spacing-scale-3;
   padding-right: $gl-spacing-scale-3;
-  color: $gray-700;
+  @apply gl-text-subtle;
   line-height: 30px;
-  border: 1px solid $gray-400;
+  border: 1px solid var(--gl-control-border-color-default);
   border-radius: $gl-border-radius-base;
   outline: 0;
 
   &:focus {
-    @include gl-focus;
+    @apply gl-focus;
   }
 
   &:hover {
     ~ .dropdown-input-clear {
-      color: $gray-700;
+      @apply gl-text-subtle;
     }
   }
 }
@@ -689,7 +652,7 @@
 }
 
 .dropdown-info-note {
-  color: $gl-text-color-secondary;
+  @apply gl-text-subtle;
   text-align: center;
 }
 
@@ -697,7 +660,7 @@
   padding-top: 10px;
   margin-top: 10px;
   font-size: 13px;
-  border-top: 1px solid $dropdown-divider-bg;
+  @apply gl-border-t gl-border-t-dropdown;
 }
 
 .dropdown-footer-content {
@@ -772,18 +735,18 @@
 
 .dropdown-menu-inner-title {
   display: block;
-  color: $gl-text-color;
+  @apply gl-text-default;
   font-weight: $gl-font-weight-bold;
 }
 
 .dropdown-menu-inner-content {
   display: block;
-  color: $gl-text-color-secondary;
+  @apply gl-text-subtle;
 }
 
 .dropdown-toggle-text {
   &.is-default {
-    color: $gl-text-color-secondary;
+    color: var(--gl-text-color-subtle);
   }
 }
 
@@ -803,33 +766,9 @@
   @include set-visible;
 
   &.is-hidden {
-    @include set-invisible;
+    transform: translateY(-10px);
+    display: none;
     overflow: hidden;
-  }
-}
-
-.dropdown-content-faded-mask {
-  position: relative;
-
-  .dropdown-list {
-    max-height: $dropdown-max-height;
-    overflow-y: auto;
-    position: relative;
-  }
-
-  &::after {
-    height: $dropdown-fade-mask-height;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    background: linear-gradient(to top, $white 0, rgba($white, 0));
-    transition: opacity $fade-mask-transition-duration $fade-mask-transition-curve;
-    content: '';
-    pointer-events: none;
-  }
-
-  &.fade-out::after {
-    opacity: 0;
   }
 }
 
@@ -866,10 +805,8 @@
   .labels-select-dropdown-contents {
     min-height: $dropdown-min-height;
     max-height: 330px;
-    background-color: $white;
-    border: 1px solid $border-color;
-    box-shadow: 0 2px 4px $dropdown-shadow-color;
     z-index: 2;
+    @apply gl-border gl-border-dropdown gl-bg-dropdown gl-shadow-md;
 
     .dropdown-content {
       height: 135px;
@@ -889,7 +826,7 @@
       color: $dropdown-title-btn-color;
 
       &:hover {
-        color: $gray-300;
+        @apply gl-text-disabled;
       }
     }
   }
@@ -902,7 +839,7 @@
 .bulk-update {
   .dropdown-toggle-text {
     &.is-default {
-      color: $gl-text-color;
+      @apply gl-text-default;
     }
   }
 }

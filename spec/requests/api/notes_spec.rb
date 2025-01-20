@@ -312,6 +312,70 @@ RSpec.describe API::Notes, feature_category: :team_planning do
 
     subject { post api(request_path, user), params: params }
 
+    context 'a note with both text and invalid command' do
+      let(:request_body) { "hello world\n/spend hello" }
+
+      before do
+        project.add_developer(user)
+      end
+
+      it 'returns 200 status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:created)
+      end
+
+      it 'creates a new note' do
+        expect { subject }.to change { Note.where(system: false).count }.by(1)
+      end
+
+      it 'does not create a system note about the change', :sidekiq_inline do
+        expect { subject }.not_to change { Note.system.count }
+      end
+
+      it 'does not apply the commands' do
+        expect { subject }.not_to change { merge_request.reset.total_time_spent }
+      end
+    end
+
+    context 'a blank note' do
+      let(:request_body) { "" }
+
+      before do
+        project.add_developer(user)
+      end
+
+      it 'returns a 400 and does not create a note' do
+        expect { subject }.not_to change { Note.where(system: false).count }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+    end
+
+    context 'an invalid command-only note' do
+      let(:request_body) { "/spend asdf" }
+
+      before do
+        project.add_developer(user)
+      end
+
+      it 'returns a 400 and does not create a note' do
+        expect { subject }.not_to change { Note.where(system: false).count }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'does not apply the command' do
+        expect { subject }.not_to change { merge_request.reset.total_time_spent }
+      end
+
+      it 'reports the errors' do
+        subject
+
+        expect(json_response).to eq({ "message" => "400 Bad request - Failed to apply commands." })
+      end
+    end
+
     context 'a command only note' do
       context '/spend' do
         let(:request_body) { "/spend 1h" }
@@ -415,6 +479,30 @@ RSpec.describe API::Notes, feature_category: :team_planning do
 
         it 'does not create a new note' do
           expect { subject }.not_to change { Note.count }
+        end
+      end
+    end
+
+    context 'when authenticated with a token that has the ai_workflows scope' do
+      let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+      context 'a post request creates a merge request note' do
+        subject { post api(request_path, oauth_access_token: oauth_token), params: params }
+
+        it 'is successful' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:created)
+        end
+      end
+
+      context 'a get request returns a list of merge request notes' do
+        subject { get api(request_path, oauth_access_token: oauth_token) }
+
+        it 'is successful' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
     end

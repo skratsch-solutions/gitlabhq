@@ -8,6 +8,7 @@ import draftCommentsMixin from '~/diffs/mixins/draft_comments';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { getCommentedLines } from '~/notes/components/multiline_comment_utils';
 import { hide } from '~/tooltips';
+import { countLinesInBetween } from '~/diffs/utils/diff_file';
 import { pickDirection } from '../utils/diff_line';
 import DiffCommentCell from './diff_comment_cell.vue';
 import DiffExpansionCell from './diff_expansion_cell.vue';
@@ -54,6 +55,11 @@ export default {
       type: Object,
       required: false,
       default: null,
+    },
+    autosaveKey: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   idState() {
@@ -165,17 +171,7 @@ export default {
       }
     },
     getCountBetweenIndex(index) {
-      if (index === 0) {
-        return -1;
-      }
-      if (!this.diffLines[index + 1]) {
-        return -1;
-      }
-
-      return (
-        Number(this.diffLines[index + 1].left.new_line) -
-        Number(this.diffLines[index - 1].left.new_line)
-      );
+      return countLinesInBetween(this.diffLines, index);
     },
     getCodeQualityLine(line) {
       return (
@@ -234,7 +230,7 @@ export default {
       </div>
       <diff-row
         v-if="!line.isMatchLineLeft && !line.isMatchLineRight"
-        :key="line.line_code"
+        :key="line.lineCode"
         :file-hash="diffFile.file_hash"
         :file-path="diffFile.file_path"
         :line="line"
@@ -261,7 +257,7 @@ export default {
       />
       <div
         v-if="line.renderCommentRow"
-        :key="`dcr-${line.line_code || index}`"
+        :key="`dcr-${line.lineCode}`"
         :class="line.commentRowClasses"
         class="diff-grid-comments diff-tr notes_holder"
       >
@@ -297,7 +293,7 @@ export default {
       </div>
       <div
         v-if="shouldRenderParallelDraftRow(diffFile.file_hash, line)"
-        :key="`drafts-${index}`"
+        :key="`drafts-${line.lineCode}`"
         :class="line.draftRowClasses"
         class="diff-grid-drafts diff-tr notes_holder"
       >
@@ -308,7 +304,7 @@ export default {
           <div v-for="draft in lineDrafts(line, 'left')" :key="draft.id" class="content">
             <article class="note-wrapper">
               <ul class="notes draft-notes">
-                <draft-note :draft="draft" :line="line.left" />
+                <draft-note :draft="draft" :line="line.left" :autosave-key="autosaveKey" />
               </ul>
             </article>
           </div>
@@ -320,7 +316,7 @@ export default {
           <div v-for="draft in lineDrafts(line, 'right')" :key="draft.id" class="content">
             <article class="note-wrapper">
               <ul class="notes draft-notes">
-                <draft-note :draft="draft" :line="line.right" />
+                <draft-note :draft="draft" :line="line.right" :autosave-key="autosaveKey" />
               </ul>
             </article>
           </div>

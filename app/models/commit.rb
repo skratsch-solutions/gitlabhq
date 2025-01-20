@@ -15,6 +15,8 @@ class Commit
   include ::Gitlab::Utils::StrongMemoize
   include ActsAsPaginatedDiff
   include CacheMarkdownField
+  include GlobalID::Identification
+  include ::Repositories::StreamableDiff
 
   participant :author
   participant :committer
@@ -146,9 +148,7 @@ class Commit
       # Commit in turn expects Time-like instances upon input, so we have to
       # manually parse these values.
       hash.each do |key, value|
-        if key.to_s.end_with?(date_suffix) && value.is_a?(String)
-          hash[key] = Time.zone.parse(value)
-        end
+        hash[key] = Time.zone.parse(value) if key.to_s.end_with?(date_suffix) && value.is_a?(String)
       end
 
       from_hash(hash, project)
@@ -292,15 +292,13 @@ class Commit
       }
     }
 
-    if with_changed_files
-      data.merge!(repo_changes)
-    end
+    data.merge!(repo_changes) if with_changed_files
 
     data
   end
 
   def lazy_author
-    BatchLoader.for(author_email.downcase).batch do |emails, loader|
+    BatchLoader.for(author_email&.downcase).batch do |emails, loader|
       users = User.by_any_email(emails, confirmed: true).includes(:emails)
 
       emails.each do |email|
@@ -316,14 +314,15 @@ class Commit
       lazy_author&.itself
     end
   end
-  request_cache(:author) { author_email.downcase }
+  request_cache(:author) { author_email&.downcase }
 
   def committer(confirmed: true)
     @committer ||= User.find_by_any_email(committer_email, confirmed: confirmed)
   end
 
   def parents
-    @parents ||= parent_ids.map { |oid| Commit.lazy(container, oid) }
+    # Usage of `reject` is intentional. `compact` doesn't work here, because of BatchLoader specifics
+    @parents ||= parent_ids.map { |oid| Commit.lazy(container, oid) }.reject(&:nil?)
   end
 
   def parent
@@ -594,6 +593,20 @@ class Commit
     repository.tag_names_contains(id, limit: limit, exclude_refs: excluded) || []
   end
 
+  def has_encoded_file_paths?
+    raw_diffs.any?(&:encoded_file_path)
+  end
+
+  def valid_full_sha
+    id.match(Gitlab::Git::Commit::FULL_SHA_PATTERN).to_s
+  end
+
+  def first_diffs_slice(limit, diff_options = {})
+    diff_options[:max_files] = limit
+
+    diffs(diff_options)
+  end
+
   private
 
   def tipping_refs(ref_prefix, limit: 0)
@@ -639,3 +652,5 @@ class Commit
     MergeRequestsFinder.new(user, project_id: project_id).find_by(squash_commit_sha: id)
   end
 end
+
+Commit.prepend_mod_with('Projects::Commit')

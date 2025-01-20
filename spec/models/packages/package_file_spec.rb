@@ -23,6 +23,10 @@ RSpec.describe Packages::PackageFile, type: :model, feature_category: :package_r
     it { is_expected.to have_one(:helm_file_metadatum).inverse_of(:package_file).class_name('Packages::Helm::FileMetadatum') }
   end
 
+  describe 'included modules' do
+    it { is_expected.to include_module(AfterCommitQueue) }
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:package) }
 
@@ -323,13 +327,6 @@ RSpec.describe Packages::PackageFile, type: :model, feature_category: :package_r
         .to receive(:update_file_store)
         .and_call_original
 
-      # This expectation uses a stub because we can no longer test a change from
-      # `nil` to `1`, because the field is no longer nullable, and it defaults
-      # to `1`.
-      expect(package_file)
-        .to receive(:update_column)
-        .with('file_store', ::Packages::PackageFileUploader::Store::LOCAL)
-
       expect { subject }.to change { package_file.size }.from(nil).to(3513)
     end
   end
@@ -420,6 +417,10 @@ RSpec.describe Packages::PackageFile, type: :model, feature_category: :package_r
 
       it { is_expected.to contain_exactly(pending_destruction_package_file) }
     end
+  end
+
+  describe '.installable_statuses' do
+    it_behaves_like 'installable statuses'
   end
 
   describe '#file_name_for_download' do

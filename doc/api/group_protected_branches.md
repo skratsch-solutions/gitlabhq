@@ -8,14 +8,17 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110603) in GitLab 15.9 [with a flag](../administration/feature_flags.md) named `group_protected_branches`. Disabled by default.
 > - Flag `group_protected_branches` [renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/116779) [flag](../administration/feature_flags.md) to `allow_protected_branches_for_group` GitLab 15.11.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/500250) in GitLab 17.6. Feature flag `group_protected_branches` removed.
 
-FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../administration/feature_flags.md) named `allow_protected_branches_for_group`.
-On GitLab.com and GitLab Dedicated, this feature is not available.
+Use the Group-level protected branches API to manage protected branch rules.
+It provides endpoints to list, create, update, and delete protected branch rules that apply to projects within a group.
+
+WARNING:
+Group-level protected branch settings are restricted to top-level groups only.
 
 ## Valid access levels
 
@@ -40,12 +43,12 @@ GET /groups/:id/protected_branches
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `search` | string | no | Name or part of the name of protected branches to be searched for. |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches"
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches"
 ```
 
 Example response:
@@ -114,12 +117,12 @@ GET /groups/:id/protected_branches/:name
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the branch or wildcard. |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches/main"
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches/main"
 ```
 
 Example response:
@@ -160,13 +163,14 @@ POST /groups/:id/protected_branches
 ```
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches?name=*-stable&push_access_level=30&merge_access_level=30&unprotect_access_level=40"
+curl --request POST \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches?name=*-stable&push_access_level=30&merge_access_level=30&unprotect_access_level=40"
 ```
 
 | Attribute                                    | Type | Required | Description |
 | -------------------------------------------- | ---- | -------- | ----------- |
-| `id`                                         | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                                         | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `name`                                       | string         | yes | The name of the branch or wildcard. |
 | `allow_force_push`                           | boolean        | no  | Allow all users with push access to force push. Default: `false`. |
 | `allowed_to_merge`                           | array          | no  | Array of access levels allowed to merge, with each described by a hash of the form `{user_id: integer}`, `{group_id: integer}`, or `{access_level: integer}`. |
@@ -220,12 +224,13 @@ Example response:
 Elements in the `allowed_to_push` / `allowed_to_merge` / `allowed_to_unprotect` array should take the
 form `{user_id: integer}`, `{group_id: integer}`, or `{access_level: integer}`. Each user must have
 access to the project and each group must
-[have this project shared](../user/project/members/share_project_with_groups.md). These access levels
-allow [more granular control over protected branch access](../user/project/protected_branches.md).
+[have this project shared](../user/project/members/sharing_projects_groups.md). These access levels
+allow [more granular control over protected branch access](../user/project/repository/branches/protected.md).
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches?name=*-stable&allowed_to_push%5B%5D%5Buser_id%5D=1"
+curl --request POST \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches?name=*-stable&allowed_to_push%5B%5D%5Buser_id%5D=1"
 ```
 
 Example response:
@@ -272,18 +277,18 @@ Example request:
 
 ```shell
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
-     --header "Content-Type: application/json" \
-     --data '{
-      "name": "main",
-      "allowed_to_push": [{"access_level": 30}],
-      "allowed_to_merge": [{
-          "access_level": 30
-        },{
-          "access_level": 40
-        }
-      ]}'
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches"
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "main",
+    "allowed_to_push": [{"access_level": 30}],
+    "allowed_to_merge": [{
+        "access_level": 30
+      },{
+        "access_level": 40
+      }
+    ]}'
+    --url "https://gitlab.example.com/api/v4/groups/5/protected_branches"
 ```
 
 Example response:
@@ -340,13 +345,14 @@ DELETE /groups/:id/protected_branches/:name
 ```
 
 ```shell
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches/*-stable"
+curl --request DELETE \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches/*-stable"
 ```
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the branch. |
 
 Example response:
@@ -375,13 +381,14 @@ PATCH /groups/:id/protected_branches/:name
 ```
 
 ```shell
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/5/protected_branches/feature-branch?allow_force_push=true&code_owner_approval_required=true"
+curl --request PATCH \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/5/protected_branches/feature-branch?allow_force_push=true&code_owner_approval_required=true"
 ```
 
 | Attribute                                    | Type           | Required | Description                                                                                                                          |
 | -------------------------------------------- | ---- | -------- | ----------- |
-| `id`                                         | integer or string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user.                       |
+| `id`                                         | integer or string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths).                       |
 | `name`                                       | string         | yes      | The name of the branch.                                                                                                               |
 | `allow_force_push`                           | boolean        | no       | When enabled, members who can push to this branch can also force push.                                                               |
 | `allowed_to_push`                            | array          | no       | Array of push access levels, with each described by a hash.                                                                          |
@@ -398,7 +405,7 @@ To update:
 
 - `user_id`: Ensure the updated user has access to the project. You must also pass the
   `id` of the `access_level` in the respective hash.
-- `group_id`: Ensure the updated group [has this project shared](../user/project/members/share_project_with_groups.md).
+- `group_id`: Ensure the updated group [has this project shared](../user/project/members/sharing_projects_groups.md).
   You must also pass the `id` of the `access_level` in the respective hash.
 
 To delete:
@@ -409,9 +416,9 @@ To delete:
 
 ```shell
 curl --header 'Content-Type: application/json' --request PATCH \
-     --data '{"allowed_to_push": [{access_level: 40}]}' \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
-     "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
+  --data '{"allowed_to_push": [{access_level: 40}]}' \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
 ```
 
 Example response:
@@ -435,8 +442,9 @@ Example response:
 
 ```shell
 curl --header 'Content-Type: application/json' --request PATCH \
-     --data '{"allowed_to_push": [{"id": 12, "access_level": 0}]' \
-     --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
+  --data '{"allowed_to_push": [{"id": 12, "access_level": 0}]' \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
 ```
 
 Example response:
@@ -460,8 +468,9 @@ Example response:
 
 ```shell
 curl --header 'Content-Type: application/json' --request PATCH \
-     --data '{"allowed_to_push": [{"id": 12, "_destroy": true}]}' \
-     --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
+  --data '{"allowed_to_push": [{"id": 12, "_destroy": true}]}' \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/groups/22034114/protected_branches/main"
 ```
 
 Example response:

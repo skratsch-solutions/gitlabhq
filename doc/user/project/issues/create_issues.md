@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you create an issue, you are prompted to enter the fields of the issue.
 If you know the values you want to assign to an issue, you can use
@@ -120,7 +120,7 @@ example, if the list is scoped to a label `Frontend`, the new issue also has thi
 ## By sending an email
 
 You can send an email to create an issue in a project on the project's
-**Issues List** page.
+**Issues** page.
 
 Prerequisites:
 
@@ -149,7 +149,7 @@ were you.
 
 To regenerate the email address:
 
-1. On the issues list, select **Email a new issue to this project**.
+1. On the **Issues** page, select **Email a new issue to this project**.
 1. Select **reset this token**.
 
 ## Using a URL with prefilled values
@@ -160,12 +160,15 @@ HTML page to create issues with certain fields prefilled.
 
 | Field                | URL parameter         | Notes                                                                                                                           |
 | -------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Title                | `issue[title]`        | Must be [URL-encoded](../../../api/rest/index.md#namespaced-path-encoding).                                                          |
+| Title                | `issue[title]`        | Must be [URL-encoded](../../../api/rest/index.md#namespaced-paths).                                                          |
 | Issue type           | `issue[issue_type]`   | Either `incident` or `issue`.                                                                                                   |
-| Description template | `issuable_template`   | Must be [URL-encoded](../../../api/rest/index.md#namespaced-path-encoding).                                                          |
-| Description          | `issue[description]`  | Must be [URL-encoded](../../../api/rest/index.md#namespaced-path-encoding). If used in combination with `issuable_template` or a [default issue template](../description_templates.md#set-a-default-template-for-merge-requests-and-issues), the `issue[description]` value is appended to the template. |
+| Description template | `issuable_template`   | Must be [URL-encoded](../../../api/rest/index.md#namespaced-paths).                                                          |
+| Description          | `issue[description]`  | Must be [URL-encoded](../../../api/rest/index.md#namespaced-paths). If used in combination with `issuable_template` or a [default issue template](../description_templates.md#set-a-default-template-for-merge-requests-and-issues), the `issue[description]` value is appended to the template. |
 | Confidential         | `issue[confidential]` | If `true`, the issue is marked as confidential.                                                                                 |
 | Relate to…           | `add_related_issue`   | A numeric issue ID. If present, the issue form shows a [**Relate to** checkbox](#from-another-issue-or-incident) to optionally link the new issue to the specified existing issue. |
+
+In [GitLab 17.8 and later](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/177215),
+when you select an issue template, the URL changes to show the template used.
 
 Adapt these examples to form your new issue URL with prefilled fields.
 To create an issue in the GitLab project:
@@ -206,7 +209,7 @@ When you're creating a new issue, you can complete the following fields:
 - [Description template](../description_templates.md): overwrites anything in the Description text box
 - Description: you can use [Markdown](../../markdown.md) and [quick actions](../quick_actions.md)
 - Checkbox to make the issue [confidential](confidential_issues.md)
-- [Assignees](managing_issues.md#assignee)
+- [Assignees](managing_issues.md#assignees)
 - [Weight](issue_weight.md)
 - [Epic](../../group/epics/index.md)
 - [Due date](due_dates.md)

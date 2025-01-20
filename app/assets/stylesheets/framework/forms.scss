@@ -4,8 +4,8 @@ textarea {
 
 input {
   border-radius: $border-radius-base;
-  color: $gl-text-color;
-  background-color: $input-bg;
+  @apply gl-text-default;
+  background-color: var(--gl-control-background-color-default);
 }
 
 input[type='text'].danger {
@@ -13,28 +13,6 @@ input[type='text'].danger {
   border-color: $red-400;
   text-shadow: 0 1px 1px $white;
 }
-
-/**
- * When form input type is number, Firefox & Safari show the up/down arrows
- * on the right side of the input persistently, while Chrome shows it only
- * on hover or focus, this fix allows us to hide the arrows in all browsers.
- * You can conditionally add/remove `hide-spinners` class to have consistent
- * behaviour across browsers.
- */
-
-/* stylelint-disable property-no-vendor-prefix */
-input[type='number'].hide-spinners {
-  -moz-appearance: textfield;
-  appearance: textfield;
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-  }
-}
-/* stylelint-enable property-no-vendor-prefix */
 
 /**
  * When form input type is search, browsers add a clear input button inside
@@ -53,12 +31,6 @@ input[type='search'] {
   }
 }
 /* stylelint-enable property-no-vendor-prefix */
-
-.datetime-controls {
-  select {
-    width: 100px;
-  }
-}
 
 .form-actions {
   margin-top: 0;
@@ -83,15 +55,6 @@ label {
   &.label-bold {
     font-weight: $gl-font-weight-bold;
   }
-}
-
-.label-wrapper {
-  display: block;
-  margin: 0;
-}
-
-.inline-input-group {
-  width: 250px;
 }
 
 .custom-form-control {
@@ -123,7 +86,6 @@ label {
   margin-right: 0;
 
   .form-control {
-    background: $white;
     font-family: $monospace-font;
   }
 
@@ -138,6 +100,8 @@ label {
 
 .form-control {
   @include box-shadow(none);
+  background: var(--gl-control-background-color-default);
+  @apply gl-text-default;
   border-radius: $gl-border-radius-base;
   padding: $gl-vert-padding $gl-input-padding;
 
@@ -153,8 +117,10 @@ label {
 .form-control,
 [contenteditable=true] {
   &:focus {
-    border-color: $gray-400;
-    @include gl-focus;
+    background: var(--gl-control-background-color-default);
+    border-color: var(--gl-control-border-color-default);
+    @apply gl-text-default;
+    @apply gl-focus;
   }
 }
 
@@ -173,20 +139,11 @@ label {
   }
 }
 
-.form-control-inline {
-  display: inline;
-}
-
 .form-control::placeholder {
-  color: $gl-text-color-tertiary;
+  color: var(--gl-control-placeholder-color);
 }
 
 .input-group {
-  .input-group-prepend,
-  .input-group-append {
-    background-color: $input-group-addon-bg;
-  }
-
   .input-group-prepend:not(:first-child):not(:last-child),
   .input-group-append:not(:first-child):not(:last-child) {
     border-left: 0;
@@ -194,7 +151,7 @@ label {
   }
 }
 
-.form-text.text-muted {
+.form-text {
   margin-bottom: 0;
   margin-top: #{$grid-size / 2};
   font-size: $gl-font-size;
@@ -242,10 +199,6 @@ label {
   .gl-field-error-message {
     color: $red-500;
   }
-
-  .gl-field-hint {
-    color: $gl-text-color;
-  }
 }
 
 .show-password-complexity-errors {
@@ -264,22 +217,8 @@ label {
   }
 }
 
-.input-icon-wrapper,
 .select-wrapper {
   position: relative;
-}
-
-.input-icon-wrapper > .input-icon-right {
-  position: absolute;
-  right: 0.8em;
-  top: 50%;
-  transform: translateY(-50%);
-  color: $gray-400;
-}
-
-.input-md {
-  max-width: $input-md-width;
-  width: 100%;
 }
 
 .input-lg {
@@ -307,5 +246,5 @@ label {
 
 .add-issuable-form-input-wrapper.focus,
 .issue-token-remove-button:focus {
-  @include gl-focus;
+  @apply gl-focus;
 }

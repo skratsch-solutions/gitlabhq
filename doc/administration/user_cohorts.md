@@ -4,11 +4,11 @@ group: unassigned
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Cohorts
+# User Cohorts
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can analyze your users' GitLab activities over time.
 
@@ -37,6 +37,6 @@ How do we measure the activity of users? GitLab considers a user active if:
 
 To view user cohorts:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Users**.
 1. Select the **Cohorts** tab.

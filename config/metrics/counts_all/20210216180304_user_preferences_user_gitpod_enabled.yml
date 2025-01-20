@@ -2,7 +2,9 @@
 data_category: optional
 key_path: counts.user_preferences_user_gitpod_enabled
 description: Count of users with the GitPod integration enabled
-product_group: ide
+product_group: remote_development
+product_categories:
+- web_ide
 value_type: number
 status: active
 time_frame: all
@@ -10,9 +12,10 @@ data_source: database
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

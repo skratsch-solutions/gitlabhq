@@ -4,10 +4,13 @@ module API
   module Ci
     class Jobs < ::API::Base
       include PaginationParams
+      include APIGuard
 
       helpers ::API::Helpers::ProjectStatsRefreshConflictsHelpers
 
       before { authenticate! }
+
+      allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
 
       resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         params do
@@ -145,6 +148,8 @@ module API
         end
         # This endpoint can be used for retrying both builds and bridges.
         post ':id/jobs/:job_id/retry', urgency: :low, feature_category: :continuous_integration do
+          Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/473419')
+
           authorize_update_builds!
 
           job = find_job!(params[:job_id])
@@ -235,6 +240,7 @@ module API
           ]
         end
         route_setting :authentication, job_token_allowed: true
+        route_setting :authorization, skip_job_token_policies: true
         get '', feature_category: :continuous_integration, urgency: :low do
           validate_current_authenticated_job
 
@@ -251,6 +257,7 @@ module API
           ]
         end
         route_setting :authentication, job_token_allowed: true
+        route_setting :authorization, skip_job_token_policies: true
         get '/allowed_agents', urgency: :default, feature_category: :deployment_management do
           validate_current_authenticated_job
 
@@ -269,7 +276,9 @@ module API
 
           agent_authorizations = ::Clusters::Agents::Authorizations::CiAccess::FilterService.new(
             ::Clusters::Agents::Authorizations::CiAccess::Finder.new(project).execute,
-            environment: persisted_environment&.name
+            { environment: persisted_environment&.name,
+              protected_ref: pipeline.protected_ref? },
+            pipeline.project
           ).execute
 
           # See https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/doc/kubernetes_ci_access.md#apiv4joballowed_agents-api

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+# covered by ./accessibility_spec.rb
+
 require 'spec_helper'
 
-RSpec.describe 'Dashboard > Todo target states', feature_category: :team_planning do
+RSpec.describe 'Dashboard > Todo target states', :js, feature_category: :team_planning do
   let_it_be(:user)    { create(:user) }
   let_it_be(:author)  { create(:user) }
   let_it_be(:project) { create(:project, :public, developers: user) }
@@ -16,7 +18,7 @@ RSpec.describe 'Dashboard > Todo target states', feature_category: :team_plannin
     create_todo issue_closed
     visit dashboard_todos_path
 
-    page.within '.todos-list' do
+    within_testid 'todo-item-list-container' do
       expect(page).to have_content('Closed')
     end
   end
@@ -26,7 +28,7 @@ RSpec.describe 'Dashboard > Todo target states', feature_category: :team_plannin
     create_todo issue_open
     visit dashboard_todos_path
 
-    page.within '.todos-list' do
+    within_testid 'todo-item-list-container' do
       expect(page).not_to have_content('Open')
     end
   end
@@ -36,7 +38,7 @@ RSpec.describe 'Dashboard > Todo target states', feature_category: :team_plannin
     create_todo mr_merged
     visit dashboard_todos_path
 
-    page.within '.todos-list' do
+    within_testid 'todo-item-list-container' do
       expect(page).to have_content('Merged')
     end
   end
@@ -46,7 +48,7 @@ RSpec.describe 'Dashboard > Todo target states', feature_category: :team_plannin
     create_todo mr_closed
     visit dashboard_todos_path
 
-    page.within '.todos-list' do
+    within_testid 'todo-item-list-container' do
       expect(page).to have_content('Closed')
     end
   end
@@ -56,7 +58,7 @@ RSpec.describe 'Dashboard > Todo target states', feature_category: :team_plannin
     create_todo mr_open
     visit dashboard_todos_path
 
-    page.within '.todos-list' do
+    within_testid 'todo-item-list-container' do
       expect(page).not_to have_content('Open')
     end
   end

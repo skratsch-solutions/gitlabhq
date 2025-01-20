@@ -3,8 +3,16 @@
 require 'spec_helper'
 
 RSpec.describe IdeHelper, feature_category: :web_ide do
+  using RSpec::Parameterized::TableSyntax
+
   let_it_be(:project) { create(:project) }
   let_it_be(:user) { project.creator }
+
+  let_it_be(:disabled_vscode_settings) { { enabled: false } }
+  let_it_be(:enabled_vscode_settings) do
+    { enabled: true,
+      vscode_settings: { service_url: 'https://example.com', item_url: 'https://example.com', resource_template_url: 'https://example.com' } }
+  end
 
   before do
     allow(helper).to receive(:current_user).and_return(user)
@@ -68,9 +76,8 @@ RSpec.describe IdeHelper, feature_category: :web_ide do
           'user-preferences-path' => profile_preferences_path,
           'sign-in-path' => 'test-sign-in-path',
           'new-web-ide-help-page-path' =>
-            help_page_path('user/project/web_ide/index', anchor: 'vscode-reimplementation'),
-          'csp-nonce' => 'test-csp-nonce',
-          'ide-remote-path' => ide_remote_path(remote_host: ':remote_host', remote_path: ':remote_path')
+            help_page_path('user/project/web_ide/index.md'),
+          'csp-nonce' => 'test-csp-nonce'
         }
       end
 
@@ -81,15 +88,6 @@ RSpec.describe IdeHelper, feature_category: :web_ide do
       it 'returns hash' do
         expect(helper.ide_data(project: nil, fork_info: fork_info, params: params))
           .to include(base_data)
-      end
-
-      it 'includes extensions gallery settings' do
-        expect(WebIde::ExtensionsMarketplace).to receive(:webide_extensions_gallery_settings)
-          .with(user: user).and_return({ enabled: false })
-
-        actual = helper.ide_data(project: nil, fork_info: fork_info, params: params)
-
-        expect(actual).to include({ 'extensions-gallery-settings' => { enabled: false }.to_json })
       end
 
       it 'includes editor font configuration' do
@@ -127,6 +125,27 @@ RSpec.describe IdeHelper, feature_category: :web_ide do
           .to include('use-new-web-ide' => 'false')
       end
 
+      context 'for extensions marketplace data' do
+        where(:settings, :expected_settings_hash) do
+          ref(:disabled_vscode_settings) | nil
+          ref(:enabled_vscode_settings) | 'c6620244fe72864fa8d8'
+        end
+
+        with_them do
+          it 'includes extensions gallery settings and settings context hash' do
+            expect(WebIde::ExtensionsMarketplace).to receive(:webide_extensions_gallery_settings)
+              .with(user: user).and_return(settings)
+
+            actual = helper.ide_data(project: nil, fork_info: fork_info, params: params)
+
+            expect(actual).to include({
+              'extensions-gallery-settings' => settings.to_json,
+              'settings-context-hash' => expected_settings_hash
+            })
+          end
+        end
+      end
+
       context 'with project' do
         it 'returns hash with parameters' do
           expect(
@@ -145,30 +164,23 @@ RSpec.describe IdeHelper, feature_category: :web_ide do
   describe '#show_web_ide_oauth_callback_mismatch_callout?' do
     let_it_be(:oauth_application) { create(:oauth_application, owner: nil) }
 
-    it 'returns false if Web IDE OAuth is not enabled' do
-      stub_feature_flags(vscode_web_ide: true, web_ide_oauth: false)
+    before do
+      stub_feature_flags(vscode_web_ide: true)
+    end
+
+    it 'returns false if no Web IDE OAuth application found' do
       expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be false
     end
 
-    context 'when Web IDE OAuth is enabled' do
-      before do
-        stub_feature_flags(vscode_web_ide: true, web_ide_oauth: true)
-      end
+    it "returns true if domain does not match OAuth application callback URLs" do
+      stub_application_setting({ web_ide_oauth_application: oauth_application })
+      expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be true
+    end
 
-      it 'returns false if no Web IDE OAuth application found' do
-        expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be false
-      end
-
-      it "returns true if domain does not match OAuth application callback URLs" do
-        stub_application_setting({ web_ide_oauth_application: oauth_application })
-        expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be true
-      end
-
-      it "returns false if domain matches OAuth application callback URL" do
-        oauth_application.redirect_uri = "#{request.base_url}/oauth-redirect"
-        stub_application_setting({ web_ide_oauth_application: oauth_application })
-        expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be false
-      end
+    it "returns false if domain matches OAuth application callback URL" do
+      oauth_application.redirect_uri = "#{request.base_url}/oauth-redirect"
+      stub_application_setting({ web_ide_oauth_application: oauth_application })
+      expect(helper.show_web_ide_oauth_callback_mismatch_callout?).to be false
     end
   end
 

@@ -23,7 +23,7 @@ module Sidebars
 
         override :sprite_icon
         def sprite_icon
-          'git-merge'
+          'merge-request'
         end
 
         override :render?
@@ -37,10 +37,9 @@ module Sidebars
           true
         end
 
-        override :pill_count
-        def pill_count
-          count = @pill_count ||= context.project.open_merge_requests_count
-          format_cached_count(1000, count)
+        override :pill_count_field
+        def pill_count_field
+          'openMergeRequestsCount'
         end
 
         override :pill_html_options
@@ -63,6 +62,7 @@ module Sidebars
         def serialize_as_menu_item_args
           super.merge({
             pill_count: pill_count,
+            pill_count_field: pill_count_field,
             has_pill: has_pill?,
             super_sidebar_parent: ::Sidebars::Projects::SuperSidebarMenus::CodeMenu,
             item_id: :project_merge_request_list

@@ -6,6 +6,7 @@ module Packages
       include Gitlab::Utils::StrongMemoize
       include ExclusiveLeaseGuard
 
+      INSTALL_SCRIPT_KEYS = %w[preinstall install postinstall].freeze
       PACKAGE_JSON_NOT_ALLOWED_FIELDS = %w[readme readmeFilename licenseText contributors exports].freeze
       DEFAULT_LEASE_TIMEOUT = 1.hour.to_i
 
@@ -13,12 +14,14 @@ module Packages
       ERROR_REASON_PACKAGE_EXISTS = :package_already_exists
       ERROR_REASON_PACKAGE_LEASE_TAKEN = :package_lease_taken
       ERROR_REASON_PACKAGE_PROTECTED = :package_protected
+      ERROR_REASON_UNAUTHORIZED = :unauthorized
 
       def execute
+        return error('Unauthorized', ERROR_REASON_UNAUTHORIZED) unless can_create_package?
         return error('Version is empty.', ERROR_REASON_INVALID_PARAMETER) if version.blank?
         return error('Attachment data is empty.', ERROR_REASON_INVALID_PARAMETER) if attachment['data'].blank?
         return error('Package already exists.', ERROR_REASON_PACKAGE_EXISTS) if current_package_exists?
-        return error('Package protected.', ERROR_REASON_PACKAGE_PROTECTED) if current_package_protected?
+        return error('Package protected.', ERROR_REASON_PACKAGE_PROTECTED) if package_protected?
         return error('File is too large.', ERROR_REASON_INVALID_PARAMETER) if file_size_exceeded?
 
         package, package_file = try_obtain_lease do
@@ -64,22 +67,15 @@ module Packages
       end
 
       def current_package_exists?
-        project.packages
-               .npm
-               .with_name(name)
-               .with_version(version)
-               .not_pending_destruction
-               .exists?
+        ::Packages::Npm::Package.for_projects(project)
+                                .with_name(name)
+                                .with_version(version)
+                                .not_pending_destruction
+                                .exists?
       end
 
-      def current_package_protected?
-        return false if Feature.disabled?(:packages_protected_packages, project)
-        return false if current_user.is_a?(DeployToken)
-        return false if current_user&.can_admin_all_resources?
-
-        user_project_authorization_access_level = current_user.max_member_access_for_project(project.id)
-        project.package_protection_rules.for_push_exists?(access_level: user_project_authorization_access_level,
-          package_name: name, package_type: :npm)
+      def package_protected?
+        super(package_name: name, package_type: :npm)
       end
 
       def name
@@ -96,6 +92,10 @@ module Packages
       end
 
       def package_json
+        if version_data['scripts'] && (version_data['scripts'].keys & INSTALL_SCRIPT_KEYS).any?
+          version_data['hasInstallScript'] = true
+        end
+
         version_data.except(*PACKAGE_JSON_NOT_ALLOWED_FIELDS)
       end
 

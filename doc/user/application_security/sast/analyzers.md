@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) from GitLab Ultimate to GitLab Free in 13.3.
 
@@ -30,37 +30,51 @@ For each scanner, an analyzer:
 
 SAST supports the following official analyzers:
 
-- [`kubesec`](https://gitlab.com/gitlab-org/security-products/analyzers/kubesec) (Kubesec)
-- [`pmd-apex`](https://gitlab.com/gitlab-org/security-products/analyzers/pmd-apex) (PMD (Apex only))
-- [`semgrep`](https://gitlab.com/gitlab-org/security-products/analyzers/semgrep) (Semgrep)
-- [`sobelow`](https://gitlab.com/gitlab-org/security-products/analyzers/sobelow) (Sobelow (Elixir Phoenix))
-- [`spotbugs`](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs) (SpotBugs with the Find Sec Bugs plugin (Ant, Gradle and wrapper, Grails, Maven and wrapper, SBT))
+- [Advanced SAST](gitlab_advanced_sast.md), providing cross-file and cross-function taint analysis and improved detection accuracy. Ultimate only.
+- [`kubesec`](https://gitlab.com/gitlab-org/security-products/analyzers/kubesec), based on Kubesec. Off by default; see [Enabling KubeSec analyzer](index.md#enabling-kubesec-analyzer).
+- [`pmd-apex`](https://gitlab.com/gitlab-org/security-products/analyzers/pmd-apex), based on PMD with rules for the Apex language.
+- [`semgrep`](https://gitlab.com/gitlab-org/security-products/analyzers/semgrep), based on the Semgrep OSS engine [with GitLab-managed rules](rules.md#semgrep-based-analyzer).
+- [`sobelow`](https://gitlab.com/gitlab-org/security-products/analyzers/sobelow), based on Sobelow.
+- [`spotbugs`](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs), based on SpotBugs with the Find Sec Bugs plugin (Ant, Gradle and wrapper, Grails, Maven and wrapper, SBT).
+
+### Supported versions
+
+Official analyzers are released as container images, separate from the GitLab platform.
+Each analyzer version is compatible with a limited set of GitLab versions.
+
+When an analyzer version will no longer be supported in a future GitLab version, this change is announced in advance.
+For example, see the [announcement for GitLab 17.0](../../../update/deprecations.md#secure-analyzers-major-version-update).
+
+The supported major version for each official analyzer is reflected in its job definition in the [SAST CI/CD template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/SAST.gitlab-ci.yml).
+To see the analyzer version supported in a previous GitLab version, select a historical version of the SAST template file, such as [v16.11.0-ee](https://gitlab.com/gitlab-org/gitlab/-/blob/v16.11.0-ee/lib/gitlab/ci/templates/Jobs/SAST.gitlab-ci.yml?ref_type=tags) for GitLab 16.11.0.
+
+## Analyzers that have reached End of Support
 
 The following GitLab analyzers have reached [End of Support](../../../update/terminology.md#end-of-support)
-status and do not receive updates. They were replaced by the Semgrep-based analyzer with
-GitLab-managed rules.
+status and do not receive updates. They were replaced by the Semgrep-based analyzer [with GitLab-managed rules](rules.md#semgrep-based-analyzer).
 
-- [`bandit`](https://gitlab.com/gitlab-org/security-products/analyzers/bandit) (Bandit); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/352554) in GitLab 15.4.
-- [`brakeman`](https://gitlab.com/gitlab-org/security-products/analyzers/brakeman) (Brakeman); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/412060) in GitLab 17.0.
-- [`eslint`](https://gitlab.com/gitlab-org/security-products/analyzers/eslint) (ESLint (JavaScript and React)); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/352554) in GitLab 15.4.
-- [`flawfinder`](https://gitlab.com/gitlab-org/security-products/analyzers/flawfinder) (Flawfinder); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/412060) in GitLab 17.0.
-- [`gosec`](https://gitlab.com/gitlab-org/security-products/analyzers/gosec) (Gosec); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/352554) in GitLab 15.4.
-- [`mobsf`](https://gitlab.com/gitlab-org/security-products/analyzers/mobsf) (MobSF); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/450925) in GitLab 17.0.
-- [`nodejs-scan`](https://gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan) (NodeJsScan);  [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/412060) in GitLab 17.0.
-- [`phpcs-security-audit`](https://gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit) (PHP CS security-audit)
-- [`security-code-scan`](https://gitlab.com/gitlab-org/security-products/analyzers/security-code-scan) (Security Code Scan (.NET)); [End of Support](https://gitlab.com/gitlab-org/gitlab/-/issues/390416) in GitLab 16.0.
+After you upgrade to GitLab 17.3.1 or later, a one-time data migration [automatically resolves](index.md#automatic-vulnerability-resolution) findings from the analyzers that reached End of Support.
+This includes all of the analyzers listed below except for SpotBugs, because SpotBugs still scans Groovy code.
+The migration only resolves vulnerabilities that you haven't confirmed or dismissed, and it doesn't affect vulnerabilities that were [automatically translated to Semgrep-based scanning](#transition-to-semgrep-based-scanning).
+For details, see [issue 444926](https://gitlab.com/gitlab-org/gitlab/-/issues/444926).
 
-## GitLab Advanced SAST analyzer
+| Analyzer                                                                                                   | Languages scanned                                                                      | End Of Support GitLab version                                                                 |
+|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| [Bandit](https://gitlab.com/gitlab-org/security-products/analyzers/bandit)                                 | Python                                                                                 | [15.4](../../../update/deprecations.md#sast-analyzer-consolidation-and-cicd-template-changes) |
+| [Brakeman](https://gitlab.com/gitlab-org/security-products/analyzers/brakeman)                             | Ruby, including Ruby on Rails                                                          | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
+| [ESLint](https://gitlab.com/gitlab-org/security-products/analyzers/eslint) with React and Security plugins | JavaScript and TypeScript, including React                                             | [15.4](../../../update/deprecations.md#sast-analyzer-consolidation-and-cicd-template-changes) |
+| [Flawfinder](https://gitlab.com/gitlab-org/security-products/analyzers/flawfinder)                         | C, C++                                                                                 | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
+| [gosec](https://gitlab.com/gitlab-org/security-products/analyzers/gosec)                                   | Go                                                                                     | [15.4](../../../update/deprecations.md#sast-analyzer-consolidation-and-cicd-template-changes) |
+| [MobSF](https://gitlab.com/gitlab-org/security-products/analyzers/mobsf)                                   | Java and Kotlin, for Android applications only; Objective-C, for iOS applications only | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
+| [NodeJsScan](https://gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan)                        | JavaScript (Node.js only)                                                              | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
+| [phpcs-security-audit](https://gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit)     | PHP                                                                                    | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
+| [Security Code Scan](https://gitlab.com/gitlab-org/security-products/analyzers/security-code-scan)         | .NET (including C#, Visual Basic)                                                      | [16.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-160)         |
+| [SpotBugs](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs)                             | Java only<sup>1</sup>                                                                  | [15.4](../../../update/deprecations.md#sast-analyzer-consolidation-and-cicd-template-changes) |
+| [SpotBugs](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs)                             | Kotlin and Scala only<sup>1</sup>                                                      | [17.0](../../../update/deprecations.md#sast-analyzer-coverage-changing-in-gitlab-170)         |
 
-DETAILS:
-**Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
-**Status:** Experiment
+Footnotes:
 
-The GitLab Advanced SAST analyzer offers a broader and more accurate static analysis for Python,
-particularly by providing cross-function and cross-file taint analysis.
-
-It is not enabled by default. To enable it, please follow the instructions on the [GitLab Advanced SAST page](gitlab_advanced_sast.md).
+1. SpotBugs remains a [supported analyzer](index.md#supported-languages-and-frameworks) for Groovy. It only activates when Groovy code is detected.
 
 ## SAST analyzer features
 
@@ -72,14 +86,14 @@ support the following features:
 - [Scan projects](index.md#supported-languages-and-frameworks)
 - Multi-project support
 - [Offline support](index.md#running-sast-in-an-offline-environment)
-- [Output results in JSON report format](index.md#output)
+- [Output results in JSON report format](index.md#download-a-sast-report)
 - [SELinux support](index.md#running-sast-in-selinux)
 
 ## Post analyzers
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Post analyzers enrich the report output by an analyzer. A post analyzer doesn't modify report
 content directly. Instead, it enhances the results with additional properties, including:
@@ -89,19 +103,20 @@ content directly. Instead, it enhances the results with additional properties, i
 
 ## Transition to Semgrep-based scanning
 
-SAST includes a [Semgrep-based analyzer](https://gitlab.com/gitlab-org/security-products/analyzers/semgrep) that covers [multiple languages](index.md#supported-languages-and-frameworks).
+In addition to the [GitLab Advanced SAST analyzer](gitlab_advanced_sast.md), GitLab also provides a [Semgrep-based analyzer](https://gitlab.com/gitlab-org/security-products/analyzers/semgrep) that covers [multiple languages](index.md#supported-languages-and-frameworks).
 GitLab maintains the analyzer and writes [detection rules](rules.md) for it.
 These rules replace language-specific analyzers that were used in previous releases.
 
 ### Vulnerability translation
 
-The Vulnerability Management system automatically moves vulnerabilities from the old analyzer to a new Semgrep-based finding when possible.
+The Vulnerability Management system automatically moves vulnerabilities from the old analyzer to a new Semgrep-based finding when possible. For translation to the Advanced SAST, please refer to the [Advanced SAST documentation](gitlab_advanced_sast.md).
+
 When this happens, the system combines the vulnerabilities from each analyzer into a single record.
 
 But, vulnerabilities may not match up if:
 
 - The new Semgrep-based rule detects the vulnerability in a different location, or in a different way, than the old analyzer did.
-- You previously [disabled SAST analzyers](#disable-specific-default-analyzers).
+- You previously [disabled SAST analyzers](#disable-specific-default-analyzers).
 This can interfere with automatic translation by preventing necessary identifiers from being recorded for each vulnerability.
 
 If a vulnerability doesn't match:

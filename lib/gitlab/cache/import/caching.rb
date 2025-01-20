@@ -143,6 +143,17 @@ module Gitlab
           end
         end
 
+        # Returns the number of values in the set.
+        #
+        # raw_key - The key of the set to check.
+        def self.set_count(raw_key)
+          key = cache_key_for(raw_key)
+
+          with_redis do |redis|
+            redis.scard(key)
+          end
+        end
+
         # Returns the values of the given set.
         #
         # raw_key - The key of the set to check.
@@ -151,6 +162,30 @@ module Gitlab
 
           with_redis do |redis|
             redis.smembers(key)
+          end
+        end
+
+        # Returns a limited number of random values from the set.
+        #
+        # raw_key - The key of the set to check.
+        # limit - Number of values to return (default: 1).
+        def self.limited_values_from_set(raw_key, limit: 1)
+          key = cache_key_for(raw_key)
+
+          with_redis do |redis|
+            redis.srandmember(key, limit)
+          end
+        end
+
+        # Removes the given values from the set.
+        #
+        # raw_key - The key of the set to check.
+        # values - Array of values to remove from set.
+        def self.set_remove(raw_key, values = [])
+          key = cache_key_for(raw_key)
+
+          with_redis do |redis|
+            redis.srem(key, values)
           end
         end
 
@@ -230,13 +265,27 @@ module Gitlab
 
         # Returns the values of the given hash.
         #
-        # raw_key - The key of the set to check.
+        # raw_key - The key of the hash to check.
         def self.values_from_hash(raw_key)
           key = cache_key_for(raw_key)
 
           with_redis do |redis|
             redis.hgetall(key)
           end
+        end
+
+        # Returns a single value of the given hash.
+        #
+        # raw_key - The key of the hash to check.
+        # field - The field to get from the hash.
+        def self.value_from_hash(raw_key, field, timeout: TIMEOUT)
+          key = cache_key_for(raw_key)
+
+          value = with_redis { |redis| redis.hget(key, field) }
+
+          with_redis { |redis| redis.expire(key, timeout) } if value.present?
+
+          value
         end
 
         # Increments value of a field in a hash
@@ -263,7 +312,7 @@ module Gitlab
         # raw_key - The key of the list to add to.
         # value - The field value to add to the list.
         # timeout - The new timeout of the key.
-        # limit - The maximum number of members in the set. Older members will be trimmed to this limit.
+        # limit - The maximum number of members in the list. Older members will be trimmed to this limit.
         def self.list_add(raw_key, value, timeout: TIMEOUT, limit: nil)
           validate_redis_value!(value)
 

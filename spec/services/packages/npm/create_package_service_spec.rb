@@ -34,7 +34,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
 
         expect { subject }
           .to change { Packages::Package.count }.by(1)
-          .and change { Packages::Package.npm.count }.by(1)
+          .and change { Packages::Npm::Package.count }.by(1)
           .and change { Packages::Tag.count }.by(1)
           .and change { Packages::Npm::Metadatum.count }.by(1)
       end
@@ -82,7 +82,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
 
             expect { subject }.to raise_error(ActiveRecord::RecordInvalid, /structure is too large/)
               .and not_change { Packages::Package.count }
-              .and not_change { Packages::Package.npm.count }
+              .and not_change { Packages::Npm::Package.count }
               .and not_change { Packages::Tag.count }
               .and not_change { Packages::Npm::Metadatum.count }
           end
@@ -152,7 +152,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
             end
           )
 
-          allow_next_instance_of(::Packages::Package) do |package|
+          allow_next_instance_of(::Packages::Npm::Package) do |package|
             allow(package).to receive(:create_npm_metadatum!).and_raise(invalid_npm_metadatum_error)
           end
 
@@ -171,7 +171,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
           it 'is persisted without the field' do
             expect { subject }
               .to change { Packages::Package.count }.by(1)
-              .and change { Packages::Package.npm.count }.by(1)
+              .and change { Packages::Npm::Package.count }.by(1)
               .and change { Packages::Tag.count }.by(1)
               .and change { Packages::Npm::Metadatum.count }.by(1)
             expect(package.npm_metadatum.package_json[field]).to be_blank
@@ -188,8 +188,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
     context 'when user is no project member' do
       let_it_be(:user) { create(:user) }
 
-      it_behaves_like 'returning a success service response'
-      it_behaves_like 'valid package'
+      it_behaves_like 'returning an error service response', message: 'Unauthorized'
     end
 
     context 'when scoped package not following the naming convention' do
@@ -222,7 +221,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
         it 'creates a new package' do
           expect { execute_service }
             .to change { Packages::Package.count }.by(1)
-            .and change { Packages::Package.npm.count }.by(1)
+            .and change { Packages::Npm::Package.count }.by(1)
             .and change { Packages::Tag.count }.by(1)
             .and change { Packages::Npm::Metadatum.count }.by(1)
         end
@@ -337,6 +336,22 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
       end
     end
 
+    described_class::INSTALL_SCRIPT_KEYS.each do |field|
+      context "with script #{field}" do
+        let(:package) { subject[:package] }
+
+        before do
+          params[:versions][version][:scripts] = { field => "echo 'script #{field}'" }
+        end
+
+        it "sets `hasInstallScript` attribute to `true` for package's metadata" do
+          execute_service
+
+          expect(package.npm_metadatum.package_json['hasInstallScript']).to eq(true)
+        end
+      end
+    end
+
     it 'obtains a lease to create a new package' do
       expect_to_obtain_exclusive_lease(lease_key, timeout: described_class::DEFAULT_LEASE_TIMEOUT)
 
@@ -354,38 +369,6 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
       end
     end
 
-    context 'when feature flag :packages_protected_packages disabled' do
-      let_it_be_with_reload(:package_protection_rule) do
-        create(:package_protection_rule, package_type: :npm, project: project)
-      end
-
-      before do
-        stub_feature_flags(packages_protected_packages: false)
-      end
-
-      context 'with matching package protection rule for all roles' do
-        using RSpec::Parameterized::TableSyntax
-
-        let(:package_name_pattern_no_match) { "#{package_name}_no_match" }
-
-        where(:package_name_pattern, :minimum_access_level_for_push) do
-          ref(:package_name)                  | :maintainer
-          ref(:package_name)                  | :owner
-          ref(:package_name_pattern_no_match) | :maintainer
-          ref(:package_name_pattern_no_match) | :owner
-        end
-
-        with_them do
-          before do
-            package_protection_rule.update!(package_name_pattern: package_name_pattern,
-              minimum_access_level_for_push: minimum_access_level_for_push)
-          end
-
-          it_behaves_like 'valid package'
-        end
-      end
-    end
-
     context 'with package protection rule for different roles and package_name_patterns', :enable_admin_mode do
       using RSpec::Parameterized::TableSyntax
 
@@ -396,9 +379,14 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
       let_it_be(:project_developer) { create(:user, developer_of: project) }
       let_it_be(:project_maintainer) { create(:user, maintainer_of: project) }
       let_it_be(:project_owner) { project.owner }
-      let_it_be(:project_admin) { create(:admin) }
+      let_it_be(:instance_admin) { create(:admin) }
 
       let(:package_name_pattern_no_match) { "#{package_name}_no_match" }
+
+      before do
+        package_protection_rule.update!(package_name_pattern: package_name_pattern,
+          minimum_access_level_for_push: minimum_access_level_for_push)
+      end
 
       shared_examples 'protected package' do
         it_behaves_like 'returning an error service response', message: 'Package protected.' do
@@ -408,7 +396,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
         it 'does not create any npm-related package records' do
           expect { subject }
             .to not_change { Packages::Package.count }
-            .and not_change { Packages::Package.npm.count }
+            .and not_change { Packages::Npm::Package.count }
             .and not_change { Packages::Tag.count }
             .and not_change { Packages::Npm::Metadatum.count }
         end
@@ -417,45 +405,36 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
       where(:package_name_pattern, :minimum_access_level_for_push, :user, :shared_examples_name) do
         ref(:package_name)                  | :maintainer | ref(:project_developer)  | 'protected package'
         ref(:package_name)                  | :maintainer | ref(:project_owner)      | 'valid package'
-        ref(:package_name)                  | :maintainer | ref(:project_admin)      | 'valid package'
+        ref(:package_name)                  | :maintainer | ref(:instance_admin)     | 'valid package'
         ref(:package_name)                  | :owner      | ref(:project_maintainer) | 'protected package'
         ref(:package_name)                  | :owner      | ref(:project_owner)      | 'valid package'
-        ref(:package_name)                  | :owner      | ref(:project_admin)      | 'valid package'
+        ref(:package_name)                  | :owner      | ref(:instance_admin)     | 'valid package'
         ref(:package_name)                  | :admin      | ref(:project_owner)      | 'protected package'
-        ref(:package_name)                  | :admin      | ref(:project_admin)      | 'valid package'
+        ref(:package_name)                  | :admin      | ref(:instance_admin)     | 'valid package'
 
         ref(:package_name_pattern_no_match) | :owner      | ref(:project_owner)      | 'valid package'
         ref(:package_name_pattern_no_match) | :admin      | ref(:project_owner)      | 'valid package'
       end
 
       with_them do
-        before do
-          package_protection_rule.update!(package_name_pattern: package_name_pattern,
-            minimum_access_level_for_push: minimum_access_level_for_push)
-        end
-
         it_behaves_like params[:shared_examples_name]
       end
 
       context 'with deploy token' do
-        let_it_be(:deploy_token) { create(:deploy_token, projects: [project]) }
+        let_it_be(:deploy_token) { create(:deploy_token, :all_scopes, projects: [project]) }
         let_it_be(:user) { nil }
 
         let(:service) { described_class.new(project, deploy_token, params) }
 
         where(:package_name_pattern, :minimum_access_level_for_push, :shared_examples_name) do
-          ref(:package_name)                  | :maintainer | 'valid package'
-          ref(:package_name)                  | :owner      | 'valid package'
-          ref(:package_name)                  | :admin      | 'valid package'
+          ref(:package_name)                  | :maintainer | 'protected package'
+          ref(:package_name)                  | :owner      | 'protected package'
+          ref(:package_name)                  | :admin      | 'protected package'
+
           ref(:package_name_pattern_no_match) | :owner      | 'valid package'
         end
 
         with_them do
-          before do
-            package_protection_rule.update!(package_name_pattern: package_name_pattern,
-              minimum_access_level_for_push: minimum_access_level_for_push)
-          end
-
           it_behaves_like params[:shared_examples_name]
         end
       end
@@ -490,7 +469,7 @@ RSpec.describe Packages::Npm::CreatePackageService, feature_category: :package_r
 
     subject { service.execute }
 
-    it 'only creates one package' do
+    it 'only creates one package', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/448644' do
       expect { create_packages(project, user, params) }.to change { Packages::Package.count }.by(1)
     end
 

@@ -4,20 +4,25 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { getCookie, setCookie } from '~/lib/utils/common_utils';
 import ValueStreamMetrics from '~/analytics/shared/components/value_stream_metrics.vue';
-import { VSA_METRICS_GROUPS } from '~/analytics/shared/constants';
-import { toYmd, generateValueStreamsDashboardLink } from '~/analytics/shared/utils';
+import { VSA_METRICS_GROUPS, FLOW_METRICS_QUERY_TYPE } from '~/analytics/shared/constants';
+import {
+  toYmd,
+  generateValueStreamsDashboardLink,
+  overviewMetricsRequestParams,
+} from '~/analytics/shared/utils';
 import PathNavigation from '~/analytics/cycle_analytics/components/path_navigation.vue';
 import StageTable from '~/analytics/cycle_analytics/components/stage_table.vue';
 import ValueStreamFilters from '~/analytics/cycle_analytics/components/value_stream_filters.vue';
 import UrlSync from '~/vue_shared/components/url_sync.vue';
 import { __, s__ } from '~/locale';
-import { SUMMARY_METRICS_REQUEST, METRICS_REQUESTS } from '../constants';
+import PageHeading from '~/vue_shared/components/page_heading.vue';
 
 const OVERVIEW_DIALOG_COOKIE = 'cycle_analytics_help_dismissed';
 
 export default {
   name: 'CycleAnalytics',
   components: {
+    PageHeading,
     GlLoadingIcon,
     PathNavigation,
     StageTable,
@@ -99,18 +104,12 @@ export default {
       }
       return 0;
     },
-    hasCycleAnalyticsForGroups() {
-      return this.features?.cycleAnalyticsForGroups;
-    },
-    metricsRequests() {
-      return this.hasCycleAnalyticsForGroups ? METRICS_REQUESTS : SUMMARY_METRICS_REQUEST;
-    },
     showLinkToDashboard() {
       return Boolean(this.features?.groupLevelAnalyticsDashboard && this.groupPath);
     },
     dashboardsPath() {
       return this.showLinkToDashboard
-        ? generateValueStreamsDashboardLink(this.namespace.fullPath)
+        ? generateValueStreamsDashboardLink(this.namespace.restApiRequestPath, true)
         : null;
     },
     query() {
@@ -124,7 +123,10 @@ export default {
       };
     },
     filterBarNamespacePath() {
-      return this.groupPath || this.namespace.fullPath;
+      return this.groupPath || this.namespace.restApiRequestPath;
+    },
+    overviewRequestParams() {
+      return overviewMetricsRequestParams(this.filterParams);
     },
   },
   methods: {
@@ -160,11 +162,12 @@ export default {
     recentActivity: __('Recent Project Activity'),
   },
   VSA_METRICS_GROUPS,
+  FLOW_METRICS_QUERY_TYPE,
 };
 </script>
 <template>
   <div>
-    <h3>{{ $options.i18n.pageTitle }}</h3>
+    <page-heading :heading="$options.i18n.pageTitle" />
     <value-stream-filters
       :namespace-path="filterBarNamespacePath"
       :has-project-filter="false"
@@ -175,11 +178,11 @@ export default {
       @setDateRange="onSetDateRange"
       @setPredefinedDateRange="setPredefinedDateRange"
     />
-    <div class="gl-display-flex gl-flex-direction-column gl-md-flex-direction-row">
+    <div class="gl-flex gl-flex-col md:gl-flex-row">
       <path-navigation
         v-if="displayPathNavigation"
         data-testid="vsa-path-navigation"
-        class="gl-w-full gl-mt-4"
+        class="gl-mt-4 gl-w-full"
         :loading="isLoading || isLoadingStage"
         :stages="pathNavigationData"
         :selected-stage="selectedStage"
@@ -187,11 +190,13 @@ export default {
       />
     </div>
     <value-stream-metrics
-      :request-path="namespace.fullPath"
-      :request-params="filterParams"
-      :requests="metricsRequests"
+      :request-path="namespace.path"
+      :request-params="overviewRequestParams"
       :group-by="$options.VSA_METRICS_GROUPS"
       :dashboards-path="dashboardsPath"
+      :query-type="$options.FLOW_METRICS_QUERY_TYPE"
+      :is-licensed="false"
+      is-project-namespace
     />
     <gl-loading-icon v-if="isLoading" size="lg" />
     <stage-table

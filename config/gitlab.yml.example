@@ -95,7 +95,8 @@ production: &base
 
     ## Date & Time settings
     # Uncomment and customize if you want to change the default time zone of GitLab application.
-    # To see all available zones, run `bundle exec rake time:zones:all RAILS_ENV=production`
+    # To see all available time zones in a valid format, run `timedatectl list-timezones`
+    # on a Linux host, or 'TZInfo::Timezone.all_identifiers' in a Rails console.
     # time_zone: 'UTC'
 
     ## Email settings
@@ -591,10 +592,6 @@ production: &base
     schedule_migrate_external_diffs_worker:
       cron: "15 * * * *"
 
-    # Update CI Platform Metrics daily
-    ci_platform_metrics_update_cron_worker:
-      cron: "47 9 * * *"
-
     # Periodically update ci_runner_versions table with up-to-date versions and status.
     ci_runner_versions_reconciliation_worker:
       cron: "@daily"
@@ -602,6 +599,10 @@ production: &base
     # Periodically clean up stale runner machines.
     ci_runners_stale_machines_cleanup_worker:
       cron: "36 * * * *"
+
+    # Periodically queue syncing of finished pipelines from p_ci_finished_pipeline_ch_sync_events to ClickHouse
+    ci_click_house_finished_pipelines_sync_worker:
+      cron: "*/4 * * * *"
 
   # GitLab EE only jobs. These jobs are automatically enabled for an EE
   # installation, and ignored for a CE installation.
@@ -923,6 +924,12 @@ production: &base
         #   Ex. GLAdmins
         #
         admin_group: ''
+
+        # LDAP group of users who should have Duo Add-on seats assigned in GitLab
+        #
+        #   Ex. ['DuoGroup1', 'DuoGroup2']
+        #
+        duo_add_on_groups: []
 
         # LDAP group of users who should be marked as external users in GitLab
         #
@@ -1280,7 +1287,9 @@ production: &base
     # private_key_file: /home/git/gitlab/config/topology-service-key.pem
 
   cell:
-    # name: cell-1
+    # id: null
+    # name: null
+    # skip_sequence_alteration: false
 
   gitlab_kas:
     # enabled: true
@@ -1296,6 +1305,9 @@ production: &base
 
     # The URL to the Kubernetes API proxy (used by GitLab users)
     # external_k8s_proxy_url: https://localhost:8154 # default: nil
+
+    # The client timeout in seconds for the KAS API (used by the GitLab backend)
+    # client_timeout_seconds: 5
 
   suggested_reviewers:
     # File that contains the secret key for verifying access to GitLab internal API for Suggested Reviewers.
@@ -1664,6 +1676,9 @@ test:
   prometheus:
     enabled: true
     server_address: 'localhost:9090'
+
+  registry:
+    enabled: false
 
 staging:
   <<: *base

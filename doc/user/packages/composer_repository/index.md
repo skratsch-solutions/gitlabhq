@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 **Status:** Beta
 
 WARNING:
@@ -251,7 +251,7 @@ To install a package:
    - `<personal_access_token>` with the scope set to `api`, or `<deploy_token>` with the scope set
      to `read_package_registry` and/or `write_package_registry`.
 
-1. If you are on a GitLab self-managed instance, add `gitlab-domains` to `composer.json`.
+1. If you are on GitLab Self-Managed, add `gitlab-domains` to `composer.json`.
 
    ```shell
    composer config gitlab-domains gitlab01.example.com gitlab02.example.com
@@ -333,12 +333,8 @@ You can install from source by pulling the Git repository directly. To do so, ei
 #### SSH access
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119739) in GitLab 16.4 [with a flag](../../../administration/feature_flags.md) named `composer_use_ssh_source_urls`. Disabled by default.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/329246) GitLab 16.5.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature per project, an administrator can
-[disable the feature flag](../../../administration/feature_flags.md) named `composer_use_ssh_source_urls`.
-On GitLab.com and GitLab Dedicated, this feature is available.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/329246) GitLab 16.5.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/135467) in GitLab 16.6. Feature flag `composer_use_ssh_source_urls` removed.
 
 When you install from source, the `composer` configures an
 access to the project's Git repository.
@@ -347,7 +343,7 @@ Depending on the project visibility, the access type is different:
 - On public projects, the `https` Git URL is used. Make sure you can [clone the repository with HTTPS](../../../topics/git/clone.md#clone-with-https).
 - On internal or private projects, the `ssh` Git URL is used. Make sure you can [clone the repository with SSH](../../../topics/git/clone.md#clone-with-ssh).
 
-You can access the `ssh` Git URL from a CI/CD job using [SSH keys with GitLab CI/CD](../../../ci/ssh_keys/index.md).
+You can access the `ssh` Git URL from a CI/CD job using [SSH keys with GitLab CI/CD](../../../ci/jobs/ssh_keys.md).
 
 ### Working with Deploy Tokens
 

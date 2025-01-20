@@ -8,6 +8,8 @@ module Ml
 
     enum status: { running: 0, scheduled: 1, finished: 2, failed: 3, killed: 4 }
 
+    PACKAGE_PREFIX = 'candidate_'
+
     validates :eid, :experiment, :project, presence: true
     validates :status, inclusion: { in: statuses.keys }
     validates :model_version_id, uniqueness: { allow_nil: true }
@@ -28,6 +30,8 @@ module Ml
     has_internal_id :internal_id,
       scope: :project,
       init: AtomicInternalId.project_init(self, :internal_id)
+
+    before_destroy :check_model_version
 
     scope :including_relationships, -> { includes(:latest_metrics, :params, :user, :package, :project, :ci_build) }
     scope :by_name, ->(name) { where("ml_candidates.name LIKE ?", "%#{sanitize_sql_like(name)}%") } # rubocop:disable GitlabSecurity/SqlInjection
@@ -66,9 +70,7 @@ module Ml
     end
 
     def package_version
-      return "candidate_#{iid}" if for_model?
-
-      iid
+      package&.generic? ? iid : "#{PACKAGE_PREFIX}#{iid}"
     end
 
     def from_ci?
@@ -91,6 +93,21 @@ module Ml
 
         find_by(project_id: project_id, internal_id: iid)
       end
+
+      def with_project_id_and_id(project_id, id)
+        return unless project_id.present? && id.present?
+
+        find_by(project_id: project_id, id: id)
+      end
+    end
+
+    private
+
+    def check_model_version
+      return unless model_version_id
+
+      errors.add(:base, _("Cannot delete a candidate associated to a model version"))
+      throw :abort # rubocop:disable Cop/BanCatchThrow
     end
   end
 end

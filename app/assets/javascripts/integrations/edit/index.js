@@ -49,7 +49,7 @@ function parseDatasetToProps(data) {
     ...booleanAttributes
   } = data;
   const {
-    showActive,
+    manualActivation,
     activated,
     operating,
     activateDisabled,
@@ -63,12 +63,13 @@ function parseDatasetToProps(data) {
     enableJiraIssues,
     enableJiraVulnerabilities,
     shouldUpgradeSlack,
+    customizeJiraIssueEnabled,
   } = parseBooleanInData(booleanAttributes);
 
   return {
     initialActivated: activated,
     operating,
-    showActive,
+    manualActivation,
     activateDisabled,
     type,
     cancelPath,
@@ -93,6 +94,7 @@ function parseDatasetToProps(data) {
       initialVulnerabilitiesIssuetype: vulnerabilitiesIssuetype,
       initialProjectKey: projectKey,
       initialProjectKeys: projectKeys,
+      initialCustomizeJiraIssueEnabled: customizeJiraIssueEnabled,
     },
     googleArtifactManagementProps: {
       artifactRegistryPath,

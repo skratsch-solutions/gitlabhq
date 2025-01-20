@@ -11,6 +11,28 @@ RSpec.describe UsersHelper, feature_category: :user_management do
     badges.reject { |badge| badge[:text] == 'Is using seat' }
   end
 
+  describe 'has_contact_info?' do
+    subject { helper.has_contact_info?(user) }
+
+    context 'when user has skype profile' do
+      let_it_be(:user) { create(:user, bluesky: 'did:plc:ewvi7nxzyoun6zhxrhs64oiz') }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when user has public email' do
+      let_it_be(:user) { create(:user, :public_email) }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when user public email is blank' do
+      let_it_be(:user) { create(:user, public_email: '') }
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe 'display_public_email?' do
     let_it_be(:user) { create(:user, :public_email) }
 
@@ -66,27 +88,38 @@ RSpec.describe UsersHelper, feature_category: :user_management do
     end
   end
 
-  describe '#profile_tabs' do
-    subject(:tabs) { helper.profile_tabs }
+  describe '#profile_actions' do
+    subject(:profile_actions) { helper.profile_actions(other_user) }
+
+    let_it_be(:other_user) { create(:user) }
 
     before do
       allow(helper).to receive(:current_user).and_return(user)
-      allow(helper).to receive(:can?).and_return(true)
+      allow(user).to receive(:bot?).and_return(false)
+      allow(helper).to receive(:can?).with(user, :read_user_profile, other_user).and_return(true)
     end
 
     context 'with public profile' do
-      it 'includes all the expected tabs' do
-        expect(tabs).to include(:activity, :groups, :contributed, :projects, :starred, :snippets)
+      it 'contains all profile actions' do
+        expect(profile_actions).to match_array [:overview, :activity, :groups, :contributed, :projects, :starred, :snippets, :followers, :following]
       end
     end
 
     context 'with private profile' do
       before do
-        allow(helper).to receive(:can?).with(user, :read_user_profile, nil).and_return(false)
+        allow(helper).to receive(:can?).with(user, :read_user_profile, other_user).and_return(false)
       end
 
       it 'is empty' do
-        expect(tabs).to be_empty
+        expect(profile_actions).to match_array []
+      end
+    end
+
+    context 'with a public bot user' do
+      let_it_be(:other_user) { create(:user, :bot) }
+
+      it 'contains bot profile actions' do
+        expect(profile_actions).to match_array [:overview, :activity]
       end
     end
   end
@@ -146,6 +179,22 @@ RSpec.describe UsersHelper, feature_category: :user_management do
 
       it 'hides the profile and the settings tab' do
         expect(items).not_to include(:settings, :profile, :help)
+      end
+    end
+  end
+
+  describe '#impersonation_enabled' do
+    context 'when impersonation is enabled' do
+      before do
+        stub_config_setting(impersonation_enabled: true)
+      end
+
+      it 'allows the admin to impersonate a  user' do
+        expect(helper.impersonation_enabled?).to eq(true)
+      end
+
+      it 'allows impersonation tokens' do
+        expect(helper.impersonation_tokens_enabled?).to eq(true)
       end
     end
   end
@@ -574,7 +623,7 @@ RSpec.describe UsersHelper, feature_category: :user_management do
     end
   end
 
-  describe '#user_profile_tabs_app_data' do
+  describe '#user_profile_app_data' do
     before do
       allow(helper).to receive(:current_user).and_return(user)
       allow(helper).to receive(:user_calendar_path).with(user, :json).and_return('/users/root/calendar.json')
@@ -587,7 +636,7 @@ RSpec.describe UsersHelper, feature_category: :user_management do
     it 'returns expected hash' do
       allow(helper).to receive(:can?).with(user, :create_snippet).and_return(true)
 
-      expect(helper.user_profile_tabs_app_data(user)).to match({
+      expect(helper.user_profile_app_data(user)).to match({
         followees_count: 3,
         followers_count: 2,
         user_calendar_path: '/users/root/calendar.json',
@@ -606,7 +655,7 @@ RSpec.describe UsersHelper, feature_category: :user_management do
       end
 
       it 'returns nil for new_snippet_path property' do
-        expect(helper.user_profile_tabs_app_data(user)[:new_snippet_path]).to be_nil
+        expect(helper.user_profile_app_data(user)[:new_snippet_path]).to be_nil
       end
     end
   end

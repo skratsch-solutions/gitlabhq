@@ -1,8 +1,12 @@
-import { GlTableLite } from '@gitlab/ui';
+import Vue from 'vue';
+import VueApollo from 'vue-apollo';
+import { GlTableLite, GlSkeletonLoader } from '@gitlab/ui';
+// fixture located in spec/frontend/fixtures/pipelines.rb
 import fixture from 'test_fixtures/pipelines/pipelines.json';
+import createMockApollo from 'helpers/mock_apollo_helper';
 import { mockTracking, unmockTracking } from 'helpers/tracking_helper';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
-import LegacyPipelineMiniGraph from '~/ci/pipeline_mini_graph/legacy_pipeline_mini_graph/legacy_pipeline_mini_graph.vue';
+import PipelineMiniGraph from '~/ci/pipeline_mini_graph/pipeline_mini_graph.vue';
 import PipelineFailedJobsWidget from '~/ci/pipelines_page/components/failure_widget/pipeline_failed_jobs_widget.vue';
 import PipelineOperations from '~/ci/pipelines_page/components/pipeline_operations.vue';
 import PipelineTriggerer from '~/ci/pipelines_page/components/pipeline_triggerer.vue';
@@ -18,9 +22,12 @@ import {
 
 import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
 
+Vue.use(VueApollo);
+
 describe('Pipelines Table', () => {
   let wrapper;
   let trackingSpy;
+  let slots;
 
   const defaultProvide = {
     fullPath: '/my-project/',
@@ -29,6 +36,7 @@ describe('Pipelines Table', () => {
 
   const provideWithFailedJobsWidget = {
     useFailedJobsWidget: true,
+    graphqlPath: 'api/graphql',
   };
 
   const { pipelines } = fixture;
@@ -54,14 +62,17 @@ describe('Pipelines Table', () => {
         PipelineOperations: true,
         ...stubs,
       },
+      apolloProvider: createMockApollo(),
+      slots,
     });
   };
 
+  const findSkeletonLoader = () => wrapper.findComponent(GlSkeletonLoader);
   const findGlTableLite = () => wrapper.findComponent(GlTableLite);
   const findCiIcon = () => wrapper.findComponent(CiIcon);
   const findPipelineInfo = () => wrapper.findComponent(PipelineUrl);
   const findTriggerer = () => wrapper.findComponent(PipelineTriggerer);
-  const findLegacyPipelineMiniGraph = () => wrapper.findComponent(LegacyPipelineMiniGraph);
+  const findPipelineMiniGraph = () => wrapper.findComponent(PipelineMiniGraph);
   const findTimeAgo = () => wrapper.findComponent(PipelinesTimeago);
   const findActions = () => wrapper.findComponent(PipelineOperations);
 
@@ -112,12 +123,12 @@ describe('Pipelines Table', () => {
 
     describe('stages cell', () => {
       it('should render pipeline mini graph', () => {
-        expect(findLegacyPipelineMiniGraph().exists()).toBe(true);
+        expect(findPipelineMiniGraph().exists()).toBe(true);
       });
 
       it('should render the right number of stages', () => {
         const stagesLength = firstPipeline.details.stages.length;
-        expect(findLegacyPipelineMiniGraph().props('stages')).toHaveLength(stagesLength);
+        expect(findPipelineMiniGraph().props('pipelineStages')).toHaveLength(stagesLength);
       });
 
       it('should render the latest downstream pipelines only', () => {
@@ -125,7 +136,7 @@ describe('Pipelines Table', () => {
         // because we retried the trigger job, so the mini pipeline graph will only
         // render the newly created downstream pipeline instead
         expect(firstPipeline.triggered).toHaveLength(2);
-        expect(findLegacyPipelineMiniGraph().props('downstreamPipelines')).toHaveLength(1);
+        expect(findPipelineMiniGraph().props('downstreamPipelines')).toHaveLength(1);
       });
 
       describe('when pipeline does not have stages', () => {
@@ -146,7 +157,7 @@ describe('Pipelines Table', () => {
         });
 
         it('stages are not rendered', () => {
-          expect(findLegacyPipelineMiniGraph().props('stages')).toHaveLength(0);
+          expect(findPipelineMiniGraph().props('pipelineStages')).toHaveLength(0);
         });
       });
     });
@@ -187,20 +198,30 @@ describe('Pipelines Table', () => {
           createComponent({ provide: provideWithFailedJobsWidget });
         });
 
-        it('renders', () => {
-          // We have 2 rows per pipeline with the widget
-          expect(findTableRows()).toHaveLength(pipelines.length * 2);
+        it('adds extra rows if pipelines have failed jobs', () => {
+          const pipelinesWithFailedJobs = pipelines.filter((p) => p.failed_builds_count > 0).length;
+
           expect(findPipelineFailureWidget().exists()).toBe(true);
+          // We add a row to each pipeline with failed jobs
+          expect(findTableRows()).toHaveLength(pipelines.length + pipelinesWithFailedJobs);
         });
 
         it('passes the expected props', () => {
           expect(findPipelineFailureWidget().props()).toStrictEqual({
-            failedJobsCount: firstPipeline.failed_builds_count,
-            isPipelineActive: firstPipeline.active,
             pipelineIid: firstPipeline.iid,
             pipelinePath: firstPipeline.path,
             // Make sure the forward slash was removed
             projectPath: 'frontend-fixtures/pipelines-project',
+          });
+        });
+
+        it('applies correct class to row', () => {
+          findTableRows().wrappers.forEach((row) => {
+            if (row.attributes('class').includes('details')) {
+              expect(row.attributes('class')).not.toContain('!gl-border-b');
+            } else {
+              expect(row.attributes('class')).toContain('!gl-border-b');
+            }
           });
         });
       });
@@ -213,6 +234,36 @@ describe('Pipelines Table', () => {
         it('does not render', () => {
           expect(findTableRows()).toHaveLength(pipelines.length);
           expect(findPipelineFailureWidget().exists()).toBe(false);
+        });
+      });
+    });
+
+    describe('async pipeline creation', () => {
+      describe('when isCreatingPipeline is enabled', () => {
+        beforeEach(() => {
+          createComponent({ props: { isCreatingPipeline: true } });
+        });
+
+        it('Adds an additional loader row to the pipelines table', () => {
+          expect(findTableRows()).toHaveLength(pipelines.length + 1);
+        });
+
+        it('renders the skeleton loader', () => {
+          expect(findSkeletonLoader().exists()).toBe(true);
+        });
+      });
+
+      describe('when isCreatingPipeline is disabled', () => {
+        beforeEach(() => {
+          createComponent();
+        });
+
+        it('does not add a loader row to the pipelines table', () => {
+          expect(findTableRows()).toHaveLength(pipelines.length);
+        });
+
+        it('does not render skeleton loader', () => {
+          expect(findSkeletonLoader().exists()).toBe(false);
         });
       });
     });
@@ -273,11 +324,24 @@ describe('Pipelines Table', () => {
     });
 
     it('tracks pipeline mini graph stage click', () => {
-      findLegacyPipelineMiniGraph().vm.$emit('miniGraphStageClick');
+      findPipelineMiniGraph().vm.$emit('miniGraphStageClick');
 
       expect(trackingSpy).toHaveBeenCalledWith(undefined, 'click_minigraph', {
         label: TRACKING_CATEGORIES.table,
       });
+    });
+  });
+
+  describe('table-header-actions slot', () => {
+    it('should replace actions column header by the slot content', () => {
+      const content = 'Actions slot content';
+      slots = {
+        'table-header-actions': `<div>${content}</div>`,
+      };
+
+      createComponent();
+
+      expect(findActionsTh().text()).toBe(content);
     });
   });
 });

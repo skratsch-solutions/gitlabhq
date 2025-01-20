@@ -2,11 +2,11 @@ import BetaBadge from './beta_badge.vue';
 
 export default {
   component: BetaBadge,
-  title: 'vue_shared/beta-badge',
+  title: 'vue_shared/badges/beta-badge',
 };
 
 const template = `
-    <div style="height:600px;" class="gl-display-flex gl-justify-content-center gl-align-items-center">
+    <div style="height:600px;" class="gl-flex gl-justify-center gl-items-center">
       <beta-badge />
     </div>
   `;

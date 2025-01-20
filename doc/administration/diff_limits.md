@@ -2,14 +2,14 @@
 stage: Create
 group: Source Code
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
-description: "Configure the maximum diff size to display on your self-managed GitLab instance."
+description: "Configure the maximum diff size to display on GitLab Self-Managed."
 ---
 
 # Diff limits administration
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can set a maximum size for display of diff files (patches).
 
@@ -37,7 +37,7 @@ set values are presented as **Too large** are cannot be expanded in the UI.
 
 To configure these values:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Diff limits**.
 1. Enter a value for the diff limit.

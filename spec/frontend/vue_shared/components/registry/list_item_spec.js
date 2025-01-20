@@ -107,19 +107,14 @@ describe('list item', () => {
         const tooltip = getBinding(findToggleDetailsButton().element, 'gl-tooltip');
 
         expect(tooltip).toBeDefined();
-        expect(findToggleDetailsButton().attributes('title')).toBe(
-          component.i18n.toggleDetailsLabel,
-        );
+        expect(findToggleDetailsButton().attributes('title')).toBe('Show details');
       });
 
       it('has correct attributes and props', () => {
-        expect(findToggleDetailsButton().props()).toMatchObject({
-          selected: false,
-        });
-
         expect(findToggleDetailsButton().attributes()).toMatchObject({
-          title: component.i18n.toggleDetailsLabel,
-          'aria-label': component.i18n.toggleDetailsLabel,
+          'aria-label': 'Show details',
+          icon: 'chevron-down',
+          title: 'Show details',
         });
       });
 
@@ -127,14 +122,11 @@ describe('list item', () => {
         findToggleDetailsButton().vm.$emit('click');
         await nextTick();
 
-        expect(findToggleDetailsButton().props()).toMatchObject({
-          selected: true,
-        });
-
         expect(findToggleDetailsButton().attributes()).toMatchObject({
-          title: component.i18n.toggleDetailsLabel,
-          'aria-label': component.i18n.toggleDetailsLabel,
           'aria-expanded': 'true',
+          'aria-label': 'Hide details',
+          icon: 'chevron-up',
+          title: 'Hide details',
         });
       });
     });
@@ -148,10 +140,10 @@ describe('list item', () => {
   describe('borders and selection', () => {
     it.each`
       first    | selected | shouldHave                                 | shouldNotHave
-      ${true}  | ${true}  | ${['gl-bg-blue-50', 'gl-border-blue-200']} | ${['gl-border-t-transparent', 'gl-border-t-gray-100']}
-      ${false} | ${true}  | ${['gl-bg-blue-50', 'gl-border-blue-200']} | ${['gl-border-t-transparent', 'gl-border-t-gray-100']}
-      ${true}  | ${false} | ${['gl-border-b-gray-100']}                | ${['gl-bg-blue-50', 'gl-border-blue-200']}
-      ${false} | ${false} | ${['gl-border-b-gray-100']}                | ${['gl-bg-blue-50', 'gl-border-blue-200']}
+      ${true}  | ${true}  | ${['gl-bg-blue-50', 'gl-border-blue-200']} | ${['gl-border-t-transparent', 'gl-border-t-default']}
+      ${false} | ${true}  | ${['gl-bg-blue-50', 'gl-border-blue-200']} | ${['gl-border-t-transparent', 'gl-border-t-default']}
+      ${true}  | ${false} | ${['gl-border-b-default']}                 | ${['gl-bg-blue-50', 'gl-border-blue-200']}
+      ${false} | ${false} | ${['gl-border-b-default']}                 | ${['gl-bg-blue-50', 'gl-border-blue-200']}
     `(
       'when first is $first and selected is $selected',
       ({ first, selected, shouldHave, shouldNotHave }) => {

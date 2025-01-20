@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Git is a distributed version control system (DVCS). This means that everyone
 who works with the source code has a local copy of the complete repository.
@@ -28,7 +28,7 @@ You can take steps to prevent unintentional sharing and information
 destruction. This limitation is the reason why only certain people are allowed
 to [add users to a project](../user/project/members/index.md)
 and why only a GitLab administrator can
-[force push a protected branch](../user/project/protected_branches.md).
+[force push a protected branch](../user/project/repository/branches/protected.md).
 
 <!-- ## Troubleshooting
 

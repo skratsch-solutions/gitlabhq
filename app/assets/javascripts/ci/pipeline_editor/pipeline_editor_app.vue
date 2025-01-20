@@ -11,13 +11,15 @@ import PipelineEditorEmptyState from './components/ui/pipeline_editor_empty_stat
 import PipelineEditorMessages from './components/ui/pipeline_editor_messages.vue';
 import {
   COMMIT_SHA_POLL_INTERVAL,
-  COMMIT_SUCCESS_WITH_REDIRECT,
   EDITOR_APP_STATUS_EMPTY,
   EDITOR_APP_STATUS_LOADING,
   EDITOR_APP_STATUS_LINT_UNAVAILABLE,
   EDITOR_APP_VALID_STATUSES,
   LOAD_FAILURE_UNKNOWN,
   STARTER_TEMPLATE_NAME,
+  COMMIT_SUCCESS,
+  COMMIT_SUCCESS_WITH_REDIRECT,
+  DEFAULT_SUCCESS,
 } from './constants';
 import updateAppStatus from './graphql/mutations/client/update_app_status.mutation.graphql';
 import getBlobContent from './graphql/queries/blob_content.query.graphql';
@@ -57,10 +59,8 @@ export default {
       showFailure: false,
       showResetConfirmationModal: false,
       showStartScreen: false,
-      showSuccess: false,
       starterTemplate: '',
       starterTemplateName: STARTER_TEMPLATE_NAME,
-      successType: null,
     };
   },
   apollo: {
@@ -169,12 +169,14 @@ export default {
         }
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     appStatus: {
       query: getAppStatus,
       update(data) {
         return data.app.status;
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     commitSha: {
       query: getLatestCommitShaQuery,
       skip({ currentBranch }) {
@@ -202,6 +204,7 @@ export default {
         this.reportFailure(LOAD_FAILURE_UNKNOWN);
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     currentBranch: {
       query: getCurrentBranch,
       update(data) {
@@ -264,6 +267,13 @@ export default {
       title: __('Discard changes'),
     },
   },
+  success: {
+    [COMMIT_SUCCESS]: __('Your changes have been successfully committed.'),
+    [COMMIT_SUCCESS_WITH_REDIRECT]: s__(
+      'Pipelines|Your changes have been successfully committed. Now redirecting to the new merge request page.',
+    ),
+    [DEFAULT_SUCCESS]: __('Your action succeeded.'),
+  },
   watch: {
     currentBranch: {
       immediate: true,
@@ -306,9 +316,6 @@ export default {
     hideFailure() {
       this.showFailure = false;
     },
-    hideSuccess() {
-      this.showSuccess = false;
-    },
     loadTemplateFromURL() {
       const templateName = queryToObject(window.location.search)?.template;
 
@@ -339,8 +346,8 @@ export default {
     },
     reportSuccess(type) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.showSuccess = true;
-      this.successType = type;
+      const { success } = this.$options;
+      this.$toast.show(success[type] ?? success[DEFAULT_SUCCESS]);
     },
     resetContent() {
       this.showResetConfirmationModal = false;
@@ -394,7 +401,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-mt-4 gl-relative">
+  <div class="gl-relative gl-mt-4">
     <gl-loading-icon v-if="isBlobContentLoading" size="lg" class="gl-m-3" />
     <pipeline-editor-empty-state
       v-else-if="showStartScreen || usesExternalConfig"
@@ -406,9 +413,6 @@ export default {
         :failure-type="failureType"
         :failure-reasons="failureReasons"
         :show-failure="showFailure"
-        :show-success="showSuccess"
-        :success-type="successType"
-        @hide-success="hideSuccess"
         @hide-failure="hideFailure"
       />
       <pipeline-editor-home

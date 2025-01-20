@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe UserDetail, feature_category: :system_access do
   it { is_expected.to belong_to(:user) }
+  it { is_expected.to belong_to(:bot_namespace).inverse_of(:bot_user_details) }
 
   specify do
     values = [:basics, :move_repository, :code_storage, :exploring, :ci, :other, :joining_team]
@@ -15,12 +16,22 @@ RSpec.describe UserDetail, feature_category: :system_access do
       let(:step_url) { '_some_string_' }
       let(:email_opt_in) { true }
       let(:registration_type) { 'free' }
+      let(:registration_objective) { 0 }
+      let(:glm_source) { 'glm_source' }
+      let(:glm_content) { 'glm_content' }
+      let(:joining_project) { true }
+      let(:role) { 0 }
       let(:onboarding_status) do
         {
           step_url: step_url,
           email_opt_in: email_opt_in,
           initial_registration_type: registration_type,
-          registration_type: registration_type
+          registration_type: registration_type,
+          registration_objective: registration_objective,
+          glm_source: glm_source,
+          glm_content: glm_content,
+          joining_project: joining_project,
+          role: role
         }
       end
 
@@ -90,6 +101,98 @@ RSpec.describe UserDetail, feature_category: :system_access do
         end
       end
 
+      context 'for registration_objective' do
+        let(:onboarding_status) do
+          {
+            registration_objective: registration_objective
+          }
+        end
+
+        it { is_expected.to allow_value(onboarding_status).for(:onboarding_status) }
+
+        context "when 'registration_objective' is invalid" do
+          let(:registration_objective) { [] }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+
+        context "when 'registration_objective' is invalid integer" do
+          let(:registration_objective) { 10 }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+
+        context "when 'registration_objective' is invalid string" do
+          let(:registration_objective) { 'long-string-not-listed' }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+      end
+
+      context 'for glm_content' do
+        let(:onboarding_status) do
+          {
+            glm_content: glm_content
+          }
+        end
+
+        it { is_expected.to allow_value(onboarding_status).for(:onboarding_status) }
+
+        context "when 'glm_content' is invalid" do
+          let(:glm_content) { [] }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+      end
+
+      context 'for glm_source' do
+        let(:onboarding_status) do
+          {
+            glm_source: glm_source
+          }
+        end
+
+        it { is_expected.to allow_value(onboarding_status).for(:onboarding_status) }
+
+        context "when 'glm_source' is invalid" do
+          let(:glm_source) { [] }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+      end
+
+      context 'for joining_project' do
+        let(:onboarding_status) do
+          {
+            joining_project: joining_project
+          }
+        end
+
+        it { is_expected.to allow_value(onboarding_status).for(:onboarding_status) }
+
+        context "when 'joining_project' is invalid" do
+          let(:joining_project) { 'true' }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+      end
+
+      context 'for role' do
+        let(:onboarding_status) do
+          {
+            role: role
+          }
+        end
+
+        it { is_expected.to allow_value(onboarding_status).for(:onboarding_status) }
+
+        context "when 'role' is invalid" do
+          let(:role) { 10 }
+
+          it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+        end
+      end
+
       context 'when there is no data' do
         let(:onboarding_status) { {} }
 
@@ -104,6 +207,50 @@ RSpec.describe UserDetail, feature_category: :system_access do
         end
 
         it { is_expected.not_to allow_value(onboarding_status).for(:onboarding_status) }
+      end
+
+      context 'when validating bot namespace user type' do
+        let(:namespace) { create(:namespace) }
+
+        context 'for a human user' do
+          let(:user) { build(:user) }
+          let(:user_detail) { build(:user_detail, user: user) }
+
+          it 'does not allow bot namespace to be set' do
+            user_detail.bot_namespace = namespace
+
+            expect(user_detail).not_to be_valid
+            expect(user_detail.errors).to contain_exactly _('Bot namespace must only be set for bot user types')
+          end
+
+          context 'when invalid bot_namespace is already set' do
+            before do
+              user_detail.save!
+              user_detail.update_column(:bot_namespace_id, namespace.id)
+            end
+
+            it 'is valid' do
+              expect(user_detail).to be_valid
+            end
+
+            it 'can be set back to nil' do
+              user_detail.bot_namespace = nil
+
+              expect(user_detail).to be_valid
+            end
+          end
+        end
+
+        context 'for a bot user' do
+          let(:user) { build(:user, :project_bot) }
+          let(:user_detail) { build(:user_detail, user: user) }
+
+          it 'allows bot namespace to be set' do
+            user_detail.bot_namespace = namespace
+
+            expect(user_detail).to be_valid
+          end
+        end
       end
     end
 
@@ -142,7 +289,7 @@ RSpec.describe UserDetail, feature_category: :system_access do
       it { is_expected.to validate_length_of(:discord).is_at_most(500) }
 
       context 'when discord is set' do
-        let_it_be(:user_detail) { create(:user_detail) }
+        let_it_be(:user_detail) { create(:user).user_detail }
 
         it 'accepts a valid discord user id' do
           user_detail.discord = '1234567890123456789'
@@ -159,11 +306,55 @@ RSpec.describe UserDetail, feature_category: :system_access do
       end
     end
 
+    describe '#bluesky' do
+      context 'when bluesky is set' do
+        let_it_be(:user_detail) { build(:user_detail) }
+
+        let(:value) { 'did:plc:ewvi7nxzyoun6zhxrhs64oiz' }
+
+        before do
+          user_detail.bluesky = value
+        end
+
+        it 'accepts a valid bluesky did id' do
+          expect(user_detail).to be_valid
+        end
+
+        shared_examples 'throws an error' do
+          it do
+            expect(user_detail).not_to be_valid
+            expect(user_detail.errors.full_messages)
+              .to match_array([_('Bluesky must contain only a bluesky did:plc identifier.')])
+          end
+        end
+
+        context 'when bluesky is set to a wrong format' do
+          context 'when bluesky did:plc is too long' do
+            let(:value) { 'a' * 33 }
+
+            it_behaves_like 'throws an error'
+          end
+
+          context 'when bluesky did:plc is wrong' do
+            let(:value) { 'did:plc:ewvi7nxzyoun6zhxrhs64OIZ' }
+
+            it_behaves_like 'throws an error'
+          end
+
+          context 'when bluesky other bluesky did: formats are used' do
+            let(:value) { 'did:web:example.com' }
+
+            it_behaves_like 'throws an error'
+          end
+        end
+      end
+    end
+
     describe '#mastodon' do
       it { is_expected.to validate_length_of(:mastodon).is_at_most(500) }
 
       context 'when mastodon is set' do
-        let_it_be(:user_detail) { create(:user_detail) }
+        let_it_be(:user_detail) { create(:user).user_detail }
 
         it 'accepts a valid mastodon username' do
           user_detail.mastodon = '@robin@example.com'
@@ -176,7 +367,7 @@ RSpec.describe UserDetail, feature_category: :system_access do
 
           expect(user_detail).not_to be_valid
           expect(user_detail.errors.full_messages)
-            .to match_array([_('Mastodon must contain only a mastodon username.')])
+            .to match_array([_('Mastodon must contain only a mastodon handle.')])
         end
       end
     end
@@ -193,7 +384,7 @@ RSpec.describe UserDetail, feature_category: :system_access do
       it { is_expected.to validate_length_of(:website_url).is_at_most(500) }
 
       it 'only validates the website_url if it is changed' do
-        user_detail = create(:user_detail)
+        user_detail = create(:user).user_detail
         # `update_attribute` required to bypass current validations
         # Validations on `User#website_url` were added after
         # there was already data in the database and `UserDetail#website_url` is
@@ -213,18 +404,20 @@ RSpec.describe UserDetail, feature_category: :system_access do
 
   describe '#save' do
     let(:user_detail) do
-      create(
-        :user_detail,
+      attributes = {
         bio: 'bio',
         discord: '1234567890123456789',
         linkedin: 'linkedin',
         location: 'location',
+        bluesky: 'did:plc:ewvi7nxzyoun6zhxrhs64oiz',
         mastodon: '@robin@example.com',
         organization: 'organization',
         skype: 'skype',
         twitter: 'twitter',
         website_url: 'https://example.com'
-      )
+      }
+
+      create(:user, attributes).user_detail
     end
 
     shared_examples 'prevents `nil` value' do |attr|
@@ -240,6 +433,7 @@ RSpec.describe UserDetail, feature_category: :system_access do
     it_behaves_like 'prevents `nil` value', :discord
     it_behaves_like 'prevents `nil` value', :linkedin
     it_behaves_like 'prevents `nil` value', :location
+    it_behaves_like 'prevents `nil` value', :bluesky
     it_behaves_like 'prevents `nil` value', :mastodon
     it_behaves_like 'prevents `nil` value', :organization
     it_behaves_like 'prevents `nil` value', :skype
@@ -291,7 +485,7 @@ RSpec.describe UserDetail, feature_category: :system_access do
         .at_least(:once)
         .and_call_original
 
-      details.save!
+      details.valid?
     end
   end
 end

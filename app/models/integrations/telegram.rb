@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Telegram < BaseChatNotification
+  class Telegram < Integration
     include HasAvatar
+    include Base::ChatNotification
+
     TELEGRAM_HOSTNAME = "%{hostname}/bot%{token}/sendMessage"
 
     field :hostname,
@@ -76,14 +78,9 @@ module Integrations
     end
 
     def self.help
-      docs_link = ActionController::Base.helpers.link_to(
-        _('Learn more.'),
-        Rails.application.routes.url_helpers.help_page_url('user/project/integrations/telegram'),
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      )
-      format(s_("TelegramIntegration|Send notifications about project events to Telegram. %{docs_link}"),
-        docs_link: docs_link.html_safe
+      build_help_page_url(
+        'user/project/integrations/telegram.md',
+        s_("TelegramIntegration|Send notifications about project events to Telegram.")
       )
     end
 

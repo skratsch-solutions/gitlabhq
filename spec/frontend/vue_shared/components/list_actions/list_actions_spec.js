@@ -37,13 +37,15 @@ describe('ListActions', () => {
       {
         text: 'Edit',
         href: '/-/edit',
+        order: 1,
       },
       {
         text: 'Delete',
         extraAttrs: {
-          class: 'gl-text-red-500!',
+          class: '!gl-text-red-500',
         },
         action: expect.any(Function),
+        order: 3,
       },
     ]);
   });
@@ -68,6 +70,7 @@ describe('ListActions', () => {
       {
         text: 'Edit',
         href: '/-/edit',
+        order: 1,
       },
       {
         text: 'Leave project',
@@ -76,9 +79,10 @@ describe('ListActions', () => {
       {
         text: 'Delete',
         extraAttrs: {
-          class: 'gl-text-red-500!',
+          class: '!gl-text-red-500',
         },
         action: expect.any(Function),
+        order: 3,
       },
     ]);
   });
@@ -94,6 +98,7 @@ describe('ListActions', () => {
       {
         text: 'Edit',
         href: '/-/edit',
+        order: 1,
       },
     ]);
   });
@@ -109,13 +114,15 @@ describe('ListActions', () => {
       {
         text: 'Delete',
         extraAttrs: {
-          class: 'gl-text-red-500!',
+          class: '!gl-text-red-500',
         },
         action: expect.any(Function),
+        order: 3,
       },
       {
         text: 'Edit',
         href: '/-/edit',
+        order: 1,
       },
     ]);
   });

@@ -3,9 +3,10 @@ module API
   class NpmProjectPackages < ::API::Base
     ERROR_REASON_TO_HTTP_STATUS_MAPPTING = {
       ::Packages::Npm::CreatePackageService::ERROR_REASON_INVALID_PARAMETER => 400,
-      ::Packages::Npm::CreatePackageService::ERROR_REASON_PACKAGE_LEASE_TAKEN => 400,
       ::Packages::Npm::CreatePackageService::ERROR_REASON_PACKAGE_EXISTS => 403,
-      ::Packages::Npm::CreatePackageService::ERROR_REASON_PACKAGE_PROTECTED => 403
+      ::Packages::Npm::CreatePackageService::ERROR_REASON_PACKAGE_LEASE_TAKEN => 400,
+      ::Packages::Npm::CreatePackageService::ERROR_REASON_PACKAGE_PROTECTED => 403,
+      ::Packages::Npm::CreatePackageService::ERROR_REASON_UNAUTHORIZED => 403
     }.freeze
 
     helpers ::API::Helpers::Packages::Npm
@@ -19,12 +20,24 @@ module API
     end
 
     helpers do
-      def endpoint_scope
-        :project
-      end
+      include Gitlab::Utils::StrongMemoize
 
       def error_reason_to_http_status(reason)
         ERROR_REASON_TO_HTTP_STATUS_MAPPTING.fetch(reason, 400)
+      end
+
+      def metadata_cache
+        ::Packages::Npm::MetadataCache
+          .find_by_package_name_and_project_id(params[:package_name], project.id)
+      end
+      strong_memoize_attr :metadata_cache
+
+      def project
+        user_project(action: :read_package)
+      end
+
+      def project_id_or_nil
+        params[:id]
       end
     end
 
@@ -48,11 +61,13 @@ module API
         requires :file_name, type: String, desc: 'Package file name'
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+      route_setting :authorization, job_token_policies: :read_packages
       get '*package_name/-/*file_name', format: false do
         authorize_read_package!(project)
 
-        package = project.packages.npm
-          .by_name_and_file_name(params[:package_name], params[:file_name])
+        package = ::Packages::Npm::Package
+                    .for_projects(project)
+                    .by_name_and_file_name(params[:package_name], params[:file_name])
 
         not_found!('Package') unless package
 
@@ -80,11 +95,16 @@ module API
         requires :versions, type: Hash, desc: 'Package version info'
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true
+      route_setting :authorization, job_token_policies: :admin_packages
       put ':package_name', requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS do
         if headers['Npm-Command'] == 'deprecate'
           authorize_destroy_package!(project)
 
-          ::Packages::Npm::DeprecatePackageService.new(project, declared(params)).execute(async: true)
+          response = ::Packages::Npm::EnqueueDeprecatePackageWorkerService.new(project, nil, declared(params).to_hash).execute
+
+          if response.error? && response.reason == :no_versions_to_deprecate
+            bad_request_missing_attribute!('package versions to deprecate')
+          end
         else
           authorize_create_package!(project)
 
@@ -121,9 +141,10 @@ module API
       end
       route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true,
         authenticate_non_public: true
+      route_setting :authorization, job_token_policies: :read_packages
       get '*package_name', format: false, requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS do
         package_name = declared_params[:package_name]
-        packages = ::Packages::Npm::PackageFinder.new(package_name, project: project_or_nil).execute
+        packages = ::Packages::Npm::PackageFinder.new(project: project_or_nil, params: { package_name: package_name }).execute
 
         # In order to redirect a request, packages should not exist (without taking the user into account).
         redirect_request = project_or_nil.blank? || packages.empty?

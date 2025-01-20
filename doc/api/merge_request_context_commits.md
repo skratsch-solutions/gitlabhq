@@ -9,7 +9,11 @@ description: "Documentation for the REST API for merge request context commits i
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+If your merge request builds upon a previous merge request, you might
+need to [include previously-merged commits for context](../user/project/merge_requests/commits.md#show-commits-from-previous-merge-requests).
+Use this API to add commits to a merge request for more context.
 
 ## List MR context commits
 
@@ -23,7 +27,7 @@ Parameters:
 
 | Attribute           | Type    | Required | Description |
 |---------------------|---------|----------|-------------|
-| `id`                | integer | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                | integer | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `merge_request_iid` | integer | Yes | The internal ID of the merge request. |
 
 ```json
@@ -57,7 +61,7 @@ Parameters:
 
 | Attribute           | Type    | Required | Description |
 |---------------------|---------|----------|-------------|
-| `id`                | integer | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user  |
+| `id`                | integer | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths)  |
 | `merge_request_iid` | integer | Yes | The internal ID of the merge request. |
 | `commits`           | string array | Yes | The context commits' SHAs. |
 
@@ -108,5 +112,5 @@ Parameters:
 | Attribute           | Type         | Required | Description  |
 |---------------------|--------------|----------|--------------|
 | `commits`           | string array | Yes | The context commits' SHA. |
-| `id`                | integer      | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                | integer      | Yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `merge_request_iid` | integer      | Yes | The internal ID of the merge request. |

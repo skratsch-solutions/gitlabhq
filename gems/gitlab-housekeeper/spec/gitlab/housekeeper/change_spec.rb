@@ -50,8 +50,8 @@ RSpec.describe ::Gitlab::Housekeeper::Change do
         [gitlab-housekeeper](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
         using the Object keep.
 
-        To provide feedback on your experience with `gitlab-housekeeper` please comment in
-        <https://gitlab.com/gitlab-org/gitlab/-/issues/442003>.
+        To provide feedback on your experience with `gitlab-housekeeper` please create an issue with the
+        label ~"GitLab Housekeeper" and consider pinging the author of this keep.
         MARKDOWN
       )
     end
@@ -71,6 +71,18 @@ RSpec.describe ::Gitlab::Housekeeper::Change do
     end
   end
 
+  describe '#already_approved?' do
+    it 'is true when changes include approvals' do
+      change.non_housekeeper_changes = [:code, :approvals]
+      expect(change.already_approved?).to eq(true)
+    end
+
+    it 'is false when changes do not approvals' do
+      change.non_housekeeper_changes = [:code, :title]
+      expect(change.already_approved?).to eq(false)
+    end
+  end
+
   describe '#commit_message' do
     it 'includes standard content' do
       expect(change.commit_message).to eq(
@@ -83,8 +95,8 @@ RSpec.describe ::Gitlab::Housekeeper::Change do
         [gitlab-housekeeper](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
         using the Object keep.
 
-        To provide feedback on your experience with `gitlab-housekeeper` please comment in
-        <https://gitlab.com/gitlab-org/gitlab/-/issues/442003>.
+        To provide feedback on your experience with `gitlab-housekeeper` please create an issue with the
+        label ~"GitLab Housekeeper" and consider pinging the author of this keep.
 
 
         Changelog: other
@@ -108,8 +120,8 @@ RSpec.describe ::Gitlab::Housekeeper::Change do
           [gitlab-housekeeper](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
           using the Object keep.
 
-          To provide feedback on your experience with `gitlab-housekeeper` please comment in
-          <https://gitlab.com/gitlab-org/gitlab/-/issues/442003>.
+          To provide feedback on your experience with `gitlab-housekeeper` please create an issue with the
+          label ~"GitLab Housekeeper" and consider pinging the author of this keep.
 
 
           Changelog: removed
@@ -135,8 +147,8 @@ RSpec.describe ::Gitlab::Housekeeper::Change do
           [gitlab-housekeeper](https://gitlab.com/gitlab-org/gitlab/-/tree/master/gems/gitlab-housekeeper)
           using the Object keep.
 
-          To provide feedback on your experience with `gitlab-housekeeper` please comment in
-          <https://gitlab.com/gitlab-org/gitlab/-/issues/442003>.
+          To provide feedback on your experience with `gitlab-housekeeper` please create an issue with the
+          label ~"GitLab Housekeeper" and consider pinging the author of this keep.
 
 
           Changelog: other

@@ -24,9 +24,6 @@ const tooltipsApp = () => {
       name: 'TooltipsRoot',
       render(h) {
         return h(Tooltips, {
-          props: {
-            elements: this.elements,
-          },
           ref: 'tooltips',
         });
       },
@@ -42,6 +39,7 @@ const addTooltips = (elements, config) => {
   tooltipsApp().addTooltips(toArray(elements), config);
 };
 
+// eslint-disable-next-line max-params
 const handleTooltipEvent = (rootTarget, e, selector, config = {}) => {
   for (let { target } = e; target && target !== rootTarget; target = target.parentNode) {
     if (isTooltip(target, selector)) {

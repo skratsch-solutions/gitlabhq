@@ -1,30 +1,44 @@
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
-import { GlToggle } from '@gitlab/ui';
+import { GlAlert } from '@gitlab/ui';
+
+import { createAlert } from '~/alert';
+
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import setWindowLocation from 'helpers/set_window_location_helper';
-import { RENDER_ALL_SLOTS_TEMPLATE, stubComponent } from 'helpers/stub_component';
+import { stubComponent } from 'helpers/stub_component';
 import issueDetailsQuery from 'ee_else_ce/work_items/graphql/get_issue_details.query.graphql';
+
 import { resolvers } from '~/graphql_shared/issuable_client';
-import WidgetWrapper from '~/work_items/components/widget_wrapper.vue';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import WorkItemLinks from '~/work_items/components/work_item_links/work_item_links.vue';
 import WorkItemChildrenWrapper from '~/work_items/components/work_item_links/work_item_children_wrapper.vue';
 import WorkItemDetailModal from '~/work_items/components/work_item_detail_modal.vue';
-import AbuseCategorySelector from '~/abuse_reports/components/abuse_category_selector.vue';
-import { FORM_TYPES } from '~/work_items/constants';
-import groupWorkItemByIidQuery from '~/work_items/graphql/group_work_item_by_iid.query.graphql';
-import workItemByIidQuery from '~/work_items/graphql/work_item_by_iid.query.graphql';
+import WorkItemAbuseModal from '~/work_items/components/work_item_abuse_modal.vue';
+import WorkItemMoreActions from '~/work_items/components/shared/work_item_more_actions.vue';
+import {
+  FORM_TYPES,
+  WORKITEM_LINKS_SHOWLABELS_LOCALSTORAGEKEY,
+  WORKITEM_TREE_SHOWCLOSED_LOCALSTORAGEKEY,
+} from '~/work_items/constants';
+import getWorkItemTreeQuery from '~/work_items/graphql/work_item_tree.query.graphql';
+
+import { useLocalStorageSpy } from 'helpers/local_storage_helper';
+import * as utils from '~/work_items/utils';
 import {
   getIssueDetailsResponse,
-  groupWorkItemByIidResponseFactory,
-  workItemHierarchyResponse,
-  workItemHierarchyEmptyResponse,
+  workItemHierarchyTreeResponse,
+  workItemHierarchyPaginatedTreeResponse,
+  workItemHierarchyTreeEmptyResponse,
   workItemHierarchyNoUpdatePermissionResponse,
   workItemByIidResponseFactory,
+  workItemHierarchyTreeSingleClosedItemResponse,
   mockWorkItemCommentNote,
 } from '../../mock_data';
+
+jest.mock('~/alert');
 
 Vue.use(VueApollo);
 
@@ -34,10 +48,7 @@ describe('WorkItemLinks', () => {
   let wrapper;
   let mockApollo;
 
-  const responseWithAddChildPermission = jest.fn().mockResolvedValue(workItemHierarchyResponse);
-  const groupResponseWithAddChildPermission = jest
-    .fn()
-    .mockResolvedValue(groupWorkItemByIidResponseFactory());
+  const responseWithAddChildPermission = jest.fn().mockResolvedValue(workItemHierarchyTreeResponse);
   const responseWithoutAddChildPermission = jest
     .fn()
     .mockResolvedValue(workItemByIidResponseFactory({ adminParentLink: false }));
@@ -46,12 +57,10 @@ describe('WorkItemLinks', () => {
     fetchHandler = responseWithAddChildPermission,
     issueDetailsQueryHandler = jest.fn().mockResolvedValue(getIssueDetailsResponse()),
     hasIterationsFeature = false,
-    isGroup = false,
   } = {}) => {
     mockApollo = createMockApollo(
       [
-        [workItemByIidQuery, fetchHandler],
-        [groupWorkItemByIidQuery, groupResponseWithAddChildPermission],
+        [getWorkItemTreeQuery, fetchHandler],
         [issueDetailsQuery, issueDetailsQueryHandler],
       ],
       resolvers,
@@ -61,7 +70,6 @@ describe('WorkItemLinks', () => {
       provide: {
         fullPath: 'project/path',
         hasIterationsFeature,
-        isGroup,
         reportAbusePath: '/report/abuse/path',
       },
       propsData: {
@@ -75,26 +83,24 @@ describe('WorkItemLinks', () => {
             show: showModal,
           },
         }),
-        WidgetWrapper: stubComponent(WidgetWrapper, {
-          template: RENDER_ALL_SLOTS_TEMPLATE,
-        }),
+        CrudComponent,
       },
     });
 
     await waitForPromises();
   };
 
-  const findWidgetWrapper = () => wrapper.findComponent(WidgetWrapper);
-  const findEmptyState = () => wrapper.findByTestId('links-empty');
+  const findErrorMessage = () => wrapper.findComponent(GlAlert);
+  const findEmptyState = () => wrapper.findByTestId('crud-empty');
   const findToggleFormDropdown = () => wrapper.findByTestId('toggle-form');
   const findToggleAddFormButton = () => wrapper.findByTestId('toggle-add-form');
   const findToggleCreateFormButton = () => wrapper.findByTestId('toggle-create-form');
   const findAddLinksForm = () => wrapper.findByTestId('add-links-form');
-  const findChildrenCount = () => wrapper.findByTestId('children-count');
+  const findChildrenCount = () => wrapper.findByTestId('crud-count');
   const findWorkItemDetailModal = () => wrapper.findComponent(WorkItemDetailModal);
-  const findAbuseCategorySelector = () => wrapper.findComponent(AbuseCategorySelector);
+  const findAbuseCategoryModal = () => wrapper.findComponent(WorkItemAbuseModal);
   const findWorkItemLinkChildrenWrapper = () => wrapper.findComponent(WorkItemChildrenWrapper);
-  const findShowLabelsToggle = () => wrapper.findComponent(GlToggle);
+  const findMoreActions = () => wrapper.findComponent(WorkItemMoreActions);
 
   afterEach(() => {
     mockApollo = null;
@@ -149,7 +155,7 @@ describe('WorkItemLinks', () => {
   describe('when no child links', () => {
     beforeEach(async () => {
       await createComponent({
-        fetchHandler: jest.fn().mockResolvedValue(workItemHierarchyEmptyResponse),
+        fetchHandler: jest.fn().mockResolvedValue(workItemHierarchyTreeEmptyResponse),
       });
     });
 
@@ -162,7 +168,7 @@ describe('WorkItemLinks', () => {
     await createComponent();
 
     expect(findWorkItemLinkChildrenWrapper().exists()).toBe(true);
-    expect(findWorkItemLinkChildrenWrapper().props().children).toHaveLength(4);
+    expect(findWorkItemLinkChildrenWrapper().props().children).toHaveLength(1);
   });
 
   it('shows an alert when list loading fails', async () => {
@@ -171,14 +177,14 @@ describe('WorkItemLinks', () => {
       fetchHandler: jest.fn().mockRejectedValue(new Error(errorMessage)),
     });
 
-    expect(findWidgetWrapper().props('error')).toBe(errorMessage);
+    expect(findErrorMessage().text()).toBe(errorMessage);
   });
 
   it('displays number of children', async () => {
     await createComponent();
 
     expect(findChildrenCount().exists()).toBe(true);
-    expect(findChildrenCount().text()).toContain('4');
+    expect(findChildrenCount().text()).toContain('1');
   });
 
   describe('when no permission to update', () => {
@@ -221,11 +227,20 @@ describe('WorkItemLinks', () => {
   });
 
   it('opens the modal if work item iid URL parameter is found in child items', async () => {
-    setWindowLocation('?work_item_iid=2');
+    setWindowLocation('?work_item_iid=37');
     await createComponent();
 
     expect(showModal).toHaveBeenCalled();
-    expect(findWorkItemDetailModal().props('workItemIid')).toBe('2');
+    expect(findWorkItemDetailModal().props('workItemIid')).toBe('37');
+  });
+
+  it('opens the modal if work item id URL parameter is found in child items', async () => {
+    setWindowLocation('?show=31');
+    await createComponent();
+
+    expect(showModal).toHaveBeenCalled();
+    expect(findWorkItemDetailModal().props('workItemId')).toBe('gid://gitlab/WorkItem/31');
+    expect(findWorkItemDetailModal().props('workItemIid')).toBe('37');
   });
 
   describe('abuse category selector', () => {
@@ -235,7 +250,7 @@ describe('WorkItemLinks', () => {
     });
 
     it('should not be visible by default', () => {
-      expect(findAbuseCategorySelector().exists()).toBe(false);
+      expect(findAbuseCategoryModal().exists()).toBe(false);
     });
 
     it('should be visible when the work item modal emits `openReportAbuse` event', async () => {
@@ -243,58 +258,139 @@ describe('WorkItemLinks', () => {
 
       await nextTick();
 
-      expect(findAbuseCategorySelector().exists()).toBe(true);
+      expect(findAbuseCategoryModal().exists()).toBe(true);
 
-      findAbuseCategorySelector().vm.$emit('close-drawer');
+      findAbuseCategoryModal().vm.$emit('close-modal');
 
       await nextTick();
 
-      expect(findAbuseCategorySelector().exists()).toBe(false);
+      expect(findAbuseCategoryModal().exists()).toBe(false);
     });
   });
 
-  describe('when project context', () => {
-    it('calls the project work item query', () => {
-      createComponent();
+  it('calls the project work item query', () => {
+    createComponent();
 
-      expect(responseWithAddChildPermission).toHaveBeenCalled();
+    expect(responseWithAddChildPermission).toHaveBeenCalled();
+  });
+
+  describe('pagination', () => {
+    const findWorkItemChildrenLoadMore = () => wrapper.findByTestId('work-item-load-more');
+    let workItemTreeQueryHandler;
+
+    beforeEach(async () => {
+      workItemTreeQueryHandler = jest
+        .fn()
+        .mockResolvedValue(workItemHierarchyPaginatedTreeResponse);
+
+      await createComponent({
+        fetchHandler: workItemTreeQueryHandler,
+      });
     });
 
-    it('skips calling the group work item query', () => {
-      createComponent();
+    it('shows work-item-children-load-more component when hasNextPage is true and node is expanded', () => {
+      const loadMore = findWorkItemChildrenLoadMore();
+      expect(loadMore.exists()).toBe(true);
+      expect(loadMore.props('fetchNextPageInProgress')).toBe(false);
+    });
 
-      expect(groupResponseWithAddChildPermission).not.toHaveBeenCalled();
+    it('queries next page children when work-item-children-load-more emits "fetch-next-page"', async () => {
+      findWorkItemChildrenLoadMore().vm.$emit('fetch-next-page');
+      await waitForPromises();
+
+      expect(workItemTreeQueryHandler).toHaveBeenCalled();
+    });
+
+    it('shows alert message when fetching next page fails', async () => {
+      jest.spyOn(wrapper.vm.$apollo.queries.workItem, 'fetchMore').mockRejectedValueOnce({});
+      findWorkItemChildrenLoadMore().vm.$emit('fetch-next-page');
+      await waitForPromises();
+
+      expect(createAlert).toHaveBeenCalledWith({
+        captureError: true,
+        error: expect.any(Object),
+        message: 'Something went wrong while fetching children.',
+      });
     });
   });
 
-  describe('when group context', () => {
-    it('skips calling the project work item query', () => {
-      createComponent({ isGroup: true });
+  describe('more actions', () => {
+    useLocalStorageSpy();
 
-      expect(responseWithAddChildPermission).not.toHaveBeenCalled();
+    beforeEach(async () => {
+      jest.spyOn(utils, 'getToggleFromLocalStorage');
+      jest.spyOn(utils, 'saveToggleToLocalStorage');
+      await createComponent();
     });
 
-    it('calls the group work item query', () => {
-      createComponent({ isGroup: true });
-
-      expect(groupResponseWithAddChildPermission).toHaveBeenCalled();
+    afterEach(() => {
+      localStorage.clear();
     });
-  });
 
-  it.each`
-    toggleValue
-    ${true}
-    ${false}
-  `(
-    'passes showLabels as $toggleValue to child items when toggle is $toggleValue',
-    async ({ toggleValue }) => {
+    it('renders the `WorkItemMoreActions` component', async () => {
       await createComponent();
 
-      findShowLabelsToggle().vm.$emit('change', toggleValue);
+      expect(findMoreActions().exists()).toBe(true);
+    });
+
+    it('does not render `View on a roadmap` action', async () => {
+      await createComponent();
+
+      expect(findMoreActions().props('showViewRoadmapAction')).toBe(false);
+    });
+
+    it('toggles `showLabels` when `toggle-show-labels` is emitted', async () => {
+      await createComponent();
+
+      expect(findWorkItemLinkChildrenWrapper().props('showLabels')).toBe(true);
+
+      findMoreActions().vm.$emit('toggle-show-labels');
 
       await nextTick();
 
-      expect(findWorkItemLinkChildrenWrapper().props('showLabels')).toBe(toggleValue);
-    },
-  );
+      expect(findWorkItemLinkChildrenWrapper().props('showLabels')).toBe(false);
+
+      findMoreActions().vm.$emit('toggle-show-labels');
+
+      await nextTick();
+
+      expect(findWorkItemLinkChildrenWrapper().props('showLabels')).toBe(true);
+    });
+
+    it('calls saveToggleToLocalStorage on toggle-show-labels', () => {
+      findMoreActions().vm.$emit('toggle-show-labels');
+      expect(utils.saveToggleToLocalStorage).toHaveBeenCalled();
+    });
+
+    it('calls getToggleFromLocalStorage on mount for toggle-show-labels', () => {
+      expect(utils.getToggleFromLocalStorage).toHaveBeenCalledWith(
+        WORKITEM_LINKS_SHOWLABELS_LOCALSTORAGEKEY,
+      );
+    });
+
+    it('calls saveToggleToLocalStorage on toggle-show-closed', () => {
+      findMoreActions().vm.$emit('toggle-show-closed');
+      expect(utils.saveToggleToLocalStorage).toHaveBeenCalled();
+    });
+
+    it('calls getToggleFromLocalStorage on mount for toggle-show-closed', () => {
+      expect(utils.getToggleFromLocalStorage).toHaveBeenCalledWith(
+        WORKITEM_TREE_SHOWCLOSED_LOCALSTORAGEKEY,
+      );
+    });
+  });
+
+  it('displays no child items open message', async () => {
+    await createComponent({
+      fetchHandler: jest.fn().mockResolvedValue(workItemHierarchyTreeSingleClosedItemResponse),
+    });
+
+    expect(wrapper.findByTestId('work-item-no-child-items-open').exists()).toBe(false);
+
+    await findMoreActions().vm.$emit('toggle-show-closed');
+
+    expect(wrapper.findByTestId('work-item-no-child-items-open').text()).toBe(
+      'No child items are currently open.',
+    );
+  });
 });

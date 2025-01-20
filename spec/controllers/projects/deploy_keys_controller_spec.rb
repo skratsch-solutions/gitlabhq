@@ -103,6 +103,18 @@ RSpec.describe Projects::DeployKeysController, feature_category: :continuous_del
         expect(json_response['keys'].pluck("id")).to match_array([deploy_key_public.id])
       end
     end
+
+    describe 'GET available_public_keys with search' do
+      let_it_be(:another_deploy_key_public) { create(:deploy_key, public: true, title: 'new-key') }
+      let(:params) do
+        { namespace_id: project.namespace, project_id: project, search: 'key', in: 'title' }
+      end
+
+      it 'returns available public keys matching the search' do
+        get :available_public_keys, params: params.merge(format: :json)
+        expect(json_response['keys'].pluck("id")).to match_array([another_deploy_key_public.id])
+      end
+    end
   end
 
   describe 'POST create' do
@@ -147,7 +159,7 @@ RSpec.describe Projects::DeployKeysController, feature_category: :continuous_del
         post :create, params: create_params
 
         expect(assigns(:key).errors.count).to be > 1
-        expect(flash[:alert]).to eq('Deploy Key must be a <a target="_blank" rel="noopener noreferrer" ' \
+        expect(flash[:alert]).to eq('Deploy key must be a <a target="_blank" rel="noopener noreferrer" ' \
           'href="/help/user/ssh#supported-ssh-key-types">supported SSH public key.</a>')
       end
     end

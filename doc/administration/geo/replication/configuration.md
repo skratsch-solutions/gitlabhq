@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 This is the final step in setting up a **secondary** Geo site. Stages of the
@@ -32,7 +32,7 @@ Prerequisites for **both primary and secondary sites**:
 
 NOTE:
 **Do not** set up any custom authentication for the **secondary** site. This is handled by the **primary** site.
-Any change that requires access to the **Admin Area** needs to be done in the
+Any change that requires access to the **Admin area** needs to be done in the
 **primary** site because the **secondary** site is a read-only replica.
 
 ## Step 1. Manually replicate secret GitLab values
@@ -107,7 +107,7 @@ The SSH host key path depends on the used software:
 
 In the following steps, replace `<ssh_host_key_path>` with the one you're using:
 
-1. SSH into **each Rails node on your secondary** site and log in as the `root` user:
+1. SSH into **each Rails node on your secondary** site and sign in as the `root` user:
 
    ```shell
    sudo -i
@@ -222,10 +222,10 @@ In the following steps, replace `<ssh_host_key_path>` with the one you're using:
    ```
 
 1. Go to the primary node GitLab instance:
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. On the left sidebar, select **Geo > Sites**.
    1. Select **Add site**.
-      ![Add secondary site](img/adding_a_secondary_v15_8.png)
+      ![Adding a secondary site in Geo configuration interface](img/adding_a_secondary_v15_8.png)
    1. In **Name**, enter the value for `gitlab_rails['geo_node_name']` in
       `/etc/gitlab/gitlab.rb`. These values must always match **exactly**, character
       for character.
@@ -331,7 +331,7 @@ method to be enabled. This is enabled by default, but if converting an existing 
 
 On the **primary** site:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. If using Git over SSH, then:
@@ -346,7 +346,7 @@ On the **primary** site:
 You can sign in to the **secondary** site with the same credentials you used with
 the **primary** site. After you sign in:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Sites**.
 1. Verify that it's correctly identified as a **secondary** Geo site, and that
    Geo is enabled.
@@ -355,7 +355,7 @@ The initial replication may take some time. The status of the site or the 'backf
 can monitor the synchronization process on each Geo site from the **primary**
 site's **Geo Sites** dashboard in your browser.
 
-![Geo dashboard](img/geo_dashboard_v14_0.png)
+![Geo dashboard of secondary site](img/geo_dashboard_v14_0.png)
 
 If your installation isn't working properly, check the
 [troubleshooting document](troubleshooting/index.md).
@@ -370,7 +370,7 @@ The two most obvious issues that can become apparent in the dashboard are:
 
 Disabling a **secondary** site stops the synchronization process.
 
-If `git_data_dirs` is customized on the **primary** site for multiple
+If repository storages are customized on the **primary** site for multiple
 repository shards you must duplicate the same configuration on each **secondary** site.
 
 Point your users to the [Using a Geo Site guide](usage.md).

@@ -9,10 +9,6 @@ class Admin::UsersController < Admin::ApplicationController
   before_action :ensure_destroy_prerequisites_met, only: [:destroy]
   before_action :set_shared_view_parameters, only: [:show, :projects, :keys]
 
-  before_action only: [:index] do
-    push_frontend_feature_flag(:simplified_badges, current_user)
-  end
-
   feature_category :user_management
 
   PAGINATION_WITH_COUNT_LIMIT = 1000
@@ -214,20 +210,19 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def create
-    opts = {
-      reset_password: true,
-      skip_confirmation: true,
-      organization_id: Current.organization&.id
-    }
+    opts = user_params.merge(reset_password: true, skip_confirmation: true)
+    opts[:organization_id] ||= Current.organization&.id
 
-    @user = Users::CreateService.new(current_user, user_params.merge(opts)).execute
+    response = Users::CreateService.new(current_user, opts).execute
+
+    @user = response.payload[:user]
 
     respond_to do |format|
-      if @user.persisted?
+      if response.success?
         format.html { redirect_to [:admin, @user], notice: _('User was successfully created.') }
         format.json { render json: @user, status: :created, location: @user }
       else
-        format.html { render "new" }
+        @user.errors.none? ? format.html { render "new" } : format.html { render "new", notice: response.message }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
@@ -371,9 +366,10 @@ class Admin::UsersController < Admin::ApplicationController
       :access_level,
       :avatar,
       :bio,
+      :bluesky,
       :can_create_group,
-      :color_scheme_id,
       :color_mode_id,
+      :color_scheme_id,
       :discord,
       :email,
       :extern_uid,
@@ -385,7 +381,11 @@ class Admin::UsersController < Admin::ApplicationController
       :linkedin,
       :mastodon,
       :name,
+      :note,
+      :organization_id,
+      :organization_access_level,
       :password_expires_at,
+      :private_profile,
       :projects_limit,
       :provider,
       :remember_me,
@@ -394,9 +394,8 @@ class Admin::UsersController < Admin::ApplicationController
       :twitter,
       :username,
       :website_url,
-      :note,
-      :private_profile,
-      { credit_card_validation_attributes: [:credit_card_validated_at] }
+      { credit_card_validation_attributes: [:credit_card_validated_at] },
+      { organization_users_attributes: [:id, :organization_id, :access_level] }
     ]
   end
 
@@ -414,7 +413,7 @@ class Admin::UsersController < Admin::ApplicationController
     Gitlab::AppLogger.info(format(_("User %{current_user_username} has started impersonating %{username}"), current_user_username: current_user.username, username: user.username))
   end
 
-  # method overriden in EE
+  # method overridden in EE
   def unlock_user
     update_user(&:unlock_access!)
   end
@@ -426,7 +425,7 @@ class Admin::UsersController < Admin::ApplicationController
     @impersonation_error_text = @can_impersonate ? nil : helpers.impersonation_error_text(user, impersonation_in_progress?)
   end
 
-  # method overriden in EE
+  # method overridden in EE
   def prepare_user_for_update(user)
     user.skip_reconfirmation!
     user.send_only_admin_changed_your_password_notification! if admin_making_changes_for_another_user?

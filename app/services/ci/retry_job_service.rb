@@ -18,7 +18,6 @@ module Ci
       end
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def clone!(job, variables: [], enqueue_if_actionable: false, start_pipeline: false)
       # Cloning a job requires a strict type check to ensure
       # the attributes being used for the clone are taken straight
@@ -26,6 +25,7 @@ module Ci
       raise TypeError unless job.instance_of?(Ci::Build) || job.instance_of?(Ci::Bridge)
 
       check_access!(job)
+      variables = ensure_project_id!(variables)
 
       new_job = job.clone(current_user: current_user, new_job_variables_attributes: variables)
       if enqueue_if_actionable && new_job.action?
@@ -44,11 +44,7 @@ module Ci
           .close(new_job)
       end
 
-      # This method is called on the `drop!` state transition for Ci::Build which runs the retry in the
-      # `after_transition` block within a transaction.
-      # Ci::Pipelines::AddJobService then obtains the exclusive lease inside the same transaction.
-      # See issue: https://gitlab.com/gitlab-org/gitlab/-/issues/441525
-      Gitlab::ExclusiveLease.skipping_transaction_check do
+      add_job = -> do
         ::Ci::Pipelines::AddJobService.new(job.pipeline).execute!(new_job) do |processable|
           BulkInsertableAssociations.with_bulk_insert do
             processable.save!
@@ -56,13 +52,20 @@ module Ci
         end
       end
 
+      add_job.call
+
       job.reset # refresh the data to get new values of `retried` and `processed`.
 
       new_job
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     private
+
+    def ensure_project_id!(variables)
+      variables.map do |variables|
+        variables.merge(project_id: project.id)
+      end
+    end
 
     def check_assignable_runners!(job); end
 

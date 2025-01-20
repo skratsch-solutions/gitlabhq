@@ -225,7 +225,7 @@ export default {
             <p class="gl-m-0">
               <gl-link
                 data-testid="vsa-stage-event-link"
-                class="gl-text-black-normal"
+                class="gl-text-default"
                 :href="item.url"
                 >{{ itemId(item.id, '#') }}</gl-link
               >
@@ -233,47 +233,43 @@ export default {
               <gl-link
                 v-if="item.branch"
                 :href="item.branch.url"
-                class="gl-text-black-normal ref-name"
+                class="ref-name gl-text-default"
                 >{{ item.branch.name }}</gl-link
               >
-              <span class="icon-branch gl-text-gray-400">
-                <gl-icon name="commit" :size="14" />
+              <span class="icon-branch">
+                <gl-icon name="commit" :size="14" variant="subtle" />
               </span>
               <gl-link class="commit-sha" :href="item.commitUrl">{{ item.shortSha }}</gl-link>
             </p>
             <p class="gl-m-0">
               <span>
-                <gl-link class="gl-text-black-normal" :href="item.url">{{ item.date }}</gl-link>
+                <gl-link class="gl-text-default" :href="item.url">{{ item.date }}</gl-link>
                 {{ s__('ByAuthor|by') }}
-                <gl-link
-                  class="gl-text-black-normal issue-author-link"
-                  :href="item.author.webUrl"
-                  >{{ item.author.name }}</gl-link
-                >
+                <gl-link class="issue-author-link gl-text-default" :href="item.author.webUrl">{{
+                  item.author.name
+                }}</gl-link>
               </span>
             </p>
           </div>
           <div v-else>
-            <h5 class="gl-font-bold gl-my-1" data-testid="vsa-stage-event-title">
-              <gl-link class="gl-text-black-normal" :href="item.url">{{ itemTitle(item) }}</gl-link>
+            <h5 class="gl-my-1 gl-font-bold" data-testid="vsa-stage-event-title">
+              <gl-link class="gl-text-default" :href="item.url">{{ itemTitle(item) }}</gl-link>
             </h5>
             <p class="gl-m-0">
               <gl-link
                 data-testid="vsa-stage-event-link"
-                class="gl-text-black-normal"
+                class="gl-text-default"
                 :href="item.url"
                 >{{ itemDisplayName(item) }}</gl-link
               >
-              <span class="gl-font-lg">&middot;</span>
+              <span class="gl-text-lg">&middot;</span>
               <span data-testid="vsa-stage-event-date">
                 {{ s__('OpenedNDaysAgo|Created') }}
-                <gl-link class="gl-text-black-normal" :href="item.url">{{
-                  item.createdAt
-                }}</gl-link>
+                <gl-link class="gl-text-default" :href="item.url">{{ item.createdAt }}</gl-link>
               </span>
               <span data-testid="vsa-stage-event-author">
                 {{ s__('ByAuthor|by') }}
-                <gl-link class="gl-text-black-normal" :href="item.author.webUrl">{{
+                <gl-link class="gl-text-default" :href="item.author.webUrl">{{
                   item.author.name
                 }}</gl-link>
               </span>

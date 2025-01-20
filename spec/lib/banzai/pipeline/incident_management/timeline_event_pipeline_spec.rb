@@ -5,12 +5,15 @@ require 'spec_helper'
 RSpec.describe Banzai::Pipeline::IncidentManagement::TimelineEventPipeline do
   let_it_be(:project) { create(:project) }
 
+  it_behaves_like 'sanitize pipeline'
+
   describe '.filters' do
     it 'contains required filters' do
       expect(described_class.filters).to eq(
         [
           *Banzai::Pipeline::PlainMarkdownPipeline.filters,
           Banzai::Filter::SanitizationFilter,
+          Banzai::Filter::SanitizeLinkFilter,
           *Banzai::Pipeline::GfmPipeline.reference_filters,
           Banzai::Filter::EmojiFilter,
           Banzai::Filter::ExternalLinkFilter,
@@ -65,7 +68,7 @@ RSpec.describe Banzai::Pipeline::IncidentManagement::TimelineEventPipeline do
       it 'renders emojis wrapped in <gl-emoji> tag' do
         # rubocop:disable Layout/LineLength
         is_expected.to eq(
-          %q(<p><gl-emoji title="thumbs up sign" data-name="thumbsup" data-unicode-version="6.0">👍</gl-emoji><gl-emoji title="thumbs up sign" data-name="thumbsup" data-unicode-version="6.0">👍</gl-emoji></p>)
+          %(<p><gl-emoji title="thumbs up" data-name="#{AwardEmoji::THUMBS_UP}" data-unicode-version="6.0">👍</gl-emoji><gl-emoji title="thumbs up" data-name="#{AwardEmoji::THUMBS_UP}" data-unicode-version="6.0">👍</gl-emoji></p>)
         )
         # rubocop:enable Layout/LineLength
       end

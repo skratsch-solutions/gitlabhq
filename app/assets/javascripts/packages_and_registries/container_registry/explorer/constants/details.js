@@ -65,6 +65,10 @@ export const MISSING_MANIFEST_WARNING_TOOLTIP = s__(
   'ContainerRegistry|Invalid tag: missing manifest digest',
 );
 
+export const MANIFEST_MEDIA_TYPE_ROW_TEXT = s__(
+  'ContainerRegistry|Manifest media type: %{mediaType}',
+);
+
 export const CREATED_AT = s__('ContainerRegistry|Created %{time}');
 export const LAST_PUBLISHED_AT = s__('ContainerRegistry|Last published at %{time}');
 
@@ -168,8 +172,8 @@ export const IMAGE_STATUS_ALERT_TYPE = {
 };
 
 export const PACKAGE_DELETE_HELP_PAGE_PATH = helpPagePath(
-  'user/packages/container_registry/index',
-  {
-    anchor: 'delete-images',
-  },
+  'user/packages/container_registry/delete_container_registry_images',
 );
+
+export const DOCKER_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json';
+export const OCI_MEDIA_TYPE = 'application/vnd.oci.image.index.v1+json';

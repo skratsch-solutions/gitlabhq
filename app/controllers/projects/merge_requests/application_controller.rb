@@ -7,6 +7,10 @@ class Projects::MergeRequests::ApplicationController < Projects::ApplicationCont
 
   feature_category :code_review_workflow
 
+  before_action do
+    push_force_frontend_feature_flag(:glql_integration, project&.glql_integration_feature_flag_enabled?)
+  end
+
   private
 
   # Normally the methods with `check_(\w+)_available!` pattern are
@@ -61,6 +65,7 @@ class Projects::MergeRequests::ApplicationController < Projects::ApplicationCont
       :title,
       :discussion_locked,
       :issue_iid,
+      :merge_after,
       { label_ids: [],
         assignee_ids: [],
         reviewer_ids: [],
@@ -79,6 +84,30 @@ class Projects::MergeRequests::ApplicationController < Projects::ApplicationCont
     return unless @merge_request.open?
 
     @merge_request.close
+  end
+
+  # rubocop: disable CodeReuse/ActiveRecord
+  def commit
+    commit_id = params[:commit_id].presence
+    return unless commit_id
+
+    return unless @merge_request.all_commits.exists?(sha: commit_id) ||
+      @merge_request.recent_context_commits.map(&:id).include?(commit_id)
+
+    @commit ||= @project.commit(commit_id)
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
+
+  def build_merge_request
+    params[:merge_request] ||= ActionController::Parameters.new(source_project: @project)
+    new_params = merge_request_params.merge(diff_options: diff_options)
+
+    # Gitaly N+1 issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/58096
+    Gitlab::GitalyClient.allow_n_plus_1_calls do
+      @merge_request = ::MergeRequests::BuildService
+        .new(project: project, current_user: current_user, params: new_params)
+        .execute
+    end
   end
 end
 

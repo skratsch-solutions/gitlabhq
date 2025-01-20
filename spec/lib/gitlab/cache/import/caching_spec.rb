@@ -139,6 +139,73 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
     end
   end
 
+  describe '.limited_values_from_set' do
+    it 'returns empty array when the set does not exist' do
+      expect(described_class.limited_values_from_set('foo')).to eq([])
+    end
+
+    it 'returns a single random member from the set' do
+      described_class.set_add('foo', 10)
+      described_class.set_add('foo', 20)
+
+      result = described_class.limited_values_from_set('foo')
+
+      expect(result.size).to eq(1)
+      expect(result.first).to be_in(%w[10 20])
+    end
+
+    it 'returns multiple random members from the set with `limit:`' do
+      described_class.set_add('foo', 10)
+      described_class.set_add('foo', 20)
+      described_class.set_add('foo', 30)
+
+      result = described_class.limited_values_from_set('foo', limit: 2)
+
+      expect(result.size).to eq(2)
+      expect(result).to all(be_in(%w[10 20 30]))
+    end
+  end
+
+  describe '.set_remove' do
+    it 'returns 0 when the set does not exist' do
+      expect(described_class.set_remove('foo', 1)).to eq(0)
+    end
+
+    it 'removes a single value from the set' do
+      described_class.set_add('foo', 10)
+      described_class.set_add('foo', 20)
+
+      result = described_class.set_remove('foo', 20)
+
+      expect(result).to eq(1)
+      expect(described_class.values_from_set('foo')).to contain_exactly('10')
+    end
+
+    it 'removes a collection of values from the set' do
+      described_class.set_add('foo', 10)
+      described_class.set_add('foo', 20)
+      described_class.set_add('foo', 30)
+
+      result = described_class.set_remove('foo', [10, 30])
+
+      expect(result).to eq(2)
+      expect(described_class.values_from_set('foo')).to contain_exactly('20')
+    end
+  end
+
+  describe '.set_count' do
+    it 'returns 0 when the set does not exist' do
+      expect(described_class.set_count('foo')).to eq(0)
+    end
+
+    it 'returns count of set' do
+      described_class.set_add('foo', 10)
+      described_class.set_add('foo', 20)
+
+      expect(described_class.set_count('foo')).to eq(2)
+    end
+  end
+
   describe '.hash_add' do
     it 'adds a value to a hash' do
       described_class.hash_add('foo', 1, 1)
@@ -167,13 +234,37 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
     end
   end
 
+  describe '.value_from_hash' do
+    it 'returns nil when field was not set' do
+      expect(described_class.value_from_hash('foo', 'bar')).to eq(nil)
+    end
+
+    it 'returns the value of the field' do
+      described_class.hash_add('foo', 'bar', 1)
+
+      expect(described_class.value_from_hash('foo', 'bar')).to eq('1')
+    end
+
+    it 'refreshes the cache key if a value is present' do
+      described_class.hash_add('foo', 'bar', 1)
+
+      redis = double(:redis)
+
+      expect(redis).to receive(:hget).with(/foo/, 'bar').and_return('1')
+      expect(redis).to receive(:expire).with(/foo/, described_class::TIMEOUT)
+      expect(Gitlab::Redis::SharedState).to receive(:with).twice.and_yield(redis)
+
+      described_class.value_from_hash('foo', 'bar')
+    end
+  end
+
   describe '.hash_increment' do
     it 'increments a value in a hash' do
       described_class.hash_increment('foo', 'field', 1)
       described_class.hash_increment('foo', 'field', 5)
 
       key = described_class.cache_key_for('foo')
-      values = Gitlab::Redis::Cache.with { |r| r.hgetall(key) }
+      values = Gitlab::Redis::SharedState.with { |r| r.hgetall(key) }
 
       expect(values).to eq({ 'field' => '6' })
     end
@@ -183,7 +274,7 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
         described_class.hash_increment('another-foo', 'another-field', 'not-an-integer')
 
         key = described_class.cache_key_for('foo')
-        values = Gitlab::Redis::Cache.with { |r| r.hgetall(key) }
+        values = Gitlab::Redis::SharedState.with { |r| r.hgetall(key) }
 
         expect(values).to eq({})
       end
@@ -194,7 +285,7 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
         described_class.hash_increment('another-foo', 'another-field', -5)
 
         key = described_class.cache_key_for('foo')
-        values = Gitlab::Redis::Cache.with { |r| r.hgetall(key) }
+        values = Gitlab::Redis::SharedState.with { |r| r.hgetall(key) }
 
         expect(values).to eq({})
       end
@@ -261,7 +352,7 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
       described_class.list_add('foo', 20)
 
       key = described_class.cache_key_for('foo')
-      values = Gitlab::Redis::Cache.with { |r| r.lrange(key, 0, -1) }
+      values = Gitlab::Redis::SharedState.with { |r| r.lrange(key, 0, -1) }
 
       expect(values).to eq(%w[10 20])
     end
@@ -274,7 +365,7 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
         described_class.list_add('foo', 40, limit: 3)
 
         key = described_class.cache_key_for('foo')
-        values = Gitlab::Redis::Cache.with { |r| r.lrange(key, 0, -1) }
+        values = Gitlab::Redis::SharedState.with { |r| r.lrange(key, 0, -1) }
 
         expect(values).to eq(%w[20 30 40])
       end
@@ -286,7 +377,7 @@ RSpec.describe Gitlab::Cache::Import::Caching, :clean_gitlab_redis_shared_state,
   end
 
   describe '.values_from_list' do
-    it 'returns empty hash when the list is empty' do
+    it 'returns empty array when the list is empty' do
       expect(described_class.values_from_list('foo')).to eq([])
     end
 

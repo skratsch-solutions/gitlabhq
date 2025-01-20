@@ -7,13 +7,14 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 # Local setup and debugging
 
 NOTE:
-To track user interactions in the browser, Do-Not-Track (“DNT”) needs to be disabled. DNT is disabled by default for most browsers.
+To track user interactions in the browser, browser settings, such as privacy filters (e.g.
+AdBlock, uBlock) and Do-Not-Track (DNT). [Read more about settings that affects tracking](https://snowplow.io/blog/how-many-visitors-block-your-tracking/).
 
 Internal events are using a tool called Snowplow under the hood. To develop and test internal events, there are several tools to test frontend and backend events:
 
 | Testing Tool                                 | Frontend Tracking  | Backend Tracking    | Local Development Environment | Production Environment | Shows individual events |
 |----------------------------------------------|--------------------|---------------------|-------------------------------|------------------------|------------------------|
-| [Internal Events Monitor](#internal-events-monitor) | Yes | Yes | Yes  | Yes     | Yes, if running [Snowplow Micro](#snowplow-micro)    |
+| [Internal Events Monitor](#internal-events-monitor) | Yes | Yes | Yes  | Yes     | Yes    |
 | [Snowplow Micro](#snowplow-micro) | Yes | Yes  | Yes            | No    | Yes    |
 | [Manual check in GDK](#manual-check-in-gdk) | Yes | Yes | Yes            | Yes     | No     |
 | [Snowplow Analytics Debugger Chrome Extension](#snowplow-analytics-debugger-chrome-extension) | Yes | No | Yes            | Yes     | Yes     |
@@ -42,9 +43,9 @@ rails runner scripts/internal_events/monitor.rb i_code_review_user_create_mr
 The monitor can show two tables:
 
 - The `RELEVANT METRICS` table lists all the metrics that are defined on the `i_code_review_user_create_mr` event.
-   The second right-most column shows the value of each metric when the monitor was started and the right most column shows the current value of each metric.
+  The second right-most column shows the value of each metric when the monitor was started and the right most column shows the current value of each metric.
 
-- The `SNOWPLOW EVENTS` table lists a selection of properties from all Snowplow events that match the event name. This table is only visible if you also set up [Snowplow Micro](#snowplow-micro).
+- The `SNOWPLOW EVENTS` table lists a selection of properties from only Snowplow events fired after the monitor was started and those that match the event name. It is no longer a requirement to set up [Snowplow Micro](#snowplow-micro) for this table to be visible.
 
 If a new `i_code_review_user_create_mr` event is fired, the metrics values get updated and a new event appears in the `SNOWPLOW EVENTS` table.
 
@@ -74,6 +75,12 @@ Monitored events: i_code_review_user_create_mr
 | i_code_review_user_create_mr | 2023-10-11T10:17:15.504Z | 29      | 93           |            | default |
 +------------------------------+--------------------------+---------+--------------+------------+---------+
 ```
+
+The Monitor's Keyboard commands:
+
+- The `p` key acts as a toggle to pause and start the monitor. It makes it easier to select and copy the tables.
+- The `r` key resets the monitor to it's internal state, and removes any previous event that had been fired from the display.
+- The `q` key quits the monitor.
 
 ## Snowplow Micro
 
@@ -148,9 +155,9 @@ It works in production, staging, and local development environments. It is espec
 
 On GitLab.com events are sent to a collector configured by GitLab. By default, self-managed instances do not have a collector configured and do not collect data with Snowplow.
 
-You can configure your self-managed GitLab instance to use a custom Snowplow collector.
+You can configure your instance to use a custom Snowplow collector.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Snowplow**.
 1. Select **Enable Snowplow tracking** and enter your Snowplow configuration information. For example if your custom snowplow collector is available at `your-snowplow-collector.net`:

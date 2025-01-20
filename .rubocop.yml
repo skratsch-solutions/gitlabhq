@@ -28,7 +28,7 @@ inherit_mode:
 
 AllCops:
   # The oldest supported Ruby version.
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.2
   TargetRailsVersion: 7.0
   Exclude:
     - 'gems/**/*'
@@ -36,23 +36,16 @@ AllCops:
     - 'vendor/**/*'
     - 'node_modules/**/*'
     - 'db/fixtures/**/*'
-    - 'db/schema.rb'
     - 'tmp/**/*'
     - 'bin/**/*'
     - 'generator_templates/**/*'
     - 'builds/**/*'
-    - 'plugins/**/*'
     - 'file_hooks/**/*'
     - 'workhorse/**/*'
     - 'shared/packages/**/*'
     - 'spec/support/*.git/**/*'  # e.g. spec/support/gitlab-git-test.git
-    - 'db/ci_migrate/*.rb'      # since the `db/ci_migrate` is a symlinked to `db/migrate`
     # projects_controller.rb is used for testing LLM response and is very sensitive to whitespaces.
     - 'ee/spec/fixtures/llm/projects_controller.rb'
-    # Adding this specifically for a large revert: !118368
-    <% File.readlines('.rubocop_revert_ignores.txt').map(&:chomp).each do |f| %>
-    - '<%= f %>'
-    <% end %>
   # Use absolute path to avoid orphan directories with changed workspace root.
   CacheRootDirectory: <%= Dir.getwd %>/tmp
   MaxFilesInCache: 1_000_000
@@ -68,6 +61,18 @@ Rails:
     - 'danger/**/*'
     - 'tooling/danger/**/*'
     - 'rubocop/**/*'
+
+Rails/Date:
+  Exclude:
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/502580
+    - danger/database/Dangerfile
+
+Rails/Pluck:
+  Exclude:
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/502580
+    - 'tooling/danger/**/*'
+  # See https://gitlab.com/gitlab-org/gitlab/-/merge_requests/94047#note_1179689274
+  AutoCorrect: false
 
 RSpec:
   Language:
@@ -154,7 +159,7 @@ Style/SignalException:
     - '**/*/Dangerfile'
     - 'tooling/danger/**/*.rb'
 
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
   Exclude:
     - 'qa/**/*'
     - 'spec/frontend/fixtures/*'
@@ -163,6 +168,14 @@ RSpec/FilePath:
     - 'spec/fixtures/**/*'
   CustomTransform:
     HTTPartyBasicAuth: httparty_basic_auth
+
+RSpec/SpecFilePathSuffix:
+  Exclude:
+    - 'qa/**/*'
+    - 'spec/frontend/fixtures/*'
+    - 'ee/spec/frontend/fixtures/*'
+    - 'spec/requests/api/v3/*'
+    - 'spec/fixtures/**/*'
 
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
@@ -357,9 +370,6 @@ Rails/MailerName:
     # See for the context on why it's excluded https://gitlab.com/gitlab-org/gitlab/-/issues/239356#note_956419227
     - 'app/mailers/notify.rb'
 
-Rails/Pluck:
-  # See https://gitlab.com/gitlab-org/gitlab/-/merge_requests/94047#note_1179689274
-  AutoCorrect: false
 
 Rails/RakeEnvironment:
   # Context on why it's disabled: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/93419#note_1048223982
@@ -440,7 +450,7 @@ Gitlab/EventStoreSubscriber:
     - 'spec/**/*'
     - 'ee/spec/**/*'
 
-Gitlab/DocUrl:
+Gitlab/DocumentationLinks/HardcodedUrl:
   Enabled: true
   Exclude:
     - danger/**/*
@@ -519,6 +529,7 @@ Gitlab/AvoidCurrentOrganization:
     - 'ee/lib/api/**/*'
     - 'app/graphql/**/*'
     - 'ee/app/graphql/**/*'
+    - 'lib/gitlab/current_settings.rb'
     - 'lib/gitlab/middleware/organizations/current.rb'
     - 'spec/**/*'
     - 'ee/spec/**/*'
@@ -531,13 +542,20 @@ Gitlab/AvoidGitlabInstanceChecks:
     - 'db/post_migrate/*.rb'
     - 'ee/db/fixtures/**/*'
 
+Gitlab/EeOnlyClass:
+  Enabled: true
+  Include:
+    - 'ee/**/ee/**/*.rb'
+
 # See https://gitlab.com/gitlab-org/gitlab/-/issues/373194
 Gitlab/RSpec/AvoidSetup:
   Enabled: true
   Include:
     - 'ee/spec/features/registrations/saas/**/*'
-    - 'ee/spec/features/trials/saas/**/*'
+    - 'ee/spec/features/gitlab_subscriptions/trials/creation_*'
+    - 'ee/spec/features/gitlab_subscriptions/trials/access_denied_spec.rb'
     - 'ee/spec/features/gitlab_subscriptions/trials/duo_pro/**/*'
+    - 'ee/spec/features/gitlab_subscriptions/trials/duo_enterprise/**/*'
 
 RSpec/DuplicateSpecLocation:
   Enabled: true
@@ -704,6 +722,12 @@ API/GrapeArrayMissingCoerce:
   Include:
     - 'lib/**/api/**/*.rb'
     - 'ee/**/api/**/*.rb'
+
+API/ClassLevelAllowAccessWithScope:
+  Enabled: true
+  Include:
+    - 'lib/**/api/**/*.rb'
+    - 'ee/lib/**/api/**/*.rb'
 
 Cop/SidekiqOptionsQueue:
   Enabled: true
@@ -982,6 +1006,7 @@ Cop/UserAdmin:
     - 'lib/gitlab/auth/current_user_mode.rb'
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
+    - 'qa/**/*.rb'
 
 Style/InlineDisableAnnotation:
   Enabled: true
@@ -1113,6 +1138,7 @@ Search/NamespacedClass:
   Enabled: true
   Exclude:
     - 'config/**/*.rb'
+    - 'ee/config/**/*.rb'
     - 'db/**/*.rb'
     - 'ee/db/**/*.rb'
     - 'ee/bin/**/*'
@@ -1121,6 +1147,8 @@ Search/NamespacedClass:
     - 'spec/migrations/**/*.rb'
     - 'app/experiments/**/*_experiment.rb'
     - 'ee/app/experiments/**/*_experiment.rb'
+    - 'lib/gitlab/background_migration/**/*.rb'
+    - 'ee/lib/ee/gitlab/background_migration/**/*.rb'
     - 'lib/gitlab/instrumentation/**/*.rb'
     - 'lib/gitlab/usage/metrics/instrumentations/**/*.rb'
     - 'ee/lib/gitlab/usage/metrics/instrumentations/**/*.rb'
@@ -1182,10 +1210,8 @@ Style/SymbolProc:
     - each_batch
     - each_sub_batch
 
-# Short-hand Hash syntax does not work prior 3.1.
-# See https://gitlab.com/gitlab-org/gitlab/-/issues/435940#note_1703307479
 Style/HashSyntax:
-  EnforcedShorthandSyntax: never
+  EnforcedShorthandSyntax: either_consistent
 
 Gitlab/LicenseAvailableUsage:
   Enabled: true
@@ -1212,3 +1238,16 @@ Rails/StrongParams:
 QA/FabricateUsage:
   Include:
     - 'qa/qa/specs/**/*_spec.rb'
+
+Gitlab/NoFindInWorkers:
+  Enabled: true
+  Include:
+    - app/workers/**/*
+    - ee/app/workers/**/*
+
+Tailwind/StringInterpolation:
+  Enabled: true
+  Include:
+  - '{,ee/,jh/}app/helpers/**/*.rb'
+  - '{,ee/,jh/}app/components/**/*.{haml,rb}'
+  - '{,ee/,jh/}app/views/**/*.haml'

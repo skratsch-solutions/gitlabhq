@@ -4,39 +4,28 @@ group: unassigned
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
-# GraphQL API style guide
+# Backend GraphQL API guide
 
-This document outlines the style guide for the GitLab [GraphQL API](../api/graphql/index.md).
+This document contains style and technical guidance for engineers implementing the backend of the [GitLab GraphQL API](../api/graphql/index.md).
 
-## Vision
+## Relation to REST API
 
-We want the GraphQL API to be the **primary** means of interacting
-programmatically with GitLab. To achieve this, it needs full coverage - anything
-possible in the REST API should also be possible in the GraphQL API.
+See the [GraphQL and REST APIs section](api_styleguide.md#graphql-and-rest-apis).
 
-To help us meet this vision, the frontend should use GraphQL in preference to
-the REST API for new features.
+## Versioning
+
 The GraphQL API is [versionless](https://graphql.org/learn/best-practices/#versioning).
 
-There are no plans to deprecate the REST API. To reduce the technical burden of
-supporting two APIs in parallel, they should share implementations as much as
-possible.
+## Learning GraphQL at GitLab
 
-## How GitLab implements GraphQL
+Backend engineers who wish to learn GraphQL at GitLab should read this guide in conjunction with the
+[guides for the GraphQL Ruby gem](https://graphql-ruby.org/guides).
+Those guides teach you the features of the gem, and the information in it is generally not reproduced here.
 
-<!-- vale gitlab.Spelling = NO -->
+To learn about the design and features of GraphQL itself read [the guide on `graphql.org`](https://graphql.org/learn)
+which is an accessible but shortened version of information in the [GraphQL spec](https://spec.graphql.org).
 
-We use the [GraphQL Ruby gem](https://graphql-ruby.org/) written by [Robert Mosolgo](https://github.com/rmosolgo/).
-In addition, we have a subscription to [GraphQL Pro](https://graphql.pro/). For
-details see [GraphQL Pro subscription](graphql_guide/graphql_pro.md).
-
-<!-- vale gitlab.Spelling = YES -->
-
-All GraphQL queries are directed to a single endpoint
-([`app/controllers/graphql_controller.rb#execute`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app%2Fcontrollers%2Fgraphql_controller.rb)),
-which is exposed as an API endpoint at `/api/graphql`.
-
-## Deep Dive
+### Deep Dive
 
 In March 2019, Nick Thomas hosted a Deep Dive (GitLab team members only: `https://gitlab.com/gitlab-org/create-stage/issues/1`)
 on the GitLab [GraphQL API](../api/graphql/index.md) to share domain-specific knowledge
@@ -45,7 +34,21 @@ with anyone who may work in this part of the codebase in the future. You can fin
 [recording on YouTube](https://www.youtube.com/watch?v=-9L_1MWrjkg), and the slides on
 [Google Slides](https://docs.google.com/presentation/d/1qOTxpkTdHIp1CRjuTvO-aXg0_rUtzE3ETfLUdnBB5uQ/edit)
 and in [PDF](https://gitlab.com/gitlab-org/create-stage/uploads/8e78ea7f326b2ef649e7d7d569c26d56/GraphQL_Deep_Dive__Create_.pdf).
-Specific details may have changed since then, but it should still serve as a good introduction.
+Specific details have changed since then, but it should still serve as a good introduction.
+
+## How GitLab implements GraphQL
+
+<!-- vale gitlab_base.Spelling = NO -->
+
+We use the [GraphQL Ruby gem](https://graphql-ruby.org/) written by [Robert Mosolgo](https://github.com/rmosolgo/).
+In addition, we have a subscription to [GraphQL Pro](https://graphql.pro/). For
+details see [GraphQL Pro subscription](graphql_guide/graphql_pro.md).
+
+<!-- vale gitlab_base.Spelling = YES -->
+
+All GraphQL queries are directed to a single endpoint
+([`app/controllers/graphql_controller.rb#execute`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app%2Fcontrollers%2Fgraphql_controller.rb)),
+which is exposed as an API endpoint at `/api/graphql`.
 
 ## GraphiQL
 
@@ -537,7 +540,7 @@ For example:
 
 ```ruby
 field :tags,
-  Types::ContainerRepositoryTagType.connection_type,
+  Types::ContainerRegistry::ContainerRepositoryTagType.connection_type,
   null: true,
   description: 'Tags of the container repository',
   max_page_size: 20
@@ -652,12 +655,12 @@ type, or even in a model method, depending on your preference and
 situation.
 
 NOTE:
-It's recommended that you also [mark the item as Alpha](#mark-schema-items-as-alpha) while it is behind a feature flag.
+It's recommended that you also [mark the item as an experiment](#mark-schema-items-as-experiments) while it is behind a feature flag.
 This signals to consumers of the public GraphQL API that the field is not
 meant to be used yet.
 You can also
-[change or remove Alpha items at any time](#breaking-change-exemptions) without needing to deprecate them. When the flag is removed, "release"
-the schema item by removing its Alpha property to make it public.
+[change or remove experimental items at any time](#breaking-change-exemptions) without needing to deprecate them. When the flag is removed, "release"
+the schema item by removing its `experiment` property to make it public.
 
 ### Descriptions for feature-flagged items
 
@@ -677,7 +680,7 @@ A field value is toggled based on the feature flag state. A common use is to ret
 
 ```ruby
 field :foo, GraphQL::Types::String, null: true,
-      alpha: { milestone: '10.0' },
+      experiment: { milestone: '10.0' },
       description: 'Some test field. Returns `null`' \
                    'if `my_feature_flag` feature flag is disabled.'
 
@@ -693,7 +696,7 @@ A common use is to ignore the argument when a feature flag is disabled:
 
 ```ruby
 argument :foo, type: GraphQL::Types::String, required: false,
-         alpha: { milestone: '10.0' },
+         experiment: { milestone: '10.0' },
          description: 'Some test argument. Is ignored if ' \
                       '`my_feature_flag` feature flag is disabled.'
 
@@ -740,7 +743,7 @@ To deprecate a schema item in GraphQL:
 See also:
 
 - [Aliasing and deprecating mutations](#aliasing-and-deprecating-mutations).
-- [Marking schema items as Alpha](#mark-schema-items-as-alpha).
+- [Marking schema items as experiments](#mark-schema-items-as-experiments).
 - [How to filter Kibana for queries that used deprecated fields](graphql_guide/monitoring.md#queries-that-used-a-deprecated-field).
 
 ### Create a deprecation issue
@@ -900,43 +903,43 @@ aware of the support.
 
 The documentation mentions that the old Global ID style is now deprecated.
 
-## Mark schema items as Alpha
+## Mark schema items as experiments
 
 You can mark GraphQL schema items (fields, arguments, enum values, and mutations) as
-[Alpha](../policy/experiment-beta-support.md#experiment).
+[experiments](../policy/development_stages_support.md#experiment).
 
-An item marked as Alpha is
+An item marked as an experiment is
 [exempt from the deprecation process](../api/graphql/index.md#breaking-change-exemptions) and can be
-removed at any time without notice. Mark an item as Alpha when it is subject to
+removed at any time without notice. Mark an item as an experiment when it is subject to
 change and not ready for public use.
 
 NOTE:
-Only mark new items as Alpha. Never mark existing items
-as Alpha because they're already public.
+Only mark new items as an experiment. Never mark existing items
+as an experiment because they're already public.
 
-To mark a schema item as Alpha, use the `alpha:` keyword.
-You must provide the `milestone:` that introduced the Alpha item.
+To mark a schema item as an experiment, use the `experiment:` keyword.
+You must provide the `milestone:` that introduced the experimental item.
 
 For example:
 
 ```ruby
 field :token, GraphQL::Types::String, null: true,
-      alpha: { milestone: '10.0' },
+      experiment: { milestone: '10.0' },
       description: 'Token for login.'
 ```
 
-Similarly, you can also mark an entire mutation as Alpha by updating where the mutation is mounted in `app/graphql/types/mutation_type.rb`:
+Similarly, you can also mark an entire mutation as an experiment by updating where the mutation is mounted in `app/graphql/types/mutation_type.rb`:
 
 ```ruby
-mount_mutation Mutations::Ci::JobArtifact::BulkDestroy, alpha: { milestone: '15.10' }
+mount_mutation Mutations::Ci::JobArtifact::BulkDestroy, experiment: { milestone: '15.10' }
 ```
 
-Alpha GraphQL items is a custom GitLab feature that leverages GraphQL deprecations. An Alpha item
+Experimental GraphQL items is a custom GitLab feature that leverages GraphQL deprecations. An experimental item
 appears as deprecated in the GraphQL schema. Like all deprecated schema items, you can test an
-Alpha field in the [interactive GraphQL explorer](../api/graphql/index.md#interactive-graphql-explorer) (GraphiQL).
+experimental field in the [interactive GraphQL explorer](../api/graphql/index.md#interactive-graphql-explorer) (GraphiQL).
 However, be aware that the GraphiQL autocomplete editor doesn't suggest deprecated fields.
 
-The item shows as Alpha in our generated GraphQL documentation and its GraphQL schema description.
+The item shows as `experiment` in our generated GraphQL documentation and its GraphQL schema description.
 
 ## Enums
 
@@ -1230,7 +1233,7 @@ end
 
 While you can use the same resolver class in two different places,
 such as in two different fields where the same object is exposed,
-you should never re-use resolver objects directly. Resolvers have a complex life-cycle, with
+you should never re-use resolver objects directly. Resolvers have a complex lifecycle, with
 authorization, readiness and resolution orchestrated by the framework, and at
 each stage [lazy values](#laziness) can be returned to take advantage of batching
 opportunities. Never instantiate a resolver or a mutation in application code.
@@ -2198,19 +2201,21 @@ Also see the [description style guide for sort enums](#sort-enums).
 Example from [`ContainerRepositoriesResolver`](https://gitlab.com/gitlab-org/gitlab/-/blob/dad474605a06c8ed5404978b0a9bd187e9fded80/app/graphql/resolvers/container_repositories_resolver.rb#L13-16):
 
 ```ruby
-# Types::ContainerRepositorySortEnum:
+# Types::ContainerRegistry::ContainerRepositorySortEnum:
 module Types
-  class ContainerRepositorySortEnum < SortEnum
-    graphql_name 'ContainerRepositorySort'
-    description 'Values for sorting container repositories'
+  module ContainerRegistry
+    class ContainerRepositorySortEnum < SortEnum
+      graphql_name 'ContainerRepositorySort'
+      description 'Values for sorting container repositories'
 
-    value 'NAME_ASC', 'Name by ascending order.', value: :name_asc
-    value 'NAME_DESC', 'Name by descending order.', value: :name_desc
+      value 'NAME_ASC', 'Name by ascending order.', value: :name_asc
+      value 'NAME_DESC', 'Name by descending order.', value: :name_desc
+    end
   end
 end
 
 # Resolvers::ContainerRepositoriesResolver:
-argument :sort, Types::ContainerRepositorySortEnum,
+argument :sort, Types::ContainerRegistry::ContainerRepositorySortEnum,
           description: 'Sort container repositories by this criteria.',
           required: false,
           default_value: :created_desc

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ActiveSession, :clean_gitlab_redis_sessions do
+RSpec.describe ActiveSession, :clean_gitlab_redis_sessions, feature_category: :system_access do
   let(:lookup_key) { described_class.lookup_key_name(user.id) }
   let(:user) do
     create(:user).tap do |user|
@@ -79,6 +79,10 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_sessions do
       )
     end
 
+    it 'returns an empty array if the user does not have any active session' do
+      expect(described_class.list(user)).to be_empty
+    end
+
     shared_examples 'ignoring obsolete entries' do
       let(:session_id) { '6919a6f1bb119dd7396fadc38fd18d0d' }
       let(:session) { described_class.new(session_id: 'a') }
@@ -116,10 +120,34 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_sessions do
       let(:serialized_session) { session.dump }
 
       it_behaves_like 'ignoring obsolete entries'
-    end
 
-    it 'returns an empty array if the user does not have any active session' do
-      expect(described_class.list(user)).to be_empty
+      context 'when the current session contains unknown attributes' do
+        let(:session_id) { '8f62cc7383c' }
+        let(:session_key) { described_class.key_name(user.id, session_id) }
+        let(:serialized_session) do
+          "v2:{\"ip_address\": \"127.0.0.1\", \"browser\": \"Firefox\", \"os\": \"Debian\", " \
+            "\"device_type\": \"desktop\", \"session_id\": \"#{session_id}\", " \
+            "\"new_attribute\": \"unknown attribute\"}"
+        end
+
+        it 'loads known attributes only' do
+          Gitlab::Redis::Sessions.with do |redis|
+            redis.set(session_key, serialized_session)
+            redis.sadd(lookup_key, [session_id])
+          end
+
+          expect(described_class.list(user)).to contain_exactly(
+            have_attributes(
+              ip_address: "127.0.0.1",
+              browser: "Firefox",
+              os: "Debian",
+              device_type: "desktop",
+              session_id: session_id.to_s
+            )
+          )
+          expect(described_class.list(user).first).not_to respond_to :new_attribute
+        end
+      end
     end
   end
 
@@ -153,13 +181,31 @@ RSpec.describe ActiveSession, :clean_gitlab_redis_sessions do
   end
 
   describe '.sessions_from_ids' do
-    it 'uses the ActiveSession lookup to return original sessions' do
-      Gitlab::Redis::Sessions.with do |redis|
-        # Emulate redis-rack: https://github.com/redis-store/redis-rack/blob/c75f7f1a6016ee224e2615017fbfee964f23a837/lib/rack/session/redis.rb#L88
-        redis.set("session:gitlab:#{rack_session.private_id}", Marshal.dump({ _csrf_token: 'abcd' }))
+    context 'with new session format from Gitlab::Sessions::CacheStore' do
+      before do
+        store = ActiveSupport::Cache::RedisCacheStore.new(
+          namespace: Gitlab::Redis::Sessions::SESSION_NAMESPACE,
+          redis: Gitlab::Redis::Sessions
+        )
+        # ActiveSupport::Cache::RedisCacheStore wraps the data in ActiveSupport::Cache::Entry
+        # https://github.com/rails/rails/blob/v7.0.8.6/activesupport/lib/active_support/cache.rb#L506
+        store.write(rack_session.private_id, { _csrf_token: 'abcd' })
       end
 
-      expect(described_class.sessions_from_ids([rack_session.private_id])).to eq [{ _csrf_token: 'abcd' }]
+      it 'uses the ActiveSession lookup to return original sessions' do
+        expect(described_class.sessions_from_ids([rack_session.private_id])).to eq [{ _csrf_token: 'abcd' }]
+      end
+    end
+
+    context 'with old session format from Gitlab::Sessions::RedisStore' do
+      it 'uses the ActiveSession lookup to return original sessions' do
+        Gitlab::Redis::Sessions.with do |redis|
+          # Emulate redis-rack: https://github.com/redis-store/redis-rack/blob/c75f7f1a6016ee224e2615017fbfee964f23a837/lib/rack/session/redis.rb#L88
+          redis.set("session:gitlab:#{rack_session.private_id}", Marshal.dump({ _csrf_token: 'abcd' }))
+        end
+
+        expect(described_class.sessions_from_ids([rack_session.private_id])).to eq [{ _csrf_token: 'abcd' }]
+      end
     end
 
     it 'avoids a redis lookup for an empty array' do

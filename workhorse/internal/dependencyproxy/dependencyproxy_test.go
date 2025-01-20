@@ -8,8 +8,10 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -24,14 +26,16 @@ import (
 )
 
 type fakeUploadHandler struct {
-	request  *http.Request
-	body     []byte
-	skipBody bool
-	handler  func(w http.ResponseWriter, r *http.Request)
+	request              *http.Request
+	body                 []byte
+	skipBody             bool
+	handler              func(w http.ResponseWriter, r *http.Request)
+	serveHTTPUsed        bool
+	serveHTTPWithAPIUsed bool
 }
 
 const (
-	tokenJSON = `{"Token": "token", "Url": "`
+	tokenJSON = `{"ResponseHeaders": { "CustomHeader": ["Overridden"] }, "Token": "token", "Url": "`
 	urlJSON   = `/url"}`
 )
 
@@ -42,6 +46,18 @@ func (f *fakeUploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		f.body, _ = io.ReadAll(r.Body)
 	}
 
+	f.serveHTTPUsed = true
+	f.handler(w, r)
+}
+
+func (f *fakeUploadHandler) ServeHTTPWithAPIResponse(w http.ResponseWriter, r *http.Request, _ *api.Response) {
+	f.request = r
+
+	if !f.skipBody {
+		f.body, _ = io.ReadAll(r.Body)
+	}
+
+	f.serveHTTPWithAPIUsed = true
 	f.handler(w, r)
 }
 
@@ -135,6 +151,8 @@ func TestSuccessfullRequest(t *testing.T) {
 		w.Header().Set("Content-Type", contentType)
 		w.Header().Set("Docker-Content-Digest", dockerContentDigest)
 		w.Header().Set("Overridden-Header", overriddenHeader)
+		w.Header().Set("CustomHeader", "Upstream")
+		w.Header().Set("AnotherCustomHeader", "Upstream")
 		w.Write(content)
 	}))
 	defer originResourceServer.Close()
@@ -162,6 +180,8 @@ func TestSuccessfullRequest(t *testing.T) {
 	require.Equal(t, string(content), response.Body.String())
 	require.Equal(t, contentLength, response.Header().Get("Content-Length"))
 	require.Equal(t, dockerContentDigest, response.Header().Get("Docker-Content-Digest"))
+	require.Equal(t, "Overridden", response.Header().Get("CustomHeader"))
+	require.Equal(t, "Upstream", response.Header().Get("AnotherCustomHeader"))
 }
 
 func TestValidUploadConfiguration(t *testing.T) {
@@ -178,9 +198,11 @@ func TestValidUploadConfiguration(t *testing.T) {
 	defer originResourceServer.Close()
 
 	testCases := []struct {
-		desc           string
-		uploadConfig   *uploadConfig
-		expectedConfig uploadConfig
+		desc                 string
+		uploadConfig         *uploadConfig
+		expectedConfig       uploadConfig
+		serveHTTPUsed        bool
+		serveHTTPWithAPIUsed bool
 	}{
 		{
 			desc: "with the default values",
@@ -188,6 +210,7 @@ func TestValidUploadConfiguration(t *testing.T) {
 				Method: http.MethodPost,
 				URL:    "/target/upload",
 			},
+			serveHTTPUsed: true,
 		}, {
 			desc: "with overridden method",
 			uploadConfig: &uploadConfig{
@@ -197,6 +220,7 @@ func TestValidUploadConfiguration(t *testing.T) {
 				Method: http.MethodPut,
 				URL:    "/target/upload",
 			},
+			serveHTTPUsed: true,
 		}, {
 			desc: "with overridden url",
 			uploadConfig: &uploadConfig{
@@ -206,6 +230,7 @@ func TestValidUploadConfiguration(t *testing.T) {
 				Method: http.MethodPost,
 				URL:    "http://test.org/overriden/upload",
 			},
+			serveHTTPUsed: true,
 		}, {
 			desc: "with overridden headers",
 			uploadConfig: &uploadConfig{
@@ -216,6 +241,17 @@ func TestValidUploadConfiguration(t *testing.T) {
 				Method:  http.MethodPost,
 				URL:     "/target/upload",
 			},
+			serveHTTPUsed: true,
+		}, {
+			desc: "with authorized upload response",
+			uploadConfig: &uploadConfig{
+				AuthorizedUploadResponse: authorizeUploadResponse{TempPath: os.TempDir()},
+			},
+			expectedConfig: uploadConfig{
+				Method: http.MethodPost,
+				URL:    "/target/upload",
+			},
+			serveHTTPWithAPIUsed: true,
 		},
 	}
 
@@ -253,11 +289,14 @@ func TestValidUploadConfiguration(t *testing.T) {
 
 			response := makeRequest(injector, string(sendDataJSONString))
 
-			// checking the response
+			// check the response
 			require.Equal(t, 200, response.Code)
 			require.Equal(t, string(content), response.Body.String())
-			// checking remote file request
+			// check remote file request
 			require.Equal(t, "/remote/file", response.Header().Get(testHeader))
+			// check upload handler
+			require.Equal(t, tc.serveHTTPUsed, uploadHandler.serveHTTPUsed)
+			require.Equal(t, tc.serveHTTPWithAPIUsed, uploadHandler.serveHTTPWithAPIUsed)
 		})
 	}
 }
@@ -318,13 +357,14 @@ func TestTimeoutConfiguration(t *testing.T) {
 
 	injector := NewInjector()
 
-	var oldHTTPClient = httpClient
-	httpClient = &http.Client{
-		Transport: transport.NewRestrictedTransport(transport.WithResponseHeaderTimeout(10 * time.Millisecond)),
-	}
+	// Delete cached HTTP clients to set overridden transport options
+	httpClients = sync.Map{}
+
+	oldDefaultTransportOptions := defaultTransportOptions
+	defaultTransportOptions = []transport.Option{transport.WithResponseHeaderTimeout(10 * time.Millisecond)}
 
 	t.Cleanup(func() {
-		httpClient = oldHTTPClient
+		defaultTransportOptions = oldDefaultTransportOptions
 	})
 
 	sendData := map[string]string{
@@ -338,6 +378,52 @@ func TestTimeoutConfiguration(t *testing.T) {
 	responseResult := response.Result()
 	defer responseResult.Body.Close()
 	require.Equal(t, http.StatusGatewayTimeout, responseResult.StatusCode)
+}
+
+func TestSSRFFilter(t *testing.T) {
+	originResourceServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+	defer originResourceServer.Close()
+
+	sendData := map[string]interface{}{
+		"Url":        originResourceServer.URL,
+		"SSRFFilter": true,
+	}
+
+	sendDataJSONString, err := json.Marshal(sendData)
+	require.NoError(t, err)
+
+	response := makeRequest(NewInjector(), string(sendDataJSONString))
+
+	// Test uses loopback IP like 127.0.0.x and thus fails
+	require.Equal(t, http.StatusBadGateway, response.Code)
+	require.Equal(t, "Bad Gateway\n", response.Body.String())
+}
+
+func TestSSRFFilterWithAllowLocalhost(t *testing.T) {
+	originResourceServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+	defer originResourceServer.Close()
+
+	sendData := map[string]interface{}{
+		"Url":            originResourceServer.URL,
+		"SSRFFilter":     true,
+		"AllowLocalhost": true,
+	}
+
+	sendDataJSONString, err := json.Marshal(sendData)
+	require.NoError(t, err)
+
+	uploadHandler := &fakeUploadHandler{
+		handler: func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(200)
+		},
+	}
+
+	injector := NewInjector()
+	injector.SetUploadHandler(uploadHandler)
+
+	response := makeRequest(injector, string(sendDataJSONString))
+
+	require.Equal(t, http.StatusOK, response.Code)
 }
 
 func mergeMap(from map[string]interface{}, into map[string]interface{}) map[string]interface{} {
@@ -369,7 +455,7 @@ func TestFailedOriginServer(t *testing.T) {
 
 	uploadHandler := &fakeUploadHandler{
 		handler: func(_ http.ResponseWriter, _ *http.Request) {
-			assert.FailNow(t, "the error response must not be uploaded")
+			t.Error("the error response must not be uploaded")
 		},
 	}
 
@@ -396,7 +482,7 @@ func TestLongUploadRequest(t *testing.T) {
 	defer originResourceServer.Close()
 
 	// the server receiving the upload request
-	// it makes the upload request artifically long with a sleep
+	// it makes the upload request artificially long with a sleep
 	uploadServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		time.Sleep(40 * time.Millisecond)
 	}))
@@ -411,6 +497,8 @@ func TestLongUploadRequest(t *testing.T) {
 		res, err := rt.RoundTrip(r)
 
 		assert.NoError(t, err, "RoundTripper should not receive an error")
+		defer res.Body.Close()
+
 		assert.Equal(t, http.StatusOK, res.StatusCode, "RoundTripper should receive a 200 status code")
 		w.WriteHeader(res.StatusCode)
 	}
@@ -431,6 +519,35 @@ func TestLongUploadRequest(t *testing.T) {
 	require.Equal(t, http.StatusOK, response.Code)
 	require.Equal(t, string(content), response.Body.String())
 	require.Equal(t, contentLength, response.Header().Get("Content-Length"))
+}
+
+func TestHttpClientReuse(t *testing.T) {
+	originResourceServer := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+	defer originResourceServer.Close()
+
+	expectedKey := cacheKey{
+		ssrfFilter: false,
+	}
+	httpClients.Delete(expectedKey)
+
+	uploadHandler := &fakeUploadHandler{
+		handler: func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(200)
+		},
+	}
+
+	injector := NewInjector()
+	injector.SetUploadHandler(uploadHandler)
+
+	response := makeRequest(injector, tokenJSON+originResourceServer.URL+urlJSON)
+	require.Equal(t, http.StatusOK, response.Code)
+	_, found := httpClients.Load(expectedKey)
+	require.True(t, found)
+
+	storedClient := &http.Client{}
+	httpClients.Store(expectedKey, storedClient)
+	require.Equal(t, cachedClient(&entryParams{}), storedClient)
+	require.NotEqual(t, cachedClient(&entryParams{SSRFFilter: true}), storedClient)
 }
 
 func makeRequest(injector *Injector, data string) *httptest.ResponseRecorder {

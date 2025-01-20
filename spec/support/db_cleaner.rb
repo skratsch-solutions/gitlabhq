@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'test_prof/before_all/adapters/active_record'
+
 module DbCleaner
   def all_connection_classes
     ::TestProf::BeforeAll::Adapters::ActiveRecord.all_connections.map(&:connection_class).uniq
@@ -114,3 +116,24 @@ module DbCleaner
 end
 
 DbCleaner.prepend_mod_with('DbCleaner')
+
+# We patch the establish_master_connection so that it establishes a connection
+# using a ActiveRecord::DatabaseConfigurations::HashConfig instead of a hash.
+#
+# Using a HashConfig avoids resetting the name of the connection.
+module PostgreSQLDatabaseTasksPatch
+  def establish_master_connection
+    establish_connection(
+      ActiveRecord::DatabaseConfigurations::HashConfig.new(
+        db_config.env_name,
+        db_config.name,
+        db_config.configuration_hash.merge(
+          database: "postgres",
+          schema_search_path: "public"
+        )
+      )
+    )
+  end
+end
+
+ActiveRecord::Tasks::PostgreSQLDatabaseTasks.prepend(PostgreSQLDatabaseTasksPatch)

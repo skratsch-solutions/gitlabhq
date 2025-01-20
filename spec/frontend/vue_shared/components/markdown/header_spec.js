@@ -10,7 +10,10 @@ import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { updateText } from '~/lib/utils/text_markdown';
 import { setHTMLFixture, resetHTMLFixture } from 'helpers/fixtures';
 
-jest.mock('~/lib/utils/text_markdown');
+jest.mock('~/lib/utils/text_markdown', () => ({
+  ...jest.requireActual('~/lib/utils/text_markdown'),
+  updateText: jest.fn(),
+}));
 
 describe('Markdown field header component', () => {
   let wrapper;
@@ -23,7 +26,13 @@ describe('Markdown field header component', () => {
         ...props,
       },
       stubs: { GlToggle },
-      provide,
+      provide: {
+        glFeatures: {
+          findAndReplace: true,
+          ...provide?.glFeatures,
+        },
+        ...provide,
+      },
     });
   };
 
@@ -66,6 +75,7 @@ describe('Markdown field header component', () => {
     ${13} | ${'Add a table'}                  | ${'Add a table'}                           | ${'table'}
     ${14} | ${'Attach a file or image'}       | ${'Attach a file or image'}                | ${'upload'}
     ${15} | ${'Go full screen'}               | ${'Go full screen'}                        | ${'fullScreen'}
+    ${16} | ${'Find and replace'}             | ${'Find and replace'}                      | ${null}
   `('markdown header buttons', ({ i, buttonTitle, nonMacTitle, buttonType }) => {
     it('renders the buttons with the correct title', () => {
       expect(findToolbarButtons().wrappers[i].props('buttonTitle')).toBe(buttonTitle);
@@ -82,6 +92,11 @@ describe('Markdown field header component', () => {
     it('passes button type to `trackingProperty` prop', () => {
       expect(findToolbarButtons().wrappers[i].props('trackingProperty')).toBe(buttonType);
     });
+  });
+
+  it('does not render find and replace button when feature flag is turned off', () => {
+    createWrapper({ provide: { glFeatures: { findAndReplace: false } } });
+    expect(findToolbarButtons().wrappers[16]).toBeUndefined();
   });
 
   it('attach file button should have data-button-type attribute', () => {
@@ -198,8 +213,6 @@ describe('Markdown field header component', () => {
     });
 
     it('shows all items by default', () => {
-      createWrapper();
-
       expect(findToolbarButtons().length).toBe(defaultCount);
     });
 
@@ -289,6 +302,67 @@ describe('Markdown field header component', () => {
       });
 
       expect(findCommentTemplatesModal().exists()).toBe(false);
+    });
+  });
+
+  describe('find and replace', () => {
+    let form;
+
+    const createParentForm = () => {
+      form = document.createElement('form');
+      const field = document.createElement('div');
+      const root = document.createElement('div');
+      field.classList = 'js-vue-markdown-field';
+      form.appendChild(field);
+      field.appendChild(root);
+      document.body.appendChild(form);
+      return root;
+    };
+
+    const showFindAndReplace = async () => {
+      $(document).triggerHandler('markdown-editor:find-and-replace:show', [$('form')]);
+      await nextTick();
+    };
+
+    const findFindInput = () => wrapper.findByTestId('find-btn');
+
+    beforeEach(() => {
+      createWrapper({ attachTo: createParentForm() });
+    });
+
+    afterEach(() => {
+      form.parentNode.removeChild(form);
+    });
+
+    it('does not emit find and replace event when triggered from another form', () => {
+      $(document).triggerHandler('markdown-editor:find-and-replace:show', [
+        $(
+          '<form><div class="js-vue-markdown-field"><textarea class="markdown-area"></textarea></div></form>',
+        ),
+      ]);
+
+      expect(wrapper.findByTestId('find-and-replace').exists()).toBe(false);
+    });
+
+    it('displays find-and-replace bar when shortcut event is emitted', async () => {
+      await showFindAndReplace();
+      expect(wrapper.findByTestId('find-and-replace').exists()).toBe(true);
+    });
+
+    it('prevents submitting the form when Enter key is pressed', async () => {
+      await showFindAndReplace();
+      const preventDefault = jest.fn();
+      findFindInput().vm.$emit('keydown', { preventDefault, key: 'Enter' });
+      expect(preventDefault).toHaveBeenCalled();
+    });
+
+    it('closes the find-and-replace bar when Escape key is pressed', async () => {
+      await showFindAndReplace();
+      const preventDefault = jest.fn();
+      findFindInput().vm.$emit('keydown', { preventDefault, key: 'Escape' });
+      await nextTick();
+      expect(preventDefault).not.toHaveBeenCalled();
+      expect(wrapper.findByTestId('find-and-replace').exists()).toBe(false);
     });
   });
 });

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Git::WikiPushService, services: true, feature_category: :wiki do
+RSpec.describe Git::WikiPushService, :services, feature_category: :wiki do
   include RepoHelpers
 
   let_it_be(:current_user) { create(:user) }
@@ -283,12 +283,12 @@ RSpec.describe Git::WikiPushService, services: true, feature_category: :wiki do
   end
 
   describe '#perform_housekeeping', :clean_gitlab_redis_shared_state do
-    let(:housekeeping) { Repositories::HousekeepingService.new(wiki) }
+    let(:housekeeping) { ::Repositories::HousekeepingService.new(wiki) }
 
     subject { create_service(current_sha).execute }
 
     before do
-      allow(Repositories::HousekeepingService).to receive(:new).and_return(housekeeping)
+      allow(::Repositories::HousekeepingService).to receive(:new).and_return(housekeeping)
     end
 
     it 'does not perform housekeeping when not needed' do
@@ -339,7 +339,7 @@ RSpec.describe Git::WikiPushService, services: true, feature_category: :wiki do
   end
 
   def post_received(base, refs)
-    change_str = refs.map { |ref| +"#{base} #{current_sha} #{ref}" }.join("\n")
+    change_str = refs.map { |ref| "#{base} #{current_sha} #{ref}" }.join("\n")
     post_received = ::Gitlab::GitPostReceive.new(wiki.container, key_id, change_str, {})
     allow(post_received).to receive(:identify).with(key_id).and_return(current_user)
 

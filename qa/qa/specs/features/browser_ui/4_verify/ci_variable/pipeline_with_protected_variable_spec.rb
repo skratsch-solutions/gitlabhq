@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Verify', :runner, product_group: :pipeline_security do
+  RSpec.describe 'Verify', :runner, :requires_admin, product_group: :pipeline_authoring do
     describe 'Pipeline with protected variable' do
       let(:executor) { "qa-runner-#{Faker::Alphanumeric.alphanumeric(number: 8)}" }
       let(:protected_value) { Faker::Alphanumeric.alphanumeric(number: 8) }
@@ -22,17 +22,10 @@ module QA
         ])
       end
 
-      let(:developer) do
-        Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
-      end
-
-      let(:maintainer) do
-        Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_2, Runtime::Env.gitlab_qa_password_2)
-      end
+      let!(:developer) { create(:user, :with_personal_access_token) }
+      let!(:maintainer) { create(:user, :with_personal_access_token) }
 
       before do
-        Flow::Login.sign_in
-        project.visit!
         project.add_member(developer)
         project.add_member(maintainer, Resource::Members::AccessLevel::MAINTAINER)
         add_ci_variable
@@ -42,18 +35,13 @@ module QA
         runner.remove_via_api!
       end
 
-      it 'exposes variable on protected branch', :blocking,
-        quarantine: {
-          issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/419506',
-          type: :investigating
-        },
+      it 'exposes variable on protected branch',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/348005' do
         create_protected_branch
 
         [developer, maintainer].each do |user|
-          user_commit_to_protected_branch(Runtime::API::Client.new(:gitlab, user: user))
-          go_to_pipeline_job(user)
-
+          user_commit_to_protected_branch(user.api_client)
+          go_to_pipeline_job_as(user)
           Page::Project::Job::Show.perform do |show|
             expect(show.output).to have_content(protected_value), 'Expect protected variable to be in job log.'
           end
@@ -63,9 +51,8 @@ module QA
       it 'does not expose variable on unprotected branch', :smoke,
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347664' do
         [developer, maintainer].each do |user|
-          create_merge_request(Runtime::API::Client.new(:gitlab, user: user))
-          go_to_pipeline_job(user)
-
+          user_create_merge_request(user.api_client)
+          go_to_pipeline_job_as(user)
           Page::Project::Job::Show.perform do |show|
             expect(show.output).to have_no_content(protected_value), 'Expect protected variable to NOT be in job log.'
           end
@@ -103,7 +90,7 @@ module QA
         end
       end
 
-      def create_merge_request(api_client)
+      def user_create_merge_request(api_client)
         # Retry is needed due to delays with project authorization updates
         # Long term solution to accessing the status of a project authorization update
         # has been proposed in https://gitlab.com/gitlab-org/gitlab/-/issues/393369
@@ -123,14 +110,12 @@ module QA
         end
       end
 
-      def go_to_pipeline_job(user)
+      def go_to_pipeline_job_as(user)
         Flow::Login.sign_in(as: user)
         project.visit!
-        Flow::Pipeline.visit_latest_pipeline
-
-        Page::Project::Pipeline::Show.perform do |pipeline|
-          pipeline.click_job('job')
-        end
+        Flow::Pipeline.wait_for_pipeline_creation_via_api(project: project)
+        Flow::Pipeline.wait_for_latest_pipeline_to_have_status(project: project, status: 'success')
+        project.visit_job('job')
       end
     end
   end

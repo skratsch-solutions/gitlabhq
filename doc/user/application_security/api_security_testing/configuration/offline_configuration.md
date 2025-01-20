@@ -1,12 +1,16 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
 # Offline configuration
 
-For self-managed GitLab instances in an environment with limited, restricted, or intermittent access to external resources through the internet, some adjustments are required for the API security testing job to successfully run.
+DETAILS:
+**Tier:** Ultimate
+**Offering:** GitLab Self-Managed
+
+For instances in an environment with limited, restricted, or intermittent access to external resources through the internet, some adjustments are required for the API security testing job to successfully run.
 
 Steps:
 

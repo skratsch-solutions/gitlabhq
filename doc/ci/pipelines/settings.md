@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can customize how pipelines run for your project.
 
@@ -67,7 +67,7 @@ To change the pipeline visibility for non-project members:
    - **Everyone With Access**: Non-project members can also view pipelines.
 1. Select **Save changes**.
 
-The [CI/CD permissions table](../../user/permissions.md#gitlab-cicd-permissions)
+The [CI/CD permissions table](../../user/permissions.md#cicd)
 lists the pipeline features non-project members can access when **Everyone With Access**
 is selected.
 
@@ -82,12 +82,12 @@ You can set pending or running pipelines to cancel automatically when a pipeline
 1. Select **Save changes**.
 
 Use the [`interruptible`](../yaml/index.md#interruptible) keyword to indicate if a
-running job can be cancelled before it completes. After a job with
+running job can be canceled before it completes. After a job with
 `interruptible: false` starts, the entire pipeline is no longer considered interruptible.
 
 ## Prevent outdated deployment jobs
 
-> - In GitLab 15.5, the behavior was [changed](https://gitlab.com/gitlab-org/gitlab/-/issues/363328) to prevent outdated job runs.
+> - Also preventing outdated manual or retried deployment jobs from running [added](https://gitlab.com/gitlab-org/gitlab/-/issues/363328) in GitLab 15.5.
 
 Your project may have multiple concurrent deployment jobs that are
 scheduled to run in the same time frame.
@@ -110,7 +110,7 @@ For more information, see [Deployment safety](../environments/deployment_safety.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/137301) in GitLab 16.7.
 
@@ -169,8 +169,8 @@ If the CI/CD configuration file is in a different project:
 For example:
 
 - `.gitlab-ci.yml@namespace/another-project`
-- `my/path/.my-custom-file.yml@namespace/sub-group/another-project`
-- `my/path/.my-custom-file.yml@namespace/sub-group1/sub-group2/another-project:refname`
+- `my/path/.my-custom-file.yml@namespace/subgroup/another-project`
+- `my/path/.my-custom-file.yml@namespace/subgroup1/subgroup2/another-project:refname`
 
 If the configuration file is in a separate project, you can set more granular permissions. For example:
 
@@ -239,7 +239,7 @@ test coverage of your projects. These badges are determined by the latest succes
 GitLab CI/CD pipelines are enabled by default on all new projects. If you use an external CI/CD server like
 Jenkins or Drone CI, you can disable GitLab CI/CD to avoid conflicts with the commits status API.
 
-You can disable GitLab CI/CD per project or [for all new projects on an instance](../../administration/cicd.md).
+You can disable GitLab CI/CD per project or [for all new projects on an instance](../../administration/cicd/index.md).
 
 When you disable GitLab CI/CD:
 
@@ -256,3 +256,26 @@ To disable GitLab CI/CD in your project:
 1. Select **Save changes**.
 
 These changes do not apply to projects in an [external integration](../../user/project/integrations/index.md#available-integrations).
+
+## Automatic pipeline cleanup
+
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**Status**: Beta
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/498969) in GitLab 17.7 [with a flag](../../administration/feature_flags.md) named `ci_delete_old_pipelines`. Disabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag. For more information, see the history.
+
+You can set a CI/CD pipeline expiry time to help manage pipeline storage and improve system performance.
+The system automatically deletes pipelines that were created before the configured value.
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > CI/CD**.
+1. Expand **General pipelines**.
+1. In the **Automatic pipeline cleanup** field, enter the number of seconds, or a human-readable value like `2 weeks`.
+   Must be one day or more, and less than one year. Leave empty to never delete pipelines automatically.
+   Empty by default.
+1. Select **Save changes**.

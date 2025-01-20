@@ -1,43 +1,37 @@
-import { GlButton, GlTableLite } from '@gitlab/ui';
+import { GlTable, GlLoadingIcon } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import TokenAccessTable from '~/token_access/components/token_access_table.vue';
-import { mockGroups, mockProjects, mockFields } from './mock_data';
+import { mockGroups, mockProjects } from './mock_data';
 
 describe('Token access table', () => {
   let wrapper;
 
   const createComponent = (props) => {
     wrapper = mountExtended(TokenAccessTable, {
-      provide: {
-        fullPath: 'root/ci-project',
-      },
-      propsData: {
-        ...props,
-      },
+      provide: { fullPath: 'root/ci-project' },
+      propsData: props,
     });
   };
 
-  const findTable = () => wrapper.findComponent(GlTableLite);
-  const findDeleteButton = () => wrapper.findComponent(GlButton);
-  const findAllTableRows = () => wrapper.findAllByTestId('token-access-table-row');
-  const findIcon = (type) => wrapper.findByTestId(`token-access-${type}-icon`);
-  const findProjectAvatar = (type) => wrapper.findByTestId(`token-access-${type}-avatar`);
-  const findName = (type) => wrapper.findByTestId(`token-access-${type}-name`);
+  const findTable = () => wrapper.findComponent(GlTable);
+  const findEditButton = () => wrapper.findByTestId('token-access-table-edit-button');
+  const findRemoveButton = () => wrapper.findByTestId('token-access-table-remove-button');
+  const findAllTableRows = () => findTable().findAll('tbody tr');
+  const findIcon = () => wrapper.findByTestId('token-access-icon');
+  const findProjectAvatar = () => wrapper.findByTestId('token-access-avatar');
+  const findName = () => wrapper.findByTestId('token-access-name');
+  const findPolicies = () => findAllTableRows().at(0).findAll('td').at(1);
 
   describe.each`
-    type         | isGroup  | items
-    ${'group'}   | ${true}  | ${mockGroups}
-    ${'project'} | ${false} | ${mockProjects}
-  `('when provided with $type', ({ type, isGroup, items }) => {
+    type         | items
+    ${'group'}   | ${mockGroups}
+    ${'project'} | ${mockProjects}
+  `('when provided with $type', ({ type, items }) => {
     beforeEach(() => {
-      createComponent({
-        isGroup,
-        items,
-        tableFields: mockFields,
-      });
+      createComponent({ items, loading: false });
     });
 
-    it('displays a table', () => {
+    it('displays the table', () => {
       expect(findTable().exists()).toBe(true);
     });
 
@@ -45,20 +39,89 @@ describe('Token access table', () => {
       expect(findAllTableRows(type)).toHaveLength(items.length);
     });
 
-    it('delete button emits event with correct item to delete', async () => {
-      await findDeleteButton().trigger('click');
+    it('remove button emits event with correct item to remove', async () => {
+      await findRemoveButton().trigger('click');
 
       expect(wrapper.emitted('removeItem')).toEqual([[items[0]]]);
     });
 
     it('displays icon and avatar', () => {
-      expect(findIcon(type).props('name')).toBe(type);
-      expect(findProjectAvatar(type).props('projectName')).toBe(items[0].name);
+      expect(findIcon().props('name')).toBe(type);
+      expect(findProjectAvatar().props('projectName')).toBe(items[0].name);
     });
 
-    it('displays fullpath as a link to the project', () => {
+    it(`displays link to the ${type}`, () => {
       expect(findName(type).text()).toBe(items[0].fullPath);
-      expect(findName(type).attributes('href')).toBe(`/${items[0].fullPath}`);
+      expect(findName(type).attributes('href')).toBe(items[0].webUrl);
+    });
+
+    describe('edit button', () => {
+      it('shows button', () => {
+        expect(findEditButton().props('icon')).toBe('pencil');
+      });
+
+      it('emits editItem event when button is clicked', () => {
+        findEditButton().vm.$emit('click');
+
+        expect(wrapper.emitted('editItem')[0][0]).toBe(items[0]);
+      });
+    });
+  });
+
+  describe('when item is the current project', () => {
+    beforeEach(() => createComponent({ items: [mockProjects.at(-1)] }));
+
+    it('does not show edit button', () => {
+      expect(findEditButton().exists()).toBe(false);
+    });
+
+    it('does not show remove button', () => {
+      expect(findRemoveButton().exists()).toBe(false);
+    });
+  });
+
+  describe('when table is loading', () => {
+    it('shows loading icon', () => {
+      createComponent({ items: mockGroups, loading: true });
+
+      expect(findTable().findComponent(GlLoadingIcon).props('size')).toBe('md');
+    });
+  });
+
+  describe('policies column', () => {
+    it('shows policies when items has policies', () => {
+      createComponent({ items: [mockGroups[0]] });
+
+      expect(findPolicies().findAll('li').at(0).text()).toBe('Read to Jobs');
+      expect(findPolicies().findAll('li').at(1).text()).toBe('Read and write to Containers');
+    });
+
+    it('shows default text when item has default permissions selected', () => {
+      createComponent({ items: [mockGroups[1]] });
+
+      expect(findPolicies().text()).toBe('Default (user membership and role)');
+    });
+
+    it('shows minimal text when items has no policies', () => {
+      createComponent({ items: [mockGroups[2]] });
+
+      expect(findPolicies().text()).toBe('No resources selected (minimal access only)');
+    });
+  });
+
+  describe('when showPolicies prop is false', () => {
+    beforeEach(() => createComponent({ showPolicies: false, items: mockGroups }));
+
+    it('does not show policies column', () => {
+      const tableFieldKeys = findTable()
+        .props('fields')
+        .map(({ key }) => key);
+
+      expect(tableFieldKeys).not.toContain('policies');
+    });
+
+    it('does not show edit button', () => {
+      expect(findEditButton().exists()).toBe(false);
     });
   });
 });

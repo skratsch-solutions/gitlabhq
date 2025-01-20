@@ -1,42 +1,75 @@
 <script>
-import { GlToggle } from '@gitlab/ui';
+import { GlAlert } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
+import { createAlert } from '~/alert';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
+import { findWidget } from '~/issues/list/utils';
+import { getParameterByName } from '~/lib/utils/url_utility';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import {
   FORM_TYPES,
-  WIDGET_TYPE_HIERARCHY,
-  WORK_ITEMS_TREE_TEXT_MAP,
+  WORK_ITEMS_TREE_TEXT,
   WORK_ITEM_TYPE_VALUE_MAP,
   WORK_ITEMS_TYPE_MAP,
   WORK_ITEM_TYPE_ENUM_OBJECTIVE,
   WORK_ITEM_TYPE_ENUM_KEY_RESULT,
   WORK_ITEM_TYPE_ENUM_EPIC,
-  I18N_WORK_ITEM_SHOW_LABELS,
   CHILD_ITEMS_ANCHOR,
+  WORKITEM_TREE_SHOWLABELS_LOCALSTORAGEKEY,
+  WORKITEM_TREE_SHOWCLOSED_LOCALSTORAGEKEY,
+  WORK_ITEM_TYPE_VALUE_EPIC,
+  WIDGET_TYPE_HIERARCHY,
+  INJECTION_LINK_CHILD_PREVENT_ROUTER_NAVIGATION,
+  DETAIL_VIEW_QUERY_PARAM_NAME,
 } from '../../constants';
-import WidgetWrapper from '../widget_wrapper.vue';
+import {
+  findHierarchyWidgets,
+  getDefaultHierarchyChildrenCount,
+  saveToggleToLocalStorage,
+  getToggleFromLocalStorage,
+  getItems,
+} from '../../utils';
+import getWorkItemTreeQuery from '../../graphql/work_item_tree.query.graphql';
+import namespaceWorkItemTypesQuery from '../../graphql/namespace_work_item_types.query.graphql';
+import WorkItemChildrenLoadMore from '../shared/work_item_children_load_more.vue';
+import WorkItemMoreActions from '../shared/work_item_more_actions.vue';
 import WorkItemActionsSplitButton from './work_item_actions_split_button.vue';
 import WorkItemLinksForm from './work_item_links_form.vue';
 import WorkItemChildrenWrapper from './work_item_children_wrapper.vue';
-import WorkItemTreeActions from './work_item_tree_actions.vue';
+import WorkItemRolledUpData from './work_item_rolled_up_data.vue';
+import WorkItemRolledUpCount from './work_item_rolled_up_count.vue';
 
 export default {
   FORM_TYPES,
-  WORK_ITEMS_TREE_TEXT_MAP,
+  WORK_ITEMS_TREE_TEXT,
   WORK_ITEM_TYPE_ENUM_OBJECTIVE,
   WORK_ITEM_TYPE_ENUM_KEY_RESULT,
   components: {
+    GlAlert,
     WorkItemActionsSplitButton,
-    WidgetWrapper,
+    CrudComponent,
     WorkItemLinksForm,
     WorkItemChildrenWrapper,
-    WorkItemTreeActions,
-    GlToggle,
+    WorkItemChildrenLoadMore,
+    WorkItemMoreActions,
+    WorkItemRolledUpData,
+    WorkItemRolledUpCount,
   },
   inject: ['hasSubepicsFeature'],
+  provide() {
+    return {
+      [INJECTION_LINK_CHILD_PREVENT_ROUTER_NAVIGATION]: !this.isDrawer,
+    };
+  },
   props: {
     fullPath: {
       type: String,
       required: true,
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     workItemType: {
       type: String,
@@ -61,11 +94,6 @@ export default {
       required: false,
       default: false,
     },
-    children: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
     canUpdate: {
       type: Boolean,
       required: false,
@@ -81,27 +109,91 @@ export default {
       required: false,
       default: () => [],
     },
+    isDrawer: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    activeChildItemId: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
       error: undefined,
-      isShownAddForm: false,
       formType: null,
       childType: null,
       widgetName: CHILD_ITEMS_ANCHOR,
       showLabels: true,
+      showClosed: true,
+      fetchNextPageInProgress: false,
+      workItem: {},
+      disableContent: false,
+      workItemTypes: [],
+      hierarchyWidget: null,
+      draggedItemType: null,
+      showLabelsLocalStorageKey: WORKITEM_TREE_SHOWLABELS_LOCALSTORAGEKEY,
+      showClosedLocalStorageKey: WORKITEM_TREE_SHOWCLOSED_LOCALSTORAGEKEY,
     };
   },
+  apollo: {
+    hierarchyWidget: {
+      query: getWorkItemTreeQuery,
+      variables() {
+        return {
+          id: this.workItemId,
+          pageSize: getDefaultHierarchyChildrenCount(),
+          endCursor: '',
+        };
+      },
+      skip() {
+        return !this.workItemId;
+      },
+      update({ workItem = {} }) {
+        const { children } = findHierarchyWidgets(workItem.widgets);
+        this.$emit('childrenLoaded', Boolean(children?.count));
+        this.workItem = workItem;
+        return children || {};
+      },
+      error() {
+        this.error = s__('WorkItems|An error occurred while fetching children');
+      },
+      result() {
+        if (this.hasNextPage && this.children.length === 0) {
+          this.fetchNextPage();
+        }
+        this.checkDrawerParams();
+      },
+    },
+    workItemTypes: {
+      query: namespaceWorkItemTypesQuery,
+      variables() {
+        return {
+          fullPath: this.fullPath,
+        };
+      },
+      update(data) {
+        return data.workspace?.workItemTypes?.nodes;
+      },
+      skip() {
+        return !this.canUpdate;
+      },
+    },
+  },
   computed: {
+    workItemHierarchy() {
+      return findWidget(WIDGET_TYPE_HIERARCHY, this.workItem);
+    },
+    rolledUpCountsByType() {
+      return this.workItemHierarchy?.rolledUpCountsByType || [];
+    },
+    depthLimitReachedByType() {
+      return this.workItemHierarchy?.depthLimitReachedByType || [];
+    },
     childrenIds() {
       return this.children.map((c) => c.id);
-    },
-    hasIndirectChildren() {
-      return this.children
-        .map(
-          (child) => child.widgets?.find((widget) => widget.type === WIDGET_TYPE_HIERARCHY) || {},
-        )
-        .some((hierarchy) => hierarchy.hasChildren);
     },
     addItemsActions() {
       let childTypes = this.allowedChildTypes;
@@ -118,23 +210,75 @@ export default {
       const reorderedChildTypes = childTypes.slice().sort((a, b) => a.id.localeCompare(b.id));
       return reorderedChildTypes.map((type) => {
         const enumType = WORK_ITEM_TYPE_VALUE_MAP[type.name];
+        const depthLimitByType =
+          this.depthLimitReachedByType?.find(
+            (item) => item.workItemType?.name.toUpperCase() === enumType,
+          ) || {};
+
         return {
           name: WORK_ITEMS_TYPE_MAP[enumType].name,
+          atDepthLimit: depthLimitByType.depthLimitReached,
           items: this.genericActionItems(type.name).map((item) => ({
             text: item.title,
             action: item.action,
+            extraAttrs: {
+              disabled: depthLimitByType.depthLimitReached,
+            },
           })),
         };
       });
     },
-    /**
-     * Based on the type of work item, should the actions menu be rendered?
-     *
-     * Currently only renders for `epic` work items
-     */
-    canShowActionsMenu() {
-      return this.workItemType.toUpperCase() === WORK_ITEM_TYPE_ENUM_EPIC && this.workItemIid;
+    children() {
+      return this.hierarchyWidget?.nodes || [];
     },
+    hasIndirectChildren() {
+      return this.children
+        .map((child) => findHierarchyWidgets(child.widgets) || {})
+        .some((hierarchy) => hierarchy.hasChildren);
+    },
+    isLoadingChildren() {
+      return this.$apollo.queries.hierarchyWidget.loading;
+    },
+    showEmptyMessage() {
+      return this.children.length === 0 && !this.isLoadingChildren;
+    },
+    pageInfo() {
+      return this.hierarchyWidget?.pageInfo;
+    },
+    endCursor() {
+      return this.pageInfo?.endCursor || '';
+    },
+    hasNextPage() {
+      return this.pageInfo?.hasNextPage;
+    },
+    workItemNamespaceName() {
+      return this.workItem?.namespace?.fullName;
+    },
+    shouldRolledUpWeightBeVisible() {
+      return this.showRolledUpWeight && this.rolledUpWeight !== null;
+    },
+    showTaskWeight() {
+      return this.workItemType !== WORK_ITEM_TYPE_VALUE_EPIC;
+    },
+    allowedChildrenByType() {
+      return this.workItemTypes.reduce((acc, type) => {
+        const definition = type.widgetDefinitions?.find(
+          (widgetDefinition) => widgetDefinition.type === WIDGET_TYPE_HIERARCHY,
+        );
+        if (definition?.allowedChildTypes?.nodes?.length > 0) {
+          acc[type.name] = definition.allowedChildTypes.nodes.map((a) => a.name);
+        }
+        return acc;
+      }, {});
+    },
+    hasAllChildItemsHidden() {
+      const filterClosed = getItems(this.showClosed);
+      return filterClosed(this.children).length === 0;
+    },
+  },
+  mounted() {
+    this.showLabels = getToggleFromLocalStorage(this.showLabelsLocalStorageKey);
+    this.showClosed = getToggleFromLocalStorage(this.showClosedLocalStorageKey);
   },
   methods: {
     genericActionItems(workItem) {
@@ -152,8 +296,7 @@ export default {
       ];
     },
     showAddForm(formType, childType) {
-      this.$refs.wrapper.show();
-      this.isShownAddForm = true;
+      this.$refs.workItemTree.showForm();
       this.formType = formType;
       this.childType = childType;
       this.$nextTick(() => {
@@ -161,83 +304,182 @@ export default {
       });
     },
     hideAddForm() {
-      this.isShownAddForm = false;
+      this.$refs.workItemTree.hideForm();
     },
     showModal({ event, child }) {
       this.$emit('show-modal', { event, modalWorkItem: child });
     },
+    toggleShowLabels() {
+      this.showLabels = !this.showLabels;
+      saveToggleToLocalStorage(this.showLabelsLocalStorageKey, this.showLabels);
+    },
+    toggleShowClosed() {
+      this.showClosed = !this.showClosed;
+      saveToggleToLocalStorage(this.showClosedLocalStorageKey, this.showClosed);
+    },
+    async fetchNextPage() {
+      if (this.hasNextPage && !this.fetchNextPageInProgress) {
+        this.fetchNextPageInProgress = true;
+        try {
+          await this.$apollo.queries.hierarchyWidget.fetchMore({
+            variables: {
+              endCursor: this.endCursor,
+            },
+          });
+        } catch (error) {
+          createAlert({
+            message: s__('Hierarchy|Something went wrong while fetching children.'),
+            captureError: true,
+            error,
+          });
+        } finally {
+          this.fetchNextPageInProgress = false;
+        }
+      }
+    },
+    checkDrawerParams() {
+      const queryParam = getParameterByName(DETAIL_VIEW_QUERY_PARAM_NAME);
+
+      if (!queryParam) {
+        return;
+      }
+
+      const params = JSON.parse(atob(queryParam));
+      if (params.id) {
+        const modalWorkItem = this.children.find((i) => getIdFromGraphQLId(i.id) === params.id);
+        if (modalWorkItem) {
+          this.$emit('show-modal', { modalWorkItem });
+        }
+      }
+    },
   },
   i18n: {
-    showLabelsLabel: I18N_WORK_ITEM_SHOW_LABELS,
+    noChildItemsOpen: s__('WorkItem|No child items are currently open.'),
   },
 };
 </script>
 
 <template>
-  <widget-wrapper
-    ref="wrapper"
-    :widget-name="widgetName"
-    :error="error"
+  <crud-component
+    ref="workItemTree"
+    :title="$options.WORK_ITEMS_TREE_TEXT.title"
+    :anchor-id="widgetName"
+    :is-loading="isLoadingChildren && !fetchNextPageInProgress"
+    is-collapsible
+    persist-collapsed-state
     data-testid="work-item-tree"
-    @dismissAlert="error = undefined"
   >
-    <template #header>
-      {{ $options.WORK_ITEMS_TREE_TEXT_MAP[workItemType].title }}
-    </template>
-    <template #header-right>
-      <gl-toggle
-        class="gl-mr-4"
-        :value="showLabels"
-        :label="$options.i18n.showLabelsLabel"
-        label-position="left"
-        label-id="relationship-toggle-labels"
-        @change="showLabels = $event"
+    <template #count>
+      <work-item-rolled-up-count
+        v-if="!isLoadingChildren"
+        class="gl-ml-2 sm:gl-ml-0"
+        :rolled-up-counts-by-type="rolledUpCountsByType"
       />
-      <work-item-actions-split-button
-        v-if="canUpdateChildren"
-        :actions="addItemsActions"
-        class="gl-mr-3"
-      />
-      <work-item-tree-actions
-        v-if="canShowActionsMenu"
+      <work-item-rolled-up-data
+        v-if="!isLoadingChildren"
+        class="gl-hidden sm:gl-flex"
+        :work-item-id="workItemId"
         :work-item-iid="workItemIid"
+        :work-item-type="workItemType"
         :full-path="fullPath"
       />
     </template>
-    <template #body>
-      <div class="gl-new-card-content gl-px-0">
-        <div v-if="!isShownAddForm && children.length === 0" data-testid="tree-empty">
-          <p class="gl-new-card-empty">
-            {{ $options.WORK_ITEMS_TREE_TEXT_MAP[workItemType].empty }}
-          </p>
-        </div>
-        <work-item-links-form
-          v-if="isShownAddForm"
-          ref="wiLinksForm"
-          data-testid="add-tree-form"
-          :full-path="fullPath"
-          :issuable-gid="workItemId"
-          :work-item-iid="workItemIid"
-          :form-type="formType"
-          :parent-work-item-type="parentWorkItemType"
-          :children-type="childType"
-          :children-ids="childrenIds"
-          :parent-confidential="confidential"
-          @cancel="hideAddForm"
-          @addChild="$emit('addChild')"
-        />
+
+    <template #description>
+      <work-item-rolled-up-data
+        v-if="!isLoadingChildren"
+        class="gl-mt-2 sm:gl-hidden"
+        :work-item-id="workItemId"
+        :work-item-iid="workItemIid"
+        :work-item-type="workItemType"
+        :full-path="fullPath"
+      />
+    </template>
+
+    <template #actions>
+      <work-item-actions-split-button v-if="canUpdateChildren" :actions="addItemsActions" />
+      <work-item-more-actions
+        :work-item-iid="workItemIid"
+        :full-path="fullPath"
+        :work-item-type="workItemType"
+        :show-labels="showLabels"
+        :show-closed="showClosed"
+        show-view-roadmap-action
+        @toggle-show-labels="toggleShowLabels"
+        @toggle-show-closed="toggleShowClosed"
+      />
+    </template>
+
+    <template #form>
+      <work-item-links-form
+        ref="wiLinksForm"
+        data-testid="add-tree-form"
+        :full-path="fullPath"
+        :full-name="workItemNamespaceName"
+        :is-group="isGroup"
+        :issuable-gid="workItemId"
+        :work-item-iid="workItemIid"
+        :form-type="formType"
+        :parent-work-item-type="parentWorkItemType"
+        :children-type="childType"
+        :children-ids="childrenIds"
+        :parent-confidential="confidential"
+        @error="error = $event"
+        @success="hideAddForm"
+        @cancel="hideAddForm"
+        @addChild="$emit('addChild')"
+        @update-in-progress="disableContent = $event"
+      />
+    </template>
+
+    <template v-if="showEmptyMessage" #empty>
+      {{ $options.WORK_ITEMS_TREE_TEXT.empty }}
+    </template>
+
+    <template #default>
+      <gl-alert v-if="error" variant="danger" @dismiss="error = undefined">
+        {{ error }}
+      </gl-alert>
+      <div v-if="!hasAllChildItemsHidden" class="!gl-px-3 gl-pb-3 gl-pt-2">
         <work-item-children-wrapper
           :children="children"
+          :parent="workItem"
           :can-update="canUpdateChildren"
           :full-path="fullPath"
           :work-item-id="workItemId"
           :work-item-iid="workItemIid"
           :work-item-type="workItemType"
           :show-labels="showLabels"
+          :show-closed="showClosed"
+          :disable-content="disableContent"
+          :show-task-weight="showTaskWeight"
+          :has-indirect-children="hasIndirectChildren"
+          :allowed-children-by-type="allowedChildrenByType"
+          :dragged-item-type="draggedItemType"
+          :active-child-item-id="activeChildItemId"
+          :parent-id="workItemId"
+          @drag="draggedItemType = $event"
+          @drop="draggedItemType = null"
           @error="error = $event"
           @show-modal="showModal"
         />
+        <work-item-children-load-more
+          v-if="hasNextPage"
+          data-testid="work-item-load-more"
+          :class="{ '!gl-pl-5': hasIndirectChildren }"
+          :show-task-weight="showTaskWeight"
+          :fetch-next-page-in-progress="fetchNextPageInProgress"
+          @fetch-next-page="fetchNextPage"
+        />
+      </div>
+
+      <div
+        v-if="hasAllChildItemsHidden"
+        class="gl-text-subtle"
+        data-testid="work-item-no-child-items-open"
+      >
+        {{ $options.i18n.noChildItemsOpen }}
       </div>
     </template>
-  </widget-wrapper>
+  </crud-component>
 </template>

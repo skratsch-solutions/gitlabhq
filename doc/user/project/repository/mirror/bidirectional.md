@@ -9,7 +9,7 @@ description: "Create bidirectional mirrors to push and pull changes between two 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Moved to GitLab Premium in 13.9.
 
@@ -27,7 +27,7 @@ conflicts. Configure them to reduce conflicts, and how to settle them when they 
 
 - [Mirror only protected branches](index.md#mirror-only-protected-branches). Rewriting
   any mirrored commit on either remote causes conflicts and mirroring to fail.
-- [Protect the branches](../../protected_branches.md) you want to mirror on both
+- [Protect the branches](../branches/protected.md) you want to mirror on both
   remotes to prevent conflicts caused by rewriting history.
 - Reduce mirroring delay with a [push event webhook](../../integrations/webhook_events.md#push-events).
   Bidirectional mirroring creates a race condition where commits made close together
@@ -52,7 +52,7 @@ To create the webhook in the downstream instance:
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > Webhooks**.
 1. Add the webhook **URL**, which (in this case) uses the
-   [Pull Mirror API](../../../../api/projects.md#start-the-pull-mirroring-process-for-a-project)
+   [Pull Mirror API](../../../../api/project_pull_mirroring.md#start-the-pull-mirroring-process-for-a-project)
    request to trigger an immediate pull after a repository update:
 
    ```plaintext
@@ -147,7 +147,7 @@ This sample has a few limitations:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Moved to GitLab Premium in 13.9.
 
@@ -164,8 +164,8 @@ If you mirror with Perforce Helix, mirror only protected branches. Perforce Heli
 rejects any pushes that rewrite history. Only the fewest number of branches should be mirrored
 due to the performance limitations of Git Fusion.
 
-When you configure mirroring with Perforce Helix by using Git Fusion, we recommend these Git Fusion
-settings:
+When you configure mirroring with Perforce Helix by using Git Fusion, you should use
+these Git Fusion settings:
 
 - Disable `change-pusher`. Otherwise, every commit is rewritten as being committed
   by the mirroring account, rather than mapping to existing Perforce Helix users or the `unknown_git` user.

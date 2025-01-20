@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Namespaces::ProjectNamespace, type: :model do
+RSpec.describe Namespaces::ProjectNamespace, type: :model, feature_category: :groups_and_projects do
   let_it_be(:organization) { create(:organization) }
 
   describe 'relationships' do
@@ -109,6 +109,16 @@ RSpec.describe Namespaces::ProjectNamespace, type: :model do
       project_namespace.sync_attributes_from_project(project)
 
       expect(project_namespace.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
+    end
+  end
+
+  describe '#all_projects' do
+    let(:project) { create(:project) }
+    let(:project_namespace) { project.project_namespace }
+
+    it 'returns single project relation' do
+      expect(project_namespace.all_projects).to be_a(ActiveRecord::Relation)
+      expect(project_namespace.all_projects).to match_array([project])
     end
   end
 end

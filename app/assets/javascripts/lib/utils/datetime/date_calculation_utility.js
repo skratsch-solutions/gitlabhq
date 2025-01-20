@@ -1,10 +1,58 @@
 import { isNumber } from 'lodash';
+import dateformat from '~/lib/dateformat';
 import { __, n__ } from '~/locale';
 import { getDayName, parseSeconds } from './date_format_utility';
 
 const DAYS_IN_WEEK = 7;
+
+export const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/; // yyyy-mm-dd format
 export const SECONDS_IN_DAY = 86400;
 export const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Creates a new `Date` object.
+ * If a `Date` object is provided, then it is cloned.
+ *
+ * This function fixes a bug with the `Date` constructor where
+ * passing a date-only string results in a date 1 day behind
+ * for timezones that are behind UTC.
+ *
+ * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date:
+ *
+ * > When the time zone offset is absent, **date-only forms are
+ * interpreted as a UTC time and date-time forms are interpreted
+ * as local time**. This is due to a historical spec error that
+ * was not consistent with ISO 8601 but could not be changed
+ * due to web compatibility.
+ *
+ * For example, the bug `new Date('2020-02-02')` results in
+ * `Sat Feb 01 2020 16:00:00 GMT-0800 (Pacific Standard Time)`
+ * for UTC-8 timezone.
+ *
+ * With this function, `newDate('2020-02-02')` results in
+ * `Wed Feb 02 2022 00:00:00 GMT-0800 (Pacific Standard Time)`
+ * for UTC-8 timezone.
+ *
+ * @param {string|number|Date} date
+ * @returns {Date|null|undefined} A Date object in local time
+ */
+export const newDate = (date) => {
+  if (date === null) {
+    return null;
+  }
+  if (date === undefined) {
+    return undefined;
+  }
+  // Fix historical bug so we return a local time for `yyyy-mm-dd` date-only strings
+  if (typeof date === 'string' && DATE_ONLY_REGEX.test(date)) {
+    const parts = date.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // month is 0-indexed
+    const day = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+  }
+  return new Date(date);
+};
 
 /**
  * This method allows you to create new Date instance from existing
@@ -12,7 +60,7 @@ export const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
  *
  * @param {Date} date
  */
-export const newDate = (date) => (date instanceof Date ? new Date(date.getTime()) : new Date());
+export const cloneDate = (date) => (date instanceof Date ? new Date(date.getTime()) : new Date());
 
 /**
  * Returns number of days in a month for provided date.
@@ -87,7 +135,7 @@ export const getTimeframeWindowFrom = (initialStartDate, length) => {
     return [];
   }
 
-  const startDate = newDate(initialStartDate);
+  const startDate = cloneDate(initialStartDate);
   const moveMonthBy = length > 0 ? 1 : -1;
 
   startDate.setDate(1);
@@ -177,7 +225,7 @@ export const calculateRemainingMilliseconds = (endDate) => {
  * @returns {Date} Date in past as Date object
  */
 export const getDateInPast = (date, daysInPast) =>
-  new Date(newDate(date).setDate(date.getDate() - daysInPast));
+  new Date(cloneDate(date).setDate(date.getDate() - daysInPast));
 
 /**
  * Adds a given number of days to a given date and returns the new date.
@@ -187,7 +235,7 @@ export const getDateInPast = (date, daysInPast) =>
  * @returns {Date} Date in future as Date object
  */
 export const getDateInFuture = (date, daysInFuture) =>
-  new Date(newDate(date).setDate(date.getDate() + daysInFuture));
+  new Date(cloneDate(date).setDate(date.getDate() + daysInFuture));
 
 /**
  * Checks if a given date-instance was created with a valid date
@@ -196,38 +244,6 @@ export const getDateInFuture = (date, daysInFuture) =>
  * @returns boolean
  */
 export const isValidDate = (date) => date instanceof Date && !Number.isNaN(date.getTime());
-
-/**
- * Appending T00:00:00 makes JS assume local time and prevents it from shifting the date
- * to match the user's time zone. We want to display the date in server time for now, to
- * be consistent with the "edit issue -> due date" UI.
- *
- * @param {String} date Date without time, e.g. `2022-03-22`
- * @return {Date} new Date object
- */
-export const newDateAsLocaleTime = (date) => {
-  if (!date || typeof date !== 'string') {
-    return null;
-  }
-  if (date.includes('T')) {
-    return new Date(date);
-  }
-  const suffix = 'T00:00:00';
-  return new Date(`${date}${suffix}`);
-};
-
-/**
- * Takes a Date object (where timezone could be GMT or EST) and
- * returns a Date object with the same date but in UTC.
- *
- * @param {Date} date A Date object
- * @returns {Date|null} A Date object with the same date but in UTC
- */
-export const getDateWithUTC = (date) => {
-  return date instanceof Date
-    ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-    : null;
-};
 
 export const beginOfDayTime = 'T00:00:00Z';
 export const endOfDayTime = 'T23:59:59Z';
@@ -291,6 +307,21 @@ export const nSecondsAfter = (date, numberOfSeconds) =>
 export const nSecondsBefore = (date, numberOfSeconds) => nSecondsAfter(date, -numberOfSeconds);
 
 /**
+ * Returns the date `n` hours after the date provided
+ *
+ * @param {Date} date the initial date
+ * @param {Number} numberOfHours number of hours after
+ * @return {Date} A `Date` object `n` hours after the provided `Date`
+ */
+export const nHoursAfter = (date, numberOfHours) => {
+  const clone = cloneDate(date);
+
+  clone.setHours(date.getHours() + numberOfHours);
+
+  return clone;
+};
+
+/**
  * Returns the date `n` days after the date provided
  *
  * @param {Date} date the initial date
@@ -304,7 +335,7 @@ export const nSecondsBefore = (date, numberOfSeconds) => nSecondsAfter(date, -nu
  * @return {Date} A `Date` object `n` days after the provided `Date`
  */
 export const nDaysAfter = (date, numberOfDays, { utc = false } = {}) => {
-  const clone = newDate(date);
+  const clone = cloneDate(date);
 
   const cloneValue = utc
     ? clone.setUTCDate(date.getUTCDate() + numberOfDays)
@@ -342,7 +373,7 @@ export const nDaysBefore = (date, numberOfDays, options) =>
  * @return {Date} A `Date` object `n` months after the provided `Date`
  */
 export const nMonthsAfter = (date, numberOfMonths, { utc = false } = {}) => {
-  const clone = newDate(date);
+  const clone = cloneDate(date);
 
   const cloneValue = utc
     ? clone.setUTCMonth(date.getUTCMonth() + numberOfMonths)
@@ -409,7 +440,7 @@ export const nWeeksBefore = (date, numberOfWeeks, options) =>
  * @return {Date} A `Date` object `n` years after the provided `Date`
  */
 export const nYearsAfter = (date, numberOfYears) => {
-  const clone = newDate(date);
+  const clone = cloneDate(date);
   clone.setUTCMonth(clone.getUTCMonth());
 
   // If the date we are calculating from is Feb 29, return the equivalent result for Feb 28
@@ -500,7 +531,7 @@ export const differenceInMilliseconds = (startDate, endDate = Date.now()) => {
  *
  * @return {Date} the date at the first day of the month
  */
-export const dateAtFirstDayOfMonth = (date) => new Date(newDate(date).setDate(1));
+export const dateAtFirstDayOfMonth = (date) => new Date(cloneDate(date).setDate(1));
 
 /**
  * A utility function which checks if two dates match.
@@ -511,48 +542,6 @@ export const dateAtFirstDayOfMonth = (date) => new Date(newDate(date).setDate(1)
  * @return {Boolean} true if the dates match
  */
 export const datesMatch = (date1, date2) => differenceInMilliseconds(date1, date2) === 0;
-
-/**
- * A utility function which checks if two date ranges overlap.
- *
- * @param {Object} givenPeriodLeft - the first period to compare.
- * @param {Object} givenPeriodRight - the second period to compare.
- * @returns {Object} { overlap: number of days the overlap is present, overlapStartDate: the start date of the overlap in time format, overlapEndDate: the end date of the overlap in time format }
- * @throws {Error} Uncaught Error: Invalid period
- *
- * @example
- * getOverlappingDaysInPeriods(
- *   { start: new Date(2021, 0, 11), end: new Date(2021, 0, 13) },
- *   { start: new Date(2021, 0, 11), end: new Date(2021, 0, 14) }
- * ) => { daysOverlap: 2, overlapStartDate: 1610323200000, overlapEndDate: 1610496000000 }
- *
- */
-export const getOverlappingDaysInPeriods = (givenPeriodLeft = {}, givenPeriodRight = {}) => {
-  const leftStartTime = new Date(givenPeriodLeft.start).getTime();
-  const leftEndTime = new Date(givenPeriodLeft.end).getTime();
-  const rightStartTime = new Date(givenPeriodRight.start).getTime();
-  const rightEndTime = new Date(givenPeriodRight.end).getTime();
-
-  if (!(leftStartTime <= leftEndTime && rightStartTime <= rightEndTime)) {
-    throw new Error(__('Invalid period'));
-  }
-
-  const isOverlapping = leftStartTime < rightEndTime && rightStartTime < leftEndTime;
-
-  if (!isOverlapping) {
-    return { daysOverlap: 0 };
-  }
-
-  const overlapStartDate = Math.max(leftStartTime, rightStartTime);
-  const overlapEndDate = rightEndTime > leftEndTime ? leftEndTime : rightEndTime;
-  const differenceInMs = overlapEndDate - overlapStartDate;
-
-  return {
-    daysOverlap: Math.ceil(differenceInMs / MILLISECONDS_IN_DAY),
-    overlapStartDate,
-    overlapEndDate,
-  };
-};
 
 /**
  * Mimics the behaviour of the rails distance_of_time_in_words function
@@ -599,21 +588,6 @@ export const approximateDuration = (seconds = 0) => {
     return n__('about 1 hour', 'about %d hours', seconds < ONE_HOUR_LIMIT ? 1 : hours);
   }
   return n__('1 day', '%d days', seconds < ONE_DAY_LIMIT ? 1 : days);
-};
-
-/**
- * A utility function which helps creating a date object
- * for a specific date. Accepts the year, month and day
- * returning a date object for the given params.
- *
- * @param {Int} year the full year as a number i.e. 2020
- * @param {Int} month the month index i.e. January => 0
- * @param {Int} day the day as a number i.e. 23
- *
- * @return {Date} the date object from the params
- */
-export const dateFromParams = (year, month, day) => {
-  return new Date(year, month, day);
 };
 
 /**
@@ -693,7 +667,7 @@ export const isInTimePeriod = (date, start, end) =>
  * @return {Date} Returns a clone of the date with the time set to midnight
  */
 export const removeTime = (date) => {
-  const clone = newDate(date);
+  const clone = cloneDate(date);
   clone.setHours(0, 0, 0, 0);
   return clone;
 };
@@ -710,7 +684,7 @@ export const removeTime = (date) => {
  * of the provided date
  */
 export const getStartOfDay = (date, { utc = false } = {}) => {
-  const clone = newDate(date);
+  const clone = cloneDate(date);
 
   const cloneValue = utc ? clone.setUTCHours(0, 0, 0, 0) : clone.setHours(0, 0, 0, 0);
 
@@ -782,3 +756,88 @@ export const getCurrentUtcDate = () => {
 
   return new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 };
+
+/**
+ * Returns an array of months between startDate and endDate.
+ *
+ * @returns {Array<Object>} An array of objects representing months, each containing:
+ *   - month {number} - 0-based index (0-11)
+ *   - year {number} - The year
+ *
+ * @example
+ * getMonthsBetweenDates(new Date('2024-01-01'), new Date('2024-03-05'))
+ *    returns [
+      {
+          "month": 0,
+          "year": 2024,
+      },
+      {
+          "month": 1,
+          "year": 2024,
+      },
+      {
+          "month": 2,
+          "year": 2024,
+      }
+  ]
+ */
+
+export function getMonthsBetweenDates(startDate, endDate) {
+  if (startDate > endDate) {
+    return [];
+  }
+
+  const startMonth = startDate.getMonth();
+  const startYear = startDate.getFullYear();
+  const endMonth = endDate.getMonth();
+  const endYear = endDate.getFullYear();
+
+  const count = (endYear - startYear) * 12 + (1 + endMonth - startMonth);
+
+  return Array(count)
+    .fill(1)
+    .map((_, idx) => {
+      const month = (idx + startMonth) % 12;
+      const yearOffset = Math.floor((idx + startMonth) / 12);
+
+      return {
+        month,
+        year: startYear + yearOffset,
+      };
+    });
+}
+
+export function convertNanoToMs(nano) {
+  return nano / 1e6;
+}
+
+export function convertMsToNano(ms) {
+  return ms * 1e6;
+}
+
+export const isValidDateString = (dateString) => {
+  if (typeof dateString !== 'string' || !dateString.trim()) {
+    return false;
+  }
+
+  let isoFormatted;
+  try {
+    isoFormatted = dateformat(dateString, 'isoUtcDateTime');
+  } catch (e) {
+    if (e instanceof TypeError) {
+      // not a valid date string
+      return false;
+    }
+    throw e;
+  }
+  return !Number.isNaN(Date.parse(isoFormatted));
+};
+
+/**
+ * Converts the given number of days to seconds.
+ *
+ * @param {number} days Number of days to convert
+ *
+ * @returns {number} The equivalent number of seconds
+ */
+export const daysToSeconds = (days) => SECONDS_IN_DAY * days;

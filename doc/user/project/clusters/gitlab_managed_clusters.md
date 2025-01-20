@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
-> - [Disabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/353410) in GitLab 15.0.
+> - [Disabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/353410) in GitLab 15.0.
 
 WARNING:
 This feature was [deprecated](https://gitlab.com/groups/gitlab-org/configure/-/epics/8) in GitLab 14.5.
@@ -18,7 +18,7 @@ To connect your cluster to GitLab, use the [GitLab agent](../../../user/clusters
 To manage applications, use the [Cluster Project Management Template](../../../user/clusters/management_project_template.md).
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../../administration/feature_flags.md) named `certificate_based_clusters`.
+On GitLab Self-Managed, by default this feature is not available. To make it available, an administrator can [enable the feature flag](../../../administration/feature_flags.md) named `certificate_based_clusters`.
 
 You can choose to allow GitLab to manage your cluster for you. If your cluster
 is managed by GitLab, resources for your projects are automatically created. See

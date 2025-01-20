@@ -45,6 +45,12 @@ module DiffHelper
     options
   end
 
+  def rapid_diffs?
+    return false unless defined? current_user
+
+    ::Feature.enabled?(:rapid_diffs, current_user, type: :wip)
+  end
+
   def diff_match_line(old_pos, new_pos, text: '', view: :inline, bottom: false)
     content_line_class = %w[line_content match]
     content_line_class << 'parallel' if view == :parallel
@@ -54,13 +60,28 @@ module DiffHelper
 
     html = []
 
+    expand_data = {}
+    if bottom
+      expand_data[:expand_next_line] = true
+    else
+      expand_data[:expand_prev_line] = true
+    end
+
+    if rapid_diffs?
+      expand_button = content_tag(:button, '...', class: 'gl-bg-transparent gl-border-0 gl-p-0', data: { visible_when_loading: false, **expand_data })
+      spinner = render(Pajamas::SpinnerComponent.new(size: :sm, class: 'gl-hidden gl-text-align-right', data: { visible_when_loading: true }))
+      expand_html = content_tag(:div, [expand_button, spinner].join.html_safe, data: { expand_wrapper: true })
+    else
+      expand_html = '...'
+    end
+
     if old_pos
-      html << content_tag(:td, '...', class: [*line_num_class, 'old_line'], data: { linenumber: old_pos })
+      html << content_tag(:td, expand_html, class: [*line_num_class, 'old_line'], data: { linenumber: old_pos })
       html << content_tag(:td, text, class: [*content_line_class, 'left-side']) if view == :parallel
     end
 
     if new_pos
-      html << content_tag(:td, '...', class: [*line_num_class, 'new_line'], data: { linenumber: new_pos })
+      html << content_tag(:td, expand_html, class: [*line_num_class, 'new_line'], data: { linenumber: new_pos })
       html << content_tag(:td, text, class: [*content_line_class, ('right-side' if view == :parallel)])
     end
 
@@ -201,7 +222,9 @@ module DiffHelper
   end
 
   def apply_diff_view_cookie!
-    set_secure_cookie(:diff_view, params.delete(:view), type: CookiesHelper::COOKIE_TYPE_PERMANENT) if params[:view].present?
+    return unless params[:view].present?
+
+    set_secure_cookie(:diff_view, params.delete(:view), type: CookiesHelper::COOKIE_TYPE_PERMANENT)
   end
 
   def collapsed_diff_url(diff_file)
@@ -225,9 +248,11 @@ module DiffHelper
   end
 
   def conflicts(allow_tree_conflicts: false)
-    return unless merge_request.cannot_be_merged? && merge_request.source_branch_exists? && merge_request.target_branch_exists?
+    unless merge_request.cannot_be_merged? && merge_request.source_branch_exists? && merge_request.target_branch_exists?
+      return
+    end
 
-    conflicts_service = MergeRequests::Conflicts::ListService.new(merge_request, allow_tree_conflicts: allow_tree_conflicts) # rubocop:disable CodeReuse/ServiceClass
+    conflicts_service = MergeRequests::Conflicts::ListService.new(merge_request, allow_tree_conflicts: allow_tree_conflicts)
 
     return unless allow_tree_conflicts || conflicts_service.can_be_resolved_in_ui?
 
@@ -242,10 +267,17 @@ module DiffHelper
   end
 
   def conflicts_with_types
-    return unless merge_request.cannot_be_merged? && merge_request.source_branch_exists? && merge_request.target_branch_exists?
+    unless merge_request.cannot_be_merged? && merge_request.source_branch_exists? && merge_request.target_branch_exists?
+      return
+    end
 
     cached_conflicts_with_types do
-      conflicts_service = MergeRequests::Conflicts::ListService.new(merge_request, allow_tree_conflicts: true) # rubocop:disable CodeReuse/ServiceClass
+      # We set skip_content to true since we don't really need the content to list the conflicts and their types
+      conflicts_service = MergeRequests::Conflicts::ListService.new(
+        merge_request,
+        allow_tree_conflicts: true,
+        skip_content: true
+      )
 
       {}.tap do |h|
         conflicts_service.conflicts.files.each do |file|
@@ -328,9 +360,7 @@ module DiffHelper
   end
 
   def log_overflow_limits(diff_files:, collection_overflow:)
-    if diff_files.any?(&:too_large?)
-      Gitlab::Metrics.add_event(:diffs_overflow_single_file_limits)
-    end
+    Gitlab::Metrics.add_event(:diffs_overflow_single_file_limits) if diff_files.any?(&:too_large?)
 
     Gitlab::Metrics.add_event(:diffs_overflow_collection_limits) if collection_overflow
     Gitlab::Metrics.add_event(:diffs_overflow_max_bytes_limits) if diff_files.overflow_max_bytes?

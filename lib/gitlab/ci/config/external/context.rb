@@ -61,6 +61,18 @@ module Gitlab
             end
           end
 
+          def variables_hash_expanded
+            strong_memoize(:variables_hash_expanded) do
+              variables_sorted_and_expanded.to_hash
+            end
+          end
+
+          def variables_sorted_and_expanded
+            strong_memoize(:variables_sorted_and_expanded) do
+              variables.sort_and_expand_all
+            end
+          end
+
           def mutate(attrs = {})
             self.class.new(**attrs) do |ctx|
               ctx.pipeline = pipeline

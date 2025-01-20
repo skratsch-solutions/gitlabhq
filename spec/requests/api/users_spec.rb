@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe API::Users, :aggregate_failures, feature_category: :user_management do
+RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feature_category: :user_management do
   include WorkhorseHelpers
   include KeysetPaginationHelpers
   include CryptoHelpers
@@ -12,6 +12,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
   let_it_be(:key) { create(:key, user: user) }
   let_it_be(:gpg_key) { create(:gpg_key, user: user) }
   let_it_be(:email) { create(:email, user: user) }
+  let_it_be(:organization) { create(:organization) }
 
   let(:blocked_user) { create(:user, :blocked) }
   let(:omniauth_user) { create(:omniauth_user) }
@@ -23,6 +24,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
   let(:internal_user) { create(:user, :bot) }
   let(:user_with_2fa) { create(:user, :two_factor_via_otp) }
   let(:admin_with_2fa) { create(:admin, :two_factor_via_otp) }
+  let(:user_without_pin) { create(:user) }
 
   context 'admin notes' do
     let_it_be(:admin) { create(:admin, note: '2019-10-06 | 2FA added | user requested | www.gitlab.com') }
@@ -242,7 +244,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
             expect(json_response.second['username']).to eq('a-user2')
           end
 
-          it 'preserves requested ordering with order_by and sort' do
+          it 'preserves requested ordering with order_by and sort', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/500623' do
             get api(path, user, admin_mode: true), params: { search: first_user.username, order_by: 'name', sort: 'desc' }
 
             expect(response).to have_gitlab_http_status(:ok)
@@ -506,6 +508,61 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
         expect(response).to include_pagination_headers
         expect(json_response.size).to eq(1)
         expect(json_response[0]['id']).to eq(external_user.id)
+      end
+
+      it "returns an array of human users" do
+        internal_user
+
+        get api("/users?humans=true", user)
+
+        expect(response).to match_response_schema('public_api/v4/user/basics')
+        expect(response).to include_pagination_headers
+        expect(json_response.size).to eq(2)
+        expect(json_response).to contain_exactly(
+          hash_including('id' => user.id),
+          hash_including('id' => admin.id)
+        )
+      end
+
+      it "returns an array of non human users" do
+        internal_user
+
+        get api("/users?exclude_humans=true", user)
+
+        expect(response).to match_response_schema('public_api/v4/user/basics')
+        expect(response).to include_pagination_headers
+        expect(json_response.size).to eq(1)
+        expect(json_response).to contain_exactly(
+          hash_including('id' => internal_user.id)
+        )
+      end
+
+      it "returns active users" do
+        blocked_user
+        banned_user
+
+        get api("/users?active=true", user)
+
+        expect(response).to match_response_schema('public_api/v4/user/basics')
+        expect(response).to include_pagination_headers
+        expect(json_response.size).to eq(2)
+        expect(json_response).to contain_exactly(
+          hash_including('id' => user.id),
+          hash_including('id' => admin.id)
+        )
+      end
+
+      it "returns an array of non-active users" do
+        deactivated_user
+
+        get api("/users?exclude_active=true", user)
+
+        expect(response).to match_response_schema('public_api/v4/user/basics')
+        expect(response).to include_pagination_headers
+        expect(json_response.size).to eq(1)
+        expect(json_response).to contain_exactly(
+          hash_including('id' => deactivated_user.id)
+        )
       end
 
       it "returns one user" do
@@ -890,7 +947,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
       let(:job_title) { 'Fullstack Engineer' }
 
       before do
-        create(:user_detail, user: user, job_title: job_title)
+        user.update!(job_title: job_title)
       end
 
       it 'returns job title of a user' do
@@ -1226,13 +1283,8 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
     end
   end
 
-  describe "POST /users" do
-    let_it_be(:current_organization) { create(:organization) }
+  describe "POST /users", :with_current_organization do
     let(:path) { '/users' }
-
-    before do
-      allow(Current).to receive(:organization).and_return(current_organization)
-    end
 
     it_behaves_like 'POST request permissions for admin mode' do
       let(:params) { attributes_for(:user, projects_limit: 3) }
@@ -1506,6 +1558,34 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
         expect(response).to have_gitlab_http_status(:created)
         expect(json_response['identities'].first['extern_uid']).to eq('67890')
         expect(json_response['identities'].first['provider']).to eq('github')
+      end
+    end
+
+    context 'with existing pages unique domain' do
+      let_it_be(:project) { create(:project) }
+
+      before do
+        stub_pages_setting(enabled: true)
+
+        create(
+          :project_setting,
+          project: project,
+          pages_unique_domain_enabled: true,
+          pages_unique_domain: 'unique-domain')
+      end
+
+      it 'returns 400 bad request error if same username is already used by pages unique domain' do
+        expect do
+          post api(path, admin, admin_mode: true),
+            params: {
+              name: 'foo',
+              email: 'foo@example.com',
+              password: User.random_password,
+              username: 'unique-domain'
+            }
+        end.to change { User.count }.by(0)
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).to eq({ "username" => ["has already been taken"] })
       end
     end
 
@@ -1795,6 +1875,26 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['username']).to eq(user.username)
       expect(user.reload.username).to eq(user.username)
+    end
+
+    context 'with existing pages unique domain' do
+      let_it_be(:project) { create(:project) }
+
+      before do
+        stub_pages_setting(enabled: true)
+
+        create(
+          :project_setting,
+          project: project,
+          pages_unique_domain_enabled: true,
+          pages_unique_domain: 'unique-domain')
+      end
+
+      it 'returns 400 bad request error if same username is already used by pages unique domain' do
+        put api(path, admin, admin_mode: true), params: { username: 'unique-domain' }
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).to eq({ "username" => ["has already been taken"] })
+      end
     end
 
     it "updates user's existing identity" do
@@ -2149,6 +2249,35 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
 
         expect(response).to have_gitlab_http_status(:not_found)
         expect(json_response['message']).to eq('404 User Not Found')
+      end
+
+      context 'when the credit card daily verification limit has been exceeded' do
+        before do
+          stub_const("Users::CreditCardValidation::DAILY_VERIFICATION_LIMIT", 1)
+          create(:credit_card_validation, stripe_card_fingerprint: stripe_card_fingerprint)
+        end
+
+        it "returns a 400 error with the reason" do
+          put api(path, admin, admin_mode: true), params: params
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['message']).to eq('Credit card verification limit exceeded')
+        end
+      end
+
+      context 'when UpsertCreditCardValidationService returns an unexpected error' do
+        before do
+          allow_next_instance_of(::Users::UpsertCreditCardValidationService) do |instance|
+            allow(instance).to receive(:execute).and_return(ServiceResponse.error(message: 'upsert failed'))
+          end
+        end
+
+        it "returns a generic 400 error" do
+          put api(path, admin, admin_mode: true), params: params
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['message']).to eq('400 Bad request')
+        end
       end
     end
   end
@@ -4771,12 +4900,13 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
     end
   end
 
-  describe 'POST /users/:user_id/personal_access_tokens' do
+  describe 'POST /users/:user_id/personal_access_tokens', :with_current_organization do
     let(:name) { 'new pat' }
+    let(:description) { 'new pat description' }
     let(:expires_at) { 3.days.from_now.to_date.to_s }
     let(:scopes) { %w[api read_user] }
     let(:path) { "/users/#{user.id}/personal_access_tokens" }
-    let(:params) { { name: name, scopes: scopes, expires_at: expires_at } }
+    let(:params) { { name: name, scopes: scopes, expires_at: expires_at, description: description } }
 
     it_behaves_like 'POST request permissions for admin mode'
 
@@ -4813,6 +4943,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
 
       expect(response).to have_gitlab_http_status(:created)
       expect(json_response['name']).to eq(name)
+      expect(json_response['description']).to eq(description)
       expect(json_response['scopes']).to eq(scopes)
       expect(json_response['expires_at']).to eq(expires_at)
       expect(json_response['id']).to be_present
@@ -4844,13 +4975,14 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
     end
   end
 
-  describe 'POST /user/personal_access_tokens' do
+  describe 'POST /user/personal_access_tokens', :with_current_organization do
     using RSpec::Parameterized::TableSyntax
 
     let(:name) { 'new pat' }
+    let(:description) { 'new pat description' }
     let(:scopes) { %w[k8s_proxy] }
     let(:path) { "/user/personal_access_tokens" }
-    let(:params) { { name: name, scopes: scopes } }
+    let(:params) { { name: name, scopes: scopes, description: description } }
 
     let(:all_scopes) do
       ::Gitlab::Auth::API_SCOPES + ::Gitlab::Auth::AI_FEATURES_SCOPES + ::Gitlab::Auth::OPENID_SCOPES +
@@ -4917,6 +5049,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
 
       expect(response).to have_gitlab_http_status(:created)
       expect(json_response['name']).to eq(name)
+      expect(json_response['description']).to eq(description)
       expect(json_response['scopes']).to eq(scopes)
       expect(json_response['expires_at']).to eq(1.day.from_now.to_date.to_s)
       expect(json_response['id']).to be_present
@@ -4927,7 +5060,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
     end
 
     context 'when expires_at at is given' do
-      let(:params) { { name: name, scopes: scopes, expires_at: expires_at } }
+      let(:params) { { name: name, scopes: scopes, expires_at: expires_at, description: description } }
 
       context 'when expires_at is in the past' do
         let(:expires_at) { 1.day.ago }
@@ -4948,6 +5081,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
 
           expect(response).to have_gitlab_http_status(:created)
           expect(json_response['name']).to eq(name)
+          expect(json_response['description']).to eq(description)
           expect(json_response['scopes']).to eq(scopes)
           expect(json_response['expires_at']).to eq(1.month.from_now.to_date.to_s)
           expect(json_response['id']).to be_present
@@ -5034,13 +5168,14 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
     end
   end
 
-  describe 'POST /users/:user_id/impersonation_tokens' do
+  describe 'POST /users/:user_id/impersonation_tokens', :with_current_organization do
     let(:name) { 'my new pat' }
+    let(:description) { 'my new pat description' }
     let(:expires_at) { '2016-12-28' }
     let(:scopes) { %w[api read_user] }
     let(:impersonation) { true }
     let(:path) { "/users/#{user.id}/impersonation_tokens" }
-    let(:params) { { name: name, expires_at: expires_at, scopes: scopes, impersonation: impersonation } }
+    let(:params) { { name: name, expires_at: expires_at, scopes: scopes, impersonation: impersonation, description: description } }
 
     it_behaves_like 'POST request permissions for admin mode'
 
@@ -5078,6 +5213,7 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
 
       expect(response).to have_gitlab_http_status(:created)
       expect(json_response['name']).to eq(name)
+      expect(json_response['description']).to eq(description)
       expect(json_response['scopes']).to eq(scopes)
       expect(json_response['expires_at']).to eq(expires_at)
       expect(json_response['id']).to be_present
@@ -5255,5 +5391,84 @@ RSpec.describe API::Users, :aggregate_failures, feature_category: :user_manageme
   it_behaves_like 'custom attributes endpoints', 'users' do
     let(:attributable) { user }
     let(:other_attributable) { admin }
+  end
+
+  describe 'POST /api/v4/user/support_pin' do
+    context 'when authenticated' do
+      it 'creates a new support PIN' do
+        post api('/user/support_pin', user)
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response).to include('pin', 'expires_at')
+      end
+
+      it "handles errors when creating a support PIN" do
+        allow_next_instance_of(Users::SupportPin::UpdateService) do |instance|
+          allow(instance).to receive(:execute).and_return({ status: :error, message: "Failed to create support PIN" })
+        end
+        post api("/user/support_pin", user)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response["error"]).to eq("Failed to create support PIN")
+      end
+    end
+
+    context 'when not authenticated' do
+      it 'returns 401 Unauthorized' do
+        post api('/user/support_pin')
+
+        expect(response).to have_gitlab_http_status(:unauthorized)
+      end
+    end
+  end
+
+  describe 'GET /api/v4/user/support_pin' do
+    context 'when authenticated' do
+      it 'retrieves the current support PIN' do
+        get api('/user/support_pin', user)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to include('pin', 'expires_at')
+      end
+
+      it 'returns 404 Not Found when no PIN exists' do
+        get api('/user/support_pin', user_without_pin)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'GET /api/v4/users/:id/support_pin' do
+    context 'when authenticated as admin' do
+      it 'retrieves the support PIN for a user' do
+        get api("/users/#{user.id}/support_pin", admin, admin_mode: true)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to include('pin', 'expires_at')
+      end
+
+      it 'returns 404 Not Found when no PIN exists' do
+        get api("/users/#{user_without_pin.id}/support_pin", admin, admin_mode: true)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+
+      it "handles errors when retrieving the support PIN" do
+        allow_next_instance_of(Users::SupportPin::RetrieveService) do |instance|
+          allow(instance).to receive(:execute).and_raise(StandardError)
+        end
+        get api("/users/#{user.id}/support_pin", admin, admin_mode: true)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response["error"]).to eq("Error retrieving Support PIN for user.")
+      end
+    end
+
+    context 'when authenticated as non-admin' do
+      it 'returns 403 Forbidden' do
+        get api("/users/#{user.id}/support_pin", user)
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
   end
 end

@@ -10,7 +10,7 @@ export default {
   props: {
     // Search
     namespace: {
-      type: String,
+      type: [Number, String],
       required: true,
     },
     searchInputPlaceholder: {
@@ -67,7 +67,7 @@ export default {
     :search-input-placeholder="searchInputPlaceholder"
     :sort-options="sortOptions"
     :initial-sort-by="initialSortBy"
-    class="gl-flex-grow-1"
+    class="gl-grow"
     @onFilter="onFilter"
     @onSort="onSort"
   />

@@ -8,10 +8,12 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In GitLab, the `/gitignores` endpoint returns a list of Git `.gitignore` templates. For more information,
 see the [Git documentation for `.gitignore`](https://git-scm.com/docs/gitignore).
+
+Users with the Guest role can't access the .gitignore templates. For more information, see [Project and group visibility](../../user/public_access.md).
 
 ## Get all `.gitignore` templates
 
@@ -122,9 +124,9 @@ Get a single `.gitignore` template:
 GET /templates/gitignores/:key
 ```
 
-| Attribute  | Type   | Required | Description                          |
-| ---------- | ------ | -------- | ------------------------------------ |
-| `key`      | string | yes      | The key of the `.gitignore` template |
+| Attribute | Type   | Required | Description |
+|-----------|--------|----------|-------------|
+| `key`     | string | yes      | The key of the `.gitignore` template |
 
 Example request:
 

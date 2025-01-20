@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-<!-- vale gitlab.FutureTense = NO -->
+<!-- vale gitlab_base.FutureTense = NO -->
 
 Idea management refers to the collection, organization, evaluation, and implementation of ideas
 within an organization or community.
@@ -80,7 +80,7 @@ handbook published with [GitLab Pages](../../user/project/pages/index.md).
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Next, you'll create labels to add to ideas to represent the status workflow.
 

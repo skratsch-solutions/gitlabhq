@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Below you can find some basic information on why GitLab provides packages and
 a Docker image that come with bundled dependencies.
@@ -104,7 +104,7 @@ might be a better fit when the application has a number of moving parts.
 
 ## Docker image with multiple services
 
-[GitLab Docker image](../../install/docker.md) is based on the Linux package.
+[GitLab Docker image](../../install/docker/index.md) is based on the Linux package.
 
 Considering that container spawned from this image contains multiple processes,
 these types of containers are also referred to as 'fat containers'.

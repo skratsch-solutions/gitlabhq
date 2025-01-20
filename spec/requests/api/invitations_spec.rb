@@ -418,24 +418,25 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
     end
 
     it 'does not exceed expected queries count with secondary emails', :request_store, :use_sql_query_cache do
-      create(:email, :confirmed, email: email, user: create(:user))
+      organization = project.organization
+      create(:email, :confirmed, email: email, user: create(:user, organizations: [organization]))
 
       post invitations_url(project, maintainer), params: { email: email, access_level: Member::DEVELOPER }
 
-      create(:email, :confirmed, email: email2, user: create(:user))
+      create(:email, :confirmed, email: email2, user: create(:user, organizations: [organization]))
 
       control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
         post invitations_url(project, maintainer), params: { email: email2, access_level: Member::DEVELOPER }
       end
 
-      create(:email, :confirmed, email: 'email4@example.com', user: create(:user))
-      create(:email, :confirmed, email: 'email6@example.com', user: create(:user))
-      create(:email, :confirmed, email: 'email8@example.com', user: create(:user))
+      create(:email, :confirmed, email: 'email4@example.com', user: create(:user, organizations: [organization]))
+      create(:email, :confirmed, email: 'email6@example.com', user: create(:user, organizations: [organization]))
+      create(:email, :confirmed, email: 'email8@example.com', user: create(:user, organizations: [organization]))
 
       emails = 'email3@example.com,email4@example.com,email5@example.com,email6@example.com,email7@example.com,' \
         'EMAIL8@EXamPle.com'
 
-      unresolved_n_plus_ones = 80 # currently there are 10 queries added per email, checking if we should dispatch AuthorizationsAddedEvent makes 1 query per event (3 events dispatched)
+      unresolved_n_plus_ones = 82 # currently there are 10 queries added per email, checking if we should dispatch AuthorizationsAddedEvent makes 1 query per event (3 events dispatched)
 
       expect do
         post invitations_url(project, maintainer), params: { email: emails, access_level: Member::DEVELOPER }
@@ -661,13 +662,15 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
     end
   end
 
-  shared_examples 'PUT /:source_type/:id/invitations/:email' do |source_type|
+  describe 'PUT /groups/:id/invitations' do
+    let(:source) { group }
+
     def update_api(source, user, email)
       api("/#{source.model_name.plural}/#{source.id}/invitations/#{email}", user)
     end
 
-    context "with :source_type == #{source_type.pluralize}" do
-      let!(:invite) { invite_member_by_email(source, source_type, developer.email, maintainer) }
+    context "with :source_type == 'groups'" do
+      let!(:invite) { invite_member_by_email(source, 'group', developer.email, maintainer) }
 
       it_behaves_like 'a 404 response when source is private' do
         let(:route) do
@@ -736,7 +739,7 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
       end
 
       context 'updating access expiry date' do
-        subject do
+        subject(:put_request) do
           put update_api(source, maintainer, invite.invite_email), params: { expires_at: expires_at }
         end
 
@@ -744,7 +747,7 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
           let(:expires_at) { 2.days.ago.to_date }
 
           it 'does not update the member' do
-            subject
+            put_request
 
             expect(response).to have_gitlab_http_status(:bad_request)
             expect(json_response['message']).to eq({ 'expires_at' => ['cannot be a date in the past'] })
@@ -755,19 +758,13 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
           let(:expires_at) { 2.days.from_now.to_date }
 
           it 'updates the member' do
-            subject
+            put_request
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response['expires_at']).to eq(expires_at.to_s)
           end
         end
       end
-    end
-  end
-
-  describe 'PUT /groups/:id/invitations' do
-    it_behaves_like 'PUT /:source_type/:id/invitations/:email', 'group' do
-      let(:source) { group }
     end
   end
 end

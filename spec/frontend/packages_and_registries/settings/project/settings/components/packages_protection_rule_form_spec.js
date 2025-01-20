@@ -20,6 +20,9 @@ describe('Packages Protection Rule Form', () => {
 
   const defaultProvidedValues = {
     projectPath: 'path',
+    glFeatures: {
+      packagesProtectedPackagesConan: true,
+    },
   };
 
   const findPackageNamePatternInput = () =>
@@ -27,7 +30,7 @@ describe('Packages Protection Rule Form', () => {
   const findPackageTypeSelect = () => wrapper.findByRole('combobox', { name: /type/i });
   const findMinimumAccessLevelForPushSelect = () =>
     wrapper.findByRole('combobox', { name: /minimum access level for push/i });
-  const findSubmitButton = () => wrapper.findByRole('button', { name: /add rule/i });
+  const findSubmitButton = () => wrapper.findByTestId('add-rule-btn');
   const findForm = () => wrapper.findComponent(GlForm);
 
   const mountComponent = ({ data, config, provide = defaultProvidedValues } = {}) => {
@@ -55,14 +58,33 @@ describe('Packages Protection Rule Form', () => {
 
   describe('form fields', () => {
     describe('form field "packageType"', () => {
-      it('contains only the options for npm', () => {
+      const packageTypeSelectOptions = () =>
+        findPackageTypeSelect()
+          .findAll('option')
+          .wrappers.map((option) => option.element.value);
+
+      it('contains available options', () => {
         mountComponent();
 
         expect(findPackageTypeSelect().exists()).toBe(true);
-        const packageTypeSelectOptions = findPackageTypeSelect()
-          .findAll('option')
-          .wrappers.map((option) => option.element.value);
-        expect(packageTypeSelectOptions).toEqual(['NPM']);
+        expect(packageTypeSelectOptions()).toEqual(['CONAN', 'NPM', 'PYPI']);
+      });
+
+      describe('when feature flag packagesProtectedPackagesConan is disabled', () => {
+        it('contains available options without option "CONAN"', () => {
+          mountComponent({
+            provide: {
+              ...defaultProvidedValues,
+              glFeatures: {
+                ...defaultProvidedValues.glFeatures,
+                packagesProtectedPackagesConan: false,
+              },
+            },
+          });
+
+          expect(findPackageTypeSelect().exists()).toBe(true);
+          expect(packageTypeSelectOptions()).toEqual(['NPM', 'PYPI']);
+        });
       });
     });
 

@@ -8,9 +8,10 @@ module Banzai
           Filter::BlockquoteFenceLegacyFilter,
           Filter::MarkdownFilter,
           Filter::BroadcastMessageSanitizationFilter,
+          Filter::SanitizeLinkFilter,
           Filter::EmojiFilter,
           Filter::ColorFilter,
-          Filter::AutolinkLegacyFilter,
+          Filter::AutolinkFilter,
           Filter::ExternalLinkFilter
         ]
       end

@@ -7,7 +7,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 # GitLab Mattermost
 
 DETAILS:
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can run a [GitLab Mattermost](https://gitlab.com/gitlab-org/gitlab-mattermost)
 service on your GitLab server. Mattermost is not part of the single application that GitLab is. There is a good integration between [Mattermost and GitLab](https://mattermost.com/solutions/mattermost-gitlab/), and our Linux package allows you to install it. **However, Mattermost is a separate application from a separate company.** GitLab Support cannot help you with Mattermost-specific questions beyond the integration with GitLab. If you need help with Mattermost itself, see the [community support resources](#community-support-resources).
@@ -362,6 +362,11 @@ Below is a list of Mattermost version changes for GitLab 15.0 and later:
 
 | GitLab version | Mattermost version | Notes                                                                                    |
 | :------------- | :----------------- | ---------------------------------------------------------------------------------------- |
+| 17.7           | 10.2               |                                                                                          |
+| 17.6           | 10.1               |                                                                                          |
+| 17.5           | 10.0               |                                                                                          |
+| 17.4           | 9.11               |                                                                                          |
+| 17.3           | 9.10               |                                                                                          |
 | 17.2           | 9.9                |                                                                                          |
 | 17.1           | 9.8                |                                                                                          |
 | 17.0           | 9.7                |                                                                                          |

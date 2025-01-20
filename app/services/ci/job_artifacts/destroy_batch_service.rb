@@ -24,7 +24,6 @@ module Ci
         @destroyed_ids = []
       end
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def execute(update_stats: true)
         if @skip_projects_on_refresh
           exclude_artifacts_undergoing_stats_refresh
@@ -60,7 +59,6 @@ module Ci
           statistics_updates: statistics_updates_per_project
         )
       end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       private
 
@@ -89,6 +87,8 @@ module Ci
           result = Hash.new { |updates, project| updates[project] = [] }
 
           @job_artifacts.each_with_object(result) do |job_artifact, result|
+            next unless job_artifact.project
+
             increment = Gitlab::Counters::Increment.new(amount: -job_artifact.size.to_i, ref: job_artifact.id)
             result[job_artifact.project] << increment
           end
@@ -118,7 +118,7 @@ module Ci
 
       def track_artifacts_undergoing_stats_refresh
         project_ids = @job_artifacts.find_all do |artifact|
-          artifact.project.refreshing_build_artifacts_size?
+          artifact.project&.refreshing_build_artifacts_size?
         end.map(&:project_id).uniq
 
         project_ids.each do |project_id|
@@ -133,7 +133,7 @@ module Ci
         project_ids = Set.new
 
         @job_artifacts.reject! do |artifact|
-          next unless artifact.project.refreshing_build_artifacts_size?
+          next unless artifact.project&.refreshing_build_artifacts_size?
 
           project_ids << artifact.project_id
         end

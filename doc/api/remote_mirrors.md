@@ -8,10 +8,10 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Push mirrors](../user/project/repository/mirror/push.md)
-defined on a project's repository settings are called "remote mirrors". You
+defined on a project's repository settings are called remote mirrors. You
 can query and modify the state of these mirrors with the remote mirror API.
 
 For security reasons, the `url` attribute in the API response is always scrubbed of username
@@ -19,7 +19,7 @@ and password information.
 
 NOTE:
 [Pull mirrors](../user/project/repository/mirror/pull.md) use
-[a different API endpoint](projects.md#configure-pull-mirroring-for-a-project) to
+[a different API endpoint](project_pull_mirroring.md#configure-pull-mirroring-for-a-project) to
 display and update them.
 
 ## List a project's remote mirrors
@@ -89,7 +89,8 @@ Example response:
 
 ## Create a pull mirror
 
-Learn how to [configure a pull mirror](projects.md#configure-pull-mirroring-for-a-project) using the Projects API.
+Learn how to [configure a pull mirror](project_pull_mirroring.md#configure-pull-mirroring-for-a-project) by using the
+project pull mirroring API.
 
 ## Create a push mirror
 
@@ -197,10 +198,10 @@ Supported attributes:
 
 | Attribute   | Type              | Required | Description                                                                          |
 |-------------|-------------------|----------|--------------------------------------------------------------------------------------|
-| `id`        | integer or string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`        | integer or string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `mirror_id` | Integer           | Yes      | The remote mirror ID.                                                                |
 
-If successful, returns [`204`](rest/index.md#status-codes).
+If successful, returns [`204`](rest/troubleshooting.md#status-codes).
 
 Example request:
 

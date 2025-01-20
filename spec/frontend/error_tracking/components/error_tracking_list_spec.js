@@ -12,14 +12,12 @@ import Vue, { nextTick } from 'vue';
 // eslint-disable-next-line no-restricted-imports
 import Vuex from 'vuex';
 import stubChildren from 'helpers/stub_children';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import ErrorTrackingActions from '~/error_tracking/components/error_tracking_actions.vue';
 import ErrorTrackingList from '~/error_tracking/components/error_tracking_list.vue';
 import TimelineChart from '~/error_tracking/components/timeline_chart.vue';
-import Tracking from '~/tracking';
 import { extendedWrapper } from 'helpers/vue_test_utils_helper';
 import errorsList from './list_mock.json';
-
-jest.mock('~/tracking');
 
 Vue.use(Vuex);
 
@@ -420,7 +418,7 @@ describe('ErrorTrackingList', () => {
       expect(emptyStateComponent.isVisible()).toBe(true);
       expect(emptyStatePrimaryDescription.exists()).toBe(true);
       expect(emptyStateLinks.at(0).attributes('href')).toBe(
-        '/help/operations/error_tracking.html#integrated-error-tracking',
+        '/help/operations/integrated_error_tracking',
       );
     });
   });
@@ -445,7 +443,7 @@ describe('ErrorTrackingList', () => {
       store.state.list.recentSearches = ['great', 'search'];
 
       await nextTick();
-      const dropdownItems = wrapper.findAll('.filtered-search-box li');
+      const dropdownItems = wrapper.findAll('[data-testid="recent-searches-dropdown"] li');
       expect(dropdownItems.length).toBe(3);
       expect(dropdownItems.at(0).text()).toBe('great');
       expect(dropdownItems.at(1).text()).toBe('search');
@@ -532,7 +530,9 @@ describe('ErrorTrackingList', () => {
         });
 
         it('fetches the previous page of results', () => {
-          expect(wrapper.find('.prev-page-item').attributes('aria-disabled')).toBe(undefined);
+          expect(
+            wrapper.find('[data-testid="gl-pagination-prev"]').attributes('aria-disabled'),
+          ).toBe(undefined);
           findPagination().vm.$emit('input', currentPage - 1);
           expect(actions.fetchPaginatedResults).toHaveBeenCalled();
           expect(actions.fetchPaginatedResults).toHaveBeenLastCalledWith(
@@ -570,6 +570,7 @@ describe('ErrorTrackingList', () => {
 
     describe.each([true, false])(`when integratedErrorTracking is %s`, (integrated) => {
       const category = 'Error Tracking';
+      const { bindInternalEventDocument } = useMockInternalEventsTracking();
 
       beforeEach(() => {
         mountComponent({
@@ -582,14 +583,20 @@ describe('ErrorTrackingList', () => {
       });
 
       it('should track list views', () => {
-        expect(Tracking.event).toHaveBeenCalledWith(category, 'view_errors_list', {
-          extra: {
+        const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'view_errors_list',
+          {
             variant: integrated ? 'integrated' : 'external',
           },
-        });
+          category,
+        );
       });
 
       it('should track status updates', async () => {
+        const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+
         const status = 'ignored';
         findErrorActions().vm.$emit('update-issue-status', {
           errorId: 1,
@@ -597,33 +604,42 @@ describe('ErrorTrackingList', () => {
         });
         await nextTick();
 
-        expect(Tracking.event).toHaveBeenCalledWith(category, 'update_ignored_status', {
-          extra: {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'update_ignored_status',
+          {
             variant: integrated ? 'integrated' : 'external',
           },
-        });
+          category,
+        );
       });
 
       it('should track error filter', () => {
+        const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+
         const findStatusFilter = () => findStatusFilterDropdown().findComponent(GlDropdownItem);
         findStatusFilter().vm.$emit('click');
 
-        expect(Tracking.event).toHaveBeenCalledWith(category, 'filter_unresolved_status', {
-          extra: {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'filter_unresolved_status',
+          {
             variant: integrated ? 'integrated' : 'external',
           },
-        });
+          category,
+        );
       });
 
       it('should track error sorting', () => {
+        const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
         const findSortItem = () => findSortDropdown().findComponent(GlDropdownItem);
         findSortItem().vm.$emit('click');
 
-        expect(Tracking.event).toHaveBeenCalledWith(category, 'sort_by_last_seen', {
-          extra: {
+        expect(trackEventSpy).toHaveBeenCalledWith(
+          'sort_by_last_seen',
+          {
             variant: integrated ? 'integrated' : 'external',
           },
-        });
+          category,
+        );
       });
     });
   });

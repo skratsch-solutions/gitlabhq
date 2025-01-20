@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe Admin::UsersController, feature_category: :user_management do
+RSpec.describe Admin::UsersController, :with_current_organization, feature_category: :user_management do
   let(:user) { create(:user) }
 
-  let_it_be(:admin) { create(:admin) }
+  let_it_be_with_reload(:admin) { create(:admin, organizations: [current_organization]) }
 
   before do
     sign_in(admin)
@@ -562,13 +562,13 @@ RSpec.describe Admin::UsersController, feature_category: :user_management do
     end
 
     context 'when the confirmation period has expired' do
-      let(:confirmation_sent_at) {  expired_confirmation_sent_at }
+      let(:confirmation_sent_at) { expired_confirmation_sent_at }
 
       it_behaves_like 'confirms the user'
     end
 
     context 'when the confirmation period has not expired' do
-      let(:confirmation_sent_at) {  extant_confirmation_sent_at }
+      let(:confirmation_sent_at) { extant_confirmation_sent_at }
 
       it_behaves_like 'confirms the user'
     end
@@ -617,41 +617,184 @@ RSpec.describe Admin::UsersController, feature_category: :user_management do
   end
 
   describe 'POST create' do
+    let_it_be(:user_params) { attributes_for(:user) }
+
     it 'creates the user' do
-      expect { post :create, params: { user: attributes_for(:user) } }.to change { User.count }.by(1)
+      expect { post :create, params: { user: user_params } }.to change { User.count }.by(1)
     end
 
     it 'shows only one error message for an invalid email' do
-      post :create, params: { user: attributes_for(:user, email: 'bogus') }
+      post :create, params: { user: user_params.merge(email: 'bogus') }
 
       errors = assigns[:user].errors
       expect(errors).to contain_exactly(errors.full_message(:email, I18n.t('errors.messages.invalid')))
     end
 
+    it 'creates user with namespace in the Current.organization', :aggregate_failures do
+      post :create, params: { user: user_params }
+
+      created_user = User.find_by(email: user_params[:email])
+
+      expect(created_user.namespace.organization).to eq(Current.organization)
+      expect(created_user.organizations).to contain_exactly(Current.organization)
+    end
+
+    [%w[admin owner], %w[user default]].each do |user_access_level, organization_access_level|
+      context "when access level is #{user_access_level}" do
+        it "creates organization user with #{organization_access_level} access" do
+          post :create, params: { user: user_params.merge(access_level: user_access_level) }
+
+          access_level = Organizations::OrganizationUser
+           .joins(:user)
+           .where(users: { email: user_params[:email] })
+           .where(organization_id: Current.organization.id)
+           .pick(:access_level)
+
+          expect(access_level).to eq(organization_access_level)
+        end
+      end
+    end
+
+    context 'when organization params is provided' do
+      let(:organization) { create(:organization) }
+      let(:organization_params) { { organization_id: organization.id, organization_access_level: 'owner' } }
+
+      it 'creates user record and namespace in the organization', :aggregate_failures do
+        post :create, params: { user: user_params.merge(organization_params) }
+
+        created_user = User.find_by(email: user_params[:email])
+
+        expect(created_user.namespace.organization).to eq(organization)
+        expect(created_user.organizations).to include(organization)
+      end
+
+      context 'when organization param is invalid' do
+        subject(:request) { post :create, params: { user: user_params.merge({ organization_id: non_existing_record_id }) } }
+
+        it 'does not create user' do
+          expect { request }.not_to change { User.count }
+        end
+
+        it 'returns organization error' do
+          request
+
+          errors = assigns[:user].errors
+          expect(errors).to contain_exactly(_("Namespace organization can't be blank"), _('Organization users organization must exist'))
+        end
+      end
+    end
+
     context 'admin notes' do
       it 'creates the user with note' do
         note = '2020-05-12 | Note | DCMA | Link'
-        user_params = attributes_for(:user, note: note)
+        params = { user: user_params.merge(note: note) }
 
-        expect { post :create, params: { user: user_params } }.to change { User.count }.by(1)
+        expect { post :create, params: params }.to change { User.count }.by(1)
 
         new_user = User.last
         expect(new_user.note).to eq(note)
       end
     end
-
-    context 'when Current.organization is set', :with_current_organization do
-      let(:user_params) { attributes_for(:user) }
-
-      it 'creates user with namespace set to Current.organization' do
-        post :create, params: { user: user_params }
-
-        expect(User.find_by(email: user_params[:email]).namespace.organization).to eq(Current.organization)
-      end
-    end
   end
 
   describe 'POST update' do
+    let_it_be(:organization) { create(:organization, organization_users: create_list(:organization_owner, 3)) }
+    let_it_be(:organization_user) { organization.organization_users.first }
+    let_it_be(:current_user) { organization_user.user }
+
+    Organizations::OrganizationUser.access_levels.each_key do |organization_access_level|
+      context "when organization_access_level param is #{organization_access_level}" do
+        it "updates organization user access level to #{organization_access_level}" do
+          post :update, params: {
+            id: current_user.to_param,
+            user: {
+              organization_users_attributes: [{
+                id: organization_user.id,
+                organization_id: organization_user.organization_id,
+                access_level: organization_access_level
+              }]
+            }
+          }
+
+          expect(organization_user.reload.access_level).to eq(organization_access_level)
+        end
+      end
+    end
+
+    context 'when target user does not belong to the organization' do
+      let_it_be(:new_user) { create(:user) }
+
+      it 'adds user to the organization' do
+        post :update, params: {
+          id: new_user.to_param,
+          user: { organization_users_attributes: [{ organization_id: organization.id }] }
+        }
+
+        expect(organization.user?(new_user)).to eq(true)
+      end
+    end
+
+    context 'when organization parameters is invalid' do
+      let_it_be(:params) do
+        {
+          id: current_user.to_param,
+          user: { organization_users_attributes: [{ organization_id: non_existing_record_id }] }
+        }
+      end
+
+      it 'returns error message' do
+        post :update, params: params
+
+        expect(assigns[:user].errors).to contain_exactly(_('Organization users organization must exist'))
+      end
+
+      context 'when format is json' do
+        it 'returns json with error message', :aggregate_failures do
+          post :update, params: params, format: :json
+
+          expect(response).to have_gitlab_http_status(:internal_server_error)
+          expect(json_response).to contain_exactly(_('Organization users organization must exist'))
+        end
+      end
+    end
+
+    context 'when organization_users param count exceeds limit' do
+      before do
+        stub_const("#{described_class}::ORGANIZATION_USERS_LIMIT", 1)
+      end
+
+      let_it_be(:organization_users_attributes) do
+        create_list(:organization_user, Users::UpdateService::ORGANIZATION_USERS_LIMIT + 1, user: current_user)
+          .map { |o| o.slice(:id) }
+      end
+
+      let_it_be(:error_message) do
+        format(
+          _('Cannot update more than %{limit} organization data at once'),
+          limit: Users::UpdateService::ORGANIZATION_USERS_LIMIT
+        )
+      end
+
+      let_it_be(:params) do
+        { id: current_user.to_param, user: { organization_users_attributes: organization_users_attributes } }
+      end
+
+      it 'returns error message' do
+        post :update, params: params
+
+        expect(assigns[:user].errors).to contain_exactly(error_message)
+      end
+
+      context 'when format is json' do
+        it 'returns json with error message', :aggregate_failures do
+          post :update, params: params, format: :json
+
+          expect(response).to have_gitlab_http_status(:internal_server_error)
+          expect(json_response).to contain_exactly(error_message)
+        end
+      end
+    end
+
     context 'when the password has changed' do
       def update_password(user, password = User.random_password, password_confirmation = password, format = :html)
         params = {

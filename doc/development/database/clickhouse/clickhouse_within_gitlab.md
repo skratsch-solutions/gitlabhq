@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: none
+group: unassigned
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -15,10 +15,10 @@ Most of the tooling and APIs are considered unstable.
 
 ### Setup ClickHouse server
 
-1. Install ClickHouse locally as described in [ClickHouse installation documentation](https://clickhouse.com/docs/en/install). If you use QuickInstall it will be installed in current directory, if you use homebrew it will be installed to `/opt/homebrew/bin/clickhouse`
+1. Install ClickHouse locally as described in [ClickHouse installation documentation](https://clickhouse.com/docs/en/install). If you use QuickInstall it will be installed in current directory, if you use Homebrew it will be installed to `/opt/homebrew/bin/clickhouse`
 1. Enable experimental services with `gdk config set gdk.experimental.ruby_services true`
-1. Add clickhouse section to your `gdk.yml`. See [`gdk.example.yml`](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/gdk.example.yml)
-1. Adjust `gdk.yml` clickhouse config to point to your local clickhouse installation and local data storage. E.g.
+1. Add ClickHouse section to your `gdk.yml`. See [`gdk.example.yml`](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/gdk.example.yml)
+1. Adjust the `gdk.yml` ClickHouse configuration file to point to your local ClickHouse installation and local data storage. E.g.
 
    ```yaml
    clickhouse:
@@ -31,15 +31,14 @@ Most of the tooling and APIs are considered unstable.
    ```
 
 1. Run `gdk reconfigure`
-1. Start clickhouse with `gdk start clickhouse`
+1. Start ClickHouse with `gdk start clickhouse`
 
 ### Configure your Rails application
 
 1. Copy the example file and configure the credentials:
 
    ```shell
-   cp config/click_house.yml.example
-   config/click_house.yml
+   cp config/click_house.yml.example config/click_house.yml
    ```
 
 1. Create the database using the `clickhouse-client` CLI tool:
@@ -50,6 +49,7 @@ Most of the tooling and APIs are considered unstable.
 
    ```sql
    create database gitlab_clickhouse_development;
+   create database gitlab_clickhouse_test;
    ```
 
 ### Validate your setup

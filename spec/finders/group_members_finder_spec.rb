@@ -111,19 +111,6 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
           expect(result.to_a).to match_array(expected_members)
         end
       end
-
-      context 'when webui_members_inherited_users feature flag is disabled' do
-        before do
-          stub_feature_flags(webui_members_inherited_users: false)
-        end
-
-        it 'does not return private invited group members' do
-          result = described_class.new(groups[subject_group], user6).execute(include_relations: subject_relations)
-
-          expected_members = visible_members.map { |name| members[name] }
-          expect(result.to_a).to match_array(expected_members)
-        end
-      end
     end
 
     it 'returns the correct access level of the members shared through group sharing' do
@@ -316,6 +303,33 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
       it 'returns unfiltered members' do
         expect(by_user_type).to match_array([user1_member, service_account_member, project_bot_member])
       end
+    end
+  end
+
+  context 'filter by max role' do
+    subject(:by_max_role) { described_class.new(group, user1, params: { max_role: max_role }).execute }
+
+    let_it_be(:guest_member) { create(:group_member, :guest, group: group, user: user2) }
+    let_it_be(:owner_member) { create(:group_member, :owner, group: group, user: user3) }
+
+    describe 'provided access level is incorrect' do
+      where(:max_role) { [nil, '', 'static', 'xstatic-50', 'static-50x', 'static-99'] }
+
+      with_them do
+        it { is_expected.to match_array(group.members) }
+      end
+    end
+
+    describe 'none of the members have the provided access level' do
+      let(:max_role) { 'static-20' }
+
+      it { is_expected.to be_empty }
+    end
+
+    describe 'one of the members has the provided access level' do
+      let(:max_role) { 'static-50' }
+
+      it { is_expected.to contain_exactly(owner_member) }
     end
   end
 

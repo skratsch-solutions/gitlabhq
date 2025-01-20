@@ -13,6 +13,11 @@ module Mutations
         required: true,
         description: 'Global ID of the environment to update.'
 
+      argument :description,
+        GraphQL::Types::String,
+        required: false,
+        description: 'Description of the environment.'
+
       argument :external_url,
         GraphQL::Types::String,
         required: false,
@@ -37,6 +42,11 @@ module Mutations
         GraphQL::Types::String,
         required: false,
         description: 'Flux resource path of the environment.'
+
+      argument :auto_stop_setting,
+        Types::Environments::AutoStopSettingEnum,
+        required: false,
+        description: 'Auto stop setting of the environment.'
 
       field :environment,
         Types::EnvironmentType,

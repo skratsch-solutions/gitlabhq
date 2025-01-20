@@ -152,8 +152,8 @@ You can see example adding a new gem: [!121676](https://gitlab.com/gitlab-org/gi
 
 ### Specifying dependencies for the Gem
 
-It is important to note that while the gem has its own `Gemfile`, in the
-actual application the top-level `Gemfile` for the monolith GitLab will be
+While the gem has its own `Gemfile`, in the
+actual application the top-level `Gemfile` for the monolith GitLab is
 used instead of the individual `Gemfile` sitting in the directory of the gem.
 
 This means we should be aware that the `Gemfile` for the gem should not use
@@ -167,7 +167,7 @@ all gems we develop should also be tested against Rack 2, optionally also with
 Rack 3 if a separate `Gemfile` is used in CI. See an
 [example here](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/140463).
 
-Note that this does not limit to just Rack, but any dependencies.
+This does not limit to just Rack, but any dependencies.
 
 ### Examples of Gem extractions
 
@@ -257,6 +257,7 @@ The project for a new Gem should always be created in [`gitlab-org/ruby/gems` na
    the gem name with `gitlab-`. For example, `gitlab-sidekiq-fetcher`.
 1. Locally create the gem or fork as necessary.
 1. [Publish an empty `0.0.1` version of the gem to rubygems.org](https://guides.rubygems.org/publishing/#publishing-to-rubygemsorg) to ensure the gem name is reserved.
+<!-- vale gitlab_base.Spelling = NO -->
 1. Add the [`gitlab_rubygems`](https://rubygems.org/profiles/gitlab_rubygems) user as owner of the new gem by running:
 
    ```shell
@@ -264,11 +265,11 @@ The project for a new Gem should always be created in [`gitlab-org/ruby/gems` na
    ```
 
    - Ping [Rémy Coutable](https://gitlab.com/rymai) to confirm the ownership in the [Rubygems committee project](https://gitlab.com/gitlab-dependency-committees/rubygems-committee/-/issues/).
-
 1. Optional. Add some or all of the following users as co-owners:
    - [Marin Jankovski](https://rubygems.org/profiles/marinjankovski)
    - [Rémy Coutable](https://rubygems.org/profiles/rymai)
    - [Stan Hu](https://rubygems.org/profiles/stanhu)
+<!-- vale gitlab_base.Spelling = YES -->
 1. Optional. Add any other relevant developers as co-owners.
 1. Visit `https://rubygems.org/gems/<gem-name>` and verify that the gem was published
    successfully and `gitlab_rubygems` is also an owner.

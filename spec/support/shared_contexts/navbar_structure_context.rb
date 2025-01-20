@@ -61,7 +61,8 @@ RSpec.shared_context 'project navbar structure' do
         nav_item: _('Deploy'),
         nav_sub_items: [
           _('Releases'),
-          s_('FeatureFlags|Feature flags')
+          s_('FeatureFlags|Feature flags'),
+          _('Model registry')
         ]
       },
       {
@@ -91,7 +92,7 @@ RSpec.shared_context 'project navbar structure' do
           _('General'),
           _('Integrations'),
           _('Webhooks'),
-          _('Access Tokens'),
+          _('Access tokens'),
           _('Repository'),
           _('Merge requests'),
           _('CI/CD'),
@@ -110,7 +111,7 @@ RSpec.shared_context 'project navbar structure' do
       _('General'),
       _('Integrations'),
       _('Webhooks'),
-      _('Access Tokens'),
+      _('Access tokens'),
       _('Repository'),
       _('Merge requests'),
       _('CI/CD'),
@@ -138,7 +139,7 @@ RSpec.shared_context 'group navbar structure' do
         _('General'),
         _('Integrations'),
         _('Webhooks'),
-        _('Access Tokens'),
+        _('Access tokens'),
         _('Projects'),
         _('Repository'),
         _('CI/CD'),

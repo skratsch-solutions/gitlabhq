@@ -21,39 +21,39 @@ export default {
       return this.member.user?.lastActivityOn;
     },
     accessGranted() {
-      return this.member.requestAcceptedAt || this.member.createdAt;
+      return this.member.inviteAcceptedAt || this.member.requestAcceptedAt || this.member.createdAt;
     },
   },
 };
 </script>
 
 <template>
-  <div class="gl-display-flex gl-flex-direction-column gl-gap-2">
-    <div v-if="userCreated" class="gl-display-flex gl-gap-3">
+  <div class="gl-flex gl-flex-col gl-gap-2">
+    <div v-if="userCreated" class="gl-flex gl-gap-3">
       <gl-icon
         ref="userCreated"
         v-gl-tooltip.${userCreated}
-        class="gl-ml-2 -gl-mr-2 gl-text-gray-500"
+        class="-gl-mr-2 gl-ml-2 gl-text-subtle"
         name="assignee"
         :title="s__('Members|User created')"
       />
       <user-date :date="userCreated" />
     </div>
-    <div v-if="accessGranted" class="gl-display-flex gl-gap-3">
+    <div v-if="accessGranted" class="gl-flex gl-gap-3">
       <gl-icon
         ref="memberCreatedAt"
         v-gl-tooltip.${memberCreatedAt}
-        class="gl-text-gray-500"
+        class="gl-text-subtle"
         name="check"
         :title="s__('Members|Access granted')"
       />
-      <user-date :date="accessGranted" />
+      <user-date data-testid="access-granted-date" :date="accessGranted" />
     </div>
-    <div v-if="lastActivity" class="gl-display-flex gl-gap-3">
+    <div v-if="lastActivity" class="gl-flex gl-gap-3">
       <gl-icon
         ref="lastActivity"
         v-gl-tooltip.${lastActivity}
-        class="gl-text-gray-500"
+        class="gl-text-subtle"
         name="hourglass"
         :title="s__('Members|Last activity')"
       />

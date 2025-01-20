@@ -4,12 +4,12 @@
 
 # rubocop:disable Rails/Pluck, Layout/LineLength, RSpec/MultipleMemoizedHelpers
 module QA
-  RSpec.describe "Manage", :skip_live_env,
+  RSpec.describe "Manage", :skip_live_env, product_group: :import_and_integrate,
     only: { condition: -> { ENV["CI_PROJECT_NAME"] == "import-metrics" } },
     custom_test_metrics: {
       tags: { import_type: ENV["QA_IMPORT_TYPE"], import_repo: ENV["QA_LARGE_IMPORT_REPO"] || "migration-test-project" }
     } do
-    describe "Gitlab migration", orchestrated: false, product_group: :import_and_integrate do
+    describe "Gitlab migration", :import, orchestrated: false, requires_admin: 'creates a user via API' do
       include_context "with gitlab group migration"
 
       let!(:logger) { Runtime::Logger.logger }
@@ -25,8 +25,7 @@ module QA
       let!(:source_admin_api_client) do
         Runtime::API::Client.new(
           source_gitlab_address,
-          personal_access_token: ENV["QA_LARGE_IMPORT_GL_TOKEN"] || raise("missing QA_LARGE_IMPORT_GL_TOKEN variable"),
-          is_new_session: false
+          personal_access_token: ENV["QA_LARGE_IMPORT_GL_TOKEN"] || raise("missing QA_LARGE_IMPORT_GL_TOKEN variable")
         )
       end
 
@@ -50,11 +49,13 @@ module QA
 
       let!(:api_client) do
         Runtime::API::Client.new(
-          user: user,
-          is_new_session: false,
           # importing very large project can take multiple days
           # token must not expire while we still poll for import result
-          personal_access_token: create(:personal_access_token, user: user, expires_at: (Time.now.to_date + 6)).token
+          personal_access_token: create(
+            :personal_access_token,
+            user_id: user.id,
+            expires_at: (Time.now.to_date + 6)
+          ).token
         )
       end
 
@@ -303,8 +304,8 @@ module QA
 
           # Print difference in the description
           #
-          expected_body = expected_item[:body]
-          actual_body = actual_item[:body]
+          expected_body = remove_backticks(expected_item[:body])
+          actual_body = remove_backticks(actual_item[:body])
           body_msg = "#{msg} same description. diff:\n#{differ.diff(expected_body, actual_body)}"
           expect(actual_body).to eq(expected_body), body_msg
 
@@ -317,8 +318,8 @@ module QA
 
           # Print amount difference first
           #
-          expected_comments = expected_item[:comments]
-          actual_comments = actual_item[:comments]
+          expected_comments = expected_item[:comments].map { |comment| remove_backticks(comment) }
+          actual_comments = actual_item[:comments].map { |comment| remove_backticks(comment) }
           comment_count_msg = <<~MSG
             #{msg} same amount of comments. Source: #{expected_comments.length}, Target: #{actual_comments.length}
           MSG
@@ -427,6 +428,16 @@ module QA
       # @return [Regex]
       def created_by_pattern
         @created_by_pattern ||= /\n\n \*By .+ on \S+\*/
+      end
+
+      # Remove backticks from string
+      #
+      # @param [String] text
+      # @return [String] modified text
+      def remove_backticks(text)
+        return unless text.present?
+
+        text.delete('`')
       end
 
       # Source project url

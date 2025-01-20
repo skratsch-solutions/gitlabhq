@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use these API endpoints to work with the [GitLab container registry](../user/packages/container_registry/index.md).
 
@@ -26,7 +26,7 @@ PUT /projects/:id/
 
 | Attribute                         | Type           | Required | Description |
 |-----------------------------------|----------------|----------|-------------|
-| `id`                              | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) accessible by the authenticated user. |
+| `id`                              | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) accessible by the authenticated user. |
 | `container_registry_access_level` | string         | no       | The desired visibility of the container registry. One of `enabled` (default), `private`, or `disabled`. |
 
 Descriptions of the possible values for `container_registry_access_level`:
@@ -80,7 +80,7 @@ GET /projects/:id/registry/repositories
 
 | Attribute    | Type           | Required | Description |
 |--------------|----------------|----------|-------------|
-| `id`         | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) accessible by the authenticated user. |
+| `id`         | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) accessible by the authenticated user. |
 | `tags`       | boolean        | no       | If the parameter is included as true, each repository includes an array of `"tags"` in the response. |
 | `tags_count` | boolean        | no       | If the parameter is included as true, each repository includes `"tags_count"` in the response . |
 
@@ -127,7 +127,7 @@ GET /groups/:id/registry/repositories
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) accessible by the authenticated user. |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) accessible by the authenticated user. |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
@@ -215,7 +215,7 @@ DELETE /projects/:id/registry/repositories/:repository_id
 
 | Attribute       | Type           | Required | Description |
 |-----------------|----------------|----------|-------------|
-| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `repository_id` | integer        | yes      | The ID of registry repository. |
 
 ```shell
@@ -231,13 +231,16 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
 
 Get a list of tags for given registry repository.
 
+NOTE:
+Offset pagination is deprecated and keyset pagination is now the preferred pagination method.
+
 ```plaintext
 GET /projects/:id/registry/repositories/:repository_id/tags
 ```
 
 | Attribute       | Type           | Required | Description |
 |-----------------|----------------|----------|-------------|
-| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) accessible by the authenticated user. |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) accessible by the authenticated user. |
 | `repository_id` | integer        | yes      | The ID of registry repository. |
 
 ```shell
@@ -272,7 +275,7 @@ GET /projects/:id/registry/repositories/:repository_id/tags/:tag_name
 
 | Attribute       | Type           | Required | Description |
 |-----------------|----------------|----------|-------------|
-| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) accessible by the authenticated user. |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) accessible by the authenticated user. |
 | `repository_id` | integer        | yes      | The ID of registry repository. |
 | `tag_name`      | string         | yes      | The name of tag. |
 
@@ -306,7 +309,7 @@ DELETE /projects/:id/registry/repositories/:repository_id/tags/:tag_name
 
 | Attribute       | Type           | Required | Description |
 |-----------------|----------------|----------|-------------|
-| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `repository_id` | integer        | yes      | The ID of registry repository. |
 | `tag_name`      | string         | yes      | The name of tag. |
 
@@ -331,7 +334,7 @@ DELETE /projects/:id/registry/repositories/:repository_id/tags
 
 | Attribute           | Type           | Required | Description |
 |---------------------|----------------|----------|-------------|
-| `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `repository_id`     | integer        | yes      | The ID of registry repository. |
 | `name_regex`        | string         | no       | The [re2](https://github.com/google/re2/wiki/Syntax) regex of the name to delete. To delete all tags specify `.*`. **Note:** `name_regex` is deprecated in favor of `name_regex_delete`. This field is validated. |
 | `name_regex_delete` | string         | yes      | The [re2](https://github.com/google/re2/wiki/Syntax) regex of the name to delete. To delete all tags specify `.*`. This field is validated. |
@@ -435,15 +438,6 @@ $ curl  --request GET --user "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" \
 ### Delete image tags by reference
 
 > - Endpoint `v2/<name>/manifests/<tag>` [introduced](https://gitlab.com/gitlab-org/container-registry/-/issues/1091) and endpoint `v2/<name>/tags/reference/<tag>` [deprecated](https://gitlab.com/gitlab-org/container-registry/-/issues/1094) in GitLab 16.4.
-
-<!--- start_remove The following content will be removed on remove_date: '2024-08-15' -->
-
-WARNING:
-Endpoint `v2/<name>/tags/reference/<tag>` [deprecated](https://gitlab.com/gitlab-org/container-registry/-/issues/1095)
-in GitLab 16.4 and is planned for removal in 17.0. Use [`v2/<name>/manifests/<tag>`](https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/spec/docker/v2/api.md#delete-manifest) instead.
-This change is a breaking change.
-
-<!--- end_remove -->
 
 ```plaintext
 DELETE http(s)://${CI_REGISTRY}/v2/${CI_REGISTRY_IMAGE}/tags/reference/${CI_COMMIT_SHORT_SHA}

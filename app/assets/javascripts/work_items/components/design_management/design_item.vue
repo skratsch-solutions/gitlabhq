@@ -2,7 +2,7 @@
 import { GlLoadingIcon, GlIcon, GlIntersectionObserver, GlTooltipDirective } from '@gitlab/ui';
 import { n__, __ } from '~/locale';
 import Timeago from '~/vue_shared/components/time_ago_tooltip.vue';
-import { DESIGN_ROUTE_NAME } from '../../constants';
+import { ROUTES } from '../../constants';
 
 export default {
   components: {
@@ -55,6 +55,11 @@ export default {
       required: false,
       default: null,
     },
+    isDragging: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -69,17 +74,17 @@ export default {
       const icons = {
         creation: {
           name: 'file-addition-solid',
-          classes: 'gl-text-green-500',
+          classes: 'gl-fill-icon-success',
           tooltip: __('Added in this version'),
         },
         modification: {
           name: 'file-modified-solid',
-          classes: 'gl-text-blue-500',
+          classes: 'gl-fill-icon-info',
           tooltip: __('Modified in this version'),
         },
         deletion: {
           name: 'file-deletion-solid',
-          classes: 'gl-text-red-500',
+          classes: 'gl-fill-icon-danger',
           tooltip: __('Archived in this version'),
         },
       };
@@ -101,6 +106,13 @@ export default {
     showImage() {
       return !this.showLoadingSpinner && !this.showImageErrorIcon;
     },
+    routerLinkProps() {
+      return {
+        name: this.$options.ROUTES.design,
+        params: { iid: this.workItemIid, id: this.filename },
+        query: this.$route.query,
+      };
+    },
   },
   methods: {
     onImageLoad() {
@@ -121,27 +133,29 @@ export default {
       this.wasInView = true;
       this.imageLoading = true;
     },
+    onTileClick(event) {
+      if (this.isDragging) {
+        event.preventDefault();
+      }
+    },
   },
-  DESIGN_ROUTE_NAME,
+  ROUTES,
 };
 </script>
 
 <template>
   <router-link
-    :to="{
-      name: $options.DESIGN_ROUTE_NAME,
-      params: { iid: workItemIid, id: filename },
-      query: $route.query,
-    }"
-    class="card gl-cursor-pointer text-plain js-design-list-item design-list-item gl-mb-0"
+    :to="routerLinkProps"
+    class="card js-design-list-item design-list-item gl-mb-0 gl-cursor-pointer gl-text-default hover:gl-text-default"
   >
     <div
-      class="card-body gl-p-0 gl-flex gl-items-center gl-justify-content-center gl-overflow-hidden gl-relative gl-rounded-top-base"
+      class="card-body gl-relative gl-flex gl-items-center gl-justify-center gl-overflow-hidden gl-rounded-t-base gl-p-0"
+      @click="onTileClick"
     >
       <div
         v-if="icon.name"
         data-testid="design-event"
-        class="gl-absolute gl-top-3 gl-right-3 gl-mr-1"
+        class="gl-absolute gl-right-3 gl-top-3 gl-mr-1"
       >
         <span :title="icon.tooltip" :aria-label="icon.tooltip">
           <gl-icon
@@ -160,28 +174,23 @@ export default {
         @appear="onAppear"
       >
         <gl-loading-icon v-if="showLoadingSpinner" size="lg" />
-        <gl-icon
-          v-else-if="showImageErrorIcon"
-          name="media-broken"
-          class="text-secondary"
-          :size="32"
-        />
+        <gl-icon v-else-if="showImageErrorIcon" name="media-broken" :size="32" variant="subtle" />
         <img
           v-show="showImage"
           :src="imageLink"
           :alt="filename"
-          class="gl-block gl-mx-auto gl-max-w-full gl-max-h-full gl-w-auto design-img"
+          class="design-img gl-mx-auto gl-block gl-max-h-full gl-w-auto gl-max-w-full"
           :data-testid="`design-img-${id}`"
           @load="onImageLoad"
           @error="onImageError"
         />
       </gl-intersection-observer>
     </div>
-    <div class="card-footer gl-flex gl-w-full gl-bg-white gl-py-3 gl-px-4">
-      <div class="gl-flex gl-flex-col str-truncated-100">
+    <div class="card-footer gl-flex gl-w-full gl-bg-white gl-px-4 gl-py-3">
+      <div class="str-truncated-100 gl-flex gl-flex-col">
         <span
           v-gl-tooltip
-          class="gl-font-sm str-truncated-100"
+          class="str-truncated-100 gl-text-sm"
           :data-testid="`design-img-filename-${id}`"
           :title="filename"
           >{{ filename }}</span
@@ -190,9 +199,9 @@ export default {
           {{ __('Updated') }} <timeago :time="updatedAt" tooltip-placement="bottom" />
         </span>
       </div>
-      <div v-if="notesCount" class="gl-ml-auto gl-flex gl-items-center gl-text-gray-500">
+      <div v-if="notesCount" class="gl-ml-auto gl-flex gl-items-center gl-text-subtle">
         <gl-icon name="comments" class="gl-ml-2" />
-        <span :aria-label="notesLabel" class="gl-font-sm gl-ml-2">
+        <span :aria-label="notesLabel" class="gl-ml-2 gl-text-sm">
           {{ notesCount }}
         </span>
       </div>

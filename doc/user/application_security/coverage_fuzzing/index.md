@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Coverage-guided fuzz testing sends random inputs to an instrumented version of your application in
 an effort to cause unexpected behavior. Such behavior indicates a bug that you should address.
@@ -105,7 +105,7 @@ my_fuzz_target:
     - ./gitlab-cov-fuzz run --regression=$REGRESSION -- <your fuzz target>
 ```
 
-The `Coverage-Fuzzing` template includes the [hidden job](../../../ci/jobs/index.md#hide-jobs)
+The `Coverage-Fuzzing` template includes the [hidden job](../../../ci/jobs/index.md#hide-a-job)
 `.fuzz_base`, which you must [extend](../../../ci/yaml/index.md#extends) for each of your fuzzing
 targets. Each fuzzing target **must** have a separate job. For example, the
 [go-fuzzing-example project](https://gitlab.com/gitlab-org/security-products/demos/go-fuzzing-example)
@@ -135,7 +135,7 @@ a large number of false positives.
 | `COVFUZZ_URL_PREFIX`      | Path to the `gitlab-cov-fuzz` repository cloned for use with an offline environment. You should only change this value when using an offline environment. Default: `https://gitlab.com/gitlab-org/security-products/analyzers/gitlab-cov-fuzz/-/raw`. |
 | `COVFUZZ_USE_REGISTRY`    | Set to `true` to have the corpus stored in the GitLab corpus registry. The variables `COVFUZZ_CORPUS_NAME` and `COVFUZZ_GITLAB_TOKEN` are required if this variable is set to `true`. Default: `false`. |
 | `COVFUZZ_CORPUS_NAME`     | Name of the corpus to be used in the job. |
-| `COVFUZZ_GITLAB_TOKEN`    | Environment variable configured with [Personal Access Token](../../../user/profile/personal_access_tokens.md#create-a-personal-access-token) or [Project Access Token](../../../user/project/settings/project_access_tokens.md#create-a-project-access-token) with API read/write access. |
+| `COVFUZZ_GITLAB_TOKEN`    | Environment variable configured with [personal access token](../../../user/profile/personal_access_tokens.md#create-a-personal-access-token) or [project access token](../../../user/project/settings/project_access_tokens.md#create-a-project-access-token) with API read/write access. |
 
 #### Seed corpus
 
@@ -158,11 +158,11 @@ You can download the JSON report file from the CI/CD pipelines page. For more in
 
 ## Corpus registry
 
-The corpus registry is a library of corpuses. Corpuses in a project's registry are available to
-all jobs in that project. A project-wide registry is a more efficient way to manage corpuses than
+The corpus registry is a library of corpora. Corpora in a project's registry are available to
+all jobs in that project. A project-wide registry is a more efficient way to manage corpora than
 the default option of one corpus per job.
 
-The corpus registry uses the package registry to store the project's corpuses. Corpuses stored in
+The corpus registry uses the package registry to store the project's corpora. Corpora stored in
 the registry are hidden to ensure data integrity.
 
 When you download a corpus, the file is named `artifacts.zip`, regardless of the filename used when
@@ -344,8 +344,6 @@ which shows an overview of all the security vulnerabilities in your groups, proj
 Selecting the vulnerability opens a modal that provides additional information about the
 vulnerability:
 
-<!-- vale gitlab.Acronyms = NO -->
-
 - Status: The vulnerability's status. As with any type of vulnerability, a coverage fuzzing
   vulnerability can be Detected, Confirmed, Dismissed, or Resolved.
 - Project: The project in which the vulnerability exists.
@@ -360,8 +358,6 @@ vulnerability:
 - Scanner Provider: The engine that did the scan. For Coverage Fuzzing, this can be any of the
   engines listed in [Supported fuzzing engines and languages](#supported-fuzzing-engines-and-languages).
 
-<!-- vale gitlab.Acronyms = YES -->
-
 ## Troubleshooting
 
 ### Error `Unable to extract corpus folder from artifacts zip file`
@@ -373,4 +369,4 @@ corpus file extracts into a folder named `corpus`.
 
 If you see this error message when running the fuzzing job with `COVFUZZ_USE_REGISTRY` set to `true`,
 ensure that duplicates are allowed. For more details, see
-[duplicate Generic packages](../../packages/generic_packages/index.md#do-not-allow-duplicate-generic-packages).
+[duplicate Generic packages](../../packages/generic_packages/index.md#disable-publishing-duplicate-package-names).

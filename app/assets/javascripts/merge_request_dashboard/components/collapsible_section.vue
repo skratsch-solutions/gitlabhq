@@ -1,21 +1,42 @@
 <script>
-import { GlButton, GlBadge } from '@gitlab/ui';
+import { GlBadge, GlButton, GlTooltipDirective } from '@gitlab/ui';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import { __, sprintf } from '~/locale';
 
 export default {
   components: {
-    GlButton,
     GlBadge,
+    GlButton,
+    CrudComponent,
   },
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
+  inject: ['newListsEnabled'],
   props: {
     title: {
       type: String,
       required: true,
     },
+    helpContent: {
+      type: String,
+      required: false,
+      default: '',
+    },
     count: {
       type: Number,
       required: false,
       default: null,
+    },
+    hasMergeRequests: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    loading: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -24,9 +45,6 @@ export default {
     };
   },
   computed: {
-    toggleButtonIcon() {
-      return this.open ? 'chevron-down' : 'chevron-right';
-    },
     toggleButtonLabel() {
       return sprintf(
         this.open
@@ -39,36 +57,49 @@ export default {
     },
   },
   watch: {
-    count(newVal) {
-      this.open = newVal > 0;
-    },
-  },
-  methods: {
-    toggleOpen() {
-      this.open = !this.open;
+    loading(newVal) {
+      this.open = newVal || this.hasMergeRequests;
     },
   },
 };
 </script>
 
 <template>
-  <section class="gl-bg-gray-50 gl-p-4 gl-rounded-base">
-    <header class="gl-display-flex gl-align-items-center">
+  <crud-component
+    is-collapsible
+    :collapsed="!open"
+    :toggle-aria-label="toggleButtonLabel"
+    :body-class="{ '!gl-mx-0 gl-mb-0': hasMergeRequests || newListsEnabled }"
+  >
+    <template #title>
+      {{ title }}
+      <gl-badge v-if="count !== null" size="sm">{{ count }}</gl-badge>
+    </template>
+
+    <template #actions>
       <gl-button
-        :icon="toggleButtonIcon"
-        size="small"
-        category="tertiary"
-        class="gl-mr-3"
-        :aria-label="toggleButtonLabel"
-        :disabled="count === 0"
-        data-testid="section-toggle-button"
-        @click="toggleOpen"
+        v-gl-tooltip
+        :title="helpContent"
+        icon="information-o"
+        variant="link"
+        class="gl-mr-2 gl-self-center"
       />
-      <strong>{{ title }}</strong>
-      <gl-badge class="gl-ml-3" variant="neutral">{{ count }}</gl-badge>
-    </header>
-    <div v-if="open" class="gl-mt-3" data-testid="section-content">
-      <slot></slot>
-    </div>
-  </section>
+    </template>
+
+    <template v-if="!hasMergeRequests && !loading" #empty>
+      <p class="gl-pt-1 gl-text-center gl-text-subtle">
+        {{ __('No merge requests match this list.') }}
+      </p>
+    </template>
+
+    <template #default>
+      <div class="gl-contents" data-testid="section-content">
+        <slot></slot>
+      </div>
+    </template>
+
+    <template v-if="open" #pagination>
+      <slot name="pagination"></slot>
+    </template>
+  </crud-component>
 </template>

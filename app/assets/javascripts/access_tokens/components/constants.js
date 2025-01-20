@@ -7,10 +7,18 @@ export const FORM_SELECTOR = '#js-new-access-token-form';
 export const INITIAL_PAGE = 1;
 export const PAGE_SIZE = 100;
 
-export const FIELDS = [
+const BASE_FIELDS = [
   {
     key: 'name',
     label: __('Token name'),
+    sortable: true,
+  },
+  {
+    formatter(description) {
+      return description ?? '-';
+    },
+    key: 'description',
+    label: __('Description'),
     sortable: true,
   },
   {
@@ -31,19 +39,43 @@ export const FIELDS = [
     label: __('Last Used'),
     sortable: true,
   },
+];
+
+const ROLE_FIELD = {
+  key: 'role',
+  label: __('Role'),
+  sortable: true,
+};
+
+export const FIELDS = [
+  ...BASE_FIELDS,
+  {
+    formatter(ips) {
+      return ips?.length ? ips?.join(', ') : '-';
+    },
+    key: 'lastUsedIps',
+    label: __('Last Used IPs'),
+    sortable: false,
+  },
   {
     key: 'expiresAt',
     label: __('Expires'),
     sortable: true,
   },
-  {
-    key: 'role',
-    label: __('Role'),
-    sortable: true,
-  },
+  ROLE_FIELD,
   {
     key: 'action',
     label: __('Action'),
-    tdClass: 'gl-py-3!',
+    tdClass: '!gl-py-3',
   },
+];
+
+export const INACTIVE_TOKENS_TABLE_FIELDS = [
+  ...BASE_FIELDS,
+  {
+    key: 'expiresAt',
+    label: __('Expired'),
+    sortable: true,
+  },
+  ROLE_FIELD,
 ];

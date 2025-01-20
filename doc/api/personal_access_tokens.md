@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-You can read more about [personal access tokens](../user/profile/personal_access_tokens.md).
+Use this API to interact with personal access tokens. For more information, see [Personal access tokens](../user/profile/personal_access_tokens.md).
 
 ## List personal access tokens
 
@@ -71,6 +71,7 @@ Example response:
         "name": "Test Token",
         "revoked": false,
         "created_at": "2020-07-23T14:31:47.729Z",
+        "description": "Test Token description",
         "scopes": [
             "api"
         ],
@@ -97,6 +98,7 @@ Example response:
         "name": "Test Token",
         "revoked": false,
         "created_at": "2020-07-23T14:31:47.729Z",
+        "description": "Test Token description",
         "scopes": [
             "api"
         ],
@@ -123,6 +125,7 @@ Example response:
         "name": "Revoked Test Token",
         "revoked": true,
         "created_at": "2022-01-01T14:31:47.729Z",
+        "description": "Test Token description",
         "scopes": [
             "api"
         ],
@@ -197,6 +200,7 @@ Example response:
     "name": "Test Token",
     "revoked": false,
     "created_at": "2020-07-23T14:31:47.729Z",
+    "description": "Test Token description",
     "scopes": [
         "api"
     ],
@@ -209,7 +213,7 @@ Example response:
 
 ## Rotate a personal access token
 
-Rotate a personal access token. Revokes the previous token and creates a new token that expires in one week
+Rotate a personal access token. Revokes the previous token and creates a new token that expires in one week.
 
 You can either:
 
@@ -220,7 +224,7 @@ You can either:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/403042) in GitLab 16.0
 
-In GitLab 16.6 and later, you can use the `expires_at` parameter to set a different expiry date. This non-default expiry date can be up to a maximum of one year from the rotation date.
+In GitLab 16.6 and later, you can use the `expires_at` parameter to set a different expiry date. This non-default expiry date is subject to the [maximum allowable lifetime limits](../user/profile/personal_access_tokens.md#access-token-expiration).
 
 ```plaintext
 POST /personal_access_tokens/:id/rotate
@@ -229,7 +233,7 @@ POST /personal_access_tokens/:id/rotate
 | Attribute | Type      | Required | Description         |
 |-----------|-----------|----------|---------------------|
 | `id` | integer/string | yes      | ID of personal access token |
-| `expires_at` | date   | no       | Expiration date of the access token in ISO format (`YYYY-MM-DD`). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/416795) in GitLab 16.6. |
+| `expires_at` | date   | no       | Expiration date of the access token in ISO format (`YYYY-MM-DD`). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/416795) in GitLab 16.6. If undefined, the token expires after one week. |
 
 NOTE:
 Non-administrators can rotate their own tokens. Administrators can rotate tokens of any user.
@@ -246,6 +250,7 @@ Example response:
     "name": "Rotated Token",
     "revoked": false,
     "created_at": "2023-08-01T15:00:00.000Z",
+    "description": "Test Token description",
     "scopes": ["api"],
     "user_id": 1337,
     "last_used_at": null,
@@ -272,7 +277,7 @@ Requires:
 
 - `api` scope.
 
-You can use the `expires_at` parameter to set a different expiry date. This non-default expiry date can be up to a maximum of one year from the rotation date.
+In GitLab 16.6 and later, you can use the `expires_at` parameter to set a different expiry date. This non-default expiry date is subject to the [maximum allowable lifetime limits](../user/profile/personal_access_tokens.md#access-token-expiration).
 
 ```plaintext
 POST /personal_access_tokens/self/rotate
@@ -290,6 +295,7 @@ Example response:
     "name": "Rotated Token",
     "revoked": false,
     "created_at": "2023-08-01T15:00:00.000Z",
+    "description": "Test Token description",
     "scopes": ["api"],
     "user_id": 1337,
     "last_used_at": null,
@@ -356,6 +362,8 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 
 - `204: No Content` if successfully revoked.
 - `400: Bad Request` if not revoked successfully.
+- `401: Unauthorized` if the access token is invalid.
+- `403: Forbidden` if the access token does not have the required permissions.
 
 ### Using a request header
 
@@ -379,20 +387,102 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 
 - `204: No Content` if successfully revoked.
 - `400: Bad Request` if not revoked successfully.
+- `401: Unauthorized` if the access token is invalid.
+
+## List token associations
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/466046) in GitLab 17.4.
+
+Returns an unfiltered list of all groups, subgroups, and projects the current authenticated user can access.
+
+```plaintext
+GET /personal_access_tokens/self/associations
+GET /personal_access_tokens/self/associations?page=2
+GET /personal_access_tokens/self/associations?min_access_level=40
+```
+
+Supported attributes:
+
+| Attribute           | Type     | Required | Description                                                              |
+|---------------------|----------|----------|--------------------------------------------------------------------------|
+| `min_access_level`  | integer  | No       | Limit by current user minimal [role (`access_level`)](members.md#roles). |
+| `page`              | integer  | No       | Page to retrieve. Defaults to `1`.                                       |
+| `per_page`          | integer  | No       | Number of records to return per page. Defaults to `20`.                  |
+
+Example request:
+
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/personal_access_tokens/self/associations"
+```
+
+Example response:
+
+```json
+{
+    "groups": [
+        {
+        "id": 1,
+        "web_url": "http://gitlab.example.com/groups/test",
+        "name": "Test",
+        "parent_id": null,
+        "organization_id": 1,
+        "access_levels": 20,
+        "visibility": "public"
+        },
+        {
+        "id": 3,
+        "web_url": "http://gitlab.example.com/groups/test/test_private",
+        "name": "Test Private",
+        "parent_id": 1,
+        "organization_id": 1,
+        "access_levels": 50,
+        "visibility": "test_private"
+        }
+    ],
+    "projects": [
+        {
+            "id": 1337,
+            "description": "Leet.",
+            "name": "Test Project",
+            "name_with_namespace": "Test / Test Project",
+            "path": "test-project",
+            "path_with_namespace": "Test/test-project",
+            "created_at": "2024-07-02T13:37:00.123Z",
+            "access_levels": {
+                "project_access_level": null,
+                "group_access_level": 20
+            },
+            "visibility": "private",
+            "web_url": "http://gitlab.example.com/test/test_project",
+            "namespace": {
+                "id": 1,
+                "name": "Test",
+                "path": "Test",
+                "kind": "group",
+                "full_path": "Test",
+                "parent_id": null,
+                "avatar_url": null,
+                "web_url": "http://gitlab.example.com/groups/test"
+            }
+        }
+    ]
+}
+```
 
 ## Create a personal access token (administrator only)
 
-See the [Users API documentation](users.md#create-a-personal-access-token) for information on creating a personal access token.
+See the [User tokens API](user_tokens.md#create-a-personal-access-token) for information on creating a personal access
+token.
 
 ## Create a personal access token with limited scopes for the currently authenticated user
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
-See the [Users API documentation](users.md#create-a-personal-access-token-with-limited-scopes-for-the-currently-authenticated-user)
-for information on creating a personal access token for the currently authenticated user.
+See the [User tokens API](user_tokens.md#create-a-personal-access-token) for
+information on creating a personal access token for the currently authenticated user.
 
 ## Troubleshooting access tokens
 
-To troubleshoot access token issues, see the [token troubleshooting guide](../security/token_overview.md#troubleshooting).
+To troubleshoot access token issues, see the [token troubleshooting guide](../security/tokens/token_troubleshooting.md).

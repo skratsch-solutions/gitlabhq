@@ -4,10 +4,10 @@ module Gitlab
   module BackgroundMigration
     # No op on ce
     class UpdateWorkspacesConfigVersion3 < BatchedMigrationJob
-      feature_category :remote_development
+      feature_category :workspaces
       def perform; end
     end
   end
 end
 
-Gitlab::BackgroundMigration::UpdateWorkspacesConfigVersion3.prepend_mod_with('Gitlab::BackgroundMigration::UpdateWorkspacesConfigVersion3') # rubocop:disable Layout/LineLength -- Injecting extension modules must be done on the last line of this file, outside of any class or module definitions
+Gitlab::BackgroundMigration::UpdateWorkspacesConfigVersion3.prepend_mod_with('Gitlab::BackgroundMigration::UpdateWorkspacesConfigVersion3')

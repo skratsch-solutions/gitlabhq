@@ -13,6 +13,13 @@ RSpec.describe WorkItems::Widgets::LinkedItems, feature_category: :portfolio_man
     it { is_expected.to eq(:linked_items) }
   end
 
+  describe '.quick_action_commands' do
+    specify do
+      expect(described_class.quick_action_commands)
+        .to contain_exactly(:blocks, :blocked_by, :relate, :unlink)
+    end
+  end
+
   describe '#type' do
     subject { described_class.new(work_item).type }
 

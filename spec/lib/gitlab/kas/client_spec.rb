@@ -2,9 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::Kas::Client do
+RSpec.describe Gitlab::Kas::Client, feature_category: :deployment_management do
   let_it_be(:project) { create(:project) }
   let_it_be(:agent) { create(:cluster_agent, project: project) }
+
+  let(:client) { described_class.new }
 
   describe '#initialize' do
     context 'kas is not enabled' do
@@ -37,12 +39,36 @@ RSpec.describe Gitlab::Kas::Client do
       allow(Gitlab::Kas).to receive(:enabled?).and_return(true)
       allow(Gitlab::Kas).to receive(:internal_url).and_return(kas_url)
 
-      expect(JSONWebToken::HMACToken).to receive(:new)
+      allow(JSONWebToken::HMACToken).to receive(:new)
         .with(Gitlab::Kas.secret)
         .and_return(token)
 
-      expect(token).to receive(:issuer=).with(Settings.gitlab.host)
-      expect(token).to receive(:audience=).with(described_class::JWT_AUDIENCE)
+      allow(token).to receive(:issuer=).with(Settings.gitlab.host)
+      allow(token).to receive(:audience=).with(described_class::JWT_AUDIENCE)
+    end
+
+    describe '#get_server_info' do
+      let(:stub) { instance_double(Gitlab::Agent::ServerInfo::Rpc::ServerInfo::Stub) }
+      let(:request) { instance_double(Gitlab::Agent::ServerInfo::Rpc::GetServerInfoRequest) }
+      let(:server_info) { double }
+      let(:response) { double(Gitlab::Agent::ServerInfo::Rpc::GetServerInfoResponse, current_server_info: server_info) }
+
+      subject { client.get_server_info }
+
+      before do
+        expect(Gitlab::Agent::ServerInfo::Rpc::ServerInfo::Stub).to receive(:new)
+          .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
+          .and_return(stub)
+
+        expect(Gitlab::Agent::ServerInfo::Rpc::GetServerInfoRequest).to receive(:new)
+          .and_return(request)
+
+        expect(stub).to receive(:get_server_info)
+          .with(request, metadata: { 'authorization' => 'bearer test-token' })
+          .and_return(response)
+      end
+
+      it { is_expected.to eq(server_info) }
     end
 
     describe '#get_connected_agents_by_agent_ids' do
@@ -52,11 +78,11 @@ RSpec.describe Gitlab::Kas::Client do
 
       let(:connected_agents) { [double] }
 
-      subject { described_class.new.get_connected_agents_by_agent_ids(agent_ids: [agent.id]) }
+      subject { client.get_connected_agents_by_agent_ids(agent_ids: [agent.id]) }
 
       before do
         expect(Gitlab::Agent::AgentTracker::Rpc::AgentTracker::Stub).to receive(:new)
-          .with('example.kas.internal', :this_channel_is_insecure, timeout: described_class::TIMEOUT)
+          .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
           .and_return(stub)
 
         expect(Gitlab::Agent::AgentTracker::Rpc::GetConnectedAgentsByAgentIDsRequest).to receive(:new)
@@ -83,11 +109,11 @@ RSpec.describe Gitlab::Kas::Client do
 
       let(:agent_configurations) { [double] }
 
-      subject { described_class.new.list_agent_config_files(project: project) }
+      subject { client.list_agent_config_files(project: project) }
 
       before do
         expect(Gitlab::Agent::ConfigurationProject::Rpc::ConfigurationProject::Stub).to receive(:new)
-          .with('example.kas.internal', :this_channel_is_insecure, timeout: described_class::TIMEOUT)
+          .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
           .and_return(stub)
 
         expect(Gitlab::Agent::Entity::GitalyRepository).to receive(:new)
@@ -110,6 +136,69 @@ RSpec.describe Gitlab::Kas::Client do
       it { expect(subject).to eq(agent_configurations) }
     end
 
+    describe '#send_autoflow_event' do
+      subject { client.send_autoflow_event(project: project, type: 'any-type', id: 'any-id', data: { 'any-data-key': 'any-data-value' }) }
+
+      context 'when autoflow_enabled FF is disabled' do
+        before do
+          stub_feature_flags(autoflow_enabled: false)
+        end
+
+        it { expect(subject).to be_nil }
+      end
+
+      context 'when autoflow_enabled FF is enabled' do
+        let_it_be(:autoflow_var1) { create(:ci_variable, project: project, key: 'test_key_1', value: 'test-value-1', environment_scope: 'autoflow/internal-use') }
+        let_it_be(:autoflow_var2) { create(:ci_variable, project: project, key: 'test_key_2', value: 'test-value-2', environment_scope: 'autoflow/internal-use') }
+        let_it_be(:other_var) { create(:ci_variable, project: project, key: 'test_key_3', value: 'test-value-3') }
+        let(:stub) { instance_double(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub) }
+        let(:request) { instance_double(Gitlab::Agent::AutoFlow::Rpc::CloudEventRequest) }
+        let(:event_param) { instance_double(Gitlab::Agent::Event::CloudEvent) }
+        let(:project_param) { instance_double(Gitlab::Agent::Event::Project) }
+        let(:response) { double(Gitlab::Agent::AutoFlow::Rpc::CloudEventResponse) }
+
+        before do
+          stub_feature_flags(autoflow_enabled: true)
+
+          expect(Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub).to receive(:new)
+            .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
+            .and_return(stub)
+
+          expect(Gitlab::Agent::Event::Project).to receive(:new)
+            .with(id: project.id, full_path: project.full_path)
+            .and_return(project_param)
+
+          expect(Gitlab::Agent::Event::CloudEvent).to receive(:new)
+            .with(id: 'any-id', source: "GitLab", spec_version: "v1", type: 'any-type',
+              attributes: {
+                datacontenttype: Gitlab::Agent::Event::CloudEvent::CloudEventAttributeValue.new(
+                  ce_string: "application/json"
+                )
+              },
+              text_data: '{"any-data-key":"any-data-value"}'
+            )
+            .and_return(event_param)
+
+          expect(Gitlab::Agent::AutoFlow::Rpc::CloudEventRequest).to receive(:new)
+            .with(
+              event: event_param,
+              flow_project: project_param,
+              variables: {
+                "test_key_1" => "test-value-1",
+                "test_key_2" => "test-value-2"
+              }
+            )
+            .and_return(request)
+
+          expect(stub).to receive(:cloud_event)
+            .with(request, metadata: { 'authorization' => 'bearer test-token' })
+            .and_return(response)
+        end
+
+        it { expect(subject).to eq(response) }
+      end
+    end
+
     describe '#send_git_push_event' do
       let(:stub) { instance_double(Gitlab::Agent::Notifications::Rpc::Notifications::Stub) }
       let(:request) { instance_double(Gitlab::Agent::Notifications::Rpc::GitPushEventRequest) }
@@ -117,11 +206,11 @@ RSpec.describe Gitlab::Kas::Client do
       let(:project_param) { instance_double(Gitlab::Agent::Event::Project) }
       let(:response) { double(Gitlab::Agent::Notifications::Rpc::GitPushEventResponse) }
 
-      subject { described_class.new.send_git_push_event(project: project) }
+      subject { client.send_git_push_event(project: project) }
 
       before do
         expect(Gitlab::Agent::Notifications::Rpc::Notifications::Stub).to receive(:new)
-          .with('example.kas.internal', :this_channel_is_insecure, timeout: described_class::TIMEOUT)
+          .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
           .and_return(stub)
 
         expect(Gitlab::Agent::Event::Project).to receive(:new)
@@ -155,13 +244,13 @@ RSpec.describe Gitlab::Kas::Client do
           .and_return(credentials)
 
         expect(Gitlab::Agent::ConfigurationProject::Rpc::ConfigurationProject::Stub).to receive(:new)
-          .with('example.kas.internal', credentials, timeout: described_class::TIMEOUT)
+          .with('example.kas.internal', credentials, timeout: client.send(:timeout))
           .and_return(stub)
 
         allow(stub).to receive(:list_agent_config_files)
           .and_return(double(config_files: []))
 
-        described_class.new.list_agent_config_files(project: project)
+        client.list_agent_config_files(project: project)
       end
     end
   end

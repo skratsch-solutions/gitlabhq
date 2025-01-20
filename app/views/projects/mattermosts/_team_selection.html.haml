@@ -2,7 +2,7 @@
   This service will be installed on the Mattermost instance at
   %strong= link_to Gitlab.config.mattermost.host, Gitlab.config.mattermost.host
 %hr
-= gitlab_ui_form_for(:mattermost, method: :post, url: project_mattermost_path(@project), html: { class: 'js-requires-input' }) do |f|
+= gitlab_ui_form_for(:mattermost, method: :post, url: project_mattermost_path(@project)) do |f|
   %h4 Team
   %p
     = @teams.one? ? 'The team' : 'Select the team'
@@ -11,7 +11,7 @@
   - options = options_for_select(mattermost_teams_options(@teams), selected_id)
   = f.select(:team_id, options, { include_blank: 'Select team...'}, { class: 'form-control', disabled: @teams.one?, selected: selected_id, required: true })
   = f.hidden_field(:team_id, value: selected_id, required: true) if @teams.one?
-  .form-text.text-muted
+  .form-text.gl-text-subtle
     - if @teams.one?
       This is the only available team that you are a member of.
     - else
@@ -25,7 +25,7 @@
   %h4 Command trigger word
   %p Choose the word that will trigger commands
   = f.text_field(:trigger, value: @project.path, class: 'form-control', required: true)
-  .form-text.text-muted
+  .form-text.gl-text-subtle
     %p
       Trigger word must be unique, and can't begin with a slash or contain any spaces.
       Use the word that works best for your team.

@@ -1,19 +1,14 @@
 import { start } from '@gitlab/web-ide';
 import { GITLAB_WEB_IDE_FEEDBACK_ISSUE } from '~/ide/constants';
 import { initGitlabWebIDE } from '~/ide/init_gitlab_web_ide';
-import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_action';
-import { createAndSubmitForm } from '~/lib/utils/create_and_submit_form';
-import { handleTracking } from '~/ide/lib/gitlab_web_ide/handle_tracking_event';
+import { handleTracking, handleUpdateUrl } from '~/ide/lib/gitlab_web_ide';
 import Tracking from '~/tracking';
 import { TEST_HOST } from 'helpers/test_constants';
 import setWindowLocation from 'helpers/set_window_location_helper';
-import waitForPromises from 'helpers/wait_for_promises';
 import { renderWebIdeError } from '~/ide/render_web_ide_error';
 import { getMockCallbackUrl } from './helpers';
 
 jest.mock('@gitlab/web-ide');
-jest.mock('~/lib/utils/confirm_via_gl_modal/confirm_action');
-jest.mock('~/lib/utils/create_and_submit_form');
 jest.mock('~/lib/utils/csrf', () => ({
   token: 'mock-csrf-token',
   headerKey: 'mock-csrf-header',
@@ -34,12 +29,6 @@ const TEST_MR_TARGET_PROJECT = 'gitlab-org/the-real-gitlab';
 const TEST_SIGN_IN_PATH = 'sign-in';
 const TEST_SIGN_OUT_PATH = 'sign-out';
 const TEST_FORK_INFO = { fork_path: '/forky' };
-const TEST_IDE_REMOTE_PATH = '/-/ide/remote/:remote_host/:remote_path';
-const TEST_START_REMOTE_PARAMS = {
-  remoteHost: 'dev.example.gitlab.com/test',
-  remotePath: '/test/projects/f oo',
-  connectionToken: '123abc',
-};
 const TEST_EXTENSIONS_GALLERY_SETTINGS = {
   enabled: true,
   vscode_settings: {
@@ -47,6 +36,7 @@ const TEST_EXTENSIONS_GALLERY_SETTINGS = {
     service_url: 'https://gitlab.test/vscode/marketplace/service/url',
   },
 };
+const TEST_SETTINGS_CONTEXT_HASH = '1234';
 const TEST_EDITOR_FONT_SRC_URL = 'http://gitlab.test/assets/gitlab-mono/GitLabMono.woff2';
 const TEST_EDITOR_FONT_FORMAT = 'woff2';
 const TEST_EDITOR_FONT_FAMILY = 'GitLab Mono';
@@ -55,8 +45,6 @@ const TEST_OAUTH_CLIENT_ID = 'oauth-client-id-123abc';
 const TEST_OAUTH_CALLBACK_URL = getMockCallbackUrl();
 
 describe('ide/init_gitlab_web_ide', () => {
-  let resolveConfirm;
-
   const createRootElement = () => {
     const el = document.createElement('div');
 
@@ -66,7 +54,6 @@ describe('ide/init_gitlab_web_ide', () => {
     el.dataset.projectPath = TEST_PROJECT_PATH;
     el.dataset.cspNonce = TEST_NONCE;
     el.dataset.branchName = TEST_BRANCH_NAME;
-    el.dataset.ideRemotePath = TEST_IDE_REMOTE_PATH;
     el.dataset.userPreferencesPath = TEST_USER_PREFERENCES_PATH;
     el.dataset.mergeRequest = TEST_MR_ID;
     el.dataset.filePath = TEST_FILE_PATH;
@@ -91,22 +78,11 @@ describe('ide/init_gitlab_web_ide', () => {
   };
   const findRootElement = () => document.getElementById(ROOT_ELEMENT_ID);
   const createSubject = () => initGitlabWebIDE(findRootElement());
-  const triggerHandleStartRemote = (startRemoteParams) => {
-    const [, config] = start.mock.calls[0];
-
-    config.handleStartRemote(startRemoteParams);
-  };
 
   beforeEach(() => {
     gon.current_username = TEST_USERNAME;
+    gon.features = { webIdeLanguageServer: true };
     process.env.GITLAB_WEB_IDE_PUBLIC_PATH = TEST_GITLAB_WEB_IDE_PUBLIC_PATH;
-
-    confirmAction.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveConfirm = resolve;
-        }),
-    );
 
     createRootElement();
   });
@@ -147,8 +123,8 @@ describe('ide/init_gitlab_web_ide', () => {
           signIn: TEST_SIGN_IN_PATH,
         },
         featureFlags: {
-          settingsSync: true,
           crossOriginExtensionHost: false,
+          languageServerWebIDE: gon.features.webIdeLanguageServer,
         },
         editorFont: {
           fallbackFontFamily: 'monospace',
@@ -164,9 +140,9 @@ describe('ide/init_gitlab_web_ide', () => {
             },
           ],
         },
-        handleStartRemote: expect.any(Function),
         handleTracking,
         telemetryEnabled,
+        handleContextUpdate: handleUpdateUrl,
       });
     });
 
@@ -177,41 +153,6 @@ describe('ide/init_gitlab_web_ide', () => {
       expect(rootEl.outerHTML).toBe(
         '<div id="ide" class="gl-flex gl-justify-center gl-items-center gl-relative gl-h-full"></div>',
       );
-    });
-
-    describe('when handleStartRemote is triggered', () => {
-      beforeEach(() => {
-        triggerHandleStartRemote(TEST_START_REMOTE_PARAMS);
-      });
-
-      it('promts for confirm', () => {
-        expect(confirmAction).toHaveBeenCalledWith(expect.any(String), {
-          primaryBtnText: expect.any(String),
-          cancelBtnText: expect.any(String),
-        });
-      });
-
-      it('does not submit, when not confirmed', async () => {
-        resolveConfirm(false);
-
-        await waitForPromises();
-
-        expect(createAndSubmitForm).not.toHaveBeenCalled();
-      });
-
-      it('submits, when confirmed', async () => {
-        resolveConfirm(true);
-
-        await waitForPromises();
-
-        expect(createAndSubmitForm).toHaveBeenCalledWith({
-          url: '/-/ide/remote/dev.example.gitlab.com%2Ftest/test/projects/f%20oo',
-          data: {
-            connection_token: TEST_START_REMOTE_PARAMS.connectionToken,
-            return_url: window.location.href,
-          },
-        });
-      });
     });
   });
 
@@ -330,8 +271,8 @@ describe('ide/init_gitlab_web_ide', () => {
         findRootElement(),
         expect.objectContaining({
           featureFlags: {
-            settingsSync: true,
             crossOriginExtensionHost: true,
+            languageServerWebIDE: gon.features.webIdeLanguageServer,
           },
         }),
       );
@@ -340,24 +281,74 @@ describe('ide/init_gitlab_web_ide', () => {
     it.each(['opt_in_unset', 'opt_in_disabled'])(
       'calls start with element and crossOriginExtensionHost flag if extensionsGallerySettings reason is $reason',
       (reason) => {
-        const TEST_EXTENSIONS_GALLERY_SETTINGS_WITH_REASON = {
-          ...TEST_EXTENSIONS_GALLERY_SETTINGS,
+        const mockExtensionsGalleryDisabledSettings = {
           enabled: false,
           reason,
         };
-        setMockExtensionGallerySettingsDataset(TEST_EXTENSIONS_GALLERY_SETTINGS_WITH_REASON);
+
+        setMockExtensionGallerySettingsDataset(mockExtensionsGalleryDisabledSettings);
 
         expect(start).toHaveBeenCalledTimes(1);
         expect(start).toHaveBeenCalledWith(
           findRootElement(),
           expect.objectContaining({
             featureFlags: {
-              settingsSync: true,
               crossOriginExtensionHost: true,
+              languageServerWebIDE: gon.features.webIdeLanguageServer,
             },
           }),
         );
       },
     );
+
+    describe('for settingsContextHash', () => {
+      it('does not include settingsContextHash if webIdeSettingsContextHash feature flag is not enabled', () => {
+        gon.features = { webIdeSettingsContextHash: false };
+        findRootElement().dataset.settingsContextHash = TEST_SETTINGS_CONTEXT_HASH;
+        setMockExtensionGallerySettingsDataset();
+
+        expect(start).toHaveBeenCalledTimes(1);
+        expect(start).toHaveBeenCalledWith(
+          findRootElement(),
+          expect.not.objectContaining({
+            settingsContextHash: TEST_SETTINGS_CONTEXT_HASH,
+          }),
+        );
+      });
+
+      describe('with webIdeSettingsContextHash feature flag enabled', () => {
+        beforeEach(() => {
+          gon.features = { webIdeSettingsContextHash: true };
+        });
+
+        it('includes settingsContextHash if extensionsGallerySettings is enabled', () => {
+          findRootElement().dataset.settingsContextHash = TEST_SETTINGS_CONTEXT_HASH;
+          setMockExtensionGallerySettingsDataset();
+
+          expect(start).toHaveBeenCalledTimes(1);
+          expect(start).toHaveBeenCalledWith(
+            findRootElement(),
+            expect.objectContaining({
+              settingsContextHash: TEST_SETTINGS_CONTEXT_HASH,
+            }),
+          );
+        });
+
+        it('does not include settingsContextHash if extensionsGallerySettings is disabled', () => {
+          const mockExtensionsGalleryDisabledSettings = {
+            enabled: false,
+          };
+          setMockExtensionGallerySettingsDataset(mockExtensionsGalleryDisabledSettings);
+
+          expect(start).toHaveBeenCalledTimes(1);
+          expect(start).toHaveBeenCalledWith(
+            findRootElement(),
+            expect.objectContaining({
+              settingsContextHash: undefined,
+            }),
+          );
+        });
+      });
+    });
   });
 });

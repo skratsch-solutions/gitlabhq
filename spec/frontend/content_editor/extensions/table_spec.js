@@ -1,3 +1,5 @@
+import { builders } from 'prosemirror-test-builder';
+import createEventHub from '~/helpers/event_hub_factory';
 import Bold from '~/content_editor/extensions/bold';
 import BulletList from '~/content_editor/extensions/bullet_list';
 import ListItem from '~/content_editor/extensions/list_item';
@@ -5,7 +7,9 @@ import Table from '~/content_editor/extensions/table';
 import TableCell from '~/content_editor/extensions/table_cell';
 import TableRow from '~/content_editor/extensions/table_row';
 import TableHeader from '~/content_editor/extensions/table_header';
-import { createTestEditor, createDocBuilder } from '../test_utils';
+import { createTestEditor } from '../test_utils';
+
+const eventHub = createEventHub();
 
 describe('content_editor/extensions/table', () => {
   let tiptapEditor;
@@ -20,23 +24,25 @@ describe('content_editor/extensions/table', () => {
 
   beforeEach(() => {
     tiptapEditor = createTestEditor({
-      extensions: [Table, TableCell, TableRow, TableHeader, BulletList, Bold, ListItem],
+      extensions: [
+        Table.configure({ eventHub }),
+        TableCell,
+        TableRow,
+        TableHeader,
+        BulletList,
+        Bold,
+        ListItem,
+      ],
     });
 
     ({
-      builders: { doc, p, table, tableCell, tableHeader, tableRow },
-    } = createDocBuilder({
-      tiptapEditor,
-      names: {
-        bold: { markType: Bold.name },
-        table: { nodeType: Table.name },
-        tableHeader: { nodeType: TableHeader.name },
-        tableCell: { nodeType: TableCell.name },
-        tableRow: { nodeType: TableRow.name },
-        bulletList: { nodeType: BulletList.name },
-        listItem: { nodeType: ListItem.name },
-      },
-    }));
+      doc,
+      paragraph: p,
+      table,
+      tableCell,
+      tableHeader,
+      tableRow,
+    } = builders(tiptapEditor.schema));
 
     initialDoc = doc(
       table(
@@ -52,13 +58,16 @@ describe('content_editor/extensions/table', () => {
   it('triggers a warning (just once) if the table is markdown, but the changes in the document will render an HTML table instead', () => {
     tiptapEditor.commands.setContent(initialDoc.toJSON());
 
-    tiptapEditor.on('alert', mockAlert);
+    eventHub.$on('alert', mockAlert);
 
     tiptapEditor.commands.setTextSelection({ from: 20, to: 22 });
     tiptapEditor.commands.toggleBulletList();
 
     jest.advanceTimersByTime(1001);
-    expect(mockAlert).toHaveBeenCalled();
+    expect(mockAlert).toHaveBeenCalledWith({
+      message: expect.any(String),
+      variant: 'warning',
+    });
 
     mockAlert.mockReset();
 

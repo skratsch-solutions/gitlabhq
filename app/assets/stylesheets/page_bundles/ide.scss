@@ -25,11 +25,6 @@ $ide-commit-header-height: 48px;
   padding-top: 1rem;
 }
 
-.project-refs-form,
-.project-refs-target-form {
-  display: inline-block;
-}
-
 .commit-message {
   @include str-truncated(250px);
 }
@@ -38,7 +33,7 @@ $ide-commit-header-height: 48px;
   position: relative;
   margin-top: 0;
   padding-bottom: $ide-statusbar-height;
-  color: var(--ide-text-color, $gl-text-color);
+  color: var(--ide-text-color, var(--gl-text-color-default));
   min-height: 0; // firefox fix
 
   &.is-collapsed {
@@ -63,11 +58,6 @@ $ide-commit-header-height: 48px;
 .multi-file-loading-container {
   margin-top: 10px;
   padding: 10px;
-}
-
-.multi-file-table-col-commit-message {
-  white-space: nowrap;
-  width: 50%;
 }
 
 .multi-file-edit-pane {
@@ -97,6 +87,7 @@ $ide-commit-header-height: 48px;
     border-right: 1px solid var(--ide-border-color, $border-color);
     border-bottom: 1px solid var(--ide-border-color, $border-color);
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     &.active,
     .gl-tab-nav-item-active {
       background-color: var(--ide-highlight-background, $white);
@@ -116,10 +107,12 @@ $ide-commit-header-height: 48px;
     }
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-tab-content {
     padding: 0;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-tabs-nav {
     border-width: 0;
 
@@ -139,6 +132,7 @@ $ide-commit-header-height: 48px;
         border-right: 1px solid var(--ide-border-color, $border-color);
         border-bottom: 1px solid var(--ide-border-color, $border-color);
 
+        // stylelint-disable-next-line gitlab/no-gl-class
         &.gl-tab-nav-item-active {
           background-color: var(--ide-highlight-background, $white);
           border-color: var(--ide-border-color, $border-color);
@@ -174,13 +168,6 @@ $ide-commit-header-height: 48px;
   svg {
     position: relative;
     top: -2px;
-  }
-
-  .ide-file-changed-icon {
-    display: block;
-    position: relative;
-    top: 1px;
-    right: -2px;
   }
 
   &:not([disabled]):hover {
@@ -244,22 +231,8 @@ $ide-commit-header-height: 48px;
   }
 }
 
-.ide-mode-tabs {
-  border-bottom: 1px solid var(--ide-border-color, $border-color);
-
-  li a {
-    padding: $gl-padding-8 $gl-padding;
-    line-height: $gl-btn-line-height;
-  }
-}
-
-.ide-btn-group {
-  padding: $gl-padding-4 $gl-vert-padding;
-  line-height: 24px;
-}
-
 .ide-status-bar {
-  color: var(--ide-text-color, $gl-text-color);
+  color: var(--ide-text-color, var(--gl-text-color-default));
   border-top: 1px solid var(--ide-border-color, $border-color);
   padding: 2px $gl-padding-8 0;
   background-color: var(--ide-footer-background, $white);
@@ -292,30 +265,6 @@ $ide-commit-header-height: 48px;
 .ide-status-list {
   > div + div {
     padding-left: $gl-padding;
-  }
-}
-// Not great, but this is to deal with our current output
-.multi-file-preview-holder {
-  height: 100%;
-  overflow: scroll;
-
-  .file-content.code {
-    display: flex;
-
-    i {
-      margin-left: -10px;
-    }
-  }
-
-  .line-numbers {
-    min-width: 50px;
-  }
-
-  .file-content,
-  .line-numbers,
-  .blob-content,
-  .code {
-    min-height: 100%;
   }
 }
 
@@ -394,28 +343,9 @@ $ide-commit-header-height: 48px;
   padding: $grid-size 0;
   min-height: 60px;
 
-  &.form-text.text-muted {
+  &.form-text {
     margin-left: 0;
     right: 0;
-  }
-}
-
-.multi-file-commit-list-collapsed {
-  display: flex;
-  flex-direction: column;
-  padding: $gl-padding 0;
-
-  svg {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    color: var(--ide-text-color-secondary, $gray-500);
-  }
-
-  .file-status-icon {
-    width: 10px;
-    height: 10px;
-    margin-left: 3px;
   }
 }
 
@@ -548,13 +478,6 @@ $ide-commit-header-height: 48px;
   }
 }
 
-.ide-staged-action-btn {
-  width: $ide-commit-row-height;
-  height: $ide-commit-row-height;
-  color: inherit;
-  background-color: var(--ide-background, $gray-50);
-}
-
 .ide-commit-options {
   .is-disabled {
     .ide-option-label {
@@ -562,9 +485,10 @@ $ide-commit-header-height: 48px;
     }
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-form-radio,
   .gl-form-checkbox {
-    color: var(--ide-text-color, $gl-text-color);
+    color: var(--ide-text-color, var(--gl-text-color-default));
   }
 }
 
@@ -576,7 +500,7 @@ $ide-commit-header-height: 48px;
   height: 60px;
   width: 100%;
   padding: 0 $gl-padding;
-  color: var(--ide-text-color-secondary, $gl-text-color-secondary);
+  color: var(--ide-text-color-secondary, var(--gl-text-color-subtle));
   background-color: transparent;
   border: 0;
   border-top: 1px solid transparent;
@@ -589,12 +513,12 @@ $ide-commit-header-height: 48px;
   }
 
   &:hover {
-    color: var(--ide-text-color, $gl-text-color);
+    color: var(--ide-text-color, var(--gl-text-color-default));
     background-color: var(--ide-background-hover, $gray-50);
   }
 
   &:focus {
-    color: var(--ide-text-color, $gl-text-color);
+    color: var(--ide-text-color, var(--gl-text-color-default));
     background-color: var(--ide-background-hover, $gray-100);
   }
 
@@ -644,12 +568,13 @@ $ide-commit-header-height: 48px;
     height: 100%;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .nav-links,
   .gl-tabs-nav {
     height: 30px;
   }
 
-  .form-text.text-muted {
+  .form-text {
     margin-top: 2px;
     color: var(--ide-link-color, $blue-500);
     cursor: pointer;
@@ -717,7 +642,7 @@ $ide-commit-header-height: 48px;
   border-bottom: 1px solid var(--ide-border-color-alt, $border-color);
 
   svg {
-    color: var(--ide-text-color-secondary, $gray-500);
+    color: var(--ide-text-color-secondary, var(--gl-icon-color-subtle));
 
     &:focus,
     &:hover {
@@ -730,7 +655,7 @@ $ide-commit-header-height: 48px;
   }
 
   button {
-    color: var(--ide-text-color, $gl-text-color);
+    color: var(--ide-text-color, var(--gl-text-color-default));
   }
 }
 
@@ -755,7 +680,7 @@ $ide-commit-header-height: 48px;
 
       &,
       &:hover {
-        color: var(--ide-text-color-secondary, $gray-500);
+        color: var(--ide-text-color-secondary, var(--gl-icon-color-subtle));
       }
     }
   }
@@ -765,16 +690,6 @@ $ide-commit-header-height: 48px;
   overflow: auto;
   padding-left: $ide-tree-padding;
   padding-right: $ide-tree-padding;
-}
-
-.ide-sidebar-branch-title {
-  font-weight: $gl-font-weight-normal;
-
-  svg {
-    position: relative;
-    top: 3px;
-    margin-top: -1px;
-  }
 }
 
 .commit-form-compact {
@@ -787,6 +702,8 @@ $ide-commit-header-height: 48px;
   }
 }
 
+// These are composite classes for use with Vue Transition
+// https://vuejs.org/guide/built-ins/transition
 .commit-form-slide-up-enter-active,
 .commit-form-slide-up-leave-active {
   position: absolute;
@@ -827,7 +744,7 @@ $ide-commit-header-height: 48px;
 }
 
 .ide-review-sub-header {
-  color: var(--ide-text-color-secondary, $gl-text-color-secondary);
+  color: var(--ide-text-color-secondary, var(--gl-text-color-subtle));
 }
 
 .ide-tree-changes {
@@ -877,11 +794,7 @@ $ide-commit-header-height: 48px;
   .sidebar-context-title {
     white-space: nowrap;
     display: block;
-    color: var(--ide-text-color, $gl-text-color);
-
-    &.text-secondary {
-      font-weight: normal;
-    }
+    color: var(--ide-text-color, var(--gl-text-color-default));
   }
 }
 
@@ -902,22 +815,6 @@ $ide-commit-header-height: 48px;
   min-width: 60px;
 }
 
-.ide-right-sidebar {
-  .multi-file-commit-panel-inner {
-    padding: $grid-size 0;
-    background-color: var(--ide-highlight-background, $white);
-    border-right: 1px solid var(--ide-border-color, $border-color);
-  }
-
-  .ide-right-sidebar-jobs-detail {
-    padding-bottom: 0;
-  }
-
-  .ide-right-sidebar-terminal {
-    padding: 0;
-  }
-}
-
 .ide-pipeline {
   @include ide-trace-view();
 
@@ -925,6 +822,7 @@ $ide-commit-header-height: 48px;
     --svg-status-bg: var(--ide-background, #{$white});
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-empty-state {
     p {
       margin: $grid-size 0;
@@ -938,8 +836,9 @@ $ide-commit-header-height: 48px;
     }
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-tab-content {
-    color: var(--ide-text-color, $gl-text-color);
+    color: var(--ide-text-color, var(--gl-text-color-default));
   }
 }
 
@@ -980,6 +879,7 @@ $ide-commit-header-height: 48px;
 }
 
 .ide-nav-form {
+  // stylelint-disable-next-line gitlab/no-gl-class
   .nav-links li,
   .gl-tabs-nav li {
     width: 50%;
@@ -991,11 +891,13 @@ $ide-commit-header-height: 48px;
       font-size: 14px;
       line-height: 30px;
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       &:not(.active),
       &:not(.gl-tab-nav-item-active) {
         background-color: var(--ide-dropdown-background, $gray-10);
       }
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       &.gl-tab-nav-item-active {
         font-weight: bold;
       }
@@ -1045,23 +947,12 @@ $ide-commit-header-height: 48px;
 .ide-merge-request-project-path {
   font-size: 12px;
   line-height: 16px;
-  color: var(--ide-text-color-secondary, $gl-text-color-secondary);
-}
-
-.ide-merge-request-info {
-  .detail-page-header {
-    line-height: initial;
-    min-height: 38px;
-  }
-
-  .issuable-details {
-    overflow: auto;
-  }
+  color: var(--ide-text-color-secondary, var(--gl-text-color-subtle));
 }
 
 .ide-entry-dropdown-toggle {
   padding: $gl-padding-4;
-  color: var(--ide-text-color, $gl-text-color);
+  color: var(--ide-text-color, var(--gl-text-color-default));
   background-color: var(--ide-background, $gray-50);
 
   &:hover {
@@ -1118,7 +1009,7 @@ $ide-commit-header-height: 48px;
 .ide-file-icon-holder {
   display: flex;
   align-items: center;
-  color: var(--ide-text-color-secondary, $gray-500);
+  color: var(--ide-text-color-secondary, var(--gl-text-color-subtle));
 }
 
 .file-row:active {
@@ -1138,7 +1029,7 @@ $ide-commit-header-height: 48px;
   }
 
   .folder-icon {
-    fill: var(--ide-text-color-secondary, $gl-text-color-secondary);
+    fill: var(--ide-text-color-secondary, var(--gl-icon-color-subtle));
   }
 }
 

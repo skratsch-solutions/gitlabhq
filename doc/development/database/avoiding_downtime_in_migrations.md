@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -24,7 +24,7 @@ The reason we spread this out across three releases is that dropping a column is
 a destructive operation that can't be rolled back easily.
 
 Following this procedure helps us to make sure there are no deployments to GitLab.com
-and upgrade processes for self-managed installations that lump together any of these steps.
+and upgrade processes for GitLab Self-Managed instances that lump together any of these steps.
 
 ### Ignoring the column (release M)
 
@@ -36,7 +36,6 @@ places. This can be done by defining the columns to ignore. For example, in rele
 
 ```ruby
 class User < ApplicationRecord
-  include IgnorableColumns
   ignore_column :updated_at, remove_with: '12.7', remove_after: '2019-12-22'
 end
 ```
@@ -63,6 +62,11 @@ example, this avoids a situation where we deploy a bulk of changes that include 
 to ignore the column and subsequently remove the column ignore (which would result in a downtime).
 
 In this example, the change to ignore the column went into release `12.5`.
+
+NOTE:
+Ignoring and dropping columns should not occur simultaneously in the same release. Dropping a column before proper ignoring it in the model can cause problems with zero-downtime migrations,
+where the running instances can fail trying to look up for the removed column until the Rails schema cache expires. This can be an issue for self-managed customers whom attempt to follow zero-downtime upgrades,
+forcing them to explicit restart all running GitLab instances to re-load the updated schema. To avoid this scenario, first, ignore the column (release M), then, drop it in the next release (release M+1).
 
 ### Dropping the column (release M+1)
 
@@ -148,10 +152,6 @@ The steps:
 1. [Add a post-deployment migration](#add-a-post-deployment-migration-release-m) (release M)
 1. [Remove the ignore rule](#remove-the-ignore-rule-release-m1) (release M+1)
 
-NOTE:
-It's not possible to rename columns with default values. For more details, see
-[this merge request](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/52032#default-values).
-
 ### Add the regular migration (release M)
 
 First we need to create the regular migration. This migration should use
@@ -188,7 +188,6 @@ This step is similar to [the first step when column is dropped](#ignoring-the-co
 
 ```ruby
 class User < ApplicationRecord
-  include IgnorableColumns
   ignore_column :updated_at, remove_with: '12.7', remove_after: '2019-12-22'
 end
 ```
@@ -224,9 +223,10 @@ Same as when column is dropped, after the rename is completed, we need to [remov
 ## Changing column constraints
 
 Adding or removing a `NOT NULL` clause (or another constraint) can typically be
-done without requiring downtime. However, this does require that any application
-changes are deployed _first_. Thus, changing the constraints of a column should
-happen in a post-deployment migration.
+done without requiring downtime. Adding a `NOT NULL` contraint requires that any application
+changes are deployed _first_, so it should happen in a post-deployment migration.
+In contrary removing a `NOT NULL` contraint should be done in a regular migration.
+This way any code which insers `NULL` values can safely run for the column.
 
 Avoid using `change_column` as it produces an inefficient query because it re-defines
 the whole column type.
@@ -311,7 +311,7 @@ Changing column defaults is difficult because of how Rails handles values
 that are equal to the default.
 
 NOTE:
-Rails ignores sending the default values to PostgreSQL when writing records. It leaves this task to
+Rails ignores sending the default values to PostgreSQL when inserting records, if the [partial_inserts](https://gitlab.com/gitlab-org/gitlab/-/blob/55ac06c9083434e6c18e0a2aaf8be5f189ef34eb/config/application.rb#L40) config has been enabled. It leaves this task to
 the database. When migrations change the default values of the columns, the running application is unaware
 of this change due to the schema cache. The application is then under the risk of accidentally writing
 wrong data to the database, especially when deploying the new version of the code
@@ -467,7 +467,6 @@ Ignore the new `bigint` columns:
 # frozen_string_literal: true
 
 class MergeRequest::Metrics < ApplicationRecord
-  include IgnorableColumns
   ignore_column :id_convert_to_bigint, remove_with: '16.0', remove_after: '2023-05-22'
 end
 ```
@@ -493,6 +492,12 @@ class BackfillMergeRequestMetricsForBigintConversion < Gitlab::Database::Migrati
   end
 end
 ```
+
+NOTES:
+
+- With [Issue#438124](https://gitlab.com/gitlab-org/gitlab/-/issues/438124) new instances have all ID columns in bigint.
+  The list of IDs yet to be converted to bigint in old instances (includes `Gitlab.com` SaaS) is maintained in `db/integer_ids_not_yet_initialized_to_bigint.yml`.
+- Since the schema file already has all IDs in `bigint`, don't push any changes to `db/structure.sql`.
 
 ### Monitor the background migration
 
@@ -567,7 +572,7 @@ To monitor the health of the database, use these additional metrics:
 
 Number of [metrics](https://gitlab.com/gitlab-org/gitlab/-/blob/294a92484ce4611f660439aa48eee4dfec2230b5/lib/gitlab/database/background_migration/batched_migration_wrapper.rb#L90-128)
 for each batched background migration are published to Prometheus. These metrics can be searched for and
-visualized in Thanos ([see an example](https://thanos-query.ops.gitlab.net/graph?g0.expr=sum%20(rate(batched_migration_job_updated_tuples_total%7Benv%3D%22gprd%22%7D%5B5m%5D))%20by%20(migration_id)%20&g0.tab=0&g0.stacked=0&g0.range_input=3d&g0.max_source_resolution=0s&g0.deduplicate=1&g0.partial_response=0&g0.store_matches=%5B%5D&g0.end_input=2021-06-13%2012%3A18%3A24&g0.moment_input=2021-06-13%2012%3A18%3A24)).
+visualized in Grafana ([see an example](https://dashboards.gitlab.net/explore?schemaVersion=1&panes=%7B%22m95%22:%7B%22datasource%22:%22e58c2f51-20f8-4f4b-ad48-2968782ca7d6%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22sum%20%28rate%28batched_migration_job_updated_tuples_total%7Benv%3D%5C%22gprd%5C%22%7D%5B5m%5D%29%29%20by%20%28migration_id%29%20%22,%22range%22:true,%22instant%22:true,%22datasource%22:%7B%22type%22:%22prometheus%22,%22uid%22:%22e58c2f51-20f8-4f4b-ad48-2968782ca7d6%22%7D,%22editorMode%22:%22code%22,%22legendFormat%22:%22__auto%22%7D%5D,%22range%22:%7B%22from%22:%22now-3d%22,%22to%22:%22now%22%7D%7D%7D&orgId=1)).
 
 ### Swap the columns (release N + 1)
 
@@ -575,10 +580,32 @@ After the background migration is complete and the new `bigint` columns are popu
 swap the columns. Swapping is done with post-deployment migration. The exact process depends on the
 table being converted, but in general it's done in the following steps:
 
-1. Using the provided `ensure_batched_background_migration_is_finished` helper, make sure the batched
-   migration has finished ([see an example](https://gitlab.com/gitlab-org/gitlab/-/blob/41fbe34a4725a4e357a83fda66afb382828767b2/db/post_migrate/20210707210916_finalize_ci_stages_bigint_conversion.rb#L13-18)).
+1. Using the provided `ensure_backfill_conversion_of_integer_to_bigint_is_finished` helper, make sure the batched
+   migration has finished.
    If the migration has not completed, the subsequent steps fail anyway. By checking in advance we
    aim to have more helpful error message.
+
+   ```ruby
+   disable_ddl_transaction!
+
+   restrict_gitlab_migration gitlab_schema: :gitlab_ci
+
+   def up
+     ensure_backfill_conversion_of_integer_to_bigint_is_finished(
+       :ci_builds,
+       %i[
+         project_id
+         runner_id
+         user_id
+       ],
+       # optional. Only needed when there is no primary key e.g. like schema_migrations
+       primary_key: :id
+     )
+   end
+
+   def down; end
+   ```
+
 1. Use the `add_bigint_column_indexes` helper method from `Gitlab::Database::MigrationHelpers::ConvertToBigint` module
    to create indexes with the `bigint` columns that match the existing indexes using the `integer` column.
    - The helper method is expected to create all required `bigint` indexes, but it's advised to recheck to make sure

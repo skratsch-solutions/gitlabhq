@@ -1,23 +1,32 @@
 <script>
-import { GlAlert, GlButton, GlFormGroup, GlLink, GlModal, GlSprintf } from '@gitlab/ui';
+import {
+  GlAlert,
+  GlButton,
+  GlForm,
+  GlFormGroup,
+  GlFormInput,
+  GlLink,
+  GlModal,
+  GlSprintf,
+} from '@gitlab/ui';
+import { cloneDeep } from 'lodash';
 import { helpPagePath } from '~/helpers/help_page_helper';
 import Tracking from '~/tracking';
+import ModalCopyButton from '~/vue_shared/components/modal_copy_button.vue';
+import CodeBlockHighlighted from '~/vue_shared/components/code_block_highlighted.vue';
+import createAgent from 'ee_else_ce/clusters_list/graphql/mutations/create_agent.mutation.graphql';
+import getAgentsQuery from 'ee_else_ce/clusters_list/graphql/queries/get_agents.query.graphql';
 import {
   INSTALL_AGENT_MODAL_ID,
   I18N_AGENT_MODAL,
-  KAS_DISABLED_ERROR,
   EVENT_LABEL_MODAL,
   EVENT_ACTIONS_OPEN,
-  EVENT_ACTIONS_SELECT,
   EVENT_ACTIONS_CLICK,
   MODAL_TYPE_EMPTY,
   MODAL_TYPE_REGISTER,
 } from '../constants';
 import { addAgentConfigToStore } from '../graphql/cache_update';
-import createAgent from '../graphql/mutations/create_agent.mutation.graphql';
 import createAgentToken from '../graphql/mutations/create_agent_token.mutation.graphql';
-import agentConfigurations from '../graphql/queries/agent_configurations.query.graphql';
-import AvailableAgentsDropdown from './available_agents_dropdown.vue';
 import AgentToken from './agent_token.vue';
 
 const trackingMixin = Tracking.mixin({ label: EVENT_LABEL_MODAL });
@@ -28,51 +37,35 @@ export default {
   EVENT_ACTIONS_OPEN,
   EVENT_ACTIONS_CLICK,
   EVENT_LABEL_MODAL,
+  glabCommand: 'glab cluster agent bootstrap <agent-name>',
   enableKasPath: helpPagePath('administration/clusters/kas'),
   registerAgentPath: helpPagePath('user/clusters/agent/install/index', {
     anchor: 'register-the-agent-with-gitlab',
   }),
-  terraformDocsLink:
-    'https://registry.terraform.io/providers/gitlabhq/gitlab/latest/docs/resources/cluster_agent_token',
-  minAgentsForTerraform: 10,
-  maxAgents: 100,
+  bootstrapAgentWithFluxHelpPath: helpPagePath('user/clusters/agent/install/index', {
+    anchor: 'bootstrap-the-agent-with-flux-support-recommended',
+  }),
+  commandLanguage: 'shell',
   components: {
-    AvailableAgentsDropdown,
     AgentToken,
     GlAlert,
     GlButton,
+    GlForm,
     GlFormGroup,
+    GlFormInput,
     GlLink,
     GlModal,
     GlSprintf,
+    ModalCopyButton,
+    CodeBlockHighlighted,
   },
   mixins: [trackingMixin],
   inject: ['projectPath', 'emptyStateImage'],
   props: {
-    defaultBranchName: {
-      default: '.noBranch',
+    kasDisabled: {
+      type: Boolean,
       required: false,
-      type: String,
-    },
-    maxAgents: {
-      required: true,
-      type: Number,
-    },
-  },
-  apollo: {
-    agents: {
-      query: agentConfigurations,
-      variables() {
-        return {
-          projectPath: this.projectPath,
-        };
-      },
-      update(data) {
-        this.populateAvailableAgents(data);
-      },
-      error(error) {
-        this.kasDisabled = error?.message?.indexOf(KAS_DISABLED_ERROR) >= 0;
-      },
+      default: false,
     },
   },
   data() {
@@ -82,17 +75,13 @@ export default {
       agentToken: null,
       error: null,
       clusterAgent: null,
-      availableAgents: [],
-      kasDisabled: false,
-      configuredAgentsCount: 0,
+      isValidated: false,
+      glabCommand: this.$options.glabCommand,
     };
   },
   computed: {
     registered() {
       return Boolean(this.agentToken);
-    },
-    nextButtonDisabled() {
-      return !this.registering && this.agentName !== null;
     },
     canCancel() {
       return !this.registered && !this.registering && !this.kasDisabled;
@@ -100,37 +89,20 @@ export default {
     canRegister() {
       return !this.registered && !this.kasDisabled;
     },
-    getAgentsQueryVariables() {
-      return {
-        defaultBranchName: this.defaultBranchName,
-        first: this.maxAgents,
-        last: null,
-        projectPath: this.projectPath,
-      };
-    },
-
-    repositoryPath() {
-      return `/${this.projectPath}`;
-    },
     modalType() {
       return this.kasDisabled ? MODAL_TYPE_EMPTY : MODAL_TYPE_REGISTER;
     },
     modalSize() {
       return this.kasDisabled ? 'sm' : 'md';
     },
-    showTerraformSuggestionAlert() {
-      return this.configuredAgentsCount >= this.$options.minAgentsForTerraform;
-    },
-    showMaxAgentsAlert() {
-      return this.configuredAgentsCount >= this.$options.maxAgents;
+    agentNameValid() {
+      if (!this.isValidated) {
+        return true;
+      }
+      return Boolean(this.agentName?.length);
     },
   },
   methods: {
-    setAgentName(name) {
-      this.error = null;
-      this.agentName = name;
-      this.track(EVENT_ACTIONS_SELECT);
-    },
     closeModal() {
       this.$refs.modal.hide();
     },
@@ -140,14 +112,7 @@ export default {
       this.agentToken = null;
       this.clusterAgent = null;
       this.error = null;
-    },
-    populateAvailableAgents(data) {
-      const installedAgents = data?.project?.clusterAgents?.nodes.map((agent) => agent.name) ?? [];
-      const configuredAgents =
-        data?.project?.agentConfigurations?.nodes.map((config) => config.agentName) ?? [];
-
-      this.configuredAgentsCount = configuredAgents.length;
-      this.availableAgents = configuredAgents.filter((agent) => !installedAgents.includes(agent));
+      this.glabCommand = this.$options.glabCommand;
     },
     createAgentMutation() {
       return this.$apollo
@@ -178,8 +143,9 @@ export default {
             addAgentConfigToStore(
               store,
               clusterAgentTokenCreate,
-              this.clusterAgent,
-              agentConfigurations,
+              // Create a non-reactive copy of clusterAgent to prevent Vue 3 reactivity conflicts
+              cloneDeep(this.clusterAgent),
+              getAgentsQuery,
               {
                 projectPath: this.projectPath,
               },
@@ -200,6 +166,7 @@ export default {
         }
 
         this.clusterAgent = clusterAgent;
+        this.$emit('clusterAgentCreated', this.clusterAgent.name);
 
         const { errors: tokenErrors, secret } = await this.createAgentTokenMutation(
           clusterAgent.id,
@@ -208,7 +175,6 @@ export default {
         if (tokenErrors?.length > 0) {
           throw new Error(tokenErrors[0]);
         }
-
         this.agentToken = secret;
       } catch (error) {
         if (error) {
@@ -218,7 +184,20 @@ export default {
         }
       } finally {
         this.registering = false;
+        this.isValidated = false;
       }
+    },
+    submit() {
+      this.isValidated = true;
+      if (!this.canRegister || !this.agentName) {
+        return;
+      }
+      this.registerAgent();
+    },
+    showModalForAgent(name) {
+      this.agentName = name;
+      this.$refs.modal?.show();
+      this.glabCommand = this.glabCommand.replace('<agent-name>', this.agentName);
     },
   },
 };
@@ -237,44 +216,50 @@ export default {
   >
     <template v-if="!kasDisabled">
       <template v-if="!registered">
-        <p class="gl-mb-0">
-          <gl-sprintf :message="$options.i18n.modalBody">
+        <p class="gl-mb-2 gl-font-bold">{{ $options.i18n.bootstrapWithFluxTitle }}</p>
+        <p class="gl-mb-3">{{ $options.i18n.bootstrapWithFluxDescription }}</p>
+        <p class="gl-mb-3 gl-flex gl-items-start">
+          <code-block-highlighted
+            :language="$options.commandLanguage"
+            class="gl-border gl-mb-0 gl-mr-3 gl-w-full gl-px-3 gl-py-2"
+            :code="glabCommand"
+          />
+          <modal-copy-button :text="glabCommand" :modal-id="$options.modalId" category="tertiary" />
+        </p>
+        <gl-sprintf :message="$options.i18n.bootstrapWithFluxOptions">
+          <template #code="{ content }">
+            <code>{{ content }}</code>
+          </template>
+        </gl-sprintf>
+        <p class="gl-mb-5">
+          <gl-sprintf :message="$options.i18n.bootstrapWithFluxDocs">
             <template #link="{ content }">
-              <gl-link :href="repositoryPath">{{ content }}</gl-link>
+              <gl-link :href="$options.bootstrapAgentWithFluxHelpPath" target="_blank">{{
+                content
+              }}</gl-link>
             </template>
           </gl-sprintf>
         </p>
 
-        <gl-alert
-          v-if="showTerraformSuggestionAlert"
-          :dismissible="false"
-          variant="warning"
-          class="gl-my-4"
-        >
-          <span v-if="showMaxAgentsAlert">{{ $options.i18n.maxAgentsSupport }}</span>
-          <span>
-            <gl-sprintf :message="$options.i18n.useTerraformText">
-              <template #link="{ content }">
-                <gl-link :href="$options.terraformDocsLink">{{ content }}</gl-link>
-              </template>
-            </gl-sprintf>
-          </span>
-        </gl-alert>
+        <p class="gl-mb-2 gl-font-bold">{{ $options.i18n.registerWithUITitle }}</p>
+        <p class="gl-mb-0">
+          {{ $options.i18n.modalBody }}
 
-        <form>
-          <gl-form-group label-for="agent-name">
-            <available-agents-dropdown
-              class="gl-w-7/10"
-              :is-registering="registering"
-              :available-agents="availableAgents"
-              @agentSelected="setAgentName"
+          <gl-link :href="$options.registerAgentPath"> {{ $options.i18n.learMore }}</gl-link>
+        </p>
+
+        <gl-form @submit.prevent="submit">
+          <gl-form-group :invalid-feedback="$options.i18n.requiredFieldFeedback">
+            <gl-form-input
+              v-model.trim="agentName"
+              :placeholder="$options.i18n.agentNamePlaceholder"
+              :state="agentNameValid"
+              required
+              data-testid="agent-name-input"
+              class="gl-w-1/2"
             />
           </gl-form-group>
-        </form>
-
-        <p>
-          <gl-link :href="$options.registerAgentPath"> {{ $options.i18n.learnMoreLink }}</gl-link>
-        </p>
+        </gl-form>
 
         <p v-if="error">
           <gl-alert
@@ -287,12 +272,18 @@ export default {
         </p>
       </template>
 
-      <agent-token
-        v-else
-        :agent-name="agentName"
-        :agent-token="agentToken"
-        :modal-id="$options.modalId"
-      />
+      <template v-else>
+        <gl-alert :dismissible="false" variant="success" class="gl-mb-5">
+          <gl-sprintf :message="$options.i18n.registrationSuccess">
+            <template #agentName>{{ agentName }}</template>
+          </gl-sprintf></gl-alert
+        >
+        <agent-token
+          :agent-name="agentName"
+          :agent-token="agentToken"
+          :modal-id="$options.modalId"
+        />
+      </template>
     </template>
 
     <gl-alert v-else :dismissible="false" variant="warning">
@@ -326,13 +317,12 @@ export default {
 
       <gl-button
         v-if="canRegister"
-        :disabled="!nextButtonDisabled"
         variant="confirm"
         category="primary"
         :data-track-action="$options.EVENT_ACTIONS_CLICK"
         :data-track-label="$options.EVENT_LABEL_MODAL"
         data-track-property="register"
-        @click="registerAgent"
+        @click="submit"
         >{{ $options.i18n.registerAgentButton }}
       </gl-button>
 

@@ -25,6 +25,10 @@ module Mutations
           required: false,
           description: 'Description of the model version.'
 
+        argument :candidate_id, ::Types::GlobalIDType[::Ml::Candidate],
+          required: false,
+          description: 'Global ID of a candidate to promote optionally.'
+
         field :model_version,
           Types::Ml::ModelVersionType,
           null: true,
@@ -39,7 +43,9 @@ module Mutations
           result = ::Ml::CreateModelVersionService.new(model,
             {
               version: args[:version],
-              description: args[:description]
+              description: args[:description],
+              candidate_id: args[:candidate_id],
+              user: current_user
             }
           ).execute
 

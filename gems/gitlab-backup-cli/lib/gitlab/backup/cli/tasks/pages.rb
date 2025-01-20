@@ -17,8 +17,8 @@ module Gitlab
 
           private
 
-          def target
-            ::Backup::Targets::Files.new(nil, storage_path, options: options, excludes: [LEGACY_PAGES_TMP_PATH])
+          def local
+            Gitlab::Backup::Cli::Targets::Files.new(context, storage_path, excludes: [LEGACY_PAGES_TMP_PATH])
           end
 
           def storage_path = context.pages_path

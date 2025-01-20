@@ -2,6 +2,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { mapState, mapGetters } from 'vuex';
 import { __ } from '~/locale';
+import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import ScopeSidebarNavigation from '~/search/sidebar/components/scope_sidebar_navigation.vue';
 import SidebarPortal from '~/super_sidebar/components/sidebar_portal.vue';
 import { toggleSuperSidebarCollapsed } from '~/super_sidebar/super_sidebar_collapsed_state_manager';
@@ -84,6 +85,11 @@ export default {
       return this.currentScope === SCOPE_WIKI_BLOBS;
     },
   },
+  beforeCreate() {
+    if (!this.$store) {
+      Sentry.captureException('GlobalSearchSidebar was not provided a Vuex store');
+    }
+  },
   methods: {
     toggleFiltersFromSidebar() {
       toggleSuperSidebarCollapsed();
@@ -97,7 +103,7 @@ export default {
     <dom-element-listener selector="#js-open-mobile-filters" @click="toggleFiltersFromSidebar" />
     <sidebar-portal>
       <div
-        class="gl-px-4 gl-py-3 gl-m-0 gl-leading-reset gl-font-bold super-sidebar-context-header"
+        class="super-sidebar-context-header gl-m-0 gl-px-4 gl-py-3 gl-font-bold gl-leading-reset"
       >
         {{ $options.i18n.headerText }}
       </div>

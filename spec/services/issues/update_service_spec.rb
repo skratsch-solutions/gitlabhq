@@ -23,7 +23,9 @@ RSpec.describe Issues::UpdateService, :mailer, feature_category: :team_planning 
       description: "for #{user2.to_reference}",
       assignee_ids: [user3.id],
       project: project,
-      author: create(:user)
+      author: create(:user),
+      created_at: Time.current - 1.day,
+      updated_at: Time.current - 1.day
     )
   end
 
@@ -101,6 +103,37 @@ RSpec.describe Issues::UpdateService, :mailer, feature_category: :team_planning 
         expect(issue.confidential).to be_falsey
         expect(issue.milestone).to eq milestone
         expect(issue.issue_customer_relations_contacts.last.contact).to eq contact
+      end
+
+      context 'with lock_version' do
+        let(:opts) do
+          {
+            description: 'Also please fix',
+            label_ids: [label.id]
+          }
+        end
+
+        context 'when given lock_version is valid' do
+          before do
+            opts[:lock_version] = issue.lock_version
+          end
+
+          it 'updates the issue successfully' do
+            update_issue(opts)
+
+            expect(issue).to be_valid
+          end
+        end
+
+        context 'when given lock_version is stale' do
+          before do
+            opts[:lock_version] = issue.lock_version - 1
+          end
+
+          it 'raises a stale object error' do
+            expect { update_issue(opts) }.to raise_error ActiveRecord::StaleObjectError
+          end
+        end
       end
 
       it_behaves_like 'update service that triggers GraphQL work_item_updated subscription' do
@@ -429,6 +462,8 @@ RSpec.describe Issues::UpdateService, :mailer, feature_category: :team_planning 
 
       context 'when current user cannot admin issues in the project' do
         it 'filters out params that cannot be set without the :admin_issue permission' do
+          issue.update!(author: guest)
+
           described_class.new(
             container: project, current_user: guest, params: opts.merge(
               confidential: true,
@@ -774,6 +809,14 @@ RSpec.describe Issues::UpdateService, :mailer, feature_category: :team_planning 
           end
 
           update_issue(milestone_id: milestone.id)
+        end
+
+        context 'when also closing the issue' do
+          it 'creates a milestone resource event' do
+            expect do
+              update_issue(milestone_id: create(:milestone, project: project).id, state_event: 'close')
+            end.to change { ResourceMilestoneEvent.count }.by(1)
+          end
         end
       end
 

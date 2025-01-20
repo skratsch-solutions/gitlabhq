@@ -1,14 +1,14 @@
 ---
 stage: Fulfillment
 group: Utilization
-info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+info: This page is maintained by Developer Relations, author @dnsmichi, see https://handbook.gitlab.com/handbook/marketing/developer-relations/developer-advocacy/content/#maintained-documentation
 ---
 
 # Automate storage management
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This page describes how to automate storage analysis and cleanup to manage your storage usage
 with the GitLab REST API.
@@ -27,7 +27,7 @@ To automate storage management, your GitLab.com SaaS or self-managed instance mu
 
 ### API authentication scope
 
-Use the following scopes to [authenticate](../api/rest/index.md#authentication) with the API:
+Use the following scopes to [authenticate](../api/rest/authentication.md) with the API:
 
 - Storage analysis:
   - Read API access with the `read_api` scope.
@@ -88,7 +88,7 @@ The storage management and cleanup automation methods described in this page use
 For more information about use cases for the `python-gitlab` library,
 see [Efficient DevSecOps workflows: Hands-on `python-gitlab` API automation](https://about.gitlab.com/blog/2023/02/01/efficient-devsecops-workflows-hands-on-python-gitlab-api-automation/).
 
-For more information about other API client libraries, see [Third-party clients](../api/rest/index.md#third-party-clients).
+For more information about other API client libraries, see [Third-party clients](../api/rest/third_party_clients.md).
 
 NOTE:
 Use [GitLab Duo Code Suggestions](project/repository/code_suggestions/index.md) to write code more efficiently.
@@ -194,15 +194,15 @@ and recursively analyze all subgroups and projects. You can also analyze differe
 Here's an example of an algorithm to analyze multiple subgroups and projects:
 
 1. Fetch the top-level namespace ID. You can copy the ID value from the [namespace/group overview](../user/namespace/index.md#types-of-namespaces).
-1. Fetch all [subgroups](../api/groups.md#list-a-groups-subgroups) from the top-level group, and save the IDs in a list.
-1. Loop over all groups and fetch all [projects from each group](../api/groups.md#list-a-groups-projects) and save the IDs in a list.
+1. Fetch all [subgroups](../api/groups.md#list-subgroups) from the top-level group, and save the IDs in a list.
+1. Loop over all groups and fetch all [projects from each group](../api/groups.md#list-projects) and save the IDs in a list.
 1. Identify the storage type to analyze, and collect the information from project attributes, like project statistics, and job artifacts.
 1. Print an overview of all projects, grouped by group, and their storage information.
 
 The shell approach with `glab` might be more suitable for smaller analyses. For larger analyses, you should use a script that
 uses the API client libraries. This type of script can improve readability, data storage, flow control, testing, and reusability.
 
-To ensure the script doesn't reach [API rate limits](../api/rest/index.md#rate-limits), the following
+To ensure the script doesn't reach [API rate limits](../security/rate_limits.md), the following
 example code is not optimized for parallel API requests.
 
 To implement this algorithm:
@@ -214,7 +214,7 @@ To implement this algorithm:
 ```shell
 export GROUP_NAME="gitlab-da"
 
-# Return sub group IDs
+# Return subgroup IDs
 glab api groups/$GROUP_NAME/subgroups | jq --compact-output '.[]' | jq --compact-output '.id'
 12034712
 67218622
@@ -605,35 +605,139 @@ glab api --method GET projects/$GL_PROJECT_ID/pipelines | jq --compact-output '.
 In the following example that uses a Bash script:
 
 - `jq` and the GitLab CLI are installed and authorized.
-- The exported environment variable `GL_PROJECT_ID`.
+- The exported environment variable `GL_PROJECT_ID`. Defaults to the GitLab predefined variable `CI_PROJECT_ID`.
+- The exported environment variable `CI_SERVER_HOST` that points to the GitLab instance URL.
+
+::Tabs
+
+:::TabTitle Using the API with glab
 
 The full script `get_cicd_pipelines_compare_age_threshold_example.sh` is located in the [GitLab API with Linux Shell](https://gitlab.com/gitlab-da/use-cases/gitlab-api/gitlab-api-linux-shell) project.
 
 ```shell
-#/bin/bash
+#!/bin/bash
 
-CREATED_AT_ARR=$(glab api --method GET projects/$GL_PROJECT_ID/pipelines | jq --compact-output '.[]' | jq --compact-output '.created_at' | jq --raw-output @sh)
+# Required programs:
+# - GitLab CLI (glab): https://docs.gitlab.com/ee/editor_extensions/gitlab_cli/index.html
+# - jq: https://jqlang.github.io/jq/
 
-for row in ${CREATED_AT_ARR[@]}
-do
-    stripped=$(echo $row | xargs echo)
-    #echo $stripped #DEBUG
+# Required variables:
+# - PAT: Project Access Token with API scope and Owner role, or Personal Access Token with API scope
+# - GL_PROJECT_ID: ID of the project where pipelines must be cleaned
+# - AGE_THRESHOLD (optional): Maximum age in days of pipelines to keep (default: 90)
 
-    CREATED_AT_TS=$(date -d "$stripped" +%s)
-    NOW=$(date +%s)
+set -euo pipefail
 
-    AGE=$(($NOW-$CREATED_AT_TS))
-    AGE_THRESHOLD=$((90*24*60*60)) # 90 days
+# Constants
+DEFAULT_AGE_THRESHOLD=90
+SECONDS_PER_DAY=$((24 * 60 * 60))
 
-    if [ $AGE -gt $AGE_THRESHOLD ];
-    then
-        echo "Pipeline age $AGE older than threshold $AGE_THRESHOLD, should be deleted."
-        # TODO call glab to delete the pipeline. Needs an ID collected from the glab call above.
+# Functions
+log_info() {
+    echo "[INFO] $1"
+}
+
+log_error() {
+    echo "[ERROR] $1" >&2
+}
+
+delete_pipeline() {
+    local project_id=$1
+    local pipeline_id=$2
+    if glab api --method DELETE "projects/$project_id/pipelines/$pipeline_id"; then
+        log_info "Deleted pipeline ID $pipeline_id"
     else
-        echo "Pipeline age $AGE not older than threshold $AGE_THRESHOLD. Ignore."
+        log_error "Failed to delete pipeline ID $pipeline_id"
     fi
-done
+}
+
+# Main script
+main() {
+    # Authenticate
+    if ! glab auth login --hostname "$CI_SERVER_HOST" --token "$PAT"; then
+        log_error "Authentication failed"
+        exit 1
+    fi
+
+    # Set variables
+    AGE_THRESHOLD=${AGE_THRESHOLD:-$DEFAULT_AGE_THRESHOLD}
+    AGE_THRESHOLD_IN_SECONDS=$((AGE_THRESHOLD * SECONDS_PER_DAY))
+    GL_PROJECT_ID=${GL_PROJECT_ID:-$CI_PROJECT_ID}
+
+    # Fetch pipelines
+    PIPELINES=$(glab api --method GET "projects/$GL_PROJECT_ID/pipelines")
+    if [ -z "$PIPELINES" ]; then
+        log_error "Failed to fetch pipelines or no pipelines found"
+        exit 1
+    fi
+
+    # Process pipelines
+    echo "$PIPELINES" | jq -r '.[] | [.id, .created_at] | @tsv' | while IFS=$'\t' read -r id created_at; do
+        CREATED_AT_TS=$(date -d "$created_at" +%s)
+        NOW=$(date +%s)
+        AGE=$((NOW - CREATED_AT_TS))
+
+        if [ "$AGE" -gt "$AGE_THRESHOLD_IN_SECONDS" ]; then
+            log_info "Pipeline ID $id created at $created_at is older than threshold $AGE_THRESHOLD days, deleting..."
+            delete_pipeline "$GL_PROJECT_ID" "$id"
+        else
+            log_info "Pipeline ID $id created at $created_at is not older than threshold $AGE_THRESHOLD days. Ignoring."
+        fi
+    done
+}
+
+main
 ```
+
+:::TabTitle Using the glab CLI
+
+The full script `cleanup-old-pipelines.sh` is located in the [GitLab API with Linux Shell](https://gitlab.com/gitlab-da/use-cases/gitlab-api/gitlab-api-linux-shell) project.
+
+```shell
+#!/bin/bash
+
+set -euo pipefail
+
+# Required environment variables:
+# PAT: Project Access Token with API scope and Owner role, or Personal Access Token with API scope.
+# Optional environment variables:
+# AGE_THRESHOLD: Maximum age (in days) of pipelines to keep. Default: 90 days.
+# REPO: Repository to clean up. If not set, the current repository will be used.
+# CI_SERVER_HOST: GitLab server hostname.
+
+# Function to display error message and exit
+error_exit() {
+    echo "Error: $1" >&2
+    exit 1
+}
+
+# Validate required environment variables
+[[ -z "${PAT:-}" ]] && error_exit "PAT (Project Access Token or Personal Access Token) is not set."
+[[ -z "${CI_SERVER_HOST:-}" ]] && error_exit "CI_SERVER_HOST is not set."
+
+# Set and validate AGE_THRESHOLD
+AGE_THRESHOLD=${AGE_THRESHOLD:-90}
+[[ ! "$AGE_THRESHOLD" =~ ^[0-9]+$ ]] && error_exit "AGE_THRESHOLD must be a positive integer."
+
+AGE_THRESHOLD_IN_HOURS=$((AGE_THRESHOLD * 24))
+
+echo "Deleting pipelines older than $AGE_THRESHOLD days"
+
+# Authenticate with GitLab
+glab auth login --hostname "$CI_SERVER_HOST" --token "$PAT" || error_exit "Authentication failed"
+
+# Delete old pipelines
+delete_cmd="glab ci delete --older-than ${AGE_THRESHOLD_IN_HOURS}h"
+if [[ -n "${REPO:-}" ]]; then
+    delete_cmd+=" --repo $REPO"
+fi
+
+$delete_cmd || error_exit "Pipeline deletion failed"
+
+echo "Pipeline cleanup completed."
+```
+
+:::TabTitle Using the API with Python
 
 You can also use the [`python-gitlab` API library](https://python-gitlab.readthedocs.io/en/stable/gl_objects/pipelines_and_jobs.html#project-pipelines) and
 the `created_at` attribute to implement a similar algorithm that compares the job artifact age:
@@ -655,6 +759,8 @@ the `created_at` attribute to implement a similar algorithm that compares the jo
                 print("Deleting pipeline", pipeline.id)
                 pipeline_obj.delete()
 ```
+
+::EndTabs
 
 Automatic deletion of old pipelines is proposed in [issue 338480](https://gitlab.com/gitlab-org/gitlab/-/issues/338480).
 
@@ -742,8 +848,8 @@ The script does not print job templates that:
 ```shell
 export GL_GROUP_ID=56595735
 
-# Script requires pyyaml too.
-pip3 install python-gitlab pyyaml
+# Install script dependencies
+python3 -m pip install 'python-gitlab[yaml]'
 
 python3 get_all_cicd_config_artifacts_expiry.py
 
@@ -1190,7 +1296,7 @@ generate-package:
 
 ### Generate storage usage with forks
 
-Use the following projects to test storage usage with [cost factors for forks](usage_quotas.md#view-project-fork-storage-usage):
+Use the following projects to test storage usage with [cost factors for forks](storage_usage_quotas.md#view-project-fork-storage-usage):
 
 - Fork [`gitlab-org/gitlab`](https://gitlab.com/gitlab-org/gitlab) into a new namespace or group (includes LFS, Git repository).
 - Fork [`gitlab-com/www-gitlab-com`](https://gitlab.com/gitlab-com/www-gitlab-com) into a new namespace or group.

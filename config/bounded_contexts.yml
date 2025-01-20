@@ -30,7 +30,7 @@ domains:
       - duo_chat
       - ai_abstraction_layer
       - code_suggestions # Also in CodeSuggestions
-      - cloud_connector  # Also in CloudConnector
+      - cloud_connector # Also in CloudConnector
       - duo_workflow
 
   Analytics:
@@ -39,13 +39,18 @@ domains:
       - value_stream_management
       - devops_reports
       - dora_metrics
-      - product_analytics_data_management
+      - product_analytics
 
   AntiAbuse:
     description:
     feature_categories:
       - insider_threat
       - instance_resiliency
+
+  AppConfig:
+    description: Top-level configuration at the GitLab instance level
+    feature_categories:
+      - settings
 
   AuditEvents:
     description:
@@ -61,7 +66,6 @@ domains:
     description: Authorization layer
     feature_categories:
       - permissions
-      - system_access
 
   Backup:
     description: Backup and restore
@@ -79,11 +83,10 @@ domains:
     feature_categories:
       - continuous_integration
       - pipeline_composition
-      - secrets_management
       - fleet_visibility
       - job_artifacts
       - pipeline_reports
-      - secure_artifacts
+      - artifact_security
       - code_testing
 
   CloudConnector:
@@ -112,10 +115,10 @@ domains:
     feature_categories:
       - container_registry
 
-  DependencyManagement:
+  CustomerRelations:
     description:
     feature_categories:
-      - dependency_management
+      - team_planning
 
   DependencyProxy:
     description: Dependency Proxy for container images.
@@ -142,11 +145,12 @@ domains:
       - geo_replication
 
   GitlabSubscriptions:
-    description:
+    description: Managing subscription related code for GitLab.com and Self-Managed
     feature_categories:
       - seat_cost_management
       - plan_provisioning
       - subscription_management
+      - add-on_provisioning
 
   Import:
     description:
@@ -159,7 +163,8 @@ domains:
       - integrations
 
   Issuables:
-    description: Common concerns between work items and merge requests such as setting milestone,
+    description:
+      Common concerns between work items and merge requests such as setting milestone,
       support discussions, adding labels, etc.
     feature_categories:
       - team_planning
@@ -171,7 +176,7 @@ domains:
     feature_categories:
       - user_management
       - groups_and_projects
-      - system_access
+      - permissions
 
   MergeRequests:
     description: Code collaboration and review including diffs, MR widgets and mergeability checks
@@ -211,8 +216,7 @@ domains:
   Observability:
     description:
     feature_categories:
-      - metrics
-      - error_tracking
+      - observability
       - incident_management
 
   Onboarding:
@@ -242,6 +246,11 @@ domains:
     feature_categories:
       - groups_and_projects
 
+  ResourceAccessTokens:
+    description: Managing groups and projects access tokens
+    feature_categories:
+      - system_access
+
   Releases:
     description:
     feature_categories:
@@ -251,7 +260,7 @@ domains:
   RemoteDevelopment:
     description:
     feature_categories:
-      - remote_development
+      - workspaces
 
   Repositories:
     description: Git repositories and workflow including Gitaly client
@@ -270,6 +279,11 @@ domains:
     feature_categories:
       - global_search
 
+  SecretsManagement:
+    description: Management of native and external secrets
+    feature_categories:
+      - secrets_management
+
   Security:
     description: Manage and execute security scanners and policies
     feature_categories:
@@ -278,6 +292,7 @@ domains:
       - security_policy_management
       - software_composition_analysis
       - static_application_security_testing
+      - secret_detection
 
   ServiceDesk:
     description:
@@ -289,6 +304,11 @@ domains:
     feature_categories:
       - service_ping
 
+  Snippets:
+    description: Snippets to store and share bits of code and text with other users.
+    feature_categories:
+      - source_code_management
+
   StatusPage:
     description:
     feature_categories:
@@ -298,6 +318,11 @@ domains:
     description:
     feature_categories:
       - infrastructure_as_code
+
+  Todos:
+    description: User todos management
+    feature_categories:
+      - notifications
 
   Users:
     description: Behavior related to user lifecycle and profile settings. Feature specific behavior must not go here.
@@ -349,7 +374,8 @@ domains:
 # Modules from the platform layer could potentially be extracted as gems.
 platform:
   Gitlab:
-    description: Platform layer containing infrastructure and technical concerns.
+    description:
+      Platform layer containing infrastructure and technical concerns.
       For example observability tools, generic base classes, utilities, database helpers, etc.
       Each functionality in this layer should be isolated and extracted into gems.
   Banzai:

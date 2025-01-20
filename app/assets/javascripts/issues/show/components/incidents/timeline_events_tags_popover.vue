@@ -1,17 +1,18 @@
 <script>
-import { GlIcon, GlPopover, GlLink } from '@gitlab/ui';
+import { GlPopover, GlLink } from '@gitlab/ui';
 import { helpPagePath } from '~/helpers/help_page_helper';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import { timelineEventTagsPopover } from './constants';
 
 export default {
   name: 'TimelineEventsTagsPopover',
   components: {
-    GlIcon,
     GlPopover,
     GlLink,
+    HelpIcon,
   },
   i18n: timelineEventTagsPopover,
-  learnMoreLink: helpPagePath('ee/operations/incident_management/incident_timeline_events', {
+  learnMoreLink: helpPagePath('operations/incident_management/incident_timeline_events', {
     anchor: 'incident-tags',
   }),
 };
@@ -19,7 +20,7 @@ export default {
 
 <template>
   <span>
-    <gl-icon id="timeline-events-tag-question" name="question-o" class="gl-text-blue-600" />
+    <help-icon id="timeline-events-tag-question" />
 
     <gl-popover
       target="timeline-events-tag-question"
@@ -32,7 +33,7 @@ export default {
         <p class="gl-mb-0">
           {{ $options.i18n.message }}
         </p>
-        <gl-link target="_blank" class="gl-font-sm" :href="$options.learnMoreLink">{{
+        <gl-link target="_blank" class="gl-text-sm" :href="$options.learnMoreLink">{{
           $options.i18n.link
         }}</gl-link
         >.

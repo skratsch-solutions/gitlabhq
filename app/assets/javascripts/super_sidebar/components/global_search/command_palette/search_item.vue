@@ -33,7 +33,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-display-flex gl-align-items-center">
+  <div class="gl-flex gl-items-center">
     <gl-avatar
       v-if="item.avatar_url !== undefined"
       class="gl-mr-3"
@@ -44,13 +44,13 @@ export default {
       :shape="$options.AVATAR_SHAPE_OPTION_RECT"
       aria-hidden="true"
     />
-    <gl-icon v-if="item.icon" class="gl-mr-3 gl-flex-shrink-0" :name="item.icon" />
-    <span class="gl-display-flex gl-flex-direction-column">
-      <span v-safe-html="highlightedName" class="gl-text-gray-900"></span>
+    <gl-icon v-if="item.icon" class="gl-mr-3 gl-shrink-0" :name="item.icon" />
+    <span class="gl-flex gl-flex-col">
+      <span v-safe-html="highlightedName" class="gl-text-strong"></span>
       <span
         v-if="item.namespace"
         v-safe-html="item.namespace"
-        class="gl-font-sm gl-text-gray-500"
+        class="gl-text-sm gl-text-subtle"
       ></span>
     </span>
   </div>

@@ -99,7 +99,7 @@ module Gitlab
             <div>
             <div class="gl-relative markdown-code-block js-markdown-code">
             <pre data-canonical-lang="mypre" class="code highlight js-syntax-highlight language-plaintext" v-pre="true"><code></code></pre>
-            <copy-code></copy-code>
+            <copy-code></copy-code><insert-code-snippet></insert-code-snippet>
             </div>
             </div>
             </div>
@@ -370,7 +370,7 @@ module Gitlab
             <div>
             <div class="gl-relative markdown-code-block js-markdown-code">
             <pre data-canonical-lang="js" class="code highlight js-syntax-highlight language-javascript" v-pre="true"><code><span id="LC1" class="line" lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">hello world</span><span class="dl">'</span><span class="p">)</span></span></code></pre>
-            <copy-code></copy-code>
+            <copy-code></copy-code><insert-code-snippet></insert-code-snippet>
             </div>
             </div>
             </div>
@@ -404,7 +404,7 @@ module Gitlab
             <span id="LC3" class="line" lang="cpp"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span></span>
             <span id="LC4" class="line" lang="cpp">  <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"*"</span><span class="o">&lt;&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span></span>
             <span id="LC5" class="line" lang="cpp"><span class="p">}</span></span></code></pre>
-            <copy-code></copy-code>
+            <copy-code></copy-code><insert-code-snippet></insert-code-snippet>
             </div>
             </div>
             </div>
@@ -641,6 +641,17 @@ module Gitlab
 
           expect(render(input, context)).to include(output.strip)
         end
+
+        it 'does not allow reading arbitrary files via kroki\'s macro blockdiag' do
+          input = <<~ADOC
+            = File Read Test
+
+            blockdiag::/etc/hosts[format=svg]
+          ADOC
+
+          output = render(input, context)
+          expect(output).to include('/etc/hosts')
+        end
       end
     end
 
@@ -870,6 +881,26 @@ module Gitlab
           end
         end
 
+        describe 'the effect of max-include-depth' do
+          before do
+            create_file 'a.adoc', "include::b.adoc[]\n a-document"
+            create_file 'b.adoc', "include::c.adoc[]\n b-document"
+            create_file 'c.adoc', "include::d.adoc[]\n c-document"
+            create_file 'd.adoc', "d-document"
+          end
+
+          let(:include_path) { 'a.adoc' }
+
+          it 'does not include more than the MAX_INCLUDE_DEPTH class constant of 3' do
+            expect(output.gsub(/<[^>]+>/, '').gsub(/\n\s*/, "\n").strip).to eq <<~ADOC.strip
+              Include this:
+              c-document
+              b-document
+              a-document
+            ADOC
+          end
+        end
+
         context 'recursive includes with relative paths' do
           let(:input) do
             <<~ADOC
@@ -948,6 +979,28 @@ module Gitlab
           repository.create_file(project.creator, path, content,
             message: "Add #{path}", branch_name: 'asciidoc')
         end
+      end
+    end
+
+    context 'with timeout' do
+      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:context) { { project: project } }
+
+      before do
+        stub_const("#{described_class}::RENDER_TIMEOUT", 0.1)
+        allow(::Asciidoctor).to receive(:convert) do
+          sleep(0.2)
+        end
+      end
+
+      it 'times out when rendering takes too long' do
+        expect(Gitlab::RenderTimeout).to receive(:timeout).and_call_original
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          instance_of(Timeout::Error),
+          project_id: context[:project].id, class_name: described_class.name.demodulize
+        ).and_call_original
+
+        expect(render('<b>ascii</b>', context)).to eq '<b>ascii</b>'
       end
     end
 

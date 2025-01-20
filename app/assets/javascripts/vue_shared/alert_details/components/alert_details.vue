@@ -252,25 +252,13 @@ export default {
       class="alert-management-details gl-relative"
       :class="{ 'pr-sm-8': sidebarStatus }"
     >
-      <div
-        class="gl-display-flex gl-justify-content-space-between gl-align-items-center gl-px-1 py-3 py-md-4 gl-border-b-1 gl-border-b-gray-100 gl-border-b-solid gl-flex-direction-column gl-sm-flex-direction-row"
-      >
-        <div data-testid="alert-header">
-          <gl-badge class="gl-mr-3">
-            <strong>{{ s__('AlertManagement|Alert') }}</strong>
-          </gl-badge>
-          <span>
-            <gl-sprintf :message="reportedAtMessage">
-              <template #when>
-                <time-ago-tooltip :time="alert.createdAt" />
-              </template>
-              <template #tool>{{ alert.monitoringTool }}</template>
-            </gl-sprintf>
-          </span>
+      <div class="gl-mt-5 gl-justify-between gl-gap-4 sm:!gl-flex">
+        <div v-if="alert">
+          <h2 data-testid="title" class="gl-m-0">{{ alert.title }}</h2>
         </div>
         <gl-button
           v-if="alert.issue"
-          class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-incident-button"
+          class="mt-sm-0 align-self-center align-self-sm-baseline alert-details-incident-button gl-mt-3"
           data-testid="viewIncidentBtn"
           :href="incidentPath(alert.issue.iid)"
           category="primary"
@@ -280,7 +268,7 @@ export default {
         </gl-button>
         <gl-button
           v-else
-          class="gl-mt-3 mt-sm-0 align-self-center align-self-sm-baseline alert-details-incident-button"
+          class="mt-sm-0 align-self-center align-self-sm-baseline alert-details-incident-button gl-mt-3"
           data-testid="createIncidentBtn"
           :loading="incidentCreationInProgress"
           category="primary"
@@ -293,19 +281,32 @@ export default {
           :aria-label="__('Toggle sidebar')"
           category="primary"
           variant="default"
-          class="d-sm-none gl-absolute toggle-sidebar-mobile-button"
+          class="d-sm-none toggle-sidebar-mobile-button gl-absolute"
           type="button"
           icon="chevron-double-lg-left"
           @click="toggleSidebar"
         />
       </div>
-      <div
-        v-if="alert"
-        class="gl-display-flex gl-justify-content-space-between gl-align-items-center"
-      >
-        <h2 data-testid="title">{{ alert.title }}</h2>
+
+      <div data-testid="alert-header" class="gl-mt-2">
+        <gl-badge class="gl-mr-2">
+          <strong>{{ s__('AlertManagement|Alert') }}</strong>
+        </gl-badge>
+        <span>
+          <gl-sprintf :message="reportedAtMessage">
+            <template #when>
+              <time-ago-tooltip :time="alert.createdAt" />
+            </template>
+            <template #tool>{{ alert.monitoringTool }}</template>
+          </gl-sprintf>
+        </span>
       </div>
-      <gl-tabs v-if="alert" v-model="currentTabIndex" data-testid="alertDetailsTabs">
+      <gl-tabs
+        v-if="alert"
+        v-model="currentTabIndex"
+        data-testid="alertDetailsTabs"
+        class="gl-mt-4"
+      >
         <gl-tab :data-testid="$options.tabsConfig[0].id" :title="$options.tabsConfig[0].title">
           <alert-summary-row v-if="alert.severity" :label="`${s__('AlertManagement|Severity')}:`">
             <span data-testid="severity">
@@ -324,7 +325,7 @@ export default {
           >
             <gl-link
               v-if="environmentPath"
-              class="gl-display-inline-block"
+              class="gl-inline-block"
               data-testid="environmentPath"
               :href="environmentPath"
             >

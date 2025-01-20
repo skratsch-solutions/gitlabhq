@@ -13,6 +13,7 @@ import diffLineNoteFormMixin from '~/notes/mixins/diff_line_note_form';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import { detectAndConfirmSensitiveTokens } from '~/lib/utils/secret_detection';
+import { FILE_DIFF_POSITION_TYPE, IMAGE_DIFF_POSITION_TYPE } from '~/diffs/constants';
 import eventHub from '../event_hub';
 import noteable from '../mixins/noteable';
 import resolvable from '../mixins/resolvable';
@@ -75,11 +76,6 @@ export default {
       type: Boolean,
       required: false,
       default: false,
-    },
-    shouldScrollToNote: {
-      type: Boolean,
-      required: false,
-      default: true,
     },
   },
   data() {
@@ -167,8 +163,24 @@ export default {
       return !this.discussionResolved ? this.discussion.resolve_with_issue_path : '';
     },
     canShowReplyActions() {
-      if (this.shouldRenderDiffs && !this.discussion.diff_file?.diff_refs) {
-        return false;
+      if (this.shouldRenderDiffs) {
+        if (this.discussion.diff_file?.diff_refs) {
+          return true;
+        }
+
+        /*
+         * https://gitlab.com/gitlab-com/gl-infra/production/-/issues/19118
+         *
+         * For most diff discussions we should have a `diff_file`.
+         * However in some cases we might we might not have this object.
+         * In these we need to check if the `original_position.position_type`
+         * is either a file or an image, doing this allows us to still
+         * render the reply actions.
+         */
+        return (
+          this.discussion.original_position?.position_type === FILE_DIFF_POSITION_TYPE ||
+          this.discussion.original_position?.position_type === IMAGE_DIFF_POSITION_TYPE
+        );
       }
 
       return true;
@@ -178,10 +190,9 @@ export default {
     },
     discussionHolderClass() {
       return {
-        'is-replying gl-pt-0!': this.isReplying,
+        'is-replying': this.isReplying,
         'internal-note': this.isDiscussionInternal,
-        'public-note': !this.isDiscussionInternal,
-        'gl-pt-0!': !this.discussion.diff_discussion && this.isReplying,
+        '!gl-pt-0': !this.discussion.diff_discussion && this.isReplying,
       };
     },
     hasDraft() {
@@ -205,11 +216,17 @@ export default {
       'removeConvertedDiscussion',
       'expandDiscussion',
     ]),
-    showReplyForm() {
+    showReplyForm(text) {
       this.isReplying = true;
 
       if (!this.discussion.expanded) {
         this.expandDiscussion({ discussionId: this.discussion.id });
+      }
+
+      if (typeof text !== 'undefined') {
+        this.$nextTick(() => {
+          this.$refs.noteForm.append(text);
+        });
       }
     },
     cancelReplyForm: ignoreWhilePending(async function cancelReplyForm(shouldConfirm, isDirty) {
@@ -326,7 +343,6 @@ export default {
               :line="line"
               :should-group-replies="shouldGroupReplies"
               :is-overview-tab="isOverviewTab"
-              :should-scroll-to-note="shouldScrollToNote"
               @startReplying="showReplyForm"
             >
               <template #avatar-badge>
@@ -342,9 +358,10 @@ export default {
                 <li
                   v-else-if="canShowReplyActions && showReplies"
                   data-testid="reply-wrapper"
-                  class="discussion-reply-holder gl-border-t-0! gl-pb-5! clearfix"
+                  class="discussion-reply-holder clearfix gl-bg-subtle"
                   :class="discussionHolderClass"
                 >
+                  <div class="flash-container !gl-mt-0 gl-mb-2"></div>
                   <discussion-actions
                     v-if="!isReplying && userCanReply"
                     :discussion="discussion"

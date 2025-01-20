@@ -16,7 +16,7 @@ module DraftNotes
 
       success
     rescue ActiveRecord::RecordInvalid => e
-      message = "Unable to save #{e.record.class.name}: #{e.record.errors.full_messages.join(", ")} "
+      message = "Unable to save #{e.record.class.name}: #{e.record.errors.full_messages.join(', ')} "
       error(message)
     end
 
@@ -49,9 +49,10 @@ module DraftNotes
       keep_around_commits(created_notes)
       draft_notes.delete_all
       notification_service.async.new_review(review)
+      todo_service.new_review(review, current_user)
       MergeRequests::ResolvedDiscussionNotificationService.new(project: project, current_user: current_user).execute(merge_request)
       GraphqlTriggers.merge_request_merge_status_updated(merge_request)
-      after_publish(review)
+      after_publish
     end
 
     def create_note_from_draft(draft, executing_user, skip_capture_diff_note_position: false, skip_keep_around_commits: false, skip_merge_status_trigger: false)
@@ -108,8 +109,12 @@ module DraftNotes
       end
     end
 
-    def after_publish(review)
-      # Overridden in EE
+    def after_publish
+      merge_request.assignees.each do |assignee|
+        next unless assignee.merge_request_dashboard_enabled?
+
+        assignee.invalidate_merge_request_cache_counts
+      end
     end
   end
 end

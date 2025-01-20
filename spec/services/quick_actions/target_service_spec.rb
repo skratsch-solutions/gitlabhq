@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe QuickActions::TargetService, feature_category: :team_planning do
+RSpec.describe QuickActions::TargetService, feature_category: :text_editors do
   let_it_be(:group) { create(:group) }
   let_it_be_with_reload(:project) { create(:project, group: group) }
   let_it_be(:user) { create(:user, maintainer_of: project) }
@@ -76,13 +76,6 @@ RSpec.describe QuickActions::TargetService, feature_category: :team_planning do
             expect(found_target.namespace).to eq(group)
           end
         end
-      end
-
-      context 'when work item belongs to a group' do
-        let(:container) { group }
-        let(:target) { create(:work_item, :group_level, namespace: group) }
-
-        it_behaves_like 'find target'
       end
     end
 

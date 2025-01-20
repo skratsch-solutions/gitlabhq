@@ -26,6 +26,7 @@ module API
 
       before do
         authenticate_non_get!
+        set_current_organization
       end
 
       helpers Helpers::UsersHelpers
@@ -100,6 +101,33 @@ module API
         end
       end
 
+      desc 'Get support PIN for a user. Available only for admins.' do
+        detail 'This feature allows administrators to retrieve the support PIN for a specified user'
+        success Entities::UserSupportPin
+        is_array false
+      end
+      params do
+        requires :id, type: Integer, desc: 'The ID of the user'
+      end
+      get ":id/support_pin", feature_category: :user_management do
+        authenticated_as_admin!
+
+        user = User.find_by_id(params[:id])
+        not_found!('User') unless user
+
+        begin
+          result = ::Users::SupportPin::RetrieveService.new(user).execute
+        rescue StandardError
+          error!("Error retrieving Support PIN for user.", :unprocessable_entity)
+        end
+
+        if result
+          present result, with: Entities::UserSupportPin
+        else
+          not_found!('Support PIN not found or expired')
+        end
+      end
+
       desc 'Get the list of users' do
         success Entities::UserBasic
       end
@@ -110,16 +138,19 @@ module API
         optional :provider, type: String, desc: 'The external provider'
         optional :search, type: String, desc: 'Search for a username'
         optional :active, type: Boolean, default: false, desc: 'Filters only active users'
+        optional :humans, type: Boolean, default: false, desc: 'Filters only human users'
         optional :external, type: Boolean, default: false, desc: 'Filters only external users'
-        optional :exclude_external, as: :non_external, type: Boolean, default: false, desc: 'Filters only non external users'
         optional :blocked, type: Boolean, default: false, desc: 'Filters only blocked users'
         optional :created_after, type: DateTime, desc: 'Return users created after the specified time'
         optional :created_before, type: DateTime, desc: 'Return users created before the specified time'
         optional :without_projects, type: Boolean, default: false, desc: 'Filters only users without projects'
-        optional :exclude_internal, as: :non_internal, type: Boolean, default: false, desc: 'Filters only non internal users'
         optional :without_project_bots, type: Boolean, default: false, desc: 'Filters users without project bots'
         optional :admins, type: Boolean, default: false, desc: 'Filters only admin users'
         optional :two_factor, type: String, desc: 'Filter users by Two-factor authentication.'
+        optional :exclude_active, as: :without_active, type: Boolean, default: false, desc: 'Filters only non active users'
+        optional :exclude_external, as: :non_external, type: Boolean, default: false, desc: 'Filters only non external users'
+        optional :exclude_humans, as: :without_humans, type: Boolean, default: false, desc: 'Filters only non human users'
+        optional :exclude_internal, as: :non_internal, type: Boolean, default: false, desc: 'Filters only non internal users'
         all_or_none_of :extern_uid, :provider
 
         use :sort_params_no_defaults
@@ -331,9 +362,10 @@ module API
           params[:private_profile] = Gitlab::CurrentSettings.user_defaults_to_private_profile
         end
 
-        user = ::Users::AuthorizedCreateService.new(current_user, params).execute
+        response = ::Users::AuthorizedCreateService.new(current_user, params).execute
+        user = response.payload[:user]
 
-        if user.persisted?
+        if response.success?
           present user, with: Entities::UserWithAdmin, current_user: current_user
         else
           conflict!('Email has already been taken') if User
@@ -1019,11 +1051,13 @@ module API
           end
           params do
             requires :name, type: String, desc: 'The name of the impersonation token'
+            optional :description, type: String, desc: 'The description of the personal access token'
             optional :expires_at, type: Date, desc: 'The expiration date in the format YEAR-MONTH-DAY of the impersonation token'
             optional :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'The array of scopes of the impersonation token'
           end
           post feature_category: :system_access do
             impersonation_token = finder.build(declared_params(include_missing: false))
+            impersonation_token.organization = Current.organization
 
             if impersonation_token.save
               present impersonation_token, with: Entities::ImpersonationTokenWithToken
@@ -1075,11 +1109,12 @@ module API
             requires :name, type: String, desc: 'The name of the personal access token'
             requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: ::Gitlab::Auth.all_available_scopes.map(&:to_s),
               desc: 'The array of scopes of the personal access token'
+            optional :description, type: String, desc: 'The description of the personal access token'
             optional :expires_at, type: Date, desc: 'The expiration date in the format YEAR-MONTH-DAY of the personal access token'
           end
           post feature_category: :system_access do
             response = ::PersonalAccessTokens::CreateService.new(
-              current_user: current_user, target_user: target_user, params: declared_params(include_missing: false)
+              current_user: current_user, target_user: target_user, organization_id: Current.organization_id, params: declared_params(include_missing: false)
             ).execute
 
             if response.success?
@@ -1095,6 +1130,7 @@ module API
     resource :user do
       before do
         authenticate!
+        set_current_organization
       end
 
       # Enabling /user endpoint for the v3 version to allow oauth
@@ -1288,7 +1324,7 @@ module API
         present paginate(current_user.emails), with: Entities::Email
       end
 
-      desc "Update a user's credit_card_validation" do
+      desc "[DEPRECATED] Update a user's credit_card_validation" do
         success Entities::UserCreditCardValidations
       end
       params do
@@ -1317,8 +1353,45 @@ module API
 
         if service.success?
           present user.credit_card_validation, with: Entities::UserCreditCardValidations
+        elsif service.reason == :rate_limited
+          render_api_error!(service.message, 400)
         else
-          render_api_error!('400 Bad Request', 400)
+          bad_request!
+        end
+      end
+
+      desc 'Create a new Support PIN for the authenticated user' do
+        detail 'This feature creates a temporary Support PIN for the authenticated user'
+        success Entities::UserSupportPin
+      end
+      post "support_pin", feature_category: :user_profile do
+        authenticate!
+
+        result = ::Users::SupportPin::UpdateService.new(current_user).execute
+
+        if result[:status] == :success
+          present({ pin: result[:pin], expires_at: result[:expires_at] }, with: Entities::UserSupportPin)
+        else
+          error!(result[:message], :unprocessable_entity)
+        end
+      end
+
+      desc 'Get the current Support PIN for the authenticated user' do
+        detail 'This feature retrieves the temporary Support PIN for the authenticated user'
+        success Entities::UserSupportPin
+      end
+      get "support_pin", feature_category: :user_profile do
+        authenticate!
+
+        result = ::Users::SupportPin::RetrieveService.new(current_user).execute
+
+        if result
+          # Convert the Time object to ISO 8601 format
+          expires_at = result[:expires_at].iso8601
+
+          present({ pin: result[:pin], expires_at: expires_at }, with: Entities::UserSupportPin)
+        else
+          not_found!('Support PIN not found or expired')
         end
       end
 
@@ -1339,13 +1412,13 @@ module API
 
         attrs = declared_params(include_missing: false)
 
-        render_api_error!('400 Bad Request', 400) unless attrs
+        bad_request! unless attrs
 
         service = ::UserPreferences::UpdateService.new(current_user, attrs).execute
         if service.success?
           present preferences, with: Entities::UserPreferences
         else
-          render_api_error!('400 Bad Request', 400)
+          bad_request!
         end
       end
 
@@ -1488,11 +1561,12 @@ module API
           # and in https://gitlab.com/gitlab-org/gitlab/-/issues/425171
           requires :scopes, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: [::Gitlab::Auth::K8S_PROXY_SCOPE].map(&:to_s),
             desc: 'The array of scopes of the personal access token'
+          optional :description, type: String, desc: 'The description of the personal access token'
           optional :expires_at, type: Date, default: -> { 1.day.from_now.to_date }, desc: 'The expiration date in the format YEAR-MONTH-DAY of the personal access token'
         end
         post feature_category: :system_access do
           response = ::PersonalAccessTokens::CreateService.new(
-            current_user: current_user, target_user: current_user, params: declared_params(include_missing: false)
+            current_user: current_user, target_user: current_user, params: declared_params(include_missing: false), organization_id: Current.organization_id
           ).execute
 
           if response.success?

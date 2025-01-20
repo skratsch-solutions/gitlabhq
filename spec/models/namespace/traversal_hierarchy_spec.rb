@@ -68,12 +68,30 @@ RSpec.describe Namespace::TraversalHierarchy, type: :model, feature_category: :g
       end
     end
 
-    it_behaves_like 'locked row' do
+    it_behaves_like 'locked row', timeout: true do
       let(:recorded_queries) { ActiveRecord::QueryRecorder.new }
       let(:row) { root }
 
       before do
         recorded_queries.record { subject }
+      end
+    end
+
+    context 'when record is already locked' do
+      let(:msg) { 'PG::QueryCanceled: ERROR:  canceling statement due to statement timeout' }
+
+      before do
+        allow(root).to receive(:lock!).and_raise(ActiveRecord::QueryCanceled.new(msg))
+      end
+
+      it { expect { subject }.to raise_error(ActiveRecord::QueryCanceled, msg) }
+
+      it 'increment db_query_timeout counter' do
+        expect do
+          subject
+        rescue StandardError
+          nil
+        end.to change { db_query_timeout_total('Namespace#sync_traversal_ids!') }.by(1)
       end
     end
 
@@ -92,6 +110,12 @@ RSpec.describe Namespace::TraversalHierarchy, type: :model, feature_category: :g
         end.to change { db_deadlock_total('Namespace#sync_traversal_ids!') }.by(1)
       end
     end
+  end
+
+  def db_query_timeout_total(source)
+    Gitlab::Metrics
+      .counter(:db_query_timeout, 'Counts the times the query timed out')
+      .get(source: source)
   end
 
   def db_deadlock_total(source)

@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -318,22 +318,47 @@ scheduled after the background migration has completed, which could be several r
      end
      ```
 
-1. **Optional.** If the constraint was validated asynchronously, validate the `NOT NULL` constraint once validation is complete:
+   - **Optional.** For partitioned table, use:
 
-   ```ruby
-   # db/post_migrate/
-   class ValidateMergeRequestDiffsProjectIdNullConstraint < Gitlab::Database::Migration[2.2]
-     milestone '16.10'
+     ```ruby
+     # db/post_migrate/
 
+     PARTITIONED_TABLE_NAME = :p_ci_builds
+     CONSTRAINT_NAME = 'check_9aa9432137'
+
+     # Partitioned check constraint to be validated in https://gitlab.com/gitlab-org/gitlab/-/issues/XXXXX
      def up
-       validate_not_null_constraint :merge_request_diffs, :project_id
+       prepare_partitioned_async_check_constraint_validation PARTITIONED_TABLE_NAME, name: CONSTRAINT_NAME
      end
 
      def down
-       # no-op
+       unprepare_partitioned_async_check_constraint_validation PARTITIONED_TABLE_NAME, name: CONSTRAINT_NAME
      end
-   end
-   ```
+     ```
+
+     NOTE:
+     `prepare_partitioned_async_check_constraint_validation` only validates the existing `NOT VALID` check constraint asynchronously for all the partitions.
+     It doesn't create or validate the check constraint for the partitioned table.
+
+1. **Optional.** If the constraint was validated asynchronously, validate the `NOT NULL` constraint once validation is complete:
+   - Use [Database Lab](database_lab.md) to check if the validation was successful.
+   Run the command `\d+ table_name` and ensure that `NOT VALID` has been removed from the check constraint definition.
+   - Add the migration to validate the `NOT NULL` constraint:
+
+      ```ruby
+      # db/post_migrate/
+      class ValidateMergeRequestDiffsProjectIdNullConstraint < Gitlab::Database::Migration[2.2]
+        milestone '16.10'
+
+        def up
+          validate_not_null_constraint :merge_request_diffs, :project_id
+        end
+
+        def down
+          # no-op
+        end
+      end
+      ```
 
 For these cases, consult the database team early in the update cycle. The `NOT NULL`
 constraint may not be required or other options could exist that do not affect really large
@@ -404,3 +429,76 @@ CREATE TABLE labels (
     CONSTRAINT check_45e873b2a8 CHECK ((num_nonnulls(group_id, project_id) > 0))
 );
 ```
+
+## Dropping a `NOT NULL` constraint on a column in an existing table
+
+### Dropping a `NOT NULL` constraint with a check constraint on the column
+
+First, please verify there's a constraint in place on the column. You can do this in several ways:
+
+- Query the [`Gitlab::Database::PostgresConstraint`](https://gitlab.com/gitlab-org/gitlab/-/blob/71892a3c97f52ddcef819dd210ab32864e90c85c/lib/gitlab/database/postgres_constraint.rb) view in rails console
+- Use `psql` to check the table itself: `\d+ table_name`
+- Check `structure.sql`:
+
+```sql
+CREATE TABLE labels (
+    ...
+   CONSTRAINT check_061f6f1c91 CHECK ((project_view IS NOT NULL))
+);
+```
+
+#### Example
+
+```ruby
+# frozen_string_literal: true
+class DropNotNullConstraintFromTableColumn< Gitlab::Database::Migration[2.2]
+  disable_ddl_transaction!
+  milestone '16.7'
+
+  def up
+    remove_not_null_constraint :table_name, :column_name
+  end
+
+  def down
+    add_not_null_constraint :table_name, :column_name
+  end
+end
+```
+
+<b>NOTE:</b> The milestone number is just an example. Please use the correct version.
+
+### Dropping a `NOT NULL` constraint without a check constraint on the column
+
+If `NOT NULL` is just defined on the column and without a check constraint then we can use `change_column_null`.
+
+Example in `structure.sql`:
+
+```sql
+CREATE TABLE labels (
+    ...
+   projects_limit integer NOT NULL
+);
+```
+
+#### Example
+
+```ruby
+# frozen_string_literal: true
+class DropNotNullConstraintFromTableColumn < Gitlab::Database::Migration[2.2]
+  milestone '16.7'
+
+  def up
+    change_column_null :table_name, :column_name, true
+  end
+
+  def down
+    change_column_null :table_name, :column_name, false
+  end
+end
+```
+
+<b>NOTE:</b> The milestone number is just an example. Please use the correct version.
+
+### Dropping a `NOT NULL` constraint on a partition table
+
+Important note: we cannot drop the `NOT NULL` constraint from an individual partition if it exists on the parent table because all the partitions inherit the constraint from the parent table. For this reason, we need to drop the constraint from the parent table instead which cascades to all the child partitions.

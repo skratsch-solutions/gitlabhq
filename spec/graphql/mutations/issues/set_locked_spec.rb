@@ -2,11 +2,13 @@
 
 require 'spec_helper'
 
-RSpec.describe Mutations::Issues::SetLocked do
-  let_it_be(:issue) { create(:issue) }
-  let_it_be(:user) { create(:user) }
+RSpec.describe Mutations::Issues::SetLocked, feature_category: :api do
+  include GraphqlHelpers
 
-  subject(:mutation) { described_class.new(object: nil, context: { current_user: user }, field: nil) }
+  let_it_be(:issue) { create(:issue) }
+  let_it_be(:current_user) { create(:user) }
+
+  subject(:mutation) { described_class.new(object: nil, context: query_context, field: nil) }
 
   specify { expect(described_class).to require_graphql_authorizations(:update_issue) }
 
@@ -21,7 +23,7 @@ RSpec.describe Mutations::Issues::SetLocked do
       let(:mutated_issue) { subject[:issue] }
 
       before do
-        issue.project.add_developer(user)
+        issue.project.add_developer(current_user)
       end
 
       it 'returns the issue as discussion locked' do

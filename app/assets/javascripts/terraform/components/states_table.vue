@@ -46,7 +46,7 @@ export default {
   },
   computed: {
     fields() {
-      const columns = [
+      return [
         {
           key: 'name',
           label: this.$options.i18n.name,
@@ -59,18 +59,13 @@ export default {
           key: 'updated',
           label: this.$options.i18n.details,
         },
-      ];
-
-      if (this.terraformAdmin) {
-        columns.push({
+        {
           key: 'actions',
           label: this.$options.i18n.actions,
           thClass: 'gl-w-12',
           tdClass: 'gl-text-right',
-        });
-      }
-
-      return columns;
+        },
+      ];
     },
   },
   i18n: {
@@ -132,39 +127,32 @@ export default {
     :items="states"
     :fields="fields"
     data-testid="terraform-states-table"
-    details-td-class="gl-p-0!"
+    details-td-class="!gl-p-0"
     fixed
     stacked="md"
   >
     <template #cell(name)="{ item }">
       <div
-        class="gl-display-flex gl-align-items-center gl-justify-content-end gl-md-justify-content-start"
         data-testid="terraform-states-table-name"
+        class="gl-align-center gl-flex gl-justify-end gl-gap-3 md:gl-justify-start"
       >
-        <p class="gl-m-0 gl-text-gray-900">
+        <p class="gl-m-0 gl-text-default">
           {{ item.name }}
         </p>
 
-        <div v-if="item.loadingLock" class="gl-mx-3">
-          <p class="gl-display-flex gl-justify-content-start gl-align-items-baseline gl-m-0">
-            <gl-loading-icon size="sm" class="gl-pr-1" />
-            {{ loadingLockText(item) }}
-          </p>
+        <div v-if="item.loadingLock">
+          <gl-loading-icon size="sm" class="gl-inline gl-pr-1" />
+          {{ loadingLockText(item) }}
         </div>
 
-        <div v-else-if="item.loadingRemove" class="gl-mx-3">
-          <p
-            class="gl-display-flex gl-justify-content-start gl-align-items-baseline gl-m-0 gl-text-red-500"
-          >
-            <gl-loading-icon size="sm" class="gl-pr-1" />
-            {{ $options.i18n.removing }}
-          </p>
+        <div v-else-if="item.loadingRemove">
+          <gl-loading-icon size="sm" class="gl-inline gl-pr-1" />
+          {{ $options.i18n.removing }}
         </div>
 
         <div
           v-else-if="item.deletedAt"
           v-gl-tooltip.right
-          class="gl-mx-3"
           :title="$options.i18n.deletionInProgress"
           :data-testid="`state-badge-${item.name}`"
         >
@@ -176,7 +164,6 @@ export default {
         <div
           v-else-if="item.lockedAt"
           v-gl-tooltip.right
-          class="gl-mx-3"
           :title="lockedByUserText(item)"
           :data-testid="`state-badge-${item.name}`"
         >
@@ -190,7 +177,7 @@ export default {
     <template #cell(pipeline)="{ item }">
       <div
         data-testid="terraform-states-table-pipeline"
-        class="md:gl-flex gl-align-items-center gl-gap-3"
+        class="gl-flex gl-items-center gl-justify-end gl-gap-3 md:gl-justify-start"
       >
         <gl-link v-if="pipelineID(item)" :href="pipelinePath(item)">
           #{{ pipelineID(item) }}
@@ -230,8 +217,8 @@ export default {
       </p>
     </template>
 
-    <template v-if="terraformAdmin" #cell(actions)="{ item }">
-      <state-actions :state="item" />
+    <template #cell(actions)="{ item }">
+      <state-actions :state="item" :terraform-admin="terraformAdmin" />
     </template>
 
     <template #row-details="row">
@@ -240,11 +227,7 @@ export default {
         variant="danger"
         @dismiss="row.toggleDetails"
       >
-        <span
-          v-for="errorMessage in row.item.errorMessages"
-          :key="errorMessage"
-          class="gl-display-flex gl-justify-content-start"
-        >
+        <span v-for="errorMessage in row.item.errorMessages" :key="errorMessage">
           {{ errorMessage }}
         </span>
       </gl-alert>

@@ -2,8 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :team_planning do
+RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :markdown do
   using RSpec::Parameterized::TableSyntax
+
+  it_behaves_like 'sanitize pipeline'
 
   describe 'References' do
     let(:project) { create(:project, :public) }
@@ -71,13 +73,13 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :team_planning 
         <section data-footnotes class="footnotes">
         <ol>
         <li id="fn-1-#{identifier}">
-        <p>one <a href="#fnref-1-#{identifier}" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1" class="footnote-backref"><gl-emoji title="leftwards arrow with hook" data-name="leftwards_arrow_with_hook" data-unicode-version="1.1">↩</gl-emoji></a></p>
+        <p>one <a href="#fnref-1-#{identifier}" data-footnote-backref data-footnote-backref-idx="1" aria-label="Back to reference 1" title="Back to reference 1" class="footnote-backref">↩</a></p>
         </li>
         <li id="fn-%F0%9F%98%84second-#{identifier}">
-        <p>two <a href="#fnref-%F0%9F%98%84second-#{identifier}" data-footnote-backref data-footnote-backref-idx="2" aria-label="Back to reference 2" class="footnote-backref"><gl-emoji title="leftwards arrow with hook" data-name="leftwards_arrow_with_hook" data-unicode-version="1.1">↩</gl-emoji></a></p>
+        <p>two <a href="#fnref-%F0%9F%98%84second-#{identifier}" data-footnote-backref data-footnote-backref-idx="2" aria-label="Back to reference 2" title="Back to reference 2" class="footnote-backref">↩</a></p>
         </li>
         <li id="fn-_twenty-#{identifier}">
-        <p>twenty <a href="#fnref-_twenty-#{identifier}" data-footnote-backref data-footnote-backref-idx="3" aria-label="Back to reference 3" class="footnote-backref"><gl-emoji title="leftwards arrow with hook" data-name="leftwards_arrow_with_hook" data-unicode-version="1.1">↩</gl-emoji></a></p>
+        <p>twenty <a href="#fnref-_twenty-#{identifier}" data-footnote-backref data-footnote-backref-idx="3" aria-label="Back to reference 3" title="Back to reference 3" class="footnote-backref">↩</a></p>
         </li>
         </ol>
         </section>
@@ -229,7 +231,6 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :team_planning 
   end
 
   context 'when input is malicious' do
-    let_it_be(:duration) { (Banzai::Filter::Concerns::PipelineTimingCheck::MAX_PIPELINE_SECONDS + 3).seconds }
     let_it_be(:markdown1) { '![a ' * 3 }
     let_it_be(:markdown2) { "$1$\n" * 190000 }
     let_it_be(:markdown3) { "[^1]\n[^1]:\n" * 100000 }
@@ -253,7 +254,7 @@ RSpec.describe Banzai::Pipeline::FullPipeline, feature_category: :team_planning 
     with_them do
       it 'is not long running' do
         expect do
-          Timeout.timeout(duration) { described_class.to_html(markdown, project: nil) }
+          Timeout.timeout(BANZAI_FILTER_TIMEOUT_MAX) { described_class.to_html(markdown, project: nil) }
         end.not_to raise_error
       end
     end

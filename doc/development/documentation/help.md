@@ -14,8 +14,8 @@ hour from the default branch of GitLab, Omnibus, Runner, Charts, and Operator.
 After a merge request that updates documentation is merged, it is available online
 in an hour or less.
 
-However, it's only available at `/help` on self-managed instances in the next released
-version. The date an update is merged can impact which self-managed release the update
+However, it's only available at `/help` on GitLab Self-Managed instances in the next released
+version. The date an update is merged can impact which GitLab Self-Managed release the update
 is present in.
 
 For example:
@@ -25,7 +25,7 @@ For example:
 1. It is merged on 2021-10-19 and available online the same day at <https://docs.gitlab.com>.
 1. GitLab 14.4 is released on 2021-10-22, based on the `gitlab` codebase from 2021-10-18
    (one day *before* the update was merged).
-1. The change shows up in the 14.5 self-managed release, due to missing the release cutoff
+1. The change shows up in the 14.5 GitLab Self-Managed release, due to missing the release cutoff
    for 14.4.
 
 If it is important that a documentation update is present in that month's release,
@@ -80,8 +80,7 @@ The `help_page_path` contains the path to the document you want to link to,
 with the following conventions:
 
 - It's relative to the `doc/` directory in the GitLab repository.
-- It omits the `.md` extension.
-- It doesn't end with a forward slash (`/`).
+- For clarity, it should end with the `.md` file extension.
 
 The help text follows the [Pajamas guidelines](https://design.gitlab.com/usability/contextual-help#formatting-help-content).
 
@@ -94,14 +93,14 @@ is inside `_()` so it can be translated:
   link to the `/help` page is:
 
   ```haml
-  = link_to _('Learn more.'), help_page_path('user/permissions'), target: '_blank', rel: 'noopener noreferrer'
+  = link_to _('Learn more.'), help_page_path('user/permissions.md'), target: '_blank', rel: 'noopener noreferrer'
   ```
 
 - Linking to an anchor link. Use `anchor` as part of the `help_page_path`
   method:
 
   ```haml
-  = link_to _('Learn more.'), help_page_path('user/permissions', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
+  = link_to _('Learn more.'), help_page_path('user/permissions.md', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
   ```
 
 - Using links inline of some text. First, define the link, and then use it. In
@@ -109,7 +108,7 @@ is inside `_()` so it can be translated:
   link:
 
   ```haml
-  - link = link_to('', help_page_path('user/permissions'), target: '_blank', rel: 'noopener noreferrer')
+  - link = link_to('', help_page_path('user/permissions.md'), target: '_blank', rel: 'noopener noreferrer')
   %p= safe_format(_("This is a text describing the option/feature in a sentence. %{link_start}Learn more.%{link_end}"), tag_pair(link, :link_start, :link_end))
   ```
 
@@ -117,7 +116,8 @@ is inside `_()` so it can be translated:
   the rest of the page layout:
 
   ```haml
-  = link_to _('Learn more.'), help_page_path('user/permissions'),  class: 'btn btn-info', target: '_blank', rel: 'noopener noreferrer'
+  = render Pajamas::ButtonComponent.new(href: help_page_path('user/group/import/index.md'), target: '_blank') do
+      = _('Learn more')
   ```
 
 ### Linking to `/help` in JavaScript
@@ -127,7 +127,7 @@ To link to the documentation from a JavaScript or a Vue component, use the `help
 ```javascript
 import { helpPagePath } from '~/helpers/help_page_helper';
 
-helpPagePath('user/permissions', { anchor: 'anchor-link' })
+helpPagePath('user/permissions.md', { anchor: 'anchor-link' })
 // evaluates to '/help/user/permissions#anchor-link' for GitLab.com
 ```
 
@@ -139,7 +139,7 @@ To link to the documentation from within Ruby code, use the following code block
 be translated:
 
 ```ruby
-docs_link = link_to _('Learn more.'), help_page_url('user/permissions', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
+docs_link = link_to _('Learn more.'), help_page_url('user/permissions.md', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
 safe_format(_('This is a text describing the option/feature in a sentence. %{docs_link}'), docs_link: docs_link)
 ```
 
@@ -147,7 +147,7 @@ In cases where you need to generate a link from outside of views/helpers, where 
 as a guide where the methods are fully qualified:
 
 ```ruby
-docs_link = ActionController::Base.helpers.link_to _('Learn more.'), Rails.application.routes.url_helpers.help_page_url('user/permissions', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
+docs_link = ActionController::Base.helpers.link_to _('Learn more.'), Rails.application.routes.url_helpers.help_page_url('user/permissions.md', anchor: 'anchor-link'), target: '_blank', rel: 'noopener noreferrer'
 safe_format(_('This is a text describing the option/feature in a sentence. %{docs_link}'), docs_link: docs_link)
 ```
 

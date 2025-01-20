@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > Support for [GitLab CI/CD job token](../../ci/jobs/ci_job_token.md) authentication [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/250819) in GitLab 15.1.
 
@@ -27,7 +27,7 @@ GET /projects/:id/releases/:tag_name/assets/links
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-paths). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 
 Example request:
@@ -65,7 +65,7 @@ GET /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-paths). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `link_id`    | integer         | yes      | The ID of the link. |
 
@@ -96,7 +96,7 @@ POST /projects/:id/releases/:tag_name/assets/links
 
 | Attribute            | Type           | Required | Description                                                                                                               |
 |----------------------|----------------|----------|---------------------------------------------------------------------------------------------------------------------------|
-| `id`                 | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-path-encoding).                                        |
+| `id`                 | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-paths).                                        |
 | `tag_name`           | string         | yes      | The tag associated with the Release.                                                                                      |
 | `name`               | string         | yes      | The name of the link. Link names must be unique in the release.                                                           |
 | `url`                | string         | yes      | The URL of the link. Link URLs must be unique in the release.                                                             |
@@ -136,7 +136,7 @@ PUT /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute            | Type           | Required | Description                                                                                                               |
 | -------------------- | -------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `id`                 | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-path-encoding). |
+| `id`                 | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-paths). |
 | `tag_name`           | string         | yes      | The tag associated with the Release. |
 | `link_id`            | integer        | yes      | The ID of the link. |
 | `name`               | string         | no       | The name of the link. |
@@ -176,7 +176,7 @@ DELETE /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../rest/index.md#namespaced-paths). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `link_id`    | integer         | yes      | The ID of the link. |
 

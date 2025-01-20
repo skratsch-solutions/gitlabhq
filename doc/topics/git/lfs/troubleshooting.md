@@ -8,6 +8,11 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 When working with Git LFS, you might encounter the following issues.
 
+- The Git LFS original v1 API is unsupported.
+- Git LFS requests use HTTPS credentials, which means you should use a Git
+  [credentials store](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
+- [Group wikis](../../../user/project/wiki/group.md) do not support Git LFS.
+
 ## Error: repository or object not found
 
 This error can occur for a few reasons, including:
@@ -66,7 +71,7 @@ git config --global credential.helper 'cache --timeout=3600'
 To store and encrypt credentials, see:
 
 - MacOS: use `osxkeychain`.
-- Windows: use `wincred` or Microsoft's
+- Windows: use `wincred` or the Microsoft
   [Git Credential Manager for Windows](https://github.com/Microsoft/Git-Credential-Manager-for-Windows/releases).
 
 To learn more about storing your user credentials, see the

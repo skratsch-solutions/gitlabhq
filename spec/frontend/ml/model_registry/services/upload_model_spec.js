@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { uploadModel } from '~/ml/model_registry/services/upload_model';
+import { HTTP_STATUS_OK } from '~/lib/utils/http_status';
 
 describe('uploadModel', () => {
   const importPath = 'some/path';
@@ -11,7 +12,7 @@ describe('uploadModel', () => {
   let axiosMock;
   beforeEach(() => {
     axiosMock = jest.spyOn(axios, 'put');
-    axiosMock.mockImplementation(() => Promise.resolve({ status: 200 }));
+    axiosMock.mockImplementation(() => Promise.resolve({ status: HTTP_STATUS_OK }));
   });
 
   afterEach(() => {
@@ -22,11 +23,7 @@ describe('uploadModel', () => {
     await uploadModel({ importPath, file, maxAllowedFileSize });
 
     expect(axiosMock).toHaveBeenCalledTimes(1);
-    expect(axiosMock).toHaveBeenCalledWith(baseFilePath, expect.any(FormData), {
-      headers: expect.objectContaining({
-        'Content-Type': 'multipart/form-data',
-      }),
-    });
+    expect(axiosMock).toHaveBeenCalledWith(baseFilePath, file, { onUploadProgress: undefined });
   });
 
   it('should upload a with a subfolder', async () => {
@@ -36,11 +33,7 @@ describe('uploadModel', () => {
     await uploadModel({ importPath, file, subfolder, maxAllowedFileSize });
 
     expect(axiosMock).toHaveBeenCalledTimes(1);
-    expect(axiosMock).toHaveBeenCalledWith(filePath, expect.any(FormData), {
-      headers: expect.objectContaining({
-        'Content-Type': 'multipart/form-data',
-      }),
-    });
+    expect(axiosMock).toHaveBeenCalledWith(filePath, file, { onUploadProgress: undefined });
   });
 
   it('should not upload when the subfolder contains spaces', async () => {
@@ -69,9 +62,19 @@ describe('uploadModel', () => {
     const onUploadProgress = jest.fn();
     await uploadModel({ importPath, file, maxAllowedFileSize, onUploadProgress });
 
-    expect(axiosMock).toHaveBeenCalledWith(baseFilePath, expect.any(FormData), {
-      headers: expect.any(Object),
-      onUploadProgress,
+    expect(axiosMock).toHaveBeenCalledWith(baseFilePath, file, { onUploadProgress });
+  });
+
+  it('accepts cancellation token and passes over to axios', async () => {
+    const cancelToken = jest.fn();
+    await uploadModel({
+      importPath,
+      file,
+      maxAllowedFileSize,
+      onUploadProgress: undefined,
+      cancelToken,
     });
+
+    expect(axiosMock).toHaveBeenCalledWith(baseFilePath, file, { undefined, cancelToken });
   });
 });

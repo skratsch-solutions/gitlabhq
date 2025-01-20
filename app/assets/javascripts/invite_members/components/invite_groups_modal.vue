@@ -5,6 +5,7 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import Api from '~/api';
 import { BV_SHOW_MODAL, BV_HIDE_MODAL } from '~/lib/utils/constants';
 import InviteModalBase from 'ee_else_ce/invite_members/components/invite_modal_base.vue';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import { GROUP_FILTERS, GROUP_MODAL_LABELS } from '../constants';
 import eventHub from '../event_hub';
 import { getInvalidFeedbackMessage } from '../utils/get_invalid_feedback_message';
@@ -93,6 +94,15 @@ export default {
     labelIntroText() {
       return this.$options.labels[this.inviteTo].introText;
     },
+    accessExpirationHelpLink() {
+      return this.isProject
+        ? helpPagePath('user/project/members/sharing_projects_groups', {
+            anchor: 'invite-a-group-to-a-project',
+          })
+        : helpPagePath('user/project/members/sharing_projects_groups', {
+            anchor: 'invite-a-group-to-a-group',
+          });
+    },
     inviteTo() {
       return this.isProject ? 'toProject' : 'toGroup';
     },
@@ -129,7 +139,7 @@ export default {
     closeModal() {
       this.$root.$emit(BV_HIDE_MODAL, this.modalId);
     },
-    sendInvite({ accessLevel, expiresAt }) {
+    sendInvite({ accessLevel, expiresAt, memberRoleId }) {
       this.invalidFeedbackMessage = '';
       this.isLoading = true;
 
@@ -142,6 +152,7 @@ export default {
         group_id: this.groupToBeSharedWith.id,
         group_access: accessLevel,
         expires_at: expiresAt,
+        member_role_id: memberRoleId,
       })
         .then(() => {
           this.onInviteSuccess();
@@ -188,6 +199,7 @@ export default {
     :access-levels="staticRoles"
     :default-access-level="defaultAccessLevel"
     :help-link="helpLink"
+    :access-expiration-help-link="accessExpirationHelpLink"
     v-bind="$attrs"
     :label-intro-text="labelIntroText"
     :label-search-field="$options.labels.searchField"
@@ -197,6 +209,7 @@ export default {
     :invalid-feedback-message="invalidFeedbackMessage"
     :is-loading="isLoading"
     :full-path="fullPath"
+    :is-project="isProject"
     is-group-invite
     @reset="resetFields"
     @submit="sendInvite"

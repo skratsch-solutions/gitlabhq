@@ -4,9 +4,9 @@ import { s__ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 
 export const i18n = {
-  playTooltip: s__('PipelineSchedules|Run pipeline schedule'),
-  editTooltip: s__('PipelineSchedules|Edit pipeline schedule'),
-  deleteTooltip: s__('PipelineSchedules|Delete pipeline schedule'),
+  playTooltip: s__('PipelineSchedules|Run scheduled pipeline'),
+  editTooltip: s__('PipelineSchedules|Edit scheduled pipeline'),
+  deleteTooltip: s__('PipelineSchedules|Delete scheduled pipeline'),
   takeOwnershipTooltip: s__('PipelineSchedules|Take ownership of pipeline schedule'),
 };
 
@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-display-flex gl-justify-content-end">
+  <div class="gl-flex gl-justify-end">
     <gl-button-group>
       <gl-button
         v-if="canPlay"

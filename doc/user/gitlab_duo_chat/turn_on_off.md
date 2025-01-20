@@ -10,8 +10,12 @@ GitLab Duo Chat can be turned on and off, and availability changed.
 
 ## For GitLab.com
 
-For a limited time, GitLab Duo Chat is automatically available for all GitLab.com users
-who are members of at least one group with a Premium or Ultimate subscription.
+In GitLab 16.11 and later, GitLab Duo Chat is:
+
+- Generally available.
+- Available to any user with an assigned GitLab Duo seat.
+
+If you [turn on or turn off GitLab Duo](../gitlab_duo/turn_on_off.md), you turn on or turn off Duo Chat as well.
 
 ## For self-managed
 
@@ -20,26 +24,27 @@ you must have the following prerequisites.
 
 Prerequisites:
 
-- You must have GitLab version 16.8 or later. You should use the latest GitLab version to benefit from the latest improvements to GitLab Duo Chat. The generally available version of GitLab Duo Chat in GitLab 16.11 has significant improvements in the quality of the answers.
+- GitLab Duo requires GitLab 17.2 and later for the best user experience and results. Earlier versions may continue to work, however the experience may be degraded.
 - You must have a Premium or Ultimate subscription that is [synchronized with GitLab](https://about.gitlab.com/pricing/licensing-faq/cloud-licensing/). To make sure GitLab Duo Chat works immediately, administrators can
   [manually synchronize your subscription](#manually-synchronize-your-subscription).
-- You must have [enabled network connectivity](../gitlab_duo/turn_on_off.md#configure-gitlab-duo-on-a-self-managed-instance).
+- You must have [enabled network connectivity](../gitlab_duo/setup.md).
+- [Silent Mode](../../administration/silent_mode/index.md) must not be turned on.
 - All of the users in your instance must have the latest version of their IDE extension.
 
 Then, depending on the version of GitLab you have, you can enable GitLab Duo Chat.
 
 ### In GitLab 16.11 and later
 
-In GitLab 16.11 and later, GitLab Duo Chat is generally available
-and automatically enabled for all users who have a subscription to the Premium or Ultimate tier.
+In GitLab 16.11 and later, GitLab Duo Chat is:
 
-You do not need to do anything to enable GitLab Duo Chat if you have GitLab 16.11 or later.
+- Generally available.
+- Available to any user with an assigned GitLab Duo seat.
 
 ### In earlier GitLab versions
 
-In GitLab 16.8, 16.9, and 16.10, GitLab Duo Chat is available in beta. To enable GitLab Duo Chat for your self-managed GitLab instance, an administrator must enable experiment and beta features:
+In GitLab 16.8, 16.9, and 16.10, GitLab Duo Chat is available in beta. To enable GitLab Duo Chat for GitLab Self-Managed, an administrator must enable experiment and beta features:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **AI-powered features** and select **Enable Experiment and Beta AI-powered features**.
 1. Select **Save changes**.
@@ -68,12 +73,12 @@ In GitLab 16.8, 16.9, and 16.10, on GitLab Dedicated, GitLab Duo Chat is availab
 
 ## Disable GitLab Duo Chat
 
-To limit the data that Duo Chat has access to, follow the instructions for
+To limit the data that GitLab Duo Chat has access to, follow the instructions for
 [disabling GitLab Duo features](../../user/gitlab_duo/turn_on_off.md#turn-off-gitlab-duo-features).
 
 ## Disable Chat in VS Code
 
 To disable GitLab Duo Chat in VS Code:
 
-1. Go to **Settings > Extensions > GitLab Workflow (GitLab VS Code Extension)**.
+1. Go to **Settings > Extensions > GitLab Workflow**.
 1. Clear the **Enable GitLab Duo Chat assistant** checkbox.

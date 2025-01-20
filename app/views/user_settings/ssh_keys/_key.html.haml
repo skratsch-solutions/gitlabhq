@@ -6,13 +6,13 @@
       = key.title
 
   %td{ data: { label: s_('Profiles|Key'), testid: 'key' } }
-    .gl-align-items-center{ class: 'gl-display-flex! gl-pl-0!' }
+    .gl-items-center{ class: '!gl-flex !gl-pl-0' }
       - if key.valid? && !key.expired?
         = sprite_icon('key', css_class: icon_classes)
       - else
-        %span.gl-display-inline-block.has-tooltip{ title: ssh_key_expiration_tooltip(key) }
+        %span.gl-inline-block.has-tooltip{ title: ssh_key_expiration_tooltip(key) }
           = sprite_icon('warning-solid', css_class: icon_classes)
-      %span.gl-text-truncate.gl-sm-ml-3
+      %span.gl-truncate.sm:gl-ml-3
         = key.fingerprint
 
   %td{ data: { label: s_('Profiles|Usage type'), testid: 'usage-type' } }
@@ -22,12 +22,7 @@
     = html_escape(s_('%{time_ago}')) % { time_ago: time_ago_with_tooltip(key.created_at).html_safe}
 
   %td{ data: { label: s_('Profiles|Last used'), testid: 'last-used' } }
-    -# TODO: Remove this conditional when https://gitlab.com/gitlab-org/gitlab/-/issues/324764 is resolved.
-    - if Feature.enabled?(:disable_ssh_key_used_tracking)
-      = _('Unavailable')
-      = link_to sprite_icon('question-o'), help_page_path('user/ssh', anchor: 'view-your-accounts-ssh-keys')
-    - else
-      = key.last_used_at ? time_ago_with_tooltip(key.last_used_at) : _('Never')
+    = key.last_used_at ? time_ago_with_tooltip(key.last_used_at) : _('Never')
 
   %td{ data: { label: s_('Profiles|Expires'), testid: 'expires' } }
     - if key.expired?
@@ -40,10 +35,10 @@
       = _('Never')
 
   %td{ data: { label: _('Actions'), testid: 'actions' } }
-    %div{ class: 'gl-display-flex! gl-pl-0!' }
+    .gl-flex.gl-items-center.gl-justify-end.gl-gap-3.-gl-m-3
       - if key.can_delete?
         - if key.signing? && !is_admin
-          = render Pajamas::ButtonComponent.new(size: :small, button_options: { class: 'js-confirm-modal-button', 'aria-label' => _('Revoke'), data: ssh_key_revoke_modal_data(key, revoke_user_settings_ssh_key_path(key)) }) do
+          = render Pajamas::ButtonComponent.new(size: :small, category: :secondary, variant: :danger, button_options: { class: 'js-confirm-modal-button', 'aria-label' => _('Revoke'), data: ssh_key_revoke_modal_data(key, revoke_user_settings_ssh_key_path(key)) }) do
             = _('Revoke')
-        .gl-pl-3
-          = render Pajamas::ButtonComponent.new(size: :small, icon: 'remove', button_options: { title: _('Remove'), 'aria-label' => _('Remove'), class: 'js-confirm-modal-button', data: ssh_key_delete_modal_data(key, path_to_key(key, is_admin)) })
+
+        = render Pajamas::ButtonComponent.new(icon: 'remove', category: :tertiary, button_options: { title: _('Remove'), 'aria-label' => _('Remove'), class: 'js-confirm-modal-button', data: ssh_key_delete_modal_data(key, path_to_key(key, is_admin)) })

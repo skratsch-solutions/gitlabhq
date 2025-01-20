@@ -7,12 +7,7 @@ import {
   ErrorWrapper as VTUErrorWrapper,
 } from '@vue/test-utils';
 import Vue from 'vue';
-import {
-  extendedWrapper,
-  shallowMountExtended,
-  mountExtended,
-  shallowWrapperContainsSlotText,
-} from './vue_test_utils_helper';
+import { extendedWrapper, shallowMountExtended, mountExtended } from './vue_test_utils_helper';
 
 jest.mock('@testing-library/dom', () => ({
   __esModule: true,
@@ -22,50 +17,6 @@ jest.mock('@testing-library/dom', () => ({
 describe('Vue test utils helpers', () => {
   afterAll(() => {
     jest.unmock('@testing-library/dom');
-  });
-
-  describe('shallowWrapperContainsSlotText', () => {
-    const mockText = 'text';
-    const mockSlot = `<div>${mockText}</div>`;
-    let mockComponent;
-
-    beforeEach(() => {
-      mockComponent = shallowMount(
-        {
-          render(h) {
-            h(`<div>mockedComponent</div>`);
-          },
-        },
-        {
-          slots: {
-            default: mockText,
-            namedSlot: mockSlot,
-          },
-        },
-      );
-    });
-
-    it('finds text within shallowWrapper default slot', () => {
-      expect(shallowWrapperContainsSlotText(mockComponent, 'default', mockText)).toBe(true);
-    });
-
-    it('finds text within shallowWrapper named slot', () => {
-      expect(shallowWrapperContainsSlotText(mockComponent, 'namedSlot', mockText)).toBe(true);
-    });
-
-    it('returns false when text is not present', () => {
-      const searchText = 'absent';
-
-      expect(shallowWrapperContainsSlotText(mockComponent, 'default', searchText)).toBe(false);
-      expect(shallowWrapperContainsSlotText(mockComponent, 'namedSlot', searchText)).toBe(false);
-    });
-
-    it('searches with case-sensitivity', () => {
-      const searchText = mockText.toUpperCase();
-
-      expect(shallowWrapperContainsSlotText(mockComponent, 'default', searchText)).toBe(false);
-      expect(shallowWrapperContainsSlotText(mockComponent, 'namedSlot', searchText)).toBe(false);
-    });
   });
 
   describe('extendedWrapper', () => {
@@ -189,12 +140,10 @@ describe('Vue test utils helpers', () => {
       const text = 'foo bar';
       const options = { selector: 'div' };
       const mockDiv = document.createElement('div');
-      let mockVm;
 
       let wrapper;
       beforeEach(() => {
         jest.spyOn(vtu, 'createWrapper');
-        mockVm = new Vue({ render: (h) => h('div') }).$mount();
 
         wrapper = extendedWrapper(
           shallowMount({
@@ -229,19 +178,6 @@ describe('Vue test utils helpers', () => {
         });
       });
 
-      describe('when a Vue instance element is found', () => {
-        beforeEach(() => {
-          jest.spyOn(testingLibrary, expectedQuery).mockImplementation(() => [mockVm.$el]);
-        });
-
-        it('returns a VTU wrapper', () => {
-          const result = wrapper[findMethod](text, options);
-
-          expect(vtu.createWrapper).toHaveBeenCalledWith(mockVm, wrapper.options);
-          expect(result).toBeInstanceOf(VTUWrapper);
-          expect(result.vm).toBeInstanceOf(Vue);
-        });
-      });
       describe('when multiple elements are found', () => {
         beforeEach(() => {
           const mockSpan = document.createElement('span');
@@ -254,23 +190,6 @@ describe('Vue test utils helpers', () => {
           expect(vtu.createWrapper).toHaveBeenCalledWith(mockDiv, wrapper.options);
           expect(result).toBeInstanceOf(VTUWrapper);
           expect(result.vm).toBeUndefined();
-        });
-      });
-
-      describe('when multiple Vue instances are found', () => {
-        beforeEach(() => {
-          const mockVm2 = new Vue({ render: (h) => h('span') }).$mount();
-          jest
-            .spyOn(testingLibrary, expectedQuery)
-            .mockImplementation(() => [mockVm.$el, mockVm2.$el]);
-        });
-
-        it('returns the first element as a VTU wrapper', () => {
-          const result = wrapper[findMethod](text, options);
-
-          expect(vtu.createWrapper).toHaveBeenCalledWith(mockVm, wrapper.options);
-          expect(result).toBeInstanceOf(VTUWrapper);
-          expect(result.vm).toBeInstanceOf(Vue);
         });
       });
 

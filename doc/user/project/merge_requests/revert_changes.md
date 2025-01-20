@@ -9,7 +9,7 @@ description: "How to revert commits or merge requests in a GitLab project."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can revert individual commits or an entire merge request in GitLab.
 
@@ -28,7 +28,7 @@ After a merge request merges, you can revert all changes in the merge request.
 
 Prerequisites:
 
-- You must have a role in the project that allows you to edit merge requests, and add
+- You must have a role for the project that allows you to edit merge requests, and add
   code to the repository.
 - Your project must use the [merge method](methods/index.md#fast-forward-merge) **Merge Commit**,
   set in your project's **Settings > Merge requests**.
@@ -67,7 +67,7 @@ You can revert any commit in a repository into either:
 
 Prerequisites:
 
-- Your role in the project must allow you to edit merge requests, and add
+- Your role for the project must allow you to edit merge requests, and add
   code to the repository.
 - The commit must not have already been reverted, as the **Revert** option is not
   shown in this case.
@@ -98,16 +98,51 @@ To do this:
 ### Revert a merge commit to a different parent commit
 
 When you revert a merge commit, the branch you merged to (often `main`) is always the
-first parent. To revert a merge commit to a different parent,
-you must revert the commit from the command line:
+first parent. To revert a merge commit to a different parent, you must revert the commit from
+the command line, see [Revert and undo changes with Git](../../../topics/git/undo.md#revert-a-merge-commit-to-a-different-parent).
 
-1. Identify the SHA of the parent commit you want to revert to.
-1. Identify the parent number of the commit you want to revert to. (Defaults to `1`, for the first parent.)
-1. Run this command, replacing `2` with the parent number, and `7a39eb0` with the commit SHA:
+## Redact text from repository
 
-   ```shell
-   git revert -m 2 7a39eb0
-   ```
+> - Introduced in GitLab 17.1 [with a flag](../../../administration/feature_flags.md) named `rewrite_history_ui`. Disabled by default. GitLab team members can view more information in this confidential issue: `https://gitlab.com/gitlab-org/gitlab/-/issues/450701`
+> - Enabled on GitLab.com in confidential issue `https://gitlab.com/gitlab-org/gitlab/-/issues/462999` in GitLab 17.2.
+> - Enabled on GitLab Self-Managed and GitLab Dedicated in confidential issue `https://gitlab.com/gitlab-org/gitlab/-/issues/462999` in GitLab 17.3.
+
+Permanently delete sensitive or confidential information that was accidentally committed, ensuring
+it's no longer accessible in your repository's history.
+Replaces a list of strings with `***REMOVED***`.
+
+WARNING:
+**This action is irreversible.**
+After rewriting history and running housekeeping, the changes are permanent.
+Be aware of the following impacts when redacting text from your repository:
+
+- Open merge requests might fail to merge and require manual rebasing.
+- Existing local clones are incompatible with the updated repository and must be re-cloned.
+- Pipelines referencing old commit SHAs might break and require reconfiguration.
+- Historical tags and branches based on the old commit history might not function correctly.
+- Commit signatures are dropped during the rewrite process.
+
+Alternatively, to completely delete specific files from a repository, see
+[Remove blobs](../../../user/project/repository/repository_size.md#remove-files).
+
+Prerequisites:
+
+- You must have the Owner role for the project.
+
+To redact text from your repository:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Settings > Repository**.
+1. Expand **Repository maintenance**.
+1. Select **Redact text**.
+1. On the drawer, enter the text to redact.
+   You can use regex and glob patterns.
+1. Select **Redact matching strings**.
+1. On the confirmation dialog, enter your project path.
+1. Select **Yes, redact matching strings**.
+1. On the left sidebar, select **Settings > General**.
+1. Expand **Advanced**.
+1. Select **Run housekeeping**.
 
 ## Related topics
 

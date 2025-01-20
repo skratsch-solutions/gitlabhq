@@ -118,6 +118,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             put :reset_registration_token
             post :create_deploy_token, path: 'deploy_token/create', to: 'repository#create_deploy_token'
             get :runner_setup_scripts, format: :json
+            get :export_job_token_authorizations, defaults: { format: :csv }
           end
 
           resource :operations, only: [:show, :update] do
@@ -155,6 +156,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :access_tokens, only: [:index, :create] do
             member do
               put :revoke
+              put :rotate
+            end
+
+            collection do
+              get :inactive, format: :json
             end
           end
 
@@ -459,8 +465,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        get :planning_hierarchy
-
         resources :badges, only: [] do
           collection do
             constraints format: /svg/ do
@@ -479,9 +483,14 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         namespace :ml do
           resources :experiments, only: [:index, :show, :destroy], controller: 'experiments', param: :iid
-          resources :candidates, only: [:show, :destroy], controller: 'candidates', param: :iid
-          resources :models, only: [:index, :show, :destroy, :new], controller: 'models', param: :model_id do
-            resources :versions, only: [:show], controller: 'model_versions', param: :model_version_id
+          resources :candidates, only: [:show, :destroy], controller: 'candidates', param: :iid do
+            member do
+              get :promote
+            end
+          end
+          resources :models, only: [:index, :show, :edit, :destroy, :new], controller: 'models', param: :model_id do
+            resources :versions, only: [:new], controller: 'model_versions'
+            resources :versions, only: [:show, :edit], controller: 'model_versions', param: :model_version_id
           end
           post :preview_markdown
         end
@@ -529,7 +538,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         defaults: { format: 'json' },
         constraints: { template_type: %r{issue|merge_request}, format: 'json' }
 
-      resource :pages, only: [:new, :show, :update, :destroy] do # rubocop: disable Cop/PutProjectRoutesUnderScope
+      resource :pages, only: [:new, :show, :update, :destroy, :regenerate_unique_domain] do # rubocop: disable Cop/PutProjectRoutesUnderScope
+        post :regenerate_unique_domain # rubocop:todo Cop/PutProjectRoutesUnderScope
         resources :domains, except: :index, controller: 'pages_domains', constraints: { id: %r{[^/]+} } do # rubocop: disable Cop/PutProjectRoutesUnderScope
           member do
             post :verify # rubocop:todo Cop/PutProjectRoutesUnderScope
@@ -671,7 +681,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         post :unarchive
         post :housekeeping
         post :toggle_star
-        post :preview_markdown, as: :preview_markdown_deprecated
         post :export
         post :remove_export
         post :generate_new_export

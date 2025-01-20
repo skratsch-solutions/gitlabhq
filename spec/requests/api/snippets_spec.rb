@@ -262,7 +262,7 @@ RSpec.describe API::Snippets, :aggregate_failures, factory_default: :keep, featu
     end
   end
 
-  describe 'POST /snippets/' do
+  describe 'POST /snippets/', :with_current_organization do
     let(:base_params) do
       {
         title: 'Test Title',
@@ -280,8 +280,13 @@ RSpec.describe API::Snippets, :aggregate_failures, factory_default: :keep, featu
 
     subject { post api("/snippets/", personal_access_token: user_token), params: params }
 
+    before do
+      allow(Current).to receive(:organization_id).and_return(current_organization.id)
+    end
+
     shared_examples 'snippet creation' do
       let(:snippet) { Snippet.find(json_response["id"]) }
+      let(:organization_id) { current_organization.id }
 
       it 'creates a new snippet' do
         expect do
@@ -294,6 +299,7 @@ RSpec.describe API::Snippets, :aggregate_failures, factory_default: :keep, featu
         expect(json_response['file_name']).to eq(file_path)
         expect(json_response['files']).to eq(snippet.blobs.map { |blob| snippet_blob_file(blob) })
         expect(json_response['visibility']).to eq(params[:visibility])
+        expect(Snippet.find(json_response['id']).organization_id).to eq(organization_id)
       end
 
       it 'creates repository' do

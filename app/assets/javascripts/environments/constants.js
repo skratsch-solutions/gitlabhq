@@ -124,6 +124,12 @@ export const SYNC_STATUS_BADGES = {
     text: s__('Environment|Reconciling'),
     popoverText: s__('Deployment|Flux sync reconciling'),
   },
+  suspended: {
+    variant: 'warning',
+    icon: 'status-paused',
+    text: __('Paused'),
+    popoverText: s__('Deployment|Flux sync is suspended'),
+  },
   stalled: {
     variant: 'warning',
     icon: 'status-paused',
@@ -199,11 +205,11 @@ export const TREE_ITEM_KIND_ICONS = {
   [DEPLOYMENT_KIND]: 'deployments',
 };
 
-const RUNNING_STATUS_ICON = { icon: 'status-running', class: 'gl-text-blue-500' };
-const SUCCESS_STATUS_ICON = { icon: 'status-success', class: 'gl-text-green-500' };
-const WAITING_STATUS_ICON = { icon: 'status-waiting', class: 'gl-text-gray-500' };
-const FAILED_STATUS_ICON = { icon: 'status-failed', class: 'gl-text-red-500' };
-const PAUSED_STATUS_ICON = { icon: 'status-paused', class: 'gl-text-orange-500' };
+const RUNNING_STATUS_ICON = { icon: 'status-running', variant: 'info' };
+const SUCCESS_STATUS_ICON = { icon: 'status-success', variant: 'success' };
+const WAITING_STATUS_ICON = { icon: 'status-waiting', variant: 'subtle' };
+const FAILED_STATUS_ICON = { icon: 'status-failed', variant: 'danger' };
+const PAUSED_STATUS_ICON = { icon: 'status-paused', variant: 'warning' };
 
 export const TREE_ITEM_STATUS_ICONS = {
   reconciled: SUCCESS_STATUS_ICON,
@@ -216,4 +222,31 @@ export const TREE_ITEM_STATUS_ICONS = {
   [STATUS_PENDING]: PAUSED_STATUS_ICON,
   [STATUS_READY]: SUCCESS_STATUS_ICON,
   [STATUS_FAILED]: FAILED_STATUS_ICON,
+};
+
+export const DELETE_POD_ACTION = {
+  name: 'delete-pod',
+  text: s__('KubernetesDashboard|Delete pod'),
+  icon: 'remove',
+  variant: 'danger',
+  class: '!gl-text-red-500',
+};
+
+export const FLUX_RECONCILE_ACTION = {
+  name: 'flux-reconcile',
+  text: s__('KubernetesDashboard|Trigger reconciliation'),
+  icon: 'retry',
+};
+
+export const FLUX_SUSPEND_ACTION = {
+  name: 'flux-suspend',
+  text: s__('KubernetesDashboard|Suspend reconciliation'),
+  variant: 'danger',
+  icon: 'stop',
+};
+
+export const FLUX_RESUME_ACTION = {
+  name: 'flux-resume',
+  text: s__('KubernetesDashboard|Resume reconciliation'),
+  icon: 'play',
 };

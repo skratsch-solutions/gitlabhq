@@ -8,36 +8,36 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-Pipelines are the top-level component of continuous integration, delivery, and deployment.
+CI/CD pipelines are the fundamental component of GitLab CI/CD. Pipelines are configured
+in a `.gitlab-ci.yml` file by using [YAML keywords](../yaml/index.md).
 
-Pipelines comprise:
+Pipelines can run automatically for specific events, like when pushing to a branch,
+creating a merge request, or on a schedule. When needed, you can also run pipelines manually.
 
-- Jobs, which define *what* to do. For example, jobs that compile or test code.
-- Stages, which define *when* to run the jobs. For example, stages that run tests after stages that compile the code.
+Pipelines are composed of:
 
-Jobs are executed by [runners](../runners/index.md). Multiple jobs in the same stage are executed in parallel,
-if there are enough concurrent runners.
+- [Global YAML keywords](../yaml/index.md#global-keywords) that control the overall
+  behavior of the project's pipelines.
+- [Jobs](../jobs/index.md) that execute commands to accomplish a task. For example,
+  a job could compile, test, or deploy code. Jobs run independently from each other,
+  and are executed by [runners](../runners/index.md).
+- Stages, which define how to group jobs together. Stages run in sequence, while the jobs
+  in a stage run in parallel. For example, an early stage could have jobs that lint and compile
+  code, while later stages could have jobs that test and deploy code. If all jobs in a stage succeed,
+  the pipeline moves on to the next stage. If any job in a stage fails, the next stage
+  is not (usually) executed and the pipeline ends early.
 
-If *all* jobs in a stage succeed, the pipeline moves on to the next stage.
+A small pipeline could consist of three stages, executed in the following order:
 
-If *any* job in a stage fails, the next stage is not (usually) executed and the pipeline ends early.
+- A `build` stage, with a job called `compile` that compiles the project's code.
+- A `test` stage, with two jobs called `test1` and `test2` that run various tests on the code.
+  These tests would only run if the `compile` job completed successfully.
+- A `deploy` stage, with a job called `deploy-to-production`. This job would only run
+  if both jobs in the `test` stage started and completed successfully.
 
-In general, pipelines are executed automatically and require no intervention once created. However, there are
-also times when you can manually interact with a pipeline.
-
-A typical pipeline might consist of four stages, executed in the following order:
-
-- A `build` stage, with a job called `compile`.
-- A `test` stage, with two jobs called `test1` and `test2`.
-- A `staging` stage, with a job called `deploy-to-stage`.
-- A `production` stage, with a job called `deploy-to-prod`.
-
-NOTE:
-If you have a [mirrored repository that GitLab pulls from](../../user/project/repository/mirror/pull.md),
-you may need to enable pipeline triggering in your project's
-**Settings > Repository > Mirroring repositories > Trigger pipelines for mirror updates**.
+To get started with your first pipeline, see [Create and run your first GitLab CI/CD pipeline](../quick_start/index.md).
 
 ## Types of pipelines
 
@@ -45,7 +45,7 @@ Pipelines can be configured in many different ways:
 
 - [Basic pipelines](pipeline_architectures.md#basic-pipelines) run everything in each stage concurrently,
   followed by the next stage.
-- [Directed Acyclic Graph Pipeline (DAG) pipelines](../directed_acyclic_graph/index.md) are based on relationships
+- [Pipelines that use the `needs` keyword](../yaml/needs.md) run based on dependencies
   between jobs and can run more quickly than basic pipelines.
 - [Merge request pipelines](../pipelines/merge_request_pipelines.md) run for merge
   requests only (rather than for every commit).
@@ -61,26 +61,23 @@ Pipelines can be configured in many different ways:
 
 ## Configure a pipeline
 
-Pipelines and their component jobs and stages are defined in the CI/CD pipeline configuration file for each project.
+Pipelines and their component jobs and stages are defined with [YAML keywords](../yaml/index.md)
+in the CI/CD pipeline configuration file for each project. When editing CI/CD configuration
+in GitLab, you should use the [pipeline editor](../pipeline_editor/index.md).
 
-- [Jobs](../jobs/index.md) are the basic configuration component.
-- Stages are defined by using the [`stages`](../yaml/index.md#stages) keyword.
-
-For a list of configuration options for the CI/CD configuration file, see the [CI/CD YAML syntax reference](../yaml/index.md).
-
-You can also configure specific aspects of your pipelines through the GitLab UI. For example:
+You can also configure specific aspects of your pipelines through the GitLab UI:
 
 - [Pipeline settings](settings.md) for each project.
 - [Pipeline schedules](schedules.md).
 - [Custom CI/CD variables](../variables/index.md#for-a-project).
 
-The recommended tool for editing CI/CD configuration is the [pipeline editor](../pipeline_editor/index.md).
-
-If you use VS Code to edit your GitLab CI/CD configuration, the [GitLab Workflow VS Code extension](../../editor_extensions/visual_studio_code/index.md)
+If you use VS Code to edit your GitLab CI/CD configuration, the [GitLab Workflow extension for VS Code](../../editor_extensions/visual_studio_code/index.md)
 helps you [validate your configuration](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow#validate-gitlab-ci-configuration)
 and [view your pipeline status](https://marketplace.visualstudio.com/items?itemName=GitLab.gitlab-workflow#information-about-your-branch-pipelines-mr-closing-issue).
 
 ### Run a pipeline manually
+
+> - **Run pipeline** name [updated](https://gitlab.com/gitlab-org/gitlab/-/issues/482718) to **New pipeline** in GitLab 17.7.
 
 Pipelines can be manually executed, with predefined or manually-specified [variables](../variables/index.md).
 
@@ -91,11 +88,11 @@ To execute a pipeline manually:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Build > Pipelines**.
-1. Select **Run pipeline**.
+1. Select **New pipeline**.
 1. In the **Run for branch name or tag** field, select the branch or tag to run the pipeline for.
 1. Enter any [CI/CD variables](../variables/index.md) required for the pipeline to run.
    You can set specific variables to have their [values prefilled in the form](#prefill-variables-in-manual-pipelines).
-1. Select **Run pipeline**.
+1. Select **New pipeline**.
 
 The pipeline now executes the jobs as configured.
 
@@ -108,11 +105,11 @@ information such as what the variable is used for, and what the acceptable value
 
 Job-level variables cannot be pre-filled.
 
-In manually-triggered pipelines, the **Run pipeline** page displays all pipeline-level variables
+In manually-triggered pipelines, the **New pipeline** page displays all pipeline-level variables
 that have a `description` defined in the `.gitlab-ci.yml` file. The description displays
 below the variable.
 
-You can change the prefilled value, which [overrides the value](../variables/index.md#override-a-defined-cicd-variable) for that single pipeline run.
+You can change the prefilled value, which [overrides the value](../variables/index.md#use-pipeline-variables) for that single pipeline run.
 Any variables overridden by using this process are [expanded](../variables/index.md#prevent-cicd-variable-expansion)
 and not [masked](../variables/index.md#mask-a-cicd-variable).
 If you do not define a `value` for the variable in the configuration file, the variable name is still listed,
@@ -131,9 +128,9 @@ variables:
 
 In this example:
 
-- `DEPLOY_CREDENTIALS` is listed in the **Run pipeline** page, but with no value set.
+- `DEPLOY_CREDENTIALS` is listed in the **New pipeline** page, but with no value set.
   The user is expected to define the value each time the pipeline is run manually.
-- `DEPLOY_ENVIRONMENT` is pre-filled in the **Run pipeline** page with `canary` as the default value,
+- `DEPLOY_ENVIRONMENT` is pre-filled in the **New pipeline** page with `canary` as the default value,
   and the message explains the other options.
 
 NOTE:
@@ -149,7 +146,7 @@ when running a pipeline manually. To workaround this issue,
 > - The variables list sometimes did not populate correctly due to [a bug](https://gitlab.com/gitlab-org/gitlab/-/issues/386245), which was resolved in GitLab 15.9.
 
 You can define an array of CI/CD variable values the user can select from when running a pipeline manually.
-These values are in a dropdown list in the **Run pipeline** page. Add the list of
+These values are in a dropdown list in the **New pipeline** page. Add the list of
 value options to `options` and set the default value with `value`. The string in `value`
 must also be included in the `options` list.
 
@@ -168,9 +165,9 @@ variables:
 
 ### Run a pipeline by using a URL query string
 
-You can use a query string to pre-populate the **Run Pipeline** page. For example, the query string
+You can use a query string to pre-populate the **New pipeline** page. For example, the query string
 `.../pipelines/new?ref=my_branch&var[foo]=bar&file_var[file_foo]=file_bar` pre-populates the
-**Run Pipeline** page with:
+**New pipeline** page with:
 
 - **Run for** field: `my_branch`.
 - **Variables** section:
@@ -203,7 +200,7 @@ allow you to require manual interaction before moving forward in the pipeline.
 You can do this straight from the pipeline graph. Select **Run** (**{play}**) to execute that particular job.
 
 For example, your pipeline can start automatically, but require a manual action to
-[deploy to production](../environments/index.md#configure-manual-deployments).
+[deploy to production](../environments/deployments.md#configure-manual-deployments).
 In the example below, the `production` stage has a job with a manual action:
 
 ![Pipelines example](img/manual_pipeline_v14_2.png)
@@ -219,7 +216,7 @@ non-manual jobs, the option is not displayed.
 To push a commit without triggering a pipeline, add `[ci skip]` or `[skip ci]`, using any
 capitalization, to your commit message.
 
-Alternatively, with Git 2.10 or later, use the `ci.skip` [Git push option](../../gitlab-basics/add-file.md#push-options-for-gitlab-cicd).
+Alternatively, with Git 2.10 or later, use the `ci.skip` [Git push option](../../topics/git/commit.md#push-options-for-gitlab-cicd).
 The `ci.skip` push option does not skip merge request pipelines.
 
 ### Delete a pipeline
@@ -243,10 +240,10 @@ related objects, such as jobs, logs, artifacts, and triggers.
 ### Pipeline security on protected branches
 
 A strict security model is enforced when pipelines are executed on
-[protected branches](../../user/project/protected_branches.md).
+[protected branches](../../user/project/repository/branches/protected.md).
 
 The following actions are allowed on protected branches if the user is
-[allowed to merge or push](../../user/project/protected_branches.md)
+[allowed to merge or push](../../user/project/repository/branches/protected.md)
 to that specific branch:
 
 - Run manual pipelines (using the [Web UI](#run-a-pipeline-manually) or [pipelines API](#pipelines-api)).
@@ -267,14 +264,21 @@ runners do not use regular runners, they must be [tagged](../yaml/index.md#tags)
 Review the [deployment safety](../environments/deployment_safety.md)
 page for additional security recommendations for securing your pipelines.
 
-## Trigger a pipeline when an upstream project is rebuilt
+<!--- start_remove The following content will be removed on remove_date: '2025-08-15' -->
+
+## Trigger a pipeline when an upstream project is rebuilt (deprecated)
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-You can trigger a pipeline in your project whenever a pipeline finishes for a new
-tag in a different project.
+WARNING:
+This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/501460) in GitLab 17.6
+and is planned for removal in 18.0. Use [CI/CD jobs with pipeline trigger tokens](../../ci/triggers/index.md#use-a-cicd-job) instead. This is a breaking change.
+
+You can set up your project to automatically trigger a pipeline based on tags in a different project.
+When a new tag pipeline in the subscribed project finishes, it triggers a pipeline on your project's default branch,
+regardless of the tag pipeline's success, failure, or cancellation.
 
 Prerequisites:
 
@@ -292,13 +296,13 @@ To trigger the pipeline when the upstream project is rebuilt:
    For example, if the project is `https://gitlab.com/gitlab-org/gitlab`, use `gitlab-org/gitlab`.
 1. Select **Subscribe**.
 
-Any pipelines that complete successfully for new tags in the subscribed project
-now trigger a pipeline on the current project's default branch. The maximum
-number of upstream pipeline subscriptions is 2 by default, for both the upstream and
+The maximum number of upstream pipeline subscriptions is 2 by default, for both the upstream and
 downstream projects. On self-managed instances, an administrator can change this
 [limit](../../administration/instance_limits.md#number-of-cicd-subscriptions-to-a-project).
 
-### How pipeline duration is calculated
+<!--- end_remove -->
+
+## How pipeline duration is calculated
 
 The total running time for a given pipeline excludes:
 
@@ -352,7 +356,7 @@ To view all the pipelines that ran for your project:
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Build > Pipelines**.
 
-You can filter the pipeline list by:
+You can filter the **Pipelines** page by:
 
 - Trigger author
 - Branch name
@@ -399,9 +403,7 @@ by stage configuration, select **stage** in the **Group jobs by** section:
 ![jobs grouped by stage](img/pipeline_stage_view_v16_11.png)
 
 To group the jobs by [`needs`](../yaml/index.md#needs) configuration, select **Job dependencies**.
-You can optionally select **Show dependencies** to render lines between dependent jobs,
-similar to the [`needs` visualization](../directed_acyclic_graph/index.md#needs-visualization)
-in the pipeline editor:
+You can optionally select **Show dependencies** to render lines between dependent jobs.
 
 ![jobs grouped by job dependencies](img/pipeline_dependency_view_v16_11.png)
 
@@ -486,3 +488,16 @@ project repository. GitLab generates the special ref `refs/pipelines/<id>` durin
 running pipeline job. This ref can be created even after the associated branch or tag has been
 deleted. It's therefore useful in some features such as [automatically stopping an environment](../environments/index.md#stopping-an-environment),
 and [merge trains](../pipelines/merge_trains.md) that might run pipelines after branch deletion.
+
+<!--- start_remove The following content will be removed on remove_date: '2025-08-15' -->
+
+## Troubleshooting
+
+### Pipeline subscriptions continue after user deletion
+
+When a user [deletes their GitLab.com account](../../user/profile/account/delete_account.md#delete-your-own-account),
+the deletion does not occur for seven days. During this period, any [pipeline subscriptions created by that user](#trigger-a-pipeline-when-an-upstream-project-is-rebuilt-deprecated)
+continue to run with the user's original permissions. To prevent unauthorized pipeline executions,
+immediately update pipeline subscription settings for the deleted user.
+
+<!--- end_remove -->

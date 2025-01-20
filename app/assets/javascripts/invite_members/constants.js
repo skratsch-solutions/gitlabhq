@@ -4,8 +4,10 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 export const PROJECT_SELECT_LABEL_ID = 'project-select';
 export const SEARCH_DELAY = 200;
 export const VALID_TOKEN_BACKGROUND = 'gl-bg-green-100';
+export const WARNING_TOKEN_BACKGROUND = 'gl-bg-orange-100';
 export const INVALID_TOKEN_BACKGROUND = 'gl-bg-red-100';
 export const TOAST_MESSAGE_LOCALSTORAGE_KEY = 'members_invited_successfully';
+export const MEMBERS_WITH_QUEUED_STATUS_LOCALSTORAGE_KEY = 'members_queued_successfully';
 
 export const GROUP_FILTERS = {
   ALL: 'all',
@@ -40,7 +42,9 @@ export const MEMBERS_TO_PROJECT_CELEBRATE_INTRO_TEXT = s__(
   "InviteMembersModal|Congratulations on creating your project, you're almost there!",
 );
 export const MEMBERS_SEARCH_FIELD = s__('InviteMembersModal|Username, name or email address');
-export const MEMBERS_PLACEHOLDER = s__('InviteMembersModal|Select members or type email addresses');
+export const MEMBERS_PLACEHOLDER = s__(
+  'InviteMembersModal|Select from GitLab usernames or enter email addresses',
+);
 
 export const GROUP_MODAL_DEFAULT_TITLE = s__('InviteMembersModal|Invite a group');
 export const GROUP_MODAL_TO_GROUP_DEFAULT_INTRO_TEXT = s__(
@@ -53,25 +57,37 @@ export const GROUP_MODAL_TO_PROJECT_DEFAULT_INTRO_TEXT = s__(
 export const GROUP_MODAL_TO_GROUP_ALERT_BODY = s__(
   'InviteMembersModal|Inviting a group %{linkStart}adds its members to your group%{linkEnd}, including members who join after the invite. This might put your group over the free %{count} user limit.',
 );
-export const GROUP_MODAL_TO_GROUP_ALERT_LINK = helpPagePath('user/group/manage', {
-  anchor: 'share-a-group-with-another-group',
-});
+export const GROUP_MODAL_TO_GROUP_ALERT_LINK = helpPagePath(
+  'user/project/members/sharing_projects_groups',
+  {
+    anchor: 'invite-a-group-to-a-group',
+  },
+);
 export const GROUP_MODAL_TO_PROJECT_ALERT_BODY = s__(
   'InviteMembersModal|Inviting a group %{linkStart}adds its members to your project%{linkEnd}, including members who join after the invite. This might put your group over the free %{count} user limit.',
 );
-export const GROUP_MODAL_TO_PROJECT_ALERT_LINK = helpPagePath('user/project/members/index', {
-  anchor: 'add-groups-to-a-project',
-});
+export const GROUP_MODAL_TO_PROJECT_ALERT_LINK = helpPagePath(
+  'user/project/members/sharing_projects_groups',
+  {
+    anchor: 'invite-a-group-to-a-project',
+  },
+);
 
 export const GROUP_SEARCH_FIELD = s__('InviteMembersModal|Select a group to invite');
 export const GROUP_PLACEHOLDER = s__('InviteMembersModal|Search for a group to invite');
 
-export const ACCESS_LEVEL = s__('InviteMembersModal|Select a role');
+export const ACCESS_LEVEL = s__('InviteMembersModal|Select maximum role');
 export const ACCESS_EXPIRE_DATE = s__('InviteMembersModal|Access expiration date (optional)');
-export const TOAST_MESSAGE_SUCCESSFUL = s__('InviteMembersModal|Members were successfully added');
+export const TOAST_MESSAGE_SUCCESSFUL = s__('InviteMembersModal|Members were successfully added.');
+export const QUEUED_MESSAGE_SUCCESSFUL = s__(
+  'InviteMembersModal|Some invitations have been queued for administrator approval.',
+);
 export const INVALID_FEEDBACK_MESSAGE_DEFAULT = s__('InviteMembersModal|Something went wrong');
 export const READ_MORE_TEXT = s__(
-  `InviteMembersModal|%{linkStart}Read more%{linkEnd} about role permissions`,
+  `InviteMembersModal|%{linkStart}Read more%{linkEnd} about role permissions. You can change this later. Invited members are limited to this role or their current group role, whichever is lower.`,
+);
+export const READ_MORE_ACCESS_EXPIRATION_TEXT = s__(
+  `InviteMembersModal|%{linkStart}Read more%{linkEnd} about access expiration`,
 );
 export const INVITE_BUTTON_TEXT = s__('InviteMembersModal|Invite');
 export const INVITE_BUTTON_TEXT_DISABLED = s__('InviteMembersModal|Manage members');
@@ -163,4 +179,5 @@ export const BLOCKED_SEAT_OVERAGES_BODY = s__(
   'InviteMembersModal|You must purchase more seats for your subscription before this amount of users can be added.',
 );
 export const BLOCKED_SEAT_OVERAGES_CTA = s__('InviteMembersModal|Purchase more seats');
+export const BLOCKED_SEAT_OVERAGES_CTA_DOCS = s__('InviteMembersModal|Learn how to add seats');
 export const BLOCKED_SEAT_OVERAGES_ERROR_REASON = 'seat_limit_exceeded_error';

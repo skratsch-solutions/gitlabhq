@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In GitLab, you use groups to manage one or more related projects at the same time.
 
@@ -22,10 +22,40 @@ For larger organizations, you can also create [subgroups](subgroups/index.md).
 
 For more information about creating and managing your groups, see [Manage groups](manage.md).
 
+## Group hierarchy
+
+Groups are organized in a tree structure:
+
+- A **top-level group** is a group created at the "root" of the organization. An organization can have one or more top-level groups. A top-level group can contain one or more subgroups.
+- A **parent group** is a group that contains one or more subgroups.
+- A **subgroup** is a group that is part of another group.
+
+For example, in the following diagram:
+
+- The organization has four groups: one top-level group (T), which contains one subgroup (G), and two subgroups within G (A and B).
+- T is a top-level group and the parent group of G.
+- G is a subgroup (child) of T and the parent group of A and B.
+- A and B are subgroups (children) of G.
+
+```mermaid
+%%{init: { "fontFamily": "GitLab Sans", 'theme':'neutral' }}%%
+flowchart TD
+  accTitle: Group hierarchy
+  accDescr: Example of a group hierarchy in an organization
+
+  subgraph Organization
+    T[Group T] --> G[Group G]
+    G --> A[Group A]
+    G --> B[Group B]  
+end
+```
+
 ## Group structure
 
 The way to set up a group depends on your use cases, team size, and access requirements.
 The following table describes the most common models of structuring groups.
+
+<!-- vale gitlab_base.Simplicity = NO -->
 
 | Model | Structure | Use cases |
 | ----- | --------- | --------- |
@@ -34,15 +64,17 @@ The following table describes the most common models of structuring groups.
 | Client | One group for each client. | Provide custom solutions for multiple clients that require different resources and access levels. |
 | Functionality | One group or subgroup for one type of functionality (for example, AI/ML). | Develop complex products where one functionality requires specific resources and collaboration of subject-matter experts. |
 
+<!-- vale gitlab_base.Simplicity = YES -->
+
 NOTE:
-On self-managed GitLab, if you want to see an overview of your entire organization, you should create one top-level group.
+On GitLab Self-Managed, if you want to see an overview of your entire organization, you should create one top-level group.
 For more information about efforts to create an organization view of all groups,
 [see epic 9266](https://gitlab.com/groups/gitlab-org/-/epics/9266).
-A single top-level group provides insights in your entire organization through a complete
+A top-level group offers insights in your entire organization through a complete
 [Security Dashboard and Center](../application_security/security_dashboard/index.md),
-[Vulnerability](../application_security/vulnerability_report/index.md#vulnerability-report) and
-[Compliance center](../compliance/compliance_center/index.md), and
-[Value stream analytics](../group/value_stream_analytics/index.md).
+[Vulnerability Report](../application_security/vulnerability_report/index.md#vulnerability-report),
+[compliance center](../compliance/compliance_center/index.md), and
+[value stream analytics](../group/value_stream_analytics/index.md).
 
 ## Group visibility
 
@@ -113,9 +145,27 @@ To view the activity of a group:
    - **Designs**: Designs added, updated, and removed in the group's projects.
    - **Team**: Group members who joined and left the group's projects.
 
+### Access a group by using the group ID
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/165889) in GitLab 17.5.
+
+You can access a group by using its ID instead of its name at `https://gitlab.example.com/-/g/<id>`.
+For example, if your group `example-group` has an ID `123456`, you can access the group either at
+`https://gitlab.example.com/example-group` or `https://gitlab.example.com/-/g/123456`.
+
+You might need the group ID if you want to interact with it using the [GitLab API](../../api/index.md).
+
+To copy the Group ID:
+
+1. On the left sidebar, select **Search or go to** and find your Group.
+1. On the Group overview page, in the upper-right corner, select **Actions** (**{ellipsis_v}**).
+1. Select **Copy Group ID**.
+
 ## Create a group
 
 To create a group:
+
+<!-- vale gitlab_base.FutureTense = NO -->
 
 1. On the left sidebar, at the top, select **Create new** (**{plus}**) and **New group**.
 1. Select **Create group**.
@@ -124,11 +174,12 @@ To create a group:
 1. In the **Group URL** text box, enter the path for the group used for the [namespace](../namespace/index.md).
 1. Select the [**Visibility level**](../public_access.md) of the group.
 1. Optional. To personalize your GitLab experience:
-   - From the **Role** dropdown list, select your role.
    - For **Who will be using this group?**, select an option.
    - From the **What will you use this group for?** dropdown list, select an option.
 1. Optional. To invite members to the group, in the **Email 1** text box, enter the email address of the user you want to invite. To invite more users, select **Invite another member** and enter the user's email address.
 1. Select **Create group**.
+
+<!-- vale gitlab_base.FutureTense = YES -->
 
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
 For details about groups, watch [GitLab Namespaces (users, groups and subgroups)](https://youtu.be/r0sJgjR2f5A).
@@ -168,7 +219,7 @@ To leave a group:
 
 ## Delete a group
 
-> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 To delete a group and its contents:
 
@@ -189,15 +240,32 @@ You can also delete a group from the groups dashboard:
 
 On GitLab [Premium](https://about.gitlab.com/pricing/premium/) and [Ultimate](https://about.gitlab.com/pricing/ultimate/), this action adds a background job to mark a group for deletion. By default, the job schedules the deletion seven days in the future. You can modify this retention period through the [instance settings](../../administration/settings/visibility_and_access_controls.md#deletion-protection).
 
-If the user who set up the deletion is removed from the group before the deletion happens, the job is cancelled, and the group is no longer scheduled for deletion.
+If the user who scheduled the group deletion loses access to the group (for example, by leaving the group, having their role downgraded, or being banned from the group) before the deletion occurs,
+the deletion job will instead restore and unarchive the group, so the group will no longer be scheduled for deletion.
+
+   WARNING:
+   If the user who scheduled the group deletion regains Owner role or administrator access before the job runs, then the job removes the group permanently.
+
+### View groups pending deletion
+
+DETAILS:
+**Tier:** Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+To view a list of the subgroups that are pending deletion in a group:
+
+1. On the left sidebar, select **Search or go to** and find your group.
+1. Select **Subgroups and projects**.
+
+Groups that are marked for deletion are labeled **Pending deletion**.
 
 ## Delete a group immediately
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
+> - Enabled delayed deletion by default and removed the option to delete immediately [on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/393622) and [on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119606) in GitLab 16.0.
 
 If you don't want to wait, you can delete a group immediately.
 
@@ -220,7 +288,7 @@ This action deletes the group, its subgroups, projects, and all related resource
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To restore a group that is marked for deletion:
 
@@ -248,7 +316,7 @@ If you change your mind before your request is approved, select
 
 ## View group members
 
-To view the direct and inherited members of a group:
+To view members of a group:
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Manage > Members**.
@@ -262,7 +330,7 @@ A table displays the member's:
   For example, if a member has been added to the group both directly and through inheritance,
   the member is displayed twice in the **Members** table, with different sources,
   and is counted as two individual members of the group.
-- [**Max role**](../project/members/index.md#which-roles-you-can-assign) in the group.
+- [**Role**](../project/members/index.md#which-roles-you-can-assign) in the group.
 - **Expiration** date of their group membership.
 - **Activity** related to their account.
 
@@ -289,7 +357,7 @@ In lists of group members, entries can display the following badges:
 1. Select **Manage > Members**.
 1. Above the list of members, in the **Filter members** text box, enter your search criteria. To view:
    - Direct members of the group, select **Membership = Direct**.
-   - Members of the group and its subgroups, select **Membership = Inherited**.
+   - Inherited, shared, and inherited shared members of the group, select **Membership = Indirect**.
    - Members with two-factor authentication enabled or disabled, select **2FA = Enabled** or **2FA = Disabled**.
    - Members of the top-level group who are [enterprise users](../enterprise_user/index.md), select **Enterprise = true**.
 
@@ -304,7 +372,7 @@ You can search for members by name, username, or [public email](../profile/index
 
 ### Sort members in a group
 
-You can sort members by **Account**, **Access granted**, **Max role**, or **Last sign-in**.
+You can sort members by **Account**, **Access granted**, **Role**, or **Last sign-in**.
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Manage > Members**.
@@ -316,12 +384,15 @@ You can sort members by **Account**, **Access granted**, **Max role**, or **Last
 ## Add users to a group
 
 > - Expiring access email notification [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12704) in GitLab 16.2.
+> - Access expiration date for direct members of subgroups and projects [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/471051) in GitLab 17.4.
 
 You can give a user access to all projects in a group.
 
 Prerequisites:
 
 - You must have the Owner role for the group.
+- If [sign-up is disabled](../../administration/settings/sign_up_restrictions.md#disable-new-sign-ups), an administrator must add the user by email first.
+- If [administrator for role promotions](../../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) is turned on, an administrator must approve the invite.
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Manage > Members**.
@@ -339,9 +410,8 @@ Prerequisites:
    seven days before their access expires.
 
    WARNING:
-   If you give a member the Maintainer role and enter an expiration date, that member
-   has full permissions as long as they are in the role. These permissions include the member's ability
-   to extend their own time in the Maintainer role.
+   Maintainers have full permissions until their role expires, including the ability to
+   extend their own access expiration date.
 
 1. Select **Invite**.
    If you invite the user by their:
@@ -357,6 +427,18 @@ This tab includes users who:
 - Have not yet accepted the invitation.
 - Are waiting for [approval from an administrator](../../administration/moderate_users.md).
 - [Exceed the group user cap](manage.md#user-cap-for-groups).
+
+### View users pending promotion
+
+If [administrator approval for role promotions](../../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) is turned on, membership requests that promote existing users into a billable role require administrator approval.
+
+To view users pending promotion:
+
+1. On the left sidebar, select **Search or go to** and find your group.
+1. Select **Manage > Members**.
+1. Select the **Role promotions** tab.
+
+If the **Role promotions** tab is not displayed, the group has no pending promotions.
 
 ## Remove a member from the group
 
@@ -387,7 +469,7 @@ You can add a new project to a group in two ways:
 - Select a group, and then select **New project**. You can then continue [creating your project](../../user/project/index.md).
 - While you are creating a project, select a group from the dropdown list.
 
-  ![Select group](img/select_group_dropdown_13_10.png)
+  ![Select group](img/select_group_dropdown_v13_10.png)
 
 ### Specify who can add projects to a group
 
@@ -406,15 +488,3 @@ To change the role that can create projects under a group:
 1. Select **Save changes**.
 
 To change this setting globally, see [Default project creation protection](../../administration/settings/visibility_and_access_controls.md#define-which-roles-can-create-projects).
-
-## Get the group ID
-
-> - Group ID [moved](https://gitlab.com/gitlab-org/gitlab/-/issues/431539) to the Actions menu in GitLab 16.7.
-
-You might need the group ID if you want to interact with it using the [GitLab API](../../api/index.md).
-
-To copy the group ID:
-
-1. On the left sidebar, select **Search or go to** and find your group.
-1. On the group overview page, in the upper-right corner, select **Actions** (**{ellipsis_v})**.
-1. Select **Copy group ID**.

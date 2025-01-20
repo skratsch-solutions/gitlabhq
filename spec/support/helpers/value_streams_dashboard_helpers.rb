@@ -62,6 +62,60 @@ module ValueStreamsDashboardHelpers
     end
   end
 
+  def expected_usage_overview_metrics(is_project: false)
+    supported_project_usage_metrics = [
+      ['issues', _('Issues'), '1,500'],
+      ['merge_requests', _('Merge requests'), '1,000'],
+      ['pipelines', _('Pipelines'), '2,000']
+    ]
+
+    if is_project
+      supported_project_usage_metrics
+    else
+      [
+        ['groups', _('Groups'), '5'],
+        ['projects', _('Projects'), '10'],
+        ['users', _('Users'), '100']
+      ].concat(supported_project_usage_metrics)
+    end
+  end
+
+  def expected_usage_overview_metrics_zero_values(is_project: false)
+    supported_project_usage_metrics = [
+      ['issues', _('Issues'), '0'],
+      ['merge_requests', _('Merge requests'), '0'],
+      ['pipelines', _('Pipelines'), '0']
+    ]
+
+    if is_project
+      supported_project_usage_metrics
+    else
+      [
+        ['groups', _('Groups'), '0'],
+        ['projects', _('Projects'), '0'],
+        ['users', _('Users'), '0']
+      ].concat(supported_project_usage_metrics)
+    end
+  end
+
+  def expected_usage_overview_metrics_empty_values(is_project: false)
+    supported_project_usage_metrics = [
+      ['issues', _('Issues'), '-'],
+      ['merge_requests', _('Merge requests'), '-'],
+      ['pipelines', _('Pipelines'), '-']
+    ]
+
+    if is_project
+      supported_project_usage_metrics
+    else
+      [
+        ['groups', _('Groups'), '-'],
+        ['projects', _('Projects'), '-'],
+        ['users', _('Users'), '-']
+      ].concat(supported_project_usage_metrics)
+    end
+  end
+
   def create_mock_dora_performers_score_metrics(group)
     [
       [nil, 'high', 'high', 'high'],
@@ -86,7 +140,9 @@ module ValueStreamsDashboardHelpers
     create_mock_dora_metrics(environment)
     create_mock_flow_metrics(project)
     create_mock_merge_request_metrics(project)
-    create_mock_vulnerabilities_metrics(project)
+    create_mock_vulnerabilities_metrics('vulnerability_historical_statistic', { project: project })
+    create_mock_vulnerabilities_metrics('vulnerability_namespace_historical_statistic',
+      { namespace: project.namespace })
   end
 
   # On the 1st day of any month, the metrics table intentionally uses the previous month
@@ -118,9 +174,9 @@ module ValueStreamsDashboardHelpers
 
   def create_mock_flow_metrics(project)
     [
-      [n_months_ago(1).beginning_of_month + 2.days, 2, 10],
-      [n_months_ago(2).beginning_of_month + 2.days, 4, 20],
-      [n_months_ago(3).beginning_of_month + 2.days, 3, 15]
+      [n_months_ago(1).beginning_of_month + 2.days, 2, 2],
+      [n_months_ago(2).beginning_of_month + 2.days, 4, 1],
+      [n_months_ago(3).beginning_of_month + 2.days, 3, 3]
     ].each do |created_at, lead_time, count|
       count.times do
         create(
@@ -132,18 +188,19 @@ module ValueStreamsDashboardHelpers
       end
     end
 
-    Analytics::CycleAnalytics::DataLoaderService.new(group: project.group, model: Issue).execute
+    Analytics::CycleAnalytics::DataLoaderService.new(namespace: project.group, model: Issue).execute
   end
 
   def create_mock_merge_request_metrics(project)
     [
-      [n_months_ago(1), 5],
-      [n_months_ago(2), 7],
-      [n_months_ago(3), 6]
+      [n_months_ago(1), 3],
+      [n_months_ago(2), 1],
+      [n_months_ago(3), 2]
     ].each do |merged_at, count|
       count.times do
         create(
           :merge_request,
+          :skip_diff_creation,
           :merged,
           created_at: 1.year.ago,
           project: project
@@ -152,20 +209,20 @@ module ValueStreamsDashboardHelpers
     end
   end
 
-  def create_mock_vulnerabilities_metrics(project)
+  def create_mock_vulnerabilities_metrics(table_name, record_identifier)
     [
       [n_months_ago(1).end_of_month, 3, 2],
       [n_months_ago(2).end_of_month, 5, 4],
       [n_months_ago(3).end_of_month, 2, 3]
     ].each do |date, critical, high|
-      create(
-        :vulnerability_historical_statistic,
+      params = {
         date: date,
         high: high,
         critical: critical,
-        total: critical + high,
-        project: project
-      )
+        total: critical + high
+      }.merge(record_identifier)
+
+      create(table_name.to_sym, params)
     end
   end
 end

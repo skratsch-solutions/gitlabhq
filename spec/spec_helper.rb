@@ -23,7 +23,6 @@ CrystalballEnv.start!
 
 ENV["RAILS_ENV"] = 'test'
 ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
-ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require_relative '../config/environment'
 
@@ -51,8 +50,6 @@ if rspec_profiling_is_configured && (!ENV.key?('CI') || branch_can_be_profiled)
   require 'rspec_profiling/rspec'
 end
 
-# require rainbow gem String monkeypatch, so we can test SystemChecks
-require 'rainbow/ext/string'
 Rainbow.enabled = false
 
 # Enable zero monkey patching mode before loading any other RSpec code.
@@ -81,7 +78,12 @@ quality_level = Quality::TestLevel.new
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.use_instantiated_fixtures = false
-  config.fixture_path = Rails.root
+
+  if ::Gitlab.next_rails?
+    config.fixture_paths = [Rails.root]
+  else
+    config.fixture_path = Rails.root
+  end
 
   config.verbose_retry = true
   config.display_try_failure_messages = true
@@ -89,7 +91,7 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 
   # Add :full_backtrace tag to an example if full_backtrace output is desired
-  config.before(:each, full_backtrace: true) do |example|
+  config.before(:each, :full_backtrace) do |example|
     config.full_backtrace = true
   end
 
@@ -142,10 +144,17 @@ RSpec.configure do |config|
     # Admin controller specs get auto admin mode enabled since they are
     # protected by the 'EnforcesAdminAuthentication' concern
     metadata[:enable_admin_mode] = true if %r{(ee)?/spec/controllers/admin/}.match?(location)
+
+    # The worker specs get Sidekiq context
+    metadata[:with_sidekiq_context] = true if %r{(ee)?/spec/workers/}.match?(location)
   end
 
   config.define_derived_metadata(file_path: %r{(ee)?/spec/.+_docs\.rb\z}) do |metadata|
     metadata[:type] = :feature
+  end
+
+  config.define_derived_metadata(file_path: %r{spec/dot_gitlab_ci/ci_configuration_validation/}) do |metadata|
+    metadata[:ci_config_validation] = true
   end
 
   config.include LicenseHelpers
@@ -171,13 +180,14 @@ RSpec.configure do |config|
   config.include WaitHelpers, type: :feature
   config.include WaitForRequests, type: :feature
   config.include Features::DomHelpers, type: :feature
+  config.include TestidHelpers, type: :feature
+  config.include TestidHelpers, type: :component
   config.include Features::HighlightContentHelper, type: :feature
   config.include EmailHelpers, :mailer, type: :mailer
   config.include Warden::Test::Helpers, type: :request
   config.include Gitlab::Routing, type: :routing
   config.include ApiHelpers, :api
   config.include CookieHelper, :js
-  config.include InputHelper, :js
   config.include SelectionHelper, :js
   config.include InspectRequests, :js
   config.include LiveDebugger, :js
@@ -185,6 +195,7 @@ RSpec.configure do |config|
   config.include RedisHelpers
   config.include Rails.application.routes.url_helpers, type: :routing
   config.include Rails.application.routes.url_helpers, type: :component
+  config.include Rails.application.routes.url_helpers, type: :presenter
   config.include PolicyHelpers, type: :policy
   config.include ExpectRequestWithStatus, type: :request
   config.include IdempotentWorkerHelper, type: :worker
@@ -205,6 +216,7 @@ RSpec.configure do |config|
   config.include UserWithNamespaceShim
   config.include OrphanFinalArtifactsCleanupHelpers, :orphan_final_artifacts_cleanup
   config.include ClickHouseHelpers, :click_house
+  config.include WorkItems::DataSync::AssociationsHelpers
 
   config.include_context 'when rendered has no HTML escapes', type: :view
 
@@ -266,6 +278,8 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
+    stub_feature_flags(log_sql_function_namespace_lookups: false)
+
     if example.metadata.fetch(:stub_feature_flags, true)
       # The following can be removed when we remove the staged rollout strategy
       # and we can just enable it using instance wide settings
@@ -286,6 +300,7 @@ RSpec.configure do |config|
       # These feature flag are by default disabled and used in disaster recovery mode
       stub_feature_flags(ci_queueing_disaster_recovery_disable_fair_scheduling: false)
       stub_feature_flags(ci_queueing_disaster_recovery_disable_quota: false)
+      stub_feature_flags(ci_queuing_disaster_recovery_disable_allowed_plans: false)
 
       # It's disabled in specs because we don't support certain features which
       # cause spec failures.
@@ -318,33 +333,21 @@ RSpec.configure do |config|
       # Keep-around refs should only be turned off for specific projects/repositories.
       stub_feature_flags(disable_keep_around_refs: false)
 
-      # The Vue version of the merge request list app is missing a lot of information
-      # disabling this for now whilst we work on it across multiple merge requests
-      stub_feature_flags(vue_merge_request_list: false)
-
-      # Work in progress reviewer sidebar that does not have most of the features yet
-      stub_feature_flags(reviewer_assign_drawer: false)
-
       # Disable suspending ClickHouse data ingestion workers
       stub_feature_flags(suspend_click_house_data_ingestion: false)
-
-      # Disable license requirement for duo chat, which is subject to change.
-      # See https://gitlab.com/gitlab-org/gitlab/-/issues/457090
-      stub_feature_flags(duo_chat_requires_licensed_seat: false)
-
-      # Disable license requirement for duo chat (self managed), which is subject to change.
-      # See https://gitlab.com/gitlab-org/gitlab/-/issues/457283
-      stub_feature_flags(duo_chat_requires_licensed_seat_sm: false)
 
       # Experimental merge request dashboard
       stub_feature_flags(merge_request_dashboard: false)
 
-      # We want this this FF disabled by default
-      stub_feature_flags(synced_epic_work_item_editable: false)
-
       # Since we are very early in the Vue migration, there isn't much value in testing when the feature flag is enabled
       # Please see https://gitlab.com/gitlab-org/gitlab/-/issues/466081 for tracking revisiting this.
       stub_feature_flags(your_work_projects_vue: false)
+
+      # This feature flag allows enabling self-hosted features on Staging Ref: https://gitlab.com/gitlab-org/gitlab/-/issues/497784
+      stub_feature_flags(allow_self_hosted_features_for_com: false)
+
+      # we need the `cleanup_data_source_work_item_data` disabled by default to prevent deletion of some data
+      stub_feature_flags(cleanup_data_source_work_item_data: false)
     else
       unstub_all_feature_flags
     end
@@ -397,11 +400,16 @@ RSpec.configure do |config|
     example.run if config.inclusion_filter[:quarantine] || !ENV['CI']
   end
 
+  config.around(:example, :ci_config_validation) do |example|
+    # Skip tests for ci config validation unless we explicitly focus on them or not in CI
+    example.run if config.inclusion_filter[:ci_config_validation] || !ENV['CI']
+  end
+
   config.around(:example, :request_store) do |example|
     ::Gitlab::SafeRequestStore.ensure_request_store { example.run }
   end
 
-  config.around(:example, :ci_config_feature_flag_correctness) do |example|
+  config.around do |example|
     ::Gitlab::Ci::Config::FeatureFlags.ensure_correct_usage do
       example.run
     end
@@ -464,6 +472,9 @@ RSpec.configure do |config|
 
     # Re-enable query limiting in case it was disabled
     Gitlab::QueryLimiting.enable!
+
+    # Reset ActiveSupport::CurrentAttributes models
+    ActiveSupport::CurrentAttributes.reset_all
   end
 
   config.before(:example, :mailer) do
@@ -522,6 +533,13 @@ RSpec.configure do |config|
 
       self.class.use_transactional_tests = true
     end
+  end
+
+  config.before(:context) do
+    # Clear support bot user memoization because it's created
+    # a lot of times in our test suite and ids mighht not match any more.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.clear_memoization(:support_bot_id)
   end
 end
 
@@ -590,6 +608,16 @@ module UsersInternalAllowExclusiveLease
       else
         super
       end
+    end
+
+    # TODO: Until https://gitlab.com/gitlab-org/gitlab/-/issues/442780 is resolved we're creating internal users in the
+    # first organization as a temporary workaround. Many specs lack an organization in the database, causing foreign key
+    # constraint violations when creating internal users. We're not seeding organizations before all specs for
+    # performance.
+    def create_unique_internal(scope, username, email_pattern, &creation_block)
+      Organizations::Organization.first || FactoryBot.create(:organization)
+
+      super
     end
   end
 end

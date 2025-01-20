@@ -8,27 +8,27 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Placeholder tokens
 
 [Badges](../user/project/badges.md) support placeholders that are replaced in real-time in both the link and image URL. The allowed placeholders are:
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 - **%{project_path}**: Replaced by the project path.
 - **%{project_title}**: Replaced by the project title.
 - **%{project_name}**: Replaced by the project name.
 - **%{project_id}**: Replaced by the project ID.
 - **%{project_namespace}**: Replaced by the project's namespace full path.
-- **%{group_name}**: Replaced by the project's group name.
+- **%{group_name}**: Replaced by the project's top-level group name.
 - **%{gitlab_server}**: Replaced by the project's server name.
-- **%{gitlab_pages_domain}**: Replaced by the project's domain name.
+- **%{gitlab_pages_domain}**: Replaced by the domain name hosting GitLab Pages.
 - **%{default_branch}**: Replaced by the project default branch.
 - **%{commit_sha}**: Replaced by the project's last commit SHA.
 - **%{latest_tag}**: Replaced by the project's last tag.
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 ## List all badges of a project
 
@@ -40,7 +40,7 @@ GET /projects/:id/badges
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `name`    | string         | no  | Name of the badges to return (case-sensitive). |
 
 ```shell
@@ -82,7 +82,7 @@ GET /projects/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 
 ```shell
@@ -113,7 +113,7 @@ POST /projects/:id/badges
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `link_url` | string         | yes | URL of the badge link |
 | `image_url` | string | yes | URL of the badge image |
 | `name` | string | no | Name of the badge |
@@ -148,7 +148,7 @@ PUT /projects/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 | `link_url` | string         | no | URL of the badge link |
 | `image_url` | string | no | URL of the badge image |
@@ -182,7 +182,7 @@ DELETE /projects/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 
 ```shell
@@ -199,7 +199,7 @@ GET /projects/:id/badges/render
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `link_url` | string         | yes | URL of the badge link|
 | `image_url` | string | yes | URL of the badge image |
 

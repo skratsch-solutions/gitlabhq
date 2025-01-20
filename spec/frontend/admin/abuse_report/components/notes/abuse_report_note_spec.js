@@ -93,23 +93,9 @@ describe('Abuse Report Note', () => {
   });
 
   describe('Editing', () => {
-    it('should show edit button when resolveNote is true', () => {
-      createComponent({
-        note: { ...mockNote, userPermissions: { resolveNote: true } },
-      });
-
+    it('should show edit button', () => {
       expect(findNoteActions().props()).toMatchObject({
         showEditButton: true,
-      });
-    });
-
-    it('should not show edit button when resolveNote is false', () => {
-      createComponent({
-        note: { ...mockNote, userPermissions: { resolveNote: false } },
-      });
-
-      expect(findNoteActions().props()).toMatchObject({
-        showEditButton: false,
       });
     });
 
@@ -139,6 +125,20 @@ describe('Abuse Report Note', () => {
       expect(findNoteHeader().exists()).toBe(true);
       expect(findNoteBody().exists()).toBe(true);
     });
+
+    it('should update note body when `updateNote` event is emitted', async () => {
+      const updatedNote = {
+        ...mockNote,
+        body: 'Updated body',
+      };
+
+      await findNoteActions().vm.$emit('startEditing');
+      await findEditNote().vm.$emit('updateNote', updatedNote);
+
+      expect(findNoteBody().props()).toMatchObject({
+        note: updatedNote,
+      });
+    });
   });
 
   describe('Edited At', () => {
@@ -164,7 +164,7 @@ describe('Abuse Report Note', () => {
       });
 
       expect(findEditedAt().classes()).toEqual(
-        expect.arrayContaining(['gl-text-secondary', 'gl-pl-3']),
+        expect.arrayContaining(['gl-text-subtle', 'gl-pl-3']),
       );
     });
 
@@ -179,7 +179,7 @@ describe('Abuse Report Note', () => {
       });
 
       expect(findEditedAt().classes()).toEqual(
-        expect.arrayContaining(['gl-text-secondary', 'gl-pl-8']),
+        expect.arrayContaining(['gl-text-subtle', 'gl-pl-8']),
       );
     });
   });

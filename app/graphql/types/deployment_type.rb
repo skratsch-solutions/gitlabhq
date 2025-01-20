@@ -52,7 +52,7 @@ module Types
       description: 'Status of the deployment.'
 
     field :commit,
-      Types::CommitType,
+      Types::Repositories::CommitType,
       description: 'Commit details of the deployment.',
       calls_gitaly: true
 
@@ -68,7 +68,7 @@ module Types
     field :tags,
       [Types::DeploymentTagType],
       description: 'Git tags that contain this deployment. ' \
-                   'This field can only be resolved for two deployments in any single request.',
+        'This field can only be resolved for two deployments in any single request.',
       calls_gitaly: true do
       extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 2
     end

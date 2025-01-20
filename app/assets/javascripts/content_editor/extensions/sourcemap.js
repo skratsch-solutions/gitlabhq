@@ -1,4 +1,5 @@
 import { Extension } from '@tiptap/core';
+import { getSourceMapAttributes } from '../services/markdown_sourcemap';
 import Audio from './audio';
 import Blockquote from './blockquote';
 import Bold from './bold';
@@ -15,8 +16,10 @@ import HorizontalRule from './horizontal_rule';
 import HTMLNodes from './html_nodes';
 import Image from './image';
 import Italic from './italic';
+import InlineDiff from './inline_diff';
 import Link from './link';
 import ListItem from './list_item';
+import MathInline from './math_inline';
 import OrderedList from './ordered_list';
 import Paragraph from './paragraph';
 import ReferenceDefinition from './reference_definition';
@@ -52,8 +55,10 @@ export default Extension.create({
           HorizontalRule.name,
           Image.name,
           Italic.name,
+          InlineDiff.name,
           Link.name,
           ListItem.name,
+          MathInline.name,
           OrderedList.name,
           Paragraph.name,
           ReferenceDefinition.name,
@@ -68,22 +73,7 @@ export default Extension.create({
           Video.name,
           ...HTMLNodes.map((htmlNode) => htmlNode.name),
         ],
-        attributes: {
-          /**
-           * The reason to add a function that returns an empty
-           * string in these attributes is indicate that these
-           * attributes shouldn’t be rendered in the ProseMirror
-           * view.
-           */
-          sourceMarkdown: {
-            default: null,
-            renderHTML: () => '',
-          },
-          sourceMapKey: {
-            default: null,
-            renderHTML: () => '',
-          },
-        },
+        attributes: getSourceMapAttributes(),
       },
     ];
   },

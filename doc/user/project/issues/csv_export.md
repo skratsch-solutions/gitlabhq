@@ -8,19 +8,21 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+> - Minimum role to export issues [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
 
 You can export issues from GitLab to a plain-text CSV
 ([comma-separated values](https://en.wikipedia.org/wiki/Comma-separated_values))
 file. The CSV file is attached to an email, and sent to your default
 notification email address.
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 CSV files can be used with any plotter or spreadsheet-based program, like
 Microsoft Excel, OpenOffice Calc, or Google Sheets. Use a CSV list of issues to:
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 - Create a snapshot of issues for offline analysis, or to share with other
   teams who might not be in GitLab.
@@ -37,7 +39,7 @@ You can export issues from individual projects, but not groups.
 
 Prerequisites:
 
-- You must have at least the Reporter role.
+- You must have at least the Planner role.
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Plan > Issues**.

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This migration guide looks at how you can migrate from Atlassian Bamboo to GitLab CI/CD.
 The focus is on [Bamboo Specs YAML](https://docs.atlassian.com/bamboo-specs-docs/8.1.12/specs.html?yaml)
@@ -102,11 +102,11 @@ plan:
   key: TP
   name: test plan
 stages:
-- Default Stage:
-    manual: false
-    final: false
-    jobs:
-    - Default Job
+  - Default Stage:
+      manual: false
+      final: false
+      jobs:
+        - Default Job
 Default Job:
   key: JOB1
   tasks:
@@ -116,20 +116,20 @@ Default Job:
   - script:
       interpreter: SHELL
       scripts:
-      - |-
-        ruby -v  # Print out ruby version for debugging
-        bundle config set --local deployment true  # Install dependencies into ./vendor/ruby
-        bundle install -j $(nproc)
-        rubocop
-        rspec spec
+        - |-
+          ruby -v  # Print out ruby version for debugging
+          bundle config set --local deployment true  # Install dependencies into ./vendor/ruby
+          bundle install -j $(nproc)
+          rubocop
+          rspec spec
       description: run bundler
   artifact-subscriptions: []
 repositories:
-- Demo Project:
-    scope: global
+  - Demo Project:
+      scope: global
 triggers:
-- polling:
-    period: '180'
+  - polling:
+      period: '180'
 branches:
   create: manually
   delete: never
@@ -150,20 +150,20 @@ version: 2
 plan:
   key: AB-TP
 plan-permissions:
-- users:
-  - root
-  permissions:
-  - view
-  - edit
-  - build
-  - clone
-  - admin
-  - view-configuration
-- roles:
-  - logged-in
-  - anonymous
-  permissions:
-  - view
+  - users:
+    - root
+    permissions:
+    - view
+    - edit
+    - build
+    - clone
+    - admin
+    - view-configuration
+  - roles:
+    - logged-in
+    - anonymous
+    permissions:
+    - view
 ...
 
 ```
@@ -175,7 +175,7 @@ default:
   image: ruby:latest
 
 stages:
-- default-stage
+  - default-stage
 
 job1:
   stage: default-stage
@@ -334,21 +334,21 @@ based on scope:
 
 - Build-specific variables which are evaluated at build time. For example `${bamboo.planKey}`.
 - System variables inherited from the Bamboo instance or system environment.
-- Global variables defined at the instance level and accessible to every plan.
-- Project variables defined at the project level and accessible by plans in the same project.
+- Global variables defined for the entire instance and accessible to every plan.
+- Project variables specific to a project and accessible by plans in the same project.
 - Plan variables specific to a plan.
 
 You can access variables in Bamboo using the format `${system.variableName}` for System variables
 and `${bamboo.variableName}` for other types of variables. When using a variable in a script task,
 the full stops, are converted to underscores, `${bamboo.variableName}` becomes `$bamboo_variableName`.
 
-In GitLab, [CI/CD variables](../variables/index.md) can be defined at these levels:
+In GitLab, you can define [CI/CD variables](../variables/index.md) at these levels:
 
-- Instance.
-- Group.
-- Project.
-- At the global level in the CI/CD configuration.
-- At the job level in the CI/CD configuration.
+- Instance
+- Group
+- Project
+- In the `.gitlab-ci.yml` file as default variables for all jobs
+- In the `.gitlab-ci.yml` file in individual jobs
 
 Like Bamboo's System and Global variables, GitLab has [predefined CI/CD variables](../variables/predefined_variables.md)
 that are available to every job.
@@ -373,13 +373,13 @@ The equivalent GitLab CI/CD `.gitlab-ci.yml` file would be:
 
 ```yaml
 variables:
-  GLOBAL_VAR: "A global variable"
+  DEFAULT_VAR: "A default variable"
 
 job1:
   variables:
     JOB_VAR: "A job variable"
   script:
-    - echo "Variables are '$GLOBAL_VAR' and '$JOB_VAR'"
+    - echo "Variables are '$DEFAULT_VAR' and '$JOB_VAR'"
 ```
 
 In GitLab CI/CD, variables are accessed like regular Shell script variables. For example, `$VARIABLE_NAME`.
@@ -416,10 +416,10 @@ Default Job:
   - script:
       interpreter: SHELL
       scripts:
-      - |-
-        ruby -v
-        bundle config set --local deployment true
-        bundle install -j $(nproc)
+        - |-
+          ruby -v
+          bundle config set --local deployment true
+          bundle install -j $(nproc)
       description: run bundler
 other:
   concurrent-build-plugin: system-default
@@ -489,8 +489,8 @@ For example, in a Bamboo build plan:
 version: 2
 #...
 triggers:
-- polling:
-    period: '180'
+  - polling:
+      period: '180'
 ```
 
 GitLab CI/CD pipelines can be triggered based on code change, on schedule, or triggered by
@@ -533,9 +533,7 @@ version: 2
       shared: true
 ```
 
-In this example, artifacts are defined with a name, location, pattern, and the optional
-ability to share the artifacts with other jobs or plans. You canalso define jobs that
-subscribe to the artifact.
+In this example, artifacts are defined with a name, location, and pattern. You can also share the artifacts with other jobs and plans or define jobs that subscribe to the artifact.
 
 `artifact-subscriptions` is used to access artifacts from another job in the same plan,
 for example:

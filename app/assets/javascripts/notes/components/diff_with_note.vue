@@ -9,7 +9,7 @@ import { getDiffMode } from '~/diffs/store/utils';
 import { diffViewerModes } from '~/ide/constants';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import { isCollapsed } from '~/diffs/utils/diff_file';
-import { FILE_DIFF_POSITION_TYPE } from '~/diffs/constants';
+import { FILE_DIFF_POSITION_TYPE, IMAGE_DIFF_POSITION_TYPE } from '~/diffs/constants';
 
 const FIRST_CHAR_REGEX = /^(\+|-| )/;
 
@@ -69,7 +69,39 @@ export default {
       return this.discussion.position?.position_type;
     },
     isFileDiscussion() {
+      if (!this.discussion.diff_file) {
+        return (
+          this.discussion.original_position.position_type === IMAGE_DIFF_POSITION_TYPE ||
+          this.discussion.original_position.position_type === FILE_DIFF_POSITION_TYPE
+        );
+      }
+
       return this.positionType === FILE_DIFF_POSITION_TYPE;
+    },
+    showHeader() {
+      if (this.discussion.diff_file) return true;
+
+      return (
+        this.discussion.original_position.position_type === FILE_DIFF_POSITION_TYPE ||
+        this.discussion.original_position.position_type === IMAGE_DIFF_POSITION_TYPE
+      );
+    },
+    backfilledDiffFile() {
+      /*
+       * https://gitlab.com/gitlab-com/gl-infra/production/-/issues/19118
+       *
+       * For the vast majority of cases, this should just be discussion.diff_file,
+       * but due to that defect, there are potentially some file discussions that cannot
+       * be rendered because there is no diff file attached
+       *
+       * This allows the header to display (sans file mode change) to roughly simulate
+       * having an actual diff file.
+       */
+      return (
+        this.discussion.diff_file || {
+          file_path: this.discussion.original_position.new_path,
+        }
+      );
     },
   },
   mounted() {
@@ -98,11 +130,11 @@ export default {
 <template>
   <div :class="{ 'text-file': isTextFile }" class="diff-file file-holder">
     <diff-file-header
-      v-if="discussion.diff_file"
+      v-if="showHeader"
       :discussion-path="discussion.discussion_path"
-      :diff-file="discussion.diff_file"
+      :diff-file="backfilledDiffFile"
       :can-current-user-fork="false"
-      class="gl-border"
+      class="gl-border gl-border-section"
       :expanded="!isCollapsed"
     />
     <div v-if="isTextFile" class="diff-content">
@@ -130,7 +162,7 @@ export default {
             <td v-if="error" class="js-error-lazy-load-diff diff-loading-error-block">
               {{ __('Unable to load the diff') }}
               <gl-button
-                class="gl-font-regular js-toggle-lazy-diff-retry-button"
+                class="js-toggle-lazy-diff-retry-button gl-font-regular"
                 @click="fetchDiff"
               >
                 {{ __('Try again') }}
@@ -144,7 +176,7 @@ export default {
           </tr>
         </template>
         <tr class="notes_holder">
-          <td :class="{ 'gl-border-top-0!': isFileDiscussion }" class="notes-content" colspan="3">
+          <td :class="{ '!gl-border-t-0': isFileDiscussion }" class="notes-content" colspan="3">
             <slot></slot>
           </td>
         </tr>

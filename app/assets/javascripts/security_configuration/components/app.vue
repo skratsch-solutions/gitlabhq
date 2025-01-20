@@ -5,7 +5,9 @@ import LocalStorageSync from '~/vue_shared/components/local_storage_sync.vue';
 import UserCalloutDismisser from '~/vue_shared/components/user_callout_dismisser.vue';
 import SectionLayout from '~/vue_shared/security_configuration/components/section_layout.vue';
 import SafeHtml from '~/vue_shared/directives/safe_html';
+import PageHeading from '~/vue_shared/components/page_heading.vue';
 import { SERVICE_PING_SECURITY_CONFIGURATION_THREAT_MANAGEMENT_VISIT } from '~/tracking/constants';
+import { REPORT_TYPE_CONTAINER_SCANNING_FOR_REGISTRY } from '~/vue_shared/security_reports/constants';
 import {
   AUTO_DEVOPS_ENABLED_ALERT_DISMISSED_STORAGE_KEY,
   TAB_VULNERABILITY_MANAGEMENT_INDEX,
@@ -36,6 +38,11 @@ export default {
       import('ee_component/security_configuration/components/upgrade_banner.vue'),
     UserCalloutDismisser,
     TrainingProviderList,
+    ContainerScanningForRegistryFeatureCard: () =>
+      import(
+        'ee_component/security_configuration/components/container_scanning_for_registry_feature_card.vue'
+      ),
+    PageHeading,
   },
   directives: { SafeHtml },
   inject: ['projectFullPath', 'vulnerabilityTrainingDocsPath'],
@@ -102,6 +109,9 @@ export default {
       if (feature.type === PRE_RECEIVE_SECRET_DETECTION) {
         return 'pre-receive-secret-detection-feature-card';
       }
+      if (feature.type === REPORT_TYPE_CONTAINER_SCANNING_FOR_REGISTRY) {
+        return 'container-scanning-for-registry-feature-card';
+      }
       return 'feature-card';
     },
     dismissAutoDevopsEnabledAlert() {
@@ -150,9 +160,9 @@ export default {
         <auto-dev-ops-alert v-if="shouldShowCallout" class="gl-mt-3" @dismiss="dismiss" />
       </template>
     </user-callout-dismisser>
-    <header>
-      <h1 class="gl-font-size-h1">{{ $options.i18n.securityConfiguration }}</h1>
-    </header>
+
+    <page-heading :heading="$options.i18n.securityConfiguration" />
+
     <user-callout-dismisser v-if="canUpgrade" feature-name="security_configuration_upgrade_banner">
       <template #default="{ dismiss, shouldShowCallout }">
         <upgrade-banner v-if="shouldShowCallout" @close="dismiss" />

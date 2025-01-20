@@ -2,7 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitService, :clean_gitlab_redis_shared_state, feature_category: :global_search do
+RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitService,
+  :clean_gitlab_redis_shared_state, :clean_gitlab_redis_queues_metadata, feature_category: :global_search do
   let(:worker_class) do
     Class.new do
       def self.name
@@ -27,7 +28,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitServ
     }
   end
 
-  let(:worker_args) { [1, 2] }
+  let(:job) { { 'class' => worker_class_name, 'args' => [1, 2] } }
 
   subject(:service) { described_class.new(worker_class_name) }
 
@@ -36,12 +37,21 @@ RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitServ
   end
 
   describe '.add_to_queue!' do
-    subject(:add_to_queue!) { described_class.add_to_queue!(worker_class_name, worker_args, worker_context) }
+    subject(:add_to_queue!) { described_class.add_to_queue!(job, worker_context) }
 
     it 'calls an instance method' do
       expect_next_instance_of(described_class) do |instance|
-        expect(instance).to receive(:add_to_queue!).with(worker_args, worker_context)
+        expect(instance).to receive(:add_to_queue!).with(job, worker_context)
       end
+
+      add_to_queue!
+    end
+
+    it 'reports prometheus metrics' do
+      deferred_job_count_double = instance_double(Prometheus::Client::Counter)
+      expect(Gitlab::Metrics).to receive(:counter).with(:sidekiq_concurrency_limit_deferred_jobs_total, anything)
+        .and_return(deferred_job_count_double)
+      expect(deferred_job_count_double).to receive(:increment).with({ worker: worker_class_name })
 
       add_to_queue!
     end
@@ -73,7 +83,7 @@ RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitServ
     it 'reports the queue size' do
       expect(described_class.queue_size(worker_class_name)).to eq(0)
 
-      service.add_to_queue!(worker_args, worker_context)
+      service.add_to_queue!(job, worker_context)
 
       expect(described_class.queue_size(worker_class_name)).to eq(1)
 
@@ -81,76 +91,51 @@ RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitServ
     end
   end
 
-  describe '#add_to_queue!' do
-    subject(:add_to_queue!) { service.add_to_queue!(worker_args, worker_context) }
+  describe '.track_execution_start' do
+    subject(:track_execution_start) { described_class.track_execution_start(worker_class_name) }
 
-    it 'adds a job to the set' do
-      expect { add_to_queue! }
-        .to change { service.queue_size }
-        .from(0).to(1)
-    end
-
-    it 'adds only one unique job to the set' do
-      expect do
-        2.times { add_to_queue! }
-      end.to change { service.queue_size }.from(0).to(1)
-    end
-
-    it 'stores context information' do
-      add_to_queue!
-
-      service.send(:with_redis) do |r|
-        set_key = service.send(:redis_key)
-        stored_job = service.send(:deserialize, r.lrange(set_key, 0, -1).first)
-
-        expect(stored_job['context']).to eq(stored_context)
+    it 'calls an instance method' do
+      expect_next_instance_of(described_class) do |instance|
+        expect(instance).to receive(:track_execution_start)
       end
+
+      track_execution_start
     end
   end
 
-  describe '#has_jobs_in_queue?' do
-    it 'uses queue_size' do
-      expect { service.add_to_queue!(worker_args, worker_context) }
-        .to change { service.has_jobs_in_queue? }
-        .from(false).to(true)
+  describe '.track_execution_end' do
+    subject(:track_execution_end) { described_class.track_execution_end(worker_class_name) }
+
+    it 'calls an instance method' do
+      expect_next_instance_of(described_class) do |instance|
+        expect(instance).to receive(:track_execution_end)
+      end
+
+      track_execution_end
     end
   end
 
-  describe '#resume_processing!' do
-    let(:jobs) { [[1], [2], [3]] }
-    let(:expected_context) { stored_context.merge(related_class: described_class.name) }
+  describe '.concurrent_worker_count' do
+    subject(:concurrent_worker_count) { described_class.concurrent_worker_count(worker_class_name) }
 
-    it 'puts jobs back into the queue and respects order' do
-      jobs.each do |j|
-        service.add_to_queue!(j, worker_context)
+    it 'calls an instance method' do
+      expect_next_instance_of(described_class) do |instance|
+        expect(instance).to receive(:concurrent_worker_count)
       end
 
-      expect(worker_class).to receive(:perform_async).with(1).ordered
-      expect(worker_class).to receive(:perform_async).with(2).ordered
-      expect(worker_class).not_to receive(:perform_async).with(3).ordered
-
-      expect(Gitlab::SidekiqLogging::ConcurrencyLimitLogger.instance)
-        .to receive(:resumed_log)
-        .with(worker_class_name, [1])
-      expect(Gitlab::SidekiqLogging::ConcurrencyLimitLogger.instance)
-        .to receive(:resumed_log)
-        .with(worker_class_name, [2])
-
-      service.resume_processing!(limit: 2)
+      concurrent_worker_count
     end
+  end
 
-    it 'drops a set after execution' do
-      jobs.each do |j|
-        service.add_to_queue!(j, worker_context)
+  describe '.cleanup_stale_trackers' do
+    subject(:cleanup_stale_trackers) { described_class.cleanup_stale_trackers(worker_class_name) }
+
+    it 'calls an instance method' do
+      expect_next_instance_of(described_class) do |instance|
+        expect(instance).to receive(:cleanup_stale_trackers)
       end
 
-      expect(Gitlab::ApplicationContext).to receive(:with_raw_context)
-        .with(expected_context)
-        .exactly(jobs.count).times.and_call_original
-      expect(worker_class).to receive(:perform_async).exactly(jobs.count).times
-
-      expect { service.resume_processing!(limit: jobs.count) }
-        .to change { service.has_jobs_in_queue? }.from(true).to(false)
+      cleanup_stale_trackers
     end
   end
 
@@ -172,11 +157,11 @@ RSpec.describe Gitlab::SidekiqMiddleware::ConcurrencyLimit::ConcurrencyLimitServ
     end
 
     it 'allows to use queues independently of each other' do
-      expect { service.add_to_queue!(worker_args, worker_context) }
+      expect { service.add_to_queue!(job, worker_context) }
         .to change { service.queue_size }
         .from(0).to(1)
 
-      expect { other_subject.add_to_queue!(worker_args, worker_context) }
+      expect { other_subject.add_to_queue!(job, worker_context) }
         .to change { other_subject.queue_size }
         .from(0).to(1)
 

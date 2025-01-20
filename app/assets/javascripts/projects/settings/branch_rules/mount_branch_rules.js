@@ -17,6 +17,7 @@ export default function mountBranchRules(el, store) {
 
   const {
     projectPath,
+    projectId,
     protectedBranchesPath,
     branchRulesPath,
     approvalRulesPath,
@@ -25,6 +26,8 @@ export default function mountBranchRules(el, store) {
     showStatusChecks,
     showApprovers,
     showCodeOwners,
+    showEnterpriseAccessLevels,
+    canAdminProtectedBranches,
   } = el.dataset;
 
   return new Vue({
@@ -33,6 +36,7 @@ export default function mountBranchRules(el, store) {
     apolloProvider,
     provide: {
       projectPath,
+      projectId: parseInt(projectId, 10),
       branchRulesPath,
       protectedBranchesPath,
       approvalRulesPath,
@@ -41,6 +45,8 @@ export default function mountBranchRules(el, store) {
       showStatusChecks: parseBoolean(showStatusChecks),
       showApprovers: parseBoolean(showApprovers),
       showCodeOwners: parseBoolean(showCodeOwners),
+      showEnterpriseAccessLevels: parseBoolean(showEnterpriseAccessLevels),
+      canAdminProtectedBranches: parseBoolean(canAdminProtectedBranches),
     },
     render(h) {
       return h(View);

@@ -12,6 +12,7 @@
 #     project_id; integer
 #     target_id; integer
 #     state: 'pending' (default) or 'done'
+#     is_snoozed: boolean
 #     type: 'Issue' or 'MergeRequest' or ['Issue', 'MergeRequest']
 #
 
@@ -24,7 +25,9 @@ class TodosFinder
 
   NONE = '0'
 
-  TODO_TYPES = Set.new(%w[Issue WorkItem MergeRequest DesignManagement::Design AlertManagement::Alert Namespace Project]).freeze
+  TODO_TYPES = Set.new(
+    %w[Commit Issue WorkItem MergeRequest DesignManagement::Design AlertManagement::Alert Namespace Project Key]
+  ).freeze
 
   attr_accessor :current_user, :params
 
@@ -44,10 +47,12 @@ class TodosFinder
     raise ArgumentError, invalid_type_message unless valid_types?
 
     items = current_user.todos
+    items = without_hidden(items)
     items = by_action_id(items)
     items = by_action(items)
     items = by_author(items)
     items = by_state(items)
+    items = by_snoozed_status(items) if Feature.enabled?(:todos_snoozing, current_user)
     items = by_target_id(items)
     items = by_types(items)
     items = by_group(items)
@@ -100,6 +105,10 @@ class TodosFinder
     params[:action]
   end
 
+  def snoozed?
+    params[:is_snoozed]
+  end
+
   def author?
     params[:author_id].present?
   end
@@ -133,12 +142,24 @@ class TodosFinder
   end
 
   def invalid_type_message
-    _("Unsupported todo type passed. Supported todo types are: %{todo_types}") % { todo_types: self.class.todo_types.to_a.join(', ') }
+    _("Unsupported todo type passed. Supported todo types are: %{todo_types}") % {
+      todo_types: self.class.todo_types.to_a.join(', ')
+    }
   end
 
   def sort(items)
     if params[:sort]
-      items.sort_by_attribute(params[:sort])
+      # For users with a lot of todos, sorting by created_at can be unusably slow.
+      # Given that todos have sequential ids, we can simply sort by them instead
+      sort_by = case params[:sort]
+                when :created_desc
+                  :id_desc
+                when :created_asc
+                  :id_asc
+                else
+                  params[:sort]
+                end
+      items.sort_by_attribute(sort_by)
     else
       items.order_id_desc
     end
@@ -193,9 +214,17 @@ class TodosFinder
   end
 
   def by_state(items)
-    return items.pending if params[:state].blank?
+    return items.pending if filter_pending_only?
+    return items.done if filter_done_only?
 
-    items.with_states(params[:state])
+    items
+  end
+
+  def by_snoozed_status(items)
+    return items.snoozed if snoozed?
+    return items.not_snoozed if filter_pending_only?
+
+    items
   end
 
   def by_target_id(items)
@@ -210,6 +239,21 @@ class TodosFinder
     else
       items
     end
+  end
+
+  def without_hidden(items)
+    return items.pending_without_hidden if filter_pending_only?
+    return items if filter_done_only?
+
+    items.all_without_hidden
+  end
+
+  def filter_pending_only?
+    params[:state].blank? || Array.wrap(params[:state]).map(&:to_sym) == [:pending]
+  end
+
+  def filter_done_only?
+    Array.wrap(params[:state]).map(&:to_sym) == [:done]
   end
 end
 

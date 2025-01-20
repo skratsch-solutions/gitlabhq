@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/371931) for editing issue descriptions in GitLab 15.5 [with a flag](../administration/feature_flags.md) named `content_editor_on_issues`. Disabled by default.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/382636) for [discussions](discussions/index.md), and creating and editing issues and merge requests in GitLab 15.11 with the same flag.
@@ -89,7 +89,7 @@ To insert a table:
 1. Select **Insert table** **{table}**.
 1. From the dropdown list, select the dimensions of the new table.
 
-![Alt text](img/rich_text_editor_02_v16_2.png)
+![A table size selector with 3 rows and 3 columns.](img/rich_text_editor_02_v16_2.png)
 
 ### Edit a table
 
@@ -97,7 +97,7 @@ Inside a table cell, you can use a menu to insert or delete rows or columns.
 
 To open the menu: In the upper-right corner of a cell, select the chevron **{chevron-down}**.
 
-![Alt text](img/rich_text_editor_03_v16_2.png)
+![An active chevron menu showing table actions.](img/rich_text_editor_03_v16_2.png)
 
 ### Operations on multiple cells
 
@@ -124,5 +124,6 @@ To insert a diagram:
 
 ## Related topics
 
+- [Set the default text editor](profile/preferences.md#set-the-default-text-editor)
 - [Keyboard shortcuts](shortcuts.md#rich-text-editor) for rich text editor
 - [GitLab Flavored Markdown](markdown.md)

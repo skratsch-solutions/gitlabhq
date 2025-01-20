@@ -9,7 +9,7 @@ description: "Documentation for the REST API for Git branches in GitLab."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This API operates on [repository branches](../user/project/repository/branches/index.md).
 
@@ -30,7 +30,7 @@ Parameters:
 
 | Attribute | Type           | Required | Description |
 |:----------|:---------------|:---------|:------------|
-| `id`      | integer or string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user.|
+| `id`      | integer or string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths).|
 | `search`  | string         | no       | Return list of branches containing the search string. Use `^term` to find branches that begin with `term`, and `term$` to find branches that end with `term`. |
 | `regex`   | string         | no       | Return list of branches with names matching a [re2](https://github.com/google/re2/wiki/Syntax) regular expression. |
 
@@ -57,7 +57,7 @@ Example response:
     "commit": {
       "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
       "short_id": "7b5c3cc",
-      "created_at": "2012-06-28T03:44:20-07:00",
+      "created_at": "2024-06-28T03:44:20-07:00",
       "parent_ids": [
         "4ad91d3c1144c406e50c7b33bae684bd6837faf8"
       ],
@@ -65,11 +65,12 @@ Example response:
       "message": "add projects API",
       "author_name": "John Smith",
       "author_email": "john@example.com",
-      "authored_date": "2012-06-27T05:51:39-07:00",
+      "authored_date": "2024-06-27T05:51:39-07:00",
       "committer_name": "John Smith",
       "committer_email": "john@example.com",
-      "committed_date": "2012-06-28T03:44:20-07:00",
+      "committed_date": "2024-06-28T03:44:20-07:00",
       "trailers": {},
+      "extended_trailers": {},
       "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c"
     }
   },
@@ -92,8 +93,8 @@ Parameters:
 
 | Attribute | Type              | Required | Description |
 |-----------|-------------------|----------|-------------|
-| `id`      | integer or string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
-| `branch`  | string            | yes      | [URL-encoded name](rest/index.md#namespaced-path-encoding) of the branch. |
+| `id`      | integer or string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
+| `branch`  | string            | yes      | [URL-encoded name](rest/index.md#namespaced-paths) of the branch. |
 
 Example request:
 
@@ -157,14 +158,15 @@ Parameters:
 
 | Attribute | Type    | Required | Description |
 |-----------|---------|----------|-------------|
-| `id`      | integer | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `branch`  | string  | yes      | Name of the branch. |
 | `ref`     | string  | yes      | Branch name or commit SHA to create branch from. |
 
 Example request:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/branches?branch=newbranch&ref=main"
 ```
 
@@ -216,22 +218,28 @@ Parameters:
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `branch`  | string         | yes      | Name of the branch. |
 
 Example request:
 
 ```shell
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/branches/newbranch"
 ```
+
+NOTE:
+Deleting a branch does not completely erase all related data.
+Some information persists to maintain project history and to support recovery processes.
+For more information, see [Handle sensitive information](../topics/git/undo.md#handle-sensitive-information).
 
 ## Delete merged branches
 
 Deletes all branches that are merged into the project's default branch.
 
 NOTE:
-[Protected branches](../user/project/protected_branches.md) are not deleted as part of this operation.
+[Protected branches](../user/project/repository/branches/protected.md) are not deleted as part of this operation.
 
 ```plaintext
 DELETE /projects/:id/repository/merged_branches
@@ -241,17 +249,18 @@ Parameters:
 
 | Attribute | Type           | Required | Description                                                                                                  |
 |:----------|:---------------|:---------|:-------------------------------------------------------------------------------------------------------------|
-| `id`      | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 Example request:
 
 ```shell
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/merged_branches"
 ```
 
 ## Related topics
 
 - [Branches](../user/project/repository/branches/index.md)
-- [Protected branches](../user/project/protected_branches.md)
+- [Protected branches](../user/project/repository/branches/protected.md)
 - [Protected branches API](protected_branches.md)

@@ -53,7 +53,7 @@ class DiffNote < Note
     end
 
     creation_params = diff_file.diff.to_hash
-      .except(:too_large, :generated)
+      .except(:too_large, :generated, :encoded_file_path)
       .merge(diff: diff_file.diff_hunk(diff_line))
 
     create_note_diff_file(creation_params)
@@ -131,6 +131,17 @@ class DiffNote < Note
     end
   end
 
+  def latest_diff_file_path
+    latest_diff_file.file_path
+  end
+
+  def raw_truncated_diff_lines
+    discussion
+      .truncated_diff_lines(highlight: false)
+      .map(&:text)
+      .join("\n")
+  end
+
   private
 
   def enqueue_diff_file_creation_job
@@ -173,7 +184,7 @@ class DiffNote < Note
   end
 
   def set_line_code
-    self.line_code = self.position.line_code(repository)
+    self.line_code = self.line_code.presence || self.position.line_code(repository)
   end
 
   def verify_supported
@@ -189,7 +200,7 @@ class DiffNote < Note
   end
 
   def keep_around_commits
-    repository.keep_around(*shas, source: self.class.name)
+    repository.keep_around(*shas, source: "#{noteable_type}/#{self.class.name}")
   end
 
   def repository

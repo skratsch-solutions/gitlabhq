@@ -1,5 +1,5 @@
 import { extractVSAFeaturesFromGON } from '~/analytics/shared/utils';
-import { parseSeconds } from '~/lib/utils/datetime_utility';
+import { parseSeconds, newDate } from '~/lib/utils/datetime_utility';
 import { formatTimeAsSummary } from '~/lib/utils/datetime/date_format_utility';
 import { joinPaths } from '~/lib/utils/url_utility';
 
@@ -22,7 +22,7 @@ export const transformStagesForPathNavigation = ({
   const formattedStages = stages.map((stage) => {
     return {
       metric: medians[stage?.id],
-      selected: stage?.id === selectedStage?.id, // Also could null === null cause an issue here?
+      selected: stage?.id && stage?.id === selectedStage?.id,
       stageCount: stageCounts && stageCounts[stage?.id],
       icon: null,
       ...stage,
@@ -77,21 +77,23 @@ export const buildCycleAnalyticsInitialData = ({
   createdAfter,
   createdBefore,
   namespaceName,
-  namespaceFullPath,
+  namespacePath,
+  namespaceRestApiRequestPath,
 } = {}) => {
   return {
     projectId: parseInt(projectId, 10),
     groupPath,
     namespace: {
       name: namespaceName,
-      fullPath: namespaceFullPath,
+      path: namespacePath,
+      restApiRequestPath: namespaceRestApiRequestPath,
     },
-    createdAfter: new Date(createdAfter),
-    createdBefore: new Date(createdBefore),
+    createdAfter: newDate(createdAfter),
+    createdBefore: newDate(createdBefore),
     selectedStage: stage ? JSON.parse(stage) : null,
     features: extractVSAFeaturesFromGON(),
   };
 };
 
-export const constructPathWithNamespace = ({ fullPath }, endpoint) =>
-  joinPaths('/', fullPath, endpoint);
+export const constructPathWithNamespace = ({ restApiRequestPath }, endpoint) =>
+  joinPaths('/', restApiRequestPath, endpoint);

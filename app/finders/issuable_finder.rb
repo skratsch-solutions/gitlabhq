@@ -21,6 +21,7 @@
 #     author_id: integer
 #     author_username: string
 #     assignee_id: integer or 'None' or 'Any'
+#     closed_by_id: integer
 #     assignee_username: string
 #     search: string
 #     in: 'title', 'description', or a string joining them with comma
@@ -61,17 +62,19 @@ class IssuableFinder
     def scalar_params
       @scalar_params ||= %i[
         assignee_id
+        closed_by_id
         assignee_username
         author_id
         author_username
         crm_contact_id
         crm_organization_id
+        in
         label_name
         milestone_title
         release_tag
         my_reaction_emoji
         search
-        in
+        subscribed
       ]
     end
 
@@ -137,6 +140,7 @@ class IssuableFinder
     items = by_closed_at(items)
     items = by_state(items)
     items = by_assignee(items)
+    items = by_closed_by(items)
     items = by_author(items)
     items = by_non_archived(items)
     items = by_iids(items)
@@ -145,6 +149,7 @@ class IssuableFinder
     items = by_label(items)
     items = by_my_reaction_emoji(items)
     items = by_crm_contact(items)
+    items = by_subscribed(items)
     by_crm_organization(items)
   end
 
@@ -234,7 +239,8 @@ class IssuableFinder
 
         # These are "helper" params that modify the results, like :in and :search. They usually come in at the top-level
         # params, but if they do come in inside the `:not` params, the inner ones should take precedence.
-        not_helpers = params.slice(*NEGATABLE_PARAMS_HELPER_KEYS).merge(params[:not].to_h.slice(*NEGATABLE_PARAMS_HELPER_KEYS))
+        not_helpers = params.slice(*NEGATABLE_PARAMS_HELPER_KEYS)
+                            .merge(params[:not].to_h.slice(*NEGATABLE_PARAMS_HELPER_KEYS))
         not_helpers.each do |key, value|
           not_params[key] = value unless not_params[key].present?
         end
@@ -328,7 +334,7 @@ class IssuableFinder
   # rubocop: disable CodeReuse/ActiveRecord
   def by_search(items)
     return items unless search
-    return items if items.is_a?(ActiveRecord::NullRelation)
+    return items if items.null_relation?
 
     return filter_by_full_text_search(items) if use_full_text_search?
 
@@ -367,7 +373,14 @@ class IssuableFinder
   def sort(items)
     # Ensure we always have an explicit sort order (instead of inheriting
     # multiple orders when combining ActiveRecord::Relation objects).
-    params[:sort] ? items.sort_by_attribute(params[:sort], excluded_labels: label_filter.label_names_excluded_from_priority_sort) : items.reorder(id: :desc)
+    if params[:sort]
+      items.sort_by_attribute(
+        params[:sort],
+        excluded_labels: label_filter.label_names_excluded_from_priority_sort
+      )
+    else
+      items.reorder(id: :desc)
+    end
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -388,6 +401,14 @@ class IssuableFinder
       )
     end
   end
+
+  # rubocop: disable CodeReuse/ActiveRecord
+  def by_closed_by(items)
+    return items if params[:closed_by_id].blank?
+
+    items.where(closed_by_id: params[:closed_by_id])
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def by_label(items)
     label_filter.filter(items)
@@ -459,27 +480,18 @@ class IssuableFinder
     return items unless params[:my_reaction_emoji] && current_user
 
     if params.filter_by_no_reaction?
-      items.not_awarded(current_user, reaction_emoji_filter_params)
+      items.not_awarded(current_user)
     elsif params.filter_by_any_reaction?
-      items.awarded(current_user, reaction_emoji_filter_params)
+      items.awarded(current_user)
     else
-      items.awarded(current_user, reaction_emoji_filter_params.merge(name: params[:my_reaction_emoji]))
+      items.awarded(current_user, name: params[:my_reaction_emoji])
     end
-  end
-
-  # Overriden on EE::WorKItemsFinder and EE::EpicsFinder.
-  #
-  # Used to check if epic_and_work_item_associations_unification
-  # feature flag is enabled for the group and apply filtering over award emoji
-  # unified association. Should be removed with the feature flag.
-  def reaction_emoji_filter_params
-    {}
   end
 
   def by_negated_my_reaction_emoji(items)
     return items unless not_params[:my_reaction_emoji] && current_user
 
-    items.not_awarded(current_user, reaction_emoji_filter_params.merge(name: not_params[:my_reaction_emoji]))
+    items.not_awarded(current_user, name: not_params[:my_reaction_emoji])
   end
 
   def by_non_archived(items)
@@ -496,6 +508,19 @@ class IssuableFinder
     return items unless can_filter_by_crm_organization?
 
     Issuables::CrmOrganizationFilter.new(params: original_params).filter(items)
+  end
+
+  def by_subscribed(items)
+    return items unless current_user
+
+    case params[:subscribed]
+    when :explicitly_subscribed
+      items.explicitly_subscribed(current_user)
+    when :explicitly_unsubscribed
+      items.explicitly_unsubscribed(current_user)
+    else
+      items
+    end
   end
 
   def can_filter_by_crm_contact?

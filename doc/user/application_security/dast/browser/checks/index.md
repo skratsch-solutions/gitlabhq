@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The [DAST browser-based crawler](../index.md) provides vulnerability checks that are used to
 scan for vulnerabilities in the site under test.
@@ -93,11 +93,11 @@ scan for vulnerabilities in the site under test.
 | [798.48](798.48.md)   | Exposure of confidential secret or token Frame.io API token                                                    | High     | Passive |
 | [798.49](798.49.md)   | Exposure of confidential secret or token FreshBooks Access Token                                               | High     | Passive |
 | [798.50](798.50.md)   | Exposure of confidential secret or token GoCardless API token                                                  | High     | Passive |
-| [798.52](798.52.md)   | Exposure of confidential secret or token GitHub Personal Access Token                                          | High     | Passive |
+| [798.52](798.52.md)   | Exposure of confidential secret or token GitHub personal access token                                          | High     | Passive |
 | [798.53](798.53.md)   | Exposure of confidential secret or token GitHub OAuth Access Token                                             | High     | Passive |
 | [798.54](798.54.md)   | Exposure of confidential secret or token GitHub App Token                                                      | High     | Passive |
 | [798.55](798.55.md)   | Exposure of confidential secret or token GitHub Refresh Token                                                  | High     | Passive |
-| [798.56](798.56.md)   | Exposure of confidential secret or token GitLab Personal Access Token                                          | High     | Passive |
+| [798.56](798.56.md)   | Exposure of confidential secret or token GitLab personal access token                                          | High     | Passive |
 | [798.57](798.57.md)   | Exposure of confidential secret or token Gitter Access Token                                                   | High     | Passive |
 | [798.58](798.58.md)   | Exposure of confidential secret or token HashiCorp Terraform user/org API token                                | High     | Passive |
 | [798.59](798.59.md)   | Exposure of confidential secret or token Heroku API Key                                                        | High     | Passive |

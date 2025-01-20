@@ -11,7 +11,7 @@ module API
       def bulk_imports
         @bulk_imports ||= ::BulkImports::ImportsFinder.new(
           user: current_user,
-          params: params
+          params: params.merge(include_configuration: true)
         ).execute
       end
 
@@ -33,8 +33,7 @@ module API
     end
 
     before do
-      not_found! unless Gitlab::CurrentSettings.bulk_import_enabled? ||
-        Feature.enabled?(:override_bulk_import_disabled, current_user, type: :ops)
+      not_found! unless Gitlab::CurrentSettings.bulk_import_enabled?
 
       authenticate!
     end
@@ -86,6 +85,10 @@ module API
             type: Boolean,
             default: true,
             desc: 'Indicates group migration should include nested projects'
+          optional :migrate_memberships,
+            type: Boolean,
+            default: true,
+            desc: 'The option to migrate memberships or not'
 
           mutually_exclusive :destination_slug, :destination_name
           at_least_one_of :destination_slug, :destination_name
@@ -101,11 +104,12 @@ module API
           end
         end
 
+        set_current_organization
         response = ::BulkImports::CreateService.new(
           current_user,
           params[:entities],
-          url: params[:configuration][:url],
-          access_token: params[:configuration][:access_token]
+          params[:configuration].slice(:url, :access_token),
+          fallback_organization: Current.organization
         ).execute
 
         if response.success?
@@ -247,9 +251,10 @@ module API
         requires :import_id, type: Integer, desc: "The ID of user's GitLab Migration"
       end
       post ':import_id/cancel' do
-        authenticated_as_admin!
+        bulk_import = BulkImport.find_by_id(params[:import_id])
 
-        bulk_import = BulkImport.find(params[:import_id])
+        not_found! unless bulk_import
+        authenticated_as_admin! unless bulk_import.user == current_user
 
         bulk_import.cancel!
 

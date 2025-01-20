@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Personal Productivity
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Interact with [to-do items](../user/todos.md) using the REST API.
 
@@ -31,7 +31,7 @@ Parameters:
 | `project_id` | integer | no | The ID of a project                                                                                                                                                                                |
 | `group_id` | integer | no | The ID of a group                                                                                                                                                                                  |
 | `state` | string | no | The state of the to-do item. Can be either `pending` or `done`                                                                                                                                     |
-| `type` | string | no | The type of to-do item. Can be either `Issue`, `MergeRequest`, `Commit`, `Epic`, `DesignManagement::Design` or `AlertManagement::Alert`                                                            |
+| `type` | string | no | The type of to-do item. Can be either `Issue`, `MergeRequest`, `Commit`, `Epic`, `DesignManagement::Design`, `AlertManagement::Alert`, `Project`, `Namespace` or `Vulnerability`                   |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/todos"

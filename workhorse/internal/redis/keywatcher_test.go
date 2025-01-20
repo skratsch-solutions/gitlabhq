@@ -25,7 +25,7 @@ func initRdb(t *testing.T) *redis.Client {
 	require.NoError(t, err)
 	cfg, err := config.LoadConfig(string(buf))
 	require.NoError(t, err)
-	rdb, err := Configure(cfg.Redis)
+	rdb, err := Configure(cfg)
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		assert.NoError(t, rdb.Close())
@@ -118,7 +118,6 @@ func TestKeyChangesInstantReturn(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-
 			// setup
 			if !tc.isKeyMissing {
 				rdb.Set(ctx, runnerKey, tc.returnValue, 0)
@@ -186,8 +185,8 @@ func TestKeyChangesWhenWatching(t *testing.T) {
 				<-ready
 				val, err := kw.WatchKey(ctx, runnerKey, tc.watchValue, time.Second)
 
-				require.NoError(t, err, "Expected no error")
-				require.Equal(t, tc.expectedStatus, val, "Expected value")
+				assert.NoError(t, err, "Expected no error")
+				assert.Equal(t, tc.expectedStatus, val, "Expected value")
 			}()
 
 			processMessages(t, kw, 1, tc.processedValue, ready, wg)
@@ -238,8 +237,8 @@ func TestKeyChangesParallel(t *testing.T) {
 					<-ready
 					val, err := kw.WatchKey(ctx, runnerKey, tc.watchValue, time.Second)
 
-					require.NoError(t, err, "Expected no error")
-					require.Equal(t, tc.expectedStatus, val, "Expected value")
+					assert.NoError(t, err, "Expected no error")
+					assert.Equal(t, tc.expectedStatus, val, "Expected value")
 				}()
 			}
 
@@ -264,13 +263,13 @@ func TestShutdown(t *testing.T) {
 		defer wg.Done()
 		val, err := kw.WatchKey(ctx, runnerKey, "something", 10*time.Second)
 
-		require.NoError(t, err, "Expected no error")
-		require.Equal(t, WatchKeyStatusNoChange, val, "Expected value not to change")
+		assert.NoError(t, err, "Expected no error")
+		assert.Equal(t, WatchKeyStatusNoChange, val, "Expected value not to change")
 	}()
 
 	go func() {
 		defer wg.Done()
-		require.Eventually(t, func() bool { return countSubscribers(kw, runnerKey) == 1 }, 10*time.Second, time.Millisecond)
+		assert.Eventually(t, func() bool { return countSubscribers(kw, runnerKey) == 1 }, 10*time.Second, time.Millisecond)
 
 		kw.Shutdown()
 	}()
@@ -295,4 +294,43 @@ func TestShutdown(t *testing.T) {
 	case <-time.After(100 * time.Millisecond):
 		t.Fatal("timeout waiting for WatchKey")
 	}
+}
+
+func TestLazySubscribeInit(t *testing.T) {
+	rdb := initRdb(t)
+	kw := NewKeyWatcher(rdb)
+	require.True(t, kw.firstRun)
+
+	kw.firstRun = false
+	defer kw.Shutdown()
+
+	go kw.Process()
+
+	require.Equal(t, 0, kw.getNumSubscribers())
+	require.False(t, kw.connected())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	notify := make(chan string)
+	// Add a subscription to initiate a Redis connection
+	kw.addSubscription(ctx, "test_key", notify)
+
+	require.Eventually(t, func() bool {
+		return kw.connected()
+	}, time.Second, time.Millisecond)
+
+	// Add another one just to ensure there is at least one subscriber
+	err := kw.addSubscription(ctx, "test_key2", notify)
+	require.NoError(t, err)
+
+	require.Eventually(t, func() bool {
+		return kw.getNumSubscribers() > 0
+	}, time.Second, time.Millisecond, "Subscription was not added")
+
+	require.Eventually(t, func() bool {
+		return kw.connected()
+	}, time.Second, time.Millisecond)
+
+	kw.delSubscription(ctx, "test_key", notify)
+	kw.delSubscription(ctx, "test_key2", notify)
 }

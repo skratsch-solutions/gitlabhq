@@ -3,6 +3,7 @@
 import { GlLoadingIcon, GlTabs, GlTab, GlBadge } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { getParameterValues, setUrlParams, updateHistory } from '~/lib/utils/url_utility';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import environmentClusterAgentQuery from '~/environments/graphql/queries/environment_cluster_agent.query.graphql';
 import DeploymentHistory from './components/deployment_history.vue';
 import KubernetesOverview from './components/kubernetes/kubernetes_overview.vue';
@@ -37,6 +38,7 @@ export default {
     },
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     environment: {
       query: environmentClusterAgentQuery,
       variables() {
@@ -68,6 +70,10 @@ export default {
     fluxResourcePath() {
       return this.environment?.fluxResourcePath || '';
     },
+    environmentId() {
+      const idFromGraphQlId = getIdFromGraphQLId(this.environment.id);
+      return idFromGraphQlId ? idFromGraphQlId.toString() : this.environment.id;
+    },
   },
   i18n: {
     deploymentHistory: s__('Environments|Deployment history'),
@@ -78,9 +84,6 @@ export default {
     kubernetes: 'kubernetes-overview',
   },
   methods: {
-    linkClass(index) {
-      return index === this.currentTabIndex ? 'gl-shadow-inner-b-2-theme-accent' : '';
-    },
     updateCurrentTab() {
       const hasKubernetesIntegration = this.environment?.clusterAgent;
       const selectedTabFromUrl = getParameterValues('tab');
@@ -104,17 +107,17 @@ export default {
     <gl-tab
       :title="$options.i18n.kubernetesOverview"
       :query-param-value="$options.params.kubernetes"
-      :title-link-class="linkClass(0)"
     >
       <kubernetes-overview
         :environment-name="environmentName"
+        :environment-id="environmentId"
         :cluster-agent="environment.clusterAgent"
         :kubernetes-namespace="kubernetesNamespace"
         :flux-resource-path="fluxResourcePath"
       />
     </gl-tab>
 
-    <gl-tab :query-param-value="$options.params.deployments" :title-link-class="linkClass(1)">
+    <gl-tab :query-param-value="$options.params.deployments">
       <template #title>
         {{ $options.i18n.deploymentHistory }}
         <gl-badge class="gl-tab-counter-badge">{{ environment.deploymentsDisplayCount }}</gl-badge>

@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe GroupsController, factory_default: :keep, feature_category: :code_review_workflow do
+RSpec.describe GroupsController, :with_current_organization, factory_default: :keep, feature_category: :code_review_workflow do
   include ExternalAuthorizationServiceHelpers
   include AdminModeHelper
 
-  let_it_be(:group_organization) { create(:organization) }
+  let_it_be(:group_organization) { current_organization }
   let_it_be_with_refind(:group) { create_default(:group, :public, organization: group_organization) }
   let_it_be_with_refind(:project) { create(:project, namespace: group) }
   let_it_be(:user) { create(:user) }
@@ -17,6 +17,10 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
   let_it_be(:maintainer) { group.add_maintainer(create(:user)).user }
   let_it_be(:developer) { group.add_developer(create(:user)).user }
   let_it_be(:guest) { group.add_guest(create(:user)).user }
+
+  before_all do
+    group_organization.users = User.all
+  end
 
   before do
     enable_admin_mode!(admin_with_admin_mode)
@@ -193,7 +197,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
           project = create(:project, group: group)
           create(:event, project: project)
         end
-        subgroup = create(:group, parent: group)
+        subgroup = create(:group, parent: group, organization: group.organization)
         project = create(:project, group: subgroup)
         create(:event, project: project)
 
@@ -240,7 +244,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
     context 'authorization' do
       it 'allows an admin to create a group' do
-        sign_in(create(:admin))
+        sign_in(admin_without_admin_mode)
 
         expect do
           post :create, params: { group: { name: 'new_group', path: 'new_group' } }
@@ -301,10 +305,9 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       end
     end
 
-    context 'when creating a top level group', :with_current_organization do
+    context 'when creating a top level group' do
       before do
         sign_in(developer)
-        Current.organization.users << developer
       end
 
       context 'and can_create_group is enabled' do
@@ -502,16 +505,6 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       end
     end
 
-    context 'when creating a group with the `role` attribute present' do
-      it 'changes the users role' do
-        sign_in(user)
-
-        expect do
-          post :create, params: { group: { name: 'new_group', path: 'new_group' }, user: { role: 'devops_engineer' } }
-        end.to change { user.reload.role }.to('devops_engineer')
-      end
-    end
-
     context 'when creating a group with the `setup_for_company` attribute present' do
       before do
         sign_in(user)
@@ -527,9 +520,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       end
 
       context 'when the user already has a value for `setup_for_company`' do
-        before do
-          user.update_attribute(:setup_for_company, true)
-        end
+        let_it_be(:user) { create(:user, setup_for_company: true) }
 
         it 'does not change the users `setup_for_company` value' do
           expect(Users::UpdateService).not_to receive(:new)
@@ -611,6 +602,10 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
 
     context 'rendering views' do
+      before do
+        stub_feature_flags(vue_merge_request_list: false)
+      end
+
       render_views
 
       it 'displays MR counts in nav' do
@@ -638,6 +633,8 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
     context 'when an ActiveRecord::QueryCanceled is raised' do
       before do
+        stub_feature_flags(vue_merge_request_list: false)
+
         allow_next_instance_of(Gitlab::IssuableMetadata) do |instance|
           allow(instance).to receive(:data).and_raise(ActiveRecord::QueryCanceled)
         end
@@ -685,19 +682,18 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
 
     context 'as the group owner' do
+      let(:user) { create(:user) }
+      let(:group) { create(:group) }
+
       before do
+        group.add_owner(user)
         sign_in(user)
       end
 
-      it 'schedules a group destroy', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/469091' do
+      it 'schedules a group destroy and redirects to the root path' do
         Sidekiq::Testing.fake! do
           expect { delete :destroy, params: { id: group.to_param } }.to change(GroupDestroyWorker.jobs, :size).by(1)
         end
-      end
-
-      it 'redirects to the root path' do
-        delete :destroy, params: { id: group.to_param }
-
         expect(flash[:toast]).to eq(format(_("Group '%{group_name}' is being deleted."), group_name: group.full_name))
         expect(response).to redirect_to(root_path)
       end
@@ -1273,7 +1269,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     context 'when there is a file available to download' do
       before do
         sign_in(admin)
-        create(:import_export_upload, group: group, export_file: export_file)
+        create(:import_export_upload, group: group, export_file: export_file, user: admin)
       end
 
       it 'sends the file' do
@@ -1287,8 +1283,8 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
       before do
         sign_in(admin)
 
-        create(:import_export_upload, group: group, export_file: export_file)
-        group.export_file.file.delete
+        create(:import_export_upload, group: group, export_file: export_file, user: admin)
+        group.export_file(admin).file.delete
       end
 
       it 'returns not found' do
@@ -1418,6 +1414,15 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
           it 'does not update name' do
             expect { subject }.not_to change { group.reload.name }
+          end
+        end
+
+        context 'when default branch name is invalid' do
+          subject { put :update, params: { id: group.to_param, group: { default_branch_name: "***" } } }
+
+          it 'renders an error message' do
+            expect { subject }.not_to change { group.reload.name }
+            expect(flash[:alert]).to eq('Default branch name is invalid.')
           end
         end
       end

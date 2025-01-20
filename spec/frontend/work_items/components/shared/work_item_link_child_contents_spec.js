@@ -1,22 +1,27 @@
-import { GlLabel, GlIcon, GlLink, GlButton, GlAvatarsInline } from '@gitlab/ui';
+import { GlLabel, GlLink, GlButton, GlAvatarsInline } from '@gitlab/ui';
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 
 import WorkItemLinkChildMetadata from 'ee_else_ce/work_items/components/shared/work_item_link_child_metadata.vue';
 
 import { createAlert } from '~/alert';
-import RichTimestampTooltip from '~/vue_shared/components/rich_timestamp_tooltip.vue';
-
+import RichTimestampTooltip from '~/work_items/components/rich_timestamp_tooltip.vue';
+import WorkItemStateBadge from '~/work_items/components/work_item_state_badge.vue';
 import WorkItemLinkChildContents from '~/work_items/components/shared/work_item_link_child_contents.vue';
 import { WORK_ITEM_TYPE_VALUE_OBJECTIVE } from '~/work_items/constants';
+import WorkItemRelationshipIcons from '~/work_items/components/shared/work_item_relationship_icons.vue';
 
 import {
   workItemTask,
+  workItemEpic,
   workItemObjectiveWithChild,
   confidentialWorkItemTask,
   closedWorkItemTask,
+  otherNamespaceChild,
   workItemObjectiveMetadataWidgets,
+  workItemObjectiveWithoutChild,
 } from '../../mock_data';
 
 jest.mock('~/alert');
@@ -29,8 +34,10 @@ describe('WorkItemLinkChildContents', () => {
   const mockAssignees = ASSIGNEES.assignees.nodes;
   const mockLabels = LABELS.labels.nodes;
 
-  const findStatusIconComponent = () =>
-    wrapper.findByTestId('item-status-icon').findComponent(GlIcon);
+  const mockRouterPush = jest.fn();
+
+  const findStatusBadgeComponent = () =>
+    wrapper.findByTestId('item-status-icon').findComponent(WorkItemStateBadge);
   const findConfidentialIconComponent = () => wrapper.findByTestId('confidential-icon');
   const findTitleEl = () => wrapper.findComponent(GlLink);
   const findStatusTooltipComponent = () => wrapper.findComponent(RichTimestampTooltip);
@@ -39,18 +46,29 @@ describe('WorkItemLinkChildContents', () => {
   const findRegularLabel = () => findAllLabels().at(0);
   const findScopedLabel = () => findAllLabels().at(1);
   const findRemoveButton = () => wrapper.findComponent(GlButton);
+  const findRelationshipIconsComponent = () => wrapper.findComponent(WorkItemRelationshipIcons);
 
   const createComponent = ({
     canUpdate = true,
     childItem = workItemTask,
     showLabels = true,
+    workItemFullPath = 'test-project-path',
+    isGroup = false,
   } = {}) => {
     wrapper = shallowMountExtended(WorkItemLinkChildContents, {
       propsData: {
         canUpdate,
         childItem,
         showLabels,
-        workItemFullPath: 'test-project-path',
+        workItemFullPath,
+      },
+      provide: {
+        isGroup,
+      },
+      mocks: {
+        $router: {
+          push: mockRouterPush,
+        },
       },
     });
   };
@@ -60,16 +78,15 @@ describe('WorkItemLinkChildContents', () => {
   });
 
   it.each`
-    status      | childItem             | statusIconName    | statusIconColorClass   | rawTimestamp                   | tooltipContents
-    ${'open'}   | ${workItemTask}       | ${'issue-open-m'} | ${'gl-text-green-500'} | ${workItemTask.createdAt}      | ${'Created'}
-    ${'closed'} | ${closedWorkItemTask} | ${'issue-close'}  | ${'gl-text-blue-500'}  | ${closedWorkItemTask.closedAt} | ${'Closed'}
+    status      | childItem             | workItemState | rawTimestamp                   | tooltipContents
+    ${'open'}   | ${workItemTask}       | ${'OPEN'}     | ${workItemTask.createdAt}      | ${'Created'}
+    ${'closed'} | ${closedWorkItemTask} | ${'CLOSED'}   | ${closedWorkItemTask.closedAt} | ${'Closed'}
   `(
     'renders item status icon and tooltip when item status is `$status`',
-    ({ childItem, statusIconName, statusIconColorClass, rawTimestamp, tooltipContents }) => {
+    ({ childItem, workItemState, rawTimestamp, tooltipContents }) => {
       createComponent({ childItem });
 
-      expect(findStatusIconComponent().props('name')).toBe(statusIconName);
-      expect(findStatusIconComponent().classes()).toContain(statusIconColorClass);
+      expect(findStatusBadgeComponent().props('workItemState')).toBe(workItemState);
       expect(findStatusTooltipComponent().props('rawTimestamp')).toBe(rawTimestamp);
       expect(findStatusTooltipComponent().props('timestampTypeText')).toContain(tooltipContents);
     },
@@ -98,6 +115,14 @@ describe('WorkItemLinkChildContents', () => {
     });
   });
 
+  it('renders link with unique id', () => {
+    createComponent();
+
+    expect(findTitleEl().attributes().id).toBe(
+      `listItem-${workItemTask.namespace.fullPath}/${getIdFromGraphQLId(workItemTask.id)}`,
+    );
+  });
+
   describe('item title', () => {
     beforeEach(() => {
       createComponent();
@@ -121,17 +146,41 @@ describe('WorkItemLinkChildContents', () => {
     it('emits click event with correct parameters on clicking title', () => {
       const eventObj = {
         preventDefault: jest.fn(),
+        stopPropagation: jest.fn(),
       };
       findTitleEl().vm.$emit('click', eventObj);
 
       expect(wrapper.emitted('click')).toEqual([[eventObj]]);
+    });
+
+    describe('when the linked item can be navigated to via Vue Router', () => {
+      const preventDefault = jest.fn();
+      beforeEach(() => {
+        createComponent({
+          childItem: workItemEpic,
+          isGroup: true,
+          workItemFullPath: 'gitlab-org/gitlab-test',
+        });
+
+        findTitleEl().vm.$emit('click', { preventDefault, stopPropagation: jest.fn() });
+      });
+
+      it('pushes a new router state', () => {
+        expect(mockRouterPush).toHaveBeenCalled();
+      });
+      it('prevents the default event behaviour', () => {
+        expect(preventDefault).toHaveBeenCalled();
+      });
+      it('does not emit a click event', () => {
+        expect(wrapper.emitted('click')).not.toBeDefined();
+      });
     });
   });
 
   describe('item metadata', () => {
     it('renders item metadata component when item has metadata present', () => {
       createComponent({
-        childItem: workItemObjectiveWithChild,
+        childItem: workItemObjectiveWithoutChild,
         workItemType: WORK_ITEM_TYPE_VALUE_OBJECTIVE,
       });
 
@@ -139,6 +188,16 @@ describe('WorkItemLinkChildContents', () => {
         iid: '12',
         reference: '#12',
         metadataWidgets: workItemObjectiveMetadataWidgets,
+      });
+    });
+    it('renders full path when not in the same namespace', () => {
+      createComponent({
+        childItem: otherNamespaceChild,
+      });
+
+      expect(findMetadataComponent().props()).toMatchObject({
+        iid: '24',
+        reference: 'test-project-path/other#24',
       });
     });
   });
@@ -152,6 +211,16 @@ describe('WorkItemLinkChildContents', () => {
       expect(findRemoveButton().exists()).toBe(true);
     });
 
+    it('renders relationship icons', () => {
+      expect(findRelationshipIconsComponent().exists()).toBe(true);
+    });
+
+    it('does not render relationship icons when item is closed', () => {
+      createComponent({ childItem: closedWorkItemTask });
+
+      expect(findRelationshipIconsComponent().exists()).toBe(false);
+    });
+
     it('does not render work-item-links-menu when canUpdate is false', () => {
       createComponent({ canUpdate: false });
 
@@ -159,7 +228,7 @@ describe('WorkItemLinkChildContents', () => {
     });
 
     it('removeChild event on menu triggers `click-remove-child` event', () => {
-      findRemoveButton().vm.$emit('click');
+      findRemoveButton().vm.$emit('click', { stopPropagation: jest.fn() });
 
       expect(wrapper.emitted('removeChild')).toEqual([[workItemTask]]);
     });

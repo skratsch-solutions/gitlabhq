@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Interactive web terminals give the user access to a terminal in GitLab for
 running one-off commands for their CI pipeline. You can think of it like a method for
@@ -61,23 +61,19 @@ improving this behavior.
 
 Sometimes, when a job is running, things don't go as you would expect, and it
 would be helpful if one can have a shell to aid debugging. When a job is
-running, on the right panel you can see a button `debug` that opens the terminal
+running, on the right panel, you can see a `debug` button (**{external-link}**) that opens the terminal
 for the current job. Only the person who started a job can debug it.
 
-![Example of job running with terminal available](img/interactive_web_terminal_running_job.png)
+![Example of job running with terminal available](img/interactive_web_terminal_running_job_v17_3.png)
 
 When selected, a new tab opens to the terminal page where you can access
 the terminal and type commands like in a standard shell.
 
-![terminal of the job](img/interactive_web_terminal_page.png)
+![terminal of the job](img/interactive_web_terminal_page_v11_1.png)
 
 If you have the terminal open and the job has finished with its tasks, the
 terminal blocks the job from finishing for the duration configured in
 [`[session_server].session_timeout`](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-session_server-section) until you
 close the terminal window.
 
-![finished job with terminal open](img/finished_job_with_terminal_open.png)
-
-## Interactive web terminals for the Web IDE
-
-To run interactive web terminals for the Web IDE, see [Web IDE](../../user/project/web_ide/index.md).
+![finished job with terminal open](img/finished_job_with_terminal_open_v11_2.png)

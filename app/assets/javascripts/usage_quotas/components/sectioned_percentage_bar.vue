@@ -11,6 +11,8 @@ export default {
      *   label: string;
      *   value: number;
      *   formattedValue: number | string;
+     *   color: string;
+     *   hideLabel: boolean,
      * }[]
      */
     sections: {
@@ -27,10 +29,9 @@ export default {
     computedSections() {
       return this.sections.map((section, index) => {
         const percentage = section.value / this.sectionsCombinedValue;
-
         return {
           ...section,
-          backgroundColor: colorFromDefaultPalette(index),
+          backgroundColor: section.color ?? colorFromDefaultPalette(index),
           cssPercentage: `${roundOffFloat(percentage * 100, 4)}%`,
           srLabelPercentage: formatNumber(percentage, {
             style: 'percent',
@@ -39,13 +40,16 @@ export default {
         };
       });
     },
+    sectionLabels() {
+      return this.computedSections.filter((s) => !s.hideLabel);
+    },
   },
 };
 </script>
 
 <template>
   <div>
-    <div class="gl-display-flex gl-rounded-pill gl-overflow-hidden gl-w-full">
+    <div class="gl-flex gl-w-full gl-overflow-hidden gl-rounded-pill">
       <div
         v-for="{ id, label, backgroundColor, cssPercentage, srLabelPercentage } in computedSections"
         :key="id"
@@ -60,23 +64,23 @@ export default {
       </div>
     </div>
     <div class="gl-mt-5">
-      <div class="gl-display-flex gl-align-items-center gl-flex-wrap -gl-my-3 -gl-mx-3">
+      <div class="-gl-mx-3 -gl-my-3 gl-flex gl-flex-wrap gl-items-center">
         <div
-          v-for="{ id, label, backgroundColor, formattedValue } in computedSections"
+          v-for="{ id, label, backgroundColor, formattedValue } in sectionLabels"
           :key="id"
-          class="gl-display-flex gl-align-items-center gl-p-3"
+          class="gl-flex gl-items-center gl-p-3"
           :data-testid="`percentage-bar-legend-section-${id}`"
         >
           <div
-            class="gl-h-2 gl-w-5 gl-mr-2 gl-display-inline-block"
+            class="gl-mr-2 gl-inline-block gl-h-2 gl-w-5"
             :style="{ backgroundColor }"
             data-testid="legend-section-color"
           ></div>
-          <p class="gl-m-0 gl-font-sm">
+          <p class="gl-m-0 gl-text-sm">
             <span class="gl-mr-2 gl-font-bold">
               {{ label }}
             </span>
-            <span class="gl-text-gray-500">
+            <span class="gl-text-subtle">
               {{ formattedValue }}
             </span>
           </p>

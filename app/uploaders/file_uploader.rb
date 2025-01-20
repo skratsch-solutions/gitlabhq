@@ -20,7 +20,7 @@ class FileUploader < GitlabUploader
     '!?\[.*?\]\(/uploads/(?P<secret>[0-9a-f]{32})/(?P<file>.*?)\)'
   )
 
-  DYNAMIC_PATH_PATTERN = %r{.*(?<secret>\b(\h{10}|\h{32}))\/(?<identifier>.*)}
+  DYNAMIC_PATH_PATTERN = %r{.*(?<secret>\b(?:\h{10}|\h{32}))\/(?<identifier>.*)}
   VALID_SECRET_PATTERN = %r{\A\h{10,32}\z}
 
   InvalidSecret = Class.new(StandardError)
@@ -94,7 +94,7 @@ class FileUploader < GitlabUploader
   def initialize(model, mounted_as = nil, **uploader_context)
     super(model, nil, **uploader_context)
 
-    @model = model
+    @model = model.is_a?(Namespaces::ProjectNamespace) ? model.project : model
     apply_context!(uploader_context)
   end
 
@@ -170,9 +170,9 @@ class FileUploader < GitlabUploader
     @secret
   end
 
-  # return a new uploader with a file copy on another project
-  def self.copy_to(uploader, to_project)
-    moved = self.new(to_project)
+  # return a new uploader with a file copy on another container
+  def self.copy_to(uploader, to_container)
+    moved = self.new(to_container)
     moved.object_store = uploader.object_store
     moved.filename = uploader.filename
 

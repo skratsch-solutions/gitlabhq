@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe AlertManagement::MetricImages::UploadService, feature_category: :metrics do
+RSpec.describe AlertManagement::MetricImages::UploadService, feature_category: :observability do
   subject(:service) { described_class.new(alert, current_user, params) }
 
   let_it_be_with_refind(:project) { create(:project) }
@@ -64,7 +64,8 @@ RSpec.describe AlertManagement::MetricImages::UploadService, feature_category: :
           }
         end
 
-        it_behaves_like 'no metric saved, an error given', /File does not have a supported extension. Only png, jpg, jpeg, gif, bmp, tiff, ico, and webp are supported/ # rubocop: disable Layout/LineLength
+        it_behaves_like 'no metric saved, an error given',
+          /File does not have a supported extension. Only png, jpg, jpeg, gif, bmp, tiff, ico, and webp are supported/
       end
 
       context 'user is guest' do

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This document is a user guide to explore the options and settings
 GitLab Pages offers.
@@ -114,17 +114,20 @@ directory of the project to the `public/` directory. The `.public` workaround
 is so `cp` doesn't also copy `public/` to itself in an infinite loop:
 
 ```yaml
-pages:
+deploy-pages:
   script:
     - mkdir .public
     - cp -r * .public
     - mv .public public
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
 ```
+
+The previous YAML example uses [user-defined job names](index.md#user-defined-job-names).
 
 ### `.gitlab-ci.yml` for a static site generator
 
@@ -155,12 +158,12 @@ Below is a copy of `.gitlab-ci.yml` where the most significant line is the last
 one, specifying to execute everything in the `pages` branch:
 
 ```yaml
-image: ruby:2.6
-
-pages:
+deploy-pages:
+  image: ruby:2.6
   script:
     - gem install jekyll
     - jekyll build -d public/
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -171,6 +174,8 @@ pages:
 See an example that has different files in the [`main` branch](https://gitlab.com/pages/jekyll-branched/tree/main)
 and the source files for Jekyll are in a [`pages` branch](https://gitlab.com/pages/jekyll-branched/tree/pages) which
 also includes `.gitlab-ci.yml`.
+
+The previous YAML example uses [user-defined job names](index.md#user-defined-job-names).
 
 ### Serving compressed assets
 
@@ -205,17 +210,20 @@ This can be achieved by including a `script:` command like this in your
 `.gitlab-ci.yml` pages job:
 
 ```yaml
-pages:
+deploy-pages:
   # Other directives
   script:
     # Build the public/ directory first
-    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec gzip -f -k {} \;
-    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\)$' -exec brotli -f -k {} \;
+    - find public -type f -regex '.*\.\(htm\|html\|xml\|txt\|text\|js\|css\|svg\)$' -exec gzip -f -k {} \;
+    - find public -type f -regex '.*\.\(htm\|html\|xml\|txt\|text\|js\|css\|svg\)$' -exec brotli -f -k {} \;
+  pages: true  # specifies that this is a Pages job
 ```
 
 By pre-compressing the files and including both versions in the artifact, Pages
 can serve requests for both compressed and uncompressed content without
 needing to compress files on-demand.
+
+The previous YAML example uses [user-defined job names](index.md#user-defined-job-names).
 
 ### Resolving ambiguous URLs
 
@@ -262,20 +270,21 @@ for both the `/data` and `/data/` URL paths.
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/-/merge_requests/859) in GitLab 16.1 with a Pages flag named `FF_CONFIGURABLE_ROOT_DIR`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/1073) in GitLab 16.1.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab-pages/-/merge_requests/890) in GitLab 16.2.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab-pages/-/merge_requests/890) in GitLab 16.2.
 
 By default, the [artifact](../../../ci/jobs/job_artifacts.md) folder
 that contains the static files of your site needs to have the name `public`.
 
 To change that folder name to any other value, add a `publish` property to your
-`pages` job configuration in `.gitlab-ci.yml`.
+`deploy-pages` job configuration in `.gitlab-ci.yml`.
 
 The following example publishes a folder named `dist` instead:
 
 ```yaml
-pages:
+deploy-pages:
   script:
     - npm run build
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - dist
@@ -286,6 +295,28 @@ If you're using a folder name other than `public`you must specify
 the directory to be deployed with Pages both as an artifact, and under the
 `publish` property. The reason you need both is that you can define multiple paths
 as artifacts, and GitLab doesn't know which one you want to deploy.
+
+The previous YAML example uses [user-defined job names](index.md#user-defined-job-names).
+
+## Regenerate unique domain for GitLab Pages
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/481746) in GitLab 17.7.
+
+You can regenerate the unique domain for your GitLab Pages site.
+
+After the domain is regenerated, the previous URL is no longer active.
+If anyone tries to access the old URL, they'll receive a `404` error.
+
+Prerequisites
+
+- You must have at least the Maintainer role for the project.
+- The **Use unique domain** setting [must be enabled](index.md#unique-domains) in your project's Pages settings.
+
+To regenerate a unique domain for your GitLab Pages site:
+
+1. On the left sidebar, select  **Deploy > Pages**.
+1. Next to **Access pages**, press **Regenerate unique domain**.
+1. GitLab generates a new unique domain for your Pages site.
 
 ## Known issues
 
@@ -324,13 +355,14 @@ Safari requires the web server to support the [Range request header](https://dev
 HTTP Range requests, you should use the following two variables in your `.gitlab-ci.yml` file:
 
 ```yaml
-pages:
+deploy-pages:
   stage: deploy
   variables:
     FF_USE_FASTZIP: "true"
     ARTIFACT_COMPRESSION_LEVEL: "fastest"
   script:
     - echo "Deploying pages"
+  pages: true  # specifies that this is a Pages job
   artifacts:
     paths:
       - public
@@ -338,3 +370,14 @@ pages:
 ```
 
 The `FF_USE_FASTZIP` variable enables the [feature flag](https://docs.gitlab.com/runner/configuration/feature-flags.html#available-feature-flags) which is needed for [`ARTIFACT_COMPRESSION_LEVEL`](../../../ci/runners/configure_runners.md#artifact-and-cache-settings).
+
+The previous YAML example uses [user-defined job names](index.md#user-defined-job-names).
+
+### `401` error when accessing private GitLab Pages sites in multiple browser tabs
+
+When you try to access a private Pages URL in two different tabs simultaneously without prior authentication,
+two different `state` values are returned for each tab.
+However, in the Pages session, only the most recent `state` value is stored for the given client.
+As a result, after submitting credentials, one of the tabs returns a `401 Unauthorized` error.
+
+To resolve the `401` error, refresh the page.

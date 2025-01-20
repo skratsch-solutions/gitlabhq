@@ -1,12 +1,14 @@
 <script>
-import { GlButton, GlDrawer, GlFormTextarea, GlModal, GlFormInput, GlSprintf } from '@gitlab/ui';
+import { GlButton, GlDrawer, GlFormTextarea, GlSprintf, GlLink } from '@gitlab/ui';
 import { InternalEvents } from '~/tracking';
 import { visitUrl } from '~/lib/utils/url_utility';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import { DRAWER_Z_INDEX } from '~/lib/utils/constants';
 import { getContentWrapperHeight } from '~/lib/utils/dom_utils';
 import { s__ } from '~/locale';
 import { createAlert, VARIANT_WARNING } from '~/alert';
 import replaceTextMutation from './graphql/mutations/replace_text.mutation.graphql';
+import WarningModal from './warning_modal.vue';
 
 const trackingMixin = InternalEvents.mixin();
 
@@ -17,29 +19,32 @@ const i18n = {
   description: s__(
     'ProjectMaintenance|Redact matching instances of text in the repository. Strings will be replaced with %{removed}.',
   ),
+  warningHelpLink: s__('ProjectMaintenance|How does text redaction work?'),
   label: s__('ProjectMaintenance|Strings to redact'),
   helpText: s__(
     'ProjectMaintenance|Regex and glob patterns supported. Enter multiple entries on separate lines.',
   ),
-  modalPrimaryText: s__('ProjectMaintenance|Yes, redact matching strings'),
-  modalCancelText: s__('ProjectMaintenance|Cancel'),
-  modalContent: s__(
-    'ProjectMaintenance|Redacting strings does not produce a preview and cannot be undone. Are you sure you want to continue?',
-  ),
-  modalConfirm: s__('ProjectMaintenance|To confirm, enter the following:'),
   redactTextError: s__('ProjectMaintenance|Something went wrong while redacting text.'),
-  successAlertTitle: s__('ProjectMaintenance|Text redacted'),
-  successAlertContent: s__(
-    'ProjectMaintenance|To remove old versions from the repository, run housekeeping.',
+  scheduledRedactionSuccessAlertTitle: s__(
+    'ProjectMaintenance|Text redaction removal is scheduled.',
+  ),
+  scheduledSuccessAlertContent: s__(
+    'ProjectMaintenance|You will receive an email notification when the process is complete. To remove old versions from the repository, run housekeeping.',
   ),
   successAlertButtonText: s__('ProjectMaintenance|Go to housekeeping'),
+  warningModalTitle: s__(
+    'ProjectMaintenance|You are about to permanently redact text from this project.',
+  ),
+  warningModalPrimaryText: s__('ProjectMaintenance|Yes, redact matching strings'),
 };
 
 export default {
   i18n,
   DRAWER_Z_INDEX,
-  modalCancel: { text: i18n.modalCancelText },
-  components: { GlButton, GlDrawer, GlFormTextarea, GlModal, GlFormInput, GlSprintf },
+  components: { GlButton, GlDrawer, GlFormTextarea, GlSprintf, GlLink, WarningModal },
+  redactTextWarningHelpLink: helpPagePath('/user/project/merge_requests/revert_changes', {
+    anchor: 'redact-text-from-repository',
+  }),
   mixins: [trackingMixin],
   inject: { projectPath: { default: '' }, housekeepingPath: { default: '' } },
   data() {
@@ -47,7 +52,6 @@ export default {
       isDrawerOpen: false,
       text: null,
       showConfirmationModal: false,
-      confirmInput: null,
       isLoading: false,
     };
   },
@@ -61,15 +65,6 @@ export default {
     isValid() {
       return this.textArray.length;
     },
-    modalPrimary() {
-      return {
-        text: i18n.modalPrimaryText,
-        attributes: { variant: 'danger', disabled: !this.isConfirmEnabled },
-      };
-    },
-    isConfirmEnabled() {
-      return this.confirmInput === this.projectPath;
-    },
   },
   methods: {
     openDrawer() {
@@ -78,9 +73,6 @@ export default {
     closeDrawer() {
       this.text = null;
       this.isDrawerOpen = false;
-    },
-    clearConfirmInput() {
-      this.confirmInput = null;
     },
     redactText() {
       this.showConfirmationModal = true;
@@ -114,8 +106,8 @@ export default {
     },
     generateSuccessAlert() {
       createAlert({
-        title: i18n.successAlertTitle,
-        message: i18n.successAlertContent,
+        title: this.$options.i18n.scheduledRedactionSuccessAlertTitle,
+        message: this.$options.i18n.scheduledSuccessAlertContent,
         variant: VARIANT_WARNING,
         primaryButton: {
           text: i18n.successAlertButtonText,
@@ -155,7 +147,7 @@ export default {
       </template>
 
       <div>
-        <p class="gl-text-secondary">
+        <p class="gl-text-subtle">
           <gl-sprintf :message="$options.i18n.description">
             <template #removed>
               <code>***{{ $options.i18n.removed }}***</code>
@@ -166,12 +158,12 @@ export default {
         <gl-form-textarea
           id="text"
           v-model.trim="text"
-          class="!gl-font-monospace gl-mb-3"
+          class="gl-mb-3 !gl-font-monospace"
           :disabled="isLoading"
           autofocus
         />
 
-        <p class="gl-text-gray-400">{{ $options.i18n.helpText }}</p>
+        <p class="gl-text-subtle">{{ $options.i18n.helpText }}</p>
 
         <gl-button
           data-testid="redact-text"
@@ -184,26 +176,18 @@ export default {
       </div>
     </gl-drawer>
 
-    <gl-modal
-      v-model="showConfirmationModal"
-      :title="$options.i18n.redactText"
-      modal-id="redact-text-confirmation-modal"
-      :action-cancel="$options.modalCancel"
-      :action-primary="modalPrimary"
-      @hide="clearConfirmInput"
-      @primary="redactTextConfirm"
+    <warning-modal
+      :visible="showConfirmationModal"
+      :title="$options.i18n.warningModalTitle"
+      :primary-text="$options.i18n.warningModalPrimaryText"
+      :confirm-phrase="projectPath"
+      :confirm-loading="isLoading"
+      @confirm="redactTextConfirm"
+      @hide="showConfirmationModal = false"
     >
-      <p>{{ $options.i18n.modalContent }}</p>
-
-      <p id="confirmationInstruction" class="gl-mb-0">
-        {{ $options.i18n.modalConfirm }} <code>{{ projectPath }}</code>
-      </p>
-
-      <gl-form-input
-        v-model="confirmInput"
-        class="gl-mt-3 gl-max-w-34"
-        aria-labelledby="confirmationInstruction"
-      />
-    </gl-modal>
+      <gl-link :href="$options.redactTextWarningHelpLink" target="_blank">{{
+        $options.i18n.warningHelpLink
+      }}</gl-link>
+    </warning-modal>
   </div>
 </template>

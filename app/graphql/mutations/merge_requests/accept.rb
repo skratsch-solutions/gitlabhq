@@ -51,7 +51,11 @@ module Mutations
         merge_request = authorized_find!(project_path: project_path, iid: iid)
         project = merge_request.target_project
         merge_params = args.compact.with_indifferent_access
-        merge_service = ::MergeRequests::MergeService.new(project: project, current_user: current_user, params: merge_params)
+        merge_service = ::MergeRequests::MergeService.new(
+          project: project,
+          current_user: current_user,
+          params: merge_params
+        )
 
         if error = validate(merge_request, merge_service, merge_params)
           return { merge_request: merge_request, errors: [error] }
@@ -78,9 +82,14 @@ module Mutations
       end
 
       def validate(merge_request, merge_service, merge_params)
+        skipped_checks = merge_request.skipped_mergeable_checks(
+          auto_merge_requested: merge_params.key?(:auto_merge_strategy),
+          auto_merge_strategy: merge_params[:auto_merge_strategy]
+        )
+
         if merge_request.auto_merge_enabled?
           ALREADY_SCHEDULED
-        elsif !merge_request.mergeable?(skip_ci_check: merge_params.key?(:auto_merge_strategy))
+        elsif !merge_request.mergeable?(**skipped_checks)
           NOT_MERGEABLE
         elsif !merge_service.hooks_validation_pass?(merge_request)
           HOOKS_VALIDATION_ERROR

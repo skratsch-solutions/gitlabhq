@@ -28,11 +28,9 @@ class SearchController < ApplicationController
 
   around_action :allow_gitaly_ref_name_caching
 
-  before_action :block_all_anonymous_searches,
-    :block_anonymous_global_searches,
-    :check_scope_global_search_enabled,
-    except: :opensearch
-  skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!, unless: :authenticate?
+
+  before_action :check_scope_global_search_enabled, except: :opensearch
 
   requires_cross_project_access if: -> do
     search_term_present = params[:search].present? || params[:term].present?
@@ -42,6 +40,10 @@ class SearchController < ApplicationController
 
   before_action only: :show do
     update_scope_for_code_search
+  end
+
+  before_action only: :show do
+    push_frontend_feature_flag(:work_item_scope_frontend, current_user)
   end
 
   rescue_from ActiveRecord::QueryCanceled, with: :render_timeout
@@ -54,7 +56,10 @@ class SearchController < ApplicationController
   def show
     @project = search_service.project
     @group = search_service.group
-    @search_service_presenter = Gitlab::View::Presenter::Factory.new(search_service, current_user: current_user).fabricate!
+    @search_service_presenter = Gitlab::View::Presenter::Factory.new(
+      search_service,
+      current_user: current_user
+    ).fabricate!
 
     return unless search_term_valid? && search_type_valid?
 
@@ -65,35 +70,10 @@ class SearchController < ApplicationController
 
     @search_level = @search_service_presenter.level
     @search_type = search_type
+    @scope = @search_service_presenter.scope
 
-    @global_search_duration_s = Benchmark.realtime do
-      @scope = @search_service_presenter.scope
-      @search_results = @search_service_presenter.search_results
-      @search_objects = @search_service_presenter.search_objects
-      @search_highlight = @search_service_presenter.search_highlight
-    end
-
-    return if @search_results.respond_to?(:failed?) && @search_results.failed?(@scope)
-
-    Gitlab::Metrics::GlobalSearchSlis.record_apdex(
-      elapsed: @global_search_duration_s,
-      search_type: @search_type,
-      search_level: @search_level,
-      search_scope: @scope
-    )
-
-    increment_search_counters
-  ensure
-    if @search_type
-      # If we raise an error somewhere in the @global_search_duration_s benchmark block, we will end up here
-      # with a 200 status code, but an empty @global_search_duration_s.
-      Gitlab::Metrics::GlobalSearchSlis.record_error_rate(
-        error: @global_search_duration_s.nil? || (status < 200 || status >= 400),
-        search_type: @search_type,
-        search_level: @search_level,
-        search_scope: @scope
-      )
-    end
+    # separate following lines to method that is conditionally triggered when not zoekt multi-result search
+    haml_search_results unless multi_match?(scope: @scope, search_type: search_type)
   end
 
   def count
@@ -127,13 +107,14 @@ class SearchController < ApplicationController
   def settings
     return render(json: []) unless current_user
 
-    project_id = params.require(:project_id)
-    project = Project.find_by(id: project_id) # rubocop: disable CodeReuse/ActiveRecord -- Using `find_by` as `find` would raise 404s
+    project_id, group_id = params.permit(:project_id, :group_id).values_at(:project_id, :group_id)
 
-    if project && current_user.can?(:admin_project, project)
-      render json: Search::Settings.new.for_project(project)
+    if project_id
+      render json: settings_for_project(project_id)
+    elsif group_id
+      render json: settings_for_group(group_id)
     else
-      render json: []
+      head :bad_request
     end
   end
 
@@ -151,10 +132,52 @@ class SearchController < ApplicationController
     render json: Gitlab::Json.dump(search_autocomplete_opts(term, filter: @filter, scope: @scope))
   end
 
-  def opensearch
-  end
+  def opensearch; end
 
   private
+
+  def authenticate?
+    return false if action_name == 'opensearch'
+    return true if public_visibility_restricted?
+    return true if search_service.global_search? && ::Feature.enabled?(:block_anonymous_global_searches, type: :ops)
+    return true if ::Feature.disabled?(:allow_anonymous_searches, type: :ops)
+
+    false
+  end
+
+  def multi_match?(search_type:, scope:) # rubocop: disable Lint/UnusedMethodArgument -- This is being overridden in EE
+    false
+  end
+
+  def haml_search_results
+    @global_search_duration_s = Benchmark.realtime do
+      @search_results = @search_service_presenter.search_results
+      @search_objects = @search_service_presenter.search_objects
+      @search_highlight = @search_service_presenter.search_highlight
+    end
+
+    return if @search_results.respond_to?(:failed?) && @search_results.failed?(@scope)
+
+    Gitlab::Metrics::GlobalSearchSlis.record_apdex(
+      elapsed: @global_search_duration_s,
+      search_type: @search_type,
+      search_level: @search_level,
+      search_scope: @scope
+    )
+
+    increment_search_counters
+  ensure
+    if @search_type
+      # If we raise an error somewhere in the @global_search_duration_s benchmark block, we will end up here
+      # with a 200 status code, but an empty @global_search_duration_s.
+      Gitlab::Metrics::GlobalSearchSlis.record_error_rate(
+        error: @global_search_duration_s.nil? || (status < 200 || status >= 400),
+        search_type: @search_type,
+        search_level: @search_level,
+        search_scope: @scope
+      )
+    end
+  end
 
   def update_scope_for_code_search
     return if params[:scope] == 'blobs'
@@ -209,7 +232,14 @@ class SearchController < ApplicationController
     return false unless commit.present?
 
     link = search_path(safe_params.merge(force_search_results: true))
-    flash[:notice] = ERB::Util.html_escape(_("You have been redirected to the only result; see the %{a_start}search results%{a_end} instead.")) % { a_start: "<a href=\"#{link}\"><u>".html_safe, a_end: '</u></a>'.html_safe }
+    flash[:notice] = ERB::Util.html_escape(
+      _(
+        "You have been redirected to the only result; " \
+          "see the %{a_start}search results%{a_end} instead."
+      )
+    ) % {
+      a_start: "<a href=\"#{link}\"><u>".html_safe, a_end: '</u></a>'.html_safe
+    }
     redirect_to project_commit_path(@project, commit)
 
     true
@@ -242,33 +272,15 @@ class SearchController < ApplicationController
       metadata['meta.search.project_id'] = params[:project_id]
       metadata['meta.search.scope'] = params[:scope] || @scope
       metadata['meta.search.page'] = params[:page] || '1'
-      metadata['meta.search.filters.confidential'] = params[:confidential]
-      metadata['meta.search.filters.state'] = params[:state]
+      metadata['meta.search.filters.confidential'] = filter_params[:confidential]
+      metadata['meta.search.filters.state'] = filter_params[:state]
       metadata['meta.search.force_search_results'] = params[:force_search_results]
       metadata['meta.search.project_ids'] = params[:project_ids]
-      metadata['meta.search.filters.language'] = params[:language]
+      metadata['meta.search.filters.language'] = filter_params[:language]
       metadata['meta.search.type'] = @search_type if @search_type.present?
       metadata['meta.search.level'] = @search_level if @search_level.present?
       metadata[:global_search_duration_s] = @global_search_duration_s if @global_search_duration_s.present?
     end
-  end
-
-  def block_anonymous_global_searches
-    return unless search_service.global_search?
-    return if current_user
-    return unless ::Feature.enabled?(:block_anonymous_global_searches, type: :ops)
-
-    store_location_for(:user, request.fullpath)
-
-    redirect_to new_user_session_path, alert: _('You must be logged in to search across all of GitLab')
-  end
-
-  def block_all_anonymous_searches
-    return if current_user || ::Feature.enabled?(:allow_anonymous_searches, type: :ops)
-
-    store_location_for(:user, request.fullpath)
-
-    redirect_to new_user_session_path, alert: _('You must be logged in to search')
   end
 
   def check_scope_global_search_enabled
@@ -306,6 +318,24 @@ class SearchController < ApplicationController
 
   def search_type
     search_service.search_type
+  end
+
+  def filter_params
+    params.permit(:confidential, :state, language: [])
+  end
+
+  def settings_for_project(project_id)
+    project = Project.find_by(id: project_id) # rubocop: disable CodeReuse/ActiveRecord -- Using `find` would raise 404s
+    return [] unless project && current_user.can?(:admin_project, project)
+
+    Search::ProjectSettings.new(project).all
+  end
+
+  def settings_for_group(group_id)
+    group = Group.find_by(id: group_id) # rubocop: disable CodeReuse/ActiveRecord -- Using `find` would raise 404s
+    return [] unless group && current_user.can?(:admin_group, group)
+
+    Search::GroupSettings.new(group).all
   end
 end
 

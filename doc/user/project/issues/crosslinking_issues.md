@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 There are several ways to mention an issue or make [issues](index.md) appear in each other's
 [Linked issues](related_issues.md) section.
@@ -67,7 +67,7 @@ When mentioning issue `#111` in issue `#222`, issue `#111` also displays a notif
 in its tracker. That is, you only need to mention the relationship once for it to
 display in both issues. The same is valid when mentioning issues in [merge requests](#from-merge-requests).
 
-![issue mentioned in issue](img/mention_in_issue.png)
+![issue mentioned in issue](img/mention_in_issue_v9_3.png)
 
 ## From merge requests
 
@@ -79,7 +79,7 @@ When you mention an issue in a merge request description, it
 you can also [set an issue to close automatically](managing_issues.md#closing-issues-automatically)
 as soon as the merge request is merged.
 
-![issue mentioned in MR](img/mention_in_merge_request.png)
+![issue mentioned in MR](img/mention_in_merge_request_v9_3.png)
 
 ## From branch names
 

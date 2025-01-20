@@ -45,6 +45,18 @@ export default {
     },
   },
   methods: {
+    handleErrorResponse(error) {
+      const errorMessage = error?.message
+        ? sprintf(this.$options.i18n.updateError, { reason: error.message.toLowerCase() })
+        : this.$options.i18n.genericError;
+
+      createAlert({
+        message: errorMessage,
+        parent: this.$el,
+        captureError: true,
+      });
+    },
+
     async updateNote({ commentText }) {
       this.isSubmitting = true;
 
@@ -58,20 +70,19 @@ export default {
             },
           },
         })
-        .then(() => {
+        .then(({ data }) => {
+          const { note, errors } = data.updateAbuseReportNote;
           clearDraft(this.autosaveKey);
-          this.$emit('cancelEditing');
+          if (errors.length) {
+            this.handleErrorResponse({
+              message: errors.join('. '),
+            });
+          } else {
+            this.$emit('updateNote', note);
+          }
         })
         .catch((error) => {
-          const errorMessage = error?.message
-            ? sprintf(this.$options.i18n.updateError, { reason: error.message.toLowerCase() })
-            : this.$options.i18n.genericError;
-
-          createAlert({
-            message: errorMessage,
-            parent: this.$el,
-            captureError: true,
-          });
+          this.handleErrorResponse(error);
         })
         .finally(() => {
           this.isSubmitting = false;
@@ -90,7 +101,7 @@ export default {
       :is-submitting="isSubmitting"
       :autosave-key="autosaveKey"
       :comment-button-text="commentButtonText"
-      class="gl-pl-3 gl-mt-3"
+      class="gl-mt-3 gl-pl-3"
       @submitForm="updateNote"
       @cancelEditing="$emit('cancelEditing')"
     />

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 ## Get the status of a GitLab installation
 
@@ -47,7 +47,7 @@ Cannot install package gitlab-ee-11.8.3-ee.0.el6.x86_64. It is obsoleted by inst
 To avoid this issue, either:
 
 - Use the same instructions provided in the
-  [Upgrade using a manually-downloaded package](index.md#upgrade-using-a-manually-downloaded-package) section.
+  [Upgrade using a manually-downloaded package](index.md#by-using-a-downloaded-package) section.
 - Temporarily disable this checking in yum by adding `--setopt=obsoletes=0` to the options given to the command.
 
 ## 500 error when accessing Project > Settings > Repository
@@ -176,6 +176,15 @@ Potential causes and fixes:
 - [Remove duplicate sprockets files](#duplicate-sprockets-files)
 - [The installation is incomplete](#incomplete-installation)
 - [NGINX Gzip support is disabled](#nginx-gzip-support)
+
+## ActiveRecord::LockWaitTimeout error, retrying after sleep
+
+In rare cases, Sidekiq is busy and locks the table that migrations is trying to alter.
+To resolve this issue, you should put GitLab in read-only mode and stop Sidekiq.
+
+```shell
+gitlab-ctl stop sidekiq
+```
 
 ### Old processes
 

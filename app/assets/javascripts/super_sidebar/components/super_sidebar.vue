@@ -35,22 +35,15 @@ export default {
     SidebarHoverPeekBehavior,
     SidebarPortalTarget,
     ScrollScrim,
-    TrialStatusWidget: () =>
-      import('ee_component/contextual_sidebar/components/trial_status_widget.vue'),
-    TrialStatusPopover: () =>
-      import('ee_component/contextual_sidebar/components/trial_status_popover.vue'),
-    DuoProTrialStatusWidget: () =>
-      import('ee_component/contextual_sidebar/components/duo_pro_trial_status_widget.vue'),
-    DuoProTrialStatusPopover: () =>
-      import('ee_component/contextual_sidebar/components/duo_pro_trial_status_popover.vue'),
+    TrialWidget: () => import('jh_else_ee/contextual_sidebar/components/trial_widget.vue'),
   },
   mixins: [Tracking.mixin()],
   i18n: {
     skipToMainContent: __('Skip to main content'),
     primaryNavigation: s__('Navigation|Primary navigation'),
-    adminArea: s__('Navigation|Admin Area'),
+    adminArea: s__('Navigation|Admin'),
   },
-  inject: ['showTrialStatusWidget', 'showDuoProTrialStatusWidget'],
+  inject: ['showTrialWidget'],
   props: {
     sidebarData: {
       type: Object,
@@ -207,7 +200,7 @@ export default {
     <div ref="overlay" class="super-sidebar-overlay" @click="collapseSidebar"></div>
     <gl-button
       v-if="sidebarData.is_logged_in"
-      class="super-sidebar-skip-to gl-sr-only-focusable gl-fixed gl-left-0 gl-m-3"
+      class="super-sidebar-skip-to gl-sr-only !gl-fixed gl-left-0 gl-m-3 focus:gl-not-sr-only"
       data-testid="super-sidebar-skip-to"
       href="#content-body"
       variant="confirm"
@@ -229,29 +222,15 @@ export default {
         {{ $options.i18n.primaryNavigation }}
       </h2>
       <user-bar ref="userBar" :has-collapse-button="!showOverlay" :sidebar-data="sidebarData" />
-      <div v-if="showTrialStatusWidget" class="gl-px-2 gl-py-2">
-        <trial-status-widget
-          class="super-sidebar-nav-item gl-rounded-base gl-relative gl-display-flex gl-align-items-center gl-mb-1 gl-px-3 gl-leading-normal gl-text-black-normal! gl-text-decoration-none! gl-py-3"
-        />
-        <trial-status-popover />
-      </div>
-      <div v-else-if="showDuoProTrialStatusWidget" class="gl-px-2 gl-py-2">
-        <duo-pro-trial-status-widget
-          class="super-sidebar-nav-item gl-rounded-base gl-relative gl-display-flex gl-align-items-center gl-mb-1 gl-px-3 gl-leading-normal gl-text-black-normal! gl-text-decoration-none! gl-py-3"
-        />
-        <duo-pro-trial-status-popover />
-      </div>
-      <div
-        class="contextual-nav gl-display-flex gl-flex-direction-column gl-flex-grow-1 gl-overflow-hidden"
-      >
+      <div class="contextual-nav gl-flex gl-grow gl-flex-col gl-overflow-hidden">
         <div
           v-if="sidebarData.current_context_header"
           id="super-sidebar-context-header"
-          class="gl-px-4 gl-py-3 gl-m-0 gl-leading-reset gl-font-bold super-sidebar-context-header"
+          class="super-sidebar-context-header gl-m-0 gl-px-4 gl-py-3 gl-font-bold gl-leading-reset"
         >
           {{ sidebarData.current_context_header }}
         </div>
-        <scroll-scrim class="gl-flex-grow-1" data-testid="nav-container">
+        <scroll-scrim class="gl-grow" data-testid="nav-container">
           <sidebar-menu
             v-if="menuItems.length"
             :items="menuItems"
@@ -262,6 +241,11 @@ export default {
           />
           <sidebar-portal-target />
         </scroll-scrim>
+        <div v-if="showTrialWidget" class="gl-p-2">
+          <trial-widget
+            class="gl-relative gl-mb-1 gl-flex gl-items-center gl-rounded-base gl-p-3 gl-leading-normal !gl-text-default !gl-no-underline"
+          />
+        </div>
         <div class="gl-p-2">
           <help-center ref="helpCenter" :sidebar-data="sidebarData" />
           <gl-button
@@ -284,7 +268,7 @@ export default {
       :key="shortcutLink.href"
       :href="shortcutLink.href"
       :class="shortcutLink.css_class"
-      class="gl-display-none"
+      class="gl-hidden"
     >
       {{ shortcutLink.title }}
     </a>

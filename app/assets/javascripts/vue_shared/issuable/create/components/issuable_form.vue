@@ -58,7 +58,7 @@ export default {
     confidentialityText() {
       return sprintf(
         __(
-          'This %{issuableType} is confidential and should only be visible to team members with at least Reporter access.',
+          'This %{issuableType} is confidential and should only be visible to team members with at least the Planner role.',
         ),
         { issuableType: issuableTypeText[this.issuableType] },
       );
@@ -131,7 +131,7 @@ export default {
         </div>
       </div>
     </div>
-    <div data-testid="issuable-create-actions" class="footer-block gl-display-flex gl-mt-6">
+    <div data-testid="issuable-create-actions" class="footer-block gl-mt-6 gl-flex">
       <slot
         name="actions"
         :issuable-title="issuableTitle"

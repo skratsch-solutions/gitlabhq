@@ -127,18 +127,6 @@ RSpec.describe Gitlab::Graphql::Queries do
       expect(described_class.find(path)).to be_empty
     end
 
-    it 'ignores customer.query.graphql' do
-      path = root / 'plans.customer.query.graphql'
-
-      expect(described_class.find(path)).to be_empty
-    end
-
-    it 'ignores customer.mutation.graphql' do
-      path = root / 'plans.customer.mutation.graphql'
-
-      expect(described_class.find(path)).to be_empty
-    end
-
     it 'finds all query definitions under a root directory' do
       found = described_class.find(root)
 
@@ -152,9 +140,7 @@ RSpec.describe Gitlab::Graphql::Queries do
 
       expect(found).not_to include(
         definition_of(root / 'typedefs.graphql'),
-        definition_of(root / 'author.fragment.graphql'),
-        definition_of(root / 'plans.customer.query.graphql'),
-        definition_of(root / 'plans.customer.mutation.graphql')
+        definition_of(root / 'author.fragment.graphql')
       )
     end
   end
@@ -342,9 +328,22 @@ RSpec.describe Gitlab::Graphql::Queries do
 
       it_behaves_like 'an invalid GraphQL query for the blog schema' do
         let(:errors) do
-          contain_exactly(
-            have_attributes(message: include('Expected LCURLY, actual: RCURLY ("}") at [1, 7]'))
-          )
+          if GraphQL::VERSION >= Gem::Version.new('2.3.12')
+            # TODO: Clean up after the following MR is merged and the graphql
+            # gem is ugpraded to 2.3.12
+            # https://gitlab.com/gitlab-org/gitlab/-/merge_requests/159460
+            contain_exactly(
+              have_attributes(
+                message: include('Expected NAME, actual: RCURLY ("}") at [1, 7]')
+              )
+            )
+          else
+            contain_exactly(
+              have_attributes(
+                message: include('Expected LCURLY, actual: RCURLY ("}") at [1, 7]')
+              )
+            )
+          end
         end
       end
     end

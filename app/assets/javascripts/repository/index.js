@@ -1,10 +1,8 @@
-import { GlButton } from '@gitlab/ui';
 import Vue from 'vue';
 // eslint-disable-next-line no-restricted-imports
 import Vuex from 'vuex';
 import { parseBoolean } from '~/lib/utils/common_utils';
-import { joinPaths, escapeFileUrl, visitUrl } from '~/lib/utils/url_utility';
-import { __ } from '~/locale';
+import { joinPaths, visitUrl } from '~/lib/utils/url_utility';
 import initWebIdeLink from '~/pages/projects/shared/web_ide_link';
 import PerformancePlugin from '~/performance/vue_performance_plugin';
 import createStore from '~/code_navigation/store';
@@ -12,10 +10,10 @@ import RefSelector from '~/ref/components/ref_selector.vue';
 import HighlightWorker from '~/vue_shared/components/source_viewer/workers/highlight_worker?worker';
 import CodeDropdown from '~/vue_shared/components/code_dropdown/code_dropdown.vue';
 import App from './components/app.vue';
-import Breadcrumbs from './components/breadcrumbs.vue';
+import Breadcrumbs from './components/header_area/breadcrumbs.vue';
 import ForkInfo from './components/fork_info.vue';
 import LastCommit from './components/last_commit.vue';
-import BlobControls from './components/blob_controls.vue';
+import BlobControls from './components/header_area/blob_controls.vue';
 import apolloProvider from './graphql';
 import commitsQuery from './queries/commits.query.graphql';
 import projectPathQuery from './queries/project_path.query.graphql';
@@ -24,7 +22,9 @@ import refsQuery from './queries/ref.query.graphql';
 import createRouter from './router';
 import { updateFormAction } from './utils/dom';
 import { setTitle } from './utils/title';
+import { generateHistoryUrl } from './utils/url_utility';
 import { generateRefDestinationPath } from './utils/ref_switcher_utils';
+import initHeaderApp from './init_header_app';
 
 Vue.use(Vuex);
 Vue.use(PerformancePlugin, {
@@ -43,6 +43,7 @@ export default function setupVueRepositoryList() {
     resourceId,
     userId,
     explainCodeAvailable,
+    targetBranch,
   } = dataset;
   const router = createRouter(projectPath, escapedRef);
 
@@ -113,16 +114,24 @@ export default function setupVueRepositoryList() {
     });
   };
 
+  const lastCommitEl = document.getElementById('js-last-commit');
+
   const initLastCommitApp = () =>
     new Vue({
-      el: document.getElementById('js-last-commit'),
+      el: lastCommitEl,
       router,
       apolloProvider,
       render(h) {
+        const historyUrl = generateHistoryUrl(
+          lastCommitEl.dataset.historyLink,
+          this.$route.params.path,
+          this.$route.meta.refType || this.$route.query.ref_type,
+        );
         return h(LastCommit, {
           props: {
             currentPath: this.$route.params.path,
             refType: this.$route.meta.refType || this.$route.query.ref_type,
+            historyUrl: historyUrl.href,
           },
         });
       },
@@ -196,6 +205,7 @@ export default function setupVueRepositoryList() {
     });
   };
 
+  initHeaderApp({ router });
   initCodeDropdown();
   initLastCommitApp();
   initBlobControlsApp();
@@ -213,6 +223,7 @@ export default function setupVueRepositoryList() {
       canCollaborate,
       canEditTree,
       canPushCode,
+      canPushToBranch,
       selectedBranch,
       newBranchPath,
       newTagPath,
@@ -239,6 +250,7 @@ export default function setupVueRepositoryList() {
             currentPath: this.$route.params.path,
             refType: this.$route.query.ref_type,
             canCollaborate: parseBoolean(canCollaborate),
+            canPushToBranch: parseBoolean(canPushToBranch),
             canEditTree: parseBoolean(canEditTree),
             canPushCode: parseBoolean(canPushCode),
             originalBranch: ref,
@@ -257,33 +269,6 @@ export default function setupVueRepositoryList() {
     });
   }
 
-  const treeHistoryLinkEl = document.getElementById('js-tree-history-link');
-  const { historyLink } = treeHistoryLinkEl.dataset;
-  // eslint-disable-next-line no-new
-  new Vue({
-    el: treeHistoryLinkEl,
-    router,
-    render(h) {
-      const url = new URL(window.location.href);
-      url.pathname = `${historyLink}/${
-        this.$route.params.path ? escapeFileUrl(this.$route.params.path) : ''
-      }`;
-      url.searchParams.set('ref_type', this.$route.meta.refType || this.$route.query.ref_type);
-      return h(
-        GlButton,
-        {
-          attrs: {
-            href: url.href,
-            // Ideally passing this class to `props` should work
-            // But it doesn't work here. :(
-            class: 'btn btn-default btn-md gl-button',
-          },
-        },
-        [__('History')],
-      );
-    },
-  });
-
   initWebIdeLink({ el: document.getElementById('js-tree-web-ide-link'), router });
 
   // eslint-disable-next-line no-new
@@ -295,6 +280,7 @@ export default function setupVueRepositoryList() {
     provide: {
       resourceId,
       userId,
+      targetBranch,
       explainCodeAvailable: parseBoolean(explainCodeAvailable),
       highlightWorker: new HighlightWorker(),
     },

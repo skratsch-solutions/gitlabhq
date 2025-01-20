@@ -44,8 +44,6 @@ RSpec.describe PostReceiveService, feature_category: :team_planning do
     it 'does not return error' do
       expect(subject).to be_empty
     end
-
-    it_behaves_like 'does not record an onboarding progress action'
   end
 
   context 'when repository is nil' do
@@ -67,11 +65,26 @@ RSpec.describe PostReceiveService, feature_category: :team_planning do
   end
 
   shared_examples 'post_receive_service actions' do
-    it 'enqueues a PostReceive worker job' do
-      expect(PostReceive).to receive(:perform_async)
-        .with(gl_repository, identifier, changes, { ci: { skip: true } })
+    context 'when rename_post_receive_worker feature flag is disabled' do
+      before do
+        stub_feature_flags(rename_post_receive_worker: false)
+      end
 
-      subject
+      it 'enqueues a PostReceive worker job' do
+        expect(PostReceive).to receive(:perform_async)
+          .with(gl_repository, identifier, changes, { 'ci' => { 'skip' => true } })
+
+        subject
+      end
+    end
+
+    context 'when rename_post_receive_worker feature flag is enabled' do
+      it 'enqueues a PostReceiveWorker worker job' do
+        expect(Repositories::PostReceiveWorker).to receive(:perform_async)
+          .with(gl_repository, identifier, changes, { 'ci' => { 'skip' => true } })
+
+        subject
+      end
     end
 
     it 'decreases the reference counter and returns the result' do
@@ -80,10 +93,6 @@ RSpec.describe PostReceiveService, feature_category: :team_planning do
       expect(reference_counter).to receive(:decrease).and_return(true)
 
       expect(response.reference_counter_decreased).to be(true)
-    end
-
-    it_behaves_like 'records an onboarding progress action', :git_write do
-      let(:namespace) { project.namespace }
     end
   end
 
@@ -288,6 +297,68 @@ RSpec.describe PostReceiveService, feature_category: :team_planning do
 
       it "does not output another message that doesn't have a target_path" do
         expect(subject).not_to include(build_alert_message(unscoped_message.message))
+      end
+    end
+  end
+
+  context "when broadcast message has a target_access_level" do
+    let_it_be(:unscoped_message) do
+      create(:broadcast_message, message: "Hello world!")
+    end
+
+    let_it_be(:guest_message) do
+      create(:broadcast_message, message: "Guests welcome!", target_access_levels: [Gitlab::Access::GUEST])
+    end
+
+    let_it_be(:dev_message) do
+      create(:broadcast_message, message: "Hi dev team!", target_access_levels: [Gitlab::Access::DEVELOPER, Gitlab::Access::MAINTAINER])
+    end
+
+    context "with limited access" do
+      before do
+        allow(user).to receive(:max_member_access_for_project).and_return(Gitlab::Access::GUEST)
+      end
+
+      it "does not show message for higher access levels" do
+        expect(subject).not_to include(build_alert_message(dev_message.message))
+        expect(subject).to include(build_alert_message(guest_message.message))
+      end
+    end
+
+    context "with multiple allowed access levels" do
+      before do
+        allow(user).to receive(:max_member_access_for_project).and_return(Gitlab::Access::DEVELOPER)
+      end
+
+      it "shows the correct message" do
+        expect(subject).not_to include(build_alert_message(guest_message.message))
+        expect(subject).to include(build_alert_message(dev_message.message))
+      end
+    end
+
+    context "with no matching access level" do
+      before do
+        allow(user).to receive(:max_member_access_for_project).and_return(Gitlab::Access::REPORTER)
+      end
+
+      it "shows the unscoped message" do
+        expect(subject).to include(build_alert_message(unscoped_message.message))
+      end
+    end
+
+    context "with derisk feature flag disabled" do
+      before do
+        stub_feature_flags(derisk_user_access_level_in_git_hook: false)
+      end
+
+      it "does not query the user's max_member_access_for_project" do
+        expect(user).not_to receive(:max_member_access_for_project)
+      end
+
+      it "shows the unscoped message instead of any scoped" do
+        expect(subject).not_to include(build_alert_message(dev_message.message))
+        expect(subject).not_to include(build_alert_message(guest_message.message))
+        expect(subject).to include(build_alert_message(unscoped_message.message))
       end
     end
   end

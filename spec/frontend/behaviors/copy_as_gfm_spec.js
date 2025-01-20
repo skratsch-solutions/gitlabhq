@@ -1,14 +1,34 @@
 import waitForPromises from 'helpers/wait_for_promises';
+import { setHTMLFixture, resetHTMLFixture } from 'helpers/fixtures';
 import initCopyAsGFM, { CopyAsGFM } from '~/behaviors/markdown/copy_as_gfm';
+import * as commonUtils from '~/lib/utils/common_utils';
 
 jest.mock('~/emoji');
 
 describe('CopyAsGFM', () => {
+  const createFragment = (html) => document.createRange().createContextualFragment(html);
+
   beforeAll(() => {
     initCopyAsGFM();
 
     // Fake call to nodeToGfm so the import of lazy bundle happened
     return CopyAsGFM.nodeToGFM(document.createElement('div'));
+  });
+
+  afterEach(() => {
+    resetHTMLFixture();
+  });
+
+  it('copies .duo-chat-message content as markdown', () => {
+    setHTMLFixture('<div class="duo-chat-message"></div>');
+
+    const el = document.querySelector('.duo-chat-message');
+    const copyAsGFMSpy = jest.spyOn(CopyAsGFM, 'copyAsGFM');
+    const event = new Event('copy', { bubbles: true, cancelable: true });
+
+    el.dispatchEvent(event);
+
+    expect(copyAsGFMSpy).toHaveBeenCalled();
   });
 
   describe('CopyAsGFM.pasteGFM', () => {
@@ -131,6 +151,53 @@ describe('CopyAsGFM', () => {
     it('adds quote char `> ` to each line', () => {
       const expectedQuotedGFM = '> * List 1\n> * List 2\n> \n> `Some code`';
       expect(CopyAsGFM.quoted(sampleGFM)).toEqual(expectedQuotedGFM);
+    });
+  });
+
+  describe('isGfmFragment', () => {
+    it('returns false for non .md contents', () => {
+      const fragment = createFragment('<div></div>');
+      expect(CopyAsGFM.isGfmFragment(fragment)).toBe(false);
+    });
+
+    it('returns true for .md contents', () => {
+      const fragment = createFragment('<div><div></div><div class="md"></div></div>');
+      expect(CopyAsGFM.isGfmFragment(fragment)).toBe(true);
+    });
+
+    it('returns true for contents inside .md', () => {
+      const parent = createFragment('<div class="md"></div>');
+      const fragment = createFragment('<div></div>');
+      parent.querySelector('.md').replaceChildren(fragment);
+      // mimic the result of getSelectedFragment
+      fragment.originalNodes = [...parent.children];
+      expect(CopyAsGFM.isGfmFragment(fragment)).toBe(true);
+    });
+  });
+
+  describe('selectionToGfm', () => {
+    it('returns empty string for empty selection', async () => {
+      jest.spyOn(commonUtils, 'getSelectedFragment').mockReturnValueOnce(null);
+      expect(await CopyAsGFM.selectionToGfm()).toBe('');
+    });
+
+    it('returns empty string for non md selection', async () => {
+      jest
+        .spyOn(commonUtils, 'getSelectedFragment')
+        .mockReturnValueOnce(createFragment('<div></div>'));
+      expect(await CopyAsGFM.selectionToGfm()).toBe('');
+    });
+
+    it('returns transformed selection', async () => {
+      jest
+        .spyOn(commonUtils, 'getSelectedFragment')
+        .mockReturnValueOnce(createFragment('<div class="md"></div>'));
+      const transformSpy = jest.spyOn(CopyAsGFM, 'transformGFMSelection');
+      jest.spyOn(CopyAsGFM, 'nodeToGFM').mockImplementationOnce((node) => node.outerHTML);
+      expect(await CopyAsGFM.selectionToGfm()).toBe(
+        '<blockquote><div class="md"></div></blockquote>',
+      );
+      expect(transformSpy).toHaveBeenCalled();
     });
   });
 });

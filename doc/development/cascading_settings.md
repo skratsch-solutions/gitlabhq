@@ -1,20 +1,24 @@
 ---
-stage: Manage
+stage: Foundations
 group: Personal Productivity
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
 # Cascading Settings
 
-The cascading settings framework allows groups to essentially inherit settings
+Have you ever wanted to add a setting on a GitLab project and/or group that had a default value that was inherited from a parent in the hierarchy?
+
+If so: we have the framework you have been seeking!
+
+The cascading settings framework allows groups and projects to inherit settings
 values from ancestors (parent group on up the group hierarchy) and from
 instance-level application settings. The framework also allows settings values
-to be enforced on groups lower in the hierarchy.
+to be "locked" (enforced) on groups lower in the hierarchy.
 
-Cascading settings can currently only be defined within `NamespaceSetting`, though
+Cascading settings historically have only been defined on `ApplicationSetting`, `NamespaceSetting` and `ProjectSetting`, though
 the framework may be extended to other objects in the future.
 
-## Add a new cascading setting
+## Add a new cascading setting to groups only
 
 Settings are not cascading by default. To define a cascading setting, take the following steps:
 
@@ -104,6 +108,61 @@ It returns `false` when called from the group that locked the attribute.
 When `include_self: true` is specified, it returns `true` when called from the group that locked the attribute.
 This would be relevant, for example, when checking if an attribute is locked from a project.
 
+## Add a new cascading setting to projects
+
+### Background
+
+The first iteration of the cascading settings framework was for instance and group-level settings only.
+
+Later on, there was a need to add this setting to projects as well. Projects in GitLab also have namespaces, so you might think it would be easy to extend the existing framework to projects by using the same column in the `namespace_settings` table that was added for the group-level setting. But, it made more sense to add cascading project settings to the `project_settings` table.
+
+Why, you may ask? Well, because it turns out that:
+
+- Every user, project, and group in GitLab belongs to a namespace
+- Namespace `has_one` namespace_settings record
+- When a group or user is created, its namespace + namespace settings are created via service objects ([code](https://gitlab.com/gitlab-org/gitlab/-/blob/4ec1107b20e75deda9c63ede7108b03cbfcc0cf2/app/services/groups/create_service.rb#L20)).
+- When a project is created, a namespace is created but no namespace settings are created.
+
+In addition, we do not expose project-level namespace settings in the GitLab UI anywhere. Instead, we use project settings. One day, we hope to be able to use namespace settings for project settings. But today, it is easier to add project-level settings to the `project_settings` table.
+
+### Implementation
+
+An example of adding a cascading setting to a project is in [MR 149931](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931).
+
+## Cascading setting values on write
+
+The only cascading setting that actually cascades values at the database level in the new recommended way is `duo_features_enabled`. That setting cascades from groups to projects. [Issue 505335](https://gitlab.com/gitlab-org/gitlab/-/issues/505335) describes adding this cascading from the application level to groups as well.
+
+### Legacy cascading settings writes
+
+In the first iteration of the cascading settings framework, the "cascade" was as the application code-level, not the database level. The way this works is that the setting value in the `application_settings` table has a default value. At the `namespace_settings` level, it does not. As a result, namespaces have a `nil` value at the databse level but "inherit" the `application_settings` value.
+
+If the group is updated to have a new setting value, that takes precedent over the default value at the `application_settings` level. And, any subgroups will inherit the parent group's setting value because they also have a `nil` value at the database level but inherit the parent value from the `namespace_settings` table. If one of the subgroups update the setting, however, then that overrides the parent group.
+
+This introduces some potentially confusing logic.
+
+If the setting value changes at the `application_settings` level:
+
+- Any root-level groups that have the setting value set to `nil` will inherit the new value.
+- Any root-level groups that have the setting value set to a value other than `nil` will not inherit the new value.
+
+If the setting value changes at the `namespace_settings` level:
+
+- Any subgroups or projects that have the setting value set to `nil` will inherit the new value from the parent group.
+- Any subgroups or projects that have the setting value set to a value other than `nil` will not inherit the new value from the parent group.
+
+Because the database-level values cannot be seen in the UI or by using the API (because those both show the inherited value), an instance or group admin may not understand which groups/projects inherit the value or not.
+
+The exception to the inconsistent cascading behavior is if the setting is `locked`. This always "forces" inheritance.
+
+In addition to the confusing logic, this also creates a performance problem whenever the value is read: if the settings value is queried for a deeply nested hierarchy, the settings value for the whole hierarchy may need to be read to know the setting value.
+
+### Recommendation for cascading settings writes going forward
+
+To provide a clearer logic chain and improve performance, you should be adding default values to newly-added cascading settings and doing a write on all child objects in the hierarchy when the setting value is updated. This requires kicking off a job so that the update happens asynchronously. An example of how to do this is in [MR 145876](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/145876).
+
+Cascading settings that were added previously still have default `nil` values and read the ancestor hierarchy to find inherited settings values. But to minimize confusion we should update those to cascade on write. [Issue 483143](https://gitlab.com/gitlab-org/gitlab/-/issues/483143) describes this maintenance task.
+
 ## Display cascading settings on the frontend
 
 There are a few Rails view helpers, HAML partials, and JavaScript functions that can be used to display a cascading setting on the frontend.
@@ -159,15 +218,15 @@ Renders the label for a `fieldset` setting.
 | `settings_path_helper` | Lambda function that generates a path to the ancestor setting. For example, `-> (locked_ancestor) { edit_group_path(locked_ancestor, anchor: 'js-permissions-settings') }`                                           | `Lambda`             | `true`                   |
 | `help_text`            | Text shown below the checkbox.                                                                                                                                                                                       | `String`             | `false` (`nil`)          |
 
-[`_lock_popovers.html.haml`](https://gitlab.com/gitlab-org/gitlab/-/blob/b73353e47e283a7d9c9eda5bdedb345dcfb685b6/app/views/shared/namespaces/cascading_settings/_lock_popovers.html.haml)
+[`_lock_tooltips.html.haml`](https://gitlab.com/gitlab-org/gitlab/-/blob/b73353e47e283a7d9c9eda5bdedb345dcfb685b6/app/views/shared/namespaces/cascading_settings/_lock_tooltips.html.haml)
 
-Renders the mount element needed to initialize the JavaScript used to display the popover when hovering over the lock icon. This partial is only needed once per page.
+Renders the mount element needed to initialize the JavaScript used to display the tooltip when hovering over the lock icon. This partial is only needed once per page.
 
 ### JavaScript
 
-[`initCascadingSettingsLockPopovers`](https://gitlab.com/gitlab-org/gitlab/-/blob/b73353e47e283a7d9c9eda5bdedb345dcfb685b6/app/assets/javascripts/namespaces/cascading_settings/index.js#L4)
+[`initCascadingSettingsLockTooltips`](https://gitlab.com/gitlab-org/gitlab/-/blob/acb2ef4dbbd06f93615e8e6a1c0a78e7ebe20441/app/assets/javascripts/namespaces/cascading_settings/index.js#L4)
 
-Initializes the JavaScript needed to display the popover when hovering over the lock icon (**{lock}**).
+Initializes the JavaScript needed to display the tooltip when hovering over the lock icon (**{lock}**).
 This function should be imported and called in the [page-specific JavaScript](fe_guide/performance.md#page-specific-javascript).
 
 ### Put it all together
@@ -175,7 +234,7 @@ This function should be imported and called in the [page-specific JavaScript](fe
 ```haml
 -# app/views/groups/edit.html.haml
 
-= render 'shared/namespaces/cascading_settings/lock_popovers'
+= render 'shared/namespaces/cascading_settings/lock_tooltips'
 
 - delayed_project_removal_locked = cascading_namespace_setting_locked?(:delayed_project_removal, @group)
 - merge_method_locked = cascading_namespace_setting_locked?(:merge_method, @group)
@@ -222,7 +281,82 @@ This function should be imported and called in the [page-specific JavaScript](fe
 ```javascript
 // app/assets/javascripts/pages/groups/edit/index.js
 
-import { initCascadingSettingsLockPopovers } from '~/namespaces/cascading_settings';
+import { initCascadingSettingsLockTooltips } from '~/namespaces/cascading_settings';
 
-initCascadingSettingsLockPopovers();
+initCascadingSettingsLockTooltips();
 ```
+
+### Vue
+
+[`cascading_lock_icon.vue`](https://gitlab.com/gitlab-org/gitlab/-/blob/acb2ef4dbbd06f93615e8e6a1c0a78e7ebe20441/app/assets/javascripts/namespaces/cascading_settings/components/cascading_lock_icon.vue)
+
+| Local                  | Description                                                                                                                                                                                                          | Type                 | Required (default value) |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------|:-------------------------|
+| `ancestorNamespace`            | The namespace for associated group's ancestor.                                                                                                                                                        | `Object` | `false` (`null`)                  |
+| `isLockedByApplicationSettings`            | Boolean for if the cascading variable `locked_by_application_settings` is set or not on the instance.                                                                                                                                                        | `Boolean` | `true`                   |
+| `isLockedByGroupAncestor`            | Boolean for if the cascading variable `locked_by_ancestor` is set or not for a group.                                                                                                                                                        | `Boolean` | `true`                   |
+
+### Using Vue
+
+ 1. In the your Ruby helper, you will need to call the following to send do your Vue component. Be sure to switch out `:replace_attribute_here` with your cascading attribute.
+
+ ```ruby
+ # Example call from your Ruby helper  method for groups
+ cascading_settings_data = cascading_namespace_settings_tooltip_data(:replace_attribute_here, @group, method(:edit_group_path))[:tooltip_data]
+ ```
+
+ ```ruby
+ # Example call from your Ruby helper  method for projects
+cascading_settings_data = project_cascading_namespace_settings_tooltip_data(:duo_features_enabled, project, method(:edit_group_path)).to_json
+ ```
+
+1. From your Vue's `index.js` file, be sure to convert the data into JSON and camel case format. This will make it easier to use in Vue.
+
+```javascript
+let cascadingSettingsDataParsed;
+try {
+  cascadingSettingsDataParsed = convertObjectPropsToCamelCase(JSON.parse(cascadingSettingsData), {
+    deep: true,
+  });
+} catch {
+  cascadingSettingsDataParsed = null;
+}
+```
+
+1. From your Vue component, either `provide/inject` or pass your `cascadingSettingsDataParsed` variable to the component. You will also want to have a helper method to not show the `cascading-lock-icon` component if the cascading data returned is either null or an empty object.
+
+```vue
+// ./ee/my_component.vue
+
+<script>
+export default {
+  computed: {
+    showCascadingIcon() {
+      return (
+        this.cascadingSettingsData &&
+        Object.keys(this.cascadingSettingsData).length
+      );
+    },
+  },
+}
+</script>
+
+<template>
+  <cascading-lock-icon
+    v-if="showCascadingIcon"
+    :is-locked-by-group-ancestor="cascadingSettingsData.lockedByAncestor"
+    :is-locked-by-application-settings="cascadingSettingsData.lockedByApplicationSetting"
+    :ancestor-namespace="cascadingSettingsData.ancestorNamespace"
+    class="gl-ml-1"
+  />
+</template>
+```
+
+You can look into the following examples of MRs for implementing `cascading_lock_icon.vue` into other Vue components:
+
+- [Add cascading settings in Groups](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/162101)
+- [Add cascading settings in Projects](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163050)
+
+### Reasoning for supporting both HAML and Vue
+
+It is the goal to build all new frontend features in Vue and to eventually move away from building features in HAML. However there are still HAML frontend features that utilize cascading settings, so support will remain with `initCascadingSettingsLockTooltips` until those components have been migrated into Vue.

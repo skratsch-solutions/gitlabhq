@@ -179,16 +179,14 @@ export default {
     <catalog-tabs
       :is-loading="isLoadingCounts"
       :resource-counts="catalogResourcesCount"
-      class="gl-mb-3"
       @setScope="handleSetScope"
     />
     <catalog-search
-      class="gl-py-2"
       :initial-search-term="searchTerm"
       @update-search-term="onUpdateSearchTerm"
       @update-sorting="onUpdateSorting"
     />
-    <catalog-list-skeleton-loader v-if="isLoading" class="gl-w-full gl-mt-3" />
+    <catalog-list-skeleton-loader v-if="isLoading" class="gl-mt-3 gl-w-full" />
     <empty-state v-else-if="!hasResources" :search-term="searchTerm" />
     <template v-else>
       <ci-resources-list

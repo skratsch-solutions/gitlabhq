@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Snippet visibility level
 
@@ -39,7 +39,7 @@ Parameters:
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ## Single snippet
 
@@ -53,7 +53,7 @@ Parameters:
 
 | Attribute    | Type           | Required | Description |
 |--------------|----------------|----------|-------------|
-| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `snippet_id` | integer        | yes      | The ID of a project's snippet. |
 
 ```json
@@ -92,7 +92,7 @@ Parameters:
 
 | Attribute         | Type            | Required | Description |
 |:------------------|:----------------|:---------|:------------|
-| `id`              | integer or string         | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`              | integer or string         | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `files:content`   | string          | yes      | Content of the snippet file. |
 | `files:file_path` | string          | yes      | File path of the snippet file. |
 | `title`           | string          | yes      | Title of a snippet. |
@@ -141,7 +141,7 @@ Parameters:
 
 | Attribute             | Type            | Required | Description |
 |:----------------------|:----------------|:---------|:------------|
-| `id`                  | integer or string         | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                  | integer or string         | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `files:action`        | string          | yes      | Type of action to perform on the file. One of: `create`, `update`, `delete`, `move`. |
 | `snippet_id`          | integer         | yes      | The ID of a project's snippet. |
 | `content`             | string          | no       | Deprecated: Use `files` instead. Content of a snippet. |
@@ -192,7 +192,7 @@ Parameters:
 
 | Attribute    | Type           | Required | Description |
 |:-------------|:---------------|:---------|:------------|
-| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `snippet_id` | integer        | yes      | The ID of a project's snippet. |
 
 Example request:
@@ -214,7 +214,7 @@ Parameters:
 
 | Attribute    | Type           | Required | Description |
 |:-------------|:---------------|:---------|:----------------------------------------------------------------------------------------------------------------|
-| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `snippet_id` | integer        | yes      | The ID of a project's snippet. |
 
 Example request:
@@ -236,7 +236,7 @@ Parameters:
 
 | Attribute    | Type           | Required | Description |
 |:-------------|:---------------|:---------|:------------|
-| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `file_path`  | string         | yes      | The URL-encoded path to the file, for example, `snippet%2Erb`. |
 | `ref`        | string         | yes      | The name of a branch, tag or commit, for example, `main`. |
 | `snippet_id` | integer        | yes      | The ID of a project's snippet. |
@@ -258,13 +258,14 @@ GET /projects/:id/snippets/:snippet_id/user_agent_detail
 
 | Attribute    | Type           | Required | Description |
 |--------------|----------------|----------|-------------|
-| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`         | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `snippet_id` | Integer        | yes      | The ID of a snippet. |
 
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/snippets/2/user_agent_detail"
+curl --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/projects/1/snippets/2/user_agent_detail"
 ```
 
 Example response:

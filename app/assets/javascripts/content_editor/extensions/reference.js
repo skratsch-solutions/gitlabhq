@@ -12,7 +12,8 @@ const findReference = (editor, reference) => {
   let position;
 
   editor.view.state.doc.descendants((descendant, pos) => {
-    if (descendant.isText && descendant.text.includes(reference)) {
+    const containsCodeMarks = descendant.marks.some((mark) => mark.type.spec.code);
+    if (descendant.isText && descendant.text.includes(reference) && !containsCodeMarks) {
       position = pos + descendant.text.indexOf(reference);
       return false;
     }
@@ -69,6 +70,33 @@ export default Node.create({
         () =>
         ({ commands }) =>
           commands.insertContent('<p>/</p>'),
+      unlinkReferencesInSelection:
+        () =>
+        ({ chain }) => {
+          const { serializer } = this.options;
+          const { state } = this.editor;
+          const { from, to } = state.selection;
+
+          let removedLength = 0;
+          let addedLength = 0;
+          let c = chain();
+
+          state.doc.nodesBetween(from, to, (node, pos) => {
+            if (!node.type.name.includes('reference')) return;
+
+            const start = pos - removedLength + addedLength;
+            const end = start + node.nodeSize;
+            const slice = state.doc.slice(pos, pos + node.nodeSize);
+            const text = serializer.serialize({ doc: slice.content });
+
+            c = c.deleteRange({ from: start, to: end }).insertContentAt(start, text);
+
+            removedLength += node.nodeSize;
+            addedLength += text.length;
+          });
+
+          return c.setTextSelection({ from, to: to - removedLength + addedLength }).run();
+        },
     };
   },
 

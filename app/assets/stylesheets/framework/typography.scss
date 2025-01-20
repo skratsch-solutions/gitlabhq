@@ -3,7 +3,9 @@
  *
  */
 .md {
-  color: $gl-text-color;
+  position: relative;
+  z-index: 1;
+  @apply gl-text-default;
   word-wrap: break-word;
 
   [dir='auto'] {
@@ -11,36 +13,34 @@
   }
 
   *:first-child {
-    margin-top: 0;
+    @apply gl-mt-0;
   }
 
   > :last-child {
-    margin-bottom: 0;
+    @apply gl-mb-0;
   }
 
   p {
-    color: $gl-text-color;
-    margin: 0 0 16px;
+    @apply gl-text-default gl-m-0 gl-mb-5;
 
     > code {
       font-weight: inherit;
-    }
-
-    a:not(.no-attachment-icon) img {
-      // Remove bottom padding because
-      // <p> already has $gl-padding bottom
-      margin-bottom: 0;
     }
   }
 
   .media-container {
     display: inline-flex;
     flex-direction: column;
-    margin-bottom: $gl-spacing-scale-2;
+    @apply gl-mb-2;
+
+    video {
+      max-width: 100%;
+    }
   }
 
   img {
     max-width: 100%;
+    vertical-align: baseline;
   }
 
   img[width][height] {
@@ -49,14 +49,10 @@
     height: auto;
   }
 
-  img:not(.emoji) {
-    margin: 0 0 8px;
-  }
-
   img.lazy {
     min-width: 200px;
     min-height: 100px;
-    background-color: $gray-10;
+    @apply gl-bg-disabled;
   }
 
   img.js-lazy-loaded,
@@ -67,26 +63,45 @@
   }
 
   details {
-    margin-bottom: $gl-padding;
+    @apply gl-mb-5;
 
     > *:not(summary) {
-      margin-left: $gl-spacing-scale-5;
+      @apply gl-ml-5;
+    }
+
+    &:not(:has(summary)):not([open]) {
+      @apply gl-font-bold;
     }
   }
 
   details[open] summary {
-    margin-bottom: $gl-padding;
+    @apply gl-mb-5;
+  }
+
+  // Shift the anchor link for a heading inside a details summary to the left
+  // to make room for the summary toggle
+  details summary {
+    @apply gl-font-bold;
+    
+    h1, h2, h3, h4, h5, h6 {
+      a.anchor {
+        @apply -gl-ml-7;
+      }
+    }
   }
 
   summary > * {
-    display: inline-block;
-    margin-bottom: 0;
+    @apply gl-inline-block gl-mb-0;
+  }
+
+  // make default paragraph of summary text behave nicely with the summary marker
+  summary > p {
+    max-width: calc(100% - 1rem);
   }
 
   // Single code lines should wrap
   code {
-    font-family: $monospace-font;
-    vertical-align: bottom;
+    @apply gl-font-monospace;
     white-space: pre-wrap;
     // Safari
     word-wrap: break-word;
@@ -94,69 +109,47 @@
     word-break: keep-all;
   }
 
-  h1 {
-    font-size: 1.75em;
-    font-weight: $gl-font-weight-bold;
-    margin: 24px 0 16px;
-    padding-bottom: 0.3em;
-    border-bottom: 1px solid $gray-200;
-    color: $gl-text-color;
+  mark {
+    @include str-highlighted;
+  }
 
-    &:first-child {
-      margin-top: 0;
-    }
+  // Fixed headings are default for markdown
+  h1 {
+    @apply gl-heading-1-fixed gl-mt-7 gl-pb-2 gl-border-b;
   }
 
   h2 {
-    font-size: 1.5em;
-    font-weight: $gl-font-weight-bold;
-    margin: 24px 0 16px;
-    padding-bottom: 0.3em;
-    border-bottom: 1px solid $gray-200;
-    color: $gl-text-color;
+    @apply gl-heading-2-fixed gl-mt-6 gl-pb-2 gl-border-b;
   }
 
   h3 {
-    margin: 24px 0 16px;
-    font-size: 1.3em;
+    @apply gl-heading-3-fixed gl-mt-6;
   }
 
   h4 {
-    margin: 24px 0 16px;
-    font-size: 1.2em;
+    @apply gl-heading-4-fixed gl-mt-5;
   }
 
   h5 {
-    margin: 24px 0 16px;
-    font-size: 1em;
+    @apply gl-heading-5-fixed gl-mt-5;
   }
 
   h6 {
-    margin: 24px 0 16px;
-    font-size: 0.95em;
+    @apply gl-heading-6-fixed gl-mt-5;
   }
 
   blockquote,
   .blockquote {
-    font-size: inherit;
-    color: $gray-700;
-    padding-top: $gl-spacing-scale-3;
-    padding-bottom: $gl-spacing-scale-3;
-    padding-left: $gl-spacing-scale-6;
-    margin-top: $gl-spacing-scale-3;
-    margin-bottom: $gl-spacing-scale-3;
-    margin-left: 0;
-    margin-right: 0;
-    @apply gl-shadow-inner-l-4-gray-100;
+    @apply gl-text-size-reset gl-text-subtle;
+    @apply gl-py-3 gl-pl-5 gl-my-3 gl-mx-0;
+    @apply gl-border-l gl-border-l-4 gl-border-strong;
 
     &:dir(rtl) {
-      border-left: 0;
-      border-right: 3px solid $gray-100;
+      @apply gl-border-l-0 gl-border-r gl-border-r-4;
     }
 
     p {
-      line-height: 1.5;
-     color: inherit;
+      @apply gl-text-inherit gl-leading-[1.5];
 
       &:last-child {
         margin: 0;
@@ -178,14 +171,13 @@
   }
 
   hr {
-    border-color: rgba($black, 0.15);
-
+    @apply gl-border-default;
     margin: 10px 0;
   }
 
   table:not(.code) {
     margin: 16px 0;
-    color: $gl-text-color;
+    @apply gl-text-default;
     border: 0;
     width: auto;
     display: block;
@@ -242,7 +234,6 @@
         }
       }
     }
-
 
     &.grid-rows {
       > thead > tr > th,
@@ -348,7 +339,7 @@
   }
 
   pre {
-    margin-bottom: 16px;
+    @apply gl-mb-5;
     line-height: 1.6em;
     overflow-x: auto;
     border-radius: $gl-border-radius-base;
@@ -377,19 +368,19 @@
   ul,
   ol {
     padding: 0;
-    margin: 0 0 16px;
+    @apply gl-m-0 gl-mb-5;
 
     // Lists embedded in other lists can be "loose" or "tight"
     // Remove bottom margin for all lists (default for tight lists)
     ul,
     ol {
-      margin-bottom: 0;
+      @apply gl-mb-0;
     }
 
     // Loose lists need bottom margin added back
     p ~ ol,
     p ~ ul {
-      margin-bottom: 16px;
+      @apply gl-mb-5;
     }
   }
 
@@ -431,7 +422,8 @@
     padding-left: 3px;
 
     /* Normalize the bullet position on webkit. */
-    @include on-webkit-only {
+    /* stylelint-disable-next-line media-feature-name-no-vendor-prefix */
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
       margin-left: 28px;
       padding-left: 0;
     }
@@ -457,36 +449,36 @@
   li.inapplicable {
     // for a single line list item, no paragraph (tight list)
     > s {
-      color: $gl-text-color-disabled;
+        @apply gl-text-disabled;
     }
 
     // additional blocks, other than paragraphs
     > div {
       text-decoration: line-through;
-      color: $gl-text-color-disabled;
+      @apply gl-text-disabled;
     }
 
     // because of the embedded checkbox, putting line-through on the entire
     // paragraph causes the space between the checkbox and the text to have the
     // line-through.  Targeting just the `s` fixes this
     > p:first-of-type > s {
-      color: $gl-text-color-disabled;
+      @apply gl-text-disabled;
     }
 
     > p:not(:first-of-type) {
       text-decoration: line-through;
-      color: $gl-text-color-disabled;
+      @apply gl-text-disabled;
     }
 
     .drag-icon {
-      color: $gl-text-color;
+      @apply gl-fill-icon-default;
     }
 
     // If an inapplicable task list item contains labels or <kbd>s, strike them
     // out as well.
     .gl-label, kbd {
       text-decoration: line-through;
-      text-decoration-color: $gl-text-color-disabled;
+      text-decoration-color: var(--gl-text-color-disabled);
       vertical-align: text-bottom;
     }
   }
@@ -670,8 +662,8 @@
 
   @include email-code-block;
 
-  &.gl-text-secondary {
-    color: $gl-text-color-secondary;
+  &.md-child-content-text-subtle {
+    @apply gl-text-subtle;
 
     p,
     h1,
@@ -680,8 +672,14 @@
     h4,
     h5,
     table:not(.code) {
-      color: $gl-text-color-secondary;
+      @apply gl-text-subtle;
     }
+  }
+
+  /* Vertically align badges with icons */
+  .gl-badge:has(> svg) {
+    position: relative;
+    bottom: -3px;
   }
 }
 
@@ -725,14 +723,15 @@ body {
 /** CODE **/
 pre {
   position: relative;
-  font-family: $monospace-font;
+  @apply gl-font-monospace;
+
   display: block;
   padding: $gl-padding-8 $input-horizontal-padding;
   margin: 0 0 $gl-padding-8;
   font-size: $gl-font-size;
   word-break: break-all;
   word-wrap: break-word;
-  color: $gl-text-color;
+  @apply gl-text-default;
   background-color: $gray-10;
   border: 1px solid $gray-100;
   border-radius: $border-radius-small;
@@ -743,15 +742,8 @@ pre {
   }
 }
 
-code {
-  &.key-fingerprint {
-    background: $body-bg;
-    color: $text-color;
-  }
-}
-
 .monospace {
-  @include gl-font-monospace;
+  @apply gl-font-monospace;
 }
 
 .weight-normal {
@@ -760,12 +752,12 @@ code {
 
 .commit-sha,
 .ref-name {
-  font-family: $monospace-font;
+  @apply gl-font-monospace;
   font-size: 95%;
 }
 
 .git-revision-dropdown .dropdown-content li:not(.dropdown-menu-empty-item) a {
-  font-family: $monospace-font;
+  @apply gl-font-monospace;
   font-size: 95%;
   word-break: break-all;
 }
@@ -775,7 +767,7 @@ code {
  *
  */
 textarea.js-gfm-input {
-  font-family: $monospace-font;
+  @apply gl-font-monospace;
   font-size: $gl-font-size;
 }
 
@@ -784,7 +776,7 @@ h2,
 h3,
 h4 {
   small {
-    color: $gl-text-color;
+    @apply gl-text-heading;
   }
 }
 
@@ -808,34 +800,15 @@ h4 {
   background: $line-added-dark;
 }
 
-
 /**
  * form text input i.e. search bar, comments, forms, etc.
  */
-/* stylelint-disable selector-no-vendor-prefix  */
 input,
 textarea {
-  &::-webkit-input-placeholder {
-    color: $gl-text-color-tertiary;
-  }
-
-  // support firefox 19+ vendor prefix
-  &::-moz-placeholder {
-    color: $gl-text-color-tertiary;
-    opacity: 1; // FF defaults to 0.54
-  }
-
-  // support Edge vendor prefix
-  &::-ms-input-placeholder {
-    color: $gl-text-color-tertiary;
-  }
-
-  // support IE vendor prefix
-  &:-ms-input-placeholder {
-    color: $gl-text-color-tertiary;
+  &::placeholder {
+    color: var(--gl-control-placeholder-color);
   }
 }
-/* stylelint-enable */
 
 wbr {
   display: inline-block;
@@ -844,4 +817,39 @@ wbr {
 // The font used in Monaco editor - Web IDE, Snippets, single file editor
 :root {
   --code-editor-font: #{$monospace-font};
+}
+
+/**
+ * FOOTNOTES
+ */
+ section.footnotes {
+  position: relative;
+  padding-top: $gl-spacing-scale-5;
+  margin-top: $gl-spacing-scale-7;
+  font-size: $gl-font-size-12;
+
+  &::before {
+    content: '';
+    width: 16rem;
+    max-width: 100%;
+    border-top: 1px solid $border-color;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  ol > li {
+    margin-inline-start: $gl-spacing-scale-6;
+
+     p {
+      margin-block-end: 0;
+     }
+  }
+
+  // prevent backref character from rendering as emoji
+  .footnote-backref gl-emoji {
+    font-family: inherit;
+    font-size: 0.875em;
+    pointer-events: none;
+  }
 }

@@ -7,18 +7,16 @@ class Admin::LabelsController < Admin::ApplicationController
   urgency :low
 
   def index
-    @labels = Label.templates.page(params[:page])
+    @labels = Label.templates.page(pagination_params[:page])
   end
 
-  def show
-  end
+  def show; end
 
   def new
     @label = Label.new
   end
 
-  def edit
-  end
+  def edit; end
 
   def create
     @label = Labels::CreateService.new(label_params).execute(template: true)
@@ -61,10 +59,10 @@ class Admin::LabelsController < Admin::ApplicationController
   private
 
   def set_label
-    @label = Label.find(params[:id])
+    @label = Label.find(params.permit(:id)[:id])
   end
 
   def label_params
-    params[:label].permit(:title, :description, :color)
+    params[:label].permit(:title, :description, :color) # rubocop:disable Rails/StrongParams -- hash access is safely followed by permit
   end
 end

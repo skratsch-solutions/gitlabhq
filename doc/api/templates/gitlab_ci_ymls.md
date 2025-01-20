@@ -8,11 +8,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In GitLab, there is an API endpoint available to work with GitLab CI/CD YAML. For more
 information on CI/CD pipeline configuration in GitLab, see the
 [CI/CD YAML syntax reference](../../ci/yaml/index.md).
+
+Users with the Guest role can't access the GitLab CI YAML templates. For more information, see [Project and group visibility](../../user/public_access.md).
 
 ## List GitLab CI YAML templates
 

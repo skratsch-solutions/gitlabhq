@@ -317,5 +317,37 @@ RSpec.describe Users::CreditCardValidation, feature_category: :user_profile do
         end
       end
     end
+
+    describe '#exceeded_daily_verification_limit?' do
+      let(:credit_card_validation) { build(:credit_card_validation) }
+
+      subject(:exceeded_limit?) { credit_card_validation.exceeded_daily_verification_limit? }
+
+      before do
+        stub_const("#{described_class}::DAILY_VERIFICATION_LIMIT", 1)
+      end
+
+      it { is_expected.to eq(false) }
+
+      context 'when the limit has been exceeded' do
+        before do
+          create(:credit_card_validation, stripe_card_fingerprint: credit_card_validation.stripe_card_fingerprint)
+        end
+
+        it { is_expected.to eq(true) }
+      end
+
+      context 'when the limit is exceeded but records have credit_card_validated_at > 24 hours' do
+        before do
+          create(
+            :credit_card_validation,
+            stripe_card_fingerprint: credit_card_validation.stripe_card_fingerprint,
+            credit_card_validated_at: 25.hours.ago
+          )
+        end
+
+        it { is_expected.to eq(false) }
+      end
+    end
   end
 end

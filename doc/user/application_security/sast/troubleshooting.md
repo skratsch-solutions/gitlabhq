@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The following troubleshooting scenarios have been collected from customer support cases. If you
 experience a problem not addressed here, or the information here does not fix your problem, see the
@@ -122,7 +122,7 @@ For Maven builds, add the following to your `pom.xml` file:
 
 ### Project couldn't be built
 
-If your job is failing at the build step with the message "Project couldn't be built", it's most likely because your job is asking SpotBugs to build with a tool that isn't part of its default tools. For a list of the SpotBugs default tools, see [SpotBugs' asdf dependencies](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs/-/raw/master/config/.tool-versions).
+If your job is failing at the build step with the message "Project couldn't be built", it's most likely because your job is asking SpotBugs to build with a tool that isn't part of its default tools. For a list of the SpotBugs default tools, see [SpotBugs' asdf dependencies](https://gitlab.com/gitlab-org/security-products/analyzers/spotbugs/-/blob/master/config/.gl-tool-versions).
 
 The solution is to use [pre-compilation](index.md#pre-compilation). Pre-compilation ensures the images required by SpotBugs are available in the job's container.
 
@@ -154,29 +154,36 @@ If, on the other hand, the class being analyzed is part of your project, conside
 
 This occurs when Flawfinder encounters an invalid UTF-8 character. To fix this, apply [their documented advice](https://github.com/david-a-wheeler/flawfinder#character-encoding-errors) to your entire repository, or only per job using the [`before_script`](../../../ci/yaml/index.md#before_script) feature.
 
-You can configure the `before_script` section in each `.gitlab-ci.yml` file, or use a [pipeline execution policy action](../policies/scan-execution-policies.md#pipeline-execution-policy-action) to install the encoder and run the converter command. For example, you can add a `before_script` section to the `flawfinder-sast-0` job generated from the execution policy to convert all files with a `.cpp` extension.
+You can configure the `before_script` section in each `.gitlab-ci.yml` file, or use a [pipeline execution policy](../policies/pipeline_execution_policies.md) to install the encoder and run the converter command. For example, you can add a `before_script` section to the `flawfinder-sast` job generated from the security scanner template to convert all files with a `.cpp` extension.
 
 ### Example pipeline execution policy YAML
 
 ```yaml
 ---
-scan_execution_policy:
+pipeline_execution_policy:
 - name: SAST
   description: 'Run SAST on C++ application'
   enabled: true
-  rules:
-  - type: pipeline
-    branch_type: all
-  actions:
-  - scan: sast
-  - scan: custom
-    ci_configuration: |-
-      flawfinder-sast-0:
-          before_script:
-            - pip install cvt2utf
-            - cvt2utf convert "$PWD" -i cpp
+  pipeline_config_strategy: inject_ci
+  content:
+    include:
+    - project: my-group/compliance-project
+      file: flawfinder.yml
+      ref: main
+```
+
+`flawfinder.yml`:
+
+```yaml
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+
+flawfinder-sast:
+  before_script:
+    - pip install cvt2utf
+    - cvt2utf convert "$PWD" -i cpp
 ```
 
 ## Semgrep slowness, unexpected results, or other errors
 
-If Semgrep is slow, reports too many false positives or false negatives, crashes, fails, or is otherwise broken, see the Semgrep docs for [troubleshooting GitLab SAST](https://semgrep.dev/docs/troubleshooting/semgrep-ci#troubleshooting-gitlab-sast).
+If Semgrep is slow, reports too many false positives or false negatives, crashes, fails, or is otherwise broken, see the Semgrep docs for [troubleshooting GitLab SAST](https://semgrep.dev/docs/troubleshooting/semgrep-app#troubleshooting-gitlab-sast).

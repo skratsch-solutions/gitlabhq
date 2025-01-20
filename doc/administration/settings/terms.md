@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 An administrator can enforce acceptance of a terms of service and privacy policy.
 When this option is enabled, new and existing users must accept the terms.
@@ -16,11 +16,14 @@ When this option is enabled, new and existing users must accept the terms.
 When enabled, you can view the Terms of Service at the `-/users/terms` page on the instance,
 for example `https://gitlab.example.com/-/users/terms`.
 
+The link `Terms and privacy` will become visible in the help menu if any
+terms are defined.
+
 ## Enforce a Terms of Service and Privacy Policy
 
 To enforce acceptance of a Terms of Service and Privacy Policy:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand the **Terms of Service and Privacy Policy** section.
 1. Check the **All users must accept the Terms of Service and Privacy Policy to access GitLab** checkbox.
@@ -36,7 +39,7 @@ If an authenticated user declines the terms, they are signed out.
 
 When enabled, it adds a mandatory checkbox to the sign up page for new users:
 
-![Sign up form](img/sign_up_terms.png)
+![Sign up form](img/sign_up_terms_v11_0.png)
 
 <!-- ## Troubleshooting
 

@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -24,7 +24,7 @@ Batching performance is closely related to pagination performance since the unde
 
 There are two main aspects to consider when implementing batching in background jobs: total runtime and data modification volume.
 
-Background jobs shouldn't run for a long time. A Sidekiq process can crash or it can be forcefully stopped (e.g. on restart or deployment). Additionally, due to our [error budget](../stage_group_observability/index.md#error-budget) rules, after 5 minutes of runtime, error budget violations will be added to the group where the feature is registered. When implementing batching in background jubs, make sure that you're familiar with our guidelines related to [idempotent jobs](../sidekiq/idempotent_jobs.md)
+Background jobs shouldn't run for a long time. A Sidekiq process can crash or it can be forcefully stopped (e.g. on restart or deployment). Additionally, due to our [error budget](../stage_group_observability/index.md#error-budget) rules, after 5 minutes of runtime, error budget violations will be added to the group where the feature is registered. When implementing batching in background jobs, make sure that you're familiar with our guidelines related to [idempotent jobs](../sidekiq/idempotent_jobs.md)
 
 Updating or deleting a large volume of records can increase database replication lag and it can add extra strain to the primary database. It's advisable to limit the total number of records we process (or batch over) within the background job.
 
@@ -190,7 +190,7 @@ Pros:
 Cons:
 
 - Scheduling the work (putting the cursor in the queue) is not crash safe.
-- Potential serialization issues when the cursor is read. (multi-version compability)
+- Potential serialization issues when the cursor is read (multi-version compatibility).
 - Extra care needs to be taken about database transactions.
 
 #### PostgreSQL based cursor
@@ -516,7 +516,7 @@ Cons:
 
 ### Always batch from the top-level group
 
-This technique can be used when we always have to batch from the top level group (group without parent group). In this case we can leverage the following index in the `namespaces` table:
+This technique can be used when we always have to batch from the top-level group (group without parent group). In this case we can leverage the following index in the `namespaces` table:
 
 ```sql
 "index_on_namespaces_namespaces_by_top_level_namespace" btree ((traversal_ids[1]), type, id) -- traversal_ids[1] is the top-level group id

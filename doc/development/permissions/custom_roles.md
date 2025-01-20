@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authorization
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -24,7 +24,7 @@ With custom roles, the customers can decide which abilities they want to assign 
 - In the default role system, reading of vulnerabilities is limited to a Developer role.
 - In the custom role system, a customer can assign this ability to a new custom role based on any default role.
 
-Like default roles, custom roles are [inherited](../../user/project/members/index.md#inherited-membership) within a group hierarchy. If a user has custom role for a group, that user will also have a custom role for any projects or subgroups within the group.
+Like default roles, custom roles are [inherited](../../user/project/members/index.md#membership-types) within a group hierarchy. If a user has custom role for a group, that user will also have a custom role for any projects or subgroups within the group.
 
 ## Technical overview
 
@@ -178,13 +178,17 @@ before in a separate merge request, before completing the below.
 | Field | Required | Description |
 | ----- | -------- |--------------|
 | `name` | yes     | Unique, lowercase and underscored name describing the custom ability. Must match the filename. |
+| `title` | yes | Human-readable title of the custom ability. |
 | `description` | yes | Human-readable description of the custom ability. |
 | `feature_category` | yes | Name of the feature category. For example, `vulnerability_management`. |
 | `introduced_by_issue` | yes | Issue URL that proposed the addition of this custom ability. |
 | `introduced_by_mr` | yes | MR URL that added this custom ability. |
 | `milestone` | yes | Milestone in which this custom ability was added. |
+| `admin_ability` | no | Boolean value to indicate whether this ability is checked at the admin level. |
 | `group_ability` | yes | Boolean value to indicate whether this ability is checked on group level. |
+| `enabled_for_group_access_levels` | if `group_ability = true` | The array of access levels that already have access to this custom ability in a group. See the section on [understanding logic for individual abilities](#understanding-logic-for-individual-abilities) for help on determining the base access level for an ability. This is for information only and has no impact on how custom roles operate.  |
 | `project_ability` | yes | Boolean value to whether this ability is checked on project level. |
+| `enabled_for_project_access_levels` | if `project_ability = true` | The array of access levels that already have access to this custom ability in a project. See the section on [understanding logic for individual abilities](#understanding-logic-for-individual-abilities) for help on determining the base access level for an ability. This is for information only and has no impact on how custom roles operate.  |
 | `requirements` | no | The list of custom permissions this ability is dependent on. For instance `admin_vulnerability` is dependent on `read_vulnerability`. If none, then enter `[]`  |
 | `available_from_access_level` | no | The access level of the predefined role from which this ability is available, if applicable. See the section on [understanding logic for individual abilities](#understanding-logic-for-individual-abilities) for help on determining the base access level for an ability. This is for information only and has no impact on how custom roles operate. |
 
@@ -192,7 +196,11 @@ before in a separate merge request, before completing the below.
 
 - Run `bundle exec rails generate gitlab:custom_roles:code --ability <ABILITY_NAME>` which will update the permissions validation schema file and create an empty spec file.
 
-### Step 3: Update policies
+### Step 3: Create a feature flag (optional)
+
+- If you would like to toggle the custom ability using a [feature flag](../feature_flags/index.md), create a feature flag with name `custom_ability_<name>`. Such as, for ability `read_code`, the feature flag will be `custom_ability_read_code`. When this feature flag is disabled, the custom ability will be hidden when creating a new custom role, or when fetching custom abilities for a user.
+
+### Step 4: Update policies
 
 - If the ability is checked on a group level, add rule(s) to GroupPolicy to enable the ability.
 - For example: if the ability we would like to add is `read_dependency`, then an update to `ee/app/policies/ee/group_policy.rb` would look like as follows:
@@ -210,15 +218,15 @@ rule { custom_role_enables_read_dependency }.enable(:read_dependency)
 
 - Not all abilities need to be enabled on both levels, for instance `admin_terraform_state` allows users to manage a project's terraform state. It only needs to be enabled on the project level and not the group level, and thus only needs to be configured in `ee/app/policies/ee/project_policy.rb`.
 
-### Step 4: Verify
+### Step 5: Verify
 
 - Ensure SaaS mode is enabled with `GITLAB_SIMULATE_SAAS=1`.
-- Go to any Group that you are an owner of, then go to `Settings -> Roles and Permissions`.
+- Go to any Group that you are an owner of, then go to `Settings -> Roles and permissions`.
 - Select `New role` and create a custom role with the permission you have just created.
 - Go to the Group's `Manage -> Members` page and assign a member to this newly created custom role.
-- Next, log-in as that member and ensure that you are able to access the page that the custom ability is intended for.
+- Next, sign in as that member and ensure that you are able to access the page that the custom ability is intended for.
 
-### Step 5: Add specs
+### Step 6: Add specs
 
 - Add the ability as a trait in the `MemberRoles` factory, `ee/spec/factories/member_roles.rb`.
 - Add tests to `ee/spec/requests/custom_roles/<ABILITY_NAME>/request_spec.rb` to ensure that once the user has been assigned the custom ability, they can successfully access the controllers, REST API endpoints and GraphQL API endpoints.
@@ -227,7 +235,7 @@ rule { custom_role_enables_read_dependency }.enable(:read_dependency)
 ```ruby
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, :repository, :in_group) }
-  let_it_be(:role) { create(:member_role, :guest, namespace: project.group, custom_permission: true) }
+  let_it_be(:role) { create(:member_role, :guest, :custom_permission, namespace: project.group) }
   let_it_be(:membership) { create(:project_member, :guest, member_role: role, user: user, project: project) }
 
   before do
@@ -253,7 +261,7 @@ rule { custom_role_enables_read_dependency }.enable(:read_dependency)
 ```ruby
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, :repository, :in_group) }
-  let_it_be(:role) { create(:member_role, :guest, namespace: project.group, custom_permission: true) }
+  let_it_be(:role) { create(:member_role, :guest, :custom_permission, namespace: project.group) }
   let_it_be(:membership) { create(:project_member, :guest, member_role: role, user: user, project: project) }
 
   before do
@@ -286,6 +294,8 @@ rule { custom_role_enables_read_dependency }.enable(:read_dependency)
 
 ### Step 6: Update documentation
 
+Follow the [Contribute to the GitLab documentation](../../development/documentation/index.md) page to make the following changes to the documentation:
+
 - Update the list of custom abilities by running `bundle exec rake gitlab:custom_roles:compile_docs`
 - Update the GraphQL documentation by running `bundle exec rake gitlab:graphql:compile_docs`
 
@@ -299,4 +309,4 @@ If a new user with a role `Guest` is added to a member role that includes enable
 
 ### Modular Policies
 
-In an effort to support the [GitLab Modular Monolith blueprint](../../architecture/blueprints/modular_monolith/index.md) the [Authorization group](https://handbook.gitlab.com/handbook/engineering/development/sec/govern/authorization/) is [collaborating](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/153348) with the [Create:IDE group](https://handbook.gitlab.com/handbook/engineering/development/dev/create/ide/). Once a POC is implemented, the findings will be [discussed](https://gitlab.com/gitlab-org/gitlab/-/issues/454934) and the Authorization group will make a decision of what the modular design of policies will be going forward.
+In an effort to support the [GitLab Modular Monolith design document](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/modular_monolith/) the [Authorization group](https://handbook.gitlab.com/handbook/engineering/development/sec/govern/authorization/) is [collaborating](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/153348) with the [Create:IDE group](https://handbook.gitlab.com/handbook/engineering/development/dev/create/ide/). Once a POC is implemented, the findings will be [discussed](https://gitlab.com/gitlab-org/gitlab/-/issues/454934) and the Authorization group will make a decision of what the modular design of policies will be going forward.

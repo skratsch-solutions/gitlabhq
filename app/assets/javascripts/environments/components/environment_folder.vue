@@ -34,6 +34,7 @@ export default {
     return { visible: false, interval: undefined };
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     folder: {
       query: folderQuery,
       variables() {
@@ -60,7 +61,7 @@ export default {
     icons() {
       return this.visible
         ? { caret: 'chevron-lg-down', folder: 'folder-open' }
-        : { caret: 'chevron-lg-right', folder: 'folder-o' };
+        : { caret: 'chevron-lg-right', folder: 'folder' };
     },
     label() {
       return this.visible ? this.$options.i18n.collapse : this.$options.i18n.expand;
@@ -101,21 +102,18 @@ export default {
 };
 </script>
 <template>
-  <div
-    :class="{ 'gl-pb-5': !visible }"
-    class="gl-border-b-solid gl-border-gray-100 gl-border-1 gl-pt-3"
-  >
-    <div class="gl-w-full gl-display-flex gl-align-items-center gl-px-3">
+  <div :class="{ 'gl-border-b gl-pb-5': !visible }" class="gl-pt-3">
+    <div class="gl-flex gl-w-full gl-items-center gl-px-3">
       <gl-button
-        class="gl-mr-4 gl-fill-current gl-text-gray-500"
+        class="gl-mr-4"
         :aria-label="label"
         :icon="icons.caret"
         size="small"
         category="tertiary"
         @click="toggleCollapse"
       />
-      <gl-icon class="gl-mr-2 gl-fill-current gl-text-gray-500" :name="icons.folder" />
-      <div class="gl-mr-2 gl-text-gray-500" :class="folderClass">
+      <gl-icon class="gl-mr-2" :name="icons.folder" variant="subtle" />
+      <div class="gl-mr-2 gl-text-subtle" :class="folderClass">
         {{ nestedEnvironment.name }}
       </div>
       <gl-badge class="gl-mr-auto">{{ totalEnvironmentsCount }}</gl-badge>
@@ -125,13 +123,12 @@ export default {
         v-for="(environment, index) in environments"
         :key="environment.name"
         :environment="environment"
-        :class="{ 'gl-mt-5': isFirstEnvironment(index) }"
-        class="gl-border-gray-100 gl-border-t-solid gl-border-1 gl-pt-3"
+        :class="{ '!gl-border-t !gl-mt-5': isFirstEnvironment(index) }"
         in-folder
       />
       <div
         v-if="isMessageShowing"
-        class="gl-border-gray-100 gl-border-t-solid gl-border-1 gl-py-5 gl-bg-gray-10 gl-text-center"
+        class="gl-border-b gl-bg-gray-10 gl-py-3 gl-text-center"
         data-testid="environment-folder-message-element"
       >
         <gl-sprintf :message="$options.i18n.message">

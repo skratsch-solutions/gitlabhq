@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Git is a distributed version control system, which means you can work locally,
 then share or *push* your changes to a server. In this case, the server you push to is GitLab.
@@ -397,7 +397,7 @@ git config core.sshCommand "ssh -o IdentitiesOnly=yes -i ~/.ssh/private-key-file
 This command does not use the SSH Agent and requires Git 2.10 or later. For more information
 on `ssh` command options, see the `man` pages for both `ssh` and `ssh_config`.
 
-## View your account's SSH keys
+## View your SSH keys
 
 To view the SSH keys for your account:
 
@@ -407,16 +407,40 @@ To view the SSH keys for your account:
 
 Your existing SSH keys are listed at the bottom of the page. The information includes:
 
-- The key's:
-  - Name.
-  - Public fingerprint.
-  - Expiry date.
-  - Permitted usage types.
-- The time a key was last used.
+- The title for the key
+- Public fingerprint
+- Permitted usage types
+- Creation date
+- Last used date
+- Expiry date
 
-## Delete an SSH key
+## Remove an SSH key
 
-To permanently delete an SSH key:
+You can revoke or delete your SSH key to permanently remove it from your account.
+
+Removing your SSH key has additional implications if you sign your commits with the key. For more information, see [Signed commits with removed SSH keys](../user/project/repository/signed_commits/ssh.md#signed-commits-with-removed-ssh-keys).
+
+### Revoke an SSH key
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/108344) in GitLab 15.9.
+
+If your SSH key becomes compromised, revoke the key.
+
+Prerequisites:
+
+- The SSH key must have the `Signing` or `Authentication & Signing` usage type.
+
+To revoke an SSH key:
+
+1. On the left sidebar, select your avatar.
+1. Select **Edit profile**.
+1. On the left sidebar, select **SSH Keys**.
+1. Next to the SSH key you want to revoke, select **Revoke**.
+1. Select **Revoke**.
+
+### Delete an SSH key
+
+To delete an SSH key:
 
 1. On the left sidebar, select your avatar.
 1. Select **Edit profile**.
@@ -472,7 +496,7 @@ on the files make them readable to you but not accessible to others.
 ## Configure two-factor authentication (2FA)
 
 You can set up two-factor authentication (2FA) for
-[Git over SSH](../security/two_factor_authentication.md#2fa-for-git-over-ssh-operations). We recommend using
+[Git over SSH](../security/two_factor_authentication.md#2fa-for-git-over-ssh-operations). You should use
 [ED25519_SK](#ed25519_sk-ssh-keys) or [ECDSA_SK](#ecdsa_sk-ssh-keys) SSH keys.
 
 ## Use EGit on Eclipse

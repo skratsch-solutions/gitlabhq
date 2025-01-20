@@ -12,6 +12,7 @@ module Ci
       class_name: 'Ci::Build',
       partition_foreign_key: :partition_id
     belongs_to :namespace, inverse_of: :pending_builds, class_name: 'Namespace'
+    belongs_to :plan
 
     partitionable scope: :build
 
@@ -57,9 +58,7 @@ module Ci
           instance_runners_enabled: shared_runners_enabled?(project)
         }
 
-        if group_runners_enabled?(project)
-          args.store(:namespace_traversal_ids, project.namespace.traversal_ids)
-        end
+        args.store(:namespace_traversal_ids, project.namespace.traversal_ids) if group_runners_enabled?(project)
 
         args
       end

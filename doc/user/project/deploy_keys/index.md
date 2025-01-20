@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use deploy keys to access repositories that are hosted in GitLab. In most cases, you use deploy keys
 to access a repository from an external host, like a build server or Continuous Integration (CI) server.
@@ -44,32 +44,37 @@ A deploy key is given a permission level when it is created:
 You can change a deploy key's permission level after creating it. Changing a project deploy key's
 permissions only applies for the current project.
 
-GitLab authorizes the creator of the deploy key if the Git-command triggers additional processes. For example:
+If a push that uses a deploy key triggers additional processes, the creator of the key must be authorized. For example:
 
-- When a deploy key is used to push a commit to a [protected branch](../protected_branches.md),
-  the _creator_ of the deploy key must have access to the branch.
-- When a deploy key is used to push a commit that triggers a CI/CD pipeline, the _creator_ of the
+- When a deploy key is used to push a commit to a [protected branch](../repository/branches/protected.md),
+  the creator of the deploy key must have access to the branch.
+- When a deploy key is used to push a commit that triggers a CI/CD pipeline, the creator of the
   deploy key must have access to the CI/CD resources, including protected environments and secret
   variables.
 
-## Security implications
+### Security implications
 
-The intended use case for deploy keys is for non-human interaction with GitLab, for example: an automated script running on a server in your organization.
+Deploy keys are meant to facilitate non-human interaction with GitLab. For example, you can use a deploy key
+to grant permissions to a script that automatically runs on a server in your organization.
 
-You should create a dedicated account to act as a service account, and create the deploy key with the service account.
-If you use another user account to create deploy keys, the user is granted persistent privileges.
+You should use [a service account](../../profile/service_accounts.md), and create the deploy key with the service account.
+If you use another user account to create deploy keys, that user is granted privileges that persist until the deploy key is revoked.
 
 In addition:
 
 - Deploy keys work even if the user who created them is removed from the group or project.
 - The creator of a deploy key retains access to the group or project, even if the user is demoted or removed.
-- When a deploy key is specified in a protected branch rule, the creator of the deploy key gains access to the protected branch, as well as to the deploy key itself.
+- When a deploy key is specified in a protected branch rule, the creator of the deploy key:
+  - Gains access to the protected branch, as well as to the deploy key itself.
+  - Can push to the protected branch, if the deploy key has read-write permission.
+    This is true even if the branch is protected against changes from all users.
+- Deploy keys are invalidated when the user is blocked or removed from the instance.
 
 As with all sensitive information, you should ensure only those who need access to the secret can read it.
-For human interactions, use credentials tied to users such as Personal Access Tokens.
+For human interactions, use credentials tied to users such as personal access tokens.
 
 To help detect a potential secret leak, you can use the
-[Audit Event](../../compliance/audit_event_schema.md#example-audit-event-payloads-for-git-over-ssh-events-with-deploy-key) feature.
+[audit event](../../compliance/audit_event_schema.md#example-audit-event-payloads-for-git-over-ssh-events-with-deploy-key) feature.
 
 ## View deploy keys
 
@@ -109,7 +114,7 @@ name and permissions. If the deploy key is enabled in more than one project, you
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Prerequisites:
 
@@ -119,8 +124,8 @@ Prerequisites:
 
 To create a public deploy key:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Deploy Keys**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Deploy keys**.
 1. Select **New deploy key**.
 1. Complete the fields.
    - Use a meaningful description for **Name**. For example, include the name of the external host
@@ -188,17 +193,28 @@ What happens to the deploy key when it is disabled depends on the following:
 ### Deploy key cannot push to a protected branch
 
 There are a few scenarios where a deploy key fails to push to a
-[protected branch](../protected_branches.md).
+[protected branch](../repository/branches/protected.md).
 
 - The owner associated to a deploy key does not have [membership](../members/index.md) to the project of the protected branch.
 - The owner associated to a deploy key has [project membership permissions](../../../user/permissions.md#project-members-permissions) lower than required to **View project code**.
 - The deploy key does not have [read-write permissions for the project](#edit-project-access-permissions-of-a-deploy-key).
 - The deploy key has been [revoked](#revoke-project-access-of-a-deploy-key).
-- **No one** is selected in [the **Allowed to push and merge** section](../protected_branches.md#add-protection-to-existing-branches) of the protected branch.
+- **No one** is selected in [the **Allowed to push and merge** section](../repository/branches/protected.md#add-protection-to-existing-branches) of the protected branch.
 
-All deploy keys are associated to an account. Since the permissions for an account can change, this might lead to scenarios where a deploy key that was working is suddenly unable to push to a protected branch.
+This issue occurs because all deploy keys are associated to an account. Because the permissions for an account can change, this might lead to scenarios where a deploy key that was working is suddenly unable to push to a protected branch.
 
-We recommend you create a service account, and associate a deploy key to the service account, for projects using deploy keys.
+To resolve this issue, you can use the deploy keys API to create deploy keys for project service account users, instead of for your own users:
+
+1. [Create a service account user](../../../api/group_service_accounts.md#create-a-service-account-user).
+1. [Create a personal access token](../../../api/user_tokens.md#create-a-personal-access-token) for that service account user. This token must have at least the `api` scope.
+1. [Invite the service account user to the project](../../profile/service_accounts.md#add-to-a-subgroup-or-project).
+1. Use the deploy key API to [create a deploy key for the service account user](../../../api/deploy_keys.md#add-deploy-key):
+
+   ```shell
+   curl --request POST --header "PRIVATE-TOKEN: <service_account_access_token>" --header "Content-Type: application/json" \
+   --data '{"title": "My deploy key", "key": "ssh-rsa AAAA...", "can_push": "true"}' \
+   "https://gitlab.example.com/api/v4/projects/5/deploy_keys/"
+   ```
 
 #### Identify deploy keys associated with non-member and blocked users
 
@@ -233,4 +249,17 @@ DeployKeysProject.with_write_access.find_each do |deploy_key_mapping|
        ", Can push to default branch #{project.repository.root_ref}?: " + (can_push_to_default ? 'YES' : 'NO') +
        ", User: #{username}, User state: #{user_state}"
 end
+```
+
+#### Set the owner of a deploy key
+
+Deploy keys belong to a specific user and are deactivated when the user is blocked or removed from the instance.
+To keep a deploy key working when a user is removed, change its owner to an active user.
+
+If you have the fingerprint of the deploy key, you can change the user associated with a deploy key with the following commands:
+
+```shell
+k = Key.find_by(fingerprint: '5e:51:92:11:27:90:01:b5:83:c3:87:e3:38:82:47:2e')
+k.user_id = User.find_by(username: 'anactiveuser').id
+k.save()
 ```

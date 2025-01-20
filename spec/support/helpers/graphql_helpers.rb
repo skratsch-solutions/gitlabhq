@@ -68,6 +68,7 @@ module GraphqlHelpers
   # TODO: this is too coupled to gem internals, making upgrades incredibly
   #       painful, and bypasses much of the validation of the framework.
   #       See https://gitlab.com/gitlab-org/gitlab/-/issues/363121
+  # rubocop: disable Metrics/ParameterLists -- This was disabled to add `field_opts`, needed for :calls_gitaly
   def resolve(
     resolver_class, # [Class[<= BaseResolver]] The resolver at test.
     obj: nil, # [Any] The BaseObject#object for the resolver (available as `#object` in the resolver).
@@ -76,7 +77,8 @@ module GraphqlHelpers
     schema: GitlabSchema, # [GraphQL::Schema] Schema to use during execution.
     parent: :not_given, # A GraphQL query node to be passed as the `:parent` extra.
     lookahead: :not_given, # A GraphQL lookahead object to be passed as the `:lookahead` extra.
-    arg_style: :internal_prepared # Args are in internal format, but should use more rigorous processing
+    arg_style: :internal_prepared, # Args are in internal format, but should use more rigorous processing,
+    field_opts: {}
   )
     # All resolution goes through fields, so we need to create one here that
     # uses our resolver. Thankfully, apart from the field name, resolvers
@@ -84,7 +86,8 @@ module GraphqlHelpers
     field = ::Types::BaseField.new(
       resolver_class: resolver_class,
       owner: resolver_parent,
-      name: 'field_value'
+      name: 'field_value',
+      calls_gitaly: field_opts[:calls_gitaly]
     )
 
     # All mutations accept a single `:input` argument. Wrap arguments here.
@@ -127,7 +130,6 @@ module GraphqlHelpers
   # NB: Arguments are passed from the client's perspective. If there is an argument
   # `foo` aliased as `bar`, then we would pass `args: { bar: the_value }`, and
   # types are checked before resolution.
-  # rubocop:disable Metrics/ParameterLists
   def resolve_field(
     field,                        # An instance of `BaseField`, or the name of a field on the current described_class
     object,                       # The current object of the `BaseObject` this field 'belongs' to
@@ -140,7 +142,7 @@ module GraphqlHelpers
     arg_style: :internal_prepared, # Args are in internal format, but should use more rigorous processing
     query: nil                     # Query to evaluate the field
   )
-    field = to_base_field(field, object_type)
+    field = to_base_field(field, object_type).ensure_loaded
     ctx[:current_user] = current_user unless current_user == :not_given
     query ||= GraphQL::Query.new(schema, context: ctx.to_h)
     extras[:lookahead] = negative_lookahead if extras[:lookahead] == :not_given && field.extras.include?(:lookahead)
@@ -167,6 +169,13 @@ module GraphqlHelpers
       end
     end
   end
+
+  # create a valid query context object
+  def query_context(user: current_user, request: {})
+    query = GraphQL::Query.new(empty_schema, document: nil, context: {}, variables: {})
+    GraphQL::Query::Context.new(query: query, values: { current_user: user, request: request })
+  end
+
   # rubocop:enable Metrics/ParameterLists
 
   # Pros:
@@ -223,9 +232,11 @@ module GraphqlHelpers
     if ctx.is_a?(Hash)
       q = double('Query', schema: schema, subscription_update?: subscription_update, warden: GraphQL::Schema::Warden::PassThruWarden)
       allow(q).to receive(:after_lazy) { |value, &block| schema.after_lazy(value, &block) }
+
       ctx = GraphQL::Query::Context.new(query: q, values: ctx)
     end
 
+    allow(ctx.query).to receive(:subscription_update?).and_return(subscription_update)
     resolver_class.new(object: obj, context: ctx, field: field)
   end
 
@@ -315,19 +326,20 @@ module GraphqlHelpers
     "{ #{q} }"
   end
 
-  def graphql_mutation(name, input, fields = nil, excluded = [], &block)
+  def graphql_mutation(name, input, fields = nil, excluded = [], operation_name = nil, &block)
     raise ArgumentError, 'Please pass either `fields` parameter or a block to `#graphql_mutation`, but not both.' if fields.present? && block
 
     name = name.graphql_name if name.respond_to?(:graphql_name)
     mutation_name = GraphqlHelpers.fieldnamerize(name)
     input_variable_name = "$#{input_variable_name_for_mutation(name)}"
     mutation_field = GitlabSchema.mutation.fields[mutation_name]
+    operation_name = " #{operation_name}" if operation_name.present?
 
     fields = yield if block
     fields ||= all_graphql_fields_for(mutation_field.type.to_type_signature, excluded: excluded)
 
     query = <<~MUTATION
-      mutation(#{input_variable_name}: #{mutation_field.arguments['input'].type.to_type_signature}) {
+      mutation#{operation_name}(#{input_variable_name}: #{mutation_field.arguments['input'].type.to_type_signature}) {
         #{mutation_name}(input: #{input_variable_name}) {
           #{fields}
         }

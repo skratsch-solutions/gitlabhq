@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 After a failover, it is possible to fail back to the demoted **primary** site to
 restore your original configuration. This process consists of two steps:
@@ -106,10 +106,6 @@ Use-cases:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352530) in GitLab 16.8 [with a flag](../../feature_flags.md) named `geo_skip_download_if_exists`. Disabled by default.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/435788) in GitLab 16.9. Feature flag `geo_skip_download_if_exists` removed.
-
-FLAG:
-On self-managed GitLab, by default this feature is available.
-On GitLab.com and GitLab Dedicated, this feature is not available.
 
 When you add a secondary site which has preexisting file data, then the secondary Geo site will avoid re-transferring that data. This applies to:
 

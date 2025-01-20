@@ -1,4 +1,3 @@
-import { GlToast } from '@gitlab/ui';
 import Vue from 'vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import PerformancePlugin from '~/performance/vue_performance_plugin';
@@ -10,7 +9,6 @@ import RegistryExplorer from './pages/index.vue';
 import createRouter from './router';
 
 Vue.use(Translate);
-Vue.use(GlToast);
 
 Vue.use(PerformancePlugin, {
   components: [
@@ -42,7 +40,7 @@ export default () => {
     connectionError,
     invalidPathError,
     securityConfigurationPath,
-    containerScanningForRegistryDocsPath,
+    vulnerabilityReportPath,
     ...config
   } = el.dataset;
 
@@ -79,7 +77,7 @@ export default () => {
             invalidPathError: parseBoolean(invalidPathError),
             isMetadataDatabaseEnabled: parseBoolean(isMetadataDatabaseEnabled),
             securityConfigurationPath,
-            containerScanningForRegistryDocsPath,
+            vulnerabilityReportPath,
           },
           /* eslint-disable @gitlab/require-i18n-strings */
           dockerBuildCommand: `docker build -t ${config.repositoryUrl} .`,

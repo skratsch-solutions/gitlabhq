@@ -3,7 +3,6 @@
 module Ci
   class JobArtifact < Ci::ApplicationRecord
     include Ci::Partitionable
-    include IgnorableColumns
     include AfterCommitQueue
     include UpdateProjectStatistics
     include UsageStatistics
@@ -15,6 +14,8 @@ module Ci
     include Gitlab::Utils::StrongMemoize
 
     PLAN_LIMIT_PREFIX = 'ci_max_artifact_size_'
+
+    InvalidArtifactError = Class.new(StandardError)
 
     self.table_name = :p_ci_job_artifacts
     self.primary_key = :id
@@ -33,6 +34,12 @@ module Ci
       partition_foreign_key: :partition_id,
       inverse_of: :job_artifacts
 
+    has_one :artifact_report,
+      ->(artifact) { in_partition(artifact) },
+      class_name: 'Ci::JobArtifactReport',
+      partition_foreign_key: :partition_id,
+      inverse_of: :job_artifact
+
     mount_file_store_uploader JobArtifactUploader, skip_store_file: true
     update_project_statistics project_statistics_name: :build_artifacts_size
 
@@ -50,7 +57,7 @@ module Ci
     validate :validate_file_format!, unless: :trace?, on: :create
 
     scope :not_expired, -> { where('expire_at IS NULL OR expire_at > ?', Time.current) }
-    scope :for_sha, ->(sha, project_id) { joins(job: :pipeline).where(ci_pipelines: { sha: sha, project_id: project_id }) }
+    scope :for_sha, ->(sha, project_id) { joins(job: :pipeline).merge(Ci::Pipeline.for_sha(sha).for_project(project_id)) }
     scope :for_job_ids, ->(job_ids) { where(job_id: job_ids) }
     scope :for_job_name, ->(name) { joins(:job).merge(Ci::Build.by_name(name)) }
     scope :created_at_before, ->(time) { where(arel_table[:created_at].lteq(time)) }
@@ -180,9 +187,7 @@ module Ci
 
     def expire_in=(value)
       self.expire_at =
-        if value
-          ::Gitlab::Ci::Build::DurationParser.new(value).seconds_from_now
-        end
+        (::Gitlab::Ci::Build::DurationParser.new(value).seconds_from_now if value)
     end
 
     def stored?
@@ -215,7 +220,8 @@ module Ci
         file_store: file_store,
         store_dir: final_path_store_dir || file.store_dir.to_s,
         file: final_path_filename || file_identifier,
-        pick_up_at: pick_up_at || expire_at || Time.current
+        pick_up_at: set_pick_up_at(pick_up_at),
+        project_id: project_id
       }
     end
 
@@ -233,7 +239,25 @@ module Ci
       none_accessibility?
     end
 
+    def each_blob(&blk)
+      if junit? && artifact_report.nil?
+        build_artifact_report(status: :validated, validation_error: nil, project_id: project_id)
+      end
+
+      super
+    rescue InvalidArtifactError => e
+      artifact_report&.assign_attributes(status: :faulty, validation_error: e.message)
+
+      raise e
+    ensure
+      artifact_report&.save! if persisted?
+    end
+
     private
+
+    def set_pick_up_at(pick_up_at)
+      (pick_up_at || expire_at || Time.current).clamp(1.day.ago, 1.hour.from_now)
+    end
 
     def store_file_in_transaction!
       store_file_now! if saved_change_to_file?
@@ -248,12 +272,10 @@ module Ci
     end
 
     # method overridden in EE
-    def file_stored_after_transaction_hooks
-    end
+    def file_stored_after_transaction_hooks; end
 
     # method overridden in EE
-    def file_stored_in_transaction_hooks
-    end
+    def file_stored_in_transaction_hooks; end
 
     def set_size
       self.size = file.size

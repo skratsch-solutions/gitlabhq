@@ -2,7 +2,7 @@
 
 module QA
   RSpec.describe 'Data Stores' do
-    describe 'Invite group', :blocking, product_group: :tenant_scale, quarantine: {
+    describe 'Invite group', product_group: :tenant_scale, quarantine: {
       type: :bug,
       issue: "https://gitlab.com/gitlab-org/gitlab/-/issues/436950",
       only: { pipeline: %i[canary production] }
@@ -30,9 +30,7 @@ module QA
         end
       end
 
-      let(:user) do
-        Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
-      end
+      let(:user) { Runtime::User::Store.additional_test_user }
 
       before do
         Flow::Login.sign_in
@@ -49,12 +47,7 @@ module QA
             :private,
             name: 'personal-namespace-project',
             description: 'test personal namespace project',
-            personal_namespace: Runtime::User.username)
-        end
-
-        after do
-          project.remove_via_api!
-          group.remove_via_api!
+            personal_namespace: Runtime::User::Store.test_user.username)
         end
 
         it_behaves_like 'invites group to project'
@@ -62,13 +55,7 @@ module QA
 
       context 'with a group project', testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/349340' do
         let(:group) { create(:group, path: "group-for-group-project-#{SecureRandom.hex(8)}") }
-
         let(:project) { create(:project, :private, name: 'group-project', description: 'test group project') }
-
-        after do
-          project.remove_via_api!
-          group.remove_via_api!
-        end
 
         it_behaves_like 'invites group to project'
       end

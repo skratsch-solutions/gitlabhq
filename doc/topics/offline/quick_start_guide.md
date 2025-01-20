@@ -4,13 +4,13 @@ group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Install an offline self-managed GitLab instance
+# Install an offline GitLab Self-Managed instance
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-This is a step-by-step guide that helps you install, configure, and use a self-managed GitLab
+This is a step-by-step guide that helps you install, configure, and use a GitLab Self-Managed
 instance entirely offline.
 
 ## Installation
@@ -25,7 +25,7 @@ For a video walkthrough of this process, see [Offline GitLab Installation: Downl
 
 ### Download the GitLab package
 
-You should [manually download the GitLab package](../../update/package/index.md#upgrade-using-a-manually-downloaded-package) and relevant dependencies using a server of the same operating system type that has access to the Internet.
+You should [manually download the GitLab package](../../update/package/index.md#by-using-a-downloaded-package) and relevant dependencies using a server of the same operating system type that has access to the Internet.
 
 If your offline environment has no local network access, you must manually transport the relevant package through physical media, such as a USB drive.
 
@@ -58,7 +58,7 @@ sudo cd /path/to/mount
 sudo dpkg -i <package_name>.deb
 ```
 
-[Use the relevant commands for your operating system to install the package](../../update/package/index.md#upgrade-using-a-manually-downloaded-package) but make sure to specify an `http`
+[Use the relevant commands for your operating system to install the package](../../update/package/index.md#by-using-a-downloaded-package) but make sure to specify an `http`
 URL for the `EXTERNAL_URL` installation step. Once installed, we can manually
 configure the SSL ourselves.
 
@@ -124,7 +124,7 @@ Follow these steps to enable the container registry. These steps reflect those f
 ## Allow the Docker daemon to trust the registry and GitLab Runner
 
 Provide your Docker daemon with your certs by
-[following the steps for using trusted certificates with your registry](../../administration/packages/container_registry.md#using-self-signed-certificates-with-container-registry):
+[following the steps for using trusted certificates with your registry](../../administration/packages/container_registry_troubleshooting.md#using-self-signed-certificates-with-container-registry):
 
 ```shell
 sudo mkdir -p /etc/docker/certs.d/my-host.internal:5000
@@ -382,9 +382,9 @@ The directory for package metadata changed with the release of 16.2 from `vendor
 1. Update any automation scripts or commands saved to change `vendor/package_metadata_db` to `vendor/package_metadata/licenses`.
 1. Update any cron entries to change `vendor/package_metadata_db` to `vendor/package_metadata/licenses`.
 
-    ```shell
-    sed -i '.bckup' -e 's#vendor/package_metadata_db#vendor/package_metadata/licenses#g' [FILE ...]
-    ```
+   ```shell
+   sed -i '.bckup' -e 's#vendor/package_metadata_db#vendor/package_metadata/licenses#g' [FILE ...]
+   ```
 
 ### Troubleshooting
 

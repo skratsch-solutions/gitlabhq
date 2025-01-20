@@ -6,10 +6,8 @@ product_group: code_review
 value_type: number
 status: active
 milestone: "13.12"
-distribution:
-  - ce
-  - ee
-tier:
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/51201
+tiers:
   - free
   - premium
   - ultimate

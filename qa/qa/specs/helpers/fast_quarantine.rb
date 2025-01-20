@@ -8,6 +8,7 @@ module QA
 
         class << self
           def configure!
+            return if Runtime::Env.dry_run
             return unless ENV["CI"]
             return if ENV["FAST_QUARANTINE"] == "false"
             return if ENV["CI_MERGE_REQUEST_LABELS"]&.include?("pipeline:run-flaky-tests")
@@ -26,6 +27,7 @@ module QA
         def initialize
           @logger = Runtime::Logger.logger
           @fq_filename = "fast_quarantine-gitlab.txt"
+          @fq_download_filename = ENV['RSPEC_FAST_QUARANTINE_FILE'] || @fq_filename
         end
 
         # Fetch and save fast quarantine file
@@ -45,7 +47,7 @@ module QA
 
         private
 
-        attr_reader :logger, :fq_filename
+        attr_reader :logger, :fq_filename, :fq_download_filename
 
         # Force path to be relative to ruby process in order to avoid issues when dealing with different execution
         #   contexts of qa docker container and CI runner environment
@@ -56,7 +58,7 @@ module QA
         def download_fast_quarantine
           logger.debug("  downloading fast quarantine file")
           response = get(
-            "https://gitlab-org.gitlab.io/quality/engineering-productivity/fast-quarantine/rspec/#{fq_filename}",
+            "https://gitlab-org.gitlab.io/quality/engineering-productivity/fast-quarantine/rspec/#{fq_download_filename}",
             verify_ssl: true
           )
           raise "Failed to download fast quarantine file: #{response.code}" if response.code != HTTP_STATUS_OK

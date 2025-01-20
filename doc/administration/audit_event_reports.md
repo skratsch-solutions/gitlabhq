@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -13,12 +13,12 @@ features.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can view audit events from user actions across an entire GitLab instance.
 To view instance audit events:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Monitoring > Audit events**.
 1. Filter by the following:
    - Member of the project (user) who performed the action
@@ -32,14 +32,14 @@ Instance audit events can also be accessed using the [instance audit events API]
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - Entity type `Gitlab::Audit::InstanceScope` for instance audit events [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/418185) in GitLab 16.2.
 
 You can export the current view (including filters) of your instance audit events as a
 CSV(comma-separated values) file. To export the instance audit events to CSV:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Monitoring > Audit events**.
 1. Select the available search filters.
 1. Select **Export as CSV**.
@@ -79,14 +79,14 @@ All items are sorted by `created_at` in ascending order.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 When a user is [impersonated](../administration/admin_area.md#user-impersonation), their actions are logged as audit events with the following additional details:
 
 - Audit events include information about the impersonating administrator.
 - Extra audit events are recorded for the start and end of the administrator's impersonation session.
 
-![Audit event with impersonated user](img/impersonated_audit_events_v15_7.png)
+![An audit event with an impersonated user.](img/impersonated_audit_events_v15_7.png)
 
 ## Time zones
 

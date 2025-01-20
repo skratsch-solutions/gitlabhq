@@ -9,7 +9,7 @@ description: "Use commit message templates to ensure commits to your GitLab proj
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab uses commit templates to create default messages for specific types of
 commits. These templates encourage commit messages to follow a particular format,
@@ -18,6 +18,9 @@ a merge request.
 
 The commit template syntax is like the syntax for
 [review suggestions](reviews/suggestions.md#configure-the-commit-message-for-applied-suggestions).
+
+GitLab Duo can also help you generate [merge commit messages](duo_in_merge_requests.md#generate-a-merge-commit-message)
+even if you don't configure templates.
 
 ## Configure commit templates
 
@@ -69,6 +72,7 @@ GitLab creates a squash commit message with this template:
 > - `reviewed_by` variable [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/378352) in GitLab 15.7.
 > - `local_reference` variable [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/199823) in GitLab 16.1.
 > - `source_project_id` variables [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/128553) in GitLab 16.3.
+> - `merge_request_author` variable [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/152510) in GitLab 17.1.
 
 Commit message templates support these variables:
 
@@ -85,9 +89,10 @@ Commit message templates support these variables:
 | `%{first_commit}`  | Full message of the first commit in merge request diff. | `Update README.md` |
 | `%{first_multiline_commit}` | Full message of the first commit that's not a merge commit and has more than one line in message body. Merge request title if all commits aren't multiline. | `Update README.md`<br><br>`Improved project description in readme file.` |
 | `%{url}`           | Full URL to the merge request. | `https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1` |
-| `%{reviewed_by}`   | Line-separated list of the merge request reviewers, based on users who submit a review via batch comments, in a `Reviewed-by` Git commit trailer format. | `Reviewed-by: Sidney Jones <sjones@example.com>` <br> `Reviewed-by: Zhang Wei <zwei@example.com>` |
+| `%{reviewed_by}`   | Line-separated list of the merge request reviewers, based on users who submit a review by using batch comments, in a `Reviewed-by` Git commit trailer format. | `Reviewed-by: Sidney Jones <sjones@example.com>` <br> `Reviewed-by: Zhang Wei <zwei@example.com>` |
 | `%{approved_by}`   | Line-separated list of the merge request approvers in a `Approved-by` Git commit trailer format. | `Approved-by: Sidney Jones <sjones@example.com>` <br> `Approved-by: Zhang Wei <zwei@example.com>` |
 | `%{merged_by}`     | User who merged the merge request. | `Alex Garcia <agarcia@example.com>` |
+| `%{merge_request_author}` | Name and email of the merge request author. | `Zane Doe <zdoe@example.com>` |
 | `%{co_authored_by}` | Names and emails of commit authors in a `Co-authored-by` Git commit trailer format. Limited to authors of 100 most recent commits in merge request. | `Co-authored-by: Zane Doe <zdoe@example.com>` <br> `Co-authored-by: Blake Smith <bsmith@example.com>` |
 | `%{all_commits}`   | Messages from all commits in the merge request. Limited to 100 most recent commits. Skips commit bodies exceeding 100 KiB and merge commit messages. | `* Feature introduced` <br><br> `This commit implements feature` <br> `Changelog:added` <br><br> `* Bug fixed` <br><br> `* Documentation improved` <br><br>`This commit introduced better docs.`|
 

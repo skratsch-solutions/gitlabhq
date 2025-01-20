@@ -167,19 +167,58 @@ export const EXTENSION_ICON_NAMES = {
 };
 
 export const EXTENSION_ICON_CLASS = {
-  failed: 'gl-text-red-500',
-  warning: 'gl-text-orange-500',
-  success: 'gl-text-green-500',
-  neutral: 'gl-text-gray-400',
-  error: 'gl-text-red-500',
-  notice: 'gl-text-gray-500',
-  scheduled: 'gl-text-blue-500',
-  severityCritical: 'gl-text-red-800',
-  severityHigh: 'gl-text-red-600',
-  severityMedium: 'gl-text-orange-400',
-  severityLow: 'gl-text-orange-300',
-  severityInfo: 'gl-text-blue-400',
-  severityUnknown: 'gl-text-gray-400',
+  failed: {
+    backgroundClass: 'gl-bg-status-danger',
+    iconClass: 'gl-fill-status-danger',
+  },
+  warning: {
+    backgroundClass: 'gl-bg-status-warning',
+    iconClass: 'gl-fill-status-warning',
+  },
+  success: {
+    backgroundClass: 'gl-bg-status-success',
+    iconClass: 'gl-fill-status-success',
+  },
+  neutral: {
+    backgroundClass: 'gl-bg-status-neutral',
+    iconClass: 'gl-fill-status-neutral',
+  },
+  error: {
+    backgroundClass: 'gl-bg-status-danger',
+    iconClass: 'gl-fill-status-danger',
+  },
+  notice: {
+    backgroundClass: 'gl-bg-status-neutral',
+    iconClass: 'gl-fill-status-neutral',
+  },
+  scheduled: {
+    backgroundClass: 'gl-bg-status-info',
+    iconClass: 'gl-fill-status-info',
+  },
+  severityCritical: {
+    backgroundClass: 'gl-bg-red-100',
+    iconClass: 'gl-fill-red-800',
+  },
+  severityHigh: {
+    backgroundClass: 'gl-bg-red-100',
+    iconClass: 'gl-fill-red-600',
+  },
+  severityMedium: {
+    backgroundClass: 'gl-bg-orange-100',
+    iconClass: 'gl-fill-orange-400',
+  },
+  severityLow: {
+    backgroundClass: 'gl-bg-orange-100',
+    iconClass: 'gl-fill-orange-300',
+  },
+  severityInfo: {
+    backgroundClass: 'gl-bg-status-info',
+    iconClass: 'gl-fill-status-info',
+  },
+  severityUnknown: {
+    backgroundClass: 'gl-bg-status-neutral',
+    iconClass: 'gl-fill-status-neutral',
+  },
 };
 
 export const VIEW_MERGE_REQUEST_WIDGET = 'view_merge_request_widget';
@@ -212,3 +251,30 @@ export const DETAILED_MERGE_STATUS = {
 
 export const MT_SKIP_TRAIN = 'skip';
 export const MT_RESTART_TRAIN = 'restart';
+
+// Pipeline event type names
+
+export const PIPELINE_EVENT_TYPE_MERGE_TRAIN = 'Merge train pipeline';
+export const PIPELINE_EVENT_TYPE_MERGED_RESULT = 'Merged results pipeline';
+export const PIPELINE_EVENT_TYPE_MERGE_REQUEST = 'Merge request pipeline';
+
+export const PIPELINE_EVENT_TYPE_MAP = {
+  [PIPELINE_EVENT_TYPE_MERGE_TRAIN]: {
+    title: s__('Pipeline|What is a merge train pipeline?'),
+    content: s__(
+      'Pipeline|Merge train pipeline runs on the contents of the merge request combined with the contents of all other merge requests queued for merging into the target branch.',
+    ),
+  },
+  [PIPELINE_EVENT_TYPE_MERGED_RESULT]: {
+    title: s__('Pipeline|What is a merged results pipeline?'),
+    content: s__(
+      'Pipeline|Merged results pipeline runs on the contents of the merge request combined with the contents of the target branch.',
+    ),
+  },
+  [PIPELINE_EVENT_TYPE_MERGE_REQUEST]: {
+    title: s__('Pipeline|What is a merge request pipeline?'),
+    content: s__(
+      "Pipeline|Merge request pipeline runs on the contents of the merge request's source branch, not the target branch.",
+    ),
+  },
+};

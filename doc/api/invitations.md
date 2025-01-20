@@ -1,6 +1,6 @@
 ---
-stage: Growth
-group: Acquisition
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the Invitations API to invite or add users to a group or project, and to list pending
 invitations.
@@ -21,6 +21,7 @@ levels are defined in the `Gitlab::Access` module. Currently, these levels are v
 - No access (`0`)
 - Minimal access (`5`)
 - Guest (`10`)
+- Planner (`15`)
 - Reporter (`20`)
 - Developer (`30`)
 - Maintainer (`40`)
@@ -37,7 +38,7 @@ POST /projects/:id/invitations
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-paths) |
 | `email` | string | yes (if `user_id` isn't provided) | The email of the new member or multiple emails separated by commas. |
 | `user_id`   | integer/string | yes (if `email` isn't provided) | The ID of the new member or multiple IDs separated by commas. |
 | `access_level` | integer | yes | A valid access level |
@@ -73,6 +74,23 @@ When there was any error sending the email:
 }
 ```
 
+NOTE:
+If [administrator approval for role promotions](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions) is turned on, membership requests that promote existing users into a billable role require administrator approval.
+
+To enable **Manage non-billable promotions**,
+you must first enable the `enable_member_promotion_management` application setting.
+
+Example response:
+
+```json
+{
+  "queued_users": {
+    "username_1": "Request queued for administrator approval."
+  },
+  "status": "success"
+}
+```
+
 ## List all invitations pending for a group or project
 
 Gets a list of invited group or project members viewable by the authenticated user.
@@ -87,7 +105,7 @@ GET /projects/:id/invitations
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-paths) |
 | `page`    | integer | no   | Page to retrieve                      |
 | `per_page`| integer | no   | Number of member invitations to return per page |
 | `query`   | string  | no   | A query string to search for invited members by invite email. Query text must match email address exactly. When empty, returns all invitations. |
@@ -124,7 +142,7 @@ PUT /projects/:id/invitations/:email
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-paths). |
 | `email`   | string | yes    | The email address the invitation was previously sent to. |
 | `access_level` | integer | no | A valid access level (defaults: `30`, the Developer role). |
 | `expires_at` | string | no | A date string in ISO 8601 format (`YYYY-MM-DDTHH:MM:SSZ`). |
@@ -154,7 +172,7 @@ DELETE /projects/:id/invitations/:email
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the project or group](rest/index.md#namespaced-paths) |
 | `email`   | string | yes    | The email address to which the invitation was previously sent |
 
 ```shell

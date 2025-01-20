@@ -3,7 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Members::DestroyService, feature_category: :groups_and_projects do
-  let(:current_user) { create(:user) }
+  let_it_be(:current_user) { create(:user) }
+
   let(:member_user) { create(:user) }
   let(:group) { create(:group, :public) }
   let(:group_project) { create(:project, :public, group: group) }
@@ -49,6 +50,20 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
 
       described_class.new(current_user).execute(member, **opts)
     end
+
+    it 'triggers members destroyed event' do
+      expect(Gitlab::EventStore)
+        .to receive(:publish)
+        .with(an_instance_of(Members::DestroyedEvent))
+        .and_call_original
+
+      described_class.new(current_user).execute(member, **opts)
+    end
+
+    it 'does not remove user from organization' do
+      expect { described_class.new(current_user).execute(member, **opts) }
+        .not_to change { member.source.organization.organization_users.count }
+    end
   end
 
   shared_examples 'a service destroying a member with access' do
@@ -88,10 +103,12 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
   shared_examples 'a service destroying an access request of another user' do
     it_behaves_like 'a service destroying a member'
 
-    it 'calls Member#after_decline_request' do
-      expect_any_instance_of(NotificationService).to receive(:decline_access_request).with(member)
+    it 'calls the access denied mailer' do
+      allow(Members::AccessDeniedMailer).to receive(:email).with(member: member).and_call_original
 
-      described_class.new(current_user).execute(member, **opts)
+      expect do
+        described_class.new(current_user).execute(member, **opts)
+      end.to have_enqueued_mail(Members::AccessDeniedMailer, :email)
     end
   end
 
@@ -99,10 +116,10 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
     it_behaves_like 'a service destroying a member'
 
     context 'when current user is the member' do
-      it 'does not call Member#after_decline_request' do
-        expect_any_instance_of(NotificationService).not_to receive(:decline_access_request).with(member)
-
-        described_class.new(current_user).execute(member, **opts)
+      it 'does not call the access denied mailer' do
+        expect do
+          described_class.new(current_user).execute(member, **opts)
+        end.not_to have_enqueued_mail(Members::AccessDeniedMailer, :email)
       end
     end
   end
@@ -163,19 +180,12 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
           # We need to account for other places involved in the Member deletion process that
           # uses ExclusiveLease.
 
-          # 1. `UpdateHighestRole` concern uses locks to peform work
+          # `UpdateHighestRole` concern uses locks to peform work
           # whenever a Member is committed, so that needs to be accounted for.
           lock_key_for_update_highest_role = "update_highest_role:#{member_to_delete.user_id}"
 
           expect(Gitlab::ExclusiveLease)
             .to receive(:new).with(lock_key_for_update_highest_role, timeout: 10.minutes.to_i).and_call_original
-
-          # 2. `Users::RefreshAuthorizedProjectsService` also uses locks to perform work,
-          # whenever a user's authorizations has to be refreshed, so that needs to be accounted for as well.
-          lock_key_for_authorizations_refresh = "refresh_authorized_projects:#{member_to_delete.user_id}"
-
-          expect(Gitlab::ExclusiveLease)
-            .to receive(:new).with(lock_key_for_authorizations_refresh, timeout: 1.minute.to_i).and_call_original
 
           # We do not use any locks for the member deletion process, from within this service.
           expect(Gitlab::ExclusiveLease)
@@ -192,30 +202,47 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
 
     context 'for project members' do
       shared_examples_for 'deletes the project member without using a lock' do
-        it 'does not try to perform the deletion of a project member within a lock' do
+        let(:lock_key_for_update_highest_role) { "update_highest_role:#{member_to_delete.user_id}" }
+        let(:lock_key_for_authorizations_refresh) { "authorized_project_update/project_recalculate_worker/projects/#{member_to_delete.project.id}" }
+
+        it 'does not try to perform the deletion of a project member within a lock', :aggregate_failures do
           # We need to account for other places involved in the Member deletion process that
           # uses ExclusiveLease.
 
           # 1. `UpdateHighestRole` concern uses locks to peform work
           # whenever a Member is committed, so that needs to be accounted for.
-          lock_key_for_update_highest_role = "update_highest_role:#{member_to_delete.user_id}"
-
           expect(Gitlab::ExclusiveLease)
             .to receive(:new).with(lock_key_for_update_highest_role, timeout: 10.minutes.to_i).and_call_original
 
-          # 2. `AuthorizedProjectUpdate::ProjectRecalculatePerUserWorker` also uses locks to perform work,
-          # whenever a user's authorizations has to be refreshed, so that needs to be accounted for as well.
-          lock_key_for_authorizations_refresh =
-            "authorized_project_update/project_recalculate_worker/projects/#{member_to_delete.project.id}"
-
+          # 2. `AuthorizedProjectUpdate::ProjectRecalculatePerUserWorker` does not use a lock to refresh
+          # a user's authorizations has to be refreshed
           expect(Gitlab::ExclusiveLease)
-            .to receive(:new).with(lock_key_for_authorizations_refresh, timeout: 10.seconds).and_call_original
+            .not_to receive(:new).with(lock_key_for_authorizations_refresh, timeout: 10.seconds)
 
           # We do not use any locks for the member deletion process, from within this service.
           expect(Gitlab::ExclusiveLease)
             .not_to receive(:new).with(lock_key, timeout: timeout)
 
           destroy_member
+        end
+
+        context 'when feature-flag `drop_lease_usage_project_recalculate_workers` is disabled' do
+          before do
+            stub_feature_flags(drop_lease_usage_project_recalculate_workers: false)
+          end
+
+          it 'refreshes user authorizations using a lock', :aggregate_failures do
+            expect(Gitlab::ExclusiveLease)
+            .to receive(:new).with(lock_key_for_update_highest_role, timeout: 10.minutes.to_i).and_call_original
+
+            expect(Gitlab::ExclusiveLease)
+              .to receive(:new).with(lock_key_for_authorizations_refresh, timeout: 10.seconds).and_call_original
+
+            expect(Gitlab::ExclusiveLease)
+              .not_to receive(:new).with(lock_key, timeout: timeout)
+
+            destroy_member
+          end
         end
 
         it 'destroys the membership' do
@@ -746,5 +773,23 @@ RSpec.describe Members::DestroyService, feature_category: :groups_and_projects d
 
       expect(service.send(:recursive_call?)).to eq(true)
     end
+  end
+
+  context 'when member leaves their last group' do
+    let_it_be(:group) { create(:group).tap { |g| g.add_owner(current_user) } }
+    let(:member) { group.add_owner(member_user) }
+
+    specify { expect(member.user.groups.count).to eq(1) }
+
+    it_behaves_like 'a service destroying a member'
+  end
+
+  context 'when member leaves their last project' do
+    let_it_be(:project) { create(:project).tap { |g| g.add_owner(current_user) } }
+    let(:member) { project.add_owner(member_user) }
+
+    specify { expect(member.user.projects.count).to eq(1) }
+
+    it_behaves_like 'a service destroying a member'
   end
 end

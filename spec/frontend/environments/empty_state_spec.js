@@ -1,5 +1,6 @@
-import { mountExtended } from 'helpers/vue_test_utils_helper';
-import { s__ } from '~/locale';
+import { GlEmptyState, GlLink, GlSprintf } from '@gitlab/ui';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
+import EmptyResult from '~/vue_shared/components/empty_result.vue';
 import EmptyState from '~/environments/components/empty_state.vue';
 import { ENVIRONMENTS_SCOPE } from '~/environments/constants';
 
@@ -9,29 +10,20 @@ const NEW_PATH = '/new';
 describe('~/environments/components/empty_state.vue', () => {
   let wrapper;
 
-  const findNewEnvironmentLink = () =>
-    wrapper.findByRole('link', {
-      name: s__('Environments|Create an environment'),
-    });
-
-  const findDocsLink = () =>
-    wrapper.findByRole('link', {
-      name: 'Learn more',
-    });
-
-  const finfEnablingReviewButton = () =>
-    wrapper.findByRole('button', {
-      name: s__('Environments|Enable review apps'),
-    });
+  const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findDocsLink = () => wrapper.findComponent(GlLink);
+  const findNewEnvironmentButton = () => wrapper.findByTestId('new-environment-button');
+  const findEnablingReviewButton = () => wrapper.findByTestId('enable-review-button');
 
   const createWrapper = ({ propsData = {} } = {}) =>
-    mountExtended(EmptyState, {
+    shallowMountExtended(EmptyState, {
       propsData: {
         scope: ENVIRONMENTS_SCOPE.AVAILABLE,
         helpPath: HELP_PATH,
         ...propsData,
       },
       provide: { newEnvironmentPath: NEW_PATH },
+      stubs: { GlSprintf },
     });
 
   describe('without search term', () => {
@@ -39,36 +31,24 @@ describe('~/environments/components/empty_state.vue', () => {
       wrapper = createWrapper();
     });
 
-    it('shows an empty state environments', () => {
-      const title = wrapper.findByRole('heading', {
-        name: s__('Environments|Get started with environments'),
-      });
-
-      expect(title.exists()).toBe(true);
+    it('shows an empty state environments with the correct title', () => {
+      expect(findEmptyState().props('title')).toBe('Get started with environments');
     });
 
     it('shows a link to the the help path', () => {
-      const link = findDocsLink();
-
-      expect(link.attributes('href')).toBe(HELP_PATH);
+      expect(findDocsLink().attributes('href')).toBe(HELP_PATH);
     });
 
-    it('shows a link to creating a new environment', () => {
-      const link = findNewEnvironmentLink();
-
-      expect(link.attributes('href')).toBe(NEW_PATH);
+    it('shows a button to create a new environment', () => {
+      expect(findNewEnvironmentButton().attributes('href')).toBe(NEW_PATH);
     });
 
     it('shows a button to enable review apps', () => {
-      const button = finfEnablingReviewButton();
-
-      expect(button.exists()).toBe(true);
+      expect(findEnablingReviewButton().exists()).toBe(true);
     });
 
-    it('should emit enable review', () => {
-      const button = finfEnablingReviewButton();
-
-      button.vm.$emit('click');
+    it('emits enable review event', () => {
+      findEnablingReviewButton().vm.$emit('click');
 
       expect(wrapper.emitted('enable-review')).toBeDefined();
     });
@@ -79,34 +59,20 @@ describe('~/environments/components/empty_state.vue', () => {
       wrapper = createWrapper({ propsData: { hasTerm: true } });
     });
 
-    it('should show text about searching', () => {
-      const header = wrapper.findByRole('heading', {
-        name: s__('Environments|No results found'),
-      });
-
-      expect(header.exists()).toBe(true);
-
-      const text = wrapper.findByText(s__('Environments|Edit your search and try again'));
-
-      expect(text.exists()).toBe(true);
+    it('should show EmptyResult component', () => {
+      expect(wrapper.findComponent(EmptyResult).exists()).toBe(true);
     });
 
     it('hides the documentation link', () => {
-      const link = findDocsLink();
-
-      expect(link.exists()).toBe(false);
+      expect(findDocsLink().exists()).toBe(false);
     });
 
-    it('hide a link to create a new environment', () => {
-      const link = findNewEnvironmentLink();
-
-      expect(link.exists()).toBe(false);
+    it('hides a button to create a new environment', () => {
+      expect(findNewEnvironmentButton().exists()).toBe(false);
     });
 
-    it('hide a button to enable review apps', () => {
-      const button = finfEnablingReviewButton();
-
-      expect(button.exists()).toBe(false);
+    it('hides a button to enable review apps', () => {
+      expect(findEnablingReviewButton().exists()).toBe(false);
     });
   });
 });

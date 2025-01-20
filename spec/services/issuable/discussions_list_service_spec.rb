@@ -6,9 +6,9 @@ RSpec.describe Issuable::DiscussionsListService, feature_category: :team_plannin
   let_it_be(:current_user) { create(:user) }
   let_it_be(:group) { create(:group, :private) }
   let_it_be(:project) { create(:project, :repository, :private, group: group) }
-  let_it_be(:milestone) { create(:milestone, project: project) }
-  let_it_be(:label) { create(:label, project: project) }
-  let_it_be(:label_2) { create(:label, project: project) }
+  let_it_be(:milestone) { create(:milestone, group: group) }
+  let_it_be(:label) { create(:group_label, group: group) }
+  let_it_be(:label_2) { create(:group_label, group: group) }
 
   let(:finder_params_for_issuable) { {} }
 
@@ -17,7 +17,9 @@ RSpec.describe Issuable::DiscussionsListService, feature_category: :team_plannin
   describe 'fetching notes for issue' do
     let_it_be(:issuable) { create(:issue, project: project) }
 
-    it_behaves_like 'listing issuable discussions', user_role: :guest, internal_discussions: 1, total_discussions: 7
+    context 'when qurantined shared example', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/446157' do
+      it_behaves_like 'listing issuable discussions', user_role: :guest, internal_discussions: 1, total_discussions: 7
+    end
 
     context 'without notes widget' do
       let_it_be(:issuable) { create(:work_item, project: project) }
@@ -30,17 +32,14 @@ RSpec.describe Issuable::DiscussionsListService, feature_category: :team_plannin
         expect(discussions_service.execute).to be_empty
       end
     end
-
-    context 'when issue exists at the group level' do
-      let_it_be(:issuable) { create(:issue, :group_level, namespace: group) }
-
-      it_behaves_like 'listing issuable discussions', user_role: :guest, internal_discussions: 1, total_discussions: 7
-    end
   end
 
   describe 'fetching notes for merge requests' do
     let_it_be(:issuable) { create(:merge_request, source_project: project, target_project: project) }
 
-    it_behaves_like 'listing issuable discussions', user_role: :reporter, internal_discussions: 0, total_discussions: 6
+    context 'when qurantined shared example', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/446156' do
+      it_behaves_like 'listing issuable discussions',
+        user_role: :reporter, internal_discussions: 0, total_discussions: 6
+    end
   end
 end

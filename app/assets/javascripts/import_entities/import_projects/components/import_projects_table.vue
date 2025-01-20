@@ -65,7 +65,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['filter', 'repositories', 'defaultTargetNamespace', 'pageInfo', 'isLoadingRepos']),
+    ...mapState(['filter', 'repositories', 'pageInfo', 'isLoadingRepos']),
     ...mapGetters([
       'isImportingAnyRepo',
       'importingRepoCount',
@@ -132,14 +132,14 @@ export default {
 
 <template>
   <div>
-    <p class="gl-text-gray-900 gl-whitespace-nowrap gl-mt-3">
+    <p class="gl-mt-3 gl-whitespace-nowrap gl-text-default">
       {{ s__('ImportProjects|Select the repositories you want to import') }}
     </p>
     <template v-if="hasIncompatibleRepos">
       <slot name="incompatible-repos-warning"></slot>
     </template>
     <slot name="filter" v-bind="{ showImportAllModal, importAllButtonText }">
-      <div class="gl-display-flex gl-justify-content-space-between gl-flex-wrap gl-mb-5">
+      <div class="gl-mb-5 gl-flex gl-flex-wrap gl-justify-between">
         <gl-button
           variant="confirm"
           :loading="isImportingAnyRepo"
@@ -204,7 +204,6 @@ export default {
             <provider-repo-table-row
               :key="repo.importSource.providerLink"
               :repo="repo"
-              :user-namespace="defaultTargetNamespace"
               :optional-stages="optionalStagesSelection"
               :cancelable="cancelable"
             />

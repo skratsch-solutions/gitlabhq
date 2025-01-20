@@ -8,7 +8,7 @@
 
     .external-url,
     .dropdown-new {
-      color: var(--gray-500, $gray-500);
+      @apply gl-text-subtle;
     }
 
     .build-link,
@@ -18,14 +18,14 @@
 
     .folder-icon {
       margin-right: 3px;
-      color: var(--gray-500, $gray-500);
+      @apply gl-fill-icon-subtle;
       display: inline-block;
       vertical-align: text-top;
     }
 
     .folder-name {
       cursor: pointer;
-      color: var(--gray-500, $gray-500);
+      @apply gl-text-subtle;
       display: inline-block;
     }
 
@@ -34,20 +34,13 @@
       text-align: center;
     }
 
-    .no-btn {
-      border: 0;
-      background: none;
-      outline: none;
-      width: 100%;
-      text-align: left;
-    }
-
     .environment-child-row {
       padding-left: 20px;
     }
   }
 }
 
+// stylelint-disable-next-line gitlab/no-gl-class
 .gl-responsive-table-row {
   .branch-commit {
     max-width: 100%;
@@ -86,47 +79,6 @@
   line {
     stroke: var(--gray-300, $gray-300);
     stroke-width: 1;
-  }
-}
-
-.metric-area {
-  opacity: 0.25;
-}
-
-.rect-text-metric {
-  fill: var(--white, $white);
-  stroke-width: 1;
-  stroke: var(--gray-600, $gray-600);
-}
-
-.rect-axis-text {
-  fill: var(--white, $white);
-}
-
-.text-metric {
-  font-size: 12px;
-}
-
-.selected-metric-line {
-  stroke: var(--gray-900, $gray-900);
-  stroke-width: 1;
-}
-
-.deployment-line {
-  stroke: var(--white, $white);
-  stroke-width: 1;
-}
-
-.divider-line {
-  stroke-width: 1;
-  stroke: var(--gray-600, $gray-600);
-}
-
-.environments-actions {
-  .external-url,
-  .monitoring-url,
-  .terminal-button {
-    width: 38px;
   }
 }
 
@@ -171,16 +123,6 @@
       align-self: center;
       min-width: 150px;
       margin-left: 10px;
-    }
-
-    &.deploy-board-error-message {
-      justify-content: center;
-    }
-
-    .deploy-board-empty-state-svg {
-      order: 1;
-      width: 90px;
-      margin: auto 0 auto 20px;
     }
 
     .deploy-board-empty-state-text {

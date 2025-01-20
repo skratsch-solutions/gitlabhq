@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 System hooks (not to be confused with [server hooks](server_hooks.md) or [file hooks](file_hooks.md)) perform HTTP POST
 requests and are triggered on the following events:
@@ -24,6 +24,10 @@ requests and are triggered on the following events:
 - `project_transfer`
 - `project_update`
 - `repository_update`
+- `user_access_request_revoked_for_group`
+- `user_access_request_revoked_for_project`
+- `user_access_request_to_group`
+- `user_access_request_to_project`
 - `user_add_to_group`
 - `user_add_to_team`
 - `user_create`
@@ -58,8 +62,8 @@ For push and tag events, the same structure and deprecations are followed as [pr
 
 To create a system hook:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **System Hooks**.
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **System hooks**.
 1. Select **Add new webhook**.
 1. In **URL**, enter the URL of the webhook endpoint.
    The URL must be percent-encoded if it contains one or more special characters.
@@ -88,20 +92,21 @@ X-Gitlab-Event: System Hook
 
 ```json
 {
-          "created_at": "2012-07-21T07:30:54Z",
-          "updated_at": "2012-07-21T07:38:22Z",
-          "event_name": "project_create",
-                "name": "StoreCloud",
-         "owner_email": "johnsmith@example.com",
-          "owner_name": "John Smith",
-              "owners": [{
-                         "name": "John",
-                         "email": "user1@example.com"
-                        }],
-                "path": "storecloud",
- "path_with_namespace": "jsmith/storecloud",
-          "project_id": 74,
-  "project_visibility": "private"
+            "created_at": "2012-07-21T07:30:54Z",
+            "updated_at": "2012-07-21T07:38:22Z",
+            "event_name": "project_create",
+                  "name": "StoreCloud",
+           "owner_email": "johnsmith@example.com",
+            "owner_name": "John Smith",
+                "owners": [{
+                           "name": "John",
+                           "email": "user1@example.com"
+                          }],
+                  "path": "storecloud",
+   "path_with_namespace": "jsmith/storecloud",
+            "project_id": 74,
+ "project_namespace_id" : 23,
+    "project_visibility": "private"
 }
 ```
 
@@ -109,20 +114,21 @@ X-Gitlab-Event: System Hook
 
 ```json
 {
-          "created_at": "2012-07-21T07:30:58Z",
-          "updated_at": "2012-07-21T07:38:22Z",
-          "event_name": "project_destroy",
-                "name": "Underscore",
-         "owner_email": "johnsmith@example.com",
-          "owner_name": "John Smith",
-              "owners": [{
-                         "name": "John",
-                         "email": "user1@example.com"
-                        }],
-                "path": "underscore",
- "path_with_namespace": "jsmith/underscore",
-          "project_id": 73,
-  "project_visibility": "internal"
+            "created_at": "2012-07-21T07:30:58Z",
+            "updated_at": "2012-07-21T07:38:22Z",
+            "event_name": "project_destroy",
+                  "name": "Underscore",
+           "owner_email": "johnsmith@example.com",
+            "owner_name": "John Smith",
+                "owners": [{
+                           "name": "John",
+                           "email": "user1@example.com"
+                          }],
+                  "path": "underscore",
+   "path_with_namespace": "jsmith/underscore",
+            "project_id": 73,
+ "project_namespace_id" : 23,
+    "project_visibility": "internal"
 }
 ```
 
@@ -143,6 +149,7 @@ X-Gitlab-Event: System Hook
                               "name": "John",
                               "email": "user1@example.com"
                              }],
+    "project_namespace_id" : 23,
        "project_visibility": "internal",
   "old_path_with_namespace": "jsmith/overscore"
 }
@@ -168,6 +175,7 @@ Refer to `group_rename` and `user_rename` for that case.
                               "name": "John",
                               "email": "user1@example.com"
                              }],
+    "project_namespace_id" : 23,
        "project_visibility": "internal",
   "old_path_with_namespace": "jsmith/overscore"
 }
@@ -177,20 +185,97 @@ Refer to `group_rename` and `user_rename` for that case.
 
 ```json
 {
-          "created_at": "2012-07-21T07:30:54Z",
-          "updated_at": "2012-07-21T07:38:22Z",
-          "event_name": "project_update",
-                "name": "StoreCloud",
-         "owner_email": "johnsmith@example.com",
-          "owner_name": "John Smith",
-              "owners": [{
-                         "name": "John",
-                         "email": "user1@example.com"
-                        }],
-                "path": "storecloud",
- "path_with_namespace": "jsmith/storecloud",
-          "project_id": 74,
-  "project_visibility": "private"
+            "created_at": "2012-07-21T07:30:54Z",
+            "updated_at": "2012-07-21T07:38:22Z",
+            "event_name": "project_update",
+                  "name": "StoreCloud",
+           "owner_email": "johnsmith@example.com",
+            "owner_name": "John Smith",
+                "owners": [{
+                           "name": "John",
+                           "email": "user1@example.com"
+                          }],
+                  "path": "storecloud",
+   "path_with_namespace": "jsmith/storecloud",
+            "project_id": 74,
+ "project_namespace_id" : 23,
+    "project_visibility": "private"
+}
+```
+
+**Access request for group removed:**
+
+```json
+{
+    "created_at": "2012-07-21T07:30:56Z",
+    "updated_at": "2012-07-21T07:38:22Z",
+    "event_name": "user_access_request_revoked_for_group",
+  "group_access": "Maintainer",
+      "group_id": 78,
+    "group_name": "StoreCloud",
+    "group_path": "storecloud",
+    "user_email": "johnsmith@example.com",
+     "user_name": "John Smith",
+ "user_username": "johnsmith",
+       "user_id": 41
+}
+```
+
+**Access request for project removed:**
+
+```json
+{
+                  "created_at": "2012-07-21T07:30:56Z",
+                  "updated_at": "2012-07-21T07:38:22Z",
+                  "event_name": "user_access_request_revoked_for_project",
+                "access_level": "Maintainer",
+                  "project_id": 74,
+                "project_name": "StoreCloud",
+                "project_path": "storecloud",
+ "project_path_with_namespace": "jsmith/storecloud",
+                  "user_email": "johnsmith@example.com",
+                   "user_name": "John Smith",
+               "user_username": "johnsmith",
+                     "user_id": 41,
+          "project_visibility": "private"
+}
+```
+
+**Access request for group created:**
+
+```json
+{
+    "created_at": "2012-07-21T07:30:56Z",
+    "updated_at": "2012-07-21T07:38:22Z",
+    "event_name": "user_access_request_to_group",
+  "group_access": "Maintainer",
+      "group_id": 78,
+    "group_name": "StoreCloud",
+    "group_path": "storecloud",
+    "user_email": "johnsmith@example.com",
+     "user_name": "John Smith",
+ "user_username": "johnsmith",
+       "user_id": 41
+}
+```
+
+**Access request for project created:**
+
+```json
+{
+                  "created_at": "2012-07-21T07:30:56Z",
+                  "updated_at": "2012-07-21T07:38:22Z",
+                  "event_name": "user_access_request_to_project",
+                "access_level": "Maintainer",
+                  "project_id": 74,
+                "project_name": "StoreCloud",
+                "project_path": "storecloud",
+ "project_path_with_namespace": "jsmith/storecloud",
+                  "user_email": "johnsmith@example.com",
+                   "user_name": "John Smith",
+               "user_username": "johnsmith",
+                     "user_id": 41,
+          "project_visibility": "private"
 }
 ```
 
@@ -297,7 +382,7 @@ Refer to `group_rename` and `user_rename` for that case.
 }
 ```
 
-If the user is blocked via LDAP, `state` is `ldap_blocked`.
+If the user is blocked through LDAP, `state` is `ldap_blocked`.
 
 **User renamed:**
 

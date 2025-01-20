@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -75,7 +75,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -139,7 +139,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -196,7 +196,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 api_security:
   variables:
@@ -237,7 +237,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 api_security:
   variables:
@@ -253,7 +253,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 api_security:
   variables:
@@ -316,7 +316,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -343,15 +343,15 @@ requests. These placeholders are called variables, as explained in [using variab
 You can use variables to store and reuse values in your requests and scripts. For example, you can
 edit the collection to add variables to the document:
 
-![Edit collection variable tab View](../img/dast_api_postman_collection_edit_variable.png)
+![Edit collection variable tab View](../img/dast_api_postman_collection_edit_variable_v13_9.png)
 
 Or alternatively, you can add variables in an environment:
 
-![Edit environment variables View](../img/dast_api_postman_environment_edit_variable.png)
+![Edit environment variables View](../img/dast_api_postman_environment_edit_variable_v13_9.png)
 
 You can then use the variables in sections such as URL, headers, and others:
 
-![Edit request using variables View](../img/dast_api_postman_request_edit.png)
+![Edit request using variables View](../img/dast_api_postman_request_edit_v13_9.png)
 
 Postman has grown from a basic client tool with a nice UX experience to a more complex ecosystem that allows testing APIs with scripts, creating complex collections that trigger secondary requests, and setting variables along the way. Not every feature in the Postman ecosystem is supported. For example, scripts are not supported. The main focus of the Postman support is to ingest Postman Collection definitions that are used by the Postman Client and their related variables defined in the workspace, environments, and the collections themselves.
 
@@ -598,7 +598,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -618,7 +618,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -638,7 +638,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -657,7 +657,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -691,7 +691,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -723,7 +723,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -758,7 +758,7 @@ stages:
   - dast
 
 include:
-  - template: API-Security.gitlab-ci.yml
+  - template: Security/API-Security.gitlab-ci.yml
 
 variables:
   APISEC_PROFILE: Quick
@@ -771,7 +771,7 @@ variables:
 
 When configured correctly, a CI/CD pipeline contains a `dast` stage and an `dast_api` job. The job only fails when an invalid configuration is provided. During typical operation, the job always succeeds even if vulnerabilities are identified during testing.
 
-Vulnerabilities are displayed on the **Security** pipeline tab with the suite name. When testing against the repositories default branch, the API security testing vulnerabilities are also shown on the Security and Compliance's Vulnerability Report page.
+Vulnerabilities are displayed on the **Security** pipeline tab with the suite name. When testing against the repositories default branch, the API security testing vulnerabilities are also shown on the Security and compliance's Vulnerability Report page.
 
 To prevent an excessive number of reported vulnerabilities, the API security testing scanner limits the number of vulnerabilities it reports per operation.
 

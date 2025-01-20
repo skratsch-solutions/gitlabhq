@@ -14,16 +14,27 @@ RSpec.describe AuditEvent do
     end
   end
 
+  # Do not update this spec, We are migrating audit events to new tables and want to ensure no columns are added or removed
+  # issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/454174
+  describe '.columns' do
+    it 'does not change' do
+      expect(described_class.columns.map(&:name).map(&:to_sym)).to match_array(
+        [:id, :created_at, :author_id, :target_id, :details, :ip_address,
+          :author_name, :entity_path, :target_details, :target_type,
+          :entity_id, :entity_type])
+    end
+  end
+
   describe 'callbacks' do
     describe '#parallel_persist' do
       shared_examples 'a parallel persisted field' do
         using RSpec::Parameterized::TableSyntax
 
         where(:column, :details, :expected_value) do
-          :value | nil            | :value
-          nil    | :value         | :value
+          :value | nil | :value
+          nil | :value | :value
           :value | :another_value | :value
-          nil    | nil            | nil
+          nil | nil | nil
         end
 
         with_them do
@@ -99,34 +110,38 @@ RSpec.describe AuditEvent do
   end
 
   describe '#author' do
-    subject { audit_event.author }
+    subject(:author) { audit_event.author }
 
     context "when the target type is not Ci::Runner" do
       let(:audit_event) { build(:project_audit_event, target_id: 678) }
 
       it 'returns a NullAuthor' do
-        expect(::Gitlab::Audit::NullAuthor).to receive(:for)
-          .and_call_original
-          .once
+        expect(::Gitlab::Audit::NullAuthor).to receive(:for).and_call_original
 
         is_expected.to be_a_kind_of(::Gitlab::Audit::NullAuthor)
       end
     end
 
     context 'when the target type is Ci::Runner and details contain runner_registration_token' do
-      let(:audit_event) { build(:project_audit_event, target_type: ::Ci::Runner.name, target_id: 678, details: { runner_registration_token: 'abc123' }) }
+      let_it_be(:project) { create(:project) }
+      let(:audit_event) do
+        build(:project_audit_event, target_project: project, target_type: ::Ci::Runner.name, target_id: 678,
+          details: { runner_registration_token: 'abc123' })
+      end
 
       it 'returns a CiRunnerTokenAuthor' do
         expect(::Gitlab::Audit::CiRunnerTokenAuthor).to receive(:new)
-          .with(audit_event)
+          .with(
+            entity_type: project.class.name,
+            entity_path: project.full_path,
+            runner_registration_token: 'abc123')
           .and_call_original
-          .once
 
         is_expected.to be_an_instance_of(::Gitlab::Audit::CiRunnerTokenAuthor)
       end
 
       it 'name consists of prefix and token' do
-        expect(subject.name).to eq('Registration token: abc123')
+        expect(author.name).to eq('Registration token: abc123')
       end
     end
   end

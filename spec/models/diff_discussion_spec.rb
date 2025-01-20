@@ -16,6 +16,7 @@ RSpec.describe DiffDiscussion do
       attributes = subject.reply_attributes
       expect(attributes[:position]).to eq(Gitlab::Json.dump(diff_note.position.to_h))
       expect(attributes[:original_position]).to eq(Gitlab::Json.dump(diff_note.original_position.to_h))
+      expect(attributes[:line_code]).to eq(subject.line_code)
     end
   end
 
@@ -73,7 +74,10 @@ RSpec.describe DiffDiscussion do
           new_path: ".gitmodules",
           old_line: 4,
           new_line: 4,
-          diff_refs: merge_request_diff3.compare_with(merge_request_diff1.head_commit_sha).diff_refs
+          diff_refs: ::MergeRequests::MergeRequestDiffComparison
+                      .new(merge_request_diff3)
+                      .compare_with(merge_request_diff1.head_commit_sha)
+                      .diff_refs
         )
       end
 

@@ -8,6 +8,7 @@ RSpec.shared_context 'GroupPolicy context' do
   end
 
   let_it_be(:guest) { create(:user, guest_of: group) }
+  let_it_be(:planner) { create(:user, planner_of: group) }
   let_it_be(:reporter) { create(:user, reporter_of: group) }
   let_it_be(:developer) { create(:user, developer_of: group) }
   let_it_be(:maintainer) { create(:user, maintainer_of: group) }
@@ -22,6 +23,8 @@ RSpec.shared_context 'GroupPolicy context' do
     %i[
       read_group read_counts read_issue read_namespace
       read_label read_issue_board_list read_milestone read_issue_board
+      read_group_activity read_group_issues read_group_boards read_group_labels
+      read_group_milestones read_group_merge_requests
     ]
   end
 
@@ -33,14 +36,22 @@ RSpec.shared_context 'GroupPolicy context' do
     ]
   end
 
+  let(:planner_permissions) do
+    guest_permissions + %i[
+      admin_label admin_milestone admin_issue_board admin_issue_board_list
+      admin_issue admin_work_item update_issue destroy_issue read_confidential_issues read_internal_note
+      read_crm_contact read_crm_organization
+    ]
+  end
+
   let(:reporter_permissions) do
     %i[
       admin_label
       admin_milestone
       admin_issue_board
+      admin_work_item
       read_container_image
       read_harbor_registry
-      read_metrics_dashboard_annotation
       read_prometheus
       read_crm_contact
       read_crm_organization
@@ -51,7 +62,6 @@ RSpec.shared_context 'GroupPolicy context' do
 
   let(:developer_permissions) do
     %i[
-      admin_metrics_dashboard_annotation
       create_custom_emoji
       create_package
       read_cluster
@@ -63,7 +73,7 @@ RSpec.shared_context 'GroupPolicy context' do
       destroy_package
       create_projects
       create_cluster update_cluster admin_cluster add_cluster
-      destroy_upload
+      admin_upload destroy_upload
       admin_achievement
       award_achievement
       read_group_runners

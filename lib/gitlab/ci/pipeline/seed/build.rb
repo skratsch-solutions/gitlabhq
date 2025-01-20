@@ -17,6 +17,7 @@ module Gitlab
             @needs_attributes = dig(:needs_attributes)
             @resource_group_key = attributes.delete(:resource_group_key)
             @job_variables = @seed_attributes.delete(:job_variables)
+            @execution_config_attribute = @seed_attributes.delete(:execution_config)
             @root_variables_inheritance = @seed_attributes.delete(:root_variables_inheritance) { true }
 
             @using_rules  = attributes.key?(:rules)
@@ -70,6 +71,9 @@ module Gitlab
               .deep_merge(allow_failure_criteria_attributes)
               .deep_merge(@cache.cache_attributes)
               .deep_merge(runner_tags)
+              .deep_merge(build_execution_config_attribute)
+              .deep_merge(scoped_user_id_attribute)
+              .except(:stage)
           end
 
           def bridge?
@@ -93,6 +97,13 @@ module Gitlab
           private
 
           delegate :logger, to: :@context
+
+          def build_execution_config_attribute
+            return {} unless @execution_config_attribute
+
+            execution_config = @context.find_or_build_execution_config(@execution_config_attribute)
+            { execution_config: execution_config }
+          end
 
           def all_of_only?
             @only.all? { |spec| spec.satisfied_by?(@pipeline, evaluate_context) }
@@ -133,7 +144,7 @@ module Gitlab
           end
 
           def variable_expansion_errors
-            expanded_collection = evaluate_context.variables.sort_and_expand_all
+            expanded_collection = evaluate_context.variables_sorted_and_expanded
             errors = expanded_collection.errors
             ["#{name}: #{errors}"] if errors
           end
@@ -150,6 +161,17 @@ module Gitlab
               partition_id: @pipeline.partition_id,
               metadata_attributes: { partition_id: @pipeline.partition_id }
             }
+          end
+
+          # Scoped user is present when the user creating the pipeline supports composite identity.
+          # For example: a service account like GitLab Duo. The scoped user is used to further restrict
+          # the permissions of the CI job token associated to the `job.user`.
+          def scoped_user_id_attribute
+            user_identity = ::Gitlab::Auth::Identity.fabricate(@pipeline.user)
+
+            return {} unless user_identity&.composite? && user_identity.linked?
+
+            { options: { scoped_user_id: user_identity.scoped_user.id } }
           end
 
           def rules_attributes

@@ -1,4 +1,5 @@
 import { s__ } from '~/locale';
+import { helpPagePath } from '~/helpers/help_page_helper';
 
 export const LIST_KEY_CREATED_AT = 'created_at';
 export const LIST_KEY_VERSION = 'version';
@@ -12,7 +13,7 @@ export const BASE_SORT_FIELDS = Object.freeze([
   },
   {
     orderBy: LIST_KEY_CREATED_AT,
-    label: s__('MlExperimentTracking|Created at'),
+    label: s__('MlExperimentTracking|Created'),
   },
 ]);
 
@@ -24,10 +25,26 @@ export const MODEL_ENTITIES = {
 };
 
 export const MLFLOW_USAGE_MODAL_ID = 'model-registry-mlflow-usage-modal';
-export const MODEL_VERSION_CREATION_MODAL_ID = 'create-model-version-modal';
-export const MODEL_CREATION_MODAL_ID = 'create-model-modal';
 
 export const emptyArtifactFile = {
   file: null,
   subfolder: '',
 };
+
+export const UPLOAD_STATUS = {
+  CREATING: 0,
+  PROCESSING: 1,
+  CANCELED: 2,
+  FAILED: 3,
+  SUCCEEDED: 4,
+};
+
+export const TYPENAME_MODEL_VERSION = 'Ml::ModelVersion';
+
+export const ROUTE_DETAILS = 'details';
+export const ROUTE_PERFORMANCE = 'performance';
+export const ROUTE_ARTIFACTS = 'artifacts';
+export const CANDIDATES_DOCS_PATH = helpPagePath(
+  'user/project/ml/experiment_tracking/mlflow_client.md',
+  { anchor: 'logging-runs-to-a-model' },
+);

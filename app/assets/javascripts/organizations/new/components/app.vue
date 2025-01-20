@@ -4,7 +4,7 @@ import { s__ } from '~/locale';
 import { visitUrlWithAlerts } from '~/lib/utils/url_utility';
 import { createAlert } from '~/alert';
 import { helpPagePath } from '~/helpers/help_page_helper';
-import FormErrorsAlert from '~/vue_shared/components/form/errors_alert.vue';
+import FormErrorsAlert from '~/organizations/shared/components/errors_alert.vue';
 import organizationCreateMutation from '../graphql/mutations/organization_create.mutation.graphql';
 import NewEditForm from '../../shared/components/new_edit_form.vue';
 
@@ -80,7 +80,7 @@ export default {
 
 <template>
   <div class="gl-py-6">
-    <h1 class="gl-mt-0 gl-font-size-h-display">{{ $options.i18n.pageTitle }}</h1>
+    <h1 class="gl-mt-0 gl-text-size-h-display">{{ $options.i18n.pageTitle }}</h1>
     <p>
       <gl-sprintf :message="$options.i18n.pageDescription">
         <template #link="{ content }"

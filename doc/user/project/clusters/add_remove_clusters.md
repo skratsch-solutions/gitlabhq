@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 
 > - [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/327908) in GitLab 14.0.
 
@@ -23,7 +23,7 @@ When you successfully connect an existing cluster using cluster certificates, th
 1. Go to your:
    - Project's **{cloud-gear}** **Operate > Kubernetes clusters** page, for a project-level cluster.
    - Group's **{cloud-gear}** **Kubernetes** page, for a group-level cluster.
-   - The Admin Area's **Kubernetes** page, for an instance-level cluster.
+   - The **Admin** area's **Kubernetes** page, for an instance-level cluster.
 1. Select the name of the cluster you want to disable.
 1. Toggle **GitLab Integration** off (in gray).
 1. Select **Save changes**.
@@ -53,7 +53,7 @@ To remove the Kubernetes cluster integration:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 [Start a Rails console session](../../../administration/operations/rails_console.md#starting-a-rails-console-session).
 

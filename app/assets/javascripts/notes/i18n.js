@@ -7,6 +7,7 @@ export const COMMENT_FORM = {
   error: __('Comment could not be submitted: %{reason}.'),
   note: __('Note'),
   comment: __('Comment'),
+  wiki: __('Wiki'),
   internalComment: __('Add internal note'),
   issue: __('issue'),
   startThread: __('Start thread'),
@@ -17,7 +18,7 @@ export const COMMENT_FORM = {
   bodyPlaceholderInternal: __('Write an internal note or drag your files here…'),
   internal: s__('Notes|Make this an internal note'),
   internalVisibility: s__(
-    'Notes|Internal notes are only visible to members with the role of Reporter or higher',
+    'Notes|Internal notes are only visible to members with the role of Planner or higher',
   ),
   discussionThatNeedsResolution: __(
     'Discuss a specific suggestion or question that needs to be resolved.',
@@ -50,9 +51,8 @@ export const COMMENT_FORM = {
     saveThread: __('Add thread to review'),
     saveComment: __('Add comment to review'),
   },
-  attachmentMsg: s__(
-    'Notes|Attachments are sent by email. Attachments over 10 MB are sent as links to your GitLab instance, and only accessible to project members.',
-  ),
+  addToReview: __('Add to review'),
+  startReview: __('Start review'),
   addCommentNow: __('Add comment now'),
   addThreadNow: __('Add thread now'),
 };

@@ -24,6 +24,15 @@ import TitleComponent from './title.vue';
 
 const STICKY_HEADER_VISIBLE_CLASS = 'issuable-sticky-header-visible';
 
+function stripClientState(html) {
+  // remove all attributes of details tags
+  return html.replace(/<details[^>]*>/g, '<details>');
+}
+
+function hasDescriptionChanged(oldDesc, newDesc) {
+  return stripClientState(oldDesc) !== stripClientState(newDesc);
+}
+
 export default {
   components: {
     HeaderActions,
@@ -286,7 +295,7 @@ export default {
 
     pinnedLinkClasses() {
       return this.showTitleBorder
-        ? 'gl-border-b-1 gl-border-b-gray-100 gl-border-b-solid gl-mb-6'
+        ? 'gl-border-b-1 gl-border-b-default gl-border-b-solid gl-mb-6'
         : '';
     },
 
@@ -356,7 +365,12 @@ export default {
       const details =
         descriptionSection != null && descriptionSection.getElementsByTagName('details');
 
-      this.state.descriptionHtml = updateDescription(sanitize(data.description), details);
+      const newDescriptionHtml = updateDescription(sanitize(data.description), details);
+
+      if (hasDescriptionChanged(this.state.descriptionHtml, newDescriptionHtml)) {
+        this.state.descriptionHtml = newDescriptionHtml;
+      }
+
       this.state.titleHtml = sanitize(data.title);
       this.state.lock_version = data.lock_version;
     },
@@ -523,6 +537,7 @@ export default {
 <template>
   <div>
     <div v-if="canUpdate && showForm">
+      <h1 class="gl-sr-only">{{ __('Edit issue') }}</h1>
       <form-component
         :endpoint="endpoint"
         :form-state="formState"
@@ -560,17 +575,20 @@ export default {
         :is-hidden="isHidden"
         :is-imported="isImported"
         :is-locked="isLocked"
-        :issuable-status="issuableStatus"
+        :issuable-state="issuableStatus"
         :issuable-type="issuableType"
         :show="isStickyHeaderShowing"
         :title="state.titleText"
+        :duplicated-to-issue-url="duplicatedToIssueUrl"
+        :moved-to-issue-url="movedToIssueUrl"
+        :promoted-to-epic-url="promotedToEpicUrl"
         @hide="hideStickyHeader"
         @show="showStickyHeader"
       />
 
       <slot name="header">
         <issue-header
-          class="gl-p-0 gl-mt-2"
+          class="gl-mt-2 gl-p-0"
           :class="headerClasses"
           :author="author"
           :confidential="isConfidential"

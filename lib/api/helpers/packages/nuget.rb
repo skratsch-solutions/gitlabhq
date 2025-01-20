@@ -4,16 +4,16 @@ module API
   module Helpers
     module Packages
       module Nuget
-        def find_packages(package_name)
-          packages = package_finder(package_name).execute
+        def find_packages
+          packages = package_finder(params[:package_name]).execute
 
           not_found!('Packages') unless packages.exists?
 
           packages
         end
 
-        def find_package(package_name, package_version)
-          package = package_finder(package_name, package_version).execute.first
+        def find_package
+          package = package_finder(params[:package_name], params[:package_version]).execute.first
 
           not_found!('Package') unless package
 
@@ -30,7 +30,13 @@ module API
           )
         end
 
-        def search_packages(_search_term, search_options)
+        def search_packages
+          search_options = {
+            include_prerelease_versions: params[:prerelease],
+            per_page: params[:take],
+            padding: params[:skip]
+          }
+
           ::Packages::Nuget::SearchService
             .new(current_user, project_or_group, params[:q], search_options)
             .execute

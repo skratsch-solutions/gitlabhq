@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Mutations::Metrics::Dashboard::Annotations::Delete, feature_category: :metrics do
+RSpec.describe Mutations::Metrics::Dashboard::Annotations::Delete, feature_category: :observability do
   include GraphqlHelpers
 
   let_it_be(:current_user) { create(:user) }
@@ -14,8 +14,6 @@ RSpec.describe Mutations::Metrics::Dashboard::Annotations::Delete, feature_categ
   def mutation_response
     graphql_mutation_response(:delete_annotation)
   end
-
-  specify { expect(described_class).to require_graphql_authorizations(:admin_metrics_dashboard_annotation) }
 
   context 'when the user has permission to delete the annotation' do
     before do

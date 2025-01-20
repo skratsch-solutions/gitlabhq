@@ -44,7 +44,7 @@ const i18n = {
 };
 
 const ciCatalogHelpPath = helpPagePath('ci/components/index', {
-  anchor: 'components-catalog',
+  anchor: 'cicd-catalog',
 });
 
 const releasesHelpPath = helpPagePath('user/project/releases/release_cicd_examples');
@@ -152,7 +152,7 @@ export default {
   <div>
     <gl-loading-icon v-if="isLoading" />
     <div v-else data-testid="ci-catalog-settings">
-      <div class="gl-display-flex">
+      <div class="gl-flex">
         <label class="gl-mb-1 gl-mr-3">
           {{ $options.i18n.ciCatalogLabel }}
         </label>
@@ -171,7 +171,7 @@ export default {
         data-testid="catalog-resource-toggle"
         @change="onToggleCatalogResource"
       />
-      <div class="gl-text-secondary">
+      <div class="gl-text-subtle">
         {{ $options.i18n.readMeHelpText }}
       </div>
       <gl-modal

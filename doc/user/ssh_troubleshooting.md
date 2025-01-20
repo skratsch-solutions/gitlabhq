@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -69,4 +69,4 @@ SSH host keys are not available on this system. Please use ssh-keyscan command o
 To resolve this error:
 
 - On Helm chart (Kubernetes) deployments, update the `values.yaml` to set [`sshHostKeys.mount`](https://docs.gitlab.com/charts/charts/gitlab/webservice/) to `true` under the `webservice` section.
-- On GitLab self-managed installations, check the `/etc/ssh` directory for the host keys.
+- On GitLab Self-Managed installations, check the `/etc/ssh` directory for the host keys.

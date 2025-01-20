@@ -19,6 +19,13 @@ RSpec.describe WorkItems::ParentLinks::CreateService, feature_category: :portfol
     let(:issuable_type) { :task }
     let(:params) { {} }
 
+    before_all do
+      # Ensure support bot user is created so creation doesn't count towards query limit
+      # and we don't try to obtain an exclusive lease within a transaction.
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+      Users::Internal.support_bot_id
+    end
+
     before do
       project.add_guest(user)
       another_project.add_reporter(user)
@@ -83,9 +90,9 @@ RSpec.describe WorkItems::ParentLinks::CreateService, feature_category: :portfol
       subject { described_class.new(parent_item, user, { target_issuable: current_item }).execute }
 
       where(:adjacent_position, :expected_order) do
-        -100 | lazy { [adjacent, current_item] }
-        0    | lazy { [adjacent, current_item] }
-        100  | lazy { [adjacent, current_item] }
+        -100 | lazy { [current_item, adjacent] }
+        0    | lazy { [current_item, adjacent] }
+        100  | lazy { [current_item, adjacent] }
       end
 
       with_them do
@@ -114,6 +121,54 @@ RSpec.describe WorkItems::ParentLinks::CreateService, feature_category: :portfol
 
         tasks_parent = parent_link_class.where(work_item: [task1, task2]).map(&:work_item_parent).uniq
         expect(tasks_parent).to match_array([work_item])
+      end
+
+      context 'when tasks had different parent before' do
+        let_it_be(:previous_parent) { create(:work_item, :issue, project: project) }
+
+        before do
+          create(:parent_link, work_item: task1, work_item_parent: previous_parent)
+          create(:parent_link, work_item: task2, work_item_parent: previous_parent)
+        end
+
+        it 'changes the parent and triggers event', :aggregate_failures do
+          expect { subject }.to publish_event(WorkItems::WorkItemUpdatedEvent)
+            .with({
+              id: previous_parent.id,
+              namespace_id: previous_parent.namespace.id,
+              updated_widgets: ["hierarchy_widget"]
+            })
+
+          new_parent = parent_link_class.where(work_item: [task1, task2]).map(&:work_item_parent).uniq
+          expect(new_parent).to match_array([work_item])
+        end
+      end
+
+      context 'when tasks had different parents before' do
+        let_it_be(:previous_parent1) { create(:work_item, :issue, project: project) }
+        let_it_be(:previous_parent2) { create(:work_item, :issue, project: project) }
+
+        before do
+          create(:parent_link, work_item: task1, work_item_parent: previous_parent1)
+          create(:parent_link, work_item: task2, work_item_parent: previous_parent2)
+        end
+
+        it 'changes the parent and triggers event', :aggregate_failures do
+          expect { subject }.to publish_event(WorkItems::WorkItemUpdatedEvent)
+            .with({
+              id: previous_parent1.id,
+              namespace_id: previous_parent1.namespace.id,
+              updated_widgets: ["hierarchy_widget"]
+            }).and publish_event(WorkItems::WorkItemUpdatedEvent)
+            .with({
+              id: previous_parent2.id,
+              namespace_id: previous_parent2.namespace.id,
+              updated_widgets: ["hierarchy_widget"]
+            })
+
+          new_parent = parent_link_class.where(work_item: [task1, task2]).map(&:work_item_parent).uniq
+          expect(new_parent).to match_array([work_item])
+        end
       end
 
       context 'when relative_position is set' do

@@ -6,7 +6,9 @@ import { MOCK_QUERY } from 'jest/search/mock_data';
 import MergeRequestsFilters from '~/search/sidebar/components/merge_requests_filters.vue';
 import StatusFilter from '~/search/sidebar/components/status_filter/index.vue';
 import ArchivedFilter from '~/search/sidebar/components/archived_filter/index.vue';
-import { SEARCH_TYPE_ADVANCED, SEARCH_TYPE_BASIC } from '~/search/sidebar/constants';
+import SourceBranchFilter from '~/search/sidebar/components/source_branch_filter/index.vue';
+import LabelFilter from '~/search/sidebar/components/label_filter/index.vue';
+import AuthorFilter from '~/search/sidebar/components/author_filter/index.vue';
 
 Vue.use(Vuex);
 
@@ -15,14 +17,25 @@ describe('GlobalSearch MergeRequestsFilters', () => {
 
   const defaultGetters = {
     currentScope: () => 'merge_requests',
-    showArchived: () => true,
+    hasMissingProjectContext: () => true,
   };
 
-  const createComponent = (initialState = {}) => {
+  const createComponent = (
+    initialState = {},
+    provide = {
+      glFeatures: {
+        searchMrFilterSourceBranch: true,
+        searchMrFilterAuthor: true,
+      },
+    },
+  ) => {
     const store = new Vuex.Store({
       state: {
         urlQuery: MOCK_QUERY,
-        searchType: SEARCH_TYPE_ADVANCED,
+        searchType: 'advanced',
+        groupInitialJson: {
+          id: 1,
+        },
         ...initialState,
       },
       getters: defaultGetters,
@@ -30,13 +43,17 @@ describe('GlobalSearch MergeRequestsFilters', () => {
 
     wrapper = shallowMount(MergeRequestsFilters, {
       store,
+      provide,
     });
   };
 
   const findStatusFilter = () => wrapper.findComponent(StatusFilter);
   const findArchivedFilter = () => wrapper.findComponent(ArchivedFilter);
+  const findSourceBranchFilter = () => wrapper.findComponent(SourceBranchFilter);
+  const findLabelFilter = () => wrapper.findComponent(LabelFilter);
+  const findAuthorFilter = () => wrapper.findComponent(AuthorFilter);
 
-  describe('Renders correctly with Archived Filter', () => {
+  describe('When renders correctly with Archived Filter', () => {
     beforeEach(() => {
       createComponent();
     });
@@ -48,11 +65,23 @@ describe('GlobalSearch MergeRequestsFilters', () => {
     it('renders ArchivedFilter', () => {
       expect(findArchivedFilter().exists()).toBe(true);
     });
+
+    it('renders SourceBranchFilter', () => {
+      expect(findSourceBranchFilter().exists()).toBe(true);
+    });
+
+    it('renders LabelFilter', () => {
+      expect(findLabelFilter().exists()).toBe(true);
+    });
+
+    it('renders AuthorFilter', () => {
+      expect(findAuthorFilter().exists()).toBe(true);
+    });
   });
 
-  describe('Renders correctly with basic search', () => {
+  describe('When renders correctly with basic search', () => {
     beforeEach(() => {
-      createComponent({ searchType: SEARCH_TYPE_BASIC });
+      createComponent({ searchType: 'basic' });
     });
 
     it('renders StatusFilter', () => {
@@ -62,15 +91,47 @@ describe('GlobalSearch MergeRequestsFilters', () => {
     it('renders ArchivedFilter', () => {
       expect(findArchivedFilter().exists()).toBe(true);
     });
+
+    it('renders SourceBranchFilter', () => {
+      expect(findSourceBranchFilter().exists()).toBe(true);
+    });
+
+    it('will not render LabelFilter', () => {
+      expect(findLabelFilter().exists()).toBe(false);
+    });
+
+    it('will not render AuthorFilter', () => {
+      expect(findAuthorFilter().exists()).toBe(false);
+    });
   });
 
-  describe('ShowArchived getter', () => {
+  describe('When feature flag search_mr_filter_source_branch is disabled', () => {
     beforeEach(() => {
-      defaultGetters.showArchived = () => false;
+      createComponent(null, { glFeatures: { searchMrFilterSourceBranch: false } });
+    });
+
+    it(`will not render SourceBranchFilter`, () => {
+      expect(findSourceBranchFilter().exists()).toBe(false);
+    });
+  });
+
+  describe('When feature flag search_mr_filter_author is disabled', () => {
+    beforeEach(() => {
+      createComponent(null, { glFeatures: { searchMrFilterAuthor: false } });
+    });
+
+    it(`will not render AuthorFilter`, () => {
+      expect(findAuthorFilter().exists()).toBe(false);
+    });
+  });
+
+  describe('#hasMissingProjectContext getter', () => {
+    beforeEach(() => {
+      defaultGetters.hasMissingProjectContext = () => false;
       createComponent();
     });
 
-    it('hides archived filter', () => {
+    it('hides ArchivedFilter', () => {
       expect(findArchivedFilter().exists()).toBe(false);
     });
   });

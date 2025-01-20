@@ -1,7 +1,7 @@
 .nothing-here-block {
   text-align: center;
   padding: 16px;
-  color: $gl-text-color;
+  @apply gl-text-default;
   font-weight: $gl-font-weight-normal;
   font-size: 14px;
 
@@ -22,16 +22,12 @@
 
 .row-content-block {
   margin-top: 0;
-  background-color: $gray-10;
+  @apply gl-bg-subtle;
   padding: $gl-padding;
   margin-bottom: 0;
-  border-top: 1px solid $border-color;
-  border-bottom: 1px solid $border-color;
-  color: $gl-text-color;
-
-  &.white {
-    background-color: $white;
-  }
+  @apply gl-border-t;
+  @apply gl-border-b;
+  @apply gl-text-default;
 
   &.top-block {
     border-top: 0;
@@ -46,11 +42,6 @@
     margin-bottom: 0;
   }
 
-  &.clear-block {
-    margin-bottom: $gl-padding - 1px;
-    padding-bottom: $gl-padding;
-  }
-
   &.second-block {
     margin-top: -1px;
     margin-bottom: 0;
@@ -62,11 +53,11 @@
   }
 
   &.content-component-block {
-    background-color: $body-bg;
+    @apply gl-bg-default;
   }
 
   .title {
-    color: $gl-text-color;
+    @apply gl-text-heading;
   }
 
   > p:last-child {
@@ -76,19 +67,11 @@
 
 .content-block {
   padding: $gl-padding 0;
-  border-bottom: 1px solid $border-color;
+  @apply gl-border-b;
 
   > .controls {
     float: right;
   }
-
-  .new-branch {
-    margin-top: 3px;
-  }
-}
-
-.content-block-small {
-  padding: 4px 0;
 }
 
 .landing {
@@ -96,57 +79,17 @@
   overflow: hidden;
   display: flex;
   position: relative;
-  border: 1px solid $blue-300;
+  border: 1px solid var(--gl-banner-intro-border-color);
   border-radius: $gl-border-radius-base;
-  background-color: $blue-50;
+  background-color: var(--gl-feedback-info-background-color);
   justify-content: center;
-
-  .dismiss-button {
-    position: absolute;
-    right: $gl-padding-8;
-    top: $gl-padding-8;
-    cursor: pointer;
-    color: $blue-500;
-    z-index: 1;
-    border: 0;
-    background-color: transparent;
-    padding: $gl-padding-8;
-    line-height: 0;
-
-    &:hover,
-    &:focus {
-      border: 0;
-      color: $blue-700;
-    }
-  }
 
   .svg-container {
     align-self: center;
   }
 
-  .inner-content {
-    text-align: left;
-    white-space: nowrap;
-
-    h4 {
-      color: $gl-text-color;
-      font-size: 17px;
-    }
-
-    p {
-      color: $gl-text-color;
-      margin-bottom: $gl-padding;
-    }
-  }
-
   @include media-breakpoint-down(sm) {
     flex-direction: column;
-
-    .inner-content {
-      white-space: normal;
-      padding: 0 28px;
-      text-align: center;
-    }
   }
 }
 

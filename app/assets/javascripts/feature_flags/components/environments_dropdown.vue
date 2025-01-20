@@ -156,7 +156,7 @@ export default {
       />
       <div
         v-if="showSuggestions"
-        class="dropdown-menu !gl-block dropdown-menu-selectable dropdown-menu-full-width"
+        class="dropdown-menu dropdown-menu-selectable dropdown-menu-full-width !gl-block"
       >
         <div class="dropdown-content">
           <ul v-if="results.length">
@@ -166,7 +166,7 @@ export default {
               }}</gl-button>
             </li>
           </ul>
-          <div v-else-if="!results.length" class="text-secondary gl-p-3">
+          <div v-else-if="!results.length" class="gl-p-3 gl-text-subtle">
             {{ __('No matching results') }}
           </div>
           <div v-if="shouldRenderCreateButton" class="dropdown-footer">

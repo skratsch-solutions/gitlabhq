@@ -15,7 +15,7 @@ module Types
       description: 'ID (global ID) of the list.'
 
     field :collapsed, GraphQL::Types::Boolean, null: true,
-      description: 'Indicates if the list is collapsed for this user.'
+      description: 'Indicates if the list is collapsed for the user.'
     field :issues_count, GraphQL::Types::Int, null: true,
       description: 'Count of issues in the list.'
     field :label, Types::LabelType, null: true,
@@ -55,7 +55,7 @@ module Types
     # board lists have a data dependency on label - so we batch load them here
     def title
       BatchLoader::GraphQL.for(object).batch do |lists, callback|
-        ActiveRecord::Associations::Preloader.new(records: lists, associations: :label).call # rubocop: disable CodeReuse/ActiveRecord
+        ActiveRecord::Associations::Preloader.new(records: lists, associations: :label).call
 
         # all list titles are preloaded at this point
         lists.each { |list| callback.call(list, list.title) }

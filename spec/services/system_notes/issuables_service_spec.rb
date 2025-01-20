@@ -12,7 +12,14 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
   let(:noteable)      { create(:issue, project: project) }
   let(:issue)         { noteable }
 
-  let(:service) { described_class.new(noteable: noteable, project: project, author: author) }
+  let(:service) { described_class.new(noteable: noteable, container: project, author: author) }
+
+  before_all do
+    # Ensure support bot user is created so creation doesn't count towards query limit
+    # and we don't try to obtain an exclusive lease within a transaction.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.support_bot_id
+  end
 
   describe '#relate_issuable' do
     let_it_be(:issue1) { create(:issue, project: project) }
@@ -442,6 +449,18 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
               expect(subject.note).to eq "mentioned in issue #{mentioned_in.to_reference}"
             end
           end
+        end
+      end
+
+      describe 'note_date' do
+        let(:mentioned_in) { project.repository.commit }
+
+        it 'uses commit date with USE_COMMIT_DATE_FOR_CROSS_REFERENCE_NOTE' do
+          stub_const("#{described_class}::USE_COMMIT_DATE_FOR_CROSS_REFERENCE_NOTE", true)
+
+          note = service.cross_reference(mentioned_in)
+
+          expect(note.created_at).to be_like_time(mentioned_in.created_at)
         end
       end
 
@@ -953,7 +972,7 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
     let_it_be_with_reload(:work_item) { create(:work_item, project: project) }
     let_it_be_with_reload(:task) { create(:work_item, :task, project: project) }
 
-    let(:service) { described_class.new(noteable: work_item, project: project, author: author) }
+    let(:service) { described_class.new(noteable: work_item, container: project, author: author) }
 
     subject { service.hierarchy_changed(task, hierarchy_change_action) }
 

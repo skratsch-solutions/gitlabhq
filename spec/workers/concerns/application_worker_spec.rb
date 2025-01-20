@@ -540,6 +540,29 @@ RSpec.describe ApplicationWorker, feature_category: :shared do
     end
   end
 
+  describe '.concurrency_limit_resume' do
+    around do |example|
+      Sidekiq::Testing.fake!(&example)
+    end
+
+    context 'when the worker is not marked as deferred' do
+      it 'concurrency_limit_resume key is nil' do
+        worker.perform_async
+        expect(Sidekiq::Queues[worker.queue].first['concurrency_limit_resume']).to eq nil
+      end
+    end
+
+    context 'when the concurrency limited worker is marked as resume' do
+      let(:buffered_at) { 1 }
+
+      it 'sets resume and buffered_at attributes' do
+        worker.concurrency_limit_resume(buffered_at).perform_async
+        expect(Sidekiq::Queues[worker.queue].first['concurrency_limit_resume']).to eq(true)
+        expect(Sidekiq::Queues[worker.queue].first['concurrency_limit_buffered_at']).to eq(buffered_at)
+      end
+    end
+  end
+
   describe '.with_status' do
     around do |example|
       Sidekiq::Testing.fake!(&example)
@@ -581,6 +604,24 @@ RSpec.describe ApplicationWorker, feature_category: :shared do
         expect(Sidekiq::Queues[worker.queue].first).not_to include('status_expiration')
         expect(Sidekiq::Queues[worker.queue].length).to eq(1)
       end
+    end
+  end
+
+  describe '.rescheduled_once' do
+    around do |example|
+      Sidekiq::Testing.fake!(&example)
+    end
+
+    it 'sets rescheduled_once in job hash' do
+      worker.rescheduled_once.perform_async
+
+      expect(Sidekiq::Queues[worker.queue].first).to include('rescheduled_once' => true)
+    end
+
+    it 'does not set rescheduled_once key if .rescheduled_once is not called' do
+      worker.perform_async
+
+      expect(Sidekiq::Queues[worker.queue].first).not_to include('rescheduled_once' => true)
     end
   end
 
@@ -631,6 +672,46 @@ RSpec.describe ApplicationWorker, feature_category: :shared do
 
           operation
         end
+      end
+    end
+
+    context 'with ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper' do
+      let(:worker) { ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper }
+
+      context 'when calling perform_async with setter' do
+        subject(:operation) { worker.set(testing: true).perform_async({ 'job_class' => ActionMailer::MailDeliveryJob }) }
+
+        it_behaves_like 'uses shard router'
+      end
+
+      context 'when calling perform_async with setter without job_class' do
+        subject(:operation) { worker.set(testing: true).perform_async }
+
+        it_behaves_like 'uses shard router'
+      end
+
+      context 'when calling perform_in with setter' do
+        subject(:operation) { worker.set(testing: true).perform_in(1, { 'job_class' => ActionMailer::MailDeliveryJob }) }
+
+        it_behaves_like 'uses shard router'
+      end
+
+      context 'when calling perform_in with setter without job_class' do
+        subject(:operation) { worker.set(testing: true).perform_in(1) }
+
+        it_behaves_like 'uses shard router'
+      end
+
+      context 'when calling perform_at with setter' do
+        subject(:operation) { worker.set(testing: true).perform_at(1, { 'job_class' => ActionMailer::MailDeliveryJob }) }
+
+        it_behaves_like 'uses shard router'
+      end
+
+      context 'when calling perform_at with setter without job_class' do
+        subject(:operation) { worker.set(testing: true).perform_at(1) }
+
+        it_behaves_like 'uses shard router'
       end
     end
 

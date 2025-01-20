@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 Store your source files in a repository and create merge requests. Write, debug, and collaborate on code.
 
-- [Getting started](../user/get_started/get_started_managing_code.md)
-- [Repositories](../user/project/repository/index.md)
-- [Merge requests](../user/project/merge_requests/index.md)
-- [Remote development](../user/project/remote_development/index.md)
+| | | |
+|--|--|--|
+| [**Getting started**](../user/get_started/get_started_managing_code.md)<br>Overview of how features fit together. | [**Repositories**](../user/project/repository/index.md)<br>Version control, code storage, Git repositories, repository monitoring. | [**Merge requests**](../user/project/merge_requests/index.md)<br>Code review, collaboration, branch merging, commits. |
+| [**Remote development**](../user/project/remote_development/index.md)<br>Web IDE, workspaces. | | |

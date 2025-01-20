@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 In this tutorial you will learn how to install and securely configure a single
 node GitLab instance that can accommodate up to
@@ -260,7 +260,7 @@ Now that your server is set up, install GitLab:
    use your own, read how to [configure GitLab with TLS](https://docs.gitlab.com/omnibus/settings/ssl/).
 
    If the password you set wasn't picked up, read more about
-   [resetting the root account password](../../security/reset_user_password.md).
+   [resetting the root account password](../../security/reset_user_password.md#reset-the-root-password).
 
 1. After a few minutes, GitLab is installed. Sign in
    using the URL you set up in `EXTERNAL_URL`. Use `root` as the username and
@@ -273,7 +273,7 @@ Now it's time to configure GitLab!
 GitLab comes with some sane default configuration options. In this section,
 we will change them to add more functionality, and make GitLab more secure.
 
-For some of the options you'll use the Admin Area UI, and for some of them you'll
+For some of the options you'll use the **Admin** area UI, and for some of them you'll
 edit `/etc/gitlab/gitlab.rb`, the GitLab configuration file.
 
 ### Configure NGINX
@@ -352,7 +352,7 @@ You should now be able to send emails. To test that the configuration worked:
 
 1. Run the following command at the console prompt to make GitLab send a test email:
 
-   ```irb
+   ```ruby
    Notify.test_email('<email_address>', 'Message Subject', 'Message Body').deliver_now
    ```
 

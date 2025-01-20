@@ -8,12 +8,12 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can update GitHub with pipeline status updates from GitLab.
 The GitHub integration can help you if you use GitLab for CI/CD.
 
-![Pipeline status update on GitHub](img/github_status_check_pipeline_update.png)
+![Pipeline status update on GitHub](img/github_status_check_pipeline_update_v10_6.png)
 
 This project integration is separate from the [instance-wide GitHub integration](../import/github.md#mirror-a-repository-and-share-pipeline-status)
 and is automatically configured when you import a [GitHub project](../../../integration/github.md).

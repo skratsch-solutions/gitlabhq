@@ -66,6 +66,12 @@ RSpec.shared_examples 'with auth_type' do
   end
 end
 
+RSpec.shared_examples 'having the correct scope' do
+  it 'has the correct scope' do
+    expect(payload).to include('access' => access)
+  end
+end
+
 RSpec.shared_examples 'a browsable' do
   let(:access) do
     [{ 'type' => 'registry',
@@ -75,10 +81,7 @@ RSpec.shared_examples 'a browsable' do
 
   it_behaves_like 'a valid token'
   it_behaves_like 'not a container repository factory'
-
-  it 'has the correct scope' do
-    expect(payload).to include('access' => access)
-  end
+  it_behaves_like 'having the correct scope'
 end
 
 RSpec.shared_examples 'an accessible' do
@@ -94,10 +97,7 @@ RSpec.shared_examples 'an accessible' do
   end
 
   it_behaves_like 'a valid token'
-
-  it 'has the correct scope' do
-    expect(payload).to include('access' => access)
-  end
+  it_behaves_like 'having the correct scope'
 end
 
 RSpec.shared_examples 'an inaccessible' do
@@ -229,8 +229,9 @@ RSpec.shared_examples 'a container registry auth service' do
 
   describe '.pull_nested_repositories_access_token' do
     let_it_be(:project) { create(:project) }
+    let(:name) { project.full_path }
+    let(:token) { described_class.pull_nested_repositories_access_token(name) }
 
-    let(:token) { described_class.pull_nested_repositories_access_token(project.full_path) }
     let(:access) do
       [
         {
@@ -258,20 +259,14 @@ RSpec.shared_examples 'a container registry auth service' do
 
     subject { { token: token } }
 
-    it 'has the correct scope' do
-      expect(payload).to include('access' => access)
-    end
-
+    it_behaves_like 'having the correct scope'
     it_behaves_like 'a valid token'
     it_behaves_like 'not a container repository factory'
 
     context 'with path ending with a slash' do
-      let(:token) { described_class.pull_nested_repositories_access_token("#{project.full_path}/") }
+      let(:name) { "#{project.full_path}/" }
 
-      it 'has the correct scope' do
-        expect(payload).to include('access' => access)
-      end
-
+      it_behaves_like 'having the correct scope'
       it_behaves_like 'a valid token'
       it_behaves_like 'not a container repository factory'
     end
@@ -285,41 +280,78 @@ RSpec.shared_examples 'a container registry auth service' do
       [
         {
           'type' => 'repository',
-          'name' => name,
+          'name' => project.full_path,
           'actions' => %w[pull push],
-          'meta' => { 'project_path' => name }
+          'meta' => { 'project_path' => project.full_path }
         },
         {
           'type' => 'repository',
-          'name' => "#{name}/*",
+          'name' => "#{project.full_path}/*",
           'actions' => %w[pull],
-          'meta' => { 'project_path' => name }
+          'meta' => { 'project_path' => project.full_path }
         }
       ]
     end
 
     subject { { token: token } }
 
-    it 'has the correct scope' do
-      expect(payload).to include('access' => access)
-    end
-
-    it 'sends the name as the override project path for the access token' do
-      expect(described_class).to receive(:access_token).with(anything, override_project_path: name)
+    it 'sends override project path as true for the access token' do
+      expect(described_class).to receive(:access_token).with(anything, use_key_as_project_path: true)
 
       subject
     end
 
+    it_behaves_like 'having the correct scope'
     it_behaves_like 'a valid token'
     it_behaves_like 'not a container repository factory'
 
     context 'with path ending with a slash' do
-      let(:token) { described_class.push_pull_nested_repositories_access_token("#{project.full_path}/") }
+      let(:name) { "#{project.full_path}/" }
 
-      it 'has the correct scope' do
-        expect(payload).to include('access' => access)
-      end
+      it_behaves_like 'having the correct scope'
+      it_behaves_like 'a valid token'
+      it_behaves_like 'not a container repository factory'
+    end
+  end
 
+  describe '.push_pull_move_repositories_access_token' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:group) { create(:group) }
+    let(:name) { project.full_path }
+    let(:token) { described_class.push_pull_move_repositories_access_token(name, group.full_path) }
+    let(:access) do
+      [
+        {
+          'type' => 'repository',
+          'name' => project.full_path,
+          'actions' => %w[pull push],
+          'meta' => { 'project_path' => project.full_path }
+        },
+        {
+          'type' => 'repository',
+          'name' => "#{project.full_path}/*",
+          'actions' => %w[pull],
+          'meta' => { 'project_path' => project.full_path }
+        },
+        {
+          'type' => 'repository',
+          'name' => "#{group.full_path}/*",
+          'actions' => %w[push],
+          'meta' => { 'project_path' => group.full_path }
+        }
+      ]
+    end
+
+    subject { { token: token } }
+
+    it_behaves_like 'having the correct scope'
+    it_behaves_like 'a valid token'
+    it_behaves_like 'not a container repository factory'
+
+    context 'with path ending with a slash' do
+      let(:name) { "#{project.full_path}/" }
+
+      it_behaves_like 'having the correct scope'
       it_behaves_like 'a valid token'
       it_behaves_like 'not a container repository factory'
     end
@@ -1342,11 +1374,14 @@ RSpec.shared_examples 'a container registry auth service' do
     end
 
     describe '#access_token' do
+      let(:path) { bad_project.full_path }
       let(:token) { described_class.access_token({ bad_project.full_path => ['pull'] }) }
       let(:access) do
-        { 'type' => 'repository',
-          'name' => bad_project.full_path,
-          'actions' => ['pull'] }
+        {
+          'type' => 'repository',
+          'name' => path,
+          'actions' => ['pull']
+        }
       end
 
       subject { { token: token } }
@@ -1357,19 +1392,28 @@ RSpec.shared_examples 'a container registry auth service' do
         expect(payload).to include('access' => [access])
       end
 
-      context 'with an override project path' do
-        let(:override_project_path) { 'group/project-override' }
+      context 'with use_key_as_project_path as true' do
         let(:token) do
           described_class.access_token(
-            { bad_project.full_path => ['pull'] },
-            override_project_path: override_project_path
+            { path => ['pull'] },
+            use_key_as_project_path: true
           )
         end
 
-        it 'returns the override project path in the metadata' do
+        it 'returns the given path in the metadata' do
           expect(payload).to include('access' => [
-            access.merge("meta" => { "project_path" => override_project_path })
+            access.merge("meta" => { "project_path" => bad_project.full_path })
           ])
+        end
+
+        context 'when the given path contains /*' do
+          let(:path) { "#{bad_project.full_path}/*" }
+
+          it 'removes the /* from the path' do
+            expect(payload).to include('access' => [
+              access.merge("meta" => { "project_path" => bad_project.full_path })
+            ])
+          end
         end
       end
     end
@@ -1380,7 +1424,6 @@ RSpec.shared_examples 'a container registry auth service' do
 
     let_it_be(:current_project) { create(:project) }
     let_it_be(:project) { current_project }
-    let_it_be(:current_user) { create(:user) }
 
     let_it_be(:container_repository_path) { current_project.full_path }
     let_it_be(:container_repository_path_pattern_no_match) { "#{container_repository_path}_no_match" }
@@ -1393,6 +1436,7 @@ RSpec.shared_examples 'a container registry auth service' do
     let_it_be(:project_developer) { create(:user, developer_of: current_project) }
     let_it_be(:project_maintainer) { create(:user, maintainer_of: current_project) }
     let_it_be(:project_owner) { current_project.owner }
+    let_it_be(:instance_admin) { create(:admin) }
 
     let(:current_params) { { scopes: ["repository:#{container_repository_path}:push"] } }
 
@@ -1405,13 +1449,16 @@ RSpec.shared_examples 'a container registry auth service' do
       end
     end
 
-    context 'for different repository_path_patterns and current user roles' do
+    context 'for different repository_path_patterns and current user roles', :enable_admin_mode do
       # rubocop:disable Layout/LineLength -- Avoid formatting to keep one-line table layout
       where(:repository_path_pattern, :minimum_access_level_for_push, :current_user, :shared_examples_name) do
         ref(:container_repository_path)                  | :maintainer | ref(:project_developer)  | 'a protected container repository'
         ref(:container_repository_path)                  | :maintainer | ref(:project_owner)      | 'a pushable'
         ref(:container_repository_path)                  | :owner      | ref(:project_maintainer) | 'a protected container repository'
+        ref(:container_repository_path)                  | :owner      | ref(:project_owner)      | 'a pushable'
+        ref(:container_repository_path)                  | :owner      | ref(:instance_admin)     | 'a pushable'
         ref(:container_repository_path)                  | :admin      | ref(:project_owner)      | 'a protected container repository'
+        ref(:container_repository_path)                  | :admin      | ref(:instance_admin)     | 'a pushable'
         ref(:container_repository_path_pattern_no_match) | :maintainer | ref(:project_developer)  | 'a pushable'
         ref(:container_repository_path_pattern_no_match) | :admin      | ref(:project_owner)      | 'a pushable'
       end
@@ -1449,31 +1496,105 @@ RSpec.shared_examples 'a container registry auth service' do
         it_behaves_like params[:shared_examples_name]
       end
     end
+  end
 
-    context 'when feature flag :container_registry_protected_containers is disabled' do
-      let_it_be(:current_user) { current_project.owner }
+  context 'with protected tags' do
+    let_it_be(:current_project) { create(:project) }
+    let_it_be(:container_repository_path) { current_project.full_path }
+    let_it_be(:project_developer) { create(:user, developer_of: current_project) }
+    let_it_be(:project_maintainer) { create(:user, maintainer_of: current_project) }
+    let_it_be(:project_owner) { current_project.owner }
+    let_it_be(:instance_admin) { create(:admin) }
+
+    let_it_be(:rules) do
+      [
+        create(:container_registry_protection_tag_rule,
+          project: current_project,
+          tag_name_pattern: 'v1.*',
+          minimum_access_level_for_push: :maintainer,
+          minimum_access_level_for_delete: :maintainer),
+        create(:container_registry_protection_tag_rule,
+          project: current_project,
+          tag_name_pattern: 'latest',
+          minimum_access_level_for_push: :owner,
+          minimum_access_level_for_delete: :maintainer),
+        create(:container_registry_protection_tag_rule,
+          project: current_project,
+          tag_name_pattern: 'admin-only',
+          minimum_access_level_for_push: :admin,
+          minimum_access_level_for_delete: :owner)
+      ]
+    end
+
+    using RSpec::Parameterized::TableSyntax
+
+    # rubocop:disable Layout/LineLength -- Avoid formatting to keep one-line table layout
+    where(:user, :requested_scopes, :enable_admin_mode, :expected_access, :expected_deny_patterns) do
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:pull"] }                | false | true  | {}
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:push"] }                | false | true  | { 'push' => %w[v1.* latest admin-only] }
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:delete"] }              | false | false | nil # developers can't obtain delete access
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:pull,push"] }           | false | true  | { 'push' => %w[v1.* latest admin-only] }
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:pull,delete"] }         | false | true  | {}
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:push,delete"] }         | false | true  | { 'push' => %w[v1.* latest admin-only] }
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:pull,push,delete"] }    | false | true  | { 'push' => %w[v1.* latest admin-only] }
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:*"] }                   | false | false | nil # developers can't obtain full access
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:push,push"] }           | false | true  | { 'push' => %w[v1.* latest admin-only] } # single test for edge case where access may be repeated
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:push,foo"] }            | false | true  | { 'push' => %w[v1.* latest admin-only] } # test for (today impossible) case where an access is unknown
+      ref(:project_developer)  | lazy { ["repository:#{container_repository_path}:foo"] }                 | false | false | {} # test for (today impossible) case where the access is unknown
+
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:pull"] }                | false | true  | {}
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:push"] }                | false | true  | { 'push' => %w[latest admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:delete"] }              | false | true  | { 'delete' => %w[admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:pull,push"] }           | false | true  | { 'push' => %w[latest admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:pull,delete"] }         | false | true  | { 'delete' => %w[admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:push,delete"] }         | false | true  | { 'push' => %w[latest admin-only], 'delete' => %w[admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:pull,push,delete"] }    | false | true  | { 'push' => %w[latest admin-only], 'delete' => %w[admin-only] }
+      ref(:project_maintainer) | lazy { ["repository:#{container_repository_path}:*"] }                   | false | true  | { 'push' => %w[latest admin-only], 'delete' => %w[admin-only] }
+
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:pull"] }                | false | true  | {}
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:push"] }                | false | true  | { 'push' => %w[admin-only] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:delete"] }              | false | true  | { 'delete' => [] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:pull,push"] }           | false | true  | { 'push' => %w[admin-only] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:pull,delete"] }         | false | true  | { 'delete' => [] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:push,delete"] }         | false | true  | { 'push' => %w[admin-only], 'delete' => [] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:pull,push,delete"] }    | false | true  | { 'push' => %w[admin-only], 'delete' => [] }
+      ref(:project_owner)      | lazy { ["repository:#{container_repository_path}:*"] }                   | false | true  | { 'push' => %w[admin-only], 'delete' => [] }
+
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:pull"] }                | true  | true  | {}
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:push"] }                | true  | true  | { 'push' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:delete"] }              | true  | true  | { 'delete' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:pull,push"] }           | true  | true  | { 'push' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:pull,delete"] }         | true  | true  | { 'delete' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:push,delete"] }         | true  | true  | { 'push' => [], 'delete' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:pull,push,delete"] }    | true  | true  | { 'push' => [], 'delete' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:*"] }                   | true  | true  | { 'push' => [], 'delete' => [] }
+      ref(:instance_admin)     | lazy { ["repository:#{container_repository_path}:*"] }                   | false | false | {} # ensure that admin mode is properly enforced
+    end
+    # rubocop:enable Layout/LineLength
+
+    with_them do
+      let(:current_user) { user }
+      let(:current_params) { { scopes: requested_scopes } }
 
       before do
-        stub_feature_flags(container_registry_protected_containers: false)
+        enable_admin_mode!(current_user) if enable_admin_mode
       end
 
-      context 'with matching package protection rule for all roles' do
-        where(:repository_path_pattern, :minimum_access_level_for_push, :shared_examples_name) do
-          ref(:container_repository_path)                  | :maintainer | 'a pushable'
-          ref(:container_repository_path)                  | :admin      | 'a pushable'
-          ref(:container_repository_path_pattern_no_match) | :maintainer | 'a pushable'
-          ref(:container_repository_path_pattern_no_match) | :admin      | 'a pushable'
-        end
+      it 'returns the expected tag deny access patterns' do
+        is_expected.to include(:token)
 
-        with_them do
-          before do
-            container_registry_protection_rule.update!(
-              repository_path_pattern: repository_path_pattern,
-              minimum_access_level_for_push: minimum_access_level_for_push
-            )
+        if expected_access
+          expect(payload['access']).not_to be_empty
+          expect(payload['access'].first['meta']).to include('tag_deny_access_patterns')
+
+          # Not using direct comparison to avoid flakiness due to ordering changes
+          actual_patterns = payload['access'].first['meta']['tag_deny_access_patterns']
+          expect(actual_patterns.keys).to match_array(expected_deny_patterns.keys)
+          expected_deny_patterns.each do |action, expected_patterns|
+            expect(actual_patterns[action]).to match_array(expected_patterns)
           end
-
-          it_behaves_like params[:shared_examples_name]
+        else
+          expect(payload['access']).to be_empty
         end
       end
     end

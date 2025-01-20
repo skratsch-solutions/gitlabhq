@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createDefaultClient from '~/lib/graphql';
+import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import ReleaseShowApp from './components/app_show.vue';
 
 Vue.use(VueApollo);
@@ -14,15 +15,28 @@ export default () => {
 
   if (!el) return false;
 
-  const { projectPath, tagName } = el.dataset;
+  const { projectPath, tagName, deployments } = el.dataset;
+
+  let parsedDeployments;
+
+  try {
+    parsedDeployments = JSON.parse(deployments);
+  } catch {
+    parsedDeployments = {};
+  }
 
   return new Vue({
     el,
     apolloProvider,
     provide: {
-      fullPath: projectPath,
+      projectPath,
       tagName,
     },
-    render: (h) => h(ReleaseShowApp),
+    render: (h) =>
+      h(ReleaseShowApp, {
+        props: {
+          deployments: convertObjectPropsToCamelCase(parsedDeployments, { deep: true }),
+        },
+      }),
   });
 };

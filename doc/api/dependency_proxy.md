@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Purge the dependency proxy for a group
 
@@ -21,7 +21,7 @@ DELETE /groups/:id/dependency_proxy/cache
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 
 Example request:
 

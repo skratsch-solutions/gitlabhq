@@ -10,8 +10,8 @@ module Types
     authorize :read_environment
 
     expose_permissions Types::PermissionTypes::Environment,
-      description: 'Permissions for the current user on the resource. '\
-                   'This field can only be resolved for one environment in any single request.' do
+      description: 'Permissions for the current user on the resource. ' \
+        'This field can only be resolved for one environment in any single request.' do
       extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
     end
 
@@ -32,6 +32,9 @@ module Types
 
     field :external_url, GraphQL::Types::String, null: true,
       description: 'External URL of the environment.'
+
+    field :description, GraphQL::Types::String, null: true,
+      description: 'Description of the environment.'
 
     field :kubernetes_namespace, GraphQL::Types::String, null: true,
       description: 'Kubernetes namespace of the environment.'
@@ -58,8 +61,8 @@ module Types
       description: 'Folder name of the environment.'
 
     field :deployments_display_count, GraphQL::Types::String, null: true,
-      description: 'Number of deployments in the environment for display. '\
-                   'Returns the precise number up to 999, and "999+" for counts exceeding this limit.'
+      description: 'Number of deployments in the environment for display. ' \
+        'Returns the precise number up to 999, and "999+" for counts exceeding this limit.'
 
     field :latest_opened_most_severe_alert,
       Types::AlertManagement::AlertType,
@@ -90,6 +93,11 @@ module Types
       null: true do
       extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
     end
+
+    field :auto_stop_setting, Types::Environments::AutoStopSettingEnum,
+      description: 'Auto stop setting of the environment.'
+
+    markdown_field :description_html, null: true
 
     def tier
       object.tier.to_sym

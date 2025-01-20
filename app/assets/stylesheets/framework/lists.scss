@@ -24,10 +24,6 @@
       color: $gl-text-color-tertiary;
     }
 
-    &:not(.ui-sort-disabled):hover {
-      background: $blue-50;
-    }
-
     &.unstyled {
       &:hover {
         background: none;
@@ -60,11 +56,6 @@
         top: 3px;
       }
     }
-
-    .card.card-body-title {
-      font-size: $gl-font-size;
-      line-height: 18px;
-    }
   }
 }
 
@@ -73,17 +64,6 @@
 ul.bordered-list,
 ul.unstyled-list {
   @include basic-list;
-
-  &.top-list {
-    li:first-child {
-      padding-top: 0;
-
-      h4,
-      h5 {
-        margin-top: 0;
-      }
-    }
-  }
 }
 
 ul.unstyled-list > li {
@@ -104,9 +84,9 @@ ul.content-list {
   padding: 0;
 
   li {
-    border-color: $gray-50;
+    @apply gl-border-default;
     font-size: $gl-font-size;
-    color: $gl-text-color;
+    @apply gl-text-default;
     word-break: break-word;
 
     .title {
@@ -114,10 +94,10 @@ ul.content-list {
     }
 
     a {
-      color: $gl-text-color;
+      @apply gl-text-default;
 
       &.inline-link {
-        color: $blue-600;
+        @apply gl-text-link;
       }
     }
 
@@ -128,20 +108,10 @@ ul.content-list {
     .controls {
       float: right;
 
-      > .control-text {
-        margin-right: $grid-size;
-        line-height: $list-text-height;
-
-        &:last-child {
-          margin-right: 0;
-        }
-      }
-
       > .btn,
       > .btn-group,
       > .dropdown.inline {
         margin-right: $grid-size;
-        display: inline-block;
 
         &.has-tooltip,
         &:last-child {
@@ -152,18 +122,6 @@ ul.content-list {
           }
         }
       }
-    }
-
-    // When dragging a list item
-    &.ui-sortable-helper {
-      border-bottom: 0;
-    }
-
-    &.list-placeholder {
-      background-color: $gray-10;
-      border: dotted 1px $gray-50;
-      margin: 1px 0;
-      min-height: 52px;
     }
   }
 }
@@ -203,11 +161,7 @@ ul.content-list {
   }
 
   .badge-secondary {
-    color: $gl-text-color-secondary;
-  }
-
-  .avatar-cell {
-    align-self: flex-start;
+    @apply gl-text-subtle;
   }
 }
 

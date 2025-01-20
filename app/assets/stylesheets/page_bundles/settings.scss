@@ -26,7 +26,7 @@
 
 .settings {
   // border-top for each item except the top one
-  border-top: 1px solid var(--border-color, $border-color);
+  border-top: 1px solid var(--gl-border-color-default);
 
   &:first-of-type {
     margin-top: 10px;
@@ -36,18 +36,26 @@
 
   + div .settings:first-of-type {
     margin-top: 0;
-    border-top: 1px solid var(--border-color, $border-color);
+    border-top: 1px solid var(--gl-border-color-default);
   }
 
   &.animating {
     overflow: hidden;
+  }
+
+  .settings-toggle svg {
+    @apply gl-transition;
+  }
+
+  &.expanded .settings-toggle svg {
+    transform: rotate(90deg);
   }
 }
 
 .vue-settings-block {
   // top border and padding for all settings blocks except the first one
   &:not(:first-of-type) {
-    border-top: 1px solid var(--border-color, $border-color);
+    border-top: 1px solid var(--gl-border-color-default);
     padding-top: $gl-spacing-scale-5;
   }
 
@@ -59,7 +67,7 @@
 
 .settings-header {
   position: relative;
-  padding: $gl-spacing-scale-5 110px 0 0;
+  padding: $gl-spacing-scale-5 $gl-spacing-scale-7 0 0;
 
   h4 {
     margin-top: 0;
@@ -86,7 +94,7 @@
   position: relative;
   max-height: 1px;
   overflow-y: hidden;
-  padding-right: 110px;
+  @apply gl-pr-7;
   animation: collapseMaxHeight 300ms ease-out;
   // Keep the section from expanding when we scroll over it
   pointer-events: none;
@@ -126,18 +134,18 @@
   .sub-section {
     margin-bottom: 32px;
     padding: 16px;
-    border: 1px solid var(--border-color, $border-color);
+    border: 1px solid var(--gl-border-color-default);
     background-color: var(--gl-background-color-subtle);
   }
 
-  .bs-callout,
   .form-check:first-child,
-  .form-check .form-text.text-muted,
-  .form-check + .form-text.text-muted {
+  .form-check .form-text,
+  .form-check + .form-text {
     margin-top: 0;
   }
 
   .instance-runners-info {
+    // stylelint-disable-next-line gitlab/no-gl-class
     .gl-alert-body {
       p:last-child {
         margin-bottom: 0;
@@ -145,13 +153,13 @@
     }
   }
 
-  .form-check .form-text.text-muted {
+  .form-check .form-text {
     margin-bottom: $grid-size;
   }
 }
 
 .settings-list-icon {
-  color: var(--gray-500, $gl-text-color-secondary);
+  @apply gl-text-subtle;
   font-size: $default-icon-size;
   line-height: 42px;
 }
@@ -163,63 +171,4 @@
   background-color: var(--orange-50, $orange-50);
   border: 1px solid var(--orange-200, $orange-200);
   border-radius: $gl-border-radius-base;
-}
-
-.prometheus-metrics-monitoring {
-  .gl-card {
-    .badge.badge-pill {
-      font-size: 12px;
-      line-height: 12px;
-    }
-
-    .gl-card-header .label-count {
-      color: var(--white, $white);
-      background: var(--gray-800, $gray-800);
-    }
-
-    .flash-container {
-      margin-bottom: 0;
-      cursor: default;
-
-      .flash-notice,
-      .flash-warning {
-        margin-top: 0;
-        border-radius: 0;
-      }
-    }
-  }
-
-  .custom-monitored-metrics {
-    .custom-metric {
-      display: flex;
-      align-items: center;
-    }
-
-    .custom-metric-link-bold {
-      font-weight: $gl-font-weight-bold;
-      text-decoration: none;
-    }
-  }
-
-  .loading-metrics .metrics-load-spinner {
-    color: var(--gray-700, $gray-700);
-  }
-
-  .metrics-list {
-    margin-bottom: 0;
-
-    li {
-      padding: $gl-padding;
-
-      .badge.badge-pill {
-        margin-left: 5px;
-        background: $badge-bg;
-      }
-
-      /* Ensure we don't add border if there's only single li */
-      + li {
-        border-top: 1px solid var(--border-color, $border-color);
-      }
-    }
-  }
 }

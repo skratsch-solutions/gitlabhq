@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 An incident is a service disruption or outage that needs to be restored urgently.
 Incidents are critical in incident management workflows.
@@ -16,7 +16,7 @@ Use GitLab to triage, respond, and remediate incidents.
 
 ## Incidents list
 
-When you [view the incidents list](manage_incidents.md#view-incidents-list), it contains the following:
+When you [view the incidents list](manage_incidents.md#view-a-list-of-incidents), it contains the following:
 
 - **State**: To filter incidents by their state, select **Open**, **Closed**,
   or **All** above the incident list.
@@ -103,7 +103,7 @@ displays them below the summary.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In many cases, incidents are associated to metrics. You can upload screenshots of metric
 charts in the **Metrics** tab:
@@ -136,7 +136,7 @@ Read more about [timeline events](incident_timeline_events.md) and how to enable
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To see the latest updates on an incident, select
 **Turn recent updates view on** (**{history}**) on the comment bar. Comments display
@@ -146,7 +146,7 @@ un-threaded and chronologically, newest to oldest.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can enable the Service Level Agreement Countdown timer on incidents to track
 the Service Level Agreements (SLA) you hold with your customers. The timer is
@@ -177,7 +177,7 @@ label to the incident.
 - [Create an incident](manage_incidents.md#create-an-incident)
 - [Create an incident automatically](alerts.md#trigger-actions-from-alerts)
   whenever an alert is triggered
-- [View incidents list](manage_incidents.md#view-incidents-list)
+- [View incidents list](manage_incidents.md#view-a-list-of-incidents)
 - [Assign to a user](manage_incidents.md#assign-to-a-user)
 - [Change incident severity](manage_incidents.md#change-severity)
 - [Change incident status](manage_incidents.md#change-status)

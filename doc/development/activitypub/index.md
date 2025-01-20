@@ -9,10 +9,10 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 DETAILS:
 **Status:** Experiment
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127023) in GitLab 16.5 [with two flags](../../administration/feature_flags.md) named `activity_pub` and `activity_pub_project`. Disabled by default. This feature is an [experiment](../../policy/experiment-beta-support.md).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/127023) in GitLab 16.5 [with two flags](../../administration/feature_flags.md) named `activity_pub` and `activity_pub_project`. Disabled by default. This feature is an [experiment](../../policy/development_stages_support.md).
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available,
+On GitLab Self-Managed, by default this feature is not available. To make it available,
 an administrator can [enable the feature flags](../../administration/feature_flags.md)
 named `activity_pub` and `activity_pub_project`.
 On GitLab.com and GitLab Dedicated, this feature is not available.
@@ -35,7 +35,7 @@ This feature requires two feature flags:
   projects. Requires the `activity_pub` flag to also be enabled.
 
 Most of the implementation is being discussed in
-[an architecture blueprint](../../architecture/blueprints/activity_pub/index.md),
+[an architecture design document](https://handbook.gitlab.com/handbook/engineering/architecture/design-documents/activity_pub/),
 see this document for more information.
 
 For now, see [how to implement an ActivityPub actor](actors/index.md).

@@ -29,7 +29,7 @@ export default {
 };
 </script>
 <template>
-  <span class="gl-max-w-full gl-display-flex gl-align-items-center gl-flex-grow-1">
+  <span class="gl-flex gl-items-center">
     <ci-icon
       :size="iconSize"
       :status="status"
@@ -37,7 +37,7 @@ export default {
       :use-link="false"
       class="gl-leading-0"
     />
-    <span class="gl-text-truncate mw-70p gl-pl-3 gl-display-inline-block" :title="name">
+    <span class="gl-line-clamp-2 gl-pl-3 gl-wrap-anywhere" :title="name">
       {{ name }}
     </span>
   </span>

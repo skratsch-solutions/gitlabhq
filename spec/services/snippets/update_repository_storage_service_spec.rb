@@ -6,7 +6,7 @@ RSpec.describe Snippets::UpdateRepositoryStorageService, feature_category: :sour
   subject { described_class.new(repository_storage_move) }
 
   describe "#execute" do
-    let_it_be_with_reload(:snippet) { create(:snippet, :repository) }
+    let_it_be_with_reload(:snippet) { create(:project_snippet, :repository) }
     let_it_be(:destination) { 'test_second_storage' }
     let_it_be(:checksum) { snippet.repository.checksum }
 
@@ -53,7 +53,7 @@ RSpec.describe Snippets::UpdateRepositoryStorageService, feature_category: :sour
         expect(Gitlab::GitalyClient).to receive(:filesystem_id).twice.and_return(SecureRandom.uuid)
       end
 
-      it 'updates the database without trying to move the repostory', :aggregate_failures do
+      it 'updates the database without trying to move the repository', :aggregate_failures do
         result = subject.execute
         snippet.reload
 
@@ -109,7 +109,7 @@ RSpec.describe Snippets::UpdateRepositoryStorageService, feature_category: :sour
 
         expect do
           subject.execute
-        end.to raise_error(Repositories::ReplicateService::Error, /Failed to verify snippet repository checksum from \w+ to not matching checksum/)
+        end.to raise_error(::Repositories::ReplicateService::Error, /Failed to verify snippet repository checksum from \w+ to not matching checksum/)
 
         expect(snippet).not_to be_repository_read_only
         expect(snippet.repository_storage).to eq('default')

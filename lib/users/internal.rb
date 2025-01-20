@@ -3,6 +3,7 @@
 module Users
   class Internal
     class << self
+      include Gitlab::Utils::StrongMemoize
       # rubocop:disable CodeReuse/ActiveRecord
 
       # Return (create if necessary) the ghost user. The ghost user
@@ -46,7 +47,6 @@ module Users
           u.bio = 'System bot that monitors detected vulnerabilities for solutions ' \
                   'and creates merge requests with the fixes.'
           u.name = 'GitLab Security Bot'
-          u.website_url = Gitlab::Routing.url_helpers.help_page_url('user/application_security/security_bot/index.md')
           u.avatar = bot_avatar(image: 'security-bot.png')
           u.confirmed_at = Time.zone.now
           u.private_profile = true
@@ -64,6 +64,18 @@ module Users
           u.private_profile = true
         end
       end
+
+      # Checks against this bot are now included in every issue and work item
+      # detail and list page rendering and in GraphQL queries (especially for determining
+      # the web_url of an issue/work item).
+      # Because the bot never changes once created, we can memoize it for
+      # the lifetime of the application process. It also doesn't matter that
+      # different nodes may have different object instances of the bot.
+      # We only memoize the id because this is the information we check against.
+      def support_bot_id
+        support_bot.id
+      end
+      strong_memoize_attr :support_bot_id
 
       def automation_bot
         email_pattern = "automation%s@#{Settings.gitlab.host}"
@@ -90,12 +102,12 @@ module Users
       end
 
       def duo_code_review_bot
-        email_pattern = "duo-code-review-bot%s@#{Settings.gitlab.host}"
+        email_pattern = "gitlab-duo%s@#{Settings.gitlab.host}"
 
-        unique_internal(User.where(user_type: :duo_code_review_bot), 'GitLab-Duo-Code-Reviewer', email_pattern) do |u|
-          u.bio = 'The reviewer bot for GitLab Duo Code Review'
-          u.name = 'Duo Code Reviewer'
-          u.avatar = bot_avatar(image: 'support-bot.png') # todo: add an avatar for duo_code_review_bot
+        unique_internal(User.where(user_type: :duo_code_review_bot), 'GitLabDuo', email_pattern) do |u|
+          u.bio = 'GitLab Duo bot for handling AI tasks'
+          u.name = 'GitLab Duo'
+          u.avatar = bot_avatar(image: 'duo-bot.png')
           u.confirmed_at = Time.zone.now
           u.private_profile = true
         end
@@ -161,7 +173,9 @@ module Users
           email: email,
           &creation_block
         )
-        user.assign_personal_namespace(Organizations::Organization.default_organization)
+
+        # https://gitlab.com/gitlab-org/gitlab/-/issues/442780
+        user.assign_personal_namespace(::Organizations::Organization.first)
 
         Users::UpdateService.new(user, user: user).execute(validate: false)
         user

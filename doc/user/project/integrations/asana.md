@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The Asana integration adds commit messages as comments to Asana tasks.
 Once enabled, commit messages are checked for Asana task URLs (for example,
@@ -31,8 +31,8 @@ See also the [Asana integration API documentation](../../../api/integrations.md#
 
 ## Setup
 
-In Asana, create a Personal Access Token.
-[Learn about Personal Access Tokens in Asana](https://developers.asana.com/docs/personal-access-token).
+In Asana, create a personal access token.
+[Learn about personal access tokens in Asana](https://developers.asana.com/docs/personal-access-token).
 
 Complete these steps in GitLab:
 

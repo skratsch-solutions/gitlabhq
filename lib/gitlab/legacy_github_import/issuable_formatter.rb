@@ -3,6 +3,8 @@
 module Gitlab
   module LegacyGithubImport
     class IssuableFormatter < BaseFormatter
+      include Import::UsernameMentionRewriter
+
       attr_writer :assignee_id, :author_id
 
       def project_association
@@ -17,6 +19,26 @@ module Gitlab
         { iid: number }
       end
 
+      def create!
+        record = super
+
+        return record unless assignee_id
+
+        # Fetch first assignee because Gitea's API only returns one assignee for issue assignees
+        assignee_record = record.method(project_assignee_association).call.first
+        push_placeholder_references(assignee_record, contributing_users: contributing_assignee_formatters)
+
+        record
+      end
+
+      def project_assignee_association
+        raise NotImplementedError
+      end
+
+      def contributing_assignee_formatters
+        raise NotImplementedError
+      end
+
       private
 
       def state
@@ -28,7 +50,7 @@ module Gitlab
       end
 
       def author
-        @author ||= UserFormatter.new(client, raw_data[:user])
+        @author ||= UserFormatter.new(client, raw_data[:user], project, source_user_mapper)
       end
 
       def author_id
@@ -37,7 +59,7 @@ module Gitlab
 
       def assignee
         if assigned?
-          @assignee ||= UserFormatter.new(client, raw_data[:assignee])
+          @assignee ||= UserFormatter.new(client, raw_data[:assignee], project, source_user_mapper)
         end
       end
 
@@ -48,7 +70,7 @@ module Gitlab
       end
 
       def body
-        raw_data[:body] || ""
+        wrap_mentions_in_backticks(raw_data[:body]) || ""
       end
 
       def description

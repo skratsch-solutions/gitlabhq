@@ -7,7 +7,10 @@ module ProfilesHelper
 
     [
       [s_('Use primary email (%{email})') % { email: user.email }, ''],
-      [s_("Profiles|Use a private email - %{email}").html_safe % { email: private_email }, Gitlab::PrivateCommitEmail::TOKEN],
+      [
+        safe_format(s_("Profiles|Use a private email - %{email}"), email: private_email),
+        Gitlab::PrivateCommitEmail::TOKEN
+      ],
       *verified_emails
     ]
   end
@@ -32,7 +35,7 @@ module ProfilesHelper
       if stacking
         classes.concat(%w[middle-dot-divider-sm gl-block sm:gl-inline-block])
       else
-        classes << 'gl-display-inline-block'
+        classes << 'gl-inline-block'
         classes << if breakpoint.nil?
                      'middle-dot-divider'
                    else
@@ -78,7 +81,13 @@ module ProfilesHelper
       has_avatar: user.avatar?.to_s,
       gravatar_enabled: gravatar_enabled?.to_s,
       gravatar_link: { hostname: Gitlab.config.gravatar.host, url: "https://#{Gitlab.config.gravatar.host}" }.to_json,
-      brand_profile_image_guidelines: current_appearance&.profile_image_guidelines? ? brand_profile_image_guidelines : '',
+
+      brand_profile_image_guidelines: if current_appearance&.profile_image_guidelines?
+                                        brand_profile_image_guidelines
+                                      else
+                                        ''
+                                      end,
+
       cropper_css_path: ActionController::Base.helpers.stylesheet_path('lazy_bundles/cropper.css'),
       user_path: user_path(current_user),
       timezones: timezone_data_with_unique_identifiers.to_json,

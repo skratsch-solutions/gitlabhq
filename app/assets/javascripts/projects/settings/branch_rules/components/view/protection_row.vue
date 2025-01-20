@@ -1,6 +1,13 @@
 <script>
-import { GlAvatarsInline, GlAvatar, GlAvatarLink, GlTooltipDirective, GlBadge } from '@gitlab/ui';
-import { n__ } from '~/locale';
+import {
+  GlAvatarsInline,
+  GlAvatar,
+  GlAvatarLink,
+  GlTooltipDirective,
+  GlBadge,
+  GlIcon,
+} from '@gitlab/ui';
+import { n__, __ } from '~/locale';
 import { accessLevelsConfig } from './constants';
 
 const AVATAR_TOOLTIP_MAX_CHARS = 100;
@@ -8,12 +15,15 @@ export const MAX_VISIBLE_AVATARS = 4;
 export const AVATAR_SIZE = 24;
 
 export default {
+  i18n: {
+    sharedSecret: __('HMAC enabled'),
+  },
   name: 'ProtectionRow',
   AVATAR_TOOLTIP_MAX_CHARS,
   MAX_VISIBLE_AVATARS,
   AVATAR_SIZE,
   accessLevelsConfig,
-  components: { GlAvatarsInline, GlAvatar, GlAvatarLink, GlBadge },
+  components: { GlAvatarsInline, GlAvatar, GlAvatarLink, GlBadge, GlIcon },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
@@ -43,10 +53,20 @@ export default {
       required: false,
       default: () => [],
     },
+    deployKeys: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
     statusCheckUrl: {
       type: String,
       required: false,
       default: null,
+    },
+    hmac: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   computed: {
@@ -66,13 +86,13 @@ export default {
 
 <template>
   <div
-    class="gl-display-flex gl-align-items-center gl-gap-7 gl-border-gray-100 gl-mb-4 gl-border-t-1"
-    :class="{ 'gl-border-t-solid gl-pt-4': showDivider }"
+    class="gl-mb-4 gl-flex gl-items-center gl-gap-7 gl-border-t-1 gl-border-default"
+    :class="{ 'gl-pt-4 gl-border-t-solid': showDivider }"
   >
-    <div class="gl-display-flex gl-w-full gl-align-items-center">
-      <div class="gl-flex-basis-quarter">{{ title }}</div>
+    <div class="gl-flex gl-w-full gl-items-center">
+      <div class="gl-basis-1/4">{{ title }}</div>
 
-      <div v-if="statusCheckUrl" class="gl-flex-grow-1">{{ statusCheckUrl }}</div>
+      <div v-if="statusCheckUrl" class="gl-grow">{{ statusCheckUrl }}</div>
 
       <gl-avatars-inline
         v-if="usersAndGroups.length"
@@ -104,15 +124,30 @@ export default {
         </template>
       </gl-avatars-inline>
 
-      <gl-badge
-        v-for="(item, index) in accessLevels"
-        :key="index"
-        class="gl-mr-2"
-        data-testid="access-level"
-        :data-qa-role="$options.accessLevelsConfig[item].accessLevelLabel"
+      <gl-badge v-if="hmac" data-testid="shared-secret" class="gl-mr-2">{{
+        $options.i18n.sharedSecret
+      }}</gl-badge>
+
+      <div v-if="accessLevels.length" class="gl-flex gl-flex-1 gl-flex-wrap gl-gap-2">
+        <gl-badge
+          v-for="(item, index) in accessLevels"
+          :key="index"
+          data-testid="access-level"
+          :data-qa-role="$options.accessLevelsConfig[item].accessLevelLabel"
+        >
+          {{ $options.accessLevelsConfig[item].accessLevelLabel }}
+        </gl-badge>
+      </div>
+
+      <div
+        v-if="deployKeys.length"
+        class="gl-mr-2 gl-flex gl-min-w-0 gl-flex-1 gl-flex-wrap gl-gap-2"
       >
-        {{ $options.accessLevelsConfig[item].accessLevelLabel }}
-      </gl-badge>
+        <gl-badge v-for="deployKey in deployKeys" :key="deployKey.id" data-testid="deploy-key"
+          ><gl-icon name="key" class="gl-mr-2 gl-min-w-5" />
+          <span class="gl-truncate">{{ deployKey.title }}</span>
+        </gl-badge>
+      </div>
     </div>
   </div>
 </template>

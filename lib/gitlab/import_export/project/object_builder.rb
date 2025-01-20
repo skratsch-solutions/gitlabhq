@@ -25,6 +25,7 @@ module Gitlab
           return find_diff_commit_user if diff_commit_user?
           return find_diff_commit if diff_commit?
           return find_work_item_type if work_item_type?
+          return find_pipeline if pipeline?
 
           super
         end
@@ -147,6 +148,10 @@ module Gitlab
           klass == ::WorkItems::Type
         end
 
+        def pipeline?
+          klass == ::Ci::Pipeline
+        end
+
         # If an existing group milestone used the IID
         # claim the IID back and set the group milestone to use one available
         # This is necessary to fix situations like the following:
@@ -175,13 +180,21 @@ module Gitlab
         def find_work_item_type
           base_type = @attributes['base_type']
 
-          find_with_cache([::WorkItems::Type, base_type]) do
+          # Using a tmp key to invalidate cache. Should be removed in next release
+          # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/497857
+          find_with_cache([::WorkItems::Type, base_type, :tmp_correct_id]) do
             if ::WorkItems::Type.base_types.key?(base_type)
               ::WorkItems::Type.default_by_type(base_type)
             else
               ::WorkItems::Type.default_issue_type
             end
           end
+        end
+
+        def find_pipeline
+          # Here we should referencing only existing pipelines
+          # Only the 'iid' and `project` attributes should be present
+          ::Ci::Pipeline.find_by(iid: attributes['iid'], project_id: project.id)
         end
       end
     end

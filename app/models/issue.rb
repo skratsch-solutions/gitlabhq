@@ -24,7 +24,7 @@ class Issue < ApplicationRecord
   include FromUnion
   include EachBatch
   include PgFullTextSearchable
-  include IgnorableColumns
+  include Gitlab::DueAtFilterable
 
   extend ::Gitlab::Utils::Override
 
@@ -58,14 +58,31 @@ class Issue < ApplicationRecord
 
   # prevent caching this column by rails, as we want to easily remove it after the backfilling
   ignore_column :tmp_epic_id, remove_with: '16.11', remove_after: '2024-03-31'
-  ignore_column :imported, remove_with: '17.2', remove_after: '2024-07-22'
+
+  # Interim columns to convert integer IDs to bigint
+  ignore_column :author_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :closed_by_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :duplicated_to_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :last_edited_by_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :milestone_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :moved_to_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :project_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :promoted_to_epic_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
+  ignore_column :updated_by_id_convert_to_bigint, remove_with: '17.8', remove_after: '2024-12-13'
 
   belongs_to :project
   belongs_to :namespace, inverse_of: :issues
 
   belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
-  belongs_to :work_item_type, class_name: 'WorkItems::Type', inverse_of: :work_items
+  belongs_to :work_item_type, class_name: 'WorkItems::Type'
+
+  # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/499911
+  belongs_to :correct_work_item_type, # rubocop:disable Rails/InverseOf -- Temp association to the same record
+    class_name: 'WorkItems::Type',
+    foreign_key: :correct_work_item_type_id,
+    primary_key: :correct_id
 
   belongs_to :moved_to, class_name: 'Issue', inverse_of: :moved_from
   has_one :moved_from, class_name: 'Issue', foreign_key: :moved_to_id, inverse_of: :moved_to
@@ -81,6 +98,8 @@ class Issue < ApplicationRecord
 
   has_many :issue_assignees
   has_many :issue_email_participants
+  alias_method :email_participants, :issue_email_participants
+
   has_one :email
   has_many :assignees, class_name: "User", through: :issue_assignees
   has_many :zoom_meetings
@@ -92,15 +111,16 @@ class Issue < ApplicationRecord
       ordered.first
     end
   end
+  has_many :assignees_by_name_and_id, -> { ordered_by_name_asc_id_desc },
+    class_name: "User", through: :issue_assignees,
+    source: :assignee
 
   has_one :search_data, class_name: 'Issues::SearchData'
   has_one :issuable_severity
   has_one :sentry_issue
   has_one :alert_management_alert, class_name: 'AlertManagement::Alert'
   has_one :incident_management_issuable_escalation_status, class_name: 'IncidentManagement::IssuableEscalationStatus'
-  has_and_belongs_to_many :prometheus_alert_events, join_table: :issues_prometheus_alert_events # rubocop: disable Rails/HasAndBelongsToMany
   has_many :alert_management_alerts, class_name: 'AlertManagement::Alert', inverse_of: :issue, validate: false
-  has_many :prometheus_alerts, through: :prometheus_alert_events
   has_many :issue_customer_relations_contacts, class_name: 'CustomerRelations::IssueContact', inverse_of: :issue
   has_many :customer_relations_contacts, through: :issue_customer_relations_contacts, source: :contact, class_name: 'CustomerRelations::Contact', inverse_of: :issues
   has_many :incident_management_timeline_events, class_name: 'IncidentManagement::TimelineEvent', foreign_key: :issue_id, inverse_of: :incident
@@ -117,8 +137,8 @@ class Issue < ApplicationRecord
   validates :work_item_type, presence: true
   validates :confidential, inclusion: { in: [true, false], message: 'must be a boolean' }
 
-  validate :allowed_work_item_type_change, on: :update, if: :work_item_type_id_changed?
-  validate :due_date_after_start_date
+  validate :allowed_work_item_type_change, on: :update, if: :correct_work_item_type_id_changed?
+  validate :due_date_after_start_date, if: :validate_due_date?
   validate :parent_link_confidentiality
 
   alias_attribute :external_author, :service_desk_reply_to
@@ -180,27 +200,28 @@ class Issue < ApplicationRecord
   scope :preload_routables, -> { preload(project: [:route, { namespace: :route }]) }
 
   scope :with_alert_management_alerts, -> { joins(:alert_management_alert) }
-  scope :with_prometheus_alert_events, -> { joins(:issues_prometheus_alert_events) }
   scope :with_api_entity_associations, -> {
-    preload(:work_item_type, :timelogs, :closed_by, :assignees, :author, :labels, :issuable_severity,
-      namespace: [{ parent: :route }, :route], milestone: { project: [:route, { namespace: :route }] },
+    preload(::Gitlab::Issues::TypeAssociationGetter.call,
+      :timelogs, :closed_by, :assignees, :author, :issuable_severity,
+      :labels, namespace: [{ parent: :route }, :route], milestone: { project: [:route, { namespace: :route }] },
       project: [:project_namespace, :project_feature, :route, { group: :route }, { namespace: :route }],
-      duplicated_to: { project: [:project_feature] })
+      duplicated_to: { project: [:project_feature] }
+    )
   }
   scope :with_issue_type, ->(types) {
     types = Array(types)
 
     # Using != 1 since we also want the guard clause to handle empty arrays
-    return joins(:work_item_type).where(work_item_types: { base_type: types }) if types.size != 1
+    return joins(:correct_work_item_type).where(work_item_types: { base_type: types }) if types.size != 1
 
     # This optimization helps the planer use the correct indexes when filtering by a single type
     where(
-      '"issues"."work_item_type_id" = (?)',
-      WorkItems::Type.by_type(types.first).select(:id).limit(1)
+      '"issues"."correct_work_item_type_id" = (?)',
+      WorkItems::Type.by_type(types.first).select(:correct_id).limit(1)
     )
   }
   scope :without_issue_type, ->(types) {
-    joins(:work_item_type).where.not(work_item_types: { base_type: types })
+    joins(::Gitlab::Issues::TypeAssociationGetter.call).where.not(work_item_types: { base_type: types })
   }
 
   scope :public_only, -> { where(confidential: false) }
@@ -213,7 +234,14 @@ class Issue < ApplicationRecord
 
   scope :counts_by_state, -> { reorder(nil).group(:state_id).count }
 
-  scope :service_desk, -> { where(author: ::Users::Internal.support_bot) }
+  scope :service_desk, -> {
+    where(
+      "(author_id = ? AND correct_work_item_type_id = ?) OR correct_work_item_type_id = ?",
+      Users::Internal.support_bot.id,
+      WorkItems::Type.default_issue_type.correct_id,
+      WorkItems::Type.default_by_type(:ticket).correct_id
+    )
+  }
   scope :inc_relations_for_view, -> do
     includes(author: :status, assignees: :status)
     .allow_cross_joins_across_databases(url: 'https://gitlab.com/gitlab-org/gitlab/-/issues/422155')
@@ -228,7 +256,7 @@ class Issue < ApplicationRecord
   # e.g:
   #
   #   .by_project_id_and_iid({project_id: 1, iid: 2})
-  #   .by_project_id_and_iid([]) # returns ActiveRecord::NullRelation
+  #   .by_project_id_and_iid([]) # returns Issue.none
   #   .by_project_id_and_iid([
   #     {project_id: 1, iid: 1},
   #     {project_id: 2, iid: 1},
@@ -242,7 +270,9 @@ class Issue < ApplicationRecord
   scope :with_non_null_relative_position, -> { where.not(relative_position: nil) }
   scope :with_projects_matching_search_data, -> { where('issue_search_data.project_id = issues.project_id') }
 
-  scope :with_work_item_type, -> { joins(:work_item_type) }
+  scope :with_work_item_type, -> {
+    joins(::Gitlab::Issues::TypeAssociationGetter.call)
+  }
 
   before_validation :ensure_namespace_id, :ensure_work_item_type
 
@@ -321,6 +351,30 @@ class Issue < ApplicationRecord
 
   def self.participant_includes
     [:assignees] + super
+  end
+
+  # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/499911
+  def work_item_type
+    correct_work_item_type
+  end
+
+  # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/499911
+  def work_item_type_id
+    correct_work_item_type&.id
+  end
+
+  def work_item_type_id=(input_work_item_type_id)
+    work_item_type = WorkItems::Type.find_by_correct_id_with_fallback(input_work_item_type_id)
+
+    self.correct_work_item_type_id = work_item_type&.correct_id
+
+    super(work_item_type&.id)
+  end
+
+  def work_item_type=(work_item_type)
+    self.correct_work_item_type = work_item_type
+
+    super
   end
 
   def next_object_by_relative_position(ignoring: nil, order: :asc)
@@ -522,13 +576,12 @@ class Issue < ApplicationRecord
     self.duplicated_to_id = nil
   end
 
-  def can_move?(user, to_project = nil)
-    if to_project
-      return false unless user.can?(:admin_issue, to_project)
+  def can_move?(user, to_namespace = nil)
+    if to_namespace
+      return false unless user.can?(:admin_issue, to_namespace)
     end
 
-    !moved? && persisted? &&
-      user.can?(:admin_issue, self.project)
+    !moved? && persisted? && user.can?(:admin_issue, self)
   end
   alias_method :can_clone?, :can_move?
 
@@ -641,7 +694,7 @@ class Issue < ApplicationRecord
   end
 
   def from_service_desk?
-    author.id == Users::Internal.support_bot.id
+    author_id == Users::Internal.support_bot_id
   end
 
   def issue_link_type
@@ -769,6 +822,12 @@ class Issue < ApplicationRecord
     project_id.blank?
   end
 
+  def autoclose_by_merged_closing_merge_request?
+    return false if group_level?
+
+    project.autoclose_referenced_issues
+  end
+
   private
 
   def project_level_readable_by?(user)
@@ -777,7 +836,7 @@ class Issue < ApplicationRecord
     elsif project.personal? && project.team.owner?(user)
       true
     elsif confidential? && !assignee_or_author?(user)
-      project.member?(user, Gitlab::Access::REPORTER)
+      project.member?(user, Gitlab::Access::PLANNER)
     elsif project.public? || (project.internal? && !user.external?)
       project.feature_available?(:issues, user)
     else
@@ -790,7 +849,7 @@ class Issue < ApplicationRecord
     return false unless namespace.is_a?(::Group)
 
     if confidential? && !assignee_or_author?(user)
-      namespace.member?(user, Gitlab::Access::REPORTER)
+      namespace.member?(user, Gitlab::Access::PLANNER)
     else
       namespace.member?(user)
     end
@@ -863,15 +922,19 @@ class Issue < ApplicationRecord
   end
 
   def ensure_work_item_type
-    return if work_item_type_id.present? || work_item_type_id_change&.last.present?
+    return if work_item_type.present? ||
+      correct_work_item_type_id.present? ||
+      correct_work_item_type_id_change&.last.present?
 
     self.work_item_type = WorkItems::Type.default_by_type(DEFAULT_ISSUE_TYPE)
   end
 
   def allowed_work_item_type_change
-    return unless changes[:work_item_type_id]
+    return unless changes[:correct_work_item_type_id]
 
-    involved_types = WorkItems::Type.where(id: changes[:work_item_type_id].compact).pluck(:base_type).uniq
+    involved_types = WorkItems::Type.where(
+      correct_id: changes[:correct_work_item_type_id].compact
+    ).pluck(:base_type).uniq
     disallowed_types = involved_types - WorkItems::Type::CHANGEABLE_BASE_TYPES
 
     return if disallowed_types.empty?
@@ -885,6 +948,10 @@ class Issue < ApplicationRecord
       'issue_links.target_id as issue_link_source_id',
       'issue_links.created_at as issue_link_created_at',
       'issue_links.updated_at as issue_link_updated_at'])
+  end
+
+  def validate_due_date?
+    true
   end
 end
 

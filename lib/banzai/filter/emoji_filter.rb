@@ -7,27 +7,23 @@ module Banzai
     #
     # Based on HTML::Pipeline::EmojiFilter
     class EmojiFilter < HTML::Pipeline::Filter
-      include Concerns::TimeoutFilterHandler
+      prepend Concerns::TimeoutFilterHandler
       prepend Concerns::PipelineTimingCheck
 
       IGNORED_ANCESTOR_TAGS = %w[pre code tt].to_set
+      IGNORE_UNICODE_EMOJIS = %w[™ © ®].freeze
 
-      # Limit of how many emojis we will process.
-      # Protects against pathological number of emojis.
-      # For more information check: https://gitlab.com/gitlab-org/gitlab/-/issues/434803
-      EMOJI_LIMIT = 1000
-
-      def call_with_timeout
+      def call
         @emoji_count = 0
 
-        doc.xpath('descendant-or-self::text()').each do |node|
-          content = node.to_html
+        doc.xpath('descendant-or-self::text()[not(ancestor::a[@data-footnote-backref])]').each do |node|
+          break if Banzai::Filter.filter_item_limit_exceeded?(@emoji_count)
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
 
-          next unless content.include?(':') || node.text.match(emoji_unicode_pattern)
+          content = node.to_html
 
           html = emoji_unicode_element_unicode_filter(content)
-          html = emoji_name_element_unicode_filter(html)
+          html = emoji_name_element_unicode_filter(html) if content.include?(':')
 
           next if html == content
 
@@ -43,8 +39,11 @@ module Banzai
       #
       # Returns a String with :emoji: replaced with gl-emoji unicode.
       def emoji_name_element_unicode_filter(text)
-        scan_and_replace(text, emoji_pattern) do |matched_text|
-          TanukiEmoji.find_by_alpha_code(matched_text)
+        Gitlab::Utils::Gsub
+          .gsub_with_limit(text, emoji_pattern, limit: Banzai::Filter::FILTER_ITEM_LIMIT) do |match_data|
+          emoji = TanukiEmoji.find_by_alpha_code(match_data[0])
+
+          process_emoji_tag(emoji, match_data[0])
         end
       end
 
@@ -54,9 +53,27 @@ module Banzai
       #
       # Returns a String with unicode emoji replaced with gl-emoji unicode.
       def emoji_unicode_element_unicode_filter(text)
-        scan_and_replace(text, emoji_unicode_pattern) do |matched_text|
-          TanukiEmoji.find_by_codepoints(matched_text)
+        Gitlab::Utils::Gsub
+          .gsub_with_limit(text, emoji_unicode_pattern, limit: Banzai::Filter::FILTER_ITEM_LIMIT) do |match_data|
+          if ignore_emoji?(match_data[0])
+            match_data[0]
+          else
+            emoji = TanukiEmoji.find_by_codepoints(match_data[0])
+
+            process_emoji_tag(emoji, match_data[0])
+          end
         end
+      end
+
+      def process_emoji_tag(emoji, fallback)
+        return fallback unless emoji
+
+        @emoji_count += 1
+        Gitlab::Emoji.gl_emoji_tag(emoji)
+      end
+
+      def ignore_emoji?(text)
+        IGNORE_UNICODE_EMOJIS.include?(text)
       end
 
       # Build a regexp that matches all valid :emoji: names.
@@ -64,45 +81,13 @@ module Banzai
         @emoji_pattern ||= TanukiEmoji.index.alpha_code_pattern
       end
 
-      # Build a regexp that matches all valid unicode emojis names.
       def self.emoji_unicode_pattern
-        @emoji_unicode_pattern ||= TanukiEmoji.index.codepoints_pattern
+        # Use regex from unicode-emoji gem. This is faster than the built-in TanukiEmoji
+        # regex for large documents.
+        Unicode::Emoji::REGEX_VALID_INCLUDE_TEXT
       end
 
       private
-
-      # This performs the same function as a `gsub`. However this version
-      # allows us to break out of the replacement loop when the limit is
-      # reached. Benchmarking showed performance was roughly equivalent.
-      def scan_and_replace(text, pattern)
-        scanner = StringScanner.new(text)
-        buffer = +''
-
-        return text unless scanner.exist?(pattern)
-
-        until scanner.eos?
-          portion = scanner.scan_until(pattern)
-
-          if portion.nil?
-            buffer << scanner.rest
-            scanner.terminate
-            break
-          end
-
-          if emoji_limit_reached?(@emoji_count)
-            buffer << portion
-            buffer << scanner.rest
-            scanner.terminate
-            break
-          end
-
-          emoji = yield(scanner.matched)
-          @emoji_count += 1 if emoji
-          buffer << portion.sub(scanner.matched, Gitlab::Emoji.gl_emoji_tag(emoji))
-        end
-
-        buffer
-      end
 
       def emoji_pattern
         self.class.emoji_pattern
@@ -110,10 +95,6 @@ module Banzai
 
       def emoji_unicode_pattern
         self.class.emoji_unicode_pattern
-      end
-
-      def emoji_limit_reached?(count)
-        count >= EMOJI_LIMIT
       end
     end
   end

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can automatically trigger builds in Atlassian Bamboo when you push changes
 to your project in GitLab.
@@ -74,7 +74,7 @@ and Bamboo build variables to:
 
 For example:
 
-1. Create an [access token](../../../api/rest/index.md#personalprojectgroup-access-tokens) in GitLab with `:api` permissions.
+1. Create an [access token](../../../api/rest/authentication.md#personalprojectgroup-access-tokens) in GitLab with `:api` permissions.
 1. Save the token as a `$GITLAB_TOKEN` variable in Bamboo.
 1. Add the following script as a final task to the Bamboo plan's jobs:
 

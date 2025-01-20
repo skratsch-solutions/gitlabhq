@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Anti-Abuse
+stage: Software Supply Chain Security
+group: Authorization
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -57,7 +57,7 @@ To do this:
 
 The `SpammableActions::AkismetMarkAsSpamAction` module adds support for a `#mark_as_spam` action
 to a controller. This controller allows administrators to manage spam for the associated
-`Spammable` model in the [Spam Log section](../../integration/akismet.md) of the Admin Area page.
+`Spammable` model in the [**Spam log** section](../../integration/akismet.md) of the **Admin** area.
 
 1. Include the `SpammableActions::AkismetMarkAsSpamAction` module in the controller.
 

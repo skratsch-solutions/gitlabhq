@@ -52,6 +52,74 @@ module Gitlab
           end
         end
 
+        context 'with execution config' do
+          let(:config) do
+            YAML.dump(
+              hello_steps: {
+                artifacts: { access: 'developer' },
+                run: [
+                  name: 'hello_steps',
+                  step: 'some_step_reference',
+                  inputs: {
+                    echo: 'hello steps!!'
+                  }
+                ]
+              }
+            )
+          end
+
+          it 'returns valid build attributes with execution config' do
+            expect(builds).to eq([{
+              stage: 'test',
+              stage_idx: 2,
+              name: 'hello_steps',
+              options: { artifacts: { access: 'developer' } },
+              allow_failure: false,
+              execution_config: {
+                run_steps: [{
+                  inputs: { echo: 'hello steps!!' },
+                  name: 'hello_steps',
+                  step: 'some_step_reference'
+                }]
+              },
+              when: 'on_success',
+              job_variables: [],
+              only: { refs: %w[branches tags] },
+              root_variables_inheritance: true,
+              scheduling_type: :stage
+            }])
+          end
+
+          context 'when run steps is empty' do
+            let(:config) do
+              YAML.dump(
+                hello_steps: {
+                  artifacts: { access: 'developer' },
+                  run: []
+                }
+              )
+            end
+
+            it 'returns valid build attributes with empty run config' do
+              expect(builds).to eq([{
+                stage: 'test',
+                stage_idx: 2,
+                name: 'hello_steps',
+                options: { artifacts: { access: 'developer' } },
+                allow_failure: false,
+                execution_config: {
+                  run_steps: []
+                },
+                when: 'on_success',
+                job_variables: [],
+                only: { refs: %w[branches tags] },
+                root_variables_inheritance: true,
+                scheduling_type: :stage
+              }])
+            end
+          end
+        end
+
         context 'with job rules' do
           let(:config) do
             YAML.dump(
@@ -612,7 +680,7 @@ module Gitlab
               EOYML
             end
 
-            it_behaves_like 'has warnings and expected error', /rspec job: chosen stage does not exist/
+            it_behaves_like 'has warnings and expected error', /rspec job: chosen stage custom_stage does not exist/
           end
 
           context 'job dependency does not exist' do
@@ -1630,7 +1698,7 @@ module Gitlab
             expect(subject.dig(:options, :before_script)).to eq ["bundle install"]
             expect(subject.dig(:options, :script)).to eq %w[rspec]
             expect(subject.dig(:options, :image, :name)).to eq 'image:test'
-            expect(subject.dig(:when)).to eq 'always'
+            expect(subject[:when]).to eq 'always'
           end
         end
       end
@@ -3233,7 +3301,7 @@ module Gitlab
         context 'returns error if job configuration is invalid' do
           let(:config) { YAML.dump({ extra: "bundle update" }) }
 
-          it_behaves_like 'returns errors', 'jobs extra config should implement a script: or a trigger: keyword'
+          it_behaves_like 'returns errors', 'jobs extra config should implement the script:, run:, or trigger: keyword'
         end
 
         context 'returns errors if services configuration is not correct' do
@@ -3251,7 +3319,7 @@ module Gitlab
         context 'returns errors if the job script is not defined' do
           let(:config) { YAML.dump({ rspec: { before_script: "test" } }) }
 
-          it_behaves_like 'returns errors', 'jobs rspec config should implement a script: or a trigger: keyword'
+          it_behaves_like 'returns errors', 'jobs rspec config should implement the script:, run:, or trigger: keyword'
         end
 
         context 'returns errors if there are no visible jobs defined' do
@@ -3281,13 +3349,13 @@ module Gitlab
         context 'returns errors if job stage is not a pre-defined stage' do
           let(:config) { YAML.dump({ rspec: { script: "test", stage: "acceptance" } }) }
 
-          it_behaves_like 'returns errors', 'rspec job: chosen stage does not exist; available stages are .pre, build, test, deploy, .post'
+          it_behaves_like 'returns errors', 'rspec job: chosen stage acceptance does not exist; available stages are .pre, build, test, deploy, .post'
         end
 
         context 'returns errors if job stage is not a defined stage' do
           let(:config) { YAML.dump({ stages: %w[build test], rspec: { script: "test", stage: "acceptance" } }) }
 
-          it_behaves_like 'returns errors', 'rspec job: chosen stage does not exist; available stages are .pre, build, test, .post'
+          it_behaves_like 'returns errors', 'rspec job: chosen stage acceptance does not exist; available stages are .pre, build, test, .post'
         end
 
         context 'returns errors if stages is not an array' do
@@ -3751,19 +3819,6 @@ module Gitlab
         end
 
         context 'on pages option' do
-          context 'when not in a pages job' do
-            let(:config) do
-              <<-EOYML
-              not-pages:
-                script: echo
-                pages:
-                  path_prefix: 'foo'
-              EOYML
-            end
-
-            it_behaves_like 'returns errors', 'jobs:not-pages pages can only be used within a `pages` job'
-          end
-
           context 'when in a pages job' do
             let(:config) do
               <<-EOYML

@@ -30,6 +30,23 @@ module Packages
         end
     end
 
+    def can_create_package?
+      can?(current_user, :create_package, project)
+    end
+
+    def package_protected?(package_name:, package_type:)
+      service_response =
+        Packages::Protection::CheckRuleExistenceService.new(
+          project: project,
+          current_user: current_user,
+          params: { package_name: package_name, package_type: package_type }
+        ).execute
+
+      raise ArgumentError, service_response.message if service_response.error?
+
+      service_response[:protection_rule_exists?]
+    end
+
     private
 
     def package_attrs(attrs)

@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :event do
     project
-    author(factory: :user) { project.creator }
+    author(factory: [:user, :with_namespace]) { project.creator }
     action { :joined }
 
     trait(:created)   { action { :created } }
@@ -35,6 +35,22 @@ FactoryBot.define do
       transient do
         wiki_page { association(:wiki_page, container: project) }
       end
+    end
+
+    trait :for_wiki_page_note do
+      action { :commented }
+      # rubocop: disable RSpec/FactoryBot/InlineAssociation
+      # A persistent project is needed to have a wiki page being created properly.
+      project { @overrides[:wiki_page]&.container || create(:project, :wiki_repo) }
+      # rubocop: enable RSpec/FactoryBot/InlineAssociation
+
+      transient do
+        wiki_page { association(:wiki_page, container: project) }
+        wiki_page_meta { association(:wiki_page_meta, :for_wiki_page, wiki_page: wiki_page) }
+        note { association(:note, author: author, project: project, noteable: wiki_page_meta) }
+      end
+
+      target { note }
     end
 
     trait :has_design do
@@ -85,7 +101,7 @@ FactoryBot.define do
     end
 
     factory :project_imported_event do
-      project factory: [:project, :with_import_url]
+      association :project, :with_import_url
       action { :created }
     end
   end

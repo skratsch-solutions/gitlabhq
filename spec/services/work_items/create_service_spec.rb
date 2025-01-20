@@ -5,6 +5,13 @@ require 'spec_helper'
 RSpec.describe WorkItems::CreateService, feature_category: :team_planning do
   include AfterNextHelpers
 
+  before_all do
+    # Ensure support bot user is created so creation doesn't count towards query limit
+    # and we don't try to obtain an exclusive lease within a transaction.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.support_bot_id
+  end
+
   RSpec.shared_examples 'creates work item in container' do |container_type|
     include_context 'with container for work items service', container_type
 
@@ -89,14 +96,6 @@ RSpec.describe WorkItems::CreateService, feature_category: :team_planning do
         it 'returns validation errors' do
           expect(service_result.errors).to contain_exactly("Title can't be blank")
         end
-
-        it 'does not execute after-create transaction widgets' do
-          expect(service).to receive(:create).and_call_original
-          expect(service).not_to receive(:execute_widgets)
-                                   .with(callback: :after_create_in_transaction, widget_params: widget_params)
-
-          service_result
-        end
       end
 
       context 'checking spam' do
@@ -144,9 +143,8 @@ RSpec.describe WorkItems::CreateService, feature_category: :team_planning do
         let(:supported_widgets) do
           [
             {
-              klass: WorkItems::Widgets::HierarchyService::CreateService,
-              callback: :after_create_in_transaction,
-              params: { parent: parent }
+              klass: WorkItems::Callbacks::Hierarchy,
+              callback: :after_create
             }
           ]
         end
@@ -216,5 +214,4 @@ RSpec.describe WorkItems::CreateService, feature_category: :team_planning do
 
   it_behaves_like 'creates work item in container', :project
   it_behaves_like 'creates work item in container', :project_namespace
-  it_behaves_like 'creates work item in container', :group
 end

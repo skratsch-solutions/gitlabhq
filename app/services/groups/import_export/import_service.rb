@@ -53,19 +53,20 @@ module Groups
       private
 
       def user_role
-        # rubocop:disable CodeReuse/ActiveRecord, Style/MultilineTernaryOperator
+        # rubocop:disable Style/MultilineTernaryOperator
         access_level = group.parent ?
           current_user&.group_members&.find_by(source_id: group.parent&.id)&.access_level :
           Gitlab::Access::OWNER
         Gitlab::Access.human_access(access_level)
-        # rubocop:enable CodeReuse/ActiveRecord, Style/MultilineTernaryOperator
+        # rubocop:enable Style/MultilineTernaryOperator
       end
 
       def import_file
         @import_file ||= Gitlab::ImportExport::FileImporter.import(
           importable: group,
           archive_file: nil,
-          shared: shared
+          shared: shared,
+          user: current_user
         )
       end
 
@@ -83,7 +84,7 @@ module Groups
       end
 
       def remove_import_file
-        upload = group.import_export_upload
+        upload = group.import_export_upload_by_user(current_user)
 
         return unless upload&.import_file&.file
 

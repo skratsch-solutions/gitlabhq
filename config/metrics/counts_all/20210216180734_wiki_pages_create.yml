@@ -3,6 +3,8 @@ data_category: optional
 key_path: counts.wiki_pages_create
 description: Count of all Wiki pages created
 product_group: knowledge
+product_categories:
+- wiki
 value_type: number
 status: active
 time_frame: all
@@ -12,9 +14,10 @@ events:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

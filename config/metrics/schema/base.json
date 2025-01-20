@@ -8,10 +8,10 @@
     "product_group",
     "time_frame",
     "data_source",
-    "distribution",
-    "tier",
     "data_category",
-    "milestone"
+    "milestone",
+    "introduced_by_url",
+    "tiers"
   ],
   "additionalProperties": false,
   "properties": {
@@ -23,6 +23,13 @@
     },
     "product_group": {
       "$ref": "product_groups.json"
+    },
+    "product_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "known_product_category"
+      }
     },
     "value_type": {
       "type": "string",
@@ -57,8 +64,7 @@
     },
     "introduced_by_url": {
       "type": [
-        "string",
-        "null"
+        "string"
       ],
       "format": "uri"
     },
@@ -77,15 +83,6 @@
     },
     "options": {
       "type": "object"
-    },
-    "time_frame": {
-      "type": "string",
-      "enum": [
-        "7d",
-        "28d",
-        "all",
-        "none"
-      ]
     },
     "data_source": {
       "type": "string",
@@ -113,7 +110,10 @@
       "pattern": "^(([A-Z][a-z]+)+::)*(([A-Z]+[a-z]+)+)$"
     },
     "distribution": {
-      "type": "array",
+      "type": [
+        "array",
+        "null"
+      ],
       "items": {
         "type": "string",
         "enum": [
@@ -132,37 +132,66 @@
           "paid_gmau",
           "umau",
           "customer_health_score",
-          "devops_report"
+          "devops_report",
+          "lighthouse",
+          "leading_indicator"
         ]
       }
     },
-    "tier": {
+    "tiers": {
       "type": "array",
+      "uniqueItems": true,
       "items": {
         "type": "string",
         "enum": [
           "free",
-          "starter",
           "premium",
-          "ultimate",
-          "bronze",
-          "silver",
-          "gold"
+          "ultimate"
         ]
       }
     },
     "value_json_schema": {
       "type": "string"
     },
-    "product_category": {
-      "type": "string"
-    },
     "name": {
       "type": "string"
     },
     "events": {
+    },
+    "time_frame": {
     }
   },
+  "oneOf": [
+    {
+      "properties": {
+        "time_frame": {
+          "type": "string",
+          "enum": [
+            "7d",
+            "28d",
+            "all",
+            "none"
+          ]
+        }
+      }
+    },
+    {
+      "properties": {
+        "time_frame": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "7d",
+              "28d",
+              "all"
+            ]
+          }
+        }
+      }
+    }
+  ],
   "allOf": [
     {
       "$ref": "internal_events.json"

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab stores [repositories](../user/project/repository/index.md) on repository storage. Repository
 storage is either:
@@ -28,6 +28,7 @@ For more information on:
 
 ## Hashed storage
 
+> - Support for legacy storage, where repository paths were generated based on the project path, has been completely removed in GitLab 14.0.
 > - **Storage name** field [renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/128416) from **Gitaly storage name** and **Relative path** field [renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/128416) from **Gitaly relative path** in GitLab 16.3.
 
 Hashed storage stores projects on disk in a location based on a hash of the project's ID. This makes the folder
@@ -65,12 +66,12 @@ translate between the human-readable project name and the hashed storage path. Y
 
 Administrators can look up a project's hashed path from its name or ID using:
 
-- The [Admin Area](../administration/admin_area.md#administering-projects).
+- The [**Admin** area](../administration/admin_area.md#administering-projects).
 - A Rails console.
 
-To look up a project's hash path in the Admin Area:
+To look up a project's hash path in the **Admin** area:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Projects** and select the project.
 1. Locate the **Relative path** field. The value is similar to:
 
@@ -227,7 +228,7 @@ LFS objects are also [S3-compatible](lfs/index.md#storing-lfs-objects-in-remote-
 
 After you [configure multiple repository storages](https://docs.gitlab.com/omnibus/settings/configuration.html#store-git-data-in-an-alternative-directory), you can choose where new repositories are stored:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand **Repository storage**.
 1. Enter values in the **Storage nodes for new repositories** fields.

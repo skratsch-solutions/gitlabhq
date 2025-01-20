@@ -1,35 +1,30 @@
 <script>
-import {
-  GlAvatarLabeled,
-  GlIcon,
-  GlLink,
-  GlBadge,
-  GlTooltipDirective,
-  GlPopover,
-  GlSprintf,
-  GlTruncateText,
-} from '@gitlab/ui';
-import uniqueId from 'lodash/uniqueId';
+import { GlIcon, GlBadge, GlTooltipDirective } from '@gitlab/ui';
 
+import {
+  renderDeleteSuccessToast,
+  deleteParams,
+} from 'ee_else_ce/vue_shared/components/projects_list/utils';
+import ProjectListItemDescription from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_description.vue';
+import ProjectListItemActions from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_actions.vue';
 import ProjectListItemInactiveBadge from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_inactive_badge.vue';
 import { VISIBILITY_TYPE_ICON, PROJECT_VISIBILITY_TYPE } from '~/visibility_level/constants';
 import { ACCESS_LEVEL_LABELS, ACCESS_LEVEL_NO_ACCESS_INTEGER } from '~/access_level/constants';
 import { FEATURABLE_ENABLED } from '~/featurable/constants';
-import { __ } from '~/locale';
+import { __, s__ } from '~/locale';
 import { numberToMetricPrefix } from '~/lib/utils/number_utils';
-import { truncate } from '~/lib/utils/text_utility';
-import SafeHtml from '~/vue_shared/directives/safe_html';
-import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import ListActions from '~/vue_shared/components/list_actions/list_actions.vue';
-import { ACTION_EDIT, ACTION_DELETE } from '~/vue_shared/components/list_actions/constants';
+import { ACTION_DELETE } from '~/vue_shared/components/list_actions/constants';
 import DeleteModal from '~/projects/components/shared/delete_modal.vue';
 import {
   TIMESTAMP_TYPE_CREATED_AT,
   TIMESTAMP_TYPE_UPDATED_AT,
 } from '~/vue_shared/components/resource_lists/constants';
-
-const MAX_TOPICS_TO_SHOW = 3;
-const MAX_TOPIC_TITLE_LENGTH = 15;
+import { deleteProject } from '~/rest_api';
+import { createAlert } from '~/alert';
+import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
+import ListItem from '~/vue_shared/components/resource_lists/list_item.vue';
+import ListItemStat from '~/vue_shared/components/resource_lists/list_item_stat.vue';
+import TopicBadges from '~/vue_shared/components/topic_badges.vue';
 
 export default {
   i18n: {
@@ -40,25 +35,23 @@ export default {
     topics: __('Topics'),
     topicsPopoverTargetText: __('+ %{count} more'),
     moreTopics: __('More topics'),
-    [TIMESTAMP_TYPE_CREATED_AT]: __('Created'),
-    [TIMESTAMP_TYPE_UPDATED_AT]: __('Updated'),
-    actions: __('Actions'),
-    showMore: __('Show more'),
-    showLess: __('Show less'),
+    project: __('Project'),
+    deleteErrorMessage: s__(
+      'Projects|An error occurred deleting the project. Please refresh the page to try again.',
+    ),
+    ciCatalogBadge: s__('CiCatalog|CI/CD Catalog project'),
   },
-  truncateTextToggleButtonProps: { class: 'gl-font-sm!' },
   components: {
-    GlAvatarLabeled,
     GlIcon,
-    GlLink,
     GlBadge,
-    GlPopover,
-    GlSprintf,
-    GlTruncateText,
-    TimeAgoTooltip,
+    ListItem,
+    ListItemStat,
     DeleteModal,
-    ListActions,
+    ProjectListItemDescription,
+    ProjectListItemActions,
     ProjectListItemInactiveBadge,
+    CiIcon,
+    TopicBadges,
     ProjectListItemDelayedDeletionModalFooter: () =>
       import(
         'ee_component/vue_shared/components/projects_list/project_list_item_delayed_deletion_modal_footer.vue'
@@ -66,7 +59,6 @@ export default {
   },
   directives: {
     GlTooltip: GlTooltipDirective,
-    SafeHtml,
   },
   props: {
     /**
@@ -114,8 +106,8 @@ export default {
   },
   data() {
     return {
-      topicsPopoverTarget: uniqueId('project-topics-popover-'),
       isDeleteModalVisible: false,
+      isDeleteLoading: false,
     };
   },
   computed: {
@@ -170,12 +162,6 @@ export default {
     hasTopics() {
       return this.project.topics.length;
     },
-    visibleTopics() {
-      return this.project.topics.slice(0, MAX_TOPICS_TO_SHOW);
-    },
-    popoverTopics() {
-      return this.project.topics.slice(MAX_TOPICS_TO_SHOW);
-    },
     starCount() {
       return numberToMetricPrefix(this.project.starCount);
     },
@@ -200,226 +186,130 @@ export default {
 
       return numberToMetricPrefix(this.project.openIssuesCount);
     },
-    actions() {
-      return {
-        [ACTION_EDIT]: {
-          href: this.project.editPath,
-        },
-        [ACTION_DELETE]: {
-          action: this.onActionDelete,
-        },
-      };
-    },
     hasActions() {
       return this.project.availableActions?.length;
     },
     hasActionDelete() {
       return this.project.availableActions?.includes(ACTION_DELETE);
     },
-    isActionDeleteLoading() {
-      return this.project.actionLoadingStates[ACTION_DELETE];
-    },
-    timestampText() {
-      return this.$options.i18n[this.timestampType];
-    },
-    timestamp() {
-      return this.project[this.timestampType];
+    pipelineStatus() {
+      return this.project.pipeline?.detailedStatus;
     },
   },
   methods: {
-    topicPath(topic) {
-      return `/explore/projects/topics/${encodeURIComponent(topic)}`;
-    },
-    topicTitle(topic) {
-      return truncate(topic, MAX_TOPIC_TITLE_LENGTH);
-    },
-    topicTooltipTitle(topic) {
-      // Matches conditional in app/assets/javascripts/lib/utils/text_utility.js#L88
-      if (topic.length - 1 > MAX_TOPIC_TITLE_LENGTH) {
-        return topic;
-      }
-
-      return null;
-    },
     onActionDelete() {
       this.isDeleteModalVisible = true;
+    },
+    async onDeleteModalPrimary() {
+      this.isDeleteLoading = true;
+
+      try {
+        await deleteProject(this.project.id, deleteParams(this.project));
+        this.$emit('refetch');
+        renderDeleteSuccessToast(this.project, this.$options.i18n.project);
+      } catch (error) {
+        createAlert({ message: this.$options.i18n.deleteErrorMessage, error, captureError: true });
+      } finally {
+        this.isDeleteLoading = false;
+      }
     },
   },
 };
 </script>
 
 <template>
-  <li class="projects-list-item gl-py-5 gl-border-b gl-display-flex">
-    <div class="md:gl-flex gl-flex-grow-1">
-      <div class="gl-flex gl-grow gl-items-start">
-        <div
-          v-if="showProjectIcon"
-          class="gl-display-flex gl-align-items-center gl-flex-shrink-0 gl-h-9 gl-mr-3"
-        >
-          <gl-icon class="gl-text-secondary" name="project" />
-        </div>
-        <gl-avatar-labeled
-          :entity-id="project.id"
-          :entity-name="project.name"
-          :label="project.name"
-          :label-link="project.webUrl"
-          shape="rect"
-          :size="48"
-        >
-          <template #meta>
-            <div class="gl-px-2">
-              <div class="-gl-mx-2 gl-display-flex gl-align-items-center gl-flex-wrap">
-                <div class="gl-px-2">
-                  <gl-icon
-                    v-if="visibility"
-                    v-gl-tooltip="visibilityTooltip"
-                    :name="visibilityIcon"
-                    class="gl-text-secondary"
-                  />
-                </div>
-                <div class="gl-px-2">
-                  <gl-badge
-                    v-if="shouldShowAccessLevel"
-                    class="gl-block"
-                    data-testid="access-level-badge"
-                    >{{ accessLevelLabel }}</gl-badge
-                  >
-                </div>
-              </div>
-            </div>
-          </template>
-          <gl-truncate-text
-            v-if="project.descriptionHtml"
-            :lines="2"
-            :mobile-lines="2"
-            :show-more-text="$options.i18n.showMore"
-            :show-less-text="$options.i18n.showLess"
-            :toggle-button-props="$options.truncateTextToggleButtonProps"
-            class="gl-mt-2 gl-max-w-88"
-          >
-            <div
-              v-safe-html="project.descriptionHtml"
-              class="gl-font-sm gl-text-secondary md"
-              data-testid="project-description"
-            ></div>
-          </gl-truncate-text>
-          <div v-if="hasTopics" class="gl-mt-3" data-testid="project-topics">
-            <div
-              class="gl-w-full gl-inline-flex gl-flex-wrap gl-font-base gl-font-normal gl-align-items-center -gl-mx-2 -gl-my-2"
-            >
-              <span class="gl-p-2 gl-font-sm gl-text-secondary">{{ $options.i18n.topics }}:</span>
-              <div v-for="topic in visibleTopics" :key="topic" class="gl-p-2">
-                <gl-badge v-gl-tooltip="topicTooltipTitle(topic)" :href="topicPath(topic)">
-                  {{ topicTitle(topic) }}
-                </gl-badge>
-              </div>
-              <template v-if="popoverTopics.length">
-                <div
-                  :id="topicsPopoverTarget"
-                  class="gl-p-2 gl-font-sm gl-text-secondary"
-                  role="button"
-                  tabindex="0"
-                >
-                  <gl-sprintf :message="$options.i18n.topicsPopoverTargetText">
-                    <template #count>{{ popoverTopics.length }}</template>
-                  </gl-sprintf>
-                </div>
-                <gl-popover :target="topicsPopoverTarget" :title="$options.i18n.moreTopics">
-                  <div class="gl-font-base gl-font-normal -gl-mx-2 -gl-my-2">
-                    <div
-                      v-for="topic in popoverTopics"
-                      :key="topic"
-                      class="gl-p-2 gl-display-inline-block"
-                    >
-                      <gl-badge v-gl-tooltip="topicTooltipTitle(topic)" :href="topicPath(topic)">
-                        {{ topicTitle(topic) }}
-                      </gl-badge>
-                    </div>
-                  </div>
-                </gl-popover>
-              </template>
-            </div>
-          </div>
-        </gl-avatar-labeled>
-      </div>
-      <div
-        class="md:gl-flex gl-flex-col gl-items-end gl-shrink-0 gl-mt-3 md:gl-pl-0 md:gl-mt-0"
-        :class="showProjectIcon ? 'gl-pl-12' : 'gl-pl-10'"
-      >
-        <div class="gl-flex gl-items-center gl-gap-x-3 md:gl-h-9">
-          <project-list-item-inactive-badge :project="project" />
-          <gl-link
-            v-gl-tooltip="$options.i18n.stars"
-            :href="starsHref"
-            :aria-label="$options.i18n.stars"
-            class="gl-text-secondary"
-          >
-            <gl-icon name="star-o" />
-            <span>{{ starCount }}</span>
-          </gl-link>
-          <gl-link
-            v-if="isForkingEnabled"
-            v-gl-tooltip="$options.i18n.forks"
-            :href="forksHref"
-            :aria-label="$options.i18n.forks"
-            class="gl-text-secondary"
-          >
-            <gl-icon name="fork" />
-            <span>{{ forksCount }}</span>
-          </gl-link>
-          <gl-link
-            v-if="isMergeRequestsEnabled"
-            v-gl-tooltip="$options.i18n.mergeRequests"
-            :href="mergeRequestsHref"
-            :aria-label="$options.i18n.mergeRequests"
-            class="gl-text-secondary"
-          >
-            <gl-icon name="git-merge" />
-            <span>{{ openMergeRequestsCount }}</span>
-          </gl-link>
-          <gl-link
-            v-if="isIssuesEnabled"
-            v-gl-tooltip="$options.i18n.issues"
-            :href="issuesHref"
-            :aria-label="$options.i18n.issues"
-            class="gl-text-secondary"
-          >
-            <gl-icon name="issues" />
-            <span>{{ openIssuesCount }}</span>
-          </gl-link>
-        </div>
-        <div
-          v-if="timestamp"
-          class="gl-text-sm gl-whitespace-nowrap gl-text-secondary gl-mt-3 md:-gl-mt-2"
-        >
-          <span>{{ timestampText }}</span>
-          <time-ago-tooltip :time="timestamp" />
-        </div>
-      </div>
-    </div>
-    <div class="gl-display-flex gl-align-items-center gl-h-9 gl-ml-3">
-      <list-actions
-        v-if="hasActions"
-        :actions="actions"
-        :available-actions="project.availableActions"
+  <list-item
+    :resource="project"
+    :show-icon="showProjectIcon"
+    icon-name="project"
+    :timestamp-type="timestampType"
+  >
+    <template #avatar-meta>
+      <gl-icon
+        v-if="visibility"
+        v-gl-tooltip="visibilityTooltip"
+        :name="visibilityIcon"
+        variant="subtle"
       />
-    </div>
+      <gl-badge
+        v-if="project.isCatalogResource"
+        icon="catalog-checkmark"
+        variant="info"
+        data-testid="ci-catalog-badge"
+        :href="project.exploreCatalogPath"
+        >{{ $options.i18n.ciCatalogBadge }}</gl-badge
+      >
+      <gl-badge v-if="shouldShowAccessLevel" class="gl-block" data-testid="access-level-badge">{{
+        accessLevelLabel
+      }}</gl-badge>
+    </template>
 
-    <delete-modal
-      v-if="hasActionDelete"
-      v-model="isDeleteModalVisible"
-      :confirm-phrase="project.name"
-      :is-fork="project.isForked"
-      :confirm-loading="isActionDeleteLoading"
-      :merge-requests-count="openMergeRequestsCount"
-      :issues-count="openIssuesCount"
-      :forks-count="forksCount"
-      :stars-count="starCount"
-      @primary="$emit('delete', project)"
-    >
-      <template #modal-footer
-        ><project-list-item-delayed-deletion-modal-footer :project="project"
-      /></template>
-    </delete-modal>
-  </li>
+    <template #avatar-default>
+      <project-list-item-description :project="project" />
+      <topic-badges v-if="hasTopics" :topics="project.topics" class="gl-mt-3" />
+    </template>
+
+    <template #stats>
+      <ci-icon v-if="pipelineStatus" :status="pipelineStatus" />
+      <project-list-item-inactive-badge :project="project" />
+      <list-item-stat
+        :href="starsHref"
+        :tooltip-text="$options.i18n.stars"
+        icon-name="star-o"
+        :stat="starCount"
+        data-testid="stars-btn"
+      />
+      <list-item-stat
+        v-if="isForkingEnabled"
+        :href="forksHref"
+        :tooltip-text="$options.i18n.forks"
+        icon-name="fork"
+        :stat="forksCount"
+        data-testid="forks-btn"
+      />
+      <list-item-stat
+        v-if="isMergeRequestsEnabled"
+        :href="mergeRequestsHref"
+        :tooltip-text="$options.i18n.mergeRequests"
+        icon-name="merge-request"
+        :stat="openMergeRequestsCount"
+        data-testid="mrs-btn"
+      />
+      <list-item-stat
+        v-if="isIssuesEnabled"
+        :href="issuesHref"
+        :tooltip-text="$options.i18n.issues"
+        icon-name="issues"
+        :stat="openIssuesCount"
+        data-testid="issues-btn"
+      />
+    </template>
+
+    <template v-if="hasActions" #actions>
+      <project-list-item-actions
+        :project="project"
+        @refetch="$emit('refetch')"
+        @delete="onActionDelete"
+      />
+    </template>
+
+    <template #footer>
+      <delete-modal
+        v-if="hasActionDelete"
+        v-model="isDeleteModalVisible"
+        :confirm-phrase="project.name"
+        :is-fork="project.isForked"
+        :confirm-loading="isDeleteLoading"
+        :merge-requests-count="openMergeRequestsCount"
+        :issues-count="openIssuesCount"
+        :forks-count="forksCount"
+        :stars-count="starCount"
+        @primary="onDeleteModalPrimary"
+      >
+        <template #modal-footer
+          ><project-list-item-delayed-deletion-modal-footer :project="project"
+        /></template>
+      </delete-modal>
+    </template>
+  </list-item>
 </template>

@@ -20,7 +20,7 @@
 
     .issuable-info,
     .issuable-meta {
-      font-size: $gl-font-size-sm;
+      @apply gl-text-sm;
     }
 
     .issuable-meta {
@@ -53,18 +53,20 @@
     .task-status,
     .issuable-timestamp {
       font-weight: $gl-font-weight-normal;
-      color: var(--gray-500, $gl-text-color-secondary);
+      @apply gl-text-subtle;
 
       a {
-        color: var(--gl-text-color, $gl-text-color);
+        @apply gl-text-default;
       }
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       .gl-label-link {
         color: inherit;
 
         &:hover {
           text-decoration: none;
 
+          // stylelint-disable-next-line gitlab/no-gl-class
           .gl-label-text:last-of-type {
             text-decoration: underline;
           }
@@ -72,7 +74,7 @@
       }
 
       .milestone {
-        color: var(--gray-700, $gray-700);
+        @apply gl-text-subtle;
       }
     }
 
@@ -106,3 +108,4 @@
     }
   }
 }
+

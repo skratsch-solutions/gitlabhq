@@ -12,7 +12,7 @@ helpers and abstractions, and extends Monaco [using extensions](#extensions). Mu
 GitLab features use it, including:
 
 - [Web IDE](../../user/project/web_ide/index.md)
-- [CI Linter](../../ci/lint.md)
+- [CI Linter](../../ci/yaml/lint.md)
 - [Snippets](../../user/snippets.md)
 - [Web Editor](../../user/project/repository/web_editor.md)
 - [Security Policies](../../user/application_security/policies/index.md)
@@ -87,7 +87,7 @@ with additional functions on the instance level:
    property on the HTML element that should contain the editor. When bootstrapping,
    Source Editor shows the loader automatically.
 
-   ![Source Editor: loading state](img/editor_lite_loading.png)
+   ![Source Editor: loading state](img/editor_lite_loading_v13_6.png)
 
 1. Update syntax highlighting if the filename changes.
 
@@ -114,8 +114,8 @@ with additional functions on the instance level:
 
    Even though Source Editor itself is extremely slim, it still depends on Monaco editor,
    which adds weight. Every time you add Source Editor to a view, the JavaScript bundle's
-   size significantly increases, affecting your view's loading performance. We recommend
-   you import the editor on demand if either:
+   size significantly increases, affecting your view's loading performance. You should
+   import the editor on demand if either:
 
    - You're uncertain if the view needs the editor.
    - The editor is a secondary element of the view.
@@ -240,7 +240,7 @@ theoretical button has been clicked.
 
 This script would result in an alert containing the editor's content when `someButton` is clicked.
 
-![Source Editor new extension's result](img/editor_lite_create_ext.png)
+![Source Editor new extension's result](img/editor_lite_create_ext_v13_6.png)
 
 ### Tips
 

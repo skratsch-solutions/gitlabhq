@@ -1,16 +1,33 @@
 query getModel($id: MlModelID!) {
   mlModel(id: $id) {
     id
+    createdAt
+    author {
+      id
+      name
+      avatarUrl
+      webUrl
+    }
     description
     descriptionHtml
     name
     versionCount
     candidateCount
+    defaultExperimentPath
     latestVersion {
       id
+      createdAt
+      artifactsCount
+      author {
+        id
+        name
+        avatarUrl
+        webUrl
+      }
       version
       packageId
       description
+      descriptionHtml
       candidate {
         id
         name

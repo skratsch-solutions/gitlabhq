@@ -5,6 +5,7 @@ class ImportExportUpload < ApplicationRecord
 
   belongs_to :project
   belongs_to :group
+  belongs_to :user
 
   # These hold the project Import/Export archives (.tar.gz files)
   mount_uploader :import_file, ImportExportUploader
@@ -41,6 +42,13 @@ class ImportExportUpload < ApplicationRecord
     # storage bucket.
     Gitlab::ErrorTracking.track_exception(e)
     false
+  end
+
+  def uploads_sharding_key
+    {
+      project_id: project_id,
+      namespace_id: group_id
+    }
   end
 
   private

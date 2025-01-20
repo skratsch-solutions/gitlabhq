@@ -1,14 +1,21 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: For assistance with this tutorial, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments-to-other-projects-and-subjects.
 ---
 
-# Tutorial: Create a compliance pipeline
+<!--- start_remove The following content will be removed on remove_date: '2025-08-15' -->
+
+# Tutorial: Create a compliance pipeline (deprecated)
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+WARNING:
+This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/159841) in GitLab 17.3
+and is planned for removal in 18.0. Use [pipeline execution policy type](../../user/application_security/policies/pipeline_execution_policies.md) instead.
+This change is a breaking change. For more information, see the [migration guide](../../user/group/compliance_pipelines.md#pipeline-execution-policies-migration).
 
 You can use [compliance pipelines](../../user/group/compliance_pipelines.md) to ensure specific
 compliance-related jobs are run on pipelines for all projects in a group. Compliance pipelines are applied
@@ -79,9 +86,9 @@ The compliance framework is configured in the [new group](#create-a-new-group).
 To configure the compliance framework:
 
 1. On the left sidebar, select **Search or go to** and find the `Tutorial group` group.
-1. Select **Settings > General**.
-1. Expand **Compliance frameworks**.
-1. Select **Add framework**.
+1. Select **Secure > Compliance center**.
+1. On the page, select the **Frameworks** tab.
+1. Select **New framework**.
 1. In the **Name** field, enter `Tutorial compliance framework`.
 1. In the **Description** field, enter `Compliance framework for tutorial`.
 1. In the **Compliance pipeline configuration (optional)** field, enter
@@ -92,10 +99,11 @@ To configure the compliance framework:
 For convenience, make the new compliance framework the default for all new projects in the group:
 
 1. On the left sidebar, select **Search or go to** and find the `Tutorial group` group.
-1. Select **Settings > General**.
-1. Expand **Compliance frameworks**.
-1. In the row for `Tutorial compliance framework`, select **Options** (**{ellipsis_v}**).
-1. Select **Set default**.
+1. Select **Secure > Compliance center**.
+1. On the page, select the **Frameworks** tab.
+1. Select `Tutorial compliance framework` then, select **Edit framework**.
+1. Select **Set as default**.
+1. Select **Save changes**.
 
 ## Create a new project and apply the compliance framework
 
@@ -120,8 +128,8 @@ To run the compliance pipeline configuration in `Tutorial project`:
 
 1. On the left sidebar, select **Search or go to** and find the `Tutorial project` project.
 1. Select **Build > Pipelines**.
-1. Select **Run pipeline**.
-1. On the **Run pipeline** page, select **Run pipeline**.
+1. Select **New pipeline**.
+1. On the **New pipeline** page, select **Run pipeline**.
 
 Notice the pipeline runs a job called `compliance-job` in a **test** stage. Nice work, you've run your first compliance
 job!
@@ -168,8 +176,8 @@ To confirm the regular pipeline configuration is combined with the compliance pi
 
 1. On the left sidebar, select **Search or go to** and find the `Tutorial project` project.
 1. Select **Build > Pipelines**.
-1. Select **Run pipeline**.
-1. On the **Run pipeline** page, select **Run pipeline**.
+1. Select **New pipeline**.
+1. On the **New pipeline** page, select **Run pipeline**.
 
 Notice the pipeline runs two jobs in a **test** stage:
 
@@ -179,3 +187,5 @@ Notice the pipeline runs two jobs in a **test** stage:
 Congratulations, you've created and configured a compliance pipeline!
 
 See more [example compliance pipeline configurations](../../user/group/compliance_pipelines.md#example-configuration).
+
+<!--- end_remove -->

@@ -73,12 +73,12 @@ module EnforcesTwoFactorAuthentication
   end
 
   def two_factor_verifier
-    @two_factor_verifier ||= Gitlab::Auth::TwoFactorAuthVerifier.new(current_user, request) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+    @two_factor_verifier ||= Gitlab::Auth::TwoFactorAuthVerifier.new(current_user, request)
   end
 
   def mfa_help_page_url
     Rails.application.routes.url_helpers.help_page_url(
-      'user/profile/account/two_factor_authentication.html',
+      'user/profile/account/two_factor_authentication.md',
       anchor: 'enable-two-factor-authentication'
     )
   end

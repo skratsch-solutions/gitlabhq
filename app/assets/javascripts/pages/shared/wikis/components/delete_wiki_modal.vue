@@ -71,7 +71,7 @@ export default {
       return {
         text: this.deleteTemplateText,
         extraAttrs: {
-          class: 'gl-text-red-500!',
+          class: '!gl-text-red-500',
           'data-testid': 'page-delete-button',
         },
       };
@@ -115,7 +115,7 @@ export default {
       :item="listItem"
     >
       <template #list-item>
-        <gl-icon name="remove" class="gl-mr-2 gl-text-red-500" />
+        <gl-icon name="remove" class="gl-mr-2" variant="danger" />
         {{ listItem.text }}
       </template>
     </gl-disclosure-dropdown-item>
@@ -137,7 +137,7 @@ export default {
       @ok="onSubmit"
     >
       {{ modalBody }}
-      <form ref="form" :action="wikiUrl" method="post" class="js-requires-input">
+      <form ref="form" :action="wikiUrl" method="post">
         <input ref="method" type="hidden" name="_method" value="delete" />
         <input :value="csrfToken" type="hidden" name="authenticity_token" />
       </form>

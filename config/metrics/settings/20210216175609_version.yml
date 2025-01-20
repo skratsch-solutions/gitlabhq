@@ -3,6 +3,8 @@ data_category: optional
 key_path: database.version
 description: The version of the PostgreSQL database.
 product_group: distribution_deploy
+product_categories:
+- build
 value_type: string
 status: active
 time_frame: none
@@ -10,9 +12,10 @@ data_source: system
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

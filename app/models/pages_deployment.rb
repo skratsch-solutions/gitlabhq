@@ -4,6 +4,7 @@
 class PagesDeployment < ApplicationRecord
   include GlobalID::Identification
   include EachBatch
+  include FromUnion
   include Sortable
   include FileStoreMounter
   include Gitlab::Utils::StrongMemoize
@@ -27,6 +28,7 @@ class PagesDeployment < ApplicationRecord
   scope :upload_ready, -> { where(upload_ready: true) }
 
   scope :active, -> { upload_ready.where(deleted_at: nil) }
+  scope :expired, -> { where('expires_at < ?', Time.now.utc).order(:expires_at, :id) }
   scope :deactivated, -> { where('deleted_at < ?', Time.now.utc) }
   scope :versioned, -> { where.not(path_prefix: [nil, '']) }
   scope :unversioned, -> { where(path_prefix: [nil, '']) }
@@ -72,12 +74,10 @@ class PagesDeployment < ApplicationRecord
     update(deleted_at: Time.now.utc)
   end
 
-  def self.count_versioned_deployments_for(project, limit)
-    project_id_in(project.root_ancestor.all_projects)
-      .active
-      .versioned
-      .limit(limit)
-      .count
+  def self.count_versioned_deployments_for(projects, limit, group_by_project: false)
+    query = project_id_in(projects).active.versioned
+    query = query.group(:project_id) if group_by_project
+    query.limit(limit).count
   end
 
   def active?
@@ -85,11 +85,9 @@ class PagesDeployment < ApplicationRecord
   end
 
   def url
-    base_url = ::Gitlab::Pages::UrlBuilder
-      .new(project)
-      .pages_url(with_unique_domain: true)
-
-    File.join(base_url.to_s, path_prefix.to_s)
+    ::Gitlab::Pages::UrlBuilder
+      .new(project, { path_prefix: path_prefix.to_s })
+      .pages_url
   end
 
   def deactivate

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the [`workflow`](index.md#workflow) keyword to control when pipelines are created.
 
@@ -134,7 +134,28 @@ workflow:
     - if: $CI_COMMIT_REF_PROTECTED == "true"
 ```
 
-This example assumes that your long-lived branches are [protected](../../user/project/protected_branches.md).
+This example assumes that your long-lived branches are [protected](../../user/project/repository/branches/protected.md).
+
+### Skip pipelines for draft merge requests
+
+You can use `workflow: rules` to skip pipelines for draft merge requests. With these rules, you can avoid using compute minutes until development is complete.
+
+For example, the following rules will disable CI builds for merge requests with `[Draft]`, `(Draft)`, or `Draft:` in the title:
+
+```yaml
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TITLE =~ /^(\[Draft\]|\(Draft\)|Draft:)/
+      when: never
+
+stages:
+  - build
+
+build-job:
+  stage: build
+  script:
+    - echo "Testing"
+```
 
 <!--- start_remove The following content will be removed on remove_date: '2025-05-15' -->
 
@@ -168,7 +189,7 @@ include:
 The [`MergeRequest-Pipelines` template](https://gitlab.com/gitlab-org/gitlab/-/tree/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
 makes your pipelines run for the default branch, tags, and
 all types of merge request pipelines. Use this template if you use any of the
-the [merge request pipelines features](../pipelines/merge_request_pipelines.md).
+[merge request pipelines features](../pipelines/merge_request_pipelines.md).
 
 To [include](index.md#include) it:
 

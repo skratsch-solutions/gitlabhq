@@ -4,7 +4,7 @@ import { createAlert, VARIANT_INFO } from '~/alert';
 import { __, n__, sprintf } from '~/locale';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import DomElementListener from '~/vue_shared/components/dom_element_listener.vue';
-import InputCopyToggleVisibility from '~/vue_shared/components/form/input_copy_toggle_visibility.vue';
+import InputCopyToggleVisibility from '~/vue_shared/components/input_copy_toggle_visibility/input_copy_toggle_visibility.vue';
 import { EVENT_ERROR, EVENT_SUCCESS, FORM_SELECTOR } from './constants';
 
 const convertEventDetail = (event) => convertObjectPropsToCamelCase(event.detail, { deep: true });
@@ -24,7 +24,7 @@ export default {
   tokenInputId: 'new-access-token',
   inject: ['accessTokenType'],
   data() {
-    return { errors: null, infoAlert: null, newToken: null };
+    return { errors: null, alert: null, newToken: null };
   },
   computed: {
     alertInfoMessage() {
@@ -52,52 +52,79 @@ export default {
     label() {
       return sprintf(this.$options.i18n.label, { accessTokenType: this.accessTokenType });
     },
+    isNameOrScopesSet() {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      return urlParams.has('name') || urlParams.has('scopes');
+    },
   },
   mounted() {
     /** @type {HTMLFormElement} */
     this.form = document.querySelector(FORM_SELECTOR);
 
     /** @type {HTMLButtonElement} */
-    this.submitButton = this.form.querySelector('[type=submit]');
+    this.submitButton = this.form.querySelector(
+      'button[type=submit][data-testid=create-token-button]',
+    );
+
+    // If param is set, open form on page load.
+    if (this.isNameOrScopesSet) {
+      document.querySelectorAll('.js-token-card').forEach((el) => {
+        el.querySelector('.js-add-new-token-form').style.display = 'block';
+        el.querySelector('.js-toggle-button').style.display = 'none';
+      });
+    }
   },
   methods: {
     beforeDisplayResults() {
-      this.infoAlert?.dismiss();
+      this.alert?.dismiss();
       this.$refs.container.scrollIntoView(false);
 
       this.errors = null;
       this.newToken = null;
     },
+    enableSubmitButton() {
+      this.submitButton.classList.remove('disabled');
+      this.submitButton.removeAttribute('disabled');
+    },
     onError(event) {
       this.beforeDisplayResults();
 
-      const [{ errors }] = convertEventDetail(event);
+      const [{ errors, message }] = convertEventDetail(event);
       this.errors = errors;
 
-      this.submitButton.classList.remove('disabled');
-      this.submitButton.removeAttribute('disabled');
+      if (message) {
+        this.alert = createAlert({ message });
+      }
+
+      this.enableSubmitButton();
     },
     onSuccess(event) {
       this.beforeDisplayResults();
 
-      const [{ newToken }] = convertEventDetail(event);
+      const [{ newToken, total }] = convertEventDetail(event);
       this.newToken = newToken;
 
-      this.infoAlert = createAlert({ message: this.alertInfoMessage, variant: VARIANT_INFO });
+      this.alert = createAlert({ message: this.alertInfoMessage, variant: VARIANT_INFO });
 
       // Selectively reset all input fields except for the date picker.
       // The form token creation is not controlled by Vue.
       this.form.querySelectorAll('input[type=text]:not([id$=expires_at])').forEach((el) => {
         el.value = '';
       });
+
+      this.form.querySelectorAll('textarea').forEach((el) => {
+        el.value = '';
+      });
+
       this.form.querySelectorAll('input[type=checkbox]').forEach((el) => {
         el.checked = false;
       });
+      this.enableSubmitButton();
       document.querySelectorAll('.js-token-card').forEach((el) => {
         el.querySelector('.js-add-new-token-form').style.display = '';
         el.querySelector('.js-toggle-button').style.display = 'block';
-        el.querySelector('.js-token-count').innerText =
-          parseInt(el.querySelector('.js-token-count').innerText, 10) + 1;
+        el.querySelector('.js-token-count').innerText = total;
       });
     },
   },
@@ -106,7 +133,7 @@ export default {
 
 <template>
   <dom-element-listener
-    :selector="$options.FORM_SELECTOR"
+    selector=".js-token-card"
     @[$options.EVENT_ERROR]="onError"
     @[$options.EVENT_SUCCESS]="onSuccess"
   >
@@ -115,6 +142,7 @@ export default {
         v-if="newToken"
         variant="success"
         data-testid="success-message"
+        class="gl-mb-5"
         @dismiss="newToken = null"
       >
         <input-copy-toggle-visibility

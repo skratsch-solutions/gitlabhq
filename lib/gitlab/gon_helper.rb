@@ -36,7 +36,6 @@ module Gitlab
       gon.promo_url              = ApplicationHelper.promo_url
       gon.forum_url              = Gitlab::Saas.community_forum_url
       gon.docs_url               = Gitlab::Saas.doc_url
-      gon.organization_http_header_name = ::Organizations::ORGANIZATION_HTTP_HEADER
       gon.revision               = Gitlab.revision
       gon.feature_category       = Gitlab::ApplicationContext.current_context_attribute(:feature_category).presence
       gon.gitlab_logo            = ActionController::Base.helpers.asset_path('gitlab_logo.png')
@@ -44,6 +43,7 @@ module Gitlab
       gon.sprite_icons           = IconsHelper.sprite_icon_path
       gon.sprite_file_icons      = IconsHelper.sprite_file_icons_path
       gon.emoji_sprites_css_path = universal_path_to_stylesheet('emoji_sprites')
+      gon.emoji_backend_version  = Gitlab::Emoji::EMOJI_VERSION
       gon.gridstack_css_path     = universal_path_to_stylesheet('lazy_bundles/gridstack')
       gon.test_env               = Rails.env.test?
       gon.disable_animations     = Gitlab.config.gitlab['disable_animations']
@@ -68,6 +68,15 @@ module Gitlab
         gon.current_user_avatar_url = current_user.avatar_url
         gon.time_display_relative = current_user.time_display_relative
         gon.time_display_format = current_user.time_display_format
+
+        if current_user.user_preference
+          gon.current_user_use_work_items_view = current_user.user_preference.use_work_items_view || false
+          gon.text_editor = current_user.user_preference.text_editor
+        end
+      end
+
+      if current_organization && Feature.enabled?(:ui_for_organizations, current_user)
+        gon.current_organization = current_organization.slice(:id, :name, :web_url, :avatar_url)
       end
 
       # Initialize gon.features with any flags that should be
@@ -76,8 +85,11 @@ module Gitlab
       push_frontend_feature_flag(:vscode_web_ide, current_user)
       push_frontend_feature_flag(:ui_for_organizations, current_user)
       push_frontend_feature_flag(:organization_switching, current_user)
+      push_frontend_feature_flag(:find_and_replace, current_user)
       # To be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/399248
       push_frontend_feature_flag(:remove_monitor_metrics)
+      push_frontend_feature_flag(:work_items_view_preference, current_user)
+      push_frontend_feature_flag(:search_button_top_right, current_user)
     end
 
     # Exposes the state of a feature flag to the frontend code.
@@ -140,6 +152,22 @@ module Gitlab
       gon.analytics_url = ENV['GITLAB_ANALYTICS_URL']
       gon.analytics_id = ENV['GITLAB_ANALYTICS_ID']
     end
+
+    # `::Current.organization` is only valid within the context of a request,
+    # but it can be called from everywhere. So how do we avoid accidentally
+    # calling it outside of the context of a request? We banned it with
+    # Rubocop.
+    #
+    # This method is acceptable because it is only included by controllers.
+    # This method intentionally looks like Devise's `current_user` method,
+    # which has similar properties.
+    # rubocop:disable Gitlab/AvoidCurrentOrganization -- This method follows the spirit of the rule
+    def current_organization
+      return unless ::Current.organization_assigned
+
+      Organizations::FallbackOrganizationTracker.without_tracking { ::Current.organization }
+    end
+    # rubocop:enable Gitlab/AvoidCurrentOrganization
   end
 end
 

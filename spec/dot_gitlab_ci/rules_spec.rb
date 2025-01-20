@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+# NOTE: Do not remove the parentheses from this require statement!
+#       They are necessary so it doesn't match the regex in `scripts/run-fast-specs.sh`,
+#       and make the "fast" portion of that suite run slow.
+require('fast_spec_helper') # NOTE: Do not remove the parentheses from this require statement!
 
 PatternsList = Struct.new(:name, :patterns)
 
@@ -21,31 +24,6 @@ RSpec.describe '.gitlab/ci/rules.gitlab-ci.yml', feature_category: :tooling do
         # https://docs.gitlab.com/ee/development/pipelines/internals.html#avoid-force_gitlab_ci
         it "#{name} has corresponding if" do
           expect(rule).to include('if')
-        end
-      end
-    end
-  end
-
-  describe '.qa:rules:manual-e2e' do
-    let(:base_rules) { config.dig('.qa:rules:manual-e2e', 'rules') }
-
-    context 'with .qa:rules:follow-up-e2e' do
-      let(:derived_rules) { config.dig('.qa:rules:follow-up-e2e', 'rules') }
-
-      it 'has the same rules as the base, but with manual jobs changed to automatic' do
-        base_rules.zip(derived_rules).each do |(base, derived)|
-          # Exception:
-          #
-          # - !reference [".qa:rules:code-merge-request-manual", rules] becomes
-          # - !reference [".qa:rules:code-merge-request-allowed-to-fail", rules]
-          #
-          # This is because we want the rules to be automatic, but still allowed to fail
-          if base.is_a?(Array) && base.first == '.qa:rules:code-merge-request-manual'
-            expect(derived.first).to eq('.qa:rules:code-merge-request-allowed-to-fail')
-            next
-          end
-
-          expect(derived).to eq(base)
         end
       end
     end
@@ -214,19 +192,19 @@ RSpec.describe '.gitlab/ci/rules.gitlab-ci.yml', feature_category: :tooling do
         '.mailmap',
         '.prettierignore',
         '.projections.json.example',
-        '.rubocop_revert_ignores.txt',
-        '.ruby-version',
         '.solargraph.yml.example',
         '.solargraph.yml',
         '.test_license_encryption_key.pub',
-        '.tool-versions',
         '.vale.ini',
         '.vscode/extensions.json',
         'ee/lib/ee/gitlab/background_migration/.rubocop.yml',
         'ee/LICENSE',
         'Gemfile.checksum',
+        'Gemfile.next.checksum',
         'gems/error_tracking_open_api/.openapi-generator/FILES',
         'gems/error_tracking_open_api/.openapi-generator/VERSION',
+        'gems/openbao_client/.openapi-generator/FILES',
+        'gems/openbao_client/.openapi-generator/VERSION',
         'Guardfile',
         'INSTALLATION_TYPE',
         'lib/gitlab/background_migration/.rubocop.yml',
@@ -240,7 +218,7 @@ RSpec.describe '.gitlab/ci/rules.gitlab-ci.yml', feature_category: :tooling do
       Dir.glob('.github/*') +
       Dir.glob('.gitlab/{issue,merge_request}_templates/**/*') +
       Dir.glob('.gitlab/*.toml') +
-      Dir.glob('{,**/}.{DS_Store,eslintrc.yml,gitignore,gitkeep,keep}', File::FNM_DOTMATCH) +
+      Dir.glob('{,**/}.{DS_Store,gitignore,gitkeep,keep}', File::FNM_DOTMATCH) +
       Dir.glob('{,vendor/}gems/*/.*') +
       Dir.glob('{.git,.lefthook,.ruby-lsp}/**/*') +
       Dir.glob('{file_hooks,log}/**/*') +
@@ -278,7 +256,14 @@ RSpec.describe '.gitlab/ci/rules.gitlab-ci.yml', feature_category: :tooling do
       next unless name.end_with?('patterns')
 
       # Ignore EE-only patterns list when in FOSS context
-      relevant_patterns = foss_context ? patterns.reject { |pattern| pattern =~ %r|^{?ee/| } : patterns
+      relevant_patterns = if foss_context
+                            patterns.reject do |pattern|
+                              pattern =~ %r|^{?ee/| || pattern == '.tool-versions'
+                            end
+                          else
+                            patterns
+                          end
+
       next if relevant_patterns.empty?
       next if foss_context && name == '.custom-roles-patterns'
 

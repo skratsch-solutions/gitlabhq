@@ -7,9 +7,7 @@ import { intersection } from 'lodash';
 import Tracking from '~/tracking';
 import { NAV_LINK_COUNT_DEFAULT_CLASSES, LABEL_DEFAULT_CLASSES } from '../../constants';
 import { formatSearchResultCount } from '../../../store/utils';
-
-export const TRACKING_LABEL_SET = 'set';
-export const TRACKING_LABEL_CHECKBOX = 'checkbox';
+import { TRACKING_LABEL_SET, TRACKING_LABEL_CHECKBOX } from './tracking';
 
 export default {
   name: 'CheckboxFilter',
@@ -23,6 +21,10 @@ export default {
       required: true,
     },
     trackingNamespace: {
+      type: String,
+      required: true,
+    },
+    queryParam: {
       type: String,
       required: true,
     },
@@ -40,14 +42,14 @@ export default {
         return intersection(this.flatDataFilterValues, this.queryLanguageFilters);
       },
       async set(value) {
-        this.setQuery({ key: this.filtersData?.filterParam, value });
+        this.setQuery({ key: this.queryParam, value });
 
         await Vue.nextTick();
         this.trackSelectCheckbox();
       },
     },
     labelCountClasses() {
-      return [...NAV_LINK_COUNT_DEFAULT_CLASSES, 'gl-text-gray-500'];
+      return [...NAV_LINK_COUNT_DEFAULT_CLASSES, 'gl-text-subtle'];
     },
   },
   methods: {
@@ -72,10 +74,10 @@ export default {
       v-for="f in dataFilters"
       :key="f.label"
       :value="f.label"
-      class="gl-flex-grow-1 gl-inline-flex gl-justify-content-space-between gl-w-full"
+      class="gl-inline-flex gl-w-full gl-grow gl-justify-between"
       :class="$options.LABEL_DEFAULT_CLASSES"
     >
-      <span class="gl-flex-grow-1 gl-inline-flex gl-justify-content-space-between gl-w-full">
+      <span class="gl-inline-flex gl-w-full gl-grow gl-justify-between">
         <span data-testid="label">
           {{ f.label }}
         </span>

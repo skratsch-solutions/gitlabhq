@@ -11,9 +11,6 @@ class Event < ApplicationRecord
   include ShaAttribute
   include EachBatch
   include Import::HasImportSource
-  include IgnorableColumns
-
-  ignore_column :imported, remove_with: '17.2', remove_after: '2024-07-22'
 
   ACTIONS = HashWithIndifferentAccess.new(
     created: 1,
@@ -67,6 +64,7 @@ class Event < ApplicationRecord
   belongs_to :author, class_name: "User"
   belongs_to :project
   belongs_to :group
+  belongs_to :personal_namespace, class_name: "Namespaces::UserNamespace"
 
   belongs_to :target, -> {
     # If the association for "target" defines an "author" association we want to
@@ -82,6 +80,7 @@ class Event < ApplicationRecord
   has_one :push_event_payload
 
   # Callbacks
+  before_save :ensure_sharding_key
   after_create :update_project
 
   # Scopes
@@ -118,6 +117,7 @@ class Event < ApplicationRecord
   scope :for_milestone_id, ->(milestone_id) { where(target_type: "Milestone", target_id: milestone_id) }
   scope :for_wiki_meta, ->(meta) { where(target_type: 'WikiPage::Meta', target_id: meta.id) }
   scope :created_at, ->(time) { where(created_at: time) }
+  scope :with_target, -> { preload(:target) }
 
   # Authors are required as they're used to display who pushed data.
   #
@@ -248,7 +248,7 @@ class Event < ApplicationRecord
     strong_memoize(:wiki_page) do
       next unless wiki_page?
 
-      ProjectWiki.new(project, author).find_page(target.canonical_slug)
+      Wiki.for_container(project || group, author).find_page(target.canonical_slug)
     end
   end
 
@@ -325,6 +325,10 @@ class Event < ApplicationRecord
     note? && note.for_design?
   end
 
+  def wiki_page_note?
+    note? && note.for_wiki_page?
+  end
+
   def note_target
     target.noteable
   end
@@ -358,48 +362,17 @@ class Event < ApplicationRecord
     end
   end
 
+  def ensure_sharding_key
+    return unless group_id.nil? && project_id.nil? && personal_namespace_id.nil?
+
+    self.personal_namespace_id = author.namespace_id
+  end
+
   def update_project
     return unless project_id.present?
 
-    if Feature.enabled?(:combined_project_update_on_event_creation, project)
-      update_project_activity
-    else
-      reset_project_activity
-      set_last_repository_updated_at if push_action?
-    end
-  end
-
-  # Combine last_activity_at and last_repository_updated_at updates
-  # into a single statement in oredr to reduce generated WAL
-  def update_project_activity
-    return unless project_id.present?
-
-    columns_to_update = { updated_at: created_at }
-
-    # At this point it's possible for multiple threads/processes to try to
-    # update the project. Only one query should actually perform the update,
-    # hence we add the extra WHERE clause for the columns we aim to update.
-    recently_updated_filters = []
-
-    unless recent_update?
-      columns_to_update[:last_activity_at] = created_at
-      recently_updated_filters << Project.where('last_activity_at <= ?', RESET_PROJECT_ACTIVITY_INTERVAL.ago)
-
-      Gitlab::InactiveProjectsDeletionWarningTracker.new(project_id).reset
-    end
-
-    if push_action? && !recent_repository_update?
-      columns_to_update[:last_repository_updated_at] = created_at
-      recently_updated_filters << Project.where(
-        "last_repository_updated_at < ? OR last_repository_updated_at IS NULL", REPOSITORY_UPDATED_AT_INTERVAL.ago
-      )
-    end
-
-    return if recently_updated_filters.empty?
-
-    Project.unscoped.where(id: project_id)
-      .and(recently_updated_filters.inject { |agg, s| agg.or(s) })
-      .update_all(columns_to_update)
+    reset_project_activity
+    set_last_repository_updated_at if push_action?
   end
 
   def reset_project_activity

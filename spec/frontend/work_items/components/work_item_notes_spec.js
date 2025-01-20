@@ -1,7 +1,9 @@
-import { GlSkeletonLoader, GlModal } from '@gitlab/ui';
+import { GlModal } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
+import setWindowLocation from 'helpers/set_window_location_helper';
+import { setHTMLFixture } from 'helpers/fixtures';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import { stubComponent } from 'helpers/stub_component';
 import waitForPromises from 'helpers/wait_for_promises';
@@ -10,7 +12,8 @@ import WorkItemNotes from '~/work_items/components/work_item_notes.vue';
 import WorkItemDiscussion from '~/work_items/components/notes/work_item_discussion.vue';
 import WorkItemAddNote from '~/work_items/components/notes/work_item_add_note.vue';
 import WorkItemNotesActivityHeader from '~/work_items/components/notes/work_item_notes_activity_header.vue';
-import groupWorkItemNotesByIidQuery from '~/work_items/graphql/notes/group_work_item_notes_by_iid.query.graphql';
+import WorkItemNotesLoading from '~/work_items/components/notes/work_item_notes_loading.vue';
+import workItemNoteQuery from '~/work_items/graphql/notes/work_item_note.query.graphql';
 import workItemNotesByIidQuery from '~/work_items/graphql/notes/work_item_notes_by_iid.query.graphql';
 import deleteWorkItemNoteMutation from '~/work_items/graphql/notes/delete_work_item_notes.mutation.graphql';
 import workItemNoteCreatedSubscription from '~/work_items/graphql/notes/work_item_note_created.subscription.graphql';
@@ -24,14 +27,15 @@ import {
   workItemQueryResponse,
   mockWorkItemNotesByIidResponse,
   mockMoreWorkItemNotesResponse,
-  mockWorkItemNotesResponseWithComments,
   workItemNotesCreateSubscriptionResponse,
   workItemNotesUpdateSubscriptionResponse,
   workItemNotesDeleteSubscriptionResponse,
+  mockWorkItemNotesResponseWithComments,
 } from '../mock_data';
 
 const mockWorkItemId = workItemQueryResponse.data.workItem.id;
 const mockWorkItemIid = workItemQueryResponse.data.workItem.iid;
+
 const mockNotesWidgetResponse = mockWorkItemNotesResponse.data.workItem.widgets.find(
   (widget) => widget.type === WIDGET_TYPE_NOTES,
 );
@@ -42,13 +46,22 @@ const mockMoreNotesWidgetResponse =
   );
 
 const mockWorkItemNotesWidgetResponseWithComments =
-  mockWorkItemNotesResponseWithComments.data.workspace.workItem.widgets.find(
+  mockWorkItemNotesResponseWithComments().data.workspace.workItem.widgets.find(
     (widget) => widget.type === WIDGET_TYPE_NOTES,
   );
 
 const firstSystemNodeId = mockNotesWidgetResponse.discussions.nodes[0].notes.nodes[0].id;
 
 const mockDiscussions = mockWorkItemNotesWidgetResponseWithComments.discussions.nodes;
+
+const mockWorkItemNoteResponse = {
+  data: {
+    note: {
+      id: mockDiscussions[0].notes.nodes[0].id,
+      discussion: { id: mockDiscussions[0].id, notes: mockDiscussions[0].notes },
+    },
+  },
+};
 
 describe('WorkItemNotes component', () => {
   let wrapper;
@@ -59,21 +72,20 @@ describe('WorkItemNotes component', () => {
 
   const findAllSystemNotes = () => wrapper.findAllComponents(SystemNote);
   const findAllListItems = () => wrapper.findAll('ul.timeline > *');
-  const findSkeletonLoader = () => wrapper.findComponent(GlSkeletonLoader);
+  const findNotesLoading = () => wrapper.findComponent(WorkItemNotesLoading);
   const findActivityHeader = () => wrapper.findComponent(WorkItemNotesActivityHeader);
   const findSystemNoteAtIndex = (index) => findAllSystemNotes().at(index);
   const findAllWorkItemCommentNotes = () => wrapper.findAllComponents(WorkItemDiscussion);
   const findWorkItemCommentNoteAtIndex = (index) => findAllWorkItemCommentNotes().at(index);
   const findDeleteNoteModal = () => wrapper.findComponent(GlModal);
+  const findWorkItemAddNote = () => wrapper.findComponent(WorkItemAddNote);
 
-  const groupWorkItemNotesQueryHandler = jest
-    .fn()
-    .mockResolvedValue(mockWorkItemNotesByIidResponse);
+  const workItemNoteQueryHandler = jest.fn().mockResolvedValue(mockWorkItemNoteResponse);
   const workItemNotesQueryHandler = jest.fn().mockResolvedValue(mockWorkItemNotesByIidResponse);
   const workItemMoreNotesQueryHandler = jest.fn().mockResolvedValue(mockMoreWorkItemNotesResponse);
   const workItemNotesWithCommentsQueryHandler = jest
     .fn()
-    .mockResolvedValue(mockWorkItemNotesResponseWithComments);
+    .mockResolvedValue(mockWorkItemNotesResponseWithComments());
   const deleteWorkItemNoteMutationSuccessHandler = jest.fn().mockResolvedValue({
     data: { destroyNote: { note: null, __typename: 'DestroyNote' } },
   });
@@ -96,11 +108,12 @@ describe('WorkItemNotes component', () => {
     isGroup = false,
     isModal = false,
     isWorkItemConfidential = false,
+    parentId = null,
   } = {}) => {
     wrapper = shallowMount(WorkItemNotes, {
       apolloProvider: createMockApollo([
+        [workItemNoteQuery, workItemNoteQueryHandler],
         [workItemNotesByIidQuery, defaultWorkItemNotesQueryHandler],
-        [groupWorkItemNotesByIidQuery, groupWorkItemNotesQueryHandler],
         [deleteWorkItemNoteMutation, deleteWINoteMutationHandler],
         [workItemNoteCreatedSubscription, notesCreateSubscriptionHandler],
         [workItemNoteUpdatedSubscription, notesUpdateSubscriptionHandler],
@@ -117,6 +130,7 @@ describe('WorkItemNotes component', () => {
         reportAbusePath: '/report/abuse/path',
         isModal,
         isWorkItemConfidential,
+        parentId,
       },
       stubs: {
         GlModal: stubComponent(GlModal, { methods: { show: showModal } }),
@@ -125,6 +139,7 @@ describe('WorkItemNotes component', () => {
   };
 
   beforeEach(() => {
+    setHTMLFixture('<div id="content-body"></div>');
     createComponent();
   });
 
@@ -134,17 +149,87 @@ describe('WorkItemNotes component', () => {
 
   describe('when notes are loading', () => {
     it('renders skeleton loader', () => {
-      expect(findSkeletonLoader().exists()).toBe(true);
+      expect(findNotesLoading().exists()).toBe(true);
     });
 
     it('does not render system notes', () => {
       expect(findAllSystemNotes().exists()).toBe(false);
     });
+
+    it('skips query for target note if no note_id in URL', () => {
+      createComponent();
+
+      expect(workItemNoteQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it('skips query for target note if invalid note_id in URL', () => {
+      setWindowLocation('#not_a_note');
+
+      createComponent();
+
+      expect(workItemNoteQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it('skips query for target note if note_id is for a synthetic note', () => {
+      setWindowLocation('#note_517f0177a539a244bf9c5a720b6d6f376a268996');
+
+      createComponent();
+
+      expect(workItemNoteQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it('skips preview note if modal is open', async () => {
+      setWindowLocation('?show=true#note_174');
+
+      const mockPreviewNote = {
+        id: 'gid://gitlab/Note/174',
+        discussion: { id: 'discussion-1' },
+      };
+
+      createComponent({
+        propsData: {
+          previewNote: mockPreviewNote,
+        },
+      });
+
+      await waitForPromises();
+
+      // Preview note should not be rendered when modal is open
+      const discussions = wrapper.findAllComponents(WorkItemDiscussion);
+      expect(discussions.length).toBe(0);
+
+      // Should still show loading state
+      expect(findNotesLoading().exists()).toBe(true);
+    });
+
+    it('makes query for target note if note_id in URL', () => {
+      setWindowLocation('#note_174');
+
+      createComponent();
+
+      expect(workItemNoteQueryHandler).toHaveBeenCalledWith({
+        id: 'gid://gitlab/Note/174',
+      });
+    });
+
+    it('renders note above skeleton notes once loaded', async () => {
+      setWindowLocation('#note_174');
+
+      createComponent();
+
+      await waitForPromises();
+
+      expect(findWorkItemCommentNoteAtIndex(0).props('discussion')).toEqual(
+        mockWorkItemNoteResponse.data.note.discussion.notes.nodes,
+      );
+    });
   });
 
   describe('when notes have been loaded', () => {
-    it('does not render skeleton loader', () => {
-      expect(findSkeletonLoader().exists()).toBe(true);
+    it('does not render skeleton loader', async () => {
+      await waitForPromises();
+
+      expect(findNotesLoading().exists()).toBe(true);
     });
 
     it('renders system notes to the length of the response', async () => {
@@ -153,7 +238,7 @@ describe('WorkItemNotes component', () => {
         after: undefined,
         fullPath: 'test-path',
         iid: '1',
-        pageSize: 30,
+        pageSize: 20,
       });
       expect(findAllSystemNotes()).toHaveLength(mockNotesWidgetResponse.discussions.nodes.length);
     });
@@ -208,15 +293,18 @@ describe('WorkItemNotes component', () => {
     });
 
     it('puts form at start of list in when sorting by newest first', async () => {
-      await findActivityHeader().vm.$emit('changeSort', DESC);
+      findActivityHeader().vm.$emit('changeSort', DESC);
+      await nextTick();
 
-      expect(findAllListItems().at(0).is(WorkItemAddNote)).toEqual(true);
+      expect(findAllListItems().at(0).element.tagName).toBe('WORK-ITEM-ADD-NOTE-STUB');
     });
 
     it('puts form at end of list in when sorting by oldest first', async () => {
-      await findActivityHeader().vm.$emit('changeSort', ASC);
+      findActivityHeader().vm.$emit('changeSort', ASC);
+      await nextTick();
 
-      expect(findAllListItems().at(-1).is(WorkItemAddNote)).toEqual(true);
+      const lastIndex = findAllListItems().length - 1;
+      expect(findAllListItems().at(lastIndex).element.tagName).toBe('WORK-ITEM-ADD-NOTE-STUB');
     });
   });
 
@@ -381,12 +469,78 @@ describe('WorkItemNotes component', () => {
     });
   });
 
+  describe('discussions expanded status', () => {
+    it('should be expanded when the discussion is not resolved', async () => {
+      createComponent({
+        defaultWorkItemNotesQueryHandler: workItemNotesWithCommentsQueryHandler,
+      });
+      await waitForPromises();
+      expect(findAllWorkItemCommentNotes().at(0).props('isExpandedOnLoad')).toBe(true);
+    });
+
+    it('should be collapsed when the discussion is resolved', async () => {
+      createComponent({
+        defaultWorkItemNotesQueryHandler: jest
+          .fn()
+          .mockResolvedValue(mockWorkItemNotesResponseWithComments(true)),
+      });
+
+      await waitForPromises();
+      expect(findAllWorkItemCommentNotes().at(0).props('isExpandedOnLoad')).toBe(false);
+    });
+
+    it('should be expanded when the notes are resolved but the target note hash has note id', async () => {
+      setWindowLocation('#note_174');
+
+      createComponent({
+        defaultWorkItemNotesQueryHandler: jest
+          .fn()
+          .mockResolvedValue(mockWorkItemNotesResponseWithComments(true)),
+      });
+
+      await waitForPromises();
+      await nextTick();
+
+      expect(findAllWorkItemCommentNotes().at(0).props('isExpandedOnLoad')).toBe(true);
+    });
+  });
+
   describe('when group context', () => {
-    it('calls the group work item query', async () => {
-      createComponent({ isGroup: true });
+    it('should pass the correct `autoCompleteDataSources` to group work item comment note', async () => {
+      const groupWorkItemNotes = {
+        data: {
+          workspace: {
+            id: 'gid://gitlab/Group/24',
+            workItem: {
+              ...mockWorkItemNotesResponseWithComments().data.workspace.workItem,
+              namespace: {
+                id: 'gid://gitlab/Group/24',
+                __typename: 'Namespace',
+              },
+            },
+          },
+        },
+      };
+      createComponent({
+        isGroup: true,
+        defaultWorkItemNotesQueryHandler: jest.fn().mockResolvedValue(groupWorkItemNotes),
+      });
       await waitForPromises();
 
-      expect(groupWorkItemNotesQueryHandler).toHaveBeenCalled();
+      expect(findWorkItemAddNote().props('autocompleteDataSources')).toEqual(
+        autocompleteDataSources({
+          fullPath: 'test-path',
+          iid: mockWorkItemIid,
+          isGroup: true,
+        }),
+      );
     });
+  });
+
+  it('passes the `parentId` prop down to the `WorkItemAddNote` component', async () => {
+    createComponent({ parentId: 'example-id' });
+    await waitForPromises();
+
+    expect(findWorkItemAddNote().props('parentId')).toBe('example-id');
   });
 });

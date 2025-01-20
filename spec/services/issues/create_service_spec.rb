@@ -96,20 +96,6 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
         end
       end
 
-      context 'when rely_on_work_item_type_seeder feature flag is disabled' do
-        before do
-          stub_feature_flags(rely_on_work_item_type_seeder: false)
-        end
-
-        it 'works if base work item types were not created yet' do
-          WorkItems::Type.delete_all
-
-          expect do
-            issue
-          end.to change(Issue, :count).by(1)
-        end
-      end
-
       it 'raises an error if work item types have not been created yet' do
         WorkItems::Type.delete_all
 
@@ -486,8 +472,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
               iid: { current: kind_of(Integer), previous: nil },
               project_id: { current: project.id, previous: nil },
               title: { current: opts[:title], previous: nil },
-              updated_at: { current: kind_of(Time), previous: nil },
-              time_estimate: { current: 0, previous: nil }
+              updated_at: { current: kind_of(Time), previous: nil }
             },
             object_attributes: include(
               opts.merge(
@@ -553,12 +538,6 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
             expect(issue.user_mentions.count).to eq 0
           end
         end
-      end
-
-      it 'schedules a namespace onboarding create action worker' do
-        expect(Onboarding::IssueCreatedWorker).to receive(:perform_async).with(project.project_namespace_id)
-
-        issue
       end
     end
 
@@ -796,6 +775,17 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
           expect(issue.description).to eq('Custom issue description')
           expect(issue.title).to eq('My new issue')
         end
+
+        context 'when merge request is passed as an object' do
+          let(:opts) { { discussion_to_resolve: discussion.id, merge_request_to_resolve_discussions_object: merge_request } }
+
+          it 'resolves the discussion' do
+            described_class.new(container: project, current_user: user, params: opts).execute
+            discussion.first_note.reload
+
+            expect(discussion.resolved?).to be(true)
+          end
+        end
       end
 
       describe 'for a merge request' do
@@ -844,6 +834,17 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
           expect(issue).to be_persisted
           expect(issue.description).to eq('Custom issue description')
           expect(issue.title).to eq('My new issue')
+        end
+
+        context 'when merge request is passed as an object' do
+          let(:opts) { { merge_request_to_resolve_discussions_object: merge_request } }
+
+          it 'resolves the discussion' do
+            described_class.new(container: project, current_user: user, params: opts).execute
+            discussion.first_note.reload
+
+            expect(discussion.resolved?).to be(true)
+          end
         end
       end
     end

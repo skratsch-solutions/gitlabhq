@@ -1,5 +1,6 @@
-import { GlIcon, GlFormInput, GlCollapsibleListbox } from '@gitlab/ui';
+import { GlFormInput, GlCollapsibleListbox } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import AlertMappingBuilder, { i18n } from '~/alerts_settings/components/alert_mapping_builder.vue';
 import * as transformationUtils from '~/alerts_settings/utils/mapping_transformations';
 import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
@@ -16,6 +17,9 @@ describe('AlertMappingBuilder', () => {
         savedMapping: parsedMapping.payloadAttributeMappings,
         alertFields,
       },
+      stubs: {
+        HelpIcon,
+      },
     });
   }
 
@@ -24,7 +28,7 @@ describe('AlertMappingBuilder', () => {
   });
 
   const findColumnInRow = (row, column) =>
-    wrapper.findAll('.gl-display-table-row').at(row).findAll('.gl-display-table-cell ').at(column);
+    wrapper.findAll('.gl-table-row').at(row).findAll('.gl-table-cell ').at(column);
 
   const getMappingOptions = (types) => {
     return parsedMapping.payloadAlertFields.filter(({ type }) => types.includes(type));
@@ -35,7 +39,7 @@ describe('AlertMappingBuilder', () => {
     expect(findColumnInRow(0, 2).text()).toContain(i18n.columns.payloadKeyTitle);
     expect(findColumnInRow(0, 3).text()).toContain(i18n.columns.fallbackKeyTitle);
 
-    const fallbackColumnIcon = findColumnInRow(0, 3).findComponent(GlIcon);
+    const fallbackColumnIcon = findColumnInRow(0, 3).findComponent(HelpIcon);
     expect(fallbackColumnIcon.exists()).toBe(true);
     expect(fallbackColumnIcon.attributes('name')).toBe('question-o');
     expect(fallbackColumnIcon.attributes('title')).toBe(i18n.fallbackTooltip);
@@ -46,7 +50,7 @@ describe('AlertMappingBuilder', () => {
       const input = findColumnInRow(index + 1, 0).findComponent(GlFormInput);
       const types = field.types.map((t) => capitalizeFirstCharacter(t.toLowerCase())).join(' or ');
       expect(input.attributes('value')).toBe(`${field.label} (${types})`);
-      expect(input.attributes('disabled')).toBe('');
+      expect(input.attributes('disabled')).toBeDefined();
     });
   });
 

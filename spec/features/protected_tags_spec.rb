@@ -2,7 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Protected Tags', :js, :with_license, feature_category: :source_code_management do
+RSpec.describe 'Protected Tags', :js, :with_license, feature_category: :source_code_management,
+  quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/509488' do
   include ProtectedTagHelpers
 
   let(:project) { create(:project, :repository) }
@@ -73,7 +74,7 @@ RSpec.describe 'Protected Tags', :js, :with_license, feature_category: :source_c
       set_allowed_to('create')
       click_on_protect
 
-      within("#js-protected-tags-settings .gl-new-card-count") do
+      within('#js-protected-tags-settings [data-testid="crud-count"]') do
         expect(page).to have_content("2")
       end
 
@@ -119,7 +120,7 @@ RSpec.describe 'Protected Tags', :js, :with_license, feature_category: :source_c
     end
 
     include_examples 'Deploy keys with protected tags' do
-      let(:all_dropdown_sections) { ['Roles', 'Deploy Keys'] }
+      let(:all_dropdown_sections) { ['Roles', 'Deploy keys'] }
     end
   end
 end

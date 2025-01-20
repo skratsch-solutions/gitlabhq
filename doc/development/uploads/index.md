@@ -111,12 +111,63 @@ With direct upload enabled, Workhorse:
 
 1. Authorizes the request with Rails.
 1. Establishes a connection with the object store itself to transfer the file to a temporary location.
-1. When the transfer is complete, Workhorse finalizes the request with Rails. Rails issues an object store copy operation to put the file in its final location.
+1. When the transfer is complete, Workhorse finalizes the request with Rails.
 1. Completes the upload by deleting the temporary file in object storage.
 
 This strategy is a different form of [Workhorse assistance](#workhorse-assisted-uploads). It does not rely on shared storage that is accessible by both Workhorse and Puma.
 
-Of all existing upload strategies, direct upload is best able to handle large (gigabyte) uploads. However, because Puma still does an object storage copy operation, which takes time proportional to the size of the upload, there remains a possibility of hitting Puma timeouts.
+Of all existing upload strategies, direct upload is best able to handle large (gigabyte) uploads.
+
+### Disk buffered uploads
+
+Direct upload falls back to _disk buffered upload_ when `direct_upload` is disabled inside the [object storage setting](../../administration/uploads.md#object-storage-settings). The answer to the `/authorize` call contains only a file system path.
+
+```mermaid
+sequenceDiagram
+    participant c as Client
+    participant w as Workhorse
+    participant r as Rails
+    participant os as Object Storage
+
+    activate c
+    c ->>+w: POST /some/url/upload
+
+    w ->>+r: POST /some/url/upload/authorize
+    Note over w,r: this request has an empty body
+    r-->>-w: presigned OS URL
+
+    w->>+os: PUT file
+    Note over w,os: file is stored on a temporary location. Rails select the destination
+    os-->>-w: request result
+
+    w->>+r:  POST /some/url/upload
+    Note over w,r: file was replaced with its location<br>and other metadata
+
+    r->>+os: move object to final destination
+    os-->>-r: request result
+
+    opt requires async processing
+      r->>+redis: schedule a job
+      redis-->>-r: job is scheduled
+    end
+
+    r-->>-c: request result
+    deactivate c
+    w->>-w: cleanup
+
+    opt requires async processing
+      activate sidekiq
+      sidekiq->>+redis: fetch a job
+      redis-->>-sidekiq: job
+
+      sidekiq->>+os: get object
+      os-->>-sidekiq: file
+
+      sidekiq->>sidekiq: process file
+
+      deactivate sidekiq
+    end
+```
 
 ## Workhorse assisted uploads
 
@@ -131,3 +182,5 @@ Most uploads receive assistance from Workhorse in some way.
   where GitLab accepts the file but has not yet processed it.
 - With direct upload, Workhorse can both pre-process the file and upload it to object storage.
   Uploading a large file to object storage takes time; by doing this in Workhorse we avoid the Puma request timeout.
+
+For additional information about uploads, see [Workhorse handlers](../workhorse/handlers.md).

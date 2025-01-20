@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Team Foundation Server (TFS), renamed [Azure DevOps Server](https://azure.microsoft.com/en-us/products/devops/server/)
 in 2019, is a set of tools developed by Microsoft which also includes
@@ -31,7 +31,7 @@ The main differences between TFVC and Git are:
 
 For more information, see:
 
-- Microsoft's [comparison of Git and TFVC](https://learn.microsoft.com/en-us/azure/devops/repos/tfvc/comparison-git-tfvc?view=azure-devops).
+- The Microsoft [comparison of Git and TFVC](https://learn.microsoft.com/en-us/azure/devops/repos/tfvc/comparison-git-tfvc?view=azure-devops).
 - The Wikipedia [comparison of version control software](https://en.wikipedia.org/wiki/Comparison_of_version_control_software).
 
 ## Why migrate

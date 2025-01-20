@@ -9,7 +9,7 @@ description: "Troubleshooting help for merge requests."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When working with merge requests, you might encounter the following issues.
 
@@ -60,7 +60,7 @@ MergeRequests::RebaseService.new(project: m.target_project, current_user: u).exe
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 If a merge request remains **Open** after its changes are merged,
 users with access to the [Rails console](../../../administration/operations/rails_console.md)
@@ -86,7 +86,7 @@ merge request to display an incorrect message: `merged into <branch-name>`.
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 If closing a merge request doesn't work through the UI or API, you might want to attempt to close it in a [Rails console session](../../../administration/operations/rails_console.md#starting-a-rails-console-session):
 
@@ -104,7 +104,7 @@ MergeRequests::CloseService.new(project: p, current_user: u).execute(m)
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 If deleting a merge request doesn't work through the UI or API, you might want to attempt to delete it in a [Rails console session](../../../administration/operations/rails_console.md#starting-a-rails-console-session):
 
@@ -145,18 +145,18 @@ This error can happen if your merge request:
 - Is many commits behind the target branch.
 - References a Git LFS file that is locked.
 
-Users in self-managed installations can request an administrator review server logs
+Users on GitLab Self-Managed can request an administrator review server logs
 to determine the cause of the error. GitLab SaaS users should
 [contact Support](https://about.gitlab.com/support/#contact-support) for help.
 
 ## Cached merge request count
 
-In a group, the sidebar displays the total count of open merge requests. This value is cached if it's greater than
-than 1000. The cached value is rounded to thousands (or millions) and updated every 24 hours.
+In a group, the sidebar displays the total count of open merge requests. This value is cached if it's
+greater than 1000. The cached value is rounded to thousands (or millions) and updated every 24 hours.
 
 ## Check out merge requests locally through the `head` ref
 
-> - Deleting `head` refs 14 days after a merge request closes or merges [enabled on self-managed and GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/130098) in GitLab 16.4.
+> - Deleting `head` refs 14 days after a merge request closes or merges [enabled on GitLab Self-Managed and GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/130098) in GitLab 16.4.
 > - Deleting `head` refs 14 days after a merge request closes or merges [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/336070) in GitLab 16.6. Feature flag `merge_request_refs_cleanup` removed.
 
 A merge request contains all the history from a repository, plus the additional
@@ -248,10 +248,45 @@ From https://gitlab.com/gitlab-org/gitlab-foss.git
 ...
 ```
 
-And to check out a particular merge request:
+To check out a particular merge request:
 
 ```shell
 git checkout origin/merge-requests/1
 ```
 
 All the above can be done with the [`git-mr`](https://gitlab.com/glensc/git-mr) script.
+
+## Error: "source branch `<branch_name>` does not exist." when the branch exists
+
+This error can happen if the GitLab cache does not reflect the actual state of the
+Git repository. This can happen if the Git data folder is mounted with `noexec` flag.
+
+Prerequisite:
+
+- You must be an administrator.
+
+To force a cache update:
+
+1. Open the GitLab Rails console with this command:
+
+   ```shell
+   sudo gitlab-rails console
+   ```
+
+1. In the Rails console, run this script:
+
+   ```ruby
+   # Get the project
+   project = Project.find_by_full_path('affected/project/path')
+
+   # Check if the affected branch exists in cache (it may return `false`)
+   project.repository.branch_names.include?('affected_branch_name')
+
+   # Expire the branches cache
+   project.repository.expire_branches_cache
+
+   # Check again if the affected branch exists in cache (this time it should return `true`)
+   project.repository.branch_names.include?('affected_branch_name')
+   ```
+
+1. Reload the merge request.

@@ -377,17 +377,17 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#resource_access_token_about_to_expire' do
-      let_it_be(:project_bot) { create(:user, :project_bot) }
+      let_it_be(:project_bot) { create(:user, :project_bot, username: 'project_bot') }
       let_it_be(:expiring_token) { "Expiring Token" }
 
-      let_it_be(:owner1) { create(:user) }
-      let_it_be(:owner2) { create(:user) }
-      let_it_be(:maintainer) { create(:user) }
+      let_it_be(:owner1) { create(:user, username: 'owner1') }
+      let_it_be(:owner2) { create(:user, username: 'owner2') }
+      let_it_be(:maintainer) { create(:user, username: 'maintainer') }
       let_it_be(:parent_group) { create(:group) }
       let_it_be(:group) { create(:group, parent: parent_group) }
 
       subject(:notification_service) do
-        notification.bot_resource_access_token_about_to_expire(project_bot, [expiring_token])
+        notification.bot_resource_access_token_about_to_expire(project_bot, expiring_token)
       end
 
       context 'when the resource is a group' do
@@ -403,17 +403,37 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
             have_enqueued_email(
               owner1,
               project_bot.resource_bot_resource,
-              [expiring_token],
+              expiring_token,
+              {},
               mail: "bot_resource_access_token_about_to_expire_email"
             ).and(
               have_enqueued_email(
                 owner2,
                 project_bot.resource_bot_resource,
-                [expiring_token],
+                expiring_token,
+                {},
                 mail: "bot_resource_access_token_about_to_expire_email"
               )
             )
           )
+        end
+
+        it "logs notication sent message" do
+          expect(Gitlab::AppLogger).to(
+            receive(:info)
+              .with({ message: "Notifying resource access token owner about expiring tokens",
+                      class: described_class,
+                      user_id: owner1.id })
+          )
+
+          expect(Gitlab::AppLogger).to(
+            receive(:info)
+            .with({ message: "Notifying resource access token owner about expiring tokens",
+              class: described_class,
+              user_id: owner2.id })
+          )
+
+          notification_service
         end
 
         it 'does not send an email to group maintainer' do
@@ -421,14 +441,14 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
             have_enqueued_email(
               maintainer,
               project_bot.resource_bot_resource,
-              [expiring_token],
+              expiring_token,
               mail: "bot_resource_access_token_about_to_expire_email"
             )
           )
         end
 
         context 'when group has inherited members' do
-          let_it_be(:project_bot) { create(:user, :project_bot) }
+          let_it_be(:parent_owner) { create(:user) }
           let_it_be(:expiring_token_1) { "Expiring Token 1" }
           let_it_be(:expiring_token_2) { "Expirigin Token 2" }
 
@@ -437,35 +457,128 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
           end
 
           before_all do
-            parent_group.add_owner(owner2)
-            group.add_owner(owner1)
-            group.add_reporter(project_bot)
+            parent_group.add_owner(parent_owner)
           end
 
-          it 'does not send email to inherited members' do
+          before(:context) do
+            group.resource_access_token_notify_inherited = true
+            group.save!
+          end
+
+          # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+          after(:context) do
+            group.resource_access_token_notify_inherited = nil
+            group.save!
+          end
+
+          it 'sends email to inherited members' do
             expect { notification_service }.to(
               have_enqueued_email(
                 owner1,
                 project_bot.resource_bot_resource,
                 [expiring_token_1, expiring_token_2],
+                {},
                 mail: "bot_resource_access_token_about_to_expire_email"
+              ).and(
+                have_enqueued_email(
+                  parent_owner,
+                  project_bot.resource_bot_resource,
+                  [expiring_token_1, expiring_token_2],
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                )
               )
             )
+          end
 
-            expect { notification_service }.not_to(
-              have_enqueued_email(
-                owner2,
-                project_bot.resource_bot_resource,
-                [expiring_token_1, expiring_token_2],
-                mail: "bot_resource_access_token_about_to_expire_email"
+          shared_examples 'does not email inherited members' do
+            it 'sends email to direct members' do
+              expect { notification_service }.to(
+                have_enqueued_email(
+                  owner1,
+                  project_bot.resource_bot_resource,
+                  [expiring_token_1, expiring_token_2],
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                ).and(
+                  have_enqueued_email(
+                    owner2,
+                    project_bot.resource_bot_resource,
+                    [expiring_token_1, expiring_token_2],
+                    {},
+                    mail: "bot_resource_access_token_about_to_expire_email"
+                  )
+                )
               )
-            )
+            end
+
+            it 'does not send email to inherited members' do
+              expect { notification_service }.not_to(
+                have_enqueued_email(
+                  parent_owner,
+                  project_bot.resource_bot_resource,
+                  [expiring_token_1, expiring_token_2],
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                )
+              )
+            end
+          end
+
+          context 'when pat_expiry_inherited_members_notification FF is disabled' do
+            before do
+              stub_feature_flags(pat_expiry_inherited_members_notification: false)
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when instance setting resource_access_token_notify_inherited is enforced' do
+            before do
+              stub_application_setting(
+                resource_access_token_notify_inherited: false,
+                lock_resource_access_token_notify_inherited: true
+              )
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when group setting resource_access_token_notify_inherited is false' do
+            before(:context) do
+              group.resource_access_token_notify_inherited = false
+              group.save!
+            end
+
+            # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+            after(:context) do
+              group.resource_access_token_notify_inherited = nil
+              group.save!
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when parent group setting resource_access_token_notify_inherited is false' do
+            before(:context) do
+              parent_group.resource_access_token_notify_inherited = false
+              parent_group.save!
+            end
+
+            # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+            after(:context) do
+              parent_group.resource_access_token_notify_inherited = nil
+              parent_group.save!
+            end
+
+            it_behaves_like 'does not email inherited members'
           end
         end
       end
 
       context 'when the resource is a project' do
-        let_it_be(:project) { create(:project) }
+        let_it_be(:namespace) { create(:namespace, :with_namespace_settings) }
+        let_it_be(:project) { create(:project, namespace: namespace) }
 
         before_all do
           project.add_maintainer(maintainer)
@@ -473,17 +586,21 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
         end
 
         it 'sends emails to the project maintainers and owners' do
+          expect(project.owner).to be_a(User)
+
           expect { notification_service }.to(
             have_enqueued_email(
               maintainer,
               project_bot.resource_bot_resource,
-              [expiring_token],
+              expiring_token,
+              {},
               mail: "bot_resource_access_token_about_to_expire_email"
             ).and(
               have_enqueued_email(
                 project.owner,
                 project_bot.resource_bot_resource,
-                [expiring_token],
+                expiring_token,
+                {},
                 mail: "bot_resource_access_token_about_to_expire_email"
               )
             )
@@ -494,27 +611,136 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
           before_all do
             project.namespace = group
             project.save!
+            group.add_owner(owner1)
+            project.add_owner(owner2)
           end
 
-          it 'does not send email to inherited members' do
+          before(:context) do
+            group.resource_access_token_notify_inherited = true
+            group.save!
+          end
+
+          # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+          after(:context) do
+            group.resource_access_token_notify_inherited = nil
+            group.save!
+          end
+
+          it 'sends email to inherited members' do
             expect { notification_service }.to(
               have_enqueued_email(
                 maintainer,
                 project_bot.resource_bot_resource,
-                [expiring_token],
+                expiring_token,
+                {},
                 mail: "bot_resource_access_token_about_to_expire_email"
-              )
-            )
-
-            expect { notification_service }.not_to(
-              have_enqueued_email(
-                project.owner,
-                project_bot.resource_bot_resource,
-                [expiring_token],
-                mail: "bot_resource_access_token_about_to_expire_email"
+              ).and(
+                have_enqueued_email(
+                  owner1,
+                  project_bot.resource_bot_resource,
+                  expiring_token,
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                )
               )
             )
           end
+
+          shared_examples 'does not email inherited members' do
+            it 'sends email to direct members' do
+              expect { notification_service }.to(
+                have_enqueued_email(
+                  maintainer,
+                  project_bot.resource_bot_resource,
+                  expiring_token,
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                ).and(
+                  have_enqueued_email(
+                    owner2,
+                    project_bot.resource_bot_resource,
+                    expiring_token,
+                    {},
+                    mail: "bot_resource_access_token_about_to_expire_email"
+                  )
+                )
+              )
+            end
+
+            it 'does not send email to inherited members' do
+              expect { notification_service }.not_to(
+                have_enqueued_email(
+                  owner1,
+                  project_bot.resource_bot_resource,
+                  expiring_token,
+                  {},
+                  mail: "bot_resource_access_token_about_to_expire_email"
+                )
+              )
+            end
+          end
+
+          context 'when pat_expiry_inherited_members_notification FF is disabled' do
+            before do
+              stub_feature_flags(pat_expiry_inherited_members_notification: false)
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when instance setting resource_access_token_notify_inherited is enforced' do
+            before do
+              stub_application_setting(
+                resource_access_token_notify_inherited: false,
+                lock_resource_access_token_notify_inherited: true
+              )
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when group setting resource_access_token_notify_inherited is false' do
+            before(:context) do
+              group.resource_access_token_notify_inherited = false
+              group.save!
+            end
+
+            # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+            after(:context) do
+              group.resource_access_token_notify_inherited = nil
+              group.save!
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+
+          context 'when parent group setting resource_access_token_notify_inherited is false' do
+            before(:context) do
+              parent_group.lock_resource_access_token_notify_inherited = true
+              parent_group.resource_access_token_notify_inherited = false
+              parent_group.save!
+            end
+
+            # since this setting is on namespace_settings, it doesn't get automatically rolled back correctly
+            after(:context) do
+              parent_group.lock_resource_access_token_notify_inherited = false
+              parent_group.resource_access_token_notify_inherited = nil
+              parent_group.save!
+            end
+
+            it_behaves_like 'does not email inherited members'
+          end
+        end
+      end
+
+      # this should never happen in real-world usage, but we have to make rspec coverage happy
+      context 'when resource is missing' do
+        it 'raises an ArgumentError for invalid project bot' do
+          allow(notification).to receive(:send_bot_rat_expiry_to_inherited?).and_return(true)
+          resource_double = double('Not Real Class')
+          allow(project_bot).to receive(:resource_bot_resource).and_return(resource_double)
+
+          expect { notification_service }.to raise_error(ArgumentError)
         end
       end
     end
@@ -523,10 +749,21 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       let_it_be(:user) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user, expires_at: 5.days.from_now) }
 
-      subject { notification.access_token_about_to_expire(user, [pat.name]) }
+      subject(:notification_service) { notification.access_token_about_to_expire(user, [pat.name]) }
 
       it 'sends email to the token owner' do
-        expect { subject }.to have_enqueued_email(user, [pat.name], mail: "access_token_about_to_expire_email")
+        expect { notification_service }.to have_enqueued_email(user, [pat.name], {}, mail: "access_token_about_to_expire_email")
+      end
+
+      it "logs notication sent message" do
+        expect(Gitlab::AppLogger).to(
+          receive(:info)
+            .with({ message: "Notifying User about expiring tokens",
+                    class: described_class,
+                    user_id: user.id })
+        )
+
+        notification_service
       end
     end
 
@@ -623,14 +860,17 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#unknown_sign_in' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:ip) { '127.0.0.1' }
-    let_it_be(:time) { Time.current }
+    let(:user) { create(:user) }
+    let(:ip) { '127.0.0.1' }
+    let(:country) { 'Germany' }
+    let(:city) { 'Frankfurt' }
+    let(:request_info) { Struct.new(:country, :city).new(country, city) }
+    let(:time) { Time.current }
 
-    subject { notification.unknown_sign_in(user, ip, time) }
+    subject { notification.unknown_sign_in(user, ip, time, request_info) }
 
     it 'sends email to the user' do
-      expect { subject }.to have_enqueued_email(user, ip, time, mail: 'unknown_sign_in_email')
+      expect { subject }.to have_enqueued_email(user, ip, time, { country: country, city: city }, mail: 'unknown_sign_in_email')
     end
   end
 
@@ -3302,25 +3542,6 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
   end
 
-  describe '#invite_member_reminder' do
-    let_it_be(:group_member) { create(:group_member) }
-
-    subject { notification.invite_member_reminder(group_member, 'token', 0) }
-
-    it 'calls the Notify.invite_member_reminder method with the right params' do
-      expect(Notify).to receive(:member_invited_reminder_email).with('Group', group_member.id, 'token', 0).at_least(:once).and_call_original
-
-      subject
-    end
-
-    it 'sends exactly one email' do
-      subject
-
-      expect_delivery_jobs_count(1)
-      expect_enqueud_email('Group', group_member.id, 'token', 0, mail: 'member_invited_reminder_email')
-    end
-  end
-
   describe '#new_instance_access_request', :deliver_mails_inline do
     let_it_be(:user) { create(:user, :blocked_pending_approval) }
     let_it_be(:admins) { create_list(:admin, 12, :with_sign_ins) }
@@ -4091,6 +4312,36 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       it_behaves_like 'project emails are disabled' do
         let(:notification_target)  { project }
         let(:notification_trigger) { notification.autodevops_disabled(pipeline, [owner.email, pipeline_user.email]) }
+      end
+    end
+  end
+
+  describe 'Repository rewrite history', :deliver_mails_inline do
+    let(:user) { create(:user) }
+
+    describe '#repository_rewrite_history_success' do
+      it 'emails the specified user only' do
+        notification.repository_rewrite_history_success(project, user)
+
+        should_email(user)
+      end
+
+      it_behaves_like 'project emails are disabled' do
+        let(:notification_target)  { project }
+        let(:notification_trigger) { notification.repository_rewrite_history_success(project, user) }
+      end
+    end
+
+    describe '#repository_rewrite_history_failure' do
+      it 'emails the specified user only' do
+        notification.repository_rewrite_history_failure(project, user, 'Some error')
+
+        should_email(user)
+      end
+
+      it_behaves_like 'project emails are disabled' do
+        let(:notification_target)  { project }
+        let(:notification_trigger) { notification.repository_rewrite_history_failure(project, user, 'Some error') }
       end
     end
   end

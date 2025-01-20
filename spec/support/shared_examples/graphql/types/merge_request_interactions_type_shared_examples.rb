@@ -8,7 +8,9 @@ RSpec.shared_examples "a user type with merge request interaction type" do
   it 'has the expected fields' do
     expected_fields = %w[
       id
+      active
       bot
+      human
       user_permissions
       snippets
       name
@@ -55,6 +57,8 @@ RSpec.shared_examples "a user type with merge request interaction type" do
       lastActivityOn
       pronouns
       ide
+      userPreferences
+      type
     ]
 
     # TODO: 'workspaces' needs to be included, but only when this spec is run in EE context, to account for the

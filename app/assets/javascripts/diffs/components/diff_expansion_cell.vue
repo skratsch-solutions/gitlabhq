@@ -4,7 +4,7 @@ import { GlTooltipDirective, GlIcon, GlLoadingIcon } from '@gitlab/ui';
 import { mapActions } from 'vuex';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { createAlert } from '~/alert';
-import { s__, sprintf } from '~/locale';
+import { __, s__, sprintf } from '~/locale';
 import { UNFOLD_COUNT, INLINE_DIFF_LINES_KEY } from '../constants';
 import * as utils from '../store/utils';
 
@@ -16,6 +16,7 @@ export default {
   i18n: {
     showMore: sprintf(s__('Diffs|Show %{unfoldCount} lines'), { unfoldCount: UNFOLD_COUNT }),
     showAll: s__('Diffs|Show all unchanged lines'),
+    expandAllLines: __('Expand all lines'),
   },
   components: {
     GlIcon,
@@ -84,6 +85,7 @@ export default {
 
       return this.file[INLINE_DIFF_LINES_KEY][index - 2]?.new_line || 0;
     },
+    // eslint-disable-next-line max-params
     callLoadMoreLines(
       endpoint,
       params,
@@ -220,16 +222,14 @@ export default {
 
 <template>
   <div>
-    <div
-      class="diff-td diff-line-num gl-text-center! gl-p-0! !gl-w-full gl-display-flex gl-flex-direction-column"
-    >
+    <div class="diff-td diff-line-num gl-flex !gl-w-full gl-flex-col !gl-p-0 !gl-text-center">
       <button
         v-if="showExpandDown"
         :title="s__('Diffs|Next 20 lines')"
         :aria-label="s__('Diffs|Next 20 lines')"
         :disabled="loading.down"
         type="button"
-        class="js-unfold-down gl-rounded-0 gl-border-0 diff-line-expand-button"
+        class="js-unfold-down diff-line-expand-button gl-rounded-none gl-border-0"
         @click="handleExpandLines($options.EXPAND_DOWN)"
       >
         <gl-loading-icon v-if="loading.down" size="sm" color="dark" inline />
@@ -237,11 +237,11 @@ export default {
       </button>
       <button
         v-if="lineCountBetween !== -1 && lineCountBetween < 20"
-        :title="s__('Diffs|Expand all lines')"
-        :aria-label="s__('Diffs|Expand all lines')"
+        :title="$options.i18n.expandAllLines"
+        :aria-label="$options.i18n.expandAllLines"
         :disabled="loading.all"
         type="button"
-        class="js-unfold-all gl-rounded-0 gl-border-0 diff-line-expand-button"
+        class="js-unfold-all diff-line-expand-button gl-rounded-none gl-border-0"
         @click="handleExpandLines()"
       >
         <gl-loading-icon v-if="loading.all" size="sm" color="dark" inline />
@@ -253,7 +253,7 @@ export default {
         :aria-label="s__('Diffs|Previous 20 lines')"
         :disabled="loading.up"
         type="button"
-        class="js-unfold gl-rounded-0 gl-border-0 diff-line-expand-button"
+        class="js-unfold diff-line-expand-button gl-rounded-none gl-border-0"
         @click="handleExpandLines($options.EXPAND_UP)"
       >
         <gl-loading-icon v-if="loading.up" size="sm" color="dark" inline />
@@ -262,7 +262,7 @@ export default {
     </div>
     <div
       v-safe-html="line.rich_text"
-      class="gl-display-flex! gl-flex-direction-column gl-justify-content-center diff-td line_content left-side gl-whitespace-normal!"
+      class="diff-td line_content left-side gl-whitespace-normal! !gl-flex gl-flex-col gl-justify-center"
     ></div>
   </div>
 </template>

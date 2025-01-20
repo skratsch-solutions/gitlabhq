@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Product Analytics
+group: Platform Insights
 info: For assistance with this tutorial, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments-to-other-projects-and-subjects.
 ---
 
@@ -8,7 +8,7 @@ info: For assistance with this tutorial, see https://handbook.gitlab.com/handboo
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed
+**Offering:** GitLab.com, GitLab Self-Managed
 **Status:** Experiment
 
 Understanding how your users engage with your website or application is important for making data-driven decisions.
@@ -29,7 +29,7 @@ Here's an overview of what we're going to do:
 
 To follow along this tutorial, you must:
 
-- [Enable product analytics](../../user/product_analytics/index.md#enable-product-analytics) for your instance.
+- [Enable product analytics](../../development/internal_analytics/product_analytics.md#enable-product-analytics) for your instance.
 - Have the Owner role for the group you create the project in.
 
 ## Create a project from a template
@@ -74,7 +74,7 @@ Your project is now onboarded and ready for your application to start sending ev
 
 To collect and send usage events to GitLab, you must include a code snippet in your website.
 You can choose from several platform and technology-specific tracking SDKs to integrate with your application.
-For this example website, we use the [Browser SDK](../../user/product_analytics/instrumentation/browser_sdk.md).
+For this example website, we use the [Browser SDK](../../development/internal_analytics/browser_sdk.md).
 
 To instrument your new website:
 
@@ -83,39 +83,39 @@ To instrument your new website:
 1. In the left Web IDE toolbar, select **File Explorer** and open the `public/index.html` file.
 1. In the `public/index.html` file, before the closing `</body>` tag, paste the snippet you copied in the previous section.
 
-    The code in the `index.html` file should look like this (where `appId` and `host` have the values provided in the onboarding section):
+   The code in the `index.html` file should look like this (where `appId` and `host` have the values provided in the onboarding section):
 
-    ```html
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="generator" content="GitLab Pages">
-        <title>Plain HTML site using GitLab Pages</title>
-        <link rel="stylesheet" href="style.css">
-      </head>
-      <body>
-        <div class="navbar">
-          <a href="https://pages.gitlab.io/plain-html/">Plain HTML Example</a>
-          <a href="https://gitlab.com/pages/plain-html/">Repository</a>
-          <a href="https://gitlab.com/pages/">Other Examples</a>
-        </div>
+   ```html
+   <!DOCTYPE html>
+   <html>
+     <head>
+       <meta charset="utf-8">
+       <meta name="generator" content="GitLab Pages">
+       <title>Plain HTML site using GitLab Pages</title>
+       <link rel="stylesheet" href="style.css">
+     </head>
+     <body>
+       <div class="navbar">
+         <a href="https://pages.gitlab.io/plain-html/">Plain HTML Example</a>
+         <a href="https://gitlab.com/pages/plain-html/">Repository</a>
+         <a href="https://gitlab.com/pages/">Other Examples</a>
+       </div>
 
-        <h1>Hello World!</h1>
+       <h1>Hello World!</h1>
 
-        <p>
-          This is a simple plain-HTML website on GitLab Pages, without any fancy static site generator.
-        </p>
-        <script src="https://unpkg.com/@gitlab/application-sdk-browser/dist/gl-sdk.min.js"></script>
-        <script>
-          window.glClient = window.glSDK.glClientSDK({
-            appId: 'YOUR_APP_ID',
-            host: 'YOUR_HOST',
-          });
-        </script>
-      </body>
-    </html>
-    ```
+       <p>
+         This is a simple plain-HTML website on GitLab Pages, without any fancy static site generator.
+       </p>
+       <script src="https://unpkg.com/@gitlab/application-sdk-browser/dist/gl-sdk.min.js"></script>
+       <script>
+         window.glClient = window.glSDK.glClientSDK({
+           appId: 'YOUR_APP_ID',
+           host: 'YOUR_HOST',
+         });
+       </script>
+     </body>
+   </html>
+   ```
 
 1. In the left Web IDE toolbar, select **Source Control**.
 1. Enter a commit message, such as `Add GitLab product analytics tracking snippet`.

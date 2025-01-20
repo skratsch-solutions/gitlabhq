@@ -1,11 +1,14 @@
 import {
   periodToDate,
+  periodToDateRange,
   dateFilterObjToQuery,
   queryToDateFilterObj,
   addTimeToDate,
   formattedTimeFromDate,
   isTracingDateRangeOutOfBounds,
   validatedDateRangeQuery,
+  parseGraphQLIssueLinksToRelatedIssues,
+  createIssueUrlWithDetails,
 } from '~/observability/utils';
 import {
   CUSTOM_DATE_RANGE_OPTION,
@@ -16,18 +19,18 @@ import {
   TIME_RANGE_OPTIONS_VALUES,
 } from '~/observability/constants';
 
+import { mockGraphQlIssueLinks, mockRelatedIssues } from './mock_data';
+
+const MOCK_NOW_DATE = new Date('2023-10-09 15:30:00');
+const realDateNow = Date.now;
 describe('periodToDate', () => {
-  const realDateNow = Date.now;
-
-  const MOCK_NOW_DATE = new Date('2023-10-09 15:30:00');
-
   beforeEach(() => {
     global.Date.now = jest.fn().mockReturnValue(MOCK_NOW_DATE);
   });
-
   afterEach(() => {
     global.Date.now = realDateNow;
   });
+
   it.each`
     periodLabel      | period   | expectedMinDate
     ${'minutes (m)'} | ${'30m'} | ${new Date('2023-10-09 15:00:00')}
@@ -47,6 +50,23 @@ describe('periodToDate', () => {
 
   it('should return an empty object if unit is not "m", "h", or "d"', () => {
     expect(periodToDate('2w')).toEqual({});
+  });
+});
+
+describe('periodToDateRange', () => {
+  beforeEach(() => {
+    global.Date.now = jest.fn().mockReturnValue(MOCK_NOW_DATE);
+  });
+
+  afterEach(() => {
+    global.Date.now = realDateNow;
+  });
+  it('returns a date range object from period', () => {
+    expect(periodToDateRange('30m')).toEqual({
+      value: 'custom',
+      endDate: new Date('2023-10-09T15:30:00.000Z'),
+      startDate: new Date('2023-10-09T15:00:00.000Z'),
+    });
   });
 });
 
@@ -253,5 +273,21 @@ describe('validatedDateRangeQuery', () => {
   it('returns the default time range when dateRangeValue is undefined', () => {
     const result = validatedDateRangeQuery(undefined, '', '');
     expect(result).toEqual({ value: '1h' });
+  });
+});
+
+describe('createIssueUrlWithDetails', () => {
+  it('returns the create issue urls with params', () => {
+    expect(
+      createIssueUrlWithDetails('http://gdk.test:3443/?foo=bar', { a: 'b', c: 'd' }, 'my_param'),
+    ).toBe(
+      'http://gdk.test:3443/?foo=bar&my_param=%7B%22a%22%3A%22b%22%2C%22c%22%3A%22d%22%7D&issue%5Bconfidential%5D=true',
+    );
+  });
+});
+
+describe('parseGraphQLIssueLinksToRelatedIssues', () => {
+  it('converts a graphql issue object to a related issue', () => {
+    expect(parseGraphQLIssueLinksToRelatedIssues(mockGraphQlIssueLinks)).toEqual(mockRelatedIssues);
   });
 });

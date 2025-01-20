@@ -12,11 +12,24 @@ module InternalEventsCli
     end
 
     def metrics
-      @metrics ||= load_definitions(
-        Metric,
-        InternalEventsCli::NEW_METRIC_FIELDS,
-        all_metric_paths
-      )
+      @metrics ||= begin
+        loaded_files = load_definitions(
+          Metric,
+          InternalEventsCli::NEW_METRIC_FIELDS,
+          all_metric_paths
+        )
+        loaded_files.flat_map do |metric|
+          # copy logic of Gitlab::Usage::MetricDefinition
+          next metric unless metric.time_frame.is_a?(Array)
+
+          metric.time_frame.map do |time_frame|
+            current_metric = metric.dup
+            current_metric.time_frame = time_frame
+            current_metric.key_path = TimeFramedKeyPath.build(current_metric.key_path, time_frame)
+            current_metric
+          end
+        end
+      end
     end
 
     def reload_definitions
@@ -45,13 +58,13 @@ module InternalEventsCli
     end
 
     def load_definitions(klass, fields, paths)
-      paths.map do |path|
+      paths.filter_map do |path|
         details = YAML.safe_load(File.read(path))
         relevant_fields = fields.map(&:to_s)
 
         klass.parse(**details.slice(*relevant_fields), file_path: path)
       rescue StandardError => e
-        cli.say format_error "Encountered an error while loading #{path}: #{e.message}"
+        puts "\n\n\e[31mEncountered an error while loading #{path}: #{e.message}\e[0m\n\n\n"
       end
     end
   end

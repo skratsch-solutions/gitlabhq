@@ -3,6 +3,14 @@
 # Renders a GlAlert root element
 module Pajamas
   class AlertComponent < Pajamas::Component
+    VARIANT_ICONS = {
+      info: 'information-o',
+      warning: 'warning',
+      success: 'check-circle',
+      danger: 'error',
+      tip: 'bulb'
+    }.freeze
+
     # @param [String] title
     # @param [Symbol] variant
     # @param [Boolean] dismissible
@@ -21,7 +29,7 @@ module Pajamas
     end
 
     def base_class
-      classes = ["gl-alert-#{@variant}"]
+      classes = ["gl-alert-#{@variant}"] # rubocop:disable Tailwind/StringInterpolation -- Not a CSS utility class
       classes.push('gl-alert-not-dismissible') unless @dismissible
       classes.push('gl-alert-no-icon') unless @show_icon
       classes.push('gl-alert-has-title') if @title
@@ -35,20 +43,12 @@ module Pajamas
     renders_one :body
     renders_one :actions
 
-    VARIANT_ICONS = {
-      info: 'information-o',
-      warning: 'warning',
-      success: 'check-circle',
-      danger: 'error',
-      tip: 'bulb'
-    }.freeze
-
     def icon
       VARIANT_ICONS[@variant]
     end
 
     def icon_classes
-      "gl-alert-icon#{' gl-alert-icon-no-title' if @title.nil?}"
+      "gl-alert-icon#{' gl-alert-icon-no-title' if @title.nil?}" # rubocop:disable Tailwind/StringInterpolation -- Not a CSS utility class
     end
 
     def dismissible_button_options

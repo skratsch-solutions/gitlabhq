@@ -8,9 +8,6 @@ RSpec.describe UserPreference, feature_category: :user_profile do
   let(:user_preference) { create(:user_preference, user: user) }
 
   describe 'validations' do
-    it { is_expected.to validate_inclusion_of(:time_display_relative).in_array([true, false]) }
-    it { is_expected.to validate_inclusion_of(:render_whitespace_in_code).in_array([true, false]) }
-
     it do
       is_expected.to validate_numericality_of(:tab_width)
                        .only_integer
@@ -59,7 +56,6 @@ RSpec.describe UserPreference, feature_category: :user_profile do
     end
 
     describe 'pass_user_identities_to_ci_jwt' do
-      it { is_expected.to validate_inclusion_of(:pass_user_identities_to_ci_jwt).in_array([true, false]) }
       it { is_expected.not_to allow_value("").for(:pass_user_identities_to_ci_jwt) }
     end
 
@@ -70,7 +66,7 @@ RSpec.describe UserPreference, feature_category: :user_profile do
         expect(pref.visibility_pipeline_id_type).to eq('id')
       end
 
-      it { is_expected.to define_enum_for(:visibility_pipeline_id_type).with_values(id: 0, iid: 1) }
+      it { is_expected.to define_enum_for(:visibility_pipeline_id_type) }
     end
 
     describe 'extensions_marketplace_opt_in_status' do
@@ -98,6 +94,10 @@ RSpec.describe UserPreference, feature_category: :user_profile do
 
     describe 'user belongs to the home organization' do
       let_it_be(:organization) { create(:organization) }
+
+      before do
+        user_preference.home_organization = organization
+      end
 
       context 'when user is an organization user' do
         before do
@@ -202,69 +202,6 @@ RSpec.describe UserPreference, feature_category: :user_profile do
     end
   end
 
-  describe '#tab_width' do
-    it 'is set to 8 by default' do
-      # Intentionally not using factory here to test the constructor.
-      pref = described_class.new
-
-      expect(pref.tab_width).to eq(8)
-    end
-
-    it 'returns default value when assigning nil' do
-      pref = described_class.new(tab_width: nil)
-
-      expect(pref.tab_width).to eq(8)
-    end
-  end
-
-  describe '#tab_width=' do
-    it 'sets to default value when nil' do
-      pref = described_class.new(tab_width: nil)
-
-      expect(pref.read_attribute(:tab_width)).to eq(8)
-    end
-
-    it 'sets user values' do
-      pref = described_class.new(tab_width: 12)
-
-      expect(pref.read_attribute(:tab_width)).to eq(12)
-    end
-  end
-
-  describe '#time_display_relative' do
-    it 'is set to true by default' do
-      pref = described_class.new
-
-      expect(pref.time_display_relative).to eq(true)
-    end
-
-    it 'returns default value when assigning nil' do
-      pref = described_class.new(time_display_relative: nil)
-
-      expect(pref.time_display_relative).to eq(true)
-    end
-
-    it 'returns assigned value' do
-      pref = described_class.new(time_display_relative: false)
-
-      expect(pref.time_display_relative).to eq(false)
-    end
-  end
-
-  describe '#time_display_relative=' do
-    it 'sets to default value when nil' do
-      pref = described_class.new(time_display_relative: nil)
-
-      expect(pref.read_attribute(:time_display_relative)).to eq(true)
-    end
-
-    it 'sets user values' do
-      pref = described_class.new(time_display_relative: false)
-
-      expect(pref.read_attribute(:time_display_relative)).to eq(false)
-    end
-  end
-
   describe '#project_shortcut_buttons' do
     it 'is set to true by default' do
       pref = described_class.new
@@ -290,40 +227,6 @@ RSpec.describe UserPreference, feature_category: :user_profile do
       pref = described_class.new(keyboard_shortcuts_enabled: false)
 
       expect(pref.keyboard_shortcuts_enabled).to eq(false)
-    end
-  end
-
-  describe '#render_whitespace_in_code' do
-    it 'is set to false by default' do
-      pref = described_class.new
-
-      expect(pref.render_whitespace_in_code).to eq(false)
-    end
-
-    it 'returns default value when assigning nil' do
-      pref = described_class.new(render_whitespace_in_code: nil)
-
-      expect(pref.render_whitespace_in_code).to eq(false)
-    end
-
-    it 'returns assigned value' do
-      pref = described_class.new(render_whitespace_in_code: true)
-
-      expect(pref.render_whitespace_in_code).to eq(true)
-    end
-  end
-
-  describe '#render_whitespace_in_code=' do
-    it 'sets to default value when nil' do
-      pref = described_class.new(render_whitespace_in_code: nil)
-
-      expect(pref.read_attribute(:render_whitespace_in_code)).to eq(false)
-    end
-
-    it 'sets user values' do
-      pref = described_class.new(render_whitespace_in_code: true)
-
-      expect(pref.read_attribute(:render_whitespace_in_code)).to eq(true)
     end
   end
 
@@ -386,6 +289,84 @@ RSpec.describe UserPreference, feature_category: :user_profile do
         user_preference.extensions_marketplace_enabled = value
 
         expect(user_preference.extensions_marketplace_opt_in_status).to be expected_opt_in_status
+      end
+    end
+  end
+
+  describe '#dpop_enabled' do
+    let(:pref) { described_class.new(args) }
+
+    context 'when no arguments are provided' do
+      let(:args) { {} }
+
+      it 'is set to false by default' do
+        expect(pref.dpop_enabled).to eq(false)
+      end
+    end
+
+    context 'when dpop_enabled is set to nil' do
+      let(:args) { { dpop_enabled: nil } }
+
+      it 'returns default value' do
+        expect(pref.dpop_enabled).to eq(false)
+      end
+    end
+
+    context 'when dpop_enabled is set to true' do
+      let(:args) { { dpop_enabled: true } }
+
+      it 'returns assigned value' do
+        expect(pref.dpop_enabled).to eq(true)
+      end
+    end
+  end
+
+  describe '#text_editor' do
+    let(:pref) { described_class.new(text_editor_type: text_editor_type) }
+    let(:text_editor_type) { :not_set }
+
+    context 'when text_editor_type is not_set' do
+      it 'returns not_set' do
+        expect(pref.text_editor).to eq "not_set"
+      end
+
+      it 'returns false for default_text_editor_enabled' do
+        expect(pref.default_text_editor_enabled).to be false
+      end
+    end
+
+    context 'when text_editor_type is set' do
+      where(:text_editor_type) { %w[plain_text_editor rich_text_editor] }
+
+      with_them do
+        it 'returns assigned text_editor_type' do
+          expect(pref.text_editor).to eq(text_editor_type)
+        end
+
+        it 'returns true for default_text_editor_enabled' do
+          expect(pref.default_text_editor_enabled).to be true
+        end
+      end
+    end
+  end
+
+  describe '#default_text_editor_enabled' do
+    let(:pref) { described_class.new(default_text_editor_enabled: default_text_editor_enabled) }
+
+    where(:default_text_editor_enabled, :text_editor_type) do
+      [
+        [true, "rich_text_editor"],
+        [false, "not_set"]
+      ]
+    end
+
+    with_them do
+      it 'assigns correctly' do
+        expect(pref.default_text_editor_enabled).to eq(default_text_editor_enabled)
+      end
+
+      it 'returns correct value for text_editor' do
+        expect(pref.text_editor).to eq(text_editor_type)
       end
     end
   end

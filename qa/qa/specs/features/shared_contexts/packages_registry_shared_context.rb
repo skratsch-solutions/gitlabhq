@@ -2,9 +2,9 @@
 
 module QA
   RSpec.shared_context 'packages registry qa scenario' do
-    let(:personal_access_token) { Runtime::Env.personal_access_token }
-
-    let(:package_project) { create(:project, :private, :with_readme, name: "packages-#{SecureRandom.hex(8)}") }
+    let(:api_client) { Runtime::User::Store.default_api_client }
+    let(:personal_access_token) { api_client.personal_access_token }
+    let(:package_project) { create(:project, :private, :with_readme, name: "packages", api_client: api_client) }
 
     let(:client_project) do
       create(:project, :with_readme, name: "client-#{SecureRandom.hex(8)}", group: package_project.group)
@@ -28,9 +28,9 @@ module QA
       build(:package, name: package_name, project: package_project)
     end
 
-    let(:runner) do
+    let!(:runner) do
       create(:group_runner,
-        name: "qa-runner-#{Time.now.to_i}",
+        name: "qa-runner-#{SecureRandom.hex(6)}",
         tags: ["runner-for-#{package_project.group.name}"],
         executor: :docker,
         group: package_project.group)
@@ -53,14 +53,10 @@ module QA
 
     before do
       Flow::Login.sign_in_unless_signed_in
-      runner
     end
 
     after do
       runner.remove_via_api!
-      package.remove_via_api!
-      package_project.remove_via_api!
-      client_project.remove_via_api!
     end
   end
 end

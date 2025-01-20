@@ -29,10 +29,10 @@ module QA
         def add_heading(heading, text)
           within_element('content-editor') do
             text_area.set(text)
-            # wait for text style option to become active after typing
-            has_active_element?('text-styles', wait: 1)
-            click_element('text-styles')
-            find_element('.gl-new-dropdown-contents li', text: heading).click
+            within_element('formatting-toolbar') do
+              click_element('text-styles')
+              find_element('.gl-new-dropdown-contents li', text: heading).click
+            end
           end
         end
 

@@ -1,10 +1,11 @@
 <script>
-import { GlTooltipDirective, GlLink, GlIcon } from '@gitlab/ui';
+import { GlTooltipDirective, GlLink } from '@gitlab/ui';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 
 export default {
   components: {
     GlLink,
-    GlIcon,
+    HelpIcon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -25,16 +26,16 @@ export default {
 
 <template>
   <div class="gl-flex gl-items-center">
-    <span class="text-muted">{{ s__('mrWidget|Approval is optional') }}</span>
+    <span class="gl-text-subtle">{{ s__('mrWidget|Approval is optional') }}</span>
     <gl-link
       v-if="canApprove && helpPath"
       v-gl-tooltip
       :href="helpPath"
       :title="__('About this feature')"
       target="_blank"
-      class="d-flex-center"
+      class="gl-flex gl-items-center gl-justify-center"
     >
-      <gl-icon name="question-o" class="gl-ml-3" />
+      <help-icon class="gl-ml-3" />
     </gl-link>
   </div>
 </template>

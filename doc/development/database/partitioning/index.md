@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -63,8 +63,7 @@ is a good fit for your particular problem:
   clause on almost all queries accessing that table.
 
 - **How the data is split**. What strategy does the database use
-  to split the data across the partitions? The available choices are `range`,
-  `hash`, and `list`.
+  to split the data across the partitions?
 
 ## Determine the appropriate partitioning strategy
 

@@ -2,7 +2,6 @@
 Migration/BatchedMigrationBaseClass:
   Exclude:
     - 'lib/gitlab/background_migration/backfill_draft_status_on_merge_requests.rb'
-    - 'lib/gitlab/background_migration/backfill_integrations_enable_ssl_verification.rb'
     - 'lib/gitlab/background_migration/backfill_issue_search_data.rb'
     - 'lib/gitlab/background_migration/backfill_iteration_cadence_id_for_boards.rb'
     - 'lib/gitlab/background_migration/backfill_member_namespace_for_group_members.rb'
@@ -26,7 +25,6 @@ Migration/BatchedMigrationBaseClass:
     - 'lib/gitlab/background_migration/migrate_null_private_profile_to_false.rb'
     - 'lib/gitlab/background_migration/migrate_requirements_to_work_items.rb'
     - 'lib/gitlab/background_migration/populate_latest_pipeline_ids.rb'
-    - 'lib/gitlab/background_migration/populate_resolved_on_default_branch_column.rb'
     - 'lib/gitlab/background_migration/project_namespaces/backfill_project_namespaces.rb'
     - 'lib/gitlab/background_migration/project_namespaces/models/namespace.rb'
     - 'lib/gitlab/background_migration/project_namespaces/models/project.rb'

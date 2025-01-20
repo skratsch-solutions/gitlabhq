@@ -2,9 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe BlobHelper do
+RSpec.describe BlobHelper, feature_category: :source_code_management do
   include TreeHelper
   include FakeBlobHelpers
+  include Devise::Test::ControllerHelpers
 
   describe "#sanitize_svg_data" do
     let(:input_svg_path) { File.join(Rails.root, 'spec', 'fixtures', 'unsanitized.svg') }
@@ -210,7 +211,7 @@ RSpec.describe BlobHelper do
   end
 
   describe '#ide_edit_path' do
-    let(:project) { create(:project) }
+    let_it_be(:project) { create(:project) }
     let(:current_user) { create(:user) }
     let(:can_push_code) { true }
 
@@ -394,12 +395,15 @@ RSpec.describe BlobHelper do
 
   describe '#vue_blob_app_data' do
     let(:blob) { fake_blob(path: 'file.md', size: 2.megabytes) }
-    let(:project) { build_stubbed(:project) }
+    let(:project) { create(:project) }
     let(:user) { build_stubbed(:user) }
     let(:ref) { 'main' }
 
+    before do
+      allow(helper).to receive_messages(selected_branch: ref, current_user: user)
+    end
+
     it 'returns data related to blob app' do
-      allow(helper).to receive(:current_user).and_return(user)
       assign(:ref, ref)
 
       expect(helper.vue_blob_app_data(project, blob, ref)).to include({
@@ -417,7 +421,6 @@ RSpec.describe BlobHelper do
       let_it_be(:user) { build_stubbed(:user) }
 
       before do
-        allow(helper).to receive(:current_user).and_return(user)
         allow(Ability).to receive(:allowed?).and_call_original
         allow(Ability).to receive(:allowed?).with(user, :download_code, project).and_return(true)
       end
@@ -425,6 +428,107 @@ RSpec.describe BlobHelper do
       it 'returns true for `can_download_code` value' do
         expect(helper.vue_blob_app_data(project, blob, ref)).to include(
           can_download_code: 'true'
+        )
+      end
+    end
+  end
+
+  describe '#edit_blob_app_data' do
+    let(:project) { build_stubbed(:project) }
+    let(:user) { build_stubbed(:user) }
+    let(:blob) { fake_blob(path: 'test.rb', size: 100.bytes) }
+    let(:ref) { 'main' }
+    let(:id) { "#{ref}/#{blob.path}" }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(user)
+      allow(helper).to receive(:selected_branch).and_return(ref)
+    end
+
+    context 'when editing a blob' do
+      before do
+        project_presenter = instance_double(ProjectPresenter)
+
+        allow(helper).to receive(:can?).with(user, :push_code, project).and_return(true)
+        allow(project).to receive(:present).and_return(project_presenter)
+        allow(project_presenter).to receive(:can_current_user_push_to_branch?).with(ref).and_return(true)
+        allow(project).to receive(:empty_repo?).and_return(false)
+      end
+
+      it 'returns data related to update action' do
+        allow(blob).to receive(:stored_externally?).and_return(false)
+        allow(project).to receive(:branch_allows_collaboration?).with(user, ref).and_return(false)
+        assign(:last_commit_sha, '782426692977b2cedb4452ee6501a404410f9b00')
+
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "update")).to include({
+          action: 'update',
+          update_path: project_update_blob_path(project, id),
+          cancel_path: project_blob_path(project, id),
+          original_branch: ref,
+          target_branch: ref,
+          can_push_code: 'true',
+          can_push_to_branch: 'true',
+          empty_repo: 'false',
+          blob_name: blob.name,
+          branch_allows_collaboration: 'false',
+          last_commit_sha: '782426692977b2cedb4452ee6501a404410f9b00'
+        })
+      end
+
+      it 'returns data related to create action' do
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "create")).to include({
+          action: 'create',
+          update_path: project_create_blob_path(project, id),
+          cancel_path: project_tree_path(project, id),
+          original_branch: ref,
+          target_branch: ref,
+          can_push_code: 'true',
+          can_push_to_branch: 'true',
+          empty_repo: 'false',
+          blob_name: nil
+        })
+      end
+    end
+
+    context 'when user cannot push code' do
+      it 'returns false for push permissions' do
+        allow(helper).to receive(:can?).with(user, :push_code, project).and_return(false)
+
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "update")).to include(
+          can_push_code: 'false'
+        )
+      end
+    end
+
+    context 'when user cannot push to branch' do
+      it 'returns false for branch push permissions' do
+        project_presenter = instance_double(ProjectPresenter)
+
+        allow(project).to receive(:present).and_return(project_presenter)
+        allow(project_presenter).to receive(:can_current_user_push_to_branch?).with(ref).and_return(false)
+
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "update")).to include(
+          can_push_to_branch: 'false'
+        )
+      end
+    end
+
+    context 'when repository is empty' do
+      it 'returns true for empty_repo' do
+        allow(project).to receive(:empty_repo?).and_return(true)
+
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "update")).to include(
+          empty_repo: 'true'
+        )
+      end
+    end
+
+    context 'branch collaboration' do
+      it 'returns true when branch allows collaboration' do
+        allow(project).to receive(:branch_allows_collaboration?).with(user, ref).and_return(true)
+
+        expect(helper.edit_blob_app_data(project, id, blob, ref, "update")).to include(
+          branch_allows_collaboration: 'true'
         )
       end
     end
@@ -472,6 +576,37 @@ RSpec.describe BlobHelper do
 
       expect(rendered_button).to have_selector('button.gl-button.btn.btn-md.btn-confirm.common-class.js-edit-blob-link-fork-toggler', text: 'Edit Fork')
       expect(rendered_button).to have_selector('button[data-action="edit"]')
+    end
+  end
+
+  describe '#vue_blob_header_app_data' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:blob) { fake_blob(path: 'README.md') }
+    let(:ref) { 'main' }
+    let(:ref_type) { :branch }
+    let(:breadcrumb_data) { { title: 'README.md', 'is-last': true } }
+
+    before do
+      assign(:project, project)
+      assign(:ref, ref)
+      assign(:ref_type, ref_type)
+      allow(helper).to receive(:breadcrumb_data_attributes).and_return(breadcrumb_data)
+    end
+
+    it 'returns data related to blob header' do
+      expect(helper.vue_blob_header_app_data(project, blob, ref)).to include({
+        blob_path: blob.path,
+        is_binary: blob.binary?,
+        breadcrumbs: breadcrumb_data,
+        escaped_ref: ref,
+        history_link: project_commits_path(project, ref),
+        project_id: project.id,
+        project_root_path: project_path(project),
+        project_path: project.full_path,
+        project_short_path: project.path,
+        ref_type: ref_type.to_s,
+        ref: ref
+      })
     end
   end
 end

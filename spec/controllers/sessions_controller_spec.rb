@@ -19,11 +19,11 @@ RSpec.describe SessionsController, feature_category: :system_access do
       end
 
       context 'and no auto_sign_in param is passed' do
-        it 'redirects to :omniauth_authorize_path' do
+        it 'redirects to :omniauth_authorize_path through an intermediate template' do
           get(:new)
 
-          expect(response).to have_gitlab_http_status(:found)
-          expect(response).to redirect_to('/saml')
+          expect(response).to render_template('devise/sessions/redirect_to_provider', layout: false)
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
 
@@ -114,6 +114,42 @@ RSpec.describe SessionsController, feature_category: :system_access do
             post(:create, params: { user: { login: user.username, password: ['aaaaaa', user.password] } })
           end.to raise_error(NoMethodError)
           expect(@request.env['warden']).not_to be_authenticated
+        end
+
+        context 'when parameter sanitization is applied' do
+          let(:password) { User.random_password }
+          let(:reset_password_token) { user.send_reset_password_instructions }
+
+          let(:malicious_user_hash) do
+            {
+              user: {
+                login: user.username,
+                password: password,
+                remember_me: '1',
+                reset_password_token: user.send_reset_password_instructions,
+                admin: true,
+                require_two_factor_authentication: false
+              }
+            }
+          end
+
+          let(:sanitized_params) { controller.send(:user_params) }
+
+          it 'returns a hash of only permitted scalar keys', :aggregate_failures do
+            put :create, params: malicious_user_hash
+
+            expect(sanitized_params.to_h).to include({
+              login: user.username,
+              password: password,
+              remember_me: '1'
+            })
+
+            expect(sanitized_params.to_h).not_to include({
+              reset_password_token: user.send_reset_password_instructions,
+              admin: true,
+              require_two_factor_authentication: false
+            })
+          end
         end
       end
 
@@ -209,6 +245,22 @@ RSpec.describe SessionsController, feature_category: :system_access do
           end
         end
 
+        context 'when password authentication is disabled for SSO users' do
+          let_it_be(:user) { create(:omniauth_user, password_automatically_set: false) }
+
+          before do
+            stub_application_setting(disable_password_authentication_for_users_with_sso_identities: true)
+          end
+
+          it 'does not authenticate the user' do
+            post(:create, params: { user: user_params })
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(@request.env['warden']).not_to be_authenticated
+            expect(flash[:alert]).to include(I18n.t('devise.failure.invalid'))
+          end
+        end
+
         it 'creates an audit log record' do
           expect { post(:create, params: { user: user_params }) }.to change { AuditEvent.count }.by(1)
           expect(AuditEvent.last.details[:with]).to eq('standard')
@@ -246,55 +298,31 @@ RSpec.describe SessionsController, feature_category: :system_access do
           create(:broadcast_message_dismissal, broadcast_message: other_message, user: build(:user))
         end
 
-        context 'when new_broadcast_message_dismissal feature flag is not enabled' do
-          before do
-            stub_feature_flags(new_broadcast_message_dismissal: false)
-          end
+        it 'creates dismissed cookies based on db records' do
+          expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be_nil
+          expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be_nil
+          expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
 
-          it 'does not create dismissed cookies based on db records' do
-            expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
+          post_action
 
-            post_action
-
-            expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
-          end
+          expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be(true)
+          expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be(true)
+          expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
         end
 
-        context 'when new_broadcast_message_dismissal feature flag is enabled' do
+        context 'when dismissal is expired' do
+          let_it_be(:message) { create(:broadcast_message, broadcast_type: :banner, message: 'banner') }
+
           before do
-            stub_feature_flags(new_broadcast_message_dismissal: true)
+            create(:broadcast_message_dismissal, :expired, broadcast_message: message, user: user)
           end
 
-          it 'creates dismissed cookies based on db records' do
-            expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be_nil
-            expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
+          it 'does not create cookie' do
+            expect(cookies["hide_broadcast_message_#{message.id}"]).to be_nil
 
             post_action
 
-            expect(cookies["hide_broadcast_message_#{message_banner.id}"]).to be(true)
-            expect(cookies["hide_broadcast_message_#{message_notification.id}"]).to be(true)
-            expect(cookies["hide_broadcast_message_#{other_message.id}"]).to be_nil
-          end
-
-          context 'when dismissal is expired' do
-            let_it_be(:message) { create(:broadcast_message, broadcast_type: :banner, message: 'banner') }
-
-            before do
-              create(:broadcast_message_dismissal, :expired, broadcast_message: message, user: user)
-            end
-
-            it 'does not create cookie' do
-              expect(cookies["hide_broadcast_message_#{message.id}"]).to be_nil
-
-              post_action
-
-              expect(cookies["hide_broadcast_message_#{message.id}"]).to be_nil
-            end
+            expect(cookies["hide_broadcast_message_#{message.id}"]).to be_nil
           end
         end
       end
@@ -703,61 +731,6 @@ RSpec.describe SessionsController, feature_category: :system_access do
     end
   end
 
-  describe '#set_current_context' do
-    let_it_be(:user) { create(:user) }
-
-    context 'when signed in' do
-      before do
-        sign_in(user)
-      end
-
-      it 'sets the username and caller_id in the context' do
-        expect(controller).to receive(:destroy).and_wrap_original do |m, *args|
-          expect(Gitlab::ApplicationContext.current)
-            .to include('meta.user' => user.username, 'meta.caller_id' => 'SessionsController#destroy')
-
-          m.call(*args)
-        end
-
-        delete :destroy
-      end
-    end
-
-    context 'when not signed in' do
-      it 'sets the caller_id in the context' do
-        expect(controller).to receive(:new).and_wrap_original do |m, *args|
-          expect(Gitlab::ApplicationContext.current)
-            .to include('meta.caller_id' => 'SessionsController#new')
-          expect(Gitlab::ApplicationContext.current)
-            .not_to include('meta.user')
-
-          m.call(*args)
-        end
-
-        get :new
-      end
-    end
-
-    context 'when the user becomes locked' do
-      before do
-        user.update!(failed_attempts: User.maximum_attempts.pred)
-      end
-
-      it 'sets the caller_id in the context' do
-        allow_any_instance_of(User).to receive(:lock_access!).and_wrap_original do |m, *args|
-          expect(Gitlab::ApplicationContext.current)
-            .to include('meta.caller_id' => 'SessionsController#create')
-          expect(Gitlab::ApplicationContext.current)
-            .not_to include('meta.user')
-
-          m.call(*args)
-        end
-
-        post :create, params: { user: { login: user.username, password: user.password.succ } }
-      end
-    end
-  end
-
   describe '#destroy' do
     before do
       sign_in(user)
@@ -771,6 +744,31 @@ RSpec.describe SessionsController, feature_category: :system_access do
 
         expect(response).to redirect_to(new_user_session_path)
         expect(controller.current_user).to be_nil
+      end
+    end
+
+    context 'clearing browser data' do
+      let(:user) { create(:user) }
+
+      before do
+        cookies[:test_cookie] = 'test-value'
+        cookies.encrypted[:test_encrypted_cookie] = 'test-value'
+        cookies.signed[:test_signed_cookie] = 'test-value'
+      end
+
+      it 'clears all cookies known by Rails' do
+        delete :destroy
+
+        %w[test_cookie test_encrypted_cookie test_signed_cookie].each do |key|
+          expect(response.cookies).to have_key(key)
+          expect(response.cookies[key]).to be_nil
+        end
+      end
+
+      it 'sends Clear-Site-Data header for all non-cookie data' do
+        delete :destroy
+
+        expect(response.headers['Clear-Site-Data']).to eq('"cache", "storage", "executionContexts", "clientHints"')
       end
     end
   end

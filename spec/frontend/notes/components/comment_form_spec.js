@@ -49,10 +49,11 @@ describe('issue_comment_form component', () => {
   const findCloseReopenButton = () => wrapper.findByTestId('close-reopen-button');
   const findMarkdownEditor = () => wrapper.findComponent(MarkdownEditor);
   const findMarkdownEditorTextarea = () => findMarkdownEditor().find('textarea');
-  const findAddToReviewDropdown = () => wrapper.findByTestId('add-to-review-dropdown');
-  const findAddToReviewButton = () => findAddToReviewDropdown().find('button');
+  const findStartReviewButton = () => wrapper.findByTestId('start-review-button');
+  const findAddToReviewButton = () => wrapper.findByTestId('add-to-review-button');
   const findAddCommentNowButton = () => wrapper.findByTestId('add-comment-now-button');
   const findConfidentialNoteCheckbox = () => wrapper.findByTestId('internal-note-checkbox');
+  const findInternalNoteTooltipIcon = () => wrapper.findByTestId('question-o-icon');
   const findCommentTypeDropdown = () => wrapper.findByTestId('comment-button');
   const findCommentButton = () => findCommentTypeDropdown().find('button');
   const findErrorAlerts = () => wrapper.findAllComponents(GlAlert).wrappers;
@@ -109,6 +110,7 @@ describe('issue_comment_form component', () => {
     features = {},
     mountFunction = shallowMountExtended,
     store = createStore(),
+    stubs = {},
   } = {}) => {
     store.dispatch('setNoteableData', noteableData);
     store.dispatch('setNotesData', notesData);
@@ -127,6 +129,7 @@ describe('issue_comment_form component', () => {
       provide: {
         glFeatures: features,
       },
+      stubs,
     });
   };
 
@@ -194,7 +197,10 @@ describe('issue_comment_form component', () => {
           const store = createStore({
             actions: {
               saveNote: jest.fn().mockRejectedValue({
-                response: { status: httpStatus, data: { errors: { commands_only: errors } } },
+                response: {
+                  status: httpStatus,
+                  data: { quick_actions_status: { error_messages: errors } },
+                },
               }),
             },
           });
@@ -256,7 +262,7 @@ describe('issue_comment_form component', () => {
             saveNote: jest.fn().mockRejectedValue({
               response: {
                 status: HTTP_STATUS_UNPROCESSABLE_ENTITY,
-                data: { errors: { commands_only: [...commandErrors] } },
+                data: { quick_actions_status: { error_messages: [...commandErrors] } },
               },
             }),
           },
@@ -342,10 +348,13 @@ describe('issue_comment_form component', () => {
           expect(findMarkdownEditor().find('textarea').attributes('disabled')).toBeDefined();
         });
 
-        it('should support quick actions', () => {
+        it('should support quick actions and other props', () => {
           mountComponent({ mountFunction: mountExtended });
 
-          expect(findMarkdownEditor().props('supportsQuickActions')).toBe(true);
+          expect(findMarkdownEditor().props()).toMatchObject({
+            supportsQuickActions: true,
+            noteableType: noteableDataMock.noteableType,
+          });
         });
 
         it('should link to markdown docs', () => {
@@ -460,9 +469,11 @@ describe('issue_comment_form component', () => {
                     note: 'a',
                     noteable_id: noteableDataMock.id,
                     noteable_type: 'Issue',
+                    type: 'DiscussionNote',
                   },
                 },
                 endpoint: notesDataMock.draftsPath,
+                flashContainer: expect.anything(),
                 isDraft: true,
               });
             });
@@ -479,9 +490,11 @@ describe('issue_comment_form component', () => {
                     note: 'a',
                     noteable_id: noteableDataMock.id,
                     noteable_type: 'Issue',
+                    type: 'DiscussionNote',
                   },
                 },
                 endpoint: notesDataMock.draftsPath,
+                flashContainer: expect.anything(),
                 isDraft: true,
               });
             });
@@ -504,6 +517,7 @@ describe('issue_comment_form component', () => {
                   },
                 },
                 endpoint: noteableDataMock.create_note_path,
+                flashContainer: expect.anything(),
                 isDraft: false,
               });
             });
@@ -526,6 +540,7 @@ describe('issue_comment_form component', () => {
                   },
                 },
                 endpoint: noteableDataMock.create_note_path,
+                flashContainer: expect.anything(),
                 isDraft: false,
               });
             });
@@ -711,7 +726,7 @@ describe('issue_comment_form component', () => {
         expect(findConfidentialNoteCheckbox().exists()).toBe(true);
       });
 
-      it('should not render checkbox if user is not at least a reporter', () => {
+      it('should not render checkbox if user is not at least a planner', () => {
         mountComponent({
           mountFunction: mountExtended,
           initialData: { note: 'confidential note' },
@@ -720,6 +735,18 @@ describe('issue_comment_form component', () => {
 
         const checkbox = findConfidentialNoteCheckbox();
         expect(checkbox.exists()).toBe(false);
+      });
+
+      it('should have the tooltip explaining the internal note capabilities', () => {
+        mountComponent({
+          mountFunction: mountExtended,
+          initialData: { note: 'confidential note' },
+          noteableData: { ...notableDataMockCanUpdateIssuable },
+        });
+
+        const tooltip = findInternalNoteTooltipIcon();
+        expect(tooltip.exists()).toBe(true);
+        expect(tooltip.attributes('title')).toBe(COMMENT_FORM.internalVisibility);
       });
 
       it.each`
@@ -779,6 +806,7 @@ describe('issue_comment_form component', () => {
               },
             },
             endpoint: noteableDataMock.create_note_path,
+            flashContainer: expect.anything(),
             isDraft: false,
           });
         });
@@ -847,7 +875,7 @@ describe('issue_comment_form component', () => {
   });
 
   describe('with batchComments in store', () => {
-    describe('add to review and comment now buttons', () => {
+    describe('start review, add to review and comment now buttons', () => {
       let store;
 
       beforeEach(() => {
@@ -855,10 +883,19 @@ describe('issue_comment_form component', () => {
         store.registerModule('batchComments', batchComments());
       });
 
-      it('when no drafts exist, should not render', () => {
+      it('when no drafts exist on non-merge request, should not render', () => {
         mountComponent({ store });
         expect(findCommentTypeDropdown().exists()).toBe(true);
-        expect(findAddToReviewDropdown().exists()).toBe(false);
+        expect(findStartReviewButton().exists()).toBe(false);
+        expect(findAddToReviewButton().exists()).toBe(false);
+        expect(findAddCommentNowButton().exists()).toBe(false);
+      });
+
+      it('when no drafts exist in a merge request, should render', () => {
+        mountComponent({ noteableType: constants.MERGE_REQUEST_NOTEABLE_TYPE, store });
+        expect(findCommentTypeDropdown().exists()).toBe(true);
+        expect(findStartReviewButton().exists()).toBe(true);
+        expect(findAddToReviewButton().exists()).toBe(false);
         expect(findAddCommentNowButton().exists()).toBe(false);
       });
 
@@ -867,11 +904,12 @@ describe('issue_comment_form component', () => {
           store.state.batchComments.drafts = [{ note: 'A' }];
         });
 
-        it('should render', async () => {
+        it('should render proper action elements', async () => {
           await mountComponent({ store });
           expect(findCommentTypeDropdown().exists()).toBe(false);
-          expect(findAddToReviewDropdown().exists()).toBe(true);
+          expect(findAddToReviewButton().exists()).toBe(true);
           expect(findAddCommentNowButton().exists()).toBe(true);
+          expect(findStartReviewButton().exists()).toBe(false);
         });
 
         it('clicking `add to review`, should call draft endpoint, set `isDraft` true', async () => {
@@ -909,5 +947,12 @@ describe('issue_comment_form component', () => {
         });
       });
     });
+  });
+
+  it('calls append on a markdown editor', () => {
+    mountComponent({ stubs: { MarkdownEditor } });
+    const spy = jest.spyOn(findMarkdownEditor().vm, 'append');
+    wrapper.vm.append('foo');
+    expect(spy).toHaveBeenCalledWith('foo');
   });
 });

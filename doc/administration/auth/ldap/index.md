@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab integrates with [LDAP - Lightweight Directory Access Protocol](https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol)
 to support user authentication.
@@ -51,6 +51,12 @@ Users are considered inactive in LDAP when they:
 - Reside outside the configured `base` DN or `user_filter` search.
 - Are marked as disabled or deactivated in Active Directory through the user account control attribute. This means attribute
   `userAccountControl:1.2.840.113556.1.4.803` has bit 2 set.
+
+To check if a user is active or inactive in LDAP, use the following PowerShell command and the [Active Directory Module](https://learn.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2022-ps) to check the Active Directory:
+
+```powershell
+Get-ADUser -Identity <username> -Properties userAccountControl | Select-Object Name, userAccountControl
+```
 
 GitLab checks LDAP users' status:
 
@@ -467,17 +473,17 @@ you must do so in an `attributes` hash.
 
 | Setting      | Description | Examples |
 |--------------|-------------|----------|
-| `username`   | Used in paths for the user's own projects (for example, `gitlab.example.com/username/project`) and when mentioning them in issues, merge request and comments (for example, `@username`). If the attribute specified for `username` contains an email address, the GitLab username is part of the email address before the `@`. | `['uid', 'userid', 'sAMAccountName']` |
-| `email`      | LDAP attribute for user email. | `['mail', 'email', 'userPrincipalName']` |
-| `name`       | LDAP attribute for user display name. If `name` is blank, the full name is taken from the `first_name` and `last_name`. | Attributes `'cn'`, or `'displayName'` commonly carry full names. Alternatively, you can force the use of `first_name` and `last_name` by specifying an absent attribute such as `'somethingNonExistent'`. |
-| `first_name` | LDAP attribute for user first name. Used when the attribute configured for `name` does not exist. | `'givenName'` |
-| `last_name`  | LDAP attribute for user last name. Used when the attribute configured for `name` does not exist. | `'sn'` |
+| `username`   | The `@username` that the GitLab account will be provisioned with. If the value contains an email address, the GitLab username is the part of the email address before the `@`. Defaults to the LDAP attribute [specified as `uid`](#basic-configuration-settings). | `['uid', 'userid', 'sAMAccountName']` |
+| `email`      | LDAP attribute for user email. Defaults to `['mail', 'email', 'userPrincipalName']` | `['mail', 'email', 'userPrincipalName']` |
+| `name`       | LDAP attribute for user display name. If `name` is blank, the full name is taken from the `first_name` and `last_name`. Defaults to `'cn'`. | Attributes `'cn'`, or `'displayName'` commonly carry full names. Alternatively, you can force the use of `first_name` and `last_name` by specifying an absent attribute such as `'somethingNonExistent'`. |
+| `first_name` | LDAP attribute for user first name. Used when the attribute configured for `name` does not exist. Defaults to `'givenName'`. | `'givenName'` |
+| `last_name`  | LDAP attribute for user last name. Used when the attribute configured for `name` does not exist. Defaults to `'sn'`. | `'sn'` |
 
 ### LDAP sync configuration settings
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 These LDAP sync configuration settings are optional, excluding `group_base` which
 required when `external_groups` is configured:
@@ -489,11 +495,14 @@ required when `external_groups` is configured:
 | `external_groups` | An array of CNs of groups containing users that should be considered external. Not `cn=interns` or the full DN. | `['interns', 'contractors']` |
 | `sync_ssh_keys`   | The LDAP attribute containing a user's public SSH key. | `'sshPublicKey'` or false if not set |
 
+NOTE:
+If Sidekiq is configured on a different server to the Rails server, you must add the LDAP configuration to every Sidekiq server as well for LDAP synchronisation to work.
+
 ### Use multiple LDAP servers
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 If you have users on multiple LDAP servers, you can configure GitLab to use them. To add additional LDAP servers:
 

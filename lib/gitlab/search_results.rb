@@ -113,20 +113,20 @@ module Gitlab
     end
 
     # highlighting is only performed by Elasticsearch backed results
-    def highlight_map(_scope)
+    def highlight_map(*)
       {}
     end
 
     # aggregations are only performed by Elasticsearch backed results
-    def aggregations(_scope)
+    def aggregations(*)
       []
     end
 
-    def failed?(_scope)
+    def failed?(*)
       false
     end
 
-    def error
+    def error(*)
       nil
     end
 
@@ -181,12 +181,12 @@ module Gitlab
       scope = limit_projects
       scope = scope.non_archived unless filters[:include_archived]
 
-      scope.search(query)
+      scope.search(query, include_namespace: true, use_minimum_char_limit: false)
     end
 
     def issues(finder_params = {})
       issues = IssuesFinder.new(current_user, issuable_params.merge(finder_params)).execute
-                 .preload(:work_item_type) # rubocop: disable CodeReuse/ActiveRecord -- preload for permission checks
+                 .preload(::Gitlab::Issues::TypeAssociationGetter.call) # rubocop: disable CodeReuse/ActiveRecord -- preload for permission checks
 
       unless default_project_filter
         project_ids = project_ids_relation

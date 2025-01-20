@@ -37,7 +37,21 @@ module Issues
       author = User.find_by_id(params["closed_by"])
 
       unless author
-        logger.info(structured_payload(message: "User not found.", user_id: params["closed_by"]))
+        logger.info(structured_payload(message: "Author not found.", user_id: params["closed_by"]))
+        return
+      end
+
+      user = User.find_by_id(params["user_id"])
+
+      unless user
+        logger.info(structured_payload(message: "User not found.", user_id: params["user_id"]))
+        return
+      end
+
+      if !issue.is_a?(ExternalIssue) && !user.can?(:update_issue, issue)
+        logger.info(
+          structured_payload(message: "User cannot update issue.", user_id: params["user_id"], issue_id: issue_id)
+        )
         return
       end
 

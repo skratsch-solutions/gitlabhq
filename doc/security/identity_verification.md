@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Anti-Abuse
+stage: Software Supply Chain Security
+group: Authorization
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -11,6 +11,8 @@ DETAILS:
 **Offering:** GitLab.com
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/95722) in GitLab 15.4 [with a flag](../administration/feature_flags.md) named `identity_verification`. Disabled by default.
+> - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/371389) in GitLab 16.0.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/371389) in GitLab 16.11. Feature flag `identity_verification` removed.
 
 Identity verification provides multiple layers of GitLab account security.
 Depending on your [risk score](../integration/arkose.md), you might be required to perform up to
@@ -25,7 +27,7 @@ Users created after signing in with [SAML SSO for GitLab.com groups](../user/gro
 ## Email verification
 
 To register an account, you must provide a valid email address.
-See [Account email verification](email_verification.md).
+See [Make new users confirm email](user_email_confirmation.md).
 
 ## Phone number verification
 
@@ -61,6 +63,8 @@ A user might not receive a one-time password (OTP) if their phone number is from
 
 The following countries are partially supported:
 
+<!-- vale gitlab_base.Spelling = NO -->
+
 - Armenia
 - Belarus
 - Cambodia
@@ -82,6 +86,8 @@ The following countries are partially supported:
 - Uganda
 - Ukraine
 - Uzbekistan
+
+<!-- vale gitlab_base.Spelling = YES -->
 
 Users with phone numbers from partially supported countries can try [credit card verification](#credit-card-verification), or create a [support ticket](https://about.gitlab.com/support/).
 

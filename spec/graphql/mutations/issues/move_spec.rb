@@ -2,12 +2,14 @@
 
 require 'spec_helper'
 
-RSpec.describe Mutations::Issues::Move do
+RSpec.describe Mutations::Issues::Move, feature_category: :api do
+  include GraphqlHelpers
+
   let_it_be(:issue) { create(:issue) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:current_user) { create(:user) }
   let_it_be(:target_project) { create(:project) }
 
-  subject(:mutation) { described_class.new(object: nil, context: { current_user: user }, field: nil) }
+  subject(:mutation) { described_class.new(object: nil, context: query_context, field: nil) }
 
   describe '#resolve' do
     subject(:resolve) { mutation.resolve(project_path: issue.project.full_path, iid: issue.iid, target_project_path: target_project.full_path) }
@@ -18,7 +20,7 @@ RSpec.describe Mutations::Issues::Move do
 
     context 'when user does not have permissions' do
       before do
-        issue.project.add_developer(user)
+        issue.project.add_developer(current_user)
       end
 
       it 'returns error message' do
@@ -29,8 +31,8 @@ RSpec.describe Mutations::Issues::Move do
 
     context 'when user has sufficient permissions' do
       before do
-        issue.project.add_developer(user)
-        target_project.add_developer(user)
+        issue.project.add_developer(current_user)
+        target_project.add_developer(current_user)
       end
 
       it 'moves issue' do

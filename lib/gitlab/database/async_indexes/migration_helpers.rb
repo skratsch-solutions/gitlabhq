@@ -4,6 +4,8 @@ module Gitlab
   module Database
     module AsyncIndexes
       module MigrationHelpers
+        include ::Gitlab::Database::PartitionHelpers
+
         def unprepare_async_index(table_name, column_name, **options)
           Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas.require_ddl_mode!
 
@@ -48,6 +50,11 @@ module Gitlab
 
         def prepare_async_index(table_name, column_name, **options)
           Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas.require_ddl_mode!
+
+          if table_partitioned?(table_name)
+            raise ArgumentError, 'prepare_async_index can not be used on a partitioned ' \
+              'table. Please use prepare_partitioned_async_index on the partitioned table.'
+          end
 
           return unless async_index_creation_available?
           raise "Table #{table_name} does not exist" unless table_exists?(table_name)
@@ -122,6 +129,8 @@ module Gitlab
         #
         # Stores the index information in the postgres_async_indexes table to be removed later. The
         # index will be always be removed CONCURRENTLY, so that option does not need to be given.
+        # Except for partitioned tables where indexes cannot be dropped using this option.
+        # https://www.postgresql.org/docs/current/sql-dropindex.html
         #
         # If the requested index has already been removed, it is not stored in the table for
         # asynchronous destruction.
@@ -134,7 +143,11 @@ module Gitlab
             return
           end
 
-          definition = "DROP INDEX CONCURRENTLY #{quote_column_name(index_name)}"
+          definition = if table_partitioned?(table_name)
+                         "DROP INDEX #{quote_column_name(index_name)}"
+                       else
+                         "DROP INDEX CONCURRENTLY #{quote_column_name(index_name)}"
+                       end
 
           async_index = PostgresAsyncIndex.find_or_create_by!(name: index_name) do |rec|
             rec.table_name = table_name

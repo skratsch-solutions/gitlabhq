@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -31,7 +31,7 @@ you have removed any orphaned rows. The method `add_concurrent_foreign_key`
 does not take care of this so you must do so manually. See
 [adding foreign key constraint to an existing column](add_foreign_key_to_existing_column.md).
 
-## Use bigint for foreign keys
+## Use `bigint` for foreign keys
 
 When adding a new foreign key, you should define it as `bigint`.
 Even if the referenced table has an `integer` primary key type,
@@ -39,6 +39,57 @@ you must reference the new foreign key as `bigint`. As we are
 migrating all primary keys to `bigint`, using `bigint` foreign keys
 saves time, and requires fewer steps, when migrating the parent table
 to `bigint` primary keys.
+
+## Consider `reverse_lock_order`
+
+Consider using `reverse_lock_order` for [high traffic tables](../migration_style_guide.md#high-traffic-tables)
+Both `add_concurrent_foreign_key` and `remove_foreign_key_if_exists` take a
+boolean option `reverse_lock_order` which defaults to false.
+
+You can read more about the context for this in the
+[the original issue](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/67448).
+
+This can be useful where we have known queries that are also acquiring locks
+(usually row locks) on the same tables at a high frequency.
+
+Consider, for example, the scenario where you want to add a foreign key like:
+
+```sql
+ALTER TABLE ONLY todos
+    ADD CONSTRAINT fk_91d1f47b13 FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
+```
+
+And consider the following hypothetical application code:
+
+```ruby
+Todo.transaction do
+   note = Note.create(...)
+   # Observe what happens if foreign key is added here!
+   todo = Todo.create!(note_id: note.id)
+end
+```
+
+If you try to create the foreign key in between the 2 insert statements we can
+end up with a deadlock on both transactions in Postgres. Here is how it happens:
+
+1. `Note.create`: acquires a row lock on `notes`
+1. `ALTER TABLE ...` acquires a table lock on `todos`
+1. `ALTER TABLE ... FOREIGN KEY` attempts to acquire a table lock on `notes` but this blocks on the other transaction which has a row lock
+1. `Todo.create` attempts to acquire a row lock on `todos` but this blocks on the other transaction which has a table lock on `todos`
+
+This illustrates how both transactions can be stuck waiting for each other to
+finish and they will both timeout. We normally have transaction retries in our
+migrations so it is usually OK but the application code might also timeout and
+there might be an error for that user. If this application code is running very
+frequently it's possible that we will be constantly timing out the migration
+and users may also be regularly getting errors.
+
+The deadlock case with removing a foreign key is similar because it also
+acquires locks on both tables but a more common scenario, using the example
+above, would be a `DELETE FROM notes WHERE id = ...`. This query will acquire a
+lock on `notes` followed by a lock on `todos` and the exact same deadlock
+described above can happen. For this reason it's almost always best to use
+`reverse_lock_order` for removing a foreign key.
 
 ## Updating foreign keys in migrations
 
@@ -52,10 +103,7 @@ ever losing foreign key protection on a column.
 
 To replace a foreign key:
 
-1. [Add the new foreign key without validation](add_foreign_key_to_existing_column.md#prevent-invalid-records)
-
-   The name of the foreign key constraint must be changed to add a new
-   foreign key before removing the old one.
+1. Add the new foreign key:
 
    ```ruby
    class ReplaceFkOnPackagesPackagesProjectId < Gitlab::Database::Migration[2.1]
@@ -64,30 +112,13 @@ To replace a foreign key:
      NEW_CONSTRAINT_NAME = 'fk_new'
 
      def up
-       add_concurrent_foreign_key(:packages_packages, :projects, column: :project_id, on_delete: :nullify, validate: false, name: NEW_CONSTRAINT_NAME)
+       add_concurrent_foreign_key(:packages_packages, :projects, column: :project_id, on_delete: :nullify, name: NEW_CONSTRAINT_NAME)
      end
 
      def down
        with_lock_retries do
          remove_foreign_key_if_exists(:packages_packages, column: :project_id, on_delete: :nullify, name: NEW_CONSTRAINT_NAME)
        end
-     end
-   end
-   ```
-
-1. [Validate the new foreign key](add_foreign_key_to_existing_column.md#validate-the-foreign-key)
-
-   ```ruby
-   class ValidateFkNew < Gitlab::Database::Migration[2.1]
-     NEW_CONSTRAINT_NAME = 'fk_new'
-
-     # foreign key added in <link to MR or path to migration adding new FK>
-     def up
-       validate_foreign_key(:packages_packages, :project_id, name: NEW_CONSTRAINT_NAME)
-     end
-
-     def down
-       # no-op
      end
    end
    ```
@@ -100,8 +131,6 @@ To replace a foreign key:
 
      OLD_CONSTRAINT_NAME = 'fk_old'
 
-     # new foreign key added in <link to MR or path to migration adding new FK>
-     # and validated in <link to MR or path to migration validating new FK>
      def up
        with_lock_retries do
          remove_foreign_key_if_exists(:packages_packages, column: :project_id, on_delete: :cascade, name: OLD_CONSTRAINT_NAME)
@@ -109,8 +138,7 @@ To replace a foreign key:
      end
 
      def down
-       # Validation is skipped here, so if rolled back, this will need to be revalidated in a separate migration
-       add_concurrent_foreign_key(:packages_packages, :projects, column: :project_id, on_delete: :cascade, validate: false, name: OLD_CONSTRAINT_NAME)
+       add_concurrent_foreign_key(:packages_packages, :projects, column: :project_id, on_delete: :cascade, name: OLD_CONSTRAINT_NAME)
      end
    end
    ```

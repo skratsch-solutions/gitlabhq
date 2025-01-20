@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Security Risk Management
 group: Security Policies
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - `pending` status [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/413723) in GitLab 16.5
 > - Timeout interval of two minutes for `pending` status checks [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/388725) in GitLab 16.6.
@@ -21,8 +21,8 @@ can then update the status of merge requests from outside of GitLab.
 
 With this integration, you can integrate with third-party workflow tools, like
 ServiceNow, or the custom tool of your choice. The third-party tool
-respond with an associated status. This status is then displayed as a non-blocking
-widget within the merge request to surface this status to the merge request author or reviewers
+responds with an associated status. This status is then displayed as a non-blocking
+widget within the merge request, which surfaces this status to the merge request author or reviewers
 at the merge request level itself.
 
 You can configure merge request status checks for each individual project. These are not shared between projects.
@@ -36,7 +36,7 @@ see [epic 3869](https://gitlab.com/groups/gitlab-org/-/epics/3869).
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/369859) in GitLab 15.5 [with a flag](../../../administration/feature_flags.md) named `only_allow_merge_if_all_status_checks_passed`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/372340) in GitLab 15.8.
-> - Enabled on self-managed and feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111492) in GitLab 15.9.
+> - Enabled on GitLab Self-Managed and feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111492) in GitLab 15.9.
 
 By default, merge requests in projects can be merged even if external status checks fail. To block the merging of merge requests when external checks fail:
 
@@ -72,18 +72,18 @@ External status checks have the following states:
 If something changes outside of GitLab, you can [set the status of an external status check](../../../api/status_checks.md#set-status-of-an-external-status-check)
 using the API. You don't need to wait for a merge request webhook payload to be sent first.
 
-## View the status checks on a project
+## View status check services
 
-Within each project's settings, you can see a list of status check services added to the project:
+To view a list of status check services added to a project from the merge request settings:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > Merge requests**.
-1. Scroll down to **Status checks**.
+1. Scroll down to **Status checks**. This list shows the service name, API URL, targeted branch,
+   and HMAC authentication status.
 
 ![Status checks list](img/status_checks_list_view_v14_0.png)
 
-This list shows the service name, API URL, and targeted branch.
-It also provides actions to allow you to create, edit, or remove status checks.
+You can also view a list of status check services from the [Branch rules](../repository/branches/branch_rules.md#add-a-status-check-service) settings.
 
 ## Add or update a status check service
 
@@ -103,6 +103,9 @@ next to the status check you want to edit.
 The **Update status check** form is then shown.
 
 ![Status checks update form](img/status_checks_update_form_v14_0.png)
+
+NOTE:
+You cannot see or modify the value of the HMAC shared secret. To change the shared secret, delete and recreate the external status check with a new value for the shared secret.
 
 Changing the values in the form and selecting the **Update status check** button updates the status check.
 
@@ -129,7 +132,7 @@ you can use this field to set this limit.
 
 ![Status checks branch selector](img/status_checks_branches_selector_v14_0.png)
 
-The branches list is populated from the projects [protected branches](../protected_branches.md).
+The branches list is populated from the projects [protected branches](../repository/branches/protected.md).
 
 You can scroll through the list of branches or use the search box
 when there are a lot of branches and the branch you are looking
@@ -138,6 +141,11 @@ for doesn't appear immediately. The search box requires
 
 If you want the status check to be applied to **all** merge requests,
 you can select the **All branches** option.
+
+#### HMAC shared secret
+
+HMAC authentication prevents tampering with requests
+and ensures they come from a legitimate source.
 
 ## Delete a status check service
 

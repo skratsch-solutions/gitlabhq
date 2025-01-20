@@ -8,40 +8,77 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
+	"sync"
 	"time"
 
 	"gitlab.com/gitlab-org/labkit/log"
 
+	"gitlab.com/gitlab-org/gitlab/workhorse/internal/api"
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/helper/fail"
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/senddata"
 	"gitlab.com/gitlab-org/gitlab/workhorse/internal/transport"
+	"gitlab.com/gitlab-org/gitlab/workhorse/internal/upload"
 )
 
 const dialTimeout = 10 * time.Second
 const responseHeaderTimeout = 10 * time.Second
 const uploadRequestGracePeriod = 60 * time.Second
 
-var httpTransport = transport.NewRestrictedTransport(transport.WithDialTimeout(dialTimeout), transport.WithResponseHeaderTimeout(responseHeaderTimeout))
-var httpClient = &http.Client{
-	Transport: httpTransport,
+var defaultTransportOptions = []transport.Option{transport.WithDialTimeout(dialTimeout), transport.WithResponseHeaderTimeout(responseHeaderTimeout)}
+
+type cacheKey struct {
+	ssrfFilter     bool
+	allowLocalhost bool
+	allowedURIs    string
 }
+
+var httpClients sync.Map
 
 // Injector provides functionality for injecting dependencies
 type Injector struct {
 	senddata.Prefix
-	uploadHandler http.Handler
+	uploadHandler upload.BodyUploadHandler
 }
 
 type entryParams struct {
-	URL          string
-	Headers      http.Header
-	UploadConfig uploadConfig
+	URL             string
+	Headers         http.Header
+	ResponseHeaders http.Header
+	UploadConfig    uploadConfig
+	SSRFFilter      bool
+	AllowLocalhost  bool
+	AllowedURIs     []string
 }
 
 type uploadConfig struct {
-	Headers http.Header
-	Method  string
-	URL     string
+	Headers                  http.Header
+	Method                   string
+	URL                      string
+	AuthorizedUploadResponse authorizeUploadResponse
+}
+
+type authorizeUploadResponse struct {
+	TempPath            string
+	RemoteObject        api.RemoteObject
+	MaximumSize         int64
+	UploadHashFunctions []string
+}
+
+func (u *uploadConfig) ExtractUploadAuthorizeFields() *api.Response {
+	tempPath := u.AuthorizedUploadResponse.TempPath
+	remoteID := u.AuthorizedUploadResponse.RemoteObject.RemoteTempObjectID
+
+	if tempPath == "" && remoteID == "" {
+		return nil
+	}
+
+	return &api.Response{
+		TempPath:            tempPath,
+		RemoteObject:        u.AuthorizedUploadResponse.RemoteObject,
+		MaximumSize:         u.AuthorizedUploadResponse.MaximumSize,
+		UploadHashFunctions: u.AuthorizedUploadResponse.UploadHashFunctions,
+	}
 }
 
 type nullResponseWriter struct {
@@ -69,7 +106,7 @@ func NewInjector() *Injector {
 }
 
 // SetUploadHandler sets the upload handler for the Injector
-func (p *Injector) SetUploadHandler(uploadHandler http.Handler) {
+func (p *Injector) SetUploadHandler(uploadHandler upload.BodyUploadHandler) {
 	p.uploadHandler = uploadHandler
 }
 
@@ -83,21 +120,13 @@ func (p *Injector) Inject(w http.ResponseWriter, r *http.Request, sendData strin
 
 	dependencyResponse, err := p.fetchURL(r.Context(), params)
 	if err != nil {
-		status := http.StatusBadGateway
-
-		if os.IsTimeout(err) {
-			status = http.StatusGatewayTimeout
-		}
-
-		fail.Request(w, r, err, fail.WithStatus(status))
+		handleFetchError(w, r, err)
 		return
 	}
 	defer func() { _ = dependencyResponse.Body.Close() }()
+
 	if dependencyResponse.StatusCode >= 400 {
-		w.WriteHeader(dependencyResponse.StatusCode)
-		// We swallow errors for now as we need to investigate further, see
-		// https://gitlab.com/gitlab-org/gitlab/-/issues/459952.
-		_, _ = io.Copy(w, dependencyResponse.Body)
+		handleErrorResponse(w, dependencyResponse)
 		return
 	}
 
@@ -112,7 +141,7 @@ func (p *Injector) Inject(w http.ResponseWriter, r *http.Request, sendData strin
 		t := time.AfterFunc(uploadRequestGracePeriod, cancel) // call cancel function after 60 seconds
 
 		context.AfterFunc(ctx, func() {
-			if !t.Stop() { // if ctx is cancelled and time still running, we stop the timer
+			if !t.Stop() { // if ctx is canceled and time still running, we stop the timer
 				<-t.C // drain the channel because it's recommended in the docs: https://pkg.go.dev/time#Timer.Stop
 			}
 		})
@@ -123,22 +152,21 @@ func (p *Injector) Inject(w http.ResponseWriter, r *http.Request, sendData strin
 		fail.Request(w, r, fmt.Errorf("dependency proxy: failed to create request: %w", err))
 	}
 
-	// forward headers from dependencyResponse to rails and client
-	for key, values := range dependencyResponse.Header {
-		saveFileRequest.Header.Del(key)
-		w.Header().Del(key)
-		for _, value := range values {
-			saveFileRequest.Header.Add(key, value)
-			w.Header().Add(key, value)
-		}
-	}
+	forwardHeaders(dependencyResponse.Header, saveFileRequest)
+
+	p.forwardHeadersToResponse(w, dependencyResponse.Header, params.ResponseHeaders)
 
 	// workhorse hijack overwrites the Content-Type header, but we need this header value
 	saveFileRequest.Header.Set("Workhorse-Proxy-Content-Type", dependencyResponse.Header.Get("Content-Type"))
 	saveFileRequest.ContentLength = dependencyResponse.ContentLength
 
 	nrw := &nullResponseWriter{header: make(http.Header)}
-	p.uploadHandler.ServeHTTP(nrw, saveFileRequest)
+	apiResponse := params.UploadConfig.ExtractUploadAuthorizeFields()
+	if apiResponse != nil {
+		p.uploadHandler.ServeHTTPWithAPIResponse(nrw, saveFileRequest, apiResponse)
+	} else {
+		p.uploadHandler.ServeHTTP(nrw, saveFileRequest)
+	}
 
 	if nrw.status != http.StatusOK {
 		fields := log.Fields{"code": nrw.status}
@@ -147,6 +175,28 @@ func (p *Injector) Inject(w http.ResponseWriter, r *http.Request, sendData strin
 	}
 }
 
+func handleFetchError(w http.ResponseWriter, r *http.Request, err error) {
+	status := http.StatusBadGateway
+	if os.IsTimeout(err) {
+		status = http.StatusGatewayTimeout
+	}
+	fail.Request(w, r, err, fail.WithStatus(status))
+}
+
+func handleErrorResponse(w http.ResponseWriter, dependencyResponse *http.Response) {
+	w.WriteHeader(dependencyResponse.StatusCode)
+	_, _ = io.Copy(w, dependencyResponse.Body) // swallow errors for investigation, see https://gitlab.com/gitlab-org/gitlab/-/issues/459952.
+}
+
+// forwardHeaders forwards headers from the dependency response to the saveFileRequest.
+func forwardHeaders(dependencyHeader http.Header, saveFileRequest *http.Request) {
+	for key, values := range dependencyHeader {
+		saveFileRequest.Header.Del(key)
+		for _, value := range values {
+			saveFileRequest.Header.Add(key, value)
+		}
+	}
+}
 func (p *Injector) fetchURL(ctx context.Context, params *entryParams) (*http.Response, error) {
 	r, err := http.NewRequestWithContext(ctx, "GET", params.URL, nil)
 	if err != nil {
@@ -154,7 +204,7 @@ func (p *Injector) fetchURL(ctx context.Context, params *entryParams) (*http.Res
 	}
 	r.Header = params.Headers
 
-	return httpClient.Do(r)
+	return cachedClient(params).Do(r)
 }
 
 func (p *Injector) newUploadRequest(ctx context.Context, params *entryParams, originalRequest *http.Request, body io.Reader) (*http.Request, error) {
@@ -177,20 +227,31 @@ func (p *Injector) newUploadRequest(ctx context.Context, params *entryParams, or
 	return request, nil
 }
 
+func (p *Injector) forwardHeadersToResponse(w http.ResponseWriter, headers ...http.Header) {
+	for _, h := range headers {
+		for key, values := range h {
+			w.Header().Del(key)
+			for _, v := range values {
+				w.Header().Add(key, v)
+			}
+		}
+	}
+}
+
 func (p *Injector) unpackParams(sendData string) (*entryParams, error) {
 	var params entryParams
 	if err := p.Unpack(&params, sendData); err != nil {
 		return nil, fmt.Errorf("dependency proxy: unpack sendData: %w", err)
 	}
 
-	if err := p.validateParams(params); err != nil {
+	if err := p.validateParams(&params); err != nil {
 		return nil, fmt.Errorf("dependency proxy: invalid params: %w", err)
 	}
 
 	return &params, nil
 }
 
-func (p *Injector) validateParams(params entryParams) error {
+func (p *Injector) validateParams(params *entryParams) error {
 	var uploadMethod = params.UploadConfig.Method
 	if uploadMethod != "" && uploadMethod != http.MethodPost && uploadMethod != http.MethodPut {
 		return fmt.Errorf("invalid upload method %s", uploadMethod)
@@ -219,4 +280,30 @@ func (p *Injector) uploadURLFrom(params *entryParams, originalRequest *http.Requ
 	}
 
 	return originalRequest.URL.String() + "/upload"
+}
+
+func cachedClient(params *entryParams) *http.Client {
+	key := cacheKey{
+		allowLocalhost: params.AllowLocalhost,
+		ssrfFilter:     params.SSRFFilter,
+		allowedURIs:    strings.Join(params.AllowedURIs, ","),
+	}
+	cachedClient, found := httpClients.Load(key)
+	if found {
+		return cachedClient.(*http.Client)
+	}
+
+	options := defaultTransportOptions
+
+	if params.SSRFFilter {
+		options = append(options, transport.WithSSRFFilter(params.AllowLocalhost, params.AllowedURIs))
+	}
+
+	client := &http.Client{
+		Transport: transport.NewRestrictedTransport(options...),
+	}
+
+	httpClients.Store(key, client)
+
+	return client
 }

@@ -14,8 +14,11 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
   let_it_be(:milestone1) { create(:milestone, project: project) }
   let_it_be(:milestone2) { create(:milestone, project: project) }
 
-  let_it_be(:item1) { create(:work_item, project: project, discussion_locked: true, title: 'item1', labels: [label1]) }
-  let_it_be(:item2) do
+  let_it_be_with_reload(:item1) do
+    create(:work_item, project: project, discussion_locked: true, title: 'item1', labels: [label1])
+  end
+
+  let_it_be_with_reload(:item2) do
     create(
       :work_item,
       project: project,
@@ -27,7 +30,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
     )
   end
 
-  let_it_be(:confidential_item) { create(:work_item, confidential: true, project: project, title: 'item3') }
+  let_it_be_with_reload(:confidential_item) { create(:work_item, confidential: true, project: project, title: 'item3') }
   let_it_be(:other_item) { create(:work_item) }
 
   let(:items_data) { graphql_data['project']['workItems']['nodes'] }
@@ -39,6 +42,13 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
         #{all_graphql_fields_for('workItems'.classify, max_depth: 2)}
       }
     QUERY
+  end
+
+  before_all do
+    # Ensure support bot user is created so creation doesn't count towards query limit
+    # and we don't try to obtain an exclusive lease within a transaction.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.support_bot_id
   end
 
   shared_examples 'work items resolver without N + 1 queries' do
@@ -126,6 +136,50 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
     end
   end
 
+  context 'when querying WorkItemWidgetAssignees' do
+    let(:work_items_data) { graphql_data['project']['workItems']['nodes'].pluck('widgets') }
+    let(:widget_data) { work_items_data.map { |data| data.find { |widget| widget['type'] == 'ASSIGNEES' } } }
+    let(:assignee_data) { widget_data.map { |data| data.dig('assignees', 'nodes') } }
+    let(:assignees) do
+      [
+        create(:user, name: 'BBB'),
+        create(:user, name: 'AAA'),
+        create(:user, name: 'BBB')
+      ]
+    end
+
+    let(:fields) do
+      <<~GRAPHQL
+        nodes {
+          widgets {
+            type
+            ... on WorkItemWidgetAssignees {
+              assignees { nodes { id } }
+            }
+          }
+        }
+      GRAPHQL
+    end
+
+    before do
+      project.work_items.each { |work_item| work_item.update!(assignees: assignees) }
+    end
+
+    it 'returns assignees ordered by name ASC id DESC' do
+      post_graphql(query, current_user: current_user)
+
+      expect(assignee_data).to all(
+        eq(
+          [
+            { 'id' => assignees[1].to_gid.to_s },
+            { 'id' => assignees[2].to_gid.to_s },
+            { 'id' => assignees[0].to_gid.to_s }
+          ]
+        )
+      )
+    end
+  end
+
   context 'when querying WorkItemWidgetHierarchy' do
     let_it_be(:children) { create_list(:work_item, 4, :task, project: project) }
     let_it_be(:child_link1) { create(:parent_link, work_item_parent: item1, work_item: children[0]) }
@@ -206,6 +260,35 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
     end
   end
 
+  context 'when querying WorkItemWidgetStartAndDueDate' do
+    let(:fields) do
+      <<~GRAPHQL
+        nodes {
+          widgets {
+            type
+            ... on WorkItemWidgetStartAndDueDate {
+              dueDate
+              startDate
+            }
+          }
+        }
+      GRAPHQL
+    end
+
+    it 'avoids N+1 queries when we create more work items' do
+      post_graphql(query, current_user: current_user) # warm-up
+
+      control = ActiveRecord::QueryRecorder.new do
+        post_graphql(query, current_user: current_user)
+      end
+
+      create_list(:work_item, 3, project: project)
+
+      expect { post_graphql(query, current_user: current_user) }
+        .not_to exceed_query_limit(control)
+    end
+  end
+
   context 'when the user does not have access to the item' do
     before do
       project.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE)
@@ -241,6 +324,37 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
       let(:ids) { item_ids }
       let(:user) { current_user }
       let_it_be(:issuable) { create(:work_item, project: project, description: 'bar') }
+    end
+  end
+
+  context 'when filtering by subscribed' do
+    let_it_be(:subscribed_item) { create(:work_item, project: project) }
+    let_it_be(:unsubscribed_item) { create(:work_item, project: project) }
+    let_it_be(:subscription) do
+      create(:subscription, subscribable: subscribed_item, user: current_user, subscribed: true)
+    end
+
+    let_it_be(:unsubscription) do
+      create(:subscription, subscribable: unsubscribed_item, user: current_user, subscribed: false)
+    end
+
+    it 'returns only subscribed items' do
+      post_graphql(query(subscribed: :EXPLICITLY_SUBSCRIBED), current_user: current_user)
+
+      expect(item_ids).to match_array([subscribed_item.to_global_id.to_s])
+    end
+
+    it 'returns only unsubscribed items' do
+      post_graphql(query(subscribed: :EXPLICITLY_UNSUBSCRIBED), current_user: current_user)
+
+      expect(item_ids).to match_array([unsubscribed_item.to_global_id.to_s])
+    end
+
+    it 'does not filter subscribed items' do
+      post_graphql(query, current_user: current_user)
+
+      expect(item_ids).to match_array([subscribed_item.to_global_id.to_s, unsubscribed_item.to_global_id.to_s,
+        item1.to_global_id.to_s, item2.to_global_id.to_s])
     end
   end
 
@@ -456,7 +570,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
   end
 
   context 'with development widget' do
-    context 'for the related merge requests field' do
+    context 'for closing merge requests field' do
       before do
         [item1, item2].each do |item|
           create(
@@ -506,6 +620,65 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
 
         expect { post_graphql(query, current_user: current_user) }.to issue_same_number_of_queries_as(control)
         expect(graphql_errors).to be_blank
+      end
+    end
+
+    context 'for related merge requests field' do
+      let(:fields) do
+        <<~GRAPHQL
+          nodes {
+            id
+            widgets {
+              type
+              ... on WorkItemWidgetDevelopment {
+                relatedMergeRequests {
+                  nodes {
+                    id
+                    iid
+                  }
+                }
+              }
+            }
+          }
+        GRAPHQL
+      end
+
+      it 'limits the field to 1 execution' do
+        post_graphql(query, current_user: current_user)
+
+        expect_graphql_errors_to_include(
+          '"relatedMergeRequests" field can be requested only for 1 WorkItemWidgetDevelopment(s) at a time.'
+        )
+      end
+    end
+
+    context 'for related branches field' do
+      let(:fields) do
+        <<~GRAPHQL
+          nodes {
+            id
+            widgets {
+              type
+              ... on WorkItemWidgetDevelopment {
+                relatedBranches  {
+                  nodes {
+                    name
+                    comparePath
+                    pipelineStatus { name label favicon }
+                  }
+                }
+              }
+            }
+          }
+        GRAPHQL
+      end
+
+      it 'limits the field to 1 execution' do
+        post_graphql(query, current_user: current_user)
+
+        expect_graphql_errors_to_include(
+          '"relatedBranches" field can be requested only for 1 WorkItemWidgetDevelopment(s) at a time.'
+        )
       end
     end
   end
@@ -699,14 +872,14 @@ RSpec.describe 'getting a work item list for a project', feature_category: :team
         post_graphql(query, current_user: current_user)
       end
 
-      let(:item_filter_params) { { my_reaction_emoji: 'thumbsup' } }
+      let(:item_filter_params) { { my_reaction_emoji: AwardEmoji::THUMBS_UP } }
 
       it 'returns items with the reaction emoji' do
         expect(item_ids).to contain_exactly(item1.to_global_id.to_s)
       end
 
       context 'when using NOT' do
-        let(:item_filter_params) { { not: { my_reaction_emoji: 'thumbsup' } } }
+        let(:item_filter_params) { { not: { my_reaction_emoji: AwardEmoji::THUMBS_UP } } }
 
         it 'returns items without the reaction emoji' do
           expect(item_ids).to contain_exactly(item2.to_global_id.to_s, confidential_item.to_global_id.to_s)

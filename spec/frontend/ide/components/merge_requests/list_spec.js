@@ -1,8 +1,9 @@
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import Vue, { nextTick } from 'vue';
 // eslint-disable-next-line no-restricted-imports
 import Vuex from 'vuex';
+import { describeSkipVue3, SkipReason } from 'helpers/vue3_conditional';
 import Item from '~/ide/components/merge_requests/item.vue';
 import List from '~/ide/components/merge_requests/list.vue';
 import TokenedInput from '~/ide/components/shared/tokened_input.vue';
@@ -10,11 +11,16 @@ import { mergeRequests as mergeRequestsMock } from '../../mock_data';
 
 Vue.use(Vuex);
 
-describe('IDE merge requests list', () => {
+const skipReason = new SkipReason({
+  name: 'IDE merge requests list',
+  reason: 'Legacy WebIDE is due for deletion',
+  issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/508949',
+});
+describeSkipVue3(skipReason, () => {
   let wrapper;
   let fetchMergeRequestsMock;
 
-  const findSearchTypeButtons = () => wrapper.findAll('button');
+  const findSearchTypeButtons = () => wrapper.findAllComponents(GlButton);
   const findTokenedInput = () => wrapper.findComponent(TokenedInput);
 
   const createComponent = (state = {}) => {
@@ -74,7 +80,7 @@ describe('IDE merge requests list', () => {
     findTokenedInput().vm.$emit('focus');
 
     await nextTick();
-    findSearchTypeButtons().at(0).trigger('click');
+    await findSearchTypeButtons().at(0).vm.$emit('click');
 
     await nextTick();
     const searchType = wrapper.vm.$options.searchTypes[0];
@@ -154,7 +160,7 @@ describe('IDE merge requests list', () => {
 
       describe('with search type', () => {
         beforeEach(async () => {
-          findSearchTypeButtons().at(0).trigger('click');
+          await findSearchTypeButtons().at(0).vm.$emit('click');
 
           await nextTick();
           await input.vm.$emit('focus');

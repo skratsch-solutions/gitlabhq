@@ -10,6 +10,7 @@ import eventHub from '~/environments/event_hub';
 import notesEventHub from '~/notes/event_hub';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import { mockTracking } from 'helpers/tracking_helper';
+import MarkdownEditor from '~/vue_shared/components/markdown/markdown_editor.vue';
 import { noteableDataMock, notesDataMock, discussionMock, note } from '../mock_data';
 
 jest.mock('~/lib/utils/autosave');
@@ -21,7 +22,7 @@ describe('issue_note_form component', () => {
   let props;
   let trackingSpy;
 
-  const createComponentWrapper = (propsData = {}, provide = {}) => {
+  const createComponentWrapper = (propsData = {}, provide = {}, stubs = {}) => {
     wrapper = mountExtended(NoteForm, {
       store,
       propsData: {
@@ -40,6 +41,7 @@ describe('issue_note_form component', () => {
           },
         },
       },
+      stubs,
     });
 
     textarea = wrapper.find('textarea');
@@ -114,6 +116,10 @@ describe('issue_note_form component', () => {
   describe('form', () => {
     beforeEach(() => {
       createComponentWrapper();
+    });
+
+    it('should render text area with noteable type', () => {
+      expect(textarea.attributes('data-noteable-type')).toBe(noteableDataMock.noteableType);
     });
 
     it('should render text area with placeholder', () => {
@@ -231,17 +237,12 @@ describe('issue_note_form component', () => {
         });
       });
 
-      describe('when discussion is confidential', () => {
+      describe('when discussion is internal', () => {
         beforeEach(() => {
-          createComponentWrapper({
-            discussion: {
-              ...discussionMock,
-              confidential: true,
-            },
-          });
+          createComponentWrapper({ note: { internal: true } });
         });
 
-        it('passes correct confidentiality to CommentFieldLayout', () => {
+        it('passes correct internal note information to CommentFieldLayout', () => {
           expect(wrapper.findComponent(CommentFieldLayout).props('isInternalNote')).toBe(true);
         });
       });
@@ -365,5 +366,12 @@ describe('issue_note_form component', () => {
         });
       });
     });
+  });
+
+  it('calls append on a markdown editor', () => {
+    createComponentWrapper(undefined, undefined, { MarkdownEditor });
+    const spy = jest.spyOn(wrapper.findComponent(MarkdownEditor).vm, 'append');
+    wrapper.vm.append('foo');
+    expect(spy).toHaveBeenCalledWith('foo');
   });
 });

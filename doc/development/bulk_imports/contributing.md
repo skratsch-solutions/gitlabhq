@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
@@ -11,6 +11,7 @@ At a high level, to add a new relation to the direct transfer importer, you must
 1. Add a new relation to the list of exported data.
 1. Add a new ETL (Extract/Transform/Load) Pipeline on the import side with data processing instructions.
 1. Add newly-created pipeline to the list of importing stages.
+1. Add a label for the newly created relation to display in the UI.
 1. Ensure sufficient test coverage.
 
 ## Export from source
@@ -160,7 +161,7 @@ If adding support for a binary relation:
 As mentioned above, there are three kinds of relations in direct transfer imports:
 
 1. NDJSON-exported relations, downloaded from the `export_relations` API. For example, `documents.ndjson.gz`.
-1. GraphQL API relations. For example, `members` information is fetched using GraphQL to import groupand project user memberships.
+1. GraphQL API relations. For example, `members` information is fetched using GraphQL to import group and project user memberships.
 1. Binary relations, downloaded from the `export_relations` API. For example, `lfs_objects.tar.gz`.
 
 Because the direct transfer importer is based on the Extract/Transform/Load data processing technique, to start importing a relation we must define:
@@ -368,3 +369,26 @@ There are a number of helper service classes to assist with data download:
 - `BulkImports::FileDownloadService`: Downloads a file from a given location.
 - `BulkImports::FileDecompressionService`: Gzip decompression service with required validations.
 - `BulkImports::ArchiveExtractionService`: Tar extraction service.
+
+## Adapt the UI
+
+### Add a label for the new relation
+
+Once a new relation is added to Direct Transfer, you need to make sure that the relation is displayed in human readable form in the UI.
+
+1. Add a new key value pair to the [`BULK_IMPORT_STATIC_ITEMS`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/assets/javascripts/import/constants.js#L9)
+
+```diff
+diff --git a/app/assets/javascripts/import/constants.js b/app/assets/javascripts/import/constants.js
+index 439f453cd9d3..d6b4119a0af9 100644
+--- a/app/assets/javascripts/import/constants.js
++++ b/app/assets/javascripts/import/constants.js
+@@ -31,6 +31,7 @@ export const BULK_IMPORT_STATIC_ITEMS = {
+   service_desk_setting: __('Service Desk'),
+   vulnerabilities: __('Vulnerabilities'),
+   commit_notes: __('Commit notes'),
++  documents: __('Documents')
+ };
+ 
+ const STATISTIC_ITEMS = {
+```

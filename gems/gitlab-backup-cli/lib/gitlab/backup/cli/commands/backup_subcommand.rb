@@ -4,18 +4,26 @@ module Gitlab
   module Backup
     module Cli
       module Commands
-        class BackupSubcommand < Command
+        class BackupSubcommand < ObjectStorageCommand
           package_name 'Backup'
 
           desc 'all', 'Creates a backup including repositories, database and local files'
           def all
+            Gitlab::Backup::Cli.update_process_title!('backup all')
+
             duration = measure_duration do
               Gitlab::Backup::Cli::Output.info("Initializing environment...")
               Gitlab::Backup::Cli.rails_environment!
             end
             Gitlab::Backup::Cli::Output.success("Environment loaded. (#{duration.in_seconds}s)")
 
-            backup_executor = Gitlab::Backup::Cli::BackupExecutor.new(context: build_context)
+            backup_executor = Gitlab::Backup::Cli::BackupExecutor.new(
+              context: build_context,
+              backup_bucket: options["backup_bucket"],
+              wait_for_completion: options["wait_for_completion"],
+              registry_bucket: options["registry_bucket"],
+              service_account_file: options["service_account_file"]
+            )
             backup_id = backup_executor.metadata.backup_id
 
             duration = measure_duration do
@@ -35,9 +43,7 @@ module Gitlab
           private
 
           def build_context
-            # TODO: When we have more then one context we need to auto-detect which one to use
-            # https://gitlab.com/gitlab-org/gitlab/-/issues/454530
-            Gitlab::Backup::Cli::SourceContext.new
+            ::Gitlab::Backup::Cli::Context.build
           end
 
           def measure_duration

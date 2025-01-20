@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab provides [Rake](https://ruby.github.io/rake/) tasks to assist you with common administration and operational
 processes.
@@ -24,12 +24,12 @@ The following Rake tasks are available for use with GitLab:
 
 | Tasks                                                                                                      | Description |
 |:-----------------------------------------------------------------------------------------------------------|:------------|
+| [Access token expiration tasks](../administration/raketasks/tokens/index.md)                               | Bulk extend or remove expiration dates for access tokens. |
 | [Back up and restore](../administration/backup_restore/index.md)                                           | Back up, restore, and migrate GitLab instances between servers. |
 | [Clean up](cleanup.md)                                                                                     | Clean up unneeded items from GitLab instances. |
 | [Development](../development/rake_tasks.md)                                                                | Tasks for GitLab contributors. |
 | [Elasticsearch](../integration/advanced_search/elasticsearch.md#gitlab-advanced-search-rake-tasks)         | Maintain Elasticsearch in a GitLab instance. |
 | [General maintenance](../administration/raketasks/maintenance.md)                                          | General maintenance and self-check tasks. |
-| [Geo maintenance](../update/deprecations.md#geo-housekeeping-rake-tasks)                                   | [Geo](../administration/geo/index.md)-related maintenance. |
 | [GitHub import](../administration/raketasks/github_import.md)                                              | Retrieve and import repositories from GitHub. |
 | [Import large project exports](../administration/raketasks/project_import_export.md#import-large-projects) | Import large GitLab [project exports](../user/project/settings/import_export.md). |
 | [Incoming email](../administration/raketasks/incoming_email.md)                                            | Incoming email-related tasks. |

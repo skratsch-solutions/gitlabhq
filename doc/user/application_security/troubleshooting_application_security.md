@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When working with application security features, you might encounter the following issues.
 
@@ -198,8 +198,8 @@ Instructions are available in the [legacy template project](https://gitlab.com/g
 
 In these circumstances, that the job succeeds is the default behavior. The job's status indicates
 success or failure of the analyzer itself. Analyzer results are displayed in the
-[job logs](../../ci/jobs/index.md#expand-and-collapse-job-log-sections),
-[merge request widget](index.md#merge-request), or
+[job logs](../../ci/jobs/job_logs.md#expand-and-collapse-job-log-sections),
+[merge request widget](detect/security_scan_results.md#merge-request), or
 [security dashboard](security_dashboard/index.md).
 
 ## Error: job `is used for configuration only, and its script should not be executed`

@@ -52,7 +52,7 @@ project.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can seed issues specifically for working with the
 [Insights charts](../user/project/insights/index.md) with the
@@ -93,8 +93,8 @@ By default, the Rake task uses the `root` username to create 40 runners and 400 
 
 ```mermaid
 graph TD
-    G1[Top level group 1] --> G11
-    G2[Top level group 2] --> G21
+    G1[Top-level group 1] --> G11
+    G2[Top-level group 2] --> G21
     G11[Group 1.1] --> G111
     G11[Group 1.1] --> G112
     G111[Group 1.1.1] --> P1111
@@ -283,9 +283,9 @@ To run several tests inside one directory:
 
 - `bin/rspec spec/requests/api/` for the RSpec tests if you want to test API only
 
-### Run RSpec tests which failed in Merge Request pipeline on your machine
+### Run RSpec tests which failed in merge request pipeline on your machine
 
-If your Merge Request pipeline failed with RSpec test failures,
+If your merge request pipeline failed with RSpec test failures,
 you can run all the failed tests on your machine with the following Rake task:
 
 ```shell
@@ -294,7 +294,7 @@ bin/rake spec:merge_request_rspec_failure
 
 There are a few caveats for this Rake task:
 
-- You need to be on the same branch on your machine as the source branch of the Merge Request.
+- You need to be on the same branch on your machine as the source branch of the merge request.
 - The pipeline must have been completed.
 - You may need to wait for the test report to be parsed and retry again.
 
@@ -378,15 +378,18 @@ following:
 bundle exec rake tanuki_emoji:aliases
 ```
 
-To update the Emoji digests file (used for Emoji autocomplete), run the
-following:
+To import the fallback Emoji images, run the following:
+
+```shell
+bundle exec rake tanuki_emoji:import
+```
+
+To update the Emoji digests file (used for Emoji autocomplete) based on the currently
+available Emoji, run the following:
 
 ```shell
 bundle exec rake tanuki_emoji:digests
 ```
-
-This updates the file `fixtures/emojis/digests.json` based on the currently
-available Emoji.
 
 To generate a sprite file containing all the Emoji, run:
 
@@ -394,14 +397,11 @@ To generate a sprite file containing all the Emoji, run:
 bundle exec rake tanuki_emoji:sprite
 ```
 
-If new emoji are added, the sprite sheet may change size. To compensate for
-such changes, first generate the `emoji.png` sprite sheet with the above Rake
-task, then check the dimensions of the new sprite sheet and update the
-`SPRITESHEET_WIDTH` and `SPRITESHEET_HEIGHT` constants accordingly.
+See [How to update Emojis](fe_guide/emojis.md) for detailed instructions.
 
 ## Update project templates
 
-See [contributing to project templates for GitLab team members](project_templates.md#for-gitlab-team-members).
+See [contributing to project templates for GitLab team members](project_templates/add_new_template.md#for-gitlab-team-members).
 
 ## Generate route lists
 
@@ -500,7 +500,7 @@ To edit the content, you may need to edit the following:
   which is then used by the `rake` task described earlier.
 
 `@parsed_schema` is an instance variable that the `graphql-docs` gem expects to have available.
-`Gitlab::Graphql::Docs::Helper` defines the `object` method we currently use. This is also where you
+`Gitlab::Graphql::Docs::Helper` defines the `object` method we use. This is also where you
 should implement any new methods for new types you'd like to display.
 
 ### Update machine-readable schema files

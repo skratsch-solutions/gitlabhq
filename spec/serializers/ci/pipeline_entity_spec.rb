@@ -7,6 +7,7 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
 
   let_it_be(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
+  let_it_be(:pipeline) { create(:ci_empty_pipeline, name: 'Build pipeline') }
 
   let(:request) { double('request', current_user: user) }
   let(:options) { {} }
@@ -16,8 +17,6 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
     subject { entity.as_json }
 
     context 'when pipeline is empty' do
-      let(:pipeline) { create(:ci_empty_pipeline, name: 'Build pipeline') }
-
       it 'contains required fields' do
         expect(subject).to include :id, :iid, :user, :path, :coverage, :source
         expect(subject).to include :ref, :commit
@@ -40,7 +39,7 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
           .to include :duration, :finished_at, :event_type_name
         expect(subject[:details][:status]).to include :icon, :favicon, :text, :label, :tooltip
 
-        expect(subject[:details][:event_type_name]).to eq('Merged result pipeline')
+        expect(subject[:details][:event_type_name]).to eq('Merged results pipeline')
       end
 
       it 'contains flags' do
@@ -263,6 +262,18 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
             expect(subject[:failed_builds_count]).to eq(2)
             expect(subject).not_to have_key(:failed_builds)
           end
+
+          context 'when over the limit' do
+            before do
+              stub_const('Ci::Pipeline::COUNT_FAILED_JOBS_LIMIT', 1)
+              pipeline.reload # reload the pipeline with the mocked constant code
+            end
+
+            it 'uses the limited scope and limits the return value' do
+              expect(subject[:failed_builds_count]).to eq(1)
+              expect(subject).not_to have_key(:failed_builds)
+            end
+          end
         end
 
         context 'when disable_failed_builds is false' do
@@ -271,6 +282,18 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
           it 'exposes the failed builds count but not the failed builds' do
             expect(subject[:failed_builds_count]).to eq(2)
             expect(subject[:failed_builds].map { |b| b[:id] }).to contain_exactly(failed_1.id, failed_2.id)
+          end
+
+          context 'when over the limit' do
+            before do
+              stub_const('Ci::Pipeline::COUNT_FAILED_JOBS_LIMIT', 1)
+              pipeline.reload
+            end
+
+            it 'uses the unlimited scope' do
+              expect(subject[:failed_builds_count]).to eq(2)
+              expect(subject).to have_key(:failed_builds)
+            end
           end
         end
 
@@ -298,6 +321,27 @@ RSpec.describe Ci::PipelineEntity, feature_category: :continuous_integration do
 
       it 'exposes the coverage' do
         expect(subject[:coverage]).to eq('35.00')
+      end
+    end
+
+    context 'when pipeline has a schedule' do
+      let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, :nightly, project: project) }
+      let_it_be(:pipeline) { create(:ci_pipeline, pipeline_schedule: pipeline_schedule, project: project) }
+
+      it 'exposes the schedule' do
+        expect(subject[:pipeline_schedule]).to eq({
+          id: pipeline_schedule.id,
+          description: pipeline_schedule.description,
+          path: pipeline_schedules_path(pipeline_schedule.project)
+        })
+      end
+    end
+
+    context 'when pipeline has no schedule' do
+      let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
+
+      it 'is nil' do
+        expect(subject[:pipeline_schedule]).to be_nil
       end
     end
   end

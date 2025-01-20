@@ -9,6 +9,7 @@ module Ci
     include ::Gitlab::ExclusiveLeaseHelpers
     include ::Gitlab::OptimisticLocking
 
+    before_validation :set_project_id, on: :create
     belongs_to :build,
       ->(trace_chunks) { in_partition(trace_chunks) },
       class_name: 'Ci::Build',
@@ -275,9 +276,7 @@ module Ci
     def unsafe_append_data!(value, offset)
       new_size = value.bytesize + offset
 
-      if new_size > CHUNK_SIZE
-        raise ArgumentError, 'New data size exceeds chunk size'
-      end
+      raise ArgumentError, 'New data size exceeds chunk size' if new_size > CHUNK_SIZE
 
       current_store.append_data(self, value, offset).then do |stored|
         metrics.increment_trace_operation(operation: :appended)
@@ -323,6 +322,10 @@ module Ci
 
     def metrics
       @metrics ||= ::Gitlab::Ci::Trace::Metrics.new
+    end
+
+    def set_project_id
+      self.project_id ||= build&.project_id
     end
   end
 end

@@ -5,22 +5,27 @@ description: Get started with GitLab Dedicated.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# GitLab Dedicated
+# Administer GitLab Dedicated
 
 DETAILS:
 **Tier:** Ultimate
 **Offering:** GitLab Dedicated
 
 GitLab Dedicated is a single-tenant SaaS solution, fully managed and hosted by GitLab.
-GitLab Dedicated operators and tenant administrators use the Switchboard UI to configure and maintain their tenant environments.
+GitLab Dedicated operators and tenant administrators can use Switchboard to provision, configure, and maintain their tenant environments.
 
 For more information about this offering, see the [subscription page](../../subscriptions/gitlab_dedicated/index.md).
 
 ## Architecture
 
-This diagram shows a high-level overview of the architecture for GitLab Dedicated.
+This page collects a set of architectural documents and diagrams for GitLab Dedicated.
 
-![High level overview diagram for GitLab Dedicated](img/high_level_architecture_diagram_v17_0.png)
+### High-level overview
+
+The following diagram shows a high-level overview of the architecture for GitLab Dedicated,
+where various AWS accounts managed by GitLab and customers are controlled by a Switchboard application.
+
+![Diagram of a high-level overview of the GitLab Dedicated architecture.](img/high_level_architecture_diagram_v18_0.png)
 
 When managing GitLab Dedicated tenant instances:
 
@@ -35,9 +40,9 @@ The customer tenant account is a single AWS cloud provider account. The single a
 
 The cloud provider account is where a highly resilient GitLab installation resides, in its own isolated VPC. On provisioning, the customer tenant gets access to a High Availability (HA) GitLab primary site and a GitLab Geo secondary site.
 
-![Tenant network diagram for GitLab Dedicated](img/tenant_network_diagram_v17_0.png)
+![Diagram of GitLab-managed AWS accounts in an isolated VPC containing a highly resilient GitLab installation.](img/tenant_network_diagram_v17_0.png)
 
-GitLab team members with edit access can update the [source](https://lucid.app/lucidchart/e69207d3-7428-4ed1-b8a7-902c608cf8a2/edit?invitationId=inv_5922f7f4-4a0b-4024-b152-a00a9d0daa22&page=0_0#) files for the diagram in Lucidchart.
+GitLab team members with edit access can update the [source](https://lucid.app/lucidchart/0815dd58-b926-454e-8354-c33fe3e7bff0/edit?invitationId=inv_a6b618ff-6c18-4571-806a-bfb3fe97cb12) files for the diagram in Lucidchart.
 
 #### Gitaly setup
 
@@ -48,7 +53,7 @@ GitLab Dedicated deploys Gitaly [in a sharded setup](../../administration/gitaly
 
 #### Geo setup
 
-GitLab Dedicated leverages GitLab Geo for [disaster recovery](../../subscriptions/gitlab_dedicated/index.md#disaster-recovery).
+GitLab Dedicated leverages GitLab Geo for [disaster recovery](../../subscriptions/gitlab_dedicated/data_residency_and_high_availability.md#disaster-recovery).
 
 Geo does not use an active-active failover configuration. For more information, see [Geo](../../administration/geo/index.md).
 
@@ -56,15 +61,26 @@ Geo does not use an active-active failover configuration. For more information, 
 
 Optionally, private connectivity is available for your GitLab Dedicated instance, using [AWS PrivateLink](https://aws.amazon.com/privatelink/) as a connection gateway.
 
-Both [inbound](../../administration/dedicated/configure_instance.md#inbound-private-link) and [outbound](../../administration/dedicated/configure_instance.md#outbound-private-link) private links are supported.
+Both [inbound](../../administration/dedicated/configure_instance/network_security.md#inbound-private-link) and [outbound](../../administration/dedicated/configure_instance/network_security.md#outbound-private-link) private links are supported.
 
-![AWS PrivateLink diagram for GitLab Dedicated](img/privatelink_diagram_v17_1.png)
+![Diagram of a GitLab-managed AWS VPC using AWS PrivateLink to connect with a customer-managed AWS VPC.](img/privatelink_diagram_v17_1.png)
 
-GitLab team members with edit access can update the [source](https://lucid.app/lucidchart/cff1ce90-f146-457f-9630-d9b2eecdee99/edit?viewport_loc=553%2C-1872%2C2903%2C1277%2C0_0&invitationId=inv_1bf96b4a-8cc0-4a34-844d-a8780f32862a) files for the diagram in Lucidchart.
+GitLab team members with edit access can update the [source](https://lucid.app/lucidchart/933b958b-bfad-4898-a8ae-182815f159ca/edit?invitationId=inv_38b9a265-dff2-4db6-abdb-369ea1e92f5f) files for the diagram in Lucidchart.
+
+### Hosted runners for GitLab Dedicated
+
+The following diagram illustrates a GitLab-managed AWS account that contains GitLab runners, which are interconnected to a GitLab Dedicated instance, the public internet, and optionally a customer AWS account that uses AWS PrivateLink.
+
+![Diagram of hosted Runners architecture for GitLab Dedicated.](img/hosted-runners-architecture_v17_3.png)
+
+For more information on how runners authenticate and execute the job payload, see [Runner execution flow](https://docs.gitlab.com/runner#runner-execution-flow).
+
+GitLab team members with edit access can update the [source](https://lucid.app/lucidchart/0fb12de8-5236-4d80-9a9c-61c08b714e6f/edit?invitationId=inv_4a12e347-49e8-438e-a28f-3930f936defd) files for the diagram in Lucidchart.
 
 ## Get started
 
 To get started with GitLab Dedicated, use Switchboard to:
 
 1. [Create your GitLab Dedicated instance](../../administration/dedicated/create_instance.md).
-1. [Configure your GitLab Dedicated instance](../../administration/dedicated/configure_instance.md).
+1. [Configure your GitLab Dedicated instance](../../administration/dedicated/configure_instance/index.md).
+1. [Create a hosted runner](../../administration/dedicated/hosted_runners.md).

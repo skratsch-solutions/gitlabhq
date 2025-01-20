@@ -5,6 +5,7 @@ import Suggestion from '@tiptap/suggestion';
 import { PluginKey } from '@tiptap/pm/state';
 import { uniqueId } from 'lodash';
 import SuggestionsDropdown from '../components/suggestions_dropdown.vue';
+import { COMMANDS } from '../constants';
 
 function createSuggestionPlugin({
   editor,
@@ -53,6 +54,7 @@ function createSuggestionPlugin({
           command: markdownLine.match(/\/\w+/)?.[0],
           cache,
           limit,
+          ...options,
         })
         .search(query);
     },
@@ -144,6 +146,7 @@ export default Node.create({
   addProseMirrorPlugins() {
     const { serializer, autocompleteHelper } = this.options;
 
+    // eslint-disable-next-line max-params
     const createPlugin = (char, nodeType, referenceType, options = {}) =>
       createSuggestionPlugin({
         editor: this.editor,
@@ -156,13 +159,14 @@ export default Node.create({
       });
 
     return [
-      createPlugin('@', 'reference', 'user', { limit: 10 }),
-      createPlugin('#', 'reference', 'issue'),
+      createPlugin('@', 'reference', 'user', { limit: 10, filterOnBackend: true }),
+      createPlugin('#', 'reference', 'issue', { filterOnBackend: true }),
       createPlugin('$', 'reference', 'snippet'),
       createPlugin('~', 'referenceLabel', 'label', { limit: 20 }),
       createPlugin('&', 'reference', 'epic'),
       createPlugin('!', 'reference', 'merge_request'),
-      createPlugin('[vulnerability:', 'reference', 'vulnerability'),
+      createPlugin('[vulnerability:', 'reference', 'vulnerability', { filterOnBackend: true }),
+      createPlugin('*iteration:', 'reference', 'iteration'),
       createPlugin('%', 'reference', 'milestone'),
       createPlugin(':', 'emoji', 'emoji'),
       createPlugin('[[', 'link', 'wiki'),
@@ -171,17 +175,18 @@ export default Node.create({
         limit: 100,
         startOfLine: true,
         insertionMap: {
-          '/label': '~',
-          '/unlabel': '~',
-          '/relabel': '~',
-          '/assign': '@',
-          '/unassign': '@',
-          '/reassign': '@',
-          '/cc': '@',
-          '/assign_reviewer': '@',
-          '/unassign_reviewer': '@',
-          '/reassign_reviewer': '@',
-          '/milestone': '%',
+          [COMMANDS.LABEL]: '~',
+          [COMMANDS.UNLABEL]: '~',
+          [COMMANDS.RELABEL]: '~',
+          [COMMANDS.ASSIGN]: '@',
+          [COMMANDS.UNASSIGN]: '@',
+          [COMMANDS.REASSIGN]: '@',
+          [COMMANDS.CC]: '@',
+          [COMMANDS.ASSIGN_REVIEWER]: '@',
+          [COMMANDS.UNASSIGN_REVIEWER]: '@',
+          [COMMANDS.REASSIGN_REVIEWER]: '@',
+          [COMMANDS.MILESTONE]: '%',
+          [COMMANDS.ITERATION]: '*iteration:',
         },
       }),
     ];

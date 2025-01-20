@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab has an advanced log system where everything is logged, so you can analyze your instance using various system log
 files. The log system is similar to [audit events](../audit_event_reports.md).
@@ -416,7 +416,7 @@ like this example:
   "project_id":8,
   "project_path":"h5bp/html5-boilerplate",
   "message":"Error sending message",
-  "client_url":"http://jira.gitlap.com:8080",
+  "client_url":"http://jira.gitlab.com:8080",
   "error":"execution expired"
 }
 {
@@ -467,7 +467,7 @@ only. For example:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 NOTE:
 GitLab Free tracks a small number of different audit events.
@@ -873,7 +873,7 @@ are generated in a location based on your installation method:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Contains details of GitLab [Database Load Balancing](../postgresql/database_load_balancing.md).
 This file is located at:
@@ -885,7 +885,7 @@ This file is located at:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/110980) in GitLab 15.9.
 
@@ -899,7 +899,7 @@ This file is located at:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This file logs information related to the Elasticsearch Integration, including
 errors during indexing or searching Elasticsearch. This file is located at:
@@ -973,7 +973,7 @@ For example:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Geo stores structured log messages in a `geo.log` file. For Linux package installations,
 this file is at `/var/log/gitlab/gitlab-rails/geo.log`.
@@ -1023,15 +1023,32 @@ can be used.
 ## `llm.log`
 
 DETAILS:
-**Tier:** Ultimate
-**Offering:** GitLab.com
+**Tier:** Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/120506) in GitLab 16.0.
 
 The `llm.log` file logs information related to
-[AI features](../../user/ai_features.md).
+[AI features](../../user/ai_features.md). Logging includes information about AI events.
 
-This file is located at:
+### LLM input and output logging
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/13401) in GitLab 17.2 [with a flag](../../administration/feature_flags.md) named `expanded_ai_logging`. Disabled by default.
+
+FLAG:
+The availability of this feature is controlled by a feature flag.
+For more information, see the history.
+This feature is available for testing, but not ready for production use.
+
+LLM prompt input and response output can be logged by enabling the `expanded_ai_logging` feature flag.
+This flag is disabled by default and can only be enabled:
+
+- For GitLab.com, when you provide consent through a GitLab [Support Ticket](https://about.gitlab.com/support/portal/).
+- For self-managed, when you enable this feature flag.
+
+By default, the log does not contain LLM prompt input and response output to support [data retention policies](../../user/gitlab_duo/data_usage.md#data-retention) of AI feature data.
+
+The log file is located at:
 
 - `/var/log/gitlab/gitlab-rails/llm.log` on Linux package installations.
 - `/home/git/gitlab/log/llm.log` on self-compiled installations.
@@ -1040,7 +1057,7 @@ This file is located at:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/120506) in GitLab 16.9.
 
@@ -1157,13 +1174,13 @@ For Linux package installations, Redis logs are in `/var/log/gitlab/redis/curren
 
 For Linux package installations, Alertmanager logs are in `/var/log/gitlab/alertmanager/current`.
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 ## crond logs
 
 For Linux package installations, crond logs are in `/var/log/gitlab/crond/`.
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 ## Grafana logs
 
@@ -1195,6 +1212,8 @@ GitLab also tracks [Prometheus metrics for Praefect](../gitaly/monitoring.md#mon
 ## Backup log
 
 For Linux package installations, the backup log is located at `/var/log/gitlab/gitlab-rails/backup_json.log`.
+
+For Helm chart installations, the backup log is stored in the Toolbox pod, at `/var/log/gitlab/backup_json.log`.
 
 This log is populated when a [GitLab backup is created](../../administration/backup_restore/index.md). You can use this log to understand how the backup process performed.
 

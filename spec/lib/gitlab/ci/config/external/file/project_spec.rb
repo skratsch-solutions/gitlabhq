@@ -156,7 +156,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
 
       it 'returns false' do
         expect(valid?).to be_falsy
-        expect(project_file.error_message).to include("Project `#{project.full_path}` file `xxxxxxxxxxx.yml` is empty!")
+        expect(project_file.error_message).to include("Project `#{project.full_path}` file `[MASKED]xxx.yml` is empty!")
       end
     end
 
@@ -180,7 +180,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
 
       it 'returns false' do
         expect(valid?).to be_falsy
-        expect(project_file.error_message).to include("Project `#{project.full_path}` file `xxxxxxxxxxxxxxxxxxx.yml` does not exist!")
+        expect(project_file.error_message).to include("Project `#{project.full_path}` file `[MASKED]xxxxxxxxxxx.yml` does not exist!")
       end
     end
 
@@ -206,7 +206,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
 
       it 'returns false with masked project name' do
         expect(valid?).to be_falsy
-        expect(project_file.error_message).to include("Project `xxxxxxxxxxxxxxxxxxxxxxx` not found or access denied!")
+        expect(project_file.error_message).to include("Project `[MASKED]xxxxxxxxxxxxxxx` not found or access denied!")
       end
     end
 
@@ -247,7 +247,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
 
     subject(:metadata) { project_file.metadata }
 
-    it {
+    it do
       is_expected.to eq(
         context_project: context_project.full_path,
         context_sha: project_sha,
@@ -257,7 +257,7 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
         raw: "http://localhost/#{project.full_path}/-/raw/#{project_sha}/file.yml",
         extra: { project: project.full_path, ref: 'HEAD' }
       )
-    }
+    end
 
     context 'when project name and ref include masked variables' do
       let_it_be(:project) { create(:project, :repository, path: 'my_project_path') }
@@ -276,17 +276,17 @@ RSpec.describe Gitlab::Ci::Config::External::File::Project, feature_category: :p
 
       let(:params) { { project: project.full_path, ref: branch_name, file: '/file.yml' } }
 
-      it {
+      it do
         is_expected.to eq(
           context_project: context_project.full_path,
           context_sha: project_sha,
           type: :file,
           location: 'file.yml',
-          blob: "http://localhost/#{namespace_path}/xxxxxxxxxxxxxxx/-/blob/#{included_project_sha}/file.yml",
-          raw: "http://localhost/#{namespace_path}/xxxxxxxxxxxxxxx/-/raw/#{included_project_sha}/file.yml",
-          extra: { project: "#{namespace_path}/xxxxxxxxxxxxxxx", ref: 'xxxxxxxxxxxxxxxxxxxxxxxxxx' }
+          blob: "http://localhost/#{namespace_path}/[MASKED]xxxxxxx/-/blob/#{included_project_sha}/file.yml",
+          raw: "http://localhost/#{namespace_path}/[MASKED]xxxxxxx/-/raw/#{included_project_sha}/file.yml",
+          extra: { project: "#{namespace_path}/[MASKED]xxxxxxx", ref: '[MASKED]xxxxxxxxxxxxxxxxxx' }
         )
-      }
+      end
     end
   end
 

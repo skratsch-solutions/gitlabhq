@@ -9,7 +9,7 @@ description: "Use AsciiDoc files in your GitLab project, and understand AsciiDoc
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab uses the [Asciidoctor](https://asciidoctor.org) gem to convert AsciiDoc content to HTML5.
 Consult the [Asciidoctor User Manual](https://asciidoctor.org/docs/user-manual/) for a complete Asciidoctor reference.
@@ -195,11 +195,7 @@ Attach a block or paragraph to a list item using a list continuation (which you 
 * [ ] not checked
 ```
 
-<!-- vale gitlab.Spelling = NO -->
-
 #### Callout
-
-<!-- vale gitlab.Spelling = YES -->
 
 ```plaintext
 // enable callout bubbles by adding `:icons: font` to the document header
@@ -259,8 +255,8 @@ the application setting `asciidoc_max_includes` with the
 [application settings API](../api/settings.md#list-of-settings-that-can-be-accessed-via-api-calls).
 
 NOTE:
-The current maximum allowed value for`asciidoc_max_includes` is 64. If the value is
-too high might cause performance issues in some situations.
+The current maximum allowed value for `asciidoc_max_includes` is 64. If the value is
+too high, it might cause performance issues in some situations.
 
 To use includes from separate pages or external URLs, enable the `allow-uri-read`
 in [application settings](../administration/wikis/index.md#allow-uri-includes-for-asciidoc).
@@ -449,7 +445,7 @@ It's possible to generate diagrams and flowcharts from text in GitLab using
 Visit the [official page](https://mermaidjs.github.io/) for more details.
 If you're new to using Mermaid or need help identifying issues in your Mermaid code,
 the [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live-editor/) is a helpful tool
-for creating and resolving issues within Mermaid diagrams.
+for creating and resolving issues in Mermaid diagrams.
 
 To generate a diagram or flowchart, enter your text in a `mermaid` block:
 

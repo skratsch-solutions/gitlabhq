@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Operations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 If you're hosting GitLab on a cloud provider, you can optionally use a
 managed service for PostgreSQL. For example, AWS offers a managed Relational
@@ -20,7 +20,7 @@ separate from the Linux package.
 If you use a cloud-managed service, or provide your own PostgreSQL instance:
 
 1. Set up PostgreSQL according to the
-   [database requirements document](../../install/requirements.md#database).
+   [database requirements document](../../install/requirements.md#postgresql).
 1. Set up a `gitlab` user with a password of your choice, create the `gitlabhq_production` database, and make the user an
    owner of the database. You can see an example of this setup in the
    [self-compiled installation documentation](../../install/installation.md#7-database).
@@ -57,9 +57,9 @@ If you use a cloud-managed service, or provide your own PostgreSQL instance:
 
 1. Restart PostgreSQL to enable the TCP port:
 
-  ```shell
-  sudo gitlab-ctl restart
-  ```
+   ```shell
+   sudo gitlab-ctl restart
+   ```
 
 ## Troubleshooting
 
@@ -72,7 +72,7 @@ pg_dump: error: Error message from server: SSL SYSCALL error: EOF detected
 ```
 
 To resolve this error, ensure that you are meeting the
-[minimum PostgreSQL requirements](../../install/requirements.md#postgresql-requirements). After
-upgrading your RDS instance to a [supported version](../../install/requirements.md#database),
+[minimum PostgreSQL requirements](../../install/requirements.md#postgresql). After
+upgrading your RDS instance to a [supported version](../../install/requirements.md#postgresql),
 you should be able to perform a backup without this error.
 See [issue 64763](https://gitlab.com/gitlab-org/gitlab/-/issues/364763) for more information.

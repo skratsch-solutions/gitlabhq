@@ -12,7 +12,7 @@ describe('GlobalSearch CommitsFilters', () => {
   let wrapper;
 
   const defaultGetters = {
-    showArchived: () => true,
+    hasMissingProjectContext: () => true,
   };
 
   const createComponent = () => {
@@ -41,9 +41,9 @@ describe('GlobalSearch CommitsFilters', () => {
     });
   });
 
-  describe('ShowArchived getter', () => {
+  describe('hasMissingProjectContext getter', () => {
     beforeEach(() => {
-      defaultGetters.showArchived = () => false;
+      defaultGetters.hasMissingProjectContext = () => false;
       createComponent();
     });
 

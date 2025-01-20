@@ -8,8 +8,8 @@ module Mutations
       NON_NULLABLE_ARGS = [
         :extensions_marketplace_opt_in_status,
         :organization_groups_projects_display,
-        :use_web_ide_extension_marketplace,
-        :visibility_pipeline_id_type
+        :visibility_pipeline_id_type,
+        :use_work_items_view
       ].freeze
 
       argument :extensions_marketplace_opt_in_status, Types::ExtensionsMarketplaceOptInStatusEnum,
@@ -18,22 +18,29 @@ module Mutations
       argument :issues_sort, Types::IssueSortEnum,
         required: false,
         description: 'Sort order for issue lists.'
-      argument :use_web_ide_extension_marketplace, GraphQL::Types::Boolean,
+      argument :merge_requests_sort, Types::MergeRequestSortEnum,
         required: false,
-        description: 'Whether Web IDE Extension Marketplace is enabled for the user.'
+        description: 'Sort order for issue lists.'
+      argument :use_work_items_view, GraphQL::Types::Boolean,
+        required: false,
+        description: 'Use work item view instead of legacy issue view.'
       argument :visibility_pipeline_id_type, Types::VisibilityPipelineIdTypeEnum,
         required: false,
         description: 'Determines whether the pipeline list shows ID or IID.'
 
+      argument :projects_sort, Types::Projects::ProjectSortEnum,
+        required: false,
+        description: 'Sort order for projects.'
+
       argument :organization_groups_projects_sort, Types::Organizations::GroupsProjectsSortEnum,
         required: false,
         description: 'Sort order for organization groups and projects.',
-        alpha: { milestone: '17.2' }
+        experiment: { milestone: '17.2' }
 
       argument :organization_groups_projects_display, Types::Organizations::GroupsProjectsDisplayEnum,
         required: false,
         description: 'Default list view for organization groups and projects.',
-        alpha: { milestone: '17.2' }
+        experiment: { milestone: '17.2' }
 
       field :user_preferences,
         Types::UserPreferencesType,

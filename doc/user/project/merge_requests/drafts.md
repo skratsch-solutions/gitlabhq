@@ -9,7 +9,7 @@ description: "Prevent an incomplete merge request from merging until it's ready 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If a merge request isn't ready to merge, you can block it from merging until you
 [mark it as ready](#mark-merge-requests-as-ready). Merge requests marked as **Draft**
@@ -77,6 +77,8 @@ Draft merge requests run the same pipelines as merge requests marked as ready.
 
 In GitLab 15.0 and earlier, you must [mark the merge request as ready](#mark-merge-requests-as-ready)
 if you want to run [merged results pipelines](../../../ci/pipelines/merged_results_pipelines.md).
+
+To skip a pipeline for a draft merge request, see [Skip pipelines for draft merge requests](../../../ci/yaml/workflow.md#skip-pipelines-for-draft-merge-requests).
 
 <!-- ## Troubleshooting
 

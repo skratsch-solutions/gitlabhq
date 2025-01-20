@@ -4,7 +4,7 @@ RSpec.shared_examples 'PyPI package creation' do |user_type, status, add_member 
   RSpec.shared_examples 'creating pypi package files' do
     it 'creates package files' do
       expect { subject }
-          .to change { project.packages.pypi.count }.by(1)
+          .to change { Packages::Pypi::Package.for_projects(project).count }.by(1)
           .and change { Packages::PackageFile.count }.by(1)
           .and change { Packages::Pypi::Metadatum.count }.by(1)
       expect(response).to have_gitlab_http_status(status)
@@ -37,7 +37,7 @@ RSpec.shared_examples 'PyPI package creation' do |user_type, status, add_member 
         create(:package_file, :pypi, package: existing_package, file_name: params[:content].original_filename)
 
         expect { subject }
-            .to change { project.packages.pypi.count }.by(0)
+            .to change { Packages::Pypi::Package.for_projects(project).count }.by(0)
             .and change { Packages::PackageFile.count }.by(0)
             .and change { Packages::Pypi::Metadatum.count }.by(0)
 
@@ -241,7 +241,7 @@ RSpec.shared_examples 'pypi simple API endpoint' do
       :public  | :guest      | false | false | 'PyPI package versions' | :success
       :public  | :anonymous  | false | true  | 'PyPI package versions' | :success
       :private | :developer  | true  | true  | 'PyPI package versions' | :success
-      :private | :guest      | true  | true  | 'process PyPI api request' | :forbidden
+      :private | :guest      | true  | true  | 'PyPI package versions' | :success
       :private | :developer  | true  | false | 'process PyPI api request' | :unauthorized
       :private | :guest      | true  | false | 'process PyPI api request' | :unauthorized
       :private | :developer  | false | true  | 'process PyPI api request' | :not_found
@@ -326,7 +326,7 @@ RSpec.shared_examples 'pypi simple index API endpoint' do
       :public  | :guest      | false | false | 'PyPI package index' | :success
       :public  | :anonymous  | false | true  | 'PyPI package index' | :success
       :private | :developer  | true  | true  | 'PyPI package index' | :success
-      :private | :guest      | true  | true  | 'process PyPI api request' | :forbidden
+      :private | :guest      | true  | true  | 'PyPI package index' | :success
       :private | :developer  | true  | false | 'process PyPI api request' | :unauthorized
       :private | :guest      | true  | false | 'process PyPI api request' | :unauthorized
       :private | :developer  | false | true  | 'process PyPI api request' | :not_found
@@ -365,7 +365,7 @@ RSpec.shared_examples 'pypi file download endpoint' do
       :public  | :guest      | false | false | 'PyPI package download'     | :success
       :public  | :anonymous  | false | true  | 'PyPI package download'     | :success
       :private | :developer  | true  | true  | 'PyPI package download'     | :success
-      :private | :guest      | true  | true  | 'rejected package download' | :forbidden
+      :private | :guest      | true  | true  | 'PyPI package download'     | :success
       :private | :developer  | true  | false | 'rejected package download' | :unauthorized
       :private | :guest      | true  | false | 'rejected package download' | :unauthorized
       :private | :developer  | false | true  | 'rejected package download' | :not_found

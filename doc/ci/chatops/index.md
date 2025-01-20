@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use GitLab ChatOps to interact with CI/CD jobs through chat services
 like Slack.
@@ -130,4 +130,4 @@ ChatOps schedules a pipeline that contains only the specified job.
 - [GitLab for Slack app](../../user/project/integrations/gitlab_slack_application.md)
 - [Slack slash commands](../../user/project/integrations/slack_slash_commands.md)
 - [Mattermost slash commands](../../user/project/integrations/mattermost_slash_commands.md)
-- [The official GitLab ChatOps icon](img/gitlab-chatops-icon.png)
+- [The official GitLab ChatOps icon](img/gitlab-chatops-icon_v11_0.png)

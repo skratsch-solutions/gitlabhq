@@ -21,7 +21,8 @@ module Gitlab
               purl: purl,
               version: data['version'],
               properties: properties,
-              source_package_name: source_package_name
+              source_package_name: source_package_name,
+              licenses: licenses
             )
           end
 
@@ -37,7 +38,7 @@ module Gitlab
           strong_memoize_attr :purl
 
           def properties
-            CyclonedxProperties.parse_trivy_source(data['properties'])
+            CyclonedxProperties.parse_component_source(data['properties'])
           end
           strong_memoize_attr :properties
 
@@ -53,6 +54,15 @@ module Gitlab
             Enums::Sbom.container_scanning_purl_type?(purl.type)
           end
           strong_memoize_attr :container_scanning_component?
+
+          def licenses
+            data.fetch('licenses', []).filter_map do |license_data|
+              license = License.new(license_data).parse
+              next unless license
+
+              license
+            end
+          end
         end
       end
     end

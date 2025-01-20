@@ -71,6 +71,26 @@ RSpec.describe MergeRequests::Mergeability::Logger, :request_store, feature_cate
         end
       end
 
+      context 'when block value responds to #status' do
+        let(:check_result) { instance_double(Gitlab::MergeRequests::Mergeability::CheckResult, status: :inactive) }
+
+        let(:extra_data) do
+          {
+            'mergeability.expensive_operation.status.values' => ['inactive']
+          }
+        end
+
+        it 'records operation status value' do
+          expect_next_instance_of(Gitlab::AppJsonLogger) do |app_logger|
+            expect(app_logger).to receive(:info).with(match(a_hash_including(loggable_data(**extra_data))))
+          end
+
+          expect(logger.instrument(mergeability_name: :expensive_operation) { check_result }).to eq(check_result)
+
+          logger.commit
+        end
+      end
+
       context 'with multiple observations' do
         let(:operation_count) { 2 }
 
@@ -90,11 +110,8 @@ RSpec.describe MergeRequests::Mergeability::Logger, :request_store, feature_cate
       context 'when its a query' do
         let(:extra_data) do
           {
-            'mergeability.expensive_operation.db_count.values' => a_kind_of(Array),
             'mergeability.expensive_operation.db_main_count.values' => a_kind_of(Array),
-            'mergeability.expensive_operation.db_main_duration_s.values' => a_kind_of(Array),
-            'mergeability.expensive_operation.db_primary_count.values' => a_kind_of(Array),
-            'mergeability.expensive_operation.db_primary_duration_s.values' => a_kind_of(Array)
+            'mergeability.expensive_operation.db_main_duration_s.values' => a_kind_of(Array)
           }
         end
 

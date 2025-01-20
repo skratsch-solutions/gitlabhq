@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If you use a password to sign in to GitLab, a strong password is very important. A weak or guessable password makes it
 easier for unauthorized people to sign in to your account.
@@ -75,9 +75,9 @@ Self-managed installations can configure the following additional password requi
 
 ## Block weak passwords
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/23610) in GitLab 15.4 [with a flag](../../administration/feature_flags.md) named `block_weak_passwords`, weak passwords aren't accepted. Disabled by default on self-managed.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/23610) in GitLab 15.4 [with a flag](../../administration/feature_flags.md) named `block_weak_passwords`, weak passwords aren't accepted. Disabled by default on GitLab Self-Managed.
 > - [Enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/363445) on GitLab.com in GitLab 15.6.
-> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/363445) and enabled on self-managed in GitLab 15.7. Feature flag `block_weak_passwords` removed.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/363445) and enabled on GitLab Self-Managed in GitLab 15.7. Feature flag `block_weak_passwords` removed.
 
 GitLab disallows weak passwords. Your password is considered weak when it:
 

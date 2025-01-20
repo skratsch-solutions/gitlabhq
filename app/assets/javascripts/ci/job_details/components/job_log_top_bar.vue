@@ -4,8 +4,6 @@ import { scrollToElement, backOff } from '~/lib/utils/common_utils';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import { s__, sprintf } from '~/locale';
 import { compactJobLog } from '~/ci/job_details/utils';
-import HelpPopover from '~/vue_shared/components/help_popover.vue';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 export default {
   i18n: {
@@ -13,12 +11,8 @@ export default {
     scrollToTopButtonLabel: s__('Job|Scroll to top'),
     scrollToNextFailureButtonLabel: s__('Job|Scroll to next failure'),
     showRawButtonLabel: s__('Job|Show complete raw'),
-    searchPlaceholder: s__('Job|Search job log'),
+    searchPlaceholder: s__('Job|Search visible log output'),
     noResults: s__('Job|No search results found'),
-    searchPopoverTitle: s__('Job|Job log search'),
-    searchPopoverDescription: s__(
-      'Job|Search for substrings in your job log output. Currently search is only supported for the visible job log output, not for any log output that is truncated due to size.',
-    ),
     logLineNumberNotFound: s__('Job|We could not find this element'),
     enterFullscreen: s__('Job|Show full screen'),
     exitFullScreen: s__('Job|Exit full screen'),
@@ -29,12 +23,10 @@ export default {
     GlButton,
     GlSearchBoxByClick,
     GlSprintf,
-    HelpPopover,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [glFeatureFlagMixin()],
   props: {
     size: {
       type: Number,
@@ -94,6 +86,9 @@ export default {
     };
   },
   computed: {
+    hasTimestamps() {
+      return Boolean(this.jobLog[0]?.time);
+    },
     jobLogSize() {
       return sprintf(s__('Job|Showing last %{size} of log.'), {
         size: numberToHumanSize(this.size),
@@ -191,121 +186,120 @@ export default {
 };
 </script>
 <template>
-  <div class="top-bar gl-display-flex gl-align-items-center gl-justify-content-space-between">
-    <!-- truncated log information -->
-    <div class="gl-hidden sm:gl-block gl-text-truncate" data-testid="showing-last">
-      <template v-if="isJobLogSizeVisible">
-        {{ jobLogSize }}
-        <gl-sprintf
-          v-if="rawPath && isComplete && logViewerPath"
-          :message="
-            s__(
-              'Job|%{rawLinkStart}View raw%{rawLinkEnd} or %{fullLinkStart}view full log%{fullLinkEnd}.',
-            )
-          "
-        >
-          <template #rawLink="{ content }">
-            <gl-link :href="rawPath">{{ content }}</gl-link>
-          </template>
-          <template #fullLink="{ content }">
-            <gl-link :href="logViewerPath"> {{ content }}</gl-link>
-          </template>
-        </gl-sprintf>
-        <gl-link v-else-if="rawPath" :href="rawPath">{{ s__('Job|View raw') }}</gl-link>
-      </template>
+  <div class="top-bar gl-flex gl-flex-wrap gl-items-center gl-justify-between gl-gap-3">
+    <div class="gl-hidden gl-truncate sm:gl-block">
+      <!-- truncated log information -->
+      <span data-testid="showing-last">
+        <template v-if="isJobLogSizeVisible">
+          {{ jobLogSize }}
+          <gl-sprintf
+            v-if="rawPath && isComplete && logViewerPath"
+            :message="
+              s__(
+                'Job|%{rawLinkStart}View raw%{rawLinkEnd} or %{fullLinkStart}full log%{fullLinkEnd}.',
+              )
+            "
+          >
+            <template #rawLink="{ content }">
+              <gl-link :href="rawPath">{{ content }}</gl-link>
+            </template>
+            <template #fullLink="{ content }">
+              <gl-link :href="logViewerPath"> {{ content }}</gl-link>
+            </template>
+          </gl-sprintf>
+          <gl-link v-else-if="rawPath" :href="rawPath">{{ s__('Job|View raw') }}</gl-link>
+        </template>
+      </span>
+      <!-- eo truncated log information -->
+      <span v-if="hasTimestamps" class="gl-ml-2 gl-text-subtle">
+        {{ s__('Job|Log timestamps in UTC.') }}
+      </span>
     </div>
-    <!-- eo truncated log information -->
 
-    <div class="controllers">
+    <div class="gl-flex gl-flex-wrap gl-gap-3">
       <slot name="controllers"> </slot>
 
       <gl-search-box-by-click
         v-model="searchTerm"
-        class="gl-mr-3 gl-flex-nowrap"
+        class="gl-w-30 gl-grow gl-flex-nowrap"
         :placeholder="$options.i18n.searchPlaceholder"
         data-testid="job-log-search-box"
         @clear="$emit('searchResults', [])"
         @submit="searchJobLog"
       />
 
-      <help-popover class="gl-mr-3">
-        <template #title>{{ $options.i18n.searchPopoverTitle }}</template>
-
-        <p class="gl-mb-0">
-          {{ $options.i18n.searchPopoverDescription }}
-        </p>
-      </help-popover>
-
-      <!-- links -->
-      <gl-button
-        v-if="rawPath"
-        v-gl-tooltip.body
-        :title="$options.i18n.showRawButtonLabel"
-        :aria-label="$options.i18n.showRawButtonLabel"
-        :href="rawPath"
-        data-testid="job-raw-link-controller"
-        icon="doc-code"
-      />
-      <!-- eo links -->
-
-      <!-- scroll buttons -->
-      <gl-button
-        v-gl-tooltip
-        :title="$options.i18n.scrollToNextFailureButtonLabel"
-        :aria-label="$options.i18n.scrollToNextFailureButtonLabel"
-        :disabled="shouldDisableJumpToFailures"
-        class="btn-scroll gl-ml-3"
-        data-testid="job-top-bar-scroll-to-failure"
-        icon="soft-wrap"
-        @click="handleScrollToNextFailure"
-      />
-
-      <div v-gl-tooltip :title="$options.i18n.scrollToTopButtonLabel" class="gl-ml-3">
+      <div class="gl-flex gl-gap-2">
+        <!-- links -->
         <gl-button
-          :disabled="isScrollTopDisabled"
+          v-if="rawPath"
+          v-gl-tooltip.body
+          :title="$options.i18n.showRawButtonLabel"
+          :aria-label="$options.i18n.showRawButtonLabel"
+          :href="rawPath"
+          data-testid="job-raw-link-controller"
+          icon="doc-code"
+        />
+        <!-- eo links -->
+
+        <!-- scroll buttons -->
+        <gl-button
+          v-gl-tooltip
+          :title="$options.i18n.scrollToNextFailureButtonLabel"
+          :aria-label="$options.i18n.scrollToNextFailureButtonLabel"
+          :disabled="shouldDisableJumpToFailures"
           class="btn-scroll"
-          data-testid="job-top-bar-scroll-top"
-          icon="scroll_up"
-          :aria-label="$options.i18n.scrollToTopButtonLabel"
-          @click="handleScrollToTop"
+          data-testid="job-top-bar-scroll-to-failure"
+          icon="soft-wrap"
+          @click="handleScrollToNextFailure"
         />
-      </div>
 
-      <div v-gl-tooltip :title="$options.i18n.scrollToBottomButtonLabel" class="gl-ml-3">
+        <div v-gl-tooltip :title="$options.i18n.scrollToTopButtonLabel">
+          <gl-button
+            :disabled="isScrollTopDisabled"
+            class="btn-scroll"
+            data-testid="job-top-bar-scroll-top"
+            icon="scroll_up"
+            :aria-label="$options.i18n.scrollToTopButtonLabel"
+            @click="handleScrollToTop"
+          />
+        </div>
+
+        <div v-gl-tooltip :title="$options.i18n.scrollToBottomButtonLabel">
+          <gl-button
+            :disabled="isScrollBottomDisabled"
+            class="js-scroll-bottom btn-scroll"
+            data-testid="job-top-bar-scroll-bottom"
+            icon="scroll_down"
+            :class="{ animate: isScrollingDown }"
+            :aria-label="$options.i18n.scrollToBottomButtonLabel"
+            @click="handleScrollToBottom"
+          />
+        </div>
+        <!-- eo scroll buttons -->
+
+        <div v-gl-tooltip="fullScreenTooltipContent">
+          <gl-button
+            v-if="!fullScreenEnabled"
+            :disabled="!fullScreenModeAvailable"
+            :title="$options.i18n.enterFullscreen"
+            :aria-label="$options.i18n.enterFullscreen"
+            class="btn-scroll"
+            data-testid="job-top-bar-enter-fullscreen"
+            icon="maximize"
+            @click="handleFullscreenMode"
+          />
+        </div>
+
         <gl-button
-          :disabled="isScrollBottomDisabled"
-          class="js-scroll-bottom btn-scroll"
-          data-testid="job-top-bar-scroll-bottom"
-          icon="scroll_down"
-          :class="{ animate: isScrollingDown }"
-          :aria-label="$options.i18n.scrollToBottomButtonLabel"
-          @click="handleScrollToBottom"
+          v-if="fullScreenEnabled"
+          :title="$options.i18n.exitFullScreen"
+          :aria-label="$options.i18n.exitFullScreen"
+          class="btn-scroll"
+          data-testid="job-top-bar-exit-fullscreen"
+          icon="minimize"
+          @click="handleExitFullscreenMode"
         />
       </div>
-      <!-- eo scroll buttons -->
-
-      <div v-gl-tooltip="fullScreenTooltipContent">
-        <gl-button
-          v-if="!fullScreenEnabled"
-          :disabled="!fullScreenModeAvailable"
-          :title="$options.i18n.enterFullscreen"
-          :aria-label="$options.i18n.enterFullscreen"
-          class="btn-scroll gl-ml-3"
-          data-testid="job-top-bar-enter-fullscreen"
-          icon="maximize"
-          @click="handleFullscreenMode"
-        />
-      </div>
-
-      <gl-button
-        v-if="fullScreenEnabled"
-        :title="$options.i18n.exitFullScreen"
-        :aria-label="$options.i18n.exitFullScreen"
-        class="btn-scroll gl-ml-3"
-        data-testid="job-top-bar-exit-fullscreen"
-        icon="minimize"
-        @click="handleExitFullscreenMode"
-      />
     </div>
   </div>
 </template>

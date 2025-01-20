@@ -12,11 +12,11 @@ class Projects::CompareController < Projects::ApplicationController
   before_action :require_non_empty_project
   before_action :authorize_read_code!
   # Defining ivars
-  before_action :define_diffs, only: [:show, :diff_for_path]
-  before_action :define_environment, only: [:show]
-  before_action :define_diff_notes_disabled, only: [:show, :diff_for_path]
-  before_action :define_commits, only: [:show, :diff_for_path, :signatures]
-  before_action :merge_request, only: [:index, :show]
+  before_action :define_diffs, only: [:show, :diff_for_path, :rapid_diffs]
+  before_action :define_environment, only: [:show, :rapid_diffs]
+  before_action :define_diff_notes_disabled, only: [:show, :diff_for_path, :rapid_diffs]
+  before_action :define_commits, only: [:show, :diff_for_path, :signatures, :rapid_diffs]
+  before_action :merge_request, only: [:index, :show, :rapid_diffs]
   # Validation
   before_action :validate_refs!
 
@@ -44,17 +44,14 @@ class Projects::CompareController < Projects::ApplicationController
   end
 
   def create
-    from_to_vars = {
-      from: compare_params[:from].presence,
-      to: compare_params[:to].presence,
-      from_project_id: compare_params[:from_project_id].presence,
-      straight: compare_params[:straight].presence
-    }
+    from_to_vars = build_from_to_vars
 
     if from_to_vars[:from].blank? || from_to_vars[:to].blank?
       flash[:alert] = "You must select a Source and a Target revision"
 
       redirect_to project_compare_index_path(source_project, from_to_vars)
+    elsif compare_params[:straight] == "true"
+      redirect_to project_compare_with_two_dots_path(source_project, from_to_vars)
     else
       redirect_to project_compare_path(source_project, from_to_vars)
     end
@@ -75,7 +72,26 @@ class Projects::CompareController < Projects::ApplicationController
     end
   end
 
+  def rapid_diffs
+    return render_404 unless ::Feature.enabled?(:rapid_diffs, current_user, type: :wip)
+
+    show
+  end
+
   private
+
+  def build_from_to_vars
+    from_to_vars = {
+      from: compare_params[:from].presence,
+      to: compare_params[:to].presence
+    }
+
+    if compare_params[:from_project_id] != compare_params[:to_project_id]
+      from_to_vars[:from_project_id] = compare_params[:from_project_id].presence
+    end
+
+    from_to_vars
+  end
 
   def validate_refs!
     invalid = [head_ref, start_ref].filter { |ref| !valid_ref?(ref) }
@@ -151,9 +167,18 @@ class Projects::CompareController < Projects::ApplicationController
 
   def define_environment
     if compare
-      environment_params = source_project.repository.branch_exists?(head_ref) ? { ref: head_ref } : { commit: compare.commit }
+      environment_params = if source_project.repository.branch_exists?(head_ref)
+                             { ref: head_ref }
+                           else
+                             { commit: compare.commit }
+                           end
+
       environment_params[:find_latest] = true
-      @environment = ::Environments::EnvironmentsByDeploymentsFinder.new(source_project, current_user, environment_params).execute.last
+      @environment = ::Environments::EnvironmentsByDeploymentsFinder.new(
+        source_project,
+        current_user,
+        environment_params
+      ).execute.last
     end
   end
 
@@ -169,6 +194,6 @@ class Projects::CompareController < Projects::ApplicationController
   # rubocop: enable CodeReuse/ActiveRecord
 
   def compare_params
-    @compare_params ||= params.permit(:from, :to, :from_project_id, :straight)
+    @compare_params ||= params.permit(:from, :to, :from_project_id, :straight, :to_project_id)
   end
 end

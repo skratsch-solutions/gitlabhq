@@ -245,14 +245,14 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
         end
       end
 
-      context 'when has pinned file' do
+      context 'when has linked file' do
         let(:file) { merge_request.merge_request_diff.diffs.diff_files.first }
         let(:file_hash) { file.file_hash }
 
-        it 'adds pinned file url' do
-          go(pin: file_hash)
+        it 'adds linked file url' do
+          go(file: file_hash)
 
-          expect(assigns['pinned_file_url']).to eq(
+          expect(assigns['linked_file_url']).to eq(
             diff_by_file_hash_namespace_project_merge_request_path(
               format: 'json',
               id: merge_request.iid,
@@ -363,7 +363,9 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
       }
     end
 
-    it_behaves_like "issuables list meta-data", :merge_request
+    context 'when the test is flaky', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/450217' do
+      it_behaves_like "issuables list meta-data", :merge_request
+    end
 
     it_behaves_like 'set sort order from user preference' do
       let(:sorting_param) { 'updated_asc' }
@@ -659,18 +661,6 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
           let(:service_class) { AutoMerge::MergeWhenChecksPassService }
           let(:status) { 'merge_when_checks_pass' }
           let(:not_current_pipeline_status) { 'merge_when_checks_pass' }
-        end
-
-        context 'when merge_when_checks_pass is false' do
-          before do
-            stub_feature_flags(merge_when_checks_pass: false)
-          end
-
-          it_behaves_like 'api merge with auto merge' do
-            let(:service_class) { AutoMerge::MergeWhenPipelineSucceedsService }
-            let(:status) { 'merge_when_pipeline_succeeds' }
-            let(:not_current_pipeline_status) { 'failed' }
-          end
         end
       end
 

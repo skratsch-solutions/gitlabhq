@@ -3,7 +3,6 @@ import jsYaml from 'js-yaml';
 import { isEmpty } from 'lodash';
 import {
   GlForm,
-  GlIcon,
   GlLink,
   GlButton,
   GlSprintf,
@@ -122,7 +121,6 @@ export default {
     cancel: s__('WikiPage|Cancel'),
   },
   components: {
-    GlIcon,
     GlForm,
     GlFormGroup,
     GlFormCheckbox,
@@ -148,10 +146,7 @@ export default {
   data() {
     const title = window.location.href.includes('random_title=true')
       ? ''
-      : getTitle(
-          this.pageInfo,
-          this.glFeatures.wikiFrontMatterTitle ? this.pageInfo.frontMatter : {},
-        );
+      : getTitle(this.pageInfo, this.pageInfo.frontMatter);
     const path = window.location.href.includes('random_title=true') ? '' : this.pageInfo.slug;
     return {
       editingMode: 'source',
@@ -241,9 +236,6 @@ export default {
     displayWikiSpecificMarkdownHelp() {
       return !this.isContentEditorActive;
     },
-    disableSubmitButton() {
-      return !this.title;
-    },
     drawioEnabled() {
       return typeof this.drawioUrl === 'string' && this.drawioUrl.length > 0;
     },
@@ -304,8 +296,6 @@ export default {
     },
 
     updateFrontMatterTitle() {
-      if (!this.glFeatures.wikiFrontMatterTitle) return;
-
       if (this.generatePathFromTitle) {
         delete this.frontMatter.title;
         this.path = this.title.replace(/ +/g, '-');
@@ -434,15 +424,6 @@ export default {
           label-for="wiki_title"
           :class="{ 'gl-hidden': isCustomSidebar }"
         >
-          <template v-if="!isTemplate && !glFeatures.wikiFrontMatterTitle" #description>
-            <div class="gl-mt-3">
-              <gl-icon name="bulb" />
-              {{ titleHelpText }}
-              <gl-link :href="helpPath" target="_blank">
-                {{ $options.i18n.title.helpText.learnMore }}
-              </gl-link>
-            </div>
-          </template>
           <gl-form-input
             id="wiki_title"
             v-model="pageTitle"
@@ -453,16 +434,10 @@ export default {
             :autofocus="!pageInfo.persisted"
             :placeholder="titlePlaceholder"
           />
-          <input
-            v-if="!glFeatures.wikiFrontMatterTitle"
-            v-model="title"
-            type="hidden"
-            name="wiki[title]"
-          />
         </gl-form-group>
       </div>
 
-      <div v-if="glFeatures.wikiFrontMatterTitle" class="col-12">
+      <div class="col-12">
         <gl-form-group :label="$options.i18n.path.label" label-for="wiki_path">
           <template #description>
             <gl-form-checkbox v-model="generatePathFromTitle" class="gl-pt-2">{{
@@ -500,7 +475,7 @@ export default {
           </gl-form-select>
         </gl-form-group>
       </div>
-      <div v-if="!isTemplate && templates.length" class="col-sm-6">
+      <div v-if="!isTemplate" class="col-sm-6">
         <gl-form-group :label="$options.i18n.template.label" label-for="wiki_template">
           <wiki-template :format="format" :templates="templates" @input="setTemplate" />
         </gl-form-group>
@@ -579,7 +554,6 @@ export default {
           variant="confirm"
           type="submit"
           data-testid="wiki-submit-button"
-          :disabled="disableSubmitButton"
           >{{ submitButtonText }}</gl-button
         >
         <gl-button

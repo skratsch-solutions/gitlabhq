@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 If you are not able to access the GitLab product documentation at `docs.gitlab.com`,
 you can host the documentation yourself instead.
@@ -17,7 +17,7 @@ NOTE:
 The local help of your instance does not include all the docs (for example, it
 doesn't include docs for GitLab Runner or GitLab Operator), and it's not
 searchable or browsable. It's intended to only support direct links to specific
-pages from within a self-managed GitLab instance.
+pages from within your instance.
 
 ## Documentation self-hosting options
 
@@ -52,7 +52,7 @@ To run the GitLab product documentation website in a Docker container:
      ```
 
    - If you host your GitLab instance using
-     [Docker compose](../install/docker.md#install-gitlab-using-docker-compose),
+     [Docker compose](../install/docker/installation.md#install-gitlab-by-using-docker-compose),
      add the following to your existing `docker-compose.yaml`:
 
      ```yaml
@@ -93,8 +93,8 @@ To host the product documentation site with GitLab Pages:
    `pages` job, while ensuring the version is the same as your GitLab installation:
 
    ```yaml
-   image: registry.gitlab.com/gitlab-org/gitlab-docs/archives:16.0
    pages:
+     image: registry.gitlab.com/gitlab-org/gitlab-docs/archives:16.0
      script:
        - mkdir public
        - cp -a /usr/share/nginx/html/* public/

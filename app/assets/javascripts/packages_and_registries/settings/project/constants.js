@@ -1,11 +1,10 @@
 import { s__, __ } from '~/locale';
 
-export const CONTAINER_CLEANUP_POLICY_TITLE = s__('ContainerRegistry|Cleanup policies');
+export const CONTAINER_CLEANUP_POLICY_TITLE = s__(
+  'ContainerRegistry|Container registry cleanup policies',
+);
 export const CONTAINER_CLEANUP_POLICY_DESCRIPTION = s__(
   `ContainerRegistry|Save storage space by automatically deleting tags from the container registry and keeping the ones you want. %{linkStart}How does cleanup work?%{linkEnd}`,
-);
-export const CONTAINER_CLEANUP_POLICY_RULES_DESCRIPTION = s__(
-  'ContainerRegistry|Set rules to automatically remove unused packages to save storage space.',
 );
 export const CONTAINER_CLEANUP_POLICY_EDIT_RULES = s__('ContainerRegistry|Edit cleanup rules');
 export const CONTAINER_CLEANUP_POLICY_SET_RULES = s__('ContainerRegistry|Set cleanup rules');
@@ -48,10 +47,10 @@ export const NAME_REGEX_DESCRIPTION = s__(
 );
 
 export const ENABLED_TOGGLE_DESCRIPTION = s__(
-  'ContainerRegistry|%{strongStart}Enabled%{strongEnd} - Tags that match the rules on this page are automatically scheduled for deletion.',
+  'ContainerRegistry|Enabled - tags that match the rules on this page are automatically scheduled for deletion.',
 );
 export const DISABLED_TOGGLE_DESCRIPTION = s__(
-  'ContainerRegistry|%{strongStart}Disabled%{strongEnd} - Tags will not be automatically deleted.',
+  'ContainerRegistry|Disabled - tags will not be automatically deleted.',
 );
 
 export const CADENCE_LABEL = s__('ContainerRegistry|Run cleanup:');
@@ -117,6 +116,12 @@ export const OLDER_THAN_OPTIONS = [
   { key: 'SIXTY_DAYS', variable: 60, default: false },
   { key: 'NINETY_DAYS', variable: 90, default: true },
 ];
+
+export const MinimumAccessLevelOptions = {
+  MAINTAINER: __('Maintainer'),
+  OWNER: __('Owner'),
+  ADMIN: __('Admin'),
+};
 
 export const FETCH_SETTINGS_ERROR_MESSAGE = s__(
   'ContainerRegistry|Something went wrong while fetching the cleanup policy.',

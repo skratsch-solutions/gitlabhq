@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :onboarding do
+RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :groups_and_projects do
   include ListboxHelpers
   include Features::MembersHelpers
   include Features::InviteMembersModalHelpers
@@ -112,7 +112,7 @@ RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :on
       it 'shows Owner in the dropdown' do
         within_modal do
           toggle_listbox
-          expect_listbox_items(%w[Guest Reporter Developer Maintainer Owner])
+          expect_listbox_items(%w[Guest Planner Reporter Developer Maintainer Owner])
         end
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :on
       it 'does not show the Owner option' do
         within_modal do
           toggle_listbox
-          expect_listbox_items(%w[Guest Reporter Developer Maintainer])
+          expect_listbox_items(%w[Guest Planner Reporter Developer Maintainer])
         end
       end
     end
@@ -185,6 +185,10 @@ RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :on
     let_it_be(:members_page_path) { project_project_members_path(entity) }
     let_it_be(:subentity) { project }
     let_it_be(:subentity_members_page_path) { project_project_members_path(entity) }
+
+    before do
+      allow(Gitlab::QueryLimiting::Transaction).to receive(:threshold).and_return(112)
+    end
   end
 
   describe 'member search results' do
@@ -288,6 +292,28 @@ RSpec.describe 'Projects > Members > Manage members', :js, feature_category: :on
       visit_members_page
 
       expect(find_member_row(user_with_2fa)).to have_content('2FA')
+    end
+  end
+
+  context 'planner role banner' do
+    before do
+      sign_in(user1)
+
+      visit_members_page
+    end
+
+    it 'shows the planner role annoucement and persists dismissal' do
+      expect(page).to have_content('New Planner role')
+
+      within_testid('planner-role-banner') do
+        find_by_testid('close-icon').click
+      end
+
+      expect(page).not_to have_content('New Planner role')
+
+      page.refresh
+
+      expect(page).not_to have_content('New Planner role')
     end
   end
 

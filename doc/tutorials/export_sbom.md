@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Composition Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Dependency Scanning output can be exported to the CycloneDX JSON format.
 
@@ -85,17 +85,18 @@ Set up Dependency Scanning. For detailed instructions, follow [the Dependency Sc
 
    ```yaml
    export-merged-sbom:
+     image: alpine
      before_script:
        - apk add --update jq curl
      stage: .post
      script:
-       - |
-         curl --header "Authorization: Bearer $PRIVATE_TOKEN"
-         --output export.sh --url "https://gitlab.com/api/v4/snippets/<SNIPPET_ID>/raw"
+       - | 
+         curl --header "Authorization: Bearer $PRIVATE_TOKEN" --output export.sh --url "https://gitlab.com/api/v4/snippets/<SNIPPET_ID>/raw"
        - /bin/sh export.sh
      artifacts:
        paths:
          - "gl-sbom-merged-*.cdx.json"
+
    ```
 
 1. Go to **Build > Pipelines** and confirm that the latest pipeline completed successfully.

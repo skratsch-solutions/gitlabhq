@@ -11,6 +11,9 @@ module RichTextEditorHelpers
 
   def switch_to_content_editor
     click_button("Switch to rich text editing")
+
+    # wait for the editor to be focused
+    find("#{content_editor_testid}:focus")
   end
 
   def type_in_content_editor(keys)
@@ -53,5 +56,23 @@ module RichTextEditorHelpers
 
   def expect_drawio_editor_is_opened
     expect(page).to have_css('#drawio-frame', visible: :hidden)
+  end
+
+  def drag_element(element, dx, dy)
+    page.execute_script(<<-JS, element, dx, dy)
+      function simulateDragDrop(element, dx, dy) {
+        const rect = element.getBoundingClientRect();
+        const events = ['mousedown', 'mousemove', 'mouseup'];
+        events.forEach((eventType, index) => {
+          const event = new MouseEvent(eventType, {
+            bubbles: true,
+            screenX: rect.left + (index ? dx : 0),
+            screenY: rect.top + (index ? dy : 0)
+          });
+          element.dispatchEvent(event);
+        });
+      }
+      simulateDragDrop(arguments[0], arguments[1], arguments[2]);
+    JS
   end
 end

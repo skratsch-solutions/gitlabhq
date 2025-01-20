@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Ability to add an [incident](index.md) to an iteration [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/347153) in GitLab 17.0.
 
@@ -22,7 +22,7 @@ You can create an incident manually or automatically.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To add an incident to an [iteration](../../user/group/iterations/index.md):
 
@@ -34,25 +34,25 @@ To add an incident to an [iteration](../../user/group/iterations/index.md):
 
 Alternatively, you can use the `/iteration` [quick action](../../user/project/quick_actions.md#issues-merge-requests-and-epics).
 
-### From the incidents list
+### From the Incidents page
 
 Prerequisites:
 
 - You must have at least the Reporter role for the project.
 
-To create an incident from the incidents list:
+To create an incident from the **Incidents** page:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Monitor > Incidents**.
 1. Select **Create incident**.
 
-### From the issues list
+### From the Issues page
 
 Prerequisites:
 
 - You must have at least the Reporter role for the project.
 
-To create an incident from the issues list:
+To create an incident from the **Issues** page:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Plan > Issues**, and select **New issue**.
@@ -86,7 +86,7 @@ You are then credited with the alert's status change.
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In the project settings, you can turn on [creating an incident automatically](alerts.md#trigger-actions-from-alerts)
 whenever an alert is triggered.
@@ -117,9 +117,9 @@ To set up a webhook with PagerDuty:
 To confirm the integration is successful, trigger a test incident from PagerDuty to
 check if a GitLab incident is created from the incident.
 
-## View incidents list
+## View a list of incidents
 
-To view the [incidents list](incidents.md#incidents-list):
+To view a list of the [incidents](incidents.md#incidents-list):
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Monitor > Incidents**.
@@ -151,7 +151,7 @@ To assign a user:
 
 ## Change severity
 
-See [incident list](incidents.md#incidents-list) for a full description of the severity levels available.
+See the [incidents list](incidents.md#incidents-list) topic for a full description of the severity levels available.
 
 Prerequisites:
 
@@ -167,7 +167,7 @@ You can also change the severity using the `/severity` [quick action](../../user
 ## Change status
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/5716) in GitLab 14.9 [with a flag](../../administration/feature_flags.md) named `incident_escalations`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/345769) in GitLab 14.10.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/345769) in GitLab 14.10.
 > - [Feature flag `incident_escalations`](https://gitlab.com/gitlab-org/gitlab/-/issues/345769) removed in GitLab 15.1.
 
 Prerequisites:
@@ -185,7 +185,7 @@ To change the status of an incident:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 On-call responders can respond to [incident pages](paging.md#escalating-an-incident)
 by changing the status.
@@ -204,7 +204,7 @@ the alert status is independent and does not change when the incident status cha
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Prerequisites:
 

@@ -7,7 +7,7 @@ import waitForPromises from 'helpers/wait_for_promises';
 import { getBinding } from 'helpers/vue_mock_directive';
 import PackagesProtectionRules from '~/packages_and_registries/settings/project/components/packages_protection_rules.vue';
 import PackagesProtectionRuleForm from '~/packages_and_registries/settings/project/components/packages_protection_rule_form.vue';
-import SettingsBlock from '~/packages_and_registries/shared/components/settings_block.vue';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
 import packagesProtectionRuleQuery from '~/packages_and_registries/settings/project/graphql/queries/get_packages_protection_rules.query.graphql';
 import deletePackagesProtectionRuleMutation from '~/packages_and_registries/settings/project/graphql/mutations/delete_packages_protection_rule.mutation.graphql';
 import updatePackagesProtectionRuleMutation from '~/packages_and_registries/settings/project/graphql/mutations/update_packages_protection_rule.mutation.graphql';
@@ -30,12 +30,14 @@ describe('Packages protection rules project settings', () => {
 
   const $toast = { show: jest.fn() };
 
-  const findSettingsBlock = () => wrapper.findComponent(SettingsBlock);
+  const findCrudComponent = () => wrapper.findComponent(CrudComponent);
+  const findEmptyText = () => wrapper.findByText('No packages are protected.');
   const findTable = () =>
     extendedWrapper(wrapper.findByRole('table', { name: /protected packages/i }));
   const findTableBody = () => extendedWrapper(findTable().findAllByRole('rowgroup').at(1));
   const findTableRow = (i) => extendedWrapper(findTableBody().findAllByRole('row').at(i));
-  const findTableRowButtonDelete = (i) => findTableRow(i).findByRole('button', { name: /delete/i });
+  const findTableRowButtonDelete = (i) =>
+    extendedWrapper(wrapper.findAllByTestId('delete-rule-btn').at(i));
   const findTableLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
   const findProtectionRuleForm = () => wrapper.findComponent(PackagesProtectionRuleForm);
   const findAddProtectionRuleButton = () =>
@@ -46,7 +48,6 @@ describe('Packages protection rules project settings', () => {
   const mountComponent = (mountFn = mountExtended, provide = defaultProvidedValues, config) => {
     wrapper = mountFn(PackagesProtectionRules, {
       stubs: {
-        SettingsBlock,
         GlModal: true,
       },
       mocks: {
@@ -85,13 +86,36 @@ describe('Packages protection rules project settings', () => {
     });
   };
 
-  it('renders the setting block with table', async () => {
+  it('renders the crud component with table', async () => {
     createComponent();
 
     await waitForPromises();
 
-    expect(findSettingsBlock().exists()).toBe(true);
+    expect(findCrudComponent().props()).toMatchObject({
+      title: 'Protected packages',
+      toggleText: 'Add protection rule',
+    });
     expect(findTable().exists()).toBe(true);
+  });
+
+  it('hides table when no protection rules exist', async () => {
+    createComponent({
+      packagesProtectionRuleQueryResolver: jest.fn().mockResolvedValue(
+        packagesProtectionRuleQueryPayload({
+          nodes: [],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: null,
+            endCursor: null,
+          },
+        }),
+      ),
+    });
+    await waitForPromises();
+
+    expect(findTable().exists()).toBe(false);
+    expect(findEmptyText().exists()).toBe(true);
   });
 
   describe('table "package protection rules"', () => {
@@ -111,18 +135,11 @@ describe('Packages protection rules project settings', () => {
       );
     });
 
-    it('displays table in busy state and shows loading icon inside table', async () => {
+    it('shows loading icon', () => {
       createComponent();
 
       expect(findTableLoadingIcon().exists()).toBe(true);
       expect(findTableLoadingIcon().attributes('aria-label')).toBe('Loading');
-
-      expect(findTable().attributes('aria-busy')).toBe('true');
-
-      await waitForPromises();
-
-      expect(findTableLoadingIcon().exists()).toBe(false);
-      expect(findTable().attributes('aria-busy')).toBe('false');
     });
 
     it('calls graphql api query', () => {
@@ -223,6 +240,7 @@ describe('Packages protection rules project settings', () => {
       describe('when button "Next" is clicked', () => {
         const packagesProtectionRuleQueryResolver = jest
           .fn()
+          .mockResolvedValue(packagesProtectionRuleQueryPayload())
           .mockResolvedValueOnce(packagesProtectionRuleQueryPayload())
           .mockResolvedValueOnce(
             packagesProtectionRuleQueryPayload({
@@ -257,14 +275,22 @@ describe('Packages protection rules project settings', () => {
             }),
           );
         });
+
+        it('displays table in busy state and shows loading icon inside table', async () => {
+          expect(findTable().exists()).toBe(true);
+          expect(findTable().attributes('aria-busy')).toBe('true');
+
+          await waitForPromises();
+
+          expect(findTableLoadingIcon().exists()).toBe(false);
+          expect(findTable().attributes('aria-busy')).toBe('false');
+        });
       });
     });
 
     describe('column "Minimum access level for push" with selectbox (combobox)', () => {
       const findComboboxInTableRow = (i) =>
-        extendedWrapper(
-          findTableRow(i).findByRole('combobox', { name: /minimum access level for push/i }),
-        );
+        extendedWrapper(wrapper.findAllByTestId('push-access-select').at(i));
 
       it('contains combobox with respective access level', async () => {
         createComponent();
@@ -284,7 +310,9 @@ describe('Packages protection rules project settings', () => {
         await waitForPromises();
 
         ['Maintainer', 'Owner', 'Administrator'].forEach((optionName) => {
-          const selectOption = findComboboxInTableRow(0).findByRole('option', { name: optionName });
+          const selectOption = findComboboxInTableRow(0).findByRole('option', {
+            name: optionName,
+          });
           expect(selectOption.exists()).toBe(true);
         });
       });
@@ -597,11 +625,11 @@ describe('Packages protection rules project settings', () => {
       });
 
       it('renders form "add package protection"', () => {
-        expect(findProtectionRuleForm().isVisible()).toBe(true);
+        expect(findProtectionRuleForm().exists()).toBe(true);
       });
 
-      it('disables the button "add protection rule"', () => {
-        expect(findAddProtectionRuleButton().attributes('disabled')).toBeDefined();
+      it('hides the button "add protection rule"', () => {
+        expect(findAddProtectionRuleButton().exists()).toBe(false);
       });
     });
   });

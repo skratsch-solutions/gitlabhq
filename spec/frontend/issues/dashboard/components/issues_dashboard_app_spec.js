@@ -10,7 +10,7 @@ import IssueCardTimeInfo from 'ee_else_ce/issues/list/components/issue_card_time
 import createMockApollo from 'helpers/mock_apollo_helper';
 import setWindowLocation from 'helpers/set_window_location_helper';
 import { TEST_HOST } from 'helpers/test_constants';
-import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import {
   filteredTokens,
@@ -21,14 +21,7 @@ import {
 import { STATUS_ALL, STATUS_CLOSED, STATUS_OPEN } from '~/issues/constants';
 import IssuesDashboardApp from '~/issues/dashboard/components/issues_dashboard_app.vue';
 import getIssuesCountsQuery from '~/issues/dashboard/queries/get_issues_counts.query.graphql';
-import {
-  CREATED_DESC,
-  defaultTypeTokenOptions,
-  TYPE_TOKEN_KEY_RESULT_OPTION,
-  TYPE_TOKEN_OBJECTIVE_OPTION,
-  UPDATED_DESC,
-  urlSortParams,
-} from '~/issues/list/constants';
+import { CREATED_DESC, UPDATED_DESC, urlSortParams } from '~/issues/list/constants';
 import setSortPreferenceMutation from '~/issues/list/queries/set_sort_preference.mutation.graphql';
 import { getSortKey, getSortOptions } from '~/issues/list/utils';
 import axios from '~/lib/utils/axios_utils';
@@ -45,6 +38,7 @@ import {
   TOKEN_TYPE_CREATED,
   TOKEN_TYPE_CLOSED,
 } from '~/vue_shared/components/filtered_search_bar/constants';
+import EmptyResult from '~/vue_shared/components/empty_result.vue';
 import IssuableList from '~/vue_shared/issuable/list/components/issuable_list_root.vue';
 import {
   emptyIssuesQueryResponse,
@@ -73,6 +67,8 @@ describe('IssuesDashboardApp component', () => {
     hasIssueDateFilterFeature: true,
     hasIssuableHealthStatusFeature: true,
     hasIssueWeightsFeature: true,
+    hasOkrsFeature: true,
+    hasQualityManagementFeature: true,
     hasScopedLabelsFeature: true,
     initialSort: CREATED_DESC,
     isPublicVisibilityRestricted: false,
@@ -88,22 +84,20 @@ describe('IssuesDashboardApp component', () => {
     defaultQueryResponse.data.issues.nodes[0].weight = 5;
   }
 
-  const findCalendarButton = () => wrapper.findByRole('link', { name: 'Subscribe to calendar' });
   const findDisclosureDropdown = () => wrapper.findComponent(GlDisclosureDropdown);
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findEmptyResult = () => wrapper.findComponent(EmptyResult);
   const findIssuableList = () => wrapper.findComponent(IssuableList);
   const findIssueCardStatistics = () => wrapper.findComponent(IssueCardStatistics);
   const findIssueCardTimeInfo = () => wrapper.findComponent(IssueCardTimeInfo);
-  const findRssButton = () => wrapper.findByRole('link', { name: 'Subscribe to RSS feed' });
 
   const mountComponent = ({
     provide = {},
-    eeTypeTokenOptions = [],
     issuesQueryHandler = jest.fn().mockResolvedValue(defaultQueryResponse),
     issuesCountsQueryHandler = jest.fn().mockResolvedValue(issuesCountsQueryResponse),
     sortPreferenceMutationHandler = jest.fn().mockResolvedValue(setSortPreferenceMutationResponse),
   } = {}) => {
-    wrapper = mountExtended(IssuesDashboardApp, {
+    wrapper = shallowMountExtended(IssuesDashboardApp, {
       apolloProvider: createMockApollo([
         [getIssuesQuery, issuesQueryHandler],
         [getIssuesCountsQuery, issuesCountsQueryHandler],
@@ -113,11 +107,9 @@ describe('IssuesDashboardApp component', () => {
         ...defaultProvide,
         ...provide,
       },
-      propsData: {
-        eeTypeTokenOptions,
-      },
       stubs: {
         GlIntersperse: true,
+        IssuableList,
       },
     });
   };
@@ -138,36 +130,55 @@ describe('IssuesDashboardApp component', () => {
       await waitForPromises();
     });
 
-    // quarantine: https://gitlab.com/gitlab-org/gitlab/-/issues/391722
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('renders IssuableList component', () => {
-      expect(findIssuableList().props()).toMatchObject({
-        currentTab: STATUS_OPEN,
-        hasNextPage: true,
-        hasPreviousPage: false,
-        hasScopedLabelsFeature: defaultProvide.hasScopedLabelsFeature,
-        initialSortBy: CREATED_DESC,
-        issuables: issuesQueryResponse.data.issues.nodes,
-        issuablesLoading: false,
-        namespace: 'dashboard',
-        recentSearchesStorageKey: 'issues',
-        showPaginationControls: true,
-        sortOptions: getSortOptions({
-          hasBlockedIssuesFeature: defaultProvide.hasBlockedIssuesFeature,
-          hasIssuableHealthStatusFeature: defaultProvide.hasIssuableHealthStatusFeature,
-          hasIssueWeightsFeature: defaultProvide.hasIssueWeightsFeature,
-        }),
-        tabCounts: {
+    describe('IssuableList component', () => {
+      it('renders', () => {
+        expect(findIssuableList().props()).toMatchObject({
+          currentTab: STATUS_OPEN,
+          hasNextPage: true,
+          hasPreviousPage: false,
+          hasScopedLabelsFeature: true,
+          initialSortBy: CREATED_DESC,
+          namespace: 'dashboard',
+          recentSearchesStorageKey: 'issues',
+          showPaginationControls: true,
+          showWorkItemTypeIcon: true,
+          truncateCounts: true,
+          useKeysetPagination: true,
+        });
+      });
+
+      it('renders issues', () => {
+        expect(findIssuableList().props('issuables')).toHaveLength(1);
+      });
+
+      it('renders sort options', () => {
+        expect(findIssuableList().props('sortOptions')).toEqual(
+          getSortOptions({
+            hasBlockedIssuesFeature: defaultProvide.hasBlockedIssuesFeature,
+            hasIssuableHealthStatusFeature: defaultProvide.hasIssuableHealthStatusFeature,
+            hasIssueWeightsFeature: defaultProvide.hasIssueWeightsFeature,
+            hasManualSort: false,
+          }),
+        );
+      });
+
+      it('renders tabs', () => {
+        expect(findIssuableList().props('tabs')).toEqual(IssuesDashboardApp.issuableListTabs);
+      });
+
+      it('renders tab counts', () => {
+        expect(findIssuableList().props('tabCounts')).toEqual({
           opened: 1,
           closed: 2,
           all: 3,
-        },
-        tabs: IssuesDashboardApp.issuableListTabs,
-        urlParams: {
+        });
+      });
+
+      it('renders url params', () => {
+        expect(findIssuableList().props('urlParams')).toMatchObject({
           sort: urlSortParams[CREATED_DESC],
           state: STATUS_OPEN,
-        },
-        useKeysetPagination: true,
+        });
       });
     });
 
@@ -183,11 +194,11 @@ describe('IssuesDashboardApp component', () => {
       });
 
       it('renders RSS button link', () => {
-        expect(findRssButton().attributes('href')).toBe(defaultProvide.rssPath);
+        expect(findDisclosureDropdown().props('items')[0].href).toBe(defaultProvide.rssPath);
       });
 
       it('renders calendar button link', () => {
-        expect(findCalendarButton().attributes('href')).toBe(defaultProvide.calendarPath);
+        expect(findDisclosureDropdown().props('items')[1].href).toBe(defaultProvide.calendarPath);
       });
     });
 
@@ -234,11 +245,7 @@ describe('IssuesDashboardApp component', () => {
         });
 
         it('renders empty state', () => {
-          expect(findEmptyState().props()).toMatchObject({
-            description: 'To widen your search, change or remove filters above',
-            svgPath: defaultProvide.emptyStateWithFilterSvgPath,
-            title: 'Sorry, your filter produced no results',
-          });
+          expect(findEmptyResult().exists()).toBe(true);
         });
       });
     });
@@ -258,8 +265,7 @@ describe('IssuesDashboardApp component', () => {
 
       it('renders empty state', () => {
         expect(findEmptyState().props()).toMatchObject({
-          description: null,
-          svgPath: defaultProvide.emptyStateWithoutFilterSvgPath,
+          svgPath: defaultProvide.emptyStateWithFilterSvgPath,
           title: 'Please select at least one filter to see results',
         });
       });
@@ -390,32 +396,6 @@ describe('IssuesDashboardApp component', () => {
         { type: TOKEN_TYPE_SEARCH_WITHIN },
         { type: TOKEN_TYPE_TYPE },
       ]);
-    });
-
-    describe('additional type token options', () => {
-      it('renders default type tokens when there are no additional options provided', () => {
-        mountComponent();
-
-        expect(findIssuableList().props('searchTokens')).toMatchObject(
-          expect.arrayContaining([
-            expect.objectContaining({ type: TOKEN_TYPE_TYPE, options: defaultTypeTokenOptions }),
-          ]),
-        );
-      });
-
-      it('renders additional type tokens when there are additional options provided', () => {
-        const additionalOptions = [TYPE_TOKEN_OBJECTIVE_OPTION, TYPE_TOKEN_KEY_RESULT_OPTION];
-        mountComponent({ eeTypeTokenOptions: additionalOptions });
-
-        expect(findIssuableList().props('searchTokens')).toMatchObject(
-          expect.arrayContaining([
-            expect.objectContaining({
-              type: TOKEN_TYPE_TYPE,
-              options: [...defaultTypeTokenOptions, ...additionalOptions],
-            }),
-          ]),
-        );
-      });
     });
   });
 

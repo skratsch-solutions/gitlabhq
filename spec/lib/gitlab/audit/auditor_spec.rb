@@ -48,10 +48,22 @@ RSpec.describe Gitlab::Audit::Auditor, feature_category: :audit_events do
     context 'when yaml definition is defined' do
       before do
         allow(Gitlab::Audit::Type::Definition).to receive(:defined?).and_return(true)
+        allow(Gitlab::AppLogger).to receive(:info).and_call_original
       end
 
       it 'does not raise an error' do
         expect { audit! }.not_to raise_error
+      end
+
+      it 'logs the initialization with correct parameters' do
+        audit!
+
+        expect(Gitlab::AppLogger).to have_received(:info).with(
+          {
+            message: "Auditor initialized",
+            scope_class: group.class.name
+          }
+        )
       end
     end
 
@@ -300,11 +312,10 @@ RSpec.describe Gitlab::Audit::Auditor, feature_category: :audit_events do
 
     context 'when audit events are invalid' do
       before do
-        expect_next_instance_of(AuditEvent) do |instance|
-          allow(instance).to receive(:save!).and_raise(ActiveRecord::RecordInvalid)
-        end
         allow(Gitlab::ErrorTracking).to receive(:track_exception)
       end
+
+      let(:author) { build(:user) } # use non-persisted author (hence non-valid id)
 
       it 'tracks error' do
         audit!

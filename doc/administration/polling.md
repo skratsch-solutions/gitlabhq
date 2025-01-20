@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The GitLab UI polls for updates for different resources (such as issue notes, issue titles, and pipeline
 statuses) on a schedule appropriate to the resource.
@@ -30,7 +30,7 @@ The default value (`1`) is recommended for the majority of GitLab installations.
 
 To adjust the polling interval multiplier:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Preferences**.
 1. Expand **Polling interval multiplier**.
 1. Set a value for the polling interval multiplier. This multiplier is applied to all resources at

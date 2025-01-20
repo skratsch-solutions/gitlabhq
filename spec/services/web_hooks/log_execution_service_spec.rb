@@ -6,15 +6,12 @@ RSpec.describe WebHooks::LogExecutionService, feature_category: :webhooks do
   include ExclusiveLeaseHelpers
   using RSpec::Parameterized::TableSyntax
 
-  describe '#execute' do
-    around do |example|
-      travel_to(Time.current) { example.run }
-    end
+  describe '#execute', :freeze_time do
+    let_it_be_with_reload(:project_hook) { create(:project_hook) }
 
-    let_it_be_with_reload(:project_hook) { create(:project_hook, :token) }
-
+    let(:idempotency_key) { SecureRandom.uuid }
     let(:response_category) { :ok }
-    let(:request_headers) { { 'Header' => 'header value' } }
+    let(:request_headers) { { 'Header' => 'header value', 'Idempotency-Key' => idempotency_key } }
     let(:data) do
       {
         trigger: 'trigger_name',
@@ -36,6 +33,18 @@ RSpec.describe WebHooks::LogExecutionService, feature_category: :webhooks do
       expect(WebHookLog.recent.first).to have_attributes(data)
     end
 
+    context 'when data contains unsafe YAML properties' do
+      before do
+        data[:request_data] = { data: described_class }
+      end
+
+      it 'casts to safe properties and logs the data' do
+        expect { service.execute }.to change(::WebHookLog, :count).by(1)
+
+        expect(WebHookLog.recent.first).to have_attributes('request_data' => { 'data' => described_class.to_s })
+      end
+    end
+
     it 'updates the last failure' do
       # Avoid pruning AR caches in `update_hook_failure_state` so the following expectation works.
       allow(project_hook).to receive(:reset)
@@ -46,17 +55,14 @@ RSpec.describe WebHooks::LogExecutionService, feature_category: :webhooks do
 
     context 'obtaining an exclusive lease' do
       let(:lease_key) { "web_hooks:update_hook_failure_state:#{project_hook.id}" }
+      let(:response_category) { :error }
 
       it 'updates failure state using a lease that ensures fresh state is written' do
-        service = described_class.new(hook: project_hook, log_data: data, response_category: :error)
-        # Write state somewhere else, so that the hook is out-of-date
-        WebHook.find(project_hook.id).update!(recent_failures: 5, disabled_until: 10.minutes.from_now, backoff_count: 1)
-
         lease = stub_exclusive_lease(lease_key, timeout: described_class::LOCK_TTL)
 
         expect(lease).to receive(:try_obtain)
         expect(lease).to receive(:cancel)
-        expect { service.execute }.to change { WebHook.find(project_hook.id).backoff_count }.to(2)
+        expect { service.execute }.to change { WebHook.find(project_hook.id).recent_failures }.to(1)
       end
 
       context 'when a lease cannot be obtained' do
@@ -165,7 +171,7 @@ RSpec.describe WebHooks::LogExecutionService, feature_category: :webhooks do
     end
 
     context 'with X-Gitlab-Token' do
-      let(:request_headers) { { 'X-Gitlab-Token' => project_hook.token } }
+      let(:request_headers) { { 'X-Gitlab-Token' => 'secret_token' } }
 
       it 'redacts the token' do
         service.execute

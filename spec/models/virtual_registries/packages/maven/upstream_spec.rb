@@ -7,7 +7,17 @@ RSpec.describe VirtualRegistries::Packages::Maven::Upstream, type: :model, featu
 
   subject(:upstream) { build(:virtual_registries_packages_maven_upstream) }
 
+  it_behaves_like 'it has loose foreign keys' do
+    let(:factory_name) { :virtual_registries_packages_maven_upstream }
+  end
+
   describe 'associations' do
+    it do
+      is_expected.to have_many(:cached_responses)
+        .class_name('VirtualRegistries::Packages::Maven::CachedResponse')
+        .inverse_of(:upstream)
+    end
+
     it do
       is_expected.to have_one(:registry_upstream)
         .class_name('VirtualRegistries::Packages::Maven::RegistryUpstream')
@@ -26,9 +36,12 @@ RSpec.describe VirtualRegistries::Packages::Maven::Upstream, type: :model, featu
     it { is_expected.to validate_presence_of(:url) }
     it { is_expected.to validate_presence_of(:username) }
     it { is_expected.to validate_presence_of(:password) }
+    it { is_expected.to validate_uniqueness_of(:encrypted_username_iv).ignoring_case_sensitivity.allow_nil }
+    it { is_expected.to validate_uniqueness_of(:encrypted_password_iv).ignoring_case_sensitivity.allow_nil }
     it { is_expected.to validate_length_of(:url).is_at_most(255) }
     it { is_expected.to validate_length_of(:username).is_at_most(255) }
     it { is_expected.to validate_length_of(:password).is_at_most(255) }
+    it { is_expected.to validate_numericality_of(:cache_validity_hours).only_integer.is_greater_than_or_equal_to(0) }
 
     context 'for url' do
       where(:url, :valid, :error_messages) do
@@ -88,6 +101,76 @@ RSpec.describe VirtualRegistries::Packages::Maven::Upstream, type: :model, featu
           end
         end
       end
+
+      context 'when url is updated' do
+        where(:new_url, :new_user, :new_pwd, :expected_user, :expected_pwd) do
+          'http://original_url.test' | 'test' | 'test' | 'test' | 'test'
+          'http://update_url.test'   | 'test' | 'test' | 'test' | 'test'
+          'http://update_url.test'   | :none  | :none  | nil    | nil
+          'http://update_url.test'   | 'test' | :none  | nil    | nil
+          'http://update_url.test'   | :none  | 'test' | nil    | nil
+        end
+
+        with_them do
+          before do
+            upstream.update!(url: 'http://original_url.test', username: 'original_user', password: 'original_pwd')
+          end
+
+          it 'resets the username and the password when necessary' do
+            new_attributes = { url: new_url, username: new_user, password: new_pwd }.select { |_, v| v != :none }
+            upstream.update!(new_attributes)
+
+            expect(upstream.reload.url).to eq(new_url)
+            expect(upstream.username).to eq(expected_user)
+            expect(upstream.password).to eq(expected_pwd)
+          end
+        end
+      end
+    end
+  end
+
+  describe 'callbacks' do
+    context 'for set_cache_validity_hours_for_maven_central' do
+      %w[
+        https://repo1.maven.org/maven2
+        https://repo1.maven.org/maven2/
+      ].each do |maven_central_url|
+        context "with url set to #{maven_central_url}" do
+          before do
+            upstream.url = maven_central_url
+          end
+
+          it 'sets the cache validity hours to 0' do
+            upstream.save!
+
+            expect(upstream.cache_validity_hours).to eq(0)
+          end
+        end
+      end
+
+      context 'with url other than maven central' do
+        before do
+          upstream.url = 'https://test.org/maven2'
+        end
+
+        it 'sets the cache validity hours to the database default value' do
+          upstream.save!
+
+          expect(upstream.cache_validity_hours).not_to eq(0)
+        end
+      end
+
+      context 'with no url' do
+        before do
+          upstream.url = nil
+        end
+
+        it 'does not set the cache validity hours' do
+          expect(upstream).not_to receive(:set_cache_validity_hours_for_maven_central)
+
+          expect { upstream.save! }.to raise_error(ActiveRecord::RecordInvalid)
+        end
+      end
     end
   end
 
@@ -102,5 +185,66 @@ RSpec.describe VirtualRegistries::Packages::Maven::Upstream, type: :model, featu
       expect(upstream_read.username).to eq('test')
       expect(upstream_read.password).to eq('test')
     end
+  end
+
+  describe '#url_for' do
+    subject { upstream.url_for(path) }
+
+    where(:path, :expected_url) do
+      'path'      | 'http://test.maven/path'
+      ''          | 'http://test.maven/'
+      '/path'     | 'http://test.maven/path'
+      '/sub/path' | 'http://test.maven/sub/path'
+    end
+
+    with_them do
+      before do
+        upstream.url = 'http://test.maven/'
+      end
+
+      it { is_expected.to eq(expected_url) }
+    end
+  end
+
+  describe '#headers' do
+    subject { upstream.headers }
+
+    where(:username, :password, :expected_headers) do
+      'user' | 'pass' | { Authorization: 'Basic dXNlcjpwYXNz' }
+      'user' | ''     | {}
+      ''     | 'pass' | {}
+      ''     | ''     | {}
+    end
+
+    with_them do
+      before do
+        upstream.username = username
+        upstream.password = password
+      end
+
+      it { is_expected.to eq(expected_headers) }
+    end
+  end
+
+  describe '#as_json' do
+    subject { upstream.as_json }
+
+    it { is_expected.not_to include('username', 'password') }
+  end
+
+  describe '#default_cached_responses' do
+    let_it_be(:upstream) { create(:virtual_registries_packages_maven_upstream) }
+
+    let_it_be(:default_cached_response) do
+      create(:virtual_registries_packages_maven_cached_response, upstream: upstream)
+    end
+
+    let_it_be(:pending_destruction_cached_response) do
+      create(:virtual_registries_packages_maven_cached_response, :pending_destruction, upstream: upstream)
+    end
+
+    subject { upstream.default_cached_responses }
+
+    it { is_expected.to contain_exactly(default_cached_response) }
   end
 end

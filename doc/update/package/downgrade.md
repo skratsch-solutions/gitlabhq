@@ -4,38 +4,33 @@ group: Distribution
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Downgrade
+# Roll back to earlier GitLab versions
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-This section contains general information on how to revert to an earlier version
-of a package.
+You can roll back to earlier versions of GitLab instances that were installed by using the Linux package.
 
-WARNING:
-You must at least have a database backup created under the version you are
-downgrading to. Ideally, you should have a
-[full backup archive](../../administration/backup_restore/index.md)
-on hand.
+## Prerequisites
 
-The example below demonstrates the downgrade procedure when downgrading between minor
-and patch versions (for example, from 15.0.6 to 15.0.5).
+Because you must revert the database schema changes (migrations) that were made when the instance was upgraded, you
+must have:
 
-When downgrading between major versions, take into account the
-[specific version changes](index.md#version-specific-changes) that occurred when you upgraded
-to the major version you are downgrading from.
+- At least a database backup created under the exact same version and edition you are rolling back to.
+- Ideally, a [full backup archive](../../administration/backup_restore/index.md) of that exact same version and edition
+  you are rolling back to.
 
-These steps consist of:
+When rolling back to an earlier major versions, you must take into account version-specific changes that occurred when
+you previously upgraded. For more information, see:
 
-- Stopping GitLab
-- Removing the current package
-- Installing the old package
-- Reconfiguring GitLab
-- Restoring the backup
-- Starting GitLab
+- [GitLab 17 changes](../versions/gitlab_17_changes.md)
+- [GitLab 16 changes](../versions/gitlab_16_changes.md)
+- [GitLab 15 changes](../versions/gitlab_15_changes.md)
 
-Steps:
+## Roll back a Linux package instance to an earlier GitLab version
+
+To roll back to an earlier GitLab version:
 
 1. Stop GitLab and remove the current package:
 
@@ -53,7 +48,7 @@ Steps:
    sudo yum remove gitlab-ee
    ```
 
-1. Identify the GitLab version you want to downgrade to:
+1. Identify the GitLab version you want to roll back to:
 
    ```shell
    # (Replace with gitlab-ce if you have GitLab FOSS installed)
@@ -65,7 +60,7 @@ Steps:
    sudo yum --showduplicates list gitlab-ee
    ```
 
-1. Downgrade GitLab to the desired version (for example, to GitLab 15.0.5):
+1. Roll back GitLab to the desired version (for example, to GitLab 15.0.5):
 
    ```shell
    # (Replace with gitlab-ce if you have GitLab FOSS installed)
@@ -84,4 +79,4 @@ Steps:
    ```
 
 1. [Restore GitLab](../../administration/backup_restore/restore_gitlab.md#restore-for-linux-package-installations)
-   to complete the downgrade.
+   to complete the roll back.

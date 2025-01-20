@@ -12,7 +12,13 @@
   minor: 5
 
 - major: 10
+  minor: 0
+
+- major: 10
   minor: 8
+
+- major: 11
+  minor: 0
 
 - major: 11
   minor: 11
@@ -69,4 +75,21 @@
   minor: 7
 
 - major: 16
+  minor: 11
+
+- major: 17
+  minor: 1
+  comments: "[Conditional stop](https://docs.gitlab.com/ee/update/versions/gitlab_17_changes.html#long-running-pipeline-messages-data-change). Not required by all instances."
+
+- major: 17
+  minor: 3
+
+- major: 17
+  minor: 5
+  comments: "From GitLab 17.5, required upgrade stops consistently land on minor versions X.2, X.5, X.8, and X.11."
+
+- major: 17
+  minor: 8
+
+- major: 17
   minor: 11

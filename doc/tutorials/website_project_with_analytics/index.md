@@ -8,7 +8,7 @@ info: For assistance with this tutorial, see https://handbook.gitlab.com/handboo
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you work on a complex project (for example, a website), you likely collaborate with other people to build and maintain it.
 The way you collaborate and communicate in your team can make or break the project, so you want processes in place that help team members follow and achieve the common goal.
@@ -99,6 +99,7 @@ and you can use it to create a value stream with a custom stage.
 Now that you have a project with collaborators, you can start tracking and visualizing the activity.
 [Value Stream Analytics](../../user/group/value_stream_analytics/index.md) helps you measure the time it takes
 to go from an idea to production, and identify inefficiencies in the development process.
+For a click-through demo of analytics features, see [the Value Stream Management product tour](https://gitlab.navattic.com/vsm).
 
 To get started, create a value stream in the `My website` project:
 
@@ -106,7 +107,7 @@ To get started, create a value stream in the `My website` project:
 1. Select **New Value Stream**.
 1. Enter a name for the value stream, for example `My website value stream`.
 1. Select **Create from default template**.
-1. To add a custom stage, select **Add another stage**.
+1. To add a custom stage, select **Add a stage**.
    - Enter a name for the stage, for example `Labeled MRs merged`.
    - From the **Start event** dropdown list, select **Merge request label was added**, then the `feature request` label.
    - From the **Stop event** dropdown list, select **Merge request merged**.

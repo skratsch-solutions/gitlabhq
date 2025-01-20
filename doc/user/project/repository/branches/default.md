@@ -9,14 +9,14 @@ description: "Use Git branches to develop new features. Add branch protections t
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you create a new [project](../../index.md), GitLab creates a default branch
 in the repository. A default branch has special configuration options not shared
 by other branches:
 
 - It cannot be deleted.
-- It's [initially protected](../../protected_branches.md) against
+- It's [initially protected](../../repository/branches/protected.md) against
   forced pushes.
 - When a merge request uses an
   [issue closing pattern](../../issues/managing_issues.md#closing-issues-automatically)
@@ -29,7 +29,7 @@ using the GitLab default only if no customizations are set:
 
 1. A [project-specific](#change-the-default-branch-name-for-a-project) custom default branch name.
 1. [Custom group default branch name](#group-level-custom-initial-branch-name) specified in project's direct subgroup.
-1. [Custom group default branch name](#group-level-custom-initial-branch-name) specified in project's root group.
+1. [Custom group default branch name](#group-level-custom-initial-branch-name) specified in project's top-level group.
 1. An [instance-level](#instance-level-custom-initial-branch-name) custom default branch name.
 1. If no custom default branch name is set at any level, GitLab defaults to `main`.
 
@@ -40,7 +40,7 @@ the [Git commands you need](#update-the-default-branch-name-in-your-repository) 
 
 Prerequisites:
 
-- You have the Owner or Maintainer role in the project.
+- You have the Owner or Maintainer role for the project.
 
 To update the default branch for an individual [project](../../index.md):
 
@@ -65,13 +65,13 @@ GitLab administrators can configure a new default branch name at the
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 GitLab [administrators](../../../permissions.md) of self-managed instances can
 customize the initial branch for projects hosted on that instance. Individual
 groups and subgroups can override this instance-wide setting for their projects.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand **Default branch**.
 1. For **Initial default branch name**, select a new default branch.
@@ -98,11 +98,11 @@ unless a subgroup configuration overrides it.
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Full protection after initial push [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/118729) in GitLab 16.0.
 
-GitLab administrators and group owners can define [branch protections](../../../project/protected_branches.md)
+GitLab administrators and group owners can define [branch protections](../../repository/branches/protected.md)
 to apply to every repository's default branch
 at the [instance level](#instance-level-default-branch-protection) and
 [group level](#group-level-default-branch-protection) with one of the following options:
@@ -125,18 +125,18 @@ Unless **Fully protected** is chosen, a malicious developer could attempt to ste
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 This setting applies only to each repository's default branch. To protect other branches,
 you must either:
 
-- Configure [branch protection in the repository](../../../project/protected_branches.md).
+- Configure [branch protection in the repository](../../repository/branches/protected.md).
 - Configure [branch protection for groups](../../../group/manage.md#change-the-default-branch-protection-of-a-group).
 
 Administrators of self-managed instances can customize the initial default branch protection for projects hosted on that instance. Individual
 groups and subgroups can override this instance-wide setting for their projects.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand **Default branch**.
 1. Select [**Initial default branch protection**](#protect-initial-default-branches).
@@ -148,14 +148,14 @@ groups and subgroups can override this instance-wide setting for their projects.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Instance-level protections for default branches
 can be overridden on a per-group basis by the group's owner. In
 [GitLab Premium or Ultimate](https://about.gitlab.com/pricing/), GitLab administrators can
 disable this privilege for group owners, enforcing the instance-level protection rule:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Repository**.
 1. Expand the **Default branch** section.
 1. Clear the **Allow owners to manage default branch protection per group** checkbox.
@@ -168,7 +168,7 @@ GitLab administrators can still update the default branch protection of a group.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Instance-level protections for the default branch
 can be overridden on a per-group basis by the group's owner. In
@@ -227,7 +227,7 @@ renames a Git repository's (`example`) default branch.
    role and follow the instructions to
    [change the default branch for this project](#change-the-default-branch-name-for-a-project).
    Select `main` as your new default branch.
-1. Protect your new `main` branch as described in the [protected branches documentation](../../protected_branches.md).
+1. Protect your new `main` branch as described in the [protected branches documentation](../../repository/branches/protected.md).
 1. Optional. If you want to delete the old default branch:
    1. Verify that nothing is pointing to it.
    1. Delete the branch on the remote:

@@ -12,7 +12,7 @@ DETAILS:
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/8939) in GitLab 17.0 [with a flag](../../administration/feature_flags.md) named `gitaly_bundle_uri`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available.
+On GitLab Self-Managed, by default this feature is not available.
 To make it available, an administrator can [enable the feature flag](../feature_flags.md)
 named `gitaly_bundle_uri`.
 On GitLab.com and GitLab Dedicated, this feature is not available. This feature
@@ -219,15 +219,15 @@ After Gitaly is properly configured, Gitaly can generate bundles, which is a
 manual process. To generate a bundle for Bundle URI, run:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/gitaly bundle-uri \
-                                     --config=<config-file> \
-                                     --storage=<storage-name> \
-                                     --repository=<relative-path>
+sudo -u git -- /opt/gitlab/embedded/bin/gitaly bundle-uri \
+                                               --config=<config-file> \
+                                               --storage=<storage-name> \
+                                               --repository=<relative-path>
 ```
 
 This command generates the bundle and stores it on the configured storage service.
-Gitaly does not automatically refresh the generated bundle. When want to generate
-a more recent version of a bundle, you must the run command again.
+Gitaly does not automatically refresh the generated bundle. When you want to generate
+a more recent version of a bundle, you must run the command again.
 
 You can schedule this command with a tool like `cron(8)`.
 
@@ -272,5 +272,5 @@ downloaded the bundle from the storage server.
 
 The bundles are made accessible to the client using signed URLs. A signed URL is
 a URL that provides limited permissions and time to make a request. To see if
-your storage service supports sighed URLs, see the documentation of your storage
+your storage service supports signed URLs, see the documentation of your storage
 service.

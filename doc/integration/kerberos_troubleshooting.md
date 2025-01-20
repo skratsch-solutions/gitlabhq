@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 When working with GitLab with Kerberos integration, you might encounter the following issues.
 
@@ -119,6 +119,17 @@ set the `http.emptyAuth` Git option to `true` to fix this:
 
 ```shell
 git config --global http.emptyAuth true
+```
+
+## Git cloning with Kerberos over proxied HTTPS
+
+You must comment the following if:
+
+- You see `http://` URLs in the **Clone with KRB5 Git Cloning** options, when `https://` URLs are expected.
+- HTTPS is not terminated at your GitLab instance, but is instead proxied by your load balancer or local traffic manager.
+
+```shell
+# gitlab_rails['kerberos_https'] = false
 ```
 
 See also: [Git v2.11 release notes](https://github.com/git/git/blob/master/Documentation/RelNotes/2.11.0.txt#L482-L486)

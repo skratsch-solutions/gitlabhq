@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 [Gitaly](https://gitlab.com/gitlab-org/gitaly) provides high-level RPC access to Git repositories.
 It is used by GitLab to read and write Git data.
@@ -30,6 +30,7 @@ Gitaly implements a client-server architecture:
   - [GitLab Workhorse](https://gitlab.com/gitlab-org/gitlab-workhorse)
   - [GitLab Elasticsearch Indexer](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer)
   - [GitLab Zoekt Indexer](https://gitlab.com/gitlab-org/gitlab-zoekt-indexer)
+  - [GitLab Agent for Kubernetes (KAS)](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent)
 
 Gitaly manages only Git repository access for GitLab. Other types of GitLab data aren't accessed
 using Gitaly.
@@ -50,10 +51,10 @@ repository storage is either:
 ## Before deploying Gitaly Cluster
 
 Gitaly Cluster provides the benefits of fault tolerance, but comes with additional complexity of setup and management.
-Before deploying Gitaly Cluster, review:
+Before deploying Gitaly Cluster, see:
 
 - Existing [known issues](#known-issues).
-- [Snapshot limitations](#snapshot-backup-and-recovery-limitations).
+- [Snapshot backup and recovery](#snapshot-backup-and-recovery).
 - [Configuration guidance](configure_gitaly.md) and [Repository storage options](../repository_storage_paths.md) to make
   sure that Gitaly Cluster is the best setup for you.
 
@@ -72,11 +73,11 @@ the current status of these issues, refer to the referenced issues and epics.
 | Issue                                                                                 | Summary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | How to avoid |
 |:--------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------|
 | Gitaly Cluster + Geo - Issues retrying failed syncs                             | If Gitaly Cluster is used on a Geo secondary site, repositories that have failed to sync could continue to fail when Geo tries to resync them. Recovering from this state requires assistance from support to run manual steps. | In GitLab 15.0 to 15.2, enable the [`gitaly_praefect_generated_replica_paths` feature flag](#praefect-generated-replica-paths) on your Geo primary site. In GitLab 15.3, the feature flag is enabled by default. |
-| Praefect unable to insert data into the database due to migrations not being applied after an upgrade | If the database is not kept up to date with completed migrations, then the Praefect node is unable to perform standard operation. | Make sure the Praefect database is up and running with all migrations completed (For example: `/opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate-status` should show a list of all applied migrations). Consider [requesting upgrade assistance](https://about.gitlab.com/support/scheduling-upgrade-assistance/) so your upgrade plan can be reviewed by support. |
+| Praefect unable to insert data into the database due to migrations not being applied after an upgrade | If the database is not kept up to date with completed migrations, then the Praefect node is unable to perform standard operation. | Make sure the Praefect database is up and running with all migrations completed (For example: `sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate-status` should show a list of all applied migrations). Consider [requesting upgrade assistance](https://about.gitlab.com/support/scheduling-upgrade-assistance/) so your upgrade plan can be reviewed by support. |
 | Restoring a Gitaly Cluster node from a snapshot in a running cluster | Because the Gitaly Cluster runs with consistent state, introducing a single node that is behind results in the cluster not being able to reconcile the nodes data and other nodes data | Don't restore a single Gitaly Cluster node from a backup snapshot. If you must restore from backup:<br/><br/>1. [Shut down GitLab](../read_only_gitlab.md#shut-down-the-gitlab-ui).<br/>2. Snapshot all Gitaly Cluster nodes at the same time.<br/>3. Take a database dump of the Praefect database. |
 | Limitations when running in Kubernetes, Amazon ECS, or similar | Praefect (Gitaly Cluster) is not supported and Gitaly has known limitations. For more information, see [epic 6127](https://gitlab.com/groups/gitlab-org/-/epics/6127). | Use our [reference architectures](../reference_architectures/index.md). |
 
-### Snapshot backup and recovery limitations
+### Snapshot backup and recovery
 
 Gitaly Cluster does not support snapshot backups. Snapshot backups can cause issues where the Praefect database becomes
 out of sync with the disk storage. Because of how Praefect rebuilds the replication metadata of Gitaly disk information
@@ -128,7 +129,7 @@ Accessing Git repositories directly is done at your own risk and is not supporte
 
 The following shows GitLab set up to use direct access to Gitaly:
 
-![Shard example](img/shard_example_v13_3.png)
+![GitLab application interacting with Gitaly storage shards](img/shard_example_v13_3.png)
 
 In this example:
 
@@ -142,26 +143,33 @@ In this example:
 The following illustrates the Gitaly client-server architecture:
 
 ```mermaid
-flowchart TD
+flowchart LR
   subgraph Gitaly clients
-    A[GitLab Rails]
-    B[GitLab Workhorse]
-    C[GitLab Shell]
-    D[...]
+    Rails[GitLab Rails]
+    Workhorse[GitLab Workhorse]
+    Shell[GitLab Shell]
+    Zoekt[Zoekt Indexer]
+    Elasticsearch[Elasticsearch Indexer]
+    KAS["GitLab Agent for Kubernetes (KAS)"]
   end
 
   subgraph Gitaly
-    E[Git integration]
+    GitalyServer[Gitaly server]
   end
 
-F[Local filesystem]
+  FS[Local filesystem]
+  ObjectStorage[Object storage]
 
-A -- gRPC --> Gitaly
-B -- gRPC--> Gitaly
-C -- gRPC --> Gitaly
-D -- gRPC --> Gitaly
+  Rails -- gRPC --> Gitaly
+  Workhorse -- gRPC --> Gitaly
+  Shell -- gRPC --> Gitaly
+  Zoekt -- gRPC --> Gitaly
+  Elasticsearch -- gRPC --> Gitaly
+  KAS -- gRPC --> Gitaly
 
-E --> F
+  GitalyServer --> FS
+  GitalyServer -- TCP --> Workhorse
+  GitalyServer -- TCP --> ObjectStorage
 ```
 
 ### Configure Gitaly
@@ -177,14 +185,17 @@ best suited by using Gitaly Cluster.
 
 ### Gitaly CLI
 
+> - `gitaly git` subcommand [introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/7119) in GitLab 17.4.
+
 The `gitaly` command is a command-line interface that provides additional subcommands for Gitaly administrators. For example,
 the Gitaly CLI is used to:
 
 - [Configure custom Git hooks](../server_hooks.md) for a repository.
 - Validate Gitaly configuration files.
 - Verify the internal Gitaly API is accessible.
+- [Run Git commands](troubleshooting.md#use-gitaly-git-when-git-is-required-for-troubleshooting) against a repository on disk.
 
-For more information on the other subcommands, run `gitaly --help`.
+For more information on the other subcommands, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly --help`.
 
 ### Backing up repositories
 
@@ -230,7 +241,7 @@ customers.
 The following shows GitLab set up to access `storage-1`, a virtual storage provided by Gitaly
 Cluster:
 
-![Cluster example](img/cluster_example_v13_3.png)
+![GitLab application interacting with virtual Gitaly storage, which interacts with Gitaly physical storage](img/cluster_example_v13_3.png)
 
 In this example:
 
@@ -268,7 +279,7 @@ Gitaly Cluster and [Geo](../geo/index.md) both provide redundancy. However the r
   not aware when Gitaly Cluster is used.
 - Geo provides [replication](../geo/index.md) and [disaster recovery](../geo/disaster_recovery/index.md) for
   an entire instance of GitLab. Users know when they are using Geo for
-  [replication](../geo/index.md). Geo [replicates multiple data types](../geo/replication/datatypes.md#limitations-on-replicationverification),
+  [replication](../geo/index.md). Geo [replicates multiple data types](../geo/replication/datatypes.md#replicated-data-types),
   including Git data.
 
 The following table outlines the major differences between Gitaly Cluster and Geo:
@@ -353,7 +364,7 @@ follow the [hashed storage](../repository_storage_paths.md#hashed-storage) schem
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/4218) in GitLab 15.0 [with a flag](../feature_flags.md) named `gitaly_praefect_generated_replica_paths`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitaly/-/issues/4218) in GitLab 15.2.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/4809) in GitLab 15.3.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/4809) in GitLab 15.3.
 > - [Generally available](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/4941) in GitLab 15.6. Feature flag `gitaly_praefect_generated_replica_paths` removed.
 
 When Gitaly Cluster creates a repository, it assigns the repository a unique and permanent ID called the _repository ID_. The repository ID is
@@ -456,7 +467,7 @@ Gitaly Cluster consists of multiple components:
 Praefect is a router and transaction manager for Gitaly, and a required
 component for running a Gitaly Cluster.
 
-![Architecture diagram](img/praefect_architecture_v12_10.png)
+![Praefect distributing incoming connections to Gitaly cluster nodes](img/praefect_architecture_v12_10.png)
 
 For more information, see [Gitaly High Availability (HA) Design](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/design_ha.md).
 
@@ -550,7 +561,7 @@ To downgrade a Gitaly Cluster (assuming multiple Praefect nodes):
 1. On the downgraded node, check the state of Praefect migrations:
 
    ```shell
-   /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate-status
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate-status
    ```
 
 1. Count the number of migrations with `unknown migration` in the `APPLIED` column.
@@ -558,13 +569,13 @@ To downgrade a Gitaly Cluster (assuming multiple Praefect nodes):
    is the number of unknown migrations reported by the downgraded node.
 
    ```shell
-   /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate <CT_UNKNOWN>
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate <CT_UNKNOWN>
    ```
 
 1. If the results look correct, run the same command with the `-f` option to revert the migrations:
 
    ```shell
-   /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate -f <CT_UNKNOWN>
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate -f <CT_UNKNOWN>
    ```
 
 1. Downgrade the GitLab package on the remaining Praefect nodes and start the Praefect service again:

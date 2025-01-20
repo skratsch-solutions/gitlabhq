@@ -9,8 +9,8 @@ module Gitlab
       }.freeze
 
       DOC_TYPE_ONLY_SORT = {
-        popularity_asc: %w[issue],
-        popularity_desc: %w[issue]
+        popularity_asc: %w[issue work_item],
+        popularity_desc: %w[issue work_item]
       }.freeze
 
       def sort_and_direction(order_by, sort)
@@ -33,7 +33,7 @@ module Gitlab
           :unknown
         end
       end
-      module_function :sort_and_direction # rubocop: disable Style/AccessModifierDeclarations
+      module_function :sort_and_direction
     end
   end
 end

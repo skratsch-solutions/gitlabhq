@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,12 +8,15 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 ## Get current application statistics
 
-List the current statistics of the GitLab instance. You have to be an
-administrator to perform this action.
+Use this API to retrieve statistics from your GitLab instance.
+
+Prerequisites:
+
+- You must have administrator access to the instance.
 
 NOTE:
 These statistics show exact counts for values less than 10,000. For values of 10,000 and higher, these statistics show approximate data

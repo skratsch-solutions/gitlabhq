@@ -1,4 +1,4 @@
-import { GlFormGroup, GlFormSelect, GlFormText, GlLink, GlSprintf } from '@gitlab/ui';
+import { GlFormGroup, GlFormSelect, GlLink, GlSprintf } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { shallowMount } from '@vue/test-utils';
 import { setHTMLFixture, resetHTMLFixture } from 'helpers/fixtures';
@@ -19,14 +19,14 @@ describe('Deployment target select', () => {
 
   const findFormGroup = () => wrapper.findComponent(GlFormGroup);
   const findSelect = () => wrapper.findComponent(GlFormSelect);
-  const findText = () => wrapper.findComponent(GlFormText);
+  const findText = () => wrapper.findComponent(GlSprintf);
   const findLink = () => wrapper.findComponent(GlLink);
 
   const createdWrapper = () => {
     wrapper = shallowMount(DeploymentTargetSelect, {
       stubs: {
+        GlFormGroup,
         GlFormSelect,
-        GlFormText,
         GlSprintf,
       },
     });
@@ -60,10 +60,10 @@ describe('Deployment target select', () => {
   });
 
   describe.each`
-    selectedTarget                     | formSubmitted | eventSent
-    ${null}                            | ${true}       | ${false}
-    ${DEPLOYMENT_TARGET_SELECTIONS[0]} | ${false}      | ${false}
-    ${DEPLOYMENT_TARGET_SELECTIONS[0]} | ${true}       | ${true}
+    selectedTarget                           | formSubmitted | eventSent
+    ${null}                                  | ${true}       | ${false}
+    ${DEPLOYMENT_TARGET_SELECTIONS[0].value} | ${false}      | ${false}
+    ${DEPLOYMENT_TARGET_SELECTIONS[0].value} | ${true}       | ${true}
   `('Snowplow tracking event', ({ selectedTarget, formSubmitted, eventSent }) => {
     beforeEach(() => {
       findSelect().vm.$emit('input', selectedTarget);
@@ -89,10 +89,10 @@ describe('Deployment target select', () => {
   });
 
   describe.each`
-    selectedTarget                     | isTextShown
-    ${null}                            | ${false}
-    ${DEPLOYMENT_TARGET_SELECTIONS[0]} | ${true}
-    ${DEPLOYMENT_TARGET_SELECTIONS[1]} | ${false}
+    selectedTarget                           | isTextShown
+    ${null}                                  | ${false}
+    ${DEPLOYMENT_TARGET_SELECTIONS[0].value} | ${true}
+    ${DEPLOYMENT_TARGET_SELECTIONS[1].value} | ${false}
   `('K8s education text', ({ selectedTarget, isTextShown }) => {
     beforeEach(() => {
       findSelect().vm.$emit('input', selectedTarget);
@@ -105,7 +105,7 @@ describe('Deployment target select', () => {
 
   describe('when user clicks on the docs link', () => {
     beforeEach(async () => {
-      findSelect().vm.$emit('input', K8S_OPTION);
+      findSelect().vm.$emit('input', K8S_OPTION.value);
       await nextTick();
 
       findLink().trigger('click');

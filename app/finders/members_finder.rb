@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class MembersFinder
+  include Members::RoleParser
+
   RELATIONS = %i[direct inherited descendants invited_groups shared_into_ancestors].freeze
   DEFAULT_RELATIONS = %i[direct inherited].freeze
 
@@ -42,7 +44,7 @@ class MembersFinder
     return project_members if include_relations == [:direct]
 
     union_members = group_union_members(include_relations)
-    union_members << project_members if include_relations.include?(:direct)
+    union_members << project_members.select(Member.column_names) if include_relations.include?(:direct)
 
     return project_members unless union_members.any?
 
@@ -53,12 +55,19 @@ class MembersFinder
     members = members.search(params[:search]) if params[:search].present?
     members = members.sort_by_attribute(params[:sort]) if params[:sort].present?
     members = members.owners_and_maintainers if params[:owners_and_maintainers].present?
-    members
+    filter_by_max_role(members)
+  end
+
+  def filter_by_max_role(members)
+    max_role = get_access_level(params[:max_role])
+    return members unless max_role&.in?(Gitlab::Access.all_values)
+
+    members.all_by_access_level(max_role).with_static_role
   end
 
   def group_union_members(include_relations)
     [].tap do |members|
-      members << direct_group_members(include_relations) if group
+      members << direct_group_members(include_relations).select(Member.column_names) if group
       members << project_invited_groups if include_relations.include?(:invited_groups)
     end
   end
@@ -76,12 +85,16 @@ class MembersFinder
 
   def project_invited_groups
     invited_groups_including_ancestors = project.invited_groups.self_and_ancestors
-    if Feature.disabled?(:webui_members_inherited_users, current_user) || !project.member?(current_user)
+    unless project.member?(current_user)
       invited_groups_including_ancestors = invited_groups_including_ancestors.public_or_visible_to_user(current_user)
     end
 
     invited_groups_ids_including_ancestors = invited_groups_including_ancestors.select(:id)
-    GroupMember.with_source_id(invited_groups_ids_including_ancestors).non_minimal_access
+    invited_group_members = GroupMember.with_source_id(invited_groups_ids_including_ancestors).non_minimal_access
+    return invited_group_members.select(Member.column_names) if project.share_with_group_enabled?
+
+    # Return no access for invited group members when project sharing with group is disabled
+    invited_group_members.coerce_to_no_access
   end
 
   def distinct_union_of_members(union_members)
@@ -132,3 +145,5 @@ class MembersFinder
     end.join(',')
   end
 end
+
+MembersFinder.prepend_mod

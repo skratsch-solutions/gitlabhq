@@ -7,8 +7,9 @@ import LockedBadge from '~/issuable/components/locked_badge.vue';
 import WorkItemStickyHeader from '~/work_items/components/work_item_sticky_header.vue';
 import ConfidentialityBadge from '~/vue_shared/components/confidentiality_badge.vue';
 import WorkItemActions from '~/work_items/components/work_item_actions.vue';
-import WorkItemTodos from '~/work_items/components/work_item_todos.vue';
+import TodosToggle from '~/work_items/components/shared/todos_toggle.vue';
 import WorkItemStateBadge from '~/work_items/components/work_item_state_badge.vue';
+import WorkItemNotificationsWidget from '~/work_items/components/work_item_notifications_widget.vue';
 
 describe('WorkItemStickyHeader', () => {
   let wrapper;
@@ -17,6 +18,8 @@ describe('WorkItemStickyHeader', () => {
     confidential = false,
     discussionLocked = false,
     canUpdate = true,
+    features = {},
+    parentId = null,
   } = {}) => {
     wrapper = shallowMountExtended(WorkItemStickyHeader, {
       propsData: {
@@ -31,6 +34,13 @@ describe('WorkItemStickyHeader', () => {
         isModal: false,
         currentUserTodos: [],
         workItemState: STATE_OPEN,
+        isGroup: false,
+        parentId,
+      },
+      provide: {
+        glFeatures: {
+          ...features,
+        },
       },
     });
   };
@@ -39,11 +49,12 @@ describe('WorkItemStickyHeader', () => {
   const findConfidentialityBadge = () => wrapper.findComponent(ConfidentialityBadge);
   const findLockedBadge = () => wrapper.findComponent(LockedBadge);
   const findWorkItemActions = () => wrapper.findComponent(WorkItemActions);
-  const findWorkItemTodos = () => wrapper.findComponent(WorkItemTodos);
+  const findTodosToggle = () => wrapper.findComponent(TodosToggle);
   const findIntersectionObserver = () => wrapper.findComponent(GlIntersectionObserver);
   const findWorkItemStateBadge = () => wrapper.findComponent(WorkItemStateBadge);
   const findEditButton = () => wrapper.findByTestId('work-item-edit-button-sticky');
   const findWorkItemTitle = () => wrapper.findComponent(GlLink);
+  const findWorkItemNotificationsWidget = () => wrapper.findComponent(WorkItemNotificationsWidget);
   const triggerPageScroll = () => findIntersectionObserver().vm.$emit('disappear');
 
   it('has the sticky header when the page is scrolled', async () => {
@@ -59,7 +70,7 @@ describe('WorkItemStickyHeader', () => {
     createComponent();
 
     expect(findWorkItemTitle().exists()).toBe(true);
-    expect(findWorkItemTodos().exists()).toBe(true);
+    expect(findTodosToggle().exists()).toBe(true);
     expect(findWorkItemActions().exists()).toBe(true);
   });
 
@@ -85,6 +96,32 @@ describe('WorkItemStickyHeader', () => {
 
       expect(findEditButton().exists()).toBe(false);
     });
+  });
+
+  describe('notificationsTodosButtons Feature flag', () => {
+    it.each`
+      description        | featureFlag | expected
+      ${'shows'}         | ${true}     | ${true}
+      ${'does not show'} | ${false}    | ${false}
+    `(
+      '$description new notifications button when notificationsTodoButtons feature flag is $featureFlag',
+      ({ featureFlag, expected }) => {
+        createComponent({ features: { notificationsTodosButtons: featureFlag } });
+        expect(findWorkItemNotificationsWidget().exists()).toBe(expected);
+      },
+    );
+
+    it.each`
+      description        | featureFlag | expected
+      ${'hides'}         | ${true}     | ${true}
+      ${'does not hide'} | ${false}    | ${false}
+    `(
+      '$description notifications toggle in actions menu when notificationsTodoButtons feature flag is $featureFlag',
+      ({ featureFlag, expected }) => {
+        createComponent({ features: { notificationsTodosButtons: featureFlag } });
+        expect(findWorkItemActions().props().hideSubscribe).toBe(expected);
+      },
+    );
   });
 
   describe('confidential badge', () => {
@@ -129,5 +166,11 @@ describe('WorkItemStickyHeader', () => {
         expect(findLockedBadge().exists()).toBe(true);
       });
     });
+  });
+
+  it('passes the `parentId` prop down to the `WorkItemActions` component', () => {
+    createComponent({ parentId: 'example-id' });
+
+    expect(findWorkItemActions().props('parentId')).toBe('example-id');
   });
 });

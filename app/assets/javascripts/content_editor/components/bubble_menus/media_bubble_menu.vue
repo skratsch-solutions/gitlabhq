@@ -35,11 +35,6 @@ export default {
       [Image.name]: __('Edit image description'),
       [Video.name]: __('Edit video description'),
     },
-    replaceLabels: {
-      [Audio.name]: __('Replace audio'),
-      [Image.name]: __('Replace image'),
-      [Video.name]: __('Replace video'),
-    },
     deleteLabels: {
       [Audio.name]: __('Delete audio'),
       [DrawioDiagram.name]: __('Delete diagram'),
@@ -84,9 +79,6 @@ export default {
     },
     editLabel() {
       return this.$options.i18n.editLabels[this.mediaType];
-    },
-    replaceLabel() {
-      return this.$options.i18n.replaceLabels[this.mediaType];
     },
     deleteLabel() {
       return this.$options.i18n.deleteLabels[this.mediaType];
@@ -178,10 +170,6 @@ export default {
       this.uploadProgress = 0;
     },
 
-    replaceMedia() {
-      this.$refs.fileSelector.click();
-    },
-
     editDiagram() {
       this.tiptapEditor.chain().focus().createOrEditDiagram().run();
     },
@@ -219,15 +207,15 @@ export default {
   >
     <bubble-menu
       data-testid="media-bubble-menu"
-      class="gl-shadow gl-rounded-base gl-bg-white"
+      class="gl-rounded-base gl-bg-white gl-shadow"
       plugin-key="bubbleMenuMedia"
       :should-show="shouldShow"
       @show="updateMediaInfoToState"
       @hidden="resetMediaInfo"
     >
-      <gl-button-group v-if="!isEditing" class="gl-display-flex gl-align-items-center">
+      <gl-button-group v-if="!isEditing" class="gl-flex gl-items-center">
         <gl-loading-icon v-if="showProgressIndicator" class="gl-pl-4 gl-pr-3" />
-        <span v-if="uploading" class="gl-text-secondary gl-pr-3">
+        <span v-if="uploading" class="gl-pr-3 gl-text-subtle">
           <gl-sprintf :message="__('Uploading: %{progress}')">
             <template #progress>{{ uploadProgress }}&percnt;</template>
           </gl-sprintf>
@@ -237,7 +225,7 @@ export default {
           type="file"
           name="content_editor_image"
           :accept="$options.acceptedMimes[mediaType]"
-          class="gl-display-none"
+          class="gl-hidden"
           @change="onFileSelect"
         />
         <gl-link
@@ -247,7 +235,7 @@ export default {
           :aria-label="mediaCanonicalSrc"
           :title="mediaCanonicalSrc"
           target="_blank"
-          class="gl-px-3 gl-overflow-hidden gl-whitespace-nowrap gl-text-overflow-ellipsis"
+          class="gl-overflow-hidden gl-text-ellipsis gl-whitespace-nowrap gl-px-3"
         >
           {{ mediaCanonicalSrc }}
         </gl-link>
@@ -275,27 +263,15 @@ export default {
           icon="diagram"
           @click="editDiagram"
         />
-        <gl-button
-          v-else
-          v-gl-tooltip
-          variant="default"
-          category="tertiary"
-          size="medium"
-          data-testid="replace-media"
-          :aria-label="replaceLabel"
-          :title="replaceLabel"
-          icon="retry"
-          @click="replaceMedia"
-        />
       </gl-button-group>
-      <gl-form v-else class="bubble-menu-form gl-p-4 gl-w-full" @submit.prevent="saveEditedMedia">
+      <gl-form v-else class="bubble-menu-form gl-w-full gl-p-4" @submit.prevent="saveEditedMedia">
         <gl-form-group :label="__('URL')" label-for="media-src">
           <gl-form-input id="media-src" v-model="mediaCanonicalSrc" data-testid="media-src" />
         </gl-form-group>
         <gl-form-group :label="__('Alt text')" label-for="media-alt">
           <gl-form-input id="media-alt" v-model="mediaAlt" data-testid="media-alt" />
         </gl-form-group>
-        <div class="gl-display-flex gl-justify-content-end">
+        <div class="gl-flex gl-justify-end">
           <gl-button
             class="gl-mr-3"
             data-testid="cancel-editing-media"

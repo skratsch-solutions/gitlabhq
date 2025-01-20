@@ -14,8 +14,8 @@
 .navbar-empty {
   justify-content: center;
   height: var(--header-height);
-  background: $white;
-  border-bottom: 1px solid $gray-100;
+  background: var(--gl-background-color-default);
+  border-bottom: 1px solid var(--gl-border-color-default);
 
   .tanuki-logo,
   .brand-header-logo {
@@ -30,12 +30,6 @@
 
   .input-lg {
     max-width: unset;
-  }
-
-  .no-emoji-placeholder {
-    svg {
-      fill: var(--gray-500, $gray-500);
-    }
   }
 
   .emoji-menu-toggle-button {
@@ -67,7 +61,7 @@
   top: $calc-system-headers-height;
   left: 0;
   right: 0;
-  background-color: $brand-charcoal;
+  background-color: var(--gl-color-brand-charcoal);
 
   @media (forced-colors: active) {
     border-bottom: 1px solid;
@@ -90,16 +84,16 @@
 
   &:hover,
   &:focus {
-    background-color: $brand-gray-04;
+    background-color: var(--gl-color-brand-gray-04);
   }
 
   &:focus,
   &:active {
-    @include gl-focus;
+    @apply gl-focus;
   }
 
   &:active {
-    background-color: $brand-gray-03;
+    background-color: var(--gl-color-brand-gray-03);
   }
 
   img {
@@ -132,29 +126,35 @@
     padding: 6px 8px;
     height: 32px;
     border-radius: $gl-border-radius-base;
-    color: $gray-100;
+    color: var(--gl-color-neutral-100);
     font-weight: $gl-font-weight-normal;
     font-size: $gl-font-size;
 
     &:hover,
     &:focus,
     &:active {
-      color: $white;
+      color: var(--gl-color-neutral-0);
     }
 
     &:hover,
     &:focus {
-      background-color: $brand-gray-04;
+      background-color: var(--gl-color-brand-gray-04);
       text-decoration: none;
     }
 
     &:focus,
     &:active {
-      @include gl-focus;
+      @apply gl-focus;
     }
 
     &:active {
-      background-color: $brand-gray-03;
+      background-color: var(--gl-color-brand-gray-03);
     }
   }
+}
+
+// Override Bootstrap class with offset for system-header and
+// performance bar when present
+.fixed-top {
+  top: $calc-system-headers-height;
 }

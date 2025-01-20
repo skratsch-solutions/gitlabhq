@@ -50,6 +50,14 @@ RSpec.describe Pages::LookupPath, feature_category: :pages do
     end
   end
 
+  describe '#primary_domain' do
+    it 'delegates to Project#project_setting#pages_primary_domain' do
+      project.project_setting.pages_primary_domain = 'my.domain.com'
+
+      expect(lookup_path.primary_domain).to eq('my.domain.com')
+    end
+  end
+
   describe '#https_only' do
     subject(:lookup_path) { described_class.new(deployment: deployment, domain: domain) }
 

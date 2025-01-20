@@ -9,14 +9,15 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
 
   let_it_be(:admin) { create(:admin) }
   let_it_be(:non_admin_user) { create(:user) }
-  let_it_be(:anonymous) { nil }
   let_it_be(:group_owner) { create(:user) }
+  let_it_be(:anonymous) { nil }
 
-  let_it_be(:group) { create(:group) }
+  let_it_be(:group) { create(:group, owners: group_owner, developers: non_admin_user) }
+  let_it_be(:project) { create(:project, namespace: group) }
 
   shared_examples 'it can create a runner' do
     it 'creates a runner of the specified type', :aggregate_failures do
-      is_expected.to be_success
+      expect(execute).to be_success
       expect(runner.runner_type).to eq expected_type
     end
 
@@ -127,7 +128,7 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
 
   shared_examples 'it cannot create a runner' do
     it 'runner payload is nil' do
-      expect(runner).to be nil
+      expect(runner).to be_nil
     end
 
     it { is_expected.to be_error }
@@ -174,6 +175,20 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
         it_behaves_like 'it can create a runner'
         it_behaves_like 'it can return an error'
 
+        it 'does not track runner creation with maintenance note' do
+          expect { execute }.not_to trigger_internal_events('set_runner_maintenance_note')
+        end
+
+        context 'when maintenance note is specified' do
+          let(:params) { { runner_type: 'instance_type', maintenance_note: 'a note' } }
+
+          it 'tracks runner creation with maintenance note' do
+            expect { execute }
+              .to trigger_internal_events('set_runner_maintenance_note')
+              .with(user: current_user, additional_properties: { label: 'instance_type' })
+          end
+        end
+
         context 'with unexpected scope param specified' do
           let(:params) { { runner_type: 'instance_type', scope: group } }
 
@@ -198,11 +213,6 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
     let(:expected_type) { 'group_type' }
     let(:params) { { runner_type: 'group_type', scope: group } }
 
-    before do
-      group.add_developer(non_admin_user)
-      group.add_owner(group_owner)
-    end
-
     context 'when anonymous user' do
       let(:current_user) { anonymous }
 
@@ -219,6 +229,24 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
       let(:current_user) { group_owner }
 
       it_behaves_like 'it can create a runner'
+
+      it 'populates sharding_key_id correctly' do
+        expect(runner.sharding_key_id).to eq(group.id)
+      end
+
+      it 'does not track runner creation with maintenance note' do
+        expect { execute }.not_to trigger_internal_events('set_runner_maintenance_note')
+      end
+
+      context 'when maintenance note is specified' do
+        let(:params) { { runner_type: 'group_type', scope: group, maintenance_note: 'a note' } }
+
+        it 'tracks runner creation with maintenance note' do
+          expect { execute }
+            .to trigger_internal_events('set_runner_maintenance_note')
+            .with(user: current_user, namespace: group, additional_properties: { label: 'group_type' })
+        end
+      end
 
       context 'with missing scope param' do
         let(:params) { { runner_type: 'group_type' } }
@@ -240,15 +268,8 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
   end
 
   context 'with :runner_type param set to project_type' do
-    let_it_be(:project) { create(:project, namespace: group) }
-
     let(:expected_type) { 'project_type' }
     let(:params) { { runner_type: 'project_type', scope: project } }
-
-    before do
-      group.add_developer(non_admin_user)
-      group.add_owner(group_owner)
-    end
 
     context 'when anonymous user' do
       let(:current_user) { anonymous }
@@ -260,6 +281,20 @@ RSpec.describe ::Ci::Runners::CreateRunnerService, "#execute", feature_category:
       let(:current_user) { group_owner }
 
       it_behaves_like 'it can create a runner'
+
+      it 'populates sharding_key_id correctly' do
+        expect(runner.sharding_key_id).to eq(project.id)
+      end
+
+      context 'when maintenance note is specified' do
+        let(:params) { { runner_type: 'project_type', scope: project, maintenance_note: 'a note' } }
+
+        it 'tracks runner creation with maintenance note' do
+          expect { execute }
+            .to trigger_internal_events('set_runner_maintenance_note')
+            .with(user: current_user, project: project, additional_properties: { label: 'project_type' })
+        end
+      end
 
       context 'with missing scope param' do
         let(:params) { { runner_type: 'project_type' } }

@@ -1,5 +1,3 @@
-- add_page_specific_style 'page_bundles/admin/application_settings_metrics_and_profiling'
-
 - breadcrumb_title _("Metrics and profiling")
 - page_title _("Metrics and profiling")
 - add_page_specific_style 'page_bundles/settings'
@@ -21,7 +19,7 @@
   expanded: expanded_by_default?) do |c|
   - c.with_description do
     = _('Link to your Grafana instance.')
-    = link_to _('Learn more.'), help_page_path('administration/monitoring/performance/grafana_configuration'), target: '_blank', rel: 'noopener noreferrer'
+    = link_to _('Learn more.'), help_page_path('administration/monitoring/performance/grafana_configuration.md'), target: '_blank', rel: 'noopener noreferrer'
   - c.with_body do
     = render 'grafana'
 
@@ -31,7 +29,7 @@
   expanded: expanded_by_default?) do |c|
   - c.with_description do
     = _('Enable access to the performance bar for non-administrators in a given group.')
-    = link_to _('Learn more.'), help_page_path('administration/monitoring/performance/performance_bar', anchor: 'enable-the-performance-bar-for-non-administrators'), target: '_blank', rel: 'noopener noreferrer'
+    = link_to _('Learn more.'), help_page_path('administration/monitoring/performance/performance_bar.md', anchor: 'enable-the-performance-bar-for-non-administrators'), target: '_blank', rel: 'noopener noreferrer'
   - c.with_body do
     = render 'performance_bar'
 

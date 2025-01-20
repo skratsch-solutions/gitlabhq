@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Refer to the information below when troubleshooting Gitaly Cluster (Praefect). For information on troubleshooting Gitaly,
 see [Troubleshooting Gitaly](troubleshooting.md).
@@ -19,6 +19,12 @@ The `check` Praefect sub-command runs a series of checks to determine the health
 
 ```shell
 gitlab-ctl praefect check
+```
+
+If Praefect is deployed by using the Praefect chart, run the binary directly.
+
+```shell
+/usr/local/bin/praefect check
 ```
 
 The following sections describe the checks that are run.
@@ -74,28 +80,6 @@ If this check fails:
 1. Check if there is a high load on the Praefect database. If the Praefect database is slow to respond, it can lead health checks failing to persist
    to the database, leading Praefect to think nodes are unhealthy.
 
-### Check clock synchronization
-
-Authentication between Praefect and the Gitaly servers requires the server times to be
-within 60 seconds of each other, so that the token check succeeds.
-
-This check helps identify the root cause of `permission denied`
-[errors being logged by Praefect](troubleshooting.md#permission-denied-errors-appearing-in-gitaly-or-praefect-logs-when-accessing-repositories).
-
-For offline environments where access to public `pool.ntp.org` servers is not possible, the Praefect `check` sub-command fails this
-check with an error message similar to:
-
-```plaintext
-checking with NTP service at  and allowed clock drift 60000ms [correlation_id: <XXX>]
-Failed (fatal) error: gitaly node at tcp://[gitlab.example-instance.com]:8075: rpc error: code = DeadlineExceeded desc = context deadline exceeded
-```
-
-To resolve this issue, set an environment variable on all Praefect servers to point to an accessible internal [Network Time Protocol](https://en.wikipedia.org/wiki/Network_Time_Protocol) (NTP) server. For example:
-
-```shell
-export NTP_HOST=ntp.example.com
-```
-
 ## Praefect errors in logs
 
 If you receive an error, check `/var/log/gitlab/gitlab-rails/production.log`.
@@ -105,7 +89,7 @@ Here are common errors and potential causes:
 - 500 response code
   - `ActionView::Template::Error (7:permission denied)`
     - `praefect['configuration'][:auth][:token]` and `gitlab_rails['gitaly_token']` do not match on the GitLab server.
-    - `git_data_dirs` storage configuration is missing on the Sidekiq server.
+    - `gitlab_rails['repositories_storages']` storage configuration is missing on the Sidekiq server.
   - `Unable to save project. Error: 7:permission denied`
     - Secret token in `praefect['configuration'][:virtual_storage]` on GitLab server does not match the
       value in `gitaly['auth_token']` on one or more Gitaly servers.
@@ -137,7 +121,7 @@ to inspect the metadata for troubleshooting.
 You can retrieve a repository's metadata by its Praefect-assigned repository ID:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -repository-id <repository-id>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -repository-id <repository-id>
 ```
 
 When the physical path on the physical storage starts with `@cluster`, you can
@@ -146,7 +130,7 @@ When the physical path on the physical storage starts with `@cluster`, you can
 You can also retrieve a repository's metadata by its virtual storage and relative path:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -virtual-storage <virtual-storage> -relative-path <relative-path>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -virtual-storage <virtual-storage> -relative-path <relative-path>
 ```
 
 ### Examples
@@ -154,13 +138,13 @@ sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.t
 To retrieve the metadata for a repository with a Praefect-assigned repository ID of 1:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -repository-id 1
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -repository-id 1
 ```
 
 To retrieve the metadata for a repository with virtual storage `default` and relative path `@hashed/b1/7e/b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9.git`:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -virtual-storage default -relative-path @hashed/b1/7e/b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9.git
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml metadata -virtual-storage default -relative-path @hashed/b1/7e/b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9.git
 ```
 
 Either of these examples retrieve the following metadata for an example repository:
@@ -268,7 +252,7 @@ To solve this, the database schema migration can be done using `sql-migrate` sub
 the `praefect` command:
 
 ```shell
-$ sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate
+$ sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-migrate
 praefect sql-migrate: OK (applied 21 migrations)
 ```
 
@@ -358,13 +342,13 @@ Be sure a recent backup of the repository has been made before running these com
 
    ```shell
    # Validate you have the correct repository.
-   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml remove-repository -virtual-storage gitaly -relative-path '<relative_path>' -db-only
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml remove-repository -virtual-storage gitaly -relative-path '<relative_path>' -db-only
 
    # Run again with '--apply' flag to remove repository from the Praefect tracking database
-   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml remove-repository -virtual-storage gitaly -relative-path '<relative_path>' -db-only --apply
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml remove-repository -virtual-storage gitaly -relative-path '<relative_path>' -db-only --apply
 
    # Re-track the repository, overwriting the secondary nodes
-   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml track-repository -virtual-storage gitaly -authoritative-storage '<healthy_gitaly>' -relative-path '<relative_path>' -replica-path '<replica_path>'-replicate-immediately
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml track-repository -virtual-storage gitaly -authoritative-storage '<healthy_gitaly>' -relative-path '<relative_path>' -replica-path '<replica_path>'-replicate-immediately
    ```
 
 ### Replication fails silently

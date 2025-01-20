@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Moved](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/27056) from GitLab Premium to GitLab Free in 11.10.
 
@@ -49,7 +49,7 @@ Alternatively, learn where to install custom certificates by using
 
 The external authorization service can be enabled by an administrator:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **External authorization**.
 1. Complete the fields.
@@ -69,7 +69,7 @@ Prerequisites:
 
 To allow authorization with deploy tokens and keys:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **External authorization**, and:
    - Leave the service URL field empty.
@@ -131,7 +131,7 @@ label defined in the [global settings](#configuration) is used.
 
 On all project pages, in the upper-right corner, the label appears.
 
-![classification label on project page](img/classification_label_on_project_page_v14_8.png)
+![A red overridden label with an open lock icon displays in the upper-right corner of a project.](img/classification_label_on_project_page_v14_8.png)
 
 <!-- ## Troubleshooting
 

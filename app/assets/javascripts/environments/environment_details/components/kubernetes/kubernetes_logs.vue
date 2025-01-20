@@ -1,12 +1,14 @@
 <script>
 import { GlLoadingIcon, GlAlert, GlEmptyState, GlSprintf, GlIcon } from '@gitlab/ui';
-import EmptyStateSvg from '@gitlab/svgs/dist/illustrations/Dependency-list-empty-state.svg?url';
+import EmptyStateSvg from '@gitlab/svgs/dist/illustrations/status/status-nothing-md.svg';
 import k8sLogsQuery from '~/environments/graphql/queries/k8s_logs.query.graphql';
 import environmentClusterAgentQuery from '~/environments/graphql/queries/environment_cluster_agent.query.graphql';
+import abortK8sPodLogsStream from '~/environments/graphql/mutations/abort_pod_logs_stream.mutation.graphql';
 import { createK8sAccessConfiguration } from '~/environments/helpers/k8s_integration_helper';
 import LogsViewer from '~/vue_shared/components/logs_viewer/logs_viewer.vue';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { s__, __ } from '~/locale';
+import { fetchPolicies } from '~/lib/graphql';
 
 export default {
   components: {
@@ -45,10 +47,14 @@ export default {
   data() {
     return {
       environmentError: null,
+      k8sLogs: null,
+      environment: null,
     };
   },
   apollo: {
     k8sLogs: {
+      fetchPolicy: fetchPolicies.NETWORK_ONLY,
+      nextFetchPolicy: fetchPolicies.CACHE_FIRST,
       query: k8sLogsQuery,
       variables() {
         return {
@@ -129,6 +135,17 @@ export default {
       return data;
     },
   },
+  beforeDestroy() {
+    this.$apollo.mutate({
+      mutation: abortK8sPodLogsStream,
+      variables: {
+        configuration: this.k8sAccessConfiguration,
+        namespace: this.namespace,
+        podName: this.podName,
+        containerName: this.containerName,
+      },
+    });
+  },
   i18n: {
     emptyStateTitleForPod: s__('KubernetesLogs|No logs available for pod %{podName}'),
     emptyStateTitleForContainer: s__(
@@ -152,7 +169,7 @@ export default {
 
     <logs-viewer v-else-if="logLines" :log-lines="logLines" :highlighted-line="highlightedLineHash"
       ><template #header-details
-        ><div class="gl-p-3 gl-ml-auto">
+        ><div class="gl-ml-auto gl-p-3">
           <span v-for="(item, index) of headerData" :key="index" class="gl-mr-4">
             <gl-icon :name="item.icon" class="gl-mr-2" />{{ item.label }}: {{ item.value }}</span
           >

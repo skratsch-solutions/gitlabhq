@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Packages::Package, type: :model, feature_category: :package_registry do
@@ -16,13 +17,7 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     it { is_expected.to have_many(:dependency_links).inverse_of(:package) }
     it { is_expected.to have_many(:tags).inverse_of(:package) }
     it { is_expected.to have_many(:build_infos).inverse_of(:package) }
-    it { is_expected.to have_many(:installable_nuget_package_files).inverse_of(:package) }
     it { is_expected.to have_one(:maven_metadatum).inverse_of(:package) }
-    it { is_expected.to have_one(:nuget_metadatum).inverse_of(:package) }
-    it { is_expected.to have_one(:npm_metadatum).inverse_of(:package) }
-    it { is_expected.to have_one(:terraform_module_metadatum).inverse_of(:package) }
-    it { is_expected.to have_many(:nuget_symbols).inverse_of(:package) }
-    it { is_expected.to have_many(:matching_package_protection_rules).through(:project).source(:package_protection_rules) }
   end
 
   describe '.sort_by_attribute' do
@@ -110,69 +105,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
       it { is_expected.to allow_value("my/domain/com/my-app").for(:name) }
       it { is_expected.to allow_value("my.app-11.07.2018").for(:name) }
       it { is_expected.not_to allow_value("my(dom$$$ain)com.my-app").for(:name) }
-
-      context 'generic package' do
-        subject { build_stubbed(:generic_package) }
-
-        it { is_expected.to allow_value('123').for(:name) }
-        it { is_expected.to allow_value('foo').for(:name) }
-        it { is_expected.to allow_value('foo.bar.baz-2.0-20190901.47283-1').for(:name) }
-        it { is_expected.not_to allow_value('../../foo').for(:name) }
-        it { is_expected.not_to allow_value('..\..\foo').for(:name) }
-        it { is_expected.not_to allow_value('%2f%2e%2e%2f%2essh%2fauthorized_keys').for(:name) }
-        it { is_expected.not_to allow_value('$foo/bar').for(:name) }
-        it { is_expected.not_to allow_value('my file name').for(:name) }
-        it { is_expected.not_to allow_value('!!().for(:name)().for(:name)').for(:name) }
-      end
-
-      context 'helm package' do
-        subject { build(:helm_package) }
-
-        it { is_expected.to allow_value('prometheus').for(:name) }
-        it { is_expected.to allow_value('rook-ceph').for(:name) }
-        it { is_expected.not_to allow_value('a+b').for(:name) }
-        it { is_expected.not_to allow_value('Hé').for(:name) }
-      end
-
-      context 'nuget package' do
-        subject { build_stubbed(:nuget_package) }
-
-        it { is_expected.to allow_value('My.Package').for(:name) }
-        it { is_expected.to allow_value('My.Package.Mvc').for(:name) }
-        it { is_expected.to allow_value('MyPackage').for(:name) }
-        it { is_expected.to allow_value('My.23.Package').for(:name) }
-        it { is_expected.to allow_value('My23Package').for(:name) }
-        it { is_expected.to allow_value('runtime.my-test64.runtime.package.Mvc').for(:name) }
-        it { is_expected.to allow_value('my_package').for(:name) }
-        it { is_expected.not_to allow_value('My/package').for(:name) }
-        it { is_expected.not_to allow_value('../../../my_package').for(:name) }
-        it { is_expected.not_to allow_value('%2e%2e%2fmy_package').for(:name) }
-      end
-
-      context 'npm package' do
-        subject { build_stubbed(:npm_package) }
-
-        it { is_expected.to allow_value("@group-1/package").for(:name) }
-        it { is_expected.to allow_value("@any-scope/package").for(:name) }
-        it { is_expected.to allow_value("unscoped-package").for(:name) }
-        it { is_expected.not_to allow_value("@inv@lid-scope/package").for(:name) }
-        it { is_expected.not_to allow_value("@scope/../../package").for(:name) }
-        it { is_expected.not_to allow_value("@scope%2e%2e%fpackage").for(:name) }
-        it { is_expected.not_to allow_value("@scope/sub/package").for(:name) }
-      end
-
-      context 'terraform module package' do
-        subject { build_stubbed(:terraform_module_package) }
-
-        it { is_expected.to allow_value('my-module/my-system').for(:name) }
-        it { is_expected.to allow_value('my/module').for(:name) }
-        it { is_expected.not_to allow_value('my-module').for(:name) }
-        it { is_expected.not_to allow_value('My-Module').for(:name) }
-        it { is_expected.not_to allow_value('my_module').for(:name) }
-        it { is_expected.not_to allow_value('my.module').for(:name) }
-        it { is_expected.not_to allow_value('../../../my-module').for(:name) }
-        it { is_expected.not_to allow_value('%2e%2e%2fmy-module').for(:name) }
-      end
     end
 
     describe '#version' do
@@ -203,308 +135,20 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
         it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
         it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
       end
-
-      context 'pypi package' do
-        subject { create(:pypi_package) }
-
-        it { is_expected.to allow_value('0.1').for(:version) }
-        it { is_expected.to allow_value('2.0').for(:version) }
-        it { is_expected.to allow_value('1.2.0').for(:version) }
-        it { is_expected.to allow_value('0100!0.0').for(:version) }
-        it { is_expected.to allow_value('00!1.2').for(:version) }
-        it { is_expected.to allow_value('1.0a').for(:version) }
-        it { is_expected.to allow_value('1.0-a').for(:version) }
-        it { is_expected.to allow_value('1.0.a1').for(:version) }
-        it { is_expected.to allow_value('1.0a1').for(:version) }
-        it { is_expected.to allow_value('1.0-a1').for(:version) }
-        it { is_expected.to allow_value('1.0alpha1').for(:version) }
-        it { is_expected.to allow_value('1.0b1').for(:version) }
-        it { is_expected.to allow_value('1.0beta1').for(:version) }
-        it { is_expected.to allow_value('1.0rc1').for(:version) }
-        it { is_expected.to allow_value('1.0pre1').for(:version) }
-        it { is_expected.to allow_value('1.0preview1').for(:version) }
-        it { is_expected.to allow_value('1.0.dev1').for(:version) }
-        it { is_expected.to allow_value('1.0.DEV1').for(:version) }
-        it { is_expected.to allow_value('1.0.post1').for(:version) }
-        it { is_expected.to allow_value('1.0.rev1').for(:version) }
-        it { is_expected.to allow_value('1.0.r1').for(:version) }
-        it { is_expected.to allow_value('1.0c2').for(:version) }
-        it { is_expected.to allow_value('2012.15').for(:version) }
-        it { is_expected.to allow_value('1.0+5').for(:version) }
-        it { is_expected.to allow_value('1.0+abc.5').for(:version) }
-        it { is_expected.to allow_value('1!1.1').for(:version) }
-        it { is_expected.to allow_value('1.0c3').for(:version) }
-        it { is_expected.to allow_value('1.0rc2').for(:version) }
-        it { is_expected.to allow_value('1.0c1').for(:version) }
-        it { is_expected.to allow_value('1.0b2-346').for(:version) }
-        it { is_expected.to allow_value('1.0b2.post345').for(:version) }
-        it { is_expected.to allow_value('1.0b2.post345.dev456').for(:version) }
-        it { is_expected.to allow_value('1.2.rev33+123456').for(:version) }
-        it { is_expected.to allow_value('1.1.dev1').for(:version) }
-        it { is_expected.to allow_value('1.0b1.dev456').for(:version) }
-        it { is_expected.to allow_value('1.0a12.dev456').for(:version) }
-        it { is_expected.to allow_value('1.0b2').for(:version) }
-        it { is_expected.to allow_value('1.0.dev456').for(:version) }
-        it { is_expected.to allow_value('1.0c1.dev456').for(:version) }
-        it { is_expected.to allow_value('1.0.post456').for(:version) }
-        it { is_expected.to allow_value('1.0.post456.dev34').for(:version) }
-        it { is_expected.to allow_value('1.2+123abc').for(:version) }
-        it { is_expected.to allow_value('1.2+abc').for(:version) }
-        it { is_expected.to allow_value('1.2+abc123').for(:version) }
-        it { is_expected.to allow_value('1.2+abc123def').for(:version) }
-        it { is_expected.to allow_value('1.2+1234.abc').for(:version) }
-        it { is_expected.to allow_value('1.2+123456').for(:version) }
-        it { is_expected.to allow_value('1.2.r32+123456').for(:version) }
-        it { is_expected.to allow_value('1!1.2.rev33+123456').for(:version) }
-        it { is_expected.to allow_value('1.0a12').for(:version) }
-        it { is_expected.to allow_value('1.2.3-45+abcdefgh').for(:version) }
-        it { is_expected.to allow_value('v1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('1.2.3-45-abcdefgh').for(:version) }
-        it { is_expected.not_to allow_value('..1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('  1.2.3').for(:version) }
-        it { is_expected.not_to allow_value("1.2.3  \r\t").for(:version) }
-        it { is_expected.not_to allow_value("\r\t 1.2.3").for(:version) }
-        it { is_expected.not_to allow_value('1./2.3').for(:version) }
-        it { is_expected.not_to allow_value('1.2.3-4/../../').for(:version) }
-        it { is_expected.not_to allow_value('1.2.3-4%2e%2e%').for(:version) }
-        it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
-      end
-
-      context 'generic package' do
-        subject { build_stubbed(:generic_package) }
-
-        it { is_expected.to validate_presence_of(:version) }
-        it { is_expected.to allow_value('1.2.3').for(:version) }
-        it { is_expected.to allow_value('1.3.350').for(:version) }
-        it { is_expected.to allow_value('1.3.350-20201230123456').for(:version) }
-        it { is_expected.to allow_value('1.2.3-rc1').for(:version) }
-        it { is_expected.to allow_value('1.2.3g').for(:version) }
-        it { is_expected.to allow_value('1.2').for(:version) }
-        it { is_expected.to allow_value('1.2.bananas').for(:version) }
-        it { is_expected.to allow_value('v1.2.4-build').for(:version) }
-        it { is_expected.to allow_value('d50d836eb3de6177ce6c7a5482f27f9c2c84b672').for(:version) }
-        it { is_expected.to allow_value('this_is_a_string_only').for(:version) }
-        it { is_expected.not_to allow_value('..1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('  1.2.3').for(:version) }
-        it { is_expected.not_to allow_value("1.2.3  \r\t").for(:version) }
-        it { is_expected.not_to allow_value("\r\t 1.2.3").for(:version) }
-        it { is_expected.not_to allow_value('1.2.3-4/../../').for(:version) }
-        it { is_expected.not_to allow_value('1.2.3-4%2e%2e%').for(:version) }
-        it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('').for(:version) }
-        it { is_expected.not_to allow_value(nil).for(:version) }
-      end
-
-      context 'helm package' do
-        subject { build_stubbed(:helm_package) }
-
-        it { is_expected.not_to allow_value(nil).for(:version) }
-        it { is_expected.not_to allow_value('').for(:version) }
-        it { is_expected.to allow_value('v1.2.3').for(:version) }
-        it { is_expected.to allow_value('1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('v1.2').for(:version) }
-      end
-
-      it_behaves_like 'validating version to be SemVer compliant for', :npm_package
-      it_behaves_like 'validating version to be SemVer compliant for', :terraform_module_package
-
-      context 'nuget package' do
-        subject { build_stubbed(:nuget_package) }
-
-        it { is_expected.to allow_value('1.2').for(:version) }
-        it { is_expected.to allow_value('1.2.3').for(:version) }
-        it { is_expected.to allow_value('1.2.3.4').for(:version) }
-        it { is_expected.to allow_value('1.2.3-beta').for(:version) }
-        it { is_expected.to allow_value('1.2.3-alpha.3').for(:version) }
-        it { is_expected.not_to allow_value('1').for(:version) }
-        it { is_expected.not_to allow_value('1./2.3').for(:version) }
-        it { is_expected.not_to allow_value('../../../../../1.2.3').for(:version) }
-        it { is_expected.not_to allow_value('%2e%2e%2f1.2.3').for(:version) }
-      end
     end
 
-    describe '#npm_package_already_taken' do
-      context 'maven package' do
-        let!(:package) { create(:maven_package) }
-
-        it 'will allow a package of the same name' do
-          new_package = build(:maven_package, name: package.name)
-
-          expect(new_package).to be_valid
-        end
+    describe '#prevent_concurrent_inserts' do
+      let(:maven_package) { build(:maven_package, project_id: 5) }
+      let(:lock_key) do
+        maven_package.connection.quote("#{described_class.table_name}-#{maven_package.project_id}-#{maven_package.name}-#{maven_package.version}")
       end
 
-      context 'npm package' do
-        let_it_be(:group) { create(:group) }
-        let_it_be(:project) { create(:project, namespace: group) }
-        let_it_be(:second_project) { create(:project, namespace: group) }
+      subject { maven_package.send(:prevent_concurrent_inserts) }
 
-        let(:package) { build(:npm_package, project: project, name: name) }
+      it 'executes advisory lock' do
+        expect(maven_package.connection).to receive(:execute).with("SELECT pg_advisory_xact_lock(hashtext(#{lock_key}))")
 
-        shared_examples 'validating the first package' do
-          it 'validates the first package' do
-            expect(package).to be_valid
-          end
-        end
-
-        shared_examples 'validating the second package' do
-          it 'validates the second package' do
-            package.save!
-
-            expect(second_package).to be_valid
-          end
-        end
-
-        shared_examples 'not validating the second package' do |field_with_error:|
-          it 'does not validate the second package' do
-            package.save!
-
-            expect(second_package).not_to be_valid
-            case field_with_error
-            when :base
-              expect(second_package.errors.messages[:base]).to eq ['Package already exists']
-            when :name
-              expect(second_package.errors.messages[:name]).to eq ['has already been taken']
-            else
-              raise ArgumentError, "field #{field_with_error} not expected"
-            end
-          end
-        end
-
-        shared_examples 'validating both if the first package is pending destruction' do
-          before do
-            package.status = :pending_destruction
-          end
-
-          it_behaves_like 'validating the first package'
-          it_behaves_like 'validating the second package'
-        end
-
-        context 'following the naming convention' do
-          let(:name) { "@#{group.path}/test" }
-
-          context 'with the second package in the project of the first package' do
-            let(:second_package) { build(:npm_package, project: project, name: second_package_name, version: second_package_version) }
-
-            context 'with no duplicated name' do
-              let(:second_package_name) { "@#{group.path}/test2" }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicated name' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicate name and duplicated version' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { package.version }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'not validating the second package', field_with_error: :name
-              it_behaves_like 'validating both if the first package is pending destruction'
-            end
-          end
-
-          context 'with the second package in a different project than the first package' do
-            let(:second_package) { build(:npm_package, project: second_project, name: second_package_name, version: second_package_version) }
-
-            context 'with no duplicated name' do
-              let(:second_package_name) { "@#{group.path}/test2" }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicated name' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicate name and duplicated version' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { package.version }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'not validating the second package', field_with_error: :base
-              it_behaves_like 'validating both if the first package is pending destruction'
-            end
-          end
-        end
-
-        context 'not following the naming convention' do
-          let(:name) { '@foobar/test' }
-
-          context 'with the second package in the project of the first package' do
-            let(:second_package) { build(:npm_package, project: project, name: second_package_name, version: second_package_version) }
-
-            context 'with no duplicated name' do
-              let(:second_package_name) { "@foobar/test2" }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicated name' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicate name and duplicated version' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { package.version }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'not validating the second package', field_with_error: :name
-              it_behaves_like 'validating both if the first package is pending destruction'
-            end
-          end
-
-          context 'with the second package in a different project than the first package' do
-            let(:second_package) { build(:npm_package, project: second_project, name: second_package_name, version: second_package_version) }
-
-            context 'with no duplicated name' do
-              let(:second_package_name) { "@foobar/test2" }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicated name' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { '5.0.0' }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-            end
-
-            context 'with duplicate name and duplicated version' do
-              let(:second_package_name) { package.name }
-              let(:second_package_version) { package.version }
-
-              it_behaves_like 'validating the first package'
-              it_behaves_like 'validating the second package'
-              it_behaves_like 'validating both if the first package is pending destruction'
-            end
-          end
-        end
+        subject
       end
     end
 
@@ -615,27 +259,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     end
   end
 
-  describe '.with_npm_scope' do
-    let_it_be(:package1) { create(:npm_package, name: '@test/foobar') }
-    let_it_be(:package2) { create(:npm_package, name: '@test2/foobar') }
-    let_it_be(:package3) { create(:npm_package, name: 'foobar') }
-
-    subject { described_class.with_npm_scope('test') }
-
-    it { is_expected.to contain_exactly(package1) }
-  end
-
-  describe '.without_nuget_temporary_name' do
-    let!(:package1) { create(:nuget_package) }
-    let!(:package2) { create(:nuget_package, name: Packages::Nuget::TEMPORARY_PACKAGE_NAME) }
-
-    subject { described_class.without_nuget_temporary_name }
-
-    it 'does not include nuget temporary packages' do
-      expect(subject).to eq([package1])
-    end
-  end
-
   describe '.limit_recent' do
     let!(:package1) { create(:nuget_package) }
     let!(:package2) { create(:nuget_package) }
@@ -700,14 +323,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
       it { is_expected.to match_array([package1, package2]) }
     end
 
-    describe '.with_normalized_pypi_name' do
-      let_it_be(:pypi_package) { create(:pypi_package, name: 'Foo.bAr---BAZ_buz') }
-
-      subject { described_class.with_normalized_pypi_name('foo-bar-baz-buz') }
-
-      it { is_expected.to match_array([pypi_package]) }
-    end
-
     describe '.with_case_insensitive_version' do
       let_it_be(:nuget_package) { create(:nuget_package, version: '1.0.0-ABC') }
 
@@ -724,55 +339,26 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
       it { is_expected.to match_array([nuget_package]) }
     end
 
-    describe '.with_nuget_version_or_normalized_version' do
-      let_it_be(:nuget_package) { create(:nuget_package, :with_metadatum, version: '1.0.7+r3456') }
-
-      before do
-        nuget_package.nuget_metadatum.update_column(:normalized_version, '1.0.7')
-      end
-
-      subject { described_class.with_nuget_version_or_normalized_version(version, with_normalized: with_normalized) }
-
-      where(:version, :with_normalized, :expected) do
-        '1.0.7'       | true  | [ref(:nuget_package)]
-        '1.0.7'       | false | []
-        '1.0.7+r3456' | true  | [ref(:nuget_package)]
-        '1.0.7+r3456' | false | [ref(:nuget_package)]
-      end
-
-      with_them do
-        it { is_expected.to match_array(expected) }
-      end
-    end
-
     context 'status scopes' do
       let_it_be(:default_package) { create(:maven_package, :default) }
       let_it_be(:hidden_package) { create(:maven_package, :hidden) }
       let_it_be(:processing_package) { create(:maven_package, :processing) }
       let_it_be(:error_package) { create(:maven_package, :error) }
+      let_it_be(:deprecated_package) { create(:maven_package, :deprecated) }
 
       describe '.displayable' do
         subject { described_class.displayable }
 
         it 'does not include non-displayable packages', :aggregate_failures do
           is_expected.to include(error_package)
+          is_expected.to include(deprecated_package)
           is_expected.not_to include(hidden_package)
           is_expected.not_to include(processing_package)
         end
       end
 
       describe '.installable' do
-        subject { described_class.installable }
-
-        it 'does not include non-installable packages', :aggregate_failures do
-          is_expected.not_to include(error_package)
-          is_expected.not_to include(processing_package)
-        end
-
-        it 'includes installable packages', :aggregate_failures do
-          is_expected.to include(default_package)
-          is_expected.to include(hidden_package)
-        end
+        it_behaves_like 'installable packages', :maven_package
       end
 
       describe '.with_status' do
@@ -854,6 +440,10 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     end
   end
 
+  describe '.installable_statuses' do
+    it_behaves_like 'installable statuses'
+  end
+
   describe '#versions' do
     let_it_be(:project) { create(:project) }
     let_it_be(:package) { create(:maven_package, project: project) }
@@ -915,26 +505,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     end
   end
 
-  describe '#matching_package_protection_rules' do
-    let_it_be(:package) do
-      create(:npm_package, name: 'npm-package')
-    end
-
-    let_it_be(:package_protection_rule) do
-      create(:package_protection_rule, project: package.project, package_name_pattern: package.name, package_type: :npm,
-        minimum_access_level_for_push: :maintainer)
-    end
-
-    let_it_be(:package_protection_rule_no_match) do
-      create(:package_protection_rule, project: package.project, package_name_pattern: "other-#{package.name}", package_type: :npm,
-        minimum_access_level_for_push: :maintainer)
-    end
-
-    subject { package.matching_package_protection_rules }
-
-    it { is_expected.to eq [package_protection_rule] }
-  end
-
   describe '#tag_names' do
     let_it_be(:package) { create(:nuget_package) }
 
@@ -950,26 +520,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
       end
 
       it { is_expected.to contain_exactly(*tags) }
-    end
-  end
-
-  describe '#infrastructure_package?' do
-    let(:package) { create(:package) }
-
-    subject { package.infrastructure_package? }
-
-    it { is_expected.to eq(false) }
-
-    context 'with generic package' do
-      let(:package) { create(:generic_package) }
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'with terraform module package' do
-      let(:package) { create(:terraform_module_package) }
-
-      it { is_expected.to eq(true) }
     end
   end
 
@@ -1062,30 +612,6 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     end
   end
 
-  describe '#sync_npm_metadata_cache' do
-    let_it_be(:package) { create(:npm_package) }
-
-    subject { package.sync_npm_metadata_cache }
-
-    it 'enqueues a sync worker job' do
-      expect(::Packages::Npm::CreateMetadataCacheWorker)
-        .to receive(:perform_async).with(package.project_id, package.name)
-
-      subject
-    end
-
-    context 'with a non npm package' do
-      let_it_be(:package) { create(:maven_package) }
-
-      it 'does not enqueue a sync worker job' do
-        expect(::Packages::Npm::CreateMetadataCacheWorker)
-          .not_to receive(:perform_async)
-
-        subject
-      end
-    end
-  end
-
   describe '#mark_package_files_for_destruction' do
     let_it_be(:package) { create(:npm_package, :pending_destruction) }
 
@@ -1165,68 +691,21 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
     end
   end
 
-  describe '#normalized_pypi_name' do
-    let_it_be(:package) { create(:pypi_package) }
-
-    subject { package.normalized_pypi_name }
-
-    where(:package_name, :normalized_name) do
-      'ASDF' | 'asdf'
-      'a.B_c-d' | 'a-b-c-d'
-      'a-------b....c___d' | 'a-b-c-d'
-    end
-
-    with_them do
-      before do
-        package.update_column(:name, package_name)
-      end
-
-      it { is_expected.to eq(normalized_name) }
-    end
-  end
-
-  describe '#normalized_nuget_version' do
-    let_it_be(:package) { create(:nuget_package, :with_metadatum, version: '1.0') }
-    let(:normalized_version) { '1.0.0' }
-
-    subject { package.normalized_nuget_version }
-
-    before do
-      package.nuget_metadatum.update_column(:normalized_version, normalized_version)
-    end
-
-    it { is_expected.to eq(normalized_version) }
-  end
-
-  describe "#publish_creation_event" do
+  describe '#publish_creation_event' do
     let_it_be(:project) { create(:project) }
 
-    let(:version) { '-' }
-    let(:package_type) { :generic }
+    let(:package) { build_stubbed(:ml_model_package) }
 
-    subject { described_class.create!(project: project, name: 'incoming', version: version, package_type: package_type) }
-
-    context 'when package is generic' do
-      it 'publishes an event' do
-        expect { subject }
-          .to publish_event(::Packages::PackageCreatedEvent)
-                .with({
-                  project_id: project.id,
-                  id: kind_of(Numeric),
-                  name: "incoming",
-                  version: "-",
-                  package_type: 'generic'
-                })
-      end
-    end
-
-    context 'when package is not generic' do
-      let(:package_type) { :debian }
-      let(:version) { 1 }
-
-      it 'does not create event' do
-        expect { subject }.not_to publish_event(::Packages::PackageCreatedEvent)
-      end
+    it 'publishes an event' do
+      expect { package.publish_creation_event }
+        .to publish_event(::Packages::PackageCreatedEvent)
+              .with({
+                project_id: package.project_id,
+                id: package.id,
+                name: package.name,
+                version: package.version,
+                package_type: package.package_type
+              })
     end
   end
 
@@ -1261,6 +740,25 @@ RSpec.describe Packages::Package, type: :model, feature_category: :package_regis
           end
         end
       end
+    end
+  end
+
+  describe '#detailed_info?' do
+    subject { package.detailed_info? }
+
+    where(:status, :result) do
+      :default             | true
+      :deprecated          | true
+      :hidden              | false
+      :processing          | false
+      :error               | false
+      :pending_destruction | false
+    end
+
+    with_them do
+      let(:package) { build(:maven_package, status: status) }
+
+      it { is_expected.to eq(result) }
     end
   end
 end

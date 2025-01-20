@@ -532,6 +532,7 @@ RSpec.describe Gitlab::Git::DiffCollection, feature_category: :source_code_manag
 
   describe '#each' do
     context 'with Gitlab::GitalyClient::DiffStitcher' do
+      let(:offset_index) { 0 }
       let(:collection) do
         described_class.new(
           iterator,
@@ -539,12 +540,13 @@ RSpec.describe Gitlab::Git::DiffCollection, feature_category: :source_code_manag
           max_lines: max_lines,
           limits: limits,
           expanded: expanded,
-          generated_files: generated_files
+          generated_files: generated_files,
+          offset_index: offset_index
         )
       end
 
       let(:iterator) { Gitlab::GitalyClient::DiffStitcher.new(diff_params) }
-      let(:diff_params) { [diff_1, diff_2] }
+      let(:diff_params) { [diff_1, diff_2, diff_3] }
       let(:diff_1) do
         OpenStruct.new(
           to_path: ".gitmodules",
@@ -573,6 +575,20 @@ RSpec.describe Gitlab::Git::DiffCollection, feature_category: :source_code_manag
         )
       end
 
+      let(:diff_3) do
+        OpenStruct.new(
+          to_path: "README",
+          from_path: "README",
+          old_mode: 0100644,
+          new_mode: 0100644,
+          from_id: '357406f3075a57708d0163752905cc1576fceacc',
+          to_id: '8e5177d718c561d36efde08bad36b43687ee6bf0',
+          patch: 'a' * 100,
+          raw_patch_data: 'a' * 100,
+          end_of_patch: true
+        )
+      end
+
       context 'with generated_files' do
         let(:generated_files) { [diff_1.from_path] }
 
@@ -585,6 +601,12 @@ RSpec.describe Gitlab::Git::DiffCollection, feature_category: :source_code_manag
             end
           end
         end
+
+        describe '#empty?' do
+          subject { collection.empty? }
+
+          it { is_expected.to be_falsey }
+        end
       end
 
       context 'without generated_files' do
@@ -593,6 +615,51 @@ RSpec.describe Gitlab::Git::DiffCollection, feature_category: :source_code_manag
         it 'set generated as nil' do
           collection.each do |d|
             expect(d.generated).to be_nil
+          end
+        end
+
+        describe '#empty?' do
+          subject { collection.empty? }
+
+          it { is_expected.to be_falsey }
+        end
+      end
+
+      context 'when offset_index is given' do
+        let(:generated_files) { nil }
+
+        context 'when offset_index is 0' do
+          let(:offset_index) { 0 }
+
+          it 'yields all diffs' do
+            expect(collection.to_a.map(&:diff)).to eq(
+              [
+                diff_1.patch,
+                diff_2.patch,
+                diff_3.patch
+              ]
+            )
+          end
+        end
+
+        context 'when offset index is 1' do
+          let(:offset_index) { 1 }
+
+          it 'does not yield diffs before the offset' do
+            expect(collection.to_a.map(&:diff)).to eq(
+              [
+                diff_2.patch,
+                diff_3.patch
+              ]
+            )
+          end
+        end
+
+        context 'when offset_index is the same as the number of diffs' do
+          let(:offset_index) { 3 }
+
+          it 'yields no diffs' do
+            expect(collection.to_a).to be_empty
           end
         end
       end

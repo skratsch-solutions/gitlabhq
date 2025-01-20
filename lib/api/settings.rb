@@ -130,6 +130,7 @@ module API
       optional :performance_bar_allowed_group_path, type: String, desc: 'Path of the group that is allowed to toggle the performance bar.'
       optional :performance_bar_enabled, type: String, desc: 'Deprecated: Pass `performance_bar_allowed_group_path: nil` instead. Allow enabling the performance.' # support legacy names, can be removed in v6
       optional :personal_access_token_prefix, type: String, desc: 'Prefix to prepend to all personal access tokens'
+      optional :require_personal_access_token_expiry, type: Boolean, desc: 'Flag indicating if Personal / Group / Project access token expiry is required'
       optional :kroki_enabled, type: Boolean, desc: 'Enable Kroki'
       given kroki_enabled: ->(val) { val } do
         requires :kroki_url, type: String, desc: 'The Kroki server URL'
@@ -204,6 +205,7 @@ module API
       optional :floc_enabled, type: Grape::API::Boolean, desc: 'Enable FloC (Federated Learning of Cohorts)'
       optional :user_deactivation_emails_enabled, type: Boolean, desc: 'Send emails to users upon account deactivation'
       optional :suggest_pipeline_enabled, type: Boolean, desc: 'Enable pipeline suggestion banner'
+      optional :show_migrate_from_jenkins_banner, type: Boolean, desc: 'Enable Jenkins migration banner'
       optional :enable_artifact_external_redirect_warning_page, type: Boolean, desc: 'Show the external redirect page that warns you about user-generated content in GitLab Pages'
       optional :users_get_by_id_limit, type: Integer, desc: "Maximum number of calls to the /users/:id API per 10 minutes per user. Set to 0 for unlimited requests."
       optional :runner_token_expiration_interval, type: Integer, desc: 'Token expiration interval for shared runners, in seconds'
@@ -213,7 +215,8 @@ module API
       optional :jira_connect_application_key, type: String, desc: "ID of the OAuth application used to authenticate with the GitLab for Jira Cloud app."
       optional :jira_connect_public_key_storage_enabled, type: Boolean, desc: 'Enable public key storage for the GitLab for Jira Cloud app.'
       optional :jira_connect_proxy_url, type: String, desc: "URL of the GitLab instance used as a proxy for the GitLab for Jira Cloud app."
-      optional :bulk_import_concurrent_pipeline_batch_limit, type: Integer, desc: 'Maximum simultaneous Direct Transfer pipeline batches to process'
+      optional :bulk_import_concurrent_pipeline_batch_limit, type: Integer, desc: 'Maximum simultaneous direct transfer batch exports to process.'
+      optional :concurrent_relation_batch_export_limit, type: Integer, desc: 'Maximum number of simultaneous batch export jobs to process.'
       optional :bulk_import_enabled, type: Boolean, desc: 'Enable migrating GitLab groups and projects by direct transfer'
       optional :bulk_import_max_download_file, type: Integer, desc: 'Maximum download file size in MB when importing from source GitLab instances by direct transfer'
       optional :concurrent_github_import_jobs_limit, type: Integer, desc: 'Github Importer maximum number of simultaneous import jobs'
@@ -233,8 +236,10 @@ module API
       optional :project_jobs_api_rate_limit, type: Integer, desc: 'Maximum authenticated requests to /project/:id/jobs per minute'
       optional :security_txt_content, type: String, desc: 'Public security contact information made available at https://gitlab.example.com/.well-known/security.txt'
       optional :downstream_pipeline_trigger_limit_per_project_user_sha, type: Integer, desc: 'Maximum number of downstream pipelines that can be triggered per minute (for a given project, user, and commit).'
-      optional :ai_action_api_rate_limit, type: Integer, desc: 'Maximum requests a user can make per minute to aiAction endpoint'
+      optional :ai_action_api_rate_limit, type: Integer, desc: 'Maximum requests a user can make per 8 hours to aiAction endpoint'
       optional :code_suggestions_api_rate_limit, type: Integer, desc: 'Maximum requests a user can make per minute to code suggestions endpoint'
+      optional :resource_usage_limits, type: JSON, desc: 'Definition for resource usage limits enforced in Sidekiq workers'
+      optional :ropc_without_client_credentials, type: Boolean, desc: 'Allows the use of Oauth ROPC flow without client credentials'
 
       Gitlab::SSHPublicKey.supported_types.each do |type|
         optional :"#{type}_key_restriction",

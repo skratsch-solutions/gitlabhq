@@ -6,8 +6,9 @@ RSpec.describe 'Admin > Users > Impersonation Tokens', :js, feature_category: :s
   include Spec::Support::Helpers::ModalHelpers
   include Features::AccessTokenHelpers
 
-  let(:admin) { create(:admin) }
-  let!(:user) { create(:user) }
+  let(:organization) { create(:organization) }
+  let(:admin) { create(:admin, organizations: [organization]) }
+  let!(:user) { create(:user, organizations: [organization]) }
 
   before do
     sign_in(admin)
@@ -37,14 +38,17 @@ RSpec.describe 'Admin > Users > Impersonation Tokens', :js, feature_category: :s
       expect(active_access_tokens).to have_text('in')
       expect(active_access_tokens).to have_text('read_api')
       expect(active_access_tokens).to have_text('read_user')
-      expect(PersonalAccessTokensFinder.new(impersonation: true).execute.count).to equal(1)
+      expect(PersonalAccessTokensFinder.new(impersonation: true, organization: organization).execute.count).to equal(1)
       expect(created_access_token).to match(/[\w-]{20}/)
     end
   end
 
   describe 'active tokens' do
-    let!(:impersonation_token) { create(:personal_access_token, :impersonation, user: user) }
-    let!(:personal_access_token) { create(:personal_access_token, user: user) }
+    let!(:impersonation_token) do
+      create(:personal_access_token, :impersonation, user: user, organization: organization)
+    end
+
+    let!(:personal_access_token) { create(:personal_access_token, user: user, organization: organization) }
 
     it 'only shows impersonation tokens' do
       visit admin_user_impersonation_tokens_path(user_id: user.username)
@@ -63,7 +67,9 @@ RSpec.describe 'Admin > Users > Impersonation Tokens', :js, feature_category: :s
   end
 
   describe "inactive tokens" do
-    let!(:impersonation_token) { create(:personal_access_token, :impersonation, user: user) }
+    let!(:impersonation_token) do
+      create(:personal_access_token, :impersonation, user: user, organization: organization)
+    end
 
     it "allows revocation of an active impersonation token" do
       visit admin_user_impersonation_tokens_path(user_id: user.username)
@@ -91,6 +97,37 @@ RSpec.describe 'Admin > Users > Impersonation Tokens', :js, feature_category: :s
       visit admin_user_path(user)
 
       expect(page).not_to have_content("Impersonation Tokens")
+    end
+  end
+
+  describe "rotating tokens" do
+    let!(:impersonation_token) do
+      create(:personal_access_token, :impersonation, user: user, organization: organization)
+    end
+
+    it "displays the newly created token" do
+      visit admin_user_impersonation_tokens_path(user_id: user.username)
+
+      accept_gl_confirm(button_text: s_('AccessTokens|Rotate')) { click_on s_('AccessTokens|Rotate') }
+      wait_for_all_requests
+
+      expect(page).to have_content("Your new impersonation token has been created.")
+      expect(active_access_tokens).to have_text(impersonation_token.name)
+      expect(created_access_token).to match(/[\w-]{20}/)
+    end
+
+    context "when rotation fails" do
+      it "displays an error message" do
+        visit admin_user_impersonation_tokens_path(user_id: user.username)
+
+        accept_gl_confirm(button_text: s_('AccessTokens|Rotate')) do
+          impersonation_token.revoke!
+          click_on s_('AccessTokens|Rotate')
+        end
+        wait_for_all_requests
+
+        expect(page).to have_content(s_('AccessTokens|Token already revoked'))
+      end
     end
   end
 end

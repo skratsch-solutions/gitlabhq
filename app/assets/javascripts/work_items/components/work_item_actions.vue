@@ -18,8 +18,10 @@ import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import toast from '~/vue_shared/plugins/global_toast';
 import { isLoggedIn } from '~/lib/utils/common_utils';
 
+import WorkItemChangeTypeModal from 'ee_else_ce/work_items/components/work_item_change_type_modal.vue';
 import {
   sprintfWorkItem,
+  BASE_ALLOWED_CREATE_TYPES,
   I18N_WORK_ITEM_DELETE,
   I18N_WORK_ITEM_ARE_YOU_SURE_DELETE,
   I18N_WORK_ITEM_ARE_YOU_SURE_DELETE_HIERARCHY,
@@ -27,6 +29,7 @@ import {
   TEST_ID_NOTIFICATIONS_TOGGLE_FORM,
   TEST_ID_DELETE_ACTION,
   TEST_ID_PROMOTE_ACTION,
+  TEST_ID_CHANGE_TYPE_ACTION,
   TEST_ID_COPY_CREATE_NOTE_EMAIL_ACTION,
   TEST_ID_COPY_REFERENCE_ACTION,
   TEST_ID_TOGGLE_ACTION,
@@ -36,18 +39,30 @@ import {
   I18N_WORK_ITEM_COPY_CREATE_NOTE_EMAIL,
   I18N_WORK_ITEM_ERROR_COPY_REFERENCE,
   I18N_WORK_ITEM_ERROR_COPY_EMAIL,
+  I18N_WORK_ITEM_NEW_RELATED_ITEM,
   TEST_ID_LOCK_ACTION,
+  TEST_ID_REPORT_ABUSE,
+  TEST_ID_NEW_RELATED_WORK_ITEM,
+  WORK_ITEM_TYPE_ENUM_EPIC,
+  WORK_ITEM_TYPE_VALUE_EPIC,
+  WORK_ITEM_TYPE_VALUE_MAP,
 } from '../constants';
 import updateWorkItemMutation from '../graphql/update_work_item.mutation.graphql';
 import updateWorkItemNotificationsMutation from '../graphql/update_work_item_notifications.mutation.graphql';
 import convertWorkItemMutation from '../graphql/work_item_convert.mutation.graphql';
-import projectWorkItemTypesQuery from '../graphql/project_work_item_types.query.graphql';
+import namespaceWorkItemTypesQuery from '../graphql/namespace_work_item_types.query.graphql';
 import WorkItemStateToggle from './work_item_state_toggle.vue';
+import CreateWorkItemModal from './create_work_item_modal.vue';
 
 export default {
   i18n: {
     enableConfidentiality: s__('WorkItem|Turn on confidentiality'),
     disableConfidentiality: s__('WorkItem|Turn off confidentiality'),
+    confidentialityEnabled: s__('WorkItem|Confidentiality turned on.'),
+    confidentialityDisabled: s__('WorkItem|Confidentiality turned off.'),
+    confidentialParentTooltip: s__(
+      'WorkItem|Child items of a confidential parent must be confidential. Turn off confidentiality on the parent item first.',
+    ),
     notifications: s__('WorkItem|Notifications'),
     notificationOn: s__('WorkItem|Notifications turned on.'),
     notificationOff: s__('WorkItem|Notifications turned off.'),
@@ -55,7 +70,10 @@ export default {
     referenceCopied: __('Reference copied'),
     emailAddressCopied: __('Email address copied'),
     moreActions: __('More actions'),
+    reportAbuse: __('Report abuse'),
+    changeWorkItemType: s__('WorkItem|Change type'),
   },
+  WORK_ITEM_TYPE_ENUM_EPIC,
   components: {
     GlDisclosureDropdown,
     GlDisclosureDropdownItem,
@@ -64,6 +82,8 @@ export default {
     GlModal,
     GlToggle,
     WorkItemStateToggle,
+    CreateWorkItemModal,
+    WorkItemChangeTypeModal,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -77,8 +97,12 @@ export default {
   copyCreateNoteEmailTestId: TEST_ID_COPY_CREATE_NOTE_EMAIL_ACTION,
   deleteActionTestId: TEST_ID_DELETE_ACTION,
   promoteActionTestId: TEST_ID_PROMOTE_ACTION,
+  changeTypeTestId: TEST_ID_CHANGE_TYPE_ACTION,
   lockDiscussionTestId: TEST_ID_LOCK_ACTION,
   stateToggleTestId: TEST_ID_TOGGLE_ACTION,
+  reportAbuseActionTestId: TEST_ID_REPORT_ABUSE,
+  newRelatedItemTestId: TEST_ID_NEW_RELATED_WORK_ITEM,
+  inject: ['hasOkrsFeature'],
   props: {
     fullPath: {
       type: String,
@@ -86,7 +110,8 @@ export default {
     },
     workItemState: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     workItemId: {
       type: String,
@@ -143,6 +168,11 @@ export default {
       required: false,
       default: null,
     },
+    workItemWebUrl: {
+      type: String,
+      required: false,
+      default: null,
+    },
     workItemCreateNoteEmail: {
       type: String,
       required: false,
@@ -163,16 +193,57 @@ export default {
       required: false,
       default: false,
     },
+    hasParent: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    parentId: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    workItemAuthorId: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    canCreateRelatedItem: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isGroup: {
+      type: Boolean,
+      required: true,
+    },
+    widgets: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    allowedChildTypes: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    namespaceFullName: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
       isLockDiscussionUpdating: false,
       isDropdownVisible: false,
+      isCreateWorkItemModalVisible: false,
+      workItemTypes: [],
     };
   },
   apollo: {
     workItemTypes: {
-      query: projectWorkItemTypesQuery,
+      query: namespaceWorkItemTypesQuery,
       variables() {
         return {
           fullPath: this.fullPath,
@@ -202,21 +273,34 @@ export default {
         ),
       };
     },
+    newRelatedItemLabel() {
+      return this.workItemType === WORK_ITEM_TYPE_VALUE_EPIC
+        ? sprintfWorkItem(I18N_WORK_ITEM_NEW_RELATED_ITEM, this.workItemType)
+        : s__('WorkItem|New related item');
+    },
     areYouSureDeleteMessage() {
       return this.hasChildren
         ? sprintfWorkItem(I18N_WORK_ITEM_ARE_YOU_SURE_DELETE_HIERARCHY, this.workItemType)
         : sprintfWorkItem(I18N_WORK_ITEM_ARE_YOU_SURE_DELETE, this.workItemType);
     },
     canLockWorkItem() {
-      return this.canUpdate && this.glFeatures.workItemsBeta;
+      return this.canUpdate;
     },
     canPromoteToObjective() {
       return this.canUpdate && this.workItemType === WORK_ITEM_TYPE_VALUE_KEY_RESULT;
     },
-    confidentialItemText() {
-      return this.isConfidential
-        ? this.$options.i18n.disableConfidentiality
-        : this.$options.i18n.enableConfidentiality;
+    confidentialItem() {
+      return {
+        text: this.isConfidential
+          ? this.$options.i18n.disableConfidentiality
+          : this.$options.i18n.enableConfidentiality,
+        extraAttrs: {
+          disabled: this.isParentConfidential,
+        },
+      };
+    },
+    confidentialTooltip() {
+      return this.isParentConfidential ? this.$options.i18n.confidentialParentTooltip : '';
     },
     lockDiscussionText() {
       return this.isDiscussionLocked ? __('Unlock discussion') : __('Lock discussion');
@@ -226,6 +310,45 @@ export default {
     },
     showDropdownTooltip() {
       return !this.isDropdownVisible ? this.$options.i18n.moreActions : '';
+    },
+    isAuthor() {
+      return this.workItemAuthorId === window.gon.current_user_id;
+    },
+    relatedItemData() {
+      return {
+        id: this.workItemId,
+        reference: this.workItemReference,
+        type: this.workItemType,
+        webUrl: this.workItemWebUrl,
+      };
+    },
+    isEpic() {
+      return this.workItemType === WORK_ITEM_TYPE_VALUE_EPIC;
+    },
+    confidentialityToggledText() {
+      return this.isConfidential
+        ? this.$options.i18n.confidentialityDisabled
+        : this.$options.i18n.confidentialityEnabled;
+    },
+    showChangeType() {
+      return !this.isEpic && this.glFeatures.workItemsBeta && this.$options.isLoggedIn;
+    },
+    allowedWorkItemTypes() {
+      if (this.isGroup) {
+        return [];
+      }
+
+      if (this.glFeatures.okrsMvc && this.hasOkrsFeature) {
+        return BASE_ALLOWED_CREATE_TYPES.concat(
+          WORK_ITEM_TYPE_VALUE_KEY_RESULT,
+          WORK_ITEM_TYPE_VALUE_OBJECTIVE,
+        );
+      }
+
+      return BASE_ALLOWED_CREATE_TYPES;
+    },
+    workItemTypeNameEnum() {
+      return WORK_ITEM_TYPE_VALUE_MAP[this.workItemType];
     },
   },
   methods: {
@@ -239,6 +362,7 @@ export default {
     handleToggleWorkItemConfidentiality() {
       this.track('click_toggle_work_item_confidentiality');
       this.$emit('toggleWorkItemConfidentiality', !this.isConfidential);
+      toast(this.confidentialityToggledText);
       this.closeDropdown();
     },
     handleDelete() {
@@ -355,6 +479,13 @@ export default {
     emitStateToggleError(error) {
       this.$emit('error', error);
     },
+    handleToggleReportAbuseModal() {
+      this.$emit('toggleReportAbuseModal', true);
+      this.closeDropdown();
+    },
+    showChangeTypeModal() {
+      this.$refs.workItemsChangeTypeModal.show();
+    },
   },
 };
 </script>
@@ -377,15 +508,15 @@ export default {
     >
       <template v-if="$options.isLoggedIn && !hideSubscribe">
         <gl-disclosure-dropdown-item
-          class="gl-display-flex gl-justify-content-end gl-w-full"
+          class="gl-flex gl-w-full gl-justify-end"
           :data-testid="$options.notificationsToggleFormTestId"
         >
           <template #list-item>
             <gl-toggle
               :value="subscribedToNotifications"
               :label="$options.i18n.notifications"
-              class="work-item-notification-toggle"
               label-position="left"
+              class="work-item-dropdown-toggle gl-justify-between"
               @change="toggleNotifications($event)"
             />
           </template>
@@ -401,9 +532,19 @@ export default {
         :work-item-state="workItemState"
         :work-item-type="workItemType"
         :full-path="fullPath"
+        :parent-id="parentId"
         show-as-dropdown-item
         @error="emitStateToggleError"
+        @workItemStateUpdated="$emit('workItemStateUpdated')"
       />
+
+      <gl-disclosure-dropdown-item
+        v-if="canCreateRelatedItem && canUpdate"
+        :data-testid="$options.newRelatedItemTestId"
+        @action="isCreateWorkItemModalVisible = true"
+      >
+        <template #list-item>{{ newRelatedItemLabel }}</template>
+      </gl-disclosure-dropdown-item>
 
       <gl-disclosure-dropdown-item
         v-if="canPromoteToObjective"
@@ -411,6 +552,14 @@ export default {
         @action="promoteToObjective"
       >
         <template #list-item>{{ __('Promote to objective') }}</template>
+      </gl-disclosure-dropdown-item>
+
+      <gl-disclosure-dropdown-item
+        v-if="showChangeType"
+        :data-testid="$options.changeTypeTestId"
+        @action="showChangeTypeModal"
+      >
+        <template #list-item>{{ $options.i18n.changeWorkItemType }}</template>
       </gl-disclosure-dropdown-item>
 
       <gl-disclosure-dropdown-item
@@ -425,12 +574,12 @@ export default {
       </gl-disclosure-dropdown-item>
 
       <gl-disclosure-dropdown-item
-        v-if="canUpdate && !isParentConfidential"
+        v-if="canUpdate"
+        v-gl-tooltip.left.viewport.d0="confidentialTooltip"
+        :item="confidentialItem"
         :data-testid="$options.confidentialityTestId"
         @action="handleToggleWorkItemConfidentiality"
-      >
-        <template #list-item>{{ confidentialItemText }}</template>
-      </gl-disclosure-dropdown-item>
+      />
 
       <gl-disclosure-dropdown-item
         :data-testid="$options.copyReferenceTestId"
@@ -450,15 +599,23 @@ export default {
         <template #list-item>{{ i18n.copyCreateNoteEmail }}</template>
       </gl-disclosure-dropdown-item>
 
+      <gl-dropdown-divider />
+      <gl-disclosure-dropdown-item
+        v-if="!isAuthor"
+        :data-testid="$options.reportAbuseActionTestId"
+        @action="handleToggleReportAbuseModal"
+      >
+        <template #list-item>{{ $options.i18n.reportAbuse }}</template>
+      </gl-disclosure-dropdown-item>
+
       <template v-if="canDelete">
-        <gl-dropdown-divider />
         <gl-disclosure-dropdown-item
           :data-testid="$options.deleteActionTestId"
           variant="danger"
           @action="handleDelete"
         >
           <template #list-item>
-            <span class="text-danger">{{ i18n.deleteWorkItem }}</span>
+            <span class="gl-text-danger">{{ i18n.deleteWorkItem }}</span>
           </template>
         </gl-disclosure-dropdown-item>
       </template>
@@ -475,5 +632,33 @@ export default {
     >
       {{ areYouSureDeleteMessage }}
     </gl-modal>
+
+    <create-work-item-modal
+      :allowed-work-item-types="allowedWorkItemTypes"
+      :always-show-work-item-type-select="!isGroup"
+      :visible="isCreateWorkItemModalVisible"
+      :related-item="relatedItemData"
+      :work-item-type-name="workItemTypeNameEnum"
+      :show-project-selector="!isEpic"
+      :is-group="isGroup"
+      hide-button
+      @workItemCreated="$emit('workItemCreated')"
+      @hideModal="isCreateWorkItemModalVisible = false"
+    />
+    <work-item-change-type-modal
+      v-if="showChangeType"
+      ref="workItemsChangeTypeModal"
+      :work-item-id="workItemId"
+      :work-item-iid="workItemIid"
+      :work-item-type="workItemType"
+      :full-path="fullPath"
+      :has-children="hasChildren"
+      :has-parent="hasParent"
+      :widgets="widgets"
+      :allowed-child-types="allowedChildTypes"
+      :namespace-full-name="namespaceFullName"
+      @workItemTypeChanged="$emit('workItemTypeChanged')"
+      @error="$emit('error', $event)"
+    />
   </div>
 </template>

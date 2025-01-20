@@ -56,7 +56,7 @@ export default {
     openDocs() {
       visitUrl(
         helpPagePath('user/project/ml/model_registry/index', {
-          anchor: 'creating-machine-learning-models-and-model-versions',
+          anchor: 'create-machine-learning-models-and-model-versions-by-using-mlflow',
         }),
         true,
       );
@@ -66,7 +66,7 @@ export default {
     title: s__('MlModelRegistry|Using the MLflow client'),
     id: MLFLOW_USAGE_MODAL_ID,
     firstLine: s__(
-      'MlModelRegistry|Creating models, model versions and candidates is also possible using the MLflow client:',
+      'MlModelRegistry|Creating models, model versions and runs is also possible using the MLflow client:',
     ),
     actionPrimary: {
       text: s__('MlModelRegistry|MLflow compatibility documentation'),
@@ -92,7 +92,7 @@ export default {
         <label> {{ instruction.label }}</label>
 
         <pre
-          class="code highlight gl-flex gl-border-none gl-text-left gl-p-2 gl-font-monospace"
+          class="code highlight gl-flex gl-border-none gl-p-2 gl-text-left gl-font-monospace"
           data-testid="preview-code"
         >
           <code class="gl-grow">{{ instruction.cmd }}</code>

@@ -35,14 +35,14 @@ export default {
 <template>
   <li
     :id="noteAnchorId"
-    class="timeline-entry note system-note note-wrapper gl-p-0!"
+    class="timeline-entry note system-note note-wrapper !gl-p-0"
     data-testid="alert-system-note-container"
   >
-    <div class="gl-inline-flex gl-align-items-center gl-relative">
+    <div class="gl-relative gl-inline-flex gl-items-center">
       <div
-        class="gl-display-inline gl-bg-white gl-text-gray-200 gl-border-gray-100 gl-border-1 gl-border-solid gl-rounded-full gl-box-sizing-content-box gl-p-3 -gl-mt-2 gl-mr-6"
+        class="gl-box-sizing-content-box -gl-mt-2 gl-mr-6 gl-inline gl-rounded-full gl-border-1 gl-border-solid gl-border-default gl-bg-default gl-p-3"
       >
-        <gl-icon :name="note.systemNoteIconName" />
+        <gl-icon :name="note.systemNoteIconName" variant="subtle" />
       </div>
 
       <div class="note-header">

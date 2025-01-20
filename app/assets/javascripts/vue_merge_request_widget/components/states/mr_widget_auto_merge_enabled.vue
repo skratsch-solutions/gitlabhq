@@ -4,6 +4,7 @@ import autoMergeMixin from 'ee_else_ce/vue_merge_request_widget/mixins/auto_merg
 import autoMergeEnabledQuery from 'ee_else_ce/vue_merge_request_widget/queries/states/auto_merge_enabled.query.graphql';
 import { createAlert } from '~/alert';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import { fetchPolicies } from '~/lib/graphql';
 import { __ } from '~/locale';
 import { AUTO_MERGE_STRATEGIES } from '../../constants';
 import eventHub from '../../event_hub';
@@ -16,10 +17,11 @@ export default {
   apollo: {
     state: {
       query: autoMergeEnabledQuery,
+      fetchPolicy: fetchPolicies.NETWORK_ONLY,
       variables() {
         return this.mergeRequestQueryVariables;
       },
-      update: (data) => data.project?.mergeRequest,
+      update: (data) => data.project,
     },
   },
   components: {
@@ -41,24 +43,27 @@ export default {
   },
   data() {
     return {
-      state: {},
+      state: null,
       isCancellingAutoMerge: false,
       isRemovingSourceBranch: false,
     };
   },
   computed: {
     loading() {
-      return this.$apollo.queries.state.loading && Object.keys(this.state).length === 0;
+      return this.$apollo.queries.state.loading || !this.state;
     },
     stateRemoveSourceBranch() {
-      if (!this.state.shouldRemoveSourceBranch) return false;
+      if (!this.state.mergeRequest.shouldRemoveSourceBranch) return false;
 
-      return this.state.shouldRemoveSourceBranch || this.state.forceRemoveSourceBranch;
+      return (
+        this.state.mergeRequest.shouldRemoveSourceBranch ||
+        this.state.mergeRequest.forceRemoveSourceBranch
+      );
     },
     canRemoveSourceBranch() {
       const { currentUserId } = this.mr;
-      const mergeUserId = getIdFromGraphQLId(this.state.mergeUser?.id);
-      const canRemoveSourceBranch = this.state.userPermissions.removeSourceBranch;
+      const mergeUserId = getIdFromGraphQLId(this.state.mergeRequest.mergeUser?.id);
+      const canRemoveSourceBranch = this.state.mergeRequest.userPermissions.removeSourceBranch;
 
       return (
         !this.stateRemoveSourceBranch && canRemoveSourceBranch && mergeUserId === currentUserId
@@ -103,7 +108,7 @@ export default {
     removeSourceBranch() {
       const options = {
         sha: this.mr.sha,
-        auto_merge_strategy: this.state.autoMergeStrategy,
+        auto_merge_strategy: this.state.mergeRequest.autoMergeStrategy,
         should_remove_source_branch: true,
       };
 
@@ -139,10 +144,13 @@ export default {
       </gl-skeleton-loader>
     </template>
     <template v-if="!loading">
-      <h4 class="gl-mr-3 gl-flex-grow-1" data-testid="statusText">
+      <h4 class="gl-mr-3 gl-grow" data-testid="statusText">
         <gl-sprintf :message="statusText" data-testid="statusText">
           <template #merge_author>
-            <mr-widget-author v-if="state.mergeUser" :author="state.mergeUser" />
+            <mr-widget-author
+              v-if="state.mergeRequest.mergeUser"
+              :author="state.mergeRequest.mergeUser"
+            />
           </template>
         </gl-sprintf>
       </h4>

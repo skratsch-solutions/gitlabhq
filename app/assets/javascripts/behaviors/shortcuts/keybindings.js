@@ -1,6 +1,6 @@
 import { memoize } from 'lodash';
 import AccessorUtilities from '~/lib/utils/accessor';
-import { __ } from '~/locale';
+import { __, s__ } from '~/locale';
 
 /**
  * @param {object} command
@@ -54,12 +54,6 @@ export const GO_TO_YOUR_GROUPS = {
   defaultKeys: ['shift+g'],
 };
 
-export const TOGGLE_DUO_CHAT = {
-  id: 'globalShortcuts.toggleDuoChat',
-  description: __('Toggle DuoChat'),
-  defaultKeys: ['option+d'],
-};
-
 export const GO_TO_ACTIVITY_FEED = {
   id: 'globalShortcuts.goToActivityFeed',
   description: __('Go to the activity feed'),
@@ -110,7 +104,7 @@ export const GO_TO_YOUR_REVIEW_REQUESTS = {
 
 export const GO_TO_YOUR_TODO_LIST = {
   id: 'globalShortcuts.goToYourTodoList',
-  description: __('Go to your To-Do list'),
+  description: __('Go to your To-Do List'),
   defaultKeys: ['shift+t'],
 };
 
@@ -177,6 +171,13 @@ export const OUTDENT_LINE = {
   id: 'editing.outdentLine',
   description: __('Outdent line'),
   defaultKeys: ['mod+['], // eslint-disable-line @gitlab/require-i18n-strings
+  customizable: false,
+};
+
+export const FIND_AND_REPLACE = {
+  id: 'editing.findAndReplace',
+  description: s__('MarkdownEditor|Find and replace'),
+  defaultKeys: ['mod+f'],
   customizable: false,
 };
 
@@ -493,6 +494,19 @@ export const MR_COPY_SOURCE_BRANCH_NAME = {
   defaultKeys: ['b'],
 };
 
+export const MR_EXPAND_ALL_FILES = {
+  id: 'mergeRequests.expandAllFiles',
+  description: __('Expand all files'),
+  defaultKeys: [';'],
+};
+
+export const MR_COLLAPSE_ALL_FILES = {
+  id: 'mergeRequests.collapseAllFiles',
+  description: __('Collapse all files'),
+  // eslint-disable-next-line @gitlab/require-i18n-strings
+  defaultKeys: ['shift+;'],
+};
+
 export const MR_COMMITS_NEXT_COMMIT = {
   id: 'mergeRequestCommits.nextCommit',
   description: __('Next commit'),
@@ -542,7 +556,7 @@ const WEB_IDE_GO_TO_FILE = {
 
 /**
  * Legacy Web IDE uses @keydown.ctrl.enter and @keydown.meta.enter events here:
- * https://gitlab.com/gitlab-org/gitlab/-/blob/f3e807cdff5cf25765894163b4e92f8b2bcf8a68/app/assets/javascripts/ide/components/shared/commit_message_field.vue#L131-132
+ * https://gitlab.com/gitlab-org/gitlab/-/blob/f3e807cdff5cf25765894163b4e92f8b2bcf8a68/app/assets/javascripts/ide/components/commit_sidebar/message_field.vue#L122-123
  */
 const WEB_IDE_COMMIT = {
   id: 'webIDE.commit',
@@ -550,13 +564,11 @@ const WEB_IDE_COMMIT = {
   defaultKeys: ['mod+enter'],
   customizable: false,
 };
-
 // All keybinding groups
 const GLOBAL_SHORTCUTS_GROUP = {
   id: 'globalShortcuts',
   name: __('Global Shortcuts'),
   keybindings: [
-    TOGGLE_DUO_CHAT,
     TOGGLE_KEYBOARD_SHORTCUTS_DIALOG,
     GO_TO_YOUR_PROJECTS,
     GO_TO_YOUR_GROUPS,
@@ -584,6 +596,7 @@ export const EDITING_SHORTCUTS_GROUP = {
     STRIKETHROUGH_TEXT,
     LINK_TEXT,
     TOGGLE_MARKDOWN_PREVIEW,
+    FIND_AND_REPLACE,
     EDIT_RECENT_COMMENT,
     SAVE_CHANGES,
   ],

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,10 +8,19 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can enable the Microsoft Azure OAuth 2.0 OmniAuth provider and sign in to
 GitLab with your Microsoft Azure credentials.
+
+NOTE:
+If you're integrating GitLab with Azure/Entra ID for the first time,
+configure the [OpenID Connect protocol](../administration/auth/oidc.md#configure-microsoft-azure),
+which uses the Microsoft identity platform (v2.0) endpoint.
+
+## Migrate to Generic OpenID Connect configuration
+
+In GitLab 17.0 and later, instances using `azure_oauth2` must migrate to the Generic OpenID Connect configuration. For more information, see [Migrating to the OpenID Connect protocol](../administration/auth/oidc.md#migrate-to-generic-openid-connect-configuration).
 
 ## Register an Azure application
 

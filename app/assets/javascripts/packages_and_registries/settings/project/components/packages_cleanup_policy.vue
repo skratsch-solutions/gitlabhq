@@ -1,20 +1,17 @@
 <script>
-import { GlAlert, GlSprintf } from '@gitlab/ui';
+import { GlAlert, GlCard } from '@gitlab/ui';
 import {
   FETCH_SETTINGS_ERROR_MESSAGE,
   PACKAGES_CLEANUP_POLICY_TITLE,
   PACKAGES_CLEANUP_POLICY_DESCRIPTION,
 } from '~/packages_and_registries/settings/project/constants';
 import packagesCleanupPolicyQuery from '~/packages_and_registries/settings/project/graphql/queries/get_packages_cleanup_policy.query.graphql';
-import SettingsBlock from '~/packages_and_registries/shared/components/settings_block.vue';
-
 import PackagesCleanupPolicyForm from './packages_cleanup_policy_form.vue';
 
 export default {
   components: {
-    SettingsBlock,
     GlAlert,
-    GlSprintf,
+    GlCard,
     PackagesCleanupPolicyForm,
   },
   inject: ['projectPath'],
@@ -26,6 +23,9 @@ export default {
   apollo: {
     packagesCleanupPolicy: {
       query: packagesCleanupPolicyQuery,
+      context: {
+        batchKey: 'PackageRegistryProjectSettings',
+      },
       variables() {
         return {
           projectPath: this.projectPath,
@@ -47,16 +47,18 @@ export default {
 </script>
 
 <template>
-  <settings-block>
-    <template #title> {{ $options.i18n.PACKAGES_CLEANUP_POLICY_TITLE }}</template>
-    <template #description>
-      <span data-testid="description">
-        <gl-sprintf :message="$options.i18n.PACKAGES_CLEANUP_POLICY_DESCRIPTION" />
-      </span>
+  <gl-card>
+    <template #header>
+      <h2 class="gl-m-0 gl-inline-flex gl-items-center gl-text-base gl-font-bold gl-leading-normal">
+        {{ $options.i18n.PACKAGES_CLEANUP_POLICY_TITLE }}
+      </h2>
     </template>
     <template #default>
+      <p class="gl-text-subtle" data-testid="description">
+        {{ $options.i18n.PACKAGES_CLEANUP_POLICY_DESCRIPTION }}
+      </p>
       <gl-alert v-if="fetchSettingsError" variant="warning" :dismissible="false">
-        <gl-sprintf :message="$options.i18n.FETCH_SETTINGS_ERROR_MESSAGE" />
+        {{ $options.i18n.FETCH_SETTINGS_ERROR_MESSAGE }}
       </gl-alert>
       <packages-cleanup-policy-form
         v-else
@@ -64,5 +66,5 @@ export default {
         :is-loading="$apollo.queries.packagesCleanupPolicy.loading"
       />
     </template>
-  </settings-block>
+  </gl-card>
 </template>

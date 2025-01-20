@@ -31,16 +31,50 @@ input LocalLabelInput {
   title: String
 }
 
+input LocalIterationCadence {
+  id: ID!
+  title: String
+}
+
+input LocalIterationInput {
+  description: String
+  id: ID!
+  iid: String
+  title: String
+  startDate: String
+  dueDate: String
+  webUrl: String
+  updatedAt: String
+  iterationCadence: [LocalIterationCadence]
+}
+
+input LocalMilestoneInput {
+  expired: Boolean
+  id: ID!
+  title: String
+  state: String
+  dueDate: String
+  webUrl: String
+  webPath: String
+}
+
+input LocalCrmContactsInput {
+  firstName: String
+  lastName: String
+  organizationName: String
+  id: ID!
+}
+
 input LocalUpdateWorkItemInput {
   id: WorkItemID!
   assignees: [LocalUserInput!]
 }
 
 input LocalRolledUpDatesInput {
-  dueDateIsFixed: Boolean!
-  startDateIsFixed: Boolean!
-  dueDateFixed: String
-  startDateFixed: String
+  isFixed: Boolean!
+  rollUp: Boolean!
+  dueDate: String
+  startDate: String
 }
 
 type LocalWorkItemPayload {
@@ -48,14 +82,9 @@ type LocalWorkItemPayload {
   errors: [String!]
 }
 
-extend type Mutation {
-  localUpdateWorkItem(input: LocalUpdateWorkItemInput!): LocalWorkItemPayload
-}
-
 input LocalUpdateNewWorkItemInput {
   fullPath: String!
   workItemType: String!
-  isGroup: Boolean!
   healthStatus: String
   assignees: [LocalUserInput]
   color: String
@@ -63,9 +92,29 @@ input LocalUpdateNewWorkItemInput {
   description: String
   confidential: Boolean
   labels: [LocalLabelInput]
+  iteration: [LocalIterationInput]
+  milestone: [LocalMilestoneInput]
   rolledUpDates: [LocalRolledUpDatesInput]
+  crmContacts: [LocalCrmContactsInput]
+  weight: Int
 }
 
 extend type Mutation {
   updateNewWorkItem(input: LocalUpdateNewWorkItemInput!): LocalWorkItemPayload
+  localUpdateWorkItem(input: LocalUpdateWorkItemInput!): LocalWorkItemPayload
+  updateActiveDesignDiscussion(id: ID!, source: String!): Boolean
+}
+
+type ActiveDesignDiscussion {
+  id: ID
+  source: String
+}
+
+extend type Query {
+  activeDesignDiscussion: ActiveDesignDiscussion
+}
+
+type LocalWorkItemChildIsExpanded {
+  id: WorkItemID!
+  isExpanded: Boolean!
 }

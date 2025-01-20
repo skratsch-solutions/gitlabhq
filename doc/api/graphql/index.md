@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 description: Programmatic interaction with GitLab.
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [GraphQL](https://graphql.org/) is a query language for APIs. You can use it to
 request the exact data you need, and therefore limit the number of requests you need.
@@ -33,7 +33,7 @@ The GitLab GraphQL API endpoint is located at `/api/graphql`.
 Explore the GraphQL API using the interactive GraphQL explorer, either:
 
 - [On GitLab.com](https://gitlab.com/-/graphql-explorer).
-- On your self-managed GitLab instance on `https://<your-gitlab-site.com>/-/graphql-explorer`.
+- On GitLab Self-Managed on `https://<your-gitlab-site.com>/-/graphql-explorer`.
 
 For more information, see [GraphiQL](getting_started.md#graphiql).
 
@@ -124,9 +124,62 @@ Signing in to the main GitLab application sets a `_gitlab_session` session cooki
 The [interactive GraphQL explorer](#interactive-graphql-explorer) and the web frontend of
 GitLab itself use this method of authentication.
 
+## Object identifiers
+
+The GitLab GraphQL API uses a mix of identifiers.
+
+[Global IDs](#global-ids), full paths, and internal IDs (IIDs) are all used as arguments in the GitLab
+GraphQL API, but often a particular part of schema does not accept all of these at the same time.
+
+Although the GitLab GraphQL API has historically not been consistent on this, in general you can expect:
+
+- If the object is a project, group, or namespace, you use the object's full path.
+- If an object has an IID, you use a combination of full path and IID.
+- For other objects, you use a [Global ID](#global-ids).
+
+For example, finding a project by its full path `"gitlab-org/gitlab"`:
+
+```graphql
+{
+  project(fullPath: "gitlab-org/gitlab") {
+    id
+    fullPath
+  }
+}
+```
+
+Another example, locking an issue by its project's full path `"gitlab-org/gitlab"` and the issue's IID `"1"`":
+
+```graphql
+mutation {
+  issueSetLocked(input: { projectPath: "gitlab-org/gitlab", iid: "1", locked: true }) {
+    issue {
+      id
+      iid
+    }
+  }
+}
+```
+
+An example of finding a CI runner by its Global ID:
+
+```graphql
+{
+  runner(id: "gid://gitlab/Ci::Runner/1") {
+    id
+  }
+}
+```
+
+Historically, the GitLab GraphQL API has been inconsistent with typing of full path and
+IID fields and arguments, but generally:
+
+- Full path fields and arguments are a GraphQL `ID` type .
+- IID fields and arguments are a GraphQL `String` type.
+
 ### Global IDs
 
-In the GitLab GraphQL API, an `id` field is nearly always a [Global ID](https://graphql.org/learn/global-object-identification/)
+In the GitLab GraphQL API, a field or argument named `id` is nearly always a [Global ID](https://graphql.org/learn/global-object-identification/)
 and never a database primary key ID. A Global ID in the GitLab GraphQL API
 begins with `"gid://gitlab/"`. For example, `"gid://gitlab/Issue/123"`.
 
@@ -161,6 +214,8 @@ To avoid having a breaking change affect your integrations, you should:
 
 For more information, see [Deprecating GitLab features](../../development/deprecation_guidelines/index.md).
 
+For GitLab Self-Managed, [downgrading](../../downgrade_ee_to_ce/index.md) from an EE instance to CE causes breaking changes.
+
 ### Breaking change exemptions
 
 Schema items labeled as experiments in the [GraphQL API reference](reference/index.md)
@@ -189,9 +244,6 @@ To make these calls, add a
 `https://gitlab.com/api/graphql?remove_deprecated=true` for GraphQL on GitLab.com.
 
 ### Deprecation and removal process
-
-The deprecation and removal process for the GitLab GraphQL API aligns with the wider GitLab
-[deprecation process](https://handbook.gitlab.com/handbook/product/gitlab-the-product/#deprecations-removals-and-breaking-changes).
 
 Parts of the schema marked for removal from the GitLab GraphQL API are first
 deprecated but still available for at least six releases. They are then
@@ -232,8 +284,9 @@ The following limits apply to the GitLab GraphQL API.
 |:------------------------------------------------------|:--------|
 | Maximum page size                                     | 100 records (nodes) per page. Applies to most connections in the API. Particular connections may have different max page size limits that are higher or lower. |
 | [Maximum query complexity](#maximum-query-complexity) | 200 for unauthenticated requests and 250 for authenticated requests. |
-| Request timeout                                       | 30 seconds. |
 | Maximum query size                                    | 10,000 characters per query or mutation. If this limit is reached, use [variables](https://graphql.org/learn/queries/#variables) and [fragments](https://graphql.org/learn/queries/#fragments) to reduce the query or mutation size. Remove white spaces as last resort. |
+| Rate limits | For GitLab.com, see [GitLab.com-specific rate limits](../../user/gitlab_com/index.md#gitlabcom-specific-rate-limits). |
+| Request timeout                                       | 30 seconds. |
 
 ### Maximum query complexity
 

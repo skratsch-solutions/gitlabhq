@@ -68,6 +68,9 @@ export default {
     externalLinks() {
       return filterAnnotations(this.job.annotations, 'external_link');
     },
+    reports() {
+      return this.job?.reports || [];
+    },
   },
   watch: {
     job(value, oldValue) {
@@ -89,42 +92,43 @@ export default {
     <div class="sidebar-container">
       <div class="blocks-container gl-p-4 gl-pt-0">
         <sidebar-header
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-py-4"
           :rest-job="job"
           :job-id="job.id"
           @updateVariables="$emit('updateVariables')"
         />
 
-        <job-sidebar-details-container class="gl-py-4 gl-border-b gl-border-gray-50" />
+        <job-sidebar-details-container class="gl-border-b gl-border-subtle gl-py-4" />
 
         <artifacts-block
           v-if="hasArtifact"
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-border-b gl-border-subtle gl-py-4"
           :artifact="artifact"
+          :reports="reports"
           :help-url="artifactHelpUrl"
         />
 
         <external-links-block
           v-if="hasExternalLinks"
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-border-b gl-border-subtle gl-py-4"
           :external-links="externalLinks"
         />
 
         <trigger-block
           v-if="hasTriggers"
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-border-b gl-border-subtle gl-py-4"
           :trigger="job.trigger"
         />
 
         <commit-block
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-border-b gl-border-subtle gl-py-4"
           :commit="commit"
           :merge-request="job.merge_request"
         />
 
         <stages-dropdown
           v-if="job.pipeline"
-          class="gl-py-4 gl-border-b gl-border-gray-50"
+          class="gl-border-b gl-border-subtle gl-py-4"
           :pipeline="job.pipeline"
           :selected-stage="selectedStage"
           :stages="stages"

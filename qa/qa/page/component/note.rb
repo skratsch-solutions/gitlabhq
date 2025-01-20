@@ -15,6 +15,8 @@ module QA
 
           base.view 'app/assets/javascripts/notes/components/comment_form.vue' do
             element 'comment-field'
+            element 'add-to-review-button'
+            element 'start-review-button'
           end
 
           base.view 'app/assets/javascripts/notes/components/comment_type_dropdown.vue' do
@@ -73,19 +75,21 @@ module QA
         # Attachment option should be an absolute path
         def comment(text, attachment: nil, filter: :all_activities)
           method("select_#{filter}_filter").call
-          fill_element 'comment-field', "#{text}\n"
+          fill_editor_element 'comment-field', "#{text}\n"
 
           unless attachment.nil?
             QA::Page::Component::Dropzone.new(self, '.new-note')
               .attach_file(attachment)
           end
 
+          has_active_element?('comment-button', wait: 0.5)
           click_element 'comment-button'
         end
 
         def edit_comment(text)
           click_element 'note-edit-button'
-          fill_element 'reply-field', text
+          fill_editor_element 'reply-field', text
+          has_active_element?('reply-comment-button', wait: 0.5)
           click_element 'reply-comment-button'
         end
 
@@ -101,6 +105,12 @@ module QA
           )
         end
 
+        def has_comment_author?(author_username)
+          within_element('noteable-note-container') do
+            has_element?('author-name', text: author_username, wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
+          end
+        end
+
         def has_system_note?(note_text)
           has_element?('system-note-content', text: note_text, wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
         end
@@ -111,6 +121,7 @@ module QA
 
         def reply_to_discussion(position, reply_text)
           type_reply_to_discussion(position, reply_text)
+          has_active_element?('reply-comment-button', wait: 0.5)
           click_element 'reply-comment-button'
         end
 
@@ -145,11 +156,23 @@ module QA
         end
 
         def start_discussion(text)
-          fill_element 'comment-field', text
+          fill_editor_element 'comment-field', text
           within_element('comment-button') { click_button(class: 'gl-new-dropdown-toggle') }
           click_element 'discussion-menu-item'
           click_element 'comment-button'
 
+          has_comment?(text)
+        end
+
+        def start_review_with_comment(text)
+          fill_editor_element 'comment-field', text
+          click_element 'start-review-button'
+          has_comment?(text)
+        end
+
+        def add_comment_to_review(text)
+          fill_editor_element 'comment-field', text
+          click_element 'add-to-review-button'
           has_comment?(text)
         end
 
@@ -159,7 +182,7 @@ module QA
 
         def type_reply_to_discussion(position, reply_text)
           all_elements('discussion-reply-tab', minimum: position)[position - 1].click
-          fill_element 'reply-field', reply_text
+          fill_editor_element 'reply-field', reply_text
         end
 
         private

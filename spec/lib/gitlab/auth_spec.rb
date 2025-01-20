@@ -3,12 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_category: :system_access do
+  include StubRequests
+
   let_it_be(:project) { create(:project) }
 
   let(:auth_failure) { { actor: nil, project: nil, type: nil, authentication_abilities: nil } }
   let(:gl_auth) { described_class }
 
-  let(:request) { instance_double(ActionDispatch::Request, ip: 'ip') }
+  let(:request) { instance_double(ActionDispatch::Request, ip: 'ip', path: path) }
+  let(:path) { '/some_path/example' }
 
   describe 'constants' do
     it 'API_SCOPES contains all scopes for API access' do
@@ -33,6 +36,10 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
     it 'DEFAULT_SCOPES contains all default scopes' do
       expect(subject::DEFAULT_SCOPES).to match_array [:api]
+    end
+
+    it 'VIRTUAL_REGISTRY_SCOPES contains all scopes for Virtual Registry access' do
+      expect(subject::VIRTUAL_REGISTRY_SCOPES).to match_array %i[read_virtual_registry write_virtual_registry]
     end
   end
 
@@ -88,18 +95,33 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
     it 'optional_scopes contains all non-default scopes' do
       expect(subject.optional_scopes).to match_array %i[
-        read_user read_api read_repository write_repository read_registry read_service_ping
-        write_registry sudo admin_mode openid profile email read_observability write_observability
-        create_runner manage_runner k8s_proxy ai_features
+        admin_mode
+        ai_features
+        ai_workflows
+        create_runner
+        email
+        k8s_proxy
+        manage_runner
+        openid
+        profile
+        read_api
+        read_observability
+        read_registry
+        read_repository
+        read_service_ping
+        read_user
+        sudo
+        user:*
+        write_observability
+        write_registry
+        write_repository
       ]
     end
 
     context 'with observability feature flags' do
-      feature_flags = [:observability_tracing, :observability_metrics, :observability_logs]
-
       context 'when all disabled' do
         before do
-          stub_feature_flags(feature_flags.index_with { false })
+          stub_feature_flags(observability_features: false)
         end
 
         it 'contains for group all resource bot scopes without observability scopes' do
@@ -126,70 +148,64 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         end
       end
 
-      flag_states = [true, false].repeated_permutation(feature_flags.length)
-      flag_tests = flag_states.filter(&:any?).map { |flags| Hash[feature_flags.zip(flags)] }
+      context "with feature flag enabled for specific root group" do
+        let(:parent) { build_stubbed(:group) }
+        let(:group) do
+          build_stubbed(:group, parent: parent).tap { |g| g.namespace_settings = build_stubbed(:namespace_settings, namespace: g) }
+        end
 
-      flag_tests.each do |flags|
-        context "with flags #{flags} enabled for specific root group" do
-          let(:parent) { build_stubbed(:group) }
-          let(:group) do
-            build_stubbed(:group, parent: parent).tap { |g| g.namespace_settings = build_stubbed(:namespace_settings, namespace: g) }
+        let(:project) { build_stubbed(:project, namespace: group) }
+
+        before do
+          stub_feature_flags(observability_features: parent)
+        end
+
+        it 'contains for group all resource bot scopes including observability scopes' do
+          expect(subject.available_scopes_for(group)).to match_array %i[
+            api read_api read_repository write_repository read_registry write_registry
+            read_observability write_observability create_runner manage_runner k8s_proxy ai_features
+          ]
+        end
+
+        it 'contains for admin user all non-default scopes with ADMIN access and without observability scopes' do
+          user = build_stubbed(:user, admin: true)
+
+          expect(subject.available_scopes_for(user)).to match_array %i[
+            api read_user read_api read_repository write_repository read_registry write_registry read_service_ping
+            sudo admin_mode create_runner manage_runner k8s_proxy ai_features
+          ]
+        end
+
+        it 'contains for project all resource bot scopes including observability scopes' do
+          expect(subject.available_scopes_for(project)).to match_array %i[
+            api read_api read_repository write_repository read_registry write_registry
+            read_observability write_observability create_runner manage_runner k8s_proxy ai_features
+          ]
+        end
+
+        it 'contains for other group all resource bot scopes without observability scopes' do
+          other_parent = build_stubbed(:group)
+          other_group = build_stubbed(:group, parent: other_parent).tap do |g|
+            g.namespace_settings = build_stubbed(:namespace_settings, namespace: g)
           end
 
-          let(:project) { build_stubbed(:project, namespace: group) }
+          expect(subject.available_scopes_for(other_group)).to match_array %i[
+            api read_api read_repository write_repository read_registry write_registry
+            create_runner manage_runner k8s_proxy ai_features
+          ]
+        end
 
-          before do
-            flags.transform_values! { |v| v ? parent : false }
-            stub_feature_flags(flags)
+        it 'contains for other project all resource bot scopes without observability scopes' do
+          other_parent = build_stubbed(:group)
+          other_group = build_stubbed(:group, parent: other_parent).tap do |g|
+            g.namespace_settings = build_stubbed(:namespace_settings, namespace: g)
           end
+          other_project = build_stubbed(:project, namespace: other_group)
 
-          it 'contains for group all resource bot scopes including observability scopes' do
-            expect(subject.available_scopes_for(group)).to match_array %i[
-              api read_api read_repository write_repository read_registry write_registry
-              read_observability write_observability create_runner manage_runner k8s_proxy ai_features
-            ]
-          end
-
-          it 'contains for admin user all non-default scopes with ADMIN access and without observability scopes' do
-            user = build_stubbed(:user, admin: true)
-
-            expect(subject.available_scopes_for(user)).to match_array %i[
-              api read_user read_api read_repository write_repository read_registry write_registry read_service_ping
-              sudo admin_mode create_runner manage_runner k8s_proxy ai_features
-            ]
-          end
-
-          it 'contains for project all resource bot scopes including observability scopes' do
-            expect(subject.available_scopes_for(project)).to match_array %i[
-              api read_api read_repository write_repository read_registry write_registry
-              read_observability write_observability create_runner manage_runner k8s_proxy ai_features
-            ]
-          end
-
-          it 'contains for other group all resource bot scopes without observability scopes' do
-            other_parent = build_stubbed(:group)
-            other_group = build_stubbed(:group, parent: other_parent).tap do |g|
-              g.namespace_settings = build_stubbed(:namespace_settings, namespace: g)
-            end
-
-            expect(subject.available_scopes_for(other_group)).to match_array %i[
-              api read_api read_repository write_repository read_registry write_registry
-              create_runner manage_runner k8s_proxy ai_features
-            ]
-          end
-
-          it 'contains for other project all resource bot scopes without observability scopes' do
-            other_parent = build_stubbed(:group)
-            other_group = build_stubbed(:group, parent: other_parent).tap do |g|
-              g.namespace_settings = build_stubbed(:namespace_settings, namespace: g)
-            end
-            other_project = build_stubbed(:project, namespace: other_group)
-
-            expect(subject.available_scopes_for(other_project)).to match_array %i[
-              api read_api read_repository write_repository read_registry write_registry
-              create_runner manage_runner k8s_proxy ai_features
-            ]
-          end
+          expect(subject.available_scopes_for(other_project)).to match_array %i[
+            api read_api read_repository write_repository read_registry write_registry
+            create_runner manage_runner k8s_proxy ai_features
+          ]
         end
       end
     end
@@ -212,6 +228,28 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
         it 'contains all registry related scopes' do
           expect(subject.registry_scopes).to eq %i[read_registry write_registry]
+        end
+      end
+    end
+
+    context 'virtual_registry_scopes' do
+      context 'when dependency proxy and virtual registry are both disabled' do
+        before do
+          stub_config(dependency_proxy: { enabled: false })
+        end
+
+        it 'is empty' do
+          expect(subject.virtual_registry_scopes).to eq []
+        end
+      end
+
+      context 'when dependency proxy is enabled' do
+        before do
+          stub_config(dependency_proxy: { enabled: true })
+        end
+
+        it 'contains all virtual registry related scopes' do
+          expect(subject.virtual_registry_scopes).to eq %i[read_virtual_registry write_virtual_registry]
         end
       end
     end
@@ -286,7 +324,10 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         end
 
         context 'when failure goes over threshold' do
-          let(:request) { instance_double(ActionDispatch::Request, fullpath: '/some/project.git/info/refs', request_method: 'GET', ip: 'ip') }
+          let(:token_prefix) { Gitlab::ApplicationSettingFetcher.current_application_settings.personal_access_token_prefix }
+          let(:token_string) { "#{token_prefix}PAT1234" }
+          let(:relative_url) { "/some/project.git/info/refs?private_token=#{token_string}" }
+          let(:request) { request_for_url(relative_url) }
 
           before do
             expect_next_instance_of(Gitlab::Auth::IpRateLimiter) do |rate_limiter|
@@ -294,13 +335,14 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
             end
           end
 
-          it 'logs a message' do
+          it 'logs a message with a filtered path' do
             expect(Gitlab::AuthLogger).to receive(:error).with(
-              message: include('IP has been temporarily banned from Git auth'),
+              message: "Rack_Attack: Git auth failures has exceeded the threshold. " \
+                "IP has been temporarily banned from Git auth.",
               env: :blocklist,
               remote_ip: request.ip,
               request_method: request.request_method,
-              path: request.fullpath,
+              path: request.filtered_path,
               login: user.username
             )
 
@@ -347,13 +389,6 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         it 'recognises project level security_policy_bot access token' do
           build.update!(user: create(:user, :security_policy_bot))
           project.add_guest(build.user)
-
-          expect(subject).to have_attributes(actor: build.user, project: build.project, type: :build, authentication_abilities: described_class.build_authentication_abilities)
-        end
-
-        it 'recognises group level security_policy_bot access token' do
-          build.update!(user: create(:user, :security_policy_bot))
-          group.add_guest(build.user)
 
           expect(subject).to have_attributes(actor: build.user, project: build.project, type: :build, authentication_abilities: described_class.build_authentication_abilities)
         end
@@ -407,23 +442,36 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
     end
 
     context 'while using LFS authenticate' do
+      let(:path) { '/namespace/project.git/info/lfs/objects/batch' }
+
+      context 'while using LFS token on non-LFS path' do
+        let(:path) { '/namespace/project.git/other/path' }
+
+        it 'does not authenticate with LFS token on non-LFS path' do
+          user = create(:user)
+          token = Gitlab::LfsToken.new(user, project).token
+
+          expect(gl_auth.find_for_git_client(user.username, token, project: nil, request: request)).to have_attributes(auth_failure)
+        end
+      end
+
       it 'recognizes user lfs tokens' do
         user = create(:user)
-        token = Gitlab::LfsToken.new(user).token
+        token = Gitlab::LfsToken.new(user, project).token
 
         expect(gl_auth.find_for_git_client(user.username, token, project: nil, request: request)).to have_attributes(actor: user, project: nil, type: :lfs_token, authentication_abilities: described_class.read_write_project_authentication_abilities)
       end
 
       it 'recognizes deploy key lfs tokens' do
         key = create(:deploy_key)
-        token = Gitlab::LfsToken.new(key).token
+        token = Gitlab::LfsToken.new(key, project).token
 
         expect(gl_auth.find_for_git_client("lfs+deploy-key-#{key.id}", token, project: nil, request: request)).to have_attributes(actor: key, project: nil, type: :lfs_deploy_token, authentication_abilities: described_class.read_only_authentication_abilities)
       end
 
       it 'does not try password auth before oauth' do
         user = create(:user)
-        token = Gitlab::LfsToken.new(user).token
+        token = Gitlab::LfsToken.new(user, project).token
 
         expect(gl_auth).not_to receive(:find_with_user_password)
 
@@ -433,14 +481,14 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
       it 'grants deploy key write permissions' do
         key = create(:deploy_key)
         create(:deploy_keys_project, :write_access, deploy_key: key, project: project)
-        token = Gitlab::LfsToken.new(key).token
+        token = Gitlab::LfsToken.new(key, project).token
 
         expect(gl_auth.find_for_git_client("lfs+deploy-key-#{key.id}", token, project: project, request: request)).to have_attributes(actor: key, project: nil, type: :lfs_deploy_token, authentication_abilities: described_class.read_write_authentication_abilities)
       end
 
       it 'does not grant deploy key write permissions' do
         key = create(:deploy_key)
-        token = Gitlab::LfsToken.new(key).token
+        token = Gitlab::LfsToken.new(key, project).token
 
         expect(gl_auth.find_for_git_client("lfs+deploy-key-#{key.id}", token, project: project, request: request)).to have_attributes(actor: key, project: nil, type: :lfs_deploy_token, authentication_abilities: described_class.read_only_authentication_abilities)
       end
@@ -448,17 +496,51 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
       it 'does fail if the user and token are nil' do
         expect(gl_auth.find_for_git_client(nil, nil, project: project, request: request)).to have_attributes(auth_failure)
       end
+
+      context 'when lfs token belongs to a different project' do
+        let_it_be(:actor) { create(:user) }
+        let_it_be(:another_project) { create(:project) }
+
+        context 'when project is provided' do
+          it 'returns an auth failure' do
+            token = Gitlab::LfsToken.new(actor, another_project).token
+
+            expect(gl_auth.find_for_git_client(actor.username, token, project: project, request: request)).to have_attributes(auth_failure)
+          end
+        end
+
+        context 'without project' do
+          it 'grants permissions' do
+            token = Gitlab::LfsToken.new(actor, another_project).token
+
+            expect(gl_auth.find_for_git_client(actor.username, token, project: nil, request: request)).to have_attributes(actor: actor, project: nil, type: :lfs_token, authentication_abilities: described_class.read_write_project_authentication_abilities)
+          end
+        end
+      end
     end
 
-    context 'while using OAuth tokens as passwords' do
-      let(:user) { create(:user) }
+    describe 'using OAuth tokens as passwords' do
+      let_it_be(:organization) { create(:organization) }
+
+      let(:user) { create(:user, organizations: [organization]) }
       let(:application) { Doorkeeper::Application.create!(name: 'MyApp', redirect_uri: 'https://app.com', owner: user) }
+      let(:scopes) { 'api' }
+
+      let(:token) do
+        Doorkeeper::AccessToken.create!(
+          application_id: application.id,
+          resource_owner_id: user.id,
+          scopes: scopes,
+          organization_id: organization.id).plaintext_token
+      end
+
+      def authenticate(username:, password:)
+        gl_auth.find_for_git_client(username, password, project: nil, request: request)
+      end
 
       shared_examples 'an oauth failure' do
         it 'fails' do
-          access_token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: 'api')
-
-          expect(gl_auth.find_for_git_client("oauth2", access_token.token, project: nil, request: request))
+          expect(authenticate(username: "oauth2", password: token))
             .to have_attributes(auth_failure)
         end
       end
@@ -484,27 +566,28 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
         with_them do
           it 'authenticates with correct abilities' do
-            access_token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: scopes)
-
-            expect(gl_auth.find_for_git_client("oauth2", access_token.token, project: nil, request: request))
+            expect(authenticate(username: 'oauth2', password: token))
               .to have_attributes(actor: user, project: nil, type: :oauth, authentication_abilities: abilities)
           end
 
           it 'authenticates with correct abilities without special username' do
-            access_token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: scopes)
+            expect(authenticate(username: user.username, password: token))
+              .to have_attributes(actor: user, project: nil, type: :oauth, authentication_abilities: abilities)
+          end
 
-            expect(gl_auth.find_for_git_client(user.username, access_token.token, project: nil, request: request))
+          it 'tracks any composite identity' do
+            expect(::Gitlab::Auth::Identity).to receive(:link_from_oauth_token).and_call_original
+
+            expect(authenticate(username: "oauth2", password: token))
               .to have_attributes(actor: user, project: nil, type: :oauth, authentication_abilities: abilities)
           end
         end
       end
 
       it 'does not try password auth before oauth' do
-        access_token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: 'api')
-
         expect(gl_auth).not_to receive(:find_with_user_password)
 
-        gl_auth.find_for_git_client("oauth2", access_token.token, project: nil, request: request)
+        authenticate(username: "oauth2", password: token)
       end
 
       context 'blocked user' do
@@ -1016,7 +1099,9 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
   end
 
   describe '#build_access_token_check' do
-    subject { gl_auth.find_for_git_client('gitlab-ci-token', build.token, project: build.project, request: request) }
+    subject(:result) do
+      gl_auth.find_for_git_client('gitlab-ci-token', build.token, project: build.project, request: request)
+    end
 
     let_it_be(:user) { create(:user) }
 
@@ -1024,15 +1109,35 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
       let!(:build) { create(:ci_build, :running, user: user) }
 
       it 'executes query using primary database' do
-        expect(Ci::Build).to receive(:find_by_token).with(build.token).and_wrap_original do |m, *args|
-          expect(::Gitlab::Database::LoadBalancing::Session.current.use_primary?).to eq(true)
+        expect(::Ci::JobToken::Jwt).to receive(:decode).with(build.token).and_wrap_original do |m, *args|
+          expect(::Gitlab::Database::LoadBalancing::SessionMap.current(Ci::Build.load_balancer).use_primary?)
+            .to be(true)
           m.call(*args)
         end
 
-        expect(subject).to be_a(Gitlab::Auth::Result)
-        expect(subject.actor).to eq(user)
-        expect(subject.project).to eq(build.project)
-        expect(subject.type).to eq(:build)
+        expect(result).to be_a(Gitlab::Auth::Result)
+        expect(result.actor).to eq(user)
+        expect(result.project).to eq(build.project)
+        expect(result.type).to eq(:build)
+      end
+
+      context 'with a database token' do
+        before do
+          stub_feature_flags(ci_job_token_jwt: false)
+        end
+
+        it 'executes query using primary database' do
+          expect(Ci::Build).to receive(:find_by_token).with(build.token).and_wrap_original do |m, *args|
+            expect(::Gitlab::Database::LoadBalancing::SessionMap.current(Ci::Build.load_balancer).use_primary?)
+              .to be(true)
+            m.call(*args)
+          end
+
+          expect(result).to be_a(Gitlab::Auth::Result)
+          expect(result.actor).to eq(user)
+          expect(result.project).to eq(build.project)
+          expect(result.type).to eq(:build)
+        end
       end
     end
   end
@@ -1199,7 +1304,8 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
 
     it { is_expected.to include(*described_class::API_SCOPES - [:read_user]) }
     it { is_expected.to include(*described_class::REPOSITORY_SCOPES) }
-    it { is_expected.to include(*described_class.registry_scopes) }
+
+    it { is_expected.to include(*described_class.registry_scopes) } unless described_class.registry_scopes.empty?
     it { is_expected.to include(*described_class::OBSERVABILITY_SCOPES) }
   end
 

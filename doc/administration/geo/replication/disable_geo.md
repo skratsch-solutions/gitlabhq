@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 If you want to revert to a regular Linux package installation setup after a test, or you have encountered a Disaster Recovery
 situation and you want to disable Geo momentarily, you can use these instructions to disable your
@@ -39,7 +39,7 @@ to do that.
 To remove the **primary** site:
 
 1. [Remove all secondary Geo sites](remove_geo_site.md)
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Nodes**.
 1. Select **Remove** for the **primary** node.
 1. Confirm by selecting **Remove** when the prompt appears.

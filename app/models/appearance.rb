@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Appearance < MainClusterwide::ApplicationRecord
+class Appearance < ApplicationRecord
   include CacheableAttributes
   include CacheMarkdownField
   include WithUploads
@@ -69,9 +69,7 @@ class Appearance < MainClusterwide::ApplicationRecord
   end
 
   def single_appearance_row
-    if self.class.any?
-      errors.add(:base, _('Only 1 appearances row can exist'))
-    end
+    errors.add(:base, _('Only 1 appearances row can exist')) if self.class.any?
   end
 
   def pwa_icon_path_scaled(width)
@@ -102,6 +100,10 @@ class Appearance < MainClusterwide::ApplicationRecord
 
   def show_footer?
     footer_message.present?
+  end
+
+  def uploads_sharding_key
+    {}
   end
 
   private

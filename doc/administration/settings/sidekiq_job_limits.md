@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 [Sidekiq](../sidekiq/index.md) jobs get stored in
 Redis. To avoid excessive memory for Redis, we:
@@ -18,7 +18,7 @@ Redis. To avoid excessive memory for Redis, we:
 
 To access Sidekiq job size limits:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Preferences**.
 1. Expand **Sidekiq job size limits**.
 1. Adjust the compression threshold or size limit. The compression can

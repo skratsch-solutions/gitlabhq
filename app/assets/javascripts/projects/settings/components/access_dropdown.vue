@@ -9,6 +9,7 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import { debounce, intersectionWith, groupBy, differenceBy, intersectionBy } from 'lodash';
+import glAbilitiesMixin from '~/vue_shared/mixins/gl_abilities_mixin';
 import { createAlert } from '~/alert';
 import { __, s__, n__ } from '~/locale';
 import { getUsers, getGroups, getDeployKeys } from '../api/access_dropdown_api';
@@ -20,7 +21,7 @@ export const i18n = {
   groupsSectionHeader: s__('AccessDropdown|Groups'),
   usersSectionHeader: s__('AccessDropdown|Users'),
   noRole: s__('AccessDropdown|No role'),
-  deployKeysSectionHeader: s__('AccessDropdown|Deploy Keys'),
+  deployKeysSectionHeader: s__('AccessDropdown|Deploy keys'),
   ownedBy: __('Owned by %{image_tag}'),
 };
 
@@ -35,6 +36,7 @@ export default {
     GlAvatar,
     GlSprintf,
   },
+  mixins: [glAbilitiesMixin()],
   props: {
     accessLevelsData: {
       type: Array,
@@ -98,6 +100,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    sectionSelector: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   data() {
@@ -175,7 +182,7 @@ export default {
     },
     dropdownToggleClass() {
       return {
-        'gl-text-gray-500!': this.toggleLabel === this.label,
+        '!gl-text-subtle': this.toggleLabel === this.label,
         [this.toggleClass]: true,
       };
     },
@@ -187,6 +194,9 @@ export default {
         ...this.getDataForSave(LEVEL_TYPES.DEPLOY_KEY, 'deploy_key_id'),
       ];
     },
+    canAdminContainer() {
+      return this.glAbilities.adminProject || this.glAbilities.adminGroup;
+    },
   },
   watch: {
     query: debounce(function debouncedSearch() {
@@ -197,7 +207,12 @@ export default {
     },
   },
   created() {
-    this.getData({ initial: true });
+    const sectionEl = this.sectionSelector && document.querySelector(this.sectionSelector);
+    if (!sectionEl || sectionEl.classList.contains('expanded')) {
+      this.getData({ initial: true });
+      return;
+    }
+    this.observeSectionExpansion(sectionEl);
   },
   methods: {
     setDataForSave(items) {
@@ -226,29 +241,45 @@ export default {
     focusInput() {
       this.$refs.search?.focusInput();
     },
+    getGroups() {
+      return this.groups.length
+        ? Promise.resolve({ data: this.groups })
+        : getGroups({ withProjectAccess: this.groupsWithProjectAccess });
+    },
     getData({ initial = false } = {}) {
       this.initialLoading = initial;
       this.loading = true;
 
       if (this.hasLicense) {
-        Promise.all([
-          getDeployKeys(this.query),
-          getUsers(this.query),
-          this.groups.length
-            ? Promise.resolve({ data: this.groups })
-            : getGroups({ withProjectAccess: this.groupsWithProjectAccess }),
-        ])
-          .then(([deployKeysResponse, usersResponse, groupsResponse]) => {
-            this.consolidateData(deployKeysResponse.data, usersResponse.data, groupsResponse.data);
-            this.setSelected({ initial });
-          })
-          .catch(() =>
-            createAlert({ message: __('Failed to load groups, users and deploy keys.') }),
-          )
-          .finally(() => {
-            this.initialLoading = false;
-            this.loading = false;
-          });
+        if (this.canAdminContainer) {
+          Promise.all([getDeployKeys(this.query), getUsers(this.query), this.getGroups()])
+            .then(([deployKeysResponse, usersResponse, groupsResponse]) => {
+              this.consolidateData(
+                deployKeysResponse.data,
+                usersResponse.data,
+                groupsResponse.data,
+              );
+              this.setSelected({ initial });
+            })
+            .catch(() =>
+              createAlert({ message: __('Failed to load groups, users and deploy keys.') }),
+            )
+            .finally(() => {
+              this.initialLoading = false;
+              this.loading = false;
+            });
+        } else if (this.glAbilities.adminProtectedBranch) {
+          Promise.all([getUsers(this.query), this.getGroups()])
+            .then(([usersResponse, groupsResponse]) => {
+              this.consolidateData(null, usersResponse.data, groupsResponse.data);
+              this.setSelected({ initial });
+            })
+            .catch(() => createAlert({ message: __('Failed to load groups and users.') }))
+            .finally(() => {
+              this.initialLoading = false;
+              this.loading = false;
+            });
+        }
       } else {
         getDeployKeys(this.query)
           .then((deployKeysResponse) => {
@@ -284,27 +315,31 @@ export default {
         }
       }
 
-      this.deployKeys = deployKeysResponse.map((response) => {
-        const {
-          id,
-          fingerprint,
-          fingerprint_sha256: fingerprintSha256,
-          title,
-          owner: { avatar_url, name, username },
-        } = response;
+      if (this.canAdminContainer) {
+        this.deployKeys = deployKeysResponse.map((response) => {
+          const {
+            id,
+            fingerprint,
+            fingerprint_sha256: fingerprintSha256,
+            title,
+            owner: { avatar_url, name, username },
+          } = response;
 
-        const availableFingerprint = fingerprintSha256 || fingerprint;
-        const shortFingerprint = `(${availableFingerprint.substring(0, 14)}...)`;
+          const availableFingerprint = fingerprintSha256 || fingerprint;
+          const shortFingerprint = `(${availableFingerprint.substring(0, 14)}...)`;
 
-        return {
-          id,
-          title: title.concat(' ', shortFingerprint),
-          avatar_url,
-          fullname: name,
-          username,
-          type: LEVEL_TYPES.DEPLOY_KEY,
-        };
-      });
+          return {
+            id,
+            title: title.concat(' ', shortFingerprint),
+            avatar_url,
+            fullname: name,
+            username,
+            type: LEVEL_TYPES.DEPLOY_KEY,
+          };
+        });
+      } else {
+        this.deployKeys = [];
+      }
     },
     setSelected({ initial } = {}) {
       if (initial) {
@@ -425,6 +460,16 @@ export default {
       this.$emit('shown');
       this.focusInput();
     },
+    observeSectionExpansion(sectionEl) {
+      const observer = new MutationObserver(() => {
+        if (sectionEl.classList.contains('expanded')) {
+          this.getData({ initial: true });
+          observer.disconnect();
+        }
+      });
+
+      observer.observe(sectionEl, { attributes: true, attributeFilter: ['class'] });
+    },
   },
 };
 </script>
@@ -434,7 +479,7 @@ export default {
     :disabled="disabled || initialLoading"
     :text="toggleLabel"
     :block="block"
-    class="gl-min-w-20 gl-p-0!"
+    class="gl-min-w-20 !gl-p-0"
     :toggle-class="dropdownToggleClass"
     aria-labelledby="allowed-users-label"
     :data-testid="testId"
@@ -454,7 +499,7 @@ export default {
         data-testid="role-dropdown-item"
         is-check-item
         :is-checked="isSelected(role)"
-        @click.native.capture.stop="onItemClick(role)"
+        @click.capture.native.stop="onItemClick(role)"
       >
         {{ role.text }}
       </gl-dropdown-item>
@@ -472,7 +517,7 @@ export default {
         :avatar-url="group.avatar_url"
         is-check-item
         :is-checked="isSelected(group)"
-        @click.native.capture.stop="onItemClick(group)"
+        @click.capture.native.stop="onItemClick(group)"
       >
         {{ group.name }}
       </gl-dropdown-item>
@@ -491,7 +536,7 @@ export default {
         :secondary-text="user.username"
         is-check-item
         :is-checked="isSelected(user)"
-        @click.native.capture.stop="onItemClick(user)"
+        @click.capture.native.stop="onItemClick(user)"
       >
         {{ user.name }}
       </gl-dropdown-item>
@@ -508,11 +553,11 @@ export default {
         data-testid="deploy_key-dropdown-item"
         is-check-item
         :is-checked="isSelected(key)"
-        class="gl-text-truncate"
-        @click.native.capture.stop="onItemClick(key)"
+        class="gl-truncate"
+        @click.capture.native.stop="onItemClick(key)"
       >
-        <div class="gl-text-truncate gl-font-bold">{{ key.title }}</div>
-        <div class="gl-text-gray-700 gl-text-truncate">
+        <div class="gl-truncate gl-font-bold">{{ key.title }}</div>
+        <div class="gl-truncate gl-text-subtle">
           <gl-sprintf :message="$options.i18n.ownedBy">
             <template #image_tag>
               <gl-avatar :src="key.avatar_url" :size="24" />

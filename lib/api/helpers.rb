@@ -19,6 +19,10 @@ module API
     API_RESPONSE_STATUS_CODE = 'gitlab.api.response_status_code'
     INTEGER_ID_REGEX = /^-?\d+$/
 
+    # ai_workflows scope is used by Duo Workflow which is an AI automation tool, requests authenticated by token with
+    # this scope are audited to keep track of all actions done by Duo Workflow.
+    TOKEN_SCOPES_TO_AUDIT = [:ai_workflows].freeze
+
     def logger
       API.logger
     end
@@ -89,11 +93,19 @@ module API
 
       if @current_user
         load_balancer_stick_request(::ApplicationRecord, :user, @current_user.id)
+        audit_request_with_token_scope(@current_user)
       end
 
       @current_user
     end
     # rubocop:enable Gitlab/ModuleWithInstanceVariables
+
+    def set_current_organization(user: current_user)
+      ::Current.organization = Gitlab::Current::Organization.new(
+        params: {},
+        user: user
+      ).organization
+    end
 
     def save_current_user_in_env(user)
       env[API_USER_ENV] = { user_id: user.id, username: user.username }
@@ -148,13 +160,16 @@ module API
     def find_project!(id)
       project = find_project(id)
 
-      return forbidden! unless authorized_project_scope?(project)
+      return forbidden!("This project's CI/CD job token cannot be used to authenticate with the container registry of a different project.") unless authorized_project_scope?(project)
+      return not_found!('Project') if project.nil?
 
       unless can?(current_user, read_project_ability, project)
         return unauthorized! if authenticate_non_public?
 
-        return not_found!('Project')
+        return handle_job_token_failure!(project)
       end
+
+      authorize_job_token_policies!(project) && return
 
       if project_moved?(id, project)
         return not_allowed!('Non GET methods are not allowed for moved projects') unless request.get?
@@ -163,6 +178,10 @@ module API
       end
 
       project
+    end
+
+    def authorize_job_token_policies!(project)
+      forbidden!(job_token_policies_unauthorized_message(project)) unless job_token_policies_authorized?(project)
     end
 
     def read_project_ability
@@ -180,7 +199,7 @@ module API
     def find_pipeline(id)
       return unless id
 
-      if id.to_s =~ INTEGER_ID_REGEX
+      if INTEGER_ID_REGEX.match?(id.to_s)
         ::Ci::Pipeline.find_by(id: id)
       end
     end
@@ -201,7 +220,7 @@ module API
     end
 
     def find_organization!(id)
-      organization = Organizations::Organization.find_by_id(id)
+      organization = ::Organizations::Organization.find_by_id(id)
       check_organization_access(organization)
     end
 
@@ -209,7 +228,7 @@ module API
     def find_group(id, organization: nil)
       collection = organization.present? ? Group.in_organization(organization) : Group.all
 
-      if id.to_s =~ INTEGER_ID_REGEX
+      if INTEGER_ID_REGEX.match?(id.to_s)
         collection.find_by(id: id)
       else
         collection.find_by_full_path(id)
@@ -226,12 +245,10 @@ module API
       check_group_access(group)
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def find_group_by_full_path!(full_path)
       group = Group.find_by_full_path(full_path)
       check_group_access(group)
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def check_group_access(group)
       return group if can?(current_user, :read_group, group)
@@ -249,7 +266,12 @@ module API
     # find_namespace returns the namespace regardless of user access level on the namespace
     # rubocop: disable CodeReuse/ActiveRecord
     def find_namespace(id)
-      if id.to_s =~ INTEGER_ID_REGEX
+      if INTEGER_ID_REGEX.match?(id.to_s)
+        # We need to stick to an up-to-date replica or primary db here in order to properly observe the namespace
+        # recently created by GitlabSubscriptions::Trials::CreateService#create_group_flow.
+        # See https://gitlab.com/gitlab-org/customers-gitlab-com/-/issues/9808
+        ::Namespace.sticking.find_caught_up_replica(:namespace, id)
+
         Namespace.without_project_namespaces.find_by(id: id)
       else
         find_namespace_by_path(id)
@@ -351,6 +373,10 @@ module API
     def authenticated_as_admin!
       authenticate!
       forbidden! unless current_user.can_admin_all_resources?
+    end
+
+    def authorize_read_application_statistics!
+      authenticated_as_admin!
     end
 
     def authorize!(action, subject = :global, reason = nil)
@@ -576,14 +602,18 @@ module API
       render_api_error!('201 Created', 201)
     end
 
-    def accepted!
-      render_api_error!('202 Accepted', 202)
+    def accepted!(message = '202 Accepted')
+      render_api_error!(message, 202)
     end
 
-    def render_validation_error!(model, status = 400)
-      if model.errors.any?
-        render_api_error!(model_errors(model).messages || '400 Bad Request', status)
-      end
+    def render_validation_error!(models, status = 400)
+      models = Array(models)
+
+      errors = models.map { |m| model_errors(m) }.filter(&:present?)
+      messages = errors.map(&:messages)
+      messages = messages.count == 1 ? messages.first : messages.join(" ")
+
+      render_api_error!(messages || '400 Bad Request', status) if errors.any?
     end
 
     def model_errors(model)
@@ -658,11 +688,12 @@ module API
 
     # file helpers
 
-    def present_disk_file!(path, filename, content_type = 'application/octet-stream')
+    def present_disk_file!(path, filename, content_type: nil, extra_response_headers: {})
       filename ||= File.basename(path)
+      extra_response_headers.compact_blank.each { |k, v| header[k] = v }
       header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'attachment', filename: filename)
       header['Content-Transfer-Encoding'] = 'binary'
-      content_type content_type
+      content_type(content_type || 'application/octet-stream')
 
       # Support download acceleration
       case headers['X-Sendfile-Type']
@@ -680,24 +711,41 @@ module API
       present_carrierwave_file!(file, **args)
     end
 
-    def present_carrierwave_file!(file, supports_direct_download: true, content_disposition: nil)
+    # Return back the given file depending on the object storage configuration.
+    # For disabled mode, the disk file is returned.
+    # For enabled mode, the response depends on the direct download support:
+    #   * direct download supported by the uploader class: a redirect to the file signed url is returned.
+    #   * direct download not supported: a workhorse send_url response is returned.
+    #
+    # Params:
+    # @file the carrierwave file.
+    # @supports_direct_download set to false to force a workhorse send_url response. true by default.
+    # @content_disposition controls the Content-Disposition response header. nil by default. Forced to attachment for object storage disabled mode.
+    # @content_type controls the Content-Type response header. By default, it will rely on the 'application/octet-stream' value or the content type detected by carrierwave.
+    # @extra_response_headers. Set additional response headers. Not used in the direct download supported case.
+    def present_carrierwave_file!(file, supports_direct_download: true, content_disposition: nil, content_type: nil, extra_response_headers: {})
       return not_found! unless file&.exists?
 
+      if content_disposition
+        response_disposition = ActionDispatch::Http::ContentDisposition.format(disposition: content_disposition, filename: file.filename)
+      end
+
       if file.file_storage?
-        present_disk_file!(file.path, file.filename)
-      elsif supports_direct_download && file.class.direct_download_enabled?
+        present_disk_file!(file.path, file.filename, content_type: content_type, extra_response_headers: extra_response_headers)
+      elsif supports_direct_download && file.direct_download_enabled?
         return redirect(ObjectStorage::S3.signed_head_url(file)) if request.head? && file.fog_credentials[:provider] == 'AWS'
 
         redirect_params = {}
         if content_disposition
-          response_disposition = ActionDispatch::Http::ContentDisposition.format(disposition: content_disposition, filename: file.filename)
-          redirect_params[:query] = { 'response-content-disposition': response_disposition, 'response-content-type': file.content_type }
+          redirect_params[:query] = { 'response-content-disposition' => response_disposition, 'response-content-type' => content_type || file.content_type }
         end
 
         file_url = ObjectStorage::CDN::FileUrl.new(file: file, ip_address: ip_address, redirect_params: redirect_params)
         redirect(file_url.url)
       else
-        header(*Gitlab::Workhorse.send_url(file.url))
+        response_headers = extra_response_headers.merge('Content-Type' => content_type, 'Content-Disposition' => response_disposition).compact_blank
+
+        header(*Gitlab::Workhorse.send_url(file.url, response_headers: response_headers))
         status :ok
         body '' # to avoid an error from API::APIGuard::ResponseCoercerMiddleware
       end
@@ -719,7 +767,7 @@ module API
       Gitlab::AppLogger.warn("Redis tracking event failed for event: #{event_name}, message: #{error.message}")
     end
 
-    def track_event(event_name, user:, send_snowplow_event: true, namespace_id: nil, project_id: nil, additional_properties: Gitlab::InternalEvents::DEFAULT_ADDITIONAL_PROPERTIES)
+    def track_event(event_name, user:, send_snowplow_event: true, namespace_id: nil, project_id: nil, additional_properties: {})
       return unless user.present?
 
       namespace = Namespace.find(namespace_id) if namespace_id
@@ -733,7 +781,7 @@ module API
         namespace: namespace,
         project: project
       )
-    rescue Gitlab::InternalEvents::UnknownEventError => e
+    rescue Gitlab::Tracking::EventValidator::UnknownEventError => e
       Gitlab::ErrorTracking.track_exception(e, event_name: event_name)
 
       # We want to keep the error silent on production to keep the behavior
@@ -801,6 +849,27 @@ module API
       end
     end
 
+    def audit_request_with_token_scope(user)
+      token_info = ::Current.token_info
+      return unless token_info
+      return unless TOKEN_SCOPES_TO_AUDIT.intersect?(Array.wrap(token_info[:token_scopes]))
+
+      context = {
+        name: 'api_request_access_with_scope',
+        author: user,
+        scope: user,
+        target: ::Gitlab::Audit::NullTarget.new,
+        message: "API request with token scopes #{token_info[:token_scopes]} - #{request.request_method} #{request.path}",
+        additional_details: {
+          request: request.path,
+          method: request.request_method,
+          token_scopes: token_info[:token_scopes]
+        }
+      }
+
+      ::Gitlab::Audit::Auditor.audit(context)
+    end
+
     private
 
     # rubocop:disable Gitlab/ModuleWithInstanceVariables
@@ -828,7 +897,7 @@ module API
       end
 
       unless access_token
-        forbidden!('Must be authenticated using an OAuth or Personal Access Token to use sudo')
+        forbidden!('Must be authenticated using an OAuth or personal access token to use sudo')
       end
 
       validate_and_save_access_token!(scopes: [:sudo])
@@ -861,7 +930,11 @@ module API
       env['api.format'] = :txt
       content_type 'text/plain'
 
-      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'inline', filename: blob.name)
+      # Some browsers ignore content type when filename has an xhtml extension
+      # We remove the extensions to prevent the contents from being displayed inline
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/458236
+      filename = blob.name&.ends_with?('.xhtml') ? blob.name.split('.')[0] : blob.name
+      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'inline', filename: filename)
 
       # Let Workhorse examine the content and determine the better content disposition
       header[Gitlab::Workhorse::DETECT_HEADER] = "true"
@@ -936,6 +1009,53 @@ module API
       Rack::Request.new(env).tap do |r|
         r.path_info = "/#{new_path}"
       end.url
+    end
+
+    def handle_job_token_failure!(project)
+      if current_user&.from_ci_job_token? && current_user&.ci_job_token_scope
+        source_project = current_user.ci_job_token_scope.current_project
+        error_message = format("Authentication by CI/CD job token not allowed from %{source_project_path} to %{target_project_path}.", source_project_path: source_project.path, target_project_path: project.path)
+
+        forbidden!(error_message)
+      else
+        not_found!('Project')
+      end
+    end
+
+    def job_token_policies_authorized?(project)
+      return true unless current_user&.from_ci_job_token?
+      return true unless Feature.enabled?(:enforce_job_token_policies, current_user)
+      return true if skip_job_token_policies?
+
+      current_user.ci_job_token_scope.policies_allowed?(project, job_token_policies)
+    end
+
+    def job_token_policies_unauthorized_message(project)
+      policies = job_token_policies
+      case policies.size
+      when 0
+        'This action is unauthorized for CI/CD job tokens.'
+      when 1
+        format("Insufficient permissions to access this resource in project %{project}. " \
+          "The following token permission is required: %{policy}.",
+          project: project.path, policy: policies[0])
+      else
+        format("Insufficient permissions to access this resource in project %{project}. " \
+          "The following token permissions are required: %{policies}.",
+          project: project.path, policies: policies.to_sentence)
+      end
+    end
+
+    def job_token_policies
+      return [] unless respond_to?(:route_setting)
+
+      Array(route_setting(:authorization).try(:fetch, :job_token_policies, nil))
+    end
+
+    def skip_job_token_policies?
+      return false unless respond_to?(:route_setting)
+
+      route_setting(:authorization).try(:fetch, :skip_job_token_policies, false)
     end
   end
 end

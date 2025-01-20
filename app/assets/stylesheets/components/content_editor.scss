@@ -10,6 +10,7 @@
   overflow-y: auto;
   transition: box-shadow ease-in-out 0.15s;
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-dark & {
     width: calc(100% - 6px);
     margin: 2px 3px;
@@ -21,14 +22,24 @@
   }
 
   &:focus {
-    @include gl-focus;
+    @apply gl-focus;
   }
 
   &:not(.ProseMirror-hideselection) .content-editor-selection,
   a.ProseMirror-selectednode,
   span.ProseMirror-selectednode {
-    background-color: $blue-100;
-    box-shadow: 0 2px 0 $blue-100, 0 -2px 0 $blue-100;
+    @apply gl-bg-blue-100;
+    box-shadow: 0 2px 0 var(--blue-100, $blue-100), 0 -2px 0 var(--blue-100, $blue-100);
+
+    &.gfm-project_member, .gfm-project_member {
+      &:not(.current-user) {
+        @apply gl-bg-blue-200;
+      }
+    }
+
+    &.gfm-project_member {
+      box-shadow: 0 0 0 2px var(--blue-100, $blue-100);
+    }
   }
 
   pre > code {
@@ -79,6 +90,15 @@
     height: 8px;
     background: $blue-200;
     outline: 1px solid $white;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      top: -8px;
+      left: -8px;
+    }
   }
 
   .image-resize-nw {
@@ -108,10 +128,6 @@
   img.ProseMirror-selectednode {
     outline: 2px solid $blue-200;
     outline-offset: -2px;
-  }
-
-  video {
-    max-width: 400px;
   }
 
   img {
@@ -156,7 +172,7 @@
 
       &[data-inapplicable] * {
         text-decoration: line-through;
-        color: $gl-text-color-disabled;
+        @apply gl-text-disabled;
       }
     }
   }
@@ -167,6 +183,7 @@
     white-space: pre-wrap;
 
     > code {
+      font-size: $code-font-size-fixed;
       white-space: pre-wrap;
       padding: 0;
       display: flex;
@@ -183,14 +200,13 @@
 
   .suggestion-added,
   .suggestion-deleted {
-    background-color: $line-added;
     width: 100%;
 
     > code {
-      border-left: 100px solid $line-number-new;
+      border-left: 100px solid transparent;
       padding-left: 20px;
       border-radius: 0;
-      background-color: inherit !important;
+      background-color: var(--diff-addition-color) !important;
     }
 
     > code::before {
@@ -201,8 +217,6 @@
       text-align: right;
       padding-right: 10px;
       padding-left: 10px;
-
-      color: $gl-text-color-secondary;
     }
 
     > code::after {
@@ -211,8 +225,6 @@
       margin-left: -20px;
       width: 20px;
       text-align: center;
-
-      color: $gl-text-color-secondary;
     }
   }
 
@@ -221,11 +233,11 @@
   }
 
   .suggestion-deleted {
-    background-color: $line-removed;
     cursor: not-allowed;
+    @apply gl-rounded-none;
 
     > code {
-      border-color: $line-number-old;
+      background-color: var(--diff-deletion-color) !important;
     }
 
     > code::before {
@@ -283,29 +295,14 @@
     }
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-new-dropdown-inner li {
     margin-left: 0 !important;
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     &.gl-new-dropdown-item {
       padding-left: $gl-spacing-scale-2;
       padding-right: $gl-spacing-scale-2;
-    }
-  }
-}
-
-.gl-dark .ProseMirror {
-  .suggestion-added-input,
-  .suggestion-deleted {
-    > code {
-      color: $gray-50;
-    }
-  }
-
-  .suggestion-deleted,
-  .suggestion-added {
-    > code::before,
-    > code::after {
-      color: $gray-400;
     }
   }
 }
@@ -319,14 +316,16 @@
 }
 
 .table-creator-grid-item {
-  box-shadow: inset 0 0 0 $gl-spacing-scale-2 $white,
-    inset $gl-spacing-scale-1 $gl-spacing-scale-1 0 #{$gl-spacing-scale-2 * 3 / 4} $gray-100,
-    inset #{-$gl-spacing-scale-1} #{-$gl-spacing-scale-1} 0 #{$gl-spacing-scale-2 * 3 / 4} $gray-100 !important;
+  min-height: 1rem !important;
+  min-width: 1rem !important;
 
   &.active {
-    box-shadow: inset 0 0 0 $gl-spacing-scale-2 $white,
-      inset $gl-spacing-scale-1 $gl-spacing-scale-1 0 $gl-spacing-scale-2 $blue-500,
-      inset #{-$gl-spacing-scale-1} #{-$gl-spacing-scale-1} 0 $gl-spacing-scale-2 $blue-500 !important;
+    border-color: $blue-500 !important;
+    border-width: 2px;
+  }
+
+  &:focus {
+    box-shadow: none !important;
   }
 }
 
@@ -358,18 +357,21 @@
   }
 }
 
+// stylelint-disable-next-line gitlab/no-gl-class
 .content-editor-table-dropdown .gl-new-dropdown-panel {
   min-width: auto;
 }
 
 .content-editor-suggestions-dropdown {
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-new-dropdown-panel {
     width: max-content;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   li.focused div.gl-new-dropdown-item-content {
     @include gl-focus($inset: true);
-    background-color: $gray-50;
+    background-color: var(--gl-dropdown-option-background-color-unselected-hover);
   }
 }
 

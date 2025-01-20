@@ -179,7 +179,11 @@ RSpec.describe Ci::JobToken::Scope, feature_category: :continuous_integration, f
     describe 'metrics' do
       include_context 'with accessible and inaccessible projects'
 
-      context 'when the access project has ci_inbound_job_token_scope_enabled' do
+      context 'when the accessed project has ci_inbound_job_token_scope_enabled' do
+        before do
+          fully_accessible_project.update!(ci_inbound_job_token_scope_enabled: true)
+        end
+
         it 'increments the counter metric with legacy: false' do
           expect(Gitlab::Ci::Pipeline::Metrics.job_token_inbound_access_counter)
             .to receive(:increment)
@@ -187,16 +191,93 @@ RSpec.describe Ci::JobToken::Scope, feature_category: :continuous_integration, f
 
           scope.accessible?(fully_accessible_project)
         end
+
+        it 'does not log authorizations' do
+          expect(Ci::JobToken::Authorization).not_to receive(:log)
+
+          scope.accessible?(fully_accessible_project)
+        end
       end
 
-      context 'when the access project does not have ci_inbound_job_token_scope_enabled' do
-        it 'increments the counter metric with legacy: true' do
+      context 'when the accessed project has ci_inbound_job_token_scope_enabled false' do
+        before do
+          fully_accessible_project.update!(ci_inbound_job_token_scope_enabled: false)
+        end
+
+        it 'increments the counter metric with legacy: false' do
           expect(Gitlab::Ci::Pipeline::Metrics.job_token_inbound_access_counter)
             .to receive(:increment)
-            .with(legacy: false)
+            .with(legacy: true)
 
-          scope.accessible?(unscoped_public_project)
+          scope.accessible?(fully_accessible_project)
         end
+
+        it 'captures authorizations', :request_store do
+          expect(Ci::JobToken::Authorization)
+            .to receive(:capture)
+            .with(origin_project: current_project, accessed_project: fully_accessible_project)
+            .once
+            .and_call_original
+
+          scope.accessible?(fully_accessible_project)
+
+          expect(Ci::JobToken::Authorization.captured_authorizations).to eq(
+            accessed_project_id: fully_accessible_project.id,
+            origin_project_id: current_project.id)
+        end
+      end
+    end
+  end
+
+  describe '#policies_allowed?' do
+    subject { scope.policies_allowed?(accessed_project, policies) }
+
+    let(:scope) { described_class.new(target_project) }
+    let_it_be(:target_project) { create(:project) }
+    let_it_be(:allowed_policy) { ::Ci::JobToken::Policies::POLICIES.first }
+    let(:accessed_project) { create_inbound_accessible_project_for_policies(target_project, [allowed_policy]) }
+
+    context 'when no policies are given' do
+      let_it_be(:policies) { [] }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when the policies are defined in the scope' do
+      let_it_be(:policies) { [allowed_policy] }
+
+      it { is_expected.to be(true) }
+
+      context 'when the accessed project is not inbound accessible' do
+        let(:accessed_project) { create(:project) }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    context 'when the policy are not defined in the scope' do
+      let_it_be(:policies) { [:not_allowed_policy] }
+
+      it { is_expected.to be(false) }
+
+      context 'when the accessed project is the target project' do
+        let(:accessed_project) { target_project }
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the accessed project does not have ci_inbound_job_token_scope_enabled set to true' do
+        before do
+          accessed_project.ci_inbound_job_token_scope_enabled = false
+        end
+
+        it { is_expected.to be(true) }
+      end
+
+      context 'when the accessed project has not enabled fine grained permissions' do
+        let(:accessed_project) { create_inbound_accessible_project(target_project) }
+
+        it { is_expected.to be(true) }
       end
     end
   end

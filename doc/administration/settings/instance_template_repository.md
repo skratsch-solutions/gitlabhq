@@ -2,14 +2,14 @@
 stage: Create
 group: Source Code
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
-description: "Configure a collection of file templates available for all projects on your self-managed GitLab instance."
+description: "Configure a collection of file templates available for all projects on GitLab Self-Managed."
 ---
 
 # Instance template repository
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 In hosted systems, enterprises often have a need to share their own templates
 across teams. This feature allows an administrator to pick a project to be the
@@ -21,7 +21,7 @@ while the project remains secure.
 
 To select a project to serve as the custom template repository:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Templates**.
 1. Expand **Templates**
 1. From the dropdown list, select the project to use as the template repository.
@@ -69,10 +69,10 @@ extension and not be empty. So, the hierarchy should look like this:
 
 Your custom templates are displayed on the dropdown list when a new file is added through the GitLab UI:
 
-![Custom template dropdown list](img/file_template_user_dropdown.png)
+![The GitLab UI for creating a new file, with a dropdown list displaying the Dockerfile templates to choose from.](img/file_template_user_dropdown_v11_4.png)
 
 If this feature is disabled or no templates are present,
-no **Custom** section displays in the selection dropdown.
+no **Custom** section displays in the selection dropdown list.
 
 <!-- ## Troubleshooting
 

@@ -15,7 +15,8 @@ module QA
         :github_repository_path,
         :gitlab_repository_path,
         :personal_namespace,
-        :import_wait_duration
+        :import_wait_duration,
+        :repository_object_format
 
       attr_reader :repository_storage
 
@@ -29,7 +30,8 @@ module QA
         :import,
         :import_status,
         :import_error,
-        :description
+        :description,
+        :created_at
 
       attribute :group do
         Group.fabricate! do |group|
@@ -104,11 +106,7 @@ module QA
         Page::Project::New.perform(&:click_blank_project_link)
 
         Page::Project::New.perform do |new_page|
-          if @personal_namespace
-            new_page.choose_namespace(@personal_namespace)
-          else
-            new_page.choose_test_namespace
-          end
+          new_page.choose_namespace(@personal_namespace || group.path)
 
           new_page.choose_name(@name)
           new_page.add_description(@description) if @description
@@ -263,6 +261,9 @@ module QA
         post_body[:repository_storage] = repository_storage if repository_storage
         post_body[:template_name] = @template_name if @template_name
 
+        # Use experimental SHA256 support https://gitlab.com/groups/gitlab-org/-/epics/794
+        post_body[:repository_object_format] = 'sha256' if Runtime::Env.use_sha256_repository_object_storage
+
         post_body
       end
 
@@ -294,6 +295,18 @@ module QA
           response = get(request_url("#{api_repository_tags_path}/#{tag}"))
           response.code == HTTP_STATUS_OK
         end
+      end
+
+      def change_pipeline_variables_minimum_override_role(new_role)
+        response = put(request_url(api_put_path), ci_pipeline_variables_minimum_override_role: new_role)
+
+        return if response.code == HTTP_STATUS_OK
+
+        raise(
+          ResourceUpdateFailedError,
+          "Failed to update pipeline_variables_minimum_override_role to '#{new_role}'. " \
+            "Response (#{response.code}): `#{response}`."
+        )
       end
 
       def change_repository_storage(new_storage)
@@ -407,7 +420,28 @@ module QA
       end
 
       def latest_pipeline
-        parse_body(api_get_from(api_latest_pipeline_path))
+        # Observing in https://gitlab.com/gitlab-org/gitlab/-/issues/481642#note_2081214771
+        # Sometimes in either canary or staging-canary,
+        # GET latest pipeline immediately after 1st pipeline was created seems to cause 500 or 502
+        # Adding a retry block with `retry_on_exception: true` to reduce flakiness
+        #
+        retry_until do
+          response = get(request_url(api_latest_pipeline_path))
+          response.code == HTTP_STATUS_OK
+        rescue ResourceQueryError
+          raise(
+            "Could not GET project's latest pipeline. Request returned (#{response.code}): `#{response}`."
+          )
+        end
+
+        parse_body(get(request_url(api_latest_pipeline_path)))
+      end
+
+      def visit_latest_pipeline
+        url = latest_pipeline[:web_url]
+        Runtime::Logger.info("Visiting #{Rainbow(self.class.name).black.bg(:white)}'s latest pipeline at #{url}")
+        visit(url)
+        Support::WaitForRequests.wait_for_requests
       end
 
       # Waits for a pipeline to be available with the attributes as specified.
@@ -430,6 +464,13 @@ module QA
 
       def job_by_name(job_name)
         jobs.find { |job| job[:name] == job_name }
+      end
+
+      def visit_job(job_name)
+        url = job_by_name(job_name)[:web_url]
+        Runtime::Logger.info("Visiting #{Rainbow(self.class.name).black.bg(:white)}'s job #{job_name} at #{url}")
+        visit(url)
+        Support::WaitForRequests.wait_for_requests
       end
 
       def issues(auto_paginate: false, attempts: 0)
@@ -488,7 +529,7 @@ module QA
       # Uses the API to wait until a pull mirroring update is successful (pull mirroring is treated as an import)
       def wait_for_pull_mirroring
         mirror_succeeded = Support::Retrier.retry_until(
-          max_duration: 180,
+          max_duration: 360,
           raise_on_failure: false,
           sleep_interval: 1
         ) do
@@ -496,7 +537,10 @@ module QA
           api_resource[:import_status] == "finished"
         end
 
-        raise "Mirroring failed with error: #{api_resource[:import_error]}" unless mirror_succeeded
+        return if mirror_succeeded
+
+        mirror_error = api_resource[:import_error] || 'Did not complete within 360 seconds'
+        raise "Mirroring was not successful: #{mirror_error}"
       end
 
       def remove_via_api!
@@ -573,7 +617,8 @@ module QA
           :snippets_enabled,
           :shared_runners_enabled,
           :request_access_enabled,
-          :avatar_url
+          :avatar_url,
+          :created_at
         )
       end
 

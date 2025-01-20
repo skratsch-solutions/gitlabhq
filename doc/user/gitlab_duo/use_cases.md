@@ -2,10 +2,8 @@
 stage: AI-powered
 group: AI Model Validation
 description: AI-powered features and functionality.
-info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
+info: This page is maintained by Developer Relations, author @dnsmichi, see https://handbook.gitlab.com/handbook/marketing/developer-relations/developer-advocacy/content/#maintained-documentation
 ---
-
-<!-- This page is maintained by Developer Relations, author @dnsmichi. -->
 
 # GitLab Duo use cases
 
@@ -13,8 +11,11 @@ The following use cases provide practical examples, exercises, and workflows wit
 Learn how to:
 
 - Refactor existing source code.
-- Use root cause analysis to debug problems.
+- Use GitLab Duo Root Cause Analysis to debug problems.
 - Solve security vulnerabilities.
+
+NOTE:
+If you have GitLab Self-Managed: GitLab Duo requires GitLab 17.2 and later for the best user experience and results. Earlier versions may continue to work, however the experience may be degraded.
 
 ## Use GitLab Duo to solve development challenges
 
@@ -55,8 +56,8 @@ you need to configure CI/CD.
   Please show a .gitignore and .gitlab-ci.yml configuration for a C# project.
   ```
 
-- If your CI/CD job fails, [Root Cause Analysis](../../user/gitlab_duo/experiments.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis)
-  can help understand the problem. Alternatively, you can copy the error message into
+- If your CI/CD job fails, use root cause analysis to [troubleshoot failed CI/CD jobs](../gitlab_duo_chat/examples.md#troubleshoot-failed-cicd-jobs-with-root-cause-analysis).
+  Alternatively, you can copy the error message into
   GitLab Duo Chat, and ask for help:
 
   ```markdown
@@ -216,7 +217,7 @@ Watch the walkthrough of these steps in [GitLab Duo Coffee Chat: Refactor C++ fu
   How to instantiate an object from a class in C++, call the constructor with the SQLite DB path and call the functions. Prefer shared pointers. Explain which header includes are necessary.
   ```
 
-- Code Suggestions help generate the correct syntax for `std::shared_ptr` pointer arithmetic and help improve the code quality.
+- Code Suggestions helps generate the correct syntax for `std::shared_ptr` pointer arithmetic and help improve the code quality.
 
   ```cpp
   // Define the SQLite path in a variable, default value database.db
@@ -318,7 +319,7 @@ fun main() {
 }
 ```
 
-1. Select the source code in the IDE, then right-click for Duo Chat explain the code.
+1. Select the source code in the IDE, then right-click for GitLab Duo Chat to explain the code.
 1. Refine the prompts to learn more about bugs, optimization tips, or vulnerabilities:
 
    ```markdown
@@ -339,7 +340,7 @@ fun main() {
    be achieved by introducing a boolean flag or a separate game state to track whether the brick has been found.
    ```
 
-1. Use the `/tests` command to ask Duo Chat to generate tests for the selected code:
+1. Use the `/tests` command to ask Chat to generate tests for the selected code:
 
    ```markdown
    /tests
@@ -373,7 +374,7 @@ fun main() {
      }
     ```
 
-After you ensure that everything is tested, ask Duo Chat to refactor the selected code:
+After you ensure that everything is tested, ask Chat to refactor the selected code:
 
 ```markdown
 /refactor fix bugs, improve UX
@@ -453,9 +454,9 @@ fun main() {
 ### Get Started with PowerShell
 
 NOTE:
-PowerShell support is [experimental](../project/repository/code_suggestions/supported_extensions.md#add-support-for-more-languages-for-code-suggestions-in-vs-code).
+PowerShell support is [experimental](../project/repository/code_suggestions/supported_extensions.md#add-support-for-more-languages).
 
-1. Use Duo Chat to ask how to get started with a PowerShell script that prints the file size of the current directory.
+1. Use GitLab Duo Chat to ask how to get started with a PowerShell script that prints the file size of the current directory.
 
    ```markdown
    How to get started with a PowerShell script that prints the file size of the current directory?
@@ -550,8 +551,8 @@ introduces a security vulnerability with a [buffer overflow](https://en.wikipedi
 ```
 
 [SAST security scanners](../application_security/sast/analyzers.md) can detect and report the problem. Use [Vulnerability Explanation](../application_security/vulnerabilities/index.md#explaining-a-vulnerability) to understand the problem.
-Vulnerability resolution helps to generate an MR.
-If the suggested changes do not fit requirements, or might lead to problems, you can use Code Suggestions and Duo Chat to refine. For example:
+Vulnerability Resolution helps to generate an MR.
+If the suggested changes do not fit requirements, or might lead to problems, you can use Code Suggestions and Chat to refine. For example:
 
 1. Open VS Code or the Web IDE with GitLab Duo enabled, and add a comment with instructions:
 
@@ -596,9 +597,9 @@ Watch the walkthrough of these steps in [GitLab Duo Coffee Chat: Solve problems 
 
 - You can use GitLab Duo Chat to explain CI/CD errors.
 
-   ```markdown
-   Explain this CI/CD error: build.sh: line 14: go command not found
-   ```
+  ```markdown
+  Explain this CI/CD error: build.sh: line 14: go command not found
+  ```
 
 - What happens when you are impatient, and input just one or two words?
 
@@ -691,7 +692,7 @@ please explain this error: undefined method `icon` for
 
 ## Code generation prompts
 
-The following examples provide [code generation](../project/repository/code_suggestions/index.md#best-practices)
+The following examples provide [code generation](../project/repository/code_suggestions/index.md#best-practices-for-code-generation)
 prompts for the [supported languages](../project/repository/code_suggestions/supported_extensions.md) in GitLab Duo.
 You can use multi-line comments to refine code generation prompts.
 
@@ -1521,7 +1522,7 @@ The [GitLab Duo Coffee Chat](https://handbook.gitlab.com/handbook/marketing/deve
 
 The following blog posts provide tutorials for these use cases:
 
-- [Top tips for efficient AI-powered code suggestions with GitLab Duo](https://about.gitlab.com/blog/2024/06/11/top-tips-for-efficient-ai-powered-code-suggestions-with-gitlab-duo/)
+- [Top tips for efficient AI-powered Code Suggestions with GitLab Duo](https://about.gitlab.com/blog/2024/06/11/top-tips-for-efficient-ai-powered-code-suggestions-with-gitlab-duo/)
 - [10 best practices for using AI-powered GitLab Duo Chat](https://about.gitlab.com/blog/2024/04/02/10-best-practices-for-using-ai-powered-gitlab-duo-chat/)
 - [GitLab Duo Chat 101: Get more done on GitLab with our AI assistant](https://about.gitlab.com/blog/2024/05/29/gitlab-duo-chat-101-get-more-done-on-gitlab-with-our-ai-assistant/)
 - [Developing GitLab Duo: How we are dogfooding our AI features](https://about.gitlab.com/blog/2024/05/20/developing-gitlab-duo-how-we-are-dogfooding-our-ai-features/)

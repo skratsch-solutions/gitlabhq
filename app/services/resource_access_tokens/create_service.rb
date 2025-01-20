@@ -21,9 +21,11 @@ module ResourceAccessTokens
 
       return error(s_('AccessTokens|Access token limit reached')) if reached_access_token_limit?
 
-      user = create_user
+      response = create_user
 
-      return error(user.errors.full_messages.to_sentence) unless user.persisted?
+      return error(response.message) if response.error?
+
+      user = response.payload[:user]
 
       user.update!(external: true) if current_user.external?
 
@@ -75,7 +77,7 @@ module ResourceAccessTokens
     end
 
     def delete_failed_user(user)
-      DeleteUserWorker.perform_async(current_user.id, user.id, hard_delete: true, skip_authorization: true)
+      DeleteUserWorker.perform_async(current_user.id, user.id, hard_delete: true, skip_authorization: true, reason_for_deletion: "Access token creation failed")
     end
 
     def default_user_params
@@ -85,13 +87,15 @@ module ResourceAccessTokens
         username: username_and_email_generator.username,
         user_type: :project_bot,
         skip_confirmation: true, # Bot users should always have their emails confirmed.
-        organization_id: resource.organization_id
+        organization_id: resource.organization_id,
+        bot_namespace: bot_namespace
       }
     end
 
     def create_personal_access_token(user)
+      organization_id = resource.organization_id || params[:organization_id]
       PersonalAccessTokens::CreateService.new(
-        current_user: user, target_user: user, params: personal_access_token_params
+        current_user: user, target_user: user, organization_id: organization_id, params: personal_access_token_params
       ).execute
     end
 
@@ -100,7 +104,8 @@ module ResourceAccessTokens
         name: params[:name] || "#{resource_type}_bot",
         impersonation: false,
         scopes: params[:scopes] || default_scopes,
-        expires_at: pat_expiration
+        expires_at: pat_expiration,
+        description: params[:description]
       }
     end
 
@@ -109,11 +114,27 @@ module ResourceAccessTokens
     end
 
     def create_membership(resource, user, access_level)
-      resource.add_member(user, access_level, expires_at: pat_expiration)
+      if Feature.enabled?(:retain_resource_access_token_user_after_revoke, resource.root_ancestor)
+        resource.add_member(user, access_level)
+      else
+        resource.add_member(user, access_level, expires_at: pat_expiration)
+      end
     end
 
     def pat_expiration
-      params[:expires_at].presence || PersonalAccessToken::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now
+      return params[:expires_at] if params[:expires_at].present?
+
+      if Gitlab::CurrentSettings.require_personal_access_token_expiry?
+        return PersonalAccessToken::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now
+      end
+
+      nil
+    end
+
+    def bot_namespace
+      return resource if resource_type == 'group'
+
+      resource.project_namespace
     end
 
     def log_event(token)

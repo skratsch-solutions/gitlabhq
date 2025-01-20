@@ -1,5 +1,4 @@
 ---
-- ee/spec/components/namespaces/storage/user_pre_enforcement_alert_component_spec.rb
 - ee/spec/controllers/admin/users_controller_spec.rb
 - ee/spec/controllers/autocomplete_controller_spec.rb
 - ee/spec/controllers/ee/profiles/preferences_controller_spec.rb
@@ -101,6 +100,7 @@
 - ee/spec/features/remote_development/workspaces_dropdown_group_spec.rb
 - ee/spec/features/search/elastic/global_search_spec.rb
 - ee/spec/features/search/elastic/project_search_spec.rb
+- ee/spec/features/search/elastic/project_search_redactions_work_item_spec.rb
 - ee/spec/features/search/elastic/snippet_search_spec.rb
 - ee/spec/features/security/dashboard_access_spec.rb
 - ee/spec/features/security/profile_access_spec.rb
@@ -111,8 +111,6 @@
 - ee/spec/features/security/project/snippet/internal_access_spec.rb
 - ee/spec/features/security/project/snippet/public_access_spec.rb
 - ee/spec/features/subscriptions/subscription_flow_for_existing_user_with_eligible_group_spec.rb
-- ee/spec/features/subscriptions_spec.rb
-- ee/spec/features/trials/show_trial_banner_spec.rb
 - ee/spec/features/user_sees_marketing_header_spec.rb
 - ee/spec/features/user_settings/password_spec.rb
 - ee/spec/features/users/login_spec.rb
@@ -231,7 +229,7 @@
 - ee/spec/requests/projects/logs_controller_spec.rb
 - ee/spec/requests/projects/security/policies_controller_spec.rb
 - ee/spec/requests/projects/tracing_controller_spec.rb
-- ee/spec/requests/subscriptions/hand_raise_leads_spec.rb
+- ee/spec/requests/gitlab_subscriptions/hand_raise_leads_spec.rb
 - ee/spec/requests/trial_registrations_controller_spec.rb
 - ee/spec/requests/users_controller_spec.rb
 - ee/spec/serializers/clusters/environment_serializer_spec.rb
@@ -429,7 +427,6 @@
 - spec/features/merge_request/user_views_open_merge_request_spec.rb
 - spec/features/merge_requests/user_sees_empty_state_spec.rb
 - spec/features/monitor_sidebar_link_spec.rb
-- spec/features/nav/new_nav_for_everyone_callout_spec.rb
 - spec/features/nav/new_nav_invite_members_spec.rb
 - spec/features/nav/pinned_nav_items_spec.rb
 - spec/features/oauth_provider_authorize_spec.rb
@@ -562,7 +559,6 @@
 - spec/features/projects/user_uses_shortcuts_spec.rb
 - spec/features/projects/wiki/user_views_wiki_empty_spec.rb
 - spec/features/projects/wikis_spec.rb
-- spec/features/projects/work_items/work_item_spec.rb
 - spec/features/projects_spec.rb
 - spec/features/reportable_note/merge_request_spec.rb
 - spec/features/search/user_searches_for_code_spec.rb
@@ -603,6 +599,7 @@
 - spec/features/users/user_browses_projects_on_user_page_spec.rb
 - spec/features/webauthn_spec.rb
 - spec/features/whats_new_spec.rb
+- spec/features/work_items/work_item_detail_spec.rb
 - spec/finders/admin/projects_finder_spec.rb
 - spec/finders/autocomplete/move_to_project_finder_spec.rb
 - spec/finders/autocomplete/routes_finder_spec.rb
@@ -651,7 +648,6 @@
 - spec/lib/feature_spec.rb
 - spec/lib/generators/gitlab/partitioning/foreign_keys_generator_spec.rb
 - spec/lib/gitlab/analytics/usage_trends/workers_argument_builder_spec.rb
-- spec/lib/gitlab/background_migration/backfill_root_storage_statistics_fork_storage_sizes_spec.rb
 - spec/lib/gitlab/background_migration/backfill_user_details_fields_spec.rb
 - spec/lib/gitlab/background_migration/job_coordinator_spec.rb
 - spec/lib/gitlab/checks/container_moved_spec.rb
@@ -696,7 +692,6 @@
 - spec/lib/gitlab/relative_positioning/mover_spec.rb
 - spec/lib/gitlab/sample_data_template_spec.rb
 - spec/lib/gitlab/themes_spec.rb
-- spec/lib/gitlab/utils/username_and_email_generator_spec.rb
 - spec/mailers/emails/service_desk_spec.rb
 - spec/mailers/notify_spec.rb
 - spec/migrations/20221002234454_finalize_group_member_namespace_id_migration_spec.rb
@@ -871,8 +866,6 @@
 - spec/requests/api/maven_packages_spec.rb
 - spec/requests/api/merge_request_approvals_spec.rb
 - spec/requests/api/merge_requests_spec.rb
-- spec/requests/api/metrics/dashboard/annotations_spec.rb
-- spec/requests/api/metrics/user_starred_dashboards_spec.rb
 - spec/requests/api/namespaces_spec.rb
 - spec/requests/api/notes_spec.rb
 - spec/requests/api/project_events_spec.rb

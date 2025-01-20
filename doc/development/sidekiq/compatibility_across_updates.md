@@ -125,9 +125,9 @@ uses a parameter hash.
 
 ## Removing worker classes
 
-To remove a worker class, follow these steps over two minor releases:
+To remove a worker class, follow these steps over three minor releases:
 
-### In the first minor release
+### In the minor release M
 
 1. Remove any code that enqueues the jobs.
 
@@ -158,10 +158,9 @@ To remove a worker class, follow these steps over two minor releases:
 
    By implementing this no-op, you can avoid unnecessary cycles once any deprecated jobs that are still enqueued eventually get processed.
 
-### In a subsequent, separate minor release
+### In the M+1 release
 
-1. Delete the worker class file and follow the guidance in our [Sidekiq queues documentation](../sidekiq/index.md#sidekiq-queues) around running Rake tasks to regenerate/update related files.
-1. Add a migration (not a post-deployment migration) that uses `sidekiq_remove_jobs`:
+Add a migration (not a post-deployment migration) that uses `sidekiq_remove_jobs`:
 
    ```ruby
    class RemoveMyDeprecatedWorkersJobInstances < Gitlab::Database::Migration[2.1]
@@ -190,6 +189,10 @@ To remove a worker class, follow these steps over two minor releases:
      end
    end
    ```
+
+### In the M+2 release
+
+Delete the worker class file and follow the guidance in our [Sidekiq queues documentation](../sidekiq/index.md#sidekiq-queues) around running Rake tasks to regenerate/update related files.
 
 ## Renaming queues
 
@@ -223,12 +226,12 @@ schedule these jobs have stopped running. See also [other examples](../database/
 
 We should treat this similar to adding a new worker. That means we only start scheduling the newly-named worker after the Sidekiq deployment finishes.
 
-   To ensure backward and forward compatibility between consecutive versions
+To ensure backward and forward compatibility between consecutive versions
 of the application, follow these steps over three minor releases:
 
-1. Create the newly named worker, and have the old worker call the new worker's `#perform` method. Inroduce a feature flag to control when we start scheduling the new worker. (Release M)
+1. Create the newly named worker, and have the old worker call the new worker's `#perform` method. Introduce a feature flag to control when we start scheduling the new worker. (Release M)
 
-    Any old worker jobs that are still in the queue will delegate to the new worker. When this version is deployed, it is no longer relevant which version of the job is scheduled or which Sidekiq handles it, an old-Sidekiq will use the old worker's full implementation, a new-Sidekiq will delegate to the new worker.
+   Any old worker jobs that are still in the queue will delegate to the new worker. When this version is deployed, it is no longer relevant which version of the job is scheduled or which Sidekiq handles it, an old-Sidekiq will use the old worker's full implementation, a new-Sidekiq will delegate to the new worker.
 
 1. Enable the feature flag for GitLab.com, and after that prepare an MR to enable it by default. (Release M+1)
 1. Remove the old worker class and the feature flag. (Release M+2)

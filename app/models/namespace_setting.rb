@@ -4,15 +4,15 @@ class NamespaceSetting < ApplicationRecord
   include CascadingNamespaceSettingAttribute
   include Sanitizable
   include ChronicDurationAttribute
-  include IgnorableColumns
+  include EachBatch
+
+  ignore_column :token_expiry_notify_inherited, remove_with: '17.9', remove_after: '2025-01-11'
+  enum pipeline_variables_default_role: ProjectCiCdSetting::PIPELINE_VARIABLES_OVERRIDE_ROLES, _prefix: true
 
   ignore_column :third_party_ai_features_enabled, remove_with: '16.11', remove_after: '2024-04-18'
-  ignore_column :code_suggestions, remove_with: '17.0', remove_after: '2024-05-16'
-  ignore_column :toggle_security_policies_policy_scope, remove_with: '17.0', remove_after: '2024-05-16'
-  ignore_column :lock_toggle_security_policies_policy_scope, remove_with: '17.2', remove_after: '2024-07-12'
+  ignore_column :code_suggestions, remove_with: '17.8', remove_after: '2024-05-16'
 
-  cascading_attr :toggle_security_policy_custom_ci
-  cascading_attr :math_rendering_limits_enabled
+  cascading_attr :math_rendering_limits_enabled, :resource_access_token_notify_inherited
 
   scope :for_namespaces, ->(namespaces) { where(namespace: namespaces) }
 
@@ -20,20 +20,19 @@ class NamespaceSetting < ApplicationRecord
 
   enum jobs_to_be_done: { basics: 0, move_repository: 1, code_storage: 2, exploring: 3, ci: 4, other: 5 }, _suffix: true
   enum enabled_git_access_protocol: { all: 0, ssh: 1, http: 2 }, _suffix: true
+  enum seat_control: { off: 0, user_cap: 1, block_overages: 2 }, _prefix: true
 
   attribute :default_branch_protection_defaults, default: -> { {} }
 
   validates :enabled_git_access_protocol, inclusion: { in: enabled_git_access_protocols.keys }
   validates :default_branch_protection_defaults, json_schema: { filename: 'default_branch_protection_defaults' }
   validates :default_branch_protection_defaults, bytesize: { maximum: -> { DEFAULT_BRANCH_PROTECTIONS_DEFAULT_MAX_SIZE } }
-  validates :remove_dormant_members, inclusion: { in: [false] }, if: :subgroup?
-  validates :remove_dormant_members_period, numericality: { only_integer: true, greater_than_or_equal_to: 90 }
   validates :allow_mfa_for_subgroups, presence: true, if: :subgroup?
   validates :resource_access_token_creation_allowed, presence: true, if: :subgroup?
 
   sanitizes! :default_branch_name
 
-  after_initialize :set_default_values, if: :new_record?
+  before_validation :set_pipeline_variables_default_role, on: :create
 
   before_validation :normalize_default_branch_name
 
@@ -48,6 +47,7 @@ class NamespaceSetting < ApplicationRecord
     prevent_sharing_groups_outside_hierarchy
     new_user_signups_cap
     setup_for_company
+    seat_control
     jobs_to_be_done
     runner_token_expiration_interval
     enabled_git_access_protocol
@@ -71,6 +71,15 @@ class NamespaceSetting < ApplicationRecord
     return super if namespace.root?
 
     namespace.root_ancestor.prevent_sharing_groups_outside_hierarchy
+  end
+
+  def pipeline_variables_default_role
+    # We consider only the root namespace setting to cascade the default value to all projects.
+    # By ignoring settings from sub-groups we don't need to deal with complexities from
+    # hierarchical settings.
+    return namespace.root_ancestor.pipeline_variables_default_role unless namespace.root?
+
+    super
   end
 
   def emails_enabled?
@@ -106,8 +115,16 @@ class NamespaceSetting < ApplicationRecord
 
   private
 
-  def set_default_values
-    self.remove_dormant_members_period = 90
+  def set_pipeline_variables_default_role
+    # After FF  `change_namespace_default_role_for_pipeline_variables` rollout - we have to remove both FF and pipeline_variables_default_role = NO_ONE_ALLOWED_ROLE
+    # As any self-managed and Dedicated instance should opt-in by changing their namespace settings explicitly.
+    # NO_ONE_ALLOWED will be set as the default value for namespace_settings through a database migration.
+
+    # WARNING: Removing this FF could cause breaking changes for self-hosted and dedicated instances.
+
+    return if Feature.disabled?(:change_namespace_default_role_for_pipeline_variables, namespace)
+
+    self.pipeline_variables_default_role = ProjectCiCdSetting::NO_ONE_ALLOWED_ROLE
   end
 
   def all_ancestors_have_emails_enabled?

@@ -52,28 +52,10 @@ RSpec.describe API::BulkImports, feature_category: :importers do
   shared_examples 'disabled feature' do
     before do
       stub_application_setting(bulk_import_enabled: false)
-      stub_feature_flags(override_bulk_import_disabled: false)
     end
 
     it_behaves_like '404 response' do
       let(:message) { '404 Not Found' }
-    end
-
-    it 'enables the feature when override flag is enabled for the user' do
-      stub_feature_flags(override_bulk_import_disabled: user)
-
-      request
-
-      expect(response).not_to have_gitlab_http_status(:not_found)
-    end
-
-    it 'does not enable the feature when override flag is enabled for another user' do
-      other_user = create(:user)
-      stub_feature_flags(override_bulk_import_disabled: other_user)
-
-      request
-
-      expect(response).to have_gitlab_http_status(:not_found)
     end
   end
 
@@ -174,7 +156,7 @@ RSpec.describe API::BulkImports, feature_category: :importers do
 
     shared_examples 'starting a new migration' do
       it 'starts a new migration' do
-        request
+        expect { request }.to change { BulkImports::Entity.count }
 
         expect(response).to have_gitlab_http_status(:created)
 
@@ -208,6 +190,64 @@ RSpec.describe API::BulkImports, feature_category: :importers do
 
             expect(user.bulk_imports.last.entities.pluck(:migrate_projects)).to contain_exactly(true)
           end
+        end
+      end
+
+      describe 'migrate memberships flag' do
+        context 'when true' do
+          it 'sets true' do
+            params[:entities][0][:migrate_memberships] = true
+
+            request
+
+            expect(user.bulk_imports.last.entities.pluck(:migrate_memberships)).to contain_exactly(true)
+          end
+        end
+
+        context 'when false' do
+          it 'sets false' do
+            params[:entities][0][:migrate_memberships] = false
+
+            request
+
+            expect(user.bulk_imports.last.entities.pluck(:migrate_memberships)).to contain_exactly(false)
+          end
+        end
+
+        context 'when unspecified' do
+          it 'sets true' do
+            request
+
+            expect(user.bulk_imports.last.entities.pluck(:migrate_memberships)).to contain_exactly(true)
+          end
+        end
+      end
+
+      context 'when entities do not specify a namespace', :with_current_organization do
+        let(:params) do
+          {
+            configuration: {
+              url: 'http://gitlab.example',
+              access_token: 'access_token'
+            },
+            entities: [
+              {
+                source_type: 'group_entity',
+                source_full_path: 'full_path',
+                destination_namespace: ''
+              }.merge(destination_param)
+            ]
+          }
+        end
+
+        it 'uses the current organization' do
+          expect { request }.to change { BulkImports::Entity.count }
+
+          expect(BulkImports::Entity.last.organization).to eq(current_organization)
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          expect(json_response['status']).to eq('created')
         end
       end
     end
@@ -532,6 +572,26 @@ RSpec.describe API::BulkImports, feature_category: :importers do
   describe 'POST /bulk_imports/:id/cancel' do
     let(:import) { create(:bulk_import, user: user) }
 
+    context 'when user is canceling their own migration' do
+      it 'cancels the migration and returns 200' do
+        post api("/bulk_imports/#{import.id}/cancel", user)
+
+        expect(response).to have_gitlab_http_status(:ok)
+
+        expect(json_response['status']).to eq('canceled')
+      end
+    end
+
+    context 'when user is trying to cancel a migration they have not created' do
+      it 'returns an error' do
+        import = create(:bulk_import)
+
+        post api("/bulk_imports/#{import.id}/cancel", user)
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
     context 'when authenticated as admin' do
       let_it_be(:admin) { create(:admin) }
 
@@ -549,14 +609,6 @@ RSpec.describe API::BulkImports, feature_category: :importers do
 
           expect(response).to have_gitlab_http_status(:not_found)
         end
-      end
-    end
-
-    context 'when not authenticated as admin' do
-      it 'returns an error' do
-        post api("/bulk_imports/#{import.id}/cancel", user)
-
-        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
   end

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab has its own [issue tracker](../user/project/issues/index.md),
 but you can also configure an external issue tracker per GitLab project.
@@ -35,7 +35,11 @@ To disable the GitLab issue tracker for a project:
 1. Under **Issues**, turn off the toggle.
 1. Select **Save changes**.
 
-After you disable the GitLab issue tracker, **Issues** is not visible on the left sidebar of your project.
+After you disable the GitLab issue tracker:
+
+- If an [external issue tracker is configured](#configure-an-external-issue-tracker),
+  **Issues** is visible on the left sidebar but redirects to the external issue tracker.
+- If no external issue tracker is configured, **Issues** is not visible on the left sidebar.
 
 ## Configure an external issue tracker
 

@@ -1,8 +1,8 @@
-import { GlModal } from '@gitlab/ui';
-import { mount } from '@vue/test-utils';
+import { GlModal, GlSprintf } from '@gitlab/ui';
 import Vue, { nextTick } from 'vue';
 // eslint-disable-next-line no-restricted-imports
 import Vuex from 'vuex';
+import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
 import DeployFreezeTable from '~/deploy_freeze/components/deploy_freeze_table.vue';
 import createStore from '~/deploy_freeze/store';
 import { RECEIVE_FREEZE_PERIODS_SUCCESS } from '~/deploy_freeze/store/mutation_types';
@@ -15,45 +15,53 @@ describe('Deploy freeze table', () => {
   let wrapper;
   let store;
 
-  const createComponent = () => {
+  const createComponent = (mountFn = mountExtended) => {
     store = createStore({
       projectId: '8',
       timezoneData: timezoneDataFixture,
     });
     jest.spyOn(store, 'dispatch').mockImplementation();
-    wrapper = mount(DeployFreezeTable, {
+    wrapper = mountFn(DeployFreezeTable, {
       attachTo: document.body,
       store,
     });
   };
 
-  const findEmptyFreezePeriods = () => wrapper.find('[data-testid="empty-freeze-periods"]');
-  const findAddDeployFreezeButton = () => wrapper.find('[data-testid="add-deploy-freeze"]');
-  const findEditDeployFreezeButton = () => wrapper.find('[data-testid="edit-deploy-freeze"]');
-  const findDeployFreezeTable = () => wrapper.find('[data-testid="deploy-freeze-table"]');
-  const findDeleteDeployFreezeButton = () => wrapper.find('[data-testid="delete-deploy-freeze"]');
+  const findEmptyFreezePeriods = () => wrapper.findByTestId('empty-freeze-periods');
+  const findAddDeployFreezeButton = () => wrapper.findByTestId('add-deploy-freeze');
+  const findEditDeployFreezeButton = () => wrapper.findByTestId('edit-deploy-freeze');
+  const findDeployFreezeTable = () => wrapper.findByTestId('deploy-freeze-table');
+  const findDeleteDeployFreezeButton = () => wrapper.findByTestId('delete-deploy-freeze');
   const findDeleteDeployFreezeModal = () => wrapper.findComponent(GlModal);
+  const findCount = () => wrapper.findByTestId('crud-count');
 
-  beforeEach(() => {
-    createComponent();
-  });
+  describe('When mounting', () => {
+    beforeEach(() => {
+      createComponent(shallowMountExtended);
+    });
 
-  it('dispatches fetchFreezePeriods when mounted', () => {
-    expect(store.dispatch).toHaveBeenCalledWith('fetchFreezePeriods');
+    it('dispatches fetchFreezePeriods when mounted', () => {
+      expect(store.dispatch).toHaveBeenCalledWith('fetchFreezePeriods');
+    });
   });
 
   describe('Renders correct data', () => {
-    it('displays empty', () => {
-      expect(findEmptyFreezePeriods().exists()).toBe(true);
-      expect(findEmptyFreezePeriods().text()).toBe(
-        `No deploy freezes exist for this project. To add one, select 
-            Add deploy freeze
-           above.`,
-      );
+    describe('without empty data', () => {
+      beforeEach(() => {
+        createComponent(shallowMountExtended);
+      });
+
+      it('displays empty', () => {
+        expect(findEmptyFreezePeriods().exists()).toBe(true);
+        expect(wrapper.findComponent(GlSprintf).attributes('message')).toBe(
+          'No deploy freezes exist for this project. To add one, select %{strongStart}Add deploy freeze%{strongEnd} above.',
+        );
+      });
     });
 
     describe('with data', () => {
       beforeEach(async () => {
+        createComponent();
         store.commit(RECEIVE_FREEZE_PERIODS_SUCCESS, freezePeriodsFixture);
         await nextTick();
       });
@@ -63,6 +71,12 @@ describe('Deploy freeze table', () => {
         expect(tableRows.length).toBe(freezePeriodsFixture.length);
         expect(findEmptyFreezePeriods().exists()).toBe(false);
         expect(findEditDeployFreezeButton().exists()).toBe(true);
+      });
+
+      it('displays correct count', () => {
+        const tableRows = findDeployFreezeTable().findAll('tbody tr');
+        expect(tableRows.length).toBe(freezePeriodsFixture.length);
+        expect(findCount().text()).toBe('3');
       });
 
       it('allows user to edit deploy freeze', async () => {
@@ -101,6 +115,10 @@ describe('Deploy freeze table', () => {
   });
 
   describe('Table click actions', () => {
+    beforeEach(() => {
+      createComponent();
+    });
+
     it('displays add deploy freeze button', () => {
       expect(findAddDeployFreezeButton().exists()).toBe(true);
       expect(findAddDeployFreezeButton().text()).toBe('Add deploy freeze');

@@ -4,7 +4,16 @@
 # We need to take some precautions when using the `gitlab` gem in this project.
 #
 # See https://docs.gitlab.com/ee/development/pipelines/internals.html#using-the-gitlab-ruby-gem-in-the-canonical-project.
-require 'gitlab' unless Object.const_defined?(:Gitlab)
+if Object.const_defined?(:RSpec)
+  # Ok, we're testing, we know we're going to stub `Gitlab`, so we just ignore
+else
+  require 'gitlab'
+
+  if Gitlab.singleton_class.method_defined?(:com?)
+    abort 'lib/gitlab.rb is loaded, and this means we can no longer load the client and we cannot proceed'
+  end
+end
+
 require 'net/http'
 
 class SetPipelineName
@@ -13,21 +22,10 @@ class SetPipelineName
   CODE                   = ['retrieve-tests-metadata'].freeze
   QA_GDK                 = ['e2e:test-on-gdk'].freeze
   REVIEW_APP             = ['start-review-app-pipeline'].freeze
-  #  TODO: Please remove `trigger-omnibus-and-follow-up-e2e` and `follow-up-e2e:package-and-test-ee`
-  #        after 2025-04-08 in this project
-  #
-  #   `trigger-omnibus-and-follow-up-e2e` was renamed to `follow-up:trigger-omnibus` on 2024-04-08 via
-  #    https://gitlab.com/gitlab-org/gitlab/-/merge_requests/147908/diffs?pin=c11467759d7eae77ed84e02a5445e21704c8d8e5#c11467759d7eae77ed84e02a5445e21704c8d8e5_105_104
-  #
-  #   `follow-up-e2e:package-and-test-ee` was renamed to `follow-up:e2e:package-and-test-ee` on 2024-04-08 via
-  #    https://gitlab.com/gitlab-org/gitlab/-/merge_requests/147908/diffs?pin=c11467759d7eae77ed84e02a5445e21704c8d8e5#c11467759d7eae77ed84e02a5445e21704c8d8e5_136_137
   QA                     = [
-    'e2e:package-and-test-ce',
-    'e2e:package-and-test-ee',
-    'follow-up-e2e:package-and-test-ee',
-    'follow-up:e2e:package-and-test-ee',
-    'follow-up:trigger-omnibus',
-    'trigger-omnibus-and-follow-up-e2e'
+    'e2e:test-on-omnibus-ce',
+    'e2e:test-on-omnibus-ee',
+    'follow-up:e2e:test-on-omnibus-ee'
   ].freeze
   # Ordered by expected duration, DESC
   PIPELINE_TYPES_ORDERED = %w[qa review-app qa-gdk code rspec-predictive docs].freeze

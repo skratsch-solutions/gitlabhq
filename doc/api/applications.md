@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,17 +8,19 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-The Applications API operates on instance-wide OAuth applications for:
+Use this API to interact instance-wide OAuth applications for:
 
 - [Using GitLab as an authentication provider](../integration/oauth_provider.md).
 - [Allowing access to GitLab resources on a user's behalf](oauth2.md).
 
-The Applications API cannot be used to manage group applications or applications of individual users.
-
 NOTE:
-Only administrator users can use the Applications API.
+You cannot use this API to manage group applications or individual user applications.
+
+Prerequisites:
+
+- You must have administrator access to the instance.
 
 ## Create an application
 

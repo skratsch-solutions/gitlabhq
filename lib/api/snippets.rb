@@ -8,6 +8,10 @@ module API
     feature_category :source_code_management
     urgency :low
 
+    before do
+      set_current_organization
+    end
+
     helpers do
       def find_snippets(user: current_user, params: {})
         SnippetsFinder.new(user, params).execute
@@ -136,7 +140,7 @@ module API
 
         authorize! :create_snippet
 
-        attrs = process_create_params(declared_params(include_missing: false))
+        attrs = process_create_params(declared_params(include_missing: false)).merge(organization_id: Current.organization_id)
         service_response = ::Snippets::CreateService.new(project: nil, current_user: current_user, params: attrs).execute
         snippet = service_response.payload[:snippet]
 

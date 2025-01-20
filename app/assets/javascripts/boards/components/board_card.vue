@@ -1,5 +1,6 @@
 <script>
 import Tracking from '~/tracking';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import setSelectedBoardItemsMutation from '~/boards/graphql/client/set_selected_board_items.mutation.graphql';
 import unsetSelectedBoardItemsMutation from '~/boards/graphql/client/unset_selected_board_items.mutation.graphql';
 import selectedBoardItemsQuery from '~/boards/graphql/client/selected_board_items.query.graphql';
@@ -13,7 +14,7 @@ export default {
     BoardCardInner,
   },
   mixins: [Tracking.mixin()],
-  inject: ['disabled', 'isIssueBoard'],
+  inject: ['disabled', 'isIssueBoard', 'isEpicBoard'],
   props: {
     list: {
       type: Object,
@@ -40,8 +41,19 @@ export default {
       required: false,
       default: true,
     },
+    columnIndex: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    rowIndex: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     activeBoardItem: {
       query: activeBoardItemQuery,
       variables() {
@@ -50,6 +62,7 @@ export default {
         };
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     selectedBoardItems: {
       query: selectedBoardItemsQuery,
     },
@@ -74,7 +87,7 @@ export default {
       return this.item.color;
     },
     cardStyle() {
-      return this.itemColor ? { borderColor: this.itemColor } : '';
+      return this.itemColor ? { borderLeftColor: this.itemColor } : '';
     },
     formattedItem() {
       return {
@@ -83,16 +96,35 @@ export default {
         labels: this.item.labels?.nodes || [],
       };
     },
+    showFocusBackground() {
+      return !this.isActive && !this.multiSelectVisible;
+    },
+    itemPrefix() {
+      return this.isEpicBoard ? '&' : '#';
+    },
+    itemReferencePath() {
+      const { referencePath } = this.item;
+      return referencePath.split(this.itemPrefix)[0];
+    },
+    boardItemUniqueId() {
+      return `listItem-${this.itemReferencePath}/${getIdFromGraphQLId(this.item.id)}`;
+    },
   },
   methods: {
     toggleIssue(e) {
       // Don't do anything if this happened on a no trigger element
       if (e.target.closest('.js-no-trigger')) return;
 
+      if (e.target.closest('.js-no-trigger-title') && (e.ctrlKey || e.metaKey || e.button === 1)) {
+        return;
+      }
+      e.preventDefault();
+
       const isMultiSelect = e.ctrlKey || e.metaKey;
       if (isMultiSelect && gon?.features?.boardMultiSelect) {
         this.toggleBoardItemMultiSelection(this.item);
       } else {
+        e.currentTarget.focus();
         this.toggleItem();
         this.track('click_card', { label: 'right_sidebar' });
       }
@@ -130,6 +162,54 @@ export default {
         },
       });
     },
+    changeFocusInColumn(currentCard, i) {
+      // Building a list using data-col-index instead of just traversing the ul is necessary for swimlanes
+      const columnCards = [
+        ...document.querySelectorAll(
+          `button.board-card-button[data-col-index="${this.columnIndex}"]`,
+        ),
+      ];
+      const currentIndex = columnCards.indexOf(currentCard);
+      if (currentIndex + i < 0 || currentIndex + i > columnCards.length - 1) {
+        return;
+      }
+      columnCards[currentIndex + i].focus();
+    },
+    focusNext(e) {
+      this.changeFocusInColumn(e.target, 1);
+    },
+    focusPrev(e) {
+      this.changeFocusInColumn(e.target, -1);
+    },
+    changeFocusInRow(currentCard, i) {
+      const currentList = currentCard.closest('ul');
+      // Find next in line list/cell with cards. If none, don't move.
+      let listSelector = 'board-list';
+      // Account for swimlanes using different structure. Swimlanes traverse within their lane.
+      if (currentList.classList.contains('board-cell')) {
+        listSelector = `board-cell[data-row-index="${this.rowIndex}"]`;
+      }
+      const lists = [
+        ...document.querySelectorAll(`ul.${listSelector}:not(.list-empty):not(.list-collapsed)`),
+      ];
+      const currentIndex = lists.indexOf(currentList);
+      if (currentIndex + i < 0 || currentIndex + i > lists.length - 1) {
+        return;
+      }
+      // Focus the same index if possible, or last card
+      const targetCards = lists[currentIndex + i].querySelectorAll('button.board-card-button');
+      if (targetCards.length <= this.index) {
+        targetCards[targetCards.length - 1].focus();
+      } else {
+        targetCards[this.index].focus();
+      }
+    },
+    focusLeft(e) {
+      this.changeFocusInRow(e.target, -1);
+    },
+    focusRight(e) {
+      this.changeFocusInRow(e.target, 1);
+    },
   },
 };
 </script>
@@ -138,32 +218,50 @@ export default {
   <li
     :class="[
       {
-        'multi-select gl-bg-blue-50 gl-border-blue-200': multiSelectVisible,
+        'multi-select gl-border-blue-200 gl-bg-blue-50': multiSelectVisible,
         'gl-cursor-grab': isDraggable,
+        'is-active !gl-bg-blue-50 hover:!gl-bg-blue-50': isActive,
         'is-disabled': isDisabled,
-        'is-active gl-bg-blue-50': isActive,
         'gl-cursor-not-allowed gl-bg-gray-10': item.isLoading,
-        'gl-pl-4 gl-border-l-solid gl-border-4': itemColor,
       },
     ]"
     :index="index"
     :data-item-id="item.id"
     :data-item-iid="item.iid"
     :data-item-path="item.referencePath"
-    :style="cardStyle"
     data-testid="board-card"
-    class="board-card gl-p-4 gl-rounded-base gl-leading-normal gl-relative gl-mb-3"
-    @click="toggleIssue($event)"
+    class="board-card gl-border gl-relative gl-mb-3 gl-rounded-base gl-border-section gl-bg-section gl-leading-normal hover:gl-bg-subtle dark:hover:gl-bg-gray-200"
   >
-    <board-card-inner
-      :list="list"
-      :item="formattedItem"
-      :update-filters="true"
-      :index="index"
-      :show-work-item-type-icon="showWorkItemTypeIcon"
-      @setFilters="$emit('setFilters', $event)"
+    <button
+      :id="boardItemUniqueId"
+      :class="[
+        {
+          'focus:gl-bg-subtle dark:focus:gl-bg-gray-200': showFocusBackground,
+          'gl-border-l-4 gl-pl-4 gl-border-l-solid': itemColor,
+        },
+      ]"
+      :aria-label="item.title"
+      :data-col-index="columnIndex"
+      :data-row-index="rowIndex"
+      :style="cardStyle"
+      data-testid="board-card-button"
+      class="board-card-button gl-block gl-h-full gl-w-full gl-rounded-base gl-border-0 gl-bg-transparent gl-p-4 gl-text-left gl-outline-none focus:gl-focus"
+      @click="toggleIssue"
+      @keydown.left.exact.prevent="focusLeft"
+      @keydown.right.exact.prevent="focusRight"
+      @keydown.down.exact.prevent="focusNext"
+      @keydown.up.exact.prevent="focusPrev"
     >
-      <slot></slot>
-    </board-card-inner>
+      <board-card-inner
+        :list="list"
+        :item="formattedItem"
+        :update-filters="true"
+        :index="index"
+        :show-work-item-type-icon="showWorkItemTypeIcon"
+        @setFilters="$emit('setFilters', $event)"
+      >
+        <slot></slot>
+      </board-card-inner>
+    </button>
   </li>
 </template>

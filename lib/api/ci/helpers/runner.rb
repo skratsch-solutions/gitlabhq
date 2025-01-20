@@ -12,6 +12,9 @@ module API
         JOB_TOKEN_PARAM = :token
         LEGACY_SYSTEM_XID = '<legacy>'
 
+        # TODO: Remove once https://gitlab.com/gitlab-org/gitlab/-/issues/504277 is closed.
+        UnknownRunnerOwnerError = Class.new(StandardError)
+
         def authenticate_runner!(ensure_runner_manager: true, update_contacted_at: true)
           track_runner_authentication
           forbidden! unless current_runner
@@ -53,6 +56,9 @@ module API
         end
 
         def current_runner_manager
+          # NOTE: Avoid orphaned runners, since we're not allowed to created records with a nil sharding_key_id
+          raise UnknownRunnerOwnerError if !current_runner.instance_type? && current_runner.sharding_key_id.nil?
+
           strong_memoize(:current_runner_manager) do
             system_xid = params.fetch(:system_id, LEGACY_SYSTEM_XID)
             current_runner&.ensure_manager(system_xid)
@@ -80,6 +86,12 @@ module API
 
           forbidden! unless job.valid_token?(job_token)
 
+          # Make sure that composite identity is propagated to `PipelineProcessWorker`
+          # when the build's status change.
+          # TODO: Once https://gitlab.com/gitlab-org/gitlab/-/issues/490992 is done we should
+          # remove this because it will be embedded in `Ci::AuthJobFinder`.
+          ::Gitlab::Auth::Identity.link_from_job(job)
+
           forbidden!('Project has been deleted!') if job.project.nil? || job.project.pending_delete?
           forbidden!('Job has been erased!') if job.erased?
           job_forbidden!(job, 'Job is not processing on runner') unless processing_on_runner?(job)
@@ -101,7 +113,10 @@ module API
         end
 
         def authenticate_job_via_dependent_job!
-          ::Gitlab::Database::LoadBalancing::Session.current.use_primary { authenticate! }
+          # Use primary for both main and ci database as authenticating in the scope of runners will load
+          # Ci::Build model and other standard authn related models like License, Project and User.
+          ::Gitlab::Database::LoadBalancing::SessionMap
+            .with_sessions([::ApplicationRecord, ::Ci::ApplicationRecord]).use_primary { authenticate! }
 
           forbidden! unless current_job
           forbidden! unless can?(current_user, :read_build, current_job)
@@ -137,7 +152,7 @@ module API
           Gitlab::ApplicationContext.push(job: current_job, runner: current_runner)
         end
 
-        def track_ci_minutes_usage!(_build, _runner)
+        def track_ci_minutes_usage!(_build)
           # noop: overridden in EE
         end
 

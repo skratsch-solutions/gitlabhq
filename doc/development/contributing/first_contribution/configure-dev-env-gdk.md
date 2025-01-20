@@ -10,10 +10,10 @@ If you want to contribute to the GitLab codebase and want a development environm
 your changes, you can use [the GitLab Development Kit (GDK)](https://gitlab.com/gitlab-org/gitlab-development-kit),
 a local version of GitLab that's yours to play with.
 
-The GDK is a local development environment that includes an installation of self-managed GitLab,
+The GDK is a local development environment that includes an installation of GitLab Self-Managed,
 sample projects, and administrator access with which you can test functionality.
 
-![GDK](../img/gdk_home.png)
+![GDK](../img/gdk_home_v15_11.png)
 
 If you prefer to use GDK in a local virtual machine, use the steps in [Configure GDK-in-a-box](configure-dev-env-gdk-in-a-box.md)
 
@@ -32,7 +32,7 @@ also set aside some time for troubleshooting.
 It might seem like a lot of work, but after you have the GDK running,
 you'll be able to make any changes.
 
-![GitLab in GDK](../img/gdk_home.png)
+![GitLab in GDK](../img/gdk_home_v15_11.png)
 
 To install the GDK:
 

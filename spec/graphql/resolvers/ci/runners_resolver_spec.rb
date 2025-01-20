@@ -80,7 +80,7 @@ RSpec.describe Resolvers::Ci::RunnersResolver, feature_category: :fleet_visibili
         let(:args) do
           {
             active: true,
-            status: 'active',
+            status: 'offline',
             upgrade_status: 'recommended',
             type: :instance_type,
             tag_list: ['active_runner'],
@@ -88,6 +88,8 @@ RSpec.describe Resolvers::Ci::RunnersResolver, feature_category: :fleet_visibili
             sort: :contacted_asc,
             creator_id: 'gid://gitlab/User/1',
             creator_username: 'root',
+            owner_wildcard: 'administrator',
+            owner_full_path: '',
             version_prefix: '15.'
           }
         end
@@ -95,7 +97,7 @@ RSpec.describe Resolvers::Ci::RunnersResolver, feature_category: :fleet_visibili
         let(:expected_params) do
           {
             active: true,
-            status_status: 'active',
+            status_status: 'offline',
             upgrade_status: 'recommended',
             type_type: :instance_type,
             tag_name: ['active_runner'],
@@ -104,6 +106,7 @@ RSpec.describe Resolvers::Ci::RunnersResolver, feature_category: :fleet_visibili
             sort: 'contacted_asc',
             creator_id: '1',
             creator_username: 'root',
+            owner: { wildcard: 'administrator', full_path: '' },
             version_prefix: '15.'
           }
         end

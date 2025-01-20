@@ -10,16 +10,12 @@ module QA
           def self.included(base)
             super
 
-            base.view 'app/assets/javascripts/repository/components/delete_blob_modal.vue' do
+            base.view 'app/assets/javascripts/repository/components/commit_changes_modal.vue' do
               element 'commit-message-field'
             end
 
             base.view 'app/assets/javascripts/repository/components/commit_info.vue' do
               element 'commit-content'
-            end
-
-            base.view 'app/views/shared/_commit_message_container.html.haml' do
-              element 'commit-message-field'
             end
 
             base.view 'app/views/projects/commits/_commit.html.haml' do

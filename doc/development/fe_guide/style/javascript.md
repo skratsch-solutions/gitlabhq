@@ -123,7 +123,7 @@ things.map(Number);
 ```
 
 NOTE:
-If the String could represent a non-integer (i.e., it includes a decimal), **do not** use `parseInt`. Consider `Number` or `parseFloat` instead.
+If the String could represent a non-integer (a number that includes a decimal), **do not** use `parseInt`. Consider `Number` or `parseFloat` instead.
 
 ## CSS Selectors - Use `js-` prefix
 
@@ -363,5 +363,5 @@ onError(error) {
 ```
 
 Note that this prefixing must not be used for API responses. Instead follow the
-[REST API](../../../api/rest/index.md#data-validation-and-error-reporting),
+[REST API](../../../api/rest/troubleshooting.md#status-code-400),
 or [GraphQL guides](../../api_graphql_styleguide.md#error-handling) on how to consume error objects.

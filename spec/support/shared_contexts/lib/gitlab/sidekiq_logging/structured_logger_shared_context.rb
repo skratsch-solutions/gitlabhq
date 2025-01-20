@@ -4,6 +4,7 @@ RSpec.shared_context 'structured_logger' do
   let(:timestamp) { Time.iso8601('2018-01-01T12:00:00.000Z') }
   let(:created_at) { timestamp - 1.second }
   let(:scheduling_latency_s) { 1.0 }
+  let(:queue_duration_s) { 1.0 }
   let(:worker_class) { "TestWorker" }
 
   let(:job) do
@@ -38,7 +39,9 @@ RSpec.shared_context 'structured_logger' do
       'created_at' => created_at.to_f,
       'enqueued_at' => created_at.to_f,
       'scheduling_latency_s' => scheduling_latency_s,
-      'job_size_bytes' => be > 0
+      'queue_duration_s' => queue_duration_s,
+      'job_size_bytes' => be > 0,
+      'sidekiq_tid' => be_instance_of(String)
     )
   end
 
@@ -46,7 +49,6 @@ RSpec.shared_context 'structured_logger' do
     metrics =
       ::Gitlab::Metrics::Subscribers::ActiveRecord.load_balancing_metric_counter_keys +
       ::Gitlab::Metrics::Subscribers::ActiveRecord.load_balancing_metric_duration_keys +
-      ::Gitlab::Metrics::Subscribers::ActiveRecord.db_counter_keys +
       [:db_duration_s]
 
     metrics.each_with_object({}) do |key, result|
@@ -99,6 +101,7 @@ RSpec.shared_context 'structured_logger' do
                         .and_return(clock_realtime_start, clock_realtime_end)
     allow(Process).to receive(:clock_gettime).with(Process::CLOCK_THREAD_CPUTIME_ID, :float_second)
                         .and_return(clock_thread_cputime_start, clock_thread_cputime_end)
+    allow(Process).to receive(:clock_gettime).with(anything, :float_millisecond).and_call_original
   end
 
   subject { described_class.new(logger) }

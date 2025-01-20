@@ -1,8 +1,10 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Composition Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
+
+# Dependency Scanning
 
 <style>
 table.ds-table tr:nth-child(even) {
@@ -41,11 +43,9 @@ table.no-vertical-table-lines tr {
 }
 </style>
 
-# Dependency Scanning
-
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Dependency Scanning analyzes your application's dependencies for known vulnerabilities. All
 dependencies are scanned, including transitive dependencies, also known as nested dependencies.
@@ -55,7 +55,7 @@ aspects of inspecting the items your code uses. These items typically include ap
 dependencies that are almost always imported from external sources, rather than sourced from items
 you wrote yourself.
 
-Dependency Scanning can run in the development phase of your application's life cycle. Every time a
+Dependency Scanning can run in the development phase of your application's lifecycle. Every time a
 pipeline runs, vulnerabilities are identified and compared between the source and target branches.
 Vulnerabilities and their severity are listed in the merge request, enabling you to proactively
 address the risk to your application, before the code change is committed.
@@ -81,7 +81,7 @@ Dependency Scanning does not support runtime installation of compilers and inter
 
 ## Supported languages and package managers
 
-The following languages and dependency managers are supported when using the Dependency Scanning [CI Template](#enabling-the-analyzer-by-using-the-cicd-template):
+The following languages and dependency managers are supported by Dependency Scanning:
 
 <!-- markdownlint-disable MD044 -->
 <table class="ds-table">
@@ -229,6 +229,20 @@ The following languages and dependency managers are supported when using the Dep
       <td><code>build.sbt</code></td>
       <td>N</td>
     </tr>
+    <tr>
+      <td>Swift</td>
+      <td>All versions</td>
+      <td><a href="https://swift.org/package-manager/">Swift Package Manager</a></td>
+      <td><code>Package.resolved</code></td>
+      <td>N</td>
+    </tr>
+    <tr>
+      <td>Cocoapods<sup><b><a href="#notes-regarding-supported-languages-and-package-managers-9">9</a></b></sup></td>
+      <td>All versions</td>
+      <td><a href="https://cocoapods.org/">CocoaPods</a></td>
+      <td><code>Podfile.lock</code></td>
+      <td>N</td>
+    </tr>
   </tbody>
 </table>
 
@@ -282,6 +296,12 @@ The following languages and dependency managers are supported when using the Dep
     <a id="notes-regarding-supported-languages-and-package-managers-8"></a>
     <p>
       Excludes both <code>pip</code> and <code>setuptools</code> from the report as they are required by the installer.
+    </p>
+  </li>
+  <li>
+    <a id="notes-regarding-supported-languages-and-package-managers-9"></a>
+    <p>
+      Only SBOM, without advisories. See <a href="https://gitlab.com/gitlab-org/gitlab/-/issues/468764">spike on CocoaPods advisories research</a>.
     </p>
   </li>
 </ol>
@@ -490,9 +510,9 @@ To support the following package managers, the GitLab analyzers proceed in two s
     </tr>
     <tr>
       <td>maven</td>
-      <td><a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.2.14/build/gemnasium-maven/debian/config/.tool-versions#L3">3.8.8</a></td>
+      <td><a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.3.1/build/gemnasium-maven/debian/config/.tool-versions#L3">3.9.8</a></td>
       <td>
-        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.2.14/spec/gemnasium-maven_image_spec.rb#L92-94">3.8.8</a><sup><b><a href="#exported-dependency-information-notes-1">1</a></b></sup>
+        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.3.1/spec/gemnasium-maven_image_spec.rb#L92-94">3.9.8</a><sup><b><a href="#exported-dependency-information-notes-1">1</a></b></sup>
       </td>
     </tr>
     <tr>
@@ -513,10 +533,10 @@ To support the following package managers, the GitLab analyzers proceed in two s
     <tr>
       <td>setuptools</td>
       <td>
-        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.2.14/build/gemnasium-python/requirements.txt#L41">69.0.3</a>
+        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.4.1/build/gemnasium-python/requirements.txt#L41">70.3.0</a>
       </td>
       <td>
-        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.2.14/spec/gemnasium-python_image_spec.rb#L294-316">&gt;= 69.0.3</a>
+        <a href="https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium/-/blob/v5.4.1/spec/gemnasium-python_image_spec.rb#L294-316">&gt;= 70.3.0</a>
       </td>
     </tr>
     <tr>
@@ -637,6 +657,7 @@ that is detected. Build files are searched for in the following order:
 1. `build.sbt` for single or [multi-project](https://www.scala-sbt.org/1.x/docs/Multi-Project.html) sbt builds.
 
 The search begins with the root directory and then continues with subdirectories if no builds are found in the root directory. Consequently an sbt build file in the root directory would be detected before a Gradle build file in a subdirectory.
+For [multi-module](https://maven.apache.org/pom.html#Aggregation) Maven projects, and multi-project [Gradle](https://docs.gradle.org/current/userguide/intro_multi_project_builds.html) and [sbt](https://www.scala-sbt.org/1.x/docs/Multi-Project.html) builds, sub-module and sub-project files are analyzed if they are declared in the parent build file.
 
 #### JavaScript
 
@@ -644,12 +665,12 @@ The following analyzers are executed, each of which have different behavior when
 
 - [Gemnasium](https://gitlab.com/gitlab-org/security-products/analyzers/gemnasium)
 
-   Supports multiple lockfiles
+  Supports multiple lockfiles
 
 - [Retire.js](https://retirejs.github.io/retire.js/)
 
-   Does not support multiple lockfiles. When multiple lockfiles exist, `Retire.js`
-   analyzes the first lockfile discovered while traversing the directory tree in alphabetical order.
+  Does not support multiple lockfiles. When multiple lockfiles exist, `Retire.js`
+  analyzes the first lockfile discovered while traversing the directory tree in alphabetical order.
 
 The `gemnasium` analyzer scans supports JavaScript projects for vendored libraries
 (that is, those checked into the project but not managed by the package manager).
@@ -657,7 +678,7 @@ The `gemnasium` analyzer scans supports JavaScript projects for vendored librari
 #### Go
 
 Multiple files are supported. When a `go.mod` file is detected, the analyzer attempts to generate a [build list](https://go.dev/ref/mod#glos-build-list) using
-[Minimal Version Selection](https://go.dev/ref/mod#glos-minimal-version-selection).
+[Minimal Version Selection](https://go.dev/ref/mod#glos-minimal-version-selection). If this fails, the analyzer instead attempts to parse the dependencies within the `go.mod` file.
 
 As a requirement, the `go.mod` file should be cleaned up using the command `go mod tidy` to ensure proper management of dependencies. The process is repeated for every detected `go.mod` file.
 
@@ -678,7 +699,7 @@ Support for additional languages, dependency managers, and dependency files are 
 Enable the dependency scanning analyzer to ensure it scans your application's dependencies for known
 vulnerabilities. You can then adjust its behavior by using CI/CD variables.
 
-### Enabling the analyzer by using the CI/CD template
+### Enabling the analyzer
 
 Prerequisites:
 
@@ -691,17 +712,38 @@ Prerequisites:
 To enable the analyzer, either:
 
 - Enable [Auto DevOps](../../../topics/autodevops/index.md), which includes dependency scanning.
-- Edit the `.gitlab-ci.yml` file manually. Use this method if your `.gitlab-ci.yml` file is complex.
 - Use a preconfigured merge request.
-- Create a [scan execution policy](../policies/scan-execution-policies.md) that enforces dependency
+- Create a [scan execution policy](../policies/scan_execution_policies.md) that enforces dependency
   scanning.
+- Edit the `.gitlab-ci.yml` file manually.
+- [Use CI/CD components](#use-cicd-components)
+
+#### Use a preconfigured merge request
+
+This method automatically prepares a merge request that includes the Dependency Scanning template
+in the `.gitlab-ci.yml` file. You then merge the merge request to enable Dependency Scanning.
+
+NOTE:
+This method works best with no existing `.gitlab-ci.yml` file, or with a minimal configuration file.
+If you have a complex GitLab configuration file it might not be parsed successfully, and an error
+might occur. In that case, use the [manual](#edit-the-gitlab-ciyml-file-manually) method instead.
+
+To enable Dependency Scanning:
+
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Secure > Security configuration**.
+1. In the **Dependency Scanning** row, select **Configure with a merge request**.
+1. Select **Create merge request**.
+1. Review the merge request, then select **Merge**.
+
+Pipelines now include a Dependency Scanning job.
 
 #### Edit the `.gitlab-ci.yml` file manually
 
 This method requires you to manually edit the existing `.gitlab-ci.yml` file. Use this method if
 your GitLab CI/CD configuration file is complex.
 
-To enable dependency scanning:
+To enable Dependency Scanning:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Build > Pipeline editor**.
@@ -726,51 +768,32 @@ To enable dependency scanning:
    merge request**.
 1. Review and edit the merge request according to your standard workflow, then select **Merge**.
 
-Pipelines now include a dependency scanning job.
+Pipelines now include a Dependency Scanning job.
 
-#### Use a preconfigured merge request
+#### Use CI/CD components
 
-This method automatically prepares a merge request that includes the dependency scanning template
-in the `.gitlab-ci.yml` file. You then merge the merge request to enable dependency scanning.
-
-NOTE:
-This method works best with no existing `.gitlab-ci.yml` file, or with a minimal configuration
-file. If you have a complex GitLab configuration file it might not be parsed successfully, and an
-error might occur. In that case, use the [manual](#edit-the-gitlab-ciyml-file-manually) method instead.
-
-To enable dependency scanning:
-
-1. On the left sidebar, select **Search or go to** and find your project.
-1. Select **Secure > Security configuration**.
-1. In the **Dependency Scanning** row, select **Configure with a merge request**.
-1. Select **Create merge request**.
-1. Review the merge request, then select **Merge**.
-
-Pipelines now include a dependency scanning job.
-
-### Enabling dependency scanning by using CI/CD components
-
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/454143) in GitLab 17.0. This feature is an [experiment](../../../policy/experiment-beta-support.md).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/454143) in GitLab 17.0. This feature is an [experiment](../../../policy/development_stages_support.md).
 > - The dependency scanning CI/CD component only supports Android projects.
 
-Use [CI/CD components](../../../ci/components/index.md) to perform dependency scanning of your application. For instructions, see the respective component's README file.
+Use [CI/CD components](../../../ci/components/index.md) to perform Dependency Scanning of your
+application. For instructions, see the respective component's README file.
 
-#### Available CI/CD components per language and package manager
+##### Available CI/CD components
 
-- [Android applications](https://gitlab.com/explore/catalog/components/android-dependency-scanning)
+See <https://gitlab.com/explore/catalog/components/dependency-scanning>
 
 ### Running jobs in merge request pipelines
 
-See [Use security scanning tools with merge request pipelines](../index.md#use-security-scanning-tools-with-merge-request-pipelines)
+See [Use security scanning tools with merge request pipelines](../detect/roll_out_security_scanning.md#use-security-scanning-tools-with-merge-request-pipelines)
 
 ### Customizing analyzer behavior
 
-You can use CI/CD variables to customize dependency scanning behavior.
+To customize Dependency Scanning, use [CI/CD variables](#available-cicd-variables).
 
 WARNING:
-You should test all customization of GitLab security scanning tools in a merge request before
-merging these changes to the default branch. Failure to do so can give unexpected results,
-including a large number of false positives.
+Test all customization of GitLab analyzers in a merge request before merging these changes to the
+default branch. Failure to do so can give unexpected results, including a large number of false
+positives.
 
 ### Overriding dependency scanning jobs
 
@@ -810,7 +833,7 @@ The following variables allow configuration of global dependency scanning settin
 | ----------------------------|------------ |
 | `ADDITIONAL_CA_CERT_BUNDLE` | Bundle of CA certificates to trust. The bundle of certificates provided here is also used by other tools during the scanning process, such as `git`, `yarn`, or `npm`. For more details, see [Custom TLS certificate authority](#custom-tls-certificate-authority). |
 | `DS_EXCLUDED_ANALYZERS`     | Specify the analyzers (by name) to exclude from Dependency Scanning. For more information, see [Analyzers](#analyzers). |
-| `DS_EXCLUDED_PATHS`         | Exclude files and directories from the scan based on the paths. A comma-separated list of patterns. Patterns can be globs (see [`doublestar.Match`](https://pkg.go.dev/github.com/bmatcuk/doublestar/v4@v4.0.2#Match) for supported patterns), or file or folder paths (for example, `doc,spec`). Parent directories also match patterns. Default: `"spec, test, tests, tmp"`. |
+| `DS_EXCLUDED_PATHS`         | Exclude files and directories from the scan based on the paths. A comma-separated list of patterns. Patterns can be globs (see [`doublestar.Match`](https://pkg.go.dev/github.com/bmatcuk/doublestar/v4@v4.0.2#Match) for supported patterns), or file or folder paths (for example, `doc,spec`). Parent directories also match patterns. This is a pre-filter which is applied _before_ the scan is executed. Default: `"spec, test, tests, tmp"`. |
 | `DS_IMAGE_SUFFIX`           | Suffix added to the image name. (GitLab team members can view more information in this confidential issue: `https://gitlab.com/gitlab-org/gitlab/-/issues/354796`). Automatically set to `"-fips"` when FIPS mode is enabled. |
 | `DS_MAX_DEPTH`              | Defines how many directory levels deep that the analyzer should search for supported files to scan. A value of `-1` scans all directories regardless of depth. Default: `2`. |
 | `SECURE_ANALYZERS_PREFIX`   | Override the name of the Docker registry providing the official default images (proxy). |
@@ -834,9 +857,10 @@ The following variables configure the behavior of specific dependency scanning a
 | `GOFLAGS`                            | `gemnasium`        |                              | The flags passed to the `go build` tool. |
 | `GOPRIVATE`                          | `gemnasium`        |                              | A list of glob patterns and prefixes to be fetched from source. For more information, see the Go private modules [documentation](https://go.dev/ref/mod#private-modules). |
 | `DS_JAVA_VERSION`                    | `gemnasium-maven`  | `17`                         | Version of Java. Available versions: `8`, `11`, `17`, `21`. |
-| `MAVEN_CLI_OPTS`                     | `gemnasium-maven`  | `"-DskipTests --batch-mode"` | List of command line arguments that are passed to `maven` by the analyzer. See an example for [using private repositories](../index.md#using-private-maven-repositories). |
+| `MAVEN_CLI_OPTS`                     | `gemnasium-maven`  | `"-DskipTests --batch-mode"` | List of command line arguments that are passed to `maven` by the analyzer. See an example for [using private repositories](#authenticate-with-a-private-maven-repository). |
 | `GRADLE_CLI_OPTS`                    | `gemnasium-maven`  |                              | List of command line arguments that are passed to `gradle` by the analyzer. |
 | `GRADLE_PLUGIN_INIT_PATH`            | `gemnasium-maven`  | `"gemnasium-init.gradle"`    | Specifies the path to the Gradle initialization script. The init script must include `allprojects { apply plugin: 'project-report' }` to ensure compatibility. |
+| `DS_GRADLE_RESOLUTION_POLICY`        | `gemnasium-maven`  | `"failed"`                   | Controls Gradle dependency resolution strictness. Accepts `"none"` to allow partial results, or `"failed"` to fail the scan when any dependencies fail to resolve. |
 | `SBT_CLI_OPTS`                       | `gemnasium-maven`  |                              | List of command-line arguments that the analyzer passes to `sbt`. |
 | `PIP_INDEX_URL`                      | `gemnasium-python` | `https://pypi.org/simple`    | Base URL of Python Package Index. |
 | `PIP_EXTRA_INDEX_URL`                | `gemnasium-python` |                              | Array of [extra URLs](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-extra-index-url) of package indexes to use in addition to `PIP_INDEX_URL`. Comma-separated. **Warning:** Read [the following security consideration](#python-projects) when using this environment variable. |
@@ -905,12 +929,42 @@ variables:
       -----END CERTIFICATE-----
 ```
 
-### Using private Maven repositories
+### Authenticate with a private Maven repository
 
-If your private Maven repository requires login credentials,
-you can use the `MAVEN_CLI_OPTS` CI/CD variable.
+To use a private Maven repository that requires authentication, you should store your credentials in
+a CI/CD variable and reference them in your Maven settings file. Do not add the credentials to your
+`.gitlab-ci.yml` file.
 
-Read more on [how to use private Maven repositories](../index.md#using-private-maven-repositories).
+To authenticate with a private Maven repository:
+
+1. Add the `MAVEN_CLI_OPTS` CI/CD variable to your
+   [project's settings](../../../ci/variables/index.md#for-a-project), setting the value to include
+   your credentials.
+
+   For example, if your username is `myuser` and the password is `verysecret`:
+
+   | Type     | Key              | Value |
+   |----------|------------------|-------|
+   | Variable | `MAVEN_CLI_OPTS` | `--settings mysettings.xml -Drepository.password=verysecret -Drepository.user=myuser` |
+
+1. Create a Maven settings file with your server configuration.
+
+   For example, add the following to the settings file `mysettings.xml`. This file is referenced in
+   the `MAVEN_CLI_OPTS` CI/CD variable.
+
+   ```xml
+   <!-- mysettings.xml -->
+   <settings>
+       ...
+       <servers>
+           <server>
+               <id>private_server</id>
+               <username>${private.username}</username>
+               <password>${private.password}</password>
+           </server>
+       </servers>
+   </settings>
+   ```
 
 ### FIPS-enabled images
 
@@ -922,6 +976,10 @@ scanning jobs automatically use the FIPS-enabled images. To manually switch to F
 set the variable `DS_IMAGE_SUFFIX` to `"-fips"`.
 
 Dependency scanning for Gradle projects and auto-remediation for Yarn projects are not supported in FIPS mode.
+
+FIPS-enabled images are based on RedHat's UBI micro.
+They don't have package managers such as `dnf` or `microdnf`
+so it's not possible to install system packages at runtime.
 
 ## Output
 
@@ -1027,7 +1085,11 @@ You can also [submit new vulnerabilities](https://gitlab.com/gitlab-org/security
 
 ## Offline environment
 
-For self-managed GitLab instances in an environment with limited, restricted, or intermittent access
+DETAILS:
+**Tier:** Ultimate
+**Offering:** GitLab Self-Managed
+
+For instances in an environment with limited, restricted, or intermittent access
 to external resources through the internet, some adjustments are required for dependency scanning
 jobs to run successfully. For more information, see [Offline environments](../offline_deployments/index.md).
 
@@ -1068,7 +1130,7 @@ To use dependency scanning with all [supported languages and frameworks](#suppor
 
    ```yaml
    include:
-     - template: Security/Dependency-Scanning.gitlab-ci.yml
+     - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
    variables:
      SECURE_ANALYZERS_PREFIX: "docker-registry.example.com/analyzers"
@@ -1152,11 +1214,11 @@ variables:
 
 Maven does not read the `HTTP(S)_PROXY` environment variables.
 
-To make the Maven dependency scanner use a proxy, you can specify the options using the `MAVEN_CLI_OPTS` CI/CD variable:
+To make the Maven dependency scanner use a proxy, you can configure it using a `settings.xml` file (see [Maven documentation](https://maven.apache.org/guides/mini/guide-proxies.html)) and instruct Maven to use this configuration by using the `MAVEN_CLI_OPTS` CI/CD variable:
 
 ```yaml
 variables:
-  MAVEN_CLI_OPTS: "-DproxySet=true -Dhttps.proxyHost=squid-proxy -Dhttps.proxyPort=3128 -Dhttp.proxyHost=squid-proxy -Dhttp.proxyPort=3218"
+  MAVEN_CLI_OPTS: "--settings mysettings.xml"
 ```
 
 ## Specific settings for languages and package managers
@@ -1222,6 +1284,44 @@ We recommend that you use the most recent version of all containers, and the mos
 
 Do not override the `reports.html.destination` or `reports.html.outputLocation` properties when generating an HTML dependency report for Gradle projects. Doing so prevents Dependency Scanning from functioning correctly.
 
+### Maven Projects
+
+In isolated networks, if the central repository is a private registry (explicitly set with the `<mirror>` directive), Maven builds may fail to find the `gemnasium-maven-plugin` dependency. This issue occurs because Maven doesn't search the local repository (`/root/.m2`) by default and attempts to fetch from the central repository. The result is an error about the missing dependency.
+
+#### Workaround
+
+To resolve this issue, add a `<pluginRepositories>` section to your `settings.xml` file. This allows Maven to find plugins in the local repository.
+
+Before you begin, consider the following:
+
+- This workaround is only for environments where the default Maven central repository is mirrored to a private registry.
+- After applying this workaround, Maven searches the local repository for plugins, which may have security implications in some environments. Make sure this aligns with your organization's security policies.
+
+Follow these steps to modify the `settings.xml` file:
+
+1. Locate your Maven `settings.xml` file. This file is typically found in one of these locations:
+
+   - `/root/.m2/settings.xml` for the root user.
+   - `~/.m2/settings.xml` for a regular user.
+   - `${maven.home}/conf/settings.xml` global settings.
+
+1. Check if there's an existing `<pluginRepositories>` section in the file.
+
+1. If a `<pluginRepositories>` section already exists, add only the following `<pluginRepository>` element inside it.
+Otherwise, add the entire `<pluginRepositories>` section:
+
+      ```xml
+        <pluginRepositories>
+          <pluginRepository>
+              <id>local2</id>
+              <name>local repository</name>
+              <url>file:///root/.m2/repository/</url>
+          </pluginRepository>
+        </pluginRepositories>
+      ```
+
+1. Run your Maven build or dependency scanning process again.
+
 ### Python projects
 
 Extra care needs to be taken when using the [`PIP_EXTRA_INDEX_URL`](https://pipenv.pypa.io/en/latest/indexes.html)
@@ -1249,3 +1349,190 @@ In these cases, the analyzer skips the dependency and outputs a message to the l
 
 The GitLab analyzers do not make assumptions as they could result in a false positive or false
 negative. For a discussion, see [issue 442027](https://gitlab.com/gitlab-org/gitlab/-/issues/442027).
+
+## Build Swift projects
+
+Swift Package Manager (SPM) is the official tool for managing the distribution of Swift code.
+It's integrated with the Swift build system to automate the process of downloading, compiling, and linking dependencies.
+
+Follow these best practices when you build a Swift project with SPM.
+
+1. Include a `Package.resolved` file.
+
+   The `Package.resolved` file locks your dependencies to specific versions.
+   Always commit this file to your repository to ensure consistency across
+   different environments.
+
+   ```shell
+   git add Package.resolved
+   git commit -m "Add Package.resolved to lock dependencies"
+   ```
+
+1. To build your Swift project, use the following commands:
+
+   ```shell
+   # Update dependencies
+   swift package update
+
+   # Build the project
+   swift build
+   ```
+
+1. To configure CI/CD, add these steps to your `.gitlab-ci.yml` file:
+
+   ```yaml
+   swift-build:
+     stage: build
+     script:
+       - swift package update
+       - swift build
+   ```
+
+1. Optional. If you use private Swift package repositories with self-signed certificates,
+   you might need to add the certificate to your project and configure Swift to trust it:
+
+   1. Fetch the certificate:
+
+      ```shell
+      echo | openssl s_client -servername your.repo.url -connect your.repo.url:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+      CERTIFICATE-/p' > repo-cert.crt
+      ```
+
+   1. Add these lines to your Swift package manifest (`Package.swift`):
+
+      ```swift
+      import Foundation
+
+      #if canImport(Security)
+      import Security
+      #endif
+
+      extension Package {
+          public static func addCustomCertificate() {
+              guard let certPath = Bundle.module.path(forResource: "repo-cert", ofType: "crt") else {
+                  fatalError("Certificate not found")
+              }
+              SecCertificateAddToSystemStore(SecCertificateCreateWithData(nil, try! Data(contentsOf: URL(fileURLWithPath: certPath)) as CFData)!)
+          }
+      }
+
+      // Call this before defining your package
+      Package.addCustomCertificate()
+      ```
+
+Always test your build process in a clean environment to ensure your
+dependencies are correctly specified and resolve automatically.
+
+## Build CocoaPods projects
+
+CocoaPods is a popular dependency manager for Swift and Objective-C Cocoa projects. It provides a standard format for managing external libraries in iOS, macOS, watchOS, and tvOS projects.
+
+Follow these best practices when you build projects that use CocoaPods for dependency management.
+
+1. Include a `Podfile.lock` file.
+
+   The `Podfile.lock` file is crucial for locking your dependencies to specific versions. Always commit this file to your repository to ensure consistency across different environments.
+
+   ```shell
+   git add Podfile.lock
+   git commit -m "Add Podfile.lock to lock CocoaPods dependencies"
+   ```
+
+1. You can build your project with one of the following:
+
+   - The `xcodebuild` command-line tool:
+
+     ```shell
+     # Install CocoaPods dependencies
+     pod install
+
+     # Build the project
+     xcodebuild -workspace YourWorkspace.xcworkspace -scheme YourScheme build
+     ```
+
+   - The Xcode IDE:
+
+     1. Open your `.xcworkspace` file in Xcode.
+     1. Select your target scheme.
+     1. Select **Product > Build**. You can also press <kbd>⌘</kbd>+<kbd>B</kbd>.
+
+   - [fastlane](https://fastlane.tools/), a tool for automating builds and releases for iOS and Android apps:
+
+     1. Install `fastlane`:
+
+        ```shell
+        sudo gem install fastlane
+        ```
+
+     1. In your project, configure `fastlane`:
+
+        ```shell
+        fastlane init
+        ```
+
+     1. Add a lane to your `fastfile`:
+
+        ```ruby
+        lane :build do
+          cocoapods
+          gym(scheme: "YourScheme")
+        end
+        ```
+
+     1. Run the build:
+
+        ```shell
+        fastlane build
+        ```
+
+   - If your project uses both CocoaPods and Carthage, you can use Carthage to build your dependencies:
+
+     1. Create a `Cartfile` that includes your CocoaPods dependencies.
+     1. Run the following:
+
+        ```shell
+        carthage update --platform iOS
+        ```
+
+1. Configure CI/CD to build the project according to your preferred method.
+
+   For example, using `xcodebuild`:
+
+   ```yaml
+   cocoapods-build:
+     stage: build
+     script:
+       - pod install
+       - xcodebuild -workspace YourWorkspace.xcworkspace -scheme YourScheme build
+   ```
+
+1. Optional. If you use private CocoaPods repositories,
+   you might need to configure your project to access them:
+
+   1. Add the private spec repo:
+
+      ```shell
+      pod repo add REPO_NAME SOURCE_URL
+      ```
+
+   1. In your Podfile, specify the source:
+
+      ```ruby
+      source 'https://github.com/CocoaPods/Specs.git'
+      source 'SOURCE_URL'
+      ```
+
+1. Optional. If your private CocoaPods repository uses SSL, ensure the SSL certificate is properly configured:
+
+   - If you use a self-signed certificate, add it to your system's trusted certificates.
+     You can also specify the SSL configuration in your `.netrc` file:
+
+     ```netrc
+     machine your.private.repo.url
+       login your_username
+       password your_password
+     ```
+
+1. After you update your Podfile, run `pod install` to install dependencies and update your workspace.
+
+Remember to always run `pod install` after updating your Podfile to ensure all dependencies are properly installed and the workspace is updated.

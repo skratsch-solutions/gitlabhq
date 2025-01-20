@@ -36,7 +36,7 @@ import {
   isInViewport,
   getPagePath,
   scrollToElement,
-  isMetaKey,
+  isModifierKey,
   isInMRPage,
 } from './lib/utils/common_utils';
 import { localTimeAgo } from './lib/utils/datetime_utility';
@@ -53,6 +53,7 @@ function normalizeNewlines(str) {
 const REGEX_QUICK_ACTIONS = /^\/\w+.*$/gm;
 
 export default class Notes {
+  // eslint-disable-next-line max-params
   static initialize(notes_url, last_fetched_at, view, enableGFM) {
     if (!this.instance) {
       this.instance = new Notes(notes_url, last_fetched_at, view, enableGFM);
@@ -63,6 +64,7 @@ export default class Notes {
     return this.instance;
   }
 
+  // eslint-disable-next-line max-params
   constructor(notes_url, last_fetched_at, view, enableGFM = defaultAutocompleteConfig) {
     this.updateTargetButtons = this.updateTargetButtons.bind(this);
     this.updateComment = this.updateComment.bind(this);
@@ -254,7 +256,7 @@ export default class Notes {
     let newText;
     let originalText;
 
-    if (isMetaKey(e)) {
+    if (isModifierKey(e)) {
       return;
     }
 
@@ -427,12 +429,12 @@ export default class Notes {
     }
 
     if (!noteEntity.valid) {
-      if (noteEntity.errors && noteEntity.errors.commands_only) {
+      if (noteEntity?.quick_actions_status?.messages) {
         if (noteEntity.commands_changes && Object.keys(noteEntity.commands_changes).length > 0) {
           $notesList.find('.system-note.being-posted').remove();
         }
         this.addAlert({
-          message: noteEntity.errors.commands_only,
+          message: noteEntity.quick_actions_status.messages,
           variant: VARIANT_INFO,
           parent: this.parentTimeline.get(0),
         });
@@ -544,6 +546,10 @@ export default class Notes {
 
         renderGFM(discussionElement);
         const $discussion = $(discussionElement).unwrap();
+
+        if (noteEntity.on_image) {
+          discussionElement.classList.add('discussion-notes', 'gl-block');
+        }
 
         if (!this.isParallelView() || row.hasClass('js-temp-notes-holder') || noteEntity.on_image) {
           // insert the note and the reply button after the temp row
@@ -1360,8 +1366,8 @@ export default class Notes {
     const $svgChevronUpElement = $element.find('svg.js-chevron-up');
     const $svgChevronDownElement = $element.find('svg.js-chevron-down');
 
-    $svgChevronUpElement.toggleClass('gl-display-none');
-    $svgChevronDownElement.toggleClass('gl-display-none');
+    $svgChevronUpElement.toggleClass('gl-hidden');
+    $svgChevronDownElement.toggleClass('gl-hidden');
 
     $closestSystemCommitList.toggleClass('hide-shade');
   }
@@ -1534,14 +1540,14 @@ export default class Notes {
          <div class="timeline-entry-inner">
             <div class="timeline-icon">
                <a href="/${escape(currentUsername)}">
-                 <img class="avatar s40" src="${currentUserAvatar}" />
+                 <img class="avatar s32" src="${currentUserAvatar}" />
                </a>
             </div>
             <div class="timeline-content ${discussionClass}">
                <div class="note-header">
                   <div class="note-header-info">
                      <a href="/${escape(currentUsername)}">
-                       <span class="gl-hidden sm:gl-inline-block bold">${escape(
+                       <span class="gl-hidden sm:gl-inline-block gl-font-bold">${escape(
                          currentUsername,
                        )}</span>
                        <span class="note-headline-light">${escape(currentUsername)}</span>

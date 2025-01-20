@@ -1,18 +1,19 @@
 ---
-stage: AI-powered
-group: AI Model Validation
-description: AI-powered features and functionality.
+stage: Create
+group: Code Creation
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
 # Explain code in a file
 
 DETAILS:
-**Tier:** For a limited time, Premium and Ultimate. In the future, [GitLab Duo Pro or Enterprise](../../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Experiment
+**Tier:** Premium with GitLab Duo Pro, Ultimate with GitLab Duo Pro or Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3.5 Sonnet](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
 
-> - Introduced in GitLab 15.11 as an [experiment](../../../policy/experiment-beta-support.md#experiment) on GitLab.com.
+> - Introduced in GitLab 15.11 as an [experiment](../../../policy/development_stages_support.md#experiment) on GitLab.com.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/429915) in GitLab 16.8.
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
 
 If you spend a lot of time trying to understand code that others have created, or
 you struggle to understand code written in a language you are not familiar with,
@@ -43,4 +44,4 @@ We cannot guarantee that the large language model produces results that are corr
 You can also explain code in:
 
 - A [merge request](../../../user/project/merge_requests/changes.md#explain-code-in-a-merge-request).
-- The [IDE](../../../user/gitlab_duo_chat/examples.md#explain-code-in-the-ide).
+- The [IDE](../../../user/gitlab_duo_chat/examples.md#explain-selected-code).

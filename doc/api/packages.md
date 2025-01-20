@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/349418) support for [GitLab CI/CD job token](../ci/jobs/ci_job_token.md) authentication for the project-level API in GitLab 15.3.
 
@@ -20,7 +20,7 @@ The API documentation of [GitLab Packages](../administration/packages/index.md).
 
 Get a list of project packages. All package types are included in results. When
 accessed without authentication, only packages of public projects are returned.
-By default, packages with `default` and `error` status are returned. Use the `status` parameter to view other
+By default, packages with `default`, `deprecated`, and `error` status are returned. Use the `status` parameter to view other
 packages.
 
 ```plaintext
@@ -29,7 +29,7 @@ GET /projects/:id/packages
 
 | Attribute             | Type           | Required | Description |
 |:----------------------|:---------------|:---------|:------------|
-| `id`                  | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`                  | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `order_by`            | string         | no       | The field to use as order. One of `created_at` (default), `name`, `version`, or `type`. |
 | `sort`                | string         | no       | The direction of the order, either `asc` (default) for ascending order or `desc` for descending order. |
 | `package_type`        | string         | no       | Filter the returned packages by type. One of `conan`, `maven`, `npm`, `pypi`, `composer`, `nuget`, `helm`, `terraform_module`, or `golang`. |
@@ -89,7 +89,7 @@ can result in malformed data or broken packages.
 
 Get a list of project packages at the group level.
 When accessed without authentication, only packages of public projects are returned.
-By default, packages with `default` and `error` status are returned. Use the `status` parameter to view other
+By default, packages with `default`, `deprecated`, and `error` status are returned. Use the `status` parameter to view other
 packages.
 
 ```plaintext
@@ -98,7 +98,7 @@ GET /groups/:id/packages
 
 | Attribute             | Type           | Required | Description |
 |:----------------------|:---------------|:---------|:------------|
-| `id`                  | integer/string | yes      | ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding). |
+| `id`                  | integer/string | yes      | ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `exclude_subgroups`   | boolean        | no       | If the parameter is included as true, packages from projects from subgroups are not listed. Default is `false`. |
 | `order_by`            | string         | no       | The field to use as order. One of `created_at` (default), `name`, `version`, `type`, or `project_path`. |
 | `sort`                | string         | no       | The direction of the order, either `asc` (default) for ascending order or `desc` for descending order. |
@@ -187,7 +187,7 @@ can result in malformed data or broken packages.
 
 ## Get a project package
 
-Get a single project package. Only packages with status `default` are returned.
+Get a single project package. Only packages with status `default` or `deprecated` are returned.
 
 ```plaintext
 GET /projects/:id/packages/:package_id
@@ -195,7 +195,7 @@ GET /projects/:id/packages/:package_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `package_id`      | integer | yes | ID of a package. |
 
 ```shell
@@ -262,7 +262,7 @@ Example response:
 
 The `_links` object contains the following properties:
 
-- `web_path`: The path which you can visit in GitLab and see the details of the package. Only available if the package has status `default`.
+- `web_path`: The path which you can visit in GitLab and see the details of the package. Only available if the package has status `default` or `deprecated`.
 - `delete_api_path`: The API path to delete the package. Only available if the request user has permission to do so.
 
 ## List package files
@@ -275,7 +275,7 @@ GET /projects/:id/packages/:package_id/package_files
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `package_id`      | integer | yes | ID of a package. |
 
 ```shell
@@ -350,7 +350,7 @@ GET /projects/:id/packages/:package_id/pipelines
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `package_id`      | integer | yes | ID of a package. |
 
 ```shell
@@ -414,7 +414,7 @@ DELETE /projects/:id/packages/:package_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `package_id`      | integer | yes | ID of a package. |
 
 ```shell
@@ -443,7 +443,7 @@ DELETE /projects/:id/packages/:package_id/package_files/:package_file_id
 
 | Attribute         | Type           | Required | Description |
 | ----------------- | -------------- | -------- | ----------- |
-| `id`              | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`              | integer/string | yes | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `package_id`      | integer        | yes | ID of a package. |
 | `package_file_id` | integer        | yes | ID of a package file. |
 

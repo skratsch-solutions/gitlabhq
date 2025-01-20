@@ -2,12 +2,13 @@
 
 module PersonalAccessTokens
   class CreateService < BaseService
-    def initialize(current_user:, target_user:, params: {}, concatenate_errors: true)
+    def initialize(current_user:, target_user:, organization_id:, params: {}, concatenate_errors: true)
       @current_user = current_user
       @target_user = target_user
       @params = params.dup
       @ip_address = @params.delete(:ip_address)
       @concatenate_errors = concatenate_errors
+      @organization_id = organization_id
     end
 
     def execute
@@ -29,23 +30,29 @@ module PersonalAccessTokens
 
     private
 
-    attr_reader :target_user, :ip_address
+    attr_reader :target_user, :ip_address, :organization_id
 
     def personal_access_token_params
       {
         name: params[:name],
         impersonation: params[:impersonation] || false,
         scopes: params[:scopes],
-        expires_at: pat_expiration
+        expires_at: pat_expiration,
+        organization_id: organization_id,
+        description: params[:description]
       }
     end
 
     def pat_expiration
-      params[:expires_at].presence || max_expiry_date
+      return params[:expires_at] if params[:expires_at].present?
+
+      return max_expiry_date if Gitlab::CurrentSettings.require_personal_access_token_expiry?
+
+      nil
     end
 
     def max_expiry_date
-      PersonalAccessToken::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now
+      ::PersonalAccessToken.max_expiration_lifetime_in_days.days.from_now
     end
 
     def creation_permitted?

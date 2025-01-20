@@ -528,15 +528,6 @@ class MergeRequestDiff < ApplicationRecord
     self.id == merge_request.latest_merge_request_diff_id
   end
 
-  # rubocop: disable CodeReuse/ServiceClass
-  def compare_with(sha)
-    # When compare merge request versions we want diff A..B instead of A...B
-    # so we handle cases when user does squash and rebase of the commits between versions.
-    # For this reason we set straight to true by default.
-    CompareService.new(project, head_commit_sha).execute(project, sha, straight: true)
-  end
-  # rubocop: enable CodeReuse/ServiceClass
-
   def modified_paths(fallback_on_overflow: false)
     if fallback_on_overflow && overflow?
       # This is an extremely slow means to find the modified paths for a given
@@ -644,6 +635,10 @@ class MergeRequestDiff < ApplicationRecord
     return unless Dir.exist?(external_diff_cache_dir)
 
     FileUtils.rm_rf(external_diff_cache_dir)
+  end
+
+  def has_encoded_file_paths?
+    merge_request_diff_files.where(encoded_file_path: true).any?
   end
 
   private
@@ -878,8 +873,13 @@ class MergeRequestDiff < ApplicationRecord
   end
 
   def keep_around_commits
+    # The merge head keeps track of what an actual merge might look like. The
+    # referenced merge is temporary and so is kept alive with
+    # MergeRequest#merge_ref_path which is updated as required.
+    return if merge_head?
+
     [repository, merge_request.source_project.repository].uniq.each do |repo|
-      repo.keep_around(start_commit_sha, head_commit_sha, base_commit_sha, source: self.class.name)
+      repo.keep_around(start_commit_sha, head_commit_sha, source: self.class.name)
     end
   end
 

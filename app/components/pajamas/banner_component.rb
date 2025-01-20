@@ -2,6 +2,8 @@
 
 module Pajamas
   class BannerComponent < Pajamas::Component
+    VARIANT_OPTIONS = [:introduction, :promotion].freeze
+
     # @param [String] button_text
     # @param [String] button_link
     # @param [Symbol] variant
@@ -27,13 +29,10 @@ module Pajamas
       @close_options = format_options(options: close_options, css_classes: %w[js-close gl-banner-close])
     end
 
-    VARIANT_OPTIONS = [:introduction, :promotion].freeze
-
     private
 
     def banner_class
       classes = []
-      classes.push('gl-bg-gray-10!') unless introduction?
       classes.push('gl-banner-introduction') if introduction?
       classes.join(' ')
     end

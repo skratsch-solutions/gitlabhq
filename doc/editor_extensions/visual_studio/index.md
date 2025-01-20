@@ -8,35 +8,22 @@ description: "Connect and use GitLab Duo in Visual Studio."
 # GitLab extension for Visual Studio
 
 The [GitLab extension](https://marketplace.visualstudio.com/items?itemName=GitLab.GitLabExtensionForVisualStudio)
-integrates GitLab with Visual Studio for Windows. The following Visual Studio versions are supported:
+integrates GitLab with Visual Studio for Windows. GitLab for Visual Studio supports
+[GitLab Duo Code Suggestions](../../user/project/repository/code_suggestions/index.md).
 
-- Visual Studio 2022 (AMD64)
-- Visual Studio 2022 (Arm64)
-
-## Supported features
-
-GitLab for Visual Studio supports [GitLab Duo Code Suggestions](../../user/project/repository/code_suggestions/index.md).
-
-## Download the extension
-
-Download the extension from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=GitLab.GitLabExtensionForVisualStudio).
-
-## Configure the extension
-
-Instructions for getting started can be found in the project README under [setup](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension/#setup).
-
-## Report issues with the extension
+[Install and configure the extension](setup.md).
 
 Report any issues, bugs, or feature requests in the
 [`gitlab-visual-studio-extension` issue queue](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension/-/issues).
 
 ## Related topics
 
-- [Download the plugin](https://marketplace.visualstudio.com/items?itemName=GitLab.GitLabExtensionForVisualStudio)
-- [Plugin documentation](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension/-/blob/main/README.md)
+- [About the Create:Editor Extensions Group](https://handbook.gitlab.com/handbook/engineering/development/dev/create/editor-extensions/)
+- [Open issues for this plugin](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension/-/issues/)
 - [View source code](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension)
+- [GitLab Language Server documentation](../language_server/index.md)
 
 ## Troubleshooting
 
 For troubleshooting information, see the
-[extension's troubleshooting page](https://gitlab.com/gitlab-org/editor-extensions/gitlab-visual-studio-extension/-/blob/main/docs/user/troubleshooting.md).
+[extension's troubleshooting page](visual_studio_troubleshooting.md).

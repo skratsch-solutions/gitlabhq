@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Moved to GitLab Premium in 13.9.
 
@@ -28,9 +28,11 @@ You can view the issue weight on:
 
 ## Set the issue weight
 
+> - Minimum role to set issue weight [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
+
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 You can set the issue weight when you create or edit an issue.
 
@@ -64,9 +66,11 @@ To set the issue weight when you [edit an issue from an issue board](../issue_bo
 
 ## Remove issue weight
 
+> - Minimum role to remove issue weight [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) from Reporter to Planner in GitLab 17.7.
+
 Prerequisites:
 
-- You must have at least the Reporter role for the project.
+- You must have at least the Planner role for the project.
 
 To remove the issue weight, follow the same steps as when you [set the issue weight](#set-the-issue-weight),
 and select **remove weight**.

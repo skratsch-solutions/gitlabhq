@@ -3,6 +3,7 @@
 require "spec_helper"
 
 RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
+  include StubVersion
   let_it_be(:user, refind: true) { create(:user) }
 
   before do
@@ -112,6 +113,36 @@ RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
     end
   end
 
+  describe '.show_openssl_callout?', :do_not_mock_admin_mode_setting do
+    let_it_be(:admin) { create(:user, :admin) }
+
+    subject { helper.show_openssl_callout? }
+
+    using RSpec::Parameterized::TableSyntax
+
+    where(:version, :current_user, :user_dismissed, :controller_path, :expected_result) do
+      '17.1.0'  | ref(:admin) | false | 'admin'       | true
+      '17.1.0'  | ref(:admin) | false | 'admin/users' | true
+      '17.6.99' | ref(:admin) | false | 'admin'       | true
+      '17.0.0'  | ref(:admin) | false | 'admin'       | false
+      '17.7.0'  | ref(:admin) | false | 'admin'       | false
+      '17.1.0'  | ref(:user)  | false | 'admin'       | false
+      '17.1.0'  | ref(:admin) | true  | 'admin'       | false
+      '17.1.0'  | ref(:admin) | false | 'admin-'      | false
+    end
+
+    with_them do
+      before do
+        stub_version(version, 'abcdefg')
+        allow(helper).to receive(:current_user).and_return(current_user)
+        allow(helper).to receive(:user_dismissed?).with(described_class::OPENSSL_CALLOUT) { user_dismissed }
+        allow(helper.controller).to receive(:controller_path).and_return(controller_path)
+      end
+
+      it { is_expected.to be expected_result }
+    end
+  end
+
   describe '.show_unfinished_tag_cleanup_callout?' do
     subject { helper.show_unfinished_tag_cleanup_callout? }
 
@@ -160,6 +191,26 @@ RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
         allow(helper).to receive(:current_user).and_return(admin)
         allow(helper).to receive(:user_dismissed?).with(described_class::SECURITY_NEWSLETTER_CALLOUT) { false }
       end
+
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '.show_branch_rules_tip?' do
+    subject { helper.show_branch_rules_tip? }
+
+    before do
+      allow(helper).to receive(:user_dismissed?).with(described_class::BRANCH_RULES_TIP_CALLOUT) { dismissed }
+    end
+
+    context 'when user has dismissed callout' do
+      let(:dismissed) { true }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when user has not dismissed callout' do
+      let(:dismissed) { false }
 
       it { is_expected.to be true }
     end
@@ -219,6 +270,26 @@ RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
 
     before do
       allow(helper).to receive(:user_dismissed?).with(described_class::PERIOD_IN_TERRAFORM_STATE_NAME_ALERT) { dismissed }
+    end
+
+    context 'when user has not dismissed' do
+      let(:dismissed) { false }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when user dismissed' do
+      let(:dismissed) { true }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '.show_new_mr_dashboard_banner?' do
+    subject { helper.show_new_mr_dashboard_banner? }
+
+    before do
+      allow(helper).to receive(:user_dismissed?).with(described_class::NEW_MR_DASHBOARD_BANNER) { dismissed }
     end
 
     context 'when user has not dismissed' do

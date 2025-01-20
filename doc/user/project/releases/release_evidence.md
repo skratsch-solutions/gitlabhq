@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Each time a release is created, GitLab takes a snapshot of data that's related to it.
 This data is saved in a JSON file and called *release evidence*. The feature
@@ -48,24 +48,7 @@ Here is an example of a release evidence object:
         "state": "closed",
         "due_date": "2019-05-12 12:00:00 UTC",
         "created_at": "2019-04-17 15:45:12 UTC",
-        "issues": [
-          {
-            "id": 82,
-            "title": "The top-right popup is broken",
-            "author_name": "John Doe",
-            "author_email": "john@doe.com",
-            "state": "closed",
-            "due_date": "2019-05-10 12:00:00 UTC"
-          },
-          {
-            "id": 89,
-            "title": "The title of this page is misleading",
-            "author_name": "Jane Smith",
-            "author_email": "jane@smith.com",
-            "state": "closed",
-            "due_date": "nil"
-          }
-        ]
+        "description": "milestone description",
       },
       {
         "id": 12,
@@ -73,7 +56,7 @@ Here is an example of a release evidence object:
         "state": "closed",
         "due_date": "2019-05-30 18:30:00 UTC",
         "created_at": "2019-04-17 15:45:12 UTC",
-        "issues": []
+        "description": "milestone description",
       }
     ],
     "report_artifacts": [
@@ -89,7 +72,7 @@ Here is an example of a release evidence object:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 When a release is created, release evidence is automatically collected. To initiate evidence collection any other time, use an [API call](../../../api/releases/index.md#collect-release-evidence). You can collect release evidence multiple times for one release.
 
@@ -99,7 +82,7 @@ Evidence collection snapshots are visible on the Releases page, along with the t
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you create a release, if [job artifacts](../../../ci/yaml/index.md#artifactsreports) are included in the last pipeline that ran, they are automatically included in the release as release evidence.
 

@@ -16,6 +16,7 @@ RSpec.describe Sidebars::Projects::Menus::MergeRequestsMenu, feature_category: :
       {
         item_id: :project_merge_request_list,
         pill_count: menu.pill_count,
+        pill_count_field: menu.pill_count_field,
         has_pill: menu.has_pill?,
         super_sidebar_parent: Sidebars::Projects::SuperSidebarMenus::CodeMenu
       }
@@ -48,40 +49,9 @@ RSpec.describe Sidebars::Projects::Menus::MergeRequestsMenu, feature_category: :
     end
   end
 
-  describe '#pill_count' do
-    it 'returns zero when there are no open merge requests' do
-      expect(subject.pill_count).to eq '0'
-    end
-
-    it 'memoizes the query' do
-      subject.pill_count
-
-      control = ActiveRecord::QueryRecorder.new do
-        subject.pill_count
-      end
-
-      expect(control.count).to eq 0
-    end
-
-    context 'when there are open merge requests' do
-      it 'returns the number of open merge requests' do
-        create_list(:merge_request, 2, :unique_branches, source_project: project, author: user, state: :opened)
-        create(:merge_request, source_project: project, state: :merged)
-
-        expect(subject.pill_count).to eq '2'
-      end
-    end
-
-    describe 'formatting' do
-      context 'when the count value is over 1000' do
-        before do
-          allow(context).to receive(:project).and_return(instance_double(Project, open_merge_requests_count: 1001))
-        end
-
-        it 'returns truncated digits' do
-          expect(subject.pill_count).to eq('1k')
-        end
-      end
+  describe '#pill_count_field' do
+    it 'returns the correct GraphQL field name' do
+      expect(subject.pill_count_field).to eq('openMergeRequestsCount')
     end
   end
 end

@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -15,7 +15,7 @@ Sensitive information disclosure check. This includes credit card numbers, healt
 Sensitive information leakage is an application weakness where an application
 reveals sensitive, user-specific data. Sensitive data may be used by an attacker
 to exploit its users. Therefore, leakage of sensitive data should be limited or
-prevented whenever possible. Information Leakage, in its most common form, 
+prevented whenever possible. Information Leakage, in its most common form,
 is the result of differences in page responses for valid versus invalid data.
 
 Pages that provide different responses based on the validity of the data can

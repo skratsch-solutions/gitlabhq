@@ -46,6 +46,9 @@ describe('Job App', () => {
     wrapper = shallowMountExtended(JobApp, {
       propsData: { ...props },
       store,
+      provide: {
+        glAbilities: { troubleshootJobWithAi: false },
+      },
     });
   };
 
@@ -165,9 +168,12 @@ describe('Job App', () => {
               details_path: 'path',
               action: {
                 confirmation_message: null,
+                button_title: 'Retry job',
+                method: 'post',
+                path: '/path',
               },
               illustration: {
-                content: 'Retry this job in order to create the necessary resources.',
+                content: 'Run this job again in order to create the necessary resources.',
                 image: 'path',
                 size: 'svg-430',
                 title: 'Failed to create resources',

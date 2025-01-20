@@ -4,24 +4,22 @@ import VueApollo from 'vue-apollo';
 import mockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
-import { __ } from '~/locale';
 import AwardsList from '~/vue_shared/components/awards_list.vue';
 import WorkItemNoteAwardsList from '~/work_items/components/notes/work_item_note_awards_list.vue';
 import addAwardEmojiMutation from '~/work_items/graphql/notes/work_item_note_add_award_emoji.mutation.graphql';
 import removeAwardEmojiMutation from '~/work_items/graphql/notes/work_item_note_remove_award_emoji.mutation.graphql';
-import groupWorkItemNotesByIidQuery from '~/work_items/graphql/notes/group_work_item_notes_by_iid.query.graphql';
 import workItemNotesByIidQuery from '~/work_items/graphql/notes/work_item_notes_by_iid.query.graphql';
 import {
-  mockWorkItemNotesResponseWithComments,
   mockAwardEmojiThumbsUp,
+  mockWorkItemNotesResponseWithComments,
 } from 'jest/work_items/mock_data';
-import { EMOJI_THUMBSUP, EMOJI_THUMBSDOWN } from '~/work_items/constants';
+import { EMOJI_THUMBS_UP, EMOJI_THUMBS_DOWN } from '~/emoji/constants';
 
 Vue.use(VueApollo);
 
 describe('Work Item Note Awards List', () => {
   let wrapper;
-  const { workItem } = mockWorkItemNotesResponseWithComments.data.workspace;
+  const { workItem } = mockWorkItemNotesResponseWithComments().data.workspace;
   const firstNote = workItem.widgets.find((w) => w.type === 'NOTES').discussions.nodes[0].notes
     .nodes[0];
   const fullPath = 'test-project-path';
@@ -46,7 +44,6 @@ describe('Work Item Note Awards List', () => {
   const findAwardsList = () => wrapper.findComponent(AwardsList);
 
   const createComponent = ({
-    isGroup = false,
     note = firstNote,
     query = workItemNotesByIidQuery,
     addAwardEmojiMutationHandler = addAwardEmojiMutationSuccessHandler,
@@ -60,13 +57,10 @@ describe('Work Item Note Awards List', () => {
     apolloProvider.clients.defaultClient.writeQuery({
       query,
       variables: { fullPath, iid: workItemIid },
-      ...mockWorkItemNotesResponseWithComments,
+      ...mockWorkItemNotesResponseWithComments(),
     });
 
     wrapper = shallowMount(WorkItemNoteAwardsList, {
-      provide: {
-        isGroup,
-      },
       propsData: {
         fullPath,
         workItemIid,
@@ -95,61 +89,47 @@ describe('Work Item Note Awards List', () => {
       expect(findAwardsList().props('canAwardEmoji')).toBe(hasAwardEmojiPermission);
     });
 
-    it.each`
-      isGroup  | query
-      ${true}  | ${groupWorkItemNotesByIidQuery}
-      ${false} | ${workItemNotesByIidQuery}
-    `(
-      'adds award if not already awarded in both group and project contexts',
-      async ({ isGroup, query }) => {
-        createComponent({ isGroup, query });
-        await waitForPromises();
+    it('adds award if not already awarded', async () => {
+      createComponent();
+      await waitForPromises();
 
-        findAwardsList().vm.$emit('award', EMOJI_THUMBSUP);
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_UP);
 
-        expect(addAwardEmojiMutationSuccessHandler).toHaveBeenCalledWith({
-          awardableId: firstNote.id,
-          name: EMOJI_THUMBSUP,
-        });
-      },
-    );
+      expect(addAwardEmojiMutationSuccessHandler).toHaveBeenCalledWith({
+        awardableId: firstNote.id,
+        name: EMOJI_THUMBS_UP,
+      });
+    });
 
     it('emits error if awarding emoji fails', async () => {
       createComponent({ addAwardEmojiMutationHandler: jest.fn().mockRejectedValue('oh no') });
 
-      findAwardsList().vm.$emit('award', EMOJI_THUMBSUP);
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_UP);
       await waitForPromises();
 
-      expect(wrapper.emitted('error')).toEqual([[__('Failed to add emoji. Please try again')]]);
+      expect(wrapper.emitted('error')).toEqual([['Failed to add emoji. Please try again']]);
     });
 
-    it.each`
-      isGroup  | query
-      ${true}  | ${groupWorkItemNotesByIidQuery}
-      ${false} | ${workItemNotesByIidQuery}
-    `(
-      'removes award if already awarded in both group and project contexts',
-      async ({ isGroup, query }) => {
-        const removeAwardEmojiMutationHandler = removeAwardEmojiMutationSuccessHandler;
-        createComponent({ isGroup, query, removeAwardEmojiMutationHandler });
+    it('removes award if already awarded', async () => {
+      const removeAwardEmojiMutationHandler = removeAwardEmojiMutationSuccessHandler;
+      createComponent({ removeAwardEmojiMutationHandler });
 
-        findAwardsList().vm.$emit('award', EMOJI_THUMBSDOWN);
-        await waitForPromises();
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_DOWN);
+      await waitForPromises();
 
-        expect(removeAwardEmojiMutationHandler).toHaveBeenCalledWith({
-          awardableId: firstNote.id,
-          name: EMOJI_THUMBSDOWN,
-        });
-      },
-    );
+      expect(removeAwardEmojiMutationHandler).toHaveBeenCalledWith({
+        awardableId: firstNote.id,
+        name: EMOJI_THUMBS_DOWN,
+      });
+    });
 
     it('restores award if remove fails', async () => {
       createComponent({ removeAwardEmojiMutationHandler: jest.fn().mockRejectedValue('oh no') });
 
-      findAwardsList().vm.$emit('award', EMOJI_THUMBSDOWN);
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_DOWN);
       await waitForPromises();
 
-      expect(wrapper.emitted('error')).toEqual([[__('Failed to remove emoji. Please try again')]]);
+      expect(wrapper.emitted('error')).toEqual([['Failed to remove emoji. Please try again']]);
     });
   });
 });

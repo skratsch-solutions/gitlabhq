@@ -45,14 +45,54 @@ RSpec.describe BulkImports::ProcessService, feature_category: :importers do
     end
 
     context 'when all entities are processed' do
-      it 'marks bulk import as finished' do
+      before do
         bulk_import.update!(status: 1)
         create(:bulk_import_entity, :finished, bulk_import: bulk_import)
         create(:bulk_import_entity, :failed, bulk_import: bulk_import)
+      end
 
+      it 'marks bulk import as finished' do
         subject.execute
 
         expect(bulk_import.reload.finished?).to eq(true)
+      end
+
+      context 'when placeholder references have not finished being loaded to the database' do
+        before do
+          allow_next_instance_of(Import::PlaceholderReferences::Store) do |store|
+            allow(store).to receive(:empty?).and_return(false)
+            allow(store).to receive(:count).and_return(1)
+          end
+        end
+
+        it 'marks bulk import as finished' do
+          subject.execute
+
+          expect(bulk_import.reload.finished?).to eq(true)
+        end
+
+        context 'when importer_user_mapping_enabled is enabled' do
+          before do
+            allow_next_instance_of(Import::BulkImports::EphemeralData) do |ephemeral_data|
+              allow(ephemeral_data).to receive(:importer_user_mapping_enabled?).and_return(true)
+            end
+          end
+
+          it 'logs and re-enqueues the worker' do
+            expect(BulkImportWorker).to receive(:perform_in).with(described_class::PERFORM_DELAY, bulk_import.id)
+            expect_next_instance_of(BulkImports::Logger) do |logger|
+              expect(logger).to receive(:info).with(
+                message: 'Placeholder references not finished loading to database',
+                bulk_import_id: bulk_import.id,
+                placeholder_reference_store_count: 1
+              )
+            end
+
+            subject.execute
+
+            expect(bulk_import.reload.started?).to eq(true)
+          end
+        end
       end
     end
 
@@ -68,18 +108,57 @@ RSpec.describe BulkImports::ProcessService, feature_category: :importers do
       end
     end
 
-    context 'when maximum allowed number of import entities in progress' do
-      it 're-enqueues itself' do
+    context 'when maximum allowed number of import entities in progress', :freeze_time do
+      let(:updated_at) { 2.hours.ago }
+
+      before do
         bulk_import.update!(status: 1)
-        create(:bulk_import_entity, :created, bulk_import: bulk_import)
+        create(:bulk_import_entity, :created, bulk_import: bulk_import, updated_at: updated_at)
+
         (described_class::DEFAULT_BATCH_SIZE + 1).times do
-          create(:bulk_import_entity, :started, bulk_import: bulk_import)
+          create(:bulk_import_entity, :started, bulk_import: bulk_import, updated_at: updated_at)
         end
 
+        create(:bulk_import_entity, :finished, bulk_import: bulk_import, updated_at: updated_at)
+      end
+
+      it 're-enqueues itself' do
         expect(BulkImportWorker).to receive(:perform_in).with(described_class::PERFORM_DELAY, bulk_import.id)
         expect(BulkImports::ExportRequestWorker).not_to receive(:perform_async)
 
         subject.execute
+      end
+
+      it 'touches created entities' do
+        subject.execute
+
+        created_entities = bulk_import.entities.with_status(:created)
+        other_entities = bulk_import.entities - created_entities
+
+        expect(created_entities).to all(have_attributes(updated_at: be > 1.minute.ago))
+        expect(other_entities).to all(have_attributes(updated_at: eq(updated_at)))
+      end
+
+      context 'when entity with created status was recently updated' do
+        let(:updated_at) { 30.minutes.ago }
+
+        it 'does not update any entity' do
+          subject.execute
+
+          expect(bulk_import.entities).to all(have_attributes(updated_at: eq(updated_at)))
+        end
+      end
+
+      context 'when there is no entity with created status' do
+        before do
+          bulk_import.entities.with_status(:created).update_all(status: 1)
+        end
+
+        it 'does not update any entity' do
+          subject.execute
+
+          expect(bulk_import.entities).to all(have_attributes(updated_at: eq(updated_at)))
+        end
       end
     end
 

@@ -1,5 +1,5 @@
 ---
-description: Tracks the number of Ci Builds created
+description: Tracks the number of CI Builds created
 internal_events: true
 action: create_ci_build
 identifiers:
@@ -9,9 +9,6 @@ identifiers:
 product_group: pipeline_execution
 milestone: '16.9'
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141421
-distributions:
-- ce
-- ee
 tiers:
 - free
 - premium

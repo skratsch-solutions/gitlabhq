@@ -17,6 +17,8 @@ RSpec.describe Emails::PagesDomains do
     it_behaves_like 'an email sent from GitLab'
     it_behaves_like 'it should not have Gmail Actions links'
     it_behaves_like 'a user cannot unsubscribe through footer link'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'has the expected content' do
       aggregate_failures do
@@ -33,7 +35,7 @@ RSpec.describe Emails::PagesDomains do
 
     it 'has the expected content' do
       is_expected.to have_body_text domain.url
-      is_expected.to have_body_text help_page_url('user/project/pages/custom_domains_ssl_tls_certification/index', anchor: link_anchor)
+      is_expected.to have_body_text help_page_url('user/project/pages/custom_domains_ssl_tls_certification/index.md', anchor: link_anchor)
     end
   end
 
@@ -65,7 +67,6 @@ RSpec.describe Emails::PagesDomains do
     subject { Notify.pages_domain_enabled_email(domain, user) }
 
     it_behaves_like 'a pages domain verification email'
-
     it { is_expected.to have_body_text 'has been enabled' }
   end
 
@@ -113,7 +114,7 @@ RSpec.describe Emails::PagesDomains do
 
     it 'says that we failed to obtain certificate' do
       is_expected.to have_body_text "Something went wrong while obtaining the Let's Encrypt certificate."
-      is_expected.to have_body_text help_page_url('user/project/pages/custom_domains_ssl_tls_certification/lets_encrypt_integration', anchor: 'troubleshooting')
+      is_expected.to have_body_text help_page_url('user/project/pages/custom_domains_ssl_tls_certification/lets_encrypt_integration.md', anchor: 'troubleshooting')
     end
   end
 end

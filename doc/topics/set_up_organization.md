@@ -10,15 +10,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 Configure your organization and its users. Determine user roles
 and give everyone access to the projects they need.
 
-- [Tutorial: Set up your organization](../tutorials/manage_user/index.md)
-- [Namespaces](../user/namespace/index.md)
-- [Members](../user/project/members/index.md)
-- [Organization](../user/organization/index.md) _(In development)_
-- [Groups](../user/group/index.md)
-- [Sharing projects and groups](../user/project/members/sharing_projects_groups.md)
-- [Compliance](../administration/compliance.md)
-- [Enterprise users](../user/enterprise_user/index.md)
-- [Service accounts](../user/profile/service_accounts.md)
-- [User account options](../user/profile/index.md)
-- [SSH keys](../user/ssh.md)
-- [GitLab.com settings](../user/gitlab_com/index.md)
+| | | |
+|--|--|--|
+| [**Tutorial: Set up your organization**](../tutorials/manage_user/index.md)<br>Setup, configuration, onboarding, organization structure. | [**Namespaces**](../user/namespace/index.md)<br>Organization, hierarchy, project grouping. | [**Members**](../user/project/members/index.md)<br>User management, roles, permissions, access levels. |
+| [**Organization** (in development)](../user/organization/index.md)<br>Namespace hierarchy. | [**Groups**](../user/group/index.md)<br>Project management, access control, client groups, team groups. | [**Sharing projects and groups**](../user/project/members/sharing_projects_groups.md)<br>Invitations, group inheritance, project visibility. |
+| [**Compliance**](../administration/compliance.md)<br>Compliance center, audit events, security policies, compliance frameworks. | [**Enterprise users**](../user/enterprise_user/index.md)<br>Domain verification, two-factor authentication, enterprise user management, SAML response. | [**Service accounts**](../user/profile/service_accounts.md)<br>Machine user, rate limits, personal access tokens. |
+| [**User account options**](../user/profile/index.md)<br>Profile settings, preferences, authentication, notifications. | [**SSH keys**](../user/ssh.md)<br>Authentication, permissions, key types, ownership. | [**GitLab.com settings**](../user/gitlab_com/index.md)<br>Instance configurations. |

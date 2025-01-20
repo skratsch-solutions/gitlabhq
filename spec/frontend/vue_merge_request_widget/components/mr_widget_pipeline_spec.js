@@ -1,34 +1,57 @@
-import { nextTick } from 'vue';
+import Vue, { nextTick } from 'vue';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { shallowMount, mount } from '@vue/test-utils';
+import VueApollo from 'vue-apollo';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { trimText } from 'helpers/text_helper';
 import { extendedWrapper } from 'helpers/vue_test_utils_helper';
+import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import Api from '~/api';
 import { createAlert } from '~/alert';
-import { HTTP_STATUS_OK } from '~/lib/utils/http_status';
+import {
+  HTTP_STATUS_OK,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_UNAUTHORIZED,
+} from '~/lib/utils/http_status';
 import MRWidgetPipelineComponent from '~/vue_merge_request_widget/components/mr_widget_pipeline.vue';
-import LegacyPipelineMiniGraph from '~/ci/pipeline_mini_graph/legacy_pipeline_mini_graph/legacy_pipeline_mini_graph.vue';
-import { SUCCESS } from '~/vue_merge_request_widget/constants';
+import PipelineMiniGraph from '~/ci/pipeline_mini_graph/pipeline_mini_graph.vue';
+import HelpPopover from '~/vue_shared/components/help_popover.vue';
+import {
+  SUCCESS,
+  PIPELINE_EVENT_TYPE_MERGE_TRAIN,
+  PIPELINE_EVENT_TYPE_MERGED_RESULT,
+  PIPELINE_EVENT_TYPE_MERGE_REQUEST,
+  PIPELINE_EVENT_TYPE_MAP,
+} from '~/vue_merge_request_widget/constants';
 import { localeDateFormat } from '~/lib/utils/datetime/locale_dateformat';
+import mergeRequestEventTypeQuery from '~/vue_merge_request_widget/queries/merge_request_event_type.query.graphql';
 import mockData from '../mock_data';
 
 jest.mock('~/alert');
 jest.mock('~/api');
 
+Vue.use(VueApollo);
+
 describe('MRWidgetPipeline', () => {
   let wrapper;
+  let mergeRequestEventTypeQueryMock;
 
   const defaultProps = {
     pipeline: mockData.pipeline,
+    pipelineEtag: '/api/graphql:pipelines/sha/a3cf305c10be3fafdd89b12cb1c389e6bde45875',
+    pipelineMiniGraphVariables: {
+      iid: '12',
+      fullPath: 'project/path',
+    },
     ciStatus: SUCCESS,
     hasCi: true,
     mrTroubleshootingDocsPath: 'help',
     ciTroubleshootingDocsPath: 'ci-help',
     targetProjectId: 1,
     iid: 1,
+    targetProjectFullPath: 'gitlab-org/gitlab',
   };
 
   const ciErrorMessage =
@@ -47,24 +70,34 @@ describe('MRWidgetPipeline', () => {
     wrapper.findByTestId('pipeline-coverage-tooltip').text();
   const findPipelineCoverageDeltaTooltipText = () =>
     wrapper.findByTestId('pipeline-coverage-delta-tooltip').text();
-  const findLegacyPipelineMiniGraph = () => wrapper.findComponent(LegacyPipelineMiniGraph);
+  const findPipelineMiniGraph = () => wrapper.findComponent(PipelineMiniGraph);
   const findMonitoringPipelineMessage = () => wrapper.findByTestId('monitoring-pipeline-message');
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
   const findRetargetedMessage = () => wrapper.findByTestId('retargeted-message');
   const findRunPipelineButton = () => wrapper.findByTestId('run-pipeline-button');
+  const findHelpPopover = () => wrapper.findComponent(HelpPopover);
 
   const mockArtifactsRequest = () => new MockAdapter(axios).onGet().reply(HTTP_STATUS_OK, []);
 
   const createWrapper = (props = {}, mountFn = shallowMount) => {
+    const apolloProvider = createMockApollo([
+      [mergeRequestEventTypeQuery, mergeRequestEventTypeQueryMock],
+    ]);
+
     wrapper = extendedWrapper(
       mountFn(MRWidgetPipelineComponent, {
         propsData: {
           ...defaultProps,
           ...props,
         },
+        apolloProvider,
       }),
     );
   };
+
+  afterEach(() => {
+    mergeRequestEventTypeQueryMock = null;
+  });
 
   it('should render CI error if there is a pipeline, but no status', () => {
     createWrapper({ ciStatus: null }, mount);
@@ -113,8 +146,8 @@ describe('MRWidgetPipeline', () => {
     it('should render pipeline graph', () => {
       const stagesCount = mockData.pipeline.details.stages.length;
 
-      expect(findLegacyPipelineMiniGraph().exists()).toBe(true);
-      expect(findLegacyPipelineMiniGraph().props('stages')).toHaveLength(stagesCount);
+      expect(findPipelineMiniGraph().exists()).toBe(true);
+      expect(findPipelineMiniGraph().props('pipelineStages')).toHaveLength(stagesCount);
     });
 
     it('should render the latest downstream pipelines only', () => {
@@ -122,7 +155,7 @@ describe('MRWidgetPipeline', () => {
       // because we retried the trigger job, so the mini pipeline graph will only
       // render the newly created downstream pipeline instead
       expect(mockData.pipeline.triggered).toHaveLength(2);
-      expect(findLegacyPipelineMiniGraph().props('downstreamPipelines')).toHaveLength(1);
+      expect(findPipelineMiniGraph().props('downstreamPipelines')).toHaveLength(1);
     });
 
     describe('should render pipeline coverage information', () => {
@@ -154,10 +187,10 @@ describe('MRWidgetPipeline', () => {
       );
 
       describe.each`
-        style           | coverageState  | coverageChangeText | styleClass        | pipelineCoverageDelta
-        ${'no special'} | ${'the same'}  | ${'not change'}    | ${''}             | ${'0'}
-        ${'success'}    | ${'increased'} | ${'increase'}      | ${'text-success'} | ${'10'}
-        ${'danger'}     | ${'decreased'} | ${'decrease'}      | ${'text-danger'}  | ${'-10'}
+        style           | coverageState  | coverageChangeText | styleClass           | pipelineCoverageDelta
+        ${'no special'} | ${'the same'}  | ${'not change'}    | ${''}                | ${'0'}
+        ${'success'}    | ${'increased'} | ${'increase'}      | ${'gl-text-success'} | ${'10'}
+        ${'danger'}     | ${'decreased'} | ${'decrease'}      | ${'gl-text-danger'}  | ${'-10'}
       `(
         'if test coverage is $coverageState',
         ({ style, styleClass, coverageChangeText, pipelineCoverageDelta }) => {
@@ -194,8 +227,8 @@ describe('MRWidgetPipeline', () => {
     it('should render pipeline graph', () => {
       const stagesCount = mockData.pipeline.details.stages.length;
 
-      expect(findLegacyPipelineMiniGraph().exists()).toBe(true);
-      expect(findLegacyPipelineMiniGraph().props('stages')).toHaveLength(stagesCount);
+      expect(findPipelineMiniGraph().exists()).toBe(true);
+      expect(findPipelineMiniGraph().props('pipelineStages')).toHaveLength(stagesCount);
     });
 
     it('should render coverage information', () => {
@@ -227,7 +260,7 @@ describe('MRWidgetPipeline', () => {
     });
 
     it('should not render a pipeline graph', () => {
-      expect(findLegacyPipelineMiniGraph().exists()).toBe(false);
+      expect(findPipelineMiniGraph().exists()).toBe(false);
     });
   });
 
@@ -323,15 +356,62 @@ describe('MRWidgetPipeline', () => {
         expect(actual).toBe(expected);
       });
     });
+
+    describe('rendering help popover for a specific event types', () => {
+      it.each([
+        {
+          eventType: PIPELINE_EVENT_TYPE_MERGE_TRAIN,
+          expectedOptions: PIPELINE_EVENT_TYPE_MAP[PIPELINE_EVENT_TYPE_MERGE_TRAIN],
+        },
+        {
+          eventType: PIPELINE_EVENT_TYPE_MERGED_RESULT,
+          expectedOptions: PIPELINE_EVENT_TYPE_MAP[PIPELINE_EVENT_TYPE_MERGED_RESULT],
+        },
+        {
+          eventType: PIPELINE_EVENT_TYPE_MERGE_REQUEST,
+          expectedOptions: PIPELINE_EVENT_TYPE_MAP[PIPELINE_EVENT_TYPE_MERGE_REQUEST],
+        },
+      ])(
+        'renders help popover with options relevant to "$eventType" event type',
+        ({ eventType, expectedOptions }) => {
+          pipeline.details.event_type_name = eventType;
+
+          factory();
+
+          expect(findHelpPopover().props().options).toMatchObject(expectedOptions);
+        },
+      );
+
+      it('does not render a help popover for unknown event type', () => {
+        pipeline.details.event_type_name = 'unknown';
+
+        factory();
+
+        expect(findHelpPopover().exists()).toBe(false);
+      });
+    });
   });
 
   describe('when merge request is retargeted', () => {
     describe('when last pipeline is detatched', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
+        mergeRequestEventTypeQueryMock = jest.fn().mockResolvedValue({
+          data: {
+            project: {
+              id: 1,
+              mergeRequest: {
+                id: 1,
+                pipelines: { nodes: [{ id: 1, mergeRequestEventType: 'DETACHED' }] },
+              },
+            },
+          },
+        });
+
         createWrapper({
-          detatchedPipeline: 'DETACHED',
           retargeted: true,
         });
+
+        await waitForPromises();
       });
 
       it('renders branch changed message', () => {
@@ -357,7 +437,7 @@ describe('MRWidgetPipeline', () => {
         describe('when user has permission to create a pipeline', () => {
           beforeEach(() => {
             Api.postMergeRequestPipeline.mockRejectedValue({
-              response: { status: 500 },
+              response: { status: HTTP_STATUS_INTERNAL_SERVER_ERROR },
             });
           });
 
@@ -388,7 +468,7 @@ describe('MRWidgetPipeline', () => {
         describe('when user does not have permission to create a pipeline', () => {
           beforeEach(() => {
             Api.postMergeRequestPipeline.mockRejectedValue({
-              response: { status: 401 },
+              response: { status: HTTP_STATUS_UNAUTHORIZED },
             });
           });
 
@@ -410,11 +490,24 @@ describe('MRWidgetPipeline', () => {
     });
 
     describe('when last pipeline is a branch pipeline', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
+        mergeRequestEventTypeQueryMock = jest.fn().mockResolvedValue({
+          data: {
+            project: {
+              id: 1,
+              mergeRequest: {
+                id: 1,
+                pipelines: { nodes: [{ id: 1, mergeRequestEventType: null }] },
+              },
+            },
+          },
+        });
+
         createWrapper({
-          detatchedPipeline: null,
           retargeted: true,
         });
+
+        await waitForPromises();
       });
 
       it('renders branch changed message', () => {

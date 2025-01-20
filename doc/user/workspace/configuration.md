@@ -1,6 +1,6 @@
 ---
 stage: Create
-group: IDE
+group: Remote Development
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 description: "Configure your GitLab workspaces to manage your GitLab development environments."
 ---
@@ -9,10 +9,10 @@ description: "Configure your GitLab workspaces to manage your GitLab development
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112397) in GitLab 15.11 [with a flag](../../administration/feature_flags.md) named `remote_development_feature_flag`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/391543) in GitLab 16.0.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/391543) in GitLab 16.0.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136744) in GitLab 16.7. Feature flag `remote_development_feature_flag` removed.
 
 You can use [workspaces](index.md) to create and manage isolated development environments for your GitLab projects.
@@ -34,7 +34,10 @@ To set up infrastructure for workspaces:
    1. [Install](../clusters/agent/install/index.md) and [configure](gitlab_agent_configuration.md) the GitLab agent.
    1. Point [`dns_zone`](gitlab_agent_configuration.md#dns_zone) and `*.<dns_zone>`
       to the load balancer exposed by the Ingress controller.
+      This load balancer must support WebSockets.
    1. [Set up the GitLab workspaces proxy](set_up_workspaces_proxy.md).
+1. Optional. [Configure sudo access for a workspace](#configure-sudo-access-for-a-workspace).
+1. Optional. [Configure support for private container registries](#configure-support-for-private-container-registries).
 
 ## Create a workspace
 
@@ -42,11 +45,12 @@ To set up infrastructure for workspaces:
 > - **Git reference** and **Devfile location** [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/392382) in GitLab 16.10.
 > - **Time before automatic termination** [renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/392382) to **Workspace automatically terminates after** in GitLab 16.10.
 > - **Variables** [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/463514) in GitLab 17.1.
+> - **Workspace automatically terminates after** [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166065) in GitLab 17.6.
 
 Prerequisites:
 
-- Ensure your [workspace infrastructure](#set-up-workspace-infrastructure) is already set up.
-- You must have at least the Developer role in the root group.
+- You must [set up workspace infrastructure](#set-up-workspace-infrastructure).
+- You must have at least the Developer role for the workspace and agent projects.
 - In each project where you want to create a workspace, create a [devfile](index.md#devfile):
   1. On the left sidebar, select **Search or go to** and find your project.
   1. In the root directory of your project, create a file named `devfile`.
@@ -55,18 +59,13 @@ Prerequisites:
 
 To create a workspace:
 
-1. On the left sidebar, select **Search or go to**.
-1. Select **Your work**.
-1. Select **Workspaces**.
-1. Select **New workspace**.
-1. From the **Project** dropdown list, select a project with a [devfile](index.md#devfile).
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Edit > New workspace**.
 1. From the **Cluster agent** dropdown list, select a cluster agent owned by the group the project belongs to.
 1. From the **Git reference** dropdown list, select the branch, tag, or commit hash
    GitLab uses to create the workspace.
 1. In **Devfile location**, enter the path to the devfile you use to configure the workspace.
    If your devfile is not in the root directory of your project, specify a relative path.
-1. In **Workspace automatically terminates after**, enter the number of hours until the workspace automatically terminates.
-   This timeout is a safety measure to prevent a workspace from consuming excessive resources or running indefinitely.
 1. In **Variables**, enter the keys and values of the environment variables you want to inject into the workspace.
    To add a new variable, select **Add variable**.
 1. Select **Create workspace**.
@@ -75,16 +74,90 @@ The workspace might take a few minutes to start.
 To open the workspace, under **Preview**, select the workspace.
 You also have access to the terminal and can install any necessary dependencies.
 
+## Configure support for private container registries
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14664) in GitLab 17.6.
+
+To use images from private container registries:
+
+1. Create an [image pull secret in Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/).
+1. Add the `name` and `namespace` of this secret to the [GitLab agent configuration](gitlab_agent_configuration.md).
+
+For more information, see [`image_pull_secrets`](gitlab_agent_configuration.md#image_pull_secrets).
+
+## Configure sudo access for a workspace
+
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/13983) in GitLab 17.4.
+
+Prerequisites:
+
+- Ensure the container images used in the devfile support [arbitrary user IDs](index.md#arbitrary-user-ids).
+  Sudo access for a workspace does not mean that the container image used
+  in a [devfile](index.md#devfile) can run with a user ID of `0`.
+
+A development environment often requires sudo permissions to
+install, configure, and use dependencies during runtime.
+You can configure secure sudo access for a workspace with:
+
+- [Sysbox](#with-sysbox)
+- [Kata Containers](#with-kata-containers)
+- [User namespaces](#with-user-namespaces)
+
+### With Sysbox
+
+[Sysbox](https://github.com/nestybox/sysbox) is a container runtime that improves container isolation
+and enables containers to run the same workloads as virtual machines.
+
+To configure sudo access for a workspace with Sysbox:
+
+1. In the Kubernetes cluster, [install Sysbox](https://github.com/nestybox/sysbox#installation).
+1. In the GitLab agent for workspaces:
+   - Set [`default_runtime_class`](gitlab_agent_configuration.md#default_runtime_class) to the runtime class
+     of Sysbox (for example, `sysbox-runc`).
+   - Set [`allow_privilege_escalation`](gitlab_agent_configuration.md#allow_privilege_escalation) to `true`.
+
+### With Kata Containers
+
+[Kata Containers](https://github.com/kata-containers/kata-containers) is a standard implementation of lightweight
+virtual machines that perform like containers but provide the workload isolation and security of virtual machines.
+
+To configure sudo access for a workspace with Kata Containers:
+
+1. In the Kubernetes cluster, [install Kata Containers](https://github.com/kata-containers/kata-containers/tree/main/docs/install).
+1. In the GitLab agent for workspaces:
+   - Set [`default_runtime_class`](gitlab_agent_configuration.md#default_runtime_class) to one of the runtime classes
+     of Kata Containers (for example, `kata-qemu`).
+   - Set [`allow_privilege_escalation`](gitlab_agent_configuration.md#allow_privilege_escalation) to `true`.
+
+### With user namespaces
+
+[User namespaces](https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/) isolate the user
+running inside the container from the user on the host.
+
+To configure sudo access for a workspace with user namespaces:
+
+1. In the Kubernetes cluster, [configure user namespaces](https://kubernetes.io/blog/2024/04/22/userns-beta/).
+1. In the GitLab agent for workspaces, set [`use_kubernetes_user_namespaces`](gitlab_agent_configuration.md#use_kubernetes_user_namespaces)
+   and [`allow_privilege_escalation`](gitlab_agent_configuration.md#allow_privilege_escalation) to `true`.
+
 ## Connect to a workspace with SSH
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10478) in GitLab 16.3.
 
 Prerequisites:
 
-- SSH must be enabled for the workspace.
-- You must have a TCP load balancer that points to the [GitLab workspaces proxy](set_up_workspaces_proxy.md).
+- You must enable SSH access for the images specified in your [devfile](index.md#devfile).
+  For more information, see [update your workspace container image](#update-your-workspace-container-image).
+- You must configure a TCP load balancer that points to the GitLab workspaces proxy.
+  For more information, see [update your DNS records](set_up_workspaces_proxy.md#update-your-dns-records).
 
 To connect to a workspace with an SSH client:
+
+1. Get the external IP address of your `gitlab-workspaces-proxy-ssh` service:
+
+   ```shell
+   kubectl -n gitlab-workspaces get service gitlab-workspaces-proxy-ssh
+   ```
 
 1. Get the name of the workspace:
 
@@ -96,7 +169,7 @@ To connect to a workspace with an SSH client:
 1. Run this command:
 
    ```shell
-   ssh <workspace_name>@<ssh_proxy>
+   ssh <workspace_name>@<ssh_proxy_IP_address>
    ```
 
 1. For the password, enter your personal access token with at least the `read_api` scope.
@@ -153,9 +226,11 @@ USER gitlab-workspaces
 
 ## Troubleshooting
 
-### `Failed to renew lease` when creating a workspace
+When working with workspaces, you might encounter the following issues.
 
-You might not be able to create a workspace due to a known issue in the GitLab agent for Kubernetes.
+### Error: `Failed to renew lease`
+
+Creating a workspace can fail due to a known issue in the GitLab agent for Kubernetes.
 The following error message might appear in the agent's log:
 
 ```plaintext
@@ -165,3 +240,19 @@ The following error message might appear in the agent's log:
 This issue occurs when an agent instance cannot renew its leadership lease, which results
 in the shutdown of leader-only modules including the `remote_development` module.
 To resolve this issue, restart the agent instance.
+
+### Error: `No agents available to create workspaces`
+
+When you create a workspace in a project, you might get the following error:
+
+```plaintext
+No agents available to create workspaces. Please consult Workspaces documentation for troubleshooting.
+```
+
+To resolve this issue:
+
+- If you do not have at least the Developer role for the workspace and agent projects, contact your administrator.
+- If the ancestor groups of the project do not have an allowed agent,
+  [allow an agent](gitlab_agent_configuration.md#allow-a-cluster-agent-for-workspaces-in-a-group) for any of these groups.
+- If the `remote_development` module is disabled for the GitLab agent,
+  set [`enabled`](gitlab_agent_configuration.md#enabled) to `true`.

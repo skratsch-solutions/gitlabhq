@@ -2,7 +2,7 @@ import { isEqual, orderBy, isEmpty } from 'lodash';
 import AccessorUtilities from '~/lib/utils/accessor';
 import { formatNumber } from '~/locale';
 import { joinPaths, queryToObject, objectToQuery, getBaseURL } from '~/lib/utils/url_utility';
-import { languageFilterData } from '~/search/sidebar/components/language_filter/data';
+import { LABEL_AGREGATION_NAME, LANGUAGE_FILTER_PARAM } from '~/search/sidebar/constants';
 import {
   MAX_FREQUENT_ITEMS,
   MAX_FREQUENCY,
@@ -11,8 +11,6 @@ import {
   REGEX_PARAM,
   LS_REGEX_HANDLE,
 } from './constants';
-
-const LANGUAGE_AGGREGATION_NAME = languageFilterData.filterParam;
 
 function extractKeys(object, keyList) {
   return Object.fromEntries(keyList.map((key) => [key, object[key]]));
@@ -140,7 +138,7 @@ export const getAggregationsUrl = () => {
 };
 
 const sortLanguages = (state, entries) => {
-  const queriedLanguages = state.query?.[LANGUAGE_AGGREGATION_NAME] || [];
+  const queriedLanguages = state.query?.[LANGUAGE_FILTER_PARAM] || [];
 
   if (!Array.isArray(queriedLanguages) || !queriedLanguages.length) {
     return entries;
@@ -151,12 +149,25 @@ const sortLanguages = (state, entries) => {
   return orderBy(entries, [({ key }) => queriedLanguagesSet.has(key), 'count'], ['desc', 'desc']);
 };
 
+const getUniqueNamesOnly = (items) => {
+  return items.filter(
+    (item, index, array) => index === array.findIndex((obj) => obj.title === item.title),
+  );
+};
+
 export const prepareSearchAggregations = (state, aggregationData) =>
   aggregationData.map((item) => {
-    if (item?.name === LANGUAGE_AGGREGATION_NAME) {
+    if (item?.name === LANGUAGE_FILTER_PARAM) {
       return {
         ...item,
         buckets: sortLanguages(state, item.buckets),
+      };
+    }
+
+    if (item?.name === LABEL_AGREGATION_NAME) {
+      return {
+        ...item,
+        buckets: getUniqueNamesOnly(item.buckets),
       };
     }
 
@@ -178,4 +189,21 @@ export const injectRegexSearch = (link) => {
     return urlObject.pathname;
   }
   return `${urlObject.pathname}?${objectToQuery(queryObject)}`;
+};
+
+export const scopeCrawler = (navigation, parentScope = null) => {
+  for (const value of Object.values(navigation)) {
+    if (value.active) {
+      return parentScope || value.scope;
+    }
+
+    if (value.sub_items) {
+      const subItemScope = scopeCrawler(value.sub_items, value.scope);
+      if (subItemScope) {
+        return subItemScope;
+      }
+    }
+  }
+
+  return null;
 };

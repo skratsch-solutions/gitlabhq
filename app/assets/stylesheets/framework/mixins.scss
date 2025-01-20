@@ -42,7 +42,7 @@
     @include clearfix;
 
     padding: 10px 0;
-    border-bottom: 1px solid $gray-100;
+    @apply gl-border-b gl-border-b-subtle;
     display: block;
     margin: 0;
 
@@ -51,10 +51,10 @@
     }
 
     &.active {
-      background: $gray-10;
+      @apply gl-bg-subtle;
 
       a {
-        font-weight: $gl-font-weight-bold;
+        @apply gl-font-bold;
       }
     }
 
@@ -64,24 +64,8 @@
 
     &.light {
       a {
-        color: $gl-text-color;
+        @apply gl-text-default;
       }
-    }
-  }
-}
-
-@mixin basic-list-stats {
-  .stats {
-    float: right;
-    line-height: $list-text-height;
-    color: $gl-text-color-secondary;
-
-    @include media-breakpoint-down(xs) {
-      padding-top: $gl-padding-6;
-    }
-
-    span {
-      margin-right: 15px;
     }
   }
 }
@@ -89,14 +73,6 @@
 @mixin webkit-prefix($property, $value) {
   #{'-webkit-' + $property}: $value;
   #{$property}: $value;
-}
-
-/* http://phrappe.com/css/conditional-css-for-webkit-based-browsers/ */
-@mixin on-webkit-only {
-  /* stylelint-disable-next-line media-feature-name-no-vendor-prefix */
-  @media screen and (-webkit-min-device-pixel-ratio: 0) {
-    @content;
-  }
 }
 
 @mixin keyframes($animation-name) {
@@ -126,14 +102,6 @@
   }
 }
 
-@mixin green-status-color {
-  @include status-color(
-    var(--green-100, $green-100),
-    var(--green-500, $green-500),
-    var(--green-700, $green-700)
-  );
-}
-
 @mixin fade($gradient-direction, $gradient-color) {
   visibility: hidden;
   opacity: 0;
@@ -151,7 +119,7 @@
   padding: 0;
 
   &:hover {
-    @include gl-focus;
+    @apply gl-focus;
   }
 
   &.scrolling {
@@ -235,20 +203,15 @@
   .bash {
     display: block;
   }
-
-  &.build-log-rounded {
-    border-radius: $gl-border-radius-base;
-  }
 }
 
 // Used in EE for Web Terminal
 @mixin build-log-bar($height) {
-  height: $height;
+  height: auto;
   min-height: $height;
-  background: var(--white, $white);
-  border: 1px solid var(--border-color, $border-color);
-  color: var(--gl-text-color, $gl-text-color);
   padding: $grid-size;
+  @apply gl-bg-section gl-border gl-border-section gl-text-default;
+  box-shadow: 0 -6px 0 0 var(--gl-background-color-default);
 }
 
 @mixin job-log-top-bar {
@@ -256,12 +219,7 @@
   z-index: 2;
   position: sticky;
   top: calc(#{$calc-application-header-height} - 1px);
-  border-radius: $gl-border-radius-base $gl-border-radius-base 0 0;
-  box-shadow: 0 -4px 0 0 var(--white);
-
-  .gl-dark & {
-    box-shadow: 0 -4px 0 0 var(--gray-10);
-  }
+  @apply gl-rounded-t-lg;
 }
 
 /*
@@ -285,7 +243,7 @@
   }
 
   .controllers-buttons {
-    color: $gl-text-color;
+    @apply gl-text-default;
     margin: 0 $grid-size;
 
     &:last-child {
@@ -321,8 +279,6 @@
   line-height: 1;
   padding: 0;
   min-width: 16px;
-  color: $gray-500;
-  fill: $gray-500;
 
   .award-control-icon-positive,
   .award-control-icon-super-positive {
@@ -391,7 +347,7 @@
 
       // Rouge `Comment` token (quoted text in email body)
       .c {
-        color: $gl-grayish-blue;
+        color: $gl-text-color-subtle;
         font-style: italic;
       }
     }
@@ -425,26 +381,59 @@
   }
 }
 
-@mixin side-panel-toggle {
-  @apply gl-transition-width;
-  height: $toggle-sidebar-height;
-  padding: 0 $gl-padding;
-  background-color: $gray-10;
-  border: 0;
-  color: $gl-text-color-secondary;
-  display: flex;
-  align-items: center;
-
-  &:hover {
-    background-color: $border-color;
-    color: $gl-text-color;
-  }
-}
-
 @mixin devise-errors {
   h2 {
     margin-top: 0;
     font-size: $gl-font-size;
     color: var(--red-700, $red-700);
+  }
+}
+
+@mixin notes-media($condition, $breakpoint-width) {
+  @media (#{$condition}-width: ($breakpoint-width)) {
+    @content;
+  }
+
+  // Diff is side by side
+  .notes-content.parallel & {
+    // We hide at double what we normally hide at because
+    // there are two columns of notes
+    @media (#{$condition}-width: (2 * $breakpoint-width)) {
+      @content;
+    }
+  }
+}
+
+/**
+* Style to apply to, for example, search results matches or text wrapped
+* around <mark> (allowed in Markdown).
+*/
+@mixin str-highlighted {
+  background-color: var(--orange-100);
+  box-shadow: 0 0 0 $gl-spacing-scale-1 var(--orange-100);
+  color: var(--gl-text-color-default);
+  padding: 0;
+  position: relative;
+  z-index: -1;
+}
+
+/**
+* Line connecting activity entries, used in issuables, work items etc
+*/
+@mixin vertical-line($top, $left) {
+  content: '';
+  position: absolute;
+  width: 2px;
+  left: $left;
+  top: $top;
+  height: calc(100% - #{$top});
+}
+
+/**
+ * Deprecated mixin for dark mode
+ */
+@mixin gl-dark-invert-keep-hue {
+  .gl-dark & {
+    filter: invert(0.8) hue-rotate(180deg);
   }
 }

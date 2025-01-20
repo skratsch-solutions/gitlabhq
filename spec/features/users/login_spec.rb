@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_access do
+RSpec.describe 'Login', :clean_gitlab_redis_sessions, :aggregate_failures, feature_category: :system_access do
   include TermsHelper
   include UserLoginHelper
   include SessionHelpers
@@ -470,6 +470,27 @@ RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_
     end
   end
 
+  describe 'with auto_sign_in_with_provider enabled' do
+    before do
+      stub_omniauth_saml_config(
+        enabled: true,
+        auto_sign_in_with_provider: 'saml',
+        allow_single_sign_on: ['saml']
+      )
+
+      allow_next_instance_of(ActionDispatch::Routing::RoutesProxy) do |instance|
+        allow(instance).to receive(:user_saml_omniauth_authorize_path)
+          .and_return('/api/graphql?my_fake_idp') # A dummy page where we can do a POST request
+      end
+    end
+
+    it 'redirects to the identity provider', :js do
+      visit new_user_session_path
+
+      expect(page.current_url).to end_with('/api/graphql?my_fake_idp')
+    end
+  end
+
   describe 'without two-factor authentication' do
     it 'renders sign in text for providers' do
       visit new_user_session_path
@@ -626,14 +647,14 @@ RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_
             expect(page).to have_content('The global settings require you to enable Two-Factor Authentication for your account. You need to do this before ')
           end
 
-          it 'allows skipping two-factor configuration', :js do
+          it 'allows skipping two-factor configuration' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
 
             gitlab_sign_in(user)
 
             expect(page).to have_current_path profile_two_factor_auth_path, ignore_query: true
-            click_link 'Configure it later'
+            click_link _('Configure it later')
             expect(page).to have_current_path root_path, ignore_query: true
           end
         end
@@ -653,14 +674,14 @@ RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_
             )
           end
 
-          it 'disallows skipping two-factor configuration', :js do
+          it 'disallows skipping two-factor configuration' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
 
             gitlab_sign_in(user)
 
             expect(page).to have_current_path profile_two_factor_auth_path, ignore_query: true
-            expect(page).not_to have_link('Configure it later')
+            expect(page).not_to have_link(_('Configure it later'))
           end
         end
       end
@@ -711,18 +732,18 @@ RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_
               'You can leave Group 1 and leave Group 2. '\
               'You need to do this '\
               'before '\
-              "#{(Time.zone.now + 2.days).strftime("%a, %d %b %Y %H:%M:%S %z")}"
+              "#{(Time.zone.now + 2.days).strftime('%a, %d %b %Y %H:%M:%S %z')}"
             )
           end
 
-          it 'allows skipping two-factor configuration', :js do
+          it 'allows skipping two-factor configuration' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
 
             gitlab_sign_in(user)
 
             expect(page).to have_current_path profile_two_factor_auth_path, ignore_query: true
-            click_link 'Configure it later'
+            click_link _('Configure it later')
             expect(page).to have_current_path root_path, ignore_query: true
           end
         end
@@ -743,14 +764,14 @@ RSpec.describe 'Login', :clean_gitlab_redis_sessions, feature_category: :system_
             )
           end
 
-          it 'disallows skipping two-factor configuration', :js do
+          it 'disallows skipping two-factor configuration' do
             expect(authentication_metrics)
               .to increment(:user_authenticated_counter)
 
             gitlab_sign_in(user)
 
             expect(page).to have_current_path profile_two_factor_auth_path, ignore_query: true
-            expect(page).not_to have_link('Configure it later')
+            expect(page).not_to have_link(_('Configure it later'))
           end
         end
       end

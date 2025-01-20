@@ -3,76 +3,101 @@
 module Packages
   module Npm
     class DeprecatePackageService < BaseService
-      Deprecated = Struct.new(:package_id, :message)
+      include Gitlab::Utils::StrongMemoize
+
       BATCH_SIZE = 50
 
       def initialize(project, params)
         super(project, nil, params)
       end
 
-      def execute(async: false)
-        return ::Packages::Npm::DeprecatePackageWorker.perform_async(project.id, filtered_params) if async
+      def execute
+        enqueue_metadata_cache_worker = false
 
-        packages.select(:id, :version).each_batch(of: BATCH_SIZE) do |relation|
-          deprecated_metadatum = handle_batch(relation)
-          update_metadatum(deprecated_metadatum)
+        packages.select(:id, :version, :package_type).each_batch(of: BATCH_SIZE) do |relation|
+          attributes = relation.preload_npm_metadatum.filter_map { |package| metadatum_attributes(package) }
+          next if attributes.empty?
+
+          package_ids = attributes.pluck(:package_id) # rubocop:disable CodeReuse/ActiveRecord, Database/AvoidUsingPluckWithoutLimit -- This is a hash, not an ActiveRecord relation.
+
+          ApplicationRecord.transaction do
+            ::Packages::Npm::Metadatum.upsert_all(attributes)
+            ::Packages::Package.id_in(package_ids).update_all(status: package_status)
+          end
+
+          enqueue_metadata_cache_worker = true
         end
+
+        if enqueue_metadata_cache_worker
+          ::Packages::Npm::CreateMetadataCacheWorker.perform_async(project.id, params['package_name'])
+        end
+
+        ServiceResponse.success
       end
 
       private
 
-      # To avoid passing the whole metadata to the worker
-      def filtered_params
-        {
-          package_name: params[:package_name],
-          versions: params[:versions].transform_values { |version| version.slice(:deprecated) }
-        }
-      end
-
       def packages
-        ::Packages::Npm::PackageFinder
-          .new(params['package_name'], project: project)
-          .execute
+        ::Packages::Npm::PackageFinder.new(
+          project: project,
+          params: {
+            package_name: params['package_name'],
+            package_version: params['versions'].keys
+          }
+        ).execute
       end
 
-      def handle_batch(relation)
-        relation
-          .preload_npm_metadatum
-          .filter_map { |package| deprecate(package) }
-      end
+      def metadatum_attributes(package)
+        package_json = params.dig('versions', package.version)
 
-      def deprecate(package)
-        deprecation_message = params.dig('versions', package.version, 'deprecated')
-        return if deprecation_message.nil?
+        npm_metadatum = package.npm_metadatum || package.build_npm_metadatum(package_json: package_json)
+        return if npm_metadatum.persisted? && identical?(npm_metadatum.package_json['deprecated'])
 
-        npm_metadatum = package.npm_metadatum
-        return if identical?(npm_metadatum.package_json['deprecated'], deprecation_message)
-
-        Deprecated.new(npm_metadatum.package_id, deprecation_message)
-      end
-
-      def identical?(package_json_deprecated, deprecation_message)
-        package_json_deprecated == deprecation_message ||
-          (package_json_deprecated.nil? && deprecation_message.empty?)
-      end
-
-      def update_metadatum(deprecated_metadatum)
-        return if deprecated_metadatum.empty?
-
-        deprecation_message = deprecated_metadatum.first.message
-
-        ::Packages::Npm::Metadatum
-          .package_id_in(deprecated_metadatum.map(&:package_id))
-          .update_all(update_clause(deprecation_message))
-      end
-
-      def update_clause(deprecation_message)
-        if deprecation_message.empty?
-          "package_json = package_json - 'deprecated'"
+        if npm_metadatum.valid?
+          { package_id: package.id, package_json: update_package_json(npm_metadatum.package_json) }
         else
-          ["package_json = jsonb_set(package_json, '{deprecated}', ?)", deprecation_message.to_json]
+          Gitlab::ErrorTracking.track_exception(
+            ActiveRecord::RecordInvalid.new(npm_metadatum),
+            class: self.class.name,
+            package_id: package.id
+          )
+
+          nil
         end
       end
+
+      def identical?(package_json_deprecated)
+        package_json_deprecated == deprecation_message ||
+          (package_json_deprecated.nil? && deprecation_message_empty?)
+      end
+
+      def update_package_json(package_json)
+        if deprecation_message_empty?
+          package_json.delete('deprecated')
+        else
+          package_json['deprecated'] = deprecation_message
+        end
+
+        package_json
+      end
+
+      def deprecation_message_empty?
+        deprecation_message.empty?
+      end
+      strong_memoize_attr :deprecation_message_empty?
+
+      def deprecation_message
+        _, metadatum = params['versions'].first
+        metadatum['deprecated']
+      end
+      strong_memoize_attr :deprecation_message
+
+      def package_status
+        return ::Packages::Package.statuses[:default] if deprecation_message_empty?
+
+        ::Packages::Package.statuses[:deprecated]
+      end
+      strong_memoize_attr :package_status
     end
   end
 end

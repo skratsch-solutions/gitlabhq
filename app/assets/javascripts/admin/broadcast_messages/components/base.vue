@@ -119,7 +119,7 @@ export default {
     <crud-component
       ref="crudComponent"
       :title="$options.i18n.title"
-      icon="messages"
+      icon="bullhorn"
       :count="messagesCount"
       :toggle-text="$options.i18n.addButton"
     >
@@ -136,7 +136,7 @@ export default {
         :messages="visibleMessages"
         @delete-message="deleteMessage"
       />
-      <div v-else-if="!showAddForm" class="gl-text-secondary">
+      <div v-else-if="!showAddForm" class="gl-text-subtle">
         {{ $options.i18n.emptyMessage }}
       </div>
 

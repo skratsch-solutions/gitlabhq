@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -80,7 +80,7 @@ A database **reviewer**'s role is to:
 - Perform a first-pass review on the MR and suggest improvements to the author.
 - Once satisfied, relabel the MR with ~"database::reviewed", approve it, and
   request a review from the database **maintainer** suggested by Reviewer
-  Roulette. Remove yourself as a reviewer once this has been done.
+  Roulette.
 
 A database **maintainer**'s role is to:
 
@@ -90,7 +90,6 @@ A database **maintainer**'s role is to:
 - Finally approve the MR and relabel the MR with ~"database::approved"
 - Merge the MR if no other approvals are pending or pass it on to
   other maintainers as required (frontend, backend, documentation).
-  - If not merging, remove yourself as a reviewer.
 
 ### Distributing review workload
 
@@ -186,6 +185,24 @@ Include in the MR description:
     - The `gitlab-qa` user (`user_id = 1614863`), for queries involving a user.
       - Optionally, you can also use your own `user_id`, or the `user_id` of a user with a long history within the project or group being used to generate the query plan.
   - That means that no query plan should return 0 records or less records than the provided limit (if a limit is included). If a query is used in batching, a proper example batch with adequate included results should be identified and provided.
+
+    NOTE: The `UPDATE` statement always returns 0 records. To identify the rows it updates, we need to check the following lines below.
+
+    For example, the `UPDATE` statement returns 0 records, but we can see that it updates 1 row from the line starting with `-> Index scan`.:
+
+    ```sql
+    EXPLAIN UPDATE p_ci_pipelines SET updated_at = current_timestamp WHERE id = 1606117348;
+
+     ModifyTable on public.p_ci_pipelines  (cost=0.58..3.60 rows=0 width=0) (actual time=5.977..5.978 rows=0 loops=1)
+      Buffers: shared hit=339 read=4 dirtied=4
+      WAL: records=20 fpi=4 bytes=21800
+      I/O Timings: read=4.920 write=0.000
+      ->  Index Scan using ci_pipelines_pkey on public.ci_pipelines p_ci_pipelines_1  (cost=0.58..3.60 rows=1 width=18) (actual time=0.041..0.044 rows=1 loops=1)
+            Index Cond: (p_ci_pipelines_1.id = 1606117348)
+            Buffers: shared hit=8
+            I/O Timings: read=0.000 write=0.000
+    ```
+
   - If your queries belong to a new feature in GitLab.com and thus they don't return data in production:
     - You may analyze the query and to provide the plan from a local environment.
     - [postgres.ai](https://postgres.ai/) allows updates to data (`exec UPDATE issues SET ...`) and creation of new tables and columns (`exec ALTER TABLE issues ADD COLUMN ...`).
@@ -236,10 +253,10 @@ Using `update`, `upsert`, `delete`, `update_all`, `upsert_all`, `delete_all` or 
 ActiveRecord methods requires extra care because they modify data and can perform poorly, or they
 can destroy data if improperly scoped. These methods are also
 [incompatible with Common Table Expression (CTE) statements](sql.md#when-to-use-common-table-expressions).
-Danger will comment on a Merge Request Diff when these methods are used.
+Danger will comment on a merge request diff when these methods are used.
 
 Follow documentation for [preparation when adding or modifying queries](#preparation-when-adding-or-modifying-queries)
-to add the raw SQL query and query plan to the Merge Request description, and request a database review.
+to add the raw SQL query and query plan to the merge request description, and request a database review.
 
 ### How to review for database
 
@@ -297,3 +314,9 @@ to add the raw SQL query and query plan to the Merge Request description, and re
     to queries (changing the query, schema or adding indexes and similar)
   - General guideline is for queries to come in below [100ms execution time](database/query_performance.md#timing-guidelines-for-queries)
   - Avoid N+1 problems and minimize the [query count](merge_request_concepts/performance.md#query-counts).
+
+### Useful tips
+
+- If you often find yourself applying and reverting migrations from a specific branch, you might want to try out
+[`scripts/database/migrate.rb`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/scripts/database/migrate.rb)
+to make this process more efficient.

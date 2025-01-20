@@ -1,21 +1,45 @@
 <script>
-import reviewerQuery from '../queries/reviewer.query.graphql';
-import assigneeQuery from '../queries/assignee.query.graphql';
+import { QUERIES } from '../constants';
+
+const PER_PAGE = 20;
 
 export default {
   apollo: {
     mergeRequests: {
       query() {
-        return this.query === 'reviewRequestedMergeRequests' ? reviewerQuery : assigneeQuery;
+        return QUERIES[this.query].dataQuery;
       },
       update(d) {
-        return d.currentUser?.[this.query] || {};
+        return d.currentUser?.mergeRequests || {};
       },
       variables() {
         return {
           ...this.variables,
-          perPage: 3,
+          perPage: PER_PAGE,
         };
+      },
+      error() {
+        this.error = true;
+      },
+    },
+    count: {
+      context: {
+        batchKey: 'MergeRequestListsCounts',
+      },
+      query() {
+        return QUERIES[this.query].countQuery;
+      },
+      update(d) {
+        return d.currentUser?.mergeRequests?.count;
+      },
+      variables() {
+        return {
+          ...this.variables,
+          perPage: PER_PAGE,
+        };
+      },
+      skip() {
+        return this.hideCount;
       },
     },
   },
@@ -28,10 +52,17 @@ export default {
       type: Object,
       required: true,
     },
+    hideCount: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       mergeRequests: null,
+      count: null,
+      error: false,
     };
   },
   computed: {
@@ -47,7 +78,7 @@ export default {
       await this.$apollo.queries.mergeRequests.fetchMore({
         variables: {
           ...this.variables,
-          perPage: 10,
+          perPage: PER_PAGE,
           afterCursor: this.mergeRequests?.pageInfo?.endCursor,
         },
       });
@@ -56,10 +87,11 @@ export default {
   render() {
     return this.$scopedSlots.default({
       mergeRequests: this.mergeRequests?.nodes || [],
-      count: this.mergeRequests ? this.mergeRequests.count : null,
+      count: this.count,
       hasNextPage: this.hasNextPage,
       loadMore: this.loadMore,
       loading: this.isLoading,
+      error: this.error,
     });
   },
 };

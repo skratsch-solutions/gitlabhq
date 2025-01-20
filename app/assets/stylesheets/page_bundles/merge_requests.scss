@@ -1,9 +1,5 @@
 @import 'mixins_and_variables_and_functions';
 
-.compare-versions-container {
-  min-width: 0;
-}
-
 .diff-comment-avatar-holders {
   position: absolute;
   margin-left: -$gl-padding;
@@ -33,7 +29,6 @@
     .diff-comments-more-count {
       padding-left: 2px;
       padding-right: 2px;
-      width: auto;
     }
   }
 }
@@ -48,7 +43,6 @@
   border-color: var(--white, $white);
   cursor: pointer;
   transition: all 0.1s ease-out;
-  @include code-icon-size();
 
   @for $i from 1 through 4 {
     &:nth-child(#{$i}) {
@@ -65,7 +59,6 @@
   padding-left: 0;
   padding-right: 0;
   overflow: hidden;
-  @include code-icon-size();
 }
 
 .diff-file-changes {
@@ -132,6 +125,11 @@
   .vue-recycle-scroller__item-wrapper {
     overflow: visible;
   }
+
+  .diff-file-is-active {
+    outline: 1px solid var(--gl-focus-ring-outer-color);
+    outline-offset: 2px;
+  }
 }
 
 .diff-grid {
@@ -144,10 +142,6 @@
   .diff-grid-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-
-    &.diff-grid-row-full {
-      grid-template-columns: 1fr;
-    }
   }
 
   .diff-grid-left,
@@ -176,7 +170,7 @@
     grid-template-columns: 1fr 1fr;
 
     .content + .content {
-      @include gl-border-t;
+      @apply gl-border-t;
     }
 
     .notes-content {
@@ -276,21 +270,8 @@
   }
 }
 
-.tree-list-scroll {
-  max-height: 100%;
-  padding-bottom: $grid-size;
-  overflow-y: scroll;
-  overflow-x: auto;
-}
-
 .tree-list-gutter {
   height: $grid-size;
-}
-
-.tree-list-clear-icon {
-  right: 10px;
-  left: auto;
-  line-height: 0;
 }
 
 .file-row-header {
@@ -329,15 +310,11 @@
   @include media-breakpoint-down(sm) {
     align-items: initial;
     flex-direction: column;
-
-    .dropdown .mini-pipeline-graph-dropdown-menu.dropdown-menu {
-      transform: initial;
-    }
   }
 
   .coverage {
     font-size: 12px;
-    color: var(--gray-500, $gray-500);
+    @apply gl-text-subtle;
     line-height: initial;
   }
 }
@@ -346,24 +323,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-
-  @include media-breakpoint-up(xs) {
-    flex-wrap: nowrap;
-    white-space: nowrap;
-  }
-
-  @container mr-widget-extension (max-width: 600px) {
-    flex-direction: column;
-    align-items: flex-start;
-
-    .deployment-info {
-      margin-bottom: $gl-padding-8;
-    }
-
-    .gl-button {
-      margin-left: 0;
-    }
-  }
+  justify-content: space-between;
 
   > *:not(:last-child) {
     margin-right: 0.3em;
@@ -374,19 +334,9 @@
   }
 
   .deployment-info {
-    flex: 1;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    min-width: 100px;
-
-    display: grid;
+    white-space: nowrap;display: grid;
     grid-template-columns: max-content minmax(0, max-content) max-content;
     grid-gap: $gl-spacing-scale-2;
-
-    @include media-breakpoint-up(xs) {
-      min-width: 0;
-      max-width: 100%;
-    }
   }
 
   .dropdown-menu {
@@ -405,7 +355,7 @@
   }
 
   &:not(:last-child) {
-    border-bottom: 1px solid var(--border-color, $border-color);
+    border-bottom: 1px solid var(--gl-border-color-default);
   }
 }
 
@@ -458,9 +408,7 @@
 }
 
 .mr-section-container {
-  border: 1px solid var(--border-color, $border-color);
-  border-radius: $gl-border-radius-base;
-  background: var(--white, $white);
+  @apply gl-bg-section gl-border gl-border-section gl-rounded-base;
 
   &:not(:first-child) {
     @apply gl-mt-5;
@@ -470,6 +418,7 @@
     display: none;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-skeleton-loader {
     display: block;
   }
@@ -493,14 +442,10 @@
 }
 
 .mr-state-widget {
-  color: var(--gl-text-color, $gl-text-color);
+  color: var(--gl-text-color-default);
 
   .commit-message-edit {
     border-radius: $gl-border-radius-base;
-  }
-
-  .mr-widget-alert-container + .mr-widget-section {
-    border-top: 0;
   }
 
   .commits-list {
@@ -537,15 +482,8 @@
     font-size: $gl-font-size;
   }
 
-  .accept-merge-holder {
-    .accept-action {
-      display: inline-block;
-      float: left;
-    }
-  }
-
   .ci-widget {
-    color: var(--gl-text-color, $gl-text-color);
+    color: var(--gl-text-color-default);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -563,10 +501,6 @@
 
   .mr-widget-icon {
     font-size: 22px;
-  }
-
-  .mr-loading-icon {
-    margin: 3px 0;
   }
 
   .normal {
@@ -589,7 +523,7 @@
   }
 
   .label-branch {
-    @include gl-font-monospace;
+    @apply gl-font-monospace;
     overflow: hidden;
     word-break: break-all;
   }
@@ -640,11 +574,6 @@
       margin: 0 0 0 10px;
     }
 
-    .state-label {
-      font-weight: $gl-font-weight-bold;
-      padding-right: 10px;
-    }
-
     .danger {
       color: var(--red-500, $red-500);
     }
@@ -652,14 +581,6 @@
     .dropdown-menu {
       li a {
         padding: 5px;
-      }
-
-      .merge-opt-icon {
-        line-height: 1.5;
-      }
-
-      .merge-opt-title {
-        margin-left: 8px;
       }
     }
 
@@ -685,50 +606,14 @@
       }
     }
 
-    &.mr-widget-empty-state {
-      line-height: 20px;
-      padding: $gl-padding;
-
-      .artwork {
-
-        @include media-breakpoint-down(md) {
-          margin-bottom: $gl-padding;
-        }
-      }
-
-      .text {
-        p {
-          margin-top: $gl-padding;
-        }
-
-        .highlight {
-          margin: 0 0 $gl-padding;
-          font-weight: $gl-font-weight-bold;
-        }
-      }
-    }
-
     &.mr-pipeline-suggest {
       border-radius: $gl-border-radius-base;
       line-height: 20px;
-      border: 1px solid var(--border-color, $border-color);
+      border: 1px solid var(--gl-border-color-default);
 
       .circle-icon-container {
         color: var(--gray-100, $gray-100);
       }
-    }
-  }
-
-  .ci-coverage {
-    float: right;
-  }
-
-  .stop-env-container {
-    color: var(--gl-text-color, $gl-text-color);
-    float: right;
-
-    a {
-      color: var(--gl-text-color, $gl-text-color);
     }
   }
 }
@@ -747,7 +632,7 @@
 }
 
 .mr-widget-border-top {
-  border-top: 1px solid var(--border-color, $border-color);
+  border-top: 1px solid var(--gl-border-color-default);
 
   &:last-child {
     .report-block-container {
@@ -758,8 +643,7 @@
 }
 
 .mr-widget-extension {
-  border-top: 1px solid var(--border-color, $border-color);
-  background-color: var(--gray-10, $gray-10);
+  @apply gl-bg-subtle gl-border-t gl-border-t-section;
   container-name: mr-widget-extension;
   container-type: inline-size;
   // Adds a fix for the view app dropdown not showing up
@@ -768,7 +652,7 @@
   z-index: 1;
 
   &.clickable:hover {
-    background-color: var(--gray-50, $gray-50);
+    @apply gl-bg-strong;
     cursor: pointer;
   }
 }
@@ -808,7 +692,7 @@
 }
 
 .mr-version-controls {
-  color: var(--gl-text-color, $gl-text-color);
+  color: var(--gl-text-color-default);
 
   .mr-version-menus-container {
     display: flex;
@@ -817,6 +701,7 @@
     z-index: 199;
     white-space: nowrap;
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     .gl-dropdown-toggle {
       width: auto;
       max-width: 170px;
@@ -838,10 +723,12 @@
     top: 1px;
     margin: 0 $gl-spacing-scale-1;
 
+    // stylelint-disable-next-line gitlab/no-gl-class
     .dropdown-toggle.gl-button {
       padding: $gl-spacing-scale-2 2px $gl-spacing-scale-2 $gl-spacing-scale-2;
       font-weight: $gl-font-weight-bold;
 
+      // stylelint-disable-next-line gitlab/no-gl-class
       .gl-button-icon {
         margin-left: $gl-spacing-scale-1;
       }
@@ -849,7 +736,7 @@
   }
 
   .dropdown-title {
-    color: var(--gl-text-color, $gl-text-color);
+    color: var(--gl-text-color-strong);
   }
 }
 
@@ -887,13 +774,14 @@
   }
 }
 
+// stylelint-disable-next-line gitlab/no-gl-class
 .submit-review-dropdown .gl-new-dropdown-panel {
   max-width: none;
 }
 
 .submit-review-dropdown-form {
   width: calc(100vw - 20px);
-  max-width: 680px;
+  max-width: 756px;
 }
 
 .submit-review-dropdown-animated {
@@ -942,43 +830,20 @@
 }
 
 .merge-request-sticky-header {
-  z-index: $top-bar-z-index;
+  z-index: calc($top-bar-z-index - 1);
   height: $mr-sticky-header-height;
 }
 
 .merge-request-notification-toggle {
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-toggle {
     margin-left: auto;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-toggle-label {
     font-weight: $gl-font-weight-normal;
   }
-}
-
-.mr-widget-status-icon-level-1::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  opacity: 0.3;
-  border-radius: $gl-border-radius-full;
-  border-style: solid;
-  border-width: $gl-border-size-4;
-}
-
-.mr-widget-status-icon-level-1::after {
-  content: '';
-  position: absolute;
-  border-radius: $gl-border-radius-full;
-  border-style: solid;
-  border-width: $gl-border-size-4;
-  left: $gl-spacing-scale-2;
-  right: $gl-spacing-scale-2;
-  top: $gl-spacing-scale-2;
-  bottom: $gl-spacing-scale-2;
 }
 
 .memory-graph-container {
@@ -997,8 +862,8 @@
   height: var(--mr-review-bar-height);
   padding-left: $super-sidebar-width;
   padding-right: $right-sidebar-collapsed-width;
-  background: var(--white, $white);
-  border-top: 1px solid var(--border-color, $border-color);
+  background: var(--gl-background-color-default);
+  border-top: 1px solid var(--gl-border-color-default);
   @apply gl-transition-padding;
 
   @media (max-width: map-get($grid-breakpoints, sm)-1) {
@@ -1075,6 +940,7 @@
     vertical-align: middle;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .gl-skeleton-loader {
     max-width: 334px;
   }
@@ -1082,6 +948,12 @@
 
 .diff-file-discussions-wrapper {
   width: 100%;
+
+  .timeline-entry.note-discussion {
+    > .timeline-entry-inner {
+      border-bottom: 0 !important;
+    }
+  }
 
   .diff-discussions:not(:first-child) >.notes {
     padding-top: 0;
@@ -1098,6 +970,10 @@
     border-bottom-width: 0;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+
+    .notes {
+      @apply gl-bg-subtle;
+    }
   }
 }
 

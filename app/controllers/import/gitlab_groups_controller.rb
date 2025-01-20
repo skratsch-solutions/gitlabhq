@@ -10,18 +10,20 @@ class Import::GitlabGroupsController < ApplicationController
 
   def create
     unless file_is_valid?(group_params[:file])
-      return redirect_to new_group_path(anchor: 'import-group-pane'), alert: s_('GroupImport|Unable to process group import file')
+      return redirect_to new_group_path(anchor: 'import-group-pane'),
+        alert: s_('GroupImport|Unable to process group import file')
     end
 
     group_data = group_params
       .except(:file)
       .merge(
         visibility_level: closest_allowed_visibility_level,
-        import_export_upload: ImportExportUpload.new(import_file: group_params[:file])
+        import_export_upload: ImportExportUpload.new(import_file: group_params[:file], user: current_user)
       )
       .with_defaults(organization_id: Current.organization_id)
 
     response = ::Groups::CreateService.new(current_user, group_data).execute
+
     group = response[:group]
 
     if response.success?
@@ -35,7 +37,9 @@ class Import::GitlabGroupsController < ApplicationController
       end
     else
       redirect_to new_group_path(anchor: 'import-group-pane'),
-        alert: s_("GroupImport|Group could not be imported: %{errors}") % { errors: group.errors.full_messages.to_sentence }
+        alert: s_("GroupImport|Group could not be imported: %{errors}") % {
+          errors: group.errors.full_messages.to_sentence
+        }
     end
   end
 

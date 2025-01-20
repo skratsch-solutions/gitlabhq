@@ -5,7 +5,6 @@ import LockedBadge from '~/issuable/components/locked_badge.vue';
 import { WORKSPACE_PROJECT } from '~/issues/constants';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import ConfidentialityBadge from '~/vue_shared/components/confidentiality_badge.vue';
-import groupWorkItemByIidQuery from '../graphql/group_work_item_by_iid.query.graphql';
 import workItemByIidQuery from '../graphql/work_item_by_iid.query.graphql';
 import { isNotesWidget } from '../utils';
 import WorkItemStateBadge from './work_item_state_badge.vue';
@@ -22,7 +21,6 @@ export default {
     ConfidentialityBadge,
     GlLoadingIcon,
   },
-  inject: ['isGroup'],
   props: {
     fullPath: {
       type: String,
@@ -42,9 +40,6 @@ export default {
   computed: {
     createdAt() {
       return this.workItem?.createdAt || '';
-    },
-    updatedAt() {
-      return this.workItem?.updatedAt || '';
     },
     author() {
       return this.workItem?.author ?? {};
@@ -67,12 +62,14 @@ export default {
     isWorkItemConfidential() {
       return this.workItem?.confidential;
     },
+    isLoading() {
+      return this.$apollo.queries.workItem.loading;
+    },
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     workItem: {
-      query() {
-        return this.isGroup ? groupWorkItemByIidQuery : workItemByIidQuery;
-      },
+      query: workItemByIidQuery,
       variables() {
         return {
           fullPath: this.fullPath,
@@ -92,7 +89,10 @@ export default {
 </script>
 
 <template>
-  <div class="gl-mb-3 gl-text-gray-700 gl-mt-3">
+  <div v-if="isLoading">
+    <gl-loading-icon inline />
+  </div>
+  <div v-else class="gl-mb-3 gl-mt-3 gl-text-subtle">
     <work-item-state-badge v-if="workItemState" :work-item-state="workItemState" />
     <gl-loading-icon v-if="updateInProgress" inline />
     <confidentiality-badge
@@ -108,6 +108,7 @@ export default {
       :work-item-icon-name="workItemIconName"
       :work-item-type="workItemType"
       show-text
+      icon-class="gl-fill-icon-subtle"
     />
     <span data-testid="work-item-created" class="gl-align-middle">
       <gl-sprintf v-if="author.name" :message="__('created %{timeAgo} by %{author}')">
@@ -116,7 +117,7 @@ export default {
         </template>
         <template #author>
           <gl-avatar-link
-            class="js-user-link gl-text-body gl-font-bold"
+            class="js-user-link gl-font-bold gl-text-default"
             :title="author.name"
             :data-user-id="authorId"
             :href="author.webUrl"
@@ -128,18 +129,6 @@ export default {
       <gl-sprintf v-else-if="createdAt" :message="__('created %{timeAgo}')">
         <template #timeAgo>
           <time-ago-tooltip :time="createdAt" />
-        </template>
-      </gl-sprintf>
-    </span>
-
-    <span
-      v-if="updatedAt"
-      class="gl-ml-5 gl-hidden sm:gl-inline-block gl-align-middle"
-      data-testid="work-item-updated"
-    >
-      <gl-sprintf :message="__('Updated %{timeAgo}')">
-        <template #timeAgo>
-          <time-ago-tooltip :time="updatedAt" />
         </template>
       </gl-sprintf>
     </span>

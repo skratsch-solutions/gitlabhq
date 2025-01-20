@@ -7,6 +7,7 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
   let_it_be(:user) { create(:user) }
   let(:path) { explore_projects_path }
+  let(:sign_in_user) { ->(user) { gitlab_sign_in(user) } }
 
   shared_examples 'a Broadcast Messages' do |type|
     it 'shows broadcast message' do
@@ -31,7 +32,9 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
       expect_to_be_on_explore_projects_page
 
-      find('body.page-initialised .js-dismiss-current-broadcast-notification').click
+      within('body.page-initialised') do
+        find(".js-dismiss-current-broadcast-notification[data-id='#{broadcast_message.id}']").click
+      end
 
       expect_message_dismissed
     end
@@ -41,9 +44,33 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
       expect_to_be_on_explore_projects_page
 
-      find('body.page-initialised .js-dismiss-current-broadcast-notification').click
+      within('body.page-initialised') do
+        find(".js-dismiss-current-broadcast-notification[data-id='#{broadcast_message.id}']").click
+      end
 
       expect_message_dismissed
+
+      visit path
+
+      expect_message_dismissed
+    end
+
+    it 'broadcast message is still hidden after logout and log back in', :js do
+      sign_in_user.call(user)
+
+      visit path
+
+      expect_to_be_on_explore_projects_page
+
+      within('body.page-initialised') do
+        find(".js-dismiss-current-broadcast-notification[data-id='#{broadcast_message.id}']").click
+      end
+
+      expect_message_dismissed
+
+      gitlab_sign_out(user)
+
+      sign_in_user.call(user)
 
       visit path
 
@@ -59,7 +86,7 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
     it 'is not dismissible' do
       visit path
 
-      expect(page).not_to have_selector('.js-dismiss-current-broadcast-notification')
+      expect(page).not_to have_selector(".js-dismiss-current-broadcast-notification[data-id=#{broadcast_message.id}]")
     end
 
     it 'does not replace placeholders' do
@@ -107,7 +134,7 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
       visit path
 
-      expect_broadcast_message(text)
+      expect_broadcast_message(message.id, text)
 
       # seed the other cache
       original_strategy_value = Gitlab::Cache::JsonCache::STRATEGY_KEY_COMPONENTS
@@ -115,7 +142,7 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
       page.refresh
 
-      expect_broadcast_message(text)
+      expect_broadcast_message(message.id, text)
 
       # delete on original cache
       stub_const('Gitlab::Cache::JsonCaches::JsonKeyed::STRATEGY_KEY_COMPONENTS', original_strategy_value)
@@ -133,27 +160,39 @@ RSpec.describe 'Broadcast Messages', feature_category: :notifications do
 
       visit path
 
-      expect_no_broadcast_message
+      expect_no_broadcast_message(message.id)
 
       # other revision of GitLab does gets cache destroyed
       stub_const('Gitlab::Cache::JsonCaches::JsonKeyed::STRATEGY_KEY_COMPONENTS', new_strategy_value)
 
       page.refresh
 
-      expect_no_broadcast_message
+      expect_no_broadcast_message(message.id)
     end
   end
 
-  def expect_broadcast_message(text)
-    within_testid('banner-broadcast-message') do
+  context 'with omniauth' do
+    it_behaves_like 'a dismissible Broadcast Messages' do
+      let_it_be(:broadcast_message) { create(:broadcast_message, :notification, message: 'SampleMessage') }
+      let_it_be(:user) { create(:omniauth_user, extern_uid: 'example-uid', provider: 'saml') }
+      let(:sign_in_user) { ->(user) { gitlab_sign_in_via('saml', user, 'example-uid') } }
+
+      before do
+        stub_omniauth_saml_config(enabled: true, auto_link_saml_user: true)
+      end
+    end
+  end
+
+  def expect_broadcast_message(id, text)
+    within(".js-broadcast-notification-#{id}") do
       expect(page).to have_content text
     end
   end
 
-  def expect_no_broadcast_message
+  def expect_no_broadcast_message(id)
     expect_to_be_on_explore_projects_page
 
-    expect(page).not_to have_selector('[data-testid="banner-broadcast-message"]')
+    expect(page).not_to have_selector(".js-broadcast-notification-#{id}")
   end
 
   def expect_to_be_on_explore_projects_page

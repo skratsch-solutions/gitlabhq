@@ -1,5 +1,5 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 WARNING:
 `CI_JOB_JWT_V2` was [deprecated in GitLab 15.9](../../../update/deprecations.md#old-versions-of-json-web-tokens-are-deprecated)
@@ -43,7 +43,7 @@ To complete this tutorial:
 
 - **Name**: Human-friendly name for the Workload Identity Pool, such as `GitLab`.
 - **Pool ID**: Unique ID in the Google Cloud project for the Workload Identity Pool,
-  such as `gitlab`. This value is used to refer to the pool. and appears in URLs.
+  such as `gitlab`. This value is used to refer to the pool and appears in URLs.
 - **Description**: Optional. A description of the pool.
 - **Enabled Pool**: Ensure this option is `true`.
 
@@ -68,7 +68,7 @@ inside the Workload Identity Pool created in the previous step, using the follow
   - The address must use the `https://` protocol.
   - The address must not end in a trailing slash.
 - **Provider attributes mapping**: Create the following mappings, where `attribute.X` is the
-  name of the attribute you would like to be present on Google's claims, and `assertion.X`
+  name of the attribute to be included as a claim in the Google token, and `assertion.X`
   is the value to extract from the [GitLab claim](../index.md#how-it-works):
 
   | Attribute (on Google) | Assertion (from GitLab) |
@@ -197,5 +197,4 @@ for provisioning OIDC in GCP using Terraform and a sample script to retrieve tem
 - When debugging `curl` responses, install the latest version of curl. Use `--fail-with-body`
   instead of `-f`. This command prints the entire body, which can contain helpful error messages.
 
-- Review Google Cloud's documentation for
-  [Troubleshooting Workload Identity Federation](https://cloud.google.com/iam/docs/troubleshooting-workload-identity-federation).
+- For more information, see [Troubleshoot Workload Identity Federation](https://cloud.google.com/iam/docs/troubleshooting-workload-identity-federation).

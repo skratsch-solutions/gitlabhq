@@ -11,7 +11,7 @@ module Resolvers
       required: false,
       default_value: false,
       description: 'Include also projects from parent group.',
-      alpha: { milestone: '17.2' }
+      experiment: { milestone: '17.2' }
 
     argument :include_archived, GraphQL::Types::Boolean,
       required: false,
@@ -46,6 +46,10 @@ module Resolvers
       required: false,
       description: "Return only projects with merge requests enabled."
 
+    argument :with_namespace_domain_pages, GraphQL::Types::Boolean,
+      required: false,
+      description: "Return only projects that use the namespace domain for pages projects."
+
     type Types::ProjectType, null: true
 
     def resolve(args)
@@ -75,15 +79,16 @@ module Resolvers
 
     def finder_params(args)
       {
-        include_subgroups: args.dig(:include_subgroups),
-        include_sibling_projects: args.dig(:include_sibling_projects),
-        include_archived: args.dig(:include_archived),
-        not_aimed_for_deletion: args.dig(:not_aimed_for_deletion),
-        sort: args.dig(:sort),
-        search: args.dig(:search),
-        ids: parse_gids(args.dig(:ids)),
+        include_subgroups: args[:include_subgroups],
+        include_sibling_projects: args[:include_sibling_projects],
+        include_archived: args[:include_archived],
+        not_aimed_for_deletion: args[:not_aimed_for_deletion],
+        sort: args[:sort],
+        search: args[:search],
+        ids: parse_gids(args[:ids]),
         with_issues_enabled: args[:with_issues_enabled],
-        with_merge_requests_enabled: args[:with_merge_requests_enabled]
+        with_merge_requests_enabled: args[:with_merge_requests_enabled],
+        with_namespace_domain_pages: args[:with_namespace_domain_pages]
       }
     end
 

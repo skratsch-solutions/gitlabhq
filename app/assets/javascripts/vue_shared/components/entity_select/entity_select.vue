@@ -1,9 +1,10 @@
 <script>
-import { debounce } from 'lodash';
-import { GlFormGroup, GlCollapsibleListbox } from '@gitlab/ui';
+import { debounce, isObject } from 'lodash';
+import { GlFormGroup, GlCollapsibleListbox, GlLoadingIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { DEFAULT_DEBOUNCE_AND_THROTTLE_MS } from '~/lib/utils/constants';
 import { RESET_LABEL, QUERY_TOO_SHORT_MESSAGE } from './constants';
+import { initialSelectionPropValidator } from './utils';
 
 const MINIMUM_QUERY_LENGTH = 3;
 
@@ -11,6 +12,7 @@ export default {
   components: {
     GlFormGroup,
     GlCollapsibleListbox,
+    GlLoadingIcon,
   },
   props: {
     block: {
@@ -36,9 +38,10 @@ export default {
       required: true,
     },
     initialSelection: {
-      type: [String, Number],
+      type: [String, Number, Object],
       required: false,
       default: null,
+      validator: initialSelectionPropValidator,
     },
     clearable: {
       type: Boolean,
@@ -67,19 +70,23 @@ export default {
       required: false,
       default: '',
     },
+    searchable: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   data() {
     return {
       pristine: true,
-      searching: false,
+      loading: false,
       hasMoreItems: true,
       infiniteScrollLoading: false,
       searchString: '',
       items: [],
       page: 1,
-      selected: this.initialSelection || '',
-      initialSelectedItem: {},
       errorMessage: '',
+      ...this.setInitialSelected(),
     };
   },
   computed: {
@@ -112,6 +119,19 @@ export default {
     this.getInitialSelection();
   },
   methods: {
+    setInitialSelected() {
+      if (isObject(this.initialSelection) && this.initialSelection.value !== undefined) {
+        return {
+          selected: this.initialSelection.value,
+          initialSelectedItem: this.initialSelection,
+        };
+      }
+
+      return {
+        selected: this.initialSelection || '',
+        initialSelectedItem: {},
+      };
+    },
     search: debounce(function debouncedSearch(searchString) {
       this.searchString = searchString;
       if (this.isSearchQueryTooShort) {
@@ -122,7 +142,7 @@ export default {
     }, DEFAULT_DEBOUNCE_AND_THROTTLE_MS),
     async fetchEntities(page = 1) {
       if (page === 1) {
-        this.searching = true;
+        this.loading = true;
         this.items = [];
         this.hasMoreItems = true;
       } else {
@@ -138,11 +158,11 @@ export default {
       }
 
       this.page = page;
-      this.searching = false;
+      this.loading = false;
       this.infiniteScrollLoading = false;
     },
     async getInitialSelection() {
-      if (!this.initialSelection) {
+      if (!this.initialSelection || isObject(this.initialSelection)) {
         this.pristine = false;
         return;
       }
@@ -153,10 +173,10 @@ export default {
         );
       }
 
-      this.searching = true;
+      this.loading = true;
       this.initialSelectedItem = await this.fetchInitialSelection(this.initialSelection);
       this.pristine = false;
-      this.searching = false;
+      this.loading = false;
     },
     onShown() {
       if (!this.searchString && !this.items.length) {
@@ -191,14 +211,14 @@ export default {
       :header-text="headerText"
       :reset-button-label="resetButtonLabel"
       :toggle-text="toggleText"
-      :loading="searching && pristine"
-      :searching="searching"
+      :loading="loading && pristine"
+      :searching="loading"
       :items="items"
       :no-results-text="noResultsText"
       :infinite-scroll="hasMoreItems"
       :infinite-scroll-loading="infiniteScrollLoading"
       :toggle-class="toggleClass"
-      searchable
+      :searchable="searchable"
       @shown="onShown"
       @search="search"
       @reset="onReset"
@@ -206,6 +226,9 @@ export default {
     >
       <template #list-item="{ item }">
         <slot name="list-item" :item="item"></slot>
+      </template>
+      <template v-if="!searchable" #footer>
+        <gl-loading-icon v-if="loading" size="md" class="gl-my-3" />
       </template>
     </gl-collapsible-listbox>
     <input :id="inputId" data-testid="input" type="hidden" :name="inputName" :value="selected" />

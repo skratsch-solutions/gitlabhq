@@ -256,10 +256,16 @@ func TestUploadWithS3WorkhorseClient(t *testing.T) {
 		objectSize  int64
 		maxSize     int64
 		expectedErr error
+		awsSDK      string
 	}{
 		{
 			name:       "known size with no limit",
 			objectSize: test.ObjectSize,
+		},
+		{
+			name:       "known size with no limit with v1 SDK",
+			objectSize: test.ObjectSize,
+			awsSDK:     "v1",
 		},
 		{
 			name:       "unknown size with no limit",
@@ -271,12 +277,33 @@ func TestUploadWithS3WorkhorseClient(t *testing.T) {
 			maxSize:     test.ObjectSize - 1,
 			expectedErr: ErrEntityTooLarge,
 		},
+		{
+			name:       "S3 v2 known size with no limit",
+			objectSize: test.ObjectSize,
+			awsSDK:     "v2",
+		},
+		{
+			name:       "S3 v2 unknown size with no limit",
+			objectSize: -1,
+			awsSDK:     "v2",
+		},
+		{
+			name:        "S3 v2 unknown object size with limit",
+			objectSize:  -1,
+			maxSize:     test.ObjectSize - 1,
+			expectedErr: ErrEntityTooLarge,
+			awsSDK:      "v2",
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			s3Creds, s3Config, sess, ts := test.SetupS3(t, "")
+			s3Creds, s3Config, client, ts := test.SetupS3(t, "")
 			defer ts.Close()
+
+			if tc.awsSDK != "" {
+				s3Config.AwsSDK = tc.awsSDK
+			}
 
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
@@ -298,10 +325,10 @@ func TestUploadWithS3WorkhorseClient(t *testing.T) {
 
 			if tc.expectedErr == nil {
 				require.NoError(t, err)
-				test.S3ObjectExists(t, sess, s3Config, remoteObject, test.ObjectContent)
+				test.S3ObjectExists(ctx, t, client, s3Config, remoteObject, test.ObjectContent)
 			} else {
 				require.Equal(t, tc.expectedErr, err)
-				test.S3ObjectDoesNotExist(t, sess, s3Config, remoteObject)
+				test.S3ObjectDoesNotExist(ctx, t, client, s3Config, remoteObject)
 			}
 		})
 	}

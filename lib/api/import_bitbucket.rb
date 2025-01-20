@@ -2,7 +2,10 @@
 
 module API
   class ImportBitbucket < ::API::Base
-    before { authenticate! }
+    before do
+      authenticate!
+      set_current_organization
+    end
 
     feature_category :importers
     urgency :low
@@ -29,7 +32,10 @@ module API
     end
 
     post 'import/bitbucket' do
-      result = Import::BitbucketService.new(current_user, params).execute
+      result = Import::BitbucketService.new(
+        current_user,
+        params.merge(organization_id: Current.organization_id)
+      ).execute
 
       if result[:status] == :success
         present ProjectSerializer.new.represent(result[:project], serializer: :import)

@@ -9,7 +9,7 @@ module Packages
       FORCE_NORMALIZATION_CLIENT_VERSION = '>= 3'
 
       def execute
-        return ::Packages::Package.none unless @params[:package_name].present?
+        return packages_class.none unless @params[:package_name].present?
 
         packages.limit_recent(@params[:limit] || MAX_PACKAGES_COUNT)
       end
@@ -23,7 +23,6 @@ module Packages
 
       def find_by_name
         base
-          .nuget
           .has_version
           .with_case_insensitive_name(@params[:package_name])
       end
@@ -40,10 +39,6 @@ module Packages
 
       override :group_packages
       def group_packages
-        if ::Feature.disabled?(:allow_anyone_to_pull_public_nuget_packages_on_group_level, @project_or_group)
-          return super
-        end
-
         packages_visible_to_user_including_public_registries(@current_user, within_group: @project_or_group)
       end
 
@@ -51,6 +46,11 @@ module Packages
         return true if @params[:client_version].blank?
 
         VersionSorter.compare(FORCE_NORMALIZATION_CLIENT_VERSION, @params[:client_version]) <= 0
+      end
+
+      override :packages_class
+      def packages_class
+        ::Packages::Nuget::Package
       end
     end
   end

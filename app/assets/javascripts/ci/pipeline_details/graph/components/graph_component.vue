@@ -1,5 +1,4 @@
 <script>
-import { reportToSentry } from '~/ci/utils';
 import {
   generateColumnsFromLayersListMemoized,
   keepLatestDownstreamPipelines,
@@ -133,9 +132,6 @@ export default {
       return this.hasUpstreamPipelines ? this.pipeline.upstream : [];
     },
   },
-  errorCaptured(err, _vm, info) {
-    reportToSentry(this.$options.name, `error: ${err}, info: ${info}`);
-  },
   mounted() {
     this.getMeasurements();
   },
@@ -178,11 +174,11 @@ export default {
   <div class="js-pipeline-graph">
     <div
       ref="mainPipelineContainer"
-      class="pipeline-graph gl-display-flex gl-position-relative gl-whitespace-nowrap gl-rounded-lg"
+      class="pipeline-graph gl-position-relative gl-flex gl-whitespace-nowrap gl-rounded-lg"
       :class="{
-        'pipeline-graph-container gl-bg-gray-10 gl-pipeline-min-h gl-align-items-flex-start gl-pt-3 gl-pb-8 gl-mt-3 gl-overflow-auto':
+        'pipeline-graph-container gl-pipeline-min-h gl-mt-3 gl-items-start gl-overflow-auto gl-bg-subtle gl-pb-8 gl-pt-3':
           !isLinkedPipeline,
-        'gl-bg-gray-50 gl-sm-ml-5': isLinkedPipeline,
+        'gl-bg-gray-50 sm:gl-ml-5': isLinkedPipeline,
       }"
       data-testid="pipeline-container"
     >
@@ -241,7 +237,7 @@ export default {
         <template #downstream>
           <linked-pipelines-column
             v-if="showDownstreamPipelines"
-            class="gl-sm-ml-3"
+            class="sm:gl-ml-3"
             :config-paths="configPaths"
             :linked-pipelines="downstreamPipelines"
             :column-title="__('Downstream')"

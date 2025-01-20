@@ -9,9 +9,9 @@ description: "Use the GitLab CLI (glab) to perform common GitLab actions in your
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-GLab is an open source GitLab CLI tool. It brings GitLab to your terminal:
+`glab` is an open source GitLab CLI tool. It brings GitLab to your terminal:
 next to where you are already working with Git and your code, without
 switching between windows and browser tabs.
 
@@ -73,16 +73,19 @@ glab mr merge
 ## GitLab Duo for the CLI
 
 DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3 Haiku](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-haiku)
+
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
 
 The GitLab CLI includes features powered by [GitLab Duo](../../user/ai_features.md). These include:
 
-- [`glab duo ask`](https://gitlab.com/gitlab-org/cli/-/tree/main/docs/source/duo/ask)
+- [`glab duo ask`](https://gitlab.com/gitlab-org/cli/-/blob/main/docs/source/duo/ask.md)
 
 To ask questions about `git` commands while you work, type:
 
-- [`glab duo ask`](https://gitlab.com/gitlab-org/cli/-/tree/main/docs/source/duo/ask)
+- [`glab duo ask`](https://gitlab.com/gitlab-org/cli/-/blob/main/docs/source/duo/ask.md)
 
 The `glab duo ask` command can help you remember a `git` command you forgot,
 or provide suggestions on how to run `git` commands to perform other tasks.

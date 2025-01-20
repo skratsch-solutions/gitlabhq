@@ -13,6 +13,8 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
 
   specify { expect(described_class).to require_graphql_authorizations(:read_project) }
 
+  specify { expect(described_class.interfaces).to include(Types::TodoableInterface) }
+
   it 'has the expected fields' do
     expected_fields = %w[
       user_permissions id full_path path name_with_namespace
@@ -34,7 +36,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
       incident_management_timeline_event incident_management_timeline_events
       container_expiration_policy service_desk_enabled service_desk_address
       issue_status_counts terraform_states alert_management_integrations
-      container_repositories container_repositories_count max_access_level
+      container_protection_repository_rules container_repositories container_repositories_count max_access_level
       pipeline_analytics squash_read_only sast_ci_configuration
       cluster_agent cluster_agents agent_configurations ci_access_authorized_agents user_access_authorized_agents
       ci_template timelogs merge_commit_template squash_commit_template work_item_types
@@ -43,7 +45,9 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
       incident_management_timeline_event_tags visible_forks inherited_ci_variables autocomplete_users
       ci_cd_settings detailed_import_status value_streams ml_models
       allows_multiple_merge_request_assignees allows_multiple_merge_request_reviewers is_forked
-      protectable_branches available_deploy_keys
+      protectable_branches available_deploy_keys explore_catalog_path
+      container_protection_tag_rules allowed_custom_statuses
+      pages_force_https pages_use_unique_domain
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)
@@ -296,10 +300,12 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
       let_it_be(:project) { create(:project_empty_repo) }
 
       it 'raises an error' do
-        expect(subject['errors'][0]['message']).to eq('You must <a target="_blank" rel="noopener noreferrer" ' \
-                                                      'href="http://localhost/help/user/project/repository/index.md#' \
-                                                      'add-files-to-a-repository">add at least one file to the ' \
-                                                      'repository</a> before using Security features.')
+        expect(subject['errors'][0]['message']).to eq(
+          'You must <a target="_blank" rel="noopener noreferrer" ' \
+            'href="http://localhost/help/user/project/repository/index.md#' \
+            'add-files-to-a-repository">add at least one file to the ' \
+            'repository</a> before using Security features.'
+        )
       end
     end
   end
@@ -333,7 +339,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     it { is_expected.to have_graphql_resolver(Resolvers::ProjectMergeRequestsResolver) }
 
     it do
-      is_expected.to have_graphql_arguments(
+      is_expected.to include_graphql_arguments(
         :iids,
         :source_branches,
         :target_branches,
@@ -356,6 +362,10 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
         :updated_after,
         :updated_before,
         :author_username,
+        :approved_by,
+        :my_reaction_emoji,
+        :merged_by,
+        :release_tag,
         :assignee_username,
         :assignee_wildcard_id,
         :reviewer_username,
@@ -365,7 +375,8 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
         :milestone_title,
         :milestone_wildcard_id,
         :not,
-        :sort
+        :sort,
+        :subscribed
       )
     end
   end
@@ -444,10 +455,24 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     it { is_expected.to have_graphql_resolver(Resolvers::ReleasesResolver) }
   end
 
+  describe 'container tags expiration policy field' do
+    subject { described_class.fields['containerTagsExpirationPolicy'] }
+
+    it { is_expected.to have_graphql_type(Types::ContainerRegistry::ContainerTagsExpirationPolicyType) }
+    it { expect(subject.instance_variable_get(:@authorize)).to include(:read_container_image) }
+  end
+
   describe 'container expiration policy field' do
     subject { described_class.fields['containerExpirationPolicy'] }
 
     it { is_expected.to have_graphql_type(Types::ContainerExpirationPolicyType) }
+  end
+
+  describe 'container protection repository rules' do
+    subject { described_class.fields['containerProtectionRepositoryRules'] }
+
+    it { is_expected.to have_graphql_type(Types::ContainerRegistry::Protection::RuleType.connection_type) }
+    it { is_expected.to have_graphql_resolver(Resolvers::ProjectContainerRegistryProtectionRulesResolver) }
   end
 
   describe 'packages cleanup policy field' do
@@ -480,7 +505,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
   end
 
   it_behaves_like 'a GraphQL type with labels' do
-    let(:labels_resolver_arguments) { [:search_term, :includeAncestorGroups, :searchIn] }
+    let(:labels_resolver_arguments) { [:search_term, :includeAncestorGroups, :searchIn, :title] }
   end
 
   describe 'jira_imports' do
@@ -520,7 +545,11 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     subject { described_class.fields['jobs'] }
 
     it { is_expected.to have_graphql_type(Types::Ci::JobType.connection_type) }
-    it { is_expected.to have_graphql_arguments(:statuses, :with_artifacts, :name, :after, :before, :first, :last) }
+
+    it do
+      is_expected.to have_graphql_arguments(:statuses, :with_artifacts, :name, :sources,
+        :after, :before, :first, :last)
+    end
   end
 
   describe 'ci_template field' do
@@ -1221,6 +1250,26 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
           expect(protectable_branches).to match_array(branch_names)
         end
       end
+
+      context 'without read_code permissions' do
+        before do
+          project.add_guest(current_user)
+        end
+
+        it 'returns an empty array' do
+          expect(protectable_branches).to be_nil
+        end
+      end
+
+      context 'with read_code permissions' do
+        before do
+          project.add_member(current_user, Gitlab::Access::REPORTER)
+        end
+
+        it 'returns all the branch names' do
+          expect(protectable_branches).to match_array(branch_names)
+        end
+      end
     end
   end
 
@@ -1305,12 +1354,114 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
         )
       end
     end
+  end
 
-    context 'when project does not have an organization associated with it' do
-      let_it_be(:project) { create(:project, :public, organization: nil) }
+  describe 'explore_catalog_path' do
+    let_it_be(:user) { create(:user) }
+    let(:query) do
+      %(
+        query {
+          project(fullPath: "#{project.full_path}") {
+            exploreCatalogPath
+          }
+        }
+      )
+    end
 
-      it 'returns nil' do
-        expect(organization_edit_path).to be_nil
+    let(:response) { GitlabSchema.execute(query, context: { current_user: user }).as_json }
+
+    subject(:explore_catalog_path) { response.dig('data', 'project', 'exploreCatalogPath') }
+
+    context 'when project is not a catalog resource' do
+      let_it_be(:project) { create(:project, :public) }
+
+      it 'returns nil for explore_catalog_path' do
+        expect(explore_catalog_path).to be_nil
+      end
+    end
+
+    context 'when project is a catalog resource' do
+      let_it_be(:project) { create(:project, :public, :catalog_resource_with_components, create_tag: '1.0.0') }
+      let_it_be(:catalog_resource) { create(:ci_catalog_resource, project: project) }
+
+      it 'returns correct path for explore_catalog_path' do
+        expect(explore_catalog_path).to eq("/explore/catalog/#{project.path_with_namespace}")
+      end
+    end
+  end
+
+  describe 'pages_force_https' do
+    let_it_be(:current_user) { create(:user) }
+    let_it_be(:project) { create(:project, :repository) }
+    let(:query) do
+      %(
+        query {
+          project(fullPath: "#{project.full_path}") {
+            pagesForceHttps
+          }
+        }
+      )
+    end
+
+    let(:response) { GitlabSchema.execute(query, context: { current_user: current_user }).as_json }
+
+    subject(:result) { response.dig('data', 'project', 'pagesForceHttps') }
+
+    before do
+      project.add_maintainer(current_user)
+    end
+
+    context 'when the redirect from unsecured connections to HTTPS is disabled' do
+      it 'returns "false"' do
+        expect(result).to be false
+      end
+    end
+
+    context 'when the redirect from unsecured connections to HTTPS is enabled' do
+      it 'returns "true"' do
+        allow(Gitlab.config.pages).to receive(:external_https).and_return(true)
+
+        expect(result).to be true
+      end
+    end
+  end
+
+  describe 'pages_use_unique_domain' do
+    let_it_be(:current_user) { create(:user) }
+    let(:project) { create(:project, :repository, project_setting: project_settings) }
+    let(:query) do
+      %(
+        query {
+          project(fullPath: "#{project.full_path}") {
+            pagesUseUniqueDomain
+          }
+        }
+      )
+    end
+
+    let(:response) { GitlabSchema.execute(query, context: { current_user: current_user }).as_json }
+
+    subject(:result) { response.dig('data', 'project', 'pagesUseUniqueDomain') }
+
+    before do
+      project.add_maintainer(current_user)
+    end
+
+    context 'when the project pages site uses a unique subdomain' do
+      let(:project_settings) do
+        create(:project_setting, pages_unique_domain_enabled: true, pages_unique_domain: "test-unique-domain")
+      end
+
+      it 'returns "true"' do
+        expect(result).to be true
+      end
+    end
+
+    context 'when the project pages site does not use a unique subdomain' do
+      let(:project_settings) { create(:project_setting, pages_unique_domain_enabled: false) }
+
+      it 'returns "false"' do
+        expect(result).to be false
       end
     end
   end

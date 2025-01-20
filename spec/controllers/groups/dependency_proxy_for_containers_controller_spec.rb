@@ -181,33 +181,34 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
       group.add_guest(user)
     end
 
-    # When authenticating with a job token, the encoded token is the same as
-    # that built when authenticating with a user
+    # When authenticating with a job token, the encoded token has the same structure
+    # as the token built when authenticating with a user
     context 'with a valid user or a job token' do
       it_behaves_like 'sends Workhorse instructions'
+
+      context 'with a job token triggered by a group access token user' do
+        let_it_be(:user) { create(:user, :project_bot) }
+
+        it_behaves_like 'sends Workhorse instructions'
+      end
+
+      context 'with a job token triggered by a service account user' do
+        let_it_be(:user) { create(:user, :service_account) }
+
+        it_behaves_like 'sends Workhorse instructions'
+      end
     end
 
     context 'with a valid group access token' do
       let_it_be(:user) { create(:user, :project_bot) }
       let_it_be_with_reload(:token) { create(:personal_access_token, user: user) }
+      let_it_be(:jwt) { build_jwt(token) }
 
       before do
         token.update_column(:scopes, Gitlab::Auth::REGISTRY_SCOPES)
       end
 
-      context 'with packages_dependency_proxy_pass_token_to_policy disabled' do
-        before do
-          stub_feature_flags(packages_dependency_proxy_pass_token_to_policy: false)
-        end
-
-        it_behaves_like 'sends Workhorse instructions'
-      end
-
-      context 'with packages_dependency_proxy_pass_token_to_policy enabled' do
-        let_it_be(:jwt) { build_jwt(token) }
-
-        it_behaves_like 'sends Workhorse instructions'
-      end
+      it_behaves_like 'sends Workhorse instructions'
     end
 
     context 'with a deploy token' do
@@ -309,15 +310,6 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
         it_behaves_like 'a successful manifest pull'
         it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
 
-        context 'when packages_dependency_proxy_pass_token_to_policy is disabled' do
-          before do
-            stub_feature_flags(packages_dependency_proxy_containers_scope_check: false)
-          end
-
-          it_behaves_like 'a successful manifest pull'
-          it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
-        end
-
         context 'with workhorse response' do
           let(:pull_response) { { status: :success, manifest: nil, from_cache: false } }
 
@@ -349,14 +341,6 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
 
         it_behaves_like 'a successful manifest pull'
 
-        context 'when packages_dependency_proxy_pass_token_to_policy is disabled' do
-          before do
-            stub_feature_flags(packages_dependency_proxy_containers_scope_check: false)
-          end
-
-          it_behaves_like 'a successful manifest pull'
-        end
-
         context 'pulling from a subgroup' do
           let_it_be_with_reload(:parent_group) { create(:group) }
           let_it_be_with_reload(:group) { create(:group, parent: parent_group) }
@@ -372,26 +356,14 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
       context 'a valid group access token' do
         let_it_be(:user) { create(:user, :project_bot) }
         let_it_be(:token) { create(:personal_access_token, :dependency_proxy_scopes, user: user) }
+        let_it_be(:jwt) { build_jwt(token) }
 
         before do
           group.add_guest(user)
         end
 
-        context 'when packages_dependency_proxy_pass_token_to_policy is disabled' do
-          before do
-            stub_feature_flags(packages_dependency_proxy_pass_token_to_policy: false)
-          end
-
-          it_behaves_like 'a successful manifest pull'
-          it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
-        end
-
-        context 'when packages_dependency_proxy_pass_token_to_policy is enabled' do
-          let_it_be(:jwt) { build_jwt(token) }
-
-          it_behaves_like 'a successful manifest pull'
-          it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
-        end
+        it_behaves_like 'a successful manifest pull'
+        it_behaves_like 'a package tracking event', described_class.name, 'pull_manifest', false
       end
     end
 
@@ -412,14 +384,6 @@ RSpec.describe Groups::DependencyProxyForContainersController, feature_category:
     context 'feature enabled' do
       it_behaves_like 'without a token'
       it_behaves_like 'without permission'
-
-      context 'when packages_dependency_proxy_pass_token_to_policy is disabled' do
-        before do
-          stub_feature_flags(packages_dependency_proxy_containers_scope_check: false)
-        end
-
-        it { is_expected.to have_gitlab_http_status(:not_found) }
-      end
 
       context 'a valid user' do
         before do

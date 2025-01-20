@@ -44,6 +44,7 @@ const {
   GITLAB_WEB_IDE_PUBLIC_PATH,
   copyFilesPatterns,
 } = require('./webpack.constants');
+const { PDF_JS_WORKER_PUBLIC_PATH, PDF_JS_CMAPS_PUBLIC_PATH } = require('./pdfjs.constants');
 const { generateEntries } = require('./webpack.helpers');
 
 const createIncrementalWebpackCompiler = require('./helpers/incremental_webpack_compiler');
@@ -122,6 +123,12 @@ const alias = {
     'app/assets/javascripts/lib/utils/icons_path.js',
   ),
 
+  // prevent loading of index.js to avoid duplicate instances of classes
+  graphql: path.join(ROOT_PATH, 'node_modules/graphql/index.mjs'),
+
+  // load mjs version instead of cjs
+  'markdown-it': path.join(ROOT_PATH, 'node_modules/markdown-it/index.mjs'),
+
   // test-environment-only aliases duplicated from Jest config
   'spec/test_constants$': path.join(ROOT_PATH, 'spec/frontend/__helpers__/test_constants'),
   ee_else_ce_jest: path.join(ROOT_PATH, 'spec/frontend'),
@@ -132,6 +139,7 @@ const alias = {
   test_helpers: path.join(ROOT_PATH, 'spec/frontend_integration/test_helpers'),
   public: path.join(ROOT_PATH, 'public'),
   storybook_addons: path.resolve(ROOT_PATH, 'storybook/config/addons'),
+  storybook_helpers: path.resolve(ROOT_PATH, 'storybook/helpers'),
 };
 
 if (IS_EE) {
@@ -278,6 +286,7 @@ module.exports = {
       super_sidebar: './entrypoints/super_sidebar.js',
       tracker: './entrypoints/tracker.js',
       analytics: './entrypoints/analytics.js',
+      graphql_explorer: './entrypoints/graphql_explorer.js',
       ...incrementalCompiler.filterEntryPoints(generateEntries({ defaultEntries, entriesState })),
     };
   },
@@ -293,7 +302,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.js'],
+    extensions: ['.mjs', '.js'],
     alias,
   },
 
@@ -302,8 +311,30 @@ module.exports = {
     rules: [
       {
         type: 'javascript/auto',
+        exclude: /pdfjs-dist-v[34]/,
         test: /\.mjs$/,
         use: [],
+      },
+      {
+        test: /(pdfjs).*\.m?js?$/,
+        type: 'javascript/auto',
+        include: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['@babel/preset-env', { targets: { esmodules: true }, modules: 'commonjs' }],
+              ],
+              plugins: [
+                '@babel/plugin-transform-optional-chaining',
+                '@babel/plugin-transform-logical-assignment-operators',
+                '@babel/plugin-transform-classes',
+              ],
+              ...defaultJsOptions,
+            },
+          },
+        ],
       },
       {
         test: /(@gitlab\/web-ide).*\.js?$/,
@@ -346,6 +377,16 @@ module.exports = {
       },
       {
         test: /marked\/.*\.js?$/,
+        include: /node_modules/,
+        loader: 'babel-loader',
+      },
+      {
+        test: /@graphiql\/.*\.m?js$/,
+        include: /node_modules/,
+        loader: 'babel-loader',
+      },
+      {
+        test: /@radix-ui\/.*\.m?js$/,
         include: /node_modules/,
         loader: 'babel-loader',
       },
@@ -511,14 +552,6 @@ module.exports = {
           minChunks: 2,
           reuseExistingChunk: true,
         },
-        graphql: {
-          priority: 16,
-          name: 'graphql',
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/][^\\/]*(immer|apollo|graphql|zen-observable)[^\\/]*[\\/]/,
-          minChunks: 2,
-          reuseExistingChunk: true,
-        },
         monaco: {
           priority: 15,
           name: 'monaco',
@@ -671,11 +704,6 @@ module.exports = {
         );
       }),
 
-    new webpack.NormalModuleReplacementPlugin(/markdown-it/, (resource) => {
-      // eslint-disable-next-line no-param-reassign
-      resource.request = path.join(ROOT_PATH, 'app/assets/javascripts/lib/markdown_it.js');
-    }),
-
     /*
      The following `NormalModuleReplacementPlugin` adds support for exports field in `package.json`.
      It might not necessarily be needed for all packages which expose it, but some packages
@@ -712,8 +740,25 @@ module.exports = {
       });
     }),
 
+    new webpack.ContextReplacementPlugin(/^\.$/, (context) => {
+      if (/\/node_modules\/pdfjs-dist/.test(context.context)) {
+        for (const d of context.dependencies) {
+          if (d.critical) d.critical = false;
+        }
+      }
+    }),
+
     !IS_JH &&
       new webpack.NormalModuleReplacementPlugin(/^jh_component\/(.*)\.vue/, (resource) => {
+        // eslint-disable-next-line no-param-reassign
+        resource.request = path.join(
+          ROOT_PATH,
+          'app/assets/javascripts/vue_shared/components/empty_component.js',
+        );
+      }),
+    !IS_EE &&
+      !IS_JH &&
+      new webpack.NormalModuleReplacementPlugin(/^jh_else_ee\/(.*)\.vue/, (resource) => {
         // eslint-disable-next-line no-param-reassign
         resource.request = path.join(
           ROOT_PATH,
@@ -827,7 +872,10 @@ module.exports = {
       // This is used by Sourcegraph because these assets are loaded dnamically
       'process.env.SOURCEGRAPH_PUBLIC_PATH': JSON.stringify(SOURCEGRAPH_PUBLIC_PATH),
       'process.env.GITLAB_WEB_IDE_PUBLIC_PATH': JSON.stringify(GITLAB_WEB_IDE_PUBLIC_PATH),
+      'window.IS_VITE': JSON.stringify(false),
       ...(IS_PRODUCTION ? {} : { LIVE_RELOAD: DEV_SERVER_LIVERELOAD }),
+      'process.env.PDF_JS_WORKER_PUBLIC_PATH': JSON.stringify(PDF_JS_WORKER_PUBLIC_PATH),
+      'process.env.PDF_JS_CMAPS_PUBLIC_PATH': JSON.stringify(PDF_JS_CMAPS_PUBLIC_PATH),
     }),
 
     /* Pikaday has a optional dependency to moment.

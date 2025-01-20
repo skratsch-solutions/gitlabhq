@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Operations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This page contains information about PostgreSQL the GitLab Support team uses
 when troubleshooting. GitLab makes this information public, so that anyone can
@@ -130,11 +130,11 @@ idle_in_transaction_session_timeout = 60s
 
 Quoting from issue [#30528](https://gitlab.com/gitlab-org/gitlab/-/issues/30528):
 
-<!-- vale gitlab.FutureTense = NO -->
+<!-- vale gitlab_base.FutureTense = NO -->
 
 > "If a deadlock is hit, and we resolve it through aborting the transaction after a short period, then the retry mechanisms we already have will make the deadlocked piece of work try again, and it's unlikely we'll deadlock multiple times in a row."
 
-<!-- vale gitlab.FutureTense = YES -->
+<!-- vale gitlab_base.FutureTense = YES -->
 
 NOTE:
 In Support, our general approach to reconfiguring timeouts (applies also to the
@@ -230,6 +230,26 @@ To temporarily change the statement timeout:
    (for example the backup or the Rails command).
 1. Revert the edit in `/var/opt/gitlab/gitlab-rails/etc/database.yml`.
 
+### Observe (RE)INDEX progress report
+
+In some situations, you might want to observe the progress of a `CREATE INDEX` or `REINDEX` operation. For example, you can do this to confirm whether the `CREATE INDEX` or `REINDEX` operation is active, or to check which phase the operation is in.
+
+Prerequisites:
+
+- You must use PostgreSQL version 12 or later.
+
+To observe a `CREATE INDEX` or `REINDEX` operation:
+
+- Use the built-in [`pg_stat_progress_create_index` view](https://www.postgresql.org/docs/current/progress-reporting.html#CREATE-INDEX-PROGRESS-REPORTING).
+
+For example, from a database console session, run the following command:
+
+```sql
+SELECT * FROM  pg_stat_progress_create_index \watch 0.2
+```
+
+To learn more about producing human-friendly output and writing data to log files, see [this snippet](https://gitlab.com/-/snippets/3750940).
+
 ## Troubleshooting
 
 ### Database is not accepting commands to avoid wraparound data loss
@@ -261,7 +281,7 @@ To resolve the error, run `VACUUM` manually:
 
 ### GitLab database requirements
 
-See [database requirements](../../install/requirements.md#database) and review and install the
+See [database requirements](../../install/requirements.md#postgresql) and review and install the
 [required extension list](../../install/postgresql_extensions.md).
 
 ### Serialization errors in the `production/sidekiq` log
@@ -286,7 +306,7 @@ HINT:  Free one or increase max_replication_slots.
 ### Geo replication errors
 
 If you receive errors like this example, read about how to resolve
-[Geo replication errors](../geo/replication/troubleshooting/replication.md#fixing-postgresql-database-replication-errors):
+[Geo replication errors](../geo/replication/troubleshooting/postgresql_replication.md):
 
 ```plaintext
 ERROR: replication slots can only be used if max_replication_slots > 0

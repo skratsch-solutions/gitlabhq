@@ -6,6 +6,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Migrate a Maven build from Jenkins to GitLab CI/CD
 
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
 If you have a Maven build in Jenkins, you can use a [Java Spring](https://gitlab.com/gitlab-org/project-templates/spring)
 project template to migrate to GitLab. The template uses Maven for its underlying dependency management.
 
@@ -35,7 +39,7 @@ using the [shell executor](https://docs.gitlab.com/runner/executors/shell.html).
 If using Jenkins' built-in shell execution option to directly call `mvn` commands
 from the shell on the agent, the configuration might look like:
 
-![freestyle shell](img/maven-freestyle-shell.png)
+![freestyle shell](img/maven-freestyle-shell_v16_4.png)
 
 ### Freestyle with Maven task plugin
 
@@ -43,7 +47,7 @@ If using the Maven plugin in Jenkins to declare and execute any specific goals
 in the [Maven build lifecycle](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html),
 the configuration might look like:
 
-![freestyle plugin](img/maven-freestyle-plugin.png)
+![freestyle plugin](img/maven-freestyle-plugin_v16_4.png)
 
 This plugin requires Maven to be installed on the Jenkins agent, and uses a script wrapper
 for calling Maven commands.

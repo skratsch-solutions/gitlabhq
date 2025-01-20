@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_workflow do
   include GraphqlHelpers
   include SortingHelper
+  include MrResolverHelpers
 
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:other_project) { create(:project, :repository) }
@@ -13,8 +14,8 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
   let_it_be(:other_user) { create(:user) }
   let_it_be(:common_attrs) { { author: current_user, source_project: project, target_project: project } }
   let_it_be(:merge_request_1) { create(:merge_request, :simple, reviewers: create_list(:user, 2), **common_attrs) }
-  let_it_be(:merge_request_2) { create(:merge_request, :rebased, **common_attrs) }
-  let_it_be(:merge_request_3) { create(:merge_request, :unique_branches, **common_attrs) }
+  let_it_be(:merge_request_2) { create(:merge_request, :rebased, reviewers: [current_user], **common_attrs) }
+  let_it_be(:merge_request_3) { create(:merge_request, :unique_branches, assignees: [current_user], **common_attrs) }
   let_it_be(:merge_request_4) { create(:merge_request, :unique_branches, :locked, **common_attrs) }
   let_it_be(:merge_request_5) { create(:merge_request, :simple, :locked, **common_attrs) }
   let_it_be(:merge_request_6) do
@@ -95,8 +96,9 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
 
       it 'can batch-resolve merge requests from different projects', :request_store do
-        # 2 queries for project_authorizations, and 2 for merge_requests
-        results = batch_sync(max_queries: queries_per_project * 2) do
+        # 2 queries for organization_users, 2 for project_authorizations, and 2 for merge_requests
+        extra_auth_queries = 2
+        results = batch_sync(max_queries: (queries_per_project + extra_auth_queries) * 2) do
           a = resolve_mr(project, iids: [iid_1])
           b = resolve_mr(project, iids: [iid_2])
           c = resolve_mr(other_project, iids: [other_iid])
@@ -132,6 +134,17 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
     end
 
+    context 'with negated author argument' do
+      let_it_be(:author) { current_user }
+      let_it_be(:different_author_mr) { create(:merge_request, **common_attrs, author: create(:user)) }
+
+      it 'excludes merge requests with given author from selection' do
+        result = resolve_mr(project, not: { author_username: author.username })
+
+        expect(result).to contain_exactly(different_author_mr)
+      end
+    end
+
     context 'with source branches argument' do
       it 'takes one argument' do
         result = resolve_mr(project, source_branches: [merge_request_3.source_branch])
@@ -148,6 +161,16 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
     end
 
+    context 'with negated source branches argument' do
+      it 'excludes merge requests with given source branches from selection' do
+        mrs = [merge_request_3, merge_request_4]
+        branches = mrs.map(&:source_branch)
+        result = resolve_mr(project, not: { source_branches: branches })
+
+        expect(result).not_to include(*mrs)
+      end
+    end
+
     context 'with target branches argument' do
       it 'takes one argument' do
         result = resolve_mr(project, target_branches: [merge_request_3.target_branch])
@@ -161,6 +184,17 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
         result = resolve_mr(project, target_branches: branches)
 
         expect(result).to match_array(mrs)
+      end
+    end
+
+    context 'with negated target branches argument' do
+      it 'excludes merge requests with given target branches from selection' do
+        mrs = [merge_request_3, merge_request_4]
+        branches = mrs.map(&:target_branch)
+        result = resolve_mr(project, not: { target_branches: branches })
+
+        expect(result).not_to include(merge_request_3, merge_request_4)
+        expect(result).to include(merge_request_1, merge_request_2, merge_request_5, merge_request_6)
       end
     end
 
@@ -240,6 +274,107 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
     end
 
+    context 'with merged_by argument' do
+      before_all do
+        merge_request_1.metrics.update!(merged_by: other_user)
+      end
+
+      context "for matching arguments" do
+        it 'returns merge requests merged by user' do
+          result = resolve_mr(project, merged_by: other_user.username)
+
+          expect(result).to contain_exactly(merge_request_1)
+        end
+
+        it 'does not return anything' do
+          result = resolve_mr(project, merged_by: "cool_guy_123")
+
+          expect(result).to be_empty
+        end
+      end
+    end
+
+    context 'with release argument' do
+      let_it_be(:release_in_project) { create(:release, :with_milestones, project: merge_request_1.project) }
+      let_it_be(:milestone) { release_in_project.milestones.last }
+
+      before_all do
+        merge_request_1.update!(milestone: milestone)
+      end
+
+      it 'returns merge requests in release' do
+        result = resolve_mr(project, release_tag: release_in_project.name)
+
+        expect(result).to contain_exactly(merge_request_1)
+      end
+
+      it 'does not return anything' do
+        result = resolve_mr(project, release_tag: "8675309.0")
+
+        expect(result).to be_empty
+      end
+
+      it 'filters out merge requests with given milestone title' do
+        result = resolve_mr(project, not: { release_tag: release_in_project.name })
+
+        expect(result).not_to include(merge_request_1)
+      end
+    end
+
+    context 'with approved_by argument' do
+      let(:username) { other_user.username }
+
+      before_all do
+        merge_request_1.approvals.create!(user: other_user)
+      end
+
+      it 'returns merge requests approved by user' do
+        result = resolve_mr(project, approved_by: [username])
+
+        expect(result).to contain_exactly(merge_request_1)
+      end
+
+      it 'does not return anything' do
+        result = resolve_mr(project, approved_by: ["cool_guy_123"])
+
+        expect(result).to be_empty
+      end
+
+      context 'with negated approved by argument' do
+        it 'filters out merge requests with given approved user' do
+          result = resolve_mr(project, not: { approved_by: [username] })
+
+          expect(result).not_to include(merge_request_1)
+        end
+      end
+    end
+
+    context 'with my_reaction_emoji argument' do
+      before_all do
+        merge_request_1.award_emoji.create!(name: "poop", user: current_user)
+      end
+
+      it 'returns merge requests with a reaction emoji set by user' do
+        result = resolve_mr(project, my_reaction_emoji: "poop")
+
+        expect(result).to contain_exactly(merge_request_1)
+      end
+
+      it 'does not return anything' do
+        result = resolve_mr(project, my_reaction_emoji: AwardEmoji::THUMBS_UP)
+
+        expect(result).to be_empty
+      end
+
+      context 'with negated my_reaction_emoji argument' do
+        it 'filters out merge requests with given reaction emoji' do
+          result = resolve_mr(project, not: { my_reaction_emoji: "poop" })
+
+          expect(result).not_to include(merge_request_1)
+        end
+      end
+    end
+
     context 'when filtering by the merge request deployments' do
       let_it_be(:gstg) { create(:environment, project: project, name: 'gstg') }
       let_it_be(:gprd) { create(:environment, project: project, name: 'gprd') }
@@ -293,6 +428,38 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
 
           expect(result).to contain_exactly(merge_request_2)
         end
+      end
+    end
+
+    context 'when filtering by environment' do
+      let_it_be(:gstg) { create(:environment, project: project, name: 'gstg') }
+      let_it_be(:gprd) { create(:environment, project: project, name: 'gprd') }
+
+      let_it_be(:deploy1) do
+        create(
+          :deployment,
+          :success,
+          deployable: nil,
+          environment: gstg,
+          project: project,
+          sha: merge_request_1.diff_head_sha
+        )
+      end
+
+      before do
+        deploy1.link_merge_requests(MergeRequest.where(id: merge_request_1.id))
+      end
+
+      it 'returns merge requests for a given environment' do
+        result = resolve_mr(project, environment_name: gstg.name)
+
+        expect(result).to contain_exactly(merge_request_1)
+      end
+
+      it 'returns an empty list when no merge requests exist in a given environment' do
+        result = resolve_mr(project, environment_name: gprd.name)
+
+        expect(result).to be_empty
       end
     end
 
@@ -358,6 +525,18 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
     end
 
+    it_behaves_like 'graphql query for searching issuables' do
+      let_it_be(:parent) { project }
+      let_it_be(:issuable1) { create(:merge_request, :unique_branches, title: 'Fixed a bug', **common_attrs) }
+      let_it_be(:issuable1) { create(:merge_request, :unique_branches, title: 'first created', **common_attrs) }
+      let_it_be(:issuable2) { create(:merge_request, :unique_branches, title: 'second created', description: 'text 1', **common_attrs) }
+      let_it_be(:issuable3) { create(:merge_request, :unique_branches, title: 'third', description: 'text 2', **common_attrs) }
+      let_it_be(:issuable4) { create(:merge_request, :unique_branches, **common_attrs) }
+
+      let_it_be(:finder_class) { MergeRequestsFinder }
+      let_it_be(:optimization_param) { :attempt_project_search_optimizations }
+    end
+
     context 'with negated milestone argument' do
       it 'filters out merge requests with given milestone title' do
         result = resolve_mr(project, not: { milestone_title: milestone.title })
@@ -384,6 +563,79 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
       end
     end
 
+    context 'with blob path argument' do
+      subject(:resolve_query) { resolve_mr(project, blob_path: blob_path, target_branches: target_branches, state: state, created_after: created_after) }
+
+      let(:blob_path) { 'files/ruby/feature.rb' }
+      let(:state) { 'opened' }
+      let(:target_branches) { ['master'] }
+      let(:created_after) { 5.days.ago.to_s }
+
+      it 'filters merge requests by blob path' do
+        is_expected.to contain_exactly(merge_request_1)
+      end
+
+      context 'when state is not provided' do
+        let(:state) { nil }
+
+        it 'raises an ArgumentError' do
+          expect_graphql_error_to_be_created(Gitlab::Graphql::Errors::ArgumentError, 'state field must be specified to filter by blobPath') do
+            resolve_query
+          end
+        end
+      end
+
+      context 'when target_branches are not provided' do
+        let(:target_branches) { nil }
+
+        it 'raises an ArgumentError' do
+          expect_graphql_error_to_be_created(Gitlab::Graphql::Errors::ArgumentError, 'targetBranches field must be specified to filter by blobPath') do
+            resolve_query
+          end
+        end
+      end
+
+      context 'when created_after is not provided' do
+        let(:created_after) { nil }
+
+        it 'raises an ArgumentError' do
+          expect_graphql_error_to_be_created(Gitlab::Graphql::Errors::ArgumentError, 'createdAfter field must be specified to filter by blobPath') do
+            resolve_query
+          end
+        end
+      end
+
+      context 'when created_after is too much in the past' do
+        let(:created_after) { 31.days.ago }
+
+        it 'raises an ArgumentError' do
+          expect_graphql_error_to_be_created(Gitlab::Graphql::Errors::ArgumentError, 'createdAfter must be within the last 30 days to filter by blobPath') do
+            resolve_query
+          end
+        end
+      end
+
+      context 'when there are no merge requests that changed requested blob' do
+        let(:blob_path) { 'unknown' }
+
+        it 'does not find anything' do
+          is_expected.to be_empty
+        end
+
+        context 'when feature flag "filter_blob_path" is disabled' do
+          before do
+            stub_feature_flags(filter_blob_path: false)
+          end
+
+          it 'ignores requested blob path' do
+            is_expected.to contain_exactly(merge_request_1)
+          end
+        end
+      end
+    end
+
+    # subscribed filtering handled in request spec, spec/requests/api/graphql/merge_requests/merge_requests_spec.rb
+
     describe 'combinations' do
       it 'requires all filters' do
         create(:merge_request, :closed, **common_attrs, source_branch: merge_request_4.source_branch)
@@ -391,6 +643,24 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
         result = resolve_mr(project, source_branches: [merge_request_4.source_branch], state: 'locked')
 
         expect(result).to contain_exactly(merge_request_4)
+      end
+    end
+
+    context 'when using negated argument' do
+      context 'with assignee' do
+        it do
+          result = resolve_mr(project, not: { assignee_usernames: [current_user.username] })
+
+          expect(result).to contain_exactly(merge_request_1, merge_request_2, merge_request_4, merge_request_5, merge_request_6, merge_request_with_milestone)
+        end
+      end
+
+      context 'with reviewer' do
+        it do
+          result = resolve_mr(project, not: { reviewer_username: current_user.username })
+
+          expect(result).to contain_exactly(merge_request_1, merge_request_3, merge_request_4, merge_request_5, merge_request_6, merge_request_with_milestone)
+        end
       end
     end
 
@@ -482,9 +752,5 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
 
   def resolve_mr_single(project, iid)
     resolve_mr(project, resolver: described_class.single, iid: iid.to_s)
-  end
-
-  def resolve_mr(project, resolver: described_class, user: current_user, **args)
-    resolve(resolver, obj: project, args: args, ctx: { current_user: user }, arg_style: :internal)
   end
 end

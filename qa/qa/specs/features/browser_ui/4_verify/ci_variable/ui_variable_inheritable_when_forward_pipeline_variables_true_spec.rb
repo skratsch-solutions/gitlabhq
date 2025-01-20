@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Verify', :runner, product_group: :pipeline_security do
+  RSpec.describe 'Verify', :runner, product_group: :pipeline_authoring do
     describe 'UI defined variable' do
       include_context 'variable inheritance test prep'
 
@@ -14,7 +14,7 @@ module QA
       end
 
       it(
-        'is inheritable when forward:pipeline_variables is true', :blocking,
+        'is inheritable when forward:pipeline_variables is true',
         :aggregate_failures,
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/358197'
       ) do

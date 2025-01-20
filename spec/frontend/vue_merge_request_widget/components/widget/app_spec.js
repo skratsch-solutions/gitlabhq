@@ -1,17 +1,19 @@
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import App from '~/vue_merge_request_widget/components/widget/app.vue';
-import MrSecurityWidgetCE from '~/vue_merge_request_widget/extensions/security_reports/mr_widget_security_reports.vue';
-import MrTestReportWidget from '~/vue_merge_request_widget/extensions/test_report/index.vue';
-import MrTerraformWidget from '~/vue_merge_request_widget/extensions/terraform/index.vue';
-import MrCodeQualityWidget from '~/vue_merge_request_widget/extensions/code_quality/index.vue';
-import MrAccessibilityWidget from '~/vue_merge_request_widget/extensions/accessibility/index.vue';
+import StateContainer from '~/vue_merge_request_widget/components/state_container.vue';
+import MrSecurityWidgetCE from '~/vue_merge_request_widget/widgets/security_reports/mr_widget_security_reports.vue';
+import MrTestReportWidget from '~/vue_merge_request_widget/widgets/test_report/index.vue';
+import MrTerraformWidget from '~/vue_merge_request_widget/widgets/terraform/index.vue';
+import MrCodeQualityWidget from '~/vue_merge_request_widget/widgets/code_quality/index.vue';
+import MrAccessibilityWidget from '~/vue_merge_request_widget/widgets/accessibility/index.vue';
 
 describe('MR Widget App', () => {
   let wrapper;
 
-  const createComponent = ({ mr = {} } = {}) => {
+  const createComponent = ({ mr = {}, provide = {} } = {}) => {
     wrapper = shallowMountExtended(App, {
+      provide,
       propsData: {
         mr: {
           pipeline: {
@@ -57,6 +59,24 @@ describe('MR Widget App', () => {
       await waitForPromises();
 
       expect(wrapper.findComponent(widget).exists()).toBe(false);
+    });
+  });
+
+  describe('when mrReportsTab is enabled', () => {
+    it('hides widgets by default', () => {
+      createComponent({ provide: { glFeatures: { mrReportsTab: true } } });
+
+      expect(wrapper.findByTestId('reports-widgets-container').isVisible()).toBe(false);
+    });
+
+    it('expands widgets when toggling state container', async () => {
+      createComponent({ provide: { glFeatures: { mrReportsTab: true } } });
+
+      wrapper.findComponent(StateContainer).vm.$emit('toggle');
+
+      await waitForPromises();
+
+      expect(wrapper.findByTestId('reports-widgets-container').isVisible()).toBe(true);
     });
   });
 });

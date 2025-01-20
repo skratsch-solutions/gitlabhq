@@ -18,6 +18,7 @@ export const i18n = {
 
   NO_GROUPS_FOUND: s__('BulkImport|No groups found'),
   OWNER: __('Owner'),
+  LEARN_MORE: __('Learn more.'),
 
   features: {
     projectMigration: __('projects'),
@@ -33,15 +34,63 @@ const PLACEHOLDER_STATUS_PENDING_REASSIGNMENT = 'PENDING_REASSIGNMENT';
 export const PLACEHOLDER_STATUS_AWAITING_APPROVAL = 'AWAITING_APPROVAL';
 const PLACEHOLDER_STATUS_REJECTED = 'REJECTED';
 export const PLACEHOLDER_STATUS_REASSIGNING = 'REASSIGNMENT_IN_PROGRESS';
-const PLACEHOLDER_STATUS_FAILED = 'FAILED';
+export const PLACEHOLDER_STATUS_FAILED = 'FAILED';
 export const PLACEHOLDER_STATUS_KEPT_AS_PLACEHOLDER = 'KEEP_AS_PLACEHOLDER';
 export const PLACEHOLDER_STATUS_COMPLETED = 'COMPLETED';
+
+export const PLACEHOLDER_USER_STATUS = {
+  UNASSIGNED: [
+    PLACEHOLDER_STATUS_PENDING_REASSIGNMENT,
+    PLACEHOLDER_STATUS_AWAITING_APPROVAL,
+    PLACEHOLDER_STATUS_REJECTED,
+    PLACEHOLDER_STATUS_REASSIGNING,
+    PLACEHOLDER_STATUS_FAILED,
+  ],
+  REASSIGNED: [PLACEHOLDER_STATUS_COMPLETED, PLACEHOLDER_STATUS_KEPT_AS_PLACEHOLDER],
+};
+
+export const PLACEHOLDER_TAB_REASSIGNED = 'reassigned';
+export const PLACEHOLDER_TAB_AWAITING = 'awaiting';
+
+export const PLACEHOLDER_USER_UNASSIGNED_STATUS_OPTIONS = [
+  {
+    value: PLACEHOLDER_STATUS_PENDING_REASSIGNMENT.toLowerCase(),
+    title: __('Not started'),
+  },
+  {
+    value: PLACEHOLDER_STATUS_AWAITING_APPROVAL.toLowerCase(),
+    title: s__('UserMapping|Pending approval'),
+  },
+  {
+    value: PLACEHOLDER_STATUS_REJECTED.toLowerCase(),
+    title: s__('UserMapping|Rejected'),
+  },
+  {
+    value: PLACEHOLDER_STATUS_REASSIGNING.toLowerCase(),
+    title: s__('UserMapping|Reassigning'),
+  },
+  {
+    value: PLACEHOLDER_STATUS_FAILED.toLowerCase(),
+    title: __('Failed'),
+  },
+];
+
+export const PLACEHOLDER_USER_REASSIGNED_STATUS_OPTIONS = [
+  {
+    value: PLACEHOLDER_STATUS_KEPT_AS_PLACEHOLDER.toLowerCase(),
+    title: s__('UserMapping|Kept as placeholder'),
+  },
+  {
+    value: PLACEHOLDER_STATUS_COMPLETED.toLowerCase(),
+    title: __('Success'),
+  },
+];
 
 export const placeholderUserBadges = {
   [PLACEHOLDER_STATUS_PENDING_REASSIGNMENT]: {
     text: __('Not started'),
     variant: 'muted',
-    tooltip: s__('UserMapping|Reassignment has not started.'),
+    tooltip: s__('UserMapping|Reassignment not started.'),
   },
   [PLACEHOLDER_STATUS_AWAITING_APPROVAL]: {
     text: s__('UserMapping|Pending approval'),
@@ -51,7 +100,7 @@ export const placeholderUserBadges = {
   [PLACEHOLDER_STATUS_REJECTED]: {
     text: s__('UserMapping|Rejected'),
     variant: 'danger',
-    tooltip: s__('UserMapping|Reassignment was rejected by user.'),
+    tooltip: s__('UserMapping|Reassignment rejected by user.'),
   },
   [PLACEHOLDER_STATUS_REASSIGNING]: {
     text: s__('UserMapping|Reassigning'),
@@ -66,7 +115,7 @@ export const placeholderUserBadges = {
   [PLACEHOLDER_STATUS_KEPT_AS_PLACEHOLDER]: {
     text: s__('UserMapping|Kept as placeholder'),
     variant: 'success',
-    tooltip: s__('UserMapping|Placeholder user was made permanent.'),
+    tooltip: s__('UserMapping|Placeholder user made permanent.'),
   },
   [PLACEHOLDER_STATUS_COMPLETED]: {
     text: __('Success'),
@@ -74,3 +123,8 @@ export const placeholderUserBadges = {
     tooltip: s__('UserMapping|Reassignment succeeded.'),
   },
 };
+
+export const PLACEHOLDER_SORT_STATUS_DESC = 'STATUS_DESC';
+export const PLACEHOLDER_SORT_STATUS_ASC = 'STATUS_ASC';
+export const PLACEHOLDER_SORT_SOURCE_NAME_ASC = 'SOURCE_NAME_ASC';
+export const PLACEHOLDER_SORT_SOURCE_NAME_DESC = 'SOURCE_NAME_DESC';

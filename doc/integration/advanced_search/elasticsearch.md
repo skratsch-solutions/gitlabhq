@@ -1,5 +1,5 @@
 ---
-stage: Data Stores
+stage: Foundations
 group: Global Search
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,14 +8,57 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 This page describes how to enable advanced search. When enabled,
 advanced search provides faster search response times and [improved search features](../../user/search/advanced_search.md).
 
-## Version requirements
+To enable advanced search, you must:
 
-### Elasticsearch version requirements
+1. [Install an Elasticsearch or AWS OpenSearch cluster](#install-an-elasticsearch-or-aws-opensearch-cluster).
+1. [Enable advanced search](#enable-advanced-search).
+
+NOTE:
+Advanced search stores all projects in the same Elasticsearch indices.
+However, private projects appear in search results only to users who have access.
+
+## Elasticsearch glossary
+
+This glossary provides definitions for terms related to Elasticsearch.
+
+- **Lucene**: A full-text search library written in Java.
+- **Near real time (NRT)**: Refers to the slight latency from the time to index a
+  document to the time when it becomes searchable.
+- **Cluster**: A collection of one or more nodes that work together to hold all
+  the data, providing indexing and search capabilities.
+- **Node**: A single server that works as part of a cluster.
+- **Index**: A collection of documents that have somewhat similar characteristics.
+- **Document**: A basic unit of information that can be indexed.
+- **Shards**: Fully-functional and independent subdivisions of indices. Each shard is actually
+  a Lucene index.
+- **Replicas**: Failover mechanisms that duplicate indices.
+
+## Install an Elasticsearch or AWS OpenSearch cluster
+
+Elasticsearch and AWS OpenSearch are **not** included in the Linux package.
+You can install a search cluster yourself or use a cloud-hosted offering such as:
+
+- [Elasticsearch Service](https://www.elastic.co/elasticsearch/service) (available on Amazon Web Services, Google Cloud Platform, and Microsoft Azure)
+- [Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/gsg.html)
+
+You should install the search cluster on a separate server.
+Running the search cluster on the same server as GitLab might lead to performance issues.
+
+For a search cluster with a single node, the cluster status is always yellow because the primary shard is allocated.
+The cluster cannot assign replica shards to the same node as primary shards.
+
+NOTE:
+Before you use a new Elasticsearch cluster in production, see
+[important Elasticsearch configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html).
+
+### Version requirements
+
+#### Elasticsearch
 
 > - Support for Elasticsearch 6.8 [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/350275) in GitLab 15.0.
 
@@ -30,12 +73,13 @@ Advanced search follows the [Elasticsearch end-of-life policy](https://www.elast
 When we change Elasticsearch supported versions in GitLab, we announce them in [deprecation notes](https://handbook.gitlab.com/handbook/marketing/blog/release-posts/#update-the-deprecations-doc) in monthly release posts
 before we remove them.
 
-### OpenSearch version requirements
+#### OpenSearch
 
-| GitLab version          | OpenSearch version       |
-|-------------------------|--------------------------|
-| GitLab 15.5.3 and later | OpenSearch 1.x and later |
-| GitLab 15.0 to 15.5.2   | OpenSearch 1.x           |
+| GitLab version          | OpenSearch version             |
+|-------------------------|--------------------------------|
+| GitLab 17.6.3 and later | OpenSearch 1.x and later       |
+| GitLab 15.5.3 to 17.6.2 | OpenSearch 1.x, 2.0 to 2.17    |
+| GitLab 15.0 to 15.5.2   | OpenSearch 1.x                 |
 
 If your version of Elasticsearch or OpenSearch is incompatible, to prevent data loss, indexing pauses and
 a message is logged in the
@@ -43,37 +87,25 @@ a message is logged in the
 
 If you are using a compatible version and after connecting to OpenSearch, you get the message `Elasticsearch version not compatible`, [resume indexing](#resume-indexing).
 
-## System requirements
+### System requirements
 
-Elasticsearch requires additional resources to those documented in the
-[GitLab system requirements](../../install/requirements.md).
+Elasticsearch and AWS OpenSearch require more resources than
+[GitLab installation requirements](../../install/requirements.md).
 
-Memory, CPU, and storage resource amounts vary depending on the amount of data you index into the Elasticsearch cluster. Heavily used Elasticsearch clusters may require more resources. The [`estimate_cluster_size`](#gitlab-advanced-search-rake-tasks) Rake task uses the total repository size to estimate the advanced search storage requirements.
+Memory, CPU, and storage requirements depend on the amount of data you index into the cluster.
+Heavily used Elasticsearch clusters might require more resources.
+The [`estimate_cluster_size`](#gitlab-advanced-search-rake-tasks) Rake task uses the total repository size
+to estimate the advanced search storage requirements.
 
-## Install Elasticsearch or AWS OpenSearch cluster
+### Access requirements
 
-Elasticsearch and AWS OpenSearch are **not** included in the Linux package or when you perform a direct package installation. Detailed information on how to install Elasticsearch is out of the scope of this page.
+GitLab supports both [HTTP and role-based authentication methods](#advanced-search-configuration)
+depending on your requirements and the backend service you use.
 
-You can install a search cluster yourself, or use a cloud hosted offering such as [Elasticsearch Service](https://www.elastic.co/elasticsearch/service) (available on AWS, GCP, or Azure) or the [Amazon OpenSearch](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/gsg.html)
-service.
+#### Role-based access control for Elasticsearch
 
-You should install the search cluster on a separate server. Running the search cluster on the same server as GitLab is not recommended and can cause a degradation in GitLab instance performance.
-
-For a single node search cluster, the functional cluster health status is always yellow due to the allocation of the primary shard. The cluster cannot assign replica shards to the same node as primary shards.
-
-The search index updates after you:
-
-- Add data to the database or repository.
-- [Enable advanced search](#enable-advanced-search) in the Admin Area.
-
-NOTE:
-Before you use a new Elasticsearch cluster in production, see the
-[Elasticsearch documentation on important settings](https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html).
-
-### Elasticsearch access control configuration
-
-Elasticsearch offers role based access control to secure the cluster. To access and perform operations in the
-Elasticsearch cluster, the `Username` configured in the Admin UI must have role(s) assigned that grant the following
+Elasticsearch can offer role-based access control to further secure a cluster. To access and perform operations in the
+Elasticsearch cluster, the `Username` configured in the **Admin** area must have roles that grant the following
 privileges. The `Username` makes requests from GitLab to the search cluster.
 
 For more information,
@@ -99,25 +131,63 @@ and [Elasticsearch security privileges](https://www.elastic.co/guide/en/elastics
 }
 ```
 
-### AWS OpenSearch service configuration
+#### Access control for AWS OpenSearch Service
 
-AWS OpenSearch offers multiple methods of access control which are supported by GitLab:
+Prerequisites:
 
-- [Domain level access policy](#domain-level-access-policy-configuration)
-- Fine-grained access control
-  - [With IAM ARN as master user](#connecting-with-an-iam-user)
-  - [With master user](#connecting-with-a-master-user-in-the-internal-database)
+- You must have a [service-linked role](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/slr.html)
+  in your AWS account named `AWSServiceRoleForAmazonOpenSearchService` when you create OpenSearch domains.
+- The domain access policy for AWS OpenSearch must allow `es:ESHttp*` actions.
 
-For more details on fine-grained access control see
-[recommended configurations](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-recommendations)
+`AWSServiceRoleForAmazonOpenSearchService` is used by **all** OpenSearch domains.
+In most cases, this role is created automatically when you use the AWS Management Console to create the first OpenSearch domain.
+To create a service-linked role manually, see the
+[AWS documentation](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/slr-aos.html#create-slr).
 
-#### Domain level access policy configuration
+AWS OpenSearch Service has three main security layers:
 
-Configure the AWS OpenSearch domain access policy to allow `es:ESHttp*` actions. You can customize
-the following example configuration to limit principals or resources:
+- [Network](#network)
+- [Domain access policy](#domain-access-policy)
+- [Fine-grained access control](#fine-grained-access-control)
 
-NOTE:
-All `es:ESHttp` actions are required by GitLab.
+##### Network
+
+With this security layer, you can select **Public access** when you create
+a domain so requests from any client can reach the domain endpoint.
+If you select **VPC access**, clients must connect to the VPC
+for requests to reach the endpoint.
+
+For more information, see the
+[AWS documentation](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-access-policies).
+
+##### Domain access policy
+
+GitLab supports the following methods of domain access control for AWS OpenSearch:
+
+- [**Resource-based (domain) access policy**](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ac.html#ac-types-resource): where the AWS OpenSearch domain is configured with an IAM policy
+- [**Identity-based policy**](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ac.html#ac-types-identity): where clients use IAM principals with policies to configure access
+
+###### Resource-based policy examples
+
+Here's an example of a resource-based (domain) access policy where `es:ESHttp*` actions are allowed:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "es:ESHttp*"
+      ],
+      "Resource": "arn:aws:es:us-west-1:987654321098:domain/test-domain/*"
+    }
+  ]
+}
+```
+
+Here's an example of a resource-based (domain) access policy where `es:ESHttp*` actions are allowed only for a specific IAM principal:
 
 ```json
 {
@@ -127,98 +197,92 @@ All `es:ESHttp` actions are required by GitLab.
       "Effect": "Allow",
       "Principal": {
         "AWS": [
-          "*"
+          "arn:aws:iam::123456789012:user/test-user"
         ]
       },
       "Action": [
         "es:ESHttp*"
       ],
-      "Resource": "arn:aws:es:REGION:AWS_ACCOUNT_ID:domain/DOMAIN_NAME/*"
+      "Resource": "arn:aws:es:us-west-1:987654321098:domain/test-domain/*"
     }
   ]
 }
 ```
 
-For more information,
-see [Identity and Access Management in Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ac.html).
+###### Identity-based policy examples
 
-##### Service linked role configuration
-
-The GitLab Rails and Sidekiq nodes require permissions to communicate with the search cluster.
-
-Create an IAM role with the following options and attach the role to the GitLab Rails and Sidekiq nodes:
-
-- Trusted entity type: `AWS Service` for `EC2` service
-- Permission policy: `AmazonOpenSearchServiceFullAccess`
-
-##### Connecting with a domain level access policy only
-
-When using a domain level access policy, you must check the box **Use AWS OpenSearch Service with IAM credentials** and
-fill in **AWS region** while leaving **AWS Access Key** and **AWS Secret Access Key** blank in the advanced search settings.
-
-NOTE:
-Domain level access policy can be used standalone or in addition to fine-grained access control policies.
-
-#### Fine-grained access control configuration
-
-To access and perform operations in the AWS OpenSearch cluster, the user in **Username** must have role(s) assigned that
-grant the following privileges. This user makes requests from GitLab to the search cluster.
-
-For more information,
-see [OpenSearch access control permissions](https://opensearch.org/docs/latest/security/access-control/permissions/)
-and [Creating roles](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-roles).
-
-NOTE:
-The index pattern `*` requires a few permissions for Advanced search to work.
+Here's an example of an identity-based access policy attached to an IAM principal where `es:ESHttp*` actions are allowed:
 
 ```json
 {
-  "cluster_permissions": [
-    "cluster_composite_ops",
-    "cluster_monitor"
-  ],
-  "index_permissions": [
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      "index_patterns": [
-        "gitlab*"
+      "Action": [
+        "es:ESHttp*",
       ],
-      "allowed_actions": [
-        "data_access",
-        "manage_aliases",
-        "search",
-        "create_index",
-        "delete",
-        "manage"
-      ]
-    },
-    {
-      "index_patterns": [
-        "*"
-      ],
-      "allowed_actions": [
-        "indices:admin/aliases/get",
-        "indices:monitor/stats"
-      ]
+      "Effect": "Allow",
+      "Resource": "*"
     }
   ]
 }
 ```
 
-##### Connecting with a master user in the internal database
+##### Fine-grained access control
 
-When using fine-grained access control with a user in the internal database, you should use HTTP basic
-authentication to connect to AWS OpenSearch. You can provide the master username and password as part of the
-AWS OpenSearch URL or in the **Username** and **Password** text boxes in the advanced search settings. See
-[Tutorial: Internal user database and HTTP basic authentication](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac-walkthrough-basic.html)
-for details.
+When you enable fine-grained access control, you must set a
+[master user](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-master-user) in one of the following ways:
 
-##### Connecting with an IAM user
+- [Set an IAM ARN as a master user](#set-an-iam-arn-as-a-master-user).
+- [Create a master user](#create-a-master-user).
 
-When using fine-grained access control with IAM credentials, you must check the box **Use AWS OpenSearch Service with
-IAM credentials** in the **AWS OpenSearch IAM credentials** section in the advanced search settings.
-Provide the **AWS region**, **AWS Access Key**, and **AWS Secret Access Key**.
+###### Set an IAM ARN as a master user
 
-## Upgrade to a new Elasticsearch major version
+If you use an IAM principal as a master user, all requests
+to the cluster must be signed with AWS Signature Version 4.
+You can also specify an IAM ARN, which is the IAM role you assigned to your EC2 instance.
+For more information, see the
+[AWS documentation](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-master-user).
+
+To set an IAM ARN as a master user, you must
+use AWS OpenSearch Service with IAM credentials on your GitLab instance:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings > Search**.
+1. Expand **Advanced Search**.
+1. In the **AWS OpenSearch IAM credentials** section:
+   1. Select the **Use AWS OpenSearch Service with IAM credentials** checkbox.
+   1. In **AWS region**, enter the AWS region where your OpenSearch domain
+      is located (for example, `us-east-1`).
+   1. In **AWS access key** and **AWS secret access key**,
+      enter your access keys for authentication.
+
+      NOTE:
+      For GitLab deployments on EC2 instances, you do not have to enter access keys.
+      Your GitLab instance obtains these keys automatically from the
+      [AWS Instance Metadata Service (IMDS)](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html).
+
+1. Select **Save changes**.
+
+###### Create a master user
+
+If you create a master user in the internal user database,
+you can use HTTP basic authentication to make requests to the cluster.
+For more information, see the
+[AWS documentation](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/fgac.html#fgac-master-user).
+
+To create a master user, you must configure the OpenSearch domain URL and
+the master username and password on your GitLab instance:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings > Search**.
+1. Expand **Advanced Search**.
+1. In **OpenSearch domain URL**, enter the URL to the OpenSearch domain endpoint.
+1. In **Username**, enter the master username.
+1. In **Password**, enter the master password.
+1. Select **Save changes**.
+
+### Upgrade to a new Elasticsearch major version
 
 > - Support for Elasticsearch 6.8 [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/350275) in GitLab 15.0.
 
@@ -235,16 +299,10 @@ When you upgrade to GitLab 15.0 and later, you must use Elasticsearch 7.x and la
 
 ## Elasticsearch repository indexer
 
-To index Git repository data, GitLab uses an [indexer written in Go](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
+To index Git repository data, GitLab uses [`gitlab-elasticsearch-indexer`](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
+For self-compiled installations, see [install the indexer](#install-the-indexer).
 
-Depending on your GitLab version, there are different installation procedures for the Go indexer:
-
-- For Linux package installations, the Go indexer is included.
-- For self-compiled installations, see [Install the indexer from source](#install-the-indexer-from-source).
-- If you're using the GitLab Development Kit, see [Elasticsearch in the GDK](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/doc/howto/elasticsearch.md).
-- If you're using the GitLab Helm chart, [the indexer is already included](https://gitlab.com/gitlab-org/build/CNG/-/merge_requests/213).
-
-### Install the indexer from source
+### Install the indexer
 
 You first install some dependencies and then build and install the indexer itself.
 
@@ -320,37 +378,18 @@ These errors may occur when indexing Git repository data.
 
 ## Enable advanced search
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
 
 To enable advanced search:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Configure the [advanced search settings](#advanced-search-configuration) for
    your Elasticsearch cluster. Do not select the **Search with Elasticsearch enabled** checkbox yet.
-1. Index all data with a Rake task. The task creates an empty index if one does not already exist and
-   enables Elasticsearch indexing if the indexing is not already enabled:
-
-   ```shell
-   # WARNING: THIS WILL DELETE ALL EXISTING INDICES
-   # Omnibus installations
-   sudo gitlab-rake gitlab:elastic:index
-
-   # WARNING: THIS WILL DELETE ALL EXISTING INDICES
-   # Installations from source
-   bundle exec rake gitlab:elastic:index RAILS_ENV=production
-   ```
-
-1. Optional. Monitor the status of background jobs.
-   1. On the left sidebar, select **Monitoring > Background Jobs**.
-   1. On the Sidekiq dashboard, select **Queues** and wait for the `elastic_commit_indexer`
-      and `elastic_wiki_indexer` queues to drop to `0`.
-      These queues contain jobs to index code and wiki data for groups and projects.
+1. [Index the instance](#index-the-instance).
+1. Optional. [Check indexing status](#check-indexing-status).
 1. After the indexing is complete, select the **Search with Elasticsearch enabled** checkbox, then select **Save changes**.
 
 NOTE:
@@ -361,40 +400,89 @@ Elasticsearch cluster.
 
 For GitLab instances with more than 50 GB of repository data, see [Index large instances efficiently](#index-large-instances-efficiently).
 
-### Index all projects
+### Index the instance
 
-DETAILS:
-**Offering:** Self-managed
+#### From the user interface
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/271532) in GitLab 17.3.
 
 Prerequisites:
 
 - You must have administrator access to the instance.
 
-You can only use the **Index all projects** setting to perform
-initial indexing, not to re-create an index from scratch.
-To enable advanced search with **Index all projects**:
+You can perform initial indexing or re-create an index from the user interface.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+To enable advanced search and index the instance from the user interface:
+
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Select the **Elasticsearch indexing** checkbox, then select **Save changes**.
-1. Select **Index all projects**.
-1. Optional. Select **Check progress** to see the status of background jobs.
+1. Select **Index the instance**.
 
-To index epics, group wikis, personal snippets, and users, you must use Rake tasks:
+#### With a Rake task
+
+Prerequisites:
+
+- You must have administrator access to the instance.
+
+To index the entire instance, use the following Rake tasks:
 
 ```shell
-# Omnibus installations
+# WARNING: This task deletes all existing indices
+# For installations that use the Linux package
+sudo gitlab-rake gitlab:elastic:index
+
+# WARNING: This task deletes all existing indices
+# For self-compiled installations
+bundle exec rake gitlab:elastic:index RAILS_ENV=production
+```
+
+To index specific data, use the following Rake tasks:
+
+```shell
+# For installations that use the Linux package
 sudo gitlab-rake gitlab:elastic:index_epics
+sudo gitlab-rake gitlab:elastic:index_work_items
 sudo gitlab-rake gitlab:elastic:index_group_wikis
+sudo gitlab-rake gitlab:elastic:index_namespaces
+sudo gitlab-rake gitlab:elastic:index_projects
 sudo gitlab-rake gitlab:elastic:index_snippets
 sudo gitlab-rake gitlab:elastic:index_users
 
-# Installations from source
+# For self-compiled installations
 bundle exec rake gitlab:elastic:index_epics RAILS_ENV=production
+bundle exec rake gitlab:elastic:index_work_items RAILS_ENV=production
 bundle exec rake gitlab:elastic:index_group_wikis RAILS_ENV=production
+bundle exec rake gitlab:elastic:index_namespaces RAILS_ENV=production
+bundle exec rake gitlab:elastic:index_projects RAILS_ENV=production
 bundle exec rake gitlab:elastic:index_snippets RAILS_ENV=production
 bundle exec rake gitlab:elastic:index_users RAILS_ENV=production
 ```
+
+### Check indexing status
+
+Prerequisites:
+
+- You must have administrator access to the instance.
+
+To check indexing status:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings > Search**.
+1. Expand **Indexing status**.
+
+### Monitor the status of background jobs
+
+Prerequisites:
+
+- You must have administrator access to the instance.
+
+To monitor the status of background jobs:
+
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Monitoring > Background jobs**.
+1. On the Sidekiq dashboard, select **Queues** and wait for the `elastic_commit_indexer` and `elastic_wiki_indexer` queues to drop to `0`.
+   These queues contain jobs to index code and wiki data for projects and groups.
 
 ### Advanced search configuration
 
@@ -411,7 +499,7 @@ The following Elasticsearch settings are available:
 | `Password`                                                 | The password of your Elasticsearch instance. |
 | `Number of Elasticsearch shards and replicas per index`    | Elasticsearch indices are split into multiple shards for performance reasons. In general, you should use at least five shards. Indices with tens of millions of documents should have more shards ([see the guidance](#guidance-on-choosing-optimal-cluster-configuration)). Changes to this value do not take effect until you re-create the index. For more information about scalability and resilience, see the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/scalability.html). Each Elasticsearch shard can have a number of replicas. These replicas are a complete copy of the shard and can provide increased query performance or resilience against hardware failure. Increasing this value increases the total disk space required by the index. You can set the number of shards and replicas for each of the indices. |
 | `Limit the amount of namespace and project data to index` | When you enable this setting, you can specify namespaces and projects to index. All other namespaces and projects use database search instead. If you enable this setting but do not specify any namespace or project, [only project records are indexed](#all-project-records-are-indexed). For more information, see [Limit the amount of namespace and project data to index](#limit-the-amount-of-namespace-and-project-data-to-index). |
-| `Using AWS OpenSearch Service with IAM credentials` | Sign your OpenSearch requests using [AWS IAM authorization](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html), [AWS EC2 Instance Profile Credentials](https://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html#getting-started-create-iam-instance-profile-cli), or [AWS ECS Tasks Credentials](https://docs.aws.amazon.com/AmazonECS/latest/userguide/task-iam-roles.html). Refer to [Identity and Access Management in Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ac.html) for details of AWS hosted OpenSearch domain access policy configuration. |
+| `Use AWS OpenSearch Service with IAM credentials` | Sign your OpenSearch requests using [AWS IAM authorization](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html), [AWS EC2 Instance Profile Credentials](https://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html#getting-started-create-iam-instance-profile-cli), or [AWS ECS Tasks Credentials](https://docs.aws.amazon.com/AmazonECS/latest/userguide/task-iam-roles.html). Refer to [Identity and Access Management in Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ac.html) for details of AWS hosted OpenSearch domain access policy configuration. |
 | `AWS Region`                                          | The AWS region in which your OpenSearch Service is located. |
 | `AWS Access Key`                                      | The AWS access key. |
 | `AWS Secret Access Key`                               | The AWS secret access key. |
@@ -422,6 +510,7 @@ The following Elasticsearch settings are available:
 | `Bulk request concurrency`                            | The Bulk request concurrency indicates how many of the GitLab Go-based indexer processes (or threads) can run in parallel to collect data to subsequently submit to the Elasticsearch Bulk API. This increases indexing performance, but fills the Elasticsearch bulk requests queue faster. This setting should be used together with the Maximum bulk request size setting (see above) and needs to accommodate the resource constraints of both the Elasticsearch hosts and the hosts running the GitLab Go-based indexer either from the `gitlab-rake` command or the Sidekiq tasks. |
 | `Client request timeout` | Elasticsearch HTTP client request timeout value in seconds. `0` means using the system default timeout value, which depends on the libraries that GitLab application is built upon. |
 | `Code indexing concurrency` | Maximum number of Elasticsearch code indexing background jobs allowed to run concurrently. This only applies to repository indexing operations. |
+| `Retry on failure` | Maximum number of possible retries for Elasticsearch search requests. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/486935) in GitLab 17.6. |
 
 WARNING:
 Increasing the values of `Maximum bulk request size (MiB)` and `Bulk request concurrency` can negatively impact
@@ -459,19 +548,17 @@ If you do not specify any namespace or project, only project records are indexed
 
 ## Enable custom language analyzers
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
 
-You can improve the language support for Chinese and Japanese languages by utilizing [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html) and/or [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) analysis plugins from Elastic.
+You can improve language support for Chinese and Japanese by using the [`smartcn`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-smartcn.html)
+and [`kuromoji`](https://www.elastic.co/guide/en/elasticsearch/plugins/current/analysis-kuromoji.html) analysis plugins from Elastic.
 
-To enable language support:
+To enable custom language analyzers:
 
 1. Install the desired plugins, refer to [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/plugins/7.9/installation.html) for plugins installation instructions. The plugins must be installed on every node in the cluster, and each node must be restarted after installation. For a list of plugins, see the table later in this section.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Locate **Custom analyzers: language support**.
 1. Enable plugins support for **Indexing**.
@@ -490,33 +577,27 @@ For guidance on what to install, see the following Elasticsearch language plugin
 
 ## Disable advanced search
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
 
 To disable advanced search in GitLab:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Clear the **Elasticsearch indexing** and **Search with Elasticsearch enabled** checkboxes.
 1. Select **Save changes**.
 1. Optional. For Elasticsearch instances that are still online, delete existing indices:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:delete_index
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:delete_index RAILS_ENV=production
    ```
 
 ## Resume indexing
-
-DETAILS:
-**Offering:** Self-managed
 
 Prerequisites:
 
@@ -524,7 +605,7 @@ Prerequisites:
 
 To resume indexing:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Expand **Advanced Search**.
 1. Clear the **Pause Elasticsearch indexing** checkbox.
@@ -544,17 +625,14 @@ You can use zero-downtime reindexing to configure index settings or mappings tha
 
 ### Trigger reindexing
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
 
-To trigger the reindexing process:
+To trigger reindexing:
 
 1. Sign in to your GitLab instance as an administrator.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Expand **Elasticsearch zero-downtime reindexing**.
 1. Select **Trigger cluster reindexing**.
@@ -567,22 +645,21 @@ page you triggered the reindexing process.
 
 While the reindexing is running, you can follow its progress under that same section.
 
-#### Elasticsearch zero-downtime reindexing
-
-DETAILS:
-**Offering:** Self-managed
+#### Trigger zero-downtime reindexing
 
 Prerequisites:
 
 - You must have administrator access to the instance.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
-1. Select **Settings > Search**.
-1. Expand **Elasticsearch zero-downtime reindexing**, and you'll
-   find the following options:
+To trigger zero-downtime reindexing:
 
-- [Slice multiplier](#slice-multiplier)
-- [Maximum running slices](#maximum-running-slices)
+1. On the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings > Search**.
+1. Expand **Elasticsearch zero-downtime reindexing**.
+   The following settings are available:
+
+   - [Slice multiplier](#slice-multiplier)
+   - [Maximum running slices](#maximum-running-slices)
 
 ##### Slice multiplier
 
@@ -612,26 +689,23 @@ it is for the reindex to finish quickly and resume indexing.
 
 ### Mark the most recent reindexing job as failed and resume indexing
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
 
-To abandon the unfinished reindexing job and resume indexing:
+To abandon an unfinished reindexing job and resume indexing:
 
 1. Mark the most recent reindexing job as failed:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:mark_reindex_failed
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:mark_reindex_failed RAILS_ENV=production
    ```
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Expand **Advanced Search**.
 1. Clear the **Pause Elasticsearch indexing** checkbox.
@@ -724,14 +798,14 @@ debug why the migration was halted and make any changes before retrying the migr
 
 When you believe you've fixed the cause of the failure:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Search**.
 1. Expand **Advanced Search**.
 1. Inside the **Elasticsearch migration halted** alert box, select **Retry migration**. The migration is scheduled to be retried in the background.
 
 If you cannot get the migration to succeed, you may
 consider the
-[last resort to recreate the index from scratch](elasticsearch_troubleshooting.md#last-resort-to-recreate-an-index).
+[last resort to recreate the index from scratch](../elasticsearch/troubleshooting/indexing.md#last-resort-to-recreate-an-index).
 This may allow you to skip over
 the problem because a newly created index skips all migrations as the index
 is recreated with the correct up-to-date schema.
@@ -741,14 +815,14 @@ is recreated with the correct up-to-date schema.
 Before upgrading to a major GitLab version, you must complete all
 migrations that exist up until the latest minor version before that major
 version. You must also resolve and [retry any halted migrations](#retry-a-halted-migration)
-before proceeding with a major version upgrade. For more information, see [Upgrading to a new major version](../../update/index.md#upgrading-to-a-new-major-version).
+before proceeding with a major version upgrade. For more information, see [Migrations for upgrades](../../update/background_migrations.md).
 
 Migrations that have been removed are
 [marked as obsolete](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/63001).
 If you upgrade GitLab before all pending advanced search migrations are completed,
 any pending migrations that have been removed in the new version cannot be executed or retried.
 In this case, you must
-[re-create your index from scratch](elasticsearch_troubleshooting.md#last-resort-to-recreate-an-index).
+[re-create your index from scratch](../elasticsearch/troubleshooting/indexing.md#last-resort-to-recreate-an-index).
 
 ### Skippable migrations
 
@@ -756,7 +830,7 @@ Skippable migrations are only executed when a condition is met.
 For example, if a migration depends on a specific version of Elasticsearch, it could be skipped until that version is reached.
 
 If a skippable migration is not executed by the time the migration is marked as obsolete, to apply the change you must
-[re-create the index](elasticsearch_troubleshooting.md#last-resort-to-recreate-an-index).
+[re-create the index](../elasticsearch/troubleshooting/indexing.md#last-resort-to-recreate-an-index).
 
 ## GitLab advanced search Rake tasks
 
@@ -771,7 +845,7 @@ The following are some available Rake tasks:
 | Task                                                                                                                                                    | Description                                                                                                                                                                               |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`sudo gitlab-rake gitlab:elastic:info`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                            | Outputs debugging information for the advanced search integration. |
-| [`sudo gitlab-rake gitlab:elastic:index`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                            | In GitLab 17.0 and earlier, enables Elasticsearch indexing and runs `gitlab:elastic:recreate_index`, `gitlab:elastic:clear_index_status`, `gitlab:elastic:index_group_entities`, `gitlab:elastic:index_projects`, `gitlab:elastic:index_snippets`, and `gitlab:elastic:index_users`.<br>In GitLab 17.1 and later, queues a Sidekiq job in the background. First, the job enables Elasticsearch indexing and pauses indexing to ensure all indices are created. Then, the job re-creates all indices, clears indexing status, and queues additional Sidekiq jobs to index project and group data, snippets, and users. Finally, Elasticsearch indexing is resumed to complete. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/421298) in GitLab 17.1 [with a flag](../../administration/feature_flags.md) named `elastic_index_use_trigger_indexing`. Enabled by default. |
+| [`sudo gitlab-rake gitlab:elastic:index`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                            | In GitLab 17.0 and earlier, enables Elasticsearch indexing and runs `gitlab:elastic:recreate_index`, `gitlab:elastic:clear_index_status`, `gitlab:elastic:index_group_entities`, `gitlab:elastic:index_projects`, `gitlab:elastic:index_snippets`, and `gitlab:elastic:index_users`.<br>In GitLab 17.1 and later, queues a Sidekiq job in the background. First, the job enables Elasticsearch indexing and pauses indexing to ensure all indices are created. Then, the job re-creates all indices, clears indexing status, and queues additional Sidekiq jobs to index project and group data, snippets, and users. Finally, Elasticsearch indexing is resumed to complete. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/421298) in GitLab 17.1 [with a flag](../../administration/feature_flags.md) named `elastic_index_use_trigger_indexing`. Enabled by default. [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/434580) in GitLab 17.3. Feature flag `elastic_index_use_trigger_indexing` removed. |
 | [`sudo gitlab-rake gitlab:elastic:pause_indexing`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                            | Pauses Elasticsearch indexing. Changes are still tracked. Useful for cluster/index migrations. |
 | [`sudo gitlab-rake gitlab:elastic:resume_indexing`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                            | Resumes Elasticsearch indexing. |
 | [`sudo gitlab-rake gitlab:elastic:index_projects`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/lib/tasks/gitlab/elastic.rake)                   | Iterates over all projects, and queues Sidekiq jobs to index them in the background. It can only be used after the index is created.                                                                                                      |
@@ -903,9 +977,6 @@ The number must not be `0` because losing one node corrupts the index.
 
 ### Index large instances efficiently
 
-DETAILS:
-**Offering:** Self-managed
-
 Prerequisites:
 
 - You must have administrator access to the instance.
@@ -917,26 +988,26 @@ Make sure to prepare for this task by having a
 [extra Sidekiq processes](../../administration/sidekiq/extra_sidekiq_processes.md).
 
 If [enabling advanced search](#enable-advanced-search) causes problems
-due to large volumes of data being indexed, follow these steps:
+due to large volumes of data being indexed:
 
 1. [Configure your Elasticsearch host and port](#enable-advanced-search).
 1. Create empty indices:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:create_empty_index
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:create_empty_index RAILS_ENV=production
    ```
 
 1. If this is a re-index of your GitLab instance, clear the index status:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:clear_index_status
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:clear_index_status RAILS_ENV=production
    ```
 
@@ -964,22 +1035,22 @@ due to large volumes of data being indexed, follow these steps:
 1. Index projects and their associated data:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:index_projects
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:index_projects RAILS_ENV=production
    ```
 
    This enqueues a Sidekiq job for each project that needs to be indexed.
-   You can view the jobs in the Admin Area under **Monitoring > Background Jobs > Queues Tab**
+   You can view the jobs in the **Admin** area under **Monitoring > Background jobs > Queues Tab**
    and select `elastic_commit_indexer`, or you can query indexing status using a Rake task:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:index_projects_status
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:index_projects_status RAILS_ENV=production
 
    Indexing is 65.55% complete (6555/10000 projects)
@@ -989,10 +1060,10 @@ due to large volumes of data being indexed, follow these steps:
    `ID_FROM` and `ID_TO` parameters:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:index_projects ID_FROM=1001 ID_TO=2000
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:index_projects ID_FROM=1001 ID_TO=2000 RAILS_ENV=production
    ```
 
@@ -1011,13 +1082,13 @@ due to large volumes of data being indexed, follow these steps:
 1. Epics, group wikis, personal snippets, and users are not associated with a project and must be indexed separately:
 
    ```shell
-   # Omnibus installations
+   # For installations that use the Linux package
    sudo gitlab-rake gitlab:elastic:index_epics
    sudo gitlab-rake gitlab:elastic:index_group_wikis
    sudo gitlab-rake gitlab:elastic:index_snippets
    sudo gitlab-rake gitlab:elastic:index_users
 
-   # Installations from source
+   # For self-compiled installations
    bundle exec rake gitlab:elastic:index_epics RAILS_ENV=production
    bundle exec rake gitlab:elastic:index_group_wikis RAILS_ENV=production
    bundle exec rake gitlab:elastic:index_snippets RAILS_ENV=production
@@ -1144,7 +1215,6 @@ To create both an indexing and a non-indexing Sidekiq process in one node:
 
    ```ruby
    sidekiq['enable'] = true
-   sidekiq['queue_selector'] = false
 
    sidekiq['routing_rules'] = [
       ["feature_category=global_search", "global_search"],
@@ -1158,6 +1228,13 @@ To create both an indexing and a non-indexing Sidekiq process in one node:
 
    sidekiq['min_concurrency'] = 20
    sidekiq['max_concurrency'] = 20
+   ```
+
+   If you are using GitLab 16.11 and earlier, explicitly disable any
+   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
+
+   ```ruby
+   sidekiq['queue_selector'] = false
    ```
 
 1. Save the file and [reconfigure GitLab](../../administration/restart_gitlab.md)
@@ -1177,7 +1254,6 @@ To handle these queue groups on two nodes:
 
    ```ruby
    sidekiq['enable'] = true
-   sidekiq['queue_selector'] = false
 
    sidekiq['routing_rules'] = [
       ["feature_category=global_search", "global_search"],
@@ -1192,6 +1268,13 @@ To handle these queue groups on two nodes:
    sidekiq['max_concurrency'] = 20
    ```
 
+   If you are using GitLab 16.11 and earlier, explicitly disable any
+   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
+
+   ```ruby
+   sidekiq['queue_selector'] = false
+   ```
+
 1. Save the file and [reconfigure GitLab](../../administration/restart_gitlab.md)
    for the changes to take effect.
 
@@ -1199,7 +1282,6 @@ To handle these queue groups on two nodes:
 
    ```ruby
    sidekiq['enable'] = true
-   sidekiq['queue_selector'] = false
 
    sidekiq['routing_rules'] = [
       ["feature_category=global_search", "global_search"],
@@ -1212,6 +1294,13 @@ To handle these queue groups on two nodes:
 
    sidekiq['min_concurrency'] = 20
    sidekiq['max_concurrency'] = 20
+   ```
+
+   If you are using GitLab 16.11 and earlier, explicitly disable any
+   [queue selectors](https://archives.docs.gitlab.com/16.11/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated):
+
+   ```ruby
+   sidekiq['queue_selector'] = false
    ```
 
 1. On all other Rails and Sidekiq nodes, ensure that `sidekiq['routing_rules']` is the same as above.
@@ -1236,9 +1325,35 @@ search" behaves as though you don't have advanced search enabled at all for
 your instance and search using other data sources (such as PostgreSQL data and Git
 data).
 
-## Data recovery: Elasticsearch is a secondary data store only
+## Disaster recovery
 
-The use of Elasticsearch in GitLab is only ever as a secondary data store.
-This means that all of the data stored in Elasticsearch can always be derived
-again from other data sources, specifically PostgreSQL and Gitaly. Therefore, if
-the Elasticsearch data store is ever corrupted for whatever reason, you can reindex everything from scratch.
+Elasticsearch is a secondary data store for GitLab.
+All of the data stored in Elasticsearch can be derived again
+from other data sources, specifically PostgreSQL and Gitaly.
+If the Elasticsearch data store gets corrupted,
+you can reindex everything from scratch.
+
+If your Elasticsearch index is too large, it might cause
+too much downtime to reindex everything from scratch.
+You cannot automatically find discrepancies and resync an Elasticsearch index,
+but you can inspect the logs for any missing updates.
+To recover data more quickly, you can replay:
+
+1. All synced non-repository updates by searching in
+   [`elasticsearch.log`](../../administration/logs/index.md#elasticsearchlog)
+   for [`track_items`](https://gitlab.com/gitlab-org/gitlab/-/blob/1e60ea99bd8110a97d8fc481e2f41cab14e63d31/ee/app/services/elastic/process_bookkeeping_service.rb#L25).
+   You must send these items again through
+   `::Elastic::ProcessBookkeepingService.track!`.
+1. All repository updates by searching in
+   [`elasticsearch.log`](../../administration/logs/index.md#elasticsearchlog)
+   for [`indexing_commit_range`](https://gitlab.com/gitlab-org/gitlab/-/blob/6f9d75dd3898536b9ec2fb206e0bd677ab59bd6d/ee/lib/gitlab/elastic/indexer.rb#L41).
+   You must set [`IndexStatus#last_commit/last_wiki_commit`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/models/index_status.rb)
+   to the oldest `from_sha` in the logs and then trigger another index of
+   the project with [`ElasticCommitIndexerWorker`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/workers/elastic_commit_indexer_worker.rb) and [`ElasticWikiIndexerWorker`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/workers/elastic_wiki_indexer_worker.rb).
+1. All project deletes by searching in
+   [`sidekiq.log`](../../administration/logs/index.md#sidekiqlog) for
+   [`ElasticDeleteProjectWorker`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/workers/elastic_delete_project_worker.rb).
+   You must trigger another `ElasticDeleteProjectWorker`.
+
+You can also take regular
+[Elasticsearch snapshots](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshot-restore.html) to reduce the time it takes to recover from data loss without reindexing everything from scratch.

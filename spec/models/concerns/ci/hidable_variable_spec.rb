@@ -18,25 +18,6 @@ RSpec.describe Ci::HidableVariable, feature_category: :secrets_management do
     describe '#validate_masked_and_hidden_on_create' do
       subject(:validate_create) { create_variable }
 
-      context 'when feature flag `ci_hidden_variables` is disabled' do
-        before do
-          stub_feature_flags(ci_hidden_variables: false)
-        end
-
-        where(:pending_masked, :pending_hidden) do
-          true | true
-          false | false
-          true | false
-          false | true
-        end
-
-        with_them do
-          it 'passes the validation' do
-            expect { validate_create }.not_to raise_error
-          end
-        end
-      end
-
       context 'when masked and hidden attribute are allowed' do
         where(:pending_masked, :pending_hidden) do
           true | true
@@ -79,31 +60,6 @@ RSpec.describe Ci::HidableVariable, feature_category: :secrets_management do
         test_variable.update!(masked: pending_masked, hidden: pending_hidden)
       end
 
-      context 'when feature flag `ci_hidden_variables` is disabled' do
-        before do
-          stub_feature_flags(ci_hidden_variables: false)
-        end
-
-        where(:stored_masked, :stored_hidden, :pending_masked,
-          :pending_hidden) do
-          true | false | true | false
-          true | false | false | false
-          true | true | true | true
-          false | false | true | false
-          true | true | true | false
-          true | true | false | false
-          false | false | true | true
-        end
-
-        with_them do
-          it 'passed the validation' do
-            expect do
-              validate_update
-            end.not_to raise_error
-          end
-        end
-      end
-
       context 'when update is allowed' do
         where(:stored_masked, :stored_hidden, :pending_masked,
           :pending_hidden) do
@@ -135,9 +91,9 @@ RSpec.describe Ci::HidableVariable, feature_category: :secrets_management do
           it 'does not pass the validation' do
             expected_error_message =
               if stored_hidden == pending_hidden && stored_masked != pending_masked
-                'Updating masked attribute is not allowed on updates for hidden variables.'
+                'The visibility setting cannot be changed for masked and hidden variables.'
               else
-                'Updating hidden attribute is not allowed on updates.'
+                'Only new variables can be set as masked and hidden.'
               end
 
             expect do

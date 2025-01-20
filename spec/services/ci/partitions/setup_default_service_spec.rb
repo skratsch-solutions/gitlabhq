@@ -12,16 +12,6 @@ RSpec.describe Ci::Partitions::SetupDefaultService, feature_category: :ci_scalin
   describe '.execute' do
     subject(:execute) { service.execute }
 
-    context 'when ci_partitioning_first_records is disabled' do
-      before do
-        stub_feature_flags(ci_partitioning_first_records: false)
-      end
-
-      it 'does not create the default ci_partitions' do
-        expect { execute }.not_to change { Ci::Partition }
-      end
-    end
-
     context 'when current ci_partition exists' do
       let!(:current_partition) { create(:ci_partition, :current) }
 
@@ -48,8 +38,8 @@ RSpec.describe Ci::Partitions::SetupDefaultService, feature_category: :ci_scalin
 
       it 'returns success and update statuses for ci_partitions', :aggregate_failures do
         expect { execute }.not_to change { Ci::Partition.count }
-        expect(Ci::Partition.take(2).pluck(:status)).to contain_exactly(status_active, status_active)
-        expect(Ci::Partition.last.status).to eq(status_current)
+        expect(Ci::Partition.first.status).to eq(status_current)
+        expect(Ci::Partition.last(2).pluck(:status)).to contain_exactly(status_active, status_active)
       end
     end
   end

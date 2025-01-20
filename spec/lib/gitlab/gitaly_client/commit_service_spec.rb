@@ -169,6 +169,7 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
 
   describe '#find_changed_paths' do
     let(:mapped_merge_commit_diff_mode) { described_class::MERGE_COMMIT_DIFF_MODES[merge_commit_diff_mode] }
+    let(:find_renames) { false }
     let(:commits) do
       %w[
         ade1c0b4b116209ed2a9958436b26f89085ec383
@@ -204,47 +205,47 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
       let(:changed_paths) do
         [
           {
-            path: 'files/locked/foo.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/foo.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/foo.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
           },
           {
-            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/foo.lfs',
             old_blob_id: "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
             new_blob_id: "3eac02ca74e5b8e5df01dbdfdd7a9905c5e12007"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1"
           },
           {
-            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/foo.lfs',
             old_blob_id: "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
             new_blob_id: "3eac02ca74e5b8e5df01dbdfdd7a9905c5e12007"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1",
             new_blob_id: "9d8e9599c93013dee199bfdc13e8365c11652bba"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1",
             new_blob_id: "9d8e9599c93013dee199bfdc13e8365c11652bba"
           },
           {
-            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/baz.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "dd1a523861a19addf2cce888119a07560be334b9"
           },
           {
-            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/baz.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "dd1a523861a19addf2cce888119a07560be334b9"
           }
@@ -260,32 +261,32 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
       let(:changed_paths) do
         [
           {
-            path: 'files/locked/foo.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/foo.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/foo.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
           },
           {
-            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/foo.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/foo.lfs',
             old_blob_id: "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
             new_blob_id: "3eac02ca74e5b8e5df01dbdfdd7a9905c5e12007"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1"
           },
           {
-            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644',
+            path: 'files/locked/bar.lfs', status: 'MODIFIED', old_mode: '100644', new_mode: '100644', old_path: 'files/locked/bar.lfs',
             old_blob_id: "ea6c0a2142103f2d9157c1a9d50cc708032ec4a1",
             new_blob_id: "9d8e9599c93013dee199bfdc13e8365c11652bba"
           },
           {
-            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/baz.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "dd1a523861a19addf2cce888119a07560be334b9"
           },
           {
-            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644',
+            path: 'files/locked/baz.lfs', status: 'ADDED', old_mode: '0', new_mode: '100644', old_path: 'files/locked/baz.lfs',
             old_blob_id: "0000000000000000000000000000000000000000",
             new_blob_id: "dd1a523861a19addf2cce888119a07560be334b9"
           }
@@ -304,7 +305,8 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
           .to have_received(:new).with(
             repository: repository_message,
             requests: requests,
-            merge_commit_diff_mode: mapped_merge_commit_diff_mode
+            merge_commit_diff_mode: mapped_merge_commit_diff_mode,
+            find_renames: find_renames
           )
       end
     end
@@ -349,51 +351,64 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
       include_examples 'uses requests format'
     end
 
-    context 'when feature flag "merge_commit_diff_modes" is disabled' do
-      let(:mapped_merge_commit_diff_mode) { nil }
+    context 'when renamed file exists' do
+      let(:branch) { 'gitaly-rename-test' }
+      let(:treeish_objects) { [repository.commit(branch)] }
 
-      before do
-        stub_feature_flags(merge_commit_diff_modes: false)
+      subject(:find_changed_paths) do
+        described_class
+          .new(repository)
+          .find_changed_paths(treeish_objects, find_renames: find_renames)
+          .as_json
       end
 
-      context 'when merge_commit_diff_mode is nil' do
-        let(:merge_commit_diff_mode) { nil }
+      context 'when find_renames is true' do
+        let(:find_renames) { true }
 
-        include_examples 'includes paths different in any parent'
+        it 'detects renamed file and includes old_path' do
+          expected_changed_paths = [
+            {
+              "new_blob_id" => "53855584db773c3df5b5f61f72974cb298822fbb",
+              "new_mode" => "100644",
+              "old_blob_id" => "53855584db773c3df5b5f61f72974cb298822fbb",
+              "old_mode" => "100644",
+              "old_path" => "CHANGELOG",
+              "path" => "CHANGELOG.md",
+              "status" => "RENAMED"
+            }
+          ]
 
-        include_examples 'uses requests format'
+          expect(find_changed_paths).to eq expected_changed_paths
+        end
       end
 
-      context 'when merge_commit_diff_mode is :unspecified' do
-        let(:merge_commit_diff_mode) { :unspecified }
+      context 'when find_renames is false' do
+        let(:find_renames) { false }
 
-        include_examples 'includes paths different in any parent'
+        it 'does not detect renamed file' do
+          expected_changed_paths = [
+            {
+              "new_blob_id" => "0000000000000000000000000000000000000000",
+              "new_mode" => "0",
+              "old_blob_id" => "53855584db773c3df5b5f61f72974cb298822fbb",
+              "old_mode" => "100644",
+              "old_path" => "CHANGELOG",
+              "path" => "CHANGELOG",
+              "status" => "DELETED"
+            },
+            {
+              "new_blob_id" => "53855584db773c3df5b5f61f72974cb298822fbb",
+              "new_mode" => "100644",
+              "old_blob_id" => "0000000000000000000000000000000000000000",
+              "old_mode" => "0",
+              "old_path" => "CHANGELOG.md",
+              "path" => "CHANGELOG.md",
+              "status" => "ADDED"
+            }
+          ]
 
-        include_examples 'uses requests format'
-      end
-
-      context 'when merge_commit_diff_mode is :include_merges' do
-        let(:merge_commit_diff_mode) { :include_merges }
-
-        include_examples 'includes paths different in any parent'
-
-        include_examples 'uses requests format'
-      end
-
-      context 'when merge_commit_diff_mode is invalid' do
-        let(:merge_commit_diff_mode) { 'invalid' }
-
-        include_examples 'includes paths different in any parent'
-
-        include_examples 'uses requests format'
-      end
-
-      context 'when merge_commit_diff_mode is :all_parents' do
-        let(:merge_commit_diff_mode) { :all_parents }
-
-        include_examples 'includes paths different in any parent'
-
-        include_examples 'uses requests format'
+          expect(find_changed_paths).to eq expected_changed_paths
+        end
       end
     end
 
@@ -716,12 +731,14 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
   describe '#list_commits' do
     let(:revisions) { 'master' }
     let(:reverse) { false }
+    let(:order) { :date }
     let(:author) { nil }
     let(:ignore_case) { nil }
     let(:commit_message_patterns) { nil }
     let(:before) { nil }
     let(:after) { nil }
     let(:pagination_params) { nil }
+    let(:skip) { '100' }
 
     shared_examples 'a ListCommits request' do
       before do
@@ -738,7 +755,9 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
             commit_message_patterns: commit_message_patterns,
             before: before,
             after: after,
-            pagination_params: pagination_params
+            pagination_params: pagination_params,
+            order: order,
+            skip: 100
           )
 
           expect(service).to receive(:list_commits).with(expected_request, kind_of(Hash)).and_return([])
@@ -1184,12 +1203,14 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
       [large_signed_text, *signed_by_user].each do |commit_id|
         expect(signatures[commit_id][:signature]).to be_present
         expect(signatures[commit_id][:signer]).to eq(:SIGNER_USER)
+        expect(signatures[commit_id][:author_email]).to be_present
       end
 
       signed_by_user.each do |commit_id|
         commit = project.commit(commit_id)
         expect(signatures[commit_id][:signed_text]).to include(commit.message)
         expect(signatures[commit_id][:signed_text]).to include(commit.description)
+        expect(signatures[commit_id][:author_email]).to eq(commit.author_email)
       end
 
       expect(signatures[large_signed_text][:signed_text].size).to eq(4971878)
@@ -1198,7 +1219,7 @@ RSpec.describe Gitlab::GitalyClient::CommitService, feature_category: :gitaly do
 
   describe '#get_patch_id' do
     it 'returns patch_id of given revisions' do
-      expect(client.get_patch_id('HEAD~', 'HEAD')).to eq('45435e5d7b339dd76d939508c7687701d0c17fff')
+      expect(client.get_patch_id('HEAD~', 'HEAD')).to eq('67cc1b19744f71ee68e5aa6aa0dbadf03a6ba912')
     end
 
     context 'when one of the param is invalid' do

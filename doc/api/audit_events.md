@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Author Email added to the response body](https://gitlab.com/gitlab-org/gitlab/-/issues/386322) in GitLab 15.9.
 
@@ -16,11 +16,11 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Use this API to retrieve instance audit events.
 
-To retrieve audit events using the API, you must [authenticate yourself](rest/index.md#authentication) as an Administrator.
+To retrieve audit events using the API, you must [authenticate yourself](rest/authentication.md) as an Administrator.
 
 ### Retrieve all instance audit events
 
@@ -191,7 +191,7 @@ GET /groups/:id/audit_events
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `created_after` | string | no | Return group audit events created on or after the given time. Format: ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ)`  |
 | `created_before` | string | no | Return group audit events created on or before the given time. Format: ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) |
 
@@ -255,7 +255,7 @@ GET /groups/:id/audit_events/:audit_event_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `audit_event_id` | integer | yes | The ID of the audit event |
 
 ```shell
@@ -301,7 +301,7 @@ GET /projects/:id/audit_events
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `created_after` | string | no | Return project audit events created on or after the given time. Format: ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`)  |
 | `created_before` | string | no | Return project audit events created on or before the given time. Format: ISO 8601 (`YYYY-MM-DDTHH:MM:SSZ`) |
 
@@ -369,7 +369,7 @@ GET /projects/:id/audit_events/:audit_event_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `audit_event_id` | integer | yes | The ID of the audit event |
 
 ```shell

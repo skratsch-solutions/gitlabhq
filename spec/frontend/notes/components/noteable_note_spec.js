@@ -16,12 +16,16 @@ import { createAlert } from '~/alert';
 import { UPDATE_COMMENT_FORM } from '~/notes/i18n';
 import { sprintf } from '~/locale';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
+import { SHOW_CLIENT_SIDE_SECRET_DETECTION_WARNING } from '~/lib/utils/secret_detection';
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from '~/lib/utils/http_status';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import { noteableDataMock, notesDataMock, note } from '../mock_data';
 
 Vue.use(Vuex);
 jest.mock('~/alert');
 jest.mock('~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal');
 confirmAction.mockResolvedValueOnce(false);
+const { bindInternalEventDocument } = useMockInternalEventsTracking();
 
 const singleLineNotePosition = {
   line_range: {
@@ -389,6 +393,8 @@ describe('issue_note', () => {
     });
 
     it('should not update note with sensitive token', async () => {
+      const { trackEventSpy } = bindInternalEventDocument();
+
       const sensitiveMessage = 'token: glpat-1234567890abcdefghij';
 
       // Ensure initial note content is as expected
@@ -407,12 +413,20 @@ describe('issue_note', () => {
         '',
         expect.objectContaining({ title: 'Warning: Potential secret detected' }),
       );
+      expect(trackEventSpy).toHaveBeenCalledWith(SHOW_CLIENT_SIDE_SECRET_DETECTION_WARNING, {
+        label: 'comment',
+        property: 'GitLab personal access token',
+        value: 0,
+      });
     });
 
     describe('when updateNote returns errors', () => {
       beforeEach(() => {
         updateNote.mockRejectedValue({
-          response: { status: 422, data: { errors: 'error 1 and error 2' } },
+          response: {
+            status: HTTP_STATUS_UNPROCESSABLE_ENTITY,
+            data: { errors: 'error 1 and error 2' },
+          },
         });
       });
 
@@ -488,6 +502,32 @@ describe('issue_note', () => {
       );
 
       expect(findNoteBody().props().file.testId).toBe('diffFileTest');
+    });
+  });
+
+  describe('editing', () => {
+    it('respects isEditing prop on the note', () => {
+      createWrapper({
+        note: { ...note, isEditing: true },
+      });
+      expect(findNoteBody().props('isEditing')).toBe(true);
+    });
+
+    it('passes down restoreFromAutosave', () => {
+      createWrapper({
+        note: { ...note },
+        restoreFromAutosave: true,
+      });
+      expect(findNoteBody().props('restoreFromAutosave')).toBe(true);
+    });
+
+    it('passes down autosaveKey', () => {
+      const autosaveKey = 'autosave';
+      createWrapper({
+        note: { ...note },
+        autosaveKey,
+      });
+      expect(findNoteBody().props('autosaveKey')).toBe(autosaveKey);
     });
   });
 });

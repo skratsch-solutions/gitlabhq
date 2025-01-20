@@ -9,7 +9,7 @@ description: "GitLab administrator: enable and disable GitLab features deployed 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab adopted [feature flags strategies](../development/feature_flags/index.md)
 to deploy features in an early stage of development so that they can be
@@ -129,6 +129,12 @@ For example, to enable the `:example_feature` feature flag for project `1234`:
 
 ```ruby
 Feature.enable(:example_feature, Project.find(1234))
+```
+
+Some feature flags can be enabled or disabled on a per user basis. For example, to enable the `:example_feature` flag for user `sidney_jones`:
+
+```ruby
+Feature.enable(:example_feature, User.find_by_username("sidney_jones"))
 ```
 
 `Feature.enable` and `Feature.disable` always return `true`, even if the application doesn't use the flag:

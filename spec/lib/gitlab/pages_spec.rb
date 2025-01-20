@@ -59,15 +59,11 @@ RSpec.describe Gitlab::Pages, feature_category: :pages do
     context 'when a project is given' do
       let_it_be(:project) { create(:project) }
 
-      where(:setting, :feature_flag, :license, :result) do
-        false | false | false | false
-        false | false | true | false
-        false | true | false | false
-        false | true | true | false
-        true | false | false | false
-        true | false | true | false
-        true | true | false | false
-        true | true | true | true
+      where(:feature_flag, :license, :result) do
+        false | false | false
+        false | true | false
+        true | false | false
+        true | true | true
       end
 
       with_them do
@@ -78,7 +74,6 @@ RSpec.describe Gitlab::Pages, feature_category: :pages do
         before do
           stub_licensed_features(pages_multiple_versions: license)
           stub_feature_flags(pages_multiple_versions_setting: feature_flag)
-          project.project_setting.update!(pages_multiple_versions_enabled: setting)
         end
 
         # this feature is only available in EE
@@ -129,6 +124,168 @@ RSpec.describe Gitlab::Pages, feature_category: :pages do
           described_class.add_unique_domain_to(project.reload)
 
           expect(project.project_setting.pages_unique_domain).to eq('unique-domain')
+        end
+      end
+
+      context 'when a unique domain is already in use and needs to generate a new one' do
+        it 'generates a different unique domain if the original is already taken' do
+          allow(Gitlab::Pages::RandomDomain).to receive(:generate).and_return('existing-domain', 'new-unique-domain')
+
+          # Simulate the existing domain being in use
+          create(:project_setting, pages_unique_domain: 'existing-domain')
+
+          described_class.add_unique_domain_to(project)
+
+          expect(project.project_setting.pages_unique_domain_enabled).to eq(true)
+          expect(project.project_setting.pages_unique_domain).to eq('new-unique-domain')
+        end
+      end
+
+      RSpec.shared_examples 'generates a different unique domain' do |entity|
+        let!(:existing_entity) { create(entity, path: 'existing-path') }
+
+        context "when #{entity} path is already in use" do
+          it 'assigns a different unique domain to pages' do
+            allow(Gitlab::Pages::RandomDomain).to receive(:generate).and_return('existing-path', 'new-unique-domain')
+
+            described_class.add_unique_domain_to(project)
+
+            expect(project.project_setting.pages_unique_domain_enabled).to eq(true)
+            expect(project.project_setting.pages_unique_domain).to eq('new-unique-domain')
+          end
+        end
+      end
+
+      it_behaves_like 'generates a different unique domain', :group
+      it_behaves_like 'generates a different unique domain', :namespace
+
+      context 'when generated 10 unique domains are already in use' do
+        it 'raises an error' do
+          allow(Gitlab::Pages::RandomDomain).to receive(:generate).and_return('existing-domain')
+
+          # Simulate the existing domain being in use
+          create(:project_setting, pages_unique_domain: 'existing-domain')
+
+          expect { described_class.add_unique_domain_to(project) }.to raise_error(
+            described_class::UniqueDomainGenerationFailure,
+            "Can't generate unique domain for GitLab Pages"
+          )
+
+          expect(project.project_setting.pages_unique_domain).to be_nil
+        end
+      end
+    end
+  end
+
+  describe '.generate_unique_domain' do
+    let(:project) { create(:project, path: 'test-project') }
+
+    context 'when a unique domain can be generated' do
+      before do
+        allow(Gitlab::Pages::RandomDomain).to receive(:generate)
+          .with(project_path: project.path)
+          .and_return('unique-domain-123')
+
+        allow(ProjectSetting).to receive(:unique_domain_exists?)
+          .with('unique-domain-123')
+          .and_return(false)
+      end
+
+      it 'returns the generated unique domain' do
+        expect(described_class.generate_unique_domain(project)).to eq('unique-domain-123')
+      end
+
+      it 'attempts generation only once when first attempt succeeds' do
+        expect(Gitlab::Pages::RandomDomain).to receive(:generate).once
+
+        described_class.generate_unique_domain(project)
+      end
+    end
+
+    context 'when first attempts fail but later succeeds' do
+      before do
+        # First two attempts generate existing domains
+        allow(Gitlab::Pages::RandomDomain).to receive(:generate)
+          .with(project_path: project.path)
+          .and_return('existing-domain-1', 'existing-domain-2', 'unique-domain-123')
+
+        allow(ProjectSetting).to receive(:unique_domain_exists?)
+          .with('existing-domain-1').and_return(true)
+        allow(ProjectSetting).to receive(:unique_domain_exists?)
+          .with('existing-domain-2').and_return(true)
+        allow(ProjectSetting).to receive(:unique_domain_exists?)
+          .with('unique-domain-123').and_return(false)
+      end
+
+      it 'returns the first unique domain generated' do
+        expect(described_class.generate_unique_domain(project)).to eq('unique-domain-123')
+      end
+    end
+
+    context 'when unique domain generation fails after all attempts' do
+      before do
+        allow(Gitlab::Pages::RandomDomain).to receive(:generate)
+          .with(project_path: project.path)
+          .and_return('existing-domain')
+
+        allow(ProjectSetting).to receive(:unique_domain_exists?)
+          .with('existing-domain')
+          .and_return(true)
+      end
+
+      it 'raises UniqueDomainGenerationFailure after 10 attempts' do
+        expect(Gitlab::Pages::RandomDomain).to receive(:generate).exactly(10).times
+
+        expect { described_class.generate_unique_domain(project) }
+          .to raise_error(Gitlab::Pages::UniqueDomainGenerationFailure)
+      end
+    end
+
+    context 'when project is nil' do
+      it 'raises NoMethodError' do
+        expect { described_class.generate_unique_domain(nil) }
+          .to raise_error(NoMethodError)
+      end
+    end
+  end
+
+  describe '#update_primary_domain' do
+    let(:project) { build(:project) }
+
+    context 'when pages is not enabled' do
+      before do
+        stub_pages_setting(enabled: false)
+      end
+
+      it 'does not set pages primary domain' do
+        expect do
+          described_class.update_primary_domain(project, 'http://example.com')
+        end.not_to change { project.project_setting.pages_primary_domain }
+      end
+    end
+
+    context 'when pages is enabled' do
+      before do
+        stub_pages_setting(enabled: true)
+      end
+
+      it 'sets pages primary domain' do
+        expect do
+          described_class.update_primary_domain(project, 'http://example.com')
+        end.to change { project.project_setting.pages_primary_domain }.from(nil).to('http://example.com')
+      end
+
+      context 'when pages primary domain is updated with blank' do
+        before do
+          stub_pages_setting(enabled: true)
+        end
+
+        it 'sets pages primary domain as nil' do
+          project.project_setting.update!(pages_primary_domain: 'http://example.com')
+
+          expect do
+            described_class.update_primary_domain(project, '')
+          end.to change { project.project_setting.pages_primary_domain }.from('http://example.com').to(nil)
         end
       end
     end

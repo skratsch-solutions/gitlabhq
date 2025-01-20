@@ -41,14 +41,8 @@ RSpec.describe Gitlab::Git::Tree, feature_category: :source_code_management do
     context 'with an invalid ref' do
       let(:sha) { 'foobar-does-not-exist' }
 
-      context 'when handle_structured_gitaly_errors feature is disabled' do
-        before do
-          stub_feature_flags(handle_structured_gitaly_errors: false)
-        end
-
-        it { expect(entries).to eq([]) }
-        it { expect(cursor).to be_nil }
-      end
+      it { expect(entries).to eq([]) }
+      it { expect(cursor).to be_nil }
     end
 
     context 'when path is provided' do
@@ -75,11 +69,9 @@ RSpec.describe Gitlab::Git::Tree, feature_category: :source_code_management do
       it { expect(dir.flat_path).to eq('encoding') }
 
       context :subdir do
-        # rubocop: disable Rails/FindBy
         # This is not ActiveRecord where..first
         let(:path) { 'files' }
         let(:subdir) { entries.first }
-        # rubocop: enable Rails/FindBy
 
         it { expect(subdir).to be_kind_of Gitlab::Git::Tree }
         it { expect(subdir.id).to eq('a1e8f8d745cc87e3a9248358d9352bb7f9a0aeba') }
@@ -90,11 +82,9 @@ RSpec.describe Gitlab::Git::Tree, feature_category: :source_code_management do
       end
 
       context :subdir_file do
-        # rubocop: disable Rails/FindBy
         # This is not ActiveRecord where..first
         let(:path) { 'files/ruby' }
         let(:subdir_file) { entries.first }
-        # rubocop: enable Rails/FindBy
 
         it { expect(subdir_file).to be_kind_of Gitlab::Git::Tree }
         it { expect(subdir_file.id).to eq('7e3e39ebb9b2bf433b4ad17313770fbe4051649c') }
@@ -109,10 +99,8 @@ RSpec.describe Gitlab::Git::Tree, feature_category: :source_code_management do
         let(:repository) { project.repository.raw }
         let(:filename) { 'files/flat/path/correct/content.txt' }
         let(:path) { 'files/flat' }
-        # rubocop: disable Rails/FindBy
         # This is not ActiveRecord where..first
         let(:subdir_file) { entries.first }
-        # rubocop: enable Rails/FindBy
         let!(:sha) do
           repository.commit_files(
             user,

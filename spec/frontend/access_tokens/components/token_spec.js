@@ -1,7 +1,8 @@
-import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 
 import Token from '~/access_tokens/components/token.vue';
-import InputCopyToggleVisibility from '~/vue_shared/components/form/input_copy_toggle_visibility.vue';
+import InputCopyToggleVisibility from '~/vue_shared/components/input_copy_toggle_visibility/input_copy_toggle_visibility.vue';
+import SettingsSection from '~/vue_shared/components/settings/settings_section.vue';
 
 describe('Token', () => {
   let wrapper;
@@ -20,13 +21,17 @@ describe('Token', () => {
   };
 
   const createComponent = () => {
-    wrapper = mountExtended(Token, { propsData: defaultPropsData, slots: defaultSlots });
+    wrapper = shallowMountExtended(Token, {
+      propsData: defaultPropsData,
+      slots: defaultSlots,
+      stubs: { SettingsSection },
+    });
   };
 
   it('renders title slot', () => {
     createComponent();
 
-    expect(wrapper.findByText(defaultSlots.title, { selector: 'h4' }).exists()).toBe(true);
+    expect(wrapper.findByRole('heading', { name: defaultSlots.title }).exists()).toBe(true);
   });
 
   it('renders description slot', () => {

@@ -1,6 +1,6 @@
 import mockGetProjectStorageStatisticsGraphQLResponse from 'test_fixtures/graphql/usage_quotas/storage/project/project_storage.query.graphql.json';
-import mockGetNamespaceStorageGraphQLResponse from 'test_fixtures/graphql/usage_quotas/storage/namespace_storage.query.graphql.json';
-import mockGetProjectListStorageGraphQLResponse from 'test_fixtures/graphql/usage_quotas/storage/project_list_storage.query.graphql.json';
+import mockGetNamespaceStorageGraphQLResponse from 'test_fixtures/graphql/usage_quotas/storage/namespace/namespace_storage.query.graphql.json';
+import mockGetProjectListStorageGraphQLResponse from 'test_fixtures/graphql/usage_quotas/storage/namespace/project_list_storage.query.graphql.json';
 import { storageTypeHelpPaths } from '~/usage_quotas/storage/constants';
 
 export { mockGetProjectStorageStatisticsGraphQLResponse };
@@ -17,7 +17,7 @@ export const defaultProjectProvideValues = {
 };
 
 export const defaultNamespaceProvideValues = {
-  namespaceId: '0',
+  namespaceId: 0,
   namespacePath: 'GitLab',
   userNamespace: false,
   defaultPerPage: 20,
@@ -33,6 +33,8 @@ export const defaultNamespaceProvideValues = {
   totalRepositorySizeExcess: undefined,
   isUsingProjectEnforcementWithLimits: undefined,
   isUsingProjectEnforcementWithNoLimits: undefined,
+  aboveSizeLimit: undefined,
+  subjectToHighLimit: undefined,
   isUsingNamespaceEnforcement: undefined,
 };
 

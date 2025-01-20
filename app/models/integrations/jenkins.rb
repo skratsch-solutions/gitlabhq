@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Jenkins < BaseCi
+  class Jenkins < Integration
+    include Base::Ci
     include HasWebHook
 
     prepend EnableSslVerification
@@ -11,19 +12,19 @@ module Integrations
       exposes_secrets: true,
       required: true,
       placeholder: 'http://jenkins.example.com',
-      help: -> { s_('The URL of the Jenkins server.') }
+      help: -> { s_('URL of the Jenkins server.') }
 
     field :project_name,
       required: true,
       placeholder: 'my_project_name',
-      help: -> { s_('The name of the Jenkins project. Copy the name from the end of the URL to the project.') }
+      help: -> { s_('Name of the Jenkins project.') }
 
     field :username,
-      help: -> { s_('The username for the Jenkins server.') }
+      help: -> { s_('Username of the Jenkins server.') }
 
     field :password,
       type: :password,
-      help: -> { s_('The password for the Jenkins server.') },
+      help: -> { s_('Password of the Jenkins server.') },
       non_empty_password_title: -> { s_('ProjectService|Enter new password.') },
       non_empty_password_help: -> { s_('ProjectService|Leave blank to use your current password.') }
 
@@ -78,8 +79,10 @@ module Integrations
     end
 
     def self.help
-      docs_link = ActionController::Base.helpers.link_to _('Learn more.'), Rails.application.routes.url_helpers.help_page_url('integration/jenkins'), target: '_blank', rel: 'noopener noreferrer'
-      s_('Run CI/CD pipelines with Jenkins when you push to a repository, or when a merge request is created, updated, or merged. %{docs_link}').html_safe % { docs_link: docs_link.html_safe }
+      build_help_page_url(
+        'integration/jenkins.md',
+        s_("Run CI/CD pipelines with Jenkins when you push to a repository, or when a merge request is created, updated, or merged.")
+      )
     end
 
     def self.to_param

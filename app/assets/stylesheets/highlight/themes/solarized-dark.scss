@@ -11,6 +11,7 @@ $solarized-dark-new-idiff: rgba(133, 153, 0, 0.25);
 $solarized-dark-old-bg: rgba(220, 50, 47, 0.3);
 $solarized-dark-old-idiff: rgba(220, 50, 47, 0.25);
 $solarized-dark-border: #113b46;
+$solarized-dark-code-mark: #113953;
 $solarized-dark-pre-bg: #002b36;
 $solarized-dark-pre-color: #93a1a1;
 $solarized-dark-pre-border: #113b46;
@@ -96,6 +97,8 @@ $solarized-dark-il: #2aa198;
 :root {
   --default-diff-color-deletion: #ff362c;
   --default-diff-color-addition: #647e0e;
+  --diff-addition-color: #{$solarized-dark-new-bg};
+  --diff-deletion-color: #{$solarized-dark-old-bg};
 }
 
 .code.solarized-dark {
@@ -129,7 +132,7 @@ $solarized-dark-il: #2aa198;
 
   // Line numbers
   .file-line-blame {
-    @include line-link($white, 'git');
+    @include line-link($gl-color-neutral-0, 'git');
   }
 
   .line-links {
@@ -148,8 +151,8 @@ $solarized-dark-il: #2aa198;
   }
 
   .diff-grid-row.line_holder.diff-tr .diff-td.commented:not(.hll) {
-    --highlight-border-color: #{$blue-600};
-    background-color: $blue-900;
+    --highlight-border-color: #{$gl-color-blue-600};
+    background-color: $gl-color-blue-900;
   }
 
   // Code itself
@@ -166,7 +169,7 @@ $solarized-dark-il: #2aa198;
   }
 
   .diff-line-expand-button {
-    @include diff-expansion(lighten($solarized-dark-pre-bg, 10%), $gray-200, lighten($solarized-dark-pre-bg, 20%), $white);
+    @include diff-expansion(lighten($solarized-dark-pre-bg, 10%), $gl-color-neutral-200, lighten($solarized-dark-pre-bg, 20%), $gl-color-neutral-0);
   }
 
   // Diff line
@@ -190,8 +193,8 @@ $solarized-dark-il: #2aa198;
     td.diff-line-num.hll,
     td.line-coverage.hll,
     td.line_content.hll {
-      --highlight-border-color: #{$orange-500};
-      background-color: $orange-800;
+      --highlight-border-color: #{$gl-color-orange-500};
+      background-color: $gl-color-orange-800;
     }
 
     .line-coverage {
@@ -254,7 +257,7 @@ $solarized-dark-il: #2aa198;
       > .diff-line-num,
       > .line-coverage,
       > .line_content {
-        border-top: 1px solid $black;
+        border-top: 1px solid $gl-color-neutral-1000;
       }
     }
 
@@ -273,6 +276,27 @@ $solarized-dark-il: #2aa198;
   // highlight line via anchor
   pre .hll {
     background-color: $solarized-dark-hll-bg !important;
+  }
+
+  // mark lines via mark_multiple_lines
+  pre.solarized-dark code {
+    .selected-inline-section-marker {
+      background: $solarized-dark-code-mark !important;
+    }
+
+    .inline-section-marker {
+      background: $solarized-dark-hll-bg;
+    }
+  }
+
+  .file-holder div.code.solarized-dark {
+    .selected-inline-number-mark {
+      color: $gl-color-neutral-200;
+    }
+
+    .unselected-inline-number-mark {
+      color: $gl-color-neutral-600;
+    }
   }
 
   // Search result highlight

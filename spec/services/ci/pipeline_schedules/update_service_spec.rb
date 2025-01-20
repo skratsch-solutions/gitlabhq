@@ -17,11 +17,13 @@ RSpec.describe Ci::PipelineSchedules::UpdateService, feature_category: :continuo
   let_it_be_with_reload(:repository) { project.repository }
 
   before_all do
+    project.update!(ci_pipeline_variables_minimum_override_role: :developer)
     project.add_maintainer(user)
     project.add_owner(project_owner)
     project.add_reporter(reporter)
     repository.add_branch(project.creator, 'patch-x', 'master')
     repository.add_branch(project.creator, 'ambiguous', 'master')
+    repository.add_branch(project.creator, '1/nested/branch-name', 'master')
     repository.add_tag(project.creator, 'ambiguous', 'master')
 
     pipeline_schedule.reload
@@ -92,6 +94,22 @@ RSpec.describe Ci::PipelineSchedules::UpdateService, feature_category: :continuo
           expect(result.error?).to be(true)
           expect(result.message).to match_array(['Ref is ambiguous'])
           expect(result.payload.errors.full_messages).to match_array(['Ref is ambiguous'])
+        end
+
+        context 'when the branch name is nested' do
+          let(:ref) { '1/nested/branch-name' }
+
+          it 'saves values with passed params' do
+            result = service.execute
+
+            expect(result.payload).to have_attributes(
+              description: 'updated_desc',
+              ref: "#{Gitlab::Git::BRANCH_REF_PREFIX}1/nested/branch-name",
+              active: false,
+              cron: '*/1 * * * *',
+              cron_timezone: 'UTC'
+            )
+          end
         end
       end
 

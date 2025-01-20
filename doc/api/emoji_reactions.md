@@ -8,14 +8,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > [Renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/409884) from "award emoji" to "emoji reactions" in GitLab 16.0.
 
 An [emoji reaction](../user/emoji_reactions.md) tells a thousand words.
 
-We call GitLab objects on which you can react with an emoji "awardables".
-You can react with emoji on the following:
+We call GitLab objects that accept emoji reactions awardables. You can react with emoji on the following:
 
 - [Epics](../user/group/epics/index.md) ([API](epics.md)).
 - [Issues](../user/project/issues/index.md) ([API](issues.md)).
@@ -44,7 +43,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                  |
 |:---------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid`/`merge_request_iid`/`snippet_id` | integer        | yes      | ID (`iid` for merge requests/issues, `id` for snippets) of an awardable.     |
 
 Example request:
@@ -109,7 +108,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                  |
 |:---------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid`/`merge_request_iid`/`snippet_id` | integer        | yes      | ID (`iid` for merge requests/issues, `id` for snippets) of an awardable.     |
 | `award_id`     | integer        | yes      | ID of the emoji reaction.                                                       |
 
@@ -154,7 +153,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                  |
 |:---------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid`/`merge_request_iid`/`snippet_id` | integer        | yes      | ID (`iid` for merge requests/issues, `id` for snippets) of an awardable.     |
 | `name`         | string         | yes      | Name of the emoji without colons.                                            |
 
@@ -199,7 +198,7 @@ Parameters:
 
 | Attribute      | Type           | Required | Description                                                                  |
 |:---------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`           | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid`/`merge_request_iid`/`snippet_id` | integer        | yes      | ID (`iid` for merge requests/issues, `id` for snippets) of an awardable.     |
 | `award_id`     | integer        | yes      | ID of an emoji reaction.                                                        |
 
@@ -231,7 +230,7 @@ Parameters:
 
 | Attribute   | Type           | Required | Description                                                                  |
 |:------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid` | integer        | yes      | Internal ID of an issue.                                                     |
 | `note_id`   | integer        | yes      | ID of a comment (note).                                                      |
 
@@ -279,7 +278,7 @@ Parameters:
 
 | Attribute   | Type           | Required | Description                                                                  |
 |:------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid` | integer        | yes      | Internal ID of an issue.                                                     |
 | `note_id`   | integer        | yes      | ID of a comment (note).                                                      |
 | `award_id`  | integer        | yes      | ID of the emoji reaction.                                                       |
@@ -323,7 +322,7 @@ Parameters:
 
 | Attribute   | Type           | Required | Description                                                                  |
 |:------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid` | integer        | yes      | Internal ID of an issue.                                                     |
 | `note_id`   | integer        | yes      | ID of a comment (note).                                                      |
 | `name`      | string         | yes      | Name of the emoji without colons.                                            |
@@ -369,7 +368,7 @@ Parameters:
 
 | Attribute   | Type           | Required | Description                                                                  |
 |:------------|:---------------|:---------|:-----------------------------------------------------------------------------|
-| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`        | integer/string | yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `issue_iid` | integer        | yes      | Internal ID of an issue.                                                     |
 | `note_id`   | integer        | yes      | ID of a comment (note).                                                      |
 | `award_id`  | integer        | yes      | ID of an emoji reaction.                                                        |

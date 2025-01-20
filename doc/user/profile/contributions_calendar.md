@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The contributions calendar displays a [user's events](#user-contribution-events) from the past 12 months.
 This includes contributions made in forked and [private](#show-private-contributions-on-your-user-profile-page) repositories.
@@ -101,7 +101,7 @@ To reset your feed token:
 
 1. On the left sidebar, select your avatar.
 1. Select **Edit profile**.
-1. On the left sidebar, select **Access Tokens**.
+1. On the left sidebar, select **Access tokens**.
 1. Scroll down. In the **Feed token** section, select the
    **reset this token** link.
 1. On the confirmation dialog, select **OK**.

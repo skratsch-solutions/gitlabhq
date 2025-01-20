@@ -17,8 +17,9 @@ RSpec.describe Gitlab::Analytics::CycleAnalytics::RequestParams, feature_categor
         expect(attributes).to match(hash_including({
           namespace: {
             name: project.name,
-            full_path: project.full_path,
-            type: "Project"
+            type: "Project",
+            path: project.full_path,
+            rest_api_request_path: project.full_path
           }
         }))
       end

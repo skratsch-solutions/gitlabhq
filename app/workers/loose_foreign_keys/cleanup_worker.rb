@@ -22,7 +22,8 @@ module LooseForeignKeys
       in_lock(self.class.name.underscore, ttl: lock_ttl, retries: 0) do
         stats = ProcessDeletedRecordsService.new(
           connection: base_model.connection,
-          modification_tracker: modification_tracker
+          modification_tracker: modification_tracker,
+          logger: Sidekiq.logger
         ).execute
         stats[:connection] = connection_name
         stats[:turbo_mode] = turbo_mode
@@ -50,7 +51,7 @@ module LooseForeignKeys
     end
 
     def turbo_mode?(connection_name)
-      %w[main ci].include?(connection_name) &&
+      %w[main ci sec].include?(connection_name) &&
         Feature.enabled?(:"loose_foreign_keys_turbo_mode_#{connection_name}", type: :ops)
     end
   end

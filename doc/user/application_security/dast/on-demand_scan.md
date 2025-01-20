@@ -1,14 +1,14 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# DAST On Demand Scan
+# DAST on-demand scan
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 WARNING:
 Do not run DAST scans against a production server. Not only can it perform *any* function that a user can, such
@@ -17,10 +17,10 @@ Only run DAST scans against a test server.
 
 ## On-demand scans
 
-> - Runner tags selection [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111499) in GitLab 16.3.
-> - Browser based on-demand DAST scans available from GitLab 17.0 since [proxy-based DAST was removed in the same version](../../../update/deprecations.md#proxy-based-dast-deprecated).
+> - Runner tags selection [enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111499) in GitLab 16.3.
+> - Browser based on-demand DAST scans available in GitLab 17.0 and later because [proxy-based DAST was removed in the same version](../../../update/deprecations.md#proxy-based-dast-deprecated).
 
-An on-demand DAST scan runs outside the DevOps life cycle. Changes in your repository don't trigger
+An on-demand DAST scan runs outside the DevOps lifecycle. Changes in your repository don't trigger
 the scan. You must either start it manually, or schedule it to run. For on-demand DAST scans,
 a [site profile](#site-profile) defines **what** is to be scanned, and a
 [scanner profile](#scanner-profile) defines **how** the application is to be scanned.
@@ -131,8 +131,9 @@ To delete an on-demand scan:
 
 ## Site profile
 
-> - Site profile features, scan method and file URL, were [enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/345837) in GitLab 15.6.
+> - Site profile features, scan method and file URL, were [enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/345837) in GitLab 15.6.
 > - GraphQL endpoint path feature was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/378692) in GitLab 15.7.
+> - Additional variables [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/177703) in GitLab 17.9.
 
 A site profile defines the attributes and configuration details of the deployed application,
 website, or API to be scanned by DAST. A site profile can be referenced in `.gitlab-ci.yml` and
@@ -157,6 +158,7 @@ A site profile contains:
 - **Scan method**: A type of method to perform API testing. The supported methods are OpenAPI, Postman Collections, HTTP Archive (HAR), or GraphQL.
   - **GraphQL endpoint path**: The path to the GraphQL endpoint. This path is concatenated with the target URL to provide the URI for the scan to test. The GraphQL endpoint must support introspection queries.
   - **File URL**: The URL of the OpenAPI, Postman Collection, or HTTP Archive file.
+- **Additional variables**: A list of environment variables to configure specific scan behaviors. These variables provide the same configuration options as pipeline-based DAST scans, such as setting timeouts, adding an authentication success URL, or enabling advanced scan features.
 
 When an API site type is selected, a host override is used to ensure the API being scanned is on the same host as the target. This is done to reduce the risk of running an active scan against the wrong API.
 
@@ -195,7 +197,7 @@ The site profile is saved, for use in an on-demand scan.
 
 NOTE:
 If a site profile is linked to a security policy, you cannot edit the profile from this page. See
-[Scan execution policies](../policies/scan-execution-policies.md) for more information.
+[Scan execution policies](../policies/scan_execution_policies.md) for more information.
 
 NOTE:
 If a site profile's Target URL or Authenticated URL is updated, the request headers and password fields associated with that profile are cleared.
@@ -216,7 +218,7 @@ To edit a site profile:
 
 NOTE:
 If a site profile is linked to a security policy, a user cannot delete the profile from this page.
-See [Scan execution policies](../policies/scan-execution-policies.md) for more information.
+See [Scan execution policies](../policies/scan_execution_policies.md) for more information.
 
 To delete a site profile:
 
@@ -369,7 +371,7 @@ To create a scanner profile:
 
 NOTE:
 If a scanner profile is linked to a security policy, you cannot edit the profile from this page.
-For more information, see [Scan execution policies](../policies/scan-execution-policies.md).
+For more information, see [Scan execution policies](../policies/scan_execution_policies.md).
 
 To edit a scanner profile:
 
@@ -385,7 +387,7 @@ To edit a scanner profile:
 
 NOTE:
 If a scanner profile is linked to a security policy, a user cannot delete the profile from this
-page. For more information, see [Scan execution policies](../policies/scan-execution-policies.md).
+page. For more information, see [Scan execution policies](../policies/scan_execution_policies.md).
 
 To delete a scanner profile:
 

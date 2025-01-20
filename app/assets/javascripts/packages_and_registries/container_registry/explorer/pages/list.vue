@@ -18,6 +18,7 @@ import PersistedPagination from '~/packages_and_registries/shared/components/per
 import PersistedSearch from '~/packages_and_registries/shared/components/persisted_search.vue';
 import MetadataDatabaseAlert from '~/packages_and_registries/shared/components/container_registry_metadata_database_alert.vue';
 import { FILTERED_SEARCH_TERM } from '~/vue_shared/components/filtered_search_bar/constants';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import DeleteImage from '../components/delete_image.vue';
 import RegistryHeader from '../components/list_page/registry_header.vue';
 import DeleteModal from '../components/delete_modal.vue';
@@ -29,6 +30,7 @@ import {
   EMPTY_RESULT_TITLE,
   EMPTY_RESULT_MESSAGE,
   GRAPHQL_PAGE_SIZE,
+  GRAPHQL_PAGE_SIZE_METADATA_ENABLED,
   FETCH_IMAGES_LIST_ERROR_MESSAGE,
   SORT_FIELDS,
   SETTINGS_TEXT,
@@ -97,7 +99,7 @@ export default {
         return this.queryVariables;
       },
       update(data) {
-        return data[this.graphqlResource]?.containerRepositories.nodes;
+        return data[this.graphqlResource]?.containerRepositories?.nodes ?? [];
       },
       result({ data }) {
         if (!data) {
@@ -120,7 +122,7 @@ export default {
         return this.queryVariables;
       },
       update(data) {
-        return data[this.graphqlResource]?.containerRepositories.nodes;
+        return data[this.graphqlResource]?.containerRepositories?.nodes ?? [];
       },
       error() {
         createAlert({ message: FETCH_IMAGES_LIST_ERROR_MESSAGE });
@@ -159,13 +161,18 @@ export default {
     graphqlResource() {
       return this.config.isGroupPage ? WORKSPACE_GROUP : WORKSPACE_PROJECT;
     },
+    pageSize() {
+      return this.config.isMetadataDatabaseEnabled
+        ? GRAPHQL_PAGE_SIZE_METADATA_ENABLED
+        : GRAPHQL_PAGE_SIZE;
+    },
     queryVariables() {
       return {
         name: this.name,
         sort: this.sorting,
         fullPath: this.config.isGroupPage ? this.config.groupPath : this.config.projectPath,
         isGroupPage: this.config.isGroupPage,
-        first: GRAPHQL_PAGE_SIZE,
+        first: this.pageSize,
         ...this.pageParams,
       };
     },
@@ -203,17 +210,17 @@ export default {
       this.itemToDelete = {};
     },
     fetchNextPage() {
-      this.pageParams = getNextPageParams(this.pageInfo?.endCursor);
+      this.pageParams = getNextPageParams(this.pageInfo?.endCursor, this.pageSize);
     },
     fetchPreviousPage() {
-      this.pageParams = getPreviousPageParams(this.pageInfo?.startCursor);
+      this.pageParams = getPreviousPageParams(this.pageInfo?.startCursor, this.pageSize);
     },
     startDelete() {
       this.track('confirm_delete');
       this.mutationLoading = true;
     },
     handleSearchUpdate({ sort, filters, pageInfo }) {
-      this.pageParams = getPageParams(pageInfo);
+      this.pageParams = getPageParams(pageInfo, this.pageSize);
       this.sorting = sort;
 
       const search = filters.find((i) => i.type === FILTERED_SEARCH_TERM);
@@ -229,6 +236,13 @@ export default {
       }
     },
   },
+  containerRegistryHelpUrl: helpPagePath('user/packages/container_registry/index'),
+  dockerConnectionErrorHelpUrl: helpPagePath(
+    'user/packages/container_registry/troubleshoot_container_registry',
+    {
+      anchor: 'docker-connection-error',
+    },
+  ),
 };
 </script>
 
@@ -259,7 +273,7 @@ export default {
         <p>
           <gl-sprintf :message="$options.i18n.CONNECTION_ERROR_MESSAGE">
             <template #docLink="{ content }">
-              <gl-link :href="`${config.helpPagePath}#docker-connection-error`" target="_blank">
+              <gl-link :href="$options.dockerContainerErrorHelpUrl" target="_blank">
                 {{ content }}
               </gl-link>
             </template>
@@ -273,7 +287,7 @@ export default {
         :metadata-loading="isLoading"
         :images-count="containerRepositoriesCount"
         :expiration-policy="config.expirationPolicy"
-        :help-page-path="config.helpPagePath"
+        :help-page-path="$options.containerRegistryHelpUrl"
         :hide-expiration-policy-data="config.isGroupPage"
         :cleanup-policies-settings-path="config.cleanupPoliciesSettingsPath"
         :show-cleanup-policy-link="config.showCleanupPolicyLink"
@@ -289,7 +303,7 @@ export default {
             v-if="config.showContainerRegistrySettings"
             v-gl-tooltip="$options.i18n.SETTINGS_TEXT"
             icon="settings"
-            :href="config.cleanupPoliciesSettingsPath"
+            :href="config.settingsPath"
             :aria-label="$options.i18n.SETTINGS_TEXT"
           />
         </template>
@@ -342,7 +356,7 @@ export default {
         </template>
       </template>
 
-      <div v-if="!mutationLoading" class="gl-display-flex gl-justify-content-center">
+      <div v-if="!mutationLoading" class="gl-flex gl-justify-center">
         <persisted-pagination
           class="gl-mt-3"
           :pagination="pageInfo"

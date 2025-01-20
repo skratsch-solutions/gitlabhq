@@ -38,7 +38,6 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
     render_diffs
   end
 
-  # rubocop: disable Metrics/AbcSize
   def diffs_batch
     diff_options_hash = diff_options
     diff_options_hash[:paths] = params[:paths] if params[:paths]
@@ -86,7 +85,6 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
       render json: PaginatedDiffSerializer.new(current_user: current_user).represent(diffs, options)
     end
   end
-  # rubocop: enable Metrics/AbcSize
 
   def diffs_metadata
     diffs = @compare.diffs(diff_options)
@@ -137,16 +135,6 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
   end
 
   # rubocop: disable CodeReuse/ActiveRecord
-  def commit
-    return unless commit_id = params[:commit_id].presence
-    return unless @merge_request.all_commits.exists?(sha: commit_id) ||
-      @merge_request.recent_context_commits.map(&:id).include?(commit_id)
-
-    @commit ||= @project.commit(commit_id)
-  end
-  # rubocop: enable CodeReuse/ActiveRecord
-
-  # rubocop: disable CodeReuse/ActiveRecord
   #
   # Deprecated: https://gitlab.com/gitlab-org/gitlab/issues/37735
   def find_merge_request_diff_compare
@@ -177,7 +165,9 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
     return @merge_request.merge_head_diff if render_merge_ref_head_diff?
 
     if @start_sha
-      @merge_request_diff.compare_with(@start_sha)
+      ::MergeRequests::MergeRequestDiffComparison
+          .new(@merge_request_diff)
+          .compare_with(@start_sha)
     else
       @merge_request_diff
     end

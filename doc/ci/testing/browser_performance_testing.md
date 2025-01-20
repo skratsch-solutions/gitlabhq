@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If your application offers a web interface and you're using
 [GitLab CI/CD](../index.md), you can quickly determine the rendering performance
@@ -23,7 +23,7 @@ GitLab uses [Sitespeed.io](https://www.sitespeed.io), a free and open source
 tool, for measuring the rendering performance of web sites. The
 [Sitespeed plugin](https://gitlab.com/gitlab-org/gl-performance) that GitLab built outputs
 the performance score for each page analyzed in a file called `browser-performance.json`
-this data can be shown on Merge Requests.
+this data can be shown on merge requests.
 
 ## Use cases
 
@@ -56,7 +56,7 @@ once on the target branch (`main`, for example), before it displays in a
 merge request targeting that branch. Additionally, the widget only displays if the
 job ran in the latest pipeline for the Merge request.
 
-![Browser Performance Widget](img/browser_performance_testing.png)
+![Browser Performance Widget](img/browser_performance_testing_v13_4.png)
 
 ## Configuring Browser Performance Testing
 

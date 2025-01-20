@@ -17,7 +17,7 @@ RSpec.describe ProjectAccessTokens::RotateService, feature_category: :system_acc
         new_token = response.payload[:personal_access_token]
 
         expect(new_token.token).not_to eq(token.token)
-        expect(new_token.expires_at).to eq(Date.today + 1.week)
+        expect(new_token.expires_at).to eq(1.week.from_now.to_date)
         expect(new_token.user).to eq(token.user)
       end
     end
@@ -35,19 +35,14 @@ RSpec.describe ProjectAccessTokens::RotateService, feature_category: :system_acc
         it_behaves_like "rotates token successfully"
 
         context 'when creating the new token fails' do
-          let(:error_message) { 'boom!' }
-
           before do
-            allow_next_instance_of(PersonalAccessToken) do |token|
-              allow(token).to receive_message_chain(:errors, :full_messages, :to_sentence).and_return(error_message)
-              allow(token).to receive_message_chain(:errors, :clear)
-              allow(token).to receive_message_chain(:errors, :empty?).and_return(false)
-            end
+            # change the default expiration for rotation to create an invalid token
+            stub_const('::PersonalAccessTokens::RotateService::EXPIRATION_PERIOD', 10.years)
           end
 
           it 'returns an error' do
             expect(response).to be_error
-            expect(response.message).to eq(error_message)
+            expect(response.message).to include('Expiration date must be before')
           end
 
           it 'reverts the changes' do
@@ -137,11 +132,22 @@ RSpec.describe ProjectAccessTokens::RotateService, feature_category: :system_acc
 
             let_it_be(:token, reload: true) { create(:personal_access_token, user: bot_user) }
 
-            it 'updates membership expires at' do
+            it 'does not update membership expires at' do
               response
+              expect(bot_user_membership.reload.expires_at).to be_nil
+            end
 
-              new_token = response.payload[:personal_access_token]
-              expect(bot_user_membership.reload.expires_at).to eq(new_token.expires_at)
+            context 'when retain_resource_access_token_user_after_revoke FF is disabled' do
+              before do
+                stub_feature_flags(retain_resource_access_token_user_after_revoke: false)
+              end
+
+              it 'updates membership expires at' do
+                response
+
+                new_token = response.payload[:personal_access_token]
+                expect(bot_user_membership.reload.expires_at).to eq(new_token.expires_at)
+              end
             end
           end
         end

@@ -2,8 +2,9 @@
 
 RSpec.shared_examples 'WikiPages::CreateService#execute' do |container_type|
   let(:container) { create(container_type, :wiki_repo) }
-  let(:user) { create(:user) }
+  let(:user) { create(:user, :with_namespace) }
   let(:page_title) { 'Title' }
+  let(:container_key) { container.is_a?(Group) ? :namespace_id : :project_id }
 
   let(:opts) do
     {
@@ -27,25 +28,60 @@ RSpec.shared_examples 'WikiPages::CreateService#execute' do |container_type|
     expect(page.format).to eq(opts[:format].to_sym)
   end
 
+  it 'creates a WikiPage::Meta record' do
+    expect { service.execute }.to change { WikiPage::Meta.count }.by 1
+
+    expect(WikiPage::Meta.all.last).to have_attributes(
+      title: page_title,
+      container_key => container.id
+    )
+  end
+
   it 'executes webhooks' do
     expect(service).to receive(:execute_hooks).once.with(WikiPage)
 
     service.execute
   end
 
-  it_behaves_like 'internal event tracking' do
-    let(:event) { 'create_wiki_page' }
+  describe 'internal event tracking' do
     let(:project) { container if container.is_a?(Project) }
     let(:namespace) { container.is_a?(Group) ? container : container.namespace }
 
     subject(:track_event) { service.execute }
+
+    it_behaves_like 'internal event tracking' do
+      let(:event) { 'create_wiki_page' }
+    end
+
+    context 'with group container', if: container_type == :group do
+      it_behaves_like 'internal event tracking' do
+        let(:event) { 'create_group_wiki_page' }
+      end
+    end
+
+    context 'with project container', if: container_type == :project do
+      it_behaves_like 'internal event not tracked' do
+        let(:event) { 'create_group_wiki_page' }
+      end
+    end
+  end
+
+  context 'when the new page is a template' do
+    let(:page_title) { "#{Wiki::TEMPLATES_DIR}/foobar" }
+
+    it_behaves_like 'internal event tracking' do
+      let(:event) { 'create_wiki_page' }
+      let(:project) { container if container.is_a?(Project) }
+      let(:namespace) { container.is_a?(Group) ? container : container.namespace }
+      let(:label) { 'template' }
+      let(:property) { 'markdown' }
+
+      subject(:track_event) { service.execute }
+    end
   end
 
   shared_examples 'correct event created' do
     it 'creates appropriate events' do
-      # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/216904
-      pending('group wiki support') if container_type == :group
-
       expect { service.execute }.to change { Event.count }.by 1
 
       expect(Event.recent.first).to have_attributes(
@@ -86,6 +122,21 @@ RSpec.shared_examples 'WikiPages::CreateService#execute' do |container_type|
 
       expect(page).to be_invalid
         .and have_attributes(errors: be_present)
+    end
+  end
+
+  context 'when wiki create fails due to git error' do
+    it 'catches the thrown error and returns a ServiceResponse error' do
+      container = create(container_type, :wiki_repo)
+      service = described_class.new(container: container, current_user: user, params: opts)
+
+      allow(Gitlab::GitalyClient).to receive(:call) do
+        raise GRPC::Unavailable, 'Gitaly broken in this spec'
+      end
+
+      result = service.execute
+      expect(result).to be_error
+      expect(result.message).to eq('Could not create wiki page')
     end
   end
 end

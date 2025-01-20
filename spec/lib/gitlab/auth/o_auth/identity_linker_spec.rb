@@ -14,7 +14,7 @@ RSpec.describe Gitlab::Auth::OAuth::IdentityLinker do
     let!(:identity) { user.identities.create!(provider: provider, extern_uid: uid) }
 
     it "doesn't create new identity" do
-      expect { subject.link }.not_to change { Identity.count }
+      expect { subject.link }.not_to change { ::Identity.count }
     end
 
     it "sets #changed? to false" do
@@ -34,7 +34,8 @@ RSpec.describe Gitlab::Auth::OAuth::IdentityLinker do
     end
 
     it 'exposes error message' do
-      expect(subject.error_message).to eq 'Extern uid has already been taken'
+      expect(subject.error_message).to eq "Extern uid has already been taken. " \
+        "Please contact your administrator to generate a unique extern_uid / NameID"
     end
   end
 

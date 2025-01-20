@@ -171,9 +171,9 @@ export default {
   <div class="row gl-mt-8">
     <main class="col-md-6 gl-pr-8">
       <header class="gl-mb-5">
-        <h3 class="text-secondary gl-mt-0" data-testid="step-count">
+        <h2 class="gl-mt-0" data-testid="step-count">
           {{ sprintf($options.i18n.stepNofN, { currentStep, stepCount }) }}
-        </h3>
+        </h2>
         <gl-progress-bar :value="progress" />
       </header>
       <section class="gl-mb-4">
@@ -205,10 +205,8 @@ export default {
       </section>
     </main>
     <aside class="col-md-6 gl-pt-3">
-      <div
-        class="gl-border-1 gl-border-gray-100 gl-border-solid border-radius-default gl-bg-gray-10"
-      >
-        <h6 class="gl-p-2 gl-px-4 text-secondary" data-testid="editor-header">
+      <div class="gl-rounded-base gl-border-1 gl-border-solid gl-border-default gl-bg-gray-10">
+        <h6 class="gl-p-2 gl-px-4 gl-text-subtle" data-testid="editor-header">
           {{ sprintf($options.i18n.draft, { filename }) }}
         </h6>
         <div class="gl-relative gl-overflow-hidden">
@@ -223,15 +221,13 @@ export default {
           />
           <div
             v-if="showPlaceholder"
-            class="gl-absolute gl-top-0 gl-right-0 gl-bottom-0 gl-left-0 gl-filter-blur-1"
+            class="gl-filter-blur-1 gl-absolute gl-bottom-0 gl-left-0 gl-right-0 gl-top-0"
             data-testid="placeholder-overlay"
           >
             <div
-              class="gl-absolute gl-top-0 gl-right-0 gl-bottom-0 gl-left-0 bg-white gl-opacity-5 gl-z-2"
+              class="gl-absolute gl-bottom-0 gl-left-0 gl-right-0 gl-top-0 gl-z-2 gl-bg-white gl-opacity-5"
             ></div>
-            <div
-              class="gl-relative gl-h-full gl-display-flex gl-align-items-center gl-justify-content-center gl-z-3"
-            >
+            <div class="gl-relative gl-z-3 gl-flex gl-h-full gl-items-center gl-justify-center">
               <div class="gl-max-w-34">
                 <h4 data-testid="filename">{{ filename }}</h4>
                 <p data-testid="description">

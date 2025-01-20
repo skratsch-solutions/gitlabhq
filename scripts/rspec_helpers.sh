@@ -1,45 +1,7 @@
 #!/usr/bin/env bash
 
-function retrieve_tests_metadata() {
-  mkdir -p $(dirname "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}") $(dirname "${FLAKY_RSPEC_SUITE_REPORT_PATH}") "${RSPEC_PROFILING_FOLDER_PATH}"
-
-  if [[ ! -f "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" ]]; then
-    curl --location -o "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" "https://gitlab-org.gitlab.io/gitlab/${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" ||
-      echo "{}" > "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}"
-  fi
-
-  if [[ ! -f "${FLAKY_RSPEC_SUITE_REPORT_PATH}" ]]; then
-    curl --location -o "${FLAKY_RSPEC_SUITE_REPORT_PATH}" "https://gitlab-org.gitlab.io/gitlab/${FLAKY_RSPEC_SUITE_REPORT_PATH}" ||
-      echo "{}" > "${FLAKY_RSPEC_SUITE_REPORT_PATH}"
-  fi
-
-  if [[ ! -f "${RSPEC_FAST_QUARANTINE_PATH}" ]]; then
-    curl --location -o "${RSPEC_FAST_QUARANTINE_PATH}" "https://gitlab-org.gitlab.io/quality/engineering-productivity/fast-quarantine/${RSPEC_FAST_QUARANTINE_PATH}" ||
-      echo "" > "${RSPEC_FAST_QUARANTINE_PATH}"
-  fi
-}
-
 function update_tests_metadata() {
-  local rspec_flaky_folder_path="$(dirname "${FLAKY_RSPEC_SUITE_REPORT_PATH:-unknown_folder}")/"
-  local knapsack_folder_path="$(dirname "${KNAPSACK_RSPEC_SUITE_REPORT_PATH:-unknown_folder}")/"
-
-  curl -f --location -o "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" "https://gitlab-org.gitlab.io/gitlab/${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" ||
-    echo "{}" > "${KNAPSACK_RSPEC_SUITE_REPORT_PATH:-unknown_file}"
-
-  if [[ "$AVERAGE_KNAPSACK_REPORT" == "true" ]]; then
-    # a comma separated list of file names matching the glob
-    local new_reports="$(printf '%s,' ${knapsack_folder_path:-unknown_folder}rspec*.json)"
-    scripts/pipeline/average_reports.rb -i "${KNAPSACK_RSPEC_SUITE_REPORT_PATH:-unknown_file}" -n "${new_reports}"
-  else
-    scripts/merge-reports "${KNAPSACK_RSPEC_SUITE_REPORT_PATH:-unknown_file}" ${knapsack_folder_path:-unknown_folder}rspec*.json
-  fi
-
-  export FLAKY_RSPEC_GENERATE_REPORT="true"
-  scripts/merge-reports "${FLAKY_RSPEC_SUITE_REPORT_PATH:-unknown_file}" ${rspec_flaky_folder_path:-unknown_folder}all_*.json
-
-  # Prune flaky tests that weren't flaky in the last 7 days, *after* updating the flaky tests detected
-  # in this pipeline, so that first_flaky_at for tests that are still flaky is maintained.
-  scripts/flaky_examples/prune-old-flaky-examples "${FLAKY_RSPEC_SUITE_REPORT_PATH:-unknown_file}"
+  scripts/setup/tests-metadata.rb update
 
   if [[ "$CI_PIPELINE_SOURCE" == "schedule" ]]; then
     if [[ -n "$RSPEC_PROFILING_PGSSLKEY" ]]; then
@@ -57,7 +19,7 @@ function retrieve_tests_mapping() {
   mkdir -p $(dirname "$RSPEC_PACKED_TESTS_MAPPING_PATH")
 
   if [[ ! -f "${RSPEC_PACKED_TESTS_MAPPING_PATH}" ]]; then
-    (curl --location  -o "${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz" "https://gitlab-org.gitlab.io/gitlab/${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz" && gzip -d "${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz") || echo "{}" > "${RSPEC_PACKED_TESTS_MAPPING_PATH}"
+    (curl --fail --location  -o "${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz" "https://gitlab-org.gitlab.io/gitlab/${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz" && gzip -d "${RSPEC_PACKED_TESTS_MAPPING_PATH}.gz") || echo "{}" > "${RSPEC_PACKED_TESTS_MAPPING_PATH}"
   fi
 
   scripts/unpack-test-mapping "${RSPEC_PACKED_TESTS_MAPPING_PATH}" "${RSPEC_TESTS_MAPPING_PATH}"
@@ -67,24 +29,30 @@ function retrieve_frontend_fixtures_mapping() {
   mkdir -p $(dirname "$FRONTEND_FIXTURES_MAPPING_PATH")
 
   if [[ ! -f "${FRONTEND_FIXTURES_MAPPING_PATH}" ]]; then
-    (curl --location  -o "${FRONTEND_FIXTURES_MAPPING_PATH}" "https://gitlab-org.gitlab.io/gitlab/${FRONTEND_FIXTURES_MAPPING_PATH}") || echo "{}" > "${FRONTEND_FIXTURES_MAPPING_PATH}"
+    (curl --fail --location  -o "${FRONTEND_FIXTURES_MAPPING_PATH}" "https://gitlab-org.gitlab.io/gitlab/${FRONTEND_FIXTURES_MAPPING_PATH}") || echo "{}" > "${FRONTEND_FIXTURES_MAPPING_PATH}"
   fi
 }
 
 function update_tests_mapping() {
-  if ! crystalball_rspec_data_exists; then
-    echo "No crystalball rspec data found."
+  pack_and_gzip_mapping "${RSPEC_TESTS_MAPPING_PATH}" "${RSPEC_PACKED_TESTS_MAPPING_PATH}" crystalball/described/rspec*.yml
+
+  pack_and_gzip_mapping "${RSPEC_TESTS_MAPPING_ALT_PATH}" "${RSPEC_PACKED_TESTS_MAPPING_ALT_PATH}" crystalball/coverage/rspec*.yml
+}
+
+function pack_and_gzip_mapping() {
+  local mapping_path="${1}"
+  local packed_path="${2}"
+  local crystal_yaml_files=("${@:3}")
+
+  if test -z "${crystal_yaml_files[1]}"; then
+    echo "No crystalball rspec data for ${mapping_path}"
     return 0
   fi
 
-  scripts/generate-test-mapping "${RSPEC_TESTS_MAPPING_PATH:-unknown_file}" crystalball/rspec*.yml
-  scripts/pack-test-mapping "${RSPEC_TESTS_MAPPING_PATH:-unknown_file}" "${RSPEC_PACKED_TESTS_MAPPING_PATH:-unknown_file}"
-  gzip "${RSPEC_PACKED_TESTS_MAPPING_PATH:-unknown_file}"
-  rm -f crystalball/rspec*.yml "${RSPEC_PACKED_TESTS_MAPPING_PATH:-unknown_file}"
-}
-
-function crystalball_rspec_data_exists() {
-  compgen -G "crystalball/rspec*.yml" >/dev/null
+  scripts/generate-test-mapping "${mapping_path}" "${crystal_yaml_files[@]}"
+  scripts/pack-test-mapping "${mapping_path}" "${packed_path}"
+  gzip "${packed_path}"
+  rm -f "${packed_path}" "${mapping_path}" "${crystal_yaml_files[@]}"
 }
 
 function retrieve_failed_tests() {
@@ -125,12 +93,6 @@ function rspec_simple_job_with_retry () {
   rspec_simple_job "${1}" "${2}" "${3}" || rspec_run_status=$?
 
   handle_retry_rspec_in_new_process $rspec_run_status
-}
-
-function rspec_db_library_code() {
-  local db_files="spec/lib/gitlab/database/"
-
-  rspec_simple_job_with_retry "--tag ~click_house -- ${db_files}"
 }
 
 # Below is the list of options (https://linuxcommand.org/lc3_man_pages/seth.html)
@@ -195,35 +157,148 @@ function debug_rspec_variables() {
 
 function handle_retry_rspec_in_new_process() {
   local rspec_run_status="${1}"
+  local new_exit_code="${1}"
+  local rspec_retry_status=0
 
   if [[ $rspec_run_status -eq 3 ]]; then
     echoerr "Not retrying failing examples since we failed early on purpose!"
-    exit 1
+    change_exit_code_if_applicable $rspec_run_status || new_exit_code=$?
+    exit "${new_exit_code}"
   fi
 
   if [[ $rspec_run_status -eq 2 ]]; then
     echoerr "Not retrying failing examples since there were errors happening outside of the RSpec examples!"
-    exit 1
+    change_exit_code_if_applicable $rspec_run_status || new_exit_code=$?
+    exit "${new_exit_code}"
   fi
 
-  if [[ $rspec_run_status -eq 1 ]]; then
+  if [[ $rspec_run_status -ne 0 ]]; then
     if is_rspec_last_run_results_file_missing; then
-      exit 1
+      change_exit_code_if_applicable $rspec_run_status || new_exit_code=$?
+      exit "${new_exit_code}"
     fi
 
     local failed_examples_count=$(grep -c " failed" "${RSPEC_LAST_RUN_RESULTS_FILE}")
     if [[ "${failed_examples_count}" -eq "${RSPEC_FAIL_FAST_THRESHOLD}" ]]; then
       echoerr "Not retrying failing examples since we reached the maximum number of allowed test failures!"
-      exit 1
+      change_exit_code_if_applicable $rspec_run_status || new_exit_code=$?
+      exit "${new_exit_code}"
     fi
 
-    retry_failed_rspec_examples
-    rspec_run_status=$?
+    retry_failed_rspec_examples $rspec_run_status || rspec_retry_status=$?
   else
     echosuccess "No examples to retry, congrats!"
+    exit "${rspec_run_status}"
   fi
 
-  exit "${rspec_run_status}"
+  # The retry in a new RSpec process succeeded.
+  if [[ $rspec_retry_status -eq 0 ]]; then
+    exit "${rspec_retry_status}"
+  fi
+
+  # At this stage, we know the CI/CD job will fail.
+  #
+  # We'll change the exit code of the CI job.
+  change_exit_code_if_applicable $rspec_retry_status || new_exit_code=$?
+  exit $new_exit_code
+}
+
+function change_exit_code_if_applicable() {
+  local previous_exit_status=$1
+  local found_known_flaky_test=$previous_exit_status
+  local found_infra_error=$previous_exit_status
+  local new_exit_code=$previous_exit_status
+
+  change_exit_code_if_known_flaky_tests $previous_exit_status || found_known_flaky_test=$?
+  change_exit_code_if_known_infra_error $previous_exit_status || found_infra_error=$?
+
+  # Update new_exit_code if either of the checks changed the values
+  # Ensure infra error exit code takes precedence because we want to retry it if possible
+  echo
+  echo "found_known_flaky_test: $found_known_flaky_test"
+  echo "found_infra_error: $found_infra_error"
+
+  if [[ $found_infra_error -ne $previous_exit_status ]]; then
+    new_exit_code=$found_infra_error
+    alert_job_in_slack $new_exit_code "Known infra error caused this job to fail"
+  elif [[ $found_known_flaky_test -ne $previous_exit_status ]]; then
+    new_exit_code=$found_known_flaky_test
+  fi
+
+  echo "New exit code: $new_exit_code"
+  return $new_exit_code
+}
+
+function change_exit_code_if_known_flaky_tests() {
+  new_exit_code=$1
+  echo
+  echo "*******************************************************"
+  echo "Checking whether known flaky tests failed the job"
+  echo "*******************************************************"
+
+  found_known_flaky_tests_status=0
+  found_known_flaky_tests_output=$(found_known_flaky_tests) || found_known_flaky_tests_status=$?
+
+  echo "${found_known_flaky_tests_output}"
+  if [[ $found_known_flaky_tests_status -eq 0 ]]; then
+    echo
+    echo "Changing the CI/CD job exit code to 112."
+
+    new_exit_code=112
+  else
+    echo
+    echo "Not changing the CI/CD job exit code."
+  fi
+
+  return "${new_exit_code}"
+}
+
+function change_exit_code_if_known_infra_error() {
+  exit_code=$1
+
+  if [[ "${DETECT_INFRA_ERRORS}" != "true" ]]; then
+    echoinfo "Auto-retrying infrastructure errors is disabled. Exiting with exit code ${exit_code}".
+  elif [[ $exit_code -ne 0 ]]; then
+    echo
+    echo "*******************************************************"
+    echo "Checking whether known infra error failed the job"
+    echo "*******************************************************"
+
+    found_infrastructure_error_status=0
+    found_known_flaky_tests_output=$(found_infrastructure_error) || found_infrastructure_error_status=$?
+
+    if [[ $found_infrastructure_error_status -eq 0 ]]; then
+      echo
+      echo "Changing the CI/CD job exit code to 110."
+
+      exit_code=110
+    else
+      echo
+      echo "Not changing the CI/CD job exit code."
+    fi
+  fi
+
+  return $exit_code
+}
+
+function found_known_flaky_tests() {
+  # For the input files, we want to get both rspec-${CI_JOB_ID}.json (first RSpec run)
+  # and rspec-retry-${CI_JOB_ID}.json (second RSpec run).
+  #
+  # Depending on where this function will be called,
+  # we might have the two files, just one, or none available.
+  bundle exec existing-test-health-issue \
+    --token "${TEST_FAILURES_PROJECT_TOKEN}" \
+    --project "gitlab-org/gitlab" \
+    --input-files "rspec/rspec-*${CI_JOB_ID}.json" \
+    --health-problem-type failures;
+}
+
+function found_infrastructure_error() {
+  bundle exec detect-infrastructure-failures \
+    --job-id "${CI_JOB_ID}" \
+    --project "${CI_PROJECT_ID}" \
+    --token "${TEST_FAILURES_PROJECT_TOKEN}"
 }
 
 function rspec_parallelized_job() {
@@ -232,7 +307,7 @@ function rspec_parallelized_job() {
   read -ra job_name <<< "${CI_JOB_NAME}"
   local test_tool="${job_name[0]}"
   local test_level="${job_name[1]}"
-  # e.g. 'rspec unit pg13 1/24 278964' would become 'rspec_unit_pg13_1_24_278964'
+  # e.g. 'rspec unit pg14 1/24 278964' would become 'rspec_unit_pg14_1_24_278964'
   local report_name=$(echo "${CI_JOB_NAME} ${CI_PROJECT_ID}" | sed -E 's|[/ ]|_|g')
   local rspec_opts="${1:-}"
   local rspec_tests_mapping_enabled="${RSPEC_TESTS_MAPPING_ENABLED:-}"
@@ -292,21 +367,23 @@ function rspec_parallelized_job() {
   handle_retry_rspec_in_new_process $rspec_run_status
 }
 
+# this function must be executed from 'qa' directory
 function run_e2e_specs() {
   local url=$1
   local tests=$2
   local tags=$3
 
-  export QA_COMMAND="bundle exec bin/qa ${QA_SCENARIO:=Test::Instance::All} $url -- $tests $tags --order random --force-color --format documentation --format QA::Support::JsonFormatter --out tmp/rspec-${CI_JOB_ID}-\${QA_RSPEC_RETRIED:-false}.json"
+  export QA_COMMAND="bundle exec bin/qa ${QA_SCENARIO:=Test::Instance::All} $url -- $tests $tags --order random --force-color --format documentation"
   echo "Running e2e specs via command: '$QA_COMMAND'"
 
-  if eval "$QA_COMMAND --format RspecJunitFormatter --out tmp/rspec-${CI_JOB_ID}.xml"; then
+  if eval "$QA_COMMAND"; then
     echo "Test run finished successfully"
   else
     retry_failed_e2e_rspec_examples
   fi
 }
 
+# this function must be executed from 'qa' directory
 function retry_failed_e2e_rspec_examples() {
   local rspec_run_status=0
 
@@ -323,37 +400,54 @@ function retry_failed_e2e_rspec_examples() {
     exit 1
   fi
 
-  local junit_retry_file="tmp/retried-rspec-${CI_JOB_ID}.xml"
-
   export QA_RSPEC_RETRIED="true"
   export NO_KNAPSACK="true"
 
   echoinfo "Initial test run failed, retrying tests in new process" "yes"
 
-  if eval "$QA_COMMAND --format RspecJunitFormatter --out ${junit_retry_file} --only-failures"; then
+  if eval "$QA_COMMAND --only-failures"; then
     echosuccess "Retry run finished successfully" "yes"
   else
     rspec_run_status=$?
     echoerr "Retry run did not finish successfully, job will be failed!" "yes"
   fi
 
+  # default junit file pattern is set in 'qa/qa/specs/runner.rb'
+  local junit_retry_file=$(ls tmp/rspec-*-retried-true.xml)
+
   echoinfo "Merging junit reports" "yes"
-  bundle exec junit_merge ${junit_retry_file} tmp/rspec-${CI_JOB_ID}.xml --update-only
+  if [[ ! -f "${junit_retry_file}" ]]; then
+    echoerr "Junit retry file not found '${junit_retry_file}', skipping report merge"
+    return 0
+  fi
+
+  if [[ "$QA_RUN_IN_PARALLEL" == "true" ]]; then
+    echoinfo "Parallel run detected, merging with parallel reports"
+    bundle exec junit_merge tmp/rspec-*-retried-false*.xml
+    mv "$(ls tmp/rspec-*-retried-false*.xml | tail -n 1)" "tmp/rspec-${CI_JOB_ID}.xml"
+    rm tmp/rspec-*-retried-false*.xml
+
+    bundle exec junit_merge --update-only $junit_retry_file "tmp/rspec-${CI_JOB_ID}.xml"
+  else
+    bundle exec junit_merge --update-only $junit_retry_file tmp/rspec-*-retried-false.xml
+  fi
+  rm $junit_retry_file
   echosuccess " junit results merged successfully!"
 
   exit $rspec_run_status
 }
 
 function retry_failed_rspec_examples() {
+  local previous_exit_status=$1
   local rspec_run_status=0
 
   if [[ "${RETRY_FAILED_TESTS_IN_NEW_PROCESS}" != "true" ]]; then
     echoerr "Not retrying failing examples since \$RETRY_FAILED_TESTS_IN_NEW_PROCESS != 'true'!"
-    exit 1
+    exit $previous_exit_status
   fi
 
   if is_rspec_last_run_results_file_missing; then
-    exit 1
+    exit $previous_exit_status
   fi
 
   # Job metrics for influxDB/Grafana
@@ -382,8 +476,7 @@ function retry_failed_rspec_examples() {
   local junit_retry_file="rspec/rspec-retry-${CI_JOB_ID}.xml"
 
   # Retry only the tests that failed on first try
-  rspec_simple_job "--only-failures --pattern \"${knapsack_test_file_pattern}\"" "${json_retry_file}" "${junit_retry_file}"
-  rspec_run_status=$?
+  rspec_simple_job "--only-failures --pattern \"${knapsack_test_file_pattern}\"" "${json_retry_file}" "${junit_retry_file}" || rspec_run_status=$?
 
   # Merge the reports from retry into the first-try report
   scripts/merge-reports "rspec/rspec-${CI_JOB_ID}.json" "${json_retry_file}"
@@ -395,7 +488,7 @@ function retry_failed_rspec_examples() {
     warn_on_successfully_retried_test
   fi
 
-  exit $rspec_run_status
+  return $rspec_run_status
 }
 
 # Exit with an allowed_failure exit code if the flaky test was part of the MR that triggered this pipeline
@@ -514,7 +607,7 @@ function cleanup_individual_job_reports() {
     rspec/retried_tests_*_report.txt \
     ${RSPEC_LAST_RUN_RESULTS_FILE:-unknown_folder} \
     ${RSPEC_PROFILING_FOLDER_PATH:-unknown_folder}/**/*
-  rmdir ${RSPEC_PROFILING_FOLDER_PAT:-unknown_folder} || true
+  rmdir ${RSPEC_PROFILING_FOLDER_PATH:-unknown_folder} || true
 }
 
 function generate_flaky_tests_reports() {

@@ -3,12 +3,11 @@ table_name: error_tracking_client_keys
 classes:
 - ErrorTracking::ClientKey
 feature_categories:
-- error_tracking
+- observability
 description: Model to store public keys used by Sentry SDK for Error Tracking
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/66466
 milestone: '14.2'
 gitlab_schema: gitlab_main_cell
-allow_cross_foreign_keys:
-- gitlab_main_clusterwide
 sharding_key:
   project_id: projects
+table_size: small

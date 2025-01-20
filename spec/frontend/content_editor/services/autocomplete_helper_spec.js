@@ -5,6 +5,8 @@ import AutocompleteHelper, {
   customSorter,
   createDataSource,
 } from '~/content_editor/services/autocomplete_helper';
+import { HTTP_STATUS_OK, HTTP_STATUS_INTERNAL_SERVER_ERROR } from '~/lib/utils/http_status';
+import { EMOJI_THUMBS_UP } from '~/emoji/constants';
 import {
   MOCK_MEMBERS,
   MOCK_COMMANDS,
@@ -12,12 +14,14 @@ import {
   MOCK_ISSUES,
   MOCK_LABELS,
   MOCK_MILESTONES,
+  MOCK_ITERATIONS,
   MOCK_SNIPPETS,
   MOCK_VULNERABILITIES,
   MOCK_MERGE_REQUESTS,
   MOCK_ASSIGNEES,
   MOCK_REVIEWERS,
   MOCK_WIKIS,
+  MOCK_NEW_MEMBERS,
 } from './autocomplete_mock_data';
 
 jest.mock('~/emoji', () => ({
@@ -72,28 +76,49 @@ describe('createDataSource', () => {
     mock.restore();
   });
 
-  it('fetches data from source and filters based on query', async () => {
-    const data = [
-      { name: 'abc', description: 'xyz' },
-      { name: 'bcd', description: 'wxy' },
-      { name: 'cde', description: 'vwx' },
-    ];
-    mock.onGet('/source').reply(200, data);
-
-    const dataSource = createDataSource({
+  describe('on fetch success', () => {
+    const dataSourceParams = {
       source: '/source',
       searchFields: ['name', 'description'],
+    };
+
+    beforeEach(() => {
+      const data = [
+        { name: 'abc', description: 'xyz' },
+        { name: 'bcd', description: 'wxy' },
+        { name: 'cde', description: 'vwx' },
+      ];
+      mock.onGet('/source').reply(HTTP_STATUS_OK, data);
     });
 
-    const results = await dataSource.search('b');
-    expect(results).toEqual([
-      { name: 'bcd', description: 'wxy' },
-      { name: 'abc', description: 'xyz' },
-    ]);
+    it('fetches data from source and filters based on query', async () => {
+      const dataSource = createDataSource(dataSourceParams);
+
+      const results = await dataSource.search('b');
+      expect(results).toEqual([
+        { name: 'bcd', description: 'wxy' },
+        { name: 'abc', description: 'xyz' },
+      ]);
+    });
+
+    describe('if filterOnBackend: true', () => {
+      it('fetches data from source, passing a `search` param', async () => {
+        const dataSource = createDataSource({
+          ...dataSourceParams,
+          filterOnBackend: true,
+        });
+
+        const results = await dataSource.search('bcd');
+        expect(mock.history.get[0].params).toEqual({ search: 'bcd' });
+
+        // results are still filtered out on frontend, on top of backend filtering
+        expect(results).toEqual([{ name: 'bcd', description: 'wxy' }]);
+      });
+    });
   });
 
   it('handles source fetch errors', async () => {
-    mock.onGet('/source').reply(500);
+    mock.onGet('/source').reply(HTTP_STATUS_INTERNAL_SERVER_ERROR);
 
     const dataSource = createDataSource({
       source: '/source',
@@ -120,22 +145,26 @@ describe('AutocompleteHelper', () => {
       labels: '/labels',
       epics: '/epics',
       milestones: '/milestones',
+      iterations: '/iterations',
       mergeRequests: '/mergeRequests',
       vulnerabilities: '/vulnerabilities',
       commands: '/commands',
       wikis: '/wikis',
     };
 
-    mock.onGet('/members').reply(200, MOCK_MEMBERS);
-    mock.onGet('/issues').reply(200, MOCK_ISSUES);
-    mock.onGet('/snippets').reply(200, MOCK_SNIPPETS);
-    mock.onGet('/labels').reply(200, MOCK_LABELS);
-    mock.onGet('/epics').reply(200, MOCK_EPICS);
-    mock.onGet('/milestones').reply(200, MOCK_MILESTONES);
-    mock.onGet('/mergeRequests').reply(200, MOCK_MERGE_REQUESTS);
-    mock.onGet('/vulnerabilities').reply(200, MOCK_VULNERABILITIES);
-    mock.onGet('/commands').reply(200, MOCK_COMMANDS);
-    mock.onGet('/wikis').reply(200, MOCK_WIKIS);
+    mock.onGet('/members').reply(HTTP_STATUS_OK, MOCK_MEMBERS);
+    mock.onGet('/issues').reply(HTTP_STATUS_OK, MOCK_ISSUES);
+    mock.onGet('/snippets').reply(HTTP_STATUS_OK, MOCK_SNIPPETS);
+    mock.onGet('/labels').reply(HTTP_STATUS_OK, MOCK_LABELS);
+    mock.onGet('/epics').reply(HTTP_STATUS_OK, MOCK_EPICS);
+    mock.onGet('/milestones').reply(HTTP_STATUS_OK, MOCK_MILESTONES);
+    mock.onGet('/iterations').reply(HTTP_STATUS_OK, MOCK_ITERATIONS);
+    mock.onGet('/mergeRequests').reply(HTTP_STATUS_OK, MOCK_MERGE_REQUESTS);
+    mock.onGet('/vulnerabilities').reply(HTTP_STATUS_OK, MOCK_VULNERABILITIES);
+    mock.onGet('/commands').reply(HTTP_STATUS_OK, MOCK_COMMANDS);
+    mock.onGet('/wikis').reply(HTTP_STATUS_OK, MOCK_WIKIS);
+
+    mock.onGet('/new/members').reply(HTTP_STATUS_OK, MOCK_NEW_MEMBERS);
 
     const sidebarMediator = {
       store: {
@@ -170,6 +199,7 @@ describe('AutocompleteHelper', () => {
     ${'label'}         | ${'c'}
     ${'epic'}          | ${'n'}
     ${'milestone'}     | ${'16'}
+    ${'iteration'}     | ${'27'}
     ${'merge_request'} | ${'n'}
     ${'vulnerability'} | ${'cross'}
     ${'command'}       | ${'re'}
@@ -209,6 +239,36 @@ describe('AutocompleteHelper', () => {
     },
   );
 
+  it('filters items correctly for the second time, when the first command was different', async () => {
+    let dataSource = autocompleteHelper.getDataSource('label', { command: '/label' });
+    let results = await dataSource.search();
+
+    // all labels listed for the first command
+    expect(results.map(({ title }) => title)).toEqual([
+      'Bronce',
+      'Contour',
+      'Corolla',
+      'Cygsync',
+      'Frontier',
+      'Grand Am',
+      'Onesync',
+      'Phone',
+      'Pynefunc',
+      'Trinix',
+      'Trounswood',
+      'group::knowledge',
+      'scoped label',
+      'type::one',
+      'type::two',
+    ]);
+
+    dataSource = autocompleteHelper.getDataSource('label', { command: '/unlabel' });
+    results = await dataSource.search();
+
+    // only set labels listed for the second command
+    expect(results.map(({ title }) => title)).toEqual(['Amsche', 'Brioffe', 'Bryncefunc', 'Ghost']);
+  });
+
   it('loads default datasources if not passed', () => {
     gl.GfmAutoComplete = {
       dataSources: {
@@ -228,6 +288,45 @@ describe('AutocompleteHelper', () => {
     const dataSource = autocompleteHelper.getDataSource('emoji');
     const results = await dataSource.search('');
 
-    expect(results).toEqual([{ emoji: { name: 'thumbsup' }, fieldValue: 'thumbsup' }]);
+    expect(results).toEqual([{ emoji: { name: EMOJI_THUMBS_UP }, fieldValue: EMOJI_THUMBS_UP }]);
+  });
+
+  it('updates dataSourcesUrl correctly', () => {
+    const newDataSources = {
+      members: '/new/members',
+      issues: '/new/issues',
+      snippets: '/new/snippets',
+      labels: '/new/labels',
+      epics: '/new/epics',
+      milestones: '/new/milestones',
+      iterations: '/new/iterations',
+      mergeRequests: '/new/mergeRequests',
+      vulnerabilities: '/new/vulnerabilities',
+      commands: '/new/commands',
+      wikis: '/new/wikis',
+    };
+
+    autocompleteHelper.updateDataSources(newDataSources);
+    expect(autocompleteHelper.dataSourceUrls).toEqual(newDataSources);
+  });
+
+  it('returns expected results before and after updating data sources', async () => {
+    // Retrieve the initial data source and search for 'user'
+    let dataSource = autocompleteHelper.getDataSource('user');
+    let results = await dataSource.search('');
+
+    expect(results.map(({ username }) => username)).toMatchSnapshot();
+
+    // Update the data sources
+    const newDataSources = {
+      members: '/new/members',
+    };
+    autocompleteHelper.updateDataSources(newDataSources);
+
+    // Retrieve the updated data source and search for 'user'
+    dataSource = autocompleteHelper.getDataSource('user');
+    results = await dataSource.search('');
+
+    expect(results.map(({ username }) => username)).toMatchSnapshot();
   });
 });

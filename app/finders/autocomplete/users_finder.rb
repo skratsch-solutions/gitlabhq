@@ -34,7 +34,7 @@ module Autocomplete
         # Include current user if available to filter by "Me"
         items.unshift(current_user) if prepend_current_user?
 
-        items.unshift(author) if prepend_author? && author&.active?
+        items.unshift(author) if prepend_author? && author&.active? && !author&.import_user? && !author&.placeholder?
       end
 
       items = filter_users_by_push_ability(items)
@@ -62,7 +62,7 @@ module Autocomplete
       # reorder_by_name will break the ORDER BY applied in optionally_search().
       find_users
         .where(state: states)
-        .non_internal
+        .with_duo_code_review_bot
         .reorder_by_name
         .optionally_search(search, use_minimum_char_limit: use_minimum_char_limit)
         .limit_to_todo_authors(
@@ -83,9 +83,13 @@ module Autocomplete
       author_id.present? && current_user
     end
 
+    def project_users
+      project.authorized_users.union_with_user(author_id)
+    end
+
     def find_users
       if project
-        project.authorized_users.union_with_user(author_id)
+        project_users
       elsif group
         ::Autocomplete::GroupUsersFinder.new(group: group).execute # rubocop: disable CodeReuse/Finder
       elsif current_user
@@ -101,11 +105,9 @@ module Autocomplete
       items.select { |user| user.can?(:push_code, project) }
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def preload_associations(items)
       ActiveRecord::Associations::Preloader.new(records: items, associations: :status).call
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def use_minimum_char_limit
       return if project.blank? && group.blank? # We return nil so that we use the default defined in the User model
@@ -114,3 +116,5 @@ module Autocomplete
     end
   end
 end
+
+Autocomplete::UsersFinder.prepend_mod_with('Autocomplete::UsersFinder')

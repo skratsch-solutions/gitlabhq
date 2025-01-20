@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Threat Insights
+stage: Security Risk Management
+group: Security Insights
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
 
@@ -8,7 +8,7 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - `last_edited_at` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/268154) in GitLab 16.7.
 > - `start_date` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/268154) in GitLab 16.7.
@@ -23,7 +23,7 @@ across GitLab releases. Use the
 [GraphQL API](graphql/reference/index.md#queryvulnerabilities)
 instead.
 
-Every API call to vulnerabilities must be [authenticated](rest/index.md#authentication).
+Every API call to vulnerabilities must be [authenticated](rest/authentication.md).
 
 Vulnerability permissions inherit permissions from their project. If a project is
 private, and a user isn't a member of the project to which the vulnerability
@@ -49,7 +49,7 @@ GET /projects/:id/vulnerabilities
 
 | Attribute     | Type           | Required | Description                                                                                                                                                                 |
 | ------------- | -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`          | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user.                                                            |
+| `id`          | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths).                                                            |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/4/vulnerabilities"
@@ -121,7 +121,7 @@ POST /projects/:id/vulnerabilities?finding_id=<your_finding_id>
 
 | Attribute           | Type              | Required   | Description                                                                                                                  |
 | ------------------- | ----------------- | ---------- | -----------------------------------------------------------------------------------------------------------------------------|
-| `id`                | integer or string | yes        | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) which the authenticated user is a member of  |
+| `id`                | integer or string | yes        | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) which the authenticated user is a member of  |
 | `finding_id`        | integer or string | yes        | The ID of a Vulnerability Finding to create the new Vulnerability from |
 
 The other attributes of a newly created Vulnerability are populated from

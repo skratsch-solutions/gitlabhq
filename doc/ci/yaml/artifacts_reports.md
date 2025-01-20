@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use [`artifacts:reports`](index.md#artifactsreports) to:
 
@@ -122,9 +122,10 @@ GitLab cannot display the combined results of multiple `browser_performance` rep
 
 ## `artifacts:reports:coverage_report`
 
-Use `coverage_report` to collect coverage report in Cobertura format.
+Use `coverage_report:` to collect [coverage report](../testing/index.md) in Cobertura or JaCoCo formats.
 
-The `cobertura` report collects [Cobertura coverage XML files](../testing/test_coverage_visualization.md).
+The `coverage_format:` Can be either [`cobertura`](../testing/test_coverage_visualization/cobertura.md) or
+[`jacoco`](../testing/test_coverage_visualization/jacoco.md).
 
 Cobertura was originally developed for Java, but there are many third-party ports for other languages such as
 JavaScript, Python, and Ruby.
@@ -137,11 +138,14 @@ artifacts:
       path: coverage/cobertura-coverage.xml
 ```
 
-The collected coverage report is uploaded to GitLab as an artifact. You can use
-only one report per job.
+The collected coverage report is uploaded to GitLab as an artifact.
+
+You can generate multiple JaCoCo or Cobertura reports within a job and include them in the final
+job artifact using [wildcards](../jobs/job_artifacts.md#with-wildcards).
+The results of the reports are aggregated in the final coverage report.
 
 GitLab can display the results of coverage report in the merge request
-[diff annotations](../testing/test_coverage_visualization.md).
+[diff annotations](../testing/test_coverage_visualization/index.md).
 
 ## `artifacts:reports:codequality`
 
@@ -250,7 +254,7 @@ GitLab can display the results of one or more reports in:
 
 The `dotenv` report collects a set of environment variables as artifacts.
 
-The collected variables are registered as runtime-created variables of the job, 
+The collected variables are registered as runtime-created variables of the job,
 which you can [use in subsequent job scripts](../variables/index.md#pass-an-environment-variable-to-another-job)
 or to [set dynamic environment URLs after a job finishes](../environments/index.md#set-a-dynamic-environment-url).
 
@@ -268,7 +272,7 @@ The exceptions to the [original dotenv rules](https://github.com/motdotla/dotenv
   This limit [can be changed on self-managed instances](../../administration/instance_limits.md#limit-dotenv-file-size).
 - On GitLab.com, [the maximum number of inherited variables](../../user/gitlab_com/index.md#gitlab-cicd)
   is 50 for Free, 100 for Premium and 150 for Ultimate. The default for
-  self-managed instances is 150, and can be changed by changing the
+  self-managed instances is 20, and can be changed by changing the
   `dotenv_variables` [application limit](../../administration/instance_limits.md#limit-dotenv-variables).
 - Variable substitution in the `.env` file is not supported.
 - [Multiline values in the `.env` file](https://github.com/motdotla/dotenv#multiline-values) are not supported.
@@ -345,14 +349,22 @@ artifact and existing [requirements](../../user/project/requirements/index.md) a
 GitLab can display the results of one or more reports in the
 [project requirements](../../user/project/requirements/index.md#view-a-requirement).
 
-## `artifacts:reports:repository_xray`
+<!--- start_remove The following content will be removed on remove_date: '2025-08-15' -->
+
+## `artifacts:reports:repository_xray` (deprecated)
 
 DETAILS:
-**Tier:** Ultimate
+**Tier:** Premium, Ultimate
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/432235) in GitLab 16.7.
 
-The `repository_xray` report collects information about your repository for use by AI in code suggestions.
+The `repository_xray` report collects information about your repository for use by GitLab Duo Code Suggestions.
+
+WARNING:
+This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/500146) in GitLab 17.6
+and is planned for removal in 18.0. Use [Enable Repository X-Ray](../../user/project/repository/code_suggestions/repository_xray.md#enable-repository-x-ray) instead.
+
+<!--- end_remove -->
 
 ## `artifacts:reports:sast`
 
@@ -362,7 +374,7 @@ The collected SAST report uploads to GitLab as an artifact.
 For more information, see:
 
 - [View SAST results](../../user/application_security/sast/index.md#view-sast-results)
-- [SAST output](../../user/application_security/sast/index.md#output)
+- [SAST output](../../user/application_security/sast/index.md#download-a-sast-report)
 
 ## `artifacts:reports:secret_detection`
 
@@ -372,15 +384,15 @@ The collected Secret Detection report is uploaded to GitLab.
 GitLab can display the results of one or more reports in:
 
 - The merge request [secret scanning widget](../../user/application_security/secret_detection/pipeline/index.md).
-- The [pipeline security tab](../../user/application_security/index.md#pipeline-security-tab).
+- The [pipeline security tab](../../user/application_security/detect/security_scan_results.md).
 - The [security dashboard](../../user/application_security/security_dashboard/index.md).
 
 ## `artifacts:reports:terraform`
 
-The `terraform` report obtains a Terraform `tfplan.json` file. [JQ processing required to remove credentials](../../user/infrastructure/iac/mr_integration.md#configure-terraform-report-artifacts).
-The collected Terraform plan report uploads to GitLab as an artifact.
+The `terraform` report obtains an OpenTofu `tfplan.json` file. [JQ processing required to remove credentials](../../user/infrastructure/iac/mr_integration.md#configure-opentofu-report-artifacts).
+The collected OpenTofu plan report uploads to GitLab as an artifact.
 
 GitLab can display the results of one or more reports in the merge request
-[Terraform widget](../../user/infrastructure/iac/mr_integration.md#output-terraform-plan-information-into-a-merge-request).
+[OpenTofu widget](../../user/infrastructure/iac/mr_integration.md#output-opentofu-plan-information-into-a-merge-request).
 
-For more information, see [Output `terraform plan` information into a merge request](../../user/infrastructure/iac/mr_integration.md).
+For more information, see [Output `tofu plan` information into a merge request](../../user/infrastructure/iac/mr_integration.md).

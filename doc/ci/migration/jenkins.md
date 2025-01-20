@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If you're migrating from Jenkins to GitLab CI/CD, you are able to create CI/CD
 pipelines that replicate and enhance your Jenkins workflows.
@@ -73,7 +73,7 @@ hello-job:
 
 ### Jenkins pipeline syntax
 
-A Jenkins configuration is composed of a `pipeline` block with "sections" and "directives".
+A Jenkins configuration is composed of a `pipeline` block with sections and directives.
 GitLab CI/CD has similar functionality, configured with YAML keywords.
 
 #### Sections
@@ -621,7 +621,7 @@ in GitLab with keywords and features that offer similar functionality. For examp
 |-----------------------------------------------------------------------------------|----------------|
 | [Build Timeout](https://plugins.jenkins.io/build-timeout/)                        | [`timeout` keyword](../yaml/index.md#timeout) |
 | [Cobertura](https://plugins.jenkins.io/cobertura/)                                | [Coverage report artifacts](../yaml/artifacts_reports.md#artifactsreportscoverage_report) and [Code coverage](../testing/code_coverage.md) |
-| [Code coverage API](https://plugins.jenkins.io/code-coverage-api/)                | [Code coverage](../testing/code_coverage.md) and [Test coverage visualization](../testing/test_coverage_visualization.md) |
+| [Code coverage API](https://plugins.jenkins.io/code-coverage-api/)                | [Code coverage](../testing/code_coverage.md) and [Test coverage visualization](../testing/test_coverage_visualization/index.md) |
 | [Embeddable Build Status](https://plugins.jenkins.io/embeddable-build-status/)    | [Pipeline status badges](../../user/project/badges.md#pipeline-status-badges) |
 | [JUnit](https://plugins.jenkins.io/junit/)                                        | [JUnit test report artifacts](../yaml/artifacts_reports.md#artifactsreportsjunit) and [Unit test reports](../testing/unit_test_reports.md) |
 | [Mailer](https://plugins.jenkins.io/mailer/)                                      | [Notification emails](../../user/profile/notifications.md) |

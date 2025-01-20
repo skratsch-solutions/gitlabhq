@@ -64,14 +64,14 @@ export default {
   },
   sortOptions: [
     { value: SORT_OPTION_POPULARITY, text: __('Popularity') },
-    { value: SORT_OPTION_RELEASED, text: __('Released at') },
-    { value: SORT_OPTION_CREATED, text: __('Created at') },
+    { value: SORT_OPTION_RELEASED, text: __('Released date') },
+    { value: SORT_OPTION_CREATED, text: __('Created date') },
     { value: SORT_OPTION_STAR_COUNT, text: __('Star count') },
   ],
 };
 </script>
 <template>
-  <div class="gl-display-flex gl-gap-3">
+  <div class="gl-border-b gl-flex gl-gap-3 gl-bg-subtle gl-p-5">
     <gl-search-box-by-click
       v-model="searchTerm"
       data-testid="catalog-search-bar"

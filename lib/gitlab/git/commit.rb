@@ -105,7 +105,6 @@ module Gitlab
         #   Commit.last_for_path(repo, 'master', 'Gemfile')
         #
         def last_for_path(repo, ref, path = nil, literal_pathspec: false)
-          # rubocop: disable Rails/FindBy
           # This is not where..first from ActiveRecord
           where(
             repo: repo,
@@ -114,7 +113,6 @@ module Gitlab
             limit: 1,
             literal_pathspec: literal_pathspec
           ).first
-          # rubocop: enable Rails/FindBy
         end
 
         # Get commits between two revspecs
@@ -144,6 +142,8 @@ module Gitlab
           end
         end
 
+        # Prefer `list_all` since it deprecates this RPC and `FindCommits`.
+        #
         # Returns commits collection
         #
         # Ex.
@@ -165,6 +165,15 @@ module Gitlab
         def find_all(repo, options = {})
           wrapped_gitaly_errors do
             Gitlab::GitalyClient::CommitService.new(repo).find_all_commits(options)
+          end
+        end
+
+        # ListCommits lists all commits reachable via a set of references by doing a graph walk.
+        # This deprecates FindAllCommits and FindCommits (except Follow is not yet supported).
+        # Any unknown revisions will cause the RPC to fail.
+        def list_all(repo, options = {})
+          wrapped_gitaly_errors do
+            Gitlab::GitalyClient::CommitService.new(repo).list_commits(options[:revisions], options.except(:revisions))
           end
         end
 
@@ -261,7 +270,9 @@ module Gitlab
       def parent_ids
         return @parent_ids unless @lazy_load_parents
 
-        @parent_ids ||= @repository.commit(id).parent_ids
+        @parent_ids = @repository.commit(id).parent_ids if @parent_ids.nil? || @parent_ids.empty?
+
+        @parent_ids
       end
 
       def parent_id
@@ -432,7 +443,7 @@ module Gitlab
         @committer_name = commit.committer.name.dup
         @committer_email = commit.committer.email.dup
         @parent_ids = Array(commit.parent_ids)
-        @trailers = commit.trailers.to_h { |t| [t.key, t.value] }
+        @trailers = commit.trailers.to_h { |t| [t.key, encode!(t.value)] }
         @extended_trailers = parse_commit_trailers(commit.trailers)
         @referenced_by = Array(commit.referenced_by)
       end
@@ -440,7 +451,7 @@ module Gitlab
       # Turn the commit trailers into a hash of key: [value, value] arrays
       def parse_commit_trailers(trailers)
         trailers.each_with_object({}) do |trailer, hash|
-          (hash[trailer.key] ||= []) << trailer.value
+          (hash[trailer.key] ||= []) << encode!(trailer.value)
         end
       end
 

@@ -11,8 +11,9 @@ module Banzai
         self.object_class   = Commit
 
         def references_in(text, pattern = object_reference_pattern)
-          text.gsub(pattern) do |match|
-            yield match, $~[:commit], $~[:project], $~[:namespace], $~
+          Gitlab::Utils::Gsub.gsub_with_limit(text, pattern, limit: Banzai::Filter::FILTER_ITEM_LIMIT) do |match_data|
+            yield match_data[0], match_data[:commit], match_data[:project], match_data[:namespace],
+              match_data
           end
         end
 
@@ -72,6 +73,8 @@ module Banzai
         end
 
         def parent_records(parent, ids)
+          return [] unless parent.respond_to?(:commits_by)
+
           parent.commits_by(oids: ids.to_a)
         end
 

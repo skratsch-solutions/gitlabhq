@@ -7,6 +7,7 @@ import {
 } from '@gitlab/ui';
 import { last } from 'lodash';
 import { nextTick } from 'vue';
+import { setHTMLFixture, resetHTMLFixture } from 'helpers/fixtures';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { stubComponent } from 'helpers/stub_component';
 import waitForPromises from 'helpers/wait_for_promises';
@@ -50,8 +51,12 @@ jest.mock('~/projects/settings/api/access_dropdown_api', () => ({
 }));
 
 describe('Access Level Dropdown', () => {
+  beforeEach(() => {
+    window.gon = { abilities: { adminProject: true } };
+  });
+
   let wrapper;
-  const defaultToggleClass = 'gl-text-gray-500!';
+  const defaultToggleClass = '!gl-text-subtle';
   const mockAccessLevelsData = [
     {
       id: 1,
@@ -71,9 +76,14 @@ describe('Access Level Dropdown', () => {
     },
   ];
 
+  const abilities = {
+    adminProject: true,
+    adminProtectedBranch: false,
+  };
   const createComponent = ({
     accessLevelsData = mockAccessLevelsData,
     accessLevel = ACCESS_LEVELS.PUSH,
+    glAbilities = abilities,
     stubs = {},
     ...optionalProps
   } = {}) => {
@@ -82,6 +92,9 @@ describe('Access Level Dropdown', () => {
         accessLevelsData,
         accessLevel,
         ...optionalProps,
+      },
+      provide: {
+        glAbilities,
       },
       stubs: {
         GlSprintf,
@@ -118,6 +131,18 @@ describe('Access Level Dropdown', () => {
         expect(getUsers).toHaveBeenCalled();
         expect(getGroups).toHaveBeenCalledWith({ withProjectAccess: true });
         expect(getDeployKeys).toHaveBeenCalled();
+      });
+    });
+
+    describe('withProtectedBranchesAccess', () => {
+      it('should make an api call for users && groups when user has a license', () => {
+        createComponent({
+          groupsWithProjectAccess: true,
+          glAbilities: { adminProject: false, adminProtectedBranch: true },
+        });
+        expect(getUsers).toHaveBeenCalled();
+        expect(getGroups).toHaveBeenCalledWith({ withProjectAccess: true });
+        expect(getDeployKeys).not.toHaveBeenCalled();
       });
     });
 
@@ -425,6 +450,47 @@ describe('Access Level Dropdown', () => {
       findDropdownItemWithText(dropdownItems, mockAccessLevelsData[1].text).trigger('click');
 
       expect(wrapper.emitted('select')[1]).toHaveLength(1);
+    });
+  });
+
+  describe('section expansion observation', () => {
+    const setupTest = (isExpanded = false) => {
+      setHTMLFixture(`<div id="test-section" class="${isExpanded ? 'expanded' : ''}"></div>`);
+      createComponent({ sectionSelector: '#test-section' });
+      return nextTick();
+    };
+
+    afterEach(() => resetHTMLFixture());
+
+    it('calls getData when section is already expanded', async () => {
+      await setupTest(true);
+
+      expect(getUsers).toHaveBeenCalled();
+      expect(getGroups).toHaveBeenCalled();
+      expect(getDeployKeys).toHaveBeenCalled();
+    });
+
+    it('observes section expansion and calls getData when expanded', async () => {
+      await setupTest();
+
+      expect(getUsers).not.toHaveBeenCalled();
+      expect(getGroups).not.toHaveBeenCalled();
+      expect(getDeployKeys).not.toHaveBeenCalled();
+
+      document.getElementById('test-section').classList.add('expanded');
+      await nextTick();
+
+      expect(getUsers).toHaveBeenCalled();
+      expect(getGroups).toHaveBeenCalled();
+      expect(getDeployKeys).toHaveBeenCalled();
+    });
+
+    it('does not observe section expansion when sectionSelector is not provided', () => {
+      createComponent({ sectionSelector: null });
+
+      expect(getUsers).toHaveBeenCalled();
+      expect(getGroups).toHaveBeenCalled();
+      expect(getDeployKeys).toHaveBeenCalled();
     });
   });
 });

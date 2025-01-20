@@ -9,7 +9,7 @@ description: "Autocomplete characters in Markdown fields."
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The autocomplete characters provide a quick way of entering field values into
 Markdown fields. When you start typing a word in a Markdown field with one of
@@ -37,7 +37,7 @@ Autocomplete characters are useful when combined with [Quick Actions](quick_acti
 
 Assume your GitLab instance includes the following users:
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 | Username        | Name |
 | :-------------- | :--- |
@@ -47,7 +47,7 @@ Assume your GitLab instance includes the following users:
 | logan_gutkowski | Lee Wuckert |
 | shelba          | Josefine Haley |
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 User autocompletion sorts by the users whose username or name start with your query first.
 For example, typing `@lea` shows `leanna` first and typing `@ros` shows `Rosemarie Rogahn` and `Rosy Grant` first.

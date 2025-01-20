@@ -26,7 +26,7 @@ module Gitlab
             namespace_id: namespace&.id,
             plan_name: namespace&.actual_plan_name,
             project_id: project_id,
-            user_id: user&.id,
+            user: user,
             **extra).to_context, *context
         ]
 
@@ -42,9 +42,7 @@ module Gitlab
       end
 
       def snowplow_micro_enabled?
-        (Rails.env.development? || micro_verification_enabled?) && Gitlab.config.snowplow_micro.enabled
-      rescue GitlabSettings::MissingSetting
-        false
+        Rails.env.development? || micro_verification_enabled?
       end
 
       def tracker
@@ -57,7 +55,7 @@ module Gitlab
 
       private
 
-      def track_struct_event(destination, category, action, label:, property:, value:, contexts:) # rubocop:disable Metrics/ParameterLists
+      def track_struct_event(destination, category, action, label:, property:, value:, contexts:)
         destination
           .event(category, action, label: label, property: property, value: value, context: contexts)
       rescue StandardError => error

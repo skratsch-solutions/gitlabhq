@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-**Valid access levels**
+## Valid access levels
 
 These access levels are recognized:
 
@@ -31,7 +31,7 @@ GET /projects/:id/protected_tags
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
@@ -72,7 +72,7 @@ GET /projects/:id/protected_tags/:name
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the tag or wildcard. |
 
 ```shell
@@ -96,6 +96,8 @@ Example response:
 ```
 
 ## Protect repository tags
+
+> - `deploy_key_id` configuration [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/166866) in GitLab 17.5.
 
 Protects a single repository tag, or several project repository
 tags, using a wildcard protected tag.
@@ -122,9 +124,9 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the tag or wildcard. |
-| `allowed_to_create`   | array  | no | Array of access levels allowed to create tags, with each described by a hash of the form `{user_id: integer}`, `{group_id: integer}`, or `{access_level: integer}`. |
+| `allowed_to_create`   | array  | no | Array of access levels allowed to create tags, with each described by a hash of the form `{user_id: integer}`, `{group_id: integer}`, `{deploy_key_id: integer}`, or `{access_level: integer}`. Premium and Ultimate only. |
 | `create_access_level` | string | no | Access levels allowed to create. Default: `40`, for Maintainer role. |
 
 Example response:
@@ -137,6 +139,48 @@ Example response:
       "id": 1,
       "access_level": 30,
       "access_level_description": "Developers + Maintainers"
+    }
+  ]
+}
+```
+
+### Example with user and group access
+
+Elements in the `allowed_to_create` array should take the form `{user_id: integer}`, `{group_id: integer}`, `{deploy_key_id: integer}`, or `{access_level: integer}`.
+Each user must have access to the project and each group must [have this project shared](../user/project/members/sharing_projects_groups.md).
+These access levels allow more granular control over protected tag access.
+For more information, see [Add a group to protected tags](../user/project/protected_tags.md#add-a-group-to-protected-tags).
+
+This example request demonstrates how to create a protected tag that allows creation access
+to a specific user and group:
+
+```shell
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/protected_tags?name=*-stable&allowed_to_create%5B%5D%5Buser_id%5D=10&allowed_to_create%5B%5D%5Bgroup_id%5D=20"
+```
+
+The example response includes:
+
+- A protected tag with name `"*-stable"`.
+- `create_access_levels` with ID `1` for user with ID `10`.
+- `create_access_levels` with ID `2` for group with ID `20`.
+
+```json
+{
+  "name": "*-stable",
+  "create_access_levels": [
+    {
+      "id": 1,
+      "access_level": null,
+      "user_id": 10,
+      "group_id": null,
+      "access_level_description": "Administrator"
+    },
+    {
+      "id": 2,
+      "access_level": null,
+      "user_id": null,
+      "group_id": 20,
+      "access_level_description": "Example Create Group"
     }
   ]
 }
@@ -157,7 +201,7 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id` | integer or string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `name` | string | yes | The name of the tag. |
 
 ## Related topics

@@ -27,7 +27,7 @@ class CustomerRelations::Contact < ApplicationRecord
   validates :description, length: { maximum: 1024 }
   validates :email, uniqueness: { case_sensitive: false, scope: :group_id }
   validate :validate_email_format
-  validate :validate_root_group
+  validate :validate_crm_group
 
   scope :order_scope_asc, ->(field) { order(arel_table[field].asc.nulls_last) }
   scope :order_scope_desc, ->(field) { order(arel_table[field].desc.nulls_last) }
@@ -124,26 +124,6 @@ class CustomerRelations::Contact < ApplicationRecord
     exists?(group: group)
   end
 
-  def self.move_to_root_group(group)
-    update_query = <<~SQL
-      UPDATE #{CustomerRelations::IssueContact.table_name}
-      SET contact_id = new_contacts.id
-      FROM #{table_name} AS existing_contacts
-      JOIN #{table_name} AS new_contacts ON new_contacts.group_id = :old_group_id AND LOWER(new_contacts.email) = LOWER(existing_contacts.email)
-      WHERE existing_contacts.group_id = :new_group_id AND contact_id = existing_contacts.id
-    SQL
-    connection.execute(sanitize_sql([update_query, { old_group_id: group.root_ancestor.id, new_group_id: group.id }]))
-
-    dupes_query = <<~SQL
-      DELETE FROM #{table_name} AS existing_contacts
-      USING #{table_name} AS new_contacts
-      WHERE existing_contacts.group_id = :new_group_id AND new_contacts.group_id = :old_group_id AND LOWER(new_contacts.email) = LOWER(existing_contacts.email)
-    SQL
-    connection.execute(sanitize_sql([dupes_query, { old_group_id: group.root_ancestor.id, new_group_id: group.id }]))
-
-    where(group: group).update_all(group_id: group.root_ancestor.id)
-  end
-
   def self.counts_by_state
     group(:state).count
   end
@@ -156,9 +136,9 @@ class CustomerRelations::Contact < ApplicationRecord
     self.errors.add(:email, I18n.t(:invalid, scope: 'valid_email.validations.email')) unless ValidateEmail.valid?(self.email)
   end
 
-  def validate_root_group
-    return if group&.root?
+  def validate_crm_group
+    return if group&.crm_group?
 
-    self.errors.add(:base, _('contacts can only be added to root groups'))
+    self.errors.add(:base, _('contacts can only be added to root groups and groups configured as CRM targets'))
   end
 end

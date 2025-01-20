@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the project import and export API to import and export projects using file transfers.
 
@@ -51,6 +51,7 @@ The `upload[url]` parameter is required if the `upload` parameter is present.
 
 For uploads to Amazon S3, refer to [Generating a pre-signed URL for uploading objects](https://docs.aws.amazon.com/AmazonS3/latest/userguide/PresignedUrlUploadObject.html)
 documentation scripts to generate the `upload[url]`.
+Because of a [known issue](https://gitlab.com/gitlab-org/gitlab/-/issues/430277), you can only upload files with a maximum file size of 5 GB to Amazon S3.
 
 ```plaintext
 POST /projects/:id/export
@@ -58,7 +59,7 @@ POST /projects/:id/export
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`                  | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                  | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `upload[url]`         | string | yes      | The URL to upload the project. |
 | `description`         | string | no | Overrides the project description. |
 | `upload`              | hash | no | Hash that contains the information to upload the exported project to a web server. |
@@ -87,7 +88,7 @@ GET /projects/:id/export
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
@@ -136,7 +137,7 @@ GET /projects/:id/export/download
 
 | Attribute | Type              | Required | Description                              |
 | --------- | ----------------- | -------- | ---------------------------------------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" --remote-header-name \
@@ -213,7 +214,7 @@ requests.post(url, headers=headers, data=data, files=files)
 
 NOTE:
 The maximum import file size can be set by the Administrator. It defaults to `0` (unlimited).
-As an administrator, you can modify the maximum import file size. To do so, use the `max_import_size` option in the [Application settings API](settings.md#change-application-settings) or the [Admin Area](../administration/settings/account_and_limit_settings.md).
+As an administrator, you can modify the maximum import file size. To do so, use the `max_import_size` option in the [Application settings API](settings.md#change-application-settings) or the [**Admin** area](../administration/settings/account_and_limit_settings.md).
 
 ## Import a file from a remote object storage
 
@@ -221,7 +222,7 @@ DETAILS:
 **Status:** Beta
 
 FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature, an administrator can [disable the feature flag](../administration/feature_flags.md) named `import_project_from_remote_file`.
+On GitLab Self-Managed, by default this feature is available. To hide the feature, an administrator can [disable the feature flag](../administration/feature_flags.md) named `import_project_from_remote_file`.
 On GitLab.com and GitLab Dedicated, this feature is available.
 
 ```plaintext
@@ -268,8 +269,8 @@ The `Content-Type` header must be `application/gzip`.
 
 ## Import a single relation
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/425798) in GitLab 16.11 in [beta](../policy/experiment-beta-support.md#beta)), [with a flag](../administration/feature_flags.md) named `single_relation_import`. Disabled by default.
-> - [Enabled on GitLab.com, self-managed and Dedicated](https://gitlab.com/gitlab-org/gitlab/-/issues/455889) in 17.1.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/425798) as a [beta](../policy/development_stages_support.md#beta) in GitLab 16.11 [with a flag](../administration/feature_flags.md) named `single_relation_import`. Disabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/455889) in GitLab 17.1. Feature flag `single_relation_import` removed.
 
 This endpoint accepts a project export archive and a named relation (issues,
 merge requests, pipelines, or milestones) and re-imports that relation, skipping
@@ -327,7 +328,7 @@ GET /projects/:id/relation-imports
 
 | Attribute | Type               | Required | Description                                                                          |
 | --------- |--------------------| -------- |--------------------------------------------------------------------------------------|
-| `id`      | integer or string  | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer or string  | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \
@@ -438,7 +439,7 @@ GET /projects/:id/import
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer or string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" \

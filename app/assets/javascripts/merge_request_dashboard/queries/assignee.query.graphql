@@ -9,10 +9,11 @@ query requestingReview(
   $mergedAfter: Time
   $perPage: Int!
   $afterCursor: String
+  $sort: MergeRequestSort = UPDATED_DESC
 ) {
   currentUser {
     id
-    assignedMergeRequests(
+    mergeRequests: assignedMergeRequests(
       state: $state
       reviewState: $reviewState
       reviewStates: $reviewStates
@@ -20,8 +21,8 @@ query requestingReview(
       mergedAfter: $mergedAfter
       first: $perPage
       after: $afterCursor
+      sort: $sort
     ) {
-      count
       pageInfo {
         ...PageInfo
       }

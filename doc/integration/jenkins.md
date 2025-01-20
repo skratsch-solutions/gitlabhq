@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/246756) to GitLab Free in 13.7.
 
@@ -76,7 +76,7 @@ Install and configure the Jenkins plugin to authorize the connection to GitLab.
 1. Enter the GitLab server's URL in **GitLab host URL**.
 1. To test the connection, select **Test Connection**.
 
-   ![Jenkins plugin configuration](img/jenkins_gitlab_plugin_config.png)
+   ![Jenkins plugin configuration](img/jenkins_gitlab_plugin_config_v8_3.png)
 
 For more information, see
 [Jenkins-to-GitLab authentication](https://github.com/jenkinsci/gitlab-plugin#jenkins-to-gitlab-authentication).
@@ -157,7 +157,7 @@ If you cannot [provide GitLab with your Jenkins server URL and authentication in
 1. Under **Secret Token**, select **Generate**.
 1. Copy the token, and save the job configuration.
 1. In GitLab:
-   - [Create a webhook for your project](../user/project/integrations/webhooks.md#configure-webhooks-in-gitlab).
+   - [Create a webhook for your project](../user/project/integrations/webhooks.md#configure-webhooks).
    - Enter the trigger URL (such as `https://JENKINS_URL/project/YOUR_JOB`).
    - Paste the token in **Secret Token**.
 1. To test the webhook, select **Test**.
@@ -171,9 +171,9 @@ If you cannot [provide GitLab with your Jenkins server URL and authentication in
 
 ## Troubleshooting
 
-### Error during GitLab configuration - "Connection failed. Please check your settings"
+### Error: `Connection failed. Please check your settings`
 
-While configuring GitLab, you might get an error that states "Connection failed. Please check your settings".
+When you configure GitLab, you might get an error that states `Connection failed. Please check your settings`.
 
 This issue has multiple possible causes and solutions:
 
@@ -184,7 +184,7 @@ This issue has multiple possible causes and solutions:
 | The credentials for the Jenkins instance do not have sufficient access or are invalid.| Grant the credentials sufficient access or create valid credentials.  |
 |The **Enable authentication for `/project` end-point** checkbox is not selected in your [Jenkins plugin configuration](#configure-the-jenkins-server)| Select the checkbox.  |
 
-### Error in merge requests - "Could not connect to the CI server"
+### Error: `Could not connect to the CI server`
 
 You might get an error that states `Could not connect to the CI server` in a merge
 request if GitLab did not receive a build status update from Jenkins through the
@@ -220,7 +220,7 @@ For this issue, check:
   WebHook Error => execution expired
   ```
 
-On self-managed GitLab instances, you can fix this issue by [increasing the webhook timeout value](../administration/instance_limits.md#webhook-timeout).
+On GitLab Self-Managed, you can fix this issue by [increasing the webhook timeout value](../administration/instance_limits.md#webhook-timeout).
 
 ### Enable job logs in Jenkins
 

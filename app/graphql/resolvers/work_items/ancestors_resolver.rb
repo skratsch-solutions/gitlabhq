@@ -5,7 +5,7 @@ module Resolvers
     class AncestorsResolver < BaseResolver
       prepend ::WorkItems::LookAheadPreloads
 
-      type Types::WorkItemType.connection_type, null: true
+      type ::Types::WorkItemType.connection_type, null: true
 
       def resolve_with_lookahead
         ancestors = object.ancestors
@@ -57,7 +57,7 @@ module Resolvers
       end
 
       def unconditional_includes
-        [:namespace, :work_item_parent, :work_item_type]
+        [:namespace, :work_item_parent, ::Gitlab::Issues::TypeAssociationGetter.call]
       end
     end
   end

@@ -19,6 +19,8 @@ You can follow this tutorial to familiarize yourself with the contribution proce
    Confirm you can successfully [sign in](https://gitlab.com/users/sign_in).
 1. [Request access to the community forks](https://gitlab.com/groups/gitlab-community/community-members/-/group_members/request_access),
    a set of forks mirrored from GitLab repositories in order to improve the contributor experience.
+   - When you request access to the community forks you will receive an onboarding issue in the
+[community onboarding project](https://gitlab.com/gitlab-community/community-members/onboarding/-/issues).
    - For more information, read the [community forks blog post](https://about.gitlab.com/blog/2023/04/04/gitlab-community-forks/).
    - The access request will be manually verified and should take no more than a few hours.
    - If you use a local development environment, you can start making changes locally while you wait
@@ -27,6 +29,8 @@ You can follow this tutorial to familiarize yourself with the contribution proce
 1. We recommend you join the [GitLab Discord server](https://discord.com/invite/gitlab), where GitLab team
    members and the wider community are ready and waiting to answer your questions and offer support
    for making contributions.
+1. Once your community forks access request is approved you can start using [GitLab Duo](../../../user/gitlab_duo/index.md),
+   our AI-powered features including Code Suggestions, Chat, Root Cause Analysis and more.
 
 ## Choose how you want to contribute
 
@@ -47,7 +51,7 @@ To get started, select the development option that works best for you:
 
 - GitLab Development Kit (GDK) and GDK-in-a-box - Fully local development.
 
-  GDK is a local development environment that includes an installation of self-managed GitLab,
+  GDK is a local development environment that includes an installation of GitLab Self-Managed,
   sample projects, and administrator access with which you can test functionality.
   These options rely on local hardware and may be resource intensive.
 

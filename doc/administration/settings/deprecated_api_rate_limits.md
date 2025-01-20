@@ -2,14 +2,14 @@
 stage: Create
 group: Source Code
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
-description: "Define limits for deprecated APIs on your self-managed GitLab instance."
+description: "Define limits for deprecated APIs on GitLab Self-Managed."
 ---
 
 # Deprecated API rate limits
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Deprecated API endpoints are those which have been replaced with alternative
 functionality, but cannot be removed without breaking backward compatibility.
@@ -21,7 +21,7 @@ switch to the alternatives.
 Not all deprecated API endpoints are included in this rate limit - just those
 that might have a performance impact:
 
-- [`GET /groups/:id`](../../api/groups.md#details-of-a-group) **without** the `with_projects=0` query parameter.
+- [`GET /groups/:id`](../../api/groups.md#get-a-single-group) **without** the `with_projects=0` query parameter.
 
 ## Define Deprecated API rate limits
 
@@ -36,7 +36,7 @@ Prerequisites:
 
 To override the general user and IP rate limits for requests to deprecated API endpoints:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**.
 1. Expand **Deprecated API Rate Limits**.
 1. Select the checkboxes for the types of rate limits you want to enable:

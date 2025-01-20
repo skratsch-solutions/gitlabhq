@@ -5,12 +5,20 @@ module LooseForeignKeys
     CLEANUP_ATTEMPTS_BEFORE_RESCHEDULE = 3
     CONSUME_AFTER_RESCHEDULE = 5.minutes
 
-    def initialize(parent_table:, loose_foreign_key_definitions:, deleted_parent_records:, connection:, modification_tracker: LooseForeignKeys::ModificationTracker.new)
+    def initialize(
+      parent_table:,
+      loose_foreign_key_definitions:,
+      deleted_parent_records:,
+      connection:,
+      logger: Sidekiq.logger,
+      modification_tracker: LooseForeignKeys::ModificationTracker.new
+    )
       @parent_table = parent_table
       @loose_foreign_key_definitions = loose_foreign_key_definitions
       @deleted_parent_records = deleted_parent_records
       @modification_tracker = modification_tracker
       @connection = connection
+      @logger = logger
       @deleted_records_counter = Gitlab::Metrics.counter(
         :loose_foreign_key_processed_deleted_records,
         'The number of processed loose foreign key deleted records'
@@ -27,6 +35,9 @@ module LooseForeignKeys
 
     def execute
       loose_foreign_key_definitions.each do |loose_foreign_key_definition|
+        next if ::Feature.disabled?(:loose_foreign_keys_for_polymorphic_associations) && # rubocop:disable Gitlab/FeatureFlagWithoutActor -- LFK does not know about AR models and associations so we cannot pass an actor
+          loose_foreign_key_definition.options[:conditions]
+
         run_cleaner_service(loose_foreign_key_definition, with_skip_locked: true)
 
         if modification_tracker.over_limit?
@@ -54,7 +65,7 @@ module LooseForeignKeys
 
     private
 
-    attr_reader :parent_table, :loose_foreign_key_definitions, :deleted_parent_records, :modification_tracker, :deleted_records_counter, :deleted_records_rescheduled_count, :deleted_records_incremented_count, :connection
+    attr_reader :parent_table, :loose_foreign_key_definitions, :deleted_parent_records, :modification_tracker, :deleted_records_counter, :deleted_records_rescheduled_count, :deleted_records_incremented_count, :connection, :logger
 
     def handle_over_limit
       records_to_reschedule = []
@@ -80,8 +91,11 @@ module LooseForeignKeys
     def record_result(cleaner, result)
       if cleaner.async_delete?
         modification_tracker.add_deletions(result[:table], result[:affected_rows])
-      elsif cleaner.async_nullify?
+      elsif cleaner.async_nullify? || cleaner.update_column_to?
         modification_tracker.add_updates(result[:table], result[:affected_rows])
+      else
+        logger.error("Invalid on_delete argument for definition: #{result[:table]}")
+        false
       end
     end
 
@@ -104,14 +118,15 @@ module LooseForeignKeys
           loose_foreign_key_definition: loose_foreign_key_definition,
           connection: base_model.connection,
           deleted_parent_records: deleted_parent_records,
-          with_skip_locked: with_skip_locked
+          with_skip_locked: with_skip_locked,
+          logger: logger
         )
 
         loop do
           result = cleaner.execute
-          record_result(cleaner, result)
+          recorded = record_result(cleaner, result)
 
-          break if modification_tracker.over_limit? || result[:affected_rows] == 0
+          break if modification_tracker.over_limit? || result[:affected_rows] == 0 || !recorded
         end
       end
     end

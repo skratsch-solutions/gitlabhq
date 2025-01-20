@@ -70,10 +70,6 @@ type LocalK8sNamespaces {
   metadata: k8sNamespaceMetadata
 }
 
-type LocalFluxResourceMetadata {
-  name: String
-}
-
 type LocalFluxResourceConditions {
   message: String
   reason: String
@@ -87,11 +83,17 @@ type LocalFluxResourceInventoryItem {
 
 type LocalFluxKustomization {
   kind: String
-  metadata: LocalFluxResourceMetadata
+  metadata: LocalWorkloadMetadata
+  status: JSON
+  spec: JSON
   conditions: [LocalFluxResourceConditions]
   inventory: [LocalFluxResourceInventoryItem]
 }
-type LocalFluxHelmReleaseStatus {
+type LocalFluxHelmRelease {
+  kind: String
+  metadata: LocalWorkloadMetadata
+  status: JSON
+  spec: JSON
   conditions: [LocalFluxResourceConditions]
 }
 
@@ -116,6 +118,19 @@ type K8sLogsData {
   error: JSON
 }
 
+type K8sEvent {
+  lastTimestamp: String
+  eventTime: String
+  message: String
+  reason: String
+  source: JSON
+  type: String
+}
+
+type k8sWatcher {
+  watcher: JSON
+}
+
 extend type Query {
   environmentApp(page: Int, scope: String): LocalEnvironmentApp
   folder(environment: NestedLocalEnvironmentInput): LocalEnvironmentFolder
@@ -132,12 +147,20 @@ extend type Query {
     configuration: LocalConfiguration
     fluxResourcePath: String
   ): LocalFluxKustomization
-  fluxHelmReleaseStatus(
-    configuration: LocalConfiguration
-    fluxResourcePath: String
-  ): LocalFluxHelmReleaseStatus
+  fluxHelmRelease(configuration: LocalConfiguration, fluxResourcePath: String): LocalFluxHelmRelease
   k8sDeployments(configuration: LocalConfiguration, namespace: String): [LocalK8sDeployment]
   k8sLogs(configuration: LocalConfiguration, namespace: String, podName: String): [K8sLogsData]
+  k8sEvents(
+    configuration: LocalConfiguration
+    namespace: String
+    involvedObjectName: String
+  ): [K8sEvent]
+  k8sPodLogsWatcher(
+    configuration: LocalConfiguration
+    namespace: String
+    podName: String
+    containerName: String
+  ): k8sWatcher
 }
 
 input ResourceTypeParam {
@@ -160,4 +183,15 @@ extend type Mutation {
   setEnvironmentToStop(environment: LocalEnvironmentInput): LocalErrors
   setEnvironmentToChangeCanary(environment: LocalEnvironmentInput, weight: Int): LocalErrors
   action(environment: LocalEnvironmentInput): LocalErrors
+  deleteKubernetesPod(
+    configuration: LocalConfiguration
+    namespace: String
+    podName: String
+  ): LocalErrors
+  abortPodLogsStream(
+    configuration: LocalConfiguration
+    namespace: String
+    podName: String
+    containerName: String
+  ): LocalErrors
 }

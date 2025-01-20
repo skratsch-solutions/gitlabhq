@@ -9,6 +9,7 @@ module Integrations
     field :token,
       type: :password,
       help: -> { s_('PivotalTrackerService|Pivotal Tracker API token. User must have access to the story. All comments are attributed to this user.') },
+      description: -> { _('The Pivotal Tracker token.') },
       non_empty_password_title: -> { s_('ProjectService|Enter new token') },
       non_empty_password_help: -> { s_('ProjectService|Leave blank to use your current token.') },
       required: true
@@ -29,8 +30,9 @@ module Integrations
     end
 
     def self.help
-      docs_link = ActionController::Base.helpers.link_to _('Learn more.'), Rails.application.routes.url_helpers.help_page_url('user/project/integrations/pivotal_tracker'), target: '_blank', rel: 'noopener noreferrer'
-      s_('Add commit messages as comments to Pivotal Tracker stories. %{docs_link}').html_safe % { docs_link: docs_link.html_safe }
+      build_help_page_url(
+        'user/project/integrations/pivotal_tracker.md', s_("Add commit messages as comments to Pivotal Tracker stories.")
+      )
     end
 
     def self.to_param

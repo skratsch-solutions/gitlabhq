@@ -369,7 +369,7 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
 
       context 'for snippet_titles scope' do
         before do
-          create(:snippet, :public, title: 'awesome snippet', content: 'snippet content')
+          create(:personal_snippet, :public, title: 'awesome snippet', content: 'snippet content')
 
           get api(endpoint, user), params: { scope: 'snippet_titles', search: 'awesome' }
         end
@@ -380,10 +380,20 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
 
         describe 'pagination' do
           before do
-            create(:snippet, :public, title: 'another snippet', content: 'snippet content')
+            create(:personal_snippet, :public, title: 'another snippet', content: 'snippet content')
           end
 
           include_examples 'pagination', scope: :snippet_titles
+        end
+      end
+
+      context 'for ai_workflows scope' do
+        let(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+
+        it 'is successful' do
+          get api(endpoint, oauth_access_token: oauth_token), params: { scope: 'milestones', search: 'awesome' }
+
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
 
@@ -756,9 +766,9 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
 
       context 'when requesting basic search' do
         it 'passes the parameter to search service' do
-          expect(SearchService).to receive(:new).with(user, hash_including(basic_search: 'true'))
+          expect(SearchService).to receive(:new).with(user, hash_including(search_type: 'basic'))
 
-          get api(endpoint, user), params: { scope: 'issues', search: 'awesome', basic_search: 'true' }
+          get api(endpoint, user), params: { scope: 'issues', search: 'awesome', search_type: 'basic' }
         end
       end
 

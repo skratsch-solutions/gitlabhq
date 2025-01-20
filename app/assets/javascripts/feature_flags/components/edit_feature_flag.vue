@@ -3,7 +3,6 @@ import { GlAlert, GlLoadingIcon, GlToggle } from '@gitlab/ui';
 // eslint-disable-next-line no-restricted-imports
 import { mapState, mapActions } from 'vuex';
 import { sprintf, __ } from '~/locale';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import FeatureFlagForm from './form.vue';
 
 export default {
@@ -14,7 +13,6 @@ export default {
     FeatureFlagActions: () => import('ee_component/feature_flags/components/actions.vue'),
     FeatureFlagForm,
   },
-  mixins: [glFeatureFlagMixin()],
   computed: {
     ...mapState([
       'path',
@@ -51,7 +49,7 @@ export default {
     <gl-loading-icon v-if="isLoading" size="xl" class="gl-mt-7" />
 
     <template v-else-if="!isLoading && !hasError">
-      <div class="gl-display-flex gl-align-items-center gl-mb-4 gl-mt-4">
+      <div class="gl-mb-4 gl-mt-4 gl-flex gl-items-center">
         <gl-toggle
           :value="active"
           data-testid="feature-flag-status-toggle"

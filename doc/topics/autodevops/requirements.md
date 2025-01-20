@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Before enabling [Auto DevOps](index.md), we recommend you to prepare it for
 deployment. If you don't, you can use it to build and test your apps, and
@@ -62,7 +62,7 @@ To define the base domain, either:
 
 - In the project, group, or instance level: go to your cluster settings and add it there.
 - In the project or group level: add it as an environment variable: `KUBE_INGRESS_BASE_DOMAIN`.
-- In the instance level: go to the Admin Area, then **Settings > CI/CD > Continuous Integration and Delivery** and add it there.
+- In the instance level: go to the **Admin** area, then **Settings > CI/CD > Continuous Integration and Delivery** and add it there.
 
 The base domain variable `KUBE_INGRESS_BASE_DOMAIN` follows the same order of
 [precedence as other environment variables](../../ci/variables/index.md#cicd-variable-precedence).

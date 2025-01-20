@@ -459,7 +459,7 @@ RSpec.describe Projects::CommitController, feature_category: :source_code_manage
       {
         namespace_id: project.namespace,
         project_id: project,
-        id: commit.id,
+        id: master_pickable_sha,
         format: format
       }
     end
@@ -469,6 +469,43 @@ RSpec.describe Projects::CommitController, feature_category: :source_code_manage
 
       expect(assigns(:diffs)).to be_a(Gitlab::Diff::FileCollection::Commit)
       expect(assigns(:environment)).to be_nil
+    end
+
+    context 'with expanded parameter' do
+      before do
+        params[:expanded] = 1
+      end
+
+      it 'preloads highlights' do
+        allow(Process).to receive(:clock_gettime).and_call_original
+        allow(Process).to receive(:clock_gettime).with(Process::CLOCK_MONOTONIC, :second).and_return(0, 4, 8, 12, 16, 20)
+
+        diff_highlight = instance_double(Gitlab::Diff::Highlight, highlight: [])
+        allow(Gitlab::Diff::Highlight).to receive(:new).and_return(diff_highlight)
+
+        send_request
+
+        assigns(:diffs).diff_files.each do |diff_file|
+          expect(diff_file.instance_variable_get(:@highlighted_diff_lines)).not_to be_nil
+        end
+
+        expect(Gitlab::Diff::Highlight)
+          .to have_received(:new).with(anything, hash_including(plain: false)).twice.times
+        expect(Gitlab::Diff::Highlight)
+          .to have_received(:new).with(anything, hash_including(plain: true)).exactly(4).times
+      end
+    end
+
+    context 'without expanded parameter' do
+      it 'does not preload the highlights' do
+        expect(assigns(:diffs)).not_to receive(:with_highlights_preloaded)
+
+        send_request
+
+        assigns(:diffs).diff_files.each do |diff_file|
+          expect(diff_file.instance_variable_get(:@highlighted_diff_lines)).to be_nil
+        end
+      end
     end
 
     context 'when format is not html' do
@@ -619,40 +656,6 @@ RSpec.describe Projects::CommitController, feature_category: :source_code_manage
       end
 
       it 'returns a 404' do
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-  end
-
-  describe 'GET #rapid_diffs' do
-    subject(:send_request) { get :rapid_diffs, params: params }
-
-    let(:format) { :html }
-    let(:params) do
-      {
-        namespace_id: project.namespace,
-        project_id: project,
-        id: commit.id,
-        format: format
-      }
-    end
-
-    it 'renders rapid_diffs template' do
-      send_request
-
-      expect(assigns(:diffs)).to be_a(Gitlab::Diff::FileCollection::Commit)
-      expect(assigns(:environment)).to be_nil
-      expect(response).to render_template(:rapid_diffs)
-    end
-
-    context 'when the feature flag rapid_diffs is disabled' do
-      before do
-        stub_feature_flags(rapid_diffs: false)
-      end
-
-      it 'returns 404' do
-        send_request
-
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end

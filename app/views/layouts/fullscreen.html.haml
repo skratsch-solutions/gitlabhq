@@ -1,11 +1,11 @@
 !!! 5
-%html{ class: [user_application_theme, page_class], lang: I18n.locale }
+%html{ class: [user_application_color_mode, page_class], lang: I18n.locale }
   = render "layouts/head"
   %body{ class: "#{user_tab_width} #{@body_class} fullscreen-layout", data: body_data }
     = render 'peek/bar'
     = header_message
     .gl--flex-full.gl-h-full
-      .gl--flex-full.gl-flex-direction-column.gl-w-full
+      .gl--flex-full.gl-flex-col.gl-w-full
         .alert-wrapper
           = render 'shared/outdated_browser'
           = render "layouts/broadcast"

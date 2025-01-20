@@ -6,7 +6,7 @@ import { sprintf, s__ } from '~/locale';
 import DevopsScoreCallout from './devops_score_callout.vue';
 
 const defaultHeaderAttrs = {
-  thClass: 'gl-bg-white!',
+  thClass: '!gl-bg-white',
   thAttr: { 'data-testid': 'header' },
 };
 
@@ -81,7 +81,7 @@ export default {
       </template>
     </gl-empty-state>
     <div v-else data-testid="devops-score-app">
-      <div class="gl-text-gray-400 gl-my-4" data-testid="devops-score-note-text">
+      <div class="gl-my-4 gl-text-subtle" data-testid="devops-score-note-text">
         {{ titleHelperText }}
       </div>
       <gl-single-stat
@@ -97,7 +97,7 @@ export default {
       <gl-table-lite
         :fields="$options.tableHeaderFields"
         :items="devopsScoreMetrics.cards"
-        thead-class="gl-border-t-0 gl-border-b-solid gl-border-b-1 gl-border-b-gray-100"
+        thead-class="gl-border-t-0 gl-border-b-solid gl-border-b-1 gl-border-b-default"
         stacked="sm"
       >
         <template #cell(usage)="{ item }">

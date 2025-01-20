@@ -4,10 +4,6 @@ $design-pin-diameter: 28px;
 $design-pin-diameter-sm: 24px;
 $t-gray-a-16-design-pin: rgba($black, 0.16);
 
-.design-card-header {
-  background: transparent;
-}
-
 .layout-page.design-detail-layout {
   max-height: 100vh;
 
@@ -41,6 +37,8 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
   }
 }
 
+// These are composite classes for use with Vue Transition
+// https://vuejs.org/guide/built-ins/transition
 .design-disclosure-enter-to {
   transform: translateX(0);
 }
@@ -59,12 +57,6 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
   height: 160px;
   text-decoration: none;
 
-  .icon-version-status {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-  }
-
   &:hover {
     border-color: var(--gray-400, $gray-400);
   }
@@ -72,10 +64,10 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
 
 .design-note-pin {
   display: flex;
-  height: $design-pin-diameter;
-  width: $design-pin-diameter;
+  height: $design-pin-diameter-sm;
+  width: $design-pin-diameter-sm;
   box-sizing: content-box;
-  background-color: var(--purple-500, $purple-500);
+  @apply gl-bg-purple-500 dark:gl-bg-purple-700;
   color: var(--white, $white);
   font-weight: $gl-font-weight-bold;
   border-radius: 50%;
@@ -140,7 +132,7 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
   overflow-y: auto;
   padding: $gl-padding;
   padding-top: 50px;
-  background-color: var(--white, $white);
+  @apply gl-bg-default;
 
   .link-inherit-color {
     &,
@@ -153,10 +145,10 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
 
   .toggle-comments {
     line-height: 20px;
-    border-top: 1px solid var(--border-color, $border-color);
+    @apply gl-border-t;
+    @apply gl-border-t-subtle;
 
-    &.expanded {
-      border-bottom: 1px solid var(--border-color, $border-color);
+    &[aria-expanded="true"] {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
@@ -167,6 +159,10 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
     }
   }
 
+  .toggle-comments ~ .design-note {
+    @apply gl-bg-subtle;
+  }
+
   .design-discussion {
     margin: $gl-padding 0;
 
@@ -174,7 +170,7 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
       content: '';
       border-left: 1px solid var(--gray-100, $gray-100);
       position: absolute;
-      left: 12px;
+      left: 11px;
       top: -17px;
       height: 17px;
     }
@@ -182,7 +178,7 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
     .design-note {
       padding: $gl-padding-8;
       list-style: none;
-      border-top-left-radius: $gl-border-radius-base; // same border radius used by .bordered-box
+      border-top-left-radius: $gl-border-radius-base;
       border-top-right-radius: $gl-border-radius-base;
       @apply gl-transition-background;
 
@@ -194,6 +190,7 @@ $t-gray-a-16-design-pin: rgba($black, 0.16);
     .reply-wrapper {
       padding: $gl-padding-8;
       border-radius: 0 0 $gl-border-radius-base $gl-border-radius-base;
+      @apply gl-bg-subtle;
     }
   }
 

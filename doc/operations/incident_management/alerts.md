@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Alerts are a critical entity in your incident management workflow. They represent a notable event that might indicate a service outage or disruption. GitLab provides a list view for triage and detail view for deeper investigation of what happened.
 
@@ -45,7 +45,7 @@ Each level of alert contains a uniquely shaped and color-coded icon to help you 
 
 Alerts contain one of the following icons:
 
-<!-- vale gitlab.SubstitutionWarning = NO -->
+<!-- vale gitlab_base.SubstitutionWarning = NO -->
 
 | Severity | Icon                    | Color (hexadecimal) |
 |----------|-------------------------|---------------------|
@@ -56,7 +56,7 @@ Alerts contain one of the following icons:
 | Info     | **{severity-info}**     | `#418cd8`           |
 | Unknown  | **{severity-unknown}**  | `#bababa`           |
 
-<!-- vale gitlab.SubstitutionWarning = YES -->
+<!-- vale gitlab_base.SubstitutionWarning = YES -->
 
 ## Alert details page
 
@@ -140,7 +140,7 @@ When you [close an incident](manage_incidents.md#close-an-incident) that is link
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 On-call responders can respond to [alert pages](paging.md#escalating-an-alert) by changing the alert status.
 
@@ -180,13 +180,13 @@ After completing their portion of investigating or fixing the alert, users can u
 
 You can manually create a [to-do item](../../user/todos.md) for yourself from an alert, and view it later on your **To-Do List**.
 
-To add a to-do item, on the right sidebar, select **Add a to do**.
+To add a to-do item, on the right sidebar, select **Add a to-do item**.
 
 ### Trigger actions from alerts
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Turn on creating [incidents](incidents.md) automatically whenever an alert is triggered.
 

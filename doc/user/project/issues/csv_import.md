@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+> - Additionally [allowed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) for Planner role in GitLab 17.7.
 
 You can import issues to a project by uploading a CSV file with the following columns:
 
@@ -28,7 +30,7 @@ Alternatively, you can [move an issue](managing_issues.md#move-an-issue). Moving
 
 The user uploading the CSV file is set as the author of the imported issues.
 
-You must have at least the Developer role for a project to import issues.
+You must have the Planner role or at least the Developer role for a project to import issues.
 
 ## Prepare for the import
 
@@ -40,7 +42,7 @@ You must have at least the Developer role for a project to import issues.
 
 To import issues:
 
-1. Go to your project's Issues list page.
+1. Go to your project's **Issues** page.
 1. Open the import feature, depending if the project has issues:
    - The project has existing issues: in the upper-right corner, next to **Bulk edit**, select **Actions** (**{ellipsis_v}**) **> Import CSV**.
    - The project has no issues: in the middle of the page, select **Import CSV**.

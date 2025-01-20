@@ -5,7 +5,10 @@ module API
     include PaginationParams
     include Helpers::CustomAttributes
 
-    before { authenticate_non_get! }
+    before do
+      authenticate_non_get!
+      set_current_organization
+    end
 
     helpers Helpers::GroupsHelpers
 
@@ -27,7 +30,7 @@ module API
         optional :order_by, type: String, values: %w[name path id similarity], default: 'name', desc: 'Order by name, path, id or similarity if searching'
         optional :sort, type: String, values: %w[asc desc], default: 'asc', desc: 'Sort by asc (ascending) or desc (descending)'
         optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Minimum access level of authenticated user'
-        optional :top_level_only, type: Boolean, desc: 'Only include top level groups'
+        optional :top_level_only, type: Boolean, desc: 'Only include top-level groups'
         use :optional_group_list_params_ee
         use :pagination
       end
@@ -111,11 +114,10 @@ module API
         paginate(projects)
       end
 
-      def present_projects(params, projects, single_hierarchy: false)
+      def present_projects(params, projects)
         options = {
           with: params[:simple] ? Entities::BasicProjectDetails : Entities::Project,
-          current_user: current_user,
-          single_hierarchy: single_hierarchy
+          current_user: current_user
         }
 
         projects, options = with_custom_attributes(projects, options)
@@ -220,8 +222,11 @@ module API
       end
 
       def check_subscription!(group)
-        render_api_error!("This group can't be removed because it is linked to a subscription.", :bad_request) if group.prevent_delete?
+        render_api_error!("This group can't be removed because it is linked to a subscription.", :bad_request) if group.linked_to_subscription?
       end
+
+      # Overridden in EE
+      def check_query_limit; end
     end
 
     resource :groups do
@@ -297,6 +302,7 @@ module API
         use :optional_update_params_ee
       end
       put ':id', feature_category: :groups_and_projects, urgency: :low do
+        check_query_limit
         group = find_group!(params[:id])
         group.preload_shared_group_links
 
@@ -349,8 +355,10 @@ module API
         tags %w[groups]
       end
       params do
-        optional :visibility, type: String, values: Gitlab::VisibilityLevel.string_values,
-          desc: 'Limit by visibility'
+        optional :skip_groups, type: Array[Integer], coerce_with: ::API::Validations::Types::CommaSeparatedToIntegerArray.coerce, desc: 'Array of group ids to exclude from list'
+        optional :visibility, type: String, values: Gitlab::VisibilityLevel.string_values, desc: 'Limit by visibility'
+        optional :search, type: String, desc: 'Search for a specific group'
+        optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Minimum access level of authenticated user'
         optional :order_by, type: String, values: %w[name path id similarity], default: 'name', desc: 'Order by name, path, id or similarity if searching'
         optional :sort, type: String, values: %w[asc desc], default: 'asc', desc: 'Sort by asc (ascending) or desc (descending)'
 
@@ -365,6 +373,27 @@ module API
         group = find_group!(params[:id])
         groups = ::Namespaces::Groups::SharedGroupsFinder.new(group, current_user, declared(params)).execute
         groups = order_groups(groups).with_api_scopes
+        present_groups params, groups
+      end
+
+      desc 'Get a list of invited groups in this group' do
+        success Entities::Group
+        is_array true
+        tags %w[groups]
+      end
+      params do
+        optional :relation, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: %w[direct inherited], desc: 'Include group relations'
+        optional :search, type: String, desc: 'Search for a specific group'
+        optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Minimum access level of authenticated user'
+
+        use :pagination
+        use :with_custom_attributes
+      end
+      get ":id/invited_groups", feature_category: :groups_and_projects do
+        check_rate_limit_by_user_or_ip!(:group_invited_groups_api)
+
+        group = find_group!(params[:id])
+        groups = ::Namespaces::Groups::InvitedGroupsFinder.new(group, current_user, declared_params).execute
         present_groups params, groups
       end
 
@@ -411,7 +440,7 @@ module API
 
         projects = find_group_projects(params, finder_options)
 
-        present_projects(params, projects, single_hierarchy: true)
+        present_projects(params, projects)
       end
 
       desc 'Get a list of shared projects in this group' do
@@ -513,14 +542,14 @@ module API
         present_groups params, groups, serializer: Entities::PublicGroupDetails
       end
 
-      desc 'Transfer a group to a new parent group or promote a subgroup to a root group' do
+      desc 'Transfer a group to a new parent group or promote a subgroup to a top-level group' do
         tags %w[groups]
       end
       params do
         optional :group_id,
           type: Integer,
           desc: 'The ID of the target group to which the group needs to be transferred to.'\
-                'If not provided, the source group will be promoted to a root group.'
+                'If not provided, the source group will be promoted to a top-level group.'
       end
       post ':id/transfer', feature_category: :groups_and_projects do
         group = find_group!(params[:id])
@@ -546,13 +575,15 @@ module API
         requires :group_id, type: Integer, desc: 'The ID of the group to share'
         requires :group_access, type: Integer, values: Gitlab::Access.all_values, desc: 'The group access level'
         optional :expires_at, type: Date, desc: 'Share expiration date'
+        optional :member_role_id, type: Integer, desc: 'The ID of the Member Role to be assigned to the group'
       end
       post ":id/share", feature_category: :groups_and_projects, urgency: :low do
         shared_with_group = find_group!(params[:group_id])
 
         group_link_create_params = {
           shared_group_access: params[:group_access],
-          expires_at: params[:expires_at]
+          expires_at: params[:expires_at],
+          member_role_id: params[:member_role_id]
         }
 
         result = ::Groups::GroupLinks::CreateService.new(user_group, shared_with_group, current_user, group_link_create_params).execute
@@ -592,10 +623,11 @@ The following criteria must be met:
 - The group must be a top-level group.
 - You must have Owner permission in the group.
 - The token type is one of:
-  - Personal Access Token
-  - Group Access Token
-  - Project Access Token
-  - Group Deploy Token
+  - Personal access token
+  - Group access token
+  - Project access token
+  - Group deploy token
+  - User feed token
 
 This feature is gated by the :group_agnostic_token_revocation feature flag.
         DETAIL
@@ -614,7 +646,7 @@ This feature is gated by the :group_agnostic_token_revocation feature flag.
 
         if result.success?
           status :ok
-          present result.payload[:token], with: "API::Entities::#{result.payload[:type]}".constantize
+          present result.payload[:revocable], with: "API::Entities::#{result.payload[:api_entity]}".constantize
         else
           # No matter the error, we always return a 422.
           # This prevents disclosing cases like: token is invalid,

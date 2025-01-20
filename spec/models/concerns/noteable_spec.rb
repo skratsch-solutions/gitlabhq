@@ -465,7 +465,7 @@ RSpec.describe Noteable, feature_category: :code_review_workflow do
     let_it_be(:source_branch) { 'compare-with-merge-head-source' }
 
     let(:issue) { create(:issue, project: project) }
-    let(:snippet) { build(:snippet) }
+    let(:snippet) { build(:personal_snippet) }
 
     context 'incoming email enabled' do
       before do
@@ -490,26 +490,6 @@ RSpec.describe Noteable, feature_category: :code_review_workflow do
 
       it 'returns nil' do
         expect(issue.creatable_note_email_address(user)).to be_nil
-      end
-    end
-  end
-
-  describe '#supports_resolvable_notes' do
-    context 'when noteable is an abuse report' do
-      let(:abuse_report) { build(:abuse_report) }
-
-      it 'returns true' do
-        expect(abuse_report.supports_resolvable_notes?).to be(true)
-      end
-    end
-  end
-
-  describe '#supports_replying_to_individual_notes' do
-    context 'when noteable is an abuse report' do
-      let(:abuse_report) { build(:abuse_report) }
-
-      it 'returns true' do
-        expect(abuse_report.supports_replying_to_individual_notes?).to be(true)
       end
     end
   end

@@ -104,10 +104,10 @@ RSpec.describe Users::MigrateRecordsToGhostUserService, feature_category: :user_
           let(:awardable) { create(:issue) }
 
           let!(:existing_award_emoji) do
-            create(:award_emoji, user: Users::Internal.ghost, name: "thumbsup", awardable: awardable)
+            create(:award_emoji, user: Users::Internal.ghost, name: AwardEmoji::THUMBS_UP, awardable: awardable)
           end
 
-          let!(:award_emoji) { create(:award_emoji, user: user, name: "thumbsup", awardable: awardable) }
+          let!(:award_emoji) { create(:award_emoji, user: user, name: AwardEmoji::THUMBS_UP, awardable: awardable) }
 
           it "migrates the award emoji regardless" do
             service.execute
@@ -130,7 +130,7 @@ RSpec.describe Users::MigrateRecordsToGhostUserService, feature_category: :user_
 
     context 'for snippets' do
       include_examples 'migrating records to the ghost user', Snippet do
-        let(:created_record) { create(:snippet, project: project, author: user) }
+        let(:created_record) { create(:project_snippet, project: project, author: user) }
       end
     end
 
@@ -185,7 +185,11 @@ RSpec.describe Users::MigrateRecordsToGhostUserService, feature_category: :user_
     context 'for batched nullify' do
       # rubocop:disable Layout/LineLength
       def nullify_in_batches_regexp(table, column, user, batch_size: 100)
-        %r{^UPDATE "#{table}" SET "#{column}" = NULL WHERE "#{table}"."id" IN \(SELECT "#{table}"."id" FROM "#{table}" WHERE "#{table}"."#{column}" = #{user.id} LIMIT #{batch_size}\)}
+        if ::Gitlab.next_rails?
+          %r{^UPDATE "#{table}" SET "#{column}" = NULL WHERE \("#{table}"."id"\) IN \(SELECT "#{table}"."id" FROM "#{table}" WHERE "#{table}"."#{column}" = #{user.id} LIMIT #{batch_size}\)}
+        else
+          %r{^UPDATE "#{table}" SET "#{column}" = NULL WHERE "#{table}"."id" IN \(SELECT "#{table}"."id" FROM "#{table}" WHERE "#{table}"."#{column}" = #{user.id} LIMIT #{batch_size}\)}
+        end
       end
       # rubocop:enable Layout/LineLength
 

@@ -51,7 +51,7 @@ A release contains the following types of assets:
 
 GitLab automatically generates `zip`, `tar.gz`, `tar.bz2`, and `tar`
 archived source code from the given Git tag. These assets are read-only,
-and [can be downloaded](../repository/index.md#download-the-code-in-a-repository).
+and [can be downloaded](../repository/index.md#download-repository-source-code).
 
 ### Links
 
@@ -65,11 +65,11 @@ Each link as an asset has the following attributes:
 | `name`      | The name of the link.                                                                                        | Yes      |
 | `url`       | The URL to download a file.                                                                                  | Yes      |
 | `filepath`  | The redirect link to the `url`. Must start with a slash (`/`). See [this section](#permanent-links-to-release-assets) for more information. | No       |
-| `link_type` | The content kind of what users can download via `url`. See [this section](#link-types) for more information. | No       |
+| `link_type` | The content kind of what users can download with `url`. See [this section](#link-types) for more information. | No       |
 
 #### Permanent links to release assets
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/375489) in GitLab 15.9, links for private releases can be accessed using a Personal Access Token.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/375489) in GitLab 15.9, links for private releases can be accessed using a personal access token.
 
 The assets associated with a release are accessible through a permanent URL.
 GitLab always redirects this URL to the actual asset
@@ -102,7 +102,7 @@ https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v16.9.0-rc2/downloads/bin
 
 The physical location of the asset can change at any time and the direct link remains unchanged.
 
-If the release is private, you need to provide a Personal Access Token with either `api` or `read_api` scopes using
+If the release is private, you need to provide a personal access token with either `api` or `read_api` scopes using
 a `private_token` query parameter or a `HTTP_PRIVATE_TOKEN` header when making the request. For example:
 
 ```shell
@@ -159,7 +159,7 @@ to store any artifacts from a release or tag pipeline,
 that can also be used for attaching binary files to an individual release entry.
 You basically need to:
 
-1. [Push the artifacts to the Generic package registry](../../packages/generic_packages/index.md#publish-a-package-file).
+1. [Push the artifacts to the Generic package registry](../../packages/generic_packages/index.md#publish-a-package).
 1. [Attach the package link to the release](#links).
 
 The following example generates release assets, publishes them
@@ -173,7 +173,7 @@ stages:
 
 variables:
   # Package version can only contain numbers (0-9), and dots (.).
-  # Must be in the format of X.Y.Z, i.e. should match /\A\d+\.\d+\.\d+\z/ regular expression.
+  # Must be in the format of X.Y.Z, and should match the /\A\d+\.\d+\.\d+\z/ regular expression.
   # See https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-package-file
   PACKAGE_VERSION: "1.2.3"
   DARWIN_AMD64_BINARY: "myawesomerelease-darwin-amd64-${PACKAGE_VERSION}"

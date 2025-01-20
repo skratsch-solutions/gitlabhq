@@ -200,6 +200,26 @@ RSpec.describe ::Integrations::Field, feature_category: :integrations do
         expect(field.api_type).to eq(::API::Integrations::Boolean)
       end
     end
+
+    context 'when type is number' do
+      before do
+        attrs[:type] = :number
+      end
+
+      it 'returns Integer' do
+        expect(field.api_type).to eq(Integer)
+      end
+    end
+
+    context 'when type is string_array' do
+      before do
+        attrs[:type] = :string_array
+      end
+
+      it 'returns Array[String]' do
+        expect(field.api_type).to eq([String])
+      end
+    end
   end
 
   describe '#key?' do

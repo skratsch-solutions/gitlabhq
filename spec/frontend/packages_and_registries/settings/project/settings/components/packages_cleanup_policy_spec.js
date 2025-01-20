@@ -1,14 +1,13 @@
-import { GlAlert, GlSprintf } from '@gitlab/ui';
+import { GlAlert } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
-import component from '~/packages_and_registries/settings/project/components/packages_cleanup_policy.vue';
+import PackagesCleanupPolicy from '~/packages_and_registries/settings/project/components/packages_cleanup_policy.vue';
 import PackagesCleanupPolicyForm from '~/packages_and_registries/settings/project/components/packages_cleanup_policy_form.vue';
 import { FETCH_SETTINGS_ERROR_MESSAGE } from '~/packages_and_registries/settings/project/constants';
 import packagesCleanupPolicyQuery from '~/packages_and_registries/settings/project/graphql/queries/get_packages_cleanup_policy.query.graphql';
-import SettingsBlock from '~/packages_and_registries/shared/components/settings_block.vue';
 
 import { packagesCleanupPolicyPayload, packagesCleanupPolicyData } from '../mock_data';
 
@@ -24,14 +23,10 @@ describe('Packages cleanup policy project settings', () => {
 
   const findAlert = () => wrapper.findComponent(GlAlert);
   const findFormComponent = () => wrapper.findComponent(PackagesCleanupPolicyForm);
-  const findSettingsBlock = () => wrapper.findComponent(SettingsBlock);
+  const findHeader = () => wrapper.find('h2');
 
   const mountComponent = (provide = defaultProvidedValues, config) => {
-    wrapper = shallowMount(component, {
-      stubs: {
-        GlSprintf,
-        SettingsBlock,
-      },
+    wrapper = shallowMount(PackagesCleanupPolicy, {
       provide,
       ...config,
     });
@@ -56,9 +51,9 @@ describe('Packages cleanup policy project settings', () => {
     });
     await waitForPromises();
 
+    expect(findHeader().text()).toBe('Manage storage used by package assets');
     expect(findFormComponent().exists()).toBe(true);
     expect(findFormComponent().props('value')).toEqual(packagesCleanupPolicyData);
-    expect(findSettingsBlock().exists()).toBe(true);
   });
 
   describe('fetchSettingsError', () => {

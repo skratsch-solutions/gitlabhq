@@ -13,7 +13,7 @@ description: 'Confidence checking your entire app every time a new feature is ad
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Review apps](../../review_apps/index.md) are great: for every merge request
 (or branch, for that matter), the new code can be copied and deployed to a fresh production-like live
@@ -22,7 +22,7 @@ environment, reducing the effort to assess the impact of changes. Thus, when we 
 and it will immediately be clear that the application can still be properly built and deployed. After all, you can _see_ it
 running!
 
-![dependencies.io](img/deployed_dependency_update.png)
+![dependencies.io](img/deployed_dependency_update_v11_8.png)
 
 However, looking at the freshly deployed code to check whether it still looks and behaves as
 expected is repetitive manual work, which means it is a prime candidate for automation. This is
@@ -158,7 +158,7 @@ to interact with your application, so we need to install and run them.
 Furthermore, WebdriverIO uses Selenium as a common interface to control different browsers,
 so we need to install and run Selenium as well. Luckily, the Selenium project provides the Docker images for Firefox
 [standalone-firefox](https://hub.docker.com/r/selenium/standalone-firefox/) and
-and for Chrome [standalone-chrome](https://hub.docker.com/r/selenium/standalone-chrome/).
+for Chrome [standalone-chrome](https://hub.docker.com/r/selenium/standalone-chrome/).
 (Since Safari and Internet Explorer/Edge are not open source and
 not available for Linux, we are unfortunately unable to use those in GitLab CI/CD).
 

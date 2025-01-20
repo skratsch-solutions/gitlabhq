@@ -27,7 +27,7 @@ Before submitting a merge request with a new or updated CI/CD template, you must
 - Follow the [CI/CD template authoring guidelines](#template-authoring-guidelines).
 - Name the template following the `*.gitlab-ci.yml` format.
 - Use valid [`.gitlab-ci.yml` syntax](../../ci/yaml/index.md). Verify it's valid
-  with the [CI/CD lint tool](../../ci/lint.md).
+  with the [CI/CD lint tool](../../ci/yaml/lint.md).
 - [Add template metrics](#add-metrics).
 - Include [a changelog](../changelog.md) if the merge request introduces a user-facing change.
 - Follow the [template review process](#contribute-cicd-template-merge-requests).
@@ -131,19 +131,11 @@ Use [`$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH`](../../ci/variables/predefined_va
 instead of a hardcoded `main` branch, and never use `master`:
 
 ```yaml
-job1:
+job:
   rules:
     if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
-    echo "example job 1"
-
-job2:
-  only:
-    variables:
-      - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  script:
-    echo "example job 2"
-
+    echo "example job"
 ```
 
 #### Use `rules` instead of `only` or `except`
@@ -249,7 +241,7 @@ separating words.
 .with_login:
   before_script:
     # SECRET_TOKEN should be provided via the project settings
-    - docker login -u my-user -p "$SECRET_TOKEN my-registry
+    - echo "$SECRET_TOKEN" | docker login -u my-user --password-stdin my-registry
 ```
 
 Lower-case naming can optionally be used for variables which are defined locally in

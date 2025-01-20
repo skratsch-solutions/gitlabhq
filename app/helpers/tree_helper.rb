@@ -34,11 +34,7 @@ module TreeHelper
   def tree_edit_branch(project = @project, ref = @ref)
     return unless can_edit_tree?(project, ref)
 
-    if user_access(project).can_push_to_branch?(ref)
-      ref
-    else
-      patch_branch_name(ref)
-    end
+    patch_branch_name(ref)
   end
 
   # Generate a patch branch name that should look like:
@@ -72,19 +68,6 @@ module TreeHelper
     edit_in_new_fork_notice + (_(" Try to %{action} this file again.") % { action: action })
   end
 
-  def commit_in_fork_help
-    _("GitLab will create a branch in your fork and start a merge request.")
-  end
-
-  def commit_in_single_accessible_branch
-    branch_name = ERB::Util.html_escape(selected_branch)
-
-    message = _("Your changes can be committed to %{branch_name} because a merge "\
-                "request is open.") % { branch_name: "<strong>#{branch_name}</strong>" }
-
-    message.html_safe
-  end
-
   def path_breadcrumbs(max_links = 6)
     if @path.present?
       part_path = ""
@@ -115,6 +98,7 @@ module TreeHelper
     attrs = {
       selected_branch: selected_branch,
       can_push_code: can?(current_user, :push_code, @project).to_s,
+      can_push_to_branch: user_access(@project).can_push_to_branch?(@ref).to_s,
       can_collaborate: can_collaborate_with_project?(@project).to_s,
       new_blob_path: project_new_blob_path(@project, @ref),
       upload_path: project_create_blob_path(@project, @ref),
@@ -132,25 +116,71 @@ module TreeHelper
       }
 
       attrs.merge!(
-        fork_new_blob_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param),
-        fork_new_directory_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param.merge({
-          to: request.fullpath,
-          notice: _("%{edit_in_new_fork_notice} Try to create a new directory again.") % { edit_in_new_fork_notice: edit_in_new_fork_notice }
-        })),
-        fork_upload_blob_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param.merge({
-          to: request.fullpath,
-          notice: _("%{edit_in_new_fork_notice} Try to upload a file again.") % { edit_in_new_fork_notice: edit_in_new_fork_notice }
-        }))
+        fork_new_blob_path: project_forks_path(
+          @project,
+          namespace_key: current_user.namespace.id,
+          continue: continue_param
+        ),
+        fork_new_directory_path: project_forks_path(
+          @project,
+          namespace_key: current_user.namespace.id,
+          continue: continue_param.merge({
+            to: request.fullpath,
+            notice: _("%{edit_in_new_fork_notice} Try to create a new directory again.") % {
+              edit_in_new_fork_notice: edit_in_new_fork_notice
+            }
+          })
+        ),
+        fork_upload_blob_path: project_forks_path(
+          @project,
+          namespace_key: current_user.namespace.id,
+          continue: continue_param.merge({
+            to: request.fullpath,
+            notice: _("%{edit_in_new_fork_notice} Try to upload a file again.") % {
+              edit_in_new_fork_notice: edit_in_new_fork_notice
+            }
+          })
+        )
       )
     end
 
     attrs
   end
 
+  def compare_path(project, repository, ref)
+    return if ref.blank? || repository.root_ref == ref
+
+    project_compare_index_path(project, from: repository.root_ref, to: ref)
+  end
+
+  def vue_tree_header_app_data(project, repository, ref, pipeline)
+    archive_prefix = ref ? "#{project.path}-#{ref.tr('/', '-')}" : ''
+
+    {
+      project_id: project.id,
+      ref: ref,
+      ref_type: @ref_type.to_s,
+      breadcrumbs: breadcrumb_data_attributes,
+      project_root_path: project_path(project),
+      project_path: project.full_path,
+      compare_path: compare_path(project, repository, ref),
+      web_ide_button_options: web_ide_button_data({ blob: nil }).merge(fork_modal_options(project, nil)).to_json,
+      web_ide_button_default_branch: project.default_branch_or_main,
+      ssh_url: ssh_enabled? ? ssh_clone_url_to_repo(project) : '',
+      http_url: http_enabled? ? http_clone_url_to_repo(project) : '',
+      xcode_url: show_xcode_link?(project) ? xcode_uri_to_repo(project) : '',
+      download_links: !project.empty_repo? ? download_links(project, ref, archive_prefix).to_json : '',
+      download_artifacts: pipeline &&
+        (previous_artifacts(project, ref, pipeline.latest_builds_with_artifacts).to_json || []),
+      escaped_ref: ActionDispatch::Journey::Router::Utils.escape_path(ref)
+    }
+  end
+
   def vue_file_list_data(project, ref)
     {
       project_path: project.full_path,
       project_short_path: project.path,
+      target_branch: selected_branch,
       ref: ref,
       escaped_ref: ActionDispatch::Journey::Router::Utils.escape_path(ref),
       full_name: project.name_with_namespace,
@@ -200,7 +230,9 @@ module TreeHelper
     Gitlab::Workhorse::ARCHIVE_FORMATS.map do |fmt|
       {
         text: fmt,
-        path: external_storage_url_or_path(project_archive_path(project, id: tree_join(ref, archive_prefix), format: fmt))
+        path: external_storage_url_or_path(
+          project_archive_path(project, id: tree_join(ref, archive_prefix), format: fmt)
+        )
       }
     end
   end

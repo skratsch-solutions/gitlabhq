@@ -15,7 +15,7 @@ RSpec.shared_examples 'Signup name validation' do |field, max_length, label|
     end
 
     it 'shows an error border if the user\'s fullname contains an emoji' do
-      simulate_input("##{field}", 'Ehsan 🦋')
+      fill_in field, with: 'Ehsan 🦋'
 
       expect(find('.name')).to have_css '.gl-field-error-outline'
     end
@@ -33,21 +33,22 @@ RSpec.shared_examples 'Signup name validation' do |field, max_length, label|
     end
 
     it 'shows an error message if the username contains emojis' do
-      simulate_input("##{field}", 'Ehsan 🦋')
+      fill_in field, with: 'Ehsan 🦋'
 
       expect(page).to have_content("Invalid input, please avoid emoji")
     end
   end
 end
 
-RSpec.describe 'Signup', :js, feature_category: :user_management do
+RSpec.describe 'Signup', :with_current_organization, :js, feature_category: :user_management do
   include TermsHelper
+  using RSpec::Parameterized::TableSyntax
 
   let(:new_user) { build_stubbed(:user) }
 
   let(:terms_text) do
     <<~TEXT.squish
-      By clicking Register or registering through a third party you accept the
+      By clicking Continue or registering through a third party you accept the
       Terms of Use and acknowledge the Privacy Statement and Cookie Policy
     TEXT
   end
@@ -69,7 +70,7 @@ RSpec.describe 'Signup', :js, feature_category: :user_management do
     end
 
     it 'does not show an error border if the username contains dots (.)' do
-      simulate_input('#new_user_username', 'new.user.username')
+      fill_in 'new_user_username', with: 'new.user.username'
       wait_for_requests
 
       expect(find('.username')).not_to have_css '.gl-field-error-outline'
@@ -130,19 +131,19 @@ RSpec.describe 'Signup', :js, feature_category: :user_management do
       fill_in 'new_user_username', with: 'new$user!username'
       wait_for_requests
 
-      click_button "Register"
+      click_button _('Continue')
 
       expect(page).to have_content("Please create a username with only alphanumeric characters.")
     end
 
     it 'shows an error border if the username contains emojis' do
-      simulate_input('#new_user_username', 'ehsan😀')
+      fill_in 'new_user_username', with: 'ehsan😀'
 
       expect(find('.username')).to have_css '.gl-field-error-outline'
     end
 
     it 'shows an error message if the username contains emojis' do
-      simulate_input('#new_user_username', 'ehsan😀')
+      fill_in 'new_user_username', with: 'ehsan😀'
 
       expect(page).to have_content("Invalid input, please avoid emoji")
     end
@@ -364,6 +365,83 @@ RSpec.describe 'Signup', :js, feature_category: :user_management do
   context 'with invalid email' do
     it_behaves_like 'user email validation' do
       let(:path) { new_user_registration_path }
+    end
+
+    where(:email, :reason) do
+      '"A"@b.co'            | 'quoted emails'
+      'a @b.co'             | 'space in the local-part'
+      'ab.co'               | 'no @ symbol'
+      'a@b@c.co'            | 'several @ symbol'
+      'a@-b.co'             | 'domain starting with hyphen'
+      'a@b-.co'             | 'domain finishing with hyphen'
+      'a@example_me.co'     | 'domain with underscore'
+      'a@example .com' | 'space in the domain'
+      'a@[123.123.123.123]' | 'IP addresses'
+      'a@b.'                | 'invalid domain'
+    end
+
+    with_them do
+      cause = params[:reason]
+      it "doesn't accept emails with #{cause}" do
+        new_user.email = email
+        visit new_user_registration_path
+
+        fill_in_sign_up_form(new_user)
+
+        expect(page).to have_current_path new_user_registration_path
+        expect(page).to have_content(_("Please provide a valid email address."))
+      end
+    end
+  end
+
+  context 'with valid email with top-level-domain singularities' do
+    it_behaves_like 'user email validation' do
+      let(:path) { new_user_registration_path }
+    end
+
+    where(:email, :reason) do
+      'a@b'                 | 'no TLD'
+      'a@b.c'               | 'TLD less than two characters'
+    end
+
+    with_them do
+      cause = params[:reason]
+      it "accept emails with #{cause} but displays a warning" do
+        new_user_password_ori = new_user.password
+        new_user.email = email
+        new_user.password = ''
+        visit new_user_registration_path
+
+        fill_in_sign_up_form(new_user)
+
+        expect(page).to have_current_path new_user_registration_path
+        expect(page).to have_content(
+          _('Email address without top-level domain. Make sure that you have entered the correct email address.')
+        )
+
+        new_user.password = new_user_password_ori
+        expect { fill_in_sign_up_form(new_user) }.to change { User.count }.by(1)
+      end
+    end
+  end
+
+  context 'with valid email' do
+    where(:email, :reason) do
+      '6@b.co'                              | 'alphanumerical first character in the local-part'
+      '012345678901234567890123456789@b.co' | 'long local-part'
+      'a@wwww.internal-site.co.uk'          | 'several subdomains'
+      'a@3w.internal-site.co.uk'            | 'several subdomains'
+      'a@b.example'                         | 'valid TLD'
+    end
+
+    with_them do
+      cause = params[:reason]
+      it "accepts emails with #{cause}" do
+        new_user.email = email
+        visit new_user_registration_path
+
+        expect { fill_in_sign_up_form(new_user) }.to change { User.count }.by(1)
+      end
     end
   end
 end

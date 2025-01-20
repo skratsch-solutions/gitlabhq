@@ -8,7 +8,6 @@ import EnvironmentJson from './json_tests/positive_tests/environment.json';
 import GitlabCiDependenciesJson from './json_tests/positive_tests/gitlab-ci-dependencies.json';
 import GitlabCiJson from './json_tests/positive_tests/gitlab-ci.json';
 import InheritJson from './json_tests/positive_tests/inherit.json';
-import MultipleCachesJson from './json_tests/positive_tests/multiple-caches.json';
 import RetryJson from './json_tests/positive_tests/retry.json';
 import TerraformReportJson from './json_tests/positive_tests/terraform_report.json';
 import VariablesMixStringAndUserInputJson from './json_tests/positive_tests/variables_mix_string_and_user_input.json';
@@ -25,10 +24,12 @@ import RetryUnknownWhenJson from './json_tests/negative_tests/retry_unknown_when
 import ArtifactsYaml from './yaml_tests/positive_tests/artifacts.yml';
 import ImageYaml from './yaml_tests/positive_tests/image.yml';
 import CacheYaml from './yaml_tests/positive_tests/cache.yml';
+import MultipleCachesYaml from './yaml_tests/positive_tests/cache_multiple.yml';
 import FilterYaml from './yaml_tests/positive_tests/filter.yml';
 import IncludeYaml from './yaml_tests/positive_tests/include.yml';
 import RulesYaml from './yaml_tests/positive_tests/rules.yml';
 import RulesNeedsYaml from './yaml_tests/positive_tests/rules_needs.yml';
+import RunYaml from './yaml_tests/positive_tests/run.yml';
 import ProjectPathYaml from './yaml_tests/positive_tests/project_path.yml';
 import VariablesYaml from './yaml_tests/positive_tests/variables.yml';
 import JobWhenYaml from './yaml_tests/positive_tests/job_when.yml';
@@ -45,11 +46,13 @@ import WorkflowRulesAutoCancelOnNewCommitYaml from './yaml_tests/positive_tests/
 import StagesYaml from './yaml_tests/positive_tests/stages.yml';
 import RetryYaml from './yaml_tests/positive_tests/retry.yml';
 import ParallelYaml from './yaml_tests/positive_tests/parallel.yml';
+import TriggerYaml from './yaml_tests/positive_tests/trigger.yml';
 
 // YAML NEGATIVE TEST
 import ArtifactsNegativeYaml from './yaml_tests/negative_tests/artifacts.yml';
 import ImageNegativeYaml from './yaml_tests/negative_tests/image.yml';
 import CacheKeyNeative from './yaml_tests/negative_tests/cache.yml';
+import MultipleCachesYamlNegative from './yaml_tests/negative_tests/cache_multiple.yml';
 import IncludeNegativeYaml from './yaml_tests/negative_tests/include.yml';
 import JobWhenNegativeYaml from './yaml_tests/negative_tests/job_when.yml';
 import ProjectPathIncludeEmptyYaml from './yaml_tests/negative_tests/project_path/include/empty.yml';
@@ -59,7 +62,8 @@ import ProjectPathIncludeNoSlashYaml from './yaml_tests/negative_tests/project_p
 import ProjectPathIncludeTailSlashYaml from './yaml_tests/negative_tests/project_path/include/tailing_slash.yml';
 import RulesNegativeYaml from './yaml_tests/negative_tests/rules.yml';
 import RulesNeedsNegativeYaml from './yaml_tests/negative_tests/rules_needs.yml';
-import TriggerNegative from './yaml_tests/negative_tests/trigger.yml';
+import RunNegativeYaml from './yaml_tests/negative_tests/run.yml';
+import TriggerNegativeYaml from './yaml_tests/negative_tests/trigger.yml';
 import VariablesInvalidOptionsYaml from './yaml_tests/negative_tests/variables/invalid_options.yml';
 import VariablesInvalidSyntaxDescYaml from './yaml_tests/negative_tests/variables/invalid_syntax_desc.yml';
 import VariablesWrongSyntaxUsageExpand from './yaml_tests/negative_tests/variables/wrong_syntax_usage_expand.yml';
@@ -98,7 +102,6 @@ describe('positive tests', () => {
       GitlabCiDependenciesJson,
       GitlabCiJson,
       InheritJson,
-      MultipleCachesJson,
       RetryJson,
       TerraformReportJson,
       VariablesMixStringAndUserInputJson,
@@ -108,12 +111,14 @@ describe('positive tests', () => {
       ArtifactsYaml,
       ImageYaml,
       CacheYaml,
+      MultipleCachesYaml,
       FilterYaml,
       IncludeYaml,
       JobWhenYaml,
       HooksYaml,
       RulesYaml,
       RulesNeedsYaml,
+      RunYaml,
       VariablesYaml,
       ProjectPathYaml,
       IdTokensYaml,
@@ -126,6 +131,7 @@ describe('positive tests', () => {
       StagesYaml,
       RetryYaml,
       ParallelYaml,
+      TriggerYaml,
     }),
   )('schema validates %s', (_, input) => {
     // We construct a new "JSON" from each main key that is inside a
@@ -173,13 +179,15 @@ describe('negative tests', () => {
       ArtifactsNegativeYaml,
       ImageNegativeYaml,
       CacheKeyNeative,
+      MultipleCachesYamlNegative,
       HooksNegative,
       IdTokensNegativeYaml,
       IncludeNegativeYaml,
       JobWhenNegativeYaml,
       RulesNegativeYaml,
       RulesNeedsNegativeYaml,
-      TriggerNegative,
+      RunNegativeYaml,
+      TriggerNegativeYaml,
       VariablesInvalidOptionsYaml,
       VariablesInvalidSyntaxDescYaml,
       VariablesWrongSyntaxUsageExpand,

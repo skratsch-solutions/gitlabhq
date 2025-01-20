@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,27 +8,27 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Placeholder tokens
 
 [Badges](../user/project/badges.md) support placeholders that are replaced in real time in both the link and image URL. The allowed placeholders are:
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 - **%{project_path}**: replaced by the project path.
 - **%{project_title}**: replaced by the project title.
 - **%{project_name}**: replaced by the project name.
 - **%{project_id}**: replaced by the project ID.
 - **%{project_namespace}**: replaced by the project's namespace full path.
-- **%{group_name}**: replaced by the project's group name.
+- **%{group_name}**: replaced by the project's top-level group name.
 - **%{gitlab_server}**: replaced by the project's server name.
-- **%{gitlab_pages_domain}**: replaced by the project's domain name.
+- **%{gitlab_pages_domain}**: replaced by the domain name hosting GitLab Pages.
 - **%{default_branch}**: replaced by the project default branch.
 - **%{commit_sha}**: replaced by the project's last commit SHA.
 - **%{latest_tag}**: replaced by the project's last tag.
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 Because these endpoints aren't inside a project's context, the information used to replace the placeholders comes
 from the first group's project by creation date. If the group hasn't got any project the original URL with the placeholders is returned.
@@ -43,7 +43,7 @@ GET /groups/:id/badges
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `name`    | string         | no  | Name of the badges to return (case-sensitive). |
 
 ```shell
@@ -76,7 +76,7 @@ GET /groups/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 
 ```shell
@@ -107,7 +107,7 @@ POST /groups/:id/badges
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `link_url` | string         | yes | URL of the badge link |
 | `image_url` | string | yes | URL of the badge image |
 | `name` | string | no | Name of the badge |
@@ -142,7 +142,7 @@ PUT /groups/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 | `link_url` | string         | no | URL of the badge link |
 | `image_url` | string | no | URL of the badge image |
@@ -177,7 +177,7 @@ DELETE /groups/:id/badges/:badge_id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `badge_id` | integer | yes   | The badge ID |
 
 ```shell
@@ -194,7 +194,7 @@ GET /groups/:id/badges/render
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `link_url` | string         | yes | URL of the badge link|
 | `image_url` | string | yes | URL of the badge image |
 

@@ -28,6 +28,35 @@ RSpec.describe CustomerRelations::Contact, type: :model, feature_category: :team
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive.scoped_to(:group_id) }
 
     it_behaves_like 'an object with RFC3696 compliant email-formatted attributes', :email
+
+    context 'when root group' do
+      subject { build(:contact, group: group) }
+
+      it { is_expected.to be_valid }
+
+      context 'with group.source_group_id' do
+        let(:crm_settings) { build(:crm_settings, source_group_id: group.id) }
+        let(:root_group) { build(:group, crm_settings: crm_settings) }
+
+        subject { build(:contact, group: root_group) }
+
+        it { is_expected.to be_invalid }
+      end
+    end
+
+    context 'when subgroup' do
+      subject { build(:contact, group: build(:group, parent: group)) }
+
+      it { is_expected.to be_invalid }
+
+      context 'with group.crm_targets' do
+        let(:target_group) { build(:group, crm_targets: [build(:crm_settings)], parent: group) }
+
+        subject { build(:contact, group: target_group) }
+
+        it { is_expected.to be_valid }
+      end
+    end
   end
 
   describe '.reference_prefix' do
@@ -40,20 +69,6 @@ RSpec.describe CustomerRelations::Contact, type: :model, feature_category: :team
 
   describe '.reference_postfix' do
     it { expect(described_class.reference_postfix).to eq(']') }
-  end
-
-  describe '#root_group' do
-    context 'when root group' do
-      subject { build(:contact, group: group) }
-
-      it { is_expected.to be_valid }
-    end
-
-    context 'when subgroup' do
-      subject { build(:contact, group: create(:group, parent: group)) }
-
-      it { is_expected.to be_invalid }
-    end
   end
 
   describe '#before_validation' do
@@ -111,35 +126,6 @@ RSpec.describe CustomerRelations::Contact, type: :model, feature_category: :team
 
         expect(described_class.exists_for_group?(group)).to be_truthy
       end
-    end
-  end
-
-  describe '#self.move_to_root_group' do
-    let!(:old_root_group) { create(:group) }
-    let!(:contacts) { create_list(:contact, 4, group: old_root_group) }
-    let!(:project) { create(:project, group: old_root_group) }
-    let!(:issue) { create(:issue, project: project) }
-    let!(:issue_contact1) { create(:issue_customer_relations_contact, issue: issue, contact: contacts[0]) }
-    let!(:issue_contact2) { create(:issue_customer_relations_contact, issue: issue, contact: contacts[1]) }
-    let!(:new_root_group) { create(:group) }
-    let!(:dupe_contact1) { create(:contact, group: new_root_group, email: contacts[1].email) }
-    let!(:dupe_contact2) { create(:contact, group: new_root_group, email: contacts[3].email.upcase) }
-
-    before do
-      old_root_group.update!(parent: new_root_group)
-      described_class.move_to_root_group(old_root_group)
-    end
-
-    it 'moves contacts with unique emails and deletes the rest' do
-      expect(contacts[0].reload.group_id).to eq(new_root_group.id)
-      expect(contacts[2].reload.group_id).to eq(new_root_group.id)
-      expect { contacts[1].reload }.to raise_error(ActiveRecord::RecordNotFound)
-      expect { contacts[3].reload }.to raise_error(ActiveRecord::RecordNotFound)
-    end
-
-    it 'updates issue_contact.contact_id for dupes and leaves the rest untouched' do
-      expect(issue_contact1.reload.contact_id).to eq(contacts[0].id)
-      expect(issue_contact2.reload.contact_id).to eq(dupe_contact1.id)
     end
   end
 

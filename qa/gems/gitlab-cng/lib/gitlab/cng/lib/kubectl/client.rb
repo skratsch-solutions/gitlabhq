@@ -91,10 +91,26 @@ module Gitlab
 
         # Get events
         #
+        # @param [Boolean] json_format
         # @return [String]
-        def events
-          log("Fetching events", :info)
-          run_in_namespace("get", "events", args: ["--sort-by=lastTimestamp"])
+        def events(json_format: false)
+          args = ["--sort-by=lastTimestamp"]
+          args << "--output=json" if json_format
+          run_in_namespace("get", "events", args: args)
+        end
+
+        # Patch kubernetes resource
+        #
+        # @param [String] resource_type
+        # @param [String] resource_name
+        # @param [String] patch_data
+        # @param [String] patch_type default: 'merge'
+        # @return [String] command output
+        def patch(resource_type, resource_name, patch_data, patch_type: 'merge')
+          run_in_namespace("patch", resource_type, resource_name, args: [
+            "--type=#{patch_type}",
+            "-p", patch_data
+          ])
         end
 
         private

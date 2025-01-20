@@ -5,7 +5,6 @@ require 'optparse'
 require 'fileutils'
 require 'uri'
 require 'json'
-require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby 3.1 and earlier needs this. Drop this line after Ruby 3.2+ is only supported.
 
 class FailedTests
   DEFAULT_OPTIONS = {
@@ -48,7 +47,7 @@ class FailedTests
   def failed_cases_for_suite_collection
     suite_map.each_with_object(Hash.new { |h, k| h[k] = Set.new }) do |(suite_name, suite_collection_regex), hash|
       failed_suites.each do |suite|
-        hash[suite_name].merge(failed_cases(suite)) if suite['name'] =~ suite_collection_regex
+        hash[suite_name].merge(failed_cases(suite)) if suite_collection_regex.match?(suite['name'])
       end
     end
   end

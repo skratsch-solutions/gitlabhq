@@ -649,7 +649,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     end
 
     it 'has valid commit ids as keys' do
-      expect(subject.keys).to all( match(Commit::COMMIT_SHA_PATTERN) )
+      expect(subject.keys).to all(match(Commit::COMMIT_SHA_PATTERN))
     end
 
     it 'does not error when dereferenced_target is nil' do
@@ -1528,7 +1528,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
         it "returns the number of commits in the whole repository" do
           options = { all: true }
 
-          expect(repository.count_commits(options)).to eq(325)
+          expect(repository.count_commits(options)).to eq(328)
         end
       end
 
@@ -1652,6 +1652,36 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     end
   end
 
+  describe '#diff_blobs' do
+    let(:gitaly_diff_client) { double('Gitlab::GitalyClient::DiffService') }
+
+    # SHAs used are from https://gitlab.com/gitlab-org/gitlab-test.
+    let(:left_blob) { '1e292f8fedd741b75372e19097c76d327140c312' }
+    let(:right_blob) { 'ddd0f15ae83993f5cb66a927a28673882e99100b' }
+
+    let(:blob_pairs) do
+      [
+        Gitaly::DiffBlobsRequest::BlobPair.new(
+          left_blob: left_blob,
+          right_blob: right_blob
+        )
+      ]
+    end
+
+    before do
+      allow(repository).to receive(:gitaly_diff_client).and_return(gitaly_diff_client)
+      allow(gitaly_diff_client).to receive(:diff_blobs)
+
+      repository.diff_blobs(blob_pairs)
+    end
+
+    it 'passes the values to the diff client' do
+      expect(gitaly_diff_client)
+        .to have_received(:diff_blobs)
+        .with(blob_pairs)
+    end
+  end
+
   describe '#diff_stats' do
     let(:left_commit_id) { 'feature' }
     let(:right_commit_id) { 'master' }
@@ -1710,7 +1740,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     let(:commit_1_files) do
       [
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: "files/executables/ls", old_mode: "0", new_mode: "100755",
+          status: :ADDED, path: "files/executables/ls", old_path: '', old_mode: "0", new_mode: "100755",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: 'c84acd1ff0b844201312052f9bb3b7259eb2e177'
         )
       ]
@@ -1719,7 +1749,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     let(:commit_2_files) do
       [
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: "bar/branch-test.txt", old_mode: "0", new_mode: "100644",
+          status: :ADDED, path: "bar/branch-test.txt", old_path: '', old_mode: "0", new_mode: "100644",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '93e123ac8a3e6a0b600953d7598af629dec7b735'
         )
       ]
@@ -1728,11 +1758,11 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     let(:commit_3_files) do
       [
         Gitlab::Git::ChangedPath.new(
-          status: :MODIFIED, path: ".gitmodules", old_mode: "100644", new_mode: "100644",
+          status: :MODIFIED, path: ".gitmodules", old_path: '', old_mode: "100644", new_mode: "100644",
           old_blob_id: 'fdaada1754989978413d618ee1fb1c0469d6a664', new_blob_id: '0792c58905eff3432b721f8c4a64363d8e28d9ae'
         ),
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: "gitlab-shell", old_mode: "0", new_mode: "160000",
+          status: :ADDED, path: "gitlab-shell", old_path: '', old_mode: "0", new_mode: "160000",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '79bceae69cb5750d6567b223597999bfa91cb3b9'
         )
       ]
@@ -1741,15 +1771,15 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     let(:initial_commit_files) do
       [
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: ".gitignore", old_mode: "0", new_mode: "100644",
+          status: :ADDED, path: ".gitignore", old_path: '', old_mode: "0", new_mode: "100644",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '470ad2fcf1e33798f1afc5781d08e60c40f51e7a'
         ),
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: "LICENSE", old_mode: "0", new_mode: "100644",
+          status: :ADDED, path: "LICENSE", old_path: '', old_mode: "0", new_mode: "100644",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '50b27c6518be44c42c4d87966ae2481ce895624c'
         ),
         Gitlab::Git::ChangedPath.new(
-          status: :ADDED, path: "README.md", old_mode: "0", new_mode: "100644",
+          status: :ADDED, path: "README.md", old_path: '', old_mode: "0", new_mode: "100644",
           old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: 'faaf198af3a36dbf41961466703cc1d47c61d051'
         )
       ]
@@ -1786,7 +1816,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
       expect(collection.to_a).to be_empty
     end
 
-    describe 'merge_commit_diff_mode argument' do
+    describe 'optional arguments' do
       let(:gitaly_commit_client) { double('Gitlab::GitalyClient::CommitService') }
 
       before do
@@ -1799,24 +1829,38 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
           repository.find_changed_paths(['sha'])
         end
 
-        it 'defaults to nil' do
+        it 'returns default values' do
           expect(gitaly_commit_client)
             .to have_received(:find_changed_paths)
-            .with(['sha'], merge_commit_diff_mode: nil)
+            .with(['sha'], merge_commit_diff_mode: nil, find_renames: false)
         end
       end
 
-      context 'when included' do
-        let(:passed_value) { 'foobar' }
+      context 'merge_commit_diff_mode is given' do
+        let(:merge_commit_diff_mode) { 'foobar' }
 
         before do
-          repository.find_changed_paths(['sha'], merge_commit_diff_mode: passed_value)
+          repository.find_changed_paths(['sha'], merge_commit_diff_mode: merge_commit_diff_mode)
         end
 
         it 'passes the value on to the commit client' do
           expect(gitaly_commit_client)
             .to have_received(:find_changed_paths)
-            .with(['sha'], merge_commit_diff_mode: passed_value)
+            .with(['sha'], merge_commit_diff_mode: merge_commit_diff_mode, find_renames: false)
+        end
+      end
+
+      context 'find_names is included' do
+        let(:find_renames) { true }
+
+        before do
+          repository.find_changed_paths(['sha'], find_renames: find_renames)
+        end
+
+        it 'passes the value on to the commit client' do
+          expect(gitaly_commit_client)
+            .to have_received(:find_changed_paths)
+            .with(['sha'], merge_commit_diff_mode: nil, find_renames: find_renames)
         end
       end
     end
@@ -2111,6 +2155,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     let(:project) { create(:project, :repository) }
     let(:repository) { project.repository.raw }
     let(:branch_name) { "to-be-deleted-soon" }
+    let(:target_sha) { repository.commit(branch_name).sha }
 
     before do
       project.add_developer(user)
@@ -2118,7 +2163,7 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
     end
 
     it "removes the branch from the repo" do
-      repository.rm_branch(branch_name, user: user)
+      repository.rm_branch(branch_name, user: user, target_sha: target_sha)
 
       expect(repository.find_branch(branch_name)).to be_nil
     end
@@ -2980,6 +3025,350 @@ RSpec.describe Gitlab::Git::Repository, feature_category: :source_code_managemen
 
       it 'returns an empty set' do
         expect(generated_files).to eq Set.new
+      end
+    end
+  end
+
+  describe '#diffs_by_changed_path' do
+    let(:changed_paths) do
+      [
+        Gitlab::Git::ChangedPath.new(
+          status: :ADDED, path: "added_file.rb", old_path: '', old_mode: "0", new_mode: "100644",
+          old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '470ad2fcf1e33798f1afc5781d08e60c40f51e7a'
+        ),
+        Gitlab::Git::ChangedPath.new(
+          status: :RENAMED, path: "renamed_file.rb", old_path: 'original_file.rb', old_mode: "100644", new_mode: "100644",
+          old_blob_id: '93e123ac8a3e6a0b600953d7598af629dec7b735', new_blob_id: '50b27c6518be44c42c4d87966ae2481ce895624c'
+        ),
+        Gitlab::Git::ChangedPath.new(
+          status: :MODIFIED, path: "modified_file.rb", old_path: '', old_mode: "100644", new_mode: "100644",
+          old_blob_id: 'fdaada1754989978413d618ee1fb1c0469d6a664', new_blob_id: '0792c58905eff3432b721f8c4a64363d8e28d9ae'
+        ),
+        Gitlab::Git::ChangedPath.new(
+          status: :DELETED, path: "deleted_file.rb", old_path: '', old_mode: "100644", new_mode: "0",
+          old_blob_id: '79bceae69cb5750d6567b223597999bfa91cb3b9', new_blob_id: '0000000000000000000000000000000000000000'
+        )
+      ]
+    end
+
+    let(:diff_refs) do
+      Gitlab::Diff::DiffRefs.new(
+        base_sha: "913c66a37b4a45b9769037c55c2d238bd0942d2e",
+        head_sha: "874797c3a73b60d2187ed6e2fcabd289ff75171e"
+      )
+    end
+
+    let(:blob_pairs) do
+      changed_paths.map do |changed_path|
+        Gitaly::DiffBlobsRequest::BlobPair.new(
+          left_blob: changed_path.old_blob_id,
+          right_blob: changed_path.new_blob_id
+        )
+      end
+    end
+
+    let(:diff_blobs) do
+      changed_paths.map do |changed_path|
+        Gitlab::GitalyClient::DiffBlob.new(
+          left_blob_id: changed_path.old_blob_id,
+          right_blob_id: changed_path.new_blob_id,
+          patch: 'some content'
+        )
+      end
+    end
+
+    before do
+      allow(repository).to receive(:find_changed_paths)
+        .once
+        .with([kind_of(Gitlab::Git::DiffTree)], find_renames: true)
+        .and_return(changed_paths)
+    end
+
+    context 'diff file count is smaller than the default batch size' do
+      before do
+        allow(repository).to receive(:diff_blobs)
+          .once
+          .with(blob_pairs, anything)
+          .and_return(diff_blobs)
+      end
+
+      it 'returns diff filess in batches' do
+        diff_files = []
+
+        repository.diffs_by_changed_paths(diff_refs, 0) do |batch|
+          diff_files << batch
+        end
+
+        expect(diff_files.count).to eq 1
+
+        first_batch = diff_files[0]
+
+        expect(first_batch.count).to eq 4
+        expect(first_batch[0].new_path).to eq 'added_file.rb'
+        expect(first_batch[0].new_file?).to eq true
+        expect(first_batch[1].new_path).to eq 'renamed_file.rb'
+        expect(first_batch[1].renamed_file?).to eq true
+        expect(first_batch[2].new_path).to eq 'modified_file.rb'
+        expect(first_batch[2].new_file?).to eq false
+        expect(first_batch[3].new_path).to eq 'deleted_file.rb'
+        expect(first_batch[3].deleted_file?).to eq true
+      end
+    end
+
+    context 'offset is given' do
+      before do
+        allow(repository).to receive(:diff_blobs)
+          .once
+          .with(blob_pairs[3..], anything)
+          .and_return(diff_blobs[3..])
+      end
+
+      it 'returns diff filess in batches' do
+        diff_files = []
+
+        repository.diffs_by_changed_paths(diff_refs, 3) do |batch|
+          diff_files << batch
+        end
+
+        expect(diff_files.count).to eq 1
+
+        first_batch = diff_files[0]
+
+        expect(first_batch.count).to eq 1
+        expect(first_batch[0].new_path).to eq 'deleted_file.rb'
+        expect(first_batch[0].deleted_file?).to eq true
+      end
+    end
+
+    context 'batch_size is given' do
+      before do
+        allow(repository).to receive(:diff_blobs)
+          .once
+          .with(blob_pairs[..1], anything)
+          .and_return(diff_blobs[..1])
+
+        allow(repository).to receive(:diff_blobs)
+          .once
+          .with(blob_pairs[2..], anything)
+          .and_return(diff_blobs[2..])
+      end
+
+      it 'returns diff filess in batches' do
+        diff_files = []
+
+        repository.diffs_by_changed_paths(diff_refs, 0, 2) do |batch|
+          diff_files << batch
+        end
+
+        expect(diff_files.count).to eq 2
+
+        first_batch = diff_files[0]
+        second_batch = diff_files[1]
+
+        expect(first_batch.count).to eq 2
+        expect(first_batch[0].new_path).to eq 'added_file.rb'
+        expect(first_batch[0].new_file?).to eq true
+        expect(first_batch[1].new_path).to eq 'renamed_file.rb'
+        expect(first_batch[1].renamed_file?).to eq true
+        expect(second_batch.count).to eq 2
+        expect(second_batch[0].new_path).to eq 'modified_file.rb'
+        expect(second_batch[0].new_file?).to eq false
+        expect(second_batch[1].new_path).to eq 'deleted_file.rb'
+        expect(second_batch[1].deleted_file?).to eq true
+      end
+    end
+
+    context 'with submodules' do
+      let(:regular_changed_path) do
+        [
+          Gitlab::Git::ChangedPath.new(
+            status: :ADDED, path: "added_file.rb", old_path: '', old_mode: "0", new_mode: "100644",
+            old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '470ad2fcf1e33798f1afc5781d08e60c40f51e7a'
+          ),
+          Gitlab::Git::ChangedPath.new(
+            status: :ADDED, path: ".gitmodules", old_path: ".gitmodules", old_mode: "0", new_mode: "100644",
+            old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '0fdd9b6f2451a4c35ef4c05bcc0cb017d152a7e9'
+          )
+        ]
+      end
+
+      let(:submodule_changed_path) do
+        [
+          Gitlab::Git::ChangedPath.new(
+            status: :ADDED, path: "gitlab-shell", old_path: 'gitlab-shell', old_mode: "0", new_mode: "160000",
+            old_blob_id: '0000000000000000000000000000000000000000', new_blob_id: '41e7648c55978e526752c69bdaeaaaa3b45b314b'
+          )
+        ]
+      end
+
+      let(:changed_paths) do
+        regular_changed_path + submodule_changed_path
+      end
+
+      let(:blob_pairs) do
+        regular_changed_path.map do |changed_path|
+          Gitaly::DiffBlobsRequest::BlobPair.new(
+            left_blob: changed_path.old_blob_id,
+            right_blob: changed_path.new_blob_id
+          )
+        end
+      end
+
+      let(:diff_blobs) do
+        regular_changed_path.map do |changed_path|
+          Gitlab::GitalyClient::DiffBlob.new(
+            left_blob_id: changed_path.old_blob_id,
+            right_blob_id: changed_path.new_blob_id,
+            patch: 'some content'
+          )
+        end
+      end
+
+      before do
+        allow(repository).to receive(:diff_blobs)
+          .once
+          .with(blob_pairs, anything)
+          .and_return(diff_blobs)
+      end
+
+      it 'returns diff files including submodules' do
+        diff_files = []
+
+        repository.diffs_by_changed_paths(diff_refs, 0) do |batch|
+          diff_files << batch
+        end
+
+        expect(diff_files.count).to eq 1
+
+        first_batch = diff_files[0]
+
+        expect(first_batch.count).to eq 3
+        expect(first_batch[0].new_path).to eq 'added_file.rb'
+        expect(first_batch[0].new_file?).to eq true
+        expect(first_batch[1].new_path).to eq '.gitmodules'
+        expect(first_batch[1].new_file?).to eq true
+        expect(first_batch[2].new_path).to eq 'gitlab-shell'
+        expect(first_batch[2].new_file?).to eq true
+        expect(first_batch[2].diff.diff).to eq "+ Subproject commit 41e7648c55978e526752c69bdaeaaaa3b45b314b"
+      end
+
+      context 'when submodule is modified' do
+        let(:regular_changed_path) { [] }
+        let(:submodule_changed_path) do
+          [
+            Gitlab::Git::ChangedPath.new(
+              status: :MODIFIED, path: "gitlab-shell", old_path: '', old_mode: "160000", new_mode: "160000",
+              old_blob_id: '41e7648c55978e526752c69bdaeaaaa3b45b314b', new_blob_id: '36b096e40ae7aaa37d85a9038c007f8e70761e64'
+            )
+          ]
+        end
+
+        it 'returns diff files including submodules' do
+          diff_files = []
+
+          repository.diffs_by_changed_paths(diff_refs, 0) do |batch|
+            diff_files << batch
+          end
+
+          expect(diff_files.count).to eq 1
+
+          first_batch = diff_files[0]
+
+          expect(first_batch.count).to eq 1
+          expect(first_batch[0].diff.diff).to eq "- Subproject commit 41e7648c55978e526752c69bdaeaaaa3b45b314b\n+ Subproject commit 36b096e40ae7aaa37d85a9038c007f8e70761e64"
+        end
+      end
+
+      context 'when submodule is deleted' do
+        let(:regular_changed_path) do
+          [
+            Gitlab::Git::ChangedPath.new(
+              status: :DELETED, path: ".gitmodules", old_path: '', old_mode: "100644", new_mode: "0",
+              old_blob_id: '79bceae69cb5750d6567b223597999bfa91cb3b9', new_blob_id: '0000000000000000000000000000000000000000'
+            )
+          ]
+        end
+
+        let(:submodule_changed_path) do
+          [
+            Gitlab::Git::ChangedPath.new(
+              status: :DELETED, path: "gitlab-shell", old_path: '', old_mode: "160000", new_mode: "0",
+              old_blob_id: '41e7648c55978e526752c69bdaeaaaa3b45b314b', new_blob_id: '0000000000000000000000000000000000000000'
+            )
+          ]
+        end
+
+        it 'returns diff files including submodules' do
+          diff_files = []
+
+          repository.diffs_by_changed_paths(diff_refs, 0) do |batch|
+            diff_files << batch
+          end
+
+          expect(diff_files.count).to eq 1
+
+          first_batch = diff_files[0]
+
+          expect(first_batch.count).to eq 2
+          expect(first_batch[0].new_path).to eq '.gitmodules'
+          expect(first_batch[0].deleted_file?).to eq true
+          expect(first_batch[1].new_path).to eq 'gitlab-shell'
+          expect(first_batch[1].deleted_file?).to eq true
+          expect(first_batch[1].diff.diff).to eq "- Subproject commit 41e7648c55978e526752c69bdaeaaaa3b45b314b"
+        end
+      end
+    end
+  end
+
+  describe '#gitaly_diff_client' do
+    it 'instantiates a new DiffService class' do
+      expect(repository.gitaly_diff_client).to be_a(Gitlab::GitalyClient::DiffService)
+    end
+  end
+
+  describe '#cherry_pick' do
+    let(:commit) { mutable_repository.commit('7d3b0f7cff5f37573aea97cebfd5692ea1689924') }
+    let(:target_sha) { mutable_repository.commit.id }
+    let(:args) do
+      {
+        user: user,
+        message: 'message',
+        commit: commit,
+        branch_name: 'master',
+        target_sha: target_sha,
+        start_branch_name: 'master',
+        start_repository: mutable_repository
+      }
+    end
+
+    subject(:cherry_pick) do
+      mutable_repository.cherry_pick(**args)
+    end
+
+    it 'delegates to user_cherry_pick' do
+      expect_next_instance_of(Gitlab::GitalyClient::OperationService) do |service|
+        expect(service).to receive(:user_cherry_pick).with(a_hash_including(args)).and_call_original
+      end
+
+      cherry_pick
+    end
+
+    context 'when target_sha does not exist' do
+      let(:target_sha) { '0000000000000000000000000000000000000000' }
+
+      it 'raises an error' do
+        expect { cherry_pick }.to raise_error(Gitlab::Git::CommandError)
+      end
+    end
+
+    context 'when branch changes after target sha' do
+      before do
+        target_sha
+        mutable_project.repository.create_file(user, 'somefile', '', message: 'add a file', branch_name: 'master')
+      end
+
+      it 'raises an error' do
+        expect { cherry_pick }.to raise_error(Gitlab::Git::CommandError)
       end
     end
   end

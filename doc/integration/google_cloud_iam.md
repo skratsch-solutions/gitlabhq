@@ -1,39 +1,93 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Google Cloud workload identity federation and IAM policies
+# Google Cloud Workload Identity Federation and IAM policies
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
 **Offering:** GitLab.com
-**Status:** Beta
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141127) in GitLab 16.10 [with a flag](../administration/feature_flags.md) named `google_cloud_support_feature_flag`. This feature is in [beta](../policy/experiment-beta-support.md).
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141127) in GitLab 16.10 [with a flag](../administration/feature_flags.md) named `google_cloud_support_feature_flag`.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/150472) in GitLab 17.1. Feature flag `google_cloud_support_feature_flag` removed.
-
-This feature is in [beta](../policy/experiment-beta-support.md).
 
 To use Google Cloud integrations like the
 [Google Artifact Management integration](../user/project/integrations/google_artifact_management.md),
 you must create and configure a
 [workload identity pool and provider](https://cloud.google.com/iam/docs/workload-identity-federation).
-The Google Cloud integration uses the workload identity federation to
+The Google Cloud integration uses Workload Identity Federation to
 grant GitLab workloads access to Google Cloud resources through OpenID Connect
 (OIDC) by using JSON Web Token (JWT) tokens.
 
-## Create and configure a workload identity federation
+## Workload Identity Federation
 
-To set up the workload identity federation you can either:
+Workload Identity Federation lets you use Identity and Access Management (IAM) to grant
+external identities [IAM roles](https://cloud.google.com/iam/docs/overview#roles).
+
+Traditionally, applications running outside Google Cloud used
+[service account keys](https://cloud.google.com/iam/docs/service-account-creds#key-types)
+to access Google Cloud resources. However, service account keys are powerful
+credentials, and can present a security risk if they are not managed
+correctly.
+
+With identity federation, you can use Identity and Access Management (IAM) to grant
+external identities IAM roles
+directly, without requiring service accounts. This approach
+eliminates the maintenance and security burden associated with service
+accounts and their keys.
+
+## Workload identity pools
+
+A _workload identity pool_ is an entity that lets you manage
+non-Google identities on Google Cloud.
+
+The GitLab on Google Cloud integration walks you through setting up a workload
+identity pool to authenticate to Google Cloud. This setup includes
+mapping your GitLab role attributes to IAM claims in your
+Google Cloud IAM policy. For a full list of available GitLab
+attributes for the GitLab on Google Cloud integration, see
+[OIDC custom claims](#oidc-custom-claims).
+
+## Workload identity pool providers
+
+A _workload identity pool provider_ is an entity that describes a relationship
+between Google Cloud and your Identity provider (IdP). GitLab is the
+IdP for your workload identity pool for the GitLab on Google Cloud integration.
+
+For more information on identity federation for external workloads, see
+[Workload Identity Federation](https://cloud.google.com/iam/docs/workload-identity-federation).
+
+The default GitLab on Google Cloud integration assumes you want to set up your authentication from
+GitLab to Google Cloud at the GitLab organization level. If you want to control
+access to Google Cloud on a per project basis, then you must configure your
+IAM policies for your workload identity pool provider. For more
+information on controlling who can access Google Cloud from your GitLab
+organization, see [Access control with IAM](https://cloud.google.com/docs/gitlab/access-control).
+
+## GitLab authentication with Workload Identity Federation
+
+After your workload identity pool and provider are set up to map your GitLab
+roles and permissions to IAM roles, you can provision runners
+to deploy workloads from GitLab to Google Cloud by setting the
+[`identity`](../ci/yaml/index.md#identity) keyword to
+`google_cloud` for authorization on Google Cloud.
+
+For more information on provisioning runners using the GitLab on Google Cloud integration, see the
+tutorial
+[Provisioning runners in Google Cloud](../ci/runners/provision_runners_google_cloud.md).
+
+## Create and configure a Workload Identity Federation
+
+To set up the Workload Identity Federation you can either:
 
 - Use the GitLab UI for a guided setup.
-- Use the Google Cloud CLI to set up the workload identity federation manually.
+- Use the Google Cloud CLI to set up the Workload Identity Federation manually.
 
 ### With the GitLab UI
 
-To use the GitLab UI to set up the workload identity federation:
+To use the GitLab UI to set up the Workload Identity Federation:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > Integrations**.
@@ -52,7 +106,7 @@ Prerequisites:
 - The Google Cloud CLI must be [installed and authenticated](https://cloud.google.com/sdk/docs/install)
   with Google Cloud.
 - You must have the [permissions](https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers#required-roles)
-  to manage workload identity federation in Google Cloud.
+  to manage Workload Identity Federation in Google Cloud.
 
 1. Create a workload identity pool with the following command. Replace these
    values:
@@ -63,7 +117,7 @@ Prerequisites:
   separate from resources and CI/CD projects.
    - `<your_identity_pool_id>` with the ID to use for the pool, which must
   be 4 to 32 lowercase letters, digits, or hyphens. To avoid collisions, use a
-  unique ID. It is recommended to include the GitLab project ID or project path
+  unique ID. You should include the GitLab project ID or project path
   as it facilitates IAM policy management. For example,
   `gitlab-my-project-name`.
 
@@ -79,7 +133,7 @@ Prerequisites:
 
    - `<your_identity_provider_id>` with the ID to use for the provider, which
      must be 4 to 32 lowercase letters, digits, or hyphens. To avoid
-     collisions, use a unique ID within the identity pool. For example,
+     collisions, use a unique ID in the identity pool. For example,
      `gitlab`.
    - `<your_google_cloud_project_id>` with your
      [Google Cloud project ID](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects).
@@ -88,8 +142,8 @@ Prerequisites:
    - `<your_issuer_uri>` with your identity provider issuer URI, which can be
      can be copied from the IAM integration page when choosing
      manual setup and must exactly match the value. The parameter must include
-     the path of the root group. For example, if the project is under
-     `my-root-group/my-sub-group/project-a`, the `issuer-uri` must be set to
+     the path of the top-level group. For example, if the project is under
+     `my-root-group/my-subgroup/project-a`, the `issuer-uri` must be set to
      `https://auth.gcp.gitlab.com/oidc/my-root-group`.
 
    ```shell
@@ -149,8 +203,8 @@ The ID token includes the following custom claims:
 | `namespace_path`        | On project events         | Path of the group or user level namespace.                                                               |
 | `project_id`            | On project events         | ID of the project.                                                                                       |
 | `project_path`          | On project events         | Path of the project.                                                                                     |
-| `root_namespace_id`     | On group events           | ID of the root group or user level namespace.                                                            |
-| `root_namespace_path`   | On group events           | Path of the root group or user level namespace.                                                          |
+| `root_namespace_id`     | On group events           | ID of the top-level group or user level namespace.                                                            |
+| `root_namespace_path`   | On group events           | Path of the top-level group or user level namespace.                                                          |
 | `user_id`               | On user-trigged events    | ID of the user.                                                                                          |
 | `user_login`            | On user-trigged events    | Username of the user.                                                                                    |
 | `user_email`            | On user-trigged events    | Email of the user.                                                                                       |
@@ -182,3 +236,76 @@ These claims are a superset of the
 [ID token claims](../ci/secrets/id_token_authentication.md#token-payload).
 All values are of type string. See the ID token claims documentation for more
 details and example values.
+
+## Control access to Google Cloud
+
+When you [set up a Workload Identity Federation](#create-and-configure-a-workload-identity-federation),
+many of the standard GitLab claims (for example, `user_access_level`) are automatically mapped to
+Google Cloud attributes.
+
+You can further customize who can access Google Cloud from your GitLab organization.
+To do this, you use [Common Expression Language (CEL)](https://github.com/google/cel-spec/blob/master/doc/intro.md#introduction)
+to set principals based on the [OIDC custom attributes](#oidc-custom-claims) for the GitLab on Google Cloud integration.
+
+For example, to allow users with the `maintainer` role in GitLab to push
+artifacts to the Google Artifact Registry from the GitLab project `gitlab-org/my-project`:
+
+1. Sign into the Google Cloud Console and go to the
+   [**Workload Identity Federation** page](https://console.cloud.google.com/iam-admin/workload-identity-pools?supportedpurview=project).
+
+1. In the **Display name** column, select your workload identity pool.
+
+1. In the **Providers** section, next to the workload identity provider you want to edit,
+   select **Edit** (**{pencil}**) to open **Provider details**.
+
+1. In the **Attribute mapping** section, select **Add mapping**.
+1. In the **Google N** text box, enter:
+
+   ```shell
+   attribute.my_project_maintainer
+   ```
+
+1. In the **OIDC N** text box, enter the following CEL expression:
+
+   ```shell
+   assertion.maintainer_access=="true" && assertion.project_path=="gitlab-org/my-project"
+   ```
+
+1. Select **Save**.
+
+   The Google attribute `my_project_maintainer` is mapped to the GitLab claims
+   `maintainer_access==true` and the `project_path=="gitlab-org/my-project"`.
+
+1. In the Google Cloud Console, go to the [**IAM** page](https://console.cloud.google.com/iam-admin/iam?supportedpurview=project).
+
+1. Select **Grant access**.
+1. In the **New principals** text box, enter the principal set including the
+   `attribute.my_project_maintainer/true` in the following format:
+
+   ```shell
+   principalSet://iam.googleapis.com/projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/<POOL_ID>/attribute.my_project_maintainer/true
+   ```
+
+   Replace the following:
+
+   - `<PROJECT_NUMBER>` with your Google Cloud project number. To find
+     your project number, see [Identifying projects](https://cloud.google.com/resource-manager/docs/creating-managing-projects#identifying_projects).
+   - `<POOL_ID>` with your workload identity pool ID.
+
+1. In the **Select a role** dropdown list, select **Google Artifact Registry Writer role**
+   (`roles/artifactregistry.writer`).
+1. Select **Save**.
+
+The role is granted to the principal set containing users with the `maintainer`
+role in GitLab on the project `gitlab-org/my-project`.
+
+To prevent your other GitLab projects from pushing artifacts to the Google Artifact Registry, you
+can view your IAM policies in the Google Cloud Console, and
+remove or edit roles as required.
+
+## View your IAM policies
+
+Sign into the Google Cloud Console and go to the
+[**IAM** page](https://console.google.com/iam-admin/iam?supportedpurview=project)
+
+You can select either **View by principals** or **View by roles**.

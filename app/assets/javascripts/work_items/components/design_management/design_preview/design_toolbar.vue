@@ -1,8 +1,11 @@
 <script>
 import { GlButton, GlIcon, GlSkeletonLoader, GlTooltipDirective } from '@gitlab/ui';
+import { isLoggedIn } from '~/lib/utils/common_utils';
 import { TYPE_DESIGN } from '~/import/constants';
 import { s__ } from '~/locale';
 import ImportedBadge from '~/vue_shared/components/imported_badge.vue';
+import TodosToggle from '../../shared/todos_toggle.vue';
+import ArchiveDesignButton from '../archive_design_button.vue';
 import CloseButton from './close_button.vue';
 import DesignNavigation from './design_navigation.vue';
 
@@ -11,7 +14,9 @@ export default {
     downloadButtonLabel: s__('DesignManagement|Download design'),
     hideCommentsButtonLabel: s__('DesignManagement|Hide comments'),
     showCommentsButtonLabel: s__('DesignManagement|Show comments'),
+    archiveButtonLabel: s__('DesignManagement|Archive design'),
   },
+  isLoggedIn: isLoggedIn(),
   components: {
     GlButton,
     GlIcon,
@@ -19,6 +24,8 @@ export default {
     ImportedBadge,
     CloseButton,
     DesignNavigation,
+    TodosToggle,
+    ArchiveDesignButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -40,11 +47,20 @@ export default {
       type: Boolean,
       required: true,
     },
+    isLatestVersion: {
+      type: Boolean,
+      required: true,
+    },
     isSidebarOpen: {
       type: Boolean,
       required: true,
     },
     allDesigns: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    currentUserDesignTodos: {
       type: Array,
       required: false,
       default: () => [],
@@ -63,17 +79,17 @@ export default {
 
 <template>
   <header
-    class="gl-flex gl-flex-col md:gl-flex-row md:gl-items-center gl-justify-between gl-max-w-full gl-bg-white gl-py-4 gl-pl-5 gl-border-b js-design-header"
+    class="js-design-header gl-border-b gl-flex gl-max-w-full gl-flex-col gl-justify-between gl-bg-white gl-py-4 gl-pl-5 md:gl-flex-row md:gl-items-center"
   >
-    <div class="gl-flex gl-flex-row gl-items-center gl-mb-3 md:gl-mb-0 gl-overflow-hidden">
-      <div class="gl-overflow-hidden gl-flex gl-mr-3">
+    <div class="gl-mb-3 gl-flex gl-flex-row gl-items-center gl-overflow-hidden md:gl-mb-0">
+      <div class="gl-mr-3 gl-flex gl-overflow-hidden">
         <gl-skeleton-loader v-if="isLoading" :lines="1" />
-        <h2 v-else class="gl-flex gl-items-center gl-overflow-hidden gl-m-0 gl-text-base">
-          <span class="gl-text-truncate gl-text-gray-900 gl-no-underline">
+        <h2 v-else class="gl-m-0 gl-flex gl-items-center gl-overflow-hidden gl-text-base">
+          <span class="gl-truncate gl-text-heading gl-no-underline">
             {{ workItemTitle }}
           </span>
-          <gl-icon name="chevron-right" class="gl-text-gray-200 gl-flex-shrink-0" />
-          <span class="gl-text-truncate gl-font-normal">{{ design.filename }}</span>
+          <gl-icon name="chevron-right" class="gl-shrink-0" variant="disabled" />
+          <span class="gl-truncate gl-font-normal">{{ design.filename }}</span>
           <imported-badge
             v-if="design.imported"
             :importable-type="$options.TYPE_DESIGN"
@@ -81,9 +97,19 @@ export default {
           />
         </h2>
       </div>
-      <close-button class="md:gl-hidden gl-ml-auto" />
+      <close-button class="gl-ml-auto md:gl-hidden" />
     </div>
-    <div class="gl-flex md:gl-flex-row gl-flex-shrink-0 gl-md-ml-auto gl-mr-5">
+    <div
+      v-if="!isLoading && design.id"
+      class="gl-mr-5 gl-flex gl-shrink-0 md:gl-ml-auto md:gl-flex-row"
+    >
+      <todos-toggle
+        v-if="$options.isLoggedIn"
+        :item-id="design.id"
+        :current-user-todos="currentUserDesignTodos"
+        todos-button-type="tertiary"
+        @todosUpdated="$emit('todosUpdated', $event)"
+      />
       <gl-button
         v-gl-tooltip.bottom
         category="tertiary"
@@ -92,6 +118,17 @@ export default {
         icon="download"
         :title="$options.i18n.downloadButtonLabel"
         :aria-label="$options.i18n.downloadButtonLabel"
+      />
+      <archive-design-button
+        v-if="isLatestVersion"
+        v-gl-tooltip.bottom
+        button-size="medium"
+        :title="$options.i18n.archiveButtonLabel"
+        :aria-label="$options.i18n.archiveButtonLabel"
+        button-icon="archive"
+        class="gl-ml-2"
+        button-category="tertiary"
+        @archive-selected-designs="$emit('archive-design')"
       />
       <gl-button
         v-gl-tooltip.bottom

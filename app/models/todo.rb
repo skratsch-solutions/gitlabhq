@@ -23,7 +23,9 @@ class Todo < ApplicationRecord
   MEMBER_ACCESS_REQUESTED = 10
   REVIEW_SUBMITTED = 11 # This is an EE-only feature
   OKR_CHECKIN_REQUESTED = 12 # This is an EE-only feature
-  ADDED_APPROVER = 13 # This is an EE-only feature
+  ADDED_APPROVER = 13 # This is an EE-only feature,
+  SSH_KEY_EXPIRED = 14
+  SSH_KEY_EXPIRING_SOON = 15
 
   ACTION_NAMES = {
     ASSIGNED => :assigned,
@@ -38,7 +40,9 @@ class Todo < ApplicationRecord
     MEMBER_ACCESS_REQUESTED => :member_access_requested,
     REVIEW_SUBMITTED => :review_submitted,
     OKR_CHECKIN_REQUESTED => :okr_checkin_requested,
-    ADDED_APPROVER => :added_approver
+    ADDED_APPROVER => :added_approver,
+    SSH_KEY_EXPIRED => :ssh_key_expired,
+    SSH_KEY_EXPIRING_SOON => :ssh_key_expiring_soon
   }.freeze
 
   ACTIONS_MULTIPLE_ALLOWED = [Todo::MENTIONED, Todo::DIRECTLY_ADDRESSED, Todo::MEMBER_ACCESS_REQUESTED].freeze
@@ -64,10 +68,12 @@ class Todo < ApplicationRecord
   validates :author, presence: true
   validates :target_id, presence: true, unless: :for_commit?
   validates :commit_id, presence: true, if: :for_commit?
-  validates :project, presence: true, unless: :group_id
-  validates :group, presence: true, unless: :project_id
+  validates :project, presence: true, unless: -> { group_id || for_ssh_key? }
+  validates :group, presence: true, unless: -> { project_id || for_ssh_key? }
 
   scope :pending, -> { with_state(:pending) }
+  scope :snoozed, -> { where(arel_table[:snoozed_until].gt(Time.current)) }
+  scope :not_snoozed, -> { where(arel_table[:snoozed_until].lteq(Time.current)).or(where(snoozed_until: nil)) }
   scope :done, -> { with_state(:done) }
   scope :for_action, ->(action) { where(action: action) }
   scope :for_author, ->(author) { where(author: author) }
@@ -86,6 +92,9 @@ class Todo < ApplicationRecord
   scope :joins_issue_and_assignees, -> { left_joins(issue: :assignees) }
   scope :for_internal_notes, -> { joins(:note).where(note: { confidential: true }) }
   scope :with_preloaded_user, -> { preload(:user) }
+  scope :without_banned_user, -> { joins("LEFT JOIN banned_users ON todos.author_id = banned_users.user_id").where(banned_users: { user_id: nil }) }
+  scope :pending_without_hidden, -> { pending.without_banned_user }
+  scope :all_without_hidden, -> { without_banned_user.or(where.not(state: :pending)) }
 
   enum resolved_by_action: { system_done: 0, api_all_done: 1, api_done: 2, mark_all_done: 3, mark_done: 4 }, _prefix: :resolved_by
 
@@ -97,8 +106,6 @@ class Todo < ApplicationRecord
     state :pending
     state :done
   end
-
-  after_save :keep_around_commit, if: :commit_id
 
   class << self
     # Returns all todos for the given group ids and their descendants.
@@ -119,6 +126,15 @@ class Todo < ApplicationRecord
           for_project(Project.for_group(groups_and_descendants)),
           for_group(groups_and_descendants)
         ], remove_duplicates: false)
+    end
+
+    def pending_for_expiring_ssh_keys(ssh_key_ids)
+      where(
+        target_type: Key,
+        target_id: ssh_key_ids,
+        action: ::Todo::SSH_KEY_EXPIRING_SOON,
+        state: :pending
+      )
     end
 
     # Returns `true` if the current user has any todos for the given target with the optional given state.
@@ -146,8 +162,13 @@ class Todo < ApplicationRecord
     #
     # Returns an `Array` containing the IDs of the updated todos.
     def batch_update(**new_attributes)
+      # We force a `WHERE todo.id IN ()` SQL clause to circumvent issues where resolving todos
+      # associated to a specific group would also resolve other todos due to limitations of the
+      # `update_all` which doesn't handle UNIONs well.
+      ids_to_update = select(:id)
+      todos_to_update = where(id: ids_to_update)
       # Only update those that have different state
-      base = where.not(state: new_attributes[:state]).except(:order)
+      base = todos_to_update.where.not(state: new_attributes[:state]).except(:order)
       ids = base.pluck(:id)
 
       base.update_all(new_attributes.merge(updated_at: Time.current))
@@ -308,6 +329,10 @@ class Todo < ApplicationRecord
     [Issue.name, WorkItem.name].any?(target_type)
   end
 
+  def for_ssh_key?
+    target_type == Key.name
+  end
+
   # override to return commits, which are not active record
   def target
     if for_commit?
@@ -331,6 +356,31 @@ class Todo < ApplicationRecord
     end
   end
 
+  def target_url
+    return if target.nil?
+
+    case target
+    when WorkItem
+      build_work_item_target_url
+    when Issue
+      build_issue_target_url
+    when MergeRequest
+      build_merge_request_target_url
+    when ::DesignManagement::Design
+      build_design_target_url
+    when ::AlertManagement::Alert
+      build_alert_target_url
+    when Commit
+      build_commit_target_url
+    when Project
+      build_project_target_url
+    when Group
+      build_group_target_url
+    when Key
+      build_ssh_key_target_url
+    end
+  end
+
   def self_added?
     author == user
   end
@@ -339,10 +389,86 @@ class Todo < ApplicationRecord
     self_added? && (assigned? || review_requested?)
   end
 
-  private
-
   def keep_around_commit
     project.repository.keep_around(self.commit_id, source: self.class.name)
+  end
+
+  private
+
+  def build_work_item_target_url
+    ::Gitlab::UrlBuilder.build(
+      target,
+      anchor: note.present? ? ActionView::RecordIdentifier.dom_id(note) : nil
+    )
+  end
+
+  def build_issue_target_url
+    ::Gitlab::UrlBuilder.build(
+      target,
+      anchor: note.present? ? ActionView::RecordIdentifier.dom_id(note) : nil
+    )
+  end
+
+  def build_merge_request_target_url
+    path = [target.project, target]
+    path.unshift(:pipelines) if build_failed?
+
+    ::Gitlab::Routing.url_helpers.polymorphic_url(
+      path,
+      {
+        anchor: note.present? ? ActionView::RecordIdentifier.dom_id(note) : nil
+      }
+    )
+  end
+
+  def build_design_target_url
+    ::Gitlab::Routing.url_helpers.designs_project_issue_url(
+      target.project,
+      target.issue,
+      {
+        anchor: note.present? ? ActionView::RecordIdentifier.dom_id(note) : nil,
+        vueroute: target.filename
+      }
+    )
+  end
+
+  def build_alert_target_url
+    ::Gitlab::Routing.url_helpers.details_project_alert_management_url(
+      target.project,
+      target
+    )
+  end
+
+  def build_commit_target_url
+    ::Gitlab::Routing.url_helpers.project_commit_url(
+      target.project,
+      target,
+      {
+        anchor: note.present? ? ActionView::RecordIdentifier.dom_id(note) : nil
+      }
+    )
+  end
+
+  def build_project_target_url
+    return unless member_access_requested?
+
+    ::Gitlab::Routing.url_helpers.project_project_members_url(
+      target,
+      tab: 'access_requests'
+    )
+  end
+
+  def build_group_target_url
+    return unless member_access_requested?
+
+    ::Gitlab::Routing.url_helpers.group_group_members_url(
+      target,
+      tab: 'access_requests'
+    )
+  end
+
+  def build_ssh_key_target_url
+    ::Gitlab::Routing.url_helpers.user_settings_ssh_key_url(target)
   end
 end
 

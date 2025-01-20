@@ -88,7 +88,8 @@ module ObjectStorage
             PathStyle: config.use_path_style?,
             UseIamProfile: config.use_iam_profile?,
             ServerSideEncryption: config.server_side_encryption,
-            SSEKMSKeyID: config.server_side_encryption_kms_key_id
+            SSEKMSKeyID: config.server_side_encryption_kms_key_id,
+            AwsSDK: "v2"
           }.compact
         }
       }

@@ -9,9 +9,10 @@ time_frame: 28d
 data_source: database
 distribution:
 - ee
-tier:
+tiers:
 - premium
 - ultimate
 performance_indicator_type:
 - customer_health_score
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

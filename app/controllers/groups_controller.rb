@@ -41,7 +41,7 @@ class GroupsController < Groups::ApplicationController
     push_force_frontend_feature_flag(:work_items_beta, group.work_items_beta_feature_flag_enabled?)
     push_force_frontend_feature_flag(:work_items_alpha, group.work_items_alpha_feature_flag_enabled?)
     push_frontend_feature_flag(:issues_grid_view)
-    push_frontend_feature_flag(:group_multi_select_tokens, group)
+    push_frontend_feature_flag(:issues_list_drawer, group)
     push_force_frontend_feature_flag(:namespace_level_work_items, group.namespace_work_items_enabled?)
   end
 
@@ -94,9 +94,15 @@ class GroupsController < Groups::ApplicationController
       successful_creation_hooks
 
       notice = if @group.chat_team.present?
-                 format(_("Group %{group_name} and its Mattermost team were successfully created."), group_name: @group.name)
+                 format(
+                   _("Group %{group_name} and its Mattermost team were successfully created."),
+                   group_name: @group.name
+                 )
                else
-                 format(_("Group %{group_name} was successfully created."), group_name: @group.name)
+                 format(
+                   _("Group %{group_name} was successfully created."),
+                   group_name: @group.name
+                 )
                end
 
       redirect_to @group, notice: notice
@@ -154,9 +160,14 @@ class GroupsController < Groups::ApplicationController
 
   def update
     if Groups::UpdateService.new(@group, current_user, group_params).execute
-      notice = "Group '#{@group.name}' was successfully updated."
 
-      redirect_to edit_group_origin_location, notice: notice
+      if @group.namespace_settings.errors.present?
+        flash[:alert] = group.namespace_settings.errors.full_messages.to_sentence
+      else
+        flash[:notice] = "Group '#{@group.name}' was successfully updated."
+      end
+
+      redirect_to edit_group_origin_location
     else
       @group.reset
       render action: "edit"
@@ -202,19 +213,23 @@ class GroupsController < Groups::ApplicationController
     )
 
     if export_service.async_execute
-      redirect_to edit_group_path(@group), notice: _('Group export started. A download link will be sent by email and made available on this page.')
+      redirect_to edit_group_path(@group),
+        notice: _('Group export started. A download link will be sent by email and made available on this page.')
     else
       redirect_to edit_group_path(@group), alert: _('Group export could not be started.')
     end
   end
 
   def download_export
-    if @group.export_file_exists?
-      if @group.export_archive_exists?
-        send_upload(@group.export_file, attachment: @group.export_file.filename)
+    if @group.export_file_exists?(current_user)
+      if @group.export_archive_exists?(current_user)
+        export_file = @group.export_file(current_user)
+        send_upload(export_file, attachment: export_file.filename)
       else
         redirect_to edit_group_path(@group),
-          alert: _('The file containing the export is not available yet; it may still be transferring. Please try again later.')
+          alert: _(
+            'The file containing the export is not available yet; it may still be transferring. Please try again later.'
+          )
       end
     else
       redirect_to edit_group_path(@group),
@@ -343,17 +358,14 @@ class GroupsController < Groups::ApplicationController
   end
 
   def successful_creation_hooks
-    update_user_role_and_setup_for_company
+    update_user_setup_for_company
   end
 
-  def update_user_role_and_setup_for_company
-    user_params = params.fetch(:user, {}).permit(:role)
+  def update_user_setup_for_company
+    return if @group.setup_for_company.nil? || current_user.setup_for_company.present?
 
-    if !@group.setup_for_company.nil? && current_user.setup_for_company.nil?
-      user_params[:setup_for_company] = @group.setup_for_company
-    end
-
-    Users::UpdateService.new(current_user, user_params.merge(user: current_user)).execute if user_params.present?
+    Users::UpdateService.new(current_user,
+      { setup_for_company: @group.setup_for_company }.merge(user: current_user)).execute
   end
 
   def groups

@@ -8,7 +8,6 @@ export default {
   components: {
     AwardsList,
   },
-  inject: ['isGroup'],
   props: {
     fullPath: {
       type: String,
@@ -71,7 +70,6 @@ export default {
             note: this.note,
             name,
             fullPath: this.fullPath,
-            isGroup: this.isGroup,
             workItemIid: this.workItemIid,
           }),
         });
@@ -90,7 +88,6 @@ export default {
     :awards="awards"
     :can-award-emoji="hasAwardEmojiPermission"
     :current-user-id="currentUserId"
-    class="gl-px-2"
     @award="handleAward($event)"
   />
 </template>

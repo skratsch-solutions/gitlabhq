@@ -6,12 +6,9 @@ import {
   convertToSentenceCase,
   splitCamelCase,
 } from '~/lib/utils/text_utility';
-import { isSafeURL } from '~/lib/utils/url_utility';
+import { isValidURL } from '~/lib/utils/url_utility';
 import { s__ } from '~/locale';
 import { PAGE_CONFIG } from '~/vue_shared/alert_details/constants';
-
-const thClass = 'gl-bg-transparent! gl-border-1! gl-border-b-solid! gl-border-gray-200!';
-const tdClass = 'gl-border-gray-100! gl-p-5!';
 
 const allowedFields = [
   'iid',
@@ -55,15 +52,12 @@ export default {
     {
       key: 'fieldName',
       label: s__('AlertManagement|Key'),
-      thClass,
-      tdClass,
       formatter: (string) =>
         capitalizeFirstCharacter(convertToSentenceCase(splitCamelCase(string))),
     },
     {
       key: 'value',
-      thClass: `${thClass} w-60p`,
-      tdClass,
+      thClass: 'w-60p',
       label: s__('AlertManagement|Value'),
     },
   ],
@@ -97,7 +91,7 @@ export default {
       return allowedFields.includes(fieldName);
     },
     isValidLink(value) {
-      return typeof value === 'string' && isSafeURL(value);
+      return typeof value === 'string' && isValidURL(value);
     },
   },
 };

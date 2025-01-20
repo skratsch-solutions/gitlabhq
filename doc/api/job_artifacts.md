@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Use the job artifacts API to download or delete job artifacts.
 
@@ -30,7 +30,7 @@ GET /projects/:id/jobs/:job_id/artifacts
 
 | Attribute                     | Type           | Required | Description |
 |-------------------------------|----------------|----------|-------------|
-| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job_id`                      | integer        | Yes      | ID of a job. |
 | `job_token`                   | string         | No       | To be used with [triggers](../ci/jobs/job_artifacts.md#with-a-cicd-job-token) for multi-project pipelines. It should be invoked only in a CI/CD job defined in the `.gitlab-ci.yml` file. The value is always `$CI_JOB_TOKEN`. The job associated with the `$CI_JOB_TOKEN` must be running when this token is used. Premium and Ultimate only. |
 
@@ -72,7 +72,7 @@ Possible response status codes:
 | Status | Description |
 |--------|-------------|
 | 200    | Serves the artifacts file. |
-| 404    | Build not found or no artifacts. |
+| 404    | Build not found, no artifacts, or all artifacts are reports. |
 
 ## Download the artifacts archive
 
@@ -103,7 +103,7 @@ Parameters
 
 | Attribute                     | Type           | Required | Description |
 |-------------------------------|----------------|----------|-------------|
-| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job`                         | string         | Yes      | The name of the job. |
 | `ref_name`                    | string         | Yes      | Branch or tag name in repository. HEAD or SHA references are not supported. |
 | `job_token`                   | string         | No       | To be used with [triggers](../ci/jobs/job_artifacts.md#with-a-cicd-job-token) for multi-project pipelines. It should be invoked only in a CI/CD job defined in the `.gitlab-ci.yml` file. The value is always `$CI_JOB_TOKEN`. The job associated with the `$CI_JOB_TOKEN` must be running when this token is used. Premium and Ultimate only. |
@@ -147,7 +147,7 @@ Possible response status codes:
 | Status | Description |
 |--------|-------------|
 | 200    | Serves the artifacts file. |
-| 404    | Build not found or no artifacts. |
+| 404    | Build not found, no artifacts, or all artifacts are reports. |
 
 ## Download a single artifact file by job ID
 
@@ -167,7 +167,7 @@ Parameters
 | Attribute                     | Type           | Required | Description |
 |-------------------------------|----------------|----------|-------------|
 | `artifact_path`               | string         | Yes      | Path to a file inside the artifacts archive. |
-| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job_id`                      | integer        | Yes      | The unique job identifier. |
 | `job_token`                   | string         | No       | To be used with [triggers](../ci/jobs/job_artifacts.md#with-a-cicd-job-token) for multi-project pipelines. It should be invoked only in a CI/CD job defined in the `.gitlab-ci.yml` file. The value is always `$CI_JOB_TOKEN`. The job associated with the `$CI_JOB_TOKEN` must be running when this token is used. Premium and Ultimate only. |
 
@@ -184,9 +184,9 @@ Possible response status codes:
 
 | Status | Description |
 |--------|-------------|
-| 200    | Sends a single artifact file |
-| 400    | Invalid path provided |
-| 404    | Build not found or no file/artifacts |
+| 200    | Sends a single artifact file. |
+| 400    | Invalid path provided. |
+| 404    | Build not found, no artifacts, or all artifacts are reports. |
 
 ## Download a single artifact file from specific tag or branch
 
@@ -213,7 +213,7 @@ Parameters:
 | Attribute                     | Type           | Required | Description |
 |-------------------------------|----------------|----------|-------------|
 | `artifact_path`               | string         | Yes      | Path to a file inside the artifacts archive. |
-| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`                          | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job`                         | string         | Yes      | The name of the job. |
 | `ref_name`                    | string         | Yes      | Branch or tag name in repository. `HEAD` or `SHA` references are not supported. |
 | `job_token`                   | string         | No       | To be used with [triggers](../ci/jobs/job_artifacts.md#with-a-cicd-job-token) for multi-project pipelines. It should be invoked only in a CI/CD job defined in the `.gitlab-ci.yml` file. The value is always `$CI_JOB_TOKEN`. The job associated with the `$CI_JOB_TOKEN` must be running when this token is used. Premium and Ultimate only. |
@@ -231,9 +231,9 @@ Possible response status codes:
 
 | Status | Description |
 |--------|-------------|
-| 200    | Sends a single artifact file |
-| 400    | Invalid path provided |
-| 404    | Build not found or no file/artifacts |
+| 200    | Sends a single artifact file. |
+| 400    | Invalid path provided. |
+| 404    | Build not found, no artifacts, or all artifacts are reports. |
 
 ## Keep artifacts
 
@@ -247,7 +247,7 @@ Parameters
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job_id`  | integer        | Yes      | ID of a job. |
 
 Example request:
@@ -296,7 +296,7 @@ Delete artifacts of a job.
 
 Prerequisites:
 
-- Must have at least the maintainer role in the project.
+- You must have at least the maintainer role for the project.
 
 ```plaintext
 DELETE /projects/:id/jobs/:job_id/artifacts
@@ -304,7 +304,7 @@ DELETE /projects/:id/jobs/:job_id/artifacts
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 | `job_id`  | integer        | Yes      | ID of a job. |
 
 Example request:
@@ -341,7 +341,7 @@ DELETE /projects/:id/artifacts
 
 | Attribute | Type           | Required | Description |
 |-----------|----------------|----------|-------------|
-| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer/string | Yes      | ID or [URL-encoded path of the project](rest/index.md#namespaced-paths). |
 
 Example request:
 
@@ -350,3 +350,13 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://git
 ```
 
 A response with status `202 Accepted` is returned.
+
+## Troubleshooting
+
+### Downloading `artifacts:reports` files
+
+You might get a `404 Not Found` error when trying to download reports using the job artifacts API.
+
+This issue occurs because [reports](../ci/yaml/index.md#artifactsreports) are not downloadable by default.
+
+To make reports downloadable, add their filenames or `gl-*-report.json` to [`artifacts:paths`](../ci/yaml/index.md#artifactspaths).

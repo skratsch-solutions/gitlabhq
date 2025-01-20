@@ -13,7 +13,7 @@ module Packages
       INVALID_METADATA_ERROR_SYMBOL_MESSAGE = 'package name, version and/or description not found in metadata'
       MISSING_MATCHING_PACKAGE_ERROR_MESSAGE = 'symbol package is invalid, matching package does not exist'
 
-      InvalidMetadataError = ZipError = Class.new(StandardError)
+      InvalidMetadataError = ZipError = DuplicatePackageError = Class.new(StandardError)
 
       def initialize(package_file, package_zip_file)
         @package_file = package_file
@@ -31,6 +31,8 @@ module Packages
             process_package_update
           end
         end
+
+        create_symbol_files
       rescue ActiveRecord::RecordInvalid => e
         raise InvalidMetadataError, e.message
       rescue Zip::Error
@@ -44,6 +46,8 @@ module Packages
         target_package = @package_file.package
 
         if existing_package
+          raise DuplicatePackageError, "A package '#{package_name}' with version '#{package_version}' already exists" unless symbol_package? || duplicates_allowed?
+
           package_to_destroy = @package_file.package
           target_package = existing_package
         else
@@ -57,10 +61,15 @@ module Packages
         build_infos = package_to_destroy&.build_infos || []
 
         update_package(target_package, build_infos)
-        create_symbol_files
         ::Packages::UpdatePackageFileService.new(@package_file, package_id: target_package.id, file_name: package_filename)
                                             .execute
         package_to_destroy&.destroy!
+      end
+
+      def duplicates_allowed?
+        return true if Feature.disabled?(:create_nuget_packages_on_the_fly, @package_file.project)
+
+        ::Namespace::PackageSetting.duplicates_allowed?(existing_package)
       end
 
       def update_package(package, build_infos)

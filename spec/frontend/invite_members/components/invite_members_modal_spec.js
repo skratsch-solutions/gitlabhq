@@ -23,7 +23,7 @@ import {
   INVALID_FEEDBACK_MESSAGE_DEFAULT,
 } from '~/invite_members/constants';
 import eventHub from '~/invite_members/event_hub';
-import ContentTransition from '~/vue_shared/components/content_transition.vue';
+import ContentTransition from '~/invite_members/components/content_transition.vue';
 import axios from '~/lib/utils/axios_utils';
 import {
   HTTP_STATUS_BAD_REQUEST,
@@ -35,6 +35,7 @@ import {
   reloadOnInvitationSuccess,
 } from '~/invite_members/utils/trigger_successful_invite_alert';
 import { captureException } from '~/ci/runner/sentry_utils';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import { GROUPS_INVITATIONS_PATH, invitationsApiResponse } from '../mock_data/api_responses';
 import {
   propsData,
@@ -113,6 +114,7 @@ describe('InviteMembersModal', () => {
     activeTrialDataset = {},
     stubs = {},
     provide = {},
+    // eslint-disable-next-line max-params
   ) => {
     createComponent({ usersLimitDataset, activeTrialDataset, isProject: false }, stubs, provide);
   };
@@ -142,7 +144,6 @@ describe('InviteMembersModal', () => {
   };
   const findActionButton = () => wrapper.findByTestId('invite-modal-submit');
   const findCancelButton = () => wrapper.findByTestId('invite-modal-cancel');
-
   const emitClickFromModal = (findButton) => () =>
     findButton().vm.$emit('click', { preventDefault: jest.fn() });
 
@@ -180,6 +181,26 @@ describe('InviteMembersModal', () => {
 
       expect(findBase().props('accessLevels')).toMatchObject({
         validRoles: propsData.accessLevels,
+      });
+    });
+
+    describe('when inviting users to a project', () => {
+      it('set accessExpirationHelpLink for projects', () => {
+        createInviteMembersToProjectWrapper();
+
+        expect(findBase().props('accessExpirationHelpLink')).toBe(
+          helpPagePath('user/project/members/index', { anchor: 'add-users-to-a-project' }),
+        );
+      });
+    });
+
+    describe('when inviting users to a group', () => {
+      it('set accessExpirationHelpLink for groups', () => {
+        createInviteMembersToGroupWrapper();
+
+        expect(findBase().props('accessExpirationHelpLink')).toBe(
+          helpPagePath('user/group/index', { anchor: 'add-users-to-a-group' }),
+        );
       });
     });
   });
@@ -400,7 +421,7 @@ describe('InviteMembersModal', () => {
           });
 
           it('displays the successful toastMessage', () => {
-            expect(showToast).toHaveBeenCalledWith('Members were successfully added');
+            expect(showToast).toHaveBeenCalledWith('Members were successfully added.');
           });
 
           it('does not call displaySuccessfulInvitationAlert on mount', () => {
@@ -556,7 +577,7 @@ describe('InviteMembersModal', () => {
           });
 
           it('displays the successful toastMessage', () => {
-            expect(showToast).toHaveBeenCalledWith('Members were successfully added');
+            expect(showToast).toHaveBeenCalledWith('Members were successfully added.');
           });
 
           it('does not call displaySuccessfulInvitationAlert on mount', () => {
@@ -806,7 +827,7 @@ describe('InviteMembersModal', () => {
           });
 
           it('displays the successful toastMessage', () => {
-            expect(showToast).toHaveBeenCalledWith('Members were successfully added');
+            expect(showToast).toHaveBeenCalledWith('Members were successfully added.');
           });
 
           it('does not call displaySuccessfulInvitationAlert on mount', () => {
@@ -853,6 +874,27 @@ describe('InviteMembersModal', () => {
         await waitForPromises();
 
         expect(findSeatOveragesAlert().exists()).toBe(false);
+      });
+
+      describe('when hasBsoEnabled is true', () => {
+        beforeEach(() => {
+          createInviteMembersToGroupWrapper(
+            {},
+            {},
+            {},
+            { addSeatsHref: 'url_to_add_seats', hasBsoEnabled: true },
+          );
+        });
+
+        it('shows the seat limit reached label for the primary button', async () => {
+          await triggerMembersTokenSelect([user1]);
+          mockInvitationsApi(HTTP_STATUS_CREATED, invitationsApiResponse.ERROR_SEAT_LIMIT_REACHED);
+          clickInviteButton();
+          await waitForPromises();
+
+          expect(findSeatOveragesAlert().exists()).toBe(true);
+          expect(findSeatOveragesAlert().props('primaryButtonText')).toBe('Learn how to add seats');
+        });
       });
     });
   });

@@ -74,12 +74,12 @@ RSpec.describe Packages::GroupPackagesFinder, feature_category: :package_registr
             :developer  | :public  | :private | :all
             :maintainer | :public  | :private | :all
             :anonymous  | :private | :enabled | :none
-            :guest      | :private | :enabled | :none
+            :guest      | :private | :enabled | :all
             :reporter   | :private | :enabled | :all
             :developer  | :private | :enabled | :all
             :maintainer | :private | :enabled | :all
             :anonymous  | :private | :private | :none
-            :guest      | :private | :private | :none
+            :guest      | :private | :private | :all
             :reporter   | :private | :private | :all
             :developer  | :private | :private | :all
             :maintainer | :private | :private | :all
@@ -114,6 +114,31 @@ RSpec.describe Packages::GroupPackagesFinder, feature_category: :package_registr
             end
 
             it { is_expected.to match_array(expected_packages) }
+          end
+        end
+
+        context 'when allow_guest_plus_roles_to_pull_packages is disabled' do
+          let(:add_user_to_group) { false }
+
+          before do
+            subgroup.update!(visibility: 'private')
+            group.update!(visibility: 'private')
+
+            project.add_guest(user)
+            subproject.add_guest(user)
+
+            stub_feature_flags(allow_guest_plus_roles_to_pull_packages: false)
+          end
+
+          %w[enabled private].each do |repository_visibility|
+            context "when repository visiblity #{repository_visibility}" do
+              before do
+                project.update!(visibility: 'private', repository_access_level: repository_visibility)
+                subproject.update!(visibility: 'private', repository_access_level: repository_visibility)
+              end
+
+              it { is_expected.to match_array([]) }
+            end
           end
         end
 
@@ -217,6 +242,33 @@ RSpec.describe Packages::GroupPackagesFinder, feature_category: :package_registr
         end
       end
 
+      context 'within public registry in private group/project' do
+        let(:add_user_to_group) { false }
+        let(:params) { { within_public_package_registry: true } }
+
+        before do
+          project.update_column(:visibility_level, Gitlab::VisibilityLevel::PRIVATE)
+          project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+        end
+
+        it { is_expected.to match_array([package1, package2]) }
+
+        context 'with public registry in a different group' do
+          before do
+            package3.project.update_column(:visibility_level, Gitlab::VisibilityLevel::PRIVATE)
+            package3.project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+          end
+
+          it { is_expected.to match_array([package1, package2]) }
+        end
+
+        context 'when within_public_package_registry is false' do
+          let(:params) { { within_public_package_registry: false } }
+
+          it { is_expected.to be_empty }
+        end
+      end
+
       it_behaves_like 'concerning versionless param'
       it_behaves_like 'concerning package statuses'
       it_behaves_like 'disabling package registry for project' do
@@ -225,12 +277,10 @@ RSpec.describe Packages::GroupPackagesFinder, feature_category: :package_registr
     end
 
     context 'group has package of all types' do
-      package_types.each do |pt| # rubocop:disable RSpec/UselessDynamicDefinition -- `pt` used in `let`
-        let_it_be("package_#{pt}") { create("#{pt}_package", project: project) }
-      end
+      package_types.each do |type| # rubocop:disable RSpec/UselessDynamicDefinition -- `type` used in `let`
+        let_it_be("package_#{type}") { create("#{type}_package", project: project) }
 
-      package_types.each do |package_type|
-        it_behaves_like 'with package type', package_type
+        it_behaves_like 'with package type', type
       end
     end
 

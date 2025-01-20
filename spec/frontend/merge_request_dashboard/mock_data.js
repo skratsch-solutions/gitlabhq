@@ -2,8 +2,10 @@ export function createMockMergeRequest(mergeRequest = {}) {
   return {
     id: 1,
     reference: '!1',
-    titleHtml: 'Title',
+    title: 'Title',
     webUrl: '/',
+    draft: false,
+    state: 'opened',
     author: {
       id: 1,
       avatarUrl: '/',
@@ -13,8 +15,10 @@ export function createMockMergeRequest(mergeRequest = {}) {
       webPath: '/',
     },
     milestone: null,
-    labels: {
-      nodes: [],
+    diffStatsSummary: {
+      fileCount: 1,
+      additions: 100,
+      deletions: 50,
     },
     assignees: {
       nodes: [],
@@ -23,7 +27,14 @@ export function createMockMergeRequest(mergeRequest = {}) {
       nodes: [],
     },
     headPipeline: null,
-    userDiscussionsCount: 0,
+    userNotesCount: 0,
+    resolvedDiscussionsCount: 0,
+    resolvableDiscussionsCount: 0,
+    commitCount: 0,
+    sourceBranchExists: true,
+    targetBranchExists: true,
+    conflicts: false,
+    mergedAt: '',
     createdAt: '',
     updatedAt: '',
     approved: false,

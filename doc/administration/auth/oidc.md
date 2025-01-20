@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can use GitLab as a client application with [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html)
 as an OmniAuth provider.
@@ -170,7 +170,7 @@ The OpenID Connect provider provides you with a client's details and secret for 
      is usually included in requests to the token endpoint.
      However, if your OpenID Connect provider does not accept the `scope` parameter
      in such requests, set this to `false`.
-   - `pkce` (optional): Enable [Proof Key for Code Exchange](https://www.rfc-editor.org/rfc/rfc766). Available in [GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/109557).
+   - `pkce` (optional): Enable [Proof Key for Code Exchange](https://www.rfc-editor.org/rfc/rfc7636). Available in [GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/109557).
    - `client_options` are the OpenID Connect client-specific options. Specifically:
      - `identifier` is the client identifier as configured in the OpenID Connect service provider.
      - `secret` is the client secret as configured in the OpenID Connect service provider. For example,
@@ -271,19 +271,73 @@ gitlab_rails['omniauth_providers'] = [
 
 Microsoft has documented how its platform works with [the OIDC protocol](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc).
 
+#### Microsoft Entra custom signing keys
+
+If your application has custom signing keys because you use the
+[SAML claims-mapping feature](https://learn.microsoft.com/en-us/entra/identity-platform/saml-claims-customization),
+you must configure the OpenID provider in the following ways:
+
+- Disable OpenID Connect Discovery by omitting `args.discovery`, or setting it to `false`.
+- In `client_options`, specify the following:
+  - A `jwks_uri` with the `appid` query parameter: `https://login.microsoftonline.com/<YOUR-TENANT-ID>/discovery/v2.0/keys?appid=<YOUR APP CLIENT ID>`.
+  - `end_session_endpoint`.
+  - `authorization_endpoint`.
+  - `userinfo_endpoint`.
+
+Example configuration for Linux package installations:
+
+```ruby
+gitlab_rails['omniauth_providers'] = [
+ {
+    name: "openid_connect", # do not change this parameter
+    label: "Azure OIDC", # optional label for login button, defaults to "Openid Connect"
+    args: {
+      name: "openid_connect",
+      scope: ["openid", "profile", "email"],
+      response_type: "code",
+      issuer:  "https://login.microsoftonline.com/<YOUR-TENANT-ID>/v2.0",
+      client_auth_method: "basic",
+      discovery: false,
+      uid_field: "preferred_username",
+      pkce: true,
+      client_options: {
+        identifier: "<YOUR APP CLIENT ID>",
+        secret: "<YOUR APP CLIENT SECRET>",
+        redirect_uri: "https://gitlab.example.com/users/auth/openid_connect/callback",
+        end_session_endpoint: "https://login.microsoftonline.com/<YOUR-TENANT-ID>/oauth2/v2.0/logout",
+        authorization_endpoint: "https://login.microsoftonline.com/<YOUR-TENANT-ID>/oauth2/v2.0/authorize",
+        token_endpoint: "https://login.microsoftonline.com/<YOUR-TENANT-ID>/oauth2/v2.0/token",
+        userinfo_endpoint: "https://graph.microsoft.com/oidc/userinfo",
+        jwks_uri: "https://login.microsoftonline.com/<YOUR-TENANT-ID>/discovery/v2.0/keys?appid=<YOUR APP CLIENT ID>"
+      }
+    }
+  }
+]
+```
+
+If you see authentication failures with a `KidNotFound` message, this
+is probably because of a missing or incorrect `appid` query
+parameter. GitLab raises that error if the ID token returned by
+Microsoft cannot be validated with the keys provided by the `jwks_uri`
+endpoint.
+
+For more information, see the [Microsoft Entra documentation on validating tokens](https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens#validate-tokens).
+
 #### Migrate to Generic OpenID Connect configuration
 
 You can migrate to the Generic OpenID Connect configuration from both `azure_activedirectory_v2` and `azure_oauth2`.
 
-First, set the `uid_field`, which differs between providers:
+First, set the `uid_field`. Both the `uid_field` and the `sub` claim that you can select as a `uid_field` vary depending on the provider. Signing in without setting the `uid_field` results in additional identities being created within GitLab that have to be manually modified:
 
-| Provider                                                                                                        | `uid` | Supporting information  |
+| Provider                                                                                                        | `uid_field` | Supporting information  |
 |-----------------------------------------------------------------------------------------------------------------|-------|-----------------------------------------------------------------------|
 | [`omniauth-azure-oauth2`](https://gitlab.com/gitlab-org/gitlab/-/tree/master/vendor/gems/omniauth-azure-oauth2) | `sub` | Additional attributes `oid` and `tid` are offered within the `info` object. |
 | [`omniauth-azure-activedirectory-v2`](https://github.com/RIPAGlobal/omniauth-azure-activedirectory-v2/)         | `oid` | You must configure `oid` as `uid_field` when migrating. |
 | [`omniauth_openid_connect`](https://github.com/omniauth/omniauth_openid_connect/)                               | `sub` | Specify `uid_field` to use another field. |
 
-To migrate to the Generic OpenID Connect configuration, you must change the configuration to the following:
+To migrate to the Generic OpenID Connect configuration, you must update the configuration.
+
+For Linux package installations, update the configuration as follows:
 
 ::Tabs
 
@@ -295,7 +349,7 @@ gitlab_rails['omniauth_providers'] = [
     name: "azure_oauth2",
     label: "Azure OIDC", # optional label for login button, defaults to "Openid Connect"
     args: {
-      name: "azure_oauth2",
+      name: "azure_oauth2", # this matches the existing azure_oauth2 provider name, and only the strategy_class immediately below configures OpenID Connect
       strategy_class: "OmniAuth::Strategies::OpenIDConnect",
       scope: ["openid", "profile", "email"],
       response_type: "code",
@@ -342,6 +396,87 @@ gitlab_rails['omniauth_providers'] = [
 ```
 
 ::EndTabs
+
+For Helm installations:
+
+Add the [provider's configuration](https://docs.gitlab.com/charts/charts/globals.html#providers) in a YAML file (for example, `provider.yaml`):
+
+::Tabs
+
+:::TabTitle Azure OAuth 2.0
+
+```ruby
+{
+  "name": "azure_oauth2",
+  "args": {
+    "name": "azure_oauth2",
+    "strategy_class": "OmniAuth::Strategies::OpenIDConnect",
+    "scope": [
+      "openid",
+      "profile",
+      "email"
+    ],
+    "response_type": "code",
+    "issuer": "https://login.microsoftonline.com/<YOUR-TENANT-ID>/v2.0",
+    "client_auth_method": "query",
+    "discovery": true,
+    "uid_field": "sub",
+    "send_scope_to_token_endpoint": false,
+    "client_options": {
+      "identifier": "<YOUR APP CLIENT ID>",
+      "secret": "<YOUR APP CLIENT SECRET>",
+      "redirect_uri": "https://gitlab.example.com/users/auth/azure_oauth2/callback"
+    }
+  }
+}
+```
+
+:::TabTitle Azure Active Directory v2
+
+```ruby
+{
+  "name": "azure_activedirectory_v2",
+  "args": {
+    "name": "azure_activedirectory_v2",
+    "strategy_class": "OmniAuth::Strategies::OpenIDConnect",
+    "scope": [
+      "openid",
+      "profile",
+      "email"
+    ],
+    "response_type": "code",
+    "issuer": "https://login.microsoftonline.com/<YOUR-TENANT-ID>/v2.0",
+    "client_auth_method": "query",
+    "discovery": true,
+    "uid_field": "sub",
+    "send_scope_to_token_endpoint": false,
+    "client_options": {
+      "identifier": "<YOUR APP CLIENT ID>",
+      "secret": "<YOUR APP CLIENT SECRET>",
+      "redirect_uri": "https://gitlab.example.com/users/auth/activedirectory_v2/callback"
+    }
+  }
+}
+```
+
+::EndTabs
+
+As you migrate from `azure_oauth2` to `omniauth_openid_connect` as part of upgrading to GitLab 17.0 or above, the `sub` claim value set for your organization can vary. `azure_oauth2` uses Microsoft V1 endpoint while `azure_activedirectory_v2` and `omniauth_openid_connect` both use Microsoft V2 endpoint with a common `sub` value.
+
+- **For users with an email address in Entra ID**, to allow falling back to email address and updating the user's identity,
+  configure the following:
+  - In a Linux package installation, [`omniauth_auto_link_user`](../../integration/omniauth.md#link-existing-users-to-omniauth-users).
+  - In a Helm installation, [`autoLinkUser`](https://docs.gitlab.com/charts/charts/globals.html#omniauth).
+
+- **For users with no email address**, administrators must take one of the following actions:
+
+  - Set up another authentication method or enable sign-in using GitLab username and password. The user can then sign in and link their Azure identity manually using their profile.
+  - Implement OpenID Connect as a new provider alongside the existing `azure_oauth2` so the user can sign in through OAuth2, and link their OpenID Connect identity (similar to the previous method). This method would also work for users with email addresses, as long as `auto_link_user` is enabled.
+  - Update `extern_uid` manually. To do this, use the [API or Rails console](../../integration/omniauth.md#change-apps-or-configuration) to update the `extern_uid` for each user.
+    This method may be required if the instance has already been upgraded to 17.0 or later, and users have attempted to sign in.
+
+NOTE:
+`azure_oauth2` might have used Entra ID's `upn` claim as the email address, if the `email` claim was missing or blank when provisioning GitLab accounts.
 
 ### Configure Microsoft Azure Active Directory B2C
 
@@ -685,9 +820,6 @@ You should do this in either of the following scenarios:
 - [Migrating to the OpenID Connect protocol](#migrate-to-generic-openid-connect-configuration).
 - Offering different levels of authentication.
 
-NOTE:
-This is not compatible with [configuring users based on OIDC group membership](#configure-users-based-on-oidc-group-membership). For more information, see [issue 408248](https://gitlab.com/gitlab-org/gitlab/-/issues/408248).
-
 The following example configurations show how to offer different levels of authentication, one option with 2FA and one without 2FA.
 
 For Linux package installations:
@@ -827,7 +959,7 @@ For more information, see the [GitLab API user method documentation](https://pyt
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/209898) in GitLab 15.10.
 
@@ -1010,7 +1142,7 @@ based on group membership, configure GitLab to identify:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Your IdP must pass group information to GitLab in the OIDC response. To use this
 response to assign users as auditors based on group membership, configure GitLab to identify:
@@ -1098,7 +1230,7 @@ response to assign users as administrator based on group membership, configure G
 
 - Where to look for the groups in the OIDC response, using the `groups_attribute` setting.
 - Which group memberships grant the user administrator access, using the
- `admin_groups` setting.
+  `admin_groups` setting.
 
 ::Tabs
 
@@ -1165,6 +1297,45 @@ response to assign users as administrator based on group membership, configure G
            }
          }
        }
+   ```
+
+1. Save the file and [reconfigure GitLab](../restart_gitlab.md#self-compiled-installations)
+   for the changes to take effect.
+
+::EndTabs
+
+### Configure a custom duration for ID Tokens
+
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab Self-Managed
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/377654) in GitLab 17.8.
+
+By default, GitLab ID tokens expire after 120 seconds.
+
+To configure a custom duration for your ID tokens:
+
+::Tabs
+
+:::TabTitle Linux package (Omnibus)
+
+1. Edit `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_rails['oidc_provider_openid_id_token_expire_in_seconds'] = 3600
+   ```
+
+1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation) for the changes to take effect.
+
+:::TabTitle Self-compiled (source)
+
+1. Edit `/home/git/gitlab/config/gitlab.yml`:
+
+   ```yaml
+   production: &base
+     oidc_provider:
+      openid_id_token_expire_in_seconds: 3600
    ```
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#self-compiled-installations)

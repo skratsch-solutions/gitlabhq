@@ -50,6 +50,11 @@ export default {
       required: false,
       default: null,
     },
+    initialCustomizeJiraIssueEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     isValidated: {
       type: Boolean,
       required: false,
@@ -97,7 +102,7 @@ export default {
       </gl-form-checkbox>
     </template>
 
-    <div v-if="enableJiraIssues" class="gl-pl-6 gl-mt-3">
+    <div v-if="enableJiraIssues" class="gl-mt-3 gl-pl-6">
       <gl-form-group
         v-if="!isIssueCreation"
         :label="s__('JiraService|Jira project keys')"
@@ -126,6 +131,7 @@ export default {
         :initial-is-enabled="initialEnableJiraVulnerabilities"
         :initial-project-key="initialProjectKey"
         :initial-issue-type-id="initialVulnerabilitiesIssuetype"
+        :initial-customize-jira-issue-enabled="initialCustomizeJiraIssueEnabled"
         :is-validated="isValidated"
         :show-full-feature="showJiraVulnerabilitiesIntegration"
         class="gl-mt-6"

@@ -1,7 +1,7 @@
 ---
 
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/6168) in GitLab 15.7.
 
@@ -20,7 +20,7 @@ By default, GitLab uses a single application database, referred to as the `main`
 
 To scale GitLab, you can configure GitLab to use multiple application databases.
 
-Due to [known issues](#known-issues), configuring GitLab with multiple databases is in limited [beta](../../policy/experiment-beta-support.md#beta).
+Due to [known issues](#known-issues), configuring GitLab with multiple databases is in limited [beta](../../policy/development_stages_support.md#beta).
 
 After you have set up multiple databases, GitLab uses a second application database for
 [CI/CD features](../../ci/index.md), referred to as the `ci` database. We do not exclude hosting both databases on a single PostgreSQL instance.
@@ -56,17 +56,17 @@ If something unexpected happens during the migration, it is safe to start over.
 
 1. Verify available disk space:
 
-    - The database node that will store the `gitlabhq_production_ci` database needs enough space to store a copy of the existing database: we _duplicate_ `gitlabhq_production`. Run the following SQL query to find out how much space is needed. Add 25%, to ensure you will not run out of disk space.
+   - The database node that will store the `gitlabhq_production_ci` database needs enough space to store a copy of the existing database: we _duplicate_ `gitlabhq_production`. Run the following SQL query to find out how much space is needed. Add 25%, to ensure you will not run out of disk space.
 
-      ```shell
-      sudo gitlab-psql -c "SELECT pg_size_pretty( pg_database_size('gitlabhq_production') );"
-      ```
+     ```shell
+     sudo gitlab-psql -c "SELECT pg_size_pretty( pg_database_size('gitlabhq_production') );"
+     ```
 
-    - During the process, a dump of the `gitlabhq_production` database needs to be temporarily stored on the filesystem of the node that will run the migration. Execute the following SQL statement to find out how much local disk space will be used. Add 25%, to ensure you will not run out of disk space.
+   - During the process, a dump of the `gitlabhq_production` database needs to be temporarily stored on the filesystem of the node that will run the migration. Execute the following SQL statement to find out how much local disk space will be used. Add 25%, to ensure you will not run out of disk space.
 
-      ```shell
-      sudo gitlab-psql -c "select sum(pg_table_size(concat(table_schema,'.',table_name))) from information_schema.tables where table_catalog = 'gitlabhq_production' and table_type = 'BASE TABLE'"
-      ```
+     ```shell
+     sudo gitlab-psql -c "select sum(pg_table_size(concat(table_schema,'.',table_name))) from information_schema.tables where table_catalog = 'gitlabhq_production' and table_type = 'BASE TABLE'"
+     ```
 
 1. Plan for downtime. The downtime is dependent on the size of the `gitlabhq_production` database.
 
@@ -91,7 +91,7 @@ This process includes downtime. Running the migration script will stop the GitLa
 
 1. Edit `/etc/gitlab/gitlab.rb` and save the changes. Do **not** run the reconfigure command, the migration script will run that for you.
 
-    ```ruby
+   ```ruby
    gitlab_rails['env'] = { 'GITLAB_ALLOW_SEPARATE_CI_DATABASE' => 'true' }
    gitlab_rails['databases']['ci']['enable'] = true
    gitlab_rails['databases']['ci']['db_database'] = 'gitlabhq_production_ci'

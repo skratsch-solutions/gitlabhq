@@ -1,8 +1,9 @@
 <script>
 import { GlIcon, GlDatepicker, GlTooltipDirective, GlLink, GlPopover } from '@gitlab/ui';
 import { createAlert } from '~/alert';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import { TYPE_ISSUE } from '~/issues/constants';
-import { dateInWords, formatDate, parsePikadayDate } from '~/lib/utils/datetime_utility';
+import { localeDateFormat, newDate, toISODateFormat } from '~/lib/utils/datetime_utility';
 import { __, sprintf } from '~/locale';
 import { dateFields, dateTypes, Tracking } from '../../constants';
 import { dueDateQueries, startDateQueries } from '../../queries/constants';
@@ -30,6 +31,7 @@ export default {
     SidebarEditableItem,
     SidebarFormattedDate,
     SidebarInheritDate,
+    HelpIcon,
   },
   inject: ['canUpdate'],
   props: {
@@ -159,14 +161,14 @@ export default {
         return null;
       }
 
-      return parsePikadayDate(this.dateValue);
+      return newDate(this.dateValue);
     },
     formattedDate() {
       if (!this.hasDate) {
         return this.$options.i18n.noDate;
       }
 
-      return dateInWords(this.parsedDate, true);
+      return localeDateFormat.asDate.format(this.parsedDate);
     },
     workspacePath() {
       return this.issuableType === TYPE_ISSUE
@@ -204,7 +206,7 @@ export default {
       this.setDate(date, isFixed);
     },
     setDate(date, isFixed = true) {
-      const formattedDate = date ? formatDate(date, 'yyyy-mm-dd') : null;
+      const formattedDate = date ? toISODateFormat(date) : null;
       this.loading = true;
       this.$refs.editable.collapse();
       this.$apollo
@@ -283,10 +285,9 @@ export default {
     @open="openDatePicker"
   >
     <template v-if="canInherit" #title-extra>
-      <gl-icon
+      <help-icon
         ref="epicDatePopover"
-        name="question-o"
-        class="gl-ml-3 gl-cursor-pointer gl-text-blue-600 hide-collapsed"
+        class="hide-collapsed gl-ml-3 gl-cursor-pointer"
         tabindex="0"
         :aria-label="$options.i18n.help"
         data-testid="inherit-date-popover"
@@ -301,7 +302,7 @@ export default {
     <template #collapsed>
       <div v-gl-tooltip.viewport.left :title="dateLabel" class="sidebar-collapsed-icon">
         <gl-icon :size="16" name="calendar" />
-        <span class="gl-pt-2 gl-px-3 gl-font-sm">{{ formattedDate }}</span>
+        <span class="gl-px-3 gl-pt-2 gl-text-sm">{{ formattedDate }}</span>
       </div>
       <sidebar-inherit-date
         v-if="canInherit && !initialLoading"

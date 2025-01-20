@@ -1,33 +1,61 @@
 # frozen_string_literal: true
 
-class ApplicationSetting < MainClusterwide::ApplicationRecord
+class ApplicationSetting < ApplicationRecord
   include CacheableAttributes
   include CacheMarkdownField
   include TokenAuthenticatable
   include ChronicDurationAttribute
-  include IgnorableColumns
   include Sanitizable
 
-  ignore_columns %i[elasticsearch_shards elasticsearch_replicas], remove_with: '14.4', remove_after: '2021-09-22'
-  ignore_columns %i[static_objects_external_storage_auth_token], remove_with: '14.9', remove_after: '2022-03-22'
-  ignore_column :web_ide_clientside_preview_enabled, remove_with: '15.11', remove_after: '2023-04-22'
-  ignore_columns %i[instance_administration_project_id instance_administrators_group_id], remove_with: '16.2', remove_after: '2023-06-22'
-  ignore_columns %i[repository_storages], remove_with: '16.8', remove_after: '2023-12-21'
-  ignore_column :required_instance_ci_template, remove_with: '17.1', remove_after: '2024-05-10'
-  ignore_column %i[sign_in_text help_text], remove_with: '17.3', remove_after: '2024-08-15'
-  ignore_columns %i[toggle_security_policies_policy_scope lock_toggle_security_policies_policy_scope], remove_with: '17.2', remove_after: '2024-07-12'
-  ignore_columns %i[arkose_labs_verify_api_url], remove_with: '17.4', remove_after: '2024-08-09'
+  ignore_columns %i[
+    encrypted_openai_api_key
+    encrypted_openai_api_key_iv
+    encrypted_anthropic_api_key
+    encrypted_anthropic_api_key_iv
+    encrypted_vertex_ai_credentials
+    encrypted_vertex_ai_credentials_iv
+    encrypted_vertex_ai_access_token
+    encrypted_vertex_ai_access_token_iv
+  ], remove_with: '17.10', remove_after: '2025-02-15'
+
+  ignore_columns %i[
+    elasticsearch_aws
+    elasticsearch_search
+    elasticsearch_indexing
+    elasticsearch_username
+    elasticsearch_aws_region
+    elasticsearch_aws_access_key
+    elasticsearch_limit_indexing
+    elasticsearch_pause_indexing
+    elasticsearch_requeue_workers
+    elasticsearch_max_bulk_size_mb
+    elasticsearch_retry_on_failure
+    elasticsearch_max_bulk_concurrency
+    elasticsearch_client_request_timeout
+    elasticsearch_worker_number_of_shards
+    elasticsearch_analyzers_smartcn_search
+    elasticsearch_analyzers_kuromoji_search
+    elasticsearch_analyzers_smartcn_enabled
+    elasticsearch_analyzers_kuromoji_enabled
+    elasticsearch_indexed_field_length_limit
+    elasticsearch_indexed_file_size_limit_kb
+    elasticsearch_max_code_indexing_concurrency
+  ], remove_with: '17.11', remove_after: '2025-04-17'
 
   INSTANCE_REVIEW_MIN_USERS = 50
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
-    'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
+    'Admin area > Settings > Metrics and profiling > Metrics - Grafana'
 
   KROKI_URL_ERROR_MESSAGE = 'Please check your Kroki URL setting in ' \
-    'Admin Area > Settings > General > Kroki'
+    'Admin area > Settings > General > Kroki'
 
   # Validate URIs in this model according to the current value of the `deny_all_requests_except_allowed` property,
   # rather than the persisted value.
-  ADDRESSABLE_URL_VALIDATION_OPTIONS = { deny_all_requests_except_allowed: ->(settings) { settings.deny_all_requests_except_allowed } }.freeze
+  ADDRESSABLE_URL_VALIDATION_OPTIONS = {
+    deny_all_requests_except_allowed: ->(settings) do
+      settings.deny_all_requests_except_allowed
+    end
+  }.freeze
 
   HUMANIZED_ATTRIBUTES = {
     archive_builds_in_seconds: 'Archive job value'
@@ -40,13 +68,15 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   USERS_UNCONFIRMED_SECONDARY_EMAILS_DELETE_AFTER_DAYS = 3
 
-  enum whats_new_variant: { all_tiers: 0, current_tier: 1, disabled: 2 }, _prefix: true
-  enum email_confirmation_setting: { off: 0, soft: 1, hard: 2 }, _prefix: true
+  INACTIVE_RESOURCE_ACCESS_TOKENS_DELETE_AFTER_DAYS = 30
+
+  enum :whats_new_variant, { all_tiers: 0, current_tier: 1, disabled: 2 }, prefix: true
+  enum :email_confirmation_setting, { off: 0, soft: 1, hard: 2 }, prefix: true
 
   # We won't add a prefix here as this token is deprecated and being
   # disabled in 17.0
   # https://docs.gitlab.com/ee/ci/runners/new_creation_workflow.html
-  add_authentication_token_field :runners_registration_token, encrypted: :required # rubocop:disable Gitlab/TokenWithoutPrefix -- wontfix
+  add_authentication_token_field :runners_registration_token, encrypted: :required
   add_authentication_token_field :health_check_access_token # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/376751
   add_authentication_token_field :static_objects_external_storage_auth_token, encrypted: :required # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
   add_authentication_token_field :error_tracking_access_token, encrypted: :required # rubocop:todo -- https://gitlab.com/gitlab-org/gitlab/-/issues/439292
@@ -103,10 +133,13 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   chronic_duration_attr :runner_token_expiration_interval_human_readable, :runner_token_expiration_interval
   chronic_duration_attr :group_runner_token_expiration_interval_human_readable, :group_runner_token_expiration_interval
-  chronic_duration_attr :project_runner_token_expiration_interval_human_readable, :project_runner_token_expiration_interval
+  chronic_duration_attr :project_runner_token_expiration_interval_human_readable,
+    :project_runner_token_expiration_interval
 
   validates :default_branch_protection_defaults, json_schema: { filename: 'default_branch_protection_defaults' }
-  validates :default_branch_protection_defaults, bytesize: { maximum: -> { DEFAULT_BRANCH_PROTECTIONS_DEFAULT_MAX_SIZE } }
+  validates :default_branch_protection_defaults, bytesize: { maximum: -> {
+    DEFAULT_BRANCH_PROTECTIONS_DEFAULT_MAX_SIZE
+  } }
 
   validates :external_pipeline_validation_service_timeout,
     :failed_login_attempts_unlock_period_in_minutes,
@@ -315,8 +348,10 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates :default_preferred_language, presence: true, inclusion: { in: Gitlab::I18n.available_locales }
 
   validates :personal_access_token_prefix,
-    format: { with: %r{\A[a-zA-Z0-9_+=/@:.-]+\z},
-              message: N_("can contain only letters of the Base64 alphabet (RFC4648) with the addition of '@', ':' and '.'") },
+    format: {
+      with: %r{\A[a-zA-Z0-9_+=/@:.-]+\z},
+      message: N_("can contain only letters of the Base64 alphabet (RFC4648) with the addition of '@', ':' and '.'")
+    },
     length: { maximum: 20, message: N_('is too long (maximum is %{count} characters)') },
     allow_blank: true
 
@@ -364,12 +399,13 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
     :push_event_hooks_limit,
     numericality: { greater_than_or_equal_to: 0 }
 
-  validates :wiki_page_max_content_bytes, numericality: { only_integer: true, greater_than_or_equal_to: 1.kilobytes }
+  validates :wiki_page_max_content_bytes, numericality: { only_integer: true, greater_than_or_equal_to: 1.kilobyte }
   validates :wiki_asciidoc_allow_uri_includes, inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
   validates :email_restrictions, untrusted_regexp: true
 
-  validates :hashed_storage_enabled, inclusion: { in: [true], message: N_("Hashed storage can't be disabled anymore for new projects") }
+  validates :hashed_storage_enabled,
+    inclusion: { in: [true], message: N_("Hashed storage can't be disabled anymore for new projects") }
 
   validates :container_registry_expiration_policies_caching,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
@@ -388,7 +424,8 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   validates :deactivate_dormant_users_period,
     presence: true,
-    numericality: { only_integer: true, greater_than_or_equal_to: 90, message: N_("'%{value}' days of inactivity must be greater than or equal to 90") },
+    numericality: { only_integer: true, greater_than_or_equal_to: 90,
+                    message: N_("'%{value}' days of inactivity must be greater than or equal to 90") },
     if: :deactivate_dormant_users?
 
   validates :allow_possible_spam,
@@ -414,7 +451,7 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates_each :restricted_visibility_levels do |record, attr, value|
     value&.each do |level|
       unless Gitlab::VisibilityLevel.options.value?(level)
-        record.errors.add(attr, _("'%{level}' is not a valid visibility level") % { level: level })
+        record.errors.add(attr, format(_("'%{level}' is not a valid visibility level"), level: level))
       end
     end
   end
@@ -426,7 +463,7 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates_each :import_sources, on: :update do |record, attr, value|
     value&.each do |source|
       unless Gitlab::ImportSources.options.value?(source)
-        record.errors.add(attr, _("'%{source}' is not a import source") % { source: source })
+        record.errors.add(attr, format(_("'%{source}' is not a import source"), source: source))
       end
     end
   end
@@ -460,7 +497,8 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   validates :lets_encrypt_notification_email,
     devise_email: true,
-    format: { without: /@example\.(com|org|net)\z/, message: N_("Let's Encrypt does not accept emails on example.com") },
+    format: { without: /@example\.(com|org|net)\z/,
+              message: N_("Let's Encrypt does not accept emails on example.com") },
     allow_blank: true
 
   validates :lets_encrypt_notification_email,
@@ -496,6 +534,9 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates :ci_jwt_signing_key,
     rsa_key: true, allow_nil: true
 
+  validates :ci_job_token_signing_key,
+    rsa_key: true, allow_nil: true
+
   validates :customers_dot_jwt_signing_key,
     rsa_key: true, allow_nil: true
 
@@ -512,6 +553,16 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
     allow_blank: true,
     public_url: ADDRESSABLE_URL_VALIDATION_OPTIONS
 
+  jsonb_accessor :integrations,
+    jira_connect_additional_audience_url: :string
+
+  validates :jira_connect_additional_audience_url,
+    length: { maximum: 255, message: N_('is too long (maximum is %{count} characters)') },
+    allow_blank: true,
+    public_url: ADDRESSABLE_URL_VALIDATION_OPTIONS
+
+  validates :integrations, json_schema: { filename: "application_setting_integrations" }
+
   with_options(presence: true, if: :slack_app_enabled?) do
     validates :slack_app_id
     validates :slack_app_secret
@@ -523,18 +574,21 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
     validates :ai_action_api_rate_limit,
       :bulk_import_concurrent_pipeline_batch_limit,
       :code_suggestions_api_rate_limit,
-      :concurrent_github_import_jobs_limit,
       :concurrent_bitbucket_import_jobs_limit,
       :concurrent_bitbucket_server_import_jobs_limit,
+      :concurrent_github_import_jobs_limit,
+      :concurrent_relation_batch_export_limit,
       :container_registry_token_expire_delay,
       :housekeeping_optimize_repository_period,
       :inactive_projects_delete_after_months,
+      :max_artifacts_content_include_size,
       :max_artifacts_size,
       :max_attachment_size,
       :max_yaml_depth,
       :max_yaml_size_bytes,
       :namespace_aggregation_schedule_lease_duration_in_seconds,
       :project_jobs_api_rate_limit,
+      :session_expire_delay,
       :snippet_size_limit,
       :throttle_authenticated_api_period_in_seconds,
       :throttle_authenticated_api_requests_per_period,
@@ -577,6 +631,7 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
       :downstream_pipeline_trigger_limit_per_project_user_sha,
       :gitlab_shell_operation_limit,
       :group_api_limit,
+      :group_invited_groups_api_limit,
       :group_projects_api_limit,
       :group_shared_groups_api_limit,
       :groups_api_limit,
@@ -591,16 +646,18 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
       :max_terraform_state_size_bytes,
       :members_delete_limit,
       :notes_create_limit,
+      :create_organization_api_limit,
       :package_registry_cleanup_policies_worker_capacity,
       :packages_cleanup_package_file_worker_capacity,
+      :pages_extra_deployments_default_expiry_seconds,
       :pipeline_limit_per_project_user_sha,
       :project_api_limit,
+      :project_invited_groups_api_limit,
       :projects_api_limit,
       :projects_api_rate_limit_unauthenticated,
       :raw_blob_request_limit,
       :search_rate_limit,
       :search_rate_limit_unauthenticated,
-      :session_expire_delay,
       :sidekiq_job_limiter_compression_threshold_bytes,
       :sidekiq_job_limiter_limit_bytes,
       :terminal_max_session_time,
@@ -610,17 +667,24 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
       :users_get_by_id_limit
   end
 
+  attribute :resource_usage_limits, ::Gitlab::Database::Type::IndifferentJsonb.new, default: -> { {} }
+  validates :resource_usage_limits, json_schema: { filename: 'resource_usage_limits' }
+
   jsonb_accessor :rate_limits,
     concurrent_bitbucket_import_jobs_limit: [:integer, { default: 100 }],
     concurrent_bitbucket_server_import_jobs_limit: [:integer, { default: 100 }],
     concurrent_github_import_jobs_limit: [:integer, { default: 1000 }],
+    concurrent_relation_batch_export_limit: [:integer, { default: 8 }],
     downstream_pipeline_trigger_limit_per_project_user_sha: [:integer, { default: 0 }],
     group_api_limit: [:integer, { default: 400 }],
+    group_invited_groups_api_limit: [:integer, { default: 60 }],
     group_projects_api_limit: [:integer, { default: 600 }],
     group_shared_groups_api_limit: [:integer, { default: 60 }],
     groups_api_limit: [:integer, { default: 200 }],
     members_delete_limit: [:integer, { default: 60 }],
+    create_organization_api_limit: [:integer, { default: 10 }],
     project_api_limit: [:integer, { default: 400 }],
+    project_invited_groups_api_limit: [:integer, { default: 60 }],
     projects_api_limit: [:integer, { default: 2000 }],
     user_contributed_projects_api_limit: [:integer, { default: 100 }],
     user_projects_api_limit: [:integer, { default: 300 }],
@@ -635,13 +699,34 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
     throttle_unauthenticated_git_http_period_in_seconds: [:integer, { default: 3600 }]
 
   jsonb_accessor :importers,
-    silent_admin_exports_enabled: [:boolean, { default: false }]
+    silent_admin_exports_enabled: [:boolean, { default: false }],
+    allow_contribution_mapping_to_admins: [:boolean, { default: false }]
+
+  jsonb_accessor :sign_in_restrictions,
+    disable_password_authentication_for_users_with_sso_identities: [:boolean, { default: false }]
+
+  validates :sign_in_restrictions, json_schema: { filename: 'application_setting_sign_in_restrictions' }
+
+  jsonb_accessor :search,
+    global_search_merge_requests_enabled: [:boolean, { default: true }],
+    global_search_work_items_enabled: [:boolean, { default: true }],
+    global_search_users_enabled: [:boolean, { default: true }]
+
+  validates :search, json_schema: { filename: 'application_setting_search' }
+
+  jsonb_accessor :transactional_emails,
+    resource_access_token_notify_inherited: [:boolean, { default: false }],
+    lock_resource_access_token_notify_inherited: [:boolean, { default: false }]
+
+  validates :transactional_emails, json_schema: { filename: "application_setting_transactional_emails" }
 
   validates :rate_limits, json_schema: { filename: "application_setting_rate_limits" }
 
   validates :importers, json_schema: { filename: "application_setting_importers" }
 
   jsonb_accessor :package_registry, nuget_skip_metadata_url_validation: [:boolean, { default: false }]
+
+  jsonb_accessor :oauth_provider, ropc_without_client_credentials: [:boolean, { default: true }]
 
   validates :package_registry, json_schema: { filename: 'application_setting_package_registry' }
 
@@ -665,13 +750,13 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates :floc_enabled,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
-  enum sidekiq_job_limiter_mode: {
+  enum :sidekiq_job_limiter_mode, {
     Gitlab::SidekiqMiddleware::SizeLimiter::Validator::TRACK_MODE => 0,
     Gitlab::SidekiqMiddleware::SizeLimiter::Validator::COMPRESS_MODE => 1 # The default
   }
 
   validates :sidekiq_job_limiter_mode,
-    inclusion: { in: self.sidekiq_job_limiter_modes }
+    inclusion: { in: sidekiq_job_limiter_modes }
 
   validates :sentry_enabled,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
@@ -707,11 +792,13 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates :inactive_projects_send_warning_email_after_months,
     numericality: { only_integer: true, greater_than: 0, less_than: :inactive_projects_delete_after_months }
 
-  validates :prometheus_alert_db_indicators_settings, json_schema: { filename: 'application_setting_prometheus_alert_db_indicators_settings' }, allow_nil: true
+  validates :prometheus_alert_db_indicators_settings,
+    json_schema: { filename: 'application_setting_prometheus_alert_db_indicators_settings' }, allow_nil: true
 
   validates :sentry_clientside_traces_sample_rate,
     presence: true,
-    numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1, message: N_('must be a value between 0 and 1') }
+    numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 1,
+                    message: N_('must be a value between 0 and 1') }
 
   validates :package_registry_allow_anyone_to_pull_option,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
@@ -722,6 +809,15 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   validates :asciidoc_max_includes,
     numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 64 }
+
+  jsonb_accessor :pages,
+    pages_extra_deployments_default_expiry_seconds: [:integer, { default: 86400 }]
+
+  validates :pages, json_schema: { filename: "application_setting_pages" }
+
+  validates :enforce_ci_inbound_job_token_scope_enabled,
+    allow_nil: false,
+    inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
   attr_encrypted :asset_proxy_secret_key,
     mode: :per_attribute_iv,
@@ -749,28 +845,35 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   attr_encrypted :recaptcha_private_key, encryption_options_base_32_aes_256_gcm
   attr_encrypted :recaptcha_site_key, encryption_options_base_32_aes_256_gcm
   attr_encrypted :slack_app_secret, encryption_options_base_32_aes_256_gcm
-  attr_encrypted :slack_app_signing_secret, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :slack_app_signing_secret,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
   attr_encrypted :slack_app_verification_token, encryption_options_base_32_aes_256_gcm
   attr_encrypted :ci_jwt_signing_key, encryption_options_base_32_aes_256_gcm
+  attr_encrypted :ci_job_token_signing_key,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
   attr_encrypted :customers_dot_jwt_signing_key, encryption_options_base_32_aes_256_gcm
   attr_encrypted :secret_detection_token_revocation_token, encryption_options_base_32_aes_256_gcm
   attr_encrypted :cloud_license_auth_token, encryption_options_base_32_aes_256_gcm
   attr_encrypted :external_pipeline_validation_service_token, encryption_options_base_32_aes_256_gcm
   attr_encrypted :mailgun_signing_key, encryption_options_base_32_aes_256_gcm.merge(encode: false)
-  attr_encrypted :database_grafana_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :database_grafana_api_key,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
   attr_encrypted :arkose_labs_client_xid, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :arkose_labs_client_secret, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :arkose_labs_public_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :arkose_labs_private_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :arkose_labs_data_exchange_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :arkose_labs_client_secret,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :arkose_labs_public_api_key,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :arkose_labs_private_api_key,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :arkose_labs_data_exchange_key,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
   attr_encrypted :cube_api_key, encryption_options_base_32_aes_256_gcm
   attr_encrypted :telesign_customer_xid, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
   attr_encrypted :telesign_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :product_analytics_configurator_connection_string, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :openai_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
-  attr_encrypted :anthropic_api_key, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false) # Deprecated. See https://gitlab.com/gitlab-org/gitlab/-/issues/466161
-  attr_encrypted :vertex_ai_credentials, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false) # Deprecated. See https://gitlab.com/gitlab-org/gitlab/-/issues/466161
-  attr_encrypted :vertex_ai_access_token, encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false) # Deprecated. See https://gitlab.com/gitlab-org/gitlab/-/issues/466161
+  attr_encrypted :product_analytics_configurator_connection_string,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
+  attr_encrypted :secret_detection_service_auth_token,
+    encryption_options_base_32_aes_256_gcm.merge(encode: false, encode_iv: false)
 
   # Restricting the validation to `on: :update` only to avoid cyclical dependencies with
   # License <--> ApplicationSetting. This method calls a license check when we create
@@ -808,6 +911,10 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   validates :require_admin_two_factor_authentication,
     inclusion: { in: [true, false], message: N_('must be a boolean value') }
 
+  validates :secret_detection_service_url,
+    allow_blank: true,
+    length: { maximum: 255 }
+
   before_validation :ensure_uuid!
   before_validation :coerce_repository_storages_weighted, if: :repository_storages_weighted_changed?
   before_validation :normalize_default_branch_name
@@ -819,7 +926,9 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   after_commit do
     reset_memoized_terms
   end
-  after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> { previous_changes.key?('performance_bar_allowed_group_id') }
+  after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> {
+    previous_changes.key?('performance_bar_allowed_group_id')
+  }
   after_commit :reset_deletion_warning_redis_key, if: :should_reset_inactive_project_deletion_warning?
 
   def validate_grafana_url
@@ -861,7 +970,7 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   Recursion = Class.new(RuntimeError)
 
   def self.create_from_defaults
-    # this is posssible if calls to create the record depend on application
+    # this is possible if calls to create the record depend on application
     # settings themselves. This was seen in the case of a feature flag called by
     # `transaction` that ended up requiring application settings to determine metrics behavior.
     # If something like that happens, we break the loop here, and let the caller decide how to manage it.
@@ -896,9 +1005,9 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   # prevent this from happening, we do a sanity check that the
   # primary key constraint is present before inserting a new entry.
   def self.check_schema!
-    return if connection.primary_key(self.table_name).present?
+    return if connection.primary_key(table_name).present?
 
-    raise "The `#{self.table_name}` table is missing a primary key constraint in the database schema"
+    raise "The `#{table_name}` table is missing a primary key constraint in the database schema"
   end
 
   # By default, the backend is Rails.cache, which uses
@@ -909,11 +1018,15 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
     Gitlab::ProcessMemoryCache.cache_backend
   end
 
+  def self.human_attribute_name(attribute, *options)
+    HUMANIZED_ATTRIBUTES[attribute.to_sym] || super
+  end
+
   def recaptcha_or_login_protection_enabled
     recaptcha_enabled || login_recaptcha_protection_enabled
   end
 
-  kroki_formats_attributes.keys.each do |key|
+  kroki_formats_attributes.each_key do |key|
     define_method :"kroki_formats_#{key}=" do |value|
       super(::Gitlab::Utils.to_boolean(value))
     end
@@ -946,10 +1059,6 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
 
   private
 
-  def self.human_attribute_name(attribute, *options)
-    HUMANIZED_ATTRIBUTES[attribute.to_sym] || super
-  end
-
   def parsed_grafana_url
     @parsed_grafana_url ||= Gitlab::Utils.parse_url(grafana_url)
   end
@@ -959,21 +1068,21 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
       kroki_url, schemes: %w[http https],
       enforce_sanitization: true,
       deny_all_requests_except_allowed: Gitlab::CurrentSettings.deny_all_requests_except_allowed?,
-      outbound_local_requests_allowlist: Gitlab::CurrentSettings.outbound_local_requests_whitelist)[0] # rubocop:disable Naming/InclusiveLanguage -- existing setting
+      outbound_local_requests_allowlist: Gitlab::CurrentSettings.outbound_local_requests_whitelist)[0]
   rescue Gitlab::HTTP_V2::UrlBlocker::BlockedUrlError => e
-    self.errors.add(
+    errors.add(
       :kroki_url,
       "is not valid. #{e}"
     )
   end
 
   def validate_url(parsed_url, name, error_message)
-    unless parsed_url
-      self.errors.add(
-        name,
-        "must be a valid relative or absolute URL. #{error_message}"
-      )
-    end
+    return if parsed_url
+
+    errors.add(
+      name,
+      "must be a valid relative or absolute URL. #{error_message}"
+    )
   end
 
   def reset_deletion_warning_redis_key
@@ -987,7 +1096,8 @@ class ApplicationSetting < MainClusterwide::ApplicationRecord
   end
 
   def should_reset_inactive_project_deletion_warning?
-    saved_change_to_inactive_projects_delete_after_months? || saved_change_to_delete_inactive_projects?(from: true, to: false)
+    saved_change_to_inactive_projects_delete_after_months? || saved_change_to_delete_inactive_projects?(from: true,
+      to: false)
   end
 end
 

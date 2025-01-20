@@ -84,7 +84,6 @@ exports[`Delete merged branches component Delete merged branches confirmation mo
           class="gl-form-input gl-form-input-sm gl-mt-2"
           debounce="0"
           formatter="[Function]"
-          nowheel="true"
           required="true"
           type="text"
           value=""
@@ -102,7 +101,7 @@ exports[`Delete merged branches component Delete merged branches confirmation mo
       />
     </form>
     <div
-      class="gl-display-flex gl-flex-direction-row gl-flex-wrap gl-justify-content-end gl-m-0 gl-mr-3"
+      class="gl-flex gl-flex-row gl-flex-wrap gl-justify-end gl-m-0 gl-mr-3"
     >
       <b-button-stub
         class="gl-button"

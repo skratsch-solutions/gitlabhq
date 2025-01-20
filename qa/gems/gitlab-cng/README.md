@@ -19,6 +19,13 @@ Commands:
   cng version               # Print cng orchestrator version
 ```
 
+### Environment variables
+
+It is possible to configure certain options via environment variables. Following environment variables are supported:
+
+* `CNG_FORCE_COLOR` - force color output in case support is not detected properly (useful for CI executions)
+* `CNG_HELM_REPOSITORY_CACHE` - custom helm repository cache folder. Equivalent to global `--repository-cache` flag of `helm` command
+
 ## Add new deployments
 
 The main feature `cng` is to programmatically manage different deployment type configurations and setup. To implement new deployment configuration:
@@ -31,6 +38,8 @@ The main feature `cng` is to programmatically manage different deployment type c
    - `helm` values: set of values to apply during installation.
 1. Define a cleanup class based on the [`Base`](lib/gitlab/cng/lib/deployment/configurations/cleanup/_base.rb) cleanup class. Implement a single method
    that deletes all objects created by `pre-deployment` and `post-deployment` setup.
+
+All different options for `GitLab` deployment on `Kubernetes` cluster are described in [GitLab Helm chart](https://docs.gitlab.com/charts/) documentation page.
 
 ## Tips
 
@@ -50,3 +59,13 @@ function cng() {
   (cd $PATH_TO_GITLAB_REPO/gems/gitlab-cng && BUNDLE_AUTO_INSTALL=true bundle exec cng "$@")
 }
 ```
+
+## Troubleshooting
+
+### Helm deployment
+
+Because `cng` tool essentially wraps `helm upgrade --install` command, official [Troubleshooting the GitLab chart](https://docs.gitlab.com/charts/troubleshooting/index.html) guide can be used for troubleshooting deployment failures.
+
+### CI setup
+
+Documentation on where to find environment logs and other useful information for troubleshooting failures on CI can be found in [test pipelines](../../../doc/development/testing_guide/end_to_end/test_pipelines.md#e2etest-on-cng) documentation section.

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Filter parameters
 
@@ -17,20 +17,25 @@ DETAILS:
 See [User contribution events](../user/profile/contributions_calendar.md#user-contribution-events) for available types for the `action` parameter.
 These options are in lowercase.
 
-### Target Types
+### Target types
+
+> - Support for epics [introduced](https://gitlab.com/groups/gitlab-org/-/epics/13056) in GitLab 17.3. Your administrator must have [enabled the new look for epics](../user/group/epics/epic_work_items.md).
 
 Available target types for the `target_type` parameter are:
 
-- `issue`
-- `milestone`
-- `merge_request`
-- `note`
-- `project`
-- `snippet`
-- `user`
+- `epic`. Your administrator must have [enabled the new look for epics](../user/group/epics/epic_work_items.md).
+- `issue`.
+- `milestone`.
+- `merge_request`.
+- `note` - Some notes on merge requests may be of the type `DiscussionNote`, instead of `Note`.
+  `DiscussionNote` items are [not available using the API](discussions.md#understand-note-types-in-the-api).
+- `project`.
+- `snippet`.
+- `user`.
 
 These options are in lowercase.
-Events associated with epics are not available using the API.
+Some epic features like child items, linked items, start dates, due dates, and health statuses are not available using the API.
+Some discussions on merge requests may be of type `DiscussionNote`. These are not available using the API.
 
 ### Date formatting
 
@@ -55,14 +60,14 @@ GET /events
 
 Parameters:
 
-| Attribute | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| `action` | string | no | Include only events of a particular [action type](#actions) |
-| `target_type` | string | no | Include only events of a particular [target type](#target-types) |
-| `before` | date | no |  Include only events created before a particular date. [View how to format dates](#date-formatting). |
-| `after` | date | no |  Include only events created after a particular date. [View how to format dates](#date-formatting).  |
-| `scope` | string | no | Include all events across a user's projects. |
-| `sort` | string | no | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`. |
+| Attribute     | Type   | Required | Description                                                                                         |
+|---------------|--------|----------|-----------------------------------------------------------------------------------------------------|
+| `action`      | string | no       | Include only events of a particular [action type](#actions)                                         |
+| `target_type` | string | no       | Include only events of a particular [target type](#target-types)                                    |
+| `before`      | date   | no       | Include only events created before a particular date. [View how to format dates](#date-formatting). |
+| `after`       | date   | no       | Include only events created after a particular date. [View how to format dates](#date-formatting).  |
+| `scope`       | string | no       | Include all events across a user's projects.                                                        |
+| `sort`        | string | no       | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`.                            |
 
 Example request:
 
@@ -134,16 +139,16 @@ GET /users/:id/events
 
 Parameters:
 
-| Attribute | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| `id` | integer | yes | The ID or Username of the user |
-| `action` | string | no | Include only events of a particular [action type](#actions) |
-| `target_type` | string | no | Include only events of a particular [target type](#target-types) |
-| `before` | date | no |  Include only events created before a particular date. [View how to format dates](#date-formatting). |
-| `after` | date | no |  Include only events created after a particular date. [View how to format dates](#date-formatting). |
-| `sort` | string | no | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`. |
-| `page` | integer | no | The page of results to return. Defaults to 1. |
-| `per_page` | integer | no | The number of results per page. Defaults to 20. |
+| Attribute     | Type    | Required | Description                                                                                         |
+|---------------|---------|----------|-----------------------------------------------------------------------------------------------------|
+| `id`          | integer | yes      | The ID or Username of the user                                                                      |
+| `action`      | string  | no       | Include only events of a particular [action type](#actions)                                         |
+| `target_type` | string  | no       | Include only events of a particular [target type](#target-types)                                    |
+| `before`      | date    | no       | Include only events created before a particular date. [View how to format dates](#date-formatting). |
+| `after`       | date    | no       | Include only events created after a particular date. [View how to format dates](#date-formatting).  |
+| `sort`        | string  | no       | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`.                            |
+| `page`        | integer | no       | The page of results to return. Defaults to 1.                                                       |
+| `per_page`    | integer | no       | The number of results per page. Defaults to 20.                                                     |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/users/:id/events"
@@ -284,14 +289,14 @@ GET /projects/:project_id/events
 
 Parameters:
 
-| Attribute | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| `project_id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) |
-| `action` | string | no | Include only events of a particular [action type](#actions) |
-| `target_type` | string | no | Include only events of a particular [target type](#target-types) |
-| `before` | date | no |  Include only events created before a particular date. [View how to format dates](#date-formatting). |
-| `after` | date | no |  Include only events created after a particular date. [View how to format dates](#date-formatting).  |
-| `sort` | string | no | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`. |
+| Attribute     | Type           | Required | Description                                                                                         |
+|---------------|----------------|----------|-----------------------------------------------------------------------------------------------------|
+| `project_id`  | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths)                 |
+| `action`      | string         | no       | Include only events of a particular [action type](#actions)                                         |
+| `target_type` | string         | no       | Include only events of a particular [target type](#target-types)                                    |
+| `before`      | date           | no       | Include only events created before a particular date. [View how to format dates](#date-formatting). |
+| `after`       | date           | no       | Include only events created after a particular date. [View how to format dates](#date-formatting).  |
+| `sort`        | string         | no       | Sort events in `asc` or `desc` order by `created_at`. Default is `desc`.                            |
 
 Example request:
 

@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
   include ApplicationHelper
   include AvatarsHelper
+  include NumbersHelper
 
   describe '#group_icon_url' do
     it 'returns an url for the avatar' do
@@ -311,7 +312,6 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
 
     before do
       group.update_attribute(:show_diff_preview_in_email, true)
-      stub_feature_flags(diff_preview_in_email: true)
     end
 
     it 'returns true for an owner of the group' do
@@ -446,20 +446,6 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
     end
   end
 
-  describe '#can_admin_service_accounts?', feature_category: :user_management do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:group) { create(:group) }
-
-    before do
-      allow(helper).to receive(:current_user) { user }
-      group.add_owner(user)
-    end
-
-    it 'returns false when current_user can not admin members' do
-      expect(helper.can_admin_service_accounts?(group)).to be(false)
-    end
-  end
-
   describe '#localized_jobs_to_be_done_choices' do
     it 'has a translation for all `jobs_to_be_done` values' do
       expect(localized_jobs_to_be_done_choices.keys).to match_array(NamespaceSetting.jobs_to_be_dones.keys)
@@ -542,11 +528,8 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
           show_schema_markup: 'true',
           new_subgroup_path: including("groups/new?parent_id=#{group.id}#create-group-pane"),
           new_project_path: including("/projects/new?namespace_id=#{group.id}"),
-          new_subgroup_illustration: including('illustrations/subgroup-create-new-sm'),
-          new_project_illustration: including('illustrations/project-create-new-sm'),
           empty_projects_illustration: including('illustrations/empty-state/empty-projects-md'),
-          empty_subgroup_illustration: including('illustrations/empty-state/empty-subgroup-md'),
-          empty_search_illustration: including('illustrations/empty-state/empty-search-md'),
+          empty_subgroup_illustration: including('illustrations/empty-state/empty-projects-md'),
           render_empty_state: 'true',
           can_create_subgroups: 'true',
           can_create_projects: 'true'
@@ -670,6 +653,7 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
           expect(subject).to eq(
             {
               'Guest' => 10,
+              'Planner' => 15,
               'Reporter' => 20,
               'Developer' => 30
             }
@@ -686,6 +670,7 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
           expect(subject).to eq(
             {
               'Guest' => 10,
+              'Planner' => 15,
               'Reporter' => 20,
               'Developer' => 30,
               'Maintainer' => 40,
@@ -717,6 +702,7 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
           expect(helper.access_level_roles_user_can_assign(grand_parent, group.access_level_roles)).to be_empty
           expect(helper.access_level_roles_user_can_assign(parent, group.access_level_roles)).to eq({
             'Guest' => ::Gitlab::Access::GUEST,
+            'Planner' => ::Gitlab::Access::PLANNER,
             'Reporter' => ::Gitlab::Access::REPORTER,
             'Developer' => ::Gitlab::Access::DEVELOPER
           })
@@ -759,6 +745,54 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
       subgroup = create(:group, parent: group)
 
       expect(helper.show_prevent_inviting_groups_outside_hierarchy_setting?(subgroup)).to eq(false)
+    end
+  end
+
+  describe('#group_confirm_modal_data') do
+    using RSpec::Parameterized::TableSyntax
+
+    let_it_be(:group) { create(:group, path: "foo") }
+
+    fake_form_id = "fake_form_id"
+    where(:prevent_delete_response, :is_button_disabled, :form_value_id, :permanently_remove, :button_text) do
+      true      | "true"      | nil           |  false  | "Delete"
+      true      | "true"      | fake_form_id  |  true   | nil
+      false     | "false"     | nil           |  false  | "Delete group"
+      false     | "false"     | fake_form_id  |  true   | nil
+    end
+
+    with_them do
+      it "returns expected parameters" do
+        allow(group).to receive(:linked_to_subscription?).and_return(prevent_delete_response)
+
+        expected = helper.group_confirm_modal_data(group: group, remove_form_id: form_value_id, button_text: button_text)
+        expect(expected).to eq({
+          button_text: button_text.nil? ? "Delete group" : button_text,
+          confirm_danger_message: remove_group_message(group, permanently_remove),
+          remove_form_id: form_value_id,
+          phrase: group.full_path,
+          button_testid: "remove-group-button",
+          disabled: is_button_disabled,
+          html_confirmation_message: 'true'
+        })
+      end
+    end
+  end
+
+  describe '#group_merge_requests' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:project) { create(:project, namespace: group) }
+    let_it_be(:merge_request) { create(:merge_request, :simple, source_project: project, target_project: project) }
+
+    before do
+      group.add_owner(user)
+
+      allow(helper).to receive(:current_user).and_return(user)
+    end
+
+    it 'returns group merge requests' do
+      expect(helper.group_merge_requests(group)).to contain_exactly(merge_request)
     end
   end
 end

@@ -2,10 +2,10 @@
 - breadcrumb_title @integration.title
 - page_title @integration.title, _('Integrations')
 
-%h1.page-title.gl-font-size-h-display
+%h1.page-title.gl-text-size-h-display
   = @integration.title
 
-- if @integration.title == 'Beyond Identity' && Feature.enabled?(:beyond_identity_exclusions)
+- if @integration.title == 'Beyond Identity'
   .js-vue-beyond-identity-exclusions{ data: integration_overrides_data(@integration) }
 
 - else

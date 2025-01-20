@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe ImportExportUpload do
   let(:project) { create(:project) }
 
-  subject { described_class.new(project: project) }
+  subject(:import_export_upload) { described_class.new(project: project) }
 
   shared_examples 'stores the Import/Export file' do |method|
     it 'stores the import file' do
@@ -27,11 +27,17 @@ RSpec.describe ImportExportUpload do
     it_behaves_like 'stores the Import/Export file', :export_file
   end
 
+  describe 'associations' do
+    it { is_expected.to belong_to(:project) }
+    it { is_expected.to belong_to(:group) }
+    it { is_expected.to belong_to(:user) }
+  end
+
   describe 'scopes' do
     let_it_be(:upload1) { create(:import_export_upload, export_file: fixture_file_upload('spec/fixtures/project_export.tar.gz')) }
-    let_it_be(:upload2) { create(:import_export_upload) }
+    let_it_be(:upload2) { create(:import_export_upload, export_file: nil) }
     let_it_be(:upload3) { create(:import_export_upload, export_file: fixture_file_upload('spec/fixtures/project_export.tar.gz'), updated_at: 25.hours.ago) }
-    let_it_be(:upload4) { create(:import_export_upload, updated_at: 2.days.ago) }
+    let_it_be(:upload4) { create(:import_export_upload, export_file: nil, updated_at: 2.days.ago) }
 
     describe '.with_export_file' do
       it 'returns uploads with export file' do
@@ -119,6 +125,15 @@ RSpec.describe ImportExportUpload do
           expect(subject.export_archive_exists?).to be false
         end
       end
+    end
+  end
+
+  describe '#uploads_sharding_key' do
+    it 'returns project_id / group_id' do
+      expect(import_export_upload.uploads_sharding_key).to eq(
+        project_id: project.id,
+        namespace_id: nil
+      )
     end
   end
 end

@@ -22,6 +22,7 @@ import {
   TOKEN_TYPE_RELEASE,
   TOKEN_TYPE_SOURCE_BRANCH,
 } from '~/vue_shared/components/filtered_search_bar/constants';
+import { EMOJI_THUMBS_UP } from '~/emoji/constants';
 import UserToken from '~/vue_shared/components/filtered_search_bar/tokens/user_token.vue';
 import BranchToken from '~/vue_shared/components/filtered_search_bar/tokens/branch_token.vue';
 import EmojiToken from '~/vue_shared/components/filtered_search_bar/tokens/emoji_token.vue';
@@ -73,6 +74,19 @@ export const mockEscapedMilestone = {
   name: '5.0 RC1',
   title: '5.0 RC1',
 };
+
+export const mockDuplicateMilestones = [
+  {
+    id: 99,
+    name: '99.0',
+    title: '99.0',
+  },
+  {
+    id: 100,
+    name: '99.0',
+    title: '99.0',
+  },
+];
 
 export const mockMilestones = [
   {
@@ -233,7 +247,7 @@ export const mockGroupCrmOrganizationsQueryResponse = {
 };
 
 export const mockEmoji1 = {
-  name: 'thumbsup',
+  name: EMOJI_THUMBS_UP,
 };
 
 export const mockEmoji2 = {

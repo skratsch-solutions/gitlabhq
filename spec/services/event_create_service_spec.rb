@@ -31,6 +31,20 @@ RSpec.describe EventCreateService, :clean_gitlab_redis_cache, :clean_gitlab_redi
     end
   end
 
+  describe 'no project or group' do
+    it 'links the event to the personal namespace of the author' do
+      author = create(:user, :with_namespace)
+      issue = create(:issue, author: author).tap do |issue|
+        issue.namespace_id = nil
+        issue.project_id = nil
+      end
+
+      event = service.open_issue(issue, issue.author)
+
+      expect(event.personal_namespace_id).to eq(issue.author.namespace_id)
+    end
+  end
+
   describe 'Issues' do
     describe '#open_issue' do
       let(:issue) { create(:issue) }
@@ -223,6 +237,13 @@ RSpec.describe EventCreateService, :clean_gitlab_redis_cache, :clean_gitlab_redi
       expect { subject }.to change { user.last_activity_on }.to(Date.today)
     end
 
+    it 'publishes an activity event' do
+      expect { subject }.to publish_event(Users::ActivityEvent).with({
+        user_id: user.id,
+        namespace_id: project.root_ancestor.id
+      })
+    end
+
     it 'caches the last push event for the user' do
       expect_next_instance_of(Users::LastPushEventService) do |instance|
         expect(instance).to receive(:cache_last_push_event).with(an_instance_of(PushEvent))
@@ -283,8 +304,11 @@ RSpec.describe EventCreateService, :clean_gitlab_redis_cache, :clean_gitlab_redi
         expect(duplicate).to eq(event)
       end
 
-      it_behaves_like "it records the event in the event counter" do
-        let(:event_action) { :wiki_action }
+      it_behaves_like 'internal event tracking' do
+        let(:event) { 'performed_wiki_action' }
+        let(:category) { described_class.name }
+        let(:project) { meta.project }
+        let(:additional_properties) { { label: action.to_s } }
       end
 
       it_behaves_like "it records a git write event"

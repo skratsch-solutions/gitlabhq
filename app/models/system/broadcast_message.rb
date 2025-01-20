@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module System
-  class BroadcastMessage < MainClusterwide::ApplicationRecord
+  class BroadcastMessage < ApplicationRecord
     include CacheMarkdownField
     include Sortable
 
     ALLOWED_TARGET_ACCESS_LEVELS = [
       Gitlab::Access::GUEST,
+      Gitlab::Access::PLANNER,
       Gitlab::Access::REPORTER,
       Gitlab::Access::DEVELOPER,
       Gitlab::Access::MAINTAINER,
@@ -63,8 +64,8 @@ module System
         end
       end
 
-      def current_show_in_cli_banner_messages
-        current_banner_messages.select(&:show_in_cli?)
+      def current_show_in_cli_banner_messages(user_access_level: nil)
+        current_banner_messages(user_access_level: user_access_level).select(&:show_in_cli?)
       end
 
       def current_notification_messages(current_path: nil, user_access_level: nil)

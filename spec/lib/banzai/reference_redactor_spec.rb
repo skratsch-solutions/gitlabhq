@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Banzai::ReferenceRedactor, feature_category: :team_planning do
+RSpec.describe Banzai::ReferenceRedactor, feature_category: :markdown do
   let(:user) { create(:user) }
   let(:project) { build(:project) }
   let(:redactor) { described_class.new(Banzai::RenderContext.new(project, user)) }
@@ -105,14 +105,14 @@ RSpec.describe Banzai::ReferenceRedactor, feature_category: :team_planning do
     end
 
     context 'when reference is a gollum wiki page link that is not visible to user' do
-      it 'redacts the wiki page title and href' do
+      it 'replaces redacted reference with original content' do
         doc = Nokogiri::HTML.fragment('<a class="gfm" href="https://gitlab.com/path/to/project/-/wikis/foo" data-reference-type="wiki_page" data-gollum="true">foo</a>')
 
         expect(redactor).to receive(:nodes_visible_to_user).and_return([])
 
         redactor.redact([doc])
 
-        expect(doc.to_html).to eq('[redacted]')
+        expect(doc.to_html).to eq('foo')
       end
     end
   end

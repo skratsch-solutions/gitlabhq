@@ -8,7 +8,7 @@ module Gitlab
 
         # The maximum number of patterned glob comparisons that will be
         # performed before the rule assumes that it has a match
-        MAX_PATTERN_COMPARISONS = 10_000
+        MAX_PATTERN_COMPARISONS = 50_000
 
         WILDCARD_NESTED_PATTERN = "**/*"
 
@@ -16,8 +16,6 @@ module Gitlab
           @globs = Array(clause[:paths])
           @project_path = clause[:project]
           @ref = clause[:ref]
-
-          @top_level_only = @globs.all?(&method(:top_level_glob?))
         end
 
         def satisfied_by?(_pipeline, context)
@@ -26,8 +24,11 @@ module Gitlab
 
           context = change_context(context) if @project_path
 
-          paths = worktree_paths(context)
-          exact_globs, extension_globs, pattern_globs = separate_globs(context)
+          expanded_globs = expand_globs(context)
+          top_level_only = expanded_globs.all?(&method(:top_level_glob?))
+
+          paths = worktree_paths(context, top_level_only)
+          exact_globs, extension_globs, pattern_globs = separate_globs(expanded_globs)
 
           exact_matches?(paths, exact_globs) ||
             matches_extension?(paths, extension_globs) ||
@@ -36,23 +37,21 @@ module Gitlab
 
         private
 
-        def separate_globs(context)
-          expanded_globs = expand_globs(context)
-
+        def separate_globs(expanded_globs)
           grouped = expanded_globs.group_by { |glob| glob_type(glob) }
           grouped.values_at(:exact, :extension, :pattern).map { |globs| Array(globs) }
         end
 
         def expand_globs(context)
           @globs.map do |glob|
-            expand_value(glob, context)
+            expand_value_nested(glob, context)
           end
         end
 
-        def worktree_paths(context)
+        def worktree_paths(context, top_level_only)
           return [] unless context.project
 
-          if @top_level_only
+          if top_level_only
             context.top_level_worktree_paths
           else
             context.all_worktree_paths
@@ -86,7 +85,19 @@ module Gitlab
         end
 
         def pattern_matches?(paths, pattern_globs, context)
-          return true if (paths.size * pattern_globs.size) > MAX_PATTERN_COMPARISONS
+          comparisons = paths.size * pattern_globs.size
+
+          if comparisons > MAX_PATTERN_COMPARISONS
+            Gitlab::AppJsonLogger.info(
+              class: self.class.name,
+              message: 'rules:exists pattern comparisons limit exceeded',
+              project_id: context.project&.id,
+              paths_size: paths.size,
+              globs_size: pattern_globs.size,
+              comparisons: comparisons
+            )
+            return true
+          end
 
           pattern_globs.any? do |glob|
             Gitlab::SafeRequestStore.fetch("ci_rules_exists_pattern_matches_#{context.project&.id}_#{glob}") do
@@ -140,18 +151,12 @@ module Gitlab
         end
 
         def find_context_project(user, context)
-          full_path = expand_value(@project_path, context)
+          full_path = expand_value_nested(@project_path, context)
           project = Project.find_by_full_path(full_path)
 
-          unless project
+          unless project && Ability.allowed?(user, :read_code, project)
             raise Rules::Rule::Clause::ParseError,
-              "rules:exists:project `#{mask_context_variables_from(context, full_path)}` is not a valid project path"
-          end
-
-          unless Ability.allowed?(user, :read_code, project)
-            raise Rules::Rule::Clause::ParseError,
-              "rules:exists:project access denied to project " \
-              "`#{mask_context_variables_from(context, project.full_path)}`"
+              "rules:exists:project `#{mask_context_variables_from(context, full_path)}` not found or access denied"
           end
 
           project
@@ -160,7 +165,7 @@ module Gitlab
         def find_context_sha(project, context)
           return project.commit&.sha unless @ref
 
-          ref = expand_value(@ref, context)
+          ref = expand_value_nested(@ref, context)
           commit = project.commit(ref)
 
           unless commit
@@ -182,8 +187,8 @@ module Gitlab
           end
         end
 
-        def expand_value(value, context)
-          ExpandVariables.expand_existing(value, -> { context.variables_hash })
+        def expand_value_nested(value, context)
+          ExpandVariables.expand_existing(value, -> { context.variables_hash_expanded })
         end
       end
     end

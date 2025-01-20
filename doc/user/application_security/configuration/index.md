@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The **Security configuration** page lists the following for the security testing and compliance tools:
 
@@ -59,7 +59,7 @@ You can configure the following security controls:
 - [Container Scanning](../container_scanning/index.md)
   - Select **Configure with a merge request** to create a merge request with the changes required to
     enable Container Scanning. For more details, see
-    [Enable Container Scanning through an automatic merge request](../container_scanning/index.md#enable-container-scanning-through-an-automatic-merge-request).
+    [Enable Container Scanning through an automatic merge request](../container_scanning/index.md#use-a-preconfigured-merge-request).
 - [Container Scanning For Registry](../container_scanning/index.md#container-scanning-for-registry)
   - Enable toggle to configure **Container Scanning For Registry** for the current project.
 - [Operational Container Scanning](../../clusters/agent/vulnerabilities.md)
@@ -76,7 +76,7 @@ You can configure the following security controls:
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can configure the following security controls:
 

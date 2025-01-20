@@ -28,31 +28,25 @@
 
   li > .wiki-list {
     min-height: 30px;
-    padding: 0 $gl-padding-8;
+    @apply gl-mx-2;
+    margin-bottom: 1px;
 
     &:hover,
     &.active {
-      background: var(--gray-50, $gray-50);
+      @apply gl-bg-neutral-50 dark:gl-bg-neutral-900;
     }
 
     &:hover {
       a {
-        color: var(--black, $black);
+        color: var(--gl-text-color-default);
       }
     }
 
     &:hover, &:focus, &:focus-within {
       .wiki-list-create-child-button {
-        display: block;
+        display: inline-flex;
       }
     }
-  }
-
-  .wiki-list-expand-button,
-  .wiki-list-collapse-button {
-    color: $gray-400;
-    position: absolute;
-    right: $gl-spacing-scale-2;
   }
 
   ul.wiki-pages,
@@ -68,10 +62,6 @@
 }
 
 ul.wiki-pages-list.content-list {
-  a {
-    color: var(--blue-600, $blue-600);
-  }
-
   ul {
     list-style: none;
     margin-left: 0;
@@ -126,17 +116,6 @@ ul.wiki-pages-list.content-list {
   }
 }
 
-.wiki-templates-list {
-  li {
-    padding-left: $gl-spacing-scale-4 !important;
-    padding-right: $gl-spacing-scale-4 !important;
-
-    li {
-      padding: 0 !important;
-    }
-  }
-}
-
 .drawio-editor {
   position: fixed;
   top: 0;
@@ -161,8 +140,10 @@ ul.wiki-pages-list.content-list {
   .container-limited.limit-container-width {
     max-width: 100%;
   }
+}
 
-  .gl-disclosure-dropdown {
-    display: none !important;
+.discussion {
+  .toggle-replies-widget {
+    border: 0;
   }
 }

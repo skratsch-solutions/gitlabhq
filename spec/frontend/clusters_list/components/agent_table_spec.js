@@ -1,32 +1,32 @@
-import { GlLink, GlIcon, GlBadge, GlTable, GlPagination } from '@gitlab/ui';
-import { sprintf } from '~/locale';
+import { nextTick } from 'vue';
+import {
+  GlLink,
+  GlIcon,
+  GlBadge,
+  GlTable,
+  GlPagination,
+  GlDisclosureDropdown,
+  GlDisclosureDropdownItem,
+} from '@gitlab/ui';
 import AgentTable from '~/clusters_list/components/agent_table.vue';
 import DeleteAgentButton from '~/clusters_list/components/delete_agent_button.vue';
-import { I18N_AGENT_TABLE } from '~/clusters_list/constants';
+import ConnectToAgentModal from '~/clusters_list/components/connect_to_agent_modal.vue';
+import { I18N_AGENT_TABLE, CONNECT_MODAL_ID } from '~/clusters_list/constants';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import { stubComponent } from 'helpers/stub_component';
+import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { clusterAgents, connectedTimeNow, connectedTimeInactive } from './mock_data';
 
 const defaultConfigHelpUrl =
   '/help/user/clusters/agent/install/index#create-an-agent-configuration-file';
 
-const provideData = {
-  kasCheckVersion: '14.8.0',
-};
 const defaultProps = {
   agents: clusterAgents,
   maxAgents: null,
 };
 
-const DeleteAgentButtonStub = stubComponent(DeleteAgentButton, {
-  template: `<div></div>`,
-});
-
-const outdatedTitle = I18N_AGENT_TABLE.versionOutdatedTitle;
-const mismatchTitle = I18N_AGENT_TABLE.versionMismatchTitle;
-const mismatchOutdatedTitle = I18N_AGENT_TABLE.versionMismatchOutdatedTitle;
-const mismatchText = I18N_AGENT_TABLE.versionMismatchText;
+const DeleteAgentButtonStub = stubComponent(DeleteAgentButton, { template: '<div></div>' });
 
 describe('AgentTable', () => {
   let wrapper;
@@ -44,14 +44,16 @@ describe('AgentTable', () => {
   const findSharedBadgeByRow = (at) => findTableRow(at).findComponent(GlBadge);
   const findDeleteAgentButtonByRow = (at) => findTableRow(at).findComponent(DeleteAgentButton);
   const findPagination = () => wrapper.findComponent(GlPagination);
+  const findDisclosureDropdown = () => wrapper.findComponent(GlDisclosureDropdown);
+  const findDisclosureDropdownItem = () =>
+    wrapper.findAllComponents(GlDisclosureDropdownItem).at(0);
+  const findConnectModal = () => wrapper.findComponent(ConnectToAgentModal);
 
-  const createWrapper = ({ provide = provideData, propsData = defaultProps } = {}) => {
+  const createWrapper = ({ propsData = defaultProps } = {}) => {
     wrapper = mountExtended(AgentTable, {
       propsData,
-      provide,
-      stubs: {
-        DeleteAgentButton: DeleteAgentButtonStub,
-      },
+      stubs: { DeleteAgentButton: DeleteAgentButtonStub },
+      directives: { GlModalDirective: createMockDirective('gl-modal-directive') },
     });
   };
 
@@ -125,47 +127,59 @@ describe('AgentTable', () => {
         },
       );
 
-      it('displays actions menu for each agent except the shared agents', () => {
-        expect(findDeleteAgentButtons()).toHaveLength(clusterAgents.length - 1);
-        expect(findDeleteAgentButtonByRow(9).exists()).toBe(false);
+      describe('actions menu', () => {
+        it('renders dropdown for the actions', () => {
+          expect(findDisclosureDropdown().attributes('title')).toBe('Actions');
+        });
+
+        it('renders dropdown item for connecting to cluster action', () => {
+          expect(findDisclosureDropdownItem().text()).toBe('Connect to agent-1');
+        });
+
+        it('binds dropdown item to the proper modal', () => {
+          const binding = getBinding(findDisclosureDropdownItem().element, 'gl-modal-directive');
+
+          expect(binding.value).toBe(CONNECT_MODAL_ID);
+        });
+
+        it('renders connect to agent modal when the agent is selected', async () => {
+          expect(findConnectModal().exists()).toBe(false);
+          findDisclosureDropdownItem().vm.$emit('action');
+          findDisclosureDropdownItem().vm.$emit('click');
+
+          await nextTick();
+
+          expect(findConnectModal().props()).toEqual({
+            agentId: 'gid://gitlab/Clusters::Agent/1',
+            projectPath: 'path/to/project',
+            isConfigured: true,
+          });
+        });
+
+        it('displays delete agent button for each agent except the shared agents', () => {
+          expect(findDeleteAgentButtons()).toHaveLength(clusterAgents.length - 1);
+          expect(findDeleteAgentButtonByRow(9).exists()).toBe(false);
+        });
       });
     });
 
     describe.each`
-      agentMockIdx | agentVersion | kasCheckVersion | versionMismatch | versionOutdated | title
-      ${0}         | ${''}        | ${'14.8.0'}     | ${false}        | ${false}        | ${''}
-      ${1}         | ${'14.8.0'}  | ${'14.8.0'}     | ${false}        | ${false}        | ${''}
-      ${2}         | ${'14.6.0'}  | ${'14.8.0'}     | ${false}        | ${true}         | ${outdatedTitle}
-      ${3}         | ${'14.7.0'}  | ${'14.8.0'}     | ${true}         | ${false}        | ${mismatchTitle}
-      ${4}         | ${'14.3.0'}  | ${'14.8.0'}     | ${true}         | ${true}         | ${mismatchOutdatedTitle}
-      ${5}         | ${'14.6.0'}  | ${'14.8.0-rc1'} | ${false}        | ${false}        | ${''}
-      ${6}         | ${'14.8.0'}  | ${'15.0.0'}     | ${false}        | ${true}         | ${outdatedTitle}
-      ${7}         | ${'14.8.0'}  | ${'15.0.0-rc1'} | ${false}        | ${true}         | ${outdatedTitle}
-      ${8}         | ${'14.8.0'}  | ${'14.8.10'}    | ${false}        | ${false}        | ${''}
-      ${9}         | ${''}        | ${'14.8.0'}     | ${false}        | ${false}        | ${''}
+      agentMockIdx | agentVersion | agentWarnings               | versionMismatch | text                                    | title
+      ${0}         | ${''}        | ${''}                       | ${false}        | ${''}                                   | ${''}
+      ${1}         | ${'14.8.0'}  | ${''}                       | ${false}        | ${''}                                   | ${''}
+      ${2}         | ${'14.6.0'}  | ${'This agent is outdated'} | ${false}        | ${''}                                   | ${I18N_AGENT_TABLE.versionWarningsTitle}
+      ${3}         | ${'14.7.0'}  | ${''}                       | ${true}         | ${I18N_AGENT_TABLE.versionMismatchText} | ${I18N_AGENT_TABLE.versionMismatchTitle}
+      ${4}         | ${'14.3.0'}  | ${'This agent is outdated'} | ${true}         | ${I18N_AGENT_TABLE.versionMismatchText} | ${I18N_AGENT_TABLE.versionWarningsMismatchTitle}
     `(
-      'when agent version is "$agentVersion", KAS version is "$kasCheckVersion" and version mismatch is "$versionMismatch"',
-      ({
-        agentMockIdx,
-        agentVersion,
-        kasCheckVersion,
-        versionMismatch,
-        versionOutdated,
-        title,
-      }) => {
+      'when agent version is "$agentVersion" and agent warning is "$agentWarnings"',
+      ({ agentMockIdx, agentVersion, agentWarnings, versionMismatch, text, title }) => {
         const currentAgent = clusterAgents[agentMockIdx];
-
-        const findIcon = () => findVersionText(0).findComponent(GlIcon);
-        const findPopover = () => wrapper.findByTestId(`popover-${currentAgent.name}`);
-
-        const versionWarning = versionMismatch || versionOutdated;
-        const outdatedText = sprintf(I18N_AGENT_TABLE.versionOutdatedText, {
-          version: kasCheckVersion,
-        });
+        const showWarning = versionMismatch || agentWarnings?.length;
+        const popover = () => wrapper.findByTestId(`popover-${currentAgent.name}`);
 
         beforeEach(() => {
           createWrapper({
-            provide: { kasCheckVersion },
+            provide: { projectPath: 'path/to/project' },
             propsData: { agents: [currentAgent] },
           });
         });
@@ -174,27 +188,19 @@ describe('AgentTable', () => {
           expect(findVersionText(0).text()).toBe(agentVersion);
         });
 
-        if (versionWarning) {
-          it('shows a warning icon', () => {
-            expect(findIcon().props('name')).toBe('warning');
+        if (showWarning) {
+          it('shows the correct title for the popover', () => {
+            expect(popover().props('title')).toBe(title);
           });
-          it(`renders correct title for the popover when agent versions mismatch is ${versionMismatch} and outdated is ${versionOutdated}`, () => {
-            expect(findPopover().props('title')).toBe(title);
+
+          it('renders correct text for the popover', () => {
+            expect(popover().text()).toContain(text);
+            expect(popover().text()).toContain(agentWarnings);
           });
-          if (versionMismatch) {
-            it(`renders correct text for the popover when agent versions mismatch is ${versionMismatch}`, () => {
-              expect(findPopover().text()).toContain(mismatchText);
-            });
-          }
-          if (versionOutdated) {
-            it(`renders correct text for the popover when agent versions outdated is ${versionOutdated}`, () => {
-              expect(findPopover().text()).toContain(outdatedText);
-            });
-          }
         } else {
-          it(`doesn't show a warning icon with a popover when agent versions mismatch is ${versionMismatch} and outdated is ${versionOutdated}`, () => {
-            expect(findIcon().exists()).toBe(false);
-            expect(findPopover().exists()).toBe(false);
+          it("doesn't show a warning icon with a popover", () => {
+            expect(findVersionText(0).findComponent(GlIcon).exists()).toBe(false);
+            expect(popover().exists()).toBe(false);
           });
         }
       },

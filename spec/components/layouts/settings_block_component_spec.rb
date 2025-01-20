@@ -19,7 +19,7 @@ RSpec.describe Layouts::SettingsBlockComponent, type: :component, feature_catego
     it 'renders description' do
       render_inline described_class.new(heading, description: description)
 
-      expect(page).to have_css('.gl-text-secondary', text: description)
+      expect(page).to have_css('.gl-text-subtle', text: description)
     end
 
     it 'renders description slot' do
@@ -27,7 +27,7 @@ RSpec.describe Layouts::SettingsBlockComponent, type: :component, feature_catego
         c.with_description { description }
       end
 
-      expect(page).to have_css('.gl-text-secondary', text: description)
+      expect(page).to have_css('.gl-text-subtle', text: description)
     end
 
     it 'renders body slot' do
@@ -53,14 +53,16 @@ RSpec.describe Layouts::SettingsBlockComponent, type: :component, feature_catego
     it 'renders collapsed if not expanded' do
       render_inline described_class.new(heading, expanded: nil)
 
-      expect(page).to have_css('.js-settings-toggle', text: 'Expand')
+      # expect(page).to have_css('.js-settings-toggle', text: 'Expand')
+      expect(page).to have_selector('.settings-toggle[aria-label^="Expand"]')
     end
 
     it 'renders expanded if expanded' do
       render_inline described_class.new(heading, expanded: true)
 
       expect(page).to have_css('.settings.expanded')
-      expect(page).to have_css('.js-settings-toggle', text: 'Collapse')
+      # expect(page).to have_css('.js-settings-toggle', text: 'Collapse')
+      expect(page).to have_selector('.settings-toggle[aria-label^="Collapse"]')
     end
   end
 end

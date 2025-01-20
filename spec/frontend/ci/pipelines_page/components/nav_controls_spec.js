@@ -4,16 +4,30 @@ import NavControls from '~/ci/pipelines_page/components/nav_controls.vue';
 describe('Pipelines Nav Controls', () => {
   let wrapper;
 
-  const createComponent = (props) => {
+  const createComponent = (props = {}) => {
     wrapper = shallowMountExtended(NavControls, {
       propsData: {
         ...props,
+      },
+      provide: {
+        pipelinesAnalyticsPath: '/pipelines/charts',
       },
     });
   };
 
   const findRunPipelineButton = () => wrapper.findByTestId('run-pipeline-button');
   const findClearCacheButton = () => wrapper.findByTestId('clear-cache-button');
+  const findViewAnalyticsLink = () => wrapper.findByTestId('view-analytics-link');
+
+  it('should render link to navigate to CI/CD analytics', () => {
+    createComponent();
+
+    const link = findViewAnalyticsLink();
+
+    expect(link.exists()).toBe(true);
+    expect(link.text()).toContain('View analytics');
+    expect(link.attributes('href')).toBe('/pipelines/charts');
+  });
 
   it('should render link to create a new pipeline', () => {
     const mockData = {
@@ -24,7 +38,7 @@ describe('Pipelines Nav Controls', () => {
     createComponent(mockData);
 
     const runPipelineButton = findRunPipelineButton();
-    expect(runPipelineButton.text()).toContain('Run pipeline');
+    expect(runPipelineButton.text()).toContain('New pipeline');
     expect(runPipelineButton.attributes('href')).toBe(mockData.newPipelinePath);
   });
 

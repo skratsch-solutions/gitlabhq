@@ -11,21 +11,21 @@ module Projects
       def to_h
         {
           auto_devops_enabled: auto_devops_source?,
-          auto_devops_help_page_path: help_page_path('topics/autodevops/index'),
+          auto_devops_help_page_path: help_page_path('topics/autodevops/index.md'),
           auto_devops_path: auto_devops_settings_path(project),
           can_enable_auto_devops: can_enable_auto_devops?,
           features: features,
-          help_page_path: help_page_path('user/application_security/index'),
+          help_page_path: help_page_path('user/application_security/index.md'),
           latest_pipeline_path: latest_pipeline_path,
           gitlab_ci_present: project.has_ci_config_file?,
           gitlab_ci_history_path: gitlab_ci_history_path,
           security_training_enabled: project.security_training_available?,
-          continuous_vulnerability_scans_enabled: continuous_vulnerability_scans_enabled,
           container_scanning_for_registry_enabled: container_scanning_for_registry_enabled,
           pre_receive_secret_detection_available:
             Gitlab::CurrentSettings.current_application_settings.pre_receive_secret_detection_enabled,
           pre_receive_secret_detection_enabled: pre_receive_secret_detection_enabled,
-          user_is_project_admin: user_is_project_admin?
+          user_is_project_admin: user_is_project_admin?,
+          secret_detection_configuration_path: secret_detection_configuration_path
         }
       end
 
@@ -65,7 +65,7 @@ module Projects
         scans << scan(:dast_profiles, configured: true)
 
         # Add pre-receive before secret detection
-        if dedicated_instance? || pre_receive_secret_detection_feature_flag_enabled?
+        if project.licensed_feature_available?(:pre_receive_secret_detection)
           secret_detection_index = scans.index { |scan| scan[:type] == :secret_detection } || -1
           scans.insert(secret_detection_index, scan(:pre_receive_secret_detection, configured: true))
         end
@@ -74,7 +74,7 @@ module Projects
       end
 
       def latest_pipeline_path
-        return help_page_path('ci/pipelines/index') unless latest_default_branch_pipeline
+        return help_page_path('ci/pipelines/index.md') unless latest_default_branch_pipeline
 
         project_pipeline_path(self, latest_default_branch_pipeline)
       end
@@ -98,24 +98,13 @@ module Projects
         ::Security::SecurityJobsFinder.allowed_job_types + ::Security::LicenseComplianceJobsFinder.allowed_job_types
       end
 
-      def dedicated_instance?
-        ::Gitlab::CurrentSettings.gitlab_dedicated_instance?
-      end
-
-      def pre_receive_secret_detection_feature_flag_enabled?
-        return false unless project.licensed_feature_available?(:pre_receive_secret_detection)
-
-        Feature.enabled?(:pre_receive_secret_detection_beta_release) && Feature.enabled?(
-          :pre_receive_secret_detection_push_check, project)
-      end
-
       def project_settings
         project.security_setting
       end
 
-      def continuous_vulnerability_scans_enabled; end
       def container_scanning_for_registry_enabled; end
       def pre_receive_secret_detection_enabled; end
+      def secret_detection_configuration_path; end
     end
   end
 end

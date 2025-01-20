@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 If you don't want to keep your documentation in your repository, but you want
 to keep it in the same project as your code, you can use the wiki GitLab provides
@@ -51,6 +51,7 @@ for previously created wikis.
 ## Create the wiki home page
 
 > - Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+> - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
 When a wiki is created, it is empty. On your first visit, you can create the
 home page users see when viewing the wiki. This page requires a specific path
@@ -72,6 +73,7 @@ to be used as your wiki's home page. To create it:
 ## Create a new wiki page
 
 > - Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+> - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
 Prerequisites:
 
@@ -114,6 +116,7 @@ Files with unsupported extensions don't display when pushed to GitLab:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/133521) front matter based titles in GitLab 16.7 [with flags](../../../administration/feature_flags.md) named `wiki_front_matter` and `wiki_front_matter_title`. Disabled by default.
 > - Feature flags [`wiki_front_matter`](https://gitlab.com/gitlab-org/gitlab/-/issues/435056) and [`wiki_front_matter_title`](https://gitlab.com/gitlab-org/gitlab/-/issues/428259) enabled by default in GitLab 17.2.
+> - Feature flags `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
 Wiki pages are stored as files in a Git repository, and by default, the filename of
 a page is also its title. Certain characters in the filename have a special meaning:
@@ -193,6 +196,7 @@ Prerequisites:
 
 > - Redirects for moved or renamed wiki pages [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/257892) in GitLab 17.1 [with a flag](../../../administration/feature_flags.md) named `wiki_redirection`. Enabled by default.
 > - Separation of page title and path [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30758) in GitLab 17.2 [with flags](../../../administration/feature_flags.md) named `wiki_front_matter` and `wiki_front_matter_title`. Enabled by default.
+> - Feature flags `wiki_redirection`, `wiki_front_matter` and `wiki_front_matter_title` removed in GitLab 17.3.
 
 In GitLab 17.1 and later, when you move or rename a page, a redirect is
 automatically set up from the old page to the new page. A list of redirects
@@ -215,7 +219,7 @@ Prerequisites:
 ## Export a wiki page
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/414691) in GitLab 16.3 [with a flag](../../../administration/feature_flags.md) named `print_wiki`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/134251/) in GitLab 16.5.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/134251/) in GitLab 16.5.
 > - Feature flag `print_wiki` removed in GitLab 16.6.
 
 You can export a wiki page as a PDF file:
@@ -325,7 +329,7 @@ replaces the default sidebar navigation:
 A `_sidebar` example, formatted with Markdown:
 
 ```markdown
-### [Home](home)
+### Home
 
 - [Hello World](hello)
 - [Foo](foo)
@@ -342,7 +346,7 @@ Wikis are enabled by default in GitLab. Project [administrators](../../permissio
 can enable or disable a project wiki by following the instructions in
 [Sharing and permissions](../settings/index.md#configure-project-features-and-permissions).
 
-Administrators for self-managed GitLab installs can
+Administrators for GitLab Self-Managed can
 [configure additional wiki settings](../../../administration/wikis/index.md).
 
 You can disable group wikis from the [group settings](group.md#configure-group-wiki-visibility)
@@ -453,7 +457,7 @@ line of your Apache configuration to ensure your page slugs render correctly.
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 WARNING:
 This operation deletes all data in the wiki.

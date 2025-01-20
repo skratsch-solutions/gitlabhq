@@ -1,6 +1,8 @@
 <script>
 import { GlButton, GlTooltipDirective } from '@gitlab/ui';
 import { EditorContent as TiptapEditorContent } from '@tiptap/vue-2';
+import { isEqual } from 'lodash';
+import { markRaw } from '~/lib/utils/vue3compat/mark_raw';
 import { __ } from '~/locale';
 import { VARIANT_DANGER } from '~/alert';
 import EditorModeSwitcher from '~/vue_shared/components/markdown/editor_mode_switcher.vue';
@@ -125,6 +127,11 @@ export default {
     },
   },
   watch: {
+    autocompleteDataSources(newDataSources, oldDataSources) {
+      if (!isEqual(newDataSources, oldDataSources)) {
+        this.contentEditor.updateAutocompleteDataSources(newDataSources);
+      }
+    },
     markdown(markdown) {
       if (markdown !== this.latestMarkdown) {
         this.setSerializedContent(markdown);
@@ -149,21 +156,23 @@ export default {
     } = this;
 
     // This is a non-reactive attribute intentionally since this is a complex object.
-    this.contentEditor = createContentEditor({
-      renderMarkdown,
-      uploadsPath,
-      extensions,
-      serializerConfig,
-      drawioEnabled,
-      enableAutocomplete,
-      autocompleteDataSources,
-      codeSuggestionsConfig,
-      sidebarMediator: SidebarMediator.singleton,
-      tiptapOptions: {
-        autofocus,
-        editable,
-      },
-    });
+    this.contentEditor = markRaw(
+      createContentEditor({
+        renderMarkdown,
+        uploadsPath,
+        extensions,
+        serializerConfig,
+        drawioEnabled,
+        enableAutocomplete,
+        autocompleteDataSources,
+        codeSuggestionsConfig,
+        sidebarMediator: SidebarMediator.singleton,
+        tiptapOptions: {
+          autofocus,
+          editable,
+        },
+      }),
+    );
   },
   async mounted() {
     this.$emit('initialized');
@@ -190,7 +199,7 @@ export default {
         this.contentEditor.setEditable(false);
         this.contentEditor.eventHub.$emit(ALERT_EVENT, {
           message: __(
-            'An error occurred while trying to render the content editor. Please try again.',
+            'An error occurred while trying to render the rich text editor. Please try again.',
           ),
           variant: VARIANT_DANGER,
           actionLabel: __('Retry'),
@@ -254,12 +263,14 @@ export default {
           :supports-quick-actions="supportsQuickActions"
           :hide-attachment-button="disableAttachments"
           @enableMarkdownEditor="$emit('enableMarkdownEditor')"
-        />
-        <div v-if="showPlaceholder" class="gl-absolute gl-text-gray-400 gl-px-5 gl-pt-4">
+        >
+          <template #header-buttons><slot name="header-buttons"></slot></template>
+        </formatting-toolbar>
+        <div v-if="showPlaceholder" class="gl-absolute gl-px-5 gl-pt-4 gl-text-disabled">
           {{ placeholder }}
         </div>
         <tiptap-editor-content
-          class="md"
+          class="md !gl-static"
           data-testid="content_editor_editablebox"
           :editor="contentEditor.tiptapEditor"
         />
@@ -271,9 +282,10 @@ export default {
         <reference-bubble-menu />
       </div>
       <div
-        class="gl-display-flex gl-display-flex gl-flex-direction-row gl-justify-content-space-between gl-align-items-center gl-rounded-bottom-left-base gl-rounded-bottom-right-base gl-px-2 gl-border-t gl-border-gray-100 gl-text-secondary"
+        class="gl-border-t gl-flex gl-flex-row gl-items-center gl-justify-between gl-rounded-bl-base gl-rounded-br-base gl-border-default gl-px-2"
       >
         <editor-mode-switcher size="small" value="richText" @switch="handleEditorModeChanged" />
+        <slot name="toolbar"></slot>
         <gl-button
           v-gl-tooltip
           icon="markdown-mark"
@@ -283,7 +295,7 @@ export default {
           size="small"
           :title="__('Markdown is supported')"
           :aria-label="__('Markdown is supported')"
-          class="gl-px-3!"
+          class="!gl-px-3"
         />
       </div>
     </div>

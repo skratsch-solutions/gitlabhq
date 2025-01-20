@@ -36,9 +36,14 @@ module QA
 
       it(
         'creates a merge request with a milestone and label', :smoke, :health_check,
+        quarantine: {
+          only: { job: 'update-ee-to-ce' },
+          issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/494054',
+          type: :investigating
+        },
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347762'
       ) do
-        gitlab_account_user_name = Resource::User.default.reload!.name
+        gitlab_account_user_name = Runtime::User::Store.test_user.name
 
         milestone = create(:project_milestone, project: project)
 

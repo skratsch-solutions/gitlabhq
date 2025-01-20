@@ -8,7 +8,8 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
   include described_class
   include TermsHelper
 
-  let_it_be(:user, reload: true) { create(:user) }
+  let_it_be(:organization) { create(:organization) }
+  let_it_be(:user, reload: true) { create(:user, organizations: [organization]) }
 
   let(:admin) { create(:admin) }
   let(:key) { create(:key, user: user) }
@@ -309,6 +310,30 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
     end
   end
 
+  describe '.set_current_organization' do
+    context 'when user argument is omitted' do
+      before do
+        allow(self).to receive(:current_user).and_return(user)
+      end
+
+      it 'sets Current.organization using current_user' do
+        set_current_organization
+
+        expect(Current.organization).to eq(organization)
+      end
+    end
+
+    context 'when user is passed' do
+      let(:other_user) { create(:user, organizations: [create(:organization)]) }
+
+      it 'sets Current.organization' do
+        set_current_organization(user: other_user)
+
+        expect(Current.organization).to eq(other_user.organizations.first)
+      end
+    end
+  end
+
   describe '.handle_api_exception' do
     before do
       allow_any_instance_of(self.class).to receive(:rack_response)
@@ -577,7 +602,7 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
       end
 
       it 'raises an error' do
-        expect { current_user }.to raise_error(/Must be authenticated using an OAuth or Personal Access Token to use sudo/)
+        expect { current_user }.to raise_error(/Must be authenticated using an OAuth or personal access token to use sudo/)
       end
     end
   end

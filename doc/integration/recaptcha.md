@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Anti-Abuse
+stage: Software Supply Chain Security
+group: Authorization
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 GitLab leverages [reCAPTCHA](https://www.google.com/recaptcha/about/)
 to protect against spam and abuse. GitLab displays the CAPTCHA form on the sign-up page
@@ -21,7 +21,7 @@ To use reCAPTCHA, first create a site and private key.
 1. Go to the [Google reCAPTCHA page](https://www.google.com/recaptcha/admin).
 1. To get reCAPTCHA v2 keys, fill in the form and select **Submit**.
 1. Sign in to your GitLab server as an administrator.
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Reporting**.
 1. Expand **Spam and Anti-bot Protection**.
 1. In the reCAPTCHA fields, enter the keys you obtained in the previous steps.

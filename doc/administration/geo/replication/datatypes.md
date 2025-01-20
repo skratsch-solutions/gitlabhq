@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 A Geo data type is a specific class of data that is required by one or more GitLab features to
 store relevant information.
@@ -54,16 +54,16 @@ verification methods:
 | Blobs    | Terraform Module Registry _(object storage)_    | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | Versioned Terraform State _(file system)_       | Geo with API                                 | SHA256 checksum               |
 | Blobs    | Versioned Terraform State _(object storage)_    | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
-| Blobs    | External Merge Request Diffs _(file system)_    | Geo with API                                 | SHA256 checksum               |
-| Blobs    | External Merge Request Diffs _(object storage)_ | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
+| Blobs    | External merge request diffs _(file system)_    | Geo with API                                 | SHA256 checksum               |
+| Blobs    | External merge request diffs _(object storage)_ | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | Pipeline artifacts _(file system)_              | Geo with API                                 | SHA256 checksum               |
 | Blobs    | Pipeline artifacts _(object storage)_           | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | Pages _(file system)_                           | Geo with API                                 | SHA256 checksum               |
 | Blobs    | Pages _(object storage)_                        | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | CI Secure Files _(file system)_                 | Geo with API                                 | SHA256 checksum               |
 | Blobs    | CI Secure Files _(object storage)_              | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
-| Blobs    | Incident Metric Images  _(file system)_         | Geo with API/Managed                         | SHA256 checksum               |
-| Blobs    | Incident Metric Images  _(object storage)_      | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
+| Blobs    | Incident Metric Images _(file system)_          | Geo with API/Managed                         | SHA256 checksum               |
+| Blobs    | Incident Metric Images _(object storage)_       | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | Alert Metric Images _(file system)_             | Geo with API                                 | SHA256 checksum               |
 | Blobs    | Alert Metric Images _(object storage)_          | Geo with API/Managed <sup>2</sup>            | SHA256 checksum <sup>3</sup>  |
 | Blobs    | Dependency Proxy Images_(file system)_          | Geo with API                                 | SHA256 checksum               |
@@ -95,7 +95,7 @@ The Gitaly gRPC API does the communication, with three possible ways of synchron
 
 - Using regular Git clone/fetch from one Geo site to another (with special authentication).
 - Using repository snapshots (for when the first method fails or repository is corrupt).
-- Manual trigger from the Admin Area (a combination of both of the above).
+- Manual trigger from the **Admin** area (a combination of both of the above).
 
 Each project can have at most 3 different repositories:
 
@@ -147,16 +147,7 @@ Elasticsearch is an optional database for advanced search. It can improve search
 in both source-code level, and user generated content in issues, merge requests, and discussions.
 Elasticsearch is not supported in Geo.
 
-## Limitations on replication/verification
-
-The following table lists the GitLab features along with their replication
-and verification status on a **secondary** site.
-
-You can keep track of the progress to implement the missing items in
-these epics/issues:
-
-- [Geo: Improve the self-service Geo replication framework](https://gitlab.com/groups/gitlab-org/-/epics/3761)
-- [Geo: Move existing blobs to framework](https://gitlab.com/groups/gitlab-org/-/epics/3588)
+## Replicated data types
 
 ### Replicated data types behind a feature flag
 
@@ -166,7 +157,7 @@ The replication for some data types is behind a corresponding feature flag:
 > - They're enabled on GitLab.com.
 > - They can't be enabled or disabled per-project.
 > - They are recommended for production use.
-> - For GitLab self-managed instances, GitLab administrators can opt to [disable them](#enable-or-disable-replication-for-some-data-types).
+> - For a GitLab Self-Managed instance, GitLab administrators can opt to [disable them](#enable-or-disable-replication-for-some-data-types).
 
 #### Enable or disable replication (for some data types)
 
@@ -195,13 +186,13 @@ successfully, you must replicate their data using some other means.
 | Feature                                                                                                               | Replicated (added in GitLab version)                                          | Verified (added in GitLab version)                                            | GitLab-managed object storage replication (added in GitLab version)             | GitLab-managed object storage verification (added in GitLab version)            | Notes |
 |:----------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------|:------------------------------------------------------------------------------|:--------------------------------------------------------------------------------|:--------------------------------------------------------------------------------|:------|
 | [Application data in PostgreSQL](../../postgresql/index.md)                                                           | **Yes** (10.2)                                                                | **Yes** (10.2)                                                                | Not applicable                                                                  | Not applicable                                                                  |       |
-| [Project repository](../../../user/project/repository/index.md)                                                       | **Yes** (10.2)                                                                | **Yes** (10.7)                                                                | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Migrated to [self-service framework](../../../development/geo/framework.md) in 16.2. See GitLab issue [#367925](https://gitlab.com/gitlab-org/gitlab/-/issues/367925) for more details.<br /><br />Behind feature flag `geo_project_repository_replication`, enabled by default in (16.3).<br /><br /> All projects, including [archived projects](../../../user/project/working_with_projects.md#archive-a-project), are replicated. |
-| [Project wiki repository](../../../user/project/wiki/index.md)                                                        | **Yes** (10.2)<sup>2</sup>                                                    | **Yes** (10.7)<sup>2</sup>                                                    | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Migrated to [self-service framework](../../../development/geo/framework.md) in 15.11. See GitLab issue [#367925](https://gitlab.com/gitlab-org/gitlab/-/issues/367925) for more details.<br /><br />Behind feature flag `geo_project_wiki_repository_replication`, enabled by default in (15.11). |
-| [Group wiki repository](../../../user/project/wiki/group.md)                                                          | [**Yes** (13.10)](https://gitlab.com/gitlab-org/gitlab/-/issues/208147)       | [**Yes** (16.3)](https://gitlab.com/gitlab-org/gitlab/-/issues/323897)        | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Behind feature flag `geo_group_wiki_repository_replication`, enabled by default. |
+| [Project repository](../../../user/project/repository/index.md)                                                       | **Yes** (10.2)                                                                | **Yes** (10.7)                                                                | Not applicable                                                                  | Not applicable                                                                  | Migrated to [self-service framework](../../../development/geo/framework.md) in 16.2. See GitLab issue [#367925](https://gitlab.com/gitlab-org/gitlab/-/issues/367925) for more details.<br /><br />Behind feature flag `geo_project_repository_replication`, enabled by default in (16.3).<br /><br /> All projects, including [archived projects](../../../user/project/working_with_projects.md#archive-a-project), are replicated. |
+| [Project wiki repository](../../../user/project/wiki/index.md)                                                        | **Yes** (10.2)<sup>2</sup>                                                    | **Yes** (10.7)<sup>2</sup>                                                    | Not applicable                                                                  | Not applicable                                                                  | Migrated to [self-service framework](../../../development/geo/framework.md) in 15.11. See GitLab issue [#367925](https://gitlab.com/gitlab-org/gitlab/-/issues/367925) for more details.<br /><br />Behind feature flag `geo_project_wiki_repository_replication`, enabled by default in (15.11). |
+| [Group wiki repository](../../../user/project/wiki/group.md)                                                          | [**Yes** (13.10)](https://gitlab.com/gitlab-org/gitlab/-/issues/208147)       | [**Yes** (16.3)](https://gitlab.com/gitlab-org/gitlab/-/issues/323897)        | Not applicable                                                                  | Not applicable                                                                  | Behind feature flag `geo_group_wiki_repository_replication`, enabled by default. |
 | [Uploads](../../uploads.md)                                                                                           | **Yes** (10.2)                                                                | **Yes** (14.6)                                                                | [**Yes** (15.1)](https://gitlab.com/groups/gitlab-org/-/epics/5551)             | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Replication is behind the feature flag `geo_upload_replication`, enabled by default. Verification was behind the feature flag `geo_upload_verification`, removed in 14.8. |
 | [LFS objects](../../lfs/index.md)                                                                                     | **Yes** (10.2)                                                                | **Yes** (14.6)                                                                | [**Yes** (15.1)](https://gitlab.com/groups/gitlab-org/-/epics/5551)             | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | GitLab versions 11.11.x and 12.0.x are affected by [a bug that prevents any new LFS objects from replicating](https://gitlab.com/gitlab-org/gitlab/-/issues/32696).<br /><br />Replication is behind the feature flag `geo_lfs_object_replication`, enabled by default. Verification was behind the feature flag `geo_lfs_object_verification`, removed in 14.7. |
-| [Personal snippets](../../../user/snippets.md)                                                                        | **Yes** (10.2)                                                                | **Yes** (10.2)                                                                | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) |       |
-| [Project snippets](../../../user/snippets.md)                                                                         | **Yes** (10.2)                                                                | **Yes** (10.2)                                                                | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) |       |
+| [Personal snippets](../../../user/snippets.md)                                                                        | **Yes** (10.2)                                                                | **Yes** (10.2)                                                                | Not applicable                                                                  | Not applicable                                                                  |       |
+| [Project snippets](../../../user/snippets.md)                                                                         | **Yes** (10.2)                                                                | **Yes** (10.2)                                                                | Not applicable                                                                  | Not applicable                                                                  |       |
 | [CI job artifacts](../../../ci/jobs/job_artifacts.md)                                                                 | **Yes** (10.4)                                                                | **Yes** (14.10)                                                               | [**Yes** (15.1)](https://gitlab.com/groups/gitlab-org/-/epics/5551)             | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Verification is behind the feature flag `geo_job_artifact_replication`, enabled by default in 14.10. |
 | [CI Pipeline Artifacts](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/ci/pipeline_artifact.rb)        | [**Yes** (13.11)](https://gitlab.com/gitlab-org/gitlab/-/issues/238464)       | [**Yes** (13.11)](https://gitlab.com/gitlab-org/gitlab/-/issues/238464)       | [**Yes** (15.1)](https://gitlab.com/groups/gitlab-org/-/epics/5551)             | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Persists additional artifacts after a pipeline completes. |
 | [CI Secure Files](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/ci/secure_file.rb)                    | [**Yes** (15.3)](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/91430) | [**Yes** (15.3)](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/91430) | [**Yes** (15.3)](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/91430)   | [**Yes** (16.4)<sup>3</sup>](https://gitlab.com/groups/gitlab-org/-/epics/8056) | Verification is behind the feature flag `geo_ci_secure_file_replication`, enabled by default in 15.3. |

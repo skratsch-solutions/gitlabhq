@@ -1,14 +1,19 @@
 @import 'mixins_and_variables_and_functions';
 
+$dark-highlight-bg: #ffe792;
+$dark-highlight-color: $black;
+$white-highlight: #fafe3d;
 $search-dropdown-max-height: 400px;
 $search-avatar-size: 16px;
 $search-sidebar-min-width: 240px;
 $search-sidebar-max-width: 300px;
 $language-filter-max-height: 20rem;
+$white-divider: #d9d9d9;
+$black-divider: #666;
 
 .search-results {
   .search-result-row {
-    border-bottom: 1px solid var(--border-color, $border-color);
+    border-bottom: 1px solid var(--gl-border-color-default);
     padding-bottom: $gl-padding;
     margin-bottom: $gl-padding;
 
@@ -22,19 +27,39 @@ $language-filter-max-height: 20rem;
   }
 
   mark {
-    position: relative;
-    background-color: $orange-100;
-    padding: 0;
-    box-shadow: 0 0 0 $gl-spacing-scale-1 $orange-100;
-    z-index: -1;
+    @include str-highlighted;
   }
+
 }
 
-.hr-x {
-  margin-left: -$gl-spacing-scale-5;
-  margin-right: -$gl-spacing-scale-5;
-  margin-top: $gl-spacing-scale-3;
-  margin-bottom: $gl-spacing-scale-5;
+.results {
+  .file-header-content {
+    .dark.highlight_word {
+      background-color: $dark-highlight-bg !important;
+      color: $dark-highlight-color !important;
+    }
+
+    .white.highlight_word {
+      background-color: $white-highlight !important;
+      color: $dark-highlight-color !important;
+    }
+  }
+
+  .multimatch-divider-dark {
+    border-color: $black-divider !important;
+    border-bottom: 1px solid;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+  }
+
+  .multimatch-divider-light {
+    border-color: $white-divider !important;
+    border-bottom: 1px solid;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+  }
 }
 
 .language-filter-checkbox {
@@ -129,11 +154,6 @@ $language-filter-max-height: 20rem;
     transition: color ease-in-out $default-transition-duration;
   }
 
-  .search-input-container {
-    display: flex;
-    position: relative;
-  }
-
   .search-input-wrap {
     width: 100%;
 
@@ -164,7 +184,7 @@ $language-filter-max-height: 20rem;
     .dropdown-header {
       // Necessary because deprecatedJQueryDropdown doesn't support a second style of headers
       font-weight: $gl-font-weight-bold;
-      color: var(--gl-text-color, $gl-text-color);
+      color: var(--gl-text-color-strong);
       font-size: $gl-font-size;
       line-height: 16px;
     }
@@ -185,30 +205,6 @@ $language-filter-max-height: 20rem;
     }
   }
 
-  &.search-active {
-    form {
-      border-color: var(--blue-300, $blue-300);
-      box-shadow: none;
-
-      .search-input-wrap {
-        .search-icon,
-        .clear-icon {
-          color: var(--gray-400, $gl-text-color-tertiary);
-          transition: color ease-in-out $default-transition-duration;
-        }
-      }
-
-      .search-input {
-        color: var(--gl-text-color, $gl-text-color);
-        transition: color ease-in-out $default-transition-duration;
-      }
-
-      .search-input::placeholder {
-        color: var(--gray-400, $gl-text-color-tertiary);
-      }
-    }
-  }
-
   &.has-value {
     .search-icon {
       display: none;
@@ -218,12 +214,6 @@ $language-filter-max-height: 20rem;
       cursor: pointer;
       display: block;
     }
-  }
-
-  .inline-search-icon {
-    position: relative;
-    margin-right: 4px;
-    color: var(--gray-500, $gl-text-color-secondary);
   }
 
   .identicon,
@@ -273,8 +263,8 @@ $language-filter-max-height: 20rem;
     display: flex;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .btn-search,
-  .btn-success,
   .dropdown-menu-toggle,
   .gl-dropdown {
     width: 100%;
@@ -301,6 +291,7 @@ $language-filter-max-height: 20rem;
     width: 100%;
   }
 
+  // stylelint-disable-next-line gitlab/no-gl-class
   .dropdown-menu-toggle,
   .gl-dropdown {
     @include media-breakpoint-up(lg) {
@@ -312,20 +303,6 @@ $language-filter-max-height: 20rem;
     @include media-breakpoint-up(lg) {
       width: auto;
     }
-  }
-}
-
-.ref-truncated {
-  @include str-truncated(10em);
-}
-
-.global-search-dropdown-menu {
-  width: 100% !important;
-  max-width: 400px;
-
-  @include media-breakpoint-up(md) {
-    // This is larger than the container so width: 100% doesn't work.
-    width: 400px !important;
   }
 }
 

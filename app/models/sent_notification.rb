@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SentNotification < ApplicationRecord
-  include IgnorableColumns
+  include EachBatch
 
   belongs_to :project
   belongs_to :noteable, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
@@ -14,8 +14,6 @@ class SentNotification < ApplicationRecord
   validates :commit_id, presence: true, if: :for_commit?
   validates :in_reply_to_discussion_id, format: { with: /\A\h{40}\z/, allow_nil: true }
   validate :note_valid
-
-  after_save :keep_around_commit, if: :for_commit?
 
   class << self
     def reply_key
@@ -47,7 +45,7 @@ class SentNotification < ApplicationRecord
 
       # Non-sticky write is used as `.record` is only used in ActionMailer
       # where there are no queries to SentNotification.
-      ::Gitlab::Database::LoadBalancing::Session.without_sticky_writes do
+      ::Gitlab::Database::LoadBalancing::SessionMap.current(load_balancer).without_sticky_writes do
         create(attrs)
       end
     end
@@ -121,9 +119,5 @@ class SentNotification < ApplicationRecord
           { errors: note.errors.full_messages.to_sentence }
       )
     end
-  end
-
-  def keep_around_commit
-    project.repository.keep_around(self.commit_id, source: self.class.name)
   end
 end

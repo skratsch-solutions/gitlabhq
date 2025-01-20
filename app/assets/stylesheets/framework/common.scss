@@ -70,46 +70,8 @@
 }
 
 /** COLORS **/
-.cgray { color: $gl-text-color; }
-.clgray { color: $gray-200; }
-.cred { color: $red-500; }
-.cgreen { color: $green-600; }
-.cdark { color: $gray-800; }
-
-.fwhite { fill: $white; }
-.fgray { fill: $gray-500; }
-
-.text-plain,
-.text-plain:hover {
-  color: $gl-text-color;
-}
-
 .text-secondary {
-  color: $gl-text-color-secondary;
-}
-
-.text-tertiary {
-  color: $gl-text-color-tertiary;
-}
-
-.text-primary,
-.text-primary:hover {
-  color: $brand-primary;
-}
-
-.text-success,
-.text-success:hover {
-  color: $brand-success;
-}
-
-.text-danger,
-.text-danger:hover {
-  color: $brand-danger;
-}
-
-.text-danger-muted,
-.text-danger-muted:hover {
-  color: $red-300;
+  @apply gl-text-subtle;
 }
 
 .text-warning,
@@ -122,16 +84,8 @@
   color: $brand-info;
 }
 
-.bg-white {
-  background-color: $white;
-}
-
 .bg-line-target-blue {
   background: $line-target-blue;
-}
-
-.text-break-word {
-  word-break: break-all;
 }
 
 .text-underline,
@@ -144,18 +98,14 @@
   color: $gray-200;
 }
 
-.light { color: $gl-text-color; }
+.light { @apply gl-text-default; }
 
 .slead {
-  color: $gl-text-color;
+  @apply gl-text-default;
   font-size: 14px;
   margin-bottom: 12px;
   font-weight: $gl-font-weight-normal;
   line-height: 24px;
-}
-
-.bold {
-  font-weight: $gl-font-weight-bold;
 }
 
 .tab-content {
@@ -180,8 +130,7 @@ pre {
 }
 
 hr {
-  margin: 1.5rem 0;
-  border-top: 1px solid $gray-50;
+  @apply gl-my-6 gl-mx-0 gl-border-t gl-border-subtle;
 }
 
 .str-truncated {
@@ -227,7 +176,7 @@ table {
 .loading {
   margin: 20px auto;
   height: 40px;
-  color: $gray-700;
+  @apply gl-text-subtle;
   font-size: 32px;
   text-align: center;
 }
@@ -245,12 +194,6 @@ p.time {
 // Fix issue with notes & lists creating a bunch of bottom borders.
 li.note {
   img { max-width: 100%; }
-
-  .note-title {
-    li {
-      border-bottom: 0 !important;
-    }
-  }
 }
 
 .markdown {
@@ -307,7 +250,7 @@ li.note {
 
 .gitlab-promo {
   a {
-    color: $gray-300;
+    @apply gl-text-disabled;
     margin-right: 30px;
   }
 }
@@ -329,10 +272,11 @@ li.note {
   margin-bottom: $gl-padding;
 
   hr {
-    border-color: $gray-50;
+    @apply gl-border-subtle;
   }
 }
 
+// these classes override styles from the dropzone node package
 .dropzone .dz-preview .dz-progress {
   border-color: $border-color !important;
 
@@ -365,15 +309,10 @@ li.note {
     padding: 0 10px;
     clip: auto;
     text-decoration: none;
-    color: $gl-text-color;
+    @apply gl-text-default;
     background: $gray-10;
     z-index: 1;
   }
-}
-
-.bordered-box {
-  border: 1px solid $border-color;
-  border-radius: $gl-border-radius-base;
 }
 
 .tooltip {
@@ -391,16 +330,6 @@ li.note {
   word-wrap: break-word;
 }
 
-.checkbox-icon-inline-wrapper {
-  .checkbox {
-    display: inline;
-
-    label {
-      display: inline;
-    }
-  }
-}
-
 /** COMMON CLASSES **/
 /**
   🚨 Do not use these classes — they are deprecated and being removed. 🚨
@@ -408,28 +337,12 @@ li.note {
 **/
 .prepend-top-20 { margin-top: 20px; }
 .append-bottom-20 { margin-bottom: 20px; }
-.ml-10 { margin-left: 4.5rem; }
-.inline { display: inline-block; }
 .center { text-align: center; }
 .block { display: block; }
-.flex { display: flex; }
-.vertical-align-top { vertical-align: top; }
 .vertical-align-text-top { vertical-align: text-top; }
 .vertical-align-middle { vertical-align: middle; }
-.vertical-align-sub { vertical-align: sub; }
-.flex-align-self-center { align-self: center; }
-.flex-grow { flex-grow: 1; }
-.flex-no-shrink { flex-shrink: 0; }
-.ws-initial { white-space: initial; }
 .ws-normal { white-space: normal; }
 .overflow-auto { overflow: auto; }
-.overflow-visible { overflow: visible; }
-
-.d-flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 /** COMMON SIZING CLASSES **/
 .w-0 { width: 0; }
@@ -438,35 +351,13 @@ li.note {
 .w-30p { width: 30%; }
 .w-60p { width: 60%; }
 
-.h-12em { height: 12em; }
 .h-32-px { height: 32px;}
 
-.mw-460 { max-width: 460px; }
 .mw-6em { max-width: 6em; }
-.mw-70p { max-width: 70%; }
 
 // By default flex items don't shrink below their minimum content size.
 // To change this, these clases set a min-width or min-height
-.min-width-0 { min-width: 0; }
 .min-height-0 { min-height: 0; }
-
-.svg-w-100 {
-  svg {
-    width: 100%;
-  }
-}
-
-
-/**
- * Removes browser specific clear icon from input fields in
- * Internet Explorer 10, Internet Explorer 11, and Microsoft Edge.
- * This is intended for elements which add a customized clear icon.
- *
- * see also https://developer.mozilla.org/en-US/docs/Web/CSS/::-ms-clear
- */
-.ms-no-clear ::-ms-clear {
-  display: none;
-}
 
 /** COMMON POSITIONING CLASSES */
 .position-bottom-0 { bottom: 0 !important; }
@@ -490,8 +381,6 @@ li.note {
   cursor: pointer;
 }
 
-.cursor-not-allowed { cursor: not-allowed; }
-
 // this needs to use "!important" due to some very specific styles
 // around buttons
 .cursor-default {
@@ -511,17 +400,7 @@ li.note {
   }
 }
 
-.gl-font-sm { font-size: $gl-font-size-small; }
-.gl-font-lg { font-size: $gl-font-size-large; }
-.gl-font-base { font-size: $gl-font-size-14; }
-
 .gl-font-size-0 { font-size: 0; }
-.gl-font-size-28 { font-size: $gl-font-size-28; }
-.gl-font-size-42 { font-size: $gl-font-size-42; }
-
-.gl-icon-button:hover {
-  background-color: $gray-100;
-}
 
 .border-section {
   padding-top: $gl-spacing-scale-6;
@@ -534,7 +413,7 @@ li.note {
 .gl-pseudo-placeholder:empty::before {
   content: attr(data-placeholder);
   font-weight: $gl-font-weight-normal;
-  color: $gl-text-color-secondary;
+  color: var(--gl-control-placeholder-color);
   cursor: text;
 }
 
@@ -543,11 +422,6 @@ li.note {
 .gl-label-text + .gl-label-text {
   padding-left: $gl-spacing-scale-2;
   padding-right: $gl-spacing-scale-3;
-}
-
-// used in the Markdown rendering of labels
-.scoped-label-tooltip-title {
-  color: var(--theme-indigo-300, $theme-indigo-300);
 }
 
 .gl-label-scoped {
@@ -565,11 +439,30 @@ li.note {
 }
 
 .ref-container {
-  color: var(--blue-500, $blue-500) !important;
-  background-color: var(--blue-50, $blue-50);
+  color: var(--gl-link-mention-text-color-default) !important;
+  background-color: var(--gl-link-mention-background-color-default);
 }
 
 .commit-sha-container {
-  color: var(--gray-700, $gray-700) !important;
-  background-color: var(--gray-50, $gray-50);
+  @apply gl-bg-strong gl-text-subtle #{!important};
+}
+
+[readonly] {
+  cursor: default;
+}
+
+copy-code {
+  position: absolute;
+  opacity: 0;
+  top: $gl-spacing-scale-3;
+  right: $gl-spacing-scale-3;
+
+  .markdown-code-block:hover &,
+  &:focus-within {
+    opacity: 1;
+  }
+}
+
+.markdown-code-block insert-code-snippet {
+  display: none;
 }

@@ -10,7 +10,34 @@ module Gitlab
           DEFAULT_RUNNER_COUNT = 40
           DEFAULT_JOB_COUNT = DEFAULT_RUNNER_COUNT * 10
 
-          TAG_LIST = %w[gitlab-org docker ruby 2gb mysql linux shared shell deploy hhvm windows build postgres ios stage android stz front back review-apps pc java scraper test kubernetes staging no-priority osx php nodejs production nvm x86_64 gcc nginx dev unity odoo node sbt amazon xamarin debian gcloud e2e clang composer npm energiency dind flake8 cordova x64 private aws solution ruby2.2 python xcode kube compute mongo runner docker-compose phpunit t-matix docker-machine win server docker-in-docker redis go dotnet win7 area51-1 testing chefdk light osx_10-11 ubuntu gulp jertis gitlab-runner frontendv2 capifony centos7 mac gradle golang docker-builder runrepeat maven centos6 msvc14 amd64 xcode_8-2 macos VS2015 mono osx_10-12 azure-contend-docker msbuild git deployer local development python2.7 eezeeit release ios_9-3 fastlane selenium integration tests review cabinet-dev vs2015 ios_10-2 latex odoo_test quantum-ci prod sqlite heavy icc html-test labs feature alugha ps appivo-server fast web ios_9-2 c# python3 home js xcode_7-3 drupal 7 arm headless php70 gce x86 msvc builder Windows bower mssql pagetest wpf ssh inmobiliabeta.com xcode_7-2 repo laravel testonly gcp online-auth powershell ila-preprod ios_10-1 lossless sharesies backbone javascript fusonic-review autoscale ci ubuntu1604 rails windows10 xcode_8-1 php56 drupal embedded readyselect xamarin.ios XCode-8.1 iOS-10.1 macOS-10.12.1 develop taggun koumoul-internal docker-build iOS angular2 deployment xcode8 lcov test-cluster priv api bundler freebsd x86-64 BOB xcode_8 nuget vinome-backend cq_check fusonic-perf django php7 dy-manager-shell DEV mongodb neadev meteor ANSIBLE ftp master exerica-build server01 exerica-test mother-of-god nodejs-app ansible Golang mpi exploragen shootr Android macos_10-12 win64 ngsrunner @docker images script-maven ayk makepkg Linux ecolint wix xcode_8-0 coverage dreamhost multi ubuntu1404 eyeka jow3an-site repository politibot qt haskellstack arch priviti backend Sisyphus gm-dev dotNet internal support rpi .net buildbot-01 quay.io BOB2 codebnb vs2013 no-reset live 192.168.100.209 failfast-ci ios_10 crm_master_builds Qt packer selenium hub ci-shell rust dyscount-ci-manager-shell kubespray vagrant deployAutomobileBuild 1md k8s behat vinome-frontend development-nanlabs build-backend libvirt build-frontend contend-server windows-x64 chimpAPI ec2-runner kubectl linux-x64 epitech portals kvm ucaya-docker scala desktop buildmacbinaries ghc buildwinbinaries sonarqube deploySteelDistributorsBuild macOS r cpran rubocop binarylane r-packages alpha SIGAC tester area51-2 customer Build qa acegames_central mTaxNativeShell c++ cloveapp-ios smallville portal root lemmy nightly buildlinuxbinaries rundeck taxonic ios_10-0 n0004 data fedora rr-test seedai_master_builds geofence_master_builds].freeze # rubocop:disable Layout/LineLength
+          TAG_LIST = %w[gitlab-org docker ruby 2gb mysql linux shared shell deploy hhvm windows build postgres ios stage
+            android stz front back review-apps pc java scraper test kubernetes staging no-priority osx php nodejs
+            production nvm x86_64 gcc nginx dev unity odoo node sbt amazon xamarin debian gcloud e2e clang composer npm
+            energiency dind flake8 cordova x64 private aws solution ruby2.2 python xcode kube compute mongo runner
+            docker-compose phpunit t-matix docker-machine win server docker-in-docker redis go dotnet win7 area51-1
+            testing chefdk light osx_10-11 ubuntu gulp jertis gitlab-runner frontendv2 capifony centos7 mac gradle
+            golang docker-builder runrepeat maven centos6 msvc14 amd64 xcode_8-2 macos VS2015 mono osx_10-12
+            azure-contend-docker msbuild git deployer local development python2.7 eezeeit release ios_9-3 fastlane
+            selenium integration tests review cabinet-dev vs2015 ios_10-2 latex odoo_test quantum-ci prod sqlite heavy
+            icc html-test labs feature alugha ps appivo-server fast web ios_9-2 c# python3 home js xcode_7-3 drupal 7
+            arm headless php70 gce x86 msvc builder Windows bower mssql pagetest wpf ssh inmobiliabeta.com xcode_7-2
+            repo laravel testonly gcp online-auth powershell ila-preprod ios_10-1 lossless sharesies backbone javascript
+            fusonic-review autoscale ci ubuntu1604 rails windows10 xcode_8-1 php56 drupal embedded readyselect
+            xamarin.ios XCode-8.1 iOS-10.1 macOS-10.12.1 develop taggun koumoul-internal docker-build iOS angular2
+            deployment xcode8 lcov test-cluster priv api bundler freebsd x86-64 BOB xcode_8 nuget vinome-backend
+            cq_check fusonic-perf django php7 dy-manager-shell DEV mongodb neadev meteor ANSIBLE ftp master
+            exerica-build server01 exerica-test mother-of-god nodejs-app ansible Golang mpi exploragen shootr Android
+            macos_10-12 win64 ngsrunner @docker images script-maven ayk makepkg Linux ecolint wix xcode_8-0 coverage
+            dreamhost multi ubuntu1404 eyeka jow3an-site repository politibot qt haskellstack arch priviti backend
+            Sisyphus gm-dev dotNet internal support rpi .net buildbot-01 quay.io BOB2 codebnb vs2013 no-reset live
+            192.168.100.209 failfast-ci ios_10 crm_master_builds Qt packer selenium hub ci-shell rust
+            dyscount-ci-manager-shell kubespray vagrant deployAutomobileBuild 1md k8s behat vinome-frontend
+            development-nanlabs build-backend libvirt build-frontend contend-server windows-x64 chimpAPI
+            ec2-runner kubectl linux-x64 epitech portals kvm ucaya-docker scala desktop buildmacbinaries ghc
+            buildwinbinaries sonarqube deploySteelDistributorsBuild macOS r cpran rubocop binarylane r-packages alpha
+            SIGAC tester area51-2 customer Build qa acegames_central mTaxNativeShell c++ cloveapp-ios smallville portal
+            root lemmy nightly buildlinuxbinaries rundeck taxonic ios_10-0 n0004 data fedora rr-test
+            seedai_master_builds geofence_master_builds].freeze
 
           attr_reader :logger
 
@@ -92,18 +119,21 @@ module Gitlab
               path: 'gitlab'
             }
 
-            logger.info(message: 'Creating organization', **args)
+            organization = ::Organizations::Organization.find_by_path(args[:path])
 
-            ensure_success(::Organizations::CreateService.new(current_user: @user, params: args).execute[:organization])
+            return organization if organization
+
+            logger.info(message: 'Creating organization', **args)
+            execute_service!(::Organizations::CreateService.new(current_user: @user, params: args), :organization)
           end
 
           def create_groups_and_projects
-            root_group_1 = ensure_group(name: 'top-level group 1', organization: @organization)
-            root_group_2 = ensure_group(name: 'top-level group 2', organization: @organization)
-            group_1_1 = ensure_group(name: 'group 1.1', parent_id: root_group_1.id, organization: @organization)
-            group_1_1_1 = ensure_group(name: 'group 1.1.1', parent_id: group_1_1.id, organization: @organization)
-            group_1_1_2 = ensure_group(name: 'group 1.1.2', parent_id: group_1_1.id, organization: @organization)
-            group_2_1 = ensure_group(name: 'group 2.1', parent_id: root_group_2.id, organization: @organization)
+            root_group_1 = ensure_group(name: 'top-level group 1', organization_id: @organization.id)
+            root_group_2 = ensure_group(name: 'top-level group 2', organization_id: @organization.id)
+            group_1_1 = ensure_group(name: 'group 1.1', parent_id: root_group_1.id)
+            group_1_1_1 = ensure_group(name: 'group 1.1.1', parent_id: group_1_1.id)
+            group_1_1_2 = ensure_group(name: 'group 1.1.2', parent_id: group_1_1.id)
+            group_2_1 = ensure_group(name: 'group 2.1', parent_id: root_group_2.id)
 
             {
               root_group_1: root_group_1,
@@ -112,12 +142,12 @@ module Gitlab
               group_1_1_1: group_1_1_1,
               group_1_1_2: group_1_1_2,
               project_1_1_1_1: ensure_project(
-                name: 'project 1.1.1.1', namespace_id: group_1_1_1.id, organization: @organization),
+                name: 'project 1.1.1.1', namespace_id: group_1_1_1.id, organization_id: @organization.id),
               project_1_1_2_1: ensure_project(
-                name: 'project 1.1.2.1', namespace_id: group_1_1_2.id, organization: @organization),
+                name: 'project 1.1.2.1', namespace_id: group_1_1_2.id, organization_id: @organization.id),
               group_2_1: group_2_1,
               project_2_1_1: ensure_project(
-                name: 'project 2.1.1', namespace_id: group_2_1.id, organization: @organization)
+                name: 'project 2.1.1', namespace_id: group_2_1.id, organization_id: @organization.id)
             }
           end
 
@@ -178,7 +208,7 @@ module Gitlab
           def create_group(**args)
             logger.info(message: 'Creating group', **args)
 
-            ensure_success(::Groups::CreateService.new(@user, **args).execute[:group])
+            execute_service!(::Groups::CreateService.new(@user, **args), :group)
           end
 
           def ensure_project(name:, namespace_id:, **args)
@@ -194,7 +224,7 @@ module Gitlab
           def create_project(**args)
             logger.info(message: 'Creating project', **args)
 
-            ensure_success(::Projects::CreateService.new(@user, **args).execute)
+            execute_service!(::Projects::CreateService.new(@user, **args))
           end
 
           def register_record(record, records)
@@ -208,6 +238,17 @@ module Gitlab
 
             logger.error(record.errors.full_messages.to_sentence)
             raise RuntimeError
+          end
+
+          def execute_service!(service, payload_attr = nil)
+            response = service.execute
+            if response.is_a?(ServiceResponse) && response.error?
+              logger.error(response.message)
+              raise RuntimeError
+            end
+
+            record = payload_attr ? response[payload_attr] : response
+            ensure_success(record)
           end
 
           def create_runner(name:, scope: nil, **args)

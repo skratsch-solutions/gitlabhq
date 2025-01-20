@@ -10,6 +10,36 @@ module API
         extend ActiveSupport::Concern
 
         included do
+          helpers ::API::Helpers::Packages::Npm
+
+          helpers do
+            include Gitlab::Utils::StrongMemoize
+
+            def project_id_or_nil
+              return unless group_or_namespace
+
+              finder = ::Packages::Npm::PackageFinder.new(
+                namespace: group_or_namespace,
+                params: { package_name: params[:package_name] }
+              )
+
+              finder.last&.project_id
+            end
+            strong_memoize_attr :project_id_or_nil
+
+            def project
+              # Simulate the same behavior as #user_project by re-using #find_project!
+              # but take care if the project_id is nil as #find_project! is not designed
+              # to handle it.
+              project_id = project_id_or_nil
+
+              not_found!('Project') unless project_id
+
+              find_project!(project_id)
+            end
+            strong_memoize_attr :project
+          end
+
           desc 'NPM registry metadata endpoint' do
             detail 'This feature was introduced in GitLab 11.8'
             success [
@@ -29,13 +59,16 @@ module API
           end
           route_setting :authentication, job_token_allowed: true, deploy_token_allowed: true,
             authenticate_non_public: true
+          route_setting :authorization, job_token_policies: :read_packages
           get '*package_name', format: false, requirements: ::API::Helpers::Packages::Npm::NPM_ENDPOINT_REQUIREMENTS do
             package_name = declared_params[:package_name]
             packages =
               if Feature.enabled?(:npm_allow_packages_in_multiple_projects, group_or_namespace)
-                finder_for_endpoint_scope(package_name).execute
+                ::Packages::Npm::PackageFinder.new(namespace: group_or_namespace,
+                  params: { package_name: package_name }).execute
               else
-                ::Packages::Npm::PackageFinder.new(package_name, project: project_or_nil).execute
+                ::Packages::Npm::PackageFinder.new(project: project_or_nil,
+                  params: { package_name: package_name }).execute
               end
 
             # In order to redirect a request, packages should not exist (without taking the user into account).
@@ -47,6 +80,8 @@ module API
               target: project_or_nil,
               package_name: package_name
             ) do
+              authorize_job_token_policies!(project_or_nil) if project_or_nil
+
               if Feature.enabled?(:npm_allow_packages_in_multiple_projects, group_or_namespace)
                 available_packages_to_user = ::Packages::Npm::PackagesForUserFinder.new(
                   current_user,

@@ -7,11 +7,28 @@
     "AmazonS3ConfigurationType",
     "InstanceAmazonS3ConfigurationType"
   ],
+  "AuditEventStreamingDestinationInterface": [
+    "GroupAuditEventStreamingDestination",
+    "InstanceAuditEventStreamingDestination"
+  ],
+  "BaseDiscussionInterface": [
+    "AbuseReportDiscussion",
+    "Discussion"
+  ],
   "BaseHeaderInterface": [
     "AuditEventStreamingHeader",
     "AuditEventsStreamingInstanceHeader"
   ],
+  "BaseNoteInterface": [
+    "AbuseReportNote",
+    "Note"
+  ],
+  "CiJobTokenScopeTarget": [
+    "Group",
+    "Project"
+  ],
   "CiRunnerCloudProvisioning": [
+    "CiRunnerGkeProvisioning",
     "CiRunnerGoogleCloudProvisioning"
   ],
   "CiVariable": [
@@ -51,13 +68,19 @@
     "BoardEpic",
     "Epic"
   ],
+  "ExpressionInterface": [
+    "BooleanExpression",
+    "IntegerExpression",
+    "StringExpression"
+  ],
+  "ExpressionValue": [
+    "BooleanExpression",
+    "IntegerExpression",
+    "StringExpression"
+  ],
   "ExternalAuditEventDestinationInterface": [
     "ExternalAuditEventDestination",
     "InstanceExternalAuditEventDestination"
-  ],
-  "AuditEventStreamingDestinationInterface": [
-    "GroupAuditEventStreamingDestination",
-    "InstanceAuditEventStreamingDestination"
   ],
   "GoogleCloudArtifactRegistryArtifact": [
     "GoogleCloudArtifactRegistryDockerImage"
@@ -79,13 +102,17 @@
     "CiBuildNeed",
     "CiJob"
   ],
+  "LabelInterface": [
+    "AbuseReportLabel",
+    "Label"
+  ],
   "MemberInterface": [
     "GroupMember",
     "PendingGroupMember",
+    "PendingProjectMember",
     "ProjectMember"
   ],
   "NoteableInterface": [
-    "AbuseReport",
     "AlertManagementAlert",
     "BoardEpic",
     "Design",
@@ -94,7 +121,8 @@
     "Issue",
     "MergeRequest",
     "Snippet",
-    "Vulnerability"
+    "Vulnerability",
+    "WikiPage"
   ],
   "NoteableType": [
     "Design",
@@ -105,7 +133,8 @@
     "ApprovalPolicy",
     "PipelineExecutionPolicy",
     "ScanExecutionPolicy",
-    "ScanResultPolicy"
+    "ScanResultPolicy",
+    "VulnerabilityManagementPolicy"
   ],
   "PackageFileMetadata": [
     "ConanFileMetadata",
@@ -116,7 +145,12 @@
     "ConanMetadata",
     "MavenMetadata",
     "NugetMetadata",
-    "PypiMetadata"
+    "PypiMetadata",
+    "TerraformModuleMetadata"
+  ],
+  "PendingMemberInterface": [
+    "PendingGroupMember",
+    "PendingProjectMember"
   ],
   "Registrable": [
     "CiSecureFileRegistry",
@@ -137,8 +171,15 @@
     "UploadRegistry"
   ],
   "ResolvableInterface": [
+    "AbuseReportDiscussion",
+    "AbuseReportNote",
     "Discussion",
     "Note"
+  ],
+  "RoleInterface": [
+    "AdminMemberRole",
+    "MemberRole",
+    "StandardRole"
   ],
   "SecurityPolicySource": [
     "GroupSecurityPolicySource",
@@ -147,6 +188,11 @@
   "Service": [
     "BaseService",
     "JiraService"
+  ],
+  "TerraformModuleMetadataSharedFields": [
+    "TerraformModuleMetadataExample",
+    "TerraformModuleMetadataRoot",
+    "TerraformModuleMetadataSubmodule"
   ],
   "TimeboxReportInterface": [
     "Iteration",
@@ -159,8 +205,13 @@
     "Design",
     "Epic",
     "EpicIssue",
+    "Group",
     "Issue",
+    "Key",
     "MergeRequest",
+    "Namespace",
+    "Project",
+    "Vulnerability",
     "WorkItem"
   ],
   "User": [
@@ -177,6 +228,7 @@
     "VulnerabilityDetailBase",
     "VulnerabilityDetailBoolean",
     "VulnerabilityDetailCode",
+    "VulnerabilityDetailCodeFlows",
     "VulnerabilityDetailCommit",
     "VulnerabilityDetailDiff",
     "VulnerabilityDetailFileLocation",
@@ -203,22 +255,25 @@
     "WorkItemWidgetAssignees",
     "WorkItemWidgetAwardEmoji",
     "WorkItemWidgetColor",
+    "WorkItemWidgetCrmContacts",
     "WorkItemWidgetCurrentUserTodos",
+    "WorkItemWidgetCustomStatus",
     "WorkItemWidgetDescription",
     "WorkItemWidgetDesigns",
     "WorkItemWidgetDevelopment",
+    "WorkItemWidgetEmailParticipants",
     "WorkItemWidgetHealthStatus",
     "WorkItemWidgetHierarchy",
     "WorkItemWidgetIteration",
     "WorkItemWidgetLabels",
     "WorkItemWidgetLinkedItems",
+    "WorkItemWidgetLinkedResources",
     "WorkItemWidgetMilestone",
     "WorkItemWidgetNotes",
     "WorkItemWidgetNotifications",
     "WorkItemWidgetParticipants",
     "WorkItemWidgetProgress",
     "WorkItemWidgetRequirementLegacy",
-    "WorkItemWidgetRolledupDates",
     "WorkItemWidgetStartAndDueDate",
     "WorkItemWidgetStatus",
     "WorkItemWidgetTestReports",
@@ -227,8 +282,10 @@
   ],
   "WorkItemWidgetDefinition": [
     "WorkItemWidgetDefinitionAssignees",
+    "WorkItemWidgetDefinitionCustomStatus",
     "WorkItemWidgetDefinitionGeneric",
     "WorkItemWidgetDefinitionHierarchy",
-    "WorkItemWidgetDefinitionLabels"
+    "WorkItemWidgetDefinitionLabels",
+    "WorkItemWidgetDefinitionWeight"
   ]
 }

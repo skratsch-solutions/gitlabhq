@@ -6,7 +6,7 @@ module Emails
       @domain = domain
       @project = domain.project
 
-      mail_with_locale(
+      email_with_layout(
         to: recipient.notification_email_for(@project.group),
         subject: subject("GitLab Pages domain '#{domain.domain}' has been enabled")
       )
@@ -16,7 +16,7 @@ module Emails
       @domain = domain
       @project = domain.project
 
-      mail_with_locale(
+      email_with_layout(
         to: recipient.notification_email_for(@project.group),
         subject: subject("GitLab Pages domain '#{domain.domain}' has been disabled")
       )
@@ -26,7 +26,7 @@ module Emails
       @domain = domain
       @project = domain.project
 
-      mail_with_locale(
+      email_with_layout(
         to: recipient.notification_email_for(@project.group),
         subject: subject("Verification succeeded for GitLab Pages domain '#{domain.domain}'")
       )
@@ -36,7 +36,7 @@ module Emails
       @domain = domain
       @project = domain.project
 
-      mail_with_locale(
+      email_with_layout(
         to: recipient.notification_email_for(@project.group),
         subject: subject("ACTION REQUIRED: Verification failed for GitLab Pages domain '#{domain.domain}'")
       )
@@ -46,8 +46,11 @@ module Emails
       @domain = domain
       @project = domain.project
 
-      subject_text = _("ACTION REQUIRED: Something went wrong while obtaining the Let's Encrypt certificate for GitLab Pages domain '%{domain}'") % { domain: domain.domain }
-      mail_with_locale(
+      subject_text = _(
+        "ACTION REQUIRED: Something went wrong while obtaining the Let's Encrypt certificate for " \
+          "GitLab Pages domain '%{domain}'"
+      ) % { domain: domain.domain }
+      email_with_layout(
         to: recipient.notification_email_for(@project.group),
         subject: subject(subject_text)
       )

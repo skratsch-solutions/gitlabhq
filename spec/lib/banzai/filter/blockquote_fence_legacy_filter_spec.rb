@@ -6,7 +6,7 @@ require 'spec_helper'
 # The current markdown parser now properly handles multiline block quotes.
 # The Ruby parser is now only for benchmarking purposes.
 # issue: https://gitlab.com/gitlab-org/gitlab/-/issues/454601
-RSpec.describe Banzai::Filter::BlockquoteFenceLegacyFilter, feature_category: :team_planning do
+RSpec.describe Banzai::Filter::BlockquoteFenceLegacyFilter, feature_category: :markdown do
   include FilterSpecHelper
 
   let_it_be(:context) { { markdown_engine: Banzai::Filter::MarkdownFilter::CMARK_ENGINE } }
@@ -33,12 +33,8 @@ RSpec.describe Banzai::Filter::BlockquoteFenceLegacyFilter, feature_category: :t
       test_string = ">>>#{"\n```\nfoo\n```" * 20}"
 
       expect do
-        Timeout.timeout(2.seconds) { filter(test_string, context) }
+        Timeout.timeout(BANZAI_FILTER_TIMEOUT_MAX) { filter(test_string, context) }
       end.not_to raise_error
     end
-  end
-
-  it_behaves_like 'text filter timeout' do
-    let(:text) { ">>>\ntest\n>>>" }
   end
 end

@@ -78,7 +78,8 @@ module API
             failure [
               { code: 400, message: 'Bad request' },
               { code: 401, message: 'Unauthorized' },
-              { code: 404, message: 'Not found' }
+              { code: 404, message: 'Not found' },
+              { code: 422, message: 'Unprocessable entity' }
             ]
             tags INTEGRATIONS_TAGS
           end
@@ -92,38 +93,28 @@ module API
             end
           end
           put "#{path}/#{slug}" do
-            if slug == "git-guardian" && Feature.disabled?(:git_guardian_integration)
-              render_api_error!('GitGuardian feature is disabled', 400)
-            end
-
             integration = user_project.find_or_initialize_integration(slug.underscore)
+
+            render_api_error!('400 Integration not available', 400) if integration.nil?
 
             params = declared_params(include_missing: false).merge(active: true)
 
-            if integration.is_a?(::Integrations::GitlabSlackApplication)
+            unless integration.manual_activation? || integration.is_a?(::Integrations::Prometheus)
               if integration.new_record?
-                render_api_error!('You cannot create the GitLab for Slack app from the API', 422)
+                render_api_error!("You cannot create the #{integration.class.title} integration from the API", 422)
               end
 
               params.delete(:active)
             end
 
-            render_api_error!('400 Bad Request', 400) if integration.nil?
+            result = ::Integrations::UpdateService.new(
+              current_user: current_user, integration: integration, attributes: params
+            ).execute
 
-            if Feature.enabled?(:integration_api_inheritance, type: :gitlab_com_derisk)
-              result = ::Integrations::UpdateService.new(
-                current_user: current_user, integration: integration, attributes: params
-              ).execute
-
-              if result.success?
-                present integration, with: Entities::ProjectIntegration
-              else
-                render_api_error!(result.message, 400)
-              end
-            elsif integration&.update(params)
+            if result.success?
               present integration, with: Entities::ProjectIntegration
             else
-              render_api_error!('400 Bad Request', 400)
+              render_api_error!(result.message, 400)
             end
           end
         end
@@ -142,13 +133,13 @@ module API
           requires :slug, type: String, values: INTEGRATIONS.keys, desc: 'The name of the integration'
         end
         delete "#{path}/:slug" do
-          if params[:slug] == "git-guardian" && Feature.disabled?(:git_guardian_integration)
-            render_api_error!('GitGuardian feature is disabled', 400)
-          end
-
           integration = user_project.find_or_initialize_integration(params[:slug].underscore)
 
           not_found!('Integration') unless integration&.persisted?
+
+          if integration.is_a?(::Integrations::JiraCloudApp)
+            render_api_error!("You cannot disable the #{integration.class.title} integration from the API", 422)
+          end
 
           destroy_conditionally!(integration) do
             attrs = integration_attributes(integration).index_with do |attr|

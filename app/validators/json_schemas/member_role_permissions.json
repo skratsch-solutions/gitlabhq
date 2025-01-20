@@ -19,6 +19,9 @@
     "admin_merge_request": {
       "type": "boolean"
     },
+    "admin_protected_branch": {
+      "type": "boolean"
+    },
     "admin_push_rules": {
       "type": "boolean"
     },
@@ -52,13 +55,25 @@
     "manage_security_policy_link": {
       "type": "boolean"
     },
+    "read_admin_cicd": {
+      "type": "boolean"
+    },
+    "read_admin_dashboard": {
+      "type": "boolean"
+    },
     "read_code": {
+      "type": "boolean"
+    },
+    "read_compliance_dashboard": {
       "type": "boolean"
     },
     "read_crm_contact": {
       "type": "boolean"
     },
     "read_dependency": {
+      "type": "boolean"
+    },
+    "read_runners": {
       "type": "boolean"
     },
     "read_vulnerability": {
@@ -68,9 +83,6 @@
       "type": "boolean"
     },
     "remove_project": {
-      "type": "boolean"
-    },
-    "read_runners": {
       "type": "boolean"
     }
   }

@@ -17,6 +17,8 @@ module BulkImports
 
         return unless relation_hash
 
+        original_users_map = {}.compare_by_identity
+
         relation_object = deep_transform_relation!(relation_hash, relation, relation_definition) do |key, hash|
           persist_relation(
             relation_index: relation_index,
@@ -27,42 +29,50 @@ module BulkImports
             object_builder: object_builder,
             user: context.current_user,
             excluded_keys: import_export_config.relation_excluded_keys(key),
-            import_source: Import::SOURCE_DIRECT_TRANSFER
+            import_source: Import::SOURCE_DIRECT_TRANSFER,
+            original_users_map: original_users_map,
+            rewrite_mentions: context.importer_user_mapping_enabled?
           )
         end
 
         relation_object.assign_attributes(portable_class_sym => portable)
-        relation_object
+
+        [relation_object, original_users_map]
       end
 
-      def load(_context, object)
+      def load(_context, data)
+        object, original_users_map = data
+
         return unless object
 
-        if object.new_record?
-          saver = Gitlab::ImportExport::Base::RelationObjectSaver.new(
-            relation_object: object,
-            relation_key: relation,
-            relation_definition: relation_definition,
-            importable: portable
-          )
+        begin
+          if object.new_record?
+            saver = Gitlab::ImportExport::Base::RelationObjectSaver.new(
+              relation_object: object,
+              relation_key: relation,
+              relation_definition: relation_definition,
+              importable: portable
+            )
 
-          saver.execute
+            saver.execute
 
-          capture_invalid_subrelations(saver.invalid_subrelations)
-        else
-          if object.invalid?
-            Gitlab::Import::Errors.merge_nested_errors(object)
+            capture_invalid_subrelations(saver.invalid_subrelations)
+          else
+            if object.invalid?
+              Gitlab::Import::Errors.merge_nested_errors(object)
 
-            raise(ActiveRecord::RecordInvalid, object)
+              raise(ActiveRecord::RecordInvalid, object)
+            end
+
+            object.save!
           end
 
-          object.save!
+        ensure
+          push_placeholder_references(original_users_map) if context.importer_user_mapping_enabled?
         end
       end
 
       def deep_transform_relation!(relation_hash, relation_key, relation_definition, &block)
-        relation_key = relation_key_override(relation_key)
-
         relation_definition.each do |sub_relation_key, sub_relation_definition|
           sub_relation = relation_hash[sub_relation_key]
 
@@ -84,6 +94,10 @@ module BulkImports
             relation_hash.delete(sub_relation_key)
           end
         end
+
+        # Create Import::SourceUser objects during the transformation
+        # step if they were not created during the MemberPipeline.
+        create_import_source_users(relation_key, relation_hash) if context.importer_user_mapping_enabled?
 
         yield(relation_key, relation_hash)
       end
@@ -119,7 +133,15 @@ module BulkImports
       end
 
       def members_mapper
-        @members_mapper ||= BulkImports::UsersMapper.new(context: context)
+        @members_mapper ||= if context.importer_user_mapping_enabled?
+                              Import::BulkImports::SourceUsersMapper.new(context: context)
+                            else
+                              UsersMapper.new(context: context)
+                            end
+      end
+
+      def source_user_mapper
+        context.source_user_mapper
       end
 
       def portable_class_sym
@@ -140,6 +162,72 @@ module BulkImports
             correlation_id_value: Labkit::Correlation::CorrelationId.current_or_new_id,
             subrelation: record.class.to_s
           )
+        end
+      end
+
+      # Creates an Import::SourceUser objects for each source_user_identifier
+      # found in the relation_hash and associate it with the ImportUser.
+      #
+      # For example, if the relation_hash is:
+      #
+      # {
+      #   "title": "Title",
+      #   "author_id": 100,
+      #   "updated_by_id": 101
+      # }
+      #
+      # Import::SourceUser records with source_user_identifier 100 and 101 will be
+      # created if none are found in the database, along with a placeholder user
+      # for each record.
+      def create_import_source_users(_relation_key, relation_hash)
+        relation_factory::USER_REFERENCES.each do |reference|
+          next unless relation_hash[reference]
+
+          source_user_mapper.find_or_create_source_user(
+            source_name: nil,
+            source_username: nil,
+            source_user_identifier: relation_hash[reference]
+          )
+        end
+      end
+
+      # Pushes a placeholder reference for each source_user_identifier contained in
+      # the original_users_map.
+      #
+      # The `original_users_map` is a hash where the key is an object built by the
+      # RelationFactory, and the value is another hash. This second hash maps
+      # attributes that reference user IDs to the user IDs from the source instance,
+      # essentially the information present in the NDJSON file.
+      #
+      # For example, below is an example of `original_users_map`:
+      #
+      # {
+      #   #<Issue:0x0001: {"author_id"=>1, "updated_by_id"=>2, "last_edited_by_id"=>2, "closed_by_id"=>2 },
+      #   #<ResourceStateEvent:0x0002: {"user_id"=>1"]},
+      #   #<ResourceStateEvent:0x0003: {"user_id"=>2"]},
+      #   #<ResourceStateEvent:0x0004: {"user_id"=>2"]},
+      #   #<Note:0x0005: {"author_id"=>1"]},
+      #   #<Note:0x0006: {"author_id"=>2"]}
+      # }
+      def push_placeholder_references(original_users_map)
+        original_users_map.each do |object, user_references|
+          next unless object.persisted?
+
+          user_references.each do |attribute, source_user_identifier|
+            source_user = source_user_mapper.find_source_user(source_user_identifier)
+
+            # Do not create a reference if the object is already associated
+            # with a real user.
+            next if source_user.accepted_status? && object[attribute] == source_user.reassign_to_user_id
+
+            ::Import::PlaceholderReferences::PushService.from_record(
+              import_source: ::Import::SOURCE_DIRECT_TRANSFER,
+              import_uid: context.bulk_import_id,
+              record: object,
+              source_user: source_user,
+              user_reference_column: attribute.to_sym
+            ).execute
+          end
         end
       end
     end

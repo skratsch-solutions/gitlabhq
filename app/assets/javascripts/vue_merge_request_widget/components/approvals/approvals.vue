@@ -66,11 +66,17 @@ export default {
       required: false,
       default: false,
     },
+    actionButtons: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
     return {
       hasApprovalAuthError: false,
       isApproving: false,
+      userPermissions: {},
     };
   },
   computed: {
@@ -276,12 +282,15 @@ export default {
       :collapsed="collapsed"
       :expand-details-tooltip="__('Expand eligible approvers')"
       :collapse-details-tooltip="__('Collapse eligible approvers')"
+      :actions="actionButtons"
       @toggle="() => $emit('toggle')"
     >
       <template v-if="isLoading">{{ $options.FETCH_LOADING }}</template>
       <template v-else>
         <div class="gl-flex gl-flex-col">
-          <div class="gl-flex gl-flex-col sm:gl-flex-row gl-gap-3 gl-items-baseline">
+          <div
+            class="gl-flex gl-flex-col gl-flex-wrap gl-items-baseline gl-gap-3 sm:gl-flex-row sm:gl-items-center"
+          >
             <div v-if="requireSamlAuthToApprove && showApprove">
               <gl-form
                 ref="form"
@@ -326,10 +335,10 @@ export default {
               :multiple-approval-rules-available="mr.multipleApprovalRulesAvailable"
             />
           </div>
-          <div v-if="hasInvalidRules" class="gl-text-secondary gl-mt-2" data-testid="invalid-rules">
+          <div v-if="hasInvalidRules" class="gl-mt-2 gl-text-subtle" data-testid="invalid-rules">
             <gl-sprintf :message="pluralizedRuleText">
               <template #danger="{ content }">
-                <span class="gl-font-bold text-danger">{{ content }}</span>
+                <span class="gl-font-bold gl-text-danger">{{ content }}</span>
               </template>
             </gl-sprintf>
           </div>

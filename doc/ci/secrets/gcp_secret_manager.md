@@ -1,5 +1,5 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11739) in GitLab and GitLab Runner 16.8.
 
@@ -44,7 +44,7 @@ The principal is used to authorize access to the Secret Manager resources:
    1. Select **Default audience**, or select **Allowed audiences** for a custom audience, which is used in the `aud` for the GitLab CI/CD ID token.
 1. Under **Attribute Mapping**, create the following mappings, where:
 
-   - `attribute.X` is the name of the attribute you want to be present on Google's claims.
+   - `attribute.X` is the name of the attribute to include as a claim in the Google token.
    - `assertion.X` is the value to extract from the [GitLab claim](../cloud_services/index.md#how-it-works).
 
    | Attribute (on Google)         | Assertion (from GitLab) |
@@ -127,10 +127,10 @@ job_using_gcp_sm:
 
 ## Troubleshooting
 
-### `The size of mapped attribute google.subject exceeds the 127 bytes limit` error
+### Error: The size of mapped attribute `google.subject` exceeds the 127 bytes limit
 
-A long merge request branch name can cause a job to fail with the following error if
-[the `assertion.sub` attribute](id_token_authentication.md#token-payload) is more than 127 characters:
+Long branch paths can cause a job to fail with this error, because the
+[`assertion.sub` attribute](id_token_authentication.md#token-payload) becomes longer than 127 characters:
 
 ```plaintext
 ERROR: Job failed (system failure): resolving secrets: failed to exchange sts token: googleapi: got HTTP response code 400 with body:
@@ -138,8 +138,31 @@ ERROR: Job failed (system failure): resolving secrets: failed to exchange sts to
 Either modify your attribute mapping or the incoming assertion to produce a mapped attribute that is less than 127 bytes."}
 ```
 
-For example, for a `gitlab-org/gitlab` branch, the payload would be `project_path:gitlab-org/gitlab:ref_type:branch:ref:{branch_name}`,
-so the branch name should be 76 characters or less.
+Long branch paths can be caused by:
+
+- Deeply nested subgroups.
+- Long group, repository, or branch names.
+
+For example, for a `gitlab-org/gitlab` branch, the payload is `project_path:gitlab-org/gitlab:ref_type:branch:ref:{branch_name}`.
+For the string to remain shorter than 127 characters, the branch name must be 76 characters or fewer.
+This limit is imposed by Google Cloud IAM, tracked in [Google issue #264362370](https://issuetracker.google.com/issues/264362370?pli=1).
+
+The only fix for this issue is to use shorter names
+[for your branch and repository](https://github.com/google-github-actions/auth/blob/main/docs/TROUBLESHOOTING.md#subject-exceeds-the-127-byte-limit).
+
+## `The secrets provider can not be found. Check your CI/CD variables and try again.` message
+
+You might receive this error when attempting to start a job configured to access GCP Secret Manager:
+
+```plaintext
+The secrets provider can not be found. Check your CI/CD variables and try again.
+```
+
+The job can't be created because one or more of the required variables are not defined:
+
+- `GCP_PROJECT_NUMBER`
+- `GCP_WORKLOAD_IDENTITY_FEDERATION_POOL_ID`
+- `GCP_WORKLOAD_IDENTITY_FEDERATION_PROVIDER_ID`
 
 ### `WARNING: Not resolved: no resolver that can handle the secret` warning
 

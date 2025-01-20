@@ -7,6 +7,7 @@ module QA
         include Shared::CommitMessage
         include Layout::Flash
         include Page::Component::BlobContent
+        include Shared::Editor
 
         view 'app/assets/javascripts/repository/components/blob_button_group.vue' do
           element 'lock-button'
@@ -27,8 +28,12 @@ module QA
           click_on 'Delete'
         end
 
-        def click_delete_file
-          click_on 'Delete file'
+        def highlight_text
+          find_element('content').double_click
+        end
+
+        def explain_code
+          click_element('question-icon')
         end
       end
     end

@@ -105,6 +105,7 @@ export default {
         );
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     headerPipeline: {
       query: getPipelineQuery,
       // this query is already being called in pipeline_header.vue, which shares the same cache as this component
@@ -214,9 +215,6 @@ export default {
     }
     toggleQueryPollingByVisibility(this.$apollo.queries.pipeline);
     this.skipRetryModal = Boolean(JSON.parse(localStorage.getItem(SKIP_RETRY_MODAL_KEY)));
-  },
-  errorCaptured(err, _vm, info) {
-    reportToSentry(this.$options.name, `error: ${err}, info: ${info}`);
   },
   methods: {
     getPipelineInfo() {

@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'npm.gitlab-ci.yml', feature_category: :continuous_integration do
+  include Ci::PipelineMessageHelpers
+
   subject(:template) { Gitlab::Template::GitlabCiYmlTemplate.find('npm') }
 
   describe 'the created pipeline' do
@@ -13,7 +15,7 @@ RSpec.describe 'npm.gitlab-ci.yml', feature_category: :continuous_integration do
     let(:pipeline_branch) { project.default_branch }
     let(:pipeline_tag) { 'v1.2.1' }
     let(:pipeline_ref) { pipeline_branch }
-    let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_ref ) }
+    let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_ref) }
     let(:pipeline) { service.execute(:push).payload }
     let(:build_names) { pipeline.builds.pluck(:name) }
 
@@ -43,8 +45,7 @@ RSpec.describe 'npm.gitlab-ci.yml', feature_category: :continuous_integration do
     shared_examples 'no pipeline created' do
       it 'does not create a pipeline because the only job (publish) is not created' do
         expect(build_names).to be_empty
-        expect(pipeline.errors.full_messages).to match_array(['Pipeline will not run for the selected trigger. ' \
-          'The rules configuration prevented any jobs from being added to the pipeline.'])
+        expect(pipeline.errors.full_messages).to match_array([sanitize_message(Ci::Pipeline.rules_failure_message)])
       end
     end
 

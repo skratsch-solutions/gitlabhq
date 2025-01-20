@@ -1,5 +1,5 @@
 <script>
-import { GlTab, GlLoadingIcon, GlBadge } from '@gitlab/ui';
+import { GlTab, GlLoadingIcon, GlBadge, GlSearchBoxByType, GlSprintf } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import {
   STATUS_RUNNING,
@@ -9,6 +9,7 @@ import {
   STATUS_LABELS,
   PODS_TABLE_FIELDS,
 } from '~/kubernetes_dashboard/constants';
+import { DELETE_POD_ACTION } from '~/environments/constants';
 import { getAge } from '~/kubernetes_dashboard/helpers/k8s_integration_helper';
 import WorkloadStats from '~/kubernetes_dashboard/components/workload_stats.vue';
 import WorkloadTable from '~/kubernetes_dashboard/components/workload_table.vue';
@@ -19,6 +20,8 @@ export default {
     GlTab,
     GlLoadingIcon,
     GlBadge,
+    GlSearchBoxByType,
+    GlSprintf,
     WorkloadStats,
     WorkloadTable,
   },
@@ -45,6 +48,7 @@ export default {
               spec: pod.spec,
               fullStatus: pod.status,
               containers: pod.spec.containers,
+              actions: [DELETE_POD_ACTION],
             };
           }) || []
         );
@@ -71,7 +75,9 @@ export default {
   data() {
     return {
       error: '',
-      filterOption: '',
+      statusFilter: '',
+      k8sPods: [],
+      podsSearch: '',
     };
   },
   computed: {
@@ -104,10 +110,11 @@ export default {
       return this.k8sPods?.length || 0;
     },
     filteredPods() {
-      if (!this.k8sPods) return [];
-      if (!this.filterOption) return this.k8sPods;
-
-      return this.k8sPods.filter((pod) => pod.status === this.filterOption);
+      return this.k8sPods.filter((pod) => {
+        const matchesStatus = !this.statusFilter || pod.status === this.statusFilter;
+        const matchesSearch = !this.podsSearch || pod.name.includes(this.podsSearch);
+        return matchesStatus && matchesSearch;
+      });
     },
   },
   methods: {
@@ -120,17 +127,19 @@ export default {
       return filteredPods.length;
     },
     onItemSelect(item) {
-      this.$emit('show-resource-details', item);
-    },
-    onRemoveSelection() {
-      this.$emit('remove-selection');
+      this.$emit('select-item', item);
     },
     filterPods(status) {
-      this.filterOption = status;
+      this.statusFilter = status;
+    },
+    onDeletePod(pod) {
+      this.$emit('delete-pod', pod);
     },
   },
   i18n: {
     podsTitle: s__('Environment|Pods'),
+    searchPlaceholder: s__('Environment|Search pod name'),
+    filteredText: s__('Environment|Showing search results with the status %{status}.'),
   },
   PAGE_SIZE: 10,
   PODS_TABLE_FIELDS,
@@ -147,6 +156,23 @@ export default {
 
     <template v-else-if="!error">
       <workload-stats v-if="podStats" :stats="podStats" class="gl-mt-3" @select="filterPods" />
+
+      <gl-search-box-by-type
+        v-model.trim="podsSearch"
+        :placeholder="$options.i18n.searchPlaceholder"
+        class="gl-mt-5"
+      />
+
+      <div
+        v-if="statusFilter && podsSearch"
+        class="gl-mt-5 gl-rounded-base gl-bg-gray-50 gl-p-5"
+        data-testid="pods-filtered-message"
+      >
+        <gl-sprintf :message="$options.i18n.filteredText">
+          <template #status>{{ statusFilter }}</template>
+        </gl-sprintf>
+      </div>
+
       <workload-table
         v-if="k8sPods"
         :items="filteredPods"
@@ -154,7 +180,7 @@ export default {
         :fields="$options.PODS_TABLE_FIELDS"
         class="gl-mt-8"
         @select-item="onItemSelect"
-        @remove-selection="onRemoveSelection"
+        @delete-pod="onDeletePod"
       />
     </template>
   </gl-tab>

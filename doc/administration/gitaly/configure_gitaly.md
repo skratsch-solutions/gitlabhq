@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Configure Gitaly in one of two ways:
 
@@ -96,10 +96,10 @@ The following list depicts the network architecture of Gitaly:
 - Authentication is done through a static token which is shared among the Gitaly and GitLab Rails
   nodes.
 
-The following digraph illustrates communication between Gitaly servers and GitLab Rails showing
+The following diagram illustrates communication between Gitaly servers and GitLab Rails showing
 the default ports for HTTP and HTTPs communication.
 
-![Gitaly network architecture diagram](img/gitaly_network_13_9.png)
+![Two Gitaly servers and a GitLab Rails exchanging information.](img/gitaly_network_v13_9.png)
 
 WARNING:
 Gitaly servers must not be exposed to the public internet as Gitaly network traffic is unencrypted
@@ -138,8 +138,8 @@ To configure Gitaly servers, you must:
 
 The `git` user must be able to read, write, and set permissions on the configured storage path.
 
-To avoid downtime while rotating the Gitaly token, you can temporarily disable authentication using the `gitaly['auth_transitioning']` setting. For more information, see the documentation on
-[enabling "auth transitioning mode"](#enable-auth-transitioning-mode).
+To avoid downtime while rotating the Gitaly token, you can temporarily disable authentication using the `gitaly['auth_transitioning']` setting. For more information, see
+[enable auth transitioning mode](#enable-auth-transitioning-mode).
 
 #### Configure authentication
 
@@ -173,10 +173,22 @@ Gitaly and GitLab use two shared secrets for authentication:
 
    - Method 2:
 
-     Edit `/etc/gitlab/gitlab.rb`:
+     On all nodes running GitLab Rails, edit `/etc/gitlab/gitlab.rb`:
 
      ```ruby
      gitlab_shell['secret_token'] = 'shellsecret'
+     ```
+
+    On all nodes running Gitaly, edit `/etc/gitlab/gitlab.rb`:
+
+     ```ruby
+     gitaly['gitlab_secret'] = 'shellsecret'
+     ```
+
+     After those changes, reconfigure GitLab:
+
+     ```shell
+     sudo gitlab-ctl reconfigure
      ```
 
 :::TabTitle Self-compiled (source)
@@ -309,8 +321,8 @@ Configure Gitaly server.
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation).
 1. Confirm that Gitaly can perform callbacks to the GitLab internal API:
-   - For GitLab 15.3 and later, run `sudo /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
-   - For GitLab 15.2 and earlier, run `sudo /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.3 and later, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.2 and earlier, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
 
 :::TabTitle Self-compiled (source)
 
@@ -357,8 +369,8 @@ Configure Gitaly server.
 
 1. Save the files and [restart GitLab](../restart_gitlab.md#self-compiled-installations).
 1. Confirm that Gitaly can perform callbacks to the GitLab internal API:
-   - For GitLab 15.3 and later, run `sudo /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
-   - For GitLab 15.2 and earlier, run `sudo /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.3 and later, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.2 and earlier, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
 
 ::EndTabs
 
@@ -407,21 +419,21 @@ Configure Gitaly clients in one of two ways. These instructions are for unencryp
    # Use the same token value configured on all Gitaly servers
    gitlab_rails['gitaly_token'] = '<AUTH_TOKEN>'
 
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      'default'  => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage1' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
      'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
-   })
+   }
    ```
 
    Alternatively, if each Gitaly server is configured to use a different authentication token:
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      'default'  => { 'gitaly_address' => 'tcp://gitaly1.internal:8075', 'gitaly_token' => '<AUTH_TOKEN_1>' },
      'storage1' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075', 'gitaly_token' => '<AUTH_TOKEN_1>' },
      'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075', 'gitaly_token' => '<AUTH_TOKEN_2>' },
-   })
+   }
    ```
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation).
@@ -481,23 +493,23 @@ configuration that mixes local and remote configuration. The following setup is 
   invalid for some of the Gitaly servers.
 
 ```ruby
-git_data_dirs({
+gitlab_rails['repositories_storages'] = {
   'default' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
-  'storage1' => { 'path' => '/mnt/gitlab/git-data' },
+  'storage1' => { 'gitaly_address' => 'unix:/var/opt/gitlab/gitaly/gitaly.socket' },
   'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
-})
+}
 ```
 
 To combine local and remote Gitaly servers, use an external address for the local Gitaly server. For
 example:
 
 ```ruby
-git_data_dirs({
+gitlab_rails['repositories_storages'] = {
   'default' => { 'gitaly_address' => 'tcp://gitaly1.internal:8075' },
   # Address of the GitLab server that also has Gitaly running on it
   'storage1' => { 'gitaly_address' => 'tcp://gitlab.internal:8075' },
   'storage2' => { 'gitaly_address' => 'tcp://gitaly2.internal:8075' },
-})
+}
 
 gitaly['configuration'] = {
   # ...
@@ -525,13 +537,13 @@ If it's excluded, default Git storage directory is used for that storage shard.
 ### GitLab requires a default repository storage
 
 When adding Gitaly servers to an environment, you might want to replace the original `default` Gitaly service. However, you can't
-reconfigure the GitLab application servers to remove the `default` entry from `git_data_dirs` because GitLab requires a
-`git_data_dirs` entry called `default`. [Read more](https://gitlab.com/gitlab-org/gitlab/-/issues/36175) about this limitation.
+reconfigure the GitLab application servers to remove the `default` storage because GitLab requires a storage called `default`.
+[Read more](https://gitlab.com/gitlab-org/gitlab/-/issues/36175) about this limitation.
 
 To work around the limitation:
 
 1. Define an additional storage location on the new Gitaly service and configure the additional storage to be `default`.
-1. In the [Admin Area](../repository_storage_paths.md#configure-where-new-repositories-are-stored), set `default` to a weight of zero
+1. In the [**Admin** area](../repository_storage_paths.md#configure-where-new-repositories-are-stored), set `default` to a weight of zero
    to prevent repositories being stored there.
 
 ### Disable Gitaly where not required (optional)
@@ -610,13 +622,14 @@ When a repository cgroup reaches its:
 NOTE:
 When these limits are reached, performance may be reduced and users may be disconnected.
 
-### Configure repository cgroups (new method)
+### Configure repository cgroups
 
 > - This method of configuring repository cgroups was introduced in GitLab 15.1.
 > - `cpu_quota_us`[introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/5422) in GitLab 15.10.
+> - `max_cgroups_per_repo` [introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/5689) in GitLab 16.7.
+> - Documentation for the legacy method was [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/176694) in GitLab 17.8.
 
-To configure repository cgroups in Gitaly using the new method, use the following settings for the new configuration method
-to `gitaly['configuration'][:cgroups]` in `/etc/gitlab/gitlab.rb`:
+To configure repository cgroups in Gitaly, use the following settings for `gitaly['configuration'][:cgroups]` in `/etc/gitlab/gitlab.rb`:
 
 - `mountpoint` is where the parent cgroup directory is mounted. Defaults to `/sys/fs/cgroup`.
 - `hierarchy_root` is the parent cgroup under which Gitaly creates groups, and
@@ -645,8 +658,14 @@ to `gitaly['configuration'][:cgroups]` in `/etc/gitlab/gitlab.rb`:
   that is imposed on all Git processes contained in a repository cgroup. A Git
   process can't use more then the given quota. We set
   `cfs_period_us` to `100ms` so 1 core is `100000`. 0 implies no limit.
+- `repositories.max_cgroups_per_repo` is the number of repository cgroups that Git processes
+  targeting a specific repository can be distributed across. This enables more conservative
+  CPU and memory limits to be configured for repository cgroups while still allowing for
+  bursty workloads. For instance, with a `max_cgroups_per_repo` of `2` and a `memory_bytes`
+  limit of 10GB, independent Git operations against a specific repository can consume up
+  to 20GB of memory.
 
-For example:
+For example (not necessarily recommended settings):
 
 ```ruby
 # in /etc/gitlab/gitlab.rb
@@ -662,53 +681,21 @@ gitaly['configuration'] = {
       count: 1000,
       memory_bytes: 32212254720, # 20gb
       cpu_shares: 512,
-      cpu_quota_us: 200000 # 2 cores
+      cpu_quota_us: 200000, # 2 cores
+      max_cgroups_per_repo: 2
     },
   },
 }
 ```
 
-### Configure repository cgroups (legacy method)
-
-To configure repository cgroups in Gitaly using the legacy method, use the following settings
-in `/etc/gitlab/gitlab.rb`:
-
-- `cgroups_count` is the number of cgroups created. Each time a new
-  command is spawned, Gitaly assigns it to one of these cgroups based
-  on the command line arguments of the command. A circular hashing algorithm assigns
-  commands to these cgroups.
-- `cgroups_mountpoint` is where the parent cgroup directory is mounted. Defaults to `/sys/fs/cgroup`.
-- `cgroups_hierarchy_root` is the parent cgroup under which Gitaly creates groups, and
-  is expected to be owned by the user and group Gitaly runs as. A Linux package installation
-  creates the set of directories `mountpoint/<cpu|memory>/hierarchy_root`
-  when Gitaly starts.
-- `cgroups_memory_enabled` enables or disables the memory limit on cgroups.
-- `cgroups_memory_bytes` is the total memory limit each cgroup imposes on the processes added to it.
-- `cgroups_cpu_enabled` enables or disables the CPU limit on cgroups.
-- `cgroups_cpu_shares` is the CPU limit each cgroup imposes on the processes added to it. The maximum is 1024 shares,
-  which represents 100% of CPU.
-
-For example:
-
-```ruby
-# in /etc/gitlab/gitlab.rb
-gitaly['cgroups_count'] = 1000
-gitaly['cgroups_mountpoint'] = "/sys/fs/cgroup"
-gitaly['cgroups_hierarchy_root'] = "gitaly"
-gitaly['cgroups_memory_limit'] = 32212254720
-gitaly['cgroups_memory_enabled'] = true
-gitaly['cgroups_cpu_shares'] = 1024
-gitaly['cgroups_cpu_enabled'] = true
-```
-
 ### Configuring oversubscription
 
-In the previous example using the new configuration method:
+In the previous example:
 
 - The top level memory limit is capped at 60 GB.
 - Each of the 1000 cgroups in the repositories pool is capped at 20 GB.
 
-This configuration leads to "oversubscription". Each cgroup in the pool has a much larger capacity than 1/1000th
+This configuration leads to oversubscription. Each cgroup in the pool has a much larger capacity than 1/1000th
 of the top-level memory limit.
 
 This strategy has two main benefits:
@@ -774,14 +761,14 @@ However, you can rotate Gitaly credentials without a service interruption. Rotat
 authentication token involves:
 
 - [Verifying authentication monitoring](#verify-authentication-monitoring).
-- [Enabling "auth transitioning" mode](#enable-auth-transitioning-mode).
+- [Enabling auth transitioning mode](#enable-auth-transitioning-mode).
 - [Updating Gitaly authentication tokens](#update-gitaly-authentication-token).
 - [Ensuring there are no authentication failures](#ensure-there-are-no-authentication-failures).
-- [Disabling "auth transitioning" mode](#disable-auth-transitioning-mode).
+- [Disabling auth transitioning mode](#disable-auth-transitioning-mode).
 - [Verifying authentication is enforced](#verify-authentication-is-enforced).
 
-This procedure also works if you are running GitLab on a single server. In that case, "Gitaly
-server" and "Gitaly client" refers to the same machine.
+This procedure also works if you are running GitLab on a single server. In that case, the Gitaly
+server and the Gitaly client refer to the same machine.
 
 ### Verify authentication monitoring
 
@@ -791,10 +778,10 @@ Prometheus.
 
 You can then continue the rest of the procedure.
 
-### Enable "auth transitioning" mode
+### Enable auth transitioning mode
 
-Temporarily disable Gitaly authentication on the Gitaly servers by putting them into "auth
-transitioning" mode as follows:
+Temporarily disable Gitaly authentication on the Gitaly servers by putting them into auth
+transitioning mode as follows:
 
 ```ruby
 # in /etc/gitlab/gitlab.rb
@@ -853,9 +840,9 @@ After the new token is set, and all services involved have been restarted, you w
 After the new token is picked up by all Gitaly clients and Gitaly servers, the
 **only non-zero rate** should be `enforced="false",status="would be ok"`.
 
-### Disable "auth transitioning" mode
+### Disable auth transitioning mode
 
-To re-enable Gitaly authentication, disable "auth transitioning" mode. Update the configuration on
+To re-enable Gitaly authentication, disable auth transitioning mode. Update the configuration on
 your Gitaly servers as follows:
 
 ```ruby
@@ -887,7 +874,7 @@ result as you did at the start. For example:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 [Gitaly](index.md), the service that provides storage for Git
 repositories, can be configured to cache a short rolling window of Git
@@ -895,10 +882,10 @@ fetch responses. This can reduce server load when your server receives
 lots of CI fetch traffic.
 
 The pack-objects cache wraps `git pack-objects`, an internal part of
-Git that gets invoked indirectly via the PostUploadPack and
+Git that gets invoked indirectly by using the PostUploadPack and
 SSHUploadPack Gitaly RPCs. Gitaly runs PostUploadPack when a
-user does a Git fetch via HTTP, or SSHUploadPack when a
-user does a Git fetch via SSH.
+user does a Git fetch by using HTTP, or SSHUploadPack when a
+user does a Git fetch by using SSH.
 When the cache is enabled, anything that uses PostUploadPack or SSHUploadPack can
 benefit from it. It is orthogonal to:
 
@@ -1102,7 +1089,7 @@ A lot of Gitaly RPCs need to look up Git objects from repositories.
 Most of the time we use `git cat-file --batch` processes for that. For
 better performance, Gitaly can re-use these `git cat-file` processes
 across RPC calls. Previously used processes are kept around in a
-["Git cat-file cache"](https://about.gitlab.com/blog/2019/07/08/git-performance-on-nfs/#enter-cat-file-cache).
+[`git cat-file` cache](https://about.gitlab.com/blog/2019/07/08/git-performance-on-nfs/#enter-cat-file-cache).
 To control how much system resources this uses, we have a maximum number of
 cat-file processes that can go into the cache.
 
@@ -1128,10 +1115,10 @@ Configure the `cat-file` cache in the [Gitaly configuration file](reference.md).
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/19185) in GitLab 15.4.
 > - Displaying **Verified** badge for signed GitLab UI commits [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/124218) in GitLab 16.3 [with a flag](../feature_flags.md) named `gitaly_gpg_signing`. Disabled by default.
 > - Verifying the signatures using multiple keys specified in `rotated_signing_keys` option [introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6163) in GitLab 16.3.
-> - [Enabled by default](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6876) on self-managed and GitLab Dedicated in GitLab 17.0.
+> - [Enabled by default](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6876) on GitLab Self-Managed and GitLab Dedicated in GitLab 17.0.
 
 FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature,
+On GitLab Self-Managed, by default this feature is available. To hide the feature,
 an administrator can [disable the feature flag](../feature_flags.md) named `gitaly_gpg_signing`.
 On GitLab.com, this feature is not available. On GitLab Dedicated, this feature is available.
 

@@ -31,18 +31,21 @@ export default {
       detailsSlots: [],
     };
   },
-  i18n: {
-    toggleDetailsLabel: __('Toggle details'),
-  },
   computed: {
     optionalClasses() {
       return {
         'gl-border-t-transparent': !this.first && !this.selected,
-        'gl-border-t-gray-100': this.first && !this.selected,
-        'gl-border-b-gray-100': !this.selected,
-        'gl-border-t-transparent!': this.selected && !this.first,
+        'gl-border-t-default': this.first && !this.selected,
+        'gl-border-b-default': !this.selected,
+        '!gl-border-t-transparent': this.selected && !this.first,
         'gl-bg-blue-50 gl-border-blue-200': this.selected,
       };
+    },
+    toggleDetailsIcon() {
+      return this.isDetailsShown ? 'chevron-up' : 'chevron-down';
+    },
+    toggleDetailsLabel() {
+      return this.isDetailsShown ? __('Hide details') : __('Show details');
     },
   },
   mounted() {
@@ -59,38 +62,34 @@ export default {
 
 <template>
   <div
-    class="gl-display-flex gl-flex-direction-column gl-border-b-solid gl-border-t-solid gl-border-t-1 gl-border-b-1"
+    class="gl-flex gl-flex-col gl-border-b-1 gl-border-t-1 gl-border-b-solid gl-border-t-solid"
     :class="optionalClasses"
   >
-    <div class="gl-display-flex gl-align-items-center gl-py-3">
+    <div class="gl-flex gl-items-center gl-py-3">
       <div
         v-if="$slots['left-action'] /* eslint-disable-line @gitlab/vue-prefer-dollar-scopedslots */"
-        class="gl-w-7 gl-display-flex gl-justify-content-start gl-pl-2"
+        class="gl-flex gl-w-7 gl-justify-start gl-pl-2"
       >
         <slot name="left-action"></slot>
       </div>
-      <div
-        class="gl-display-flex gl-flex-direction-column gl-sm-flex-direction-row gl-justify-content-space-between gl-align-items-stretch gl-flex-grow-1"
-      >
-        <div
-          class="gl-display-flex gl-flex-direction-column gl-mb-3 gl-sm-mb-0 gl-min-w-0 gl-flex-grow-1"
-        >
+      <div class="gl-flex gl-grow gl-flex-col gl-items-stretch gl-justify-between sm:gl-flex-row">
+        <div class="gl-mb-3 gl-flex gl-min-w-0 gl-grow gl-flex-col sm:gl-mb-0">
           <div
             v-if="
               $slots['left-primary'] /* eslint-disable-line @gitlab/vue-prefer-dollar-scopedslots */
             "
-            class="gl-display-flex gl-align-items-center gl-text-body gl-font-semibold gl-min-h-6 gl-min-w-0"
+            class="gl-flex gl-min-h-6 gl-min-w-0 gl-items-center gl-font-semibold gl-text-default"
           >
             <slot name="left-primary"></slot>
             <gl-button
               v-if="detailsSlots.length > 0"
               v-gl-tooltip
-              :selected="isDetailsShown"
-              icon="ellipsis_h"
+              :icon="toggleDetailsIcon"
+              :aria-label="toggleDetailsLabel"
               size="small"
               class="gl-ml-2 gl-hidden sm:gl-block"
-              :title="$options.i18n.toggleDetailsLabel"
-              :aria-label="$options.i18n.toggleDetailsLabel"
+              category="tertiary"
+              :title="toggleDetailsLabel"
               :aria-expanded="isDetailsShown"
               @click="toggleDetails"
             />
@@ -102,13 +101,13 @@ export default {
                 'left-secondary'
               ]
             "
-            class="gl-display-flex gl-align-items-center gl-text-secondary gl-font-sm gl-min-h-6 gl-min-w-0 gl-flex-grow-1"
+            class="gl-flex gl-min-h-6 gl-min-w-0 gl-grow gl-items-center gl-gap-3 gl-text-sm gl-text-subtle"
           >
             <slot name="left-secondary"></slot>
           </div>
         </div>
         <div
-          class="gl-display-flex gl-flex-direction-column gl-sm-align-items-flex-end gl-justify-content-space-between gl-text-secondary gl-flex-shrink-0"
+          class="gl-flex gl-shrink-0 gl-flex-col gl-justify-between gl-text-subtle sm:gl-items-end"
         >
           <div
             v-if="
@@ -116,7 +115,7 @@ export default {
                 'right-primary'
               ]
             "
-            class="gl-display-flex gl-align-items-center gl-sm-text-body gl-min-h-6"
+            class="gl-flex gl-min-h-6 gl-items-center sm:gl-text-default"
           >
             <slot name="right-primary"></slot>
           </div>
@@ -126,7 +125,7 @@ export default {
                 'right-secondary'
               ]
             "
-            class="gl-display-flex gl-align-items-center gl-font-sm gl-min-h-6"
+            class="gl-flex gl-min-h-6 gl-items-center gl-text-sm"
           >
             <slot name="right-secondary"></slot>
           </div>
@@ -136,22 +135,22 @@ export default {
         v-if="
           $slots['right-action'] /* eslint-disable-line @gitlab/vue-prefer-dollar-scopedslots */
         "
-        class="gl-w-9 gl-display-flex gl-justify-content-end gl-pr-1"
+        class="gl-flex gl-w-9 gl-justify-end gl-pr-1"
       >
         <slot name="right-action"></slot>
       </div>
     </div>
-    <div v-if="isDetailsShown" class="gl-display-flex">
+    <div v-if="isDetailsShown" class="gl-flex">
       <div class="gl-w-7"></div>
       <div
-        class="gl-display-flex gl-flex-direction-column gl-flex-grow-1 gl-bg-gray-10 gl-rounded-base gl-shadow-inner-1-gray-100 gl-mb-3"
+        class="gl-mb-3 gl-flex gl-grow gl-flex-col gl-rounded-base gl-bg-gray-10 gl-shadow-inner-1-gray-100"
       >
         <div
           v-for="(row, detailIndex) in detailsSlots"
           :key="detailIndex"
           class="gl-px-5 gl-py-2"
           :class="{
-            'gl-border-gray-100 gl-border-t-solid gl-border-t-1': detailIndex !== 0,
+            'gl-border-t-1 gl-border-default gl-border-t-solid': detailIndex !== 0,
           }"
         >
           <slot :name="row"></slot>

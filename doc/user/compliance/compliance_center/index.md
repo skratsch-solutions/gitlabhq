@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,9 +8,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Renamed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/122931) from Compliance report in GitLab 16.3.
+> - [Available at project level](https://gitlab.com/gitlab-org/gitlab/-/issues/441350) in GitLab 17.5.
 
 The compliance center is the central location for compliance teams to manage their compliance standards adherence reporting, violations reporting, and compliance frameworks for their group.
 

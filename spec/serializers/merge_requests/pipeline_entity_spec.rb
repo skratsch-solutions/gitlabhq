@@ -28,7 +28,7 @@ RSpec.describe MergeRequests::PipelineEntity do
       allow(pipeline).to receive(:merge_request_event_type).and_return(:merged_result)
 
       is_expected.to include(
-        :id, :path, :active, :coverage, :ref, :commit, :details,
+        :id, :iid, :project_path, :path, :active, :coverage, :ref, :commit, :details,
         :flags, :triggered, :triggered_by, :name
       )
       expect(subject[:commit]).to include(:short_id, :commit_path)
@@ -37,7 +37,7 @@ RSpec.describe MergeRequests::PipelineEntity do
       expect(subject[:details][:status]).to include(:icon, :favicon, :text, :label, :tooltip)
       expect(subject[:flags]).to include(:merge_request_pipeline, :merged_result_pipeline, :merge_train_pipeline)
 
-      expect(subject[:details][:event_type_name]).to eq('Merged result pipeline')
+      expect(subject[:details][:event_type_name]).to eq('Merged results pipeline')
     end
 
     it 'returns presented coverage' do

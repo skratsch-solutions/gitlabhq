@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Configure Gitaly Cluster using either:
 
@@ -601,8 +601,8 @@ Updates to example must be made at:
    }
    ```
 
-   By default, Praefect refuses to make an unencrypted connection to
-   PostgreSQL. You can override this by uncommenting the following line:
+   By default, Praefect uses opportunistic TLS to connect to PostgreSQL. This means that Praefect attempts to connect to PostgreSQL using `sslmode` set to
+   `prefer`. You can override this by uncommenting the following line:
 
    ```ruby
    praefect['configuration'] = {
@@ -643,7 +643,7 @@ Updates to example must be made at:
    addresses referenced in the Praefect configuration must be unique.
 
    ```ruby
-   # Name of storage hash must match storage name in git_data_dirs on GitLab
+   # Name of storage hash must match storage name in gitlab_rails['repositories_storages'] on GitLab
    # server ('default') and in gitaly['configuration'][:storage][INDEX][:name] on Gitaly nodes ('gitaly-1')
    praefect['configuration'] = {
       # ...
@@ -715,7 +715,7 @@ Updates to example must be made at:
 1. Verify that Praefect can reach PostgreSQL:
 
    ```shell
-   sudo -u git /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-ping
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml sql-ping
    ```
 
    If the check fails, make sure you have followed the steps correctly. If you
@@ -745,7 +745,7 @@ Note the following:
   environment variable so that the Gitaly certificate is trusted. For example:
 
    ```shell
-   sudo SSL_CERT_DIR=/etc/gitlab/trusted-certs /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
+   SSL_CERT_DIR=/etc/gitlab/trusted-certs sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
    ```
 
 - You can configure Praefect servers with both an unencrypted listening address
@@ -801,16 +801,16 @@ For Linux package installations:
    sudo cp cert.pem /etc/gitlab/trusted-certs/
    ```
 
-1. On the Praefect clients (except Gitaly servers), edit `git_data_dirs` in
+1. On the Praefect clients (except Gitaly servers), edit `gitlab_rails['repositories_storages']` in
    `/etc/gitlab/gitlab.rb` as follows:
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      "default" => {
        "gitaly_address" => 'tls://PRAEFECT_LOADBALANCER_HOST:3305',
        "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
      }
-   })
+   }
    ```
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation).
@@ -943,17 +943,17 @@ You can also appoint an authoritative name server by setting it in this format:
 :::TabTitle Linux package (Omnibus)
 
 1. Add the IP address for each Praefect node to the DNS service discovery address.
-1. On the Praefect clients (except Gitaly servers), edit `git_data_dirs` in
+1. On the Praefect clients (except Gitaly servers), edit `gitlab_rails['repositories_storages']` in
    `/etc/gitlab/gitlab.rb` as follows. Replace `PRAEFECT_SERVICE_DISCOVERY_ADDRESS`
    with Praefect service discovery address, such as `praefect.service.consul`.
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      "default" => {
        "gitaly_address" => 'dns:PRAEFECT_SERVICE_DISCOVERY_ADDRESS:2305',
        "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
      }
-   })
+   }
    ```
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation).
@@ -1006,17 +1006,17 @@ Prerequisites:
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation).
 1. Repeat the above steps on each Praefect server to use with
    service discovery.
-1. On the Praefect clients (except Gitaly servers), edit `git_data_dirs` in
+1. On the Praefect clients (except Gitaly servers), edit `gitlab_rails['repositories_storages']` in
    `/etc/gitlab/gitlab.rb` as follows. Replace `CONSUL_SERVER` with the IP or
    address of a Consul server. The default Consul DNS port is `8600`.
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      "default" => {
        "gitaly_address" => 'dns://CONSUL_SERVER:8600/praefect.service.consul:2305',
        "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
      }
-   })
+   }
    ```
 
 1. Use `dig` from the Praefect clients to confirm that each IP address has been registered to
@@ -1147,7 +1147,7 @@ For more information on Gitaly server configuration, see our
 
 1. Configure the storage location for Git data by setting `gitaly['configuration'][:storage]` in
    `/etc/gitlab/gitlab.rb`. Each Gitaly node should have a unique storage name
-   (such as `gitaly-1`).
+   (such as `gitaly-1`) and should not be duplicated on other Gitaly nodes.
 
    ```ruby
    gitaly['configuration'] = {
@@ -1186,7 +1186,7 @@ configuration.
 1. SSH into each **Praefect** node and run the Praefect connection checker:
 
    ```shell
-   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
+   sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
    ```
 
 ### Load Balancer
@@ -1207,13 +1207,70 @@ of choice already. Some examples include [HAProxy](https://www.haproxy.org/)
 Big-IP LTM, and Citrix Net Scaler. This documentation outlines what ports
 and protocols you need configure.
 
-NOTE:
 You should use the equivalent of HAProxy `leastconn` load-balancing strategy because long-running operations (for
 example, clones) keep some connections open for extended periods.
 
 | LB Port | Backend Port | Protocol |
 |:--------|:-------------|:---------|
 | 2305    | 2305         | TCP      |
+
+You must use a TCP load balancer. Using an HTTP/2 or gRPC load balancer
+with Praefect does not work because of [Gitaly sidechannels](https://gitlab.com/gitlab-org/gitaly/-/blob/master/doc/sidechannel.md).
+This optimization intercepts the gRPC handshaking process. It redirects all heavy Git operations to a more efficient "channel" than gRPC,
+but HTTP/2 or gRPC load balancers do not handle such requests properly.
+
+If TLS is enabled, [some versions of Praefect](#alpn-enforcement) require that the Application-Layer Protocol Negotiation (ALPN) extension is used per [RFC 7540](https://datatracker.ietf.org/doc/html/rfc7540#section-3.3).
+TCP load balancers pass ALPN directly without additional configuration:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Client
+    participant LB as TCP Load Balancer
+    participant Praefect as Praefect
+
+    Client->>LB: Establish TLS Session (w/ ALPN Extension)
+    LB->>Praefect: Establish TLS Session (w/ ALPN Extension)
+    Client->>LB: Encrypted TCP packets
+    LB->>Praefect: Encrypted TCP packets
+    Praefect->>LB: Encrypted Response
+    LB->>Client: Encrypted Response
+```
+
+Some TCP load balancers can be configured to accept a TLS client connection and
+proxy the connection to Praefect with a new TLS connection. However, this only works
+if ALPN is supported on both connections.
+
+For this reason, NGINX's [`ngx_stream_proxy_module`](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
+does not work when the `proxy_ssl` configuration option is enabled:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as Client
+    participant NGINX as NGINX Stream Proxy
+    participant Praefect as Praefect
+
+    Client->>NGINX: Establish TLS Session (w/ ALPN Extension)
+    NGINX->>Praefect: Establish New TLS Session
+    Praefect->>NGINX: Connection failed: missing selected ALPN property
+```
+
+On step 2, ALPN is not used because [NGINX does not support this](https://mailman.nginx.org/pipermail/nginx-devel/2017-July/010307.html).
+For more information, [follow NGINX issue 406](https://github.com/nginx/nginx/issues/406) for more details.
+
+#### ALPN enforcement
+
+ALPN enforcement was enabled in some versions of GitLab. However, ALPN enforcement broke deployments and so is disabled
+[to provide a path to migrate](https://github.com/grpc/grpc-go/issues/7922). The following versions of GitLab have ALPN enforcement enabled:
+
+- GitLab 17.7.0
+- GitLab 17.6.0 - 17.6.2
+- GitLab 17.5.0 - 17.5.4
+- GitLab 17.4.x
+
+With [GitLab 17.5.5, 17.6.3, and 17.7.1](https://about.gitlab.com/releases/2025/01/08/patch-release-gitlab-17-7-1-released/),
+ALPN enforcement is disabled again. GitLab 17.4 and earlier never had ALPN enforcement enabled.
 
 ### GitLab
 
@@ -1223,11 +1280,11 @@ To complete this section you need:
 - [Configured Gitaly nodes](#gitaly)
 
 The Praefect cluster needs to be exposed as a storage location to the GitLab
-application, which is done by updating the `git_data_dirs`.
+application, which is done by updating `gitlab_rails['repositories_storages']`.
 
 Particular attention should be shown to:
 
-- the storage name added to `git_data_dirs` in this section must match the
+- the storage name added to `gitlab_rails['repositories_storages']` in this section must match the
   storage name under `praefect['configuration'][:virtual_storage]` on the Praefect nodes. This
   was set in the [Praefect](#praefect) section of this guide. This document uses
   `default` as the Praefect storage name.
@@ -1275,12 +1332,12 @@ Particular attention should be shown to:
    - The port should be changed to `3305`.
 
    ```ruby
-   git_data_dirs({
+   gitlab_rails['repositories_storages'] = {
      "default" => {
        "gitaly_address" => "tcp://PRAEFECT_LOADBALANCER_HOST:2305",
        "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
      }
-   })
+   }
    ```
 
 1. Configure the GitLab Shell secret token so that callbacks from Gitaly nodes during a `git push`
@@ -1341,8 +1398,8 @@ Particular attention should be shown to:
    ```
 
 1. Verify on each Gitaly node the Git Hooks can reach GitLab. On each Gitaly node run:
-   - For GitLab 15.3 and later, run `sudo /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
-   - For GitLab 15.2 and earlier, run `sudo /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.3 and later, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly check /var/opt/gitlab/gitaly/config.toml`.
+   - For GitLab 15.2 and earlier, run `sudo -u git -- /opt/gitlab/embedded/bin/gitaly-hooks check /var/opt/gitlab/gitaly/config.toml`.
 
 1. Verify that GitLab can reach Praefect:
 
@@ -1352,7 +1409,7 @@ Particular attention should be shown to:
 
 1. Check that the Praefect storage is configured to store new repositories:
 
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. On the left sidebar, select **Settings > Repository**.
    1. Expand the **Repository storage** section.
 
@@ -1372,13 +1429,13 @@ which prevents the communication with the cluster.
 For example:
 
 ```ruby
-git_data_dirs({
+gitlab_rails['repositories_storages'] = {
   'default' => { 'gitaly_address' => 'tcp://old-gitaly.internal:8075' },
   'cluster' => {
     'gitaly_address' => 'tls://<PRAEFECT_LOADBALANCER_HOST>:3305',
     'gitaly_token' => '<praefect_external_token>'
   }
-})
+}
 ```
 
 See [Mixed Configuration](configure_gitaly.md#mixed-configuration) for further information on
@@ -1478,19 +1535,19 @@ necessary to reach the desired replication factor. The repository's primary node
 always assigned first and is never unassigned.
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml set-replication-factor -virtual-storage <virtual-storage> -repository <relative-path> -replication-factor <replication-factor>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml set-replication-factor -virtual-storage <virtual-storage> -repository <relative-path> -replication-factor <replication-factor>
 ```
 
 - `-virtual-storage` is the virtual storage the repository is located in.
 - `-repository` is the repository's relative path in the storage.
 - `-replication-factor` is the desired replication factor of the repository. The minimum value is
- `1`, as the primary needs a copy of the repository. The maximum replication factor is the number of
- storages in the virtual storage.
+  `1`, as the primary needs a copy of the repository. The maximum replication factor is the number of
+  storages in the virtual storage.
 
 On success, the assigned host storages are printed. For example:
 
 ```shell
-$ sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml set-replication-factor -virtual-storage default -repository @hashed/3f/db/3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278.git -replication-factor 2
+$ sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml set-replication-factor -virtual-storage default -repository @hashed/3f/db/3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278.git -replication-factor 2
 
 current assignments: gitaly-1, gitaly-2
 ```
@@ -1617,19 +1674,19 @@ worker must be enabled for the replicas to be verified.
 Prioritize verifying the replicas of a specific repository:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -repository-id=<repository-id>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -repository-id=<repository-id>
 ```
 
 Prioritize verifying all replicas stored on a virtual storage:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -virtual-storage=<virtual-storage>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -virtual-storage=<virtual-storage>
 ```
 
 Prioritize verifying all replicas stored on a storage:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -virtual-storage=<virtual-storage> -storage=<storage>
+sudo -u git -- /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml verify -virtual-storage=<virtual-storage> -storage=<storage>
 ```
 
 The output includes the number of replicas that were marked unverified.

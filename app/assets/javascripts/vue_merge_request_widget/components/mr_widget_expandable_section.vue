@@ -44,14 +44,12 @@ export default {
 
 <template>
   <div>
-    <div class="mr-widget-body gl-display-flex">
-      <span
-        class="gl-display-flex gl-align-items-center gl-justify-content-center gl-mr-3 gl-align-self-start gl-mt-1"
-      >
+    <div class="mr-widget-body gl-flex">
+      <span class="gl-mr-3 gl-mt-1 gl-flex gl-items-center gl-justify-center gl-self-start">
         <gl-icon :name="iconName" :size="24" />
       </span>
 
-      <div class="gl-display-flex gl-flex-grow-1 gl-flex-direction-column gl-md-flex-direction-row">
+      <div class="gl-flex gl-grow gl-flex-col md:gl-flex-row">
         <slot name="header"></slot>
 
         <div>
@@ -62,10 +60,7 @@ export default {
       </div>
     </div>
 
-    <gl-collapse
-      :visible="contentIsVisible"
-      class="gl-bg-gray-10 gl-border-t-solid gl-border-gray-100 gl-border-1"
-    >
+    <gl-collapse :visible="contentIsVisible" class="gl-border-t gl-border-t-section gl-bg-subtle">
       <slot name="content"></slot>
     </gl-collapse>
   </div>

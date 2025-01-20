@@ -1,44 +1,25 @@
 # frozen_string_literal: true
 
+# covered by ./accessibility_spec.rb
+
 require 'spec_helper'
 
-RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
+RSpec.describe 'Dashboard Todos', :js, feature_category: :notifications do
   include DesignManagementTestHelpers
 
-  let_it_be(:user) { create(:user, username: 'john') }
-  let_it_be(:user2) { create(:user, username: 'diane') }
-  let_it_be(:user3) { create(:user) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:user2) { create(:user, name: 'Michael Scott') }
   let_it_be(:author) { create(:user) }
   let_it_be(:project) { create(:project, :public, developers: user) }
   let_it_be(:issue) { create(:issue, project: project, due_date: Date.today, title: "Fix bug") }
+  let_it_be(:issue2) { create(:issue, project: project, due_date: Date.today, title: "Update gems") }
+  let_it_be(:issue3) { create(:issue, project: project, due_date: Date.today, title: "Deploy feature") }
+
+  before do
+    sign_in user
+  end
 
   it_behaves_like 'a "Your work" page with sidebar and breadcrumbs', :dashboard_todos_path, :todos
-
-  context 'User does not have todos' do
-    before do
-      sign_in(user)
-      visit dashboard_todos_path
-    end
-
-    it 'shows empty state but not the page title' do
-      expect(page).to have_content 'Your To-Do List shows what to work on next'
-      expect(page).to have_selector('.gl-empty-state')
-      expect(page).not_to have_selector('.page-title-holder')
-    end
-
-    context 'when user was assigned to an issue and marked it as done' do
-      before do
-        sign_in(user)
-      end
-
-      it 'shows "Not sure where to go next?" message' do
-        create(:todo, :assigned, :done, user: user, project: project, target: issue, author: user2)
-        visit dashboard_todos_path
-
-        expect(page).to have_content 'Not sure where to go next? Take a look at your assigned issues or merge requests.'
-      end
-    end
-  end
 
   context 'when the todo references a merge request' do
     let(:referenced_mr) { create(:merge_request, source_project: project) }
@@ -46,7 +27,6 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
     let!(:todo) { create(:todo, :mentioned, user: user, project: project, author: author, note: note, target: note.noteable) }
 
     before do
-      sign_in(user)
       visit dashboard_todos_path
     end
 
@@ -56,10 +36,6 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
   end
 
   context 'user has an unauthorized todo' do
-    before do
-      sign_in(user)
-    end
-
     it 'does not render the todo' do
       unauthorized_issue = create(:issue)
       create(:todo, :mentioned, user: user, project: unauthorized_issue.project, target: unauthorized_issue, author: author)
@@ -67,99 +43,16 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
 
       visit dashboard_todos_path
 
-      expect(page).to have_selector('.todos-list .todo', count: 1)
+      expect(page).to have_selector('ul[data-testid="todo-item-list-container"] li', count: 1)
     end
   end
 
   context 'User has a todo' do
-    let_it_be(:user_todo) { create(:todo, :mentioned, user: user, project: project, target: issue, author: author) }
-
-    before do
-      sign_in(user)
-
-      visit dashboard_todos_path
-    end
-
-    it 'has todo present' do
-      expect(page).to have_selector('.todos-list .todo', count: 1)
-    end
-
-    it 'shows due date as today' do
-      within first('.todo') do
-        expect(page).to have_content 'Due today'
-      end
-    end
-
-    shared_examples 'deleting the todo' do
-      before do
-        within first('.todo') do
-          find_by_testid('check-icon').click
-        end
-      end
-
-      it 'is marked as done-reversible in the list' do
-        expect(page).to have_selector('.todos-list .todo.todo-pending.done-reversible')
-      end
-
-      it 'shows Undo button' do
-        expect(page).to have_selector('.js-undo-todo', visible: true)
-        expect(page).to have_selector('.js-done-todo', visible: false)
-      end
-
-      it 'updates todo count' do
-        expect(page).to have_content 'To Do 0'
-        expect(page).to have_content 'Done 1'
-      end
-
-      it 'has not "All done" message' do
-        expect(page).not_to have_selector('.empty-state')
-      end
-    end
-
-    shared_examples 'deleting and restoring the todo' do
-      before do
-        within first('.todo') do
-          find_by_testid('check-icon').click
-          wait_for_requests
-          find_by_testid('redo-icon').click
-        end
-      end
-
-      it 'is marked back as pending in the list' do
-        expect(page).not_to have_selector('.todos-list .todo.todo-pending.done-reversible')
-        expect(page).to have_selector('.todos-list .todo.todo-pending')
-      end
-
-      it 'shows Done button' do
-        expect(page).to have_selector('.js-undo-todo', visible: false)
-        expect(page).to have_selector('.js-done-todo', visible: true)
-      end
-
-      it 'updates todo count' do
-        expect(page).to have_content 'To Do 1'
-        expect(page).to have_content 'Done 0'
-      end
-    end
-
-    it_behaves_like 'deleting the todo'
-    it_behaves_like 'deleting and restoring the todo'
-
-    context 'todo is stale on the page' do
-      before do
-        todos = TodosFinder.new(user, state: :pending).execute
-        TodoService.new.resolve_todos(todos, user)
-      end
-
-      it_behaves_like 'deleting the todo'
-      it_behaves_like 'deleting and restoring the todo'
-    end
-
     context 'when todo has a note' do
       let(:note) { create(:note, project: project, note: "Check out stuff", noteable: create(:issue, project: project)) }
       let!(:todo) { create(:todo, :mentioned, user: user, project: project, author: author, note: note, target: note.noteable) }
 
       before do
-        sign_in(user)
         visit dashboard_todos_path
       end
 
@@ -172,10 +65,6 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
   end
 
   context 'User created todos for themself' do
-    before do
-      sign_in(user)
-    end
-
     context 'issue assigned todo' do
       before do
         create(:todo, :assigned, user: user, project: project, target: issue, author: user)
@@ -183,7 +72,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows issue assigned to yourself message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fix bug · #{project.namespace.owner_name} / #{project.name} #{issue.to_reference}")
           expect(page).to have_content("You assigned to yourself.")
         end
@@ -197,7 +86,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows you added a to-do item message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fix bug · #{project.namespace.owner_name} / #{project.name} #{issue.to_reference}")
           expect(page).to have_content("You added a to-do item.")
         end
@@ -211,7 +100,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows you mentioned yourself message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fix bug · #{project.namespace.owner_name} / #{project.name} #{issue.to_reference}")
           expect(page).to have_content("You mentioned yourself.")
         end
@@ -225,7 +114,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows you directly addressed yourself message being displayed as mentioned yourself' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fix bug · #{project.namespace.owner_name} / #{project.name} #{issue.to_reference}")
           expect(page).to have_content("You mentioned yourself.")
         end
@@ -241,7 +130,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows you set yourself as an approver message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fixes issue · #{project.namespace.owner_name} / #{project.name} #{merge_request.to_reference}")
           expect(page).to have_content("You set yourself as an approver.")
         end
@@ -257,7 +146,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows you set yourself as an reviewer message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fixes issue · #{project.namespace.owner_name} / #{project.name} #{merge_request.to_reference}")
           expect(page).to have_content("You requested a review from yourself.")
         end
@@ -277,39 +166,10 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       end
 
       it 'shows unmergeable message' do
-        page.within('.js-todos-all') do
+        within_testid('todo-item-list-container') do
           expect(page).to have_content("Fix bug · #{project.namespace.owner_name} / #{project.name} #{issue.to_reference}")
           expect(page).to have_content("Could not merge.")
         end
-      end
-    end
-  end
-
-  context 'User has done todos' do
-    before do
-      create(:todo, :mentioned, :done, user: user, project: project, target: issue, author: author)
-      sign_in(user)
-      visit dashboard_todos_path(state: :done)
-    end
-
-    it 'has the done todo present' do
-      expect(page).to have_selector('.todos-list .todo.todo-done', count: 1)
-    end
-
-    describe 'restoring the todo' do
-      before do
-        within first('.todo') do
-          find_by_testid('redo-icon').click
-        end
-      end
-
-      it 'is removed from the list' do
-        expect(page).not_to have_selector('.todos-list .todo.todo-done')
-      end
-
-      it 'updates todo count' do
-        expect(page).to have_content 'To Do 1'
-        expect(page).to have_content 'Done 0'
       end
     end
   end
@@ -326,121 +186,11 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
       note2 = create(:note_on_issue, note: "Test #{label2.to_reference(format: :name)}", noteable_id: issue2.id, noteable_type: 'Issue', project: project2)
       create(:todo, :mentioned, project: project2, target: issue2, user: user, note_id: note2.id)
 
-      gitlab_sign_in(user)
       visit dashboard_todos_path
     end
 
     it 'shows page with two Todos' do
-      expect(page).to have_selector('.todos-list .todo', count: 2)
-    end
-  end
-
-  context 'User has multiple pages of Todos' do
-    before do
-      allow(Todo).to receive(:default_per_page).and_return(1)
-
-      # Create just enough records to cause us to paginate
-      create_list(:todo, 2, :mentioned, user: user, project: project, target: issue, author: author)
-
-      sign_in(user)
-    end
-
-    it 'is paginated' do
-      visit dashboard_todos_path
-
-      expect(page).to have_selector('.gl-pagination')
-    end
-
-    it 'is has the right number of pages' do
-      visit dashboard_todos_path
-
-      expect(page).to have_selector('.gl-pagination .js-pagination-page', count: 2)
-    end
-
-    describe 'mark all as done' do
-      before do
-        visit dashboard_todos_path
-        find('.js-todos-mark-all').click
-      end
-
-      it 'shows "All done" message!' do
-        expect(page).to have_content 'To Do 0'
-        expect(page).to have_content "You're all done!"
-        expect(page).not_to have_selector('.gl-pagination')
-      end
-
-      it 'shows "Undo mark all as done" button' do
-        expect(page).to have_selector('.js-todos-mark-all', visible: false)
-        expect(page).to have_selector('.js-todos-undo-all', visible: true)
-      end
-    end
-
-    describe 'undo mark all as done' do
-      before do
-        visit dashboard_todos_path
-      end
-
-      it 'shows the restored todo list' do
-        mark_all_and_undo
-
-        expect(page).to have_selector('.todos-list .todo', count: 1)
-        expect(page).to have_selector('.gl-pagination')
-        expect(page).not_to have_content "You're all done!"
-      end
-
-      it 'updates todo count' do
-        mark_all_and_undo
-
-        expect(page).to have_content 'To Do 2'
-        expect(page).to have_content 'Done 0'
-      end
-
-      it 'shows "Mark all as done" button' do
-        mark_all_and_undo
-
-        expect(page).to have_selector('.js-todos-mark-all', visible: true)
-        expect(page).to have_selector('.js-todos-undo-all', visible: false)
-      end
-
-      context 'User has deleted a todo' do
-        before do
-          within first('.todo') do
-            find_by_testid('check-icon').click
-          end
-        end
-
-        it 'shows the restored todo list with the deleted todo' do
-          mark_all_and_undo
-
-          expect(page).to have_selector('.todos-list .todo.todo-pending', count: 1)
-        end
-      end
-
-      def mark_all_and_undo
-        find('.js-todos-mark-all').click
-        wait_for_requests
-        find('.js-todos-undo-all').click
-        wait_for_requests
-      end
-    end
-
-    describe 'shows a count of todos' do
-      before do
-        allow(Todo).to receive(:default_per_page).and_return(1)
-        create_list(:todo, 2, :mentioned, user: user3, project: project, target: issue, author: author, state: :pending)
-        create_list(:todo, 2, :mentioned, user: user3, project: project, target: issue, author: author, state: :done)
-        sign_in(user3)
-      end
-
-      it 'displays a count of all pending todos' do
-        visit dashboard_todos_path
-        expect(find('.js-todos-pending')).to have_content('2')
-      end
-
-      it 'displays a count of all done todos' do
-        visit dashboard_todos_path(state: 'done')
-        expect(find('.js-todos-done')).to have_content('2')
-      end
+      expect(page).to have_selector('ul[data-testid="todo-item-list-container"] li', count: 2)
     end
   end
 
@@ -481,7 +231,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
     end
 
     it 'has todo present' do
-      expect(page).to have_selector('.todos-list .todo', count: 1)
+      expect(page).to have_selector('ul[data-testid="todo-item-list-container"] li', count: 1)
     end
   end
 
@@ -491,7 +241,7 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
         sign_in(user)
         visit dashboard_todos_path
 
-        expect(page).to have_selector('.todos-list .todo', count: 1)
+        expect(page).to have_selector('ul[data-testid="todo-item-list-container"] li', count: 1)
         expect(page).to have_content "#{author.name} has requested access to #{target_type} #{target_name}"
       end
     end
@@ -534,5 +284,243 @@ RSpec.describe 'Dashboard Todos', :js, feature_category: :team_planning do
         end
       end
     end
+  end
+
+  describe 'empty states' do
+    context 'when user has no todos at all (neither pending nor done)' do
+      before do
+        visit dashboard_todos_path
+      end
+
+      it 'shows empty state for new users' do
+        within('.gl-empty-state') do
+          expect(page).to have_content 'Your To-Do List shows what to work on next'
+        end
+      end
+    end
+
+    context 'when user has no pending todos (but some done todos)' do
+      before do
+        create_todo(state: :done)
+        visit dashboard_todos_path
+      end
+
+      it 'shows a "well done" message on the "Pending" tab' do
+        expect(page).to have_content 'Not sure where to go next?'
+        expect_tab_nav
+      end
+    end
+
+    context 'when user has pending todos but applied filters with no matches' do
+      before do
+        create_todo(state: :pending)
+        visit dashboard_todos_path(author_id: user.id)
+      end
+
+      it 'shows a "no matches" message' do
+        expect(page).to have_content 'Sorry, your filter produced no results'
+        expect_tab_nav
+      end
+    end
+
+    context 'when user has no done tasks' do
+      before do
+        create_todo(state: :pending)
+      end
+
+      context 'with filters applied' do
+        it 'shows a "no matches" message' do
+          visit dashboard_todos_path(author_id: user.id, state: :done)
+          expect(page).to have_content 'Sorry, your filter produced no results'
+          expect_tab_nav
+        end
+      end
+
+      context 'with no filters applied' do
+        it 'shows a "no done todos" message on the "Done" tab' do
+          visit dashboard_todos_path(state: :done)
+          expect(page).to have_content 'There are no done to-do items yet'
+          expect_tab_nav
+        end
+      end
+    end
+  end
+
+  context 'when user has pending todos' do
+    let_it_be(:todo_assigned) { create(:todo, :assigned, :pending, user: user, project: project, target: issue, author: user2) }
+    let_it_be(:todo_marked) { create(:todo, :marked, :pending, user: user, project: project, target: issue, author: user) }
+
+    before do
+      visit dashboard_todos_path
+    end
+
+    it 'allows to mark a pending todo as done and find it in the Done tab' do
+      expect(page).to have_content 'Michael Scott assigned you.'
+      expect(page).to have_content 'You added a to-do item.'
+      expect(page).to have_content 'To Do 2'
+
+      within_testid("todo-item-gid://gitlab/Todo/#{todo_assigned.id}") do
+        click_on 'Mark as done'
+      end
+      wait_for_requests
+      click_on 'Done'
+      expect(page).to have_content 'Michael Scott assigned you.'
+      click_on 'To Do 1'
+      expect(page).not_to have_content 'Michael Scott assigned you.'
+    end
+  end
+
+  describe 'sorting' do
+    let_it_be(:oldest_but_most_recently_updated) { create_todo(created_at: 3.days.ago, updated_at: 3.minutes.ago, target: issue) }
+    let_it_be(:middle_old_and_middle_updated) { create_todo(created_at: 2.days.ago, updated_at: 2.hours.ago, target: issue2) }
+    let_it_be(:newest_but_never_updated) { create_todo(created_at: 1.day.ago, updated_at: 1.day.ago, target: issue3) }
+
+    before do
+      visit dashboard_todos_path
+    end
+
+    it 'allows to change sort order and direction' do
+      # default sort is by `created_at` (desc)
+      expect(page).to have_content(
+        /#{newest_but_never_updated.target.title}.*#{middle_old_and_middle_updated.target.title}.*#{oldest_but_most_recently_updated.target.title}/
+      )
+
+      # change direction
+      find('.sorting-direction-button').click
+      expect(page).to have_content(
+        /#{oldest_but_most_recently_updated.target.title}.*#{middle_old_and_middle_updated.target.title}.*#{newest_but_never_updated.target.title}/
+      )
+
+      # change order
+      click_on 'Created' # to open order dropdown
+      find('li', text: 'Updated').click # to change to `updated_at`
+      expect(page).to have_content(
+        /#{newest_but_never_updated.target.title}.*#{middle_old_and_middle_updated.target.title}.*#{oldest_but_most_recently_updated.target.title}/
+      )
+    end
+  end
+
+  describe 'filtering' do
+    let_it_be(:self_assigned) { create_todo(author: user, target: issue) }
+    let_it_be(:self_marked) { create_todo(author: user, target: issue2, action: :marked) }
+    let_it_be(:other_assigned) { create_todo(author: user2, target: issue3) }
+
+    before do
+      visit dashboard_todos_path
+    end
+
+    it 'allows to filter by auther, action etc' do
+      find_by_testid('filtered-search-term').click
+      find('li', text: 'Author').click
+      find('li', text: user.username).click
+      find_by_testid('search-button').click
+
+      expect(page).to have_content(self_assigned.target.title)
+      expect(page).to have_content(self_marked.target.title)
+      expect(page).not_to have_content(other_assigned.target.title)
+
+      find_by_testid('filtered-search-term').click
+      find('li', text: 'Reason').click
+      find('li', text: 'Marked').click
+      find_by_testid('search-button').click
+
+      expect(page).not_to have_content(self_assigned.target.title)
+      expect(page).to have_content(self_marked.target.title)
+      expect(page).not_to have_content(other_assigned.target.title)
+
+      click_on 'Clear'
+
+      expect(page).to have_content(self_assigned.target.title)
+      expect(page).to have_content(self_marked.target.title)
+      expect(page).to have_content(other_assigned.target.title)
+    end
+  end
+
+  describe 'reloading' do
+    let_it_be(:todo1) { create_todo(author: user, target: issue) }
+
+    before do
+      visit dashboard_todos_path
+    end
+
+    context 'when user clicks the Refresh button' do
+      it 'updates the list of todos' do
+        todo2 = create_todo(author: user, target: issue2)
+        expect(page).not_to have_content todo2.target.title
+        click_on 'Refresh'
+        expect(page).to have_content todo2.target.title
+      end
+    end
+
+    context 'when user stops interacting with the list' do
+      it 'automatically updates the list of todos' do
+        click_on 'Mark as done'
+        sleep 1 # Auto-reload needs 1sec of user inactivity
+        expect(page).to have_content todo1.target.title # Resolved todo is still visible
+        find_by_testid('filtered-search-term-input').click # Move focus away from the list
+        expect(page).to have_content 'Not sure where to go next?' # Shows empty state
+        expect(page).not_to have_content todo1.target.title
+      end
+    end
+  end
+
+  describe '"Mark all as done" button' do
+    context 'with no pending todos' do
+      it 'does not show' do
+        visit dashboard_todos_path
+        expect(page).not_to have_content 'Mark all as done'
+      end
+    end
+
+    context 'with pending todos' do
+      let_it_be(:self_assigned) { create_todo(author: user, target: issue) }
+      let_it_be(:self_marked) { create_todo(author: user, target: issue2, action: :marked) }
+      let_it_be(:other_assigned) { create_todo(author: user2, target: issue3) }
+
+      context 'with no filters applied' do
+        it 'marks all pending todos as done' do
+          visit dashboard_todos_path
+          click_on 'Mark all as done'
+
+          expect(page).to have_content 'Not sure where to go next?'
+          within('.gl-toast') do
+            expect(page).to have_content 'Marked 3 to-dos as done'
+            find('a.gl-toast-action', text: 'Undo').click
+          end
+          expect(page).to have_content 'Restored 3 to-dos'
+          expect(page).to have_selector('ul[data-testid=todo-item-list-container] li', count: 3)
+        end
+      end
+
+      context 'with filters applied' do
+        it 'only marks the filtered todos as done' do
+          visit dashboard_todos_path(author_id: user.id)
+          click_on 'Mark all as done'
+
+          expect(page).to have_content 'Sorry, your filter produced no results'
+          click_on 'Clear'
+          expect(page).to have_selector('ul[data-testid=todo-item-list-container] li', count: 1)
+          expect(page).to have_content(other_assigned.author.name)
+        end
+      end
+    end
+  end
+
+  def create_todo(action: :assigned, state: :pending, created_at: nil, updated_at: nil, target: issue, author: user2)
+    create(
+      :todo,
+      action,
+      state: state,
+      user: user,
+      created_at: created_at,
+      updated_at: updated_at,
+      project: project,
+      target: target,
+      author: author
+    )
+  end
+
+  def expect_tab_nav
+    expect(page).to have_content(/To Do \d+ Snoozed Done All/)
   end
 end

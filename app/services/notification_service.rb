@@ -75,15 +75,19 @@ class NotificationService
     end
   end
 
-  def bot_resource_access_token_about_to_expire(bot_user, token_name)
-    recipients = bot_user.resource_bot_owners_and_maintainers.select { |user| user.can?(:receive_notifications) }
+  def bot_resource_access_token_about_to_expire(bot_user, token_name, params = {})
     resource = bot_user.resource_bot_resource
 
-    recipients.each do |recipient|
+    bot_resource_access_token_about_to_expire_recipients(bot_user) do |recipient|
+      next unless recipient.can?(:receive_notifications)
+
+      log_info("Notifying resource access token owner about expiring tokens", recipient)
+
       mailer.bot_resource_access_token_about_to_expire_email(
         recipient,
         resource,
-        token_name
+        token_name,
+        params
       ).deliver_later
     end
   end
@@ -97,10 +101,12 @@ class NotificationService
 
   # Notify the owner of the personal access token, when it is about to expire
   # And mark the token with about_to_expire_delivered
-  def access_token_about_to_expire(user, token_names)
+  def access_token_about_to_expire(user, token_names, params = {})
     return unless user.can?(:receive_notifications)
 
-    mailer.access_token_about_to_expire_email(user, token_names).deliver_later
+    log_info("Notifying User about expiring tokens", user)
+
+    mailer.access_token_about_to_expire_email(user, token_names, params).deliver_later
   end
 
   # Notify the user when at least one of their personal access tokens has expired today
@@ -133,10 +139,10 @@ class NotificationService
 
   # Notify a user when a previously unknown IP or device is used to
   # sign in to their account
-  def unknown_sign_in(user, ip, time)
+  def unknown_sign_in(user, ip, time, request_info)
     return unless user.can?(:receive_notifications)
 
-    mailer.unknown_sign_in_email(user, ip, time).deliver_later
+    mailer.unknown_sign_in_email(user, ip, time, country: request_info.country, city: request_info.city).deliver_later
   end
 
   # Notify a user when a wrong 2FA OTP has been entered to
@@ -508,12 +514,6 @@ class NotificationService
     recipients.each { |recipient| deliver_access_request_email(recipient, member) }
   end
 
-  def decline_access_request(member)
-    return true unless member.notifiable?(:subscription)
-
-    mailer.member_access_denied_email(member.real_source_type, member.source_id, member.user_id).deliver_later
-  end
-
   def decline_invite(member)
     # Must always send, regardless of project/namespace configuration since it's a
     # response to the user's action.
@@ -562,10 +562,6 @@ class NotificationService
     return true unless member.notifiable?(:mention)
 
     mailer.member_about_to_expire_email(member.real_source_type, member.id).deliver_later
-  end
-
-  def invite_member_reminder(group_member, token, reminder_index)
-    mailer.member_invited_reminder_email(group_member.real_source_type, group_member.id, token, reminder_index).deliver_later
   end
 
   def project_was_moved(project, old_path_with_namespace)
@@ -698,6 +694,18 @@ class NotificationService
     return if project.emails_disabled?
 
     mailer.send(:repository_cleanup_failure_email, project, user, error).deliver_later
+  end
+
+  def repository_rewrite_history_success(project, user)
+    return if project.emails_disabled?
+
+    mailer.repository_rewrite_history_success_email(project, user).deliver_later
+  end
+
+  def repository_rewrite_history_failure(project, user, error)
+    return if project.emails_disabled?
+
+    mailer.repository_rewrite_history_failure_email(project, user, error).deliver_later
   end
 
   def remote_mirror_update_failed(remote_mirror)
@@ -890,6 +898,14 @@ class NotificationService
 
   private
 
+  def log_info(message_text, user)
+    Gitlab::AppLogger.info(
+      message: message_text,
+      class: self.class,
+      user_id: user.id
+    )
+  end
+
   def approve_mr_email(merge_request, project, current_user)
     recipients = ::NotificationRecipients::BuildService.build_recipients(merge_request, current_user, action: 'approve')
 
@@ -936,6 +952,56 @@ class NotificationService
 
   def project_maintainers_recipients(target, action:)
     NotificationRecipients::BuildService.build_project_maintainers_recipients(target, action: action)
+  end
+
+  def bot_resource_access_token_about_to_expire_recipients(bot_user)
+    resource = bot_user.resource_bot_resource
+
+    if send_bot_rat_expiry_to_inherited?(resource)
+      inherited_rat_members_relation(resource, bot_user).find_each do |membership|
+        yield membership.user
+      end
+    else
+      bot_user.resource_bot_owners_and_maintainers.find_each do |user|
+        yield user
+      end
+    end
+  end
+
+  def inherited_rat_members_relation(resource, bot_user)
+    case resource
+    when Group
+      GroupMembersFinder.new(
+        resource,
+        bot_user,
+        params: {
+          access_levels: [
+            Gitlab::Access::OWNER,
+            Gitlab::Access::ADMIN
+          ],
+          non_invite: true
+        }
+      ).execute(include_relations: [:direct, :inherited]).non_minimal_access
+    when Project
+      MembersFinder
+        .new(
+          resource,
+          bot_user,
+          params: {
+            owners_and_maintainers: true
+          }
+        ).execute(include_relations: [:direct, :inherited])
+    else
+      raise ArgumentError, "#{bot_user} is not connected to a Group or Project"
+    end
+  end
+
+  def send_bot_rat_expiry_to_inherited?(group_or_project)
+    root_ancestor = group_or_project.root_ancestor
+    namespace = group_or_project.is_a?(Namespace) ? group_or_project : group_or_project.namespace
+
+    Feature.enabled?(:pat_expiry_inherited_members_notification, root_ancestor) &&
+      namespace.resource_access_token_notify_inherited?
   end
 
   def notifiable?(...)

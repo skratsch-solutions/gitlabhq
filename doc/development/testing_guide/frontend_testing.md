@@ -23,15 +23,17 @@ information on general testing practices at GitLab.
 
 If you are looking for a guide on Vue component testing, you can jump right away to this [section](../fe_guide/vue.md#testing-vue-components).
 
+Information on testing Vue 3 is contained in [this page](../testing_guide/testing_vue3.md).
+
 ## Jest
 
 We use Jest to write frontend unit and integration tests.
 Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 
-### Limitations of jsdom
+### `jsdom`
 
-Jest uses jsdom instead of a browser for running tests.
-This comes with a number of limitations, namely:
+Jest uses `jsdom` instead of a browser for running tests.
+Known issues include:
 
 - [No scrolling support](https://github.com/jsdom/jsdom/blob/15.1.1/lib/jsdom/browser/Window.js#L623-L625)
 - [No element sizes or positions](https://github.com/jsdom/jsdom/blob/15.1.1/lib/jsdom/living/nodes/Element-impl.js#L334-L371)
@@ -173,6 +175,24 @@ expect(idGenerator.create()).toBe('1234')
 expect(wrapper.find('div').html()).toBe('<div id="1234">...</div>')
 ```
 
+### Don't use imported values in assertions
+
+Prefer literal values in assertions rather than importing constants. This makes tests easier to read, and resilient to changes. This is discussed further in [internationalization recommendations](../i18n/externalization.md#recommendations).
+
+```javascript
+// Bad: MY_CONSTANT could accidentally be set to undefined, have a typo etc. and test would still pass
+import { MY_CONSTANT } from '../constants';
+
+it('returns the correct value', () => {
+  expect(ding()).toBe(MY_CONSTANT);
+});
+
+// Good: explicit value is asserted
+it('returns the correct value', () => {
+  expect(ding()).toBe('expected literal value');
+});
+```
+
 ### Follow the user
 
 The line between unit and integration tests can be quite blurry in a component heavy world. The most important guideline to give is the following:
@@ -226,7 +246,7 @@ it('exists', () => {
   // Bad
   wrapper.find({ ref: 'foo'});
   wrapper.find('.js-foo');
-  wrapper.find('.btn-primary');
+  wrapper.find('.gl-button');
 });
 ```
 
@@ -251,7 +271,17 @@ it('exists', () => {
 });
 ```
 
-### Naming unit tests
+### Naming unit/component tests
+
+Unit/Component tests should be named `${componentName}_spec.js`
+
+If the test name is not specific enough, consider renaming the component.
+
+For Example:
+
+`diff_stats_dropdown.vue` should have a unit/component test named `diff_stats_dropdown_spec.js`
+
+### Describe block naming
 
 When writing describe test blocks to test specific functions/methods,
 use the method name as the describe block name.
@@ -422,6 +452,49 @@ it('passes', () => {
   expect(window.location.reload).toHaveBeenCalled();
 });
 ```
+
+### Testing clean-up of event listeners and timeouts
+
+Often times in components we create event listeners or timeouts on the `beforeDestroy` (`beforeUnmount` for Vue 3) hooks. It is important to test that both listeners and timeouts are cleared when the component instance is destroyed, as forgetting to clean up these events can cause problems like memory leaks and broken references on event listeners.
+
+Consider the following example:
+
+```javascript
+beforeDestroy() {
+  removeEventListener('keydown', someListener)
+  clearTimeout(timeoutPointer)
+}
+```
+
+In the above example, a component is both clearing a `keydown` event listener and a timeout that was created elsewhere.
+
+Let's take a look at the relevant tests.
+
+```javascript
+describe('Cleanup before destroy', () => {
+  beforeEach(() => {
+    createComponent()
+
+    // Destroy the component immediately to invoke the `beforeDestroy` hook
+    wrapper.destroy()
+  })
+
+  it('removes the event listener', () => {
+    const spy = jest.spyOn(window, 'removeEventListener')
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith('keydown', expect.any(Function))
+  })
+
+  it('clears the pending timeouts', () => {
+    const spy = jest.spyOn(window, 'clearTimeout')
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+})
+```
+
+The above example does not explicitly check for the function that is called on the `keydown` listener as it will normally be an implementation detail. The same happens with the `clearTimeout` call, as the parameter will be a pointer to a timer created internally in the component.
+
+Due to this, it is normally sufficient to check that the spies have been called, with the recommended addition of checking the _times_ that they have been called.
 
 ### Waiting in tests
 
@@ -785,7 +858,7 @@ messages can be maintained where we call `setupConsoleWatcher`. Example:
 setupConsoleWatcher({
   ignores: [
     ...,
-    // Any call to `console.error('Foo bar')`  or `console.warn('Foo bar')` will be ignored by our console watcher.
+    // Any call to `console.error('Foo bar')` or `console.warn('Foo bar')` will be ignored by our console watcher.
     'Foo bar',
     // Use regex to allow for flexible message matching.
     /Lorem ipsum/,
@@ -887,6 +960,12 @@ For running the frontend tests, you need the following commands:
 - `rake frontend:fixtures` (re-)generates [fixtures](#frontend-test-fixtures). Make sure that
   fixtures are up-to-date before running tests that require them.
 - `yarn jest` runs Jest tests.
+
+### Running CE and EE tests
+
+Whenever you create tests for both CE and EE environments, because your changes have EE features, you need to take some steps to ensure that both tests pass locally and on the pipeline when run.
+
+Check [this section](../ee_features.md#running-ee-vs-ce-tests) to learn more about testing both environments.
 
 ### Live testing and focused testing -- Jest
 
@@ -1203,12 +1282,12 @@ testAction(
 
 ### Wait until Axios requests finish
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 The Axios Utils mock module located in `spec/frontend/__helpers__/mocks/axios_utils.js` contains two helper methods for Jest tests that spawn HTTP requests.
-These are very useful if you don't have a handle to the request's Promise, for example when a Vue component does a request as part of its life cycle.
+These are very useful if you don't have a handle to the request's Promise, for example when a Vue component does a request as part of its lifecycle.
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 - `waitFor(url, callback)`: Runs `callback` after a request to `url` finishes (either successfully or unsuccessfully).
 - `waitForAll(callback)`: Runs `callback` once all pending requests have finished. If no requests are pending, runs `callback` on the next tick.
@@ -1580,9 +1659,9 @@ Feature tests live in `spec/features` folder. You should look for existing files
 1. Start your `gdk` environment with `gdk start` command.
 1. In your terminal, run:
 
-  ```shell
-   bundle exec rspec path/to/file:line_of_my_test
-  ```
+   ```shell
+    bundle exec rspec path/to/file:line_of_my_test
+   ```
 
 You can also prefix this command with `WEBDRIVER_HEADLESS=0` which will run the test by opening an actual browser on your computer that you can see, which is very useful for debugging.
 
@@ -1594,23 +1673,23 @@ To use Firefox, instead of Chrome, prefix the command with `WEBDRIVER=firefox`.
 
 1. Make all string literals unchangeable
 
-  In all feature tests, the very first line should be:
+   In all feature tests, the very first line should be:
 
-  ```ruby
-  # frozen_string_literal: true
-  ```
+   ```ruby
+   # frozen_string_literal: true
+   ```
 
-  This is in every `Ruby` file and makes all string literals unchangeable. There are also some performance benefits, but this is beyond the scope of this section.
+   This is in every `Ruby` file and makes all string literals unchangeable. There are also some performance benefits, but this is beyond the scope of this section.
 
 1. Import dependencies.
 
-  You should import the modules you need. You will most likely always need to require `spec_helper`:
+   You should import the modules you need. You will most likely always need to require `spec_helper`:
 
-  ```ruby
-  require 'spec_helper'
-  ```
+   ```ruby
+   require 'spec_helper'
+   ```
 
-  Import any other relevant module.
+   Import any other relevant module.
 
 1. Create a global scope for RSpec to define our tests, just like what we do in jest with the initial describe block.
 
@@ -1793,6 +1872,48 @@ If you are stubbing an `ee` feature flag, then use:
 ```ruby
   stub_licensed_features(my_feature_flag: false)
 ```
+
+#### Asserting browser console errors
+
+By default, feature specs won't fail if a browser console error is found. Sometimes we want to cover that there are not
+unexpected console errors which could indicate an integration problem.
+
+To set a feature spec to fail if it encounters browser console errors, use `expect_page_to_have_no_console_errors` from
+the `BrowserConsoleHelpers` support module:
+
+```ruby
+RSpec.describe 'Pipeline', :js do
+  after do
+    expect_page_to_have_no_console_errors
+  end
+
+  # ...
+end
+```
+
+NOTE:
+`expect_page_to_have_no_console_errors` will not work on `WEBDRIVER=firefox`. Logs are only captured when
+using the Chrome driver.
+
+Sometimes, there are known console errors that we want to ignore. To ignore a set of messages, such that the test
+**will not** fail if the message is observed, you can pass an `allow:` parameter to
+`expect_page_to_have_no_console_errors`:
+
+```ruby
+RSpec.describe 'Pipeline', :js do
+  after do
+    expect_page_to_have_no_console_errors(allow: [
+      "Blow up!",
+      /Foo.*happens/
+    ])
+  end
+
+  # ...
+end
+```
+
+Update the `BROWSER_CONSOLE_ERROR_FILTER` constant in `spec/support/helpers/browser_console_helpers.rb` to change
+the list of console errors that should be globally ignored.
 
 ### Debugging
 

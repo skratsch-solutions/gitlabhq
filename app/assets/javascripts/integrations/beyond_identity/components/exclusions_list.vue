@@ -198,10 +198,10 @@ export default {
     <exclusions-tabs />
 
     <div
-      class="gl-display-flex gl-justify-content-space-between gl-bg-gray-10 gl-p-4 gl-py-5 gl-border-b gl-align-items-center"
+      class="gl-border-b gl-flex gl-items-center gl-justify-between gl-bg-gray-10 gl-p-4 gl-py-5"
     >
       <span>{{ $options.i18n.helpText }}</span>
-      <gl-button variant="confirm" @click="isDrawerOpen = true">{{
+      <gl-button variant="confirm" data-testid="add-exclusions-btn" @click="isDrawerOpen = true">{{
         $options.i18n.addExclusions
       }}</gl-button>
     </div>
@@ -218,7 +218,7 @@ export default {
 
     <gl-loading-icon v-if="isLoading" size="lg" class="gl-my-5" />
 
-    <div v-else class="gl-mt-5 gl-display-flex gl-justify-content-center">
+    <div v-else class="gl-mt-5 gl-flex gl-justify-center">
       <gl-keyset-pagination
         v-if="showPagination"
         v-bind="pageInfo"

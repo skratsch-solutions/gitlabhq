@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Ci::CreatePipelineService, :ci_config_feature_flag_correctness, feature_category: :continuous_integration do
+RSpec.describe Ci::CreatePipelineService, feature_category: :continuous_integration do
   describe 'creation errors and warnings' do
     let_it_be(:project) { create(:project, :repository) }
     let_it_be(:user)    { project.first_owner }
@@ -64,7 +64,7 @@ RSpec.describe Ci::CreatePipelineService, :ci_config_feature_flag_correctness, f
         end
 
         it 'contains errors and masks variables' do
-          error_message = "Included file `xxxxxxxxxx/gitlab-ci.txt` does not have YAML extension!"
+          error_message = "Included file `[MASKED]xx/gitlab-ci.txt` does not have YAML extension!"
           expect(pipeline.yaml_errors).to eq(error_message)
           expect(pipeline.error_messages.map(&:content)).to contain_exactly(error_message)
           expect(pipeline.errors.full_messages).to contain_exactly(error_message)
@@ -106,7 +106,7 @@ RSpec.describe Ci::CreatePipelineService, :ci_config_feature_flag_correctness, f
         end
 
         it 'contains only errors' do
-          error_message = 'jobs invalid config should implement a script: or a trigger: keyword'
+          error_message = 'jobs invalid config should implement the script:, run:, or trigger: keyword'
           expect(pipeline.yaml_errors).to eq(error_message)
           expect(pipeline.error_messages.map(&:content)).to contain_exactly(error_message)
           expect(pipeline.errors.full_messages).to contain_exactly(error_message)

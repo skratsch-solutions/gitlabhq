@@ -11,10 +11,9 @@ const reorderBadges = (badges) =>
   });
 
 export default {
-  [types.RECEIVE_NEW_BADGE](state, newBadge) {
+  [types.RECEIVE_NEW_BADGE](state) {
     Object.assign(state, {
-      badgeInAddForm: null,
-      badges: reorderBadges(state.badges.concat(newBadge)),
+      badgeInAddForm: {},
       isSaving: false,
       renderedBadge: null,
     });
@@ -38,7 +37,7 @@ export default {
       return badge;
     });
     Object.assign(state, {
-      badgeInEditForm: null,
+      badgeInEditForm: {},
       badges,
       isEditing: false,
       isSaving: false,
@@ -67,21 +66,13 @@ export default {
       isLoading: false,
     });
   },
-  [types.REQUEST_LOAD_BADGES](state, data) {
+
+  [types.REQUEST_LOAD_BADGES](state) {
     Object.assign(state, {
-      kind: data.kind, // project or group
-      apiEndpointUrl: data.apiEndpointUrl,
-      docsUrl: data.docsUrl,
       isLoading: true,
     });
   },
 
-  [types.RECEIVE_DELETE_BADGE](state, badgeId) {
-    const badges = state.badges.filter((badge) => badge.id !== badgeId);
-    Object.assign(state, {
-      badges,
-    });
-  },
   [types.RECEIVE_DELETE_BADGE_ERROR](state, badgeId) {
     const badges = state.badges.map((badge) => {
       if (badge.id === badgeId) {
@@ -123,6 +114,12 @@ export default {
     Object.assign(state, { isRendering: true });
   },
 
+  [types.RECEIVE_PAGINATION](state, pagination) {
+    Object.assign(state, {
+      pagination,
+    });
+  },
+
   [types.START_EDITING](state, badge) {
     Object.assign(state, {
       badgeInEditForm: { ...badge },
@@ -132,7 +129,7 @@ export default {
   },
   [types.STOP_EDITING](state) {
     Object.assign(state, {
-      badgeInEditForm: null,
+      badgeInEditForm: {},
       isEditing: false,
       renderedBadge: null,
     });

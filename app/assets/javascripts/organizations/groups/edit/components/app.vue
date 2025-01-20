@@ -6,7 +6,7 @@ import { __, s__ } from '~/locale';
 import { VISIBILITY_LEVELS_INTEGER_TO_STRING } from '~/visibility_level/constants';
 import { visitUrlWithAlerts } from '~/lib/utils/url_utility';
 import { createAlert } from '~/alert';
-import FormErrorsAlert from '~/vue_shared/components/form/errors_alert.vue';
+import FormErrorsAlert from '~/organizations/shared/components/errors_alert.vue';
 import groupUpdateMutation from '../graphql/mutations/group_update.mutation.graphql';
 
 export default {
@@ -85,7 +85,7 @@ export default {
 
 <template>
   <div class="gl-py-6">
-    <h1 class="gl-mt-0 gl-font-size-h-display">
+    <h1 class="gl-mt-0 gl-text-size-h-display">
       <gl-sprintf :message="$options.i18n.pageTitle">
         <template #group_name>{{ group.fullName }}</template>
       </gl-sprintf>

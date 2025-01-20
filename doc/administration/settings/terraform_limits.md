@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352951) in GitLab 15.7.
 
@@ -18,7 +18,7 @@ state file version, and is checked whenever a new version is created.
 
 To add a storage limit:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Preferences**.
 1. Expand **Terraform limits**.
 1. Enter a size limit in bytes. Set to `0` to allow files of unlimited size.

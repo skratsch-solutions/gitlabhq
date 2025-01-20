@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -30,8 +30,8 @@ Migrations are executed in the following order:
 
 1. Migrations without `milestone` defined are executed first, ordered by their timestamp.
 1. Migrations with `milestone` defined are executed in milestone order:
-    1. Regular migrations are executed before post-deployment migrations.
-    1. Migrations of the same type and milestone are executed in order specified by their timestamp.
+   1. Regular migrations are executed before post-deployment migrations.
+   1. Migrations of the same type and milestone are executed in order specified by their timestamp.
 
 Example:
 

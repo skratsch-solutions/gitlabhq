@@ -12,14 +12,15 @@ import {
   GlSprintf,
   GlLoadingIcon,
 } from '@gitlab/ui';
+import { GlBreakpointInstance } from '@gitlab/ui/dist/utils';
 import { uniqueId } from 'lodash';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { fetchPolicies } from '~/lib/graphql';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { s__, __, n__ } from '~/locale';
+import { helpPagePath } from '~/helpers/help_page_helper';
 import {
-  CC_VALIDATION_REQUIRED_ERROR,
   IDENTITY_VERIFICATION_REQUIRED_ERROR,
   CONFIG_VARIABLES_TIMEOUT,
   FILE_TYPE,
@@ -47,13 +48,14 @@ const i18n = {
   warningTitle: __('The form contains the following warning:'),
   maxWarningsSummary: __('%{total} warnings found: showing first %{warningsDisplayed}'),
   removeVariableLabel: s__('CiVariables|Remove variable'),
+  learnMore: __('Learn more'),
 };
 
 export default {
   i18n,
-  formElementClasses: 'gl-mr-3 gl-mb-3 gl-flex-basis-quarter gl-flex-shrink-0 gl-flex-grow-0',
+  formElementClasses: 'gl-basis-1/4 gl-shrink-0 gl-flex-grow-0',
   // this height value is used inline on the textarea to match the input field height
-  // it's used to prevent the overwrite if 'gl-h-7' or 'gl-h-7!' were used
+  // it's used to prevent the overwrite if 'gl-h-7' or '!gl-h-7' were used
   textAreaStyle: { height: '32px' },
   components: {
     GlAlert,
@@ -69,8 +71,6 @@ export default {
     GlLoadingIcon,
     RefsDropdown,
     VariableValuesListbox,
-    CcValidationRequiredAlert: () =>
-      import('ee_component/billings/components/cc_validation_required_alert.vue'),
     PipelineAccountVerificationAlert: () =>
       import('ee_component/vue_shared/components/pipeline_account_verification_alert.vue'),
   },
@@ -123,6 +123,10 @@ export default {
       type: Number,
       required: true,
     },
+    isMaintainer: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -142,10 +146,10 @@ export default {
       totalWarnings: 0,
       isWarningDismissed: false,
       submitted: false,
-      ccAlertDismissed: false,
     };
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     ciConfigVariables: {
       fetchPolicy: fetchPolicies.NO_CACHE,
       query: ciConfigVariablesQuery,
@@ -189,6 +193,12 @@ export default {
     },
   },
   computed: {
+    isMobile() {
+      return ['sm', 'xs'].includes(GlBreakpointInstance.getBreakpointSize());
+    },
+    removeButtonCategory() {
+      return this.isMobile ? 'secondary' : 'tertiary';
+    },
     isFetchingCiConfigVariables() {
       return this.predefinedVariables === null;
     },
@@ -221,9 +231,6 @@ export default {
     },
     descriptions() {
       return this.form[this.refFullName]?.descriptions ?? {};
-    },
-    ccRequiredError() {
-      return this.error === CC_VALIDATION_REQUIRED_ERROR && !this.ccAlertDismissed;
     },
     identityVerificationRequiredError() {
       return this.error === IDENTITY_VERIFICATION_REQUIRED_ERROR;
@@ -302,6 +309,7 @@ export default {
       // Adds empty var at the end of the form
       this.addEmptyVariable(this.refFullName);
     },
+    // eslint-disable-next-line max-params
     setVariable(refValue, type, key, value) {
       const { variables } = this.form[refValue];
 
@@ -339,7 +347,6 @@ export default {
     },
     async createPipeline() {
       this.submitted = true;
-      this.ccAlertDismissed = false;
 
       const { data } = await this.$apollo.mutate({
         mutation: createPipelineMutation,
@@ -382,7 +389,6 @@ export default {
       this.totalWarnings = totalWarnings;
     },
     dismissError() {
-      this.ccAlertDismissed = true;
       this.error = null;
     },
     createListItemsFromVariableOptions(key) {
@@ -392,16 +398,15 @@ export default {
       }));
     },
   },
+  learnMorePath: helpPagePath('ci/variables/index', {
+    anchor: 'cicd-variable-precedence',
+  }),
 };
 </script>
 
 <template>
   <gl-form @submit.prevent="createPipeline">
-    <cc-validation-required-alert v-if="ccRequiredError" class="gl-pb-5" @dismiss="dismissError" />
-    <pipeline-account-verification-alert
-      v-else-if="identityVerificationRequiredError"
-      class="gl-mb-4"
-    />
+    <pipeline-account-verification-alert v-if="identityVerificationRequiredError" class="gl-mb-4" />
     <gl-alert
       v-else-if="error"
       :title="errorTitle"
@@ -457,18 +462,16 @@ export default {
       />
     </gl-form-group>
 
-    <gl-loading-icon v-if="isLoading" class="gl-mb-5" size="lg" />
+    <gl-loading-icon v-if="isLoading" class="gl-mb-5" size="md" />
 
-    <gl-form-group v-else class="gl-mb-3" :label="s__('Pipeline|Variables')">
+    <gl-form-group v-else :label="s__('Pipeline|Variables')">
       <div
         v-for="(variable, index) in variables"
         :key="variable.uniqueId"
-        class="gl-mb-3 gl-pb-2"
+        class="gl-mb-4"
         data-testid="ci-variable-row-container"
       >
-        <div
-          class="gl-display-flex gl-align-items-stretch gl-flex-direction-column gl-md-flex-direction-row"
-        >
+        <div class="gl-flex gl-flex-col gl-items-stretch gl-gap-4 md:gl-flex-row">
           <gl-collapsible-listbox
             :items="variableTypeListboxItems"
             :selected="variable.variable_type"
@@ -490,7 +493,7 @@ export default {
             :items="createListItemsFromVariableOptions(variable.key)"
             :selected="variable.value"
             :class="$options.formElementClasses"
-            class="gl-flex-grow-1 gl-mr-0!"
+            class="!gl-mr-0 gl-grow"
             data-testid="pipeline-form-ci-variable-value-dropdown"
             @select="setVariableAttribute(variable.key, 'value', $event)"
           />
@@ -498,7 +501,6 @@ export default {
             v-else
             v-model="variable.value"
             :placeholder="s__('CiVariables|Input variable value')"
-            class="gl-mb-3"
             :style="$options.textAreaStyle"
             :no-resize="false"
             data-testid="pipeline-form-ci-variable-value-field"
@@ -507,38 +509,44 @@ export default {
           <template v-if="variables.length > 1">
             <gl-button
               v-if="canRemove(index)"
-              class="gl-md-ml-3 gl-mb-3"
+              size="small"
+              class="gl-shrink-0"
               data-testid="remove-ci-variable-row"
-              variant="danger"
-              category="secondary"
+              :category="removeButtonCategory"
               :aria-label="$options.i18n.removeVariableLabel"
               @click="removeVariable(index)"
             >
-              <gl-icon class="gl-mr-0! gl-hidden md:gl-block" name="clear" />
+              <gl-icon class="!gl-mr-0" name="remove" />
               <span class="md:gl-hidden">{{ $options.i18n.removeVariableLabel }}</span>
             </gl-button>
             <gl-button
               v-else
-              class="gl-md-ml-3 gl-mb-3 gl-hidden md:gl-block gl-invisible"
-              icon="clear"
+              class="gl-invisible gl-hidden gl-shrink-0 md:gl-block"
+              icon="remove"
               :aria-label="$options.i18n.removeVariableLabel"
             />
           </template>
         </div>
-        <div v-if="descriptions[variable.key]" class="gl-text-gray-500 gl-mb-3">
+        <div v-if="descriptions[variable.key]" class="gl-text-subtle">
           {{ descriptions[variable.key] }}
         </div>
       </div>
 
-      <template #description
-        ><gl-sprintf :message="$options.i18n.variablesDescription">
+      <template #description>
+        <gl-sprintf :message="$options.i18n.variablesDescription">
           <template #link="{ content }">
-            <gl-link :href="settingsLink">{{ content }}</gl-link>
+            <gl-link v-if="isMaintainer" :href="settingsLink" data-testid="ci-cd-settings-link">{{
+              content
+            }}</gl-link>
+            <template v-else>{{ content }}</template>
           </template>
-        </gl-sprintf></template
-      >
+        </gl-sprintf>
+        <gl-link :href="$options.learnMorePath" target="_blank">{{
+          $options.i18n.learnMore
+        }}</gl-link>
+      </template>
     </gl-form-group>
-    <div class="gl-mb-4 gl-text-gray-500">
+    <div class="gl-mb-4 gl-text-subtle">
       <gl-sprintf :message="$options.i18n.overrideNoteText">
         <template #bold="{ content }">
           <strong>
@@ -547,7 +555,7 @@ export default {
         </template>
       </gl-sprintf>
     </div>
-    <div class="gl-pt-5 gl-display-flex">
+    <div class="gl-flex gl-pt-5">
       <gl-button
         type="submit"
         category="primary"
@@ -555,7 +563,7 @@ export default {
         class="js-no-auto-disable gl-mr-3"
         data-testid="run-pipeline-button"
         :disabled="submitted"
-        >{{ s__('Pipeline|Run pipeline') }}</gl-button
+        >{{ s__('Pipeline|New pipeline') }}</gl-button
       >
       <gl-button :href="pipelinesPath">{{ __('Cancel') }}</gl-button>
     </div>

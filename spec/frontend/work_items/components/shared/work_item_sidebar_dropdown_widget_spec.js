@@ -1,7 +1,6 @@
 import { GlForm, GlCollapsibleListbox, GlLoadingIcon } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
-import { __ } from '~/locale';
 import { groupIterationsResponse } from 'jest/work_items/mock_data';
 import WorkItemSidebarDropdownWidget from '~/work_items/components/shared/work_item_sidebar_dropdown_widget.vue';
 
@@ -32,13 +31,13 @@ describe('WorkItemSidebarDropdownWidget component', () => {
   } = {}) => {
     wrapper = mountExtended(WorkItemSidebarDropdownWidget, {
       propsData: {
-        dropdownLabel: __('Iteration'),
+        dropdownLabel: 'Iteration',
         dropdownName: 'iteration',
         listItems,
         itemValue,
         canUpdate,
         updateInProgress,
-        headerText: __('Select iteration'),
+        headerText: 'Select iteration',
         showFooter,
         multiSelect,
         infiniteScroll,
@@ -188,7 +187,10 @@ describe('WorkItemSidebarDropdownWidget component', () => {
     });
 
     it('clears search on item select when props passes', async () => {
-      const listItems = groupIterationsResponse.data.workspace.attributes.nodes;
+      const listItems = groupIterationsResponse.data.workspace.attributes.nodes.map((item) => ({
+        value: item.id,
+        ...item,
+      }));
       createComponent({
         isEditing: true,
         clearSearchOnItemSelect: true,

@@ -215,6 +215,7 @@ export function removeMatchLine(diffFile, lineNumbers, bottom) {
   }
 }
 
+// eslint-disable-next-line max-params
 export function addLineReferences(lines, lineNumbers, bottom, isExpandDown, nextLineNumbers) {
   const { oldLineNumber, newLineNumber } = lineNumbers;
   const lineCount = lines.length;
@@ -402,8 +403,14 @@ function deduplicateFilesList(files, updatePosition) {
     if (updatePosition && id in newList) {
       // Object.values preserves key order but doesn't update order when writing to the same key
       // In order to update position of the item we have to delete it first and then add it back
+      const existingFile = newList[id];
       // eslint-disable-next-line no-param-reassign
       delete newList[id];
+      return {
+        ...newList,
+        // 'updatePosition' should be set to true only when we want to keep the existing file
+        [id]: existingFile,
+      };
     }
 
     return {
@@ -553,21 +560,6 @@ function getLinesFromFileByLineCode(file, lineCode) {
 
 export const updateLineInFile = (selectedFile, lineCode, updateFn) => {
   getLinesFromFileByLineCode(selectedFile, lineCode).forEach(updateFn);
-};
-
-export const allDiscussionWrappersExpanded = (diff) => {
-  let discussionsExpanded = true;
-  const changeExpandedResult = (line) => {
-    if (line && line.discussions.length) {
-      discussionsExpanded = discussionsExpanded && line.discussionsExpanded;
-    }
-  };
-
-  diff[INLINE_DIFF_LINES_KEY].forEach((line) => {
-    changeExpandedResult(line);
-  });
-
-  return discussionsExpanded;
 };
 
 export function isUrlHashNoteLink(urlHash = '') {

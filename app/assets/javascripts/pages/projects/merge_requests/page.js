@@ -10,6 +10,7 @@ import initSidebarBundle from '~/sidebar/sidebar_bundle';
 import { apolloProvider } from '~/graphql_shared/issuable_client';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import { initMrMoreDropdown } from '~/mr_more_dropdown';
+import { pinia } from '~/pinia/instance';
 import initShow from './init_merge_request_show';
 import getStateQuery from './queries/get_state.query.graphql';
 
@@ -21,7 +22,7 @@ const tabData = Vue.observable({
 
 export function initMrPage() {
   initMrNotes();
-  initShow(store);
+  initShow(store, pinia);
   initMrMoreDropdown();
   startCodeReviewMessaging({ signalBus: diffsEventHub });
 
@@ -31,28 +32,45 @@ export function initMrPage() {
 
     if (changesCountBadge.textContent === '-') {
       changesCountBadge.textContent = fileCount;
-      Vue.set(tabData.tabs[tabData.tabs.length - 1], 3, fileCount);
+
+      const DIFF_TAB_INDEX = 3;
+      const diffTab = tabData.tabs ? tabData.tabs[tabData.tabs.length - 1] : [];
+
+      const hasDiffTab = diffTab?.length >= DIFF_TAB_INDEX + 1;
+      if (hasDiffTab) {
+        diffTab[DIFF_TAB_INDEX] = fileCount;
+      }
     }
   });
 }
 
 requestIdleCallback(() => {
-  initSidebarBundle(store);
+  initSidebarBundle(store, pinia);
 
   const el = document.getElementById('js-merge-sticky-header');
 
   if (el) {
     const { data } = el.dataset;
+
+    let parsedData;
+
+    try {
+      parsedData = JSON.parse(data);
+    } catch {
+      parsedData = {};
+    }
+
     const {
       iid,
       projectPath,
       title,
       tabs,
+      defaultBranchName,
       isFluidLayout,
       sourceProjectPath,
       blocksMerge,
       imported,
-    } = JSON.parse(data);
+    } = parsedData;
 
     tabData.tabs = tabs;
 
@@ -61,10 +79,12 @@ requestIdleCallback(() => {
       el,
       name: 'MergeRequestStickyHeaderRoot',
       store,
+      pinia,
       apolloProvider,
       provide: {
         query: getStateQuery,
         iid,
+        defaultBranchName,
         projectPath,
         title,
         isFluidLayout: parseBoolean(isFluidLayout),

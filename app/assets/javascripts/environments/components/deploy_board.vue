@@ -8,19 +8,12 @@
  * - Button Actions.
  * [Mockup](https://gitlab.com/gitlab-org/gitlab-foss/uploads/2f655655c0eadf655d0ae7467b53002a/environments__deploy-graphic.png)
  */
-import deployBoardSvg from '@gitlab/svgs/dist/illustrations/deploy-boards.svg?raw';
-import {
-  GlIcon,
-  GlLoadingIcon,
-  GlLink,
-  GlTooltip,
-  GlTooltipDirective,
-  GlSprintf,
-} from '@gitlab/ui';
+import { GlLoadingIcon, GlLink, GlTooltip, GlTooltipDirective, GlSprintf } from '@gitlab/ui';
 import { isEmpty } from 'lodash';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { s__, n__ } from '~/locale';
 import InstanceComponent from '~/vue_shared/components/deployment_instance.vue';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import { STATUS_MAP, CANARY_STATUS } from '../constants';
 import CanaryIngress from './canary_ingress.vue';
 
@@ -28,11 +21,11 @@ export default {
   components: {
     InstanceComponent,
     CanaryIngress,
-    GlIcon,
     GlLoadingIcon,
     GlLink,
     GlSprintf,
     GlTooltip,
+    HelpIcon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -93,9 +86,6 @@ export default {
     instanceTitle() {
       return n__('Instance', 'Instances', this.instanceCount);
     },
-    deployBoardSvg() {
-      return deployBoardSvg;
-    },
     rollbackUrl() {
       if (this.graphql) {
         return this.deployBoardData.rollbackUrl;
@@ -145,23 +135,23 @@ export default {
         <div class="deploy-board-information gl-w-full">
           <section class="deploy-board-status">
             <span v-gl-tooltip :title="instanceIsCompletedText">
-              <span ref="percentage" class="gl-text-center text-plain gl-font-lg"
+              <span ref="percentage" class="gl-text-center gl-text-lg gl-text-default"
                 >{{ deployBoardData.completion }}%</span
               >
-              <span class="text text-center text-secondary">{{ __('Complete') }}</span>
+              <span class="text text-center gl-text-subtle">{{ __('Complete') }}</span>
             </span>
           </section>
 
           <section class="deploy-board-instances">
-            <div class="gl-font-base text-secondary">
+            <div class="gl-text-base gl-text-subtle">
               <span class="deploy-board-instances-text"
                 >{{ instanceTitle }} ({{ instanceCount }})</span
               >
               <span ref="legend-icon" data-testid="legend-tooltip-target">
-                <gl-icon class="gl-text-blue-500 gl-ml-2" name="question-o" />
+                <help-icon class="gl-ml-2" />
               </span>
               <gl-tooltip :target="() => $refs['legend-icon']" boundary="#content-body">
-                <div class="deploy-board-legend gl-flex gl-flex-direction-column">
+                <div class="deploy-board-legend gl-flex gl-flex-col">
                   <div
                     v-for="status in statuses"
                     :key="status.text"
@@ -174,7 +164,7 @@ export default {
               </gl-tooltip>
             </div>
 
-            <div class="deploy-board-instances-container gl-flex flex-wrap flex-row">
+            <div class="deploy-board-instances-container flex-wrap flex-row gl-flex">
               <template v-for="(instance, i) in deployBoardData.instances">
                 <instance-component
                   :key="i"
@@ -217,8 +207,6 @@ export default {
       </div>
 
       <div v-if="canRenderEmptyState" class="deploy-board-empty">
-        <section v-safe-html="deployBoardSvg" class="deploy-board-empty-state-svg"></section>
-
         <section class="deploy-board-empty-state-text">
           <span class="deploy-board-empty-state-title gl-flex">{{
             __('Kubernetes deployment not found')

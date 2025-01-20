@@ -154,10 +154,9 @@ class Import::GithubController < Import::BaseController
 
   override :provider_url
   def provider_url
-    strong_memoize(:provider_url) do
-      oauth_config&.dig('url').presence || 'https://github.com'
-    end
+    oauth_config&.dig('url').presence || 'https://github.com'
   end
+  strong_memoize_attr :provider_url
 
   private
 
@@ -253,7 +252,7 @@ class Import::GithubController < Import::BaseController
     session[access_token_key] = nil
     docs_link = helpers.link_to(
       '',
-      help_page_url('user/project/import/github', anchor: 'use-a-github-personal-access-token'),
+      help_page_url('user/project/import/github.md', anchor: 'use-a-github-personal-access-token'),
       target: '_blank',
       rel: 'noopener noreferrer'
     )
@@ -261,7 +260,7 @@ class Import::GithubController < Import::BaseController
     alert_message = safe_format(
       s_(
         "GithubImport|Your GitHub personal access token does not have the required scope to import. " \
-        "%{link_start}Learn More%{link_end}."
+          "%{link_start}Learn More%{link_end}."
       ),
       tag_pair_docs_link
     )

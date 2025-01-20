@@ -9,7 +9,7 @@ exports[`Confidential merge request project form group component renders empty s
   </label>
   <div>
     <p
-      class="gl-mb-0 gl-mt-1 gl-text-gray-600"
+      class="gl-mb-0 gl-mt-1 gl-text-subtle"
     >
       No forks are available to you.
       <br />
@@ -23,19 +23,12 @@ exports[`Confidential merge request project form group component renders empty s
       </a>
       and set the fork's visibility to private.
       <gl-link-stub
-        class="gl-bg-transparent gl-display-inline-block gl-p-0 gl-w-auto"
+        class="gl-bg-transparent gl-inline-block gl-p-0 gl-w-auto"
         href="/help"
         target="_blank"
       >
-        <span
-          class="sr-only"
-        >
-          Read more
-        </span>
-        <gl-icon-stub
-          name="question-o"
-          size="16"
-          variant="current"
+        <help-icon-stub
+          aria-label="Read more"
         />
       </gl-link-stub>
     </p>
@@ -56,23 +49,16 @@ exports[`Confidential merge request project form group component renders fork dr
       selectedproject="[object Object]"
     />
     <p
-      class="gl-mb-0 gl-mt-1 gl-text-gray-600"
+      class="gl-mb-0 gl-mt-1 gl-text-subtle"
     >
       To protect this issue's confidentiality, a private fork of this project was selected.
       <gl-link-stub
-        class="gl-bg-transparent gl-display-inline-block gl-p-0 gl-w-auto"
+        class="gl-bg-transparent gl-inline-block gl-p-0 gl-w-auto"
         href="/help"
         target="_blank"
       >
-        <span
-          class="sr-only"
-        >
-          Read more
-        </span>
-        <gl-icon-stub
-          name="question-o"
-          size="16"
-          variant="current"
+        <help-icon-stub
+          aria-label="Read more"
         />
       </gl-link-stub>
     </p>

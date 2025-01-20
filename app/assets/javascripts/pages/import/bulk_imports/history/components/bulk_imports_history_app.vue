@@ -35,7 +35,7 @@ const tableCell = (config) => ({
   tdClass: (value, key, item) => {
     return {
       // eslint-disable-next-line no-underscore-dangle
-      'gl-border-b-0!': item._showDetails,
+      '!gl-border-b-0': item._showDetails,
     };
   },
   ...config,
@@ -161,10 +161,13 @@ export default {
         const updateItem = this.historyItems[updateItemIndex];
 
         if (updateItem.status !== update.status_name) {
-          this.$set(this.historyItems, updateItemIndex, {
+          const copy = [...this.historyItems];
+          copy[updateItemIndex] = {
             ...updateItem,
             status: update.status_name,
-          });
+          };
+
+          this.historyItems = copy;
         }
       },
     });
@@ -265,8 +268,8 @@ export default {
 
 <template>
   <div>
-    <h1 class="gl-font-size-h1 gl-my-0 gl-py-4 gl-display-flex gl-align-items-center gl-gap-3">
-      <img :src="$options.gitlabLogo" :alt="__('GitLab Logo')" class="gl-w-6 gl-h-6" />
+    <h1 class="gl-my-0 gl-flex gl-items-center gl-gap-3 gl-py-4 gl-text-size-h1">
+      <img :src="$options.gitlabLogo" :alt="__('GitLab Logo')" class="gl-h-6 gl-w-6" />
       <span>{{ s__('BulkImport|Migration history') }}</span>
     </h1>
 
@@ -284,7 +287,7 @@ export default {
             :name="item.entity_type"
             :title="getEntityTooltip(item)"
             :aria-label="getEntityTooltip(item)"
-            class="gl-text-gray-500"
+            variant="subtle"
           />
           <gl-link
             v-if="item.destination_full_path"
@@ -295,7 +298,7 @@ export default {
           </gl-link>
           <span v-else>{{ destinationText(item) }}</span>
         </template>
-        <template #cell(created_at)="{ value }">
+        <template #cell(created_at)="{ value = '' }">
           <time-ago :time="value" />
         </template>
         <template #cell(status)="{ value, item }">

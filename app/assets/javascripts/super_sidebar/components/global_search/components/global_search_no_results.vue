@@ -10,8 +10,8 @@ export default {
 </script>
 
 <template>
-  <ul class="gl-m-0 gl-p-0 gl-list-none">
-    <li class="command-palette-px gl-py-5 gl-text-body">
+  <ul class="gl-m-0 gl-list-none gl-p-0">
+    <li class="command-palette-px gl-border-t gl-border-t-dropdown gl-py-5 gl-text-default">
       {{ $options.i18n.NO_SEARCH_RESULTS }}
     </li>
   </ul>

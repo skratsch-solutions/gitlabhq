@@ -9,7 +9,7 @@ description: "To speed up project creation in your group, build custom project t
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 When you create a project, you can [choose from a list of templates](../project/index.md).
 These templates, for things like GitLab Pages or Ruby, populate the new project with a copy of the files contained in the
@@ -44,7 +44,7 @@ Projects in nested subgroups are not included in the template list.
 
 - Public and internal projects can be selected by any authenticated user as a template for a new project,
   if all [project features](../project/settings/index.md#configure-project-features-and-permissions)
-  except for **GitLab Pages** and **Security and Compliance** are set to **Everyone With Access**.
+  except for **GitLab Pages** and **Security and compliance** are set to **Everyone With Access**.
 - Private projects can be selected only by users who are members of the projects.
 
 There is a [known issue](https://gitlab.com/gitlab-org/gitlab/-/issues/295646):

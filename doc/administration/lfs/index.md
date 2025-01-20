@@ -2,16 +2,16 @@
 stage: Create
 group: Source Code
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
-description: "Configure Git LFS for your self-managed GitLab instance."
+description: "Configure Git LFS for GitLab Self-Managed."
 ---
 
 # GitLab Git Large File Storage (LFS) Administration
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-This page contains information about configuring Git LFS in self-managed GitLab instances.
+This page contains information about configuring Git LFS on GitLab Self-Managed.
 For user documentation about Git LFS, see [Git Large File Storage](../../topics/git/lfs/index.md).
 
 Prerequisites:
@@ -347,10 +347,21 @@ To migrate back to local storage:
 ## Pure SSH transfer protocol
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/11872) in GitLab 17.2.
+> - [Introduced](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests/3845) for Helm chart (Kubernetes) in GitLab 17.3.
+
+WARNING:
+This feature is affected by [a known issue](https://github.com/git-lfs/git-lfs/issues/5880). If you clone a repository with multiple Git LFS objects using the pure SSH protocol, the client might crash due to a `nil` pointer reference.
 
 [`git-lfs` 3.0.0](https://github.com/git-lfs/git-lfs/blob/main/CHANGELOG.md#300-24-sep-2021)
 released support for using SSH as the transfer protocol instead of HTTP.
 SSH is handled transparently by the `git-lfs` command line tool.
+
+When pure SSH protocol support is enabled and `git` is configured to use SSH,
+all LFS operations happen over SSH. For example, when the Git remote is
+`git@gitlab.com:gitlab-org/gitlab.git`. You can't configure `git` and `git-lfs`
+to use different protocols. From version 3.0, `git-lfs` attempts to use the pure
+SSH protocol initially and, if support is not enabled or available, it falls back
+to using HTTP.
 
 Prerequisites:
 
@@ -372,6 +383,30 @@ To switch Git LFS to use pure SSH protocol:
 
    ```shell
    sudo gitlab-ctl reconfigure
+   ```
+
+:::TabTitle Helm chart (Kubernetes)
+
+1. Export the Helm values:
+
+   ```shell
+   helm get values gitlab > gitlab_values.yaml
+   ```
+
+1. Edit `gitlab_values.yaml`:
+
+   ```yaml
+   gitlab:
+     gitlab-shell:
+       config:
+         lfs:
+           pureSSHProtocol: true
+   ```
+
+1. Save the file and apply the new values:
+
+   ```shell
+   helm upgrade -f gitlab_values.yaml gitlab gitlab/gitlab
    ```
 
 :::TabTitle Docker
@@ -417,7 +452,7 @@ To switch Git LFS to use pure SSH protocol:
 
 You can see the total storage used for LFS objects for groups and projects in:
 
-- The Admin Area
+- The **Admin** area
 - The [groups](../../api/groups.md) and [projects](../../api/projects.md) APIs
 
 ## Related topics
@@ -465,7 +500,7 @@ To delete these references:
    ls -al /var/opt/gitlab/gitlab-rails/shared/lfs-objects/00/66/22269c61b41bf14a22bbe0e43be3acf86a4a446afb4250c3794ea47541a7
    ```
 
-1. If the file is not present, remove the database records via the rails console:
+1. If the file is not present, remove the database records with the Rails console:
 
    ```ruby
    # First delete the parent records and then destroy the record itself
@@ -487,7 +522,7 @@ error: failed to fetch some objects from 'https://username:[MASKED]@gitlab.examp
 
 When using GitLab CI over a TLS v1.3 configured GitLab server, you must
 [upgrade to GitLab Runner](https://docs.gitlab.com/runner/install/index.html) 13.2.0
-or later to receive an updated Git LFS client version via
+or later to receive an updated Git LFS client version with
 the included [GitLab Runner Helper image](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#helper-image).
 
 To check an installed Git LFS client's version, run this command:
@@ -508,7 +543,7 @@ a firewall or proxy rule may be terminating the connection.
 If connection checks with standard Unix tools or manual Git pushes are successful,
 the rule may be related to the size of the request.
 
-## Error viewing a PDF file
+### Error viewing a PDF file
 
 When LFS has been configured with object storage and `proxy_download` set to
 `false`, [you may see an error when previewing a PDF file from the Web browser](https://gitlab.com/gitlab-org/gitlab/-/issues/248100):
@@ -529,6 +564,48 @@ for more details:
 1. [AWS S3](https://repost.aws/knowledge-center/s3-configure-cors)
 1. [Google Cloud Storage](https://cloud.google.com/storage/docs/using-cors)
 1. [Azure Storage](https://learn.microsoft.com/en-us/rest/api/storageservices/cross-origin-resource-sharing--cors--support-for-the-azure-storage-services).
+
+### Fork operation stuck on `Forking in progress` message
+
+If you are forking a project with multiple LFS files, the operation might get stuck with a `Forking in progress` message.
+If you encounter this, follow these steps to diagnose and resolve the issue:
+
+1. Check your [exceptions_json.log](../logs/index.md#exceptions_jsonlog) file for the following error message:
+
+   ```plaintext
+   "error_message": "Unable to fork project 12345 for repository 
+   @hashed/11/22/encoded-path -> @hashed/33/44/encoded-new-path: 
+   Source project has too many LFS objects"
+   ```
+
+   This error indicates that you've reached the default limit of 100,000 LFS files,
+   as described in issue [#476693](https://gitlab.com/gitlab-org/gitlab/-/issues/476693).
+
+1. Increase the value of the `GITLAB_LFS_MAX_OID_TO_FETCH` variable:
+
+   1. Open the configuration file `/etc/gitlab/gitlab.rb`.
+   1. Add or update the variable:
+
+      ```ruby
+      gitlab_rails['env'] = {
+         "GITLAB_LFS_MAX_OID_TO_FETCH" => "NEW_VALUE"
+      }
+      ```
+
+      Replace `NEW_VALUE` with a number based on your requirements.
+
+1. Apply the changes. Run:
+
+   ```shell
+   sudo gitlab-ctl reconfigure
+   ```
+
+   For additional information, see [Reconfigure a Linux package installation](../restart_gitlab.md#reconfigure-a-linux-package-installation).
+
+1. Repeat the fork operation.
+
+NOTE:
+If you are using GitLab Helm Chart, use [extraEnv](https://docs.gitlab.com/charts/charts/globals.html#extraenv) to configure the environment variable `GITLAB_LFS_MAX_OID_TO_FETCH`.
 
 ## Known limitations
 

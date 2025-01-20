@@ -1,5 +1,5 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Secrets represent sensitive information your CI job needs to complete work. This
 sensitive information can be items like API tokens, database credentials, or private keys.
@@ -29,7 +29,7 @@ first supported provider, and [KV-V2](https://developer.hashicorp.com/vault/docs
 as the first supported secrets engine.
 
 Use [ID tokens](../yaml/index.md#id_tokens) to [authenticate with Vault](https://developer.hashicorp.com/vault/docs/auth/jwt#jwt-authentication).
-The [Authenticating and Reading Secrets With HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md)
+The [Authenticating and Reading Secrets With HashiCorp Vault](hashicorp_vault.md)
 tutorial has more details about authenticating with ID tokens.
 
 You must [configure your Vault server](#configure-your-vault-server) before you
@@ -49,10 +49,12 @@ is summarized by this diagram:
 1. Runner reads secrets from the HashiCorp Vault.
 
 NOTE:
-Read the [Authenticating and Reading Secrets With HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md)
+Read the [Authenticating and Reading Secrets With HashiCorp Vault](hashicorp_vault.md)
 tutorial for a version of this feature. It's available to all
 subscription levels, supports writing secrets to and deleting secrets from Vault,
 and supports multiple secrets engines.
+
+You must replace the `vault.example.com` URL below with the URL of your Vault server, and `gitlab.example.com` with the URL of your GitLab instance.
 
 ## Vault Secrets Engines
 
@@ -108,9 +110,13 @@ To configure your Vault server:
      If no role is specified, Vault uses the [default role](https://developer.hashicorp.com/vault/api-docs/auth/jwt#default_role)
      specified when the authentication method was configured.
    - `VAULT_AUTH_PATH` - Optional. The path where the authentication method is mounted, default is `jwt`.
-   - `VAULT_NAMESPACE` - Optional. The [Vault Enterprise namespace](https://developer.hashicorp.com/vault/docs/enterprise/namespaces) to use for reading secrets and authentication.
-     If no namespace is specified, Vault uses the `root` ("`/`") namespace.
-     The setting is ignored by Vault Open Source.
+   - `VAULT_NAMESPACE` - Optional. The [Vault Enterprise namespace](https://developer.hashicorp.com/vault/docs/enterprise/namespaces)
+     to use for reading secrets and authentication. With:
+     - Vault, the `root` ("`/`") namespace is used when no namespace is specified.
+     - Vault Open source, the setting is ignored.
+     - [HashiCorp Cloud Platform (HCP)](https://www.hashicorp.com/cloud) Vault, a namespace
+       is required. HCP Vault uses the `admin` namespace as the root namespace by default.
+       For example, `VAULT_NAMESPACE=admin`.
 
    NOTE:
    Support for providing these values in the user interface [is tracked in this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/218677).
@@ -119,7 +125,7 @@ To configure your Vault server:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 After [configuring your Vault server](#configure-your-vault-server), you can use
 the secrets stored in Vault by defining them with the [`vault` keyword](../yaml/index.md#secretsvault):
@@ -128,7 +134,7 @@ the secrets stored in Vault by defining them with the [`vault` keyword](../yaml/
 job_using_vault:
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: https://gitlab.com
+      aud: https://vault.example.com
   secrets:
     DATABASE_PASSWORD:
       vault: production/db/password@ops  # translates to secret `ops/data/production/db`, field `password`
@@ -151,7 +157,7 @@ To overwrite the default behavior, set the `file` option explicitly:
 secrets:
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: https://gitlab.com
+      aud: https://vault.example.com
   DATABASE_PASSWORD:
     vault: production/db/password@ops
     file: false
@@ -172,7 +178,7 @@ For example, to set the secret engine and path for Artifactory:
 job_using_vault:
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: https://gitlab.com
+      aud: https://vault.example.com
   secrets:
     JFROG_TOKEN:
       vault:
@@ -200,7 +206,7 @@ references. You can have as many bounded claims you need, but they must *all* ma
 for authentication to be successful.
 
 Combining bounded claims with GitLab features like [user roles](../../user/permissions.md)
-and [protected branches](../../user/project/protected_branches.md), you can tailor
+and [protected branches](../../user/project/repository/branches/protected.md), you can tailor
 these rules to fit your specific use case. In this example, authentication is allowed
 only for jobs running for protected tags with names matching the pattern used for
 production releases:
@@ -212,6 +218,7 @@ $ vault write auth/jwt/role/myproject-production - <<EOF
   "policies": ["myproject-production"],
   "token_explicit_max_ttl": 60,
   "user_claim": "user_email",
+  "bound_audiences": "https://vault.example.com",
   "bound_claims_type": "glob",
   "bound_claims": {
     "project_id": "42",
@@ -229,8 +236,8 @@ claims like `project_id` or `namespace_id`. Without these restrictions, any JWT
 generated by this GitLab instance may be allowed to authenticate using this role.
 
 For a full list of ID token JWT claims, read the
-[How It Works](../examples/authenticating-with-hashicorp-vault/index.md#how-it-works) section of the
-[Authenticating and Reading Secrets With HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md) tutorial.
+[How It Works](hashicorp_vault.md) section of the
+[Authenticating and Reading Secrets With HashiCorp Vault](hashicorp_vault.md) tutorial.
 
 You can also specify some attributes for the resulting Vault tokens, such as time-to-live,
 IP address range, and number of uses. The full list of options is available in
@@ -252,7 +259,7 @@ You have two options to solve this error:
 - Use the `VAULT_CACERT` environment variable to configure GitLab Runner to trust the certificate:
   - If you are using systemd to manage GitLab Runner, see [how to add an environment variable for GitLab Runner](https://docs.gitlab.com/runner/configuration/init.html#setting-custom-environment-variables).
   - If you deployed GitLab Runner using the [Helm chart](https://docs.gitlab.com/runner/install/kubernetes.html):
-    1. [Provide a custom certificate for accessing GitLab](https://docs.gitlab.com/runner/install/kubernetes.html#providing-a-custom-certificate-for-accessing-gitlab), and make sure to add the certificate for the Vault server instead of the certificate for GitLab. If your GitLab instance is also using a self-signed certificate, you should be able to add both in the same `Secret`.
+    1. [Provide a custom certificate for accessing GitLab](https://docs.gitlab.com/runner/install/kubernetes_helm_chart_configuration.html#access-gitlab-with-a-custom-certificate), and make sure to add the certificate for the Vault server instead of the certificate for GitLab. If your GitLab instance is also using a self-signed certificate, you should be able to add both in the same `Secret`.
     1. Add the following lines in your `values.yaml` file:
 
        ```yaml

@@ -34,9 +34,8 @@ describe('WikiForm', () => {
   const findFormat = () => wrapper.find('#wiki_format');
   const findMessage = () => wrapper.find('#wiki_message');
   const findMarkdownEditor = () => wrapper.findComponent(MarkdownEditor);
-  const findSubmitButton = () => wrapper.findByTestId('wiki-submit-button');
   const findCancelButton = () => wrapper.findByTestId('wiki-cancel-button');
-  const findTitleHelpLink = () => wrapper.findByText('Learn more.');
+
   const findMarkdownHelpLink = () => wrapper.findByTestId('wiki-markdown-help-link');
   const findTemplatesDropdown = () => wrapper.findComponent(WikiTemplate);
 
@@ -67,6 +66,7 @@ describe('WikiForm', () => {
   const pageInfoPersisted = {
     ...pageInfoNew,
     persisted: true,
+    slug: 'My-page',
     title: 'My page',
     content: '  My page content  ',
     format: 'markdown',
@@ -108,6 +108,7 @@ describe('WikiForm', () => {
             ...pageInfo,
           },
           wikiUrl: '',
+          templatesUrl: '',
           pageHeading: '',
           csrfToken: '',
           pagePersisted: false,
@@ -242,10 +243,10 @@ describe('WikiForm', () => {
       expect(findTemplatesDropdown().exists()).toBe(true);
     });
 
-    it('does not show templates dropdown if no templates to show', () => {
+    it('shows templates dropdown even if no templates to show', () => {
       createWrapper({ mountFn: mount });
 
-      expect(findTemplatesDropdown().exists()).toBe(false);
+      expect(findTemplatesDropdown().exists()).toBe(true);
     });
 
     it.each`
@@ -327,20 +328,6 @@ describe('WikiForm', () => {
     expect(wrapper.text()).toContain(text);
   });
 
-  it.each`
-    persisted | titleHelpText                                                                                              | titleHelpLink
-    ${true}   | ${'You can move this page by adding the path to the beginning of the title.'}                              | ${'/help/user/project/wiki/index#move-a-wiki-page'}
-    ${false}  | ${'You can specify the full path for the new file. We will automatically create any missing directories.'} | ${'/help/user/project/wiki/index#create-a-new-wiki-page'}
-  `(
-    'shows appropriate title help text and help link for when persisted=$persisted',
-    ({ persisted, titleHelpLink, titleHelpText }) => {
-      createWrapper({ persisted });
-
-      expect(wrapper.text()).toContain(titleHelpText);
-      expect(findTitleHelpLink().attributes().href).toBe(titleHelpLink);
-    },
-  );
-
   it('shows correct link for wiki specific markdown docs', () => {
     createWrapper({ mountFn: mount });
 
@@ -366,7 +353,7 @@ describe('WikiForm', () => {
           ['authenticity_token', ''],
           ['_method', 'put'],
           ['wiki[last_commit_sha]', ''],
-          ['wiki[title]', 'My page'],
+          ['wiki[title]', 'My-page'],
           ['wiki[format]', 'markdown'],
           ['wiki[content]', ' Lorem ipsum dolar sit! '],
           ['wiki[message]', 'Update My page'],
@@ -394,36 +381,6 @@ describe('WikiForm', () => {
       it('does not trim page content', () => {
         expect(findMarkdownEditor().props().value).toBe(' Lorem ipsum dolar sit! ');
       });
-    });
-  });
-
-  describe('submit button state', () => {
-    it.each`
-      title          | content        | buttonState   | disabledAttr
-      ${'something'} | ${'something'} | ${'enabled'}  | ${false}
-      ${''}          | ${'something'} | ${'disabled'} | ${true}
-      ${'something'} | ${''}          | ${'disabled'} | ${false}
-      ${''}          | ${''}          | ${'disabled'} | ${true}
-    `(
-      "when title='$title', content='$content', then the button is $buttonState'",
-      async ({ title, content, disabledAttr }) => {
-        createWrapper({ mountFn: mount });
-
-        await findTitle().setValue(title);
-        await findMarkdownEditor().vm.$emit('input', content);
-
-        expect(findSubmitButton().props().disabled).toBe(disabledAttr);
-      },
-    );
-
-    it.each`
-      persisted | buttonLabel
-      ${true}   | ${'Save changes'}
-      ${false}  | ${'Create page'}
-    `('when persisted=$persisted, label is set to $buttonLabel', ({ persisted, buttonLabel }) => {
-      createWrapper({ persisted });
-
-      expect(findSubmitButton().text()).toBe(buttonLabel);
     });
   });
 
@@ -506,12 +463,11 @@ describe('WikiForm', () => {
     });
   });
 
-  describe('when wiki_front_matter_title feature flag is enabled', () => {
+  describe('path field', () => {
     beforeEach(() => {
       createWrapper({
         mountFn: mount,
         pageInfo: pageInfoWithFrontmatter(),
-        provide: { glFeatures: { wikiFrontMatterTitle: true } },
       });
     });
 
@@ -569,34 +525,6 @@ describe('WikiForm', () => {
           ['wiki[message]', 'Update new title'],
         ]);
       });
-    });
-  });
-
-  describe('when wiki_front_matter_title feature flag is disabled', () => {
-    beforeEach(() => {
-      createWrapper({
-        mountFn: mount,
-        pageInfo: pageInfoWithFrontmatter(),
-        provide: { glFeatures: { wikiFrontMatterTitle: false } },
-      });
-    });
-
-    it('does not show the path field', () => {
-      expect(findPath().exists()).toBe(false);
-    });
-
-    it("retains page's frontmatter on form submit", async () => {
-      await findForm().trigger('submit');
-
-      expect([...getFormData().entries()]).toEqual([
-        ['authenticity_token', ''],
-        ['_method', 'put'],
-        ['wiki[last_commit_sha]', 'abcdef123'],
-        ['wiki[title]', 'bar'],
-        ['wiki[format]', 'markdown'],
-        ['wiki[content]', '---\nfoo: bar\ntitle: real page title\n---\nfoo bar'],
-        ['wiki[message]', 'Update bar'],
-      ]);
     });
   });
 });

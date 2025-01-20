@@ -1,8 +1,10 @@
 ---
 data_category: optional
 key_path: redis_hll_counters.user_packages.i_package_nuget_user_weekly
-description: A weekly count of users that have published a NuGet package to the registry
+description: Count of distinct users that have interacted with NuGet packages in the package registry in the last 7 days
 product_group: package_registry
+product_categories:
+- package_registry
 value_type: number
 status: active
 time_frame: 7d
@@ -14,9 +16,10 @@ options:
 distribution:
 - ee
 - ce
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/60541

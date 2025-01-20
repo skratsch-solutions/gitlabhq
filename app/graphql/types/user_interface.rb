@@ -31,7 +31,7 @@ module Types
       null: false,
       resolver_method: :redacted_name,
       description: 'Human-readable name of the user. ' \
-      'Returns `****` if the user is a project bot and the requester does not have permission to view the project.'
+        'Returns `****` if the user is a project bot and the requester does not have permission to view the project.'
 
     field :state,
       type: Types::UserStateEnum,
@@ -74,7 +74,7 @@ module Types
     field :organizations,
       resolver: Resolvers::Users::OrganizationsResolver,
       null: true,
-      alpha: { milestone: '16.6' },
+      experiment: { milestone: '16.6' },
       description: 'Organizations where the user has access.'
     field :group_memberships,
       type: Types::GroupMemberType.connection_type,
@@ -151,6 +151,11 @@ module Types
     field :gitpod_enabled, GraphQL::Types::Boolean, null: true,
       description: 'Whether Gitpod is enabled at the user level.'
 
+    field :user_preferences, ::Types::UserPreferencesType,
+      null: true,
+      description: 'Preferences for the user.',
+      method: :user_preference
+
     field :preferences_gitpod_path,
       GraphQL::Types::String,
       null: true,
@@ -162,9 +167,9 @@ module Types
     field :user_achievements,
       Types::Achievements::UserAchievementType.connection_type,
       null: true,
-      alpha: { milestone: '15.10' },
+      experiment: { milestone: '15.10' },
       description: "Achievements for the user. " \
-                   "Only returns for namespaces where the `achievements` feature flag is enabled.",
+        "Only returns for namespaces where the `achievements` feature flag is enabled.",
       extras: [:lookahead],
       resolver: ::Resolvers::Achievements::UserAchievementsForUserResolver
 
@@ -172,6 +177,18 @@ module Types
       type: ::GraphQL::Types::String,
       null: true,
       description: 'Bio of the user.'
+
+    field :active,
+      type: ::GraphQL::Types::Boolean,
+      null: true,
+      method: :active?,
+      description: 'Indicates if the user is active.'
+
+    field :human,
+      type: ::GraphQL::Types::Boolean,
+      null: true,
+      method: :human?,
+      description: 'Indicates if the user is a regular user.'
 
     field :linkedin,
       type: ::GraphQL::Types::String,
@@ -218,6 +235,12 @@ module Types
       null: true,
       description: 'IDE settings.',
       method: :itself
+
+    field :type,
+      type: Types::Users::TypeEnum,
+      null: false,
+      description: 'Type of the user.',
+      method: :user_type
 
     definition_methods do
       def resolve_type(object, context)

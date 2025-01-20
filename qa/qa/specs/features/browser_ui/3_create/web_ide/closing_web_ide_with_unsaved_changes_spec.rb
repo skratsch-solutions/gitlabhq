@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Create', product_group: :ide do
+  RSpec.describe 'Create', product_group: :remote_development do
     describe 'Closing Web IDE' do
+      include_context "Web IDE test prep"
       let(:file_name) { 'file.txt' }
       let(:project) { create(:project, :with_readme, name: 'webide-close-with-unsaved-changes') }
 
       before do
-        Flow::Login.sign_in
-        project.visit!
-        Page::Project::Show.perform(&:open_web_ide!)
-        Page::Project::WebIDE::VSCode.perform(&:wait_for_ide_to_load)
+        load_web_ide
       end
 
-      it 'shows an alert when there are unsaved changes', :blocking,
+      it 'shows an alert when there are unsaved changes',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/411298' do
         Page::Project::WebIDE::VSCode.perform do |ide|
           ide.create_new_file(file_name)

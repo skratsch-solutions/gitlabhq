@@ -64,7 +64,10 @@ module ServicePing
         URI.join(base_url, path),
         body: Gitlab::Json.dump(payload),
         allow_local_requests: true,
-        headers: { 'Content-type' => 'application/json' }
+        headers: {
+          'Content-type' => 'application/json',
+          'Accept' => 'application/json'
+        }
       )
     end
 
@@ -111,7 +114,7 @@ module ServicePing
       # rubocop: disable CodeReuse/ActiveRecord
       RawUsageData.find_or_create_by(recorded_at: usage_data[:recorded_at]) do |record|
         record.payload = usage_data
-        record.organization_id = Organizations::Organization::DEFAULT_ORGANIZATION_ID
+        record.organization_id = Organizations::Organization.first.id
       end
       # rubocop: enable CodeReuse/ActiveRecord
     end

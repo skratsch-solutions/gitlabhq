@@ -48,7 +48,7 @@ describe('content_editor/components/bubble_menus/code_block_bubble_menu', () => 
   const preTag = ({ language, content = 'test' } = {}) => {
     const languageAttr = language ? ` data-canonical-lang="${language}"` : '';
 
-    return `<pre class="js-syntax-highlight"${languageAttr}>${content}</pre>`;
+    return `<pre class="code highlight js-syntax-highlight"${languageAttr}>${content}</pre>`;
   };
 
   const findDropdownItems = () => wrapper.findAllComponents(GlDropdownItem);
@@ -70,7 +70,7 @@ describe('content_editor/components/bubble_menus/code_block_bubble_menu', () => 
 
     await emitEditorEvent({ event: 'transaction', tiptapEditor });
 
-    expect(bubbleMenu.classes()).toEqual(['gl-shadow', 'gl-rounded-base', 'gl-bg-white']);
+    expect(bubbleMenu.classes()).toEqual(['gl-rounded-base', 'gl-bg-white', 'gl-shadow']);
   });
 
   it('selects plaintext language by default', async () => {

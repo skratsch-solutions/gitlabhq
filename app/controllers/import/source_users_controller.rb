@@ -4,38 +4,46 @@ module Import
   class SourceUsersController < ApplicationController
     prepend_before_action :check_feature_flag!
 
-    before_action :source_user
-    before_action :check_current_user_matches_invite!
+    before_action :check_source_user_valid!
 
     respond_to :html
     feature_category :importers
 
     def accept
-      if source_user.accept
-        # TODO: This is where we enqueue the job to assign the contributions.
+      result = ::Import::SourceUsers::AcceptReassignmentService.new(
+        source_user, current_user: current_user, reassignment_token: params[:reassignment_token]
+      ).execute
 
-        redirect_to(root_path, notice: format(mapping_decision_notice('approved'), invite_details))
+      if result.success?
+        flash[:raw] = banner('accept_invite')
+        redirect_to(root_path)
       else
-        redirect_to(root_path, alert: _('The invitation could not be accepted.'))
+        redirect_to(root_path, alert: s_('UserMapping|The invitation could not be accepted.'))
       end
     end
 
     def decline
-      if source_user.reject
-        redirect_to(root_path, notice: format(mapping_decision_notice('rejected'), invite_details))
+      result = ::Import::SourceUsers::RejectReassignmentService.new(
+        source_user, current_user: current_user, reassignment_token: params[:reassignment_token]
+      ).execute
+
+      if result.success?
+        flash[:raw] = banner('reject_invite')
+        redirect_to(root_path)
       else
-        redirect_to(root_path, alert: _('The invitation could not be declined.'))
+        redirect_to(root_path, alert: s_('UserMapping|The invitation could not be declined.'))
       end
     end
 
-    def show
-      redirect_to(root_path, alert: _('The invitation is not valid')) unless source_user.awaiting_approval?
-    end
+    def show; end
 
     private
 
-    def check_current_user_matches_invite!
-      not_found unless current_user_matches_invite?
+    def check_source_user_valid!
+      return if source_user&.awaiting_approval? && current_user_matches_invite?
+
+      flash[:raw] = banner('invalid_invite')
+      redirect_to(root_path)
     end
 
     def current_user_matches_invite?
@@ -43,28 +51,23 @@ module Import
     end
 
     def source_user
-      Import::SourceUser.find(params[:id])
+      Import::SourceUser.find_by_reassignment_token(params[:reassignment_token])
     end
     strong_memoize_attr :source_user
 
-    def invite_details
-      {
-        source_username: source_user.source_username,
-        source_hostname: source_user.source_hostname,
-        destination_group: source_user.namespace.name
-      }
-    end
-
     def check_feature_flag!
-      not_found unless Feature.enabled?(:bulk_import_user_mapping, current_user)
+      not_found unless source_user.nil? || Feature.enabled?(:importer_user_mapping, source_user.reassigned_by_user)
     end
 
-    # TODO: This is a placeholder for the proper UI to be provided
-    # in a follow-up MR.
-    def mapping_decision_notice(decision)
-      "You have #{decision} the reassignment of contributions from " \
-        "%{source_username} on %{source_hostname} " \
-        "to yourself on %{destination_group}."
+    def banner(partial)
+      render_to_string(
+        partial: partial,
+        layout: false,
+        formats: :html,
+        locals: {
+          source_user: source_user
+        }
+      ).html_safe # rubocop: disable Rails/OutputSafety -- render_to_string already makes the string safe
     end
   end
 end

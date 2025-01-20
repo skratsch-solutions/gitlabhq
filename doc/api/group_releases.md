@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/351703) in GitLab 14.10 [with a flag](../administration/feature_flags.md) named `group_releases_finder_inoperator`. Disabled by default.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/355463) in GitLab 15.0. Feature flag `group_releases_finder_inoperator` removed.
@@ -31,7 +31,7 @@ Parameters:
 
 | Attribute           | Type           | Required | Description                                                                                                   |
 |---------------------|----------------|----------|---------------------------------------------------------------------------------------------------------------|
-| `id`                | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) owned by the authenticated user. |
+| `id`                | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `sort`              | string         | no       | The direction of the order. Either `desc` (default) for descending order or `asc` for ascending order.        |
 | `simple`            | boolean        | no       | Return only limited fields for each release.                                                                  |
 

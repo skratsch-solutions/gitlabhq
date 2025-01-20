@@ -1,20 +1,41 @@
 ---
-stage: Monitor
-group: Respond
+stage: none
+group: unassigned
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Health Check
+# Health check
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab provides liveness and readiness probes to indicate service health and
 reachability to required services. These probes report on the status of the
 database connection, Redis connection, and access to the file system. These
 endpoints [can be provided to schedulers like Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/) to hold
 traffic until the system is ready or restart the container as needed.
+
+Health check endpoints are normally used for load balancers
+and other Kubernetes scheduling systems that need to determine
+service availability before redirecting traffic.
+
+You should not use these endpoints to determine effective uptime
+on large Kubernetes deployments. Doing so can show false negatives
+when pods are removed by autoscaling, node failure, or for
+other normal and otherwise non-disruptive operational needs.
+
+To determine uptime on large Kubernetes deployments, look at traffic
+to the UI. This is properly balanced and scheduled, and therefore is
+a better indicator of effective uptime. You can also monitor the sign-in
+page `/users/sign_in` endpoint.
+
+<!-- vale gitlab_base.Spelling = NO -->
+
+On GitLab.com, tools such as [Pingdom](https://www.pingdom.com/) and
+Apdex measurements are used to determine uptime.
+
+<!-- vale gitlab_base.Spelling = YES -->
 
 ## IP allowlist
 

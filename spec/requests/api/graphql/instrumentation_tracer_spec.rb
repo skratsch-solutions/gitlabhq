@@ -8,8 +8,8 @@ RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :ag
   let_it_be(:user) { create(:user, username: 'instrumentation-tester') }
 
   describe "logging" do
-    it "logs a message for each query in a request" do
-      common_log_info = {
+    let_it_be(:common_log_info) do
+      {
         "correlation_id" => be_a(String),
         :trace_type => "execute_query",
         :query_fingerprint => be_a(String),
@@ -23,7 +23,9 @@ RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :ag
         "query_analysis.duration_s" => be_a(Float),
         "meta.caller_id" => "graphql:unknown"
       }
+    end
 
+    it "logs a message for each query in a request" do
       expect(Gitlab::GraphqlLogger).to receive(:info).with(a_hash_including({
         **common_log_info,
         variables: "{\"test\"=>\"hello world\"}",
@@ -67,6 +69,36 @@ RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :ag
       post_multiplex(queries, current_user: user)
 
       expect(json_response.size).to eq(2)
+    end
+
+    context "with a mutation query" do
+      let_it_be_with_reload(:package) { create(:package) }
+      let(:project) { package.project }
+
+      let(:query) do
+        <<~GQL
+          errors
+        GQL
+      end
+
+      let(:id) { package.to_global_id.to_s }
+      let(:params) { { id: id } }
+      let(:mutation) { graphql_mutation(:destroy_package, params, query) }
+
+      let(:expected_variables) { "{\"destroyPackageInput\"=>{\"id\"=>\"#{id}\"}}" }
+      let(:sanitized_mutation_query_string) do
+        "mutation {\n  destroyPackage(input: {id: \"<REDACTED>\"}) {\n    errors\n  }\n}"
+      end
+
+      it "sanitizes the query string" do
+        expect(Gitlab::GraphqlLogger).to receive(:info).with(a_hash_including({
+          **common_log_info,
+          variables: expected_variables,
+          query_string: sanitized_mutation_query_string
+        }))
+
+        post_graphql_mutation(mutation, current_user: user)
+      end
     end
   end
 
@@ -119,6 +151,65 @@ RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :ag
       post_multiplex(queries, current_user: user)
 
       expect(json_response.size).to eq(2)
+    end
+
+    context 'with IGNORED_ERRORS' do
+      before do
+        stub_const('Gitlab::Graphql::Tracers::InstrumentationTracer::IGNORED_ERRORS', [
+          'an ignored error'
+        ])
+      end
+
+      it 'does not mark request as having an error when it is ignored' do
+        expect(Gitlab::Metrics::RailsSlis.graphql_query_apdex).not_to receive(:increment)
+
+        expect_next_instance_of(Resolvers::EchoResolver) do |resolver|
+          expect(resolver).to receive(:resolve).and_raise(GraphQL::ExecutionError, 'an ignored error')
+        end
+
+        expect(Gitlab::Metrics::RailsSlis.graphql_query_error_rate).to receive(:increment).with({
+          labels: unknown_query_labels,
+          error: be_falsey
+        })
+
+        post_graphql(graphql_query_for('echo', { 'text' => 'test' }, []))
+      end
+
+      context 'when request has multiple errors' do
+        it 'marks request as having an error when at least one error is not ignored' do
+          expect(Gitlab::Metrics::RailsSlis.graphql_query_apdex).not_to receive(:increment)
+
+          expect(Resolvers::EchoResolver).to receive(:new).and_wrap_original do |method, **kwargs|
+            kwargs[:context].add_error(GraphQL::ExecutionError.new('a real error'))
+            kwargs[:context].add_error(GraphQL::ExecutionError.new('an ignored error'))
+            method.call(**kwargs)
+          end
+
+          expect(Gitlab::Metrics::RailsSlis.graphql_query_error_rate).to receive(:increment).with({
+            labels: unknown_query_labels,
+            error: true
+          })
+
+          post_graphql(graphql_query_for('echo', { 'text' => 'test' }, []))
+        end
+
+        it 'does not mark request as having an error when all errors are ignored' do
+          expect(Gitlab::Metrics::RailsSlis.graphql_query_apdex).not_to receive(:increment)
+
+          expect(Resolvers::EchoResolver).to receive(:new).and_wrap_original do |method, **kwargs|
+            kwargs[:context].add_error(GraphQL::ExecutionError.new('an ignored error'))
+            kwargs[:context].add_error(GraphQL::ExecutionError.new('an ignored error'))
+            method.call(**kwargs)
+          end
+
+          expect(Gitlab::Metrics::RailsSlis.graphql_query_error_rate).to receive(:increment).with({
+            labels: unknown_query_labels,
+            error: be_falsey
+          })
+
+          post_graphql(graphql_query_for('echo', { 'text' => 'test' }, []))
+        end
+      end
     end
   end
 

@@ -40,8 +40,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :anonymous  | false | nil | 'returns no terraform module packages' | :success
-        :private | :developer  | true  | :personal_access_token | 'returns terraform module packages'        | :success
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :personal_access_token | 'returns terraform module packages' | :success
+        :private | :guest      | true  | :personal_access_token | 'returns terraform module packages' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access' | :forbidden
@@ -49,15 +49,15 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :private | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :anonymous  | false | nil | 'rejects terraform module packages access' | :unauthorized
-        :public  | :developer  | true  | :job_token | 'returns terraform module packages'        | :success
-        :public  | :guest      | true  | :job_token | 'returns no terraform module packages'     | :success
+        :public  | :developer  | true  | :job_token | 'returns terraform module packages' | :success
+        :public  | :guest      | true  | :job_token | 'returns terraform module packages' | :success
         :public  | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :developer  | false | :job_token | 'returns no terraform module packages'     | :success
         :public  | :guest      | false | :job_token | 'returns no terraform module packages'     | :success
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
-        :private | :developer  | true  | :job_token | 'returns terraform module packages'        | :success
-        :private | :guest      | true  | :job_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :job_token | 'returns terraform module packages' | :success
+        :private | :guest      | true  | :job_token | 'returns terraform module packages' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :job_token | 'rejects terraform module packages access' | :forbidden
@@ -78,6 +78,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
     end
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token'
+    it_behaves_like 'allowing anyone to pull public terraform modules'
   end
 
   describe 'GET /api/v4/packages/terraform/modules/v1/:module_namespace/:module_name/:module_system/download' do
@@ -115,7 +116,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :anonymous  | false | nil | 'redirects to version download' | :found
         :private | :developer  | true  | :personal_access_token | 'redirects to version download' | :found
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access' | :forbidden
+        :private | :guest      | true  | :personal_access_token | 'redirects to version download' | :found
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access' | :forbidden
@@ -131,7 +132,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | true  | :job_token | 'redirects to version download' | :found
-        :private | :guest      | true  | :job_token | 'rejects terraform module packages access' | :forbidden
+        :private | :guest      | true  | :job_token | 'redirects to version download' | :found
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :job_token | 'rejects terraform module packages access' | :forbidden
@@ -153,6 +154,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
     end
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token', :found
+    it_behaves_like 'allowing anyone to pull public terraform modules', :found
   end
 
   describe 'GET /api/v4/packages/terraform/modules/v1/:module_namespace/:module_name/:module_system' do
@@ -183,8 +185,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :anonymous  | false | nil | 'returns terraform module version' | :success
-        :private | :developer  | true  | :personal_access_token | 'returns terraform module version'         | :success
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :personal_access_token | 'returns terraform module version' | :success
+        :private | :guest      | true  | :personal_access_token | 'returns terraform module version' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access' | :forbidden
@@ -199,8 +201,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :guest      | false | :job_token | 'returns terraform module version'         | :success
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
-        :private | :developer  | true  | :job_token | 'returns terraform module version'         | :success
-        :private | :guest      | true  | :job_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :job_token | 'returns terraform module version' | :success
+        :private | :guest      | true  | :job_token | 'returns terraform module version' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :job_token | 'rejects terraform module packages access' | :forbidden
@@ -222,6 +224,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
     end
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token'
+    it_behaves_like 'allowing anyone to pull public terraform modules'
   end
 
   describe 'GET /api/v4/packages/terraform/modules/v1/:module_namespace/:module_name/:module_system/:module_version' do
@@ -254,8 +257,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :anonymous  | false | nil | 'returns terraform module version' | :success
-        :private | :developer  | true  | :personal_access_token | 'returns terraform module version'         | :success
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :personal_access_token | 'returns terraform module version' | :success
+        :private | :guest      | true  | :personal_access_token | 'returns terraform module version' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access' | :forbidden
@@ -270,8 +273,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :guest      | false | :job_token | 'returns terraform module version'         | :success
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
-        :private | :developer  | true  | :job_token | 'returns terraform module version'         | :success
-        :private | :guest      | true  | :job_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :job_token | 'returns terraform module version' | :success
+        :private | :guest      | true  | :job_token | 'returns terraform module version' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :job_token | 'rejects terraform module packages access' | :forbidden
@@ -293,6 +296,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
     end
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token'
+    it_behaves_like 'allowing anyone to pull public terraform modules'
   end
 
   describe 'GET /api/v4/packages/terraform/modules/v1/:module_namespace/:module_name/:module_system/:module_version/download' do
@@ -312,8 +316,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :anonymous  | false | nil | 'grants terraform module download' | :success
-        :private | :developer  | true  | :personal_access_token | 'grants terraform module download'         | :success
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :personal_access_token | 'grants terraform module download' | :success
+        :private | :guest      | true  | :personal_access_token | 'grants terraform module download' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access' | :forbidden
@@ -328,8 +332,8 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :guest      | false | :job_token | 'grants terraform module download'         | :success
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access' | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access' | :unauthorized
-        :private | :developer  | true  | :job_token | 'grants terraform module download'         | :success
-        :private | :guest      | true  | :job_token | 'rejects terraform module packages access' | :forbidden
+        :private | :developer  | true  | :job_token | 'grants terraform module download' | :success
+        :private | :guest      | true  | :job_token | 'grants terraform module download' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access' | :unauthorized
         :private | :developer  | false | :job_token | 'rejects terraform module packages access' | :forbidden
@@ -351,6 +355,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
     end
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token'
+    it_behaves_like 'allowing anyone to pull public terraform modules'
   end
 
   describe 'GET /api/v4/packages/terraform/modules/v1/:module_namespace/:module_name/:module_system/:module_version/file' do
@@ -380,7 +385,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :public  | :anonymous  | false | nil | 'grants terraform module package file access' | :success
         :private | :developer  | true  | :personal_access_token | 'grants terraform module package file access' | :success
-        :private | :guest      | true  | :personal_access_token | 'rejects terraform module packages access'    | :forbidden
+        :private | :guest      | true  | :personal_access_token | 'grants terraform module package file access' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :private | :developer  | false | :personal_access_token | 'rejects terraform module packages access'    | :forbidden
@@ -396,7 +401,7 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
         :public  | :developer  | false | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :public  | :guest      | false | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :private | :developer  | true  | :job_token            | 'grants terraform module package file access' | :success
-        :private | :guest      | true  | :job_token            | 'rejects terraform module packages access'    | :forbidden
+        :private | :guest      | true  | :job_token            | 'grants terraform module package file access' | :success
         :private | :developer  | true  | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :private | :guest      | true  | :invalid | 'rejects terraform module packages access'    | :unauthorized
         :private | :developer  | false | :job_token            | 'rejects terraform module packages access'    | :forbidden
@@ -457,6 +462,10 @@ RSpec.describe API::Terraform::Modules::V1::NamespacePackages, feature_category:
 
     it_behaves_like 'accessing a public/internal project with another project\'s job token', :success do
       let(:token) { tokens[:job_token] }
+    end
+
+    it_behaves_like 'allowing anyone to pull public terraform modules' do
+      let(:token) { nil }
     end
   end
 end

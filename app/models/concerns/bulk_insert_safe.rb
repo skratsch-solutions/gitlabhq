@@ -77,8 +77,14 @@ module BulkInsertSafe
     # @param [Symbol]  returns           Pass :ids to return an array with the primary key values
     #                                    for all inserted records or nil to omit the underlying
     #                                    RETURNING SQL clause entirely.
+    # @param [Symbol/Array] unique_by    Defines index or columns to use to consider item duplicate
     # @param [Proc]    handle_attributes Block that will receive each item attribute hash
     #                                    prior to insertion for further processing
+    #
+    # Unique indexes can be identified by columns or name:
+    #  - unique_by: :isbn
+    #  - unique_by: %i[ author_id name ]
+    #  - unique_by: :index_books_on_isbn
     #
     # Note that this method will throw on the following occasions:
     # - [PrimaryKeySetError]            when primary keys are set on entities prior to insertion
@@ -87,14 +93,24 @@ module BulkInsertSafe
     #
     # @return true if operation succeeded, throws otherwise.
     #
-    def bulk_insert!(items, validate: true, skip_duplicates: false, returns: nil, batch_size: DEFAULT_BATCH_SIZE, &handle_attributes)
-      _bulk_insert_all!(items,
+    def bulk_insert!(
+      items,
+      validate: true,
+      skip_duplicates: false,
+      returns: nil,
+      unique_by: nil,
+      batch_size: DEFAULT_BATCH_SIZE,
+      &handle_attributes
+    )
+      _bulk_insert_all!(
+        items,
         validate: validate,
         on_duplicate: skip_duplicates ? :skip : :raise,
         returns: returns,
-        unique_by: nil,
+        unique_by: unique_by,
         batch_size: batch_size,
-        &handle_attributes)
+        &handle_attributes
+      )
     end
 
     # Upserts the given ActiveRecord [items] to the table mapped to this class.
@@ -122,14 +138,23 @@ module BulkInsertSafe
     #
     # @return true if operation succeeded, throws otherwise.
     #
-    def bulk_upsert!(items, unique_by:, returns: nil, validate: true, batch_size: DEFAULT_BATCH_SIZE, &handle_attributes)
-      _bulk_insert_all!(items,
+    def bulk_upsert!(
+      items,
+      unique_by:,
+      returns: nil,
+      validate: true,
+      batch_size: DEFAULT_BATCH_SIZE,
+      &handle_attributes
+    )
+      _bulk_insert_all!(
+        items,
         validate: validate,
         on_duplicate: :update,
         returns: returns,
         unique_by: unique_by,
         batch_size: batch_size,
-        &handle_attributes)
+        &handle_attributes
+      )
     end
 
     private
@@ -147,19 +172,24 @@ module BulkInsertSafe
           returns
         end
 
+      composite_primary_key = ::Gitlab.next_rails? && composite_primary_key?
+
       # Handle insertions for tables with a composite primary key
       primary_keys = connection.schema_cache.primary_keys(table_name)
-      if unique_by.blank? && primary_key != primary_keys
-        unique_by = primary_keys
-      end
+      unique_by = primary_keys if unique_by.blank? && (composite_primary_key || primary_key != primary_keys)
 
       transaction do
         items.each_slice(batch_size).flat_map do |item_batch|
-          attributes = _bulk_insert_item_attributes(
-            item_batch, validate, &handle_attributes)
+          attributes = _bulk_insert_item_attributes(item_batch, validate, &handle_attributes)
 
           ActiveRecord::InsertAll
-              .new(insert_all_proxy_class, attributes, on_duplicate: on_duplicate, returning: returning, unique_by: unique_by)
+              .new(
+                insert_all_proxy_class,
+                attributes,
+                on_duplicate: on_duplicate,
+                returning: returning,
+                unique_by: unique_by
+              )
               .execute
               .cast_values(insert_all_proxy_class.attribute_types).to_a
         end
@@ -175,7 +205,7 @@ module BulkInsertSafe
           attributes[name] = item.read_attribute(name)
         end
 
-        _bulk_insert_reject_primary_key!(attributes, item.class.primary_key)
+        _bulk_insert_reject_primary_key!(attributes, item.class)
 
         yield attributes if block_given?
 
@@ -183,10 +213,19 @@ module BulkInsertSafe
       end
     end
 
-    def _bulk_insert_reject_primary_key!(attributes, primary_key)
-      if existing_pk = attributes.delete(primary_key)
-        raise PrimaryKeySetError, "Primary key set: #{primary_key}:#{existing_pk}\n" \
-          "Bulk-inserts are only supported for rows that don't already have PK set"
+    def _bulk_insert_reject_primary_key!(attributes, model_class)
+      primary_key = model_class.primary_key
+      existing_pk = attributes.delete(primary_key)
+      if existing_pk
+        if model_class.columns_hash[primary_key].serial?
+          raise PrimaryKeySetError, "Primary key set: #{primary_key}:#{existing_pk}\n" \
+            "#{primary_key} is a serial primary key, this is probably a mistake"
+        else
+          # If the PK is serial, then we need to delete it from attributes to avoid setting
+          # explicit NULLs in the insert statement. If the PK is not serial, then we'll use
+          # the value set in the attributes.
+          attributes[primary_key] = existing_pk
+        end
       end
     end
 

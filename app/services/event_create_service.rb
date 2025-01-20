@@ -8,6 +8,8 @@
 #   EventCreateService.new.new_issue(issue, current_user)
 #
 class EventCreateService
+  include Gitlab::InternalEventsTracking
+
   IllegalActionError = Class.new(StandardError)
 
   DEGIGN_EVENT_LABEL = 'usage_activity_by_stage_monthly.create.action_monthly_active_users_design_management'
@@ -176,8 +178,13 @@ class EventCreateService
   def wiki_event(wiki_page_meta, author, action, fingerprint)
     raise IllegalActionError, action unless Event::WIKI_ACTIONS.include?(action)
 
-    Gitlab::UsageDataCounters::HLLRedisCounter.track_event(:wiki_action, values: author.id)
     Gitlab::UsageDataCounters::HLLRedisCounter.track_event(:git_write_action, values: author.id)
+
+    track_internal_event("performed_wiki_action",
+      project: wiki_page_meta.project,
+      user: author,
+      additional_properties: { label: action.to_s }
+    )
 
     duplicate = Event.for_wiki_meta(wiki_page_meta).for_fingerprint(fingerprint).first
     return duplicate if duplicate.present?
@@ -218,7 +225,7 @@ class EventCreateService
       action = Event.actions[status]
       raise IllegalActionError, "#{status} is not a valid status" if action.nil?
 
-      parent_attrs(record.resource_parent)
+      parent_attrs(record.resource_parent, current_user)
         .merge(base_attrs)
         .merge(action: action, fingerprint: fingerprint, target_id: record.id, target_type: record.class.name)
     end
@@ -257,6 +264,13 @@ class EventCreateService
       .cache_last_push_event(event)
 
     Users::ActivityService.new(author: current_user, namespace: namespace, project: project).execute
+
+    Gitlab::EventStore.publish(
+      Users::ActivityEvent.new(data: {
+        user_id: current_user.id,
+        namespace_id: project.root_ancestor.id
+      })
+    )
   end
 
   def create_event(resource_parent, current_user, status, attributes = {})
@@ -264,7 +278,7 @@ class EventCreateService
       action: status,
       author_id: current_user.id
     )
-    attributes.merge!(parent_attrs(resource_parent))
+    attributes.merge!(parent_attrs(resource_parent, current_user))
 
     if attributes[:fingerprint].present?
       Event.safe_find_or_create_by!(attributes)
@@ -273,7 +287,7 @@ class EventCreateService
     end
   end
 
-  def parent_attrs(resource_parent)
+  def parent_attrs(resource_parent, current_user)
     resource_parent_attr = case resource_parent
                            when Project
                              :project_id
@@ -281,7 +295,7 @@ class EventCreateService
                              :group_id
                            end
 
-    return {} unless resource_parent_attr
+    return { personal_namespace_id: current_user.namespace_id }.compact unless resource_parent_attr
 
     { resource_parent_attr => resource_parent.id }
   end

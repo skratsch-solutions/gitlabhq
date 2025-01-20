@@ -2,6 +2,7 @@ import { GlTable, GlButton } from '@gitlab/ui';
 import Vue, { nextTick } from 'vue';
 // eslint-disable-next-line no-restricted-imports
 import Vuex from 'vuex';
+import EmptyResult from '~/vue_shared/components/empty_result.vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import CreatedAt from '~/members/components/table/created_at.vue';
 import ExpirationDatepicker from '~/members/components/table/expiration_datepicker.vue';
@@ -104,7 +105,7 @@ describe('MembersTable', () => {
       ${'source'}     | ${'Source'}     | ${memberMock}      | ${MemberSource}
       ${'invited'}    | ${'Invited'}    | ${invite}          | ${CreatedAt}
       ${'requested'}  | ${'Requested'}  | ${accessRequest}   | ${CreatedAt}
-      ${'maxRole'}    | ${'Max role'}   | ${memberCanUpdate} | ${MaxRole}
+      ${'maxRole'}    | ${'Role'}       | ${memberCanUpdate} | ${MaxRole}
       ${'expiration'} | ${'Expiration'} | ${memberMock}      | ${ExpirationDatepicker}
       ${'activity'}   | ${'Activity'}   | ${memberMock}      | ${MemberActivity}
     `('$label field', ({ field, label, member, expectedComponent }) => {
@@ -124,7 +125,7 @@ describe('MembersTable', () => {
       });
     });
 
-    describe('Max role column', () => {
+    describe('Role column', () => {
       const createMaxRoleComponent = (member = memberMock) => {
         createComponent({ members: [member], tableFields: ['maxRole'] });
       };
@@ -262,20 +263,17 @@ describe('MembersTable', () => {
 
       it('passes correct props to `MemberSource` component', () => {
         expect(wrapper.findComponent(MemberSource).props()).toMatchObject({
-          memberSource: {},
-          isDirectMember: true,
-          isSharedWithGroupPrivate: true,
-          createdBy: null,
+          member: privateGroup,
         });
       });
     });
   });
 
   describe('when `members` is an empty array', () => {
-    it('displays a "No members found" message', () => {
+    it('displays a "No results found" message', () => {
       createComponent();
 
-      expect(wrapper.findByText('No members found').exists()).toBe(true);
+      expect(wrapper.findComponent(EmptyResult).exists()).toBe(true);
     });
   });
 
@@ -309,19 +307,28 @@ describe('MembersTable', () => {
         expect(findRoleDetailsDrawer().props('member')).toBe(null);
       });
 
-      it('disables role button when drawer is busy', async () => {
-        findRoleDetailsDrawer().vm.$emit('busy', true);
-        await nextTick();
+      it.each([true, false])(
+        'enables/disables role button when drawer busy state is %s',
+        async (busy) => {
+          findRoleDetailsDrawer().vm.$emit('busy', busy);
+          await nextTick();
 
-        expect(findRoleButton().props('disabled')).toBe(true);
-      });
+          expect(findRoleButton().props('disabled')).toBe(busy);
+        },
+      );
     });
   });
 
-  it('adds QA testid to table row', () => {
-    createComponent();
+  describe('QA testid', () => {
+    const createMaxRoleComponent = (member = memberMock) => {
+      createComponent({ members: [member], tableFields: ['maxRole'] });
+    };
 
-    expect(findTable().find('tbody tr').attributes('data-testid')).toBe('member-row');
+    it('adds testid to table row', () => {
+      createMaxRoleComponent();
+
+      expect(findTable().find('tbody tr').attributes('data-testid')).toContain('members-table-row');
+    });
   });
 
   it('renders `members-pagination` component with correct props', () => {

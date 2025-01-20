@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'Jobs/SAST-IaC.gitlab-ci.yml', feature_category: :continuous_integration do
+  include Ci::PipelineMessageHelpers
+
   subject(:template) { Gitlab::Template::GitlabCiYmlTemplate.find('Jobs/SAST-IaC') }
 
   describe 'the created pipeline' do
@@ -50,8 +52,7 @@ RSpec.describe 'Jobs/SAST-IaC.gitlab-ci.yml', feature_category: :continuous_inte
       context 'on default branch' do
         it 'has no jobs' do
           expect(build_names).to be_empty
-          expect(pipeline.errors.full_messages).to match_array(['Pipeline will not run for the selected trigger. ' \
-            'The rules configuration prevented any jobs from being added to the pipeline.'])
+          expect(pipeline.errors.full_messages).to match_array([sanitize_message(Ci::Pipeline.rules_failure_message)])
         end
       end
 
@@ -60,8 +61,7 @@ RSpec.describe 'Jobs/SAST-IaC.gitlab-ci.yml', feature_category: :continuous_inte
 
         it 'has no jobs' do
           expect(build_names).to be_empty
-          expect(pipeline.errors.full_messages).to match_array(['Pipeline will not run for the selected trigger. ' \
-            'The rules configuration prevented any jobs from being added to the pipeline.'])
+          expect(pipeline.errors.full_messages).to match_array([sanitize_message(Ci::Pipeline.rules_failure_message)])
         end
       end
     end

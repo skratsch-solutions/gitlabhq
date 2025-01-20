@@ -19,6 +19,14 @@ module Gitlab
         BATCH_MIN_VALUE = 1 # Default minimum value for batched migrations
         BATCH_MIN_DELAY = 2.minutes.freeze # Minimum delay between batched migrations
 
+        ENFORCE_EARLY_FINALIZATION_FROM_VERSION = '20240905124117'
+        EARLY_FINALIZATION_ERROR = <<-MESSAGE.squeeze(' ').strip
+          Batched migration should be finalized only after at-least one required stop from queuing it.
+          This is to ensure that we are not breaking the upgrades for self-managed instances.
+
+          For more info visit: https://docs.gitlab.com/ee/development/database/batched_background_migrations.html#finalize-a-batched-background-migration
+        MESSAGE
+
         # Creates a batched background migration for the given table. A batched migration runs one job
         # at a time, computing the bounds of the next batch based on the current migration settings and the previous
         # batch bounds. Each job's execution status is tracked in the database as the migration runs. The given job
@@ -80,7 +88,7 @@ module Gitlab
 
           Gitlab::Database::BackgroundMigration::BatchedMigration.reset_column_information
 
-          if Gitlab::Database::BackgroundMigration::BatchedMigration.for_configuration(gitlab_schema, job_class_name, batch_table_name, batch_column_name, job_arguments).exists?
+          if Gitlab::Database::BackgroundMigration::BatchedMigration.for_configuration(gitlab_schema, job_class_name, batch_table_name, batch_column_name, job_arguments, include_compatible: true).exists?
             Gitlab::AppLogger.warn "Batched background migration not enqueued because it already exists: " \
               "job_class_name: #{job_class_name}, table_name: #{batch_table_name}, column_name: #{batch_column_name}, " \
               "job_arguments: #{job_arguments.inspect}"
@@ -141,7 +149,9 @@ module Gitlab
           Gitlab::Database::BackgroundMigration::BatchedMigration.reset_column_information
 
           migration = Gitlab::Database::BackgroundMigration::BatchedMigration.find_for_configuration(
-            gitlab_schema_from_context, job_class_name, table_name, column_name, job_arguments)
+            gitlab_schema_from_context, job_class_name, table_name, column_name, job_arguments,
+            include_compatible: true
+          )
 
           raise 'Could not find batched background migration' if migration.nil?
 
@@ -176,7 +186,8 @@ module Gitlab
 
           Gitlab::Database::BackgroundMigration::BatchedMigration
             .for_configuration(
-              gitlab_schema_from_context, job_class_name, table_name, column_name, job_arguments
+              gitlab_schema_from_context, job_class_name, table_name, column_name, job_arguments,
+              include_compatible: true
             ).delete_all
         end
 
@@ -188,7 +199,14 @@ module Gitlab
           end
         end
 
-        def ensure_batched_background_migration_is_finished(job_class_name:, table_name:, column_name:, job_arguments:, finalize: true)
+        def ensure_batched_background_migration_is_finished(
+          job_class_name:,
+          table_name:,
+          column_name:,
+          job_arguments:,
+          finalize: true,
+          skip_early_finalization_validation: false
+        )
           Gitlab::Database::QueryAnalyzers::RestrictAllowedSchemas.require_dml_mode!
 
           if transaction_open?
@@ -200,7 +218,8 @@ module Gitlab
           Gitlab::Database::BackgroundMigration::BatchedMigration.reset_column_information
           migration = Gitlab::Database::BackgroundMigration::BatchedMigration.find_for_configuration(
             gitlab_schema_from_context,
-            job_class_name, table_name, column_name, job_arguments
+            job_class_name, table_name, column_name, job_arguments,
+            include_compatible: true
           )
 
           configuration = {
@@ -215,6 +234,10 @@ module Gitlab
           end
 
           return Gitlab::AppLogger.warn "Could not find batched background migration for the given configuration: #{configuration}" if migration.nil?
+
+          if migration.respond_to?(:queued_migration_version) && !skip_early_finalization_validation
+            prevent_early_finalization!(migration.queued_migration_version, version)
+          end
 
           return if migration.finalized?
 
@@ -268,6 +291,21 @@ module Gitlab
             migration.public_send("#{safe_attribute}=", value) if migration.respond_to?(safe_attribute)
           end
           # rubocop:enable GitlabSecurity/PublicSend
+        end
+
+        def prevent_early_finalization!(queued_migration_version, version)
+          return if version.to_s <= ENFORCE_EARLY_FINALIZATION_FROM_VERSION || queued_migration_version.blank?
+
+          queued_migration_milestone = Gitlab::Utils::BatchedBackgroundMigrationsDictionary
+                                         .new(queued_migration_version)
+                                         .milestone
+
+          return unless queued_migration_milestone.present?
+
+          queued_migration_milestone = Gitlab::VersionInfo.parse_from_milestone(queued_migration_milestone)
+          last_required_stop = Gitlab::Database.upgrade_path.last_required_stop
+
+          raise EARLY_FINALIZATION_ERROR unless queued_migration_milestone <= last_required_stop
         end
       end
     end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ErrorTracking::SentryClient::Projects, feature_category: :error_tracking do
+RSpec.describe ErrorTracking::SentryClient::Projects, feature_category: :observability do
   include SentryClientHelpers
 
   let(:sentry_url) { 'https://sentrytest.gitlab.com/api/0/projects/sentry-org/sentry-project' }
@@ -16,7 +16,7 @@ RSpec.describe ErrorTracking::SentryClient::Projects, feature_category: :error_t
 
   shared_examples 'has correct return type' do |klass|
     it "returns objects of type #{klass}" do
-      expect(subject).to all( be_a(klass) )
+      expect(subject).to all(be_a(klass))
     end
   end
 

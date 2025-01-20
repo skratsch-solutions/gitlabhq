@@ -43,10 +43,13 @@ module Gitlab
     argument :key_paths, type: :array, desc: 'Unique JSON key paths for the metrics'
 
     def create_metric_file
-      say("This generator is DEPRECATED. Use Internal Events tracking framework instead.")
-      # rubocop: disable Gitlab/DocUrl -- link for developers, not users
+      say("This generator is DEPRECATED. For event based metrics use Internal Events tracking framework instead.")
+      # rubocop: disable Gitlab/DocumentationLinks/HardcodedUrl -- links for developers, not users
       say("https://docs.gitlab.com/ee/development/internal_analytics/internal_event_instrumentation/quick_start.html")
-      # rubocop: enable Gitlab/DocUrl
+
+      say("If you need to implement Database, Prometheus or custom metrics, see")
+      say("https://docs.gitlab.com/ee/development/internal_analytics/metrics/metrics_instrumentation.html")
+      # rubocop: enable Gitlab/DocumentationLinks/HardcodedUrl
       desc = ask("Would you like to continue anyway? y/N") || 'n'
       return unless desc.casecmp('y') == 0
 
@@ -63,10 +66,6 @@ module Gitlab
 
     def value_type
       directory&.value_type
-    end
-
-    def distribution
-      (ee? ? ['- ee'] : ['- ce', '- ee']).join("\n")
     end
 
     def tier
@@ -110,7 +109,7 @@ module Gitlab
     #
     # 20210201124931_g_project_management_issue_title_changed_weekly.yml
     def file_name(key_path)
-      "#{Time.now.utc.strftime("%Y%m%d%H%M%S")}_#{metric_name(key_path)}"
+      "#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{metric_name(key_path)}"
     end
 
     def directory

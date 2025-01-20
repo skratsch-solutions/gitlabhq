@@ -1,7 +1,7 @@
 <script>
-import { GlButton, GlIcon, GlSprintf, GlLink, GlFormCheckbox, GlToggle } from '@gitlab/ui';
+import { GlButton, GlSprintf, GlLink, GlFormCheckbox, GlFormSelect, GlToggle } from '@gitlab/ui';
+import SecretManagerSettings from 'ee_component/pages/projects/shared/permissions/components/secret_manager_settings.vue';
 import ConfirmDanger from '~/vue_shared/components/confirm_danger/confirm_danger.vue';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import settingsMixin from 'ee_else_ce/pages/projects/shared/permissions/mixins/settings_pannel_mixin';
 import { __, s__ } from '~/locale';
 import {
@@ -9,6 +9,7 @@ import {
   VISIBILITY_LEVEL_INTERNAL_INTEGER,
   VISIBILITY_LEVEL_PUBLIC_INTEGER,
 } from '~/visibility_level/constants';
+import CascadingLockIcon from '~/namespaces/cascading_settings/components/cascading_lock_icon.vue';
 import {
   visibilityLevelDescriptions,
   featureAccessLevelMembers,
@@ -19,18 +20,20 @@ import {
   modelExperimentsHelpPath,
   modelRegistryHelpPath,
   duoHelpPath,
+  amazonQHelpPath,
+  pipelineExecutionPoliciesHelpPath,
 } from '../constants';
 import { toggleHiddenClassBySelector } from '../external';
 import ProjectFeatureSetting from './project_feature_setting.vue';
 import ProjectSettingRow from './project_setting_row.vue';
 import CiCatalogSettings from './ci_catalog_settings.vue';
 
-const FEATURE_ACCESS_LEVEL_ANONYMOUS = [30, s__('ProjectSettings|Everyone')];
+const FEATURE_ACCESS_LEVEL_ANONYMOUS = { value: 30, label: s__('ProjectSettings|Everyone') };
 
 const PACKAGE_REGISTRY_ACCESS_LEVEL_DEFAULT_BY_PROJECT_VISIBILITY = {
   [VISIBILITY_LEVEL_PRIVATE_INTEGER]: featureAccessLevel.PROJECT_MEMBERS,
   [VISIBILITY_LEVEL_INTERNAL_INTEGER]: featureAccessLevel.EVERYONE,
-  [VISIBILITY_LEVEL_PUBLIC_INTEGER]: FEATURE_ACCESS_LEVEL_ANONYMOUS[0],
+  [VISIBILITY_LEVEL_PUBLIC_INTEGER]: FEATURE_ACCESS_LEVEL_ANONYMOUS.value,
 };
 
 export default {
@@ -75,9 +78,7 @@ export default {
     releasesHelpText: s__(
       'ProjectSettings|Combine git tags with release notes, release evidence, and assets to create a release.',
     ),
-    duoLabel: s__('ProjectSettings|GitLab Duo'),
-    duoHelpText: s__('ProjectSettings|Use AI-powered features in this project.'),
-    securityAndComplianceLabel: s__('ProjectSettings|Security and Compliance'),
+    securityAndComplianceLabel: s__('ProjectSettings|Security and compliance'),
     snippetsLabel: s__('ProjectSettings|Snippets'),
     wikiLabel: s__('ProjectSettings|Wiki'),
     pucWarningLabel: s__('ProjectSettings|Warn about Potentially Unwanted Characters'),
@@ -90,31 +91,40 @@ export default {
     showDiffPreviewHelpText: s__(
       'ProjectSettings|Emails are not encrypted. Concerned administrators may want to disable diff previews.',
     ),
+    pipelineExecutionPoliciesLabel: s__('ProjectSettings|Pipeline execution policies'),
+    sppRepositoryPipelineAccessLabel: s__(
+      'ProjectSettings|Grant access to the CI/CD configurations for projects linked to this security policy project as the source for security policies.',
+    ),
+    sppRepositoryPipelineAccessHelpText: s__(
+      'ProjectSettings|Allow users and tokens read-only access to fetch security policy configurations in this project to enforce policies. %{linkStart}Learn more%{linkEnd}.',
+    ),
   },
   VISIBILITY_LEVEL_PRIVATE_INTEGER,
   VISIBILITY_LEVEL_INTERNAL_INTEGER,
   VISIBILITY_LEVEL_PUBLIC_INTEGER,
   modelExperimentsHelpPath,
   modelRegistryHelpPath,
-  duoHelpPath,
+  pipelineExecutionPoliciesHelpPath,
   components: {
     CiCatalogSettings,
     ProjectFeatureSetting,
     ProjectSettingRow,
+    CascadingLockIcon,
     GlButton,
-    GlIcon,
     GlSprintf,
     GlLink,
     GlFormCheckbox,
+    GlFormSelect,
     GlToggle,
     ConfirmDanger,
+    SecretManagerSettings,
     OtherProjectSettings: () =>
       import(
         'jh_component/pages/projects/shared/permissions/components/other_project_settings.vue'
       ),
   },
-  mixins: [settingsMixin, glFeatureFlagMixin()],
-
+  mixins: [settingsMixin],
+  inject: ['cascadingSettingsData'],
   props: {
     requestCveAvailable: {
       type: Boolean,
@@ -122,6 +132,11 @@ export default {
       default: false,
     },
     canAddCatalogResource: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    canManageSecretManager: {
       type: Boolean,
       required: false,
       default: false,
@@ -175,6 +190,11 @@ export default {
       default: false,
     },
     licensedAiFeaturesAvailable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    amazonQAvailable: {
       type: Boolean,
       required: false,
       default: false,
@@ -277,6 +297,16 @@ export default {
       type: String,
       required: true,
     },
+    sppRepositoryPipelineAccessLocked: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    policySettingsAvailable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     const defaults = {
@@ -309,6 +339,7 @@ export default {
       showDiffPreviewInEmail: true,
       cveIdRequestEnabled: true,
       duoFeaturesEnabled: false,
+      sppRepositoryPipelineAccess: false,
       featureAccessLevelEveryone,
       featureAccessLevelMembers,
       featureAccessLevel,
@@ -317,22 +348,18 @@ export default {
 
     return { ...defaults, ...this.currentSettings };
   },
-
   computed: {
-    featureAccessLevelOptions() {
-      const options = [featureAccessLevelMembers];
-      if (this.visibilityLevel !== VISIBILITY_LEVEL_PRIVATE_INTEGER) {
-        options.push(featureAccessLevelEveryone);
-      }
-      return options;
+    isProjectPrivate() {
+      return this.visibilityLevel === VISIBILITY_LEVEL_PRIVATE_INTEGER;
     },
-
+    featureAccessLevelOptions() {
+      return [featureAccessLevelMembers, featureAccessLevelEveryone];
+    },
     repoFeatureAccessLevelOptions() {
       return this.featureAccessLevelOptions.filter(
-        ([value]) => value <= this.repositoryAccessLevel,
+        ({ value }) => value <= this.repositoryAccessLevel,
       );
     },
-
     pagesFeatureAccessLevelOptions() {
       const options = [featureAccessLevelMembers];
 
@@ -376,7 +403,7 @@ export default {
     },
 
     repositoryHelpText() {
-      if (this.visibilityLevel === VISIBILITY_LEVEL_PRIVATE_INTEGER) {
+      if (this.isProjectPrivate) {
         return s__('ProjectSettings|View and edit files in this project.');
       }
 
@@ -397,7 +424,7 @@ export default {
       return this.packageRegistryAccessLevel > featureAccessLevel.NOT_ENABLED;
     },
     packageRegistryApiForEveryoneEnabled() {
-      return this.packageRegistryAccessLevel === FEATURE_ACCESS_LEVEL_ANONYMOUS[0];
+      return this.packageRegistryAccessLevel === FEATURE_ACCESS_LEVEL_ANONYMOUS.value;
     },
     packageRegistryApiForEveryoneEnabledShown() {
       return (
@@ -406,7 +433,7 @@ export default {
       );
     },
     monitorOperationsFeatureAccessLevelOptions() {
-      return this.featureAccessLevelOptions.filter(([value]) => value <= this.monitorAccessLevel);
+      return this.featureAccessLevelOptions.filter(({ value }) => value <= this.monitorAccessLevel);
     },
     findDiffPreviewValue: {
       get() {
@@ -416,31 +443,39 @@ export default {
         this.showDiffPreviewInEmail = newValue;
       },
     },
-    showDuoSettings() {
-      return this.licensedAiFeaturesAvailable && this.glFeatures.aiSettingsVueProject;
+    showCascadingButton() {
+      return (
+        this.duoFeaturesLocked &&
+        this.cascadingSettingsData &&
+        Object.keys(this.cascadingSettingsData).length
+      );
+    },
+    wasProjectInitiallyPrivate() {
+      return this.currentSettings.visibilityLevel === VISIBILITY_LEVEL_PRIVATE_INTEGER;
+    },
+    duoEnabledSetting() {
+      // TODO(Q): What if both Amazon Q and Duo are available??
+      if (this.amazonQAvailable) {
+        return {
+          label: s__('ProjectSettings|Amazon Q'),
+          helpText: s__('ProjectSettings|This project can use Amazon Q.'),
+          helpPath: amazonQHelpPath,
+        };
+      }
+      if (this.licensedAiFeaturesAvailable) {
+        return {
+          label: s__('ProjectSettings|GitLab Duo'),
+          helpText: s__('ProjectSettings|Use AI-powered features in this project.'),
+          helpPath: duoHelpPath,
+        };
+      }
+
+      return null;
     },
   },
-
   watch: {
     visibilityLevel(value, oldValue) {
       if (value === VISIBILITY_LEVEL_PRIVATE_INTEGER) {
-        // when private, features are restricted to "only team members"
-        this.issuesAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.issuesAccessLevel,
-        );
-        this.repositoryAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.repositoryAccessLevel,
-        );
-        this.mergeRequestsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.mergeRequestsAccessLevel,
-        );
-        this.buildsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.buildsAccessLevel,
-        );
         if (
           this.packageRegistryAccessLevel === featureAccessLevel.EVERYONE ||
           (this.packageRegistryAccessLevel > featureAccessLevel.EVERYONE &&
@@ -448,102 +483,26 @@ export default {
         ) {
           this.packageRegistryAccessLevel = featureAccessLevel.PROJECT_MEMBERS;
         }
-        this.modelExperimentsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.modelExperimentsAccessLevel,
-        );
-        this.modelRegistryAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.modelRegistryAccessLevel,
-        );
-        this.wikiAccessLevel = Math.min(featureAccessLevel.PROJECT_MEMBERS, this.wikiAccessLevel);
-        this.snippetsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.snippetsAccessLevel,
-        );
-        this.analyticsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.analyticsAccessLevel,
-        );
-        this.requirementsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.requirementsAccessLevel,
-        );
-        this.securityAndComplianceAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.securityAndComplianceAccessLevel,
-        );
-        this.environmentsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.environmentsAccessLevel,
-        );
-        this.featureFlagsAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.featureFlagsAccessLevel,
-        );
-        this.infrastructureAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.infrastructureAccessLevel,
-        );
-        this.releasesAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.releasesAccessLevel,
-        );
-        this.monitorAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.monitorAccessLevel,
-        );
-        this.containerRegistryAccessLevel = Math.min(
-          featureAccessLevel.PROJECT_MEMBERS,
-          this.containerRegistryAccessLevel,
-        );
         if (this.pagesAccessLevel === featureAccessLevel.EVERYONE) {
           // When from Internal->Private narrow access for only members
           this.pagesAccessLevel = featureAccessLevel.PROJECT_MEMBERS;
         }
       } else if (oldValue === VISIBILITY_LEVEL_PRIVATE_INTEGER) {
-        // if changing away from private, make enabled features more permissive
-        if (this.issuesAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.issuesAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.repositoryAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.repositoryAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.mergeRequestsAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.mergeRequestsAccessLevel = featureAccessLevel.EVERYONE;
         if (this.packageRegistryAccessLevel === featureAccessLevel.PROJECT_MEMBERS) {
           this.packageRegistryAccessLevel =
             PACKAGE_REGISTRY_ACCESS_LEVEL_DEFAULT_BY_PROJECT_VISIBILITY[value];
         }
-        if (this.buildsAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.buildsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.wikiAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.wikiAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.modelExperimentsAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.modelExperimentsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.modelRegistryAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.modelRegistryAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.snippetsAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.snippetsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.pagesAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
+        if (this.pagesAccessLevel === featureAccessLevel.PROJECT_MEMBERS) {
           this.pagesAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.analyticsAccessLevel > featureAccessLevel.NOT_ENABLED)
-          this.analyticsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.requirementsAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
-          this.requirementsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.environmentsAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
-          this.environmentsAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.monitorAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
-          this.monitorAccessLevel = featureAccessLevel.EVERYONE;
-        if (this.containerRegistryAccessLevel === featureAccessLevel.PROJECT_MEMBERS)
-          this.containerRegistryAccessLevel = featureAccessLevel.EVERYONE;
+        }
       } else if (
         value === VISIBILITY_LEVEL_PUBLIC_INTEGER &&
         this.packageRegistryAccessLevel === featureAccessLevel.EVERYONE
       ) {
-        // eslint-disable-next-line prefer-destructuring
-        this.packageRegistryAccessLevel = FEATURE_ACCESS_LEVEL_ANONYMOUS[0];
+        this.packageRegistryAccessLevel = FEATURE_ACCESS_LEVEL_ANONYMOUS.value;
       } else if (
         value === VISIBILITY_LEVEL_INTERNAL_INTEGER &&
-        this.packageRegistryAccessLevel === FEATURE_ACCESS_LEVEL_ANONYMOUS[0]
+        this.packageRegistryAccessLevel === FEATURE_ACCESS_LEVEL_ANONYMOUS.value
       ) {
         this.packageRegistryAccessLevel = featureAccessLevel.EVERYONE;
       }
@@ -575,7 +534,7 @@ export default {
     },
     onPackageRegistryApiForEveryoneEnabledToggle(value) {
       this.packageRegistryAccessLevel = value
-        ? FEATURE_ACCESS_LEVEL_ANONYMOUS[0]
+        ? FEATURE_ACCESS_LEVEL_ANONYMOUS.value
         : this.packageRegistryAccessLevelDefault();
     },
     packageRegistryAccessLevelDefault() {
@@ -591,7 +550,7 @@ export default {
 <template>
   <div>
     <div
-      class="project-visibility-setting gl-border-1 gl-border-solid gl-border-gray-100 gl-py-3 gl-px-5"
+      class="project-visibility-setting gl-border-1 gl-border-solid gl-border-default gl-px-5 gl-py-3"
     >
       <project-setting-row
         ref="project-visibility-settings"
@@ -601,51 +560,39 @@ export default {
           s__('ProjectSettings|Manage who can see the project in the public access directory.')
         "
       >
-        <div class="project-feature-controls gl-flex gl-items-center gl-my-3 gl-mx-0">
-          <div class="select-wrapper gl-flex-grow-1">
-            <select
-              v-model="visibilityLevel"
-              :disabled="!canChangeVisibilityLevel"
-              name="project[visibility_level]"
-              class="form-control select-control"
-              data-testid="project-visibility-dropdown"
+        <div class="project-feature-controls gl-mx-0 gl-my-3 gl-flex gl-items-center">
+          <gl-form-select
+            v-model="visibilityLevel"
+            :disabled="!canChangeVisibilityLevel"
+            name="project[visibility_level]"
+            data-testid="project-visibility-dropdown"
+          >
+            <option
+              :value="$options.VISIBILITY_LEVEL_PRIVATE_INTEGER"
+              :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_PRIVATE_INTEGER)"
             >
-              <option
-                :value="$options.VISIBILITY_LEVEL_PRIVATE_INTEGER"
-                :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_PRIVATE_INTEGER)"
-              >
-                {{ s__('ProjectSettings|Private') }}
-              </option>
-              <option
-                :value="$options.VISIBILITY_LEVEL_INTERNAL_INTEGER"
-                :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_INTERNAL_INTEGER)"
-              >
-                {{ s__('ProjectSettings|Internal') }}
-              </option>
-              <option
-                :value="$options.VISIBILITY_LEVEL_PUBLIC_INTEGER"
-                :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_PUBLIC_INTEGER)"
-              >
-                {{ s__('ProjectSettings|Public') }}
-              </option>
-            </select>
-            <gl-icon
-              name="chevron-down"
-              data-hidden="true"
-              class="gl-absolute gl-top-3 gl-right-3 gl-text-gray-500"
-            />
-          </div>
+              {{ s__('ProjectSettings|Private') }}
+            </option>
+            <option
+              :value="$options.VISIBILITY_LEVEL_INTERNAL_INTEGER"
+              :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_INTERNAL_INTEGER)"
+            >
+              {{ s__('ProjectSettings|Internal') }}
+            </option>
+            <option
+              :value="$options.VISIBILITY_LEVEL_PUBLIC_INTEGER"
+              :disabled="!visibilityAllowed($options.VISIBILITY_LEVEL_PUBLIC_INTEGER)"
+            >
+              {{ s__('ProjectSettings|Public') }}
+            </option>
+          </gl-form-select>
         </div>
-        <span
-          v-if="!visibilityAllowed(visibilityLevel)"
-          class="gl-block gl-text-gray-500 gl-mt-2"
-          >{{
-            s__(
-              'ProjectSettings|Visibility options for this fork are limited by the current visibility of the source project.',
-            )
-          }}</span
-        >
-        <span class="gl-block gl-text-gray-500 gl-mt-2">
+        <span v-if="!visibilityAllowed(visibilityLevel)" class="gl-mt-2 gl-block gl-text-subtle">{{
+          s__(
+            'ProjectSettings|Visibility options for this fork are limited by the current visibility of the source project.',
+          )
+        }}</span>
+        <span class="gl-mt-2 gl-block gl-text-subtle">
           <gl-sprintf :message="visibilityLevelDescription">
             <template #membersPageLink="{ content }">
               <gl-link class="gl-link" :href="membersPagePath">{{ content }}</gl-link>
@@ -656,7 +603,7 @@ export default {
           <strong class="gl-block">{{ s__('ProjectSettings|Additional options') }}</strong>
           <label
             v-if="visibilityLevel !== $options.VISIBILITY_LEVEL_PRIVATE_INTEGER"
-            class="gl-leading-28 gl-font-normal gl-mb-0"
+            class="gl-mb-0 gl-font-normal gl-leading-28"
           >
             <input
               :value="requestAccessEnabled"
@@ -668,7 +615,7 @@ export default {
           </label>
           <label
             v-if="visibilityLevel !== $options.VISIBILITY_LEVEL_PUBLIC_INTEGER"
-            class="gl-leading-28 gl-font-normal gl-block gl-mb-0"
+            class="gl-mb-0 gl-block gl-font-normal gl-leading-28"
           >
             <input
               :value="enforceAuthChecksOnUploads"
@@ -677,7 +624,7 @@ export default {
             />
             <input v-model="enforceAuthChecksOnUploads" type="checkbox" />
             {{ s__('ProjectSettings|Require authentication to view media files') }}
-            <span class="gl-text-gray-500 gl-block gl-ml-5 -gl-mt-3">{{
+            <span class="-gl-mt-3 gl-ml-5 gl-block gl-text-subtle">{{
               s__('ProjectSettings|Prevents direct linking to potentially sensitive media files')
             }}</span>
           </label>
@@ -685,7 +632,7 @@ export default {
       </project-setting-row>
     </div>
     <div
-      class="gl-border-1 gl-border-solid gl-border-t-none gl-border-gray-100 gl-mb-5 gl-py-3 gl-px-5 gl-bg-gray-10"
+      class="gl-mb-5 gl-flex gl-flex-col gl-gap-6 gl-border-1 gl-border-t-0 gl-border-solid gl-border-default gl-bg-gray-10 gl-px-5 gl-py-3"
     >
       <project-setting-row
         ref="issues-settings"
@@ -701,10 +648,12 @@ export default {
           v-model="issuesAccessLevel"
           :label="$options.i18n.issuesLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][issues_access_level]"
         />
         <project-setting-row
           v-if="requestCveAvailable"
+          class="gl-mt-4 gl-pl-5 md:gl-pl-7"
           :help-path="cveIdRequestHelpPath"
           :help-text="$options.i18n.cve_request_toggle_label"
         >
@@ -728,10 +677,11 @@ export default {
           v-model="repositoryAccessLevel"
           :label="$options.i18n.repositoryLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][repository_access_level]"
         />
       </project-setting-row>
-      <div class="project-feature-setting-group gl-pl-5 gl-md-pl-7">
+      <div class="project-feature-setting-group gl-flex gl-flex-col gl-gap-5 gl-pl-5 md:gl-pl-7">
         <project-setting-row
           ref="merge-request-settings"
           :label="$options.i18n.mergeRequestsLabel"
@@ -742,6 +692,7 @@ export default {
             :label="$options.i18n.mergeRequestsLabel"
             :options="repoFeatureAccessLevelOptions"
             :disabled-input="!repositoryEnabled"
+            :disabled-select-input="isProjectPrivate"
             name="project[project_feature_attributes][merge_requests_access_level]"
           />
         </project-setting-row>
@@ -755,6 +706,7 @@ export default {
             :label="$options.i18n.forksLabel"
             :options="featureAccessLevelOptions"
             :disabled-input="!repositoryEnabled"
+            :disabled-select-input="isProjectPrivate"
             name="project[project_feature_attributes][forking_access_level]"
           />
         </project-setting-row>
@@ -784,7 +736,7 @@ export default {
               "
             >
               <template #link="{ content }">
-                <span class="gl-display-block">
+                <span class="gl-block">
                   <gl-link :href="lfsObjectsRemovalHelpPath" target="_blank">
                     {{ content }}
                   </gl-link>
@@ -807,6 +759,7 @@ export default {
             :label="$options.i18n.ciCdLabel"
             :options="repoFeatureAccessLevelOptions"
             :disabled-input="!repositoryEnabled"
+            :disabled-select-input="isProjectPrivate"
             name="project[project_feature_attributes][builds_access_level]"
           />
         </project-setting-row>
@@ -820,7 +773,7 @@ export default {
           s__('ProjectSettings|Every project can have its own space to store its Docker images')
         "
       >
-        <div v-if="showContainerRegistryPublicNote" class="text-muted">
+        <div v-if="showContainerRegistryPublicNote" class="gl-text-subtle">
           <gl-sprintf
             :message="
               s__(
@@ -836,6 +789,7 @@ export default {
         <project-feature-setting
           v-model="containerRegistryAccessLevel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           :label="$options.i18n.containerRegistryLabel"
           name="project[project_feature_attributes][container_registry_access_level]"
         />
@@ -849,6 +803,7 @@ export default {
           v-model="analyticsAccessLevel"
           :label="$options.i18n.analyticsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][analytics_access_level]"
         />
       </project-setting-row>
@@ -862,6 +817,7 @@ export default {
           v-model="requirementsAccessLevel"
           :label="$options.i18n.requirementsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][requirements_access_level]"
         />
       </project-setting-row>
@@ -873,6 +829,7 @@ export default {
           v-model="securityAndComplianceAccessLevel"
           :label="$options.i18n.securityAndComplianceLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][security_and_compliance_access_level]"
         />
       </project-setting-row>
@@ -885,6 +842,7 @@ export default {
           v-model="wikiAccessLevel"
           :label="$options.i18n.wikiLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][wiki_access_level]"
         />
       </project-setting-row>
@@ -897,6 +855,7 @@ export default {
           v-model="snippetsAccessLevel"
           :label="$options.i18n.snippetsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][snippets_access_level]"
         />
       </project-setting-row>
@@ -917,7 +876,7 @@ export default {
         />
         <div
           v-if="packageRegistryApiForEveryoneEnabledShown"
-          class="project-feature-setting-group gl-pl-5 gl-md-pl-7 gl-my-3"
+          class="project-feature-setting-group gl-my-3 gl-pl-5 md:gl-pl-7"
         >
           <project-setting-row
             :label="$options.i18n.packageRegistryForEveryoneLabel"
@@ -950,6 +909,7 @@ export default {
           v-model="modelExperimentsAccessLevel"
           :label="$options.i18n.modelExperimentsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][model_experiments_access_level]"
         />
       </project-setting-row>
@@ -963,6 +923,7 @@ export default {
           v-model="modelRegistryAccessLevel"
           :label="$options.i18n.modelRegistryLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][model_registry_access_level]"
         />
       </project-setting-row>
@@ -995,6 +956,7 @@ export default {
           v-model="monitorAccessLevel"
           :label="$options.i18n.monitorLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][monitor_access_level]"
         />
       </project-setting-row>
@@ -1008,6 +970,7 @@ export default {
           v-model="environmentsAccessLevel"
           :label="$options.i18n.environmentsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][environments_access_level]"
         />
       </project-setting-row>
@@ -1021,6 +984,7 @@ export default {
           v-model="featureFlagsAccessLevel"
           :label="$options.i18n.featureFlagsLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][feature_flags_access_level]"
         />
       </project-setting-row>
@@ -1034,6 +998,7 @@ export default {
           v-model="infrastructureAccessLevel"
           :label="$options.i18n.infrastructureLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][infrastructure_access_level]"
         />
       </project-setting-row>
@@ -1047,21 +1012,33 @@ export default {
           v-model="releasesAccessLevel"
           :label="$options.i18n.releasesLabel"
           :options="featureAccessLevelOptions"
+          :disabled-select-input="isProjectPrivate"
           name="project[project_feature_attributes][releases_access_level]"
         />
       </project-setting-row>
       <project-setting-row
-        v-if="showDuoSettings"
+        v-if="duoEnabledSetting"
         data-testid="duo-settings"
-        :label="$options.i18n.duoLabel"
-        :help-text="$options.i18n.duoHelpText"
-        :help-path="$options.duoHelpPath"
+        :label="duoEnabledSetting.label"
+        :help-text="duoEnabledSetting.helpText"
+        :help-path="duoEnabledSetting.helpPath"
+        :locked="duoFeaturesLocked"
       >
+        <template #label-icon>
+          <cascading-lock-icon
+            v-if="showCascadingButton"
+            data-testid="duo-cascading-lock-icon"
+            :is-locked-by-group-ancestor="cascadingSettingsData.lockedByAncestor"
+            :is-locked-by-application-settings="cascadingSettingsData.lockedByApplicationSetting"
+            :ancestor-namespace="cascadingSettingsData.ancestorNamespace"
+            class="gl-ml-1"
+          />
+        </template>
         <gl-toggle
           v-model="duoFeaturesEnabled"
-          class="gl-mt-2 gl-mb-4"
+          class="gl-mb-4 gl-mt-2"
           :disabled="duoFeaturesLocked"
-          :label="$options.i18n.duoLabel"
+          :label="duoEnabledSetting.label"
           label-position="hidden"
           name="project[project_setting_attributes][duo_features_enabled]"
           data-testid="duo_features_enabled_toggle"
@@ -1137,7 +1114,40 @@ export default {
       class="gl-mb-5"
       :full-path="confirmationPhrase"
     />
+    <secret-manager-settings
+      v-if="canManageSecretManager"
+      class="gl-mb-5"
+      :full-path="confirmationPhrase"
+    />
     <other-project-settings />
+    <project-setting-row
+      v-if="policySettingsAvailable"
+      data-testid="pipeline-execution-policy-settings"
+    >
+      <label>
+        <h5>{{ $options.i18n.pipelineExecutionPoliciesLabel }}</h5>
+        <input
+          :value="sppRepositoryPipelineAccess"
+          type="hidden"
+          name="project[project_setting_attributes][spp_repository_pipeline_access]"
+        />
+        <gl-form-checkbox
+          v-model="sppRepositoryPipelineAccess"
+          :disabled="sppRepositoryPipelineAccessLocked"
+        >
+          {{ $options.i18n.sppRepositoryPipelineAccessLabel }}
+          <template #help>
+            <gl-sprintf :message="$options.i18n.sppRepositoryPipelineAccessHelpText">
+              <template #link="{ content }">
+                <gl-link :href="$options.pipelineExecutionPoliciesHelpPath" target="_blank">{{
+                  content
+                }}</gl-link>
+              </template>
+            </gl-sprintf>
+          </template>
+        </gl-form-checkbox>
+      </label>
+    </project-setting-row>
     <confirm-danger
       v-if="isVisibilityReduced"
       button-variant="confirm"

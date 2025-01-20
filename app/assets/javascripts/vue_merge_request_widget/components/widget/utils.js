@@ -27,12 +27,12 @@ const TEXT_STYLES = {
 
 const getStartTag = (tag) => TEXT_STYLES[tag].start;
 const textStyleTags = {
-  [getStartTag('success')]: '<span class="gl-font-bold gl-text-green-500">',
+  [getStartTag('success')]: '<span class="gl-font-bold gl-text-success">',
   [getStartTag('danger')]: '<span class="gl-font-bold gl-text-red-500">',
   [getStartTag('critical')]: '<span class="gl-font-bold gl-text-red-800">',
   [getStartTag('same')]: '<span class="gl-font-bold gl-text-gray-700">',
   [getStartTag('strong')]: '<span class="gl-font-bold">',
-  [getStartTag('small')]: '<span class="gl-font-sm gl-text-gray-700">',
+  [getStartTag('small')]: '<span class="gl-text-sm gl-text-gray-700">',
 };
 
 const escapeText = (text) =>

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In this tutorial, we'll help you to get started with [Auto DevOps](../index.md)
 through an example of how to deploy an application to Google Kubernetes Engine (GKE).
@@ -17,7 +17,7 @@ You are using the GitLab native Kubernetes integration, so you don't need
 to create a Kubernetes cluster manually using the Google Cloud Platform console.
 You are creating and deploying an application that you create from a GitLab template.
 
-These instructions also work for self-managed GitLab instances.
+These instructions also work for GitLab Self-Managed.
 Ensure your own [runners are configured](../../../ci/runners/index.md) and
 [Google OAuth is enabled](../../../integration/google.md).
 
@@ -136,8 +136,8 @@ Follow these steps to configure the base domain and other settings required for 
 
 ## Enable Auto DevOps and run the pipeline
 
-While Auto DevOps is enabled by default, Auto DevOps can be disabled at both
-the instance level (for self-managed instances) and the group level. Complete
+While Auto DevOps is enabled by default, Auto DevOps can be disabled for both
+the instance (for self-managed instances) and the group. Complete
 these steps to enable Auto DevOps if it's disabled:
 
 1. On the left sidebar, select **Search or go to** and find the application project.
@@ -219,7 +219,7 @@ you to common environment tasks:
 - **Terminal** (**{terminal}**) - Opens a [web terminal](../../../ci/environments/index.md#web-terminals-deprecated)
   session inside the container where the application is running
 - **Re-deploy to environment** (**{repeat}**) - For more information, see
-  [Retrying and rolling back](../../../ci/environments/index.md#retry-or-roll-back-a-deployment)
+  [Retrying and rolling back](../../../ci/environments/deployments.md#retry-or-roll-back-a-deployment)
 - **Stop environment** (**{stop}**) - For more information, see
   [Stopping an environment](../../../ci/environments/index.md#stopping-an-environment)
 
@@ -273,13 +273,11 @@ bin/rails test test/controllers/welcome_controller_test.rb:4
 To fix the broken test:
 
 1. Return to your merge request.
-1. In the upper-right corner, select **Code**, then select **Open in Gitpod**.
+1. In the upper right corner, select **Code**, then select **Open in Web IDE**.
 1. In the left-hand directory of files, find the `test/controllers/welcome_controller_test.rb`
    file, and select it to open it.
 1. Change line 7 to say `You're on Rails! Powered by GitLab Auto DevOps.`
-1. Select **Commit**.
-1. In the left-hand column, under **Unstaged changes**, select the checkmark icon
-   (**{stage-all}**) to stage the changes.
+1. On the left sidebar, select **Source Control** (**{merge}**).
 1. Write a commit message, and select **Commit**.
 
 Return to the **Overview** page of your merge request, and you should not only

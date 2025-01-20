@@ -48,14 +48,18 @@ module CycleAnalyticsHelpers
     end
   end
 
+  def click_add_stage_button
+    click_button(s_('CreateValueStreamForm|Add a stage'))
+  end
+
   def add_custom_stage_to_form
-    page.find_button(s_('CreateValueStreamForm|Add another stage')).click
+    click_add_stage_button
 
     fill_in_custom_stage_fields
   end
 
   def add_custom_label_stage_to_form
-    page.find_button(s_('CreateValueStreamForm|Add another stage')).click
+    click_add_stage_button
 
     fill_in_custom_label_stage_fields
   end
@@ -98,7 +102,7 @@ module CycleAnalyticsHelpers
 
   def create_value_stream_aggregation(namespace)
     aggregation = Analytics::CycleAnalytics::Aggregation.safe_create_for_namespace(namespace)
-    Analytics::CycleAnalytics::AggregatorService.new(aggregation: aggregation).execute
+    Analytics::CycleAnalytics::NamespaceAggregatorService.new(aggregation: aggregation).execute
   end
 
   def select_group_and_custom_value_stream(group, custom_value_stream_name)
@@ -179,6 +183,9 @@ module CycleAnalyticsHelpers
     }
 
     mr = MergeRequests::CreateService.new(project: project, current_user: user, params: opts).execute
+
+    mr.approval_state.expire_unapproved_key! if Gitlab.ee?
+
     NewMergeRequestWorker.new.perform(mr, user)
     mr
   end
@@ -243,5 +250,13 @@ module CycleAnalyticsHelpers
 
     # this is needed for the DORA API so we have aggregated data
     ::Dora::DailyMetrics::RefreshWorker.new.perform(environment.id, Time.current.to_date.to_s) if Gitlab.ee?
+  end
+
+  def vsa_metrics_values
+    page.find("[data-testid='vsa-metrics']").all("[data-testid='displayValue']").collect(&:text)
+  end
+
+  def vsa_metrics_titles
+    page.find("[data-testid='vsa-metrics']").all("[data-testid='title-text']").collect(&:text)
   end
 end

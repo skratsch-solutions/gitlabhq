@@ -53,7 +53,7 @@ module Banzai
               end
             elsif element_node?(node)
               yield_valid_link(node) do |link, inner_html|
-                if link =~ ref_pattern_start
+                if ref_pattern_start.match?(link)
                   replace_link_node_with_href(node, index, link) do
                     object_link_filter(link, ref_pattern_start, link_content: inner_html)
                   end
@@ -98,6 +98,10 @@ module Banzai
         # Returns an Array containing all HTML nodes.
         def nodes
           @nodes ||= each_node.to_a
+        end
+
+        def nodes?
+          @nodes.present?
         end
 
         def object_class
@@ -296,6 +300,9 @@ module Banzai
 
         # Once Filter completes replacing nodes, we update nodes with @new_nodes
         def update_nodes!
+          # if we haven't loaded `nodes` yet, don't do it here
+          return unless nodes?
+
           @new_nodes.sort_by { |index, _new_nodes| -index }.each do |index, new_nodes|
             nodes[index, 1] = new_nodes
           end

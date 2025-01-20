@@ -2,7 +2,7 @@
 <script>
 import { GlLoadingIcon, GlTableLite, GlTabs, GlTab, GlBadge, GlKeysetPagination } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { formatDate } from '~/lib/utils/datetime/date_format_utility';
+import { localeDateFormat } from '~/lib/utils/datetime/locale_dateformat';
 import DeleteItem from './delete_item.vue';
 
 export default {
@@ -45,7 +45,7 @@ export default {
       return {
         text: __('New custom emoji'),
         attributes: {
-          variant: 'info',
+          variant: 'confirm',
           to: '/new',
         },
       };
@@ -63,34 +63,34 @@ export default {
       });
     },
     formatDate(date) {
-      return formatDate(date, 'mmmm d, yyyy');
+      return localeDateFormat.asDate.format(date);
     },
   },
   fields: [
     {
       key: 'emoji',
       label: __('Image'),
-      thClass: 'gl-border-t-0!',
+      thClass: '!gl-border-t-0',
       tdClass: '!gl-align-middle',
       columnWidth: '70px',
     },
     {
       key: 'name',
       label: __('Name'),
-      thClass: 'gl-border-t-0!',
+      thClass: '!gl-border-t-0',
       tdClass: '!gl-align-middle gl-font-monospace',
     },
     {
       key: 'created_at',
       label: __('Created date'),
-      thClass: 'gl-border-t-0!',
+      thClass: '!gl-border-t-0',
       tdClass: '!gl-align-middle',
       columnWidth: '25%',
     },
     {
       key: 'action',
       label: '',
-      thClass: 'gl-border-t-0!',
+      thClass: '!gl-border-t-0',
       columnWidth: '64px',
     },
   ],

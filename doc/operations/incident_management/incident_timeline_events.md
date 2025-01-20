@@ -1,6 +1,6 @@
 ---
 stage: Monitor
-group: Respond
+group: Platform Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -91,9 +91,9 @@ DETAILS:
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/365489) in GitLab 15.3 [with a flag](../../administration/feature_flags.md) named `incident_timeline_events_from_labels`. Disabled by default.
 
 FLAG:
-On self-managed GitLab, by default this feature is not available. To make it available per project or for your entire instance, an administrator can [enable the feature flag](../../administration/feature_flags.md) named `incident_timeline_events_from_labels`.
-On GitLab.com and GitLab Dedicated, this feature is not available.
-This feature is not ready for production use.
+The availability of this feature is controlled by a feature flag.
+For more information, see the history.
+This feature is available for testing, but not ready for production use.
 
 A new timeline event is created when someone adds or removes [labels](../../user/project/labels.md) on an incident.
 
@@ -126,7 +126,7 @@ Alternatively:
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/8741) in GitLab 15.9 [with a flag](../../administration/feature_flags.md) named `incident_event_tags`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/387647) in GitLab 15.9.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/387647) in GitLab 15.10.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/387647) in GitLab 15.10.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/387647) in GitLab 15.11. Feature flag `incident_event_tags` removed.
 
 [When creating an event using the form](#using-the-form) or editing it,

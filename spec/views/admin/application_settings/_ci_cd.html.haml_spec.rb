@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'admin/application_settings/_ci_cd' do
+  include RenderedHtml
+
   let_it_be(:admin) { create(:admin) }
   let_it_be(:application_setting) { build(:application_setting) }
 
@@ -24,7 +26,7 @@ RSpec.describe 'admin/application_settings/_ci_cd' do
 
   let_it_be(:default_plan_limits) { create(:plan_limits, :default_plan, **limits_attributes) }
 
-  let(:page) { Capybara::Node::Simple.new(rendered) }
+  let(:page) { rendered_html }
 
   before do
     assign(:application_setting, application_setting)
@@ -64,14 +66,20 @@ RSpec.describe 'admin/application_settings/_ci_cd' do
       expect(rendered).to have_field('Maximum number of pipeline schedules', type: 'number')
       expect(page.find_field('Maximum number of pipeline schedules').value).to eq('40')
 
-      expect(rendered).to have_field('Maximum number of DAG dependencies that a job can have', type: 'number')
-      expect(page.find_field('Maximum number of DAG dependencies that a job can have').value).to eq('50')
+      expect(rendered).to have_field('Maximum number of needs dependencies that a job can have', type: 'number')
+      expect(page.find_field('Maximum number of needs dependencies that a job can have').value).to eq('50')
 
-      expect(rendered).to have_field('Maximum number of runners registered per group', type: 'number')
-      expect(page.find_field('Maximum number of runners registered per group').value).to eq('60')
+      expect(rendered).to have_field(
+        'Maximum number of runners created or active in a group during the past seven days', type: 'number')
+      expect(
+        page.find_field('Maximum number of runners created or active in a group during the past seven days').value
+      ).to eq('60')
 
-      expect(rendered).to have_field('Maximum number of runners registered per project', type: 'number')
-      expect(page.find_field('Maximum number of runners registered per project').value).to eq('70')
+      expect(rendered).to have_field(
+        'Maximum number of runners created or active in a project during the past seven days', type: 'number')
+      expect(
+        page.find_field('Maximum number of runners created or active in a project during the past seven days').value
+      ).to eq('70')
 
       expect(rendered).to have_field(
         "Maximum number of downstream pipelines in a pipeline's hierarchy tree", type: 'number'

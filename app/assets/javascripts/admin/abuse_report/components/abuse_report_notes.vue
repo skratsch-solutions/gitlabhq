@@ -31,6 +31,7 @@ export default {
     };
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     abuseReportNotes: {
       query: abuseReportNotesQuery,
       variables() {
@@ -71,7 +72,7 @@ export default {
 
 <template>
   <div>
-    <div class="issuable-discussion gl-mb-5 gl-clearfix!">
+    <div class="issuable-discussion gl-mb-5 !gl-clearfix">
       <template v-if="initialLoading">
         <ul class="notes main-notes-list timeline">
           <skeleton-loading-container

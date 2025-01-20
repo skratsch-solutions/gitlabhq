@@ -86,7 +86,7 @@ RSpec.describe Users::Internal, feature_category: :user_profile do
   it_behaves_like 'bot users', :ghost, 'ghost', 'ghost@example.com'
   it_behaves_like 'bot users', :automation_bot, 'automation-bot', 'automation@example.com'
   it_behaves_like 'bot users', :llm_bot, 'GitLab-Llm-Bot', 'llm-bot@example.com'
-  it_behaves_like 'bot users', :duo_code_review_bot, 'GitLab-Duo-Code-Reviewer', 'duo-code-review-bot@example.com'
+  it_behaves_like 'bot users', :duo_code_review_bot, 'GitLabDuo', 'gitlab-duo@example.com'
   it_behaves_like 'bot users', :admin_bot, 'GitLab-Admin-Bot', 'admin-bot@example.com'
 
   it_behaves_like 'bot user avatars', :alert_bot, 'alert-bot.png'
@@ -94,7 +94,7 @@ RSpec.describe Users::Internal, feature_category: :user_profile do
   it_behaves_like 'bot user avatars', :security_bot, 'security-bot.png'
   it_behaves_like 'bot user avatars', :automation_bot, 'support-bot.png'
   it_behaves_like 'bot user avatars', :llm_bot, 'support-bot.png'
-  it_behaves_like 'bot user avatars', :duo_code_review_bot, 'support-bot.png'
+  it_behaves_like 'bot user avatars', :duo_code_review_bot, 'duo-bot.png'
   it_behaves_like 'bot user avatars', :admin_bot, 'admin-bot.png'
 
   context 'when bot is the support_bot' do
@@ -108,5 +108,18 @@ RSpec.describe Users::Internal, feature_category: :user_profile do
 
     it { is_expected.to be_admin }
     it { is_expected.to be_confirmed }
+  end
+
+  describe '.support_bot_id' do
+    before do
+      # Ensure support bot user is created and memoization uses the same id
+      # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+      described_class.clear_memoization(:support_bot_id)
+      described_class.support_bot_id
+    end
+
+    subject { described_class.support_bot_id }
+
+    it { is_expected.to eq(described_class.support_bot.id) }
   end
 end

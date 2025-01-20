@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Personal Productivity
 info: For assistance with this tutorial, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments-to-other-projects-and-subjects.
 ---
@@ -8,7 +8,7 @@ info: For assistance with this tutorial, see https://handbook.gitlab.com/handboo
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/9044) in GitLab 16.0.
 > - In 16.0 through 16.5, you can turn the sidebar off by selecting your avatar and turning off the **New navigation** toggle.
@@ -76,8 +76,8 @@ Select **Search or go to** and then select **Your work**:
 
 Then, on the left sidebar, **Your work** is displayed.
 
-## Go to the Admin Area
+## Go to the Admin area
 
-The Admin Area is also available on the left sidebar at the bottom:
+The **Admin** area is also available on the left sidebar at the bottom:
 
-![Admin Area](img/admin_area_v16_7.png)
+![**Admin** area](img/admin_area_v16_7.png)

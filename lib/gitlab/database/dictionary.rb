@@ -57,7 +57,7 @@ module Gitlab
 
       private_class_method def self.dictionary_paths
         ::Gitlab::Database.all_database_connections
-          .values.map(&:db_docs_dir).uniq
+                          .values.map(&:db_docs_dir).uniq
       end
 
       class Entry
@@ -102,6 +102,10 @@ module Gitlab
           data['gitlab_schema']
         end
 
+        def table_size
+          data['table_size'] || 'unknown'
+        end
+
         def sharding_key
           data['sharding_key']
         end
@@ -144,7 +148,7 @@ module Gitlab
           raise(
             GitlabSchema::UnknownSchemaError,
             "#{file_path} must specify a valid gitlab_schema for #{key_name}. " \
-            "See #{help_page_url}"
+              "See #{help_page_url}"
           )
         end
 
@@ -157,9 +161,9 @@ module Gitlab
         attr_reader :file_path, :data
 
         def help_page_url
-          # rubocop:disable Gitlab/DocUrl -- link directly to docs.gitlab.com, always
+          # rubocop:disable Gitlab/DocumentationLinks/HardcodedUrl -- link directly to docs.gitlab.com, always
           'https://docs.gitlab.com/ee/development/database/database_dictionary.html'
-          # rubocop:enable Gitlab/DocUrl
+          # rubocop:enable Gitlab/DocumentationLinks/HardcodedUrl
         end
       end
     end

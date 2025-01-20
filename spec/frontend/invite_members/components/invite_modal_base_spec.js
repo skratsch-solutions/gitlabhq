@@ -1,10 +1,10 @@
-import { GlDatepicker, GlFormGroup, GlLink, GlSprintf, GlModal, GlIcon } from '@gitlab/ui';
+import { GlDatepicker, GlFormGroup, GlSprintf, GlModal, GlIcon } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { RENDER_ALL_SLOTS_TEMPLATE, stubComponent } from 'helpers/stub_component';
 import { mockTracking, unmockTracking } from 'helpers/tracking_helper';
 import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import InviteModalBase from '~/invite_members/components/invite_modal_base.vue';
-import ContentTransition from '~/vue_shared/components/content_transition.vue';
+import ContentTransition from '~/invite_members/components/content_transition.vue';
 import RoleSelector from '~/members/components/role_selector.vue';
 import { roleDropdownItems } from '~/members/utils';
 
@@ -50,7 +50,9 @@ describe('InviteModalBase', () => {
 
   const findRoleSelector = () => wrapper.findComponent(RoleSelector);
   const findDatepicker = () => wrapper.findComponent(GlDatepicker);
-  const findLink = () => wrapper.findComponent(GlLink);
+  const findLink = () => wrapper.findByTestId('invite-modal-help-link');
+  const findAccessExpirationHelpLink = () =>
+    wrapper.findByTestId('invite-modal-access-expiration-link');
   const findIcon = () => wrapper.findComponent(GlIcon);
   const findIntroText = () => wrapper.findByTestId('modal-base-intro-text').text();
   const findMembersFormGroup = () => wrapper.findByTestId('members-form-group');
@@ -139,6 +141,20 @@ describe('InviteModalBase', () => {
       });
     });
 
+    describe('rendering the access expiration help link', () => {
+      beforeEach(() => {
+        createComponent({
+          mountFn: mountExtended,
+        });
+      });
+
+      it('renders the correct link', () => {
+        expect(findAccessExpirationHelpLink().attributes('href')).toBe(
+          propsData.accessExpirationHelpLink,
+        );
+      });
+    });
+
     describe('rendering the access expiration date field', () => {
       it('renders the datepicker', () => {
         expect(findDatepicker().exists()).toBe(true);
@@ -211,7 +227,7 @@ describe('InviteModalBase', () => {
 
     describe('when users limit is not reached', () => {
       const textRegex =
-        /Select a role\s*Read more about role permissions\s*Access expiration date \(optional\)/;
+        /Select maximum role\s*Read more about role permissions. You can change this later. Invited members are limited to this role or their current group role, whichever is lower.\s*Access expiration date \(optional\)/;
 
       beforeEach(() => {
         createComponent({ props: { reachedLimit: false }, stubs: { GlModal, GlFormGroup } });

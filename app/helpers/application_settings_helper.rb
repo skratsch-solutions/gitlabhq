@@ -8,6 +8,7 @@ module ApplicationSettingsHelper
     :password_authentication_enabled_for_web?,
     :akismet_enabled?,
     :spam_check_endpoint_enabled?,
+    :require_personal_access_token_expiry?,
     to: :'Gitlab::CurrentSettings.current_application_settings'
 
   def user_oauth_applications?
@@ -75,15 +76,15 @@ module ApplicationSettingsHelper
     restricted_visibility_levels_help_text = {
       Gitlab::VisibilityLevel::PUBLIC => s_(
         'AdminSettings|If selected, only administrators are able to create public groups, projects, ' \
-        'and snippets. Also, profiles are only visible to authenticated users.'
+          'and snippets. Also, profiles are only visible to authenticated users.'
       ),
       Gitlab::VisibilityLevel::INTERNAL => s_(
         'AdminSettings|If selected, only administrators are able to create internal groups, projects, and ' \
-        'snippets.'
+          'snippets.'
       ),
       Gitlab::VisibilityLevel::PRIVATE => s_(
         'AdminSettings|If selected, only administrators are able to create private groups, projects, and ' \
-        'snippets.'
+          'snippets.'
       )
     }
 
@@ -161,7 +162,7 @@ module ApplicationSettingsHelper
 
   def external_authorization_description
     s_("ExternalAuthorization|Access to projects is validated on an external service "\
-        "using their classification label.")
+      "using their classification label.")
   end
 
   def external_authorization_allow_token_help_text
@@ -170,7 +171,7 @@ module ApplicationSettingsHelper
 
   def external_authorization_timeout_help_text
     s_("ExternalAuthorization|Period GitLab waits for a response from the external "\
-        "service. If there is no response, access is denied. Default: 0.5 seconds.")
+      "service. If there is no response, access is denied. Default: 0.5 seconds.")
   end
 
   def external_authorization_url_help_text
@@ -181,21 +182,21 @@ module ApplicationSettingsHelper
 
   def external_authorization_client_certificate_help_text
     s_("ExternalAuthorization|Certificate used to authenticate with the external authorization service. "\
-        "If blank, the server certificate is validated when accessing over HTTPS.")
+      "If blank, the server certificate is validated when accessing over HTTPS.")
   end
 
   def external_authorization_client_key_help_text
     s_("ExternalAuthorization|Private key of client authentication certificate. "\
-        "Encrypted when stored.")
+      "Encrypted when stored.")
   end
 
   def external_authorization_client_pass_help_text
     s_("ExternalAuthorization|Passphrase required to decrypt the private key. "\
-        "Encrypted when stored.")
+      "Encrypted when stored.")
   end
 
   def external_authorization_client_url_help_text
-    s_("ExternalAuthorization|Classification label to use when requesting authorization if no specific  "\
+    s_("ExternalAuthorization|Classification label to use when requesting authorization if no specific "\
       "label is defined on the project.")
   end
 
@@ -255,6 +256,7 @@ module ApplicationSettingsHelper
       :deny_all_requests_except_allowed,
       :disable_admin_oauth_scopes,
       :disable_feed_token,
+      :disable_password_authentication_for_users_with_sso_identities,
       :disabled_oauth_sign_in_sources,
       :domain_denylist,
       :domain_denylist_enabled,
@@ -276,6 +278,7 @@ module ApplicationSettingsHelper
       :email_author_in_body,
       :email_confirmation_setting,
       :enabled_git_access_protocol,
+      :enforce_ci_inbound_job_token_scope_enabled,
       :enforce_terms,
       :error_tracking_enabled,
       :error_tracking_api_url,
@@ -316,7 +319,9 @@ module ApplicationSettingsHelper
       :jira_connect_application_key,
       :jira_connect_public_key_storage_enabled,
       :jira_connect_proxy_url,
+      :jira_connect_additional_audience_url,
       :math_rendering_limits_enabled,
+      :max_artifacts_content_include_size,
       :max_artifacts_size,
       :max_attachment_size,
       :max_decompressed_archive_size,
@@ -346,6 +351,7 @@ module ApplicationSettingsHelper
       :plantuml_url,
       :diagramsnet_enabled,
       :diagramsnet_url,
+      :pages_extra_deployments_default_expiry_seconds,
       :polling_interval_multiplier,
       :project_export_enabled,
       :prometheus_metrics_enabled,
@@ -475,6 +481,8 @@ module ApplicationSettingsHelper
       :keep_latest_artifact,
       :whats_new_variant,
       :user_deactivation_emails_enabled,
+      :resource_access_token_notify_inherited,
+      :lock_resource_access_token_notify_inherited,
       :sentry_enabled,
       :sentry_dsn,
       :sentry_clientside_dsn,
@@ -496,20 +504,26 @@ module ApplicationSettingsHelper
       :pipeline_limit_per_project_user_sha,
       :invitation_flow_enforcement,
       :can_create_group,
+      :can_create_organization,
       :bulk_import_concurrent_pipeline_batch_limit,
+      :concurrent_relation_batch_export_limit,
       :bulk_import_enabled,
       :bulk_import_max_download_file_size,
       :silent_admin_exports_enabled,
+      :allow_contribution_mapping_to_admins,
       :allow_runner_registration_token,
       :user_defaults_to_private_profile,
       :deactivation_email_additional_text,
       :projects_api_rate_limit_unauthenticated,
       :group_api_limit,
+      :group_invited_groups_api_limit,
       :group_shared_groups_api_limit,
       :group_projects_api_limit,
       :groups_api_limit,
       :project_api_limit,
+      :project_invited_groups_api_limit,
       :projects_api_limit,
+      :create_organization_api_limit,
       :user_contributed_projects_api_limit,
       :user_projects_api_limit,
       :user_starred_projects_api_limit,
@@ -526,9 +540,14 @@ module ApplicationSettingsHelper
       :downstream_pipeline_trigger_limit_per_project_user_sha,
       :asciidoc_max_includes,
       :ai_action_api_rate_limit,
-      :code_suggestions_api_rate_limit
+      :code_suggestions_api_rate_limit,
+      :require_personal_access_token_expiry,
+      :observability_backend_ssl_verification_enabled,
+      :show_migrate_from_jenkins_banner,
+      :ropc_without_client_credentials
     ].tap do |settings|
       unless Gitlab.com?
+        settings << :resource_usage_limits
         settings << :deactivate_dormant_users
         settings << :deactivate_dormant_users_period
         settings << :nuget_skip_metadata_url_validation
@@ -598,7 +617,7 @@ module ApplicationSettingsHelper
 
   def signup_form_data
     {
-      host: new_user_session_url(host: Gitlab.config.gitlab.host),
+      host: new_user_registration_url(host: Gitlab.config.gitlab.host),
       settings_path: general_admin_application_settings_path(anchor: 'js-signup-settings'),
       signup_enabled: @application_setting[:signup_enabled].to_s,
       require_admin_approval_after_user_signup: @application_setting[:require_admin_approval_after_user_signup].to_s,
@@ -618,7 +637,9 @@ module ApplicationSettingsHelper
       supported_syntax_link_url: 'https://github.com/google/re2/wiki/Syntax',
       email_restrictions: @application_setting.email_restrictions.to_s,
       after_sign_up_text: @application_setting[:after_sign_up_text].to_s,
-      pending_user_count: pending_user_count
+      pending_user_count: pending_user_count,
+      # This is going to be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/509583
+      seat_control: ''
     }
   end
 end

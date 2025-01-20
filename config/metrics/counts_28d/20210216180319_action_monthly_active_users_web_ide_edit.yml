@@ -2,7 +2,9 @@
 data_category: optional
 key_path: usage_activity_by_stage_monthly.create.action_monthly_active_users_web_ide_edit
 description: Number of users editing using web IDE
-product_group: ide
+product_group: remote_development
+product_categories:
+- web_ide
 value_type: number
 status: removed
 removed_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/111351
@@ -12,9 +14,10 @@ data_source: redis_hll
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

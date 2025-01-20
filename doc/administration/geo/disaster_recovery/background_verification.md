@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Automatic background verification ensures that the transferred data matches a
 calculated checksum. If the checksum of the data on the **primary** site matches checksum of the
@@ -31,23 +31,23 @@ the site more time before scheduling a planned failover.
 
 On the **primary** site:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Sites**.
 1. Expand **Verification information** tab for that site to view automatic checksumming
    status for repositories and wikis. Successes are shown in green, pending work
    in gray, and failures in red.
 
-   ![Verification status](img/verification_status_primary_v14_0.png)
+   ![Verification information tab with an overview of a healthy primary Geo instance.](img/verification_status_primary_v14_0.png)
 
 On the **secondary** site:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Sites**.
 1. Expand **Verification information** tab for that site to view automatic checksumming
    status for repositories and wikis. Successes are shown in green, pending work
    in gray, and failures in red.
 
-   ![Verification status](img/verification_status_secondary_v14_0.png)
+   ![Verification information tab with an overview of a healthy secondary Geo instance.](img/verification_status_secondary_v14_0.png)
 
 ## Using checksums to compare Geo sites
 
@@ -69,12 +69,12 @@ increase load and vice versa.
 
 On the **primary** site:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Sites**.
 1. Select **Edit** for the **primary** site to customize the minimum
    re-verification interval:
 
-   ![Re-verification interval](img/reverification-interval.png)
+   ![Window with configuration attributes of a Geo node.](img/reverification-interval_v11_6.png)
 
 ## Reset verification for projects where verification has failed
 
@@ -102,7 +102,7 @@ sudo gitlab-rake geo:verification:wiki:reset
 If the **primary** and **secondary** sites have a checksum verification mismatch, the cause may not be apparent. To find the cause of a checksum mismatch:
 
 1. On the **primary** site:
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. On the left sidebar, select **Overview > Projects**.
    1. Find the project that you want to check the checksum differences and
       select its name.
@@ -113,8 +113,8 @@ If the **primary** and **secondary** sites have a checksum verification mismatch
    [check that it is in a healthy state](../../gitaly/troubleshooting_gitaly_cluster.md#check-cluster-health) before
    running these commands.
 
-   The default path is `/var/opt/gitlab/git-data/repositories`. If `git_data_dirs`
-   is customized, check the directory layout on your server to be sure:
+   The default path is `/var/opt/gitlab/git-data/repositories`. If repository storages
+   are customized, check the directory layout on your server to be sure:
 
    ```shell
    cd /var/opt/gitlab/git-data/repositories

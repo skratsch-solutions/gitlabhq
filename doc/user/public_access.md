@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Projects and groups in GitLab can be private, internal, or public.
 
@@ -30,7 +30,7 @@ Users with the Guest role cannot clone the project.
 Private groups can have only private subgroups and projects.
 
 NOTE:
-When you [share a private group with another group](group/manage.md#share-a-group-with-another-group),
+When you [share a private group with another group](project/members/sharing_projects_groups.md#invite-a-group-to-a-group),
 users who don't have access to the private group can view a list of users who have access to the inviting group
 through the endpoint `https://gitlab.com/groups/<inviting-group-name>/-/autocomplete_sources/members`.
 However, the name and path of the private group are masked, and the users' membership source is not displayed.
@@ -39,9 +39,9 @@ However, the name and path of the private group are masked, and the users' membe
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
-For internal projects, **any authenticated user**, including users with the Guest role, can:
+For internal projects, any authenticated user, including users with the Guest role, can:
 
 - Clone the project.
 - View the public access directory (`/public`).
@@ -54,7 +54,7 @@ Internal groups can have internal or private subgroups and projects.
 
 ## Public projects and groups
 
-For public projects, **unauthenticated users**, including users with the Guest role, can:
+For public projects, any user, including unauthenticated users, can:
 
 - Clone the project.
 - View the public access directory (`/public`).
@@ -119,7 +119,7 @@ Prerequisites:
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed, GitLab Dedicated
+**Offering:** GitLab Self-Managed, GitLab Dedicated
 
 Administrators can restrict which visibility levels users can choose when they create a project or a snippet.
 This setting can help prevent users from publicly exposing their repositories by accident.

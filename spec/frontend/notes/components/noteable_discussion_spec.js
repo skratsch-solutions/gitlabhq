@@ -87,16 +87,23 @@ describe('noteable_discussion component', () => {
     expect(wrapper.find('.discussion-header').exists()).toBe(true);
   });
 
-  it('should hide actions when diff refs do not exists', async () => {
-    const discussion = { ...discussionMock };
-    discussion.diff_file = { ...getDiffFileMock(), diff_refs: null };
-    discussion.diff_discussion = true;
-    discussion.expanded = false;
+  describe('when diff discussion does not have a diff_file', () => {
+    it.each`
+      positionType
+      ${'file'}
+      ${'image'}
+    `('should show reply actions when position_type is $positionType', async ({ positionType }) => {
+      const discussion = { ...discussionMock, original_position: { position_type: positionType } };
+      discussion.diff_file = { ...getDiffFileMock(), diff_refs: null };
+      discussion.diff_discussion = true;
 
-    wrapper.setProps({ discussion });
-    await nextTick();
+      wrapper.setProps({ discussion });
+      await nextTick();
 
-    expect(wrapper.vm.canShowReplyActions).toBe(false);
+      const replyWrapper = wrapper.find('[data-testid="reply-wrapper"]');
+
+      expect(replyWrapper.exists()).toBe(true);
+    });
   });
 
   describe('drafts', () => {
@@ -207,23 +214,6 @@ describe('noteable_discussion component', () => {
       expect(replyWrapper.exists()).toBe(true);
       expect(replyWrapper.classes('internal-note')).toBe(true);
     });
-
-    it('should add `public-note` class when the discussion is not internal', async () => {
-      const softCopyInternalNotes = [...discussionMock.notes];
-      const mockPublicNotes = softCopyInternalNotes.splice(0, 2);
-      mockPublicNotes[0].internal = false;
-
-      const mockDiscussion = {
-        ...discussionMock,
-        notes: [...mockPublicNotes],
-      };
-      wrapper.setProps({ discussion: mockDiscussion });
-      await nextTick();
-
-      const replyWrapper = wrapper.find('[data-testid="reply-wrapper"]');
-      expect(replyWrapper.exists()).toBe(true);
-      expect(replyWrapper.classes('public-note')).toBe(true);
-    });
   });
 
   describe('for resolved thread', () => {
@@ -327,5 +317,18 @@ describe('noteable_discussion component', () => {
         expect(trimText(wrapper.text())).toContain('Please register or sign in to reply');
       });
     });
+  });
+
+  it('supports direct call on showReplyForm', async () => {
+    store = createStore();
+    const mock = jest.fn();
+    wrapper = mount(NoteableDiscussion, {
+      store,
+      propsData: { discussion: discussionMock },
+      stubs: { NoteForm: { methods: { append: mock }, render() {} } },
+    });
+    wrapper.vm.showReplyForm('foo');
+    await nextTick();
+    expect(mock).toHaveBeenCalledWith('foo');
   });
 });

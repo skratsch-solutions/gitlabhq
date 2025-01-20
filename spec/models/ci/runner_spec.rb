@@ -2,8 +2,31 @@
 
 require 'spec_helper'
 
-RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
+RSpec.describe Ci::Runner, type: :model, factory_default: :keep, feature_category: :runner do
   include StubGitlabCalls
+
+  let_it_be(:organization, freeze: true) { create_default(:organization) }
+  let_it_be(:group) { create(:group) }
+  let_it_be(:project) { create(:project, group: group) }
+  let_it_be(:other_project) { create(:project, group: group) }
+
+  describe 'associations' do
+    it { is_expected.to belong_to(:creator).class_name('User').optional }
+
+    it { is_expected.to have_many(:runner_managers).inverse_of(:runner) }
+    it { is_expected.to have_many(:builds) }
+    it { is_expected.to have_one(:last_build).class_name('Ci::Build') }
+    it { is_expected.to have_many(:running_builds).inverse_of(:runner) }
+
+    it { is_expected.to have_many(:runner_projects).inverse_of(:runner) }
+    it { is_expected.to have_many(:projects).through(:runner_projects) }
+
+    it { is_expected.to have_many(:runner_namespaces).inverse_of(:runner) }
+    it { is_expected.to have_many(:groups).through(:runner_namespaces) }
+    it { is_expected.to have_one(:owner_runner_namespace).class_name('Ci::RunnerNamespace') }
+
+    it { is_expected.to have_many(:tag_links).class_name('Ci::RunnerTagging').inverse_of(:runner) }
+  end
 
   it_behaves_like 'having unique enum values'
 
@@ -24,7 +47,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     # validate that at least groups association does not generate cross-DB
     # queries.
     it 'does not create a cross-database query' do
-      runner = create(:ci_runner, :group)
+      runner = create(:ci_runner, :group, groups: [group])
 
       with_cross_joins_prevented do
         expect(runner.groups.count).to eq(1)
@@ -34,7 +57,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
 
   describe '#owner_runner_namespace' do
     it 'considers the first group' do
-      runner = create(:ci_runner, :group)
+      runner = create(:ci_runner, :group, groups: [group])
 
       with_cross_joins_prevented do
         expect(runner.owner_runner_namespace.namespace_id).to eq(runner.groups.first.id)
@@ -43,7 +66,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe 'projects association' do
-    let(:runner) { create(:ci_runner, :project) }
+    let(:runner) { create(:ci_runner, :project, projects: [project]) }
 
     it 'does not create a cross-database query' do
       with_cross_joins_prevented do
@@ -56,15 +79,17 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     let(:tag_name) { 'tag123' }
 
     context 'on save' do
-      let_it_be_with_reload(:runner) { create(:ci_runner) }
+      let(:runner) { create(:ci_runner, :group, groups: [group]) }
 
       before do
         runner.tag_list = [tag_name]
       end
 
       context 'tag does not exist' do
+        let(:tag_name) { 'new-tag' }
+
         it 'creates a tag' do
-          expect { runner.save! }.to change(ActsAsTaggableOn::Tag, :count).by(1)
+          expect { runner.save! }.to change(Ci::Tag, :count).by(1)
         end
 
         it 'creates an association to the tag' do
@@ -76,17 +101,52 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
 
       context 'tag already exists' do
         before do
-          ActsAsTaggableOn::Tag.create!(name: tag_name)
+          Ci::Tag.create!(name: tag_name)
         end
 
         it 'does not create a tag' do
-          expect { runner.save! }.not_to change(ActsAsTaggableOn::Tag, :count)
+          expect { runner.save! }.not_to change(Ci::Tag, :count)
         end
 
         it 'creates an association to the tag' do
           runner.save!
 
           expect(described_class.tagged_with(tag_name)).to include(runner)
+        end
+      end
+
+      context 'when runner is not yet synced to partitioned table' do
+        let(:connection) { Ci::ApplicationRecord.connection }
+
+        before do
+          # Simulate legacy runners not present in sharded table (created when FK was not present)
+          runner
+
+          connection.execute(<<~SQL)
+            DELETE FROM ci_runners_e59bb2812d;
+          SQL
+        end
+
+        context 'tag does not exist' do
+          before do
+            runner.tag_list = [tag_name]
+          end
+
+          it 'creates a tag and syncs runner to partitioned table' do
+            expect { runner.save! }
+              .to change(Ci::Tag, :count).by(1)
+              .and change { partitioned_runner_exists?(runner) }.from(false).to(true)
+          end
+        end
+
+        private
+
+        def partitioned_runner_exists?(runner)
+          result = connection.execute(<<~SQL)
+            SELECT COUNT(*) FROM ci_runners_e59bb2812d WHERE id = #{runner.id};
+          SQL
+
+          result.first['count'].positive?
         end
       end
     end
@@ -98,39 +158,48 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     it { is_expected.to validate_presence_of(:access_level) }
     it { is_expected.to validate_presence_of(:runner_type) }
     it { is_expected.to validate_presence_of(:registration_type) }
+    it { is_expected.to validate_presence_of(:sharding_key_id) }
+
+    context 'when runner is instance type' do
+      let(:runner) { build(:ci_runner, :instance_type) }
+
+      it { expect(runner).to be_valid }
+
+      context 'when sharding_key_id is present' do
+        let(:runner) { build(:ci_runner, :instance_type, sharding_key_id: non_existing_record_id) }
+
+        it 'is invalid' do
+          expect(runner).to be_invalid
+          expect(runner.errors.full_messages).to contain_exactly('Runner cannot have sharding_key_id assigned')
+        end
+      end
+    end
 
     context 'when runner is not allowed to pick untagged jobs' do
       context 'when runner does not have tags' do
         let(:runner) { build(:ci_runner, tag_list: [], run_untagged: false) }
 
-        it 'is not valid' do
-          expect(runner).to be_invalid
-        end
+        it { expect(runner).to be_invalid }
       end
 
       context 'when runner has too many tags' do
         let(:runner) { build(:ci_runner, tag_list: (1..::Ci::Runner::TAG_LIST_MAX_LENGTH + 1).map { |i| "tag#{i}" }, run_untagged: false) }
 
-        it 'is not valid' do
-          expect(runner).to be_invalid
-        end
+        it { expect(runner).to be_invalid }
       end
 
       context 'when runner has tags' do
         let(:runner) { build(:ci_runner, tag_list: ['tag'], run_untagged: false) }
 
-        it 'is valid' do
-          expect(runner).to be_valid
-        end
+        it { expect(runner).to be_valid }
       end
     end
 
     describe '#exactly_one_group' do
-      let(:group) { create(:group) }
       let(:runner) { create(:ci_runner, :group, groups: [group]) }
 
       it 'disallows assigning group if already assigned to a group' do
-        runner.runner_namespaces << create(:ci_runner_namespace)
+        runner.runner_namespaces << create(:ci_runner_namespace, runner: runner)
 
         expect(runner).not_to be_valid
         expect(runner.errors.full_messages).to include('Runner needs to be assigned to exactly one group')
@@ -138,11 +207,8 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
 
     context 'runner_type validations' do
-      let_it_be(:group) { create(:group) }
-      let_it_be(:project) { create(:project) }
-
       it 'disallows assigning group to project_type runner' do
-        project_runner = build(:ci_runner, :project, groups: [group])
+        project_runner = build(:ci_runner, :project, :without_projects, groups: [group])
 
         expect(project_runner).not_to be_valid
         expect(project_runner.errors.full_messages).to include('Runner cannot have groups assigned')
@@ -206,6 +272,35 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
         expect(runner.errors.full_messages).to include('Public projects minutes cost factor needs to be non-negative')
       end
     end
+
+    describe '#no_allowed_plan_ids' do
+      let_it_be(:default_plan) { create(:default_plan) }
+
+      context 'when runner is instance type' do
+        let(:runner) { create(:ci_runner, :instance) }
+
+        it 'allows assign allowed_plans' do
+          runner.allowed_plan_ids = [default_plan.id]
+
+          expect(runner).to be_valid
+          puts runner.errors.full_messages
+        end
+      end
+
+      context 'when runner is not an instance type' do
+        let(:runner) { create(:ci_runner, :group, groups: [group]) }
+
+        subject { runner.allowed_plan_ids = [default_plan.id] }
+
+        it 'allows assign allowed_plans' do
+          runner.allowed_plan_ids = [default_plan.id]
+
+          expect(runner).not_to be_valid
+          expect(runner.errors.full_messages).to include('Runner cannot have allowed plans assigned')
+          puts runner.errors.full_messages
+        end
+      end
+    end
   end
 
   describe 'constraints' do
@@ -239,9 +334,24 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
   end
 
+  describe '#owner' do
+    subject(:owner) { runner.owner }
+
+    context 'when runner does not have creator_id' do
+      let_it_be(:runner) { create(:ci_runner, :instance) }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when runner has creator' do
+      let_it_be(:creator) { create(:user) }
+      let_it_be(:runner) { create(:ci_runner, creator: creator) }
+
+      it { is_expected.to eq creator }
+    end
+  end
+
   describe '.instance_type' do
-    let(:group) { create(:group) }
-    let(:project) { create(:project) }
     let!(:group_runner) { create(:ci_runner, :group, groups: [group]) }
     let!(:project_runner) { create(:ci_runner, :project, projects: [project]) }
     let!(:shared_runner) { create(:ci_runner, :instance) }
@@ -258,7 +368,6 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       own_runner = create(:ci_runner, :project, projects: [own_project])
 
       # other
-      other_project = create(:project)
       create(:ci_runner, :project, projects: [other_project])
 
       expect(described_class.belonging_to_project(own_project.id)).to eq [own_runner]
@@ -390,25 +499,34 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe '#display_name' do
-    it 'returns the description if it has a value' do
-      runner = build(:ci_runner, description: 'Linux/Ruby-1.9.3-p448')
-      expect(runner.display_name).to eq 'Linux/Ruby-1.9.3-p448'
+    let(:args) { {} }
+    let(:runner) { build(:ci_runner, **args) }
+
+    subject(:display_name) { runner.display_name }
+
+    it 'returns the default description' do
+      is_expected.to eq runner.description
     end
 
-    it 'returns the token if it does not have a description' do
-      runner = create(:ci_runner)
-      expect(runner.display_name).to eq runner.description
+    context 'when description has a value' do
+      let(:args) { { description: 'Linux/Ruby-1.9.3-p448' } }
+
+      it 'returns the specified description' do
+        is_expected.to eq args[:description]
+      end
     end
 
-    it 'returns the token if the description is an empty string' do
-      runner = build(:ci_runner, description: '', token: 'token')
-      expect(runner.display_name).to eq runner.token
+    context 'when description is empty and token have a value' do
+      let(:args) { { description: '', token: 'token' } }
+
+      it 'returns the short_sha' do
+        is_expected.to eq runner.short_sha
+      end
     end
   end
 
   describe '#only_for' do
-    let_it_be_with_reload(:runner) { create(:ci_runner, :project) }
-    let_it_be(:project) { runner.projects.first }
+    let_it_be_with_reload(:runner) { create(:ci_runner, :project, projects: [project]) }
 
     subject { runner.only_for?(project) }
 
@@ -423,7 +541,6 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
 
     context 'with runner having multiple projects' do
-      let_it_be(:other_project) { create(:project) }
       let_it_be(:runner_project) { create(:ci_runner_project, project: other_project, runner: runner) }
 
       it { is_expected.to be_falsey }
@@ -431,49 +548,52 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe '#assign_to' do
-    let(:project) { create(:project) }
+    subject(:assign_to) { runner.assign_to(project) }
 
-    subject { runner.assign_to(project) }
-
-    context 'with shared_runner' do
+    context 'with instance runner' do
       let(:runner) { create(:ci_runner, :instance) }
 
       it 'raises an error' do
-        expect { subject }
+        expect { assign_to }
           .to raise_error(ArgumentError, 'Transitioning an instance runner to a project runner is not supported')
       end
     end
 
     context 'with group runner' do
-      let(:group) { create(:group) }
       let(:runner) { create(:ci_runner, :group, groups: [group]) }
 
       it 'raises an error' do
-        expect { subject }
+        expect { assign_to }
           .to raise_error(ArgumentError, 'Transitioning a group runner to a project runner is not supported')
       end
     end
 
     context 'with project runner' do
-      let(:other_project) { create(:project) }
       let(:runner) { create(:ci_runner, :project, projects: [other_project]) }
 
       it 'assigns runner to project' do
-        expect(subject).to be_truthy
+        expect(assign_to).to be_truthy
 
         expect(runner).to be_project_type
         expect(runner.runner_projects.pluck(:project_id)).to contain_exactly(project.id, other_project.id)
       end
+
+      it 'does not change sharding_key_id or owner' do
+        expect { assign_to }
+          .to not_change { runner.sharding_key_id }.from(other_project.id)
+          .and not_change { runner.owner }.from(other_project)
+      end
     end
   end
 
-  describe '.recent' do
+  describe '.recent', :freeze_time do
     subject { described_class.recent }
 
     let!(:runner1) { create(:ci_runner, :unregistered, :created_within_stale_deadline) }
     let!(:runner2) { create(:ci_runner, :unregistered, :stale) }
     let!(:runner3) { create(:ci_runner, :created_within_stale_deadline, :contacted_within_stale_deadline) }
     let!(:runner4) { create(:ci_runner, :stale, :contacted_within_stale_deadline) }
+    let!(:runner5) { create(:ci_runner, :stale) }
 
     it { is_expected.to contain_exactly(runner1, runner3, runner4) }
   end
@@ -481,14 +601,14 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   describe '.active' do
     subject { described_class.active(active_value) }
 
-    let_it_be(:runner1) { create(:ci_runner, :instance, active: false) }
+    let_it_be(:runner1) { create(:ci_runner, :instance, :paused) }
     let_it_be(:runner2) { create(:ci_runner, :instance) }
 
     context 'with active_value set to false' do
       let(:active_value) { false }
 
-      it 'returns inactive runners' do
-        is_expected.to match_array([runner1])
+      it 'returns paused runners' do
+        is_expected.to contain_exactly(runner1)
       end
     end
 
@@ -496,7 +616,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       let(:active_value) { true }
 
       it 'returns active runners' do
-        is_expected.to match_array([runner2])
+        is_expected.to contain_exactly(runner2)
       end
     end
   end
@@ -504,10 +624,10 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   describe '.paused' do
     subject(:paused) { described_class.paused }
 
-    let!(:runner1) { create(:ci_runner, :instance, active: false) }
+    let!(:runner1) { create(:ci_runner, :instance, :paused) }
     let!(:runner2) { create(:ci_runner, :instance) }
 
-    it 'returns inactive runners' do
+    it 'returns paused runners' do
       expect(described_class).to receive(:active).with(false).and_call_original
 
       expect(paused).to contain_exactly(runner1)
@@ -515,8 +635,8 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe '.with_creator_id' do
-    let_it_be(:admin) { create(:admin, username: 'root') }
-    let_it_be(:user2) { create(:user, username: 'user2') }
+    let_it_be(:admin) { create(:admin) }
+    let_it_be(:user2) { create(:user) }
 
     let_it_be(:user_runner1) { create(:ci_runner, creator: user2) }
     let_it_be(:admin_runner1) { create(:ci_runner, creator: admin) }
@@ -526,6 +646,18 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     subject { described_class.with_creator_id(admin.id.to_s) }
 
     it { is_expected.to contain_exactly(admin_runner1, admin_runner2) }
+  end
+
+  describe '.created_by_admins' do
+    let_it_be(:admin) { create(:admin) }
+    let_it_be(:user2) { create(:user) }
+    let_it_be(:admin_runner) { create(:ci_runner, creator: admin) }
+    let_it_be(:other_runner) { create(:ci_runner, creator: user2) }
+    let_it_be(:project_runner) { create(:ci_runner, :project, :without_projects, creator: admin) }
+
+    subject { described_class.created_by_admins }
+
+    it { is_expected.to contain_exactly(admin_runner, project_runner) }
   end
 
   describe '.with_version_prefix' do
@@ -615,8 +747,8 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       it { is_expected.to be_falsey }
     end
 
-    context 'contacted now' do
-      let(:runner) { build(:ci_runner, :online) }
+    context 'almost offline' do
+      let(:runner) { build(:ci_runner, :almost_offline) }
 
       it { is_expected.to be_truthy }
     end
@@ -682,12 +814,17 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     using RSpec::Parameterized::TableSyntax
 
     let_it_be(:pipeline) { create(:ci_pipeline) }
+    let_it_be_with_refind(:build) { create(:ci_build, pipeline: pipeline) }
+    let_it_be(:runner_project) { build.project }
+    let_it_be_with_refind(:runner) { create(:ci_runner, :project, projects: [runner_project]) }
 
-    let(:build) { create(:ci_build, pipeline: pipeline) }
-    let(:runner_project) { build.project }
-    let(:runner) { create(:ci_runner, :project, projects: [runner_project], tag_list: tag_list, run_untagged: run_untagged) }
     let(:tag_list) { [] }
     let(:run_untagged) { true }
+
+    before do
+      runner.tag_list = tag_list
+      runner.run_untagged = run_untagged
+    end
 
     subject { runner.matches_build?(build) }
 
@@ -837,75 +974,79 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe '#status', :freeze_time do
+    let(:runner) { build(:ci_runner, *Array.wrap(traits)) }
+
     subject { runner.status }
 
-    context 'never connected' do
-      let(:runner) { build(:ci_runner, :unregistered, :stale) }
+    context 'stale, never contacted' do
+      let(:traits) { %i[unregistered stale] }
 
       it { is_expected.to eq(:stale) }
 
-      context 'created recently' do
-        let(:runner) { build(:ci_runner, :unregistered, created_at: 1.day.ago) }
+      context 'created recently, never contacted' do
+        let(:traits) { %i[unregistered online] }
 
         it { is_expected.to eq(:never_contacted) }
       end
     end
 
-    context 'inactive but online' do
-      let(:runner) { build(:ci_runner, :inactive, :online) }
+    context 'online, paused' do
+      let(:traits) { %i[paused online] }
 
       it { is_expected.to eq(:online) }
     end
 
-    context 'contacted 1s ago' do
-      let(:runner) { build(:ci_runner, contacted_at: 1.second.ago) }
+    context 'online' do
+      let(:traits) { :almost_offline }
 
       it { is_expected.to eq(:online) }
     end
 
-    context 'contacted recently' do
-      let(:runner) { build(:ci_runner, :contacted_within_stale_deadline) }
+    context 'offline' do
+      let(:traits) { :offline }
 
       it { is_expected.to eq(:offline) }
     end
 
-    context 'contacted long time ago' do
-      let(:runner) { build(:ci_runner, :stale) }
+    context 'stale' do
+      let(:traits) { :stale }
 
       it { is_expected.to eq(:stale) }
     end
   end
 
   describe '#deprecated_rest_status', :freeze_time do
+    let(:runner) { build(:ci_runner, *Array.wrap(traits)) }
+
     subject { runner.deprecated_rest_status }
 
     context 'never connected' do
-      let(:runner) { build(:ci_runner, :unregistered) }
+      let(:traits) { :unregistered }
 
       it { is_expected.to eq(:never_contacted) }
     end
 
     context 'contacted recently' do
-      let(:runner) { build(:ci_runner, :online) }
+      let(:traits) { :almost_offline }
 
       it { is_expected.to eq(:online) }
     end
 
     context 'contacted long time ago' do
-      let(:runner) { build(:ci_runner, :stale) }
+      let(:traits) { :stale }
 
       it { is_expected.to eq(:stale) }
     end
 
-    context 'inactive' do
-      let(:runner) { build(:ci_runner, :inactive, :online) }
+    context 'paused' do
+      let(:traits) { %i[paused online] }
 
       it { is_expected.to eq(:paused) }
     end
   end
 
   describe '#tick_runner_queue' do
-    let(:runner) { create(:ci_runner) }
+    let(:runner) { build(:ci_runner) }
 
     it 'returns a new last_update value' do
       expect(runner.tick_runner_queue).not_to be_empty
@@ -942,7 +1083,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       let!(:last_update) { runner.ensure_runner_queue_value }
 
       before do
-        Ci::Runners::UpdateRunnerService.new(runner).execute(description: 'new runner')
+        Ci::Runners::UpdateRunnerService.new(nil, runner).execute(description: 'new runner')
       end
 
       it 'sets a new last_update value' do
@@ -976,7 +1117,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
 
     context 'when database was updated recently' do
-      let(:runner) { create(:ci_runner, :online) }
+      let(:runner) { create(:ci_runner, :almost_offline) }
 
       it 'updates cache' do
         expect_redis_update
@@ -1077,34 +1218,66 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   end
 
   describe 'Project-related queries' do
-    let_it_be(:project1) { create(:project) }
-    let_it_be(:project2) { create(:project) }
+    let_it_be(:projects) { create_list(:project, 2, group: group) }
 
-    describe '#owner_project' do
-      subject(:owner_project) { project_runner.owner_project }
+    describe '#owner' do
+      let(:project_runner) { create(:ci_runner, :project, projects: associated_projects) }
+
+      subject(:owner) { project_runner.owner }
 
       context 'with project1 as first project associated with runner' do
-        let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project1, project2]) }
+        let(:associated_projects) { projects }
 
-        it { is_expected.to eq project1 }
+        it { is_expected.to eq projects.first }
       end
 
       context 'with project2 as first project associated with runner' do
-        let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project2, project1]) }
+        let(:associated_projects) { projects.reverse }
 
-        it { is_expected.to eq project2 }
+        it { is_expected.to eq projects.last }
+      end
+
+      context 'when owner project is to be deleted' do
+        let_it_be_with_refind(:owner_project) { create(:project, group: group) }
+
+        let(:associated_projects) { [owner_project, other_project, projects.last] }
+
+        specify 'projects are associated in the expected order' do
+          expect(
+            project_runner.runner_projects.order(id: :asc).pluck(:project_id)
+          ).to eq associated_projects.map(&:id)
+        end
+
+        it { is_expected.to eq owner_project }
+
+        context 'and owner project is deleted' do
+          before do
+            owner_project.destroy!
+          end
+
+          it { is_expected.to eq other_project }
+          it { is_expected.not_to eq projects.last }
+
+          context 'and projects are associated in different order' do
+            let(:associated_projects) { [owner_project, projects.last, other_project] }
+
+            it 'is not sensitive to project ID order' do
+              is_expected.to eq projects.last
+            end
+          end
+        end
       end
     end
 
     describe '#belongs_to_one_project?' do
       it "returns false if there are two projects runner is assigned to" do
-        runner = create(:ci_runner, :project, projects: [project1, project2])
+        runner = create(:ci_runner, :project, projects: projects)
 
         expect(runner.belongs_to_one_project?).to be_falsey
       end
 
       it 'returns true if there is only one project runner is assigned to' do
-        runner = create(:ci_runner, :project, projects: [project1])
+        runner = create(:ci_runner, :project, projects: projects.take(1))
 
         expect(runner.belongs_to_one_project?).to be_truthy
       end
@@ -1113,7 +1286,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     describe '#belongs_to_more_than_one_project?' do
       context 'project runner' do
         context 'two projects assigned to runner' do
-          let(:runner) { create(:ci_runner, :project, projects: [project1, project2]) }
+          let(:runner) { create(:ci_runner, :project, projects: projects) }
 
           it 'returns true' do
             expect(runner.belongs_to_more_than_one_project?).to be_truthy
@@ -1121,7 +1294,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
         end
 
         context 'one project assigned to runner' do
-          let(:runner) { create(:ci_runner, :project, projects: [project1]) }
+          let(:runner) { create(:ci_runner, :project, projects: projects.take(1)) }
 
           it 'returns false' do
             expect(runner.belongs_to_more_than_one_project?).to be_falsey
@@ -1130,7 +1303,6 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       end
 
       context 'group runner' do
-        let(:group) { create(:group) }
         let(:runner) { create(:ci_runner, :group, groups: [group]) }
 
         it 'returns false' do
@@ -1156,6 +1328,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
 
       expect(runner.tags.count).to eq(1)
       expect(runner.tags.first.name).to eq('tag')
+      expect(runner.tag_links.count).to eq(1)
     end
 
     it 'strips tags' do
@@ -1234,7 +1407,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   describe '#pick_build!' do
     let_it_be(:runner) { create(:ci_runner) }
 
-    let(:build) { create(:ci_build) }
+    let(:build) { FactoryBot.build(:ci_build) }
 
     context 'runner can pick the build' do
       it 'calls #tick_runner_queue' do
@@ -1309,7 +1482,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     context 'deduplicates on runner_type' do
       before do
         create_list(:ci_runner, 2, :instance)
-        create_list(:ci_runner, 2, :project)
+        create_list(:ci_runner, 2, :project, projects: [project])
       end
 
       it 'creates two matchers' do
@@ -1384,6 +1557,19 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       end
     end
 
+    context 'deduplicates on allowed_plan_ids' do
+      before do
+        create_list(:ci_runner, 2, allowed_plan_ids: [1, 2])
+        create_list(:ci_runner, 2, allowed_plan_ids: [3, 4])
+      end
+
+      it 'creates two matchers' do
+        expect(matchers.size).to eq(2)
+
+        expect(matchers.map(&:allowed_plan_ids)).to match_array([[1, 2], [3, 4]])
+      end
+    end
+
     context 'with runner_ids' do
       before do
         create_list(:ci_runner, 2)
@@ -1392,14 +1578,14 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       it 'includes runner_ids' do
         expect(matchers.size).to eq(1)
 
-        expect(matchers.first.runner_ids).to match_array(described_class.all.pluck(:id))
+        expect(matchers.first.runner_ids).to match_array(described_class.all.ids)
       end
     end
   end
 
   describe '#runner_matcher' do
     let(:runner) do
-      build_stubbed(:ci_runner, :instance_type, tag_list: %w[tag1 tag2])
+      build_stubbed(:ci_runner, tag_list: %w[tag1 tag2], allowed_plan_ids: [1, 2])
     end
 
     subject(:matcher) { runner.runner_matcher }
@@ -1417,6 +1603,8 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     it { expect(matcher.access_level).to eq(runner.access_level) }
 
     it { expect(matcher.tag_list).to match_array(runner.tag_list) }
+
+    it { expect(matcher.allowed_plan_ids).to match_array(runner.allowed_plan_ids) }
   end
 
   describe '#uncached_contacted_at' do
@@ -1578,22 +1766,42 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
         end
       end
     end
+
+    describe '#owner' do
+      subject(:owner) { runner.owner }
+
+      let_it_be_with_refind(:runner) { create(:ci_runner, :group, groups: [group]) }
+
+      it { is_expected.to eq group }
+
+      context 'when sharding_key_id points to non-existing group' do
+        before do
+          runner.update_columns(sharding_key_id: non_existing_record_id)
+        end
+
+        it { is_expected.to be_nil }
+      end
+    end
   end
 
   describe '#short_sha' do
     subject(:short_sha) { runner.short_sha }
 
     context 'when registered via command-line' do
-      let(:runner) { create(:ci_runner) }
+      let_it_be(:runner) { create(:ci_runner) }
 
       specify { expect(runner.token).not_to start_with(described_class::CREATED_RUNNER_TOKEN_PREFIX) }
+      it { is_expected.to match(/[0-9a-zA-Z_-]{8}/) }
+      it { is_expected.not_to start_with('t1_') }
       it { is_expected.not_to start_with(described_class::CREATED_RUNNER_TOKEN_PREFIX) }
     end
 
     context 'when creating new runner via UI' do
-      let(:runner) { create(:ci_runner, registration_type: :authenticated_user) }
+      let_it_be(:runner) { create(:ci_runner, registration_type: :authenticated_user) }
 
       specify { expect(runner.token).to start_with(described_class::CREATED_RUNNER_TOKEN_PREFIX) }
+      it { is_expected.to match(/[0-9a-zA-Z_-]{8}/) }
+      it { is_expected.not_to start_with('t1_') }
       it { is_expected.not_to start_with(described_class::CREATED_RUNNER_TOKEN_PREFIX) }
     end
   end
@@ -1601,20 +1809,57 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
   describe '#token' do
     subject(:token) { runner.token }
 
+    let(:runner_type) { :instance_type }
+    let(:attrs) { {} }
+    let(:runner) { create(:ci_runner, runner_type, registration_type: registration_type, **attrs) }
+
     context 'when runner is registered' do
-      let(:runner) { create(:ci_runner) }
+      let(:registration_type) { :registration_token }
 
       it { is_expected.not_to start_with('glrt-') }
+      it { is_expected.to start_with('t1_') }
+
+      context 'when runner is group type' do
+        let(:runner_type) { :group_type }
+        let(:attrs) { { groups: [group] } }
+
+        it { is_expected.to start_with('t2_') }
+      end
+
+      context 'when runner is project type' do
+        let(:runner_type) { :project_type }
+        let(:attrs) { { projects: [project] } }
+
+        it { is_expected.to start_with('t3_') }
+      end
     end
 
     context 'when runner is created via UI' do
-      let(:runner) { create(:ci_runner, registration_type: :authenticated_user) }
+      let(:registration_type) { :authenticated_user }
 
-      it { is_expected.to start_with('glrt-') }
+      it { is_expected.to start_with('glrt-t1_') }
+
+      context 'when runner is group type' do
+        let(:runner_type) { :group_type }
+        let(:attrs) { { groups: [group] } }
+
+        it { is_expected.to start_with('glrt-t2_') }
+      end
+
+      context 'when runner is project type' do
+        let(:runner_type) { :project_type }
+        let(:attrs) { { projects: [project] } }
+
+        it { is_expected.to start_with('glrt-t3_') }
+      end
     end
   end
 
   describe '#token_expires_at', :freeze_time do
+    let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 6.days.to_i) }
+    let_it_be(:group_with_expiration) { create(:group, namespace_settings: group_settings) }
+    let_it_be(:existing_runner) { create(:ci_runner) }
+
     shared_examples 'expiring token' do |interval:|
       it 'expires' do
         expect(runner.token_expires_at).to eq(interval.from_now)
@@ -1628,7 +1873,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
 
     context 'no expiration' do
-      let(:runner) { create(:ci_runner) }
+      let(:runner) { existing_runner }
 
       it_behaves_like 'non-expiring token'
     end
@@ -1648,7 +1893,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
         stub_application_setting(group_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let(:runner) { create(:ci_runner) }
+      let(:runner) { existing_runner }
 
       it_behaves_like 'non-expiring token'
     end
@@ -1658,86 +1903,31 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
         stub_application_setting(project_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let(:runner) { create(:ci_runner) }
+      let(:runner) { existing_runner }
 
       it_behaves_like 'non-expiring token'
     end
 
     context 'group expiration' do
-      let(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 6.days.to_i) }
-      let(:group) { create(:group, namespace_settings: group_settings) }
-      let(:runner) { create(:ci_runner, :group, groups: [group]) }
+      let(:runner) { create(:ci_runner, :group, groups: [group_with_expiration]) }
 
       it_behaves_like 'expiring token', interval: 6.days
-    end
 
-    context 'human-readable group expiration' do
-      let(:group_settings) { create(:namespace_settings, runner_token_expiration_interval_human_readable: '7 days') }
-      let(:group) { create(:group, namespace_settings: group_settings) }
-      let(:runner) { create(:ci_runner, :group, groups: [group]) }
-
-      it_behaves_like 'expiring token', interval: 7.days
-    end
-
-    context 'project expiration' do
-      let(:project) { create(:project, runner_token_expiration_interval: 4.days.to_i).tap(&:save!) }
-      let(:runner) { create(:ci_runner, :project, projects: [project]) }
-
-      it_behaves_like 'expiring token', interval: 4.days
-    end
-
-    context 'human-readable project expiration' do
-      let(:project) { create(:project, runner_token_expiration_interval_human_readable: '5 days').tap(&:save!) }
-      let(:runner) { create(:ci_runner, :project, projects: [project]) }
-
-      it_behaves_like 'expiring token', interval: 5.days
-    end
-
-    context 'multiple projects' do
-      let(:project1) { create(:project, runner_token_expiration_interval: 8.days.to_i).tap(&:save!) }
-      let(:project2) { create(:project, runner_token_expiration_interval: 7.days.to_i).tap(&:save!) }
-      let(:project3) { create(:project, runner_token_expiration_interval: 9.days.to_i).tap(&:save!) }
-      let(:runner) { create(:ci_runner, :project, projects: [project1, project2, project3]) }
-
-      it_behaves_like 'expiring token', interval: 7.days
-    end
-
-    context 'with project runner token expiring' do
-      let_it_be(:project) { create(:project, runner_token_expiration_interval: 4.days.to_i).tap(&:save!) }
-
-      context 'project overrides system' do
+      context 'with human-readable group expiration' do
         before do
-          stub_application_setting(project_runner_token_expiration_interval: 5.days.to_i)
+          group_with_expiration.runner_token_expiration_interval_human_readable = '7 days'
+          group_with_expiration.save!
         end
 
-        let(:runner) { create(:ci_runner, :project, projects: [project]) }
-
-        it_behaves_like 'expiring token', interval: 4.days
+        it_behaves_like 'expiring token', interval: 7.days
       end
-
-      context 'system overrides project' do
-        before do
-          stub_application_setting(project_runner_token_expiration_interval: 3.days.to_i)
-        end
-
-        let(:runner) { create(:ci_runner, :project, projects: [project]) }
-
-        it_behaves_like 'expiring token', interval: 3.days
-      end
-    end
-
-    context 'with group runner token expiring' do
-      let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:group) { create(:group, namespace_settings: group_settings) }
 
       context 'group overrides system' do
         before do
-          stub_application_setting(group_runner_token_expiration_interval: 5.days.to_i)
+          stub_application_setting(group_runner_token_expiration_interval: 7.days.to_i)
         end
 
-        let(:runner) { create(:ci_runner, :group, groups: [group]) }
-
-        it_behaves_like 'expiring token', interval: 4.days
+        it_behaves_like 'expiring token', interval: 6.days
       end
 
       context 'system overrides group' do
@@ -1745,7 +1935,45 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
           stub_application_setting(group_runner_token_expiration_interval: 3.days.to_i)
         end
 
-        let(:runner) { create(:ci_runner, :group, groups: [group]) }
+        it_behaves_like 'expiring token', interval: 3.days
+      end
+    end
+
+    context 'project expiration' do
+      let_it_be(:project) { create(:project, group: group, runner_token_expiration_interval: 4.days.to_i) }
+      let(:runner) { create(:ci_runner, :project, projects: [project]) }
+
+      it_behaves_like 'expiring token', interval: 4.days
+
+      context 'human-readable project expiration' do
+        before do
+          project.runner_token_expiration_interval_human_readable = '5 days'
+          project.save!
+        end
+
+        it_behaves_like 'expiring token', interval: 5.days
+      end
+
+      context 'with multiple projects' do
+        let_it_be(:project2) { create(:project, runner_token_expiration_interval: 3.days.to_i) }
+        let_it_be(:project3) { create(:project, runner_token_expiration_interval: 9.days.to_i) }
+        let(:runner) { create(:ci_runner, :project, projects: [project, project2, project3]) }
+
+        it_behaves_like 'expiring token', interval: 3.days
+      end
+
+      context 'when project overrides system' do
+        before do
+          stub_application_setting(project_runner_token_expiration_interval: 5.days.to_i)
+        end
+
+        it_behaves_like 'expiring token', interval: 4.days
+      end
+
+      context 'when system overrides project' do
+        before do
+          stub_application_setting(project_runner_token_expiration_interval: 3.days.to_i)
+        end
 
         it_behaves_like 'expiring token', interval: 3.days
       end
@@ -1754,38 +1982,54 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     context "with group's project runner token expiring" do
       let_it_be(:parent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 2.days.to_i) }
       let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
+      let_it_be(:group_settings) { create(:namespace_settings) }
+      let_it_be(:group) { create(:group, parent: parent_group, namespace_settings: group_settings) }
+
+      let(:runner) { create(:ci_runner, :group, groups: [group]) }
 
       context 'parent group overrides subgroup' do
-        let(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 3.days.to_i) }
-        let(:group) { create(:group, parent: parent_group, namespace_settings: group_settings) }
-        let(:runner) { create(:ci_runner, :group, groups: [group]) }
+        before_all do
+          group.runner_token_expiration_interval = 3.days.to_i
+          group.save!
+        end
 
         it_behaves_like 'expiring token', interval: 2.days
       end
 
       context 'subgroup overrides parent group' do
-        let(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 1.day.to_i) }
-        let(:group) { create(:group, parent: parent_group, namespace_settings: group_settings) }
-        let(:runner) { create(:ci_runner, :group, groups: [group]) }
+        before_all do
+          group.runner_token_expiration_interval = 1.day.to_i
+          group.save!
+        end
 
         it_behaves_like 'expiring token', interval: 1.day
       end
     end
 
     context "with group's project runner token expiring" do
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 2.days.to_i) }
-      let_it_be(:group) { create(:group, namespace_settings: group_settings) }
+      let_it_be(:project) { create(:project, group: group_with_expiration) }
+
+      let(:runner) { create(:ci_runner, :project, projects: [project]) }
+
+      before_all do
+        group_with_expiration.project_runner_token_expiration_interval = 2.days.to_i
+        group_with_expiration.save!
+      end
 
       context 'group overrides project' do
-        let(:project) { create(:project, group: group, runner_token_expiration_interval: 3.days.to_i).tap(&:save!) }
-        let(:runner) { create(:ci_runner, :project, projects: [project]) }
+        before do
+          project.runner_token_expiration_interval = 3.days.to_i
+          project.save!
+        end
 
         it_behaves_like 'expiring token', interval: 2.days
       end
 
       context 'project overrides group' do
-        let(:project) { create(:project, group: group, runner_token_expiration_interval: 1.day.to_i).tap(&:save!) }
-        let(:runner) { create(:ci_runner, :project, projects: [project]) }
+        before do
+          project.runner_token_expiration_interval = 1.day.to_i
+          project.save!
+        end
 
         it_behaves_like 'expiring token', interval: 1.day
       end
@@ -1840,13 +2084,13 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       subject { described_class.active(false).with_upgrade_status(:available) }
 
       before do
-        create(:ci_runner_machine, runner: inactive_runner_14_0_0, version: '14.0.0')
+        create(:ci_runner_machine, runner: paused_runner_14_0_0, version: '14.0.0')
       end
 
-      let(:inactive_runner_14_0_0) { create(:ci_runner, active: false) }
+      let(:paused_runner_14_0_0) { create(:ci_runner, :paused) }
 
       it 'returns runner matching the composed scope' do
-        is_expected.to contain_exactly(inactive_runner_14_0_0)
+        is_expected.to contain_exactly(paused_runner_14_0_0)
       end
     end
   end
@@ -1932,8 +2176,16 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     end
   end
 
-  describe 'status scopes' do
-    let_it_be(:online_runner) { create(:ci_runner, :instance, :online) }
+  describe 'status scopes', :freeze_time do
+    before_all do
+      freeze_time # Freeze time before `let_it_be` runs, so that runner statuses are frozen during execution
+    end
+
+    after :all do
+      unfreeze_time
+    end
+
+    let_it_be(:online_runner) { create(:ci_runner, :instance, :almost_offline) }
     let_it_be(:offline_runner) { create(:ci_runner, :instance, :offline) }
     let_it_be(:never_contacted_runner) { create(:ci_runner, :instance, :unregistered) }
 
@@ -1961,7 +2213,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       end
     end
 
-    describe '.stale', :freeze_time do
+    describe '.stale' do
       subject { described_class.stale }
 
       let!(:stale_runner1) { create(:ci_runner, :unregistered, :stale) }
@@ -1997,7 +2249,7 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
     subject { described_class.with_runner_type(runner_type) }
 
     let_it_be(:instance_runner) { create(:ci_runner, :instance) }
-    let_it_be(:group_runner) { create(:ci_runner, :group) }
+    let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group]) }
     let_it_be(:project_runner) { create(:ci_runner, :project, :without_projects) }
 
     context 'with instance_type' do
@@ -2022,6 +2274,45 @@ RSpec.describe Ci::Runner, type: :model, feature_category: :runner do
       let(:runner_type) { 'invalid runner type' }
 
       it { is_expected.to contain_exactly(instance_runner, group_runner, project_runner) }
+    end
+  end
+
+  describe '.with_sharding_key' do
+    subject(:scope) { described_class.with_runner_type(runner_type).with_sharding_key(sharding_key_id) }
+
+    let_it_be(:group_runner) { create(:ci_runner, :group, groups: [group]) }
+    let_it_be(:project_runner) { create(:ci_runner, :project, projects: [project, other_project]) }
+
+    context 'with group_type' do
+      let(:runner_type) { 'group_type' }
+
+      context 'when sharding_key_id exists' do
+        let(:sharding_key_id) { group.id }
+
+        it { is_expected.to contain_exactly(group_runner) }
+      end
+
+      context 'when sharding_key_id does not exist' do
+        let(:sharding_key_id) { non_existing_record_id }
+
+        it { is_expected.to eq [] }
+      end
+    end
+
+    context 'with project_type' do
+      let(:runner_type) { 'project_type' }
+
+      context 'when sharding_key_id exists' do
+        let(:sharding_key_id) { project.id }
+
+        it { is_expected.to contain_exactly(project_runner) }
+      end
+
+      context 'when sharding_key_id does not exist' do
+        let(:sharding_key_id) { non_existing_record_id }
+
+        it { is_expected.to eq [] }
+      end
     end
   end
 end

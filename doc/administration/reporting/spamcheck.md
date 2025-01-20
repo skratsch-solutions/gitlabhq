@@ -8,14 +8,14 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 WARNING:
 Spamcheck is available to all tiers, but only on instances using GitLab Enterprise Edition (EE). For [licensing reasons](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/6259#note_726605397), it is not included in the GitLab Community Edition (CE) package. You can [migrate from CE to EE](../../update/package/convert_to_ee.md).
 
 [Spamcheck](https://gitlab.com/gitlab-org/gl-security/security-engineering/security-automation/spam/spamcheck) is an anti-spam engine
 developed by GitLab originally to combat rising amount of spam in GitLab.com,
-and later made public to be used in self-managed GitLab instances.
+and later made public to be used in GitLab Self-Managed instances.
 
 ## Enable Spamcheck
 
@@ -42,7 +42,7 @@ Spamcheck is only available for package-based installations:
 
 ## Configure GitLab to use Spamcheck
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Reporting**.
 1. Expand **Spam and Anti-bot Protection**.
 1. Update the Spam Check settings:
@@ -67,4 +67,4 @@ Spamcheck service on its own cannot communicate directly over TLS with GitLab.
 However, Spamcheck can be deployed behind a reverse proxy which performs TLS
 termination. In such a scenario, GitLab can be made to communicate with
 Spamcheck over TLS by specifying `tls://` scheme for the external Spamcheck URL
-instead of `grpc://` in the Admin Area settings.
+instead of `grpc://` in the **Admin** area settings.

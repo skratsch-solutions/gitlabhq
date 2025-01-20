@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 The following sections describe the stages of [Auto DevOps](index.md).
 Read them carefully to understand how each one works.
@@ -115,7 +115,7 @@ Check the [currently supported languages](#currently-supported-languages).
 Auto Test uses tests you already have in your application. If there are no
 tests, it's up to you to add them.
 
-<!-- vale gitlab.Spelling = NO -->
+<!-- vale gitlab_base.Spelling = NO -->
 
 NOTE:
 Not all buildpacks supported by [Auto Build](#auto-build) are supported by Auto Test.
@@ -123,7 +123,7 @@ Auto Test uses [Herokuish](https://gitlab.com/gitlab-org/gitlab/-/issues/212689)
 Cloud Native Buildpacks, and only buildpacks that implement the
 [Testpack API](https://devcenter.heroku.com/articles/testpack-api) are supported.
 
-<!-- vale gitlab.Spelling = YES -->
+<!-- vale gitlab_base.Spelling = YES -->
 
 ### Currently supported languages
 
@@ -195,7 +195,7 @@ For more information, see [Secret Detection](../../user/application_security/sec
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Dependency Scanning runs analysis on the project's dependencies and checks for potential security issues.
 The Auto Dependency Scanning stage is skipped on licenses other than
@@ -260,7 +260,7 @@ in the first place, and thus not realize that it needs to re-apply the old confi
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Dynamic Application Security Testing (DAST) uses the popular open source tool
 [OWASP ZAProxy](https://github.com/zaproxy/zaproxy) to analyze the current code
@@ -285,27 +285,27 @@ To use a custom target instead of the auto-deployed review apps,
 set a `DAST_WEBSITE` CI/CD variable to the URL for DAST to scan.
 
 WARNING:
-If [DAST Full Scan](../../user/application_security/dast/proxy-based.md#full-scan) is
+If [DAST Full Scan](../../user/application_security/dast/browser/index.md) is
 enabled, GitLab strongly advises **not**
 to set `DAST_WEBSITE` to any staging or production environment. DAST Full Scan
 actively attacks the target, which can take down your application and lead to
 data loss or corruption.
 
-### Disabling Auto DAST
+### Skipping Auto DAST
 
-You can disable DAST:
+You can skip DAST jobs:
 
 - On all branches by setting the `DAST_DISABLED` CI/CD variable to `"true"`.
 - Only on the default branch by setting the `DAST_DISABLED_FOR_DEFAULT_BRANCH`
   variable to `"true"`.
 - Only on feature branches by setting `REVIEW_DISABLED` variable to
-  `"true"`. This also disables the Review App.
+  `"true"`. This also skips the Review App.
 
 ## Auto Browser Performance Testing
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Auto [Browser Performance Testing](../../ci/testing/browser_performance_testing.md)
 measures the browser performance of a web page with the
@@ -328,7 +328,7 @@ Any browser performance differences between the source and target branches are a
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Auto [Load Performance Testing](../../ci/testing/load_performance_testing.md)
 measures the server performance of an application with the
@@ -525,4 +525,4 @@ for updates.
 
 This stage is enabled by default. You can disable it by adding the
 `CODE_INTELLIGENCE_DISABLED` CI/CD variable. Read more about
-[disabling Auto DevOps jobs](../../topics/autodevops/cicd_variables.md#job-disabling-variables).
+[disabling Auto DevOps jobs](../../topics/autodevops/cicd_variables.md#job-skipping-variables).

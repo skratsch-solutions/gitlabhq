@@ -18,7 +18,7 @@ module TimeboxesHelper
 
   def milestone_badge_variant(milestone)
     if milestone.closed?
-      :danger
+      :info
     elsif milestone.expired?
       :warning
     elsif milestone.upcoming?
@@ -91,7 +91,7 @@ module TimeboxesHelper
   def milestone_progress_bar(milestone)
     render Pajamas::ProgressComponent.new(
       value: milestone.percent_complete,
-      variant: :success
+      variant: :primary
     )
   end
 
@@ -128,13 +128,9 @@ module TimeboxesHelper
 
     content = []
 
-    if opened > 0
-      content << (n_("1 open issue", "%{issues} open issues", opened) % { issues: opened })
-    end
+    content << (n_("1 open issue", "%{issues} open issues", opened) % { issues: opened }) if opened > 0
 
-    if closed > 0
-      content << (n_("1 closed issue", "%{issues} closed issues", closed) % { issues: closed })
-    end
+    content << (n_("1 closed issue", "%{issues} closed issues", closed) % { issues: closed }) if closed > 0
 
     content.join('<br />').html_safe
   end
@@ -146,9 +142,32 @@ module TimeboxesHelper
 
     content = []
 
-    content << (n_("1 open merge request", "%{merge_requests} open merge requests", merge_requests.opened.count) % { merge_requests: merge_requests.opened.count }) if merge_requests.opened.any?
-    content << (n_("1 closed merge request", "%{merge_requests} closed merge requests", merge_requests.closed.count) % { merge_requests: merge_requests.closed.count }) if merge_requests.closed.any?
-    content << (n_("1 merged merge request", "%{merge_requests} merged merge requests", merge_requests.merged.count) % { merge_requests: merge_requests.merged.count }) if merge_requests.merged.any?
+    if merge_requests.opened.any?
+      content << (
+        n_(
+          "1 open merge request", "%{merge_requests} open merge requests",
+          merge_requests.opened.count
+        ) % { merge_requests: merge_requests.opened.count }
+      )
+    end
+
+    if merge_requests.closed.any?
+      content << (
+        n_(
+          "1 closed merge request", "%{merge_requests} closed merge requests",
+          merge_requests.closed.count
+        ) % { merge_requests: merge_requests.closed.count }
+      )
+    end
+
+    if merge_requests.merged.any?
+      content << (
+        n_(
+          "1 merged merge request", "%{merge_requests} merged merge requests",
+          merge_requests.merged.count
+        ) % { merge_requests: merge_requests.merged.count }
+      )
+    end
 
     content.join('<br />').html_safe
   end
@@ -170,6 +189,12 @@ module TimeboxesHelper
     [recent_releases, total_count, more_count]
   end
 
+  def milestone_releases_tooltip_list(releases, more_count = 0)
+    list = releases.map(&:name).join(", ")
+    list += format(_(", and %{number} more"), number: more_count) if more_count > 0
+    list
+  end
+
   def milestone_tooltip_due_date(milestone)
     if milestone.due_date
       "#{milestone.due_date.to_fs(:medium)} (#{remaining_days_in_words(milestone.due_date, milestone.start_date)})"
@@ -180,19 +205,33 @@ module TimeboxesHelper
 
   def timebox_date_range(timebox)
     if timebox.start_date && timebox.due_date
-      s_("DateRange|%{start_date}–%{end_date}") % { start_date: l(timebox.start_date, format: Date::DATE_FORMATS[:medium]),
-                                                    end_date: l(timebox.due_date, format: Date::DATE_FORMATS[:medium]) }
+      s_("DateRange|%{start_date}–%{end_date}") % {
+        start_date: l(timebox.start_date, format: Date::DATE_FORMATS[:medium]),
+        end_date: l(timebox.due_date, format: Date::DATE_FORMATS[:medium])
+      }
     elsif timebox.due_date
       if timebox.due_date.past?
-        _("expired on %{timebox_due_date}") % { timebox_due_date: l(timebox.due_date, format: Date::DATE_FORMATS[:medium]) }
+        _("expired on %{timebox_due_date}") % {
+          timebox_due_date: l(timebox.due_date,
+            format: Date::DATE_FORMATS[:medium])
+        }
       else
-        _("expires on %{timebox_due_date}") % { timebox_due_date: l(timebox.due_date, format: Date::DATE_FORMATS[:medium]) }
+        _("expires on %{timebox_due_date}") % {
+          timebox_due_date: l(timebox.due_date,
+            format: Date::DATE_FORMATS[:medium])
+        }
       end
     elsif timebox.start_date
       if timebox.start_date.past?
-        _("started on %{timebox_start_date}") % { timebox_start_date: l(timebox.start_date, format: Date::DATE_FORMATS[:medium]) }
+        _("started on %{timebox_start_date}") % {
+          timebox_start_date: l(timebox.start_date,
+            format: Date::DATE_FORMATS[:medium])
+        }
       else
-        _("starts on %{timebox_start_date}") % { timebox_start_date: l(timebox.start_date, format: Date::DATE_FORMATS[:medium]) }
+        _("starts on %{timebox_start_date}") % {
+          timebox_start_date: l(timebox.start_date,
+            format: Date::DATE_FORMATS[:medium])
+        }
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require 'carrierwave/orm/activerecord'
 
-class User < MainClusterwide::ApplicationRecord
+class User < ApplicationRecord
   extend Gitlab::ConfigHelper
 
   include Gitlab::ConfigHelper
@@ -29,6 +29,7 @@ class User < MainClusterwide::ApplicationRecord
   include RestrictedSignup
   include StripAttribute
   include EachBatch
+  include IgnorableColumns
   include CrossDatabaseIgnoredTables
   include UseSqlFunctionForPrimaryKeyLookups
 
@@ -44,6 +45,8 @@ class User < MainClusterwide::ApplicationRecord
     url: 'https://gitlab.com/gitlab-org/gitlab/-/issues/424285',
     on: :destroy
   )
+
+  ignore_column :last_access_from_pipl_country_at, remove_after: '2024-11-17', remove_with: '17.7'
 
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
@@ -95,13 +98,13 @@ class User < MainClusterwide::ApplicationRecord
   attribute :color_mode_id, default: -> { Gitlab::ColorModes::APPLICATION_DEFAULT }
 
   attr_encrypted :otp_secret,
-    key: Gitlab::Application.secrets.otp_key_base,
+    key: Gitlab::Application.credentials.otp_key_base,
     mode: :per_attribute_iv_and_salt,
     insecure_mode: true,
     algorithm: 'aes-256-cbc'
 
   devise :two_factor_authenticatable,
-    otp_secret_encryption_key: Gitlab::Application.secrets.otp_key_base
+    otp_secret_encryption_key: Gitlab::Application.credentials.otp_key_base
 
   devise :two_factor_backupable, otp_number_of_backup_codes: 10
   devise :two_factor_backupable_pbkdf2
@@ -159,7 +162,7 @@ class User < MainClusterwide::ApplicationRecord
     dependent: :destroy, # rubocop:disable Cop/ActiveRecordDependent
     foreign_key: :owner_id,
     inverse_of: :owner,
-    autosave: true # rubocop:disable Cop/ActiveRecordDependent
+    autosave: true
 
   # Profile
   has_many :keys, -> { regular_keys }, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -180,9 +183,12 @@ class User < MainClusterwide::ApplicationRecord
   has_one :user_synced_attributes_metadata, autosave: true
   has_one :aws_role, class_name: 'Aws::Role'
 
+  # Ghost User Migration
+  has_one :ghost_user_migration, class_name: 'Users::GhostUserMigration'
+
   # Followers
   has_many :followed_users, foreign_key: :follower_id, class_name: 'Users::UserFollowUser'
-  has_many :followees, through: :followed_users
+  has_many :followees, -> { active }, through: :followed_users
 
   has_many :following_users, foreign_key: :followee_id, class_name: 'Users::UserFollowUser'
   has_many :followers, -> { active }, through: :following_users
@@ -280,6 +286,7 @@ class User < MainClusterwide::ApplicationRecord
   belongs_to :created_by, class_name: 'User', optional: true
 
   has_many :organization_users, class_name: 'Organizations::OrganizationUser', inverse_of: :user
+
   has_many :organizations, through: :organization_users, class_name: 'Organizations::Organization', inverse_of: :users,
     disable_joins: true
   has_many :owned_organizations, -> { where(organization_users: { access_level: Gitlab::Access::OWNER }) },
@@ -289,7 +296,6 @@ class User < MainClusterwide::ApplicationRecord
   has_one :user_preference
   has_one :user_detail
   has_one :user_highest_role
-  has_one :user_canonical_email
   has_one :credit_card_validation, class_name: '::Users::CreditCardValidation'
   has_one :phone_number_validation, class_name: '::Users::PhoneNumberValidation'
   has_one :atlassian_identity, class_name: 'Atlassian::Identity'
@@ -325,6 +331,7 @@ class User < MainClusterwide::ApplicationRecord
     presence: true,
     exclusion: { in: Gitlab::PathRegex::TOP_LEVEL_ROUTES, message: N_('%{value} is a reserved name') }
   validates :username, uniqueness: true, unless: :namespace
+  validate :username_not_assigned_to_pages_unique_domain, if: :username_changed?
   validates :name, presence: true, length: { maximum: 255 }
   validates :first_name, length: { maximum: 127 }
   validates :last_name, length: { maximum: 127 }
@@ -341,10 +348,11 @@ class User < MainClusterwide::ApplicationRecord
   validate :namespace_move_dir_allowed, if: :username_changed?, unless: :new_record?
 
   validate :unique_email, if: :email_changed?
+  validates_with AntiAbuse::UniqueDetumbledEmailValidator, if: :email_changed?
   validate :notification_email_verified, if: :notification_email_changed?
   validate :public_email_verified, if: :public_email_changed?
   validate :commit_email_verified, if: :commit_email_changed?
-  validate :email_allowed_by_restrictions?, if: ->(user) { user.new_record? ? !user.created_by_id : user.email_changed? }
+  validate :email_allowed_by_restrictions, if: ->(user) { user.new_record? ? !user.created_by_id : user.email_changed? }
   validate :check_username_format, if: :username_changed?
 
   validates :theme_id, allow_nil: true, inclusion: { in: Gitlab::Themes.valid_ids,
@@ -357,8 +365,15 @@ class User < MainClusterwide::ApplicationRecord
   validates :hide_no_password, allow_nil: false, inclusion: { in: [true, false] }
   validates :notified_of_own_activity, allow_nil: false, inclusion: { in: [true, false] }
   validates :project_view, presence: true
+  validates :composite_identity_enforced, inclusion: { in: [false] }, unless: -> { service_account? }
 
   after_initialize :set_projects_limit
+  # Ensures we get a user_detail on all new user records.
+  # We are not able to fully guard against all possible places where User.new
+  # is created, so we rely on the callback here at the model layer for our best
+  # chance at ensuring the user_detail is created.
+  # However, we need to skip all non-new records as after_initialize is called on basic finders as well.
+  after_initialize :build_default_user_detail, if: :new_record?
   before_validation :sanitize_attrs
   before_validation :ensure_namespace_correct
   after_validation :set_username_errors
@@ -390,7 +405,6 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   after_create_commit :create_default_organization_user
-  after_update_commit :update_default_organization_user, if: -> { saved_change_to_admin }
 
   # User's Layout preference
   enum layout: { fixed: 0, fluid: 1 }
@@ -416,7 +430,6 @@ class User < MainClusterwide::ApplicationRecord
     :tab_width, :tab_width=,
     :sourcegraph_enabled, :sourcegraph_enabled=,
     :gitpod_enabled, :gitpod_enabled=,
-    :use_web_ide_extension_marketplace, :use_web_ide_extension_marketplace=,
     :extensions_marketplace_opt_in_status, :extensions_marketplace_opt_in_status=,
     :organization_groups_projects_sort, :organization_groups_projects_sort=,
     :organization_groups_projects_display, :organization_groups_projects_display=,
@@ -434,6 +447,10 @@ class User < MainClusterwide::ApplicationRecord
     :achievements_enabled, :achievements_enabled=,
     :enabled_following, :enabled_following=,
     :home_organization, :home_organization_id, :home_organization_id=,
+    :dpop_enabled, :dpop_enabled=,
+    :use_work_items_view, :use_work_items_view=,
+    :text_editor, :text_editor=,
+    :default_text_editor_enabled, :default_text_editor_enabled=,
     to: :user_preference
 
   delegate :path, to: :namespace, allow_nil: true, prefix: true
@@ -443,6 +460,7 @@ class User < MainClusterwide::ApplicationRecord
   delegate :pronouns, :pronouns=, to: :user_detail, allow_nil: true
   delegate :pronunciation, :pronunciation=, to: :user_detail, allow_nil: true
   delegate :registration_objective, :registration_objective=, to: :user_detail, allow_nil: true
+  delegate :bluesky, :bluesky=, to: :user_detail, allow_nil: true
   delegate :mastodon, :mastodon=, to: :user_detail, allow_nil: true
   delegate :linkedin, :linkedin=, to: :user_detail, allow_nil: true
   delegate :twitter, :twitter=, to: :user_detail, allow_nil: true
@@ -453,10 +471,12 @@ class User < MainClusterwide::ApplicationRecord
   delegate :discord, :discord=, to: :user_detail, allow_nil: true
   delegate :email_reset_offered_at, :email_reset_offered_at=, to: :user_detail, allow_nil: true
   delegate :project_authorizations_recalculated_at, :project_authorizations_recalculated_at=, to: :user_detail, allow_nil: true
+  delegate :bot_namespace, :bot_namespace=, to: :user_detail, allow_nil: true
 
   accepts_nested_attributes_for :user_preference, update_only: true
   accepts_nested_attributes_for :user_detail, update_only: true
   accepts_nested_attributes_for :credit_card_validation, update_only: true, allow_destroy: true
+  accepts_nested_attributes_for :organization_users, update_only: true
 
   state_machine :state, initial: :active do
     # state_machine uses this method at class loading time to fetch the default
@@ -546,6 +566,8 @@ class User < MainClusterwide::ApplicationRecord
     after_transition active: :banned do |user|
       user.create_banned_user
 
+      user.invalidate_authored_todo_user_pending_todo_cache_counts
+
       if Gitlab.com? # rubocop:disable Gitlab/AvoidGitlabInstanceChecks -- this is always necessary on GitLab.com
         user.run_after_commit do
           deep_clean_ci = user.custom_attributes.by_key(UserCustomAttribute::DEEP_CLEAN_CI_USAGE_WHEN_BANNED).exists?
@@ -562,6 +584,7 @@ class User < MainClusterwide::ApplicationRecord
 
     after_transition banned: :active do |user|
       user.banned_user&.destroy
+      user.invalidate_authored_todo_user_pending_todo_cache_counts
     end
 
     after_transition any => :active do |user|
@@ -591,6 +614,7 @@ class User < MainClusterwide::ApplicationRecord
   scope :non_external, -> { where(external: false) }
   scope :confirmed, -> { where.not(confirmed_at: nil) }
   scope :active, -> { with_state(:active).non_internal }
+  scope :without_active, -> { without_state(:active) }
   scope :active_without_ghosts, -> { with_state(:active).without_ghosts }
   scope :all_without_ghosts, -> { without_ghosts }
   scope :deactivated, -> { with_state(:deactivated).non_internal }
@@ -608,6 +632,9 @@ class User < MainClusterwide::ApplicationRecord
   end
   scope :by_user_email, ->(emails) { iwhere(email: Array(emails)) }
   scope :by_emails, ->(emails) { joins(:emails).where(emails: { email: Array(emails).map(&:downcase) }) }
+  scope :by_detumbled_emails, ->(detumbled_emails) do
+    joins(:emails).where(emails: { detumbled_email: Array(detumbled_emails) })
+  end
   scope :for_todos, ->(todos) { where(id: todos.select(:user_id).distinct) }
   scope :with_emails, -> { preload(:emails) }
   scope :with_dashboard, ->(dashboard) { where(dashboard: dashboard) }
@@ -638,6 +665,7 @@ class User < MainClusterwide::ApplicationRecord
   scope :order_recent_last_activity, -> { reorder(arel_table[:last_activity_on].desc.nulls_last, arel_table[:id].asc) }
   scope :order_oldest_last_activity, -> { reorder(arel_table[:last_activity_on].asc.nulls_first, arel_table[:id].desc) }
   scope :ordered_by_id_desc, -> { reorder(arel_table[:id].desc) }
+  scope :ordered_by_name_asc_id_desc, -> { order(name: :asc, id: :desc) }
 
   scope :dormant, -> { with_state(:active).human_or_service_user.where('last_activity_on <= ?', Gitlab::CurrentSettings.deactivate_dormant_users_period.day.ago.to_date) }
   scope :with_no_activity, -> { with_state(:active).human_or_service_user.where(last_activity_on: nil).where('created_at <= ?', MINIMUM_DAYS_CREATED.day.ago.to_date) }
@@ -662,6 +690,10 @@ class User < MainClusterwide::ApplicationRecord
 
   scope :left_join_user_detail, -> { left_joins(:user_detail) }
   scope :preload_user_detail, -> { preload(:user_detail) }
+
+  scope :by_bot_namespace_ids, ->(namespace_ids) do
+    project_bot.joins(:user_detail).where(user_detail: { bot_namespace_id: namespace_ids })
+  end
 
   def self.supported_keyset_orderings
     {
@@ -800,6 +832,8 @@ class User < MainClusterwide::ApplicationRecord
     # @param emails [String, Array<String>] email addresses to check
     # @param confirmed [Boolean] Only return users where the primary email is confirmed
     def by_any_email(emails, confirmed: false)
+      return none if Array(emails).all?(&:nil?)
+
       from_users = by_user_email(emails)
       from_users = from_users.confirmed if confirmed
 
@@ -1051,6 +1085,10 @@ class User < MainClusterwide::ApplicationRecord
     def username_exists?(username)
       exists?(username: username)
     end
+
+    def ends_with_reserved_file_extension?(username)
+      Mime::EXTENSION_LOOKUP.keys.any? { |type| username.end_with?(".#{type}") }
+    end
   end
 
   #
@@ -1065,7 +1103,21 @@ class User < MainClusterwide::ApplicationRecord
     username
   end
 
-  def to_reference(_from = nil, target_project: nil, full: nil)
+  def build_default_user_detail
+    # We will need to ensure we keep checking to see if it exists logic since this runs from
+    # an after_initialize.
+    # In cases where user_detail params are added during a `User.new` or create call with user_detail
+    # attributes set through delegation of setters, we will already have some user_detail
+    # attributes created from a built user_detail that will then be removed by an
+    # initialization of a new user_detail.
+    # We can see one case of that in the Users::BuildService where it assigns user attributes that can
+    # have delegated user_detail attributes added by classes that inherit this class and add
+    # to the user attributes hash.
+    # Therefore, we need to check for presence of an existing built user_detail here.
+    user_detail || build_user_detail
+  end
+
+  def to_reference(_from = nil, target_container: nil, full: nil)
     "#{self.class.reference_prefix}#{username}"
   end
 
@@ -1163,7 +1215,7 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def disable_two_factor_otp!
-    update(
+    update!(
       otp_required_for_login: false,
       encrypted_otp_secret: nil,
       encrypted_otp_secret_iv: nil,
@@ -1197,7 +1249,7 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def needs_new_otp_secret?
-    !two_factor_enabled? && otp_secret_expired?
+    !two_factor_otp_enabled? && otp_secret_expired?
   end
 
   def otp_secret_expired?
@@ -1227,7 +1279,7 @@ class User < MainClusterwide::ApplicationRecord
   def unique_email
     email_taken = errors.added?(:email, _('has already been taken'))
 
-    if !email_taken && !emails.exists?(email: email) && Email.exists?(email: email)
+    if !email_taken && Email.where.not(user: self).where(email: email).exists?
       errors.add(:email, _('has already been taken'))
       email_taken = true
     end
@@ -1237,7 +1289,7 @@ class User < MainClusterwide::ApplicationRecord
         User.find_by_any_email(email)&.deleted_own_account?
 
       help_page_url = Rails.application.routes.url_helpers.help_page_url(
-        'user/profile/account/delete_account',
+        'user/profile/account/delete_account.md',
         anchor: 'delete-your-own-account'
       )
 
@@ -1278,15 +1330,29 @@ class User < MainClusterwide::ApplicationRecord
       direct_groups_cte = Gitlab::SQL::CTE.new(:direct_groups, groups)
       direct_groups_cte_alias = direct_groups_cte.table.alias(Group.table_name)
 
+      groups_from_authorized_projects = Group.id_in(authorized_projects.select(:namespace_id)).self_and_ancestors
+      groups_from_shares = Group.joins(:shared_with_group_links)
+                             .where(group_group_links: { shared_with_group_id: Group.from(direct_groups_cte_alias) })
+                             .self_and_descendants
+
       Group
         .with(direct_groups_cte.to_arel)
         .from_union([
           Group.from(direct_groups_cte_alias).self_and_descendants,
-          Group.id_in(authorized_projects.select(:namespace_id)),
-          Group.joins(:shared_with_group_links)
-            .where(group_group_links: { shared_with_group_id: Group.from(direct_groups_cte_alias) })
+          groups_from_authorized_projects,
+          groups_from_shares
         ])
     end
+  end
+
+  # Used to search on the user's authorized_groups effeciently by using a CTE
+  def search_on_authorized_groups(query, use_minimum_char_limit: true)
+    authorized_groups_cte = Gitlab::SQL::CTE.new(:authorized_groups, authorized_groups)
+    authorized_groups_cte_alias = authorized_groups_cte.table.alias(Group.table_name)
+    Group
+      .with(authorized_groups_cte.to_arel)
+      .from(authorized_groups_cte_alias)
+      .search(query, use_minimum_char_limit: use_minimum_char_limit)
   end
 
   # Returns the groups a user is a member of, either directly or through a parent group
@@ -1390,7 +1456,7 @@ class User < MainClusterwide::ApplicationRecord
   #
   # This logic is duplicated from `Ability#project_abilities` into a SQL form.
   def projects_where_can_admin_issues
-    authorized_projects(Gitlab::Access::REPORTER).non_archived.with_issues_enabled
+    authorized_projects(Gitlab::Access::PLANNER).non_archived.with_issues_enabled
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -1424,16 +1490,17 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def allow_password_authentication_for_web?
-    Gitlab::CurrentSettings.password_authentication_enabled_for_web? && !ldap_user?
+    return false if ldap_user?
+    return false if disable_password_authentication_for_sso_users?
+
+    Gitlab::CurrentSettings.password_authentication_enabled_for_web?
   end
 
   def allow_password_authentication_for_git?
-    Gitlab::CurrentSettings.password_authentication_enabled_for_git? && !password_based_omniauth_user?
-  end
+    return false if password_based_omniauth_user?
+    return false if disable_password_authentication_for_sso_users?
 
-  # method overriden in EE
-  def password_based_login_forbidden?
-    false
+    Gitlab::CurrentSettings.password_authentication_enabled_for_git?
   end
 
   def can_change_username?
@@ -1446,6 +1513,7 @@ class User < MainClusterwide::ApplicationRecord
 
   def allow_user_to_create_group_and_project?
     return true if Gitlab::CurrentSettings.allow_project_creation_for_guest_and_below
+    return true if can_admin_all_resources?
 
     highest_role > Gitlab::Access::GUEST
   end
@@ -1458,11 +1526,9 @@ class User < MainClusterwide::ApplicationRecord
     several_namespaces? || admin
   end
 
-  # rubocop: disable Style/ArgumentsForwarding -- https://gitlab.com/gitlab-org/gitlab/-/issues/433045
   def can?(action, subject = :global, **opts)
     Ability.allowed?(self, action, subject, **opts)
   end
-  # rubocop: enable Style/ArgumentsForwarding
 
   def confirm_deletion_with_password?
     !password_automatically_set? && allow_password_authentication?
@@ -1649,7 +1715,8 @@ class User < MainClusterwide::ApplicationRecord
 
     counts = Organizations::OrganizationUser
       .owners
-      .joins('INNER JOIN ownerships ON ownerships.organization_id = organization_users.organization_id')
+      .where('organization_users.organization_id = organizations.id')
+      .group(:organization_id)
       .having('count(organization_users.user_id) = 1')
 
     Organizations::Organization
@@ -1717,6 +1784,10 @@ class User < MainClusterwide::ApplicationRecord
     verified_emails << private_commit_email if include_private_email
     verified_emails.concat(emails.confirmed.pluck(:email))
     verified_emails.uniq
+  end
+
+  def verified_detumbled_emails
+    emails.distinct.confirmed.pluck(:detumbled_email).compact
   end
 
   def public_verified_emails
@@ -1889,6 +1960,10 @@ class User < MainClusterwide::ApplicationRecord
     enabled_following && user.enabled_following
   end
 
+  def has_forkable_groups?
+    Groups::AcceptingProjectCreationsFinder.new(self).execute.exists?
+  end
+
   def forkable_namespaces
     strong_memoize(:forkable_namespaces) do
       personal_namespace = Namespace.where(id: namespace_id)
@@ -1949,10 +2024,12 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   # Returns true if the user can be removed, false otherwise.
-  # A user can be removed if they do not own any groups where they are the sole owner
+  # A user can be removed if they do not own any groups or organizations where they are the sole owner
   # Method `none?` is used to ensure faster retrieval, See https://gitlab.com/gitlab-org/gitlab/-/issues/417105
 
   def can_be_removed?
+    return solo_owned_groups.none? && solo_owned_organizations.none? if Feature.enabled?(:ui_for_organizations)
+
     solo_owned_groups.none?
   end
 
@@ -1983,7 +2060,9 @@ class User < MainClusterwide::ApplicationRecord
 
   def notification_email_for(notification_group)
     # Return group-specific email address if present, otherwise return global notification email address
-    group_email = if notification_group && notification_group.respond_to?(:notification_email_for)
+    group_email = if notification_settings.loaded?
+                    closest_notification_email_in_group_hierarchy(notification_group)
+                  elsif notification_group && notification_group.respond_to?(:notification_email_for)
                     notification_group.notification_email_for(self)
                   end
 
@@ -1992,25 +2071,9 @@ class User < MainClusterwide::ApplicationRecord
 
   def notification_settings_for(source, inherit: false)
     if notification_settings.loaded?
-      notification_settings.find do |notification|
-        notification.source_type == source.class.base_class.name &&
-          notification.source_id == source.id
-      end
+      notification_setting_find_by_source(source)
     else
-      notification_settings.find_or_initialize_by(source: source) do |ns|
-        next unless source.is_a?(Group) && inherit
-
-        # If we're here it means we're trying to create a NotificationSetting for a group that doesn't have one.
-        # Find the closest parent with a notification_setting that's not Global level, or that has an email set.
-        ancestor_ns = source
-                        .notification_settings(hierarchy_order: :asc)
-                        .where(user: self)
-                        .find_by('level != ? OR notification_email IS NOT NULL', NotificationSetting.levels[:global])
-        # Use it to seed the settings
-        ns.assign_attributes(ancestor_ns&.slice(*NotificationSetting.allowed_fields))
-        ns.source = source
-        ns.user = self
-      end
+      notification_setting_find_or_initialize_by_source(source, inherit)
     end
   end
 
@@ -2024,10 +2087,38 @@ class User < MainClusterwide::ApplicationRecord
   def global_notification_setting
     return @global_notification_setting if defined?(@global_notification_setting)
 
+    # lookup in preloaded notification settings first, before making another query
+    if notification_settings.loaded?
+      @global_notification_setting = notification_settings.find do |notification|
+        notification.source_id.nil? && notification.source_type.nil?
+      end
+
+      return @global_notification_setting if @global_notification_setting.present?
+    end
+
     @global_notification_setting = notification_settings.find_or_initialize_by(source: nil)
     @global_notification_setting.update(level: NotificationSetting.levels[DEFAULT_NOTIFICATION_LEVEL]) unless @global_notification_setting.persisted?
 
     @global_notification_setting
+  end
+
+  # Returns the notification_setting of the lowest group in hierarchy with non global level
+  def closest_non_global_group_notification_setting(group)
+    return unless group
+
+    notification_level = NotificationSetting.levels[:global]
+
+    if notification_settings.loaded?
+      group.self_and_ancestors_asc.find do |group|
+        notification_setting = notification_setting_find_by_source(group)
+
+        next unless notification_setting
+        next if NotificationSetting.levels[notification_setting&.level] == notification_level
+        break notification_setting if notification_setting.present?
+      end
+    else
+      group.notification_settings(hierarchy_order: :asc).where(user: self).where.not(level: notification_level).first
+    end
   end
 
   def merge_request_dashboard_enabled?
@@ -2036,21 +2127,20 @@ class User < MainClusterwide::ApplicationRecord
 
   def assigned_open_merge_requests_count(force: false)
     Rails.cache.fetch(['users', id, 'assigned_open_merge_requests_count', merge_request_dashboard_enabled?], force: force, expires_in: COUNT_CACHE_VALIDITY_PERIOD) do
-      review_states = if merge_request_dashboard_enabled?
-                        %w[requested_changes reviewed]
-                      end
+      params = { assignee_id: id, state: 'opened', non_archived: true }
+      params[:reviewer_id] = 'none' if merge_request_dashboard_enabled?
 
-      MergeRequestsFinder.new(self, assignee_id: self.id, review_states: review_states, state: 'opened', non_archived: true).execute.count
+      MergeRequestsFinder.new(self, params).execute.count
     end
   end
 
   def review_requested_open_merge_requests_count(force: false)
     Rails.cache.fetch(['users', id, 'review_requested_open_merge_requests_count', merge_request_dashboard_enabled?], force: force, expires_in: COUNT_CACHE_VALIDITY_PERIOD) do
-      review_state = if merge_request_dashboard_enabled?
-                       'unreviewed'
-                     end
-
-      MergeRequestsFinder.new(self, reviewer_id: id, review_state: review_state, state: 'opened', non_archived: true).execute.count
+      if merge_request_dashboard_enabled?
+        MergeRequestsFinder.new(self, assigned_user_id: id, reviewer_review_states: %w[unreviewed unapproved review_started], assigned_review_states: %w[requested_changes reviewed], state: 'opened', non_archived: true).execute.count
+      else
+        MergeRequestsFinder.new(self, reviewer_id: id, state: 'opened', non_archived: true).execute.count
+      end
     end
   end
 
@@ -2107,6 +2197,14 @@ class User < MainClusterwide::ApplicationRecord
 
   def invalidate_personal_projects_count
     Rails.cache.delete(['users', id, 'personal_projects_count'])
+  end
+
+  def invalidate_authored_todo_user_pending_todo_cache_counts
+    # Invalidate the todo cache counts for other users with pending todos authored by the user
+    cache_keys = authored_todos.pending.distinct.pluck(:user_id).map { |id| ['users', id, 'todos_pending_count'] }
+    Gitlab::Instrumentation::RedisClusterValidator.allow_cross_slot_commands do
+      Rails.cache.delete_multi(cache_keys)
+    end
   end
 
   # This is copied from Devise::Models::Lockable#valid_for_authentication?, as our auth
@@ -2287,10 +2385,6 @@ class User < MainClusterwide::ApplicationRecord
     super.presence || build_user_preference
   end
 
-  def user_detail
-    super.presence || build_user_detail
-  end
-
   def pending_todo_for(target)
     todos.find_by(target: target, state: :pending)
   end
@@ -2451,6 +2545,39 @@ class User < MainClusterwide::ApplicationRecord
     true
   end
 
+  def has_composite_identity?
+    # Since this is called in a number of places in both Sidekiq and Web,
+    # be extra paranoid that this column exists before reading it. This check
+    # can be removed in GitLab 17.8 or later.
+    return false unless has_attribute?(:composite_identity_enforced)
+
+    composite_identity_enforced
+  end
+
+  def uploads_sharding_key
+    {}
+  end
+
+  def add_admin_note(new_note)
+    self.note = "#{new_note}\n#{self.note}"
+  end
+
+  # rubocop: disable CodeReuse/ServiceClass
+  def support_pin_data
+    strong_memoize(:support_pin_data) do
+      Users::SupportPin::RetrieveService.new(self).execute
+    end
+  end
+  # rubocop: enable CodeReuse/ServiceClass
+
+  def support_pin
+    support_pin_data&.fetch(:pin, nil)
+  end
+
+  def support_pin_expires_at
+    support_pin_data&.fetch(:expires_at, nil)
+  end
+
   protected
 
   # override, from Devise::Validatable
@@ -2489,6 +2616,46 @@ class User < MainClusterwide::ApplicationRecord
 
   private
 
+  def notification_setting_find_by_source(source)
+    notification_settings.find do |notification|
+      notification.source_type == source.class.base_class.name && notification.source_id == source.id
+    end
+  end
+
+  def closest_notification_email_in_group_hierarchy(source_group)
+    return unless source_group
+
+    source_group.self_and_ancestors_asc.find do |group|
+      notification_setting = notification_setting_find_by_source(group)
+
+      next unless notification_setting
+      break notification_setting.notification_email if notification_setting.notification_email.present?
+    end
+  end
+
+  def notification_setting_find_or_initialize_by_source(source, inherit)
+    notification_settings.find_or_initialize_by(source: source) do |ns|
+      next unless source.is_a?(Group) && inherit
+
+      # If we're here it means we're trying to create a NotificationSetting for a group that doesn't have one.
+      # Find the closest parent with a notification_setting that's not Global level, or that has an email set.
+      ancestor_ns = source.notification_settings(hierarchy_order: :asc).where(user: self)
+                      .find_by('level != ? OR notification_email IS NOT NULL', NotificationSetting.levels[:global])
+      # Use it to seed the settings
+      ns.assign_attributes(ancestor_ns&.slice(*NotificationSetting.allowed_fields))
+      ns.source = source
+      ns.user = self
+    end
+  end
+
+  def disable_password_authentication_for_sso_users?
+    ::Gitlab::CurrentSettings.disable_password_authentication_for_users_with_sso_identities? && omniauth_user?
+  end
+
+  def omniauth_user?
+    identities.any?
+  end
+
   def optional_namespace?
     Feature.enabled?(:optional_personal_namespace, self)
   end
@@ -2526,6 +2693,8 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def should_delay_delete?(deleted_by)
+    return false if placeholder?
+
     is_deleting_own_record = deleted_by.id == id
 
     is_deleting_own_record &&
@@ -2608,7 +2777,9 @@ class User < MainClusterwide::ApplicationRecord
     end
   end
 
-  def email_allowed_by_restrictions?
+  def email_allowed_by_restrictions
+    return if placeholder? || import_user?
+
     error = validate_admin_signup_restrictions(email)
 
     errors.add(:email, error) if error
@@ -2619,7 +2790,7 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def check_username_format
-    return if username.blank? || Mime::EXTENSION_LOOKUP.keys.none? { |type| username.end_with?(".#{type}") }
+    return if username.blank? || !self.class.ends_with_reserved_file_extension?(username)
 
     errors.add(:username, _('ending with a reserved file extension is not allowed.'))
   end
@@ -2720,11 +2891,9 @@ class User < MainClusterwide::ApplicationRecord
   end
 
   def create_default_organization_user
-    Organizations::OrganizationUser.create_default_organization_record_for(id, user_is_admin: admin?)
-  end
+    return unless organizations.blank?
 
-  def update_default_organization_user
-    Organizations::OrganizationUser.update_default_organization_record_for(id, user_is_admin: admin?)
+    Organizations::OrganizationUser.create_default_organization_record_for(id, user_is_admin: admin?)
   end
 
   # method overridden in EE
@@ -2732,6 +2901,13 @@ class User < MainClusterwide::ApplicationRecord
 
   # method overridden in EE
   def audit_unlock_access(author: self); end
+
+  def username_not_assigned_to_pages_unique_domain
+    if ProjectSetting.unique_domain_exists?(username)
+      # We cannot disclose the Pages unique domain, hence returning generic error message
+      errors.add(:username, _('has already been taken'))
+    end
+  end
 end
 
 User.prepend_mod_with('User')

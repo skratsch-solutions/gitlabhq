@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -11,12 +11,14 @@ DETAILS:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/98354) in GitLab 15.5.
 
-The GitLab SCIM API manages SCIM identities within groups and provides the `/groups/:groups_id/scim/identities` and `/groups/:groups_id/scim/:uid` endpoints. The base URL is `<http|https>://<GitLab host>/api/v4`.
+Use this API to manage SCIM identities in groups.
 
-To use this API, [Group SSO](../user/group/saml_sso/index.md) must be enabled for the group.
-This API is only in use where [SCIM for Group SSO](../user/group/saml_sso/scim_setup.md) is enabled. It's a prerequisite to the creation of SCIM identities.
+Prerequisites:
 
-This API is different to the [internal group SCIM API](../development/internal_api/index.md#group-scim-api) and the [instance SCIM API](../development/internal_api/index.md#instance-scim-api):
+- You must enable [Group SSO](../user/group/saml_sso/index.md).
+- You must enable [SCIM for Group SSO](../user/group/saml_sso/scim_setup.md).
+
+This API differs from the [internal group SCIM API](../development/internal_api/index.md#group-scim-api) and the [instance SCIM API](../development/internal_api/index.md#instance-scim-api):
 
 - This API:
   - Does not implement the [RFC7644 protocol](https://www.rfc-editor.org/rfc/rfc7644).
@@ -40,9 +42,9 @@ Supported attributes:
 
 | Attribute         | Type    | Required | Description           |
 |:------------------|:--------|:---------|:----------------------|
-| `id`      | integer/string | Yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | Yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 
-If successful, returns [`200`](rest/index.md#status-codes) and the following
+If successful, returns [`200`](rest/troubleshooting.md#status-codes) and the following
 response attributes:
 
 | Attribute    | Type    | Description               |
@@ -82,7 +84,7 @@ Supported attributes:
 
 | Attribute | Type    | Required | Description               |
 | --------- | ------- | -------- | ------------------------- |
-| `id`      | integer | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `uid`     | string  | yes      | External UID of the user. |
 
 Example request:
@@ -119,7 +121,7 @@ Parameters:
 
 | Attribute | Type   | Required | Description               |
 | --------- | ------ | -------- | ------------------------- |
-| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding) |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths) |
 | `uid`     | string | yes      | External UID of the user. |
 
 Example request:
@@ -142,14 +144,13 @@ Supported attributes:
 
 | Attribute | Type    | Required | Description               |
 | --------- | ------- | -------- | ------------------------- |
-| `id`      | integer | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-path-encoding). |
+| `id`      | integer | yes      | The ID or [URL-encoded path of the group](rest/index.md#namespaced-paths). |
 | `uid`     | string  | yes      | External UID of the user. |
 
 Example request:
 
 ```shell
-curl --request DELETE --header "Content-Type: application/json" --header "Authorization: Bearer <your_access_token>" "https://gitlab.example.com/api/v4/groups/33/scim/yrnZW46BrtBFqM7xDzE7dddd"
-
+curl --location --request DELETE "https://gitlab.example.com/api/v4/groups/33/scim/yrnZW46BrtBFqM7xDzE7dddd" --header "PRIVATE-TOKEN: <your_access_token>"
 ```
 
 Example response:

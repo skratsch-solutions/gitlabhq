@@ -59,7 +59,7 @@ module Keeps
 
       apply_patch_and_cleanup(feature_flag, change)
 
-      # rubocop:disable Gitlab/DocUrl -- Not running inside rails application
+      # rubocop:disable Gitlab/DocumentationLinks/HardcodedUrl -- Not running inside rails application
       change.description = <<~MARKDOWN
       This feature flag was introduced in #{feature_flag.milestone}, which is more than #{CUTOFF_MILESTONE_OLD} milestones ago.
 
@@ -84,7 +84,7 @@ module Keeps
 
       You can also see the status of the rollout by checking #{feature_flag_rollout_issue_url(feature_flag)} and #{format(FEATURE_FLAG_LOG_ISSUES_URL, feature_flag_name: feature_flag.name)}.
       MARKDOWN
-      # rubocop:enable Gitlab/DocUrl
+      # rubocop:enable Gitlab/DocumentationLinks/HardcodedUrl
 
       change.labels = [
         'maintenance::removal',
@@ -174,7 +174,7 @@ module Keeps
       matches = ROLLOUT_ISSUE_URL_REGEX.match(rollout_issue_url)
       return unless matches
 
-      response = Gitlab::HTTP_V2.try_get(
+      response = Gitlab::HTTP_V2.try_get( # rubocop:disable Gitlab/HttpV2 -- Not running inside rails application
         format(API_ISSUE_URL, project_path: CGI.escape(matches[:project_path]), issue_iid: matches[:issue_iid])
       )
 

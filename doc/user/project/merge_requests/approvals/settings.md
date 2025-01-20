@@ -9,7 +9,7 @@ description: "Define approval rules and limits in GitLab with merge request appr
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can configure the settings for [merge request approvals](index.md) to
 ensure the approval rules meet your use case. You can also configure
@@ -126,11 +126,11 @@ When you change this field, it can affect all open merge requests depending on t
 ## Require user re-authentication to approve
 
 > - Requiring re-authentication by using SAML authentication for GitLab.com groups [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/5981) in GitLab 16.6 [with a flag](../../../../administration/feature_flags.md) named `ff_require_saml_auth_to_approve`. Disabled by default.
-> - Requiring re-authentication by using SAML authentication for self-managed instances [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/431415) in GitLab 16.7 [with a flag](../../../../administration/feature_flags.md) named `ff_require_saml_auth_to_approve`. Disabled by default.
-> - [Enabled `ff_require_saml_auth_to_approve` by default](https://gitlab.com/gitlab-org/gitlab/-/issues/431714) in GitLab 16.8 for GitLab.com and self-managed instances.
+> - Requiring re-authentication by using SAML authentication for GitLab Self-Managed instances [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/431415) in GitLab 16.7 [with a flag](../../../../administration/feature_flags.md) named `ff_require_saml_auth_to_approve`. Disabled by default.
+> - [Enabled `ff_require_saml_auth_to_approve` by default](https://gitlab.com/gitlab-org/gitlab/-/issues/431714) in GitLab 16.8 for GitLab.com and GitLab Self-Managed instances.
 
 FLAG:
-On self-managed GitLab, by default requiring re-authentication by using SAML authentication is available. To hide the feature, an administrator can
+On GitLab Self-Managed, by default requiring re-authentication by using SAML authentication is available. To hide the feature, an administrator can
 [disable the feature flag](../../../../administration/feature_flags.md) named `ff_require_saml_auth_to_approve`. On GitLab.com and GitLab Dedicated, this feature is available.
 
 You can force potential approvers to first authenticate with SAML or a password.
@@ -147,7 +147,7 @@ Prerequisites:
      [sign-in restrictions documentation](../../../../administration/settings/sign_in_restrictions.md#password-authentication-enabled).
    - SAML authentication for GitLab.com groups, see
      [SAML SSO for GitLab.com groups documentation](../../../../user/group/saml_sso/index.md).
-   - SAML authentication for self-managed instances, see [SAML SSO for self-managed GitLab instances](../../../../integration/saml.md).
+   - SAML authentication for self-managed instances, see [SAML SSO for GitLab Self-Managed](../../../../integration/saml.md).
 1. On the left sidebar, select **Settings > Merge requests**.
 1. In the **Merge request approvals** section, scroll to **Approval settings** and
    select **Require user re-authentication (password or SAML) to approve**.
@@ -157,7 +157,7 @@ Prerequisites:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 By default, an approval on a merge request is removed when you add more changes
 after the approval. In GitLab Premium and Ultimate tiers, to keep existing approvals
@@ -169,9 +169,12 @@ after more changes are added to the merge request:
    clear the **Remove all approvals** checkbox.
 1. Select **Save changes**.
 
-Approvals aren't removed when a merge request is
-[rebased from the UI](../methods/index.md#rebasing-in-semi-linear-merge-methods)
-However, approvals are reset if the target branch changes.
+GitLab uses [`git patch-id`](https://git-scm.com/docs/git-patch-id) to identify diffs
+in merge requests. This value is a reasonably stable and unique identifier, and it enables
+smarter decisions about resetting approvals inside a merge request. When you push new changes
+to a merge request, the `patch-id` is evaluated against the previous `patch-id` to determine
+if the approvals should be reset. This enables GitLab to make better reset decisions when
+you perform commands like `git rebase` or `git merge <target>` on a feature branch.
 
 ## Remove approvals by Code Owners if their files changed
 
@@ -196,3 +199,4 @@ To do this:
 - [Instance-level merge request approval settings](../../../../administration/merge_requests_approvals.md)
 - [Compliance center](../../../compliance/compliance_center/index.md)
 - [Merge request approvals API](../../../../api/merge_request_approvals.md)
+- [Merge request approval settings API](../../../../api/merge_request_approval_settings.md)

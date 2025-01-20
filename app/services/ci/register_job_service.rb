@@ -22,6 +22,7 @@ module Ci
       @runner = runner
       @runner_manager = runner_manager
       @metrics = ::Gitlab::Ci::Queue::Metrics.new(runner)
+      @logger = ::Ci::RegisterJobService::Logger.new(runner: runner)
     end
 
     def execute(params = {})
@@ -30,9 +31,7 @@ module Ci
 
       @metrics.increment_queue_operation(:queue_attempt)
 
-      result = @metrics.observe_queue_time(:process, @runner.runner_type) do
-        process_queue(params)
-      end
+      result = process_queue_with_instrumentation(params)
 
       # Since we execute this query against replica it might lead to false-positive
       # We might receive the positive response: "hi, we don't have any more builds for you".
@@ -43,13 +42,24 @@ module Ci
       if !replica_caught_up && !result.build
         metrics.increment_queue_operation(:queue_replication_lag)
 
-        ::Ci::RegisterJobService::Result.new(nil, nil, nil, false) # rubocop:disable Cop/AvoidReturnFromBlocks
+        ::Ci::RegisterJobService::Result.new(nil, nil, nil, false)
       else
         result
       end
+
+    ensure
+      @logger.commit
     end
 
     private
+
+    def process_queue_with_instrumentation(params)
+      @metrics.observe_queue_time(:process, @runner.runner_type) do
+        @logger.instrument(:process_queue, once: true) do
+          process_queue(params)
+        end
+      end
+    end
 
     def process_queue(params)
       valid = true
@@ -82,12 +92,16 @@ module Ci
           next
         end
 
-        result = process_build(build, params)
+        result = @logger.instrument(:process_build) do
+          process_build(build, params)
+        end
         next unless result
 
         if result.valid?
-          @metrics.register_success(result.build_presented)
-          @metrics.observe_queue_depth(:found, depth)
+          @logger.instrument(:metrics_success, once: true) do
+            @metrics.register_success(result.build_presented)
+            @metrics.observe_queue_depth(:found, depth)
+          end
 
           return result # rubocop:disable Cop/AvoidReturnFromBlocks
         else
@@ -144,10 +158,12 @@ module Ci
       # We want to reset a load balancing session to discard the side
       # effects of writes that could have happened prior to this moment.
       #
-      ::Gitlab::Database::LoadBalancing::Session.clear_session
+      ::Gitlab::Database::LoadBalancing::SessionMap.clear_session
 
       @metrics.observe_queue_time(:retrieve, @runner.runner_type) do
-        queue_query_proc.call
+        @logger.instrument(:retrieve_queue, once: true) do
+          queue_query_proc.call
+        end
       end
     end
 
@@ -174,6 +190,10 @@ module Ci
 
         return
       end
+
+      # Make sure that composite identity is propagated to `PipelineProcessWorker`
+      # when the build's status change.
+      ::Gitlab::Auth::Identity.link_from_job(build)
 
       # In case when 2 runners try to assign the same build, second runner will be declined
       # with StateMachines::InvalidTransition or StaleObjectError when doing run! or save method.
@@ -293,12 +313,11 @@ module Ci
     end
 
     def persist_runtime_features(build, params)
-      if params.dig(:info, :features, :cancel_gracefully) &&
-          Feature.enabled?(:ci_canceling_status, build.project)
-        build.set_cancel_gracefully
+      return unless params.dig(:info, :features, :cancel_gracefully)
 
-        build.save
-      end
+      build.set_cancel_gracefully
+
+      build.save
     end
 
     def pre_assign_runner_checks

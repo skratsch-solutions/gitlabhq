@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 description: "GitLab's development guidelines for Integrations"
@@ -12,7 +12,7 @@ which are part of our [main Rails project](https://gitlab.com/gitlab-org/gitlab)
 
 Also see our [direction page](https://about.gitlab.com/direction/manage/import_and_integrate/integrations/) for an overview of our strategy around integrations.
 
-This guide is a work in progress. You're welcome to ping `@gitlab-org/manage/import-and-integrate`
+This guide is a work in progress. You're welcome to ping `@gitlab-org/foundations/import-and-integrate`
 if you need clarification or spot any outdated information.
 
 ## Add a new integration
@@ -21,13 +21,13 @@ if you need clarification or spot any outdated information.
 
 1. Add a new model in `app/models/integrations` extending from `Integration`.
    - For example, `Integrations::FooBar` in `app/models/integrations/foo_bar.rb`.
-   - For certain types of integrations, you can also build on these base classes:
-     - `Integrations::BaseChatNotification`
-     - `Integrations::BaseCi`
-     - `Integrations::BaseIssueTracker`
-     - `Integrations::BaseMonitoring`
-     - `Integrations::BaseSlashCommands`
-     - `Integrations::BaseThirdPartyWiki`
+   - For certain types of integrations, you can include these base modules:
+     - `Integrations::Base::ChatNotification`
+     - `Integrations::Base::Ci`
+     - `Integrations::Base::IssueTracker`
+     - `Integrations::Base::Monitoring`
+     - `Integrations::Base::SlashCommands`
+     - `Integrations::Base::ThirdPartyWiki`
    - For integrations that primarily trigger HTTP calls to external services, you can
      also use the `Integrations::HasWebHook` concern. This reuses the [webhook functionality](../../user/project/integrations/webhooks.md)
      in GitLab through an associated `ServiceHook` model, and automatically records request logs
@@ -107,11 +107,11 @@ The following events are supported for integrations:
 
 | Event type                                                                                     | Default | Value                | Trigger |
 |:-----------------------------------------------------------------------------------------------|:--------|:---------------------|:--|
-| Alert event                                                                                    |         | `alert`              | A a new, unique alert is recorded. |
+| Alert event                                                                                    |         | `alert`              | A new, unique alert is recorded. |
 | Commit event                                                                                   | ✓       | `commit`             | A commit is created or updated. |
 | [Deployment event](../../user/project/integrations/webhook_events.md#deployment-events)        |         | `deployment`         | A deployment starts or finishes. |
-| [Issue event](../../user/project/integrations/webhook_events.md#issue-events)                  | ✓       | `issue`              | An issue is created, updated, or closed. |
-| [Confidential issue event](../../user/project/integrations/webhook_events.md#issue-events)     | ✓       | `confidential_issue` | A confidential issue is created, updated, or closed. |
+| [Work item event](../../user/project/integrations/webhook_events.md#work-item-events)          | ✓       | `issue`              | An issue is created, updated, or closed. |
+| [Confidential issue event](../../user/project/integrations/webhook_events.md#work-item-events) | ✓       | `confidential_issue` | A confidential issue is created, updated, or closed. |
 | [Job event](../../user/project/integrations/webhook_events.md#job-events)                      |         | `job` | |
 | [Merge request event](../../user/project/integrations/webhook_events.md#merge-request-events)  | ✓       | `merge_request`      | A merge request is created, updated, or merged. |
 | [Comment event](../../user/project/integrations/webhook_events.md#comment-events)              |         | `comment`            | A new comment is added. |
@@ -152,7 +152,7 @@ end
 
 #### Masking channel values
 
-Integrations that [inherit from `Integrations::BaseChatNotification`](#define-the-integration) can hide the
+Integrations that [include from `Integrations::Base::ChatNotification`](#define-the-integration) can hide the
 values of their channel input fields. Integrations should hide these values whenever the
 fields contain sensitive information such as auth tokens.
 
@@ -216,7 +216,7 @@ This method should return an array of hashes for each field, where the keys can 
 
 | Key            | Type    | Required | Default                      | Description |
 |:---------------|:--------|:---------|:-----------------------------|:--|
-| `type:`        | symbol  | true     | `:text`                      | The type of the form field. Can be `:text`, `:textarea`, `:password`, `:checkbox`, or `:select`. |
+| `type:`        | symbol  | true     | `:text`                      | The type of the form field. Can be `:text`, `:number`, `:textarea`, `:password`, `:checkbox`, `:string_array` or `:select`. |
 | `section:`     | symbol  | false    |                              | Specify which section the field belongs to. |
 | `name:`        | string  | true     |                              | The property name for the form field. |
 | `required:`    | boolean | false    | `false`                      | Specify if the form field is required or optional. Note [backend validations](#define-validations) for presence are still needed. |
@@ -257,7 +257,8 @@ The most commonly used sections are pre-defined and already include some UI:
 - `SECTION_TYPE_CONFIGURATION`: Contains more advanced configuration and optional settings around how the integration works.
 - `SECTION_TYPE_TRIGGER`: Contains a list of events which will trigger an integration.
 
-`SECTION_TYPE_CONNECTION` & `SECTION_TYPE_CONFIGURATION` internally renders the `dynamic-field` component. The `dynamic-field` component renders either a `checkbox`, `input`, `select` or `textarea` based on integration `type`.
+`SECTION_TYPE_CONNECTION` and `SECTION_TYPE_CONFIGURATION` render the `dynamic-field` component internally.
+The `dynamic-field` component renders a `checkbox`, `number`, `input`, `select`, or `textarea` type for the integration.
 For example:
 
 ```ruby
@@ -375,27 +376,35 @@ Sensitive fields are not exposed over the API. Sensitive fields are those fields
 
 ## Availability of integrations
 
-By default, integrations are available on the project, group, and instance level.
+By default, integrations can apply to a specific project or group, or
+to an entire instance.
 Most integrations only act in a project context, but can be still configured
-from the group and instance levels.
+for the group and instance.
 
-For some integrations it can make sense to only make it available on the project level.
-To do that, the integration must be removed from `Integration::INTEGRATION_NAMES` and
-added to `Integration::PROJECT_SPECIFIC_INTEGRATION_NAMES` instead.
+For some integrations it can make sense to only make it available on certain levels (project, group, or instance).
+To do that, the integration must be removed from `Integration::INTEGRATION_NAMES` and instead added to:
+
+- `Integration::PROJECT_LEVEL_ONLY_INTEGRATION_NAMES` to only allow enabling on the project level.
+- `Integration::INSTANCE_LEVEL_ONLY_INTEGRATION_NAMES` to only allow enabling on the instance level.
+- `Integration::PROJECT_AND_GROUP_LEVEL_ONLY_INTEGRATION_NAMES` to prevent enabling on the instance level.
 
 When developing a new integration, we also recommend you gate the availability behind a
 [feature flag](../feature_flags/index.md) in `Integration.available_integration_names`.
 
 ## Documentation
 
+Add documentation for the integration:
+
+- Add a page in `doc/user/project/integrations`.
+- Link it from the [Integrations overview](../../user/project/integrations/index.md).
+- After the documentation has merged, [add an entry](../../development/documentation/site_architecture/global_nav.md#add-a-navigation-entry)
+  to the documentation navigation under the [Integrations category title](https://gitlab.com/gitlab-org/gitlab-docs/-/blob/24c8ab629383b47a6d6351a9d48325cb43ed5287/content/_data/navigation.yaml?page=3#L2822).
+
+You can also refer to our general [documentation guidelines](../documentation/index.md).
+
 You can provide help text in the integration form, including links to off-site documentation,
 as described above in [Customize the frontend form](#customize-the-frontend-form). Refer to
 our [usability guidelines](https://design.gitlab.com/usability/contextual-help) for help text.
-
-For more detailed documentation, provide a page in `doc/user/project/integrations`,
-and link it from the [Integrations overview](../../user/project/integrations/index.md).
-
-You can also refer to our general [documentation guidelines](../documentation/index.md).
 
 ## Testing
 
@@ -429,7 +438,7 @@ You must announce any deprecation [no later than the third milestone preceding i
 To deprecate an integration:
 
 - [Add a deprecation entry](../../development/deprecation_guidelines/index.md#update-the-deprecations-and-removals-documentation).
-- [Mark the integration documentation as deprecated](../../development/documentation/versions.md#deprecate-a-page-or-topic).
+- [Mark the integration documentation as deprecated](../../development/documentation/styleguide/deprecations_and_removals.md).
 - Optional. To prevent any new project-level records from
   being created, add the integration to `Project#disabled_integrations` (see [example merge request](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/114835)).
 
@@ -442,7 +451,7 @@ In the major milestone of intended removal (M.0), disable the integration and de
 - Remove the integration from `Integration::INTEGRATION_NAMES`.
 - Delete the integration model's `#execute` and `#test` methods (if defined), but keep the model.
 - Add a post-migration to delete the integration records from PostgreSQL (see [example merge request](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/114721)).
-- [Mark the integration documentation as removed](../../development/documentation/versions.md#remove-a-page).
+- [Mark the integration documentation as removed](../../development/documentation/styleguide/deprecations_and_removals.md#remove-a-page).
 - [Update the integration API documentation](../../api/integrations.md).
 
 In the next minor release (M.1):
@@ -463,4 +472,4 @@ You can refer to these issues for examples of adding new integrations:
 - [Datadog](https://gitlab.com/gitlab-org/gitlab/-/issues/270123): Metrics collector, similar to the Prometheus integration.
 - [EWM/RTC](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/36662): External issue tracker.
 - [Webex Teams](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31543): Chat notifications.
-- [ZenTao](https://gitlab.com/gitlab-org/gitlab/-/issues/338178): External issue tracker with custom issue views, similar to the Jira integration.
+- [ZenTao](https://gitlab.com/gitlab-org/gitlab/-/issues/338178): External issue tracker with custom issue views, similar to the Jira issues integration.

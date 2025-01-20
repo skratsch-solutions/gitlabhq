@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby 3.1 and earlier needs this. Drop this line after Ruby 3.2+ is only supported.
 require 'yaml'
 require 'digest/sha2'
 require 'did_you_mean'
@@ -22,6 +21,7 @@ module RuboCop
     CUSTOM_CATEGORIES = %w[
       tooling
       shared
+      test_platform
     ].to_set.freeze
 
     def self.available
@@ -50,7 +50,7 @@ module RuboCop
       if value_node
         if !value_node.sym_type?
           yield MSG_SYMBOL
-        elsif !categories.include?(value_node.value.to_s) # rubocop:disable Rails/NegateInclude
+        elsif !categories.include?(value_node.value.to_s)
           yield format_message(value_node.value, document_link: document_link)
         end
       else

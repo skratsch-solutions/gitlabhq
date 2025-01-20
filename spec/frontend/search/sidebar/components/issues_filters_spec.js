@@ -8,7 +8,6 @@ import ConfidentialityFilter from '~/search/sidebar/components/confidentiality_f
 import StatusFilter from '~/search/sidebar/components/status_filter/index.vue';
 import LabelFilter from '~/search/sidebar/components/label_filter/index.vue';
 import ArchivedFilter from '~/search/sidebar/components/archived_filter/index.vue';
-import { SEARCH_TYPE_ADVANCED, SEARCH_TYPE_BASIC } from '~/search/sidebar/constants';
 
 Vue.use(Vuex);
 
@@ -17,14 +16,14 @@ describe('GlobalSearch IssuesFilters', () => {
 
   const defaultGetters = {
     currentScope: () => 'issues',
-    showArchived: () => true,
+    hasMissingProjectContext: () => true,
   };
 
   const createComponent = ({ initialState = {} } = {}) => {
     const store = new Vuex.Store({
       state: {
         urlQuery: MOCK_QUERY,
-        searchType: SEARCH_TYPE_ADVANCED,
+        searchType: 'advanced',
         ...initialState,
       },
       getters: defaultGetters,
@@ -64,7 +63,7 @@ describe('GlobalSearch IssuesFilters', () => {
 
   describe('Renders correctly with basic search', () => {
     beforeEach(() => {
-      createComponent({ initialState: { searchType: SEARCH_TYPE_BASIC } });
+      createComponent({ initialState: { searchType: 'basic' } });
     });
     it('renders StatusFilter', () => {
       expect(findStatusFilter().exists()).toBe(true);
@@ -83,9 +82,9 @@ describe('GlobalSearch IssuesFilters', () => {
     });
   });
 
-  describe('ShowArchived getter', () => {
+  describe('hasMissingProjectContext getter', () => {
     beforeEach(() => {
-      defaultGetters.showArchived = () => false;
+      defaultGetters.hasMissingProjectContext = () => false;
       createComponent();
     });
 

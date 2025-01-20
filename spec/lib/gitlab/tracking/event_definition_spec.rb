@@ -40,8 +40,8 @@ RSpec.describe Gitlab::Tracking::EventDefinition, feature_category: :service_pin
   it 'has no duplicated actions in InternalEventTracking events', :aggregate_failures do
     definitions_by_action = described_class
                               .definitions
-                              .select { |d| d.attributes[:internal_events] }
-                              .group_by { |d| d.attributes[:action] }
+                              .select(&:internal_events?)
+                              .group_by(&:action)
 
     definitions_by_action.each do |action, definitions|
       expect(definitions.size).to eq(1),
@@ -52,10 +52,10 @@ RSpec.describe Gitlab::Tracking::EventDefinition, feature_category: :service_pin
   it 'only has internal events without category', :aggregate_failures do
     internal_events = described_class
       .definitions
-      .select { |d| d.attributes[:internal_events] }
+      .select(&:internal_events?)
 
     internal_events.each do |event|
-      expect(event.attributes[:category]).to be_nil,
+      expect(event.category).to be_nil,
         "Event definition with internal_events: true should not have a category: #{event.path}"
     end
   end
@@ -68,38 +68,11 @@ RSpec.describe Gitlab::Tracking::EventDefinition, feature_category: :service_pin
       .compact
       .uniq
 
-    event_names = Gitlab::Tracking::EventDefinition.definitions.map { |e| e.attributes[:action] }
+    event_names = described_class.definitions.map(&:action)
 
     from_metric_definitions.each do |event|
       expect(event_names).to include(event),
         "Event '#{event}' is used in Internal Events but does not have an event definition yet. Please define it."
-    end
-  end
-
-  describe '#validate' do
-    using RSpec::Parameterized::TableSyntax
-
-    where(:attribute, :value) do
-      :description          | 1
-      :category             | nil
-      :action               | nil
-      :label_description    | 1
-      :property_description | 1
-      :value_description    | 1
-      :extra_properties     | 'smth'
-      :product_group        | nil
-      :distributions        | %(be eb)
-      :tiers                | %(pro)
-    end
-
-    with_them do
-      before do
-        attributes[attribute] = value
-      end
-
-      it 'has validation errors' do
-        expect(described_class.new(path, attributes).validation_errors).not_to be_empty
-      end
     end
   end
 
@@ -167,6 +140,18 @@ RSpec.describe Gitlab::Tracking::EventDefinition, feature_category: :service_pin
         described_class.find('event2')
         described_class.find('non-existing-event')
       end
+    end
+  end
+
+  describe '.extra_tracking_classes' do
+    it 'returns an empty array when no extra tracking classes are set' do
+      expect(described_class.new(nil, {}).extra_tracking_classes).to eq([])
+    end
+
+    it 'returns the extra tracking classes when they are set' do
+      config = attributes.merge({ extra_tracking_classes: ['Gitlab::Tracking::AiTracking'] })
+
+      expect(described_class.new(nil, config).extra_tracking_classes).to eq([Gitlab::Tracking::AiTracking])
     end
   end
 end

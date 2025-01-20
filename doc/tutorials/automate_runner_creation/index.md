@@ -43,36 +43,49 @@ to store the token, like HashiCorp Vault or the Keeper Secrets Manager Terraform
 
 ### Create a personal access token
 
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/461901) the maximum allowable lifetime limit to an increased value of 400 days in GitLab 17.6 [with a flag](../../administration/feature_flags.md) named `buffered_token_expiration_limit`. Disabled by default.
+
+FLAG:
+The availability of the extended maximum allowable lifetime limit is controlled by a feature flag.
+For more information, see the history.
+
 1. On the left sidebar, select your avatar.
 1. Select **Edit profile**.
-1. On the left sidebar, select **Access Tokens**.
+1. On the left sidebar, select **Access tokens**.
 1. Select **Add new token**.
 1. Enter a name and expiry date for the token.
-   - The token expires on that date at midnight UTC.
+   - The token expires on that date at midnight UTC. A token with the expiration date of 2024-01-01 expires at 00:00:00 UTC on 2024-01-01.
    - If you do not enter an expiry date, the expiry date is automatically set to 365 days later than the current date.
-   - By default, this date can be a maximum of 365 days later than the current date.
+   - By default, this date can be a maximum of 365 days later than the current date. In GitLab 17.6 or later, you can [extend this limit to 400 days](https://gitlab.com/gitlab-org/gitlab/-/issues/461901).
 1. In the **Select scopes** section, select the **create_runner** checkbox.
 1. Select **Create personal access token**.
 
 ### Create a project or group access token
 
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/461901) the maximum allowable lifetime limit to an increased value of 400 days in GitLab 17.6 [with a flag](../../administration/feature_flags.md) named `buffered_token_expiration_limit`. Disabled by default.
+
+FLAG:
+The availability of the extended maximum allowable lifetime limit is controlled by a feature flag.
+For more information, see the history.
+
 WARNING:
-Project access tokens are treated as [internal users](../../development/internal_users.md).
+Project access tokens are treated as [internal users](../../administration/internal_users.md).
 If an internal user creates a project access token, that token is able to access
 all projects that have visibility level set to [Internal](../../user/public_access.md).
 
 To create a project access token:
 
 1. On the left sidebar, select **Search or go to** and find your project or group.
-1. Select **Settings > Access Tokens**.
+1. Select **Settings > Access tokens**.
 1. Select **Add new token**
 1. Enter a name. The token name is visible to any user with permissions to view
    the group or project.
 1. Enter an expiry date for the token.
-   - The token expires on that date at midnight UTC.
+   - The token expires on that date at midnight UTC. A token with the expiration date of 2024-01-01 expires at 00:00:00 UTC on 2024-01-01.
    - If you do not enter an expiry date, the expiry date is automatically set
      to 365 days later than the current date.
-   - By default, this date can be a maximum of 365 days later than the current date.
+   - By default, this date can be a maximum of 365 days later than the current date. In GitLab 17.6 or later, you can [extend this limit to 400 days](https://gitlab.com/gitlab-org/gitlab/-/issues/461901).
+
    - An instance-wide [maximum lifetime](../../administration/settings/account_and_limit_settings.md#limit-the-lifetime-of-access-tokens)
      setting can limit the maximum allowable lifetime on self-managed instances.
 1. From the **Select a role** dropdown list:
@@ -212,7 +225,7 @@ runners to Google Compute Engine:
 Now that you've automated your runner creation and automation, you can view
 the runners that use the same configuration in the GitLab UI.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. In the search box, enter the runner description or search the list of runners.
 1. To view the runners that use the same configuration, in the **Details** tab,

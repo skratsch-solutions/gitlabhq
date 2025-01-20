@@ -6,12 +6,11 @@ identifiers:
   - project
   - user
   - namespace
-product_group: ide
+product_group: remote_development
+product_categories:
+- web_ide
 milestone: "15.7"
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/104809
-distributions:
-  - ce
-  - ee
 tiers:
   - free
   - premium

@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
@@ -8,18 +8,14 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 GitLab can integrate with [Kerberos](https://web.mit.edu/kerberos/) as an authentication mechanism.
 
 - You can configure GitLab so your users can sign in with their Kerberos credentials.
 - You can use Kerberos to [prevent](https://web.mit.edu/sipb/doc/working/guide/guide/node20.html) anyone from intercepting or eavesdropping on the transmitted password.
 
-Kerberos is only available on instances that use GitLab Enterprise Edition (EE). To use Kerberos, you can do one of the following:
-
-- [Activate GitLab EE](../administration/license.md#activate-gitlab-ee) for your instance.
-- If you have set up a GitLab Community Edition (CE) instance using the Linux
-  package, [convert from GitLab CE to GitLab EE](../update/package/convert_to_ee.md).
+Kerberos is only available on instances that use GitLab Enterprise Edition (EE). If you're running GitLab Community Edition (CE), you can [convert from GitLab CE to GitLab EE](../update/package/convert_to_ee.md).
 
 WARNING:
 GitLab CI/CD doesn't work with a Kerberos-enabled GitLab instance unless the integration is
@@ -116,7 +112,7 @@ set up GitLab to create a new account when a Kerberos user tries to sign in.
 If you're an administrator, you can link a Kerberos account to an
 existing GitLab account. To do so:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Users**.
 1. Select a user, then select the **Identities** tab.
 1. From the **Provider** dropdown list, select **Kerberos**.
@@ -157,7 +153,7 @@ With that information at hand:
       ```
 
       1. As an administrator, you can confirm the new, blocked account:
-         1. On the left sidebar, at the bottom, select **Admin Area**.
+         1. On the left sidebar, at the bottom, select **Admin**.
          1. On the left sidebar, select **Overview > Users** and review the **Blocked** tab.
       1. You can enable the user.
    1. If `block_auto_created_users` is false, the Kerberos user is

@@ -1,7 +1,7 @@
 ---
 table_name: gitlab_subscription_histories
 classes:
-- GitlabSubscriptionHistory
+- GitlabSubscriptions::SubscriptionHistory
 feature_categories:
 - subscription_management
 description: History log for the gitlab_subscriptions table
@@ -10,3 +10,4 @@ milestone: '12.6'
 gitlab_schema: gitlab_main_cell
 sharding_key:
   namespace_id: namespaces
+table_size: small

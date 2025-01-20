@@ -1,6 +1,6 @@
 ---
-stage: Govern
-group: Threat Insights
+stage: Security Risk Management
+group: Security Insights
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,12 +8,12 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Security Dashboards
 
 Security Dashboards are used to assess the security posture of your applications. GitLab provides
-you with a collection of metrics, ratings, and charts for the vulnerabilities detected by the [security scanners](../index.md#application-coverage) run on your project. The security dashboard provides data such as:
+you with a collection of metrics, ratings, and charts for the vulnerabilities detected by the [security scanners](../detect/index.md) run on your project. The security dashboard provides data such as:
 
 - Vulnerability trends over a 30, 60, or 90-day time-frame for all projects in a group
 - A letter grade rating for each project based on vulnerability severity
@@ -35,7 +35,7 @@ You can view vulnerability metrics also in the [Value Streams Dashboard](../../.
 To view the Security Dashboards, the following is required:
 
 - You must have the Developer role for the group or project.
-- At least one [security scanner](../index.md#application-coverage) configured within your project.
+- At least one [security scanner](../detect/index.md) configured in your project.
 - A successful security scan performed on the [default branch](../../project/repository/branches/default.md) of your project.
 - At least 1 detected vulnerability in the project.
 
@@ -51,8 +51,9 @@ Each dashboard provides a unique viewpoint of your security posture.
 ### Project Security Dashboard
 
 The Project Security Dashboard shows the total number of vulnerabilities detected over time,
-with up to 365 days of historical data for a given project. You can view the Project Security
-Dashboard:
+with up to 365 days of historical data for a given project. The dashboard is an historical view of open vulnerabilities in the default branch. Open vulnerabilities are those of only `Needs triage` or `Confirmed` status (`Dismissed` or `Resolved` vulnerabilities are excluded).
+
+To view a project's security dashboard:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Secure > Security dashboard**.
@@ -63,7 +64,7 @@ Dashboard:
      across the chart.
    - To reset to the original range, select **Remove Selection** (**{redo}**).
 
-![Project Security Dashboard](img/project_security_dashboard.png)
+![Project Security Dashboard](img/project_security_dashboard_v16_6.png)
 
 #### Downloading the vulnerability chart
 
@@ -106,12 +107,16 @@ To view group security dashboard:
    - You can see how many vulnerabilities of a particular severity are found in a project
    - You can select a project's name to directly access its project security dashboard
 
-![Group Security Dashboard](img/group_security_dashboard.png)
+![Group Security Dashboard](img/group_security_dashboard_v16_6.png)
 
 ## Security Center
 
 The Security Center is a configurable personal space where you can view vulnerabilities across all the
-projects you belong to. The Security Center includes:
+projects you belong to. You can add up to 1,000 projects to the Security Center, however the **Project** listing in
+the **Security Center** settings page displays a maximum of 100 projects. You can use the search filter to find projects not
+shown in the first 100 projects.
+
+The Security Center includes:
 
 - The group Security Dashboard
 - A [vulnerability report](../vulnerability_report/index.md)
@@ -127,9 +132,9 @@ To view the Security Center:
 
 The Security Center is blank by default. You must add a project which have been configured with at least one security scanner.
 
-### Adding Projects to the Security Center
+### Adding projects to the Security Center
 
-To add projects to the Security Center:
+To add projects:
 
 1. On the left sidebar, select **Search or go to**.
 1. Select **Your work**.
@@ -138,7 +143,20 @@ To add projects to the Security Center:
 1. Use the **Search your projects** text box to search for and select projects.
 1. Select **Add projects**.
 
-After you add projects, the security dashboard and vulnerability report show the vulnerabilities found in those projects' default branches. You can add a maximum of 1,000 projects, however the **Project** filter in the **Vulnerability Report** is limited to 100 projects.
+After you add projects, the security dashboard and vulnerability report show the vulnerabilities found in those projects' default branches.
+
+### Removing projects from the Security Center
+
+The Security Center displays a maximum of 100 projects, so you may need to use the search function to remove a project. To remove projects:
+
+1. On the left sidebar, select **Search or go to**.
+1. Select **Your work**.
+1. Expand **Security**.
+1. Select **Settings**.
+1. Use the **Search your projects** text box to search for the project.
+1. Select **Remove project from dashboard** (**{remove}**).
+
+After you remove projects, the security dashboard and vulnerability report no longer show the vulnerabilities found in those projects' default branches.
 
 ## Related topics
 

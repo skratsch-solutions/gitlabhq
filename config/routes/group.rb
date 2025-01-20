@@ -50,6 +50,11 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       resources :access_tokens, only: [:index, :create] do
         member do
           put :revoke
+          put :rotate
+        end
+
+        collection do
+          get :inactive, format: :json
         end
       end
 
@@ -113,7 +118,14 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resources :group_members, only: [:index, :update, :destroy], concerns: :access_requestable do
       post :resend_invite, on: :member
-      delete :leave, on: :collection
+
+      collection do
+        resource :bulk_reassignment_file, only: %i[show create], controller: 'bulk_placeholder_assignments' do
+          post :authorize
+        end
+
+        delete :leave
+      end
     end
 
     resources :group_links, only: [:update, :destroy], constraints: { id: /\d+|:id/ }

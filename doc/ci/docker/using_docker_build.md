@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use GitLab CI/CD with Docker to create Docker images.
 For example, you can create a Docker image of your application,
@@ -188,6 +188,46 @@ To use Docker-in-Docker with TLS enabled:
        - docker build -t my-docker-image .
        - docker run my-docker-image /script/to/run/tests
    ```
+
+##### Use a Unix socket on a shared volume between Docker-in-Docker and build container
+
+Directories defined in `volumes = ["/certs/client", "/cache"]` in the
+[Docker-in-Docker with TLS enabled in the Docker executor](#docker-in-docker-with-tls-enabled-in-the-docker-executor)
+approach are [persistent between builds](https://docs.gitlab.com/runner/executors/docker.html#persistent-storage).
+If multiple CI/CD jobs using a Docker executor runner have Docker-in-Docker services enabled, then each job
+writes to the directory path. This approach might result in a conflict.
+
+To address this conflict, use a Unix socket on a volume shared between the Docker-in-Docker service and the build container.
+This approach improves performance and establishes a secure connection between the service and client.
+
+The following is a sample `config.toml` with temporary volume shared between build and service containers:
+
+```toml
+[[runners]]
+  url = "https://gitlab.com/"
+  token = TOKEN
+  executor = "docker"
+  [runners.docker]
+    image = "docker:24.0.5"
+    privileged = true
+    volumes = ["/runner/services/docker"] # Temporary volume shared between build and service containers.
+```
+
+The Docker-in-Docker service creates a `docker.sock`. The Docker client connects to `docker.sock` through a Docker Unix socket volume.
+
+```yaml
+job:
+  variables:
+    # This variable is shared by both the DinD service and Docker client.
+    # For the service, it will instruct DinD to create `docker.sock` here.
+    # For the client, it tells the Docker client which Docker Unix socket to connect to.
+    DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
+  services:
+    - docker:24.0.5-dind
+  image: docker:24.0.5
+  script:
+    - docker version
+```
 
 ##### Docker-in-Docker with TLS disabled in the Docker executor
 
@@ -444,8 +484,8 @@ sudo gitlab-runner register -n \
   --docker-volumes /var/run/docker.sock:/var/run/docker.sock
 ```
 
-For complex Docker-in-Docker setups like Code Quality checks using Code Climate, you must match host and container paths for proper execution. For more details, see
-[Improve Code Quality performance with private runners](../testing/code_quality.md#improve-code-quality-performance-with-private-runners).
+For complex Docker-in-Docker setups like [Code Quality scanning using CodeClimate](../testing/code_quality_codeclimate_scanning.md), you must match host and container paths for proper execution. For more details, see
+[Use private runners for CodeClimate-based scanning](../testing/code_quality_codeclimate_scanning.md#use-private-runners).
 
 #### Enable registry mirror for `docker:dind` service
 
@@ -742,11 +782,14 @@ After you've built a Docker image, you can push it to the
 
 ## Troubleshooting
 
-### `docker: Cannot connect to the Docker daemon at tcp://docker:2375. Is the docker daemon running?`
+### Error: `docker: Cannot connect to the Docker daemon at tcp://docker:2375`
 
-This is a common error when you are using
-[Docker-in-Docker](#use-docker-in-docker)
-v19.03 or later.
+This error is common when you are using [Docker-in-Docker](#use-docker-in-docker)
+v19.03 or later:
+
+```plaintext
+docker: Cannot connect to the Docker daemon at tcp://docker:2375. Is the docker daemon running?
+```
 
 This error occurs because Docker starts on TLS automatically.
 
@@ -784,7 +827,7 @@ default:
       alias: docker
 ```
 
-### `Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?`
+### Error: `Cannot connect to the Docker daemon at unix:///var/run/docker.sock`
 
 You might get the following error when trying to run a `docker` command
 to access a `dind` service:

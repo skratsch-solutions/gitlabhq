@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This page contains upgrade information for minor and patch versions of GitLab 16.
 Ensure you review these instructions for:
@@ -23,7 +23,7 @@ For more information about upgrading GitLab Helm Chart, see [the release notes f
 - [PostgreSQL 12 is not supported starting from GitLab 16](../../update/deprecations.md#postgresql-12-deprecated). Upgrade PostgreSQL to at least version 13.6 before upgrading to GitLab 16.0 or later.
 - If your GitLab instance upgraded first to 15.11.0, 15.11.1, or 15.11.2 the database schema is incorrect.
   Perform the [workaround](#undefined-column-error-upgrading-to-162-or-later) before upgrading to 16.x.
-- Starting with 16.0, GitLab self-managed installations now have two database connections by default, instead of one. This change doubles the number of PostgreSQL connections. It makes self-managed versions of GitLab behave similarly to GitLab.com, and is a step toward enabling a separate database for CI features for self-managed versions of GitLab. Before upgrading to 16.0, determine if you need to [increase max connections for PostgreSQL](https://docs.gitlab.com/omnibus/settings/database.html#configuring-multiple-database-connections).
+- Starting with 16.0, GitLab Self-Managed installations now have two database connections by default, instead of one. This change doubles the number of PostgreSQL connections. It makes self-managed versions of GitLab behave similarly to GitLab.com, and is a step toward enabling a separate database for CI features for self-managed versions of GitLab. Before upgrading to 16.0, determine if you need to [increase max connections for PostgreSQL](https://docs.gitlab.com/omnibus/settings/database.html#configuring-multiple-database-connections).
   - This change applies to installation methods with Linux packages (Omnibus), GitLab Helm chart, GitLab Operator, GitLab Docker images, and self-compiled installations.
   - [The second database connection can be disabled](#disable-the-second-database-connection).
 - Most installations can skip 16.0, 16.1, and 16.2, as the first required stop on the upgrade path is 16.3.
@@ -86,9 +86,24 @@ For more information about upgrading GitLab Helm Chart, see [the release notes f
 
 ## 16.11.0
 
+- A [`groups_direct` field was added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/146881)
+  to the [JSON web token (ID token)](../../ci/secrets/id_token_authentication.md).
+  - If you use GitLab CI/CD ID tokens to authenticate with third party services,
+    this change can cause the HTTP header size to increase. Proxy servers might reject
+    the request if the headers get too big.
+  - If possible, increase the header limit on the receiving system.
+  - See [issue 467253](https://gitlab.com/gitlab-org/gitlab/-/issues/467253) for more details.
+- After upgrading to GitLab 16.11 some users with large environments and databases experience
+  timeouts loading source code pages in the web UI.
+  - These timeouts are caused by slow PostgreSQL queries for pipeline data, which then
+    exceed the internal 60 second timeout.
+  - You can still clone Git repositories, and other requests for repository data works.
+  - See [issue 472420](https://gitlab.com/gitlab-org/gitlab/-/issues/472420) for more details,
+    including steps to confirm you're affected and housekeeping to run in PostgreSQL to correct it.
+
 ### Linux package installations
 
-In GitLab 16.11, PostgreSQL will automatically be upgraded to 14.x except for the following cases:
+In GitLab 16.11, PostgreSQL is automatically upgraded to 14.x except for the following cases:
 
 - You are running the database in high availability using Patroni.
 - Your database nodes are part of a GitLab Geo configuration.
@@ -109,11 +124,34 @@ see [Packaged PostgreSQL deployed in an HA/Geo Cluster](https://docs.gitlab.com/
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
+
+- In GitLab 16.11 through GitLab 17.2, a missing PostgreSQL index can cause high CPU usage, slow job artifact verification progress, and slow or timed out Geo metrics status updates. The index was added in GitLab 17.3. To manually add the index, see [Geo Troubleshooting - High CPU usage on primary during job artifact verification](../../administration/geo/replication/troubleshooting/common.md#high-cpu-usage-on-primary-during-object-verification).
+
+  **Affected releases**:
+
+  | Affected minor releases | Affected patch releases | Fixed in |
+  | ----------------------- | ----------------------- | -------- |
+  | 16.11                   |  All                    | None     |
+  | 17.0                    |  All                    | None     |
+  | 17.1                    |  All                    | None     |
+  | 17.2                    |  All                    | None     |
+
+- Geo replication details for secondary sites appear to be empty even if Geo replication is working. See [issue 468509](https://gitlab.com/gitlab-org/gitlab/-/issues/468509). There is no known workaround. The bug is fixed in GitLab 17.4.
+
+  **Affected releases**:
+
+  | Affected minor releases | Affected patch releases | Fixed in |
+  | ----------------------- | ----------------------- | -------- |
+  | 16.11                   |  16.11.5 - 16.11.10     | None     |
+  | 17.0                    |  All                    | 17.0.7   |
+  | 17.1                    |  All                    | 17.1.7   |
+  | 17.2                    |  All                    | 17.2.5   |
+  | 17.3                    |  All                    | 17.3.1   |
 
 ## 16.10.0
 
@@ -175,9 +213,9 @@ For more information on the changes introduced between version 2.1.0 and version
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
@@ -233,15 +271,15 @@ planned for release in 16.9.1.
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
 ### Linux package installations
 
-- The [Sidekiq `min_concurrency` and `max_concurrency`](../../administration/sidekiq/extra_sidekiq_processes.md#manage-thread-counts-with-min_concurrency-and-max_concurrency-fields-deprecated) options are deprecated in GitLab 16.9.0 and due for removal in GitLab 17.0.0. In GitLab 16.9.0 and later, to avoid breaking changes in GitLab 17.0.0, set the new [`concurrency`](../../administration/sidekiq/extra_sidekiq_processes.md#manage-thread-counts-with-concurrency-field) option and remove the `min_concurrency` and `max_concurrency` options.
+- The Sidekiq `min_concurrency` and `max_concurrency` options are deprecated in GitLab 16.9.0 and due for removal in GitLab 17.0.0. In GitLab 16.9.0 and later, to avoid breaking changes in GitLab 17.0.0, set the new [`concurrency`](../../administration/sidekiq/extra_sidekiq_processes.md#manage-thread-counts-with-concurrency-field) option and remove the `min_concurrency` and `max_concurrency` options.
 
 ## 16.8.0
 
@@ -311,9 +349,9 @@ planned for release in 16.9.1.
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
@@ -401,9 +439,9 @@ Specific information applies to Linux package installations:
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
@@ -426,7 +464,7 @@ Specific information applies to Linux package installations:
 
   Workarounds:
 
-  - Pause the running migration in the [Admin Area](../background_migrations.md#from-the-gitlab-ui).
+  - Pause the running migration in the [**Admin** area](../background_migrations.md#from-the-gitlab-ui).
   - Recreate table statistics manually on the
     [database console](../../administration/troubleshooting/postgresql.md#start-a-database-console)
     to ensure the right query plan is selected:
@@ -490,9 +528,9 @@ Specific information applies to Linux package installations:
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
@@ -646,9 +684,9 @@ Specific information applies to installations using Geo:
   | ----------------------- | ----------------------- | -------- |
   | 16.5                    |  All                    | None     |
   | 16.6                    |  All                    | None     |
-  | 16.7                    |  All                    | None     |
-  | 16.8                    |  All                    | None     |
-  | 16.9                    |  All                    | None     |
+  | 16.7                    |  16.7.0 - 16.7.7        | 16.7.8   |
+  | 16.8                    |  16.8.0 - 16.8.7        | 16.8.8   |
+  | 16.9                    |  16.9.0 - 16.9.8        | 16.9.9   |
   | 16.10                   |  16.10.0 - 16.10.6      | 16.10.7  |
   | 16.11                   |  16.11.0 - 16.11.3      | 16.11.4  |
 
@@ -841,7 +879,7 @@ Specific information applies to installations using Geo:
 - A `BackfillCiPipelineVariablesForPipelineIdBigintConversion` background migration is finalized with
   the `EnsureAgainBackfillForCiPipelineVariablesPipelineIdIsFinished` post-deploy migration.
   GitLab 16.2.0 introduced a [batched background migration](../background_migrations.md#batched-background-migrations) to
-  [backfill bigint `pipeline_id` values on the `ci_pipeline_variables` table](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/123132). This
+  [backfill `bigint` `pipeline_id` values on the `ci_pipeline_variables` table](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/123132). This
   migration may take a long time to complete on larger GitLab instances (4 hours to process 50 million rows reported in one case).
   To avoid a prolonged upgrade downtime, make sure the migration has completed successfully before upgrading to 16.3.
 
@@ -1067,7 +1105,7 @@ You are not impacted:
 |-------------------------|-------------------------|----------|
 | 15.1 - 16.2             | All                     | 16.3 and later    |
 
-Workaround: A possible workaround is to [disable proxying](../../administration/geo/secondary_proxy/index.md#disable-geo-proxying). Note that the secondary site fails to serve LFS files that have not been replicated at the time of cloning.
+Workaround: A possible workaround is to [disable proxying](../../administration/geo/secondary_proxy/index.md#disable-secondary-site-http-proxying). Note that the secondary site fails to serve LFS files that have not been replicated at the time of cloning.
 
 ## 16.1.0
 
@@ -1081,7 +1119,7 @@ Workaround: A possible workaround is to [disable proxying](../../administration/
 - A `BackfillCiPipelineVariablesForBigintConversion` background migration is finalized with
   the `EnsureBackfillBigintIdIsCompleted` post-deploy migration.
   GitLab 16.0.0 introduced a [batched background migration](../background_migrations.md#batched-background-migrations) to
-  [backfill bigint `id` values on the `ci_pipeline_variables` table](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/118878). This
+  [backfill `bigint` `id` values on the `ci_pipeline_variables` table](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/118878). This
   migration may take a long time to complete on larger GitLab instances (4 hours to process 50 million rows reported in one case).
   To avoid a prolonged upgrade downtime, make sure the migration has completed successfully before upgrading to 16.1.
 
@@ -1118,7 +1156,7 @@ Workaround: A possible workaround is to [disable proxying](../../administration/
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Specific information applies to installations using Geo:
 
@@ -1163,7 +1201,7 @@ by this issue.
   every Sidekiq process also listens to those queues to ensure all jobs are processed across
   all queues. This behavior does not apply if you have configured the [routing rules](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules).
 - Docker 20.10.10 or later is required to run the GitLab Docker image. Older versions
-  [throw errors on startup](../../install/docker_troubleshooting.md#threaderror-cant-create-thread-operation-not-permitted).
+  [throw errors on startup](../../install/docker/troubleshooting.md#threaderror-cant-create-thread-operation-not-permitted).
 - Container registry using Azure storage might be empty with zero tags. You can fix this by following the [breaking change instructions](../deprecations.md#azure-storage-driver-defaults-to-the-correct-root-prefix).
 
 - Normally, backups in environments that have PgBouncer must [bypass PgBouncer by setting variables that are prefixed with `GITLAB_BACKUP_`](../../administration/backup_restore/backup_gitlab.md#bypassing-pgbouncer). However, due to an [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/422163), `gitlab-backup` uses the regular database connection through PgBouncer instead of the direct connection defined in the override, and the database backup fails. The workaround is to use `pg_dump` directly.
@@ -1220,8 +1258,8 @@ date set at one year from the date of upgrade.
 
 Before this automatic expiry date is applied, you should do the following to minimize disruption:
 
-1. [Identify any access tokens without an expiration date](../../security/token_overview.md#find-tokens-with-no-expiration-date).
-1. [Give those tokens an expiration date](../../security/token_overview.md#extend-token-lifetime).
+1. [Identify any access tokens without an expiration date](../../security/tokens/token_troubleshooting.md#find-tokens-with-no-expiration-date).
+1. [Give those tokens an expiration date](../../security/tokens/token_troubleshooting.md#extend-token-lifetime).
 
 For more information, see the:
 
@@ -1232,7 +1270,7 @@ For more information, see the:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Specific information applies to installations using Geo:
 
@@ -1259,7 +1297,7 @@ configuration. Some `gitaly['..']` configuration options continue to be used by 
 - `consul_service_name`
 - `consul_service_meta`
 
-Migrate by moving your existing configuration under the new structure. `git_data_dirs` is supported [until GitLab 17.0](https://gitlab.com/gitlab-org/gitaly/-/issues/5133). The new structure is supported from GitLab 15.10.
+Migrate by moving your existing configuration under the new structure. `git_data_dirs` is supported [until GitLab 18.0](https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/8786). The new structure is supported from GitLab 15.10.
 
 **Migrate to the new structure**
 
@@ -1272,13 +1310,13 @@ To protect against configuration mistakes, temporarily disable repository verifi
 
 1. If you're running Gitaly Cluster, ensure repository verification is disabled on all Praefect nodes.
    Configure `verification_interval: 0`, and apply with `gitlab-ctl reconfigure`.
-1. When applying the new structure to your configuration
-   - Replace the `...` with the value from the old key.
-   - When configuring `storage` to replace `git_data_dirs`, **you must append `repositories` to the path** as documented below.
-     If you miss this out your Git repositories are inaccessible until the configuration is fixed.
-     This misconfiguration can cause metadata deletion, and is the reason for disabling repository verification.
-   - Skip any keys you haven't configured a value for previously.
-   - Recommended. Include a trailing comma for all hash keys so the hash remains valid when keys are re-ordered or additional keys are added.
+1. To apply the new structure to your configuration:
+   1. Replace the `...` with the value from the old key.
+   1. When configuring `storage` to replace `git_data_dirs`, **append `/repositories` to value of `path`** as documented below. If
+      you don't complete this step, your Git repositories are inaccessible until the configuration is fixed. This
+      misconfiguration can cause metadata deletion.
+   1. Skip any keys you haven't configured a value for previously.
+   1. Recommended. Include a trailing comma for all hash keys so the hash remains valid when keys are re-ordered or additional keys are added.
 1. Apply the change with `gitlab-ctl reconfigure`.
 1. Test Git repository functionality in GitLab.
 1. Remove the old keys from the configuration once migrated, and then re-run `gitlab-ctl reconfigure`.
@@ -1286,6 +1324,9 @@ To protect against configuration mistakes, temporarily disable repository verifi
    by removing `verification_interval: 0`.
 
 The new structure is documented below with the old keys described in a comment above the new keys.
+
+WARNING:
+Double check your update to `storage`. You must append `/repositories` to the value of `path`.
 
 ```ruby
 gitaly['configuration'] = {
@@ -1728,7 +1769,7 @@ was recently created:
 | 15.11                | [15.11](#workaround-instance-created-with-1511) |
 
 Most instances should use the 15.9 procedure. Only very new instances require the
-the 15.10 or 15.11 procedures. If you've migrated GitLab using backup and restore,
+15.10 or 15.11 procedures. If you've migrated GitLab using backup and restore,
 the database schema comes from the original instance. Select the workaround based
 on the source instance.
 

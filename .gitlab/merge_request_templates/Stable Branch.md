@@ -5,6 +5,10 @@ GitLab patch releases https://docs.gitlab.com/ee/policy/maintenance.html#patch-r
 If you're backporting a security fix, please refer to the security merge request
 template https://gitlab.com/gitlab-org/security/gitlab/blob/master/.gitlab/merge_request_templates/Security%20Release.md.
 Security backport merge requests should not be opened on the GitLab canonical project.
+
+Please don't remove this comment or other inline comments as they may be used to enforce validation rules.
+
+template sourced from https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/merge_request_templates/Stable%20Branch.md
 -->
 
 ## What does this MR do and why?
@@ -20,7 +24,7 @@ This checklist encourages us to confirm any changes have been analyzed to reduce
 * [ ] This MR has a [severity label] assigned (if applicable).
 * [ ] Set the milestone of the merge request to match the target backport branch version.
 * [ ] This MR has been approved by a maintainer (only one approval is required).
-* [ ] Ensure the `e2e:package-and-test-ee` job has either succeeded or been approved by a Software Engineer in Test.
+* [ ] Ensure the `e2e:test-on-omnibus-ee` job has either succeeded or been approved by a Software Engineer in Test.
 
 #### Note to the merge request author and maintainer
 

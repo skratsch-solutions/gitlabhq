@@ -10,7 +10,6 @@ import {
 } from 'helpers/vue_test_utils_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import { createAlert } from '~/alert';
-import { s__ } from '~/locale';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { updateHistory } from '~/lib/utils/url_utility';
 import { upgradeStatusTokenConfig } from 'ee_else_ce/ci/runner/components/search_tokens/upgrade_status_token_config';
@@ -88,13 +87,13 @@ describe('GroupRunnersApp', () => {
   const findRunnerStats = () => wrapper.findComponent(RunnerStats);
   const findRunnerActionsCell = () => wrapper.findComponent(RunnerActionsCell);
   const findRegistrationDropdown = () => wrapper.findComponent(RegistrationDropdown);
-  const findNewRunnerBtn = () => wrapper.findByText(s__('Runners|New group runner'));
+  const findNewRunnerBtn = () => wrapper.findByText('New group runner');
   const findRunnerTypeTabs = () => wrapper.findComponent(RunnerTypeTabs);
   const findRunnerList = () => wrapper.findComponent(RunnerList);
   const findRunnerListEmptyState = () => wrapper.findComponent(RunnerListEmptyState);
   const findRunnerRow = (id) => extendedWrapper(wrapper.findByTestId(`runner-row-${id}`));
   const findRunnerPagination = () => extendedWrapper(wrapper.findComponent(RunnerPagination));
-  const findRunnerPaginationNext = () => findRunnerPagination().findByText(s__('Pagination|Next'));
+  const findRunnerPaginationNext = () => findRunnerPagination().findByText('Next');
   const findRunnerFilteredSearchBar = () => wrapper.findComponent(RunnerFilteredSearchBar);
   const findRunnerMembershipToggle = () => wrapper.findComponent(RunnerMembershipToggle);
 
@@ -102,6 +101,7 @@ describe('GroupRunnersApp', () => {
     props = {},
     provide = {},
     mountFn = shallowMountExtended,
+    stubs,
     ...options
   } = {}) => {
     const { cacheConfig, localMutations } = createLocalState();
@@ -123,6 +123,10 @@ describe('GroupRunnersApp', () => {
       provide: {
         localMutations,
         ...provide,
+      },
+      stubs: {
+        RunnerFilteredSearchBar: true,
+        ...stubs,
       },
       mocks: {
         $toast: {
@@ -150,9 +154,11 @@ describe('GroupRunnersApp', () => {
   it('shows the runner tabs with a runner count for each type', async () => {
     await createComponent({ mountFn: mountExtended });
 
-    expect(findRunnerTypeTabs().text()).toMatchInterpolatedText(
-      `All ${mockGroupRunnersCount} Group ${mockGroupRunnersCount} Project ${mockGroupRunnersCount}`,
-    );
+    const tabs = findRunnerTypeTabs().text().replace(/\s+/g, ' ');
+    expect(tabs).toContain(`All ${mockGroupRunnersCount}`);
+    expect(tabs).toContain(`Group ${mockGroupRunnersCount}`);
+    expect(tabs).toContain(`Project ${mockGroupRunnersCount}`);
+    expect(tabs).not.toContain('Instance');
   });
 
   it('shows the runner setup instructions', () => {

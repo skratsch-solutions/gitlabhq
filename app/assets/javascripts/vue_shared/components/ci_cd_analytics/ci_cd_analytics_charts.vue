@@ -1,13 +1,13 @@
 <script>
+import { GlSegmentedControl } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
-import SegmentedControlButtonGroup from '~/vue_shared/components/segmented_control_button_group.vue';
 import CiCdAnalyticsAreaChart from './ci_cd_analytics_area_chart.vue';
 import { DEFAULT_SELECTED_CHART } from './constants';
 
 export default {
   components: {
     CiCdAnalyticsAreaChart,
-    SegmentedControlButtonGroup,
+    GlSegmentedControl,
   },
   props: {
     charts: {
@@ -22,6 +22,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    formatTooltipText: {
+      type: Function,
+      required: false,
+      default: null,
     },
   },
   data() {
@@ -50,12 +55,8 @@ export default {
 </script>
 <template>
   <div>
-    <div class="gl-display-flex gl-flex-wrap gl-gap-5">
-      <segmented-control-button-group
-        :options="chartRanges"
-        :value="selectedChart"
-        @input="onInput"
-      />
+    <div class="gl-flex gl-flex-wrap gl-gap-5">
+      <gl-segmented-control :options="chartRanges" :value="selectedChart" @input="onInput" />
       <slot name="extend-button-group"></slot>
     </div>
     <ci-cd-analytics-area-chart
@@ -64,6 +65,7 @@ export default {
       :chart-data="chart.data"
       :area-chart-options="chartOptions"
       :loading="loading"
+      :format-tooltip-text="formatTooltipText"
     >
       <slot name="alerts"></slot>
       <p>{{ dateRange }}</p>

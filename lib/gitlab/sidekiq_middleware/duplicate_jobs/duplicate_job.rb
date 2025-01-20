@@ -46,27 +46,53 @@ module Gitlab
 
         # This method will return the jid that was set in redis
         def check!(expiry = duplicate_key_ttl)
-          my_cookie = {
-            'jid' => jid,
-            'offsets' => {},
-            'wal_locations' => {},
-            'existing_wal_locations' => job_wal_locations
-          }
+          my_cookie = Cookie.new(
+            jid: jid,
+            existing_wal_locations: job_wal_locations
+          )
 
-          # There are 3 possible scenarios. In order of decreasing likelyhood:
+          # Signal to any server middleware for the same idempotency_key that
+          # there is at least one client middleware performing deduplication checks.
+          #
+          # The server middleware can determine if there is a duplicate job using the signaling key
+          # instead of reading the cookie key. Using a single key, the server can atomically read and delete it.
+          # This prevents a data race between the server and client in trying to read/write the key.
+          #
+          # There are 2 cases for deleting this key:
+          # 1. Server middleware's until_executed strategy atomically reads and delete it. Reschedules if key exists.
+          # 2. Client deletes key if job is not deduplicated.
+          set_signaling_key(expiry)
+
+          # There are 3 possible scenarios. In order of decreasing likelihood:
           # 1. SET NX succeeds.
           # 2. SET NX fails, GET succeeds.
           # 3. SET NX fails, the key expires and GET fails. In this case we must retry.
           actual_cookie = {}
           while actual_cookie.empty?
-            set_succeeded = with_redis { |r| r.set(cookie_key, my_cookie.to_msgpack, nx: true, ex: expiry) }
-            actual_cookie = set_succeeded ? my_cookie : get_cookie
+            write_succeeded = my_cookie.write(cookie_key, expiry)
+            actual_cookie = write_succeeded ? my_cookie.cookie : get_cookie
           end
 
           job['idempotency_key'] = idempotency_key
 
           self.existing_wal_locations = actual_cookie['existing_wal_locations']
           self.existing_jid = actual_cookie['jid']
+        end
+
+        def set_signaling_key(expiry)
+          return unless strategy == :until_executed && reschedulable? && job['rescheduled_once'].nil?
+
+          with_redis { |r| r.set(reschedule_signal_key, "1", ex: expiry) }
+        end
+
+        def clear_signaling_key
+          return unless strategy == :until_executed && reschedulable? && job['rescheduled_once'].nil?
+
+          with_redis { |r| r.del(reschedule_signal_key) }
+        end
+
+        def check_and_del_reschedule_signal
+          with_redis { |r| r.del(reschedule_signal_key) } == 1 # del returns 1 if key exists
         end
 
         def update_latest_wal_location!
@@ -78,38 +104,12 @@ module Gitlab
             argv += [connection_name, diff ? diff.to_f : '', location]
           end
 
-          with_redis { |r| r.eval(UPDATE_WAL_COOKIE_SCRIPT, keys: [cookie_key], argv: argv) }
+          Cookie.update_wal_locations!(cookie_key, argv)
         end
 
         def idempotency_key
           @idempotency_key ||= job['idempotency_key'] || "#{namespace}:#{idempotency_hash}"
         end
-
-        # Generally speaking, updating a Redis key by deserializing and
-        # serializing it on the Redis server is bad for performance. However in
-        # the case of DuplicateJobs we know that key updates are rare, and the
-        # most common operations are setting, getting and deleting the key. The
-        # aim of this design is to make the common operations as fast as
-        # possible.
-        UPDATE_WAL_COOKIE_SCRIPT = <<~LUA
-          local cookie_msgpack = redis.call("get", KEYS[1])
-          if not cookie_msgpack then
-            return
-          end
-          local cookie = cmsgpack.unpack(cookie_msgpack)
-
-          for i = 1, #ARGV, 3 do
-            local connection = ARGV[i]
-            local current_offset = cookie.offsets[connection]
-            local new_offset = tonumber(ARGV[i+1])
-            if not current_offset or (new_offset and current_offset < new_offset) then
-              cookie.offsets[connection] = new_offset
-              cookie.wal_locations[connection] = ARGV[i+2]
-            end
-          end
-
-          redis.call("set", KEYS[1], cmsgpack.pack(cookie), "keepttl")
-        LUA
 
         def latest_wal_locations
           return {} unless job_wal_locations.present?
@@ -120,13 +120,13 @@ module Gitlab
         end
 
         def delete!
-          with_redis { |redis| redis.del(cookie_key) }
+          Cookie.delete!(cookie_key)
         end
 
         def reschedule
           Gitlab::SidekiqLogging::DeduplicationLogger.instance.rescheduled_log(job)
 
-          worker_klass.perform_async(*arguments)
+          worker_klass.rescheduled_once.perform_async(*arguments)
         end
 
         def scheduled?
@@ -137,26 +137,6 @@ module Gitlab
           raise "Call `#check!` first to check for existing duplicates" unless existing_jid
 
           jid != existing_jid
-        end
-
-        def set_deduplicated_flag!
-          return unless reschedulable?
-
-          with_redis { |redis| redis.eval(DEDUPLICATED_SCRIPT, keys: [cookie_key]) }
-        end
-
-        DEDUPLICATED_SCRIPT = <<~LUA
-          local cookie_msgpack = redis.call("get", KEYS[1])
-          if not cookie_msgpack then
-            return
-          end
-          local cookie = cmsgpack.unpack(cookie_msgpack)
-          cookie.deduplicated = "1"
-          redis.call("set", KEYS[1], cmsgpack.pack(cookie), "keepttl")
-        LUA
-
-        def should_reschedule?
-          reschedulable? && get_cookie['deduplicated'].present?
         end
 
         def scheduled_at
@@ -232,6 +212,10 @@ module Gitlab
           job['jid']
         end
 
+        def reschedule_signal_key
+          "#{idempotency_key}:checking_duplicate"
+        end
+
         def cookie_key
           # This duplicates `Gitlab::Redis::Queues::SIDEKIQ_NAMESPACE` both here and in `#idempotency_key`
           # This is because `Sidekiq.redis` used to add this prefix automatically through `redis-namespace`
@@ -242,7 +226,7 @@ module Gitlab
         end
 
         def get_cookie
-          with_redis { |redis| MessagePack.unpack(redis.get(cookie_key) || "\x80") }
+          Cookie.read(cookie_key)
         end
 
         def idempotency_hash

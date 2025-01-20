@@ -2,7 +2,9 @@
 data_category: optional
 key_path: counts.web_ide_terminals
 description: Count of Web Terminal tab views in the Web IDE
-product_group: ide
+product_group: remote_development
+product_categories:
+- web_ide
 value_type: number
 status: active
 time_frame: all
@@ -15,9 +17,10 @@ options:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

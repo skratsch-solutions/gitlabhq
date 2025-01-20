@@ -1,15 +1,14 @@
-import { GlBadge, GlTab, GlTabs } from '@gitlab/ui';
+import { GlAvatar, GlBadge, GlTab, GlTabs, GlIcon, GlSprintf, GlLink } from '@gitlab/ui';
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import VueRouter from 'vue-router';
+import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import { mountExtended, shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { ShowMlModel } from '~/ml/model_registry/apps';
 import ModelVersionList from '~/ml/model_registry/components/model_version_list.vue';
 import CandidateList from '~/ml/model_registry/components/candidate_list.vue';
 import TitleArea from '~/vue_shared/components/registry/title_area.vue';
-import MetadataItem from '~/vue_shared/components/registry/metadata_item.vue';
 import createMockApollo from 'helpers/mock_apollo_helper';
-import ModelVersionCreate from '~/ml/model_registry/components/model_version_create.vue';
 import ModelDetail from '~/ml/model_registry/components/model_detail.vue';
 import waitForPromises from 'helpers/wait_for_promises';
 import setWindowLocation from 'helpers/set_window_location_helper';
@@ -18,10 +17,15 @@ import { visitUrlWithAlerts } from '~/lib/utils/url_utility';
 import destroyModelMutation from '~/ml/model_registry/graphql/mutations/destroy_model.mutation.graphql';
 import getModelQuery from '~/ml/model_registry/graphql/queries/get_model.query.graphql';
 import ActionsDropdown from '~/ml/model_registry/components/actions_dropdown.vue';
-import DeleteDisclosureDropdownItem from '~/ml/model_registry/components/delete_disclosure_dropdown_item.vue';
+import DeleteModelDisclosureDropdownItem from '~/ml/model_registry/components/delete_model_disclosure_dropdown_item.vue';
 import DeleteModel from '~/ml/model_registry/components/functional/delete_model.vue';
 import LoadOrErrorOrShow from '~/ml/model_registry/components/load_or_error_or_show.vue';
-import { destroyModelResponses, model, modelDetailQuery } from '../graphql_mock_data';
+import {
+  destroyModelResponses,
+  model,
+  modelDetailQuery,
+  modelWithNoVersionDetailQuery,
+} from '../graphql_mock_data';
 
 // Vue Test Utils `stubs` option does not stub components mounted
 // in <router-view>. Use mocking instead:
@@ -73,6 +77,7 @@ describe('ml/model_registry/apps/show_ml_model', () => {
     modelDetailsResolver = jest.fn().mockResolvedValue(modelDetailQuery),
     destroyMutationResolver = jest.fn().mockResolvedValue(destroyModelResponses.success),
     canWriteModelRegistry = true,
+    latestVersion = '1.0.0',
   } = {}) => {
     const requestHandlers = [
       [getModelQuery, modelDetailsResolver],
@@ -87,12 +92,15 @@ describe('ml/model_registry/apps/show_ml_model', () => {
         modelName: 'MyModel',
         projectPath: 'project/path',
         indexModelsPath: 'index/path',
+        editModelPath: 'edit/modal/path',
         mlflowTrackingUrl: 'path/to/tracking',
         canWriteModelRegistry,
         maxAllowedFileSize: 99999,
-        latestVersion: '',
+        latestVersion,
+        markdownPreviewPath: '/markdown-preview',
+        createModelVersionPath: 'project/path/create/model/version',
       },
-      stubs: { GlTab, DeleteModel, LoadOrErrorOrShow },
+      stubs: { GlTab, DeleteModel, LoadOrErrorOrShow, GlSprintf, TimeAgoTooltip },
     });
 
     return waitForPromises();
@@ -104,16 +112,18 @@ describe('ml/model_registry/apps/show_ml_model', () => {
   const findVersionsCountBadge = () => findVersionsTab().findComponent(GlBadge);
   const findModelVersionList = () => wrapper.findComponent(ModelVersionList);
   const findModelDetail = () => wrapper.findComponent(ModelDetail);
-  const findCandidateTab = () => wrapper.findAllComponents(GlTab).at(2);
   const findCandidateList = () => wrapper.findComponent(CandidateList);
-  const findCandidatesCountBadge = () => findCandidateTab().findComponent(GlBadge);
   const findTitleArea = () => wrapper.findComponent(TitleArea);
-  const findVersionCountMetadataItem = () => findTitleArea().findComponent(MetadataItem);
+  const findModelMetadata = () => wrapper.findByTestId('metadata');
   const findActionsDropdown = () => wrapper.findComponent(ActionsDropdown);
-  const findDeleteButton = () => wrapper.findComponent(DeleteDisclosureDropdownItem);
+  const findDeleteButton = () => wrapper.findComponent(DeleteModelDisclosureDropdownItem);
   const findDeleteModel = () => wrapper.findComponent(DeleteModel);
-  const findModelVersionCreate = () => wrapper.findComponent(ModelVersionCreate);
+  const findModelVersionCreateButton = () => wrapper.findByTestId('model-version-create-button');
   const findLoadOrErrorOrShow = () => wrapper.findComponent(LoadOrErrorOrShow);
+  const findModelEditButton = () => wrapper.findByTestId('edit-model-button');
+  const findTimeAgoTooltip = () => wrapper.findComponent(TimeAgoTooltip);
+  const findCandidateTab = () => wrapper.findAllComponents(GlTab).at(2);
+  const findCandidatesCountBadge = () => findCandidateTab().findComponent(GlBadge);
 
   describe('Title', () => {
     beforeEach(() => createWrapper());
@@ -122,8 +132,16 @@ describe('ml/model_registry/apps/show_ml_model', () => {
       expect(findTitleArea().props('title')).toBe('MyModel');
     });
 
-    it('sets version metadata item to version count', () => {
-      expect(findVersionCountMetadataItem().props('text')).toBe(`${model.versionCount} version`);
+    it('sets model metadata correctly', () => {
+      expect(findModelMetadata().findComponent(GlIcon).props('name')).toBe('machine-learning');
+      expect(findModelMetadata().text()).toBe('Model created in 3 years by Root');
+
+      expect(findTimeAgoTooltip().props('time')).toBe(model.createdAt);
+      expect(findTimeAgoTooltip().props('tooltipPlacement')).toBe('top');
+      expect(findTimeAgoTooltip().vm.tooltipText).toBe('December 6, 2023 at 12:41:48 PM GMT');
+
+      expect(findModelMetadata().findComponent(GlLink).attributes('href')).toBe('path/to/user');
+      expect(findModelMetadata().findComponent(GlLink).text()).toBe('Root');
     });
 
     it('renders the extra actions button', () => {
@@ -133,10 +151,10 @@ describe('ml/model_registry/apps/show_ml_model', () => {
 
   describe('Delete button', () => {
     describe('when user has permission to write model registry', () => {
-      it('displays create button', () => {
+      it('displays delete button', () => {
         createWrapper();
 
-        expect(findDeleteButton().props('actionPrimaryText')).toBe('Delete model');
+        expect(findDeleteButton().exists()).toBe(true);
       });
     });
 
@@ -149,18 +167,37 @@ describe('ml/model_registry/apps/show_ml_model', () => {
     });
   });
 
-  describe('ModelVersionCreate', () => {
+  describe('Model version create button', () => {
     beforeEach(() => createWrapper());
 
     it('displays version creation button', () => {
-      expect(findModelVersionCreate().props()).toEqual({ modelGid: 'gid://gitlab/Ml::Model/1' });
+      expect(findModelVersionCreateButton().exists()).toBe(true);
+      expect(findModelVersionCreateButton().text()).toBe('Create new version');
     });
 
     describe('when user has no permission to write model registry', () => {
       it('does not display version creation', () => {
         createWrapper({ canWriteModelRegistry: false });
 
-        expect(findModelVersionCreate().exists()).toBe(false);
+        expect(findModelVersionCreateButton().exists()).toBe(false);
+      });
+    });
+  });
+
+  describe('Model edit button', () => {
+    beforeEach(() => createWrapper());
+
+    it('displays model edit button', () => {
+      expect(findModelEditButton().props()).toMatchObject({
+        category: 'primary',
+      });
+      expect(findModelEditButton().text()).toBe('Edit');
+    });
+
+    describe('when user has no permission to write model registry', () => {
+      it('does not display model edit button', () => {
+        createWrapper({ canWriteModelRegistry: false });
+        expect(findModelEditButton().exists()).toBe(false);
       });
     });
   });
@@ -173,7 +210,24 @@ describe('ml/model_registry/apps/show_ml_model', () => {
     });
 
     it('shows the number of versions in the tab', () => {
-      expect(findVersionsCountBadge().text()).toBe(model.versionCount.toString());
+      expect(findVersionsCountBadge().text()).toBe('1');
+    });
+  });
+
+  describe('Tabs for model no version', () => {
+    beforeEach(() =>
+      createWrapper({
+        modelDetailsResolver: jest.fn().mockResolvedValue(modelWithNoVersionDetailQuery),
+        latestVersion: null,
+      }),
+    );
+
+    it('does not show badge', () => {
+      expect(findVersionsCountBadge().exists()).toBe(false);
+    });
+
+    it('shows model card', () => {
+      expect(findDetailTab().exists()).toBe(true);
     });
 
     it('shows the number of candidates in the tab', () => {
@@ -212,10 +266,10 @@ describe('ml/model_registry/apps/show_ml_model', () => {
       expect(findCandidateList().exists()).toBe(false);
     });
 
-    it('shows model version list when location hash is `#/versions`', async () => {
+    it('shows model version list when clicks versions tabs', async () => {
       await createWrapper({ mountFn: mountExtended });
 
-      await wrapper.vm.$router.push({ path: '/versions' });
+      await findVersionsTab().vm.$emit('click');
 
       expect(findTabs().props('value')).toBe(1);
       expect(findModelDetail().exists()).toBe(false);
@@ -223,7 +277,7 @@ describe('ml/model_registry/apps/show_ml_model', () => {
       expect(findCandidateList().exists()).toBe(false);
     });
 
-    it('shows candidate list when location hash is `#/candidates`', async () => {
+    it('shows candidate list when user clicks candidates tab', async () => {
       await createWrapper({ mountFn: mountExtended });
 
       await findCandidateTab().vm.$emit('click');
@@ -235,11 +289,16 @@ describe('ml/model_registry/apps/show_ml_model', () => {
     });
 
     describe.each`
-      location        | tab                | navigatedTo
-      ${'#/'}         | ${findDetailTab}   | ${0}
-      ${'#/'}         | ${findVersionsTab} | ${1}
-      ${'#/versions'} | ${findDetailTab}   | ${0}
-      ${'#/versions'} | ${findVersionsTab} | ${1}
+      location          | tab                 | navigatedTo
+      ${'#/'}           | ${findDetailTab}    | ${0}
+      ${'#/'}           | ${findVersionsTab}  | ${1}
+      ${'#/'}           | ${findCandidateTab} | ${2}
+      ${'#/versions'}   | ${findDetailTab}    | ${0}
+      ${'#/versions'}   | ${findVersionsTab}  | ${1}
+      ${'#/versions'}   | ${findCandidateTab} | ${2}
+      ${'#/candidates'} | ${findDetailTab}    | ${0}
+      ${'#/candidates'} | ${findVersionsTab}  | ${1}
+      ${'#/candidates'} | ${findCandidateTab} | ${2}
     `('When at $location', ({ location, tab, navigatedTo }) => {
       beforeEach(async () => {
         setWindowLocation(location);
@@ -289,6 +348,83 @@ describe('ml/model_registry/apps/show_ml_model', () => {
         await waitForPromises();
 
         expect(visitUrlWithAlerts).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Sidebar', () => {
+    beforeEach(() => createWrapper());
+
+    const findSidebarAuthorLink = () => wrapper.findByTestId('sidebar-author-link');
+    const findAvatar = () => wrapper.findComponent(GlAvatar);
+    const findLatestVersionLink = () => wrapper.findByTestId('sidebar-latest-version-link');
+    const findVersionCount = () => wrapper.findByTestId('sidebar-version-count');
+    const findExperimentTitle = () => wrapper.findByTestId('sidebar-experiment-title');
+    const findExperiment = () => wrapper.findByTestId('sidebar-experiment-label');
+
+    it('displays sidebar author link', () => {
+      expect(findSidebarAuthorLink().attributes('href')).toBe('path/to/user');
+      expect(findSidebarAuthorLink().text()).toBe('Root');
+    });
+
+    it('displays sidebar avatar', () => {
+      expect(findAvatar().props('src')).toBe('path/to/avatar');
+    });
+
+    describe('latest version', () => {
+      it('displays sidebar latest version link', () => {
+        expect(findLatestVersionLink().attributes('href')).toBe(
+          '/root/test-project/-/ml/models/1/versions/5000',
+        );
+        expect(findLatestVersionLink().text()).toBe('1.0.4999');
+      });
+
+      it('does not display sidebar latest version link when model does not have a latest version', () => {
+        createWrapper({ latestVersion: null });
+        expect(findLatestVersionLink().exists()).toBe(false);
+        expect(wrapper.findByTestId('sidebar-latest-version').text()).toBe('None');
+      });
+    });
+
+    it('displays sidebar version count', () => {
+      expect(findVersionCount().text()).toBe('1');
+    });
+
+    describe('displays experiment information', () => {
+      it('displays experiment title', () => {
+        expect(findExperimentTitle().text()).toBe('Experiment');
+      });
+
+      it('displays experiment label', () => {
+        expect(findExperiment().text()).toBe('Default experiment');
+      });
+
+      it('shows a link to the default experiment', () => {
+        expect(findExperiment().findComponent(GlLink).attributes('href')).toBe(
+          'path/to/experiment',
+        );
+      });
+    });
+
+    describe('when model does not get loaded', () => {
+      const error = new Error('Failure!');
+      beforeEach(() => createWrapper({ modelDetailsResolver: jest.fn().mockRejectedValue(error) }));
+
+      it('does not display sidebar author link', () => {
+        expect(findSidebarAuthorLink().exists()).toBe(false);
+      });
+
+      it('does not display sidebar latest version link', () => {
+        expect(findLatestVersionLink().exists()).toBe(false);
+      });
+
+      it('does not display sidebar version count', () => {
+        expect(findVersionCount().text()).toBe('None');
+      });
+
+      it('does not display sidebar experiment information', () => {
+        expect(findExperimentTitle().exists()).toBe(false);
+        expect(findExperiment().exists()).toBe(false);
       });
     });
   });

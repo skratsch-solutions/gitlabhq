@@ -18,7 +18,7 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
   let(:access_token) { create :oauth_access_token, application: application, resource_owner_id: user.id }
 
   let(:hashed_subject) do
-    Digest::SHA256.hexdigest("#{user.id}-#{Rails.application.secrets.secret_key_base}")
+    Digest::SHA256.hexdigest("#{user.id}-#{Rails.application.credentials.secret_key_base}")
   end
 
   let(:id_token_claims) do
@@ -192,7 +192,8 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
       end
 
       it 'does not include any unknown properties' do
-        expect(@payload.keys).to eq %w[iss sub aud exp iat auth_time sub_legacy name nickname preferred_username email email_verified website profile picture groups_direct]
+        expect(@payload.keys).to eq %w[iss sub aud exp iat auth_time sub_legacy name nickname preferred_username email
+          email_verified website profile picture groups_direct]
       end
 
       it 'does include groups' do
@@ -273,7 +274,7 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
     let(:expected_scopes) do
       %w[
         admin_mode api read_user read_api read_repository write_repository sudo openid profile email
-        read_observability write_observability create_runner manage_runner k8s_proxy ai_features read_service_ping
+        read_observability write_observability create_runner manage_runner k8s_proxy ai_features read_service_ping ai_workflows user:*
       ]
     end
 

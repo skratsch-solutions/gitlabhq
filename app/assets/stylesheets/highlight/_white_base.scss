@@ -5,13 +5,14 @@
 /*
 * White Syntax Colors
 */
-$white-code-color: $gl-text-color;
+$white-code-color: $gl-color-neutral-800;
 $white-highlight: #fafe3d;
 $white-pre-hll-bg: #f8eec7;
 $white-hll-bg: #f8f8f8;
 $white-expanded-border: #e0e0e0;
 $white-expanded-bg: #f7f7f7;
 $white-c: #998;
+$white-code-mark: #d3e3f4;
 $white-err: #a61717;
 $white-err-bg: #e3d2d2;
 $white-cm: #998;
@@ -19,15 +20,15 @@ $white-cp: #999;
 $white-c1: #998;
 $white-cs: #999;
 $white-cd: #998;
-$white-gd: $black;
+$white-gd: $gl-color-neutral-1000;
 $white-gd-bg: #fdd;
-$white-gd-x: $black;
+$white-gd-x: $gl-color-neutral-1000;
 $white-gd-x-bg: #faa;
 $white-gr: #a00;
 $white-gh: #800080;
-$white-gi: $black;
+$white-gi: $gl-color-neutral-1000;
 $white-gi-bg: #dfd;
-$white-gi-x: $black;
+$white-gi-x: $gl-color-neutral-1000;
 $white-gi-x-bg: #afa;
 $white-go: #888;
 $white-gp: #555;
@@ -73,30 +74,14 @@ $white-gc-bg: #eaf2f5;
 
 
 @mixin match-line {
-  color: $t-gray-a-24;
-  background-color: $gray-10;
-}
-
-@mixin diff-match-line {
-  &.expansion {
-    &.match .diff-td {
-      color: $gray-400;
-    }
-
-    .diff-td {
-      background-color: $gray-50;
-
-      &:first-child {
-        border-color: $gray-100;
-      }
-    }
-  }
+  color: $gl-color-alpha-dark-24;
+  background-color: $gl-color-neutral-10;
 }
 
 @mixin white-base {
   // Line numbers
   .file-line-blame {
-    @include line-link($black, 'git');
+    @include line-link($gl-color-neutral-1000, 'git');
   }
 
   .line-links {
@@ -106,7 +91,7 @@ $white-gc-bg: #eaf2f5;
   .line-numbers,
   .diff-line-num,
   .code-search-line {
-    background-color: $gray-10;
+    background-color: $gl-color-neutral-0;
 
     &.conflict_marker,
     &.conflict_our {
@@ -122,7 +107,7 @@ $white-gc-bg: #eaf2f5;
 
   .diff-line-num,
   .diff-line-num a {
-    color: $gray-400;
+    color: $gl-color-neutral-400;
   }
 
   // Code itself
@@ -133,13 +118,14 @@ $white-gc-bg: #eaf2f5;
 
   &,
   pre.code,
+  code.code,
   .line_holder .line_content {
-    background-color: $white;
+    background-color: $gl-color-neutral-0;
     color: $white-code-color;
   }
 
   .diff-line-expand-button {
-    @include diff-expansion($gray-100, $gray-700, $gray-200, $gray-800);
+    @include diff-expansion($gl-color-neutral-100, $gl-color-neutral-700, $gl-color-neutral-200, $gl-color-neutral-800);
   }
 
   // Diff line
@@ -151,9 +137,21 @@ $white-gc-bg: #eaf2f5;
     }
 
     &.diff-grid-row {
-      --diff-expansion-background-color: #{$gray-100};
+      --diff-expansion-background-color: #{$gl-color-neutral-100};
 
-      @include diff-match-line;
+      &.expansion {
+        &.match .diff-td {
+          color: $gl-color-neutral-400;
+        }
+
+        .diff-td {
+          background-color: $gl-color-neutral-50;
+
+          &:first-child {
+            border-color: $gl-color-neutral-100;
+          }
+        }
+      }
     }
 
     &:not(.match) .diff-grid-left:hover,
@@ -170,7 +168,7 @@ $white-gc-bg: #eaf2f5;
         background-color: $line-number-old;
 
         a {
-          color: scale-color($gray-300, $red: -30%, $green: -30%, $blue: -30%);
+          color: scale-color($gl-color-neutral-300, $red: -30%, $green: -30%, $blue: -30%);
         }
       }
 
@@ -179,7 +177,7 @@ $white-gc-bg: #eaf2f5;
         background-color: $line-number-new;
 
         a {
-          color: scale-color($gray-200, $red: -30%, $green: -30%, $blue: -30%);
+          color: scale-color($gl-color-neutral-200, $red: -30%, $green: -30%, $blue: -30%);
         }
       }
 
@@ -189,8 +187,8 @@ $white-gc-bg: #eaf2f5;
       }
 
       &.hll {
-        --highlight-border-color: #{$blue-300};
-        background-color: $blue-50;
+        --highlight-border-color: #{$gl-color-blue-300};
+        background-color: $gl-color-blue-50;
       }
     }
 
@@ -244,13 +242,13 @@ $white-gc-bg: #eaf2f5;
       }
 
       &.hll {
-        --highlight-border-color: #{$blue-300};
-        background-color: $blue-50;
+        --highlight-border-color: #{$gl-color-blue-300};
+        background-color: $gl-color-blue-50;
       }
     }
 
     .line-coverage {
-      @include line-coverage-border-color($green-400, $red-400);
+      @include line-coverage-border-color($gl-color-green-400, $gl-color-red-400);
     }
 
     .line-coverage,
@@ -266,8 +264,8 @@ $white-gc-bg: #eaf2f5;
       }
 
       &.hll {
-        --highlight-border-color: #{$blue-300};
-        background-color: $blue-50;
+        --highlight-border-color: #{$gl-color-blue-300};
+        background-color: $gl-color-blue-50;
       }
     }
   }
@@ -275,6 +273,27 @@ $white-gc-bg: #eaf2f5;
   // highlight line via anchor
   pre .hll {
     background-color: $white-pre-hll-bg !important;
+  }
+
+  // mark lines via mark_multiple_lines
+  pre.white code {
+    .selected-inline-section-marker {
+      background: $white-code-mark !important;
+    }
+
+    .inline-section-marker {
+      background: $gl-color-neutral-100;
+    }
+  }
+
+  .file-holder div.code.white {
+    .selected-inline-number-mark {
+      color: $gl-color-neutral-600;
+    }
+
+    .unselected-inline-number-mark {
+      color: $gl-color-neutral-200;
+    }
   }
 
   // Search result highlight
@@ -412,7 +431,6 @@ $white-gc-bg: #eaf2f5;
   .hljs-number { color: $white-mi; }
   .mo { color: $white-mo; }
 
-  .hljs-code,
   .sb { color: $white-sb; }
   .sc { color: $white-sc; }
   .sd { color: $white-sd; }
@@ -435,9 +453,5 @@ $white-gc-bg: #eaf2f5;
   .il { color: $white-il; }
 
   .gc { color: $white-gc-color;
-  background-color: $white-gc-bg; }
-
-  .hljs-strong { font-weight: bold; }
-
-  .hljs-emphasis { font-style: italic; }
+    background-color: $white-gc-bg; }
 }

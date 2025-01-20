@@ -7,7 +7,12 @@ module Users
     private
 
     def update_user(user)
-      user.ban
+      if user.ban
+        ban_duplicate_users(user)
+        true
+      else
+        false
+      end
     end
 
     def valid_state?(user)
@@ -18,9 +23,8 @@ module Users
       :ban
     end
 
-    override :track_event
-    def track_event(user)
-      experiment(:phone_verification_for_low_risk_users, user: user).track(:banned)
+    def ban_duplicate_users(user)
+      AntiAbuse::BanDuplicateUsersWorker.perform_async(user.id)
     end
   end
 end

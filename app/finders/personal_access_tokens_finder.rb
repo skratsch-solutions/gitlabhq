@@ -21,9 +21,12 @@ class PersonalAccessTokensFinder
     tokens = by_revoked_state(tokens)
     tokens = by_created_before(tokens)
     tokens = by_created_after(tokens)
+    tokens = by_expires_before(tokens)
+    tokens = by_expires_after(tokens)
     tokens = by_last_used_before(tokens)
     tokens = by_last_used_after(tokens)
     tokens = by_search(tokens)
+    tokens = by_organization(tokens)
     tokens = tokens.allow_cross_joins_across_databases(url: "https://gitlab.com/gitlab-org/gitlab/-/issues/436657")
 
     sort(tokens)
@@ -112,6 +115,18 @@ class PersonalAccessTokensFinder
     tokens.created_after(params[:created_after])
   end
 
+  def by_expires_before(tokens)
+    return tokens unless params[:expires_before]
+
+    tokens.expires_before(params[:expires_before])
+  end
+
+  def by_expires_after(tokens)
+    return tokens unless params[:expires_after]
+
+    tokens.expires_after(params[:expires_after])
+  end
+
   def by_last_used_before(tokens)
     return tokens unless params[:last_used_before]
 
@@ -128,5 +143,12 @@ class PersonalAccessTokensFinder
     return tokens unless params[:search]
 
     tokens.search(params[:search])
+  end
+
+  def by_organization(tokens)
+    return tokens unless params[:organization]
+    return tokens unless Feature.enabled?('pat_organization_filter', current_user)
+
+    tokens.for_organization(params[:organization])
   end
 end

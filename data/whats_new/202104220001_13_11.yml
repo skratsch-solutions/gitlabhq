@@ -1,8 +1,8 @@
 - name: GitLab Kubernetes Agent available on GitLab.com
   description: |
-    The GitLab Kubernetes Agent is finally available on GitLab.com. By using the Agent, you can benefit from fast, pull-based deployments to your cluster, while GitLab.com manages the necessary server-side components of the Agent. The GitLab Kubernetes Agent is the core building block of GitLab's Kubernetes integrations. The Agent-based integration today supports pull-based deployments and Network Security policy integration and alerts, and will soon receive support for push-based deployments too.
+    The GitLab Kubernetes Agent is finally available on GitLab.com. By using the Agent, you can benefit from fast, pull-based deployments to your cluster, while GitLab.com manages the necessary server-side components of the Agent. The GitLab Kubernetes Agent is the core building block of GitLab Kubernetes integrations. The Agent-based integration today supports pull-based deployments and Network Security policy integration and alerts, and will soon receive support for push-based deployments too.
 
-    Unlike the legacy, certificate-based Kubernetes integration, the GitLab Kubernetes Agent does not require opening up your cluster towards GitLab and allows fine-tuned RBAC controls around GitLab's capabilities within your clusters.
+    Unlike the legacy, certificate-based Kubernetes integration, the GitLab Kubernetes Agent does not require opening up your cluster towards GitLab and allows fine-tuned RBAC controls around GitLab capabilities within your clusters.
   stage: Configure
   self-managed: true
   gitlab-com: true
@@ -20,7 +20,7 @@
     This saves security and compliance teams time by eliminating the need to manually copy a pipeline configuration to every project that needs it and then monitoring to prevent edits or removal. It also helps development teams follow policies without requiring them to become experts in compliance.
 
     Check out the [video walkthrough](https://www.youtube.com/embed/upLJ_equomw) to see its setup and implementation!
-  stage: Manage
+  stage: Foundations
   self-managed: true
   gitlab-com: true
   available_in: [Ultimate]
@@ -32,7 +32,7 @@
   description: |
     Software services do not get "turned off" at the end of the business day. Your customers expect 24/7 availability. When things go wrong, you need a team (or multiple teams!) that can quickly and effectively respond to service outages.
 
-    Being on-call can be a stressful job. To better manage stress and burn-out, most teams rotate this on-call responsibility. GitLab's **on-call schedule management** allows you and your team to create and manage schedules for on-call responsibilities. Alerts received in GitLab through an HTTP endpoint are routed to the on-call engineer in the schedule for that specific project.
+    Being on-call can be a stressful job. To better manage stress and burn-out, most teams rotate this on-call responsibility. GitLab **on-call schedule management** allows you and your team to create and manage schedules for on-call responsibilities. Alerts received in GitLab through an HTTP endpoint are routed to the on-call engineer in the schedule for that specific project.
   stage: Monitor
   self-managed: true
   gitlab-com: true
@@ -55,7 +55,7 @@
 - name: Group SAML Enforcement for Git activity
   description: |
     GitLab group maintainers can now enhance their group security by enforcing Group SAML for Git activity. Security-minded organizations want all GitLab activity to be protected and governed by their SAML Identity Provider. Currently, SAML SSO enforcement only applies to activity in the GitLab UI. Git CLI operations do not require an active SAML SSO session. When Git Group SAML SSO enforcement is enabled, users must have an active web SAML session to perform Git operations in the CLI.
-  stage: Manage
+  stage: Foundations
   self-managed: false
   gitlab-com: true
   available_in: [Premium, Ultimate]

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/339941) in GitLab 15.6.
 > - New application setting `bulk_import_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/383268) in GitLab 15.8. `bulk_import` feature flag removed.
@@ -16,9 +16,9 @@ DETAILS:
 
 You can migrate GitLab groups:
 
-- From self-managed GitLab to GitLab.com.
-- From GitLab.com to self-managed GitLab.
-- From one self-managed GitLab instance to another.
+- From GitLab Self-Managed to GitLab.com.
+- From GitLab.com to GitLab Self-Managed.
+- From one GitLab Self-Managed instance to another.
 - Between groups in the same GitLab instance.
 
 Migration by direct transfer creates a new copy of the group. If you want to move groups instead of copying groups, you
@@ -30,9 +30,9 @@ You can migrate groups in two ways:
 - By direct transfer (recommended).
 - By [uploading an export file](../../project/settings/import_export.md).
 
-If you migrate from GitLab.com to self-managed GitLab, an administrator can create users on the self-managed GitLab instance.
+If you migrate from GitLab.com to a GitLab Self-Managed instance, an administrator can create users on the instance.
 
-On self-managed GitLab, by default [migrating group items](migrated_items.md#migrated-group-items) is not available. To show the
+On GitLab Self-Managed, by default [migrating group items](migrated_items.md#migrated-group-items) is not available. To show the
 feature, an administrator can [enable it in application settings](../../../administration/settings/import_and_export_settings.md#enable-migration-of-groups-and-projects-by-direct-transfer).
 
 Migrating groups by direct transfer copies the groups from one place to another. You can:
@@ -43,7 +43,7 @@ Migrating groups by direct transfer copies the groups from one place to another.
   - The subgroup of any existing top-level group.
   - Another GitLab instance, including GitLab.com.
 - In the [API](../../../api/bulk_imports.md), copy top-level groups and subgroups to these locations.
-- Copy groups with projects (in [beta](../../../policy/experiment-beta-support.md#beta) and not ready for production
+- Copy groups with projects (in [beta](../../../policy/development_stages_support.md#beta) and not ready for production
   use) or without projects. Copying projects with groups is available:
   - On GitLab.com by default.
 
@@ -53,7 +53,7 @@ Not all group and project resources are copied. See list of copied resources bel
 - [Migrated project items](migrated_items.md#migrated-project-items).
 
 WARNING:
-Importing groups with projects is in [beta](../../../policy/experiment-beta-support.md#beta). This feature is not
+Importing groups with projects is in [beta](../../../policy/development_stages_support.md#beta). This feature is not
 ready for production use.
 
 We invite you to leave your feedback about migrating by direct transfer in
@@ -68,16 +68,18 @@ transfer, you must use the [API](../../../api/bulk_imports.md#start-a-new-group-
 
 - Because of [issue 406685](https://gitlab.com/gitlab-org/gitlab/-/issues/406685), files with a filename longer than 255 characters are not migrated.
 - In GitLab 16.1 and earlier, you should **not** use direct transfer with
-  [scheduled scan execution policies](../../../user/application_security/policies/scan-execution-policies.md).
+  [scheduled scan execution policies](../../../user/application_security/policies/scan_execution_policies.md).
 - For a list of other known issues, see [epic 6629](https://gitlab.com/groups/gitlab-org/-/epics/6629).
 - In GitLab 16.9 and earlier, because of [issue 438422](https://gitlab.com/gitlab-org/gitlab/-/issues/438422), you might see the
   `DiffNote::NoteDiffFileCreationError` error. When this error occurs, the diff of a note on a merge request's diff
   is missing, but the note and the merge request are still imported.
-- When imported from the source instance, shared members are created as direct members on the destination unless those
+- When mapped from the source instance, shared members are mapped as direct members on the destination unless those
   memberships already exist on the destination. This means that importing a top-level group on the source instance to a
-  top-level group on the destination instance always creates direct members in projects, even though the source top-level
-  group contains the necessary shared membership hierarchy details. Support for full replication of shared memberships is
+  top-level group on the destination instance always maps to direct members in projects, even though the source top-level
+  group contains the necessary shared membership hierarchy details. Support for full mapping of shared memberships is
   proposed in [issue 458345](https://gitlab.com/gitlab-org/gitlab/-/issues/458345).
+- In GitLab 17.0, 17.1, and 17.2, imported epics and work items are mapped
+  to the importing user rather than the original author.
 
 ## Estimating migration duration
 
@@ -122,7 +124,7 @@ There's no exact formula to reliably estimate a migration. However, the average 
 | Auto DevOps                 | 0.1                                          |
 | Pipeline Schedules          | 0.5                                          |
 | References                  | 5                                            |
-| Push Rule                   | 0.1                                          |
+| Push rule                   | 0.1                                          |
 
 Though it's difficult to predict migration duration, we've seen:
 
@@ -137,43 +139,15 @@ These are some strategies for reducing the duration of migrations that use direc
 
 ### Add Sidekiq workers to the destination instance
 
-A single direct transfer migration runs 5 entities (groups or projects) per import at a time, independent of the number of workers available on the destination instance.
-That said, adding more Sidekiq worker processes on the destination instance speeds up migration by decreasing the time it takes to import each entity.
+A single direct transfer migration runs five entities (groups or projects) per import at a time,
+regardless of the number of workers available on the destination instance.
+More Sidekiq workers on the destination instance can reduce the time it takes to import each entity,
+as long as the instance has enough resources to handle additional concurrent jobs.
+In GitLab 16.8 and later, with the introduction of bulk import and export of relations,
+the number of available workers on the destination instance has become more critical.
 
-To add more Sidekiq workers on the destination instance, you can either:
-
-1. [Use routing rules](../../../administration/sidekiq/processing_specific_job_classes.md#routing-rules). This approach creates additional Sidekiq
-   workers that are dedicated to direct transfer operations.
-1. [Start multiple Sidekiq processes](../../../administration/sidekiq/extra_sidekiq_processes.md#start-multiple-processes). This approach allows all
-   queues in GitLab to make use of the additional Sidekiq worker processes.
-
-An example of how to use the routing rules is below. This example:
-
-- Can be added to the `/etc/gitlab/gitlab.rb` file on a destination instance, with a subsequent [reconfigure](../../../administration/restart_gitlab.md#reconfigure-a-linux-package-installation)
-  to apply the changes.
-- Creates four Sidekiq worker processes. Three of the processes are used exclusively for the direct transfer importer queues, and the last process is used for all other queues.
-- Should have a number of processes set that, at most, equal (and not exceed) the number of CPU cores you want to dedicate to Sidekiq. The Sidekiq worker process uses no more than one CPU core.
-
-```ruby
-sidekiq['routing_rules'] = [
-  ['feature_category=importers', 'importers'],
-  ['*', 'default']
-]
-
-sidekiq['queue_selector'] = false
-sidekiq['queue_groups'] = [
-  # Run two processes just for importers
-  'importers',
-  'importers',
-  'importers',
-
-  # Run one 'catchall' process on the default and mailers queues
-  'default,mailers'
-]
-```
-
-Increasing the number of workers on the destination instance helps reduce the migration duration until the source instance hardware resources are saturated. Exporting and importing relations in batches, available by default from GitLab 16.8, makes having enough available workers on
-the destination instance even more useful.
+For more information about how to add Sidekiq workers to the destination instance,
+see [Sidekiq configuration](../../project/import/index.md#sidekiq-configuration).
 
 ### Redistribute large projects or start separate migrations
 
@@ -229,23 +203,6 @@ After migration:
 
 If you used a private network on your source instance to hide content from the general public,
 make sure to have a similar setup on the destination instance, or to import into a private group.
-
-## Memberships
-
-> - Importing of shared and inherited shared members was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/129017) in GitLab 16.3.
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148220) in GitLab 16.11, shared and inherited shared members are no longer imported as direct members if they are already shared or inherited shared members of the imported group or project.
-
-Group and project members are imported if the [user account prerequisites](direct_transfer_migrations.md#user-accounts)
-are followed.
-
-All [direct and indirect](../../../user/project/members/index.md#membership-types) members are imported.
-
-Indirect members are imported as [direct members](../../project/members/index.md#membership-types) if:
-
-- They are not already an indirect member of the target namespace.
-- They are an indirect member, but have a lower [permission](../../../user/permissions.md).
-
-There is a [known issue](#known-issues) affecting the transfer of shared memberships.
 
 ## Migration by direct transfer process
 

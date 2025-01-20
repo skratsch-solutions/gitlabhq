@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 class CustomerRelations::IssueContact < ApplicationRecord
+  include EachBatch
+
   self.table_name = "issue_customer_relations_contacts"
 
   belongs_to :issue, optional: false, inverse_of: :customer_relations_contacts
   belongs_to :contact, optional: false, inverse_of: :issue_contacts
 
-  validate :contact_belongs_to_root_group
+  validate :contact_belongs_to_crm_group
 
   BATCH_DELETE_SIZE = 1_000
 
@@ -34,11 +36,10 @@ class CustomerRelations::IssueContact < ApplicationRecord
 
   private
 
-  def contact_belongs_to_root_group
+  def contact_belongs_to_crm_group
     return unless contact&.group_id
-    return unless issue&.project&.namespace_id
-    return if issue.project.root_ancestor&.id == contact.group_id
+    return if issue&.resource_parent&.crm_group&.id == contact.group_id
 
-    errors.add(:base, _("The contact does not belong to the issue group's root ancestor"))
+    errors.add(:base, _("The contact does not belong to the issue group's CRM source group"))
   end
 end

@@ -1,12 +1,16 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments"
 ---
 
 # Troubleshooting file export project migrations
 
-If you have problems with [migrating projects using file exports](import_export.md), see the possible solutions below.
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+If you have problems with [migrating projects by using file exports](import_export.md), see the possible solutions below.
 
 ## Troubleshooting commands
 
@@ -85,8 +89,8 @@ reduce the repository size for another import attempt:
    ```
 
 1. To reduce the repository size, work on this `smaller-tmp-main` branch:
-   [identify and remove large files](../repository/reducing_the_repo_size_using_git.md)
-   or [interactively rebase and fixup](../../../topics/git/git_rebase.md#rebase-interactively-by-using-git)
+   [identify and remove large files](../repository/repository_size.md#methods-to-reduce-repository-size)
+   or [interactively rebase and fixup](../../../topics/git/git_rebase.md#interactive-rebase)
    to reduce the number of commits.
 
    ```shell
@@ -110,7 +114,7 @@ reduce the repository size for another import attempt:
    use `git remote set-url origin <new-url> && git push --force --all`
    to complete the import.
 1. Update the imported repository's
-   [branch protection rules](../protected_branches.md) and
+   [branch protection rules](../repository/branches/protected.md) and
    its [default branch](../repository/branches/default.md), and
    delete the temporary, `smaller-tmp-main` branch, and
    the local, temporary data.
@@ -170,6 +174,39 @@ Rather than attempting to push all changes at once, this workaround:
    git push -u origin --tags
    ```
 
+## Sidekiq process fails to export a project
+
+Occasionally the Sidekiq process can fail to export a project, for example if
+it is terminated during execution.
+
+GitLab.com users should [contact Support](https://about.gitlab.com/support/#contact-support) to resolve this issue.
+
+Self-managed users can use the Rails console to bypass the Sidekiq process and
+manually trigger the project export:
+
+```ruby
+project = Project.find(1)
+current_user = User.find_by(username: 'my-user-name')
+RequestStore.begin!
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+params = {}
+
+::Projects::ImportExport::ExportService.new(project, current_user, params).execute(nil)
+```
+
+This makes the export available through the UI, but does not trigger an email to the user.
+To manually trigger the project export and send an email:
+
+```ruby
+project = Project.find(1)
+current_user = User.find_by(username: 'my-user-name')
+RequestStore.begin!
+ActiveRecord::Base.logger = Logger.new(STDOUT)
+params = {}
+
+ProjectExportWorker.new.perform(current_user.id, project.id)
+```
+
 ## Manually execute export steps
 
 You usually export a project through [the web interface](import_export.md#export-a-project-and-its-data) or through [the API](../../../api/project_import_export.md). Exporting using these
@@ -197,7 +234,14 @@ e.send(:design_repo_saver).send(:save)
 ## continue using `e.send(:exporter_name).send(:save)` going through the list of exporters
 
 # The following line should show you the export_path similar to /var/opt/gitlab/gitlab-rails/shared/tmp/gitlab_exports/@hashed/49/94/4994....
-s = Gitlab::ImportExport::Saver.new(exportable: p, shared:p.import_export_shared)
+s = Gitlab::ImportExport::Saver.new(exportable: p, shared: p.import_export_shared, user: u)
+
+# Prior to GitLab 17.0, the `user` parameter was not supported. If you encounter an
+# error with the above or are unsure whether or not to supply the `user`
+# argument, use the following check:
+Gitlab::ImportExport::Saver.instance_method(:initialize).parameters.include?([:keyreq, :user])
+# If the preceding check returns false, omit the user argument:
+s = Gitlab::ImportExport::Saver.new(exportable: p, shared: p.import_export_shared)
 
 # To try and upload use:
 s.send(:compress_and_save)
@@ -219,6 +263,23 @@ Validation failed: User project bots cannot be added to other groups / projects
 
 To use [Import REST API](../../../api/project_import_export.md),
 pass regular user account credentials such as [personal access tokens](../../profile/personal_access_tokens.md).
+
+## Error: `PG::QueryCanceled: ERROR: canceling statement due to statement timeout`
+
+Some migrations can time out with the error: `PG::QueryCanceled: ERROR: canceling statement due to statement timeout`.
+One way to avoid this problem is to have the migration batch size reduced. This makes a migration less likely to time
+out, but makes migrations slower.
+
+To have the batch sized reduced, you must have a feature flag enabled. For more information, see
+[issue 456948](https://gitlab.com/gitlab-org/gitlab/-/issues/456948).
+
+## Error: `command exited with error code 15 and Unable to save [FILTERED] into [FILTERED]`
+
+You might receive the error `command exited with error code 15 and Unable to save [FILTERED] into [FILTERED]` in logs
+when migrating projects by using file exports. If you receive this error:
+
+- When exporting a file export, you can safely ignore the error. GitLab retries the exited command.
+- When importing a file import, you must retry the import. GitLab doesn't automatically retry the import.
 
 ## Troubleshooting performance issues
 
@@ -299,11 +360,3 @@ Marked stuck import jobs as failed. JIDs: xyz
 | High memory usage (see also some [analysis](https://gitlab.com/gitlab-org/gitlab/-/issues/18857)) | DB Commit sweet spot that uses less memory |
 | | [Netflix Fast JSON API](https://github.com/Netflix/fast_jsonapi) may help |
 | | Batch reading/writing to disk and any SQL |
-
-### Temporary solutions
-
-While the performance problems are not tackled, there is a process to workaround
-importing big projects, using a foreground import:
-
-[Foreground import](https://gitlab.com/gitlab-com/gl-infra/reliability/-/issues/5384) of big projects for customers.
-(Using the import template in the [infrastructure tracker](https://gitlab.com/gitlab-com/gl-infra/reliability/-/issues))

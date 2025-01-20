@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 An iteration in GitLab refers to a time-boxed workflow that groups issues to be worked on during
 a specific period of time, usually lasting 1-3 weeks.
@@ -29,11 +29,70 @@ In GitLab, iterations are similar to milestones, with a few differences:
 - Iterations require both a start and an end date.
 - Iteration date ranges cannot overlap within an iteration cadence.
 
+## Planning workflows with iterations
+
+You can use iterations to organize and track work in fixed time periods.
+The following examples show how iterations help teams maintain consistent delivery cycles.
+
+### Sprint planning and execution
+
+Use iterations to plan and execute work in fixed time periods, and help teams maintain a
+predictable delivery cadence.
+When teams work in sprints, each iteration provides a clear timebox for planning,
+execution, and delivery of work items.
+For more information, see
+[Tutorial: Use GitLab to facilitate Scrum](../../../tutorials/scrum_events/index.md).
+
+For example, when running two-week sprints, teams often need to coordinate multiple workstreams.
+The development team tracks implementation in the current sprint, while product managers prepare
+backlog items for upcoming sprints.
+
+By using iterations:
+
+- Teams can visualize their entire sprint schedule.
+- Work automatically rolls over between sprints.
+- Stakeholders can track sprint progress through burndown charts.
+- Teams can measure velocity across multiple sprints.
+
+This structure helps teams complete work consistently while maintaining visibility into progress.
+
+When you set up iterations for sprints:
+
+- Each team works in the same iteration cadence.
+- Teams can view work status in iteration reports.
+- Sprint planning becomes more predictable.
+
+### Rapid development cycles
+
+Use iterations to support shorter development cycles when your team needs frequent releases.
+When practicing methodologies like Extreme Programming (XP), teams can use one-week iterations
+to maintain fast feedback loops.
+
+For example, when implementing rapid changes, teams might deploy to production multiple times
+per iteration.
+The team tracks their work in weekly iterations while maintaining the flexibility
+to release whenever code is ready.
+
+By using iterations:
+
+- Teams maintain structured timeboxes.
+- You can track development velocity.
+- Teams can adapt planning based on weekly metrics.
+- Stakeholders can see concrete progress each week.
+
+This approach helps teams balance agile practices with organized planning.
+
+When you use iterations for rapid cycles:
+
+- Work is organized into clear weekly boundaries.
+- Teams track progress in smaller increments.
+- Release planning aligns with iteration boundaries.
+
 ## Iteration cadences
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/5077) in GitLab 14.1 [with a flag](../../../administration/feature_flags.md), named `iteration_cadences`. Disabled by default.
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/354977) in GitLab 15.0: All scheduled iterations must start on the same day of the week as the cadence start day. Start date of cadence cannot be edited after the first iteration starts.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/354878) in GitLab 15.0.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/354878) in GitLab 15.0.
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/367493) in GitLab 15.4: A new automation start date can be selected for cadence. Upcoming iterations are scheduled to start on the same day of the week as the changed start date. Iteration cadences can be manually managed by turning off the automatic scheduling feature.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/354878) in GitLab 15.5. Feature flag `iteration_cadences` removed.
 
@@ -44,10 +103,11 @@ configure iteration cadences to automatically roll over incomplete issues to the
 ### Create an iteration cadence
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 
 To create an iteration cadence:
 
@@ -91,7 +151,7 @@ For example `https://gitlab.com/gitlab-org/sample-data-templates/sample-gitlab-p
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 
 To edit an iteration cadence:
 
@@ -151,10 +211,11 @@ to satisfy the requirement that there are at least two upcoming iterations sched
 ### Delete an iteration cadence
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 
 Deleting an iteration cadence also deletes all iterations in that cadence.
 
@@ -180,13 +241,14 @@ On GitLab.com, this is the `automation-bot1` user.
 ## Create an iteration manually
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
 When an iteration cadence has automatic scheduling enabled, iterations are created on schedule.
 If you disable that option, you can create iterations manually.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 - There must be at least one iteration cadence in the group and
   [automatic scheduling must be disabled](#turn-on-and-off-automatic-scheduling-for-an-iteration-cadence) for the iteration cadence.
 
@@ -202,10 +264,11 @@ To create an iteration:
 ## Edit an iteration
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 
 To edit an iteration:
 
@@ -220,10 +283,11 @@ To edit an iteration:
 ## Delete an iteration
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/343889) the minimum user role from Developer to Reporter in GitLab 15.0.
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169256) the minimum user role from Reporter to Planner in GitLab 17.7.
 
 Prerequisites:
 
-- You must have at least the Reporter role for a group.
+- You must have at least the Planner role for a group.
 - [Automatic scheduling must be disabled](#turn-on-and-off-automatic-scheduling-for-an-iteration-cadence) for the iteration cadence.
 
 To delete an iteration:

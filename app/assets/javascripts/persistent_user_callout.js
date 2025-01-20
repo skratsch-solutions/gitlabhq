@@ -2,17 +2,17 @@ import { createAlert } from '~/alert';
 import axios from './lib/utils/axios_utils';
 import { parseBoolean } from './lib/utils/common_utils';
 import { __ } from './locale';
+import { visitUrl } from './lib/utils/url_utility';
 
-const DEFERRED_LINK_CLASS = 'deferred-link';
+const DEFERRED_LINK_CLASS = '.deferred-link';
 
 export default class PersistentUserCallout {
   constructor(container, options = container.dataset) {
-    const { dismissEndpoint, featureId, groupId, namespaceId, projectId, deferLinks } = options;
+    const { dismissEndpoint, featureId, groupId, projectId, deferLinks } = options;
     this.container = container;
     this.dismissEndpoint = dismissEndpoint;
     this.featureId = featureId;
     this.groupId = groupId;
-    this.namespaceId = namespaceId;
     this.projectId = projectId;
     this.deferLinks = parseBoolean(deferLinks);
     this.closeButtons = this.container.querySelectorAll('.js-close');
@@ -37,9 +37,9 @@ export default class PersistentUserCallout {
 
     if (this.deferLinks) {
       this.container.addEventListener('click', (event) => {
-        const isDeferredLink = event.target.classList.contains(DEFERRED_LINK_CLASS);
-        if (isDeferredLink) {
-          const { href, target } = event.target;
+        const deferredLinkEl = event.target.closest(DEFERRED_LINK_CLASS);
+        if (deferredLinkEl) {
+          const { href, target } = deferredLinkEl;
 
           this.dismiss(event, { href, target });
         }
@@ -58,7 +58,6 @@ export default class PersistentUserCallout {
       .post(this.dismissEndpoint, {
         feature_name: this.featureId,
         group_id: this.groupId,
-        namespace_id: this.namespaceId,
         project_id: this.projectId,
       })
       .then(() => {
@@ -69,7 +68,7 @@ export default class PersistentUserCallout {
 
         if (deferredLinkOptions) {
           const { href, target } = deferredLinkOptions;
-          window.open(href, target);
+          visitUrl(href, target === '_blank');
         }
       })
       .catch(() => {

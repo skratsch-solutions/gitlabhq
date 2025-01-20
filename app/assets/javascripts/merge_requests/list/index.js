@@ -6,7 +6,11 @@ import { defaultClient } from '~/graphql_shared/issuable_client';
 import MergeRequestsListApp from './components/merge_requests_list_app.vue';
 import MoreactionsDropdown from './components/more_actions_dropdown.vue';
 
-export async function mountMergeRequestListsApp() {
+export async function mountMergeRequestListsApp({
+  getMergeRequestsQuery,
+  getMergeRequestsCountsQuery,
+  isProject = true,
+} = {}) {
   const el = document.querySelector('.js-merge-request-list-root');
 
   if (!el) {
@@ -17,7 +21,9 @@ export async function mountMergeRequestListsApp() {
   Vue.use(VueRouter);
 
   const {
+    autocompleteAwardEmojisPath,
     fullPath,
+    groupId,
     hasAnyMergeRequests,
     hasScopedLabelsFeature,
     initialSort,
@@ -26,10 +32,20 @@ export async function mountMergeRequestListsApp() {
     newMergeRequestPath,
     showExportButton,
     issuableType,
-    issuableCount,
     email,
     exportCsvPath,
     rssUrl,
+    releasesEndpoint,
+    canBulkUpdate,
+    environmentNamesPath,
+    mergeTrainsPath,
+    defaultBranch,
+    initialEmail,
+    emailsHelpPagePath,
+    quickActionsHelpPath,
+    markdownHelpPath,
+    resetPath,
+    showNewResourceDropdown,
   } = el.dataset;
 
   return new Vue({
@@ -45,6 +61,7 @@ export async function mountMergeRequestListsApp() {
     }),
     provide: {
       fullPath,
+      autocompleteAwardEmojisPath,
       hasAnyMergeRequests: parseBoolean(hasAnyMergeRequests),
       hasScopedLabelsFeature: parseBoolean(hasScopedLabelsFeature),
       initialSort,
@@ -53,10 +70,24 @@ export async function mountMergeRequestListsApp() {
       newMergeRequestPath,
       showExportButton: parseBoolean(showExportButton),
       issuableType,
-      issuableCount: Number(issuableCount),
       email,
       exportCsvPath,
       rssUrl,
+      releasesEndpoint,
+      canBulkUpdate: parseBoolean(canBulkUpdate),
+      environmentNamesPath,
+      mergeTrainsPath,
+      defaultBranch,
+      initialEmail,
+      emailsHelpPagePath,
+      quickActionsHelpPath,
+      markdownHelpPath,
+      resetPath,
+      getMergeRequestsQuery,
+      getMergeRequestsCountsQuery,
+      isProject,
+      groupId: groupId ? `${groupId}` : null,
+      showNewResourceDropdown: parseBoolean(showNewResourceDropdown),
     },
     render: (createComponent) => createComponent(MergeRequestsListApp),
   });

@@ -1,17 +1,18 @@
 <script>
-import { GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
+import { GlLink, GlSprintf } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import Api from '~/api';
 import { __ } from '~/locale';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import state from '../state';
 import Dropdown from './dropdown.vue';
 
 export default {
   components: {
-    GlIcon,
     GlLink,
     GlSprintf,
     Dropdown,
+    HelpIcon,
   },
   props: {
     namespacePath: {
@@ -88,7 +89,7 @@ export default {
     },
     showWarning() {
       if (this.warningText) {
-        this.warningText.classList.remove('gl-display-none');
+        this.warningText.classList.remove('gl-hidden');
       }
     },
   },
@@ -116,7 +117,7 @@ export default {
         :selected-project="selectedProject"
         @select="selectProject"
       />
-      <p class="gl-text-gray-600 gl-mt-1 gl-mb-0">
+      <p class="gl-mb-0 gl-mt-1 gl-text-subtle">
         <template v-if="projects.length">
           {{ $options.i18n.privateForkSelected }}
         </template>
@@ -130,11 +131,10 @@ export default {
         </template>
         <gl-link
           :href="helpPagePath"
-          class="gl-w-auto gl-p-0 gl-display-inline-block gl-bg-transparent"
+          class="gl-inline-block gl-w-auto gl-bg-transparent gl-p-0"
           target="_blank"
         >
-          <span class="sr-only">{{ $options.i18n.readMore }}</span>
-          <gl-icon name="question-o" />
+          <help-icon :aria-label="$options.i18n.readMore" />
         </gl-link>
       </p>
     </div>

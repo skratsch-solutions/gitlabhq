@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
 module Users
-  class CreditCardValidation < MainClusterwide::ApplicationRecord
-    include IgnorableColumns
-
-    RELEASE_DAY = Date.new(2021, 5, 17)
+  class CreditCardValidation < ApplicationRecord
+    DAILY_VERIFICATION_LIMIT = 5
 
     self.table_name = 'user_credit_card_validations'
-
-    ignore_columns %i[last_digits network holder_name expiration_date], remove_with: '16.9', remove_after: '2024-01-22'
 
     attr_accessor :last_digits, :network, :holder_name, :expiration_date
 
@@ -81,6 +77,15 @@ module Users
 
     def set_expiration_date_hash
       self.expiration_date_hash = Gitlab::CryptoHelper.sha256(expiration_date.to_s)
+    end
+
+    def exceeded_daily_verification_limit?
+      duplicate_record_count = self.class
+        .where(stripe_card_fingerprint: stripe_card_fingerprint)
+        .where('credit_card_validated_at > ?', 24.hours.ago)
+        .count
+
+      duplicate_record_count >= DAILY_VERIFICATION_LIMIT
     end
   end
 end

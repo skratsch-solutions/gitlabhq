@@ -2,7 +2,9 @@
 data_category: optional
 key_path: redis_hll_counters.ide_edit.ide_edit_total_unique_counts_monthly
 description: Count of unique users per month who edited a file from the Web IDE
-product_group: ide
+product_group: remote_development
+product_categories:
+- web_ide
 value_type: number
 status: active
 time_frame: 28d
@@ -18,9 +20,10 @@ events:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

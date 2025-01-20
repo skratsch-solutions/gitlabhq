@@ -3,7 +3,7 @@
 require 'digest/sha1'
 
 module QA
-  RSpec.describe 'Release', :runner, :blocking, product_group: :environments do
+  RSpec.describe 'Release', :runner, product_group: :environments do
     describe 'Git clone using a deploy key' do
       let(:runner_name) { "qa-runner-#{SecureRandom.hex(4)}" }
       let(:repository_location) { project.repository_ssh_location }
@@ -16,7 +16,6 @@ module QA
 
       after do
         runner.remove_via_api!
-        project.remove_via_api!
       end
 
       keys = [

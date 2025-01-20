@@ -2,7 +2,9 @@
 data_category: optional
 key_path: redis_hll_counters.ci_templates.ci_templates_total_unique_counts_weekly
 description: Total count of pipelines runs
-product_group: environments
+product_group: pipeline_authoring
+product_categories:
+- pipeline_composition
 value_type: number
 status: removed
 milestone_removed: '14.3'
@@ -191,10 +193,11 @@ options:
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/62199
 removed_by_url:

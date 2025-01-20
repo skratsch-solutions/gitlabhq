@@ -8,17 +8,14 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-You can run your CI/CD jobs in separate, isolated Docker containers.
-
-If you run Docker on your local machine, you can run tests in the container,
-rather than testing on a dedicated CI/CD server.
+You can run your CI/CD jobs in Docker containers hosted on dedicated CI/CD build servers or your local machine.
 
 To run CI/CD jobs in a Docker container, you need to:
 
-1. Register a runner so that all jobs run in Docker containers. Do this by choosing the Docker executor during registration.
-1. Specify which container to run the jobs in. Do this by specifying an image in your `.gitlab-ci.yml` file.
+1. Register a runner and configure it to use the [Docker executor](https://docs.gitlab.com/runner/executors/docker.html).
+1. Specify the container image where you want to run the CI/CD jobs in the `.gitlab-ci.yml` file.
 1. Optional. Run other services, like MySQL, in containers. Do this by specifying [services](../services/index.md)
    in your `.gitlab-ci.yml` file.
 
@@ -45,11 +42,11 @@ Then use this template to register the runner:
 ```shell
 sudo gitlab-runner register \
   --url "https://gitlab.example.com/" \
-  --registration-token "PROJECT_REGISTRATION_TOKEN" \
+  --token "$RUNNER_TOKEN" \
   --description "docker-ruby:2.6" \
   --executor "docker" \
   --template-config /tmp/test-config.template.toml \
-  --docker-image ruby:2.6
+  --docker-image ruby:3.3
 ```
 
 The registered runner uses the `ruby:2.6` Docker image and runs two
@@ -158,12 +155,11 @@ CI/CD jobs:
 1. The runner sends the script to the container's shell `stdin` and receives the
    output.
 
-To override the entrypoint of a Docker image,
-define an empty `entrypoint` in the `.gitlab-ci.yml` file, so the runner does not start
-a useless shell layer. However, that does not work for all Docker versions.
+To override the [entrypoint](https://docs.gitlab.com/runner/executors/docker.html#configure-a-docker-entrypoint) of a Docker image,
+in the `.gitlab-ci.yml` file:
 
-- For Docker 17.06 and later, the `entrypoint` can be set to an empty value.
-- For Docker 17.03 and earlier, the `entrypoint` can be set to
+- For Docker 17.06 and later, set `entrypoint` to an empty value.
+- For Docker 17.03 and earlier, set `entrypoint` to
   `/bin/sh -c`, `/bin/bash -c`, or an equivalent shell available in the image.
 
 The syntax of `image:entrypoint` is similar to [Dockerfile `ENTRYPOINT`](https://docs.docker.com/reference/dockerfile/#entrypoint).
@@ -202,7 +198,12 @@ image:
 
 ## Define image and services in `config.toml`
 
-Look for the `[runners.docker]` section:
+In the `config.toml` file, you can define:
+
+- In the [`[runners.docker]`](https://docs.gitlab.com/runner/configuration/advanced-configuration#the-runnersdocker-section) section,
+  the container image used to run CI/CD jobs
+- In the [`[[runners.docker.services]]`](https://docs.gitlab.com/runner/configuration/advanced-configuration#the-runnersdockerservices-section) section,
+  the [services](../services/index.md) container
 
 ```toml
 [runners.docker]
@@ -217,7 +218,7 @@ that runner.
 
 To access private container registries, the GitLab Runner process can use:
 
-- [Statically defined credentials](#use-statically-defined-credentials). That is, a username and password for a specific registry.
+- [Statically defined credentials](#use-statically-defined-credentials). A username and password for a specific registry.
 - [Credentials Store](#use-a-credentials-store). For more information, see [the relevant Docker documentation](https://docs.docker.com/reference/cli/docker/login/#credential-stores).
 - [Credential Helpers](#use-credential-helpers). For more information, see [the relevant Docker documentation](https://docs.docker.com/reference/cli/docker/login/#credential-helpers).
 
@@ -240,8 +241,7 @@ To define which option should be used, the runner process reads the configuratio
 
 ### Use statically-defined credentials
 
-There are two approaches that you can take to access a
-private registry. Both require setting the CI/CD variable
+You can access a private registry using two approaches. Both require setting the CI/CD variable
 `DOCKER_AUTH_CONFIG` with appropriate authentication information.
 
 1. Per-job: To configure one job to access a private registry, add
@@ -387,7 +387,7 @@ To configure a Credentials Store:
 1. To use a Credentials Store, you need an external helper program to interact with a specific keychain or external store.
    Make sure the helper program is available in the GitLab Runner `$PATH`.
 
-1. Make GitLab Runner use it. There are two ways to accomplish this. Either:
+1. Make GitLab Runner use it. You can accomplish this by using one of the following options:
 
    - Create a
      [CI/CD variable](../variables/index.md)
@@ -420,7 +420,7 @@ To configure access for `<aws_account_id>.dkr.ecr.<region>.amazonaws.com`, follo
 1. Make sure [`docker-credential-ecr-login`](https://github.com/awslabs/amazon-ecr-credential-helper) is available in the GitLab Runner `$PATH`.
 1. Have any of the following [AWS credentials setup](https://github.com/awslabs/amazon-ecr-credential-helper#aws-credentials).
    Make sure that GitLab Runner can access the credentials.
-1. Make GitLab Runner use it. There are two ways to accomplish this. Either:
+1. Make GitLab Runner use it. You can accomplish this by using one of the following options:
 
    - Create a [CI/CD variable](../variables/index.md)
      `DOCKER_AUTH_CONFIG` with the content of the
@@ -445,7 +445,7 @@ To configure access for `<aws_account_id>.dkr.ecr.<region>.amazonaws.com`, follo
      ```
 
      NOTE:
-     If you use `{"credsStore": "ecr-login"}`, set the region explicitly in the AWS shared configuration file (`~/.aws/config`), because the region must be specified when the ECR Credential Helper retrieves the authorization token.
+     If you use `{"credsStore": "ecr-login"}`, set the region explicitly in the AWS shared configuration file (`~/.aws/config`). The region must be specified when the ECR Credential Helper retrieves the authorization token.
 
    - Or, if you're running self-managed runners,
      add the previous JSON to `${GITLAB_RUNNER_HOME}/.docker/config.json`.
@@ -467,7 +467,7 @@ registries to the `"credHelpers"` hash.
 
 ### Use checksum to keep your image secure
 
-We recommend using the image checksum in your job definition in your `.gitlab-ci.yml` file to verify the integrity of the image. A failed image integrity verification prevents you from using a modified container.
+Use the image checksum in your job definition in your `.gitlab-ci.yml` file to verify the integrity of the image. A failed image integrity verification prevents you from using a modified container.
 
 To use the image checksum you have to append the checksum at the end:
 
@@ -491,17 +491,17 @@ gitlab/gitlab-runner                                              latest    sha2
 ## Creating a Custom GitLab Runner Docker Image
 
 You can create a custom GitLab Runner Docker image to package AWS CLI and Amazon ECR Credential Helper. This setup facilitates
-secure and streamlined interactions with AWS services, especially for containerized applications. For example, to reduce time
-and error-prone manual configurations, teams who deploy microservices on AWS can use this setup to manage, deploy,
-and update Docker images on Amazon ECR, without using manual credential management.
+secure and streamlined interactions with AWS services, especially for containerized applications. For example, use this setup
+to manage, deploy, and update Docker images on Amazon ECR. This setup helps avoid time consuming, error-prone configurations,
+and manual credential management.
 
 1. [Authenticate GitLab with AWS](../cloud_deployment/index.md#authenticate-gitlab-with-aws).
 1. Create a `Dockerfile` with the following content:
 
    ```Dockerfile
    # Control package versions
-   ARG GITLAB_RUNNER_VERSION=v16.4.0
-   ARG AWS_CLI_VERSION=2.2.30
+   ARG GITLAB_RUNNER_VERSION=v17.3.0
+   ARG AWS_CLI_VERSION=2.17.36
 
    # AWS CLI and Amazon ECR Credential Helper
    FROM amazonlinux as aws-tools
@@ -535,14 +535,14 @@ and update Docker images on Amazon ECR, without using manual credential manageme
    COPY --from=aws-tools /root/.docker/config.json /root/.docker/config.json
    ```
 
-1. To build the custom GitLab Runner Docker image within a `.gitlab-ci.yml`, include the following example below:
+1. To build the custom GitLab Runner Docker image in a `.gitlab-ci.yml`, include the following example below:
 
    ```yaml
    variables:
      DOCKER_DRIVER: overlay2
      IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-     GITLAB_RUNNER_VERSION: v16.4.0
-     AWS_CLI_VERSION: 2.13.21
+     GITLAB_RUNNER_VERSION: v17.3.0
+     AWS_CLI_VERSION: 2.17.36
 
    stages:
      - build

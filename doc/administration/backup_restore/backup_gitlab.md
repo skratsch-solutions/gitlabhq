@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The exact procedure for backing up GitLab depends on many factors. Your particular deployment's usage and configuration determine what kind of data exists, where it is located, and how much there is. These factors influence your options for how to perform a back up, how to store it, and how to restore it.
 
@@ -104,7 +104,7 @@ The [backup command](#backup-command) doesn't back up blobs that aren't stored o
   - Hosted by you (like MinIO).
   - A Storage Appliance that exposes an Object Storage-compatible API.
 
-The backup command backs up registry data when they are stored in the default location on the file system.
+The backup command does not back up registry data when they are stored in Object Storage.
 
 ### Storing configuration files
 
@@ -182,6 +182,8 @@ Backups do not include:
 - [Mattermost data](../../integration/mattermost/index.md#back-up-gitlab-mattermost)
 - Redis (and thus Sidekiq jobs)
 - [Object storage](#object-storage) on Linux package (Omnibus) / Docker / Self-compiled installations
+- [Global server hooks](../server_hooks.md#create-global-server-hooks-for-all-repositories)
+- [File hooks](../file_hooks.md)
 
 WARNING:
 GitLab does not back up any configuration files (`/etc/gitlab`), TLS keys and certificates, or system
@@ -284,6 +286,8 @@ Deleting tmp directories...[DONE]
 Deleting old backups... [SKIPPING]
 ```
 
+For detailed information about the backup process, see [Backup archive process](backup_archive_process.md).
+
 ### Backup options
 
 The command-line tool GitLab provides to back up your instance can accept more
@@ -318,7 +322,7 @@ WARNING:
 If you use a custom backup filename, you can't
 [limit the lifetime of the backups](#limit-backup-lifetime-for-local-files-prune-old-backups).
 
-Backup files are created with filenames according to [specific defaults](index.md#backup-id). However, you can
+Backup files are created with filenames according to [specific defaults](backup_archive_process.md#backup-id). However, you can
 override the `<backup-id>` portion of the filename by setting the `BACKUP`
 environment variable. For example:
 
@@ -384,7 +388,7 @@ DECOMPRESS_CMD=tee gitlab-backup restore
 ##### Parallel compression with `pigz`
 
 WARNING:
-While we support using `COMPRESS_CMD` and `DECOMPRESS_CMD` to override the default Gzip compression library, we currently only test the default Gzip library with default options on a routine basis. You are responsible for testing and validating the viability of your backups. We strongly recommend this as best practice in general for backups, whether overriding the compression command or not. If you encounter issues with another compression library, you should revert back to the default. Troubleshooting and fixing errors with alternative libraries are a lower priority for GitLab.
+While we support using `COMPRESS_CMD` and `DECOMPRESS_CMD` to override the default Gzip compression library, we only test the default Gzip library with default options on a routine basis. You are responsible for testing and validating the viability of your backups. We strongly recommend this as best practice in general for backups, whether overriding the compression command or not. If you encounter issues with another compression library, you should revert back to the default. Troubleshooting and fixing errors with alternative libraries are a lower priority for GitLab.
 
 NOTE:
 `pigz` is not included in the GitLab Linux package. You must install it yourself.
@@ -404,7 +408,7 @@ DECOMPRESS_CMD="pigz --decompress --stdout" sudo gitlab-backup restore
 ##### Parallel compression with `zstd`
 
 WARNING:
-While we support using `COMPRESS_CMD` and `DECOMPRESS_CMD` to override the default Gzip compression library, we currently only test the default Gzip library with default options on a routine basis. You are responsible for testing and validating the viability of your backups. We strongly recommend this as best practice in general for backups, whether overriding the compression command or not. If you encounter issues with another compression library, you should revert back to the default. Troubleshooting and fixing errors with alternative libraries are a lower priority for GitLab.
+While we support using `COMPRESS_CMD` and `DECOMPRESS_CMD` to override the default Gzip compression library, we only test the default Gzip library with default options on a routine basis. You are responsible for testing and validating the viability of your backups. We strongly recommend this as best practice in general for backups, whether overriding the compression command or not. If you encounter issues with another compression library, you should revert back to the default. Troubleshooting and fixing errors with alternative libraries are a lower priority for GitLab.
 
 NOTE:
 `zstd` is not included in the GitLab Linux package. You must install it yourself.
@@ -455,8 +459,8 @@ Depending on your installation type, slightly different components can be skippe
 - `terraform_state` (Terraform states)
 - `registry` (Container registry images)
 - `packages` (Packages)
-- `ci_secure_files` (Project-level Secure Files)
-- `external_diffs` (External Merge Request diffs)
+- `ci_secure_files` (Project-level secure files)
+- `external_diffs` (External merge request diffs)
 
 :::TabTitle Helm chart (Kubernetes)
 
@@ -601,16 +605,25 @@ sudo gitlab-backup create GITLAB_BACKUP_MAX_CONCURRENCY=4 GITLAB_BACKUP_MAX_STOR
 sudo -u git -H bundle exec rake gitlab:backup:create GITLAB_BACKUP_MAX_CONCURRENCY=4 GITLAB_BACKUP_MAX_STORAGE_CONCURRENCY=1
 ```
 
+:::TabTitle Helm chart (Kubernetes)
+
+```yaml
+toolbox:
+#...
+    extra: {}
+    extraEnv:
+      GITLAB_BACKUP_MAX_CONCURRENCY: 4
+      GITLAB_BACKUP_MAX_STORAGE_CONCURRENCY: 1
+
+```
+
 ::EndTabs
 
 #### Incremental repository backups
 
-> - `PREVIOUS_BACKUP` option [introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/4184) in GitLab 15.0.
-> - Server-side support for creating incremental backups [introduced](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/6475) in GitLab 16.6.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature, an administrator can [disable the feature flag](../feature_flags.md) named `incremental_repository_backup`.
-On GitLab.com and GitLab Dedicated, this feature is not available.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/351383) in GitLab 14.10 [with a flag](../../administration/feature_flags.md) named `incremental_repository_backup`. Disabled by default.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/355945) in GitLab 15.3. Feature flag `incremental_repository_backup` removed.
+> - Server-side support for creating incremental backups [introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/5461) in GitLab 16.6.
 
 NOTE:
 Only repositories support incremental backups. Therefore, if you use `INCREMENTAL=yes`, the task
@@ -624,7 +637,7 @@ The incremental backup archives are not linked to each other: each archive is a 
 to create an incremental backup from.
 
 Use the `PREVIOUS_BACKUP=<backup-id>` option to choose the backup to use. By default, a backup file is created
-as documented in the [Backup ID](index.md#backup-id) section. You can override the `<backup-id>` portion of the filename by setting the
+as documented in the [Backup ID](backup_archive_process.md#backup-id) section. You can override the `<backup-id>` portion of the filename by setting the
 [`BACKUP` environment variable](#backup-filename).
 
 To create an incremental backup, run:
@@ -684,15 +697,21 @@ and skip the **Project D** in **Group A** (`group-a/project-d`):
 
 :::TabTitle Linux package (Omnibus)
 
-  ```shell
-  sudo gitlab-backup create REPOSITORIES_PATHS=group-a,group-b/project-c SKIP_REPOSITORIES_PATHS=group-a/project-d
-  ```
+```shell
+sudo gitlab-backup create REPOSITORIES_PATHS=group-a,group-b/project-c SKIP_REPOSITORIES_PATHS=group-a/project-d
+```
 
 :::TabTitle Self-compiled
 
-  ```shell
-  sudo -u git -H bundle exec rake gitlab:backup:create REPOSITORIES_PATHS=group-a,group-b/project-c SKIP_REPOSITORIES_PATHS=group-a/project-d
-  ```
+```shell
+sudo -u git -H bundle exec rake gitlab:backup:create REPOSITORIES_PATHS=group-a,group-b/project-c SKIP_REPOSITORIES_PATHS=group-a/project-d
+```
+
+:::TabTitle Helm chart (Kubernetes)
+
+```shell
+REPOSITORIES_PATHS=group-a SKIP_REPOSITORIES_PATHS=group-a/project_a2 backup-utility --skip db,registry,uploads,artifacts,lfs,packages,external_diffs,terraform_state,ci_secure_files,pages
+```
 
 ::EndTabs
 
@@ -1354,14 +1373,14 @@ In the following cases, consider using file system data transfer or snapshots as
 - Your GitLab instance has a problem and using the regular backup and import Rake tasks isn't possible.
 
 WARNING:
-Gitaly Cluster [does not support snapshot backups](../gitaly/index.md#snapshot-backup-and-recovery-limitations).
+Gitaly Cluster [does not support snapshot backups](../gitaly/index.md#snapshot-backup-and-recovery).
 
 When considering using file system data transfer or snapshots:
 
 - Don't use these methods to migrate from one operating system to another. The operating systems of the source and destination should be as similar as possible. For example,
   don't use these methods to migrate from Ubuntu to RHEL.
 - Data consistency is very important. You should stop GitLab (`sudo gitlab-ctl stop`) before
-  doing a file system transfer (with `rsync`, for example) or taking a snapshot.
+  doing a file system transfer (with `rsync`, for example) or taking a snapshot to ensure all data in memory is flushed to disk. GitLab consists of multiple subsystems (Gitaly, database, file storage) that have their own buffers, queues, and storage layers. GitLab transactions can span these subsystems, which results in parts of a transaction taking different paths to disk. On live systems, file system transfers and snapshot runs fail to capture parts of the transaction still in memory.
 
 Example: Amazon Elastic Block Store (EBS)
 

@@ -12,7 +12,7 @@ Rails.application.configure do |config|
     when :set_user
       activity.user_authenticated!
       activity.user_session_override!
-    when :fetch # rubocop:disable Lint/EmptyWhen
+    when :fetch
       # We ignore session fetch events
     else
       activity.user_session_override!
@@ -36,6 +36,8 @@ Rails.application.configure do |config|
   end
 
   Warden::Manager.before_logout(scope: :user) do |user, auth, opts|
+    ActiveSession.unset_marketing_user_cookies(auth) if ::Gitlab.ee? && ::Gitlab.com?
+
     user ||= auth.user
     # Rails CSRF protection may attempt to log out a user before that
     # user even logs in

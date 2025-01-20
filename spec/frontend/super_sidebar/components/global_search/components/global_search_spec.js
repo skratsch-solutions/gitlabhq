@@ -15,7 +15,6 @@ import ScrollScrim from '~/super_sidebar/components/scroll_scrim.vue';
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import { useMockLocationHelper } from 'helpers/mock_window_location_helper';
 import {
-  SEARCH_OR_COMMAND_MODE_PLACEHOLDER,
   COMMON_HANDLES,
   COMMAND_HANDLE,
   USER_HANDLE,
@@ -29,6 +28,8 @@ import {
   SEARCH_INPUT_DESCRIPTION,
   SEARCH_RESULTS_DESCRIPTION,
   KEY_K,
+  KEY_N,
+  KEY_P,
 } from '~/super_sidebar/components/global_search/constants';
 import { visitUrl } from '~/lib/utils/url_utility';
 import {
@@ -63,12 +64,14 @@ jest.mock('~/search/store/utils.js', () => ({
   injectRegexSearch: jest.fn(() => '/search?search=test'),
 }));
 
-const triggerKeydownEvent = (target, code, metaKey = false) => {
+// eslint-disable-next-line max-params
+const triggerKeydownEvent = (target, code, metaKey = false, ctrlKey = false) => {
   const event = new KeyboardEvent('keydown', {
     bubbles: true,
     cancelable: true,
     code,
     metaKey,
+    ctrlKey,
   });
   target.dispatchEvent(event);
   return event;
@@ -264,9 +267,7 @@ describe('GlobalSearchModal', () => {
         });
 
         it('should provide an alternative placeholder to the search input', () => {
-          expect(findGlobalSearchInput().attributes('placeholder')).toBe(
-            SEARCH_OR_COMMAND_MODE_PLACEHOLDER,
-          );
+          expect(findGlobalSearchInput().attributes('placeholder')).toBe('Type to search...');
         });
       });
 
@@ -680,6 +681,49 @@ describe('GlobalSearchModal', () => {
         triggerKeydownEvent(document.activeElement, NUMPAD_ENTER_KEY);
         expect(submitSearchSpy).not.toHaveBeenCalled();
         expect(dispatchEventSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('when navigating using keyboard shortcuts', () => {
+      beforeEach(async () => {
+        await findGlobalSearchModal().vm.$emit('shown');
+        findSearchInput().element.focus();
+      });
+
+      it('should focus the next item when Ctrl+N is pressed', () => {
+        triggerKeydownEvent(window, KEY_N, false, true);
+
+        expect(document.activeElement).toBe(wrapper.findByTestId('test-result-1').element);
+      });
+
+      it('should focus the previous item when Ctrl+P is pressed', () => {
+        triggerKeydownEvent(window, KEY_N, false, true);
+        triggerKeydownEvent(window, KEY_N, false, true);
+
+        expect(document.activeElement).toBe(wrapper.findByTestId('test-result-2').element);
+
+        triggerKeydownEvent(window, KEY_P, false, true);
+
+        expect(document.activeElement).toBe(wrapper.findByTestId('test-result-1').element);
+      });
+
+      it('should wrap to the last item when Ctrl+P is pressed at the first item', () => {
+        triggerKeydownEvent(window, KEY_P, false, true);
+        expect(document.activeElement).toBe(wrapper.findByTestId('test-result-5').element);
+      });
+
+      it('should wrap to the first item when Ctrl+N is pressed at the last item', () => {
+        // triggers getListItemsAndFocusIndex() to grab the result items
+        triggerKeydownEvent(window, '', false, false);
+
+        const lastIndex = wrapper.vm.childListItems.length - 1;
+
+        wrapper.vm.focusIndex = lastIndex;
+        wrapper.vm.childListItems[lastIndex].focus();
+
+        triggerKeydownEvent(window, KEY_N, false, true);
+
+        expect(document.activeElement).toBe(wrapper.findByTestId('test-result-1').element);
       });
     });
   });

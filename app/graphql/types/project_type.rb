@@ -10,6 +10,8 @@ module Types
 
     expose_permissions Types::PermissionTypes::Project
 
+    implements Types::TodoableInterface
+
     field :id, GraphQL::Types::ID,
       null: false,
       description: 'ID of the project.'
@@ -22,7 +24,7 @@ module Types
       null: true,
       calls_gitaly: true,
       authorize: :create_pipeline,
-      alpha: { milestone: '15.3' },
+      experiment: { milestone: '15.3' },
       description: 'CI/CD config variable.' do
       argument :ref, GraphQL::Types::String,
         required: true,
@@ -40,7 +42,7 @@ module Types
     field :organization_edit_path, GraphQL::Types::String,
       null: true,
       description: 'Path for editing project at the organization level.',
-      alpha: { milestone: '16.11' }
+      experiment: { milestone: '16.11' }
 
     field :incident_management_timeline_event_tags, [Types::IncidentManagement::TimelineEventTagType],
       null: true,
@@ -126,7 +128,7 @@ module Types
     field :merge_requests_ff_only_enabled, GraphQL::Types::Boolean,
       null: true,
       description: 'Indicates if no merge commits should be created and all merges should instead be ' \
-                   'fast-forwarded, which means that merging is only allowed if the branch could be fast-forwarded.'
+        'fast-forwarded, which means that merging is only allowed if the branch could be fast-forwarded.'
 
     field :shared_runners_enabled, GraphQL::Types::Boolean,
       null: true,
@@ -150,14 +152,19 @@ module Types
       description: 'Indicates if CI/CD pipeline jobs are enabled for the current user.'
 
     field :is_catalog_resource, GraphQL::Types::Boolean,
-      alpha: { milestone: '15.11' },
+      experiment: { milestone: '15.11' },
       null: true,
       description: 'Indicates if a project is a catalog resource.'
+
+    field :explore_catalog_path, GraphQL::Types::String,
+      experiment: { milestone: '17.6' },
+      null: true,
+      description: 'Path to the project catalog resource.'
 
     field :public_jobs, GraphQL::Types::Boolean,
       null: true,
       description: 'Indicates if there is public access to pipelines and job details of the project, ' \
-                   'including output logs and artifacts.',
+        'including output logs and artifacts.',
       method: :public_builds
 
     field :open_issues_count, GraphQL::Types::Int,
@@ -171,12 +178,12 @@ module Types
     field :allow_merge_on_skipped_pipeline, GraphQL::Types::Boolean,
       null: true,
       description: 'If `only_allow_merge_if_pipeline_succeeds` is true, indicates if merge requests of ' \
-                   'the project can also be merged with skipped jobs.'
+        'the project can also be merged with skipped jobs.'
 
     field :autoclose_referenced_issues, GraphQL::Types::Boolean,
       null: true,
       description: 'Indicates if issues referenced by merge requests and commits within the default branch ' \
-                   'are closed automatically.'
+        'are closed automatically.'
 
     field :import_status, GraphQL::Types::String,
       null: true,
@@ -188,7 +195,8 @@ module Types
 
     field :only_allow_merge_if_all_discussions_are_resolved, GraphQL::Types::Boolean,
       null: true,
-      description: 'Indicates if merge requests of the project can only be merged when all the discussions are resolved.'
+      description: 'Indicates if merge requests of the project can only be merged ' \
+        'when all the discussions are resolved.'
 
     field :only_allow_merge_if_pipeline_succeeds, GraphQL::Types::Boolean,
       null: true,
@@ -197,12 +205,12 @@ module Types
     field :printing_merge_request_link_enabled, GraphQL::Types::Boolean,
       null: true,
       description: 'Indicates if a link to create or view a merge request should display after a push to Git ' \
-                   'repositories of the project from the command line.'
+        'repositories of the project from the command line.'
 
     field :remove_source_branch_after_merge, GraphQL::Types::Boolean,
       null: true,
       description: 'Indicates if `Delete source branch` option should be enabled by default for all ' \
-                   'new merge requests of the project.'
+        'new merge requests of the project.'
 
     field :request_access_enabled, GraphQL::Types::Boolean,
       null: true,
@@ -262,7 +270,7 @@ module Types
     field :work_items,
       Types::WorkItemType.connection_type,
       null: true,
-      alpha: { milestone: '15.1' },
+      experiment: { milestone: '15.1' },
       description: 'Work items of the project.',
       extras: [:lookahead],
       resolver: Resolvers::WorkItemsResolver
@@ -270,7 +278,7 @@ module Types
     field :work_item_state_counts,
       Types::WorkItemStateCountsType,
       null: true,
-      alpha: { milestone: '16.7' },
+      experiment: { milestone: '16.7' },
       description: 'Counts of work items by state for the project.',
       resolver: Resolvers::WorkItemStateCountsResolver
 
@@ -293,7 +301,7 @@ module Types
       Types::EnvironmentType.connection_type,
       null: true,
       description: 'Environments of the project. ' \
-                   'This field can only be resolved for one project in any single request.',
+        'This field can only be resolved for one project in any single request.',
       resolver: Resolvers::EnvironmentsResolver do
       extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
     end
@@ -309,7 +317,7 @@ module Types
       null: true,
       calls_gitaly: true,
       description: 'Environments for this project with nested folders, ' \
-                   'can only be resolved for one project in any single request',
+        'can only be resolved for one project in any single request',
       resolver: Resolvers::Environments::NestedEnvironmentsResolver do
       extension ::Gitlab::Graphql::Limit::FieldCallCount, limit: 1
     end
@@ -339,7 +347,7 @@ module Types
       Types::Packages::Protection::RuleType.connection_type,
       null: true,
       description: 'Packages protection rules for the project.',
-      alpha: { milestone: '16.6' },
+      experiment: { milestone: '16.6' },
       resolver: Resolvers::ProjectPackagesProtectionRulesResolver
 
     field :jobs,
@@ -362,7 +370,7 @@ module Types
 
     field :pipelines,
       null: true,
-      description: 'Build pipelines of the project.',
+      description: 'Pipelines of the project.',
       extras: [:lookahead],
       resolver: Resolvers::Ci::ProjectPipelinesResolver
 
@@ -377,17 +385,18 @@ module Types
       null: true,
       description: 'List of pipeline trigger tokens.',
       resolver: Resolvers::Ci::PipelineTriggersResolver,
-      alpha: { milestone: '16.3' }
+      experiment: { milestone: '16.3' }
 
     field :pipeline, Types::Ci::PipelineType,
       null: true,
-      description: 'Build pipeline of the project.',
+      description: 'Pipeline of the project. If no arguments are provided, returns the latest pipeline for the ' \
+        'head commit on the default branch',
       extras: [:lookahead],
       resolver: Resolvers::Ci::ProjectPipelineResolver
 
     field :pipeline_counts, Types::Ci::PipelineCountsType,
       null: true,
-      description: 'Build pipeline counts of the project.',
+      description: 'Pipeline counts of the project.',
       resolver: Resolvers::Ci::ProjectPipelineCountsResolver
 
     field :ci_variables, Types::Ci::ProjectVariableType.connection_type,
@@ -503,18 +512,32 @@ module Types
       resolver: Resolvers::ReleasesResolver.single,
       authorize: :read_release
 
+    field :container_tags_expiration_policy, Types::ContainerRegistry::ContainerTagsExpirationPolicyType,
+      null: true,
+      description: 'Container tags expiration policy of the project.',
+      method: :container_expiration_policy,
+      authorize: :read_container_image
+
     field :container_expiration_policy, Types::ContainerExpirationPolicyType,
       null: true,
+      deprecated: { reason: 'Use `container_tags_expiration_policy`', milestone: '17.5' },
       description: 'Container expiration policy of the project.'
 
-    field :container_registry_protection_rules,
+    field :container_protection_repository_rules,
       Types::ContainerRegistry::Protection::RuleType.connection_type,
       null: true,
       description: 'Container protection rules for the project.',
-      alpha: { milestone: '16.10' },
+      experiment: { milestone: '16.10' },
       resolver: Resolvers::ProjectContainerRegistryProtectionRulesResolver
 
-    field :container_repositories, Types::ContainerRepositoryType.connection_type,
+    field :container_protection_tag_rules,
+      Types::ContainerRegistry::Protection::TagRuleType.connection_type,
+      null: true,
+      experiment: { milestone: '17.8' },
+      description: 'Container repository tag protection rules for the project. ' \
+        'Returns an empty array if the `container_registry_protected_tags` feature flag is disabled.'
+
+    field :container_repositories, Types::ContainerRegistry::ContainerRepositoryType.connection_type,
       null: true,
       description: 'Container repositories of the project.',
       resolver: Resolvers::ContainerRepositoriesResolver
@@ -555,6 +578,19 @@ module Types
       null: true,
       description: 'The CI Job Tokens scope of access.',
       resolver: Resolvers::Ci::JobTokenScopeResolver
+
+    field :ci_job_token_scope_allowlist, Types::Ci::JobTokenScope::AllowlistType,
+      null: true,
+      experiment: { milestone: '17.6' },
+      description: 'List of CI job token scopes where the project is the source.',
+      resolver: Resolvers::Ci::JobTokenScopeAllowlistResolver
+
+    field :ci_job_token_auth_logs, Types::Ci::JobTokenAuthLogType.connection_type,
+      null: true,
+      experiment: { milestone: '17.6' },
+      description: 'The CI Job Tokens authorization logs.',
+      extras: [:lookahead],
+      resolver: Resolvers::Ci::JobTokenAuthLogsResolver
 
     field :timelogs, Types::TimelogType.connection_type,
       null: true,
@@ -611,7 +647,7 @@ module Types
     field :timelog_categories, Types::TimeTracking::TimelogCategoryType.connection_type,
       null: true,
       description: "Timelog categories for the project.",
-      alpha: { milestone: '15.3' }
+      experiment: { milestone: '15.3' }
 
     field :fork_targets, Types::NamespaceType.connection_type,
       resolver: Resolvers::Projects::ForkTargetsResolver,
@@ -619,7 +655,7 @@ module Types
 
     field :fork_details, Types::Projects::ForkDetailsType,
       calls_gitaly: true,
-      alpha: { milestone: '15.7' },
+      experiment: { milestone: '15.7' },
       authorize: :read_code,
       resolver: Resolvers::Projects::ForkDetailsResolver,
       description: 'Details of the fork project compared to its upstream project.'
@@ -642,11 +678,12 @@ module Types
     field :data_transfer, Types::DataTransfer::ProjectDataTransferType,
       null: true, # disallow null once data_transfer_monitoring feature flag is rolled-out! https://gitlab.com/gitlab-org/gitlab/-/issues/391682
       resolver: Resolvers::DataTransfer::ProjectDataTransferResolver,
-      description: 'Data transfer data point for a specific period. This is mocked data under a development feature flag.'
+      description: 'Data transfer data point for a specific period. ' \
+        'This is mocked data under a development feature flag.'
 
     field :visible_forks, Types::ProjectType.connection_type,
       null: true,
-      alpha: { milestone: '15.10' },
+      experiment: { milestone: '15.10' },
       description: "Visible forks of the project." do
       argument :minimum_access_level,
         type: ::Types::AccessLevelEnum,
@@ -660,12 +697,12 @@ module Types
       description: 'Flow metrics for value stream analytics.',
       method: :project_namespace,
       authorize: :read_cycle_analytics,
-      alpha: { milestone: '15.10' }
+      experiment: { milestone: '15.10' }
 
     field :commit_references, ::Types::CommitReferencesType,
       null: true,
       resolver: Resolvers::Projects::CommitReferencesResolver,
-      alpha: { milestone: '16.0' },
+      experiment: { milestone: '16.0' },
       description: "Get tag names containing a given commit."
 
     field :autocomplete_users,
@@ -686,9 +723,14 @@ module Types
 
     field :ml_models, ::Types::Ml::ModelType.connection_type,
       null: true,
-      alpha: { milestone: '16.8' },
+      experiment: { milestone: '16.8' },
       description: 'Finds machine learning models',
       resolver: Resolvers::Ml::FindModelsResolver
+
+    field :ml_experiments, ::Types::Ml::ExperimentType.connection_type,
+      null: true,
+      description: 'Find machine learning experiments',
+      resolver: ::Resolvers::Ml::FindExperimentsResolver
 
     field :allows_multiple_merge_request_assignees,
       GraphQL::Types::Boolean,
@@ -713,12 +755,13 @@ module Types
       description: 'List of unprotected branches, ignoring any wildcard branch rules',
       null: true,
       calls_gitaly: true,
-      alpha: { milestone: '16.9' }
+      experiment: { milestone: '16.9' },
+      authorize: :read_code
 
     field :project_plan_limits, Types::ProjectPlanLimitsType,
       resolver: Resolvers::Projects::PlanLimitsResolver,
       description: 'Plan limits for the current project.',
-      alpha: { milestone: '16.9' },
+      experiment: { milestone: '16.9' },
       null: true
 
     field :available_deploy_keys, Types::AccessLevels::DeployKeyType.connection_type,
@@ -736,6 +779,34 @@ module Types
       resolver: Resolvers::PagesDeploymentsResolver,
       connection: true,
       description: "List of the project's Pages Deployments."
+
+    field :allowed_custom_statuses, Types::WorkItems::Widgets::CustomStatusType.connection_type,
+      null: true, description: 'Allowed custom statuses for the project.',
+      experiment: { milestone: '17.8' }, resolver: Resolvers::WorkItems::Widgets::CustomStatusResolver
+
+    field :pages_force_https, GraphQL::Types::Boolean,
+      null: false,
+      description: "Project's Pages site redirects unsecured connections to HTTPS."
+
+    field :pages_use_unique_domain, GraphQL::Types::Boolean,
+      null: false,
+      description: "Project's Pages site uses a unique subdomain."
+
+    def pages_force_https
+      project.pages_https_only?
+    end
+
+    def pages_use_unique_domain
+      lazy_project_settings = BatchLoader::GraphQL.for(object.id).batch do |project_ids, loader|
+        ::ProjectSetting.for_projects(project_ids).each do |project_setting|
+          loader.call(project_setting.project_id, project_setting)
+        end
+      end
+
+      Gitlab::Graphql::Lazy.with_value(lazy_project_settings) do |settings|
+        (settings || object.project_setting).pages_unique_domain_enabled?
+      end
+    end
 
     def protectable_branches
       ProtectableDropdown.new(project, :branches).protectable_ref_names
@@ -756,7 +827,7 @@ module Types
 
     {
       issues: "Issues are",
-      merge_requests: "Merge Requests are",
+      merge_requests: "Merge requests are",
       wiki: 'Wikis are',
       snippets: 'Snippets are',
       container_registry: 'Container Registry is'
@@ -814,6 +885,12 @@ module Types
       end
 
       Gitlab::Graphql::Lazy.with_value(lazy_catalog_resource, &:present?)
+    end
+
+    def explore_catalog_path
+      return unless project.catalog_resource
+
+      Gitlab::Routing.url_helpers.explore_catalog_path(project.catalog_resource)
     end
 
     def statistics
@@ -901,6 +978,12 @@ module Types
         id: project.to_param,
         namespace_id: project.namespace.to_param
       )
+    end
+
+    def container_protection_tag_rules
+      return [] unless Feature.enabled?(:container_registry_protected_tags, object)
+
+      object.container_registry_protection_tag_rules
     end
 
     private

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Commit do
+RSpec.describe Commit, feature_category: :source_code_management do
   let_it_be(:project) { create(:project, :public, :repository) }
   let_it_be(:personal_snippet) { create(:personal_snippet, :repository) }
   let_it_be(:project_snippet) { create(:project_snippet, :repository) }
@@ -17,6 +17,7 @@ RSpec.describe Commit do
     it { is_expected.to include_module(Referable) }
     it { is_expected.to include_module(StaticModel) }
     it { is_expected.to include_module(Presentable) }
+    it { is_expected.to include_module(GlobalID::Identification) }
   end
 
   describe '.lazy' do
@@ -239,6 +240,15 @@ RSpec.describe Commit do
         end
 
         expect(recorder.count).to be_zero
+      end
+    end
+
+    context 'when author_email is nil' do
+      let(:git_commit) { RepoHelpers.sample_commit.tap { |c| c.author_email = nil } }
+      let(:commit) { described_class.new(git_commit, build(:project)) }
+
+      it 'returns nil' do
+        expect(commit.author).to be_nil
       end
     end
   end
@@ -596,6 +606,25 @@ EOS
         it 'does not include details of the merged commits' do
           expect(merge_commit.cherry_pick_message(user)).to end_with("(cherry picked from commit #{merge_commit.sha})")
         end
+      end
+    end
+  end
+
+  describe '#parents' do
+    subject(:parents) { commit.parents }
+
+    it 'loads commits for parents' do
+      expect(parents).to all be_kind_of(described_class)
+      expect(parents.map(&:id)).to match_array(commit.parent_ids)
+    end
+
+    context 'when parent id cannot be loaded' do
+      before do
+        allow(commit).to receive(:parent_ids).and_return(["invalid"])
+      end
+
+      it 'returns an empty array' do
+        expect(parents).to eq([])
       end
     end
   end
@@ -995,6 +1024,85 @@ EOS
       let(:ref_containing) { ->(limit: 0, excluded_tipped: false) { commit.tags_containing(exclude_tipped: excluded_tipped, limit: limit) } }
 
       it_behaves_like 'containing ref names'
+    end
+  end
+
+  describe '#has_encoded_file_paths?' do
+    before do
+      allow(commit).to receive(:raw_diffs).and_return(raw_diffs)
+    end
+
+    context 'when there are diffs with encoded_file_path as true' do
+      let(:raw_diffs) do
+        [
+          instance_double(Gitlab::Git::Diff, encoded_file_path: true),
+          instance_double(Gitlab::Git::Diff, encoded_file_path: false)
+        ]
+      end
+
+      it 'returns true' do
+        expect(commit.has_encoded_file_paths?).to eq(true)
+      end
+    end
+
+    context 'when there are no diffs with encoded_file_path as true' do
+      let(:raw_diffs) do
+        [
+          instance_double(Gitlab::Git::Diff, encoded_file_path: false),
+          instance_double(Gitlab::Git::Diff, encoded_file_path: false)
+        ]
+      end
+
+      it 'returns false' do
+        expect(commit.has_encoded_file_paths?).to eq(false)
+      end
+    end
+  end
+
+  describe '#valid_full_sha' do
+    before do
+      allow(commit).to receive(:id).and_return(value)
+    end
+
+    let(:sha) { '5716ca5987cbf97d6bb54920bea6adde242d87e6' }
+
+    context 'when commit id does not match the full sha pattern' do
+      let(:value) { sha[0, Gitlab::Git::Commit::SHA1_LENGTH - 1] } # doesn't match Gitlab::Git::Commit::FULL_SHA_PATTERN because length is less than 40
+
+      it 'returns nil' do
+        expect(commit.valid_full_sha).to be_empty
+      end
+    end
+
+    context 'when commit id matches the full sha pattern' do
+      let(:value) { sha }
+
+      it 'returns the sha as a string' do
+        expect(commit.valid_full_sha).to eq(sha)
+      end
+    end
+  end
+
+  describe '#first_diffs_slice' do
+    let_it_be(:sha) { "913c66a37b4a45b9769037c55c2d238bd0942d2e" }
+    let_it_be(:commit) { project.commit_by(oid: sha) }
+    let_it_be(:limit) { 5 }
+
+    subject(:first_diffs_slice) { commit.first_diffs_slice(limit) }
+
+    it 'returns limited diffs' do
+      expect(first_diffs_slice.count).to eq(limit)
+    end
+  end
+
+  describe '#diffs_for_streaming' do
+    it 'returns a diff file collection commit' do
+      expect(commit.diffs_for_streaming).to be_a_kind_of(Gitlab::Diff::FileCollection::Commit)
+    end
+
+    it_behaves_like 'diffs for streaming' do
+      let(:repository) { commit.repository }
+      let(:resource) { commit }
     end
   end
 end

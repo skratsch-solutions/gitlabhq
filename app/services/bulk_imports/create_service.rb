@@ -33,10 +33,11 @@ module BulkImports
       'project_entity' => 'projects'
     }.freeze
 
-    attr_reader :current_user, :params, :credentials
+    attr_reader :current_user, :params, :credentials, :fallback_organization
 
-    def initialize(current_user, params, credentials)
+    def initialize(current_user, params, credentials, fallback_organization:)
       @current_user = current_user
+      @fallback_organization = fallback_organization
       @params = params
       @credentials = credentials
     end
@@ -52,6 +53,13 @@ module BulkImports
         label: 'bulk_import_group',
         extra: { source_equals_destination: source_equals_destination? }
       )
+
+      if Feature.enabled?(:importer_user_mapping, current_user) &&
+          Feature.enabled?(:bulk_import_importer_user_mapping, current_user)
+        ::Import::BulkImports::EphemeralData.new(bulk_import.id).enable_importer_user_mapping
+
+        Import::BulkImports::SourceUsersAttributesWorker.perform_async(bulk_import.id)
+      end
 
       BulkImportWorker.perform_async(bulk_import.id)
 
@@ -94,11 +102,13 @@ module BulkImports
 
           BulkImports::Entity.create!(
             bulk_import: bulk_import,
+            organization: organization(entity_params[:destination_namespace]),
             source_type: entity_params[:source_type],
             source_full_path: entity_params[:source_full_path],
             destination_slug: entity_params[:destination_slug] || entity_params[:destination_name],
             destination_namespace: entity_params[:destination_namespace],
-            migrate_projects: Gitlab::Utils.to_boolean(entity_params[:migrate_projects], default: true)
+            migrate_projects: Gitlab::Utils.to_boolean(entity_params[:migrate_projects], default: true),
+            migrate_memberships: Gitlab::Utils.to_boolean(entity_params[:migrate_memberships], default: true)
           )
         end
         bulk_import
@@ -126,6 +136,11 @@ module BulkImports
       raise BulkImports::Error.not_authorized(source_full_path) if e.response.code == 403
 
       raise e
+    end
+
+    def organization(namespace)
+      @organization ||= { '' => fallback_organization }
+      @organization[namespace] ||= Group.find_by_full_path(namespace)&.organization || fallback_organization
     end
 
     def entity_type

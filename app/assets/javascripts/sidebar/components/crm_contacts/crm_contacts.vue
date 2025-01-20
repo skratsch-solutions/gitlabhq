@@ -2,6 +2,7 @@
 import { GlIcon, GlLink, GlPopover, GlTooltipDirective } from '@gitlab/ui';
 import { __, n__, sprintf } from '~/locale';
 import { createAlert } from '~/alert';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import { convertToGraphQLId, getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_ISSUE } from '~/graphql_shared/constants';
 import { DOCS_URL_IN_EE_DIR } from 'jh_else_ce/lib/utils/url_utility';
@@ -14,6 +15,7 @@ export default {
     GlIcon,
     GlLink,
     GlPopover,
+    HelpIcon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -106,14 +108,12 @@ export default {
       <span> {{ contactCount }} </span>
     </div>
     <div class="hide-collapsed help-button gl-float-right">
-      <gl-link :href="$options.crmDocsLink" target="_blank"
-        ><gl-icon name="question-o" class="gl-text-blue-600"
-      /></gl-link>
+      <gl-link :href="$options.crmDocsLink" target="_blank"><help-icon /></gl-link>
     </div>
-    <div class="hide-collapsed gl-leading-20 gl-font-bold">
+    <div class="hide-collapsed gl-font-bold gl-leading-20">
       {{ contactsLabel }}
     </div>
-    <div v-if="shouldShowContacts" class="hide-collapsed gl-display-flex gl-flex-wrap gl-mt-2">
+    <div v-if="shouldShowContacts" class="hide-collapsed gl-mt-2 gl-flex gl-flex-wrap">
       <div
         v-for="(contact, index) in contacts"
         :id="`contact_container_${index}`"
@@ -137,7 +137,7 @@ export default {
     <div
       v-else
       data-testid="crm-empty-message"
-      class="gl-display-flex gl-align-items-center hide-collapsed gl-text-gray-500"
+      class="hide-collapsed gl-flex gl-items-center gl-text-subtle"
     >
       {{ __('To add active contacts, use /add_contacts.') }}
     </div>

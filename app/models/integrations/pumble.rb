@@ -1,23 +1,29 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Pumble < BaseChatNotification
+  class Pumble < Integration
+    include Base::ChatNotification
     include HasAvatar
 
     field :webhook,
       section: SECTION_TYPE_CONNECTION,
-      help: 'https://api.pumble.com/workspaces/x/...',
+      help: -> { _('The Pumble webhook (for example, `https://api.pumble.com/workspaces/x/...`).') },
       required: true
 
     field :notify_only_broken_pipelines,
       type: :checkbox,
       section: SECTION_TYPE_CONFIGURATION,
-      help: 'If selected, successful pipelines do not trigger a notification event.'
+      help: 'If selected, successful pipelines do not trigger a notification event.',
+      description: -> { _('Send notifications for broken pipelines.') }
 
     field :branches_to_be_notified,
       type: :select,
       section: SECTION_TYPE_CONFIGURATION,
       title: -> { s_('Integrations|Branches for which notifications are to be sent') },
+      description: -> {
+                     _('Branches to send notifications for. Valid options are `all`, `default`, `protected`, ' \
+                       'and `default_and_protected`. The default value is `default`.')
+                   },
       choices: -> { branch_choices }
 
     def self.title
@@ -33,19 +39,13 @@ module Integrations
     end
 
     def self.help
-      docs_link = ActionController::Base.helpers.link_to(
-        _('Learn more.'),
-        Rails.application.routes.url_helpers.help_page_url('user/project/integrations/pumble'),
-        target: '_blank',
-        rel: 'noopener noreferrer'
+      build_help_page_url(
+        'user/project/integrations/pumble.md',
+        s_("PumbleIntegration|Send notifications about project events to Pumble.")
       )
-      # rubocop:disable Layout/LineLength
-      s_("PumbleIntegration|Send notifications about project events to Pumble. %{docs_link}") % { docs_link: docs_link.html_safe }
-      # rubocop:enable Layout/LineLength
     end
 
-    def default_channel_placeholder
-    end
+    def default_channel_placeholder; end
 
     def self.supported_events
       %w[push issue confidential_issue merge_request note confidential_note tag_push

@@ -5,9 +5,13 @@ module Packages
     class Package < Packages::Package
       self.allow_legacy_sti_class = true
 
-      INSTALLABLE_STATUSES = %i[default hidden].freeze
-
       has_one :conan_metadatum, inverse_of: :package, class_name: 'Packages::Conan::Metadatum'
+
+      has_many :conan_recipe_revisions, inverse_of: :package, class_name: 'Packages::Conan::RecipeRevision'
+
+      has_many :conan_package_references, inverse_of: :package, class_name: 'Packages::Conan::PackageReference'
+
+      has_many :conan_package_revisions, inverse_of: :package, class_name: 'Packages::Conan::PackageRevision'
 
       accepts_nested_attributes_for :conan_metadatum
 

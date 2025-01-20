@@ -1,16 +1,12 @@
 @import 'mixins_and_variables_and_functions';
 
 .report-block-container {
-  border-top: 1px solid var(--border-color, $border-color);
+  border-top: 1px solid var(--gl-border-color-default);
   padding: $gl-padding - 2;
   background-color: var(--gl-background-color-subtle);
 
   // Clean MR widget CSS
   line-height: 20px;
-}
-
-.report-block-child-icon {
-  height: 20px;
 }
 
 .report-block-list {
@@ -23,15 +19,15 @@
   display: flex;
 
   &.failed svg {
-    color: var(--red-500, $red-500);
+    @apply gl-fill-icon-danger;
   }
 
   &.success svg {
-    color: var(--green-500, $green-500);
+    @apply gl-fill-icon-success;
   }
 
   &.neutral svg {
-    color: var(--gray-500, $gray-500);
+    @apply gl-fill-icon-subtle;
   }
 
   .ci-status-icon {
@@ -63,9 +59,5 @@
     word-wrap: break-word;
     word-break: break-all;
   }
-}
-
-.report-block-issue-code {
-  width: 600px;
 }
 

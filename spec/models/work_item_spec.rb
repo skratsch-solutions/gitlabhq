@@ -92,6 +92,91 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
     end
   end
 
+  describe '#create_dates_source_from_current_dates' do
+    let_it_be(:start_date) { nil }
+    let_it_be(:due_date) { nil }
+    let(:dates_source) { work_item.dates_source }
+
+    let_it_be_with_reload(:work_item) do
+      create(:work_item, project: reusable_project, start_date: start_date, due_date: due_date)
+    end
+
+    before do
+      work_item.update!(start_date: start_date, due_date: due_date)
+    end
+
+    subject(:create_dates_source_from_current_dates) { work_item.create_dates_source_from_current_dates }
+
+    context 'when both due_date and start_date are present' do
+      let_it_be(:due_date) { Time.zone.tomorrow }
+      let_it_be(:start_date) { Time.zone.today }
+
+      it 'creates dates_source with correct attributes' do
+        expect { create_dates_source_from_current_dates }.to change { WorkItems::DatesSource.count }.by(1)
+
+        expect(dates_source.reload).to have_attributes(
+          due_date: due_date,
+          start_date: start_date,
+          start_date_is_fixed: true,
+          due_date_is_fixed: true,
+          start_date_fixed: start_date,
+          due_date_fixed: due_date
+        )
+      end
+    end
+
+    context 'when only due_date is present' do
+      let_it_be(:due_date) { Time.zone.tomorrow }
+      let_it_be(:start_date) { nil }
+
+      it 'creates dates_source with correct attributes' do
+        create_dates_source_from_current_dates
+
+        expect(dates_source).to have_attributes(
+          due_date: work_item.due_date,
+          start_date: nil,
+          start_date_is_fixed: true,
+          due_date_is_fixed: true,
+          start_date_fixed: nil,
+          due_date_fixed: work_item.due_date
+        )
+      end
+    end
+
+    context 'when only start_date is present' do
+      let_it_be(:due_date) { nil }
+      let_it_be(:start_date) { Time.zone.today }
+
+      it 'creates dates_source with correct attributes' do
+        create_dates_source_from_current_dates
+
+        expect(dates_source).to have_attributes(
+          due_date: nil,
+          start_date: work_item.start_date,
+          start_date_is_fixed: true,
+          due_date_is_fixed: true,
+          start_date_fixed: work_item.start_date,
+          due_date_fixed: nil
+        )
+      end
+    end
+
+    context 'when neither due_date nor start_date is present' do
+      it 'creates dates_source with correct attributes' do
+        dates_source = work_item.create_dates_source_from_current_dates
+
+        expect(dates_source).to have_attributes(
+          due_date: nil,
+          start_date: nil,
+          start_date_is_fixed: false,
+          due_date_is_fixed: false,
+          start_date_fixed: nil,
+          due_date_fixed: nil
+        )
+      end
+    end
+  end
+
   describe '#noteable_target_type_name' do
     it 'returns `issue` as the target name' do
       work_item = build(:work_item)
@@ -159,73 +244,66 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
   end
 
   describe '#supported_quick_action_commands' do
-    let(:work_item) { build(:work_item, :task) }
+    let_it_be(:custom_type_without_widgets) { create(:work_item_type, :non_default) }
+    let_it_be(:custom_work_item_type) do
+      create(:work_item_type, :non_default, widgets: [
+        :assignees,
+        :labels,
+        :start_and_due_date,
+        :current_user_todos,
+        :development
+      ])
+    end
+
+    let_it_be(:work_item_with_widgets) { build(:work_item, work_item_type: custom_work_item_type) }
+    let_it_be(:work_item_without_widgets) { build(:work_item, work_item_type: custom_type_without_widgets) }
+
+    let(:work_item) { work_item_without_widgets }
 
     subject { work_item.supported_quick_action_commands }
 
     it 'returns quick action commands supported for all work items' do
       is_expected.to include(:title, :reopen, :close, :cc, :tableflip, :shrug, :type, :promote_to, :checkin_reminder,
-        :subscribe, :unsubscribe, :confidential, :award)
+        :subscribe, :unsubscribe, :confidential, :award, :move, :clone)
     end
 
-    context 'when work item supports the assignee widget' do
-      it 'returns assignee related quick action commands' do
+    it 'omits quick action commands from assignees widget' do
+      is_expected.not_to include(:assign, :unassign, :reassign)
+    end
+
+    it 'omits quick action commands from labels widget' do
+      is_expected.not_to include(:label, :labels, :relabel, :remove_label, :unlabel)
+    end
+
+    it 'omits quick action commands from start and due date widget' do
+      is_expected.not_to include(:due, :remove_due_date)
+    end
+
+    it 'omits quick action commands from current user todos widget' do
+      is_expected.not_to include(:todo, :done)
+    end
+
+    context 'when work item type has relevant widgets' do
+      let(:work_item) { work_item_with_widgets }
+
+      it 'returns quick action commands from assignee widget' do
         is_expected.to include(:assign, :unassign, :reassign)
       end
-    end
 
-    context 'when work item does not the assignee widget' do
-      let(:work_item) { build(:work_item, :test_case) }
-
-      it 'omits assignee related quick action commands' do
-        is_expected.not_to include(:assign, :unassign, :reassign)
-      end
-    end
-
-    context 'when work item supports the labels widget' do
-      it 'returns labels related quick action commands' do
+      it 'returns quick action commands from labels widget' do
         is_expected.to include(:label, :labels, :relabel, :remove_label, :unlabel)
       end
-    end
 
-    context 'when work item does not support the labels widget' do
-      let(:work_item) { build(:work_item, :incident) }
-
-      it 'omits labels related quick action commands' do
-        is_expected.not_to include(:label, :labels, :relabel, :remove_label, :unlabel)
-      end
-    end
-
-    context 'when work item supports the start and due date widget' do
-      it 'returns due date related quick action commands' do
+      it 'returns quick action commands from start and due date widget' do
         is_expected.to include(:due, :remove_due_date)
       end
-    end
 
-    context 'when work item does not support the start and due date widget' do
-      let(:work_item) { build(:work_item, :incident) }
-
-      it 'omits due date related quick action commands' do
-        is_expected.not_to include(:due, :remove_due_date)
-      end
-    end
-
-    context 'when work item supports the current user todos widget' do
-      it 'returns todos related quick action commands' do
+      it 'returns quick action commands from current user todos widget' do
         is_expected.to include(:todo, :done)
       end
-    end
 
-    context 'when work item does not support current user todos widget' do
-      let(:work_item) { build(:work_item, :task) }
-
-      before do
-        WorkItems::Type.default_by_type(:task).widget_definitions
-                       .find_by_widget_type(:current_user_todos).update!(disabled: true)
-      end
-
-      it 'omits todos related quick action commands' do
-        is_expected.not_to include(:todo, :done)
+      it 'returns quick action commands from development widget' do
+        is_expected.to include(:create_merge_request)
       end
     end
   end
@@ -370,7 +448,7 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
 
           expect(parent).not_to be_valid
           expect(parent.errors[:base]).to include(
-            _('A confidential work item cannot have a parent that already has non-confidential children.')
+            _('All child items must be confidential in order to turn on confidentiality.')
           )
         end
 
@@ -398,6 +476,12 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
   describe '#link_reference_pattern' do
     let(:match_data) { described_class.link_reference_pattern.match(link_reference_url) }
 
+    before_all do
+      # Required on the unlikely event that factory lint specs load the WorkItem class for the first time as
+      # those will define the instance's URL to be gitlab.com and link_reference_pattern is memoized in the class
+      described_class.instance_variable_set(:@link_reference_pattern, nil)
+    end
+
     context 'with work item url' do
       let(:link_reference_url) { 'http://localhost/namespace/project/-/work_items/1' }
 
@@ -420,14 +504,14 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
   describe '#linked_items_keyset_order' do
     subject { described_class.linked_items_keyset_order }
 
-    it { is_expected.to eq('"issue_links"."id" ASC') }
+    it { is_expected.to eq('"issue_links"."id" DESC') }
   end
 
   context 'with hierarchy' do
-    let_it_be(:type1) { create(:work_item_type, namespace: reusable_project.namespace) }
-    let_it_be(:type2) { create(:work_item_type, namespace: reusable_project.namespace) }
-    let_it_be(:type3) { create(:work_item_type, namespace: reusable_project.namespace) }
-    let_it_be(:type4) { create(:work_item_type, namespace: reusable_project.namespace) }
+    let_it_be(:type1) { create(:work_item_type, :non_default) }
+    let_it_be(:type2) { create(:work_item_type, :non_default) }
+    let_it_be(:type3) { create(:work_item_type, :non_default) }
+    let_it_be(:type4) { create(:work_item_type, :non_default) }
     let_it_be(:hierarchy_restriction1) { create(:hierarchy_restriction, parent_type: type1, child_type: type2) }
     let_it_be(:hierarchy_restriction2) { create(:hierarchy_restriction, parent_type: type2, child_type: type2) }
     let_it_be(:hierarchy_restriction3) { create(:hierarchy_restriction, parent_type: type2, child_type: type3) }
@@ -454,6 +538,12 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
 
       it 'returns an empty array if there are no ancestors' do
         expect(item1.ancestors).to be_empty
+      end
+    end
+
+    describe '#descendants' do
+      it 'returns all descendants' do
+        expect(item1.descendants).to match_array([item2_1, item2_2, item3_1, item3_2, item4])
       end
     end
 
@@ -494,11 +584,11 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
     end
 
     context 'with ParentLink relation' do
-      let_it_be(:old_type) { create(:work_item_type) }
-      let_it_be(:new_type) { create(:work_item_type) }
+      let_it_be(:old_type) { create(:work_item_type, :non_default) }
+      let_it_be(:new_type) { create(:work_item_type, :non_default) }
 
       context 'with hierarchy restrictions' do
-        let_it_be(:child_type) { create(:work_item_type) }
+        let_it_be(:child_type) { create(:work_item_type, :non_default) }
 
         let_it_be_with_reload(:parent) { create(:work_item, work_item_type: old_type, project: reusable_project) }
         let_it_be_with_reload(:child) { create(:work_item, work_item_type: child_type, project: reusable_project) }
@@ -773,6 +863,109 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
 
       it 'has participants' do
         expect(work_item.participants).to match_array([work_item.author])
+      end
+    end
+  end
+
+  describe '#due_date' do
+    let_it_be(:work_item) { create(:work_item, :issue) }
+
+    context 'when work_item have no dates_source fallbacks to work_item due_date' do
+      before do
+        work_item.update!(due_date: 1.day.from_now)
+      end
+
+      specify { expect(work_item.due_date).to eq(work_item.due_date) }
+    end
+
+    context 'when work_item have dates_source use it instead of work_item due_date value' do
+      before do
+        work_item.create_dates_source!(due_date: 1.day.ago)
+        work_item.reload.update!(due_date: nil)
+      end
+
+      specify { expect(work_item.due_date).to eq(work_item.dates_source.due_date) }
+    end
+  end
+
+  describe '#start_date' do
+    let_it_be(:work_item) { create(:work_item, :issue) }
+
+    context 'when work_item have no dates_source fallbacks to work_item start_date' do
+      before do
+        work_item.update!(start_date: 1.day.ago)
+      end
+
+      specify { expect(work_item.start_date).to eq(work_item.start_date) }
+    end
+
+    context 'when work_item have dates_source use it instead of work_item start_date value' do
+      before do
+        work_item.create_dates_source!(start_date: 1.day.from_now)
+        work_item.reload.update!(start_date: nil)
+      end
+
+      specify { expect(work_item.start_date).to eq(work_item.dates_source.start_date) }
+    end
+  end
+
+  describe '#max_depth_reached?' do
+    let_it_be(:work_item) { create(:work_item) }
+    let_it_be(:child_type) { create(:work_item_type) }
+
+    context 'when there is no hierarchy restriction' do
+      it 'returns false' do
+        expect(work_item.max_depth_reached?(child_type)).to be false
+      end
+    end
+
+    context 'when there is a hierarchy restriction without maximum depth' do
+      before do
+        create(:hierarchy_restriction,
+          parent_type_id: work_item.work_item_type_id,
+          child_type_id: child_type.id,
+          maximum_depth: nil)
+      end
+
+      it 'returns false' do
+        expect(work_item.max_depth_reached?(child_type)).to be false
+      end
+    end
+
+    context 'when there is a hierarchy restriction with maximum depth' do
+      let(:max_depth) { 3 }
+
+      before do
+        create(:hierarchy_restriction,
+          parent_type_id: work_item.work_item_type_id,
+          child_type_id: child_type.id,
+          maximum_depth: max_depth)
+      end
+
+      context 'when work item type is the same as child type' do
+        let(:child_type) { work_item.work_item_type }
+
+        it 'returns true when depth is reached' do
+          allow(work_item).to receive_message_chain(:same_type_base_and_ancestors, :count).and_return(max_depth)
+          expect(work_item.max_depth_reached?(child_type)).to be true
+        end
+
+        it 'returns false when depth is not reached' do
+          allow(work_item).to receive_message_chain(:same_type_base_and_ancestors, :count).and_return(max_depth - 1)
+          expect(work_item.max_depth_reached?(child_type)).to be false
+        end
+      end
+
+      context 'when work item type is different from child type' do
+        it 'returns true when depth is reached' do
+          allow(work_item).to receive_message_chain(:hierarchy, :base_and_ancestors, :count).and_return(max_depth)
+          expect(work_item.max_depth_reached?(child_type)).to be true
+        end
+
+        it 'returns false when depth is not reached' do
+          allow(work_item).to receive_message_chain(:hierarchy, :base_and_ancestors, :count).and_return(max_depth - 1)
+          expect(work_item.max_depth_reached?(child_type)).to be false
+        end
       end
     end
   end

@@ -42,6 +42,7 @@
 - i_ci_secrets_management_gcp_secret_manager_build_created
 - i_ci_secrets_management_id_tokens_build_created
 - i_ci_secrets_management_vault_build_created
+- i_ci_secrets_management_gitlab_secrets_manager_build_created
 - i_code_review_click_diff_view_setting
 - i_code_review_click_file_browser_setting
 - i_code_review_click_single_file_mode_setting
@@ -218,6 +219,7 @@
 - i_package_npm_user
 - i_package_nuget_deploy_token
 - i_package_nuget_user
+- i_package_ml_model_user
 - i_package_pypi_deploy_token
 - i_package_pypi_user
 - i_package_rpm_deploy_token
@@ -247,6 +249,7 @@
 - i_quickactions_copy_metadata_issue
 - i_quickactions_copy_metadata_merge_request
 - i_quickactions_create_merge_request
+- i_quickactions_q
 - i_quickactions_done
 - i_quickactions_draft
 - i_quickactions_due
@@ -353,7 +356,6 @@
 - k8s_api_proxy_requests_unique_agents_via_pat_access
 - k8s_api_proxy_requests_unique_agents_via_user_access
 - merge_request_action
-- o_pipeline_authoring_unique_users_committing_ciconfigfile
 - o_pipeline_authoring_unique_users_pushing_mr_ciconfigfile
 - p_analytics_code_reviews
 - p_analytics_insights
@@ -558,4 +560,3 @@
 - users_visiting_security_vulnerability_report
 - users_visiting_testing_license_compliance_full_report
 - users_visiting_testing_manage_license_compliance
-- wiki_action

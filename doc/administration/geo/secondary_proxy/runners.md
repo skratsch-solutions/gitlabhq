@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/9779) in GitLab 16.8 [with a flag](../../feature_flags.md) named `geo_proxy_check_pipeline_refs`. Disabled by default.
 > - [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/issues/434041) in GitLab 16.9.
@@ -20,7 +20,7 @@ The jobs that start during the first stage of a pipeline almost always have thei
 
 ## Use secondary runners with a Location Aware public URL (Unified URL)
 
-Using a [Location Aware public URL](location_aware_external_url.md), with the feature flag enabled works with no extra configuration. After you install and register a runner in the same location as a secondary site, it automatically talks to the closest site, and only proxies to the primary if the secondary is out of date.
+Using [Location-Aware DNS](index.md#configure-location-aware-dns), with the feature flag enabled works with no extra configuration. After you install and register a runner in the same location as a secondary site, it automatically talks to the closest site, and only proxies to the primary if the secondary is out of date.
 
 ## Use secondary runners with separate URLs
 
@@ -35,7 +35,7 @@ When executing [a planned failover](../disaster_recovery/planned_failover.md), s
 
 ### With Location Aware public URL
 
-When using the [Location Aware public URL](location_aware_external_url.md), all runners automatically connect to the closest Geo site.
+When using [Location-Aware DNS](index.md#configure-location-aware-dns), all runners automatically connect to the closest Geo site.
 
 When failing over to a new primary:
 
@@ -57,14 +57,14 @@ If you are not concerned about these issues, there is nothing to do here.
 
 You must have administrator access to use any of the following methods:
 
-- Through the Admin Area:
-  1. On the left sidebar, at the bottom, select **Admin Area**.
+- Through the **Admin** area:
+  1. On the left sidebar, at the bottom, select **Admin**.
   1. Select **Settings > Runners**.
   1. Identify the runners you would like to pause.
   1. Select the `pause` button next to each runner you would like to pause.
   1. After the failover is complete, unpause the runners you paused in the previous step.
 - Use the [Runners API](../../../api/runners.md):
-  1. Fetch or create a [Personal Access Token](../../../user/profile/personal_access_tokens.md) with administrator access.
+  1. Fetch or create a [personal access token](../../../user/profile/personal_access_tokens.md) with administrator access.
   1. Get the list of runners. You can filter the list [using the API](../../../api/runners.md#list-all-runners).
   1. Identify the runners you would like to pause, and make note of their `id`.
   1. [Follow the API documentation](../../../api/runners.md#pause-a-runner) to pause each runner.

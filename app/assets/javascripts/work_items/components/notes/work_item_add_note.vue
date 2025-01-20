@@ -1,14 +1,17 @@
 <script>
+import { GlAlert } from '@gitlab/ui';
+import { uniqueId } from 'lodash';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import Tracking from '~/tracking';
 import { ASC } from '~/notes/constants';
 import { __ } from '~/locale';
 import { clearDraft } from '~/lib/utils/autosave';
+import { findWidget } from '~/issues/list/utils';
 import DiscussionReplyPlaceholder from '~/notes/components/discussion_reply_placeholder.vue';
+import ResolveDiscussionButton from '~/notes/components/discussion_resolve_button.vue';
 import createNoteMutation from '../../graphql/notes/create_work_item_note.mutation.graphql';
-import groupWorkItemByIidQuery from '../../graphql/group_work_item_by_iid.query.graphql';
 import workItemByIidQuery from '../../graphql/work_item_by_iid.query.graphql';
-import { TRACKING_CATEGORY_SHOW, i18n } from '../../constants';
+import { TRACKING_CATEGORY_SHOW, WIDGET_TYPE_EMAIL_PARTICIPANTS, i18n } from '../../constants';
 import WorkItemNoteSignedOut from './work_item_note_signed_out.vue';
 import WorkItemCommentLocked from './work_item_comment_locked.vue';
 import WorkItemCommentForm from './work_item_comment_form.vue';
@@ -19,12 +22,13 @@ export default {
   },
   components: {
     DiscussionReplyPlaceholder,
+    GlAlert,
     WorkItemNoteSignedOut,
     WorkItemCommentLocked,
     WorkItemCommentForm,
+    ResolveDiscussionButton,
   },
   mixins: [Tracking.mixin()],
-  inject: ['isGroup'],
   props: {
     fullPath: {
       type: String,
@@ -91,9 +95,37 @@ export default {
       required: false,
       default: false,
     },
+    isDiscussionResolved: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isDiscussionResolvable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isResolving: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    hasReplies: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    parentId: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   data() {
     return {
+      addNoteKey: this.generateUniqueId(),
+      errorMessages: '',
+      messages: '',
       workItem: {},
       isEditing: this.isNewDiscussion,
       isSubmitting: false,
@@ -102,9 +134,7 @@ export default {
   },
   apollo: {
     workItem: {
-      query() {
-        return this.isGroup ? groupWorkItemByIidQuery : workItemByIidQuery;
-      },
+      query: workItemByIidQuery,
       variables() {
         return {
           fullPath: this.fullPath,
@@ -148,12 +178,12 @@ export default {
     timelineContentClass() {
       return {
         'timeline-content': true,
-        'gl-border-0! gl-pl-0!': !this.addPadding,
+        '!gl-border-0 !gl-pl-0': !this.addPadding,
       };
     },
     parentClass() {
       return {
-        'gl-relative gl-display-flex gl-align-items-flex-start gl-flex-nowrap': !this.isEditing,
+        'gl-relative gl-flex gl-items-start gl-flex-wrap sm:gl-flex-nowrap': !this.isEditing,
       };
     },
     isProjectArchived() {
@@ -172,11 +202,17 @@ export default {
       return {
         'timeline-entry note-form': this.isNewDiscussion,
         // eslint-disable-next-line @gitlab/require-i18n-strings
-        'note note-wrapper note-comment discussion-reply-holder gl-border-t-0! clearfix':
+        '!gl-pb-5 note note-wrapper note-comment discussion-reply-holder clearfix':
           !this.isNewDiscussion,
-        'gl-pt-0! is-replying': this.isEditing,
+        'is-replying': this.isEditing,
         'internal-note': this.isInternalThread,
       };
+    },
+    resolveDiscussionTitle() {
+      return this.isDiscussionResolved ? __('Unresolve thread') : __('Resolve thread');
+    },
+    hasEmailParticipantsWidget() {
+      return Boolean(findWidget(WIDGET_TYPE_EMAIL_PARTICIPANTS, this.workItem));
     },
   },
   watch: {
@@ -190,13 +226,17 @@ export default {
     },
   },
   methods: {
+    generateUniqueId() {
+      // used to rerender work-item-comment-form so the text in the textarea is cleared
+      return uniqueId(`work-item-add-note-${this.workItemId}-`);
+    },
     async updateWorkItem({ commentText, isNoteInternal = false }) {
       this.isSubmitting = true;
       this.$emit('replying', commentText);
       try {
         this.track('add_work_item_comment');
 
-        await this.$apollo.mutate({
+        const { data } = await this.$apollo.mutate({
           mutation: createNoteMutation,
           variables: {
             input: {
@@ -206,39 +246,12 @@ export default {
               internal: isNoteInternal,
             },
           },
-          update(store, createNoteData) {
-            const numErrors = createNoteData.data?.createNote?.errors?.length;
-
-            if (numErrors) {
-              const { errors } = createNoteData.data.createNote;
-
-              // TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/346557
-              // When a note only contains quick actions,
-              // additional "helpful" messages are embedded in the errors field.
-              // For instance, a note solely composed of "/assign @foobar" would
-              // return a message "Commands only Assigned @root." as an error on creation
-              // even though the quick action successfully executed.
-              if (
-                numErrors === 2 &&
-                errors[0].includes('Commands only') &&
-                errors[1].includes('Command names')
-              ) {
-                return;
-              }
-
-              throw new Error(createNoteData.data?.createNote?.errors[0]);
-            }
-          },
+          update: this.onNoteUpdate,
         });
-        /**
-         * https://gitlab.com/gitlab-org/gitlab/-/issues/388314
-         *
-         * Once form is successfully submitted, emit replied event,
-         * mark isSubmitting to false and clear storage before hiding the form.
-         * This will restrict comment form to restore the value while textarea
-         * input triggered due to keyboard event meta+enter.
-         *
-         */
+        const { errorMessages, messages } = data.createNote.quickActionsStatus;
+
+        this.errorMessages = errorMessages?.join(' ');
+        this.messages = messages?.join(' ');
         this.$emit('replied');
         clearDraft(this.autosaveKey);
         this.cancelEditing();
@@ -251,11 +264,43 @@ export default {
     },
     cancelEditing() {
       this.isEditing = this.isNewDiscussion;
+      this.addNoteKey = this.generateUniqueId();
       this.$emit('cancelEditing');
     },
     showReplyForm() {
       this.isEditing = true;
       this.$emit('startReplying');
+    },
+    onNoteUpdate(store, createNoteData) {
+      const numErrors = createNoteData.data?.createNote?.errors?.length;
+
+      if (numErrors) {
+        const { errors } = createNoteData.data.createNote;
+
+        // TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/503600
+        // Refetching widgets as a temporary solution for dynamic updates
+        // of the sidebar on changing the work item type
+        if (numErrors === 2 && errors[1].includes('"type"')) {
+          this.$apollo.queries.workItem.refetch();
+          return;
+        }
+
+        // TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/346557
+        // When a note only contains quick actions,
+        // additional "helpful" messages are embedded in the errors field.
+        // For instance, a note solely composed of "/assign @foobar" would
+        // return a message "Commands only Assigned @root." as an error on creation
+        // even though the quick action successfully executed.
+        if (
+          numErrors === 2 &&
+          errors[0].includes('Commands only') &&
+          errors[1].includes('Command names')
+        ) {
+          return;
+        }
+
+        throw new Error(createNoteData.data?.createNote?.errors[0]);
+      }
     },
   },
 };
@@ -271,9 +316,27 @@ export default {
     />
     <div v-else :class="timelineEntryInnerClass">
       <div :class="timelineContentClass">
+        <gl-alert
+          v-if="messages"
+          class="gl-mb-2"
+          data-testid="success-alert"
+          @dismiss="messages = ''"
+        >
+          {{ messages }}
+        </gl-alert>
+        <gl-alert
+          v-if="errorMessages"
+          class="gl-mb-2"
+          variant="danger"
+          data-testid="error-alert"
+          @dismiss="errorMessages = ''"
+        >
+          {{ errorMessages }}
+        </gl-alert>
         <div :class="parentClass">
           <work-item-comment-form
             v-if="isEditing"
+            :key="addNoteKey"
             :work-item-type="workItemType"
             :aria-label="__('Add a reply')"
             :is-submitting="isSubmitting"
@@ -285,19 +348,38 @@ export default {
             :work-item-id="workItemId"
             :autofocus="autofocus"
             :comment-button-text="commentButtonText"
+            :is-discussion-internal="isInternalThread"
             :is-discussion-locked="isDiscussionLocked"
             :is-work-item-confidential="isWorkItemConfidential"
+            :is-discussion-resolved="isDiscussionResolved"
+            :is-discussion-resolvable="isDiscussionResolvable"
             :full-path="fullPath"
+            :has-replies="hasReplies"
             :work-item-iid="workItemIid"
+            :has-email-participants-widget="hasEmailParticipantsWidget"
+            :parent-id="parentId"
+            @toggleResolveDiscussion="$emit('resolve')"
             @submitForm="updateWorkItem"
             @cancelEditing="cancelEditing"
             @error="$emit('error', $event)"
+            @startEditing="$emit('startEditing')"
+            @stopEditing="$emit('stopEditing')"
           />
           <discussion-reply-placeholder
             v-else
             data-testid="note-reply-textarea"
             @focus="showReplyForm"
           />
+
+          <div v-if="!isNewDiscussion && !isEditing" class="discussion-actions">
+            <resolve-discussion-button
+              v-if="isDiscussionResolvable"
+              data-testid="resolve-discussion-button"
+              :is-resolving="isResolving"
+              :button-title="resolveDiscussionTitle"
+              @onClick="$emit('resolve')"
+            />
+          </div>
         </div>
       </div>
     </div>

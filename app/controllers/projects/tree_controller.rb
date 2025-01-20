@@ -18,7 +18,8 @@ class Projects::TreeController < Projects::ApplicationController
   before_action :authorize_edit_tree!, only: [:create_dir]
 
   before_action do
-    push_frontend_feature_flag(:explain_code_chat, current_user)
+    push_frontend_feature_flag(:inline_blame, @project)
+    push_frontend_feature_flag(:blob_overflow_menu, current_user)
     push_licensed_feature(:file_locks) if @project.licensed_feature_available?(:file_locks)
   end
 
@@ -61,13 +62,23 @@ class Projects::TreeController < Projects::ApplicationController
   end
 
   def assign_dir_vars
-    @branch_name = params[:branch_name]
+    params.require(create_dir_params_attributes)
 
-    @dir_name = File.join(@path, params[:dir_name])
+    @branch_name = permitted_params[:branch_name]
+
+    @dir_name = File.join(@path, permitted_params[:dir_name])
     @commit_params = {
       file_path: @dir_name,
-      commit_message: params[:commit_message]
+      commit_message: permitted_params[:commit_message]
     }
+  end
+
+  def permitted_params
+    params.permit(*create_dir_params_attributes)
+  end
+
+  def create_dir_params_attributes
+    [:branch_name, :dir_name, :commit_message]
   end
 end
 

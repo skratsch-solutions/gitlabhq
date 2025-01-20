@@ -57,14 +57,11 @@ export default {
 </script>
 <template>
   <editor-state-observer @transaction="updateNodeView">
-    <node-view-wrapper
-      as="p"
-      :class="{ 'gl-flex gl-align-items-baseline': hasQuickActionExplanation }"
-    >
-      <node-view-content ref="nodeViewContent" as="span" />
+    <node-view-wrapper :class="{ 'gl-flex gl-items-baseline': hasQuickActionExplanation }">
+      <node-view-content ref="nodeViewContent" as="p" />
       <span
         v-if="hasQuickActionExplanation"
-        class="gl-text-sm gl-text-secondary gl-italic"
+        class="gl-text-sm gl-italic gl-text-subtle"
         contenteditable="false"
       >
         &nbsp;&middot; {{ quickActionExplanation }}</span

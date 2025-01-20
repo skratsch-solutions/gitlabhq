@@ -158,10 +158,26 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Changes, feature_category
         end
 
         before do
-          allow(context).to receive(:variables_hash).and_return(variables_hash)
+          allow(context).to receive(:variables_hash_expanded).and_return(variables_hash)
         end
 
         it { is_expected.to be_truthy }
+
+        context 'when the variable is nested' do
+          let(:variables_hash) do
+            { 'HELM_DIR' => 'he$SUFFIX', 'SUFFIX' => 'lm' }
+          end
+
+          let(:variables_hash_expanded) do
+            { 'HELM_DIR' => 'helm', 'SUFFIX' => 'lm' }
+          end
+
+          before do
+            allow(context).to receive(:variables_hash_expanded).and_return(variables_hash_expanded)
+          end
+
+          it { is_expected.to be_truthy }
+        end
       end
 
       context 'when variable expansion does not match' do
@@ -169,7 +185,7 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Changes, feature_category
         let(:modified_paths) { ['path/with/$in/it/file.txt'] }
 
         before do
-          allow(context).to receive(:variables_hash).and_return({})
+          allow(context).to receive(:variables_hash_expanded).and_return({})
         end
 
         it { is_expected.to be_truthy }
@@ -263,10 +279,32 @@ RSpec.describe Gitlab::Ci::Build::Rules::Rule::Clause::Changes, feature_category
         let(:pipeline) { build(:ci_pipeline, project: project, ref: 'feature_2', sha: project.commit('feature_2').sha) }
 
         before do
-          allow(context).to receive(:variables_hash).and_return(variables_hash)
+          allow(context).to receive(:variables_hash_expanded).and_return(variables_hash)
         end
 
         it { is_expected.to be_truthy }
+
+        context 'when the variable is nested' do
+          let(:context) { instance_double(Gitlab::Ci::Build::Context::Base) }
+          let(:variables_hash) do
+            { 'FEATURE_BRANCH_NAME_PREFIX' => 'feature_', 'NESTED_REF_VAR' => '${FEATURE_BRANCH_NAME_PREFIX}1' }
+          end
+
+          let(:variables_hash_expanded) do
+            { 'FEATURE_BRANCH_NAME_PREFIX' => 'feature_', 'NESTED_REF_VAR' => 'feature_1' }
+          end
+
+          let(:globs) { { paths: ['file2.txt'], compare_to: '$NESTED_REF_VAR' } }
+          let(:pipeline) do
+            build(:ci_pipeline, project: project, ref: 'feature_2', sha: project.commit('feature_2').sha)
+          end
+
+          before do
+            allow(context).to receive(:variables_hash_expanded).and_return(variables_hash_expanded)
+          end
+
+          it { is_expected.to be_truthy }
+        end
       end
     end
   end

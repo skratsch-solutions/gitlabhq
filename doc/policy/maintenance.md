@@ -39,32 +39,34 @@ The following table describes the version types and their release cadence:
 |:-------------|:------------|:--------|
 | Major        | For significant changes, or when any backward-incompatible changes are introduced to the public API. | Yearly. The next major release is GitLab 18.0, scheduled for May 15th, 2025. GitLab [schedules major releases](https://about.gitlab.com/releases/) for May each year, by default. |
 | Minor        | For when new backward-compatible functionality is introduced to the public API, a minor feature is introduced, or when a set of smaller features is rolled out. | Monthly, scheduled for the third Thursday of each month. |
-| Patch        | For backward-compatible bug fixes that fix incorrect behavior. See [Patch releases](#patch-releases). | Bi-monthly, scheduled for the second and fourth Wednesday of each month. |
+| Patch        | For backward-compatible bug fixes that fix incorrect behavior. See [Patch releases](#patch-releases). | Twice monthly, scheduled for the Wednesday the week before and the Wednesday the week after the monthly minor release. |
 
 ## Upgrade recommendations
 
 We encourage everyone to run the [latest stable release](https://about.gitlab.com/releases/categories/releases/)
 to ensure that you can upgrade to the most secure and feature-rich GitLab experience.
 To make sure you can run the most recent stable release, we are working
-hard to keep the update process simple and reliable.
+hard to keep the update process reliable.
 
 If you are unable to follow our monthly release cycle, there are a couple of
 cases you must consider. Follow the
-[upgrade paths guide](../update/index.md#upgrade-paths) to safely upgrade
+[upgrade paths guide](../update/upgrade_paths.md) to safely upgrade
 between versions.
 
-NOTE:
-Version specific changes in Linux packages can be found in [the Linux package documentation](../update/package/index.md#version-specific-changes).
+Version-specific change documentation for Linux packages is available for:
 
-NOTE:
-Instructions are available for downloading the Linux package locally and [manually installing](../update/package/index.md#upgrade-using-a-manually-downloaded-package) it.
+- [GitLab 17](../update/versions/gitlab_17_changes.md)
+- [GitLab 16](../update/versions/gitlab_16_changes.md)
+- [GitLab 15](../update/versions/gitlab_15_changes.md)
 
-NOTE:
+Instructions are available for downloading the Linux package locally and [manually installing](../update/package/index.md#by-using-a-downloaded-package) it.
+
 A step-by-step guide to [upgrading the Linux package-bundled PostgreSQL is documented separately](https://docs.gitlab.com/omnibus/settings/database.html#upgrade-packaged-postgresql-server).
 
 ## Upgrading major versions
 
-Backward-incompatible changes and migrations are reserved for major versions. See the [upgrade guide](../update/index.md#upgrading-to-a-new-major-version).
+Backward-incompatible changes and migrations are reserved for major versions. For more information, see
+[Create a GitLab upgrade plan](../update/plan_your_upgrade.md).
 
 ## Patch releases
 

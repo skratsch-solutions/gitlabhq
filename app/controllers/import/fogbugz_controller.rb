@@ -4,20 +4,22 @@ class Import::FogbugzController < Import::BaseController
   extend ::Gitlab::Utils::Override
 
   before_action :verify_fogbugz_import_enabled
+  before_action -> { check_rate_limit!(:fogbugz_import, scope: current_user, redirect_back: true) }, only: :callback
+
   before_action :user_map, only: [:new_user_map, :create_user_map]
   before_action :verify_blocked_uri, only: :callback
 
   rescue_from Fogbugz::AuthenticationException, with: :fogbugz_unauthorized
 
-  def new
-  end
+  def new; end
 
   def callback
     begin
       res = Gitlab::FogbugzImport::Client.new(import_params.to_h.symbolize_keys)
     rescue StandardError
       # If the URI is invalid various errors can occur
-      return redirect_to new_import_fogbugz_path(namespace_id: params[:namespace_id]), alert: _('Could not connect to FogBugz, check your URL')
+      return redirect_to new_import_fogbugz_path(namespace_id: params[:namespace_id]),
+        alert: _('Could not connect to FogBugz, check your URL')
     end
     session[:fogbugz_token] = res.get_token.to_s
     session[:fogbugz_uri] = params[:uri]
@@ -25,8 +27,7 @@ class Import::FogbugzController < Import::BaseController
     redirect_to new_user_map_import_fogbugz_path(namespace_id: params[:namespace_id])
   end
 
-  def new_user_map
-  end
+  def new_user_map; end
 
   def create_user_map
     user_map = user_map_params.to_h[:users]
@@ -53,9 +54,12 @@ class Import::FogbugzController < Import::BaseController
   def create
     credentials = { uri: session[:fogbugz_uri], token: session[:fogbugz_token] }
 
-    umap = session[:fogbugz_user_map] || client.user_map
+    service_params = params.merge({
+      umap: session[:fogbugz_user_map] || client.user_map,
+      organization_id: Current.organization_id
+    })
 
-    result = Import::FogbugzService.new(client, current_user, params.merge(umap: umap)).execute(credentials)
+    result = Import::FogbugzService.new(client, current_user, service_params).execute(credentials)
 
     if result[:status] == :success
       render json: ProjectSerializer.new.represent(result[:project], serializer: :import)

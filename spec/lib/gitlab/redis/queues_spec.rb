@@ -18,7 +18,7 @@ RSpec.describe Gitlab::Redis::Queues do
       let(:config) { { url: 'redis://localhost:1111' } }
 
       it 'sets the configured url' do
-        expect(subject.send(:raw_config_hash)).to eq(url: 'redis://localhost:1111' )
+        expect(subject.send(:raw_config_hash)).to eq(url: 'redis://localhost:1111')
       end
     end
   end
@@ -57,6 +57,10 @@ RSpec.describe Gitlab::Redis::Queues do
 
     before do
       allow(described_class).to receive(:rails_root).and_return(rails_root)
+      described_class.remove_instance_variable(:@instances) if described_class.instance_variable_defined?(:@instances)
+    end
+
+    after do
       described_class.remove_instance_variable(:@instances) if described_class.instance_variable_defined?(:@instances)
     end
 

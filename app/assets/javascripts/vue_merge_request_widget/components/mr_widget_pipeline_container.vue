@@ -1,7 +1,6 @@
 <script>
 import { sanitize } from '~/lib/dompurify';
 import { n__ } from '~/locale';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import MergeRequestStore from '../stores/mr_widget_store';
 import ArtifactsApp from './artifacts_list_app.vue';
 import DeploymentList from './deployment/deployment_list.vue';
@@ -26,7 +25,6 @@ export default {
     MergeTrainPositionIndicator: () =>
       import('ee_component/vue_merge_request_widget/components/merge_train_position_indicator.vue'),
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     mr: {
       type: Object,
@@ -81,6 +79,7 @@ export default {
     <mr-widget-pipeline
       :pipeline="pipeline"
       :pipeline-coverage-delta="mr.pipelineCoverageDelta"
+      :pipeline-etag="mr.pipelineEtag"
       :builds-with-coverage="mr.buildsWithCoverage"
       :ci-status="ciStatus"
       :has-ci="mr.hasCI"
@@ -93,7 +92,7 @@ export default {
       :retargeted="mr.retargeted"
       :target-project-id="mr.targetProjectId"
       :iid="mr.iid"
-      :detatched-pipeline="mr.detatchedPipeline"
+      :target-project-full-path="mr.targetProjectFullPath"
     />
     <template #footer>
       <div v-if="mr.exposedArtifactsPath" class="js-exposed-artifacts">
@@ -109,9 +108,9 @@ export default {
       <merge-train-position-indicator
         class="mr-widget-extension"
         :merge-request-state="mr.mergeRequestState"
-        :merge-train-index="mr.mergeTrainIndex"
         :merge-trains-count="mr.mergeTrainsCount"
         :merge-trains-path="mr.mergeTrainsPath"
+        :merge-train-car="mr.mergeTrainCar"
       />
     </template>
   </mr-widget-container>

@@ -11,9 +11,7 @@ RSpec.describe 'new tables with gitlab_main schema', feature_category: :cell do
 
   # Specific tables can be exempted from this requirement, and such tables must be added to the `exempted_tables` list.
   let!(:exempted_tables) do
-    [
-      "oauth_device_grants"                              # https://gitlab.com/gitlab-org/gitlab/-/issues/463785
-    ]
+    []
   end
 
   let!(:starting_from_milestone) { 16.7 }
@@ -43,7 +41,7 @@ RSpec.describe 'new tables with gitlab_main schema', feature_category: :cell do
       `gitlab_main_clusterwide` schema.
 
       To choose an appropriate schema for this table from among `gitlab_main_cell` and `gitlab_main_clusterwide`, please refer
-      to our guidelines at https://docs.gitlab.com/ee/development/database/multiple_databases.html#guidelines-on-choosing-between-gitlab_main_cell-and-gitlab_main_clusterwide-schema, or consult with the Tenant Scale group.
+      to our guidelines at https://docs.gitlab.com/ee/development/cells/index.html#guidelines-on-choosing-between-gitlab_main_cell-and-gitlab_main_clusterwide-schema, or consult with the Tenant Scale group.
 
       Please see issue https://gitlab.com/gitlab-org/gitlab/-/issues/424990 to understand why this change is being enforced.
     HEREDOC

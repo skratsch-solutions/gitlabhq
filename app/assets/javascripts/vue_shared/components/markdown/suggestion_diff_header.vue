@@ -1,5 +1,6 @@
 <script>
-import { GlBadge, GlButton, GlLoadingIcon, GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlBadge, GlButton, GlLoadingIcon, GlTooltipDirective } from '@gitlab/ui';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 import { isLoggedIn } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
 import ApplySuggestion from './apply_suggestion.vue';
@@ -9,8 +10,8 @@ const APPLY_SUGGESTION_ERROR_MESSAGE = __(
 );
 
 export default {
-  components: { GlBadge, GlIcon, GlButton, GlLoadingIcon, ApplySuggestion },
-  directives: { 'gl-tooltip': GlTooltipDirective },
+  components: { GlBadge, GlButton, GlLoadingIcon, ApplySuggestion, HelpIcon },
+  directives: { GlTooltip: GlTooltipDirective },
   props: {
     batchSuggestionsCount: {
       type: Number,
@@ -137,11 +138,13 @@ export default {
 </script>
 
 <template>
-  <div class="md-suggestion-header border-bottom-0 gl-px-4 gl-py-3">
+  <div
+    class="md-suggestion-header border-bottom-0 gl-flex-col gl-items-start gl-gap-3 gl-px-4 gl-py-3 sm:gl-flex-row sm:gl-flex-wrap"
+  >
     <div class="js-suggestion-diff-header gl-font-bold">
       {{ __('Suggested change') }}
       <a v-if="helpPagePath" :href="helpPagePath" :aria-label="__('Help')" class="js-help-btn">
-        <gl-icon name="question-o" />
+        <help-icon />
       </a>
     </div>
     <gl-badge v-if="isApplied" variant="success" data-testid="applied-badge">
@@ -149,16 +152,16 @@ export default {
     </gl-badge>
     <div
       v-else-if="isApplying"
-      class="gl-display-flex gl-align-items-center text-secondary"
+      class="gl-flex gl-items-center gl-text-subtle"
       data-testid="applying-badge"
     >
-      <gl-loading-icon size="sm" class="gl-align-items-center gl-justify-content-center gl-mr-3" />
+      <gl-loading-icon size="sm" class="gl-mr-3 gl-items-center gl-justify-center" />
       <span>{{ applyingSuggestionsMessage }}</span>
     </div>
-    <div v-else-if="isLoggedIn" class="gl-display-flex gl-align-items-center">
+    <div v-else-if="isLoggedIn" class="gl-flex gl-flex-wrap gl-items-center gl-gap-3">
       <div v-if="isBatched">
         <gl-button
-          class="btn-inverted js-remove-from-batch-btn btn-grouped"
+          class="btn-inverted js-remove-from-batch-btn"
           :disabled="isApplying"
           size="small"
           @click="removeSuggestionFromBatch"
@@ -168,7 +171,7 @@ export default {
       </div>
       <div v-else-if="!isDisableButton && suggestionsCount > 1">
         <gl-button
-          class="btn-inverted js-add-to-batch-btn btn-grouped"
+          class="btn-inverted js-add-to-batch-btn"
           data-testid="add-suggestion-batch-button"
           :disabled="isDisableButton"
           size="small"
@@ -184,7 +187,6 @@ export default {
         :default-commit-message="defaultCommitMessage"
         :batch-suggestions-count="batchSuggestionsCount"
         :error-message="applySuggestionErrorMessage"
-        class="gl-ml-3"
         @apply="apply"
       />
     </div>

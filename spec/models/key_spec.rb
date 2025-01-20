@@ -7,6 +7,7 @@ RSpec.describe Key, :mailer do
 
   describe "Associations" do
     it { is_expected.to belong_to(:user) }
+    it { is_expected.to have_many(:todos).dependent(:destroy) }
   end
 
   describe "Validation" do
@@ -170,6 +171,32 @@ RSpec.describe Key, :mailer do
         key.update_last_used_at
       end
     end
+
+    describe '#readable_by?' do
+      subject { key.readable_by?(user) }
+
+      context 'when key belongs to user' do
+        let(:key) { build(:key, user: user) }
+
+        it { is_expected.to eq true }
+      end
+
+      context 'when key does not belong to user' do
+        let(:key) { build(:key, user_id: non_existing_record_id) }
+
+        it { is_expected.to eq false }
+      end
+    end
+
+    describe '#to_reference' do
+      # This method is only needed to support the Key target for the *Haml* to-do app.
+      # TODO: Remove this test and method when deleting the old Haml to-do app's code.
+      let(:key) { build(:key, user: user) }
+
+      it 'returns the SSH key\'s fingerprint' do
+        expect(key.to_reference).to eq key.fingerprint
+      end
+    end
   end
 
   describe 'scopes' do
@@ -243,6 +270,10 @@ RSpec.describe Key, :mailer do
         expect(described_class.regular_keys).to match_array([personal_key, key])
       end
     end
+  end
+
+  describe 'modules' do
+    it { expect(described_class.included_modules).to include(Todoable) }
   end
 
   context 'validation of uniqueness (based on fingerprint uniqueness)' do
@@ -379,13 +410,13 @@ RSpec.describe Key, :mailer do
         key.save!
 
         # Check after the fact so we have access to Key#id
-        expect(AuthorizedKeysWorker).to have_received(:perform_async).with(:add_key, key.shell_id, key.key)
+        expect(AuthorizedKeysWorker).to have_received(:perform_async).with('add_key', key.shell_id, key.key)
       end
 
       it 'removes key from authorized_file' do
         key.save!
 
-        expect(AuthorizedKeysWorker).to receive(:perform_async).with(:remove_key, key.shell_id)
+        expect(AuthorizedKeysWorker).to receive(:perform_async).with('remove_key', key.shell_id)
 
         key.destroy!
       end

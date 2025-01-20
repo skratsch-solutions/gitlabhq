@@ -8,13 +8,13 @@ module Ci
     LOG_MAX_PIPELINE_SIZE = 2_000
     LOG_MAX_CREATION_THRESHOLD = 20.seconds
     SEQUENCE = [Gitlab::Ci::Pipeline::Chain::Build,
-      Gitlab::Ci::Pipeline::Chain::Build::Associations,
       Gitlab::Ci::Pipeline::Chain::Validate::Abilities,
       Gitlab::Ci::Pipeline::Chain::Validate::Repository,
+      Gitlab::Ci::Pipeline::Chain::Build::Associations,
       Gitlab::Ci::Pipeline::Chain::Limit::RateLimit,
       Gitlab::Ci::Pipeline::Chain::Validate::SecurityOrchestrationPolicy,
       Gitlab::Ci::Pipeline::Chain::AssignPartition,
-      Gitlab::Ci::Pipeline::Chain::PipelineExecutionPolicies::FindConfigs,
+      Gitlab::Ci::Pipeline::Chain::PipelineExecutionPolicies::EvaluatePolicies,
       Gitlab::Ci::Pipeline::Chain::Skip,
       Gitlab::Ci::Pipeline::Chain::Config::Content,
       Gitlab::Ci::Pipeline::Chain::Config::Process,
@@ -29,7 +29,7 @@ module Ci
       Gitlab::Ci::Pipeline::Chain::Validate::External,
       Gitlab::Ci::Pipeline::Chain::Populate,
       Gitlab::Ci::Pipeline::Chain::PopulateMetadata,
-      Gitlab::Ci::Pipeline::Chain::PipelineExecutionPolicies::MergeJobs,
+      Gitlab::Ci::Pipeline::Chain::PipelineExecutionPolicies::ApplyPolicies,
       Gitlab::Ci::Pipeline::Chain::StopDryRun,
       Gitlab::Ci::Pipeline::Chain::EnsureEnvironments,
       Gitlab::Ci::Pipeline::Chain::EnsureResourceGroups,
@@ -39,6 +39,7 @@ module Ci
       Gitlab::Ci::Pipeline::Chain::Metrics,
       Gitlab::Ci::Pipeline::Chain::TemplateUsage,
       Gitlab::Ci::Pipeline::Chain::ComponentUsage,
+      Gitlab::Ci::Pipeline::Chain::KeywordUsage,
       Gitlab::Ci::Pipeline::Chain::Pipeline::Process].freeze
 
     # Create a new pipeline in the specified project.
@@ -62,6 +63,7 @@ module Ci
     # rubocop: disable Metrics/ParameterLists, Metrics/AbcSize
     def execute(source, ignore_skip_ci: false, save_on_errors: true, trigger_request: nil, schedule: nil, merge_request: nil, external_pull_request: nil, bridge: nil, **options, &block)
       @logger = build_logger
+      @command_logger = Gitlab::Ci::Pipeline::CommandLogger.new
       @pipeline = Ci::Pipeline.new
 
       validate_options!(options)
@@ -103,24 +105,45 @@ module Ci
           Ci::PipelineCreatedEvent.new(data: { pipeline_id: pipeline.id })
         )
 
-        create_namespace_onboarding_action
+        after_successful_creation_hook
       else
         # If pipeline is not persisted, try to recover IID
         pipeline.reset_project_iid
       end
 
       if error_message = pipeline.full_error_messages.presence || pipeline.failure_reason.presence
+        ::Ci::PipelineCreation::Requests.failed(params[:pipeline_creation_request], error_message)
+
         ServiceResponse.error(message: error_message, payload: pipeline)
       else
+        ::Ci::PipelineCreation::Requests.succeeded(params[:pipeline_creation_request], pipeline.id)
+
         ServiceResponse.success(payload: pipeline)
       end
 
     ensure
       @logger.commit(pipeline: pipeline, caller: self.class.name)
+      @command_logger.commit(pipeline: pipeline, command: command) if command
     end
     # rubocop: enable Metrics/ParameterLists, Metrics/AbcSize
 
+    def execute_async(source, options)
+      pipeline_creation_request = ::Ci::PipelineCreation::Requests.start_for_project(project)
+      creation_params = params.merge(pipeline_creation_request: pipeline_creation_request)
+
+      ::CreatePipelineWorker.perform_async(
+        project.id, current_user.id, params[:ref], source.to_s,
+        options.stringify_keys, creation_params.except(:ref).stringify_keys
+      )
+
+      ServiceResponse.success(payload: pipeline_creation_request['id'])
+    end
+
     private
+
+    def after_successful_creation_hook
+      # overridden in EE
+    end
 
     # rubocop:disable Gitlab/NoCodeCoverageComment
     # :nocov: Tested in FOSS and fully overridden and tested in EE
@@ -129,10 +152,6 @@ module Ci
     end
     # :nocov:
     # rubocop:enable Gitlab/NoCodeCoverageComment
-
-    def create_namespace_onboarding_action
-      Onboarding::PipelineCreatedWorker.perform_async(project.namespace_id)
-    end
 
     def extra_options(content: nil, dry_run: false)
       { content: content, dry_run: dry_run }

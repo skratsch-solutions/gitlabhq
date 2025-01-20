@@ -2,8 +2,19 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Topic show page', feature_category: :groups_and_projects do
-  let_it_be(:topic) { create(:topic, name: 'my-topic', title: 'My Topic', description: 'This is **my** topic https://google.com/ :poop: ```\ncode\n```', avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png")) }
+RSpec.describe 'Topic show page', :with_current_organization, feature_category: :groups_and_projects do
+  let_it_be(:current_organization, reload: true) { create(:organization, :public, name: 'Current Public Organization') }
+
+  let_it_be(:topic) do
+    create(
+      :topic,
+      name: 'my-topic',
+      title: 'My Topic',
+      description: 'This is **my** topic https://google.com/ :poop: ```\ncode\n```',
+      avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png"),
+      organization: current_organization
+    )
+  end
 
   context 'when topic does not exist' do
     let(:path) { topic_explore_projects_path(topic_name: 'non-existing') }
@@ -23,15 +34,15 @@ RSpec.describe 'Topic show page', feature_category: :groups_and_projects do
     it 'shows title, avatar and description as markdown' do
       expect(page).to have_content(topic.title)
       expect(page).not_to have_content(topic.name)
-      expect(page).to have_selector('.gl-avatar.gl-avatar-s64')
-      expect(find('.topic-description')).to have_selector('p > strong')
-      expect(find('.topic-description')).to have_selector('p > a[rel]')
-      expect(find('.topic-description')).to have_selector('p > gl-emoji')
-      expect(find('.topic-description')).to have_selector('p > code')
+      expect(page).to have_selector('.gl-avatar.gl-avatar-s48')
+      expect(find('.md')).to have_selector('p > strong')
+      expect(find('.md')).to have_selector('p > a[rel]')
+      expect(find('.md')).to have_selector('p > gl-emoji')
+      expect(find('.md')).to have_selector('p > code')
     end
 
     context 'with associated projects' do
-      let!(:project) { create(:project, :public, topic_list: topic.name) }
+      let_it_be(:project) { create(:project, :public, topic_list: topic.name, organization: topic.organization) }
 
       it 'shows project list' do
         visit topic_explore_projects_path(topic_name: topic.name)

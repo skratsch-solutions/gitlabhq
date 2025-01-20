@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 ## What are the minimum requirements to run Geo?
 
@@ -48,7 +48,7 @@ Read the documentation for [Disaster Recovery](../disaster_recovery/index.md).
 
 ## What data is replicated to a **secondary** site?
 
-We currently replicate the whole rails database, project repositories, LFS objects, generated
+We replicate the whole rails database, project repositories, LFS objects, generated
 attachments, avatars and more. This means information such as user accounts,
 issues, merge requests, groups, and project data are available for
 query.
@@ -69,7 +69,7 @@ connectivity between your sites, and your hardware.
 
 That's totally fine. We use HTTP(s) to fetch repository changes from the **primary** site to all **secondary** sites.
 
-## Can I set up a container registry for a **secondary** site that mirrors the **primary** site?
+## Can I make a container registry for a secondary site to mirror the primary?
 
 Yes, however, we only support this for Disaster Recovery scenarios. See [container registry for a **secondary** site](container_registry.md).
 
@@ -92,3 +92,10 @@ Yes, provided they are not excluded through [selective sync](../replication/sele
 ## Are delayed deletion projects replicated to secondary sites?
 
 Yes, projects scheduled for deletion by [delayed deletion](../../settings/visibility_and_access_controls.md#delayed-project-deletion), but are yet to be permanently deleted, are replicated to secondary sites.
+
+## What happens to my secondary sites with when my primary site goes down?
+
+When a primary site goes down,
+[your secondary will not be accessible through the UI](../secondary_proxy/index.md#behavior-of-secondary-sites-when-the-primary-geo-site-is-down)
+unless your restore the services on your primary site or you perform a promotion
+on your secondary site.

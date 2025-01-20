@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 With the [GitLab package registry](../../user/packages/package_registry/index.md),
 you can use GitLab as a private or public registry for a variety of common package managers. You can
@@ -33,7 +33,7 @@ no difference in functionality compared to the general user and IP rate limits.
 
 To enable the unauthenticated request rate limit:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**.
 1. Expand **Package registry rate limits**.
 1. Select **Enable unauthenticated request rate limit**.
@@ -47,7 +47,7 @@ To enable the unauthenticated request rate limit:
 
 To enable the authenticated API request rate limit:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**
 1. Expand **Package registry rate limits**.
 1. Select **Enable authenticated API request rate limit**.

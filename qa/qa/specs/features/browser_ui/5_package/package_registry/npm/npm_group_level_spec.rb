@@ -8,11 +8,17 @@ module QA
       include Runtime::Fixtures
       include Support::Helpers::MaskToken
 
-      let!(:registry_scope) { Runtime::Namespace.sandbox_name }
-      let!(:personal_access_token) do
-        Flow::Login.sign_in unless Page::Main::Menu.perform(&:signed_in?)
-
-        Resource::PersonalAccessToken.fabricate!.token
+      let!(:personal_access_token) { Runtime::User::Store.test_user.current_personal_access_token }
+      let!(:project) { create(:project, name: 'npm-group-publish') }
+      let!(:group) { project.group }
+      let!(:registry_scope) { group.sandbox.name }
+      let!(:another_project) { create(:project, name: 'npm-group-install', group: group) }
+      let!(:runner) do
+        create(:group_runner,
+          name: "qa-runner-#{SecureRandom.hex(6)}",
+          tags: ["runner-for-#{group.name}"],
+          executor: :docker,
+          group: group)
       end
 
       let(:project_deploy_token) do
@@ -28,29 +34,18 @@ module QA
 
       let(:gitlab_address_without_port) { Support::GitlabAddress.address_with_port(with_default_port: false) }
       let(:gitlab_host_without_port) { Support::GitlabAddress.host_with_port(with_default_port: false) }
-      let!(:project) { create(:project, name: 'npm-group-level-publish') }
-      let!(:another_project) { create(:project, name: 'npm-group-level-install', group: project.group) }
-      let!(:runner) do
-        create(:group_runner,
-          name: "qa-runner-#{Time.now.to_i}",
-          tags: ["runner-for-#{project.group.name}"],
-          executor: :docker,
-          group: project.group)
-      end
+      let(:package) { build(:package, name: "@#{registry_scope}/#{project.name}", project: project) }
 
-      let(:package) do
-        build(:package, name: "@#{registry_scope}/#{project.name}-#{SecureRandom.hex(8)}", project: project)
+      before do
+        Flow::Login.sign_in
       end
 
       after do
-        package.remove_via_api!
         runner.remove_via_api!
-        project.remove_via_api!
-        another_project.remove_via_api!
       end
 
       where(:case_name, :authentication_token_type, :token_name, :testcase) do
-        'using personal access token' | :personal_access_token | 'Personal Access Token' | 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/413760'
+        'using personal access token' | :personal_access_token | 'Personal access token' | 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/413760'
         'using ci job token'          | :ci_job_token          | 'CI Job Token'          | 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/413761'
         'using project deploy token'  | :project_deploy_token  | 'Deploy Token'          | 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/413762'
       end
@@ -69,33 +64,28 @@ module QA
           end
         end
 
-        it 'push and pull a npm package via CI', :blocking, testcase: params[:testcase] do
+        it 'push and pull a npm package via CI', testcase: params[:testcase] do
           npm_upload_yaml = ERB.new(read_fixture('package_managers/npm',
             'npm_upload_package_group.yaml.erb')).result(binding)
           package_json = ERB.new(read_fixture('package_managers/npm', 'package.json.erb')).result(binding)
 
-          Support::Retrier.retry_on_exception(max_attempts: 3, sleep_interval: 2) do
-            create(:commit, project: project, actions: [
-              {
-                action: 'create',
-                file_path: '.gitlab-ci.yml',
-                content: npm_upload_yaml
-              },
-              {
-                action: 'create',
-                file_path: 'package.json',
-                content: package_json
-              }
-            ])
-          end
+          create(:commit, project: project, actions: [
+            {
+              action: 'create',
+              file_path: '.gitlab-ci.yml',
+              content: npm_upload_yaml
+            },
+            {
+              action: 'create',
+              file_path: 'package.json',
+              content: package_json
+            }
+          ])
 
           project.visit!
-          Flow::Pipeline.visit_latest_pipeline
+          Flow::Pipeline.wait_for_pipeline_creation_via_api(project: project)
 
-          Page::Project::Pipeline::Show.perform do |pipeline|
-            pipeline.click_job('deploy')
-          end
-
+          project.visit_job('deploy')
           Page::Project::Job::Show.perform do |job|
             expect(job).to be_successful(timeout: 180)
           end
@@ -103,25 +93,21 @@ module QA
           npm_install_yaml = ERB.new(read_fixture('package_managers/npm',
             'npm_install_package_group.yaml.erb')).result(binding)
 
-          Support::Retrier.retry_on_exception(max_attempts: 3, sleep_interval: 2) do
-            create(:commit, project: another_project, commit_message: 'Add .gitlab-ci.yml', actions: [
-              {
-                action: 'create',
-                file_path: '.gitlab-ci.yml',
-                content: npm_install_yaml
-              }
-            ])
-          end
+          create(:commit, project: another_project, commit_message: 'Add .gitlab-ci.yml', actions: [
+            {
+              action: 'create',
+              file_path: '.gitlab-ci.yml',
+              content: npm_install_yaml
+            }
+          ])
 
           another_project.visit!
-          Flow::Pipeline.visit_latest_pipeline
+          Flow::Pipeline.wait_for_pipeline_creation_via_api(project: another_project)
 
-          Page::Project::Pipeline::Show.perform do |pipeline|
-            pipeline.click_job('install')
-          end
-
+          another_project.visit_job('install')
           Page::Project::Job::Show.perform do |job|
             expect(job).to be_successful(timeout: 180)
+
             job.click_browse_button
           end
 
@@ -133,7 +119,6 @@ module QA
 
           project.visit!
           Page::Project::Menu.perform(&:go_to_package_registry)
-
           Page::Project::Packages::Index.perform do |index|
             expect(index).to have_package(package.name)
 

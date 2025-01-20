@@ -4,6 +4,7 @@ module Ci
   class Pipeline < Ci::ApplicationRecord
     include Ci::Partitionable
     include Ci::HasStatus
+    include Ci::HasCompletionReason
     include Importable
     include AfterCommitQueue
     include Presentable
@@ -18,6 +19,10 @@ module Ci
     include EachBatch
     include FastDestroyAll::Helpers
 
+    self.table_name = :p_ci_pipelines
+    self.primary_key = :id
+    self.sequence_name = :ci_pipelines_id_seq
+
     MAX_OPEN_MERGE_REQUESTS_REFS = 4
 
     PROJECT_ROUTE_AND_NAMESPACE_ROUTE = {
@@ -28,15 +33,16 @@ module Ci
 
     CANCELABLE_STATUSES = (Ci::HasStatus::CANCELABLE_STATUSES + ['manual']).freeze
     UNLOCKABLE_STATUSES = (Ci::Pipeline.completed_statuses + [:manual]).freeze
-    INITIAL_PARTITION_VALUE = 100
-    SECOND_PARTITION_VALUE = 101
-    NEXT_PARTITION_VALUE = 102
+    # UI only shows 100+. TODO: pass constant to UI for SSoT
+    COUNT_FAILED_JOBS_LIMIT = 101
 
     paginates_per 15
 
     sha_attribute :source_sha
     sha_attribute :target_sha
-    partitionable scope: ->(pipeline) { Ci::Pipeline.current_partition_value(pipeline.project) }
+    query_constraints :id, :partition_id
+    partitionable scope: ->(_) { Ci::Pipeline.current_partition_value }, partitioned: true
+
     # Ci::CreatePipelineService returns Ci::Pipeline so this is the only place
     # where we can pass additional information from the service. This accessor
     # is used for storing the processed metadata for linting purposes.
@@ -56,6 +62,7 @@ module Ci
     belongs_to :merge_request, class_name: 'MergeRequest'
     belongs_to :external_pull_request, class_name: 'Ci::ExternalPullRequest'
     belongs_to :ci_ref, class_name: 'Ci::Ref', foreign_key: :ci_ref_id, inverse_of: :pipelines
+    belongs_to :trigger, class_name: 'Ci::Trigger', inverse_of: :pipelines
 
     has_internal_id :iid, scope: :project, presence: false,
       track_if: -> { !importing? },
@@ -73,7 +80,7 @@ module Ci
 
     #
     # In https://gitlab.com/groups/gitlab-org/-/epics/9991, we aim to convert all CommitStatus related models to
-    # Ci:Job models. With that epic, we aim to replace `statuses` with `jobs`.
+    # Ci::Job models. With that epic, we aim to replace `statuses` with `jobs`.
     #
     # DEPRECATED:
     has_many :statuses, ->(pipeline) { in_partition(pipeline) }, class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline, partition_foreign_key: :partition_id
@@ -113,6 +120,8 @@ module Ci
 
     has_many :pending_builds, ->(pipeline) { in_partition(pipeline).pending }, foreign_key: :commit_id, class_name: 'Ci::Build', inverse_of: :pipeline
     has_many :failed_builds, ->(pipeline) { in_partition(pipeline).latest.failed }, foreign_key: :commit_id, class_name: 'Ci::Build',
+      inverse_of: :pipeline
+    has_many :limited_failed_builds, ->(pipeline) { in_partition(pipeline).latest.failed.limit(COUNT_FAILED_JOBS_LIMIT) }, foreign_key: :commit_id, class_name: 'Ci::Build',
       inverse_of: :pipeline
     has_many :retryable_builds, ->(pipeline) { in_partition(pipeline).latest.failed_or_canceled.includes(:project) }, foreign_key: :commit_id, class_name: 'Ci::Build', inverse_of: :pipeline
     has_many :cancelable_statuses, ->(pipeline) { in_partition(pipeline).cancelable }, foreign_key: :commit_id, class_name: 'CommitStatus',
@@ -165,7 +174,7 @@ module Ci
     validates :status, presence: { unless: :importing? }
     validate :valid_commit_sha, unless: :importing?
     validates :source, exclusion: { in: %w[unknown], unless: :importing? }, on: :create
-    validates :project, presence: true, on: :create
+    validates :project, presence: true
 
     after_create :keep_around_commits, unless: :importing?
     after_commit :track_ci_pipeline_created_event, on: :create, if: :internal_pipeline?
@@ -320,10 +329,12 @@ module Ci
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
         pipeline.run_after_commit do
-          pipeline.all_merge_requests.each do |merge_request|
-            next unless merge_request.auto_merge_enabled?
-
-            AutoMergeProcessWorker.perform_async(merge_request.id)
+          if Feature.enabled?(:auto_merge_process_worker_pipeline, pipeline.project)
+            AutoMergeProcessWorker.perform_async({ 'pipeline_id' => self.id })
+          else
+            pipeline.all_merge_requests.with_auto_merge_enabled.each do |merge_request|
+              AutoMergeProcessWorker.perform_async(merge_request.id)
+            end
           end
 
           if pipeline.auto_devops_source?
@@ -380,7 +391,7 @@ module Ci
           # user been blocked.
           unless pipeline.user&.blocked?
             PipelineNotificationWorker
-              .perform_async(pipeline.id, ref_status: ref_status)
+              .perform_async(pipeline.id, 'ref_status' => ref_status&.to_s)
           end
         end
       end
@@ -435,6 +446,7 @@ module Ci
     end
     scope :for_status, ->(status) { where(status: status) }
     scope :created_after, ->(time) { where(arel_table[:created_at].gt(time)) }
+    scope :created_before, ->(time) { where(arel_table[:created_at].lt(time)) }
     scope :created_before_id, ->(id) { where(arel_table[:id].lt(id)) }
     scope :before_pipeline, ->(pipeline) { created_before_id(pipeline.id).outside_pipeline_family(pipeline) }
     scope :with_pipeline_source, ->(source) { where(source: source) }
@@ -465,6 +477,7 @@ module Ci
       )
     end
 
+    scope :order_id_asc, -> { order(id: :asc) }
     scope :order_id_desc, -> { order(id: :desc) }
 
     # Returns the pipelines in descending order (= newest first), optionally
@@ -473,8 +486,9 @@ module Ci
     # ref - The name (or names) of the branch(es)/tag(s) to limit the list of
     #       pipelines to.
     # sha - The commit SHA (or multiple SHAs) to limit the list of pipelines to.
-    # limit - This limits a backlog search, default to 100.
-    def self.newest_first(ref: nil, sha: nil, limit: 100)
+    # limit - Number of pipelines to return. Chaining with sampling methods (#pick, #take)
+    #         will cause unnecessary subqueries.
+    def self.newest_first(ref: nil, sha: nil, limit: nil)
       relation = order(id: :desc)
       relation = relation.where(ref: ref) if ref
       relation = relation.where(sha: sha) if sha
@@ -503,11 +517,12 @@ module Ci
       return Ci::Pipeline.none if refs.empty?
 
       refs_values = refs.map { |ref| "(#{connection.quote(ref)})" }.join(",")
-      join_query = success.where("refs_values.ref = ci_pipelines.ref").order(id: :desc).limit(1)
+      query = Arel.sql(sanitize_sql_array(["refs_values.ref = #{quoted_table_name}.ref"]))
+      join_query = success.where(query).order(id: :desc).limit(1)
 
       Ci::Pipeline
         .from("(VALUES #{refs_values}) refs_values (ref)")
-        .joins("INNER JOIN LATERAL (#{join_query.to_sql}) #{Ci::Pipeline.table_name} ON TRUE")
+        .joins("INNER JOIN LATERAL (#{join_query.to_sql}) #{quoted_table_name} ON TRUE")
         .index_by(&:ref)
     end
 
@@ -574,17 +589,9 @@ module Ci
       @auto_devops_pipelines_completed_total ||= Gitlab::Metrics.counter(:auto_devops_pipelines_completed_total, 'Number of completed auto devops pipelines')
     end
 
-    def self.current_partition_value(project = nil)
+    def self.current_partition_value
       Gitlab::SafeRequestStore.fetch(:ci_current_partition_value) do
-        if Feature.enabled?(:ci_partitioning_automation, project)
-          Ci::Partition.current&.id || NEXT_PARTITION_VALUE
-        elsif Feature.enabled?(:ci_current_partition_value_102, project)
-          NEXT_PARTITION_VALUE
-        elsif Feature.enabled?(:ci_current_partition_value_101, project)
-          SECOND_PARTITION_VALUE
-        else
-          INITIAL_PARTITION_VALUE
-        end
+        Ci::Partition.current&.id || Ci::Partition::INITIAL_PARTITION_VALUE
       end
     end
 
@@ -592,12 +599,16 @@ module Ci
       ::Gitlab::Ci::PipelineObjectHierarchy.new(relation, options: options)
     end
 
+    def self.internal_id_scope_usage
+      :ci_pipelines
+    end
+
     def uses_needs?
       processables.where(scheduling_type: :dag).any?
     end
 
     def stages_count
-      statuses.select(:stage).distinct.count
+      stages.count
     end
 
     def total_size
@@ -605,16 +616,15 @@ module Ci
     end
 
     def tags_count
-      ActsAsTaggableOn::Tagging.where(taggable: builds).count
+      Ci::Tagging.where(taggable: builds).count
     end
 
     def distinct_tags_count
-      ActsAsTaggableOn::Tagging.where(taggable: builds).count('distinct(tag_id)')
+      Ci::Tagging.where(taggable: builds).count('distinct(tag_id)')
     end
 
     def stages_names
-      statuses.order(:stage_idx).distinct
-        .pluck(:stage, :stage_idx).map(&:first)
+      stages.order(:position).pluck(:name)
     end
 
     def ref_exists?
@@ -628,9 +638,7 @@ module Ci
     end
 
     def valid_commit_sha
-      if Gitlab::Git.blank_ref?(self.sha)
-        self.errors.add(:sha, "can't be 00000000 (branch removal)")
-      end
+      self.errors.add(:sha, "can't be 00000000 (branch removal)") if Gitlab::Git.blank_ref?(self.sha)
     end
 
     def git_author_name
@@ -706,7 +714,7 @@ module Ci
     end
 
     def cancelable?
-      cancelable_statuses.any?
+      cancelable_statuses.any? && internal_pipeline?
     end
 
     def auto_canceled?
@@ -743,9 +751,7 @@ module Ci
 
     def coverage
       coverage_array = latest_statuses.map(&:coverage).compact
-      if coverage_array.size >= 1
-        coverage_array.sum / coverage_array.size
-      end
+      coverage_array.sum / coverage_array.size if coverage_array.size >= 1
     end
 
     def update_builds_coverage
@@ -1116,7 +1122,7 @@ module Ci
     end
 
     def latest_test_report_builds
-      latest_report_builds(Ci::JobArtifact.of_report_type(:test)).preload(:project, :metadata)
+      latest_report_builds(Ci::JobArtifact.of_report_type(:test)).preload(:project, :metadata, job_artifacts: :artifact_report)
     end
 
     def latest_report_builds_in_self_and_project_descendants(reports_scope = ::Ci::JobArtifact.all_reports)
@@ -1144,11 +1150,11 @@ module Ci
     end
 
     def complete_or_manual_and_has_reports?(reports_scope)
-      return complete_and_has_reports?(reports_scope) unless include_manual_to_pipeline_completion_enabled?
-
-      return latest_report_builds(reports_scope).exists? if Feature.enabled?(:mr_show_reports_immediately, project, type: :development)
-
-      complete_or_manual? && has_reports?(reports_scope)
+      if Feature.enabled?(:mr_show_reports_immediately, project, type: :development)
+        latest_report_builds(reports_scope).exists?
+      else
+        complete_or_manual? && has_reports?(reports_scope)
+      end
     end
 
     def has_coverage_reports?
@@ -1388,9 +1394,7 @@ module Ci
     def age_in_minutes
       return 0 unless persisted?
 
-      unless has_attribute?(:created_at)
-        raise ArgumentError, 'pipeline not fully loaded'
-      end
+      raise ArgumentError, 'pipeline not fully loaded' unless has_attribute?(:created_at)
 
       return 0 unless created_at
 
@@ -1411,12 +1415,6 @@ module Ci
       pipeline_metadata&.auto_cancel_on_new_commit || 'conservative'
     end
 
-    def include_manual_to_pipeline_completion_enabled?
-      strong_memoize(:include_manual_to_pipeline_completion_enabled) do
-        ::Feature.enabled?(:include_manual_to_pipeline_completion, self.project, type: :beta)
-      end
-    end
-
     def cancel_async_on_job_failure
       case auto_cancel_on_job_failure
       when 'none'
@@ -1432,7 +1430,7 @@ module Ci
     private
 
     def add_message(severity, content)
-      messages.build(severity: severity, content: content)
+      messages.build(severity: severity, content: content, project_id: project_id)
     end
 
     def merge_request_diff_sha
@@ -1500,7 +1498,15 @@ module Ci
     end
 
     def track_ci_pipeline_created_event
-      Gitlab::InternalEvents.track_event('create_ci_internal_pipeline', project: project, user: user)
+      Gitlab::InternalEvents.track_event(
+        'create_ci_internal_pipeline',
+        project: project,
+        user: user,
+        additional_properties: {
+          label: source,
+          property: config_source
+        }
+      )
     end
   end
 end

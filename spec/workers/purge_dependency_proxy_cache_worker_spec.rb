@@ -2,14 +2,20 @@
 
 require 'spec_helper'
 
-RSpec.describe PurgeDependencyProxyCacheWorker, feature_category: :virtual_registry do
+RSpec.describe PurgeDependencyProxyCacheWorker, type: :worker, feature_category: :virtual_registry do
   let_it_be(:user) { create(:admin) }
-  let_it_be_with_refind(:blob) { create(:dependency_proxy_blob ) }
+  let_it_be_with_refind(:blob) { create(:dependency_proxy_blob) }
   let_it_be_with_reload(:group) { blob.group }
-  let_it_be_with_refind(:manifest) { create(:dependency_proxy_manifest, group: group ) }
+  let_it_be_with_refind(:manifest) { create(:dependency_proxy_manifest, group: group) }
   let_it_be(:group_id) { group.id }
 
   subject { described_class.new.perform(user.id, group_id) }
+
+  it_behaves_like 'worker with data consistency', described_class, data_consistency: :delayed
+
+  it 'has :until_executing deduplicate strategy' do
+    expect(described_class.get_deduplicate_strategy).to eq(:until_executing)
+  end
 
   describe '#perform' do
     shared_examples 'not expiring blobs and manifests' do
@@ -46,7 +52,7 @@ RSpec.describe PurgeDependencyProxyCacheWorker, feature_category: :virtual_regis
     end
 
     context 'an invalid user id' do
-      let(:user) { double('User', id: 99999 ) }
+      let(:user) { double('User', id: 99999) }
 
       it_behaves_like 'not expiring blobs and manifests'
     end

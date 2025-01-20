@@ -8,7 +8,7 @@ description: "Use AI-assisted features for relevant information about a merge re
 # GitLab Duo in merge requests
 
 DETAILS:
-**Tier:** Ultimate
+**Tier:** Ultimate with GitLab Duo Enterprise - [Start a trial](https://about.gitlab.com/solutions/gitlab-duo-pro/sales/?type=free-trial)
 **Offering:** GitLab.com
 
 GitLab Duo is designed to provide contextually relevant information during the lifecycle of a merge request.
@@ -16,20 +16,21 @@ GitLab Duo is designed to provide contextually relevant information during the l
 ## Generate a description by summarizing code changes
 
 DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
 **Status:** Beta
+**LLM:** Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10401) in GitLab 16.2 as an [experiment](../../../policy/experiment-beta-support.md#experiment).
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10401) in GitLab 16.2 as an [experiment](../../../policy/development_stages_support.md#experiment).
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/429882) to beta in GitLab 16.10.
+> - Changed to require GitLab Duo add-on in GitLab 17.6 and later.
 
-Use GitLab Duo Merge request summary to create a merge request description when you
-create or edit a merge request.
+When you create or edit a merge request, use GitLab Duo Merge Request Summary
+to create a merge request description.
 
 1. [Create a new merge request](creating_merge_requests.md).
 1. In the **Description** field, put your cursor where you want to insert the description.
-1. Above the description, select **Summarize code changes**.
+1. On the toolbar above the text area, select **Summarize code changes** (**{tanuki-ai}**).
 
-   ![merge_request_ai_summary_v16_11](img/merge_request_ai_summary_v16_11.png)
+   ![Above the text area, a toolbar displays a "Summarize code changes" button.](img/merge_request_ai_summary_v17_6.png)
 
 The description is inserted where your cursor was.
 
@@ -37,56 +38,54 @@ Provide feedback on this feature in [issue 443236](https://gitlab.com/gitlab-org
 
 **Data usage**: The diff of changes between the source branch's head and the target branch is sent to the large language model.
 
-## Generate a description from a template
+## Have GitLab Duo review your code
 
 DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
-**Status:** Beta
+**Status:** Experiment
+**LLM:** Anthropic [Claude 3.5 Sonnet](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10591) in GitLab 16.3 as an [experiment](../../../policy/experiment-beta-support.md#experiment).
-> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/429882) to beta in GitLab 16.10.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/14825) in GitLab 17.5 as an [experiment](../../../policy/development_stages_support.md#experiment).
+> - Feature flag `ai_review_merge_request` [disabled by default](https://gitlab.com/gitlab-org/gitlab/-/issues/456106).
 
-Many projects include [templates](../description_templates.md#create-a-merge-request-template)
-that you populate when you create a merge request. These templates help populate the description
-of the merge request. They can help the team conform to standards, and help reviewers
-and others understand the purpose and changes proposed in the merge request.
+FLAG:
+The availability of this feature is controlled by a feature flag.
+For more information, see the history.
 
-When you create a merge request, GitLab Duo Merge request template population
-can generate a description for your merge request, based on the contents of the template.
-GitLab Duo fills in the template and replaces the contents of the description.
+WARNING:
+This feature is considered [experimental](../../../policy/development_stages_support.md) and is not intended for customer usage outside of initial design partners. We expect major changes to this feature.
 
-To use GitLab Duo to generate a merge request description:
+DISCLAIMER:
+This page contains information related to upcoming products, features, and functionality.
+It is important to note that the information presented is for informational purposes only.
+Please do not rely on this information for purchasing or planning purposes.
+The development, release, and timing of any products, features, or functionality may be subject to change or delay and remain at the
+sole discretion of GitLab Inc.
 
-1. [Create a new merge request](creating_merge_requests.md) and go to the **Description** field.
-1. Select **GitLab Duo** (**{tanuki-ai}**).
-1. Select **Fill in merge request template**.
+When your merge request is ready to be reviewed, use GitLab Duo Code Review to perform an initial review.
 
-The updated description is applied. You can edit or revise the description before you finish creating your merge request.
+1. On the left sidebar, select **Search or go to** and find your project.
+1. Select **Code > Merge requests** and find your merge request.
+1. In a comment box enter the quick action `/duo_code_review`.
 
-Provide feedback on this experimental feature in [issue 416537](https://gitlab.com/gitlab-org/gitlab/-/issues/416537).
+**Data usage**: When you use this feature, the following data is sent to the large language model:
 
-**Data usage**: When you use this feature, the following data is sent to the large language model referenced above:
-
-- Title of the merge request
-- Contents of the description
-- Diff of changes between the source branch's head and the target branch
+- Contents of the file
+- The filename
 
 ## Summarize a code review
 
 DETAILS:
-**Tier:** For a limited time, Ultimate. In the future, [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com
 **Status:** Experiment
+**LLM:** Vertex AI Codey [`text-bison`](https://console.cloud.google.com/vertex-ai/publishers/google/model-garden/text-bison)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10466) in GitLab 16.0 as an [experiment](../../../policy/experiment-beta-support.md#experiment).
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10466) in GitLab 16.0 as an [experiment](../../../policy/development_stages_support.md#experiment).
 
-When you've completed your review of a merge request and are ready to [submit your review](reviews/index.md#submit-a-review), generate a GitLab Duo Code review summary:
+When you've completed your review of a merge request and are ready to [submit your review](reviews/index.md#submit-a-review), use GitLab Duo Code Review Summary to generate a summary of your comments.
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Code > Merge requests** and find the merge request you want to review.
 1. When you are ready to submit your review, select **Finish review**.
-1. Select **Summarize my pending comments**.
+1. Select **Add Summary**.
 
 The summary is displayed in the comment box. You can edit and refine the summary prior to submitting your review.
 
@@ -99,29 +98,23 @@ Provide feedback on this experimental feature in [issue 408991](https://gitlab.c
 ## Generate a merge commit message
 
 DETAILS:
-**Tier:** Premium and Ultimate with [GitLab Duo Enterprise](../../../subscriptions/subscription-add-ons.md).
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
+**LLM:** Anthropic [Claude 3.5 Sonnet](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-sonnet)
 
-> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10453) in GitLab 16.2 as an [experiment](../../../policy/experiment-beta-support.md#experiment) [with a flag](../../../administration/feature_flags.md) named `generate_commit_message_flag`. Disabled by default.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10453) in GitLab 16.2 as an [experiment](../../../policy/development_stages_support.md#experiment) [with a flag](../../../administration/feature_flags.md) named `generate_commit_message_flag`. Disabled by default.
 > - Feature flag `generate_commit_message_flag` [enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/158339) in GitLab 17.2.
+> - Feature flag `generate_commit_message_flag` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/173262) in GitLab 17.7.
 
-FLAG:
-The availability of this feature is controlled by a feature flag.
-For more information, see the history.
-
-When preparing to merge your merge request you might wish to edit the proposed merge commit message.
-
-To generate a commit message with GitLab Duo:
+When preparing to merge your merge request, edit the proposed merge commit message
+by using GitLab Duo Merge Commit Message Generation.
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Code > Merge requests** and find your merge request.
 1. Select the **Edit commit message** checkbox on the merge widget.
 1. Select **Generate commit message**.
-1. Review the commit message provide and choose **Insert** to add it to the commit.
+1. Review the commit message provided and choose **Insert** to add it to the commit.
 
-Provide feedback on this experimental feature in [issue 408994](https://gitlab.com/gitlab-org/gitlab/-/issues/408994).
-
-**Data usage**: When you use this feature, the following data is sent to the large language model referenced above:
+**Data usage**: When you use this feature, the following data is sent to the large language model:
 
 - Contents of the file
 - The filename

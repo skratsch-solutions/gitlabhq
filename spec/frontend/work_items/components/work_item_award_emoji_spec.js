@@ -9,14 +9,12 @@ import { isLoggedIn } from '~/lib/utils/common_utils';
 import AwardList from '~/vue_shared/components/awards_list.vue';
 import WorkItemAwardEmoji from '~/work_items/components/work_item_award_emoji.vue';
 import updateAwardEmojiMutation from '~/work_items/graphql/update_award_emoji.mutation.graphql';
-import groupWorkItemAwardEmojiQuery from '~/work_items/graphql/group_award_emoji.query.graphql';
 import projectWorkItemAwardEmojiQuery from '~/work_items/graphql/award_emoji.query.graphql';
 import {
-  EMOJI_THUMBSUP,
-  EMOJI_THUMBSDOWN,
   DEFAULT_PAGE_SIZE_EMOJIS,
   I18N_WORK_ITEM_FETCH_AWARD_EMOJI_ERROR,
 } from '~/work_items/constants';
+import { EMOJI_THUMBS_UP, EMOJI_THUMBS_DOWN } from '~/emoji/constants';
 
 import {
   workItemByIidResponseFactory,
@@ -43,7 +41,6 @@ describe('WorkItemAwardEmoji component', () => {
   const workItemQueryResponse = workItemByIidResponseFactory();
   const mockWorkItem = workItemQueryResponse.data.workspace.workItem;
 
-  const groupAwardEmojiQuerySuccessHandler = jest.fn().mockResolvedValue(workItemQueryResponse);
   const awardEmojiQuerySuccessHandler = jest.fn().mockResolvedValue(workItemQueryResponse);
   const awardEmojiQueryEmptyHandler = jest.fn().mockResolvedValue(
     workItemByIidResponseFactory({
@@ -72,7 +69,7 @@ describe('WorkItemAwardEmoji component', () => {
     .mockRejectedValue(new Error(mutationErrorMessage));
 
   const mockAwardEmojiDifferentUser = {
-    name: 'thumbsup',
+    name: EMOJI_THUMBS_UP,
     __typename: 'AwardEmoji',
     user: {
       id: 'gid://gitlab/User/1',
@@ -85,12 +82,10 @@ describe('WorkItemAwardEmoji component', () => {
     awardEmojiQueryHandler = awardEmojiQuerySuccessHandler,
     awardEmojiMutationHandler = awardEmojiAddSuccessHandler,
     workItemIid = '1',
-    isGroup = false,
   } = {}) => {
     mockApolloProvider = createMockApollo(
       [
         [projectWorkItemAwardEmojiQuery, awardEmojiQueryHandler],
-        [groupWorkItemAwardEmojiQuery, groupAwardEmojiQuerySuccessHandler],
         [updateAwardEmojiMutation, awardEmojiMutationHandler],
       ],
       {},
@@ -112,9 +107,6 @@ describe('WorkItemAwardEmoji component', () => {
     wrapper = shallowMount(WorkItemAwardEmoji, {
       isLoggedIn: isLoggedIn(),
       apolloProvider: mockApolloProvider,
-      provide: {
-        isGroup,
-      },
       propsData: {
         workItemId: 'gid://gitlab/WorkItem/1',
         workItemFullpath: 'test-project-path',
@@ -146,7 +138,7 @@ describe('WorkItemAwardEmoji component', () => {
     expect(findAwardsList().props()).toEqual({
       canAwardEmoji: true,
       currentUserId: 5,
-      defaultAwards: [EMOJI_THUMBSUP, EMOJI_THUMBSDOWN],
+      defaultAwards: [EMOJI_THUMBS_UP, EMOJI_THUMBS_DOWN],
       selectedClass: 'selected',
       awards: [],
     });
@@ -155,14 +147,14 @@ describe('WorkItemAwardEmoji component', () => {
   it('renders awards-list component with awards present', () => {
     expect(findAwardsList().props('awards')).toEqual([
       {
-        name: EMOJI_THUMBSUP,
+        name: EMOJI_THUMBS_UP,
         user: {
           id: 5,
           name: 'Dave Smith',
         },
       },
       {
-        name: EMOJI_THUMBSDOWN,
+        name: EMOJI_THUMBS_DOWN,
         user: {
           id: 5,
           name: 'Dave Smith',
@@ -200,14 +192,14 @@ describe('WorkItemAwardEmoji component', () => {
 
     expect(findAwardsList().props('awards')).toEqual([
       {
-        name: EMOJI_THUMBSUP,
+        name: EMOJI_THUMBS_UP,
         user: {
           id: 5,
           name: 'Dave Smith',
         },
       },
       {
-        name: EMOJI_THUMBSUP,
+        name: EMOJI_THUMBS_UP,
         user: {
           id: 1,
           name: 'John Doe',
@@ -230,12 +222,12 @@ describe('WorkItemAwardEmoji component', () => {
 
       await waitForPromises();
 
-      findAwardsList().vm.$emit('award', EMOJI_THUMBSUP);
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_UP);
 
       expect(awardEmojiMutationHandler).toHaveBeenCalledWith({
         input: {
           awardableId: mockWorkItem.id,
-          name: EMOJI_THUMBSUP,
+          name: EMOJI_THUMBS_UP,
         },
       });
     },
@@ -249,7 +241,7 @@ describe('WorkItemAwardEmoji component', () => {
 
     await waitForPromises();
 
-    findAwardsList().vm.$emit('award', EMOJI_THUMBSUP);
+    findAwardsList().vm.$emit('award', EMOJI_THUMBS_UP);
 
     await waitForPromises();
 
@@ -283,12 +275,12 @@ describe('WorkItemAwardEmoji component', () => {
 
       await waitForPromises();
 
-      findAwardsList().vm.$emit('award', EMOJI_THUMBSUP);
+      findAwardsList().vm.$emit('award', EMOJI_THUMBS_UP);
 
       expect(awardEmojiAddSuccessHandler).toHaveBeenCalledWith({
         input: {
           awardableId: mockWorkItem.id,
-          name: EMOJI_THUMBSUP,
+          name: EMOJI_THUMBS_UP,
         },
       });
     });
@@ -349,20 +341,6 @@ describe('WorkItemAwardEmoji component', () => {
         });
         expect(awardEmojisQueryMoreThanDefaultHandler).toHaveBeenCalledTimes(2);
       });
-    });
-  });
-
-  describe('group award emoji query', () => {
-    it('is not called in a project context', () => {
-      createComponent();
-
-      expect(groupAwardEmojiQuerySuccessHandler).not.toHaveBeenCalled();
-    });
-
-    it('is called in a group context', () => {
-      createComponent({ isGroup: true });
-
-      expect(groupAwardEmojiQuerySuccessHandler).toHaveBeenCalled();
     });
   });
 });

@@ -16,7 +16,7 @@ module Gitlab
         TRANSACTION_DURATION_BUCKET = [0.1, 0.25, 1].freeze
 
         DB_LOAD_BALANCING_ROLES = %i[replica primary].freeze
-        DB_LOAD_BALANCING_COUNTERS = %i[txn_count count cached_count wal_count wal_cached_count].freeze
+        DB_LOAD_BALANCING_COUNTERS = %i[txn_count count write_count cached_count wal_count wal_cached_count].freeze
         DB_LOAD_BALANCING_DURATIONS = %i[txn_max_duration_s txn_duration_s duration_s].freeze
 
         SQL_WAL_LOCATION_REGEX = /(pg_current_wal_insert_lsn\(\)::text|pg_last_wal_replay_lsn\(\)::text)/
@@ -54,9 +54,12 @@ module Gitlab
           return if ignored_query?(payload)
 
           db_config_name = db_config_name(event.payload)
+          cached_query = cached_query?(payload)
+          select_sql_command = select_sql_command?(payload)
+
           increment(:count, db_config_name: db_config_name)
-          increment(:cached_count, db_config_name: db_config_name) if cached_query?(payload)
-          increment(:write_count, db_config_name: db_config_name) unless select_sql_command?(payload)
+          increment(:cached_count, db_config_name: db_config_name) if cached_query
+          increment(:write_count, db_config_name: db_config_name) unless select_sql_command
 
           observe(:gitlab_sql_duration_seconds, event) do
             buckets SQL_DURATION_BUCKET
@@ -65,7 +68,7 @@ module Gitlab
           db_role = ::Gitlab::Database::LoadBalancing.db_role_for_connection(payload[:connection])
           return if db_role.blank?
 
-          increment_db_role_counters(db_role, payload)
+          increment_db_role_counters(db_role, payload, cached_query: cached_query, select_sql_command: select_sql_command)
           observe_db_role_duration(db_role, event)
         end
 
@@ -73,18 +76,26 @@ module Gitlab
           return {} unless Gitlab::SafeRequestStore.active?
 
           {}.tap do |payload|
-            db_counter_keys.each do |key|
-              payload[key] = Gitlab::SafeRequestStore[key].to_i
-            end
+            if Feature.disabled?(:omit_aggregated_db_log_fields, :current_request, type: :ops)
+              db_counter_keys.each do |key|
+                payload[key] = Gitlab::SafeRequestStore[key].to_i
+              end
 
-            if ::Gitlab::SafeRequestStore.active?
-              load_balancing_metric_counter_keys.each do |counter|
+              load_balancing_roles_metric_counter_keys.each do |counter|
                 payload[counter] = ::Gitlab::SafeRequestStore[counter].to_i
               end
 
-              load_balancing_metric_duration_keys.each do |duration|
+              load_balancing_roles_metric_duration_keys.each do |duration|
                 payload[duration] = ::Gitlab::SafeRequestStore[duration].to_f.round(3)
               end
+            end
+
+            load_balancing_metric_counter_keys.each do |counter|
+              payload[counter] = ::Gitlab::SafeRequestStore[counter].to_i
+            end
+
+            load_balancing_metric_duration_keys.each do |duration|
+              payload[duration] = ::Gitlab::SafeRequestStore[duration].to_f.round(3)
             end
           end
         end
@@ -95,17 +106,16 @@ module Gitlab
           payload[:sql].match(SQL_WAL_LOCATION_REGEX)
         end
 
-        def increment_db_role_counters(db_role, payload)
-          cached = cached_query?(payload)
-
+        def increment_db_role_counters(db_role, payload, cached_query:, select_sql_command:)
           db_config_name = db_config_name(payload)
 
           increment(:count, db_role: db_role, db_config_name: db_config_name)
-          increment(:cached_count, db_role: db_role, db_config_name: db_config_name) if cached
+          increment(:cached_count, db_role: db_role, db_config_name: db_config_name) if cached_query
+          increment(:write_count, db_role: db_role, db_config_name: db_config_name) unless select_sql_command
 
           if wal_command?(payload)
             increment(:wal_count, db_role: db_role, db_config_name: db_config_name)
-            increment(:wal_cached_count, db_role: db_role, db_config_name: db_config_name) if cached
+            increment(:wal_cached_count, db_role: db_role, db_config_name: db_config_name) if cached_query
           end
         end
 
@@ -186,14 +196,34 @@ module Gitlab
           end
         end
 
-        def self.load_balancing_metric_keys(metrics)
+        def self.load_balancing_roles_metric_counter_keys
+          strong_memoize(:load_balancing_roles_metric_counter_keys) do
+            load_balancing_roles_metric_keys(DB_LOAD_BALANCING_COUNTERS)
+          end
+        end
+
+        def self.load_balancing_roles_metric_duration_keys
+          strong_memoize(:load_balancing_roles_metric_duration_keys) do
+            load_balancing_roles_metric_keys(DB_LOAD_BALANCING_DURATIONS)
+          end
+        end
+
+        def self.load_balancing_roles_metric_keys(metrics)
           counters = []
 
           metrics.each do |metric|
             DB_LOAD_BALANCING_ROLES.each do |role|
               counters << compose_metric_key(metric, role)
             end
+          end
 
+          counters
+        end
+
+        def self.load_balancing_metric_keys(metrics)
+          counters = []
+
+          metrics.each do |metric|
             ::Gitlab::Database.database_base_models.keys.each do |config_name|
               counters << compose_metric_key(metric, nil, config_name) # main / ci / geo
             end

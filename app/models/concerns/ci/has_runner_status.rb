@@ -5,7 +5,7 @@ module Ci
     extend ActiveSupport::Concern
 
     included do
-      scope :offline, -> { where(arel_table[:contacted_at].lteq(online_contact_time_deadline)) }
+      scope :offline, -> { where(contacted_at: ..online_contact_time_deadline) }
       scope :never_contacted, -> { where(contacted_at: nil) }
       scope :online, -> { where(arel_table[:contacted_at].gt(online_contact_time_deadline)) }
 
@@ -18,7 +18,7 @@ module Ci
 
     class_methods do
       def available_statuses
-        self::AVAILABLE_STATUSES
+        self::AVAILABLE_STATUSES_INCL_DEPRECATED
       end
 
       def online_contact_time_deadline

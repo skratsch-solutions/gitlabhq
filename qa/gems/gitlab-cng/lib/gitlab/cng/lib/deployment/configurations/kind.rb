@@ -28,7 +28,8 @@ module Gitlab
             admin_password:,
             admin_token:,
             host_http_port:,
-            host_ssh_port:
+            host_ssh_port:,
+            host_registry_port:
           )
             super(namespace: namespace, ci: ci, gitlab_domain: gitlab_domain)
 
@@ -36,6 +37,7 @@ module Gitlab
             @admin_token = admin_token
             @host_http_port = host_http_port
             @host_ssh_port = host_ssh_port
+            @host_registry_port = host_registry_port
           end
 
           # Run pre-deployment setup
@@ -50,6 +52,7 @@ module Gitlab
           #
           # @return [void]
           def run_post_deployment_setup
+            patch_registry_svc_port
             create_root_token
           end
 
@@ -64,6 +67,9 @@ module Gitlab
                 },
                 pages: {
                   port: host_http_port
+                },
+                registry: {
+                  port: host_registry_port
                 },
                 initialRootPassword: {
                   secret: ADMIN_PASSWORD_SECRET
@@ -83,8 +89,9 @@ module Gitlab
                   service: {
                     type: "NodePort",
                     nodePorts: {
-                      "gitlab-shell": Cng::Kind::Cluster::SSH_PORT,
-                      http: Cng::Kind::Cluster::HTTP_PORT
+                      "gitlab-shell": Cng::Kind::Cluster.host_port_mapping(host_ssh_port),
+                      http: Cng::Kind::Cluster.host_port_mapping(host_http_port),
+                      registry: Cng::Kind::Cluster.host_port_mapping(host_registry_port)
                     }
                   }
                 }
@@ -101,7 +108,7 @@ module Gitlab
 
           private
 
-          attr_reader :admin_password, :admin_token, :host_http_port, :host_ssh_port
+          attr_reader :admin_password, :admin_token, :host_http_port, :host_ssh_port, :host_registry_port
 
           # Token seed script for root user
           #
@@ -118,6 +125,7 @@ module Gitlab
                   user.personal_access_tokens.build(params).tap do |pat|
                     pat.expires_at = 365.days.from_now
                     pat.set_token("#{admin_token}")
+                    pat.organization = Organizations::Organization.default_organization
                     pat.save!
                   end
                 end
@@ -154,10 +162,29 @@ module Gitlab
             ).strip
           rescue Kubectl::Client::Error => e
             token_exists_error = "duplicate key value violates unique constraint " \
-                                 "\"index_personal_access_tokens_on_token_digest\""
+              "\"index_personal_access_tokens_on_token_digest\""
             return log("Token already exists, skipping!", :warn) if e.message.include?(token_exists_error)
 
             raise e
+          end
+
+          def patch_registry_svc_port
+            log("Patching registry service port", :info)
+            patch_data = {
+              spec: {
+                type: 'NodePort',
+                ports: [
+                  {
+                    name: 'registry',
+                    port: 5000,
+                    targetPort: 5000,
+                    protocol: 'TCP',
+                    nodePort: 32495
+                  }
+                ]
+              }
+            }.to_json
+            puts kubeclient.patch('svc', 'gitlab-registry', patch_data)
           end
         end
       end

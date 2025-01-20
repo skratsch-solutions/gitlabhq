@@ -2,10 +2,16 @@
 
 require 'spec_helper'
 
-RSpec.describe Packages::CleanupPackageFileWorker, feature_category: :package_registry do
+RSpec.describe Packages::CleanupPackageFileWorker, type: :worker, feature_category: :package_registry do
   let_it_be_with_reload(:package) { create(:package) }
 
   let(:worker) { described_class.new }
+
+  it_behaves_like 'worker with data consistency', described_class, data_consistency: :sticky
+
+  it 'has :none deduplicate strategy' do
+    expect(described_class.get_deduplicate_strategy).to eq(:none)
+  end
 
   describe '#perform_work' do
     subject { worker.perform_work }
@@ -87,6 +93,18 @@ RSpec.describe Packages::CleanupPackageFileWorker, feature_category: :package_re
 
         expect { subject }.to change { Packages::PackageFile.count }.by(-1)
           .and change { Packages::Package.count }.by(-1)
+      end
+    end
+
+    describe 'removing the last package file in an ML model package' do
+      let_it_be_with_reload(:package) { create(:ml_model_package) }
+      let_it_be(:package_file) { create(:package_file, :pending_destruction, package: package) }
+
+      it 'deletes the package file but keeps the package' do
+        expect(worker).to receive(:log_extra_metadata_on_done).twice
+
+        expect { subject }.to change { Packages::PackageFile.count }.by(-1)
+          .and change { Packages::Package.count }.by(0)
       end
     end
   end

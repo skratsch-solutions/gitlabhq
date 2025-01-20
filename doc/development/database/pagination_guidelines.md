@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Database
+stage: Data Access
+group: Database Frameworks
 info: Any user with at least the Maintainer role can merge updates to this content. For details, see https://docs.gitlab.com/ee/development/development_processes.html#development-guidelines-review.
 ---
 
@@ -150,7 +150,7 @@ By making the `id` column part of the index, the previous query reads maximum 20
 NOTE:
 Here we're leveraging the ordered property of the b-tree database index. Values in the index are sorted so reading 20 rows does not require further sorting.
 
-#### Limitations
+#### Known issues
 
 ##### `COUNT(*)` on a large dataset
 
@@ -172,7 +172,7 @@ From the user point of view, this might not be always noticeable. As the user pa
 
 When requesting a large page number, the database needs to read `PAGE * PAGE_SIZE` rows. This makes offset pagination **unsuitable for large database tables** however, with an [optimization technique](offset_pagination_optimization.md) the overall performance of the database queries can be slightly improved.
 
-Example: listing users on the Admin Area
+Example: listing users on the Admin area
 
 Listing users with a very simple SQL query:
 
@@ -262,7 +262,7 @@ Looking at the query execution plan, we can see that this query read only 5 rows
 (5 rows)
 ```
 
-#### Limitations
+#### Known issues
 
 ##### No page numbers
 

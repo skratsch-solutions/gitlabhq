@@ -101,15 +101,19 @@ ci_cd_settings:
     - inbound_job_token_scope_enabled
     - restrict_pipeline_cancellation_role
     - push_repository_for_job_token_allowed
+    - id_token_sub_claim_components
+    - delete_pipelines_in_seconds
   remapped_attributes:
     pipeline_variables_minimum_override_role: ci_pipeline_variables_minimum_override_role
     push_repository_for_job_token_allowed: ci_push_repository_for_job_token_allowed
+    id_token_sub_claim_components: ci_id_token_sub_claim_components
     default_git_depth: ci_default_git_depth
     forward_deployment_enabled: ci_forward_deployment_enabled
     forward_deployment_rollback_allowed: ci_forward_deployment_rollback_allowed
     job_token_scope_enabled: ci_job_token_scope_enabled
     separated_caches: ci_separated_caches
     allow_fork_pipelines_to_run_in_parent_project: ci_allow_fork_pipelines_to_run_in_parent_project
+    delete_pipelines_in_seconds: ci_delete_pipelines_in_seconds
 
 build_import_state: # import_state
   unexposed_attributes:
@@ -172,6 +176,7 @@ project_setting:
     - allow_pipeline_trigger_approve_deployment
     - pages_unique_domain_enabled
     - pages_unique_domain
+    - pages_primary_domain
     - pages_multiple_versions_enabled
     - runner_registration_enabled
     - product_analytics_instrumentation_key
@@ -186,6 +191,9 @@ project_setting:
     - code_suggestions
     - duo_features_enabled
     - require_reauthentication_to_approve
+    - observability_alerts_enabled
+    - spp_repository_pipeline_access
+    - max_number_of_vulnerabilities
 
 build_service_desk_setting: # service_desk_setting
   unexposed_attributes:

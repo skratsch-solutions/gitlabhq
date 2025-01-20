@@ -76,6 +76,8 @@ module Gitlab
       end
 
       def defer_job_by_database_health_signal?(job, worker_class)
+        # ActionMailer's ActiveJob pushes a job hash with class: ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper
+        # which won't be having :defer_on_database_health_signal? defined
         unless worker_class.respond_to?(:defer_on_database_health_signal?) &&
             worker_class.defer_on_database_health_signal?
           return false
@@ -94,8 +96,7 @@ module Gitlab
         health_context = Gitlab::Database::HealthStatus::Context.new(
           DatabaseHealthStatusChecker.new(job['jid'], worker_class.name),
           job_base_model.connection,
-          tables,
-          schema
+          tables
         )
 
         Gitlab::Database::HealthStatus.evaluate(health_context).any?(&:stop?)
@@ -112,7 +113,12 @@ module Gitlab
 
       def drop_job!(job, worker)
         job['dropped'] = true
-        @metrics.fetch(COUNTER).increment({ worker: worker.class.name, action: "dropped" })
+        @metrics.fetch(COUNTER).increment({
+          worker: worker.class.name,
+          action: "dropped",
+          reason: "feature_flag",
+          feature_category: worker.class.get_feature_category.to_s
+        })
       end
 
       def defer_job!(job, worker)
@@ -123,7 +129,12 @@ module Gitlab
         job['deferred_count'] += 1
 
         worker.class.deferred(job['deferred_count'], @deferred_by).perform_in(@delay, *job['args'])
-        @metrics.fetch(COUNTER).increment({ worker: worker.class.name, action: "deferred" })
+        @metrics.fetch(COUNTER).increment({
+          worker: worker.class.name,
+          action: "deferred",
+          reason: @deferred_by.to_s,
+          feature_category: worker.class.get_feature_category.to_s
+        })
       end
 
       def init_metrics

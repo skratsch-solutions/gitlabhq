@@ -35,7 +35,7 @@ module Mutations
       argument :time_estimate, GraphQL::Types::String,
         required: false,
         description: 'Estimated time to complete the issue. ' \
-                     'Use `null` or `0` to remove the current estimate.'
+          'Use `null` or `0` to remove the current estimate.'
 
       def resolve(project_path:, iid:, **args)
         issue = authorized_find!(project_path: project_path, iid: iid)
@@ -43,7 +43,12 @@ module Mutations
 
         args = parse_arguments(args)
 
-        ::Issues::UpdateService.new(container: project, current_user: current_user, params: args, perform_spam_check: true).execute(issue)
+        ::Issues::UpdateService.new(
+          container: project,
+          current_user: current_user,
+          params: args,
+          perform_spam_check: true
+        ).execute(issue)
 
         {
           issue: issue,
@@ -53,7 +58,8 @@ module Mutations
 
       def ready?(label_ids: [], add_label_ids: [], remove_label_ids: [], time_estimate: nil, **args)
         if label_ids.any? && (add_label_ids.any? || remove_label_ids.any?)
-          raise Gitlab::Graphql::Errors::ArgumentError, 'labelIds is mutually exclusive with any of addLabelIds or removeLabelIds'
+          raise Gitlab::Graphql::Errors::ArgumentError,
+            'labelIds is mutually exclusive with any of addLabelIds or removeLabelIds'
         end
 
         validate_time_estimate(time_estimate)

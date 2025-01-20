@@ -1,11 +1,12 @@
 <script>
-import { GlIcon, GlLink } from '@gitlab/ui';
+import { GlLink } from '@gitlab/ui';
+import HelpIcon from '~/vue_shared/components/help_icon/help_icon.vue';
 
 export default {
   name: 'SidebarDetailRow',
   components: {
-    GlIcon,
     GlLink,
+    HelpIcon,
   },
   props: {
     title: {
@@ -39,17 +40,12 @@ export default {
 };
 </script>
 <template>
-  <p class="build-sidebar-item gl-leading-normal gl-display-flex gl-mb-3">
+  <p class="build-sidebar-item gl-mb-3 gl-flex gl-leading-normal">
     <b v-if="hasTitle" class="gl-mr-3">{{ title }}:</b>
-    <gl-link
-      v-if="path"
-      :href="path"
-      class="gl-text-blue-600!"
-      data-testid="job-sidebar-value-link"
-    >
+    <gl-link v-if="path" :href="path" class="!gl-text-link" data-testid="job-sidebar-value-link">
       {{ value }}
     </gl-link>
-    <span v-else
+    <span v-else class="gl-text-subtle"
       >{{ value }}
       <gl-link
         v-if="hasHelpURL"
@@ -57,7 +53,7 @@ export default {
         target="_blank"
         data-testid="job-sidebar-help-link"
       >
-        <gl-icon name="question-o" class="gl-ml-2 gl-text-blue-500" />
+        <help-icon class="gl-ml-2" />
       </gl-link>
     </span>
   </p>

@@ -44,7 +44,7 @@ module MergeRequests
         mark_mr_as_draft_from_commits(mr)
         execute_mr_web_hooks(mr)
         # Run at the end of the loop to avoid any potential contention on the MR object
-        refresh_pipelines_on_merge_requests(mr)
+        refresh_pipelines_on_merge_requests(mr) unless @push.branch_removed?
         merge_request_activity_counter.track_mr_including_ci_config(user: mr.author, merge_request: mr)
       end
 
@@ -193,7 +193,12 @@ module MergeRequests
     def abort_auto_merges(merge_request)
       return unless abort_auto_merges?(merge_request)
 
-      abort_auto_merge(merge_request, 'source branch was updated')
+      learn_more_url = Rails.application.routes.url_helpers.help_page_url(
+        'ci/pipelines/merge_trains.md',
+        anchor: 'merge-request-dropped-from-the-merge-train'
+      )
+
+      abort_auto_merge(merge_request, "the source branch was updated. [Learn more](#{learn_more_url}).")
     end
 
     def abort_ff_merge_requests_with_auto_merges

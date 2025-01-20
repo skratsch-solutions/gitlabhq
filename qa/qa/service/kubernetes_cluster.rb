@@ -56,6 +56,7 @@ module QA
 
       def setup_workspaces_in_cluster
         @provider.install_ngnix_ingress
+        @provider.wait_for_pod('ingress-nginx')
         @provider.install_gitlab_workspaces_proxy
       end
 
@@ -100,7 +101,7 @@ module QA
       end
 
       def fetch_kas_address
-        api_client = Runtime::API::Client.new(:gitlab)
+        api_client = Runtime::User::Store.user_api_client
 
         Support::Retrier.retry_until do
           response = get(Runtime::API::Request.new(api_client, '/metadata').url)

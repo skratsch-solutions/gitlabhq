@@ -1,13 +1,12 @@
 <script>
-import { GlTooltip, GlIcon } from '@gitlab/ui';
-import { timeFor, parsePikadayDate, dateInWords } from '~/lib/utils/datetime_utility';
+import { localeDateFormat, newDate, timeFor } from '~/lib/utils/datetime_utility';
 import { __, sprintf } from '~/locale';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
+import WorkItemAttribute from '~/vue_shared/components/work_item_attribute.vue';
 
 export default {
   components: {
-    GlIcon,
-    GlTooltip,
+    WorkItemAttribute,
   },
   mixins: [timeagoMixin],
   props: {
@@ -20,12 +19,12 @@ export default {
     milestoneDue() {
       const dueDate = this.milestone.due_date || this.milestone.dueDate;
 
-      return dueDate ? parsePikadayDate(dueDate) : null;
+      return dueDate ? newDate(dueDate) : null;
     },
     milestoneStart() {
       const startDate = this.milestone.start_date || this.milestone.startDate;
 
-      return startDate ? parsePikadayDate(startDate) : null;
+      return startDate ? newDate(startDate) : null;
     },
     isMilestoneStarted() {
       if (!this.milestoneStart) {
@@ -41,10 +40,10 @@ export default {
     },
     milestoneDatesAbsolute() {
       if (this.milestoneDue) {
-        return `(${dateInWords(this.milestoneDue)})`;
+        return `(${localeDateFormat.asDate.format(this.milestoneDue)})`;
       }
       if (this.milestoneStart) {
-        return `(${dateInWords(this.milestoneStart)})`;
+        return `(${localeDateFormat.asDate.format(this.milestoneStart)})`;
       }
       return '';
     },
@@ -72,23 +71,27 @@ export default {
 };
 </script>
 <template>
-  <div ref="milestoneDetails" class="issue-milestone-details">
-    <gl-icon :size="16" class="gl-mr-2 flex-shrink-0" name="milestone" />
-    <span class="milestone-title gl-display-inline-block gl-text-truncate">{{
-      milestone.title
-    }}</span>
-    <gl-tooltip :target="() => $refs.milestoneDetails" placement="bottom" class="js-item-milestone">
-      <span class="bold">{{ __('Milestone') }}</span> <br />
+  <work-item-attribute
+    anchor-id="board-card-milestone"
+    wrapper-component="div"
+    wrapper-component-class="issue-milestone-details gl-flex gl-max-w-15 gl-gap-2 gl-items-center"
+    icon-name="milestone"
+    icon-class="flex-shrink-0"
+    :title="milestone.title"
+    title-component-class="milestone-title gl-inline-block gl-truncate"
+  >
+    <template #tooltip-text>
+      <span class="gl-font-bold">{{ __('Milestone') }}</span> <br />
       <span>{{ milestone.title }}</span> <br />
       <span
         v-if="milestoneStart || milestoneDue"
         :class="{
           'gl-text-red-300': isMilestonePastDue,
-          'text-tertiary': !isMilestonePastDue,
+          'gl-text-tertiary': !isMilestonePastDue,
         }"
         ><span>{{ milestoneDatesHuman }}</span
         ><br /><span>{{ milestoneDatesAbsolute }}</span>
       </span>
-    </gl-tooltip>
-  </div>
+    </template>
+  </work-item-attribute>
 </template>

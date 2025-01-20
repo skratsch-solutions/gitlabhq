@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Users can upload files to:
 
@@ -65,6 +65,7 @@ You cannot select this option for public projects.
 ## Delete uploaded files
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/92791) in GitLab 15.3.
+> - REST API [added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/157066) support in GitLab 17.2.
 
 You should delete an uploaded file when that file contains sensitive or confidential information. When you have deleted that file, users cannot access the file and the direct URL returns a 404 error.
 
@@ -86,6 +87,8 @@ mutation{
 ```
 
 Project members that do not have the Owner or Maintainer role cannot access this GraphQL endpoint.
+
+You can also use the REST API for [projects](../api/project_markdown_uploads.md#delete-an-uploaded-file-by-secret-and-filename) or [groups](../api/group_markdown_uploads.md#delete-an-uploaded-file-by-secret-and-filename) to delete an uploaded file.
 
 <!-- ## Troubleshooting
 

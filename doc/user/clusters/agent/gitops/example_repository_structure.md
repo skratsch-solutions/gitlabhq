@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In this tutorial, you'll create a GitLab project that builds and deploys an application
 to a Kubernetes cluster using Flux. You'll set up a sample manifest project, configure it to
@@ -26,7 +26,7 @@ To set up a repository for GitOps deployments:
 1. [Configure Flux to sync your manifests](#configure-flux-to-sync-your-manifests)
 1. [Verify your configuration](#verify-your-configuration)
 
-Prerequisites:
+Before you begin:
 
 - You have a Flux repository connected to a Kubernetes cluster.
   If you're starting from scratch, see [Set up Flux for GitOps](flux_tutorial.md).
@@ -83,7 +83,7 @@ To create a deployment branch:
 1. Create a [CI/CD variable](../../../../ci/variables/index.md) with a token value named `DEPLOYMENT_TOKEN`.
    Remember to [mask](../../../../ci/variables/index.md#mask-a-cicd-variable) the value so that it won't show in
    job logs.
-1. Add a rule to [protect](../../../../user/project/protected_branches.md)
+1. Add a rule to [protect](../../../../user/project/repository/branches/protected.md)
    your deployment branch with the following values:
 
    - Allowed to merge: No one.

@@ -10,6 +10,13 @@ especially important if they didn't participate in the discussion.
 
 %{first_multiline_commit}
 
+## References
+
+**Please include [cross links](https://handbook.gitlab.com/handbook/communication/#start-with-a-merge-request:~:text=Cross%20link%20issues,alternate%20if%20duplicate.) to any resources that are relevant to this MR**.
+This will give reviewers and future readers helpful context to give an efficient review of the changes introduced.
+
+- 
+
 ## MR acceptance checklist
 
 **Please evaluate this MR against the [MR acceptance checklist](https://docs.gitlab.com/ee/development/code_review.html#acceptance-checklist).**
@@ -28,6 +35,20 @@ please leave a comment and ping a GitLab reviewer, maintainer, or MR coach.
 | Before | After  |
 | ------ | ------ |
 |        |        |
+
+<!--
+OPTIONAL:
+Use this table when providing screenshots at relevant viewport sizes.
+Delete table rows that are not relevant to your changes.
+
+| Viewport size   | Before     | After      |
+| ----------------| ---------- | ---------- |
+| `xs` (<576px)   |            |            |
+| `sm` (>=576px)  |            |            |
+| `md` (>=768px)  |            |            |
+| `lg` (>=992px)  |            |            |
+| `xl` (>=1200px) |            |            |
+-->
 
 ## How to set up and validate locally
 

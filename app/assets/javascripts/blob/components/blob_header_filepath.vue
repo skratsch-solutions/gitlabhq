@@ -1,5 +1,5 @@
 <script>
-import { GlBadge } from '@gitlab/ui';
+import { GlBadge, GlLink } from '@gitlab/ui';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import FileIcon from '~/vue_shared/components/file_icon.vue';
@@ -9,6 +9,7 @@ export default {
     FileIcon,
     ClipboardButton,
     GlBadge,
+    GlLink,
   },
   props: {
     blob: {
@@ -16,6 +17,16 @@ export default {
       required: true,
     },
     showPath: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showAsLink: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    showBlobSize: {
       type: Boolean,
       required: false,
       default: true,
@@ -38,19 +49,25 @@ export default {
 
       return this.blob.name;
     },
+    linkHref() {
+      return this.showAsLink ? { href: this.blob?.webPath } : {};
+    },
   },
 };
 </script>
 <template>
-  <div class="file-header-content gl-flex gl-align-items-center gl-leading-1">
+  <div class="file-header-content gl-flex gl-items-center gl-leading-1">
     <slot name="filepath-prepend"></slot>
 
     <template v-if="fileName">
       <file-icon :file-name="fileName" :size="16" aria-hidden="true" css-classes="gl-mr-3" />
-      <strong
-        class="file-title-name mr-1 js-blob-header-filepath"
+      <component
+        :is="showAsLink ? 'gl-link' : 'strong'"
+        v-bind="linkHref"
+        class="file-title-name mr-1 js-blob-header-filepath gl-break-all gl-font-bold"
+        :class="{ '!gl-text-blue-700 hover:gl-cursor-pointer': showAsLink }"
         data-testid="file-title-content"
-        >{{ fileName }}</strong
+        >{{ fileName }}</component
       >
     </template>
 
@@ -62,7 +79,7 @@ export default {
       css-class="gl-mr-2"
     />
 
-    <small class="gl-mr-3">{{ blobSize }}</small>
+    <small v-if="showBlobSize" class="gl-mr-3">{{ blobSize }}</small>
 
     <gl-badge v-if="showLfsBadge">{{ __('LFS') }}</gl-badge>
   </div>

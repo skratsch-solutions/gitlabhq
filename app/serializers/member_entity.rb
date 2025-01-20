@@ -11,6 +11,7 @@ class MemberEntity < Grape::Entity
   end
   expose :requested_at
   expose :request_accepted_at
+  expose :invite_accepted_at
 
   expose :created_by,
     if: ->(member) { member.created_by.present? && member.is_source_accessible_to_current_user } do |member|
@@ -28,11 +29,19 @@ class MemberEntity < Grape::Entity
   expose :last_owner?, as: :is_last_owner
 
   expose :is_direct_member do |member, options|
-    member.source == options[:source]
+    direct_member?(member, options)
+  end
+
+  expose :is_inherited_member do |member, options|
+    inherited_member?(member, options)
+  end
+
+  expose :is_shared_member do |member, options|
+    !direct_member?(member, options) && !inherited_member?(member, options)
   end
 
   expose :access_level do
-    expose :human_access, as: :string_value
+    expose :human_access_with_none, as: :string_value
     expose :access_level, as: :integer_value
     expose :member_role_id
     expose :member_role_description, as: :description
@@ -80,6 +89,20 @@ class MemberEntity < Grape::Entity
 
   def current_user
     options[:current_user]
+  end
+
+  def direct_member?(member, options)
+    member.source == options[:source]
+  end
+
+  def inherited_member?(member, options)
+    if options[:source].is_a?(Project)
+      return false unless options[:group]
+
+      options[:group].self_and_ancestor_ids.include?(member.source.id)
+    else
+      options[:source].ancestor_ids.include?(member.source.id)
+    end
   end
 end
 

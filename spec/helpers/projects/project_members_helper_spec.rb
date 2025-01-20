@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Projects::ProjectMembersHelper do
+RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_projects do
   include MembersPresentation
 
   let_it_be(:current_user) { create(:user) }
@@ -16,6 +16,9 @@ RSpec.describe Projects::ProjectMembersHelper do
     let_it_be(:members) { create_list(:project_member, 2, project: project) }
     let_it_be(:invited) { create_list(:project_member, 2, :invited, project: project) }
     let_it_be(:access_requests) { create_list(:project_member, 2, :access_request, project: project) }
+    let(:available_roles) do
+      Gitlab::Access.options_with_owner.map { |name, access_level| { title: name, value: "static-#{access_level}" } }
+    end
 
     let(:members_collection) { members }
 
@@ -29,7 +32,7 @@ RSpec.describe Projects::ProjectMembersHelper do
             access_requests: present_members(access_requests),
             include_relations: [:inherited, :direct],
             search: nil,
-            pending_members: []
+            pending_members_count: nil
           )
         )
       end
@@ -46,7 +49,9 @@ RSpec.describe Projects::ProjectMembersHelper do
           can_manage_access_requests: true,
           group_name: project.group.name,
           group_path: project.group.path,
-          can_approve_access_requests: true
+          project_path: project.full_path,
+          can_approve_access_requests: true,
+          available_roles: available_roles
         }.as_json
 
         expect(subject).to include(expected)
@@ -137,7 +142,7 @@ RSpec.describe Projects::ProjectMembersHelper do
                 access_requests: present_members(access_requests),
                 include_relations: include_relations,
                 search: nil,
-                pending_members: []
+                pending_members_count: nil
               )
             )
           end

@@ -2,8 +2,12 @@
 
 class AuditEventService
   include AuditEventSaveType
+  include ::Gitlab::Audit::Logging
 
   # Instantiates a new service
+  #
+  # @deprecated This service is deprecated. Use Gitlab::Audit::Auditor instead.
+  # More information: https://docs.gitlab.com/ee/development/audit_event_guide/#how-to-instrument-new-audit-events
   #
   # @param [User, token String] author the entity who authors the change
   # @param [User, Project, Group] entity the scope which audit event belongs to
@@ -24,6 +28,8 @@ class AuditEventService
     @ip_address = resolve_ip_address(@author)
     @save_type = save_type
     @created_at = created_at
+
+    Gitlab::AppLogger.info(message: "AuditEventService initialized", scope_class: @entity.class.name)
   end
 
   # Builds the @details attribute for authentication
@@ -123,6 +129,7 @@ class AuditEventService
 
     event = build_event
     save_or_track event
+    log_to_new_tables([event], event.class.to_s) if should_save_database?(@save_type)
     event
   end
 
@@ -137,10 +144,9 @@ class AuditEventService
   def log_authentication_event_to_database
     return unless Gitlab::Database.read_write? && authentication_event?
 
-    event = AuthenticationEvent.new(authentication_event_payload)
-    save_or_track event
-
-    event
+    AuthenticationEvent.new(authentication_event_payload).tap do |event|
+      save_or_track event
+    end
   end
 
   def save_or_track(event)
@@ -148,6 +154,8 @@ class AuditEventService
     stream_event_to_external_destinations(event) if should_save_stream?(@save_type)
   rescue StandardError => e
     Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e, audit_event_type: event.class.to_s)
+
+    nil
   end
 end
 

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -9,11 +9,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 WARNING:
-This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/372411) in GitLab 15.9
-and is planned for removal in 18.0. Use the [GitLab for Slack app](gitlab_slack_application.md) instead.
+This feature was [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/435909) in GitLab 15.9
+and is planned for removal in 19.0. Use the [GitLab for Slack app](gitlab_slack_application.md) instead.
 This change is a breaking change.
 
 The Slack notifications integration enables your GitLab project to send events
@@ -100,13 +100,13 @@ If your Slack integration is not working, start troubleshooting by
 searching through the [Sidekiq logs](../../../administration/logs/index.md#sidekiqlog)
 for errors relating to your Slack service.
 
-### Something went wrong on our end
+### Error: `Something went wrong on our end`
 
 You might get this generic error message in the GitLab UI.
 Review [the logs](../../../administration/logs/index.md#productionlog) to find
 the error message and keep troubleshooting from there.
 
-### `certificate verify failed`
+### Error: `certificate verify failed`
 
 You might see an entry like the following in your Sidekiq log:
 

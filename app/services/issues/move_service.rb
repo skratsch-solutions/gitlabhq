@@ -4,6 +4,8 @@ module Issues
   class MoveService < Issuable::Clone::BaseService
     extend ::Gitlab::Utils::Override
 
+    BATCH_SIZE = 100
+
     MoveError = Class.new(StandardError)
 
     def execute(issue, target_project, move_any_issue_type = false)
@@ -22,6 +24,7 @@ module Issues
 
       copy_email_participants
       queue_copy_designs
+      copy_timelogs
 
       new_entity
     end
@@ -36,8 +39,6 @@ module Issues
     end
 
     def move_children
-      return if Feature.disabled?(:move_issue_children, original_entity.resource_parent, type: :beta)
-
       WorkItems::ParentLink.for_parents(original_entity).each do |link|
         new_child = self.class.new(
           container: container,
@@ -92,7 +93,7 @@ module Issues
     def update_old_entity
       super
 
-      rewrite_related_issues
+      recreate_related_issues
       mark_as_moved
     end
 
@@ -145,16 +146,43 @@ module Issues
       log_error(response.message) if response.error?
     end
 
+    def copy_timelogs
+      return if original_entity.timelogs.empty?
+
+      WorkItems::CopyTimelogsWorker.perform_async(original_entity.id, new_entity.id)
+    end
+
     def mark_as_moved
       original_entity.update(moved_to: new_entity)
     end
 
-    def rewrite_related_issues
+    def recreate_related_issues
       source_issue_links = IssueLink.for_source(original_entity)
-      source_issue_links.update_all(source_id: new_entity.id)
-
       target_issue_links = IssueLink.for_target(original_entity)
-      target_issue_links.update_all(target_id: new_entity.id)
+
+      source_issue_links.each_batch(of: BATCH_SIZE) do |links_batch|
+        new_links = new_links(links_batch, reference_attribute: 'source_id')
+        ::IssueLink.insert_all!(new_links) if new_links.any?
+      end
+
+      target_issue_links.each_batch(of: BATCH_SIZE) do |links_batch|
+        new_links = new_links(links_batch, reference_attribute: 'target_id')
+        ::IssueLink.insert_all!(new_links) if new_links.any?
+      end
+
+      source_issue_links.each_batch(of: BATCH_SIZE) do |links_batch|
+        links_batch.delete_all
+      end
+
+      target_issue_links.each_batch(of: BATCH_SIZE) do |links_batch|
+        links_batch.delete_all
+      end
+    end
+
+    def new_links(links_batch, reference_attribute:)
+      links_batch.map do |link|
+        link.attributes.except('id', 'namespace_id').merge(reference_attribute => new_entity.id)
+      end
     end
 
     def copy_contacts

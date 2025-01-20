@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 Administrators can email all users, or users of a chosen group or project.
 Users receive the email at their primary email address.
@@ -28,7 +28,7 @@ You can send email notifications once every 10 minutes.
 
 To send an email:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Users**.
 1. In the upper-right corner, select **Send email to users** (**{mail}**).
 1. Complete the fields. The email body supports only plain text and does not support HTML, Markdown, or other rich text formats.

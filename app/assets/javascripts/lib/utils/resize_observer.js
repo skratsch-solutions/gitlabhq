@@ -1,6 +1,5 @@
+import ScrollParent from 'scrollparent';
 import { contentTop } from './common_utils';
-
-const interactionEvents = ['mousedown', 'touchstart', 'keydown', 'wheel'];
 
 export function createResizeObserver() {
   return new ResizeObserver((entries) => {
@@ -13,58 +12,101 @@ export function createResizeObserver() {
 /**
  * Watches for change in size of a container element (e.g. for lazy-loaded images)
  * and scrolls the target note to the top of the content area.
- * Stops watching after any user input. So if user opens sidebar or manually
- * scrolls the page we don't hijack their scroll position
  *
  * @param {Object} options
  * @param {string} options.targetId - id of element to scroll to
  * @param {string} options.container - Selector of element containing target
  * @param {Element} options.component - Element containing target
  *
- * @return {ResizeObserver|null} - ResizeObserver instance if target looks like a note DOM ID
+ * @return {Function} - Cleanup function to stop watching
  */
 export function scrollToTargetOnResize({
   targetId = window.location.hash.slice(1),
   container = '#content-body',
-  containerId,
 } = {}) {
   if (!targetId) return null;
 
+  let scrollContainer;
+  let scrollContainerIsDocument;
+
+  let targetTop = 0;
+  let currentScrollPosition = 0;
+  let userScrollOffset = 0;
+
+  // start listening to scroll after the first keepTargetAtTop call
+  let scrollListenerEnabled = false;
+  // can't tell difference between user and el.scrollTo, so use a flag
+  let skipProgrammaticScrollEvent = false;
+
+  const containerEl = document.querySelector(container);
   const ro = createResizeObserver();
-  const containerEl =
-    document.querySelector(`#${containerId}`) || document.querySelector(container);
-  let interactionListenersAdded = false;
 
-  function keepTargetAtTop(evt) {
-    const anchorEl = document.getElementById(targetId);
-    const scrollContainer = containerId ? evt.target : document.documentElement;
+  function handleScroll() {
+    if (skipProgrammaticScrollEvent) {
+      skipProgrammaticScrollEvent = false;
+      return;
+    }
+    currentScrollPosition = scrollContainerIsDocument ? window.scrollY : scrollContainer.scrollTop;
+    userScrollOffset = currentScrollPosition - targetTop;
+  }
 
-    if (!anchorEl) return;
-
-    const anchorTop = anchorEl.getBoundingClientRect().top + window.scrollY;
-    const top = anchorTop - contentTop();
-    scrollContainer.scrollTo({
-      top,
-    });
-
-    if (!interactionListenersAdded) {
-      interactionEvents.forEach((event) =>
-        // eslint-disable-next-line no-use-before-define
-        document.addEventListener(event, removeListeners),
-      );
-      interactionListenersAdded = true;
+  function addScrollListener() {
+    if (scrollContainerIsDocument) {
+      // For document scrolling, we need to listen to window
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    } else {
+      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     }
   }
 
-  function removeListeners() {
-    interactionEvents.forEach((event) => document.removeEventListener(event, removeListeners));
+  function removeScrollListener() {
+    if (scrollContainerIsDocument) {
+      window.removeEventListener('scroll', handleScroll);
+    } else {
+      scrollContainer?.removeEventListener('scroll', handleScroll);
+    }
+  }
 
-    ro.unobserve(containerEl);
-    containerEl.removeEventListener('ResizeUpdate', keepTargetAtTop);
+  function keepTargetAtTop() {
+    const anchorEl = document.getElementById(targetId);
+    if (!anchorEl) return;
+
+    scrollContainer = ScrollParent(document.getElementById(targetId)) || document.documentElement;
+    scrollContainerIsDocument = scrollContainer === document.documentElement;
+
+    if (!scrollContainer) return;
+
+    skipProgrammaticScrollEvent = true;
+
+    const anchorTop = anchorEl.getBoundingClientRect().top;
+    currentScrollPosition = scrollContainerIsDocument ? window.scrollY : scrollContainer.scrollTop;
+
+    // Add scrollPosition as getBoundingClientRect is relative to viewport
+    // Add the accumulated scroll offset to maintain relative position
+    // subtract contentTop so it goes below sticky headers, rather than top of viewport
+    targetTop = anchorTop - contentTop() + currentScrollPosition + userScrollOffset;
+
+    scrollContainer.scrollTo({
+      top: targetTop,
+      behavior: 'instant',
+    });
+
+    if (!scrollListenerEnabled) {
+      addScrollListener();
+      scrollListenerEnabled = true;
+    }
   }
 
   containerEl.addEventListener('ResizeUpdate', keepTargetAtTop);
-
   ro.observe(containerEl);
-  return ro;
+
+  return function cleanup() {
+    // add a slight delay to this to allow for a final scroll to the
+    // element once notes have finished
+    setTimeout(() => {
+      ro.unobserve(containerEl);
+      containerEl.removeEventListener('ResizeUpdate', keepTargetAtTop);
+      removeScrollListener();
+    }, 100);
+  };
 }

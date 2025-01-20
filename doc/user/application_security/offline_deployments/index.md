@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 To set up an offline environment, you must receive an [opt-out exemption of cloud licensing](https://about.gitlab.com/pricing/licensing-faq/cloud-licensing/#offline-cloud-licensing) prior to purchase. For more details, contact your GitLab sales representative.
@@ -16,7 +16,7 @@ To set up an offline environment, you must receive an [opt-out exemption of clou
 It's possible to run most of the GitLab security scanners when not connected to the internet.
 
 This document describes how to operate Secure Categories (that is, scanner types) in an offline
-environment. These instructions also apply to self-managed installations that are secured, have
+environment. These instructions also apply to GitLab Self-Managed instances that are secured, have
 security policies (for example, firewall policies), or are otherwise restricted from accessing the
 full internet. GitLab refers to these environments as _offline environments_. Other common names
 include:
@@ -94,7 +94,7 @@ above. You can find more information at each of the pages below:
 - [Container scanning offline directions](../container_scanning/index.md#running-container-scanning-in-an-offline-environment)
 - [SAST offline directions](../sast/index.md#running-sast-in-an-offline-environment)
 - [Secret Detection offline directions](../secret_detection/pipeline/index.md#offline-configuration)
-- [DAST offline directions](../dast/run_dast_offline.md#run-dast-in-an-offline-environment)
+- [DAST offline directions](../dast/browser/configuration/offline_configuration.md)
 - [API Fuzzing offline directions](../api_fuzzing/configuration/offline_configuration.md)
 - [License Scanning offline directions](../../compliance/license_scanning_of_cyclonedx_files/index.md#running-in-an-offline-environment)
 - [Dependency Scanning offline directions](../dependency_scanning/index.md#offline-environment)
@@ -157,7 +157,7 @@ GitLab.com. To do so, set the CI/CD variable `SECURE_ANALYZERS_PREFIX` with the 
 project [container registry](../../packages/container_registry/index.md).
 
 You can set this variable in the projects' `.gitlab-ci.yml`, or
-in the GitLab UI at the project or group level. See the [GitLab CI/CD variables page](../../../ci/variables/index.md#define-a-cicd-variable-in-the-ui)
+in the GitLab UI in the project or group. See the [GitLab CI/CD variables page](../../../ci/variables/index.md#define-a-cicd-variable-in-the-ui)
 for more information.
 
 #### Variables

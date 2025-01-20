@@ -13,7 +13,9 @@ module Gitlab
           private
 
           def create_event(issue_event)
-            Event.create!(
+            return if event_outside_cutoff?(issue_event)
+
+            created_event = Event.create!(
               project_id: project.id,
               author_id: author_id(issue_event),
               action: 'reopened',
@@ -23,6 +25,10 @@ module Gitlab
               updated_at: issue_event.created_at,
               imported_from: imported_from
             )
+
+            return unless mapper.user_mapping_enabled?
+
+            push_with_record(created_event, :author_id, issue_event[:actor]&.id, mapper.user_mapper)
           end
 
           def create_state_event(issue_event)
@@ -33,7 +39,11 @@ module Gitlab
               imported_from: imported_from
             }.merge(resource_event_belongs_to(issue_event))
 
-            ResourceStateEvent.create!(attrs)
+            state_event = ResourceStateEvent.create!(attrs)
+
+            return unless mapper.user_mapping_enabled?
+
+            push_with_record(state_event, :user_id, issue_event[:actor]&.id, mapper.user_mapper)
           end
         end
       end

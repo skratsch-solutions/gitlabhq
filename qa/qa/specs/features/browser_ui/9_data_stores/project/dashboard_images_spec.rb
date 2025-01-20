@@ -4,12 +4,7 @@ module QA
   RSpec.describe 'Data Stores', product_group: :tenant_scale do
     shared_examples 'loads all images' do |admin|
       let(:api_client) { Runtime::API::Client.as_admin }
-
-      let(:user) { create(:user, admin: admin, api_client: api_client) }
-
-      after do
-        user.remove_via_api!
-      end
+      let(:user) { create(:user, is_admin: admin, api_client: api_client) }
 
       it do
         Flow::Login.sign_in(as: user)
@@ -25,7 +20,7 @@ module QA
       end
     end
 
-    describe 'Check for broken images', :requires_admin, :blocking do
+    describe 'Check for broken images', :requires_admin do
       context(
         'when a new user logs in',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347885'

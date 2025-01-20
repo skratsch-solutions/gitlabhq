@@ -50,6 +50,37 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
     end
   end
 
+  shared_examples 'index app data' do
+    it 'returns expected data object' do
+      expect(data).to eq(
+        {
+          'new_organization_url' => new_organization_path,
+          'can_create_organization' => true
+        }
+      )
+    end
+
+    context 'when can_create_organization admin setting is disabled' do
+      before do
+        stub_application_setting(can_create_organization: false)
+      end
+
+      it 'returns false for can_create_organization' do
+        expect(data['can_create_organization']).to be(false)
+      end
+    end
+
+    context 'when allow_organization_creation feature flag is disabled' do
+      before do
+        stub_feature_flags(allow_organization_creation: false)
+      end
+
+      it 'returns false for can_create_organization' do
+        expect(data['can_create_organization']).to be(false)
+      end
+    end
+  end
+
   describe '#organization_layout_nav' do
     context 'when current controller is not organizations' do
       it 'returns organization' do
@@ -121,7 +152,8 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
             'id' => organization.id,
             'name' => organization.name,
             'description_html' => organization.description_html,
-            'avatar_url' => 'avatar.jpg'
+            'avatar_url' => 'avatar.jpg',
+            'visibility' => organization.visibility
           },
           'groups_and_projects_organization_path' => '/-/organizations/default/groups_and_projects',
           'users_organization_path' => '/-/organizations/default/users',
@@ -182,13 +214,9 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
   end
 
   describe '#organization_index_app_data' do
-    it 'returns expected data object' do
-      expect(helper.organization_index_app_data).to eq(
-        {
-          new_organization_url: new_organization_path
-        }
-      )
-    end
+    subject(:data) { Gitlab::Json.parse(helper.organization_index_app_data) }
+
+    it_behaves_like 'index app data'
   end
 
   describe '#organization_new_app_data' do
@@ -226,7 +254,8 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
             'name' => organization.name,
             'path' => organization.path,
             'description' => organization.description,
-            'avatar' => 'avatar.jpg'
+            'avatar' => 'avatar.jpg',
+            'visibility_level' => organization.visibility_level
           },
           'organizations_path' => '/-/organizations',
           'root_url' => 'http://test.host/',
@@ -305,13 +334,9 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
   end
 
   describe '#admin_organizations_index_app_data' do
-    it 'returns expected json' do
-      expect(Gitlab::Json.parse(helper.admin_organizations_index_app_data)).to eq(
-        {
-          'new_organization_url' => new_organization_path
-        }
-      )
-    end
+    subject(:data) { Gitlab::Json.parse(helper.admin_organizations_index_app_data) }
+
+    it_behaves_like 'index app data'
   end
 
   describe '#organization_projects_edit_app_data' do
@@ -340,27 +365,27 @@ RSpec.describe Organizations::OrganizationHelper, feature_category: :cell do
           'organization_activity_path' => '/-/organizations/default/activity.json',
           'organization_activity_event_types' => array_including(
             {
-              'title' => 'Comments',
+              'title' => 'Comment',
               'value' => EventFilter::COMMENTS
             },
             {
-              'title' => 'Designs',
+              'title' => 'Design',
               'value' => EventFilter::DESIGNS
             },
             {
-              'title' => 'Issue events',
+              'title' => 'Issue',
               'value' => EventFilter::ISSUE
             },
             {
-              'title' => 'Merge events',
+              'title' => 'Merge',
               'value' => EventFilter::MERGED
             },
             {
-              'title' => 'Push events',
+              'title' => 'Repository',
               'value' => EventFilter::PUSH
             },
             {
-              'title' => 'Team',
+              'title' => 'Membership',
               'value' => EventFilter::TEAM
             },
             {

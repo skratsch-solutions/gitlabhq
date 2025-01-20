@@ -8,13 +8,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use special syntax in [`script`](index.md#script) sections to:
 
 - [Split long commands](#split-long-commands) into multiline commands.
 - [Use color codes](#add-color-codes-to-script-output) to make job logs easier to review.
-- [Create custom collapsible sections](../jobs/index.md#custom-collapsible-sections)
+- [Create custom collapsible sections](../jobs/job_logs.md#custom-collapsible-sections)
   to simplify job log output.
 
 ## Use special characters with `script`
@@ -42,7 +42,7 @@ job:
     - 'curl --request POST --header "Content-Type: application/json" "https://gitlab/api/v4/projects"'
 ```
 
-You can verify the syntax is valid with the [CI Lint](../lint.md) tool.
+You can verify the syntax is valid with the [CI Lint](../yaml/lint.md) tool.
 
 Be careful when using these characters as well:
 
@@ -96,13 +96,10 @@ job2:
   after_script: []
 ```
 
-## Skip `after_script` commands if a job is cancelled
+## Skip `after_script` commands if a job is canceled
 
 > - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/10158) in GitLab 17.0 [with a flag](../../administration/feature_flags.md) named `ci_canceling_status`. Enabled by default. Requires GitLab Runner version 16.11.1.
-
-FLAG:
-The availability of this feature is controlled by a feature flag.
-For more information, see the history.
+> - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/460285) in GitLab 17.3. Feature flag `ci_canceling_status` removed.
 
 [`after_script`](index.md) commands run if a job is canceled while the `before_script`
 or `script` section of that job are running.
@@ -200,13 +197,13 @@ Second command line.
 When you omit the `>` or `|` block scalar indicators, GitLab concatenates non-empty
 lines to form the command. Make sure the lines can run when concatenated.
 
-<!-- vale gitlab.MeaningfulLinkWords = NO -->
+<!-- vale gitlab_base.MeaningfulLinkWords = NO -->
 
 [Shell here documents](https://en.wikipedia.org/wiki/Here_document) work with the
 `|` and `>` operators as well. The example below transliterates lower case letters
 to upper case:
 
-<!-- vale gitlab.MeaningfulLinkWords = YES -->
+<!-- vale gitlab_base.MeaningfulLinkWords = YES -->
 
 ```yaml
 job:
@@ -340,8 +337,6 @@ script:
 
 This fails as the indentation causes the line breaks to be preserved:
 
-<!-- vale gitlab.CurlStringsQuoted = NO -->
-
 ```plaintext
 $ RESULT=$(curl --silent # collapsed multi-line command
 curl: no URL specified!
@@ -349,8 +344,6 @@ curl: try 'curl --help' or 'curl --manual' for more information
 /bin/bash: line 149: --header: command not found
 /bin/bash: line 150: https://gitlab.example.com/api/v4/job: No such file or directory
 ```
-
-<!-- vale gitlab.CurlStringsQuoted = YES -->
 
 Resolve this by either:
 
@@ -382,7 +375,7 @@ Resolve this by either:
 Sometimes the formatting in the job log displays incorrectly with tools that rely
 on the `TERM` environment variable for coloring or formatting. For example, with the `mypy` command:
 
-![Example output](img/incorrect_log_rendering.png)
+![Example output](img/incorrect_log_rendering_v16_5.png)
 
 GitLab Runner runs the container's shell in non-interactive mode, so the shell's `TERM`
 environment variable is set to `dumb`. To fix the formatting for these tools, you can:

@@ -6,7 +6,7 @@ product_group: code_review
 value_type: number
 status: active
 milestone: '13.12'
-introduced_by_url:
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/51201
 time_frame: 7d
 instrumentation_class: RedisHLLMetric
 data_source: redis_hll
@@ -23,10 +23,7 @@ events:
   unique: user.id
 - name: i_editor_extensions_user_neovim_plugin_api_request
   unique: user.id
-distribution:
-  - ce
-  - ee
-tier:
+tiers:
   - free
   - premium
   - ultimate

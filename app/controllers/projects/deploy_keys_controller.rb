@@ -63,8 +63,7 @@ class Projects::DeployKeysController < Projects::ApplicationController
     redirect_to_repository
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     access_denied! unless deploy_key
@@ -138,9 +137,14 @@ class Projects::DeployKeysController < Projects::ApplicationController
     redirect_to_repository_settings(@project, anchor: 'js-deploy-keys-settings')
   end
 
-  def find_keys(params)
-    DeployKeys::DeployKeysFinder.new(@project, current_user, params)
-                         .execute
+  def find_keys(filter:)
+    finder_params = {
+      filter: filter,
+      search: params[:search],
+      in: params[:in]
+    }.compact
+
+    DeployKeys::DeployKeysFinder.new(project, current_user, finder_params).execute
   end
 
   def serialize(keys)

@@ -57,7 +57,6 @@ module Gitlab
         {
           counts: {
             assignee_lists: count(List.assignee),
-            ci_builds: count(::Ci::Build),
             ci_external_pipelines: count(::Ci::Pipeline.external),
             ci_pipeline_config_auto_devops: count(::Ci::Pipeline.auto_devops_source),
             ci_pipeline_config_repository: count(::Ci::Pipeline.repository_source),
@@ -66,9 +65,7 @@ module Gitlab
             auto_devops_enabled: count(::ProjectAutoDevops.enabled),
             auto_devops_disabled: count(::ProjectAutoDevops.disabled),
             deploy_keys: count(DeployKey),
-            # rubocop: disable UsageData/LargeTable:
             feature_flags: count(Operations::FeatureFlag),
-            # rubocop: enable UsageData/LargeTable:
             environments: count(::Environment),
             clusters: count(::Clusters::Cluster),
             clusters_enabled: count(::Clusters::Cluster.enabled),
@@ -87,14 +84,11 @@ module Gitlab
             kubernetes_agents: count(::Clusters::Agent),
             kubernetes_agents_with_token: distinct_count(::Clusters::AgentToken, :agent_id),
             in_review_folder: count(::Environment.in_review_folder),
-            grafana_integrated_projects: count(GrafanaIntegration.enabled),
             groups: count(Group),
             issues: add_metric('CountIssuesMetric', time_frame: 'all'),
             issues_created_from_gitlab_error_tracking_ui: count(SentryIssue),
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: distinct_count(ZoomMeeting, :issue_id),
-            issues_with_embedded_grafana_charts_approx: grafana_embed_usage_data,
-            issues_created_from_alerts: total_alert_issues,
             incident_issues: count(::Issue.with_issue_type(:incident), start: minimum_id(Issue), finish: maximum_id(Issue)),
             alert_bot_incident_issues: count(::Issue.authored(::Users::Internal.alert_bot), start: minimum_id(Issue), finish: maximum_id(Issue)),
             keys: count(Key),
@@ -148,14 +142,6 @@ module Gitlab
           counts_weekly: {}
         }
       end
-
-      # rubocop:disable CodeReuse/ActiveRecord
-      def grafana_embed_usage_data
-        count(Issue.joins('JOIN grafana_integrations USING (project_id)')
-          .where("issues.description LIKE '%' || grafana_integrations.grafana_url || '%'")
-          .where(grafana_integrations: { enabled: true }))
-      end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       def features_usage_data = {}
 
@@ -231,7 +217,7 @@ module Gitlab
       # rubocop: disable CodeReuse/ActiveRecord
       def integrations_usage
         # rubocop: disable UsageData/LargeTable:
-        Integration.available_integration_names(include_dev: false, include_disabled: true).each_with_object({}) do |name, response|
+        available_integrations.each_with_object({}) do |name, response|
           type = Integration.integration_name_to_type(name)
 
           response[:"projects_#{name}_active"] = count(Integration.active.where.not(project: nil).where(type: type))
@@ -451,7 +437,6 @@ module Gitlab
           Gitlab::Utils::UsageData::FALLBACK
         else
           # rubocop: disable CodeReuse/ActiveRecord
-          # rubocop: disable UsageData/LargeTable
           start = ::Event.where(time_period).select(:id).order(created_at: :asc).first&.id
           finish = ::Event.where(time_period).select(:id).order(created_at: :desc).first&.id
           estimate_batch_distinct_count(::Event.where(time_period), :author_id, start: start, finish: finish)
@@ -501,12 +486,6 @@ module Gitlab
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      def total_alert_issues
-        # Remove prometheus table queries once they are deprecated
-        # To be removed with https://gitlab.com/gitlab-org/gitlab/-/issues/217407.
-        add_metric('IssuesCreatedFromAlertsMetric')
-      end
-
       def clear_memoized
         CE_MEMOIZED_VALUES.each { |v| clear_memoization(v) }
       end
@@ -523,6 +502,11 @@ module Gitlab
 
       def omniauth_provider_names
         ::Gitlab.config.omniauth.providers.map(&:name)
+      end
+
+      # Overridden in EE
+      def available_integrations
+        Integration.available_integration_names(include_dev: false, include_disabled: true) # rubocop: disable UsageData/LargeTable -- not counting data
       end
 
       # LDAP provider names are set by customers and could include

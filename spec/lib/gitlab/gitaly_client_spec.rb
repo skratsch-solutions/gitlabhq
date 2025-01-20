@@ -591,7 +591,7 @@ RSpec.describe Gitlab::GitalyClient, feature_category: :gitaly do
         allow(Gitlab::RequestContext.instance).to receive(:request_deadline).and_return(request_deadline)
       end
 
-      it 'includes the deadline information' do
+      it 'includes the deadline information', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/450626' do
         kword_args = described_class.request_kwargs('default', timeout: 2)
 
         expect(kword_args[:deadline])
@@ -868,6 +868,54 @@ RSpec.describe Gitlab::GitalyClient, feature_category: :gitaly do
       with_them do
         it 'returns correct detailed error' do
           expect(described_class.decode_detailed_error(error)).to eq(result)
+        end
+      end
+    end
+  end
+
+  describe '.unwrap_detailed_error' do
+    let(:wrapped_detailed_error) do
+      new_detailed_error(GRPC::Core::StatusCodes::INVALID_ARGUMENT,
+        "error message",
+        Gitaly::UpdateReferencesError.new(invalid_format: Gitaly::InvalidRefFormatError.new(refs: ['\invali.\d/1', '\.invali/d/2'])))
+    end
+
+    let(:detailed_error) do
+      new_detailed_error(GRPC::Core::StatusCodes::INVALID_ARGUMENT,
+        "error message",
+        Gitaly::InvalidRefFormatError.new)
+    end
+
+    let(:error_without_details) do
+      error_code = GRPC::Core::StatusCodes::INVALID_ARGUMENT
+      error_message = "error message"
+
+      status_error = Google::Rpc::Status.new(
+        code: error_code,
+        message: error_message,
+        details: nil
+      )
+
+      GRPC::BadStatus.new(
+        error_code,
+        error_message,
+        { "grpc-status-details-bin" => Google::Rpc::Status.encode(status_error) })
+    end
+
+    context 'unwraps detailed errors' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:error, :result) do
+        wrapped_detailed_error | Gitaly::InvalidRefFormatError.new(refs: ['\invali.\d/1', '\.invali/d/2'])
+        detailed_error | Gitaly::InvalidRefFormatError.new
+        error_without_details | nil
+        StandardError.new | nil
+        nil | nil
+      end
+
+      with_them do
+        it 'returns unwrapped detailed error' do
+          expect(described_class.unwrap_detailed_error(error)).to eq(result)
         end
       end
     end

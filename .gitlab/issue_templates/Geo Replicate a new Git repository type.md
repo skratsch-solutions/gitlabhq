@@ -325,7 +325,7 @@ That's all of the required database changes.
 - [ ] Add the following shared examples to `ee/spec/models/ee/cool_widget_spec.rb`:
 
   ```ruby
-    include_examples 'a replicable model with a separate table for verification state' do
+    include_examples 'a verifiable model with a separate table for verification state' do
       let(:verifiable_model_record) { build(:cool_widget) } # add extra params if needed to make sure the record is in `Geo::ReplicableModel.verifiables` scope
       let(:unverifiable_model_record) { build(:cool_widget) } # add extra params if needed to make sure the record is NOT included in `Geo::ReplicableModel.verifiables` scope
     end
@@ -343,14 +343,6 @@ That's all of the required database changes.
 
       def self.model
         ::CoolWidget
-      end
-
-      def self.git_access_class
-        ::Gitlab::GitAccessCoolWidget
-      end
-
-      def self.no_repo_message
-        git_access_class.error_message(:no_repo)
       end
 
       override :verification_feature_flag_enabled?
@@ -399,7 +391,6 @@ That's all of the required database changes.
 
 - [ ] Make sure a Geo secondary site can request and download Cool Widgets on the Geo primary site. You may need to make some changes to `Gitlab::GitAccessCoolWidget`. For example, see [this change for Group-level Wikis](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54914/diffs?commit_id=0f2b36f66697b4addbc69bd377ee2818f648dd33).
 
-- [ ] Make sure a Geo secondary site marks Cool Widgets as missing on primary when a repository does not exist on the Geo primary site. The only way to know about this is to parse the error text. You may need to make some changes to `Gitlab::CoolWidgetReplicator.no_repo_message` to return the proper error message. For example, see [this change for Group-level Wikis](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/74133). Alternatively, if a repository should *always* exist on the primary, then a Geo-specific workaround is to create an empty repository when verifying on primary. See examples for [project wikis](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/123869) and [design repositories](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/123917).
 
 - [ ] Generate the feature flag definition files by running the feature flag commands and following the command prompts:
 
@@ -631,7 +622,7 @@ The GraphQL API is used by `Admin > Geo > Replication Details` views, and is dir
         resolver: ::Resolvers::Geo::CoolWidgetRegistriesResolver,
         description: 'Find Cool Widget registries on this Geo node. '\
                      'Ignored if `geo_cool_widget_replication` feature flag is disabled.',
-        alpha: { milestone: '15.5' } # Update the milestone
+        experiment: { milestone: '15.5' } # Update the milestone
   ```
 
 - [ ] Add the new `cool_widget_registries` field name to the `expected_fields` array in `ee/spec/graphql/types/geo/geo_node_type_spec.rb`.
@@ -838,7 +829,7 @@ When requesting review from database reviewers:
         resolver: ::Resolvers::Geo::CoolWidgetRegistriesResolver,
         description: 'Find Cool Widget registries on this Geo node. '\
                      'Ignored if `geo_cool_widget_replication` feature flag is disabled.',
-        alpha: { milestone: '15.5' } # Update the milestone
+        experiment: { milestone: '15.5' } # Update the milestone
   ```
 
 - [ ] Run `bundle exec rake gitlab:graphql:compile_docs` after the step above to regenerate the GraphQL docs.

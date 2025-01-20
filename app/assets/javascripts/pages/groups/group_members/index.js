@@ -1,9 +1,10 @@
 import { groupMemberRequestFormatter } from '~/groups/members/utils';
 import initInviteGroupTrigger from '~/invite_members/init_invite_group_trigger';
 import initInviteGroupsModal from '~/invite_members/init_invite_groups_modal';
+import { initPlannerRoleBanner } from '~/planner_role_banner';
 import { s__ } from '~/locale';
 import { initMembersApp } from '~/members';
-import { GROUPS_APP_OPTIONS, MEMBERS_TAB_TYPES } from 'ee_else_ce/members/constants';
+import { CONTEXT_TYPE, GROUPS_APP_OPTIONS, MEMBERS_TAB_TYPES } from 'ee_else_ce/members/constants';
 import { groupLinkRequestFormatter } from '~/members/utils';
 
 const SHARED_FIELDS = ['account', 'maxRole', 'expiration', 'actions'];
@@ -21,7 +22,7 @@ const APP_OPTIONS = {
     requestFormatter: groupMemberRequestFormatter,
     filteredSearchBar: {
       show: true,
-      tokens: ['two_factor', 'with_inherited_permissions', 'enterprise', 'user_type'],
+      tokens: ['two_factor', 'with_inherited_permissions', 'enterprise', 'user_type', 'max_role'],
       searchParam: 'search',
       placeholder: s__('Members|Filter members'),
       recentSearchesStorageKey: 'group_members',
@@ -59,7 +60,12 @@ const APP_OPTIONS = {
   ...GROUPS_APP_OPTIONS,
 };
 
-initMembersApp(document.querySelector('.js-group-members-list-app'), APP_OPTIONS);
+initPlannerRoleBanner();
+initMembersApp(
+  document.querySelector('.js-group-members-list-app'),
+  CONTEXT_TYPE.GROUP,
+  APP_OPTIONS,
+);
 
 initInviteGroupsModal();
 initInviteGroupTrigger();

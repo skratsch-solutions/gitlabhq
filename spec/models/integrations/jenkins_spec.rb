@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Integrations::Jenkins do
+RSpec.describe Integrations::Jenkins, feature_category: :integrations do
   let_it_be(:project) { create(:project) }
   let(:jenkins_integration) { described_class.new(jenkins_params) }
   let(:jenkins_url) { 'http://jenkins.example.com/' }
@@ -23,7 +23,7 @@ RSpec.describe Integrations::Jenkins do
     }
   end
 
-  it_behaves_like Integrations::BaseCi
+  it_behaves_like Integrations::Base::Ci
 
   it_behaves_like Integrations::ResetSecretFields do
     let(:integration) { jenkins_integration }

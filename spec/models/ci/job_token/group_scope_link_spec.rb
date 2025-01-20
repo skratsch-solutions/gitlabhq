@@ -15,6 +15,19 @@ RSpec.describe Ci::JobToken::GroupScopeLink, feature_category: :continuous_integ
     let!(:model) { create(:ci_job_token_group_scope_link, added_by: parent) }
   end
 
+  it_behaves_like 'a BulkInsertSafe model', described_class do
+    let(:current_time) { Time.zone.now }
+
+    let(:valid_items_for_bulk_insertion) do
+      build_list(:ci_job_token_group_scope_link, 10, source_project_id: project.id,
+        created_at: current_time) do |project_scope_link|
+        project_scope_link.target_group = create(:group)
+      end
+    end
+
+    let(:invalid_items_for_bulk_insertion) { [] } # class does not have any validations defined
+  end
+
   describe 'unique index' do
     let!(:link) { create(:ci_job_token_group_scope_link) }
 
@@ -68,6 +81,27 @@ RSpec.describe Ci::JobToken::GroupScopeLink, feature_category: :continuous_integ
 
       expect(link).not_to be_valid
       expect(link.errors[:target_group]).to contain_exactly("can't be blank")
+    end
+
+    describe 'job token policies' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:value, :valid) do
+        nil                               | true
+        []                                | true
+        %w[read_containers]               | true
+        %w[read_containers read_packages] | true
+        %w[read_issue]                    | false
+        { project: %w[read_build] }       | false
+      end
+
+      with_them do
+        let(:link) { build(:ci_job_token_group_scope_link, job_token_policies: value) }
+
+        it 'matches the json_schema for policies' do
+          expect(link.valid?).to eq(valid)
+        end
+      end
     end
   end
 

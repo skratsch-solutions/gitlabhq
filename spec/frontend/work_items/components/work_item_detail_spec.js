@@ -1,4 +1,4 @@
-import { GlAlert, GlEmptyState } from '@gitlab/ui';
+import { GlAlert, GlEmptyState, GlIntersectionObserver } from '@gitlab/ui';
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
@@ -6,7 +6,6 @@ import { isLoggedIn } from '~/lib/utils/common_utils';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import setWindowLocation from 'helpers/set_window_location_helper';
-import { stubComponent } from 'helpers/stub_component';
 import WorkItemLoading from '~/work_items/components/work_item_loading.vue';
 import WorkItemDetail from '~/work_items/components/work_item_detail.vue';
 import WorkItemActions from '~/work_items/components/work_item_actions.vue';
@@ -17,63 +16,94 @@ import WorkItemAttributesWrapper from '~/work_items/components/work_item_attribu
 import WorkItemTree from '~/work_items/components/work_item_links/work_item_tree.vue';
 import WorkItemRelationships from '~/work_items/components/work_item_relationships/work_item_relationships.vue';
 import WorkItemNotes from '~/work_items/components/work_item_notes.vue';
-import WorkItemDetailModal from '~/work_items/components/work_item_detail_modal.vue';
 import WorkItemStickyHeader from '~/work_items/components/work_item_sticky_header.vue';
 import WorkItemTitle from '~/work_items/components/work_item_title.vue';
-import AbuseCategorySelector from '~/abuse_reports/components/abuse_category_selector.vue';
-import WorkItemTodos from '~/work_items/components/work_item_todos.vue';
+import WorkItemAbuseModal from '~/work_items/components/work_item_abuse_modal.vue';
+import WorkItemDrawer from '~/work_items/components/work_item_drawer.vue';
+import TodosToggle from '~/work_items/components/shared/todos_toggle.vue';
 import DesignWidget from '~/work_items/components/design_management/design_management_widget.vue';
-import { i18n } from '~/work_items/constants';
-import groupWorkItemByIidQuery from '~/work_items/graphql/group_work_item_by_iid.query.graphql';
+import DesignUploadButton from '~/work_items/components//design_management/upload_button.vue';
+import WorkItemCreateBranchMergeRequestSplitButton from '~/work_items/components/work_item_development/work_item_create_branch_merge_request_split_button.vue';
+import DesignDropzone from '~/vue_shared/components/upload_dropzone/upload_dropzone.vue';
+import uploadDesignMutation from '~/work_items/components/design_management/graphql/upload_design.mutation.graphql';
+import { i18n, STATE_CLOSED } from '~/work_items/constants';
+import workItemByIdQuery from '~/work_items/graphql/work_item_by_id.query.graphql';
 import workItemByIidQuery from '~/work_items/graphql/work_item_by_iid.query.graphql';
 import updateWorkItemMutation from '~/work_items/graphql/update_work_item.mutation.graphql';
 import workItemUpdatedSubscription from '~/work_items/graphql/work_item_updated.subscription.graphql';
 import getAllowedWorkItemChildTypes from '~/work_items/graphql/work_item_allowed_children.query.graphql';
+import workspacePermissionsQuery from '~/work_items/graphql/workspace_permissions.query.graphql';
+import workItemLinkedItemsQuery from '~/work_items/graphql/work_item_linked_items.query.graphql';
 
 import {
-  groupWorkItemByIidResponseFactory,
   mockParent,
   workItemByIidResponseFactory,
+  workItemQueryResponse,
+  workItemLinkedItemsResponse,
   objectiveType,
   epicType,
-  mockWorkItemCommentNote,
   mockBlockingLinkedItem,
   allowedChildrenTypesResponse,
+  mockProjectPermissionsQueryResponse,
+  mockUploadDesignMutationResponse,
+  mockUploadSkippedDesignMutationResponse,
+  mockUploadErrorDesignMutationResponse,
 } from '../mock_data';
 
 jest.mock('~/lib/utils/common_utils');
+jest.mock('~/work_items/components/design_management/cache_updates');
 
 describe('WorkItemDetail component', () => {
   let wrapper;
+  let glIntersectionObserver;
 
   Vue.use(VueApollo);
 
-  const workItemQueryResponse = workItemByIidResponseFactory({ canUpdate: true, canDelete: true });
+  const workItemByIidQueryResponse = workItemByIidResponseFactory({
+    canUpdate: true,
+    canDelete: true,
+  });
   const workItemQueryResponseWithNoPermissions = workItemByIidResponseFactory({
     canUpdate: false,
     canDelete: false,
-  });
-  const groupWorkItemQueryResponse = groupWorkItemByIidResponseFactory({
-    canUpdate: true,
-    canDelete: true,
   });
   const workItemQueryResponseWithoutParent = workItemByIidResponseFactory({
     parent: null,
     canUpdate: true,
     canDelete: true,
   });
-  const successHandler = jest.fn().mockResolvedValue(workItemQueryResponse);
+  const workItemByIdQueryHandler = jest.fn().mockResolvedValue(workItemQueryResponse);
+  const successHandler = jest.fn().mockResolvedValue(workItemByIidQueryResponse);
   const successHandlerWithNoPermissions = jest
     .fn()
     .mockResolvedValue(workItemQueryResponseWithNoPermissions);
-  const groupSuccessHandler = jest.fn().mockResolvedValue(groupWorkItemQueryResponse);
-  const showModalHandler = jest.fn();
-  const { id } = workItemQueryResponse.data.workspace.workItem;
+  const { id } = workItemByIidQueryResponse.data.workspace.workItem;
   const workItemUpdatedSubscriptionHandler = jest
     .fn()
     .mockResolvedValue({ data: { workItemUpdated: null } });
 
   const allowedChildrenTypesHandler = jest.fn().mockResolvedValue(allowedChildrenTypesResponse);
+  const workspacePermissionsAllowedHandler = jest
+    .fn()
+    .mockResolvedValue(mockProjectPermissionsQueryResponse());
+  const workspacePermissionsNotAllowedHandler = jest
+    .fn()
+    .mockResolvedValue(
+      mockProjectPermissionsQueryResponse({ createDesign: false, moveDesign: false }),
+    );
+  const uploadSuccessDesignMutationHandler = jest
+    .fn()
+    .mockResolvedValue(mockUploadDesignMutationResponse);
+  const uploadSkippedDesignMutationHandler = jest
+    .fn()
+    .mockResolvedValue(mockUploadSkippedDesignMutationResponse);
+  const uploadErrorDesignMutationHandler = jest
+    .fn()
+    .mockResolvedValue(mockUploadErrorDesignMutationResponse);
+
+  const workItemLinkedItemsSuccessHandler = jest
+    .fn()
+    .mockResolvedValue(workItemLinkedItemsResponse);
 
   const findAlert = () => wrapper.findComponent(GlAlert);
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
@@ -89,43 +119,61 @@ describe('WorkItemDetail component', () => {
   const findHierarchyTree = () => wrapper.findComponent(WorkItemTree);
   const findWorkItemRelationships = () => wrapper.findComponent(WorkItemRelationships);
   const findNotesWidget = () => wrapper.findComponent(WorkItemNotes);
-  const findModal = () => wrapper.findComponent(WorkItemDetailModal);
-  const findAbuseCategorySelector = () => wrapper.findComponent(AbuseCategorySelector);
-  const findWorkItemTodos = () => wrapper.findComponent(WorkItemTodos);
+  const findWorkItemAbuseModal = () => wrapper.findComponent(WorkItemAbuseModal);
+  const findTodosToggle = () => wrapper.findComponent(TodosToggle);
   const findStickyHeader = () => wrapper.findComponent(WorkItemStickyHeader);
   const findWorkItemTwoColumnViewContainer = () => wrapper.findByTestId('work-item-overview');
   const findRightSidebar = () => wrapper.findByTestId('work-item-overview-right-sidebar');
   const findEditButton = () => wrapper.findByTestId('work-item-edit-form-button');
   const findWorkItemDesigns = () => wrapper.findComponent(DesignWidget);
+  const findDesignUploadButton = () => wrapper.findComponent(DesignUploadButton);
   const findDetailWrapper = () => wrapper.findByTestId('detail-wrapper');
+  const findDrawer = () => wrapper.findComponent(WorkItemDrawer);
+  const findCreateMergeRequestSplitButton = () =>
+    wrapper.findComponent(WorkItemCreateBranchMergeRequestSplitButton);
+  const findDesignDropzone = () => wrapper.findComponent(DesignDropzone);
+
+  const mockDragEvent = ({ types = ['Files'], files = [], items = [] }) => {
+    return { dataTransfer: { types, files, items } };
+  };
 
   const createComponent = ({
-    isGroup = false,
     isModal = false,
     isDrawer = false,
     updateInProgress = false,
+    workItemId = '',
     workItemIid = '1',
     handler = successHandler,
+    workItemByIdHandler = workItemByIdQueryHandler,
     mutationHandler,
     error = undefined,
     workItemsAlphaEnabled = false,
-    workItemsBeta = false,
     namespaceLevelWorkItems = true,
     hasSubepicsFeature = true,
+    router = true,
+    modalIsGroup = null,
+    workspacePermissionsHandler = workspacePermissionsAllowedHandler,
+    uploadDesignMutationHandler = uploadSuccessDesignMutationHandler,
+    hasLinkedItemsEpicsFeature = true,
   } = {}) => {
     wrapper = shallowMountExtended(WorkItemDetail, {
       apolloProvider: createMockApollo([
         [workItemByIidQuery, handler],
-        [groupWorkItemByIidQuery, groupSuccessHandler],
+        [workItemByIdQuery, workItemByIdHandler],
         [updateWorkItemMutation, mutationHandler],
         [workItemUpdatedSubscription, workItemUpdatedSubscriptionHandler],
         [getAllowedWorkItemChildTypes, allowedChildrenTypesHandler],
+        [workspacePermissionsQuery, workspacePermissionsHandler],
+        [uploadDesignMutation, uploadDesignMutationHandler],
+        [workItemLinkedItemsQuery, workItemLinkedItemsSuccessHandler],
       ]),
       isLoggedIn: isLoggedIn(),
       propsData: {
+        workItemId,
         isModal,
         workItemIid,
         isDrawer,
+        modalIsGroup,
       },
       data() {
         return {
@@ -136,30 +184,22 @@ describe('WorkItemDetail component', () => {
       provide: {
         glFeatures: {
           workItemsAlpha: workItemsAlphaEnabled,
-          workItemsBeta,
           namespaceLevelWorkItems,
         },
-        hasIssueWeightsFeature: true,
-        hasIterationsFeature: true,
-        hasOkrsFeature: true,
         hasSubepicsFeature,
-        hasIssuableHealthStatusFeature: true,
-        projectNamespace: 'namespace',
         fullPath: 'group/project',
         groupPath: 'group',
-        isGroup,
         reportAbusePath: '/report/abuse/path',
+        hasLinkedItemsEpicsFeature,
       },
       stubs: {
         WorkItemAncestors: true,
         WorkItemWeight: true,
         WorkItemIteration: true,
         WorkItemHealthStatus: true,
-        WorkItemDetailModal: stubComponent(WorkItemDetailModal, {
-          methods: {
-            show: showModalHandler,
-          },
-        }),
+      },
+      mocks: {
+        $router: router,
       },
     });
   };
@@ -203,9 +243,9 @@ describe('WorkItemDetail component', () => {
   });
 
   describe('when loaded', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       createComponent();
-      return waitForPromises();
+      await waitForPromises();
     });
 
     it('does not render skeleton', () => {
@@ -218,7 +258,7 @@ describe('WorkItemDetail component', () => {
     });
 
     it('renders todos widget if logged in', () => {
-      expect(findWorkItemTodos().exists()).toBe(true);
+      expect(findTodosToggle().exists()).toBe(true);
     });
 
     it('calls the work item updated subscription', () => {
@@ -326,6 +366,37 @@ describe('WorkItemDetail component', () => {
 
       expect(findWorkItemDescription().exists()).toBe(true);
     });
+
+    it('calls clearDraft when description is successfully updated', async () => {
+      const clearDraftSpy = jest.fn();
+      const mutationHandler = jest.fn().mockResolvedValue({
+        data: {
+          workItemUpdate: {
+            workItem: workItemByIidQueryResponse.data.workspace.workItem,
+            errors: [],
+          },
+        },
+      });
+      createComponent({ mutationHandler });
+      await waitForPromises();
+
+      findWorkItemDescription().vm.$emit('updateWorkItem', { clearDraft: clearDraftSpy });
+      await waitForPromises();
+
+      expect(clearDraftSpy).toHaveBeenCalled();
+    });
+
+    it('does not call clearDraft when description is unsuccessfully updated', async () => {
+      const clearDraftSpy = jest.fn();
+      const mutationHandler = jest.fn().mockRejectedValue(new Error('oh no!'));
+      createComponent({ mutationHandler });
+      await waitForPromises();
+
+      findWorkItemDescription().vm.$emit('updateWorkItem', { clearDraft: clearDraftSpy });
+      await waitForPromises();
+
+      expect(clearDraftSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('ancestors widget', () => {
@@ -377,15 +448,47 @@ describe('WorkItemDetail component', () => {
       });
     });
 
+    describe('`linked_items_epics` is unavailable', () => {
+      it('does not show linked items widget', async () => {
+        const epicWorkItem = workItemByIidResponseFactory({
+          workItemType: epicType,
+        });
+        const epicHandler = jest.fn().mockResolvedValue(epicWorkItem);
+
+        createComponent({ hasLinkedItemsEpicsFeature: false, handler: epicHandler });
+
+        await waitForPromises();
+
+        expect(findWorkItemRelationships().exists()).toBe(false);
+      });
+    });
+
     describe('with parent', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         const parentResponse = workItemByIidResponseFactory(mockParent);
         createComponent({ handler: jest.fn().mockResolvedValue(parentResponse) });
 
-        return waitForPromises();
+        await waitForPromises();
       });
 
       it('shows ancestors widget if there is a parent', () => {
+        expect(findAncestors().exists()).toBe(true);
+      });
+
+      it('does not show title in the header when parent exists', () => {
+        expect(findWorkItemType().classes()).toEqual(['sm:!gl-hidden', 'gl-mt-3']);
+      });
+    });
+
+    describe('with inaccessible parent', () => {
+      beforeEach(async () => {
+        const parentResponse = workItemByIidResponseFactory({ parent: null, hasParent: true });
+        createComponent({ handler: jest.fn().mockResolvedValue(parentResponse) });
+
+        await waitForPromises();
+      });
+
+      it('shows ancestors widget if there is a inaccessible parent', () => {
         expect(findAncestors().exists()).toBe(true);
       });
 
@@ -397,10 +500,10 @@ describe('WorkItemDetail component', () => {
 
   describe('when the work item query is unsuccessful', () => {
     describe('full view', () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         const errorHandler = jest.fn().mockRejectedValue('Oops');
         createComponent({ handler: errorHandler });
-        return waitForPromises();
+        await waitForPromises();
       });
 
       it('does not show the work item detail wrapper', () => {
@@ -449,64 +552,34 @@ describe('WorkItemDetail component', () => {
     expect(findAlert().text()).toBe(updateError);
   });
 
-  describe('when project context', () => {
-    it('calls the project work item query', async () => {
-      createComponent();
-      await waitForPromises();
+  it('calls the work item query', async () => {
+    createComponent();
+    await waitForPromises();
 
-      expect(successHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
-    });
-
-    it('skips calling the group work item query', async () => {
-      createComponent();
-      await waitForPromises();
-
-      expect(groupSuccessHandler).not.toHaveBeenCalled();
-    });
-
-    it('skips calling the project work item query when there is no workItemIid', async () => {
-      createComponent({ workItemIid: null });
-      await waitForPromises();
-
-      expect(successHandler).not.toHaveBeenCalled();
-    });
-
-    it('calls the project work item query when isModal=true', async () => {
-      createComponent({ isModal: true });
-      await waitForPromises();
-
-      expect(successHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
-    });
+    expect(successHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
   });
 
-  describe('when group context', () => {
-    it('skips calling the project work item query', async () => {
-      createComponent({ isGroup: true });
-      await waitForPromises();
+  it('calls the work item query by workItemId', async () => {
+    const workItemId = workItemQueryResponse.data.workItem.id;
+    createComponent({ workItemId });
+    await waitForPromises();
 
-      expect(successHandler).not.toHaveBeenCalled();
-    });
+    expect(workItemByIdQueryHandler).toHaveBeenCalledWith({ id: workItemId });
+    expect(successHandler).not.toHaveBeenCalled();
+  });
 
-    it('calls the group work item query', async () => {
-      createComponent({ isGroup: true });
-      await waitForPromises();
+  it('skips calling the work item query when there is no workItemIid and no workItemId', async () => {
+    createComponent({ workItemIid: null, workItemId: null });
+    await waitForPromises();
 
-      expect(groupSuccessHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
-    });
+    expect(successHandler).not.toHaveBeenCalled();
+  });
 
-    it('skips calling the group work item query when there is no workItemIid', async () => {
-      createComponent({ isGroup: true, workItemIid: null });
-      await waitForPromises();
+  it('calls the work item query when isModal=true', async () => {
+    createComponent({ isModal: true });
+    await waitForPromises();
 
-      expect(groupSuccessHandler).not.toHaveBeenCalled();
-    });
-
-    it('calls the group work item query when isModal=true', async () => {
-      createComponent({ isGroup: true, isModal: true });
-      await waitForPromises();
-
-      expect(groupSuccessHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
-    });
+    expect(successHandler).toHaveBeenCalledWith({ fullPath: 'group/project', iid: '1' });
   });
 
   describe('hierarchy widget', () => {
@@ -545,31 +618,34 @@ describe('WorkItemDetail component', () => {
         expect(findHierarchyTree().exists()).toBe(true);
       });
 
-      it('renders a modal', async () => {
-        createComponent({ handler: objectiveHandler });
-        await waitForPromises();
+      it.each([true, false])(
+        'passes hasChildren %s to WorkItemActions when `WorkItemTree` emits `childrenLoaded` %s',
+        async (hasChildren) => {
+          createComponent({ handler: objectiveHandler });
+          await waitForPromises();
 
-        expect(findModal().exists()).toBe(true);
-      });
+          await findHierarchyTree().vm.$emit('childrenLoaded', hasChildren);
 
-      it('opens the modal with the child when `show-modal` is emitted', async () => {
+          expect(findWorkItemActions().props('hasChildren')).toBe(hasChildren);
+        },
+      );
+
+      it('opens the drawer with the child when `show-modal` is emitted', async () => {
         createComponent({ handler: objectiveHandler, workItemsAlphaEnabled: true });
         await waitForPromises();
 
         const event = {
           preventDefault: jest.fn(),
         };
+        const modalWorkItem = { id: 'childWorkItemId' };
 
         findHierarchyTree().vm.$emit('show-modal', {
           event,
-          modalWorkItem: { id: 'childWorkItemId' },
+          modalWorkItem,
         });
         await waitForPromises();
 
-        expect(wrapper.findComponent(WorkItemDetailModal).props().workItemId).toBe(
-          'childWorkItemId',
-        );
-        expect(showModalHandler).toHaveBeenCalled();
+        expect(findDrawer().props('activeItem')).toEqual(modalWorkItem);
       });
 
       describe('work item is rendered in a modal and has children', () => {
@@ -581,10 +657,6 @@ describe('WorkItemDetail component', () => {
           });
 
           await waitForPromises();
-        });
-
-        it('does not render a new modal', () => {
-          expect(findModal().exists()).toBe(false);
         });
 
         it('emits `update-modal` when `show-modal` is emitted', async () => {
@@ -617,6 +689,20 @@ describe('WorkItemDetail component', () => {
       expect(findWorkItemRelationships().exists()).toBe(false);
     });
 
+    it('re-fetches workItem query when `WorkItemActions` emits `workItemCreated` event', async () => {
+      createComponent();
+
+      await waitForPromises();
+
+      expect(successHandler).toHaveBeenCalledTimes(1);
+
+      findWorkItemActions().vm.$emit('workItemCreated');
+
+      await waitForPromises();
+
+      expect(successHandler).toHaveBeenCalledTimes(2);
+    });
+
     describe('work item has children', () => {
       const mockWorkItemLinkedItem = workItemByIidResponseFactory({
         linkedItems: mockBlockingLinkedItem,
@@ -640,15 +726,15 @@ describe('WorkItemDetail component', () => {
         const event = {
           preventDefault: jest.fn(),
         };
+        const modalWorkItem = { id: 'childWorkItemId' };
 
         findWorkItemRelationships().vm.$emit('showModal', {
           event,
-          modalWorkItem: { id: 'childWorkItemId' },
+          modalWorkItem,
         });
         await waitForPromises();
 
-        expect(findModal().props().workItemId).toBe('childWorkItemId');
-        expect(showModalHandler).toHaveBeenCalled();
+        expect(findDrawer().props('activeItem')).toEqual(modalWorkItem);
       });
 
       describe('linked work item is rendered in a modal and has linked items', () => {
@@ -660,10 +746,6 @@ describe('WorkItemDetail component', () => {
           });
 
           await waitForPromises();
-        });
-
-        it('does not render a new modal', () => {
-          expect(findModal().exists()).toBe(false);
         });
 
         it('emits `update-modal` when `show-modal` is emitted', async () => {
@@ -688,7 +770,7 @@ describe('WorkItemDetail component', () => {
       createComponent();
       await waitForPromises();
 
-      const { confidential } = workItemQueryResponse.data.workspace.workItem;
+      const { confidential } = workItemByIidQueryResponse.data.workspace.workItem;
 
       expect(findNotesWidget().exists()).toBe(true);
       expect(findNotesWidget().props('isWorkItemConfidential')).toBe(confidential);
@@ -710,21 +792,33 @@ describe('WorkItemDetail component', () => {
     });
 
     it('should not be visible by default', () => {
-      expect(findAbuseCategorySelector().exists()).toBe(false);
+      expect(findWorkItemAbuseModal().exists()).toBe(false);
     });
 
-    it('should be visible when the work item modal emits `openReportAbuse` event', async () => {
-      findModal().vm.$emit('openReportAbuse', mockWorkItemCommentNote);
-
+    it('should be visible when the work item actions button emits `toggleReportAbuseModal` event', async () => {
+      findWorkItemActions().vm.$emit('toggleReportAbuseModal', true);
       await nextTick();
 
-      expect(findAbuseCategorySelector().exists()).toBe(true);
+      expect(findWorkItemAbuseModal().exists()).toBe(true);
 
-      findAbuseCategorySelector().vm.$emit('close-drawer');
-
+      findWorkItemAbuseModal().vm.$emit('close-modal');
       await nextTick();
 
-      expect(findAbuseCategorySelector().exists()).toBe(false);
+      expect(findWorkItemAbuseModal().exists()).toBe(false);
+    });
+  });
+
+  describe('work item change type', () => {
+    beforeEach(async () => {
+      createComponent();
+      await waitForPromises();
+    });
+
+    it('should call work item query on type change', async () => {
+      findWorkItemActions().vm.$emit('workItemTypeChanged');
+      await nextTick();
+
+      expect(successHandler).toHaveBeenCalled();
     });
   });
 
@@ -736,16 +830,86 @@ describe('WorkItemDetail component', () => {
     });
 
     it('does not renders if not logged in', () => {
-      expect(findWorkItemTodos().exists()).toBe(false);
+      expect(findTodosToggle().exists()).toBe(false);
     });
   });
 
   describe('design widget', () => {
+    const file = new File(['foo'], 'foo.png', { type: 'image/png' });
+    const fileList = [file];
+
+    describe('when designs are not added and no versions exist', () => {
+      it('renders the design dropzone when valid file is dragged and the Add design button is in viewport', async () => {
+        createComponent();
+        await waitForPromises();
+
+        glIntersectionObserver = wrapper.findComponent(GlIntersectionObserver);
+        const dragEvent = mockDragEvent({
+          types: ['Files', 'image'],
+          items: [{ type: 'image/png' }],
+        });
+
+        wrapper.trigger('dragenter', dragEvent);
+        glIntersectionObserver.vm.$emit('appear');
+        await nextTick();
+
+        wrapper.trigger('dragover', dragEvent);
+        glIntersectionObserver.vm.$emit('appear');
+        await nextTick();
+
+        expect(findDesignDropzone().exists()).toBe(true);
+      });
+
+      it('does not render the design dropzone if add design button is not in viewport', async () => {
+        createComponent();
+        await waitForPromises();
+
+        glIntersectionObserver = wrapper.findComponent(GlIntersectionObserver);
+        const dragEvent = mockDragEvent({
+          types: ['Files', 'image'],
+          items: [{ type: 'image/png' }],
+        });
+
+        wrapper.trigger('dragenter', dragEvent);
+        glIntersectionObserver.vm.$emit('disappear');
+        await nextTick();
+
+        wrapper.trigger('dragover', dragEvent);
+        glIntersectionObserver.vm.$emit('disappear');
+        await nextTick();
+
+        expect(findDesignDropzone().exists()).toBe(false);
+      });
+
+      it('does not render the design dropzone when invalid file is dragged', async () => {
+        createComponent();
+        await waitForPromises();
+
+        const dragEvent = mockDragEvent({
+          types: ['Files'],
+          items: [{ type: 'text/plain' }],
+        });
+
+        wrapper.trigger('dragenter', dragEvent);
+        await nextTick();
+
+        expect(findDesignDropzone().exists()).toBe(false);
+      });
+    });
+
+    it('does not render if application has no router', async () => {
+      createComponent({ router: false });
+      await waitForPromises();
+
+      expect(findWorkItemDesigns().exists()).toBe(false);
+    });
+
     it('renders if work item has design widget', async () => {
       createComponent();
       await waitForPromises();
 
       expect(findWorkItemDesigns().exists()).toBe(true);
+      expect(findDesignUploadButton().exists()).toBe(true);
     });
 
     it('renders if within a drawer', async () => {
@@ -753,6 +917,106 @@ describe('WorkItemDetail component', () => {
       await waitForPromises();
 
       expect(findWorkItemDesigns().exists()).toBe(true);
+    });
+
+    it('does not render upload design button if user does not have permission to upload', async () => {
+      createComponent({ workspacePermissionsHandler: workspacePermissionsNotAllowedHandler });
+      await waitForPromises();
+
+      expect(findDesignUploadButton().exists()).toBe(false);
+    });
+
+    it('does not call permisisons query for a group work item', async () => {
+      createComponent({
+        modalIsGroup: true,
+        workspacePermissionsHandler: workspacePermissionsAllowedHandler,
+      });
+      await waitForPromises();
+
+      expect(workspacePermissionsAllowedHandler).not.toHaveBeenCalled();
+    });
+
+    it('uploads a design', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findWorkItemDesigns().exists()).toBe(true);
+
+      findDesignUploadButton().vm.$emit('upload', fileList);
+      await nextTick();
+      await waitForPromises();
+
+      expect(uploadSuccessDesignMutationHandler).toHaveBeenCalled();
+    });
+
+    it('when upload is skipped', async () => {
+      createComponent({ uploadDesignMutationHandler: uploadSkippedDesignMutationHandler });
+      await waitForPromises();
+
+      findDesignUploadButton().vm.$emit('upload', fileList);
+      await nextTick();
+      await waitForPromises();
+
+      expect(uploadSkippedDesignMutationHandler).toHaveBeenCalled();
+      expect(findWorkItemDesigns().props('uploadError')).toContain('Upload skipped.');
+    });
+
+    it('when upload fails - dismisses error', async () => {
+      createComponent({ uploadDesignMutationHandler: uploadErrorDesignMutationHandler });
+      await waitForPromises();
+
+      findDesignUploadButton().vm.$emit('upload', fileList);
+      await nextTick();
+      await waitForPromises();
+
+      expect(uploadErrorDesignMutationHandler).toHaveBeenCalled();
+      expect(findWorkItemDesigns().props('uploadError')).toBe(
+        'Error uploading a new design. Please try again.',
+      );
+
+      findWorkItemDesigns().vm.$emit('dismissError');
+      await nextTick();
+      expect(findWorkItemDesigns().props('uploadError')).toBe(null);
+    });
+  });
+
+  describe('work item dev widget create split button', () => {
+    it('should not show the button by default', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findCreateMergeRequestSplitButton().exists()).toBe(false);
+    });
+
+    it('should show the button when the widget is applicable', async () => {
+      createComponent({
+        handler: jest.fn().mockResolvedValue(
+          workItemByIidResponseFactory({
+            canUpdate: true,
+            canDelete: true,
+            developmentWidgetPresent: true,
+          }),
+        ),
+      });
+      await waitForPromises();
+
+      expect(findCreateMergeRequestSplitButton().exists()).toBe(true);
+    });
+
+    it('should not show the button when the work item is closed', async () => {
+      createComponent({
+        handler: jest.fn().mockResolvedValue(
+          workItemByIidResponseFactory({
+            canUpdate: true,
+            canDelete: true,
+            developmentWidgetPresent: true,
+            state: STATE_CLOSED,
+          }),
+        ),
+      });
+      await waitForPromises();
+
+      expect(findCreateMergeRequestSplitButton().exists()).toBe(false);
     });
   });
 
@@ -862,6 +1126,40 @@ describe('WorkItemDetail component', () => {
         await waitForPromises();
         expect(findEditButton().exists()).toBe(false);
       });
+    });
+  });
+
+  describe('calculates correct isGroup prop for attributes wrapper', () => {
+    it('equal to modalIsGroup prop when provided', async () => {
+      createComponent({ modalIsGroup: true });
+      await waitForPromises();
+
+      expect(findWorkItemAttributesWrapper().props('isGroup')).toBe(true);
+    });
+  });
+
+  describe('work item parent id', () => {
+    const parentId = 'gid://gitlab/Issue/1';
+
+    it('passes the `parentWorkItemId` value down to the `WorkItemStickyHeader` component', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findStickyHeader().props('parentId')).toBe(parentId);
+    });
+
+    it('passes the `parentWorkItemId` value down to the `WorkItemActions` component', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findWorkItemActions().props('parentId')).toBe(parentId);
+    });
+
+    it('passes the `parentWorkItemId` value down to the `WorkItemNotes` component', async () => {
+      createComponent();
+      await waitForPromises();
+
+      expect(findNotesWidget().props('parentId')).toBe(parentId);
     });
   });
 });

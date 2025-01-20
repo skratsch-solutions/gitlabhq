@@ -20,6 +20,7 @@ module API
       requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
     end
     route_setting :authentication, job_token_allowed: true, job_token_scope: :project
+    route_setting :authorization, skip_job_token_policies: true
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'List container repositories within a project' do
         detail 'This feature was introduced in GitLab 11.8.'
@@ -89,7 +90,7 @@ module API
 
         paginated_tags =
           if params[:pagination] == 'keyset'
-            not_allowed! unless repository.migrated?
+            not_allowed! unless repository.gitlab_api_client.supports_gitlab_api?
 
             per_page_param = params[:per_page] || DEFAULT_PAGE_COUNT
             sort_param = params[:sort] == 'desc' ? '-name' : 'name'

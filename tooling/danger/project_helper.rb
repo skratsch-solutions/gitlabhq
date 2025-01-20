@@ -17,17 +17,13 @@ module Tooling
 
       # First-match win, so be sure to put more specific regex at the top...
       CATEGORIES = {
-        # GitLab Flavored Markdown Specification files. See more context at: https://docs.gitlab.com/ee/development/gitlab_flavored_markdown/specification_guide/#specification-files
-        %r{\Aglfm_specification/.+prosemirror_json\.yml} => [:frontend],
-        %r{\Aglfm_specification/.+\.yml} => [:frontend, :backend],
-
         # API auto generated doc files and schema (must come before generic docs regex)
         %r{\Adoc/api/graphql/reference/} => [:docs, :backend],
         %r{\Adoc/api/openapi/.*\.yaml\z} => [:docs, :backend],
 
         [%r{usage_data\.rb}, %r{^(\+|-).*\s+(count|distinct_count|estimate_batch_distinct_count)\(.*\)(.*)$}] => [:database, :backend, :analytics_instrumentation],
 
-        %r{\A((ee|jh)/)?config/feature_flags/} => :feature_flag,
+        %r{\A((ee|jh)/)?config/feature_flags/.*(\.(yml|yaml))\z} => :feature_flag,
 
         %r{doc/api/usage_data.md} => [:analytics_instrumentation],
 
@@ -79,7 +75,6 @@ module Tooling
           \.babelrc |
           \.browserslistrc |
           \.eslintignore |
-          \.eslintrc(\.yml)? |
           \.nvmrc |
           \.prettierignore |
           \.prettierrc |
@@ -87,6 +82,7 @@ module Tooling
           \.haml-lint.yml |
           \.haml-lint_todo.yml |
           babel\.config\.js |
+          eslint\.config\.mjs |
           jest\.config\.js |
           package\.json |
           yarn\.lock |
@@ -129,6 +125,9 @@ module Tooling
           (spec/)?lib/generators/gitlab/usage_metric_definition/redis_hll_generator(_spec)?\.rb |
           lib/generators/rails/usage_metric_definition_generator\.rb |
           spec/lib/generators/usage_metric_definition_generator_spec\.rb |
+          spec/support/matchers/internal_events_matchers\.rb |
+          spec/support_specs/matchers/internal_events_matchers_spec\.rb |
+          (spec/)?scripts/internal_events/\S+\.rb |
           generator_templates/usage_metric_definition/metric_definition\.yml)\z}x => [:backend, :analytics_instrumentation],
         %r{gitlab/usage_data(_spec)?\.rb} => [:analytics_instrumentation],
         [%r{\.haml\z}, %r{data: \{ track}] => [:analytics_instrumentation],

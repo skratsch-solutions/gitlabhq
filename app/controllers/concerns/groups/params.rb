@@ -47,13 +47,14 @@ module Groups
         ] },
         :default_branch_name,
         :allow_mfa_for_subgroups,
-        :remove_dormant_members,
-        :remove_dormant_members_period,
         :resource_access_token_creation_allowed,
+        :resource_access_token_notify_inherited,
+        :lock_resource_access_token_notify_inherited,
         :prevent_sharing_groups_outside_hierarchy,
         :setup_for_company,
         :jobs_to_be_done,
         :crm_enabled,
+        :crm_source_group_id,
         :enable_namespace_descendants_cache
       ] + [group_feature_attributes: group_feature_attributes]
     end

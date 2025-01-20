@@ -17,16 +17,16 @@ module API
         end
         params do
           requires :token, type: String, desc: 'Registration token'
-          optional :description, type: String, desc: %q(Description of the runner)
-          optional :maintainer_note, type: String, desc: %q(Deprecated: see `maintenance_note`)
+          optional :description, type: String, desc: 'Description of the runner'
+          optional :maintainer_note, type: String, desc: 'Deprecated: see `maintenance_note`'
           optional :maintenance_note, type: String,
-            desc: %q(Free-form maintenance notes for the runner (1024 characters))
-          optional :info, type: Hash, desc: %q(Runner's metadata) do
-            optional :name, type: String, desc: %q(Runner's name)
-            optional :version, type: String, desc: %q(Runner's version)
-            optional :revision, type: String, desc: %q(Runner's revision)
-            optional :platform, type: String, desc: %q(Runner's platform)
-            optional :architecture, type: String, desc: %q(Runner's architecture)
+            desc: 'Free-form maintenance notes for the runner (1024 characters)'
+          optional :info, type: Hash, desc: "Runner's metadata" do
+            optional :name, type: String, desc: "Runner's name"
+            optional :version, type: String, desc: "Runner's version"
+            optional :revision, type: String, desc: "Runner's revision"
+            optional :platform, type: String, desc: "Runner's platform"
+            optional :architecture, type: String, desc: "Runner's architecture"
           end
           optional :active, type: Boolean,
             desc: 'Deprecated: Use `paused` instead. Specifies if the runner is allowed ' \
@@ -37,7 +37,7 @@ module API
             desc: 'The access level of the runner'
           optional :run_untagged, type: Boolean, desc: 'Specifies if the runner should handle untagged jobs'
           optional :tag_list, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce,
-            desc: %q(A list of runner tags)
+            desc: 'A list of runner tags'
           optional :maximum_timeout, type: Integer,
             desc: 'Maximum timeout that limits the amount of time (in seconds) ' \
                   'that runners can run jobs'
@@ -77,12 +77,14 @@ module API
           failure [[403, 'Forbidden']]
         end
         params do
-          requires :token, type: String, desc: %q(The runner's authentication token)
+          requires :token, type: String, desc: "The runner's authentication token"
         end
         delete '/', urgency: :low, feature_category: :runner do
-          authenticate_runner!
+          authenticate_runner!(ensure_runner_manager: false, update_contacted_at: false)
 
-          destroy_conditionally!(current_runner) { ::Ci::Runners::UnregisterRunnerService.new(current_runner, params[:token]).execute }
+          destroy_conditionally!(current_runner) do
+            ::Ci::Runners::UnregisterRunnerService.new(current_runner, params[:token]).execute
+          end
         end
 
         desc 'Delete a registered runner manager' do
@@ -90,28 +92,32 @@ module API
           http_codes [[204, 'Runner manager was deleted'], [400, 'Bad Request'], [403, 'Forbidden'], [404, 'Not Found']]
         end
         params do
-          requires :token, type: String, desc: %q(The runner's authentication token)
-          requires :system_id, type: String, desc: %q(The runner's system identifier.)
+          requires :token, type: String, desc: "The runner's authentication token"
+          requires :system_id, type: String, desc: "The runner's system identifier."
         end
         delete '/managers', urgency: :low, feature_category: :fleet_visibility do
           authenticate_runner!(ensure_runner_manager: false)
 
-          destroy_conditionally!(current_runner) do
+          runner_manager = current_runner.runner_managers.find_by_system_xid(params[:system_id])
+          not_found!('Runner manager not found') unless runner_manager
+
+          destroy_conditionally!(runner_manager) do
             ::Ci::Runners::UnregisterRunnerManagerService.new(
               current_runner,
               params[:token],
-              system_id: params[:system_id]).execute
+              system_id: params[:system_id]
+            ).execute
           end
         end
 
         desc 'Validate authentication credentials' do
           summary "Verify authentication for a registered runner"
           success Entities::Ci::RunnerRegistrationDetails
-          http_codes [[200, 'Credentials are valid'], [403, 'Forbidden']]
+          http_codes [[200, 'Credentials are valid'], [403, 'Forbidden'], [422, 'Runner is orphaned']]
         end
         params do
-          requires :token, type: String, desc: %q(The runner's authentication token)
-          optional :system_id, type: String, desc: %q(The runner's system identifier)
+          requires :token, type: String, desc: "The runner's authentication token"
+          optional :system_id, type: String, desc: "The runner's system identifier"
         end
         post '/verify', urgency: :low, feature_category: :runner do
           # For runners that were created in the UI, we want to update the contacted_at value
@@ -122,6 +128,8 @@ module API
           status 200
 
           present current_runner, with: Entities::Ci::RunnerRegistrationDetails
+        rescue ::API::Ci::Helpers::Runner::UnknownRunnerOwnerError
+          unprocessable_entity!('Runner is orphaned')
         end
 
         desc 'Reset runner authentication token with current token' do
@@ -147,28 +155,29 @@ module API
           http_codes [[201, 'Job was scheduled'],
                       [204, 'No job for Runner'],
                       [403, 'Forbidden'],
-                      [409, 'Conflict']]
+                      [409, 'Conflict'],
+                      [422, 'Runner is orphaned']]
         end
         params do
-          requires :token, type: String, desc: %q(Runner's authentication token)
-          optional :system_id, type: String, desc: %q(Runner's system identifier)
-          optional :last_update, type: String, desc: %q(Runner's queue last_update token)
-          optional :info, type: Hash, desc: %q(Runner's metadata) do
-            optional :name, type: String, desc: %q(Runner's name)
-            optional :version, type: String, desc: %q(Runner's version)
-            optional :revision, type: String, desc: %q(Runner's revision)
-            optional :platform, type: String, desc: %q(Runner's platform)
-            optional :architecture, type: String, desc: %q(Runner's architecture)
-            optional :executor, type: String, desc: %q(Runner's executor)
-            optional :features, type: Hash, desc: %q(Runner's features)
-            optional :config, type: Hash, desc: %q(Runner's config) do
-              optional :gpus, type: String, desc: %q(GPUs enabled)
+          requires :token, type: String, desc: "Runner's authentication token"
+          optional :system_id, type: String, desc: "Runner's system identifier"
+          optional :last_update, type: String, desc: "Runner's queue last_update token"
+          optional :info, type: Hash, desc: "Runner's metadata" do
+            optional :name, type: String, desc: "Runner's name"
+            optional :version, type: String, desc: "Runner's version"
+            optional :revision, type: String, desc: "Runner's revision"
+            optional :platform, type: String, desc: "Runner's platform"
+            optional :architecture, type: String, desc: "Runner's architecture"
+            optional :executor, type: String, desc: "Runner's executor"
+            optional :features, type: Hash, desc: "Runner's features"
+            optional :config, type: Hash, desc: "Runner's config" do
+              optional :gpus, type: String, desc: 'GPUs enabled'
             end
           end
-          optional :session, type: Hash, desc: %q(Runner's session data) do
-            optional :url, type: String, desc: %q(Session's url)
-            optional :certificate, type: String, desc: %q(Session's certificate)
-            optional :authorization, type: String, desc: %q(Session's authorization)
+          optional :session, type: Hash, desc: "Runner's session data" do
+            optional :url, type: String, desc: "Session's url"
+            optional :certificate, type: String, desc: "Session's certificate"
+            optional :authorization, type: String, desc: "Session's authorization"
           end
         end
 
@@ -219,6 +228,8 @@ module API
             Gitlab::Metrics.add_event(:build_invalid)
             conflict!
           end
+        rescue ::API::Ci::Helpers::Runner::UnknownRunnerOwnerError
+          unprocessable_entity!('Runner is orphaned')
         end
 
         desc 'Update a job' do
@@ -228,16 +239,16 @@ module API
                       [403, 'Forbidden']]
         end
         params do
-          requires :token, type: String, desc: %q(Job token)
-          requires :id, type: Integer, desc: %q(Job's ID)
-          optional :state, type: String, desc: %q(Job's status: success, failed)
-          optional :checksum, type: String, desc: %q(Job's trace CRC32 checksum)
-          optional :failure_reason, type: String, desc: %q(Job's failure_reason)
-          optional :output, type: Hash, desc: %q(Build log state) do
-            optional :checksum, type: String, desc: %q(Job's trace CRC32 checksum)
-            optional :bytesize, type: Integer, desc: %q(Job's trace size in bytes)
+          requires :token, type: String, desc: 'Job token'
+          requires :id, type: Integer, desc: "Job's ID"
+          optional :state, type: String, desc: "Job's status: success, failed"
+          optional :checksum, type: String, desc: "Job's trace CRC32 checksum"
+          optional :failure_reason, type: String, desc: "Job's failure_reason"
+          optional :output, type: Hash, desc: 'Build log state' do
+            optional :checksum, type: String, desc: "Job's trace CRC32 checksum"
+            optional :bytesize, type: Integer, desc: "Job's trace size in bytes"
           end
-          optional :exit_code, type: Integer, desc: %q(Job's exit code)
+          optional :exit_code, type: Integer, desc: "Job's exit code"
         end
         put '/:id', urgency: :low, feature_category: :continuous_integration do
           job = authenticate_job!(heartbeat_runner: true)
@@ -248,7 +259,7 @@ module API
             .new(job, declared_params(include_missing: false))
 
           service.execute.then do |result|
-            track_ci_minutes_usage!(job, current_runner)
+            track_ci_minutes_usage!(job)
 
             header 'Job-Status', job.status
             header 'X-GitLab-Trace-Update-Interval', result.backoff
@@ -264,9 +275,9 @@ module API
                       [416, 'Range not satisfiable']]
         end
         params do
-          requires :id, type: Integer, desc: %q(Job's ID)
-          optional :token, type: String, desc: %q(Job's authentication token)
-          optional :debug_trace, type: Boolean, desc: %q(Enable or Disable the debug trace)
+          requires :id, type: Integer, desc: "Job's ID"
+          optional :token, type: String, desc: "Job's authentication token"
+          optional :debug_trace, type: Boolean, desc: 'Enable or Disable the debug trace'
         end
         patch '/:id/trace', urgency: :low, feature_category: :continuous_integration do
           job = authenticate_job!(heartbeat_runner: true)
@@ -287,7 +298,7 @@ module API
             break error!('416 Range Not Satisfiable', 416, { 'Range' => "0-#{result.stream_size}" })
           end
 
-          track_ci_minutes_usage!(job, current_runner)
+          track_ci_minutes_usage!(job)
 
           status result.status
           header 'Job-Status', job.status
@@ -302,16 +313,16 @@ module API
                       [413, 'File too large']]
         end
         params do
-          requires :id, type: Integer, desc: %q(Job's ID)
-          optional :token, type: String, desc: %q(Job's authentication token)
+          requires :id, type: Integer, desc: "Job's ID"
+          optional :token, type: String, desc: "Job's authentication token"
 
           # NOTE:
           # In current runner, filesize parameter would be empty here. This is because archive is streamed by runner,
           # so the archive size is not known ahead of time. Streaming is done to not use additional I/O on
           # Runner to first save, and then send via Network.
-          optional :filesize, type: Integer, desc: %q(Size of artifact file)
+          optional :filesize, type: Integer, desc: 'Size of artifact file'
 
-          optional :artifact_type, type: String, desc: %q(The type of artifact),
+          optional :artifact_type, type: String, desc: 'The type of artifact',
             default: 'archive', values: ::Ci::JobArtifact.file_types.keys
         end
         post '/:id/artifacts/authorize', feature_category: :job_artifacts, urgency: :low do
@@ -340,16 +351,16 @@ module API
                       [413, 'File too large']]
         end
         params do
-          requires :id, type: Integer, desc: %q(Job's ID)
-          requires :file, type: ::API::Validations::Types::WorkhorseFile, desc: %(The artifact file to store (generated by Multipart middleware)), documentation: { type: 'file' }
-          optional :token, type: String, desc: %q(Job's authentication token)
-          optional :expire_in, type: String, desc: %q(Specify when artifact should expire)
-          optional :artifact_type, type: String, desc: %q(The type of artifact),
+          requires :id, type: Integer, desc: "Job's ID"
+          requires :file, type: ::API::Validations::Types::WorkhorseFile, desc: "The artifact file to store (generated by Multipart middleware)", documentation: { type: 'file' }
+          optional :token, type: String, desc: "Job's authentication token"
+          optional :expire_in, type: String, desc: 'Specify when artifact should expire'
+          optional :artifact_type, type: String, desc: 'The type of artifact',
             default: 'archive', values: ::Ci::JobArtifact.file_types.keys
-          optional :artifact_format, type: String, desc: %q(The format of artifact),
+          optional :artifact_format, type: String, desc: 'The format of artifact',
             default: 'zip', values: ::Ci::JobArtifact.file_formats.keys
-          optional :metadata, type: ::API::Validations::Types::WorkhorseFile, desc: %(The artifact metadata to store (generated by Multipart middleware)), documentation: { type: 'file' }
-          optional :accessibility, type: String, desc: %q(Specify accessibility level of artifact private/public)
+          optional :metadata, type: ::API::Validations::Types::WorkhorseFile, desc: 'The artifact metadata to store (generated by Multipart middleware)', documentation: { type: 'file' }
+          optional :accessibility, type: String, desc: 'Specify accessibility level of artifact private/public'
         end
         post '/:id/artifacts', feature_category: :job_artifacts, urgency: :low do
           not_allowed! unless Gitlab.config.artifacts.enabled
@@ -379,13 +390,15 @@ module API
                       [404, 'Artifact not found']]
         end
         params do
-          requires :id, type: Integer, desc: %q(Job's ID)
-          optional :token, type: String, desc: %q(Job's authentication token)
-          optional :direct_download, default: false, type: Boolean, desc: %q(Perform direct download from remote storage instead of proxying artifacts)
+          requires :id, type: Integer, desc: "Job's ID"
+          optional :token, type: String, desc: "Job's authentication token"
+          optional :direct_download, default: false, type: Boolean, desc: 'Perform direct download from remote storage instead of proxying artifacts'
         end
         route_setting :authentication, job_token_allowed: true
+        route_setting :authorization, job_token_policies: :read_jobs
         get '/:id/artifacts', feature_category: :job_artifacts do
           authenticate_job_via_dependent_job!
+          authorize_job_token_policies!(current_job.project)
 
           audit_download(current_job, current_job.artifacts_file&.filename) if current_job.artifacts_file
           present_artifacts_file!(current_job.artifacts_file, supports_direct_download: params[:direct_download])

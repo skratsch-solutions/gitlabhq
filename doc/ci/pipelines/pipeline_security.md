@@ -1,10 +1,14 @@
 ---
-stage: Verify
+stage: Software Supply Chain Security
 group: Pipeline Security
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
 # Pipeline security
+
+DETAILS:
+**Tier:** Free, Premium, Ultimate
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Secrets Management
 
@@ -36,8 +40,8 @@ in a CI/CD pipeline, but variables are less secure than secrets management provi
 Variable values:
 
 - Are stored in the GitLab project, group, or instance settings. Users with access
-  to the settings have access to the variables.
-- Can be [overridden](../variables/index.md#override-a-defined-cicd-variable),
+  to the settings have access to variables values that are not [hidden](../variables/index.md#hide-a-cicd-variable).
+- Can be [overridden](../variables/index.md#use-pipeline-variables),
   making it hard to determine which value was used.
 - Can be exposed by accidental pipeline misconfiguration.
 
@@ -46,5 +50,7 @@ Information suitable for storage in a variable should be data that can be expose
 Sensitive data should be stored in a secrets management solution. If there is low
 sensitivity data that you want to store in a CI/CD variable, be sure to always:
 
-- [Mask the variables](../variables/index.md#mask-a-cicd-variable).
+- [Mask the variables](../variables/index.md#mask-a-cicd-variable)
+  or [Mask and hide the variable](../variables/index.md#hide-a-cicd-variable).
 - [Protect the variables](../variables/index.md#protect-a-cicd-variable) when possible.
+- [Hide the variables](../variables/index.md#hide-a-cicd-variable) when possible.

@@ -3,8 +3,7 @@
 module WorkItems
   module Widgets
     class Assignees < Base
-      delegate :assignees, to: :work_item
-      delegate :allows_multiple_assignees?, to: :work_item
+      delegate :assignees, :assignees_by_name_and_id, :allows_multiple_assignees?, to: :work_item
 
       def self.quick_action_commands
         [:assign, :unassign, :reassign]
@@ -15,7 +14,7 @@ module WorkItems
       end
 
       def self.can_invite_members?(user, resource_parent)
-        user.can?("admin_#{resource_parent.to_ability_name}_member".to_sym, resource_parent)
+        Ability.allowed?(user, "admin_#{resource_parent.to_ability_name}_member".to_sym, resource_parent)
       end
     end
   end

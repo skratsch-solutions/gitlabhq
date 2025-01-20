@@ -4,10 +4,14 @@ module API
   module Ci
     class Pipelines < ::API::Base
       include PaginationParams
+      include APIGuard
 
       helpers ::API::Helpers::ProjectStatsRefreshConflictsHelpers
+      helpers ::API::Ci::Helpers::PipelinesHelpers
 
       before { authenticate_non_get! }
+
+      allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
 
       params do
         requires :id, type: String, desc: 'The project ID or URL-encoded path', documentation: { example: 11 }
@@ -21,24 +25,6 @@ module API
             { code: 403, message: 'Forbidden' }
           ]
           is_array true
-        end
-
-        helpers do
-          params :optional_scope do
-            optional :scope, types: [String, Array[String]], desc: 'The scope of builds to show',
-              values: ::CommitStatus::AVAILABLE_STATUSES,
-              coerce_with: ->(scope) {
-                             case scope
-                             when String
-                               [scope]
-                             when ::Array
-                               scope
-                             else
-                               ['unknown']
-                             end
-                           },
-              documentation: { example: %w[pending running] }
-          end
         end
 
         params do
@@ -93,13 +79,7 @@ module API
           ]
         end
         params do
-          requires :ref, type: String, desc: 'Reference',
-            documentation: { example: 'develop' }
-          optional :variables, type: Array, desc: 'Array of variables available in the pipeline' do
-            optional :key, type: String, desc: 'The key of the variable', documentation: { example: 'UPLOAD_TO_S3' }
-            optional :value, type: String, desc: 'The value of the variable', documentation: { example: 'true' }
-            optional :variable_type, type: String, values: ::Ci::PipelineVariable.variable_types.keys, default: 'env_var', desc: 'The type of variable, must be one of env_var or file. Defaults to env_var'
-          end
+          use :create_pipeline_params
         end
         post ':id/pipeline', urgency: :low, feature_category: :pipeline_composition do
           Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/20711')
@@ -183,7 +163,7 @@ module API
             .new(current_user: current_user, pipeline: pipeline, params: params)
             .execute
 
-          builds = builds.with_preloads.preload(:metadata, :runner_manager) # rubocop:disable CodeReuse/ActiveRecord -- preload job.archived?
+          builds = builds.with_preloads.preload(:metadata, :runner_manager, :ci_stage) # rubocop:disable CodeReuse/ActiveRecord -- preload job.archived?
 
           present paginate(builds), with: Entities::Ci::Job
         end
@@ -211,7 +191,9 @@ module API
           bridges = ::Ci::JobsFinder
             .new(current_user: current_user, pipeline: pipeline, params: params, type: ::Ci::Bridge)
             .execute
-          bridges = bridges.with_preloads
+          # rubocop:disable CodeReuse/ActiveRecord -- Preload is only related to this endpoint
+          bridges = bridges.with_preloads.preload(:ci_stage)
+          # rubocop:enable CodeReuse/ActiveRecord
 
           present paginate(bridges), with: Entities::Ci::Bridge
         end
@@ -305,6 +287,7 @@ module API
           requires :name, type: String, desc: 'The name of the pipeline', documentation: { example: 'Deployment to production' }
         end
         route_setting :authentication, job_token_allowed: true
+        route_setting :authorization, job_token_policies: :admin_jobs
         put ':id/pipelines/:pipeline_id/metadata', urgency: :low, feature_category: :continuous_integration do
           authorize! :update_pipeline, pipeline
 
@@ -380,3 +363,5 @@ module API
     end
   end
 end
+
+API::Ci::Pipelines.prepend_mod

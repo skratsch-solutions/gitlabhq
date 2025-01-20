@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby 3.1 and earlier needs this. Drop this line after Ruby 3.2+ is only supported.
 require 'test_file_finder'
 
 # These tests run a sanity check on the mapping file `tests.yml`
@@ -69,9 +68,26 @@ tests = [
   },
 
   {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1987902951',
+    changed_file: 'ee/lib/audit_events/strategies/instance/amazon_s3_destination_strategy.rb',
+    expected: %w[
+      ee/spec/lib/audit_events/strategies/instance/amazon_s3_destination_strategy_spec.rb
+      ee/spec/lib/audit_events/external_destination_streamer_spec.rb
+    ]
+  },
+
+  {
     explanation: 'Tooling should map to respective spec',
     changed_file: 'tooling/danger/specs/project_factory_suggestion.rb',
     expected: ['spec/tooling/danger/specs/project_factory_suggestion_spec.rb']
+  },
+  {
+    explanation: 'tests.yml map to related tooling specs',
+    changed_file: 'tests.yml',
+    expected: [
+      'spec/tooling/lib/tooling/find_tests_spec.rb',
+      'spec/tooling/lib/tooling/predictive_tests_spec.rb'
+    ]
   },
 
   {
@@ -98,22 +114,6 @@ tests = [
   },
 
   {
-    explanation: 'FOSS Snowplow definitions map to event validation spec',
-    changed_file: 'config/events/status_page_incident_unpublished.yml',
-    expected: ['spec/lib/gitlab/tracking/event_definition_validate_all_spec.rb']
-  },
-  {
-    explanation: 'EE Snowplow definitions map to event validation spec',
-    changed_file: 'ee/config/events/licenses_list_viewed.yml',
-    expected: ['spec/lib/gitlab/tracking/event_definition_validate_all_spec.rb']
-  },
-  {
-    explanation: 'Snowplow schema maps to event validation spec',
-    changed_file: 'config/events/schema.json',
-    expected: ['spec/lib/gitlab/tracking/event_definition_validate_all_spec.rb']
-  },
-
-  {
     explanation: 'DB structure should map to schema spec',
     changed_file: 'db/structure.sql',
     expected: ['spec/db/schema_spec.rb']
@@ -121,8 +121,8 @@ tests = [
 
   {
     explanation: 'Migration should map to its non-timestamped spec',
-    changed_file: 'db/migrate/20230707003301_add_expiry_notified_at_to_member.rb',
-    expected: ['spec/migrations/add_expiry_notified_at_to_member_spec.rb']
+    changed_file: 'db/migrate/20240228144013_migrate_custom_permissions.rb',
+    expected: ['spec/migrations/migrate_custom_permissions_spec.rb']
   },
   {
     explanation: 'Migration should map to its timestamped spec',
@@ -137,8 +137,8 @@ tests = [
 
   {
     explanation: 'EE views should map to respective spec',
-    changed_file: 'ee/app/views/subscriptions/new.html.haml',
-    expected: ['ee/spec/views/subscriptions/new.html.haml_spec.rb']
+    changed_file: 'ee/app/views/groups/hooks/edit.html.haml',
+    expected: ['ee/spec/views/groups/hooks/edit.html.haml_spec.rb']
   },
 
   {
@@ -211,13 +211,19 @@ tests = [
   {
     explanation: 'Spec for FOSS model',
     changed_file: 'app/models/uploads/base.rb',
-    expected: ['spec/models/every_model_spec.rb']
+    expected: [
+      'spec/models/every_model_spec.rb',
+      'spec/lib/gitlab/import_export/model_configuration_spec.rb'
+    ]
   },
 
   {
     explanation: 'Spec for EE model',
     changed_file: 'ee/app/models/geo/base_registry.rb',
-    expected: ['spec/models/every_model_spec.rb']
+    expected: [
+      'spec/models/every_model_spec.rb',
+      'spec/lib/gitlab/import_export/model_configuration_spec.rb'
+    ]
   },
 
   {
@@ -251,20 +257,105 @@ tests = [
   },
 
   {
-    explanation: 'GLFM spec and config files for CE and EE should map to respective markdown snapshot specs',
-    changed_file: 'glfm_specification/input/gitlab_flavored_markdown/glfm_official_specification.md',
-    expected: %w[
-      spec/requests/api/markdown_snapshot_spec.rb
-      ee/spec/requests/api/markdown_snapshot_spec.rb
-    ]
-  },
-
-  {
     explanation: 'https://gitlab.com/gitlab-org/quality/engineering-productivity/master-broken-incidents/-/issues/287#note_1192008962',
     # Note: The metrics seem to be changed every year or so, so this test will fail once a year or so.
     #       You will need to change the metric below for another metric present in the project.
     changed_file: 'ee/config/metrics/counts_all/20221114065035_delete_merge_request.yml',
-    expected: ['ee/spec/config/metrics/every_metric_definition_spec.rb']
+    expected: %w[
+      spec/config/metrics/every_metric_definition_spec.rb
+      ee/spec/config/metrics/every_metric_definition_spec.rb
+      spec/lib/gitlab/usage/metric_definition_validate_all_spec.rb
+    ]
+  },
+  {
+    explanation: 'FOSS metric definitions map to metric validation specs',
+    changed_file: 'config/metrics/counts_28d/count_total_merge_request_click_start_review_on_overview_tab_monthly.yml',
+    expected: %w[
+      spec/config/metrics/every_metric_definition_spec.rb
+      ee/spec/config/metrics/every_metric_definition_spec.rb
+      spec/lib/gitlab/usage/metric_definition_validate_all_spec.rb
+    ]
+  },
+  {
+    explanation: 'Metric schema maps to metric validation spec',
+    changed_file: 'config/metrics/schema/base.json',
+    expected: %w[
+      spec/config/metrics/every_metric_definition_spec.rb
+      ee/spec/config/metrics/every_metric_definition_spec.rb
+      spec/lib/gitlab/usage/metric_definition_validate_all_spec.rb
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'FOSS Snowplow definitions map to event validation spec',
+    changed_file: 'config/events/status_page_incident_unpublished.yml',
+    expected: ['spec/lib/gitlab/tracking/event_definition_validator_validate_all_spec.rb']
+  },
+  {
+    explanation: 'EE Snowplow definitions map to event validation spec',
+    changed_file: 'ee/config/events/licenses_list_viewed.yml',
+    expected: ['spec/lib/gitlab/tracking/event_definition_validator_validate_all_spec.rb']
+  },
+  {
+    explanation: 'Snowplow schema maps to event validation spec',
+    changed_file: 'config/events/schema.json',
+    expected: %w[
+      spec/lib/gitlab/tracking/event_definition_validator_validate_all_spec.rb
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'Internal Events application logic maps to internal events tooling',
+    changed_file: 'lib/gitlab/internal_events.rb',
+    expected: %w[
+      spec/lib/gitlab/internal_events_spec.rb
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+  {
+    explanation: 'Internal Events CLI entrypoint maps to internal events tooling',
+    changed_file: 'scripts/internal_events/cli.rb',
+    expected: %w[
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+  {
+    explanation: 'Internal Events CLI logic maps to internal events tooling',
+    changed_file: 'scripts/internal_events/cli/global_state.rb',
+    expected: %w[
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+  {
+    explanation: 'Internal Events default test setup maps to internal events tooling',
+    changed_file: 'spec/support/shared_examples/controllers/internal_event_tracking_examples.rb',
+    expected: %w[
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+  {
+    explanation: 'Internal Events custom test setup maps to internal events tooling',
+    changed_file: 'spec/support/matchers/internal_events_matchers.rb',
+    expected: %w[
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
+  },
+  {
+    explanation: 'Internal Events test cases map to internal events tooling',
+    changed_file: 'spec/fixtures/scripts/internal_events/event_definer_examples.yml',
+    expected: %w[
+      spec/scripts/internal_events/cli_spec.rb
+      spec/support_specs/matchers/internal_events_matchers_spec.rb
+    ]
   },
 
   {
@@ -314,10 +405,10 @@ tests = [
 
   {
     explanation: 'Map EE controllers to controller and request specs',
-    changed_file: 'ee/app/controllers/subscriptions_controller.rb',
+    changed_file: 'ee/app/controllers/gitlab_subscriptions/subscriptions_controller.rb',
     expected: %w[
-      ee/spec/controllers/subscriptions_controller_spec.rb
-      ee/spec/requests/subscriptions_controller_spec.rb
+      ee/spec/controllers/gitlab_subscriptions/subscriptions_controller_spec.rb
+      ee/spec/requests/gitlab_subscriptions/subscriptions_controller_spec.rb
     ]
   },
   {
@@ -345,45 +436,114 @@ tests = [
     changed_file: 'ee/app/graphql/mutations/boards/epic_lists/destroy.rb',
     expected: ['ee/spec/requests/api/graphql/mutations/boards/epic_lists/destroy_spec.rb']
   },
+  ## BEGIN Remote development GraphQL mutations
   {
     explanation: 'Map Remote Development GraphQL mutations to request specs',
-    changed_file: 'ee/app/graphql/mutations/remote_development/workspaces/create.rb',
+    changed_file: 'ee/app/graphql/mutations/remote_development/namespace_cluster_agent_mapping_operations/create.rb',
+    # rubocop:disable Layout/LineLength -- fix CI failures - not sure why other lines in this file don't get errors
     expected: %w[
-      ee/spec/requests/api/graphql/mutations/remote_development/workspaces/create_spec.rb
+      ee/spec/requests/api/graphql/mutations/remote_development/namespace_cluster_agent_mapping_operations/create_spec.rb
+    ]
+    # rubocop:enable Layout/LineLength
+  },
+  {
+    explanation: 'Map Remote Development GraphQL mutations to request specs',
+    changed_file: 'ee/app/graphql/mutations/remote_development/namespace_cluster_agent_mapping_operations/delete.rb',
+    # rubocop:disable Layout/LineLength -- fix CI failures - not sure why other lines in this file don't get errors
+    expected: %w[
+      ee/spec/requests/api/graphql/mutations/remote_development/namespace_cluster_agent_mapping_operations/delete_spec.rb
+    ]
+    # rubocop:enable Layout/LineLength
+  },
+  {
+    explanation: 'Map Remote Development GraphQL mutations to request specs',
+    changed_file: 'ee/app/graphql/mutations/remote_development/workspace_operations/create.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/mutations/remote_development/workspace_operations/create_spec.rb
     ]
   },
   {
-    explanation: 'Map Remote Development GraphQL cluster_agent workspaces resolvers to request specs',
-    changed_file: 'ee/app/graphql/resolvers/remote_development/workspaces_for_agent_resolver.rb',
+    explanation: 'Map Remote Development GraphQL mutations to request specs',
+    changed_file: 'ee/app/graphql/mutations/remote_development/workspace_operations/update.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/mutations/remote_development/workspace_operations/update_spec.rb
+    ]
+  },
+  ## END Remote development GraphQL mutations
+
+  ## BEGIN Remote development GraphQL resolvers (in alphabetical order by resolver source file path)
+  {
+    explanation:
+      'Map Remote Development GraphQL cluster_agent/remote_development_agent_config_resolver.rb to request specs',
+    changed_file:
+      'ee/app/graphql/resolvers/remote_development/cluster_agent/remote_development_agent_config_resolver.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/remote_development/cluster_agent/remote_development_agent_config/with_no_args_spec.rb
+    ]
+  },
+  {
+    explanation:
+      'Map Remote Development GraphQL cluster_agent/workspaces_resolver.rb to request specs',
+    changed_file: 'ee/app/graphql/resolvers/remote_development/cluster_agent/workspaces_resolver.rb',
     expected: %w[
       ee/spec/requests/api/graphql/remote_development/cluster_agent/workspaces/with_actual_states_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/cluster_agent/workspaces/with_ids_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/cluster_agent/workspaces/with_no_args_spec.rb
       ee/spec/requests/api/graphql/remote_development/cluster_agent/workspaces/with_project_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/workspace_variables/with_no_args_spec.rb
     ]
   },
   {
-    explanation: 'Map Remote Development GraphQL current_user workspaces resolvers to request specs',
-    changed_file: 'ee/app/graphql/resolvers/remote_development/workspaces_for_current_user_resolver.rb',
+    explanation:
+      'Map Remote Development GraphQL cluster_agent/workspaces_agent_config_resolver.rb to request specs',
+    changed_file: 'ee/app/graphql/resolvers/remote_development/cluster_agent/workspaces_agent_config_resolver.rb',
     expected: %w[
-      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_actual_states_arg_spec.rb
-      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_agent_ids_arg_spec.rb
-      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_ids_arg_spec.rb
-      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_no_args_spec.rb
-      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_project_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/cluster_agent/workspaces_agent_config/with_no_args_spec.rb
     ]
   },
   {
-    explanation: 'Map Remote Development GraphQL query root workspaces resolvers to request specs',
-    changed_file: 'ee/app/graphql/resolvers/remote_development/workspaces_for_query_root_resolver.rb',
+    explanation: 'Map Remote Development GraphQL namespace/cluster_agents_resolver.rb to request specs',
+    changed_file: 'ee/app/graphql/resolvers/remote_development/namespace/cluster_agents_resolver.rb',
+    # rubocop:disable Layout/LineLength -- fix CI failures - not sure why other lines in this file don't get errors
     expected: %w[
+      ee/spec/requests/api/graphql/remote_development/namespace/remote_development_cluster_agents/with_available_filter_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/namespace/remote_development_cluster_agents/with_directly_mapped_filter_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/namespace/remote_development_cluster_agents/with_unmapped_filter_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/namespace/workspaces_cluster_agents/with_available_filter_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/namespace/workspaces_cluster_agents/with_directly_mapped_filter_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/namespace/workspaces_cluster_agents/with_unmapped_filter_arg_spec.rb
+    ]
+    # rubocop:enable Layout/LineLength
+  },
+  {
+    explanation: 'Map Remote Development GraphQL query root workspaces_admin_resolver.rb to request specs',
+    changed_file: 'ee/app/graphql/resolvers/remote_development/workspaces_admin_resolver.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/remote_development/workspace/with_id_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/workspaces/with_actual_states_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/workspaces/with_agent_ids_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/workspaces/with_ids_arg_spec.rb
       ee/spec/requests/api/graphql/remote_development/workspaces/with_no_args_spec.rb
       ee/spec/requests/api/graphql/remote_development/workspaces/with_project_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/workspace_variables/with_no_args_spec.rb
     ]
   },
+  {
+    explanation: 'Map Remote Development GraphQL workspaces_resolver.rb to request specs',
+    changed_file: 'ee/app/graphql/resolvers/remote_development/workspaces_resolver.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/remote_development/workspace/with_id_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_actual_states_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_agent_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_no_args_spec.rb
+      ee/spec/requests/api/graphql/remote_development/current_user/workspaces/with_project_ids_arg_spec.rb
+      ee/spec/requests/api/graphql/remote_development/workspace_variables/with_no_args_spec.rb
+    ]
+  },
+  ## END Remote development GraphQL resolvers
+
+  ## BEGIN Remote development GraphQL types
   {
     explanation: 'Map Remote Development GraphQL query root workspace type resolver to request specs',
     changed_file: 'ee/app/graphql/types/remote_development/workspace_type.rb',
@@ -393,15 +553,261 @@ tests = [
     ]
   },
   {
+    explanation: 'Map Remote Development GraphQL workspace_variable_type.rb to request specs',
+    changed_file: 'ee/app/graphql/types/remote_development/workspace_variable_type.rb',
+    expected: %w[
+      ee/spec/graphql/types/remote_development/workspace_variable_type_spec.rb
+      ee/spec/requests/api/graphql/remote_development/workspace_variables/with_no_args_spec.rb
+    ]
+  },
+  {
+    explanation: 'Map Remote Development GraphQL workspace_variable_input_type_enum.rb to request specs',
+    changed_file: 'ee/app/graphql/types/remote_development/workspace_variable_input.rb',
+    expected: %w[
+      ee/spec/graphql/types/remote_development/workspace_variable_input_spec.rb
+      ee/spec/requests/api/graphql/mutations/remote_development/workspace_operations/create_spec.rb
+    ]
+  },
+  {
+    explanation: 'Map Remote Development GraphQL workspace_variable_type_enum.rb to request specs',
+    changed_file: 'ee/app/graphql/types/remote_development/workspace_variable_type_enum.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/remote_development/workspace_variables/with_no_args_spec.rb
+    ]
+  },
+  {
+    explanation: 'Map Remote Development GraphQL workspace_variable_input_type_enum.rb to request specs',
+    changed_file: 'ee/app/graphql/types/remote_development/workspace_variable_input_type_enum.rb',
+    expected: %w[
+      ee/spec/requests/api/graphql/mutations/remote_development/workspace_operations/create_spec.rb
+    ]
+  },
+  ## END Remote development GraphQL types
+
+  {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1987834618',
+    changed_file: 'ee/app/replicators/geo/ci_secure_file_replicator.rb',
+    expected: %w[
+      ee/spec/replicators/geo/ci_secure_file_replicator_spec.rb
+      ee/spec/models/geo_node_status_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_2131393513',
+    changed_file: 'ee/app/policies/ee/group_policy.rb',
+    expected: %w[
+      spec/policies/group_policy_spec.rb
+      ee/spec/policies/group_policy_spec.rb
+      ee/spec/features/groups/groups_security_credentials_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_2132805842',
+    changed_file: 'lib/gitlab/ci/mask_secret.rb',
+    expected: %w[
+      ee/spec/lib/gitlab/ci/google_cloud/generate_build_environment_variables_service_spec.rb
+      ee/spec/models/dast_site_profile_spec.rb
+      ee/spec/models/ee/project_spec.rb
+      spec/features/admin_variables_spec.rb
+      spec/features/group_variables_spec.rb
+      spec/features/project_group_variables_spec.rb
+      spec/features/project_variables_spec.rb
+      spec/lib/expand_variables_spec.rb
+      spec/lib/gitlab/ci/build/rules/rule/clause/exists_spec.rb
+      spec/lib/gitlab/ci/config/external/file/artifact_spec.rb
+      spec/lib/gitlab/ci/config/external/file/base_spec.rb
+      spec/lib/gitlab/ci/config/external/file/local_spec.rb
+      spec/lib/gitlab/ci/config/external/file/project_spec.rb
+      spec/lib/gitlab/ci/config/external/file/remote_spec.rb
+      spec/lib/gitlab/ci/config/external/file/template_spec.rb
+      spec/lib/gitlab/ci/config/external/mapper/matcher_spec.rb
+      spec/lib/gitlab/ci/config/interpolation/functions/expand_vars_spec.rb
+      spec/lib/gitlab/ci/mask_secret_spec.rb
+      spec/lib/gitlab/ci/variables/collection/item_spec.rb
+      spec/models/ci/build_spec.rb
+      spec/models/clusters/kubernetes_namespace_spec.rb
+      spec/models/clusters/platforms/kubernetes_spec.rb
+      spec/models/integrations/apple_app_store_spec.rb
+      spec/models/integrations/diffblue_cover_spec.rb
+      spec/models/integrations/google_play_spec.rb
+      spec/models/integrations/harbor_spec.rb
+      spec/models/project_spec.rb
+      spec/requests/api/admin/ci/variables_spec.rb
+      spec/requests/api/ci/variables_spec.rb
+      spec/requests/api/graphql/ci/group_variables_spec.rb
+      spec/requests/api/graphql/ci/inherited_ci_variables_spec.rb
+      spec/requests/api/graphql/ci/instance_variables_spec.rb
+      spec/requests/api/graphql/ci/project_variables_spec.rb
+      spec/requests/api/group_variables_spec.rb
+      spec/services/ci/change_variable_service_spec.rb
+      spec/services/ci/create_pipeline_service/creation_errors_and_warnings_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_2132808426',
+    changed_file: 'lib/gitlab/ci/build/rules/rule/clause/changes.rb',
+    expected: %w[
+      spec/lib/gitlab/ci/build/rules/rule/clause/changes_spec.rb
+      spec/lib/gitlab/ci/build/rules/rule_spec.rb
+      spec/lib/gitlab/ci/config/external/rules_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'Spec for onboarding changes to company form items',
+    changed_file: 'ee/app/controllers/registrations/company_controller.rb',
+    expected: %w[
+      ee/spec/features/registrations/saas/invite_flow_spec.rb
+      ee/spec/features/registrations/saas/sso_signin_standard_flow_company_creating_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_company_creating_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_company_joining_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_just_me_creating_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_just_me_importing_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_just_me_joining_project_spec.rb
+      ee/spec/features/registrations/saas/standard_flow_with_2fa_spec.rb
+      ee/spec/features/registrations/saas/subscription_flow_company_paid_plan_spec.rb
+      ee/spec/features/registrations/saas/subscription_flow_just_me_paid_plan_spec.rb
+      ee/spec/features/registrations/saas/trial_flow_company_creating_project_spec.rb
+      ee/spec/features/registrations/saas/trial_flow_company_importing_project_spec.rb
+      ee/spec/features/registrations/saas/trial_flow_just_me_creating_project_spec.rb
+      ee/spec/features/registrations/saas/trial_flow_just_me_importing_project_spec.rb
+      ee/spec/controllers/registrations/company_controller_spec.rb
+      ee/spec/features/registrations/email_opt_in_registration_spec.rb
+      ee/spec/features/registrations/one_trust_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'Spec for in-app ultimate trials',
+    changed_file: 'ee/app/controllers/gitlab_subscriptions/trials_controller.rb',
+    expected: %w[
+      ee/spec/features/gitlab_subscriptions/trials/creation_with_multiple_existing_namespace_flow_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/creation_with_no_existing_namespace_flow_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/creation_with_one_existing_namespace_flow_spec.rb
+      ee/spec/requests/gitlab_subscriptions/trials_controller_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/access_denied_spec.rb
+      ee/spec/features/trials/lead_creation_form_validation_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'Spec for in-app duo pro trials',
+    changed_file: 'ee/app/controllers/gitlab_subscriptions/trials/duo_pro_controller.rb',
+    expected: %w[
+      ee/spec/features/gitlab_subscriptions/trials/duo_pro/access_denied_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/duo_pro/creation_with_multiple_existing_namespace_flow_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/duo_pro/creation_with_one_existing_namespace_flow_spec.rb
+      ee/spec/requests/gitlab_subscriptions/trials/duo_pro_controller_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'Spec for in-app duo enterprise trials',
+    changed_file: 'ee/app/controllers/gitlab_subscriptions/trials/duo_enterprise_controller.rb',
+    expected: %w[
+      ee/spec/features/gitlab_subscriptions/trials/duo_enterprise/access_denied_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/duo_enterprise/creation_with_multiple_existing_namespace_flow_spec.rb
+      ee/spec/features/gitlab_subscriptions/trials/duo_enterprise/creation_with_one_existing_namespace_flow_spec.rb
+      ee/spec/requests/gitlab_subscriptions/trials/duo_enterprise_controller_spec.rb
+    ]
+  },
+
+  {
+    explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_2138440847',
+    changed_file: 'app/services/merge_requests/mergeability/check_open_status_service.rb',
+    expected: %w[
+      ee/spec/graphql/ee/types/merge_request_type_spec.rb
+      spec/services/merge_requests/mergeability/check_open_status_service_spec.rb
+    ]
+  },
+
+  # Why is it commented out?
+  #
+  # We cannot uncomment this, as this "spec" would fail as soon as we add/remove a file in
+  # the "spec/features" folder hierarchy that would contain the word navbar/sidebar.
+  #
+  # {
+  #   explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1988359861',
+  #   changed_file: 'lib/sidebars/projects/menus/issues_menu.rb',
+  #   expected: %w[
+  #     spec/features/boards/sidebar_spec.rb
+  #     spec/features/dashboard/navbar_spec.rb
+  #     spec/features/explore/navbar_spec.rb
+  #     spec/features/groups/navbar_spec.rb
+  #     spec/features/projects/navbar_spec.rb
+  #     spec/lib/sidebars/projects/menus/issues_menu_spec.rb
+  #   ]
+  # },
+
+  # Why is it commented out?
+  #
+  # We cannot uncomment this, as this "spec" would fail as soon as we add/remove a file in
+  # the "spec/features" folder hierarchy that would contain the word navbar/sidebar.
+  #
+  # {
+  #   explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1988359861',
+  #   changed_file: 'ee/lib/sidebars/groups/menus/epics_menu.rb',
+  #   expected: %w[
+  #     ee/spec/features/boards/sidebar_spec.rb
+  #     ee/spec/features/dashboard/navbar_spec.rb
+  #     ee/spec/features/groups/navbar_spec.rb
+  #     ee/spec/features/merge_request/sidebar_spec.rb
+  #     ee/spec/features/projects/navbar_spec.rb
+  #     ee/spec/lib/sidebars/groups/menus/epics_menu_spec.rb
+  #   ]
+  # },
+
+  # Why is it commented out?
+  #
+  # We cannot uncomment this, as this "spec" would fail as soon as we add/remove a file in
+  # the "spec/features" folder hierarchy that would contain the word navbar/sidebar.
+  #
+  # {
+  #   explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1939569462',
+  #   changed_file: 'lib/api/hooks/events.rb',
+  #   expected: %w[
+  #     ee/spec/requests/api/group_hooks_spec.rb
+  #     ee/spec/requests/api/project_hooks_spec.rb
+  #     spec/requests/api/project_hooks_spec.rb
+  #     spec/requests/api/system_hooks_spec.rb
+  #   ]
+  # }
+
+  # Why is it commented out?
+  #
+  # We cannot uncomment this, as this "spec" would fail as soon as we add/remove a file in
+  # the "spec/features" folder hierarchy that would contain the word navbar/sidebar.
+  #
+  # {
+  #   explanation: 'https://gitlab.com/gitlab-org/gitlab/-/issues/466068#note_1939569462',
+  #   changed_file: 'ee/lib/api/group_hooks.rb',
+  #   expected: %w[
+  #     ee/spec/requests/api/group_hooks_spec.rb
+  #     ee/spec/requests/api/project_hooks_spec.rb
+  #     spec/requests/api/project_hooks_spec.rb
+  #     spec/requests/api/system_hooks_spec.rb
+  #   ]
+  # },
+
+  {
     explanation: 'Run database dictionary related specs on db/docs changes.',
     changed_file: 'db/docs/design_management_repositories.yml',
     expected: %w[
       ee/spec/lib/gitlab/database/desired_sharding_key_spec.rb
       spec/db/docs_spec.rb
       spec/lib/gitlab/database/dictionary_spec.rb
+      ee/spec/lib/gitlab/database/inclusion_of_tables_with_gitlab_sec_schema_spec.rb
       spec/lib/gitlab/database/no_new_tables_with_gitlab_main_schema_spec.rb
       spec/lib/gitlab/database/sharding_key_spec.rb
     ]
+  },
+  {
+    explanation: 'Verify attributes to be imported/exported',
+    changed_file: 'spec/lib/gitlab/import_export/all_models.yml',
+    expected: ['spec/lib/gitlab/import_export/model_configuration_spec.rb']
   }
 ]
 

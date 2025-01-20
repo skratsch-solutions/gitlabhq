@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can organize GitLab [groups](../index.md) into subgroups. You can use subgroups to:
 
@@ -70,9 +70,7 @@ To view the subgroups of a group:
 ### Private subgroups in public parent groups
 
 In the hierarchy list, public groups with private subgroups have an expand option (**{chevron-down}**),
-which indicates the group has nested subgroups. The expand option (**{chevron-down}**) is visible
-to all users, but the private group is displayed only to users who are direct or inherited members
-of the private subgroup.
+which indicates the group has nested subgroups. All users can view the expand option (**{chevron-down}**), but only direct or inherited members of the private subgroup can view the private group.
 
 If you prefer to keep information about the presence of nested subgroups private,
 you should add private subgroups only to private parent groups.
@@ -112,7 +110,7 @@ To change who can create subgroups on a group:
   1. From **Roles allowed to create subgroups**, select an option.
   1. Select **Save changes**.
 - As an administrator:
-  1. On the left sidebar, at the bottom, select **Admin Area**.
+  1. On the left sidebar, at the bottom, select **Admin**.
   1. On the left sidebar, select **Overview > Groups** and find your group.
   1. In the group's row, select **Edit**.
   1. From the **Allowed to create subgroups** dropdown list, select an option.
@@ -123,11 +121,8 @@ For more information, view the [permissions table](../../permissions.md#group-me
 ## Subgroup membership
 
 > - [Changed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) to display invited group members on the Members tab of the Members page in GitLab 16.10 [with a flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`. Disabled by default.
-> - [Enabled on GitLab.com and self-managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
-
-FLAG:
-On self-managed GitLab, by default this feature is available. To hide the feature per user, an administrator can [disable the feature flag](../../../administration/feature_flags.md) named `webui_members_inherited_users`.
-On GitLab.com and GitLab Dedicated, this feature is available.
+> - [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/219230) in GitLab 17.0.
+> - Feature flag `webui_members_inherited_users` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163627) in GitLab 17.4. Members of invited groups displayed by default.
 
 When you add a member to a group, that member is also added to all subgroups of that group.
 The member's permissions are inherited from the group into all subgroups.
@@ -135,9 +130,9 @@ The member's permissions are inherited from the group into all subgroups.
 Subgroup members can be:
 
 1. [Direct members](../../project/members/index.md#add-users-to-a-project) of the subgroup.
-1. [Inherited members](../../project/members/index.md#inherited-membership) of the subgroup from the subgroup's parent group.
-1. Members of a group that was [shared with the subgroup's top-level group](../manage.md#share-a-group-with-another-group).
-1. [Indirect members](../../project/members/index.md#indirect-membership) include [inherited members](../../project/members/index.md#inherited-membership) and members of a group that was [invited to the subgroup or its ancestors](../manage.md#share-a-group-with-another-group).
+1. [Inherited members](../../project/members/index.md) of the subgroup from the subgroup's parent group.
+1. Members of a group that was [shared with the subgroup's top-level group](../../project/members/sharing_projects_groups.md#invite-a-group-to-a-group).
+1. [Indirect members](../../project/members/index.md) include inherited members and members of a group that was [invited to the subgroup or its ancestors](../../project/members/sharing_projects_groups.md#invite-a-group-to-a-group).
 
 ```mermaid
 %%{init: { "fontFamily": "GitLab Sans" }}%%

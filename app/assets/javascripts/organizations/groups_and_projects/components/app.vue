@@ -6,16 +6,15 @@ import GroupsView from '~/organizations/shared/components/groups_view.vue';
 import ProjectsView from '~/organizations/shared/components/projects_view.vue';
 import NewGroupButton from '~/organizations/shared/components/new_group_button.vue';
 import NewProjectButton from '~/organizations/shared/components/new_project_button.vue';
-import { onPageChange } from '~/organizations/shared/utils';
+import { calculateGraphQLPaginationQueryParams } from '~/graphql_shared/utils';
 import {
   RESOURCE_TYPE_GROUPS,
   RESOURCE_TYPE_PROJECTS,
-  QUERY_PARAM_END_CURSOR,
-  QUERY_PARAM_START_CURSOR,
   SORT_DIRECTION_ASC,
   SORT_DIRECTION_DESC,
   SORT_ITEM_NAME,
 } from '~/organizations/shared/constants';
+import { QUERY_PARAM_END_CURSOR, QUERY_PARAM_START_CURSOR } from '~/graphql_shared/constants';
 import FilteredSearchAndSort from '~/groups_projects/components/filtered_search_and_sort.vue';
 import {
   RECENT_SEARCHES_STORAGE_KEY_GROUPS,
@@ -172,7 +171,9 @@ export default {
       });
     },
     onPageChange(pagination) {
-      this.pushQuery(onPageChange({ ...pagination, routeQuery: this.$route.query }));
+      this.pushQuery(
+        calculateGraphQLPaginationQueryParams({ ...pagination, routeQuery: this.$route.query }),
+      );
     },
     async userPreferencesUpdateMutate(input) {
       try {
@@ -206,11 +207,9 @@ export default {
 
 <template>
   <div>
-    <div
-      class="page-title-holder gl-display-flex gl-sm-flex-direction-row gl-flex-direction-column gl-sm-align-items-center"
-    >
-      <h1 class="page-title gl-font-size-h-display">{{ $options.i18n.pageTitle }}</h1>
-      <div class="gl-display-flex gl-gap-x-3 gl-sm-ml-auto gl-mb-4 gl-sm-mb-0">
+    <div class="page-title-holder gl-flex gl-flex-col sm:gl-flex-row sm:gl-items-center">
+      <h1 class="page-title gl-text-size-h-display">{{ $options.i18n.pageTitle }}</h1>
+      <div class="gl-mb-4 gl-flex gl-gap-x-3 sm:gl-mb-0 sm:gl-ml-auto">
         <new-group-button category="secondary" />
         <new-project-button />
       </div>
@@ -234,7 +233,7 @@ export default {
         :items="$options.displayListboxItems"
         :header-text="$options.i18n.displayListboxHeaderText"
         block
-        toggle-class="gl-md-w-30"
+        toggle-class="md:gl-w-30"
         @select="onDisplayListboxSelect"
       />
     </filtered-search-and-sort>

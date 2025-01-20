@@ -117,16 +117,19 @@ export default {
       helpUrl: helpPagePath('user/group/import/index', {
         anchor: 'visibility-rules',
       }),
+      shouldMigrateMemberships: true,
     };
   },
 
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     bulkImportSourceGroups: {
       query: bulkImportSourceGroupsQuery,
       variables() {
         return { page: this.page, filter: this.filter, perPage: this.perPage };
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     availableNamespaces: {
       query: searchNamespacesWhereUserCanImportProjectsQuery,
       update(data) {
@@ -139,14 +142,15 @@ export default {
     {
       key: 'selected',
       label: '',
-      thClass: 'gl-w-3 gl-pr-3!',
-      tdClass: 'gl-pr-3!',
+      thClass: 'gl-w-3 !gl-pr-3',
+      tdClass: '!gl-pr-3',
     },
     {
       key: 'webUrl',
       label: s__('BulkImport|Source group'),
-      thClass: 'gl-pl-0! gl-w-1/2',
-      tdClass: 'gl-pl-0!',
+      // eslint-disable-next-line @gitlab/require-i18n-strings
+      thClass: '!gl-pl-0 gl-w-1/2',
+      tdClass: '!gl-pl-0',
     },
     {
       key: 'importTarget',
@@ -337,14 +341,14 @@ export default {
   methods: {
     rowClasses(groupTableItem) {
       const DEFAULT_CLASSES = [
-        'gl-border-gray-200',
+        'gl-border-strong',
         'gl-border-0',
         'gl-border-b-1',
         'gl-border-solid',
       ];
       const result = [...DEFAULT_CLASSES];
       if (groupTableItem.flags.isUnselectable) {
-        result.push('gl-cursor-default!');
+        result.push('!gl-cursor-default');
       }
       return result;
     },
@@ -459,6 +463,7 @@ export default {
             sourceGroupId: group.id,
             targetNamespace: group.importTarget.targetNamespace.fullPath,
             newName: group.importTarget.newName,
+            migrateMemberships: this.shouldMigrateMemberships,
             ...extraArgs,
           },
         ]);
@@ -482,6 +487,7 @@ export default {
           sourceGroupId: group.id,
           targetNamespace: group.importTarget.targetNamespace.fullPath,
           newName: group.importTarget.newName,
+          migrateMemberships: this.shouldMigrateMemberships,
           ...extraArgs,
         }));
 
@@ -645,8 +651,11 @@ export default {
   gitlabLogo: window.gon.gitlab_logo,
   PAGE_SIZES,
   permissionsHelpPath: helpPagePath('user/permissions', { anchor: 'group-members-permissions' }),
-  betaFeatureHelpPath: helpPagePath('policy/experiment-beta-support', { anchor: 'beta-features' }),
+  betaFeatureHelpPath: helpPagePath('policy/development_stages_support', {
+    anchor: 'beta-features',
+  }),
   popoverOptions: { title: __('What is listed here?') },
+  learnMoreOptions: { title: s__('BulkImport|Import user memberships') },
   i18n,
   LOCAL_STORAGE_KEY: 'gl-bulk-imports-status-page-size-v1',
 };
@@ -655,10 +664,10 @@ export default {
 <template>
   <div>
     <div
-      class="gl-display-flex gl-align-items-center gl-border-solid gl-border-gray-100 gl-border-0 gl-border-b-1"
+      class="gl-flex gl-items-center gl-border-0 gl-border-b-1 gl-border-solid gl-border-default"
     >
-      <h1 class="gl-font-size-h1 gl-my-0 gl-py-4 gl-display-flex gl-align-items-center gl-gap-3">
-        <img :src="$options.gitlabLogo" class="gl-w-6 gl-h-6" />
+      <h1 class="gl-my-0 gl-flex gl-items-center gl-gap-3 gl-py-4 gl-text-size-h1">
+        <img :src="$options.gitlabLogo" class="gl-h-6 gl-w-6" />
         <span>{{ s__('BulkImport|Import groups by direct transfer') }}</span>
       </h1>
       <gl-button
@@ -718,9 +727,7 @@ export default {
         </template>
       </gl-sprintf>
     </gl-alert>
-    <div
-      class="gl-py-5 gl-border-solid gl-border-gray-200 gl-border-0 gl-border-b-1 gl-display-flex"
-    >
+    <div class="gl-flex gl-border-0 gl-border-b-1 gl-border-solid gl-border-strong gl-py-5">
       <span v-if="!$apollo.loading && hasGroups">
         <gl-sprintf :message="statusMessage">
           <template #start>
@@ -748,7 +755,7 @@ export default {
             "
           >
             <template #role>
-              <gl-link class="gl-font-sm" :href="$options.permissionsHelpPath" target="_blank">{{
+              <gl-link class="gl-text-sm" :href="$options.permissionsHelpPath" target="_blank">{{
                 $options.i18n.OWNER
               }}</gl-link>
             </template>
@@ -786,41 +793,61 @@ export default {
       </gl-empty-state>
       <template v-else>
         <div
-          class="gl-bg-gray-10 gl-border-solid gl-border-gray-200 gl-border-0 gl-border-b-1 gl-px-4 gl-display-flex gl-align-items-center gl-sticky gl-z-3 import-table-bar"
+          class="import-table-bar gl-sticky gl-z-3 gl-flex gl-flex-col gl-border-0 gl-border-b-1 gl-border-solid gl-border-strong gl-bg-gray-10 gl-px-4 md:gl-flex-row md:gl-items-center md:gl-justify-between"
         >
-          <span data-test-id="selection-count">
-            <gl-sprintf :message="__('%{count} selected')">
-              <template #count>
-                {{ selectedGroupsIds.length }}
-              </template>
-            </gl-sprintf>
-          </span>
-          <gl-dropdown
-            :text="s__('BulkImport|Import with projects')"
-            :disabled="!hasSelectedGroups"
-            variant="confirm"
-            category="primary"
-            data-testid="import-selected-groups-dropdown"
-            class="gl-ml-4"
-            split
-            @click="importSelectedGroups({ migrateProjects: true })"
-          >
-            <gl-dropdown-item @click="importSelectedGroups({ migrateProjects: false })">
-              {{ s__('BulkImport|Import without projects') }}
-            </gl-dropdown-item>
-          </gl-dropdown>
-          <span v-if="showImportProjectsWarning" class="gl-ml-3">
-            <gl-icon
-              v-gl-tooltip
-              :title="s__('BulkImport|Some groups will be imported without projects.')"
-              name="warning"
-              class="gl-text-orange-500"
-              data-testid="import-projects-warning"
-            />
-          </span>
+          <div class="gl-mb-3 gl-flex gl-items-center gl-pr-6 md:gl-mb-0 md:gl-grow">
+            <span data-test-id="selection-count">
+              <gl-sprintf :message="__('%{count} selected')">
+                <template #count>
+                  {{ selectedGroupsIds.length }}
+                </template>
+              </gl-sprintf>
+            </span>
+            <gl-dropdown
+              :text="s__('BulkImport|Import with projects')"
+              :disabled="!hasSelectedGroups"
+              variant="confirm"
+              category="primary"
+              data-testid="import-selected-groups-dropdown"
+              class="gl-ml-4 gl-shrink"
+              split
+              @click="importSelectedGroups({ migrateProjects: true })"
+            >
+              <gl-dropdown-item @click="importSelectedGroups({ migrateProjects: false })">
+                {{ s__('BulkImport|Import without projects') }}
+              </gl-dropdown-item>
+            </gl-dropdown>
+            <span v-if="showImportProjectsWarning" class="gl-ml-3 gl-shrink-0">
+              <gl-icon
+                v-gl-tooltip
+                :title="s__('BulkImport|Some groups will be imported without projects.')"
+                name="warning"
+                data-testid="import-projects-warning"
+                variant="warning"
+              />
+            </span>
+            <div class="gl-ml-4 gl-flex">
+              <gl-form-checkbox
+                v-model="shouldMigrateMemberships"
+                data-testid="toggle-import-user-memberships"
+                class="gl-ml-4 gl-mr-2 gl-pt-1"
+              >
+                {{ s__('BulkImport|Import user memberships') }}
+              </gl-form-checkbox>
+              <help-popover :options="$options.learnMoreOptions">
+                <gl-sprintf
+                  :message="
+                    s__(
+                      'BulkImport|Select whether user memberships in groups and projects are imported.',
+                    )
+                  "
+                />
+              </help-popover>
+            </div>
+          </div>
 
-          <span class="gl-ml-3">
-            <gl-icon name="information-o" :size="12" class="gl-text-blue-600" />
+          <span class="gl-leading-20">
+            <gl-icon name="information-o" :size="12" variant="info" />
             <gl-sprintf
               :message="
                 s__(
@@ -838,7 +865,7 @@ export default {
         </div>
         <gl-table
           ref="table"
-          class="gl-w-full import-table"
+          class="import-table gl-w-full"
           :tbody-tr-class="rowClasses"
           :tbody-tr-attr="qaRowAttributes"
           thead-class="gl-sticky gl-z-2 gl-bg-gray-10"
@@ -894,7 +921,7 @@ export default {
               v-if="showHistoryLink(group)"
               :id="group.progress.id"
               :history-path="historyShowPath"
-              class="gl-display-inline-block gl-mt-2"
+              class="gl-mt-2 gl-inline-block"
             />
           </template>
           <template #cell(actions)="{ item: group, index }">

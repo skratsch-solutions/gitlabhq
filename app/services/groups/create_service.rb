@@ -50,11 +50,12 @@ module Groups
 
       set_visibility_level
 
-      except_keys = ::NamespaceSetting.allowed_namespace_settings_params + [:organization_id]
+      except_keys = ::NamespaceSetting.allowed_namespace_settings_params + [:organization_id, :import_export_upload]
       @group = Group.new(params.except(*except_keys))
 
       set_organization
 
+      @group.import_export_uploads << params[:import_export_upload] if params[:import_export_upload]
       @group.build_namespace_settings
       handle_namespace_settings
     end
@@ -88,8 +89,6 @@ module Groups
       end
 
       params.delete(:allow_mfa_for_subgroups)
-      params.delete(:remove_dormant_members)
-      params.delete(:remove_dormant_members_period)
       params.delete(:math_rendering_limits_enabled)
       params.delete(:lock_math_rendering_limits_enabled)
     end

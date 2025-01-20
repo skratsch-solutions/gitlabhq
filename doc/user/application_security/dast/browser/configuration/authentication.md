@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 type: reference, howto
@@ -55,7 +55,7 @@ To run a DAST authenticated scan:
 ### Prerequisites
 
 - You have the username and password of the user you would like to authenticate as during the scan.
-- You have checked the [known limitations](#known-limitations) to ensure DAST can authenticate to your application.
+- You have checked the [known issues](#known-issues) to ensure DAST can authenticate to your application.
 - You have satisfied the prerequisites if you're using [form authentication](#form-authentication).
 - You have thought about how you can [verify](#verifying-authentication-is-successful) whether or not authentication was successful.
 
@@ -186,12 +186,143 @@ See [Custom CI/CD variables](../../../../../ci/variables/index.md#for-a-project)
 
 ### Configuration for Single Sign-On (SSO)
 
-If a user can sign in to an application, then in most cases, DAST is also able to log in.
+If a user can sign in to an application, then in most cases, DAST is also able to sign in.
 Even when an application uses Single Sign-on. Applications using SSO solutions should configure DAST
 authentication using the [single-step](#configuration-for-a-single-step-login-form) or [multi-step](#configuration-for-a-multi-step-login-form) login form configuration guides.
 
-DAST supports authentication processes where a user is redirected to an external Identity Provider's site to log in.
-Check the [known limitations](#known-limitations) of DAST authentication to determine if your SSO authentication process is supported.
+DAST supports authentication processes where a user is redirected to an external Identity Provider's site to sign in.
+Check the [known issues](#known-issues) of DAST authentication to determine if your SSO authentication process is supported.
+
+### Configuration for Windows integrated authentication (Kerberos)
+
+Windows integrated authentication (Kerberos) is a common authentication mechanism for line of business (LOB) applications hosted inside a Windows domain. It provides promptless authentication using the user's computer login.
+
+To configure this form of authentication perform the following steps:
+
+1. Collect the necessary information with assistance from your IT/operations team.
+1. Create or update the `dast` job definition in your `.gitlab-ci.yml` file.
+1. Populate the example `krb5.conf` file using the information collected.
+1. Set the necessary job variables.
+1. Set the necessary secret variables by using the project **Settings** page.
+1. Test and verify authentication is functioning.
+
+Collect the following information with assistance from your IT/Operations department:
+
+- Name of Windows domain or Kerberos Realm (must have a period in the name like `EXAMPLE.COM`)
+- Hostname for Windows/Kerberos domain controller
+- For Kerberos the auth server name. For Windows domains this is the domain controller.
+
+Create the `krb5.conf` file:
+
+```ini
+[libdefaults]
+  # Realm is another name for domain name
+  default_realm = EXAMPLE.COM
+  # These settings are not needed for Windows Domains
+  # they support other Kerberos implementations
+  kdc_timesync = 1
+  ccache_type = 4
+  forwardable = true
+  proxiable = true
+  rdns = false
+  fcc-mit-ticketflags = true
+[realms]
+  EXAMPLE.COM = {
+    # Domain controller or KDC
+    kdc = kdc.example.com
+    # Domain controller or admin server
+    admin_server = kdc.example.com
+  }
+[domain_realm]
+  # Mapping DNS domains to realms/Windows domain
+  # DNS domains provided by DAST_AUTH_NEGOTIATE_DELEGATION
+  # should also be represented here (but without the wildcard)
+  .example.com = EXAMPLE.COM
+  example.com = EXAMPLE.COM
+```
+
+This configuration makes use of the `DAST_AUTH_NEGOTIATE_DELEGATION` variable.
+This variable sets the following Chromium policies needed to allow integrated authentication:
+
+- [AuthServerAllowlist](https://chromeenterprise.google/policies/#AuthServerAllowlist)
+- [AuthNegotiateDelegateAllowlist](https://chromeenterprise.google/policies/#AuthNegotiateDelegateAllowlist)
+
+The settings for this variable are the DNS domains associated with your Windows domain or Kerberos realm.
+You should provide them:
+
+- In both lower case and also upper case.
+- With a wildcard pattern and just the domain name.
+
+For our example the Windows domain is `EXAMPLE.COM` and the DNS domain is `example.com`.
+This gives us a value of `*.example.com,example.com,*.EXAMPLE.COM,EXAMPLE.COM` for `DAST_AUTH_NEGOTIATE_DELEGATION`.
+
+Pull it all together into a job definition:
+
+```yaml
+# This job will extend the dast job defined in
+# the DAST template which must also be included.
+dast:
+  image:
+    name: "$SECURE_ANALYZERS_PREFIX/dast:$DAST_VERSION$DAST_IMAGE_SUFFIX"
+    docker:
+      user: root
+  variables:
+    DAST_TARGET_URL: https://target.example.com
+    DAST_AUTH_URL: https://target.example.com
+    DAST_AUTH_TYPE: basic-digest
+    DAST_AUTH_NEGOTIATE_DELEGATION: *.example.com,example.com,*.EXAMPLE.COM,EXAMPLE.COM
+    # Not shown -- DAST_AUTH_USERNAME, DAST_AUTH_PASSWORD set via Settings -> CI -> Variables
+  before_script:
+    - KRB5_CONF='
+[libdefaults]
+  default_realm = EXAMPLE.COM
+  kdc_timesync = 1
+  ccache_type = 4
+  forwardable = true
+  proxiable = true
+  rdns = false
+  fcc-mit-ticketflags = true
+[realms]
+  EXAMPLE.COM = {
+    kdc = ad1.example.com
+    admin_server = ad1.example.com
+  }
+[domain_realm]
+  .example.com = EXAMPLE.COM
+  example.com = EXAMPLE.COM
+'
+    - cat "$KRB5_CONF" > /etc/krb5.conf
+    - echo '$DAST_AUTH_PASSWORD' | kinit $DAST_AUTH_USERNAME
+    - klist
+```
+
+Expected output:
+
+The job console output contains the output from the `before` script. It will look similar to the following if authentication was successful. The job should fail if it was unsuccessful without running a scan.
+
+```plaintext
+Password for mike@EXAMPLE.COM:
+Ticket cache: FILE:/tmp/krb5cc_1000
+Default principal: mike@EXAMPLE.COM
+
+Valid starting       Expires              Service principal
+11/11/2024 21:50:50  11/12/2024 07:50:50  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+        renew until 11/12/2024 21:50:50
+```
+
+The DAST scanner will also output the following, indicating success:
+
+```log
+2024-11-08T17:03:09.226 INF AUTH  attempting to authenticate find_auth_fields="basic-digest"
+2024-11-08T17:03:09.226 INF AUTH  loading login page LoginURL="https://target.example.com"
+2024-11-08T17:03:10.619 INF AUTH  verifying if login attempt was successful true_when="HTTP status code < 400 and has authentication token and no login form found (auto-detected)"
+2024-11-08T17:03:10.619 INF AUTH  requirement is satisfied, HTTP login request returned status code 200 want="HTTP status code < 400" url="https://target.example.com/"
+2024-11-08T17:03:10.623 INF AUTH  requirement is satisfied, did not detect a login form want="no login form found (auto-detected)"
+2024-11-08T17:03:10.623 INF AUTH  authentication token cookies names=""
+2024-11-08T17:03:10.623 INF AUTH  authentication token storage events keys=""
+2024-11-08T17:03:10.623 INF AUTH  requirement is satisfied, basic authentication detected want="has authentication token"
+2024-11-08T17:03:11.230 INF AUTH  login attempt succeeded
+```
 
 ### Clicking to go to the login form
 
@@ -240,7 +371,6 @@ Selectors have the format `type`:`search string`. DAST searches for the selector
 | `id`          | `id:element`                       | Searches for an HTML element with the provided element ID.                                                                                                                                            |
 | `name`        | `name:element`                     | Searches for an HTML element with the provided element name.                                                                                                                                          |
 | `xpath`       | `xpath://input[@id="my-button"]/a` | Searches for a HTML element with the provided XPath. XPath searches are expected to be less performant than other searches.                                                                           |
-| None provided | `a.click-me`                       | Defaults to searching using a CSS selector. **{warning}** **[Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/383348)** in GitLab 15.8. Replaced by explicitly declaring the selector type.  |
 
 #### Find selectors with Google Chrome
 
@@ -249,10 +379,10 @@ Chrome DevTools element selector tool is an effective way to find a selector.
 1. Open Chrome and go to the page where you would like to find a selector, for example, the login page for your site.
 1. Open the `Elements` tab in Chrome DevTools with the keyboard shortcut `Command + Shift + c` in macOS or `Ctrl + Shift + c` in Windows or Linux.
 1. Select the `Select an element in the page to select it` tool.
-   ![search-elements](../img/dast_auth_browser_scan_search_elements.png)
+   ![search-elements](../img/dast_auth_browser_scan_search_elements_v16_9.png)
 1. Select the field on your page that you would like to know the selector for.
 1. After the tool is active, highlight a field you wish to view the details of.
-   ![highlight](../img/dast_auth_browser_scan_highlight.png)
+   ![highlight](../img/dast_auth_browser_scan_highlight_v16_9.png)
 1. Once highlighted, you can see the element's details, including attributes that would make a good candidate for a selector.
 
 In this example, the `id="user_login"` appears to be a good candidate. You can use this as a selector as the DAST username field by setting
@@ -377,7 +507,7 @@ dast:
     DAST_AUTH_COOKIE_NAMES: "sessionID,refreshToken"
 ```
 
-## Known limitations
+## Known issues
 
 - DAST cannot bypass a CAPTCHA if the authentication flow includes one. Turn these off in the testing environment for the application being scanned.
 - DAST cannot handle multi-factor authentication like one-time passwords (OTP) by using SMS, biometrics, or authenticator apps. Turn these off in the testing environment for the application being scanned.
@@ -420,7 +550,7 @@ An authentication report can be saved as a CI/CD job artifact to assist with und
 
 The report contains steps performed during the login process, HTTP requests and responses, the Document Object Model (DOM) and screenshots.
 
-![dast-auth-report](../img/dast_auth_report.jpg)
+![dast-auth-report](../img/dast_auth_report_v16_9.jpg)
 
 An example configuration where the authentication debug report is exported may look like the following:
 

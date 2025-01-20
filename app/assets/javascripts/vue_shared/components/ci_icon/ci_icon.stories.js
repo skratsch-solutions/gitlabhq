@@ -16,7 +16,7 @@ Default.args = {
   status: {
     icon: 'status_success',
     text: 'Success',
-    detailsPath: 'https://gitab.com/',
+    detailsPath: 'https://gitlab.com/',
   },
 };
 
@@ -25,7 +25,27 @@ WithText.args = {
   status: {
     icon: 'status_success',
     text: 'Success',
-    detailsPath: 'https://gitab.com/',
+    detailsPath: 'https://gitlab.com/',
   },
   showStatusText: true,
+};
+
+export const WithTooltip = Template.bind({});
+WithTooltip.args = {
+  status: {
+    icon: 'status_success',
+    text: 'Success',
+    detailsPath: 'https://gitlab.com/',
+  },
+  showTooltip: true,
+};
+
+export const NoLink = Template.bind({});
+NoLink.args = {
+  status: {
+    icon: 'status_success',
+    text: 'Success',
+    detailsPath: 'https://gitlab.com/',
+  },
+  useLink: false,
 };

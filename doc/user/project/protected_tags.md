@@ -9,7 +9,7 @@ description: "Use protected tags in Git to control who can create tags, and prev
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Protected [tags](repository/tags/index.md):
 
@@ -21,14 +21,14 @@ Each rule allows you to match either:
 - An individual tag name.
 - Wildcards to control multiple tags at once.
 
-This feature evolved out of [protected branches](protected_branches.md).
+This feature evolved out of [protected branches](repository/branches/protected.md).
 
 ## Who can modify a protected tag
 
 By default:
 
-- To create tags, you must have the Maintainer role.
-- No one can update or delete tags.
+- To create or delete tags, you must have the Maintainer role.
+- Protected tags [can only be deleted](#delete-a-protected-tag) using the UI or API.
 
 ## Configuring protected tags
 
@@ -55,6 +55,68 @@ Prerequisites:
 
 The protected tag (or wildcard) displays in the **Protected tags** list.
 
+### Add a group to protected tags
+
+To set the members of a group or subgroup as Allowed to create protected tags:
+
+1. On the left sidebar, select **Search or go** to and find your project.
+1. Select **Settings > Repository**.
+1. Expand **Protected tags**.
+1. Add groups to the following field:
+
+   ```plaintext
+   # Allow group members to create protected tags
+   Allowed to create: @group-x
+   ```
+
+#### Group inheritance and eligibility
+
+```mermaid
+%%{init: { "fontFamily": "GitLab Sans" }}%%
+graph TD
+    accTitle: Diagram of group inheritance for protected tags
+    accDescr: If a project is shared with a group, the group members inherit permissions for protected tags.
+    A[Parent group X] -->|owns| B[Project A]
+    A -->|contains| C[Subgroup Y]
+    B -->|shared with| C
+    C -->|members inherit permissions| B
+```
+
+In this example:
+
+- **Parent group X** (`group-x`) owns **Project A**.
+- **Parent group X** also contains a subgroup, **Subgroup Y**. (`group-x/subgroup-y`)
+- **Project A** is shared with **Subgroup Y**.
+
+The eligible groups for protected tag permissions are:
+
+- **Project A**: Both **Group X** and **Subgroup Y**, because **Project A** is shared with **Subgroup Y**.
+
+#### Share projects with groups for protected tag permissions
+
+You can share the project with a group or subgroup so that their members are
+eligible for protected tag permissions.
+
+```mermaid
+%%{init: { "fontFamily": "GitLab Sans" }}%%
+graph LR
+    accTitle: Diagram of project sharing for protected tag permissions
+    accDescr: Sharing a project with a group affects whether their members can have protected tag permissions.
+    A[Parent group X] -->|owns| B[Project A]
+    A -->|also contains| C[Subgroup Y]
+    C -.->D{Share Project A<br/>with Subgroup Y?} -.->|yes| E[Members of Subgroup Y<br/>can have protected<br/>tag permissions]
+    D{Share Project A<br/>with Subgroup Y?} -.->|no| F[Members of Subgroup Y<br />cannot have protected<br/>tag permissions]
+    E -.->|Add Subgroup Y<br/> to protected tag settings| I[Subgroup Y members<br/>can create tags] -.-> B
+    F -.-> |Add Subgroup Y<br/> to protected tag settings| J[Settings will not<br/>take effect] -.-> B
+```
+
+To grant access to **Subgroup Y** members for **Project A**, you must share the project with the subgroup.
+Adding the subgroup directly to the protected tag settings is not effective and isn't applicable to subgroup members.
+
+NOTE:
+For a group to have protected tag permissions, the project must be directly shared with the group.
+Inherited project membership from parent groups is not sufficient for protected tag permissions.
+
 ## Wildcard protected tags
 
 You can specify a wildcard protected tag, which protects all tags
@@ -75,7 +137,7 @@ In that case, if _any_ of these protected tags have a setting like
 If you select a protected tag's name, GitLab displays a list of
 all matching tags:
 
-![Protected tag matches](img/protected_tag_matches.png)
+![Protected tag matches](img/protected_tag_matches_v9_1.png)
 
 ## Prevent tag creation with the same name as branches
 
@@ -103,9 +165,7 @@ Users can still create branches, but not tags, with the protected names.
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/325415) in GitLab 15.11.
 
-You can permit the owner of a [deploy key](deploy_keys/index.md) to create protected tags.
-The deploy key works, even if the user isn't a member of the related project. However, the owner of the deploy
-key must have at least read access to the project.
+You can permit a [deploy key](deploy_keys/index.md) to create protected tags.
 
 Prerequisites:
 
@@ -115,6 +175,8 @@ Prerequisites:
   project.
 - The deploy key must have [write access](deploy_keys/index.md#permissions) to your project
   repository.
+- The owner of the deploy key must have at least read access to the project.
+- The owner of the deploy key must also be a member of the project.
 
 To allow a deploy key to create a protected tag:
 
@@ -124,6 +186,16 @@ To allow a deploy key to create a protected tag:
 1. From the **Tag** dropdown list, select the tag you want to protect.
 1. From the **Allowed to create** list, select the deploy key.
 1. Select **Protect**.
+
+## Run pipelines on protected tags
+
+The permissions to create protected tags define if a user can:
+
+- Initiate and run CI/CD pipelines.
+- Execute actions on jobs associated with these tags.
+
+These permissions ensure that only authorized users can trigger and manage
+CI/CD processes for protected tags.
 
 ## Delete a protected tag
 

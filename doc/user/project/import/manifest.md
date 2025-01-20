@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - Ability to re-import projects [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/23905) in GitLab 15.9.
 
@@ -26,12 +26,12 @@ repositories like the Android Open Source Project (AOSP).
   must be enabled. If not enabled, ask your GitLab administrator to enable it. The Manifest import source is enabled
   by default on GitLab.com.
 - GitLab must use PostgreSQL for its database, because [subgroups](../../group/subgroups/index.md) are needed for the manifest import
-  to work. Read more about the [database requirements](../../../install/requirements.md#database).
+  to work. Read more about the [database requirements](../../../install/requirements.md#postgresql).
 - At least the Maintainer role on the destination group to import to.
 
 ## Manifest format
 
-A manifest must be an XML file. There must be one `remote` tag with a `review`
+A manifest must be an XML file up to 1 MB in size. There must be one `remote` tag with a `review`
 attribute that contains a URL to a Git server, and each `project` tag must have
 a `name` and `path` attribute. GitLab then builds the URL to the repository
 by combining the URL from the `remote` tag with a project name.

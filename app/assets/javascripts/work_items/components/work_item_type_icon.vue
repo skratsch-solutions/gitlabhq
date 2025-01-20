@@ -30,6 +30,16 @@ export default {
       required: false,
       default: false,
     },
+    iconVariant: {
+      type: String,
+      required: false,
+      default: 'default',
+    },
+    iconClass: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   computed: {
     workItemTypeUppercase() {
@@ -63,7 +73,8 @@ export default {
       v-gl-tooltip.hover="showTooltipOnHover"
       :name="iconName"
       :title="workItemTooltipTitle"
-      class="gl-text-secondary"
+      :variant="iconVariant"
+      :class="iconClass"
     />
     <span v-if="workItemTypeName" :class="{ 'gl-sr-only': !showText }">{{ workItemTypeName }}</span>
   </span>

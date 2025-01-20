@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 If you are an administrator, use the following information to troubleshoot LDAP.
 
@@ -61,7 +61,7 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The following allows you to perform a search in LDAP using the rails console.
 Depending on what you're trying to do, it may make more sense to query [a user](#query-a-user-in-ldap)
@@ -182,7 +182,7 @@ may see the following message: `Access denied for your LDAP account`.
 
 We have a workaround, based on toggling the access level of affected users:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Overview > Users**.
 1. Select the name of the affected user.
 1. In the upper-right corner, select **Edit**.
@@ -239,7 +239,7 @@ field contains no data:
 
 To resolve this:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand both of the following:
    - **Account and limit**.
@@ -268,7 +268,7 @@ ldapsearch -H ldaps://$host:$port -D "$bind_dn" -y bind_dn_password.txt  -b "$ba
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The output from a manual [user sync](ldap_synchronization.md#user-sync) can show you what happens when
 GitLab tries to sync its users against LDAP. Enter the [rails console](#rails-console)
@@ -286,7 +286,7 @@ Next, [learn how to read the output](#example-console-output-after-a-user-sync).
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The output from a [manual user sync](#sync-all-users) is very verbose, and a
 single user's successful sync can look like this:
@@ -381,11 +381,11 @@ Gitlab::Auth::Ldap::Person.find_by_uid('<uid>', adapter)
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 #### Memberships not granted
 
-Sometimes you may think a particular user should be added to a GitLab group via
+Sometimes you may think a particular user should be added to a GitLab group through
 LDAP group sync, but for some reason it's not happening. You can check several
 things to debug the situation.
 
@@ -394,7 +394,7 @@ things to debug the situation.
 - Ensure the correct [LDAP group link is added to the GitLab group](ldap_synchronization.md#add-group-links).
 - Check that the user has an LDAP identity:
   1. Sign in to GitLab as an administrator user.
-  1. On the left sidebar, at the bottom, select **Admin Area**.
+  1. On the left sidebar, at the bottom, select **Admin**.
   1. On the left sidebar, select **Overview > Users**.
   1. Search for the user.
   1. Open the user by selecting their name. Do not select **Edit**.
@@ -744,7 +744,7 @@ You can solve this error in two ways.
 
 ### Rename references to the LDAP server
 
-This solution is suitable when the LDAP servers are replicas of each other, and the affected users should be able to sign in using a configured LDAP server. 
+This solution is suitable when the LDAP servers are replicas of each other, and the affected users should be able to sign in using a configured LDAP server.
 For example, if a load balancer is now used to manage LDAP high availability and a separate secondary sign-in option is no longer needed.
 
 NOTE:
@@ -763,7 +763,7 @@ Prerequisites:
 - Ensure that `auto_link_ldap_user` is enabled.
 
 With this solution, after the identity is deleted, affected users can sign in with the
-configured LDAP servers and a new `identity` record is created by GitLab. 
+configured LDAP servers and a new `identity` record is created by GitLab.
 
 Because the LDAP server that was removed was `ldapsecondary`, in a [Rails console](../../operations/rails_console.md), delete all the `ldapsecondary` identities:
 

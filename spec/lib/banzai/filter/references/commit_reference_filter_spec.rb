@@ -129,7 +129,7 @@ RSpec.describe Banzai::Filter::References::CommitReferenceFilter, feature_catego
           expect(Gitlab::GitalyClient).to receive(:allow_n_plus_1_calls).exactly(0).times
           expect(Gitlab::Git::Commit).to receive(:batch_by_oid).once.and_call_original
 
-          reference_filter("A big list of SHAs #{oids.join(", ")}", noteable: noteable)
+          reference_filter("A big list of SHAs #{oids.join(', ')}", noteable: noteable)
         end
       end
     end
@@ -151,6 +151,17 @@ RSpec.describe Banzai::Filter::References::CommitReferenceFilter, feature_catego
       doc = reference_filter("See (#{reference}.)")
 
       expect(doc.text).to eql("See (#{project2.full_path}@#{commit.short_id}.)")
+    end
+
+    context 'when absolute path namespace is provided instead of project' do
+      let(:reference) { "/#{namespace.full_path}@#{commit.short_id}" }
+
+      it 'does not replace this reference with a link' do
+        doc = reference_filter("See (#{reference}.)")
+
+        expect(doc.css('a')).to be_empty
+        expect(doc.text).to eql("See (/#{namespace.full_path}@#{commit.short_id}.)")
+      end
     end
 
     it 'ignores invalid commit IDs on the referenced project' do
@@ -328,5 +339,10 @@ RSpec.describe Banzai::Filter::References::CommitReferenceFilter, feature_catego
         reference_filter(markdown)
       end.not_to exceed_all_query_limit(control).with_threshold(5)
     end
+  end
+
+  it_behaves_like 'limits the number of filtered items' do
+    let(:text) { "#{commit.id} #{commit.id} #{commit.id}" }
+    let(:ends_with) { "</a> #{commit.id}" }
   end
 end

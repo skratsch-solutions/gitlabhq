@@ -47,7 +47,7 @@ module Gitlab
           return paths unless context
 
           paths.map do |glob|
-            ExpandVariables.expand_existing(glob, -> { context.variables_hash })
+            expand_value_nested(glob, context)
           end
         end
 
@@ -70,11 +70,15 @@ module Gitlab
         def find_compare_to_sha(pipeline, context)
           return unless @globs.include?(:compare_to)
 
-          compare_to = ExpandVariables.expand(@globs[:compare_to], -> { context.variables_hash })
+          compare_to = expand_value_nested(@globs[:compare_to], context)
           commit = pipeline.project.commit(compare_to)
           raise Rules::Rule::Clause::ParseError, 'rules:changes:compare_to is not a valid ref' unless commit
 
           commit.sha
+        end
+
+        def expand_value_nested(value, context)
+          ExpandVariables.expand_existing(value, -> { context.variables_hash_expanded })
         end
       end
     end

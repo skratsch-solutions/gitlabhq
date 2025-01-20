@@ -30,13 +30,23 @@ RSpec.describe Tooling::Danger::ProjectHelper, feature_category: :tooling do
     end
 
     where(:path, :expected_categories) do
-      'glfm_specification/example_snapshots/prosemirror_json.yml' | [:frontend]
-      'glfm_specification/input/glfm_anything.yml' | [:frontend, :backend]
-
       'doc/api/graphql/reference/index.md'               | [:docs, :backend]
       'doc/api/graphql/reference/some_other_file.txt'    | [:docs, :backend]
       'doc/api/openapi/openapi.yaml'                     | [:docs, :backend]
       'doc/api/openapi/any_other_file.yaml'              | [:docs, :backend]
+
+      'config/feature_flags/flag_config.yml' | [:feature_flag]
+      'config/feature_flags/nested/flag_config.yaml' | [:feature_flag]
+      'ee/config/feature_flags/flag_config.yml' | [:feature_flag]
+      'ee/config/feature_flags/nested/flag_config.yaml' | [:feature_flag]
+      'jh/config/feature_flags/flag_config.yml' | [:feature_flag]
+      'jh/config/feature_flags/nested/flag_config.yaml' | [:feature_flag]
+      'config/feature_flags/flag_config.patch' | [:backend]
+      'config/feature_flags/nested/flag_config.patch' | [:backend]
+      'ee/config/feature_flags/flag_config.patch' | [:backend]
+      'ee/config/feature_flags/nested/flag_config.patch' | [:backend]
+      'jh/config/feature_flags/flag_config.patch' | [:backend]
+      'jh/config/feature_flags/nested/flag_config.patch' | [:backend]
 
       'usage_data.rb'   | [:database, :backend, :analytics_instrumentation]
       'doc/foo.md'      | [:docs]
@@ -180,6 +190,10 @@ RSpec.describe Tooling::Danger::ProjectHelper, feature_category: :tooling do
       'spec/lib/gitlab/usage_data_spec.rb' | [:analytics_instrumentation]
       'spec/lib/gitlab/usage/service_ping_report.rb' | [:backend, :analytics_instrumentation]
       'spec/lib/gitlab/usage/metrics/key_path_processor.rb' | [:backend, :analytics_instrumentation]
+      'spec/support/matchers/internal_events_matchers.rb' | [:backend, :analytics_instrumentation]
+      'spec/support_specs/matchers/internal_events_matchers_spec.rb' | [:backend, :analytics_instrumentation]
+      'scripts/internal_events/cli/global_state.rb' | [:backend, :analytics_instrumentation]
+      'spec/scripts/internal_events/cli_spec.rb' | [:backend, :analytics_instrumentation]
 
       'app/models/integration.rb' | [:import_integrate_be, :backend]
       'ee/app/models/integrations/github.rb' | [:import_integrate_be, :backend]

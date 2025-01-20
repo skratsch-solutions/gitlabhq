@@ -2,7 +2,7 @@
 <script>
 import NO_PIPELINES_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-pipeline-md.svg?url';
 import ERROR_STATE_SVG from '@gitlab/svgs/dist/illustrations/empty-state/empty-job-failed-md.svg?url';
-import { GlEmptyState, GlIcon, GlLoadingIcon, GlCollapsibleListbox } from '@gitlab/ui';
+import { GlCollapsibleListbox, GlEmptyState, GlIcon, GlLoadingIcon } from '@gitlab/ui';
 import { isEqual } from 'lodash';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { createAlert, VARIANT_INFO, VARIANT_WARNING } from '~/alert';
@@ -58,25 +58,12 @@ export default {
       type: Boolean,
       required: true,
     },
-    canCreatePipeline: {
-      type: Boolean,
-      required: true,
-    },
     resetCachePath: {
       type: String,
       required: false,
       default: null,
     },
     newPipelinePath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    projectId: {
-      type: String,
-      required: true,
-    },
-    defaultBranchName: {
       type: String,
       required: false,
       default: null,
@@ -351,8 +338,12 @@ export default {
       v-if="shouldRenderTabs || shouldRenderButtons"
       class="top-area scrolling-tabs-container inner-page-scroll-tabs gl-border-none"
     >
-      <div class="fade-left"><gl-icon name="chevron-lg-left" :size="12" /></div>
-      <div class="fade-right"><gl-icon name="chevron-lg-right" :size="12" /></div>
+      <div class="fade-left">
+        <gl-icon name="chevron-lg-left" :size="12" />
+      </div>
+      <div class="fade-right">
+        <gl-icon name="chevron-lg-right" :size="12" />
+      </div>
 
       <navigation-tabs
         v-if="shouldRenderTabs"
@@ -372,19 +363,17 @@ export default {
 
     <div v-if="stateToRender !== $options.stateMap.emptyState" class="gl-flex">
       <div
-        class="row-content-block gl-max-w-full gl-flex max-sm:gl-flex-wrap gl-gap-4 gl-flex-grow gl-border-b-0"
+        class="row-content-block gl-flex gl-max-w-full gl-flex-grow gl-flex-wrap gl-gap-4 gl-border-b-0 sm:gl-flex-nowrap"
       >
         <pipelines-filtered-search
-          class="gl-flex gl-flex-grow gl-max-w-full"
-          :project-id="projectId"
-          :default-branch-name="defaultBranchName"
+          class="gl-flex gl-max-w-full gl-flex-grow"
           :params="validatedParams"
           @filterPipelines="filterPipelines"
         />
         <gl-collapsible-listbox
           v-model="visibilityPipelineIdType"
-          class="max-sm:gl-flex-grow"
-          toggle-class="gl-flex-grow"
+          class="gl-grow sm:gl-grow-0"
+          toggle-class="gl-grow"
           :toggle-text="selectedPipelineKeyOption.text"
           :items="$options.pipelineKeyOptions"
           @select="changeVisibilityPipelineIDType"
@@ -403,7 +392,6 @@ export default {
       <no-ci-empty-state
         v-else-if="stateToRender === $options.stateMap.emptyState"
         :empty-state-svg-path="$options.noPipelinesSvgPath"
-        :can-set-ci="canCreatePipeline"
       />
 
       <gl-empty-state
@@ -422,7 +410,6 @@ export default {
       <div v-else-if="stateToRender === $options.stateMap.tableList">
         <pipelines-table
           :pipelines="state.pipelines"
-          :update-graph-dropdown="updateGraphDropdown"
           :pipeline-id-type="selectedPipelineKeyOption.value"
           @cancel-pipeline="onCancelPipeline"
           @refresh-pipelines-table="onRefreshPipelinesTable"

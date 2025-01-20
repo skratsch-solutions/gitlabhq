@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 Endpoints for managing [GitLab Pages](../user/project/pages/index.md).
 
@@ -28,7 +28,7 @@ DELETE /projects/:id/pages
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 
 ```shell
 curl --request 'DELETE' --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/2/pages"
@@ -52,9 +52,9 @@ Supported attributes:
 
 | Attribute | Type           | Required | Description                              |
 | --------- | -------------- | -------- | ---------------------------------------- |
-| `id`      | integer/string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`      | integer/string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 
-If successful, returns [`200`](rest/index.md#status-codes) and the following
+If successful, returns [`200`](rest/troubleshooting.md#status-codes) and the following
 response attributes:
 
 | Attribute                                 | Type       | Description                                                                                                                  |
@@ -63,13 +63,14 @@ response attributes:
 | `is_unique_domain_enabled`                | boolean    | If [unique domain](../user/project/pages/introduction.md) is enabled.                                                        |
 | `force_https`                             | boolean    | `true` if the project is set to force HTTPS.                                                                                      |
 | `deployments[]`                           | array      | List of current active deployments.                                                                                          |
+| `primary_domain`                          | string     | Primary domain to redirect all Pages requests to. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/481334) in GitLab 17.8. |
 
-| `deployments[]` attribute                 | Type       | Description                                                                                                                  |
-| ----------------------------------------- | ---------- | -----------------------                                                                                                      |
-| `created_at`                              | date       | Date deployment was created.                                                                                                 |
-| `url`                                     | string     | URL for this deployment.                                                                                                     |
-| `path_prefix`                             | string     | Path prefix of this deployment when using [multiple deployments](../user/project/pages/index.md#create-multiple-deployments). |
-| `root_directory`                          | string     | Root directory.                                                                                                              |
+| `deployments[]` attribute                 | Type       | Description                                                                                                                   |
+| ----------------------------------------- | ---------- |-------------------------------------------------------------------------------------------------------------------------------|
+| `created_at`                              | date       | Date deployment was created.                                                                                                  |
+| `url`                                     | string     | URL for this deployment.                                                                                                      |
+| `path_prefix`                             | string     | Path prefix of this deployment when using [parallel deployments](../user/project/pages/index.md#parallel-deployments). |
+| `root_directory`                          | string     | Root directory.                                                                                                               |
 
 Example request:
 
@@ -97,7 +98,8 @@ Example response:
       "path_prefix": "mr3",
       "root_directory": null
     }
-  ]
+  ],
+  "primary_domain": null
 }
 ```
 
@@ -119,11 +121,12 @@ Supported attributes:
 
 | Attribute                       | Type           | Required | Description                                                                                                         |
 | --------------------------------| -------------- | -------- | --------------------------------------------------------------------------------------------------------------------|
-| `id`                            | integer/string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id`                            | integer/string | Yes      | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths)                                 |
 | `pages_unique_domain_enabled`   | boolean        | No       | Whether to use unique domain                                                                                        |
 | `pages_https_only`              | boolean        | No       | Whether to force HTTPs                                                                                              |
+| `pages_primary_domain`          | string         | No       | Set the primary domain from the existing assigned domains to redirect all Pages requests to. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/481334) in GitLab 17.8. |
 
-If successful, returns [`200`](rest/index.md#status-codes) and the following
+If successful, returns [`200`](rest/troubleshooting.md#status-codes) and the following
 response attributes:
 
 | Attribute                                 | Type       | Description                                                                                                                  |
@@ -132,19 +135,24 @@ response attributes:
 | `is_unique_domain_enabled`                | boolean    | If [unique domain](../user/project/pages/introduction.md) is enabled.                                                        |
 | `force_https`                             | boolean    | `true` if the project is set to force HTTPS.                                                                                      |
 | `deployments[]`                           | array      | List of current active deployments.                                                                                          |
+| `primary_domain`                          | string     | Primary domain to redirect all Pages requests to. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/481334) in GitLab 17.8. |
 
-| `deployments[]` attribute                 | Type       | Description                                                                                                                  |
-| ----------------------------------------- | ---------- | -----------------------                                                                                                      |
-| `created_at`                              | date       | Date deployment was created.                                                                                                 |
-| `url`                                     | string     | URL for this deployment.                                                                                                     |
-| `path_prefix`                             | string     | Path prefix of this deployment when using [multiple deployments](../user/project/pages/index.md#create-multiple-deployments). |
-| `root_directory`                          | string     | Root directory.                                                                                                              |
+| `deployments[]` attribute                 | Type       | Description                                                                                                                   |
+| ----------------------------------------- | ---------- |-------------------------------------------------------------------------------------------------------------------------------|
+| `created_at`                              | date       | Date deployment was created.                                                                                                  |
+| `url`                                     | string     | URL for this deployment.                                                                                                      |
+| `path_prefix`                             | string     | Path prefix of this deployment when using [parallel deployments](../user/project/pages/index.md#parallel-deployments). |
+| `root_directory`                          | string     | Root directory.                                                                                                               |
 
 Example request:
 
 ```shell
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" --url "https://gitlab.example.com/api/v4/projects/:id/pages" \
---form 'pages_unique_domain_enabled=true' --form 'pages_https_only=true'
+curl --request PATCH \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/projects/:id/pages" \
+  --form 'pages_unique_domain_enabled=true' \
+  --form 'pages_https_only=true' \
+  --form 'pages_primary_domain=https://custom.example.com'
 ```
 
 Example response:
@@ -167,6 +175,7 @@ Example response:
       "path_prefix": "mr3",
       "root_directory": null
     }
-  ]
+  ],
+  "primary_domain": null
 }
 ```

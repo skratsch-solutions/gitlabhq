@@ -16,6 +16,8 @@ class Member < ApplicationRecord
   include RestrictedSignup
   include Gitlab::Experiment::Dsl
 
+  ignore_column :last_activity_on, remove_with: '17.8', remove_after: '2024-12-23'
+
   AVATAR_SIZE = 40
   ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT = 10
 
@@ -58,6 +60,7 @@ class Member < ApplicationRecord
     },
     if: :project_bot?
   validate :access_level_inclusion
+  validate :user_is_not_placeholder
 
   scope :with_invited_user_state, -> do
     joins('LEFT JOIN users as invited_user ON invited_user.email = members.invite_email')
@@ -66,7 +69,8 @@ class Member < ApplicationRecord
   end
 
   scope :in_hierarchy, ->(source) do
-    groups = source.root_ancestor.self_and_descendants
+    source = source.root_ancestor
+    groups = source.self_and_descendants
     group_members = Member.default_scoped.where(source: groups).select(*Member.cached_column_list)
 
     projects = source.root_ancestor.all_projects
@@ -75,8 +79,28 @@ class Member < ApplicationRecord
     Member.default_scoped.from_union([group_members, project_members]).merge(self)
   end
 
+  scope :for_self_and_descendants, ->(group, columns = Member.cached_column_list) do
+    return self if group.blank?
+
+    group_members = where(source_id: group.self_and_descendant_ids, source_type: GroupMember::SOURCE_TYPE)
+    project_members = where(source_id: group.all_project_ids, source_type: ProjectMember::SOURCE_TYPE)
+
+    Member.unscoped.from_union([
+      group_members.select(*columns),
+      project_members.select(*columns)
+    ], remove_duplicates: false)
+  end
+
+  scope :including_user_ids, ->(user_ids) do
+    where(user_id: user_ids)
+  end
+
   scope :excluding_users, ->(user_ids) do
     where.not(user_id: user_ids)
+  end
+
+  scope :count_by_access_level, ->(column_name = nil) do
+    group(:access_level).count(column_name)
   end
 
   # This scope encapsulates (most of) the conditions a row in the member table
@@ -154,6 +178,7 @@ class Member < ApplicationRecord
   scope :not_accepted_invitations_by_user, ->(user) { not_accepted_invitations.where(created_by: user) }
   scope :not_expired, ->(today = Date.current) { where(arel_table[:expires_at].gt(today).or(arel_table[:expires_at].eq(nil))) }
   scope :expiring_and_not_notified, ->(date) { where("expiry_notified_at is null AND expires_at >= ? AND expires_at <= ?", Date.current, date) }
+  scope :with_created_by, -> { where.associated(:created_by) }
 
   scope :created_today, -> do
     now = Date.current
@@ -164,6 +189,7 @@ class Member < ApplicationRecord
   scope :has_access, -> { active.where('access_level > 0') }
 
   scope :guests, -> { active.where(access_level: GUEST) }
+  scope :planners, -> { active.where(access_level: PLANNER) }
   scope :reporters, -> { active.where(access_level: REPORTER) }
   scope :developers, -> { active.where(access_level: DEVELOPER) }
   scope :maintainers, -> { active.where(access_level: MAINTAINER) }
@@ -175,6 +201,7 @@ class Member < ApplicationRecord
   scope :with_user, ->(user) { where(user: user) }
   scope :by_access_level, ->(access_level) { active.where(access_level: access_level) }
   scope :all_by_access_level, ->(access_level) { where(access_level: access_level) }
+  scope :with_at_least_access_level, ->(access_level) { where(access_level: access_level..) }
 
   scope :preload_users, -> { preload(:user) }
 
@@ -185,6 +212,7 @@ class Member < ApplicationRecord
 
   scope :with_source_id, ->(source_id) { where(source_id: source_id) }
   scope :including_source, -> { includes(:source) }
+  scope :including_user, -> { includes(:user) }
 
   scope :distinct_on_user_with_max_access_level, ->(for_object) do
     valid_objects = %w[Project Namespace]
@@ -202,7 +230,7 @@ class Member < ApplicationRecord
       user_id, invite_email,
       CASE WHEN source_id = #{for_object.id} and source_type = '#{obj_class}'
       THEN access_level + 1 ELSE access_level END DESC,
-      expires_at DESC, created_at ASC
+      member_role_id ASC, expires_at DESC, created_at ASC
     SQL
 
     distinct_members = select('DISTINCT ON (user_id, invite_email) *')
@@ -297,21 +325,23 @@ class Member < ApplicationRecord
   end
 
   scope :order_updated_desc, -> { order(updated_at: :desc) }
-
   scope :on_project_and_ancestors, ->(project) { where(source: [project] + project.ancestors) }
+  scope :with_static_role, -> { where(member_role_id: nil) }
 
   before_validation :set_member_namespace_id, on: :create
   before_validation :generate_invite_token, on: :create, if: ->(member) { member.invite_email.present? && !member.invite_accepted_at? }
 
   after_create :send_invite, if: :invite?, unless: :importing?
   after_create :create_notification_setting, unless: [:pending?, :importing?]
-  after_create :post_create_hook, unless: [:pending?, :importing?], if: :hook_prerequisites_met?
+  after_create :post_create_member_hook, unless: [:pending?, :importing?], if: :hook_prerequisites_met?
+  after_create :post_create_access_request_hook, if: [:request?, :hook_prerequisites_met?]
   after_create :update_two_factor_requirement, unless: :invite?
   after_create :create_organization_user_record
   after_update :post_update_hook, unless: [:pending?, :importing?], if: :hook_prerequisites_met?
-  after_update :create_organization_user_record, if: :saved_change_to_user_id? # only occurs on invite acceptance
+  after_update :create_organization_user_record, if: :accepted_invite_or_request?
   after_destroy :destroy_notification_setting
-  after_destroy :post_destroy_hook, unless: :pending?, if: :hook_prerequisites_met?
+  after_destroy :post_destroy_member_hook, unless: :pending?, if: :hook_prerequisites_met?
+  after_destroy :post_destroy_access_request_hook, if: [:request?, :hook_prerequisites_met?]
   after_destroy :update_two_factor_requirement, unless: :invite?
   after_save :log_invitation_token_cleanup
 
@@ -408,27 +438,51 @@ class Member < ApplicationRecord
       pluck(:user_id)
     end
 
-    def with_group_group_sharing_access(shared_groups)
+    def coerce_to_no_access
+      select(member_columns_with_no_access)
+    end
+
+    def with_group_group_sharing_access(shared_groups, custom_role_for_group_link_enabled)
+      columns = member_columns_with_group_sharing_access(custom_role_for_group_link_enabled)
+
       joins("LEFT OUTER JOIN group_group_links ON members.source_id = group_group_links.shared_with_group_id")
-        .select(member_columns_with_group_sharing_access)
+        .select(columns)
         .where(group_group_links: { shared_group_id: shared_groups })
     end
 
-    def member_columns_with_group_sharing_access
+    private
+
+    def member_columns_with_group_sharing_access(custom_role_for_group_link_enabled)
       group_group_link_table = GroupGroupLink.arel_table
 
       column_names.map do |column_name|
-        if column_name == 'access_level'
+        case column_name
+        when 'access_level'
           args = [group_group_link_table[:group_access], arel_table[:access_level]]
           smallest_value_arel(args, 'access_level')
+        when 'member_role_id'
+          member_role_id(group_group_link_table, custom_role_for_group_link_enabled)
         else
           arel_table[column_name]
         end
       end
     end
 
+    def member_columns_with_no_access
+      column_names.map { |column_name| column_name == 'access_level' ? no_access_arel : arel_table[column_name] }
+    end
+
     def smallest_value_arel(args, column_alias)
       Arel::Nodes::As.new(Arel::Nodes::NamedFunction.new('LEAST', args), Arel::Nodes::SqlLiteral.new(column_alias))
+    end
+
+    def no_access_arel
+      Arel::Nodes::As.new(Arel::Nodes::SqlLiteral.new('0'), Arel::Nodes::SqlLiteral.new('access_level'))
+    end
+
+    # overriden in EE
+    def member_role_id(_group_link_table, _custom_role_for_group_link_enabled)
+      arel_table[:member_role_id]
     end
   end
 
@@ -517,7 +571,9 @@ class Member < ApplicationRecord
 
     generate_invite_token! unless @raw_invite_token
 
-    run_after_commit_or_now { notification_service.invite_member_reminder(self, @raw_invite_token, reminder_index) }
+    run_after_commit_or_now do
+      Members::InviteReminderMailer.email(self, @raw_invite_token, reminder_index).deliver_later
+    end
   end
 
   def create_notification_setting
@@ -590,6 +646,14 @@ class Member < ApplicationRecord
     errors.add(:access_level, "is not included in the list")
   end
 
+  def user_is_not_placeholder
+    if Gitlab::Import::PlaceholderUserCreator.placeholder_email?(invite_email)
+      errors.add(:invite_email, _('must not be a placeholder email'))
+    elsif user&.placeholder?
+      errors.add(:user_id, _("must not be a placeholder user"))
+    end
+  end
+
   def send_invite
     run_after_commit_or_now { Members::InviteMailer.initial_email(self, @raw_invite_token).deliver_later }
   end
@@ -599,7 +663,11 @@ class Member < ApplicationRecord
     todo_service.create_member_access_request_todos(self)
   end
 
-  def post_create_hook
+  def post_create_access_request_hook
+    system_hook_service.execute_hooks_for(self, :request)
+  end
+
+  def post_create_member_hook
     # The creator of a personal project gets added as a `ProjectMember`
     # with `OWNER` access during creation of a personal project,
     # but we do not want to trigger notifications to the same person who created the personal project.
@@ -623,8 +691,12 @@ class Member < ApplicationRecord
     system_hook_service.execute_hooks_for(self, :update)
   end
 
-  def post_destroy_hook
+  def post_destroy_member_hook
     system_hook_service.execute_hooks_for(self, :destroy)
+  end
+
+  def post_destroy_access_request_hook
+    system_hook_service.execute_hooks_for(self, :revoke)
   end
 
   # Refreshes authorizations of the current member.
@@ -648,7 +720,7 @@ class Member < ApplicationRecord
 
     update_two_factor_requirement
 
-    post_create_hook
+    post_create_member_hook
   end
 
   def after_decline_invite
@@ -656,7 +728,7 @@ class Member < ApplicationRecord
   end
 
   def after_accept_request
-    post_create_hook
+    post_create_member_hook
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -687,7 +759,7 @@ class Member < ApplicationRecord
   end
 
   def higher_access_level_than_group
-    if highest_group_member && highest_group_member.access_level > access_level
+    if access_level && highest_group_member && highest_group_member.access_level > access_level
       error_parameters = { access: highest_group_member.human_access, group_name: highest_group_member.group.name }
 
       errors.add(:access_level, s_("should be greater than or equal to %{access} inherited membership from group %{group_name}") % error_parameters)
@@ -734,10 +806,16 @@ class Member < ApplicationRecord
   end
 
   def create_organization_user_record
-    return if invite?
+    return if pending?
     return if source.organization.blank?
 
     Organizations::OrganizationUser.create_organization_record_for(user_id, source.organization_id)
+  end
+
+  def accepted_invite_or_request?
+    # `user_id` is nil for member invited through email and will be set once the user has created an account.
+    # `requested_at` is defined only while the membership access request is still pending.
+    saved_change_to_user_id? || saved_change_to_requested_at?
   end
 end
 

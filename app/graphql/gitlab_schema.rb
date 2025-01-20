@@ -44,11 +44,11 @@ class GitlabSchema < GraphQL::Schema
       super(queries, **kwargs)
     end
 
-    def get_type(type_name, context = GraphQL::Query::NullContext)
+    def get_type(type_name, *other_args)
       type_name = Gitlab::GlobalId::Deprecations.apply_to_graphql_name(type_name)
       type_name = Gitlab::Graphql::TypeNameDeprecations.apply_to_graphql_name(type_name)
 
-      super(type_name, context)
+      super(type_name, *other_args)
     end
 
     def id_from_object(object, _type = nil, _ctx = nil)
@@ -97,7 +97,12 @@ class GitlabSchema < GraphQL::Schema
       elsif gid.model_class.respond_to?(:lazy_find)
         gid.model_class.lazy_find(gid.model_id)
       else
-        gid.find
+        begin
+          gid.find
+        # other if conditions return nil when the record is not found
+        rescue ActiveRecord::RecordNotFound
+          nil
+        end
       end
     end
 
@@ -189,4 +194,4 @@ class GitlabSchema < GraphQL::Schema
   end
 end
 
-GitlabSchema.prepend_mod_with('GitlabSchema') # rubocop: disable Cop/InjectEnterpriseEditionModule
+GitlabSchema.prepend_mod_with('GitlabSchema')

@@ -11,8 +11,8 @@ RSpec.describe 'projects/issues/_related_branches' do
   before do
     assign(:related_branches,
       [
-        { name: 'other', link: 'link-to-other', pipeline_status: nil },
-        { name: 'feature', link: 'link-to-feature', pipeline_status: status }
+        { name: 'other', compare_path: 'link-to-other', pipeline_status: nil },
+        { name: 'feature', compare_path: 'link-to-feature', pipeline_status: status }
 
       ]
     )
@@ -26,6 +26,6 @@ RSpec.describe 'projects/issues/_related_branches' do
     expect(rendered).to have_link(href: 'link-to-feature')
     expect(rendered).to have_link(href: 'link-to-other')
     expect(rendered).to have_css('[data-testid="ci-icon"]')
-    expect(rendered).to have_css('.related-branch-info')
+    expect(rendered).to have_css('.ref-name')
   end
 end

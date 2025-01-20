@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 This page contains upgrade information for minor and patch versions of GitLab 15.
 Ensure you review these instructions for:
@@ -61,7 +61,7 @@ see [Packaged PostgreSQL deployed in an HA/Geo Cluster](https://docs.gitlab.com/
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - Some project imports do not initialize wiki repositories on project creation. See
   [the details and workaround](gitlab_16_changes.md#wiki-repositories-not-initialized-on-project-creation).
@@ -108,7 +108,7 @@ if you can't upgrade to 15.11.12 and later.
   - This issue may not manifest immediately as it can take up to a week before the Sidekiq is saturated enough.
   - Elasticsearch does not need to be enabled for this to occur.
   - To resolve this issue, upgrade to 15.11 or use the workaround in the issue.
-- A [bug with zero-downtime reindexing](https://gitlab.com/gitlab-org/gitlab/-/issues/422938) can cause a `Couldn't load task status` error when you reindex. You might also get a `sliceId must be greater than 0 but was [-1]` error on the Elasticsearch host. As a workaround, consider [reindexing from scratch](../../integration/advanced_search/elasticsearch_troubleshooting.md#last-resort-to-recreate-an-index) or upgrading to GitLab 16.3.
+- A [bug with zero-downtime reindexing](https://gitlab.com/gitlab-org/gitlab/-/issues/422938) can cause a `Couldn't load task status` error when you reindex. You might also get a `sliceId must be greater than 0 but was [-1]` error on the Elasticsearch host. As a workaround, consider [reindexing from scratch](../../integration/elasticsearch/troubleshooting/indexing.md#last-resort-to-recreate-an-index) or upgrading to GitLab 16.3.
 - Gitaly configuration changes significantly in Omnibus GitLab 16.0. You can begin migrating to the new structure in Omnibus GitLab 15.10 while backwards compatibility is
   maintained in the lead up to Omnibus GitLab 16.0. [Read more about this change](gitlab_16_changes.md#gitaly-configuration-structure-change).
 - You might encounter the following error while upgrading to GitLab 15.10 or later:
@@ -157,11 +157,24 @@ if you can't upgrade to 15.11.12 and later.
 
   For more information, see [issue 415724](https://gitlab.com/gitlab-org/gitlab/-/issues/415724).
 
+- A [bug with Terraform configuration](https://gitlab.com/gitlab-org/gitlab/-/issues/348453) caused Terraform state to
+  remain enabled even when `gitlab_rails['terraform_state_enabled']` was set to `false` in the `gitlab.rb` configuration
+  file. Because this bug was fixed in GitLab 15.10, upgrading to GitLab 15.10 could break projects that use the
+  [Terraform state](../../administration/terraform_state.md) feature if it's disabled in the `gitlab.rb` configuration.
+  If you have configured `gitlab_rails['terraform_state_enabled'] = false` in your `gitlab.rb`, check if any projects
+  are using the Terraform state feature. To check:
+  1. Read the [Rails console](../../administration/operations/rails_console.md) warning.
+  1. Start a [Rails console session](../../administration/operations/rails_console.md#starting-a-rails-console-session).
+  1. Run the command `Terraform::State.pluck(:project_id)`. This command returns an array of all projects IDs that have a
+     Terraform state.
+  1. Navigate to each project and work with stakeholders as necessary to determine if the Terraform state feature is
+     actively used. If Terraform state is no longer needed, you can follow the steps to [remove a state file](../../user/infrastructure/iac/terraform_state.md#remove-a-state-file).
+
 ### Geo installations
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -184,7 +197,7 @@ DETAILS:
     [issue 393216](https://gitlab.com/gitlab-org/gitlab/-/issues/393216).
   - The second [bug fix](https://gitlab.com/gitlab-org/gitlab/-/issues/394760) ensures it is possible to upgrade directly from 15.4.x.
 - As part of the [CI Partitioning effort](../../architecture/blueprints/ci_data_decay/pipeline_partitioning.md), a [new Foreign Key](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/107547) was added to `ci_builds_needs`. On GitLab instances with large CI tables, adding this constraint can take longer than usual.
-- Praefect's metadata verifier's [invalid metadata deletion behavior](../../administration/gitaly/praefect.md#enable-deletions) is now enabled by default.
+- Praefect's metadata verifier [invalid metadata deletion behavior](../../administration/gitaly/praefect.md#enable-deletions) is now enabled by default.
 
   The metadata verifier processes replica records in the Praefect database and verifies the replicas actually exist on the Gitaly nodes. If the replica doesn't exist, its
   metadata record is deleted. This enables Praefect to fix situations where a replica has a metadata record indicating it's fine but, in reality, it doesn't exist on disk.
@@ -211,7 +224,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -223,7 +236,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -237,7 +250,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -252,7 +265,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -269,7 +282,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -283,7 +296,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -297,7 +310,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -311,7 +324,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -325,7 +338,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the upgrades. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -340,7 +353,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -402,7 +415,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -419,7 +432,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
   - Affected versions: GitLab versions 15.6.x, 15.7.x, and 15.8.0 - 15.8.2.
@@ -433,7 +446,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -446,7 +459,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -460,7 +473,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6, and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -474,7 +487,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -488,7 +501,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -502,7 +515,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - [Container registry push events are rejected](https://gitlab.com/gitlab-org/gitlab/-/issues/386389) by the `/api/v4/container_registry_event/events` endpoint resulting in Geo secondary sites not being aware of updates to container registry images and subsequently not replicating the updates. Secondary sites may contain out of date container images after a failover as a consequence. This affects versions 15.6.0 - 15.6.6 and 15.7.0 - 15.7.2. If you're using Geo with container repositories, you are advised to upgrade to GitLab 15.6.7, 15.7.3, or 15.8.0 which contain a fix for this issue and avoid potential data loss after a failover.
 - We discovered an issue where [replication and verification of projects and wikis was not keeping up](https://gitlab.com/gitlab-org/gitlab/-/issues/387980) on small number of Geo installations. Your installation may be affected if you see some projects and/or wikis persistently in the "Queued" state for verification. This can lead to data loss after a failover.
@@ -541,7 +554,7 @@ potentially cause downtime.
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -562,7 +575,7 @@ DETAILS:
 
 ## 15.5.3
 
-- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](../../administration/sidekiq/processing_specific_job_classes.md#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
+- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](https://archives.docs.gitlab.com/17.0/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
   - The default routing rule has been reverted in 15.5.4, so upgrading to that version or later will return to the previous behavior.
   - If a GitLab instance now listens only to the `default` queue (which is not currently recommended), it will be required to add this routing rule back in `/etc/gitlab/gitlab.rb`:
 
@@ -574,7 +587,7 @@ DETAILS:
 
 ## 15.5.2
 
-- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](../../administration/sidekiq/processing_specific_job_classes.md#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
+- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](https://archives.docs.gitlab.com/17.0/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
   - The default routing rule has been reverted in 15.5.4, so upgrading to that version or later will return to the previous behavior.
   - If a GitLab instance now listens only to the `default` queue (which is not currently recommended), it will be required to add this routing rule back in `/etc/gitlab/gitlab.rb`:
 
@@ -586,7 +599,7 @@ DETAILS:
 
 ## 15.5.1
 
-- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](../../administration/sidekiq/processing_specific_job_classes.md#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
+- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](https://archives.docs.gitlab.com/17.0/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
   - The default routing rule has been reverted in 15.5.4, so upgrading to that version or later will return to the previous behavior.
   - If a GitLab instance now listens only to the `default` queue (which is not currently recommended), it will be required to add this routing rule back in `/etc/gitlab/gitlab.rb`:
 
@@ -598,7 +611,7 @@ DETAILS:
 
 ## 15.5.0
 
-- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](../../administration/sidekiq/processing_specific_job_classes.md#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
+- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](https://archives.docs.gitlab.com/17.0/ee/administration/sidekiq/processing_specific_job_classes.html#queueselectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
   - The default routing rule has been reverted in 15.5.4, so upgrading to that version or later will return to the previous behavior.
   - If a GitLab instance now listens only to the `default` queue (which is not currently recommended), it will be required to add this routing rule back in `/etc/gitlab/gitlab.rb`:
 
@@ -612,7 +625,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -662,7 +675,7 @@ DETAILS:
 - By default, Gitaly and Praefect nodes use the time server at `pool.ntp.org`. If your instance can not connect to `pool.ntp.org`,
   [configure the `NTP_HOST` variable](../../administration/gitaly/praefect.md#customize-time-server-setting) otherwise, there can be `ntp: read udp ... i/o timeout` errors
   in the logs and the output of `gitlab-rake gitlab:gitaly:check`. However, if the Gitaly hosts' times are in sync, these errors can be ignored.
-- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](../../administration/sidekiq/processing_specific_job_classes.md#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
+- GitLab 15.4.0 introduced a default [Sidekiq routing rule](../../administration/sidekiq/processing_specific_job_classes.md#routing-rules) that routes all jobs to the `default` queue. For instances using [queue selectors](https://archives.docs.gitlab.com/17.0/ee/administration/sidekiq/processing_specific_job_classes.html#queue-selectors-deprecated), this causes [performance problems](https://gitlab.com/gitlab-com/gl-infra/scalability/-/issues/1991) as some Sidekiq processes will be idle.
   - The default routing rule has been reverted in 15.4.5, so upgrading to that version or later will return to the previous behavior.
   - If a GitLab instance now listens only to the `default` queue (which is not currently recommended), it will be required to add this routing rule back in `/etc/gitlab/gitlab.rb`:
 
@@ -691,7 +704,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -709,7 +722,7 @@ A [license caching issue](https://gitlab.com/gitlab-org/gitlab/-/issues/376706) 
 
 ## 15.3.3
 
-- In GitLab 15.3.3, [SAML Group Links](../../api/groups.md#saml-group-links) API `access_level` attribute type changed to `integer`. See
+- In GitLab 15.3.3, [SAML Group Links](../../api/saml.md#saml-group-links) API `access_level` attribute type changed to `integer`. See
   [the API documentation](../../api/members.md).
 - A [license caching issue](https://gitlab.com/gitlab-org/gitlab/-/issues/376706) prevents some premium features of GitLab from working correctly if you add a new license. Workarounds for this issue:
 
@@ -766,7 +779,7 @@ A [license caching issue](https://gitlab.com/gitlab-org/gitlab/-/issues/376706) 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -843,7 +856,7 @@ A [license caching issue](https://gitlab.com/gitlab-org/gitlab/-/issues/376706) 
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - `pg_upgrade` fails to upgrade the bundled PostregSQL database to version 13. See
   [the details and workaround](#pg_upgrade-fails-to-upgrade-the-bundled-postregsql-database-to-version-13).
@@ -863,7 +876,7 @@ DETAILS:
 
   1. Ensure all GitLab web nodes are running GitLab 15.1.6.
   1. If you run [GitLab on Kubernetes](https://docs.gitlab.com/charts/installation/) by using the cloud native GitLab Helm chart, make sure that all
-     webservice pods are running GitLab 15.1.Z:
+     Webservice pods are running GitLab 15.1.Z:
 
      ```shell
      kubectl get pods -l app=webservice -o custom-columns=webservice-image:{.spec.containers[0].image},workhorse-image:{.spec.containers[1].image}
@@ -880,16 +893,16 @@ DETAILS:
 
   1. Only then, continue to upgrade to later versions of GitLab.
 - Unauthenticated requests to the [`ciConfig` GraphQL field](../../api/graphql/reference/index.md#queryciconfig) are no longer supported.
-  Before you upgrade to GitLab 15.1, add an [access token](../../api/rest/index.md#authentication) to your requests.
+  Before you upgrade to GitLab 15.1, add an [access token](../../api/rest/authentication.md) to your requests.
   The user creating the token must have [permission](../../user/permissions.md) to create pipelines in the project.
 
 ### Geo installations
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
-- [Geo proxying](../../administration/geo/secondary_proxy/index.md) was [enabled by default for different URLs](https://gitlab.com/gitlab-org/gitlab/-/issues/346112) in 15.1. This may be a breaking change. If needed, you may [disable Geo proxying](../../administration/geo/secondary_proxy/index.md#disable-geo-proxying). If you are using SAML with different URLs, you must modify your SAML configuration and your Identity Provider configuration. For more information, see the [Geo with Single Sign-On (SSO) documentation](../../administration/geo/replication/single_sign_on.md).
+- [Geo proxying](../../administration/geo/secondary_proxy/index.md) was [enabled by default for different URLs](https://gitlab.com/gitlab-org/gitlab/-/issues/346112) in 15.1. This may be a breaking change. If needed, you may [disable Geo proxying](../../administration/geo/secondary_proxy/index.md#disable-secondary-site-http-proxying). If you are using SAML with different URLs, you must modify your SAML configuration and your Identity Provider configuration. For more information, see the [Geo with Single Sign-On (SSO) documentation](../../administration/geo/replication/single_sign_on.md).
 - LFS transfers can redirect to the primary from secondary site mid-session. See
   [the details and workaround](#lfs-transfers-redirect-to-primary-from-secondary-site-mid-session).
 - Incorrect object storage LFS files deletion on Geo secondary sites. See
@@ -989,9 +1002,9 @@ DETAILS:
   15.0.
 
 - Starting with GitLab 15.0, the `AES256-GCM-SHA384` SSL cipher will not be allowed by
-  NGINX by default. If you require this cipher (for example, if you use
-  [AWS's Classic Load Balancer](https://docs.aws.amazon.com/en_en/elasticloadbalancing/latest/classic/elb-ssl-security-policy.html#ssl-ciphers)),
-  you can add the cipher back to the allow list by following the steps below:
+  NGINX by default. If you use the
+  [AWS Classic Load Balancer](https://docs.aws.amazon.com/en_en/elasticloadbalancing/latest/classic/elb-ssl-security-policy.html#ssl-ciphers) and require the cipher,
+  you can add it back to the allowlist. To add the SSL cipher to the allowlist:
 
   1. Edit `/etc/gitlab/gitlab.rb` and add the following line:
 
@@ -1005,7 +1018,7 @@ DETAILS:
      sudo gitlab-ctl reconfigure
      ```
 
-- Support for Gitaly's internal socket path is removed.
+- Support for internal socket path for Gitaly is removed.
   In GitLab 14.10, Gitaly introduced a new directory that holds all runtime
   data Gitaly requires to operate correctly. This new directory replaces the
   old internal socket directory, and consequentially the usage of
@@ -1069,7 +1082,7 @@ DETAILS:
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 - Incorrect object storage LFS files deletion on Geo secondary sites. See
   [the details and workaround](#incorrect-object-storage-lfs-file-deletion-on-secondary-sites).

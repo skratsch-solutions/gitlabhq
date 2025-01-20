@@ -4,9 +4,11 @@ import { GlButton, GlLink, GlTooltipDirective, GlLoadingIcon } from '@gitlab/ui'
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { normalizeHeaders } from '~/lib/utils/common_utils';
 import { logError } from '~/lib/logger';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { sprintf, __ } from '~/locale';
 import Poll from '~/lib/utils/poll';
+import { mergeUrlParams } from '~/lib/utils/url_utility';
 import HelpPopover from '~/vue_shared/components/help_popover.vue';
 import { DynamicScroller, DynamicScrollerItem } from 'vendor/vue-virtual-scroller';
 import { EXTENSION_ICONS } from '../../constants';
@@ -47,6 +49,7 @@ export default {
     GlTooltip: GlTooltipDirective,
     SafeHtml,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     loadingText: {
       type: String,
@@ -141,7 +144,7 @@ export default {
     widgetName: {
       type: String,
       required: true,
-      // see https://docs.gitlab.com/ee/development/fe_guide/merge_request_widget_extensions.html#add-new-widgets
+      // see https://docs.gitlab.com/ee/development/fe_guide/merge_request_widgets.html#add-new-widgets
       validator: (val) => val.startsWith(WIDGET_PREFIX),
     },
     telemetry: {
@@ -204,6 +207,23 @@ export default {
     },
     contentWithKeyField() {
       return this.content?.map((item, index) => ({ ...item, id: item.id || index }));
+    },
+    reportsTabActionButtons() {
+      return [
+        {
+          text: __('View report'),
+          href: mergeUrlParams(
+            { type: this.widgetName.replace(WIDGET_PREFIX, '') },
+            window.gl?.mrWidgetData?.reportsTabPath || '',
+          ),
+          onClick(action, e) {
+            e.preventDefault();
+
+            window.history.replaceState(null, null, action.href);
+            window.mrTabs.tabShown('reports');
+          },
+        },
+      ];
     },
   },
   watch: {
@@ -321,29 +341,29 @@ export default {
 
 <template>
   <section class="media-section" data-testid="widget-extension">
-    <div class="gl-px-5 gl-pr-4 gl-py-4 gl-display-flex">
+    <div class="gl-flex gl-px-5 gl-py-4 gl-pr-4" :class="{ 'gl-pl-9': glFeatures.mrReportsTab }">
       <status-icon
-        :level="1"
+        :level="glFeatures.mrReportsTab ? 2 : 1"
         :name="widgetName"
         :is-loading="shouldShowLoadingIcon"
         :icon-name="summaryStatusIcon"
       />
       <div
-        class="media-body gl-display-flex gl-flex-direction-row! gl-align-self-center"
+        class="media-body gl-flex !gl-flex-row gl-self-center"
         data-testid="widget-extension-top-level"
       >
-        <div class="gl-flex-grow-1" data-testid="widget-extension-top-level-summary">
+        <div class="gl-grow" data-testid="widget-extension-top-level-summary">
           <span v-if="summaryError">{{ summaryError }}</span>
           <slot v-else name="summary"
             ><div v-safe-html="isSummaryLoading ? loadingText : generatedSummary"></div>
             <div
               v-if="!isSummaryLoading && generatedSubSummary"
               v-safe-html="generatedSubSummary"
-              class="gl-font-sm gl-text-gray-700"
+              class="gl-text-sm gl-text-subtle"
             ></div
           ></slot>
         </div>
-        <div class="gl-display-flex">
+        <div class="gl-flex">
           <help-popover
             v-if="helpPopover"
             icon="information-o"
@@ -360,12 +380,15 @@ export default {
                 v-if="helpPopover.content.learnMorePath"
                 :href="helpPopover.content.learnMorePath"
                 target="_blank"
-                class="gl-font-sm"
+                class="gl-text-sm"
                 >{{ $options.i18n.learnMore }}</gl-link
               >
             </template>
           </help-popover>
-          <slot name="action-buttons">
+          <div v-if="glFeatures.mrReportsTab">
+            <action-buttons :tertiary-buttons="reportsTabActionButtons" />
+          </div>
+          <slot v-else name="action-buttons">
             <action-buttons
               v-if="actionButtons.length > 0"
               :tertiary-buttons="actionButtons"
@@ -374,8 +397,8 @@ export default {
           </slot>
         </div>
         <div
-          v-if="isCollapsible && !isSummaryLoading"
-          class="gl-border-l-1 gl-border-l-solid gl-border-gray-100 gl-ml-3 gl-pl-3 gl-h-6"
+          v-if="!glFeatures.mrReportsTab && isCollapsible && !isSummaryLoading"
+          class="gl-border-l gl-ml-3 gl-h-6 gl-pl-3"
         >
           <gl-button
             v-gl-tooltip
@@ -392,14 +415,14 @@ export default {
       </div>
     </div>
     <div
-      v-if="!isCollapsed || contentError"
-      class="gl-relative gl-bg-gray-10 gl-border-t"
+      v-if="!glFeatures.mrReportsTab && (!isCollapsed || contentError)"
+      class="gl-border-t gl-relative gl-border-t-section gl-bg-subtle"
       data-testid="widget-extension-collapsed-section"
     >
       <div v-if="isLoadingExpandedContent" class="report-block-container gl-text-center">
         <gl-loading-icon size="sm" inline /> {{ loadingText }}
       </div>
-      <div v-else class="gl-pl-5 gl-display-flex" :class="{ 'gl-pr-5': $scopedSlots.content }">
+      <div v-else class="gl-flex gl-pl-5" :class="{ 'gl-pr-5': $scopedSlots.content }">
         <content-row
           v-if="contentError"
           :level="2"

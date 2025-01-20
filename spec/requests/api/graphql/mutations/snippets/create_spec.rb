@@ -110,6 +110,14 @@ RSpec.describe 'Creating a Snippet', feature_category: :source_code_management d
       it_behaves_like 'creates snippet' do
         let(:project) { nil }
       end
+
+      context 'when Current organization is present', :with_current_organization do
+        it 'adds an organization_id' do
+          expect do
+            subject
+          end.to change { Snippet.where(organization_id: current_organization.id).count }.by(1)
+        end
+      end
     end
 
     context 'with ProjectSnippet' do
@@ -120,6 +128,14 @@ RSpec.describe 'Creating a Snippet', feature_category: :source_code_management d
       end
 
       it_behaves_like 'creates snippet'
+
+      context 'when Current organization is present', :with_current_organization do
+        it 'does not add an organization_id' do
+          expect do
+            subject
+          end.not_to change { Snippet.where(organization_id: current_organization.id).count }
+        end
+      end
 
       context 'when the project path is invalid' do
         let(:project_path) { 'foobar' }
@@ -157,7 +173,7 @@ RSpec.describe 'Creating a Snippet', feature_category: :source_code_management d
     context 'when there are uploaded files' do
       shared_examples 'expected files argument' do |file_value, expected_value|
         let(:uploaded_files) { file_value }
-        let(:snippet) { build(:snippet) }
+        let(:snippet) { build(:personal_snippet) }
         let(:creation_response) do
           ::ServiceResponse.error(message: 'urk', payload: { snippet: snippet })
         end

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can use a deploy token to enable authentication of deployment tasks, independent of a user
 account. In most cases you use a deploy token from an external host, like a build server or CI/CD
@@ -64,13 +64,12 @@ A deploy token's scope determines the actions it can perform.
 > - [Feature flag `ci_variable_for_group_gitlab_deploy_token`](https://gitlab.com/gitlab-org/gitlab/-/issues/363621) removed in GitLab 15.4.
 
 A GitLab deploy token is a special type of deploy token. If you create a deploy token named
-`gitlab-deploy-token`, the deploy token is automatically exposed to the CI/CD jobs as variables, for
-use in a CI/CD pipeline:
+`gitlab-deploy-token`, the deploy token is automatically exposed to project CI/CD jobs as variables:
 
 - `CI_DEPLOY_USER`: Username
 - `CI_DEPLOY_PASSWORD`: Token
 
-For example, to use a GitLab token to log in to your GitLab container registry:
+For example, to use a GitLab token to sign in to your GitLab container registry:
 
 ```shell
 echo "$CI_DEPLOY_PASSWORD" | docker login $CI_REGISTRY -u $CI_DEPLOY_USER --password-stdin
@@ -81,6 +80,9 @@ In GitLab 15.0 and earlier, the special handling for the `gitlab-deploy-token` d
 work for group deploy tokens. To make a group deploy token available for CI/CD jobs, set the
 `CI_DEPLOY_USER` and `CI_DEPLOY_PASSWORD` CI/CD variables in **Settings > CI/CD > Variables** to the
 name and token of the group deploy token.
+
+When `gitlab-deploy-token` is defined in a group, the `CI_DEPLOY_USER` and `CI_DEPLOY_PASSWORD`
+CI/CD variables are available only to immediate child projects of the group.
 
 ### GitLab deploy token security
 
@@ -99,7 +101,7 @@ jobs.
 ### GitLab public API
 
 Deploy tokens can't be used with the GitLab public API. However, you can use deploy tokens with some
-endpoints, such as those from the package registry. For more information, see
+endpoints, such as those from the package registry. You can tell an endpoint belongs to the package registry because the URL has the string `packages/<format>`. For example: `https://gitlab.example.com/api/v4/projects/24/packages/generic/my_package/0.0.1/file.txt`. For more information, see
 [Authenticate with the registry](../../packages/package_registry/index.md#authenticate-with-the-registry).
 
 ## Create a deploy token
@@ -162,7 +164,7 @@ Prerequisites:
 Example of using a deploy token to pull images from a container registry:
 
 ```shell
-docker login -u <username> -p <deploy_token> registry.example.com
+echo "$DEPLOY_TOKEN" | docker login -u <username> --password-stdin registry.example.com
 docker pull $CONTAINER_TEST_IMAGE
 ```
 
@@ -177,7 +179,7 @@ Prerequisites:
 Example of using a deploy token to push an image to a container registry:
 
 ```shell
-docker login -u <username> -p <deploy_token> registry.example.com
+echo "$DEPLOY_TOKEN" | docker login -u <username> --password-stdin registry.example.com
 docker push $CONTAINER_TEST_IMAGE
 ```
 

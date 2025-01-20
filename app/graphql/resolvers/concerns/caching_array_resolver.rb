@@ -90,8 +90,7 @@ module CachingArrayResolver
   end
 
   # Override this to intercept the items once they are found
-  def item_found(query_input, item)
-  end
+  def item_found(query_input, item); end
 
   def max_union_size
     MAX_UNION_SIZE
@@ -125,7 +124,7 @@ module CachingArrayResolver
   end
 
   def limit(query)
-    query.limit(query_limit) # rubocop: disable CodeReuse/ActiveRecord
+    query.limit(query_limit)
   end
 
   def all_fields

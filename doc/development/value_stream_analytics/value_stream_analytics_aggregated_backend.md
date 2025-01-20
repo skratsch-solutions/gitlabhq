@@ -51,7 +51,7 @@ Benefits of the aggregated VSA backend:
 
 ### Example configuration
 
-![VSA object hierarchy example](img/object_hierarchy_example_V14_10.png)
+![VSA object hierarchy example](img/object_hierarchy_v14_10.png)
 
 In this example, two independent value streams are set up for two teams that are using
 different development workflows within the `Test Group` (top-level namespace).
@@ -212,7 +212,7 @@ consistency is ensured by a background job (eventually consistent).
 The base query always includes the following filters:
 
 - `stage_event_hash_id` - partition key
-- `project_id` or `group_id` - depending if it's a project or group level query
+- `project_id` or `group_id` - depending on whether it's a project or group query
 - `end_event_timestamp` - date range filter (last 30 days)
 
 Example: Selecting review stage duration for the GitLab project

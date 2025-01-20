@@ -314,7 +314,7 @@ RSpec.shared_examples 'handling project level terraform module download requests
       :public   | :developer | false | :personal_access_token | 'grants terraform module package file access' | :success
       :public   | :guest     | false | :personal_access_token | 'grants terraform module package file access' | :success
       :private  | :developer | true  | :personal_access_token | 'grants terraform module package file access' | :success
-      :private  | :guest     | true  | :personal_access_token | 'rejects terraform module packages access'  | :forbidden
+      :private  | :guest     | true  | :personal_access_token | 'grants terraform module package file access' | :success
       :private  | :developer | false | :personal_access_token | 'rejects terraform module packages access'  | :not_found
       :private  | :guest     | false | :personal_access_token | 'rejects terraform module packages access'  | :not_found
       :internal | :developer | true  | :personal_access_token | 'grants terraform module package file access' | :success
@@ -327,7 +327,7 @@ RSpec.shared_examples 'handling project level terraform module download requests
       :public   | :developer  | false | :job_token  | 'grants terraform module package file access' | :success
       :public   | :guest      | false | :job_token  | 'grants terraform module package file access' | :success
       :private  | :developer  | true  | :job_token  | 'grants terraform module package file access' | :success
-      :private  | :guest      | true  | :job_token  | 'rejects terraform module packages access'    | :forbidden
+      :private  | :guest      | true  | :job_token  | 'grants terraform module package file access' | :success
       :private  | :developer  | false | :job_token  | 'rejects terraform module packages access'    | :not_found
       :private  | :guest      | false | :job_token  | 'rejects terraform module packages access'    | :not_found
       :internal | :developer  | true  | :job_token  | 'grants terraform module package file access' | :success
@@ -420,6 +420,12 @@ RSpec.shared_examples 'handling project level terraform module download requests
       context "with package name #{pkg_name}" do
         let(:package_name) { pkg_name }
 
+        before do
+          # TODO: remove spec once the feature flag is removed
+          # https://gitlab.com/gitlab-org/gitlab/-/issues/415460
+          stub_feature_flags(check_path_traversal_middleware_reject_requests: false)
+        end
+
         it_behaves_like 'rejects terraform module packages access', :anonymous, :not_found
       end
     end
@@ -467,4 +473,15 @@ RSpec.shared_examples 'accessing a public/internal project with another project\
       it_behaves_like 'returning response status', status
     end
   end
+end
+
+RSpec.shared_examples 'allowing anyone to pull public terraform modules' do |status = :success|
+  let(:headers) { {} }
+
+  before do
+    [group, project].each { |e| e.update_column(:visibility_level, Gitlab::VisibilityLevel::PRIVATE) }
+    project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+  end
+
+  it_behaves_like 'returning response status', status
 end

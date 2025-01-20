@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -12,12 +12,12 @@ See the [high-level architecture](../../user/application_security/secret_detecti
 to understand the Secret Detection post-processing and revocation flow.
 
 GitLab.com uses the internally-maintained [Secret Revocation Service](https://gitlab.com/gitlab-com/gl-security/engineering-and-research/automation-team/secret-revocation-service)
-(team-members only) as its Token Revocation API. For GitLab self-managed, you can create
+(team-members only) as its Token Revocation API. For GitLab Self-Managed, you can create
 your own API and configure GitLab to use it.
 
 ## Implement a Token Revocation API for self-managed
 
-GitLab self-managed instances interested in using the revocation capabilities must:
+GitLab Self-Managed instances interested in using the revocation capabilities must:
 
 - Implement and deploy your own Token Revocation API.
 - Configure the GitLab instance to use the Token Revocation API.
@@ -77,17 +77,17 @@ with each provider to revoke the token.
 | `400` | The request body is invalid or one of the submitted token types is not supported. The request should not be retried. |
 | `429` | The provider has received too many requests. The request should be retried later. |
 
-Example request body:
+Example request body (space characters added to `token` value to prevent secret detection warnings):
 
 ```json
 [{
     "type": "gitleaks_rule_id_gitlab_personal_access_token",
-    "token": "glpat--8GMtG8Mf4EnMJzmAWDU",
+    "token": "glpat - 8GMtG8Mf4EnMJzmAWDU",
     "location": "https://example.com/some-repo/blob/abcdefghijklmnop/compromisedfile1.java"
 },
 {
     "type": "gitleaks_rule_id_gitlab_personal_access_token",
-    "token": "glpat--tG84EGK33nMLLDE70zU",
+    "token": "glpat - tG84EGK33nMLLDE70zU",
     "location": "https://example.com/some-repo/blob/abcdefghijklmnop/compromisedfile2.java"
 }]
 ```

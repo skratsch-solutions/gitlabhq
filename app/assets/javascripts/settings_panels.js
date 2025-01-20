@@ -18,8 +18,14 @@ export function isExpanded(sectionArg) {
 
 export function expandSection(sectionArg) {
   const $section = $(sectionArg);
+  const title = $section.find('.js-settings-toggle-trigger-only').text();
 
-  $section.find('.js-settings-toggle:not(.js-settings-toggle-trigger-only)').text(__('Collapse'));
+  $section
+    .find('.js-settings-toggle:not(.js-settings-toggle-trigger-only) .gl-button-text')
+    .text(__('Collapse'));
+  $section
+    .find('.js-settings-toggle:not(.js-settings-toggle-trigger-only)')
+    .attr('aria-label', `${__('Collapse')} ${title}`);
   $section.addClass('expanded');
   if (!$section.hasClass('no-animate')) {
     $section
@@ -28,14 +34,21 @@ export function expandSection(sectionArg) {
   }
 
   InternalEvents.trackEvent('click_expand_panel_on_settings', {
-    label: $section.find('.settings-title').text(),
+    label: $section.find('[data-event-tracking="settings-block-title"]').text(),
   });
 }
 
 export function closeSection(sectionArg) {
   const $section = $(sectionArg);
+  const title = $section.find('.js-settings-toggle-trigger-only').text();
 
-  $section.find('.js-settings-toggle:not(.js-settings-toggle-trigger-only)').text(__('Expand'));
+  $section
+    .find('.js-settings-toggle:not(.js-settings-toggle-trigger-only) .gl-button-text')
+    .text(__('Expand'));
+  $section
+    .find('.js-settings-toggle:not(.js-settings-toggle-trigger-only)')
+    .attr('aria-label', `${__('Expand')} ${title}`);
+
   $section.removeClass('expanded');
   if (!$section.hasClass('no-animate')) {
     $section
@@ -48,8 +61,20 @@ export function toggleSection($section) {
   $section.removeClass('no-animate');
   if (isExpanded($section)) {
     closeSection($section);
+
+    // If ID set, remove URL
+    if ($section.attr('id')) {
+      // eslint-disable-next-line no-restricted-globals
+      history.pushState('', document.title, window.location.pathname + window.location.search);
+    }
   } else {
     expandSection($section);
+
+    // If ID set, add to URL
+    if ($section.attr('id')) {
+      // eslint-disable-next-line no-restricted-globals
+      location.hash = $section.attr('id');
+    }
   }
 }
 
@@ -71,11 +96,11 @@ function initGlobalProtectionOptions() {
   globalProtectionProtectedOption.forEach((option) => {
     const isProtected = parseBoolean(option.value);
     option.addEventListener('change', () => {
-      protectionSettingsSection.classList.toggle('gl-display-none', !isProtected);
+      protectionSettingsSection.classList.toggle('gl-hidden', !isProtected);
     });
 
     if (option.checked) {
-      protectionSettingsSection.classList.toggle('gl-display-none', !isProtected);
+      protectionSettingsSection.classList.toggle('gl-hidden', !isProtected);
     }
   });
 }

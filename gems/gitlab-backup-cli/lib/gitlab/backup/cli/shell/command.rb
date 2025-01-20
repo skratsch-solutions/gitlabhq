@@ -6,8 +6,8 @@ module Gitlab
       module Shell
         # Abstraction to control shell command execution
         # It provides an easier API to common usages
-        class Command
-          attr_reader :cmd_args, :env
+        class Command < Base
+          attr_reader :env
 
           # Result data structure from running a command
           #
@@ -25,12 +25,28 @@ module Gitlab
           SinglePipelineResult = Struct.new(:stderr, :status, :duration, keyword_init: true)
 
           # @example Usage
-          #   Shell.new('echo', 'Some amazing output').capture
+          #   Shell::Command.new('echo', 'Some amazing output').capture
           # @param [Array<String>] cmd_args
           # @param [Hash<String,String>] env
           def initialize(*cmd_args, env: {})
-            @cmd_args = cmd_args
-            @env = env
+            @cmd_args = cmd_args.freeze
+            @env = env.freeze
+          end
+
+          # List of command arguments
+          #
+          # @param [Boolean] with_env whether to include env hash in the returned list
+          # @return [Array<Hash|String>]
+          def cmd_args(with_env: false)
+            if with_env && env.any?
+              # When providing cmd_args to `Open3.pipeline`, the env needs to be the first element of the array.
+              #
+              # While `Open3.capture3` accepts an empty hash as a valid parameter, it doesn't work with
+              # `Open3.pipeline`, so we modify the returned array only when the env hash is not empty.
+              @cmd_args.dup.prepend(env)
+            else
+              @cmd_args.dup
+            end
           end
 
           # Execute a process and return its output and status
@@ -51,6 +67,9 @@ module Gitlab
           # @return [Command::SinglePipelineResult]
           def run_single_pipeline!(input: nil, output: nil)
             start = Time.now
+            input = typecast_input!(input)
+            output = typecast_output!(output)
+
             # Open3 writes on `err_write` and we receive from `err_read`
             err_read, err_write = IO.pipe
 
@@ -61,7 +80,7 @@ module Gitlab
             options[:in] = input if input # redirect stdin
             options[:out] = output if output # redirect stdout
 
-            status_list = Open3.pipeline(cmd_args, **options)
+            status_list = Open3.pipeline(cmd_args(with_env: true), **options)
             duration = Time.now - start
 
             err_write.close # close the pipe before reading

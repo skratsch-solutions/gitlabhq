@@ -8,6 +8,7 @@ module QA
     class Base
       include ApiFabricator
       extend Capybara::DSL
+
       using Rainbow
 
       NoValueError = Class.new(RuntimeError)
@@ -30,6 +31,7 @@ module QA
           instance(api_client).all(**kwargs)
         end
 
+        # TODO: remove, this method is redundant because normal fabricate! performs exactly the same check
         def fabricate_via_api_unless_fips!
           if Runtime::Env.personal_access_tokens_disabled?
             fabricate!
@@ -39,6 +41,7 @@ module QA
         end
 
         def fabricate!(*args, &prepare_block)
+          # TODO: move this check in to `api_support?` method to disable api support if tokens are disabled
           if Runtime::Env.personal_access_tokens_disabled?
             fabricate_via_browser_ui!(*args, &prepare_block)
           else
@@ -67,8 +70,6 @@ module QA
 
           raise NotImplementedError unless resource.api_support?
 
-          resource.eager_load_api_client!
-
           do_fabricate!(resource: resource, prepare_block: prepare_block) do
             log_and_record_fabrication(:api, resource, parents, args) { resource.fabricate_via_api! }
           end
@@ -79,14 +80,22 @@ module QA
           resource = options.fetch(:resource) { new }
           parents = options.fetch(:parents) { [] }
 
-          resource.eager_load_api_client!
-
           do_fabricate!(resource: resource, prepare_block: prepare_block) do
             log_and_record_fabrication(:api, resource, parents, args) { resource.remove_via_api! }
           end
         end
 
         private
+
+        # Override api client definition to use admin api client
+        #
+        # @return [void]
+        def uses_admin_api_client
+          define_method(:api_client) do
+            @api_client ||= Runtime::User::Store.admin_api_client
+          end
+          private :api_client
+        end
 
         def instance(api_client)
           init { |resource| resource.api_client = api_client || QA::Runtime::API::Client.as_admin }
@@ -159,9 +168,9 @@ module QA
           attr_writer(name)
 
           define_method(name) do
-            return instance_variable_get("@#{name}") if instance_variable_defined?("@#{name}")
+            return instance_variable_get(:"@#{name}") if instance_variable_defined?(:"@#{name}")
 
-            instance_variable_set("@#{name}", attribute_value(name, block))
+            instance_variable_set(:"@#{name}", attribute_value(name, block))
           end
         end
 
@@ -190,7 +199,9 @@ module QA
         return self unless api_resource
 
         all_attributes.each do |attribute_name|
-          instance_variable_set("@#{attribute_name}", api_resource[attribute_name]) if api_resource.key?(attribute_name)
+          if api_resource.key?(attribute_name)
+            instance_variable_set(:"@#{attribute_name}", api_resource[attribute_name])
+          end
         end
 
         self
@@ -226,6 +237,15 @@ module QA
       def wait_until(max_duration: 60, sleep_interval: 0.1, message: nil, &block)
         QA::Support::Waiter.wait_until(
           max_duration: max_duration, sleep_interval: sleep_interval, message: message, &block
+        )
+      end
+
+      def retry_until(max_duration: 60, sleep_interval: 0.1, retry_on_exception: true, &block)
+        Support::Retrier.retry_until(
+          max_duration: max_duration,
+          sleep_interval: sleep_interval,
+          retry_on_exception: retry_on_exception,
+          &block
         )
       end
 
@@ -314,6 +334,8 @@ module QA
           <#{self.class}> Attribute #{name.inspect} has both API response `#{api_value}` and a block. API response will be picked. Block will be ignored.
         MSG
       end
+
+      def api_delete_body; end
     end
   end
 end

@@ -38,7 +38,7 @@ module QA
               start_date = date.beginning_of_day.rfc3339
               end_date = date.end_of_day.rfc3339
 
-              file_name = "#{bucket.end_with?('main') ? 'main' : 'all'}_#{stats_type}_#{date.strftime('%Y-%m-%d')}.json"
+              file_name = "#{bucket.end_with?('main') ? 'main' : 'all'}_#{stats_type}_#{date.to_date.iso8601}.json"
               file_path = File.join('tmp', file_name)
               influx_to_json(bucket, stats_type, file_path, "start: #{start_date}, stop: #{end_date}")
 
@@ -135,7 +135,7 @@ module QA
       # @param [String] values record's values to get the data from
       # @return [Hash]
       def tags(values)
-        tags = values.slice('name', 'file_path', 'status', 'smoke', 'blocking',
+        tags = values.slice('name', 'file_path', 'status', 'smoke',
           'quarantined', 'job_name', 'merge_request', 'run_type', 'stage',
           'product_group', 'testcase', 'exception_class')
 

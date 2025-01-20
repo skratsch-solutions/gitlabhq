@@ -181,6 +181,14 @@ exports[`AutocompleteHelper for reference type "issue", searches for "q" correct
 ]
 `;
 
+exports[`AutocompleteHelper for reference type "iteration", searches for "27" correctly 1`] = `
+[
+  "Optio quod at quia ad pariatur dolores. Nov 26, 2024 - Dec 9, 2024",
+  "Itaque repellat possimus dolor quia nesciunt hic aut iure animi vel. Nov 13, 2024 - Dec 10, 2024",
+  "Magni eos minus vero facilis in consequuntur deserunt omnis consectetur natus. Nov 27, 2024 - Dec 10, 2024",
+]
+`;
+
 exports[`AutocompleteHelper for reference type "label", searches for "c" correctly 1`] = `
 [
   "Contour",
@@ -259,5 +267,31 @@ exports[`AutocompleteHelper for reference type "wiki", searches for "ho" correct
 [
   "Home",
   "How to use GitLab",
+]
+`;
+
+exports[`AutocompleteHelper returns expected results before and after updating data sources 1`] = `
+[
+  "florida.schoen",
+  "root",
+  "all",
+  "errol",
+  "evelynn_olson",
+  "lakeesha.batz",
+  "laurene_blick",
+  "myrtis",
+  "patty",
+  "Commit451",
+  "flightjs",
+  "gitlab-instance-ade037f9",
+  "gitlab-org",
+  "gnuwget",
+  "h5bp",
+]
+`;
+
+exports[`AutocompleteHelper returns expected results before and after updating data sources 2`] = `
+[
+  "walker.finn",
 ]
 `;

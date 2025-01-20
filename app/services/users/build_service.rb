@@ -11,22 +11,24 @@ module Users
     def initialize(current_user, params = {})
       @current_user = current_user
       @params = params.dup
-      @organization_id = params.delete(:organization_id)
+      @organization_params = params.slice(*organization_attributes).compact
       @identity_params = params.slice(*identity_attributes)
     end
 
     def execute
       build_user
       build_identity
-      build_user_detail
-      update_canonical_email
 
       user
     end
 
     private
 
-    attr_reader :identity_params, :user_params, :user, :organization_id
+    attr_reader :identity_params, :user_params, :user, :organization_params
+
+    def organization_attributes
+      admin? ? admin_organization_attributes : signup_organization_attributes
+    end
 
     def identity_attributes
       [:extern_uid, :provider]
@@ -39,9 +41,8 @@ module Users
         standard_build_user
       end
 
-      organization = Organizations::Organization.find_by_id(organization_id) if organization_id
-
-      user.assign_personal_namespace(organization)
+      assign_organization
+      assign_personal_namespace
     end
 
     def admin?
@@ -71,7 +72,38 @@ module Users
     def init_user
       assign_common_user_params
 
-      @user = User.new(user_params)
+      # We'll declaratively initialize the user_detail here due to possibility of assignment to user_detail
+      # in a delegation or otherwise in the assignment of attributes.
+      # This will allow our after_initialize call at the model layer to not wipe those values out and will
+      # also allow use to remove the model layer `user_detail` override eventually.
+      # Any future calls outside of this class on User.new can still wipe out set user_detail values, but
+      # once we remove the model layer override, it will be caught during test and that area, if not using
+      # this class will have to build_user_detail as well.
+      @user = User.new.tap do |base_user|
+        base_user.build_user_detail
+        base_user.assign_attributes(user_params)
+      end
+    end
+
+    def organization_access_level
+      return organization_params[:organization_access_level] if organization_params.has_key?(:organization_access_level)
+
+      Organizations::OrganizationUser.default_organization_access_level(user_is_admin: @user.admin?)
+    end
+
+    def assign_organization
+      # Allow invalid parameters for the validation errors to bubble up to the User.
+      return if organization_params.blank?
+
+      @user.organization_users << Organizations::OrganizationUser.new(
+        organization_id: organization_params[:organization_id],
+        access_level: organization_access_level
+      )
+    end
+
+    def assign_personal_namespace
+      organization = Organizations::Organization.find_by_id(organization_params[:organization_id])
+      user.assign_personal_namespace(organization)
     end
 
     def assign_common_user_params
@@ -142,15 +174,6 @@ module Users
       user.identities.build(identity_params)
     end
 
-    def build_user_detail
-      # This will ensure we either load an existing record or create it.
-      user.user_detail
-    end
-
-    def update_canonical_email
-      Users::UpdateCanonicalEmailService.new(user: user).execute
-    end
-
     # Allowed params for creating a user (admins only)
     def admin_create_params
       [
@@ -158,36 +181,41 @@ module Users
         :admin,
         :avatar,
         :bio,
+        :bot_namespace,
         :can_create_group,
         :color_mode_id,
         :color_scheme_id,
+        :discord,
         :email,
         :external,
         :force_random_password,
         :hide_no_password,
         :hide_no_ssh_key,
         :linkedin,
+        :location,
         :name,
+        :note,
+        :organization,
         :password,
         :password_automatically_set,
         :password_expires_at,
+        :private_profile,
         :projects_limit,
+        :public_email,
         :remember_me,
         :skip_confirmation,
         :skype,
         :theme_id,
         :twitter,
-        :discord,
-        :username,
-        :website_url,
-        :private_profile,
-        :organization,
-        :location,
-        :public_email,
         :user_type,
-        :note,
-        :view_diffs_file_by_file
+        :username,
+        :view_diffs_file_by_file,
+        :website_url
       ]
+    end
+
+    def admin_organization_attributes
+      [:organization_id, :organization_access_level]
     end
 
     # Allowed params for user signup
@@ -203,6 +231,10 @@ module Users
         :first_name,
         :last_name
       ]
+    end
+
+    def signup_organization_attributes
+      [:organization_id]
     end
   end
 end

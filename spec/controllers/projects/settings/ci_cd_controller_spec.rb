@@ -115,39 +115,55 @@ RSpec.describe Projects::Settings::CiCdController, feature_category: :continuous
     end
 
     describe '#reset_cache' do
-      before do
-        sign_in(user)
-
-        project.add_maintainer(user)
-
-        allow(ResetProjectCacheService).to receive_message_chain(:new, :execute).and_return(true)
-      end
-
       subject { post :reset_cache, params: { namespace_id: project.namespace, project_id: project }, format: :json }
 
-      it 'calls reset project cache service' do
-        expect(ResetProjectCacheService).to receive_message_chain(:new, :execute)
-
-        subject
+      before do
+        sign_in(user)
       end
 
-      context 'when service returns successfully' do
-        it 'returns a success header' do
-          subject
-
-          expect(response).to have_gitlab_http_status(:ok)
-        end
-      end
-
-      context 'when service does not return successfully' do
+      context 'when logged in as a maintainer' do
         before do
-          allow(ResetProjectCacheService).to receive_message_chain(:new, :execute).and_return(false)
+          project.add_maintainer(user)
+
+          allow(ResetProjectCacheService).to receive_message_chain(:new, :execute).and_return(true)
         end
 
-        it 'returns an error header' do
+        it 'calls reset project cache service' do
+          expect(ResetProjectCacheService).to receive_message_chain(:new, :execute)
+
+          subject
+        end
+
+        context 'when service returns successfully' do
+          it 'returns a success header' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:ok)
+          end
+        end
+
+        context 'when service does not return successfully' do
+          before do
+            allow(ResetProjectCacheService).to receive_message_chain(:new, :execute).and_return(false)
+          end
+
+          it 'returns an error header' do
+            subject
+
+            expect(response).to have_gitlab_http_status(:bad_request)
+          end
+        end
+      end
+
+      context 'when the user is not authorized to access this action' do
+        before do
+          project.add_guest(user)
+        end
+
+        it 'returns not found' do
           subject
 
-          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
     end
@@ -332,6 +348,30 @@ RSpec.describe Projects::Settings::CiCdController, feature_category: :continuous
           end
         end
 
+        context 'when delete_pipelines_in_human_readable is specified' do
+          let(:params) { { ci_cd_settings_attributes: { delete_pipelines_in_human_readable: '1 week' } } }
+
+          context 'and user is a maintainer' do
+            it 'does not set delete_pipelines_in_human_readable' do
+              subject
+
+              project.reload
+              expect(project.ci_delete_pipelines_in_seconds).to be_nil
+            end
+          end
+
+          context 'and user is an owner' do
+            it 'sets delete_pipelines_in_human_readable' do
+              project.add_owner(user)
+
+              subject
+
+              project.reload
+              expect(project.ci_delete_pipelines_in_seconds).to eq(1.week)
+            end
+          end
+        end
+
         context 'when max_artifacts_size is specified' do
           let(:params) { { max_artifacts_size: 10 } }
 
@@ -383,6 +423,49 @@ RSpec.describe Projects::Settings::CiCdController, feature_category: :continuous
 
         expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response).to have_key("errors")
+      end
+    end
+
+    describe 'GET #export_job_token_authorizations' do
+      subject(:get_authorizations) do
+        get :export_job_token_authorizations, params: {
+          namespace_id: project.namespace,
+          project_id: project
+        }, format: :csv
+      end
+
+      let!(:authorizations) do
+        create_list(:ci_job_token_authorization, 3, accessed_project: project)
+      end
+
+      context 'when the export is successful' do
+        it 'renders the CSV' do
+          get_authorizations
+
+          expect(response).to have_gitlab_http_status(:ok)
+          rows = response.body.lines
+
+          expect(rows[0]).to include('Origin Project Path,Last Authorized At (UTC)')
+          expect(rows[1]).to include(authorizations.first.origin_project.full_path)
+          expect(rows[1]).to include(authorizations.first.last_authorized_at.utc.iso8601)
+        end
+      end
+
+      context 'when the export fails' do
+        let(:export_service) { instance_double(Ci::JobToken::ExportAuthorizationsService) }
+        let(:failed_response) { ServiceResponse.error(message: 'Export failed') }
+
+        before do
+          allow(::Ci::JobToken::ExportAuthorizationsService).to receive(:new).and_return(export_service)
+          allow(export_service).to receive(:execute).and_return(failed_response)
+        end
+
+        it 'sets a flash alert and redirects to the project CI/CD settings' do
+          get_authorizations
+
+          expect(flash[:alert]).to eq('Failed to generate export')
+          expect(response).to redirect_to(project_settings_ci_cd_path(project))
+        end
       end
     end
   end

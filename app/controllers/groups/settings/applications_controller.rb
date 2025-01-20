@@ -17,8 +17,7 @@ module Groups
 
       def show; end
 
-      def edit
-      end
+      def edit; end
 
       def create
         @application = Applications::CreateService.new(current_user, application_params).execute(request)
@@ -36,7 +35,8 @@ module Groups
 
       def update
         if @application.update(application_params)
-          redirect_to group_settings_application_path(@group, @application), notice: _('Application was successfully updated.')
+          redirect_to group_settings_application_path(@group, @application),
+            notice: _('Application was successfully updated.')
         else
           render :edit
         end
@@ -54,15 +54,14 @@ module Groups
 
       def destroy
         @application.destroy
-        redirect_to group_settings_applications_url(@group), status: :found, notice: _('Application was successfully destroyed.')
+        redirect_to group_settings_applications_url(@group), status: :found,
+          notice: _('Application was successfully destroyed.')
       end
 
       private
 
       def set_index_vars
-        # TODO: Remove limit(100) and implement pagination
-        # https://gitlab.com/gitlab-org/gitlab/-/issues/324187
-        @applications = @group.oauth_applications.limit(100)
+        @applications = @group.oauth_applications.keyset_paginate(cursor: params[:cursor])
 
         # Don't overwrite a value possibly set by `create`
         @application ||= Doorkeeper::Application.new

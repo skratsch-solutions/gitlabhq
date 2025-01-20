@@ -43,6 +43,10 @@ module GroupLink
       direct_member?(group_link, options)
     end
 
+    expose :is_inherited_member do |group_link, options|
+      !direct_member?(group_link, options)
+    end
+
     private
 
     def can_read_shared_group?(group_link)
@@ -58,3 +62,5 @@ module GroupLink
     end
   end
 end
+
+GroupLink::GroupLinkEntity.prepend_mod

@@ -11,9 +11,9 @@ module InternalEventsCli
     :identifiers,
     :additional_properties,
     :product_group,
+    :product_categories,
     :milestone,
     :introduced_by_url,
-    :distributions,
     :tiers
   ].freeze
 
@@ -23,7 +23,15 @@ module InternalEventsCli
     introduced_by_url: 'TODO'
   }.freeze
 
-  ExistingEvent = Struct.new(*NEW_EVENT_FIELDS, :file_path, keyword_init: true)
+  ExistingEvent = Struct.new(*NEW_EVENT_FIELDS, :file_path, keyword_init: true) do
+    def identifiers
+      self[:identifiers] || []
+    end
+
+    def available_filters
+      additional_properties&.keys || []
+    end
+  end
 
   NewEvent = Struct.new(*NEW_EVENT_FIELDS, keyword_init: true) do
     def formatted_output
@@ -37,7 +45,7 @@ module InternalEventsCli
     def file_path
       File.join(
         *[
-          ('ee' unless distributions.include?('ce')),
+          ('ee' unless tiers.include?('free')),
           'config',
           'events',
           "#{action}.yml"

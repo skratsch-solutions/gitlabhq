@@ -1,13 +1,13 @@
 import { GlAlert } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { setHTMLFixture, resetHTMLFixture } from 'helpers/fixtures';
-import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import NewAccessTokenApp from '~/access_tokens/components/new_access_token_app.vue';
 import { EVENT_ERROR, EVENT_SUCCESS, FORM_SELECTOR } from '~/access_tokens/components/constants';
 import { createAlert, VARIANT_INFO } from '~/alert';
-import { __, sprintf } from '~/locale';
+import { sprintf } from '~/locale';
 import DomElementListener from '~/vue_shared/components/dom_element_listener.vue';
-import InputCopyToggleVisibility from '~/vue_shared/components/form/input_copy_toggle_visibility.vue';
+import InputCopyToggleVisibility from '~/vue_shared/components/input_copy_toggle_visibility/input_copy_toggle_visibility.vue';
 
 jest.mock('~/alert');
 
@@ -17,7 +17,7 @@ describe('~/access_tokens/components/new_access_token_app', () => {
   const accessTokenType = 'personal access token';
 
   const createComponent = (provide = { accessTokenType }) => {
-    wrapper = mountExtended(NewAccessTokenApp, {
+    wrapper = shallowMountExtended(NewAccessTokenApp, {
       provide,
     });
   };
@@ -45,7 +45,8 @@ describe('~/access_tokens/components/new_access_token_app', () => {
         <input type="text" id="expires_at" value="2022-01-01"/>
         <input type="text" value='1'/>
         <input type="checkbox" checked/>
-        <button type="submit" value="Create" class="disabled" disabled="disabled"/>
+        <textarea>my description</textarea>
+        <button type="submit" data-testid="create-token-button" value="Create" class="disabled" disabled="disabled"/>
       </form>`,
     );
 
@@ -74,10 +75,10 @@ describe('~/access_tokens/components/new_access_token_app', () => {
       expect(InputCopyToggleVisibilityComponent.props('value')).toBe(newToken);
       expect(InputCopyToggleVisibilityComponent.props('readonly')).toBe(true);
       expect(InputCopyToggleVisibilityComponent.props('copyButtonTitle')).toBe(
-        sprintf(__('Copy %{accessTokenType}'), { accessTokenType }),
+        sprintf('Copy %{accessTokenType}', { accessTokenType }),
       );
       expect(InputCopyToggleVisibilityComponent.attributes('label')).toBe(
-        sprintf(__('Your new %{accessTokenType}'), { accessTokenType }),
+        sprintf('Your new %{accessTokenType}', { accessTokenType }),
       );
     });
 
@@ -85,21 +86,34 @@ describe('~/access_tokens/components/new_access_token_app', () => {
       await triggerSuccess();
 
       expect(createAlert).toHaveBeenCalledWith({
-        message: sprintf(__('Your new %{accessTokenType} has been created.'), {
+        message: sprintf('Your new %{accessTokenType} has been created.', {
           accessTokenType,
         }),
         variant: VARIANT_INFO,
       });
     });
 
+    it('should enable the submit button', async () => {
+      const button = findButtonEl();
+      expect(button).toBeDisabled();
+      expect(button.className).toBe('disabled');
+
+      await triggerSuccess();
+
+      expect(button).not.toBeDisabled();
+      expect(button.className).toBe('');
+    });
+
     describe('when resetting the form', () => {
       it('should reset selectively some input fields', async () => {
         expect(document.querySelector('input[type=text]:not([id$=expires_at])').value).toBe('1');
         expect(document.querySelector('input[type=checkbox]').checked).toBe(true);
+        expect(document.querySelector('textarea').value).toBe('my description');
         await triggerSuccess();
 
         expect(document.querySelector('input[type=text]:not([id$=expires_at])').value).toBe('');
         expect(document.querySelector('input[type=checkbox]').checked).toBe(false);
+        expect(document.querySelector('textarea').value).toBe('');
       });
 
       it('should not reset the date field', async () => {
@@ -125,7 +139,7 @@ describe('~/access_tokens/components/new_access_token_app', () => {
       expect(wrapper.findComponent(InputCopyToggleVisibility).exists()).toBe(false);
 
       let GlAlertComponent = findGlAlertError();
-      expect(GlAlertComponent.props('title')).toBe(__('The form contains the following errors:'));
+      expect(GlAlertComponent.props('title')).toBe('The form contains the following errors:');
       expect(GlAlertComponent.props('variant')).toBe('danger');
       let itemEls = wrapper.findAll('li');
       expect(itemEls).toHaveLength(2);
@@ -135,7 +149,7 @@ describe('~/access_tokens/components/new_access_token_app', () => {
       await triggerError(['one']);
 
       GlAlertComponent = wrapper.findComponent(GlAlert);
-      expect(GlAlertComponent.props('title')).toBe(__('The form contains the following error:'));
+      expect(GlAlertComponent.props('title')).toBe('The form contains the following error:');
       expect(GlAlertComponent.props('variant')).toBe('danger');
       itemEls = wrapper.findAll('li');
       expect(itemEls).toHaveLength(1);

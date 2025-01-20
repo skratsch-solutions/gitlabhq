@@ -16,6 +16,7 @@ import {
   humanizeBranchValidationErrors,
 } from '~/lib/utils/text_utility';
 import api from '~/api';
+import { NON_INPUT_KEYS } from './constants';
 
 // Todo: Remove this when fixing issue in input_setter plugin
 const InputSetter = { ...ISetter };
@@ -378,6 +379,17 @@ export default class CreateMergeRequestDropdown {
   }
 
   onChangeInput(event) {
+    // If the user was holding a meta key, released a meta key, or released or pressed esc, do nothing.
+    if (
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      NON_INPUT_KEYS.includes(event.keyCode)
+    ) {
+      return undefined;
+    }
+
     this.disable();
     let target;
     let value;
@@ -485,7 +497,7 @@ export default class CreateMergeRequestDropdown {
   removeMessage(target) {
     const { input, message } = this.getTargetData(target);
     const inputClasses = ['gl-field-error-outline', 'gl-field-success-outline'];
-    const messageClasses = ['gl-text-gray-600', 'gl-text-red-500', 'gl-text-green-500'];
+    const messageClasses = ['gl-text-subtle', 'gl-text-red-500', 'gl-text-success'];
 
     inputClasses.forEach((cssClass) => input.classList.remove(cssClass));
     messageClasses.forEach((cssClass) => message.classList.remove(cssClass));
@@ -508,7 +520,7 @@ export default class CreateMergeRequestDropdown {
 
     this.removeMessage(target);
     input.classList.add('gl-field-success-outline');
-    message.classList.add('gl-text-green-500');
+    message.classList.add('gl-text-success');
     message.textContent = sprintf(__('%{text} is available'), { text });
     message.style.display = 'inline-block';
   }
@@ -518,7 +530,7 @@ export default class CreateMergeRequestDropdown {
     const text = target === INPUT_TARGET_BRANCH ? __('branch name') : __('source');
 
     this.removeMessage(target);
-    message.classList.add('gl-text-gray-600');
+    message.classList.add('gl-text-subtle');
     message.textContent = sprintf(__('Checking %{text} availability…'), { text });
     message.style.display = 'inline-block';
   }

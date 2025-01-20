@@ -26,8 +26,6 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
     it { is_expected.to allow_value([]).for(:target_platforms) }
     it { is_expected.to validate_length_of(:issue_branch_template).is_at_most(255) }
 
-    it { is_expected.to validate_inclusion_of(:suggested_reviewers_enabled).in_array([true, false]) }
-
     it 'allows any combination of the allowed target platforms' do
       valid_target_platform_combinations.each do |target_platforms|
         expect(subject).to allow_value(target_platforms).for(:target_platforms)
@@ -108,22 +106,7 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
     end
   end
 
-  describe '#human_squash_option' do
-    where(:squash_option, :human_squash_option) do
-      'never'       | 'Do not allow'
-      'always'      | 'Require'
-      'default_on'  | 'Encourage'
-      'default_off' | 'Allow'
-    end
-
-    with_them do
-      let(:project_setting) { create(:project_setting, squash_option: ProjectSetting.squash_options[squash_option]) }
-
-      subject { project_setting.human_squash_option }
-
-      it { is_expected.to eq(human_squash_option) }
-    end
-  end
+  it_behaves_like 'projects squash option'
 
   def valid_target_platform_combinations
     target_platforms = described_class::ALLOWED_TARGET_PLATFORMS

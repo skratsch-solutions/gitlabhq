@@ -8,10 +8,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 GitLab CI/CD can be used with [GitHub](github_integration.md), [Bitbucket Cloud](bitbucket_integration.md),
-or any other Git server, though there are some [limitations](#limitations).
+or any other Git server. Some [known issues](#known-issues) exist.
 
 Instead of moving your entire project to GitLab, you can connect your
 external repository to get the benefits of GitLab CI/CD.
@@ -30,9 +30,13 @@ To connect to an external repository:
 1. Select **GitHub** or **Repository by URL**.
 1. Complete the fields.
 
-If the **Run CI/CD for external repository** option is not available, the GitLab instance
-might not have any import sources configured. Ask an administrator for your instance to check
-the [import sources configuration](../../administration/settings/import_and_export_settings.md#configure-allowed-import-sources).
+If the **Run CI/CD for external repository** option is not available:
+
+- The GitLab instance might not have any import sources configured.
+  Ask an administrator to check the [import sources configuration](../../administration/settings/import_and_export_settings.md#configure-allowed-import-sources).
+- [Project mirroring](../../user/project/repository/mirror/index.md) might be disabled.
+  If disabled, only administrators can use the **Run CI/CD for external repository** option.
+  Ask an administrator to check the [project mirroring configuration](../../administration/settings/visibility_and_access_controls.md#enable-project-mirroring).
 
 ## Pipelines for external pull requests
 
@@ -53,13 +57,15 @@ always-run:
 
 on-pull-requests:
   script: echo 'this should run on pull requests'
-  only:
-    - external_pull_requests
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
 
 except-pull-requests:
-  script: echo 'this should not run on pull requests'
-  except:
-    - external_pull_requests
+  script: echo 'This should not run for pull requests, but runs in other cases.'
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: never
+    - when: on_success
 ```
 
 ### How it works
@@ -87,7 +93,7 @@ By using pipelines for external pull requests, GitLab exposes additional
 
 The variable names are prefixed with `CI_EXTERNAL_PULL_REQUEST_`.
 
-### Limitations
+### Known issues
 
 This feature does not support:
 

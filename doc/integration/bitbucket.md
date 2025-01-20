@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Authentication
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can set up Bitbucket.org as an OAuth 2.0 provider to use your Bitbucket.org
 account credentials to sign in to GitLab. You can also import your projects from
@@ -62,14 +62,14 @@ you to use.
    Wiki: Read and Write
    ```
 
-   ![Bitbucket OAuth settings page](img/bitbucket_oauth_settings_page.png)
+   ![Bitbucket OAuth settings page](img/bitbucket_oauth_settings_page_v8_15.png)
 
 1. Select **Save**.
 1. Select your newly created OAuth consumer, and you should now see a **Key** and
    **Secret** in the list of OAuth consumers. Keep this page open as you continue
    the configuration.
 
-   ![Bitbucket OAuth key](img/bitbucket_oauth_keys.png)
+   ![Bitbucket OAuth key](img/bitbucket_oauth_keys_v8_12.png)
 
 1. On your GitLab server, open the configuration file:
 
@@ -92,7 +92,8 @@ you to use.
        # label: "Provider name", # optional label for login button, defaults to "Bitbucket"
        app_id: "<bitbucket_app_key>",
        app_secret: "<bitbucket_app_secret>",
-       url: "https://bitbucket.org/"
+       url: "https://bitbucket.org/",
+       args: { redirect_uri: "https://gitlab.example.com/users/auth/" },
      }
    ]
    ```
@@ -107,7 +108,9 @@ you to use.
            # label: 'Provider name', # optional label for login button, defaults to "Bitbucket"
            app_id: '<bitbucket_app_key>',
            app_secret: '<bitbucket_app_secret>',
-           url: 'https://bitbucket.org/' }
+           url: 'https://bitbucket.org/',
+           args: { redirect_uri: "https://gitlab.example.com/users/auth/" },
+         }
    ```
 
    Where `<bitbucket_app_key>` is the **Key** and `<bitbucket_app_secret>` the **Secret**
@@ -123,10 +126,13 @@ sign-in form. Select the icon to begin the authentication process. Bitbucket ask
 the user to sign in and authorize the GitLab application. If successful, the user
 is returned to GitLab and signed in.
 
+NOTE:
+For multi-node architectures, the Bitbucket provider configuration must also be included on the Sidekiq nodes to be able to import projects.
+
 ## Bitbucket project import
 
 After the above configuration is set up, you can use Bitbucket to sign in to
 GitLab and [start importing your projects](../user/project/import/bitbucket.md).
 
 If you want to import projects from Bitbucket, but don't want to enable signing in,
-you can [disable Sign-Ins in the Admin Area](omniauth.md#enable-or-disable-sign-in-with-an-omniauth-provider-without-disabling-import-sources).
+you can [disable Sign-Ins in the **Admin** area](omniauth.md#enable-or-disable-sign-in-with-an-omniauth-provider-without-disabling-import-sources).

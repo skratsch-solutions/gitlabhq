@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::Ci::Config::Entry::Kubernetes do
+RSpec.describe Gitlab::Ci::Config::Entry::Kubernetes, feature_category: :kubernetes_management do
   let(:config) { Hash(namespace: 'namespace') }
 
   subject { described_class.new(config) }
@@ -31,6 +31,12 @@ RSpec.describe Gitlab::Ci::Config::Entry::Kubernetes do
 
         it { is_expected.not_to be_valid }
       end
+
+      context 'is empty' do
+        let(:config) { {} }
+
+        it { is_expected.not_to be_valid }
+      end
     end
 
     describe 'namespace' do
@@ -47,9 +53,51 @@ RSpec.describe Gitlab::Ci::Config::Entry::Kubernetes do
 
         it { is_expected.not_to be_valid }
       end
+    end
 
-      context 'is not present' do
-        let(:namespace) { '' }
+    describe 'agent' do
+      let(:config) { Hash(agent: agent) }
+
+      context 'is a string' do
+        let(:agent) { 'path/to/project:example-agent' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'is a hash' do
+        let(:agent) { { key: 'agent' } }
+
+        it { is_expected.not_to be_valid }
+      end
+    end
+
+    describe 'flux_resource_path' do
+      let(:agent) { 'path/to/project:example-agent' }
+      let(:namespace) { 'my-namespace' }
+      let(:flux_resource_path) { 'path/to/flux/resource' }
+
+      context 'when both agent and namespace are set' do
+        let(:config) { Hash(agent: agent, namespace: namespace, flux_resource_path: flux_resource_path) }
+
+        context 'is a string' do
+          it { is_expected.to be_valid }
+        end
+
+        context 'is a hash' do
+          let(:flux_resource_path) { { key: 'flux_resource_path' } }
+
+          it { is_expected.not_to be_valid }
+        end
+      end
+
+      context 'when agent is not set' do
+        let(:config) { Hash(namespace: namespace, flux_resource_path: flux_resource_path) }
+
+        it { is_expected.not_to be_valid }
+      end
+
+      context 'when namespace is not set' do
+        let(:config) { Hash(agent: agent, flux_resource_path: flux_resource_path) }
 
         it { is_expected.not_to be_valid }
       end

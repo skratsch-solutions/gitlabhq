@@ -8,7 +8,7 @@ description: "GitLab projects display Jupyter Notebook files as clean, human-rea
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 [Jupyter Notebook](https://jupyter.org/) (previously, IPython Notebook) files are used for
 interactive computing in many fields. They contain a complete record of the
@@ -22,7 +22,7 @@ user's sessions and include:
 When you add a Jupyter Notebook (with `.ipynb` extension) to your repository,
 it's rendered into HTML when you view it:
 
-![Jupyter Notebook Rich Output](../img/jupyter_notebook.png)
+![Jupyter Notebook Rich Output](../img/jupyter_notebook_v13_11.png)
 
 Interactive features, including JavaScript plots, don't work when viewed in
 GitLab.
@@ -39,7 +39,7 @@ When commits include changes to Jupyter Notebook files, GitLab:
 - Enables switching between raw and rendered diffs on the Commit and Compare pages. (Not available on merge request pages.)
 - Renders images on the diffs.
 
-Code Suggestions are not available on diffs and merge requests for `.ipynb` files.
+Code Suggestions is not available on diffs and merge requests for `.ipynb` files.
 
 Cleaner notebook diffs are not generated when the notebook is too large.
 

@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -7,7 +7,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 # Tutorial: Create Jira credentials
 
 This tutorial shows you how to create Jira credentials. You can use your new Jira credentials to
-configure the [Jira issue integration](configure.md) in GitLab for Jira Data Center or Jira Server.
+configure the [Jira issues integration](configure.md) in GitLab for Jira Data Center or Jira Server.
 
 To create Jira credentials, here's what we're going to do:
 
@@ -31,7 +31,7 @@ To create a Jira user:
 
    - In **Email address**, enter a valid email address.
    - In **Username**, enter `gitlab`.
-   - In **Password**, enter a password (the Jira issue integration does not support SSO such as SAML).
+   - In **Password**, enter a password (the Jira issues integration does not support SSO such as SAML).
 1. Select **Create user**.
 
 Now that you've created a user named `gitlab`, it's time to create a group for the user.
@@ -46,9 +46,9 @@ To create a Jira group for the user:
    `gitlab-developers`), then select **Add group**.
 1. To add the `gitlab` user to the new `gitlab-developers` group, select **Edit members**.
    The `gitlab-developers` group appears as a selected group.
-<!-- vale gitlab.BadPlurals = NO -->
+<!-- vale gitlab_base.BadPlurals = NO -->
 1. In the **Add members to selected group(s)** section, enter `gitlab`.
-<!-- vale gitlab.BadPlurals = YES -->
+<!-- vale gitlab_base.BadPlurals = YES -->
 1. Select **Add selected users**.
    The `gitlab` user appears as a group member.
 
@@ -72,4 +72,4 @@ To create a permission scheme for the group:
 1. From the **Group** dropdown list, select `gitlab-developers`, then select **Grant**.
 
 You've done it! You can now use your new Jira username and password to configure the
-[Jira issue integration](configure.md) in GitLab for Jira Data Center or Jira Server.
+[Jira issues integration](configure.md) in GitLab for Jira Data Center or Jira Server.

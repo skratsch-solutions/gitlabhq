@@ -55,8 +55,6 @@ module API
 
         authorize_upload!(subject)
 
-        Gitlab::Workhorse.verify_api_request!(headers)
-
         status 200
         content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
 
@@ -88,6 +86,8 @@ module API
         project = find_project(params[:id])
 
         return forbidden! unless authorized_project_scope?(project)
+
+        project && authorize_job_token_policies!(project) && return
 
         return project if can?(current_user, :read_package, project&.packages_policy_subject)
         # guest users can have :read_project but not :read_package

@@ -135,6 +135,30 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
         end
       end
     end
+
+    context 'with a model that persist object store' do
+      before do
+        allow(uploader).to receive_messages(sync_model_object_store?: false, persist_object_store?: true)
+      end
+
+      it 'does not sync with the model' do
+        expect(object).not_to receive(:"[]=")
+
+        uploader.object_store = described_class::Store::LOCAL
+      end
+
+      context 'with an uploader that sync with the model' do
+        before do
+          allow(uploader).to receive(:sync_model_object_store?).and_return(true)
+        end
+
+        it 'syncs with the model' do
+          expect(object).to receive(:"[]=").with(:file_store, described_class::Store::LOCAL)
+
+          uploader.object_store = described_class::Store::LOCAL
+        end
+      end
+    end
   end
 
   describe '#object_store' do
@@ -291,6 +315,7 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
               satisfying do |f|
                 expect(f).to be_an_instance_of(ObjectStorage::Concern::OpenFile)
                 expect(f.file_path).to be_nil
+                expect(f.original_filename).to be_nil
               end
             )
           end
@@ -300,6 +325,8 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
               satisfying do |f|
                 expect(f).to be_an_instance_of(ObjectStorage::Concern::OpenFile)
                 expect(File.exist?(f.file_path)).to be_truthy
+                expect(f.original_filename).not_to be_nil
+                expect(f.original_filename).to eq(File.basename(f.file_path))
               end
             )
           end
@@ -991,6 +1018,16 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
           it 'raises an error' do
             expect { subject }.to raise_error(uploader_class::RemoteStoreError, /Missing file/)
           end
+
+          context 'when check_remote_file_existence_on_upload? is set to false' do
+            before do
+              allow(uploader).to receive(:check_remote_file_existence_on_upload?).and_return(false)
+            end
+
+            it 'does not raise an error' do
+              expect { subject }.not_to raise_error
+            end
+          end
         end
 
         context 'when empty remote_id is specified' do
@@ -1051,6 +1088,12 @@ RSpec.describe ObjectStorage, :clean_gitlab_redis_shared_state, feature_category
           end
 
           context 'when uploaded file remote_id matches a pending direct upload entry' do
+            let(:uploader_class) do
+              Class.new(GitlabUploader) do
+                include ObjectStorage::Concern
+              end
+            end
+
             let(:object) { build_stubbed(:ci_job_artifact) }
             let(:final_path) { '@final/test/123123' }
             let(:fog_config) { Gitlab.config.uploads.object_store }

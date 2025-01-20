@@ -10,8 +10,8 @@ DETAILS:
 **Tier:** Free, Premium, Ultimate
 **Offering:** GitLab.com, GitLab Dedicated
 
-You can run your CI/CD jobs on GitLab.com and GitLab Dedicated using GitLab-hosted runners to seamlessly build, test and deploy
-your application on different environments.
+Use GitLab-hosted runners to run your CI/CD jobs on GitLab.com and GitLab Dedicated to build, test, and deploy
+applications on different environments.
 
 ## Hosted runners for GitLab.com
 
@@ -23,8 +23,8 @@ Your jobs can run on:
 
 - [Hosted runners on Linux](hosted_runners/linux.md)
 - [GPU-enabled hosted runners](hosted_runners/gpu_enabled.md)
-- [Hosted runners on Windows](hosted_runners/windows.md) ([beta](../../policy/experiment-beta-support.md#beta))
-- [Hosted runners on macOS](hosted_runners/macos.md) ([beta](../../policy/experiment-beta-support.md#beta))
+- [Hosted runners on Windows](hosted_runners/windows.md) ([beta](../../policy/development_stages_support.md#beta))
+- [Hosted runners on macOS](hosted_runners/macos.md) ([beta](../../policy/development_stages_support.md#beta))
 
 ### How hosted runners for GitLab.com work
 
@@ -49,14 +49,13 @@ Hosted runners for GitLab.com are configured as such:
 - Inbound communication from the public internet to the ephemeral VM is not allowed.
 - Firewall rules do not permit communication between VMs.
 - The only internal communication allowed to the ephemeral VMs is from the runner manager.
-- VM isolation between job executions.
-- Ephemeral runner VMs will only serve a single job and will be deleted right after the job execution.
+- Ephemeral runner VMs serve a single job and are deleted right after the job execution.
 
 #### Architecture diagram of hosted runners for GitLab.com
 
 The following graphic shows the architecture diagram of hosted runners for GitLab.com
 
-![Hosted runners for GitLab.com architecture](img/gitlab-hosted_runners_architecture.png)
+![Hosted runners for GitLab.com architecture](img/gitlab-hosted_runners_architecture_v17_0.png)
 
 For more information on how runners are authenticating and executing the job payload, see [Runner Execution Flow](https://docs.gitlab.com/runner#runner-execution-flow).
 
@@ -65,16 +64,18 @@ For more information on how runners are authenticating and executing the job pay
 In addition to isolating runners on the network, each ephemeral runner VM only serves a single job and is deleted straight after the job execution.
 In the following example, three jobs are executed in a project's pipeline. Each of these jobs runs in a dedicated ephemeral VM.
 
-![Job isolation](img/build_isolation.png)
+![Job isolation](img/build_isolation_v16_1.png)
 
 The build job ran on `runner-ns46nmmj-project-43717858`, test job on `f131a6a2runner-new2m-od-project-43717858` and deploy job on `runner-tmand5m-project-43717858`.
 
 GitLab sends the command to remove the ephemeral runner VM to the Google Compute API immediately after the CI job completes. The [Google Compute Engine hypervisor](https://cloud.google.com/blog/products/gcp/7-ways-we-harden-our-kvm-hypervisor-at-google-cloud-security-in-plaintext)
 takes over the task of securely deleting the virtual machine and associated data.
 
-For more information about the security of hosted runners for GitLab.com, see
-[Google Cloud Infrastructure Security Design Overview whitepaper](https://cloud.google.com/docs/security/infrastructure/design/resources/google_infrastructure_whitepaper_fa.pdf),
-[GitLab Trust Center](https://about.gitlab.com/security/), or [GitLab Security Compliance Controls](https://handbook.gitlab.com/handbook/security/security-assurance/security-compliance/sec-controls/).
+For more information about the security of hosted runners for GitLab.com, see:
+
+- [Google Cloud Infrastructure Security Design Overview whitepaper](https://cloud.google.com/docs/security/infrastructure/design/resources/google_infrastructure_whitepaper_fa.pdf)
+- [GitLab Trust Center](https://about.gitlab.com/security/)
+- [GitLab Security Compliance Controls](https://handbook.gitlab.com/handbook/security/security-assurance/security-compliance/sec-controls/)
 
 ### Caching on hosted runners for GitLab.com
 
@@ -88,9 +89,9 @@ For more information about how caching works, see [Architecture diagram of hoste
 ### Pricing of hosted runners for GitLab.com
 
 Jobs that run on hosted runners for GitLab.com consume [compute minutes](../pipelines/compute_minutes.md) allocated to your namespace.
-The number of minutes you can use on these runners depends on the included compute minutes in your [subscription plan](https://about.gitlab.com/pricing/) or [additionally purchased compute minutes](../pipelines/compute_minutes.md#purchase-additional-compute-minutes).
+The number of minutes you can use on these runners depends on the included compute minutes in your [subscription plan](https://about.gitlab.com/pricing/) or [additionally purchased compute minutes](../../subscriptions/gitlab_com/compute_minutes.md#purchase-additional-compute-minutes).
 
-For more information about the cost factor applied to the machine type based on size, see [cost factor](../../ci/pipelines/compute_minutes.md#gitlab-hosted-runner-costs).
+For more information about the cost factor applied to the machine type based on size, see [cost factor](../../ci/pipelines/compute_minutes.md#gitlab-hosted-runner-cost-factors).
 
 ### SLO & Release cycle for hosted runners for GitLab.com
 
@@ -104,7 +105,7 @@ You can find all GitLab Runner breaking changes under [Deprecations and removals
 DETAILS:
 **Offering:** GitLab.com
 
-If you want to [contribute to GitLab](https://about.gitlab.com/community/contribute/), jobs will be picked up by the
+If you want to [contribute to GitLab](https://about.gitlab.com/community/contribute/), jobs are picked up by the
 `gitlab-shared-runners-manager-X.gitlab.com` fleet of runners, dedicated for GitLab projects and related community forks.
 
 These runners are backed by the same machine type as our `small` Linux x86-64 runners.
@@ -116,10 +117,9 @@ As we want to encourage people to contribute, these runners are free of charge.
 
 DETAILS:
 **Offering:** GitLab Dedicated
-**Status:** Beta
 
-These runners are created on demand for GitLab Dedicated customers and are fully integrated with your GitLab Dedicated instance.
-For more information, see [hosted runners for GitLab Dedicated](../../subscriptions/gitlab_dedicated/index.md#gitlab-runners).
+Hosted runners for GitLab Dedicated are created on demand and are fully integrated with your GitLab Dedicated instance.
+For more information, see [hosted runners for GitLab Dedicated](../../administration/dedicated/hosted_runners.md).
 
 ## Supported image lifecycle
 
@@ -128,22 +128,22 @@ Supported images have the following lifecycle:
 
 ### Beta
 
-New images are released as beta. This allows us to gather feedback and address potential issues before general availablility (GA).
+New images are released as beta. This allows us to gather feedback and address potential issues before general availability.
 Any jobs running on beta images are not covered by the service-level agreement.
 If you use beta images, you can provide feedback by creating an issue.
 
-### General availability (GA)
+### General availability
 
-A image becomes generally available after the image completes the beta phase and is considered stable.
-To become GA, the image must fulfill the following requirements:
+A image becomes generally available after it completes the beta phase and is considered stable.
+To become generally available, the image must fulfill the following requirements:
 
 - Successful completion of a beta phase by resolving all reported significant bugs
 - Compatibility of installed software with the underlying OS
 
-Jobs that run on GA images are covered by the defined service-level agreement.
+Jobs that run on generally available images are covered by the defined service-level agreement.
 
 ### Deprecated
 
-A maximum of two generally available (GA) images are supported at a time. After a new GA image is released,
-the oldest GA image becomes deprecated. A deprecated image is no longer updated and is deleted after 3 months
+A maximum of two generally available images are supported at a time. After a new generally available image is released,
+the oldest generally available image becomes deprecated. A deprecated image is no longer updated and is deleted after 3 months
 in accordance with the [deprecation guidelines](../../development/deprecation_guidelines/index.md).

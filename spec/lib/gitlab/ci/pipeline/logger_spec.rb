@@ -57,16 +57,11 @@ RSpec.describe ::Gitlab::Ci::Pipeline::Logger, feature_category: :continuous_int
       logger.instrument_once_with_sql(:expensive_operation, &operation)
     end
 
-    def expected_data(count:, db_count: nil)
+    def expected_data
       database_name = Ci::ApplicationRecord.connection.pool.db_config.name
-
-      total_db_count = count * db_count if db_count
 
       {
         "expensive_operation_duration_s" => a_kind_of(Numeric),
-        "expensive_operation_db_count" => total_db_count || a_kind_of(Numeric),
-        "expensive_operation_db_primary_count" => a_kind_of(Numeric),
-        "expensive_operation_db_primary_duration_s" => a_kind_of(Numeric),
         "expensive_operation_db_#{database_name}_count" => a_kind_of(Numeric),
         "expensive_operation_db_#{database_name}_duration_s" => a_kind_of(Numeric)
       }
@@ -81,7 +76,7 @@ RSpec.describe ::Gitlab::Ci::Pipeline::Logger, feature_category: :continuous_int
         instrument_once_with_sql
 
         expect(logger.observations_hash)
-          .to match(a_hash_including(expected_data(count: 1, db_count: 1)))
+          .to match(a_hash_including(expected_data))
       end
     end
 
@@ -94,7 +89,7 @@ RSpec.describe ::Gitlab::Ci::Pipeline::Logger, feature_category: :continuous_int
         instrument_once_with_sql
 
         expect(logger.observations_hash)
-          .to match(a_hash_including(expected_data(count: 1, db_count: 2)))
+          .to match(a_hash_including(expected_data))
       end
     end
 
@@ -155,12 +150,14 @@ RSpec.describe ::Gitlab::Ci::Pipeline::Logger, feature_category: :continuous_int
     subject(:commit) { logger.commit(pipeline: pipeline, caller: 'source') }
 
     before do
-      stub_feature_flags(ci_pipeline_creation_logger: flag)
-      allow(logger).to receive(:current_monotonic_time) { Time.current.to_i }
+      freeze_time do
+        stub_feature_flags(ci_pipeline_creation_logger: flag)
+        allow(logger).to receive(:current_monotonic_time) { Time.current.to_i }
 
-      logger.instrument(:pipeline_save) { travel(60.seconds) }
-      logger.observe(:pipeline_creation_duration_s, 30)
-      logger.observe(:pipeline_creation_duration_s, 10)
+        logger.instrument(:pipeline_save) { travel(60.seconds) }
+        logger.observe(:pipeline_creation_duration_s, 30)
+        logger.observe(:pipeline_creation_duration_s, 10)
+      end
     end
 
     context 'when the feature flag is enabled' do

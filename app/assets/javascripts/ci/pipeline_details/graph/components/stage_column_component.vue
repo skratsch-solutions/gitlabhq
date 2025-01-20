@@ -79,11 +79,13 @@ export default {
   jobClasses: [
     'gl-p-3',
     'gl-border-0',
-    'gl-rounded',
-    'hover:gl-bg-strong',
-    'focus:gl-bg-strong',
-    'gl-hover-text-gray-900',
-    'gl-focus-text-gray-900',
+    '!gl-rounded-base',
+    'hover:gl-bg-gray-50',
+    'dark:hover:gl-bg-gray-200',
+    'focus:gl-bg-gray-50',
+    'dark:focus:gl-bg-gray-200',
+    'hover:gl-text-strong',
+    'focus:gl-text-strong',
   ],
   data() {
     return {
@@ -112,9 +114,6 @@ export default {
         stageName: this.name,
       });
     },
-  },
-  errorCaptured(err, _vm, info) {
-    reportToSentry('stage_column_component', `error: ${err}, info: ${info}`);
   },
   mounted() {
     this.$emit('updateMeasurements');
@@ -174,15 +173,15 @@ export default {
 <template>
   <root-graph-layout
     :class="columnSpacingClass"
-    class="stage-column gl-relative gl-flex-basis-full"
+    class="stage-column gl-relative gl-basis-full"
     data-testid="stage-column"
   >
     <template #stages>
       <div
         data-testid="stage-column-title"
-        class="stage-column-title gl-display-flex gl-justify-content-space-between gl-relative gl-font-bold gl-pipeline-job-width gl-text-truncate gl-leading-36 gl-pl-4 -gl-mb-2"
+        class="stage-column-title gl-pipeline-job-width gl-relative -gl-mb-2 gl-flex gl-justify-between gl-truncate gl-pl-4 gl-font-bold gl-leading-36"
       >
-        <span :title="name" class="gl-text-truncate gl-pr-3 gl-w-17/20">
+        <span :title="name" class="gl-w-17/20 gl-truncate gl-pr-3">
           {{ name }}
         </span>
         <action-component
@@ -204,7 +203,7 @@ export default {
         :id="groupId(group)"
         :key="getGroupId(group)"
         data-testid="stage-column-group"
-        class="gl-relative gl-whitespace-normal gl-pipeline-job-width gl-mb-2"
+        class="gl-pipeline-job-width gl-relative gl-mb-2 gl-whitespace-normal"
         @mouseenter="$emit('jobHover', group.name)"
         @mouseleave="$emit('jobHover', '')"
       >

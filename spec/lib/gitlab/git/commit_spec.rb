@@ -51,6 +51,30 @@ RSpec.describe Gitlab::Git::Commit, feature_category: :source_code_management do
       )
     end
 
+    context 'non-ASCII content' do
+      let(:body) do
+        body = +<<~BODY
+          Äpfel
+
+          Changelog: Äpfel
+        BODY
+
+        [subject, "\n", body.force_encoding("ASCII-8BIT")].join
+      end
+
+      it "parses non-ASCII commit trailers" do
+        expect(commit.trailers).to eq(
+          { 'Changelog' => 'Äpfel' }
+        )
+      end
+
+      it "parses non-ASCII extended commit trailers" do
+        expect(commit.extended_trailers).to eq(
+          { 'Changelog' => ['Äpfel'] }
+        )
+      end
+    end
+
     context 'non-UTC dates' do
       let(:seconds) { Time.now.to_i }
 
@@ -380,10 +404,10 @@ RSpec.describe Gitlab::Git::Commit, feature_category: :source_code_management do
     end
 
     describe '.find_all' do
-      it 'returns a return a collection of commits' do
+      it 'returns a collection of commits' do
         commits = described_class.find_all(repository)
 
-        expect(commits).to all( be_a_kind_of(described_class) )
+        expect(commits).to all(be_a_kind_of(described_class))
       end
 
       context 'max_count' do
@@ -424,6 +448,54 @@ RSpec.describe Gitlab::Git::Commit, feature_category: :source_code_management do
       end
     end
 
+    describe '.list_all' do
+      subject(:commits) do
+        described_class.list_all(
+          repository,
+          ref: 'master',
+          revisions: %w[--branches --tags],
+          order: :date,
+          reverse: false,
+          pagination_params: { limit: 4 }
+        )
+      end
+
+      context 'with refname and revisions' do
+        it 'returns a collection of commits' do
+          expect(commits).to all(be_a_kind_of(described_class))
+        end
+
+        it 'returns all commits ordered by date and starting from the refname' do
+          expect(commits.first.id).to eq('ba3343bc4fa403a8dfbfcab7fc1a8c29ee34bd69')
+        end
+      end
+
+      context 'with commit sha ref and revisions' do
+        let(:committed_date) { Time.parse('2019-11-07T13:24:47.000+01:00').utc }
+        let(:commit_sha) { 'ed775cc81e5477df30c2abba7b6fdbb5d0baadae' }
+
+        subject(:commits) do
+          described_class.list_all(
+            repository,
+            ref: commit_sha,
+            revisions: %w[--branches --tags],
+            order: :date,
+            reverse: false,
+            before: committed_date,
+            pagination_params: { limit: 5 }
+          )
+        end
+
+        it 'returns a collection of commits' do
+          expect(commits).to all(be_a_kind_of(described_class))
+        end
+
+        it 'returns all commits ordered by date and starting from the commit sha' do
+          expect(commits.first.id).to eq('ed775cc81e5477df30c2abba7b6fdbb5d0baadae')
+        end
+      end
+    end
+
     shared_examples '.batch_by_oid' do
       context 'with multiple OIDs' do
         let(:oids) { [SeedRepo::Commit::ID, SeedRepo::FirstCommit::ID] }
@@ -432,7 +504,7 @@ RSpec.describe Gitlab::Git::Commit, feature_category: :source_code_management do
           commits = described_class.batch_by_oid(repository, oids)
 
           expect(commits.count).to eq(2)
-          expect(commits).to all( be_a(described_class) )
+          expect(commits).to all(be_a(described_class))
           expect(commits.first.sha).to eq(SeedRepo::Commit::ID)
           expect(commits.second.sha).to eq(SeedRepo::FirstCommit::ID)
         end

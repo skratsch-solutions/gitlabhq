@@ -4,10 +4,13 @@ module API
   class Projects < ::API::Base
     include PaginationParams
     include Helpers::CustomAttributes
+    include APIGuard
 
     helpers Helpers::ProjectsHelpers
 
     before { authenticate_non_get! }
+
+    allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
 
     feature_category :groups_and_projects, %w[
       /projects/:id/custom_attributes
@@ -116,7 +119,7 @@ module API
 
       params :sort_params do
         optional :order_by, type: String,
-          values: %w[id name path created_at updated_at last_activity_at similarity] + Helpers::ProjectsHelpers::STATISTICS_SORT_PARAMS,
+          values: %w[id name path created_at updated_at last_activity_at similarity star_count] + Helpers::ProjectsHelpers::STATISTICS_SORT_PARAMS,
           default: 'created_at', desc: "Return projects ordered by field. #{Helpers::ProjectsHelpers::STATISTICS_SORT_PARAMS.join(', ')} are only available to admins. Similarity is available when searching and is limited to projects the user has access to."
         optional :sort, type: String, values: %w[asc desc], default: 'desc',
           desc: 'Return projects sorted in ascending and descending order'
@@ -267,7 +270,7 @@ module API
         user = find_user(params[:user_id])
         not_found!('User') unless user
 
-        contributed_projects = ContributedProjectsFinder.new(user).execute(current_user).joined(user)
+        contributed_projects = ContributedProjectsFinder.new(user: user, current_user: current_user).execute.joined(user)
         present_projects contributed_projects
       end
 
@@ -560,6 +563,7 @@ module API
         attrs = declared_params(include_missing: false)
         authorize! :rename_project, user_project if attrs[:name].present?
         authorize! :change_visibility_level, user_project if user_project.visibility_attribute_present?(attrs)
+        authorize! :destroy_pipeline, user_project if attrs.key?(:ci_delete_pipelines_in_seconds)
 
         attrs = translate_params_for_compatibility(attrs)
         attrs = add_import_params(attrs)
@@ -764,8 +768,9 @@ module API
         requires :group_id, type: Integer, desc: 'The ID of a group', documentation: { example: 1 }
         requires :group_access, type: Integer, values: Gitlab::Access.all_values, as: :link_group_access, desc: 'The group access level'
         optional :expires_at, type: Date, desc: 'Share expiration date'
+        use :share_project_params_ee
       end
-      post ":id/share", feature_category: :groups_and_projects do
+      post ":id/share", feature_category: :groups_and_projects, urgency: :low do
         authorize! :admin_project, user_project
         shared_with_group = Group.find_by_id(params[:group_id])
 
@@ -891,6 +896,27 @@ module API
         groups = ::Projects::GroupsFinder.new(project: user_project, current_user: current_user, params: declared_params(include_missing: false)).execute
         groups = groups.search(params[:search]) if params[:search].present?
 
+        present_groups groups
+      end
+
+      desc 'Get a list of invited groups in this project' do
+        success Entities::Group
+        is_array true
+        tags %w[projects]
+      end
+      params do
+        optional :relation, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, values: %w[direct inherited], desc: 'Filter by group relation'
+        optional :search, type: String, desc: 'Search for a specific group'
+        optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Limit by minimum access level of authenticated user'
+
+        use :pagination
+        use :with_custom_attributes
+      end
+      get ':id/invited_groups', feature_category: :groups_and_projects do
+        check_rate_limit_by_user_or_ip!(:project_invited_groups_api)
+
+        project = find_project!(params[:id])
+        groups = ::Namespaces::Projects::InvitedGroupsFinder.new(project, current_user, declared_params).execute
         present_groups groups
       end
 

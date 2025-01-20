@@ -3,7 +3,6 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { nextTick } from 'vue';
 import { shallowMount } from '@vue/test-utils';
-import { __, s__ } from '~/locale';
 import TagCreate from '~/releases/components/tag_create.vue';
 import RefSelector from '~/ref/components/ref_selector.vue';
 import createStore from '~/releases/stores';
@@ -48,8 +47,14 @@ describe('releases/components/tag_create', () => {
   const findTagInput = () => wrapper.findComponent(GlFormInput);
   const findTagRef = () => wrapper.findComponent(RefSelector);
   const findTagMessage = () => wrapper.findComponent(GlFormTextarea);
-  const findSave = () => wrapper.findAllComponents(GlButton).at(-2);
-  const findCancel = () => wrapper.findAllComponents(GlButton).at(-1);
+  const findSave = () => {
+    const buttons = wrapper.findAllComponents(GlButton);
+    return buttons.at(buttons.length - 2);
+  };
+  const findCancel = () => {
+    const buttons = wrapper.findAllComponents(GlButton);
+    return buttons.at(buttons.length - 1);
+  };
 
   it('initializes the input with value prop', () => {
     expect(findTagInput().attributes('value')).toBe(VALUE);
@@ -88,7 +93,7 @@ describe('releases/components/tag_create', () => {
   it('emits create event when Save is clicked', () => {
     const button = findSave();
 
-    expect(button.text()).toBe(__('Save'));
+    expect(button.text()).toBe('Save');
 
     button.vm.$emit('click');
 
@@ -98,7 +103,7 @@ describe('releases/components/tag_create', () => {
   it('emits cancel event when Select another tag is clicked', () => {
     const button = findCancel();
 
-    expect(button.text()).toBe(s__('Release|Select another tag'));
+    expect(button.text()).toBe('Select another tag');
 
     button.vm.$emit('click');
 

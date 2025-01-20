@@ -4,11 +4,10 @@ module WorkItems
   class WidgetDefinition < ApplicationRecord
     self.table_name = 'work_item_widget_definitions'
 
-    belongs_to :namespace, optional: true
     belongs_to :work_item_type, class_name: 'WorkItems::Type', inverse_of: :widget_definitions
 
     validates :name, presence: true
-    validates :name, uniqueness: { case_sensitive: false, scope: [:namespace_id, :work_item_type_id] }
+    validates :name, uniqueness: { case_sensitive: false, scope: :work_item_type_id }
     validates :name, length: { maximum: 255 }
 
     validates :widget_options, if: :weight?,
@@ -16,7 +15,6 @@ module WorkItems
     validates :widget_options, absence: true, unless: :weight?
 
     scope :enabled, -> { where(disabled: false) }
-    scope :global, -> { where(namespace: nil) }
 
     enum widget_type: {
       assignees: 0,
@@ -38,17 +36,20 @@ module WorkItems
       award_emoji: 16,
       linked_items: 17,
       color: 18, # EE-only
-      rolledup_dates: 19, # EE-only
       participants: 20,
       time_tracking: 21,
       designs: 22,
-      development: 23
+      development: 23,
+      crm_contacts: 24,
+      email_participants: 25,
+      custom_status: 26,
+      linked_resources: 27
     }
 
-    attribute :widget_options, :ind_jsonb
+    attribute :widget_options, ::Gitlab::Database::Type::IndifferentJsonb.new
 
     def self.available_widgets
-      global.enabled.filter_map(&:widget_class).uniq
+      enabled.filter_map(&:widget_class).uniq
     end
 
     def self.widget_classes

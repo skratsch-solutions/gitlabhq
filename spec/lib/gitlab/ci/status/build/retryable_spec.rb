@@ -90,11 +90,11 @@ RSpec.describe Gitlab::Ci::Status::Build::Retryable do
     end
 
     describe '#action_title' do
-      it { expect(subject.action_title).to eq 'Retry' }
+      it { expect(subject.action_title).to eq 'Run again' }
     end
 
     describe '#action_button_title' do
-      it { expect(subject.action_button_title).to eq 'Retry this job' }
+      it { expect(subject.action_button_title).to eq 'Run this job again' }
     end
 
     describe '#confirmation_message' do

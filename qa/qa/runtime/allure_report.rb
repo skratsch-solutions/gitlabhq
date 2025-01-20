@@ -12,6 +12,7 @@ module QA
         #
         # @return [void]
         def configure!
+          return if Env.dry_run
           return unless Env.generate_allure_report?
 
           configure_allure
@@ -93,11 +94,10 @@ module QA
         # @return [Hash]
         def environment_info
           -> do
-            return {} unless Env.admin_personal_access_token || Env.personal_access_token
+            api_token = User::Data.admin_api_token || User::Data.test_user_api_token
+            return {} unless api_token
 
-            client = Env.admin_personal_access_token ? API::Client.as_admin : API::Client.new
-            response = get(API::Request.new(client, '/metadata').url)
-
+            response = get(API::Request.new(API::Client.new(personal_access_token: api_token), '/metadata').url)
             JSON.parse(response.body, symbolize_names: true).then do |metadata|
               {
                 **metadata.slice(:version, :revision),

@@ -1,25 +1,53 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Secret Detection
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Secret Detection
+# Secret detection
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-People sometimes accidentally commit secrets like keys or API tokens to Git repositories. After a
-sensitive value is pushed to a remote repository, anyone with access to the repository can
-impersonate the authorized user of the secret for malicious purposes. Most organizations require
-exposed secrets to be revoked and replaced to address this risk.
+Your application might use external resources, including a CI/CD
+service, a database, or external storage. Access to these resources
+requires authentication, usually using static methods like private
+keys and tokens. These methods are called "secrets" because they're
+not meant to be shared with anyone else.
 
-Secret Detection scans your repository to help prevent your secrets from being exposed. Secret
-Detection scanning works on all text files, regardless of the language or framework used.
+To minimize the risk of exposing your secrets, always [store secrets outside of the repository](../../../ci/secrets/index.md). However, secrets are sometimes accidentally committed to Git
+repositories. After a sensitive value is pushed to a remote
+repository, anyone with access to the repository can use the secret to
+impersonate the authorized user.
 
-GitLab has two methods for detecting secrets which can be used simultaneously:
+Secret detection monitors your activity to both:
 
-- The [pipeline](pipeline/index.md) method detects secrets during the project's CI/CD pipeline. This method cannot reject pushes.
-- The [secret push protection](secret_push_protection/index.md) method detects secrets when users push changes to the
-  remote Git branch. This method can reject pushes if a secret is detected.
+- Help prevent your secrets from being leaked.
+- Help you respond if a secret is leaked.
+
+You should take a multi-layered security approach and enable all available secret detection methods:
+
+- [Secret push protection](secret_push_protection/index.md) scans commits for secrets when you
+  push changes to GitLab. The push is blocked if secrets are detected, unless you skip secret push protection.
+  This method reduces the risk of secrets being leaked.
+- [Pipeline secret detection](pipeline/index.md) runs as part of a project's CI/CD pipeline. Commits
+  to the repository's default branch are scanned for secrets. If pipeline secret detection is
+  enabled in merge request pipelines, commits to the development branch are scanned for secrets,
+  enabling you to respond before they're committed to the default branch.
+- [Client-side secret detection](client/index.md) scans descriptions and comments in both issues and
+  merge requests for secrets before they're saved to GitLab. When a secret is detected you can
+  choose to edit the input and remove the secret or, if it's a false positive, save the description
+  or comment.
+
+If a secret is committed to a repository, GitLab records the exposure
+in the Vulnerability Report. For some secret types, GitLab can even
+automatically revoke the exposed secret. You should always revoke and
+replace exposed secrets as soon as possible.
+
+## Related topics
+
+- [Secret detection exclusions](exclusions.md)
+- [Vulnerability Report](../vulnerability_report/index.md)
+- [Automatic response to leaked secrets](automatic_response.md)
+- [Push rules](../../project/repository/push_rules.md)

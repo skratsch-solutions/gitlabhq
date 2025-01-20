@@ -3,6 +3,8 @@ data_category: optional
 key_path: counts.in_review_folder
 description: A number of environments with name review/*
 product_group: environments
+product_categories:
+- continuous_delivery
 value_type: number
 status: active
 time_frame: all
@@ -10,9 +12,10 @@ data_source: database
 distribution:
 - ce
 - ee
-tier:
+tiers:
 - free
 - premium
 - ultimate
 performance_indicator_type: []
 milestone: "<13.9"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/54332

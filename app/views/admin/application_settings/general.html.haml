@@ -34,6 +34,8 @@
   - c.with_body do
     = render 'import_and_export'
 
+= render_if_exists 'admin/application_settings/integrations_settings'
+
 = render ::Layouts::SettingsBlockComponent.new(_('Diff limits'),
   id: 'js-merge-request-settings',
   expanded: expanded_by_default?) do |c|
@@ -57,7 +59,7 @@
   expanded: expanded_by_default?) do |c|
   - c.with_description do
     = _('Set sign-in restrictions for all users.')
-    = link_to _('Learn more.'), help_page_path('administration/settings/sign_in_restrictions'), target: '_blank', rel: 'noopener noreferrer'
+    = link_to _('Learn more.'), help_page_path('administration/settings/sign_in_restrictions.md'), target: '_blank', rel: 'noopener noreferrer'
   - c.with_body do
     = render 'signin'
 
@@ -67,7 +69,7 @@
   expanded: expanded_by_default?) do |c|
   - c.with_description do
     = _('Add a Terms of Service agreement and Privacy Policy for users of this GitLab instance.')
-    = link_to _('Learn more.'), help_page_path('administration/settings/terms'), target: '_blank', rel: 'noopener noreferrer'
+    = link_to _('Learn more.'), help_page_path('administration/settings/terms.md'), target: '_blank', rel: 'noopener noreferrer'
   - c.with_body do
     = render 'terms'
 
@@ -81,7 +83,7 @@
   expanded: expanded_by_default?) do |c|
   - c.with_description do
     = _('Set the maximum session time for a web terminal.')
-    = link_to _('How do I use a web terminal?'), help_page_path('ci/environments/index', anchor: 'web-terminals-deprecated'), target: '_blank', rel: 'noopener noreferrer'
+    = link_to _('How do I use a web terminal?'), help_page_path('ci/environments/index.md', anchor: 'web-terminals-deprecated'), target: '_blank', rel: 'noopener noreferrer'
   - c.with_body do
     = render 'terminal'
 
@@ -104,7 +106,9 @@
 = render 'admin/application_settings/eks'
 = render 'admin/application_settings/floc'
 = render_if_exists 'admin/application_settings/add_license'
+= render_if_exists 'admin/application_settings/cluster_agents'
 = render 'admin/application_settings/jira_connect'
 = render 'admin/application_settings/slack'
 = render 'admin/application_settings/security_txt', expanded: expanded_by_default?
 = render_if_exists 'admin/application_settings/analytics'
+= render_if_exists 'admin/application_settings/amazon_q'

@@ -6,19 +6,16 @@ import { TYPENAME_ISSUE, TYPENAME_MERGE_REQUEST } from '~/graphql_shared/constan
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPE_ISSUE } from '~/issues/constants';
 import {
-  formatDate,
   localeDateFormat,
+  newDate,
   parseSeconds,
   stringifyTime,
 } from '~/lib/utils/datetime_utility';
 import { __, s__ } from '~/locale';
 import { WIDGET_TYPE_TIME_TRACKING } from '~/work_items/constants';
-import groupWorkItemByIidQuery from '~/work_items/graphql/group_work_item_by_iid.query.graphql';
 import workItemByIidQuery from '~/work_items/graphql/work_item_by_iid.query.graphql';
 import { timelogQueries } from '../../queries/constants';
 import deleteTimelogMutation from '../../queries/delete_timelog.mutation.graphql';
-
-const TIME_DATE_FORMAT = 'mmmm d, yyyy, HH:MM ("UTC:" o)';
 
 export default {
   i18n: {
@@ -34,9 +31,6 @@ export default {
   },
   inject: {
     fullPath: {
-      default: null,
-    },
-    isGroup: {
       default: null,
     },
     issuableType: {
@@ -93,10 +87,9 @@ export default {
         return Boolean(this.timelogs);
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     workItem: {
-      query() {
-        return this.isGroup ? groupWorkItemByIidQuery : workItemByIidQuery;
-      },
+      query: workItemByIidQuery,
       variables() {
         return {
           fullPath: this.fullPath,
@@ -130,10 +123,10 @@ export default {
       return this.removingIds.includes(timelogId);
     },
     formatDate(date) {
-      return formatDate(date, TIME_DATE_FORMAT);
+      return localeDateFormat.asDateTimeFull.format(newDate(date));
     },
     formatShortDate(date) {
-      return localeDateFormat.asDate.format(date);
+      return localeDateFormat.asDate.format(newDate(date));
     },
     getSummary(summary, note) {
       return summary ?? note?.body;
@@ -157,7 +150,7 @@ export default {
             }
             store.updateQuery(
               {
-                query: this.isGroup ? groupWorkItemByIidQuery : workItemByIidQuery,
+                query: workItemByIidQuery,
                 variables: { fullPath: this.fullPath, iid: this.workItemIid },
               },
               (sourceData) =>

@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 NOTE:
 This table lists only GitLab versions where a significant change happened in the
@@ -16,7 +16,7 @@ package regarding PostgreSQL versions, not all.
 
 Usually, PostgreSQL versions change with major or minor GitLab releases. However, patch versions
 of the Linux package sometimes update the patch level of PostgreSQL. We've established a
-[yearly cadence for PostgreSQL upgrades](https://handbook.gitlab.com/handbook/engineering/infrastructure/core-platform/data_stores/database/postgresql-upgrade-cadence/)
+[yearly cadence for PostgreSQL upgrades](https://handbook.gitlab.com/handbook/engineering/infrastructure-platforms/data-access/database-framework/postgresql-upgrade-cadence/)
 and trigger automatic database upgrades in the release before the new version is required.
 
 For example:
@@ -28,13 +28,15 @@ Find out [which versions of PostgreSQL (and other components) ship](https://gitl
 with each Linux package release.
 
 The lowest supported PostgreSQL versions are listed in the
-[installation requirements](../../install/requirements.md#postgresql-requirements).
+[installation requirements](../../install/requirements.md#postgresql).
 
 Read more about update policies and warnings in the PostgreSQL
 [upgrade docs](https://docs.gitlab.com/omnibus/settings/database.html#upgrade-packaged-postgresql-server).
 
 | First GitLab version | PostgreSQL versions | Default version for fresh installs | Default version for upgrades | Notes |
 | -------------- | ------------------- | ---------------------------------- | ---------------------------- | ----- |
+| 17.5.0 | 14.11, 16.4 | 14.11 | 16.4 | Single node upgrades from PostgreSQL 14 to PostgreSQL 16 are now supported. Starting with GitLab 17.5.0, PostgreSQL 16 is fully supported for both new installations and upgrades in Geo deployments (the restriction from 17.4.0 no longer applies). |
+| 17.4.0 | 14.11, 16.4 | 14.11 | 14.11 | PostgreSQL 16 is available for new installations if not using [Geo](../geo/index.md#requirements-for-running-geo) or [Patroni](../postgresql/index.md#postgresql-replication-and-failover-for-linux-package-installations). |
 | 17.0.0 | 14.11 | 14.11 | 14.11 | Package upgrades are aborted if PostgreSQL is not upgraded to 14 already. |
 | 16.10.1, 16.9.3, 16.8.5 | 13.14, 14.11 | 14.11 | 14.11 | |
 | 16.6.7, 16.7.5, 16.8.2 | 13.13, 14.10 | 14.10 | 14.10 | |

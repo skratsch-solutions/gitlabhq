@@ -32,14 +32,14 @@ RSpec.describe Ci::BuildExecutionConfig, type: :model, feature_category: :pipeli
     end
   end
 
-  describe 'partitioning', :ci_partitionable do
+  describe 'partitioning' do
     include Ci::PartitioningHelpers
 
     let(:pipeline) { create(:ci_pipeline) }
     let(:execution_config) { FactoryBot.build(:ci_builds_execution_configs, pipeline: pipeline) }
 
     before do
-      stub_current_partition_id
+      stub_current_partition_id(ci_testing_partition_id)
     end
 
     it 'assigns partition id to execution config' do

@@ -83,17 +83,17 @@ export default {
     <gl-skeleton-loader v-if="$apollo.queries.issue.loading" :height="15">
       <rect width="250" height="15" rx="4" />
     </gl-skeleton-loader>
-    <div v-else-if="showDetails" class="gl-display-flex gl-align-items-center gl-gap-2">
+    <div v-else-if="showDetails" class="gl-flex gl-items-center gl-gap-2">
       <status-badge :issuable-type="$options.TYPE_ISSUE" :state="issue.state" />
       <gl-icon
         v-if="issue.confidential"
         v-gl-tooltip
         name="eye-slash"
         :title="__('Confidential')"
-        class="gl-text-orange-500"
         :aria-label="__('Confidential')"
+        variant="warning"
       />
-      <span class="gl-text-secondary">
+      <span class="gl-text-subtle">
         {{ __('Opened') }} <time :datetime="issue.createdAt">{{ formattedTime }}</time>
       </span>
     </div>
@@ -101,24 +101,24 @@ export default {
     <!-- eslint-disable @gitlab/vue-require-i18n-strings -->
     <div>
       <work-item-type-icon v-if="!$apollo.queries.issue.loading" :work-item-type="issue.type" />
-      <span class="gl-text-secondary">{{ `${namespacePath}#${iid}` }}</span>
+      <span class="gl-text-subtle">{{ `${namespacePath}#${iid}` }}</span>
     </div>
     <!-- eslint-enable @gitlab/vue-require-i18n-strings -->
 
-    <div v-if="!$apollo.queries.issue.loading" class="gl-display-flex gl-text-secondary gl-mt-2">
+    <div v-if="!$apollo.queries.issue.loading" class="gl-mt-2 gl-flex gl-text-subtle">
       <issue-due-date
         v-if="issue.dueDate"
         :date="issue.dueDate.toString()"
         :closed="isIssueClosed"
         tooltip-placement="top"
         class="gl-mr-4"
-        css-class="gl-display-flex gl-whitespace-nowrap"
+        css-class="gl-flex gl-whitespace-nowrap"
       />
-      <issue-weight v-if="issue.weight" :weight="issue.weight" class="gl-flex gl-mr-4" />
+      <issue-weight v-if="issue.weight" :weight="issue.weight" class="gl-mr-4 gl-flex" />
       <issue-milestone
         v-if="issue.milestone"
         :milestone="issue.milestone"
-        class="gl-display-flex gl-overflow-hidden"
+        class="gl-flex gl-overflow-hidden"
       />
     </div>
   </gl-popover>

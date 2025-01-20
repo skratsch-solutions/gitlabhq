@@ -12,12 +12,21 @@ class IssuablePolicy < BasePolicy
     @user && @subject.assignee_or_author?(@user)
   end
 
+  desc "User has planner or reporter access"
+  condition(:planner_or_reporter_access) do
+    can?(:reporter_access) || can?(:planner_access)
+  end
+
   condition(:is_author) { @subject&.author == @user }
 
   condition(:is_incident) { @subject.incident_type_issue? }
 
   desc "Issuable is hidden"
   condition(:hidden, scope: :subject) { @subject.hidden? }
+
+  rule { can?(:developer_access) }.policy do
+    enable :resolve_note
+  end
 
   rule { can?(:guest_access) & assignee_or_author & ~is_incident }.policy do
     enable :read_issue
@@ -49,7 +58,7 @@ class IssuablePolicy < BasePolicy
     enable :admin_incident_management_timeline_event
   end
 
-  rule { can?(:reporter_access) }.policy do
+  rule { planner_or_reporter_access }.policy do
     enable :create_timelog
   end
 

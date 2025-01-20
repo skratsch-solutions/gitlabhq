@@ -37,4 +37,24 @@ RSpec.describe Gitlab::Ci::Build::Context::Global, feature_category: :pipeline_c
 
     it_behaves_like 'variables collection'
   end
+
+  describe '#top_level_worktree_paths' do
+    subject(:top_level_worktree_paths) { context.top_level_worktree_paths }
+
+    it 'delegates to pipeline' do
+      expect(pipeline).to receive(:top_level_worktree_paths)
+
+      top_level_worktree_paths
+    end
+  end
+
+  describe '#all_worktree_paths' do
+    subject(:all_worktree_paths) { context.all_worktree_paths }
+
+    it 'delegates to pipeline' do
+      expect(pipeline).to receive(:all_worktree_paths)
+
+      all_worktree_paths
+    end
+  end
 end

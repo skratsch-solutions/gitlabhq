@@ -1,5 +1,5 @@
 ---
-stage: Govern
+stage: Software Supply Chain Security
 group: Compliance
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/125875) GraphQL APIs in GitLab 16.2 [with a flag](../../../administration/feature_flags.md) named `compliance_adherence_report`. Disabled by default.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/125444) compliance standards adherence dashboard in GitLab 16.3 [with a flag](../../../administration/feature_flags.md) named `adherence_report_ui`. Disabled by default.
@@ -18,6 +18,8 @@ DETAILS:
 > - Standards adherence grouping [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/413735) in GitLab 16.9.
 > - Standards adherence grouping by standards that a check belongs to and grouping by projects that a check belongs to [added](https://gitlab.com/gitlab-org/gitlab/-/issues/413735) in GitLab 16.10.
 > - **Last Scanned** column [renamed](https://gitlab.com/gitlab-org/gitlab/-/issues/439545) to **Date since last status change** in GitLab 16.10.
+> - DAST scanner check [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/440721) to GitLab Standard in GitLab 17.6.
+> - SAST scanner check [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/440722) to GitLab Standard in GitLab 17.6.
 
 The compliance standards adherence dashboard lists the adherence status of projects complying to the _GitLab standard_.
 
@@ -28,11 +30,11 @@ The field in the **Date since last status change** column reflects the date of t
 
 Prerequisites:
 
-- You must be an administrator or have the Owner role for the group.
+- You must be an administrator or have the Owner role for the project or group.
 
-To view the compliance standards adherence dashboard for a group:
+To view the compliance standards adherence dashboard:
 
-1. On the left sidebar, select **Search or go to** and find your group.
+1. On the left sidebar, select **Search or go to** and find your project or group.
 1. Select **Secure > Compliance center**.
 
 You can filter the compliance standards adherence dashboard on:
@@ -49,18 +51,20 @@ You can group the compliance standards adherence dashboard on:
 
 ## GitLab standard
 
-The GitLab standard consists of three rules:
+The GitLab standard consists of the following rules:
 
 - Prevent authors as approvers.
 - Prevent committers as approvers.
 - At least two approvals.
+- Static Application Security Testing (SAST) scanner artifact.
+- Dynamic Application Security Testing (DAST) scanner artifact.
 
 ### Prevent authors as approvers
 
 To comply with the GitLab standard, you must prevent users from approving their own merge requests. For more information,
 see [Prevent approval by author](../../project/merge_requests/approvals/settings.md#prevent-approval-by-author).
 
-On self-managed GitLab, when instance-level setting for [prevent approval by author](../../../administration/merge_requests_approvals.md)
+On GitLab Self-Managed, when instance-level setting for [prevent approval by author](../../../administration/merge_requests_approvals.md)
 is updated, the adherence status for all the projects on the instance is not updated automatically.
 To update the adherence status for these projects, the group-level or the project-level setting must be updated.
 
@@ -69,7 +73,7 @@ To update the adherence status for these projects, the group-level or the projec
 To comply with the GitLab standard, you must prevent users from approving merge requests where they've added commits. For
 more information, see [Prevent approvals by users who add commits](../../project/merge_requests/approvals/settings.md#prevent-approvals-by-users-who-add-commits).
 
-On self-managed GitLab, when instance-level setting for [prevent approvals by users who add commits](../../../administration/merge_requests_approvals.md)
+On GitLab Self-Managed, when instance-level setting for [prevent approvals by users who add commits](../../../administration/merge_requests_approvals.md)
 is updated, the adherence status for all the projects on the instance is not updated automatically.
 To update the adherence status for these projects, the group-level or the project-level setting must be updated.
 
@@ -77,6 +81,16 @@ To update the adherence status for these projects, the group-level or the projec
 
 To comply with the GitLab standard, you must have at least two users approve a merge request to get it merged. For more
 information, see [Merge request approval rules](../../project/merge_requests/approvals/rules.md).
+
+### SAST scanner artifact
+
+To comply with the GitLab standard, you must have the SAST scanner enabled, configured, and producing an artifact in the project's pipeline. For more
+information, see [Static Application Security Testing (SAST)](../../application_security/sast/index.md).
+
+### DAST scanner artifact
+
+To comply with the GitLab standard, you must have the DAST scanner enabled, configured, and producing an artifact in the project's pipeline. For more
+information, see [DAST on-demand scan](../../application_security/dast/on-demand_scan.md).
 
 ## SOC 2 standard
 
@@ -96,7 +110,7 @@ To comply with the SOC 2 standard, you must:
   [Prevent approvals by users who add commits](../../project/merge_requests/approvals/settings.md#prevent-approvals-by-users-who-add-commits).
 - At least one approval is required, see [Merge request approval rules](../../project/merge_requests/approvals/rules.md).
 
-These settings are available for an entire self-managed GitLab instance. However, when these settings are updated at the instance level,
+These settings are available for an entire instance. However, when these settings are updated at the instance level,
 the adherence status for all the projects on the instance is not updated automatically. To update the adherence status
 for these projects, you must update the group-level or project-level setting. For more information on the instance-level settings, see:
 

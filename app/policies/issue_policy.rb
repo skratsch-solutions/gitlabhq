@@ -7,15 +7,23 @@ class IssuePolicy < IssuablePolicy
 
   include CrudPolicyHelpers
 
-  desc "User can read confidential issues"
-  condition(:can_read_confidential) do
-    @user && (@user.admin? || can?(:reporter_access) || assignee_or_author?) # rubocop:disable Cop/UserAdmin
+  # In FOSS there is no license.
+  # This method is overridden in EE
+  def epics_license_available?
+    false
   end
 
-  desc "Project belongs to a group, crm is enabled and user can read contacts in the root group"
+  # rubocop:disable Cop/UserAdmin -- specifically check the admin attribute
+  desc "User can read confidential issues"
+  condition(:can_read_confidential) do
+    @user && (@user.admin? || planner_or_reporter_access? || assignee_or_author?)
+  end
+  # rubocop:enable Cop/UserAdmin
+
+  desc "Project belongs to a group, crm is enabled and user can read contacts in source group"
   condition(:can_read_crm_contacts, scope: :subject) do
     subject_container&.crm_enabled? &&
-      (@user&.can?(:read_crm_contact, subject_container.root_ancestor) || @user&.support_bot?)
+      (@user&.can?(:read_crm_contact, subject_container.crm_group) || @user&.support_bot?)
   end
 
   desc "Issue is confidential"
@@ -39,6 +47,12 @@ class IssuePolicy < IssuablePolicy
     end
   end
 
+  # group level issues license for now is equivalent to epics license. We'll have to migrate epics license to
+  # work items context once epics are fully migrated to work items.
+  condition(:group_level_issues_license_available) do
+    epics_license_available?
+  end
+
   rule { group_issue & can?(:read_group) }.policy do
     enable :create_note
   end
@@ -46,6 +60,7 @@ class IssuePolicy < IssuablePolicy
   rule { ~notes_widget_enabled }.policy do
     prevent :create_note
     prevent :read_note
+    prevent :admin_note
     prevent :read_internal_note
     prevent :set_note_created_at
     prevent :mark_note_as_internal
@@ -64,6 +79,12 @@ class IssuePolicy < IssuablePolicy
   rule { hidden & ~admin }.policy do
     prevent :read_issue
   end
+
+  rule { can?(:read_issue) & notes_widget_enabled }.policy do
+    enable :read_note
+  end
+
+  rule { can?(:maintainer_access) }.enable :admin_note
 
   rule { ~can?(:read_issue) }.policy do
     prevent :create_note
@@ -124,8 +145,14 @@ class IssuePolicy < IssuablePolicy
     enable :set_issue_crm_contacts
   end
 
-  rule { can?(:reporter_access) }.policy do
+  rule { planner_or_reporter_access }.policy do
     enable :mark_note_as_internal
+  end
+
+  # IMPORTANT: keep the prevent rules as last rules defined in the policy, as these are based on
+  # all abilities defined up to this point.
+  rule { group_issue & ~group_level_issues_license_available }.policy do
+    prevent(*::IssuePolicy.ability_map.map.keys)
   end
 end
 

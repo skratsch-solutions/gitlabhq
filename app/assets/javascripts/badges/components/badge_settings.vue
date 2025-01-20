@@ -1,9 +1,11 @@
 <script>
-import { GlButton, GlCard, GlModal, GlIcon, GlSprintf } from '@gitlab/ui';
+import { GlModal, GlSprintf } from '@gitlab/ui';
 // eslint-disable-next-line no-restricted-imports
 import { mapState, mapActions } from 'vuex';
 import { createAlert, VARIANT_INFO } from '~/alert';
 import { __, s__ } from '~/locale';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
+import { INITIAL_PAGE } from '../constants';
 import Badge from './badge.vue';
 import BadgeForm from './badge_form.vue';
 import BadgeList from './badge_list.vue';
@@ -11,13 +13,11 @@ import BadgeList from './badge_list.vue';
 export default {
   name: 'BadgeSettings',
   components: {
+    CrudComponent,
     Badge,
     BadgeForm,
     BadgeList,
-    GlButton,
-    GlCard,
     GlModal,
-    GlIcon,
     GlSprintf,
   },
   i18n: {
@@ -28,17 +28,12 @@ export default {
       'Badges|If you delete this badge, you %{strongStart}cannot%{strongEnd} restore it.',
     ),
   },
-  data() {
-    return {
-      addFormVisible: false,
-    };
-  },
   computed: {
-    ...mapState(['badges', 'badgeInModal', 'isEditing']),
+    ...mapState(['pagination', 'badgeInModal', 'isEditing', 'isSaving']),
     saveProps() {
       return {
         text: __('Save changes'),
-        attributes: { category: 'primary', variant: 'confirm' },
+        attributes: { category: 'primary', variant: 'confirm', loading: this.isSaving },
       };
     },
     deleteProps() {
@@ -53,16 +48,16 @@ export default {
       };
     },
   },
+  created() {
+    this.loadBadges({ page: INITIAL_PAGE });
+  },
   methods: {
-    ...mapActions(['deleteBadge']),
-    showAddForm() {
-      this.addFormVisible = !this.addFormVisible;
-    },
+    ...mapActions(['loadBadges', 'deleteBadge', 'stopEditing']),
     closeAddForm() {
-      this.addFormVisible = false;
+      this.$refs.badgesCrud.hideForm();
     },
     onSubmitEditModal() {
-      this.$refs.editForm.onSubmit();
+      this.$refs.editForm.$el.dispatchEvent(new CustomEvent('submit', { cancelable: true }));
     },
     onSubmitDeleteModal() {
       this.deleteBadge(this.badgeInModal)
@@ -84,47 +79,31 @@ export default {
 </script>
 
 <template>
-  <div class="badge-settings">
-    <gl-card
-      class="gl-new-card"
-      header-class="gl-new-card-header"
-      body-class="gl-new-card-body gl-px-0"
-    >
-      <template #header>
-        <div class="gl-new-card-title-wrapper">
-          <h3 class="gl-new-card-title">{{ $options.i18n.title }}</h3>
-          <span class="gl-new-card-count">
-            <gl-icon name="labels" class="gl-mr-2" />
-            {{ badges.length }}
-          </span>
-        </div>
-        <div class="gl-new-card-actions">
-          <gl-button
-            v-if="!addFormVisible"
-            size="small"
-            data-testid="show-badge-add-form"
-            @click="showAddForm"
-            >{{ $options.i18n.addButton }}</gl-button
-          >
-        </div>
-      </template>
+  <crud-component
+    ref="badgesCrud"
+    :title="$options.i18n.title"
+    icon="labels"
+    :count="pagination.total"
+    :toggle-text="$options.i18n.addFormTitle"
+    data-testid="badge-settings"
+  >
+    <template #form>
+      <h4 class="gl-mt-0">{{ $options.i18n.addFormTitle }}</h4>
+      <badge-form :is-editing="false" @close-add-form="closeAddForm" />
+    </template>
 
-      <div v-if="addFormVisible" class="gl-new-card-add-form gl-m-5">
-        <h4 class="gl-mt-0">{{ $options.i18n.addFormTitle }}</h4>
-        <badge-form :is-editing="false" @close-add-form="closeAddForm" />
-      </div>
-
-      <badge-list />
-    </gl-card>
+    <badge-list />
 
     <gl-modal
       modal-id="edit-badge-modal"
+      :visible="isEditing"
       :title="s__('Badges|Edit badge')"
       :action-primary="saveProps"
       :action-cancel="cancelProps"
-      @primary="onSubmitEditModal"
+      @primary.prevent="onSubmitEditModal"
+      @hidden="stopEditing"
     >
-      <badge-form ref="editForm" :is-editing="true" :in-modal="true" data-testid="edit-badge" />
+      <badge-form ref="editForm" :is-editing="true" data-testid="edit-badge" />
     </gl-modal>
 
     <gl-modal
@@ -148,5 +127,5 @@ export default {
         </gl-sprintf>
       </p>
     </gl-modal>
-  </div>
+  </crud-component>
 </template>

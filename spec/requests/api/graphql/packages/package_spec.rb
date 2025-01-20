@@ -18,7 +18,7 @@ RSpec.describe 'package details', feature_category: :package_registry do
   let(:depth) { 3 }
   let(:excluded) do
     %w[metadata apiFuzzingCiConfiguration pipeline packageFiles
-      runners inboundAllowlistCount groupsAllowlistCount mergeTrains]
+      runners inboundAllowlistCount groupsAllowlistCount mergeTrains ciJobTokenAuthLogs]
   end
 
   let(:metadata) { query_graphql_fragment('ComposerMetadata') }
@@ -42,32 +42,38 @@ RSpec.describe 'package details', feature_category: :package_registry do
 
   subject { post_graphql(query, current_user: user) }
 
-  context 'with unauthorized user' do
+  context 'when allow_guest_plus_roles_to_pull_packages is disabled' do
     before do
-      project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
-      project.add_guest(user)
+      stub_feature_flags(allow_guest_plus_roles_to_pull_packages: false)
     end
 
-    it 'returns no packages' do
-      subject
-
-      expect(graphql_data_at(:package)).to be_nil
-    end
-
-    context 'with access to package registry for everyone' do
+    context 'with unauthorized user' do
       before do
-        project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+        project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
+        project.add_guest(user)
+      end
+
+      it 'returns no packages' do
         subject
+
+        expect(graphql_data_at(:package)).to be_nil
       end
 
-      it_behaves_like 'a working graphql query' do
-        it 'matches the JSON schema' do
-          expect(package_details).to match_schema('graphql/packages/package_details')
+      context 'with access to package registry for everyone' do
+        before do
+          project.project_feature.update!(package_registry_access_level: ProjectFeature::PUBLIC)
+          subject
         end
-      end
 
-      it '`public_package` returns true' do
-        expect(graphql_data_at(:package, :public_package)).to eq(true)
+        it_behaves_like 'a working graphql query' do
+          it 'matches the JSON schema' do
+            expect(package_details).to match_schema('graphql/packages/package_details')
+          end
+        end
+
+        it '`public_package` returns true' do
+          expect(graphql_data_at(:package, :public_package)).to eq(true)
+        end
       end
     end
   end
@@ -302,22 +308,38 @@ RSpec.describe 'package details', feature_category: :package_registry do
     end
 
     context 'web_path' do
-      before do
-        subject
-      end
-
-      it 'returns web_path correctly' do
-        expect(graphql_data_at(:package, :_links, :web_path)).to eq("/#{project.full_path}/-/packages/#{composer_package.id}")
-      end
-
-      context 'with terraform module' do
-        let_it_be(:terraform_package) { create(:terraform_module_package, project: project) }
-
-        let(:package_global_id) { global_id_of(terraform_package) }
-
+      shared_examples 'return web_path correctly' do
         it 'returns web_path correctly' do
-          expect(graphql_data_at(:package, :_links, :web_path)).to eq("/#{project.full_path}/-/terraform_module_registry/#{terraform_package.id}")
+          expect(graphql_data_at(:package, :_links, :web_path)).to eq("/#{project.full_path}/-/packages/#{composer_package.id}")
         end
+      end
+
+      context 'with status default' do
+        before do
+          subject
+        end
+
+        it_behaves_like 'return web_path correctly'
+
+        context 'with terraform module' do
+          let_it_be(:terraform_package) { create(:terraform_module_package, project: project) }
+
+          let(:package_global_id) { global_id_of(terraform_package) }
+
+          it 'returns web_path correctly' do
+            expect(graphql_data_at(:package, :_links, :web_path)).to eq("/#{project.full_path}/-/terraform_module_registry/#{terraform_package.id}")
+          end
+        end
+      end
+
+      context 'with status deprecated' do
+        before do
+          composer_package.deprecated!
+
+          subject
+        end
+
+        it_behaves_like 'return web_path correctly'
       end
     end
 

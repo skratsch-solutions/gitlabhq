@@ -29,7 +29,7 @@ class MergeRequestDiffCommit < ApplicationRecord
 
   sha_attribute :sha
 
-  attribute :trailers, :ind_jsonb
+  attribute :trailers, ::Gitlab::Database::Type::IndifferentJsonb.new
   validates :trailers, json_schema: { filename: 'git_trailers' }
 
   # A list of keys of which their values need to be trimmed before they can be
@@ -64,7 +64,7 @@ class MergeRequestDiffCommit < ApplicationRecord
         committer_id: committer.id,
         merge_request_diff_id: merge_request_diff_id,
         relative_order: index,
-        sha: Gitlab::Database::ShaAttribute.serialize(sha), # rubocop:disable Cop/ActiveRecordSerialize
+        sha: Gitlab::Database::ShaAttribute.serialize(sha),
         authored_date: Gitlab::Database.sanitize_timestamp(commit_hash[:authored_date]),
         committed_date: Gitlab::Database.sanitize_timestamp(commit_hash[:committed_date]),
         trailers: Gitlab::Json.dump(commit_hash.fetch(:trailers, {}))

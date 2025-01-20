@@ -1,13 +1,15 @@
-import { GlAvatarLabeled, GlBadge, GlIcon, GlPopover } from '@gitlab/ui';
-import uniqueId from 'lodash/uniqueId';
+import { nextTick } from 'vue';
+import { GlAvatarLabeled, GlIcon } from '@gitlab/ui';
 import projects from 'test_fixtures/api/users/projects/get.json';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import ProjectListItemDescription from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_description.vue';
+import ProjectListItemActions from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_actions.vue';
 import ProjectListItemInactiveBadge from 'ee_else_ce/vue_shared/components/projects_list/project_list_item_inactive_badge.vue';
 import ProjectsListItem from '~/vue_shared/components/projects_list/projects_list_item.vue';
-import ListActions from '~/vue_shared/components/list_actions/list_actions.vue';
 import { ACTION_EDIT, ACTION_DELETE } from '~/vue_shared/components/list_actions/constants';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
+import waitForPromises from 'helpers/wait_for_promises';
 import {
   VISIBILITY_TYPE_ICON,
   VISIBILITY_LEVEL_PRIVATE_STRING,
@@ -16,26 +18,49 @@ import {
 import { ACCESS_LEVEL_LABELS, ACCESS_LEVEL_NO_ACCESS_INTEGER } from '~/access_level/constants';
 import { FEATURABLE_DISABLED, FEATURABLE_ENABLED } from '~/featurable/constants';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
+import TopicBadges from '~/vue_shared/components/topic_badges.vue';
 import DeleteModal from '~/projects/components/shared/delete_modal.vue';
 import {
   TIMESTAMP_TYPE_CREATED_AT,
   TIMESTAMP_TYPE_UPDATED_AT,
 } from '~/vue_shared/components/resource_lists/constants';
+import {
+  renderDeleteSuccessToast,
+  deleteParams,
+} from 'ee_else_ce/vue_shared/components/projects_list/utils';
+import { deleteProject } from '~/api/projects_api';
+import { createAlert } from '~/alert';
+import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
 
-jest.mock('lodash/uniqueId');
+const MOCK_DELETE_PARAMS = {
+  testParam: true,
+};
+
+jest.mock('ee_else_ce/vue_shared/components/projects_list/utils', () => ({
+  ...jest.requireActual('ee_else_ce/vue_shared/components/projects_list/utils'),
+  renderDeleteSuccessToast: jest.fn(),
+  deleteParams: jest.fn(() => MOCK_DELETE_PARAMS),
+}));
+jest.mock('~/alert');
+jest.mock('~/api/projects_api');
 
 describe('ProjectsListItem', () => {
   let wrapper;
 
-  const [{ permissions, ...project }] = convertObjectPropsToCamelCase(projects, { deep: true });
+  const [{ permissions, ...mockProject }] = convertObjectPropsToCamelCase(projects, { deep: true });
+
+  const project = {
+    ...mockProject,
+    accessLevel: {
+      integerValue: permissions.projectAccess.accessLevel,
+    },
+    avatarUrl: 'avatar.jpg',
+    avatarLabel: mockProject.nameWithNamespace,
+    isForked: false,
+  };
 
   const defaultPropsData = {
-    project: {
-      ...project,
-      accessLevel: {
-        integerValue: permissions.projectAccess.accessLevel,
-      },
-    },
+    project,
   };
 
   const createComponent = ({ propsData = {} } = {}) => {
@@ -48,22 +73,22 @@ describe('ProjectsListItem', () => {
   };
 
   const findAvatarLabeled = () => wrapper.findComponent(GlAvatarLabeled);
-  const findMergeRequestsLink = () =>
-    wrapper.findByRole('link', { name: ProjectsListItem.i18n.mergeRequests });
-  const findIssuesLink = () => wrapper.findByRole('link', { name: ProjectsListItem.i18n.issues });
-  const findForksLink = () => wrapper.findByRole('link', { name: ProjectsListItem.i18n.forks });
-  const findProjectTopics = () => wrapper.findByTestId('project-topics');
-  const findPopover = () => findProjectTopics().findComponent(GlPopover);
-  const findProjectDescription = () => wrapper.findByTestId('project-description');
+  const findMergeRequestsStat = () => wrapper.findByTestId('mrs-btn');
+  const findIssuesStat = () => wrapper.findByTestId('issues-btn');
+  const findForksStat = () => wrapper.findByTestId('forks-btn');
   const findVisibilityIcon = () => findAvatarLabeled().findComponent(GlIcon);
-  const findListActions = () => wrapper.findComponent(ListActions);
+  const findListActions = () => wrapper.findComponent(ProjectListItemActions);
   const findAccessLevelBadge = () => wrapper.findByTestId('access-level-badge');
+  const findCiCatalogBadge = () => wrapper.findByTestId('ci-catalog-badge');
+  const findProjectDescription = () => wrapper.findComponent(ProjectListItemDescription);
   const findInactiveBadge = () => wrapper.findComponent(ProjectListItemInactiveBadge);
   const findTimeAgoTooltip = () => wrapper.findComponent(TimeAgoTooltip);
-
-  beforeEach(() => {
-    uniqueId.mockImplementation(jest.requireActual('lodash/uniqueId'));
-  });
+  const findTopicBadges = () => wrapper.findComponent(TopicBadges);
+  const findDeleteModal = () => wrapper.findComponent(DeleteModal);
+  const deleteModalFirePrimaryEvent = async () => {
+    findDeleteModal().vm.$emit('primary');
+    await nextTick();
+  };
 
   it('renders project avatar', () => {
     createComponent();
@@ -71,13 +96,14 @@ describe('ProjectsListItem', () => {
     const avatarLabeled = findAvatarLabeled();
 
     expect(avatarLabeled.props()).toMatchObject({
-      label: project.name,
+      label: project.nameWithNamespace,
       labelLink: project.webUrl,
     });
 
     expect(avatarLabeled.attributes()).toMatchObject({
       'entity-id': project.id.toString(),
-      'entity-name': project.name,
+      'entity-name': project.nameWithNamespace,
+      src: defaultPropsData.project.avatarUrl,
       shape: 'rect',
     });
   });
@@ -116,7 +142,7 @@ describe('ProjectsListItem', () => {
   describe('when access level is not available', () => {
     beforeEach(() => {
       createComponent({
-        propsData: { project },
+        propsData: { project: { ...project, accessLevel: null } },
       });
     });
 
@@ -148,13 +174,12 @@ describe('ProjectsListItem', () => {
   it('renders stars count', () => {
     createComponent();
 
-    const starsLink = wrapper.findByRole('link', { name: ProjectsListItem.i18n.stars });
-    const tooltip = getBinding(starsLink.element, 'gl-tooltip');
-
-    expect(tooltip.value).toBe(ProjectsListItem.i18n.stars);
-    expect(starsLink.attributes('href')).toBe(`${project.webUrl}/-/starrers`);
-    expect(starsLink.text()).toBe(project.starCount.toString());
-    expect(starsLink.findComponent(GlIcon).props('name')).toBe('star-o');
+    expect(wrapper.findByTestId('stars-btn').props()).toEqual({
+      href: `${project.webUrl}/-/starrers`,
+      tooltipText: 'Stars',
+      iconName: 'star-o',
+      stat: project.starCount.toString(),
+    });
   });
 
   describe.each`
@@ -206,13 +231,12 @@ describe('ProjectsListItem', () => {
         },
       });
 
-      const mergeRequestsLink = findMergeRequestsLink();
-      const tooltip = getBinding(mergeRequestsLink.element, 'gl-tooltip');
-
-      expect(tooltip.value).toBe(ProjectsListItem.i18n.mergeRequests);
-      expect(mergeRequestsLink.attributes('href')).toBe(`${project.webUrl}/-/merge_requests`);
-      expect(mergeRequestsLink.text()).toBe('5');
-      expect(mergeRequestsLink.findComponent(GlIcon).props('name')).toBe('git-merge');
+      expect(findMergeRequestsStat().props()).toEqual({
+        href: `${project.webUrl}/-/merge_requests`,
+        tooltipText: 'Merge requests',
+        iconName: 'merge-request',
+        stat: '5',
+      });
     });
   });
 
@@ -227,7 +251,7 @@ describe('ProjectsListItem', () => {
         },
       });
 
-      expect(findMergeRequestsLink().exists()).toBe(false);
+      expect(findMergeRequestsStat().exists()).toBe(false);
     });
   });
 
@@ -235,13 +259,12 @@ describe('ProjectsListItem', () => {
     it('renders issues count', () => {
       createComponent();
 
-      const issuesLink = findIssuesLink();
-      const tooltip = getBinding(issuesLink.element, 'gl-tooltip');
-
-      expect(tooltip.value).toBe(ProjectsListItem.i18n.issues);
-      expect(issuesLink.attributes('href')).toBe(`${project.webUrl}/-/issues`);
-      expect(issuesLink.text()).toBe(project.openIssuesCount.toString());
-      expect(issuesLink.findComponent(GlIcon).props('name')).toBe('issues');
+      expect(findIssuesStat().props()).toEqual({
+        href: `${project.webUrl}/-/issues`,
+        tooltipText: 'Issues',
+        iconName: 'issues',
+        stat: project.openIssuesCount.toString(),
+      });
     });
   });
 
@@ -256,7 +279,7 @@ describe('ProjectsListItem', () => {
         },
       });
 
-      expect(findIssuesLink().exists()).toBe(false);
+      expect(findIssuesStat().exists()).toBe(false);
     });
   });
 
@@ -264,13 +287,12 @@ describe('ProjectsListItem', () => {
     it('renders forks count', () => {
       createComponent();
 
-      const forksLink = findForksLink();
-      const tooltip = getBinding(forksLink.element, 'gl-tooltip');
-
-      expect(tooltip.value).toBe(ProjectsListItem.i18n.forks);
-      expect(forksLink.attributes('href')).toBe(`${project.webUrl}/-/forks`);
-      expect(forksLink.text()).toBe(project.openIssuesCount.toString());
-      expect(forksLink.findComponent(GlIcon).props('name')).toBe('fork');
+      expect(findForksStat().props()).toEqual({
+        href: `${project.webUrl}/-/forks`,
+        tooltipText: 'Forks',
+        iconName: 'fork',
+        stat: project.forksCount.toString(),
+      });
     });
   });
 
@@ -293,97 +315,37 @@ describe('ProjectsListItem', () => {
         },
       });
 
-      expect(findForksLink().exists()).toBe(false);
+      expect(findForksStat().exists()).toBe(false);
     });
   });
 
-  describe('if project has topics', () => {
-    beforeEach(() => {
-      uniqueId.mockImplementation((prefix) => `${prefix}1`);
-    });
-
-    it('renders first three topics', () => {
+  describe('project with topics', () => {
+    it('renders topic badges component', () => {
       createComponent();
 
-      const firstThreeTopics = project.topics.slice(0, 3);
-      const firstThreeBadges = findProjectTopics().findAllComponents(GlBadge).wrappers.slice(0, 3);
-      const firstThreeBadgesText = firstThreeBadges.map((badge) => badge.text());
-      const firstThreeBadgesHref = firstThreeBadges.map((badge) => badge.attributes('href'));
-
-      expect(firstThreeTopics).toEqual(firstThreeBadgesText);
-      expect(firstThreeBadgesHref).toEqual(
-        firstThreeTopics.map((topic) => `/explore/projects/topics/${encodeURIComponent(topic)}`),
-      );
-    });
-
-    it('renders the rest of the topics in a popover', () => {
-      createComponent();
-
-      const topics = project.topics.slice(3);
-      const badges = findPopover().findAllComponents(GlBadge).wrappers;
-      const badgesText = badges.map((badge) => badge.text());
-      const badgesHref = badges.map((badge) => badge.attributes('href'));
-
-      expect(topics).toEqual(badgesText);
-      expect(badgesHref).toEqual(
-        topics.map((topic) => `/explore/projects/topics/${encodeURIComponent(topic)}`),
-      );
-    });
-
-    it('renders button to open popover', () => {
-      createComponent();
-
-      const expectedButtonId = 'project-topics-popover-1';
-
-      expect(wrapper.findByText('+ 2 more').attributes('id')).toBe(expectedButtonId);
-      expect(findPopover().props('target')).toBe(expectedButtonId);
-    });
-
-    describe('when topic has a name longer than 15 characters', () => {
-      it('truncates name and shows tooltip with full name', () => {
-        const topicWithLongName = 'topic with very very very long name';
-
-        createComponent({
-          propsData: {
-            project: {
-              ...project,
-              topics: [topicWithLongName, ...project.topics],
-            },
-          },
-        });
-
-        const firstTopicBadge = findProjectTopics().findComponent(GlBadge);
-        const tooltip = getBinding(firstTopicBadge.element, 'gl-tooltip');
-
-        expect(firstTopicBadge.text()).toBe('topic with ver…');
-        expect(tooltip.value).toBe(topicWithLongName);
-      });
+      expect(findTopicBadges().exists()).toBe(true);
     });
   });
 
-  describe('when project has a description', () => {
-    it('renders description', () => {
-      const descriptionHtml = '<p>Foo bar</p>';
-
+  describe('project without topics', () => {
+    it('does not render topic badges component', () => {
       createComponent({
         propsData: {
           project: {
             ...project,
-            descriptionHtml,
+            topics: [],
           },
         },
       });
 
-      expect(findProjectDescription().element.innerHTML).toBe(descriptionHtml);
+      expect(findTopicBadges().exists()).toBe(false);
     });
   });
 
-  describe('when project does not have a description', () => {
-    it('does not render description', () => {
-      createComponent();
+  it('renders project description', () => {
+    createComponent();
 
-      expect(findProjectDescription().exists()).toBe(false);
-    });
+    expect(findProjectDescription().exists()).toBe(true);
   });
 
   describe('when `showProjectIcon` prop is `true`', () => {
@@ -405,37 +367,28 @@ describe('ProjectsListItem', () => {
   describe('when project has actions', () => {
     const editPath = '/foo/bar/edit';
 
+    const projectWithActions = {
+      ...project,
+      availableActions: [ACTION_EDIT, ACTION_DELETE],
+      isForked: true,
+      editPath,
+    };
+
     beforeEach(() => {
       createComponent({
         propsData: {
-          project: {
-            ...project,
-            availableActions: [ACTION_EDIT, ACTION_DELETE],
-            actionLoadingStates: { [ACTION_DELETE]: false },
-            isForked: true,
-            editPath,
-          },
+          project: projectWithActions,
         },
       });
     });
 
     it('displays actions dropdown', () => {
-      expect(findListActions().props()).toMatchObject({
-        actions: {
-          [ACTION_EDIT]: {
-            href: editPath,
-          },
-          [ACTION_DELETE]: {
-            action: expect.any(Function),
-          },
-        },
-        availableActions: [ACTION_EDIT, ACTION_DELETE],
-      });
+      expect(findListActions().exists()).toBe(true);
     });
 
     describe('when delete action is fired', () => {
       beforeEach(() => {
-        findListActions().props('actions')[ACTION_DELETE].action();
+        findListActions().vm.$emit('delete');
       });
 
       it('displays confirmation modal with correct props', () => {
@@ -451,14 +404,118 @@ describe('ProjectsListItem', () => {
       });
 
       describe('when deletion is confirmed', () => {
-        beforeEach(() => {
-          wrapper.findComponent(DeleteModal).vm.$emit('primary');
+        describe('when API call is successful', () => {
+          it('calls deleteProject, properly sets loading state, and emits refetch event', async () => {
+            deleteProject.mockResolvedValueOnce();
+
+            await deleteModalFirePrimaryEvent();
+            expect(deleteParams).toHaveBeenCalledWith(projectWithActions);
+            expect(deleteProject).toHaveBeenCalledWith(projectWithActions.id, MOCK_DELETE_PARAMS);
+            expect(findDeleteModal().props('confirmLoading')).toBe(true);
+
+            await waitForPromises();
+
+            expect(findDeleteModal().props('confirmLoading')).toBe(false);
+            expect(wrapper.emitted('refetch')).toEqual([[]]);
+            expect(renderDeleteSuccessToast).toHaveBeenCalledWith(projectWithActions, 'Project');
+            expect(createAlert).not.toHaveBeenCalled();
+          });
         });
 
-        it('emits `delete` event', () => {
-          expect(wrapper.emitted('delete')).toMatchObject([[project]]);
+        describe('when API call is not successful', () => {
+          const error = new Error();
+
+          it('calls deleteProject, properly sets loading state, and shows error alert', async () => {
+            deleteProject.mockRejectedValue(error);
+            await deleteModalFirePrimaryEvent();
+
+            expect(deleteParams).toHaveBeenCalledWith(projectWithActions);
+            expect(deleteProject).toHaveBeenCalledWith(projectWithActions.id, MOCK_DELETE_PARAMS);
+            expect(findDeleteModal().props('confirmLoading')).toBe(true);
+
+            await waitForPromises();
+
+            expect(findDeleteModal().props('confirmLoading')).toBe(false);
+
+            expect(wrapper.emitted('refetch')).toBeUndefined();
+            expect(createAlert).toHaveBeenCalledWith({
+              message:
+                'An error occurred deleting the project. Please refresh the page to try again.',
+              error,
+              captureError: true,
+            });
+            expect(renderDeleteSuccessToast).not.toHaveBeenCalled();
+          });
         });
       });
+    });
+  });
+
+  describe('CI Catalog Badge', () => {
+    describe('when project is not in the CI Catalog', () => {
+      beforeEach(() => {
+        createComponent();
+      });
+
+      it('does not render badge', () => {
+        expect(findCiCatalogBadge().exists()).toBe(false);
+      });
+    });
+
+    describe('when project is in the CI Catalog', () => {
+      beforeEach(() => {
+        createComponent({
+          propsData: {
+            project: {
+              ...project,
+              isCatalogResource: true,
+              exploreCatalogPath: `/catalog/${project.pathWithNamespace}`,
+            },
+          },
+        });
+      });
+
+      it('renders badge with correct link', () => {
+        expect(findCiCatalogBadge().exists()).toBe(true);
+        expect(findCiCatalogBadge().text()).toBe('CI/CD Catalog project');
+        expect(findCiCatalogBadge().props('href')).toBe(`/catalog/${project.pathWithNamespace}`);
+      });
+    });
+  });
+
+  describe('when project does not have a pipeline status', () => {
+    beforeEach(() => {
+      createComponent();
+    });
+
+    it('does not render CI icon component', () => {
+      expect(wrapper.findComponent(CiIcon).exists()).toBe(false);
+    });
+  });
+
+  describe('when project has pipeline status', () => {
+    const detailedStatus = {
+      detailsPath: '/foo/bar',
+      icon: 'status_warning',
+      id: '1',
+      text: 'Warning',
+    };
+
+    beforeEach(() => {
+      createComponent({
+        propsData: {
+          project: {
+            ...project,
+            pipeline: {
+              detailedStatus,
+            },
+          },
+        },
+      });
+    });
+
+    it('renders CI icon component', () => {
+      expect(wrapper.findComponent(CiIcon).props('status')).toBe(detailedStatus);
     });
   });
 });

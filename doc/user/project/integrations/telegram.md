@@ -1,5 +1,5 @@
 ---
-stage: Manage
+stage: Foundations
 group: Import and Integrate
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/122879) in GitLab 16.1.
 
@@ -50,7 +50,7 @@ After you invite the bot to a Telegram channel, you can configure GitLab to send
      1. On the left sidebar, select **Search or go to** and find your project or group.
      1. Select **Settings > Integrations**.
    - **For your instance:**
-     1. On the left sidebar, at the bottom, select **Admin Area**.
+     1. On the left sidebar, at the bottom, select **Admin**.
      1. Select **Settings > Integrations**.
 1. Select **Telegram**.
 1. Under **Enable integration**, select the **Active** checkbox.

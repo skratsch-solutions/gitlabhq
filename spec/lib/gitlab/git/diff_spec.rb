@@ -40,7 +40,8 @@ EOT
       new_file: false,
       renamed_file: false,
       deleted_file: false,
-      too_large: false
+      too_large: false,
+      encoded_file_path: false
     }
   end
 
@@ -181,6 +182,48 @@ EOT
           end
         end
       end
+
+      context 'when the file path is encoded and cleaned up' do
+        let(:gitaly_diff) do
+          Gitlab::GitalyClient::Diff.new(
+            from_path: "\x90.gitmodules",
+            to_path: "\x90.gitmodules",
+            old_mode: 0100644,
+            new_mode: 0100644,
+            from_id: '0792c58905eff3432b721f8c4a64363d8e28d9ae',
+            to_id: 'efd587ccb47caf5f31fc954edb21f0a713d9ecc3'
+          )
+        end
+
+        let(:diff) { described_class.new(gitaly_diff) }
+
+        it 'is flagged with encoded_file_path' do
+          expect(diff.old_path).to eq(".gitmodules")
+          expect(diff.new_path).to eq(".gitmodules")
+          expect(diff.encoded_file_path).to eq(true)
+        end
+      end
+
+      context 'when the file path is encoded but not cleaned up' do
+        let(:gitaly_diff) do
+          Gitlab::GitalyClient::Diff.new(
+            from_path: "\xE3\x83\x86\xE3\x82\xB9\xE3\x83\x88",
+            to_path: "\xE3\x83\x86\xE3\x82\xB9\xE3\x83\x88",
+            old_mode: 0100644,
+            new_mode: 0100644,
+            from_id: '0792c58905eff3432b721f8c4a64363d8e28d9ae',
+            to_id: 'efd587ccb47caf5f31fc954edb21f0a713d9ecc3'
+          )
+        end
+
+        let(:diff) { described_class.new(gitaly_diff) }
+
+        it 'is not flagged with encoded_file_path' do
+          expect(diff.old_path).to eq("テスト")
+          expect(diff.new_path).to eq("テスト")
+          expect(diff.encoded_file_path).to eq(false)
+        end
+      end
     end
 
     context 'using a Gitaly::CommitDelta' do
@@ -245,8 +288,8 @@ EOT
       end
 
       context 'when replace_invalid_utf8_chars is false' do
-        let(:not_replaced_diff) { described_class.new(@raw_diff_hash.merge({ diff: bad_string, replace_invalid_utf8_chars: false }) ) }
-        let(:not_replaced_diff_two) { described_class.new(@raw_diff_hash.merge({ diff: bad_string_two, replace_invalid_utf8_chars: false }) ) }
+        let(:not_replaced_diff) { described_class.new(@raw_diff_hash.merge({ diff: bad_string, replace_invalid_utf8_chars: false })) }
+        let(:not_replaced_diff_two) { described_class.new(@raw_diff_hash.merge({ diff: bad_string_two, replace_invalid_utf8_chars: false })) }
 
         it 'will not try to convert invalid characters' do
           expect(Gitlab::EncodingHelper).not_to receive(:encode_utf8_with_replacement_character?)
@@ -311,7 +354,7 @@ EOT
   end
 
   describe '.filter_diff_options' do
-    let(:options) { { max_files: 100, invalid_opt: true } }
+    let(:options) { { max_files: 100, invalid_opt: true, offset_index: 10 } }
 
     context "without default options" do
       let(:filtered_options) { described_class.filter_diff_options(options) }

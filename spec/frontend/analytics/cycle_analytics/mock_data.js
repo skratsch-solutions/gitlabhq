@@ -219,8 +219,18 @@ export const group = {
 };
 
 export const currentGroup = convertObjectPropsToCamelCase(group, { deep: true });
-export const groupNamespace = { id: currentGroup.id, fullPath: `groups/${currentGroup.path}` };
-export const projectNamespace = { fullPath: 'some/cool/path' };
+export const groupNamespace = {
+  id: currentGroup.id,
+  restApiRequestPath: `groups/${currentGroup.path}`,
+  path: currentGroup.path,
+  type: 'Group',
+};
+
+export const projectNamespace = {
+  restApiRequestPath: 'some/cool/path',
+  path: 'some/cool/path',
+  type: 'Project',
+};
 
 export const selectedProjects = [
   {

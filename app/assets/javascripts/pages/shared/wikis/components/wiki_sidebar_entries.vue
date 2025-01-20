@@ -51,7 +51,7 @@ export default {
   <div v-if="isLoadingContent && !hasCustomSidebar" class="gl-m-3">
     <gl-skeleton-loader />
   </div>
-  <ul v-else class="wiki-pages" :class="{ 'gl-border-b !gl-pb-3': hasCustomSidebar }">
+  <ul v-else class="wiki-pages" :class="{ 'gl-border-b !gl-pb-4': hasCustomSidebar }">
     <gl-search-box-by-type
       v-model.trim="searchTerm"
       :placeholder="s__('Wiki|Search pages')"
@@ -70,12 +70,12 @@ export default {
       size="small"
       variant="link"
       data-testid="view-all-pages-button"
-      class="gl-ml-3 gl-mt-3"
+      class="gl-ml-4 gl-mt-3"
       :href="viewAllPagesPath"
     >
       {{ s__('Wiki|View all pages') }}
     </gl-button>
-    <div v-else class="gl-ml-3 gl-mt-3 gl-text-secondary">
+    <div v-else class="gl-ml-3 gl-mt-3 gl-text-subtle">
       {{ s__('Wiki|There are no pages in this wiki yet') }}
     </div>
   </ul>

@@ -9,9 +9,11 @@ module Types
 
     authorize :read_work_item
 
+    present_using WorkItemPresenter
+
     field :author, Types::UserType, null: true,
       description: 'User that created the work item.',
-      alpha: { milestone: '15.9' }
+      experiment: { milestone: '15.9' }
     field :closed_at, Types::TimeType, null: true,
       description: 'Timestamp of when the work item was closed.'
     field :confidential, GraphQL::Types::Boolean, null: false,
@@ -30,10 +32,10 @@ module Types
       description: 'Lock version of the work item. Incremented each time the work item is updated.'
     field :namespace, Types::NamespaceType, null: true,
       description: 'Namespace the work item belongs to.',
-      alpha: { milestone: '15.10' }
+      experiment: { milestone: '15.10' }
     field :project, Types::ProjectType, null: true,
       description: 'Project the work item belongs to.',
-      alpha: { milestone: '15.3' }
+      experiment: { milestone: '15.3' }
     field :state, WorkItemStateEnum, null: false,
       description: 'State of the work item.'
     field :title, GraphQL::Types::String, null: false,
@@ -61,7 +63,12 @@ module Types
 
     field :archived, GraphQL::Types::Boolean, null: false,
       description: 'Whether the work item belongs to an archived project. Always false for group level work items.',
-      alpha: { milestone: '16.5' }
+      experiment: { milestone: '16.5' }
+
+    field :duplicated_to_work_item_url, GraphQL::Types::String, null: true,
+      description: 'URL of the work item that the work item is marked as a duplicate of.'
+    field :moved_to_work_item_url, GraphQL::Types::String, null: true,
+      description: 'URL of the work item that the work item was moved to.'
 
     markdown_field :title_html, null: true
     markdown_field :description_html, null: true
@@ -72,10 +79,6 @@ module Types
       context.scoped_set!(:resource_parent, object.resource_parent)
 
       object.work_item_type
-    end
-
-    def web_url
-      Gitlab::UrlBuilder.build(object)
     end
 
     def create_note_email
@@ -89,3 +92,5 @@ module Types
     end
   end
 end
+
+Types::WorkItemType.prepend_mod_with('Types::WorkItemType')

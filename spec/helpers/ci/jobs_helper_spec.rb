@@ -7,6 +7,7 @@ RSpec.describe Ci::JobsHelper, feature_category: :continuous_integration do
     let_it_be(:project) { create(:project, :repository) }
     let_it_be(:job) { create(:ci_build, project: project) }
     let_it_be(:user) { create(:user) }
+    let_it_be(:report) { create(:ci_build_report_result, build: job, project: project) }
 
     before do
       helper.instance_variable_set(:@project, project)
@@ -27,10 +28,9 @@ RSpec.describe Ci::JobsHelper, feature_category: :continuous_integration do
         "artifact_help_url" => "/help/user/gitlab_com/index.md#gitlab-cicd",
         "deployment_help_url" => "/help/user/project/clusters/deploy_to_cluster.md#troubleshooting",
         "runner_settings_url" => "/#{project.full_path}/-/runners#js-runners-settings",
-        "retry_outdated_job_docs_url" => "/help/ci/pipelines/settings#retry-outdated-jobs",
+        "retry_outdated_job_docs_url" => "/help/ci/pipelines/settings.md#prevent-outdated-deployment-jobs",
         "pipeline_test_report_url" => "/#{project.full_path}/-/pipelines/#{job.pipeline.id}/test_report",
-        "log_viewer_path" => "/#{project.full_path}/-/jobs/#{job.id}/viewer",
-        "job_gid" => "gid://gitlab/Ci::Build/#{job.id}"
+        "log_viewer_path" => "/#{project.full_path}/-/jobs/#{job.id}/viewer"
       })
     end
 

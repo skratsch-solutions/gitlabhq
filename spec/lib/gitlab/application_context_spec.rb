@@ -6,7 +6,13 @@ RSpec.describe Gitlab::ApplicationContext, feature_category: :shared do
   describe '.allowed_job_keys' do
     it 'includes known keys but omits Web-specific keys' do
       expect(described_class.allowed_job_keys).to include(:user, :user_id, :project, :root_namespace, :client_id)
-      expect(described_class.allowed_job_keys).not_to include(:auth_fail_reason, :auth_fail_token_id)
+      expect(described_class.allowed_job_keys).not_to include(
+        :auth_fail_reason,
+        :auth_fail_token_id,
+        :auth_fail_requested_scopes,
+        :http_router_rule_action,
+        :http_router_rule_type
+      )
     end
   end
 
@@ -185,7 +191,7 @@ RSpec.describe Gitlab::ApplicationContext, feature_category: :shared do
     end
 
     context 'when using a runner project' do
-      let_it_be_with_reload(:runner) { create(:ci_runner, :project) }
+      let_it_be_with_reload(:runner) { create(:ci_runner, :project, projects: [project]) }
 
       it 'sets project path from runner project' do
         context = described_class.new(runner: runner)
@@ -231,6 +237,16 @@ RSpec.describe Gitlab::ApplicationContext, feature_category: :shared do
         context = described_class.new(bulk_import_entity_id: 1)
 
         expect(result(context)).to include(bulk_import_entity_id: 1)
+      end
+    end
+
+    context 'when using organization context' do
+      let_it_be(:organization) { create(:organization) }
+
+      it 'sets the organization_id value' do
+        context = described_class.new(organization: organization)
+
+        expect(result(context)).to include(organization_id: organization.id)
       end
     end
   end

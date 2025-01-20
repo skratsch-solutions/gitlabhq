@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 The following guide provides concise instructions on how to deploy GitLab Geo for a two single-node site installation using two Linux package instances with no external services set up.
 
@@ -164,8 +164,8 @@ Prerequisites:
 
       Depending on your network configuration, the suggested addresses might
       be incorrect. If your primary and secondary sites connect over a local
-      area network, or a virtual network connecting availability zones like
-      [Amazon's VPC](https://aws.amazon.com/vpc/) or [Google's VPC](https://cloud.google.com/vpc/),
+      area network, or a virtual network connecting availability zones like the
+      [Amazon VPC](https://aws.amazon.com/vpc/) or the [Google VPC](https://cloud.google.com/vpc/),
       you should use the secondary site private address for `postgresql['md5_auth_cidr_addresses']`.
 
    1. Add the following lines to `/etc/gitlab/gitlab.rb`. Be sure to replace the IP
@@ -403,7 +403,7 @@ Fast lookup is [required for Geo](../../operations/fast_ssh_key_lookup.md#fast-l
 
 NOTE:
 Authentication is handled by the primary site. Don't set up custom authentication for the secondary site.
-Any change that requires access to the Admin Area should be made in the primary site, because the
+Any change that requires access to the **Admin** area should be made in the primary site, because the
 secondary site is a read-only copy.
 
 ### Manually replicate secret GitLab values
@@ -567,7 +567,7 @@ You must manually replicate the secret file across all of your secondary sites, 
    ```
 
 1. Go to the primary node GitLab instance:
-   1. On the left sidebar, at the bottom, select **Admin Area**.
+   1. On the left sidebar, at the bottom, select **Admin**.
    1. Select **Geo > Sites**.
    1. Select **Add site**.
 
@@ -622,7 +622,7 @@ If you convert an existing site to Geo, you should check that the clone method i
 
 On the primary site:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > General**.
 1. Expand **Visibility and access controls**.
 1. If you use Git over SSH:
@@ -637,7 +637,7 @@ the primary site.
 
 After you sign in:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Geo > Sites**.
 1. Verify that the site is correctly identified as a secondary Geo site, and that
    Geo is enabled.

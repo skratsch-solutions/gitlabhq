@@ -20,7 +20,7 @@ export default {
       type: Number,
       required: true,
     },
-    diffFilesCountText: {
+    diffsCount: {
       type: String,
       required: false,
       default: null,
@@ -28,13 +28,13 @@ export default {
   },
   computed: {
     diffFilesLength() {
-      return parseInt(this.diffFilesCountText, 10);
+      return parseInt(this.diffsCount, 10);
     },
     filesText() {
       return n__('file', 'files', this.diffFilesLength);
     },
     isCompareVersionsHeader() {
-      return Boolean(this.diffFilesCountText);
+      return Boolean(this.diffsCount);
     },
     hasDiffFiles() {
       return isNumber(this.diffFilesLength) && this.diffFilesLength >= 0;
@@ -62,19 +62,19 @@ export default {
     </div>
     <div v-else class="diff-stats-contents">
       <div v-if="hasDiffFiles" class="diff-stats-group">
-        <gl-icon name="doc-code" class="diff-stats-icon gl-text-gray-500" />
-        <span class="gl-text-gray-500 bold">{{ diffFilesCountText }} {{ filesText }}</span>
+        <gl-icon name="doc-code" class="diff-stats-icon" variant="subtle" />
+        <span class="gl-font-bold gl-text-subtle">{{ diffsCount }} {{ filesText }}</span>
       </div>
       <div
-        class="diff-stats-group gl-text-green-600 gl-display-flex gl-align-items-center"
-        :class="{ bold: isCompareVersionsHeader }"
+        class="diff-stats-group gl-flex gl-items-center gl-text-success"
+        :class="{ 'gl-font-bold': isCompareVersionsHeader }"
       >
         <span>+</span>
         <span data-testid="js-file-addition-line">{{ addedLines }}</span>
       </div>
       <div
-        class="diff-stats-group gl-text-red-500 gl-display-flex gl-align-items-center"
-        :class="{ bold: isCompareVersionsHeader }"
+        class="diff-stats-group gl-flex gl-items-center gl-text-danger"
+        :class="{ 'gl-font-bold': isCompareVersionsHeader }"
       >
         <span>−</span>
         <span data-testid="js-file-deletion-line">{{ removedLines }}</span>

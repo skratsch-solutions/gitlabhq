@@ -58,8 +58,7 @@ module Ci
       render_ci_icon(
         status,
         path,
-        tooltip_placement: tooltip_placement,
-        option_css_classes: 'gl-ml-3'
+        tooltip_placement: tooltip_placement
       )
     end
 
@@ -67,20 +66,20 @@ module Ci
       status,
       path = nil,
       tooltip_placement: 'left',
-      option_css_classes: '',
       container: 'body',
       show_status_text: false
     )
+      content_tag_variant = path ? :a : :span
       variant = badge_variant(status)
-      badge_classes = "ci-icon ci-icon-variant-#{variant} gl-p-2 #{option_css_classes}"
+      badge_classes = "ci-icon ci-icon-variant-#{variant} gl-inline-flex gl-items-center gl-text-sm"
       title = "#{_('Pipeline')}: #{ci_label_for_status(status)}"
       data = { toggle: 'tooltip', placement: tooltip_placement, container: container, testid: 'ci-icon' }
 
-      icon_wrapper_class = "js-ci-status-badge-legacy ci-icon-gl-icon-wrapper"
+      icon_wrapper_class = "ci-icon-gl-icon-wrapper"
 
-      gl_badge_tag(variant: variant, size: :md, href: path, class: badge_classes, title: title, data: data) do
+      content_tag(content_tag_variant, href: path, class: badge_classes, title: title, data: data) do
         if show_status_text
-          content_tag(:span, ci_icon_for_status(status), { class: icon_wrapper_class }) + content_tag(:span, status.label, { class: 'gl-mx-2 gl-whitespace-nowrap', data: { testid: 'ci-icon-text' } })
+          content_tag(:span, ci_icon_for_status(status), { class: icon_wrapper_class }) + content_tag(:span, status.label, { class: 'gl-mx-2 gl-whitespace-nowrap gl-leading-1 gl-self-center', data: { testid: 'ci-icon-text' } })
         else
           content_tag(:span, ci_icon_for_status(status), { class: icon_wrapper_class })
         end
@@ -97,9 +96,7 @@ module Ci
     end
 
     def ci_label_for_status(status)
-      if detailed_status?(status)
-        return status.label
-      end
+      return status.label if detailed_status?(status)
 
       label = case status
               when 'success'

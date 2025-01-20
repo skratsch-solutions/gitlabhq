@@ -149,20 +149,20 @@ RSpec.describe SearchController, type: :request, feature_category: :global_searc
       end
 
       it 'finds a commit in uppercase and redirects to its page' do
-        send_search_request( { search: sha.upcase, scope: 'projects', project_id: project.id })
+        send_search_request({ search: sha.upcase, scope: 'projects', project_id: project.id })
 
         expect(response).to redirect_to(project_commit_path(project, sha))
       end
 
       it 'finds a commit with a partial sha and redirects to its page' do
-        send_search_request( { search: sha[0..10], scope: 'projects', project_id: project.id })
+        send_search_request({ search: sha[0..10], scope: 'projects', project_id: project.id })
 
         expect(response).to redirect_to(project_commit_path(project, sha))
       end
 
       it 'redirects to the commit even if another scope result is returned' do
         create(:note, project: project, note: "This is the #{sha}")
-        send_search_request( { search: sha, scope: 'projects', project_id: project.id })
+        send_search_request({ search: sha, scope: 'projects', project_id: project.id })
 
         expect(response).to redirect_to(project_commit_path(project, sha))
       end
@@ -214,9 +214,10 @@ RSpec.describe SearchController, type: :request, feature_category: :global_searc
         login_as(user)
       end
 
-      context 'when project_id param is missing' do
-        it 'raises an error' do
-          expect { request }.to raise_error(ActionController::ParameterMissing)
+      context 'when neither project_id nor group_id param is given' do
+        it 'responds with Bad Request' do
+          request
+          expect(response).to have_gitlab_http_status(:bad_request)
         end
       end
 
@@ -246,8 +247,43 @@ RSpec.describe SearchController, type: :request, feature_category: :global_searc
         let(:params) { { project_id: project.id } }
 
         it 'returns all available settings results' do
-          expect_next_instance_of(Search::Settings) do |settings|
-            expect(settings).to receive(:for_project).with(project).and_return(%w[foo bar])
+          expect_next_instance_of(Search::ProjectSettings) do |settings|
+            expect(settings).to receive(:all).and_return(%w[foo bar])
+          end
+
+          request
+          expect(response.body).to eq '["foo","bar"]'
+        end
+      end
+
+      context 'when given group is not found' do
+        let(:params) { { group_id: non_existing_record_id } }
+
+        it 'returns an empty array' do
+          request
+          expect(response.body).to eq '[]'
+        end
+      end
+
+      context 'when user is not allowed to change settings in given group' do
+        let(:params) { { group_id: group.id } }
+
+        it 'returns an empty array' do
+          request
+          expect(response.body).to eq '[]'
+        end
+      end
+
+      context 'when user is allowed to change settings in given group' do
+        before_all do
+          group.add_owner(user)
+        end
+
+        let(:params) { { group_id: group.id } }
+
+        it 'returns all available settings results' do
+          expect_next_instance_of(Search::GroupSettings) do |settings|
+            expect(settings).to receive(:all).and_return(%w[foo bar])
           end
 
           request

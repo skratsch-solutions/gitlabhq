@@ -83,14 +83,6 @@ export default {
     arrowIconName() {
       return this.isCollapsed ? 'chevron-right' : 'chevron-down';
     },
-    bodyClass() {
-      return [
-        'gl-border-1',
-        'gl-border-t-solid',
-        'gl-border-gray-100',
-        { 'gl-display-none': this.isCollapsed },
-      ];
-    },
   },
   methods: {
     ...mapActions(['deleteImage']),
@@ -112,12 +104,12 @@ export default {
 
 <template>
   <gl-card
-    class="collapsible-card border gl-p-0 gl-mb-5"
-    header-class="gl-display-flex gl-align-items-center gl-border-b-0 gl-py-3"
-    :body-class="bodyClass"
+    class="gl-mb-5"
+    :header-class="['gl-flex', 'gl-items-center', { 'gl-border-b-0 gl-rounded-base': isCollapsed }]"
+    :body-class="{ 'gl-hidden': isCollapsed }"
   >
     <gl-modal
-      body-class="gl-pb-0! gl-min-h-6!"
+      body-class="!gl-pb-0 !gl-min-h-6"
       modal-id="delete-metric-modal"
       size="sm"
       :visible="modalVisible"
@@ -149,18 +141,16 @@ export default {
     />
 
     <template #header>
-      <div class="gl-w-full gl-display-flex gl-flex-direction-row gl-justify-content-space-between">
-        <div class="gl-display-flex gl-flex-direction-row gl-align-items-center gl-w-full">
+      <div class="gl-flex gl-w-full gl-flex-row gl-justify-between">
+        <div class="gl-flex gl-w-full gl-flex-row gl-items-center gl-gap-2">
           <gl-button
-            class="collapsible-card-btn gl-display-flex gl-text-decoration-none !gl-text-inherit gl-hover-text-blue-800! !gl-shadow-none"
             :aria-label="filename"
-            variant="link"
             category="tertiary"
+            :icon="arrowIconName"
+            size="small"
             data-testid="collapse-button"
             @click="toggleCollapsed"
-          >
-            <gl-icon class="gl-mr-2" :name="arrowIconName" />
-          </gl-button>
+          />
           <gl-link v-if="url" :href="url" target="_blank" data-testid="metric-image-label-span">
             {{ urlText == null || urlText == '' ? filename : urlText }}
             <gl-icon name="external-link" class="gl-align-middle" />
@@ -168,7 +158,7 @@ export default {
           <span v-else data-testid="metric-image-label-span">{{
             urlText == null || urlText == '' ? filename : urlText
           }}</span>
-          <div class="gl-ml-auto btn-group">
+          <div class="btn-group gl-ml-auto">
             <gl-button
               v-if="canUpdate"
               v-gl-tooltip.bottom
@@ -191,12 +181,8 @@ export default {
         </div>
       </div>
     </template>
-    <div
-      v-show="!isCollapsed"
-      class="gl-display-flex gl-flex-direction-column"
-      data-testid="metric-image-body"
-    >
-      <img class="gl-max-w-full gl-align-self-center" :src="filePath" />
+    <div v-show="!isCollapsed" class="gl-flex gl-flex-col" data-testid="metric-image-body">
+      <img class="gl-max-w-full gl-self-center" :src="filePath" />
     </div>
   </gl-card>
 </template>

@@ -8,11 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 ## Update existing submodule reference in repository
 
-In some workflows, especially automated ones, it can be useful to update a
+In some workflows, especially automated ones, you can update a
 submodule's reference to keep up to date other projects that use it.
 This endpoint allows you to update a [Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) reference in a
 specific branch.
@@ -23,7 +23,7 @@ PUT /projects/:id/repository/submodules/:submodule
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-path-encoding) owned by the authenticated user |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](rest/index.md#namespaced-paths) |
 | `submodule` | string | yes | URL-encoded full path to the submodule. For example, `lib%2Fclass%2Erb` |
 | `branch` | string | yes | Name of the branch to commit into |
 | `commit_sha` | string | yes | Full commit SHA to update the submodule to |

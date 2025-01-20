@@ -32,6 +32,13 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
     described_class.new(container: old_project, current_user: user)
   end
 
+  before_all do
+    # Ensure support bot user is created so creation doesn't count towards query limit
+    # and we don't try to obtain an exclusive lease within a transaction.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/509629
+    Users::Internal.support_bot_id
+  end
+
   shared_context 'user can move issue' do
     before do
       old_project.add_reporter(user)
@@ -42,6 +49,27 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
   describe '#execute' do
     shared_context 'issue move executed' do
       let!(:new_issue) { move_service.execute(old_issue, new_project) }
+    end
+
+    # We will use this service in order to move WorkItem to a new project. As WorkItem inherits from Issue, there
+    # should not be any problem with passing a WorkItem instead of an Issue to this service.
+    # Adding a small test case to cover this.
+    context "when we pass a work_item" do
+      include_context 'user can move issue'
+
+      subject(:move) { move_service.execute(original_work_item, new_project) }
+
+      context "work item is of issue type" do
+        let_it_be_with_reload(:original_work_item) { create(:work_item, :issue, project: old_project, author: author) }
+
+        it { expect { move }.to change { new_project.issues.count }.by(1) }
+      end
+
+      context "work item is of task type" do
+        let_it_be_with_reload(:original_work_item) { create(:work_item, :task, project: old_project, author: author) }
+
+        it { expect { move }.to raise_error(described_class::MoveError) }
+      end
     end
 
     context 'when issue creation fails' do
@@ -150,18 +178,6 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
           expect(new_project.issues.pluck(:title)).to match_array(
             [old_issue, task1, task2].map(&:title)
           )
-        end
-
-        context 'when move_issue_children feature flag is disabled' do
-          before do
-            stub_feature_flags(move_issue_children: false)
-          end
-
-          it "does not move the issue's children", :aggregate_failures do
-            expect { move_service.execute(old_issue, new_project) }.to change { Issue.count }.by(1)
-            expect(new_project.issues.count).to eq(1)
-            expect(new_project.issues.pluck(:title)).to contain_exactly(old_issue.title)
-          end
         end
       end
 
@@ -306,10 +322,23 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
         end
 
         it 'executes project issue hooks for both projects' do
-          expect_next_instance_of(WebHookService, new_project_hook, expected_new_project_hook_payload, 'issue_hooks') do |service|
+          expect_next_instance_of(
+            WebHookService,
+            new_project_hook,
+            expected_new_project_hook_payload,
+            'issue_hooks',
+            idempotency_key: anything
+          ) do |service|
             expect(service).to receive(:async_execute).once
           end
-          expect_next_instance_of(WebHookService, old_project_hook, expected_old_project_hook_payload, 'issue_hooks') do |service|
+
+          expect_next_instance_of(
+            WebHookService,
+            old_project_hook,
+            expected_old_project_hook_payload,
+            'issue_hooks',
+            idempotency_key: anything
+          ) do |service|
             expect(service).to receive(:async_execute).once
           end
 
@@ -384,6 +413,18 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
         end
       end
 
+      context 'issue with timelogs' do
+        before do
+          create(:timelog, issue: old_issue)
+        end
+
+        it 'calls CopyTimelogsWorker' do
+          expect(WorkItems::CopyTimelogsWorker).to receive(:perform_async).with(old_issue.id, kind_of(Integer))
+
+          move_service.execute(old_issue, new_project)
+        end
+      end
+
       context 'issue relative position' do
         let(:subject) { move_service.execute(old_issue, new_project) }
 
@@ -455,7 +496,7 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
     end
   end
 
-  describe '#rewrite_related_issues' do
+  describe '#recreate_related_issues' do
     include_context 'user can move issue'
 
     let(:admin) { create(:admin) }
@@ -482,8 +523,18 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
 
     context 'multiple related issues' do
       context 'when admin mode is enabled', :enable_admin_mode do
-        it 'moves all related issues and retains permissions' do
+        it 'recreates all related issues and retains permissions' do
           new_issue = move_service.execute(old_issue, new_project)
+
+          recreated_links = IssueLink.where(source: new_issue).or(IssueLink.where(target: new_issue))
+          old_links_count = IssueLink.where(source: old_issue).or(IssueLink.where(target: old_issue)).count
+
+          expect(recreated_links.count).to eq(4)
+          expect(old_links_count).to eq(0)
+
+          recreated_links.each do |link|
+            expect(link.namespace_id).to eq(link.source.namespace_id)
+          end
 
           expect(new_issue.related_issues(admin))
             .to match_array([authorized_issue_b, authorized_issue_c, authorized_issue_d, unauthorized_issue])
@@ -494,20 +545,39 @@ RSpec.describe Issues::MoveService, feature_category: :team_planning do
           expect(authorized_issue_d.related_issues(user))
             .to match_array([new_issue])
         end
+
+        it 'does not recreate related issues when there are no related links' do
+          IssueLink.where(source: old_issue).or(IssueLink.where(target: old_issue)).delete_all
+
+          new_issue = move_service.execute(old_issue, new_project)
+          recreated_links = IssueLink.where(source: new_issue).or(IssueLink.where(target: new_issue))
+
+          expect(recreated_links.count).to eq(0)
+        end
       end
 
       context 'when admin mode is disabled' do
-        it 'moves all related issues and retains permissions' do
+        it 'recreates authorized related issues only and retains permissions' do
           new_issue = move_service.execute(old_issue, new_project)
 
+          recreated_links = IssueLink.where(source: new_issue).or(IssueLink.where(target: new_issue))
+          old_links_count = IssueLink.where(source: old_issue).or(IssueLink.where(target: old_issue)).count
+
+          expect(recreated_links.count).to eq(4)
+          expect(old_links_count).to eq(0)
+
+          recreated_links.each do |link|
+            expect(link.namespace_id).to eq(link.source.namespace_id)
+          end
+
           expect(new_issue.related_issues(admin))
-              .to match_array([authorized_issue_b, authorized_issue_c, authorized_issue_d])
+            .to match_array([authorized_issue_b, authorized_issue_c, authorized_issue_d])
 
           expect(new_issue.related_issues(user))
-              .to match_array([authorized_issue_b, authorized_issue_c, authorized_issue_d])
+            .to match_array([authorized_issue_b, authorized_issue_c, authorized_issue_d])
 
           expect(authorized_issue_d.related_issues(user))
-              .to match_array([new_issue])
+            .to match_array([new_issue])
         end
       end
     end

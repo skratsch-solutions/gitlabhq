@@ -56,7 +56,7 @@ RSpec.describe Gitlab::Ci::Config::External::Mapper::Matcher, feature_category: 
         it 'raises an error with a masked sentence' do
           expect { process }.to raise_error(
             Gitlab::Ci::Config::External::Mapper::AmbigiousSpecificationError,
-            /`{"invalid":"xxxxxxxxxxxxxx.yml"}` does not have a valid subkey for include. Valid subkeys are:/
+            /`{"invalid":"\[MASKED\]xxxxxx.yml"}` does not have a valid subkey for include. Valid subkeys are:/
           )
         end
       end

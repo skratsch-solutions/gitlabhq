@@ -10,7 +10,9 @@ class DropInvalidVulnerabilitiesGdk < Gitlab::Database::Migration[2.2]
   end
 
   def up
-    Vulnerability.where(finding_id: nil).delete_all if Gitlab.dev_or_test_env?
+    Gitlab::Database::QueryAnalyzers::Base.suppress_schema_issues_for_decomposed_tables do
+      Vulnerability.where(finding_id: nil).delete_all if Gitlab.dev_or_test_env?
+    end
   end
 
   def down; end

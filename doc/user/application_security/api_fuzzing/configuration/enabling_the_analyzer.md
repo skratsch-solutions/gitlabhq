@@ -1,5 +1,5 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Dynamic Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
@@ -53,7 +53,7 @@ To generate an API Fuzzing configuration snippet:
 1. Do one of the following:
    1. To copy the snippet to your clipboard, select **Copy code only**.
    1. To add the snippet to your project's `.gitlab-ci.yml` file, select
-      **Copy code and open `.gitlab-ci.yml` file**. The Pipeline Editor opens.
+      **Copy code and open `.gitlab-ci.yml` file**. The pipeline editor opens.
       1. Paste the snippet into the `.gitlab-ci.yml` file.
       1. Select the **Lint** tab to confirm the edited `.gitlab-ci.yml` file is valid.
       1. Select the **Edit** tab, then select **Commit changes**.
@@ -129,7 +129,7 @@ Example `.gitlab-ci.yml` file using an OpenAPI Specification:
      - fuzz
 
    include:
-     - template: API-Fuzzing.gitlab-ci.yml
+     - template: Security/API-Fuzzing.gitlab-ci.yml
 
    variables:
      FUZZAPI_PROFILE: Quick-10
@@ -195,7 +195,7 @@ Example `.gitlab-ci.yml` file using a HAR file:
      - fuzz
 
    include:
-     - template: API-Fuzzing.gitlab-ci.yml
+     - template: Security/API-Fuzzing.gitlab-ci.yml
 
    variables:
      FUZZAPI_PROFILE: Quick-10
@@ -253,7 +253,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 apifuzzer_fuzz:
   variables:
@@ -294,7 +294,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 apifuzzer_fuzz:
   variables:
@@ -310,7 +310,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 apifuzzer_fuzz:
   variables:
@@ -380,7 +380,7 @@ Example `.gitlab-ci.yml` file using a Postman Collection file:
      - fuzz
 
    include:
-     - template: API-Fuzzing.gitlab-ci.yml
+     - template: Security/API-Fuzzing.gitlab-ci.yml
 
    variables:
      FUZZAPI_PROFILE: Quick-10
@@ -409,15 +409,15 @@ requests. These placeholders are called variables, as explained in [using variab
 You can use variables to store and reuse values in your requests and scripts. For example, you can
 edit the collection to add variables to the document:
 
-![Edit collection variable tab View](../img/api_fuzzing_postman_collection_edit_variable.png)
+![Edit collection variable tab View](../img/api_fuzzing_postman_collection_edit_variable_v13_9.png)
 
 Or alternatively, you can add variables in an environment:
 
-![Edit environment variables View](../img/api_fuzzing_postman_environment_edit_variable.png)
+![Edit environment variables View](../img/api_fuzzing_postman_environment_edit_variable_v13_9.png)
 
 You can then use the variables in sections such as URL, headers, and others:
 
-![Edit request using variables View](../img/api_fuzzing_postman_request_edit.png)
+![Edit request using variables View](../img/api_fuzzing_postman_request_edit_v13_9.png)
 
 Postman has grown from a basic client tool with a nice UX experience to a more complex ecosystem that allows testing APIs with scripts, creating complex collections that trigger secondary requests, and setting variables along the way. Not every feature in the Postman ecosystem is supported. For example, scripts are not supported. The main focus of the Postman support is to ingest Postman Collection definitions that are used by the Postman Client and their related variables defined in the workspace, environments, and the collections themselves.
 
@@ -664,7 +664,7 @@ stages:
      - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick-10
@@ -684,7 +684,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -704,7 +704,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -724,7 +724,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -758,7 +758,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -790,7 +790,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -825,7 +825,7 @@ stages:
   - fuzz
 
 include:
-  - template: API-Fuzzing.gitlab-ci.yml
+  - template: Security/API-Fuzzing.gitlab-ci.yml
 
 variables:
   FUZZAPI_PROFILE: Quick
@@ -841,7 +841,7 @@ When configured correctly, a CI/CD pipeline contains a `fuzz` stage and an `apif
 typical operation, the job always succeeds even if faults are identified during fuzz testing.
 
 Faults are displayed on the **Security** pipeline tab with the suite name. When testing against the
-repositories default branch, the fuzzing faults are also shown on the Security and Compliance's
+repositories default branch, the fuzzing faults are also shown on the Security and compliance's
 Vulnerability Report page.
 
 To prevent an excessive number of reported faults, the API fuzzing scanner limits the number of

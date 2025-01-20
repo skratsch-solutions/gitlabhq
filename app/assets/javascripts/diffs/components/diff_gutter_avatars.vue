@@ -84,13 +84,14 @@ export default {
         :tooltip-text="getTooltipText(note)"
         pseudo
         class="diff-comment-avatar js-diff-comment-avatar"
+        css-classes="gl-bg-white"
         @click.native="$emit('toggleLineDiscussions')"
       />
       <span
         v-if="moreText"
         v-gl-tooltip
         :title="moreText"
-        class="diff-comments-more-count js-diff-comment-avatar js-diff-comment-plus"
+        class="diff-comments-more-count js-diff-comment-avatar js-diff-comment-plus gl-flex gl-h-6 gl-min-w-6 gl-items-center gl-justify-center"
         data-container="body"
         data-placement="top"
         role="button"

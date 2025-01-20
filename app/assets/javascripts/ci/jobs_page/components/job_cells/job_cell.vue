@@ -67,7 +67,7 @@ export default {
 
 <template>
   <div>
-    <div class="gl-text-truncate gl-p-3 -gl-mt-3 -gl-mx-3 -gl-mb-2">
+    <div class="-gl-mx-3 -gl-mb-2 -gl-mt-3 gl-truncate gl-p-3">
       <gl-icon
         v-if="jobStuck"
         v-gl-tooltip="$options.i18n.stuckText"
@@ -77,13 +77,8 @@ export default {
         data-testid="stuck-icon"
       />
 
-      <gl-link
-        v-if="canReadJob"
-        class="gl-text-blue-600!"
-        :href="jobPath"
-        data-testid="job-id-link"
-      >
-        <span class="gl-text-truncate">
+      <gl-link v-if="canReadJob" :href="jobPath" data-testid="job-id-link">
+        <span class="gl-truncate">
           <span data-testid="job-name">{{ jobId }}: {{ job.name }}</span>
         </span>
       </gl-link>
@@ -91,10 +86,8 @@ export default {
       <span v-else data-testid="job-id-limited-access">{{ jobId }}: {{ job.name }}</span>
     </div>
 
-    <div
-      class="gl-display-flex gl-text-gray-700 gl-align-items-center gl-lg-justify-content-start gl-justify-content-end gl-mt-1"
-    >
-      <div v-if="jobRef" class="gl-p-2 gl-rounded-base gl-bg-gray-50 gl-max-w-26 gl-text-truncate">
+    <div class="gl-mt-1 gl-flex gl-items-center gl-justify-end gl-text-subtle lg:gl-justify-start">
+      <div v-if="jobRef" class="gl-max-w-26 gl-truncate gl-rounded-base gl-bg-gray-50 gl-px-2">
         <gl-icon
           v-if="createdByTag"
           name="label"
@@ -103,17 +96,17 @@ export default {
         />
         <gl-icon v-else name="fork" :size="$options.iconSize" data-testid="fork-icon" />
         <gl-link
-          class="gl-font-sm gl-font-monospace gl-text-gray-700 gl-hover-text-gray-900"
+          class="gl-text-sm gl-text-subtle gl-font-monospace hover:gl-text-subtle"
           :href="job.refPath"
           data-testid="job-ref"
           >{{ job.refName }}</gl-link
         >
       </div>
       <span v-else>{{ __('none') }}</span>
-      <div class="gl-flex gl-items-center gl-ml-2 gl-p-2 gl-rounded-base gl-bg-gray-50">
+      <div class="gl-ml-2 gl-flex gl-items-center gl-rounded-base gl-bg-gray-50 gl-px-2">
         <gl-icon class="gl-mx-2" name="commit" :size="$options.iconSize" />
         <gl-link
-          class="gl-font-sm gl-font-monospace gl-text-gray-700 gl-hover-text-gray-900"
+          class="gl-text-sm gl-text-subtle gl-font-monospace hover:gl-text-subtle"
           :href="job.commitPath"
           data-testid="job-sha"
           >{{ job.shortSha }}</gl-link

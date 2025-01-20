@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
+require 'spec_helper'
 require 'rspec-parameterized'
 
 RSpec.describe Gitlab::Utils::Email, feature_category: :service_desk do
@@ -61,10 +61,39 @@ RSpec.describe Gitlab::Utils::Email, feature_category: :service_desk do
       'added user@example.com and hello@example.com' | 'added us*****@e*****.c** and he*****@e*****.c**'
       'removed user@example.com, hello@example.com and bye@example.com' |
         'removed us*****@e*****.c**, he*****@e*****.c** and by*****@e*****.c**'
+      'added user#@example.com, hello!@example.com and bye$@example.com' |
+        'added us*****@e*****.c**, he*****@e*****.c** and by*****@e*****.c**'
+      'added user_@example.com, hello}@example.com and !#$%&\'*+-/=?^_{|}~@example.com' |
+        'added us*****@e*****.c**, he*****@e*****.c** and !#*****@e*****.c**'
     end
 
     with_them do
       it { expect(described_class.obfuscate_emails_in_text(input)).to eq(output) }
+    end
+  end
+
+  describe "#normalize_email" do
+    subject { described_class.normalize_email(raw_email) }
+
+    using RSpec::Parameterized::TableSyntax
+
+    where(:raw_email, :expected_result) do
+      nil                     | nil
+      'notanemail@'           | 'notanemail@'
+      '@notanemail.com'       | '@notanemail.com'
+      'NotAnEmail'            | 'NotAnEmail'
+      'USER@example.com'      | 'user@example.com'
+      'u.s.e.r@example.com'   | 'u.s.e.r@example.com'
+      'user+123@example.com'  | 'user@example.com'
+      'us.er+123@example.com' | 'us.er@example.com'
+      'u.s.e.r@gmail.com'     | 'user@gmail.com'
+      'user+123@gmail.com'    | 'user@gmail.com'
+      'us.er+123@gmail.com'   | 'user@gmail.com'
+      ' us.er+123@gmail.com ' | 'user@gmail.com'
+    end
+
+    with_them do
+      it { is_expected.to eq expected_result }
     end
   end
 end

@@ -1,24 +1,16 @@
 ---
-stage: Secure
+stage: Application Security Testing
 group: Static Analysis
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
-# Secure and Govern glossary
+# Security glossary
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-The glossary of terms aims to achieve the following:
-
-- Promote a ubiquitous language that can be used everywhere - with customers, on issues, in Slack, in code.
-- Improve the effectiveness of communication between team members.
-- Reduce the potential for miscommunication.
-- Bring new team members and community contributors up to speed faster, reducing the time to productivity.
-
-The definitions of the terms outlined in this document are in the context of the GitLab
-products. Therefore, a term may have a different meaning to users outside of GitLab.
+This glossary provides definitions for terms related to security features in GitLab. While some terms may have different meanings elsewhere, these definitions are specific to GitLab.
 
 ## Analyzer
 
@@ -79,6 +71,13 @@ you can use to identify and describe these weaknesses in terms of CWEs.
 When a category's process deems findings to be the same, or if they are similar enough that a noise reduction is
 required, only one finding is kept and the others are eliminated. Read more about the [deduplication process](../vulnerability_report/pipeline.md#deduplication-process).
 
+## Dependency graph export
+
+A dependency graph export lists the direct and indirect dependencies used by a project **and**
+includes the relationships between them. It's differentiated from a lock file because it may
+_not_ be required by a [package manager](#package-managers) during installation like in the case of a `pipdeptree graph`
+[export](https://github.com/tox-dev/pipdeptree/blob/28ed57c8e96ed1fce13a7abbf167e850625a835c/README.md#visualizing-the-dependency-graph).
+
 ## Duplicate finding
 
 A legitimate finding that is reported multiple times. This can occur when different scanners
@@ -124,6 +123,12 @@ ranges of `FAKECVE-2023-0001`.
 A finding's location fingerprint is a text value that's unique for each location on the attack
 surface. Each security product defines this according to its type of attack surface. For example, SAST
 incorporates file path and line number.
+
+## Lock file
+
+A lock file exhaustively lists both the direct and indirect dependencies of an application to ensure reproducible builds
+by a package manager. It _may_ also be a [dependency graph export](#dependency-graph-export) like in the case of a
+`Gemfile.lock` file, but listing dependency relationships is _not_ a requirement or guaranteed.
 
 ## Package managers and package types
 
@@ -252,7 +257,7 @@ support for cheap scan is proposed in issue [349926](https://gitlab.com/gitlab-o
 
 An irreversible action that is done to filter out targets before analysis occurs. This is usually provided to allow
 the user to reduce scope and noise as well as speed up the analysis. This should not be done if a record is needed as
-we currently do not store anything related to the skipped/excluded code or assets.
+we do not store anything related to the skipped/excluded code or assets.
 
 Examples: `DS_EXCLUDED_PATHS` should `Exclude files and directories from the scan based on the paths provided.`
 
@@ -262,9 +267,9 @@ A finding's primary identifier is a value that is unique to each finding. The ex
 of the finding's [first identifier](https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/v2.4.0-rc1/dist/sast-report-format.json#L228)
 combine to create the value.
 
-Examples of primary identifiers include `PluginID` for Zed Attack Proxy (ZAP), or `CVE` for
-Trivy. The identifier must be stable. Subsequent scans must return the same value for the
-same finding, even if the location has slightly changed.
+An example primary identifier is `CVE`, which is used for Trivy. The identifier must be stable.
+Subsequent scans must return the same value for the same finding, even if the location has slightly
+changed.
 
 ## Report finding
 
@@ -288,8 +293,8 @@ This list is subject to change as scanners are added.
 
 ## Scanner
 
-Software that can scan for vulnerabilities. The resulting scan report is typically not in the
-[Secure report format](#secure-report-format). Examples include ESLint, Trivy, and ZAP.
+Software that can scan for vulnerabilities (for example, Trivy). The resulting scan report is
+typically not in the [Secure report format](#secure-report-format).
 
 ## Secure product
 
@@ -341,7 +346,7 @@ When a [report finding](#report-finding) is stored to the database, it becomes a
 
 ## Vulnerability tracking
 
-Deals with the responsibility of matching findings across scans so that a finding's life cycle can
+Deals with the responsibility of matching findings across scans so that a finding's lifecycle can
 be understood. Engineers and security teams use this information to decide whether to merge code
 changes, and to see unresolved findings and when they were introduced.
 

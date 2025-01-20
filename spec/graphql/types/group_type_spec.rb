@@ -29,7 +29,7 @@ RSpec.describe GitlabSchema.types['Group'], feature_category: :groups_and_projec
       contact_state_counts contacts work_item_types
       recent_issue_boards ci_variables releases environment_scopes work_items autocomplete_users
       lock_math_rendering_limits_enabled math_rendering_limits_enabled created_at updated_at
-      organization_edit_path
+      organization_edit_path is_linked_to_subscription allowed_custom_statuses
     ]
 
     expect(described_class).to include_graphql_fields(*expected_fields)
@@ -88,7 +88,9 @@ RSpec.describe GitlabSchema.types['Group'], feature_category: :groups_and_projec
   end
 
   it_behaves_like 'a GraphQL type with labels' do
-    let(:labels_resolver_arguments) { [:search_term, :includeAncestorGroups, :includeDescendantGroups, :onlyGroupLabels, :searchIn] }
+    let(:labels_resolver_arguments) do
+      [:search_term, :includeAncestorGroups, :includeDescendantGroups, :onlyGroupLabels, :searchIn, :title]
+    end
   end
 
   describe 'milestones' do
@@ -159,6 +161,16 @@ RSpec.describe GitlabSchema.types['Group'], feature_category: :groups_and_projec
 
         expect(result.dig('data', 'group', 'customEmoji', 'nodes').count).to eq(2)
       end
+    end
+
+    it 'avoids N+1 queries' do
+      control = ActiveRecord::QueryRecorder.new do
+        GitlabSchema.execute(query, context: { current_user: user })
+      end
+
+      create_list(:custom_emoji, 3, group: group)
+
+      expect { GitlabSchema.execute(query, context: { current_user: user }) }.not_to exceed_query_limit(control)
     end
   end
 
@@ -264,14 +276,6 @@ RSpec.describe GitlabSchema.types['Group'], feature_category: :groups_and_projec
         expect(organization_edit_path).to eq(
           "/-/organizations/#{organization.path}/groups/#{group.full_path}/edit"
         )
-      end
-    end
-
-    context 'when group does not have an organization associated with it' do
-      let_it_be(:group) { create(:group, :public, organization: nil) }
-
-      it 'returns nil' do
-        expect(organization_edit_path).to be_nil
       end
     end
   end

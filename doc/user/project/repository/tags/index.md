@@ -9,7 +9,7 @@ description: "Use Git tags to mark important points in a repository's history, a
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 In Git, a tag marks an important point in a repository's history.
 Git supports two types of tags:
@@ -112,28 +112,31 @@ GitLab enforces these additional rules on all tags:
 
 - No spaces are allowed in tag names.
 - Tag names starting with 40 or 64 hexadecimal characters are prohibited, because they are similar to Git commit hashes.
-- Tag names cannot start with `-`, `refs/heads`, `refs/tags`, or `refs/remotes`
+- Tag names cannot start with `-`, `refs/heads/`, `refs/tags/`, or `refs/remotes/`
 - Tag names are case-sensitive.
 
 ## Prevent tag deletion
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 To prevent users from removing a tag with `git push`, create a [push rule](../push_rules.md).
 
 ## Trigger pipelines from a tag
 
-GitLab CI/CD provides a [`CI_COMMIT_TAG` variable](../../../../ci/variables/predefined_variables.md)
-to identify tags. Use this variable in job rules and workflow rules to test if the pipeline
-was triggered by a tag.
+GitLab CI/CD provides a predefined variable, [`CI_COMMIT_TAG`](../../../../ci/variables/predefined_variables.md),
+to identify tags in your pipeline configurations.
+You can use this variable in job rules and workflow rules to test if a pipeline was triggered by a tag.
+
+By default, if your CI/CD jobs don't have specific rules in place,
+they are included in a tag pipeline for any newly created tag.
 
 In your `.gitlab-ci.yml` file for the CI/CD pipeline configuration of your project,
-you can trigger based on a new tag:
+you can use the `CI_COMMIT_TAG` variable to control pipelines for new tags:
 
-- At the job level, with the [`only` keyword](../../../../ci/yaml/index.md#only--except).
-- At the pipeline level, with the [workflow rules keywords](../../../../ci/yaml/workflow.md).
+- At the job level with [`rules:if`](../../../../ci/yaml/index.md#rulesif).
+- At the pipeline level with the [`workflow`](../../../../ci/yaml/workflow.md) keyword.
 
 ## Related topics
 

@@ -113,13 +113,13 @@ module QA
 
       def verify_search_engine_ok(search_term)
         response = get_response('commits', search_term)
-        if response.code.to_s =~ /5[0-9][0-9]/
+        if /5[0-9][0-9]/.match?(response.code.to_s)
           raise ElasticSearchServerError, "elasticsearch attempt returned code #{response.code}. Check that search was conducted on the appropriate url and port."
         end
       end
 
       def api_client
-        @api_client ||= Runtime::API::Client.new(:gitlab)
+        Runtime::User::Store.user_api_client
       end
     end
   end

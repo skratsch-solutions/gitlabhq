@@ -37,7 +37,13 @@ namespace :gitlab do
 
     tmp_namespace_path = "tmp-project-import-#{Time.now.to_i}"
     puts "Creating temporary namespace #{tmp_namespace_path}"
-    tmp_namespace = Namespace.create!(owner: admin, name: tmp_namespace_path, path: tmp_namespace_path, type: Namespaces::UserNamespace.sti_name)
+    tmp_namespace = Namespace.create!(
+      owner: admin,
+      name: tmp_namespace_path,
+      path: tmp_namespace_path,
+      type: Namespaces::UserNamespace.sti_name,
+      organization: tmp_organization
+    )
 
     templates = if template_names.empty?
                   Gitlab::ProjectTemplate.all
@@ -99,7 +105,7 @@ namespace :gitlab do
       project.reset
 
       Projects::ImportExport::ExportService.new(project, admin).execute
-      downloader.call(project.export_file, template.archive_path)
+      downloader.call(project.export_file(admin), template.archive_path)
 
       unless Projects::DestroyService.new(project, admin).execute
         puts "Failed to destroy project #{template.name} (but namespace will be cleaned up later)"
@@ -149,7 +155,7 @@ namespace :gitlab do
   # - Dir.entries returns also the entries '.' and '..'
   def remove_unneeded_files(directory, regex)
     Dir.foreach(directory) do |file|
-      FileUtils.rm_rf(File.join(directory, file)) unless file =~ regex
+      FileUtils.rm_rf(File.join(directory, file)) unless regex.match?(file)
     end
   end
 

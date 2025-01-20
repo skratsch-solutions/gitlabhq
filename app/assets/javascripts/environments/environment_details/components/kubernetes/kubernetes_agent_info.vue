@@ -33,14 +33,13 @@ export default {
   methods: {},
   i18n: {
     agentId: s__('ClusterAgents|Agent ID #%{agentId}'),
-    neverConnectedText: s__('ClusterAgents|Never'),
   },
   AGENT_STATUSES,
 };
 </script>
 <template>
-  <div class="gl-text-gray-900">
-    <gl-icon name="kubernetes-agent" class="gl-text-gray-500" />
+  <div class="gl-text-default">
+    <gl-icon name="kubernetes-agent" variant="subtle" />
     <gl-link :href="clusterAgent.webPath" class="gl-mr-3">
       <gl-sprintf :message="$options.i18n.agentId"
         ><template #agentId>{{ agentId }}</template></gl-sprintf
@@ -56,7 +55,6 @@ export default {
 
     <span data-testid="agent-last-used-date">
       <time-ago-tooltip v-if="agentLastContact" :time="agentLastContact" />
-      <span v-else>{{ $options.i18n.neverConnectedText }}</span>
     </span>
   </div>
 </template>

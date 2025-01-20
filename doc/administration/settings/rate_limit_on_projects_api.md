@@ -1,6 +1,6 @@
 ---
-stage: Data Stores
-group: Tenant Scale
+stage: Tenant Scale
+group: Organizations
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://handbook.gitlab.com/handbook/product/ux/technical-writing/#assignments
 ---
 
@@ -8,11 +8,11 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/112283) in GitLab 15.10 with a [flag](../feature_flags.md) named `rate_limit_for_unauthenticated_projects_api_access`. Disabled by default.
 > - [Enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/391922) on May 08, 2023.
-> - [Enabled on self-managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119603) in GitLab 16.0 by default.
+> - [Enabled on GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/119603) in GitLab 16.0 by default.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/120445) in GitLab 16.0. Feature flag `rate_limit_for_unauthenticated_projects_api_access` removed.
 > - Rate limit for group and projects API [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/152733) in GitLab 17.1. with a [flag](../feature_flags.md) named `rate_limit_groups_and_projects_api`. Disabled by default.
 
@@ -22,14 +22,14 @@ You can configure the rate limit per IP address and per user for requests to the
 |-----------------------------------------------------------------------------------------------------------|---------|------------|
 | [GET /projects](../../api/projects.md#list-all-projects) (unauthenticated requests)                       | 400     | 10 minutes |
 | [GET /projects](../../api/projects.md#list-all-projects) (authenticated requests)                         | 2000    | 10 minutes |
-| [GET /projects/:id](../../api/projects.md#get-single-project)                                             | 400     | 1 minute   |
-| [GET /users/:user_id/projects](../../api/projects.md#list-user-projects)                                  | 300     | 1 minute   |
+| [GET /projects/:id](../../api/projects.md#get-a-single-project)                                             | 400     | 1 minute   |
+| [GET /users/:user_id/projects](../../api/projects.md#list-a-users-projects)                               | 300     | 1 minute   |
 | [GET /users/:user_id/contributed_projects](../../api/projects.md#list-projects-a-user-has-contributed-to) | 100     | 1 minute   |
-| [GET /users/:user_id/starred_projects](../../api/projects.md#list-projects-starred-by-a-user)             | 100     | 1 minute   |
+| [GET /users/:user_id/starred_projects](../../api/project_starring.md#list-projects-starred-by-a-user)             | 100     | 1 minute   |
 
 To change the rate limit:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**.
 1. Expand **Projects API rate limits**.
 1. Change the value of any rate limit. The rate limits are per minute per user for authenticated requests and per IP address unauthenticated requests.

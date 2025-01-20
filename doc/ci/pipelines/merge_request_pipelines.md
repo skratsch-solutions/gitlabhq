@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 You can configure your pipeline to run every time you make changes to the
 source branch in a merge request.
@@ -37,7 +37,7 @@ To use merge request pipelines:
 
 - Your project's `.gitlab-ci.yml` file must be
   [configured with jobs that run in merge request pipelines](#add-jobs-to-merge-request-pipelines).
-- You must have at least the Developer role in the
+- You must have at least the Developer role for the
   source project to run a merge request pipeline.
 - Your repository must be a GitLab repository, not an [external repository](../ci_cd_for_external_repos/index.md).
 
@@ -118,7 +118,7 @@ Prerequisites:
 
 - The parent project's `.gitlab-ci.yml` file must be configured to
   [run jobs in merge request pipelines](#prerequisites).
-- You must be a member of the parent project with [permissions to run CI/CD pipelines](../../user/permissions.md#gitlab-cicd-permissions).
+- You must be a member of the parent project with [permissions to run CI/CD pipelines](../../user/permissions.md#cicd).
   You might need additional permissions if the branch is protected.
 - The fork project must be [visible](../../user/public_access.md) to the
   user running the pipeline. Otherwise, the **Pipelines** tab does not display
@@ -134,7 +134,7 @@ To use the UI to run a pipeline in the parent project for a merge request from a
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/325189) in GitLab 15.3.
 
 To prevent users from running new pipelines for fork projects in the parent project
-use [the projects API](../../api/projects.md#edit-project) to disable the `ci_allow_fork_pipelines_to_run_in_parent_project`
+use [the projects API](../../api/projects.md#edit-a-project) to disable the `ci_allow_fork_pipelines_to_run_in_parent_project`
 setting.
 
 WARNING:

@@ -21,6 +21,8 @@ class ProcessCommitWorker
   loggable_arguments 2, 3
   deduplicate :until_executed, feature_flag: :deduplicate_process_commit_worker
 
+  concurrency_limit -> { 1000 if Feature.enabled?(:concurrency_limit_process_commit_worker, Feature.current_request) }
+
   # project_id - The ID of the project this commit belongs to.
   # user_id - The ID of the user that pushed the commit.
   # commit_hash - Hash containing commit details to use for constructing a
@@ -57,7 +59,12 @@ class ProcessCommitWorker
     Issues::CloseWorker.bulk_perform_async_with_contexts(
       issues,
       arguments_proc: ->(issue) {
-        [project.id, issue.id, issue.class.to_s, { closed_by: author.id, commit_hash: commit.to_hash }]
+        [
+          project.id,
+          issue.id,
+          issue.class.to_s,
+          { closed_by: author.id, user_id: user.id, commit_hash: commit.to_hash }
+        ]
       },
       context_proc: ->(issue) { { project: project } }
     )
@@ -67,6 +74,7 @@ class ProcessCommitWorker
     Gitlab::ClosingIssueExtractor
       .new(project, user)
       .closed_by_message(commit.safe_message)
+      .reject { |issue| issue.is_a?(Issue) && !issue.autoclose_by_merged_closing_merge_request? }
   end
 
   def update_issue_metrics(commit, author)

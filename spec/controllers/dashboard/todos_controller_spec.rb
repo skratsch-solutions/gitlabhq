@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Dashboard::TodosController do
+RSpec.describe Dashboard::TodosController, feature_category: :notifications do
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project, developers: user) }
   let_it_be(:author) { create(:user) }
@@ -12,6 +12,42 @@ RSpec.describe Dashboard::TodosController do
   end
 
   describe 'GET #index' do
+    context 'when the `todos_vue_application` feature flag is disabled' do
+      before do
+        stub_feature_flags(todos_vue_application: false)
+      end
+
+      it 'renders the legacy view' do
+        get :index
+
+        expect(response).to render_template(:index)
+      end
+
+      it 'assigns todos global' do
+        get :index
+
+        expect(assigns(:todos)).not_to be_nil
+      end
+    end
+
+    context 'when the `todos_vue_application` feature flag is enabled' do
+      before do
+        stub_feature_flags(todos_vue_application: true)
+      end
+
+      it 'renders the legacy view' do
+        get :index
+
+        expect(response).to render_template(:vue)
+      end
+
+      it 'does not assign todos global' do
+        get :index
+
+        expect(assigns(:todos)).to be_nil
+      end
+    end
+
     context 'project authorization' do
       it 'renders 404 when user does not have read access on given project' do
         unauthorized_project = create(:project, :private)
@@ -43,6 +79,10 @@ RSpec.describe Dashboard::TodosController do
     end
 
     context "with render_views" do
+      before do
+        stub_feature_flags(todos_vue_application: false)
+      end
+
       render_views
 
       it 'avoids N+1 queries', :request_store do
@@ -89,6 +129,7 @@ RSpec.describe Dashboard::TodosController do
       end
 
       before do
+        stub_feature_flags(todos_vue_application: false)
         allow(Kaminari.config).to receive(:default_per_page).and_return(2)
       end
 
@@ -154,6 +195,14 @@ RSpec.describe Dashboard::TodosController do
       subject { get :index }
 
       it_behaves_like 'disabled when using an external authorization service'
+    end
+  end
+
+  describe 'GET #vue' do
+    it 'redirects to #index' do
+      get :vue
+
+      expect(response).to redirect_to dashboard_todos_path
     end
   end
 

@@ -2,7 +2,7 @@
 <script>
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import $ from 'jquery';
-import { debounce, unescape } from 'lodash';
+import { debounce, isEqual, unescape } from 'lodash';
 import { createAlert } from '~/alert';
 import GLForm from '~/gl_form';
 import SafeHtml from '~/vue_shared/directives/safe_html';
@@ -149,6 +149,7 @@ export default {
   },
   data() {
     return {
+      glForm: null,
       markdownPreview: '',
       referencedCommands: '',
       referencedUsers: [],
@@ -258,11 +259,17 @@ export default {
         }
       },
     },
+    autocompleteDataSources: {
+      immediate: true,
+      handler(newDataSources, oldDataSources) {
+        if (!isEqual(newDataSources, oldDataSources) && this.glForm) {
+          this.glForm.updateAutocompleteDataSources(newDataSources);
+        }
+      },
+    },
   },
   mounted() {
-    // GLForm class handles all the toolbar buttons
-    // eslint-disable-next-line no-new
-    new GLForm(
+    this.glForm = new GLForm(
       $(this.$refs['gl-form']),
       {
         emojis: this.enableAutocomplete,
@@ -283,9 +290,8 @@ export default {
     markdownEditorEventHub.$emit(MARKDOWN_EDITOR_READY_EVENT);
   },
   beforeDestroy() {
-    const glForm = $(this.$refs['gl-form']).data('glForm');
-    if (glForm) {
-      glForm.destroy();
+    if (this.glForm) {
+      this.glForm.destroy();
     }
   },
   methods: {
@@ -309,6 +315,7 @@ export default {
         this.renderMarkdown();
       }
     },
+
     hidePreview() {
       this.markdownPreview = '';
       this.previewMarkdown = false;
@@ -344,7 +351,7 @@ export default {
       }
 
       this.markdownPreviewLoading = false;
-      this.markdownPreview = data.body || __('Nothing to preview.');
+      this.markdownPreview = data.body || data.html || __('Nothing to preview.');
 
       this.$nextTick()
         .then(() => {
@@ -385,24 +392,29 @@ export default {
       @showPreview="showPreview"
       @hidePreview="hidePreview"
       @handleSuggestDismissed="() => $emit('handleSuggestDismissed')"
-    />
+    >
+      <template #header-buttons><slot name="header-buttons"></slot></template>
+    </markdown-header>
     <div v-show="!previewMarkdown" class="md-write-holder">
       <div class="zen-backdrop">
         <slot name="textarea"></slot>
         <a
-          class="zen-control zen-control-leave js-zen-leave gl-text-gray-500"
+          v-gl-tooltip.placement.left
+          class="zen-control zen-control-leave js-zen-leave gl-button btn-default-tertiary btn-icon btn-sm"
           href="#"
-          :aria-label="__('Leave zen mode')"
-        >
-          <gl-icon :size="16" name="minimize" />
-        </a>
+          :title="__('Exit full screen')"
+          :aria-label="__('Exit full screen')"
+          ><gl-icon variant="subtle" :size="24" name="minimize"
+        /></a>
         <markdown-toolbar
           :markdown-docs-path="markdownDocsPath"
           :can-attach-file="canAttachFile"
           :show-comment-tool-bar="showCommentToolBar"
           :show-content-editor-switcher="showContentEditorSwitcher"
           @enableContentEditor="$emit('enableContentEditor')"
-        />
+        >
+          <template #toolbar><slot name="toolbar"></slot></template>
+        </markdown-toolbar>
       </div>
     </div>
     <div
@@ -425,7 +437,7 @@ export default {
     <div
       v-if="referencedCommands && previewMarkdown && !markdownPreviewLoading"
       v-safe-html:[$options.safeHtmlConfig]="referencedCommands"
-      class="referenced-commands gl-mx-2 gl-mb-2 gl-px-4 gl-rounded-bottom-left-base gl-rounded-bottom-right-base"
+      class="referenced-commands gl-mx-2 gl-mb-2 gl-rounded-bl-base gl-rounded-br-base gl-px-4"
       data-testid="referenced-commands"
     ></div>
     <div v-if="shouldShowReferencedUsers" class="referenced-users">

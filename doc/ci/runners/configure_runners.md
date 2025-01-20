@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-If you have installed your own runners, you can configure and secure them in GitLab.
+This document describes how to configure runners in the GitLab UI.
 
 If you need to configure runners on the machine where you installed GitLab Runner, see
 [the GitLab Runner documentation](https://docs.gitlab.com/runner/configuration/).
@@ -21,20 +21,24 @@ You can specify a maximum job timeout for each runner to prevent projects
 with longer job timeouts from using the runner. The maximum job timeout is
 used if it is shorter than the job timeout defined in the project.
 
+To set a runner's maximum timeout, set the `maximum_timeout` parameter in the REST API endpoint [`PUT /runners/:id`](../../api/runners.md#update-runners-details).
+
 ### For an instance runner
 
 Prerequisites:
 
 - You must be an administrator.
 
-On GitLab.com, you cannot override the job timeout for instance runners and must use the [project defined timeout](../pipelines/settings.md#set-a-limit-for-how-long-jobs-can-run) instead.
+You can override the job timeout for instance runners on GitLab Self-Managed.
+
+On GitLab.com, you cannot override the job timeout for GitLab hosted instance runners and must use the [project defined timeout](../pipelines/settings.md#set-a-limit-for-how-long-jobs-can-run) instead.
 
 To set the maximum job timeout:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. To the right of the runner, you want to edit, select **Edit** (**{pencil}**).
-1. In the **Maximum job timeout** field, enter a value in seconds. The minimum amount is 600 seconds (10 minutes).
+1. In the **Maximum job timeout** field, enter a value in seconds. The minimum value is 600 seconds (10 minutes).
 1. Select **Save changes**.
 
 ### For a group runner
@@ -48,7 +52,7 @@ To set the maximum job timeout:
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Build > Runners**.
 1. To the right of the runner you want to edit, select **Edit** (**{pencil}**).
-1. In the **Maximum job timeout** field, enter a value in seconds. The minimum amount is 600 seconds (10 minutes).
+1. In the **Maximum job timeout** field, enter a value in seconds. The minimum value is 600 seconds (10 minutes).
 1. Select **Save changes**.
 
 ### For a project runner
@@ -63,7 +67,7 @@ To set the maximum job timeout:
 1. Select **Settings > CI/CD**.
 1. Expand **Runners**.
 1. To the right of the runner you want to edit, select **Edit** (**{pencil}**).
-1. In the **Maximum job timeout** field, enter a value in seconds. The minimum amount is 600 seconds (10 minutes). If not defined, the [job timeout for the project](../pipelines/settings.md#set-a-limit-for-how-long-jobs-can-run) is used instead.
+1. In the **Maximum job timeout** field, enter a value in seconds. The minimum value is 600 seconds (10 minutes). If not defined, the [job timeout for the project](../pipelines/settings.md#set-a-limit-for-how-long-jobs-can-run) is used instead.
 1. Select **Save changes**.
 
 ## How maximum job timeout works
@@ -93,10 +97,11 @@ To set the maximum job timeout:
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/4335) in GitLab Runner 16.4.
 
-To control the amount of time `script` and `after_script` runs before it terminates, you can set specify a timeout.
+To control the amount of time `script` and `after_script` runs before it terminates, specify a timeout value in the `.gitlab-ci.yml` file.
 
-For example, you can specify a timeout to terminate a long-running `script` early, so that artifacts and caches can still be uploaded
-before the job timeout is exceeded.
+For example, you can specify a timeout to terminate a long-running `script` early. This ensures artifacts and caches can still be uploaded
+before the [job timeout](../pipelines/settings.md#set-a-limit-for-how-long-jobs-can-run) is exceeded.
+The timeout values for `script` and `after_script` must be less than the job timeout.
 
 - To set a timeout for `script`, use the job variable `RUNNER_SCRIPT_TIMEOUT`.
 - To set a timeout for `after_script`, and override the default of 5 minutes, use the job variable `RUNNER_AFTER_SCRIPT_TIMEOUT`.
@@ -130,21 +135,16 @@ job-artifact-upload-on-timeout:
 
 ## Protecting sensitive information
 
-To avoid exposing sensitive information, you can restrict the usage
-of instance runners on large GitLab instances. This ensures that you
-control access to your GitLab instances and secure [runner executors](https://docs.gitlab.com/runner/executors/).
-
-If certain executors run a job, the file system, the code the runner executes,
-and the runner authentication token may be exposed. This means that anyone who runs jobs
-on an _instance runner_ can access another user's code that runs on the runner.
-Users with access to the runner authentication token can use it to create a clone of
+The security risks are greater when using instance runners as they are available by default to all groups and projects in a GitLab instance.
+The runner executor and file system configuration affects security. Users with access to the runner host environment can view the code that runner executed and the runner authentication.
+For example, users with access to the runner authentication token can clone
 a runner and submit false jobs in a vector attack. For more information, see [Security Considerations](https://docs.gitlab.com/runner/security/).
 
 ## Configuring long polling
 
 To reduce job queueing times and load on your GitLab server, configure [long polling](long_polling.md).
 
-### Using instance runners in forked projects
+## Using instance runners in forked projects
 
 When a project is forked, the job settings related to jobs are copied. If you have instance runners
 configured for a project and a user forks that project, the instance runners serve jobs of this project.
@@ -158,12 +158,13 @@ To work around this issue, ensure that the instance runner settings are consiste
 - If instance runners are **enabled** on the forked project, then this should also be **enabled** on the new namespace.
 - If instance runners are **disabled** on the forked project, then this should also be **disabled** on the new namespace.
 
-### Reset the runner registration token for a project (deprecated)
+## Reset the runner registration token for a project (deprecated)
 
 WARNING:
-The ability to pass a runner registration token, and support for certain configuration arguments was
-[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6 and will be removed in GitLab 18.0. Authentication tokens
-should be used instead. For more information, see [Migrating to the new runner registration workflow](new_creation_workflow.md).
+The option to pass a runner registration token and support for certain configuration arguments was
+[deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/380872) in GitLab 15.6. They are scheduled for removal
+in GitLab 18.0. Use runner authentication tokens instead. For more information, see
+[Migrating to the new runner registration workflow](new_creation_workflow.md).
 
 If you think that a registration token for a project was revealed, you should
 reset it. A registration token can be used to register another runner for the project.
@@ -187,8 +188,8 @@ you use to provision and register new values.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/30942) in GitLab 15.3 [with a flag](../../administration/feature_flags.md) named `enforce_runner_token_expires_at`. Disabled by default.
 > - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/377902) in GitLab 15.5. Feature flag `enforce_runner_token_expires_at` removed.
 
-Each runner has an [runner authentication token](../../api/runners.md#registration-and-authentication-tokens)
-to connect with the GitLab instance.
+Each runner uses a [runner authentication token](../../api/runners.md#registration-and-authentication-tokens)
+to connect to and authenticate with a GitLab instance.
 
 To help prevent the token from being compromised, you can have the
 token rotate automatically at specified intervals. When the tokens are rotated,
@@ -201,11 +202,11 @@ For more information about token rotation, see
 If you need to manually update the runner authentication token, you can run a
 command to [reset the token](https://docs.gitlab.com/runner/commands/#gitlab-runner-reset-token).
 
-### Reset the runner authentication token
+### Reset the runner configuration authentication token
 
-If a runner authentication token is revealed, an attacker could use the token to [clone a runner](https://docs.gitlab.com/runner/security/#cloning-a-runner).
+If a runner's authentication token is exposed, an attacker could use it to [clone the runner](https://docs.gitlab.com/runner/security/#cloning-a-runner).
 
-To reset the runner authentication token:
+To reset the runner configuration authentication token:
 
 1. Delete the runner:
    - [Delete an instance runner](runners_scope.md#delete-instance-runners).
@@ -219,8 +220,8 @@ To reset the runner authentication token:
 
 ### Automatically rotate runner authentication tokens
 
-You can specify an interval for runner authentication tokens to rotate.
-This rotation helps ensure the security of the tokens assigned to your runners.
+You can specify an interval to rotate runner authentication tokens.
+Regularly rotating runner authentication tokens helps minimize the risk of unauthorized access to your GitLab instance through compromised tokens.
 
 Prerequisites:
 
@@ -229,7 +230,7 @@ Prerequisites:
 
 To automatically rotate runner authentication tokens:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > CI/CD**.
 1. Expand **Continuous Integration and Deployment**.
 1. Set a **Runners expiration** time for runners, leave empty for no expiration.
@@ -242,7 +243,7 @@ For more information about token rotation, see
 ## Prevent runners from revealing sensitive information
 
 To ensure runners don't reveal sensitive information, you can configure them to only run jobs
-on [protected branches](../../user/project/protected_branches.md), or jobs that have [protected tags](../../user/project/protected_tags.md).
+on [protected branches](../../user/project/repository/branches/protected.md), or jobs that have [protected tags](../../user/project/protected_tags.md).
 
 Runners configured to run jobs on protected branches cannot run jobs in [merge request pipelines](../pipelines/merge_request_pipelines.md).
 
@@ -252,7 +253,7 @@ Prerequisites:
 
 - You must be an administrator.
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. To the right of the runner you want to protect, select **Edit** (**{pencil}**).
 1. Select the **Protected** checkbox.
@@ -298,9 +299,9 @@ Prerequisites:
 
 - You must be an administrator.
 
-To set the maximum job timeout:
+To control the jobs that an instance runner can run:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **CI/CD > Runners**.
 1. To the right of the runner you want to edit, select **Edit** (**{pencil}**).
 1. Set the runner to run tagged or untagged jobs:
@@ -314,7 +315,7 @@ Prerequisites:
 
 - You must have the Owner role for the group.
 
-To set the maximum job timeout:
+To control the jobs that a group runner can run:
 
 1. On the left sidebar, select **Search or go to** and find your group.
 1. Select **Build > Runners**.
@@ -330,7 +331,7 @@ Prerequisites:
 
 - You must have the Owner role for the project.
 
-To set a runner to run tagged jobs:
+To control the jobs that a project runner can run:
 
 1. On the left sidebar, select **Search or go to** and find your project.
 1. Select **Settings > CI/CD**.
@@ -462,6 +463,9 @@ globally or for individual jobs:
 - [`ARTIFACT_COMPRESSION_LEVEL`](#artifact-and-cache-settings) (artifact archiver compression level)
 - [`CACHE_COMPRESSION_LEVEL`](#artifact-and-cache-settings) (cache archiver compression level)
 - [`CACHE_REQUEST_TIMEOUT`](#artifact-and-cache-settings) (cache request timeout)
+- [`RUNNER_SCRIPT_TIMEOUT`](#set-script-and-after_script-timeouts)
+- [`RUNNER_AFTER_SCRIPT_TIMEOUT`](#set-script-and-after_script-timeouts)
+- [`AFTER_SCRIPT_IGNORE_ERRORS`](#ignore-errors-in-after_script)
 
 You can also use variables to configure how many times a runner
 [attempts certain stages of job execution](#job-stages-attempts).
@@ -471,15 +475,16 @@ When using the Kubernetes executor, you can use variables to
 
 ### Git strategy
 
-You can set the `GIT_STRATEGY` used to fetch the repository content, either
-globally or per-job in the [`variables`](../yaml/index.md#variables) section:
+The `GIT_STRATEGY` variable configures how the build directory is prepared and
+repository content is fetched. You can set this variable globally or per job
+in the [`variables`](../yaml/index.md#variables) section.
 
 ```yaml
 variables:
   GIT_STRATEGY: clone
 ```
 
-There are three possible values: `clone`, `fetch`, and `none`. If left unspecified,
+Possible values are `clone`, `fetch`, `none`, and `empty`. If you do not specify a value,
 jobs use the [project's pipeline setting](../pipelines/settings.md#choose-the-default-git-strategy).
 
 `clone` is the slowest option. It clones the repository from scratch for every
@@ -503,19 +508,28 @@ to [your `.gitlab-ci.yml` script](../yaml/index.md#script).
 
 It can be used for jobs that operate exclusively on artifacts, like a deployment job.
 Git repository data may be present, but it's likely out of date. You should only
-rely on files brought into the local working copy from cache or artifacts, and be
+rely on files brought into the local working copy from cache or artifacts. Be
 aware that cache and artifact files from previous pipelines might still be present.
+
+Unlike `none`, the `empty` Git strategy deletes and then re-creates
+a dedicated build directory before downloading cache or artifact files.
+With this strategy, the GitLab Runner hook scripts are still run
+(if provided) to allow for further behavior customization.
+Use the `empty` Git strategy when:
+
+- You do not need the repository data to be present.
+- You want a clean, controlled, or customized starting state every time a job runs.
 
 ### Git submodule strategy
 
-The `GIT_SUBMODULE_STRATEGY` variable is used to control if / how Git
-submodules are included when fetching the code before a build. You can set them
+The `GIT_SUBMODULE_STRATEGY` variable is used to control if / how
+[Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) are included when fetching the code before a build. You can set them
 globally or per-job in the [`variables`](../yaml/index.md#variables) section.
 
-There are three possible values: `none`, `normal`, and `recursive`:
+The three possible values are `none`, `normal`, and `recursive`:
 
 - `none` means that submodules are not included when fetching the project
-  code. This is the default, which matches the pre-v1.10 behavior.
+  code. This setting matches the default behavior in versions before 1.10.
 
 - `normal` means that only the top-level submodules are included. It's
   equivalent to:
@@ -540,7 +554,7 @@ For this feature to work correctly, the submodules must be configured
 
 - the HTTP(S) URL of a publicly-accessible repository, or
 - a relative path to another repository on the same GitLab server. See the
-  [Git submodules](../git_submodules.md) documentation.
+  [Git submodules](git_submodules.md) documentation.
 
 You can provide additional flags to control advanced behavior using [`GIT_SUBMODULE_UPDATE_FLAGS`](#git-submodule-update-flags).
 
@@ -642,17 +656,17 @@ The path syntax is the same as [`git submodule`](https://git-scm.com/docs/git-su
 
 - To sync and update specific paths:
 
-   ```yaml
-   variables:
-      GIT_SUBMODULE_PATHS: submoduleA submoduleB
-   ```
+  ```yaml
+  variables:
+     GIT_SUBMODULE_PATHS: submoduleA submoduleB
+  ```
 
 - To exclude specific paths:
 
-   ```yaml
-   variables:
-      GIT_SUBMODULE_PATHS: :(exclude)submoduleA :(exclude)submoduleB
-   ```
+  ```yaml
+  variables:
+     GIT_SUBMODULE_PATHS: ":(exclude)submoduleA :(exclude)submoduleB"
+  ```
 
 WARNING:
 Git ignores nested paths. To ignore a nested submodule, exclude
@@ -677,8 +691,8 @@ subcommand. However, `GIT_SUBMODULE_UPDATE_FLAGS` flags are appended after a few
 Git honors the last occurrence of a flag in the list of arguments, so manually
 providing them in `GIT_SUBMODULE_UPDATE_FLAGS` overrides these default flags.
 
-You can use this variable to fetch the latest remote `HEAD` instead of the commit tracked,
-in the repository, or to speed up the checkout by fetching submodules in multiple parallel jobs:
+You can use this variable to fetch the latest remote `HEAD` instead of the tracked commit in the repository.
+You can also use it to speed up the checkout by fetching submodules in multiple parallel jobs.
 
 ```yaml
 variables:
@@ -704,7 +718,7 @@ submodule commits as designed, and update them using an auto-remediation/depende
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3198) in GitLab Runner 15.11.
 
 Use the `GIT_SUBMODULE_FORCE_HTTPS` variable to force a rewrite of all Git and SSH submodule URLs to HTTPS.
-This allows you to clone submodules on the same GitLab instance that use absolute URLs, even if they were
+You can clone submodules that use absolute URLs on the same GitLab instance, even if they were
 configured with a Git or SSH protocol.
 
 ```yaml
@@ -713,8 +727,8 @@ variables:
   GIT_SUBMODULE_FORCE_HTTPS: "true"
 ```
 
-When enabled, GitLab Runner uses a [CI/CD job token](../jobs/ci_job_token.md) to clone the submodules with
-the permissions of the user executing the job, and does not require SSH credentials.
+When enabled, GitLab Runner uses a [CI/CD job token](../jobs/ci_job_token.md) to clone the submodules.
+The token uses the permissions of the user executing the job and does not require SSH credentials.
 
 ### Shallow cloning
 
@@ -731,13 +745,13 @@ jobs, jobs may fail.
 
 Git fetching and cloning is based on a ref, such as a branch name, so runners
 can't clone a specific commit SHA. If multiple jobs are in the queue, or
-you're retrying an old job, the commit to be tested must be within the
-Git history that is cloned. Setting too small a value for `GIT_DEPTH` can make
+you retry an old job, the commit to be tested must be in the cloned
+Git history. Setting too small a value for `GIT_DEPTH` can make
 it impossible to run these old commits and `unresolved reference` is displayed in
 job logs. You should then reconsider changing `GIT_DEPTH` to a higher value.
 
 Jobs that rely on `git describe` may not work correctly when `GIT_DEPTH` is
-set since only part of the Git history is present.
+set because only part of the Git history is present.
 
 To fetch or clone only the last 3 commits:
 
@@ -783,7 +797,7 @@ test:
     - pwd
 ```
 
-The `GIT_CLONE_PATH` must always be within `$CI_BUILDS_DIR`. The directory set in `$CI_BUILDS_DIR`
+The `GIT_CLONE_PATH` must always be inside `$CI_BUILDS_DIR`. The directory set in `$CI_BUILDS_DIR`
 is dependent on executor and configuration of [runners.builds_dir](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-runners-section)
 setting.
 
@@ -799,11 +813,11 @@ is shared between jobs.
 The runner does not try to prevent this situation. It's up to the administrator
 and developers to comply with the requirements of runner configuration.
 
-To avoid this scenario, you can use a unique path within `$CI_BUILDS_DIR`, because runner
+To avoid this scenario, you can use a unique path in `$CI_BUILDS_DIR`, because runner
 exposes two additional variables that provide a unique `ID` of concurrency:
 
-- `$CI_CONCURRENT_ID`: Unique ID for all jobs running within the given executor.
-- `$CI_CONCURRENT_PROJECT_ID`: Unique ID for all jobs running within the given executor and project.
+- `$CI_CONCURRENT_ID`: Unique ID for all jobs running in the given executor.
+- `$CI_CONCURRENT_PROJECT_ID`: Unique ID for all jobs running in the given executor and project.
 
 The most stable configuration that should work well in any scenario and on any executor
 is to use `$CI_CONCURRENT_ID` in the `GIT_CLONE_PATH`. For example:
@@ -817,8 +831,9 @@ test:
     - pwd -P
 ```
 
-The `$CI_CONCURRENT_PROJECT_ID` should be used in conjunction with `$CI_PROJECT_PATH`
-as the `$CI_PROJECT_PATH` provides a path of a repository. That is, `group/subgroup/project`. For example:
+The `$CI_CONCURRENT_PROJECT_ID` should be used in conjunction with `$CI_PROJECT_PATH`.
+`$CI_PROJECT_PATH` provides a path of a repository in the `group/subgroup/project` format.
+For example:
 
 ```yaml
 variables:
@@ -831,8 +846,8 @@ test:
 
 #### Nested paths
 
-The value of `GIT_CLONE_PATH` is expanded once and nesting variables
-within is not supported.
+The value of `GIT_CLONE_PATH` expands once. You cannot nest variables
+in this value.
 
 For example, you define both the variables below in your
 `.gitlab-ci.yml` file:
@@ -846,6 +861,21 @@ variables:
 The value of `GIT_CLONE_PATH` is expanded once into
 `$CI_BUILDS_DIR/go/src/namespace/project`, and results in failure
 because `$CI_BUILDS_DIR` is not expanded.
+
+### Ignore errors in `after_script`
+
+You can use [`after_script`](../yaml/index.md#after_script) in a job to define an array of commands
+that should run after the job's `before_script` and `script` sections. The `after_script` commands
+run regardless of the script termination status (failure or success).
+
+By default, GitLab Runner ignores any errors that happen when `after_script` runs.
+To set the job to fail immediately on errors when `after_script` runs, set the
+`AFTER_SCRIPT_IGNORE_ERRORS` CI/CD variable to `false`. For example:
+
+```yaml
+variables:
+  AFTER_SCRIPT_IGNORE_ERRORS: false
+```
 
 ### Job stages attempts
 
@@ -890,7 +920,7 @@ support this feature.
 A meter can be enabled to provide the rate of transfer for uploads and downloads.
 
 You can set a maximum time for cache upload and download with the `CACHE_REQUEST_TIMEOUT` setting.
-This setting can be useful when slow cache uploads substantially increase the duration of your job.
+Use this setting when slow cache uploads substantially increase the duration of your job.
 
 ```yaml
 variables:
@@ -940,10 +970,9 @@ defined in the `.gitlab-ci.yml` file. If the name is not defined, the default fi
 
 ### Provenance metadata format
 
-The provenance metadata is generated in the [in-toto attestation format](https://github.com/in-toto/attestation) for spec version [0.1](https://github.com/in-toto/attestation/tree/v0.1.0/spec).
-The runner also produces a statement that adheres to SLSA v0.2 by default.
+The provenance metadata is generated in the [in-toto attestation format](https://github.com/in-toto/attestation) for spec version [1.0](https://github.com/in-toto/attestation/tree/v1.0/spec).
 
-To opt-in to an SLSA v1.0 statement, set the `SLSA_PROVENANCE_SCHEMA_VERSION=v1` variable in the `.gitlab-ci.yml` file. The v0.2 statement is deprecated and is planned to be removed in the GitLab 17.0 and the v1.0 statement is planned to become the new default format.
+To use an SLSA v1.0 statement, set the `SLSA_PROVENANCE_SCHEMA_VERSION=v1` variable in the `.gitlab-ci.yml` file.
 
 The following fields are populated by default:
 
@@ -963,7 +992,7 @@ The following fields are populated by default:
 | `predicate.invocation.environment.architecture` | The architecture on which the CI job is run. |
 | `predicate.invocation.parameters` | The names of any CI/CD or environment variables that were present when the build command was run. The value is always represented as an empty string to avoid leaking any secrets. |
 | `metadata.buildStartedOn` | The time when the build was started. `RFC3339` formatted. |
-| `metadata.buildEndedOn` | The time when the build ended. Since metadata generation happens during the build this moment in time is slightly earlier than the one reported in GitLab. `RFC3339` formatted. |
+| `metadata.buildEndedOn` | The time when the build ended. Because metadata generation happens during the build, this time is slightly earlier than the one reported in GitLab. `RFC3339` formatted. |
 | `metadata.reproducible` | Whether the build is reproducible by gathering all the generated metadata. Always `false`. |
 | `metadata.completeness.parameters` | Whether the parameters are supplied. Always `true`. |
 | `metadata.completeness.environment` | Whether the builder's environment is reported. Always `true`. |
@@ -1146,7 +1175,7 @@ An example of provenance metadata that the GitLab Runner might generate is as fo
 To verify compliance with the in-toto specification,
 see the [in-toto statement](https://in-toto.io/Statement/v0.1).
 
-### Staging directory
+## Staging directory
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3403) in GitLab Runner 15.0.
 
@@ -1160,7 +1189,7 @@ To change the directory, set `ARCHIVER_STAGING_DIR` as a variable in your CI job
 The directory you specify is used as the location for downloading artifacts prior to extraction. If the `fastzip` archiver is
 used, this location is also used as scratch space when archiving.
 
-### Configure `fastzip` to improve performance
+## Configure `fastzip` to improve performance
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/3130) in GitLab Runner 15.0.
 
@@ -1183,10 +1212,10 @@ concurrency of 16 allocates 32 MiB. Data that exceeds the buffer size is written
 Therefore, using no buffer, `FASTZIP_ARCHIVER_BUFFER_SIZE: 0`, and only scratch space is a valid option.
 
 `FASTZIP_ARCHIVER_CONCURRENCY` controls how many files are compressed concurrency. As mentioned above, this setting
-therefore can increase how much memory is being used, but also how much temporary data is written to the scratch space.
+therefore can increase how much memory is being used. It can also increase the temporary data written to the scratch space.
 The default is the number of CPUs available, but given the memory ramifications, this may not always be the best
 setting.
 
 `FASTZIP_EXTRACTOR_CONCURRENCY` controls how many files are decompressed at once. Files from a zip archive can natively
-be read from concurrency, so no additional memory is allocated in addition to what the decompressor requires. This
+be read from concurrency, so no additional memory is allocated in addition to what the extractor requires. This
 defaults to the number of CPUs available.

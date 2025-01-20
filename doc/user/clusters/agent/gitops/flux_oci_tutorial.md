@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 This tutorial teaches you how to package your Kubernetes manifests into an [OCI](https://opencontainers.org/)
 artifact and deploy them to your cluster using Flux. You'll set up a sample manifest project, configure it to
@@ -25,7 +25,7 @@ To deploy an OCI artifact using Flux:
 1. [Configure Flux to sync your artifact](#configure-flux-to-sync-your-artifact)
 1. [Verify your configuration](#verify-your-configuration)
 
-Prerequisites:
+Before you begin:
 
 - You have a Flux repository connected to a Kubernetes cluster.
   If you're starting from scratch, see [Set up Flux for GitOps](flux_tutorial.md).
@@ -83,7 +83,7 @@ and push the artifact to the [GitLab container registry](../../../packages/conta
        - |
          flux push artifact oci://$CI_REGISTRY_IMAGE:latest \
            --path="./manifests" \
-           --source="$CI_REPOSITORY_URL" \
+           --source="${CI_PROJECT_URL}.git" \
            --revision="$CI_COMMIT_SHORT_SHA" \
            --creds="$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD" \
            --annotations="org.opencontainers.image.url=$CI_PROJECT_URL" \

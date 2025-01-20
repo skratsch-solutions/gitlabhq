@@ -47,7 +47,8 @@ module ReleasesHelper
     {
       project_id: @project.id,
       project_path: @project.full_path,
-      tag_name: @release.tag
+      tag_name: @release.tag,
+      deployments: deployments_for_release.to_json
     }
   end
 
@@ -80,13 +81,56 @@ module ReleasesHelper
       group_milestones_available: group_milestone_project_releases_available?(@project),
       project_path: @project.full_path,
       markdown_preview_path: preview_markdown_path(@project),
-      markdown_docs_path: help_page_path('user/markdown'),
+      markdown_docs_path: help_page_path('user/markdown.md'),
       release_assets_docs_path: releases_help_page_path(anchor: 'release-assets'),
       manage_milestones_path: project_milestones_path(@project),
       new_milestone_path: new_project_milestone_path(@project, redirect_path: 'new_release'),
       edit_release_docs_path: releases_help_page_path(anchor: 'edit-a-release'),
       upcoming_release_docs_path: releases_help_page_path(anchor: 'upcoming-releases')
     }
+  end
+
+  def deployments_for_release
+    return [] unless can?(current_user, :read_deployment, @project)
+
+    project = @release.project
+    deployments = @release.related_deployments
+    commit = project.repository.commit(@release.tag)
+
+    deployments.map do |deployment|
+      user = deployment.deployable&.user
+      environment = deployment.environment
+
+      {
+        environment: {
+          name: environment&.name,
+          url: environment ? project_environment_url(project, environment) : nil
+        },
+        status: deployment.status,
+        deployment: {
+          id: deployment.id,
+          url: project_environment_deployment_path(project, environment, deployment)
+        },
+        commit: {
+          sha: commit.id,
+          name: commit.author_name,
+          commit_url: project_commit_url(project, commit),
+          short_sha: commit.short_id,
+          title: commit.title
+        },
+
+        triggerer: if user
+                     {
+                       name: user.name,
+                       web_url: user_url(user),
+                       avatar_url: user.avatar_url
+                     }
+                   end,
+
+        created_at: deployment.created_at,
+        finished_at: deployment.finished_at
+      }
+    end
   end
 end
 

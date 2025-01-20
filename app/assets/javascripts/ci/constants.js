@@ -15,7 +15,7 @@ export const JOB_GRAPHQL_ERRORS = {
 
 export const ICONS = {
   TAG: 'tag',
-  MR: 'git-merge',
+  MR: 'merge-request',
   BRANCH: 'branch',
   RETRY: 'retry',
   SUCCESS: 'success',
@@ -40,3 +40,10 @@ export const TRACKING_CATEGORIES = {
   tests: 'pipeline_tests_tab',
   listbox: 'pipeline_id_iid_listbox',
 };
+
+// For pipeline polling
+export const PIPELINE_POLL_INTERVAL_DEFAULT = 1000 * 8;
+export const PIPELINE_POLL_INTERVAL_BACKOFF = 1.2;
+export const FOUR_MINUTES_IN_MS = 1000 * 60 * 4;
+
+export const NETWORK_STATUS_READY = 7;

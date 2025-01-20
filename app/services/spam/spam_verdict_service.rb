@@ -71,7 +71,7 @@ module Spam
 
         if result.evaluated?
           correlation_id = Labkit::Correlation::CorrelationId.current_id || ''
-          Abuse::TrustScoreWorker.perform_async(user.id, :spamcheck, result.score, correlation_id)
+          AntiAbuse::TrustScoreWorker.perform_async(user.id, :spamcheck, result.score, correlation_id)
         end
 
         result.verdict

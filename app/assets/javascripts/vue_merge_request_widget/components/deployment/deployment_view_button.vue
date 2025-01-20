@@ -52,12 +52,12 @@ export default {
 </script>
 <template>
   <span class="gl-inline-flex">
-    <gl-button-group v-if="shouldRenderDropdown" size="small">
+    <gl-button-group v-if="shouldRenderDropdown">
       <review-app-link
         :display="appButtonText"
         :link="deploymentExternalUrl"
         size="small"
-        css-class="deploy-link js-deploy-url gl-display-inline"
+        css-class="deploy-link js-deploy-url"
       />
       <gl-collapsible-listbox
         :items="filteredChanges"
@@ -69,8 +69,8 @@ export default {
         <template #list-item="{ item }">
           <gl-link :href="item.value" target="_blank" rel="noopener noreferrer nofollow">
             <div>
-              <strong class="gl-text-truncate gl-mb-0 gl-block">{{ item.text }}</strong>
-              <p class="gl-text-secondary gl-text-truncate gl-mb-0 gl-block">
+              <strong class="gl-mb-0 gl-block gl-truncate">{{ item.text }}</strong>
+              <p class="gl-mb-0 gl-block gl-truncate gl-text-subtle">
                 {{ item.value }}
               </p>
             </div>
@@ -83,7 +83,7 @@ export default {
       :display="appButtonText"
       :link="deploymentExternalUrl"
       size="small"
-      css-class="deploy-link js-deploy-url gl-display-inline"
+      css-class="deploy-link js-deploy-url"
     />
   </span>
 </template>

@@ -20,6 +20,14 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
   shared_examples 'deleting the project' do
     it 'deletes the project', :sidekiq_inline do
+      allow(Gitlab::AppLogger).to receive(:info)
+      expect(Gitlab::AppLogger).to receive(:info).with(
+        class: 'Projects::DestroyService',
+        message: "Project \"#{project.full_path}\" was deleted",
+        project_id: project.id,
+        full_path: project.full_path
+      )
+
       destroy_project(project, user, {})
 
       expect(Project.unscoped.all).not_to include(project)
@@ -82,6 +90,44 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
       it_behaves_like 'deleting the project'
 
+      context 'when project repository feature is disabled' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ProjectFeature::DISABLED,
+            builds_access_level: ProjectFeature::DISABLED,
+            merge_requests_access_level: ProjectFeature::DISABLED
+          )
+        end
+
+        context 'with different pipeline sources' do
+          before do
+            # We're creating many pipelines
+            allow(Gitlab::QueryLimiting).to receive(:threshold).and_return(458)
+
+            external_pull_request = create(:external_pull_request, project: project)
+            create(:ci_pipeline, project: project, source: :external_pull_request_event, external_pull_request: external_pull_request)
+
+            create(:ci_pipeline, project: project)
+              .update_attribute(:source, :unknown) # Skip validation to create pipeline with unknown source
+
+            # `unknown` & `external_pull_request_event` types are created above
+            Enums::Ci::Pipeline.sources.except(:unknown, :external_pull_request_event).each_key do |source|
+              create(:ci_pipeline, project: project, source: source)
+            end
+          end
+
+          it_behaves_like 'deleting the project'
+
+          it 'deletes all the pipelines associated with the project' do
+            project_id = project.id
+
+            destroy_project(project, user)
+
+            expect(Ci::Pipeline.where(project_id: project_id)).not_to exist
+          end
+        end
+      end
+
       context 'when project is undergoing refresh' do
         let!(:build_artifacts_size_refresh) { create(:project_build_artifacts_size_refresh, :pending, project: project) }
 
@@ -136,6 +182,20 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
         expect(project.reload.visibility_level).to be(Gitlab::VisibilityLevel::INTERNAL)
       end
+    end
+  end
+
+  context 'when the deleting user does not have access' do
+    before do
+      project.update!(pending_delete: true)
+    end
+
+    it 'unsets the pending_delete on project' do
+      expect(destroy_project(project, create(:user))).to be(false)
+
+      project.reload
+
+      expect(project.pending_delete).to be_falsey
     end
   end
 
@@ -201,7 +261,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
   context 'with running pipelines' do
     let!(:pipelines)               { create_list(:ci_pipeline, 3, :running, project: project) }
-    let(:destroy_pipeline_service) { double('DestroyPipelineService', execute: nil) }
+    let(:destroy_pipeline_service) { double('DestroyPipelineService', unsafe_execute: nil) }
 
     it 'bulks-fails with AbortPipelineService and then executes DestroyPipelineService for each pipelines' do
       allow(::Ci::DestroyPipelineService).to receive(:new).and_return(destroy_pipeline_service)
@@ -211,7 +271,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
         .with(project.all_pipelines, :project_deleted)
 
       pipelines.each do |pipeline|
-        expect(destroy_pipeline_service).to receive(:execute).with(pipeline)
+        expect(destroy_pipeline_service).to receive(:unsafe_execute).with(pipeline)
       end
 
       destroy_project(project, user, {})
@@ -271,7 +331,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
     before do
       allow(project.repository).to receive(:before_delete).and_raise(::Gitlab::Git::CommandError)
       allow(Gitlab::GitLogger).to receive(:warn).with(
-        class: Repositories::DestroyService.name,
+        class: ::Repositories::DestroyService.name,
         container_id: project.id,
         disk_path: project.disk_path,
         message: 'Gitlab::Git::CommandError').and_call_original
@@ -526,7 +586,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
       # 3. Design repository
 
       it 'Repositories::DestroyService is called for existing repos' do
-        expect_next_instances_of(Repositories::DestroyService, 3) do |instance|
+        expect_next_instances_of(::Repositories::DestroyService, 3) do |instance|
           expect(instance).to receive(:execute).and_return(status: :success)
         end
 
@@ -536,7 +596,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
       context 'when the removal has errors' do
         using RSpec::Parameterized::TableSyntax
 
-        let(:mock_error) { instance_double(Repositories::DestroyService, execute: { message: 'foo', status: :error }) }
+        let(:mock_error) { instance_double(::Repositories::DestroyService, execute: { message: 'foo', status: :error }) }
         let(:project_repository) { project.repository }
         let(:wiki_repository) { project.wiki.repository }
         let(:design_repository) { project.design_repository }
@@ -549,8 +609,8 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
         with_them do
           before do
-            allow(Repositories::DestroyService).to receive(:new).with(anything).and_call_original
-            allow(Repositories::DestroyService).to receive(:new).with(repo).and_return(mock_error)
+            allow(::Repositories::DestroyService).to receive(:new).with(anything).and_call_original
+            allow(::Repositories::DestroyService).to receive(:new).with(repo).and_return(mock_error)
           end
 
           it 'raises correct error' do
@@ -645,6 +705,12 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
     end
   end
 
+  it 'builds the project webhook payload' do
+    expect(Gitlab::HookData::ProjectBuilder).to receive(:new).with(project).and_call_original
+
+    destroy_project(project, user)
+  end
+
   context 'when project has project bots' do
     let!(:project_bot) { create(:user, :project_bot, maintainer_of: project) }
 
@@ -737,7 +803,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
           .to receive(:new)
           .and_return(destroy_pipeline_double)
 
-        allow(destroy_pipeline_double).to receive(:execute)
+        allow(destroy_pipeline_double).to receive(:unsafe_execute)
       end
 
       it 'raises a clear error message about the failed deletion' do

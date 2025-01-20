@@ -6,12 +6,15 @@ class Key < ApplicationRecord
   include ShaAttribute
   include Expirable
   include FromUnion
+  include Todoable
 
   sha256_attribute :fingerprint_sha256
 
   belongs_to :user
 
   has_many :ssh_signatures, class_name: 'CommitSignatures::SshSignature'
+
+  has_many :todos, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent -- Polymorphic association
 
   before_validation :generate_fingerprint
 
@@ -99,7 +102,7 @@ class Key < ApplicationRecord
   def add_to_authorized_keys
     return unless Gitlab::CurrentSettings.authorized_keys_enabled?
 
-    AuthorizedKeysWorker.perform_async(:add_key, shell_id, key)
+    AuthorizedKeysWorker.perform_async('add_key', shell_id, key)
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -111,7 +114,7 @@ class Key < ApplicationRecord
   def remove_from_authorized_keys
     return unless Gitlab::CurrentSettings.authorized_keys_enabled?
 
-    AuthorizedKeysWorker.perform_async(:remove_key, shell_id)
+    AuthorizedKeysWorker.perform_async('remove_key', shell_id)
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -142,6 +145,14 @@ class Key < ApplicationRecord
     super || auth_and_signing?
   end
 
+  def readable_by?(user)
+    user_id == user.id
+  end
+
+  def to_reference
+    fingerprint
+  end
+
   private
 
   def generate_fingerprint
@@ -158,7 +169,7 @@ class Key < ApplicationRecord
     return unless public_key.banned?
 
     help_page_url = Rails.application.routes.url_helpers.help_page_url(
-      'security/ssh_keys_restrictions',
+      'security/ssh_keys_restrictions.md',
       anchor: 'block-banned-or-compromised-keys'
     )
 

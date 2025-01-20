@@ -32,6 +32,7 @@ export default function initInviteGroupsModal() {
       freeUsersLimit: parseInt(el.dataset.freeUsersLimit, 10),
       overageMembersModalAvailable: parseBoolean(el.dataset.overageMembersModalAvailable),
       hasGitlabSubscription: parseBoolean(el.dataset.hasGitlabSubscription),
+      inviteWithCustomRoleEnabled: parseBoolean(el.dataset.inviteWithCustomRoleEnabled),
     },
     render: (createElement) =>
       createElement(InviteGroupsModal, {

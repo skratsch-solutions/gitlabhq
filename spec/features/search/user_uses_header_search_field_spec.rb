@@ -45,9 +45,7 @@ RSpec.describe 'User uses header search field', :js, :disable_rate_limiter, feat
 
     context 'when clicking the search button' do
       before do
-        within_testid('super-sidebar') do
-          click_button "Search or go to…"
-        end
+        click_button "Search or go to…"
         wait_for_all_requests
       end
 
@@ -58,14 +56,14 @@ RSpec.describe 'User uses header search field', :js, :disable_rate_limiter, feat
         end
       end
 
-      context 'when clicking issues', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/332317' do
+      context 'when clicking issues' do
         let!(:issue) { create(:issue, project: project, author: user, assignees: [user]) }
 
         it 'shows assigned issues' do
           find(search_modal_results).click_link('Issues assigned to me')
 
           expect(page).to have_selector('.issues-list .issue')
-          expect_tokens([assignee_token(user.name)])
+          expect_assignee_token(user.name)
           expect_filtered_search_input_empty
         end
 
@@ -73,7 +71,7 @@ RSpec.describe 'User uses header search field', :js, :disable_rate_limiter, feat
           find(search_modal_results).click_link("Issues I've created")
 
           expect(page).to have_selector('.issues-list .issue')
-          expect_tokens([author_token(user.name)])
+          expect_author_token(user.name)
           expect_filtered_search_input_empty
         end
       end
@@ -84,16 +82,16 @@ RSpec.describe 'User uses header search field', :js, :disable_rate_limiter, feat
         it 'shows assigned merge requests' do
           find(search_modal_results).click_link('Merge requests assigned to me')
 
-          expect(page).to have_selector('.mr-list .merge-request')
-          expect_tokens([assignee_token(user.name)])
+          expect(page).to have_selector('.issuable-list .merge-request')
+          expect_assignee_token(user.name)
           expect_filtered_search_input_empty
         end
 
         it 'shows created merge requests' do
           find(search_modal_results).click_link("Merge requests I've created")
 
-          expect(page).to have_selector('.mr-list .merge-request')
-          expect_tokens([author_token(user.name)])
+          expect(page).to have_selector('.issuable-list .merge-request')
+          expect_author_token(user.name)
           expect_filtered_search_input_empty
         end
       end
@@ -130,7 +128,7 @@ RSpec.describe 'User uses header search field', :js, :disable_rate_limiter, feat
       it 'displays result counts for all categories' do
         within_testid('super-sidebar') do
           expect(page).to have_link('Projects 1')
-          expect(page).to have_link('Issues 1')
+          expect(page).to have_link('issue')
           expect(page).to have_link('Merge requests 0')
           expect(page).to have_link('Milestones 0')
           expect(page).to have_link('Users 0')

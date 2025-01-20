@@ -12,7 +12,6 @@ const REPLACE_BLOB_MODAL_ID = 'modal-replace-blob';
 export default {
   i18n: {
     replace: __('Replace'),
-    replacePrimaryBtnText: __('Replace file'),
     delete: __('Delete'),
   },
   components: {
@@ -20,7 +19,7 @@ export default {
     GlButton,
     UploadBlobModal,
     DeleteBlobModal,
-    LockButton: () => import('ee_component/repository/components/lock_button.vue'),
+    LockFileButton: () => import('ee_component/repository/components/lock_file_button.vue'),
   },
   mixins: [getRefMixin, glFeatureFlagMixin()],
   inject: {
@@ -83,13 +82,13 @@ export default {
     },
   },
   computed: {
-    replaceModalTitle() {
-      return sprintf(__('Replace %{name}'), { name: this.name });
-    },
     deleteModalId() {
       return uniqueId('delete-modal');
     },
-    deleteModalTitle() {
+    replaceCommitMessage() {
+      return sprintf(__('Replace %{name}'), { name: this.name });
+    },
+    deleteModalCommitMessage() {
       return sprintf(__('Delete %{name}'), { name: this.name });
     },
     lockBtnTestId() {
@@ -111,9 +110,9 @@ export default {
 </script>
 
 <template>
-  <div class="gl-mr-3">
+  <div>
     <gl-button-group>
-      <lock-button
+      <lock-file-button
         v-if="glFeatures.fileLocks"
         :name="name"
         :path="path"
@@ -132,21 +131,19 @@ export default {
     <upload-blob-modal
       :ref="$options.replaceBlobModalId"
       :modal-id="$options.replaceBlobModalId"
-      :modal-title="replaceModalTitle"
-      :commit-message="replaceModalTitle"
+      :commit-message="replaceCommitMessage"
       :target-branch="targetBranch || ref"
       :original-branch="originalBranch || ref"
       :can-push-code="canPushCode"
+      :can-push-to-branch="canPushToBranch"
       :path="path"
       :replace-path="replacePath"
-      :primary-btn-text="$options.i18n.replacePrimaryBtnText"
     />
     <delete-blob-modal
       :ref="deleteModalId"
-      :modal-id="deleteModalId"
-      :modal-title="deleteModalTitle"
       :delete-path="deletePath"
-      :commit-message="deleteModalTitle"
+      :modal-id="deleteModalId"
+      :commit-message="deleteModalCommitMessage"
       :target-branch="targetBranch || ref"
       :original-branch="originalBranch || ref"
       :can-push-code="canPushCode"

@@ -14,7 +14,7 @@ module QA
       end
 
       it(
-        'push successful when the file size is under the limit', :blocking,
+        'push successful when the file size is under the limit',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347758'
       ) do
         set_file_size_limit(5)
@@ -27,7 +27,7 @@ module QA
       end
 
       it(
-        'push fails when the file size is above the limit', :blocking,
+        'push fails when the file size is above the limit',
         testcase: 'https://gitlab.com/gitlab-org/gitlab/-/quality/test_cases/347759'
       ) do
         set_file_size_limit(2)
@@ -42,7 +42,7 @@ module QA
         request = Runtime::API::Request.new(Runtime::API::Client.as_admin, '/application/settings')
         response = put request.url, receive_max_input_size: limit
 
-        expect(response.code).to eq(200)
+        expect(response.code).to eq(QA::Support::API::HTTP_STATUS_OK)
         expect(parse_body(response)[:receive_max_input_size]).to eq(limit)
       end
 

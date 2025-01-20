@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'View error index page', :js, :use_clean_rails_memory_store_caching, :sidekiq_inline,
-  feature_category: :error_tracking do
+  feature_category: :observability do
   include_context 'sentry error tracking context feature'
 
   let_it_be(:issues_response_body) { fixture_file('sentry/issues_sample_response.json') }
@@ -65,7 +65,7 @@ RSpec.describe 'View error index page', :js, :use_clean_rails_memory_store_cachi
     end
 
     it 'renders not found' do
-      expect(page).to have_content('Page Not Found')
+      expect(page).to have_content('Page not found')
     end
   end
 end

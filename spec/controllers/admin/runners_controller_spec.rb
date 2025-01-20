@@ -107,7 +107,7 @@ RSpec.describe Admin::RunnersController, feature_category: :fleet_visibility do
 
     context 'with update succeeding' do
       it 'updates the runner and ticks the queue' do
-        expect_next_instance_of(Ci::Runners::UpdateRunnerService, runner) do |service|
+        expect_next_instance_of(Ci::Runners::UpdateRunnerService, user, runner) do |service|
           expect(service).to receive(:execute).with(anything).and_call_original
         end
 
@@ -122,7 +122,7 @@ RSpec.describe Admin::RunnersController, feature_category: :fleet_visibility do
 
     context 'with update failing' do
       it 'does not update runner or tick the queue' do
-        expect_next_instance_of(Ci::Runners::UpdateRunnerService, runner) do |service|
+        expect_next_instance_of(Ci::Runners::UpdateRunnerService, user, runner) do |service|
           expect(service).to receive(:execute).with(anything).and_return(ServiceResponse.error(message: 'failure'))
         end
 
@@ -149,6 +149,27 @@ RSpec.describe Admin::RunnersController, feature_category: :fleet_visibility do
 
       expect(response).to have_gitlab_http_status(:bad_request)
       expect(json_response).to have_key("errors")
+    end
+  end
+
+  describe 'GET #tag_list' do
+    let_it_be(:linux_tag) { create(:ci_tag, name: 'linux') }
+    let_it_be(:oxs_tag) { create(:ci_tag, name: 'osx') }
+
+    it 'renders a list of tags matching the search' do
+      get :tag_list, params: { search: 'lin' }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response).to contain_exactly(a_hash_including({ 'id' => linux_tag.id }))
+    end
+
+    it 'applies the limit' do
+      stub_const("#{described_class.name}::TAGS_LIMIT", 1)
+
+      get :tag_list, params: {}
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response.size).to eq(1)
     end
   end
 end

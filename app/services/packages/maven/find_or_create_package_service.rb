@@ -5,17 +5,26 @@ module Packages
     class FindOrCreatePackageService < BaseService
       SNAPSHOT_TERM = '-SNAPSHOT'
       MAX_FILE_NAME_LENGTH = 5000
+      DuplicatePackageError = Class.new(StandardError)
 
       def execute
         return ServiceResponse.error(message: 'File name is too long') if file_name_too_long?
 
+        begin
+          find_or_create_package
+        rescue DuplicatePackageError
+          retry # in case of a race condition, retry the block. 2nd attempt should succeed
+        end
+      end
+
+      private
+
+      def find_or_create_package
         package =
           ::Packages::Maven::PackageFinder.new(current_user, project, path: path)
           .execute&.last
 
-        if !Namespace::PackageSetting.duplicates_allowed?(package) && target_package_is_duplicate?(package)
-          return ServiceResponse.error(message: 'Duplicate package is not allowed')
-        end
+        return ServiceResponse.error(message: 'Duplicate package is not allowed') if duplicate_error?(package)
 
         unless package
           # Maven uploads several files during `mvn deploy` in next order:
@@ -54,7 +63,11 @@ module Packages
             ::Packages::Maven::CreatePackageService.new(project, current_user, package_params)
                                                    .execute
 
-          return service_response if service_response.error?
+          if service_response.error?
+            raise DuplicatePackageError if service_response.cause.name_taken?
+
+            return service_response
+          end
 
           package = service_response[:package]
         end
@@ -64,7 +77,9 @@ module Packages
         ServiceResponse.success(payload: { package: package })
       end
 
-      private
+      def duplicate_error?(package)
+        !Namespace::PackageSetting.duplicates_allowed?(package) && target_package_is_duplicate?(package)
+      end
 
       def file_name_too_long?
         return false unless file_name
@@ -115,6 +130,10 @@ module Packages
 
       def file_name
         params[:file_name]
+      end
+
+      def lease_key
+        "#{self.class.name.underscore}:#{project.id}_#{path}"
       end
     end
   end

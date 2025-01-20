@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module Integrations
-  class Phorge < BaseIssueTracker
+  class Phorge < Integration
+    include Base::IssueTracker
     include HasIssueTrackerFields
     include HasAvatar
 
@@ -41,7 +42,7 @@ module Integrations
     def self.help
       docs_link = ActionController::Base.helpers.link_to(
         '',
-        Rails.application.routes.url_helpers.help_page_url('user/project/integrations/phorge'),
+        Rails.application.routes.url_helpers.help_page_url('user/project/integrations/phorge.md'),
         target: '_blank',
         rel: 'noopener noreferrer'
       )

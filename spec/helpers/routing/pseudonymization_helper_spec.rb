@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ::Routing::PseudonymizationHelper, feature_category: :product_analytics_data_management do
+RSpec.describe ::Routing::PseudonymizationHelper, feature_category: :product_analytics do
   let_it_be(:group) { create(:group) }
   let_it_be(:subgroup) { create(:group, parent: group) }
   let_it_be(:project) { create(:project, group: group) }
@@ -354,6 +354,15 @@ RSpec.describe ::Routing::PseudonymizationHelper, feature_category: :product_ana
       let(:masked_url) { 'http://localhost/namespace/project/-/issues' }
 
       it 'masks sensitive parameters in the URL for projects/issues controller' do
+        expect(helper.masked_referrer_url(original_url)).to eq(masked_url)
+      end
+    end
+
+    context 'with group admin page' do
+      let(:original_url) { "http://localhost/admin/groups/#{group.full_path}" }
+      let(:masked_url) { 'http://localhost/admin/groups/id' }
+
+      it 'masks sensitive parameters in the URL for group admin page' do
         expect(helper.masked_referrer_url(original_url)).to eq(masked_url)
       end
     end

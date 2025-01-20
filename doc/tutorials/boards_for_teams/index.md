@@ -8,9 +8,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
-<!-- vale gitlab.FutureTense = NO -->
+<!-- vale gitlab_base.FutureTense = NO -->
 
 This tutorial shows you how to set up [issue boards](../../user/project/issue_board.md) and [scoped labels](../../user/project/labels.md#scoped-labels) for two teams that work on issues in sequence.
 

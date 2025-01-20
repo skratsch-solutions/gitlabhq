@@ -3,14 +3,18 @@
 class ProjectSetting < ApplicationRecord
   include ::Gitlab::Utils::StrongMemoize
   include EachBatch
-  include IgnorableColumns
   include CascadingProjectSettingAttribute
+  include Projects::SquashOption
 
   ALLOWED_TARGET_PLATFORMS = %w[ios osx tvos watchos android].freeze
 
   belongs_to :project, inverse_of: :project_setting
 
+  ignore_column :pages_multiple_versions_enabled, remove_with: '17.9', remove_after: '2025-02-20'
+  ignore_column :pages_default_domain_redirect, remove_with: '17.9', remove_after: '2025-02-20'
+
   scope :for_projects, ->(projects) { where(project_id: projects) }
+  scope :with_namespace, -> { joins(project: :namespace) }
 
   attr_encrypted :cube_api_key,
     mode: :per_attribute_iv,
@@ -26,13 +30,6 @@ class ProjectSetting < ApplicationRecord
     encode: false,
     encode_iv: false
 
-  enum squash_option: {
-    never: 0,
-    always: 1,
-    default_on: 2,
-    default_off: 3
-  }, _prefix: 'squash'
-
   self.primary_key = :project_id
 
   validates :merge_commit_template, length: { maximum: Project::MAX_COMMIT_TEMPLATE_LENGTH }
@@ -40,7 +37,6 @@ class ProjectSetting < ApplicationRecord
   validates :issue_branch_template, length: { maximum: Issue::MAX_BRANCH_TEMPLATE }
   validates :target_platforms, inclusion: { in: ALLOWED_TARGET_PLATFORMS }
   validates :suggested_reviewers_enabled, inclusion: { in: [true, false] }
-  ignore_column :code_suggestions, remove_with: '17.0', remove_after: '2024-03-21'
 
   validates :pages_unique_domain,
     uniqueness: { if: -> { pages_unique_domain.present? } },
@@ -54,25 +50,13 @@ class ProjectSetting < ApplicationRecord
     Feature.enabled?(:legacy_open_source_license_available, type: :ops)
   end
 
-  def squash_enabled_by_default?
-    %w[always default_on].include?(squash_option)
-  end
-
-  def squash_readonly?
-    %w[always never].include?(squash_option)
+  # Checks if a given domain is already assigned to any existing project
+  def self.unique_domain_exists?(domain)
+    where(pages_unique_domain: domain).exists?
   end
 
   def target_platforms=(val)
     super(val&.map(&:to_s)&.sort)
-  end
-
-  def human_squash_option
-    case squash_option
-    when 'never' then 'Do not allow'
-    when 'always' then 'Require'
-    when 'default_on' then 'Encourage'
-    when 'default_off' then 'Allow'
-    end
   end
 
   def show_diff_preview_in_email?
@@ -92,6 +76,10 @@ class ProjectSetting < ApplicationRecord
     super && project.namespace.emails_enabled?
   end
   strong_memoize_attr :emails_enabled?
+
+  def pages_primary_domain=(value)
+    super(value.presence) # Call the default setter to set the value
+  end
 
   private
 

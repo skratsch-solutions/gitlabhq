@@ -16,6 +16,9 @@ export default {
     GlLink,
   },
   mixins: [glFeatureFlagsMixin()],
+  inject: {
+    canAdminProtectedBranches: { default: false },
+  },
   props: {
     dataTestIdPrefix: {
       type: String,
@@ -71,12 +74,15 @@ export default {
 
       return this.isProtected ? Boolean(this.description) : false;
     },
+    canEditProtectionToggles() {
+      return this.canAdminProtectedBranches && this.glFeatures.editBranchRules;
+    },
   },
 };
 </script>
 
 <template>
-  <div v-if="glFeatures.editBranchRules">
+  <div v-if="canEditProtectionToggles">
     <gl-toggle
       :label="label"
       :help="help"
@@ -95,7 +101,7 @@ export default {
     </gl-toggle>
   </div>
   <div v-else class="gl-mb-5">
-    <div class="gl-display-flex gl-align-items-center">
+    <div class="gl-flex gl-items-center">
       <gl-icon :data-testid="iconDataTestId" :size="14" :name="iconName" :class="iconClass" />
       <strong class="gl-ml-2">{{ iconTitle }}</strong>
     </div>

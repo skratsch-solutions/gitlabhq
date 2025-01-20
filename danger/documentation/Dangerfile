@@ -38,7 +38,7 @@ def add_labels(labels)
 end
 
 ANY_MAINTAINER_CAN_MERGE_MESSAGE = <<~MSG
-This MR contains docs in the /%<directory>s directory, but any Maintainer (other than the author) can merge. You do not need tech writer review.
+This MR contains docs in the /%<directory>s directory, but any Maintainer can merge. You do not need tech writer review.
 MSG
 
 SOLUTIONS_MESSAGE = <<~MSG
@@ -47,7 +47,7 @@ MSG
 
 # For regular pages, prompt for a TW review
 DOCS_UPDATE_SHORT_MESSAGE = <<~MSG
-This merge request adds or changes documentation files. A review from the Technical Writing team before you merge is **recommended**. Reviews can happen after you merge.
+This merge request adds or changes documentation files and requires Technical Writing review. The review should happen before merge, but can be post-merge if the merge request is time sensitive.
 MSG
 
 DOCS_UPDATE_LONG_MESSAGE = <<~MSG.freeze

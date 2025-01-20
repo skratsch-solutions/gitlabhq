@@ -35,7 +35,7 @@ export default {
     cancelableJobsErrorMsg: CANCELABLE_JOBS_ERROR_MSG,
   },
   filterSearchBoxStyles:
-    'gl-my-0 gl-p-5 gl-bg-gray-10 gl-text-gray-900 gl-border-b gl-border-gray-100',
+    'gl-my-0 gl-p-5 gl-bg-gray-10 gl-text-default gl-border-b gl-border-default',
   components: {
     JobsSkeletonLoader,
     JobsTableEmptyState,
@@ -90,6 +90,7 @@ export default {
         this.error = this.$options.i18n.jobsCountErrorMsg;
       },
     },
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     cancelable: {
       query: getCancelableJobs,
       update(data) {

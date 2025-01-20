@@ -56,7 +56,7 @@ export const CLUSTER_TYPES = {
 export const MAX_REQUESTS = 3;
 
 export const STATUSES = {
-  default: { className: 'bg-white', title: __('Unknown') },
+  default: { className: 'gl-bg-white', title: __('Unknown') },
   disabled: { className: 'disabled', title: __('Disabled') },
   created: { className: 'bg-success', title: __('Connected') },
   unreachable: { className: 'bg-danger', title: __('Unreachable') },
@@ -78,15 +78,13 @@ export const I18N_AGENT_TABLE = {
   versionMismatchText: s__(
     "ClusterAgents|The agent version do not match each other across your cluster's pods. This can happen when a new agent version was just deployed and Kubernetes is shutting down the old pods.",
   ),
-  versionOutdatedTitle: s__('ClusterAgents|Agent version update required'),
-  versionOutdatedText: s__(
-    'ClusterAgents|Your agent version is out of sync with your GitLab KAS version (v%{version}), which might cause compatibility problems. Update the agent installed on your cluster to the most recent version.',
-  ),
-  versionMismatchOutdatedTitle: s__('ClusterAgents|Agent version mismatch and update'),
+  versionWarningsTitle: s__('ClusterAgents|Agent version update required'),
+  versionWarningsMismatchTitle: s__('ClusterAgents|Agent version mismatch and update'),
   viewDocsText: s__('ClusterAgents|How do I update an agent?'),
   defaultConfigText: s__('ClusterAgents|Default configuration'),
   defaultConfigTooltip: s__('ClusterAgents|What is default configuration?'),
-  sharedBadgeText: s__('ClusterAgents|shared'),
+  sharedBadgeText: s__('ClusterAgents|Shared'),
+  receptiveBadgeText: s__('ClusterAgents|Receptive'),
   externalConfigText: s__('ClusterAgents|External project'),
 };
 
@@ -116,41 +114,42 @@ export const I18N_AGENT_TOKEN = {
 export const HELM_VERSION_POLICY_URL = 'https://helm.sh/docs/topics/version_skew/';
 
 export const I18N_AGENT_MODAL = {
-  registerAgentButton: s__('ClusterAgents|Register'),
+  registerAgentButton: s__('ClusterAgents|Create and register'),
   close: __('Close'),
   cancel: __('Cancel'),
+  learMore: __('Learn more.'),
 
   modalTitle: s__('ClusterAgents|Connect a Kubernetes cluster'),
-  modalBody: s__(
-    'ClusterAgents|Add an agent configuration file to %{linkStart}this repository%{linkEnd} and select it, or create a new one to register with GitLab:',
-  ),
+  modalBody: s__('ClusterAgents|Create a new agent to register with GitLab.'),
   enableKasText: s__(
     "ClusterAgents|Your instance doesn't have the %{linkStart}GitLab Agent Server (KAS)%{linkEnd} set up. Ask a GitLab Administrator to install it.",
   ),
   altText: s__('ClusterAgents|GitLab agent for Kubernetes'),
-  learnMoreLink: s__('ClusterAgents|How do I register an agent?'),
+  registrationSuccess: s__('ClusterAgents|%{agentName} successfully created.'),
   registrationErrorTitle: s__('ClusterAgents|Failed to register an agent'),
   unknownError: s__('ClusterAgents|An unknown error occurred. Please try again.'),
-  maxAgentsSupport: s__('ClusterAgents|We only support 100 agents on the UI.'),
-  useTerraformText: s__(
-    'ClusterAgents|To manage more agents, %{linkStart}use Terraform%{linkEnd}.',
+  registerWithUITitle: s__('ClusterAgents|Option 2: Create and register an agent with the UI'),
+  bootstrapWithFluxTitle: s__('ClusterAgents|Option 1: Bootstrap the agent with Flux'),
+  bootstrapWithFluxDescription: s__(
+    'ClusterAgents|If Flux is installed in the cluster, you can install and register the agent from the command line:',
   ),
+  bootstrapWithFluxOptions: s__(
+    'ClusterAgents|You can view a list of options with %{codeStart}--help%{codeEnd}.',
+  ),
+  bootstrapWithFluxDocs: s__(
+    "ClusterAgents|If you're %{linkStart}bootstrapping the agent with Flux%{linkEnd}, you can close this dialog.",
+  ),
+  agentNamePlaceholder: s__('ClusterAgents|Name of new agent'),
+  requiredFieldFeedback: s__('ClusterAgents|This field is required.'),
 };
 
 export const KAS_DISABLED_ERROR = 'Gitlab::Kas::Client::ConfigurationError';
-
-export const I18N_AVAILABLE_AGENTS_DROPDOWN = {
-  selectAgent: s__('ClusterAgents|Select an agent or enter a name to create new'),
-  registeringAgent: s__('ClusterAgents|Registering agent'),
-  noResults: __('No matching results'),
-  createButton: s__('ClusterAgents|Create agent: %{searchTerm}'),
-};
 
 export const AGENT_STATUSES = {
   active: {
     name: s__('ClusterAgents|Connected'),
     icon: 'status-success',
-    class: 'gl-text-green-500',
+    class: 'gl-text-success',
     tooltip: {
       title: sprintf(s__('ClusterAgents|Last connected %{timeAgo}.')),
     },
@@ -171,7 +170,7 @@ export const AGENT_STATUSES = {
   unused: {
     name: s__('ClusterAgents|Never connected'),
     icon: 'status-neutral',
-    class: 'gl-text-gray-500',
+    class: 'gl-text-subtle',
     tooltip: {
       title: s__('ClusterAgents|Agent never connected to GitLab'),
       body: s__('ClusterAgents|Make sure you are using a valid token.'),
@@ -272,7 +271,6 @@ export const CERTIFICATE_BASED = 'certificate_based';
 export const EVENT_LABEL_MODAL = 'agent_registration_modal';
 export const EVENT_LABEL_TABS = 'kubernetes_section_tabs';
 export const EVENT_ACTIONS_OPEN = 'open_modal';
-export const EVENT_ACTIONS_SELECT = 'select_agent';
 export const EVENT_ACTIONS_CLICK = 'click_button';
 export const EVENT_ACTIONS_CHANGE = 'change_tab';
 
@@ -283,3 +281,7 @@ export const DELETE_AGENT_MODAL_ID = 'delete-agent-modal-%{agentName}';
 
 export const AGENT_FEEDBACK_ISSUE = 'https://gitlab.com/gitlab-org/gitlab/-/issues/342696';
 export const AGENT_FEEDBACK_KEY = 'agent_feedback_banner';
+
+export const CONNECT_MODAL_ID = 'connect-to-cluster-modal';
+
+export const MAX_CONFIGS_SHOWN = 100;

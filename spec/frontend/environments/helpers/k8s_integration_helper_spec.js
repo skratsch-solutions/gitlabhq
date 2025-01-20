@@ -2,6 +2,7 @@ import {
   humanizeClusterErrors,
   createK8sAccessConfiguration,
   fluxSyncStatus,
+  updateFluxRequested,
 } from '~/environments/helpers/k8s_integration_helper';
 import {
   CLUSTER_AGENT_ERROR_MESSAGES,
@@ -66,16 +67,17 @@ describe('k8s_integration_helper', () => {
     let fluxConditions;
 
     it.each`
-      status            | type             | reason                | statusText                    | statusMessage
-      ${STATUS_TRUE}    | ${'Stalled'}     | ${''}                 | ${'stalled'}                  | ${{ message }}
-      ${STATUS_TRUE}    | ${'Reconciling'} | ${''}                 | ${'reconciling'}              | ${''}
-      ${STATUS_UNKNOWN} | ${'Ready'}       | ${REASON_PROGRESSING} | ${'reconcilingWithBadConfig'} | ${{ message }}
-      ${STATUS_TRUE}    | ${'Ready'}       | ${''}                 | ${'reconciled'}               | ${''}
-      ${STATUS_FALSE}   | ${'Ready'}       | ${''}                 | ${'failed'}                   | ${{ message }}
-      ${STATUS_UNKNOWN} | ${'Ready'}       | ${''}                 | ${'unknown'}                  | ${''}
+      suspended | status            | type             | reason                | statusText                    | statusMessage
+      ${false}  | ${STATUS_TRUE}    | ${'Stalled'}     | ${''}                 | ${'stalled'}                  | ${{ message }}
+      ${false}  | ${STATUS_TRUE}    | ${'Reconciling'} | ${''}                 | ${'reconciling'}              | ${''}
+      ${false}  | ${STATUS_UNKNOWN} | ${'Ready'}       | ${REASON_PROGRESSING} | ${'reconcilingWithBadConfig'} | ${{ message }}
+      ${false}  | ${STATUS_TRUE}    | ${'Ready'}       | ${''}                 | ${'reconciled'}               | ${''}
+      ${false}  | ${STATUS_FALSE}   | ${'Ready'}       | ${''}                 | ${'failed'}                   | ${''}
+      ${true}   | ${STATUS_FALSE}   | ${'Ready'}       | ${''}                 | ${'suspended'}                | ${''}
+      ${false}  | ${STATUS_UNKNOWN} | ${'Ready'}       | ${''}                 | ${'unknown'}                  | ${''}
     `(
       'renders sync status as $statusText when status is $status, type is $type, and reason is $reason',
-      ({ status, type, reason, statusText, statusMessage }) => {
+      ({ suspended, status, type, reason, statusText, statusMessage }) => {
         fluxConditions = [
           {
             status,
@@ -85,11 +87,37 @@ describe('k8s_integration_helper', () => {
           },
         ];
 
-        expect(fluxSyncStatus(fluxConditions)).toMatchObject({
+        const fluxResourceStatus = { conditions: fluxConditions, suspend: suspended };
+
+        expect(fluxSyncStatus(fluxResourceStatus)).toMatchObject({
           status: statusText,
           ...statusMessage,
         });
       },
     );
+  });
+
+  describe('updateFluxRequested', () => {
+    const defaultPath = '/metadata/annotations/reconcile.fluxcd.io~1requestedAt';
+    const defaultValue = new Date().toISOString();
+    const customPath = '/custom/path';
+    const customValue = true;
+
+    it.each([
+      ['with default values', undefined, undefined],
+      ['with custom path', customPath, undefined],
+      ['with custom value', undefined, customValue],
+      ['with custom path and value', customPath, customValue],
+    ])('%s', (description, path, value) => {
+      expect(updateFluxRequested({ path, value })).toEqual(
+        JSON.stringify([
+          {
+            op: 'replace',
+            path: path || defaultPath,
+            value: value || defaultValue,
+          },
+        ]),
+      );
+    });
   });
 });

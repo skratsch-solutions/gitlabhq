@@ -1,28 +1,32 @@
 <script>
 import { GlBadge, GlButton } from '@gitlab/ui';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import ProtectedBadge from '~/vue_shared/components/badges/protected_badge.vue';
 import { s__, sprintf, n__ } from '~/locale';
+import { accessLevelsConfig } from '~/projects/settings/branch_rules/components/view/constants';
 import { getAccessLevels } from '../../../utils';
-
-export const i18n = {
-  defaultLabel: s__('BranchRules|default'),
-  protectedLabel: s__('BranchRules|protected'),
-  detailsButtonLabel: s__('BranchRules|View details'),
-  allowForcePush: s__('BranchRules|Allowed to force push'),
-  codeOwnerApprovalRequired: s__('BranchRules|Requires CODEOWNERS approval'),
-  statusChecks: s__('BranchRules|%{total} status %{subject}'),
-  approvalRules: s__('BranchRules|%{total} approval %{subject}'),
-  matchingBranches: s__('BranchRules|%{total} matching %{subject}'),
-  pushAccessLevels: s__('BranchRules|Allowed to push and merge'),
-  mergeAccessLevels: s__('BranchRules|Allowed to merge'),
-};
 
 export default {
   name: 'BranchRule',
-  i18n,
+  accessLevelsConfig,
+  i18n: {
+    defaultLabel: s__('BranchRules|default'),
+    detailsButtonLabel: s__('BranchRules|View details'),
+    allowForcePush: s__('BranchRules|Allowed to force push'),
+    codeOwnerApprovalRequired: s__('BranchRules|Requires CODEOWNERS approval'),
+    statusChecks: s__('BranchRules|%{total} status %{subject}'),
+    approvalRules: s__('BranchRules|%{total} approval %{subject}'),
+    matchingBranches: s__('BranchRules|%{total} matching %{subject}'),
+    pushAccessLevels: s__('BranchRules|Allowed to push and merge'),
+    mergeAccessLevels: s__('BranchRules|Allowed to merge'),
+    squashSetting: s__('BranchRules|Squash commits: %{setting}'),
+  },
   components: {
     GlBadge,
     GlButton,
+    ProtectedBadge,
   },
+  mixins: [glFeatureFlagsMixin()],
   inject: {
     branchRulesPath: {
       default: '',
@@ -93,6 +97,11 @@ export default {
         subject: n__('branch', 'branches', this.matchingBranchesCount),
       });
     },
+    squashSettingText() {
+      return sprintf(this.$options.i18n.squashSetting, {
+        setting: this.branchProtection?.squashSetting,
+      });
+    },
     mergeAccessLevels() {
       const { mergeAccessLevels } = this.branchProtection || {};
       return this.getAccessLevels(mergeAccessLevels);
@@ -130,6 +139,9 @@ export default {
       if (this.pushAccessLevels.total > 0) {
         approvalDetails.push(this.pushAccessLevelsText);
       }
+      if (this.glFeatures.branchRuleSquashSettings && this.branchProtection?.squashSetting) {
+        approvalDetails.push(this.squashSettingText);
+      }
       return approvalDetails;
     },
   },
@@ -138,7 +150,10 @@ export default {
     getAccessLevelsText(beginString = '', accessLevels) {
       const textParts = [];
       if (accessLevels.roles.length) {
-        textParts.push(n__('1 role', '%d roles', accessLevels.roles.length));
+        const roles = accessLevels.roles.map(
+          (roleInteger) => accessLevelsConfig[roleInteger].accessLevelLabel,
+        );
+        textParts.push(roles.join(', '));
       }
       if (accessLevels.groups.length) {
         textParts.push(n__('1 group', '%d groups', accessLevels.groups.length));
@@ -155,7 +170,7 @@ export default {
 <template>
   <li>
     <div
-      class="gl-display-flex gl-justify-content-space-between"
+      class="gl-flex gl-justify-between"
       data-testid="branch-content"
       :data-qa-branch-name="name"
     >
@@ -166,16 +181,14 @@ export default {
           $options.i18n.defaultLabel
         }}</gl-badge>
 
-        <gl-badge v-if="isProtected" variant="neutral" class="gl-ml-2">{{
-          $options.i18n.protectedLabel
-        }}</gl-badge>
+        <protected-badge v-if="isProtected" />
 
-        <ul v-if="hasApprovalDetails" class="gl-pl-6 gl-mt-2 gl-mb-0 gl-text-gray-500">
+        <ul v-if="hasApprovalDetails" class="gl-mb-0 gl-mt-2 gl-pl-6 gl-text-subtle">
           <li v-for="(detail, index) in approvalDetails" :key="index">{{ detail }}</li>
         </ul>
       </div>
       <gl-button
-        class="gl-align-self-start"
+        class="gl-self-start"
         category="tertiary"
         size="small"
         data-testid="details-button"

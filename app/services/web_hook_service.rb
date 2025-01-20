@@ -27,6 +27,8 @@ class WebHookService
     end
   end
 
+  CustomWebHookTemplateError = Class.new(StandardError)
+
   REQUEST_BODY_SIZE_LIMIT = 25.megabytes
   # Response body is for UI display only. It does not make much sense to save
   # whatever the receivers throw back at us
@@ -38,7 +40,7 @@ class WebHookService
   CUSTOM_TEMPLATE_INTERPOLATION_REGEX = /{{(.+?)}}/
 
   attr_accessor :hook, :data, :hook_name, :request_options
-  attr_reader :uniqueness_token
+  attr_reader :uniqueness_token, :idempotency_key
 
   def self.hook_to_event(hook_name, hook = nil)
     return hook.class.name.titleize if hook.is_a?(SystemHook)
@@ -46,11 +48,12 @@ class WebHookService
     hook_name.to_s.singularize.titleize
   end
 
-  def initialize(hook, data, hook_name, uniqueness_token = nil, force: false)
+  def initialize(hook, data, hook_name, uniqueness_token = nil, idempotency_key: nil, force: false)
     @hook = hook
     @data = data.to_h
     @hook_name = hook_name.to_s
     @uniqueness_token = uniqueness_token
+    @idempotency_key = idempotency_key || generate_idempotency_key
     @force = force
     @request_options = {
       timeout: Gitlab.config.gitlab.webhook_timeout,
@@ -91,13 +94,13 @@ class WebHookService
     )
 
     ServiceResponse.success(message: response.body, payload: { http_status: response.code })
-  rescue *Gitlab::HTTP::HTTP_ERRORS, JSON::ParserError,
+  rescue *Gitlab::HTTP::HTTP_ERRORS, CustomWebHookTemplateError, Zlib::DataError,
     Gitlab::Json::LimitedEncoder::LimitExceeded, URI::InvalidURIError => e
     execution_duration = ::Gitlab::Metrics::System.monotonic_time - start_time
     error_message = e.to_s
 
     # An exception raised while rendering the custom template prevents us from calling `#request_payload`
-    request_data = e.instance_of?(JSON::ParserError) ? {} : request_payload
+    request_data = e.instance_of?(CustomWebHookTemplateError) ? {} : request_payload
 
     log_execution(
       response: InternalErrorResponse.new,
@@ -118,7 +121,8 @@ class WebHookService
       break log_recursion_blocked if recursion_blocked?
 
       params = {
-        "recursion_detection_request_uuid" => Gitlab::WebHooks::RecursionDetection::UUID.instance.request_uuid
+        "recursion_detection_request_uuid" => Gitlab::WebHooks::RecursionDetection::UUID.instance.request_uuid,
+        "idempotency_key" => idempotency_key
       }.compact
 
       WebHookWorker.perform_async(hook.id, data.deep_stringify_keys, hook_name.to_s, params)
@@ -133,6 +137,10 @@ class WebHookService
     # Behavior-preserving fallback.
     Gitlab::ErrorTracking.track_exception(e)
     @parsed_url = URI.parse(hook.url)
+  end
+
+  def generate_idempotency_key
+    SecureRandom.uuid
   end
 
   def make_request(url, basic_auth = false)
@@ -206,6 +214,7 @@ class WebHookService
       headers = {
         'Content-Type' => 'application/json',
         'User-Agent' => "GitLab/#{Gitlab::VERSION}",
+        'Idempotency-Key' => idempotency_key,
         Gitlab::WebHooks::GITLAB_EVENT_HEADER => self.class.hook_to_event(hook_name, hook),
         Gitlab::WebHooks::GITLAB_UUID_HEADER => SecureRandom.uuid,
         Gitlab::WebHooks::GITLAB_INSTANCE_HEADER => Gitlab.config.gitlab.base_url
@@ -227,13 +236,11 @@ class WebHookService
   # Make response headers more stylish
   # Net::HTTPHeader has downcased hash with arrays: { 'content-type' => ['text/html; charset=utf-8'] }
   # This method format response to capitalized hash with strings: { 'Content-Type' => 'text/html; charset=utf-8' }
-  # rubocop:disable Style/HashTransformValues
   def safe_response_headers(response)
     response.headers.each_capitalized.first(RESPONSE_HEADERS_COUNT_LIMIT).to_h do |header_key, header_value|
       [enforce_utf8(header_key), string_size_limit(enforce_utf8(header_value), RESPONSE_HEADERS_SIZE_LIMIT)]
     end
   end
-  # rubocop:enable Style/HashTransformValues
 
   def safe_response_body(response)
     return '' unless response.body
@@ -298,11 +305,17 @@ class WebHookService
     )
     Gitlab::Json.parse(rendered_template)
   rescue JSON::ParserError => e
-    raise JSON::ParserError, "Error while parsing rendered custom webhook template: #{e.message}"
+    raise_custom_webhook_template_error!(e.message)
+  rescue TypeError
+    raise_custom_webhook_template_error!('You may be trying to access an array value, which is not supported.')
   end
   strong_memoize_attr :request_payload
 
   def render_custom_template(template, params)
     template.gsub(CUSTOM_TEMPLATE_INTERPOLATION_REGEX) { params.dig(*Regexp.last_match(1).split('.')) }
+  end
+
+  def raise_custom_webhook_template_error!(message)
+    raise CustomWebHookTemplateError, "Error while parsing rendered custom webhook template: #{message}"
   end
 end

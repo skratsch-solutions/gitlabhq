@@ -22,9 +22,9 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
   end
 
   let(:mutation) do
-    graphql_mutation(:create_container_registry_protection_rule, input,
+    graphql_mutation(:create_container_protection_repository_rule, input,
       <<~QUERY
-      containerRegistryProtectionRule {
+      containerProtectionRepositoryRule {
         id
         repositoryPathPattern
       }
@@ -34,7 +34,7 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
     )
   end
 
-  let(:mutation_response) { graphql_mutation_response(:create_container_registry_protection_rule) }
+  let(:mutation_response) { graphql_mutation_response(:create_container_protection_repository_rule) }
 
   subject(:post_graphql_mutation_create_container_registry_protection_rule) {
     post_graphql_mutation(mutation, current_user: user)
@@ -48,7 +48,7 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
 
       expect(mutation_response).to include(
         'errors' => be_blank,
-        'containerRegistryProtectionRule' => {
+        'containerProtectionRepositoryRule' => {
           'id' => be_present,
           'repositoryPathPattern' => input[:repository_path_pattern]
         }
@@ -103,7 +103,7 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
 
     it_behaves_like 'an erroneous response'
 
-    it 'returns error from endpoint implementation (not from grapqhl framework)' do
+    it 'returns error from endpoint implementation (not from graphql framework)' do
       post_graphql_mutation_create_container_registry_protection_rule
 
       expect_graphql_errors_to_include([/repositoryPathPattern can't be blank/])
@@ -115,7 +115,7 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
 
     it_behaves_like 'an erroneous response'
 
-    it 'returns error from endpoint implementation (not from grapqhl framework)' do
+    it 'returns error from endpoint implementation (not from graphql framework)' do
       post_graphql_mutation_create_container_registry_protection_rule
 
       expect_graphql_errors_to_be_empty
@@ -186,22 +186,6 @@ RSpec.describe 'Creating the container registry protection rule', :aggregate_fai
       it_behaves_like 'an erroneous response'
 
       it { subject.tap { expect_graphql_errors_to_include(/you don't have permission to perform this action/) } }
-    end
-  end
-
-  context "when feature flag ':container_registry_protected_containers' disabled" do
-    before do
-      stub_feature_flags(container_registry_protected_containers: false)
-    end
-
-    it_behaves_like 'an erroneous response'
-
-    it { subject.tap { expect(::ContainerRegistry::Protection::Rule.where(project: project)).not_to exist } }
-
-    it 'returns error of disabled feature flag' do
-      subject.tap do
-        expect_graphql_errors_to_include(/'container_registry_protected_containers' feature flag is disabled/)
-      end
     end
   end
 end

@@ -5,6 +5,12 @@ require 'spec_helper'
 RSpec.describe SidebarsHelper, feature_category: :navigation do
   include Devise::Test::ControllerHelpers
 
+  let_it_be(:current_organization) { build_stubbed(:organization, name: "Current Organization") }
+
+  before do
+    Current.organization = current_organization
+  end
+
   describe '#sidebar_tracking_attributes_by_object' do
     subject(:tracking_attrs) { helper.sidebar_tracking_attributes_by_object(object) }
 
@@ -135,6 +141,16 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
     it_behaves_like 'shared super sidebar context'
     it { is_expected.to include({ is_logged_in: true }) }
 
+    it 'returns terms if defined' do
+      stub_application_setting(terms: "My custom Terms of Use")
+
+      is_expected.to include({ terms: "/-/users/terms" })
+    end
+
+    it 'does not return terms if not set' do
+      is_expected.to include({ terms: nil })
+    end
+
     it 'returns sidebar values from user', :use_clean_rails_memory_store_caching do
       expect(subject).to include({
         is_logged_in: true,
@@ -191,6 +207,16 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
       })
     end
 
+    context 'when todos_vue_application is disabled' do
+      it 'returns the legacy todo dashboard path' do
+        stub_feature_flags(todos_vue_application: false)
+
+        expect(subject).to include({
+          todos_dashboard_path: dashboard_todos_path
+        })
+      end
+    end
+
     it 'returns sidebar values for work item context with group id', :use_clean_rails_memory_store_caching do
       expect(context_with_group_id).to include({
         work_items: {
@@ -209,6 +235,58 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
       end
 
       it { is_expected.to include({ is_admin: true }) }
+    end
+
+    describe "what's new information" do
+      context 'when display_whats_new? is true' do
+        before do
+          allow(helper).to receive(:display_whats_new?).and_return(true)
+        end
+
+        it do
+          is_expected.to include({
+            whats_new_most_recent_release_items_count: helper.whats_new_most_recent_release_items_count,
+            whats_new_version_digest: helper.whats_new_version_digest
+          })
+        end
+      end
+
+      context 'when display_whats_new? is false' do
+        before do
+          allow(helper).to receive(:display_whats_new?).and_return(false)
+        end
+
+        it do
+          is_expected.not_to have_key(:whats_new_most_recent_release_items_count)
+          is_expected.not_to have_key(:whats_new_version_digest)
+        end
+      end
+    end
+
+    describe 'instance version information' do
+      context 'when show_version_check? is true' do
+        before do
+          allow(helper).to receive(:show_version_check?).and_return(true)
+        end
+
+        it do
+          is_expected.to include({
+            gitlab_version: Gitlab.version_info,
+            gitlab_version_check: helper.gitlab_version_check
+          })
+        end
+      end
+
+      context 'when show_version_check? is false' do
+        before do
+          allow(helper).to receive(:show_version_check?).and_return(false)
+        end
+
+        it do
+          is_expected.not_to have_key(:gitlab_version)
+          is_expected.not_to have_key(:gitlab_version_check)
+        end
+      end
     end
 
     describe "shortcut links" do
@@ -411,6 +489,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
               avatarUrl: project.avatar_url,
               name: project.name,
               namespace: project.full_name,
+              fullPath: project.full_path,
               webUrl: project_path(project)
             }
           })
@@ -434,6 +513,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
               avatarUrl: group.avatar_url,
               name: group.name,
               namespace: group.full_name,
+              fullPath: group.full_path,
               webUrl: group_path(group)
             }
           })
@@ -466,7 +546,7 @@ RSpec.describe SidebarsHelper, feature_category: :navigation do
       end
 
       let_it_be(:admin_area_link) do
-        { title: s_('Navigation|Admin Area'), link: '/admin', icon: 'admin' }
+        { title: s_('Navigation|Admin area'), link: '/admin', icon: 'admin' }
       end
 
       subject do

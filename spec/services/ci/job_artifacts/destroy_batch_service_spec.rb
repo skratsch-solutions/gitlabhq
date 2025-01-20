@@ -71,7 +71,7 @@ RSpec.describe Ci::JobArtifacts::DestroyBatchService, feature_category: :job_art
 
       let(:artifacts) do
         Ci::JobArtifact.where(id: [artifact_with_file.id, artifact_under_refresh_1.id, artifact_under_refresh_2.id,
-                                   artifact_under_refresh_3.id])
+          artifact_under_refresh_3.id])
       end
 
       before do
@@ -175,6 +175,29 @@ RSpec.describe Ci::JobArtifacts::DestroyBatchService, feature_category: :job_art
         end
 
         it_behaves_like 'avoiding N+1 queries'
+      end
+    end
+
+    context 'when an artifact belongs to an orphaned project' do
+      let(:artifacts) { Ci::JobArtifact.where(id: [orphaned_artifact.id]) }
+      let!(:orphaned_artifact) do
+        create(:ci_job_artifact, :zip)
+      end
+
+      before do
+        orphaned_artifact.update!(project_id: 0)
+      end
+
+      it 'deletes the artifact' do
+        expect { subject }.to change { Ci::JobArtifact.count }.by(-1)
+      end
+
+      context 'when skip_projects_on_refresh is set to true' do
+        let(:skip_projects_on_refresh) { true }
+
+        it 'deletes the artifact' do
+          expect { subject }.to change { Ci::JobArtifact.count }.by(-1)
+        end
       end
     end
 

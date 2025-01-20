@@ -99,12 +99,12 @@ export default {
     :items="messages"
     :fields="$options.fields"
     :tbody-tr-attr="{ 'data-testid': 'message-row' }"
-    class="-gl-mt-1 -gl-mb-2"
+    class="-gl-mb-2 -gl-mt-1"
     stacked="md"
   >
     <template #cell(preview)="{ item: { message, theme, broadcast_type, dismissable } }">
       <gl-broadcast-message :theme="theme" :type="broadcast_type" :dismissible="dismissable">
-        {{ message }}
+        <span v-safe-html="message"></span>
       </gl-broadcast-message>
     </template>
 

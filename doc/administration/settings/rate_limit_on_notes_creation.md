@@ -8,13 +8,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** Self-managed
+**Offering:** GitLab Self-Managed
 
 You can configure the per-user rate limit for requests to the note creation endpoint.
 
 To change the note creation rate limit:
 
-1. On the left sidebar, at the bottom, select **Admin Area**.
+1. On the left sidebar, at the bottom, select **Admin**.
 1. Select **Settings > Network**.
 1. Expand **Notes rate limit**.
 1. In the **Maximum requests per minute** box, enter the new value.

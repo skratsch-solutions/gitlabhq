@@ -5,7 +5,9 @@ class IssuableBaseService < ::BaseContainerService
 
   def available_callbacks
     [
+      Issuable::Callbacks::Description,
       Issuable::Callbacks::Milestone,
+      Issuable::Callbacks::Labels,
       Issuable::Callbacks::TimeTracking
     ].freeze
   end
@@ -65,12 +67,6 @@ class IssuableBaseService < ::BaseContainerService
 
   def filter_params(issuable)
     unless can_set_issuable_metadata?(issuable)
-      params.delete(:labels)
-      params.delete(:add_label_ids)
-      params.delete(:add_labels)
-      params.delete(:remove_label_ids)
-      params.delete(:remove_labels)
-      params.delete(:label_ids)
       params.delete(:assignee_ids)
       params.delete(:assignee_id)
       params.delete(:add_assignee_ids)
@@ -86,7 +82,6 @@ class IssuableBaseService < ::BaseContainerService
     params.delete(:confidential) unless can_set_confidentiality?(issuable)
     filter_contact_params(issuable)
     filter_assignees(issuable)
-    filter_labels
     filter_severity(issuable)
     filter_escalation_status(issuable)
   end
@@ -104,7 +99,7 @@ class IssuableBaseService < ::BaseContainerService
       params[id_key] = params[id_key].first(1)
     end
 
-    assignee_ids = params[id_key].select { |assignee_id| user_can_read?(issuable, assignee_id) }
+    assignee_ids = User.id_in(params[id_key]).select { |assignee| user_can_read?(issuable, assignee) }.map(&:id)
 
     if params[id_key].map(&:to_s) == [IssuableFinder::Params::NONE]
       params[id_key] = []
@@ -115,34 +110,10 @@ class IssuableBaseService < ::BaseContainerService
     end
   end
 
-  def user_can_read?(issuable, user_id)
-    user = User.find_by_id(user_id)
-
-    return false unless user
-
+  def user_can_read?(issuable, user)
     ability_name = :"read_#{issuable.to_ability_name}"
 
     can?(user, ability_name, issuable.resource_parent)
-  end
-
-  def filter_labels
-    label_ids_to_filter(:add_label_ids, :add_labels, false)
-    label_ids_to_filter(:remove_label_ids, :remove_labels, true)
-    label_ids_to_filter(:label_ids, :labels, false)
-  end
-
-  def label_ids_to_filter(label_id_key, label_key, find_only)
-    if params[label_id_key]
-      params[label_id_key] = labels_service.filter_labels_ids_in_param(label_id_key)
-    elsif params[label_key]
-      params[label_id_key] = labels_service.find_or_create_by_titles(label_key, find_only: find_only).map(&:id)
-    end
-
-    params.delete(label_key) if params[label_key].nil?
-  end
-
-  def labels_service
-    @labels_service ||= ::Labels::AvailableLabelsService.new(current_user, parent, params)
   end
 
   def filter_severity(issuable)
@@ -171,31 +142,6 @@ class IssuableBaseService < ::BaseContainerService
     params[:incident_management_issuable_escalation_status_attributes] = result[:escalation_status]
   end
 
-  def process_label_ids(attributes, issuable:, existing_label_ids: nil, extra_label_ids: []) # rubocop:disable Lint/UnusedMethodArgument
-    label_ids = attributes.delete(:label_ids)
-    add_label_ids = attributes.delete(:add_label_ids)
-    remove_label_ids = attributes.delete(:remove_label_ids)
-
-    new_label_ids = label_ids || existing_label_ids || []
-    new_label_ids |= extra_label_ids
-
-    new_label_ids |= add_label_ids if add_label_ids
-    new_label_ids -= remove_label_ids if remove_label_ids
-
-    filter_locked_labels(issuable, new_label_ids.uniq, existing_label_ids)
-  end
-
-  # Filter out any locked labels that are attempting to be removed
-  def filter_locked_labels(issuable, ids, existing_label_ids)
-    return ids unless issuable.supports_lock_on_merge?
-    return ids unless existing_label_ids.present?
-
-    removed_label_ids = existing_label_ids - ids
-    removed_locked_label_ids = labels_service.filter_locked_label_ids(removed_label_ids)
-
-    ids + removed_locked_label_ids
-  end
-
   def process_assignee_ids(attributes, existing_assignee_ids: nil, extra_assignee_ids: [])
     process = Issuable::ProcessAssignees.new(
       assignee_ids: attributes.delete(:assignee_ids),
@@ -217,52 +163,32 @@ class IssuableBaseService < ::BaseContainerService
   # If the description has not been edited, then just remove any quick actions
   # in the current description.
   def merge_quick_actions_into_params!(issuable, params:, only: nil)
-    interpret_params = quick_action_options
-    unedited_description = issuable.description
-    edited_description = params.fetch(:description, issuable.description)
+    target_description = params.fetch(:description, issuable.description)
 
-    target_text = issuable.new_record? || params[:description] ? edited_description : unedited_description
-
-    # only set the original_text if we're editing the issuable
-    original_text = params[:description] && !issuable.new_record? ? unedited_description : nil
-
-    sanitized_description, sanitized_command_params = interpret_quick_actions(target_text, issuable, params: interpret_params, only: only, original_text: original_text)
-
-    unless issuable.new_record? || params[:description]
-      edited_description = unedited_description
-      sanitized_command_params = nil
-    end
+    description, command_params = QuickActions::InterpretService.new(
+      container: container,
+      current_user: current_user,
+      params: quick_action_options
+    ).execute_with_original_text(target_description, issuable, only: only, original_text: issuable.description_was)
 
     # Avoid a description already set on an issuable to be overwritten by a nil
-    params[:description] = sanitized_description if sanitized_description && sanitized_description != edited_description
+    params[:description] = description if description && description != target_description
 
-    params.merge!(sanitized_command_params) if sanitized_command_params
+    params.merge!(command_params)
   end
 
   def quick_action_options
     {}
   end
 
-  def interpret_quick_actions(new_text, issuable, params:, only:, original_text: nil)
-    sanitized_new_text, new_command_params = QuickActions::InterpretService.new(
-      container: container,
-      current_user: current_user,
-      params: params
-    ).execute_with_original_text(new_text, issuable, only: only, original_text: original_text)
-
-    [sanitized_new_text, new_command_params]
-  end
-
   def create(issuable, skip_system_notes: false)
-    initialize_callbacks!(issuable)
+    # Set author early since this is used for ability checks
+    set_issuable_author(issuable)
 
-    prepare_create_params(issuable)
     handle_quick_actions(issuable)
     filter_params(issuable)
 
     params.delete(:state_event)
-    params[:author] ||= current_user
-    params[:label_ids] = process_label_ids(params, issuable: issuable, extra_label_ids: issuable.label_ids.to_a)
 
     if issuable.respond_to?(:assignee_ids)
       params[:assignee_ids] = process_assignee_ids(params, extra_assignee_ids: issuable.assignee_ids.to_a)
@@ -271,12 +197,14 @@ class IssuableBaseService < ::BaseContainerService
     params.delete(:remove_contacts)
     add_crm_contact_emails = params.delete(:add_contacts)
 
+    initialize_callbacks!(issuable)
     issuable.assign_attributes(allowed_create_params(params))
 
     before_create(issuable)
 
     issuable_saved = issuable.with_transaction_returning_status do
       @callbacks.each(&:before_create)
+
       transaction_create(issuable)
     end
 
@@ -288,6 +216,7 @@ class IssuableBaseService < ::BaseContainerService
 
       after_create(issuable)
       set_crm_contacts(issuable, add_crm_contact_emails)
+      execute_triggers
       execute_hooks(issuable)
 
       users_to_invalidate = issuable.allows_reviewers? ? issuable.assignees | issuable.reviewers : issuable.assignees
@@ -298,10 +227,23 @@ class IssuableBaseService < ::BaseContainerService
     issuable
   end
 
+  def set_issuable_author(issuable)
+    author = params.delete(:author)
+    author_id = params.delete(:author_id)
+
+    if author
+      issuable.author = author
+    elsif author_id
+      issuable.author_id = author_id
+    else
+      issuable.author ||= current_user
+    end
+  end
+
   def set_crm_contacts(issuable, add_crm_contact_emails, remove_crm_contact_emails = [])
     return unless add_crm_contact_emails.present? || remove_crm_contact_emails.present?
 
-    ::Issues::SetCrmContactsService.new(project: project, current_user: current_user, params: { add_emails: add_crm_contact_emails, remove_emails: remove_crm_contact_emails }).execute(issuable)
+    ::Issues::SetCrmContactsService.new(container: project, current_user: current_user, params: { add_emails: add_crm_contact_emails, remove_emails: remove_crm_contact_emails }).execute(issuable)
   end
 
   def before_create(issuable)
@@ -316,17 +258,13 @@ class IssuableBaseService < ::BaseContainerService
     # To be overridden by subclasses
   end
 
-  def prepare_update_params(issuable)
-    # To be overridden by subclasses
-  end
-
-  def prepare_create_params(issuable)
-    # To be overridden by subclasses
-  end
-
   def after_update(issuable, old_associations)
     handle_description_updated(issuable)
     handle_label_changes(issuable, old_associations[:labels])
+  end
+
+  def execute_triggers
+    # This is overridden in EE
   end
 
   def handle_description_updated(issuable)
@@ -336,27 +274,24 @@ class IssuableBaseService < ::BaseContainerService
   end
 
   def update(issuable)
-    ::Gitlab::Database::LoadBalancing::Session.current.use_primary!
+    ::Gitlab::Database::LoadBalancing::SessionMap.current(issuable.load_balancer).use_primary!
 
     old_associations = associations_before_update(issuable)
 
-    initialize_callbacks!(issuable)
+    # We need to set the lock version early in case some of the callbacks below does a save
+    # that increments the lock version. This will prevent a stale lock version when we get to
+    # the `#assign_attributes` call below.
+    issuable.lock_version = params.delete(:lock_version) if params.key?(:lock_version)
 
-    prepare_update_params(issuable)
     handle_quick_actions(issuable)
     filter_params(issuable)
 
     change_additional_attributes(issuable)
 
-    assign_requested_labels(issuable)
-    assign_requested_assignees(issuable)
-    assign_requested_crm_contacts(issuable)
-    widget_params = filter_widget_params
+    initialize_callbacks!(issuable)
 
-    if issuable.changed? || params.present? || widget_params.present? || @callbacks.present?
+    if issuable.changed? || params.present? || @callbacks.present?
       issuable.assign_attributes(allowed_update_params(params))
-
-      assign_last_edited(issuable)
 
       before_update(issuable)
 
@@ -398,21 +333,37 @@ class IssuableBaseService < ::BaseContainerService
           old_associations: old_associations
         )
 
+        execute_triggers
         issuable.update_project_counter_caches if update_project_counters
       end
     end
 
+    trigger_update_subscriptions(issuable, old_associations)
+
     issuable
   end
+
+  # Overriden in child class
+  def trigger_update_subscriptions(issuable, old_associations); end
 
   def transaction_update(issuable, opts = {})
     touch = opts[:save_with_touch] || false
 
-    issuable.save(touch: touch)
+    issuable.save(touch: touch).tap do |saved|
+      if saved
+        @callbacks.each(&:after_update)
+        @callbacks.each(&:after_save)
+      end
+    end
   end
 
   def transaction_create(issuable)
-    issuable.save
+    issuable.save.tap do |saved|
+      if saved
+        @callbacks.each(&:after_create)
+        @callbacks.each(&:after_save)
+      end
+    end
   end
 
   def update_task(issuable)
@@ -487,6 +438,9 @@ class IssuableBaseService < ::BaseContainerService
     change_subscription(issuable)
     change_todo(issuable)
     toggle_award(issuable)
+
+    assign_requested_assignees(issuable)
+    assign_requested_crm_contacts(issuable)
   end
 
   def change_state(issuable)
@@ -523,14 +477,6 @@ class IssuableBaseService < ::BaseContainerService
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
-  def assign_requested_labels(issuable)
-    label_ids = process_label_ids(params, issuable: issuable, existing_label_ids: issuable.label_ids)
-    return unless ids_changing?(issuable.label_ids, label_ids)
-
-    params[:label_ids] = label_ids
-    issuable.touch
-  end
-
   def assign_requested_crm_contacts(issuable)
     add_crm_contact_emails = params.delete(:add_contacts)
     remove_crm_contact_emails = params.delete(:remove_contacts)
@@ -545,12 +491,6 @@ class IssuableBaseService < ::BaseContainerService
       params[:assignee_ids] = assignee_ids
       issuable.touch
     end
-  end
-
-  def assign_last_edited(issuable)
-    return unless issuable.description_changed?
-
-    issuable.assign_attributes(last_edited_at: Time.current, last_edited_by: current_user)
   end
 
   # Arrays of ids are used, but we should really use sets of ids, so
@@ -647,16 +587,13 @@ class IssuableBaseService < ::BaseContainerService
   end
 
   # override if needed
-  def handle_changes(issuable, options)
-  end
+  def handle_changes(issuable, options); end
 
   # override if needed
-  def handle_task_changes(issuable)
-  end
+  def handle_task_changes(issuable); end
 
   # override if needed
-  def execute_hooks(issuable, action = 'open', params = {})
-  end
+  def execute_hooks(issuable, action = 'open', params = {}); end
 
   def update_project_counter_caches?(issuable)
     issuable.state_id_changed?
@@ -671,7 +608,7 @@ class IssuableBaseService < ::BaseContainerService
   end
 
   def allowed_create_params(params)
-    params
+    params.except(:observability_links)
   end
 
   def allowed_update_params(params)
@@ -682,10 +619,6 @@ class IssuableBaseService < ::BaseContainerService
     return unless issuable_sla = issuable.issuable_sla
 
     issuable_sla.update(issuable_closed: issuable.closed?)
-  end
-
-  def filter_widget_params
-    params.delete(:widget_params)
   end
 
   def filter_contact_params(issuable)

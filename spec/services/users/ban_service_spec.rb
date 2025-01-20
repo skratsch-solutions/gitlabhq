@@ -34,6 +34,8 @@ RSpec.describe Users::BanService, feature_category: :user_management do
       end
 
       it 'logs ban in application logs' do
+        allow(Gitlab::AppLogger).to receive(:info)
+
         expect(Gitlab::AppLogger).to receive(:info).with(
           message: "User ban",
           username: user.username.to_s,
@@ -46,9 +48,8 @@ RSpec.describe Users::BanService, feature_category: :user_management do
         ban_user
       end
 
-      it 'tracks the event', :experiment do
-        expect(experiment(:phone_verification_for_low_risk_users))
-          .to track(:banned).on_next_instance.with_context(user: user)
+      it 'bans duplicate users' do
+        expect(AntiAbuse::BanDuplicateUsersWorker).to receive(:perform_async).with(user.id)
 
         ban_user
       end

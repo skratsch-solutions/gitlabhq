@@ -10,15 +10,26 @@ module Gitlab
       #
       # It also allows for multiple backups to happen in parallel
       # without one overwriting data from another
-      class BackupExecutor
+      class BackupExecutor < BaseExecutor
         attr_reader :context, :metadata, :workdir, :archive_directory
 
-        # @param [Gitlab::Backup::Cli::SourceContext] context
-        def initialize(context:)
+        # @param [Gitlab::Backup::Cli::SourceContext, Context::OmnibusContext] context
+        def initialize(
+          context:,
+          backup_bucket: nil,
+          wait_for_completion: nil,
+          registry_bucket: nil,
+          service_account_file: nil)
           @context = context
           @metadata = build_metadata
           @workdir = create_temporary_workdir!
           @archive_directory = context.backup_basedir.join(metadata.backup_id)
+          super(
+            backup_bucket: backup_bucket,
+            wait_for_completion: wait_for_completion,
+            registry_bucket: registry_bucket,
+            service_account_file: service_account_file
+          )
         end
 
         def execute
@@ -40,18 +51,31 @@ module Gitlab
         end
 
         def execute_all_tasks
-          # TODO: when we migrate targets to the new codebase, recreate options to have only what we need here
-          # https://gitlab.com/gitlab-org/gitlab/-/issues/454906
-          options = ::Backup::Options.new
+          tasks = []
 
-          Gitlab::Backup::Cli::Tasks.build_each(context: context, options: options) do |task|
+          Gitlab::Backup::Cli::Tasks.build_each(context: context) do |task|
+            # This is a temporary hack while we move away from options and use config instead
+            # This hack will be removed as part of https://gitlab.com/gitlab-org/gitlab/-/issues/498455
+            task.set_registry_bucket(registry_bucket) if task.is_a?(Gitlab::Backup::Cli::Tasks::Registry)
+
             Gitlab::Backup::Cli::Output.info("Executing Backup of #{task.human_name}...")
 
             duration = measure_duration do
-              task.backup!(workdir, metadata.backup_id)
+              task.backup!(workdir)
+              tasks << task
             end
 
+            next if task.asynchronous?
+
             Gitlab::Backup::Cli::Output.success("Finished Backup of #{task.human_name}! (#{duration.in_seconds}s)")
+          end
+
+          if wait_for_completion
+            tasks.each do |task|
+              wait_for_task(task)
+            end
+          else
+            Gitlab::Backup::Cli::Output.info('Backup tasks completed! Not waiting for object storage tasks to complete')
           end
         end
 
@@ -82,6 +106,19 @@ module Gitlab
           yield
 
           ActiveSupport::Duration.build(Time.now - start)
+        end
+
+        def wait_for_task(task)
+          return unless task.asynchronous?
+
+          Gitlab::Backup::Cli::Output.info("Waiting for Backup of #{task.human_name} to finish...")
+
+          r = task.wait_until_done!
+          if r.error?
+            Gitlab::Backup::Cli::Output.error("Backup of #{task.human_name} failed!")
+          else
+            Gitlab::Backup::Cli::Output.success("Finished Backup of #{task.human_name}!")
+          end
         end
       end
     end

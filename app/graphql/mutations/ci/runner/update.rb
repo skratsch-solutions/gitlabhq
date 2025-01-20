@@ -66,7 +66,7 @@ module Mutations
         end
 
         def update_runner(response, runner, attrs)
-          result = ::Ci::Runners::UpdateRunnerService.new(runner).execute(attrs)
+          result = ::Ci::Runners::UpdateRunnerService.new(current_user, runner).execute(attrs)
           return if result.success?
 
           response[:runner] = nil
@@ -78,4 +78,4 @@ module Mutations
   end
 end
 
-Mutations::Ci::Runner::Update.prepend_mod_with('Mutations::Ci::Runner::Update')
+Mutations::Ci::Runner::Update.prepend_mod

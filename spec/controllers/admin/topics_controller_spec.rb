@@ -2,10 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe Admin::TopicsController do
-  let_it_be(:topic) { create(:topic, name: 'topic') }
-  let_it_be(:admin) { create(:admin) }
-  let_it_be(:user) { create(:user) }
+RSpec.describe Admin::TopicsController, :with_current_organization do
+  let_it_be(:namespace) { create :namespace, organization: current_organization }
+  let_it_be(:topic) { create(:topic, name: 'topic', organization: namespace.organization) }
+  let_it_be(:admin) { create(:admin, namespace: namespace) }
+  let_it_be(:user) { create(:user, namespace: namespace) }
 
   before do
     sign_in(admin)
@@ -78,7 +79,7 @@ RSpec.describe Admin::TopicsController do
     it 'creates topic' do
       expect do
         post :create, params: { projects_topic: { name: 'test', title: 'Test' } }
-      end.to change { Projects::Topic.count }.by(1)
+      end.to change { Projects::Topic.for_organization(current_organization.id).count }.by(1)
     end
 
     it 'shows error message for invalid topic name' do
@@ -137,7 +138,7 @@ RSpec.describe Admin::TopicsController do
     end
 
     it 'shows error message if topic not unique (case insensitive)' do
-      other_topic = create(:topic, name: 'other-topic')
+      other_topic = create(:topic, name: 'other-topic', organization: current_organization)
 
       put :update, params: { id: topic.id, projects_topic: { name: other_topic.name.upcase } }
 
@@ -181,8 +182,11 @@ RSpec.describe Admin::TopicsController do
   end
 
   describe 'POST #merge' do
-    let_it_be(:source_topic) { create(:topic, name: 'source_topic') }
-    let_it_be(:project) { create(:project, topic_list: source_topic.name) }
+    let_it_be(:source_topic) { create(:topic, name: 'source_topic', organization: current_organization) }
+    let_it_be(:project) { create(:project, topic_list: source_topic.name, organization: current_organization) }
+
+    let_it_be(:new_organization) { create(:organization, name: 'New Organization') }
+    let_it_be(:new_organization_topic) { create(:topic, name: 'new_org_topic', organization: new_organization) }
 
     it 'merges source topic into target topic' do
       post :merge, params: { source_topic_id: source_topic.id, target_topic_id: topic.id }
@@ -204,6 +208,14 @@ RSpec.describe Admin::TopicsController do
 
       expect(response).to have_gitlab_http_status(:bad_request)
       expect { topic.reload }.not_to raise_error
+    end
+
+    it 'renders a 400 error when trying to merge topics from different organizations' do
+      post :merge, params: { source_topic_id: source_topic.id, target_topic_id: new_organization_topic.id }
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect { source_topic.reload }.not_to raise_error
+      expect { new_organization_topic.reload }.not_to raise_error
     end
 
     context 'as a normal user' do

@@ -1,3 +1,58 @@
+import { userTypes } from '~/sidebar/components/assignees/constants';
+
+export const createMockUser = (userDetails) => {
+  return {
+    __typename: 'UserCore',
+    status: null,
+    canMerge: false,
+    ...userDetails,
+  };
+};
+
+export const mockUser1 = createMockUser({
+  id: 'gid://gitlab/User/1',
+  avatarUrl:
+    'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon',
+  name: 'Administrator',
+  username: 'root',
+  webUrl: '/root',
+  webPath: '/root',
+});
+
+export const mockUserWithType1 = {
+  ...mockUser1,
+  type: userTypes.human,
+};
+
+export const mockUser2 = createMockUser({
+  id: 'gid://gitlab/User/5',
+  avatarUrl: '/avatar2',
+  name: 'rookie',
+  username: 'rookie',
+  webUrl: 'rookie',
+  webPath: '/rookie',
+});
+
+export const mockUserWithType2 = {
+  ...mockUser2,
+  type: userTypes.human,
+};
+
+export const placeholderAuthor = {
+  id: 'some-placeholder-user',
+  type: userTypes.placeholder,
+  avatarUrl: '/avatar',
+  status: null,
+  name: 'PlaceholderRoot',
+  username: 'placeholder_root_1',
+  webUrl: '/placeholder_user_1',
+  webPath: '/placeholder_user_1',
+};
+
+export const initialAssignees = [mockUserWithType2];
+
+export const initialAssigneesPlaceholder = [placeholderAuthor];
+
 const RESPONSE_MAP = {
   GET: {
     '/gitlab-org/gitlab-shell/issues/5.json': {
@@ -28,6 +83,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/52e4ce24a915fb7e51e1ad3b57f4b00a?s=80\u0026d=identicon',
           web_url: 'http: //localhost:3001/user0',
+          type: userTypes.human,
         },
         {
           name: 'Marguerite Bartell',
@@ -37,6 +93,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/4852a41fb41616bf8f140d3701673f53?s=80\u0026d=identicon',
           web_url: 'http: //localhost:3001/tajuana',
+          type: userTypes.human,
         },
         {
           name: 'Laureen Ritchie',
@@ -46,6 +103,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/e301827eb03be955c9c172cb9a8e4e8a?s=80\u0026d=identicon',
           web_url: 'http: //localhost:3001/michaele.will',
+          type: userTypes.service_user,
         },
       ],
       due_date: null,
@@ -76,6 +134,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/52e4ce24a915fb7e51e1ad3b57f4b00a?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/user0',
+          type: userTypes.human,
         },
         {
           name: 'Marguerite Bartell',
@@ -85,6 +144,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/4852a41fb41616bf8f140d3701673f53?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/tajuana',
+          type: userTypes.human,
         },
         {
           name: 'Laureen Ritchie',
@@ -94,6 +154,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/e301827eb03be955c9c172cb9a8e4e8a?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/michaele.will',
+          type: userTypes.service_user,
         },
       ],
       human_time_estimate: null,
@@ -107,6 +168,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/52e4ce24a915fb7e51e1ad3b57f4b00a?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/user0',
+          type: userTypes.human,
         },
         {
           name: 'Marguerite Bartell',
@@ -116,6 +178,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/4852a41fb41616bf8f140d3701673f53?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/tajuana',
+          type: userTypes.human,
         },
         {
           name: 'Laureen Ritchie',
@@ -125,6 +188,7 @@ const RESPONSE_MAP = {
           avatar_url:
             'https://www.gravatar.com/avatar/e301827eb03be955c9c172cb9a8e4e8a?s=80\u0026d=identicon',
           web_url: 'http://localhost:3001/michaele.will',
+          type: userTypes.service_user,
         },
       ],
       subscribed: true,
@@ -201,6 +265,7 @@ const mockData = {
       username: 'root',
       avatar_url:
         'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      type: userTypes.human,
     },
     rootPath: '/',
     fullPath: '/gitlab-org/gitlab-shell',
@@ -217,6 +282,7 @@ const mockData = {
     id: 1,
     name: 'Administrator',
     username: 'root',
+    type: userTypes.human,
   },
 };
 
@@ -363,6 +429,7 @@ export const issuableQueryResponse = {
           webUrl: 'root',
           webPath: '/root',
           status: null,
+          type: userTypes.human,
         },
         assignees: {
           nodes: [
@@ -376,6 +443,35 @@ export const issuableQueryResponse = {
               webUrl: '/franc',
               webPath: '/franc',
               status: null,
+              type: userTypes.human,
+            },
+          ],
+        },
+      },
+    },
+  },
+};
+
+export const issuableQueryWithPlaceholderResponse = {
+  data: {
+    workspace: {
+      __typename: 'Project',
+      id: '1',
+      issuable: {
+        __typename: 'Issue',
+        id: 'gid://gitlab/Issue/1',
+        iid: '1',
+        author: {
+          ...placeholderAuthor,
+          id: '1',
+          status: null,
+        },
+        assignees: {
+          nodes: [
+            {
+              __typename: 'UserCore',
+              id: 'gid://gitlab/User/1',
+              ...placeholderAuthor,
             },
           ],
         },
@@ -466,6 +562,7 @@ export const updateIssueAssigneesMutationResponse = {
               webUrl: '/root',
               webPath: '/root',
               status: null,
+              type: userTypes.human,
             },
           ],
           __typename: 'UserConnection',
@@ -503,31 +600,6 @@ export const subscriptionResponse = {
       },
     },
   },
-};
-
-export const mockUser1 = {
-  __typename: 'UserCore',
-  id: 'gid://gitlab/User/1',
-  avatarUrl:
-    'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon',
-  name: 'Administrator',
-  username: 'root',
-  webUrl: '/root',
-  webPath: '/root',
-  status: null,
-  canMerge: false,
-};
-
-export const mockUser2 = {
-  __typename: 'UserCore',
-  id: 'gid://gitlab/User/5',
-  avatarUrl: '/avatar2',
-  name: 'rookie',
-  username: 'rookie',
-  webUrl: 'rookie',
-  webPath: '/rookie',
-  status: null,
-  canMerge: false,
 };
 
 export const searchResponse = {
@@ -732,6 +804,39 @@ export const participantsQueryResponse = {
   },
 };
 
+export const mrAssigneesQueryResponse = {
+  data: {
+    workspace: {
+      __typename: 'Project',
+      id: '1',
+      issuable: {
+        __typename: 'MergeRequest',
+        id: 'gid://gitlab/MergeRequest/1',
+        iid: '1',
+        author: {
+          id: '1',
+          avatarUrl: '/avatar',
+          name: 'root',
+          username: 'root',
+          webUrl: 'root',
+          webPath: '/root',
+          status: null,
+          type: userTypes.human,
+          mergeRequestInteraction: {
+            canMerge: true,
+          },
+        },
+        assignees: {
+          nodes: [],
+        },
+        userPermissions: {
+          canMerge: true,
+        },
+      },
+    },
+  },
+};
+
 export const mockGroupPath = 'gitlab-org';
 export const mockProjectPath = `${mockGroupPath}/some-project`;
 
@@ -862,6 +967,22 @@ export const todosResponse = {
               id: 'gid://gitlab/Todo/433',
             },
           ],
+        },
+      },
+    },
+  },
+};
+
+export const noMergeRequestTodosResponse = {
+  data: {
+    workspace: {
+      id: '1',
+      __typename: 'Project',
+      issuable: {
+        __typename: 'MergeRequest',
+        id: 'gid://gitlab/MergeRequest/1',
+        currentUserTodos: {
+          nodes: [],
         },
       },
     },

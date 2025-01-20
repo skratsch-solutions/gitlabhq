@@ -1,4 +1,4 @@
-description: "Selec stream from dropdown"
+description: "Select stream from dropdown"
 category: default
 action: click_dropdown
 extra_properties:
@@ -6,9 +6,6 @@ identifiers:
 product_group: optimize
 milestone: "14.0"
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/62865
-distributions:
-- ce
-- ee
 tiers:
 - free
 - premium

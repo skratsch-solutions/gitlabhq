@@ -3,7 +3,6 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 
 import projects from 'test_fixtures/api/users/projects/get.json';
 import events from 'test_fixtures/controller/users/activity.json';
-import { s__ } from '~/locale';
 import OverviewTab from '~/profile/components/overview_tab.vue';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import ActivityCalendar from '~/profile/components/activity_calendar.vue';
@@ -13,6 +12,7 @@ import axios from '~/lib/utils/axios_utils';
 import ContributionEvents from '~/contribution_events/components/contribution_events.vue';
 import { createAlert } from '~/alert';
 import waitForPromises from 'helpers/wait_for_promises';
+import { HTTP_STATUS_OK } from '~/lib/utils/http_status';
 
 jest.mock('~/alert');
 
@@ -45,7 +45,7 @@ describe('OverviewTab', () => {
   it('renders `GlTab` and sets `title` prop', () => {
     createComponent();
 
-    expect(wrapper.findComponent(GlTab).attributes('title')).toBe(s__('UserProfile|Overview'));
+    expect(wrapper.findComponent(GlTab).attributes('title')).toBe('Overview');
   });
 
   it('renders `ActivityCalendar` component', () => {
@@ -93,7 +93,7 @@ describe('OverviewTab', () => {
 
   describe('when activity API request is loading', () => {
     beforeEach(() => {
-      axiosMock.onGet(defaultProvide.userActivityPath).reply(200, events);
+      axiosMock.onGet(defaultProvide.userActivityPath).reply(HTTP_STATUS_OK, events);
 
       createComponent();
     });
@@ -107,7 +107,7 @@ describe('OverviewTab', () => {
 
   describe('when activity API request is successful', () => {
     beforeEach(() => {
-      axiosMock.onGet(defaultProvide.userActivityPath).reply(200, events);
+      axiosMock.onGet(defaultProvide.userActivityPath).reply(HTTP_STATUS_OK, events);
 
       createComponent();
     });

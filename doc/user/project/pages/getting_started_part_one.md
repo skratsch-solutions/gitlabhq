@@ -8,12 +8,14 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 On this document, learn how to name your project for GitLab Pages
 according to your intended website's URL.
 
 ## GitLab Pages default domain names
+
+> - [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/163523) unique domain URLs to be shorter in GitLab 17.4.
 
 If you use your own GitLab instance to deploy your site with GitLab Pages, verify your Pages
 wildcard domain with your sysadmin. This guide is valid for any GitLab instance, provided that you
@@ -25,7 +27,7 @@ subdomain of `namespace.example.io`.
 The [`namespace`](../../namespace/index.md)
 is defined by your username on GitLab.com,
 or the group name you created this project under.
-For GitLab self-managed instances, replace `example.io`
+For GitLab Self-Managed, replace `example.io`
 with your instance's Pages domain. For GitLab.com,
 Pages domains are `*.gitlab.io`.
 
@@ -37,19 +39,21 @@ Pages domains are `*.gitlab.io`.
 | Project pages owned by a group | `acmecorp/webshop` | `http(s)://acmecorp.example.io/webshop`|
 | Project pages owned by a subgroup | `acmecorp/documentation/product-manual` | `http(s)://acmecorp.example.io/documentation/product-manual`|
 
-When **Use unique domain** setting is enabled, all URLs
-are flattened with the following structure:
+When the **Use unique domain** setting is enabled, Pages builds a unique domain name from
+the flattened project name and a six-character unique ID. Users receive a `308 Permanent Redirect` status
+redirecting the browser to these unique domain URLs. Browsers might cache this redirect:
 
-| Type of GitLab Pages | Example path of a project in GitLab | Website URL |
-| -------------------- | ------------ | ----------- |
-| User pages  | `username/username.example.io`  | `http(s)://username-example-io-username.example.io`  |
-| Group pages | `acmecorp/acmecorp.example.io` | `http(s)://acmecorp-example-io-acmecorp-uniqueid.example.io` |
-| Project pages owned by a user  | `username/my-website` | `https://my-website-username-uniqueid.gitlab.io/` |
-| Project pages owned by a group | `acmecorp/webshop` | `http(s)://webshop-acmecorp-uniqueid.example.io/`|
-| Project pages owned by a subgroup | `acmecorp/documentation/product-manual` | `http(s)://product-manual-documentation-acmecorp-uniqueid.example.io/`|
+| Type of GitLab Pages              | Example path of a project in GitLab     | Website URL |
+| --------------------------------- | --------------------------------------- | ----------- |
+| User pages                        | `username/username.example.io`          | `http(s)://username-example-io-123456.example.io` |
+| Group pages                       | `acmecorp/acmecorp.example.io`          | `http(s)://acmecorp-example-io-123456.example.io` |
+| Project pages owned by a user     | `username/my-website`                   | `https://my-website-123456.gitlab.io/` |
+| Project pages owned by a group    | `acmecorp/webshop`                      | `http(s)://webshop-123456.example.io/` |
+| Project pages owned by a subgroup | `acmecorp/documentation/product-manual` | `http(s)://product-manual-123456.example.io/` |
 
-The `unique_id` portion of the URL is an alphanumeric string. For example, if the `unique_id` is `30bae2547a50der6ed7d9a08d417a33525a5c4dc6fdd68`, the last example would be
-`http(s)://product-manual-documentation-acmecorp-30bae2547a50der6ed7d9a08d417a33525a5c4dc6fdd68.example.io/`.
+`123456` in the example URLs is a six-character unique ID.
+For example, if the unique ID is `f85695`, the last example is
+`http(s)://product-manual-f85695.example.io/`.
 
 WARNING:
 There are some known [limitations](introduction.md#subdomains-of-subdomains)

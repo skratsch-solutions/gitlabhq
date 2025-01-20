@@ -41,7 +41,7 @@ export default class LabelsSelect {
       const $form = $dropdown.closest('form, .js-issuable-update');
       const $sidebarCollapsedValue = $block.find('.sidebar-collapsed-icon span');
       const $value = $block.find('.value');
-      const $loading = $block.find('.block-loading').addClass('gl-display-none');
+      const $loading = $block.find('.block-loading').addClass('gl-hidden');
       const fieldName = $dropdown.data('fieldName');
       let initialSelected = $selectbox
         .find(`input[name="${$dropdown.data('fieldName')}"]`)
@@ -78,13 +78,13 @@ export default class LabelsSelect {
         if (!selected.length) {
           data[abilityName].label_ids = [''];
         }
-        $loading.removeClass('gl-display-none');
+        $loading.removeClass('gl-hidden');
         $dropdown.trigger('loading.gl.dropdown');
         axios
           .put(issueUpdateURL, data)
           .then(({ data }) => {
             let template;
-            $loading.addClass('gl-display-none');
+            $loading.addClass('gl-hidden');
             $dropdown.trigger('loaded.gl.dropdown');
             $selectbox.hide();
             data.issueUpdateURL = issueUpdateURL;
@@ -241,7 +241,7 @@ export default class LabelsSelect {
 
           // We need to identify which items are actually labels
           if (label.id) {
-            const selectedLayoutClasses = ['gl-flex', 'flex-row', 'text-break-word'];
+            const selectedLayoutClasses = ['gl-flex', 'flex-row', 'gl-break-all'];
             selectedClass.push('label-item', ...selectedLayoutClasses);
             linkEl.dataset.labelId = label.id;
           }
@@ -440,7 +440,7 @@ export default class LabelsSelect {
     const tooltipTitleTemplate = template(
       [
         '<% if (isScopedLabel(label) && enableScopedLabels) { %>',
-        "<span class='font-weight-bold scoped-label-tooltip-title'>Scoped label</span>",
+        "<span class='font-weight-bold'>Scoped label</span>",
         '<br>',
         '<%= escapeStr(label.description) %>',
         '<% } else { %>',

@@ -7,22 +7,22 @@ import PipelinesCiTemplates from '~/ci/pipelines_page/components/empty_state/pip
 describe('Pipelines Empty State', () => {
   let wrapper;
 
-  const findIllustration = () => wrapper.find('img');
+  const findEmptyState = () => wrapper.findComponent(GlEmptyState);
   const findButton = () => wrapper.find('a');
   const pipelinesCiTemplates = () => wrapper.findComponent(PipelinesCiTemplates);
 
-  const createWrapper = (props = {}) => {
+  const createWrapper = (provide = {}) => {
     wrapper = shallowMount(EmptyState, {
       provide: {
         pipelineEditorPath: '',
         suggestedCiTemplates: [],
         anyRunnersAvailable: true,
         ciRunnerSettingsPath: '',
+        canCreatePipeline: true,
+        ...provide,
       },
       propsData: {
         emptyStateSvgPath: 'foo.svg',
-        canSetCi: true,
-        ...props,
       },
       stubs: {
         GlEmptyState,
@@ -42,11 +42,11 @@ describe('Pipelines Empty State', () => {
 
   describe('when user cannot configure CI', () => {
     beforeEach(() => {
-      createWrapper({ canSetCi: false });
+      createWrapper({ canCreatePipeline: false });
     });
 
     it('should render empty state SVG', () => {
-      expect(findIllustration().attributes('src')).toBe('foo.svg');
+      expect(findEmptyState().props('svgPath')).toBe('foo.svg');
     });
 
     it('should render empty state header', () => {

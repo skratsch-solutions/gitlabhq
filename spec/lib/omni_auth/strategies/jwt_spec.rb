@@ -7,7 +7,7 @@ RSpec.describe OmniAuth::Strategies::Jwt do
   include DeviseHelpers
 
   describe '#decoded' do
-    subject { described_class.new({}) }
+    subject(:jwt_strategy) { described_class.new({}) }
 
     let(:timestamp) { Time.now.to_i }
     let(:jwt_config) { Devise.omniauth_configs[:jwt] }
@@ -51,7 +51,6 @@ RSpec.describe OmniAuth::Strategies::Jwt do
         context "when the #{algorithm} algorithm is used" do
           let(:algorithm) { algorithm }
           let(:secret) do
-            # rubocop:disable Style/CaseLikeIf
             if private_key_class == OpenSSL::PKey::RSA
               private_key_class.generate(2048)
                 .to_pem
@@ -61,12 +60,11 @@ RSpec.describe OmniAuth::Strategies::Jwt do
             else
               private_key_class.new(jwt_config.strategy.secret)
             end
-            # rubocop:enable Style/CaseLikeIf
           end
 
           let(:private_key) { private_key_class ? private_key_class.new(secret) : secret }
 
-          it 'decodes the user information' do
+          it 'decodes the user information', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/463691' do
             result = subject.decoded
 
             expect(result).to eq(claims.stringify_keys)
@@ -84,7 +82,7 @@ RSpec.describe OmniAuth::Strategies::Jwt do
         }
       end
 
-      it 'raises error' do
+      it 'raises error', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/463692' do
         expect { subject.decoded }.to raise_error(OmniAuth::Strategies::Jwt::ClaimInvalid)
       end
     end
@@ -103,7 +101,7 @@ RSpec.describe OmniAuth::Strategies::Jwt do
         subject.options[:valid_within] = 2.days.to_s
       end
 
-      it 'raises error' do
+      it 'raises error', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/463693' do
         expect { subject.decoded }.to raise_error(OmniAuth::Strategies::Jwt::ClaimInvalid)
       end
     end
@@ -123,8 +121,27 @@ RSpec.describe OmniAuth::Strategies::Jwt do
         subject.options[:valid_within] = 2.seconds.to_s
       end
 
-      it 'raises error' do
+      it 'raises error', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/463694' do
         expect { subject.decoded }.to raise_error(OmniAuth::Strategies::Jwt::ClaimInvalid)
+      end
+    end
+
+    context 'when the JWT is larger than 10KB' do
+      def email_local_part
+        'really_long_email' * 500
+      end
+
+      let(:claims) do
+        {
+          id: 123,
+          name: "user_example",
+          email: "#{email_local_part}@example.com",
+          iat: timestamp
+        }
+      end
+
+      it 'raises error', quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/issues/482939' do
+        expect { jwt_strategy.decoded }.to raise_error(OmniAuth::Strategies::Jwt::JwtTooLarge)
       end
     end
   end

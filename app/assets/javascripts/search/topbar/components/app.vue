@@ -1,7 +1,7 @@
 <script>
 import { GlButton } from '@gitlab/ui';
 // eslint-disable-next-line no-restricted-imports
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import { InternalEvents } from '~/tracking';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { s__ } from '~/locale';
@@ -13,6 +13,7 @@ import {
   LS_REGEX_HANDLE,
 } from '~/search/store/constants';
 import { loadDataFromLS } from '~/search/store/utils';
+import { SCOPE_BLOB } from '~/search/sidebar/constants';
 import { SYNTAX_OPTIONS_ADVANCED_DOCUMENT, SYNTAX_OPTIONS_ZOEKT_DOCUMENT } from '../constants';
 
 import SearchTypeIndicator from './search_type_indicator.vue';
@@ -43,6 +44,7 @@ export default {
   },
   computed: {
     ...mapState(['query', 'searchType', 'defaultBranchName', 'urlQuery']),
+    ...mapGetters(['currentScope']),
     search: {
       get() {
         return this.query ? this.query.search : '';
@@ -66,10 +68,13 @@ export default {
       return !this.query.repository_ref || this.query.repository_ref === this.defaultBranchName;
     },
     isRegexButtonVisible() {
+      return this.searchType === ZOEKT_SEARCH_TYPE && this.isDefaultBranch;
+    },
+    isMultiMatch() {
       return (
+        this.glFeatures.zoektMultimatchFrontend &&
         this.searchType === ZOEKT_SEARCH_TYPE &&
-        this.isDefaultBranch &&
-        this.glFeatures.zoektExactSearch
+        this.currentScope === SCOPE_BLOB
       );
     },
   },
@@ -93,6 +98,11 @@ export default {
         this.applyQuery();
       }
     },
+    submitSearch() {
+      if (!this.isMultiMatch) {
+        this.applyQuery();
+      }
+    },
   },
 };
 </script>
@@ -102,7 +112,7 @@ export default {
     <div class="search-page-form gl-mt-5">
       <search-type-indicator />
       <template v-if="showSyntaxOptions">
-        <div class="gl-display-inline-block">
+        <div class="gl-inline-block">
           <gl-button category="tertiary" variant="link" @click="onToggleDrawer"
             >{{ $options.i18n.syntaxOptionsLabel }}
           </gl-button>
@@ -118,7 +128,7 @@ export default {
         :regex-button-state="regexEnabled"
         :regex-button-handler="regexButtonHandler"
         :placeholder="$options.i18n.searchPlaceholder"
-        @keydown.enter.stop.prevent="applyQuery"
+        @keydown.enter.stop.prevent="submitSearch"
       />
     </div>
   </section>

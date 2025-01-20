@@ -15,13 +15,11 @@ module Types
         description: 'Architecture provided by the runner manager.',
         method: :architecture
       field :contacted_at, Types::TimeType, null: true,
-        description: 'Timestamp of last contact from the runner manager.',
-        method: :contacted_at
+        description: 'Timestamp of last contact from the runner manager.'
       field :created_at, Types::TimeType, null: true,
         description: 'Timestamp of creation of the runner manager.'
       field :executor_name, GraphQL::Types::String, null: true,
-        description: 'Executor last advertised by the runner.',
-        method: :executor_name
+        description: 'Executor last advertised by the runner.'
       field :id, ::Types::GlobalIDType[::Ci::RunnerManager], null: false,
         description: 'ID of the runner manager.'
       field :ip_address, GraphQL::Types::String, null: true,
@@ -30,7 +28,7 @@ module Types
         Types::Ci::RunnerJobExecutionStatusEnum,
         null: true,
         description: 'Job execution status of the runner manager.',
-        alpha: { milestone: '16.3' }
+        experiment: { milestone: '16.3' }
       field :platform_name, GraphQL::Types::String, null: true,
         description: 'Platform provided by the runner manager.',
         method: :platform
@@ -55,7 +53,7 @@ module Types
           statuses = ::Ci::RunnerManager.id_in(runner_manager_ids).with_executing_builds.index_by(&:id)
 
           runner_manager_ids.each do |runner_manager_id|
-            loader.call(runner_manager_id, statuses[runner_manager_id] ? :running : :idle)
+            loader.call(runner_manager_id, statuses[runner_manager_id] ? :active : :idle)
           end
         end
       end

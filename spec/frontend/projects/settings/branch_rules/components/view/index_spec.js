@@ -1,16 +1,20 @@
 import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
-import { GlModal, GlCard, GlCollapsibleListbox, GlToast } from '@gitlab/ui';
+import { GlModal, GlCollapsibleListbox, GlToast, GlSprintf } from '@gitlab/ui';
 import { sprintf } from '~/locale';
 import * as util from '~/lib/utils/url_utility';
+import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import { createAlert } from '~/alert';
 import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import { stubComponent, RENDER_ALL_SLOTS_TEMPLATE } from 'helpers/stub_component';
+import PageHeading from '~/vue_shared/components/page_heading.vue';
+import CrudComponent from '~/vue_shared/components/crud_component.vue';
+import SettingsSection from '~/vue_shared/components/settings/settings_section.vue';
 import RuleView from '~/projects/settings/branch_rules/components/view/index.vue';
-import RuleDrawer from '~/projects/settings/branch_rules/components/view/rule_drawer.vue';
+import AccessLevelsDrawer from '~/projects/settings/branch_rules/components/view/access_levels_drawer.vue';
 import { useMockLocationHelper } from 'helpers/mock_window_location_helper';
 import Protection from '~/projects/settings/branch_rules/components/view/protection.vue';
 import ProtectionToggle from '~/projects/settings/branch_rules/components/view/protection_toggle.vue';
@@ -35,7 +39,7 @@ import {
   matchingBranchesCount,
   protectableBranchesMockResponse,
   allowedToMergeDrawerProps,
-  protectionMockProps,
+  protectionPropsMock,
 } from 'ee_else_ce_jest/projects/settings/branch_rules/components/view/mock_data';
 
 jest.mock('~/lib/utils/url_utility', () => ({
@@ -45,6 +49,7 @@ jest.mock('~/lib/utils/url_utility', () => ({
   setUrlParams: jest
     .fn()
     .mockReturnValue('/project/Project/-/settings/repository/branch_rules?branch=main'),
+  setUrlFragment: jest.fn(),
   visitUrl: jest.fn().mockName('visitUrlMock'),
 }));
 
@@ -71,9 +76,11 @@ describe('View branch rules', () => {
     .mockResolvedValue(protectableBranchesMockResponse);
   const errorHandler = jest.fn().mockRejectedValue('error');
   const showToast = jest.fn();
+  const { bindInternalEventDocument } = useMockInternalEventsTracking();
 
   const createComponent = async ({
-    glFeatures = { editBranchRules: true },
+    glFeatures = { editBranchRules: true, branchRuleSquashSettings: true },
+    canAdminProtectedBranches = true,
     branchRulesQueryHandler = branchRulesMockRequestHandler,
     deleteMutationHandler = deleteBranchRuleSuccessHandler,
     editMutationHandler = editBranchRuleSuccessHandler,
@@ -92,13 +99,19 @@ describe('View branch rules', () => {
         protectedBranchesPath,
         branchRulesPath,
         glFeatures,
+        canAdminProtectedBranches,
       },
       stubs: {
+        ApprovalRulesApp: true,
+        StatusChecks: true,
         Protection,
+        ProjectRules: true,
         ProtectionToggle,
         BranchRuleModal,
-        RuleDrawer,
-        GlCard: stubComponent(GlCard, { template: RENDER_ALL_SLOTS_TEMPLATE }),
+        AccessLevelsDrawer,
+        PageHeading,
+        CrudComponent,
+        GlSprintf,
         GlModal: stubComponent(GlModal, { template: RENDER_ALL_SLOTS_TEMPLATE }),
       },
       mocks: {
@@ -121,12 +134,10 @@ describe('View branch rules', () => {
 
   const findBranchName = () => wrapper.findByTestId('branch');
   const findAllBranches = () => wrapper.findByTestId('all-branches');
-  const findBranchProtectionTitle = () => wrapper.findByText(I18N.protectBranchTitle);
+  const findSettingsSection = () => wrapper.findComponent(SettingsSection);
   const findAllowedToMerge = () => wrapper.findByTestId('allowed-to-merge-content');
   const findAllowedToPush = () => wrapper.findByTestId('allowed-to-push-content');
   const findAllowForcePushToggle = () => wrapper.findByTestId('force-push-content');
-  const findApprovalsTitle = () => wrapper.findByText(I18N.approvalsTitle);
-  const findpageTitle = () => wrapper.findByText(I18N.pageTitle);
   const findStatusChecksTitle = () => wrapper.findByText(I18N.statusChecksTitle);
   const findDeleteRuleButton = () => wrapper.findByTestId('delete-rule-button');
   const findEditRuleNameButton = () => wrapper.findByTestId('edit-rule-name-button');
@@ -134,7 +145,7 @@ describe('View branch rules', () => {
   const findBranchRuleModal = () => wrapper.findComponent(BranchRuleModal);
   const findBranchRuleListbox = () => wrapper.findComponent(GlCollapsibleListbox);
   const findNoDataTitle = () => wrapper.findByText(I18N.noData);
-  const findRuleDrawer = () => wrapper.findComponent(RuleDrawer);
+  const findAccessLevelsDrawer = () => wrapper.findComponent(AccessLevelsDrawer);
 
   const findMatchingBranchesLink = () =>
     wrapper.findByText(
@@ -144,8 +155,57 @@ describe('View branch rules', () => {
       }),
     );
 
+  const findSquashSettingSection = () => wrapper.findByTestId('squash-setting-content');
+
+  describe('Squash settings', () => {
+    it('does not render squash settings section when feature flag is disabled', async () => {
+      await createComponent({ glFeatures: { branchRuleSquashSettings: false } });
+
+      expect(findSquashSettingSection().exists()).toBe(false);
+    });
+
+    it('renders squash settings section', () => {
+      expect(findSquashSettingSection().exists()).toBe(true);
+    });
+
+    it('renders squash heading and content with an empty state', async () => {
+      const branchRulesQueryHandler = jest.fn().mockResolvedValue({
+        data: {
+          project: {
+            branchRules: {
+              nodes: [
+                {
+                  ...branchProtectionsMockResponse.data.project.branchRules.nodes[0],
+                  squashOption: null,
+                },
+              ],
+            },
+          },
+        },
+      });
+
+      await createComponent({ branchRulesQueryHandler });
+      const content = findSquashSettingSection().text();
+
+      expect(content).toContain('Squash commits when merging');
+      expect(content).toContain(
+        'Set the default behavior of this option in merge requests. Changes to this are also applied to existing merge requests.',
+      );
+      expect(content).toContain('No default set until defined by user');
+    });
+
+    it('does not render squash settings for wildcard branch rules', async () => {
+      jest.spyOn(util, 'getParameterByName').mockReturnValueOnce('*');
+      await createComponent();
+
+      expect(findSquashSettingSection().exists()).toBe(false);
+    });
+  });
+
   it('renders page title', () => {
-    expect(findpageTitle().exists()).toBe(true);
+    const pageTitle = wrapper.findComponent(PageHeading).props('heading');
+
+    expect(pageTitle).toBe('Branch rule details');
   });
 
   it('gets the branch param from url and renders it in the view', () => {
@@ -157,7 +217,7 @@ describe('View branch rules', () => {
     jest.spyOn(util, 'getParameterByName').mockReturnValueOnce(ALL_BRANCHES_WILDCARD);
     await createComponent();
 
-    expect(findAllBranches().text()).toBe(I18N.allBranches);
+    expect(findAllBranches().text()).toBe('*');
   });
 
   it('renders matching branches link', () => {
@@ -170,20 +230,19 @@ describe('View branch rules', () => {
   });
 
   it('renders a branch protection title', () => {
-    expect(findBranchProtectionTitle().exists()).toBe(true);
+    expect(findSettingsSection().attributes('heading')).toBe('Protect branch');
   });
 
   it('renders a branch protection component for push rules', () => {
     expect(findAllowedToPush().props()).toMatchObject({
-      header: sprintf(I18N.allowedToPushHeader, {
-        total: 2,
-      }),
-      ...protectionMockProps,
+      roles: protectionPropsMock.roles,
+      header: 'Allowed to push and merge',
+      count: 2,
     });
   });
 
   it('passes expected roles for push rules via props', () => {
-    expect(findAllowedToPush().props('roles')).toEqual(protectionMockProps.roles);
+    expect(findAllowedToPush().props('roles')).toEqual(protectionPropsMock.roles);
   });
 
   it('does not render Allow force push toggle if there are no push rules set', async () => {
@@ -218,19 +277,14 @@ describe('View branch rules', () => {
 
   it('renders a branch protection component for merge rules', () => {
     expect(findAllowedToMerge().props()).toMatchObject({
-      header: sprintf(I18N.allowedToMergeHeader, {
-        total: 2,
-      }),
-      ...protectionMockProps,
+      roles: protectionPropsMock.roles,
+      header: 'Allowed to merge',
+      count: 2,
     });
   });
 
   it('passes expected roles form merge rules via props', () => {
-    expect(findAllowedToMerge().props('roles')).toEqual(protectionMockProps.roles);
-  });
-
-  it('does not render a branch protection component for approvals', () => {
-    expect(findApprovalsTitle().exists()).toBe(false);
+    expect(findAllowedToMerge().props('roles')).toEqual(protectionPropsMock.roles);
   });
 
   it('does not render a branch protection component for status checks', () => {
@@ -238,6 +292,13 @@ describe('View branch rules', () => {
   });
 
   describe('Editing branch rule', () => {
+    describe('when canAdminProtectedBranches is false', () => {
+      it('does not render edit rule button', () => {
+        createComponent({ canAdminProtectedBranches: false });
+        expect(findEditRuleNameButton().exists()).toBe(false);
+      });
+    });
+
     beforeEach(async () => {
       await createComponent();
     });
@@ -285,6 +346,16 @@ describe('View branch rules', () => {
       );
     });
 
+    it('emits a tracking event when edit button in modal is clicked', async () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findBranchRuleModal().vm.$emit('primary', '*-test');
+      await waitForPromises();
+
+      expect(trackEventSpy).toHaveBeenCalledWith('change_branch_rule_target', {
+        label: 'branch_rule_details',
+      });
+    });
+
     it('shows an alert if response contains an error', async () => {
       const mockResponse = { branchRuleUpdate: { errors: ['some error'], branchRule: null } };
       const editMutationHandler = jest
@@ -308,6 +379,13 @@ describe('View branch rules', () => {
   });
 
   describe('Deleting branch rule', () => {
+    describe('when canAdminProtectedBranches is false', () => {
+      it('does not render delete rule button', () => {
+        createComponent({ canAdminProtectedBranches: false });
+        expect(findDeleteRuleButton().exists()).toBe(false);
+      });
+    });
+
     it('renders delete rule button', () => {
       expect(findDeleteRuleButton().text()).toBe('Delete rule');
     });
@@ -339,6 +417,17 @@ describe('View branch rules', () => {
         input: { id: 'gid://gitlab/Projects/BranchRule/1' },
       });
       expect(util.visitUrl).toHaveBeenCalledWith('/-/settings/repository#branch_rules');
+    });
+
+    it('emits tracking event when branch rule is deleted', async () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findDeleteRuleModal().vm.$emit('ok');
+      await nextTick();
+      await waitForPromises();
+
+      expect(trackEventSpy).toHaveBeenCalledWith('unprotect_branch', {
+        label: 'branch_rule_details',
+      });
     });
 
     it('if error happens it shows an alert', async () => {
@@ -379,7 +468,7 @@ describe('View branch rules', () => {
     });
 
     it('does not render Protect Branch section', () => {
-      expect(findBranchProtectionTitle().exists()).toBe(false);
+      expect(findSettingsSection().exists()).toBe(false);
     });
   });
 
@@ -387,20 +476,20 @@ describe('View branch rules', () => {
     drawerType          | title                               | findProtection        | accessLevels
     ${'merge'}          | ${'Edit allowed to merge'}          | ${findAllowedToMerge} | ${{ mergeAccessLevels: [{ accessLevel: 30 }] }}
     ${'push and merge'} | ${'Edit allowed to push and merge'} | ${findAllowedToPush}  | ${{ pushAccessLevels: [{ accessLevel: 30 }] }}
-  `('allowed to $drawerType drawer', ({ title, findProtection, accessLevels }) => {
+  `('allowed to $drawerType drawer', ({ drawerType, title, findProtection, accessLevels }) => {
     const openEditRuleDrawer = () => {
       findProtection().vm.$emit('edit');
       return nextTick();
     };
 
-    it('rule drawer is closed by default', () => {
-      expect(findRuleDrawer().props('isOpen')).toBe(false);
+    it('access levels drawer is closed by default', () => {
+      expect(findAccessLevelsDrawer().props('isOpen')).toBe(false);
     });
 
-    it('passes expected props to rule drawer', async () => {
+    it('passes expected props to access levels drawer', async () => {
       await openEditRuleDrawer();
 
-      expect(findRuleDrawer().props()).toMatchObject({
+      expect(findAccessLevelsDrawer().props()).toMatchObject({
         ...allowedToMergeDrawerProps,
         isOpen: true,
         title,
@@ -409,10 +498,10 @@ describe('View branch rules', () => {
 
     it('when save button is clicked it calls edit rule mutation', async () => {
       await openEditRuleDrawer();
-      findRuleDrawer().vm.$emit('editRule', [{ accessLevel: 30 }]);
+      findAccessLevelsDrawer().vm.$emit('editRule', [{ accessLevel: 30 }]);
       await nextTick();
 
-      expect(findRuleDrawer().props('isLoading')).toEqual(true);
+      expect(findAccessLevelsDrawer().props('isLoading')).toEqual(true);
 
       await waitForPromises();
 
@@ -429,7 +518,20 @@ describe('View branch rules', () => {
         }),
       );
 
-      expect(findRuleDrawer().props('isLoading')).toEqual(false);
+      expect(findAccessLevelsDrawer().props('isLoading')).toEqual(false);
+    });
+
+    it('emits a tracking event when save button is clicked', async () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      await openEditRuleDrawer();
+      findAccessLevelsDrawer().vm.$emit('editRule', [{ accessLevel: 30 }]);
+      await waitForPromises();
+
+      const eventName =
+        drawerType === 'merge' ? 'change_allowed_to_merge' : 'change_allowed_to_push_and_merge';
+      expect(trackEventSpy).toHaveBeenCalledWith(eventName, {
+        label: 'branch_rule_details',
+      });
     });
   });
 
@@ -463,6 +565,16 @@ describe('View branch rules', () => {
           },
         }),
       );
+    });
+
+    it('emits a tracking event when a toggle is triggered', async () => {
+      const { trackEventSpy } = bindInternalEventDocument(wrapper.element);
+      findAllowForcePushToggle().vm.$emit('toggle', false);
+      await nextTick();
+      await waitForPromises();
+      expect(trackEventSpy).toHaveBeenCalledWith('change_allow_force_push', {
+        label: 'branch_rule_details',
+      });
     });
   });
 

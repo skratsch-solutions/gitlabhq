@@ -7,25 +7,55 @@ description: "Connect and use GitLab Duo in Neovim."
 
 # GitLab plugin for Neovim - `gitlab.vim`
 
-The [GitLab plugin](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim)
-integrates GitLab with Neovim. The following Neovim versions are supported:
+The [GitLab plugin](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim) is a Lua-based plugin
+that integrates GitLab with Neovim.
 
-- 0.9+
+[Install and configure the extension](setup.md).
 
-## Supported features
+## Configure `<Plug>` key mappings
 
-GitLab for Neovim supports [GitLab Duo Code Suggestions](../../user/project/repository/code_suggestions/index.md).
+For convenience, this plugin provides `<Plug>` key mappings. To use the `<Plug>(GitLab...)` key mapping,
+you must include your own key mapping that references it:
 
-## Install and configure the extension
+```lua
+-- Toggle Code Suggestions on/off with CTRL-g in normal mode:
+vim.keymap.set('n', '<C-g>', '<Plug>(GitLabToggleCodeSuggestions)')
+```
 
-Instructions for getting started can be found in the project README under [setup](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim#setup).
+## Disable `gitlab.statusline`
+
+By default, this plugin enables `gitlab.statusline`, which uses the built-in `statusline`
+to show the status of the Code Suggestions integration. If you want to disable `gitlab.statusline`,
+add this to your configuration:
+
+```lua
+require('gitlab').setup({
+  statusline = {
+    enabled = false
+  }
+})
+```
+
+## Disable `Started Code Suggestions LSP Integration` messages
+
+To change the minimal message level, add this to your configuration:
+
+```lua
+require('gitlab').setup({
+  minimal_message_level = vim.log.levels.ERROR,
+})
+```
 
 ## Report issues with the extension
 
 Report any issues, bugs, or feature requests in the
 [`gitlab.vim` issue queue](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim/-/issues).
 
+Submit your feedback in [issue 22](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim/-/issues/22)
+in the `gitlab.vim` repository.
+
 ## Related topics
 
-- [Plugin documentation](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim/-/blob/main/README.md)
+- [Neovim troubleshooting](neovim_troubleshooting.md)
 - [View source code](https://gitlab.com/gitlab-org/editor-extensions/gitlab.vim)
+- [GitLab Language Server documentation](../language_server/index.md)

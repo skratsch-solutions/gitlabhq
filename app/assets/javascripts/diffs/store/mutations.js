@@ -85,7 +85,7 @@ export default {
       diffFiles: prepareDiffData({
         diff: { diff_files: diffFiles },
         priorFiles: state.diffFiles,
-        // when a pinned file is added to diffs its position may be incorrect since it's loaded out of order
+        // when a linked file is added to diffs its position may be incorrect since it's loaded out of order
         // we need to ensure when we load it in batched request it updates it position
         updatePosition,
       }),
@@ -202,33 +202,40 @@ export default {
       return !discussionItem.resolved || isHashTargeted(discussionItem);
     };
 
-    const addDiscussion = (discussions) =>
-      discussions.filter(({ id }) => discussion.id !== id).concat(discussion);
-
     const file = state.diffFiles.find((diff) => diff.file_hash === fileHash);
     // a file batch might not be loaded yet when we try to add a discussion
     if (!file) return;
     const diffLines = file[INLINE_DIFF_LINES_KEY];
 
+    const addDiscussion = (discussions) =>
+      discussions.filter(({ id }) => discussion.id !== id).concat(discussion);
+
     if (diffLines.length && positionType !== FILE_DIFF_POSITION_TYPE) {
       const line = diffLines.find(isTargetLine);
       // skip if none of the discussion positions matched a diff position
       if (!line) return;
-      const discussions = addDiscussion(line.discussions || []);
+      const originalDiscussions = line.discussions || [];
+      if (originalDiscussions.includes(discussion)) return;
+      const discussions = addDiscussion(originalDiscussions);
       Object.assign(line, {
         discussions,
         discussionsExpanded: line.discussionsExpanded || discussions.some(isExpandedDiscussion),
       });
     } else {
+      const originalDiscussions = file.discussions || [];
+      if (originalDiscussions.includes(discussion)) return;
       Object.assign(discussion, { expandedOnDiff: isExpandedDiscussion(discussion) });
       Object.assign(file, {
-        discussions: addDiscussion(file.discussions || []),
+        discussions: addDiscussion(originalDiscussions),
       });
     }
   },
 
-  [types.TOGGLE_FILE_DISCUSSION_EXPAND](state, discussion) {
-    Object.assign(discussion, { expandedOnDiff: !discussion.expandedOnDiff });
+  [types.TOGGLE_FILE_DISCUSSION_EXPAND](
+    state,
+    { discussion, expandedOnDiff = !discussion.expandedOnDiff },
+  ) {
+    Object.assign(discussion, { expandedOnDiff });
     const fileHash = discussion.diff_file.file_hash;
     const diff = state.diffFiles.find((f) => f.file_hash === fileHash);
     // trigger Vue reactivity
@@ -271,18 +278,21 @@ export default {
             Object.assign(line, { discussionsExpanded: expanded });
           });
         });
-      } else {
-        const discussions = file.discussions.map((discussion) => {
-          Object.assign(discussion, { expandedOnDiff: expanded });
-          return discussion;
-        });
-        Object.assign(file, { discussions });
       }
+
+      const discussions = file.discussions.map((discussion) => {
+        Object.assign(discussion, { expandedOnDiff: expanded });
+        return discussion;
+      });
+      Object.assign(file, { discussions });
     });
   },
 
   [types.TOGGLE_FOLDER_OPEN](state, path) {
     state.treeEntries[path].opened = !state.treeEntries[path].opened;
+  },
+  [types.SET_FOLDER_OPEN](state, { path, opened }) {
+    state.treeEntries[path].opened = opened;
   },
   [types.TREE_ENTRY_DIFF_LOADING](state, { path, loading = true }) {
     state.treeEntries[path].diffLoading = loading;
@@ -421,7 +431,15 @@ export default {
 
     file?.drafts.push(draft);
   },
-  [types.SET_PINNED_FILE_HASH](state, fileHash) {
-    state.pinnedFileHash = fileHash;
+  [types.SET_LINKED_FILE_HASH](state, fileHash) {
+    state.linkedFileHash = fileHash;
+  },
+  [types.SET_COLLAPSED_STATE_FOR_ALL_FILES](state, { collapsed }) {
+    state.diffFiles.forEach((file) => {
+      const { viewer } = file;
+      if (!viewer) return;
+      viewer.automaticallyCollapsed = false;
+      viewer.manuallyCollapsed = collapsed;
+    });
   },
 };

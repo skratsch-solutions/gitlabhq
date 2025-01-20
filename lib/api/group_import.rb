@@ -7,6 +7,10 @@ module API
 
     helpers Helpers::FileUploadHelpers
 
+    before do
+      set_current_organization
+    end
+
     helpers do
       def parent_group
         find_group!(params[:parent_id]) if params[:parent_id].present?
@@ -36,8 +40,6 @@ module API
       end
       post 'import/authorize' do
         require_gitlab_workhorse!
-
-        Gitlab::Workhorse.verify_api_request!(headers)
 
         status 200
         content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
@@ -77,7 +79,7 @@ module API
           name: params[:name],
           parent_id: params[:parent_id],
           visibility_level: closest_allowed_visibility_level,
-          import_export_upload: ImportExportUpload.new(import_file: params[:file]),
+          import_export_upload: ImportExportUpload.new(import_file: params[:file], user: current_user),
           organization_id: params[:organization_id]
         }
 

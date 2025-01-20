@@ -1,6 +1,5 @@
 // Copied to ee/spec/frontend/notes/mock_data.js
 import { HTTP_STATUS_OK } from '~/lib/utils/http_status';
-import { __ } from '~/locale';
 
 export const notesDataMock = {
   discussionsPath: '/gitlab-org/gitlab-foss/issues/26/discussions.json',
@@ -134,6 +133,7 @@ export const note = {
     state: 'active',
     avatar_url: 'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
     path: '/root',
+    user_type: 'human',
   },
   created_at: '2017-08-10T15:24:03.087Z',
   updated_at: '2017-08-10T15:24:03.087Z',
@@ -1300,15 +1300,15 @@ export const draftDiffDiscussion = {
 
 export const notesFilters = [
   {
-    title: __('Show all activity'),
+    title: 'Show all activity',
     value: 0,
   },
   {
-    title: __('Show comments only'),
+    title: 'Show comments only',
     value: 1,
   },
   {
-    title: __('Show history only'),
+    title: 'Show history only',
     value: 2,
   },
 ];

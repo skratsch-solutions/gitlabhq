@@ -1,13 +1,15 @@
 .user-contrib-cell {
-  &:hover {
+  &:hover,
+  &:focus,
+  &.is-active {
     cursor: pointer;
-    stroke: $black;
+    outline: none;
+    stroke: var(--gl-text-color-default);
   }
 
-  &:focus {
-    outline: none;
-    stroke: $white;
-    filter: drop-shadow(1px 0 0.5px $blue-400) drop-shadow(0 1px 0.5px $blue-400) drop-shadow(-1px 0 0.5px $blue-400) drop-shadow(0 -1px 0.5px $blue-400);
+  &:active,
+  &.is-active {
+    stroke-width: 2px;
   }
 
   // `app/assets/javascripts/pages/users/activity_calendar.js` sets this attribute

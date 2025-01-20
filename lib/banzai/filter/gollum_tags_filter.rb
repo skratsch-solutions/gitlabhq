@@ -41,7 +41,8 @@ module Banzai
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
           next unless TAGS_PATTERN_UNTRUSTED_REGEX.match?(node.content)
 
-          html = TAGS_PATTERN_UNTRUSTED_REGEX.replace_gsub(CGI.escapeHTML(node.content)) do |match|
+          html = TAGS_PATTERN_UNTRUSTED_REGEX
+            .replace_gsub(CGI.escapeHTML(node.content), limit: Banzai::Filter::FILTER_ITEM_LIMIT) do |match|
             process_tag(CGI.unescapeHTML(match[1]))&.to_s || match[0]
           end
 
@@ -76,6 +77,7 @@ module Banzai
       def sanitized_content_tag(name, content, options = {})
         html = content_tag(name, content, options)
         node = Banzai::Filter::SanitizationFilter.new(html).call
+        node = Banzai::Filter::SanitizeLinkFilter.new(node).call
 
         node&.children&.first
       end

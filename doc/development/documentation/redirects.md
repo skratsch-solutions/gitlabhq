@@ -42,7 +42,7 @@ so you can ensure the new page name is as accurate as possible.
 There are two types of redirects:
 
 - [Redirects added into the documentation files themselves](#redirect-to-a-page-that-already-exists), for users who
-  view the docs in `/help` on self-managed instances. For example,
+  view the docs in `/help` on GitLab Self-Managed instances. For example,
   [`/help` on GitLab.com](https://gitlab.com/help). These must be added in the same
   MR that renames or moves a doc. Redirects to internal pages expire after three months
   and redirects to external pages (starting with `https:`) expire after a year.
@@ -70,7 +70,9 @@ To redirect a page to another page in the same repository:
      remove_date: 'YYYY-MM-DD'
      ---
 
-     This document was moved to [another location](../path/to/file/index.md).
+     <!-- markdownlint-disable -->
+
+     This document was moved to [another location](../newpath/to/file/index.md).
 
      <!-- This redirect file can be deleted after <YYYY-MM-DD>. -->
      <!-- Redirects that point to other docs in the same project expire in three months. -->
@@ -83,34 +85,43 @@ To redirect a page to another page in the same repository:
 
 1. If the page had images that aren't used on any other pages, delete them.
 
-After your changes are committed, search for and update all links that point to the old file:
+### Update links in other repositories
 
-- In <https://gitlab.com/gitlab-com/www-gitlab-com>, search for full URLs:
+After your changes are committed, search for and update all other repositories that
+might link to the old file:
 
-  ```shell
-  grep -r "docs.gitlab.com/ee/path/to/file.html" .
-  ```
+1. In <https://gitlab.com/gitlab-com/www-gitlab-com>, search for full URLs:
 
-- In <https://gitlab.com/gitlab-org/gitlab-docs/-/tree/main/content/_data>,
-  search the navigation bar configuration files for the path with `.html`:
-
-  ```shell
-  grep -r "path/to/file.html" .
+   ```shell
+   grep -r "docs.gitlab.com/ee/path/to/file.html" .
    ```
 
-- In [all of the doc projects](site_architecture/index.md#source-files), search for links in the docs
-  and codebase. Search for all variations, including full URL and just the path.
-  For example, go to the root directory of the `gitlab` project and run:
+1. In <https://gitlab.com/gitlab-org/gitlab-docs/-/tree/main/content/_data>,
+   search the navigation bar configuration files for the path with `.html`:
 
-  ```shell
-  grep -r "docs.gitlab.com/ee/path/to/file.html" .
-  grep -r "path/to/file.html" .
-  grep -r "path/to/file.md" .
-  grep -r "path/to/file" .
-  ```
+   ```shell
+   grep -r "path/to/file.html" .
+    ```
 
-  You might need to try variations of relative links, such as `../path/to/file` or
-  `../file` to find every case.
+1. In [all of the doc projects](site_architecture/index.md#source-files), search for links in the docs
+   and codebase. Search for all variations, including full URL and just the path.
+   For example, go to the root directory of the `gitlab` project and run:
+
+   ```shell
+   grep -r "docs.gitlab.com/ee/path/to/file.html" .
+   grep -r "path/to/file.html" .
+   grep -r "path/to/file.md" .
+   grep -r "path/to/file" .
+   ```
+
+   You might need to try variations of relative links, such as `../path/to/file` or
+   `../file` to find every case.
+
+1. In <https://gitlab.com/gitlab-org/customers-gitlab-com>, search for full URLs:
+
+   ```shell
+   grep -r "docs.gitlab.com/ee/path/to/file.html" .
+   ```
 
 ### Move a file's location
 
@@ -165,6 +176,6 @@ must have already been removed from (or never existed in) the navigation, and on
 of the following must be true:
 
 - The page was added and removed in the same release, so it was never included in
-  a self-managed release.
+  a GitLab Self-Managed release.
 - The page does not contain any content of value, like a placeholder page or a page
   with extremely low usage statistics.

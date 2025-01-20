@@ -36,7 +36,7 @@ export default {
   i18n: {
     commitStatSummary: __('Showing %{conflict}'),
     resolveInfo: __(
-      'You can resolve the merge conflict using either the Interactive mode, by choosing %{use_ours} or %{use_theirs} buttons, or by editing the files directly. Commit these changes into %{branch_name}.',
+      'To resolve the conflicts, either use interactive mode to select %{use_ours} or %{use_theirs}, or edit the files inline. Commit these changes into %{branch_name}.',
     ),
   },
   computed: {
@@ -100,7 +100,7 @@ export default {
           <div data-testid="conflicts-count">
             <gl-sprintf :message="$options.i18n.commitStatSummary">
               <template #conflict>
-                <strong class="cred">{{ getConflictsCountText }}</strong>
+                <strong class="gl-text-danger">{{ getConflictsCountText }}</strong>
               </template>
               <template #sourceBranch>
                 <strong class="ref-name">{{ conflictsData.sourceBranch }}</strong>
@@ -123,7 +123,7 @@ export default {
             <div class="js-file-title file-title file-title-flex-parent cursor-default">
               <div class="file-header-content" data-testid="file-name">
                 <file-icon :file-name="file.filePath" :size="16" css-classes="gl-mr-2" />
-                <strong class="file-title-name">{{ file.filePath }}</strong>
+                <strong class="file-title-name gl-break-all">{{ file.filePath }}</strong>
                 <clipboard-button
                   :title="__('Copy file path')"
                   :text="file.filePath"
@@ -131,7 +131,7 @@ export default {
                   category="tertiary"
                 />
               </div>
-              <div class="file-actions gl-flex gl-items-center gl-ml-auto gl-align-self-start">
+              <div class="file-actions gl-ml-auto gl-flex gl-items-center gl-self-start">
                 <gl-button-group v-if="file.type === 'text'" class="gl-mr-3">
                   <gl-button
                     :selected="file.resolveMode === 'interactive'"
@@ -157,10 +157,10 @@ export default {
                 </gl-button>
               </div>
             </div>
-            <div class="diff-content diff-wrap-lines gl-rounded-bottom-base">
+            <div class="diff-content diff-wrap-lines gl-rounded-b-base">
               <div
                 v-if="file.resolveMode === 'interactive' && file.type === 'text'"
-                class="file-content gl-rounded-bottom-base"
+                class="file-content gl-rounded-b-base"
               >
                 <parallel-conflict-lines v-if="isParallel" :file="file" />
                 <inline-conflict-lines v-else :file="file" />
@@ -182,10 +182,10 @@ export default {
             <div class="gl-mb-5" data-testid="resolve-info">
               <gl-sprintf :message="$options.i18n.resolveInfo">
                 <template #use_ours>
-                  <code>{{ s__('MergeConflict|Use ours') }}</code>
+                  <strong>{{ s__('MergeConflict|Use ours') }}</strong>
                 </template>
                 <template #use_theirs>
-                  <code>{{ s__('MergeConflict|Use theirs') }}</code>
+                  <strong>{{ s__('MergeConflict|Use theirs') }}</strong>
                 </template>
                 <template #branch_name>
                   <a class="ref-name" :href="sourceBranchPath">{{ conflictsData.sourceBranch }}</a>

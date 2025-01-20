@@ -24,12 +24,16 @@ module TestEnv
   # 1. Push a new branch to gitlab-org/gitlab-test.
   # 2. Execute rm -rf tmp/tests in your gitlab repo.
   # 3. Add your branch and its HEAD commit sha to the BRANCH_SHA hash
+  # 4. Increment expected number of commits for context
+  #    "returns the number of commits in the whole repository" in spec/lib/gitlab/git/repository_spec.rb
   #
   # To add new commits to an existing branch
   #
   # 1. Push a new commit to a branch in gitlab-org/gitlab-test.
   # 2. Execute rm -rf tmp/tests in your gitlab repo.
   # 3. Update the HEAD sha value in the BRANCH_SHA hash
+  # 4. Increment expected number of commits for context
+  #    "returns the number of commits in the whole repository" in spec/lib/gitlab/git/repository_spec.rb
   #
   BRANCH_SHA = {
     'signed-commits' => 'c7794c1',
@@ -119,7 +123,8 @@ module TestEnv
     'changes-with-only-whitespace' => '80cffbb2ad86202171dd3c05b38b5b4523b447d3',
     'lock-detection' => '1ada92f78a19f27cb442a0a205f1c451a3a15432',
     'expanded-whitespace-target' => '279aa723d4688e711652d230c93f1fc33801dcb8',
-    'expanded-whitespace-source' => 'e6f8b802fe2288b1b5e367c5dde736594971ebd1'
+    'expanded-whitespace-source' => 'e6f8b802fe2288b1b5e367c5dde736594971ebd1',
+    'submodule-with-dot' => 'b4a4435df7e7605dd9930d0c5402087b37da99bf'
   }.freeze
 
   # gitlab-test-fork is a fork of gitlab-fork, but we don't necessarily
@@ -133,11 +138,20 @@ module TestEnv
   }.freeze
 
   TMP_TEST_PATH = Rails.root.join('tmp', 'tests').freeze
-  SETUP_METHODS = %i[setup_gitaly setup_gitlab_shell setup_workhorse setup_factory_repo setup_forked_repo].freeze
+  SETUP_METHODS = %i[setup_go_projects setup_factory_repo setup_forked_repo].freeze
 
   # Can be overriden
   def setup_methods
     SETUP_METHODS
+  end
+
+  # Can be overriden
+  # The Go build cache is not safe for concurrent builds:
+  # https://github.com/golang/go/issues/43645
+  def setup_go_projects
+    setup_gitaly
+    setup_gitlab_shell
+    setup_workhorse
   end
 
   # Test environment
@@ -402,6 +416,13 @@ module TestEnv
     Gitlab::DatabaseImporters::WorkItems::BaseTypeImporter.upsert_types
     Gitlab::DatabaseImporters::WorkItems::HierarchyRestrictionsImporter.upsert_restrictions
     Gitlab::DatabaseImporters::WorkItems::RelatedLinksRestrictionsImporter.upsert_restrictions
+
+    # Updating old_id to simulate an environment that has gone through the process of cleaning
+    # the issues.work_item_type_id column. old_id is used as a fallback id.
+    # TODO: https://gitlab.com/gitlab-org/gitlab/-/issues/499911
+    WorkItems::Type.find_each do |work_item_type|
+      work_item_type.update!(old_id: -work_item_type.id)
+    end
   end
 
   private
@@ -514,6 +535,8 @@ module TestEnv
   end
 
   def component_ahead_of_target?(component_folder, expected_version)
+    return false unless Dir.exist?(File.join(component_folder, '.git'))
+
     # The HEAD of the component_folder will be used as heuristic for the version
     # of the binaries, allowing to use Git to determine if HEAD is later than
     # the expected version. Note: Git considers HEAD to be an anchestor of HEAD.
@@ -534,6 +557,8 @@ module TestEnv
     return false unless ::Gitlab::Git::COMMIT_ID.match?(expected_version)
 
     return false unless Dir.exist?(component_folder)
+
+    return false unless Dir.exist?(File.join(component_folder, '.git'))
 
     sha, exit_status = Gitlab::Popen.popen(%W[#{Gitlab.config.git.bin_path} rev-parse HEAD], component_folder)
     return false if exit_status != 0

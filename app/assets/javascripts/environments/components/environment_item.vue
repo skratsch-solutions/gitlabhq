@@ -648,13 +648,13 @@ export default {
       role="gridcell"
       data-testid="environment-deployment-id-cell"
     >
-      <span v-if="shouldRenderDeploymentID" class="text-break-word">
+      <span v-if="shouldRenderDeploymentID" class="gl-break-all">
         {{ deploymentInternalId }}
       </span>
 
       <span
         v-if="!isFolder && deploymentHasUser"
-        class="text-break-word gl-inline-flex gl-align-items-center"
+        class="gl-inline-flex gl-items-center gl-break-all"
       >
         <gl-sprintf :message="s__('Environments|by %{avatar}')">
           <template #avatar>
@@ -683,12 +683,8 @@ export default {
       role="gridcell"
       data-testid="environment-build-cell"
     >
-      <a v-if="shouldRenderBuildName" :href="buildPath" class="build-link cgray">
-        <tooltip-on-truncate
-          :title="buildName"
-          truncate-target="child"
-          class="flex-truncate-parent"
-        >
+      <a v-if="shouldRenderBuildName" :href="buildPath" class="build-link gl-text-default">
+        <tooltip-on-truncate :title="buildName" truncate-target="child" class="gl-flex">
           <span class="flex-truncate-child">
             {{ buildName }}
           </span>
@@ -720,7 +716,7 @@ export default {
         v-if="canShowDeploymentDate"
         v-gl-tooltip
         :title="deployedDate.tooltip"
-        class="environment-created-date-timeago table-mobile-content flex-truncate-parent"
+        class="environment-created-date-timeago table-mobile-content gl-flex"
       >
         <span class="flex-truncate-child">
           {{ deployedDate.formatted }}
@@ -740,10 +736,10 @@ export default {
       </div>
       <div
         v-if="upcomingDeployment"
-        class="gl-w-full gl-display-flex gl-flex-direction-row gl-md-flex-direction-column! gl-justify-content-end"
+        class="gl-flex gl-w-full gl-flex-row gl-justify-end md:!gl-flex-col"
         data-testid="upcoming-deployment-content"
       >
-        <div class="gl-display-flex gl-align-items-center">
+        <div class="gl-flex gl-items-center">
           <span class="gl-mr-2">{{ upcomingDeploymentInternalId }}</span>
           <gl-link
             v-if="upcomingDeployment.deployable"
@@ -757,7 +753,7 @@ export default {
         </div>
         <span
           v-if="upcomingDeployment.user"
-          class="text-break-word gl-inline-flex gl-align-items-center gl-mt-2"
+          class="gl-mt-2 gl-inline-flex gl-items-center gl-break-all"
         >
           <gl-sprintf :message="s__('Environments|by %{avatar}')">
             <template #avatar>
@@ -784,7 +780,7 @@ export default {
         v-if="canShowAutoStopDate"
         v-gl-tooltip
         :title="autoStopDate.tooltip"
-        class="table-mobile-content flex-truncate-parent"
+        class="table-mobile-content gl-flex"
       >
         <span class="flex-truncate-child js-auto-stop">{{ autoStopDate.formatted }}</span>
       </span>

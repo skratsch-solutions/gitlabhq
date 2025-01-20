@@ -8,6 +8,7 @@ import { createAlert } from '~/alert';
 import axios from '~/lib/utils/axios_utils';
 import { isLoggedIn, handleLocationHash } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
+import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { visitUrl, getLocationHash } from '~/lib/utils/url_utility';
 import CodeIntelligence from '~/code_navigation/components/app.vue';
 import LineHighlighter from '~/blob/line_highlighter';
@@ -15,6 +16,7 @@ import blobInfoQuery from 'shared_queries/repository/blob_info.query.graphql';
 import highlightMixin from '~/repository/mixins/highlight_mixin';
 import projectInfoQuery from '../queries/project_info.query.graphql';
 import getRefMixin from '../mixins/get_ref';
+import { getRefType } from '../utils/ref_type';
 import { DEFAULT_BLOB_INFO, TEXT_FILE_TYPE, LFS_STORAGE, LEGACY_FILE_TYPES } from '../constants';
 import BlobButtonGroup from './blob_button_group.vue';
 import ForkSuggestion from './fork_suggestion.vue';
@@ -31,7 +33,7 @@ export default {
     CodeIntelligence,
     AiGenie: () => import('ee_component/ai/components/ai_genie.vue'),
   },
-  mixins: [getRefMixin, highlightMixin],
+  mixins: [getRefMixin, highlightMixin, glFeatureFlagMixin()],
   inject: {
     originalBranch: {
       default: '',
@@ -39,6 +41,7 @@ export default {
     explainCodeAvailable: { default: false },
   },
   apollo: {
+    // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     projectInfo: {
       query: projectInfoQuery,
       variables() {
@@ -61,7 +64,7 @@ export default {
           projectPath: this.projectPath,
           filePath: [this.path],
           ref: this.currentRef,
-          refType: this.refType?.toUpperCase() || null,
+          refType: getRefType(this.refType),
           shouldFetchRawText: true,
         };
 
@@ -77,6 +80,7 @@ export default {
         const urlHash = getLocationHash(); // If there is a code line hash in the URL we render with the simple viewer
         const useSimpleViewer = usePlain || urlHash?.startsWith('L') || !this.hasRichViewer;
 
+        if (this.isTooLarge) return;
         this.initHighlightWorker(this.blobInfo, this.isUsingLfs);
         this.switchViewer(useSimpleViewer ? SIMPLE_BLOB_VIEWER : RICH_BLOB_VIEWER); // By default, if present, use the rich viewer to render
       },
@@ -146,9 +150,14 @@ export default {
     hasRenderError() {
       return Boolean(this.viewer.renderError);
     },
+    isTooLarge() {
+      const { tooLarge, renderError } = this.viewer || {};
+      return tooLarge || renderError === 'collapsed';
+    },
     blobViewer() {
       const { fileType } = this.viewer;
-      return this.shouldLoadLegacyViewer ? null : loadViewer(fileType, this.isUsingLfs);
+      const { isTooLarge } = this;
+      return this.shouldLoadLegacyViewer ? null : loadViewer(fileType, this.isUsingLfs, isTooLarge);
     },
     shouldLoadLegacyViewer() {
       return LEGACY_FILE_TYPES.includes(this.blobInfo.fileType) || this.useFallback;
@@ -174,13 +183,22 @@ export default {
 
       return pathLock ? pathLock.user : null;
     },
-    showForkSuggestion() {
+    canFork() {
       const { createMergeRequestIn, forkProject } = this.userPermissions;
-      const { canModifyBlob } = this.blobInfo;
 
-      return (
-        this.isLoggedIn && !this.isUsingLfs && !canModifyBlob && createMergeRequestIn && forkProject
-      );
+      return this.isLoggedIn && !this.isUsingLfs && createMergeRequestIn && forkProject;
+    },
+    showSingleFileEditorForkSuggestion() {
+      const { canModifyBlob } = this.blobInfo;
+      return this.canFork && !canModifyBlob;
+    },
+    showWebIdeForkSuggestion() {
+      const { canModifyBlobWithWebIde } = this.blobInfo;
+
+      return this.canFork && !canModifyBlobWithWebIde;
+    },
+    showForkSuggestion() {
+      return this.showSingleFileEditorForkSuggestion || this.showWebIdeForkSuggestion;
     },
     forkPath() {
       const forkPaths = {
@@ -193,6 +211,9 @@ export default {
     },
     isUsingLfs() {
       return this.blobInfo.storedExternally && this.blobInfo.externalStorage === LFS_STORAGE;
+    },
+    shouldRenderAiGenie() {
+      return this.explainCodeAvailable && this.activeViewerType === 'simple' && !this.isTooLarge;
     },
   },
   watch: {
@@ -265,14 +286,24 @@ export default {
       if (this.$route?.query?.plain === plain) return;
       this.$router.push({ path: this.$route.path, query: { ...this.$route.query, plain } });
     },
+    isIdeTarget(target) {
+      return target === 'ide';
+    },
+    forkSuggestionForSelectedEditor(target) {
+      return this.isIdeTarget(target)
+        ? this.showWebIdeForkSuggestion
+        : this.showSingleFileEditorForkSuggestion;
+    },
     editBlob(target) {
-      if (this.showForkSuggestion) {
-        this.setForkTarget(target);
-        return;
-      }
-
       const { ideEditPath, editBlobPath } = this.blobInfo;
-      visitUrl(target === 'ide' ? ideEditPath : editBlobPath);
+      const isIdeTarget = this.isIdeTarget(target);
+      const showForkSuggestionForSelectedEditor = this.forkSuggestionForSelectedEditor(target);
+
+      if (showForkSuggestionForSelectedEditor) {
+        this.setForkTarget(target);
+      } else {
+        visitUrl(isIdeTarget ? ideEditPath : editBlobPath);
+      }
     },
     setForkTarget(target) {
       this.forkTarget = target;
@@ -304,6 +335,7 @@ export default {
     <gl-loading-icon v-if="isLoading" size="sm" />
     <div v-if="blobInfo && !isLoading" id="fileHolder" class="file-holder">
       <blob-header
+        is-blob-page
         :blob="blobInfo"
         :hide-viewer-switcher="isBinaryFileType || isUsingLfs"
         :is-binary="isBinaryFileType"
@@ -311,8 +343,9 @@ export default {
         :has-render-error="hasRenderError"
         :show-path="false"
         :override-copy="true"
-        :show-fork-suggestion="showForkSuggestion"
-        :show-blame-toggle="true"
+        :show-fork-suggestion="showSingleFileEditorForkSuggestion"
+        :show-web-ide-fork-suggestion="showWebIdeForkSuggestion"
+        :show-blame-toggle="glFeatures.inlineBlame"
         :project-path="projectPath"
         :project-id="projectId"
         @viewer-changed="handleViewerChanged"
@@ -334,7 +367,7 @@ export default {
             :project-path="projectPath"
             :is-locked="Boolean(pathLockedByUser)"
             :can-lock="canLock"
-            :show-fork-suggestion="showForkSuggestion"
+            :show-fork-suggestion="showSingleFileEditorForkSuggestion"
             :is-using-lfs="isUsingLfs"
             @fork="setForkTarget('view')"
           />
@@ -353,7 +386,7 @@ export default {
         :content="legacySimpleViewer"
         :is-raw-content="true"
         :active-viewer="viewer"
-        :show-blame="showBlame"
+        :show-blame="showBlame && glFeatures.inlineBlame"
         :current-ref="currentRef"
         :loading="isLoadingLegacyViewer"
         :project-path="projectPath"
@@ -364,7 +397,7 @@ export default {
         v-else
         :blob="blobInfo"
         :chunks="chunks"
-        :show-blame="showBlame"
+        :show-blame="showBlame && glFeatures.inlineBlame"
         :project-path="projectPath"
         :current-ref="currentRef"
         class="blob-viewer"
@@ -379,7 +412,7 @@ export default {
       />
     </div>
     <ai-genie
-      v-if="explainCodeAvailable"
+      v-if="shouldRenderAiGenie"
       container-selector=".file-content"
       :file-path="path"
       class="gl-ml-7"

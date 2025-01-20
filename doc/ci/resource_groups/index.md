@@ -9,7 +9,7 @@ description: Control the job concurrency in GitLab CI/CD
 
 DETAILS:
 **Tier:** Free, Premium, Ultimate
-**Offering:** GitLab.com, Self-managed, GitLab Dedicated
+**Offering:** GitLab.com, GitLab Self-Managed, GitLab Dedicated
 
 By default, pipelines in GitLab CI/CD run concurrently. Concurrency is an important factor to improve
 the feedback loop in merge requests, however, there are some situations that
@@ -19,6 +19,8 @@ Use resource groups to strategically control
 the concurrency of the jobs for optimizing your continuous deployments workflow with safety.
 
 ## Add a resource group
+
+You can add only one resource to a resource group.
 
 Provided that you have the following pipeline configuration (`.gitlab-ci.yml` file in your repository):
 
@@ -61,10 +63,6 @@ can still run `build` jobs concurrently for maximizing the pipeline efficiency.
 - The basic knowledge of the [GitLab CI/CD pipelines](../pipelines/index.md)
 - The basic knowledge of the [GitLab Environments and Deployments](../environments/index.md)
 - At least the Developer role for the project to configure CI/CD pipelines.
-
-### Limitations
-
-Only one resource can be attached to a resource group.
 
 ## Process modes
 

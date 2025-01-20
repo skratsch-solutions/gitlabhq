@@ -40,14 +40,36 @@ export const GROUPS_RESPONSE_MOCK = {
   },
 };
 
-export const SUBGROUPS_RESPONSE_MOCK = {
-  data: [
-    {
-      id: 13,
-      web_url: 'some url',
-      name: 'Subgroup name',
-      full_name: 'Group / Subgroup name',
-      full_path: 'Group path',
+export const DEPLOY_KEYS_RESPONSE_MOCK = {
+  data: {
+    project: {
+      id: 'gid://gitlab/Project/7',
+      availableDeployKeys: {
+        nodes: [
+          {
+            id: 'gid://gitlab/DeployKey/1',
+            title: 'My deploy key',
+            user: {
+              name: 'Administrator',
+              id: 'gid://gitlab/User/15',
+              __typename: 'AccessLevelUser',
+            },
+            __typename: 'AccessLevelDeployKey',
+          },
+          {
+            id: 'gid://gitlab/DeployKey/2',
+            title: 'My deploy key 2',
+            user: {
+              name: 'Administrator',
+              id: 'gid://gitlab/User/15',
+              __typename: 'AccessLevelUser',
+            },
+            __typename: 'AccessLevelDeployKey',
+          },
+        ],
+        __typename: 'AccessLevelDeployKeyConnection',
+      },
+      __typename: 'Project',
     },
-  ],
+  },
 };

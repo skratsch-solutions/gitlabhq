@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class Packages::PackageFile < ApplicationRecord
+  include AfterCommitQueue
   include EachBatch
   include UpdateProjectStatistics
   include FileStoreMounter
@@ -131,6 +132,10 @@ class Packages::PackageFile < ApplicationRecord
               .from([Arel.sql(cte_name.to_s), package_files.arel.lateral.as('finder')])
 
     query.with(cte.to_arel)
+  end
+
+  def self.installable_statuses
+    INSTALLABLE_STATUSES
   end
 
   def download_path
