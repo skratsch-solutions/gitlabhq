@@ -21,6 +21,9 @@ run as a single cell.
 
 All developers must follow these principles when building or modifying features.
 
+All of the principles below should already be automated - though edge cases, and legacy
+cases remain.
+
 ### Scope compute to a single organization
 
 Web/API requests, and Sidekiq workers should be run under a single organization.
