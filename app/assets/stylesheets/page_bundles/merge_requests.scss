@@ -475,6 +475,7 @@ $diff-file-header-top: 11px;
     @apply gl-mt-5;
   }
 
+  // stylelint-disable-next-line gitlab/no-has -- scoped to a specific reports widgets container
   &:empty,
   &:has(.reports-widgets-container:empty) {
     display: none;

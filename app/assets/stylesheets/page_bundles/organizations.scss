@@ -9,12 +9,13 @@
 }
 
 // Add padding to draggable container and negative margin to the empty state so it is correctly positioned.
-// The empty state is absolutely positioned under the draggable area 
+// The empty state is absolutely positioned under the draggable area
 // so it does not obstruct the drag and drop functionality.
 .organizations-reconciliation-draggable-empty-state {
   margin-top: -4rem;
 }
 
+// stylelint-disable-next-line gitlab/no-has -- WARNING: this code is very slow, refactor ASAP
 body:has(.organizations-reconciliation-draggable-chosen) * {
   user-select: none;
   cursor: grabbing !important;

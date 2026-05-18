@@ -52,6 +52,7 @@ diff-file[data-line-range-dragging] {
 
 // Disable per-tbody content-visibility when it hosts a discussion row or a
 // new-discussion toggle, since those extend beyond the tbody's paint container.
+// stylelint-disable-next-line gitlab/no-has -- scoped to text view content within virtual diff files
 .rd-diff-file[data-virtual] .rd-text-view-content:has([data-discussion-row]),
 .rd-diff-file[data-virtual] .rd-text-view-content:has([data-has-new-discussion-toggle]) {
   --rd-content-visibility-auto: visible;
@@ -359,6 +360,7 @@ diff-file:where([data-with-discussion-toggle], [data-line-range-dragging]) .rd-l
   inset: 1px 0;
 }
 
+// stylelint-disable-next-line gitlab/no-has -- scoped to diff line number cells
 .rd-line-number:has(> .rd-line-link:focus-visible) {
   z-index: constants.$diff-file-cell-focused-z-index;
 }

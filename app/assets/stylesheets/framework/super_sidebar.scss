@@ -241,6 +241,7 @@ html:not(.application-chrome) .super-sidebar {
       background-color: var(--super-sidebar-nav-item-hover-bg);
     }
 
+    // stylelint-disable-next-line gitlab/no-has -- scoped to a specific button within the sidebar
     &:has(.gl-button-text.gl-hidden) .gl-button-icon {
       @apply gl-mr-0 #{!important};
     }

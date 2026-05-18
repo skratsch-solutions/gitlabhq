@@ -2649,6 +2649,24 @@ describe('planning-view', () => {
 
         expect(findDisplaySettingsDrawer().props('open')).toBe(false);
       });
+
+      it('does not render the existing user preferences dropdown', () => {
+        expect(findWorkItemUserPreferences().exists()).toBe(false);
+      });
+
+      it('hides the sort dropdown by passing an empty sortOptions array to FilteredSearchBar', () => {
+        expect(findFilteredSearchBar().props('sortOptions')).toEqual([]);
+      });
+
+      it('still propagates sort changes when FilteredSearchBar emits onSort', async () => {
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe(CREATED_DESC);
+
+        findFilteredSearchBar().vm.$emit('onSort', UPDATED_DESC);
+        await waitForPromises();
+
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
+        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
+      });
     });
 
     describe('when work_item_list_display_settings_drawer is disabled', () => {
@@ -2667,6 +2685,22 @@ describe('planning-view', () => {
 
       it('still renders the existing user preferences dropdown', () => {
         expect(findWorkItemUserPreferences().exists()).toBe(true);
+      });
+
+      it('passes the full sortOptions array to FilteredSearchBar', () => {
+        const sortOptions = findFilteredSearchBar().props('sortOptions');
+        expect(Array.isArray(sortOptions)).toBe(true);
+        expect(sortOptions.length).toBeGreaterThan(0);
+      });
+
+      it('still propagates sort changes when FilteredSearchBar emits onSort', async () => {
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe(CREATED_DESC);
+
+        findFilteredSearchBar().vm.$emit('onSort', UPDATED_DESC);
+        await waitForPromises();
+
+        expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
+        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
       });
     });
   });

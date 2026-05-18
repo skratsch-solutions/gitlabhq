@@ -1040,6 +1040,9 @@ export default {
         hasWeight: !this.isEpicsList,
       });
     },
+    filteredSearchSortOptions() {
+      return this.isDisplaySettingsDrawerEnabled ? [] : this.sortOptions;
+    },
     preselectedWorkItemType() {
       return this.isEpicsList ? WORK_ITEM_TYPE_NAME_EPIC : WORK_ITEM_TYPE_NAME_ISSUE;
     },
@@ -1782,7 +1785,7 @@ export default {
         recent-searches-storage-key="issues"
         :search-input-placeholder="__('Search or filter results…')"
         :tokens="searchTokens"
-        :sort-options="sortOptions"
+        :sort-options="filteredSearchSortOptions"
         :initial-filter-value="filterTokens"
         :initial-sort-by="sortKey"
         sync-filter-and-sort
@@ -1807,6 +1810,7 @@ export default {
             {{ __('Display') }}
           </gl-button>
           <user-preferences
+            v-else
             :namespace-preferences="displaySettingsSoT.namespacePreferences"
             :common-preferences="displaySettings.commonPreferences"
             :full-path="rootPageFullPath"
@@ -1834,7 +1838,7 @@ export default {
               recent-searches-storage-key="issues"
               :search-input-placeholder="__('Search or filter results…')"
               :tokens="searchTokens"
-              :sort-options="sortOptions"
+              :sort-options="filteredSearchSortOptions"
               :initial-filter-value="filterTokens"
               :initial-sort-by="sortKey"
               sync-filter-and-sort
@@ -1859,6 +1863,7 @@ export default {
                   {{ __('Display') }}
                 </gl-button>
                 <user-preferences
+                  v-else
                   :namespace-preferences="displaySettingsSoT.namespacePreferences"
                   :common-preferences="displaySettings.commonPreferences"
                   :full-path="rootPageFullPath"

@@ -63126,6 +63126,12 @@ msgstr ""
 msgid "ScanResultPolicy|Exceptions that require approval"
 msgstr ""
 
+msgid "ScanResultPolicy|Exploit settings"
+msgstr ""
+
+msgid "ScanResultPolicy|Exploit settings are already added"
+msgstr ""
+
 msgid "ScanResultPolicy|Fail closed"
 msgstr ""
 
@@ -66460,9 +66466,6 @@ msgid "SecurityOrchestration|Explain why this is blocked..."
 msgstr ""
 
 msgid "SecurityOrchestration|Explicitly fail a running pipeline with a policy violation status"
-msgstr ""
-
-msgid "SecurityOrchestration|Exploit settings"
 msgstr ""
 
 msgid "SecurityOrchestration|Export Target"

@@ -259,6 +259,7 @@ ul.related-merge-requests > li gl-emoji {
 }
 
 // Issue markdown header if no sticky header is present
+// stylelint-disable-next-line gitlab/no-has -- scoped to work-item-detail element
 .work-item-detail:not(:has(.issue-sticky-header)) .md-header {
   top: 0;
 }

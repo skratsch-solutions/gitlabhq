@@ -1,3 +1,13 @@
+CREATE DICTIONARY banned_users_dict
+(
+    `user_id` Int64,
+    `banned` Bool DEFAULT false
+)
+PRIMARY KEY user_id
+SOURCE(CLICKHOUSE(USER '$DICTIONARY_USER' PASSWORD '$DICTIONARY_PASSWORD' SECURE '$DICTIONARY_SECURE' QUERY 'SELECT user_id, true FROM (\n      SELECT user_id FROM $DICTIONARY_DATABASE.siphon_banned_users\n      GROUP BY user_id\n      HAVING argMax(_siphon_deleted, _siphon_replicated_at) = false\n    )'))
+LIFETIME(MIN 300 MAX 3600)
+LAYOUT(HASHED_ARRAY());
+
 CREATE DICTIONARY namespace_traversal_paths_dict
 (
     `id` UInt64,
@@ -731,6 +741,20 @@ ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, awardable_type, awardable_id, id)
 ORDER BY (traversal_path, awardable_type, awardable_id, id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
+
+CREATE TABLE siphon_banned_users
+(
+    `created_at` DateTime64(6, 'UTC') CODEC(Delta(8), ZSTD(1)),
+    `updated_at` DateTime64(6, 'UTC') CODEC(Delta(8), ZSTD(1)),
+    `user_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `projects_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY user_id
+ORDER BY user_id
+SETTINGS index_granularity = 2048;
 
 CREATE TABLE siphon_bulk_import_entities
 (

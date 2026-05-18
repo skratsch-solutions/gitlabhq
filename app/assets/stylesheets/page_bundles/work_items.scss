@@ -14,7 +14,7 @@ $work-item-overview-gap-width: 2rem;
 }
 
 
-// stylelint-disable-next-line gitlab/no-gl-class
+// stylelint-disable-next-line gitlab/no-gl-class, gitlab/no-has -- scoped to a specific work-item-view element
 .gl-modal .work-item-view,
 :where(.page-with-panels) .work-item-view, // when it's in a panel, treat work items like drawers
 .work-item-detail-panel .work-item-view:not(:has(.design-detail)) {
@@ -503,6 +503,7 @@ ul.content-list {
   }
 }
 
+// stylelint-disable-next-line gitlab/no-has -- scoped to a specific work-item-detail element
 [data-testid="work-item-detail"]:has(.issue-sticky-header) .flash-container.sticky {
   top: calc(#{$calc-application-header-height} + var(--work-item-sticky-header-height, 3rem) + $gl-spacing-scale-3);
 }
@@ -511,11 +512,12 @@ ul.content-list {
   top: 0;
 }
 
+// stylelint-disable-next-line gitlab/no-has -- scoped to a specific work-item-detail element
 .work-item-detail-panel [data-testid="work-item-detail"]:has(.issue-sticky-header) .flash-container.sticky {
   top: calc(var(--work-item-sticky-header-height, 3rem) + $gl-spacing-scale-3);
 }
 
-/* stylelint-disable-next-line gitlab/no-gl-class */
+/* stylelint-disable-next-line gitlab/no-gl-class, gitlab/no-has -- scoped to specific dropdown items */
 .gl-new-dropdown-item:has(.sidebar-participant-disabled),
 /* stylelint-disable-next-line gitlab/no-gl-class */
 .gl-dropdown-item:has(.sidebar-participant-disabled) {
