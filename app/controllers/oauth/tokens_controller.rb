@@ -5,9 +5,15 @@ class Oauth::TokensController < Doorkeeper::TokensController
   include RequestPayloadLogger
   include Gitlab::InternalEventsTracking
 
+  # RFC 7636 Section 4.1 requires PKCE code verifiers to be at least 43 characters.
+  # Track requests that use shorter verifiers to measure how many clients are non-compliant
+  # before enforcing the minimum.
+  PKCE_MIN_CODE_VERIFIER_LENGTH = 43
+
   alias_method :auth_user, :current_user
 
   before_action :validate_pkce_for_dynamic_applications, only: [:create]
+  before_action :track_short_pkce_verifier, only: [:create]
 
   def create
     if authorize_response.status == :ok
@@ -56,5 +62,20 @@ class Oauth::TokensController < Doorkeeper::TokensController
       error: 'invalid_request',
       error_description: 'PKCE code_verifier is required for dynamic OAuth applications'
     }, status: :bad_request
+  end
+
+  def track_short_pkce_verifier
+    return unless params[:grant_type] == 'authorization_code' # rubocop:disable Rails/StrongParams -- Only accessing a single named param
+
+    verifier = params[:code_verifier] # rubocop:disable Rails/StrongParams -- Only accessing a single named param
+    return if verifier.blank? || verifier.length >= PKCE_MIN_CODE_VERIFIER_LENGTH
+
+    track_internal_event(
+      'oauth_authorize_with_short_pkce_verifier',
+      user: current_user,
+      additional_properties: {
+        label: server.client&.uid.to_s
+      }
+    )
   end
 end

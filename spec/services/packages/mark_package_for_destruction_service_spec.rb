@@ -134,7 +134,7 @@ RSpec.describe Packages::MarkPackageForDestructionService, :aggregate_failures, 
     end
 
     context 'with package deletion protection' do
-      let_it_be(:protection_rule) do
+      let_it_be(:protection_rule, freeze: false) do
         create(:package_protection_rule,
           :pypi,
           project: package.project,

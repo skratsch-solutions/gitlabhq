@@ -2454,21 +2454,6 @@ msgstr ""
 msgid "AI-generated summary"
 msgstr ""
 
-msgid "AIAgents|An error has occurred when saving the agent."
-msgstr ""
-
-msgid "AIAgent|Agent name"
-msgstr ""
-
-msgid "AIAgent|Create agent"
-msgstr ""
-
-msgid "AIAgent|Edit Ai Agent"
-msgstr ""
-
-msgid "AIAgent|Prompt"
-msgstr ""
-
 msgid "AICatalog|%d agent"
 msgid_plural "AICatalog|%d agents"
 msgstr[0] ""
@@ -10529,6 +10514,9 @@ msgid "ApprovalSettings|This setting is configured at the instance level and can
 msgstr ""
 
 msgid "ApprovalSettings|This setting is configured in %{groupName} and can only be changed in the group settings by an administrator or group owner."
+msgstr ""
+
+msgid "ApprovalSettings|This setting is enforced by a merge request approval policy."
 msgstr ""
 
 msgid "ApprovalSettings|When a commit is added:"

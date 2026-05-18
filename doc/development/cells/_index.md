@@ -26,17 +26,8 @@ cases remain.
 
 ### Scope compute to a single organization
 
-Web/API requests, and Sidekiq workers should be run under a single organization.
-Use [`Current.organization`](../organization/_index.md#using-currentorganization) to scope
-work to the current organization.
-
+Web/API requests and Sidekiq workers should be run under a single organization.
 Convert cross-organization compute to be organization-scoped where possible.
-
-In all cases, to avoid data loss during a migration,
-cross-organization compute is only acceptable when both of the following are true:
-
-- The job is a recurring cron job.
-- The job is idempotent.
 
 ### Keep organization data ownership clear
 
@@ -65,6 +56,17 @@ an organization cannot be migrated when an organization moves to a different cel
 An organization is by nature isolated to a cell. All data and compute for an
 organization lives on a single cell. Cross-cell access to organization data is
 not supported.
+
+### Cross-organization isolation is the organization's choice
+
+Isolation between organizations on the same cell is the organization's choice.
+This is especially important for existing organizations on the legacy cell
+(the existing GitLab.com instance), where cross-organization interactions may
+already exist.
+
+Controls that provide cross-organization isolation must account for whether an
+organization has opted into isolation. Do not assume all organizations on the
+same cell are isolated from each other.
 
 ## Available Cells / Organization schemas
 

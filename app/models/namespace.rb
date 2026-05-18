@@ -220,6 +220,7 @@ class Namespace < ApplicationRecord
       delegate :emails_enabled, :emails_enabled=
       delegate :web_based_commit_signing_enabled?, :lock_web_based_commit_signing_enabled?
       delegate :web_based_commit_signing_enabled, :lock_web_based_commit_signing_enabled
+      delegate :granular_tokens_enforced?
     end
   end
 
@@ -250,6 +251,7 @@ class Namespace < ApplicationRecord
   scope :with_project_statistics, -> { includes(projects: :statistics) }
   scope :with_visibility_level_greater_than, ->(level) { where("visibility_level > ?", level) }
   scope :with_namespace_details, -> { preload(:namespace_details) }
+  scope :with_namespace_settings, -> { preload(:namespace_settings) }
 
   scope :archived, -> { self_or_ancestors_archived }
   scope :self_or_ancestors_archived, -> { where(self_or_ancestors_archived_setting_subquery.exists) }

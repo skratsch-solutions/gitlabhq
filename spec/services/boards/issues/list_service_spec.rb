@@ -7,7 +7,7 @@ RSpec.describe Boards::Issues::ListService, feature_category: :portfolio_managem
     let_it_be(:user) { create(:user) }
 
     context 'when parent is a project' do
-      let_it_be(:project) { create(:project, :empty_repo) }
+      let_it_be(:project, freeze: false) { create(:project, :empty_repo) }
       let_it_be(:board)   { create(:board, project: project) }
 
       let_it_be(:m1) { create(:milestone, project: project) }
@@ -216,7 +216,7 @@ RSpec.describe Boards::Issues::ListService, feature_category: :portfolio_managem
 
   describe '.initialize_relative_positions' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project, :empty_repo) }
+    let_it_be(:project, freeze: false) { create(:project, :empty_repo) }
     let_it_be(:board) { create(:board, project: project) }
 
     let(:issue) { create(:issue, project: project, relative_position: nil) }

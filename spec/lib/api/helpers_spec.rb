@@ -2209,20 +2209,38 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
 
     context 'when access token is not granular' do
-      before do
-        allow(token).to receive(:granular?).and_return(false)
+      context 'when token responds to granularity (legacy personal access token)' do
+        before do
+          allow(token).to receive(:granular?).and_return(false)
+        end
+
+        it 'returns true' do
+          expect(helper.send(:authorize_granular_token?)).to be(true)
+        end
+
+        it 'authorizes granular tokens' do
+          expect(Authz::Tokens::AuthorizeGranularScopesService).to receive(:new).and_call_original
+
+          helper.current_user
+        end
       end
 
-      it 'returns false' do
-        allow(helper).to receive(:authorization_settings).and_return({})
+      context 'when token does not respond to granularity (OAuth token)' do
+        before do
+          allow(token).to receive(:respond_to?).with(:granular?).and_return(false)
+        end
 
-        expect(helper.send(:authorize_granular_token?)).to be(false)
-      end
+        it 'returns false' do
+          allow(helper).to receive(:authorization_settings).and_return({})
 
-      it 'does not authorize granular tokens' do
-        expect(Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)
+          expect(helper.send(:authorize_granular_token?)).to be(false)
+        end
 
-        helper.current_user
+        it 'does not authorize granular tokens' do
+          expect(Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)
+
+          helper.current_user
+        end
       end
     end
 

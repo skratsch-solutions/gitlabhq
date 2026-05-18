@@ -1168,7 +1168,7 @@ module API
     end
 
     def authorize_granular_token?
-      access_token.try(:granular?) && !authorization_settings[:skip_granular_token_authorization]
+      access_token.respond_to?(:granular?) && !authorization_settings[:skip_granular_token_authorization]
     end
 
     def permissions_for_endpoint

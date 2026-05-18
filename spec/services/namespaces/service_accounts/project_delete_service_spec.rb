@@ -6,7 +6,7 @@ RSpec.describe Namespaces::ServiceAccounts::ProjectDeleteService, feature_catego
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:service_account_user) { create(:service_account, provisioned_by_project_id: project.id) }
-  let_it_be(:options) { { hard_delete: false } }
+  let_it_be(:options, freeze: false) { { hard_delete: false } }
 
   subject(:service) { described_class.new(current_user, service_account_user) }
 

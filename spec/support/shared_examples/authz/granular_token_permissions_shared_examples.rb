@@ -9,6 +9,9 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
   end.uniq.sort
 
   let(:is_graphql) { context_type == :graphql }
+
+  let(:boundary) { ::Authz::Boundary.for(boundary_object) }
+
   let(:error_boundary_object) { boundary_object }
   let(:acceptable_messages) { [message] }
 
@@ -44,8 +47,33 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
 
   context 'when authenticating with a legacy personal access token' do
     let(:pat) { create(:personal_access_token, :admin_mode, user:) }
+    let(:root_ancestor) { boundary.namespace&.root_ancestor }
 
     it_behaves_like 'granting access'
+
+    context 'when namespace enforces granular tokens' do
+      let(:message) { 'Access denied: This operation requires a fine-grained personal access token' }
+
+      before do
+        skip 'namespace has no root ancestor' unless root_ancestor
+
+        # TODO: https://gitlab.com/gitlab-org/gitlab/-/work_items/594556
+        skip 'not applicable for GraphQL' if is_graphql
+
+        stub_feature_flags(granular_personal_access_tokens_enforcement_saas: root_ancestor)
+
+        root_ancestor.create_namespace_settings! unless root_ancestor.namespace_settings
+
+        root_ancestor.namespace_settings.update!(
+          enforce_granular_tokens: true,
+          granular_tokens_enforced_after: Date.current
+        )
+
+        root_ancestor.reload
+      end
+
+      it_behaves_like 'denying access'
+    end
   end
 
   context 'when authenticating with a granular personal access token' do
@@ -55,7 +83,6 @@ RSpec.shared_examples 'authorizing granular token permissions' do |permissions, 
       end.uniq
     end
 
-    let(:boundary) { ::Authz::Boundary.for(boundary_object) }
     let(:pat) { create(:granular_pat, user: user, boundary: boundary, permissions: assignables) }
 
     it_behaves_like 'granting access'

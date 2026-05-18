@@ -74,6 +74,20 @@ class NamespaceSetting < ApplicationRecord
 
   validate :validate_step_up_auth_inheritance, if: :will_save_change_to_step_up_auth_required_oauth_provider?
 
+  jsonb_accessor :personal_access_token_settings,
+    enforce_granular_tokens: [:boolean, { default: false }],
+    granular_tokens_enforced_after: [:date, { default: nil }]
+
+  validates :personal_access_token_settings, json_schema: { filename: 'personal_access_token_settings' }
+
+  validates :granular_tokens_enforced_after,
+    presence: true,
+    if: :enforce_granular_tokens?
+
+  validates :granular_tokens_enforced_after,
+    future_date: true,
+    if: :granular_tokens_enforced_after_changed?
+
   sanitizes! :default_branch_name
   nullify_if_blank :default_branch_name
 
@@ -212,6 +226,12 @@ class NamespaceSetting < ApplicationRecord
   # Returns the active/effective step-up auth provider, considering inheritance from parent groups
   def step_up_auth_required_oauth_provider_from_self_or_inherited
     step_up_auth_required_oauth_provider_inherited_namespace_setting&.step_up_auth_required_oauth_provider || step_up_auth_required_oauth_provider
+  end
+
+  def granular_tokens_enforced?
+    return false unless Feature.enabled?(:granular_personal_access_tokens_enforcement_saas, namespace.root_ancestor)
+
+    enforce_granular_tokens? && granular_tokens_enforced_after <= Date.current
   end
 
   private

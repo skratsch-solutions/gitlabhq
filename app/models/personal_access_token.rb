@@ -189,6 +189,10 @@ class PersonalAccessToken < ApplicationRecord
     Gitlab::HookData::ResourceAccessTokenBuilder.new(self).build
   end
 
+  def legacy?
+    !granular
+  end
+
   protected
 
   def set_user_type

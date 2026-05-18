@@ -225,8 +225,8 @@ module API
     # rubocop: enable Cop/InjectEnterpriseEditionModule
 
     resource :search do
-      desc 'Search on GitLab' do
-        detail 'This feature was introduced in GitLab 10.5.'
+      desc 'Search an instance' do
+        detail 'Searches for a term across the entire GitLab instance. The response depends on the requested scope.'
         tags ['search']
       end
 

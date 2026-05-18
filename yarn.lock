@@ -1437,10 +1437,10 @@
     core-js "^3.29.1"
     mitt "^3.0.1"
 
-"@gitlab/duo-ui@^15.25.1":
-  version "15.25.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/duo-ui/-/duo-ui-15.25.1.tgz#0cbaa47bb16a6cf49399bac3eb38b28c20d0f601"
-  integrity sha512-CzOaLFSaInE90ZDiueYOfULEXbfEHalfe5zky0RH6/CGatiD21AntrT4DooPAjMjr/YMFQuALmW5E0hBE+OzBQ==
+"@gitlab/duo-ui@^15.28.1":
+  version "15.28.1"
+  resolved "https://registry.yarnpkg.com/@gitlab/duo-ui/-/duo-ui-15.28.1.tgz#281409f7131591afba95f8c8b96802babe2c1504"
+  integrity sha512-MzdNPTaxYOpJ7GVvMU25XwHVWysu15H/e4EEo9VEVb3xihxUhGCdvTiGr4ato6XTdNfKWSMn2BuO6dARhcR22g==
   dependencies:
     "@floating-ui/dom" "1.7.6"
     diff "^8.0.2"
@@ -1483,7 +1483,8 @@
   resolved "https://registry.yarnpkg.com/@gitlab/fonts/-/fonts-1.3.1.tgz#dd335ed25cb33927abc1d80dfbfa31fc93e9bd15"
   integrity sha512-/7Q5Sy9Q3pmutV/1EgURm3iDZtV0HcE4nTwFpHLCrGDdxQ3pNv6SdujzeJExnfiI5Y+1FGfOvKwOlmiVuyDtzA==
 
-"@gitlab/noop@^1.0.1":
+"@gitlab/noop@^1.0.1", jackspeak@^3.1.2, "jackspeak@npm:@gitlab/noop@1.0.1", jsonify@^0.0.1, "jsonify@npm:@gitlab/noop@1.0.1":
+  name jackspeak
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@gitlab/noop/-/noop-1.0.1.tgz#71a831146ee02732b4a61d2d3c11204564753454"
   integrity sha512-s++4wjMYeDvBp9IO59DBrWjy8SE/gFkjTDO5ck2W0S6Vv7OlqgErwL7pHngAnrSmTJAzyUG8wHGqo0ViS4jn5Q==
@@ -10221,11 +10222,6 @@ istanbul-reports@^3.1.3:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
-jackspeak@^3.1.2, "jackspeak@npm:@gitlab/noop@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/noop/-/noop-1.0.1.tgz#71a831146ee02732b4a61d2d3c11204564753454"
-  integrity sha512-s++4wjMYeDvBp9IO59DBrWjy8SE/gFkjTDO5ck2W0S6Vv7OlqgErwL7pHngAnrSmTJAzyUG8wHGqo0ViS4jn5Q==
-
 jed@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
@@ -10813,11 +10809,6 @@ jsonfile@^6.0.1:
     universalify "^2.0.0"
   optionalDependencies:
     graceful-fs "^4.1.6"
-
-jsonify@^0.0.1, "jsonify@npm:@gitlab/noop@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/noop/-/noop-1.0.1.tgz#71a831146ee02732b4a61d2d3c11204564753454"
-  integrity sha512-s++4wjMYeDvBp9IO59DBrWjy8SE/gFkjTDO5ck2W0S6Vv7OlqgErwL7pHngAnrSmTJAzyUG8wHGqo0ViS4jn5Q==
 
 jstimezonedetect@1.0.7:
   version "1.0.7"

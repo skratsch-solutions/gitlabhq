@@ -46007,8 +46007,9 @@ paths:
       operationId: postApiV4PersonalAccessTokensIdRotate
   "/api/v4/search":
     get:
-      summary: Search on GitLab
-      description: This feature was introduced in GitLab 10.5.
+      summary: Search an instance
+      description: Searches for a term across the entire GitLab instance. The response
+        depends on the requested scope.
       produces:
       - application/json
       parameters:
@@ -46113,7 +46114,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Search on GitLab
+          description: Search an instance
       tags:
       - search
       operationId: getApiV4Search

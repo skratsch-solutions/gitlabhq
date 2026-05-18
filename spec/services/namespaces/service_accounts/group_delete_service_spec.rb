@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Namespaces::ServiceAccounts::GroupDeleteService, feature_category: :user_management do
   let_it_be(:group) { create(:group) }
   let_it_be(:service_account_user) { create(:service_account, provisioned_by_group: group) }
-  let_it_be(:options) { { hard_delete: false } }
+  let_it_be(:options, freeze: false) { { hard_delete: false } }
 
   subject(:service) { described_class.new(current_user, service_account_user) }
 

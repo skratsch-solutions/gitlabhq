@@ -102,8 +102,6 @@ This feature is in beta and is therefore subject to change as we gather feedback
 | Model family   | Model |
 |----------------|-------|
 | General        | Any model compatible with the [OpenAI API specification](https://platform.openai.com/docs/api-reference) |
-| Gemini         | [Gemini 3.1 Pro](https://deepmind.google/models/gemini/pro/) |
-| Gemini         | [Gemini 3.0 Flash](https://deepmind.google/models/gemini/flash/) |
 | CodeGemma      | [CodeGemma 2b](https://huggingface.co/google/codegemma-2b) |
 | CodeGemma      | [CodeGemma 7b-it](https://huggingface.co/google/codegemma-7b-it) |
 | CodeGemma      | [CodeGemma 7b-code](https://huggingface.co/google/codegemma-7b) |
@@ -118,6 +116,8 @@ This feature is in beta and is therefore subject to change as we gather feedback
 | Model family   | Model |
 |----------------|-------|
 | General        | Any model compatible with the [OpenAI API specification](https://platform.openai.com/docs/api-reference) |
+| Gemini         | [Gemini 3.1 Pro](https://deepmind.google/models/gemini/pro/) |
+| Gemini         | [Gemini 3.0 Flash](https://deepmind.google/models/gemini/flash/) |
 | Gemma 4        | [Gemma-4-31B-IT](https://huggingface.co/google/gemma-4-31B-it) |
 | Qwen 3.6       | [Qwen3.6-35B-A3B](https://huggingface.co/Qwen/Qwen3.6-35B-A3B) |
 

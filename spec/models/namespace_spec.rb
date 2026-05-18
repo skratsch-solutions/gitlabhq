@@ -1009,6 +1009,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to delegate_method(:web_based_commit_signing_enabled?).to(:namespace_settings) }
     it { is_expected.to delegate_method(:lock_web_based_commit_signing_enabled).to(:namespace_settings) }
     it { is_expected.to delegate_method(:lock_web_based_commit_signing_enabled?).to(:namespace_settings) }
+    it { is_expected.to delegate_method(:granular_tokens_enforced?).to(:namespace_settings).allow_nil }
 
     it do
       is_expected.to delegate_method(:prevent_sharing_groups_outside_hierarchy=).to(:namespace_settings)

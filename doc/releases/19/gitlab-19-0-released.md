@@ -332,7 +332,7 @@ Top-level group Owners can now restrict the AI Catalog to show only agents and f
 
 - Tier: Free
 - Offering: GitLab Self-Managed
-- Links: [Documentation](../../subscriptions/gitlab_credits.md#buy-gitlab-credits), [Related issue](https://gitlab.com/groups/gitlab-org/-/work_items/20892)
+- Links: [Documentation](../../subscriptions/gitlab_credits.md#buy-gitlab-credits), [Related issue](https://gitlab.com/groups/gitlab-org/-/work_items/20165)
 
 {{< /details >}}
 

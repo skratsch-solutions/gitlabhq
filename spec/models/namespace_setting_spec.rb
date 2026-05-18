@@ -255,6 +255,60 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
       it { is_expected.to allow_value(1.day.ago).for(:enterprise_bypass_expires_at) }
       it { is_expected.to allow_value(Time.current).for(:enterprise_bypass_expires_at) }
     end
+
+    describe 'for personal_access_token_settings' do
+      subject(:namespace_settings) { build(:namespace_settings) }
+
+      it 'allows enforce_granular_tokens with true' do
+        is_expected.to allow_value({ enforce_granular_tokens: true })
+          .for(:personal_access_token_settings)
+      end
+
+      it 'allows enforce_granular_tokens with false' do
+        is_expected.to allow_value({ enforce_granular_tokens: false })
+          .for(:personal_access_token_settings)
+      end
+
+      it 'allows granular_tokens_enforced_after with nil when enforce_granular_tokens is false' do
+        is_expected.to allow_value({ granular_tokens_enforced_after: nil })
+          .for(:personal_access_token_settings)
+      end
+
+      context 'when enforce_granular_tokens is true' do
+        before do
+          namespace_settings.enforce_granular_tokens = true
+        end
+
+        it 'requires granular_tokens_enforced_after' do
+          is_expected.not_to allow_value(nil)
+            .for(:granular_tokens_enforced_after)
+            .with_message("can't be blank")
+        end
+
+        it 'allows granular_tokens_enforced_after with a future date' do
+          is_expected.to allow_value(1.day.from_now.to_date)
+            .for(:granular_tokens_enforced_after)
+        end
+
+        it 'allows granular_tokens_enforced_after with the current date' do
+          is_expected.to allow_value(Date.current)
+            .for(:granular_tokens_enforced_after)
+        end
+
+        it 'does not allow granular_tokens_enforced_after with a past date' do
+          is_expected.not_to allow_value(1.day.ago.to_date)
+            .for(:granular_tokens_enforced_after)
+            .with_message('cannot be a date in the past')
+        end
+
+        it 'allows granular_tokens_enforced_after with a past date when unchanged' do
+          allow(namespace_settings).to receive(:granular_tokens_enforced_after_changed?).and_return(false)
+
+          is_expected.to allow_value(1.day.ago.to_date)
+            .for(:granular_tokens_enforced_after)
+        end
+      end
+    end
   end
 
   describe '#enterprise_placeholder_bypass_enabled?' do
@@ -868,6 +922,66 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
         subject { test_group.namespace_settings&.step_up_auth_required_oauth_provider_from_self_or_inherited }
 
         it { is_expected.to eq expected_provider_from_self_or_inherited }
+      end
+    end
+  end
+
+  describe '#granular_tokens_enforced?' do
+    let_it_be(:namespace_settings) { build(:namespace_settings) }
+    let(:enforced_after) { Date.current }
+
+    subject(:granular_tokens_enforced?) { namespace_settings.granular_tokens_enforced? }
+
+    before do
+      namespace_settings.assign_attributes(
+        enforce_granular_tokens: true,
+        granular_tokens_enforced_after: enforced_after
+      )
+    end
+
+    context 'when `granular_personal_access_tokens_enforcement_saas` feature flag is disabled' do
+      before do
+        stub_feature_flags(granular_personal_access_tokens_enforcement_saas: false)
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'when `granular_personal_access_tokens_enforcement_saas` is enabled for a different namespace' do
+      before do
+        stub_feature_flags(granular_personal_access_tokens_enforcement_saas: create(:namespace))
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'when `granular_personal_access_tokens_enforcement_saas` feature flag is enabled' do
+      before do
+        stub_feature_flags(granular_personal_access_tokens_enforcement_saas: namespace_settings.namespace.root_ancestor)
+      end
+
+      context 'when enforce_granular_tokens is false' do
+        before do
+          namespace_settings.enforce_granular_tokens = false
+        end
+
+        it { is_expected.to be false }
+      end
+
+      context 'when granular_tokens_enforced_after is in the future' do
+        let(:enforced_after) { 1.day.from_now.to_date }
+
+        it { is_expected.to be false }
+      end
+
+      context 'when granular_tokens_enforced_after is today' do
+        it { is_expected.to be true }
+      end
+
+      context 'when granular_tokens_enforced_after is in the past' do
+        let(:enforced_after) { 1.day.ago.to_date }
+
+        it { is_expected.to be true }
       end
     end
   end

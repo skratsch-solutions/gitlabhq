@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Ci::PipelineTriggerService, feature_category: :continuous_integration do
   include AfterNextHelpers
 
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
 
   before do
     stub_ci_pipeline_to_return_yaml_file

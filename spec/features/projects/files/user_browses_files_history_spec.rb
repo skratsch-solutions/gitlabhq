@@ -37,6 +37,10 @@ RSpec.describe "User browses files history", :js, feature_category: :source_code
         click_link("README.md")
       end
 
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('README.md')
+      end
+
       page.within(".commit-actions") do
         click_link("History")
       end
@@ -81,6 +85,10 @@ RSpec.describe "User browses files history", :js, feature_category: :source_code
           click_link("README.md")
         end
 
+        page.within('.repo-breadcrumb') do
+          expect(page).to have_link('README.md')
+        end
+
         page.within(".commit-actions") do
           click_link("History")
         end
@@ -119,6 +127,10 @@ RSpec.describe "User browses files history", :js, feature_category: :source_code
     it "shows history button that points to correct url for directory" do
       click_link("files")
 
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('files')
+      end
+
       click_link("History")
 
       history_path = project_commits_path(project, "v1.0.0/files")
@@ -128,6 +140,10 @@ RSpec.describe "User browses files history", :js, feature_category: :source_code
     it "shows history button that points to correct url for a file" do
       page.within(".tree-table") do
         click_link("README.md")
+      end
+
+      page.within('.repo-breadcrumb') do
+        expect(page).to have_link('README.md')
       end
 
       click_link("History")

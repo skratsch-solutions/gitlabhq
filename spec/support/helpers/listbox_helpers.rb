@@ -2,7 +2,7 @@
 
 module ListboxHelpers
   def select_from_listbox(text, from:, exact_item_text: false)
-    click_button from
+    find('.gl-new-dropdown-toggle:not(.disabled)', text: from).click
     select_listbox_item(text, exact_text: exact_item_text)
   end
 

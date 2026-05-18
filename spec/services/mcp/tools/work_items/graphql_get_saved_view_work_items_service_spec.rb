@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Mcp::Tools::WorkItems::GraphqlGetSavedViewWorkItemsService, feature_category: :mcp_server do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :public, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
 
   let(:service) { described_class.new(name: 'get_saved_view_work_items') }
   let(:request) { instance_double(ActionDispatch::Request) }
@@ -1096,7 +1096,7 @@ RSpec.describe Mcp::Tools::WorkItems::GraphqlGetSavedViewWorkItemsService, featu
     end
 
     context 'with releaseTag filter resolved from release_ids' do
-      let_it_be(:release) { create(:release, project: project, tag: 'v1.0') }
+      let_it_be(:release, freeze: false) { create(:release, project: project, tag: 'v1.0') }
       let_it_be(:saved_view) do
         create(:saved_view,
           namespace: group,

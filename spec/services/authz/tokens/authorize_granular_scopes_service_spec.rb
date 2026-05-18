@@ -108,19 +108,80 @@ RSpec.describe ::Authz::Tokens::AuthorizeGranularScopesService, feature_category
       it_behaves_like 'successful response'
     end
 
-    context 'when the token is supported, but is not granular' do
+    context 'when the token is a legacy personal access token' do
       let(:token) { build(:personal_access_token) }
 
       it_behaves_like 'successful response'
 
       context 'when the namespace requires granular tokens' do
+        let_it_be(:group) { create(:group) }
+        let_it_be(:project) { create(:project, :in_group) }
+        let_it_be(:boundary) { Authz::Boundary.for(group) }
+
         before do
-          allow(service).to receive(:granular_token_required?).and_return(true)
+          stub_feature_flags(granular_personal_access_tokens_enforcement_saas: group)
+
+          group.namespace_settings.update!(
+            enforce_granular_tokens: true,
+            granular_tokens_enforced_after: Date.current
+          )
         end
 
         it_behaves_like 'error response',
           'Access denied: This operation requires a fine-grained personal access token ' \
-            'with the following instance permissions: [Member Role: Create].'
+            'with the following group permissions: [Member Role: Create].'
+
+        it 'does not have N+1 queries' do
+          control = ActiveRecord::QueryRecorder.new do
+            service.execute
+          end
+
+          expect do
+            described_class.new(
+              boundaries: [
+                Authz::Boundary.for(group.reload),
+                Authz::Boundary.for(project.reload)
+              ],
+              permissions: permissions,
+              token: token
+            ).execute
+          end.to issue_same_number_of_queries_as(control).or_fewer
+        end
+
+        context 'when the `granular_personal_access_tokens` feature flag is disabled' do
+          before do
+            stub_feature_flags(granular_personal_access_tokens: false)
+          end
+
+          it_behaves_like 'successful response'
+        end
+
+        context 'when the `granular_personal_access_tokens_enforcement_saas` feature flag is disabled' do
+          before do
+            stub_feature_flags(granular_personal_access_tokens_enforcement_saas: false)
+          end
+
+          it_behaves_like 'successful response'
+        end
+
+        context 'when `granular_personal_access_tokens_enforcement_saas` FF is enabled for a different namespace' do
+          before do
+            stub_feature_flags(granular_personal_access_tokens_enforcement_saas: create(:group))
+          end
+
+          it_behaves_like 'successful response'
+        end
+
+        context 'when `granular_personal_access_tokens_enforcement_saas` FF is not enabled for root' do
+          let_it_be(:sub_group) { create(:group, parent: group) }
+          let_it_be(:boundary) { Authz::Boundary.for(sub_group) }
+
+          before do
+            stub_feature_flags(granular_personal_access_tokens_enforcement_saas: sub_group)
+          end
+
+          it_behaves_like 'successful response'
+        end
       end
     end
 

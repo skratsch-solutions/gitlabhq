@@ -11202,7 +11202,8 @@ paths:
   "/api/v4/admin/search/migrations":
     get:
       operationId: getApiV4AdminSearchMigrations
-      summary: Lists all advanced search migrations
+      summary: List all advanced search migrations
+      description: Lists all advanced search migrations for the GitLab instance.
       tags:
       - Search
       responses:
@@ -11217,7 +11218,9 @@ paths:
   "/api/v4/admin/search/migrations/{migration_id}":
     get:
       operationId: getApiV4AdminSearchMigrationsMigrationId
-      summary: Get a migration by version or name
+      summary: Retrieve an advanced search migration
+      description: Retrieves a specified advanced search migration by migration version
+        or name.
       tags:
       - Search
       responses:
@@ -25734,8 +25737,9 @@ paths:
   "/api/v4/search":
     get:
       operationId: getApiV4Search
-      summary: Search on GitLab
-      description: This feature was introduced in GitLab 10.5.
+      summary: Search an instance
+      description: Searches for a term across the entire GitLab instance. The response
+        depends on the requested scope.
       tags:
       - Search
       responses:

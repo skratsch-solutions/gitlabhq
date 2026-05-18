@@ -30,6 +30,13 @@ GitLab Advanced SAST is a static application security testing (SAST) analyzer th
 cross-function and cross-file taint analysis to detect complex vulnerabilities with fewer false
 positives than traditional SAST.
 
+GitLab Advanced SAST is an opt-in feature. When enabled, GitLab Advanced SAST scans all supported
+language files using its predefined ruleset, while the SAST analyzer continues to scan other
+files. Both analyzers can run in parallel. SAST and GitLab Advanced SAST do not have complete
+parity — each analyzer detects some vulnerabilities the other does not. An automated
+[transition process](#transitioning-from-semgrep-to-gitlab-advanced-sast) deduplicates findings when
+both analyzers detect the same vulnerability.
+
 GitLab Advanced SAST performs deeper analysis than the standard Semgrep-based SAST analyzer. This
 comprehensive approach can improve accuracy and reduce false positives, but requires more
 computational resources and longer scan duration.
@@ -683,6 +690,8 @@ When the conditions are met, the existing Semgrep vulnerability is converted int
 - The scanner type updates from Semgrep to GitLab Advanced SAST.
 - Any additional identifiers present in the GitLab Advanced SAST vulnerability are added to the existing vulnerability.
 - All other details of the vulnerability remain unchanged.
+
+When the conditions are not met, the existing Semgrep vulnerabilities persist in the vulnerability dashboard even if the underlying code issues have been fixed. To mark these fixed vulnerabilities as resolved in GitLab, you must either manually resolve them in the vulnerability dashboard, or run the Semgrep analyzer again.
 
 ### Resolve duplicate vulnerabilities
 

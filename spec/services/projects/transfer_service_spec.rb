@@ -263,7 +263,7 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     context 'with a project integration' do
       let_it_be_with_reload(:project) { create(:project, namespace: user.namespace) }
       let_it_be(:instance_integration) { create(:integrations_slack, :instance) }
-      let_it_be(:project_integration) { create(:integrations_slack, project: project) }
+      let_it_be(:project_integration, freeze: false) { create(:integrations_slack, project: project) }
 
       context 'when it inherits from instance_integration' do
         before do

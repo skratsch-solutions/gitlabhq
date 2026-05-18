@@ -19,7 +19,7 @@ module Authz
 
       def execute
         return success unless should_check_authorization?
-        return disabled_error unless feature_enabled?
+        return disabled_error if token.granular? && !feature_enabled?
         return resource_not_found_error if resource_unresolved?
         return missing_inputs_error unless missing_inputs.empty?
         return success if authorized?
@@ -63,6 +63,20 @@ module Authz
         Feature.enabled?(:granular_personal_access_tokens, token.user)
       end
 
+      def granular_token_required?
+        return false unless feature_enabled?
+        return false unless token.legacy?
+
+        root_namespaces.any?(&:granular_tokens_enforced?)
+      end
+
+      def root_namespaces
+        root_namespace_ids = boundaries.filter_map { |b| b.namespace&.traversal_ids&.first }.uniq
+        return [] if root_namespace_ids.empty?
+
+        Namespace.id_in(root_namespace_ids).with_namespace_settings.to_a
+      end
+
       def boundaries_by_priority
         boundaries.sort_by { |b| BOUNDARY_TYPE_ORDER.fetch(b.type_label.to_sym, BOUNDARY_TYPE_ORDER.size) }
       end
@@ -82,10 +96,6 @@ module Authz
 
       def token_supports_granular_permissions?
         token.respond_to?(:granular?) && token.respond_to?(:can?)
-      end
-
-      def granular_token_required?
-        false # to be implemented as a namespace setting
       end
 
       def missing_inputs
