@@ -104,6 +104,13 @@ module WorkItems
           id
         end
 
+        # The system-defined type id to use for cross-cutting lookups that
+        # only know about system-defined ids (e.g. HierarchyRestriction).
+        # Custom types override this to return their delegation_source id.
+        def system_defined_type_id
+          id
+        end
+
         def widget_definitions
           WorkItems::TypesFramework::SystemDefined::WidgetDefinition.where(work_item_type_id: id)
         end

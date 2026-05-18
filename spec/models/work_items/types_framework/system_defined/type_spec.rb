@@ -376,6 +376,14 @@ RSpec.describe WorkItems::TypesFramework::SystemDefined::Type, feature_category:
     end
   end
 
+  describe '#system_defined_type_id' do
+    it 'returns the type id for every fixed item' do
+      described_class.all.each do |type| # rubocop:disable Rails/FindEach -- not an ActiveRecord relation; FixedItemsModel
+        expect(type.system_defined_type_id).to eq(type.id)
+      end
+    end
+  end
+
   describe 'dynamically defined predicate methods' do
     # Get all available types from the fixed_items configuration
     let(:all_types) { described_class.all }

@@ -3,9 +3,7 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/analytics/cycle_analytics/components/base.vue',
     'app/assets/javascripts/analytics/cycle_analytics/components/filter_bar.vue',
-    'app/assets/javascripts/analytics/cycle_analytics/components/value_stream_filters.vue',
     'app/assets/javascripts/batch_comments/components/draft_note.vue',
     'app/assets/javascripts/behaviors/components/diagram_performance_warning.vue',
     'app/assets/javascripts/blob/components/blob_content.vue',
@@ -196,7 +194,6 @@ export default {
     'ee/app/assets/javascripts/analytics/analytics_dashboards/components/analytics_dashboard_panel.vue',
     'ee/app/assets/javascripts/analytics/analytics_dashboards/components/filters/filtered_search_filter.vue',
     'ee/app/assets/javascripts/analytics/code_review_analytics/components/filter_bar.vue',
-    'ee/app/assets/javascripts/analytics/cycle_analytics/components/base.vue',
     'ee/app/assets/javascripts/analytics/cycle_analytics/components/value_stream_aggregating_warning.vue',
     'ee/app/assets/javascripts/analytics/cycle_analytics/vsa_settings/components/value_stream_form_content.vue',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/components/devops_adoption_app.vue',

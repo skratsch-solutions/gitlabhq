@@ -50,6 +50,8 @@ AllCops:
     - 'spec/support/*.git/**/*'  # e.g. spec/support/gitlab-git-test.git
     # projects_controller.rb is used for testing LLM response and is very sensitive to whitespaces.
     - 'ee/spec/fixtures/llm/projects_controller.rb'
+    # Shell scripts without extensions that RuboCop would otherwise try to parse as Ruby.
+    - 'scripts/generate_event_doc'
   # Use absolute path to avoid orphan directories with changed workspace root.
   CacheRootDirectory: <%= Dir.getwd %>/tmp
   MaxFilesInCache: 1_000_000
@@ -492,6 +494,12 @@ Gitlab/EventStoreSubscriber:
   Exclude:
     - 'spec/**/*'
     - 'ee/spec/**/*'
+
+Gitlab/EventStoreDocRequired:
+  Enabled: true
+  Include:
+    - 'app/events/**/*.rb'
+    - 'ee/app/events/**/*.rb'
 
 # See https://gitlab.com/gitlab-org/gitlab/-/issues/496562
 Gitlab/Ai/OrderConstants:

@@ -398,7 +398,7 @@ class Issue < ApplicationRecord
 
   def next_object_by_relative_position(ignoring: nil, order: :asc)
     array_mapping_scope = ->(id_expression) do
-      relation = Issue.where(Issue.arel_table[:project_id].eq(id_expression))
+      relation = Issue.where(Issue.arel_table[:namespace_id].eq(id_expression))
 
       if order == :asc
         relation.where(Issue.arel_table[:relative_position].gt(relative_position))
@@ -409,7 +409,7 @@ class Issue < ApplicationRecord
 
     relation = Gitlab::Pagination::Keyset::InOperatorOptimization::QueryBuilder.new(
       scope: Issue.order(relative_position: order, id: order),
-      array_scope: relative_positioning_parent_projects,
+      array_scope: namespace.work_item_positioning_root.self_and_descendant_ids(skope: Namespace).select(:id),
       array_mapping_scope: array_mapping_scope,
       finder_query: ->(_, id_expression) { Issue.where(Issue.arel_table[:id].eq(id_expression)) }
     ).execute
@@ -419,16 +419,8 @@ class Issue < ApplicationRecord
     relation.take
   end
 
-  def relative_positioning_parent_projects
-    if namespace.parent&.user_namespace?
-      Project.id_in(namespace.project).select(:id)
-    else
-      namespace.root_ancestor&.all_projects&.select(:id)
-    end
-  end
-
   def self.relative_positioning_query_base(issue)
-    in_projects(issue.relative_positioning_parent_projects)
+    where(namespace_id: issue.namespace.work_item_positioning_root.self_and_descendant_ids(skope: Namespace))
   end
 
   def self.relative_positioning_parent_column
@@ -998,7 +990,7 @@ class Issue < ApplicationRecord
 
   def could_not_move(exception)
     # Symptom of running out of space - schedule rebalancing
-    Issues::RebalancingWorker.perform_async(nil, *project.self_or_root_group_ids)
+    Issues::RebalancingWorker.perform_async(nil, nil, namespace.work_item_positioning_root.id)
   end
 
   def ensure_namespace_id

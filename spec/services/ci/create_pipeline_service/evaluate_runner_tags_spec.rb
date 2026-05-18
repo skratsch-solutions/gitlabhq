@@ -12,8 +12,11 @@ RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_compositio
   let(:pipeline) { service.execute(:push).payload }
   let(:job)      { pipeline.builds.find_by(name: 'job') }
 
-  before do
+  before_all do
     project.add_developer(user)
+  end
+
+  before do
     stub_ci_pipeline_yaml_file config
   end
 

@@ -135,6 +135,7 @@ These shortcuts are available when viewing [merge requests](project/merge_reques
 | <kbd>v</kbd>                      |                                   | Mark file as viewed or unviewed. |
 | <kbd>;</kbd>                      |                                   | Expand all files. |
 | <kbd>Shift</kbd>+<kbd>;</kbd>     |                                   | Collapse all files. |
+| <kbd>Shift</kbd>+<kbd>d</kbd>     |                                   | Toggle between inline and side-by-side diff view. |
 
 ### Project files
 

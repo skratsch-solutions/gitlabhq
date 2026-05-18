@@ -177,7 +177,7 @@ RSpec.describe Gitlab::Issues::Rebalancing::State, :clean_gitlab_redis_shared_st
     let_it_be(:group) { create(:group, :private) }
     let_it_be(:project) { create(:project, namespace: group) }
 
-    subject(:rebalance_caching) { described_class.new(group, group.projects) }
+    subject(:rebalance_caching) { described_class.new(group) }
 
     it { expect(rebalance_caching.send(:rebalanced_container_type)).to eq(described_class::NAMESPACE) }
 
@@ -197,7 +197,7 @@ RSpec.describe Gitlab::Issues::Rebalancing::State, :clean_gitlab_redis_shared_st
   context 'rebalancing issues in a project' do
     let_it_be(:project) { create(:project) }
 
-    subject(:rebalance_caching) { described_class.new(project.namespace, Project.where(id: project)) }
+    subject(:rebalance_caching) { described_class.new(project.project_namespace) }
 
     it { expect(rebalance_caching.send(:rebalanced_container_type)).to eq(described_class::PROJECT) }
 

@@ -485,18 +485,23 @@ class WorkItem < Issue
   def validate_parent_restrictions(parent_link)
     return unless parent_link
 
-    parent_link.work_item.work_item_type_id = work_item_type_id
+    parent_type = parent_link.work_item_parent.work_item_type
 
-    unless parent_link.valid?
-      errors.add(
-        :work_item_type_id,
-        format(
-          _('cannot be changed to %{new_type} when linked to a parent %{parent_type}.'),
-          new_type: work_item_type.name.downcase,
-          parent_type: parent_link.work_item_parent.work_item_type.name.downcase
-        )
+    allowed = ::WorkItems::TypesFramework::SystemDefined::HierarchyRestriction.hierarchy_relationship_allowed?(
+      parent_type_id: parent_type.system_defined_type_id,
+      child_type_id: work_item_type.system_defined_type_id
+    )
+
+    return if allowed
+
+    errors.add(
+      :work_item_type_id,
+      format(
+        _('cannot be changed to %{new_type} when linked to a parent %{parent_type}.'),
+        new_type: work_item_type.name.downcase,
+        parent_type: parent_type.name.downcase
       )
-    end
+    )
   end
 
   def validate_child_restrictions(child_links)
@@ -504,7 +509,7 @@ class WorkItem < Issue
 
     child_type_ids = child_links.joins(:work_item).distinct.pluck('issues.work_item_type_id') # rubocop:disable Database/AvoidUsingPluckWithoutLimit -- Limited number of work item types
     restrictions = ::WorkItems::TypesFramework::SystemDefined::HierarchyRestriction.where(
-      parent_type_id: work_item_type_id,
+      parent_type_id: work_item_type.system_defined_type_id,
       child_type_id: child_type_ids
     )
 

@@ -38,7 +38,7 @@ RSpec.describe Issues::RelativePositionRebalancingService, :clean_gitlab_redis_s
     project.reload.issues.order_by_relative_position.to_a
   end
 
-  subject(:service) { described_class.new(Project.id_in(project)) }
+  subject(:service) { described_class.new(project.project_namespace) }
 
   context 'execute' do
     it 're-balances a set of issues with clumps at the end and start' do
@@ -184,10 +184,10 @@ RSpec.describe Issues::RelativePositionRebalancingService, :clean_gitlab_redis_s
       let_it_be(:issue1) { create(:issue, project: project1, relative_position: 100) }
       let_it_be(:issue2) { create(:issue, project: project2, relative_position: 200) }
 
-      subject(:multi_project_service) { described_class.new(Project.id_in([project1, project2])) }
+      subject(:multi_project_service) { described_class.new(group) }
 
       describe '#preload_issue_ids' do
-        it 'caches issues from all projects in the namespace' do
+        it 'caches issues from all namespaces under the namespace hierarchy' do
           multi_project_service.send(:preload_issue_ids)
           caching = multi_project_service.send(:caching)
 
@@ -195,9 +195,12 @@ RSpec.describe Issues::RelativePositionRebalancingService, :clean_gitlab_redis_s
           expect(caching.get_cached_issue_ids(0, 10)).to contain_exactly(issue1.id.to_s, issue2.id.to_s)
         end
 
-        it 'processes each project namespace separately' do
+        it 'iterates each descendant namespace (group + project namespaces)' do
           caching = multi_project_service.send(:caching)
-          expect(caching).to receive(:cache_current_namespace_id).twice.and_call_original
+          expected_namespace_ids = group.self_and_descendant_ids(skope: Namespace).pluck(:id)
+
+          expect(caching).to receive(:cache_current_namespace_id)
+            .exactly(expected_namespace_ids.size).times.and_call_original
 
           multi_project_service.send(:preload_issue_ids)
         end

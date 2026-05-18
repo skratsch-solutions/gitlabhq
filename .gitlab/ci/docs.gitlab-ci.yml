@@ -165,13 +165,13 @@ docs-lint links:
   script:
     - lychee --offline --no-progress --include-fragments doc
 
-docs-lint deprecations-and-removals:
+docs-lint generated-content:
   variables:
     SETUP_DB: "false"
   extends:
     - .ruby-cache
     - .default-before_script
-    - .docs:rules:deprecations-and-removals
+    - .docs:rules:generated-content
     - .lint-base
   stage: lint
   needs:
@@ -181,6 +181,7 @@ docs-lint deprecations-and-removals:
   script:
     - bundle exec rake gitlab:docs:check_deprecations
     - bundle exec rake gitlab:docs:check_windows
+    - bundle exec rake gitlab:docs:check_events
 
 docs-lint redirects:
   image: ${GITLAB_DEPENDENCY_PROXY_ADDRESS}ruby:${RUBY_VERSION}-alpine

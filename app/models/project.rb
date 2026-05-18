@@ -3425,17 +3425,6 @@ class Project < ApplicationRecord
     root_namespace
   end
 
-  # for projects that are part of user namespace, return project.
-  def self_or_root_group_ids
-    if group
-      root_group = root_namespace
-    else
-      project = self
-    end
-
-    [project&.id, root_group&.id]
-  end
-
   def related_group_ids
     ids = invited_group_ids
 

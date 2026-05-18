@@ -37,7 +37,7 @@ module Issues
       return if issue.relative_position.nil?
       return if NO_REBALANCING_NEEDED.cover?(issue.relative_position)
 
-      Issues::RebalancingWorker.perform_async(nil, *issue.project.self_or_root_group_ids)
+      Issues::RebalancingWorker.perform_async(nil, nil, issue.namespace.work_item_positioning_root.id)
     end
 
     def execute_hooks(issue, action = 'open', old_associations: {})

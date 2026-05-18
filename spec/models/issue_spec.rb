@@ -1592,6 +1592,28 @@ RSpec.describe Issue, feature_category: :team_planning do
         expect { described_class.move_nulls_to_start(payload) }.to raise_error(Gitlab::RelativePositioning::IssuePositioningDisabled)
       end
     end
+
+    describe '.relative_positioning_query_base' do
+      let_it_be(:subgroup) { create(:group, parent: group) }
+      let_it_be(:subgroup_project) { create(:project, group: subgroup) }
+      let_it_be(:project_issue) { create(:issue, project: project, relative_position: 100) }
+      let_it_be(:subgroup_project_issue) { create(:issue, project: subgroup_project, relative_position: 200) }
+      let_it_be(:other_group_issue) { create(:issue, relative_position: 300) }
+
+      it 'includes issues from any project under the root namespace hierarchy' do
+        scope = described_class.relative_positioning_query_base(project_issue)
+
+        expect(scope).to include(project_issue, subgroup_project_issue)
+        expect(scope).not_to include(other_group_issue)
+      end
+
+      it 'returns the same scope when called with an issue from a nested project' do
+        scope = described_class.relative_positioning_query_base(subgroup_project_issue)
+
+        expect(scope).to include(project_issue, subgroup_project_issue)
+        expect(scope).not_to include(other_group_issue)
+      end
+    end
   end
 
   it_behaves_like 'versioned description'
@@ -1693,7 +1715,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       it 'schedules rebalancing if there is no space left' do
         lhs = build_stubbed(:issue, relative_position: 99, project: project)
         to_move = build(:issue, project: project)
-        expect(Issues::RebalancingWorker).to receive(:perform_async).with(nil, project_id, namespace_id)
+        expect(Issues::RebalancingWorker).to receive(:perform_async).with(nil, nil, expected_namespace_id)
 
         expect { to_move.move_between(lhs, issue) }.to raise_error(RelativePositioning::NoSpaceLeft)
       end
@@ -1702,8 +1724,7 @@ RSpec.describe Issue, feature_category: :team_planning do
     context 'when project in user namespace' do
       let(:project_namespace) { build_stubbed(:project_namespace) }
       let(:project) { build_stubbed(:project_empty_repo, project_namespace: project_namespace) }
-      let(:project_id) { project.id }
-      let(:namespace_id) { nil }
+      let(:expected_namespace_id) { project_namespace.id }
 
       it_behaves_like 'schedules issues rebalancing'
     end
@@ -1712,8 +1733,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       let(:group) { create(:group) }
       let(:project_namespace) { build_stubbed(:project_namespace) }
       let(:project) { build_stubbed(:project_empty_repo, group: group, project_namespace: project_namespace) }
-      let(:project_id) { nil }
-      let(:namespace_id) { group.id }
+      let(:expected_namespace_id) { group.id }
 
       it_behaves_like 'schedules issues rebalancing'
     end

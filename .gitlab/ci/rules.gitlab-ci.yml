@@ -414,13 +414,18 @@
   if: '($CI_PROJECT_PATH == "gitlab-com/localization" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH) ||
       ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train")'
 
-.docs-deprecations-and-removals-patterns: &docs-deprecations-and-removals-patterns
+.docs-generated-content-patterns: &docs-generated-content-patterns
+  # deprecations and breaking windows
   - "doc/update/breaking_windows.md"
   - "doc/update/deprecations.md"
   - "data/deprecations/**/*"
   - "tooling/docs/**/*"
   - "lib/tasks/gitlab/docs/compile_deprecations.rake"
   - "lib/tasks/gitlab/docs/compile_windows.rake"
+  # event store index
+  - "doc/development/events/_index.md"
+  - "data/events/**/*"
+  - "lib/tasks/gitlab/docs/compile_events.rake"
 
 .docs-release-note-categories-patterns: &docs-release-note-categories-patterns
   - "doc/releases/**/*"
@@ -1501,10 +1506,10 @@
     - <<: *if-tech-docs-localization
       changes: *docs-fr-fr-patterns
 
-.docs:rules:deprecations-and-removals:
+.docs:rules:generated-content:
   rules:
     - <<: *if-default-refs
-      changes: *docs-deprecations-and-removals-patterns
+      changes: *docs-generated-content-patterns
 
 .docs:rules:release-note-categories:
   rules:

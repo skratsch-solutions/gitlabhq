@@ -1880,6 +1880,20 @@ PRIMARY KEY (traversal_path, user_id, project_id, access_level)
 ORDER BY (traversal_path, user_id, project_id, access_level)
 SETTINGS deduplicate_merge_projection_mode = 'rebuild', index_granularity = 2048;
 
+CREATE TABLE siphon_project_authorizations_pg_pkey_ordered
+(
+    `user_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `project_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `access_level` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (user_id, project_id, access_level, traversal_path)
+ORDER BY (user_id, project_id, access_level, traversal_path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_projects
 (
     `id` Int64,
@@ -3645,6 +3659,24 @@ AS SELECT
     _siphon_replicated_at,
     _siphon_deleted
 FROM siphon_merge_request_diff_files;
+
+CREATE MATERIALIZED VIEW siphon_project_authorizations_pg_pkey_ordered_mv TO siphon_project_authorizations_pg_pkey_ordered
+(
+    `user_id` Int64,
+    `project_id` Int64,
+    `access_level` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    user_id,
+    project_id,
+    access_level,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_project_authorizations;
 
 CREATE MATERIALIZED VIEW user_addon_assignments_history_mv TO user_addon_assignments_history
 (

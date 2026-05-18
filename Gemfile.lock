@@ -1843,8 +1843,8 @@ GEM
       redis-store (>= 1.1.0, < 2)
     redis-client (0.28.0)
       connection_pool
-    redis-cluster-client (0.13.5)
-      redis-client (~> 0.24)
+    redis-cluster-client (0.15.0)
+      redis-client (~> 0.28)
     redis-clustering (5.4.1)
       redis (= 5.4.1)
       redis-cluster-client (>= 0.10.0)
@@ -3294,7 +3294,7 @@ CHECKSUMS
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
   redis-actionpack (5.5.0) sha256=dc0570b78c14ec62b35c17b97fab778ee5986bc55e695bfb6826488088693311
   redis-client (0.28.0) sha256=888892f9cd8787a41c0ece00bdf5f556dfff7770326ce40bb2bc11f1bfec824b
-  redis-cluster-client (0.13.5) sha256=18d6c9598009bcdb47b2a62bd6d00b833444aace740d2a2f00113774b298204c
+  redis-cluster-client (0.15.0) sha256=c50891ade8585ecb2dfab8cabf88df5077f38708a7b34fc95a4a96786e2ce201
   redis-clustering (5.4.1) sha256=87444bb101fda5f1ef73b87243759224ca5952f3fe3c73842a2b8f78e45844ea
   redis-namespace (1.11.0) sha256=e91a1aa2b2d888b6dea1d4ab8d39e1ae6fac3426161feb9d91dd5cca598a2239
   redis-rack (3.0.0) sha256=abb50b82ae10ad4d11ca2e4901bfc2b98256cdafbbd95f80c86fc9e001478380

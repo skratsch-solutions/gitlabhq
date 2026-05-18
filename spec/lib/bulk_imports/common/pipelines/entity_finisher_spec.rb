@@ -55,4 +55,19 @@ RSpec.describe BulkImports::Common::Pipelines::EntityFinisher, feature_category:
       expect(entity.reload.failed?).to eq(true)
     end
   end
+
+  context 'when entity is a group' do
+    it 'schedules PlacementWorker so imported epics get positioned' do
+      group = create(:group)
+      entity = create(:bulk_import_entity, :group_entity, :started, group: group)
+      pipeline_tracker = create(:bulk_import_tracker, entity: entity)
+      context = BulkImports::Pipeline::Context.new(pipeline_tracker)
+
+      expect(::Issues::PlacementWorker)
+        .to receive(:perform_async)
+        .with({ 'namespace_id' => group.work_item_positioning_root.id })
+
+      described_class.new(context).run
+    end
+  end
 end

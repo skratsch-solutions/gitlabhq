@@ -9,10 +9,9 @@ module Issues
 
     TooManyConcurrentRebalances = Class.new(StandardError)
 
-    def initialize(projects)
-      @projects_collection = (projects.is_a?(Array) ? Project.id_in(projects) : projects).select(:id).projects_order_id_asc
-      @root_namespace = @projects_collection.select(:namespace_id).without_order.take.root_namespace # rubocop:disable CodeReuse/ActiveRecord
-      @caching = ::Gitlab::Issues::Rebalancing::State.new(@root_namespace, @projects_collection)
+    def initialize(namespace)
+      @root_namespace = namespace.root_ancestor
+      @caching = ::Gitlab::Issues::Rebalancing::State.new(namespace)
     end
 
     def execute
@@ -46,7 +45,7 @@ module Issues
 
     private
 
-    attr_reader :root_namespace, :projects_collection, :caching
+    attr_reader :root_namespace, :caching
 
     def block_issue_repositioning!
       Feature.enable(:block_issue_repositioning, root_namespace)
@@ -73,15 +72,14 @@ module Issues
     def preload_issue_ids
       cached_namespace_id = caching.get_current_namespace_id
 
-      namespace_scope = Project.where(id: projects_collection).reorder(:project_namespace_id).select(:project_namespace_id).distinct
-      namespace_scope = namespace_scope.where(project_namespace_id: cached_namespace_id.to_i..) if cached_namespace_id.present?
+      namespace_ids = root_namespace.self_and_descendant_ids(skope: Namespace)
+      namespace_ids = namespace_ids.where(id: cached_namespace_id.to_i..) if cached_namespace_id.present?
 
-      namespace_scope.each do |record|
-        namespace_id = record.project_namespace_id
+      namespace_ids.each do |namespace_id|
         caching.cache_current_namespace_id(namespace_id)
 
         scope = Issue
-          .in_projects(projects_collection.where(project_namespace_id: namespace_id))
+          .where(namespace_id: namespace_id)
           .order_by_relative_position
           .with_non_null_relative_position
           .select(:id, :relative_position)

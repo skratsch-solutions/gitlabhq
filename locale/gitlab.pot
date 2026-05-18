@@ -77424,6 +77424,9 @@ msgstr ""
 msgid "Toggle backtrace"
 msgstr ""
 
+msgid "Toggle between inline and side-by-side diff view"
+msgstr ""
+
 msgid "Toggle comments for this file"
 msgstr ""
 
@@ -84485,8 +84488,10 @@ msgstr ""
 msgid "WorkItem|%{workItemType} disabled."
 msgstr ""
 
-msgid "WorkItem|%{workItemType} does not support the %{childItemType} child item types. Remove child items to change type."
-msgstr ""
+msgid "WorkItem|%{workItemType} does not support the %{childItemType} child item type. Remove child items to change type."
+msgid_plural "WorkItem|%{workItemType} does not support the %{childItemType} child item types. Remove child items to change type."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "WorkItem|%{workItemType} enabled for all projects."
 msgstr ""

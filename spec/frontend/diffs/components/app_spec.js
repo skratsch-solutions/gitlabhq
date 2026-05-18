@@ -45,6 +45,7 @@ import {
   MR_NEXT_FILE_IN_DIFF,
   MR_PREVIOUS_FILE_IN_DIFF,
   MR_TOGGLE_REVIEW,
+  MR_TOGGLE_DIFF_VIEW_TYPE,
 } from '~/behaviors/shortcuts/keybindings';
 import { useNotes } from '~/notes/store/legacy_notes';
 import { useBatchComments } from '~/batch_comments/store';
@@ -379,6 +380,30 @@ describe('diffs/components/app', () => {
 
         expect(useCodeReview().setReviewed).not.toHaveBeenCalled();
         expect(store.setFileCollapsedByUser).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('toggleDiffViewType', () => {
+      const toggleDiffView = () => Mousetrap.trigger(keysFor(MR_TOGGLE_DIFF_VIEW_TYPE)[0]);
+
+      beforeEach(() => {
+        createComponent();
+      });
+
+      it('switches from inline to side-by-side when shortcut is triggered', () => {
+        store.diffViewType = 'inline';
+
+        toggleDiffView();
+
+        expect(store.setDiffViewType).toHaveBeenCalledWith('parallel');
+      });
+
+      it('switches from side-by-side to inline when shortcut is triggered', () => {
+        store.diffViewType = 'parallel';
+
+        toggleDiffView();
+
+        expect(store.setDiffViewType).toHaveBeenCalledWith('inline');
       });
     });
   });

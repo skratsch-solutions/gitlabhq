@@ -1993,6 +1993,7 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
     __typename: 'WorkItemWidgetLinkedResources',
   },
   status: null,
+  agentPlan: null,
 });
 
 export const workItemResponseFactory = ({
@@ -11437,6 +11438,7 @@ export const workItemsQueryResponseWithFeatures = {
                 parent: null,
               },
               status: null,
+              agentPlan: null,
               __typename: 'WorkItemFeatures',
             },
             __typename: 'WorkItem',
@@ -11533,6 +11535,7 @@ export const workItemsQueryResponseWithFeatures = {
                 parent: null,
               },
               status: null,
+              agentPlan: null,
               __typename: 'WorkItemFeatures',
             },
             __typename: 'WorkItem',
