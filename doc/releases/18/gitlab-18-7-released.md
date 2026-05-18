@@ -265,7 +265,7 @@ This improvement provides a more streamlined and comprehensive search workflow f
 - Tier: Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
 - Add-ons: Duo Core, Duo Pro, Duo Enterprise
-- Links: [Documentation](../../user/gitlab_duo/customize_duo/agents_md.md)
+- Links: [Documentation](../../user/duo_agent_platform/customize/agents_md.md)
 
 {{< /details >}}
 

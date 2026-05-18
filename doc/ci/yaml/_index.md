@@ -5887,7 +5887,7 @@ job:
 > [!note]
 > This feature is available for testing, but not ready for production use.
 
-Use `run` to define a series of [steps](../steps/_index.md) to be executed in a job. Each step can be either a script or a predefined step.
+Use `run` to define a series of [steps](../functions/_index.md) to be executed in a job. Each step can be either a script or a predefined step.
 
 You can also provide optional environment variables and inputs.
 

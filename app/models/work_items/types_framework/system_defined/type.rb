@@ -158,6 +158,7 @@ module WorkItems
           type_names = supported_conversion_base_types(resource_parent, user) - [base_type]
 
           types_provider(resource_parent).by_base_types_ordered_by_name(type_names)
+            .select { |type| type.enabled && !type.archived? }
         end
 
         def allowed_child_types(authorize: false, resource_parent: nil)

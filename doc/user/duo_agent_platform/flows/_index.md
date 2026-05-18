@@ -85,7 +85,7 @@ To view a history of flows you've run in your project:
 Use `AGENTS.md` files to provide context and instructions for GitLab Duo to follow while executing
 foundational and custom flows.
 
-For more information, see [`AGENTS.md` customization files](../../gitlab_duo/customize_duo/agents_md.md).
+For more information, see [`AGENTS.md` customization files](../customize/agents_md.md).
 
 ## Give feedback
 

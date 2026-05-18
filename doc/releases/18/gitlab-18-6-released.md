@@ -51,7 +51,7 @@ genuinely appreciating their contributors, GitLab community is absolutely wonder
 
 - Tier: Free, Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
-- Links: [Documentation](../../user/interface_redesign.md) | [Related epic](https://gitlab.com/groups/gitlab-org/-/epics/17279)
+- Links: [Documentation](../../tutorials/gitlab_navigation.md) | [Related epic](https://gitlab.com/groups/gitlab-org/-/epics/17279)
 
 {{< /details >}}
 

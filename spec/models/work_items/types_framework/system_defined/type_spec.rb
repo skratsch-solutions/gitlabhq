@@ -751,6 +751,20 @@ RSpec.describe WorkItems::TypesFramework::SystemDefined::Type, feature_category:
 
       expect(result.map(&:base_type)).not_to include('ticket')
     end
+
+    context 'when a candidate system-defined type is archived' do
+      before do
+        allow(::WorkItems::TypesFramework::SystemDefined::Definitions::Task)
+          .to receive(:archived?).and_return(true)
+      end
+
+      it 'excludes the archived system-defined type from the conversion list' do
+        result = issue_type.supported_conversion_types(project, user)
+
+        expect(result.map(&:base_type)).to include('incident')
+        expect(result.map(&:base_type)).not_to include('task')
+      end
+    end
   end
 
   describe 'for configurable methods' do

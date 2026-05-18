@@ -17,20 +17,20 @@ module Gitlab
     PREFIX = 'gitlab:exclusive_lease'
     NoKey = Class.new(ArgumentError)
 
-    LUA_CANCEL_SCRIPT = <<~EOS
+    LUA_CANCEL_SCRIPT = <<~LUA
       local key, uuid = KEYS[1], ARGV[1]
       if redis.call("get", key) == uuid then
         redis.call("del", key)
       end
-    EOS
+    LUA
 
-    LUA_RENEW_SCRIPT = <<~EOS
+    LUA_RENEW_SCRIPT = <<~LUA
       local key, uuid, ttl = KEYS[1], ARGV[1], ARGV[2]
       if redis.call("get", key) == uuid then
         redis.call("expire", key, ttl)
         return uuid
       end
-    EOS
+    LUA
 
     def self.get_uuid(key)
       Gitlab::Redis::SharedState.with do |redis|
