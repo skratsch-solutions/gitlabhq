@@ -50691,19 +50691,23 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int32
       author_id:
-        type: string
+        type: integer
+        format: int32
       entity_id:
-        type: string
+        type: integer
+        format: int32
       entity_type:
         type: string
       event_name:
         type: string
       details:
-        type: string
+        type: object
       created_at:
         type: string
+        format: date-time
     required:
     - id
     - author_id
@@ -58635,19 +58639,25 @@ definitions:
     type: object
     properties:
       id:
-        type: string
+        type: integer
+        format: int32
       user_id:
-        type: string
+        type: integer
+        format: int32
       group_id:
-        type: string
+        type: integer
+        format: int32
       access_level:
-        type: string
+        type: integer
+        format: int32
       access_level_description:
         type: string
       required_approvals:
-        type: string
+        type: integer
+        format: int32
       group_inheritance_type:
-        type: string
+        type: integer
+        format: int32
       deployment_approvals:
         "$ref": "#/definitions/API_Entities_Deployments_Approval"
     required:
@@ -65518,9 +65528,13 @@ definitions:
         items:
           "$ref": "#/definitions/API_Entities_UserBasic"
       approvers:
-        type: string
+        type: array
+        items:
+          type: object
       approver_groups:
-        type: string
+        type: array
+        items:
+          type: object
       user_has_approved:
         type: boolean
       user_can_approve:

@@ -7362,6 +7362,10 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         .to receive(:refresh_cache)
         .and_call_original
 
+      expect_any_instance_of(Projects::OpenWorkItemsCountService)
+      .to receive(:refresh_cache)
+      .and_call_original
+
       project.update_project_counter_caches
     end
   end

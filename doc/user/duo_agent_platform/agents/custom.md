@@ -43,6 +43,7 @@ with GitLab Duo Chat in the GitLab UI, VS Code, and JetBrains IDEs.
 ## Prerequisites
 
 - Meet the [prerequisites for the GitLab Duo Agent Platform](../_index.md#prerequisites).
+- Have [custom agents turned on](#turn-custom-agents-on-or-off).
 
 ## Agent visibility
 
@@ -343,3 +344,62 @@ Prerequisites:
 1. Select **AI** > **Agents**.
 1. Find the agent you want to delete and select **Actions** ({{< icon name="ellipsis_v" >}}) > **Delete**.
 1. In the confirmation dialog, select **Delete**.
+
+## Turn custom agents on or off
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/594615) in GitLab 19.0.
+
+{{< /history >}}
+
+By default, custom agents are turned on.
+You can turn them on or off for a top-level group or for an instance.
+
+When custom agents are turned off:
+
+- Users cannot create, enable, disable, modify, or execute custom agents.
+- Existing custom agents are no longer visible
+  in the project under **AI** > **Agents** > **Enabled**.
+- Custom agents created in the project appear
+  under **AI** > **Agents** > **Managed**, but cannot be modified or executed.
+- [Foundational agents](foundational_agents/_index.md) and [external agents](external.md) remain available.
+
+{{< tabs >}}
+
+{{< tab title="GitLab.com" >}}
+
+Prerequisites:
+
+- You must have the Owner role for the group.
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **Custom agents and flows**, select or clear the
+   **Allow custom agents** checkbox.
+1. Select **Save changes**.
+
+This setting cascades to all subgroups in the group.
+
+{{< /tab >}}
+
+{{< tab title="GitLab Self-Managed" >}}
+
+Prerequisites:
+
+- You must be an administrator.
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **Custom agents and flows**, select or clear the
+   **Allow custom agents** checkbox.
+1. Select **Save changes**.
+
+When the instance-level setting is turned off,
+group-level settings cannot override it.
+
+{{< /tab >}}
+
+{{< /tabs >}}

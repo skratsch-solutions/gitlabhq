@@ -2,7 +2,12 @@
 import { captureException, captureMessage, addBreadcrumb, SDK_VERSION } from '@sentry/browser';
 import * as Sentry from '@sentry/browser';
 
-import { initSentry, isExternalOriginError, isServerUnavailableError } from '~/sentry/init_sentry';
+import {
+  initSentry,
+  isExternalOriginError,
+  isServerUnavailableError,
+  isNonActionableError,
+} from '~/sentry/init_sentry';
 
 const mockDsn = 'https://123@sentry.gitlab.test/123';
 const mockEnvironment = 'development';
@@ -73,9 +78,12 @@ describe('SentryConfig', () => {
             ignoreErrors: [
               /Network Error/i,
               /NetworkError/i,
+              /Failed to fetch/i,
+              /Load failed/i,
               /NavigationDuplicated/,
               /You must be logged in/,
-              /Request failed with status code 401/,
+              /Request failed with status code \d+/,
+              /Response not successful: Received status code \d+/,
             ],
             tracePropagationTargets: [/^\//],
             tracesSampleRate: mockSentryClientsideTracesSampleRate,
@@ -279,13 +287,12 @@ describe('SentryConfig', () => {
         expect(beforeSend({ event_id: '123' }, { originalException: error })).toBeNull();
       });
 
-      it('keeps events for non-503 server errors', () => {
+      it('drops non-503 server errors as non-actionable HTTP errors', () => {
         const error = new Error('Response not successful: Received status code 500');
         error.name = 'ServerError';
         error.statusCode = 500;
-        const event = { event_id: '456' };
 
-        expect(beforeSend(event, { originalException: error })).toBe(event);
+        expect(beforeSend({ event_id: '456' }, { originalException: error })).toBeNull();
       });
 
       it('keeps events for non-ServerError exceptions', () => {
@@ -300,6 +307,21 @@ describe('SentryConfig', () => {
 
         expect(beforeSend(event, {})).toBe(event);
         expect(beforeSend(event, undefined)).toBe(event);
+      });
+
+      it('drops events sent via captureException with a non-actionable message', () => {
+        const event = {
+          event_id: 'def',
+          exception: {
+            values: [{ type: 'Error', value: 'Request failed with status code 422' }],
+          },
+        };
+
+        expect(
+          beforeSend(event, {
+            originalException: new Error('Request failed with status code 422'),
+          }),
+        ).toBeNull();
       });
     });
 
@@ -402,6 +424,37 @@ describe('SentryConfig', () => {
 
     it('returns false when hint is undefined', () => {
       expect(isServerUnavailableError(undefined)).toBe(false);
+    });
+  });
+
+  describe('isNonActionableError', () => {
+    const eventWithMessage = (value) => ({ exception: { values: [{ type: 'Error', value }] } });
+
+    it('returns true when only the hint exception matches', () => {
+      const error = new Error('Failed to fetch');
+
+      expect(isNonActionableError({}, { originalException: error })).toBe(true);
+    });
+
+    it('returns true when originalException is a string', () => {
+      expect(isNonActionableError({}, { originalException: 'Network Error' })).toBe(true);
+    });
+
+    it('returns true when only event.message matches', () => {
+      expect(isNonActionableError({ message: 'Failed to fetch' })).toBe(true);
+    });
+
+    it('returns false for actionable application errors', () => {
+      expect(isNonActionableError(eventWithMessage('Cannot read properties of undefined'))).toBe(
+        false,
+      );
+      expect(isNonActionableError(eventWithMessage('x is not a function'))).toBe(false);
+    });
+
+    it('returns false when event has no exception, message, or hint', () => {
+      expect(isNonActionableError({})).toBe(false);
+      expect(isNonActionableError({}, undefined)).toBe(false);
+      expect(isNonActionableError({}, {})).toBe(false);
     });
   });
 });

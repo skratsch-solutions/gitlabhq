@@ -259,6 +259,7 @@ class ProjectPolicy < BasePolicy
     @subject.override_pipeline_variables_allowed?(team_access_level, @user)
   end
 
+  desc "CI job token allowed to push to project, self-referential or allowlisted cross-project"
   condition(:push_repository_for_job_token_allowed) do
     next false unless @user&.from_ci_job_token?
     next false unless project.ci_push_repository_for_job_token_allowed?

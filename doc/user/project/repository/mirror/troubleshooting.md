@@ -181,6 +181,25 @@ Public SSH keys rarely change. If host key verification fails,
 but you suspect the key is still valid, you must delete the repository mirror
 and create it again. For more information, see [create a repository mirror](_index.md#create-a-repository-mirror).
 
+## Repository mirroring disabled because mirror user was deleted
+
+You might receive an email notification similar to:
+
+```plaintext
+Repository mirroring on <project_path> was disabled because the mirror user <username> was deleted.
+
+To re-enable mirroring, update your repository mirroring settings.
+```
+
+This issue occurs because each mirror is tied to the user who configured it. When that user's account
+is deleted, GitLab automatically disables the mirror. The same behavior applies when a group access token
+or project access token used to create the mirror is revoked, because the associated bot user is also deleted.
+
+You cannot reassign a mirror to a different user. To resolve this issue, set up the mirror again with a
+different user.
+
+For more information, see [issue 488449](https://gitlab.com/gitlab-org/gitlab/-/work_items/488449).
+
 ## Transfer mirror users and tokens to a single service account
 
 This requires access to the [GitLab Rails console](../../../../administration/operations/rails_console.md#starting-a-rails-console-session).

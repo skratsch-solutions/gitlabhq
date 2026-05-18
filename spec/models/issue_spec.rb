@@ -352,7 +352,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       it 'records the creation action after saving' do
         expect(Gitlab::UsageDataCounters::IssueActivityUniqueCounter).to receive(:track_issue_created_action)
 
-        create(:issue)
+        create(:issue, project: reusable_project)
       end
 
       it_behaves_like 'internal event tracking' do
@@ -380,7 +380,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       end
 
       context 'when existing issue is saved' do
-        let(:issue) { create(:issue) }
+        let(:issue) { create(:issue, project: reusable_project) }
 
         before do
           issue.update!(namespace_id: nil)
@@ -473,8 +473,8 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   context 'order by upvotes' do
-    let!(:issue) { create(:issue) }
-    let!(:issue2) { create(:issue) }
+    let!(:issue) { create(:issue, project: reusable_project) }
+    let!(:issue2) { create(:issue, project: reusable_project) }
     let!(:award_emoji) { create(:award_emoji, :upvote, awardable: issue2) }
 
     describe '.order_upvotes_desc' do
@@ -642,10 +642,10 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '.order_title' do
-    let_it_be(:issue1) { create(:issue, title: 'foo') }
-    let_it_be(:issue2) { create(:issue, title: 'bar') }
-    let_it_be(:issue3) { create(:issue, title: 'baz') }
-    let_it_be(:issue4) { create(:issue, title: 'Baz 2') }
+    let_it_be(:issue1) { create(:issue, title: 'foo', project: reusable_project) }
+    let_it_be(:issue2) { create(:issue, title: 'bar', project: reusable_project) }
+    let_it_be(:issue3) { create(:issue, title: 'baz', project: reusable_project) }
+    let_it_be(:issue4) { create(:issue, title: 'Baz 2', project: reusable_project) }
 
     context 'sorting ascending' do
       subject { described_class.order_title_asc }
@@ -676,7 +676,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   context 'order by escalation status' do
     let_it_be(:triggered_incident) { create(:incident_management_issuable_escalation_status, :triggered).issue }
     let_it_be(:resolved_incident) { create(:incident_management_issuable_escalation_status, :resolved).issue }
-    let_it_be(:issue_no_status) { create(:issue) }
+    let_it_be(:issue_no_status) { create(:issue, project: reusable_project) }
 
     describe '.order_escalation_status_asc' do
       subject { described_class.order_escalation_status_asc }
@@ -771,7 +771,7 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
 
     it 'clears moved_to_id for moved issues' do
-      moved_issue = create(:issue)
+      moved_issue = create(:issue, project: reusable_project)
 
       issue.update!(moved_to_id: moved_issue.id)
 
@@ -779,7 +779,7 @@ RSpec.describe Issue, feature_category: :team_planning do
     end
 
     it 'clears duplicated_to_id for duplicated issues' do
-      duplicate_issue = create(:issue)
+      duplicate_issue = create(:issue, project: reusable_project)
 
       issue.update!(duplicated_to_id: duplicate_issue.id)
 
@@ -1059,7 +1059,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#can_move?' do
-    let(:issue) { create(:issue) }
+    let(:issue) { create(:issue, project: reusable_project) }
 
     subject { issue.can_move?(user) }
 
@@ -1131,7 +1131,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
     context 'issue already duplicated' do
       let(:duplicated_to_issue) { create(:issue, project: reusable_project) }
-      let(:issue) { create(:issue, duplicated_to: duplicated_to_issue) }
+      let(:issue) { create(:issue, project: reusable_project, duplicated_to: duplicated_to_issue) }
 
       it { is_expected.to eq true }
     end
@@ -1230,7 +1230,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   it_behaves_like 'a time trackable' do
-    let(:trackable) { create(:issue) }
+    let(:trackable) { create(:issue, project: reusable_project) }
     let(:timelog) { create(:issue_timelog, issue: trackable) }
   end
 
@@ -1242,7 +1242,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   it_behaves_like 'a Taskable' do
-    let(:subject) { create :issue }
+    let(:subject) { create(:issue, project: reusable_project) }
   end
 
   describe '.to_branch_name' do
@@ -1557,7 +1557,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   it_behaves_like 'throttled touch' do
-    subject { create(:issue, updated_at: 1.hour.ago) }
+    subject { create(:issue, project: reusable_project, updated_at: 1.hour.ago) }
   end
 
   context "relative positioning" do
@@ -1748,7 +1748,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#issue_type' do
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
 
     it 'gets the type field from the work_item_types table' do
       expect(issue).to receive_message_chain(:work_item_type, :base_type)
@@ -1766,7 +1766,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#issue_type_supports?' do
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
 
     it 'raises error when feature is invalid' do
       expect { issue.issue_type_supports?(:unkown_feature) }.to raise_error(ArgumentError)
@@ -1849,7 +1849,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#email_participants_emails' do
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
 
     it 'returns a list of emails' do
       participant1 = issue.issue_email_participants.create!(email: 'a@gitlab.com')
@@ -1877,7 +1877,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#expire_etag_cache' do
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
 
     subject(:expire_cache) { issue.expire_etag_cache }
 
@@ -1917,11 +1917,11 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   context 'order by closed_at' do
-    let!(:issue_a) { create(:issue, closed_at: 1.day.ago) }
-    let!(:issue_b) { create(:issue, closed_at: 5.days.ago) }
-    let!(:issue_c_nil) { create(:issue, closed_at: nil) }
-    let!(:issue_d) { create(:issue, closed_at: 3.days.ago) }
-    let!(:issue_e_nil) { create(:issue, closed_at: nil) }
+    let!(:issue_a) { create(:issue, project: reusable_project, closed_at: 1.day.ago) }
+    let!(:issue_b) { create(:issue, project: reusable_project, closed_at: 5.days.ago) }
+    let!(:issue_c_nil) { create(:issue, project: reusable_project, closed_at: nil) }
+    let!(:issue_d) { create(:issue, project: reusable_project, closed_at: 3.days.ago) }
+    let!(:issue_e_nil) { create(:issue, project: reusable_project, closed_at: nil) }
 
     describe '.order_closed_at_asc' do
       it 'orders on closed at' do
@@ -1962,7 +1962,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
   describe '#update_search_data!' do
     it 'copies namespace_id to search data' do
-      issue = create(:issue)
+      issue = create(:issue, project: reusable_project)
 
       expect(issue.search_data.namespace_id).to eq(issue.namespace_id)
     end
@@ -2013,7 +2013,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
       let_it_be(:group_issue) { create(:issue, :group_level, namespace: group) }
       let_it_be(:group_issue2) { create(:issue, :group_level, namespace: group) }
-      let_it_be(:issue) { create(:issue) }
+      let_it_be(:issue) { create(:issue, project: reusable_project) }
 
       it 'uses uses an absolute and full path when referencing a root group' do
         expect(group_issue.gfm_reference(issue.project)).to eq("issue /#{group.full_path}##{group_issue.iid}")
@@ -2144,12 +2144,16 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe ".invalidate_project_counter_caches" do
-    let(:count_service) { instance_double(Projects::OpenIssuesCountService) }
+    let(:issues_count_service) { instance_double(Projects::OpenIssuesCountService) }
+    let(:work_items_count_service) { instance_double(Projects::OpenWorkItemsCountService) }
 
     context "when the project exists" do
-      it "calls Projects::OpenIssuesCountService" do
-        allow(Projects::OpenIssuesCountService).to receive(:new).with(reusable_project).and_return(count_service)
-        expect(count_service).to receive(:delete_cache)
+      it "deletes the cached counts for open issues and open work items", :aggregate_failures do
+        allow(Projects::OpenIssuesCountService).to receive(:new).with(reusable_project).and_return(issues_count_service)
+        allow(Projects::OpenWorkItemsCountService).to receive(:new).with(reusable_project).and_return(work_items_count_service)
+
+        expect(issues_count_service).to receive(:delete_cache)
+        expect(work_items_count_service).to receive(:delete_cache)
 
         subject.invalidate_project_counter_caches
       end
@@ -2159,8 +2163,9 @@ RSpec.describe Issue, feature_category: :team_planning do
       let_it_be(:group) { create(:group) }
       let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
 
-      it "does not call Projects::OpenIssuesCountService" do
+      it "does not instantiate the project count services", :aggregate_failures do
         expect(Projects::OpenIssuesCountService).not_to receive(:new).with(reusable_project)
+        expect(Projects::OpenWorkItemsCountService).not_to receive(:new).with(reusable_project)
 
         group_work_item.invalidate_project_counter_caches
       end
@@ -2336,7 +2341,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#as_json' do
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue) { create(:issue, project: reusable_project) }
 
     it 'renames exported_work_item_type to work_item_type' do
       json = issue.as_json(methods: [:exported_work_item_type])

@@ -15,10 +15,10 @@ RSpec.describe RapidDiffs::DiffCompareVersionsEntity, feature_category: :code_re
     )
   end
 
-  let_it_be(:diff_1) { create(:merge_request_diff, merge_request: merge_request) }
-  let_it_be(:diff_2) { create(:merge_request_diff, merge_request: merge_request) }
-  let_it_be(:diff_3) { create(:merge_request_diff, merge_request: merge_request) }
-  let_it_be(:head_diff) { create(:merge_request_diff, :merge_head, merge_request: merge_request) }
+  let_it_be(:diff_1, freeze: false) { create(:merge_request_diff, merge_request: merge_request) }
+  let_it_be(:diff_2, freeze: false) { create(:merge_request_diff, merge_request: merge_request) }
+  let_it_be(:diff_3, freeze: false) { create(:merge_request_diff, merge_request: merge_request) }
+  let_it_be(:head_diff, freeze: false) { create(:merge_request_diff, :merge_head, merge_request: merge_request) }
   # rubocop:enable RSpec/FactoryBot/AvoidCreate
 
   let(:options) do

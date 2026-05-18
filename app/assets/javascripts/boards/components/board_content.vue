@@ -278,7 +278,7 @@ export default {
     </gl-alert>
     <div
       v-if="!isSwimlanesOn"
-      class="boards-list gl-w-full gl-overflow-x-auto gl-whitespace-nowrap gl-py-5 gl-pl-0 gl-pr-5 @xl/panel:gl-pl-3 @xl/panel:gl-pr-6"
+      class="boards-list gl-m-0 gl-mb-3 gl-flex gl-min-h-0 gl-w-full gl-overflow-x-auto gl-overflow-y-hidden gl-whitespace-nowrap gl-rounded-b-lg gl-p-0"
     >
       <component
         :is="boardColumnWrapper"

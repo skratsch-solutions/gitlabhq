@@ -29,6 +29,7 @@ import getStateQuery from 'ee_else_ce/vue_merge_request_widget/queries/get_state
 import getStateSubscription from '~/vue_merge_request_widget/queries/get_state.subscription.graphql';
 import readyToMergeSubscription from '~/vue_merge_request_widget/queries/states/ready_to_merge.subscription.graphql';
 import mrPipelineUpdatedSubscription from '~/vue_merge_request_widget/subscriptions/mr_pipeline_updated.subscription.graphql';
+import mrPipelineCreationRequestUpdated from '~/vue_merge_request_widget/subscriptions/mr_pipeline_creation_request_updated.subscription.graphql';
 import securityReportMergeRequestDownloadPathsQuery from '~/vue_merge_request_widget/widgets/security_reports/graphql/security_report_merge_request_download_paths.query.graphql';
 import readyToMergeQuery from '~/vue_merge_request_widget/queries/states/ready_to_merge.query.graphql';
 import approvalsQuery from 'ee_else_ce/vue_merge_request_widget/components/approvals/queries/approvals.query.graphql';
@@ -157,6 +158,7 @@ describe('MrWidgetOptions', () => {
       [readyToMergeSubscription, () => createMockApolloSubscription()],
       [mergeChecksSubscription, () => createMockApolloSubscription()],
       [mrPipelineUpdatedSubscription, () => createMockApolloSubscription()],
+      [mrPipelineCreationRequestUpdated, () => createMockApolloSubscription()],
     ];
     const apolloProvider = createMockApollo(queryHandlers);
 

@@ -2767,7 +2767,8 @@ class Project < ApplicationRecord
   def update_project_counter_caches
     classes = [
       Projects::OpenIssuesCountService,
-      Projects::OpenMergeRequestsCountService
+      Projects::OpenMergeRequestsCountService,
+      Projects::OpenWorkItemsCountService
     ]
 
     classes.each do |klass|

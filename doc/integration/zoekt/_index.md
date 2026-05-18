@@ -43,6 +43,18 @@ You can use exact match and regular expression modes to search for code in a gro
 > issues, merge requests, milestones, projects, users, and wikis,
 > Elasticsearch or OpenSearch is still required.
 
+## Version compatibility
+
+Each GitLab version comes with a specific `gitlab-zoekt-indexer` and `gitlab-zoekt` chart version.
+
+| GitLab version | `gitlab-zoekt-indexer` version | `gitlab-zoekt` chart version |
+|----------------|--------------------------------|------------------------------|
+| 18.11          | 1.13.1                         | 3.11.0                       |
+| 18.10          | 1.11.2                         | 3.10.0                       |
+| 18.9           | 1.8.2                          | 3.9.0                        |
+| 18.8           | 1.8.0                          | 3.8.0                        |
+| 18.6 and 18.7  | 1.7.6                          | 3.7.1                        |
+
 ## Install Zoekt
 
 Prerequisites:

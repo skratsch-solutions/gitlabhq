@@ -24,14 +24,6 @@
     background-color: var(--body-background-color);
   }
 
-  // TODO: Evaluate introducing semantic design tokens for button spacing
-  //
-  // Decrease spacing between buttons to align with optical spacing
-  // of rounded button borders
-  .gl-gap-3:has(> .gl-button) {
-    @apply gl-gap-2-5; //= 6px
-  }
-
   // Free trial button
   .topbar-signup-button {
     @apply gl-bg-neutral-800 gl-border-neutral-800 dark:gl-bg-neutral-100 dark:gl-border-neutral-100 #{!important};
@@ -218,14 +210,6 @@
     }
   }
 
-  .ai-panel-body {
-    max-height: calc(100vh - #{$header-height} - #{$performance-bar-height} - #{$top-bar-height} - #{-$gl-spacing-scale-7});
-  }
-
-  &.with-performance-bar .ai-panel-body {
-    max-height: calc(100vh - #{$header-height} - #{$top-bar-height} - #{$gl-spacing-scale-9});
-  }
-
   .ai-panel-maximized .paneled-view {
     flex-grow: 1;
   }
@@ -319,13 +303,6 @@
       @apply gl-px-3;
     }
 
-    // Issue boards height
-    .boards-app,
-    .issue-boards-content,
-    .issue-boards-content > .content {
-      @apply gl-h-full;
-    }
-
     // MR sidebar
     .work-item-attributes-wrapper,
     .issuable-sidebar.is-merge-request .issuable-context-form {
@@ -370,44 +347,6 @@
   &.group-epics-roadmap-html .panel-content-inner {
     @apply gl-px-0;
     overflow: auto;
-  }
-
-  // Override Tailwind
-  .boards-app.boards-app {
-    height: var(--panel-content-inner-height);
-    overflow-y: hidden;
-  }
-
-  .board-content {
-    @apply gl-pt-5;
-    @apply gl-px-3;
-    min-height: 0;
-    overflow-y: hidden;
-  }
-
-  // Override Tailwind
-  .boards-list.boards-list {
-    display: flex;
-    padding: 0;
-    margin: 0;
-    border: 0;
-    overflow-y: hidden;
-    min-height: 0;
-    @apply gl-mb-3;
-    @apply gl-rounded-b-lg;
-  }
-
-  .boards-list,
-  .board-column {
-    @apply gl-gap-3;
-  }
-
-  .boards-list .board.board {
-    padding: 0;
-  }
-
-  .board-swimlanes .board:first-of-type {
-    padding-left: 0;
   }
 
   // Sidebar adjustments
@@ -725,20 +664,6 @@
 
   .work-item-detail-panel .work-item-overview-right-sidebar {
     @apply gl-pb-10;
-  }
-}
-
-@include gl-container-width-down(xl) {
-  &.application-chrome {
-    .board-content {
-      @apply gl-pt-3;
-      @apply gl-px-3;
-    }
-
-    // Override Tailwind
-    .boards-list.boards-list {
-      @apply gl-mb-3;
-    }
   }
 }
 

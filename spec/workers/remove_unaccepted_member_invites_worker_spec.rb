@@ -6,7 +6,7 @@ RSpec.describe RemoveUnacceptedMemberInvitesWorker, feature_category: :system_ac
   let(:worker) { described_class.new }
 
   describe '#perform' do
-    context 'unaccepted members' do
+    context 'with unaccepted members' do
       before do
         stub_const("#{described_class}::EXPIRATION_THRESHOLD", 1.day)
       end
@@ -34,7 +34,7 @@ RSpec.describe RemoveUnacceptedMemberInvitesWorker, feature_category: :system_ac
       end
     end
 
-    context 'invited members still within expiration threshold' do
+    context 'with invited members still within expiration threshold' do
       it 'leaves invited members', :aggregate_failures do
         group_invitee = create(
           :group_member,
@@ -56,7 +56,7 @@ RSpec.describe RemoveUnacceptedMemberInvitesWorker, feature_category: :system_ac
       end
     end
 
-    context 'accepted members' do
+    context 'with accepted members' do
       before do
         stub_const("#{described_class}::EXPIRATION_THRESHOLD", 1.day)
       end
@@ -85,7 +85,7 @@ RSpec.describe RemoveUnacceptedMemberInvitesWorker, feature_category: :system_ac
       end
     end
 
-    context 'cells claims cleanup' do
+    context 'when cells claims cleanup' do
       before do
         stub_const("#{described_class}::EXPIRATION_THRESHOLD", 1.day)
       end

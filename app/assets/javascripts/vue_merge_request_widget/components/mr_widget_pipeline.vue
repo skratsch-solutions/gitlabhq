@@ -14,7 +14,6 @@ import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { reportToSentry } from '~/ci/utils';
 import SafeHtml from '~/vue_shared/directives/safe_html';
 import { TYPENAME_MERGE_REQUEST } from '~/graphql_shared/constants';
-import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { s__, n__ } from '~/locale';
 import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
@@ -65,7 +64,7 @@ export default {
           };
         },
         skip() {
-          return !this.mrId || !this.isCreationStateEnabled;
+          return !this.mrId;
         },
         result({ data }) {
           const { ciPipelineCreationRequestsUpdated } = data;
@@ -112,7 +111,7 @@ export default {
     GlTooltip: GlTooltipDirective,
     SafeHtml,
   },
-  mixins: [runPipelineMixin, glFeatureFlagMixin()],
+  mixins: [runPipelineMixin],
   props: {
     pipeline: {
       type: Object,
@@ -259,11 +258,8 @@ export default {
     pipelineId() {
       return this.pipeline?.id;
     },
-    isCreationStateEnabled() {
-      return this.glFeatures.mrWidgetPipelineCreationState;
-    },
     showPipelineCreatingMessage() {
-      if (!this.hasInProgressPipeline || !this.isCreationStateEnabled) return false;
+      if (!this.hasInProgressPipeline) return false;
 
       // display creating message until new pipeline ID comes in
       return this.pipelineId === this.pipelineIdOnCreation;

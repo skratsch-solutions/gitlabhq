@@ -715,6 +715,7 @@ class Issue < ApplicationRecord
     return unless project
 
     Projects::OpenIssuesCountService.new(project).delete_cache
+    Projects::OpenWorkItemsCountService.new(project).delete_cache
   end
   # rubocop: enable CodeReuse/ServiceClass
 

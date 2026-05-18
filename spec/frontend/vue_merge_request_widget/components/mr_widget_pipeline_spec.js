@@ -88,7 +88,7 @@ describe('MRWidgetPipeline', () => {
 
   const mockArtifactsRequest = () => new MockAdapter(axios).onGet().reply(HTTP_STATUS_OK, []);
 
-  const createWrapper = (props = {}, mountFn = shallowMount, flagState = false) => {
+  const createWrapper = (props = {}, mountFn = shallowMount) => {
     const apolloProvider = createMockApollo([
       [mergeRequestEventTypeQuery, mergeRequestEventTypeQueryMock],
     ]);
@@ -105,11 +105,6 @@ describe('MRWidgetPipeline', () => {
 
     wrapper = extendedWrapper(
       mountFn(MRWidgetPipelineComponent, {
-        provide: {
-          glFeatures: {
-            mrWidgetPipelineCreationState: flagState,
-          },
-        },
         propsData: {
           ...defaultProps,
           ...props,
@@ -548,88 +543,80 @@ describe('MRWidgetPipeline', () => {
     });
   });
 
-  it('does not subscribe when feature flag is disabled', () => {
-    createWrapper();
+  describe('subscription', () => {
+    beforeEach(() => {
+      createWrapper();
+    });
 
-    expect(subscriptionHandler).not.toHaveBeenCalled();
-  });
+    it('does subscribe to pipeline creation events', () => {
+      expect(subscriptionHandler).toHaveBeenCalled();
+    });
 
-  describe('with feature flag enabled', () => {
-    describe('subscription', () => {
-      beforeEach(() => {
-        createWrapper({}, shallowMount, true);
-      });
+    it('shows in progess pipeline creation message', async () => {
+      mockSubscription.next(mockPipelineInProgressSubscription);
 
-      it('does subscribe to pipeline creation events', () => {
-        expect(subscriptionHandler).toHaveBeenCalled();
-      });
+      await waitForPromises();
 
-      it('shows in progess pipeline creation message', async () => {
+      expect(findPipelineCreationMessage().exists()).toBe(true);
+      expect(findLoadingIcon().exists()).toBe(true);
+    });
+
+    it('transitions from creating message to pipeline when pipeline ID changes', async () => {
+      mockSubscription.next(mockPipelineInProgressSubscription);
+
+      await waitForPromises();
+
+      expect(findPipelineCreationMessage().exists()).toBe(true);
+      expect(findPipelineMiniGraph().exists()).toBe(false);
+
+      const newPipeline = {
+        ...mockData.pipeline,
+        id: 133,
+      };
+
+      await wrapper.setProps({ pipeline: newPipeline });
+
+      expect(findPipelineCreationMessage().exists()).toBe(false);
+      expect(findLoadingIcon().exists()).toBe(false);
+
+      expect(findPipelineMiniGraph().exists()).toBe(true);
+    });
+
+    it.each`
+      status         | response
+      ${'SUCCEEDED'} | ${mockPipelineSucceededSubscription}
+      ${'FAILED'}    | ${mockPipelineFailedSubscription}
+    `(
+      'holds creating message when $status event arrives but pipeline ID has not changed',
+      async ({ response }) => {
         mockSubscription.next(mockPipelineInProgressSubscription);
-
         await waitForPromises();
 
         expect(findPipelineCreationMessage().exists()).toBe(true);
-        expect(findLoadingIcon().exists()).toBe(true);
-      });
 
-      it('transitions from creating message to pipeline when pipeline ID changes', async () => {
-        mockSubscription.next(mockPipelineInProgressSubscription);
+        mockSubscription.next(response);
 
         await waitForPromises();
 
+        // Message holds because pipeline prop hasn't changed yet
         expect(findPipelineCreationMessage().exists()).toBe(true);
-        expect(findPipelineMiniGraph().exists()).toBe(false);
+      },
+    );
 
-        const newPipeline = {
-          ...mockData.pipeline,
-          id: 133,
-        };
+    it('hides creation message if an error occurs', async () => {
+      mockSubscription.next(mockPipelineInProgressSubscription);
 
-        await wrapper.setProps({ pipeline: newPipeline });
+      await waitForPromises();
 
-        expect(findPipelineCreationMessage().exists()).toBe(false);
-        expect(findLoadingIcon().exists()).toBe(false);
+      expect(findPipelineCreationMessage().exists()).toBe(true);
+      expect(findLoadingIcon().exists()).toBe(true);
 
-        expect(findPipelineMiniGraph().exists()).toBe(true);
-      });
+      mockSubscription.error(new Error('subscription error'));
 
-      it.each`
-        status         | response
-        ${'SUCCEEDED'} | ${mockPipelineSucceededSubscription}
-        ${'FAILED'}    | ${mockPipelineFailedSubscription}
-      `(
-        'holds creating message when $status event arrives but pipeline ID has not changed',
-        async ({ response }) => {
-          mockSubscription.next(mockPipelineInProgressSubscription);
-          await waitForPromises();
+      await waitForPromises();
 
-          expect(findPipelineCreationMessage().exists()).toBe(true);
-
-          mockSubscription.next(response);
-
-          await waitForPromises();
-
-          // Message holds because pipeline prop hasn't changed yet
-          expect(findPipelineCreationMessage().exists()).toBe(true);
-        },
-      );
-
-      it('hides creation message if an error occurs', async () => {
-        mockSubscription.next(mockPipelineInProgressSubscription);
-
-        await waitForPromises();
-
-        expect(findPipelineCreationMessage().exists()).toBe(true);
-        expect(findLoadingIcon().exists()).toBe(true);
-
-        mockSubscription.error(new Error('subscription error'));
-
-        await waitForPromises();
-
-        expect(findPipelineCreationMessage().exists()).toBe(false);
-        expect(findLoadingIcon().exists()).toBe(false);
-      });
+      expect(findPipelineCreationMessage().exists()).toBe(false);
+      expect(findLoadingIcon().exists()).toBe(false);
     });
   });
 });

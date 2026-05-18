@@ -54,6 +54,7 @@ The external agent:
 
 - Meet the [prerequisites for the GitLab Duo Agent Platform](../_index.md#prerequisites).
 - Have [flow execution turned on](../flows/foundational_flows/_index.md#turn-foundational-flows-on-or-off).
+- Have [external agents turned on](#turn-external-agents-on-or-off).
 
 ## Security considerations
 
@@ -551,3 +552,63 @@ You must now [create a trigger](../triggers/_index.md), which determines when th
 
 For example, you can specify the agent to be triggered when you mention a service account
 in a discussion, or when you assign the service account as a reviewer.
+
+## Turn external agents on or off
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/594615) in GitLab 19.0.
+
+{{< /history >}}
+
+By default, external agents are turned on.
+You can turn them on or off for a top-level group or for an instance.
+
+When external agents are turned off:
+
+- Users cannot create, enable, disable, modify, or execute external agents.
+  This includes both GitLab-managed external agents and custom external agents.
+- Existing external agents are no longer visible
+  in the project under **AI** > **Agents** > **Enabled**.
+- External agents created in the project appear
+  under **AI** > **Agents** > **Managed**, but cannot be modified or executed.
+- [Custom agents](custom.md) and [foundational agents](foundational_agents/_index.md) remain available.
+
+{{< tabs >}}
+
+{{< tab title="GitLab.com" >}}
+
+Prerequisites:
+
+- You must have the Owner role for the group.
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **Custom agents and flows**, select or clear the
+   **Allow external agents** checkbox.
+1. Select **Save changes**.
+
+This setting cascades to all subgroups in the group.
+
+{{< /tab >}}
+
+{{< tab title="GitLab Self-Managed" >}}
+
+Prerequisites:
+
+- You must be an administrator.
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **GitLab Duo**.
+1. Select **Change configuration**.
+1. Under **Custom agents and flows**, select or clear the
+   **Allow external agents** checkbox.
+1. Select **Save changes**.
+
+When the instance-level setting is turned off,
+group-level settings cannot override it.
+
+{{< /tab >}}
+
+{{< /tabs >}}

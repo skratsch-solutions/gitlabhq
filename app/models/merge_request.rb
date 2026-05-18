@@ -3133,7 +3133,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def missing_report_error(report_type)
-    { status: :error, status_reason: "This merge request does not have #{report_type} reports" }
+    { status: :error, status_reason: "This merge request does not have #{report_type} reports." }
   end
 
   def with_rebase_lock

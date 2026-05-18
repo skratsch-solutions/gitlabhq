@@ -1125,7 +1125,6 @@ status_page_published_incident:
 issuable_sla:
   - issue
 push_rule:
-  - group
   - organization
 project_push_rule:
   - project

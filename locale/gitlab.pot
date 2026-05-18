@@ -7828,6 +7828,12 @@ msgstr ""
 msgid "AiPowered|Allow developers in this instance to use GitLab Duo CLI. Duo CLI is billed as consumption against this instance."
 msgstr ""
 
+msgid "AiPowered|Allow external agents"
+msgstr ""
+
+msgid "AiPowered|Allow external agents in projects. Users with the Maintainer or Owner role can connect external agents."
+msgstr ""
+
 msgid "AiPowered|Allow projects to extend network sandbox settings"
 msgstr ""
 
@@ -16438,9 +16444,6 @@ msgid "Cloud SQL instances are fully managed, relational SQL Server databases. G
 msgstr ""
 
 msgid "Cloud Storage"
-msgstr ""
-
-msgid "Cloud-connected GitLab Duo Workflow Service at %{host} is operational."
 msgstr ""
 
 msgid "CloudSeed|AI / ML"
@@ -33713,6 +33716,12 @@ msgstr ""
 msgid "GitLab Duo Workflow Service at %{host} is not operational."
 msgstr ""
 
+msgid "GitLab Duo Workflow Service at %{host} is operational. The model for Agents & flows is set to a GitLab managed model"
+msgstr ""
+
+msgid "GitLab Duo Workflow Service at %{host} is operational. The model for Agents & flows is set to a self-hosted model."
+msgstr ""
+
 msgid "GitLab Duo features"
 msgstr ""
 
@@ -49597,10 +49606,22 @@ msgstr ""
 msgid "Offline nodes automatically deleted after"
 msgstr ""
 
+msgid "OfflineTransferExport|Export complete"
+msgstr ""
+
+msgid "OfflineTransferExport|Export failed"
+msgstr ""
+
 msgid "OfflineTransferExport|Export for offline transfer"
 msgstr ""
 
 msgid "OfflineTransferExport|Export your groups and projects to an object storage service you control. You can import the groups and projects to any GitLab instance, even with no network connection between this instance and the destination instance."
+msgstr ""
+
+msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} has failed."
+msgstr ""
+
+msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} is complete. Find the export at %{strong_open}%{export_prefix}%{strong_close} in the configured object storage bucket."
 msgstr ""
 
 msgid "OfflineTransferImport|Import an offline transfer"
@@ -49634,6 +49655,12 @@ msgid "OfflineTransfer|Import"
 msgstr ""
 
 msgid "OfflineTransfer|Invalid source version"
+msgstr ""
+
+msgid "OfflineTransfer|Offline export complete"
+msgstr ""
+
+msgid "OfflineTransfer|Offline export failed"
 msgstr ""
 
 msgid "OfflineTransfer|Offline transfer"
@@ -70205,9 +70232,6 @@ msgid "Self hosted AI Gateway URL is not set. It can be changed in the Gitlab Du
 msgstr ""
 
 msgid "Self hosted AI Gateway URL is set to %{url}. It can be changed in the Gitlab Duo configuration."
-msgstr ""
-
-msgid "Self-hosted GitLab Duo Workflow Service at %{host} is operational."
 msgstr ""
 
 msgid "Semantic search"

@@ -207,7 +207,7 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
   end
 
   context 'when transfer succeeds' do
-    before do
+    before_all do
       group.add_owner(user)
     end
 
@@ -338,9 +338,11 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
       end.to raise_error(ActiveRecord::ActiveRecordError)
     end
 
-    before do
+    before_all do
       group.add_owner(user)
+    end
 
+    before do
       expect_any_instance_of(Labels::TransferService).to receive(:execute).and_raise(ActiveRecord::StatementInvalid, "PG ERROR")
     end
 
@@ -436,8 +438,11 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     let_it_be_with_reload(:project) { create(:project, :repository, :legacy_storage, namespace: group) }
     let(:target) { create(:group, parent: group) }
 
-    before do
+    before_all do
       group.add_owner(user)
+    end
+
+    before do
       allow(project).to receive(:has_container_registry_tags?).and_return(true)
     end
 
@@ -712,7 +717,7 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     let!(:project) { create(:project, :repository, namespace: user.namespace) }
     let!(:old_disk_path) { project.repository.disk_path }
 
-    before do
+    before_all do
       group.add_owner(user)
     end
 
@@ -806,7 +811,7 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
   describe 'transferring a design repository' do
     subject { described_class.new(project, user) }
 
-    before do
+    before_all do
       group.add_owner(user)
     end
 

@@ -9,8 +9,8 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
   let_it_be(:project, reload: true) { create(:project, :with_export, service_desk_enabled: false) }
   let_it_be(:group) { create(:group) }
-  let_it_be(:public_project) { create(:project, :public, namespace: group) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:public_project, freeze: false) { create(:project, :public, namespace: group) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   let(:jpg) { fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg') }
   let(:txt) { fixture_file_upload('spec/fixtures/doc_sample.txt', 'text/plain') }
@@ -114,7 +114,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     include DesignManagementTestHelpers
     render_views
 
-    let_it_be(:project) { create(:project, :public, issues_access_level: ProjectFeature::PRIVATE) }
+    let_it_be(:project, freeze: false) { create(:project, :public, issues_access_level: ProjectFeature::PRIVATE) }
 
     before do
       enable_design_management
@@ -271,7 +271,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context "rendering default project view" do
-      let_it_be(:public_project) { create(:project, :public, :repository) }
+      let_it_be(:public_project, freeze: false) { create(:project, :public, :repository) }
 
       render_views
 
@@ -343,7 +343,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
         end
 
         context 'when the project is importing' do
-          let_it_be(:public_project) { create(:project, :public, :import_scheduled) }
+          let_it_be(:public_project, freeze: false) { create(:project, :public, :import_scheduled) }
 
           it 'does not track page views' do
             expect_no_snowplow_event(
@@ -666,7 +666,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
   describe 'POST #archive' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, group: group) }
 
     before do
       sign_in(user)
@@ -711,7 +711,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
 
   describe 'POST #unarchive' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, :archived, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, :archived, group: group) }
 
     before do
       sign_in(user)
@@ -769,7 +769,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     let(:prune) { nil }
-    let_it_be(:project) { create(:project, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, group: group) }
     let(:housekeeping) { ::Repositories::HousekeepingService.new(project) }
 
     subject { post :housekeeping, params: params }
@@ -984,13 +984,13 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context 'hashed storage' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :repository) }
 
       it_behaves_like 'updating a project'
     end
 
     context 'legacy storage' do
-      let_it_be(:project) { create(:project, :repository, :legacy_storage) }
+      let_it_be(:project, freeze: false) { create(:project, :repository, :legacy_storage) }
 
       it_behaves_like 'updating a project'
     end
@@ -1215,7 +1215,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context 'when groups_and_projects_async_transfer feature flag is enabled for root ancestor' do
-      let_it_be(:project) { create(:project, group: create(:group)) }
+      let_it_be(:project, freeze: false) { create(:project, group: create(:group)) }
 
       before do
         stub_feature_flags(groups_and_projects_async_transfer: true)
@@ -1328,7 +1328,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context 'when project is already marked for deletion' do
-      let_it_be(:project) { create(:project, group: group, marked_for_deletion_at: Date.current) }
+      let_it_be(:project, freeze: false) { create(:project, group: group, marked_for_deletion_at: Date.current) }
 
       context 'when permanently_delete param is set' do
         it 'deletes project right away' do
@@ -1358,7 +1358,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
   end
 
   describe 'POST #restore', feature_category: :groups_and_projects do
-    let_it_be(:project) { create(:project, :aimed_for_deletion, namespace: user.namespace) }
+    let_it_be(:project, freeze: false) { create(:project, :aimed_for_deletion, namespace: user.namespace) }
 
     before do
       sign_in(user)
@@ -1510,7 +1510,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
   end
 
   describe "GET refs" do
-    let_it_be(:project) { create(:project, :public, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
 
     it 'gets a list of branches and tags' do
       get :refs, params: { namespace_id: project.namespace, id: project, sort: 'updated_desc' }
@@ -2133,7 +2133,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
   end
 
   context 'GET show.atom' do
-    let_it_be(:public_project) { create(:project, :public) }
+    let_it_be(:public_project, freeze: false) { create(:project, :public) }
     let_it_be(:event) { create(:event, :commented, project: public_project, target: create(:note, project: public_project)) }
     let_it_be(:invisible_event) { create(:event, :commented, project: public_project, target: create(:note, :confidential, project: public_project)) }
 

@@ -116,7 +116,7 @@ export default {
         'is-collapsed gl-w-10': list.collapsed,
         'board-type-assignee': list.listType === 'assignee',
       }"
-      class="board is-expandable gl-relative gl-inline-block gl-h-full gl-whitespace-normal gl-px-3 gl-align-top"
+      class="board is-expandable gl-relative gl-inline-block gl-h-full gl-whitespace-normal gl-align-top"
     >
       <div
         class="gl-relative gl-flex gl-h-full gl-flex-col gl-rounded-lg gl-bg-strong dark:gl-bg-subtle"

@@ -1453,7 +1453,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
   end
 
   context 'when projects require different access levels for merge requests' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     let_it_be(:public_project) { create(:project, :public) }
     let_it_be(:internal) { create(:project, :internal) }
@@ -1470,7 +1470,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
     let!(:mr_internal_private_repo_access) { create(:merge_request, source_project: internal_with_private_repo) }
 
     context 'with admin user' do
-      let_it_be(:user) { create(:user, :admin) }
+      let_it_be(:user, freeze: false) { create(:user, :admin) }
 
       context 'when admin mode is enabled', :enable_admin_mode do
         it 'returns all merge requests' do
@@ -1583,7 +1583,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
     end
 
     describe '#count_by_state' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:project) { create(:project, :repository) }
       let_it_be(:labels) { create_list(:label, 2, project: project) }
       let_it_be(:merge_requests) { create_list(:merge_request, 4, :unique_branches, author: user, target_project: project, source_project: project, labels: labels) }
@@ -1615,7 +1615,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
   end
 
   context 'when the author of a merge request is banned', feature_category: :insider_threat do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let_it_be(:banned_user) { create(:user, :banned) }
     let_it_be(:project) { create(:project, :public) }
     let_it_be(:banned_merge_request) { create(:merge_request, author: banned_user, source_project: project) }
@@ -1625,7 +1625,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
     it { is_expected.not_to include(banned_merge_request) }
 
     context 'when the user is an admin', :enable_admin_mode do
-      let_it_be(:user) { create(:user, :admin) }
+      let_it_be(:user, freeze: false) { create(:user, :admin) }
 
       it { is_expected.to include(banned_merge_request) }
     end
