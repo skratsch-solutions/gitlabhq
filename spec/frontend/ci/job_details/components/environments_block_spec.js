@@ -224,6 +224,124 @@ describe('Environments block', () => {
     });
   });
 
+  describe('with non-deployment action', () => {
+    describe('with last deployment status', () => {
+      it('renders "ran in" message', () => {
+        createComponent({
+          status: 'last',
+          action: 'stop',
+          environment,
+        });
+
+        expect(findText()).toBe('This job ran in environment.');
+      });
+
+      describe('when there is a cluster', () => {
+        it('renders "ran in" message with cluster', () => {
+          createComponent(
+            {
+              status: 'last',
+              action: 'stop',
+              environment: createEnvironmentWithLastDeployment(),
+            },
+            createDeploymentWithCluster(),
+          );
+
+          expect(findText()).toBe(
+            `This job ran in environment using cluster ${TEST_CLUSTER_NAME}.`,
+          );
+        });
+
+        describe('when there is a kubernetes namespace', () => {
+          it('renders "ran in" message with cluster and namespace', () => {
+            createComponent(
+              {
+                status: 'last',
+                action: 'stop',
+                environment: createEnvironmentWithLastDeployment(),
+              },
+              createDeploymentWithClusterAndKubernetesNamespace(),
+            );
+
+            expect(findText()).toBe(
+              `This job ran in environment using cluster ${TEST_CLUSTER_NAME} and namespace ${TEST_KUBERNETES_NAMESPACE}.`,
+            );
+          });
+        });
+      });
+    });
+
+    describe('with out of date deployment status', () => {
+      it('renders "ran in" message instead of out-of-date message', () => {
+        createComponent({
+          status: 'out_of_date',
+          action: 'stop',
+          environment: createEnvironmentWithLastDeployment(),
+        });
+
+        expect(findText()).toBe('This job ran in environment.');
+      });
+    });
+
+    describe('with failed deployment status', () => {
+      it('renders "ran in" message instead of failed message', () => {
+        createComponent({
+          status: 'failed',
+          action: 'stop',
+          environment,
+        });
+
+        expect(findText()).toBe('This job ran in environment.');
+      });
+    });
+
+    describe('with creating deployment status', () => {
+      it('renders "runs in" message', () => {
+        createComponent({
+          status: 'creating',
+          action: 'stop',
+          environment,
+        });
+
+        expect(findText()).toBe('This job runs in environment.');
+      });
+
+      describe('when there is a cluster', () => {
+        it('renders "runs in" message with cluster', () => {
+          createComponent(
+            {
+              status: 'creating',
+              action: 'stop',
+              environment,
+            },
+            createDeploymentWithCluster(),
+          );
+
+          expect(findText()).toBe(
+            `This job runs in environment using cluster ${TEST_CLUSTER_NAME}.`,
+          );
+        });
+
+        describe('when there is a kubernetes namespace', () => {
+          it('renders "runs in" message with cluster and namespace', () => {
+            createComponent(
+              {
+                status: 'creating',
+                action: 'stop',
+                environment,
+              },
+              createDeploymentWithClusterAndKubernetesNamespace(),
+            );
+
+            expect(findText()).toBe(
+              `This job runs in environment using cluster ${TEST_CLUSTER_NAME} and namespace ${TEST_KUBERNETES_NAMESPACE}.`,
+            );
+          });
+        });
+      });
+    });
+  });
+
   describe('with a cluster', () => {
     it('renders the cluster link', () => {
       createComponent(

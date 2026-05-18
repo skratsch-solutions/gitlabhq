@@ -833,6 +833,11 @@ msgstr[1] ""
 msgid "%{count} related %{pluralized_subject}: %{links}"
 msgstr ""
 
+msgid "%{count} related merge request"
+msgid_plural "%{count} related merge requests"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{count} releases"
 msgstr ""
 
@@ -76097,7 +76102,25 @@ msgstr ""
 msgid "This job is waiting for resource: "
 msgstr ""
 
+msgid "This job ran in %{environmentLink} using cluster %{clusterNameOrLink} and namespace %{kubernetesNamespace}."
+msgstr ""
+
+msgid "This job ran in %{environmentLink} using cluster %{clusterNameOrLink}."
+msgstr ""
+
+msgid "This job ran in %{environmentLink}."
+msgstr ""
+
 msgid "This job requires a manual action"
+msgstr ""
+
+msgid "This job runs in %{environmentLink} using cluster %{clusterNameOrLink} and namespace %{kubernetesNamespace}."
+msgstr ""
+
+msgid "This job runs in %{environmentLink} using cluster %{clusterNameOrLink}."
+msgstr ""
+
+msgid "This job runs in %{environmentLink}."
 msgstr ""
 
 msgid "This job will automatically run after its timer finishes. Often they are used for incremental roll-out deploys to production environments. When unscheduled it converts into a manual action."
@@ -82551,6 +82574,12 @@ msgid "VulnerabilityManagement|Could not refresh the validity check. Please try 
 msgstr ""
 
 msgid "VulnerabilityManagement|Create Jira issue"
+msgstr ""
+
+msgid "VulnerabilityManagement|Detected %{timeago}"
+msgstr ""
+
+msgid "VulnerabilityManagement|Detected %{timeago} in pipeline %{pipelineLink}"
 msgstr ""
 
 msgid "VulnerabilityManagement|Dismiss as..."

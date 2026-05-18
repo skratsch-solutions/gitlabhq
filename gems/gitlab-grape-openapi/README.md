@@ -1,7 +1,7 @@
 # GitLab Grape OpenAPI
 
-> [!WARNING]
-> This gem is currently designed entirely for internal use at GitLab. This gem is not functional and not used in production.
+> [!NOTE]
+> This gem is in **internal Beta** at GitLab. It is functional and used internally, but is not yet recommended for external use, and its public API may change between releases.
 
 Internal gem for generating [OpenAPI 3.0](https://spec.openapis.org/oas/v3.0.0) specifications from [Grape](https://github.com/ruby-grape/grape) API definitions.
 

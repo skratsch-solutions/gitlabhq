@@ -592,10 +592,10 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
         wait_for_requests
       end
 
-      it 'does not show environment information banner' do
-        expect(page).not_to have_selector('[data-testid="jobs-environment-container"]')
-        expect(page).not_to have_selector('[data-testid="jobs-environment-info"]')
-        expect(page).not_to have_text(environment.name)
+      it 'shows environment information banner' do
+        expect(page).to have_selector('[data-testid="jobs-environment-container"]')
+        expect(page).to have_selector('[data-testid="jobs-environment-info"]')
+        expect(page).to have_text(environment.name)
       end
     end
 

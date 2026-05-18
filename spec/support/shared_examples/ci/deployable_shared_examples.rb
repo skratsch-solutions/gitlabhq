@@ -944,6 +944,12 @@ RSpec.shared_examples 'a deployable job' do
   end
 
   describe '#deployment_status' do
+    context 'when job does not interact with an environment' do
+      let(:job) { create(factory_type, pipeline: pipeline) }
+
+      it { expect(job.deployment_status).to be_nil }
+    end
+
     context 'when job is a last deployment' do
       let(:job) { create(factory_type, :success, environment: 'production', pipeline: pipeline) }
       let(:environment) { create(:environment, name: 'production', project: job.project) }
@@ -975,6 +981,34 @@ RSpec.shared_examples 'a deployable job' do
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: job) }
 
       it { expect(job.deployment_status).to eq(:creating) }
+    end
+
+    context 'when job interacts with environment via non-deployment action' do
+      %w[access prepare verify stop].each do |env_action|
+        context "with '#{env_action}' action" do
+          before do
+            stub_ci_job_definition(job, options: { environment: { name: 'production', action: env_action } })
+          end
+
+          context 'when job is running' do
+            let(:job) { create(factory_type, environment: 'production', pipeline: pipeline) }
+
+            it { expect(job.deployment_status).to eq(:creating) }
+          end
+
+          context 'when job has succeeded' do
+            let(:job) { create(factory_type, :success, environment: 'production', pipeline: pipeline) }
+
+            it { expect(job.deployment_status).to eq(:out_of_date) }
+          end
+
+          context 'when job has failed' do
+            let(:job) { create(factory_type, :failed, environment: 'production', pipeline: pipeline) }
+
+            it { expect(job.deployment_status).to eq(:failed) }
+          end
+        end
+      end
     end
   end
 

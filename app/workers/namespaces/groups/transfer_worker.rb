@@ -5,6 +5,7 @@ module Namespaces
   module Groups
     class TransferWorker
       include ApplicationWorker
+      include Namespaces::TransferWorkerHelper
 
       data_consistency :sticky
       sidekiq_options retry: 3
@@ -39,13 +40,7 @@ module Namespaces
       private
 
       def execute_transfer(group, new_parent_group, user, exclusive_lease)
-        if group.transfer_in_progress?
-          Gitlab::AppLogger.warn(
-            message: 'Cancelling stale transfer_in_progress state',
-            group_id: group.id
-          )
-          group.cancel_transfer!
-        end
+        cancel_stale_transfer_state(group, group_id: group.id)
 
         group.schedule_transfer!(transition_user: user) unless group.transfer_scheduled?
         group.start_transfer!(transition_user: user)

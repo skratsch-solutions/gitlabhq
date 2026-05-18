@@ -1,7 +1,6 @@
 ---
 Performance/MethodObjectAsBlock:
   Exclude:
-    - 'lib/api/helpers/packages/conan/api_helpers.rb'
     - 'lib/bulk_imports/pipeline.rb'
     - 'lib/container_registry/base_client.rb'
     - 'lib/gitlab/ci/build/rules/rule.rb'

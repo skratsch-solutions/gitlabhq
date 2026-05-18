@@ -1140,6 +1140,34 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
     end
   end
 
+  describe 'lock retries in proceed_to_transfer' do
+    let_it_be_with_reload(:group) { create(:group, :public, :nested) }
+    let_it_be(:target) { create(:group) }
+
+    before do
+      group.add_owner(user)
+      target.add_owner(user)
+    end
+
+    it 'uses WithLockRetries for the transaction' do
+      expect_next_instance_of(Gitlab::Database::WithLockRetries) do |retries|
+        expect(retries).to receive(:run).with(raise_on_exhaustion: true).and_call_original
+      end
+
+      transfer_service.execute(target)
+    end
+
+    it 'raises AttemptsExhaustedError when lock retries are exhausted' do
+      lock_retries = instance_double(Gitlab::Database::WithLockRetries)
+      allow(Gitlab::Database::WithLockRetries).to receive(:new).and_return(lock_retries)
+      allow(lock_retries).to receive(:run)
+        .and_raise(Gitlab::Database::WithLockRetries::AttemptsExhaustedError)
+
+      expect { transfer_service.execute(target) }
+        .to raise_error(Gitlab::Database::WithLockRetries::AttemptsExhaustedError)
+    end
+  end
+
   describe '#schedule_async_transfer' do
     let_it_be(:current_parent_group) { create(:group) }
     let_it_be(:new_parent_group, freeze: false) { create(:group, :public) }
@@ -1205,19 +1233,6 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
     context 'when the state transition fails' do
       before do
         group.update_column(:state, Group.states[:creation_in_progress])
-      end
-
-      it 'returns error response and does not enqueue the worker' do
-        expect(Namespaces::Groups::TransferWorker).not_to receive(:perform_async)
-
-        expect(schedule).to be_error
-        expect(schedule.message).to eq('Unable to initiate transfer. The group may already have a transfer in progress.')
-      end
-    end
-
-    context 'when the group is already in transfer_scheduled state' do
-      before do
-        group.schedule_transfer!(transition_user: user)
       end
 
       it 'returns error response and does not enqueue the worker' do

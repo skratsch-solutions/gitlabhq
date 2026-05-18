@@ -5,7 +5,6 @@ export default {
   files: [
     'app/assets/javascripts/abuse_reports/components/abuse_category_selector.vue',
     'app/assets/javascripts/admin/abuse_report/components/report_actions.vue',
-    'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/chronic_duration_input.vue',
     'app/assets/javascripts/admin/topics/components/topic_select.vue',
     'app/assets/javascripts/alerts_settings/components/alert_mapping_builder.vue',
     'app/assets/javascripts/alerts_settings/components/alerts_integrations_list.vue',

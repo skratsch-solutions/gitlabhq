@@ -4,6 +4,18 @@ module Groups
   class TransferService < Groups::BaseService
     TransferError = Class.new(StandardError)
 
+    # Shorter lock retry timing for Sidekiq context (~2 minutes worst case).
+    # Default WithLockRetries config retries for ~40 minutes which is too long.
+    LOCK_RETRY_TIMING = [
+      [0.5.seconds, 2.seconds],
+      [0.5.seconds, 2.seconds],
+      [1.second, 5.seconds],
+      [1.second, 5.seconds],
+      [2.seconds, 10.seconds],
+      [2.seconds, 15.seconds],
+      [5.seconds, 30.seconds]
+    ].freeze
+
     attr_reader :error, :new_parent_group
 
     def initialize(group, user, params = {})
@@ -89,15 +101,22 @@ module Groups
       old_path = @group.full_path
       was_root_group = @group.root?
 
-      Gitlab::Database::QueryAnalyzers::PreventCrossDatabaseModification.temporary_ignore_tables_in_transaction(
-        %w[routes redirect_routes], url: 'https://gitlab.com/gitlab-org/gitlab/-/issues/424280'
-      ) do
-        Group.transaction do
-          update_group_attributes
-          ensure_ownership
-          update_integrations
-          update_crm_objects
-          remove_namespace_commit_emails(was_root_group)
+      Gitlab::Database::WithLockRetries.new(
+        connection: ApplicationRecord.connection,
+        logger: Gitlab::AppLogger,
+        timing_configuration: LOCK_RETRY_TIMING,
+        klass: self.class
+      ).run(raise_on_exhaustion: true) do
+        Gitlab::Database::QueryAnalyzers::PreventCrossDatabaseModification.temporary_ignore_tables_in_transaction(
+          %w[routes redirect_routes], url: 'https://gitlab.com/gitlab-org/gitlab/-/issues/424280'
+        ) do
+          Group.transaction do
+            update_group_attributes
+            ensure_ownership
+            update_integrations
+            update_crm_objects
+            remove_namespace_commit_emails(was_root_group)
+          end
         end
       end
 

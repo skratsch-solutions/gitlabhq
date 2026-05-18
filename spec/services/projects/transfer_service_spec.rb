@@ -923,6 +923,29 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
     end
   end
 
+  describe 'lock retries in proceed_to_transfer' do
+    before do
+      group.add_owner(user)
+    end
+
+    it 'uses WithLockRetries for the transaction' do
+      expect_next_instance_of(Gitlab::Database::WithLockRetries) do |retries|
+        expect(retries).to receive(:run).with(raise_on_exhaustion: true).and_call_original
+      end
+
+      execute_transfer
+    end
+
+    it 'raises AttemptsExhaustedError when lock retries are exhausted' do
+      lock_retries = instance_double(Gitlab::Database::WithLockRetries)
+      allow(Gitlab::Database::WithLockRetries).to receive(:new).and_return(lock_retries)
+      allow(lock_retries).to receive(:run)
+        .and_raise(Gitlab::Database::WithLockRetries::AttemptsExhaustedError)
+
+      expect { execute_transfer }.to raise_error(Gitlab::Database::WithLockRetries::AttemptsExhaustedError)
+    end
+  end
+
   describe '#schedule_async_transfer' do
     let_it_be(:user) { create(:user) }
     let_it_be_with_reload(:project) { create(:project) }

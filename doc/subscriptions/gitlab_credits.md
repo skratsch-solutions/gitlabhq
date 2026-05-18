@@ -33,7 +33,7 @@ You are billed for features that are [generally available](../policy/development
 Billing occurs at the root namespace or top-level group level, not at the project level.
 Credit usage is attributed to the subject who performs the action, regardless of which project they are using the features in.
 A subject is either a human user or a non-human subject (for example, a service account or a bot running an automated flow).
-For more information, see [Non-human subject usage](#non-human-subject-usage).
+
 All usage in a root namespace or top-level group is consolidated for billing purposes.
 
 GitLab provides three ways to obtain credits:
@@ -56,9 +56,9 @@ Unused credits do not roll over to the next month.
 
 [Community program subscriptions](community_programs.md) do not receive included credits.
 
-Non-human subjects, such as service accounts and bots, do not receive included credits.
-Their consumption is billed at the namespace level from the Monthly Commitment Pool and On-Demand credits.
-For more information, see [Non-human subject usage](#non-human-subject-usage).
+Non-human subjects do not receive included credits.
+Their consumption is billed at the namespace level from the Monthly Commitment Pool and On-Demand credits,
+in the same usage order as for human users.
 
 For more information about included credits, see [GitLab Promotions Terms & Conditions](https://about.gitlab.com/pricing/terms/).
 
@@ -432,24 +432,17 @@ To display it, you must enable this setting for your [group](../user/group/manag
 
 {{< /history >}}
 
-Credit consumption can be triggered by either a human user or a non-human subject,
-such as a service account or a bot running an automated flow
-(for example, the SAST False Positive Detection Flow or the
-SAST Vulnerability Resolution Flow).
+Credit consumption can be triggered by either a human user or a non-human subject
+(for example, an AI feature like the SAST False Positive Detection Flow).
 
 To help you identify where credits are consumed, the **Usage by user** tab
-of the GitLab Credits dashboard displays an **Automated flow** badge next to
-any row that represents a non-human subject. Rows without the badge represent
-human users.
+on the GitLab Credits dashboard displays an **Automated flow** badge next to
+the rows that represent non-human subjects.
+Rows without the badge represent human users.
 
-Non-human subjects do not receive [included credits](#included-credits).
-All of their consumption is drawn from the namespace's Monthly Commitment Pool
-first, and then from On-Demand credits, in the same [usage order](#usage-order)
-as human users.
-
-Display of **Automated flow** rows is controlled by the same setting as human-user
-rows. To show them, enable [**Display GitLab Credits user data**](../user/group/manage.md#display-gitlab-credits-user-data)
-for your group or [instance](../administration/settings/visibility_and_access_controls.md#display-gitlab-credits-user-data).
+The display of the **Automated flow** badge is controlled by the setting **Display GitLab Credits user data**,
+which is available for [groups](../user/group/manage.md#display-gitlab-credits-user-data)
+and [instances](../administration/settings/visibility_and_access_controls.md#display-gitlab-credits-user-data).
 
 ### Usage caps
 
