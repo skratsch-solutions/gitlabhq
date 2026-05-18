@@ -11500,6 +11500,8 @@ paths:
           description: 403 Forbidden
         '404':
           description: 404 Not found
+        '422':
+          description: 422 Unprocessable entity
       parameters:
       - name: id
         required: true

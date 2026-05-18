@@ -125,7 +125,7 @@ module Users
       # Email OTP applies only to users who are created with an ability
       # to sign in with a password.
       !@user_params[:password_automatically_set] &&
-        Feature.enabled?(:enrol_new_users_in_email_otp, :instance)
+        Gitlab::CurrentSettings.require_minimum_email_based_otp_for_users_with_passwords?
     end
 
     def user_external?

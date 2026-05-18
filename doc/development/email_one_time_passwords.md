@@ -186,11 +186,10 @@ they cannot access their primary email address.
 **Feature flags:**
 
 - [`email_based_mfa`](https://gitlab.com/gitlab-org/gitlab/-/issues/584355) - Global toggle for Email OTP enforcement
-- [`enrol_new_users_in_email_otp`](https://gitlab.com/gitlab-org/gitlab/-/issues/561975) - Controls automatic enrollment for new users
 
 **Application setting:**
 
-- [`require_minimum_email_based_otp_for_users_with_passwords`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/application_setting.rb#L765) - Makes Email OTP mandatory for users without other 2FA
+- [`require_minimum_email_based_otp_for_users_with_passwords`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/application_setting.rb#L765) - Makes Email OTP mandatory for users without other 2FA, and enrolls new users with passwords
 
 ## Testing
 
@@ -220,15 +219,10 @@ Feature.enable(:email_based_mfa, user)
 # Disable Email OTP
 Feature.disable(:email_based_mfa, user)
 
-# Require Email OTP as a minimum
+# Require Email OTP as a minimum (also enrols new users with passwords)
 ApplicationSetting.current.update!(sign_in_restrictions: {require_minimum_email_based_otp_for_users_with_passwords: true })
 # Or allow users to disable it
 ApplicationSetting.current.update!(sign_in_restrictions: {require_minimum_email_based_otp_for_users_with_passwords: false })
-
-# Enrol new users when they sign up
-Feature.enable(:enrol_new_users_in_email_otp)
-# Or make it opt-in
-Feature.disable(:enrol_new_users_in_email_otp)
 
 # Set enrollment date via UpdateService (triggers automatic enrollment logic)
 Users::UpdateService.new( user, { user: user, email_otp_required_after: date } ).execute!
