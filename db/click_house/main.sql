@@ -1041,6 +1041,18 @@ PRIMARY KEY (path, id)
 ORDER BY (path, id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
 
+CREATE TABLE siphon_events_pg_pkey_ordered
+(
+    `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (id, path)
+ORDER BY (id, path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_group_audit_events
 (
     `id` Int64,
@@ -1686,6 +1698,18 @@ PRIMARY KEY (traversal_path, noteable_type, noteable_id, id)
 ORDER BY (traversal_path, noteable_type, noteable_id, id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
 
+CREATE TABLE siphon_notes_pg_pkey_ordered
+(
+    `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (id, traversal_path)
+ORDER BY (id, traversal_path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_organizations
 (
     `id` Int64,
@@ -1803,6 +1827,19 @@ PRIMARY KEY (traversal_path, id, partition_id)
 ORDER BY (traversal_path, id, partition_id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
 
+CREATE TABLE siphon_p_ci_builds_pg_pkey_ordered
+(
+    `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `partition_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (id, partition_id, traversal_path)
+ORDER BY (id, partition_id, traversal_path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_p_ci_pipelines
 (
     `ref` Nullable(String),
@@ -1853,6 +1890,19 @@ PRIMARY KEY (traversal_path, id, partition_id)
 ORDER BY (traversal_path, id, partition_id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
 
+CREATE TABLE siphon_p_ci_pipelines_pg_pkey_ordered
+(
+    `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `partition_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (id, partition_id, traversal_path)
+ORDER BY (id, partition_id, traversal_path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_p_ci_stages
 (
     `project_id` Int64,
@@ -1880,6 +1930,19 @@ ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
 PRIMARY KEY (traversal_path, id, partition_id)
 ORDER BY (traversal_path, id, partition_id)
 SETTINGS index_granularity = 2048, deduplicate_merge_projection_mode = 'rebuild';
+
+CREATE TABLE siphon_p_ci_stages_pg_pkey_ordered
+(
+    `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `partition_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (id, partition_id, traversal_path)
+ORDER BY (id, partition_id, traversal_path)
+SETTINGS index_granularity = 1024;
 
 CREATE TABLE siphon_project_authorizations
 (
@@ -3669,6 +3732,20 @@ SELECT
 FROM cte
 INNER JOIN namespaces_cte ON namespaces_cte.id = cte.project_namespace_id;
 
+CREATE MATERIALIZED VIEW siphon_events_pg_pkey_ordered_mv TO siphon_events_pg_pkey_ordered
+(
+    `id` Int64,
+    `path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    id,
+    path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_events;
+
 CREATE MATERIALIZED VIEW siphon_merge_request_diff_files_pg_pkey_ordered_mv TO siphon_merge_request_diff_files_pg_pkey_ordered
 (
     `merge_request_diff_id` Int64,
@@ -3684,6 +3761,68 @@ AS SELECT
     _siphon_replicated_at,
     _siphon_deleted
 FROM siphon_merge_request_diff_files;
+
+CREATE MATERIALIZED VIEW siphon_notes_pg_pkey_ordered_mv TO siphon_notes_pg_pkey_ordered
+(
+    `id` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    id,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_notes;
+
+CREATE MATERIALIZED VIEW siphon_p_ci_builds_pg_pkey_ordered_mv TO siphon_p_ci_builds_pg_pkey_ordered
+(
+    `id` Int64,
+    `partition_id` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    id,
+    partition_id,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_p_ci_builds;
+
+CREATE MATERIALIZED VIEW siphon_p_ci_pipelines_pg_pkey_ordered_mv TO siphon_p_ci_pipelines_pg_pkey_ordered
+(
+    `id` Int64,
+    `partition_id` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    id,
+    partition_id,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_p_ci_pipelines;
+
+CREATE MATERIALIZED VIEW siphon_p_ci_stages_pg_pkey_ordered_mv TO siphon_p_ci_stages_pg_pkey_ordered
+(
+    `id` Int64,
+    `partition_id` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    id,
+    partition_id,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_p_ci_stages;
 
 CREATE MATERIALIZED VIEW siphon_project_authorizations_pg_pkey_ordered_mv TO siphon_project_authorizations_pg_pkey_ordered
 (

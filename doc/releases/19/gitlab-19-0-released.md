@@ -46,7 +46,7 @@ Use present tense, and speak about "you" instead of "the user."
 
 - Tier: Premium, Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Add-ons: Duo Enterprise
+- Add-ons: GitLab Duo Enterprise
 - Links: [Documentation](../../user/gitlab_duo/customize_duo/review_instructions.md#configure-custom-review-instructions-for-a-group), [Related issue](https://gitlab.com/groups/gitlab-org/-/work_items/21504)
 
 {{< /details >}}

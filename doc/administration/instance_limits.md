@@ -1339,7 +1339,7 @@ ApplicationSetting.update(ci_partitions_in_seconds_limit: ChronicDuration.parse(
 
 {{< /history >}}
 
-Configures the upper limit for [CI/CD pipeline expiry time](../ci/pipelines/settings.md#automatic-pipeline-cleanup).
+Configures the upper limit for [automatic pipeline cleanup](../ci/pipelines/settings.md#automatic-pipeline-cleanup).
 Defaults to 1 year.
 
 You can change this limit by using the [GitLab Rails console](operations/rails_console.md#starting-a-rails-console-session).

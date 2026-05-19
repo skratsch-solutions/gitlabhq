@@ -66,6 +66,23 @@ To update the release notes for 19.0:
 
 If your item is primary, review the instructions for What's new.
 
+## How the notable contributor is added
+
+Developer Relations creates the merge request that adds a few sentences about the release's notable contributor.
+
+The format should be similar to:
+
+```markdown
+We'd also like to announce this month's [Notable Contributor](https://contributors.gitlab.com/notable-contributors):
+Norman Debald!
+
+We are excited to recognize [Norman](https://gitlab.com/Modjo85), a Level 3 contributor
+with more than 40 merged improvements across GitLab since joining in May 2022.
+```
+
+This merge request can be merged at any point before the release, though
+you can check with the author to confirm.
+
 ## Technical Writer review
 
 To review a release note merge request:

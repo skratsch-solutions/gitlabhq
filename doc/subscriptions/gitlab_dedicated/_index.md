@@ -259,6 +259,21 @@ Limitations:
 - No SLA commitment.
 - Cannot run newer versions than production.
 
+### Default URLs
+
+GitLab Dedicated assigns each tenant a set of default URLs based on the
+environment type. Replace `tenant_name` with the name of your tenant.
+
+| Component                          | Production                              | Pre-production                                |
+|------------------------------------|-----------------------------------------|-----------------------------------------------|
+| GitLab instance                    | `tenant_name.gitlab-dedicated.com`      | `tenant_name.gitlab-dedicated.systems`        |
+| GitLab Pages                       | `tenant_name.gitlab-dedicated.site`     | `tenant_name.gitlab-dedicated-pages.systems`  |
+| Switchboard (management console)   | `console.gitlab-dedicated.com`          | `console.gitlab-dedicated.systems`            |
+
+You can replace the default GitLab instance URL with a
+[custom domain](#custom-domains). Custom domains are not supported
+for GitLab Pages, and Switchboard URLs cannot be customized.
+
 ## Settings managed by GitLab
 
 While you can modify most settings through the Admin area, GitLab automatically manages

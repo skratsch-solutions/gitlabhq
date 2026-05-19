@@ -577,29 +577,6 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
         expect(diff_file.code_review_id).to eq(expected)
       end
     end
-
-    context 'when diff_blob_metadata_only_for_code_review_id is disabled' do
-      before do
-        stub_feature_flags(diff_blob_metadata_only_for_code_review_id: false)
-      end
-
-      it 'uses blob&.id directly' do
-        expected = Digest::SHA1.hexdigest("#{diff_file.file_identifier}-#{diff_file.blob&.id}")
-        expect(diff_file.code_review_id).to eq(expected)
-      end
-
-      context 'with a deleted file' do
-        let(:branch_name) { 'master' }
-        let(:diff_file) do
-          create_file('deleted_test_file.md', 'content')
-          delete_file('deleted_test_file.md')
-        end
-
-        it 'returns a valid hash' do
-          expect(diff_file.code_review_id).to match(/\A[0-9a-f]{40}\z/)
-        end
-      end
-    end
   end
 
   context 'diff file stats' do

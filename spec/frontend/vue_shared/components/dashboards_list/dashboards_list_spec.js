@@ -1,9 +1,11 @@
 import { GlTable, GlAvatarLabeled } from '@gitlab/ui';
 import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
 import DashboardsList from '~/vue_shared/components/dashboards_list/dashboards_list.vue';
+import DashboardDeleteModal from '~/vue_shared/components/dashboards_list/dashboard_delete_modal.vue';
 
 const mockDashboards = [
   {
+    id: 'gid://gitlab/Analytics::CustomDashboard/1',
     name: 'First custom dashboard',
     description: 'Default dashboard description',
     slug: 'first-custom-dashboard',
@@ -23,6 +25,7 @@ const mockDashboards = [
     dashboardUrl: '/fake/url/1',
   },
   {
+    id: 'gid://gitlab/Analytics::CustomDashboard/2',
     name: 'Cool dashboard',
     description:
       'Cool custom dashboard that has a description that is very long and will most definitely overflow',
@@ -54,6 +57,8 @@ describe('DashboardsList', () => {
   const findDashboardLinks = () => wrapper.findAllByTestId('dashboard-redirect-link');
   const findUserAvatars = () => wrapper.findAllComponents(GlAvatarLabeled);
   const findActionDropdowns = () => wrapper.findAllByTestId('dashboard-actions');
+  const findDeleteActions = () => wrapper.findAllByTestId('dashboard-delete-action');
+  const findDeleteModal = () => wrapper.findComponent(DashboardDeleteModal);
 
   const createWrapper = (props = {}, mountFn = shallowMountExtended) => {
     wrapper = mountFn(DashboardsList, {
@@ -193,6 +198,55 @@ describe('DashboardsList', () => {
       it('does not render the last edited time for system dashboards', () => {
         const updatedAt = findTableRows().at(0).find('[data-testid="dashboard-updated-at"]');
         expect(updatedAt.exists()).toBe(false);
+      });
+    });
+
+    describe('dashboard actions', () => {
+      describe('for custom dashboards', () => {
+        beforeEach(() => {
+          createWrapper({}, mountExtended);
+        });
+
+        it('renders delete action for custom dashboards', () => {
+          expect(findDeleteActions()).toHaveLength(mockDashboards.length);
+          findDeleteActions().wrappers.forEach((action) => {
+            expect(action.props('variant')).toBe('danger');
+            expect(action.text()).toContain('Delete');
+          });
+        });
+      });
+
+      describe('for system dashboards', () => {
+        const mockSystemDashboards = [
+          {
+            name: 'System dashboard',
+            system: true,
+            description: 'System dashboard description',
+            slug: 'system-dashboard',
+            shareLink: '/fake/link/to/share',
+            updatedAt: '2025-10-28',
+            dashboardUrl: '/fake/url/2',
+          },
+        ];
+
+        beforeEach(() => {
+          createWrapper({ dashboards: mockSystemDashboards }, mountExtended);
+        });
+
+        it('does not render delete action for system dashboards', () => {
+          expect(findDeleteActions()).toHaveLength(0);
+        });
+      });
+
+      describe('delete modal', () => {
+        beforeEach(() => {
+          createWrapper({}, mountExtended);
+          findDeleteActions().at(0).vm.$emit('action');
+        });
+
+        it('sets correct dashboardId when delete action is clicked', () => {
+          expect(findDeleteModal().props('dashboardId')).toBe(mockDashboards[0].id);
+        });
       });
     });
   });

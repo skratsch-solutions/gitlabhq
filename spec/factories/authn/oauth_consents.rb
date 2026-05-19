@@ -7,6 +7,7 @@ FactoryBot.define do
     client_id { application.uid }
     consent_challenge { SecureRandom.hex(32) }
     requested_scopes { %w[openid profile] }
+    granted_scopes { %w[openid profile] }
 
     trait :revoked do
       status { :revoked }

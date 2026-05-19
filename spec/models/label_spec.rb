@@ -256,6 +256,26 @@ RSpec.describe Label, feature_category: :team_planning, factory_default: :keep d
         expect(described_class.find_by(id: label.id)).to be_nil
       end
     end
+
+    describe 'strip_whitespace_from_title' do
+      it 'strips leading and trailing whitespace from the title' do
+        label = create(:label, title: '   Untrimmed   ')
+
+        expect(label.title).to eq('Untrimmed')
+      end
+
+      it 'does not write the title attribute when no whitespace needs stripping' do
+        label = create(:label, title: 'Already Stripped')
+
+        # Re-validate the label without changing anything. The callback runs
+        # but must not call `_write_attribute` on a no-op, so that a
+        # let_it_be-cached (and frozen) label can be re-validated without
+        # raising FrozenError.
+        expect(label).not_to receive(:[]=)
+
+        label.valid?
+      end
+    end
   end
 
   describe 'scopes' do

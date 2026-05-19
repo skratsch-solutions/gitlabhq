@@ -145,7 +145,7 @@
 
 .es8-services:
   services:
-    - name: elasticsearch:8.19.13
+    - name: elasticsearch:8.19.15
 
 .es8-variables:
   variables:

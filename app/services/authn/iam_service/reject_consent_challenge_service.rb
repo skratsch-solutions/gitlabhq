@@ -25,12 +25,13 @@ module Authn
         return missing_redirect_error if redirect_to.blank?
         return invalid_redirect_error unless RedirectUrlValidator.valid?(redirect_to)
 
-        # TODO: handle consent record
-        # TODO: handle audit event
+        # TODO: handle consent record and emit audit event (deferred to follow-up MR).
 
         ServiceResponse.success(payload: { redirect_to: redirect_to })
       rescue HttpClient::RequestError => e
         ServiceResponse.error(message: e.message, reason: :service_unavailable)
+      rescue JSON::ParserError
+        invalid_body_error
       end
 
       private
@@ -63,6 +64,14 @@ module Authn
         ServiceResponse.error(
           message: 'IAM consent reject response contains invalid redirect URL',
           reason: :invalid_redirect_url
+        )
+      end
+
+      def invalid_body_error
+        log_failure(reason: 'invalid_response_body')
+        ServiceResponse.error(
+          message: 'IAM consent reject response has invalid body',
+          reason: :invalid_response
         )
       end
 

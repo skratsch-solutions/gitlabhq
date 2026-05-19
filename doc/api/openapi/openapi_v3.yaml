@@ -804,8 +804,8 @@ paths:
   "/api/v4/chat/completions":
     post:
       operationId: postApiV4ChatCompletions
-      summary: Get chat completions
-      description: Generates chat completions using GitLab Duo
+      summary: Generate a Chat response
+      description: Generates a response for a GitLab Duo Chat question.
       tags:
       - GitLab Duo
       responses:
@@ -822,10 +822,12 @@ paths:
   "/api/v4/code_suggestions/completions":
     post:
       operationId: postApiV4CodeSuggestionsCompletions
-      summary: Generate code completion suggestions
+      summary: Generate code completions
+      description: Generates code completions. Uses the AI abstraction layer to generate
+        code completions. Requests to this endpoint are proxied to the AI Gateway.
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
         '400':
           description: Bad Request
       requestBody:
@@ -837,8 +839,10 @@ paths:
   "/api/v4/code_suggestions/direct_access":
     post:
       operationId: postApiV4CodeSuggestionsDirectAccess
-      summary: Get connection details to access AI gateway directly to generate code
-        suggestions
+      summary: Retrieve direct connection details for the AI Gateway
+      description: Retrieves user-specific connection details which can be used by
+        IDEs or clients to send `completion` requests to Code Suggestions directly
+        through the AI Gateway.
       responses:
         '201':
           description: Created
@@ -857,7 +861,10 @@ paths:
   "/api/v4/code_suggestions/enabled":
     post:
       operationId: postApiV4CodeSuggestionsEnabled
-      summary: Code suggestions enabled for a project
+      summary: Validate status of Code Suggestions
+      description: Validates the status Code Suggestions for a specified project.
+        This checks if the project has `code_suggestions` enabled or if an ancestor
+        group has the Code Suggestions add-on enabled.
       responses:
         '200':
           description: OK
@@ -876,7 +883,10 @@ paths:
   "/api/v4/code_suggestions/connection_details":
     post:
       operationId: postApiV4CodeSuggestionsConnectionDetails
-      summary: Get details of the GitLab instance the user is connected to
+      summary: Retrieve connection details
+      description: Retrieves user-specific connection details which can be used by
+        IDEs or clients for telemetry, including an instance-specific application
+        ID, application access token, and clickhouse data plane URL.
       responses:
         '201':
           description: Created
@@ -1432,7 +1442,8 @@ paths:
   "/api/v4/ai/duo_workflows/workflows":
     post:
       operationId: postApiV4AiDuoWorkflowsWorkflows
-      summary: Create workflow persistence
+      summary: Create a flow
+      description: Creates and starts a flow.
       tags:
       - GitLab Duo workflows
       responses:
@@ -1456,7 +1467,9 @@ paths:
   "/api/v4/ai/duo_workflows/workflows/agent_privileges":
     get:
       operationId: getApiV4AiDuoWorkflowsWorkflowsAgentPrivileges
-      summary: List all agent privileges and descriptions
+      summary: List all agent privileges
+      description: Lists all available agent privileges with their IDs, names, descriptions,
+        and whether each is enabled by default. This endpoint has no supported attributes.
       tags:
       - GitLab Duo workflows
       responses:

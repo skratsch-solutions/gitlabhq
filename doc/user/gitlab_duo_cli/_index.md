@@ -98,26 +98,9 @@ To use the GitLab Duo CLI as a standalone tool, install it and then authenticate
 
 #### Install
 
-Install the GitLab Duo CLI as an npm package or compiled binary.
+Install the GitLab Duo CLI as a compiled binary or an npm package.
 
 {{< tabs >}}
-
-{{< tab title="npm package" >}}
-
-Prerequisites:
-
-- Node.js 22 or later.
-- For GitLab Self-Managed with a self-signed certificate, either:
-  - Node.js LTS 22.20.0 or later
-  - Node.js 23.8.0 or later
-
-To install the GitLab Duo CLI as an npm package, run:
-
-```shell
-npm install --global @gitlab/duo-cli
-```
-
-{{< /tab >}}
 
 {{< tab title="Compiled binary" >}}
 
@@ -133,6 +116,23 @@ On Windows:
 
 ```shell
 irm "https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/raw/main/packages/cli/scripts/install_duo_cli.ps1" | iex
+```
+
+{{< /tab >}}
+
+{{< tab title="npm package" >}}
+
+Prerequisites:
+
+- Node.js 22 or later.
+- For GitLab Self-Managed with a self-signed certificate, either:
+  - Node.js LTS 22.20.0 or later
+  - Node.js 23.8.0 or later
+
+To install the GitLab Duo CLI as an npm package, run:
+
+```shell
+npm install --global @gitlab/duo-cli
 ```
 
 {{< /tab >}}

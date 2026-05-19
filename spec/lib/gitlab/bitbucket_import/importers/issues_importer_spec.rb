@@ -22,7 +22,6 @@ RSpec.describe Gitlab::BitbucketImport::Importers::IssuesImporter, :clean_gitlab
     before do
       allow(Bitbucket::Client).to receive(:new).and_return(client)
       allow(client).to receive(:repo).and_return(Bitbucket::Representation::Repo.new({ 'has_issues' => true }))
-      allow(client).to receive(:last_issue).and_return(Bitbucket::Representation::Issue.new({ 'id' => 2 }))
       page = instance_double('Bitbucket::Page', attrs: [], items: [
         Bitbucket::Representation::Issue.new({ 'id' => 1 }),
         Bitbucket::Representation::Issue.new({ 'id' => 2 })
@@ -53,12 +52,6 @@ RSpec.describe Gitlab::BitbucketImport::Importers::IssuesImporter, :clean_gitlab
       expect(waiter.jobs_remaining).to eq(2)
       expect(Gitlab::Cache::Import::Caching.values_from_set(importer.already_enqueued_cache_key))
         .to match_array(%w[1 2])
-    end
-
-    it 'allocates internal ids' do
-      expect(Issue).to receive(:track_namespace_iid!).with(project.project_namespace, 2)
-
-      importer.execute
     end
 
     context 'when issue was already enqueued' do

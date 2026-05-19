@@ -52,7 +52,7 @@ export default {
 
 <template>
   <gl-popover
-    :container="popoverTargetId"
+    container="viewport"
     :target="popoverTargetId"
     placement="top"
     boundary="viewport"

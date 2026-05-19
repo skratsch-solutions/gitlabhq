@@ -19,7 +19,10 @@ export default {
     NewDashboardButton,
   },
   data() {
-    return { searchText: '', activeTabIndex: DEFAULT_ACTIVE_TAB_INDEX };
+    return {
+      searchText: '',
+      activeTabIndex: DEFAULT_ACTIVE_TAB_INDEX,
+    };
   },
   methods: {
     handleSearchText: debounce(function debouncedSearch(searchText) {

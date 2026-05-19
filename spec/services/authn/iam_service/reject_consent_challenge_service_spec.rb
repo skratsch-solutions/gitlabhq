@@ -31,13 +31,13 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       allow(Gitlab::HTTP).to receive(:put).and_return(http_response)
     end
 
-    context 'when the IAM service accepts the rejection' do
-      it 'returns a success response with the redirect URL', :aggregate_failures do
+    context 'when the response is valid' do
+      it 'returns the redirect URL', :aggregate_failures do
         expect(result).to be_success
         expect(result.payload[:redirect_to]).to eq(redirect_url)
       end
 
-      it 'sends the correct HTTP PUT request to the IAM service' do
+      it 'sends the PUT request to IAM' do
         result
 
         expect(Gitlab::HTTP).to have_received(:put).with(
@@ -55,7 +55,7 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       end
     end
 
-    context 'when the IAM service returns an HTTP error' do
+    context 'when IAM returns an HTTP error' do
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: false, code: 400,
           body: { error: 'Invalid challenge' }.to_json)
@@ -66,7 +66,7 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         message: 'IAM consent reject failed: HTTP 400'
     end
 
-    context 'when the response is missing redirect_to' do
+    context 'when redirect_to is missing' do
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
           body: { some_other_field: 'value' }.to_json)
@@ -77,7 +77,7 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         message: 'IAM consent reject response missing redirect_to'
     end
 
-    context 'when request succeeds but response body is nil' do
+    context 'when the response body is nil' do
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: nil)
       end
@@ -87,10 +87,20 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         message: 'IAM consent reject response missing redirect_to'
     end
 
-    context 'when redirect_to points to a different host' do
+    context 'when the response body is invalid JSON' do
+      let(:http_response) do
+        instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: 'not json{')
+      end
+
+      include_examples 'iam service error response with user',
+        reason: :invalid_response,
+        message: 'IAM consent reject response has invalid body'
+    end
+
+    context 'when redirect_to is an untrusted URL' do
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
-          body: { redirect_to: 'https://untrusted.com/oauth2/authorize' }.to_json)
+          body: { redirect_to: 'https://untrusted.example.com/oauth2/authorize' }.to_json)
       end
 
       include_examples 'iam service error response with user',

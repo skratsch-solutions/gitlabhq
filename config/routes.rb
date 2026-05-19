@@ -191,6 +191,7 @@ InitializerConnections.warn_if_database_connection do
           draw :operations
         end
 
+        draw :iam
         draw :jira_connect
 
         Gitlab.ee do

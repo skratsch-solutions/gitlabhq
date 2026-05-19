@@ -68,6 +68,11 @@ module Banzai
         '}' => '{'
       }.freeze
 
+      # Maximum length of a text node to process for autolinking.
+      # Longer text nodes are skipped to avoid O(N) position mapping
+      # overhead in StringRangeMarker. See https://gitlab.com/gitlab-org/gitlab/-/issues/598970
+      TEXT_LENGTH_LIMIT = 50.kilobytes
+
       def call
         if MarkdownFilter.glfm_markdown?(context) &&
             context[:pipeline] != :single_line &&
@@ -81,6 +86,8 @@ module Banzai
 
         doc.xpath(TEXT_QUERY).each do |node|
           break if Banzai::Filter.filter_item_limit_exceeded?(@link_count, limit: Banzai::Filter::FILTER_ITEM_LIMIT)
+
+          next if node.content.bytesize > TEXT_LENGTH_LIMIT
 
           content = node.to_html
 

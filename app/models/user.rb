@@ -259,6 +259,7 @@ class User < ApplicationRecord
   has_many :releases,                 dependent: :nullify, foreign_key: :author_id
   has_many :subscriptions,            dependent: :destroy
   has_many :oauth_applications, class_name: 'Authn::OauthApplication', as: :owner, dependent: :destroy
+  has_many :oauth_consents, class_name: 'Authn::OauthConsent', inverse_of: :user, dependent: :destroy
   has_many :abuse_reports, dependent: :nullify, foreign_key: :user_id, inverse_of: :user
   has_many :reported_abuse_reports,   dependent: :nullify, foreign_key: :reporter_id, class_name: "AbuseReport", inverse_of: :reporter
   has_many :resolved_abuse_reports,   foreign_key: :resolved_by_id, class_name: "AbuseReport", inverse_of: :resolved_by

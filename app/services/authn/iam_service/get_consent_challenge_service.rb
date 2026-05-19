@@ -5,6 +5,8 @@ module Authn
     class GetConsentChallengeService
       CONSENT_REQUEST_PATH = '/oauth2/internal/auth/requests/consent'
 
+      MANDATORY_FIELDS = %i[subject requested_scopes client_id client_name client_owner client_created_at].freeze
+
       def initialize(challenge:, client: HttpClient.new)
         @challenge = challenge
         @client = client
@@ -22,14 +24,26 @@ module Authn
 
         return invalid_body_error unless parsed.is_a?(Hash)
 
-        ServiceResponse.success(payload: {
-          skip: parsed['skip'] == true,
+        oauth_client = parsed['client'] || {}
+
+        payload = {
+          skip_consent: Gitlab::Utils.to_boolean(parsed['skip']),
           subject: parsed['subject'].to_s,
-          requested_scope: Array(parsed['requested_scope']),
-          client: parsed['client']
-        })
+          requested_scopes: Array(parsed['requested_scope']),
+          client_id: oauth_client['client_id'],
+          client_name: oauth_client['client_name'],
+          client_owner: oauth_client['owner'],
+          client_created_at: Time.zone.parse(oauth_client['created_at'].to_s)
+        }
+
+        missing = MANDATORY_FIELDS.select { |f| payload[f].blank? }
+        return missing_mandatory_fields_error(missing) if missing.any?
+
+        ServiceResponse.success(payload: payload)
       rescue HttpClient::RequestError => e
         ServiceResponse.error(message: e.message, reason: :service_unavailable)
+      rescue JSON::ParserError
+        invalid_body_error
       end
 
       private
@@ -46,6 +60,14 @@ module Authn
         log_failure(reason: 'invalid_response_body')
         ServiceResponse.error(
           message: 'IAM consent request response has invalid body',
+          reason: :invalid_response
+        )
+      end
+
+      def missing_mandatory_fields_error(fields)
+        log_failure(reason: 'missing_mandatory_fields')
+        ServiceResponse.error(
+          message: "IAM consent response missing mandatory fields: #{fields.join(', ')}",
           reason: :invalid_response
         )
       end

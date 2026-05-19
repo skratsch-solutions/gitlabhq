@@ -6,12 +6,14 @@ module Authn
 
     belongs_to :user
     belongs_to :application, class_name: 'Authn::OauthApplication',
-      foreign_key: :client_id, primary_key: :uid, inverse_of: false
+      foreign_key: :client_id, primary_key: :uid, inverse_of: false, optional: true
 
     enum :status, { authorized: 0, revoked: 1 }
 
     validates :client_id, presence: true
     validates :consent_challenge, presence: true, uniqueness: true
+    validates :granted_scopes, presence: true
+    validates :requested_scopes, presence: true
     validate :cannot_update_revoked_consent, on: :update
 
     private

@@ -273,13 +273,7 @@ module Gitlab
       end
 
       def code_review_id
-        id = if Feature.enabled?(:diff_blob_metadata_only_for_code_review_id, repository&.project)
-               blob_id
-             else
-               blob&.id
-             end
-
-        Digest::SHA1.hexdigest("#{file_identifier}-#{id}")
+        Digest::SHA1.hexdigest("#{file_identifier}-#{blob_id}")
       end
       strong_memoize_attr :code_review_id
 
