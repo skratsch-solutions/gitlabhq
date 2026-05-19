@@ -1,12 +1,12 @@
 <script>
 import Draggable from '~/lib/utils/vue3compat/draggable_compat.vue';
+import { isDefaultOrganization } from '~/organizations/shared/utils';
 import OrganizationGroupCard from '../organization_group_card.vue';
 import OrganizationCard from '../organization_card.vue';
 import BaseStep from './base_step.vue';
 
 export default {
   name: 'ReconciliationStep2',
-  draggableGroupName: 'organizationGroups',
   components: {
     BaseStep,
     OrganizationCard,
@@ -18,18 +18,60 @@ export default {
       type: Array,
       required: true,
     },
+    initialDefaultOrgGroupIds: {
+      type: Array,
+      required: true,
+    },
   },
   emits: ['update'],
   data() {
     return {
       pendingChanges: {},
+      activeDragGroupId: null,
     };
   },
+  computed: {
+    currentDefaultOrgGroupIds() {
+      const defaultOrg = this.organizations.find(isDefaultOrganization);
+
+      return defaultOrg ? defaultOrg.groups.nodes.map((group) => group.id) : [];
+    },
+    shouldShowDefaultOrganizationDropzone() {
+      if (this.activeDragGroupId) {
+        return this.initialDefaultOrgGroupIds.includes(this.activeDragGroupId);
+      }
+
+      return this.initialDefaultOrgGroupIds.length !== this.currentDefaultOrgGroupIds.length;
+    },
+  },
   methods: {
+    draggableGroup(organization) {
+      if (isDefaultOrganization(organization)) {
+        return {
+          name: 'organizationGroups',
+          pull: true,
+          put: () => this.initialDefaultOrgGroupIds.includes(this.activeDragGroupId),
+        };
+      }
+
+      return 'organizationGroups';
+    },
+    shouldShowDropzone(organization) {
+      if (isDefaultOrganization(organization)) {
+        return this.shouldShowDefaultOrganizationDropzone;
+      }
+
+      return true;
+    },
+    onDraggableStart(organization, { oldIndex }) {
+      this.activeDragGroupId = organization.groups.nodes[oldIndex].id;
+    },
     onDraggableInput(changedOrganization, groups) {
       this.pendingChanges[changedOrganization.id] = groups;
     },
     onDraggableEnd() {
+      this.activeDragGroupId = null;
+
       const updatedOrganizations = this.organizations.map((organization) => {
         const pendingChange = this.pendingChanges[organization.id];
 
@@ -78,10 +120,11 @@ export default {
               class="organizations-reconciliation-draggable gl-flex gl-min-h-11 gl-flex-col gl-gap-4"
               chosen-class="organizations-reconciliation-draggable-chosen"
               :value="organization.groups.nodes"
-              :group="$options.draggableGroupName"
+              :group="draggableGroup(organization)"
               item-key="id"
               :fallback-on-body="true"
               :force-fallback="true"
+              @start="onDraggableStart(organization, $event)"
               @input="onDraggableInput(organization, $event)"
               @end="onDraggableEnd"
             >
@@ -93,6 +136,8 @@ export default {
               />
             </draggable>
             <div
+              v-if="shouldShowDropzone(organization)"
+              data-testid="organization-dropzone"
               class="organizations-reconciliation-draggable-empty-state gl-border-secondary gl-pointer-events-none gl-absolute gl-flex gl-h-11 gl-w-full gl-items-center gl-justify-center gl-rounded-md gl-border-dashed gl-border-strong"
             >
               <p class="gl-m-0 gl-text-secondary">{{ s__('Organization|Drop groups here') }}</p>

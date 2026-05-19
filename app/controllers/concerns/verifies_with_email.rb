@@ -319,6 +319,7 @@ module VerifiesWithEmail
     log_verification(user, verification_result, log_message)
 
     sign_in(user)
+    remember_me(user) if session.delete(:remember_me_before_email_verification)
 
     log_audit_event(current_user, user, with: authentication_method)
     log_user_activity(user)
@@ -336,6 +337,8 @@ module VerifiesWithEmail
 
   def prompt_for_email_verification(user)
     session[:verifies_with_email_user_id] = user.id
+    session[:remember_me_before_email_verification] = Gitlab::Utils.to_boolean(user_params[:remember_me])
+
     self.resource = user
     add_gon_variables # Necessary to set the sprite_icons path, since we skip the ApplicationController before_filters
 

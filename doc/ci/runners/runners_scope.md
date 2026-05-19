@@ -419,7 +419,7 @@ Prerequisites:
 
 - You must have the Owner role for the group.
 
-You can clean up group runners that have been inactive for more than three months.
+You can clean up group runners that have been inactive for more than seven days.
 
 Group runners are those that were created in a specific group.
 

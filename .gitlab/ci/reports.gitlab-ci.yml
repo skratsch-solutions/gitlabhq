@@ -6,6 +6,7 @@ include:
       stage: "lint"
       enable_static_reachability: true
       excluded_paths: "qa/qa/ee/fixtures/secure_premade_reports, spec, ee/spec, tmp, storybook"
+      disabled_resolution_jobs: "gradle,maven,python"
 
 .sast-analyzer:
   # We need to re-`extends` from `sast` as the `extends` here overrides the one from the template.

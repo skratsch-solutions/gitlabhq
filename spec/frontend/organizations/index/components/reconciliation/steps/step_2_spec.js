@@ -9,6 +9,9 @@ import OrganizationCard from '~/organizations/index/components/reconciliation/or
 import OrganizationGroupCard from '~/organizations/index/components/reconciliation/organization_group_card.vue';
 import {
   mockOrganizations,
+  mockGroup,
+  defaultOrgWithGroups,
+  defaultOrgWithoutGroups,
   organizationWithGroupsIndex,
   organizationWithGroups,
   organizationWithoutGroupsIndex,
@@ -22,10 +25,11 @@ describe('ReconciliationStep2', () => {
     wrapper = mountExtended(Step2, {
       propsData: {
         organizations: mockOrganizations,
+        initialDefaultOrgGroupIds: [],
         ...props,
       },
       stubs: {
-        Draggable: stubComponent(Draggable),
+        Draggable: stubComponent(Draggable, { props: ['group'] }),
       },
     });
   };
@@ -36,6 +40,7 @@ describe('ReconciliationStep2', () => {
   const findAllOrganizationCards = () => wrapper.findAllComponents(OrganizationCard);
   const findAllGroupCards = (organizationCard) =>
     organizationCard.findAllComponents(OrganizationGroupCard);
+  const findDropZone = (cardIndex) => findCardAt(cardIndex).findByTestId('organization-dropzone');
 
   it('renders step title', () => {
     createComponent();
@@ -86,17 +91,10 @@ describe('ReconciliationStep2', () => {
   describe('drag and drop', () => {
     const findAllDraggableComponents = () => wrapper.findAllComponents(Draggable);
 
-    it('renders drag and drop group for each organization', () => {
+    it('renders a draggable for each organization', () => {
       createComponent();
 
-      const draggableComponents = findAllDraggableComponents();
-
-      expect(draggableComponents).toHaveLength(mockOrganizations.length);
-      expect(
-        draggableComponents.wrappers.every(
-          (draggable) => draggable.attributes('group') === 'organizationGroups',
-        ),
-      ).toBe(true);
+      expect(findAllDraggableComponents()).toHaveLength(mockOrganizations.length);
     });
 
     describe('when group is moved between organizations', () => {
@@ -136,6 +134,96 @@ describe('ReconciliationStep2', () => {
           });
 
         expect(wrapper.emitted('update')).toEqual([[expectedOrganizations]]);
+      });
+    });
+
+    describe('default organization drop zone', () => {
+      const DEFAULT_ORG_INDEX = 0;
+      const OTHER_ORG_INDEX = 1;
+
+      const startDragFromOrg = async (orgIndex) => {
+        findAllDraggableComponents().at(orgIndex).vm.$emit('start', { oldIndex: 0 });
+        await nextTick();
+      };
+
+      describe('when all initial groups are still in the default organization', () => {
+        beforeEach(() => {
+          createComponent({
+            props: {
+              organizations: [defaultOrgWithGroups, organizationWithoutGroups],
+              initialDefaultOrgGroupIds: [mockGroup.id],
+            },
+          });
+        });
+
+        it('hides the default organization drop zone', () => {
+          expect(findDropZone(DEFAULT_ORG_INDEX).exists()).toBe(false);
+        });
+
+        it('always shows the non default organization drop zone', () => {
+          expect(findDropZone(OTHER_ORG_INDEX).exists()).toBe(true);
+        });
+      });
+
+      describe('when a group has been removed from the default organization', () => {
+        beforeEach(() => {
+          createComponent({
+            props: {
+              organizations: [defaultOrgWithoutGroups, organizationWithGroups],
+              initialDefaultOrgGroupIds: [mockGroup.id],
+            },
+          });
+        });
+
+        it('shows the drop zone', () => {
+          expect(findDropZone(DEFAULT_ORG_INDEX).exists()).toBe(true);
+        });
+      });
+
+      describe('when dragging a group that was originally in the default organization', () => {
+        beforeEach(async () => {
+          createComponent({
+            props: {
+              organizations: [defaultOrgWithoutGroups, organizationWithGroups],
+              initialDefaultOrgGroupIds: [mockGroup.id],
+            },
+          });
+          await startDragFromOrg(OTHER_ORG_INDEX);
+        });
+
+        it('shows the drop zone', () => {
+          expect(findDropZone(DEFAULT_ORG_INDEX).exists()).toBe(true);
+        });
+
+        it('sets the default organization group `put` to true', () => {
+          const defaultOrgDraggable = findAllDraggableComponents().at(DEFAULT_ORG_INDEX);
+          const group = defaultOrgDraggable.props('group');
+
+          expect(group.put()).toBe(true);
+        });
+      });
+
+      describe('when dragging a group that was not originally in the default organization', () => {
+        beforeEach(async () => {
+          createComponent({
+            props: {
+              organizations: [defaultOrgWithoutGroups, organizationWithGroups],
+              initialDefaultOrgGroupIds: [],
+            },
+          });
+          await startDragFromOrg(OTHER_ORG_INDEX);
+        });
+
+        it('hides the drop zone', () => {
+          expect(findDropZone(DEFAULT_ORG_INDEX).exists()).toBe(false);
+        });
+
+        it('sets the default organization group `put` to false', () => {
+          const defaultOrgDraggable = findAllDraggableComponents().at(DEFAULT_ORG_INDEX);
+          const group = defaultOrgDraggable.props('group');
+
+          expect(group.put()).toBe(false);
+        });
       });
     });
   });

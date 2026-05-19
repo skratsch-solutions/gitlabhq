@@ -8,6 +8,7 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
   include EmailHelpers
 
   let(:user) { create(:user) }
+  let(:remember_me_value) { nil }
 
   before do
     allow(Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(false)
@@ -95,6 +96,10 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
       expect(request.session[:verifies_with_email_user_id]).to eq(user.id)
       expect(response).to have_gitlab_http_status(:ok)
       expect(response).to render_template('devise/sessions/email_verification')
+    end
+
+    it 'stores the remember_me value in the session' do
+      expect(request.session[:remember_me_before_email_verification]).to eq(remember_me_value)
     end
   end
 
@@ -275,6 +280,27 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
             end
           end
         end
+
+        context 'when remember_me was set before email verification' do
+          before do
+            stub_session(session_data: {
+              verifies_with_email_user_id: user.id,
+              remember_me_before_email_verification: true
+            })
+          end
+
+          it 'sets a remember_user_token cookie' do
+            submit_token
+            expect(response.cookies['remember_user_token']).to be_present
+          end
+        end
+
+        context 'when remember_me was not set before email verification' do
+          it 'does not set a remember_user_token cookie' do
+            submit_token
+            expect(response.cookies['remember_user_token']).to be_nil
+          end
+        end
       end
 
       context 'when not completing identity verification and logging in with another account' do
@@ -319,6 +345,27 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
         it 'clears the verifies_with_email_user_id session variable' do
           submit_token
           expect(request.session[:verifies_with_email_user_id]).to be_nil
+        end
+
+        context 'when remember_me was set before email verification' do
+          before do
+            stub_session(session_data: {
+              verifies_with_email_user_id: user.id,
+              remember_me_before_email_verification: true
+            })
+          end
+
+          it 'sets a remember_user_token cookie' do
+            submit_token
+            expect(response.cookies['remember_user_token']).to be_present
+          end
+        end
+
+        context 'when remember_me was not set before email verification' do
+          it 'does not set a remember_user_token cookie' do
+            submit_token
+            expect(response.cookies['remember_user_token']).to be_nil
+          end
         end
 
         # Email-based OTP codes are valid for one hour. It is possible
@@ -932,6 +979,20 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
       it 'logs user activity', :freeze_time do
         expect { post(users_skip_verification_for_now_path(user: { login: user.username })) }
           .to change { user.reload.last_activity_on }.to(Date.today)
+      end
+
+      context 'when remember_me was set before email verification' do
+        before do
+          stub_session(session_data: {
+            verifies_with_email_user_id: user.id,
+            remember_me_before_email_verification: true
+          })
+        end
+
+        it 'sets a remember_user_token cookie' do
+          post(users_skip_verification_for_now_path(user: { login: user.username }))
+          expect(response.cookies['remember_user_token']).to be_present
+        end
       end
 
       context 'when user signed in from an unknown remote IP' do

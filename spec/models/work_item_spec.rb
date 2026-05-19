@@ -356,13 +356,11 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
   end
 
   describe '#supports_assignee?' do
-    WorkItems::Type::BASE_TYPES.each_key do |base_type|
+    WorkItems::TypesFramework::SystemDefined::Type::BASE_TYPES.pluck(:base_type).each do |base_type|
       specify do
-        skip if !Gitlab.ee? && [:epic, :requirement, :objective, :test_case, :key_result].include?(base_type)
-
-        work_item = build(:work_item, base_type)
+        work_item = build(:work_item, base_type.to_sym)
         widgets = WorkItems::TypesFramework::SystemDefined::Definitions
-          .const_get(base_type.to_s.camelize, false).widgets
+          .const_get(base_type.camelize, false).widgets
         supports_assignee = widgets.include?('assignees')
 
         expect(work_item.supports_assignee?).to eq(supports_assignee)
@@ -371,13 +369,11 @@ RSpec.describe WorkItem, feature_category: :portfolio_management do
   end
 
   describe '#supports_time_tracking?' do
-    WorkItems::Type::BASE_TYPES.each_key do |base_type|
+    WorkItems::TypesFramework::SystemDefined::Type::BASE_TYPES.pluck(:base_type).each do |base_type|
       specify do
-        skip if !Gitlab.ee? && [:epic, :requirement, :objective, :test_case, :key_result].include?(base_type)
-
-        work_item = build(:work_item, base_type)
+        work_item = build(:work_item, base_type.to_sym)
         widgets = WorkItems::TypesFramework::SystemDefined::Definitions
-          .const_get(base_type.to_s.camelize, false).widgets
+          .const_get(base_type.camelize, false).widgets
         supports_time_tracking = widgets.include?('time_tracking')
 
         expect(work_item.supports_time_tracking?).to eq(supports_time_tracking)

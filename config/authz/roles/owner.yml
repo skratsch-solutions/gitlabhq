@@ -118,6 +118,7 @@ group:
   - provision_secrets_manager
   - read_add_on_purchase
   - read_ai_domain_settings
+  - read_ai_tool_rule
   - read_any_audit_event
   - read_billable_member
   - read_billing
@@ -152,6 +153,7 @@ group:
   - set_show_diff_preview_in_email
   - unban_group_member
   - update_ai_domain_settings
+  - update_ai_tool_rule
   - update_approval_rule
   - update_default_branch_protection
   - update_enterprise_user

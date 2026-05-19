@@ -751,4 +751,4 @@ gem 'gitlab_query_language', '~> 0.27.1', feature_category: :integrations
 gem "zlib", "~> 3.2", ">= 3.2.3", feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/work_items/596593
 
 # Gems required in omnibus-gitlab pipeline
-gem 'license_finder', '~> 7.0', require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
+gem 'license_finder', '~> 7.0', require: false, feature_category: :build
