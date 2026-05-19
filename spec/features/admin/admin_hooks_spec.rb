@@ -53,7 +53,7 @@ RSpec.describe 'Admin::Hooks', feature_category: :webhooks do
       fill_in 'URL', with: url
       check 'Enable SSL verification'
 
-      expect { click_button 'Add webhook' }.to change(SystemHook, :count).by(1)
+      expect { click_button 'Add webhook' }.to change { SystemHook.count }.by(1)
       expect(page).to have_content 'SSL Verification: enabled'
       expect(page).to have_current_path(admin_hooks_path, ignore_query: true)
       expect(page).to have_content(url)
@@ -133,7 +133,7 @@ RSpec.describe 'Admin::Hooks', feature_category: :webhooks do
         uncheck 'Repository update events'
         check 'Merge request events'
 
-        expect { click_button 'Add webhook' }.to change(SystemHook, :count).by(1)
+        expect { click_button 'Add webhook' }.to change { SystemHook.count }.by(1)
         expect(page).to have_current_path(admin_hooks_path, ignore_query: true)
         expect(page).to have_content(url)
       end

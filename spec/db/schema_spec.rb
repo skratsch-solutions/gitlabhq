@@ -231,7 +231,7 @@ RSpec.describe 'Database schema',
       vulnerability_representation_information: %w[vulnerability_occurrence_id], # foreign key will be added at a later date
       vulnerability_user_mentions: %w[vulnerability_occurrence_id], # foreign key will be added at a later date
       vulnerability_state_transitions: %w[vulnerability_occurrence_id], # foreign key will be added at a later date
-      security_scans: %w[pipeline_id project_id], # foreign key is not added as ci_pipeline table will be moved into different db soon
+      security_scans: %w[pipeline_id project_id scanner_external_id], # pipeline_id/project_id: ci_pipeline table moving to different db; scanner_external_id: denormalized text identifier, no FK target
       dependency_list_exports: %w[pipeline_id], # foreign key is not added as ci_pipeline table is in different db
       vulnerability_archived_records: %w[archive_id], # having a FK on this table prevents partitions from being detached. See: https://gitlab.com/gitlab-org/gitlab/-/issues/547116
       backup_finding_evidences: %w[finding_id], # having a FK on this table prevents partitions from being detached

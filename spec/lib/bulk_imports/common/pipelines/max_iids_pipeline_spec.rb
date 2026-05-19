@@ -28,7 +28,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
   end
 
   describe '#transform' do
-    let_it_be(:entity) do
+    let_it_be(:entity, freeze: false) do
       create(
         :bulk_import_entity,
         :project_entity,
@@ -44,7 +44,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 
-    let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+    let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
     subject(:pipeline) { described_class.new(context) }
 
@@ -102,7 +102,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
   end
 
   context 'with a project entity' do
-    let_it_be(:entity) do
+    let_it_be(:entity, freeze: false) do
       create(
         :bulk_import_entity,
         :project_entity,
@@ -118,7 +118,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 
-    let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+    let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
     subject(:pipeline) { described_class.new(context) }
 
@@ -163,7 +163,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
   end
 
   context 'with a group entity' do
-    let_it_be(:entity) do
+    let_it_be(:entity, freeze: false) do
       create(
         :bulk_import_entity,
         group: group,
@@ -178,7 +178,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 
-    let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+    let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
     subject(:pipeline) { described_class.new(context) }
 

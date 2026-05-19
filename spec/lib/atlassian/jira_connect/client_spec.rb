@@ -7,7 +7,7 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
 
   subject(:client) { described_class.new('https://gitlab-test.atlassian.net', 'sample_secret') }
 
-  let_it_be(:project) { create_default(:project, :repository) }
+  let_it_be(:project, freeze: false) { create_default(:project, :repository) }
   let_it_be(:mrs_by_title) { create_list(:merge_request, 4, :unique_branches, :jira_title) }
   let_it_be(:mrs_by_branch) { create_list(:merge_request, 2, :jira_branch) }
   let_it_be(:red_herrings) { create_list(:merge_request, 1, :unique_branches) }
@@ -585,7 +585,7 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
   end
 
   describe '#store_ff_info' do
-    let_it_be(:feature_flags) { create_list(:operations_feature_flag, 3, project: project) }
+    let_it_be(:feature_flags, freeze: false) { create_list(:operations_feature_flag, 3, project: project) }
 
     let(:schema) do
       Atlassian::Schemata.ff_info_payload
@@ -724,7 +724,7 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
   end
 
   describe '#store_dev_info' do
-    let_it_be(:merge_requests) { create_list(:merge_request, 2, :unique_branches, source_project: project) }
+    let_it_be(:merge_requests, freeze: false) { create_list(:merge_request, 2, :unique_branches, source_project: project) }
 
     before do
       path = '/rest/devinfo/0.10/bulk'
@@ -752,7 +752,7 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
   end
 
   describe '#remove_branch_info' do
-    let_it_be(:merge_requests) { create_list(:merge_request, 2, :unique_branches, source_project: project) }
+    let_it_be(:merge_requests, freeze: false) { create_list(:merge_request, 2, :unique_branches, source_project: project) }
     let(:branch_name) { merge_requests.first.source_branch }
     let(:jira_branch_id) { Digest::SHA256.hexdigest(branch_name) }
     let(:additional_headers) do

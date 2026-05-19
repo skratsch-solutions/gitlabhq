@@ -7,7 +7,7 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
   include SearchHelpers
 
   let_it_be(:user) { create(:user, username: 'foobar') }
-  let_it_be(:project) { create(:project, name: 'foo') }
+  let_it_be(:project, freeze: false) { create(:project, name: 'foo') }
   let_it_be(:issue) { create(:issue, project: project, title: 'foo') }
   let_it_be(:milestone) { create(:milestone, project: project, title: 'foo') }
 

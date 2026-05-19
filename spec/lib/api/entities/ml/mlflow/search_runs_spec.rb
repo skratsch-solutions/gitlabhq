@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe API::Entities::Ml::Mlflow::SearchRuns, feature_category: :mlops do
-  let_it_be(:candidates) { [create(:ml_candidates, :with_metrics_and_params), create(:ml_candidates)] }
+  let_it_be(:candidates, freeze: false) { [create(:ml_candidates, :with_metrics_and_params), create(:ml_candidates)] }
   let_it_be(:metrics) { candidates[0].latest_metrics }
   let(:next_page_token) { 'abcdef' }
 

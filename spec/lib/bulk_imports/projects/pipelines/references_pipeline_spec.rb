@@ -7,7 +7,7 @@ RSpec.describe BulkImports::Projects::Pipelines::ReferencesPipeline, feature_cat
   let_it_be(:project) { create(:project) }
   let_it_be(:bulk_import) { create(:bulk_import, user: user) }
 
-  let_it_be(:entity) do
+  let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,
       :project_entity,
@@ -18,7 +18,7 @@ RSpec.describe BulkImports::Projects::Pipelines::ReferencesPipeline, feature_cat
   end
 
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let_it_be(:issue) { create(:issue, project: project) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project) }

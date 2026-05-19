@@ -1012,13 +1012,13 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
         it 'updates when the service allows access' do
           external_service_allow_access(user, project)
 
-          expect { subject }.to change(project, :description)
+          expect { subject }.to change { project.description }
         end
 
         it 'does not update when the service rejects access' do
           external_service_deny_access(user, project)
 
-          expect { subject }.not_to change(project, :description)
+          expect { subject }.not_to change { project.description }
         end
       end
     end

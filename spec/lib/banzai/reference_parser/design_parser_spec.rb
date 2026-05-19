@@ -6,7 +6,7 @@ RSpec.describe Banzai::ReferenceParser::DesignParser, feature_category: :design_
   include ReferenceParserHelpers
   include DesignManagementTestHelpers
 
-  let_it_be(:issue) { create(:issue) }
+  let_it_be(:issue, freeze: false) { create(:issue) }
   let_it_be(:design) { create(:design, :with_versions, issue: issue) }
   let_it_be(:user) { create(:user, developer_of: issue.project) }
   let(:link) { design_link(design) }

@@ -150,7 +150,7 @@ export default {
     <button
       :id="`menu-section-button-${itemId}`"
       v-outside="handleClickOutside"
-      class="super-sidebar-nav-item gl-relative gl-mb-1 gl-flex gl-w-full gl-appearance-none gl-items-center gl-gap-3 gl-rounded-base gl-border-0 gl-bg-transparent gl-px-2 gl-py-1 gl-text-left !gl-text-default !gl-no-underline focus:gl-focus"
+      class="application-chrome-nav-item super-sidebar-nav-item gl-relative gl-mb-1 gl-flex gl-w-full gl-appearance-none gl-items-center gl-gap-3 gl-rounded-base gl-border-0 gl-bg-transparent gl-px-2 gl-py-1 gl-text-left !gl-text-default !gl-no-underline focus:gl-focus"
       :class="computedLinkClasses"
       data-testid="menu-section-button"
       :data-qa-section-name="item.title"

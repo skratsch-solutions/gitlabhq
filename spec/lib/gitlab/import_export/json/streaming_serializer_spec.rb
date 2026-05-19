@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::ImportExport::Json::StreamingSerializer, :clean_gitlab_redis_shared_state, feature_category: :importers do
   let_it_be(:user) { create(:user) }
-  let_it_be(:release) { create(:release) }
+  let_it_be(:release, freeze: false) { create(:release) }
 
   let_it_be_with_reload(:exportable) do
     create(:project,

@@ -6,7 +6,7 @@ RSpec.describe API::Entities::Tag, feature_category: :source_code_management do
   describe '#as_json' do
     subject { entity.as_json }
 
-    let_it_be(:project) { create(:project, :public, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
     let_it_be(:repository) { project.repository }
     let_it_be(:user) { create(:user) }
 

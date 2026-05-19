@@ -7,7 +7,7 @@ RSpec.describe BulkImports::Projects::Pipelines::AutoDevopsPipeline, feature_cat
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:bulk_import) { create(:bulk_import, user: user) }
-  let_it_be(:entity) do
+  let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,
       :project_entity,
@@ -20,7 +20,7 @@ RSpec.describe BulkImports::Projects::Pipelines::AutoDevopsPipeline, feature_cat
   end
 
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let(:auto_devops) do
     {

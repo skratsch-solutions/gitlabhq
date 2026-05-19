@@ -6,7 +6,7 @@ RSpec.describe BulkImports::Projects::Pipelines::ProjectFeaturePipeline, feature
   let_it_be(:project) { create(:project) }
   let_it_be(:entity) { create(:bulk_import_entity, :project_entity, project: project) }
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
   let_it_be(:project_feature) do
     {
       builds_access_level: 10,

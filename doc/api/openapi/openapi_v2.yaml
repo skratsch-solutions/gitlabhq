@@ -73888,6 +73888,28 @@ definitions:
         type: string
       vulnerability_export_uploads_oldest_unsynced_time:
         type: string
+      user_permission_export_upload_uploads_count:
+        type: string
+      user_permission_export_upload_uploads_checksum_total_count:
+        type: string
+      user_permission_export_upload_uploads_checksummed_count:
+        type: string
+      user_permission_export_upload_uploads_checksum_failed_count:
+        type: string
+      user_permission_export_upload_uploads_synced_count:
+        type: string
+      user_permission_export_upload_uploads_failed_count:
+        type: string
+      user_permission_export_upload_uploads_registry_count:
+        type: string
+      user_permission_export_upload_uploads_verification_total_count:
+        type: string
+      user_permission_export_upload_uploads_verified_count:
+        type: string
+      user_permission_export_upload_uploads_verification_failed_count:
+        type: string
+      user_permission_export_upload_uploads_oldest_unsynced_time:
+        type: string
       bulk_import_export_upload_uploads_count:
         type: string
       bulk_import_export_upload_uploads_checksum_total_count:
@@ -74207,6 +74229,10 @@ definitions:
       vulnerability_export_uploads_synced_in_percentage:
         type: string
       vulnerability_export_uploads_verified_in_percentage:
+        type: string
+      user_permission_export_upload_uploads_synced_in_percentage:
+        type: string
+      user_permission_export_upload_uploads_verified_in_percentage:
         type: string
       bulk_import_export_upload_uploads_synced_in_percentage:
         type: string
@@ -74550,6 +74576,17 @@ definitions:
     - vulnerability_export_uploads_verified_count
     - vulnerability_export_uploads_verification_failed_count
     - vulnerability_export_uploads_oldest_unsynced_time
+    - user_permission_export_upload_uploads_count
+    - user_permission_export_upload_uploads_checksum_total_count
+    - user_permission_export_upload_uploads_checksummed_count
+    - user_permission_export_upload_uploads_checksum_failed_count
+    - user_permission_export_upload_uploads_synced_count
+    - user_permission_export_upload_uploads_failed_count
+    - user_permission_export_upload_uploads_registry_count
+    - user_permission_export_upload_uploads_verification_total_count
+    - user_permission_export_upload_uploads_verified_count
+    - user_permission_export_upload_uploads_verification_failed_count
+    - user_permission_export_upload_uploads_oldest_unsynced_time
     - bulk_import_export_upload_uploads_count
     - bulk_import_export_upload_uploads_checksum_total_count
     - bulk_import_export_upload_uploads_checksummed_count
@@ -74710,6 +74747,8 @@ definitions:
     - vulnerability_archive_export_uploads_verified_in_percentage
     - vulnerability_export_uploads_synced_in_percentage
     - vulnerability_export_uploads_verified_in_percentage
+    - user_permission_export_upload_uploads_synced_in_percentage
+    - user_permission_export_upload_uploads_verified_in_percentage
     - bulk_import_export_upload_uploads_synced_in_percentage
     - bulk_import_export_upload_uploads_verified_in_percentage
     - project_import_export_relation_export_upload_uploads_synced_in_percentage

@@ -10,9 +10,9 @@ RSpec.describe Banzai::Filter::References::WikiPageReferenceFilter, feature_cate
   let_it_be(:cross_namespace) { create(:namespace, name: 'cross-namespace') }
   let_it_be(:project) { create(:project, :public, namespace: namespace) }
   let_it_be(:cross_project) { create(:project, :public, namespace: cross_namespace, path: 'cross-project') }
-  let_it_be(:wiki) { ProjectWiki.new(project, user) }
+  let_it_be(:wiki, freeze: false) { ProjectWiki.new(project, user) }
   let_it_be(:wiki_page) { create(:wiki_page, wiki: wiki, title: 'nested/twice/start-page') }
-  let_it_be(:cross_wiki) { ProjectWiki.new(cross_project, user) }
+  let_it_be(:cross_wiki, freeze: false) { ProjectWiki.new(cross_project, user) }
   let_it_be_with_reload(:cross_wiki_page) { create(:wiki_page, wiki: cross_wiki, title: 'nested/twice/start-page') }
 
   shared_examples 'a wiki page reference' do

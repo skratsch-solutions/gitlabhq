@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe Gitlab::Git::Diff, feature_category: :source_code_management do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:repository) { project.repository }
 
   let(:gitaly_diff) do
@@ -405,7 +405,7 @@ DIFF
   end
 
   describe '#unidiff' do
-    let_it_be(:project) { create(:project, :empty_repo) }
+    let_it_be(:project, freeze: false) { create(:project, :empty_repo) }
     let_it_be(:repository) { project.repository }
     let_it_be(:user) { project.first_owner }
 

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe BulkImports::Groups::Graphql::GetGroupQuery, feature_category: :importers do
-  let_it_be(:tracker) { create(:bulk_import_tracker) }
+  let_it_be(:tracker, freeze: false) { create(:bulk_import_tracker) }
   let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
 
   subject(:query) { described_class.new(context: context) }

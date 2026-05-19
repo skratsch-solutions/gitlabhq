@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe BulkImports::Projects::Transformers::ProjectAttributesTransformer, feature_category: :importers do
   describe '#transform' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:bulk_import) { create(:bulk_import, user: user) }
+    let_it_be(:bulk_import, freeze: false) { create(:bulk_import, user: user) }
 
     let(:entity) do
       create(

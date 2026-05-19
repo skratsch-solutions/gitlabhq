@@ -11,7 +11,10 @@ RSpec.describe Gitlab::Analytics::CycleAnalytics::Aggregated::BaseQueryBuilder d
   let_it_be(:label_1) { create(:label, project: project) }
   let_it_be(:label_2) { create(:label, project: project) }
 
-  let_it_be(:issue_1) { create(:issue, project: project, author: project.creator, labels: [label_1, label_2]) }
+  let_it_be(:issue_1, freeze: false) do
+    create(:issue, project: project, author: project.creator, labels: [label_1, label_2])
+  end
+
   let_it_be(:issue_2) { create(:issue, project: project, milestone: milestone, assignees: [user_1]) }
   let_it_be(:issue_3) { create(:issue, project: project) }
   let_it_be(:issue_outside_project) { create(:issue) }

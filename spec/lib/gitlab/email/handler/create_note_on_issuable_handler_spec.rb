@@ -7,7 +7,7 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteOnIssuableHandler do
 
   let_it_be(:user)      { create(:user, email: 'jake@adventuretime.ooo', incoming_email_token: 'auth_token') }
   let_it_be(:namespace) { create(:namespace, path: 'gitlabhq') }
-  let_it_be(:project)   { create(:project, :public, namespace: namespace, path: 'gitlabhq') }
+  let_it_be(:project, freeze: false) { create(:project, :public, namespace: namespace, path: 'gitlabhq') }
 
   let!(:noteable) { create(:issue, project: project) }
   let(:email_raw) { email_fixture('emails/valid_note_on_issuable.eml') }

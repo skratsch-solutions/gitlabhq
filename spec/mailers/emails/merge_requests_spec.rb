@@ -12,7 +12,7 @@ RSpec.describe Emails::MergeRequests do
   let_it_be(:assignee, reload: true) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
   let_it_be(:reviewer, reload: true) { create(:user, email: 'reviewer@example.com', name: 'Jane Doe') }
   let_it_be(:project) { create(:project, :repository) }
-  let_it_be(:merge_request) do
+  let_it_be(:merge_request, freeze: false) do
     create(
       :merge_request,
       source_project: project,

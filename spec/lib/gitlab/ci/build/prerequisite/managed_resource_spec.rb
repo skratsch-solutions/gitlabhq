@@ -8,8 +8,8 @@ RSpec.describe Gitlab::Ci::Build::Prerequisite::ManagedResource, feature_categor
     let_it_be(:agent_management_project) { create(:project, :private, :repository, group: organization) }
     let_it_be(:cluster_agent) { create(:cluster_agent, project: agent_management_project) }
 
-    let_it_be(:deployment_project) { create(:project, :private, :repository, group: organization) }
-    let_it_be(:environment) do
+    let_it_be(:deployment_project, freeze: false) { create(:project, :private, :repository, group: organization) }
+    let_it_be(:environment, freeze: false) do
       create(:environment, project: deployment_project, cluster_agent: cluster_agent)
     end
 
@@ -161,8 +161,11 @@ RSpec.describe Gitlab::Ci::Build::Prerequisite::ManagedResource, feature_categor
     let_it_be(:agent_management_project) { create(:project, :private, :repository) }
     let_it_be(:cluster_agent) { create(:cluster_agent, project: agent_management_project) }
 
-    let_it_be(:deployment_project) { create(:project, :private, :repository) }
-    let_it_be(:environment) { create(:environment, project: deployment_project, cluster_agent: cluster_agent) }
+    let_it_be(:deployment_project, freeze: false) { create(:project, :private, :repository) }
+    let_it_be(:environment, freeze: false) do
+      create(:environment, project: deployment_project, cluster_agent: cluster_agent)
+    end
+
     let_it_be(:user) { create(:user) }
     let_it_be(:deployment) { create(:deployment, environment: environment, user: user) }
     let!(:build) do

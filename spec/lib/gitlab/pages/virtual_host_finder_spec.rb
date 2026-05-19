@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::Pages::VirtualHostFinder, feature_category: :pages do
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, namespace: group) }
+  let_it_be(:project, freeze: false) { create(:project, namespace: group) }
 
   before do
     stub_pages_setting(host: 'example.com')

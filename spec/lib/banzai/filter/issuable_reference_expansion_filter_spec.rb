@@ -6,7 +6,7 @@ RSpec.describe Banzai::Filter::IssuableReferenceExpansionFilter, feature_categor
   include FilterSpecHelper
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, :public) }
+  let_it_be(:project, freeze: false) { create(:project, :public) }
   let_it_be(:group) { create(:group) }
   let_it_be(:other_project) { create(:project, :public) }
   let_it_be(:closed_issue) { create_issue(:closed) }

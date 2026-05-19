@@ -15652,6 +15652,9 @@ msgstr ""
 msgid "CiCatalog|GitLab-maintained"
 msgstr ""
 
+msgid "CiCatalog|Group"
+msgstr ""
+
 msgid "CiCatalog|How do I publish a component?"
 msgstr ""
 
@@ -15755,6 +15758,9 @@ msgid "CiCatalog|There was a problem fetching the CI/CD Catalog setting."
 msgstr ""
 
 msgid "CiCatalog|There was an error fetching CI/CD Catalog projects."
+msgstr ""
+
+msgid "CiCatalog|There was an error fetching groups."
 msgstr ""
 
 msgid "CiCatalog|There was an error fetching the CI/CD Catalog project count."
@@ -17635,6 +17641,12 @@ msgid "CodeReviewCommentsSentimentChart|👍 Approval rate"
 msgstr ""
 
 msgid "CodeReviewCommentsSentimentChart|👎 Disapproval rate"
+msgstr ""
+
+msgid "CodeReviewEnabledByDefaultAlertComponent|Automated code review is enabled"
+msgstr ""
+
+msgid "CodeReviewEnabledByDefaultAlertComponent|Code Review flow automatically reviews your merge requests to help you ship better code, faster."
 msgstr ""
 
 msgid "CodeReviewRequestsByRoleChart|Requests by authors"
@@ -33430,6 +33442,12 @@ msgid "Geo|Upload"
 msgstr ""
 
 msgid "Geo|Uploads"
+msgstr ""
+
+msgid "Geo|User Permission Export File Upload"
+msgstr ""
+
+msgid "Geo|User Permission Export File Uploads"
 msgstr ""
 
 msgid "Geo|User Upload"
@@ -78904,6 +78922,9 @@ msgid "Update failed"
 msgstr ""
 
 msgid "Update framework"
+msgstr ""
+
+msgid "Update group settings"
 msgstr ""
 
 msgid "Update it"

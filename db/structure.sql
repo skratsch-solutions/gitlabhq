@@ -5422,6 +5422,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_fa69822b05a9() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."uploaded_by_user_id" IS NULL THEN
+  SELECT "uploaded_by_user_id"
+  INTO NEW."uploaded_by_user_id"
+  FROM "user_permission_export_upload_uploads"
+  WHERE "user_permission_export_upload_uploads"."id" = NEW."user_permission_export_upload_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_fac444e0cae6() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -19531,8 +19547,8 @@ CREATE TABLE dependency_list_export_uploads (
     mount_point text,
     secret text,
     CONSTRAINT check_2849dedce7 CHECK ((char_length(path) <= 511)),
-    CONSTRAINT check_889220aa2d CHECK ((num_nonnulls(namespace_id, organization_id, project_id) > 0)),
-    CONSTRAINT check_b888b1df14 CHECK ((char_length(checksum) <= 64))
+    CONSTRAINT check_b888b1df14 CHECK ((char_length(checksum) <= 64)),
+    CONSTRAINT check_dependency_list_export_uploads_sharding_key_eq_1 CHECK ((num_nonnulls(namespace_id, organization_id, project_id) = 1))
 );
 
 CREATE TABLE dependency_list_exports (
@@ -30542,7 +30558,9 @@ CREATE TABLE security_scans (
     latest boolean DEFAULT true NOT NULL,
     status smallint DEFAULT 0 NOT NULL,
     findings_partition_number integer DEFAULT 1 NOT NULL,
-    CONSTRAINT check_2d56d882f6 CHECK ((project_id IS NOT NULL))
+    scanner_external_id text,
+    CONSTRAINT check_2d56d882f6 CHECK ((project_id IS NOT NULL)),
+    CONSTRAINT check_71e080895f CHECK ((char_length(scanner_external_id) <= 255))
 );
 
 CREATE SEQUENCE security_scans_id_seq
@@ -32120,6 +32138,29 @@ CREATE SEQUENCE user_namespace_callouts_id_seq
     CACHE 1;
 
 ALTER SEQUENCE user_namespace_callouts_id_seq OWNED BY user_namespace_callouts.id;
+
+CREATE TABLE user_permission_export_upload_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    user_permission_export_upload_upload_id bigint NOT NULL,
+    uploaded_by_user_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_f24cdc0bad CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE user_permission_export_upload_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE user_permission_export_upload_upload_states_id_seq OWNED BY user_permission_export_upload_upload_states.id;
 
 CREATE TABLE user_permission_export_upload_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
@@ -37125,6 +37166,8 @@ ALTER TABLE ONLY user_member_roles ALTER COLUMN id SET DEFAULT nextval('user_mem
 
 ALTER TABLE ONLY user_namespace_callouts ALTER COLUMN id SET DEFAULT nextval('user_namespace_callouts_id_seq'::regclass);
 
+ALTER TABLE ONLY user_permission_export_upload_upload_states ALTER COLUMN id SET DEFAULT nextval('user_permission_export_upload_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY user_permission_export_uploads ALTER COLUMN id SET DEFAULT nextval('user_permission_export_uploads_id_seq'::regclass);
 
 ALTER TABLE ONLY user_preferences ALTER COLUMN id SET DEFAULT nextval('user_preferences_id_seq'::regclass);
@@ -41436,6 +41479,9 @@ ALTER TABLE ONLY user_member_roles
 ALTER TABLE ONLY user_namespace_callouts
     ADD CONSTRAINT user_namespace_callouts_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY user_permission_export_upload_upload_states
+    ADD CONSTRAINT user_permission_export_upload_upload_states_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY user_permission_export_upload_uploads
     ADD CONSTRAINT user_permission_export_upload_uploads_pkey PRIMARY KEY (id, model_type);
 
@@ -45283,7 +45329,7 @@ CREATE UNIQUE INDEX idx_security_scan_profile_proj_statuses_on_project_and_profi
 
 CREATE INDEX idx_security_scan_profiles_projects_on_security_scan_profile_id ON security_scan_profiles_projects USING btree (security_scan_profile_id);
 
-CREATE UNIQUE INDEX idx_security_scans_on_build_and_scan_type ON security_scans USING btree (build_id, scan_type);
+CREATE UNIQUE INDEX idx_security_scans_on_build_scan_type_and_scanner ON security_scans USING btree (build_id, scan_type, scanner_external_id) NULLS NOT DISTINCT;
 
 CREATE INDEX idx_security_scans_on_scan_type ON security_scans USING btree (scan_type);
 
@@ -45362,6 +45408,22 @@ CREATE INDEX idx_user_details_on_provisioned_by_group_id_user_id ON user_details
 CREATE INDEX idx_user_member_roles_on_member_role_id ON user_member_roles USING btree (member_role_id);
 
 CREATE UNIQUE INDEX idx_user_member_roles_on_user_id_unique ON user_member_roles USING btree (user_id);
+
+CREATE INDEX idx_user_permission_export_upload_states_failed_verification ON user_permission_export_upload_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_user_permission_export_upload_states_needs_verification_id ON user_permission_export_upload_upload_states USING btree (user_permission_export_upload_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX idx_user_permission_export_upload_states_on_upe_upload_id ON user_permission_export_upload_upload_states USING btree (user_permission_export_upload_upload_id);
+
+CREATE INDEX idx_user_permission_export_upload_states_on_uploaded_by_user_id ON user_permission_export_upload_upload_states USING btree (uploaded_by_user_id);
+
+CREATE INDEX idx_user_permission_export_upload_states_on_verification_state ON user_permission_export_upload_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_user_permission_export_upload_states_pending_verification ON user_permission_export_upload_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE INDEX idx_user_permission_export_upload_states_verification_started ON user_permission_export_upload_upload_states USING btree (user_permission_export_upload_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE UNIQUE INDEX idx_user_permission_export_upload_uploads_on_id ON user_permission_export_upload_uploads USING btree (id);
 
 CREATE INDEX idx_user_preferences_on_knowledge_graph_governing_namespace_id ON user_preferences USING btree (knowledge_graph_governing_namespace_id);
 
@@ -46216,6 +46278,8 @@ CREATE INDEX index_bulk_import_export_uploads_on_project_id ON bulk_import_expor
 CREATE INDEX index_bulk_import_exports_on_group_id ON bulk_import_exports USING btree (group_id);
 
 CREATE INDEX index_bulk_import_exports_on_offline_export_id_and_relation ON bulk_import_exports USING btree (offline_export_id, relation);
+
+CREATE INDEX index_bulk_import_exports_on_offline_export_id_and_status ON bulk_import_exports USING btree (offline_export_id, status) WHERE (offline_export_id IS NOT NULL);
 
 CREATE INDEX index_bulk_import_exports_on_project_id ON bulk_import_exports USING btree (project_id);
 
@@ -55917,6 +55981,8 @@ CREATE TRIGGER trigger_f6f59d8216b3 BEFORE INSERT OR UPDATE ON protected_environ
 
 CREATE TRIGGER trigger_f7464057d53e BEFORE INSERT OR UPDATE ON abuse_reports FOR EACH ROW EXECUTE FUNCTION trigger_f7464057d53e();
 
+CREATE TRIGGER trigger_fa69822b05a9 BEFORE INSERT OR UPDATE ON user_permission_export_upload_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_fa69822b05a9();
+
 CREATE TRIGGER trigger_fac444e0cae6 BEFORE INSERT OR UPDATE ON design_management_designs_versions FOR EACH ROW EXECUTE FUNCTION trigger_fac444e0cae6();
 
 CREATE TRIGGER trigger_fbd42ed69453 BEFORE INSERT OR UPDATE ON external_status_checks_protected_branches FOR EACH ROW EXECUTE FUNCTION trigger_fbd42ed69453();
@@ -56913,6 +56979,9 @@ ALTER TABLE ONLY security_policy_requirements
 
 ALTER TABLE ONLY audit_events_google_cloud_logging_configurations
     ADD CONSTRAINT fk_4601829756 FOREIGN KEY (stream_destination_id) REFERENCES audit_events_group_external_streaming_destinations(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY user_permission_export_upload_upload_states
+    ADD CONSTRAINT fk_47faf4aabf FOREIGN KEY (user_permission_export_upload_upload_id) REFERENCES user_permission_export_upload_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY releases
     ADD CONSTRAINT fk_47fe2a0596 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58413,6 +58482,9 @@ ALTER TABLE ONLY todos
 
 ALTER TABLE ONLY packages_debian_project_architectures
     ADD CONSTRAINT fk_cd96fce0a1 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY user_permission_export_upload_upload_states
+    ADD CONSTRAINT fk_cda50402b9 FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY ai_catalog_mcp_servers
     ADD CONSTRAINT fk_cdae3de8e1 FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE SET NULL;

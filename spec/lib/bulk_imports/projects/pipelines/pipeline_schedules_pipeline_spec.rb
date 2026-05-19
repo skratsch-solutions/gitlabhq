@@ -7,7 +7,7 @@ RSpec.describe BulkImports::Projects::Pipelines::PipelineSchedulesPipeline, :cle
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:bulk_import) { create(:bulk_import, :with_configuration, user: user) }
-  let_it_be(:entity) do
+  let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,
       :project_entity,
@@ -20,7 +20,7 @@ RSpec.describe BulkImports::Projects::Pipelines::PipelineSchedulesPipeline, :cle
   end
 
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let(:importer_user_mapping_enabled) { false }
   let(:schedule_attributes) { {} }

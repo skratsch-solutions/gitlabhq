@@ -650,7 +650,7 @@ export const generateMockDownstreamPipeline = ({ id = '100', status = 'RUNNING' 
   },
   sourceJob: {
     id: `gid://gitlab/Ci::Build/${id}`,
-    name: `trigger-job-${id}`,
+
     retried: false,
     __typename: 'CiBuild',
   },
@@ -680,6 +680,25 @@ export const generateMockDownstreamResponse = (pipelinesWithDownstream = []) => 
     },
   },
 });
+
+export const mockDownstreamPipelineUpdateResponse = {
+  data: {
+    ciPipelineStatusUpdated: {
+      id: 'gid://gitlab/Ci::Pipeline/100',
+      detailedStatus: {
+        id: 'success-100-100',
+        name: 'SUCCESS',
+        icon: 'status_success',
+        text: 'Passed',
+        detailsPath: '/root/ci-project/-/pipelines/100',
+        tooltip: 'passed',
+        label: 'passed',
+        __typename: 'DetailedStatus',
+      },
+      __typename: 'Pipeline',
+    },
+  },
+};
 
 export const generateSinglePipelineResponse = (pipeline) => ({
   data: {

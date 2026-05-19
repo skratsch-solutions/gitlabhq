@@ -8,7 +8,7 @@ RSpec.describe BulkImports::Common::Pipelines::WikiPipeline, feature_category: :
     let_it_be(:bulk_import) { create(:bulk_import, user: user) }
     let_it_be(:parent) { create(:project) }
 
-    let_it_be(:entity) do
+    let_it_be(:entity, freeze: false) do
       create(
         :bulk_import_entity,
         :project_entity,

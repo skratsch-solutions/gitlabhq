@@ -16,6 +16,7 @@ title: Merge request reports
 {{< history >}}
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/20406) in GitLab 19.0 [with a flag](../../../administration/feature_flags/_index.md) named `mr_reports_tab`. Disabled by default.
+- [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234820) in GitLab 19.1.
 
 {{< /history >}}
 

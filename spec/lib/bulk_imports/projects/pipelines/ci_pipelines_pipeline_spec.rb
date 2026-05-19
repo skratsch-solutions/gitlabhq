@@ -7,7 +7,7 @@ RSpec.describe BulkImports::Projects::Pipelines::CiPipelinesPipeline, feature_ca
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:bulk_import) { create(:bulk_import, :with_configuration, user: user) }
-  let_it_be(:entity) do
+  let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,
       :project_entity,

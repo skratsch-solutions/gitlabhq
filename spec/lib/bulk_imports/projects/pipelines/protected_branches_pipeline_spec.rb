@@ -6,9 +6,9 @@ RSpec.describe BulkImports::Projects::Pipelines::ProtectedBranchesPipeline, feat
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project) }
   let_it_be(:bulk_import) { create(:bulk_import, user: user) }
-  let_it_be(:entity) { create(:bulk_import_entity, :project_entity, project: project, bulk_import: bulk_import) }
+  let_it_be(:entity, freeze: false) { create(:bulk_import_entity, :project_entity, project: project, bulk_import: bulk_import) }
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
   let_it_be(:protected_branch) do
     {
       'name' => 'main',

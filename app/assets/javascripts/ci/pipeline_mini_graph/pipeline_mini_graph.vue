@@ -111,6 +111,7 @@ export default {
       :pipelines="latestDownstreamPipelines"
       :pipeline-path="pipelinePath"
       data-testid="pipeline-mini-graph-downstream"
+      @job-action-executed="$emit('job-action-executed')"
     />
   </div>
 </template>

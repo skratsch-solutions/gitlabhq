@@ -274,7 +274,7 @@ export default {
     <gl-button
       v-if="showWhatsNewTopMenu"
       v-gl-tooltip.right="isIconOnly ? $options.i18n.whatsnew : ''"
-      class="super-sidebar-whats-new super-sidebar-nav-item gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5"
+      class="application-chrome-nav-item super-sidebar-nav-item gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5"
       category="tertiary"
       icon="compass"
       data-testid="sidebar-whatsnew-button"
@@ -291,12 +291,11 @@ export default {
       {{ $options.i18n.whatsnew }}
 
       <gl-badge
-        variant="neutral"
         aria-hidden="true"
         data-testid="notification-count"
-        class="gl-mr-1"
+        class="super-sidebar-whats-new-badge"
       >
-        <span class="gl-m-1 gl-min-w-3">
+        <span class="gl-m-1 gl-min-w-3 gl-text-center gl-text-sm">
           {{ whatsNewMostRecentReleaseUnreadCount }}
         </span>
       </gl-badge>
@@ -314,7 +313,7 @@ export default {
           v-gl-tooltip.right="isIconOnly ? $options.i18n.help : ''"
           category="tertiary"
           icon="question-o"
-          class="super-sidebar-help-center-toggle super-sidebar-nav-item btn-with-notification gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5 !gl-py-2"
+          class="application-chrome-nav-item super-sidebar-help-center-toggle super-sidebar-nav-item btn-with-notification gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5 !gl-py-2"
           :button-text-classes="{ '!gl-text-default': !isIconOnly, 'gl-hidden': isIconOnly }"
           :aria-label="$options.i18n.help"
           data-testid="sidebar-help-button"

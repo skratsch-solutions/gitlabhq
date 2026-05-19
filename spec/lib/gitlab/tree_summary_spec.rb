@@ -300,7 +300,7 @@ RSpec.describe Gitlab::TreeSummary, feature_category: :source_code_management do
   end
 
   describe 'References in commit messages' do
-    let_it_be(:project) { create(:project, :empty_repo) }
+    let_it_be(:project, freeze: false) { create(:project, :empty_repo) }
     let_it_be(:issue) { create(:issue, project: project) }
 
     let(:entries) { summary.summarize }

@@ -570,26 +570,6 @@ RSpec.describe Todo, feature_category: :notifications do
     end
   end
 
-  describe '#self_added?' do
-    let(:user_1) { build(:user) }
-
-    before do
-      subject.user = user_1
-    end
-
-    it 'is true when the user is the author' do
-      subject.author = user_1
-
-      expect(subject).to be_self_added
-    end
-
-    it 'is false when the user is not the author' do
-      subject.author = build(:user)
-
-      expect(subject).not_to be_self_added
-    end
-  end
-
   describe '#done?' do
     let_it_be(:todo1) { create(:todo, state: :pending) }
     let_it_be(:todo2) { create(:todo, state: :done) }

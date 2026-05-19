@@ -6,7 +6,7 @@ RSpec.describe BulkImports::Projects::Pipelines::ContainerExpirationPolicyPipeli
   let_it_be(:project) { create(:project) }
   let_it_be(:entity) { create(:bulk_import_entity, :project_entity, project: project) }
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity, pipeline_name: described_class) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let_it_be(:policy) do
     {

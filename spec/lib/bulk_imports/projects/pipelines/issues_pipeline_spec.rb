@@ -7,7 +7,7 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:bulk_import) { create(:bulk_import, :with_configuration, user: user) }
-  let_it_be(:entity) do
+  let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,
       :project_entity,
@@ -258,7 +258,7 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
     end
 
     context 'when importer_user_mapping is enabled' do
-      let_it_be(:source_user) do
+      let_it_be(:source_user, freeze: false) do
         create(:import_source_user,
           import_type: ::Import::SOURCE_DIRECT_TRANSFER,
           namespace: group,

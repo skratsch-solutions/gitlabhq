@@ -6,9 +6,9 @@ RSpec.describe BulkImports::Groups::Pipelines::SubgroupEntitiesPipeline, feature
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group, path: 'group') }
   let_it_be(:parent) { create(:group, name: 'Imported Group', path: 'imported-group') }
-  let_it_be(:parent_entity) { create(:bulk_import_entity, destination_namespace: parent.full_path, group: parent) }
+  let_it_be(:parent_entity, freeze: false) { create(:bulk_import_entity, destination_namespace: parent.full_path, group: parent) }
   let_it_be(:tracker) { create(:bulk_import_tracker, entity: parent_entity) }
-  let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+  let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let(:extracted_data) do
     BulkImports::Pipeline::ExtractedData.new(data: {

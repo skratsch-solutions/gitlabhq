@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::DataBuilder::Issuable do
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:reusable_project) { create(:project, :repository, group: group) }
 
@@ -193,7 +193,7 @@ RSpec.describe Gitlab::DataBuilder::Issuable do
     end
 
     context 'when merge_request has reviewers and changes with re-requested reviewer' do
-      let_it_be(:reviewer1) { create(:user) }
+      let_it_be(:reviewer1, freeze: false) { create(:user) }
       let_it_be(:reviewer2) { create(:user) }
       let(:merge_request) do
         create(:merge_request, reviewers: [reviewer1, reviewer2], source_project: reusable_project)

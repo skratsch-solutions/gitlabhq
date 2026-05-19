@@ -28,19 +28,6 @@
   .topbar-signup-button {
     @apply gl-bg-neutral-800 gl-border-neutral-800 dark:gl-bg-neutral-100 dark:gl-border-neutral-100 #{!important};
   }
-
-  // Application background item hover/focus states
-  .super-sidebar .super-sidebar-nav-item,
-  .dashboard-shortcuts-button,
-  .ai-nav-icon,
-  #create-menu-toggle {
-    &:hover,
-    &:focus,
-    &.with-mouse-over-flyout {
-      @apply gl-bg-alpha-dark-6 dark:gl-bg-alpha-light-8 #{!important};
-    }
-  }
-
 }
 
 /*
@@ -144,12 +131,6 @@
       @apply gl-sticky #{!important};
       @apply gl-top-0 gl-py-3 gl-px-3;
       @apply gl-border-b;
-    }
-
-    .ai-nav-icon-active,
-    .ai-nav-icon-active:hover {
-      background-color: var(--super-sidebar-nav-item-current-bg);
-      color: var(--super-sidebar-accent-color-fg);
     }
 
     @media (max-width: $breakpoint-lg - 1) {
@@ -377,7 +358,7 @@
     @apply gl-justify-end;
 
     .duo-chat-message {
-      background-color: rgb(from var(--theme-accent-color) r g b / 15%);
+      background-color: rgb(from var(--super-sidebar-theme-accent-color) r g b / 15%);
       @apply gl-rounded-bl-[1rem] gl-rounded-br-none;
     }
   }
@@ -386,7 +367,7 @@
   &.gl-dark .duo-chat-message-container:has(.duo-chat-message.gl-text-feedback-info) {
     // stylelint-disable-next-line gitlab/no-has -- scoped to chat message element
     .duo-chat-message:not(:has(.error-icon)) {
-      background-color: rgb(from var(--theme-accent-color) r g b / 30%);
+      background-color: rgb(from var(--super-sidebar-theme-accent-color) r g b / 30%);
     }
   }
 
@@ -407,13 +388,13 @@
   // Light mode
   &:not(.gl-dark) {
     // default color to mute the gradient
-    --_shade-1: hsla(from var(--theme-color) h 25 93 / 95%);
+    --_shade-1: hsla(from var(--super-sidebar-theme-color) h 25 93 / 95%);
     // alternative color
-    --_shade-2: hsl(from var(--theme-color) calc(h + 10) calc(s + 20) l);
+    --_shade-2: hsl(from var(--super-sidebar-theme-color) calc(h + 10) calc(s + 20) l);
     // original color
-    --_shade-3: hsl(from var(--theme-color) h calc(s + 10) l);
+    --_shade-3: hsl(from var(--super-sidebar-theme-color) h calc(s + 10) l);
     // bottom color
-    --_shade-4: hsla(from var(--theme-color) calc(h + 20) calc(s + 20) l / 40%);
+    --_shade-4: hsla(from var(--super-sidebar-theme-color) calc(h + 20) calc(s + 20) l / 40%);
 
     body {
       background:
@@ -426,40 +407,8 @@
       background-color: var(--body-background-color);
     }
 
-    .ai-panels,
-    .super-sidebar {
-      --theme-accent-badge-color: var(--theme-accent-color);
-      --super-sidebar-accent-color-fg: hsl(from var(--theme-accent-color) h calc(s - 20) 20);
-      --super-sidebar-nav-item-current-bg: hsla(from var(--theme-accent-color) h s l / 16%);
-      --super-sidebar-nav-item-hover-bg: hsla(from var(--theme-accent-color) h s l / 16%);
-      --super-sidebar-accent-color-badge: hsl(from var(--theme-accent-color) h s 90);
-      --super-sidebar-accent-color-bg: hsla(from var(--theme-accent-color) h s l / 16%);
-    }
-
     .super-sidebar hr {
       border-color: var(--gl-color-alpha-dark-8);
-    }
-
-    .super-sidebar .super-sidebar-nav-item:not(.super-sidebar-nav-item-current) .badge {
-      background-color: transparent;
-    }
-
-    .super-sidebar .super-sidebar-nav-item.super-sidebar-nav-item-current:not(:hover) .badge {
-      background-color: var(--_shade-1);
-    }
-
-    .super-sidebar .super-sidebar-nav-item.super-sidebar-whats-new .badge {
-      color: var(--gl-color-neutral-0);
-      background-color: var(--theme-accent-badge-color);
-    }
-
-    .ai-panel .ai-nav-icon-active,
-    .ai-panel .ai-nav-icon-active:hover {
-      background-color: var(--super-sidebar-nav-item-current-bg);
-    }
-
-    .ai-panel .ai-nav-icon-active {
-      color: var(--super-sidebar-accent-color-fg);
     }
   }
 
@@ -468,13 +417,13 @@
     // default color to mute the gradient
     --_shade-1: hsla(from var(--gl-background-color-default) h s l / 75%);
     // background
-    --_shade-2: hsl(from var(--theme-color) h 15 20);
+    --_shade-2: hsl(from var(--super-sidebar-theme-color) h 15 20);
     // alternative color
-    --_shade-3: hsla(from var(--theme-color) calc(h + 30) s l / 70%);
+    --_shade-3: hsla(from var(--super-sidebar-theme-color) calc(h + 30) s l / 70%);
     // original color
-    --_shade-4: hsla(from var(--theme-color) h s l / 100%);
+    --_shade-4: hsla(from var(--super-sidebar-theme-color) h s l / 100%);
     // bottom color
-    --_shade-5: hsla(from var(--theme-color) h s l / 55%);
+    --_shade-5: hsla(from var(--super-sidebar-theme-color) h s l / 55%);
 
     body {
       background:
@@ -485,38 +434,6 @@
         var(--_shade-2);
       background-color: var(--body-background-color);
     }
-
-    .ai-panels,
-    .super-sidebar {
-      --theme-accent-badge-color: hsl(from var(--theme-accent-color) h calc(s - 10) calc(l + 20));
-      --super-sidebar-nav-item-current-bg: hsla(from var(--theme-accent-color) h s calc(l + 20) / 25%);
-      --super-sidebar-accent-color-fg: hsl(from var(--theme-accent-color) h s 88);
-      --super-sidebar-nav-item-hover-bg: hsla(from var(--theme-accent-color) h calc(s - 30) l / 16%);
-      --super-sidebar-accent-color-badge: hsl(from var(--theme-accent-color) h s 85);
-      --super-sidebar-accent-color-bg: hsla(from var(--theme-accent-color) h s l / 32%);
-    }
-
-    .super-sidebar .super-sidebar-nav-item:not(.super-sidebar-nav-item-current) .badge {
-      color: var(--super-sidebar-accent-color-fg);
-      background-color: transparent;
-    }
-
-    .super-sidebar .super-sidebar-nav-item.super-sidebar-nav-item-current:not(:hover) .badge {
-      color: var(--super-sidebar-accent-color-fg);
-      background-color: var(--_shade-1);
-    }
-
-    .super-sidebar .super-sidebar-nav-item.super-sidebar-whats-new .badge {
-      color: var(--gl-color-neutral-900);
-      background-color: var(--theme-accent-badge-color);
-    }
-
-    .ai-panel .ai-nav-icon-active,
-    .ai-panel .ai-nav-icon-active:hover {
-      color: var(--super-sidebar-accent-color-fg);
-      background-color: var(--super-sidebar-nav-item-current-bg);
-    }
-
   }
 
   .super-sidebar:not(.super-sidebar-is-mobile) {

@@ -6,12 +6,6 @@
   .container-fluid {
     @apply gl-py-0;
     @apply gl-px-[--container-padding-x];
-
-    &.container-blank {
-      background: none;
-      padding: 0;
-      border: 0;
-    }
   }
 }
 

@@ -226,7 +226,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
     context 'when merge request is present' do
       let_it_be(:assignees) { create_list(:user, 2) }
       let_it_be(:milestone) { create(:milestone, project: project) }
-      let_it_be(:labels) { create_list(:label, 2) }
+      let_it_be(:labels, freeze: false) { create_list(:label, 2) }
       let(:merge_request_description) { nil }
 
       let(:merge_request) do

@@ -2,8 +2,8 @@
 name: mr_reports_tab
 feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/466223
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/164214
-rollout_issue_url:
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/597583
 milestone: '17.4'
 group: group::code review
-type: wip
-default_enabled: false
+type: beta
+default_enabled: true

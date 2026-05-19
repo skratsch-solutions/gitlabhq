@@ -26,6 +26,7 @@ export default {
       default: '',
     },
   },
+  emits: ['job-action-executed'],
   data() {
     return {
       maxRenderedPipelines: 3,

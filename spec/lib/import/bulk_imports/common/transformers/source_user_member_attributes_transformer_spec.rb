@@ -9,7 +9,7 @@ RSpec.describe Import::BulkImports::Common::Transformers::SourceUserMemberAttrib
 
   shared_examples 'import source user members attribute transformer' do
     let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
-    let_it_be(:context) { BulkImports::Pipeline::Context.new(tracker) }
+    let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
     let_it_be(:import_source_user) do
       create(:import_source_user,
@@ -213,14 +213,16 @@ RSpec.describe Import::BulkImports::Common::Transformers::SourceUserMemberAttrib
 
   context 'with a project' do
     let_it_be(:project) { create(:project) }
-    let_it_be(:entity) { create(:bulk_import_entity, :project_entity, bulk_import: bulk_import, project: project) }
+    let_it_be(:entity, freeze: false) do
+      create(:bulk_import_entity, :project_entity, bulk_import: bulk_import, project: project)
+    end
 
     include_examples 'import source user members attribute transformer'
   end
 
   context 'with a group' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:entity) { create(:bulk_import_entity, bulk_import: bulk_import, group: group) }
+    let_it_be(:entity, freeze: false) { create(:bulk_import_entity, bulk_import: bulk_import, group: group) }
 
     include_examples 'import source user members attribute transformer'
   end

@@ -128,16 +128,58 @@ describe('CatalogSearch', () => {
       createComponent();
     });
 
-    it.each`
-      description                                       | filters                                                                                                                                               | expected
-      ${'with search term on submit'}                   | ${['dog']}                                                                                                                                            | ${{ searchTerm: 'dog', verificationLevel: null, topics: [] }}
-      ${'with empty search term when cleared'}          | ${[]}                                                                                                                                                 | ${{ searchTerm: null, verificationLevel: null, topics: [] }}
-      ${'with verification level'}                      | ${[{ type: 'verificationLevel', value: { data: 'GITLAB_MAINTAINED', operator: '=' } }]}                                                               | ${{ searchTerm: null, verificationLevel: 'GITLAB_MAINTAINED', topics: [] }}
-      ${'with both search term and verification level'} | ${['cat', { type: 'verificationLevel', value: { data: 'UNVERIFIED', operator: '=' } }]}                                                               | ${{ searchTerm: 'cat', verificationLevel: 'UNVERIFIED', topics: [] }}
-      ${'with single topic'}                            | ${[{ type: 'topic', value: { data: 'ruby', operator: '||' } }]}                                                                                       | ${{ searchTerm: null, verificationLevel: null, topics: ['ruby'] }}
-      ${'with multiple topics'}                         | ${[{ type: 'topic', value: { data: ['ruby', 'ci-cd'], operator: '||' } }]}                                                                            | ${{ searchTerm: null, verificationLevel: null, topics: ['ruby', 'ci-cd'] }}
-      ${'with all filters'}                             | ${['cat', { type: 'verificationLevel', value: { data: 'UNVERIFIED', operator: '=' } }, { type: 'topic', value: { data: ['ruby'], operator: '||' } }]} | ${{ searchTerm: 'cat', verificationLevel: 'UNVERIFIED', topics: ['ruby'] }}
-    `('emits update-filters $description', ({ filters, expected }) => {
+    it.each([
+      [
+        'with search term on submit',
+        ['dog'],
+        { searchTerm: 'dog', verificationLevel: null, topics: [], groups: [] },
+      ],
+      [
+        'with empty search term when cleared',
+        [],
+        { searchTerm: null, verificationLevel: null, topics: [], groups: [] },
+      ],
+      [
+        'with verification level',
+        [{ type: 'verificationLevel', value: { data: 'GITLAB_MAINTAINED', operator: '=' } }],
+        { searchTerm: null, verificationLevel: 'GITLAB_MAINTAINED', topics: [], groups: [] },
+      ],
+      [
+        'with both search term and verification level',
+        ['cat', { type: 'verificationLevel', value: { data: 'UNVERIFIED', operator: '=' } }],
+        { searchTerm: 'cat', verificationLevel: 'UNVERIFIED', topics: [], groups: [] },
+      ],
+      [
+        'with single topic',
+        [{ type: 'topic', value: { data: 'ruby', operator: '||' } }],
+        { searchTerm: null, verificationLevel: null, topics: ['ruby'], groups: [] },
+      ],
+      [
+        'with multiple topics',
+        [{ type: 'topic', value: { data: ['ruby', 'ci-cd'], operator: '||' } }],
+        { searchTerm: null, verificationLevel: null, topics: ['ruby', 'ci-cd'], groups: [] },
+      ],
+      [
+        'with single group',
+        [{ type: 'group', value: { data: '1', operator: '||' } }],
+        { searchTerm: null, verificationLevel: null, topics: [], groups: ['1'] },
+      ],
+      [
+        'with multiple groups',
+        [{ type: 'group', value: { data: ['1', '2'], operator: '||' } }],
+        { searchTerm: null, verificationLevel: null, topics: [], groups: ['1', '2'] },
+      ],
+      [
+        'with all filters',
+        [
+          'cat',
+          { type: 'verificationLevel', value: { data: 'UNVERIFIED', operator: '=' } },
+          { type: 'topic', value: { data: ['ruby'], operator: '||' } },
+          { type: 'group', value: { data: ['1'], operator: '||' } },
+        ],
+        { searchTerm: 'cat', verificationLevel: 'UNVERIFIED', topics: ['ruby'], groups: ['1'] },
+      ],
+    ])('emits update-filters %s', (description, filters, expected) => {
       findFilteredSearch().vm.$emit('submit', filters);
 
       expect(wrapper.emitted('update-filters')).toEqual([[expected]]);
