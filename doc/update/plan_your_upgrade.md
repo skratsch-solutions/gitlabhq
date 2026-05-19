@@ -125,6 +125,7 @@ working:
    ```
 
 1. If using Elasticsearch, verify that searches are successful.
+1. Optional. [Pre-download a package from the official repository](package/_index.md#pre-download-a-package-from-the-official-repository) to test package availability and reduce install time.
 
 If something goes wrong, [get support](#get-support).
 

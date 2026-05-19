@@ -64088,6 +64088,10 @@ definitions:
         type: integer
         format: int32
         description: The ID of a milestone to assign issue
+      milestone:
+        type: string
+        description: The title of a project or ancestor-group milestone to assign
+          the issue to. Mutually exclusive with `milestone_id`.
       labels:
         type: array
         description: Comma-separated list of label names
@@ -64172,6 +64176,10 @@ definitions:
         type: integer
         format: int32
         description: The ID of a milestone to assign issue
+      milestone:
+        type: string
+        description: The title of a project or ancestor-group milestone to assign
+          the issue to. Mutually exclusive with `milestone_id`.
       labels:
         type: array
         description: Comma-separated list of label names
@@ -64612,6 +64620,10 @@ definitions:
         type: integer
         format: int32
         description: The global ID of a milestone to assign the merge request to.
+      milestone:
+        type: string
+        description: The title of a project or ancestor-group milestone to assign
+          the merge request to. Mutually exclusive with `milestone_id`.
       remove_source_branch:
         type: boolean
         description: Flag indicating if a merge request should remove the source branch
@@ -65260,6 +65272,10 @@ definitions:
         type: integer
         format: int32
         description: The global ID of a milestone to assign the merge request to.
+      milestone:
+        type: string
+        description: The title of a project or ancestor-group milestone to assign
+          the merge request to. Mutually exclusive with `milestone_id`.
       remove_source_branch:
         type: boolean
         description: Flag indicating if a merge request should remove the source branch

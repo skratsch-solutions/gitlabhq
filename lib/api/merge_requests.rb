@@ -8,6 +8,7 @@ module API
     include Helpers::Unidiff
 
     helpers ::API::Helpers::HeadersHelpers
+    helpers ::API::Helpers::MilestonesHelpers
 
     CONTEXT_COMMITS_POST_LIMIT = 20
 
@@ -70,6 +71,7 @@ module API
         add_labels
         remove_labels
         milestone_id
+        milestone
         remove_source_branch
         allow_collaboration
         allow_maintainer_to_push
@@ -286,6 +288,10 @@ module API
             desc: 'Comma-separated label names to remove from a merge request.',
             documentation: { is_array: true }
           optional :milestone_id, type: Integer, desc: 'The global ID of a milestone to assign the merge request to.'
+          optional :milestone, type: String, limit: 255,
+            desc: 'The title of a project or ancestor-group milestone to assign the merge request to. ' \
+              'Mutually exclusive with `milestone_id`.'
+          mutually_exclusive :milestone_id, :milestone
           optional :remove_source_branch, type: Boolean, desc: 'Flag indicating if a merge request should remove the source branch when merging.'
           optional :allow_collaboration, type: Boolean, desc: 'Allow commits from members who can merge to the target branch.'
           optional :allow_maintainer_to_push, type: Boolean, as: :allow_collaboration, desc: '[deprecated] See allow_collaboration'
@@ -373,6 +379,7 @@ module API
         Labkit::UserExperienceSli.start(:create_merge_request)
 
         mr_params = declared_params(include_missing: false)
+        resolve_milestone_title!(user_project, mr_params)
         mr_params[:force_remove_source_branch] = mr_params.delete(:remove_source_branch)
         mr_params = convert_parameters_from_legacy_format(mr_params)
         validator = ::Gitlab::Auth::ScopeValidator.new(current_user, Gitlab::Auth::RequestAuthenticator.new(request))
@@ -757,6 +764,7 @@ module API
         merge_request = find_merge_request_with_access(params.delete(:merge_request_iid), :update_merge_request)
 
         mr_params = declared_params(include_missing: false)
+        resolve_milestone_title!(user_project, mr_params)
         mr_params[:force_remove_source_branch] = mr_params.delete(:remove_source_branch) if mr_params.has_key?(:remove_source_branch)
         mr_params = convert_parameters_from_legacy_format(mr_params)
         mr_params[:use_specialized_service] = true

@@ -382,7 +382,7 @@ RSpec.describe GitlabSchema.types['Group'], feature_category: :groups_and_projec
 
       it 'marked_for_deletion_on returns correct date' do
         expect(Time.zone.parse(group_data[:marked_for_deletion_on]))
-          .to eq(pending_delete_group.marked_for_deletion_on.iso8601)
+          .to eq(pending_delete_group.self_deletion_scheduled_deletion_created_on.iso8601)
       end
 
       it 'returns date group will be permanently deleted for permanent_deletion_date' do

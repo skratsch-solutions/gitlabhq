@@ -12,6 +12,7 @@ module API
     allow_mcp_access_create
 
     helpers Helpers::IssuesHelpers
+    helpers Helpers::MilestonesHelpers
     helpers Helpers::Authz::PostfilteringHelpers
     helpers SpammableActions::CaptchaCheck::RestApiActionsSupport
 
@@ -104,6 +105,10 @@ module API
         optional :assignee_ids, type: Array[Integer], coerce_with: ::API::Validations::Types::CommaSeparatedToIntegerArray.coerce, desc: 'The array of user IDs to assign issue'
         optional :assignee_id,  type: Integer, desc: '[Deprecated] The ID of a user to assign issue'
         optional :milestone_id, type: Integer, desc: 'The ID of a milestone to assign issue'
+        optional :milestone, type: String, limit: 255,
+          desc: 'The title of a project or ancestor-group milestone to assign the issue to. ' \
+            'Mutually exclusive with `milestone_id`.'
+        mutually_exclusive :milestone_id, :milestone
         optional :labels, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'Comma-separated list of label names'
         optional :add_labels, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'Comma-separated list of label names'
         optional :remove_labels, type: Array[String], coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce, desc: 'Comma-separated list of label names'
@@ -322,6 +327,7 @@ module API
         authorize! :create_issue, user_project
 
         issue_params = declared_params(include_missing: false)
+        resolve_milestone_title!(user_project, issue_params)
         validator = ::Gitlab::Auth::ScopeValidator.new(current_user, Gitlab::Auth::RequestAuthenticator.new(request))
         issue_params = convert_parameters_from_legacy_format(issue_params).merge(scope_validator: validator)
         begin
@@ -373,6 +379,7 @@ module API
         authorize! :update_issue, issue
 
         update_params = declared_params(include_missing: false)
+        resolve_milestone_title!(user_project, update_params)
 
         validator = ::Gitlab::Auth::ScopeValidator.new(current_user, Gitlab::Auth::RequestAuthenticator.new(request))
         update_params = convert_parameters_from_legacy_format(update_params).merge(scope_validator: validator)

@@ -25,7 +25,7 @@ RSpec.describe Groups::MarkForDeletionService, feature_category: :groups_and_pro
     it 'marks the group for deletion', :freeze_time do
       result
 
-      expect(group.marked_for_deletion_on).to eq(Time.zone.today)
+      expect(group.self_deletion_scheduled_deletion_created_on).to eq(Time.zone.today)
       expect(group.deleting_user).to eq(user)
     end
 

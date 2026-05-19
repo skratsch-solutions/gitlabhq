@@ -3563,7 +3563,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         group.reload
 
         expect(response).to have_gitlab_http_status(:accepted)
-        expect(group.marked_for_deletion_on).to eq(Date.current)
+        expect(group.self_deletion_scheduled_deletion_created_on).to eq(Date.current)
         expect(group.deleting_user).to eq(user)
       end
     end
@@ -3594,7 +3594,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         group.reload
 
         expect(response).to have_gitlab_http_status(:accepted)
-        expect(group.marked_for_deletion_on).to be_nil
+        expect(group.self_deletion_scheduled_deletion_created_on).to be_nil
         expect(group.deleting_user).to be_nil
       end
     end

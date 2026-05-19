@@ -26,6 +26,14 @@ export default {
       required: false,
       default: null,
     },
+    /**
+     * Force fluid layout.
+     */
+    fluidLayout: {
+      type: Boolean,
+      required: false,
+      default: () => window.gon?.fluid_layout ?? false,
+    },
   },
   emits: ['close', 'maximize'],
 };
@@ -50,7 +58,11 @@ export default {
     </div>
     <div class="panel-content">
       <div class="panel-content-inner js-dynamic-panel-inner">
-        <div class="container-fluid">
+        <div
+          class="container-fluid"
+          :class="{ 'container-limited': !fluidLayout }"
+          data-testid="layout-container"
+        >
           <div class="content gl-pb-3 gl-@container/panel">
             <slot></slot>
           </div>

@@ -10,6 +10,7 @@ internal/transport/transport.go:147:1: cognitive complexity 59 of func `validate
 internal/git/io_test.go:89:14: string `test data` has 3 occurrences, make it a constant (goconst)
 internal/git/error.go:38:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
 cmd/gitlab-workhorse/main.go:378:10: G112: Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server (gosec)
+internal/ai_assist/duoworkflow/actions.go:191:40: G704: SSRF via taint analysis (gosec)
 internal/config/config.go:318:18: G204: Subprocess launched with variable (gosec)
 internal/config/config.go:499:8: G101: Potential hardcoded credentials (gosec)
 internal/dependencyproxy/dependencyproxy.go:235:44: G704: SSRF via taint analysis (gosec)

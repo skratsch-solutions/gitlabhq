@@ -279,8 +279,8 @@ RSpec.shared_examples 'getting a collection of projects' do
         aimed_for_deletion_project.to_global_id.to_s
       )
       expect(returned_marked_for_deletion_on).to contain_exactly(
-        project_marked_for_deletion.marked_for_deletion_on.iso8601,
-        aimed_for_deletion_project.marked_for_deletion_on.iso8601
+        project_marked_for_deletion.self_deletion_scheduled_deletion_created_on.iso8601,
+        aimed_for_deletion_project.self_deletion_scheduled_deletion_created_on.iso8601
       )
     end
   end

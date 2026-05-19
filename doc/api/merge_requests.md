@@ -2580,7 +2580,8 @@ POST /projects/:id/merge_requests
 | `description`              | string            | No       | Description of the merge request. Limited to 1,048,576 characters. |
 | `labels`                   | string            | No       | Labels for the merge request, as a comma-separated list. If a label does not already exist, this creates a new project label and assigns it to the merge request. |
 | `merge_after`              | string            | No       | Date after which the merge request can be merged. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/510992) in GitLab 17.8. |
-| `milestone_id`             | integer           | No       | The global ID of a milestone. |
+| `milestone_id`             | integer           | No       | The global ID of a milestone. Mutually exclusive with `milestone`. |
+| `milestone`                | string            | No       | The title of a project or ancestor-group milestone to assign the merge request to. Matched exactly (case-sensitive). Mutually exclusive with `milestone_id`. |
 | `remove_source_branch`     | boolean           | No       | Flag indicating if a merge request should remove the source branch when merging. |
 | `reviewer_ids`             | integer array     | No       | The ID of the users added as a reviewer to the merge request. If set to `0` or left empty, no reviewers are added. |
 | `squash`                   | boolean           | No       | If `true`, squash all commits into a single commit on merge. When not provided, defaults to the [project's squash option setting](../user/project/merge_requests/squash_and_merge.md#configure-squash-options-for-a-project). Project settings might override this value at merge time. |
@@ -2736,7 +2737,8 @@ PUT /projects/:id/merge_requests/:merge_request_iid
 | `discussion_locked`        | boolean           | No       | Flag indicating if the merge request's discussion is locked. Only project members can add, edit or resolve comments to locked discussions. |
 | `labels`                   | string            | No       | Comma-separated label names for a merge request. Set to an empty string to unassign all labels. If a label does not already exist, this creates a new project label and assigns it to the merge request. |
 | `merge_after`              | string            | No       | Date after which the merge request can be merged. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/510992) in GitLab 17.8. |
-| `milestone_id`             | integer           | No       | The global ID of a milestone to assign the merge request to. Set to `0` or provide an empty value to unassign a milestone. |
+| `milestone_id`             | integer           | No       | The global ID of a milestone to assign the merge request to. Set to `0` or provide an empty value to unassign a milestone. Mutually exclusive with `milestone`. |
+| `milestone`                | string            | No       | The title of a project or ancestor-group milestone to assign the merge request to. Matched exactly (case-sensitive). Mutually exclusive with `milestone_id`. |
 | `remove_labels`            | string            | No       | Comma-separated label names to remove from a merge request. |
 | `remove_source_branch`     | boolean           | No       | Flag indicating if a merge request should remove the source branch when merging. |
 | `reviewer_ids`             | integer array     | No       | The ID of the users set as a reviewer to the merge request. Set the value to `0` or provide an empty value to unset all reviewers. |

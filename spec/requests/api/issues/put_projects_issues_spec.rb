@@ -385,6 +385,55 @@ RSpec.describe API::Issues, feature_category: :team_planning do
     end
   end
 
+  describe 'PUT /projects/:id/issues/:issue_iid to update milestone' do
+    context 'with milestone' do
+      context 'by milestone_id' do
+        it 'updates the issue with milestone assigned' do
+          put api_for_user, params: { milestone_id: empty_milestone.id }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['milestone']['id']).to eq(empty_milestone.id)
+        end
+
+        it 'leaves the milestone unchanged when milestone_id is invalid' do
+          put api_for_user, params: { milestone_id: non_existing_record_id }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+      end
+
+      context 'by milestone title' do
+        it 'updates the issue with milestone assigned' do
+          put api_for_user, params: { milestone: empty_milestone.title }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['milestone']['id']).to eq(empty_milestone.id)
+        end
+
+        it 'leaves the milestone unchanged when the milestone title does not match any milestone in scope' do
+          put api_for_user, params: { milestone: 'nonexistent' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+      end
+
+      it 'returns 400 when both milestone and milestone_id are provided' do
+        put api_for_user, params: { milestone: empty_milestone.title, milestone_id: empty_milestone.id }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when milestone title exceeds the length limit' do
+        put api_for_user, params: { milestone: 'a' * 256 }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to include('milestone must be less than 255 characters')
+      end
+    end
+  end
+
   describe 'PUT /projects/:id/issues/:issue_iid to update state and label' do
     it 'updates a project issue', :aggregate_failures do
       put api_for_user, params: { labels: 'label2', state_event: 'close' }

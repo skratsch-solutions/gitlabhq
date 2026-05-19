@@ -467,7 +467,7 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
   end
 
   describe '#remaining_work_count' do
-    let_it_be(:disabled_repository) { create(:container_repository, :cleanup_scheduled) }
+    let_it_be(:disabled_repository, freeze: false) { create(:container_repository, :cleanup_scheduled) }
 
     let(:capacity) { 10 }
 

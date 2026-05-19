@@ -23,7 +23,7 @@ RSpec.describe BulkImports::PipelineWorker, feature_category: :importers do
     end
   end
 
-  let_it_be(:bulk_import) { create(:bulk_import) }
+  let_it_be(:bulk_import, freeze: false) { create(:bulk_import) }
   let_it_be(:config) { create(:bulk_import_configuration, bulk_import: bulk_import) }
   let_it_be_with_reload(:entity) { create(:bulk_import_entity, bulk_import: bulk_import) }
 
@@ -839,7 +839,7 @@ RSpec.describe BulkImports::PipelineWorker, feature_category: :importers do
       end
     end
 
-    let_it_be(:offline_bulk_import) { create(:bulk_import, :with_offline_configuration) }
+    let_it_be(:offline_bulk_import, freeze: false) { create(:bulk_import, :with_offline_configuration) }
     let_it_be_with_reload(:offline_entity) { create(:bulk_import_entity, bulk_import: offline_bulk_import) }
 
     let(:pipeline_tracker) do

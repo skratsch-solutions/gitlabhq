@@ -62,6 +62,7 @@ module Gitlab
         gon.instance_token_prefix = Authn::TokenField::PrefixHelper.instance_prefix
       end
 
+      gon.fluid_layout               = false
       gon.keyboard_shortcuts_enabled = current_user ? current_user.keyboard_shortcuts_enabled : true
       gon.broadcast_message_dismissal_path =
         current_user ? Gitlab::Routing.url_helpers.broadcast_message_dismissals_path : nil
@@ -87,6 +88,8 @@ module Gitlab
       gon.current_user_avatar_url = current_user.avatar_url
       gon.time_display_relative = current_user.time_display_relative
       gon.time_display_format = current_user.time_display_format
+
+      gon.fluid_layout = current_user.fluid?
 
       return unless current_user.user_preference
 

@@ -306,11 +306,10 @@ func Test_newRunner(t *testing.T) {
 
 	require.NoError(t, err)
 	require.NotNil(t, runner)
-	require.Equal(t, "oauth-token-123", runner.token)
+	require.Equal(t, "oauth-token-123", runner.httpActionHandler.token)
 	require.Equal(t, req, runner.originalReq)
 	require.Equal(t, mockConn, runner.conn)
 	require.NotNil(t, runner.streamManager)
-	require.Equal(t, apiClient, runner.rails)
 
 	runner.Close()
 }
@@ -525,16 +524,15 @@ func TestRunner_Execute(t *testing.T) {
 				blockCh:     tt.wfBlockCh,
 			}
 
-			testURL, _ := url.Parse("http://example.com")
 			req := httptest.NewRequest("GET", "/duo", nil)
 			r := &runner{
-				rails: &api.API{
-					Client: &http.Client{},
-					URL:    testURL,
-				},
-				token:       "test-token",
 				originalReq: req,
 				conn:        mockConn,
+				httpActionHandler: &runHTTPActionHandler{
+					backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+					token:       "test-token",
+					originalReq: req,
+				},
 				streamManager: &streamManager{
 					wf:          mockWf,
 					originalReq: req,
@@ -793,16 +791,15 @@ func TestRunner_handleWebSocketMessage(t *testing.T) {
 
 			rdb := initRdb(t)
 
-			testURL, _ := url.Parse("http://example.com")
 			req := httptest.NewRequest("GET", "/duo", nil)
 			r := &runner{
-				rails: &api.API{
-					Client: &http.Client{},
-					URL:    testURL,
-				},
-				token:       "test-token",
 				originalReq: req,
 				conn:        &mockWebSocketConn{},
+				httpActionHandler: &runHTTPActionHandler{
+					backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+					token:       "test-token",
+					originalReq: req,
+				},
 				streamManager: &streamManager{
 					wf:          mockWf,
 					originalReq: req,
@@ -1019,9 +1016,6 @@ func TestRunner_handleAgentAction(t *testing.T) {
 			}))
 			defer server.Close()
 
-			serverURL, err := url.Parse(server.URL)
-			require.NoError(t, err)
-
 			mockConn := &mockWebSocketConn{
 				writeError: tt.wsWriteError,
 			}
@@ -1031,14 +1025,13 @@ func TestRunner_handleAgentAction(t *testing.T) {
 
 			req := httptest.NewRequest("GET", "/duo", nil)
 			r := &runner{
-				rails: &api.API{
-					Client: server.Client(),
-					URL:    serverURL,
-				},
-				backend:     createBackendHandler(server.Client()),
-				token:       "test-token",
 				originalReq: req,
 				conn:        mockConn,
+				httpActionHandler: &runHTTPActionHandler{
+					backend:     createBackendHandler(server.Client(), server.Listener.Addr().String()),
+					token:       "test-token",
+					originalReq: req,
+				},
 				streamManager: &streamManager{
 					wf:          mockWf,
 					originalReq: req,
@@ -1047,7 +1040,7 @@ func TestRunner_handleAgentAction(t *testing.T) {
 			}
 
 			ctx := context.Background()
-			err = r.handleAgentAction(ctx, tt.action)
+			err := r.handleAgentAction(ctx, tt.action)
 
 			if tt.expectedErrMsg != "" {
 				require.EqualError(t, err, tt.expectedErrMsg)
@@ -1314,12 +1307,7 @@ func TestRunner_sendActionToWs(t *testing.T) {
 				clearDeadlineError: tt.clearDeadlineError,
 			}
 
-			testURL, _ := url.Parse("http://example.com")
 			r := &runner{
-				rails: &api.API{
-					Client: &http.Client{},
-					URL:    testURL,
-				},
 				conn: mockConn,
 			}
 
@@ -1398,8 +1386,9 @@ func TestRunner_Shutdown(t *testing.T) {
 				wf:          mockWf,
 				originalReq: req,
 			},
-			lockManager: newWorkflowLockManager(rdb),
-			workflowID:  "shutdown-lock-test-123",
+			lockManager:         newWorkflowLockManager(rdb),
+			workflowID:          "shutdown-lock-test-123",
+			stopWorkflowTimeout: 10 * time.Millisecond,
 			stop: stopCoordinator{
 				acked: make(chan struct{}),
 			},
@@ -1502,6 +1491,7 @@ func TestRunner_Shutdown(t *testing.T) {
 				wf:          mockWf,
 				originalReq: req,
 			},
+			stopWorkflowTimeout: 10 * time.Millisecond,
 			stop: stopCoordinator{
 				acked: make(chan struct{}),
 			},
@@ -1721,16 +1711,14 @@ func TestRunner_AcquireWorkflowLock_ConcurrentAttempts(t *testing.T) {
 		blockCh: make(chan bool),
 	}
 
-	testURL, _ := url.Parse("http://example.com")
-
 	req1 := httptest.NewRequest("GET", "/", nil)
 	r1 := &runner{
-		rails: &api.API{
-			Client: &http.Client{},
-			URL:    testURL,
-		},
 		originalReq: req1,
 		conn:        mockConn1,
+		httpActionHandler: &runHTTPActionHandler{
+			backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+			originalReq: req1,
+		},
 		streamManager: &streamManager{
 			wf:          mockWf1,
 			originalReq: req1,
@@ -1742,12 +1730,12 @@ func TestRunner_AcquireWorkflowLock_ConcurrentAttempts(t *testing.T) {
 
 	req2 := httptest.NewRequest("GET", "/", nil)
 	r2 := &runner{
-		rails: &api.API{
-			Client: &http.Client{},
-			URL:    testURL,
-		},
 		originalReq: req2,
 		conn:        mockConn2,
+		httpActionHandler: &runHTTPActionHandler{
+			backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+			originalReq: req2,
+		},
 		streamManager: &streamManager{
 			wf:          mockWf2,
 			originalReq: req2,
@@ -1784,15 +1772,14 @@ func TestRunner_HandleWebSocketMessage_AcquiresLock(t *testing.T) {
 	mockConn := &mockWebSocketConn{}
 	mockWf := &mockWorkflowStream{}
 
-	testURL, _ := url.Parse("http://example.com")
 	req := httptest.NewRequest("GET", "/", nil)
 	r := &runner{
-		rails: &api.API{
-			Client: &http.Client{},
-			URL:    testURL,
-		},
 		originalReq: req,
 		conn:        mockConn,
+		httpActionHandler: &runHTTPActionHandler{
+			backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+			originalReq: req,
+		},
 		streamManager: &streamManager{
 			wf:          mockWf,
 			originalReq: req,
@@ -1827,15 +1814,14 @@ func TestRunner_Execute_ReleasesLock(t *testing.T) {
 		blockCh: make(chan bool),
 	}
 
-	testURL, _ := url.Parse("http://example.com")
 	req := httptest.NewRequest("GET", "/", nil)
 	r := &runner{
-		rails: &api.API{
-			Client: &http.Client{},
-			URL:    testURL,
-		},
 		originalReq: req,
 		conn:        mockConn,
+		httpActionHandler: &runHTTPActionHandler{
+			backend:     http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
+			originalReq: req,
+		},
 		streamManager: &streamManager{
 			wf:          mockWf,
 			originalReq: req,
@@ -1933,12 +1919,7 @@ func TestRunner_AcquireWorkflowLock_MisconfiguredRedis(t *testing.T) {
 	mockConn := &mockWebSocketConn{}
 	mockWf := &mockWorkflowStream{}
 
-	testURL, _ := url.Parse("http://example.com")
 	r := &runner{
-		rails: &api.API{
-			Client: &http.Client{},
-			URL:    testURL,
-		},
 		originalReq: httptest.NewRequest("GET", "/", nil),
 		conn:        mockConn,
 		streamManager: &streamManager{
@@ -1974,13 +1955,8 @@ func TestRunner_handleAgentAction_TrackLlmCallForSelfHosted(t *testing.T) {
 			},
 		}
 
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 			streamManager: &streamManager{
@@ -2029,13 +2005,8 @@ func TestRunner_handleAgentAction_TrackLlmCallForSelfHosted(t *testing.T) {
 		mockConn := &mockWebSocketConn{}
 		mockWf := &mockWorkflowStream{}
 
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 			streamManager: &streamManager{
@@ -2070,13 +2041,8 @@ func TestRunner_handleAgentAction_TrackLlmCallForSelfHosted(t *testing.T) {
 			sendError: errors.New("send failed"),
 		}
 
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 			streamManager: &streamManager{
@@ -2111,13 +2077,8 @@ func TestRunner_handleAgentAction_TrackLlmCallForSelfHosted(t *testing.T) {
 			recvError: errors.New("recv failed"),
 		}
 
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 			streamManager: &streamManager{
@@ -2150,13 +2111,8 @@ func TestRunner_pingWebSocket(t *testing.T) {
 	t.Run("sends ping and sets read deadline", func(t *testing.T) {
 		mockConn := &mockWebSocketConn{}
 
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 		}
@@ -2197,14 +2153,9 @@ func TestRunner_pingWebSocket(t *testing.T) {
 
 	t.Run("pong handler resets read deadline", func(t *testing.T) {
 		mockConn := &mockWebSocketConn{}
-		testURL, _ := url.Parse("http://example.com")
 		req := httptest.NewRequest("GET", "/duo", nil)
 
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        mockConn,
 		}
@@ -2244,16 +2195,11 @@ func TestRunner_pingWebSocket(t *testing.T) {
 		}
 		mockWf := &mockWorkflowStream{}
 
-		testURL, _ := url.Parse("http://example.com")
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		req, _ := http.NewRequestWithContext(ctx, "GET", "/duo", nil)
 		stopAcked := make(chan struct{})
 		r := &runner{
-			rails: &api.API{
-				Client: &http.Client{},
-				URL:    testURL,
-			},
 			originalReq: req,
 			conn:        wrappedConn,
 			streamManager: &streamManager{

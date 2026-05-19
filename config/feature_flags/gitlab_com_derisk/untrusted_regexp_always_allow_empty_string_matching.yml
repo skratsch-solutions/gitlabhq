@@ -1,0 +1,10 @@
+---
+name: untrusted_regexp_always_allow_empty_string_matching
+description: Allow UntrustedRegexp#match? to match empty strings when the regex pattern allows it
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/546279
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235458
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/599917
+milestone: '19.1'
+group: group::pipeline authoring
+type: gitlab_com_derisk
+default_enabled: false

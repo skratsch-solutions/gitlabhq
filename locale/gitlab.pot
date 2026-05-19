@@ -8006,6 +8006,9 @@ msgstr ""
 msgid "AiPowered|Domains in the denylist are always blocked, even if they appear in an allowlist."
 msgstr ""
 
+msgid "AiPowered|Enable AI audit event streaming"
+msgstr ""
+
 msgid "AiPowered|Enable AI logs"
 msgstr ""
 
@@ -8226,6 +8229,9 @@ msgid "AiPowered|Specify how code completion requests are sent to the AI gateway
 msgstr ""
 
 msgid "AiPowered|Start date: %{startDate}"
+msgstr ""
+
+msgid "AiPowered|Stream AI audit events to configured external audit event streaming destinations. AI audit events are still saved to the database when this setting is off."
 msgstr ""
 
 msgid "AiPowered|Talk to Sales"
@@ -33673,6 +33679,24 @@ msgid "GitHub:"
 msgstr ""
 
 msgid "GitHubImporter|*Merged by: %{author} at %{timestamp}*"
+msgstr ""
+
+msgid "GitHubImporter|Import Markdown attachments (links)"
+msgstr ""
+
+msgid "GitHubImporter|Import Markdown attachments (links) from repository comments, release posts, issue descriptions, and pull request descriptions. These can include images, text, or binary attachments. If not imported, links in Markdown to attachments break after you remove the attachments from GitHub."
+msgstr ""
+
+msgid "GitHubImporter|Import collaborators"
+msgstr ""
+
+msgid "GitHubImporter|Import direct repository collaborators who are not outside collaborators. Imported collaborators who aren't members of the group you imported the project into consume seats on your GitLab instance."
+msgstr ""
+
+msgid "GitHubImporter|The default method can skip some comments in large projects because of limitations of the GitHub API."
+msgstr ""
+
+msgid "GitHubImporter|Use alternative comments import method"
 msgstr ""
 
 msgid "GitLab"

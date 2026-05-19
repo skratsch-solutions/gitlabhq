@@ -38,6 +38,7 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
 
   before do
     Gitlab::Database::LoadBalancing::SessionMap.clear_session
+    stub_feature_flags(maven_problem_details_errors: false)
   end
 
   shared_examples 'handling groups and subgroups for' do |shared_example_name, visibilities: { public: :redirect }|
@@ -1564,6 +1565,66 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
 
     def upload_file_with_token(params: {}, request_headers: headers_with_token, file_extension: 'jar', file_name: 'my-app-1.0-20180724.124855-1')
       upload_file(params: params, request_headers: request_headers, file_name: file_name, file_extension: file_extension)
+    end
+  end
+
+  describe 'RFC 9457 problem details' do
+    before do
+      stub_feature_flags(maven_problem_details_errors: true)
+    end
+
+    context 'with instance-level download and non-existing path' do
+      subject { get api("/packages/maven/non/existent/path/foo.jar"), headers: headers_with_token }
+
+      it_behaves_like 'returning RFC 9457 problem details', status: :forbidden, detail: '403 Forbidden'
+
+      context 'when maven_problem_details_errors is disabled' do
+        before do
+          stub_feature_flags(maven_problem_details_errors: false)
+        end
+
+        it_behaves_like 'not returning RFC 9457 problem details', status: :forbidden
+      end
+    end
+
+    context 'with project-level download and non-existing path' do
+      before do
+        # Disable request forwarding so the API raises `not_found!('Project')`
+        # instead of forwarding the request to Maven Central.
+        stub_feature_flags(maven_central_request_forwarding: false)
+      end
+
+      subject do
+        get api("/projects/#{project.id}/packages/maven/non/existent/path/foo.jar"), headers: headers_with_token
+      end
+
+      it_behaves_like 'returning RFC 9457 problem details', status: :not_found, detail: '404 Project Not Found'
+
+      context 'when maven_problem_details_errors is disabled' do
+        before do
+          stub_feature_flags(maven_problem_details_errors: false)
+        end
+
+        it_behaves_like 'not returning RFC 9457 problem details', status: :not_found
+      end
+    end
+
+    context 'with group-level download and non-existing path' do
+      before_all do
+        group.add_developer(user)
+      end
+
+      before do
+        # Disable request forwarding so the API raises `not_found!('Group')`
+        # instead of forwarding the request to Maven Central.
+        stub_feature_flags(maven_central_request_forwarding: false)
+      end
+
+      subject do
+        get api("/groups/#{group.id}/-/packages/maven/non/existent/path/foo.jar"), headers: headers_with_token
+      end
+
+      it_behaves_like 'returning RFC 9457 problem details', status: :not_found, detail: '404 Group Not Found'
     end
   end
 

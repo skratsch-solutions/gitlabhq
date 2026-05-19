@@ -566,4 +566,74 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       it_behaves_like 'handles Gitaly errors for request specs'
     end
   end
+
+  describe 'Projects::MergeRequests::DiffsController' do
+    let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
+    let(:allow_gitaly_to_raise_error) do
+      allow_next_instance_of(Repository) do |repository|
+        allow(repository).to receive(:diff_stats)
+          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
+      end
+    end
+
+    describe '#show' do
+      let(:make_request) { get diffs_project_merge_request_path(project, merge_request, format: :json) }
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+
+    describe '#diffs_batch' do
+      let(:make_request) do
+        get diffs_batch_namespace_project_json_merge_request_path(
+          namespace_id: project.namespace.to_param,
+          project_id: project,
+          id: merge_request.iid,
+          format: 'json'
+        )
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+
+    describe '#diffs_metadata' do
+      let(:make_request) do
+        get diffs_metadata_namespace_project_json_merge_request_path(
+          namespace_id: project.namespace.to_param,
+          project_id: project,
+          id: merge_request.iid,
+          format: 'json'
+        )
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+
+    describe '#diff_for_path' do
+      let(:make_request) do
+        get diff_for_path_project_merge_request_path(
+          project,
+          merge_request,
+          old_path: 'README.md',
+          new_path: 'README.md',
+          format: :json
+        )
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+
+    describe '#diff_by_file_hash' do
+      let(:make_request) do
+        get diff_by_file_hash_project_merge_request_path(
+          project,
+          merge_request,
+          file_hash: 'abc123',
+          format: :json
+        )
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+  end
 end

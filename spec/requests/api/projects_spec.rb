@@ -6070,7 +6070,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
           delete api(path, user), params: params
 
           expect(response).to have_gitlab_http_status(:accepted)
-          expect(project.marked_for_deletion_on).to be_nil
+          expect(project.self_deletion_scheduled_deletion_created_on).to be_nil
           expect(project.deleting_user).to be_nil
         end
       end

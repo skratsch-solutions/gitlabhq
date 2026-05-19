@@ -26,7 +26,7 @@ RSpec.describe Groups::RestoreService, feature_category: :groups_and_projects do
           execute
 
           expect(group.deletion_schedule).to be_nil
-          expect(group.marked_for_deletion_on).to be_nil
+          expect(group.self_deletion_scheduled_deletion_created_on).to be_nil
           expect(group.deleting_user).to be_nil
         end
 

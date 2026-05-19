@@ -15956,7 +15956,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_a1ab34e8cb8e"
+              "$ref": "#/components/schemas/RequestBody_bc3c2d755ba2"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -38687,7 +38687,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_6dfbbd1de69a"
+              "$ref": "#/components/schemas/RequestBody_b3701b73191b"
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}":
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIid
@@ -38815,7 +38815,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_745a46e17871"
+              "$ref": "#/components/schemas/RequestBody_c7d3e0984a3f"
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/participants":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidParticipants
@@ -43286,7 +43286,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_826ae92cf3be"
+              "$ref": "#/components/schemas/RequestBody_9b0ee174f73a"
   "/api/v4/projects/{id}/issues_statistics":
     get:
       operationId: getApiV4ProjectsIdIssuesStatistics
@@ -43686,7 +43686,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_0d4da68f991a"
+              "$ref": "#/components/schemas/RequestBody_96918c611839"
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIid
       summary: Delete a project issue
@@ -78055,6 +78055,8 @@ components:
           type: string
         duo_cli_enabled:
           type: string
+        ai_audit_events_streaming_enabled:
+          type: boolean
         duo_namespace_access_rules:
           type: string
         duo_remote_flows_enabled:
@@ -90293,7 +90295,7 @@ components:
           nullable: true
       required:
       - avatar
-    RequestBody_a1ab34e8cb8e:
+    RequestBody_bc3c2d755ba2:
       type: object
       properties:
         admin_mode:
@@ -92449,6 +92451,9 @@ components:
           type: string
           nullable: true
         duo_cli_enabled:
+          type: string
+          nullable: true
+        ai_audit_events_streaming_enabled:
           type: string
           nullable: true
         duo_remote_flows_availability:
@@ -99739,7 +99744,7 @@ components:
           nullable: true
       required:
       - duration
-    RequestBody_6dfbbd1de69a:
+    RequestBody_b3701b73191b:
       type: object
       properties:
         title:
@@ -99804,6 +99809,12 @@ components:
           type: integer
           description: The global ID of a milestone to assign the merge request to.
           nullable: true
+        milestone:
+          type: string
+          description: The title of a project or ancestor-group milestone to assign
+            the merge request to. Mutually exclusive with `milestone_id`.
+          nullable: true
+          maxLength: 255
         remove_source_branch:
           type: boolean
           description: Flag indicating if a merge request should remove the source
@@ -99847,7 +99858,7 @@ components:
       - title
       - source_branch
       - target_branch
-    RequestBody_745a46e17871:
+    RequestBody_c7d3e0984a3f:
       type: object
       properties:
         title:
@@ -99916,6 +99927,12 @@ components:
           type: integer
           description: The global ID of a milestone to assign the merge request to.
           nullable: true
+        milestone:
+          type: string
+          description: The title of a project or ancestor-group milestone to assign
+            the merge request to. Mutually exclusive with `milestone_id`.
+          nullable: true
+          maxLength: 255
         remove_source_branch:
           type: boolean
           description: Flag indicating if a merge request should remove the source
@@ -100145,7 +100162,7 @@ components:
           nullable: true
       required:
       - content
-    RequestBody_826ae92cf3be:
+    RequestBody_9b0ee174f73a:
       type: object
       properties:
         title:
@@ -100189,6 +100206,12 @@ components:
           type: integer
           description: The ID of a milestone to assign issue
           nullable: true
+        milestone:
+          type: string
+          description: The title of a project or ancestor-group milestone to assign
+            the issue to. Mutually exclusive with `milestone_id`.
+          nullable: true
+          maxLength: 255
         labels:
           type: array
           items:
@@ -100246,7 +100269,7 @@ components:
           nullable: true
       required:
       - title
-    RequestBody_0d4da68f991a:
+    RequestBody_96918c611839:
       type: object
       properties:
         title:
@@ -100284,6 +100307,12 @@ components:
           type: integer
           description: The ID of a milestone to assign issue
           nullable: true
+        milestone:
+          type: string
+          description: The title of a project or ancestor-group milestone to assign
+            the issue to. Mutually exclusive with `milestone_id`.
+          nullable: true
+          maxLength: 255
         labels:
           type: array
           items:

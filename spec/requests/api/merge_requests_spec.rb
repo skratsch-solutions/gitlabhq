@@ -3274,6 +3274,68 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
         end
       end
     end
+
+    context 'with milestone' do
+      let(:base_params) do
+        {
+          title: 'Test merge_request',
+          source_branch: 'feature_conflict',
+          target_branch: 'master',
+          author_id: user.id
+        }
+      end
+
+      context 'with milestone_id' do
+        it 'returns merge_request with milestone assigned' do
+          post api("/projects/#{project.id}/merge_requests", user),
+            params: base_params.merge(milestone_id: milestone.id)
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+
+        it 'creates the merge_request without a milestone when milestone_id is invalid' do
+          post api("/projects/#{project.id}/merge_requests", user),
+            params: base_params.merge(milestone_id: non_existing_record_id)
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']).to be_nil
+        end
+      end
+
+      context 'with milestone title' do
+        it 'returns merge_request with milestone assigned' do
+          post api("/projects/#{project.id}/merge_requests", user),
+            params: base_params.merge(milestone: milestone.title)
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+
+        it 'creates the merge_request without a milestone when the milestone title does not match any milestone in scope' do
+          post api("/projects/#{project.id}/merge_requests", user),
+            params: base_params.merge(milestone: 'nonexistent')
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']).to be_nil
+        end
+      end
+
+      it 'returns 400 when both milestone and milestone_id are provided' do
+        post api("/projects/#{project.id}/merge_requests", user),
+          params: base_params.merge(milestone: milestone.title, milestone_id: milestone.id)
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when milestone title exceeds the length limit' do
+        post api("/projects/#{project.id}/merge_requests", user),
+          params: base_params.merge(milestone: 'a' * 256)
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to include('milestone must be less than 255 characters')
+      end
+    end
   end
 
   describe 'PUT /projects/:id/merge_requests/:merge_request_iid' do
@@ -4312,6 +4374,45 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user), params: { milestone_id: milestone.id }
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['milestone']['id']).to eq(milestone.id)
+    end
+
+    it "leaves the milestone unchanged when milestone_id is invalid" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+        params: { milestone_id: non_existing_record_id }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['milestone']).to be_nil
+    end
+
+    it "updates milestone via title and returns merge_request" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+        params: { milestone: milestone.title }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['milestone']['id']).to eq(milestone.id)
+    end
+
+    it "leaves the milestone unchanged when the milestone title does not match any milestone in scope" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+        params: { milestone: 'nonexistent' }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['milestone']).to be_nil
+    end
+
+    it "returns 400 when both milestone and milestone_id are provided" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+        params: { milestone: milestone.title, milestone_id: milestone.id }
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+    end
+
+    it "returns 400 when milestone title exceeds the length limit" do
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user),
+        params: { milestone: 'a' * 256 }
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect(json_response['error']).to include('milestone must be less than 255 characters')
     end
 
     it "updates squash and returns merge_request" do

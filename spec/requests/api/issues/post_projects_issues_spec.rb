@@ -411,6 +411,59 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
         expect(response).to have_gitlab_http_status(:too_many_requests)
       end
     end
+
+    context 'with milestone' do
+      context 'by milestone_id' do
+        it 'returns issue with milestone assigned' do
+          post api("/projects/#{project.id}/issues", user),
+            params: { title: 'new issue', milestone_id: milestone.id }
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+
+        it 'creates the issue without a milestone when milestone_id is invalid' do
+          post api("/projects/#{project.id}/issues", user),
+            params: { title: 'new issue', milestone_id: non_existing_record_id }
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']).to be_nil
+        end
+      end
+
+      context 'by milestone title' do
+        it 'returns issue with milestone assigned' do
+          post api("/projects/#{project.id}/issues", user),
+            params: { title: 'new issue', milestone: milestone.title }
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']['id']).to eq(milestone.id)
+        end
+
+        it 'creates the issue without a milestone when the milestone title does not match any milestone in scope' do
+          post api("/projects/#{project.id}/issues", user),
+            params: { title: 'new issue', milestone: 'nonexistent' }
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(json_response['milestone']).to be_nil
+        end
+      end
+
+      it 'returns 400 when both milestone and milestone_id are provided' do
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new issue', milestone: milestone.title, milestone_id: milestone.id }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+      end
+
+      it 'returns 400 when milestone title exceeds the length limit' do
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new issue', milestone: 'a' * 256 }
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['error']).to include('milestone must be less than 255 characters')
+      end
+    end
   end
 
   describe 'POST /projects/:id/issues with spam filtering' do

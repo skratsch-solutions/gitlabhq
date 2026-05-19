@@ -1,4 +1,5 @@
-import { mount, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import DynamicPanel from '~/vue_shared/components/dynamic_panel.vue';
 import PanelActions from '~/vue_shared/components/panel_actions.vue';
 
@@ -6,8 +7,9 @@ describe('DynamicPanel', () => {
   let wrapper;
 
   const findPanelActions = () => wrapper.findComponent(PanelActions);
+  const findContainer = () => wrapper.findByTestId('layout-container');
 
-  const createComponent = ({ mountFn = shallowMount, ...options } = {}) => {
+  const createComponent = ({ mountFn = shallowMountExtended, ...options } = {}) => {
     wrapper = mountFn(DynamicPanel, options);
   };
 
@@ -70,6 +72,36 @@ describe('DynamicPanel', () => {
     it('is passed through to PanelActions', () => {
       createComponent({ propsData: { maximizeUrl: '/full/page' } });
       expect(findPanelActions().props('maximizeUrl')).toBe('/full/page');
+    });
+  });
+
+  describe('fluidLayout prop', () => {
+    it('applies container-limited when gon.fluid_layout is not set', () => {
+      createComponent();
+      expect(findContainer().classes()).toContain('container-limited');
+    });
+
+    it('does not apply container-limited when gon.fluid_layout is true', () => {
+      window.gon = { fluid_layout: true };
+      createComponent();
+      expect(findContainer().classes()).not.toContain('container-limited');
+    });
+
+    it('applies container-limited when gon.fluid_layout is false', () => {
+      window.gon = { fluid_layout: false };
+      createComponent();
+      expect(findContainer().classes()).toContain('container-limited');
+    });
+
+    it('does not apply container-limited when fluidLayout prop is true', () => {
+      createComponent({ propsData: { fluidLayout: true } });
+      expect(findContainer().classes()).not.toContain('container-limited');
+    });
+
+    it('prop overrides gon.fluid_layout when explicitly set to false', () => {
+      window.gon = { fluid_layout: true };
+      createComponent({ propsData: { fluidLayout: false } });
+      expect(findContainer().classes()).toContain('container-limited');
     });
   });
 

@@ -143,22 +143,20 @@ type stopCoordinator struct {
 }
 
 type runner struct {
-	rails                     *api.API
-	backend                   http.Handler
-	token                     string
-	originalReq               *http.Request
-	marshalBuf                []byte
-	conn                      websocketConn
-	lockManager               *workflowLockManager
-	workflowID                string
-	mutex                     *redsync.Mutex
-	lockFlow                  bool
-	serverCapabilities        []string
-	streamManager             *streamManager
-	mcpManager                mcpManager
-	websocketClosed           atomic.Bool
-	shouldTimeoutHTTPRequests bool
-	stop                      stopCoordinator
+	originalReq         *http.Request
+	httpActionHandler   *runHTTPActionHandler
+	marshalBuf          []byte
+	conn                websocketConn
+	lockManager         *workflowLockManager
+	workflowID          string
+	mutex               *redsync.Mutex
+	lockFlow            bool
+	serverCapabilities  []string
+	streamManager       *streamManager
+	mcpManager          mcpManager
+	websocketClosed     atomic.Bool
+	stop                stopCoordinator
+	stopWorkflowTimeout time.Duration
 }
 
 func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http.Request, cfg *api.DuoWorkflow, rdb *redis.Client) (*runner, error) {
@@ -183,19 +181,23 @@ func newRunner(conn websocketConn, rails *api.API, backend http.Handler, r *http
 		log.WithRequest(r).WithError(err).Info("failed to initialize MCP server(s)")
 	}
 
-	return &runner{
-		rails:                     rails,
+	httpActionHandler := &runHTTPActionHandler{
 		backend:                   backend,
 		token:                     cfg.Service.Headers["x-gitlab-oauth-token"],
-		originalReq:               r,
-		marshalBuf:                make([]byte, ActionResponseBodyLimit),
-		conn:                      conn,
-		lockManager:               newWorkflowLockManager(rdb),
-		lockFlow:                  lockFlow,
-		serverCapabilities:        cfg.ServerCapabilities,
-		streamManager:             streamManager,
-		mcpManager:                mcpManager,
 		shouldTimeoutHTTPRequests: cfg.TimeoutHTTPRequests,
+		originalReq:               r,
+	}
+
+	return &runner{
+		originalReq:        r,
+		httpActionHandler:  httpActionHandler,
+		marshalBuf:         make([]byte, ActionResponseBodyLimit),
+		conn:               conn,
+		lockManager:        newWorkflowLockManager(rdb),
+		lockFlow:           lockFlow,
+		serverCapabilities: cfg.ServerCapabilities,
+		streamManager:      streamManager,
+		mcpManager:         mcpManager,
 		stop: stopCoordinator{
 			acked: make(chan struct{}),
 		},
@@ -478,16 +480,7 @@ func (r *runner) acquireWorkflowLock(startReq *pb.StartWorkflowRequest) error {
 func (r *runner) handleAgentAction(ctx context.Context, action *pb.Action) error {
 	switch action.Action.(type) {
 	case *pb.Action_RunHTTPRequest:
-		handler := &runHTTPActionHandler{
-			rails:                     r.rails,
-			backend:                   r.backend,
-			token:                     r.token,
-			originalReq:               r.originalReq,
-			action:                    action,
-			shouldTimeoutHTTPRequests: r.shouldTimeoutHTTPRequests,
-		}
-
-		event, err := handler.Execute(ctx)
+		event, err := r.httpActionHandler.Execute(ctx, action)
 		if err != nil {
 			return fmt.Errorf("handleAgentAction: failed to perform API call: %v", err)
 		}
@@ -579,10 +572,15 @@ func (r *runner) stopWorkflow(reason string, closeErr error) error {
 		return fmt.Errorf("failed to send stop request: %v", err)
 	}
 
+	timeout := r.stopWorkflowTimeout
+	if timeout == 0 {
+		timeout = wsStopWorkflowTimeout
+	}
+
 	select {
 	case <-r.stop.acked:
 		return nil
-	case <-time.After(wsStopWorkflowTimeout):
+	case <-time.After(timeout):
 		return fmt.Errorf("workflow didn't stop on time")
 	}
 }

@@ -33,6 +33,7 @@ module API
           :add_labels,
           :remove_labels,
           :milestone_id,
+          :milestone,
           :state_event,
           :title,
           :issue_type

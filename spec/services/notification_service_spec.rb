@@ -4457,6 +4457,194 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
           end
         end
       end
+
+      context 'when pipeline is associated with a merge request' do
+        let_it_be(:mr_author) { create(:user) }
+        let_it_be(:merge_user) { create(:user) }
+        let_it_be(:third_party) { create(:user) }
+
+        before_all do
+          project.add_maintainer(mr_author)
+          project.add_maintainer(merge_user)
+          project.add_maintainer(third_party)
+        end
+
+        context 'with a failed pipeline created by someone other than the author or merger' do
+          let(:pipeline) { create_pipeline(third_party, :failed) }
+
+          context 'when pipeline is the head pipeline of an MR without auto merge' do
+            let!(:merge_request) do
+              create(:merge_request,
+                source_project: project,
+                source_branch: 'master',
+                author: mr_author,
+                head_pipeline: pipeline)
+            end
+
+            it 'emails only the pipeline creator' do
+              expect do
+                notification.pipeline_finished(pipeline)
+              end.to have_only_enqueued_mail_with_args(
+                Notify, :pipeline_failed_email,
+                [a_kind_of(Ci::Pipeline), third_party.email]
+              )
+            end
+          end
+
+          context 'when pipeline is the head pipeline of an MR with auto merge enabled' do
+            let!(:merge_request) do
+              create(:merge_request,
+                source_project: project,
+                source_branch: 'master',
+                author: mr_author,
+                auto_merge_enabled: true,
+                merge_user: merge_user,
+                head_pipeline: pipeline)
+            end
+
+            it 'emails the pipeline creator, MR author, and merge user' do
+              expect do
+                notification.pipeline_finished(pipeline)
+              end.to have_only_enqueued_mail_with_args(
+                Notify, :pipeline_failed_email,
+                [a_kind_of(Ci::Pipeline), third_party.email],
+                [a_kind_of(Ci::Pipeline), mr_author.email],
+                [a_kind_of(Ci::Pipeline), merge_user.email]
+              )
+            end
+
+            context 'when MR author is a bot' do
+              let_it_be(:bot_author) { create(:user, :project_bot) }
+              let!(:merge_request) do
+                create(:merge_request,
+                  source_project: project,
+                  source_branch: 'master',
+                  author: bot_author,
+                  auto_merge_enabled: true,
+                  merge_user: merge_user,
+                  head_pipeline: pipeline)
+              end
+
+              before_all do
+                project.add_maintainer(bot_author)
+              end
+
+              it 'skips the bot author' do
+                expect do
+                  notification.pipeline_finished(pipeline)
+                end.to have_only_enqueued_mail_with_args(
+                  Notify, :pipeline_failed_email,
+                  [a_kind_of(Ci::Pipeline), third_party.email],
+                  [a_kind_of(Ci::Pipeline), merge_user.email]
+                )
+              end
+            end
+
+            context 'when merge user is a bot' do
+              let_it_be(:bot_merge_user) { create(:user, :project_bot) }
+              let!(:merge_request) do
+                create(:merge_request,
+                  source_project: project,
+                  source_branch: 'master',
+                  author: mr_author,
+                  auto_merge_enabled: true,
+                  merge_user: bot_merge_user,
+                  head_pipeline: pipeline)
+              end
+
+              before_all do
+                project.add_maintainer(bot_merge_user)
+              end
+
+              it 'skips the bot merge user' do
+                expect do
+                  notification.pipeline_finished(pipeline)
+                end.to have_only_enqueued_mail_with_args(
+                  Notify, :pipeline_failed_email,
+                  [a_kind_of(Ci::Pipeline), third_party.email],
+                  [a_kind_of(Ci::Pipeline), mr_author.email]
+                )
+              end
+            end
+          end
+        end
+
+        context 'with a failed pipeline created by the MR author' do
+          let(:pipeline) { create_pipeline(mr_author, :failed) }
+          let!(:merge_request) do
+            create(:merge_request,
+              source_project: project,
+              source_branch: 'master',
+              author: mr_author,
+              auto_merge_enabled: true,
+              merge_user: merge_user,
+              head_pipeline: pipeline)
+          end
+
+          it 'emails only the MR author, not the merge user' do
+            expect do
+              notification.pipeline_finished(pipeline)
+            end.to have_only_enqueued_mail_with_args(
+              Notify, :pipeline_failed_email,
+              [a_kind_of(Ci::Pipeline), mr_author.email]
+            )
+          end
+        end
+
+        context 'with a failed pipeline created by the merge user' do
+          let(:pipeline) { create_pipeline(merge_user, :failed) }
+          let!(:merge_request) do
+            create(:merge_request,
+              source_project: project,
+              source_branch: 'master',
+              author: mr_author,
+              auto_merge_enabled: true,
+              merge_user: merge_user,
+              head_pipeline: pipeline)
+          end
+
+          it 'emails only the merge user, not the MR author' do
+            expect do
+              notification.pipeline_finished(pipeline)
+            end.to have_only_enqueued_mail_with_args(
+              Notify, :pipeline_failed_email,
+              [a_kind_of(Ci::Pipeline), merge_user.email]
+            )
+          end
+        end
+
+        context 'with a successful pipeline created by someone other than the author or merger' do
+          let(:pipeline) { create_pipeline(third_party, :success) }
+
+          context 'when pipeline is the head pipeline of an MR with auto merge enabled' do
+            let!(:merge_request) do
+              create(:merge_request,
+                source_project: project,
+                source_branch: 'master',
+                author: mr_author,
+                auto_merge_enabled: true,
+                merge_user: merge_user,
+                head_pipeline: pipeline)
+            end
+
+            it 'does not email the MR author or merge user' do
+              create_notification_setting(mr_author, project, :custom)
+              create_notification_setting(merge_user, project, :custom)
+              update_custom_notification(:success_pipeline, mr_author, resource: project)
+              update_custom_notification(:success_pipeline, merge_user, resource: project)
+
+              expect do
+                notification.pipeline_finished(pipeline)
+              end.not_to have_enqueued_mail(Notify, :pipeline_success_email)
+                .with(a_kind_of(Ci::Pipeline), mr_author.email)
+              expect do
+                notification.pipeline_finished(pipeline)
+              end.not_to have_enqueued_mail(Notify, :pipeline_success_email)
+                .with(a_kind_of(Ci::Pipeline), merge_user.email)
+            end
+          end
+        end
+      end
     end
   end
 
