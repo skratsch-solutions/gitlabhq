@@ -2,6 +2,7 @@
 
 module MergeRequests
   class UpdateService < MergeRequests::BaseService
+    include Gitlab::InternalEventsTracking
     extend ::Gitlab::Utils::Override
 
     def initialize(project:, current_user: nil, params: {})
@@ -234,6 +235,12 @@ module MergeRequests
       if target_branch_was_deleted
         merge_request.head_pipeline_id = nil
         merge_request.retargeted = true
+
+        track_internal_event(
+          'retarget_merge_request_on_target_branch_merge',
+          user: current_user,
+          project: merge_request.target_project
+        )
       else
         refresh_pipelines_on_merge_requests(merge_request, allow_duplicate: true)
       end

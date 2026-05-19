@@ -48,7 +48,7 @@ RSpec.describe TimeboxesHelper, feature_category: :team_planning do
   end
 
   describe '#recent_releases_with_counts' do
-    let_it_be(:project) { milestone_open.project }
+    let_it_be(:project, freeze: false) { milestone_open.project }
     let_it_be(:user) { create(:user) }
 
     subject { helper.recent_releases_with_counts(milestone_open, user) }
@@ -66,7 +66,7 @@ RSpec.describe TimeboxesHelper, feature_category: :team_planning do
   end
 
   describe '#milestone_releases_tooltip_list' do
-    let_it_be(:project) { milestone_upcoming.project }
+    let_it_be(:project, freeze: false) { milestone_upcoming.project }
 
     it 'returns comma separated list of the names of supplied releases and adds the more count when defined' do
       test_releases = create_list(:release, 3, project: project, milestones: [milestone_upcoming], released_at: '2022-01-01T18:00:00Z')
@@ -113,7 +113,7 @@ RSpec.describe TimeboxesHelper, feature_category: :team_planning do
 
   describe 'work items feature flag behavior' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:milestone) { create(:milestone, project: project, title: 'Project Milestone') }
 
     before do

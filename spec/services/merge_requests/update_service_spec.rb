@@ -1580,6 +1580,18 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
           expect(merge_request.reload.head_pipeline_id).to be_nil
           expect(merge_request.retargeted).to eq(true)
         end
+
+        it 'tracks the retarget_merge_request_on_target_branch_merge internal event' do
+          expect { update_merge_request(target_branch: 'master', target_branch_was_deleted: true) }
+            .to trigger_internal_events('retarget_merge_request_on_target_branch_merge')
+              .with(user: user, project: project, namespace: project.namespace)
+            .and increment_usage_metrics('counts.count_total_retarget_merge_request_on_target_branch_merge')
+        end
+      end
+
+      it 'does not track the retarget event on a normal target branch change' do
+        expect { update_merge_request(target_branch: 'master') }
+          .not_to trigger_internal_events('retarget_merge_request_on_target_branch_merge')
       end
     end
 

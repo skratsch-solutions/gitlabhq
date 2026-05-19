@@ -645,7 +645,7 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
   describe 'projects_autocomplete' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project_1) { create(:project, name: 'test 1', star_count: 5) }
+    let_it_be(:project_1, freeze: false) { create(:project, name: 'test 1', star_count: 5) }
     let_it_be(:project_2) { create(:project, name: 'test 2', star_count: 2) }
     let(:search_term) { 'test' }
 

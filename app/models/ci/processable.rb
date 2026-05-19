@@ -319,8 +319,12 @@ module Ci
 
     def job_dependencies_with_accessible_artifacts(all_dependencies)
       build_ids = all_dependencies.collect(&:id)
+      partition_ids = all_dependencies.collect(&:partition_id).uniq
 
-      Ci::Build.id_in(build_ids).builds_with_accessible_artifacts(self.project_id)
+      Ci::Build
+        .id_in(build_ids)
+        .in_partition(partition_ids)
+        .builds_with_accessible_artifacts(self.project_id)
     end
 
     def all_dependencies

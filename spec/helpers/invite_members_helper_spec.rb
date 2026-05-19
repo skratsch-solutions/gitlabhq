@@ -6,7 +6,7 @@ RSpec.describe InviteMembersHelper do
   include Devise::Test::ControllerHelpers
 
   let_it_be(:project) { create(:project) }
-  let_it_be(:group) { create(:group, projects: [project]) }
+  let_it_be(:group, freeze: false) { create(:group, projects: [project]) }
   let_it_be(:developer) { create(:user, developer_of: project) }
 
   let_it_be(:owner) { create(:user, owner_of: project) }
@@ -35,7 +35,7 @@ RSpec.describe InviteMembersHelper do
     end
 
     context 'when sharing with groups outside the hierarchy is disabled' do
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       before do
         group.update!(prevent_sharing_groups_outside_hierarchy: true)
@@ -194,7 +194,7 @@ RSpec.describe InviteMembersHelper do
 
   describe '#invite_accepted_notice' do
     context 'for group invites' do
-      let_it_be(:group) { create(:group, name: 'My group') }
+      let_it_be(:group, freeze: false) { create(:group, name: 'My group') }
       let_it_be(:member) { build(:group_member, :guest, group: group) }
 
       it 'returns the expected message' do

@@ -218,7 +218,7 @@ tests = [
   {
     explanation: 'Spec for EE model',
     changed_file: 'ee/app/models/geo/base_registry.rb',
-    expected: specs_for_all_models
+    expected: specs_for_all_models + ['ee/spec/models/geo/base_registry_spec.rb']
   },
 
   {

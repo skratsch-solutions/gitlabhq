@@ -161,6 +161,12 @@ gem 'graphql', '2.5.23', feature_category: :api
 gem 'graphql-docs', '~> 5.2.0', group: [:development, :test], feature_category: :api
 gem 'apollo_upload_server', '~> 2.1.6', feature_category: :api
 
+# IAM service gRPC client stubs
+gem 'gitlab-iam-grpc',
+  path: 'vendor/gems/gitlab-iam-grpc',
+  require: 'gitlab-iam-grpc',
+  feature_category: :system_access
+
 # Cells
 gem 'gitlab-topology-service-client', '~> 0.1',
   path: 'vendor/gems/gitlab-topology-service-client',
@@ -489,6 +495,8 @@ group :development do
   gem 'ruby-lsp-rspec', "~> 0.1.28", require: false, feature_category: :tooling
 
   gem 'gdk-toogle', '~> 0.9', '>= 0.9.5', require: 'toogle', feature_category: :tooling
+
+  gem 'grpc-tools', '~> 1.80.0', feature_category: :system_access
 
   # Used by
   # * `lib/tasks/gitlab/security/update_banned_ssh_keys.rake`

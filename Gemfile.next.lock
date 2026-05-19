@@ -187,6 +187,13 @@ PATH
       grpc
 
 PATH
+  remote: vendor/gems/gitlab-iam-grpc
+  specs:
+    gitlab-iam-grpc (0.1.0)
+      google-protobuf
+      grpc
+
+PATH
   remote: vendor/gems/gitlab-topology-service-client
   specs:
     gitlab-topology-service-client (0.1)
@@ -1072,6 +1079,7 @@ GEM
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos (~> 1.7.0)
       grpc (~> 1.41)
+    grpc-tools (1.80.0)
     grpc_reflection (0.4.0)
       google-protobuf (>= 4.31.0)
       grpc
@@ -2422,6 +2430,7 @@ DEPENDENCIES
   gitlab-grape-openapi!
   gitlab-housekeeper!
   gitlab-http!
+  gitlab-iam-grpc!
   gitlab-kas-grpc (~> 18.5.0.pre.rc4)
   gitlab-labkit (~> 2.0.0)
   gitlab-license (~> 2.6)
@@ -2471,6 +2480,7 @@ DEPENDENCIES
   graphql (= 2.5.23)
   graphql-docs (~> 5.2.0)
   grpc (~> 1.80.0)
+  grpc-tools (~> 1.80.0)
   gssapi (~> 1.3.1)
   guard-rspec
   gvltools (~> 0.4.0)
@@ -2919,6 +2929,7 @@ CHECKSUMS
   gitlab-grape-openapi (0.1.0)
   gitlab-housekeeper (0.1.0)
   gitlab-http (0.1.0)
+  gitlab-iam-grpc (0.1.0)
   gitlab-kas-grpc (18.5.0.pre.rc4) sha256=8efe8bc957572bad2ee90c22836b285eb65574591db5c8a7bc8080f69ddebcc6
   gitlab-labkit (2.0.0) sha256=16292af3f0cfc0ca94aaff9a007b1ee88bb44e6dc4b362628ad21eba82eb59b7
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
@@ -2998,6 +3009,7 @@ CHECKSUMS
   grpc (1.80.0-x86_64-darwin) sha256=4484d1280a43f94e8f1ab6ae53d282a4832f8ffb61b6996f43fc50716f464f1c
   grpc (1.80.0-x86_64-linux-gnu) sha256=25ba8beb5438152fb60656161dc729c1258c6963ec568361f601e19b2fb7ac23
   grpc-google-iam-v1 (1.11.0) sha256=8f0aa8a8503b3e001cb1561f31e43aa0445752fb675334afa1afac7f023f368c
+  grpc-tools (1.80.0) sha256=49076fbc7b34556365694202ed7ffd1e959e68ba8c339e99b437ba2a985a2cf2
   grpc_reflection (0.4.0) sha256=72d3e743f049821f976a4280b3d1b1a3369775121d75d35954f0e139e4e3f0cf
   gssapi (1.3.1) sha256=c51cf30842ee39bd93ce7fc33e20405ff8a04cda9dec6092071b61258284aee1
   guard (2.16.2) sha256=71ba7abaddecc8be91ab77bbaf78f767246603652ebbc7b976fda497ebdc8fbb

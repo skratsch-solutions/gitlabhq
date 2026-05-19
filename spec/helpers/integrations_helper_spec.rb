@@ -387,7 +387,7 @@ RSpec.describe IntegrationsHelper, feature_category: :integrations do
 
   describe '#integration_issue_type' do
     using RSpec::Parameterized::TableSyntax
-    let_it_be(:issue) { create(:issue) }
+    let_it_be(:issue, freeze: false) { create(:issue) }
 
     where(:issue_type, :expected_i18n_issue_type) do
       "issue"           | _('Issue')

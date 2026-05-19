@@ -11,6 +11,38 @@ RSpec.describe Authn::IamAuthService, feature_category: :system_access do
     end
   end
 
+  describe '.grpc_address' do
+    subject(:grpc_address) { described_class.grpc_address }
+
+    context 'when host and port are configured' do
+      before do
+        stub_config(iam_auth_service: {
+          enabled: true,
+          grpc: { host: 'iam.example.com', port: 5444 }
+        })
+      end
+
+      it 'returns host:port address' do
+        expect(grpc_address).to eq('iam.example.com:5444')
+      end
+    end
+
+    context 'when not configured' do
+      before do
+        stub_config(iam_auth_service: {
+          enabled: true,
+          grpc: { host: '', port: '' }
+        })
+      end
+
+      it 'raises error' do
+        expect { grpc_address }.to raise_error(
+          described_class::ConfigurationError, 'IAM gRPC service is not configured'
+        )
+      end
+    end
+  end
+
   describe '.url' do
     context 'when host and port are configured' do
       before do

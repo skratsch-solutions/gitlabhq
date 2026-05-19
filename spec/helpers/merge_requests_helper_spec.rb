@@ -13,7 +13,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
   include MarkupHelper
   include SafeFormatHelper
 
-  let_it_be(:current_user) { create(:user) }
+  let_it_be(:current_user, freeze: false) { create(:user) }
 
   describe '#merge_params' do
     let(:merge_request) { create(:merge_request) }
@@ -59,7 +59,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
       context 'when sub-group project namespace' do
         let_it_be(:group) { create(:group, :public) }
         let_it_be(:subgroup) { create(:group, :private, parent: group) }
-        let_it_be(:project) { create(:project, :private, group: subgroup) }
+        let_it_be(:project, freeze: false) { create(:project, :private, group: subgroup) }
         let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
         it 'returns expected values' do
@@ -211,7 +211,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
   end
 
   describe '#sticky_header_data' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:draft_merge_request) { create(:merge_request, :opened, :draft_merge_request) }
     let(:imported_merge_request) do
       create(:merge_request, source_project: project, target_project: project, imported_from: imported_from)
@@ -362,7 +362,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
   end
 
   describe '#identity_verification_alert_data' do
-    let_it_be(:current_user) { build_stubbed(:user) }
+    let_it_be(:current_user, freeze: false) { build_stubbed(:user) }
     let(:merge_request) { build_stubbed(:merge_request, author: current_user) }
 
     subject { helper.identity_verification_alert_data(merge_request) }
