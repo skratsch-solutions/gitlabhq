@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Ml::Model, feature_category: :mlops do
-  let_it_be(:project1) { create(:project) }
+  let_it_be(:project1, freeze: false) { create(:project) }
   let_it_be(:project2) { create(:project) }
   let_it_be(:existing_model) { create(:ml_models, name: 'an_existing_model', project: project1) }
   let_it_be(:another_existing_model) { create(:ml_models, name: 'an_existing_model', project: project2) }

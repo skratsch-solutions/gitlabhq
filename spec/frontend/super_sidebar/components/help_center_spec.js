@@ -23,10 +23,7 @@ describe('HelpCenter component', () => {
   };
   const withinComponent = () => within(wrapper.element);
   const findButton = (name) => withinComponent().getByRole('button', { name });
-  const findWhatsNew = () => wrapper.findByTestId('sidebar-whatsnew-button');
   const findUpgradeButton = () => wrapper.findComponent(HelpCenterUpgradeSubscription);
-  const findNotificationCount = () => wrapper.findByTestId('notification-count');
-  const findNotificationDot = () => wrapper.findByTestId('notification-dot');
 
   const createWrapper = (sidebarDataOverride = sidebarData, provide = {}) => {
     wrapper = mountExtended(HelpCenter, {
@@ -100,11 +97,11 @@ describe('HelpCenter component', () => {
     });
 
     it('renders menu items', () => {
-      expect(findWhatsNew().exists()).toBe(true);
       expect(findDropdownGroup(0).props('group').items).toEqual(getDefaultHelpItems());
 
       expect(findDropdownGroup(1).props('group').items).toEqual([
         expect.objectContaining({ text: HelpCenter.i18n.shortcuts }),
+        expect.objectContaining({ text: HelpCenter.i18n.whatsnew }),
       ]);
     });
 
@@ -121,20 +118,6 @@ describe('HelpCenter component', () => {
         ...getDefaultHelpItems(),
         PRIVACY_HELP_ITEM,
       ]);
-    });
-
-    describe('when there are no unread articles', () => {
-      beforeEach(() => {
-        createWrapper({
-          ...sidebarData,
-          whats_new_most_recent_release_items_count: 0,
-          whats_new_read_articles: [],
-        });
-      });
-
-      it('does not show whats new button at top level', () => {
-        expect(findWhatsNew().exists()).toBe(false);
-      });
     });
 
     describe('compare plans URL', () => {
@@ -263,16 +246,21 @@ describe('HelpCenter component', () => {
     });
 
     describe("What's new", () => {
+      const findWhatsNewItem = () =>
+        wrapper
+          .findAllComponents(GlDisclosureDropdownGroup)
+          .wrappers.flatMap((g) => g.props('group').items)
+          .find((item) => item?.text === HelpCenter.i18n.whatsnew);
+
       beforeEach(() => {
         createWrapper({
           ...sidebarData,
           show_version_check: true,
         });
-
-        findButton("What's new").click();
       });
 
-      it("shows the What's new slideout", () => {
+      it("shows the What's new slideout when clicked", async () => {
+        await findWhatsNewItem().action();
         expect(toggleWhatsNewDrawer).toHaveBeenCalledWith(
           {
             versionDigest: sidebarData.whats_new_version_digest,
@@ -281,84 +269,41 @@ describe('HelpCenter component', () => {
             mostRecentReleaseItemsCount: sidebarData.whats_new_most_recent_release_items_count,
           },
           expect.any(Function),
-          expect.any(Function),
         );
       });
 
-      it("shows the existing What's new slideout instance on subsequent clicks", () => {
-        findButton("What's new").click();
+      it('reuses the cached drawer instance on subsequent clicks', async () => {
+        await findWhatsNewItem().action();
+        await findWhatsNewItem().action();
         expect(toggleWhatsNewDrawer).toHaveBeenCalledTimes(2);
         expect(toggleWhatsNewDrawer).toHaveBeenLastCalledWith();
       });
 
-      it('has Snowplow tracking attributes', () => {
-        createWrapper({
-          ...sidebarData,
-          display_whats_new: true,
+      it('has Snowplow tracking attributes on the menu item', () => {
+        expect(findWhatsNewItem().extraAttrs).toEqual({
+          'data-track-action': 'click_button',
+          'data-track-label': 'whats_new',
+          'data-track-property': 'nav_help_menu',
         });
-
-        expect(findButton("What's new").dataset).toEqual(
-          expect.objectContaining({
-            trackAction: 'click_button',
-            trackLabel: 'whats_new',
-            trackProperty: 'nav_whats_new',
-          }),
-        );
       });
     });
 
-    describe("What's new notification", () => {
-      describe('when setting is disabled', () => {
-        beforeEach(() => {
-          createWrapper({
-            ...sidebarData,
-            display_whats_new: false,
-          });
-        });
+    describe("What's new visibility", () => {
+      it('hides the menu item when display_whats_new is disabled', () => {
+        createWrapper({ ...sidebarData, display_whats_new: false });
 
-        it('does not render notification count', () => {
-          expect(findNotificationCount().exists()).toBe(false);
-        });
+        expect(findDropdownGroup(1).props('group').items).toEqual([
+          expect.objectContaining({ text: HelpCenter.i18n.shortcuts }),
+        ]);
       });
 
-      describe('when setting is enabled', () => {
-        beforeEach(() => {
-          createWrapper({
-            ...sidebarData,
-            display_whats_new: true,
-          });
-        });
+      it('renders the menu item even when all articles are read', () => {
+        createWrapper({ ...sidebarData, whats_new_read_articles: [1, 2] });
 
-        it('renders notification count', () => {
-          expect(findNotificationCount().exists()).toBe(true);
-        });
-
-        describe("when What's new drawer is opened", () => {
-          beforeEach(() => {
-            findButton("What's new").click();
-          });
-
-          it('renders notification count', () => {
-            expect(findNotificationCount().exists()).toBe(true);
-          });
-        });
-      });
-
-      describe('with all articles read', () => {
-        beforeEach(() => {
-          createWrapper({ ...sidebarData, whats_new_read_articles: [1, 2] });
-        });
-
-        it('renders menu items, does not render notification count', () => {
-          expect(findNotificationCount().exists()).toBe(false);
-
-          expect(findDropdownGroup(0).props('group').items).toEqual(getDefaultHelpItems());
-
-          expect(findDropdownGroup(1).props('group').items).toEqual([
-            expect.objectContaining({ text: HelpCenter.i18n.shortcuts }),
-            expect.objectContaining({ text: HelpCenter.i18n.whatsnew }),
-          ]);
-        });
+        expect(findDropdownGroup(1).props('group').items).toEqual([
+          expect.objectContaining({ text: HelpCenter.i18n.shortcuts }),
+          expect.objectContaining({ text: HelpCenter.i18n.whatsnew }),
+        ]);
       });
     });
 
@@ -389,35 +334,6 @@ describe('HelpCenter component', () => {
     it('renders upgrade subscription button', () => {
       expect(findUpgradeButton().exists()).toBe(true);
     });
-
-    it('renders menu items without whats new at top level', () => {
-      expect(findWhatsNew().exists()).toBe(false);
-      expect(findDropdownGroup(0).props('group').items).toEqual(getDefaultHelpItems());
-
-      expect(findDropdownGroup(1).props('group').items).toEqual([
-        expect.objectContaining({ text: HelpCenter.i18n.shortcuts }),
-        expect.objectContaining({ text: HelpCenter.i18n.whatsnew }),
-      ]);
-    });
-
-    it('shows notification dot on help button', () => {
-      expect(findNotificationDot().exists()).toBe(true);
-    });
-
-    describe('when there are no unread articles', () => {
-      beforeEach(() => {
-        createWrapper({
-          ...sidebarData,
-          free_group_upgrade_link: '/groups/my-group/-/billings',
-          whats_new_most_recent_release_items_count: 0,
-          whats_new_read_articles: [],
-        });
-      });
-
-      it('does not show notification dot on help button', () => {
-        expect(findNotificationDot().exists()).toBe(false);
-      });
-    });
   });
 
   describe('when free_group_upgrade_link is not provided', () => {
@@ -427,10 +343,6 @@ describe('HelpCenter component', () => {
 
     it('does not render upgrade subscription button', () => {
       expect(findUpgradeButton().exists()).toBe(false);
-    });
-
-    it('shows whats new button at top level', () => {
-      expect(findWhatsNew().exists()).toBe(true);
     });
   });
 });

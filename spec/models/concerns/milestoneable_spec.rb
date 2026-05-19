@@ -113,7 +113,7 @@ RSpec.describe Milestoneable do
   describe 'release scopes' do
     let_it_be(:project) { create(:project, :repository) }
 
-    let_it_be(:release_1) { create(:release, tag: 'v1.0', project: project) }
+    let_it_be(:release_1, freeze: false) { create(:release, tag: 'v1.0', project: project) }
     let_it_be(:release_2) { create(:release, tag: 'v2.0', project: project) }
     let_it_be(:release_3) { create(:release, tag: 'v3.0', project: project) }
     let_it_be(:release_4) { create(:release, tag: 'v4.0', project: project) }

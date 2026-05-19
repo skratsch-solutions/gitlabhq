@@ -10,7 +10,7 @@ RSpec.describe Environments::Job, feature_category: :environment_management do
   it { is_expected.to belong_to(:deployment).optional }
 
   describe 'validations' do
-    let_it_be(:job_environment) { create(:job_environment) }
+    let_it_be(:job_environment, freeze: false) { create(:job_environment) }
 
     subject { job_environment }
 

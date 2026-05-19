@@ -55,12 +55,6 @@ module LoginHelpers
     click_oauth_provider(provider)
   end
 
-  def gitlab_enable_admin_mode_sign_in_via(provider, user, uid, saml_response: nil, expect_fail: false, additional_info: {})
-    response_object = saml_xml(saml_response) if saml_response.present?
-    mock_auth_hash(provider, uid, user.email, response_object: response_object, additional_info: additional_info)
-    click_oauth_provider(provider, sign_in_path: new_admin_session_path, expect_fail: expect_fail)
-  end
-
   # Requires Javascript driver.
   def gitlab_sign_out(user = @current_user)
     within_testid('user-dropdown') do

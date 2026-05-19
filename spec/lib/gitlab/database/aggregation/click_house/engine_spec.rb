@@ -653,6 +653,52 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
       end
     end
 
+    context 'with non-over dimensions' do
+      let(:engine_definition) do
+        described_class.build do
+          self.table_name = 'agent_platform_sessions'
+          self.table_primary_key = %w[namespace_path user_id session_id flow_type]
+
+          dimensions do
+            column :flow_type, :string
+            date_bucket :event_date, :date, -> { Arel.sql('anyIfMerge(created_event_at)') }, parameters: {
+              granularity: { type: :string, in: %w[daily] }
+            }
+          end
+
+          metrics do
+            retained_count :returning_users, :integer, -> { Arel.sql('user_id') }, over: :event_date
+            lagged_count :previous_users, :integer, -> { Arel.sql('user_id') }, over: :event_date
+          end
+        end
+      end
+
+      it 'partitions the window by non-over dimension aliases' do
+        request = Gitlab::Database::Aggregation::Request.new(
+          dimensions: [
+            { identifier: :flow_type },
+            { identifier: :event_date, parameters: { granularity: 'daily' } }
+          ],
+          metrics: [
+            { identifier: :returning_users_count },
+            { identifier: :previous_users_count }
+          ]
+        )
+
+        plan = request.to_query_plan(engine)
+        sql = engine.send(:execute_query_plan, plan).send(:query).to_sql
+
+        expect(sql).to include(
+          'lagInFrame(aeq_returning_users_count, 1, []) ' \
+            'OVER (PARTITION BY aeq_flow_type ORDER BY aeq_event_date_daily ASC)'
+        )
+        expect(sql).to include(
+          'lagInFrame(aeq_previous_users_count, 1, 0) ' \
+            'OVER (PARTITION BY aeq_flow_type ORDER BY aeq_event_date_daily ASC)'
+        )
+      end
+    end
+
     context 'with filter, order, and pagination applied' do
       let(:engine_definition) do
         described_class.build do

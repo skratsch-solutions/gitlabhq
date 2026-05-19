@@ -206,7 +206,7 @@ only from that repository. You can also use partial paths or patterns to match m
 
 You can now configure flows and external agents to run on the **Merge request ready** event.
 
-When a draft merge request is marked as ready for review, GitLab Duo automatically runs the flow or external agent. 
+When a draft merge request is marked as ready for review, GitLab Duo automatically runs the flow or external agent.
 
 To configure a trigger, go to **AI** > **Triggers** in your project.
 
@@ -540,6 +540,24 @@ The profile activates two scan triggers:
 - **Merge Request Pipelines**: Automatically runs a dependency scanning scan each time new commits are pushed to a branch with an open merge request. Results include only new vulnerabilities introduced by the merge request.
 - **Branch Pipelines (default only)**: Runs automatically when changes are merged or pushed to the default branch, providing a complete view of your default branch's dependency posture.
 
+### Dependency resolution for Gradle SBOM scanning
+
+<!-- categories: Software Composition Analysis -->
+
+{{< details >}}
+
+- Tier: Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
+- Links: [Documentation](../../user/application_security/dependency_scanning/dependency_scanning_sbom/_index.md#dependency-resolution) | [Related epic](https://gitlab.com/groups/gitlab-org/-/work_items/590734)
+
+{{< /details >}}
+
+GitLab dependency scanning using SBOM now automatically generates a dependency graph (`gradle.graph.txt`)
+for Gradle projects. Previously, Gradle dependency scanning required
+you to generate a dependency graph
+manually as part of your build. Now, when a graph file is not available, the analyzer
+generates one automatically, removing this manual step for Java and Kotlin projects using Gradle.
+
 ### Improved array support for CI/CD inputs
 
 <!-- categories: Pipeline Composition -->
@@ -769,5 +787,5 @@ We’re also releasing GitLab Runner 19.0 today! GitLab Runner is the highly-sca
 - [Broken RPM S3 download links for `amd64`, `arm64`, `arm`, and `armhf` in GitLab Runner 18.9.0 and later](https://gitlab.com/gitlab-org/gitlab-runner/-/work_items/39362)
 - [Negative exit codes are reported incorrectly on Windows](https://gitlab.com/gitlab-org/gitlab-runner/-/work_items/39292)
 - [Incorrect Kubernetes executor service container naming documentation](https://gitlab.com/gitlab-org/gitlab-runner/-/work_items/39235)
-        
+
 The list of all changes is in the GitLab Runner [CHANGELOG](https://gitlab.com/gitlab-org/gitlab-runner/blob/19-0-stable/CHANGELOG.md).

@@ -19059,6 +19059,9 @@ msgstr ""
 msgid "ComplianceReport|%{title} (CSP)"
 msgstr ""
 
+msgid "ComplianceReport|, and more"
+msgstr ""
+
 msgid "ComplianceReport|Action"
 msgstr ""
 
@@ -84404,9 +84407,6 @@ msgstr ""
 msgid "What's new at GitLab"
 msgstr ""
 
-msgid "What's new moved to Help."
-msgstr ""
-
 msgid "When a deployment job is successful, prevent older deployment jobs that are still pending."
 msgstr ""
 
@@ -89551,6 +89551,9 @@ msgid "has already been taken as Suite"
 msgstr ""
 
 msgid "has been completed."
+msgstr ""
+
+msgid "has disabled the use of built-in project templates"
 msgstr ""
 
 msgid "has too deep level of nesting"

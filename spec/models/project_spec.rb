@@ -2230,7 +2230,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     # TODO update when we have multiple owners of a project
     # https://gitlab.com/gitlab-org/gitlab/-/issues/350605
     let_it_be(:owner)     { create(:user, name: 'Gitlab') }
-    let_it_be(:namespace) { create(:namespace, name: 'Sample namespace', path: 'sample-namespace', owner: owner) }
+    let_it_be(:namespace, freeze: false) { create(:namespace, name: 'Sample namespace', path: 'sample-namespace', owner: owner) }
     let_it_be(:project)   { create(:project, name: 'Sample project', path: 'sample-project', namespace: namespace) }
     let_it_be(:group)     { create(:group, name: 'Group', path: 'sample-group') }
     let_it_be(:another_project) { create(:project, namespace: namespace) }
@@ -2733,7 +2733,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
   describe '#first_owner' do
     let_it_be(:owner)     { create(:user) }
-    let_it_be(:namespace) { create(:namespace, owner: owner) }
+    let_it_be(:namespace, freeze: false) { create(:namespace, owner: owner) }
 
     context 'the project does not have a group' do
       let(:project) { build(:project, namespace: namespace) }
@@ -2758,7 +2758,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   describe '#first_human_owner' do
     context 'for a personal project' do
       let_it_be(:owner) { create(:user) }
-      let_it_be(:namespace) { create(:namespace, owner: owner) }
+      let_it_be(:namespace, freeze: false) { create(:namespace, owner: owner) }
       let_it_be(:project) { create(:project, namespace: namespace) }
 
       it 'returns the namespace owner when they are a human and active' do
@@ -4035,7 +4035,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#default_branch_protected?' do
-    let_it_be(:namespace) { create(:namespace) }
+    let_it_be(:namespace, freeze: false) { create(:namespace) }
     let_it_be(:project) { create(:project, namespace: namespace) }
 
     subject { project.default_branch_protected? }
@@ -6905,7 +6905,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#dependency_proxy_variables' do
-    let_it_be(:namespace) { create(:namespace, path: 'NameWithUPPERcaseLetters') }
+    let_it_be(:namespace, freeze: false) { create(:namespace, path: 'NameWithUPPERcaseLetters') }
     let_it_be(:project) { create(:project, :repository, namespace: namespace) }
 
     subject { project.dependency_proxy_variables.to_runner_variables }
@@ -7250,7 +7250,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'branch protection' do
-      let_it_be(:namespace) { create(:namespace) }
+      let_it_be(:namespace, freeze: false) { create(:namespace) }
 
       let_it_be(:project) { create(:project, :repository, namespace: namespace) }
 

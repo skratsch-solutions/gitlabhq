@@ -582,7 +582,7 @@ RSpec.describe Event, feature_category: :user_profile do
     end
 
     context 'commit note event' do
-      let_it_be(:project) { create(:project, :public, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
       let(:target) { note_on_commit }
 
       include_context 'with member and guest added to project'
@@ -592,7 +592,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'private project' do
-        let_it_be(:project) { create(:project, :private, :repository) }
+        let_it_be(:project, freeze: false) { create(:project, :private, :repository) }
 
         include_context 'with member and guest added to project'
 
@@ -745,7 +745,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'on public project with private issue tracker and merge requests' do
-        let_it_be(:project) { create(:project, :public, :issues_private, :merge_requests_private) }
+        let_it_be(:project, freeze: false) { create(:project, :public, :issues_private, :merge_requests_private) }
 
         include_context 'with member and guest added to project'
 
@@ -763,7 +763,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'on private project' do
-        let_it_be(:project) { create(:project, :private) }
+        let_it_be(:project, freeze: false) { create(:project, :private) }
 
         include_context 'with member and guest added to project'
 
@@ -785,7 +785,7 @@ RSpec.describe Event, feature_category: :user_profile do
       let(:event) { create(:wiki_page_event, project: project) }
 
       context 'on private project', :aggregate_failures do
-        let_it_be(:project) { create(:project, :wiki_repo) }
+        let_it_be(:project, freeze: false) { create(:project, :wiki_repo) }
 
         include_context 'with member and guest added to project'
 
@@ -803,7 +803,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'wiki-page event on public project', :aggregate_failures do
-        let_it_be(:project) { create(:project, :public, :wiki_repo) }
+        let_it_be(:project, freeze: false) { create(:project, :public, :wiki_repo) }
 
         include_context 'with member and guest added to project'
 
@@ -817,7 +817,7 @@ RSpec.describe Event, feature_category: :user_profile do
       let(:event) { create(:event, :for_wiki_page_note, project: project) }
 
       context 'on private project', :aggregate_failures do
-        let_it_be(:project) { create(:project, :wiki_repo) }
+        let_it_be(:project, freeze: false) { create(:project, :wiki_repo) }
 
         include_context 'with member and guest added to project'
 
@@ -835,7 +835,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'wiki-page event on public project', :aggregate_failures do
-        let_it_be(:project) { create(:project, :public, :wiki_repo) }
+        let_it_be(:project, freeze: false) { create(:project, :public, :wiki_repo) }
 
         include_context 'with member and guest added to project'
 
@@ -853,7 +853,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'on public project with private snippets' do
-        let_it_be(:project) { create(:project, :public, :snippets_private) }
+        let_it_be(:project, freeze: false) { create(:project, :public, :snippets_private) }
 
         include_context 'with member and guest added to project'
 
@@ -876,7 +876,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'on private project' do
-        let_it_be(:project) { create(:project, :private) }
+        let_it_be(:project, freeze: false) { create(:project, :private) }
 
         include_context 'with member and guest added to project'
 
@@ -1031,7 +1031,7 @@ RSpec.describe Event, feature_category: :user_profile do
   end
 
   describe 'categorization' do
-    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :repository) }
     let_it_be(:all_valid_events) do
       # mapping from factory name to whether we need to supply the project
       valid_target_factories = {

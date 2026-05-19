@@ -48,12 +48,6 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       oauth_applications
       oauth_device_grants
       oauth_openid_requests
-      organization_detail_uploads
-      organization_details
-      organization_foundational_agent_statuses
-      organization_isolations
-      organization_push_rules
-      organization_settings
       organization_user_details
       organization_users
       personal_access_token_last_used_ips
@@ -101,6 +95,12 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       enabled_foundational_flow_check_results
       integrations
       labels
+      organization_detail_uploads
+      organization_details
+      organization_foundational_agent_statuses
+      organization_isolations
+      organization_push_rules
+      organization_settings
       web_hooks
       web_hook_logs_daily
     ]

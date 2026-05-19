@@ -56,16 +56,12 @@ For information about the security of flows, see [the composite identity documen
 
 ## Prerequisites
 
-To use flows:
+<!-- Note: These prerequisites are duplicated on each flow sub-page. Update all pages when editing. -->
 
-- You must meet the [prerequisites](../_index.md#prerequisites).
-
-To execute flows in the GitLab UI:
-
-- You must turn on flows with [the GitLab Duo settings](../../gitlab_duo/turn_on_off.md).
-- To use flows that create code, you must
-  [configure push rules to allow a service account](../troubleshooting.md#configure-push-rules-to-allow-a-service-account).
-- Either [configure your own runners](execution.md#configure-runners) or ensure that [GitLab hosted runners](../../../ci/runners/hosted_runners/_index.md) are enabled in your project and working.
+- Meet the [prerequisites for the GitLab Duo Agent Platform](../_index.md#prerequisites).
+- Turn on **Allow foundational flows** [for the top-level group](foundational_flows/_index.md#turn-foundational-flows-on-or-off).
+- [Configure push rules to allow a service account](../troubleshooting.md#configure-push-rules-to-allow-a-service-account).
+- [Configure your own runners](execution.md#configure-runners) or turn on [GitLab hosted runners](../../../ci/runners/hosted_runners/_index.md) for your project.
 
 ## Monitor running flows in the GitLab UI
 

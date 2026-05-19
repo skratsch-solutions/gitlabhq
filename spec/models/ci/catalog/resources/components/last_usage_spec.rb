@@ -81,9 +81,9 @@ RSpec.describe Ci::Catalog::Resources::Components::LastUsage, type: :model, feat
 
   describe '.by_version_ids' do
     let_it_be(:catalog_resource) { create(:ci_catalog_resource) }
-    let_it_be(:version_a) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
+    let_it_be(:version_a, freeze: false) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:version_b) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
-    let_it_be(:version_c) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
+    let_it_be(:version_c, freeze: false) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:component_in_version_a) do
       create(:ci_catalog_resource_component, catalog_resource: catalog_resource, version: version_a, name: 'comp')
     end
@@ -137,7 +137,7 @@ RSpec.describe Ci::Catalog::Resources::Components::LastUsage, type: :model, feat
 
   describe '.by_version_id' do
     let_it_be(:catalog_resource) { create(:ci_catalog_resource) }
-    let_it_be(:version_a) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
+    let_it_be(:version_a, freeze: false) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:version_b) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:component_in_version_a) do
       create(:ci_catalog_resource_component, catalog_resource: catalog_resource, version: version_a, name: 'comp')
@@ -178,7 +178,7 @@ RSpec.describe Ci::Catalog::Resources::Components::LastUsage, type: :model, feat
 
   describe '.by_component_name' do
     let_it_be(:catalog_resource) { create(:ci_catalog_resource) }
-    let_it_be(:version_a) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
+    let_it_be(:version_a, freeze: false) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:version_b) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
     let_it_be(:rails_in_v_a) do
       create(:ci_catalog_resource_component, catalog_resource: catalog_resource, version: version_a, name: 'rails')

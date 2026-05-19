@@ -438,7 +438,7 @@ RSpec.describe Packages::PackageFile, feature_category: :package_registry do
     end
 
     describe '#with_debian_unknown_since' do
-      let_it_be(:incoming) { create(:debian_incoming, project: project) }
+      let_it_be(:incoming, freeze: false) { create(:debian_incoming, project: project) }
 
       before do
         incoming.package_files.first.debian_file_metadatum.update! updated_at: 1.day.ago

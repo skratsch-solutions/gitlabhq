@@ -299,7 +299,7 @@ To install OpenBao by using Helm:
 
    # The chart deploys a Kubernetes Ingress resource by default, which you need to provide the hostname to be reachable for GitLab Rails and Sidekiq
    # Alternatively, you could configure it to deploy an HTTPRoute resource, if you prefer to deploy a Gateway API controller.
-   # 
+   #
    # For available network ingress and TLS configuration options, see:
    # https://docs.gitlab.com/charts/charts/openbao/#ingress-and-tls-configuration-options
    ingress:

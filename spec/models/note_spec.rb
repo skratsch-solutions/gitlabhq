@@ -119,7 +119,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
     describe 'max notes limit' do
       let_it_be(:noteable) { create(:issue) }
-      let_it_be(:existing_note) { create(:note, project: noteable.project, noteable: noteable) }
+      let_it_be(:existing_note, freeze: false) { create(:note, project: noteable.project, noteable: noteable) }
 
       before do
         stub_const('Noteable::MAX_NOTES_LIMIT', 1)
@@ -166,7 +166,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
     describe 'confidentiality' do
       context 'for existing public note' do
-        let_it_be(:existing_note) { create(:note) }
+        let_it_be(:existing_note, freeze: false) { create(:note) }
 
         it 'is not possible to change the note to confidential' do
           existing_note.confidential = true
@@ -183,7 +183,7 @@ RSpec.describe Note, feature_category: :team_planning do
       end
 
       context 'for existing confidential note' do
-        let_it_be(:existing_note) { create(:note, confidential: true) }
+        let_it_be(:existing_note, freeze: false) { create(:note, confidential: true) }
 
         it 'is not possible to change the note to public' do
           existing_note.confidential = false
@@ -638,7 +638,7 @@ RSpec.describe Note, feature_category: :team_planning do
     end
 
     let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, group: group) }
     let_it_be(:group_work_item) { create(:work_item, :group_level, namespace: group) }
     let_it_be(:project_work_item) { create(:work_item, :task, project: project) }
 
@@ -942,8 +942,8 @@ RSpec.describe Note, feature_category: :team_planning do
 
   describe "#system_note_viewable_by?(user)" do
     let_it_be(:group) { create(:group, :private) }
-    let_it_be(:project) { create(:project, group: group) }
-    let_it_be(:note) { create(:note, project: project) }
+    let_it_be(:project, freeze: false) { create(:project, group: group) }
+    let_it_be(:note, freeze: false) { create(:note, project: project) }
     let_it_be(:user) { create(:user) }
 
     let(:action) { "commit" }
@@ -1256,7 +1256,7 @@ RSpec.describe Note, feature_category: :team_planning do
       let_it_be(:milestone2) { create(:milestone, project: create(:project, :private)) }
       let_it_be(:milestone3) { create(:milestone, project: create(:project, :private)) }
       let_it_be(:milestone_event) { create(:resource_milestone_event, issue: issue, milestone: milestone1) }
-      let_it_be(:note) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
+      let_it_be(:note, freeze: false) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
 
       it { expect(note.system_note_visible_for?(user)).to be false }
 
@@ -1268,7 +1268,7 @@ RSpec.describe Note, feature_category: :team_planning do
       let_it_be(:milestone2) { create(:milestone, group: create(:group, :private)) }
       let_it_be(:milestone3) { create(:milestone, group: create(:group, :private)) }
       let_it_be(:milestone_event) { create(:resource_milestone_event, issue: issue, milestone: milestone1) }
-      let_it_be(:note) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
+      let_it_be(:note, freeze: false) { MilestoneNote.from_event(milestone_event, resource: issue, resource_parent: issue.project) }
 
       it { expect(note.system_note_visible_for?(user)).to be false }
 
@@ -1295,7 +1295,7 @@ RSpec.describe Note, feature_category: :team_planning do
   end
 
   describe '#check_for_spam' do
-    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :public) }
     let_it_be(:group)   { create(:group, :public) }
     let(:issue)     { create(:issue, project: project) }
     let(:note)      { create(:note, note: "test", noteable: issue, project: project) }
@@ -1946,7 +1946,7 @@ RSpec.describe Note, feature_category: :team_planning do
       subject { note.noteable.notes.inc_relations_for_view(noteable) }
 
       context 'when noteable can not have diffs' do
-        let_it_be(:note) { create(:note_on_issue) }
+        let_it_be(:note, freeze: false) { create(:note_on_issue) }
         let(:noteable) { note.noteable }
 
         it 'does not include additional associations' do
@@ -1965,7 +1965,7 @@ RSpec.describe Note, feature_category: :team_planning do
       end
 
       context 'when noteable can have diffs' do
-        let_it_be(:note) { create(:note_on_commit) }
+        let_it_be(:note, freeze: false) { create(:note_on_commit) }
         let(:noteable) { note.noteable }
 
         it 'includes additional diff associations' do
@@ -2166,7 +2166,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
   describe '#exportable_record?' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project, :private) }
+    let_it_be(:project, freeze: false) { create(:project, :private) }
     let_it_be(:noteable) { create(:issue, project: project) }
 
     subject { note.exportable_record?(user) }
@@ -2200,7 +2200,7 @@ RSpec.describe Note, feature_category: :team_planning do
     subject { note.human_max_access }
 
     context 'when parent is a project' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
       let_it_be(:noteable) { create(:wiki_page_meta, project: project) }
       let(:note) { create(:note, project: project, author: user, noteable: noteable) }
 

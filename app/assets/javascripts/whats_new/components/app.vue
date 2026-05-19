@@ -35,11 +35,6 @@ export default {
       type: Number,
       required: true,
     },
-    withClose: {
-      type: Function,
-      required: false,
-      default: () => {},
-    },
     updateHelpMenuUnreadBadge: {
       type: Function,
       required: false,
@@ -103,10 +98,6 @@ export default {
       this.fetchItems({ page, versionDigest });
     },
     close() {
-      if (this.withClose) {
-        this.withClose();
-      }
-
       this.closeDrawer();
     },
   },

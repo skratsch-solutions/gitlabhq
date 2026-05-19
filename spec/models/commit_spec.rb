@@ -1100,7 +1100,7 @@ TEXT
 
   describe '#first_diffs_slice' do
     let_it_be(:sha) { "913c66a37b4a45b9769037c55c2d238bd0942d2e" }
-    let_it_be(:commit) { project.commit_by(oid: sha) }
+    let_it_be(:commit, freeze: false) { project.commit_by(oid: sha) }
     let_it_be(:limit) { 5 }
 
     subject(:first_diffs_slice) { commit.first_diffs_slice(limit) }

@@ -6301,7 +6301,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_2def9177cd1c"
+              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
@@ -6368,7 +6368,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_2def9177cd1c"
+              "$ref": "#/components/schemas/RequestBody_d75fa79afa6e"
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
@@ -72217,6 +72217,9 @@ components:
         read_virtual_registry:
           type: boolean
           default: false
+        update_sast_vulnerability_resolution_setting:
+          type: boolean
+          default: false
         read_admin_cicd:
           type: boolean
           default: false
@@ -87839,7 +87842,7 @@ components:
           nullable: true
       required:
       - extern_uid
-    RequestBody_2def9177cd1c:
+    RequestBody_d75fa79afa6e:
       type: object
       properties:
         base_access_level:
@@ -87996,6 +87999,11 @@ components:
             Enables users to resolve packages through the virtual registry without
             requiring broader group membership permissions. Only works on top level
             groups.
+          nullable: true
+        update_sast_vulnerability_resolution_setting:
+          type: boolean
+          description: Turn SAST Vulnerability Resolution on or off for a project.
+            Also requires the `read_vulnerability` permission.
           nullable: true
         read_admin_cicd:
           type: boolean

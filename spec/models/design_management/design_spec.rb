@@ -6,7 +6,7 @@ RSpec.describe DesignManagement::Design, feature_category: :design_management do
   include DesignManagementTestHelpers
 
   let_it_be(:issue) { create(:issue) }
-  let_it_be(:design1) { create(:design, :with_versions, issue: issue, versions_count: 1) }
+  let_it_be(:design1, freeze: false) { create(:design, :with_versions, issue: issue, versions_count: 1) }
   let_it_be(:design2) { create(:design, :with_versions, issue: issue, versions_count: 1) }
   let_it_be(:design3) { create(:design, :with_versions, issue: issue, versions_count: 1) }
   let_it_be(:deleted_design) { create(:design, :with_versions, deleted: true) }

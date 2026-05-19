@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Ci::Catalog::Resource, feature_category: :pipeline_composition do
   let_it_be(:current_user) { create(:user) }
 
-  let_it_be(:project_a) { create(:project, name: 'A', star_count: 20) }
+  let_it_be(:project_a, freeze: false) { create(:project, name: 'A', star_count: 20) }
   let_it_be(:project_b) { create(:project, name: 'B', star_count: 10) }
   let_it_be(:project_c) { create(:project, name: 'C', description: 'B', star_count: 30) }
 
@@ -517,7 +517,7 @@ RSpec.describe Ci::Catalog::Resource, feature_category: :pipeline_composition do
   end
 
   describe 'updating latest_released_at using model callbacks' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:resource) { create(:ci_catalog_resource, project: project) }
 
     let_it_be_with_refind(:january_release) do

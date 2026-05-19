@@ -19,9 +19,9 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
     it { is_expected.to validate_uniqueness_of(:work_item) }
 
     describe 'hierarchy validations' do
-      let_it_be(:issue) { create(:work_item, project: project) }
-      let_it_be(:task1) { create(:work_item, :task, project: project) }
-      let_it_be(:task2) { build(:work_item, :task, project: project) }
+      let_it_be(:issue, freeze: false) { create(:work_item, project: project) }
+      let_it_be(:task1, freeze: false) { create(:work_item, :task, project: project) }
+      let_it_be(:task2, freeze: false) { build(:work_item, :task, project: project) }
 
       describe '#validate_hierarchy_restrictions' do
         it 'prevents invalid parent-child type combinations' do
@@ -54,7 +54,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
 
         context 'when parent already exceeds maximum number of links' do
           let_it_be(:task3) { create(:work_item, :task, project: project) }
-          let_it_be(:link2) { create(:parent_link, work_item_parent: issue, work_item: task2) }
+          let_it_be(:link2, freeze: false) { create(:parent_link, work_item_parent: issue, work_item: task2) }
 
           it 'only invalidates new links' do
             link3 = build(:parent_link, work_item_parent: issue, work_item: task3)
@@ -70,7 +70,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
 
       describe '#check_existing_related_link' do
         shared_examples 'invalid link' do |link_factory|
-          let_it_be(:parent_link) { build(:parent_link, work_item_parent: issue, work_item: task1) }
+          let_it_be(:parent_link, freeze: false) { build(:parent_link, work_item_parent: issue, work_item: task1) }
           let(:error_msg) { 'cannot assign a linked work item as a parent' }
 
           context 'when creating new link' do
@@ -174,12 +174,12 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
   describe 'scopes' do
     let_it_be(:project) { create(:project) }
     let_it_be(:issue1) { create(:work_item, project: project) }
-    let_it_be(:issue2) { create(:work_item, project: project) }
+    let_it_be(:issue2, freeze: false) { create(:work_item, project: project) }
     let_it_be(:issue3) { create(:work_item, project: project) }
-    let_it_be(:task1) { create(:work_item, :task, project: project) }
-    let_it_be(:task2) { create(:work_item, :task, project: project) }
+    let_it_be(:task1, freeze: false) { create(:work_item, :task, project: project) }
+    let_it_be(:task2, freeze: false) { create(:work_item, :task, project: project) }
     let_it_be(:link1) { create(:parent_link, work_item_parent: issue1, work_item: task1) }
-    let_it_be(:link2) { create(:parent_link, work_item_parent: issue2, work_item: task2) }
+    let_it_be(:link2, freeze: false) { create(:parent_link, work_item_parent: issue2, work_item: task2) }
 
     describe 'for_parents' do
       it 'includes the correct records' do

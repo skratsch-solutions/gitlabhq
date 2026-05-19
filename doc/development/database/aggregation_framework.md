@@ -297,6 +297,62 @@ Calculates percentiles using ClickHouse's `quantile()` function. **Supports para
 |-----------|------|--------|---------|-------------|
 | `quantile` | Float | `0.0` - `1.0` | `0.5` | Quantile value (0.5 = median, 0.9 = p90, 0.99 = p99) |
 
+#### `retained_count` metric
+
+Counts values that appear in both the current and previous period, using `groupBitmapState`
+and `arrayIntersect`. Use `retained_count` for feature retention or returning-user counts.
+The dimension referenced by `over:` must be requested in the query.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `name` | Symbol | Yes | Identifier name. Identifier becomes `:{name}_count` |
+| `type` | Symbol | No | Data type. Default: `:integer` |
+| `expression` | Proc | No | Expression for the value to deduplicate, for example `user_id` |
+| `over` | Symbol | Yes | Dimension that defines the period. Must be a dimension on the engine |
+| `lag_offset` | Integer | No | Number of periods to compare against. Default: `1` |
+| `description` | String | No | Human-readable description |
+
+Example:
+
+```ruby
+metrics do
+  retained_count :returning_users, :integer, -> { sql('user_id') }, over: :timestamp,
+    description: 'Users present in both the current and previous period'
+end
+```
+
+#### `lagged_count` metric
+
+Returns the distinct count of values from the previous period, using `uniqExact` with
+`lagInFrame`. Pair `lagged_count` with `retained_count` to compute retention rates
+(returning ÷ previous). The dimension referenced by `over:` must be requested in the query.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `name` | Symbol | Yes | Identifier name. Identifier becomes `:{name}_count` |
+| `type` | Symbol | No | Data type. Default: `:integer` |
+| `expression` | Proc | No | Expression for the value to deduplicate |
+| `over` | Symbol | Yes | Dimension that defines the period |
+| `lag_offset` | Integer | No | Number of periods to look back. Default: `1` |
+| `description` | String | No | Human-readable description |
+
+Example:
+
+```ruby
+metrics do
+  lagged_count :previous_period_users, :integer, -> { sql('user_id') }, over: :timestamp,
+    description: 'Distinct users in the previous period'
+end
+```
+
+When a request includes more dimensions than just `over:`, the framework partitions the
+lag window by the extra dimensions. Each combination gets an independent sequence, so
+values do not leak across categories. For example, with `dimensions: [feature, timestamp]`
+where `timestamp` is a `date_bucket` with `granularity: 'daily'` and the metric uses
+`over: :timestamp`, the generated SQL contains
+`OVER (PARTITION BY aeq_feature ORDER BY aeq_timestamp_daily ASC)`. Retention for
+`code_suggestions` does not mix with `chat`.
+
 #### `column` dimension
 
 Groups results by a column value.

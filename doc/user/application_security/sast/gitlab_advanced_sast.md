@@ -495,7 +495,7 @@ To store the cache in S3:
 1. For GitLab Self-Managed or GitLab Dedicated, replace `aud: https://gitlab.com` with your GitLab instance URL.
 1. Configure an [S3 lifecycle policy](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html)
    to auto-expire cache objects.
-   
+
    The expiry should be aligned with the `GITLAB_ADV_SAST_INCR_SCAN_SEARCH_PERIOD` value (default: 3 days) to avoid
    retaining stale cache files.
 

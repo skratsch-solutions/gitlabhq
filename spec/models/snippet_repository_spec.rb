@@ -21,7 +21,7 @@ RSpec.describe SnippetRepository, feature_category: :source_code_management do
   describe 'sharding key validations' do
     let_it_be(:organization) { create(:organization) }
     let_it_be(:project) { create(:project, organization: organization) }
-    let_it_be(:personal_snippet) { create(:personal_snippet, organization: organization) }
+    let_it_be(:personal_snippet, freeze: false) { create(:personal_snippet, organization: organization) }
     let_it_be(:project_snippet) { create(:project_snippet, project: project) }
 
     describe 'validations' do

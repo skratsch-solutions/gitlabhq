@@ -41,7 +41,6 @@ export default {
     whatsnew: __("What's new"),
     terms: __('Terms and privacy'),
     privacy: __('Privacy statement'),
-    whatsnewToast: __("What's new moved to Help."),
   },
   inject: ['isSaas', 'isIconOnly'],
   props: {
@@ -52,7 +51,6 @@ export default {
   },
   data() {
     return {
-      showWhatsNewNotification: this.shouldShowWhatsNewNotification(),
       whatsNewMostRecentReleaseUnreadCount: this.calculateWhatsNewMostRecentReleaseUnreadCount(),
       toggleWhatsNewDrawer: null,
     };
@@ -60,12 +58,6 @@ export default {
   computed: {
     showUpgradeSubscription() {
       return Boolean(this.sidebarData.free_group_upgrade_link);
-    },
-    showWhatsNewTopMenu() {
-      return !this.showUpgradeSubscription && this.showWhatsNewNotification;
-    },
-    showNotificationDot() {
-      return this.showUpgradeSubscription && this.showWhatsNewNotification;
     },
     itemGroups() {
       const groups = {
@@ -157,17 +149,16 @@ export default {
               },
               shortcut: '?',
             },
-            this.sidebarData.display_whats_new &&
-              !this.showWhatsNewTopMenu && {
-                text: this.$options.i18n.whatsnew,
-                action: this.showWhatsNew,
-                count: this.whatsNewMostRecentReleaseUnreadCount,
-                extraAttrs: {
-                  'data-track-action': 'click_button',
-                  'data-track-label': 'whats_new',
-                  'data-track-property': HELP_MENU_TRACKING_DEFAULTS['data-track-property'],
-                },
+            this.sidebarData.display_whats_new && {
+              text: this.$options.i18n.whatsnew,
+              action: this.showWhatsNew,
+              count: this.whatsNewMostRecentReleaseUnreadCount,
+              extraAttrs: {
+                'data-track-action': 'click_button',
+                'data-track-label': 'whats_new',
+                'data-track-property': HELP_MENU_TRACKING_DEFAULTS['data-track-property'],
               },
+            },
           ].filter(Boolean),
         },
       };
@@ -194,12 +185,6 @@ export default {
     },
   },
   methods: {
-    shouldShowWhatsNewNotification() {
-      return (
-        this.sidebarData.display_whats_new &&
-        this.calculateWhatsNewMostRecentReleaseUnreadCount() > 0
-      );
-    },
     calculateWhatsNewMostRecentReleaseUnreadCount() {
       if (!this.sidebarData.display_whats_new) {
         return 0;
@@ -225,21 +210,10 @@ export default {
             markAsReadPath: this.sidebarData.whats_new_mark_as_read_path,
             mostRecentReleaseItemsCount: this.sidebarData.whats_new_most_recent_release_items_count,
           },
-          this.hideWhatsNewNotification,
           this.updateWhatsNewNotificationBadge,
         );
       } else {
         this.toggleWhatsNewDrawer();
-      }
-    },
-
-    hideWhatsNewNotification() {
-      if (this.showWhatsNewNotification && this.whatsNewMostRecentReleaseUnreadCount === 0) {
-        this.showWhatsNewNotification = false;
-
-        if (!this.showUpgradeSubscription) {
-          this.$toast.show(this.$options.i18n.whatsnewToast);
-        }
       }
     },
 
@@ -271,36 +245,6 @@ export default {
       :upgrade-link="sidebarData.free_group_upgrade_link"
     />
 
-    <gl-button
-      v-if="showWhatsNewTopMenu"
-      v-gl-tooltip.right="isIconOnly ? $options.i18n.whatsnew : ''"
-      class="application-chrome-nav-item super-sidebar-nav-item gl-w-full !gl-justify-start gl-gap-3 !gl-px-2-5"
-      category="tertiary"
-      icon="compass"
-      data-testid="sidebar-whatsnew-button"
-      data-track-action="click_button"
-      data-track-label="whats_new"
-      data-track-property="nav_whats_new"
-      :aria-label="$options.i18n.whatsnew"
-      :button-text-classes="{
-        'gl-w-full gl-flex gl-items-center gl-justify-between !gl-text-default': !isIconOnly,
-        'gl-hidden': isIconOnly,
-      }"
-      @click="showWhatsNew"
-    >
-      {{ $options.i18n.whatsnew }}
-
-      <gl-badge
-        aria-hidden="true"
-        data-testid="notification-count"
-        class="super-sidebar-whats-new-badge"
-      >
-        <span class="gl-m-1 gl-min-w-3 gl-text-center gl-text-sm">
-          {{ whatsNewMostRecentReleaseUnreadCount }}
-        </span>
-      </gl-badge>
-    </gl-button>
-
     <gl-disclosure-dropdown
       class="super-sidebar-help-center-dropdown"
       :dropdown-offset="$options.dropdownOffset"
@@ -318,12 +262,6 @@ export default {
           :aria-label="$options.i18n.help"
           data-testid="sidebar-help-button"
         >
-          <span
-            v-if="showNotificationDot"
-            data-testid="notification-dot"
-            class="notification-dot-info"
-          ></span>
-
           {{ $options.i18n.help }}
         </gl-button>
       </template>
@@ -355,13 +293,9 @@ export default {
         <template #list-item="{ item }">
           <span class="-gl-my-1 gl-flex gl-items-center gl-justify-between">
             {{ item.text }}
-            <gl-badge
-              v-if="item.count"
-              pill
-              class="!gl-bg-strong !gl-text-subtle"
-              aria-hidden="true"
-              >{{ item.count }}</gl-badge
-            >
+            <gl-badge v-if="item.count" pill variant="info" aria-hidden="true">{{
+              item.count
+            }}</gl-badge>
 
             <kbd v-else-if="item.shortcut" aria-hidden="true" class="flat">?</kbd>
           </span>

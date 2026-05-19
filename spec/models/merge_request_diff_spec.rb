@@ -257,7 +257,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
 
     let_it_be(:project) { create(:project) }
     let_it_be(:target_project_id) { project.id }
-    let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project, target_project: project) }
     let_it_be(:merge_request_diff) { create(:merge_request_diff, merge_request: merge_request) }
 
     let_it_be(:commits_metadata) do
@@ -432,7 +432,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '.ids_for_external_storage_migration' do
-    let_it_be(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
     let_it_be(:outdated) { merge_request.merge_request_diff }
     let_it_be(:latest) { merge_request.create_merge_request_diff }
     let_it_be(:merge_head) { merge_request.create_merge_head_diff }
@@ -508,7 +508,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#ensure_project_id' do
-    let_it_be(:merge_request) { create(:merge_request, :without_diffs) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request, :without_diffs) }
 
     let(:diff) { build(:merge_request_diff, merge_request: merge_request, project_id: project_id) }
 
@@ -532,7 +532,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#update_external_diff_store' do
-    let_it_be(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
     let(:diff) { merge_request.merge_request_diff }
     let(:store) { diff.external_diff.object_store }
@@ -1769,7 +1769,7 @@ RSpec.describe MergeRequestDiff, feature_category: :code_review_workflow do
   end
 
   describe '#files_count' do
-    let_it_be(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
     let(:diff) { merge_request.merge_request_diff }
     let(:actual_count) { diff.merge_request_diff_files.count }

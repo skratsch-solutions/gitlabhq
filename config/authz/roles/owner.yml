@@ -67,6 +67,7 @@ group:
   - admin_group_model_selection
   - admin_group_saml
   - admin_integrations
+  - admin_ldap_group_links
   - admin_licensed_seat
   - admin_member_access_request
   - admin_member_role
@@ -105,6 +106,7 @@ group:
   - deprovision_secrets_manager
   - destroy_deploy_token
   - destroy_epic
+  - destroy_group_member
   - destroy_issue
   - destroy_resource_access_tokens
   - destroy_user_achievement
@@ -115,6 +117,7 @@ group:
   - manage_deploy_tokens
   - manage_merge_request_settings
   - modify_security_policy
+  - override_group_member
   - provision_secrets_manager
   - read_add_on_purchase
   - read_ai_domain_settings
@@ -159,6 +162,7 @@ group:
   - update_enterprise_user
   - update_git_access_protocol
   - update_group_link
+  - update_group_member
   - update_knowledge_graph_setting
   - update_member_invitation_setting
   - update_runners_registration_token

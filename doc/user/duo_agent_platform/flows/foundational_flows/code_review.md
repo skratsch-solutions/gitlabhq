@@ -47,15 +47,15 @@ This flow:
 
 This flow is available in the GitLab UI only.
 
+## Prerequisites
+
+- Meet the [prerequisites for the GitLab Duo Agent Platform](../../_index.md#prerequisites).
+- Turn on **Allow foundational flows** and **Code Review** [for the top-level group](_index.md#turn-foundational-flows-on-or-off).
+- Have the Developer, Maintainer, or Owner role for the project.
+- If you belong to multiple GitLab Duo namespaces, [set a default GitLab Duo namespace](../../../profile/preferences.md#set-a-default-gitlab-duo-namespace).
+- [Configure your own runners](../execution.md#configure-runners) or turn on [GitLab hosted runners](../../../../ci/runners/hosted_runners/_index.md) for your project.
+
 ## Use the flow
-
-Prerequisites:
-
-- Ensure you meet the [Agent Platform prerequisites](../../_index.md#prerequisites).
-- Ensure **Allow foundational flows** and **Code Review** are [turned on](_index.md#turn-foundational-flows-on-or-off) for the top-level group.
-- Ensure you have the Developer, Maintainer, or Owner [role](../../../permissions.md) for the project.
-- Ensure [a runner](../execution.md#configure-runners) is available and configured for the project. 
-- If you belong to multiple GitLab Duo namespaces, ensure you have [a default GitLab Duo namespace](../../../profile/preferences.md#set-a-default-gitlab-duo-namespace) set in your preferences.
 
 To use the Code Review Flow on a merge request:
 

@@ -24,7 +24,7 @@ RSpec.describe Ci::Taggable, feature_category: :continuous_integration do
     end
   end
 
-  let_it_be(:taggable_model) do
+  let_it_be(:taggable_model, freeze: false) do
     Class.new(Ci::ApplicationRecord) do |_model|
       connection.create_table :_test_gitlab_ci_taggable, force: true do |t|
         t.string :name

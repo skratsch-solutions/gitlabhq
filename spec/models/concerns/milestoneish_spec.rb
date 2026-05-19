@@ -11,8 +11,8 @@ RSpec.describe Milestone, 'Milestoneish', factory_default: :keep do
   let_it_be(:admin) { create(:admin) }
   let_it_be(:project, reload: true) { create_default(:project, :public, :empty_repo).freeze }
   let_it_be(:milestone, refind: true) { create_default(:milestone, project: project) }
-  let_it_be(:label1) { create(:label) }
-  let_it_be(:label2) { create(:label) }
+  let_it_be(:label1, freeze: false) { create(:label) }
+  let_it_be(:label2, freeze: false) { create(:label) }
   let_it_be(:issue, reload: true) { create(:work_item, milestone: milestone, assignees: [member], labels: [label1]) }
   let_it_be(:security_issue_1, reload: true) { create(:work_item, :confidential, author: author, milestone: milestone, labels: [label2]) }
   let_it_be(:security_issue_2, reload: true) { create(:work_item, :confidential, assignees: [assignee], milestone: milestone) }

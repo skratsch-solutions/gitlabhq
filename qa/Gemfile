@@ -29,7 +29,7 @@ gem 'zeitwerk', '~> 2.7', '>= 2.7.5'
 gem 'terminal-table', '~> 4.0.0', require: false
 gem 'slack-notifier', '~> 2.4', require: false
 gem 'fog-google', '~> 1.29', '>= 1.29.4', require: false
-gem 'warning', '~> 1.5'
+gem 'warning', '~> 1.6'
 
 # dependencies for jenkins client
 gem 'nokogiri', '~> 1.18', '>= 1.18.9'

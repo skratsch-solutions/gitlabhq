@@ -271,9 +271,9 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
     subject(:result) { described_class.oldest_merge_request_id_per_commit(project.id, shas) }
 
     context 'when there are merged merge requests' do
-      let_it_be(:mr_1) { create(:merge_request, :merged, target_project: project, id: 100) }
-      let_it_be(:mr_2) { create(:merge_request, :merged, target_project: project, id: 200) }
-      let_it_be(:mr_3) { create(:merge_request, :merged, target_project: project, id: 150) }
+      let_it_be(:mr_1, freeze: false) { create(:merge_request, :merged, target_project: project, id: 100) }
+      let_it_be(:mr_2, freeze: false) { create(:merge_request, :merged, target_project: project, id: 200) }
+      let_it_be(:mr_3, freeze: false) { create(:merge_request, :merged, target_project: project, id: 150) }
       let_it_be(:mr_4) { create(:merge_request, :merged, target_project: project, id: 300) }
 
       let_it_be(:mr_diff_1) { create(:merge_request_diff, merge_request: mr_1) }
@@ -332,13 +332,13 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
     end
 
     context 'when merge requests are not merged' do
-      let_it_be(:mr_open) do
+      let_it_be(:mr_open, freeze: false) do
         create(:merge_request, :opened, source_project: project, target_project: project)
       end
 
       let(:shas) { [commit_sha_1, commit_sha_2] }
 
-      let_it_be(:mr_closed) do
+      let_it_be(:mr_closed, freeze: false) do
         create(:merge_request, :closed, source_project: project, target_project: project)
       end
 
@@ -367,7 +367,7 @@ RSpec.describe MergeRequest::CommitsMetadata, feature_category: :code_review_wor
 
       let(:shas) { [commit_sha_1] }
 
-      let_it_be(:other_mr) do
+      let_it_be(:other_mr, freeze: false) do
         create(:merge_request, :merged, target_project: other_project, id: 50)
       end
 

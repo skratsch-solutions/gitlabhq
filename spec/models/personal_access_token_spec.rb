@@ -719,7 +719,7 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
       let_it_be(:revoked_token) { create(:personal_access_token, revoked: true) }
       let_it_be(:valid_token_and_notified) { create(:personal_access_token, expires_at: 2.days.from_now, expire_notification_delivered: true) }
       let_it_be(:valid_token_and_7d_notified) { create(:personal_access_token, expires_at: 2.days.from_now, seven_days_notification_sent_at: Time.current) }
-      let_it_be(:valid_token) { create(:personal_access_token, expires_at: 2.days.from_now) }
+      let_it_be(:valid_token, freeze: false) { create(:personal_access_token, expires_at: 2.days.from_now) }
       let_it_be(:long_expiry_token) { create(:personal_access_token, expires_at: described_class::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now) }
 
       context 'in one day' do
@@ -741,7 +741,7 @@ RSpec.describe PersonalAccessToken, feature_category: :system_access do
       let_it_be(:impersonation_token) { create(:personal_access_token, :impersonation) }
       let_it_be(:valid_token_and_notified) { create(:personal_access_token, expires_at: 2.days.from_now, expire_notification_delivered: true) }
       let_it_be(:valid_token_and_7d_notified) { create(:personal_access_token, expires_at: 2.days.from_now, seven_days_notification_sent_at: Time.current) }
-      let_it_be(:valid_token) { create(:personal_access_token, expires_at: 2.days.from_now, impersonation: false) }
+      let_it_be(:valid_token, freeze: false) { create(:personal_access_token, expires_at: 2.days.from_now, impersonation: false) }
       let_it_be(:thirty_days_token) { create(:personal_access_token, expires_at: 28.days.from_now) }
       let_it_be(:sixty_days_token) { create(:personal_access_token, expires_at: 55.days.from_now) }
       let_it_be(:long_expiry_token) { create(:personal_access_token, expires_at: described_class::MAX_PERSONAL_ACCESS_TOKEN_LIFETIME_IN_DAYS.days.from_now) }

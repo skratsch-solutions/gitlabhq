@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Ci::Catalog::Listing, feature_category: :pipeline_composition do
   let_it_be(:user) { create(:user) }
   let_it_be(:namespace) { create(:group) }
-  let_it_be(:public_namespace_project) do
+  let_it_be(:public_namespace_project, freeze: false) do
     create(:project, :public, namespace: namespace, name: 'A public namespace project', star_count: 10, reporters: user)
   end
 
@@ -35,7 +35,7 @@ RSpec.describe Ci::Catalog::Listing, feature_category: :pipeline_composition do
 
     let(:params) { {} }
 
-    let_it_be(:public_resource_a) do
+    let_it_be(:public_resource_a, freeze: false) do
       create(:ci_catalog_resource, :published, project: public_namespace_project,
         last_30_day_usage_count: 100, verification_level: 100)
     end

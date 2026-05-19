@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Timelog, feature_category: :team_planning do
   subject { create(:timelog) }
 
-  let_it_be(:issue) { create(:issue) }
+  let_it_be(:issue, freeze: false) { create(:issue) }
   let_it_be(:merge_request) { create(:merge_request) }
 
   it { is_expected.to belong_to(:project) }
@@ -127,8 +127,8 @@ RSpec.describe Timelog, feature_category: :team_planning do
 
     let_it_be(:user) { create(:user) }
     let_it_be(:timelog) { create(:issue_timelog, spent_at: long_time_ago, user: user) }
-    let_it_be(:timelog1) { create(:issue_timelog, spent_at: medium_time_ago, issue: group_issue, user: user) }
-    let_it_be(:timelog2) { create(:issue_timelog, spent_at: short_time_ago, issue: subgroup_issue) }
+    let_it_be(:timelog1, freeze: false) { create(:issue_timelog, spent_at: medium_time_ago, issue: group_issue, user: user) }
+    let_it_be(:timelog2, freeze: false) { create(:issue_timelog, spent_at: short_time_ago, issue: subgroup_issue) }
     let_it_be(:timelog3) { create(:merge_request_timelog, spent_at: long_time_ago) }
     let_it_be(:timelog4) { create(:merge_request_timelog, spent_at: medium_time_ago, merge_request: group_merge_request) }
     let_it_be(:timelog5) { create(:merge_request_timelog, spent_at: short_time_ago, merge_request: subgroup_merge_request) }

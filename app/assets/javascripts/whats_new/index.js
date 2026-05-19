@@ -5,7 +5,7 @@ import { useWhatsNew } from './store';
 
 let whatsNewApp;
 
-export default (dataset = {}, withClose, updateHelpMenuUnreadBadge) => {
+export default (dataset = {}, updateHelpMenuUnreadBadge) => {
   if (whatsNewApp) {
     useWhatsNew().openDrawer();
   } else {
@@ -24,7 +24,6 @@ export default (dataset = {}, withClose, updateHelpMenuUnreadBadge) => {
             initialReadArticles,
             markAsReadPath,
             mostRecentReleaseItemsCount,
-            withClose,
             updateHelpMenuUnreadBadge,
           },
         });

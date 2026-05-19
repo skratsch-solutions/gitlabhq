@@ -15,16 +15,10 @@ describe('App', () => {
   let store;
   let trackingSpy;
 
-  const withClose = jest.fn();
   const updateHelpMenuUnreadBadge = jest.fn();
 
   const createWrapper = (options = {}) => {
-    const {
-      glFeatures = {},
-      shallow = false,
-      includeWithClose = false,
-      stateOverrides = {},
-    } = options;
+    const { glFeatures = {}, shallow = false, stateOverrides = {} } = options;
 
     Object.assign(store, stateOverrides);
 
@@ -35,7 +29,6 @@ describe('App', () => {
         initialReadArticles: [1, 2],
         mostRecentReleaseItemsCount: 3,
         updateHelpMenuUnreadBadge,
-        ...(includeWithClose && { withClose }),
       },
       ...(Object.keys(glFeatures).length > 0 && { provide: { glFeatures } }),
       ...(!shallow && {
@@ -53,7 +46,6 @@ describe('App', () => {
     trackingSpy = mockTracking('_category_', null, jest.spyOn);
 
     createWrapper({
-      includeWithClose: true,
       stateOverrides: {
         open: true,
         features,
@@ -117,10 +109,9 @@ describe('App', () => {
       it.each([
         ['drawer close event', () => getDrawer().vm.$emit('close')],
         ['backdrop click', () => getBackdrop().trigger('click')],
-      ])('calls closeDrawer and withClose on %s', (_, trigger) => {
+      ])('calls closeDrawer on %s', (_, trigger) => {
         trigger();
         expect(store.closeDrawer).toHaveBeenCalled();
-        expect(withClose).toHaveBeenCalled();
       });
 
       it.each([true, false])('passes open property', async (openState) => {

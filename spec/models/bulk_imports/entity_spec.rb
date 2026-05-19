@@ -143,7 +143,7 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
 
     context 'when associated with an organization and no group or project' do
       let_it_be(:organization) { build(:organization) }
-      let_it_be(:bulk_import) { build(:bulk_import, organization:) }
+      let_it_be(:bulk_import, freeze: false) { build(:bulk_import, organization:) }
 
       let(:associations) { { project: nil, group: nil, organization: organization, bulk_import: bulk_import } }
 
@@ -178,7 +178,7 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
     end
 
     context 'validate destination namespace of a group_entity' do
-      let_it_be(:bulk_import) do
+      let_it_be(:bulk_import, freeze: false) do
         create(:bulk_import, configuration: create(:bulk_import_configuration, url: 'http://example.gitlab.com'))
       end
 

@@ -99,7 +99,7 @@ For example:
 {
   "InstanceId": "ccbb3949-9836-471c-b2nb-32a38e8cca99",
   "GlobalUserId": "KWDTe17sGSADiAzEGJ6IuL1D7RAzsXqa2wun3aX1YuA=",
-  "Quantity": 1, 
+  "Quantity": 1,
   "Timestamp": "2026-05-04 18:04:30.969000000"
 }
 ```

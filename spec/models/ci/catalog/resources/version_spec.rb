@@ -8,7 +8,10 @@ RSpec.describe Ci::Catalog::Resources::Version, type: :model, feature_category: 
   let_it_be(:current_user) { create(:user) }
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:resource) { create(:ci_catalog_resource, project: project) }
-  let_it_be(:minor_release) { create(:release, project: project, tag: '1.1.0', created_at: Date.yesterday - 1.day) }
+  let_it_be(:minor_release, freeze: false) do
+    create(:release, project: project, tag: '1.1.0', created_at: Date.yesterday - 1.day)
+  end
+
   let_it_be(:major_release) { create(:release, project: project, tag: '2.0.0', created_at: Date.yesterday) }
   let_it_be(:patch) { create(:release, project: project, tag: 'v1.1.3', created_at: Date.today, sha: 'patch_sha') }
   let!(:v1_1_0) do

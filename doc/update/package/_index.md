@@ -213,7 +213,7 @@ you can download it from the official repository and later install it:
 {{< tab title="Ubuntu/Debian" >}}
 
 ```shell
-# GitLab Enterprise Edition 
+# GitLab Enterprise Edition
 sudo apt-get install --download-only gitlab-ee=<version>-ee.0
 sudo apt-get install /var/cache/apt/archives/gitlab-ee_<version>-ee.0_amd64.deb
 
@@ -263,11 +263,11 @@ sudo dnf install ./gitlab-ce-<version>-ce.0.el8.x86_64.rpm
 {{< tab title="Amazon Linux 2023" >}}
 
 ```shell
-# GitLab Enterprise Edition 
+# GitLab Enterprise Edition
 sudo dnf download gitlab-ee-<version>-ee.0.amazon2023
 sudo dnf install ./gitlab-ee-<version>-ee.0.amazon2023.x86_64.rpm
 
-# GitLab Community Edition 
+# GitLab Community Edition
 sudo dnf download gitlab-ce-<version>-ce.0.amazon2023
 sudo dnf install ./gitlab-ce-<version>-ce.0.amazon2023.x86_64.rpm
 ```
