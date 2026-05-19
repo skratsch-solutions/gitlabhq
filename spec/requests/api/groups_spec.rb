@@ -3534,7 +3534,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
     shared_examples_for 'immediately enqueues the job to delete the group' do
       it 'immediately enqueues the job to delete the group', :clean_gitlab_redis_queues do
         Sidekiq::Testing.fake! do
-          expect { api_request }.to change(GroupDestroyWorker.jobs, :size).by(1)
+          expect { api_request }.to change { GroupDestroyWorker.jobs.size }.by(1)
         end
 
         expect(response).to have_gitlab_http_status(:accepted)
@@ -3546,7 +3546,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
       it 'does not immediately enqueues the job to delete the group', :clean_gitlab_redis_queues do
         Sidekiq::Testing.fake! do
-          expect { api_request }.not_to change(GroupDestroyWorker.jobs, :size)
+          expect { api_request }.not_to change { GroupDestroyWorker.jobs.size }
         end
 
         expect(response).to have_gitlab_http_status(expected_http_status)
@@ -3557,7 +3557,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
     shared_examples_for 'marks group for delayed deletion' do
       it 'marks group for delayed deletion', :clean_gitlab_redis_queues do
         Sidekiq::Testing.fake! do
-          expect { api_request }.not_to change(GroupDestroyWorker.jobs, :size)
+          expect { api_request }.not_to change { GroupDestroyWorker.jobs.size }
         end
 
         group.reload
@@ -3588,7 +3588,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
       it 'do not mark group for delayed deletion but return success', :clean_gitlab_redis_queues do
         Sidekiq::Testing.fake! do
-          expect { subject }.not_to change(GroupDestroyWorker.jobs, :size)
+          expect { subject }.not_to change { GroupDestroyWorker.jobs.size }
         end
 
         group.reload

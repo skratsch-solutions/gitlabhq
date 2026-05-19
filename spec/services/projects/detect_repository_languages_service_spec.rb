@@ -32,6 +32,14 @@ RSpec.describe Projects::DetectRepositoryLanguagesService, :clean_gitlab_redis_s
         ruby_lang = ProgrammingLanguage.find_by(name: 'Ruby')
         expect(ruby_lang.language_id).to be_present
       end
+
+      it 'persists language_id on newly created repository languages' do
+        subject.execute
+
+        ruby_lang = ProgrammingLanguage.find_by(name: 'Ruby')
+        repo_lang = RepositoryLanguage.find_by(project_id: project.id, programming_language_id: ruby_lang.id)
+        expect(repo_lang.language_id).to eq(ruby_lang.language_id)
+      end
     end
 
     context 'with a previous detection' do
@@ -54,6 +62,14 @@ RSpec.describe Projects::DetectRepositoryLanguagesService, :clean_gitlab_redis_s
         expect(project).not_to receive(:update_column).with(:detected_repository_languages, true)
 
         subject.execute
+      end
+
+      it 'sets language_id when updating repository languages' do
+        subject.execute
+
+        ruby_lang = ProgrammingLanguage.find_by(name: 'Ruby')
+        repo_lang = RepositoryLanguage.find_by(project_id: project.id, programming_language_id: ruby_lang.id)
+        expect(repo_lang.language_id).to eq(ruby_lang.language_id)
       end
     end
 

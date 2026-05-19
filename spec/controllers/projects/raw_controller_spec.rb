@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Projects::RawController, feature_category: :source_code_management do
   include RepoHelpers
 
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
 
   let(:inline) { nil }
   let(:params) { {} }
@@ -157,7 +157,7 @@ RSpec.describe Projects::RawController, feature_category: :source_code_managemen
     end
 
     context 'as a sessionless user' do
-      let_it_be(:project) { create(:project, :private, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :private, :repository) }
       let_it_be(:user) { create(:user, static_object_token: 'very-secure-token') }
       let_it_be(:file_path) { 'master/README.md' }
 

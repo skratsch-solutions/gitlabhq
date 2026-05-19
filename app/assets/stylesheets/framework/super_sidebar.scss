@@ -1,3 +1,4 @@
+/* stylelint-disable scss/at-rule-no-unknown */
 $super-sidebar-transition-delay: 0.4s;
 $super-sidebar-transition-duration: 0.2s;
 $super-sidebar-transition-hint-duration: $super-sidebar-transition-duration * 0.25;
@@ -18,6 +19,13 @@ $command-palette-spacing: px-to-rem(14px);
 .super-sidebar-skip-to {
   top: $calc-application-bars-height;
   z-index: $super-sidebar-skip-to-z-index;
+}
+
+.super-sidebar-wrapper {
+  @apply gl-w-0;
+  @apply gl-h-0;
+  @apply lg:gl-h-auto;
+  @apply xl:gl-w-auto;
 }
 
 .super-sidebar,
@@ -193,16 +201,21 @@ html:not(.application-chrome) .super-sidebar {
 .super-sidebar {
   display: flex;
   flex-direction: column;
-  position: fixed;
-  top: $calc-application-bars-height;
+  position: relative;
+  top: 0;
   bottom: $calc-application-footer-height;
   left: 0;
+  @apply gl-h-full;
   background-color: var(--body-background-color);
   transform: translate3d(0, 0, 0);
   z-index: $super-sidebar-z-index;
 
   &:not(.super-sidebar-is-icon-only) {
-    width: $super-sidebar-width;
+    width: min(80%, 320px);
+
+    @include media-breakpoint-up(xl) {
+      width: $super-sidebar-width;
+    }
   }
 
   &:is(.super-sidebar-is-icon-only) {
@@ -215,14 +228,35 @@ html:not(.application-chrome) .super-sidebar {
 
   .nav-flyout-menu {
     z-index: $super-sidebar-nav-flayout-menu-z-index;
+    @include gl-prefers-reduced-motion-transition;
+    transition: opacity .2s $gl-easing-out-cubic;
+
+    @starting-style {
+      opacity: 0;
+    }
   }
 
   &.super-sidebar-loading {
+    position: static;
+    width: 0;
     transform: translate3d(-100%, 0, 0);
     transition: none;
 
     @include media-breakpoint-up(xl) {
+      position: relative;
+      left: 0;
+      top: 0;
       transform: translate3d(0, 0, 0);
+    }
+
+    &:not(.super-sidebar-is-icon-only) {
+      @include media-breakpoint-up(xl) {
+        width: calc(#{$super-sidebar-width} - var(--gl-spacing-scale-3));
+      }
+    }
+
+    &.super-sidebar-is-icon-only {
+      width: calc(#{$gl-button-medium-size} + var(--gl-spacing-scale-3));
     }
   }
 
@@ -233,6 +267,12 @@ html:not(.application-chrome) .super-sidebar {
   .super-sidebar-nav-item {
     font-weight: 425;
     min-height: 1.75rem;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition-duration: .2s;
+      transition-timing-function: $gl-easing-out-cubic;
+      transition-property: color, background-color;
+    }
 
     &:hover,
     &:focus,
@@ -311,6 +351,13 @@ html:not(.application-chrome) .super-sidebar {
   }
 }
 
+@include media-breakpoint-down(lg) {
+  .page-with-super-sidebar:not(.super-sidebar-has-css-transitions-blocked) .super-sidebar {
+    position: fixed;
+    @apply gl-rounded-r-[1rem];
+  }
+}
+
 .super-sidebar-context-header {
   color: var(--super-sidebar-accent-color-fg);
 }
@@ -379,6 +426,7 @@ html:not(.application-chrome) .super-sidebar {
 
 .page-with-super-sidebar-collapsed {
   .super-sidebar {
+    @apply gl-m-0;
     transform: translate3d(-100%, 0, 0);
 
     &.super-sidebar-peek {
@@ -479,7 +527,6 @@ html:not(.application-chrome) .super-sidebar {
     padding: $command-palette-spacing;
   }
 
-  /* stylelint-disable scss/at-rule-no-unknown */
   @media (prefers-reduced-motion: no-preference) {
     transition-property: opacity;
     transition-timing-function: $gl-easing-out-cubic;
@@ -690,3 +737,39 @@ $scroll-scrim-height: 2.25rem;
   background: linear-gradient(90deg, #ffb177 0%, #936fff 100%);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .super-sidebar-animatable {
+    .nav-item-link-label,
+    .menu-section-button-label {
+      transition-duration: .15s;
+      transition-timing-function: $gl-easing-out-cubic;
+      transition-property: opacity, translate;
+
+      @starting-style {
+        opacity: 0;
+        translate: -30% 0;
+      }
+    }
+
+    .super-sidebar-context-header {
+      transition-duration: .15s;
+      transition-timing-function: $gl-easing-out-cubic;
+      transition-property: opacity, translate;
+
+      @starting-style {
+        opacity: 0;
+        translate: 0 -30%;
+      }
+    }
+
+    .nav-item-link-badge {
+      transition-duration: .15s;
+      transition-timing-function: $gl-easing-out-cubic;
+      transition-property: opacity;
+
+      @starting-style {
+        opacity: 0;
+      }
+    }
+  }
+}

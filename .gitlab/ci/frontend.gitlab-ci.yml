@@ -284,6 +284,7 @@ upload-graphql-schema-dump:
     BROWSERSLIST_IGNORE_OLD_DATA: "true"
     USE_BUNDLE_INSTALL: "false"
     SETUP_DB: "false"
+    GLCI_TEST_METRICS_RUN_TYPE: frontend-jest-tests
   before_script:
     - !reference [.default-before_script, before_script]
     - yarn_install_script
@@ -312,6 +313,8 @@ jest-build-cache:
     # Propagate exit code correctly. See https://gitlab.com/groups/gitlab-org/-/epics/6074.
     FF_USE_NEW_BASH_EVAL_STRATEGY: 'true'
     FORCE_COLOR: '1'
+    # skip reporting metrics from no-op tests
+    GLCI_EXPORT_TEST_METRICS: "false"
   allow_failure:
     # In merge requests, failures exit with 2, so fail the pipeline. Otherwise,
     # they exit with 1, so as not to break master and other pipelines.
@@ -406,6 +409,8 @@ jest vue3:
   needs:
     - !reference [.frontend-test-base, needs]
     - !reference [.with-jest-build-cache-vue3-ensure-compilable-sfcs-needs, needs]
+  variables:
+    GLCI_TEST_METRICS_RUN_TYPE: frontend-jest-tests-vue3
   artifacts:
     name: vue3-mr-junit
     expire_in: 31d

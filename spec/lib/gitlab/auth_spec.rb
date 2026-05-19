@@ -1515,7 +1515,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         expect do
           gl_auth.find_with_user_password(username, wrong_password, increment_failed_attempts: true)
           user.reload
-        end.to change(user, :failed_attempts).from(0).to(1)
+        end.to change { user.failed_attempts }.from(0).to(1)
       end
 
       it 'resets failed_attempts when true and password is correct' do
@@ -1525,14 +1525,14 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         expect do
           gl_auth.find_with_user_password(username, user.password, increment_failed_attempts: true)
           user.reload
-        end.to change(user, :failed_attempts).from(2).to(0)
+        end.to change { user.failed_attempts }.from(2).to(0)
       end
 
       it 'does not increment failed_attempts by default' do
         expect do
           gl_auth.find_with_user_password(username, wrong_password)
           user.reload
-        end.not_to change(user, :failed_attempts)
+        end.not_to change { user.failed_attempts }
       end
 
       context 'when the database is read-only' do
@@ -1544,7 +1544,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           expect do
             gl_auth.find_with_user_password(username, wrong_password, increment_failed_attempts: true)
             user.reload
-          end.not_to change(user, :failed_attempts)
+          end.not_to change { user.failed_attempts }
         end
 
         it 'does not reset failed_attempts when true and password is correct' do
@@ -1554,7 +1554,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           expect do
             gl_auth.find_with_user_password(username, user.password, increment_failed_attempts: true)
             user.reload
-          end.not_to change(user, :failed_attempts)
+          end.not_to change { user.failed_attempts }
         end
       end
     end

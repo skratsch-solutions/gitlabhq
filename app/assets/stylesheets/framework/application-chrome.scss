@@ -29,54 +29,6 @@
     @apply gl-bg-neutral-800 gl-border-neutral-800 dark:gl-bg-neutral-100 dark:gl-border-neutral-100 #{!important};
   }
 
-  // Super sidebar
-  .super-sidebar-wrapper {
-    @apply gl-w-0 gl-h-0 lg:gl-h-auto;
-  }
-
-  @media (max-width: $breakpoint-xl - 1) {
-    #super-sidebar {
-      width: min(80%, 320px);
-    }
-  }
-
-  @media (min-width: $breakpoint-xl) {
-    .super-sidebar-wrapper {
-      width: auto;
-    }
-
-    .super-sidebar.super-sidebar-loading {
-      position: relative;
-      left: 0;
-      top: 0;
-
-      &:not(.super-sidebar-is-icon-only) {
-        width: calc(#{$super-sidebar-width} - var(--gl-spacing-scale-3));
-      }
-
-      &.super-sidebar-is-icon-only {
-        width: calc(#{$gl-button-medium-size} + var(--gl-spacing-scale-3));
-      }
-    }
-
-    .ai-panels {
-      min-width: var(--ai-navigation-rail-size-with-gap);
-    }
-  }
-
-  .page-with-super-sidebar-collapsed {
-    .super-sidebar {
-      @apply gl-m-0;
-    }
-  }
-
-  @media (max-width: $breakpoint-xl - 1) {
-    .super-sidebar.super-sidebar-loading {
-      position: static;
-      width: 0 !important;
-    }
-  }
-
   // Application background item hover/focus states
   .super-sidebar .super-sidebar-nav-item,
   .dashboard-shortcuts-button,
@@ -112,23 +64,22 @@
 
   // Unset fixed positions
   /* stylelint-disable gitlab/no-js-class */
-  #js-peek,
-  #super-sidebar {
+  #js-peek {
   /* stylelint-enable gitlab/no-js-class */
     @apply gl-relative #{!important};
     @apply gl-top-0;
   }
 
-  @include media-breakpoint-down(lg) {
-    .page-with-super-sidebar:not(.super-sidebar-has-css-transitions-blocked) #super-sidebar {
-      @apply gl-fixed #{!important};
-      @apply gl-rounded-r-[1rem];
-    }
+  // Super sidebar alignment
+  #super-sidebar {
+    @apply lg:-gl-mr-3;
   }
 
-  // Super sidebar height
-  #super-sidebar {
-    @apply gl-h-full lg:-gl-mr-3;
+  .page-with-super-sidebar {
+    .super-sidebar-loading ~ .panels-container,
+    .super-sidebar-wrapper ~ .panels-container {
+      @apply lg:gl-ml-0;
+    }
   }
 
   // Panels container
@@ -167,15 +118,6 @@
     @apply sm:gl-ml-3;
   }
 
-  @include media-breakpoint-up(lg) {
-    .page-with-super-sidebar {
-      .super-sidebar-loading ~ .panels-container,
-      .super-sidebar-wrapper ~ .panels-container {
-        margin-left: 0;
-      }
-    }
-  }
-
   // Contextual panel
   .paneled-view.contextual-panel {
     @apply gl-overflow-y-auto gl-flex-1 gl-rounded-lg gl-bg-default empty:gl-hidden gl-h-full;
@@ -192,6 +134,10 @@
     --ai-panels-gap: var(--gl-spacing-scale-2);
     --ai-navigation-rail-size: #{$gl-button-small-size};
     --ai-navigation-rail-size-with-gap: calc(var(--ai-navigation-rail-size) + var(--ai-panels-gap));
+
+    @media (min-width: $breakpoint-xl) {
+      min-width: var(--ai-navigation-rail-size-with-gap);
+    }
 
     .ai-panel-header {
       z-index: $top-bar-z-index;
@@ -593,69 +539,14 @@
  * Animations
  */
 
-/* stylelint-disable scss/at-rule-no-unknown */
-:where(.application-chrome) {
-  .nav-flyout-menu {
-    @include gl-prefers-reduced-motion-transition;
-    transition: opacity .2s $gl-easing-out-cubic;
-
-    @starting-style {
-      opacity: 0;
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .super-sidebar-nav-item {
-      transition-duration: .2s;
-      transition-timing-function: $gl-easing-out-cubic;
-      transition-property: color, background-color;
-    }
-
-    .super-sidebar-animatable {
-      .nav-item-link-label,
-      .menu-section-button-label {
-        transition-duration: .15s;
-        transition-timing-function: $gl-easing-out-cubic;
-        transition-property: opacity, translate;
-
-        @starting-style {
-          opacity: 0;
-          translate: -30% 0;
-        }
-      }
-
-      .super-sidebar-context-header {
-        transition-duration: .15s;
-        transition-timing-function: $gl-easing-out-cubic;
-        transition-property: opacity, translate;
-
-        @starting-style {
-          opacity: 0;
-          translate: 0 -30%;
-        }
-      }
-
-      .nav-item-link-badge {
-        transition-duration: .15s;
-        transition-timing-function: $gl-easing-out-cubic;
-        transition-property: opacity;
-
-        @starting-style {
-          opacity: 0;
-        }
-      }
-    }
-  }
-
-  @supports (width: calc-size(auto, size)) {
-    .super-sidebar.super-sidebar-toggled-manually,
-    .panels-container {
-      width: calc-size(auto, size);
-      /* stylelint-disable-next-line property-no-unknown */
-      interpolate-size: allow-keywords;
-      transition: width .25s $gl-easing-out-cubic,
-                  transform .25s $gl-easing-out-cubic !important;
-    }
+@supports (width: calc-size(auto, size)) {
+  .super-sidebar.super-sidebar-toggled-manually,
+  .panels-container {
+    width: calc-size(auto, size);
+    /* stylelint-disable-next-line property-no-unknown */
+    interpolate-size: allow-keywords;
+    transition: width .25s $gl-easing-out-cubic,
+                transform .25s $gl-easing-out-cubic !important;
   }
 }
 

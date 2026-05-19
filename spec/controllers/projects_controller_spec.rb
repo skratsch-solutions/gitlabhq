@@ -208,7 +208,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context "project with empty repo" do
-      let_it_be(:empty_project) { create(:project_empty_repo, :public) }
+      let_it_be(:empty_project, freeze: false) { create(:project_empty_repo, :public) }
 
       before do
         sign_in(user)
@@ -230,7 +230,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
     end
 
     context "project with broken repo" do
-      let_it_be(:empty_project) { create(:project, :public) }
+      let_it_be(:empty_project, freeze: false) { create(:project, :public) }
 
       before do
         sign_in(user)

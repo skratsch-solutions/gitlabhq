@@ -262,7 +262,7 @@ RSpec.describe Gitlab::Audit::Auditor, feature_category: :audit_events do
       end
 
       it 'does not create an authentication event' do
-        expect { auditor.audit(context) }.not_to change(AuthenticationEvent, :count)
+        expect { auditor.audit(context) }.not_to change { AuthenticationEvent.count }
       end
 
       context 'with permitted target' do

@@ -8,7 +8,7 @@ RSpec.describe 'shared/milestones/_milestone.html.haml', feature_category: :team
   let_it_be(:project) { create(:project, group: group) }
   let_it_be(:developer) { create(:user, developer_of: [group]) }
   let_it_be(:milestone) { create(:milestone, project: project) }
-  let_it_be(:release) { create(:release, project: project, milestones: [milestone]) }
+  let_it_be(:release, freeze: false) { create(:release, project: project, milestones: [milestone]) }
   let_it_be(:unauthorized_user) { create(:user) }
   # rubocop:enable RSpec/FactoryBot/AvoidCreate
 

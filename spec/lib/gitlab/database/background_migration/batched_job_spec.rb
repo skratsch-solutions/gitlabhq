@@ -49,7 +49,7 @@ RSpec.describe Gitlab::Database::BackgroundMigration::BatchedJob, type: :model, 
           }
         )
 
-        expect { job.run! }.to change(job, :started_at)
+        expect { job.run! }.to change { job.started_at }
       end
     end
 
@@ -75,7 +75,7 @@ RSpec.describe Gitlab::Database::BackgroundMigration::BatchedJob, type: :model, 
       end
 
       it 'updates the finished_at' do
-        expect { job.succeed! }.to change(job, :finished_at).from(nil).to(Time)
+        expect { job.succeed! }.to change { job.finished_at }.from(nil).to(Time)
       end
 
       it 'creates a new transition log' do
@@ -177,7 +177,7 @@ RSpec.describe Gitlab::Database::BackgroundMigration::BatchedJob, type: :model, 
       end
 
       it 'updates the finished_at' do
-        expect { job.failure! }.to change(job, :finished_at).from(nil).to(Time)
+        expect { job.failure! }.to change { job.finished_at }.from(nil).to(Time)
       end
 
       it 'creates a new transition log' do

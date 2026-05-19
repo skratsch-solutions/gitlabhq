@@ -137,6 +137,7 @@ function runJest({
     '--ci',
     `--shard=${nodeIndex}/${nodeTotal}`,
     '--logHeapUsage',
+    '--testLocationInResults',
   ];
 
   const sequencerArguments = [

@@ -9,7 +9,7 @@ RSpec.describe Dashboard::ProjectsController, :aggregate_failures, feature_categ
 
   describe '#index' do
     context 'user logged in' do
-      let_it_be(:project) { create(:project, name: 'Project 1') }
+      let_it_be(:project, freeze: false) { create(:project, name: 'Project 1') }
       let_it_be(:project2) { create(:project, name: 'Project Two') }
 
       let(:projects) { [project, project2] }

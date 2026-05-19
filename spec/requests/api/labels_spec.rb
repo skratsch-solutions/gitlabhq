@@ -635,17 +635,17 @@ RSpec.describe API::Labels, feature_category: :team_planning do
 
       it 'does not change the group label count' do
         expect { put api("/projects/#{project.id}/labels/promote", user), params: { name: label1.name } }
-            .not_to change(group.labels, :count)
+            .not_to change { group.labels.count }
       end
 
       it 'does not change the group label max (reuses the same ID)' do
         expect { put api("/projects/#{project.id}/labels/promote", user), params: { name: label1.name } }
-            .not_to change(group.labels, :max)
+            .not_to change { group.labels.max }
       end
 
       it 'changes the project label count' do
         expect { put api("/projects/#{project.id}/labels/promote", user), params: { name: label1.name } }
-            .to change(project.labels, :count).by(-1)
+            .to change { project.labels.count }.by(-1)
       end
     end
 

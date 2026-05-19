@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Projects::CommitsController, feature_category: :source_code_management do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:repository) { project.repository }
   let_it_be(:user) { create(:user) }
 
@@ -12,7 +12,7 @@ RSpec.describe Projects::CommitsController, feature_category: :source_code_manag
   end
 
   context 'unauthenticated user' do
-    let_it_be(:project) { create(:project, :repository, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :repository, :public) }
 
     context 'GET show' do
       context 'without path' do
@@ -167,7 +167,7 @@ RSpec.describe Projects::CommitsController, feature_category: :source_code_manag
       end
 
       context "valid branch, whitespace-only file that exists" do
-        let_it_be(:project) { create(:project, :repository) }
+        let_it_be(:project, freeze: false) { create(:project, :repository) }
         let(:id) { 'master/ ' }
 
         before do

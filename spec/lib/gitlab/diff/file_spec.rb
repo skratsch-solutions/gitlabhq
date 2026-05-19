@@ -288,7 +288,7 @@ RSpec.describe Gitlab::Diff::File, feature_category: :source_code_management do
 
       it 'does not update @diff_lines' do
         expect { diff_file.unfold_diff_lines(position) }
-          .not_to change(diff_file, :diff_lines)
+          .not_to change { diff_file.diff_lines }
       end
     end
   end

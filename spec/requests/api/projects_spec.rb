@@ -3776,7 +3776,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         it 'refreshes the forks count cachce' do
           expect do
             post api(path, admin, admin_mode: true)
-          end.to change(project_fork_source, :forks_count).by(1)
+          end.to change { project_fork_source.forks_count }.by(1)
         end
 
         it 'fails if forked_from project which does not exist' do
@@ -5435,7 +5435,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
             Sidekiq::Testing.fake! do
               put(api("/projects/#{new_project.id}", user), params: { repository_storage: unknown_storage, issues_enabled: false })
             end
-          end.not_to change(Projects::UpdateRepositoryStorageWorker.jobs, :size)
+          end.not_to change { Projects::UpdateRepositoryStorageWorker.jobs.size }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['issues_enabled']).to eq(false)
@@ -5462,7 +5462,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
             Sidekiq::Testing.fake! do
               put(api("/projects/#{new_project.id}", admin, admin_mode: true), params: { repository_storage: 'test_second_storage' })
             end
-          end.to change(Projects::UpdateRepositoryStorageWorker.jobs, :size).by(1)
+          end.to change { Projects::UpdateRepositoryStorageWorker.jobs.size }.by(1)
 
           expect(response).to have_gitlab_http_status(:ok)
         end

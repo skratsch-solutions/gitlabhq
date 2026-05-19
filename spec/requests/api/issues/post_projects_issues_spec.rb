@@ -438,7 +438,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
 
     context 'when allow_possible_spam application setting is false' do
       it 'does not create a new project issue' do
-        expect { post_issue }.not_to change(Issue, :count)
+        expect { post_issue }.not_to change { Issue.count }
       end
 
       it 'returns correct status and message' do
@@ -460,7 +460,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       end
 
       it 'does creates a new project issue' do
-        expect { post_issue }.to change(Issue, :count).by(1)
+        expect { post_issue }.to change { Issue.count }.by(1)
       end
 
       it 'returns correct status' do

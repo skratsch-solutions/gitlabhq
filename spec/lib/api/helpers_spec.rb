@@ -1403,7 +1403,7 @@ RSpec.describe API::Helpers, feature_category: :api do
         allow(helper).to receive(:body).with(false)
         expect(project).to receive(:destroy).and_call_original
 
-        expect { helper.destroy_conditionally!(project) }.to change(Project, :count).by(-1)
+        expect { helper.destroy_conditionally!(project) }.to change { Project.count }.by(-1)
       end
     end
 

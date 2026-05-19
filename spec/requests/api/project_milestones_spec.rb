@@ -194,7 +194,7 @@ RSpec.describe API::ProjectMilestones, feature_category: :team_planning do
 
       expect do
         put api(path, user), params: { state_event: 'close' }
-      end.to change(Event, :count).by(1)
+      end.to change { Event.count }.by(1)
     end
   end
 
