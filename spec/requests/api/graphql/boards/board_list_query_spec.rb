@@ -12,7 +12,7 @@ RSpec.describe 'Querying a Board list', feature_category: :team_planning do
   let_it_be(:extra_label1) { create(:label, project: project) }
   let_it_be(:extra_label2) { create(:label, project: project) }
   let_it_be(:list) { create(:list, board: board, label: label) }
-  let_it_be(:issue1) { create(:issue, project: project, labels: [label, extra_label1]) }
+  let_it_be(:issue1, freeze: false) { create(:issue, project: project, labels: [label, extra_label1]) }
   let_it_be(:issue2) { create(:issue, project: project, labels: [label, extra_label2], assignees: [current_user]) }
   let_it_be(:issue3) { create(:issue, project: project, labels: [label], confidential: true) }
 

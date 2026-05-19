@@ -56,8 +56,12 @@ module SearchHelper
       projects_autocomplete(term)
     when :users
       users_autocomplete(term)
-    when :issues
-      recent_issues_autocomplete(term)
+    when :issues, :work_items
+      if work_items_autocomplete_enabled?
+        recent_work_items_autocomplete(term)
+      else
+        recent_issues_autocomplete(term)
+      end
     else
       []
     end
@@ -71,7 +75,13 @@ module SearchHelper
   end
 
   def recent_items_autocomplete(term)
-    recent_merge_requests_autocomplete(term) + recent_issues_autocomplete(term) + recent_wiki_pages_autocomplete(term)
+    issues_or_work_items = if work_items_autocomplete_enabled?
+                             recent_work_items_autocomplete(term)
+                           else
+                             recent_issues_autocomplete(term)
+                           end
+
+    recent_merge_requests_autocomplete(term) + issues_or_work_items + recent_wiki_pages_autocomplete(term)
   end
 
   def search_entries_info(collection, scope, term)
@@ -341,6 +351,11 @@ module SearchHelper
     end
   end
 
+  def work_items_autocomplete_enabled?
+    ::Feature.enabled?(:work_items_autocomplete, current_user)
+  end
+  strong_memoize_attr :work_items_autocomplete_enabled?
+
   def combined_generic_results
     project_autocomplete + default_autocomplete + help_autocomplete + default_autocomplete_admin
   end
@@ -539,6 +554,26 @@ module SearchHelper
         avatar_url: i.project.avatar_url || '',
         project_id: i.project_id,
         project_name: i.project.name
+      }
+    end
+  end
+
+  def recent_work_items_autocomplete(term)
+    return [] unless current_user
+
+    recent_work_items = ::Gitlab::Search::RecentWorkItems.new(user: current_user)
+    recent_work_items.search(term).preload_namespace.preload_routables.map do |wi|
+      # For group-level work items, use namespace (group) avatar; for project-level, use project avatar
+      avatar_url = wi.project&.avatar_url || wi.namespace&.avatar_url || ''
+
+      {
+        category: "Recent work items",
+        id: wi.id,
+        label: search_result_sanitize(wi.title),
+        url: work_item_path(wi),
+        avatar_url: avatar_url,
+        project_id: wi.project&.id,
+        project_name: wi.project&.name
       }
     end
   end

@@ -9,9 +9,9 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
 
   let_it_be(:admin) { create(:admin) }
   let_it_be(:user, reload: true) { create(:user, username: 'user.withdot') }
-  let_it_be(:key) { create(:key, user: user) }
-  let_it_be(:gpg_key) { create(:gpg_key, user: user) }
-  let_it_be(:email) { create(:email, user: user) }
+  let_it_be(:key, freeze: false) { create(:key, user: user) }
+  let_it_be(:gpg_key, freeze: false) { create(:gpg_key, user: user) }
+  let_it_be(:email, freeze: false) { create(:email, user: user) }
   let_it_be(:organization) { create(:organization) }
 
   let(:blocked_user) { create(:user, :blocked) }

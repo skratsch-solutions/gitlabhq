@@ -13,7 +13,6 @@ Performance/MethodObjectAsBlock:
     - 'lib/gitlab/config/entry/validators.rb'
     - 'lib/gitlab/container_repository/tags/cache.rb'
     - 'lib/gitlab/daemon.rb'
-    - 'lib/gitlab/data_builder/pipeline.rb'
     - 'lib/gitlab/dependency_linker/cartfile_linker.rb'
     - 'lib/gitlab/dependency_linker/gemfile_linker.rb'
     - 'lib/gitlab/dependency_linker/gemspec_linker.rb'

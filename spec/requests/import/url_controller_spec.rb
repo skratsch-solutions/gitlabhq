@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Import::UrlController, feature_category: :importers do
-  let_it_be(:user) { create(:user, :with_namespace) }
+  let_it_be(:user, freeze: false) { create(:user, :with_namespace) }
 
   before do
     login_as(user)

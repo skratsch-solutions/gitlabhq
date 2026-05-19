@@ -136,7 +136,6 @@ module LoginHelpers
   end
 
   # Clicks the OAuth provider button and returns whether navigation occurred.
-  # Raises CsrfRetry if the session cookie is missing (Chrome intermittent bug), signalling the caller to retry.
   def click_oauth_provider_button(provider, sign_in_path, wait)
     if javascript_test?
       click_oauth_provider_button_js(provider, sign_in_path, wait)
@@ -150,6 +149,9 @@ module LoginHelpers
 
   CsrfRetry = Class.new(StandardError)
 
+  # Chrome intermittently fails to send cookies on the POST request, causing a silent
+  # CSRF failure that redirects back to sign-in.
+  # Raises CsrfRetry if the session cookie is missing, signalling the caller to retry.
   def click_oauth_provider_button_js(provider, sign_in_path, wait)
     navigated = false
     reqs = inspect_requests do
@@ -159,8 +161,6 @@ module LoginHelpers
       navigated = page.has_no_current_path?(sign_in_path, ignore_query: true, wait: wait)
     end
 
-    # Chrome intermittently fails to send cookies on the POST request, causing a silent
-    # CSRF failure that redirects back to sign-in.
     post_request = reqs.find { |r| r.url&.include?("/users/auth/#{provider}") }
     raise CsrfRetry unless post_request&.request_headers&.fetch('Cookie', '')&.include?('_gitlab_session')
 

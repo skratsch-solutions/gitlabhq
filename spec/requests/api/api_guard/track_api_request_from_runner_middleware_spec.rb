@@ -70,7 +70,7 @@ RSpec.describe API::APIGuard::TrackAPIRequestFromRunnerMiddleware, :request_stor
       let_it_be(:property) { 'personal_access_token' }
       let_it_be(:additional_properties) { { cross_project_request: '' } }
 
-      let_it_be(:app) do
+      let_it_be(:app, freeze: false) do
         Class.new(API::API).tap do |app|
           app.route_setting :authentication, job_token_allowed: true
           app.get endpoint do
@@ -133,7 +133,7 @@ RSpec.describe API::APIGuard::TrackAPIRequestFromRunnerMiddleware, :request_stor
           end.application.plaintext_secret
         end
 
-        let_it_be(:app) do
+        let_it_be(:app, freeze: false) do
           Class.new(API::API).tap do |app|
             app.route_setting :authentication, deploy_token_allowed: true
             app.get endpoint do
@@ -165,7 +165,7 @@ RSpec.describe API::APIGuard::TrackAPIRequestFromRunnerMiddleware, :request_stor
 
         context 'with cluster agent token' do
           let_it_be(:cluster_agent_token) { create(:cluster_agent_token, token_encrypted: nil).token }
-          let_it_be(:app) do
+          let_it_be(:app, freeze: false) do
             Class.new(API::API).tap do |app|
               app.helpers ::API::Helpers::Kubernetes::AgentHelpers
               app.route_setting :authentication, cluster_agent_token_allowed: true
@@ -189,7 +189,7 @@ RSpec.describe API::APIGuard::TrackAPIRequestFromRunnerMiddleware, :request_stor
       end
 
       context 'with token from namespace inheritable' do
-        let_it_be(:app) do
+        let_it_be(:app, freeze: false) do
           Class.new(API::API).tap do |app|
             app.include ::API::Helpers::Authentication
 

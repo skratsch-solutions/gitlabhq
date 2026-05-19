@@ -7,7 +7,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   include WorkhorseHelpers
   include StubRequests
 
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:user1) { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
@@ -374,10 +374,10 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
       context 'when projects is in a subgroup' do
         let_it_be(:group) { create(:group) }
-        let_it_be(:group_member) { create(:group_member, :developer, group: group, user: user) }
+        let_it_be(:group_member, freeze: false) { create(:group_member, :developer, group: group, user: user) }
 
         let_it_be(:subgroup) { create(:group, parent: group) }
-        let_it_be(:project) { create(:project, group: subgroup) }
+        let_it_be(:project, freeze: false) { create(:project, group: subgroup) }
 
         before do
           get api(path, user)
@@ -397,7 +397,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         end
 
         context 'when user has multiple group membership' do
-          let_it_be(:subgroup_member) { create(:group_member, :owner, group: subgroup, user: user) }
+          let_it_be(:subgroup_member, freeze: false) { create(:group_member, :owner, group: subgroup, user: user) }
 
           it 'returns the highest access level', :aggregate_failures do
             project_response = json_response.find { |p| p['id'] == project.id }
@@ -535,7 +535,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       end
 
       context 'filter by topic_id' do
-        let_it_be(:topic1) { create(:topic, organization_id: project.organization_id) }
+        let_it_be(:topic1, freeze: false) { create(:topic, organization_id: project.organization_id) }
         let_it_be(:topic2) { create(:topic, organization_id: project.organization_id) }
 
         let(:current_user) { user }
@@ -1190,7 +1190,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
     end
 
     context 'when using the marked_for_deletion_on filter' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:group) { create(:group, owners: user) }
       let_it_be(:marked_for_deletion_project) do
         create(:project, marked_for_deletion_at: Date.parse('2024-01-01'), group: group)
@@ -2660,7 +2660,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
     let_it_be(:root_group) { create(:group, :public, name: 'root group', path: 'root-group-path') }
     let_it_be(:project_group1) { create(:group, :public, parent: root_group, name: 'group1', path: 'group-1-path') }
     let_it_be(:project_group2) { create(:group, :public, parent: root_group, name: 'group2', path: 'group-2-path') }
-    let_it_be(:project) { create(:project, :private, group: project_group1) }
+    let_it_be(:project, freeze: false) { create(:project, :private, group: project_group1) }
     let(:path) { "/projects/#{project.id}/share_locations" }
 
     it_behaves_like 'GET request permissions for admin mode' do
@@ -3429,8 +3429,8 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       end
 
       context 'when project belongs to a user namespace' do
-        let_it_be(:user) { create(:user) }
-        let_it_be(:project) { create(:project, namespace: user.namespace) }
+        let_it_be(:user, freeze: false) { create(:user) }
+        let_it_be(:project, freeze: false) { create(:project, namespace: user.namespace) }
 
         it 'returns user web_url and avatar_url' do
           get api(path, user)
@@ -3487,8 +3487,8 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
     end
 
     it_behaves_like 'storing arguments in the application context for the API' do
-      let_it_be(:user) { create(:user) }
-      let_it_be(:project) { create(:project, :public) }
+      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:project, freeze: false) { create(:project, :public) }
       let(:expected_params) { { user: user.username, project: project.full_path } }
 
       subject { get api(path, user) }
@@ -6718,9 +6718,9 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   end
 
   describe 'GET /projects/:id/transfer_locations' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let_it_be(:source_group) { create(:group) }
-    let_it_be(:project) { create(:project, group: source_group) }
+    let_it_be(:project, freeze: false) { create(:project, group: source_group) }
 
     let(:params) { {} }
 

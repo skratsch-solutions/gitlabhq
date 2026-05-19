@@ -49,13 +49,13 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
 
   describe 'GET #show' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let_it_be(:project) { create(:project, :public, group: group) }
 
     let(:merge_request) { create :merge_request, source_project: project, author: user }
 
     context 'when the author of the merge request is banned', feature_category: :insider_threat do
-      let_it_be(:user) { create(:user, :banned) }
+      let_it_be(:user, freeze: false) { create(:user, :banned) }
 
       subject { response }
 

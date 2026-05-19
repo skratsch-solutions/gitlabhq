@@ -703,6 +703,22 @@ You can now use a job token to push to another project when:
 This feature is behind the `allow_push_to_allowlisted_projects` feature flag, disabled by default
 in GitLab 19.0. Ask your administrator to enable it.
 
+### Mermaid diagram rendering upgraded to version 11
+
+<!-- categories: Markdown -->
+
+{{< details >}}
+
+- Tier: Free, Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+- Links: [Documentation](../../user/markdown.md#mermaid), [Related issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/491514)
+
+{{< /details >}}
+
+GitLab now uses [Mermaid version 11](../../user/markdown.md#mermaid) for rendering diagrams in Markdown.
+
+Previously, GitLab supported Mermaid version 10. With this upgrade, you get access to all the new diagram types, syntax improvements, and bug fixes introduced in Mermaid 11, including enhanced rendering for flowcharts, sequence diagrams, and more.
+
 ### Rapid Diffs for merge request reviews (Beta)
 
 <!-- categories: Code Review Workflow -->

@@ -7,7 +7,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   context 'token authentication' do
     context 'when public group' do
-      let_it_be(:public_group) { create(:group, :public) }
+      let_it_be(:public_group, freeze: false) { create(:group, :public) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'show atom', public_resource: true do
         let(:url) { group_path(public_group, format: :atom) }
@@ -23,7 +23,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when private group' do
-      let_it_be(:private_group) { create(:group, :private) }
+      let_it_be(:private_group, freeze: false) { create(:group, :private) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'show atom', public_resource: false, ignore_metrics: true do
         let(:url) { group_path(private_group, format: :atom) }

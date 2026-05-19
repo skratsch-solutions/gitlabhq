@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :source_code_management do
   let_it_be(:project) { create(:project, :public, :repository) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   before_all do
     project.add_maintainer(user)

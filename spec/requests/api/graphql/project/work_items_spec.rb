@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe 'getting a work item list for a project', feature_category: :portfolio_management do
   include_context 'with work items list request'
 
-  let_it_be(:label1) { create(:label, project: project) }
-  let_it_be(:label2) { create(:label, project: project) }
+  let_it_be(:label1, freeze: false) { create(:label, project: project) }
+  let_it_be(:label2, freeze: false) { create(:label, project: project) }
   let_it_be(:milestone1) { create(:milestone, project: project, due_date: 5.days.ago) }
   let_it_be(:milestone2) { create(:milestone, project: project, due_date: 3.days.from_now) }
 

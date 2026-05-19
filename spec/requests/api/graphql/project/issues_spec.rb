@@ -13,9 +13,9 @@ RSpec.describe 'getting an issue list for a project', feature_category: :team_pl
   let_it_be(:milestone2) { create(:milestone, project: project, due_date: 20.days.from_now) }
   let_it_be(:milestone3) { create(:milestone, project: project, due_date: 30.days.from_now) }
   let_it_be(:milestone4) { create(:milestone, project: project, due_date: 40.days.from_now) }
-  let_it_be(:priority1) { create(:label, project: project, priority: 1) }
-  let_it_be(:priority2) { create(:label, project: project, priority: 5) }
-  let_it_be(:priority3) { create(:label, project: project, priority: 10) }
+  let_it_be(:priority1, freeze: false) { create(:label, project: project, priority: 1) }
+  let_it_be(:priority2, freeze: false) { create(:label, project: project, priority: 5) }
+  let_it_be(:priority3, freeze: false) { create(:label, project: project, priority: 10) }
 
   let_it_be(:issue_a) do
     create(

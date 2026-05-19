@@ -144,7 +144,7 @@ RSpec.describe 'Updating a Snippet', feature_category: :source_code_management d
 
   describe 'ProjectSnippet' do
     let_it_be(:namespace) { create(:namespace) }
-    let_it_be(:project) { create(:project, :private, namespace: namespace) }
+    let_it_be(:project, freeze: false) { create(:project, :private, namespace: namespace) }
 
     let(:snippet) do
       create(

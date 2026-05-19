@@ -418,7 +418,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
 
       context 'when release is associated to mutiple milestones' do
         context 'milestones order' do
-          let_it_be(:project) { create(:project, :repository, :public) }
+          let_it_be(:project, freeze: false) { create(:project, :repository, :public) }
           let_it_be_with_reload(:release_with_milestones) { create(:release, tag: 'v3.14', project: project) }
 
           let(:actual_milestone_title_order) do
@@ -1369,7 +1369,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
     end
 
     context 'when the project is a catalog resource' do
-      let_it_be(:project) { create(:project, :catalog_resource_with_components, create_tag: '6.0.0') }
+      let_it_be(:project, freeze: false) { create(:project, :catalog_resource_with_components, create_tag: '6.0.0') }
       let_it_be(:ci_catalog_resource) { create(:ci_catalog_resource, project: project) }
 
       let(:params) do
@@ -1868,8 +1868,8 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
     let_it_be(:project1) { create(:project, namespace: group1) }
     let_it_be(:project2) { create(:project, namespace: group2) }
     let_it_be(:project3) { create(:project, namespace: group1, path: 'test', visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
-    let_it_be(:release1) { create(:release, project: project1) }
-    let_it_be(:release2) { create(:release, project: project2) }
+    let_it_be(:release1, freeze: false) { create(:release, project: project1) }
+    let_it_be(:release2, freeze: false) { create(:release, project: project2) }
     let_it_be(:release3) { create(:release, project: project3) }
 
     it_behaves_like 'GET request permissions for admin mode' do
@@ -1986,7 +1986,7 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
 
     context 'with group releases' do
       let_it_be(:group) { create(:group) }
-      let_it_be(:group_project) { create(:project, :repository, namespace: group) }
+      let_it_be(:group_project, freeze: false) { create(:project, :repository, namespace: group) }
       let!(:group_release) { create(:release, project: group_project, tag: 'v0.2', author: maintainer) }
 
       before do

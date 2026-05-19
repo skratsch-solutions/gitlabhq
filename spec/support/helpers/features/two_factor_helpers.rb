@@ -48,7 +48,6 @@ module Features
       webauthn_device ||= FakeWebauthnDevice.new(page, name)
       webauthn_device.respond_to_webauthn_registration
       click_on _('Register device')
-      wait_for_requests
       click_on _('Set up new device')
       webauthn_fill_form_and_submit(name: name, password: password)
       webauthn_device
@@ -121,9 +120,7 @@ module Features
     # Registers a passkey via the UI
     def passkey_registration(name: 'My Passkey', password: 'fake', respond_to_webauthn_registration_proc: nil)
       click_on _('Add passkey')
-      wait_for_requests
-      # Redirect to passkeys#new
-      expect(page).to have_content(_('Add passkey'))
+      expect(page).to have_current_path(new_profile_passkey_path, ignore_query: true)
 
       # Since the onRegister() Vue function is called immediately in passkeys#new page,
       # we need to re-send the request options to have authenticator's response (`device_response`)
@@ -144,8 +141,6 @@ module Features
       end
 
       click_button _('Try again') # Start of user interaction
-      wait_for_requests
-
       passkey_fill_form_and_submit(name: name, password: password)
 
       passkey

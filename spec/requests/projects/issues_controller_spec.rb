@@ -11,7 +11,7 @@ RSpec.describe Projects::IssuesController, feature_category: :team_planning do
   shared_context 'group project issue' do
     let_it_be(:project) { create :project, group: group }
     let_it_be(:issue) { create :issue, project: project }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
   end
 
   describe 'GET #show' do

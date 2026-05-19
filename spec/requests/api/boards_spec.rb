@@ -31,7 +31,7 @@ RSpec.describe API::Boards, :with_license, feature_category: :portfolio_manageme
 
   let_it_be(:milestone) { create(:milestone, project: board_parent) }
   let_it_be(:board_label) { create(:label, project: board_parent) }
-  let_it_be(:board) { create(:board, project: board_parent, lists: [dev_list, test_list]) }
+  let_it_be(:board, freeze: false) { create(:board, project: board_parent, lists: [dev_list, test_list]) }
 
   it_behaves_like 'group and project boards', "/projects/:id/boards"
 
@@ -110,7 +110,7 @@ RSpec.describe API::Boards, :with_license, feature_category: :portfolio_manageme
     let_it_be(:board_parent) { create(:group, parent: group) }
     let(:url) { "/groups/#{board_parent.id}/boards/#{board.id}/lists" }
 
-    let_it_be(:board) { create(:board, group: board_parent) }
+    let_it_be(:board, freeze: false) { create(:board, group: board_parent) }
 
     it 'creates a new board list for ancestor group labels' do
       group.add_developer(user)

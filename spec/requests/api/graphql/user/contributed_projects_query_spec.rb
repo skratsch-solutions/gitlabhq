@@ -12,7 +12,7 @@ RSpec.describe 'Getting contributedProjects of the user', feature_category: :gro
   let_it_be(:user) { create(:user, :with_namespace) }
   let_it_be(:current_user) { create(:user) }
 
-  let_it_be(:public_project) { create(:project, :public, name: 'foo') }
+  let_it_be(:public_project, freeze: false) { create(:project, :public, name: 'foo') }
   let_it_be(:private_project) { create(:project, :private, name: 'bar') }
   let_it_be(:internal_project) { create(:project, :internal, name: 'baz') }
   let_it_be(:personal_project) { create(:project, namespace: user.namespace, name: 'biz') }

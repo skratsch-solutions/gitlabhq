@@ -122,6 +122,19 @@ export function showAndHideHelper($input, alias = '') {
   });
 }
 
+// Keep at.js's dropdown container in the same scroll context as the textarea
+// So the dropdown doesn't drift when an ancestor scrolls (issue #598653).
+function attachAtWhoContainerToInputParent($input) {
+  const app = $input.data('atwho');
+  const container = app?.$el?.[0];
+  const parentNode = $input[0]?.parentNode;
+  const isAlreadyAttached = container?.parentNode === parentNode;
+
+  if (container && parentNode && !isAlreadyAttached) {
+    app.$el.appendTo(parentNode);
+  }
+}
+
 // This should be kept in sync with the backend filtering in
 // `User#gfm_autocomplete_search` and `Namespace#gfm_autocomplete_search`
 function createMemberSearchString(member) {
@@ -461,6 +474,8 @@ class GfmAutoComplete {
     };
     $input.off('keyup.frequentCommands', frequentCommandsHandler);
     $input.on('keyup.frequentCommands', frequentCommandsHandler);
+
+    attachAtWhoContainerToInputParent($input);
   }
 
   // eslint-disable-next-line class-methods-use-this

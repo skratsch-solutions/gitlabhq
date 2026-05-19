@@ -117,7 +117,6 @@ app/helpers/routing/projects/members_helper.rb:
 - approve_access_request_project_member_path
 - resend_invite_project_member_path
 app/helpers/sorting_titles_values_helper.rb:
-- sort_title_stars
 - sort_title_version_desc
 - sort_title_version_asc
 - sort_value_version_asc

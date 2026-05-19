@@ -5,9 +5,10 @@ require 'spec_helper'
 RSpec.describe SearchHelper, :with_current_organization, feature_category: :global_search do
   include MarkupHelper
   include BadgesHelper
+  include WorkItemsHelper
 
   before do
-    stub_feature_flags(work_item_legacy_url: true)
+    stub_feature_flags(work_item_legacy_url: true, work_items_autocomplete: true)
     # create AI Setting singleton record to prevent N+1
     Ai::Setting.instance if Gitlab.ee?
   end
@@ -199,80 +200,125 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
       context 'for recently reviewed items' do
         let(:search_term) { 'the search term' }
-        let(:recent_issues) { instance_double(::Gitlab::Search::RecentIssues) }
         let(:recent_merge_requests) { instance_double(::Gitlab::Search::RecentMergeRequests) }
         let(:recent_wiki_pages) { instance_double(::Gitlab::Search::RecentWikiPages) }
 
         let_it_be(:project1) { create(:project, namespace: user.namespace) }
         let_it_be(:project2) { create(:project) }
 
-        it 'includes the users recently viewed issues and project with correct order', :aggregate_failures do
-          project = create(:project, :with_avatar, title: 'the search term')
-          project.add_developer(user)
+        shared_examples 'recently viewed work items or issues' do |ff_enabled|
+          let(:recent_items_class) { ff_enabled ? ::Gitlab::Search::RecentWorkItems : ::Gitlab::Search::RecentIssues }
+          let(:recent_items) { instance_double(recent_items_class) }
+          let(:category_name) { ff_enabled ? 'Recent work items' : 'Recent issues' }
 
-          issue1 = create(:issue, title: 'issue 1', project: project)
-          issue2 = create(:issue, title: 'issue 2', project: project2)
+          def item_path(item, ff_enabled)
+            if ff_enabled
+              work_item_path(item)
+            else
+              issue_path(item)
+            end
+          end
 
-          expect(::Gitlab::Search::RecentIssues).to receive(:new).with(user: user).and_return(recent_issues)
-          expect(recent_issues).to receive(:search).with(search_term)
-            .and_return(Issue.id_in_ordered([issue1.id, issue2.id]))
+          before do
+            stub_feature_flags(work_items_autocomplete: ff_enabled)
+          end
 
-          results = search_autocomplete_opts(search_term)
+          it 'includes the users recently viewed items and project with correct order', :aggregate_failures do
+            project = create(:project, :with_avatar, title: 'the search term')
+            project.add_developer(user)
 
-          expect(results.count).to eq(3)
+            issue1 = create(:issue, title: 'issue 1', project: project)
+            issue2 = create(:issue, title: 'issue 2', project: project2)
 
-          expect(results[0]).to include({
-            category: 'Recent issues',
-            id: issue1.id,
-            label: 'issue 1',
-            url: ::Gitlab::UrlBuilder.instance.issue_path(issue1),
-            avatar_url: project.avatar_url
-          })
+            expect(recent_items_class).to receive(:new).with(user: user).and_return(recent_items)
+            expect(recent_items).to receive(:search).with(search_term)
+              .and_return(Issue.id_in_ordered([issue1.id, issue2.id]))
 
-          expect(results[1]).to include({
-            category: 'Recent issues',
-            id: issue2.id,
-            label: 'issue 2',
-            url: ::Gitlab::UrlBuilder.instance.issue_path(issue2),
-            avatar_url: '' # This project didn't have an avatar so set this to ''
-          })
+            results = search_autocomplete_opts(search_term)
 
-          expect(results[2]).to include({
-            category: 'Projects',
-            id: project.id,
-            label: project.full_name,
-            url: Gitlab::Routing.url_helpers.project_path(project)
-          })
+            expect(results.count).to eq(3)
+
+            expect(results[0]).to include({
+              category: category_name,
+              id: issue1.id,
+              label: 'issue 1',
+              url: item_path(issue1, ff_enabled),
+              avatar_url: project.avatar_url
+            })
+
+            expect(results[1]).to include({
+              category: category_name,
+              id: issue2.id,
+              label: 'issue 2',
+              url: item_path(issue2, ff_enabled),
+              avatar_url: ''
+            })
+
+            expect(results[2]).to include({
+              category: 'Projects',
+              id: project.id,
+              label: project.full_name,
+              url: Gitlab::Routing.url_helpers.project_path(project)
+            })
+          end
+
+          it 'includes the users recently viewed items with the exact same name', :aggregate_failures do
+            expect(recent_items_class).to receive(:new).with(user: user).and_return(recent_items)
+            project3 = create(:project, :with_avatar, namespace: user.namespace)
+            issue1 = create(:issue, title: 'issue same_name', project: project3)
+            issue2 = create(:issue, title: 'issue same_name', project: project2)
+
+            expect(recent_items).to receive(:search).with(search_term)
+              .and_return(Issue.id_in_ordered([issue1.id, issue2.id]))
+
+            results = search_autocomplete_opts(search_term)
+
+            expect(results.count).to eq(2)
+
+            expect(results[0]).to include({
+              category: category_name,
+              id: issue1.id,
+              label: 'issue same_name',
+              url: item_path(issue1, ff_enabled),
+              avatar_url: project3.avatar_url
+            })
+
+            expect(results[1]).to include({
+              category: category_name,
+              id: issue2.id,
+              label: 'issue same_name',
+              url: item_path(issue2, ff_enabled),
+              avatar_url: ''
+            })
+          end
+
+          it 'does not have an N+1 for recently viewed items', :request_store do
+            issue1 = create(:issue, title: 'issue 1', project: project1)
+            issue2 = create(:issue, title: 'issue 2', project: project2)
+            issue_ids = [issue1.id, issue2.id]
+
+            allow(recent_items_class).to receive(:new).with(user: user).and_return(recent_items)
+            expect(recent_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
+
+            control = ActiveRecord::QueryRecorder.new(skip_cached: true) { search_autocomplete_opts(search_term) }
+
+            issue_ids += create_list(:issue, 3).map(&:id)
+            expect(recent_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
+
+            # Threshold of 6 allows for 2 additional queries per new issue (3 new issues = 6 queries)
+            # These queries are needed for URL determination logic (work_item_type, namespace checks)
+            # introduced by the URL centralization in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213411
+            # and temporary until full migration to Work Items URLs
+            expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control).with_threshold(6)
+          end
         end
 
-        it 'includes the users recently viewed issues with the exact same name', :aggregate_failures do
-          expect(::Gitlab::Search::RecentIssues).to receive(:new).with(user: user).and_return(recent_issues)
-          project3 = create(:project, :with_avatar, namespace: user.namespace)
-          issue1 = create(:issue, title: 'issue same_name', project: project3)
-          issue2 = create(:issue, title: 'issue same_name', project: project2)
+        context 'when work_items_autocomplete is enabled' do
+          it_behaves_like 'recently viewed work items or issues', true
+        end
 
-          expect(recent_issues).to receive(:search).with(search_term)
-            .and_return(Issue.id_in_ordered([issue1.id, issue2.id]))
-
-          results = search_autocomplete_opts(search_term)
-
-          expect(results.count).to eq(2)
-
-          expect(results[0]).to include({
-            category: 'Recent issues',
-            id: issue1.id,
-            label: 'issue same_name',
-            url: ::Gitlab::UrlBuilder.instance.issue_path(issue1),
-            avatar_url: project3.avatar_url
-          })
-
-          expect(results[1]).to include({
-            category: 'Recent issues',
-            id: issue2.id,
-            label: 'issue same_name',
-            url: ::Gitlab::UrlBuilder.instance.issue_path(issue2),
-            avatar_url: '' # This project didn't have an avatar so set this to ''
-          })
+        context 'when work_items_autocomplete is disabled' do
+          it_behaves_like 'recently viewed work items or issues', false
         end
 
         it 'includes the users recently viewed merge requests', :aggregate_failures do
@@ -337,26 +383,6 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
             label: 'Wiki page 2',
             url: Gitlab::UrlBuilder.build(wiki_page_meta2)
           })
-        end
-
-        it 'does not have an N+1 for recently viewed issues', :request_store do
-          issue1 = create(:issue, title: 'issue 1', project: project1)
-          issue2 = create(:issue, title: 'issue 2', project: project2)
-          issue_ids = [issue1.id, issue2.id]
-
-          allow(::Gitlab::Search::RecentIssues).to receive(:new).with(user: user).and_return(recent_issues)
-          expect(recent_issues).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
-
-          control = ActiveRecord::QueryRecorder.new(skip_cached: true) { search_autocomplete_opts(search_term) }
-
-          issue_ids += create_list(:issue, 3).map(&:id)
-          expect(recent_issues).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
-
-          # Threshold of 6 allows for 2 additional queries per new issue (3 new issues = 6 queries)
-          # These queries are needed for URL determination logic (work_item_type, namespace checks)
-          # introduced by the URL centralization in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213411
-          # and temparory until full migration to Work Items URLs
-          expect { search_autocomplete_opts(search_term) }.to issue_same_number_of_queries_as(control).with_threshold(6)
         end
 
         it 'does not have an N+1 for recently viewed merge_requests' do
@@ -570,15 +596,15 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
     before do
       allow(self).to receive(:current_user).and_return(user)
-      allow_next_instance_of(Gitlab::Search::RecentIssues) do |recent_issues|
-        allow(recent_issues).to receive(:search).and_return(Issue.id_in(issue.id))
+      allow_next_instance_of(Gitlab::Search::RecentWorkItems) do |recent_work_items|
+        allow(recent_work_items).to receive(:search).and_return(WorkItem.id_in(issue.id))
       end
     end
 
     where(:scope, :category) do
       'users'    | 'Users'
       'projects' | 'Projects'
-      'issues'   | 'Recent issues'
+      'issues'   | 'Recent work items'
     end
 
     with_them do

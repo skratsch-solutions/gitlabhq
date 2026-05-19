@@ -320,44 +320,13 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
         allow(subject).to receive(:post).and_return(success_response)
       end
 
-      context 'when truncate_jira_deployment_associations is enabled' do
-        before do
-          stub_feature_flags(truncate_jira_deployment_associations: true)
-        end
+      it 'makes a single API request with at most the limit of association values' do
+        subject.send(:store_deploy_info, project: project, deployments: deployments)
 
-        it 'makes a single API request with at most the limit of association values' do
-          subject.send(:store_deploy_info, project: project, deployments: deployments)
-
-          expect(subject).to have_received(:post).once do |_path, payload|
-            deployment = payload[:deployments].first
-            total = (deployment[:associations] || []).sum { |a| a[:values]&.size || 0 }
-            expect(total).to eq(Atlassian::JiraConnect::Client::ASSOCIATION_VALUES_LIMIT)
-          end
-        end
-      end
-
-      context 'when truncate_jira_deployment_associations is disabled' do
-        before do
-          stub_feature_flags(truncate_jira_deployment_associations: false)
-        end
-
-        it 'sends the full payload without truncation' do
-          subject.send(:store_deploy_info, project: project, deployments: deployments)
-
-          expect(subject).to have_received(:post).once do |_path, payload|
-            deployment = payload[:deployments].first
-            total = (deployment[:associations] || []).sum { |a| a[:values]&.size || 0 }
-            expect(total).to be > Atlassian::JiraConnect::Client::ASSOCIATION_VALUES_LIMIT
-          end
-        end
-
-        it 'does not track a truncation exception' do
-          expect(Gitlab::ErrorTracking).not_to receive(:track_exception).with(
-            instance_of(Atlassian::JiraConnect::Client::AssociationsTruncatedError),
-            anything
-          )
-
-          subject.send(:store_deploy_info, project: project, deployments: deployments)
+        expect(subject).to have_received(:post).once do |_path, payload|
+          deployment = payload[:deployments].first
+          total = (deployment[:associations] || []).sum { |a| a[:values]&.size || 0 }
+          expect(total).to eq(Atlassian::JiraConnect::Client::ASSOCIATION_VALUES_LIMIT)
         end
       end
     end

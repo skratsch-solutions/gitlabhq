@@ -21,7 +21,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
 
   describe 'GET /groups/:id/issues' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:group_project) { create(:project, :public, :repository, creator_id: user.id, namespace: group) }
+    let_it_be(:group_project, freeze: false) { create(:project, :public, :repository, creator_id: user.id, namespace: group) }
     let_it_be(:private_mrs_project) do
       create(:project, :public, :repository, creator_id: user.id, namespace: group, merge_requests_access_level: ProjectFeature::PRIVATE)
     end

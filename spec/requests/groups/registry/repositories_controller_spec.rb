@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Groups::Registry::RepositoriesController, feature_category: :container_registry do
   let_it_be(:group, reload: true) { create(:group) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   before do
     stub_container_registry_config(enabled: true, key: 'spec/fixtures/x509_certificate_pk.key')

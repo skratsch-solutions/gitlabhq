@@ -14,7 +14,7 @@ RSpec.describe 'Timelogs', feature_category: :team_planning do
   let_it_be(:group_issue) { create(:issue, project: create(:project, group: group)) }
   let_it_be(:project_issue) { create(:issue, project: project) }
 
-  let_it_be(:user_timelog) { create(:timelog, user: user, issue: user_issue) }
+  let_it_be(:user_timelog, freeze: false) { create(:timelog, user: user, issue: user_issue) }
   let_it_be(:group_timelog) { create(:timelog, issue: group_issue) }
   let_it_be(:project_timelog) { create(:timelog, issue: project_issue) }
 

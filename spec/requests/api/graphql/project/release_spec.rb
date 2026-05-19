@@ -453,8 +453,8 @@ RSpec.describe 'Query.project(fullPath).release(tagName)', feature_category: :re
       let_it_be(:milestone_1) { create(:milestone, project: project) }
       let_it_be(:milestone_2) { create(:milestone, project: project) }
       let_it_be(:release, reload: true) { create(:release, :with_evidence, project: project, milestones: [milestone_1, milestone_2], released_at: released_at) }
-      let_it_be(:release_link_1) { create(:release_link, release: release) }
-      let_it_be(:release_link_2) { create(:release_link, release: release, filepath: link_filepath) }
+      let_it_be(:release_link_1, freeze: false) { create(:release_link, release: release) }
+      let_it_be(:release_link_2, freeze: false) { create(:release_link, release: release, filepath: link_filepath) }
 
       before_all do
         project.add_developer(developer)
@@ -495,8 +495,8 @@ RSpec.describe 'Query.project(fullPath).release(tagName)', feature_category: :re
       let_it_be(:milestone_1) { create(:milestone, project: project) }
       let_it_be(:milestone_2) { create(:milestone, project: project) }
       let_it_be(:release, reload: true) { create(:release, :with_evidence, project: project, milestones: [milestone_1, milestone_2], released_at: released_at) }
-      let_it_be(:release_link_1) { create(:release_link, release: release) }
-      let_it_be(:release_link_2) { create(:release_link, release: release, filepath: link_filepath) }
+      let_it_be(:release_link_1, freeze: false) { create(:release_link, release: release) }
+      let_it_be(:release_link_2, freeze: false) { create(:release_link, release: release, filepath: link_filepath) }
 
       before_all do
         project.add_developer(developer)

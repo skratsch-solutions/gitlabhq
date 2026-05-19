@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'getting a repository in a project', feature_category: :source_code_management do
   include GraphqlHelpers
 
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:repository) { project.repository }
 
   let(:current_user) { project.first_owner }
@@ -96,7 +96,7 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
     let(:current_user) { create(:user) }
 
     before do
-      project.add_role(current_user, :developer) # rubocop:disable RSpec/BeforeAllRoleAssignment -- This incorrectly flags because the let_it_be(:current_user) has been overridden by let(:current_user)
+      project.add_role(current_user, :developer)
     end
 
     it 'does not return diskPath' do

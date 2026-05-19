@@ -29,7 +29,7 @@ RSpec.describe 'Query.ciCatalogResources', feature_category: :pipeline_compositi
     )
   end
 
-  let_it_be(:private_resource) do
+  let_it_be(:private_resource, freeze: false) do
     create(:ci_catalog_resource, :published, project: private_project, latest_released_at: '2023-01-01T00:00:00Z',
       last_30_day_usage_count: 15)
   end

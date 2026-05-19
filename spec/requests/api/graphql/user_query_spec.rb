@@ -29,7 +29,7 @@ RSpec.describe 'getting user information', feature_category: :user_management do
     let_it_be(:unauthorized_user) { create(:user) }
     let_it_be(:admin) { create(:user, :admin) }
 
-    let_it_be(:assigned_mr) do
+    let_it_be(:assigned_mr, freeze: false) do
       create(:merge_request, :unique_branches, :unique_author, source_project: project_a, assignees: [user])
     end
 

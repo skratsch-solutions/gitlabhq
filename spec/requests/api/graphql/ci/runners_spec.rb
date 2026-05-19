@@ -290,7 +290,7 @@ RSpec.describe 'Query.runners', feature_category: :fleet_visibility do
       create(:ci_runner, :group, groups: [group], tag_list: tag_list, creator: user)
     end
 
-    let_it_be(:runner3) do
+    let_it_be(:runner3, freeze: false) do
       create(:ci_runner, :project, projects: [project], tag_list: tag_list, creator: user)
     end
 

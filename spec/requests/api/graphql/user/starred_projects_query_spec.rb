@@ -12,7 +12,10 @@ RSpec.describe 'Getting starredProjects of the user', feature_category: :groups_
   let(:user_params) { { username: user.username } }
 
   let_it_be_with_reload(:project_a) { create(:project, :public, name: 'ProjectA', path: 'Project-A', star_count: 30) }
-  let_it_be(:project_b) { create(:project, :private, name: 'ProjectB', path: 'Project-B', star_count: 20) }
+  let_it_be(:project_b, freeze: false) do
+    create(:project, :private, name: 'ProjectB', path: 'Project-B', star_count: 20)
+  end
+
   let_it_be(:project_c) { create(:project, :private, name: 'ProjectC', path: 'Project-C', star_count: 10) }
   let_it_be(:user, reload: true) { create(:user) }
 

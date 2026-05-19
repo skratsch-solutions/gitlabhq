@@ -10,7 +10,7 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
 
   let_it_be_with_refind(:package_settings) { create(:namespace_package_setting, :group) }
   let_it_be_with_refind(:group) { package_settings.namespace }
-  let_it_be(:user) { create(:user, organization: group.organization) }
+  let_it_be(:user, freeze: false) { create(:user, organization: group.organization) }
   let_it_be(:project, reload: true) { create(:project, :public, namespace: group, developers: user) }
   let_it_be(:package, reload: true) { create(:maven_package, project: project, name: project.full_path) }
   let_it_be(:maven_metadatum, reload: true) { package.maven_metadatum }
@@ -18,7 +18,7 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
   let_it_be(:jar_file) { package.package_files.with_file_name_like('%.jar').first }
   let_it_be(:personal_access_token) { create(:personal_access_token, user: user) }
   let_it_be(:job, reload: true) { create(:ci_build, user: user, status: :running, project: project) }
-  let_it_be(:deploy_token) { create(:deploy_token, read_package_registry: true, write_package_registry: true, projects: [project]) }
+  let_it_be(:deploy_token, freeze: false) { create(:deploy_token, read_package_registry: true, write_package_registry: true, projects: [project]) }
   let_it_be(:deploy_token_for_group) { create(:deploy_token, :group, read_package_registry: true, write_package_registry: true, groups: [group]) }
 
   let(:snowplow_gitlab_standard_context) { { project: project, namespace: project.namespace, user: user, property: 'i_package_maven_user' } }

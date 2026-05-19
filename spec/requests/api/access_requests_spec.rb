@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe API::AccessRequests, feature_category: :system_access do
-  let_it_be(:maintainer) { create(:user) }
-  let_it_be(:developer) { create(:user) }
-  let_it_be(:access_requester) { create(:user) }
+  let_it_be(:maintainer, freeze: false) { create(:user) }
+  let_it_be(:developer, freeze: false) { create(:user) }
+  let_it_be(:access_requester, freeze: false) { create(:user) }
   let_it_be(:stranger) { create(:user) }
 
   let_it_be(:project) do

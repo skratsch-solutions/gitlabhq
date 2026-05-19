@@ -255,7 +255,8 @@
     "Epic",
     "Issue",
     "MergeRequest",
-    "WikiPage"
+    "WikiPage",
+    "WorkItem"
   ],
   "Registrable": [
     "AbuseReportUploadRegistry",

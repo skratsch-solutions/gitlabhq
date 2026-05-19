@@ -297,7 +297,7 @@ RSpec.describe API::AwardEmoji, feature_category: :shared do
         subject(:perform_request) { get api(request_path, current_user) }
 
         let_it_be(:group) { create(:group) }
-        let_it_be(:project) { create(:project, :public, namespace: group) }
+        let_it_be(:project, freeze: false) { create(:project, :public, namespace: group) }
         let_it_be(:issue) { create(:issue, project: project) }
         let_it_be(:note) { create(:note, :confidential, project: project, noteable: issue, author: user) }
 

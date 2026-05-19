@@ -16,7 +16,7 @@ RSpec.describe 'getting merge request listings nested in a project', feature_cat
       reviewers: [current_user])
   end
 
-  let_it_be(:merge_request_b) do
+  let_it_be(:merge_request_b, freeze: false) do
     create(:merge_request, :closed, :unique_branches, source_project: project, reviewers: [current_user, create(:user)])
   end
 

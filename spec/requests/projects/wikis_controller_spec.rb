@@ -9,7 +9,7 @@ RSpec.describe Projects::WikisController, feature_category: :wiki do
   let_it_be(:diagramsnet_is_enabled) { false }
   let_it_be(:diagramsnet_url) { 'https://url.diagrams.net' }
   let_it_be(:project) { create(:project, :wiki_repo, namespace: user.namespace) }
-  let_it_be(:project_wiki) { create(:project_wiki, project: project, user: user) }
+  let_it_be(:project_wiki, freeze: false) { create(:project_wiki, project: project, user: user) }
   let_it_be(:wiki_page) do
     create(:wiki_page,
       wiki: project_wiki,

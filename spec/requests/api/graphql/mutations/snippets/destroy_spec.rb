@@ -84,7 +84,7 @@ RSpec.describe 'Destroying a Snippet', feature_category: :source_code_management
   end
 
   describe 'ProjectSnippet' do
-    let_it_be(:project) { create(:project, :private) }
+    let_it_be(:project, freeze: false) { create(:project, :private) }
     let_it_be(:snippet) { create(:project_snippet, :private, project: project, author: create(:user)) }
 
     context 'when the author is not a member of the project' do

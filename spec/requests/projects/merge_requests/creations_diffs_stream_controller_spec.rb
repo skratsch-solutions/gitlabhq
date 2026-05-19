@@ -8,7 +8,7 @@ RSpec.describe 'Merge Request Creations diffs stream', feature_category: :code_r
   let_it_be(:source_branch) { 'fix' }
   let_it_be(:target_branch) { 'master' }
 
-  let_it_be(:compare) do
+  let_it_be(:compare, freeze: false) do
     CompareService.new(
       project,
       source_branch

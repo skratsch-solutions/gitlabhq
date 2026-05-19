@@ -20,10 +20,10 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
   let_it_be(:milestone2) { create(:milestone, project: project_d, due_date: 20.days.from_now) }
   let_it_be(:milestone3) { create(:milestone, project: project_d, due_date: 30.days.from_now) }
   let_it_be(:milestone4) { create(:milestone, project: project_a, due_date: 40.days.from_now) }
-  let_it_be(:priority1) { create(:label, project: project_c, priority: 1) }
-  let_it_be(:priority2) { create(:label, project: project_d, priority: 5) }
-  let_it_be(:priority3) { create(:label, project: project_a, priority: 10) }
-  let_it_be(:priority4) { create(:label, project: project_d, priority: 15) }
+  let_it_be(:priority1, freeze: false) { create(:label, project: project_c, priority: 1) }
+  let_it_be(:priority2, freeze: false) { create(:label, project: project_d, priority: 5) }
+  let_it_be(:priority3, freeze: false) { create(:label, project: project_a, priority: 10) }
+  let_it_be(:priority4, freeze: false) { create(:label, project: project_d, priority: 15) }
 
   let_it_be(:issue_a) do
     create(

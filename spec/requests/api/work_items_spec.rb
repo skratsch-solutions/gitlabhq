@@ -12,7 +12,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     create(:project, :private, group: group, reporters: user, skip_disk_validation: true)
   end
 
-  let_it_be(:project_label) { create(:label, project: project, title: 'project-label') }
+  let_it_be(:project_label, freeze: false) { create(:label, project: project, title: 'project-label') }
   let_it_be(:project_milestone) { create(:milestone, project: project, title: 'project-milestone') }
   let_it_be(:project_work_item) do
     create(

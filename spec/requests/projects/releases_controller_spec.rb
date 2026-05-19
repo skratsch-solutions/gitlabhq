@@ -4,11 +4,11 @@ require 'spec_helper'
 
 RSpec.describe 'Projects::ReleasesController', feature_category: :release_orchestration do
   let_it_be(:project) { create(:project, :repository) }
-  let_it_be(:user) { create(:user, developer_of: project) }
+  let_it_be(:user, freeze: false) { create(:user, developer_of: project) }
 
   # Added as a request spec because of https://gitlab.com/gitlab-org/gitlab/-/issues/232386
   describe 'GET #downloads' do
-    let_it_be(:release) { create(:release, project: project, tag: 'v11.9.0-rc2') }
+    let_it_be(:release, freeze: false) { create(:release, project: project, tag: 'v11.9.0-rc2') }
     let(:internal_redirect_url) { "https://#{Gitlab.config.gitlab.host}:#{Gitlab.config.gitlab.port}/abcd" }
     let!(:link) do
       create(:release_link, release: release, name: 'internal gitlab url', filepath: filepath,
@@ -117,7 +117,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
     end
 
     context 'when user has permissions to read code' do
-      let_it_be(:release) { create(:release, project: project, tag: 'v11.9.0-rc2') }
+      let_it_be(:release, freeze: false) { create(:release, project: project, tag: 'v11.9.0-rc2') }
 
       before do
         login_as(user)
@@ -131,7 +131,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
     end
 
     context 'when release commit is missing' do
-      let_it_be(:release) { create(:release, project: project, tag: 'missing-tag', sha: '0000000') }
+      let_it_be(:release, freeze: false) { create(:release, project: project, tag: 'missing-tag', sha: '0000000') }
 
       before do
         login_as(user)
@@ -151,8 +151,8 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
     end
 
     context 'when user doesn\'t have permissions to read code' do
-      let_it_be(:release) { create(:release, project: project, tag: 'v11.9.0-rc2') }
-      let_it_be(:new_user) { create(:user, guest_of: project) }
+      let_it_be(:release, freeze: false) { create(:release, project: project, tag: 'v11.9.0-rc2') }
+      let_it_be(:new_user, freeze: false) { create(:user, guest_of: project) }
 
       before do
         login_as(new_user)
@@ -173,7 +173,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
         create(:project, :repository, :public, repository_access_level: ProjectFeature::PRIVATE)
       end
 
-      let_it_be(:release) { create(:release, project: public_project, tag: 'v11.9.0-rc2') }
+      let_it_be(:release, freeze: false) { create(:release, project: public_project, tag: 'v11.9.0-rc2') }
 
       it 'dosn\'t show commit details in the atom feed' do
         get(project_releases_url(public_project, format: :atom))

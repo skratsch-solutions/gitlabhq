@@ -166,10 +166,6 @@ module SortingTitlesValuesHelper
     s_('SortOptions|Most stars')
   end
 
-  def sort_title_stars
-    s_('SortOptions|Stars')
-  end
-
   def sort_title_oldest_last_activity
     s_('SortOptions|Oldest last activity')
   end

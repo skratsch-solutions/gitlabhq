@@ -12,7 +12,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
       end
 
       context 'as as admin', :enable_admin_mode do
-        let_it_be(:user) { create(:admin) }
+        let_it_be(:user, freeze: false) { create(:admin) }
 
         it_behaves_like 'organization - successful response'
         it_behaves_like 'organization - action disabled by ui_for_organizations_enabled?'
@@ -56,7 +56,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
       end
 
       context 'with no association to an organization' do
-        let_it_be(:user) { create(:user) }
+        let_it_be(:user, freeze: false) { create(:user) }
 
         it_behaves_like 'organization - not found response'
         it_behaves_like 'organization - action disabled by ui_for_organizations_enabled?'
@@ -73,7 +73,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
       end
 
       context 'with no association to an organization' do
-        let_it_be(:user) { create(:user) }
+        let_it_be(:user, freeze: false) { create(:user) }
 
         it_behaves_like 'organization - successful response'
         it_behaves_like 'organization - action disabled by ui_for_organizations_enabled?'
@@ -102,7 +102,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
     it_behaves_like 'controller action that does not require authentication'
 
     context 'when requested in json format' do
-      let_it_be(:user) { create(:organization_user, organization: organization).user }
+      let_it_be(:user, freeze: false) { create(:organization_user, organization: organization).user }
 
       context 'without activities' do
         before do
@@ -284,7 +284,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
     it_behaves_like 'controller action that requires authentication by any user'
 
     context 'when user is signed in and `organization_switching` feature flag is disabled' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
 
       before do
         stub_feature_flags(organization_switching: false)
@@ -307,7 +307,7 @@ RSpec.describe Organizations::OrganizationsController, feature_category: :organi
     it_behaves_like 'controller action that requires authentication by any user'
 
     context 'when the user is signed in' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
 
       before do
         sign_in(user)

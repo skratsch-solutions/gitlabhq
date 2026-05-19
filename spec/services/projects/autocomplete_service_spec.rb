@@ -9,6 +9,24 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
   let_it_be(:issue) { create(:issue, project: project, title: 'Issue 1') }
 
   describe '#issues' do
+    context 'with work_items_autocomplete feature flag' do
+      it 'calls work_items when feature flag is enabled' do
+        stub_feature_flags(work_items_autocomplete: true)
+        autocomplete = described_class.new(project, owner)
+
+        expect(autocomplete).to receive(:work_items).and_call_original
+        autocomplete.issues
+      end
+
+      it 'uses IssuesFinder when feature flag is disabled' do
+        stub_feature_flags(work_items_autocomplete: false)
+        autocomplete = described_class.new(project, owner)
+
+        expect(autocomplete).not_to receive(:work_items)
+        expect(autocomplete.issues).to be_present
+      end
+    end
+
     describe 'confidential issues' do
       let_it_be(:author) { create(:user) }
       let_it_be(:assignee) { create(:user) }
@@ -133,6 +151,130 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
         issue_iids = autocomplete.issues.map(&:iid)
 
         expect(issue_iids).to eq([90000, 80000, 8000, 800, 80])
+      end
+    end
+  end
+
+  describe '#work_items' do
+    it 'returns work items using WorkItemsFinder' do
+      autocomplete = described_class.new(project, owner)
+      result = autocomplete.work_items
+
+      expect(result).to be_present
+      expect(result).to all(be_a(WorkItem))
+    end
+
+    it 'includes work item icons in list' do
+      autocomplete = described_class.new(project, owner)
+      work_items = autocomplete.work_items.map(&:icon_name)
+
+      expect(work_items).to all(start_with('work-item-'))
+    end
+
+    context 'with search parameter' do
+      let_it_be(:issue_8) { create(:issue, project: project, iid: 8) }
+      let_it_be(:issue_80) { create(:issue, project: project, iid: 80) }
+      let_it_be(:issue_800) { create(:issue, project: project, iid: 800) }
+      let_it_be(:issue_8000) { create(:issue, project: project, iid: 8000) }
+      let_it_be(:issue_80000) { create(:issue, project: project, iid: 80000) }
+      let_it_be(:issue_90000) { create(:issue, project: project, title: 'gitlab issue 8', iid: 90000) }
+
+      it 'filters work items by search term' do
+        autocomplete = described_class.new(project, owner, { search: '8' })
+        work_item_iids = autocomplete.work_items.map(&:iid)
+
+        expect(work_item_iids).to eq([90000, 80000, 8000, 800, 80])
+      end
+
+      it 'filters work items by title' do
+        autocomplete = described_class.new(project, owner, { search: 'gitlab' })
+        work_item_iids = autocomplete.work_items.map(&:iid)
+
+        expect(work_item_iids).to include(90000)
+      end
+    end
+
+    context 'with confidential work items' do
+      let(:author) { create(:user) }
+      let(:assignee) { create(:user) }
+      let(:non_member) { create(:user) }
+      let(:member) { create(:user) }
+      let(:admin) { create(:admin) }
+      let!(:security_issue_1) do
+        create(:issue, :confidential, project: project, title: 'Security issue 1', author: author)
+      end
+
+      let!(:security_issue_2) do
+        create(:issue, :confidential, title: 'Security issue 2', project: project, assignees: [assignee])
+      end
+
+      it 'does not list project confidential work items for guests' do
+        autocomplete = described_class.new(project, nil)
+        work_items = autocomplete.work_items.map(&:iid)
+
+        expect(work_items).to include issue.iid
+        expect(work_items).not_to include security_issue_1.iid
+        expect(work_items).not_to include security_issue_2.iid
+      end
+
+      it 'does not list project confidential work items for non project members' do
+        autocomplete = described_class.new(project, non_member)
+        work_items = autocomplete.work_items.map(&:iid)
+
+        expect(work_items).to include issue.iid
+        expect(work_items).not_to include security_issue_1.iid
+        expect(work_items).not_to include security_issue_2.iid
+      end
+
+      it 'lists project confidential work items for author' do
+        autocomplete = described_class.new(project, author)
+        work_items = autocomplete.work_items.map(&:iid)
+
+        expect(work_items).to include issue.iid
+        expect(work_items).to include security_issue_1.iid
+        expect(work_items).not_to include security_issue_2.iid
+      end
+
+      it 'lists project confidential work items for assignee' do
+        autocomplete = described_class.new(project, assignee)
+        work_items = autocomplete.work_items.map(&:iid)
+
+        expect(work_items).to include issue.iid
+        expect(work_items).not_to include security_issue_1.iid
+        expect(work_items).to include security_issue_2.iid
+      end
+
+      it 'lists project confidential work items for project members' do
+        project.add_developer(member)
+
+        autocomplete = described_class.new(project, member)
+        work_items = autocomplete.work_items.map(&:iid)
+
+        expect(work_items).to include issue.iid
+        expect(work_items).to include security_issue_1.iid
+        expect(work_items).to include security_issue_2.iid
+      end
+
+      context 'when admin mode is enabled', :enable_admin_mode do
+        it 'lists all project work items for admin' do
+          autocomplete = described_class.new(project, admin)
+          work_items = autocomplete.work_items.map(&:iid)
+
+          expect(work_items).to include issue.iid
+          expect(work_items).to include security_issue_1.iid
+          expect(work_items).to include security_issue_2.iid
+        end
+      end
+
+      context 'when admin mode is disabled' do
+        it 'does not list project confidential work items for admin' do
+          autocomplete = described_class.new(project, admin)
+          work_items = autocomplete.work_items.map(&:iid)
+
+          expect(work_items).to include issue.iid
+          expect(work_items).not_to include security_issue_1.iid
+          expect(work_items).not_to include security_issue_2.iid
+        end
       end
     end
   end

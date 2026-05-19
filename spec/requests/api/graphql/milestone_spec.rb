@@ -12,8 +12,8 @@ RSpec.describe 'Querying a Milestone', feature_category: :team_planning do
   let_it_be(:inherited_reporter) { create(:user) }
   let_it_be(:inherited_developer) { create(:user) }
   let_it_be(:milestone) { create(:milestone, project: project) }
-  let_it_be(:release_a) { create(:release, project: project) }
-  let_it_be(:release_b) { create(:release, project: project) }
+  let_it_be(:release_a, freeze: false) { create(:release, project: project) }
+  let_it_be(:release_b, freeze: false) { create(:release, project: project) }
 
   let(:expected_release_nodes) do
     contain_exactly(a_graphql_entity_for(release_a), a_graphql_entity_for(release_b))
