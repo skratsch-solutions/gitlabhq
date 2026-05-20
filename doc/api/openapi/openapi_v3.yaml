@@ -971,23 +971,23 @@ paths:
         in: query
       - name: knn
         required: false
-        description: Number of nearest neighbours to retrieve internally. Higher values
-          improve recall at the cost of latency.
+        description: 'Number of nearest neighbours to retrieve internally (default:
+          64). Higher values improve recall at the cost of latency.'
         schema:
           type: integer
           minimum: 1
           maximum: 100
-          default: 10
+          default: 64
           nullable: true
         in: query
       - name: limit
         required: false
-        description: Maximum number of results to return
+        description: 'Maximum number of results to return (default: 20).'
         schema:
           type: integer
           minimum: 1
           maximum: 100
-          default: 10
+          default: 20
           nullable: true
         in: query
       x-gitlab-lifecycle: beta

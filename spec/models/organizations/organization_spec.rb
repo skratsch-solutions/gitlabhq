@@ -267,8 +267,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     end
 
     describe '.with_user' do
-      let_it_be(:user) { create(:user, organization: organization) }
-      let_it_be(:second_organization) { create(:organization, users: [user]) }
+      let_it_be(:user, freeze: false) { create(:user, organization: organization) }
+      let_it_be(:second_organization, freeze: false) { create(:organization, users: [user]) }
 
       subject(:organizations_for_user) { described_class.with_user(user) }
 
@@ -369,7 +369,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe 'invalid state transitions' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     it 'cannot schedule_deletion! from deletion_scheduled state' do
       organization.update_column(:state, described_class.states['deletion_scheduled'])
@@ -406,7 +406,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe '#owner?' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     subject { organization.owner?(user) }
 
@@ -432,7 +432,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   describe '#add_owner' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     before_all do
       organization.add_owner(user)

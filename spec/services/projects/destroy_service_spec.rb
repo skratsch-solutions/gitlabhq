@@ -221,7 +221,7 @@ RSpec.describe Projects::DestroyService, :aggregate_failures, :event_store_publi
 
   context 'when the parent group has been marked for deletion' do
     let_it_be(:parent_group) do
-      create(:group_with_deletion_schedule)
+      create(:group, :deletion_scheduled)
     end
 
     let(:project) { create(:project, namespace: parent_group) }

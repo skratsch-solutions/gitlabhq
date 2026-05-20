@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:group) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group) }
   let_it_be_with_reload(:subgroup) { create(:group, parent: group) }
   let(:namespace_settings) { group.namespace_settings }
 
@@ -440,8 +440,8 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
     end
 
     context 'when a group has parent groups' do
-      let_it_be(:grandparent) { create(:group) }
-      let_it_be(:parent) { create(:group, parent: grandparent) }
+      let_it_be(:grandparent, freeze: false) { create(:group) }
+      let_it_be(:parent, freeze: false) { create(:group, parent: grandparent) }
       let_it_be_with_refind(:group) { create(:group, parent: parent) }
 
       it 'returns true when no parent has disabled emails' do
@@ -481,9 +481,9 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
       end
 
       context 'when there are parents' do
-        let_it_be(:grandparent) { create(:group) }
-        let_it_be(:parent)      { create(:group, parent: grandparent) }
-        let_it_be(:group)       { create(:group, parent: parent) }
+        let_it_be(:grandparent, freeze: false) { create(:group) }
+        let_it_be(:parent, freeze: false)      { create(:group, parent: grandparent) }
+        let_it_be(:group, freeze: false)       { create(:group, parent: parent) }
 
         before do
           grandparent.update!(runner_registration_enabled: grandparent_runner_registration_enabled)
@@ -506,8 +506,8 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
     describe '#runner_registration_enabled?' do
       subject(:group_setting) { group.runner_registration_enabled? }
 
-      let_it_be(:settings) { create(:namespace_settings) }
-      let_it_be(:group) { create(:group, namespace_settings: settings) }
+      let_it_be(:settings, freeze: false) { create(:namespace_settings) }
+      let_it_be(:group, freeze: false) { create(:group, namespace_settings: settings) }
 
       before do
         group.update!(runner_registration_enabled: group_runner_registration_enabled)
@@ -551,8 +551,8 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
     subject(:group_setting) { group.allow_runner_registration_token? }
 
     context 'when a top-level group' do
-      let_it_be(:settings) { create(:namespace_settings) }
-      let_it_be(:group) { create(:group, namespace_settings: settings) }
+      let_it_be(:settings, freeze: false) { create(:namespace_settings) }
+      let_it_be(:group, freeze: false) { create(:group, namespace_settings: settings) }
 
       before do
         group.update!(allow_runner_registration_token: allow_runner_registration_token)

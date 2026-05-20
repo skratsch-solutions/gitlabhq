@@ -581,7 +581,7 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
     end
 
     context 'when group is marked for deletion' do
-      let_it_be(:group) { create(:group_with_deletion_schedule) }
+      let_it_be(:group) { create(:group, :deletion_scheduled) }
 
       it { is_expected.to match(hash_including(marked_for_deletion: 'true')) }
     end

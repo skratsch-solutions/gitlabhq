@@ -50,6 +50,17 @@ RSpec.describe 'Deleting a release', feature_category: :release_orchestration do
   context 'when the current user has access to update releases' do
     let(:current_user) { developer }
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :delete_release do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:mutation) do
+        graphql_mutation(:release_delete,
+          { projectPath: project.full_path, tagName: tag_name }, 'errors')
+      end
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     it 'deletes the release' do
       expect { delete_release }.to change { Release.count }.by(-1)
     end

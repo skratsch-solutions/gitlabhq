@@ -6,7 +6,7 @@ RSpec.describe Groups::DestroyService, feature_category: :groups_and_projects do
   using RSpec::Parameterized::TableSyntax
 
   let!(:user)         { create(:user) }
-  let!(:group)        { create(:group_with_deletion_schedule, :deletion_scheduled) }
+  let!(:group)        { create(:group, :deletion_scheduled) }
   let!(:nested_group) { create(:group, parent: group) }
   let!(:project)      { create(:project, :repository, :legacy_storage, namespace: group) }
   let!(:notification_setting) { create(:notification_setting, source: group) }

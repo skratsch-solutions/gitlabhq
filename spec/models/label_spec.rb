@@ -211,7 +211,7 @@ RSpec.describe Label, feature_category: :team_planning, factory_default: :keep d
       # rubocop:enable Rails/SaveBang
 
       context 'when updating a label' do
-        let_it_be(:template_label) { create(:label, template: true) }
+        let_it_be(:template_label, freeze: false) { create(:label, template: true) }
 
         where(:lock_on_merge, :valid, :errors) do
           true         | false   | [validation_error]
@@ -335,7 +335,7 @@ RSpec.describe Label, feature_category: :team_planning, factory_default: :keep d
   end
 
   describe '#hook_attrs' do
-    let_it_be(:label) { build_stubbed(:label) }
+    let_it_be(:label, freeze: false) { build_stubbed(:label) }
 
     subject(:attrs) { label.hook_attrs }
 

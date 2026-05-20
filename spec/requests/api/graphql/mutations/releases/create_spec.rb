@@ -114,6 +114,17 @@ RSpec.describe 'Creation of a new release', feature_category: :release_orchestra
   context 'when the current user has access to create releases' do
     let(:current_user) { developer }
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :create_release do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:mutation) do
+        graphql_mutation(:release_create,
+          { projectPath: project.full_path, tagName: tag_name, ref: ref }, 'errors')
+      end
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     context 'when all available mutation arguments are provided' do
       it_behaves_like 'no errors'
 

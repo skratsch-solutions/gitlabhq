@@ -427,7 +427,7 @@ RSpec.describe GroupPolicy, feature_category: :system_access do
         let(:current_user) { owner }
 
         context 'when group is marked for deletion' do
-          let(:group) { create(:group_with_deletion_schedule, organization: organization) }
+          let(:group) { create(:group, :deletion_scheduled, organization: organization) }
 
           before do
             group.add_owner(owner)

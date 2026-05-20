@@ -1861,7 +1861,7 @@ RSpec.describe Ci::Runner, type: :model, factory_default: :keep, feature_categor
   end
 
   describe '#token_expires_at', :freeze_time do
-    let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 6.days.to_i) }
+    let_it_be(:group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 6.days.to_i) }
     let_it_be_with_refind(:group_with_expiration) { create(:group, namespace_settings: group_settings) }
     let_it_be(:existing_runner, freeze: true) { create(:ci_runner) }
 
@@ -1945,7 +1945,7 @@ RSpec.describe Ci::Runner, type: :model, factory_default: :keep, feature_categor
     end
 
     context 'project expiration' do
-      let_it_be(:project) { create(:project, group: group, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:project, freeze: false) { create(:project, group: group, runner_token_expiration_interval: 4.days.to_i) }
       let(:runner) { create(:ci_runner, :project, projects: [project]) }
 
       it_behaves_like 'expiring token', interval: 4.days
@@ -1985,9 +1985,9 @@ RSpec.describe Ci::Runner, type: :model, factory_default: :keep, feature_categor
     end
 
     context "with group's project runner token expiring" do
-      let_it_be(:parent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 2.days.to_i) }
-      let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
-      let_it_be(:group_settings) { create(:namespace_settings) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 2.days.to_i) }
+      let_it_be(:parent_group, freeze: false) { create(:group, namespace_settings: parent_group_settings) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings) }
       let_it_be(:group) { create(:group, parent: parent_group, namespace_settings: group_settings) }
 
       let(:runner) { create(:ci_runner, :group, groups: [group]) }

@@ -130,8 +130,27 @@ module Enums
         sarif
       ].freeze
 
+      SECURITY_REPORT_FILE_TYPES = %w[sast secret_detection dependency_scanning container_scanning
+        cluster_image_scanning dast coverage_fuzzing api_fuzzing sarif].freeze
+
+      SECURITY_REPORT_AND_CYCLONEDX_REPORT_FILE_TYPES = (SECURITY_REPORT_FILE_TYPES | %w[cyclonedx]).freeze
+
+      SECURITY_ALL_REPORT_FILE_TYPES = (SECURITY_REPORT_AND_CYCLONEDX_REPORT_FILE_TYPES | %w[license_scanning]).freeze
+
       def self.non_erasable_file_types
         NON_ERASABLE_FILE_TYPES
+      end
+
+      def self.security_report_file_types
+        SECURITY_REPORT_FILE_TYPES
+      end
+
+      def self.security_report_and_cyclonedx_report_file_types
+        SECURITY_REPORT_AND_CYCLONEDX_REPORT_FILE_TYPES
+      end
+
+      def self.all_security_report_file_types
+        SECURITY_ALL_REPORT_FILE_TYPES
       end
 
       def self.report_file_types

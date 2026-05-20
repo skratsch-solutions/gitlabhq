@@ -50,6 +50,11 @@ export default {
       required: false,
       default: '',
     },
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   emits: ['selected'],
   data() {
@@ -128,9 +133,12 @@ export default {
     defaultProjects(projects) {
       this.selectedProjects = [...projects];
     },
+    disabled(isDisabled) {
+      if (!isDisabled) this.search();
+    },
   },
   mounted() {
-    this.search();
+    if (!this.disabled) this.search();
   },
   methods: {
     handleUpdatedSelectedProjects() {
@@ -236,6 +244,7 @@ export default {
     :no-results-text="__('No matching results')"
     :selected="selectedListBoxItems"
     :searching="loading"
+    :disabled="disabled"
     searchable
     @hidden="onHide"
     @reset="onClearAll"
@@ -245,6 +254,7 @@ export default {
     <template #toggle>
       <gl-button
         :loading="loadingDefaultProjects"
+        :disabled="disabled"
         button-text-classes="gl-w-full gl-justify-between gl-flex gl-shadow-none gl-mb-0"
         :class="['dropdown-projects', toggleClasses]"
       >

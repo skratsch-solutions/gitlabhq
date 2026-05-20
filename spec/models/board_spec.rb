@@ -18,7 +18,7 @@ RSpec.describe Board do
   end
 
   describe 'validations' do
-    let_it_be(:board) { build(:board, project: project) }
+    let_it_be(:board, freeze: false) { build(:board, project: project) }
 
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:project) }
@@ -115,13 +115,13 @@ RSpec.describe Board do
     end
 
     context 'for group board' do
-      let_it_be(:board) { create(:board, group: group) }
+      let_it_be(:board, freeze: false) { create(:board, group: group) }
 
       it_behaves_like 'board disabled_for?'
     end
 
     context 'for project board' do
-      let_it_be(:board) { create(:board, project: project) }
+      let_it_be(:board, freeze: false) { create(:board, project: project) }
 
       it_behaves_like 'board disabled_for?'
     end

@@ -9,13 +9,19 @@ import {
 } from '../constants';
 import { getUniquePanelId, convertToDashboardGraphQLId } from '../utils';
 import getDashboardQuery from '../graphql/get_dashboard.query.graphql';
+import DashboardFilters from '../components/dashboard_filters.vue';
 
 export default {
   name: 'ExploreAnalyticsDashboard',
-  components: { GlDashboardLayout, GlSkeletonLoader },
+  components: { GlDashboardLayout, GlSkeletonLoader, DashboardFilters },
   inject: ['breadcrumbState'],
   data() {
-    return { dashboard: null, hasError: false };
+    return {
+      dashboard: null,
+      filters: {},
+      selectedGroup: null,
+      selectedProject: null,
+    };
   },
   computed: {
     dashboardId() {
@@ -47,6 +53,42 @@ export default {
         : undefined;
     },
   },
+  watch: {
+    dashboard() {
+      this.breadcrumbState.updateName(this.dashboardConfig?.title);
+    },
+  },
+  methods: {
+    setDateRangeFilter({ dateRangeOption, startDate, endDate }) {
+      this.filters = {
+        ...this.filters,
+        dateRangeOption,
+        startDate,
+        endDate,
+      };
+    },
+    setProjectsFilter(projects) {
+      const [project = null] = projects ?? [];
+      this.selectedProject = project;
+      this.filters = {
+        ...this.filters,
+        projects: project ? [project.fullPath] : [],
+      };
+    },
+    setGroupsFilter(groups) {
+      const [group = null] = groups ?? [];
+      this.selectedGroup = group;
+      // Clearing a group also clears the project (which lives under it).
+      if (!group) {
+        this.selectedProject = null;
+      }
+      this.filters = {
+        ...this.filters,
+        groups: group ? [group.fullPath] : [],
+        projects: [],
+      };
+    },
+  },
   apollo: {
     dashboard: {
       query: getDashboardQuery,
@@ -57,8 +99,6 @@ export default {
         return customDashboard;
       },
       error(err) {
-        this.hasError = true;
-
         createAlert({
           message: s__('AnalyticsDashboards|Failed to load dashboard. Please try again.'),
           captureError: true,
@@ -67,25 +107,24 @@ export default {
       },
     },
   },
-  watch: {
-    dashboard() {
-      this.breadcrumbState.updateName(this.dashboardConfig?.title);
-    },
-  },
 };
 </script>
 <template>
   <gl-skeleton-loader v-if="isLoading" />
   <div v-else>
-    <span v-if="hasError"></span>
     <gl-dashboard-layout
-      v-else
       :config="dashboardConfig"
       :cell-height="cellHeight"
       :min-cell-height="minCellHeight"
+      :filters="filters"
     >
-      <template #title>
-        <h2>{{ dashboardConfig.title }}</h2>
+      <template #filters>
+        <dashboard-filters
+          :group-namespace="selectedGroup?.fullPath || ''"
+          @set-date-range="setDateRangeFilter"
+          @set-projects="setProjectsFilter"
+          @set-groups="setGroupsFilter"
+        />
       </template>
     </gl-dashboard-layout>
   </div>

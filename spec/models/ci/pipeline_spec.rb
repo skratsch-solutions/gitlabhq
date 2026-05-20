@@ -211,7 +211,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     describe '#downloadable_artifacts' do
       let_it_be(:build) { create(:ci_build, pipeline: pipeline) }
       let_it_be(:downloadable_artifact) { create(:ci_job_artifact, :codequality, job: build) }
-      let_it_be(:expired_artifact) { create(:ci_job_artifact, :junit, :expired, job: build) }
+      let_it_be(:expired_artifact, freeze: false) { create(:ci_job_artifact, :junit, :expired, job: build) }
       let_it_be(:undownloadable_artifact) { create(:ci_job_artifact, :trace, job: build) }
 
       context 'when artifacts are locked' do
@@ -1919,7 +1919,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
       end
 
       context 'when user has no public_email set' do
-        let_it_be(:author_no_public) { create(:user) }
+        let_it_be(:author_no_public, freeze: false) { create(:user) }
 
         before do
           author_no_public.update_column(:public_email, nil)

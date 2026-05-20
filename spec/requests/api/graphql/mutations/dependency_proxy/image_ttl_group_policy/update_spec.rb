@@ -69,6 +69,16 @@ RSpec.describe 'Updating the dependency proxy image ttl policy', feature_categor
             'ttl' => params[:ttl]
           )
         end
+
+        it_behaves_like 'authorizing granular token permissions for GraphQL', :update_dependency_proxy do
+          let(:boundary_object) { group }
+          let(:mutation) do
+            graphql_mutation(:update_dependency_proxy_image_ttl_group_policy,
+              { group_path: group.full_path, enabled: false, ttl: 2 }, 'errors')
+          end
+
+          let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+        end
       end
 
       context 'for maintainer' do

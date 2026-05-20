@@ -9790,6 +9790,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Dashboard description"
 msgstr ""
 
+msgid "AnalyticsDashboards|Dashboard filters"
+msgstr ""
+
 msgid "AnalyticsDashboards|Dashboard title"
 msgstr ""
 
@@ -9800,6 +9803,9 @@ msgid "AnalyticsDashboards|Dashboards created by GitLab"
 msgstr ""
 
 msgid "AnalyticsDashboards|Dashboards created by me"
+msgstr ""
+
+msgid "AnalyticsDashboards|Date range"
 msgstr ""
 
 msgid "AnalyticsDashboards|Delete dashboard"
@@ -9823,6 +9829,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Failed to load namespace metadata."
 msgstr ""
 
+msgid "AnalyticsDashboards|Groups"
+msgstr ""
+
 msgid "AnalyticsDashboards|Keep your teams aligned around the metrics that matter most."
 msgstr ""
 
@@ -9833,6 +9842,9 @@ msgid "AnalyticsDashboards|Next"
 msgstr ""
 
 msgid "AnalyticsDashboards|No dashboards found"
+msgstr ""
+
+msgid "AnalyticsDashboards|Projects"
 msgstr ""
 
 msgid "AnalyticsDashboards|Root Cause Analysis"

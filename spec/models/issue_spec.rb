@@ -417,7 +417,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '.in_namespaces_with_cte' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
     let_it_be(:other_project) { create(:project) }
     let_it_be(:other_issue) { create(:issue, project: other_project) }
 
@@ -545,7 +545,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '.with_issue_type' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
     let_it_be(:incident) { create(:incident, project: reusable_project) }
 
     it 'returns issues with the given issue type' do
@@ -568,7 +568,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '.without_issue_type' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
     let_it_be(:incident) { create(:incident, project: reusable_project) }
     let_it_be(:task) { create(:issue, :task, project: reusable_project) }
 
@@ -794,7 +794,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   describe '#to_reference' do
     let_it_be(:namespace) { create(:namespace) }
     let_it_be(:project)   { create(:project, namespace: namespace) }
-    let_it_be(:issue)     { create(:issue, project: project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: project) }
 
     context 'when nil argument' do
       it 'returns issue id' do
@@ -1399,7 +1399,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#allow_possible_spam?' do
-    let_it_be(:issue) { build(:issue) }
+    let_it_be(:issue, freeze: false) { build(:issue) }
 
     subject { issue.allow_possible_spam?(issue.author) }
 
@@ -1620,7 +1620,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
   describe "#previous_updated_at" do
     let_it_be(:updated_at) { Time.zone.local(2012, 01, 06) }
-    let_it_be(:issue) { create(:issue, project: reusable_project, updated_at: updated_at) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project, updated_at: updated_at) }
 
     it 'returns updated_at value if updated_at did not change at all' do
       allow(issue).to receive(:previous_changes).and_return({})
@@ -1748,7 +1748,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#issue_type' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     it 'gets the type field from the work_item_types table' do
       expect(issue).to receive_message_chain(:work_item_type, :base_type)
@@ -1766,7 +1766,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#issue_type_supports?' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     it 'raises error when feature is invalid' do
       expect { issue.issue_type_supports?(:unkown_feature) }.to raise_error(ArgumentError)
@@ -1809,7 +1809,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
   describe '#time_estimate' do
     let_it_be(:project) { create(:project) }
-    let_it_be(:issue) { create(:issue, project: project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: project) }
 
     context 'when time estimate on the issue record is NULL' do
       before do
@@ -1847,7 +1847,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#email_participants_emails' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     it 'returns a list of emails' do
       participant1 = issue.issue_email_participants.create!(email: 'a@gitlab.com')
@@ -1875,7 +1875,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#expire_etag_cache' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     subject(:expire_cache) { issue.expire_etag_cache }
 
@@ -2011,7 +2011,7 @@ RSpec.describe Issue, feature_category: :team_planning do
 
       let_it_be(:group_issue) { create(:issue, :group_level, namespace: group) }
       let_it_be(:group_issue2) { create(:issue, :group_level, namespace: group) }
-      let_it_be(:issue) { create(:issue, project: reusable_project) }
+      let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
       it 'uses uses an absolute and full path when referencing a root group' do
         expect(group_issue.gfm_reference(issue.project)).to eq("issue /#{group.full_path}##{group_issue.iid}")
@@ -2318,7 +2318,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#referenced_mentionables' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     context 'when mentioning an issue from the work item version of itself' do
       it 'does not include the self-reference' do
@@ -2339,7 +2339,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#as_json' do
-    let_it_be(:issue) { create(:issue, project: reusable_project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: reusable_project) }
 
     it 'renames exported_work_item_type to work_item_type' do
       json = issue.as_json(methods: [:exported_work_item_type])

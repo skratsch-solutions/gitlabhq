@@ -998,7 +998,7 @@ Grants the ability to purge dependency proxy caches.
 
 #### Package
 
-Grants the ability to create, delete, and read packages.
+Grants the ability to create, delete, read, and update packages.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
