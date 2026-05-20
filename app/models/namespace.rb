@@ -235,6 +235,11 @@ class Namespace < ApplicationRecord
 
   after_sync_traversal_ids :schedule_sync_event_worker # custom callback defined in Namespaces::Traversal::Linear
 
+  scope :id_after, ->(id) { where(arel_table[:id].gt(id)) }
+
+  def self.ordered_ids_after(cursor, limit:)
+    id_after(cursor).order(:id).limit(limit).ids
+  end
   scope :user_namespaces, -> { where(type: Namespaces::UserNamespace.sti_name) }
   scope :group_namespaces, -> { where(type: Group.sti_name) }
   scope :project_namespaces, -> { where(type: Namespaces::ProjectNamespace.sti_name) }

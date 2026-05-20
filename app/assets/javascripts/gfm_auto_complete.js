@@ -100,7 +100,7 @@ export { sortCommandsAlphaSafe } from '~/editor/quick_action_suggestions';
  * @return {string} escaped user input
  */
 export function escape(string) {
-  // To prevent double (or multiple) enconding attack
+  // To prevent double (or multiple) encoding attack
   // Decode the user input repeatedly prior to escaping the final decoded string.
   let encodedString = string;
   let decodedString = decodeURIComponent(encodedString);

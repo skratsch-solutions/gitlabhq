@@ -1546,6 +1546,16 @@
   :idempotent: true
   :tags: []
   :queue_namespace: :cronjob
+- :name: cronjob:work_items_traversal_ids_healing_cron
+  :worker_name: WorkItems::TraversalIdsHealingCronWorker
+  :feature_category: :portfolio_management
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
+  :queue_namespace: :cronjob
 - :name: cronjob:x509_issuer_crl_check
   :worker_name: X509IssuerCrlCheckWorker
   :feature_category: :source_code_management

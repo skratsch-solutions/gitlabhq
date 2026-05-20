@@ -418,7 +418,6 @@ RSpec/ExampleWithoutDescription:
     - 'spec/policies/packages/policies/project_policy_spec.rb'
     - 'spec/policies/personal_snippet_policy_spec.rb'
     - 'spec/policies/project_policy_spec.rb'
-    - 'spec/policies/project_snippet_policy_spec.rb'
     - 'spec/policies/todo_policy_spec.rb'
     - 'spec/presenters/alert_management/alert_presenter_spec.rb'
     - 'spec/presenters/deployments/deployment_presenter_spec.rb'

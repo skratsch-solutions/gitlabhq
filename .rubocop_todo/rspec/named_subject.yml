@@ -51,7 +51,6 @@ RSpec/NamedSubject:
     - 'ee/spec/controllers/sitemap_controller_spec.rb'
     - 'ee/spec/db/production/license_spec.rb'
     - 'ee/spec/features/projects/pipelines/pipeline_spec.rb'
-    - 'ee/spec/features/users/login_spec.rb'
     - 'ee/spec/finders/auth/group_saml_identity_finder_spec.rb'
     - 'ee/spec/finders/autocomplete/group_subgroups_finder_spec.rb'
     - 'ee/spec/finders/custom_project_templates_finder_spec.rb'

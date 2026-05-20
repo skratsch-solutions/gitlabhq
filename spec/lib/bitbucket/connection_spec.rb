@@ -2,7 +2,7 @@
 
 require 'fast_spec_helper'
 
-RSpec.describe Bitbucket::Connection, feature_category: :integrations do
+RSpec.describe Bitbucket::Connection, feature_category: :importers do
   subject(:bitbucket_connection) { described_class.new(options) }
 
   let(:options) do

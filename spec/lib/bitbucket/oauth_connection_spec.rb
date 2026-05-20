@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Bitbucket::OauthConnection, feature_category: :integrations do
+RSpec.describe Bitbucket::OauthConnection, feature_category: :importers do
   let(:token) { 'token' }
 
   # rubocop:disable RSpec/VerifiedDoubles -- existing code moved to a new file

@@ -46,7 +46,10 @@ For instance runners on GitLab.com, GitLab Self-Managed, and self-hosted instanc
 For GitLab.com:
 
 - The base monthly compute quota is determined by your subscription tier.
-- You can [purchase additional compute minutes](../../subscriptions/gitlab_com/compute_minutes.md) if you need more.
+  Free tier namespaces receive 400 compute minutes per month.
+  Paid tiers receive a higher monthly quota.
+- You can [purchase additional compute minutes](../../subscriptions/gitlab_com/compute_minutes.md)
+  if you need more.
 
 ## Compute minute usage
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe ErrorTracking::ListProjectsService, feature_category: :integrations do
+RSpec.describe ErrorTracking::ListProjectsService, feature_category: :observability do
   let_it_be(:user) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, maintainers: user) }
 

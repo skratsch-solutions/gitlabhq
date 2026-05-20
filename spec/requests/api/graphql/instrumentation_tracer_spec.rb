@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :aggregate_failures, feature_category: :integrations do
+RSpec.describe 'Gitlab::Graphql::Tracers::Instrumentation integration test', :aggregate_failures, feature_category: :api do
   include GraphqlHelpers
 
   let_it_be(:user) { create(:user, username: 'instrumentation-tester') }

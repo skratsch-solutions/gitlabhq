@@ -42,6 +42,7 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to render_template('admin/application_settings/integrations')
+        expect(assigns(:hide_search_settings)).to be(true)
       end
     end
   end

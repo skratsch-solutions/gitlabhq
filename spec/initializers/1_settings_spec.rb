@@ -393,6 +393,7 @@ RSpec.describe '1_settings', feature_category: :settings do
         users_migrate_records_to_ghost_user_in_batches_worker
         user_status_cleanup_batch_worker
         version_version_check_cron
+        work_items_traversal_ids_healing_cron_worker
         x509_issuer_crl_check_worker
       ]
     end

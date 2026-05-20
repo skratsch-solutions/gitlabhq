@@ -577,6 +577,23 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     let_it_be(:namespace1sub) { create(:group, name: 'Sub Namespace', path: 'sub-namespace', parent: namespace1) }
     let_it_be(:namespace2sub) { create(:group, name: 'Sub Namespace', path: 'sub-namespace', parent: namespace2) }
 
+    describe '.id_after' do
+      it 'returns namespaces with id greater than the given id' do
+        expect(described_class.id_after(namespace1.id)).to include(namespace2, namespace1sub, namespace2sub)
+        expect(described_class.id_after(namespace1.id)).not_to include(namespace1)
+      end
+    end
+
+    describe '.ordered_ids_after' do
+      it 'returns ids ordered by id after the cursor, limited to the given count' do
+        ids = described_class.ordered_ids_after(namespace1.id, limit: 2)
+
+        expect(ids.size).to eq(2)
+        expect(ids).to all(be > namespace1.id)
+        expect(ids).to eq(ids.sort)
+      end
+    end
+
     describe '.by_parent' do
       it 'includes correct namespaces' do
         expect(described_class.by_parent(namespace1.id)).to match_array([namespace1sub])

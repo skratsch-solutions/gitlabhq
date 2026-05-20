@@ -36,6 +36,12 @@ RSpec.describe 'Project.languages', feature_category: :internationalization do
     allow(project.repository).to receive(:languages).and_return(test_languages)
   end
 
+  it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_language] do
+    let(:user) { create(:user, developer_of: project) }
+    let(:boundary_object) { project }
+    let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
+  end
+
   context "when the languages haven't been detected yet" do
     it 'returns expected languages on second request as detection is done asynchronously', :sidekiq_inline do
       post_graphql(query, current_user: user)

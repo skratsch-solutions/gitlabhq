@@ -885,7 +885,6 @@ Layout/LineLength:
     - 'ee/spec/features/projects/settings/merge_requests_settings_spec.rb'
     - 'ee/spec/features/projects/user_applies_custom_file_template_spec.rb'
     - 'ee/spec/features/read_only_spec.rb'
-    - 'ee/spec/features/users/login_spec.rb'
     - 'ee/spec/finders/custom_project_templates_finder_spec.rb'
     - 'ee/spec/finders/dast_site_validations_finder_spec.rb'
     - 'ee/spec/finders/ee/alert_management/http_integrations_finder_spec.rb'
