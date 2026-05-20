@@ -26,7 +26,7 @@ module Organizations
                                 .order(:id)
     }
     scope :by_path, ->(path) { where(path: path) }
-    scope :with_isolation, -> { eager_load(:isolated_record) }
+    scope :with_isolation_record, -> { eager_load(:isolated_record) }
 
     before_destroy :check_if_default_organization
 
@@ -90,18 +90,18 @@ module Organizations
       find_by(id: DEFAULT_ORGANIZATION_ID)
     end
 
-    def self.find_by_id_with_isolation(id)
-      with_isolation.find_by(id: id)
+    def self.find_by_id_with_isolation_record(id)
+      with_isolation_record.find_by(id: id)
     end
 
-    def self.find_by_path_with_isolation(path)
+    def self.find_by_path_with_isolation_record(path)
       return unless path
 
-      with_isolation.where("LOWER(path) = ?", path.downcase).first
+      with_isolation_record.where("LOWER(path) = ?", path.downcase).first
     end
 
-    def self.find_by_namespace_path_with_isolation(path)
-      with_isolation.where(id: with_namespace_path(path).select(:id)).first
+    def self.find_by_namespace_path_with_isolation_record(path)
+      with_isolation_record.where(id: with_namespace_path(path).select(:id)).first
     end
 
     def self.default?(id)

@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-RSpec.describe SuggestionEntity do
+RSpec.describe SuggestionEntity, feature_category: :code_review_workflow do
   include RepoHelpers
 
-  let(:user) { create(:user) }
+  let(:user) { build_stubbed(:user) }
   let(:request) { double('request', current_user: user) }
-  let(:suggestion) { create(:suggestion) }
+  let(:suggestion) { build_stubbed(:suggestion) }
   let(:entity) { described_class.new(suggestion, request: request) }
 
   subject { entity.as_json }

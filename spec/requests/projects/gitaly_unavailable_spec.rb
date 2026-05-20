@@ -16,14 +16,9 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
 
   describe 'Projects::BlobController' do
     describe '#show' do
-      let(:make_request) { get project_blob_path(project, 'master/README.md') }
+      include_context 'when Repository#blob_at raises Gitaly error'
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:blob_at)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
+      let(:make_request) { get project_blob_path(project, 'master/README.md') }
 
       it_behaves_like 'handles Gitaly errors for request specs'
 
@@ -37,6 +32,7 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     describe '#new' do
       let(:make_request) { get project_new_blob_path(project, 'master') }
 
+      # Unique stub: uses Repository#commit instead of #blob_at
       let(:allow_gitaly_to_raise_error) do
         allow_next_instance_of(Repository) do |repository|
           allow(repository).to receive(:commit)
@@ -48,6 +44,8 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     end
 
     describe '#edit' do
+      include_context 'when Repository#blob_at raises Gitaly error'
+
       let(:make_request) do
         get namespace_project_edit_blob_path(
           namespace_id: project.namespace,
@@ -56,17 +54,12 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         )
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:blob_at)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for request specs'
     end
 
     describe '#diff' do
+      include_context 'when Repository#blob_at raises Gitaly error'
+
       let(:make_request) do
         get namespace_project_blob_diff_path(
           namespace_id: project.namespace,
@@ -78,17 +71,12 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         )
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:blob_at)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for request specs'
     end
 
     describe '#preview' do
+      include_context 'when Repository#blob_at raises Gitaly error'
+
       let(:make_request) do
         post namespace_project_preview_blob_path(
           namespace_id: project.namespace,
@@ -97,28 +85,16 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         ), params: { content: 'test' }
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:blob_at)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for request specs'
     end
   end
 
   describe 'Projects::CommitController' do
+    include_context 'when Repository#commit_by raises Gitaly error'
+
     let(:commit) { project.commit('master') }
 
     describe '#show' do
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       context 'with rapid_diffs_on_commit_show disabled (legacy view)' do
         before do
           stub_feature_flags(rapid_diffs_on_commit_show: false)
@@ -163,25 +139,11 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         )
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for json format'
     end
 
     describe '#pipelines' do
       let(:make_request) { get pipelines_project_commit_path(project, commit.id) }
-
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
 
       it_behaves_like 'handles Gitaly errors for request specs'
     end
@@ -189,38 +151,17 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     describe '#diff_files' do
       let(:make_request) { get diff_files_project_commit_path(project, commit.id) }
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for request specs'
     end
 
     describe '#discussions' do
       let(:make_request) { get discussions_project_commit_path(project, commit.id, format: :json) }
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for json format'
     end
 
     describe '#merge_requests' do
       let(:make_request) { get merge_requests_project_commit_path(project, commit.id, format: :json) }
-
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commit_by)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
 
       it_behaves_like 'handles Gitaly errors for json format'
     end
@@ -242,13 +183,10 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
   end
 
   describe 'Projects::BlameController' do
+    include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
     describe '#show' do
       let(:make_request) { get project_blame_path(project, 'master/README.md') }
-
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-      end
 
       it_behaves_like 'handles Gitaly errors for request specs'
     end
@@ -260,11 +198,6 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
           project_id: project,
           id: 'master/README.md'
         )
-      end
-
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
       end
 
       it_behaves_like 'handles Gitaly errors for request specs'
@@ -279,24 +212,14 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         )
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-      end
-
       it_behaves_like 'handles Gitaly errors for request specs'
     end
   end
 
   describe 'Projects::CommitsController' do
-    describe '#show' do
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commits)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
+    include_context 'when Repository#commits raises Gitaly error'
 
+    describe '#show' do
       context 'with HTML format' do
         let(:make_request) { get project_commits_path(project, 'master') }
 
@@ -322,25 +245,15 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
           format: :json)
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(Repository) do |repository|
-          allow(repository).to receive(:commits)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for json format'
     end
   end
 
   describe 'Projects::TreeController' do
+    include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
     describe '#show' do
       let(:make_request) { get project_tree_path(project, 'master') }
-
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-      end
 
       it_behaves_like 'handles Gitaly errors for request specs'
     end
@@ -427,14 +340,9 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
 
   describe 'Projects::CompareController' do
     describe '#show' do
-      let(:make_request) { get project_compare_path(project, from: 'master', to: 'feature') }
+      include_context 'when CompareService#execute raises Gitaly error'
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(CompareService) do |service|
-          allow(service).to receive(:execute)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
+      let(:make_request) { get project_compare_path(project, from: 'master', to: 'feature') }
 
       it_behaves_like 'handles Gitaly errors for request specs'
 
@@ -448,6 +356,7 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       end
 
       context 'when error is raised from Repository level' do
+        # Unique stub: uses Repository#compare_source_branch
         let(:allow_gitaly_to_raise_error) do
           allow_next_instance_of(Repository) do |repository|
             allow(repository).to receive(:compare_source_branch)
@@ -466,6 +375,7 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
       end
 
       context 'when Gitaly health check fails (compare returns nil)' do
+        # Unique stub: complex multi-service stub for health check scenario
         let(:allow_gitaly_to_raise_error) do
           # Simulate CompareService returning nil (as it does when Commit.find swallows errors)
           allow_next_instance_of(CompareService) do |service|
@@ -490,22 +400,19 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     end
 
     describe '#signatures' do
+      include_context 'when CompareService#execute raises Gitaly error'
+
       let(:make_request) do
         get signatures_namespace_project_compare_index_path(namespace_id: project.namespace, project_id: project,
           from: 'master', to: 'feature', format: :json)
-      end
-
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(CompareService) do |service|
-          allow(service).to receive(:execute)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
       end
 
       it_behaves_like 'handles Gitaly errors for json format'
     end
 
     describe '#diff_for_path' do
+      include_context 'when CompareService#execute raises Gitaly error'
+
       let(:make_request) do
         get diff_for_path_namespace_project_compare_index_path(
           namespace_id: project.namespace,
@@ -518,26 +425,16 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
         )
       end
 
-      let(:allow_gitaly_to_raise_error) do
-        allow_next_instance_of(CompareService) do |service|
-          allow(service).to receive(:execute)
-            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
-        end
-      end
-
       it_behaves_like 'handles Gitaly errors for json format'
     end
   end
 
   describe 'Projects::GraphsController' do
+    include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
     describe '#show' do
       let(:make_request) do
         get namespace_project_graph_path(namespace_id: project.namespace, project_id: project, id: 'master')
-      end
-
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
       end
 
       it_behaves_like 'handles Gitaly errors for request specs'
@@ -556,11 +453,6 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     describe '#charts' do
       let(:make_request) do
         get charts_namespace_project_graph_path(namespace_id: project.namespace, project_id: project, id: 'master')
-      end
-
-      let(:allow_gitaly_to_raise_error) do
-        allow(Gitlab::Git::Commit).to receive(:find)
-          .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
       end
 
       it_behaves_like 'handles Gitaly errors for request specs'

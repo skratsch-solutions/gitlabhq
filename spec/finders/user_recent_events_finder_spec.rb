@@ -7,7 +7,7 @@ RSpec.describe UserRecentEventsFinder do
   let_it_be(:current_user, reload: true)  { create(:user) }
   let_it_be(:private_project)  { create(:project, :private, creator: project_owner) }
   let_it_be(:internal_project) { create(:project, :internal, creator: project_owner) }
-  let_it_be(:public_project)   { create(:project, :public, creator: project_owner) }
+  let_it_be(:public_project, freeze: false) { create(:project, :public, creator: project_owner) }
   let_it_be(:private_event)   { create(:event, project: private_project, author: project_owner) }
   let_it_be(:internal_event)  { create(:event, project: internal_project, author: project_owner) }
   let_it_be(:public_event)    { create(:event, project: public_project, author: project_owner) }
@@ -47,7 +47,7 @@ RSpec.describe UserRecentEventsFinder do
       let_it_be(:private_project_second_user) { create(:project, :private, creator: second_user) }
 
       let_it_be(:internal_project_second_user) { create(:project, :internal, creator: second_user) }
-      let_it_be(:public_project_second_user)   { create(:project, :public, creator: second_user) }
+      let_it_be(:public_project_second_user, freeze: false) { create(:project, :public, creator: second_user) }
       let_it_be(:private_event_second_user)   { create(:event, project: private_project_second_user, author: second_user) }
       let_it_be(:internal_event_second_user)  { create(:event, project: internal_project_second_user, author: second_user) }
       let_it_be(:public_event_second_user)    { create(:event, project: public_project_second_user, author: second_user) }
@@ -73,8 +73,8 @@ RSpec.describe UserRecentEventsFinder do
         let_it_be(:issue_event1) { create(:event, :created, project: public_project, target: issue, author: project_owner) }
         let_it_be(:issue_event2) { create(:event, :updated, project: public_project, target: issue, author: project_owner) }
         let_it_be(:issue_event3) { create(:event, :closed, project: public_project_second_user, target: issue, author: second_user) }
-        let_it_be(:wiki_event1) { create(:wiki_page_event, project: public_project, author: project_owner) }
-        let_it_be(:wiki_event2) { create(:wiki_page_event, project: public_project_second_user, author: second_user) }
+        let_it_be(:wiki_event1, freeze: false) { create(:wiki_page_event, project: public_project, author: project_owner) }
+        let_it_be(:wiki_event2, freeze: false) { create(:wiki_page_event, project: public_project_second_user, author: second_user) }
         let_it_be(:design_event1) { create(:design_event, project: public_project, author: project_owner) }
         let_it_be(:design_event2) { create(:design_updated_event, project: public_project_second_user, author: second_user) }
 
@@ -135,7 +135,7 @@ RSpec.describe UserRecentEventsFinder do
       let_it_be(:merge_event) { create(:event, :merged, project: public_project, author: project_owner) }
       let_it_be(:issue_event) { create(:event, :closed, project: public_project, target: issue, author: project_owner) }
       let_it_be(:comment_event) { create(:event, :commented, project: public_project, author: project_owner) }
-      let_it_be(:wiki_event) { create(:wiki_page_event, project: public_project, author: project_owner) }
+      let_it_be(:wiki_event, freeze: false) { create(:wiki_page_event, project: public_project, author: project_owner) }
       let_it_be(:design_event) { create(:design_event, project: public_project, author: project_owner) }
       let_it_be(:team_event) { create(:event, :joined, project: public_project, author: project_owner) }
 

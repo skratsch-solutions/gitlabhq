@@ -21,7 +21,7 @@ RSpec.describe EventsFinder do
   let(:opened_merge_request3) { create(:merge_request, source_project: project1, author: other_user) }
   let!(:other_developer_event) { create(:event, :created, project: project1, author: other_user, target: opened_merge_request3) }
 
-  let_it_be(:public_project) { create(:project, :public, creator_id: user.id, namespace: user.namespace) }
+  let_it_be(:public_project, freeze: false) { create(:project, :public, creator_id: user.id, namespace: user.namespace) }
 
   let(:confidential_issue) { create(:closed_issue, confidential: true, project: public_project, author: user) }
   let!(:confidential_event) { create(:event, :closed, project: public_project, author: user, target: confidential_issue) }
@@ -68,7 +68,7 @@ RSpec.describe EventsFinder do
   end
 
   describe 'wiki events' do
-    let_it_be(:events) { create_list(:wiki_page_event, 3, project: public_project) }
+    let_it_be(:events, freeze: false) { create_list(:wiki_page_event, 3, project: public_project) }
 
     subject(:finder) { described_class.new(source: public_project, target_type: 'wiki', current_user: user) }
 

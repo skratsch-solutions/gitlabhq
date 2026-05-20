@@ -246,7 +246,7 @@ module API
           return if ::Current.organization_assigned
           return if runner.nil? || runner.instance_type?
 
-          ::Current.organization = ::Organizations::Organization.find_by_id_with_isolation(runner.organization_id)
+          ::Current.organization = ::Organizations::Organization.find_by_id_with_isolation_record(runner.organization_id)
         end
         # rubocop:enable Gitlab/AvoidCurrentOrganization
 

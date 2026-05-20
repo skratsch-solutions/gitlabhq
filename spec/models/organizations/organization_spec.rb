@@ -527,27 +527,27 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
       end
     end
 
-    describe '.find_by_path_with_isolation' do
+    describe '.find_by_path_with_isolation_record' do
       let_it_be(:org) { create(:organization, path: 'My-Org') }
 
       it 'finds organization case-insensitively' do
-        expect(described_class.find_by_path_with_isolation('my-org')).to eq(org)
-        expect(described_class.find_by_path_with_isolation('MY-ORG')).to eq(org)
-        expect(described_class.find_by_path_with_isolation('My-Org')).to eq(org)
+        expect(described_class.find_by_path_with_isolation_record('my-org')).to eq(org)
+        expect(described_class.find_by_path_with_isolation_record('MY-ORG')).to eq(org)
+        expect(described_class.find_by_path_with_isolation_record('My-Org')).to eq(org)
       end
 
       it 'returns nil when path does not match' do
-        expect(described_class.find_by_path_with_isolation('nonexistent')).to be_nil
+        expect(described_class.find_by_path_with_isolation_record('nonexistent')).to be_nil
       end
 
       it 'uses LOWER in the query' do
-        query = described_class.with_isolation.where("LOWER(path) = ?", 'my-org').to_sql
+        query = described_class.with_isolation_record.where("LOWER(path) = ?", 'my-org').to_sql
 
         expect(query).to include('LOWER(path)')
       end
 
       it 'returns nil when path is nil' do
-        expect(described_class.find_by_path_with_isolation(nil)).to be_nil
+        expect(described_class.find_by_path_with_isolation_record(nil)).to be_nil
       end
     end
 

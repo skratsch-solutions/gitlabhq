@@ -47,7 +47,8 @@ module API
         Gitlab::GrapeLogging::Loggers::CorrelationIdLogger.new,
         Gitlab::GrapeLogging::Loggers::ContextLogger.new,
         Gitlab::GrapeLogging::Loggers::ContentLogger.new,
-        Gitlab::GrapeLogging::Loggers::UrgencyLogger.new
+        Gitlab::GrapeLogging::Loggers::UrgencyLogger.new,
+        Gitlab::GrapeLogging::Loggers::FeatureFlagStatesLogger.new
       ]
 
     allow_access_with_scope :api

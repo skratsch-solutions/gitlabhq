@@ -1315,6 +1315,41 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
       end
     end
+
+    context 'when work item type is not issue or ticket' do
+      let_it_be(:task_work_item) do
+        create(:work_item, :task, project: project, external_author: 'service.desk@example.com')
+      end
+
+      let_it_be(:issue_email_participant) do
+        create(:issue_email_participant, issue: task_work_item, email: 'service.desk@example.com')
+      end
+
+      let_it_be(:support_bot) { create(:support_bot) }
+      let_it_be(:note) { create(:discussion_note_on_work_item, noteable: task_work_item, project: project, note: 'Hello') }
+
+      shared_examples 'does not have legacy Issue headers' do
+        it 'does not have legacy Issue headers' do
+          aggregate_failures do
+            is_expected.not_to have_header('X-GitLab-Issue-ID', task_work_item.id.to_s)
+            is_expected.not_to have_header('X-GitLab-Issue-IID', task_work_item.iid.to_s)
+            is_expected.not_to have_header('X-GitLab-Issue-State', task_work_item.state.to_s)
+          end
+        end
+      end
+
+      describe 'thank you email', feature_category: :service_desk do
+        subject { described_class.service_desk_thank_you_email(task_work_item.id) }
+
+        it_behaves_like 'does not have legacy Issue headers'
+      end
+
+      describe 'new note email', feature_category: :service_desk do
+        subject { described_class.service_desk_new_note_email(task_work_item.id, note.id, issue_email_participant) }
+
+        it_behaves_like 'does not have legacy Issue headers'
+      end
+    end
   end
 
   context 'for issues', feature_category: :team_planning do

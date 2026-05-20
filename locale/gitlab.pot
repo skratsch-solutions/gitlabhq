@@ -50585,6 +50585,9 @@ msgstr ""
 msgid "Orbit|2. Click \"Get started\""
 msgstr ""
 
+msgid "Orbit|2. Click \"Turn on\""
+msgstr ""
+
 msgid "Orbit|2D"
 msgstr ""
 
@@ -50807,9 +50810,6 @@ msgstr ""
 msgid "Orbit|Get started"
 msgstr ""
 
-msgid "Orbit|Get started with Orbit"
-msgstr ""
-
 msgid "Orbit|GitLab Duo"
 msgstr ""
 
@@ -50966,6 +50966,9 @@ msgstr ""
 msgid "Orbit|Orbit configuration"
 msgstr ""
 
+msgid "Orbit|Orbit is GitLab's knowledge graph, giving agents structured understanding of your projects and how everything relates. Turn on Orbit to use in GitLab Duo or connect via MCP."
+msgstr ""
+
 msgid "Orbit|Orbit is available"
 msgstr ""
 
@@ -50979,9 +50982,6 @@ msgid "Orbit|Orbit not enabled"
 msgstr ""
 
 msgid "Orbit|Orbit requires a top-level group with at least a Premium license."
-msgstr ""
-
-msgid "Orbit|Orbit transforms your GitLab data into a structured knowledge graph you can query, explore, and integrate with AI tools."
 msgstr ""
 
 msgid "Orbit|Owner instructions"
@@ -51134,6 +51134,9 @@ msgstr ""
 msgid "Orbit|Turn off indexing"
 msgstr ""
 
+msgid "Orbit|Turn on"
+msgstr ""
+
 msgid "Orbit|Turn on Orbit for %{groupName}"
 msgstr ""
 
@@ -51234,9 +51237,6 @@ msgid "Orbit|WorkItem"
 msgstr ""
 
 msgid "Orbit|You must have the Owner role in a top-level group to turn on Orbit. Ask an owner to turn on Orbit."
-msgstr ""
-
-msgid "Orbit|Your SDLC Context Graph"
 msgstr ""
 
 msgid "Orbit|Zoom in"

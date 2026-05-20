@@ -7,7 +7,9 @@ RSpec.describe Wikis::PageMetaFinder, feature_category: :wiki do
   let_it_be(:project) { create(:project) }
   let_it_be(:wiki_page_meta_1) { create(:wiki_page_meta, title: 'Deploy Guide', project: project) }
   let_it_be(:wiki_page_meta_2) { create(:wiki_page_meta, title: 'Setup Instructions', project: project) }
-  let_it_be(:wiki_page_meta_3) { create(:wiki_page_meta, title: 'Deployment Pipeline', project: project) }
+  let_it_be(:wiki_page_meta_3, freeze: false) do
+    create(:wiki_page_meta, title: 'Deployment Pipeline', project: project)
+  end
 
   before_all do
     project.add_developer(user)

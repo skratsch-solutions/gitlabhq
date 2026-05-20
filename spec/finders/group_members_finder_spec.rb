@@ -3,18 +3,18 @@
 require 'spec_helper'
 
 RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_projects do
-  let_it_be(:group)                { create(:group) }
-  let_it_be(:sub_group)            { create(:group, parent: group) }
-  let_it_be(:sub_sub_group)        { create(:group, parent: sub_group) }
-  let_it_be(:public_invited_group)  { create(:group, :public) }
-  let_it_be(:private_invited_group) { create(:group, :private) }
-  let_it_be(:user1)                { create(:user) }
-  let_it_be(:user2)                { create(:user) }
-  let_it_be(:user3)                { create(:user) }
-  let_it_be(:user4)                { create(:user) }
-  let_it_be(:user5_2fa)            { create(:user, :two_factor_via_otp) }
-  let_it_be(:user6)                { create(:user) }
-  let_it_be(:user7)                { create(:user) }
+  let_it_be(:group, freeze: false)                 { create(:group) }
+  let_it_be(:sub_group, freeze: false)             { create(:group, parent: group) }
+  let_it_be(:sub_sub_group, freeze: false)         { create(:group, parent: sub_group) }
+  let_it_be(:public_invited_group, freeze: false)  { create(:group, :public) }
+  let_it_be(:private_invited_group, freeze: false) { create(:group, :private) }
+  let_it_be(:user1, freeze: false)                 { create(:user) }
+  let_it_be(:user2, freeze: false)                 { create(:user) }
+  let_it_be(:user3, freeze: false)                 { create(:user) }
+  let_it_be(:user4, freeze: false)                 { create(:user) }
+  let_it_be(:user5_2fa, freeze: false)             { create(:user, :two_factor_via_otp) }
+  let_it_be(:user6, freeze: false)                 { create(:user) }
+  let_it_be(:user7, freeze: false)                 { create(:user) }
 
   let_it_be(:link) do
     create(:group_group_link, :maintainer, shared_group: group,     shared_with_group: public_invited_group)
@@ -36,7 +36,7 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   end
 
   context 'relations' do
-    let_it_be(:members) do
+    let_it_be(:members, freeze: false) do
       {
         user1_sub_sub_group: create(:group_member, :maintainer, group: sub_sub_group, user: user1),
         user1_sub_group: create(:group_member, :developer, group: sub_group, user: user1),
@@ -309,7 +309,7 @@ RSpec.describe GroupMembersFinder, '#execute', feature_category: :groups_and_pro
   context 'filter by max role' do
     subject(:by_max_role) { described_class.new(group, user1, params: { max_role: max_role }).execute }
 
-    let_it_be(:guest_member) { create(:group_member, :guest, group: group, user: user2) }
+    let_it_be(:guest_member, freeze: false) { create(:group_member, :guest, group: group, user: user2) }
     let_it_be(:owner_member) { create(:group_member, :owner, group: group, user: user3) }
 
     describe 'provided access level is incorrect' do
