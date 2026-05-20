@@ -40,11 +40,7 @@ module API
       end
       route_setting :authorization, skip_granular_token_authorization: :internal_testing
       get :test do
-        # Fetch a random project to use as the feature flag actor.
-        # The project itself is not used beyond checking the flag.
-        project = Project.offset(rand(Project.count)).first # rubocop:disable CodeReuse/ActiveRecord -- intentional direct AR use for chaos testing
-
-        ::Gitlab::Chaos.feature_flag_test(self) if project && Feature.enabled?(:ebonet_chaos_tests, project)
+        ::Gitlab::Chaos.feature_flag_test(self) if Feature.enabled?(:ebonet_chaos_tests, :current_request)
 
         { status: 'ok' }
       end

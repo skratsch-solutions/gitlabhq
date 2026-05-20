@@ -417,6 +417,7 @@ module API
       mount ::API::UsageDataServicePing
       mount ::API::UsageDataTrack
       mount ::API::UsageDataNonSqlMetrics
+      mount ::API::UserApplications
       mount ::API::Users
       mount ::API::VsCode::Settings::VsCodeSettingsSync
       mount ::API::Ml::Mlflow::Entrypoint

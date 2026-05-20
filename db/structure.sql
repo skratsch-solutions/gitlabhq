@@ -28534,6 +28534,7 @@ CREATE TABLE project_settings (
     security_policy_pipeline_must_succeed boolean DEFAULT false NOT NULL,
     mr_default_title_template text,
     tool_approval_for_session_enabled boolean,
+    dap_session_tracking_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_1a30456322 CHECK ((char_length(pages_unique_domain) <= 63)),
     CONSTRAINT check_237486989c CHECK ((char_length(merge_request_title_regex_description) <= 255)),
     CONSTRAINT check_3a03e7557a CHECK ((char_length(previous_default_branch) <= 4096)),

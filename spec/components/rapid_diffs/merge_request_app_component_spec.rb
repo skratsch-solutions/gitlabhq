@@ -22,6 +22,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
   let(:versions) { { 'source_versions' => [], 'target_versions' => [] } }
   let(:suggestions_help_path) { '/help/suggestions' }
   let(:default_suggestion_commit_message) { 'Apply suggestion' }
+  let(:coverage_endpoint) { nil }
   let(:new_comment_template_paths) do
     [{
       text: 'Your comment templates',
@@ -53,7 +54,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       default_suggestion_commit_message: default_suggestion_commit_message,
       new_comment_template_paths: new_comment_template_paths,
       linked_file: nil,
-      preparing?: false
+      preparing?: false,
+      coverage_endpoint: coverage_endpoint
     )
   end
 
@@ -85,11 +87,25 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
         suggestions_help_path: suggestions_help_path,
         default_suggestion_commit_message: default_suggestion_commit_message,
         new_comment_template_paths: new_comment_template_paths,
-        versions: versions
+        versions: versions,
+        coverage_endpoint: coverage_endpoint
       }
     )
 
     render_component
+  end
+
+  context 'when coverage_endpoint is set' do
+    let(:coverage_endpoint) { '/coverage_reports.json' }
+
+    it 'forwards coverage_endpoint via extra_app_data' do
+      expect(RapidDiffs::AppComponent).to receive(:new).with(
+        presenter,
+        extra_app_data: hash_including(coverage_endpoint: coverage_endpoint)
+      )
+
+      render_component
+    end
   end
 
   it "renders diffs_list slot with merge request diff files" do

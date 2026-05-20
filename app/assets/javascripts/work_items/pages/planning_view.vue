@@ -2060,7 +2060,10 @@ export default {
     <work-item-display-settings-drawer
       v-if="isDisplaySettingsDrawerEnabled"
       :open="isDisplayDrawerOpen"
+      :sort-options="sortOptions"
+      :sort-key="sortKey"
       @close="isDisplayDrawerOpen = false"
+      @sort="handleSort"
     />
   </div>
 </template>

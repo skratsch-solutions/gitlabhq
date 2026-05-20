@@ -33,6 +33,12 @@ module RapidDiffs
       diff_file_project_merge_request_path(resource.project, resource, diff_options_from_params)
     end
 
+    def coverage_endpoint
+      return unless resource.has_coverage_reports?
+
+      coverage_reports_project_merge_request_path(resource.project, resource, format: :json)
+    end
+
     override(:reload_stream_url)
     def reload_stream_url(offset: nil, diff_view: nil, skip_old_path: nil, skip_new_path: nil)
       diffs_stream_project_merge_request_path(

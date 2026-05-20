@@ -6,6 +6,7 @@ import { RapidDiffsFacade } from '~/rapid_diffs/app';
 import { adapters } from '~/rapid_diffs/app/adapter_configs/merge_request';
 import { useCodeReview } from '~/diffs/stores/code_review';
 import { useMergeRequestDiscussions } from '~/merge_request/stores/merge_request_discussions';
+import { useTestCoverage } from '~/rapid_diffs/stores/test_coverage';
 import { useDiffsList } from '~/rapid_diffs/stores/diffs_list';
 import { DiffFile } from '~/rapid_diffs/web_components/diff_file';
 import { initCommitWidget } from '~/rapid_diffs/app/init_commit_widget';
@@ -21,6 +22,7 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     super.init();
     this.#initCompareVersions();
     this.#initCommitWidget();
+    this.#initCoverage();
     await this.#initDiscussions();
     initNewDiscussionToggle(this.root, { allowExpandedLines: true });
     initLineRangeSelection(this.root);
@@ -91,6 +93,14 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
 
   #initCommitWidget() {
     initCommitWidget(this.root.querySelector('[data-commit-widget]'));
+  }
+
+  #initCoverage() {
+    const { coverageEndpoint } = this.appData;
+    if (!coverageEndpoint) return;
+    const store = useTestCoverage(pinia);
+    store.endpoint = coverageEndpoint;
+    store.fetchCoverage();
   }
 }
 

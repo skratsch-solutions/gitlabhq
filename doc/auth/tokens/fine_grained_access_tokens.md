@@ -2296,14 +2296,19 @@ Grants the ability to read and update notification settings.
 
 #### OAuth Application
 
-Grants the ability to create, delete, read, and renew secret OAuth applications.
+Grants the ability to create, delete, read, renew secret, and update OAuth applications.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Create | User | `POST` | `/user/applications` |
 | Create | Instance | `POST` | `/applications` |
+| Delete | User | `DELETE` | `/user/applications/:id` |
 | Delete | Instance | `DELETE` | `/applications/:id` |
+| Read | User | `GET` | `/user/applications` |
+| Read | User | `GET` | `/user/applications/:id` |
 | Read | Instance | `GET` | `/applications` |
 | Renew Secret | Instance | `POST` | `/applications/:id/renew-secret` |
+| Update | User | `PUT` | `/user/applications/:id` |
 
 #### Personal Access Token
 

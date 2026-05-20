@@ -285,6 +285,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
 
     def transfer_spec_files
       Dir.glob(Rails.root.join("{,ee/}spec/services/**/#{transfer_path_pattern}**/*_spec.rb"))
+        .reject { |f| f.include?('/concerns/') }
     end
 
     # Called after specs are required so that they're visible in Rspec.world

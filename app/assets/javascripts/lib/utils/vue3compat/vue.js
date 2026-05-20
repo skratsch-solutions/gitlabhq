@@ -4,6 +4,7 @@ import GlLicensedFeaturesPlugin from '../../../vue_shared/gl_licensed_features_p
 import GlFeatureFlagsPlugin from '../../../vue_shared/gl_feature_flags_plugin';
 import GlAbilitiesPlugin from '../../../vue_shared/gl_abilities_plugin';
 import Translate from '../../../vue_shared/translate';
+import { vueErrorHandler } from '../../../sentry/vue_error_handler';
 
 import { logDevNotice } from '../../logger';
 import { compatConfig } from './compat_config';
@@ -46,6 +47,10 @@ if (typeof jest === 'undefined') {
   GitLabPatchedVue.use(GlFeatureFlagsPlugin);
   GitLabPatchedVue.use(GlAbilitiesPlugin);
   GitLabPatchedVue.use(Translate);
+
+  if (process.env.NODE_ENV === 'production') {
+    GitLabPatchedVue.config.errorHandler = vueErrorHandler;
+  }
 }
 
 export default GitLabPatchedVue;

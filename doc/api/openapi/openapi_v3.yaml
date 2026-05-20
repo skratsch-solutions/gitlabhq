@@ -14971,6 +14971,118 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_ee836c0c3c1a"
+  "/api/v4/user/applications":
+    post:
+      operationId: postApiV4UserApplications
+      summary: Create an application
+      description: Creates a new OAuth application for the authenticated user. This
+        feature was introduced in GitLab 19.0
+      tags:
+      - Applications
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesApplicationWithSecret"
+        '400':
+          description: Bad Request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_39542344a153"
+    get:
+      operationId: getApiV4UserApplications
+      summary: List all applications
+      description: Lists all applications owned by the authenticated user.
+      tags:
+      - Applications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesApplication"
+  "/api/v4/user/applications/{id}":
+    get:
+      operationId: getApiV4UserApplicationsId
+      summary: Retrieve an application
+      description: Retrieves details of a specific application owned by the authenticated
+        user.
+      tags:
+      - Applications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesApplication"
+        '404':
+          description: Not Found
+        '400':
+          description: Bad Request
+      parameters:
+      - name: id
+        required: true
+        description: ID of the application. Differs from the `application_id`.
+        schema:
+          type: integer
+        in: path
+    delete:
+      operationId: deleteApiV4UserApplicationsId
+      summary: Delete an application
+      description: Deletes a specified application owned by the authenticated user.
+      tags:
+      - Applications
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+        '400':
+          description: Bad Request
+      parameters:
+      - name: id
+        required: true
+        description: ID of the application. Differs from the `application_id`.
+        schema:
+          type: integer
+        in: path
+    put:
+      operationId: putApiV4UserApplicationsId
+      summary: Update an application
+      description: Updates an existing application owned by the authenticated user.
+      tags:
+      - Applications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesApplication"
+        '404':
+          description: Not Found
+        '400':
+          description: Bad Request
+      parameters:
+      - name: id
+        required: true
+        description: ID of the application. Differs from the `application_id`.
+        schema:
+          type: integer
+        in: path
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_71d09f790ff1"
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/todo":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidTodo
@@ -70834,6 +70946,11 @@ components:
           "$ref": "#/components/schemas/DependencyEntityVulnerabilityEntity"
         licenses:
           "$ref": "#/components/schemas/DependencyEntityLicenseEntity"
+        malware:
+          type: boolean
+          description: 'Malware status: true if a GLAM identifier is present, false
+            if the SSCS add-on is active but none found, null if the SSCS add-on is
+            inactive.'
     APIEntitiesProjectAlias:
       type: object
       properties:
@@ -76761,6 +76878,53 @@ components:
       properties:
         avatar_url:
           type: string
+    APIEntitiesApplicationWithSecret:
+      type: object
+      properties:
+        id:
+          type: string
+        application_id:
+          type: string
+          example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
+        application_name:
+          type: string
+          example: MyApplication
+        callback_url:
+          type: string
+          example: https://redirect.uri
+        confidential:
+          type: boolean
+          example: true
+        scopes:
+          type: array
+          example:
+          - api
+          - read_user
+        secret:
+          type: string
+          example: ee1dd64b6adc89cf7e2c23099301ccc2c61b441064e9324d963c46902a85ec34
+    APIEntitiesApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        application_id:
+          type: string
+          example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
+        application_name:
+          type: string
+          example: MyApplication
+        callback_url:
+          type: string
+          example: https://redirect.uri
+        confidential:
+          type: boolean
+          example: true
+        scopes:
+          type: array
+          example:
+          - api
+          - read_user
     APIEntitiesTodo:
       type: object
       properties:
@@ -85194,53 +85358,6 @@ components:
         url:
           type: string
           example: https://example.com/emojis/example.gif
-    APIEntitiesApplicationWithSecret:
-      type: object
-      properties:
-        id:
-          type: string
-        application_id:
-          type: string
-          example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
-        application_name:
-          type: string
-          example: MyApplication
-        callback_url:
-          type: string
-          example: https://redirect.uri
-        confidential:
-          type: boolean
-          example: true
-        scopes:
-          type: array
-          example:
-          - api
-          - read_user
-        secret:
-          type: string
-          example: ee1dd64b6adc89cf7e2c23099301ccc2c61b441064e9324d963c46902a85ec34
-    APIEntitiesApplication:
-      type: object
-      properties:
-        id:
-          type: string
-        application_id:
-          type: string
-          example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
-        application_name:
-          type: string
-          example: MyApplication
-        callback_url:
-          type: string
-          example: https://redirect.uri
-        confidential:
-          type: boolean
-          example: true
-        scopes:
-          type: array
-          example:
-          - api
-          - read_user
     APIEntitiesAppearance:
       type: object
       properties:
@@ -90442,6 +90559,48 @@ components:
           nullable: true
       required:
       - avatar
+    RequestBody_39542344a153:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the application.
+          example: MyApplication
+          nullable: true
+        redirect_uri:
+          type: string
+          description: Redirect URI of the application.
+          example: https://redirect.uri
+          nullable: true
+        scopes:
+          type: string
+          description: Scopes available to the application. Separate multiple scopes
+            with a space.
+          nullable: true
+        confidential:
+          type: boolean
+          default: true
+          description: If `true`, the application can securely store client credentials,
+            such as the client secret. Non-confidential applications, such as native
+            mobile apps and Single Page Apps might expose client credentials. If unset,
+            defaults to `true`.
+          nullable: true
+      required:
+      - name
+      - redirect_uri
+      - scopes
+    RequestBody_71d09f790ff1:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the application.
+          nullable: true
+        scopes:
+          type: string
+          description: Scopes available to the application. Separate multiple scopes
+            with a space.
+          nullable: true
     RequestBody_bc3c2d755ba2:
       type: object
       properties:

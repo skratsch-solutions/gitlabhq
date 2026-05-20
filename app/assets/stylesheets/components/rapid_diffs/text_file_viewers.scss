@@ -367,7 +367,8 @@ diff-file:where([data-with-discussion-toggle], [data-line-range-dragging]) .rd-l
 
 .rd-line-content,
 .rd-hunk-header-content {
-  padding: 0 1.5em;
+  --rd-row-inline-padding: 1.5em;
+  padding: 0 var(--rd-row-inline-padding);
   word-break: break-word;
 }
 
@@ -425,6 +426,35 @@ diff-file:where([data-with-discussion-toggle], [data-line-range-dragging]) .rd-l
 // Jupyter images
 .rd-line-text img {
   max-width: 100%;
+}
+
+[data-line-coverage] {
+  --rd-line-coverage-size: 2px;
+  --rd-line-coverage-inline-padding: 7px;
+  position: relative;
+  display: none;
+  padding: 0 var(--rd-line-coverage-inline-padding);
+  width: var(--rd-line-coverage-size);
+  margin-right: calc((var(--rd-line-coverage-size) + var(--rd-line-coverage-inline-padding) * 2) * -1);
+  height: 100%;
+  vertical-align: top;
+  transform: translateX(calc((var(--rd-row-inline-padding) + var(--rd-line-coverage-inline-padding)) * -1 - 1px));
+  background-clip: content-box;
+  box-sizing: content-box;
+}
+
+[data-line-coverage][data-coverage] {
+  display: inline-block;
+}
+
+[data-coverage=hit] {
+  background-color: var(--gl-color-green-400);
+}
+
+[data-coverage=miss] {
+  --rd-line-coverage-size: 4px;
+  --rd-line-coverage-inline-padding: 6px;
+  background-color: var(--gl-color-red-400);
 }
 
 [data-disable-diff-side=old] [data-position=old],

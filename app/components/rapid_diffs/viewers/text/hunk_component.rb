@@ -96,8 +96,21 @@ module RapidDiffs
 
         def line_content_cell(line, change, position)
           css = line ? 'rd-line-content' : 'rd-line-content rd-line-number-empty'
-          content = line ? tag.pre(line.text_content, class: 'rd-line-text') : nil
+          content = if line
+                      coverage = line_coverage(line, position)
+                      pre = tag.pre(line.text_content, class: 'rd-line-text')
+                      coverage ? safe_join([coverage, pre]) : pre
+                    end
+
           tag.td(content, class: css, data: { change: change, position: position })
+        end
+
+        def line_coverage(line, position)
+          return if position == :old
+          return if line.meta? || line.removed?
+          return unless line.new_pos&.positive?
+
+          tag.span('', class: 'has-tooltip', data: { line_coverage: line.new_pos })
         end
       end
     end

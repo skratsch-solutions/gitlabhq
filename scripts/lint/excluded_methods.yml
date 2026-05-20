@@ -2,6 +2,8 @@
 #   scripts/lint/unused_methods.rb, however subsequent research shows
 #   them to be false positives, and should be ignored when running that script.
 #
+ee/app/models/ee/project_setting.rb:
+  - dap_session_tracking_available?: Called from EE repository settings controller in follow-up MR
 ee/app/helpers/secrets_management/enrollment_helper.rb:
   - allow_secrets_manager_namespace_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper
   - allow_secrets_manager_instance_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper

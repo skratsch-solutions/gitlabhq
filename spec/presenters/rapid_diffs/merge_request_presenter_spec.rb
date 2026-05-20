@@ -322,6 +322,26 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
     it { is_expected.to eq("#{base_path}/discussions") }
   end
 
+  describe '#coverage_endpoint' do
+    subject(:url) { presenter.coverage_endpoint }
+
+    context 'when the merge request has coverage reports' do
+      before do
+        allow(merge_request).to receive(:has_coverage_reports?).and_return(true)
+      end
+
+      it { is_expected.to eq("#{base_path}/coverage_reports.json") }
+    end
+
+    context 'when the merge request has no coverage reports' do
+      before do
+        allow(merge_request).to receive(:has_coverage_reports?).and_return(false)
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe '#user_permissions' do
     let(:current_user) { build_stubbed(:user) }
     let(:can_create_note) { false }

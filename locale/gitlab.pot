@@ -2457,9 +2457,6 @@ msgstr ""
 msgid "AI"
 msgstr ""
 
-msgid "AI Agent was successfully deleted"
-msgstr ""
-
 msgid "AI Gateway"
 msgstr ""
 
@@ -27723,6 +27720,9 @@ msgstr ""
 msgid "DuoChat|Agentic"
 msgstr ""
 
+msgid "DuoChat|Agentic chat"
+msgstr ""
+
 msgid "DuoChat|Always approve this tool"
 msgstr ""
 
@@ -27745,6 +27745,9 @@ msgid "DuoChat|Back to chat"
 msgstr ""
 
 msgid "DuoChat|Back to history"
+msgstr ""
+
+msgid "DuoChat|Beta"
 msgstr ""
 
 msgid "DuoChat|Cancel"
@@ -27798,6 +27801,9 @@ msgstr ""
 msgid "DuoChat|Created and maintained by GitLab"
 msgstr ""
 
+msgid "DuoChat|Custom agents"
+msgstr ""
+
 msgid "DuoChat|Delete file %{filePath}"
 msgstr ""
 
@@ -27822,6 +27828,9 @@ msgstr ""
 msgid "DuoChat|Duo:"
 msgstr ""
 
+msgid "DuoChat|Empower agents to provide deeper insights in less time with a knowledge graph of your GitLab data."
+msgstr ""
+
 msgid "DuoChat|Error sending the message"
 msgstr ""
 
@@ -27838,6 +27847,9 @@ msgid "DuoChat|Explain why you're rejecting this tool execution..."
 msgstr ""
 
 msgid "DuoChat|For example, %{linkStart}what is a fork%{linkEnd}?"
+msgstr ""
+
+msgid "DuoChat|Foundational agents"
 msgstr ""
 
 msgid "DuoChat|GitLab Duo Agentic Chat wants to execute a tool. Do you want to proceed?"
@@ -27903,6 +27915,12 @@ msgstr ""
 msgid "DuoChat|Item content could not be displayed."
 msgstr ""
 
+msgid "DuoChat|Learn about Orbit"
+msgstr ""
+
+msgid "DuoChat|Leave feedback"
+msgstr ""
+
 msgid "DuoChat|Let's work through this together..."
 msgstr ""
 
@@ -27942,10 +27960,22 @@ msgstr ""
 msgid "DuoChat|Open chat: %{title}"
 msgstr ""
 
+msgid "DuoChat|Orbit"
+msgstr ""
+
+msgid "DuoChat|Orbit: Off"
+msgstr ""
+
+msgid "DuoChat|Orbit: On"
+msgstr ""
+
 msgid "DuoChat|Outdated/incorrect"
 msgstr ""
 
 msgid "DuoChat|Pending"
+msgstr ""
+
+msgid "DuoChat|Preference updated."
 msgstr ""
 
 msgid "DuoChat|Provide Rejection Reason"
@@ -31158,9 +31188,6 @@ msgstr ""
 msgid "Failed to create wiki"
 msgstr ""
 
-msgid "Failed to delete AI Agent: %{msg}"
-msgstr ""
-
 msgid "Failed to delete branch target"
 msgstr ""
 
@@ -31294,6 +31321,9 @@ msgid "Failed to load stack trace."
 msgstr ""
 
 msgid "Failed to load stacktrace."
+msgstr ""
+
+msgid "Failed to load test coverage. Try reloading the page."
 msgstr ""
 
 msgid "Failed to load the Web IDE"
@@ -47928,6 +47958,9 @@ msgid "Not applicable"
 msgstr ""
 
 msgid "Not applicable."
+msgstr ""
+
+msgid "Not authorized"
 msgstr ""
 
 msgid "Not available"
@@ -70147,13 +70180,13 @@ msgstr ""
 msgid "SecurityReports|Open vulnerabilities by their top ten most common CWE identifiers."
 msgstr ""
 
+msgid "SecurityReports|Open vulnerabilities include those with %{strongStart}Needs triage%{strongEnd} or %{strongStart}Confirmed%{strongEnd} status. All panels exclude vulnerabilities that are no longer detected. Hover over the info icon (%{infoIcon}) to view more information about the data shown in each panel. To interact with a link in a chart popover, click to pin the popover first. To unstick it, click outside the popover. This dashboard might show higher vulnerability totals than the vulnerability report, which splits results across the Development, Operational, and Container registry tabs. %{learnMoreStart}Learn more%{learnMoreEnd}"
+msgstr ""
+
 msgid "SecurityReports|Open vulnerability trends over time. To interact with a link in a chart popover, click to pin the popover first."
 msgstr ""
 
 msgid "SecurityReports|Operational vulnerabilities"
-msgstr ""
-
-msgid "SecurityReports|Panels that categorize vulnerabilities as open include those with Needs triage or Confirmed status. Hover over the info icon (%{infoIcon}) to view more information about the data shown in each panel. To interact with a link in a chart popover, click to pin the popover first. To unstick it, click outside the popover. This dashboard might show higher vulnerability totals than the vulnerability report, which splits results across the Development, Operational, and Container registry tabs. %{learnMoreStart}Learn more%{learnMoreEnd}"
 msgstr ""
 
 msgid "SecurityReports|Parsing errors and warnings in pipeline"
@@ -80603,6 +80636,9 @@ msgid "Use .gitlab-ci.yml"
 msgstr ""
 
 msgid "Use Amazon Q to streamline development workflow and project upgrades"
+msgstr ""
+
+msgid "Use Orbit"
 msgstr ""
 
 msgid "Use Regular Expression"

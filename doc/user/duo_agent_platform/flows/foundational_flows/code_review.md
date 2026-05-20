@@ -169,10 +169,14 @@ For information on how credit usage is attributed for automatic reviews, see
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/554070) in GitLab 18.4 as a [beta](../../../../policy/development_stages_support.md#beta) [with a flag](../../../../administration/feature_flags/_index.md) named `cascading_auto_duo_code_review_settings`. Disabled by default.
 - Feature flag `cascading_auto_duo_code_review_settings` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/213240) in GitLab 18.7.
+- [Turned on by default](https://gitlab.com/gitlab-org/gitlab/-/work_items/592822) for new GitLab Duo trials on GitLab.com in GitLab 19.1.
 
 {{< /history >}}
 
 Use group or application settings to enable automatic reviews for multiple projects.
+
+For new GitLab Duo trials on GitLab.com in GitLab 19.1 and later, automatic reviews for groups are turned on by
+default.
 
 Prerequisites:
 

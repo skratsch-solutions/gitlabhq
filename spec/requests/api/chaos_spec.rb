@@ -5,15 +5,9 @@ require 'spec_helper'
 RSpec.describe API::Chaos, feature_category: :feature_flags do
   let_it_be(:authorized_user) { create(:user) }
   let_it_be(:other_user) { create(:user) }
-  let_it_be(:project) { create(:project) }
 
   describe 'GET /chaos/test' do
     let(:path) { '/chaos/test' }
-
-    before do
-      allow(Project).to receive(:count).and_return(1)
-      allow(Project).to receive(:offset).with(anything).and_return(Project.where(id: project.id))
-    end
 
     context 'when unauthenticated' do
       it 'returns 401' do
@@ -55,7 +49,7 @@ RSpec.describe API::Chaos, feature_category: :feature_flags do
 
       context 'when the feature flag is enabled' do
         before do
-          stub_feature_flags(ebonet_chaos_tests: project)
+          stub_feature_flags(ebonet_chaos_tests: true)
         end
 
         context 'when rand triggers a failure (roll < 0.2)' do

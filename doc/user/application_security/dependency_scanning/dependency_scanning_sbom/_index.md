@@ -563,6 +563,52 @@ include:
   - template: Jobs/Dependency-Scanning.v2.gitlab-ci.yml
 ```
 
+### Security considerations for dependency resolution
+
+Dependency resolution jobs execute ecosystem-native build tools (`mvn`, `gradle`,
+`pip-compile`) in the CI/CD job container. These tools natively honor
+environment variables and configuration files that can load extensions or run
+arbitrary code at startup, including:
+
+- Maven: `MAVEN_ARGS`, `MAVEN_CLI_OPTS` (legacy), `MAVEN_OPTS`,
+  `JAVA_TOOL_OPTIONS`, any `settings.xml` referenced through `-s` or `--settings`,
+  and `<extensions>` declared in `pom.xml` or `settings.xml`.
+- Gradle: `GRADLE_OPTS`, `JAVA_TOOL_OPTIONS`, `--init-script`, and top-level
+  Groovy or Kotlin code in `build.gradle` or `build.gradle.kts`.
+- Python: `PIP_INDEX_URL`, `PIP_EXTRA_INDEX_URL`, `setup.py`, and lockfile
+  install hooks.
+
+Anyone who can set these CI/CD variables or modify the project's build
+files can cause arbitrary code to execute in the resolution job. The resolution
+job runs with `CI_JOB_TOKEN`, access masked CI/CD variables in scope, and
+read or write to the project repository for the duration of the job.
+
+This property is inherent to ecosystem-native build tooling, and not
+specific to dependency scanning. Treat the resolution job as a sensitive
+execution context.
+
+Recommended controls:
+
+- Restrict who can define or override the variables listed previously. Use
+  [protected CI/CD variables](../../../../ci/variables/_index.md#for-a-project)
+  scoped to protected branches and tags. Do not set them in
+  `.gitlab-ci.yml` `variables:` blocks which any developer can edit.
+- Audit any uses of `MAVEN_ARGS`, `MAVEN_CLI_OPTS`, `GRADLE_OPTS`,
+  `--init-script`, custom `settings.xml`, and `<extensions>` in `pom.xml` as
+  part of your standard code review process.
+- When you use [scan execution policies](../../policies/scan_execution_policies.md) to
+  enforce dependency scanning, developer-authored `variables:` from the target project
+  flow into the injected resolution job. Review which variables your policy framework
+  forwards, and unset or override build-tool variables in the policy.
+- If your project's build runs in a CI/CD job you control and trust
+  (like a `build` stage that runs `mvn package`), generate the lockfile
+  or dependency graph export in that same job and disable the
+  GitLab-provided resolution job with `DS_DISABLED_RESOLUTION_JOBS`.
+  This approach does not reduce the risk of running build tooling, but it
+  limits sensitive job contexts to one.
+- Use a [custom resolution image](#use-a-custom-dependency-resolution-image)
+  pinned by digest if you need to guarantee a known toolchain.
+
 ### Dependency resolution limitations
 
 Dependency resolution runs ecosystem-native build tools in vanilla or custom images with a single,

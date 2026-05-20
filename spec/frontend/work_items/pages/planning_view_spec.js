@@ -2667,6 +2667,28 @@ describe('planning-view', () => {
         expect(findFilteredSearchBar().props('initialSortBy')).toBe(UPDATED_DESC);
         expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
       });
+
+      it('passes sortOptions and the current sortKey to the drawer', () => {
+        const drawerProps = findDisplaySettingsDrawer().props();
+
+        expect(drawerProps.sortKey).toBe(CREATED_DESC);
+        expect(Array.isArray(drawerProps.sortOptions)).toBe(true);
+        expect(drawerProps.sortOptions.length).toBeGreaterThan(0);
+      });
+
+      it('updates sort and saves the preference when the drawer emits sort', async () => {
+        findDisplaySettingsDrawer().vm.$emit('sort', UPDATED_DESC);
+        await waitForPromises();
+        await nextTick();
+
+        expect(findListView().props('queryVariables')).toMatchObject({ sort: UPDATED_DESC });
+        expect(findDisplaySettingsDrawer().props('sortKey')).toBe(UPDATED_DESC);
+        expect(userPreferenceMutationHandler).toHaveBeenCalledWith({
+          sort: UPDATED_DESC,
+          namespace: 'full/path',
+          workItemTypeId: 'gid://gitlab/WorkItems::Type/1',
+        });
+      });
     });
 
     describe('when work_item_list_display_settings_drawer is disabled', () => {
