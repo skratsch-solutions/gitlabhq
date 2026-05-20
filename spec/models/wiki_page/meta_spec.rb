@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe WikiPage::Meta, feature_category: :wiki do
-  let_it_be(:project) { create(:project, :wiki_repo) }
+  let_it_be(:project, freeze: false) { create(:project, :wiki_repo) }
   let_it_be(:other_project) { create(:project) }
 
   describe '.for_projects_visible_to_user' do
@@ -209,11 +209,14 @@ RSpec.describe WikiPage::Meta, feature_category: :wiki do
   end
 
   describe '#participants' do
-    let_it_be(:wiki_page_meta) { create(:wiki_page_meta, canonical_slug: 'foo', container: project) }
-    let_it_be(:user_1) { create(:user, developer_of: project) }
+    let_it_be(:wiki_page_meta, freeze: false) { create(:wiki_page_meta, canonical_slug: 'foo', container: project) }
+    let_it_be(:user_1, freeze: false) { create(:user, developer_of: project) }
     let_it_be(:user_2) { create(:user, developer_of: project) }
     let_it_be(:user_3) { create(:user, developer_of: project) }
-    let_it_be(:note_1) { create(:note, project: project, noteable: wiki_page_meta, author: user_1, note: "Quux") }
+    let_it_be(:note_1, freeze: false) do
+      create(:note, project: project, noteable: wiki_page_meta, author: user_1, note: "Quux")
+    end
+
     let_it_be(:note_2) { create(:note, project: project, noteable: wiki_page_meta, author: user_2, note: "Quuux") }
 
     it 'returns all note authors' do

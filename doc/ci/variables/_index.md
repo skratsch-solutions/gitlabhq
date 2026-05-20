@@ -220,6 +220,7 @@ To set a group CI/CD variable to only be available for certain environments:
 {{< history >}}
 
 - Default visibility [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/195494) from **Visible** to **Masked** in GitLab 18.3.
+- **Masked and hidden** option [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/592708) in GitLab 19.0.
 
 {{< /history >}}
 

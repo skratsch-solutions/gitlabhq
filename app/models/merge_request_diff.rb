@@ -710,6 +710,11 @@ class MergeRequestDiff < ApplicationRecord
   # +migrate_files_to_external_storage!+
   #
   # If this diff isn't in external storage, the method is a no-op.
+  #
+  # Although there are no callers in the codebase, this method is invoked
+  # manually (e.g. from a Rails console) to recover diffs when an external
+  # diff object is missing or corrupted on storage, so retain it.
+  # See https://gitlab.com/gitlab-com/request-for-help/-/work_items/3386#note_2739146033
   def migrate_files_to_database!
     return unless stored_externally?
     return if files_count == 0

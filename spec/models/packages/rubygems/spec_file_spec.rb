@@ -11,7 +11,7 @@ RSpec.describe Packages::Rubygems::SpecFile, feature_category: :package_registry
 
   describe 'loose foreign keys' do
     it_behaves_like 'update by a loose foreign key' do
-      let_it_be(:model) { create(:rubygems_spec_file, status: :default) }
+      let_it_be(:model, freeze: false) { create(:rubygems_spec_file, status: :default) }
 
       let!(:parent) { model.project }
     end
@@ -57,7 +57,7 @@ RSpec.describe Packages::Rubygems::SpecFile, feature_category: :package_registry
     end
 
     describe 'readonly object_storage_key' do
-      let_it_be(:model) { create(:rubygems_spec_file, project: project) }
+      let_it_be(:model, freeze: false) { create(:rubygems_spec_file, project: project) }
 
       it 'sets object_storage_key' do
         expect(model.object_storage_key).to be_present

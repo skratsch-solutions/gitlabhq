@@ -19,6 +19,8 @@ app/models/event.rb:
 - find_sti_class: Override of an ActiveRecord internal method
 app/models/jira_import_state.rb:
   - owner_class_attribute_default: Used internally by state_machine
+app/models/merge_request_diff.rb:
+  - migrate_files_to_database!: Invoked manually (e.g. from a Rails console) to roll back external diffs to the database
 app/models/project_statistics.rb:
   - update_wiki_size: Called dynamically, and cannot be removed unless column is removed
   - update_snippets_size: Called dynamically, and cannot be removed unless column is removed

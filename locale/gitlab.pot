@@ -7789,6 +7789,9 @@ msgstr ""
 msgid "AiModelDeprecation|The following models have been deprecated and will stop working after GitLab removes them. Please change to an alternative model before the removal version to avoid disruption."
 msgstr ""
 
+msgid "AiPowered|A curated list of recommended domains is automatically included in the allowlist."
+msgstr ""
+
 msgid "AiPowered|AI Gateway request timeout"
 msgstr ""
 
@@ -7822,6 +7825,9 @@ msgstr ""
 msgid "AiPowered|Agents"
 msgstr ""
 
+msgid "AiPowered|All Unix sockets are allowed for GitLab Duo Agent Platform operations."
+msgstr ""
+
 msgid "AiPowered|All eligible users"
 msgstr ""
 
@@ -7849,13 +7855,7 @@ msgstr ""
 msgid "AiPowered|Allow custom agents"
 msgstr ""
 
-msgid "AiPowered|Allow custom agents in projects. Users with the Maintainer or Owner role can create new agents."
-msgstr ""
-
 msgid "AiPowered|Allow custom flows"
-msgstr ""
-
-msgid "AiPowered|Allow custom flows in projects. Users with the Maintainer or Owner role can create new flows."
 msgstr ""
 
 msgid "AiPowered|Allow developers in this instance to use GitLab Duo CLI. Duo CLI is billed as consumption against this instance."
@@ -7975,7 +7975,7 @@ msgstr ""
 msgid "AiPowered|Control whether users can approve tools for a session in the IDE and CLI."
 msgstr ""
 
-msgid "AiPowered|Control which external network resources Duo Agent Platform can access."
+msgid "AiPowered|Control which external network resources the GitLab Duo Agent Platform can access."
 msgstr ""
 
 msgid "AiPowered|Control who can access AI-native features executed with or without CI/CD pipelines."
@@ -8014,7 +8014,7 @@ msgstr ""
 msgid "AiPowered|Domain removed."
 msgstr ""
 
-msgid "AiPowered|Domains in the denylist are always blocked, even if they appear in an allowlist."
+msgid "AiPowered|Domains in the denylist are always blocked, even if they appear in the allowlist."
 msgstr ""
 
 msgid "AiPowered|Enable AI audit event streaming"
@@ -8353,6 +8353,15 @@ msgstr ""
 msgid "AiPowered|Use this setting to minimize latency. An IDE must connect to https://gitlab.com:443."
 msgstr ""
 
+msgid "AiPowered|Users with the Maintainer or Owner role for a project can create new agents."
+msgstr ""
+
+msgid "AiPowered|Users with the Maintainer or Owner role for a project can create new flows."
+msgstr ""
+
+msgid "AiPowered|Users with the Maintainer or Owner role for a project can include recommended domains, add more domains, and allow all Unix sockets."
+msgstr ""
+
 msgid "AiPowered|View configuration"
 msgstr ""
 
@@ -8365,16 +8374,7 @@ msgstr ""
 msgid "AiPowered|When GitLab Duo is not available, prompt caching cannot be turned on."
 msgstr ""
 
-msgid "AiPowered|When enabled, a curated list of commonly needed domains is automatically included in the allowlist."
-msgstr ""
-
-msgid "AiPowered|When enabled, all Unix socket connections are permitted for agent platform operations."
-msgstr ""
-
-msgid "AiPowered|When enabled, project maintainers can add additional domains to the allowlist, allow all unix sockets, and include recommended domain settings."
-msgstr ""
-
-msgid "AiPowered|When turned on, users can access features included in the GitLab Duo Core add-on. %{linkStart}Which features are included%{linkEnd}?"
+msgid "AiPowered|When this setting is turned on, users can access features included in the GitLab Duo Core add-on. %{linkStart}Which features are included%{linkEnd}?"
 msgstr ""
 
 msgid "AiPowered|When you save, GitLab Duo will be turned off for all groups, subgroups, and projects."
@@ -64778,12 +64778,18 @@ msgstr ""
 msgid "SecurityConfiguration|%{scanType} configuration code snippet"
 msgstr ""
 
+msgid "SecurityConfiguration|%{scanner} configuration"
+msgstr ""
+
 msgid "SecurityConfiguration|1 vulnerability"
 msgid_plural "SecurityConfiguration|%d vulnerabilities"
 msgstr[0] ""
 msgstr[1] ""
 
 msgid "SecurityConfiguration|Action unavailable"
+msgstr ""
+
+msgid "SecurityConfiguration|An error occurred managing scan profiles."
 msgstr ""
 
 msgid "SecurityConfiguration|An error occurred while creating the merge request."
@@ -64828,6 +64834,9 @@ msgstr ""
 msgid "SecurityConfiguration|Define security settings once and reuse them everywhere. Update a profile and your changes automatically apply to every project that uses the profile, ensuring consistent, predictable security coverage with minimal effort."
 msgstr ""
 
+msgid "SecurityConfiguration|Disable profile-based scanning"
+msgstr ""
+
 msgid "SecurityConfiguration|Enable %{feature}"
 msgstr ""
 
@@ -64835,6 +64844,9 @@ msgid "SecurityConfiguration|Enable Auto DevOps"
 msgstr ""
 
 msgid "SecurityConfiguration|Enable merge requests in Project Settings %{gt} General %{gt} Visibility, project features, permissions."
+msgstr ""
+
+msgid "SecurityConfiguration|Enable profile-based scanning"
 msgstr ""
 
 msgid "SecurityConfiguration|Enable scanners, monitor health, and track coverage across your projects. For full tool coverage, visit the %{linkStart}Security Inventory%{linkEnd}."
@@ -64853,6 +64865,12 @@ msgid "SecurityConfiguration|Enabled"
 msgstr ""
 
 msgid "SecurityConfiguration|Enforced by administrator"
+msgstr ""
+
+msgid "SecurityConfiguration|How %{scannerName} is configured for each project. Management actions on this page are only available for projects using profile-based configuration. Other sources must be managed at their origin."
+msgstr ""
+
+msgid "SecurityConfiguration|Last scan"
 msgstr ""
 
 msgid "SecurityConfiguration|Learn more about our vulnerability data retention policies"
@@ -64876,6 +64894,9 @@ msgstr ""
 msgid "SecurityConfiguration|Merge requests are disabled"
 msgstr ""
 
+msgid "SecurityConfiguration|No profile applied"
+msgstr ""
+
 msgid "SecurityConfiguration|No scanners enabled yet"
 msgstr ""
 
@@ -64889,6 +64910,9 @@ msgid "SecurityConfiguration|Only security managers, maintainers, and owners can
 msgstr ""
 
 msgid "SecurityConfiguration|Profile-based scanner configuration"
+msgstr ""
+
+msgid "SecurityConfiguration|Project"
 msgstr ""
 
 msgid "SecurityConfiguration|Project coverage"
@@ -64912,6 +64936,9 @@ msgstr ""
 msgid "SecurityConfiguration|Secret detection configuration"
 msgstr ""
 
+msgid "SecurityConfiguration|Security attributes"
+msgstr ""
+
 msgid "SecurityConfiguration|Security configuration"
 msgstr ""
 
@@ -64927,6 +64954,12 @@ msgstr ""
 msgid "SecurityConfiguration|Something went wrong. Please refresh the page, or try again later."
 msgstr ""
 
+msgid "SecurityConfiguration|Source"
+msgstr ""
+
+msgid "SecurityConfiguration|Status"
+msgstr ""
+
 msgid "SecurityConfiguration|The status of the tools only applies to the default branch and is based on the %{linkStart}latest pipeline%{linkEnd}."
 msgstr ""
 
@@ -64939,7 +64972,16 @@ msgstr ""
 msgid "SecurityConfiguration|Toggle secret push protection"
 msgstr ""
 
+msgid "SecurityConfiguration|Unconfigured"
+msgstr ""
+
 msgid "SecurityConfiguration|Using custom settings. You won't receive automatic updates on this variable. %{anchorStart}Restore to default%{anchorEnd}"
+msgstr ""
+
+msgid "SecurityConfiguration|View and manage %{scanner} configuration across projects in the %{group} group."
+msgstr ""
+
+msgid "SecurityConfiguration|View project configuration"
 msgstr ""
 
 msgid "SecurityConfiguration|Vulnerabilities"

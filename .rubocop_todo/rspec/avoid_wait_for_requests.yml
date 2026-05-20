@@ -524,7 +524,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/user_settings/personal_access_tokens_spec.rb'
     - 'spec/features/user_settings/ssh_keys_spec.rb'
     - 'spec/features/user_sorts_things_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/features/users/overview_spec.rb'
     - 'spec/features/users/signup_spec.rb'
     - 'spec/features/users/snippets_spec.rb'

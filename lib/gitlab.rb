@@ -175,6 +175,6 @@ module Gitlab
   #
   # @return [Boolean]
   def self.next_rails?
-    Rails.gem_version >= Gem::Version.new("7.2")
+    Rails.gem_version >= Gem::Version.new("8.0")
   end
 end

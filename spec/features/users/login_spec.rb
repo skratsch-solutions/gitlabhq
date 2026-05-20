@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions, :aggregate_failures, feature_category: :system_access, quarantine: 'https://gitlab.com/gitlab-org/quality/test-failure-issues/-/issues/40373' do
+RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions, :aggregate_failures, feature_category: :system_access do
   include TermsHelper
   include UserLoginHelper
   include SessionHelpers
@@ -25,7 +25,11 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       visit new_user_password_path
       fill_in 'user_email', with: user.email
       click_button 'Reset password'
-      wait_for_requests
+
+      expect(page).to have_content(
+        'If your email address exists in our database, ' \
+          'you will receive a password recovery link at your email address in a few minutes.'
+      )
 
       user.reload
       expect(user.reset_password_token).not_to be_nil
@@ -81,7 +85,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
       user = create(:user, :blocked)
 
-      gitlab_sign_in(user)
+      submit_sign_in_form_for(user)
 
       expect(page).to have_content('Your account has been blocked.')
     end
@@ -94,7 +98,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
       user = create(:user, :blocked)
 
-      expect { gitlab_sign_in(user) }.not_to change { user.reload.sign_in_count }
+      submit_sign_in_form_for(user)
+
+      expect(page).to have_content('Your account has been blocked.')
+      expect(user.reload.sign_in_count).to eq(0)
     end
   end
 
@@ -132,7 +139,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
             .to increment(:user_unauthenticated_counter)
             .and increment(:user_session_destroyed_counter).twice
 
-          gitlab_sign_in(user)
+          submit_sign_in_form_for(user)
 
           expect(page).to have_content(alert_title)
           expect(page).to have_content(alert_message)
@@ -164,14 +171,16 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
     end
 
     it 'disallows login' do
-      gitlab_sign_in(user, password: user.password)
+      submit_sign_in_form_for(user, password: user.password)
 
       expect(page).to have_content('Invalid login or password.')
     end
 
     it 'does not update Devise trackable attributes' do
-      expect { gitlab_sign_in(user, password: user.password) }
-        .not_to change { user.reload.sign_in_count }
+      submit_sign_in_form_for(user, password: user.password)
+
+      expect(page).to have_content('Invalid login or password.')
+      expect(user.reload.sign_in_count).to eq(0)
     end
   end
 
@@ -183,7 +192,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
         .to increment(:user_unauthenticated_counter)
         .and increment(:user_session_destroyed_counter).twice
 
-      gitlab_sign_in(ghost_user)
+      submit_sign_in_form_for(ghost_user)
 
       expect(page).to have_content('Your account does not have the required permission to login. Please contact your GitLab administrator if you think this is an error.')
     end
@@ -193,8 +202,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
         .to increment(:user_unauthenticated_counter)
         .and increment(:user_session_destroyed_counter).twice
 
-      expect { gitlab_sign_in(ghost_user) }
-        .not_to change { ghost_user.reload.sign_in_count }
+      submit_sign_in_form_for(ghost_user)
+
+      expect(page).to have_content('Your account does not have the required permission to login. Please contact your GitLab administrator if you think this is an error.')
+      expect(ghost_user.reload.sign_in_count).to eq(0)
     end
   end
 
@@ -242,7 +253,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
             enter_code(codes.sample, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
 
             expect(page).to have_content('Welcome to GitLab')
-            wait_for_requests
             expect(page).to have_current_path root_path, ignore_query: true
           end
 
@@ -251,12 +261,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
               .to increment(:user_authenticated_counter)
               .and increment(:user_two_factor_authenticated_counter)
 
-            expect do
-              enter_code(codes.sample, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
-              expect(page).to have_content('Welcome to GitLab')
-              wait_for_requests
-            end
-              .to change { user.reload.otp_backup_codes.size }.by(-1)
+            size_before = user.reload.otp_backup_codes.size
+            enter_code(codes.sample, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
+            expect(page).to have_content('Welcome to GitLab')
+            expect(user.reload.otp_backup_codes.size).to eq(size_before - 1)
           end
 
           it 'invalidates backup codes twice in a row' do
@@ -266,22 +274,17 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
               .and increment(:user_session_destroyed_counter)
 
             random_code = codes.delete(codes.sample)
-            expect do
-              enter_code(random_code, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
-              expect(page).to have_content('Welcome to GitLab')
-              wait_for_requests
-            end
-              .to change { user.reload.otp_backup_codes.size }.by(-1)
+            size_before = user.reload.otp_backup_codes.size
+            enter_code(random_code, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
+            expect(page).to have_content('Welcome to GitLab')
+            expect(user.reload.otp_backup_codes.size).to eq(size_before - 1)
 
-            gitlab_sign_out
-            gitlab_sign_in(user)
+            gitlab_sign_out(user)
+            submit_sign_in_form_for(user)
 
-            expect do
-              enter_code(codes.sample, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
-              expect(page).to have_content('Welcome to GitLab')
-              wait_for_requests
-            end
-              .to change { user.reload.otp_backup_codes.size }.by(-1)
+            enter_code(codes.sample, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
+            expect(page).to have_content('Welcome to GitLab')
+            expect(user.reload.otp_backup_codes.size).to eq(size_before - 2)
           end
 
           it 'triggers ActiveSession.cleanup for the user' do
@@ -307,7 +310,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
             enter_code(code, only_two_factor_webauthn_enabled: only_two_factor_webauthn_enabled)
             expect(page).to have_content('Invalid two-factor code.')
-            wait_for_requests
             expect(user.reload.failed_attempts).to eq(1)
           end
         end
@@ -320,7 +322,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       let(:user) { create(:user, :two_factor) }
 
       before do
-        gitlab_sign_in(user, remember: true)
+        submit_sign_in_form_for(user, remember: true)
       end
 
       it 'does not show a "You are already signed in." error message' do
@@ -330,14 +332,12 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
         enter_code(user.current_otp)
         expect(page).to have_content('Welcome to GitLab')
-        wait_for_requests
         expect(page).not_to have_content(I18n.t('devise.failure.already_authenticated'))
         expect_single_session_with_authenticated_ttl
       end
 
       it 'does not allow sign-in if the user password is updated before entering a one-time code' do
         expect(page).to have_content('Enter verification code')
-        wait_for_requests
 
         user.update!(password: User.random_password)
         enter_code(user.current_otp)
@@ -353,7 +353,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
           enter_code(user.current_otp)
           expect(page).to have_content('Welcome to GitLab')
-          wait_for_requests
           expect_single_session_with_authenticated_ttl
           expect(page).to have_current_path root_path, ignore_query: true
         end
@@ -381,7 +380,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
           enter_code(user.current_otp)
           expect(page).to have_content('Welcome to GitLab')
-          wait_for_requests
           expect_single_session_with_authenticated_ttl
           expect(page).to have_current_path root_path, ignore_query: true
         end
@@ -523,7 +521,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
           sign_in_using_saml!
           expect(page).to have_content('Welcome to GitLab')
-          wait_for_requests
           expect_single_session_with_authenticated_ttl
           expect(page).not_to have_content(_('Enter verification code'))
           expect(page).to have_current_path root_path, ignore_query: true
@@ -542,11 +539,9 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
           sign_in_using_saml!
 
           expect(page).to have_content('Enter verification code')
-          wait_for_requests
 
           enter_code(user.current_otp)
           expect(page).to have_content('Welcome to GitLab')
-          wait_for_requests
           expect_single_session_with_authenticated_ttl
           expect(page).to have_current_path root_path, ignore_query: true
         end
@@ -654,11 +649,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
             .to increment(:user_authenticated_counter).twice
 
           gitlab_sign_in(user, remember: true)
-          wait_for_requests
+          wait_for_requests # rubocop:disable RSpec/AvoidWaitForRequests -- async auth requests must settle before expire_session to keep the authentication counter deterministic
           expire_session
-          visit root_path
-          wait_for_requests
 
+          visit root_path
           expect(page).to have_current_path root_path
         end
 
@@ -667,13 +661,10 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
             .to increment(:user_authenticated_counter)
 
           gitlab_sign_in(user, remember: true)
-          wait_for_requests
           expire_session
           stub_application_setting(remember_me_enabled: false)
 
           visit root_path
-          wait_for_requests
-
           expect(page).to have_current_path new_user_session_path
         end
       end
@@ -704,7 +695,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
           .to increment(:user_unauthenticated_counter)
           .and increment(:user_password_invalid_counter)
 
-        gitlab_sign_in(user, password: 'incorrect-password')
+        submit_sign_in_form_for(user, password: 'incorrect-password')
 
         expect_single_session_with_short_ttl
         expect(page).to have_content('Invalid login or password.')
@@ -894,7 +885,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
       before do
         ActionMailer::Base.deliveries.clear
-        gitlab_sign_in(user)
+        submit_sign_in_form_for(user)
         expect(page).to have_content('Enter verification code')
       end
 
@@ -916,7 +907,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
         it 'does not show email OTP fallback when feature is disabled' do
           visit new_user_session_path
-          gitlab_sign_in(user)
+          submit_sign_in_form_for(user)
           expect(page).not_to have_button('send code to email address')
         end
       end
@@ -934,7 +925,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
       before do
         ActionMailer::Base.deliveries.clear
         visit new_user_session_path
-        gitlab_sign_in(user)
+        submit_sign_in_form_for(user)
         click_button 'Sign in via 2FA code'
       end
 
@@ -962,7 +953,6 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
         click_button 'Verify code'
 
         expect(page).to have_content('Welcome to GitLab')
-        wait_for_requests
         expect(page).to have_current_path root_path, ignore_query: true
       end
     end
@@ -1184,7 +1174,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
           # Use the secret shown on the page to generate the OTP that will be entered.
           # This detects issues wherein a new secret gets generated after the
           # page is shown.
-          wait_for_requests
+          expect(page).to have_button(_('Register authenticator'))
 
           click_button _('Register authenticator')
           otp_secret = page.find('.two-factor-secret').text.gsub('Key:', '').delete(' ')
@@ -1309,7 +1299,7 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
             .to increment(:user_unauthenticated_counter)
             .and increment(:user_session_destroyed_counter).twice
 
-          gitlab_sign_in(user)
+          submit_sign_in_form_for(user)
 
           expect(page).to have_current_path new_user_session_path, ignore_query: true
           expect(page).to have_content(alert_title)

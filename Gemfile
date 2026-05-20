@@ -20,7 +20,11 @@ gem 'bundler-checksum', '~> 0.1.0', path: 'gems/bundler-checksum', require: fals
 gem 'auto_freeze', path: 'gems/auto_freeze', feature_category: :rails_platform
 
 # See https://docs.gitlab.com/ee/development/gemfile.html#upgrade-rails for guidelines when upgrading Rails
-gem 'rails', '~> 7.2.3', feature_category: :rails_platform
+if next?
+  gem 'rails', '~> 8.0.0', feature_category: :rails_platform
+else
+  gem 'rails', '~> 7.2.3', feature_category: :rails_platform
+end
 
 # Pin Zeitwerk until https://gitlab.com/gitlab-org/omnibus-gitlab/-/issues/9408 is fixed
 gem 'zeitwerk', '= 2.6.18', feature_category: :rails_platform
@@ -405,7 +409,12 @@ gem 'gitlab-labkit', '~> 2.0.0', feature_category: :error_budgets
 gem 'thrift', '~> 0.22.0', feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
 # I18n
-gem 'rails-i18n', '~> 7.0', '>= 7.0.9', feature_category: :internationalization
+if next?
+  gem 'rails-i18n', '~> 8.0', feature_category: :internationalization
+else
+  gem 'rails-i18n', '~> 7.0', '>= 7.0.9', feature_category: :internationalization
+end
+
 gem 'gettext_i18n_rails', '~> 1.13.0', feature_category: :internationalization
 gem 'gettext', '~> 3.5', '>= 3.5.1',
   require: false,

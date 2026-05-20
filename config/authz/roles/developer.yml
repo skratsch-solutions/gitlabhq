@@ -7,6 +7,7 @@ inherits_from:
 project:
   permissions: []
   raw_permissions:
+  - _contribute_security_policy_project
   - _read_developer_job_artifact
   - _read_own_workspace
   - _update_own_workspace

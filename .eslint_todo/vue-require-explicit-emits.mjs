@@ -937,7 +937,6 @@ export default {
     'ee/app/assets/javascripts/security_inventory/components/action_cell.vue',
     'ee/app/assets/javascripts/security_inventory/components/attributes_cell.vue',
     'ee/app/assets/javascripts/security_inventory/components/checkbox_cell.vue',
-    'ee/app/assets/javascripts/security_inventory/components/inventory_dashboard_filtered_search_bar.vue',
     'ee/app/assets/javascripts/security_inventory/components/security_inventory_table.vue',
     'ee/app/assets/javascripts/security_inventory/components/sidebar/expandable_group.vue',
     'ee/app/assets/javascripts/security_inventory/components/sidebar/group_list.vue',
