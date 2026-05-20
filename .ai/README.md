@@ -70,14 +70,13 @@ To add a new shared module that all contributors benefit from:
 
 ## Local Overrides
 
-Create `AGENTS.local.md` at any directory level for personal customizations.
-This file is explicitly referenced via `@AGENTS.local.md` in both `CLAUDE.md`
-and `AGENTS.md`. `CLAUDE.local.md` is also supported — Claude Code loads it
-natively by convention, not via an explicit reference in the instruction files.
-Both files can reference any additional gitignored files you have in `.ai/` or
+Create `CLAUDE.local.md` at the repository root for personal customizations.
+This file is explicitly referenced via `@CLAUDE.local.md` in both `CLAUDE.md`
+and `AGENTS.md`. Claude Code also loads it natively by convention.
+It can reference any additional gitignored files you have in `.ai/` or
 elsewhere.
 
-The `AGENTS.local.md` is gitignored and will not be committed.
+`CLAUDE.local.md` is gitignored and will not be committed.
 It may also be symlinked from a local source-controlled repo.
 
 ## See also

@@ -12879,8 +12879,8 @@ paths:
       operationId: postApiV4ProjectsIdPipelinesPipelineIdRetry
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/cancel":
     post:
-      summary: Cancel all builds in the pipeline
-      description: This feature was introduced in GitLab 8.11.
+      summary: Cancel all jobs for a pipeline
+      description: Cancels all jobs in a specified pipeline.
       produces:
       - application/json
       consumes:
@@ -12901,7 +12901,7 @@ paths:
         example: 18
       responses:
         '201':
-          description: Cancel all builds in the pipeline
+          description: Cancel all jobs for a pipeline
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Pipeline"
         '401':
@@ -12915,7 +12915,8 @@ paths:
       operationId: postApiV4ProjectsIdPipelinesPipelineIdCancel
   "/api/v4/projects/{id}/pipeline_schedules":
     get:
-      description: Get all pipeline schedules
+      summary: List all pipeline schedules
+      description: Lists all pipeline schedules for a project.
       produces:
       - application/json
       parameters:
@@ -12952,7 +12953,7 @@ paths:
         example: active
       responses:
         '200':
-          description: Get all pipeline schedules
+          description: List all pipeline schedules
           schema:
             type: array
             items:
@@ -12967,7 +12968,8 @@ paths:
       - pipeline_schedules
       operationId: getApiV4ProjectsIdPipelineSchedules
     post:
-      description: Create a new pipeline schedule
+      summary: Create a pipeline schedule
+      description: Creates a pipeline schedule.
       produces:
       - application/json
       consumes:
@@ -12986,7 +12988,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPipelineSchedules"
       responses:
         '201':
-          description: Create a new pipeline schedule
+          description: Create a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineScheduleDetails"
         '400':
@@ -13002,7 +13004,8 @@ paths:
       operationId: postApiV4ProjectsIdPipelineSchedules
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}":
     get:
-      description: Get a single pipeline schedule
+      summary: Retrieve a pipeline schedule
+      description: Retrieves a pipeline schedule for a project.
       produces:
       - application/json
       parameters:
@@ -13021,7 +13024,7 @@ paths:
         example: 13
       responses:
         '200':
-          description: Get a single pipeline schedule
+          description: Retrieve a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineScheduleDetails"
         '401':
@@ -13034,7 +13037,9 @@ paths:
       - pipeline_schedules
       operationId: getApiV4ProjectsIdPipelineSchedulesPipelineScheduleId
     put:
-      description: Edit a pipeline schedule
+      summary: Update a pipeline schedule
+      description: Updates a pipeline schedule for a project. After the update is
+        done, it is rescheduled automatically.
       produces:
       - application/json
       consumes:
@@ -13060,7 +13065,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPipelineSchedulesPipelineScheduleId"
       responses:
         '200':
-          description: Edit a pipeline schedule
+          description: Update a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineScheduleDetails"
         '400':
@@ -13075,7 +13080,8 @@ paths:
       - pipeline_schedules
       operationId: putApiV4ProjectsIdPipelineSchedulesPipelineScheduleId
     delete:
-      description: Delete a pipeline schedule
+      summary: Delete a pipeline schedule
+      description: Deletes a pipeline schedule for a project.
       produces:
       - application/json
       parameters:
@@ -13108,7 +13114,8 @@ paths:
       operationId: deleteApiV4ProjectsIdPipelineSchedulesPipelineScheduleId
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}/pipelines":
     get:
-      description: Get all pipelines triggered from a pipeline schedule
+      summary: List all pipelines triggered by a pipeline schedule
+      description: Lists all pipelines triggered by a pipeline schedule in a project.
       produces:
       - application/json
       parameters:
@@ -13217,7 +13224,7 @@ paths:
         example: desc
       responses:
         '200':
-          description: Get all pipelines triggered from a pipeline schedule
+          description: List all pipelines triggered by a pipeline schedule
           schema:
             type: array
             items:
@@ -13233,7 +13240,8 @@ paths:
       operationId: getApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdPipelines
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}/take_ownership":
     post:
-      description: Take ownership of a pipeline schedule
+      summary: Create or update ownership of a pipeline schedule
+      description: Creates or updates the owner of a pipeline schedule for a project.
       produces:
       - application/json
       consumes:
@@ -13254,7 +13262,7 @@ paths:
         example: 13
       responses:
         '201':
-          description: Take ownership of a pipeline schedule
+          description: Create or update ownership of a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineScheduleDetails"
         '400':
@@ -13270,8 +13278,9 @@ paths:
       operationId: postApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdTakeOwnership
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}/play":
     post:
-      summary: Play a scheduled pipeline immediately
-      description: This feature was added in GitLab 12.8
+      summary: Run a pipeline schedule
+      description: Runs a pipeline schedule immediately. The next scheduled run of
+        this pipeline is not affected.
       produces:
       - application/json
       consumes:
@@ -13292,7 +13301,7 @@ paths:
         example: 13
       responses:
         '201':
-          description: Play a scheduled pipeline immediately
+          description: Run a pipeline schedule
         '401':
           description: Unauthorized
         '403':
@@ -13304,7 +13313,8 @@ paths:
       operationId: postApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdPlay
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}/variables":
     post:
-      description: Create a new pipeline schedule variable
+      summary: Create a variable for a pipeline schedule
+      description: Creates a variable for a pipeline schedule.
       produces:
       - application/json
       consumes:
@@ -13330,7 +13340,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariables"
       responses:
         '201':
-          description: Create a new pipeline schedule variable
+          description: Create a variable for a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -13346,7 +13356,8 @@ paths:
       operationId: postApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariables
   "/api/v4/projects/{id}/pipeline_schedules/{pipeline_schedule_id}/variables/{key}":
     get:
-      description: Get a single pipeline schedule variable
+      summary: Retrieve a variable for a pipeline schedule
+      description: Retrieves a specified variable for a pipeline schedule.
       produces:
       - application/json
       parameters:
@@ -13371,7 +13382,7 @@ paths:
         example: NEW_VARIABLE
       responses:
         '200':
-          description: Get a single pipeline schedule variable
+          description: Retrieve a variable for a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '401':
@@ -13384,7 +13395,8 @@ paths:
       - pipeline_schedules
       operationId: getApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariablesKey
     put:
-      description: Edit a pipeline schedule variable
+      summary: Update a variable for a pipeline schedule
+      description: Updates a variable for a pipeline schedule.
       produces:
       - application/json
       consumes:
@@ -13416,7 +13428,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariablesKey"
       responses:
         '200':
-          description: Edit a pipeline schedule variable
+          description: Update a variable for a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -13431,7 +13443,8 @@ paths:
       - pipeline_schedules
       operationId: putApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariablesKey
     delete:
-      description: Delete a pipeline schedule variable
+      summary: Delete a variable for a pipeline schedule
+      description: Deletes a specified variable for a pipeline schedule.
       produces:
       - application/json
       parameters:
@@ -13456,7 +13469,7 @@ paths:
         example: NEW_VARIABLE
       responses:
         '202':
-          description: Delete a pipeline schedule variable
+          description: Delete a variable for a pipeline schedule
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '401':
@@ -57352,7 +57365,7 @@ definitions:
     - description
     - ref
     - cron
-    description: Create a new pipeline schedule
+    description: Create a pipeline schedule
   putApiV4ProjectsIdPipelineSchedulesPipelineScheduleId:
     type: object
     properties:
@@ -57400,7 +57413,7 @@ definitions:
           required:
           - name
           - value
-    description: Edit a pipeline schedule
+    description: Update a pipeline schedule
   postApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariables:
     type: object
     properties:
@@ -57423,7 +57436,7 @@ definitions:
     required:
     - key
     - value
-    description: Create a new pipeline schedule variable
+    description: Create a variable for a pipeline schedule
   putApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariablesKey:
     type: object
     properties:
@@ -57438,7 +57451,7 @@ definitions:
         - env_var
         - file
         default: env_var
-    description: Edit a pipeline schedule variable
+    description: Update a variable for a pipeline schedule
   postApiV4ProjectsId(refRef)triggerPipeline:
     type: object
     properties:

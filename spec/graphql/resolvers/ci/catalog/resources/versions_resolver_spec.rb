@@ -14,7 +14,7 @@ RSpec.describe Resolvers::Ci::Catalog::Resources::VersionsResolver, feature_cate
 
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:resource) { create(:ci_catalog_resource, :published, project: project) }
-  let_it_be(:release_v1) { create(:release, project: project, tag: '1.0.0') }
+  let_it_be(:release_v1, freeze: false) { create(:release, project: project, tag: '1.0.0') }
   let_it_be(:release_v2) { create(:release, project: project, tag: '2.0.0') }
   let_it_be(:release_v2_beta) { create(:release, project: project, tag: '2.0.0-beta') }
   let_it_be(:version_v1) do

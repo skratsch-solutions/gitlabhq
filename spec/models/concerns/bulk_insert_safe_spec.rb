@@ -77,7 +77,7 @@ RSpec.describe BulkInsertSafe, feature_category: :database do
 
       sha_attribute :sha_value
 
-      enum enum_value: { case_1: 1 }
+      enum :enum_value, { case_1: 1 }
 
       attr_encrypted :secret_value,
         mode: :per_attribute_iv,

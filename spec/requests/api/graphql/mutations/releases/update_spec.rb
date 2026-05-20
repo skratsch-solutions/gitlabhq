@@ -10,7 +10,7 @@ RSpec.describe 'Updating an existing release', feature_category: :release_orches
   let_it_be(:guest) { create(:user) }
   let_it_be(:reporter) { create(:user) }
   let_it_be(:developer) { create(:user) }
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
   let_it_be(:milestone_12_3) { create(:milestone, project: project, title: '12.3') }
   let_it_be(:milestone_12_4) { create(:milestone, project: project, title: '12.4') }
 
@@ -21,7 +21,7 @@ RSpec.describe 'Updating an existing release', feature_category: :release_orches
   let_it_be(:created_at) { '2018-11-05' }
   let_it_be(:milestones) { [milestone_12_3, milestone_12_4] }
 
-  let_it_be(:release) do
+  let_it_be(:release, freeze: false) do
     create(:release,
       project: project,
       tag: tag_name,

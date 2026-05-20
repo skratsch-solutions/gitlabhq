@@ -293,10 +293,6 @@ class Todo < ApplicationRecord
     project || group
   end
 
-  def unmergeable?
-    action == UNMERGEABLE
-  end
-
   def build_failed?
     action == BUILD_FAILED
   end

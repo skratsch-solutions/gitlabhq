@@ -16,7 +16,7 @@ RSpec.describe Mutations::Releases::Update do
   let_it_be(:description) { 'The first release :rocket:' }
   let_it_be(:released_at) { Time.parse('2018-12-10').utc }
   let_it_be(:created_at) { Time.parse('2018-11-05').utc }
-  let_it_be(:milestones) { [milestone_12_3.title, milestone_12_4.title] }
+  let_it_be(:milestones, freeze: false) { [milestone_12_3.title, milestone_12_4.title] }
 
   let_it_be(:release) do
     create(

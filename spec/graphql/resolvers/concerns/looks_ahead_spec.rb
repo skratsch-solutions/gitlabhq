@@ -6,8 +6,8 @@ RSpec.describe LooksAhead do
   include GraphqlHelpers
 
   let_it_be(:the_user) { create(:user) }
-  let_it_be(:label_a) { create(:label) }
-  let_it_be(:label_b) { create(:label) }
+  let_it_be(:label_a, freeze: false) { create(:label) }
+  let_it_be(:label_b, freeze: false) { create(:label) }
   let_it_be(:issue_a) { create(:issue, author: the_user, labels: [label_a, label_b]) }
   let_it_be(:issue_b) { create(:issue, author: the_user, labels: [label_a]) }
   let_it_be(:issue_c) { create(:issue, author: the_user, labels: [label_b]) }

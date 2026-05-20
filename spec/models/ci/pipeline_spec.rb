@@ -2394,9 +2394,9 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     let_it_be_with_reload(:pipeline) { create(:ci_empty_pipeline, :created) }
 
     let(:current) { Time.current.change(usec: 0) }
-    let(:build) { create_build('build1', queued_at: 0) }
-    let(:build_b) { create_build('build2', queued_at: 0) }
-    let(:build_c) { create_build('build3', queued_at: 0) }
+    let(:build) { create_build('build1', queued_at: Time.zone.at(0)) }
+    let(:build_b) { create_build('build2', queued_at: Time.zone.at(0)) }
+    let(:build_c) { create_build('build3', queued_at: Time.zone.at(0)) }
 
     describe '#start_cancel' do
       it 'transitions to canceling' do

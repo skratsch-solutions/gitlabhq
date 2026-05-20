@@ -19,12 +19,12 @@ module API
 
           params[:pagination] = 'keyset' if keyset_supported_for_order?
 
-          paginated = paginate_with_strategies(work_items_relation) do |records|
+          work_items = paginate_with_strategies(work_items_relation) do |records|
             preload_hierarchy_authorization(records, feature_keys)
             records
-          end
+          end.to_a
 
-          present paginated,
+          present work_items,
             with: Entities::WorkItemBasic,
             current_user: current_user,
             scope_validator: ::Gitlab::Auth::ScopeValidator.new(
@@ -33,7 +33,8 @@ module API
             access_token: access_token,
             requested_features: feature_keys,
             fields: field_keys,
-            resource_parent: resource_parent
+            resource_parent: resource_parent,
+            **count_preloads_for(work_items, field_keys, feature_keys)
         end
 
         def render_work_item_response(result, status:)
@@ -77,7 +78,8 @@ module API
             ),
             access_token: access_token,
             requested_features: feature_keys,
-            fields: field_keys
+            fields: field_keys,
+            **count_preloads_for([work_item], field_keys, feature_keys)
         end
 
         private

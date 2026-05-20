@@ -897,6 +897,82 @@ RSpec.describe SearchController, feature_category: :global_search do
 
         get :show, params: { search: 'hello world', group_id: '123', project_id: '456' }
       end
+
+      context 'on the autocomplete action' do
+        let(:search_only_keys) do
+          [
+            'meta.search.scope',
+            'meta.search.page',
+            'meta.search.type',
+            'meta.search.level',
+            'meta.search.force_search_results',
+            'meta.search.filters.confidential',
+            'meta.search.filters.state',
+            'meta.search.filters.language'
+          ]
+        end
+
+        it 'appends only autocomplete-specific metadata' do
+          expect(controller).to receive(:append_info_to_payload).and_wrap_original do |method, payload|
+            method.call(payload)
+
+            expect(payload[:metadata]['meta.search.autocomplete.filter']).to eq('generic')
+            expect(payload[:metadata]['meta.search.autocomplete.scope']).to eq('projects')
+            expect(payload[:metadata]['meta.search.group_id']).to eq('123')
+            expect(payload[:metadata]['meta.search.project_id']).to eq('456')
+            expect(payload[:metadata][:global_search_duration_s]).to be_a_kind_of(Numeric)
+
+            search_only_keys.each do |key|
+              expect(payload[:metadata]).not_to have_key(key)
+            end
+          end
+
+          get :autocomplete, params: {
+            term: 'hello',
+            filter: 'generic',
+            group_id: '123',
+            project_id: '456',
+            scope: 'projects',
+            page: '2',
+            confidential: true,
+            state: true,
+            language: ['ruby'],
+            force_search_results: true
+          }
+        end
+      end
+
+      context 'on actions that do not perform searches' do
+        let(:search_metadata_keys_pattern) { /^meta\.search\./ }
+
+        it 'does not append search metadata on settings' do
+          expect(controller).to receive(:append_info_to_payload).and_wrap_original do |method, payload|
+            method.call(payload)
+
+            search_keys = payload[:metadata].keys.select do |key|
+              key.is_a?(String) && key.match?(search_metadata_keys_pattern)
+            end
+            expect(search_keys).to be_empty
+            expect(payload[:metadata]).not_to have_key(:global_search_duration_s)
+          end
+
+          get :settings
+        end
+
+        it 'does not append search metadata on opensearch' do
+          expect(controller).to receive(:append_info_to_payload).and_wrap_original do |method, payload|
+            method.call(payload)
+
+            search_keys = payload[:metadata].keys.select do |key|
+              key.is_a?(String) && key.match?(search_metadata_keys_pattern)
+            end
+            expect(search_keys).to be_empty
+            expect(payload[:metadata]).not_to have_key(:global_search_duration_s)
+          end
+
+          get :opensearch
+        end
+      end
     end
 
     context 'for abusive searches', :aggregate_failures do
@@ -913,6 +989,30 @@ RSpec.describe SearchController, feature_category: :global_search do
         expect(::Search::EmptySearchResults).to receive(:new).and_call_original
         make_abusive_request
         expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      it 'merges abuse metadata into the log payload' do
+        expect(controller).to receive(:append_info_to_payload).and_wrap_original do |method, payload|
+          method.call(payload)
+
+          expect(payload[:metadata]['abuse.confidence']).to eq(Gitlab::Abuse.confidence(:certain))
+          expect(payload[:metadata]['abuse.messages']).to be_present
+        end
+
+        make_abusive_request
+      end
+    end
+
+    context 'for non-abusive searches' do
+      it 'does not add abuse metadata to the log payload' do
+        expect(controller).to receive(:append_info_to_payload).and_wrap_original do |method, payload|
+          method.call(payload)
+
+          expect(payload[:metadata]).not_to have_key('abuse.confidence')
+          expect(payload[:metadata]).not_to have_key('abuse.messages')
+        end
+
+        get :show, params: { search: 'hello', scope: 'projects' }
       end
     end
   end

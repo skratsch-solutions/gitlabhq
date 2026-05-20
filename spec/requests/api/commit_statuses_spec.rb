@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe API::CommitStatuses, :clean_gitlab_redis_cache, feature_category: :continuous_integration do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:commit) { project.repository.commit }
   let_it_be(:guest) { create_user(:guest) }
   let_it_be(:reporter) { create_user(:reporter) }

@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Mutations::Timelogs::Delete do
   include GraphqlHelpers
 
-  let_it_be(:author) { create(:user) }
+  let_it_be(:author, freeze: false) { create(:user) }
   let_it_be(:maintainer) { create(:user) }
   let_it_be(:administrator) { create(:user, :admin) }
   let_it_be(:project) { create(:project, :public) }

@@ -923,7 +923,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     let_it_be(:user) { create(:user) }
     let_it_be(:project, reload: true) { create(:project, :public) }
     let_it_be(:name) { 'feat/*' }
-    let_it_be(:protected_branch) do
+    let_it_be(:protected_branch, freeze: false) do
       create(:protected_branch, project: project, name: name)
     end
 
@@ -1106,7 +1106,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     let_it_be(:fork_developer) { fork_project(project, nil, { repository: true }) }
     let_it_be(:fork_group_developer) { fork_project(project, nil, { repository: true }) }
     let_it_be(:fork_public) { fork_project(project, nil, { repository: true }) }
-    let_it_be(:fork_private) { fork_project(project, nil, { repository: true }) }
+    let_it_be(:fork_private, freeze: false) { fork_project(project, nil, { repository: true }) }
 
     let(:minimum_access_level) { '' }
     let(:query) do

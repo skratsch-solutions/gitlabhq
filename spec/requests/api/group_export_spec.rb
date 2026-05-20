@@ -319,7 +319,9 @@ RSpec.describe API::GroupExport, feature_category: :importers do
         context 'when export is batched' do
           let(:relation) { 'milestones' }
 
-          let_it_be(:export) { create(:bulk_import_export, :batched, group: group, relation: 'milestones', user: user) }
+          let_it_be(:export, freeze: false) do
+            create(:bulk_import_export, :batched, group: group, relation: 'milestones', user: user)
+          end
 
           it 'returns 400' do
             export.update!(batched: true)
@@ -393,7 +395,9 @@ RSpec.describe API::GroupExport, feature_category: :importers do
       end
 
       context 'when export is from an offline transfer export' do
-        let_it_be(:export) { create(:bulk_import_export, :offline, group: group, relation: 'labels', user: user) }
+        let_it_be(:export, freeze: false) do
+          create(:bulk_import_export, :offline, group: group, relation: 'labels', user: user)
+        end
 
         it 'returns 404' do
           get api(download_path, user)

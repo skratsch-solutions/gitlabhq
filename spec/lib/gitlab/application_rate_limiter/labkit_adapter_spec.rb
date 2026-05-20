@@ -11,7 +11,7 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
     using RSpec::Parameterized::TableSyntax
 
     where(:scenario, :key, :threshold_override, :interval_override, :flag_on, :expected) do
-      'key not handled by the adapter'             | :notification_emails | nil | nil | true  | false
+      'key not handled by the adapter'             | :web_hook_calls      | nil | nil | true  | false
       'threshold override forces the legacy path'  | :pipelines_create    | 10  | nil | true  | false
       'interval override forces the legacy path'   | :pipelines_create    | nil | 60  | true  | false
       'use_labkit flag is off'                     | :pipelines_create    | nil | nil | false | false
@@ -92,7 +92,7 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       it 'does not record overrides for keys the adapter does not handle' do
         expect(override_counter).not_to receive(:increment)
 
-        described_class.shadow_or_enforce?(:notification_emails, threshold_override: 10, interval_override: nil)
+        described_class.shadow_or_enforce?(:web_hook_calls, threshold_override: 10, interval_override: nil)
       end
 
       it 'does not record when no override is passed' do

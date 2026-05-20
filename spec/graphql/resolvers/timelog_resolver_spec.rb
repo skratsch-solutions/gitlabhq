@@ -19,9 +19,11 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
 
   shared_examples_for 'with a project' do
     let_it_be(:merge_request) { create(:merge_request, source_project: project) }
-    let_it_be(:timelog1) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.beginning_of_day) }
-    let_it_be(:timelog2) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.end_of_day) }
-    let_it_be(:timelog3) { create(:merge_request_timelog, merge_request: merge_request, spent_at: 10.days.ago) }
+    let_it_be(:timelog1, freeze: false) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.beginning_of_day) }
+    let_it_be(:timelog2, freeze: false) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.end_of_day) }
+    let_it_be(:timelog3, freeze: false) do
+      create(:merge_request_timelog, merge_request: merge_request, spent_at: 10.days.ago)
+    end
 
     let(:args) { { start_time: 6.days.ago, end_time: 2.days.ago.noon } }
 
@@ -129,9 +131,14 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
     let_it_be(:issue) { create(:issue, project: project) }
     let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
-    let_it_be(:timelog1) { create(:issue_timelog, issue: issue, spent_at: short_time_ago.beginning_of_day) }
-    let_it_be(:timelog2) { create(:issue_timelog, issue: issue, spent_at: short_time_ago.end_of_day) }
-    let_it_be(:timelog3) { create(:merge_request_timelog, merge_request: merge_request, spent_at: medium_time_ago) }
+    let_it_be(:timelog1, freeze: false) do
+      create(:issue_timelog, issue: issue, spent_at: short_time_ago.beginning_of_day)
+    end
+
+    let_it_be(:timelog2, freeze: false) { create(:issue_timelog, issue: issue, spent_at: short_time_ago.end_of_day) }
+    let_it_be(:timelog3, freeze: false) do
+      create(:merge_request_timelog, merge_request: merge_request, spent_at: medium_time_ago)
+    end
 
     let(:args) { { start_time: short_time_ago, end_time: short_time_ago.noon } }
 
@@ -231,9 +238,11 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
     let_it_be(:issue) { create(:issue, project: project) }
     let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
-    let_it_be(:timelog1) { create(:issue_timelog, issue: issue, user: current_user) }
-    let_it_be(:timelog2) { create(:issue_timelog, issue: issue, user: create(:user)) }
-    let_it_be(:timelog3) { create(:merge_request_timelog, merge_request: merge_request, user: current_user) }
+    let_it_be(:timelog1, freeze: false) { create(:issue_timelog, issue: issue, user: current_user) }
+    let_it_be(:timelog2, freeze: false) { create(:issue_timelog, issue: issue, user: create(:user)) }
+    let_it_be(:timelog3, freeze: false) do
+      create(:merge_request_timelog, merge_request: merge_request, user: current_user)
+    end
 
     it 'returns the expected records' do
       if timelogs_found

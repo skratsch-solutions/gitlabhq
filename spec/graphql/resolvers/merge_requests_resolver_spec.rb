@@ -14,7 +14,7 @@ RSpec.describe Resolvers::MergeRequestsResolver, feature_category: :code_review_
   let_it_be(:other_user) { create(:user) }
   let_it_be(:common_attrs) { { author: current_user, source_project: project, target_project: project } }
   let_it_be(:merge_request_1) { create(:merge_request, :simple, reviewers: create_list(:user, 2), **common_attrs) }
-  let_it_be(:merge_request_2) { create(:merge_request, :rebased, reviewers: [current_user], **common_attrs) }
+  let_it_be(:merge_request_2, freeze: false) { create(:merge_request, :rebased, reviewers: [current_user], **common_attrs) }
   let_it_be(:merge_request_3) { create(:merge_request, :unique_branches, assignees: [current_user], **common_attrs) }
   let_it_be(:merge_request_4) { create(:merge_request, :unique_branches, :locked, **common_attrs) }
   let_it_be(:merge_request_5) { create(:merge_request, :simple, :locked, **common_attrs) }

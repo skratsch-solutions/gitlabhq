@@ -11,7 +11,7 @@ RSpec.describe 'getting group information', :with_license, feature_category: :gr
   let_it_be(:user1)         { create(:user, can_create_group: false) }
   let_it_be(:user2)         { create(:user) }
   let_it_be(:admin)         { create(:admin) }
-  let_it_be(:private_group) { create(:group, :private) }
+  let_it_be(:private_group, freeze: false) { create(:group, :private) }
   let_it_be(:public_group)  { create(:group, :public) }
 
   # similar to the API "GET /groups/:id"

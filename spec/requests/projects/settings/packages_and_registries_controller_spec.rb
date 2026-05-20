@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Projects::Settings::PackagesAndRegistriesController, feature_category: :package_registry do
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, namespace: user.namespace) }
   let_it_be(:maintainer) { create(:user) }
 
@@ -40,7 +40,7 @@ RSpec.describe Projects::Settings::PackagesAndRegistriesController, feature_cate
     subject { get cleanup_image_tags_namespace_project_settings_packages_and_registries_path(user.namespace, project) }
 
     context 'when user is unauthorized' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
 
       before do
         project.add_reporter(user)

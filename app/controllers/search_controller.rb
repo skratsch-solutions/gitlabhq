@@ -278,27 +278,61 @@ class SearchController < ApplicationController
     # Merging to :metadata will ensure these are logged as top level keys
     payload[:metadata] ||= {}
     payload[:metadata].merge!(payload_metadata)
-
-    return unless search_service.abuse_detected?
-
-    payload[:metadata]['abuse.confidence'] = Gitlab::Abuse.confidence(:certain)
-    payload[:metadata]['abuse.messages'] = search_service.abuse_messages
+    payload[:metadata].merge!(abuse_payload_metadata)
   rescue ActiveRecord::QueryCanceled # rubocop:disable Database/RescueQueryCanceled -- Safetynet on timeout during instrumentation
     payload
   end
 
   def payload_metadata
+    case action_name.to_sym
+    when :show, :count, :aggregations
+      search_payload_metadata
+    when :autocomplete
+      autocomplete_payload_metadata
+    else
+      {}
+    end
+  end
+
+  def abuse_payload_metadata
+    return {} unless search_service.abuse_detected?
+
+    {
+      'abuse.confidence' => Gitlab::Abuse.confidence(:certain),
+      'abuse.messages' => search_service.abuse_messages
+    }
+  end
+
+  def search_payload_metadata
     {}.tap do |metadata|
       metadata['meta.search.group_id'] = params[:group_id]
       metadata['meta.search.project_id'] = params[:project_id]
       metadata['meta.search.scope'] = search_service.scope
       metadata['meta.search.page'] = params[:page] || '1'
-      metadata['meta.search.filters.confidential'] = filter_params[:confidential]
-      metadata['meta.search.filters.state'] = filter_params[:state]
       metadata['meta.search.force_search_results'] = params[:force_search_results]
-      metadata['meta.search.filters.language'] = filter_params[:language]
       metadata['meta.search.type'] = @search_type if @search_type.present?
       metadata['meta.search.level'] = @search_level if @search_level.present?
+      metadata[:global_search_duration_s] = @global_search_duration_s if @global_search_duration_s.present?
+      metadata.merge!(filter_payload_metadata)
+    end
+  end
+
+  def filter_payload_metadata
+    filter_params.to_h.each_with_object({}) do |(key, value), metadata|
+      if key.to_s == 'not'
+        value.each { |k, v| metadata["meta.search.filters.not_#{k}"] = v }
+      else
+        metadata["meta.search.filters.#{key}"] = value
+      end
+    end
+  end
+
+  def autocomplete_payload_metadata
+    {}.tap do |metadata|
+      metadata['meta.search.autocomplete.filter'] = params[:filter]
+      metadata['meta.search.autocomplete.scope'] = params[:scope]
+      metadata['meta.search.group_id'] = params[:group_id]
+      metadata['meta.search.project_id'] = params[:project_id]
       metadata[:global_search_duration_s] = @global_search_duration_s if @global_search_duration_s.present?
     end
   end

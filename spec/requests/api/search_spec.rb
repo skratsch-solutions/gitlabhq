@@ -10,7 +10,7 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
     create(:project, :wiki_repo, :public, name: 'awesome project', group: group)
   end
 
-  let_it_be(:repo_project) { create(:project, :public, :repository, group: group) }
+  let_it_be(:repo_project, freeze: false) { create(:project, :public, :repository, group: group) }
 
   before do
     allow(Gitlab::ApplicationRateLimiter).to receive(:threshold).and_return(0)
@@ -1176,7 +1176,7 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
           end
 
           context 'with non public pipeline' do
-            let_it_be(:repo_project) do
+            let_it_be(:repo_project, freeze: false) do
               create(:project, :public, :repository, public_builds: false, group: group)
             end
 
@@ -1204,7 +1204,7 @@ RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category:
           end
 
           context 'with public pipeline' do
-            let_it_be(:repo_project) do
+            let_it_be(:repo_project, freeze: false) do
               create(:project, :public, :repository, public_builds: true, group: group)
             end
 

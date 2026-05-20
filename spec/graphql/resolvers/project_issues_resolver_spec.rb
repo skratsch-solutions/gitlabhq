@@ -15,7 +15,7 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
   let_it_be(:started_milestone) { create(:milestone, project: project, title: "started milestone", start_date: 1.day.ago) }
   let_it_be(:assignee)  { create(:user) }
   let_it_be(:issue1)    { create(:incident, project: project, state: :opened, created_at: 3.hours.ago, updated_at: 3.hours.ago, milestone: started_milestone) }
-  let_it_be(:issue2)    { create(:issue, project: project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
+  let_it_be(:issue2, freeze: false) { create(:issue, project: project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
   let_it_be(:issue3)    { create(:issue, project: other_project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
   let_it_be(:issue4)    { create(:issue) }
   let_it_be(:label1)    { create(:label, project: project) }
@@ -518,7 +518,7 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
         context 'when sorting by popularity' do
           let_it_be(:project) { create(:project, :public) }
           let_it_be(:issue1) { create(:issue, project: project) } # has one upvote
-          let_it_be(:issue2) { create(:issue, project: project) } # has two upvote
+          let_it_be(:issue2, freeze: false) { create(:issue, project: project) } # has two upvote
           let_it_be(:issue3) { create(:issue, project: project) }
           let_it_be(:issue4) { create(:issue, project: project) } # has one upvote
 
@@ -580,7 +580,7 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
         context 'when sorting by title' do
           let_it_be(:project) { create(:project, :public) }
           let_it_be(:issue1) { create(:issue, project: project, title: 'foo') }
-          let_it_be(:issue2) { create(:issue, project: project, title: 'bar') }
+          let_it_be(:issue2, freeze: false) { create(:issue, project: project, title: 'bar') }
           let_it_be(:issue3) { create(:issue, project: project, title: 'baz') }
           let_it_be(:issue4) { create(:issue, project: project, title: 'Baz 2') }
 

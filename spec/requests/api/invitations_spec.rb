@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe API::Invitations, feature_category: :user_profile do
-  let_it_be(:maintainer) { create(:user, username: 'maintainer_user') }
+  let_it_be(:maintainer, freeze: false) { create(:user, username: 'maintainer_user') }
   let_it_be(:maintainer2) { create(:user, username: 'user-with-maintainer-role') }
-  let_it_be(:developer) { create(:user) }
-  let_it_be(:access_requester) { create(:user) }
+  let_it_be(:developer, freeze: false) { create(:user) }
+  let_it_be(:access_requester, freeze: false) { create(:user) }
   let_it_be(:stranger) { create(:user) }
   let_it_be(:unconfirmed_stranger) { create(:user, :unconfirmed) }
   let(:email) { 'email1@example.com' }

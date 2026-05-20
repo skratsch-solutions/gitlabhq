@@ -26943,7 +26943,16 @@ msgstr ""
 msgid "Duo workflow"
 msgstr ""
 
+msgid "DuoAgentPlatform|%{component} did not produce an answer"
+msgstr ""
+
+msgid "DuoAgentPlatform|%{component} returned —"
+msgstr ""
+
 msgid "DuoAgentPlatform|%{linkStart}What are flows%{linkEnd}?"
+msgstr ""
+
+msgid "DuoAgentPlatform|%{name} session %{id}"
 msgstr ""
 
 msgid "DuoAgentPlatform|Action"
@@ -26977,6 +26986,12 @@ msgid "DuoAgentPlatform|Created session"
 msgstr ""
 
 msgid "DuoAgentPlatform|Creating session"
+msgstr ""
+
+msgid "DuoAgentPlatform|Delegated to %{target} —"
+msgstr ""
+
+msgid "DuoAgentPlatform|Delegated to subagent"
 msgstr ""
 
 msgid "DuoAgentPlatform|Duo Agent Platform Settings have been saved"
@@ -27020,6 +27035,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Response"
 msgstr ""
 
+msgid "DuoAgentPlatform|Returned to agent"
+msgstr ""
+
 msgid "DuoAgentPlatform|Review the %{linkStart}most recent job%{linkEnd} for details on what went wrong."
 msgstr ""
 
@@ -27056,6 +27074,12 @@ msgid "DuoAgentPlatform|Something went wrong saving Duo Agent Platform settings"
 msgstr ""
 
 msgid "DuoAgentPlatform|Starting job"
+msgstr ""
+
+msgid "DuoAgentPlatform|Subagent"
+msgstr ""
+
+msgid "DuoAgentPlatform|Subagent did not produce an answer"
 msgstr ""
 
 msgid "DuoAgentPlatform|Takes a few minutes..."
@@ -27447,6 +27471,9 @@ msgid "DuoAgentsPlatform|Data Analyst"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Default"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Delegated to subagent"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Delete trigger"
@@ -39578,7 +39605,16 @@ msgstr ""
 msgid "InviteMembersModal|Close invite team members"
 msgstr ""
 
+msgid "InviteMembersModal|Congratulations on creating your project, you're almost there!"
+msgstr ""
+
 msgid "InviteMembersModal|During your trial, you can invite as many members to %{groupName} as you like. When the trial ends, you'll have a maximum of %{dashboardLimit} members on the Free tier. To get more members, %{linkStart}upgrade to a paid plan%{linkEnd}."
+msgstr ""
+
+msgid "InviteMembersModal|Email addresses or GitLab usernames"
+msgstr ""
+
+msgid "InviteMembersModal|Enter an email address or GitLab username."
 msgstr ""
 
 msgid "InviteMembersModal|Grant temporary access"
@@ -39617,7 +39653,7 @@ msgstr ""
 msgid "InviteMembersModal|Membership"
 msgstr ""
 
-msgid "InviteMembersModal|Please add members to invite"
+msgid "InviteMembersModal|One or more email addresses or usernames are invalid."
 msgstr ""
 
 msgid "InviteMembersModal|Purchase more seats"
@@ -39633,9 +39669,6 @@ msgid "InviteMembersModal|Search for a group to invite"
 msgstr ""
 
 msgid "InviteMembersModal|Select a group to invite"
-msgstr ""
-
-msgid "InviteMembersModal|Select from GitLab usernames or enter email addresses"
 msgstr ""
 
 msgid "InviteMembersModal|Select maximum role"
@@ -39667,7 +39700,10 @@ msgstr ""
 msgid "InviteMembersModal|To invite new users to this top-level group, you must remove existing users. You can still add existing users from the top-level group, including any subgroups and projects."
 msgstr ""
 
-msgid "InviteMembersModal|Username, name or email address"
+msgid "InviteMembersModal|To invite someone new to GitLab, enter their email."
+msgstr ""
+
+msgid "InviteMembersModal|You can add up to %{max} members per invite. To add more, send another invite."
 msgstr ""
 
 msgid "InviteMembersModal|You must purchase more seats for your subscription before this amount of users can be added."

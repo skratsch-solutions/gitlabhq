@@ -8,14 +8,14 @@ RSpec.describe Resolvers::Ci::Catalog::ResourcesResolver, feature_category: :pip
   let_it_be(:namespace) { create(:group) }
   let_it_be(:private_namespace_project) { create(:project, :private, name: 'z private test', namespace: namespace) }
   let_it_be(:private_namespace_project_2) { create(:project, :private, name: 'a private test', namespace: namespace) }
-  let_it_be(:public_namespace_project) do
+  let_it_be(:public_namespace_project, freeze: false) do
     create(:project, :public, name: 'public', description: 'Test', namespace: namespace)
   end
 
   let_it_be(:internal_project) { create(:project, :internal, name: 'internal') }
   let_it_be(:private_resource) { create(:ci_catalog_resource, :published, project: private_namespace_project) }
   let_it_be(:private_resource_2) { create(:ci_catalog_resource, project: private_namespace_project_2) }
-  let_it_be(:public_resource) do
+  let_it_be(:public_resource, freeze: false) do
     create(:ci_catalog_resource, :published, project: public_namespace_project, verification_level: 100)
   end
 

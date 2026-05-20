@@ -102,6 +102,11 @@ module API
             work_item
           end
 
+          expose_field :user_discussions_count,
+            documentation: { type: 'Integer', example: 3 } do |work_item, options|
+            options[:user_discussions_counts]&.fetch(work_item.id, 0) || 0
+          end
+
           strong_memoize_attr :work_item_presenter
         end
 

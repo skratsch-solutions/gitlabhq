@@ -321,6 +321,13 @@ module Gitlab
               characteristics: %i[user],
               action: :block
             },
+            notification_emails: {
+              limiter_name: 'applimiter_notification_emails',
+              rule_name: 'limit_notification_emails_by_parent_user',
+              characteristics: %i[project group user],
+              action: :block,
+              flag_scope: :cohort_2
+            },
             oauth_dynamic_registration: {
               limiter_name: 'applimiter_oauth_dynamic_registration',
               rule_name: 'limit_oauth_registrations_by_ip',

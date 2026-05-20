@@ -438,7 +438,7 @@ RSpec.describe 'ProjectCiCdSettingsUpdate', feature_category: :continuous_integr
     end
 
     describe 'resource_group_default_process_mode' do
-      let_it_be(:variables) do
+      let_it_be(:variables, freeze: false) do
         {
           full_path: project.full_path,
           resource_group_default_process_mode: 'OLDEST_FIRST'

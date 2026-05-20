@@ -8,7 +8,7 @@ RSpec.describe API::CargoProjectPackages, feature_category: :package_registry do
 
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:personal_access_token) { create(:personal_access_token, user: user) }
   let_it_be(:deploy_token) do
     create(:deploy_token, read_package_registry: true, write_package_registry: true, projects: [project])

@@ -153,6 +153,76 @@ principles:
       - path: doc/development/fe_guide/security.md
         url: https://docs.gitlab.com/development/fe_guide/security/
 
+  # ── Permissions ───────────────────────────────────────────────────────────
+
+  permissions-fundamentals:
+    description: Where to check permissions, naming conventions, role definitions
+    group: Permissions
+    prerequisite: true
+    file_filters:
+      - 'app/policies/**/*.rb'
+      - 'ee/app/policies/**/*.rb'
+      - 'app/models/concerns/**/*.rb'
+      - 'ee/app/models/concerns/**/*.rb'
+      - 'config/authz/**/*.yml'
+    sources:
+      - path: doc/development/permissions/authorizations.md
+        url: https://docs.gitlab.com/development/permissions/authorizations/
+      - path: doc/development/permissions/conventions.md
+        url: https://docs.gitlab.com/development/permissions/conventions/
+      - path: doc/development/permissions/role_definitions.md
+        url: https://docs.gitlab.com/development/permissions/role_definitions/
+      - path: doc/development/permissions/predefined_roles.md
+        url: https://docs.gitlab.com/development/permissions/predefined_roles/
+      - path: doc/development/permissions/custom_roles.md
+        url: https://docs.gitlab.com/development/permissions/custom_roles/
+      - path: doc/development/permissions/internal_permission_groups.md
+        url: https://docs.gitlab.com/development/permissions/internal_permission_groups/
+      - path: doc/development/permissions/testing_guidelines.md
+        url: https://docs.gitlab.com/development/permissions/testing_guidelines/
+
+  permissions-graphql-gpat:
+    description: Granular PAT (GPAT) compliance for GraphQL types and mutations
+    group: Permissions
+    file_filters:
+      - 'app/graphql/**/*.rb'
+      - 'ee/app/graphql/**/*.rb'
+      - 'config/authz/permissions/**/*.yml'
+      - 'config/authz/permission_groups/**/*.yml'
+    sources:
+      - path: doc/development/permissions/granular_access/_index.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/
+      - path: doc/development/permissions/granular_access/graphql_implementation_guide.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/graphql_implementation_guide/
+      - path: doc/development/permissions/granular_access/graphql_architecture.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/graphql_architecture/
+      - path: doc/development/permissions/granular_access/graphql_granular_token_authorization.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/graphql_granular_token_authorization/
+      - path: doc/development/permissions/granular_access/permission_definitions.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/permission_definitions/
+      - path: doc/development/permissions/granular_access/assignable_permissions.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/assignable_permissions/
+
+  permissions-rest-gpat:
+    description: Granular PAT (GPAT) compliance for REST endpoints and job tokens
+    group: Permissions
+    file_filters:
+      - 'lib/api/**/*.rb'
+      - 'ee/lib/api/**/*.rb'
+      - 'config/authz/permissions/**/*.yml'
+      - 'config/authz/permission_groups/**/*.yml'
+    sources:
+      - path: doc/development/permissions/granular_access/rest_api_implementation_guide.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/rest_api_implementation_guide/
+      - path: doc/development/permissions/granular_access/job_tokens.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/job_tokens/
+      - path: doc/development/permissions/job_tokens.md
+        url: https://docs.gitlab.com/development/permissions/job_tokens/
+      - path: doc/development/permissions/granular_access/permission_definitions.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/permission_definitions/
+      - path: doc/development/permissions/granular_access/assignable_permissions.md
+        url: https://docs.gitlab.com/development/permissions/granular_access/assignable_permissions/
+
   # ── Code Review ───────────────────────────────────────────────────────────
 
   code-review:

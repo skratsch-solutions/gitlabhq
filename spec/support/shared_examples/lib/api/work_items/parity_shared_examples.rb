@@ -39,7 +39,6 @@ RSpec.shared_examples 'work item API field parity' do
         project
         promoted_to_epic_url
         show_plan_upgrade_promotion
-        user_discussions_count
         widgets
       ]).merge(extra_graphql_field_exceptions)
     end
@@ -69,7 +68,6 @@ RSpec.shared_examples 'work item API field parity' do
         current_user_todos
         development
         email_participants
-        linked_items
         linked_resources
         notes
         notifications

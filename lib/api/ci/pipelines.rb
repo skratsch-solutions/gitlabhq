@@ -407,8 +407,8 @@ module API
           end
         end
 
-        desc 'Cancel all builds in the pipeline' do
-          detail 'This feature was introduced in GitLab 8.11.'
+        desc 'Cancel all jobs for a pipeline' do
+          detail 'Cancels all jobs in a specified pipeline.'
           success status: 200, model: Entities::Ci::Pipeline
           failure [
             { code: 401, message: 'Unauthorized' },

@@ -21,7 +21,7 @@ RSpec.describe Types::Ci::Catalog::Resources::ComponentType, feature_category: :
   describe '#description' do
     let_it_be(:project) { create(:project) }
     let_it_be(:catalog_resource) { create(:ci_catalog_resource, project: project) }
-    let_it_be(:version) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
+    let_it_be(:version, freeze: false) { create(:ci_catalog_resource_version, catalog_resource: catalog_resource) }
 
     let(:component) do
       create(:ci_catalog_resource_component,

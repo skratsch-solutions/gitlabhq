@@ -110,7 +110,7 @@ RSpec.describe Resolvers::DesignManagement::VersionsResolver do
     end
 
     describe 'a design collection' do
-      let_it_be(:object) { DesignManagement::DesignCollection.new(issue) }
+      let_it_be(:object, freeze: false) { DesignManagement::DesignCollection.new(issue) }
 
       it_behaves_like 'a source of versions'
     end

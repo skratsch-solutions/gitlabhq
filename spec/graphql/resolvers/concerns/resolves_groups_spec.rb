@@ -9,7 +9,7 @@ RSpec.describe ResolvesGroups do
   let_it_be(:user) { create(:user) }
   let_it_be(:groups) { create_pair(:group) }
 
-  let_it_be(:resolver) do
+  let_it_be(:resolver, freeze: false) do
     Class.new(Resolvers::BaseResolver) do
       include ResolvesGroups
       type Types::GroupType, null: true

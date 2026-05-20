@@ -190,6 +190,8 @@ RSpec.shared_examples 'avoids N+1 queries' do
 
   before do
     create(:issue_assignee, issue: primary_work_item, assignee: user)
+    first_note = create(:discussion_note_on_work_item, noteable: primary_work_item, project: project)
+    create(:discussion_note_on_work_item, noteable: primary_work_item, project: project, in_reply_to: first_note)
     create(:discussion_note_on_work_item, noteable: primary_work_item, project: project)
     create(:work_items_dates_source, :fixed, work_item: primary_work_item)
     create(:timelog, issue: primary_work_item, user: timelog_user, time_spent: 3600)
@@ -222,6 +224,12 @@ RSpec.shared_examples 'avoids N+1 queries' do
 
     expect(response).to have_gitlab_http_status(:ok)
     expect(json_response.size).to eq(expected_work_item_ids.size + 1)
+
+    # Verify user_discussions_count is correct per work item. Without the preload, the field
+    # silently falls back to 0 for every work item (no per-item query, so the N+1 check above
+    # would still pass). These value assertions are what actually catch a missing preload.
+    expect(work_item_json_for(primary_work_item)).to include('user_discussions_count' => 2)
+    expect(work_item_json_for(extra_work_item)).to include('user_discussions_count' => 1)
   end
 end
 
@@ -353,5 +361,20 @@ RSpec.shared_examples 'work item show endpoint' do
     get api("#{api_request_path}/#{non_existing_record_iid}", user)
 
     expect(response).to have_gitlab_http_status(:not_found)
+  end
+
+  it 'returns user_discussions_count counting distinct discussions' do
+    project = primary_work_item.project
+    # Two notes in the same discussion (parent + reply) collapse into one discussion,
+    # plus one note in a separate discussion, plus a system note that must be excluded -> 2.
+    parent_note = create(:discussion_note_on_work_item, noteable: primary_work_item, project: project)
+    create(:discussion_note_on_work_item, noteable: primary_work_item, project: project, in_reply_to: parent_note)
+    create(:discussion_note_on_work_item, noteable: primary_work_item, project: project)
+    create(:note, :system, noteable: primary_work_item, project: project)
+
+    get api(show_request_path, user), params: { fields: 'user_discussions_count' }
+
+    expect(response).to have_gitlab_http_status(:ok)
+    expect(json_response).to include('user_discussions_count' => 2)
   end
 end

@@ -117,7 +117,26 @@ module API
           ).execute.first
         end
 
+        def count_preloads_for(work_items, field_keys, _feature_keys)
+          preloads = {}
+          if field_keys.include?(:user_discussions_count)
+            preloads[:user_discussions_counts] = preload_user_discussions_counts(work_items)
+          end
+
+          preloads
+        end
+
         private
+
+        def preload_user_discussions_counts(work_items)
+          return {} if work_items.empty?
+
+          ::Note.count_for_collection(
+            work_items.map(&:id),
+            work_items.first.class.base_class.name,
+            'COUNT(DISTINCT discussion_id) AS count'
+          ).each_with_object({}) { |row, hash| hash[row.noteable_id] = row.count.to_i }
+        end
 
         def work_items_parent_params(resource_parent)
           if resource_parent.is_a?(::Project)

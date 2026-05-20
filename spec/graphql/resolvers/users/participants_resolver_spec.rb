@@ -27,8 +27,8 @@ RSpec.describe Resolvers::Users::ParticipantsResolver do
     let_it_be(:system_note_author) { create(:user) }
     let_it_be(:internal_system_note_author) { create(:user) }
 
-    let_it_be(:public_note) { create(:note, project: project, noteable: issue, author: public_note_author) }
-    let_it_be(:internal_note) { create(:note, :confidential, project: project, noteable: issue, author: internal_note_author) }
+    let_it_be(:public_note, freeze: false) { create(:note, project: project, noteable: issue, author: public_note_author) }
+    let_it_be(:internal_note, freeze: false) { create(:note, :confidential, project: project, noteable: issue, author: internal_note_author) }
 
     let_it_be(:public_reply) do
       create(:note, noteable: issue, in_reply_to: public_note, project: project, author: public_reply_author)

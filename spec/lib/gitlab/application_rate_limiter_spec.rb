@@ -756,7 +756,7 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run_peek!)
 
-        described_class.throttled?(:notification_emails, scope: user)
+        described_class.throttled?(:project_generate_new_export, scope: user)
       end
 
       it 'does not dispatch when a resource is provided' do
