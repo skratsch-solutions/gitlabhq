@@ -73248,6 +73248,28 @@ components:
           type: string
         packages_helm_metadata_caches_oldest_unsynced_time:
           type: string
+        issuable_metric_image_uploads_count:
+          type: string
+        issuable_metric_image_uploads_checksum_total_count:
+          type: string
+        issuable_metric_image_uploads_checksummed_count:
+          type: string
+        issuable_metric_image_uploads_checksum_failed_count:
+          type: string
+        issuable_metric_image_uploads_synced_count:
+          type: string
+        issuable_metric_image_uploads_failed_count:
+          type: string
+        issuable_metric_image_uploads_registry_count:
+          type: string
+        issuable_metric_image_uploads_verification_total_count:
+          type: string
+        issuable_metric_image_uploads_verified_count:
+          type: string
+        issuable_metric_image_uploads_verification_failed_count:
+          type: string
+        issuable_metric_image_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -73625,6 +73647,10 @@ components:
         packages_helm_metadata_caches_synced_in_percentage:
           type: string
         packages_helm_metadata_caches_verified_in_percentage:
+          type: string
+        issuable_metric_image_uploads_synced_in_percentage:
+          type: string
+        issuable_metric_image_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string
@@ -74220,6 +74246,28 @@ components:
           type: string
         packages_helm_metadata_caches_oldest_unsynced_time:
           type: string
+        issuable_metric_image_uploads_count:
+          type: string
+        issuable_metric_image_uploads_checksum_total_count:
+          type: string
+        issuable_metric_image_uploads_checksummed_count:
+          type: string
+        issuable_metric_image_uploads_checksum_failed_count:
+          type: string
+        issuable_metric_image_uploads_synced_count:
+          type: string
+        issuable_metric_image_uploads_failed_count:
+          type: string
+        issuable_metric_image_uploads_registry_count:
+          type: string
+        issuable_metric_image_uploads_verification_total_count:
+          type: string
+        issuable_metric_image_uploads_verified_count:
+          type: string
+        issuable_metric_image_uploads_verification_failed_count:
+          type: string
+        issuable_metric_image_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -74597,6 +74645,10 @@ components:
         packages_helm_metadata_caches_synced_in_percentage:
           type: string
         packages_helm_metadata_caches_verified_in_percentage:
+          type: string
+        issuable_metric_image_uploads_synced_in_percentage:
+          type: string
+        issuable_metric_image_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string

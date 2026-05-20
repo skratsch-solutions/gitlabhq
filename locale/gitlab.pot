@@ -33008,6 +33008,12 @@ msgstr ""
 msgid "Geo|Internal URL (optional)"
 msgstr ""
 
+msgid "Geo|Issuable Metric Image Upload"
+msgstr ""
+
+msgid "Geo|Issuable Metric Image Uploads"
+msgstr ""
+
 msgid "Geo|LFS Object"
 msgstr ""
 
@@ -51756,34 +51762,64 @@ msgstr ""
 msgid "Owasp|A01:2021 Broken Access Control"
 msgstr ""
 
+msgid "Owasp|A01:2025 Broken Access Control"
+msgstr ""
+
 msgid "Owasp|A02:2021 Cryptographic Failures"
+msgstr ""
+
+msgid "Owasp|A02:2025 Security Misconfiguration"
 msgstr ""
 
 msgid "Owasp|A03:2021 Injection"
 msgstr ""
 
+msgid "Owasp|A03:2025 Software Supply Chain Failures"
+msgstr ""
+
 msgid "Owasp|A04:2021 Insecure Design"
+msgstr ""
+
+msgid "Owasp|A04:2025 Cryptographic Failures"
 msgstr ""
 
 msgid "Owasp|A05:2021 Security Misconfiguration"
 msgstr ""
 
+msgid "Owasp|A05:2025 Injection"
+msgstr ""
+
 msgid "Owasp|A06:2021 Vulnerable and Outdated Components"
+msgstr ""
+
+msgid "Owasp|A06:2025 Insecure Design"
 msgstr ""
 
 msgid "Owasp|A07:2021 Identification and Authentication Failures"
 msgstr ""
 
+msgid "Owasp|A07:2025 Authentication Failures"
+msgstr ""
+
 msgid "Owasp|A08:2021 Software and Data Integrity Failures"
 msgstr ""
 
+msgid "Owasp|A08:2025 Software or Data Integrity Failures"
+msgstr ""
+
 msgid "Owasp|A09:2021 Security Logging and Monitoring Failures"
+msgstr ""
+
+msgid "Owasp|A09:2025 Security Logging and Alerting Failures"
 msgstr ""
 
 msgid "Owasp|A10:2017 Insufficient Logging & Monitoring"
 msgstr ""
 
 msgid "Owasp|A10:2021 Server-Side Request Forgery"
+msgstr ""
+
+msgid "Owasp|A10:2025 Mishandling of Exceptional Conditions"
 msgstr ""
 
 msgid "Owasp|A1:2017 Injection"
@@ -51817,6 +51853,9 @@ msgid "Owasp|Non-OWASP Top 10 2017"
 msgstr ""
 
 msgid "Owasp|Non-OWASP Top 10 2021"
+msgstr ""
+
+msgid "Owasp|Non-OWASP Top 10 2025"
 msgstr ""
 
 msgid "Owned by %{image_tag}"
@@ -70202,6 +70241,9 @@ msgid "SecurityReports|OWASP Top 10 2017"
 msgstr ""
 
 msgid "SecurityReports|OWASP Top 10 2021"
+msgstr ""
+
+msgid "SecurityReports|OWASP Top 10 2025"
 msgstr ""
 
 msgid "SecurityReports|Only the top %{count} projects with the highest risk scores are shown. Use the filter at the top of the dashboard to narrow down your results."

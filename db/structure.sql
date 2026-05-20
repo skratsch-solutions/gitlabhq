@@ -4878,6 +4878,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_cb4808fcaffa() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."namespace_id" IS NULL THEN
+  SELECT "namespace_id"
+  INTO NEW."namespace_id"
+  FROM "issuable_metric_image_uploads"
+  WHERE "issuable_metric_image_uploads"."id" = NEW."issuable_metric_image_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_cbb818bdb3e8() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -22526,6 +22542,29 @@ CREATE SEQUENCE ip_restrictions_id_seq
 
 ALTER SEQUENCE ip_restrictions_id_seq OWNED BY ip_restrictions.id;
 
+CREATE TABLE issuable_metric_image_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    issuable_metric_image_upload_id bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_c1093e360f CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE issuable_metric_image_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE issuable_metric_image_upload_states_id_seq OWNED BY issuable_metric_image_upload_states.id;
+
 CREATE TABLE issuable_metric_image_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -36428,6 +36467,8 @@ ALTER TABLE ONLY internal_ids ALTER COLUMN id SET DEFAULT nextval('internal_ids_
 
 ALTER TABLE ONLY ip_restrictions ALTER COLUMN id SET DEFAULT nextval('ip_restrictions_id_seq'::regclass);
 
+ALTER TABLE ONLY issuable_metric_image_upload_states ALTER COLUMN id SET DEFAULT nextval('issuable_metric_image_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY issuable_metric_images ALTER COLUMN id SET DEFAULT nextval('issuable_metric_images_id_seq'::regclass);
 
 ALTER TABLE ONLY issuable_resource_links ALTER COLUMN id SET DEFAULT nextval('issuable_resource_links_id_seq'::regclass);
@@ -40076,6 +40117,9 @@ ALTER TABLE ONLY internal_ids
 
 ALTER TABLE ONLY ip_restrictions
     ADD CONSTRAINT ip_restrictions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY issuable_metric_image_upload_states
+    ADD CONSTRAINT issuable_metric_image_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY issuable_metric_image_uploads
     ADD CONSTRAINT issuable_metric_image_uploads_pkey PRIMARY KEY (id, model_type);
@@ -44956,6 +45000,22 @@ CREATE UNIQUE INDEX index_ci_runners_on_token_encrypted_and_runner_type ON ONLY 
 CREATE UNIQUE INDEX idx_instance_type_ci_runners_on_token_encrypted_and_runner_type ON instance_type_ci_runners USING btree (token_encrypted, runner_type);
 
 CREATE INDEX idx_instance_type_ci_runners_on_token_expires_at_desc_id_desc ON instance_type_ci_runners USING btree (token_expires_at DESC, id DESC);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_failed_verification ON issuable_metric_image_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_needs_verification_id ON issuable_metric_image_upload_states USING btree (issuable_metric_image_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX idx_issuable_metric_image_upload_states_on_imi_upload_id ON issuable_metric_image_upload_states USING btree (issuable_metric_image_upload_id);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_on_namespace_id ON issuable_metric_image_upload_states USING btree (namespace_id);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_on_verification_state ON issuable_metric_image_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_pending_verification ON issuable_metric_image_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE INDEX idx_issuable_metric_image_upload_states_verification_started ON issuable_metric_image_upload_states USING btree (issuable_metric_image_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE UNIQUE INDEX idx_issuable_metric_image_uploads_on_id ON issuable_metric_image_uploads USING btree (id);
 
 CREATE INDEX idx_issues_on_project_id_and_created_at_and_id_and_state_id ON issues USING btree (project_id, created_at, id, state_id);
 
@@ -55897,6 +55957,8 @@ CREATE TRIGGER trigger_cac7c0698291 BEFORE INSERT OR UPDATE ON evidences FOR EAC
 
 CREATE TRIGGER trigger_catalog_resource_sync_event_on_project_update AFTER UPDATE ON projects FOR EACH ROW WHEN ((((old.name)::text IS DISTINCT FROM (new.name)::text) OR (old.description IS DISTINCT FROM new.description) OR (old.visibility_level IS DISTINCT FROM new.visibility_level))) EXECUTE FUNCTION insert_catalog_resource_sync_event();
 
+CREATE TRIGGER trigger_cb4808fcaffa BEFORE INSERT OR UPDATE ON issuable_metric_image_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_cb4808fcaffa();
+
 CREATE TRIGGER trigger_cbb818bdb3e8 BEFORE INSERT OR UPDATE ON project_import_export_relation_export_upload_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_cbb818bdb3e8();
 
 CREATE TRIGGER trigger_cca6a43d90dd BEFORE INSERT OR UPDATE ON achievement_uploads FOR EACH ROW EXECUTE FUNCTION trigger_cca6a43d90dd();
@@ -56556,6 +56618,9 @@ ALTER TABLE ONLY security_pipeline_execution_project_schedules
 
 ALTER TABLE p_ci_build_trace_metadata
     ADD CONSTRAINT fk_21d25cac1a_p FOREIGN KEY (partition_id, trace_artifact_id) REFERENCES p_ci_job_artifacts(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY issuable_metric_image_upload_states
+    ADD CONSTRAINT fk_22b622dc92 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY cluster_providers_aws
     ADD CONSTRAINT fk_22b9b8f491 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -57411,6 +57476,9 @@ ALTER TABLE ONLY ascp_security_contexts
 
 ALTER TABLE ONLY protected_branch_unprotect_access_levels
     ADD CONSTRAINT fk_6fd290f6a3 FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE RESTRICT;
+
+ALTER TABLE ONLY issuable_metric_image_upload_states
+    ADD CONSTRAINT fk_70533d871e FOREIGN KEY (issuable_metric_image_upload_id) REFERENCES issuable_metric_image_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY deploy_tokens
     ADD CONSTRAINT fk_7082f8a288 FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE SET NULL;
