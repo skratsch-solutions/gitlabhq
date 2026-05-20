@@ -59,6 +59,7 @@ Before upgrading to GitLab 18.10, review the following:
 - [18.10.0 - 18.10.4] - [Geo blob download failures](#geo-blob-download-failures) (Geo)
 - [18.10.0 - 18.10.3] - [Geo secondary throttled jobs not draining](#geo-secondary-throttled-jobs-not-draining) (Geo)
 - [18.10.0 - 18.10.3] - [Sidekiq concurrency limiter causes job backlogs on Helm chart and Operator deployments](#sidekiq-concurrency-limiter-causes-job-backlogs-on-helm-chart-and-operator-deployments) (Helm chart, Operator)
+- [18.10.0] - [Custom webhook template with unquoted placeholders cannot be saved](#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved)
 
 ### Upgrade to 18.9
 
@@ -69,6 +70,7 @@ Before upgrading to GitLab 18.9, review the following:
 - [18.9.0 - 18.9.5] - [Geo secondary throttled jobs not draining](#geo-secondary-throttled-jobs-not-draining) (Geo)
 - [18.9.0 - 18.9.5] - [Sidekiq concurrency limiter causes job backlogs on Helm chart and Operator deployments](#sidekiq-concurrency-limiter-causes-job-backlogs-on-helm-chart-and-operator-deployments) (Helm chart, Operator)
 - [18.9.0] - [Upgrade to 18.9 fails with PostgreSQL CheckViolation](#upgrade-to-189-fails-with-postgresql-checkviolation)
+- [18.9.0] - [Custom webhook template with unquoted placeholders cannot be saved](#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved)
 
 ### Upgrade to 18.8
 
@@ -78,6 +80,7 @@ Before upgrading to GitLab 18.8, review the following:
 - [18.8.0] - [Batched background migration for merge request merge data](#batched-background-migration-for-merge-request-merge-data)
 - [18.8.0] - [ClickHouse dictionary creation error](#clickhouse-dictionary-creation-error)
 - [18.8.0] - [Batched background migration for CI data reintroduced](#batched-background-migration-for-ci-data-reintroduced)
+- [18.8.0] - [Custom webhook template with unquoted placeholders cannot be saved](#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved)
 
 ### Upgrade to 18.7
 
@@ -492,6 +495,29 @@ permission (`DB::Exception: gitlab: Not enough privileges`). To resolve this err
 The [batched background migrations](../background_migrations.md) introduced in
 [CI builds metadata migration](#ci-builds-metadata-migration) had
 to be reintroduced to handle an edge case in the data structure and ensure that they would complete.
+
+### Custom webhook template with unquoted placeholders cannot be saved
+
+- Affects: All installation methods
+- Affected versions:
+
+  | Release | Affected patch releases | Fixed patch level |
+  | ------- | ----------------------- | ----------------- |
+  | 18.10   | All patch releases      | Not fixed         |
+  | 18.9    | All patch releases      | Not fixed         |
+  | 18.8    | All patch releases      | Not fixed         |
+
+In GitLab 18.8 through 18.10, [custom webhook templates](../../user/project/integrations/webhooks.md#custom-webhook-template)
+with unquoted payload fields cannot be saved. This issue was resolved in GitLab 18.11.
+
+As a workaround, wrap fields in quotes. For example,
+`{"value": {{id}}}` would become `{"value": "{{id}}"}`.
+
+Quoted fields produce string values instead of numeric values. If this is
+incompatible with your webhook, upgrade to GitLab 18.11 or later.
+
+For more information, see the
+[webhook troubleshooting documentation](../../user/project/integrations/webhooks_troubleshooting.md#custom-webhook-template-with-unquoted-placeholders-cannot-be-saved).
 
 ### CI builds metadata migration
 

@@ -10,9 +10,9 @@ RSpec.describe GlobalPolicy, feature_category: :shared do
     let_it_be(type_sym) { create(:user, type_sym) }
   end
 
-  let_it_be(:admin_user) { create(:admin) }
+  let_it_be(:admin_user, freeze: false) { create(:admin) }
   let_it_be_with_reload(:current_user) { create(:user) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   subject { described_class.new(current_user, [user]) }
 

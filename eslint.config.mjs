@@ -519,6 +519,16 @@ export default [
       ],
     },
   },
+  // Page entrypoints must be top-level execution scripts and must not export anything.
+  // See `scripts/frontend/find_pages_without_top_level_execution.mjs`.
+  {
+    files: [
+      '{,ee/,jh/}app/assets/javascripts/pages/**/index.js',
+    ],
+    rules: {
+      'local-rules/page-entrypoint-must-execute': 'error',
+    },
+  },
   // Vue file rules and Vue 3 compatibility
   {
     files: ['*.vue', '**/*.vue'],

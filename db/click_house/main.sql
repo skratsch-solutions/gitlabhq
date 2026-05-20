@@ -785,6 +785,35 @@ PRIMARY KEY id
 ORDER BY id
 SETTINGS index_granularity = 8192;
 
+CREATE TABLE siphon_ci_pipeline_metadata
+(
+    `project_id` Int64,
+    `pipeline_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `name` Nullable(String),
+    `auto_cancel_on_new_commit` Int16 DEFAULT 0,
+    `auto_cancel_on_job_failure` Int16 DEFAULT 0,
+    `partition_id` Int64,
+    `traversal_path` String DEFAULT multiIf(coalesce(project_id, 0) != 0, dictGetOrDefault('project_traversal_paths_dict', 'traversal_path', project_id, '0/'), '0/') CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (traversal_path, pipeline_id)
+ORDER BY (traversal_path, pipeline_id)
+SETTINGS index_granularity = 2048;
+
+CREATE TABLE siphon_ci_pipeline_metadata_pg_pkey_ordered
+(
+    `pipeline_id` Int64 CODEC(DoubleDelta, ZSTD(1)),
+    `traversal_path` String DEFAULT '0/' CODEC(ZSTD(3)),
+    `_siphon_replicated_at` DateTime64(6, 'UTC') DEFAULT now64(6, 'UTC') CODEC(ZSTD(1)),
+    `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1))
+)
+ENGINE = ReplacingMergeTree(_siphon_replicated_at, _siphon_deleted)
+PRIMARY KEY (pipeline_id, traversal_path)
+ORDER BY (pipeline_id, traversal_path)
+SETTINGS index_granularity = 1024;
+
 CREATE TABLE siphon_ci_runner_namespaces
 (
     `id` Int64 CODEC(DoubleDelta, ZSTD(1)),
@@ -3731,6 +3760,20 @@ SELECT
     namespaces_cte.deleted
 FROM cte
 INNER JOIN namespaces_cte ON namespaces_cte.id = cte.project_namespace_id;
+
+CREATE MATERIALIZED VIEW siphon_ci_pipeline_metadata_pg_pkey_ordered_mv TO siphon_ci_pipeline_metadata_pg_pkey_ordered
+(
+    `pipeline_id` Int64,
+    `traversal_path` String,
+    `_siphon_replicated_at` DateTime64(6, 'UTC'),
+    `_siphon_deleted` Bool
+)
+AS SELECT
+    pipeline_id,
+    traversal_path,
+    _siphon_replicated_at,
+    _siphon_deleted
+FROM siphon_ci_pipeline_metadata;
 
 CREATE MATERIALIZED VIEW siphon_events_pg_pkey_ordered_mv TO siphon_events_pg_pkey_ordered
 (

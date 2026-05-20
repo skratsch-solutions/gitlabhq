@@ -830,3 +830,37 @@ The following example sets the job to run every 30 minutes. Adjust the cron sche
 {{< /tab >}}
 
 {{< /tabs >}}
+
+#### Use pre-calculated verification summaries
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/590853) in GitLab 19.0 [with a flag](../../../../administration/feature_flags/_index.md) named `geo_job_artifact_verification_summaries`. Disabled by default.
+
+{{< /history >}}
+
+> [!flag]
+> The availability of this feature is controlled by a feature flag.
+> For more information, see the history.
+> This feature is available for testing, but not ready for production use.
+
+Instead of reducing the metrics collection frequency, you can enable pre-calculated
+verification summaries for CI job artifacts. This replaces full table scans with
+incremental updates, so only changed data is recounted.
+
+When enabled, a background worker maintains summary counts in a dedicated table.
+A database trigger marks affected buckets as dirty when verification states change,
+and the worker recalculates only those buckets. This reduces database load from
+metrics collection by orders of magnitude on large instances.
+
+To enable:
+
+```shell
+sudo gitlab-rails runner 'Feature.enable(:geo_job_artifact_verification_summaries)'
+```
+
+To disable:
+
+```shell
+sudo gitlab-rails runner 'Feature.disable(:geo_job_artifact_verification_summaries)'
+```

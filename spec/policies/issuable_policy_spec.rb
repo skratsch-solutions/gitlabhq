@@ -8,7 +8,7 @@ RSpec.describe IssuablePolicy, :models do
   let_it_be(:planner) { create(:user) }
   let_it_be(:reporter) { create(:user) }
   let_it_be(:developer) { create(:user) }
-  let_it_be(:project) { create(:project, :public) }
+  let_it_be(:project, freeze: false) { create(:project, :public) }
 
   let(:issue) { create(:issue, project: project) }
   let(:policies) { described_class.new(user, issue) }
@@ -58,7 +58,7 @@ RSpec.describe IssuablePolicy, :models do
       end
 
       context 'when project is private' do
-        let_it_be(:project) { create(:project, :private) }
+        let_it_be(:project, freeze: false) { create(:project, :private) }
 
         before_all do
           project.add_developer(developer)

@@ -214,10 +214,6 @@ class Event < ApplicationRecord
     wiki_page? && updated_action?
   end
 
-  def created_target?
-    created_action? && target
-  end
-
   def milestone?
     target_type == "Milestone"
   end

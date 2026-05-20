@@ -7,7 +7,6 @@ Performance/MethodObjectAsBlock:
     - 'lib/gitlab/ci/pipeline/chain/validate/external.rb'
     - 'lib/gitlab/config/entry/legacy_validation_helpers.rb'
     - 'lib/gitlab/container_repository/tags/cache.rb'
-    - 'lib/gitlab/dependency_linker/cartfile_linker.rb'
     - 'lib/gitlab/dependency_linker/gemspec_linker.rb'
     - 'lib/gitlab/dependency_linker/podspec_json_linker.rb'
     - 'lib/gitlab/etag_caching/router/rails.rb'

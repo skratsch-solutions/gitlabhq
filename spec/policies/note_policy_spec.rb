@@ -350,7 +350,7 @@ RSpec.describe NotePolicy, feature_category: :team_planning do
         let_it_be(:maintainer) { create(:user) }
         let_it_be(:guest) { create(:user) }
         let_it_be(:non_member) { create(:user) }
-        let_it_be(:author) { create(:user) }
+        let_it_be(:author, freeze: false) { create(:user) }
         let_it_be(:assignee) { create(:user) }
         let_it_be(:admin) { create(:admin) }
 

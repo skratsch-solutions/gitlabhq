@@ -92,7 +92,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
   end
 
   context 'a private project' do
-    let_it_be(:project) { create(:project, :private) }
+    let_it_be(:project, freeze: false) { create(:project, :private) }
     let_it_be_with_reload(:group_issue) { create(:issue, :group_level, namespace: group) }
     let_it_be_with_reload(:issue) { create(:issue, project: project, assignees: [assignee], author: author) }
     let_it_be_with_reload(:issue_no_assignee) { create(:issue, project: project) }
@@ -786,7 +786,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
 
   context 'with external authorization enabled' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :public) }
     let_it_be(:issue) { create(:issue, project: project) }
     let(:policies) { described_class.new(user, issue) }
 
@@ -860,8 +860,8 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
 
       context 'when custom crm_group configured' do
         let_it_be(:crm_settings) { create(:crm_settings, source_group: create(:group)) }
-        let_it_be(:subgroup) { create(:group, parent: create(:group), crm_settings: crm_settings) }
-        let_it_be(:project) { create(:project, group: subgroup) }
+        let_it_be(:subgroup, freeze: false) { create(:group, parent: create(:group), crm_settings: crm_settings) }
+        let_it_be(:project, freeze: false) { create(:project, group: subgroup) }
 
         subject { policies }
 
@@ -939,7 +939,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
 
   describe 'set_issue_metadata rule for new issues' do
     context 'when user has set_new_issue_metadata permission' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let_it_be(:persisted_issue) { create(:issue, project: project) }
       let(:new_issue) { build(:issue, project: project) }
 
@@ -958,7 +958,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
     end
 
     context 'when user does not have set_new_issue_metadata permission' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let(:new_issue) { build(:issue, project: project) }
       let_it_be(:non_member) { create(:user) }
 
@@ -969,7 +969,7 @@ RSpec.describe IssuePolicy, feature_category: :team_planning do
   end
 
   context 'with incident issue type' do
-    let_it_be(:project) { create(:project, group: group, guests: guest, planners: planner, reporters: reporter, owners: owner) }
+    let_it_be(:project, freeze: false) { create(:project, group: group, guests: guest, planners: planner, reporters: reporter, owners: owner) }
     let_it_be(:incident) { create(:issue, :incident, project: project) }
 
     it 'allows accessing an incident' do

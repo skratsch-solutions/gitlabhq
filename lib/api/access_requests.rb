@@ -43,8 +43,7 @@ module API
             "username" => "raymond_smith",
             "name" => "Raymond Smith",
             "state" => "active",
-            "created_at" => "2012-10-22T14:13:35Z",
-            "access_level" => 20
+            "requested_at" => "2012-10-22T14:13:35Z"
           }
           tags %w[access_requests]
         end
@@ -68,7 +67,7 @@ module API
             "name" => "Raymond Smith",
             "state" => "active",
             "created_at" => "2012-10-22T14:13:35Z",
-            "access_level" => 20
+            "access_level" => "20"
           }
           tags %w[access_requests]
         end

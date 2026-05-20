@@ -631,7 +631,7 @@ Follow the instructions provided in [The file is missing on the Geo primary site
 
 ### Failed verification of Uploads on the primary Geo site
 
-If verification of some uploads is failing on the primary Geo site with `verification_checksum = nil` and with `verification_failure` containing ``Error during verification: undefined method `underscore' for NilClass:Class`` or ``The model which owns this Upload is missing.``, this is due to orphaned Uploads. The parent record owning the Upload (the upload's "model") has somehow been deleted, but the Upload record still exists. This is usually due to a bug in the application, introduced by implementing bulk delete of the "model" while forgetting to bulk delete its associated Upload records. These verification failures are therefore not failures to verify, rather, the errors are a result of bad data in Postgres.
+If verification of some uploads is failing on the primary Geo site with `verification_checksum = nil` and with `verification_failure` containing ``Error during verification: undefined method `underscore' for NilClass:Class`` or ``The model which owns this upload is missing.``, this is due to orphaned Uploads. The parent record owning the Upload (the upload's "model") has somehow been deleted, but the Upload record still exists. This is usually due to a bug in the application, introduced by implementing bulk delete of the "model" while forgetting to bulk delete its associated Upload records. These verification failures are therefore not failures to verify, rather, the errors are a result of bad data in Postgres.
 
 You can find these errors in the `geo.log` file on the primary Geo site.
 
@@ -651,7 +651,7 @@ def delete_orphaned_uploads(dry_run: true)
     p "This is NOT A DRY RUN! Upload rows will be deleted from the DB!"
   end
 
-  subquery = Geo::UploadState.where("(verification_failure LIKE 'Error during verification: The model which owns this Upload is missing.%' OR verification_failure = 'Error during verification: undefined method `underscore'' for NilClass:Class') AND verification_checksum IS NULL")
+  subquery = Geo::UploadState.where("(verification_failure LIKE 'Error during verification: The model which owns this upload is missing.%' OR verification_failure = 'Error during verification: undefined method `underscore'' for NilClass:Class') AND verification_checksum IS NULL")
   uploads = Upload.where(upload_state: subquery)
   p "Found #{uploads.count} uploads with a model that does not exist"
 

@@ -69829,8 +69829,7 @@ paths:
                 username: raymond_smith
                 name: Raymond Smith
                 state: active
-                created_at: '2012-10-22T14:13:35Z'
-                access_level: 20
+                requested_at: '2012-10-22T14:13:35Z'
         '404':
           description: Not Found
         '400':
@@ -69863,7 +69862,7 @@ paths:
                 name: Raymond Smith
                 state: active
                 created_at: '2012-10-22T14:13:35Z'
-                access_level: 20
+                access_level: '20'
         '404':
           description: Not Found
         '400':
@@ -69978,8 +69977,7 @@ paths:
                 username: raymond_smith
                 name: Raymond Smith
                 state: active
-                created_at: '2012-10-22T14:13:35Z'
-                access_level: 20
+                requested_at: '2012-10-22T14:13:35Z'
         '404':
           description: Not Found
         '400':
@@ -70012,7 +70010,7 @@ paths:
                 name: Raymond Smith
                 state: active
                 created_at: '2012-10-22T14:13:35Z'
-                access_level: 20
+                access_level: '20'
         '404':
           description: Not Found
         '400':
@@ -81640,27 +81638,6 @@ components:
         downloads:
           type: integer
           example: 1
-    APIEntitiesNugetMetadatum:
-      type: object
-      properties:
-        authors:
-          type: string
-          example: Authors
-        description:
-          type: string
-          example: Description
-        summary:
-          type: string
-          example: Description
-        projectUrl:
-          type: string
-          example: http://sandbox.com/project
-        licenseUrl:
-          type: string
-          example: http://sandbox.com/license
-        iconUrl:
-          type: string
-          example: http://sandbox.com/icon
     APIEntitiesNugetSearchResult:
       type: object
       properties:
@@ -81686,10 +81663,24 @@ components:
         tags:
           type: string
           example: tag#1 tag#2
-        metadatum:
-          type: array
-          items:
-            "$ref": "#/components/schemas/APIEntitiesNugetMetadatum"
+        authors:
+          type: string
+          example: Authors
+        description:
+          type: string
+          example: Description
+        summary:
+          type: string
+          example: Description
+        projectUrl:
+          type: string
+          example: http://sandbox.com/project
+        licenseUrl:
+          type: string
+          example: http://sandbox.com/license
+        iconUrl:
+          type: string
+          example: http://sandbox.com/icon
     APIEntitiesNugetSearchResults:
       type: object
       properties:
@@ -81959,7 +81950,7 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/APIEntitiesMergeRequestApprovalStateRule"
-    APIEntitiesIssuableEntity:
+    APIEntitiesApprovalState:
       type: object
       properties:
         id:
@@ -81988,11 +81979,6 @@ components:
           type: string
           format: date-time
           example: '2022-11-14T17:22:01.470Z'
-    APIEntitiesApprovalState:
-      type: object
-      properties:
-        merge_request:
-          "$ref": "#/components/schemas/APIEntitiesIssuableEntity"
         merge_status:
           type: string
           example: can_be_merged
@@ -82246,8 +82232,36 @@ components:
     APIEntitiesMember:
       type: object
       properties:
-        user:
-          "$ref": "#/components/schemas/APIEntitiesUserBasic"
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: admin
+        public_email:
+          type: string
+          example: john@example.com
+        name:
+          type: string
+          example: Administrator
+        state:
+          type: string
+          example: active
+        locked:
+          type: boolean
+        avatar_url:
+          type: string
+          example: https://gravatar.com/avatar/1
+        avatar_path:
+          type: string
+          example: "/user/avatar/28/The-Big-Lebowski-400-400.png"
+        custom_attributes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
+        web_url:
+          type: string
+          example: https://gitlab.example.com/root
         access_level:
           type: string
         created_at:
@@ -83627,8 +83641,40 @@ components:
     APIEntitiesDeployKeysProject:
       type: object
       properties:
-        deploy_key:
-          "$ref": "#/components/schemas/APIEntitiesDeployKey"
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Sample key 25
+        created_at:
+          type: string
+          format: date-time
+          example: '2015-09-03T07:24:44.627Z'
+        expires_at:
+          type: string
+          format: date-time
+          example: '2020-09-03T07:24:44.627Z'
+        last_used_at:
+          type: string
+          format: date-time
+          example: '2020-09-03T07:24:44.627Z'
+        key:
+          type: string
+          example: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDNJAkI3Wdf0r13c8a5pEExB2YowPWCSVzfZV22pNBc1CuEbyYLHpUyaD0GwpGvFdx2aP7lMEk35k6Rz3ccBF6jRaVJyhsn5VNnW92PMpBJ/P1UebhXwsFHdQf5rTt082cSxWuk61kGWRQtk4ozt/J2DF/dIUVaLvc+z4HomT41fQ==
+        usage_type:
+          type: string
+          example: auth
+        fingerprint:
+          type: string
+          example: 4a:9d:64:15:ed:3a:e6:07:6e:89:36:b3:3b:03:05:d9
+        fingerprint_sha256:
+          type: string
+          example: SHA256:Jrs3LD1Ji30xNLtTVf9NDCj7kkBgPBb2pjvTZ3HfIgU
+        projects_with_write_access:
+          "$ref": "#/components/schemas/APIEntitiesProjectIdentity"
+        projects_with_readonly_access:
+          "$ref": "#/components/schemas/APIEntitiesProjectIdentity"
         can_push:
           type: boolean
     APIEntitiesDictionaryTable:
@@ -85408,8 +85454,36 @@ components:
     APIEntitiesAccessRequester:
       type: object
       properties:
-        user:
-          "$ref": "#/components/schemas/APIEntitiesUserBasic"
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: admin
+        public_email:
+          type: string
+          example: john@example.com
+        name:
+          type: string
+          example: Administrator
+        state:
+          type: string
+          example: active
+        locked:
+          type: boolean
+        avatar_url:
+          type: string
+          example: https://gravatar.com/avatar/1
+        avatar_path:
+          type: string
+          example: "/user/avatar/28/The-Big-Lebowski-400-400.png"
+        custom_attributes:
+          type: array
+          items:
+            "$ref": "#/components/schemas/APIEntitiesCustomAttribute"
+        web_url:
+          type: string
+          example: https://gitlab.example.com/root
         requested_at:
           type: string
     RequestBody_6ef4e663c0d4:
