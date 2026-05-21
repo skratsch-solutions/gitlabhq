@@ -6723,6 +6723,246 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#merged_in_repository?' do
+    let_it_be(:project) { create(:project, :repository) }
+    let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
+    subject { merge_request.merged_in_repository? }
+
+    context 'when merge_commit_sha is set' do
+      before do
+        merge_request.update_columns(merge_commit_sha: 'abc123')
+      end
+
+      it { is_expected.to be true }
+
+      it 'short-circuits without touching the repository' do
+        expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+        subject
+      end
+    end
+
+    context 'when only the merged_commit_sha column is set' do
+      before do
+        merge_request.update_columns(merged_commit_sha: 'def456')
+      end
+
+      it 'returns true even though the public reader returns nil for non-merged MRs' do
+        expect(merge_request.merged_commit_sha).to be_nil # public reader, MR not merged
+        expect(merge_request.read_attribute(:merged_commit_sha)).to eq('def456')
+        is_expected.to be true
+      end
+
+      it 'short-circuits without touching the repository' do
+        expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+        subject
+      end
+    end
+
+    context 'when only squash_commit_sha is set' do
+      before do
+        merge_request.update_columns(squash_commit_sha: squash_sha)
+      end
+
+      context 'and the squash commit is an ancestor of the target branch head' do
+        let(:squash_sha) do
+          # Use a parent of the target branch head. This mirrors the real
+          # squash-merge case, where the squash commit lands on target before
+          # any subsequent commits.
+          project.repository.commit(merge_request.target_branch).parent_ids.first
+        end
+
+        it { is_expected.to be true }
+      end
+
+      context 'and the squash commit is not an ancestor of the target branch head' do
+        let(:squash_sha) { Gitlab::Git::SHA1_BLANK_SHA }
+
+        it { is_expected.to be false }
+      end
+    end
+
+    context 'when no commit SHAs are set' do
+      it { is_expected.to be false }
+    end
+
+    context 'when both merge_commit_sha and squash_commit_sha are set' do
+      before do
+        merge_request.update_columns(
+          merge_commit_sha: 'abc123',
+          squash_commit_sha: 'def456'
+        )
+      end
+
+      it 'returns true based on merge_commit_sha without verifying the squash commit' do
+        expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+        is_expected.to be true
+      end
+    end
+  end
+
+  describe '#squash_commit_reachable_from_target_branch?' do
+    let_it_be(:project) { create(:project, :repository) }
+    let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
+    subject { merge_request.squash_commit_reachable_from_target_branch? }
+
+    context 'when squash_commit_sha is blank' do
+      before do
+        merge_request.update_columns(squash_commit_sha: nil)
+      end
+
+      it 'returns false without touching the repository' do
+        expect(merge_request.target_project.repository).not_to receive(:exists?)
+        expect(merge_request.target_project.repository).not_to receive(:commit)
+        expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+        is_expected.to be false
+      end
+    end
+
+    context 'when squash_commit_sha is present' do
+      let(:squash_sha) { 'aabbccddeeff00112233445566778899aabbccdd' }
+
+      before do
+        merge_request.update_columns(squash_commit_sha: squash_sha)
+      end
+
+      context 'and the repository does not exist' do
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(false)
+        end
+
+        it { is_expected.to be false }
+
+        it 'does not call ancestor?' do
+          expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+          subject
+        end
+      end
+
+      context 'and the target branch no longer exists' do
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).with(merge_request.target_branch).and_return(nil)
+        end
+
+        it { is_expected.to be false }
+
+        it 'does not call ancestor?' do
+          expect(merge_request.target_project.repository).not_to receive(:ancestor?)
+
+          subject
+        end
+      end
+
+      context 'and the squash commit is an ancestor of the target branch head' do
+        let(:target_head) { project.repository.commit }
+
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).with(merge_request.target_branch).and_return(target_head)
+          allow(merge_request.target_project.repository)
+            .to receive(:ancestor?).with(squash_sha, target_head.sha).and_return(true)
+        end
+
+        it { is_expected.to be true }
+      end
+
+      context 'and the squash commit is not an ancestor of the target branch head' do
+        let(:target_head) { project.repository.commit }
+
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).with(merge_request.target_branch).and_return(target_head)
+          allow(merge_request.target_project.repository)
+            .to receive(:ancestor?).with(squash_sha, target_head.sha).and_return(false)
+        end
+
+        it { is_expected.to be false }
+      end
+
+      context 'when the repository raises Gitlab::Git::Repository::NoRepository' do
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).and_raise(Gitlab::Git::Repository::NoRepository, 'gone')
+        end
+
+        it 'tracks the exception and returns false' do
+          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+            an_instance_of(Gitlab::Git::Repository::NoRepository),
+            hash_including(
+              merge_request_id: merge_request.id,
+              merge_request_iid: merge_request.iid,
+              project_id: merge_request.target_project_id,
+              method: :squash_commit_reachable_from_target_branch?
+            )
+          )
+
+          is_expected.to be false
+        end
+      end
+
+      context 'when the repository raises Gitlab::Git::CommandError' do
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).and_raise(Gitlab::Git::CommandError, 'gitaly down')
+        end
+
+        it 'tracks the exception and returns false' do
+          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+            an_instance_of(Gitlab::Git::CommandError),
+            hash_including(method: :squash_commit_reachable_from_target_branch?)
+          )
+
+          is_expected.to be false
+        end
+      end
+
+      context 'when ancestor? itself raises Gitlab::Git::CommandError' do
+        let(:target_head) { project.repository.commit }
+
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).with(merge_request.target_branch).and_return(target_head)
+          allow(merge_request.target_project.repository)
+            .to receive(:ancestor?).and_raise(Gitlab::Git::CommandError, 'gitaly hiccup')
+        end
+
+        it 'tracks the exception and returns false' do
+          expect(Gitlab::ErrorTracking).to receive(:track_exception)
+            .with(an_instance_of(Gitlab::Git::CommandError), anything)
+
+          is_expected.to be false
+        end
+      end
+
+      context 'when an unexpected exception is raised' do
+        before do
+          allow(merge_request.target_project.repository).to receive(:exists?).and_return(true)
+          allow(merge_request.target_project.repository)
+            .to receive(:commit).and_raise(StandardError, 'unexpected')
+        end
+
+        it 'does not swallow it (re-raises so the outer service can handle)' do
+          expect(Gitlab::ErrorTracking).not_to receive(:track_exception)
+
+          expect { subject }.to raise_error(StandardError, 'unexpected')
+        end
+      end
+    end
+  end
+
   describe '#fetch_ref!' do
     let_it_be(:project) { create(:project, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }

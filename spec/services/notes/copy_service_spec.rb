@@ -17,7 +17,7 @@ RSpec.describe Notes::CopyService, feature_category: :team_planning do
     let_it_be(:from_project) { create(:project, :public, group: group) }
     let_it_be(:to_project) { create(:project, :public, group: group) }
     let_it_be(:from_noteable) { create(:issue, project: from_project) }
-    let_it_be(:to_noteable) { create(:issue, project: to_project) }
+    let_it_be(:to_noteable, freeze: false) { create(:issue, project: to_project) }
 
     subject(:execute_service) { described_class.new(user, from_noteable, to_noteable).execute }
 

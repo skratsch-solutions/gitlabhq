@@ -376,15 +376,12 @@ by the model vendor.
 Prompt caching significantly improves latency by avoiding the
 re-processing of cached prompt and input data.
 
-### Turn off prompt caching
+You can [turn off prompt caching](../gitlab_duo/data_usage.md#turn-off-prompt-caching):
 
-You can [turn off prompt caching](../project/repository/code_suggestions/_index.md#turn-off-prompt-caching)
-in the GitLab Duo settings, depending on the offering:
+- On GitLab.com: For a top-level group.
+- On GitLab Self-Managed: For an instance.
 
-- On GitLab.com, you can turn off caching for individual top-level groups.
-- On GitLab Self-Managed, you can turn off caching the entire instance.
-
-This also turns off prompt caching for Code Suggestions.
+This setting applies to all GitLab Duo Agent Platform features.
 
 ## Tool approvals
 

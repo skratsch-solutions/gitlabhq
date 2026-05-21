@@ -72,7 +72,7 @@ RSpec.describe WorkItems::SavedViews::UpdateService, feature_category: :portfoli
 
     context 'when container is a group (non-Project)' do
       let_it_be(:group) { create(:group, planners: current_user) }
-      let_it_be(:group_saved_view) do
+      let_it_be(:group_saved_view, freeze: false) do
         create(:saved_view,
           namespace: group,
           author: current_user,
@@ -128,7 +128,7 @@ RSpec.describe WorkItems::SavedViews::UpdateService, feature_category: :portfoli
       end
 
       context 'when changing from private to public' do
-        let_it_be(:private_view) do
+        let_it_be(:private_view, freeze: false) do
           create(:saved_view,
             namespace: project.project_namespace,
             author: current_user,

@@ -6,7 +6,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
   include AdminModeHelper
 
   let_it_be(:project) { create(:project, :repository) }
-  let_it_be(:note) { create(:discussion_note_on_issue, project: project) }
+  let_it_be(:note, freeze: false) { create(:discussion_note_on_issue, project: project) }
   let_it_be(:individual_note) { create(:note_on_issue, project: project) }
   let_it_be(:author) { note.author }
   let_it_be(:user) { author }
@@ -45,7 +45,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
         end
 
         context 'when noteable does not support replies' do
-          let_it_be(:note) { create(:note_on_commit, project: project) }
+          let_it_be(:note, freeze: false) { create(:note_on_commit, project: project) }
 
           it 'builds another individual note' do
             expect(new_note).to be_valid
@@ -90,7 +90,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
 
         context 'when a snippet is private' do
           let_it_be(:snippet) { create(:personal_snippet, :private, author: snippet_author) }
-          let_it_be(:note) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
+          let_it_be(:note, freeze: false) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
 
           it 'creates a reply note when the author replies' do
             new_note = reply(note, snippet_author)
@@ -108,7 +108,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
 
         context 'when a snippet is internal' do
           let_it_be(:snippet) { create(:personal_snippet, :internal, author: snippet_author) }
-          let_it_be(:note) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
+          let_it_be(:note, freeze: false) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
 
           it 'creates a reply note when the author replies' do
             new_note = reply(note, snippet_author)
@@ -139,7 +139,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
       let_it_be(:reporter) { create(:user) }
       let_it_be(:admin) { create(:admin) }
       let_it_be(:issuable_assignee) { other_user }
-      let_it_be(:issue) do
+      let_it_be(:issue, freeze: false) do
         create(:issue, project: project, author: noteable_author, assignees: [issuable_assignee])
       end
 
@@ -209,7 +209,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
       end
 
       context 'when replying to a confidential comment' do
-        let_it_be(:note) { create(:note_on_issue, confidential: true, noteable: issue, project: project) }
+        let_it_be(:note, freeze: false) { create(:note_on_issue, confidential: true, noteable: issue, project: project) }
 
         let(:params) { { in_reply_to_discussion_id: note.discussion_id, confidential: false } }
 
@@ -267,7 +267,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
       end
 
       context 'when replying to a public comment' do
-        let_it_be(:note) { create(:note_on_issue, confidential: false, noteable: issue, project: project) }
+        let_it_be(:note, freeze: false) { create(:note_on_issue, confidential: false, noteable: issue, project: project) }
 
         let(:params) { { in_reply_to_discussion_id: note.discussion_id, confidential: true } }
 

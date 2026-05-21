@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Ci::CreatePipelineService, feature_category: :pipeline_composition do
   context 'for spec:component' do
     let_it_be(:project) { create(:project, :small_repo) }
-    let_it_be(:user)    { project.first_owner }
+    let_it_be(:user) { project.first_owner }
 
     let_it_be(:components_project) do
       create(:project, :small_repo, creator: user, namespace: user.namespace)

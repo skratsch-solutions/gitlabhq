@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Members::UpdateService, feature_category: :groups_and_projects do
   let_it_be(:project) { create(:project, :public) }
   let_it_be(:group) { create(:group, :public) }
-  let_it_be(:current_user) { create(:user) }
+  let_it_be(:current_user, freeze: false) { create(:user) }
   let_it_be(:member_user1) { create(:user) }
   let_it_be(:member_user2) { create(:user) }
   let_it_be(:member_users) { [member_user1, member_user2] }
@@ -348,7 +348,7 @@ RSpec.describe Members::UpdateService, feature_category: :groups_and_projects do
   end
 
   context 'when current user is an admin', :enable_admin_mode do
-    let_it_be(:current_user) { create(:admin) }
+    let_it_be(:current_user, freeze: false) { create(:admin) }
     let_it_be(:source) { group }
 
     context 'when all owners are being downgraded' do

@@ -81,7 +81,20 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
           it 'sets the environment with data of the current user' do
             subject
 
-            expect(env[API::Helpers::API_USER_ENV]).to eq({ user_id: subject.id, username: subject.username })
+            expect(env[API::Helpers::API_USER_ENV]).to eq({ user_id: subject.id, username: subject.username, user_is_bot: false })
+          end
+
+          context 'when the user does not respond to bot?' do
+            before do
+              allow(user).to receive(:respond_to?).and_call_original
+              allow(user).to receive(:respond_to?).with(:bot?).and_return(false)
+            end
+
+            it 'sets user_is_bot to false' do
+              subject
+
+              expect(env[API::Helpers::API_USER_ENV][:user_is_bot]).to be(false)
+            end
           end
 
           context "when endpoint is not AI/DAP-related (/user)" do
@@ -96,7 +109,8 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
               expect(env[API::Helpers::API_USER_ENV]).to eq(
                 {
                   user_id: subject.id,
-                  username: subject.username
+                  username: subject.username,
+                  user_is_bot: false
                 }
               )
             end
@@ -116,6 +130,7 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
                   {
                     user_id: subject.id,
                     username: subject.username,
+                    user_is_bot: false,
                     global_user_id: Gitlab::GlobalAnonymousId.user_id(subject)
                   }
                 )

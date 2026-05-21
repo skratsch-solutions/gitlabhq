@@ -190,7 +190,7 @@ RSpec.describe AlertManagement::Alerts::UpdateService, feature_category: :incide
 
       context 'with existing unresolved alert' do
         context 'with fingerprints' do
-          let_it_be(:existing_alert) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
+          let_it_be(:existing_alert, freeze: false) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
 
           it 'does not query for existing alerts' do
             expect(::AlertManagement::Alert).not_to receive(:find_unresolved_alert)
@@ -200,7 +200,7 @@ RSpec.describe AlertManagement::Alerts::UpdateService, feature_category: :incide
 
           context 'when status was resolved' do
             let_it_be(:alert) { create(:alert_management_alert, :resolved, :with_fingerprint, project: project) }
-            let_it_be(:existing_alert) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
+            let_it_be(:existing_alert, freeze: false) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
 
             let(:url) { Gitlab::Routing.url_helpers.details_project_alert_management_path(project, existing_alert) }
             let(:link) { ActionController::Base.helpers.link_to(_('alert'), url) }
@@ -220,7 +220,7 @@ RSpec.describe AlertManagement::Alerts::UpdateService, feature_category: :incide
         end
 
         context 'without fingerprints' do
-          let_it_be(:existing_alert) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
+          let_it_be(:existing_alert, freeze: false) { create(:alert_management_alert, :triggered, fingerprint: alert.fingerprint, project: project) }
 
           it 'successfully changes the status' do
             expect { response }.to change { alert.acknowledged? }.to(true)
@@ -234,7 +234,7 @@ RSpec.describe AlertManagement::Alerts::UpdateService, feature_category: :incide
 
       context 'two existing closed alerts' do
         let_it_be(:alert) { create(:alert_management_alert, :resolved, :with_fingerprint, project: project) }
-        let_it_be(:existing_alert) { create(:alert_management_alert, :resolved, fingerprint: alert.fingerprint, project: project) }
+        let_it_be(:existing_alert, freeze: false) { create(:alert_management_alert, :resolved, fingerprint: alert.fingerprint, project: project) }
 
         it 'successfully changes the status' do
           expect { response }.to change { alert.acknowledged? }.to(true)

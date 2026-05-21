@@ -4,9 +4,9 @@ require 'spec_helper'
 
 RSpec.describe Projects::AutocompleteService, :with_current_organization, feature_category: :groups_and_projects do
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :public, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
   let_it_be(:owner) { create(:user, owner_of: project) }
-  let_it_be(:issue) { create(:issue, project: project, title: 'Issue 1') }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project, title: 'Issue 1') }
 
   describe '#issues' do
     context 'with work_items_autocomplete feature flag' do
@@ -37,7 +37,7 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
         create(:issue, :confidential, project: project, title: 'Security issue 1', author: author)
       end
 
-      let_it_be(:security_issue_2) do
+      let_it_be(:security_issue_2, freeze: false) do
         create(:issue, :confidential, title: 'Security issue 2', project: project, assignees: [assignee])
       end
 
@@ -323,8 +323,8 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
   describe '#wikis' do
     let_it_be(:user) { create(:user) }
     let_it_be(:group) { create(:group, :public) }
-    let_it_be(:project) { create(:project, :public, group: group) }
-    let_it_be(:wiki) { create(:project_wiki, project: project) }
+    let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
+    let_it_be(:wiki, freeze: false) { create(:project_wiki, project: project) }
     let_it_be(:page1) { create(:wiki_page, wiki: wiki, title: 'page1', content: 'content1') }
     let_it_be(:page2) do
       create(:wiki_page, wiki: wiki, title: 'page2', content: "---\ntitle: Real title\n---\ncontent2")
@@ -435,7 +435,7 @@ RSpec.describe Projects::AutocompleteService, :with_current_organization, featur
     let_it_be(:user) { create(:user) }
     let_it_be(:group) { create(:group, :nested, developers: user) }
     let_it_be(:sub_group) { create(:group, parent: group) }
-    let_it_be(:project) { create(:project, :public, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
     let(:issue) { create(:issue, project: project) }
 
     let_it_be(:label1) { create(:label, project: project) }

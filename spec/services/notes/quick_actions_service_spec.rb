@@ -639,7 +639,7 @@ RSpec.describe Notes::QuickActionsService, feature_category: :text_editors do
       let(:note) { build(:note, noteable: noteable, project: project, note: note_text) }
 
       context 'when noteable is a work item' do
-        let_it_be(:noteable) { create(:work_item, project: project) }
+        let_it_be(:noteable, freeze: false) { create(:work_item, project: project) }
 
         context 'when no branch name is provided' do
           let(:note_text) { '/create_merge_request' }

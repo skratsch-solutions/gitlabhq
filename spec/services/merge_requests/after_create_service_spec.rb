@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review_workflow do
-  let_it_be(:merge_request) { create(:merge_request) }
+  let_it_be(:merge_request, freeze: false) { create(:merge_request) }
   let(:project) { merge_request.project }
 
   subject(:after_create_service) do
@@ -209,7 +209,7 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
 
       context 'when merge request is assigned to someone' do
         let_it_be(:assignee) { create(:user) }
-        let_it_be(:merge_request) { create(:merge_request, assignees: [assignee]) }
+        let_it_be(:merge_request, freeze: false) { create(:merge_request, assignees: [assignee]) }
 
         it 'creates a todo for new assignee' do
           attributes = {
@@ -228,7 +228,7 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
 
       context 'when reviewer is assigned' do
         let_it_be(:reviewer) { create(:user) }
-        let_it_be(:merge_request) { create(:merge_request, reviewers: [reviewer]) }
+        let_it_be(:merge_request, freeze: false) { create(:merge_request, reviewers: [reviewer]) }
 
         it 'creates a todo for new reviewer' do
           attributes = {

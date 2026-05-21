@@ -781,7 +781,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
     end
 
     context 'resolving discussions' do
-      let_it_be(:discussion) { create(:diff_note_on_merge_request).to_discussion }
+      let_it_be(:discussion, freeze: false) { create(:diff_note_on_merge_request).to_discussion }
       let_it_be(:merge_request) { discussion.noteable }
       let_it_be(:project) { merge_request.source_project }
 

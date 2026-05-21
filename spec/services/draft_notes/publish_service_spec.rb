@@ -4,7 +4,7 @@ require 'spec_helper'
 RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workflow do
   include RepoHelpers
 
-  let_it_be(:merge_request) { create(:merge_request, reviewers: create_list(:user, 1), assignees: create_list(:user, 1)) }
+  let_it_be(:merge_request, freeze: false) { create(:merge_request, reviewers: create_list(:user, 1), assignees: create_list(:user, 1)) }
   let(:project) { merge_request.target_project }
   let(:user) { merge_request.author }
   let(:commit) { project.commit(sample_commit.id) }
@@ -434,6 +434,34 @@ RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workfl
       end
 
       publish
+    end
+  end
+
+  context 'when a draft note fails to persist' do
+    let(:unpersisted_note) { DiffNote.new.tap { |n| n.errors.add(:position, 'is incomplete') } }
+
+    before do
+      allow_next_instance_of(Notes::CreateService) do |service|
+        allow(service).to receive(:execute).and_return(unpersisted_note)
+      end
+    end
+
+    context 'when publishing a single draft' do
+      let!(:draft) { create(:draft_note_on_text_diff, merge_request: merge_request, author: user, position: position) }
+
+      it 'logs a warning with details' do
+        expect(Gitlab::AppLogger).to receive(:warn).with(
+          hash_including(
+            message: 'Draft note publish: note not persisted',
+            draft_note_id: draft.id,
+            merge_request_id: merge_request.id,
+            project_id: project.id,
+            errors: ['Position is incomplete']
+          )
+        )
+
+        publish(draft: draft)
+      end
     end
   end
 

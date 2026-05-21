@@ -3,9 +3,7 @@ Performance/MethodObjectAsBlock:
   Exclude:
     - 'lib/container_registry/base_client.rb'
     - 'lib/gitlab/ci/pipeline/chain/validate/external.rb'
-    - 'lib/gitlab/container_repository/tags/cache.rb'
     - 'lib/gitlab/dependency_linker/podspec_json_linker.rb'
-    - 'lib/gitlab/import_export/attributes_finder.rb'
     - 'lib/gitlab/import_export/group/tree_restorer.rb'
     - 'lib/gitlab/search_context.rb'
     - 'lib/gitlab/sidekiq_queue.rb'

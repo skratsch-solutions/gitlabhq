@@ -8,7 +8,7 @@ RSpec.describe Packages::MlModel::PackageForCandidateService, feature_category: 
   let_it_be(:model) { create(:ml_models, user: project.owner, project: project) }
   let_it_be(:model_version) { create(:ml_model_versions, :with_package, model: model, version: '0.1.0') }
   let_it_be(:model_version_candidate) { model_version.candidate }
-  let_it_be(:model_candidate) do
+  let_it_be(:model_candidate, freeze: false) do
     create(:ml_candidates, user: project.owner, project: project, experiment: model.default_experiment)
   end
 
@@ -18,7 +18,7 @@ RSpec.describe Packages::MlModel::PackageForCandidateService, feature_category: 
     end
   end
 
-  let_it_be(:not_model_candidate) { create(:ml_candidates, user: project.owner, project: project) }
+  let_it_be(:not_model_candidate, freeze: false) { create(:ml_candidates, user: project.owner, project: project) }
 
   let(:base_params) do
     {

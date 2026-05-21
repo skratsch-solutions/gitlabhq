@@ -95,9 +95,6 @@ ee/app/models/security/orchestration_policy_configuration.rb:
 app/helpers/ci/catalog/resources_helper.rb:
 - can_view_namespace_catalog?
 - js_ci_catalog_data
-app/helpers/events_helper.rb:
-- event_feed_title
-- event_feed_summary
 app/helpers/groups_helper.rb:
 - group_title_link
 app/helpers/integrations_helper.rb:
@@ -211,7 +208,6 @@ app/models/merge_request.rb:
 - diff_base_commit
 - diff_start_commit
 - can_be_closed?
-- find_assignee
 app/models/namespace.rb:
 - any_project_with_pages_deployed?
 - saved_change_to_parent?

@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe TodoService, feature_category: :notifications do
   include AfterNextHelpers
 
-  let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:author) { create(:user, developer_of: project) }
   let_it_be(:assignee) { create(:user, developer_of: project) }
   let_it_be(:non_member) { create(:user) }
@@ -525,7 +525,7 @@ RSpec.describe TodoService, feature_category: :notifications do
         end
 
         context 'leaving a note on a commit in a public project with private code' do
-          let_it_be(:project) { create(:project, :repository, :public, :repository_private) }
+          let_it_be(:project, freeze: false) { create(:project, :repository, :public, :repository_private) }
 
           before_all do
             project.add_guest(guest)
@@ -570,7 +570,7 @@ RSpec.describe TodoService, feature_category: :notifications do
         end
 
         context 'leaving a note on a commit in a private project' do
-          let_it_be(:project) { create(:project, :repository, :private) }
+          let_it_be(:project, freeze: false) { create(:project, :repository, :private) }
 
           before_all do
             project.add_guest(guest)
@@ -1243,7 +1243,7 @@ RSpec.describe TodoService, feature_category: :notifications do
     end
 
     describe '#new_note' do
-      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :repository) }
       let(:mention) { john_doe.to_reference }
       let(:diff_note_on_merge_request) { create(:diff_note_on_merge_request, project: project, noteable: unassigned_mr, author: author, note: "Hey #{mention}") }
       let(:addressed_diff_note_on_merge_request) { create(:diff_note_on_merge_request, project: project, noteable: unassigned_mr, author: author, note: "#{mention}, hey!") }
@@ -1517,7 +1517,7 @@ RSpec.describe TodoService, feature_category: :notifications do
   end
 
   describe '#resolve_access_request_todos' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
     let_it_be(:group_requester) { create(:group_member, :access_request, group: group, user: assignee) }
     let_it_be(:project_requester) { create(:project_member, :access_request, project: project, user: non_member) }
     let_it_be(:another_pending_todo) { create(:todo, state: :pending, user: john_doe) }
@@ -1618,8 +1618,8 @@ RSpec.describe TodoService, feature_category: :notifications do
   end
 
   describe '#create_member_access_request_todos' do
-    let_it_be(:group) { create(:group, :public) }
-    let_it_be(:project) { create(:project, :public, group: group) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
 
     shared_examples 'member access request is raised' do
       context 'when the source has more than 10 owners' do

@@ -49,7 +49,9 @@ const ITERATION_REFERENCE_PREFIX = '*iteration:';
 
 export const AT_WHO_ACTIVE_CLASS = 'at-who-active';
 export const CONTACT_STATE_ACTIVE = 'active';
+// eslint-disable-next-line @gitlab/no-hardcoded-urls -- quick action command strings, not navigational URLs
 export const CONTACTS_ADD_COMMAND = '/add_contacts';
+// eslint-disable-next-line @gitlab/no-hardcoded-urls -- quick action command strings, not navigational URLs
 export const CONTACTS_REMOVE_COMMAND = '/remove_contacts';
 
 const busyBadge = memoize(
@@ -551,6 +553,7 @@ class GfmAutoComplete {
   setupMembers($input) {
     const instance = this;
     const fetchData = this.fetchData.bind(this);
+    /* eslint-disable @gitlab/no-hardcoded-urls -- quick action command strings, not navigational URLs */
     const MEMBER_COMMAND = {
       ASSIGN: '/assign',
       UNASSIGN: '/unassign',
@@ -559,6 +562,7 @@ class GfmAutoComplete {
       REASSIGN: '/reassign',
       REQUEST_REVIEW: '/request_review',
     };
+    /* eslint-enable @gitlab/no-hardcoded-urls */
     let assignees = [];
     let reviewers = [];
     let command = '';
@@ -704,6 +708,7 @@ class GfmAutoComplete {
     const instance = this;
     const fetchData = this.fetchData.bind(this);
     const MEMBER_COMMAND = {
+      // eslint-disable-next-line @gitlab/no-hardcoded-urls -- quick action command string, not a navigational URL
       UNLINK: '/unlink',
     };
     let command = '';
@@ -958,12 +963,14 @@ class GfmAutoComplete {
   setupLabels($input) {
     const instance = this;
     const fetchData = this.fetchData.bind(this);
+    /* eslint-disable @gitlab/no-hardcoded-urls -- quick action command strings, not navigational URLs */
     const LABEL_COMMAND = {
       LABEL: '/label',
       LABELS: '/labels',
       UNLABEL: '/unlabel',
       RELABEL: '/relabel',
     };
+    /* eslint-enable @gitlab/no-hardcoded-urls */
     let command = '';
 
     $input.atwho({
@@ -1539,6 +1546,7 @@ class GfmAutoComplete {
   }
 }
 
+// eslint-disable-next-line @gitlab/no-hardcoded-urls -- not a navigational URL
 setupQuotedCompletion('/type', {
   enableMapKey: 'types',
   templateFunction({ id, name, iconName }) {

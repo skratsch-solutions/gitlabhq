@@ -16,7 +16,7 @@ module API
 
       def self.create_issue_mcp_params
         [
-          :id, :title, :description, :assignee_ids, :milestone_id, :labels, :confidential
+          :id, :title, :description, :assignee_ids, :milestone_id, :milestone, :labels, :confidential
         ]
       end
 

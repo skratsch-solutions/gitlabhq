@@ -387,7 +387,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
   describe 'AccessToken' do
     describe '#access_token_created' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user) }
 
       subject(:notification_service) { notification.access_token_created(user, pat.name) }
@@ -414,8 +414,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       let_it_be(:owner1) { create(:user, username: 'owner1') }
       let_it_be(:owner2) { create(:user, username: 'owner2') }
       let_it_be(:maintainer) { create(:user, username: 'maintainer') }
-      let_it_be(:parent_group) { create(:group) }
-      let_it_be(:group) { create(:group, parent: parent_group) }
+      let_it_be(:parent_group, freeze: false) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group, parent: parent_group) }
 
       subject(:notification_service) do
         notification.bot_resource_access_token_about_to_expire(project_bot, expiring_token)
@@ -624,7 +624,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
       context 'when the resource is a project' do
         let_it_be(:namespace) { create(:namespace, :with_namespace_settings) }
-        let_it_be(:project) { create(:project, namespace: namespace) }
+        let_it_be(:project, freeze: false) { create(:project, namespace: namespace) }
 
         before_all do
           project.add_maintainer(maintainer)
@@ -807,7 +807,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#access_token_about_to_expire' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user, expires_at: 5.days.from_now) }
 
       subject(:notification_service) { notification.access_token_about_to_expire(user, [pat.name]) }
@@ -829,7 +829,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#deploy_token_about_to_expire' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
       let_it_be(:regular_user) { create(:user) }
       let_it_be(:project_owner) { create(:user) }
       let_it_be(:project_maintainer) { create(:user) }
@@ -901,7 +901,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#access_token_expired' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user) }
 
       subject { notification.access_token_expired(user, pat.name) }
@@ -922,7 +922,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#access_token_revoked' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user) }
 
       subject(:notification_service) { notification.access_token_revoked(user, pat.name) }
@@ -949,7 +949,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     describe '#access_token_rotated' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:pat) { create(:personal_access_token, user: user) }
 
       subject(:notification_service) { notification.access_token_rotated(user, pat.name) }
@@ -1029,7 +1029,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#enabled_two_factor' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     describe 'Passkey' do
       subject { notification.enabled_two_factor(user, :passkey, device_name: 'MacBook Touch ID') }
@@ -1057,7 +1057,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#disabled_two_factor' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     describe 'Two Factor' do
       subject { notification.disabled_two_factor(user) }
@@ -1093,8 +1093,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#new_email_address_added' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:email) { create(:email, user: user) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:email, freeze: false) { create(:email, user: user) }
 
     subject { notification.new_email_address_added(user, email) }
 
@@ -1105,7 +1105,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
   describe 'Notes' do
     describe 'issue note' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let_it_be_with_reload(:issue) { create(:issue, project: project, assignees: [assignee]) }
       let_it_be(:mentioned_issue) { create(:issue, assignees: issue.assignees) }
       let_it_be_with_reload(:author) { create(:user) }
@@ -1123,7 +1123,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
           allow(::Gitlab::Email::IncomingEmail).to receive(:supports_wildcard?).and_return(true)
         end
 
-        let_it_be(:project) { create(:project) }
+        let_it_be(:project, freeze: false) { create(:project) }
         let_it_be(:support_bot) { create(:support_bot) }
         let(:mailer) { double(deliver_later: true) }
         let(:issue) { create(:issue, project: project, author: support_bot) }
@@ -1354,7 +1354,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
         end
 
         context 'in project that belongs to a group' do
-          let_it_be(:parent_group) { create(:group) }
+          let_it_be(:parent_group, freeze: false) { create(:group) }
 
           before do
             note.project.namespace_id = group.id
@@ -1774,8 +1774,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     context 'commit note' do
-      let_it_be(:project) { create(:project, :public, :repository) }
-      let_it_be(:note) { create(:note_on_commit, project: project) }
+      let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
+      let_it_be(:note, freeze: false) { create(:note_on_commit, project: project) }
 
       before_all do
         build_team(project)
@@ -1840,10 +1840,10 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     end
 
     context "merge request diff note" do
-      let_it_be(:project) { create(:project, :repository) }
-      let_it_be(:user) { create(:user) }
+      let_it_be(:project, freeze: false) { create(:project, :repository) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:merge_request) { create(:merge_request, source_project: project, assignees: [user], author: create(:user)) }
-      let_it_be(:note) { create(:diff_note_on_merge_request, project: project, noteable: merge_request) }
+      let_it_be(:note, freeze: false) { create(:diff_note_on_merge_request, project: project, noteable: merge_request) }
 
       before_all do
         build_team(note.project)
@@ -1874,12 +1874,12 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       include DesignManagementTestHelpers
 
       let_it_be(:design) { create(:design, :with_file) }
-      let_it_be(:project) { design.project }
+      let_it_be(:project, freeze: false) { design.project }
       let_it_be(:member_and_mentioned) { create(:user, developer_of: project) }
       let_it_be(:member_and_author_of_second_note) { create(:user, developer_of: project) }
       let_it_be(:member_and_not_mentioned) { create(:user, developer_of: project) }
       let_it_be(:non_member_and_mentioned) { create(:user) }
-      let_it_be(:note) do
+      let_it_be(:note, freeze: false) do
         create(
           :diff_note_on_design,
           noteable: design,
@@ -1923,9 +1923,9 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   context 'wiki page note' do
-    let_it_be(:project) { create(:project, :public, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
     let_it_be(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, container: project) }
-    let_it_be(:note) { create(:note, noteable: wiki_page_meta, project: project) }
+    let_it_be(:note, freeze: false) { create(:note, noteable: wiki_page_meta, project: project) }
 
     before_all do
       build_team(project)
@@ -2019,10 +2019,10 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'Participating project notification settings have priority over group and global settings if available' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let_it_be(:maintainer) { group.add_owner(create(:user, username: 'maintainer')).user }
     let_it_be(:user1) { group.add_developer(create(:user, username: 'user_with_project_and_custom_setting')).user }
-    let_it_be(:project) { create(:project, :public, namespace: group) }
+    let_it_be(:project, freeze: false) { create(:project, :public, namespace: group) }
 
     let(:issue) { create :issue, project: project, assignees: [assignee], description: '' }
 
@@ -2084,8 +2084,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     let(:another_project) { create(:project, :public, namespace: group) }
     let(:issue) { create(:issue, project: project, assignees: [assignee], description: 'cc @participant @unsubscribed_mentioned') }
 
-    let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, :public, namespace: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:project, freeze: false) { create(:project, :public, namespace: group) }
 
     before_all do
       build_team(project)
@@ -2891,8 +2891,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     let(:merge_request) { create :merge_request, author: author, source_project: project, assignees: assignees, description: 'cc @participant' }
 
     let_it_be_with_reload(:author) { create(:user) }
-    let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, :public, :repository, namespace: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:project, freeze: false) { create(:project, :public, :repository, namespace: group) }
 
     before_all do
       build_team(project)
@@ -3922,7 +3922,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#new_instance_access_request' do
-    let_it_be(:user) { create(:user, :blocked_pending_approval) }
+    let_it_be(:user, freeze: false) { create(:user, :blocked_pending_approval) }
     let_it_be(:admins) { create_list(:admin, 12, :with_sign_ins) }
 
     subject { notification.new_instance_access_request(user) }
@@ -3945,7 +3945,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#user_admin_rejection' do
-    let_it_be(:user) { create(:user, :blocked_pending_approval) }
+    let_it_be(:user, freeze: false) { create(:user, :blocked_pending_approval) }
 
     before do
       reset_delivered_emails!
@@ -3959,7 +3959,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#user_deactivated' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     it 'sends the user an email' do
       expect do
@@ -4189,7 +4189,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
   describe 'Pipelines' do
     describe '#pipeline_finished' do
-      let_it_be(:project) { create(:project, :public, :repository) }
+      let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
       let_it_be(:u_member) { create(:user) }
       let_it_be(:u_watcher) { create_user_with_notification(:watch, 'watcher') }
 
@@ -4868,7 +4868,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe '#prometheus_alerts_fired' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:master) { create(:user) }
     let_it_be(:developer) { create(:user) }
     let_it_be(:alert) { create(:alert_management_alert, project: project) }
@@ -4942,7 +4942,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
   describe '#inactive_project_deletion_warning' do
     let_it_be(:deletion_date) { Date.current }
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:maintainer) { create(:user) }
     let_it_be(:developer) { create(:user) }
 
@@ -4969,8 +4969,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'project scheduled for deletion' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:project, freeze: false) { create(:project) }
 
     context 'when project emails are disabled' do
       before do
@@ -5019,8 +5019,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       end
 
       context 'when project has no direct owners but belongs to a group with owners' do
-        let_it_be(:group) { create(:group) }
-        let_it_be(:project) { create(:project, group: group) }
+        let_it_be(:group, freeze: false) { create(:group) }
+        let_it_be(:project, freeze: false) { create(:project, group: group) }
         let_it_be(:group_owner) { create(:user) }
 
         before do
@@ -5039,8 +5039,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'group scheduled for deletion' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:group) { create(:group) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group) }
 
     context 'when group emails are disabled' do
       before do

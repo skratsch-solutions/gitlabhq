@@ -21,7 +21,7 @@ RSpec.describe Issues::ReferencedMergeRequestsService, feature_category: :team_p
   let_it_be(:issue) { create(:issue, author: user, project: project) }
 
   let_it_be(:closing_mr) { create_closing_mr(source_project: project) }
-  let_it_be(:closing_mr_other_project) { create_closing_mr(source_project: other_project) }
+  let_it_be(:closing_mr_other_project, freeze: false) { create_closing_mr(source_project: other_project) }
 
   let_it_be(:referencing_mr) { create_referencing_mr(source_project: project, source_branch: 'csv') }
   let_it_be(:referencing_mr_other_project) { create_referencing_mr(source_project: other_project, source_branch: 'csv') }

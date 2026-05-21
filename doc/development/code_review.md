@@ -131,35 +131,6 @@ by a reviewer before passing it to a maintainer as described in the
    Designers do not require a Product Designer to approve feature changes, unless the changes are community contributions.
 1. End-to-end changes include all files in the `qa` directory.
 
-#### CODEOWNERS approval
-
-Some merge requests require mandatory approval by specific groups.
-See `.gitlab/CODEOWNERS` for definitions.
-
-Mandatory sections in `.gitlab/CODEOWNERS` should only be limited to cases where
-it is necessary due to:
-
-- compliance
-- availability
-- security
-
-When adding a mandatory section, you should track the impact on the new mandatory section
-on merge request rates.
-See the [Verify issue](https://gitlab.com/gitlab-org/gitlab/-/issues/411559) for a good example.
-
-All other cases should not use mandatory sections as we favor
-[responsibility over rigidity](https://handbook.gitlab.com/handbook/values/#freedom-and-responsibility-over-rigidity).
-
-Additionally, the current structure of the monolith means that merge requests
-are likely to touch seemingly unrelated parts.
-Multiple mandatory approvals means that such merge requests require the author
-to seek approvals, which is not efficient.
-
-Efforts to improve this are in:
-
-- <https://gitlab.com/groups/gitlab-org/-/epics/11624>
-- <https://gitlab.com/gitlab-org/gitlab/-/issues/377326>
-
 #### Acceptance checklist
 
 <!-- When editing, remember to announce the change to Engineering Division -->

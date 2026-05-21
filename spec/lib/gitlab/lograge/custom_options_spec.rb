@@ -17,6 +17,7 @@ RSpec.describe Gitlab::Lograge::CustomOptions, feature_category: :observability 
       {
         params: params,
         user_id: 'test',
+        user_is_bot: false,
         cf_request_id: SecureRandom.hex,
         metadata: { 'meta.user' => 'jane.doe' },
         request_urgency: :default,
@@ -56,6 +57,10 @@ RSpec.describe Gitlab::Lograge::CustomOptions, feature_category: :observability 
 
     it 'adds the user id' do
       expect(subject[:user_id]).to eq('test')
+    end
+
+    it 'adds the user_is_bot flag' do
+      expect(subject[:user_is_bot]).to be(false)
     end
 
     it 'adds Cloudflare headers' do

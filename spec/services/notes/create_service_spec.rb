@@ -202,7 +202,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
 
       context 'in a merge request' do
         let_it_be(:project_with_repo) { create(:project, :repository) }
-        let_it_be(:merge_request) do
+        let_it_be(:merge_request, freeze: false) do
           create(:merge_request, source_project: project_with_repo, target_project: project_with_repo)
         end
 
@@ -436,7 +436,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
         let_it_be(:to_be_copied_label) { create(:label, project: project, title: 'to be copied') }
         let_it_be(:feature_label) { create(:label, project: project, title: 'feature') }
         let_it_be(:issue, reload: true) { create(:issue, project: project, labels: [bug_label], due_date: '2019-01-01') }
-        let_it_be(:issue_2) { create(:issue, project: project, labels: [bug_label, to_be_copied_label]) }
+        let_it_be(:issue_2, freeze: false) { create(:issue, project: project, labels: [bug_label, to_be_copied_label]) }
 
         context 'for issues' do
           let(:issuable) { issue }
@@ -488,7 +488,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
         end
 
         context 'for merge requests', feature_category: :code_review_workflow do
-          let_it_be(:merge_request) { create(:merge_request, source_project: project, labels: [bug_label]) }
+          let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project, labels: [bug_label]) }
 
           let(:issuable) { merge_request }
           let(:note_params) { opts.merge(noteable_type: 'MergeRequest', noteable_id: merge_request.id, confidential: false) }
@@ -782,7 +782,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
       end
 
       context 'wiki page note' do
-        let_it_be(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, container: project) }
+        let_it_be(:wiki_page_meta, freeze: false) { create(:wiki_page_meta, :for_wiki_page, container: project) }
         let(:opts) { { note: 'reply', noteable_type: 'WikiPage::Meta', noteable_id: wiki_page_meta.id, project: wiki_page_meta.project } }
 
         it_behaves_like 'internal event tracking' do
@@ -827,7 +827,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
     end
 
     context 'when creating a note on a work item' do
-      let_it_be(:work_item) { create(:work_item, project: project) }
+      let_it_be(:work_item, freeze: false) { create(:work_item, project: project) }
 
       let(:opts) do
         {
@@ -870,7 +870,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
     end
 
     context 'when creating a note on a design version' do
-      let_it_be(:work_item) { create(:work_item, project: project) }
+      let_it_be(:work_item, freeze: false) { create(:work_item, project: project) }
       let_it_be(:design) { create(:design, issue: work_item) }
 
       let(:opts) do
@@ -886,7 +886,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
     end
 
     context 'when creating a note on a merge request (non-work item)' do
-      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
 
       let(:opts) do
         {
@@ -903,7 +903,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
     end
 
     context 'when track_note_creation receives an unexpected event' do
-      let_it_be(:work_item) { create(:work_item, project: project) }
+      let_it_be(:work_item, freeze: false) { create(:work_item, project: project) }
 
       let(:opts) do
         {

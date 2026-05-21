@@ -7,7 +7,7 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state, f
   include AfterNextHelpers
 
   let_it_be_with_reload(:project) { create(:project, :repository) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:user2) { create(:user) }
 
   describe '#execute' do

@@ -978,7 +978,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
     end
 
-    context 'for service desk issues' do
+    context 'for service desk issues', feature_category: :service_desk do
       let_it_be(:issue_email_participant) do
         create(:issue_email_participant, issue: issue, email: 'service.desk@example.com')
       end
@@ -989,7 +989,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         issue.update!(external_author: 'service.desk@example.com')
       end
 
-      describe 'thank you email', feature_category: :service_desk do
+      describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(issue.id) }
 
         it_behaves_like 'an email with X-GitLab headers containing IDs' do
@@ -1081,7 +1081,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
       end
 
-      describe 'new note email', feature_category: :service_desk do
+      describe 'new note email' do
         let_it_be(:first_note) { create(:discussion_note_on_issue, note: 'Hello world') }
 
         subject { described_class.service_desk_new_note_email(issue.id, first_note.id, issue_email_participant) }
@@ -1147,7 +1147,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
     end
 
-    context 'for service desk tickets' do
+    context 'for service desk tickets', feature_category: :service_desk do
       let_it_be(:ticket) do
         create(:work_item, :ticket, project: project, external_author: 'service.desk@example.com')
       end
@@ -1158,7 +1158,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
       let_it_be(:support_bot) { create(:support_bot) }
 
-      describe 'thank you email', feature_category: :service_desk do
+      describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(ticket.id) }
 
         it_behaves_like 'an email with X-GitLab headers containing IDs' do
@@ -1250,7 +1250,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
       end
 
-      describe 'new note email', feature_category: :service_desk do
+      describe 'new note email' do
         let_it_be(:first_note) { create(:discussion_note_on_work_item, noteable: ticket, project: project, note: 'Hello world') }
 
         subject { described_class.service_desk_new_note_email(ticket.id, first_note.id, issue_email_participant) }
@@ -1316,7 +1316,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
       end
     end
 
-    context 'when work item type is not issue or ticket' do
+    context 'when work item type is not issue or ticket', feature_category: :service_desk do
       let_it_be(:task_work_item) do
         create(:work_item, :task, project: project, external_author: 'service.desk@example.com')
       end
@@ -1338,13 +1338,13 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
         end
       end
 
-      describe 'thank you email', feature_category: :service_desk do
+      describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(task_work_item.id) }
 
         it_behaves_like 'does not have legacy Issue headers'
       end
 
-      describe 'new note email', feature_category: :service_desk do
+      describe 'new note email' do
         subject { described_class.service_desk_new_note_email(task_work_item.id, note.id, issue_email_participant) }
 
         it_behaves_like 'does not have legacy Issue headers'

@@ -7,6 +7,7 @@ import {
 } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import { PROMO_URL } from '~/constants';
+import { exploreRootPath } from '~/lib/utils/path_helpers/explore';
 
 export default {
   components: {
@@ -44,7 +45,7 @@ export default {
     exploreItem() {
       return {
         text: __('Explore'),
-        href: '/explore',
+        href: exploreRootPath(),
       };
     },
     items() {
@@ -54,6 +55,7 @@ export default {
       return [
         {
           text: s__('LoggedOutMarketingHeader|Why GitLab'),
+          // eslint-disable-next-line @gitlab/no-hardcoded-urls -- promo/marketing site path used with PROMO_URL (about.gitlab.com)
           href: this.promoUrl('/why-gitlab'),
         },
         {
@@ -62,6 +64,7 @@ export default {
         },
         {
           text: s__('LoggedOutMarketingHeader|Contact Sales'),
+          // eslint-disable-next-line @gitlab/no-hardcoded-urls -- promo/marketing site path used with PROMO_URL (about.gitlab.com)
           href: this.promoUrl('/sales'),
           extraAttrs: {
             dataMenuOnly: true,

@@ -12,7 +12,7 @@ RSpec.describe Achievements::UpdateService, feature_category: :user_profile do
 
     context 'when user does not have permission' do
       let_it_be(:group) { create(:group) }
-      let_it_be(:achievement) { create(:achievement, namespace: group) }
+      let_it_be(:achievement, freeze: false) { create(:achievement, namespace: group) }
 
       before_all do
         group.add_developer(user)
@@ -27,7 +27,7 @@ RSpec.describe Achievements::UpdateService, feature_category: :user_profile do
 
     context 'when user has permission' do
       let_it_be(:group) { create(:group) }
-      let_it_be(:achievement) { create(:achievement, namespace: group) }
+      let_it_be(:achievement, freeze: false) { create(:achievement, namespace: group) }
 
       before_all do
         group.add_maintainer(user)

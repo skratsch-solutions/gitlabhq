@@ -10,6 +10,7 @@ module Feature
     Namespace
     Ci::Runner
     Organizations::Organization
+    Authn::OauthApplication
   ].freeze
 
   class FlipperRecord < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord -- This class perfectly replaces

@@ -6,7 +6,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
   include ProjectForksHelper
 
   let_it_be(:group) { create(:group, :public) }
-  let_it_be(:project) { create(:project, :private, :repository, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :private, :repository, group: group) }
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
@@ -556,7 +556,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       let(:service) { described_class.new(project: project, current_user: user, params: opts) }
 
       before do
-        project.add_maintainer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- we're overriding the project in this context
+        project.add_maintainer(user)
       end
 
       context 'without pipeline' do
@@ -1243,7 +1243,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
     context 'while saving references to issues that the updated merge request closes', :aggregate_failures do
       let_it_be(:user) { create(:user) }
       let_it_be(:group) { create(:group, :public) }
-      let_it_be(:project) { create(:project, :private, :repository, group: group, developers: user) }
+      let_it_be(:project, freeze: false) { create(:project, :private, :repository, group: group, developers: user) }
       let_it_be(:merge_request, refind: true) { create(:merge_request, :simple, :unchanged, source_project: project) }
       let_it_be(:first_issue) { create(:issue, project: project) }
       let_it_be(:second_issue) { create(:issue, project: project) }

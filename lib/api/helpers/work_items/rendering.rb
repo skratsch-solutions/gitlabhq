@@ -52,6 +52,49 @@ module API
           end
         end
 
+        def render_children_for(parent_work_item)
+          check_work_item_rest_api_feature_flag!
+          check_pagination_param!(params)
+
+          authorize! :read_work_item, parent_work_item
+
+          resource_parent = parent_work_item.resource_parent
+          field_keys = requested_field_keys(params[:fields])
+          feature_keys = requested_feature_keys(params[:features])
+          preloads = preload_associations_for(field_keys, feature_keys, resource_parent)
+
+          children_relation = build_children_relation(parent_work_item, state: params[:state], preloads: preloads)
+
+          params[:pagination] = 'keyset'
+
+          # Children are loaded via the model association (keyset-ordered by relative position), not via
+          # WorkItemsFinder. Pagination runs first so finalize sees the full page and produces a correct next-cursor,
+          # then per-record :read_work_item policy filters the response in Ruby. A page may therefore present fewer
+          # items than per_page when some children are not readable, but cursor advancement stays correct.
+          paginated = paginate_with_strategies(children_relation) do |records|
+            preload_hierarchy_authorization(records, feature_keys)
+            records
+          end
+
+          records = Array(paginated)
+          preload_work_item_policies(records)
+
+          visible_children = DeclarativePolicy.user_scope do
+            records.select { |child| Ability.allowed?(current_user, :read_work_item, child) }
+          end
+
+          present visible_children,
+            with: Entities::WorkItemBasic,
+            current_user: current_user,
+            scope_validator: ::Gitlab::Auth::ScopeValidator.new(
+              access_token.present?, Gitlab::Auth::RequestAuthenticator.new(request)
+            ),
+            access_token: access_token,
+            requested_features: feature_keys,
+            fields: field_keys,
+            resource_parent: resource_parent
+        end
+
         def render_work_item_for(resource_parent, work_item_iid)
           check_work_item_rest_api_feature_flag!
 

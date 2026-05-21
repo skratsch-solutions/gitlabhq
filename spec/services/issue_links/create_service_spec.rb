@@ -29,7 +29,7 @@ RSpec.describe IssueLinks::CreateService, feature_category: :team_planning do
     it_behaves_like 'issuable link creation'
 
     context 'when target is an incident' do
-      let_it_be(:issue) { create(:incident, project: project) }
+      let_it_be(:issue, freeze: false) { create(:incident, project: project) }
 
       let(:params) do
         { issuable_references: [issuable2.to_reference, issuable3.to_reference(another_project)] }

@@ -7552,7 +7552,13 @@ msgstr ""
 msgid "AgentArtifacts|View full session details"
 msgstr ""
 
+msgid "AgentPlan|Are you sure you want to delete this workplan? This action cannot be undone."
+msgstr ""
+
 msgid "AgentPlan|Choose a workplan template"
+msgstr ""
+
+msgid "AgentPlan|Delete workplan"
 msgstr ""
 
 msgid "AgentPlan|Describe your intent for Duo. A workplan structures context into an agent-ready input for autonomous execution."
@@ -7565,12 +7571,6 @@ msgid "AgentPlan|Generate workplan with Duo"
 msgstr ""
 
 msgid "AgentPlan|No workplan has been added yet. You don't have permission to edit the workplan."
-msgstr ""
-
-msgid "AgentPlan|Plan defined"
-msgstr ""
-
-msgid "AgentPlan|Plan defined based on %{templateName}"
 msgstr ""
 
 msgid "AgentPlan|Select workplan template"
@@ -14208,6 +14208,9 @@ msgid "BulkImport|Import failed. '%{path}' already exists. Change the destinatio
 msgstr ""
 
 msgid "BulkImport|Import failed. '%{path}' not found."
+msgstr ""
+
+msgid "BulkImport|Import failed. Destination '%{destination}' belongs to a different organization than the current one. All entities in a single migration must belong to your current organization."
 msgstr ""
 
 msgid "BulkImport|Import failed. The bulk import entity must belong to only one organization, group, or project."

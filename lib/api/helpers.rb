@@ -127,7 +127,7 @@ module API
     end
 
     def save_current_user_in_env(user)
-      env[API_USER_ENV] = { user_id: user.id, username: user.username }
+      env[API_USER_ENV] = { user_id: user.id, username: user.username, user_is_bot: user.respond_to?(:bot?) && user.bot? }
 
       if GLOBAL_ID_LOG_REGEXES.any? { |re| re.match?(env["api.endpoint"]&.namespace) }
         env[API_USER_ENV][:global_user_id] = Gitlab::GlobalAnonymousId.user_id(user)

@@ -157,7 +157,7 @@ release-environments-deploy:
     strategy: depend
   needs: ["release-environments-deploy-env"]
 
-release-environments-get-qa:
+release-environments-qa:
   stage: qa
   extends:
     - .qa-base

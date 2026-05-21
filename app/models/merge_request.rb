@@ -1272,6 +1272,29 @@ class MergeRequest < ApplicationRecord
     end
   end
 
+  def merged_in_repository?
+    merge_commit_sha.present? || read_attribute(:merged_commit_sha).present? || squash_commit_reachable_from_target_branch?
+  end
+
+  def squash_commit_reachable_from_target_branch?
+    return false if squash_commit_sha.blank?
+    return false unless target_project.repository.exists?
+
+    target_head = target_project.repository.commit(target_branch)
+    return false unless target_head
+
+    target_project.repository.ancestor?(squash_commit_sha, target_head.sha)
+  rescue Gitlab::Git::Repository::NoRepository, Gitlab::Git::CommandError => e
+    Gitlab::ErrorTracking.track_exception(
+      e,
+      merge_request_id: id,
+      merge_request_iid: iid,
+      project_id: target_project_id,
+      method: :squash_commit_reachable_from_target_branch?
+    )
+    false
+  end
+
   # When importing a pull request from GitHub, the old and new branches may no
   # longer actually exist by those names, but we need to recreate the merge
   # request diff with the right source and target shas.
@@ -2639,10 +2662,6 @@ class MergeRequest < ApplicationRecord
 
   def supports_assignee?
     true
-  end
-
-  def find_assignee(user)
-    merge_request_assignees.find_by(user_id: user.id)
   end
 
   def find_reviewer(user)

@@ -251,7 +251,7 @@ RSpec.describe ::Authz::Tokens::AuthorizeGranularScopesService, feature_category
         create(:granular_scope, boundary:, permissions:)
       end
 
-      let_it_be(:token) { create(:granular_pat) }
+      let_it_be(:token, freeze: false) { create(:granular_pat) }
       let_it_be(:instance_boundary) { Authz::Boundary.for(:instance) }
       let_it_be(:user_boundary) { Authz::Boundary.for(:user) }
       let_it_be(:group_boundary) { Authz::Boundary.for(create(:group, developers: token.user)) }

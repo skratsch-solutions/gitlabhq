@@ -51,6 +51,7 @@ export default {
     },
     autosaveDraftKey() {
       if (!this.autosaveKey) return null;
+      // eslint-disable-next-line @gitlab/no-hardcoded-urls -- autosave key identifier, not a URL
       return `${this.autosaveKey}/draft-note-${this.draft.id}`;
     },
   },

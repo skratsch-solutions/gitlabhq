@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     registerAgent(agent) {
-      this.$emit('registerAgent', agent.name);
+      this.$emit('register-agent', agent.name);
     },
   },
 };

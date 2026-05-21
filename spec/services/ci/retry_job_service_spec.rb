@@ -6,7 +6,7 @@ RSpec.describe Ci::RetryJobService, :clean_gitlab_redis_shared_state, feature_ca
   using RSpec::Parameterized::TableSyntax
   let_it_be(:reporter) { create(:user) }
   let_it_be(:developer) { create(:user) }
-  let_it_be(:project) { create(:project, :repository, developers: developer, reporters: reporter) }
+  let_it_be(:project, freeze: false) { create(:project, :repository, developers: developer, reporters: reporter) }
   let_it_be(:pipeline) do
     create(:ci_pipeline, project: project, sha: 'b83d6e391c22777fca1ed3012fce84f633d7fed0')
   end

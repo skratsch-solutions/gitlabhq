@@ -377,6 +377,7 @@ module API
         mount ::API::WorkItems::Update
         mount ::API::WorkItems::List
         mount ::API::WorkItems::Show
+        mount ::API::WorkItems::Children
         mount ::API::Wikis
 
         add_open_api_documentation!

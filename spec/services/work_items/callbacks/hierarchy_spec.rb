@@ -6,7 +6,7 @@ RSpec.describe WorkItems::Callbacks::Hierarchy, feature_category: :portfolio_man
   let_it_be(:user) { create(:user) }
   let_it_be(:project) { create(:project) }
 
-  let_it_be(:work_item) { create(:work_item, project: project) }
+  let_it_be(:work_item, freeze: false) { create(:work_item, project: project) }
   let_it_be(:parent_work_item) { create(:work_item, project: project) }
   let_it_be(:child_work_item) { create(:work_item, :task, project: project) }
   let_it_be(:existing_link) { create(:parent_link, work_item: child_work_item, work_item_parent: work_item) }
@@ -154,7 +154,7 @@ RSpec.describe WorkItems::Callbacks::Hierarchy, feature_category: :portfolio_man
     end
 
     context 'when updating parent' do
-      let_it_be(:work_item) { create(:work_item, :task, project: project) }
+      let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
 
       let(:params) { { parent: parent_work_item } }
 

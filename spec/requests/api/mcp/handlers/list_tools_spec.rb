@@ -332,6 +332,16 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
           'id' => { 'type' => 'string', 'description' => 'The ID or URL-encoded path of the project' },
           'title' => { 'type' => 'string', 'description' => 'The title of an issue' }
         )
+        properties = create_issue_tool['inputSchema']['properties']
+        expect(properties['milestone_id']).to include(
+          'type' => 'integer',
+          'description' => 'The ID of a milestone to assign issue'
+        )
+        expect(properties['milestone']).to include(
+          'type' => 'string',
+          'description' => 'The title of a project or ancestor-group milestone to assign the issue to. ' \
+            'Mutually exclusive with `milestone_id`.'
+        )
       end
 
       it 'returns create_merge_request tool with correct structure including annotations' do
@@ -382,6 +392,11 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
         expect(properties['milestone_id']).to include(
           'type' => 'integer',
           'description' => 'The global ID of a milestone to assign the merge request to.'
+        )
+        expect(properties['milestone']).to include(
+          'type' => 'string',
+          'description' => 'The title of a project or ancestor-group milestone to assign the merge request to. ' \
+            'Mutually exclusive with `milestone_id`.'
         )
       end
 

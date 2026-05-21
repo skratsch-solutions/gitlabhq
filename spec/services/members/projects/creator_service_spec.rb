@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Members::Projects::CreatorService, feature_category: :groups_and_projects do
   let_it_be(:source, reload: true) { create(:project, :public) }
   let_it_be(:source2, reload: true) { create(:project, :public) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   describe '.access_levels' do
     it 'returns Gitlab::Access.sym_options_with_owner' do

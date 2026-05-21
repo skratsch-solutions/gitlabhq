@@ -125,15 +125,5 @@ RSpec.describe CommitSignatures::X509CommitSignature, feature_category: :source_
         expect(signature.verification_status).to eq('verified')
       end
     end
-
-    context 'when check_for_mailmapped_commit_emails feature flag is disabled' do
-      before do
-        stub_feature_flags(check_for_mailmapped_commit_emails: false)
-      end
-
-      it 'verification status is unmodified' do
-        expect(signature.verification_status).to eq('verified')
-      end
-    end
   end
 end

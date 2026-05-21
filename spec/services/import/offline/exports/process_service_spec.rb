@@ -175,7 +175,7 @@ RSpec.describe Import::Offline::Exports::ProcessService, feature_category: :impo
       end
 
       context 'when there are no descendent portables' do
-        let_it_be(:offline_export) { create(:offline_export) }
+        let_it_be(:offline_export, freeze: false) { create(:offline_export) }
         let_it_be(:bulk_export) do
           create(
             :bulk_import_export, :pending, offline_export: offline_export,

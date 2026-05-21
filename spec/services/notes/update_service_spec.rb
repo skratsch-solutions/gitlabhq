@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Notes::UpdateService, feature_category: :team_planning do
   let_it_be(:group) { create(:group, :public) }
-  let_it_be(:project) { create(:project, :public, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
   let_it_be(:private_group) { create(:group, :private) }
   let_it_be(:private_project) { create(:project, :private, group: private_group) }
   let_it_be(:user) { create(:user) }
@@ -446,7 +446,7 @@ RSpec.describe Notes::UpdateService, feature_category: :team_planning do
     end
 
     context 'for a personal snippet' do
-      let_it_be(:snippet) { create(:personal_snippet, :public) }
+      let_it_be(:snippet, freeze: false) { create(:personal_snippet, :public) }
 
       let(:note) { create(:note, project: nil, noteable: snippet, author: user, note: "Note on a snippet with reference #{issue.to_reference}") }
 

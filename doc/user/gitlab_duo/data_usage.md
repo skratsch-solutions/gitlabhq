@@ -192,3 +192,49 @@ The following information is not included in logs, unless users include it in th
 - Project or namespace identifiers.
 
 GitLab does not remove identifiers that users have included in their prompt.
+
+## Prompt caching
+
+Prompt caching improves latency by avoiding the reprocessing of cached prompt and input data.
+When you turn on prompt caching, the model vendor temporarily stores prompt data in memory.
+The cached data is never logged to any persistent storage.
+
+For both Agent Platform features that use the prompt registry and Code Suggestions,
+token caching is automatically turned on for supported models.
+
+### Turn off prompt caching
+
+By default, prompt caching is turned on.
+You can turn prompt caching off for a top-level group or an instance.
+
+{{< tabs >}}
+
+{{< tab title="For a top-level group" >}}
+
+Prerequisites:
+
+- The Owner role for the top-level group.
+
+1. In the top bar, select **Search or go to** and find your group.
+1. In the left sidebar, select **Settings** > **GitLab Duo**.
+1. Select **Change configuration**.
+1. In the **Data and privacy** section, under **Prompt cache**, clear the **Turn on prompt caching** checkbox.
+1. Select **Save changes**.
+
+{{< /tab >}}
+
+{{< tab title="For an instance" >}}
+
+Prerequisites:
+
+- Administrator access.
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **GitLab Duo**.
+1. Select **Change configuration**.
+1. In the **Data and privacy** section, under **Prompt cache**, clear the **Turn on prompt caching** checkbox.
+1. Select **Save changes**.
+
+{{< /tab >}}
+
+{{< /tabs >}}

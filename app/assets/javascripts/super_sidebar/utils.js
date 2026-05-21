@@ -93,6 +93,7 @@ export const trackContextAccess = (username, context, trackVisitsPath) => {
     return false;
   }
 
+  // eslint-disable-next-line @gitlab/no-hardcoded-urls -- localStorage key identifier, not a URL
   const storageKey = `${username}/frequent-${context.namespace}`;
   const storedRawItems = localStorage.getItem(storageKey);
   const storedItems = storedRawItems ? JSON.parse(storedRawItems) : [];

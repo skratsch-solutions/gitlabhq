@@ -39,8 +39,19 @@ export default {
     shortcutsDisabled() {
       return shouldDisableShortcuts();
     },
+    currentQueryParams() {
+      const params = {};
+      if (this.$route?.query?.blame) {
+        params.blame = this.$route.query.blame;
+      }
+      return params;
+    },
     absolutePermalinkPath() {
-      return getAbsolutePermalinkPath(this.permalinkPath, hashState.currentHash);
+      return getAbsolutePermalinkPath(
+        this.permalinkPath,
+        hashState.currentHash,
+        this.currentQueryParams,
+      );
     },
   },
   mounted() {

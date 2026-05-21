@@ -97,6 +97,18 @@ RSpec.describe WorkItems::DeleteService, feature_category: :team_planning do
       end
     end
 
+    context 'when work item has assignees' do
+      let_it_be(:assignee) { create(:user, guest_of: group) }
+      let_it_be(:work_item_with_assignee) { create(:work_item, project: project, author: owner, assignees: [assignee]) }
+      let(:user) { owner }
+
+      it 'invalidates the issues count cache for each assignee' do
+        expect(assignee).to receive(:invalidate_cache_counts).once
+
+        service.execute(work_item_with_assignee)
+      end
+    end
+
     # currently we don't expect destroy to fail. Mocking here for coverage and keeping
     # the service's return type consistent
     context 'when there are errors preventing to delete the work item' do

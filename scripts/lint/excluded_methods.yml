@@ -87,3 +87,5 @@ app/helpers/mirror_helper.rb:
   - remote_mirrors_table_data: Will be called from HAML view in follow-up feature-flagged MR for Vue mirror list table
 ee/app/helpers/ee/mirror_helper.rb:
   - pull_mirror_table_data: Will be called from HAML view in follow-up feature-flagged MR for Vue mirror list table
+app/models/authn/oauth_application.rb:
+  - iam_routing_enabled?: Will be called from the OAuth IAM PreAuthorize endpoint shipped in a follow-up MR (AUTH-011)

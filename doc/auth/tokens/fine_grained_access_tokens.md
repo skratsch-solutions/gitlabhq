@@ -1538,6 +1538,8 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Read | Project | `GET` | `/projects/:id/-/work_items` |
 | Read | Project | `GET` | `/namespaces/:id/-/work_items/:work_item_iid` |
 | Read | Project | `GET` | `/projects/:id/-/work_items/:work_item_iid` |
+| Read | Project | `GET` | `/namespaces/:id/-/work_items/:work_item_iid/children` |
+| Read | Project | `GET` | `/projects/:id/-/work_items/:work_item_iid/children` |
 | Read | Project | `GET` | `/projects/:id/boards` |
 | Read | Project | `GET` | `/projects/:id/boards/:board_id` |
 | Read | Project | `GET` | `/projects/:id/boards/:board_id/lists` |
@@ -1584,6 +1586,8 @@ Grants the ability to create, delete, read, and update work items such as epics 
 | Read | Group | `GET` | `/groups/:id/-/work_items` |
 | Read | Group | `GET` | `/namespaces/:id/-/work_items/:work_item_iid` |
 | Read | Group | `GET` | `/groups/:id/-/work_items/:work_item_iid` |
+| Read | Group | `GET` | `/namespaces/:id/-/work_items/:work_item_iid/children` |
+| Read | Group | `GET` | `/groups/:id/-/work_items/:work_item_iid/children` |
 | Read | Group | `GET` | `/groups/:id/epics/:noteable_id/discussions` |
 | Read | Group | `GET` | `/groups/:id/epics/:noteable_id/discussions/:discussion_id` |
 | Read | Group | `GET` | `/groups/:id/epics/:noteable_id/discussions/:discussion_id/notes` |

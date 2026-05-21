@@ -4,7 +4,7 @@ description: When enabled, wiki pages are included in the GraphQL recently viewe
 feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/592834
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/233014
 rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/597889
-milestone: '19.0'
+milestone: '19.1'
 group: group::knowledge
-type: wip
+type: gitlab_com_derisk
 default_enabled: false

@@ -126,6 +126,32 @@ module API
           preloads
         end
 
+        def build_children_relation(parent_work_item, state: nil, preloads: [])
+          relation = parent_work_item.work_item_children_by_relative_position
+          relation = relation.with_state(state) if state.to_s.in?(%w[opened closed])
+
+          # Unconditionally preload author and project / namespace / route so the :read_work_item policy check doesn't
+          # N+1 when loading those associations
+          all_preloads = (preloads + WORK_ITEM_REFERENCE_PRELOADS).uniq
+          relation.preload(*all_preloads) # rubocop:disable CodeReuse/ActiveRecord -- Preloading associations for API response
+        end
+
+        # Preloads the project / group membership associated with the work items so the :read_project and :read_group
+        # policy checks don't N+1 on membership lookups
+        def preload_work_item_policies(work_items)
+          return unless current_user
+          return if work_items.blank?
+
+          projects = work_items.filter_map(&:project)
+          ::Preloaders::UserMaxAccessLevelInProjectsPreloader.new(projects, current_user).execute if projects.any?
+
+          group_namespaces = (work_items.map(&:namespace) + projects.map(&:namespace))
+            .select { |namespace| namespace.type == ::Group.sti_name }
+          return if group_namespaces.empty?
+
+          ::Preloaders::GroupPolicyPreloader.new(group_namespaces, current_user).execute
+        end
+
         private
 
         def preload_user_discussions_counts(work_items)

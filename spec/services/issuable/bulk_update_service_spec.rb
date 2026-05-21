@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Issuable::BulkUpdateService, feature_category: :team_planning do
   let_it_be(:user)    { create(:user) }
-  let_it_be(:project) { create(:project, :repository, namespace: user.namespace) }
+  let_it_be(:project, freeze: false) { create(:project, :repository, namespace: user.namespace) }
 
   def bulk_update(issuables, extra_params = {})
     bulk_update_params = extra_params
@@ -418,7 +418,7 @@ RSpec.describe Issuable::BulkUpdateService, feature_category: :team_planning do
     end
 
     describe 'updating confidentiality' do
-      let_it_be(:project) { create(:project, :repository, group: group) }
+      let_it_be(:project, freeze: false) { create(:project, :repository, group: group) }
 
       before do
         group.add_maintainer(user)

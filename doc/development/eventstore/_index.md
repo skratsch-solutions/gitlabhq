@@ -142,7 +142,7 @@ back into Sidekiq to be retried.
   processed as part of the main business transaction, and is not a
   side-effect.
 - Sidekiq workers aren't limited by default but you should consider configuring a
-  [concurrency limit](sidekiq/worker_attributes.md#concurrency-limit) if there is a risk of saturating shared resources.
+  [concurrency limit](../sidekiq/worker_attributes.md#concurrency-limit) if there is a risk of saturating shared resources.
 
 ## Define an event
 
@@ -229,7 +229,7 @@ Changes to the schema or event name require multiple rollouts. While the new ver
 - Events get persisted in the Sidekiq queue as job arguments, so we could have 2 versions of the schema during deployments.
 
 As changing the schema ultimately impacts the Sidekiq arguments, refer to our
-[Sidekiq style guide](sidekiq/compatibility_across_updates.md#changing-the-arguments-for-a-worker) with regards to multiple rollouts.
+[Sidekiq style guide](../sidekiq/compatibility_across_updates.md#changing-the-arguments-for-a-worker) with regards to multiple rollouts.
 
 #### Rename event
 
@@ -312,7 +312,7 @@ To subscribe the worker to a specific event, create a subscriptions class
 and register the event inside the `register` method:
 
 > [!warning]
-> To [ensure compatibility with canary deployments](sidekiq/compatibility_across_updates.md#adding-new-workers)
+> To [ensure compatibility with canary deployments](../sidekiq/compatibility_across_updates.md#adding-new-workers)
 > when registering subscriptions, the Sidekiq workers must be introduced in a previous deployment or we must
 > use a feature flag.
 
@@ -334,7 +334,7 @@ module Gitlab
 end
 ```
 
-There should be a separate subscriptions class for each [bounded context](software_design.md#bounded-contexts).
+There should be a separate subscriptions class for each [bounded context](../software_design.md#bounded-contexts).
 Subscriptions are organized using the bounded context of the worker, not the event.
 
 - FOSS workers should create subscriptions in `lib/gitlab/bounded_contexts/subscriptions/[context]_subscriptions.rb`
@@ -412,7 +412,7 @@ The `handle_event` method in the subscriber worker is called for each of the eve
 ## Remove a subscriber
 
 As `Gitlab::EventStore` is backed by Sidekiq we follow the same guides for
-[removing Sidekiq workers](sidekiq/compatibility_across_updates.md#removing-worker-classes) starting
+[removing Sidekiq workers](../sidekiq/compatibility_across_updates.md#removing-worker-classes) starting
 with:
 
 - Removing the subscription in order to remove any code that enqueues the job
@@ -501,7 +501,7 @@ end
 
 ## Best practices
 
-- Maintain [CE & EE separation and compatibility](ee_features.md#separation-of-ee-code-in-the-backend):
+- Maintain [CE & EE separation and compatibility](../ee_features.md#separation-of-ee-code-in-the-backend):
   - Define the event class and publish the event in the same code where the event always occurs (CE or EE).
     - If the event occurs as a result of a CE feature, the event class must both be defined and published in CE.
       Likewise if the event occurs as a result of an EE feature, the event class must both be defined and published in EE.

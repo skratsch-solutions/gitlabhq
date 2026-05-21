@@ -1411,7 +1411,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
     context 'only group milestones available' do
       let_it_be(:ancestor_group) { create(:group) }
       let_it_be(:group) { create(:group, parent: ancestor_group) }
-      let_it_be(:project) { create(:project, :public, namespace: group) }
+      let_it_be(:project, freeze: false) { create(:project, :public, namespace: group) }
       let_it_be(:milestone) { create(:milestone, group: ancestor_group, title: '10.0') }
 
       before_all do
@@ -3374,7 +3374,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
     end
 
     describe 'run_pipeline command' do
-      let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+      let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
 
       let(:content) { '/run_pipeline' }
       let(:create_pipeline_service) do
@@ -3666,7 +3666,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
             stub_licensed_features(epics: false)
           end
 
-          let_it_be(:issue) { create(:issue, project: project) }
+          let_it_be(:issue, freeze: false) { create(:issue, project: project) }
 
           it 'does not contain command' do
             expect(service.available_commands(issue)).not_to include(a_hash_including(name: :set_parent))
@@ -4241,7 +4241,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
     end
 
     describe 'type command' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let_it_be(:work_item) { create(:work_item, :task, project: project) }
 
       let(:command) { '/type issue' }
