@@ -2295,6 +2295,9 @@ msgstr ""
 msgid "A basic template for developing Linux programs using Kotlin Native"
 msgstr ""
 
+msgid "A compatible runner is available."
+msgstr ""
+
 msgid "A component must have a 'name'"
 msgstr ""
 
@@ -8783,6 +8786,9 @@ msgid "All groups"
 msgstr ""
 
 msgid "All groups and projects"
+msgstr ""
+
+msgid "All instance runners with the '%{tag}' tag are paused. Unpause at least one to run foundational flows."
 msgstr ""
 
 msgid "All issues"
@@ -17754,6 +17760,9 @@ msgid "CodeSuggestions|Enhance your coding experience with intelligent recommend
 msgstr ""
 
 msgid "CodeSuggestions|Enterprise"
+msgstr ""
+
+msgid "CodeSuggestions|Foundational flows and flow execution must be enabled, and a compatible runner must be available."
 msgstr ""
 
 msgid "CodeSuggestions|Get started with GitLab Duo Pro today by %{duo_ide_setup_page_link_start}setting up your IDE for success%{duo_ide_setup_page_link_end}."
@@ -26982,6 +26991,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Activity deleted after 30 days of inactivity. %{linkStart}Learn more.%{linkEnd}"
 msgstr ""
 
+msgid "DuoAgentPlatform|Add a session URL to commits authored by GitLab Duo Agent Platform, so reviewers can trace AI-assisted changes back to the originating session."
+msgstr ""
+
 msgid "DuoAgentPlatform|Agent reasoning"
 msgstr ""
 
@@ -27113,6 +27125,9 @@ msgid "DuoAgentPlatform|This session encountered an error before any messages we
 msgstr ""
 
 msgid "DuoAgentPlatform|This session started but failed before completing."
+msgstr ""
+
+msgid "DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits"
 msgstr ""
 
 msgid "DuoAgentPlatform|User messaged agent"
@@ -32399,6 +32414,9 @@ msgid "ForksDivergence|Update fork"
 msgstr ""
 
 msgid "ForksDivergence|View merge request"
+msgstr ""
+
+msgid "Foundational flows"
 msgstr ""
 
 msgid "FoundationalAgents|Agent"
@@ -47727,6 +47745,15 @@ msgid "No group provided"
 msgstr ""
 
 msgid "No groups or projects found"
+msgstr ""
+
+msgid "No instance runner with the '%{tag}' tag has connected yet. Start the runner so it registers with GitLab before running foundational flows."
+msgstr ""
+
+msgid "No instance runner with the '%{tag}' tag is registered. Register an active instance runner with this tag and a Docker-compatible executor (such as docker, docker-autoscaler, or kubernetes) to run foundational flows."
+msgstr ""
+
+msgid "No instance runner with the '%{tag}' tag uses a Docker-compatible executor. Reconfigure the runner to use docker, docker-autoscaler, kubernetes, or another Docker-based executor so it can run foundational flows."
 msgstr ""
 
 msgid "No issues"
@@ -65714,9 +65741,6 @@ msgstr ""
 msgid "SecurityOrchestration|AI File Access Control"
 msgstr ""
 
-msgid "SecurityOrchestration|AI Governance Essentials"
-msgstr ""
-
 msgid "SecurityOrchestration|AI Model Allowlist"
 msgstr ""
 
@@ -65730,9 +65754,6 @@ msgid "SecurityOrchestration|AI Spend & Usage Limit"
 msgstr ""
 
 msgid "SecurityOrchestration|AI Tool Access Control"
-msgstr ""
-
-msgid "SecurityOrchestration|AI safety & compliance"
 msgstr ""
 
 msgid "SecurityOrchestration|API Fuzzing Scanning Rule"
@@ -65856,9 +65877,6 @@ msgid "SecurityOrchestration|Agent Name Pattern"
 msgstr ""
 
 msgid "SecurityOrchestration|Agent Type"
-msgstr ""
-
-msgid "SecurityOrchestration|Agentic Remediation"
 msgstr ""
 
 msgid "SecurityOrchestration|Alert on Drift"
@@ -66101,9 +66119,6 @@ msgid "SecurityOrchestration|Auto-Deny Known Secret Files"
 msgstr ""
 
 msgid "SecurityOrchestration|Auto-Dismiss"
-msgstr ""
-
-msgid "SecurityOrchestration|Auto-Merge When Approved"
 msgstr ""
 
 msgid "SecurityOrchestration|Auto-Reopen if in KEV"
@@ -66637,9 +66652,6 @@ msgstr ""
 msgid "SecurityOrchestration|Dependency scan incomplete on protected branch — required scan not executed"
 msgstr ""
 
-msgid "SecurityOrchestration|Deploy AI security agent to create fix MRs with code suggestions"
-msgstr ""
-
 msgid "SecurityOrchestration|Deployment"
 msgstr ""
 
@@ -66689,9 +66701,6 @@ msgid "SecurityOrchestration|Draft your policy with GitLab Duo"
 msgstr ""
 
 msgid "SecurityOrchestration|Drag with a mouse to adjust editor's width"
-msgstr ""
-
-msgid "SecurityOrchestration|Dry Run (Preview Only)"
 msgstr ""
 
 msgid "SecurityOrchestration|Duo Code Review Governance"
@@ -67129,9 +67138,6 @@ msgstr ""
 msgid "SecurityOrchestration|Include Policy Details"
 msgstr ""
 
-msgid "SecurityOrchestration|Include Test Suggestions"
-msgstr ""
-
 msgid "SecurityOrchestration|Include subgroups"
 msgstr ""
 
@@ -67243,12 +67249,6 @@ msgstr ""
 msgid "SecurityOrchestration|MR"
 msgstr ""
 
-msgid "SecurityOrchestration|MR Reviewers"
-msgstr ""
-
-msgid "SecurityOrchestration|MR Strategy"
-msgstr ""
-
 msgid "SecurityOrchestration|MRs that would trigger"
 msgstr ""
 
@@ -67295,9 +67295,6 @@ msgid "SecurityOrchestration|Max Input Tokens"
 msgstr ""
 
 msgid "SecurityOrchestration|Max Lines Changed"
-msgstr ""
-
-msgid "SecurityOrchestration|Max MRs Per Execution"
 msgstr ""
 
 msgid "SecurityOrchestration|Max Output Tokens"
@@ -68019,9 +68016,6 @@ msgid "SecurityOrchestration|Retention (years)"
 msgstr ""
 
 msgid "SecurityOrchestration|Revert Immediately"
-msgstr ""
-
-msgid "SecurityOrchestration|Review SLA (hours)"
 msgstr ""
 
 msgid "SecurityOrchestration|Review impact"
@@ -69314,9 +69308,6 @@ msgstr ""
 msgid "SecurityOrchestration|e.g., @malicious-org/*"
 msgstr ""
 
-msgid "SecurityOrchestration|e.g., @security-team, @dev-lead"
-msgstr ""
-
 msgid "SecurityOrchestration|e.g., @security-team, user@example.com"
 msgstr ""
 
@@ -69396,9 +69387,6 @@ msgid "SecurityOrchestration|e.g., internal-codename, acquisition-target"
 msgstr ""
 
 msgid "SecurityOrchestration|e.g., internal-service-template, microservice-template"
-msgstr ""
-
-msgid "SecurityOrchestration|e.g., main"
 msgstr ""
 
 msgid "SecurityOrchestration|e.g., main, feature/*"
@@ -75342,6 +75330,18 @@ msgid "The `version` attribute is required."
 msgstr ""
 
 msgid "The adjacent work item's parent must match the moving work item's parent."
+msgstr ""
+
+msgid "The allow flow execution setting is disabled."
+msgstr ""
+
+msgid "The allow flow execution setting is enabled."
+msgstr ""
+
+msgid "The allow foundational flows setting is disabled."
+msgstr ""
+
+msgid "The allow foundational flows setting is enabled."
 msgstr ""
 
 msgid "The application will be used where the client secret can be kept confidential. Native mobile apps and Single Page Apps are considered non-confidential."
@@ -90568,7 +90568,7 @@ msgstr ""
 msgid "must be unique by status and elapsed time within a policy"
 msgstr ""
 
-msgid "must be unique. This CA has already been configured for another namespace."
+msgid "must be unique. This CA has already been configured for this namespace."
 msgstr ""
 
 msgid "must be within the project hierarchy"

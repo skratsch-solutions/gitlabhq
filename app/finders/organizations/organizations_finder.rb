@@ -6,6 +6,7 @@
 #   current_user - which user is requesting organizations
 #   params:
 #     search: string
+#     exclude_default: boolean
 module Organizations
   class OrganizationsFinder
     def initialize(current_user, params = {})
@@ -31,7 +32,14 @@ module Organizations
     end
 
     def filter_organizations(organizations)
+      organizations = by_exclude_default(organizations)
       by_search(organizations)
+    end
+
+    def by_exclude_default(items)
+      return items unless params[:exclude_default]
+
+      items.without_default
     end
 
     def by_search(items)

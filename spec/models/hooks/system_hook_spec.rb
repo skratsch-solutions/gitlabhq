@@ -241,11 +241,13 @@ RSpec.describe SystemHook, feature_category: :webhooks do
   end
 
   describe '#application_context' do
-    let(:hook) { build(:system_hook) }
+    let_it_be(:organization) { create(:organization) }
+    let(:hook) { build(:system_hook, organization: organization) }
 
-    it 'includes the type' do
+    it 'includes the type and organization' do
       expect(hook.application_context).to eq(
-        related_class: 'SystemHook'
+        related_class: 'SystemHook',
+        organization: organization
       )
     end
   end

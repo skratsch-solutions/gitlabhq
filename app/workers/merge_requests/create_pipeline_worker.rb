@@ -37,10 +37,6 @@ module MergeRequests
       project = Project.find_by_id(project_id)
       return unless project
 
-      if Feature.disabled?(:ci_bulk_insert_pipeline_records, project)
-        Gitlab::QueryLimiting.disable!('https://gitlab.com/gitlab-org/gitlab/-/issues/464679')
-      end
-
       user = User.find_by_id(user_id)
       return unless user
 

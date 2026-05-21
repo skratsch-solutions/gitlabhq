@@ -7,15 +7,16 @@ title: GitLab Secrets Manager (OpenBao)
 
 {{< details >}}
 
-- Tier: Ultimate
+- Tier: Premium, Ultimate
 - Offering: GitLab Self-Managed
-- Status: Experiment
+- Status: Beta
 
 {{< /details >}}
 
 {{< history >}}
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/work_items/16319) in GitLab 18.8 as an experiment, made available to some initial testers in a closed [beta](../../policy/development_stages_support.md#beta) in GitLab 18.8.
+- Public beta [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21731) in GitLab 19.0.
 
 {{< /history >}}
 
@@ -24,7 +25,7 @@ an open-source secrets management solution. OpenBao provides secure storage, acc
 for secrets used in your GitLab instance.
 
 GitLab CI/CD jobs using secrets from the GitLab Secrets Manager must use
-[GitLab Runner](https://docs.gitlab.com/runner/#gitlab-runner-versions) 18.6 or later.
+[GitLab Runner](https://docs.gitlab.com/runner/#gitlab-runner-versions) 19.0 or later.
 
 ## OpenBao architecture
 
@@ -65,8 +66,7 @@ and optionally multiple standby nodes that take over if the active node fails.
 Prerequisites:
 
 - Administrator access.
-- GitLab 18.8 or later.
-- For installing OpenBao alongside a Linux package instance, GitLab 19.0 or later.
+- GitLab 19.0 or later.
 - A Kubernetes cluster.
 - For Cloud Native GitLab deployments, an external (non-Omnibus) PostgreSQL instance.
   The external PostgreSQL instance is required by the GitLab Helm chart for Cloud Native deployments,

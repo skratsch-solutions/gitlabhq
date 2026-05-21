@@ -1760,8 +1760,10 @@ paths:
   "/api/v4/projects/{id}/dependency_list_exports":
     post:
       operationId: postApiV4ProjectsIdDependencyListExports
-      summary: Generate a dependency list export on a project-level
-      description: Generates a dependency list export for a project
+      summary: Create a dependency list export
+      description: Creates a CycloneDX JSON export for all the project dependencies
+        detected in a pipeline. If an authenticated user does not have the read_dependency
+        permission, this request returns a `403 Forbidden` status code.
       tags:
       - Dependency management
       responses:
@@ -1789,8 +1791,10 @@ paths:
   "/api/v4/groups/{id}/dependency_list_exports":
     post:
       operationId: postApiV4GroupsIdDependencyListExports
-      summary: Generate a dependency list export on a group-level
-      description: Generates a dependency list export for a group
+      summary: Create a dependency list export
+      description: Creates a CycloneDX JSON export for all the project dependencies
+        detected in a pipeline. If an authenticated user does not have the read_dependency
+        permission, this request returns a `403 Forbidden` status code.
       tags:
       - Dependency management
       responses:
@@ -1818,8 +1822,10 @@ paths:
   "/api/v4/pipelines/{id}/dependency_list_exports":
     post:
       operationId: postApiV4PipelinesIdDependencyListExports
-      summary: Generate a dependency list export on a pipeline-level
-      description: Generates a dependency list export for a pipeline
+      summary: Create a dependency list export
+      description: Creates a CycloneDX JSON export for all the project dependencies
+        detected in a pipeline. If an authenticated user does not have the read_dependency
+        permission, this request returns a `403 Forbidden` status code.
       tags:
       - Dependency management
       responses:
@@ -1847,8 +1853,8 @@ paths:
   "/api/v4/dependency_list_exports/{export_id}":
     get:
       operationId: getApiV4DependencyListExportsExportId
-      summary: Get a dependency list export
-      description: Retrieves a dependency list export
+      summary: Retrieve a single dependency list export
+      description: Retrieves a dependency list export.
       tags:
       - Dependency management
       responses:
@@ -1870,8 +1876,8 @@ paths:
   "/api/v4/dependency_list_exports/{export_id}/download":
     get:
       operationId: getApiV4DependencyListExportsExportIdDownload
-      summary: Download a dependency list export
-      description: Downloads a dependency list export file
+      summary: Download dependency list export
+      description: Downloads a dependency list export.
       tags:
       - Dependency management
       responses:
@@ -3343,8 +3349,9 @@ paths:
   "/api/v4/analytics/group_activity/issues_count":
     get:
       operationId: getApiV4AnalyticsGroupActivityIssuesCount
-      summary: Get count of recently created issues for the group
-      description: This feature was introduced in GitLab 12.9.
+      summary: Retrieve count of recently created issues for a group
+      description: Retrieves the count of recently created issues for a specified
+        group.
       tags:
       - Analytics
       responses:
@@ -3367,8 +3374,9 @@ paths:
   "/api/v4/analytics/group_activity/merge_requests_count":
     get:
       operationId: getApiV4AnalyticsGroupActivityMergeRequestsCount
-      summary: Get count of recently created merge requests for the group
-      description: This feature was introduced in GitLab 12.9.
+      summary: Retrieve count of recently created merge requests for a group
+      description: Retrieves the count of recently created merge requests for a specified
+        group.
       tags:
       - Analytics
       responses:
@@ -3391,8 +3399,8 @@ paths:
   "/api/v4/analytics/group_activity/new_members_count":
     get:
       operationId: getApiV4AnalyticsGroupActivityNewMembersCount
-      summary: Get count of recently created group members
-      description: This feature was introduced in GitLab 12.9.
+      summary: Retrieve count of members recently added to a group
+      description: Retrieves the count of members recently added to a specified group.
       tags:
       - Analytics
       responses:
@@ -3509,7 +3517,11 @@ paths:
   "/api/v4/projects/{id}/dependencies":
     get:
       operationId: getApiV4ProjectsIdDependencies
-      summary: Get a list of project dependencies
+      summary: List all project dependencies
+      description: Lists all dependencies for a specified project. This operation
+        partially mirrors the dependency list feature, which is available only for
+        languages and package managers supported by Gemnasium. Responses are paginated
+        and return 20 results by default.
       tags:
       - Dependency management
       responses:
@@ -3867,7 +3879,9 @@ paths:
   "/api/v4/security/projects/{id}/vulnerability_exports":
     post:
       operationId: postApiV4SecurityProjectsIdVulnerabilityExports
-      summary: Generate a project-level export
+      summary: Create a project-level vulnerability export
+      description: Creates a vulnerability export for a project. Returns status code
+        `403` if the authenticated user does not have permission to create a vulnerability.
       tags:
       - Vulnerabilities
       responses:
@@ -3899,7 +3913,9 @@ paths:
   "/api/v4/security/groups/{id}/vulnerability_exports":
     post:
       operationId: postApiV4SecurityGroupsIdVulnerabilityExports
-      summary: Generate a group-level export
+      summary: Create a group-level vulnerability export
+      description: Creates a vulnerability export for a group. Returns status code
+        `403` if the authenticated user does not have permission to create a vulnerability.
       tags:
       - Vulnerabilities
       responses:
@@ -3929,7 +3945,10 @@ paths:
   "/api/v4/security/vulnerability_exports":
     post:
       operationId: postApiV4SecurityVulnerabilityExports
-      summary: Generate an instance-level export
+      summary: Create an instance-level vulnerability export
+      description: Creates a vulnerability export for the projects of the user selected
+        in the Security Dashboard. The created vulnerability export is automatically
+        deleted at the time specified in the `expires_at` field.
       tags:
       - Vulnerabilities
       responses:
@@ -3950,7 +3969,8 @@ paths:
   "/api/v4/security/vulnerability_exports/{id}":
     get:
       operationId: getApiV4SecurityVulnerabilityExportsId
-      summary: Get a single vulnerability export
+      summary: Retrieve a vulnerability export
+      description: Retrieves a specified vulnerability export.
       tags:
       - Vulnerabilities
       responses:
@@ -3970,7 +3990,8 @@ paths:
   "/api/v4/security/vulnerability_exports/{id}/download":
     get:
       operationId: getApiV4SecurityVulnerabilityExportsIdDownload
-      summary: Download a single vulnerability export
+      summary: Download a vulnerability export
+      description: Downloads a specified vulnerability export.
       tags:
       - Vulnerabilities
       responses:
@@ -4138,7 +4159,9 @@ paths:
   "/api/v4/projects/{id}/vulnerability_findings":
     get:
       operationId: getApiV4ProjectsIdVulnerabilityFindings
-      summary: Get a list of project vulnerability findings
+      summary: List all project vulnerability findings
+      description: Lists all vulnerability findings for a specified project. Responses
+        are paginated and return 20 results by default.
       tags:
       - Vulnerabilities
       responses:
@@ -4256,7 +4279,8 @@ paths:
   "/api/v4/vulnerabilities/{id}":
     get:
       operationId: getApiV4VulnerabilitiesId
-      summary: Get a vulnerability
+      summary: Retrieve a vulnerability
+      description: Retrieves a specified vulnerability.
       tags:
       - Vulnerabilities
       responses:
@@ -4281,6 +4305,9 @@ paths:
     post:
       operationId: postApiV4VulnerabilitiesIdResolve
       summary: Resolve a vulnerability
+      description: Resolves a specified vulnerability. Returns status code `304` if
+        the vulnerability is already resolved. Returns status code `403` if the authenticated
+        user does not have permission to change the vulnerability status.
       tags:
       - Vulnerabilities
       responses:
@@ -4311,6 +4338,9 @@ paths:
     post:
       operationId: postApiV4VulnerabilitiesIdDismiss
       summary: Dismiss a vulnerability
+      description: Dismisses a specified vulnerability. Returns status code `304`
+        if the vulnerability is already dismissed. Returns status code `403` if the
+        authenticated user does not have permission to change the vulnerability status.
       tags:
       - Vulnerabilities
       responses:
@@ -4335,6 +4365,10 @@ paths:
     post:
       operationId: postApiV4VulnerabilitiesIdConfirm
       summary: Confirm a vulnerability
+      description: Confirms a specified vulnerability, marking it as genuine and requiring
+        action. Returns status code `304` if the vulnerability is already confirmed.
+        Returns status code `403` if the authenticated user does not have permission
+        to change the vulnerability status.
       tags:
       - Vulnerabilities
       responses:
@@ -4364,7 +4398,11 @@ paths:
   "/api/v4/vulnerabilities/{id}/revert":
     post:
       operationId: postApiV4VulnerabilitiesIdRevert
-      summary: Revert a vulnerability to a detected state
+      summary: Revert a vulnerability to detected state
+      description: Reverts a specified vulnerability to detected state. Returns status
+        code `304` if the vulnerability is already in detected state. Returns status
+        code `403` if the authenticated user does not have permission to change vulnerability
+        status.
       tags:
       - Vulnerabilities
       responses:
@@ -4394,7 +4432,8 @@ paths:
   "/api/v4/projects/{id}/vulnerabilities":
     get:
       operationId: getApiV4ProjectsIdVulnerabilities
-      summary: Get a list of project vulnerabilities
+      summary: List all project vulnerabilities
+      description: Lists all vulnerabilities for a specified project.
       tags:
       - Vulnerabilities
       responses:
@@ -4437,7 +4476,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdVulnerabilities
-      summary: Create a new Vulnerability (from a confirmed Finding)
+      summary: Create a new vulnerability
+      description: Creates a new vulnerability from a confirmed finding.
       tags:
       - Vulnerabilities
       responses:
@@ -6012,7 +6052,8 @@ paths:
   "/api/v4/groups/{id}/saml/identities":
     get:
       operationId: getApiV4GroupsIdSamlIdentities
-      summary: Get user identities for the provider
+      summary: Retrieve SAML identities for a group
+      description: Retrieves SAML identities for a group.
       tags:
       - Provider identities
       responses:
@@ -6036,7 +6077,8 @@ paths:
   "/api/v4/groups/{id}/saml/{uid}":
     get:
       operationId: getApiV4GroupsIdSamlUid
-      summary: Get a single identity for a user
+      summary: Retrieve a SAML identity
+      description: Retrieves a specified SAML identity.
       tags:
       - Provider identities
       responses:
@@ -6065,7 +6107,8 @@ paths:
         in: path
     patch:
       operationId: patchApiV4GroupsIdSamlUid
-      summary: Update extern_uid for the user
+      summary: Update `extern_uid` field for a SAML identity
+      description: Updates the `extern_uid` field for a specified SAML identity.
       tags:
       - Provider identities
       responses:
@@ -6100,7 +6143,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_62f115442310"
     delete:
       operationId: deleteApiV4GroupsIdSamlUid
-      summary: Delete the Provider identity
+      summary: Delete a SAML identity
+      description: Deletes a specified SAML identity.
       tags:
       - Provider identities
       responses:
@@ -6130,7 +6174,8 @@ paths:
   "/api/v4/groups/{id}/scim/identities":
     get:
       operationId: getApiV4GroupsIdScimIdentities
-      summary: Get user identities for the provider
+      summary: Retrieve SCIM identities for a group
+      description: Retrieves SCIM identities for a group.
       tags:
       - Provider identities
       responses:
@@ -6154,7 +6199,8 @@ paths:
   "/api/v4/groups/{id}/scim/{uid}":
     get:
       operationId: getApiV4GroupsIdScimUid
-      summary: Get a single identity for a user
+      summary: Retrieve a SCIM identity
+      description: Retrieves a specified SCIM identity.
       tags:
       - Provider identities
       responses:
@@ -6183,7 +6229,8 @@ paths:
         in: path
     patch:
       operationId: patchApiV4GroupsIdScimUid
-      summary: Update extern_uid for the user
+      summary: Update `extern_uid` field for a SCIM identity
+      description: Updates the `extern_uid` field for a specified SCIM identity.
       tags:
       - Provider identities
       responses:
@@ -6218,7 +6265,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_62f115442310"
     delete:
       operationId: deleteApiV4GroupsIdScimUid
-      summary: Delete the Provider identity
+      summary: Delete a SCIM identity
+      description: Deletes a specified SCIM identity.
       tags:
       - Provider identities
       responses:
@@ -6624,8 +6672,8 @@ paths:
   "/api/v4/groups/{id}/push_rule":
     get:
       operationId: getApiV4GroupsIdPushRule
-      summary: Get group push rule
-      description: This feature was introduced in GitLab 13.4.
+      summary: Retrieve the push rules of a group
+      description: Retrieves the push rules of a specified group.
       tags:
       - Push rules
       responses:
@@ -6646,8 +6694,9 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdPushRule
-      summary: Add a push rule to a group
-      description: This feature was introduced in GitLab 13.4.
+      summary: Add push rules to a group
+      description: Adds push rules to a specified group. Use only if you have not
+        defined any push rules so far.
       tags:
       - Push rules
       responses:
@@ -6678,8 +6727,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_2bc615ae1a7e"
     put:
       operationId: putApiV4GroupsIdPushRule
-      summary: Edit push rule of a group
-      description: This feature was introduced in GitLab 13.4.
+      summary: Update push rules of a group
+      description: Updates the push rules for a specified group.
       tags:
       - Push rules
       responses:
@@ -6710,8 +6759,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_2bc615ae1a7e"
     delete:
       operationId: deleteApiV4GroupsIdPushRule
-      summary: Deletes group push rule
-      description: This feature was introduced in GitLab 13.4.
+      summary: Delete the push rules of a group
+      description: Deletes all the push rules of a specified group.
       tags:
       - Push rules
       responses:
@@ -6781,7 +6830,8 @@ paths:
   "/api/v4/projects/{id}/push_rule":
     get:
       operationId: getApiV4ProjectsIdPushRule
-      summary: Get project push rule
+      summary: Retrieve the push rules of a project
+      description: Retrieves the push rules of a specified project.
       tags:
       - Push rules
       responses:
@@ -6804,7 +6854,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdPushRule
-      summary: Add a push rule to a project
+      summary: Add push rules to a project
+      description: Adds push rules to a specified project.
       tags:
       - Push rules
       responses:
@@ -6870,7 +6921,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9df7b2e0dd43"
     delete:
       operationId: deleteApiV4ProjectsIdPushRule
-      summary: Deletes project push rule
+      summary: Delete the push rules of a project
+      description: Deletes all the push rules of a specified project.
       tags:
       - Push rules
       responses:
@@ -6975,8 +7027,8 @@ paths:
   "/api/v4/license":
     get:
       operationId: getApiV4License
-      summary: Retrieve information about the current license
-      description: Get information on the currently active license
+      summary: Retrieve license information
+      description: Retrieves information about the current license.
       tags:
       - Licenses
       responses:
@@ -6988,8 +7040,8 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesGitlabLicenseWithActiveUsers"
     post:
       operationId: postApiV4License
-      summary: Add a new license
-      description: Adds a new licence
+      summary: Create a license
+      description: Creates a license.
       tags:
       - Licenses
       responses:
@@ -7020,8 +7072,8 @@ paths:
   "/api/v4/license/{id}":
     get:
       operationId: getApiV4LicenseId
-      summary: Get a license
-      description: Gets a license
+      summary: Retrieve a license
+      description: Retrieves information about a specified license.
       tags:
       - Licenses
       responses:
@@ -7047,7 +7099,7 @@ paths:
     delete:
       operationId: deleteApiV4LicenseId
       summary: Delete a license
-      description: Deletes a license
+      description: Deletes a specified license.
       tags:
       - Licenses
       responses:
@@ -7065,8 +7117,8 @@ paths:
   "/api/v4/license/{id}/refresh_billable_users":
     put:
       operationId: putApiV4LicenseIdRefreshBillableUsers
-      summary: Refresh licence billable users
-      description: Triggers refresh of billable users count for licence
+      summary: Trigger recalculation of billable users
+      description: Triggers recalculation of billable users for a specified license.
       tags:
       - Licenses
       responses:
@@ -7092,8 +7144,8 @@ paths:
   "/api/v4/licenses":
     get:
       operationId: getApiV4Licenses
-      summary: Retrieve information about all licenses
-      description: Get a list of licenses
+      summary: List all licenses
+      description: Lists all information about all licenses.
       tags:
       - Licenses
       responses:
@@ -7108,8 +7160,8 @@ paths:
   "/api/v4/groups/{id}/ldap_group_links":
     get:
       operationId: getApiV4GroupsIdLdapGroupLinks
-      summary: List LDAP group links
-      description: Get LDAP group links for a group
+      summary: List all LDAP group links
+      description: Lists all LDAP group links.
       tags:
       - LDAP
       responses:
@@ -7134,7 +7186,7 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdLdapGroupLinks
-      summary: Add LDAP group link with CN or filter
+      summary: Add an LDAP group link with CN or filter
       description: Adds an LDAP group link using a CN or filter.Adding a group link
         by filter is only supported in the Premium tier and above.
       tags:
@@ -7169,7 +7221,7 @@ paths:
               "$ref": "#/components/schemas/RequestBody_d776ddaaa82b"
     delete:
       operationId: deleteApiV4GroupsIdLdapGroupLinks
-      summary: Delete LDAP group link with CN or filter
+      summary: Delete an LDAP group link with CN or filter
       description: Deletes an LDAP group link using a CN or filter.Deleting by filter
         is only supported in the Premium tier and above.
       tags:
@@ -9345,7 +9397,8 @@ paths:
   "/api/v4/projects/{id}/dora/metrics":
     get:
       operationId: getApiV4ProjectsIdDoraMetrics
-      summary: Get project-level DORA metrics
+      summary: Retrieve project-level DORA metrics
+      description: Retrieves DORA metrics for a specified project.
       tags:
       - DORA metrics
       responses:
@@ -9411,7 +9464,8 @@ paths:
   "/api/v4/groups/{id}/dora/metrics":
     get:
       operationId: getApiV4GroupsIdDoraMetrics
-      summary: Get group-level DORA metrics
+      summary: Retrieve group-level DORA metrics
+      description: Retrieves DORA metrics for a specified group.
       tags:
       - DORA metrics
       responses:
@@ -9608,7 +9662,8 @@ paths:
   "/api/v4/projects/{id}/external_status_checks":
     post:
       operationId: postApiV4ProjectsIdExternalStatusChecks
-      summary: Create external status check
+      summary: Create external status check service
+      description: Creates an external status check service for a specified project.
       tags:
       - External status checks
       responses:
@@ -9635,7 +9690,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_57fc49b783bc"
     get:
       operationId: getApiV4ProjectsIdExternalStatusChecks
-      summary: Get project external status checks
+      summary: Retrieve project external status check services
+      description: Retrieves information on external status check services for a project.
       tags:
       - External status checks
       responses:
@@ -9675,7 +9731,8 @@ paths:
   "/api/v4/projects/{id}/external_status_checks/{check_id}":
     put:
       operationId: putApiV4ProjectsIdExternalStatusChecksCheckId
-      summary: Update external status check
+      summary: Update external status check service
+      description: Updates an existing external status check for a project.
       tags:
       - External status checks
       responses:
@@ -9709,7 +9766,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9ff791c20ac7"
     delete:
       operationId: deleteApiV4ProjectsIdExternalStatusChecksCheckId
-      summary: Delete external status check
+      summary: Delete external status check service
+      description: Deletes a specified external status check service for a project.
       tags:
       - External status checks
       responses:
@@ -9733,7 +9791,13 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/status_check_responses":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidStatusCheckResponses
-      summary: Set status of an external status check
+      summary: Update status of an external status check
+      description: Updates the status of an external status check for a specified
+        merge request, informing GitLab that a merge request has passed a check by
+        an external service. To set the status of an external check, the personal
+        access token used must belong to a user with the Developer, Maintainer, or
+        Owner role on the target project of the merge request. Any user with permission
+        to approve the merge request can use this operation.
       tags:
       - External status checks
       responses:
@@ -9771,7 +9835,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/status_checks":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidStatusChecks
-      summary: List status checks for a merge request
+      summary: List all status checks for a merge request
+      description: Lists all external status check services for a specified merge
+        request and their status.
       tags:
       - External status checks
       responses:
@@ -9795,7 +9861,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/status_checks/{external_status_check_id}/retry":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidStatusChecksExternalStatusCheckIdRetry
-      summary: Retry failed external status check
+      summary: Retry failed status check for a merge request
+      description: Retries a specified failed external status check for a merge request.
+        Even though the merge request has not changed, this endpoint resends the current
+        state of merge request to the defined external service.
       tags:
       - External status checks
       responses:
@@ -9935,8 +10004,8 @@ paths:
     put:
       operationId: putApiV4GroupsIdSecuritySettings
       summary: Update group security settings
-      description: Updates secret_push_protection_enabled for all projects to the
-        new value
+      description: Updates group security settings for a specified group. You must
+        have the Security Manager, Maintainer, or Owner role for the group.
       tags:
       - Groups
       responses:
@@ -11090,8 +11159,9 @@ paths:
   "/api/v4/admin/security/compliance_policy_settings":
     get:
       operationId: getApiV4AdminSecurityCompliancePolicySettings
-      summary: Get security policy settings
-      description: Retrieve the current security policy settings
+      summary: Retrieve security policy settings
+      description: Retrieves the current security policy settings for this GitLab
+        instance.
       tags:
       - Compliance policy settings
       responses:
@@ -11110,7 +11180,7 @@ paths:
     put:
       operationId: putApiV4AdminSecurityCompliancePolicySettings
       summary: Update security policy settings
-      description: Update the security policy settings
+      description: Updates the security policy settings for this GitLab instance.
       tags:
       - Compliance policy settings
       responses:
@@ -37105,10 +37175,20 @@ paths:
       responses:
         '201':
           description: Created
-        '404':
-          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesMergeRequest"
         '400':
-          description: Bad Request
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '422':
+          description: Unprocessable entity
       parameters:
       - name: id
         required: true
@@ -39105,6 +39185,8 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesCommit"
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
         '404':
@@ -39475,8 +39557,8 @@ paths:
       tags:
       - Merge requests
       responses:
-        '200':
-          description: OK
+        '202':
+          description: Accepted
         '403':
           description: Forbidden
         '404':
@@ -59721,7 +59803,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommits
-      summary: Get a project repository commits
+      summary: List all repository commits
+      description: Lists all commits for a specified project repository.
       tags:
       - Commits
       responses:
@@ -59855,7 +59938,7 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdRepositoryCommits
-      summary: Create a new commit
+      summary: Create a commit
       description: This feature was introduced in GitLab 8.13
       tags:
       - Commits
@@ -59892,7 +59975,9 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsSha
-      summary: Get a specific commit of a project
+      summary: Retrieve a commit
+      description: Retrieves a specified commit identified by the commit hash or name
+        of a branch or tag.
       tags:
       - Commits
       responses:
@@ -59930,7 +60015,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/diff":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaDiff
-      summary: Get the diff for a specific commit of a project
+      summary: Retrieve a commit diff
+      description: Retrieves the diff of a commit in a project.
       tags:
       - Commits
       responses:
@@ -59985,7 +60071,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/comments":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaComments
-      summary: Get a commit's comments
+      summary: List all commit comments
+      description: Lists all the comments of a commit in a project.
       tags:
       - Commits
       responses:
@@ -60032,7 +60119,10 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaComments
-      summary: Post comment to commit
+      summary: Create a comment on a commit
+      description: Creates a comment on a commit. To comment on a specific line in
+        a file, specify the full commit SHA, `path`, `line`, and set `line_type` to
+        `new`.
       tags:
       - Commits
       responses:
@@ -60071,7 +60161,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/sequence":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaSequence
-      summary: Get the sequence count of a commit SHA
+      summary: Retrieve a commit sequence
+      description: Retrieves the commit sequence for a specified commit.
       tags:
       - Commits
       responses:
@@ -60108,8 +60199,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/cherry_pick":
     post:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaCherryPick
-      summary: Cherry pick commit into a branch
-      description: This feature was introduced in GitLab 8.15
+      summary: Cherry-pick a commit
+      description: Cherry-picks a commit to a specified branch.
       tags:
       - Commits
       responses:
@@ -60147,8 +60238,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/revert":
     post:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaRevert
-      summary: Revert a commit in a branch
-      description: This feature was introduced in GitLab 11.5
+      summary: Revert a commit
+      description: Reverts a commit in a specified branch.
       tags:
       - Commits
       responses:
@@ -60186,8 +60277,10 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/refs":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaRefs
-      summary: Get all references a commit is pushed to
-      description: This feature was introduced in GitLab 10.6
+      summary: List all references a commit is pushed to
+      description: Lists all references (from branches or tags) a commit is pushed
+        to. The pagination parameters `page` and `per_page` can be used to restrict
+        the list of references.
       tags:
       - Commits
       responses:
@@ -60247,7 +60340,8 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/merge_requests":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaMergeRequests
-      summary: Get Merge Requests associated with a commit
+      summary: List all merge requests for a commit
+      description: Lists all merge requests associated with a specified commit.
       tags:
       - Commits
       responses:
@@ -60304,7 +60398,9 @@ paths:
   "/api/v4/projects/{id}/repository/commits/{sha}/signature":
     get:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaSignature
-      summary: Get a commit's signature
+      summary: Retrieve a commit signature
+      description: Retrieves the signature from a commit, if it is signed. For unsigned
+        commits, it results in a 404 response.
       tags:
       - Commits
       responses:
@@ -67019,7 +67115,11 @@ paths:
   "/api/v4/projects/{id}/repository/branches":
     get:
       operationId: getApiV4ProjectsIdRepositoryBranches
-      summary: Get a project repository branches
+      summary: List all repository branches
+      description: Lists all repository branches from a specified project, sorted
+        alphabetically by name. Search by name, or use regular expressions to find
+        specific branch patterns. Returns detailed information about the branch, including
+        its protection status, merge status, and commit details.
       tags:
       - Branches
       responses:
@@ -67092,7 +67192,8 @@ paths:
         in: query
     post:
       operationId: postApiV4ProjectsIdRepositoryBranches
-      summary: Create branch
+      summary: Create a repository branch
+      description: Creates a branch in the repository.
       tags:
       - Branches
       responses:
@@ -67147,7 +67248,8 @@ paths:
         in: path
     get:
       operationId: getApiV4ProjectsIdRepositoryBranchesBranch
-      summary: Get a single repository branch
+      summary: Retrieve a repository branch
+      description: Retrieves a specified project repository branch.
       tags:
       - Branches
       responses:
@@ -67174,7 +67276,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdRepositoryBranchesBranch
-      summary: Delete a branch
+      summary: Delete a repository branch
+      description: Deletes a specified branch from the repository.
       tags:
       - Branches
       responses:
@@ -67267,6 +67370,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdRepositoryMergedBranches
       summary: Delete all merged branches
+      description: Deletes all branches that are merged into the default branch for
+        a project.
       tags:
       - Branches
       responses:
@@ -72708,6 +72813,9 @@ components:
           type: boolean
         overage:
           type: integer
+          description: Difference between the number of billable users and the number
+            of licensed users. Calculated differently depending on whether the license
+            has expired or not.
           example: 200
         user_limit:
           type: integer
@@ -72759,6 +72867,9 @@ components:
           type: boolean
         overage:
           type: integer
+          description: Difference between the number of billable users and the number
+            of licensed users. Calculated differently depending on whether the license
+            has expired or not.
           example: 200
         user_limit:
           type: integer

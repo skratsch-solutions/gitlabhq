@@ -622,7 +622,7 @@ Prometheus 2.x that is bundled with the Linux package is deprecated and will be 
 the latest Prometheus 3.x release in GitLab 18.6.
 
 Prometheus 3 contains some potentially breaking changes such as a new log format and stricter
-header validation. For more information, see the [Prometheus migration guide](https://prometheus.io/docs/prometheus/3.0/migration).
+header validation. For more information, see the [Prometheus migration guide](https://prometheus.io/docs/prometheus/latest/migration/).
 
 This change does not impact GitLab Helm chart installations.
 
@@ -2999,7 +2999,6 @@ GitLab self-monitoring gives instance administrators the tools to monitor the he
 
 - Announced in GitLab 15.8
 - Removal in GitLab 16.0
-- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-com/Product/-/issues/4895).
 
 The GitLab.com importer was deprecated in GitLab 15.8 and will be removed in GitLab 16.0.
 
@@ -3250,7 +3249,6 @@ We are deprecating the `operations_access_level` field in the Projects API. This
 
 - Announced in GitLab 15.8
 - Removal in GitLab 16.0
-- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-com/Product/-/issues/5255).
 
 The Rake task for importing bare repositories (`gitlab:import:repos`) is deprecated in GitLab 15.8 and will be removed in GitLab 16.0.
 
@@ -3478,7 +3476,6 @@ This change affects the following REST and GraphQL API endpoints:
 
 - Announced in GitLab 15.7
 - Removal in GitLab 16.0 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
-- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-com/Product/-/issues/4894).
 
 The Phabricator task importer is being deprecated. Phabricator itself as a project is no longer actively maintained since June 1, 2021. We haven't observed imports using this tool. There has been no activity on the open related issues on GitLab.
 

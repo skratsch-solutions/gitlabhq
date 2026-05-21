@@ -136,6 +136,72 @@ RSpec.shared_examples 'embedded views (GLQL)' do
     end
   end
 
+  context 'with a query using user-defined aliases' do
+    before_all do
+      label = create(:label, project: project, name: 'custom-alias-test')
+      create(:issue, project: project, title: 'Custom alias issue', description: 'custom content', labels: [label])
+    end
+
+    before do
+      submit_glql_view(
+        title: 'GLQL custom alias test',
+        glql_lines: [
+          "query: type = Issue and project = \"#{project.full_path}\" and label = ~custom-alias-test",
+          'fields: title as "Name", description as "Details"',
+          "display: table"
+        ]
+      )
+    end
+
+    it 'renders user-defined alias as column header with correct data', :aggregate_failures do
+      table = find("[data-testid='glql-facade'] table")
+      expect(table).to have_css('th', text: 'Name')
+      expect(table).to have_css('th', text: 'Details')
+      expect(table).to have_no_css('th', text: 'Title')
+      expect(table).to have_no_css('th', text: 'Description')
+      expect(table).to have_css('td', text: 'Custom alias issue')
+      expect(table).to have_css('td', text: 'custom content')
+    end
+  end
+
+  context 'with a query using labels() field function' do
+    before_all do
+      label_backend = create(:label, project: project, name: 'backend')
+      label_frontend = create(:label, project: project, name: 'frontend')
+      label_bug = create(:label, project: project, name: 'bug')
+
+      create(:issue, project: project, title: 'Labels function test issue',
+        labels: [label_backend, label_frontend, label_bug])
+    end
+
+    before do
+      submit_glql_view(
+        title: 'GLQL labels function test',
+        glql_lines: [
+          "query: type = Issue and project = \"#{project.full_path}\" and label = ~backend",
+          'fields: title, labels("backend", "frontend"), labels',
+          "display: table"
+        ]
+      )
+    end
+
+    it 'renders extracted labels in their own column and remaining labels separately', :aggregate_failures do
+      table = find("[data-testid='glql-facade'] table")
+      row = table.find('tbody tr', text: 'Labels function test issue')
+      cells = row.all('td')
+
+      # Column 2 (labels("backend", "frontend")): extracted labels only
+      expect(cells[1]).to have_content('backend')
+      expect(cells[1]).to have_content('frontend')
+      expect(cells[1]).not_to have_content('bug')
+
+      # Column 3 (labels): remaining labels only
+      expect(cells[2]).to have_content('bug')
+      expect(cells[2]).not_to have_content('backend')
+      expect(cells[2]).not_to have_content('frontend')
+    end
+  end
+
   context 'with a query displaying projects' do
     let_it_be(:group) { create(:group) }
     let_it_be(:group_project) { create(:project, namespace: group) }

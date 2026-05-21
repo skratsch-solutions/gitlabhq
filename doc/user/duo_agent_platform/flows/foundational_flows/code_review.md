@@ -14,7 +14,8 @@ title: Code Review Flow
 
 {{< collapsible title="Model information" >}}
 
-- LLM: Anthropic [Claude Sonnet 4 Vertex](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-sonnet-4)
+- LLM: Anthropic Claude Sonnet 4.6 Vertex
+- [Select a different model](../../model_selection.md) using the **Agentic Code Review** setting.
 - Available on [GitLab Duo with self-hosted models](../../../../administration/gitlab_duo_self_hosted/_index.md)
 
 {{< /collapsible >}}
@@ -24,6 +25,7 @@ title: Code Review Flow
 - Introduced as [a beta](../../../../policy/development_stages_support.md) in GitLab [18.7](https://gitlab.com/groups/gitlab-org/-/epics/18645) [with a flag](../../../../administration/feature_flags/_index.md) named `duo_code_review_on_agent_platform`. Disabled by default.
 - [Generally available](https://gitlab.com/gitlab-org/gitlab/-/work_items/585273) in GitLab 18.8. Feature flag `duo_code_review_on_agent_platform` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/217209).
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
+- LLM [updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) to Claude Sonnet 4.6 Vertex in GitLab 19.1.
 
 {{< /history >}}
 
@@ -322,8 +324,7 @@ To improve the review:
 - [Exclude context](../../context.md#exclude-context-from-gitlab-duo) for files that are not
   relevant to the review.
 - Ask a Maintainer or Owner to
-  [select Claude Sonnet 4.6 Vertex](../../../gitlab_duo/model_selection.md#select-a-model-for-a-feature)
-  for Code Review. Sonnet 4.6 Vertex has a larger context window than the default model.
+  [select a different model](../../model_selection.md) using the **Agentic Code Review** setting.
 
 ### Configuration diagnostic script
 

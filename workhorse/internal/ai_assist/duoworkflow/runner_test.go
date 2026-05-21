@@ -781,6 +781,27 @@ func TestRunner_handleWebSocketMessage(t *testing.T) {
 			serverCapabilities: []string{"advanced_search", "tool_call_approval"},
 			expectedErrMsg:     "",
 		},
+		{
+			name:               "start request with web_search server capability",
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
+			clientCapabilities: []string{"web_search"},
+			serverCapabilities: []string{"web_search"},
+			expectedErrMsg:     "",
+		},
+		{
+			name:               "start request with web_search and other server capabilities",
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
+			clientCapabilities: []string{"advanced_search", "web_search"},
+			serverCapabilities: []string{"advanced_search", "web_search"},
+			expectedErrMsg:     "",
+		},
+		{
+			name:               "start request with unknown web_search variant is filtered out",
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
+			clientCapabilities: []string{},
+			serverCapabilities: []string{"web_search_unknown"},
+			expectedErrMsg:     "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -1357,6 +1378,16 @@ func Test_intersectServerCapabilities(t *testing.T) {
 			name:       "all whitelisted capabilities pass through",
 			fromServer: []string{"advanced_search"},
 			expected:   []string{"advanced_search"},
+		},
+		{
+			name:       "web_search capability passes through",
+			fromServer: []string{"web_search"},
+			expected:   []string{"web_search"},
+		},
+		{
+			name:       "web_search combined with other capabilities",
+			fromServer: []string{"advanced_search", "web_search"},
+			expected:   []string{"advanced_search", "web_search"},
 		},
 	}
 

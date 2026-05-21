@@ -8,11 +8,7 @@ export const DISPLAY_TYPES = {
 };
 
 export const DEFAULT_DISPLAY_TYPE = DISPLAY_TYPES.LIST;
-export const DEFAULT_DISPLAY_FIELDS = 'title';
-
 export const MODE_STANDARD = 'standard';
-export const MODE_ANALYTICS = 'analytics';
-
 export const FIELD_TYPES = {
   ATTRIBUTE: 'attribute',
   DIMENSION: 'dimension',

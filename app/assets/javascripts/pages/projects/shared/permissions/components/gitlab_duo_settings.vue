@@ -112,6 +112,16 @@ export default {
       required: false,
       default: false,
     },
+    dapSessionTrackingAvailable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    initialDapSessionTrackingEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -124,6 +134,7 @@ export default {
       duoSecretDetectionFpEnabled: this.initialDuoSecretDetectionFpEnabled,
       duoSastVrWorkflowEnabled: this.initialDuoSastVrWorkflowEnabled,
       toolApprovalForSessionEnabled: this.initialToolApprovalForSessionEnabled,
+      dapSessionTrackingEnabled: this.initialDapSessionTrackingEnabled,
     };
   },
   computed: {
@@ -361,6 +372,26 @@ export default {
             label-position="hidden"
             name="project[project_setting_attributes][tool_approval_for_session_enabled]"
             data-testid="tool-approval-for-session-enabled"
+          />
+        </project-setting-row>
+        <project-setting-row
+          v-if="dapSessionTrackingAvailable"
+          :label="s__('DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits')"
+          class="gl-mt-5"
+          :help-text="
+            s__(
+              'DuoAgentPlatform|Add a session URL to commits authored by GitLab Duo Agent Platform, so reviewers can trace AI-assisted changes back to the originating session.',
+            )
+          "
+        >
+          <gl-toggle
+            v-model="dapSessionTrackingEnabled"
+            class="gl-mt-2"
+            :disabled="duoFeaturesLocked || !duoEnabled"
+            :label="s__('DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits')"
+            label-position="hidden"
+            name="project[project_setting_attributes][dap_session_tracking_enabled]"
+            data-testid="dap-session-tracking-enabled"
           />
         </project-setting-row>
         <project-setting-row

@@ -218,7 +218,7 @@ RSpec.describe API::Glql, feature_category: :custom_dashboards_foundation do
     end
 
     context 'with query execution errors' do
-      it 'returns 400 when GraphQL query execution fails' do
+      it 'returns 400 when an invalid field is requested' do
         yaml = <<~YAML
           fields: nonExistentField
           query: group = "test-group" AND state = opened
@@ -227,7 +227,7 @@ RSpec.describe API::Glql, feature_category: :custom_dashboards_foundation do
         post api(endpoint, user), params: { glql_yaml: yaml }
 
         expect(response).to have_gitlab_http_status(:bad_request)
-        expect(json_response['error']).to include("Field 'nonExistentField' doesn't exist")
+        expect(json_response['error']).to include('nonExistentField')
       end
     end
 
@@ -370,6 +370,61 @@ RSpec.describe API::Glql, feature_category: :custom_dashboards_foundation do
         node = json_response['data']['nodes'].find { |n| n['title'] == 'Opened Issue' }
         expect(node['description']).to include('This is opened')
         expect(node['openedAt']).to be_present
+      end
+    end
+
+    context 'with user-defined aliases' do
+      it 'uses the user-defined alias as the label in fields metadata and returns correct data',
+        :aggregate_failures do
+        yaml = <<~YAML
+          fields: title as "Name", description as "Details"
+          query: group = "test-group" AND state = opened
+        YAML
+        post api(endpoint, user), params: { glql_yaml: yaml }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['fields'].pluck('key')).to eq(%w[title description])
+        expect(json_response['fields'].pluck('label')).to eq(%w[Name Details])
+
+        node = json_response['data']['nodes'].find { |n| n['title'] == 'Opened Issue' }
+        expect(node['title']).to eq('Opened Issue')
+        expect(node['description']).to include('This is opened')
+      end
+    end
+
+    context 'with labels() field function' do
+      let_it_be(:label_backend) { create(:label, project: project, name: 'backend') }
+      let_it_be(:label_frontend) { create(:label, project: project, name: 'frontend') }
+      let_it_be(:label_bug) { create(:label, project: project, name: 'bug') }
+
+      let_it_be(:labeled_issue) do
+        create(:issue, :opened, project: project, title: 'Labeled Issue',
+          labels: [label_backend, label_frontend, label_bug])
+      end
+
+      it 'extracts matching labels into their own field and removes them from the remaining labels column',
+        :aggregate_failures do
+        yaml = <<~YAML
+          fields: title, labels("backend", "frontend"), labels
+          query: project = "test-group/test-project" and label = ~backend
+        YAML
+        post api(endpoint, user), params: { glql_yaml: yaml }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['success']).to be(true)
+
+        node = json_response['data']['nodes'].find { |n| n['title'] == 'Labeled Issue' }
+
+        # The field function key uses parseable syntax
+        extracted_key = json_response['fields'].find { |f| f['name'] == 'labels' && f['key'] != 'labels' }
+        expect(extracted_key).to be_present
+
+        extracted_labels = node[extracted_key['key']]['nodes'].pluck('title')
+        expect(extracted_labels).to contain_exactly('backend', 'frontend')
+
+        remaining_labels = node['labels']['nodes'].pluck('title')
+        expect(remaining_labels).to include('bug')
+        expect(remaining_labels).not_to include('backend', 'frontend')
       end
     end
 

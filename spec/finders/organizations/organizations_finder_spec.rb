@@ -45,6 +45,42 @@ RSpec.describe ::Organizations::OrganizationsFinder, feature_category: :organiza
     end
   end
 
+  describe 'exclude_default' do
+    let(:current_user) { user }
+
+    before do
+      stub_const("Organizations::Organization::DEFAULT_ORGANIZATION_ID", public_organization.id)
+    end
+
+    context 'when exclude_default is true' do
+      let(:params) { { exclude_default: true } }
+
+      it 'excludes the default organization from results' do
+        expect(finder).not_to include(public_organization)
+      end
+
+      it 'returns other organizations' do
+        expect(finder).to include(user_organization)
+      end
+    end
+
+    context 'when exclude_default is false' do
+      let(:params) { { exclude_default: false } }
+
+      it 'does not exclude any organizations' do
+        expect(finder).to contain_exactly(user_organization, public_organization)
+      end
+    end
+
+    context 'when exclude_default is not set' do
+      let(:params) { {} }
+
+      it 'does not exclude any organizations' do
+        expect(finder).to contain_exactly(user_organization, public_organization)
+      end
+    end
+  end
+
   describe 'search' do
     let(:current_user) { user }
 

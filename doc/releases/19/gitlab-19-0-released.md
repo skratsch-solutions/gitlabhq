@@ -1,12 +1,12 @@
 ---
 stage: Release Notes
 group: Monthly Release
-title: "GitLab 19.0 release notes - not yet released"
-description: "Summary of features included in 19.0"
+date: 2026-05-21
+title: GitLab 19.0
+description: GitLab 19.0 released with Group-level custom review instructions for GitLab Duo
 ---
 
-The following features are being delivered for GitLab 19.0.
-These features are now available on GitLab.com.
+On May 21, 2026, GitLab 19.0 was released with the following features.
 
 We'd also like to announce this month's [Notable Contributor](https://contributors.gitlab.com/notable-contributors):
 Norman Debald!

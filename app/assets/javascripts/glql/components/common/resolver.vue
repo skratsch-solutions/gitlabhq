@@ -2,7 +2,6 @@
 import { pick } from 'lodash-es';
 import { sha256 } from '~/lib/utils/text_utility';
 import { InternalEvents } from '~/tracking';
-import { MODE_ANALYTICS } from '~/glql/constants';
 import { parse } from '../../core/parser';
 import { execute } from '../../core/executor';
 import { transform } from '../../core/transformer';
@@ -112,14 +111,10 @@ export default {
 
         const executionResult = await execute(this.query, this.variables);
 
-        if (this.mode === MODE_ANALYTICS) {
-          this.data = await transform(executionResult, {
-            fields: this.fields,
-            mode: this.mode,
-          });
-        } else {
-          this.data = await transform(executionResult, this.config);
-        }
+        this.data = await transform(executionResult, {
+          fields: this.fields,
+          mode: this.mode,
+        });
 
         this.trackRender();
       } catch (error) {
@@ -140,15 +135,10 @@ export default {
 
         const executionResult = await execute(this.query, this.variables);
 
-        let data;
-        if (this.mode === MODE_ANALYTICS) {
-          data = await transform(executionResult, {
-            fields: this.fields,
-            mode: this.mode,
-          });
-        } else {
-          data = await transform(executionResult, this.config);
-        }
+        const data = await transform(executionResult, {
+          fields: this.fields,
+          mode: this.mode,
+        });
 
         this.data = {
           ...this.data,

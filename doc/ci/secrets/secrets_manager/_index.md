@@ -8,9 +8,9 @@ ignore_in_report: true
 
 {{< details >}}
 
-- Tier: Ultimate
-- Offering: GitLab.com
-- Status: Experiment
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed
+- Status: Beta
 
 {{< /details >}}
 
@@ -20,22 +20,64 @@ ignore_in_report: true
 - Feature flag `ci_tanukey_ui` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/549940) in GitLab 18.4.
 - Made available to some users in a closed beta in GitLab 18.8.
 - Group secrets manager [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/17904) and made available to closed beta users in 18.10 [with the flag](../../../development/feature_flags/_index.md) `group_secrets_manager`.
+- Public beta [introduced](https://gitlab.com/groups/gitlab-org/-/work_items/21731) in GitLab 19.0.
 
 {{< /history >}}
-
-> [!warning]
-> This feature is an [experiment](../../../policy/development_stages_support.md#experiment) and subject to change without
-> notice. Secrets stored in experiment or beta versions will not be kept when the Secrets Manager is released as generally available.
-> This feature is not ready for public testing or production use.
 
 Secrets represent sensitive information your CI/CD jobs need to function. Secrets could be access tokens,
 database credentials, private keys, or similar.
 
 Unlike CI/CD variables, which are always available to jobs by default, secrets must be explicitly requested by a job.
 
-Use the GitLab Secrets Manager to securely store and manage secrets and credentials for your projects and groups.
+Use GitLab Secrets Manager to securely store and manage secrets and credentials for your projects and groups.
 
-## Enable or disable the GitLab Secrets Manager
+GitLab Secrets Manager public beta is available to **GitLab Premium and Ultimate** customers.
+You can opt in to the public beta on GitLab.com or on a self-managed instance.
+
+## Opt in on GitLab.com
+
+On GitLab.com, a top-level group owner can opt in to GitLab Secrets Manager for their group.
+Opting in at the top-level group makes it available to all subgroups and projects within that group.
+
+Prerequisites:
+
+- You must have the Owner role for the top-level group.
+- Your group must be on the **GitLab Premium or Ultimate** tier.
+
+To opt in:
+
+1. In the left sidebar, select **Search or go to** and find your top-level group.
+1. Select **Settings** > **General**.
+1. Expand **Permissions and group features**.
+1. Turn on the **Secrets Manager** toggle.
+
+After opting in, group and project owners can independently enable the Secrets Manager
+for their subgroups and projects. For instructions, see
+[Enable for a group or project](#enable-for-a-group-or-project).
+
+## Opt in on self-managed
+
+On a self-managed instance, an administrator must first opt in to GitLab Secrets Manager at the
+instance level. After opting in, owners can enable it for their groups and projects.
+
+Prerequisites:
+
+- You must have administrator access to the GitLab instance.
+- GitLab 19.0 or later.
+- OpenBao must be installed and configured. For more information, see
+  [administration](../../../administration/secrets_manager/_index.md).
+
+To opt in:
+
+1. In the left sidebar, at the bottom, select **Admin**.
+1. Select **Settings** > **General**.
+1. Expand **GitLab Secrets Manager**.
+1. Turn on the **Secrets Manager** toggle.
+
+After opting in, group and project owners can enable the Secrets Manager for their
+namespaces. For instructions, see [Enable for a group or project](#enable-for-a-group-or-project).
+
+## Enable for a group or project
 
 ### For a project
 
@@ -110,7 +152,7 @@ After you create a secret, you can use it in the pipeline configuration or in jo
 
 Prerequisites:
 
-- GitLab Runner 18.6 or later.
+- GitLab Runner 19.0 or later.
 
 To access secrets defined with the Secret Manager, use the [`secrets`](../../yaml/_index.md#secrets)
 and `gitlab_secrets_manager` keywords.
@@ -141,7 +183,7 @@ GitLab replaces the value in the job log with `[MASKED]`.
 
 Prerequisites:
 
-- GitLab Runner 18.10 or later.
+- GitLab Runner 19.0 or later.
 
 To access group secrets:
 
@@ -218,6 +260,17 @@ When you [transfer a project](../../../user/project/working_with_projects.md#tra
 
 Users with the Owner role in the project receive an email notification to rotate a secret on the day specified in a secret's configuration.
 
+## Pricing at general availability
+
+GitLab Secrets Manager is free during open beta, but will consume GitLab credits when
+released as generally available. To avoid a service interruption, we will notify you
+before general availability to give you time to opt into on-demand billing for GitLab credits.
+
+## Provide feedback
+
+To share feedback or report issues during the public beta, use the
+[GitLab Secrets Manager: Customer Feedback in Public Beta](https://gitlab.com/gitlab-org/gitlab/-/work_items/598100) issue.
+
 ## Troubleshooting
 
 ### Error: `reading from Vault: api error: status code 403`
@@ -242,7 +295,7 @@ This error happens when the secrets manager instance has not been provisioned ye
 that the secret is expected to belong to. The runner cannot configure authentication because no secrets
 manager role exists yet.
 
-To resolve this error, [enable the Secrets Manager](#enable-or-disable-the-gitlab-secrets-manager)
+To resolve this error, [enable the Secrets Manager](#enable-for-a-group-or-project)
 for your project or group.
 
 Wait for provisioning to complete and create the secret before re-running the pipeline.

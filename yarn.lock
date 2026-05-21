@@ -1471,10 +1471,10 @@
   resolved "https://registry.yarnpkg.com/@gitlab/noop/-/noop-1.0.1.tgz#71a831146ee02732b4a61d2d3c11204564753454"
   integrity sha512-s++4wjMYeDvBp9IO59DBrWjy8SE/gFkjTDO5ck2W0S6Vv7OlqgErwL7pHngAnrSmTJAzyUG8wHGqo0ViS4jn5Q==
 
-"@gitlab/query-language-rust@0.27.1":
-  version "0.27.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/query-language-rust/-/query-language-rust-0.27.1.tgz#1eea3fb855c261bca779e19f62159ad9a0c0d53d"
-  integrity sha512-mZNDjLdUfSXsq7ROXWKNZd/LrJJCbGTFB6rOW4lebfPmeGTPNf9cu5j5EmfGH2S97bEYHgWWOeiJfp4Y30Qixg==
+"@gitlab/query-language-rust@0.27.2":
+  version "0.27.2"
+  resolved "https://registry.yarnpkg.com/@gitlab/query-language-rust/-/query-language-rust-0.27.2.tgz#98e3f55028ae5ddf7061b247a4e7a921eb5011db"
+  integrity sha512-F2bFMSQyXQ6MBr37JA56Eq7G3oDch8loOPx8OGEKOhNMkxq7mg6rVx2QhTyESbaNSEp2EJnc5EfItn4ShRW0ng==
   dependencies:
     format-graphql "^1.5.0"
 
@@ -1492,10 +1492,10 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-3.160.0.tgz#01c778cc924b2f885884fa8713fa33811af7352c"
   integrity sha512-708a9Ntkj698dKFmFN9yHiz6dxwGBYjJZzD+NAB3vVy4V7VqR6v/gYCR0LzjqPbNTKoobVlWrb1XYh61sptS6w==
 
-"@gitlab/ui@134.1.1":
-  version "134.1.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-134.1.1.tgz#f0fad24636abdc24feb55535e8d70059c693d60a"
-  integrity sha512-JRGp6d/y8jWhq5kj4sbd86Qt2zCbhq7caPBm/di7V2iQ6cwbztbXXyjg3NziyevGpRCQ1GYppwbNp2Ydefh+1g==
+"@gitlab/ui@134.1.2":
+  version "134.1.2"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-134.1.2.tgz#593c0d3a62a6cecd23e043848bf551dc996b9b3f"
+  integrity sha512-/9CHipv81TTaiopftjqjUi8mlu0B+bdD+/o5CGaBy38TLGwtSfhNFL2a0Mof1fgWnWEH9cbzpbnj5njjmwRbjA==
   dependencies:
     "@floating-ui/dom" "1.7.6"
     echarts "^5.6.0"

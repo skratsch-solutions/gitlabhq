@@ -10775,7 +10775,11 @@ paths:
       operationId: deleteApiV4ProjectsIdBadgesBadgeId
   "/api/v4/projects/{id}/repository/branches":
     get:
-      description: Get a project repository branches
+      summary: List all repository branches
+      description: Lists all repository branches from a specified project, sorted
+        alphabetically by name. Search by name, or use regular expressions to find
+        specific branch patterns. Returns detailed information about the branch, including
+        its protection status, merge status, and commit details.
       produces:
       - application/json
       parameters:
@@ -10826,7 +10830,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a project repository branches
+          description: List all repository branches
           schema:
             type: array
             items:
@@ -10837,7 +10841,8 @@ paths:
       - branches
       operationId: getApiV4ProjectsIdRepositoryBranches
     post:
-      description: Create branch
+      summary: Create a repository branch
+      description: Creates a branch in the repository.
       produces:
       - application/json
       consumes:
@@ -10855,7 +10860,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryBranches"
       responses:
         '201':
-          description: Create branch
+          description: Create a repository branch
           schema:
             "$ref": "#/definitions/API_Entities_Branch"
         '400':
@@ -10888,7 +10893,8 @@ paths:
       - branches
       operationId: headApiV4ProjectsIdRepositoryBranchesBranch
     get:
-      description: Get a single repository branch
+      summary: Retrieve a repository branch
+      description: Retrieves a specified project repository branch.
       produces:
       - application/json
       parameters:
@@ -10904,7 +10910,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single repository branch
+          description: Retrieve a repository branch
           schema:
             "$ref": "#/definitions/API_Entities_Branch"
         '404':
@@ -10913,7 +10919,8 @@ paths:
       - branches
       operationId: getApiV4ProjectsIdRepositoryBranchesBranch
     delete:
-      description: Delete a branch
+      summary: Delete a repository branch
+      description: Deletes a specified branch from the repository.
       produces:
       - application/json
       parameters:
@@ -10929,7 +10936,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a branch
+          description: Delete a repository branch
         '404':
           description: Branch Not Found
       tags:
@@ -10998,7 +11005,9 @@ paths:
       operationId: putApiV4ProjectsIdRepositoryBranchesBranchUnprotect
   "/api/v4/projects/{id}/repository/merged_branches":
     delete:
-      description: Delete all merged branches
+      summary: Delete all merged branches
+      description: Deletes all branches that are merged into the default branch for
+        a project.
       produces:
       - application/json
       parameters:
@@ -14167,7 +14176,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesCargoConfigJson
   "/api/v4/projects/{id}/repository/commits":
     get:
-      description: Get a project repository commits
+      summary: List all repository commits
+      description: Lists all commits for a specified project repository.
       produces:
       - application/json
       parameters:
@@ -14262,7 +14272,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a project repository commits
+          description: List all repository commits
           schema:
             type: array
             items:
@@ -14277,7 +14287,7 @@ paths:
       - commits
       operationId: getApiV4ProjectsIdRepositoryCommits
     post:
-      summary: Create a new commit
+      summary: Create a commit
       description: This feature was introduced in GitLab 8.13
       produces:
       - application/json
@@ -14296,7 +14306,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryCommits"
       responses:
         '200':
-          description: Create a new commit
+          description: Create a commit
           schema:
             "$ref": "#/definitions/API_Entities_CommitDetail"
         '400':
@@ -14312,7 +14322,9 @@ paths:
       operationId: postApiV4ProjectsIdRepositoryCommits
   "/api/v4/projects/{id}/repository/commits/{sha}":
     get:
-      description: Get a specific commit of a project
+      summary: Retrieve a commit
+      description: Retrieves a specified commit identified by the commit hash or name
+        of a branch or tag.
       produces:
       - application/json
       parameters:
@@ -14334,7 +14346,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a specific commit of a project
+          description: Retrieve a commit
           schema:
             "$ref": "#/definitions/API_Entities_CommitDetail"
         '404':
@@ -14344,7 +14356,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsSha
   "/api/v4/projects/{id}/repository/commits/{sha}/diff":
     get:
-      description: Get the diff for a specific commit of a project
+      summary: Retrieve a commit diff
+      description: Retrieves the diff of a commit in a project.
       produces:
       - application/json
       parameters:
@@ -14382,7 +14395,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get the diff for a specific commit of a project
+          description: Retrieve a commit diff
           schema:
             type: array
             items:
@@ -14394,7 +14407,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaDiff
   "/api/v4/projects/{id}/repository/commits/{sha}/comments":
     get:
-      description: Get a commit's comments
+      summary: List all commit comments
+      description: Lists all the comments of a commit in a project.
       produces:
       - application/json
       parameters:
@@ -14426,7 +14440,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a commit's comments
+          description: List all commit comments
           schema:
             type: array
             items:
@@ -14437,7 +14451,10 @@ paths:
       - commits
       operationId: getApiV4ProjectsIdRepositoryCommitsShaComments
     post:
-      description: Post comment to commit
+      summary: Create a comment on a commit
+      description: Creates a comment on a commit. To comment on a specific line in
+        a file, specify the full commit SHA, `path`, `line`, and set `line_type` to
+        `new`.
       produces:
       - application/json
       consumes:
@@ -14461,7 +14478,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryCommitsShaComments"
       responses:
         '200':
-          description: Post comment to commit
+          description: Create a comment on a commit
           schema:
             "$ref": "#/definitions/API_Entities_CommitNote"
         '400':
@@ -14473,7 +14490,8 @@ paths:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaComments
   "/api/v4/projects/{id}/repository/commits/{sha}/sequence":
     get:
-      description: Get the sequence count of a commit SHA
+      summary: Retrieve a commit sequence
+      description: Retrieves the commit sequence for a specified commit.
       produces:
       - application/json
       parameters:
@@ -14495,7 +14513,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get the sequence count of a commit SHA
+          description: Retrieve a commit sequence
           schema:
             "$ref": "#/definitions/API_Entities_CommitSequence"
         '404':
@@ -14505,8 +14523,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaSequence
   "/api/v4/projects/{id}/repository/commits/{sha}/cherry_pick":
     post:
-      summary: Cherry pick commit into a branch
-      description: This feature was introduced in GitLab 8.15
+      summary: Cherry-pick a commit
+      description: Cherry-picks a commit to a specified branch.
       produces:
       - application/json
       consumes:
@@ -14529,7 +14547,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryCommitsShaCherryPick"
       responses:
         '200':
-          description: Cherry pick commit into a branch
+          description: Cherry-pick a commit
           schema:
             "$ref": "#/definitions/API_Entities_Commit"
         '400':
@@ -14541,8 +14559,8 @@ paths:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaCherryPick
   "/api/v4/projects/{id}/repository/commits/{sha}/revert":
     post:
-      summary: Revert a commit in a branch
-      description: This feature was introduced in GitLab 11.5
+      summary: Revert a commit
+      description: Reverts a commit in a specified branch.
       produces:
       - application/json
       consumes:
@@ -14565,7 +14583,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryCommitsShaRevert"
       responses:
         '200':
-          description: Revert a commit in a branch
+          description: Revert a commit
           schema:
             "$ref": "#/definitions/API_Entities_Commit"
         '400':
@@ -14577,8 +14595,10 @@ paths:
       operationId: postApiV4ProjectsIdRepositoryCommitsShaRevert
   "/api/v4/projects/{id}/repository/commits/{sha}/refs":
     get:
-      summary: Get all references a commit is pushed to
-      description: This feature was introduced in GitLab 10.6
+      summary: List all references a commit is pushed to
+      description: Lists all references (from branches or tags) a commit is pushed
+        to. The pagination parameters `page` and `per_page` can be used to restrict
+        the list of references.
       produces:
       - application/json
       parameters:
@@ -14620,7 +14640,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get all references a commit is pushed to
+          description: List all references a commit is pushed to
           schema:
             type: array
             items:
@@ -14632,7 +14652,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaRefs
   "/api/v4/projects/{id}/repository/commits/{sha}/merge_requests":
     get:
-      description: Get Merge Requests associated with a commit
+      summary: List all merge requests for a commit
+      description: Lists all merge requests associated with a specified commit.
       produces:
       - application/json
       parameters:
@@ -14671,7 +14692,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get Merge Requests associated with a commit
+          description: List all merge requests for a commit
           schema:
             type: array
             items:
@@ -14683,7 +14704,9 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryCommitsShaMergeRequests
   "/api/v4/projects/{id}/repository/commits/{sha}/signature":
     get:
-      description: Get a commit's signature
+      summary: Retrieve a commit signature
+      description: Retrieves the signature from a commit, if it is signed. For unsigned
+        commits, it results in a 404 response.
       produces:
       - application/json
       parameters:
@@ -14699,7 +14722,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a commit's signature
+          description: Retrieve a commit signature
           schema:
             "$ref": "#/definitions/API_Entities_CommitSignature"
         '404':
@@ -26797,6 +26820,18 @@ paths:
       responses:
         '201':
           description: Create merge request for missing ci config in project
+          schema:
+            "$ref": "#/definitions/API_Entities_MergeRequest"
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '422':
+          description: Unprocessable entity
       tags:
       - projects
       - merge_requests
@@ -27538,7 +27573,9 @@ paths:
         '200':
           description: Get single merge request participants
           schema:
-            "$ref": "#/definitions/API_Entities_UserBasic"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_UserBasic"
         '404':
           description: Not found
       tags:
@@ -27565,7 +27602,9 @@ paths:
         '200':
           description: Get single merge request reviewers
           schema:
-            "$ref": "#/definitions/API_Entities_MergeRequestReviewer"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_MergeRequestReviewer"
         '404':
           description: Not found
       tags:
@@ -27609,7 +27648,9 @@ paths:
         '200':
           description: Get single merge request commits
           schema:
-            "$ref": "#/definitions/API_Entities_Commit"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Commit"
         '404':
           description: Not found
       tags:
@@ -27636,7 +27677,9 @@ paths:
         '200':
           description: List merge request context commits
           schema:
-            "$ref": "#/definitions/API_Entities_Commit"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Commit"
         '404':
           description: Not found
       tags:
@@ -27669,7 +27712,11 @@ paths:
         '201':
           description: Create merge request context commits
           schema:
-            "$ref": "#/definitions/API_Entities_Commit"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Commit"
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
         '404':
@@ -27790,7 +27837,9 @@ paths:
         '200':
           description: Get the merge request diffs
           schema:
-            "$ref": "#/definitions/API_Entities_Diff"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Diff"
         '403':
           description: Forbidden
         '404':
@@ -27847,7 +27896,9 @@ paths:
         '200':
           description: Get single merge request pipelines
           schema:
-            "$ref": "#/definitions/API_Entities_Ci_PipelineBasic"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_Ci_PipelineBasic"
         '404':
           description: Not found
       tags:
@@ -28023,7 +28074,7 @@ paths:
         schema:
           "$ref": "#/definitions/putApiV4ProjectsIdMergeRequestsMergeRequestIidRebase"
       responses:
-        '200':
+        '202':
           description: Rebase a merge request
         '403':
           description: Forbidden
@@ -28072,7 +28123,9 @@ paths:
         '200':
           description: List issues that close on merge
           schema:
-            "$ref": "#/definitions/API_Entities_MRNote"
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_MRNote"
         '403':
           description: Forbidden
         '404':
@@ -55931,7 +55984,7 @@ definitions:
     required:
     - branch
     - ref
-    description: Create branch
+    description: Create a repository branch
   postApiV4ProjectsIdCatalogPublish:
     type: object
     properties:
@@ -57791,7 +57844,7 @@ definitions:
         description: The commit content to be created (generated by Multipart middleware)
     required:
     - file
-    description: Create a new commit
+    description: Create a commit
   API_Entities_CommitDetail:
     type: object
     properties:
@@ -58000,7 +58053,7 @@ definitions:
         example: Initial commit
     required:
     - branch
-    description: Cherry pick commit into a branch
+    description: Cherry-pick a commit
   postApiV4ProjectsIdRepositoryCommitsShaRevert:
     type: object
     properties:
@@ -58014,7 +58067,7 @@ definitions:
         default: false
     required:
     - branch
-    description: Revert a commit in a branch
+    description: Revert a commit
   API_Entities_BasicRef:
     type: object
     properties:
@@ -58055,7 +58108,7 @@ definitions:
     - note
     - line
     - line_type
-    description: Post comment to commit
+    description: Create a comment on a commit
   API_Entities_CommitSignature:
     type: object
     properties:
@@ -64605,112 +64658,6 @@ definitions:
     required:
     - access_level
     description: Updates a member of a group or project.
-  postApiV4ProjectsIdMergeRequestsMergeRequestIidTimeEstimate:
-    type: object
-    properties:
-      duration:
-        type: string
-        description: The duration in human format.
-        example: 3h30m
-    required:
-    - duration
-    description: Set a time estimate for a merge_request
-  postApiV4ProjectsIdMergeRequestsMergeRequestIidAddSpentTime:
-    type: object
-    properties:
-      duration:
-        type: string
-        description: The duration in human format.
-    required:
-    - duration
-    description: Add spent time for a merge_request
-  postApiV4ProjectsIdMergeRequests:
-    type: object
-    properties:
-      title:
-        type: string
-        description: The title of the merge request.
-      source_branch:
-        type: string
-        description: The source branch.
-      target_branch:
-        type: string
-        description: The target branch.
-      target_project_id:
-        type: integer
-        format: int32
-        description: The target project of the merge request defaults to the :id of
-          the project.
-      assignee_id:
-        type: integer
-        format: int32
-        description: Assignee user ID.
-      assignee_ids:
-        type: array
-        description: The IDs of the users to assign the merge request to, as a comma-separated
-          list. Set to 0 or provide an empty value to unassign all assignees.
-        items:
-          type: integer
-          format: int32
-      reviewer_ids:
-        type: array
-        description: The IDs of the users to review the merge request, as a comma-separated
-          list. Set to 0 or provide an empty value to unassign all reviewers.
-        items:
-          type: integer
-          format: int32
-      description:
-        type: string
-        description: Description of the merge request. Limited to 1,048,576 characters.
-      labels:
-        type: array
-        description: Comma-separated label names for a merge request. Set to an empty
-          string to unassign all labels.
-        items:
-          type: string
-      add_labels:
-        type: array
-        description: Comma-separated label names to add to a merge request.
-        items:
-          type: string
-      remove_labels:
-        type: array
-        description: Comma-separated label names to remove from a merge request.
-        items:
-          type: string
-      milestone_id:
-        type: integer
-        format: int32
-        description: The global ID of a milestone to assign the merge request to.
-      milestone:
-        type: string
-        description: The title of a project or ancestor-group milestone to assign
-          the merge request to. Mutually exclusive with `milestone_id`.
-      remove_source_branch:
-        type: boolean
-        description: Flag indicating if a merge request should remove the source branch
-          when merging.
-      allow_collaboration:
-        type: boolean
-        description: Allow commits from members who can merge to the target branch.
-      allow_maintainer_to_push:
-        type: boolean
-        description: "[deprecated] See allow_collaboration"
-      squash:
-        type: boolean
-        description: Squash commits into a single commit when merging.
-      merge_after:
-        type: string
-        description: Date after which the merge request can be merged.
-      approvals_before_merge:
-        type: integer
-        format: int32
-        description: Number of approvals required before this can be merged
-    required:
-    - title
-    - source_branch
-    - target_branch
-    description: Create merge request
   API_Entities_MergeRequest:
     type: object
     properties:
@@ -64976,6 +64923,112 @@ definitions:
     - base_sha
     - head_sha
     - start_sha
+  postApiV4ProjectsIdMergeRequestsMergeRequestIidTimeEstimate:
+    type: object
+    properties:
+      duration:
+        type: string
+        description: The duration in human format.
+        example: 3h30m
+    required:
+    - duration
+    description: Set a time estimate for a merge_request
+  postApiV4ProjectsIdMergeRequestsMergeRequestIidAddSpentTime:
+    type: object
+    properties:
+      duration:
+        type: string
+        description: The duration in human format.
+    required:
+    - duration
+    description: Add spent time for a merge_request
+  postApiV4ProjectsIdMergeRequests:
+    type: object
+    properties:
+      title:
+        type: string
+        description: The title of the merge request.
+      source_branch:
+        type: string
+        description: The source branch.
+      target_branch:
+        type: string
+        description: The target branch.
+      target_project_id:
+        type: integer
+        format: int32
+        description: The target project of the merge request defaults to the :id of
+          the project.
+      assignee_id:
+        type: integer
+        format: int32
+        description: Assignee user ID.
+      assignee_ids:
+        type: array
+        description: The IDs of the users to assign the merge request to, as a comma-separated
+          list. Set to 0 or provide an empty value to unassign all assignees.
+        items:
+          type: integer
+          format: int32
+      reviewer_ids:
+        type: array
+        description: The IDs of the users to review the merge request, as a comma-separated
+          list. Set to 0 or provide an empty value to unassign all reviewers.
+        items:
+          type: integer
+          format: int32
+      description:
+        type: string
+        description: Description of the merge request. Limited to 1,048,576 characters.
+      labels:
+        type: array
+        description: Comma-separated label names for a merge request. Set to an empty
+          string to unassign all labels.
+        items:
+          type: string
+      add_labels:
+        type: array
+        description: Comma-separated label names to add to a merge request.
+        items:
+          type: string
+      remove_labels:
+        type: array
+        description: Comma-separated label names to remove from a merge request.
+        items:
+          type: string
+      milestone_id:
+        type: integer
+        format: int32
+        description: The global ID of a milestone to assign the merge request to.
+      milestone:
+        type: string
+        description: The title of a project or ancestor-group milestone to assign
+          the merge request to. Mutually exclusive with `milestone_id`.
+      remove_source_branch:
+        type: boolean
+        description: Flag indicating if a merge request should remove the source branch
+          when merging.
+      allow_collaboration:
+        type: boolean
+        description: Allow commits from members who can merge to the target branch.
+      allow_maintainer_to_push:
+        type: boolean
+        description: "[deprecated] See allow_collaboration"
+      squash:
+        type: boolean
+        description: Squash commits into a single commit when merging.
+      merge_after:
+        type: string
+        description: Date after which the merge request can be merged.
+      approvals_before_merge:
+        type: integer
+        format: int32
+        description: Number of approvals required before this can be merged
+    required:
+    - title
+    - source_branch
+    - target_branch
+    description: Create merge request
   API_Entities_MergeRequestReviewer:
     type: object
     properties:

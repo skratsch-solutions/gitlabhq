@@ -54,6 +54,7 @@ const (
 	capabilityAdvancedSearch     capability = "advanced_search"
 	capabilityToolCallApproval   capability = "tool_call_approval"
 	capabilityJobTracePagination capability = "job_trace_pagination"
+	capabilityWebSearch          capability = "web_search"
 )
 
 // ClientCapabilities is how gitlab-lsp -> workhorse -> Duo Workflow Service communicates
@@ -72,7 +73,7 @@ var ClientCapabilities = []capability{
 }
 
 // ServerCapabilities defines the list of allowed server capabilities that
-// can be communicated to Duo Workflow Service. This whitelist ensures only
+// can be communicated to Duo Workflow Service. This allowlist ensures only
 // explicitly approved capabilities are sent.
 //
 // To add a new server capability:
@@ -83,6 +84,7 @@ var ServerCapabilities = []capability{
 	capabilityAdvancedSearch,
 	capabilityToolCallApproval,
 	capabilityJobTracePagination,
+	capabilityWebSearch,
 }
 
 var errFailedToAcquireLockError = errors.New("handleWebSocketMessages: failed to acquire lock")

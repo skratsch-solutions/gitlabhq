@@ -22,7 +22,7 @@ This table lists the default model for each feature in the Agent Platform.
 | Feature | Model |
 |-------|--------------|
 | GitLab Duo Agentic Chat | Claude Sonnet 4.6 Vertex |
-| Code Review Flow | Claude Sonnet 4 Vertex |
+| Code Review Flow | Claude Sonnet 4.6 Vertex |
 | All other agents | Claude Sonnet 4.5 Vertex |
 
 ## Supported models
@@ -30,25 +30,25 @@ This table lists the default model for each feature in the Agent Platform.
 This table lists the models you can select for features
 in the Agent Platform.
 
-| Model                | GitLab Duo Agentic Chat | All other agents |
-|----------------------|-------------------------|------------------|
-| Claude Sonnet 4      | {{< yes >}}             | {{< yes >}}      |
-| Claude Sonnet 4.5    | {{< yes >}}             | {{< yes >}}      |
-| Claude Sonnet 4.6    | {{< yes >}}             | {{< yes >}}      |
-| Claude Haiku 4.5     | {{< yes >}}             | {{< yes >}}      |
-| Claude Opus 4.5      | {{< yes >}}             | {{< yes >}}      |
-| Claude Opus 4.6      | {{< yes >}}             | {{< yes >}}      |
-| Claude Opus 4.7      | {{< yes >}}             | {{< yes >}}      |
-| GPT-5                | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.1              | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.2              | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.5 <sup>1</sup> | {{< yes >}}             | {{< yes >}}      |
-| GPT-5 Codex          | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.2 Codex        | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.3 Codex        | {{< yes >}}             | {{< yes >}}      |
-| GPT-5 Mini           | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.4 Mini         | {{< yes >}}             | {{< yes >}}      |
-| GPT-5.4 Nano         | {{< yes >}}             | {{< yes >}}      |
+| Model                | GitLab Duo Agentic Chat | Code Review Flow | All other agents |
+|----------------------|-------------------------|------------------|------------------|
+| Claude Sonnet 4      | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
+| Claude Sonnet 4.5    | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
+| Claude Sonnet 4.6    | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
+| Claude Haiku 4.5     | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| Claude Opus 4.5      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| Claude Opus 4.6      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| Claude Opus 4.7      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5                | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.1              | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.2              | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.5 <sup>1</sup> | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5 Codex          | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.2 Codex        | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.3 Codex        | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5 Mini           | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.4 Mini         | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.4 Nano         | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 
 **Footnotes**:
 
@@ -72,6 +72,8 @@ in the Agent Platform.
 - Feature flag `duo_agent_platform_model_selection` [enabled](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/212051) in GitLab 18.6.
 - Feature flag `ai_model_switching` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/526307) in GitLab 18.7.
 - Feature flag `duo_agent_platform_model_selection` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/218591) in GitLab 18.9.
+- LLM [updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) to Claude Sonnet 4.6 Vertex for Code Review Flow in GitLab 19.1.
+- [Separate model selection](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) from GitLab Duo Code Review introduced for Code Review Flow in GitLab 19.1, using the **Agentic Code Review** setting.
 
 {{< /history >}}
 

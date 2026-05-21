@@ -399,6 +399,7 @@ module API
 
       desc 'Delete a merge request' do
         detail 'Only for administrators and project owners. Deletes the merge request in question. '
+        success code: 204
         failure [
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' },
@@ -457,6 +458,7 @@ module API
       desc 'Get single merge request participants' do
         detail 'Get a list of merge request participants.'
         success Entities::UserBasic
+        is_array true
         failure [
           { code: 404, message: 'Not found' }
         ]
@@ -474,6 +476,7 @@ module API
       desc 'Get single merge request reviewers' do
         detail 'Get a list of merge request reviewers.'
         success Entities::MergeRequestReviewer
+        is_array true
         failure [
           { code: 404, message: 'Not found' }
         ]
@@ -491,6 +494,7 @@ module API
       desc 'Get single merge request commits' do
         detail 'Get a list of merge request commits.'
         success Entities::Commit
+        is_array true
         failure [
           { code: 404, message: 'Not found' }
         ]
@@ -521,6 +525,7 @@ module API
       desc 'List merge request context commits' do
         detail 'Get a list of merge request context commits.'
         success Entities::Commit
+        is_array true
         failure [
           { code: 404, message: 'Not found' }
         ]
@@ -545,7 +550,9 @@ module API
       desc 'Create merge request context commits' do
         detail 'Create a list of merge request context commits.'
         success Entities::Commit
+        is_array true
         failure [
+          { code: 400, message: 'Bad request' },
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' }
         ]
@@ -582,6 +589,7 @@ module API
       end
       desc 'Delete merge request context commits' do
         detail 'Delete a list of merge request context commits.'
+        success code: 204
         failure [
           { code: 400, message: 'Bad request' },
           { code: 401, message: 'Unauthorized' },
@@ -632,6 +640,7 @@ module API
       desc 'Get the merge request diffs' do
         detail 'Get a list of merge request diffs.'
         success Entities::Diff
+        is_array true
         failure [
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' }
@@ -659,6 +668,7 @@ module API
 
       desc 'Get the merge request raw diffs' do
         detail 'Get the raw diffs of a merge request that can used programmatically.'
+        success code: 200
         failure [
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' }
@@ -677,6 +687,7 @@ module API
       desc 'Get single merge request pipelines' do
         detail 'Get a list of merge request pipelines.'
         success Entities::Ci::PipelineBasic
+        is_array true
         failure [
           { code: 404, message: 'Not found' }
         ]
@@ -861,6 +872,7 @@ module API
 
       desc 'Returns the up to date merge-ref HEAD commit' do
         detail 'Returns the up to date merge-ref HEAD commit'
+        success code: 200
         failure [
           { code: 400, message: 'Bad request' }
         ]
@@ -901,6 +913,7 @@ module API
 
       desc 'Rebase a merge request' do
         detail 'Automatically rebase the `source_branch` of the merge request against its `target_branch`. This feature was added in GitLab 11.6'
+        success code: 202
         failure [
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' },
@@ -924,9 +937,11 @@ module API
       rescue ::MergeRequest::RebaseLockTimeout => e
         render_api_error!(e.message, 409)
       end
+
       desc 'List issues that close on merge' do
         detail 'Get all the issues that would be closed by merging the provided merge request.'
         success Entities::MRNote
+        is_array true
         failure [
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' }
@@ -952,6 +967,8 @@ module API
 
       desc 'List issues related to merge request' do
         detail 'Get all the related issues from title, description, commits, comments and discussions of the merge request.'
+        success code: 200
+        is_array true
         failure [
           { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' }

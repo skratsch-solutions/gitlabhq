@@ -72,6 +72,7 @@ describe('GitlabDuoSettings', () => {
   const findToolApprovalToggle = () => wrapper.findByTestId('tool-approval-for-session-enabled');
   const findToolApprovalCascadingLockIcon = () =>
     wrapper.findByTestId('tool-approval-cascading-lock-icon');
+  const findDapSessionTrackingToggle = () => wrapper.findByTestId('dap-session-tracking-enabled');
 
   beforeEach(() => {
     wrapper = createWrapper();
@@ -511,6 +512,43 @@ describe('GitlabDuoSettings', () => {
           expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(true);
 
           await findToolApprovalToggle().vm.$emit('change', false);
+
+          expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(false);
+        });
+      });
+
+      describe('DAP session tracking settings', () => {
+        it.each`
+          scenario                       | props                                                                                       | exists   | disabled
+          ${'available and Duo enabled'} | ${{ duoFeaturesEnabled: true, dapSessionTrackingAvailable: true }}                          | ${true}  | ${false}
+          ${'not available'}             | ${{ duoFeaturesEnabled: true, dapSessionTrackingAvailable: false }}                         | ${false} | ${undefined}
+          ${'Duo features disabled'}     | ${{ duoFeaturesEnabled: false, dapSessionTrackingAvailable: true }}                         | ${false} | ${undefined}
+          ${'Duo features locked'}       | ${{ duoFeaturesEnabled: true, dapSessionTrackingAvailable: true, duoFeaturesLocked: true }} | ${true}  | ${true}
+        `('renders correctly when $scenario', ({ props, exists, disabled }) => {
+          wrapper = createWrapper({ amazonQAvailable: false, ...props });
+
+          expect(findDapSessionTrackingToggle().exists()).toBe(exists);
+          if (exists) {
+            expect(findDapSessionTrackingToggle().props('disabled')).toBe(disabled);
+          }
+        });
+
+        it('updates the hidden input value when toggled', async () => {
+          wrapper = createWrapper({
+            duoFeaturesEnabled: true,
+            amazonQAvailable: false,
+            dapSessionTrackingAvailable: true,
+            initialDapSessionTrackingEnabled: true,
+          });
+
+          const findHiddenInput = () =>
+            wrapper.find(
+              'input[name="project[project_setting_attributes][dap_session_tracking_enabled]"]',
+            );
+
+          expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(true);
+
+          await findDapSessionTrackingToggle().vm.$emit('change', false);
 
           expect(parseBoolean(findHiddenInput().attributes('value'))).toBe(false);
         });

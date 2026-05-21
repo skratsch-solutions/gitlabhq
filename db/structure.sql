@@ -32045,7 +32045,6 @@ CREATE TABLE user_details (
     twitter text DEFAULT ''::text NOT NULL,
     website_url text DEFAULT ''::text NOT NULL,
     location text DEFAULT ''::text NOT NULL,
-    organization text DEFAULT ''::text NOT NULL,
     password_last_changed_at timestamp with time zone DEFAULT now() NOT NULL,
     discord text DEFAULT ''::text NOT NULL,
     enterprise_group_id bigint,
@@ -32069,7 +32068,6 @@ CREATE TABLE user_details (
     CONSTRAINT check_466a25be35 CHECK ((char_length(twitter) <= 500)),
     CONSTRAINT check_4925cf9fd2 CHECK ((char_length(email_otp_last_sent_to) <= 511)),
     CONSTRAINT check_4ef1de1a15 CHECK ((char_length(discord) <= 500)),
-    CONSTRAINT check_7b246dad73 CHECK ((char_length(organization) <= 500)),
     CONSTRAINT check_7d6489f8f3 CHECK ((char_length(linkedin) <= 500)),
     CONSTRAINT check_7fe2044093 CHECK ((char_length(website_url) <= 500)),
     CONSTRAINT check_8a7fcf8a60 CHECK ((char_length(location) <= 500)),
@@ -47475,7 +47473,7 @@ CREATE INDEX index_group_secrets_managers_on_group_id ON group_secrets_managers 
 
 CREATE INDEX index_group_security_exclusions_on_group_id ON group_security_exclusions USING btree (group_id);
 
-CREATE UNIQUE INDEX index_group_ssh_certificates_on_fingerprint ON group_ssh_certificates USING btree (fingerprint);
+CREATE UNIQUE INDEX index_group_ssh_certificates_on_fingerprint_and_namespace_id ON group_ssh_certificates USING btree (fingerprint, namespace_id);
 
 CREATE INDEX index_group_ssh_certificates_on_namespace_id ON group_ssh_certificates USING btree (namespace_id);
 

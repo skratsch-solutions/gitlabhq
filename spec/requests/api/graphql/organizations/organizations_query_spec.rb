@@ -92,6 +92,44 @@ RSpec.describe 'getting organizations information', feature_category: :organizat
     end
   end
 
+  describe 'exclude_default' do
+    let(:current_user) { user }
+
+    before do
+      stub_const("Organizations::Organization::DEFAULT_ORGANIZATION_ID", user_organization.id)
+    end
+
+    context 'when exclude_default is true' do
+      let(:params) { { excludeDefault: true } }
+
+      it 'excludes the default organization from results' do
+        request_organization
+
+        expect(organizations).not_to include(a_graphql_entity_for(user_organization))
+      end
+    end
+
+    context 'when exclude_default is false' do
+      let(:params) { { excludeDefault: false } }
+
+      it 'includes the default organization in results' do
+        request_organization
+
+        expect(organizations).to include(a_graphql_entity_for(user_organization))
+      end
+    end
+
+    context 'when exclude_default is not set' do
+      let(:params) { {} }
+
+      it 'does not exclude any organizations' do
+        request_organization
+
+        expect(organizations).to include(a_graphql_entity_for(user_organization))
+      end
+    end
+  end
+
   describe 'search' do
     let(:current_user) { user }
     let(:params) { { search: user_organization.name } }
