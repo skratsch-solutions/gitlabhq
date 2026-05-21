@@ -25363,9 +25363,9 @@ paths:
   "/api/v4/projects/{id}/attestations/{subject_digest}":
     get:
       operationId: getApiV4ProjectsIdAttestationsSubjectDigest
-      summary: Fetch the list of all attestations for a specific project and artifact
-        hash
-      description: This feature was introduced in GitLab 18.7
+      summary: List all attestations for a project
+      description: Lists all attestations for a specified project and artifact hash.
+        This feature was introduced in GitLab 18.7.
       tags:
       - Attestations
       responses:
@@ -25395,7 +25395,7 @@ paths:
   "/api/v4/projects/{id}/attestations/{attestation_iid}/download":
     get:
       operationId: getApiV4ProjectsIdAttestationsAttestationIidDownload
-      summary: Fetch a specific bundle by iid
+      summary: Retrieve an attestation bundle
       description: This feature was introduced in GitLab 18.7
       tags:
       - Attestations
@@ -32428,7 +32428,9 @@ paths:
   "/api/v4/projects/{id}/job_token_scope":
     get:
       operationId: getApiV4ProjectsIdJobTokenScope
-      summary: Fetch CI_JOB_TOKEN access settings.
+      summary: Retrieve the CI/CD job token access settings for a project
+      description: Retrieves the CI/CD job token access settings (job token scope)
+        of a specified project.
       tags:
       - Projects job token scope
       responses:
@@ -32451,7 +32453,9 @@ paths:
         in: path
     patch:
       operationId: patchApiV4ProjectsIdJobTokenScope
-      summary: Patch CI_JOB_TOKEN access settings.
+      summary: Update the CI/CD job token access settings for a project
+      description: Updates the **Authorized groups and projects** setting (job token
+        scope) of a specified project.
       tags:
       - Projects job token scope
       responses:
@@ -32479,7 +32483,9 @@ paths:
   "/api/v4/projects/{id}/job_token_scope/allowlist":
     get:
       operationId: getApiV4ProjectsIdJobTokenScopeAllowlist
-      summary: Fetch project inbound allowlist for CI_JOB_TOKEN access settings.
+      summary: List all projects in a CI/CD job token allowlist
+      description: Lists all projects in the CI/CD job token allowlist of a specified
+        project.
       tags:
       - Projects job token scope
       responses:
@@ -32520,7 +32526,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdJobTokenScopeAllowlist
-      summary: Add target project to allowlist.
+      summary: Add a project to a CI/CD job token allowlist
+      description: Adds a project to the CI/CD job token allowlist of a specified
+        project.
       tags:
       - Projects job token scope
       responses:
@@ -32557,7 +32565,9 @@ paths:
   "/api/v4/projects/{id}/job_token_scope/groups_allowlist":
     get:
       operationId: getApiV4ProjectsIdJobTokenScopeGroupsAllowlist
-      summary: Fetch project groups allowlist for CI_JOB_TOKEN access settings.
+      summary: List all groups in a CI/CD job token allowlist
+      description: Lists all groups in the CI/CD job token allowlist of a specified
+        project.
       tags:
       - Projects job token scope
       responses:
@@ -32598,7 +32608,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdJobTokenScopeGroupsAllowlist
-      summary: Add target group to allowlist.
+      summary: Add a group to a CI/CD job token allowlist
+      description: Adds a group to the CI/CD job token allowlist of a specified project.
       tags:
       - Projects job token scope
       responses:
@@ -32635,7 +32646,9 @@ paths:
   "/api/v4/projects/{id}/job_token_scope/groups_allowlist/{target_group_id}":
     delete:
       operationId: deleteApiV4ProjectsIdJobTokenScopeGroupsAllowlistTargetGroupId
-      summary: Delete target group from allowlist.
+      summary: Delete a group from a CI/CD job token allowlist
+      description: Deletes a group from the CI/CD job token allowlist of a specified
+        project.
       tags:
       - Projects job token scope
       responses:
@@ -32667,7 +32680,9 @@ paths:
   "/api/v4/projects/{id}/job_token_scope/allowlist/{target_project_id}":
     delete:
       operationId: deleteApiV4ProjectsIdJobTokenScopeAllowlistTargetProjectId
-      summary: Delete project from allowlist.
+      summary: Delete a project from a CI/CD job token allowlist
+      description: Deletes a project from the CI/CD job token allowlist of a specified
+        project.
       tags:
       - Projects job token scope
       responses:
@@ -41095,9 +41110,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdCiLint
-      summary: Validate a CI YAML configuration with a namespace
-      description: Checks if CI/CD YAML configuration is valid. This endpoint has
-        namespace specific context
+      summary: Validate a CI/CD configuration
+      description: Validates a provided CI/CD configuration in the context of a specified
+        project.
       tags:
       - CI lint
       responses:
@@ -50770,7 +50785,9 @@ paths:
   "/api/v4/groups/{id}/variables":
     get:
       operationId: getApiV4GroupsIdVariables
-      summary: Get a list of group-level variables
+      summary: List all group variables
+      description: Lists all variables for a specified group. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       tags:
       - CI variables
       responses:
@@ -50813,7 +50830,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdVariables
-      summary: Create a new variable in a group
+      summary: Create a group variable
+      description: Creates a group variable.
       tags:
       - CI variables
       responses:
@@ -50843,7 +50861,9 @@ paths:
   "/api/v4/groups/{id}/variables/{key}":
     get:
       operationId: getApiV4GroupsIdVariablesKey
-      summary: Get the details of a group’s specific variable
+      summary: Retrieve details of a group variable
+      description: Retrieves details of a specified group variable. If there are multiple
+        variables with the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -50872,7 +50892,9 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdVariablesKey
-      summary: Update an existing variable from a group
+      summary: Update a group variable
+      description: Updates a specified group variable. If there are multiple variables
+        with the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -50909,7 +50931,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_a75eda64211a"
     delete:
       operationId: deleteApiV4GroupsIdVariablesKey
-      summary: Delete an existing variable from a group
+      summary: Delete a group variable
+      description: Deletes a specified group variable. If there are multiple variables
+        with the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -60684,7 +60708,9 @@ paths:
   "/api/v4/projects/{id}/variables":
     get:
       operationId: getApiV4ProjectsIdVariables
-      summary: Get project variables
+      summary: List all project variables
+      description: Lists all variables for a project. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       tags:
       - CI variables
       responses:
@@ -60728,7 +60754,10 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdVariables
-      summary: Create a new variable in a project
+      summary: Create a variable
+      description: 'Creates a variable. If a variable with the same `key` already
+        exists, the variable must have a different `environment_scope`. Otherwise,
+        GitLab returns a message similar to: `VARIABLE_NAME has already been taken`.'
       tags:
       - CI variables
       responses:
@@ -60759,7 +60788,9 @@ paths:
   "/api/v4/projects/{id}/variables/{key}":
     get:
       operationId: getApiV4ProjectsIdVariablesKey
-      summary: Get the details of a single variable from a project
+      summary: Retrieve a single variable
+      description: Retrieves details of a specified variable. If there are multiple
+        variables with the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -60803,7 +60834,9 @@ paths:
         in: query
     put:
       operationId: putApiV4ProjectsIdVariablesKey
-      summary: Update an existing variable from a project
+      summary: Update a variable
+      description: Updates a project variable. If there are multiple variables with
+        the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -60839,7 +60872,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_0eb6615434ab"
     delete:
       operationId: deleteApiV4ProjectsIdVariablesKey
-      summary: Delete an existing variable from a project
+      summary: Delete a variable
+      description: Deletes a project variable. If there are multiple variables with
+        the same key, use `filter` to select the correct `environment_scope`.
       tags:
       - CI variables
       responses:
@@ -62469,7 +62504,8 @@ paths:
   "/api/v4/projects/{id}/secure_files":
     get:
       operationId: getApiV4ProjectsIdSecureFiles
-      summary: Get list of secure files in a project
+      summary: List all secure files for a project
+      description: Lists all secure files for a specified project.
       tags:
       - Secure files
       responses:
@@ -62515,6 +62551,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdSecureFiles
       summary: Create a secure file
+      description: Creates a secure file in a specified project.
       tags:
       - Secure files
       responses:
@@ -62546,7 +62583,8 @@ paths:
   "/api/v4/projects/{id}/secure_files/{secure_file_id}":
     get:
       operationId: getApiV4ProjectsIdSecureFilesSecureFileId
-      summary: Get the details of a specific secure file in a project
+      summary: Retrieve details of a secure file
+      description: Retrieves details of a specified secure file in a project.
       tags:
       - Secure files
       responses:
@@ -62577,7 +62615,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdSecureFilesSecureFileId
-      summary: Remove a secure file
+      summary: Delete a secure file
+      description: Deletes a specified secure file from a project.
       tags:
       - Secure files
       responses:
@@ -62603,7 +62642,8 @@ paths:
   "/api/v4/projects/{id}/secure_files/{secure_file_id}/download":
     get:
       operationId: getApiV4ProjectsIdSecureFilesSecureFileIdDownload
-      summary: Download secure file
+      summary: Download a secure file
+      description: Downloads the contents of a specified secure file in a project.
       tags:
       - Secure files
       responses:
@@ -69489,7 +69529,9 @@ paths:
   "/api/v4/admin/ci/variables":
     get:
       operationId: getApiV4AdminCiVariables
-      summary: List all instance-level variables
+      summary: List all instance variables
+      description: Lists all instance-level variables. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       tags:
       - CI variables
       responses:
@@ -69522,7 +69564,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4AdminCiVariables
-      summary: Create a new instance-level variable
+      summary: Create instance variable
+      description: Creates a instance-level variable. The maximum number of instance-level
+        variables can be changed.
       tags:
       - CI variables
       responses:
@@ -69543,7 +69587,8 @@ paths:
   "/api/v4/admin/ci/variables/{key}":
     get:
       operationId: getApiV4AdminCiVariablesKey
-      summary: Get the details of a specific instance-level variable
+      summary: Retrieve instance variable details
+      description: Retrieves details of a specified instance-level variable.
       tags:
       - CI variables
       responses:
@@ -69564,7 +69609,8 @@ paths:
         in: path
     put:
       operationId: putApiV4AdminCiVariablesKey
-      summary: Update an instance-level variable
+      summary: Update an instance variable
+      description: Updates a specified instance variable.
       tags:
       - CI variables
       responses:
@@ -69591,7 +69637,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_68f946815ff6"
     delete:
       operationId: deleteApiV4AdminCiVariablesKey
-      summary: Delete an existing instance-level variable
+      summary: Delete instance variable
+      description: Deletes a specified instance variable.
       tags:
       - CI variables
       responses:

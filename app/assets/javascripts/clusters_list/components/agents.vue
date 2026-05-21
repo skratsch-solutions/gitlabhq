@@ -175,7 +175,8 @@ export default {
         !this.queryErrored &&
         !this.agentList.length &&
         !this.sharedAgentsQueryErrored &&
-        !this.sharedAgentsList.length
+        !this.sharedAgentsList.length &&
+        !this.availableConfigs.length
       );
     },
     showFeedbackBanner() {

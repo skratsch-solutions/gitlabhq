@@ -254,11 +254,11 @@ CI/CD job tokens can access the following REST API endpoints:
 
 | Permission | API endpoint | Permission name | Scope |
 | ---------- | ------------ | --------------- | ----- |
-| Download secure file | `GET /projects/:id/secure_files/:secure_file_id/download` | `READ_SECURE_FILES` | Read |
-| Get list of secure files in a project | `GET /projects/:id/secure_files` | `READ_SECURE_FILES` | Read |
-| Get the details of a specific secure file in a project | `GET /projects/:id/secure_files/:secure_file_id` | `READ_SECURE_FILES` | Read |
+| Download a secure file | `GET /projects/:id/secure_files/:secure_file_id/download` | `READ_SECURE_FILES` | Read |
+| List all secure files for a project | `GET /projects/:id/secure_files` | `READ_SECURE_FILES` | Read |
+| Retrieve details of a secure file | `GET /projects/:id/secure_files/:secure_file_id` | `READ_SECURE_FILES` | Read |
 | Create a secure file | `POST /projects/:id/secure_files` | `ADMIN_SECURE_FILES` | Read and write |
-| Remove a secure file | `DELETE /projects/:id/secure_files/:secure_file_id` | `ADMIN_SECURE_FILES` | Read and write |
+| Delete a secure file | `DELETE /projects/:id/secure_files/:secure_file_id` | `ADMIN_SECURE_FILES` | Read and write |
 
 ### Terraform state endpoints
 

@@ -57,8 +57,8 @@ module API
     end
 
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      desc 'Validate a CI YAML configuration with a namespace' do
-        detail 'Checks if CI/CD YAML configuration is valid. This endpoint has namespace specific context'
+      desc 'Validate a CI/CD configuration' do
+        detail 'Validates a provided CI/CD configuration in the context of a specified project.'
         success code: 200, model: Entities::Ci::Lint::Result
         tags %w[ci_lint]
       end

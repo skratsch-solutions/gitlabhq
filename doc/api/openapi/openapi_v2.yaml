@@ -4272,7 +4272,9 @@ paths:
       operationId: postApiV4GroupsIdPlaceholderReassignmentsAuthorize
   "/api/v4/groups/{id}/variables":
     get:
-      description: Get a list of group-level variables
+      summary: List all group variables
+      description: Lists all variables for a specified group. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       produces:
       - application/json
       parameters:
@@ -4301,14 +4303,15 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a list of group-level variables
+          description: List all group variables
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
       tags:
       - ci_variables
       operationId: getApiV4GroupsIdVariables
     post:
-      description: Create a new variable in a group
+      summary: Create a group variable
+      description: Creates a group variable.
       produces:
       - application/json
       consumes:
@@ -4328,7 +4331,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdVariables"
       responses:
         '201':
-          description: Create a new variable in a group
+          description: Create a group variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -4338,7 +4341,9 @@ paths:
       operationId: postApiV4GroupsIdVariables
   "/api/v4/groups/{id}/variables/{key}":
     get:
-      description: Get the details of a group’s specific variable
+      summary: Retrieve details of a group variable
+      description: Retrieves details of a specified group variable. If there are multiple
+        variables with the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       parameters:
@@ -4356,7 +4361,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the details of a group’s specific variable
+          description: Retrieve details of a group variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '404':
@@ -4365,7 +4370,9 @@ paths:
       - ci_variables
       operationId: getApiV4GroupsIdVariablesKey
     put:
-      description: Update an existing variable from a group
+      summary: Update a group variable
+      description: Updates a specified group variable. If there are multiple variables
+        with the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       consumes:
@@ -4390,7 +4397,7 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdVariablesKey"
       responses:
         '200':
-          description: Update an existing variable from a group
+          description: Update a group variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -4401,7 +4408,9 @@ paths:
       - ci_variables
       operationId: putApiV4GroupsIdVariablesKey
     delete:
-      description: Delete an existing variable from a group
+      summary: Delete a group variable
+      description: Deletes a specified group variable. If there are multiple variables
+        with the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       parameters:
@@ -4421,7 +4430,7 @@ paths:
         '404':
           description: Group Variable Not Found
         '204':
-          description: Delete an existing variable from a group
+          description: Delete a group variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
       tags:
@@ -12081,7 +12090,8 @@ paths:
       operationId: postApiV4ProjectsIdRunnersResetRegistrationToken
   "/api/v4/projects/{id}/secure_files":
     get:
-      description: Get list of secure files in a project
+      summary: List all secure files for a project
+      description: Lists all secure files for a specified project.
       produces:
       - application/json
       parameters:
@@ -12110,14 +12120,15 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get list of secure files in a project
+          description: List all secure files for a project
           schema:
             "$ref": "#/definitions/API_Entities_Ci_SecureFile"
       tags:
       - secure_files
       operationId: getApiV4ProjectsIdSecureFiles
     post:
-      description: Create a secure file
+      summary: Create a secure file
+      description: Creates a secure file in a specified project.
       produces:
       - application/json
       consumes:
@@ -12147,7 +12158,8 @@ paths:
       operationId: postApiV4ProjectsIdSecureFiles
   "/api/v4/projects/{id}/secure_files/{secure_file_id}":
     get:
-      description: Get the details of a specific secure file in a project
+      summary: Retrieve details of a secure file
+      description: Retrieves details of a specified secure file in a project.
       produces:
       - application/json
       parameters:
@@ -12166,7 +12178,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the details of a specific secure file in a project
+          description: Retrieve details of a secure file
           schema:
             "$ref": "#/definitions/API_Entities_Ci_SecureFile"
         '404':
@@ -12175,7 +12187,8 @@ paths:
       - secure_files
       operationId: getApiV4ProjectsIdSecureFilesSecureFileId
     delete:
-      description: Remove a secure file
+      summary: Delete a secure file
+      description: Deletes a specified secure file from a project.
       produces:
       - application/json
       parameters:
@@ -12193,7 +12206,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Remove a secure file
+          description: Delete a secure file
         '404':
           description: 404 Not found
       tags:
@@ -12201,7 +12214,8 @@ paths:
       operationId: deleteApiV4ProjectsIdSecureFilesSecureFileId
   "/api/v4/projects/{id}/secure_files/{secure_file_id}/download":
     get:
-      description: Download secure file
+      summary: Download a secure file
+      description: Downloads the contents of a specified secure file in a project.
       produces:
       - application/json
       parameters:
@@ -12220,7 +12234,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download secure file
+          description: Download a secure file
         '404':
           description: 404 Not found
       tags:
@@ -13707,7 +13721,9 @@ paths:
       operationId: deleteApiV4ProjectsIdTriggersTriggerId
   "/api/v4/projects/{id}/variables":
     get:
-      description: Get project variables
+      summary: List all project variables
+      description: Lists all variables for a project. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       produces:
       - application/json
       parameters:
@@ -13735,14 +13751,17 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get project variables
+          description: List all project variables
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
       tags:
       - ci_variables
       operationId: getApiV4ProjectsIdVariables
     post:
-      description: Create a new variable in a project
+      summary: Create a variable
+      description: 'Creates a variable. If a variable with the same `key` already
+        exists, the variable must have a different `environment_scope`. Otherwise,
+        GitLab returns a message similar to: `VARIABLE_NAME has already been taken`.'
       produces:
       - application/json
       consumes:
@@ -13761,7 +13780,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdVariables"
       responses:
         '201':
-          description: Create a new variable in a project
+          description: Create a variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -13771,7 +13790,9 @@ paths:
       operationId: postApiV4ProjectsIdVariables
   "/api/v4/projects/{id}/variables/{key}":
     get:
-      description: Get the details of a single variable from a project
+      summary: Retrieve a single variable
+      description: Retrieves details of a specified variable. If there are multiple
+        variables with the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       parameters:
@@ -13793,7 +13814,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get the details of a single variable from a project
+          description: Retrieve a single variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '404':
@@ -13802,7 +13823,9 @@ paths:
       - ci_variables
       operationId: getApiV4ProjectsIdVariablesKey
     put:
-      description: Update an existing variable from a project
+      summary: Update a variable
+      description: Updates a project variable. If there are multiple variables with
+        the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       consumes:
@@ -13826,7 +13849,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdVariablesKey"
       responses:
         '200':
-          description: Update an existing variable from a project
+          description: Update a variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '404':
@@ -13835,7 +13858,9 @@ paths:
       - ci_variables
       operationId: putApiV4ProjectsIdVariablesKey
     delete:
-      description: Delete an existing variable from a project
+      summary: Delete a variable
+      description: Deletes a project variable. If there are multiple variables with
+        the same key, use `filter` to select the correct `environment_scope`.
       produces:
       - application/json
       parameters:
@@ -13859,7 +13884,7 @@ paths:
         '404':
           description: Variable Not Found
         '204':
-          description: Delete an existing variable from a project
+          description: Delete a variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
       tags:
@@ -26117,9 +26142,9 @@ paths:
       - ci_lint
       operationId: getApiV4ProjectsIdCiLint
     post:
-      summary: Validate a CI YAML configuration with a namespace
-      description: Checks if CI/CD YAML configuration is valid. This endpoint has
-        namespace specific context
+      summary: Validate a CI/CD configuration
+      description: Validates a provided CI/CD configuration in the context of a specified
+        project.
       produces:
       - application/json
       consumes:
@@ -26137,7 +26162,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdCiLint"
       responses:
         '200':
-          description: Validate a CI YAML configuration with a namespace
+          description: Validate a CI/CD configuration
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Lint_Result"
       tags:
@@ -33841,7 +33866,9 @@ paths:
       operationId: postApiV4ProjectsRemoteImportS3
   "/api/v4/projects/{id}/job_token_scope":
     get:
-      description: Fetch CI_JOB_TOKEN access settings.
+      summary: Retrieve the CI/CD job token access settings for a project
+      description: Retrieves the CI/CD job token access settings (job token scope)
+        of a specified project.
       produces:
       - application/json
       parameters:
@@ -33852,7 +33879,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Fetch CI_JOB_TOKEN access settings.
+          description: Retrieve the CI/CD job token access settings for a project
           schema:
             "$ref": "#/definitions/API_Entities_ProjectJobTokenScope"
         '401':
@@ -33865,7 +33892,9 @@ paths:
       - projects_job_token_scope
       operationId: getApiV4ProjectsIdJobTokenScope
     patch:
-      description: Patch CI_JOB_TOKEN access settings.
+      summary: Update the CI/CD job token access settings for a project
+      description: Updates the **Authorized groups and projects** setting (job token
+        scope) of a specified project.
       produces:
       - application/json
       consumes:
@@ -33883,7 +33912,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdJobTokenScope"
       responses:
         '204':
-          description: Patch CI_JOB_TOKEN access settings.
+          description: Update the CI/CD job token access settings for a project
         '400':
           description: Bad Request
         '401':
@@ -33897,7 +33926,9 @@ paths:
       operationId: patchApiV4ProjectsIdJobTokenScope
   "/api/v4/projects/{id}/job_token_scope/allowlist":
     get:
-      description: Fetch project inbound allowlist for CI_JOB_TOKEN access settings.
+      summary: List all projects in a CI/CD job token allowlist
+      description: Lists all projects in the CI/CD job token allowlist of a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -33924,7 +33955,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Fetch project inbound allowlist for CI_JOB_TOKEN access settings.
+          description: List all projects in a CI/CD job token allowlist
           schema:
             "$ref": "#/definitions/API_Entities_BasicProjectDetails"
         '401':
@@ -33937,7 +33968,9 @@ paths:
       - projects_job_token_scope
       operationId: getApiV4ProjectsIdJobTokenScopeAllowlist
     post:
-      description: Add target project to allowlist.
+      summary: Add a project to a CI/CD job token allowlist
+      description: Adds a project to the CI/CD job token allowlist of a specified
+        project.
       produces:
       - application/json
       consumes:
@@ -33957,7 +33990,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdJobTokenScopeAllowlist"
       responses:
         '201':
-          description: Add target project to allowlist.
+          description: Add a project to a CI/CD job token allowlist
           schema:
             "$ref": "#/definitions/API_Entities_BasicProjectDetails"
         '400':
@@ -33975,7 +34008,9 @@ paths:
       operationId: postApiV4ProjectsIdJobTokenScopeAllowlist
   "/api/v4/projects/{id}/job_token_scope/groups_allowlist":
     get:
-      description: Fetch project groups allowlist for CI_JOB_TOKEN access settings.
+      summary: List all groups in a CI/CD job token allowlist
+      description: Lists all groups in the CI/CD job token allowlist of a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -34002,7 +34037,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Fetch project groups allowlist for CI_JOB_TOKEN access settings.
+          description: List all groups in a CI/CD job token allowlist
           schema:
             "$ref": "#/definitions/API_Entities_BasicProjectDetails"
         '401':
@@ -34015,7 +34050,8 @@ paths:
       - projects_job_token_scope
       operationId: getApiV4ProjectsIdJobTokenScopeGroupsAllowlist
     post:
-      description: Add target group to allowlist.
+      summary: Add a group to a CI/CD job token allowlist
+      description: Adds a group to the CI/CD job token allowlist of a specified project.
       produces:
       - application/json
       consumes:
@@ -34035,7 +34071,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdJobTokenScopeGroupsAllowlist"
       responses:
         '201':
-          description: Add target group to allowlist.
+          description: Add a group to a CI/CD job token allowlist
           schema:
             "$ref": "#/definitions/API_Entities_BasicGroupDetails"
         '400':
@@ -34053,7 +34089,9 @@ paths:
       operationId: postApiV4ProjectsIdJobTokenScopeGroupsAllowlist
   "/api/v4/projects/{id}/job_token_scope/groups_allowlist/{target_group_id}":
     delete:
-      description: Delete target group from allowlist.
+      summary: Delete a group from a CI/CD job token allowlist
+      description: Deletes a group from the CI/CD job token allowlist of a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -34073,7 +34111,7 @@ paths:
         example: 2
       responses:
         '204':
-          description: Delete target group from allowlist.
+          description: Delete a group from a CI/CD job token allowlist
         '400':
           description: Bad Request
         '401':
@@ -34087,7 +34125,9 @@ paths:
       operationId: deleteApiV4ProjectsIdJobTokenScopeGroupsAllowlistTargetGroupId
   "/api/v4/projects/{id}/job_token_scope/allowlist/{target_project_id}":
     delete:
-      description: Delete project from allowlist.
+      summary: Delete a project from a CI/CD job token allowlist
+      description: Deletes a project from the CI/CD job token allowlist of a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -34107,7 +34147,7 @@ paths:
         example: 2
       responses:
         '204':
-          description: Delete project from allowlist.
+          description: Delete a project from a CI/CD job token allowlist
         '400':
           description: Bad Request
         '401':
@@ -38751,9 +38791,9 @@ paths:
       operationId: putApiV4ProjectsIdRepositorySubmodulesSubmodule
   "/api/v4/projects/{id}/attestations/{subject_digest}":
     get:
-      summary: Fetch the list of all attestations for a specific project and artifact
-        hash
-      description: This feature was introduced in GitLab 18.7
+      summary: List all attestations for a project
+      description: Lists all attestations for a specified project and artifact hash.
+        This feature was introduced in GitLab 18.7.
       produces:
       - application/json
       parameters:
@@ -38769,8 +38809,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Fetch the list of all attestations for a specific project and
-            artifact hash
+          description: List all attestations for a project
           schema:
             "$ref": "#/definitions/API_Entities_SupplyChain_Attestation"
         '404':
@@ -38780,7 +38819,7 @@ paths:
       operationId: getApiV4ProjectsIdAttestationsSubjectDigest
   "/api/v4/projects/{id}/attestations/{attestation_iid}/download":
     get:
-      summary: Fetch a specific bundle by iid
+      summary: Retrieve an attestation bundle
       description: This feature was introduced in GitLab 18.7
       produces:
       - application/json
@@ -38797,7 +38836,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Fetch a specific bundle by iid
+          description: Retrieve an attestation bundle
         '404':
           description: Artifact SHA-256 not found
       tags:
@@ -39807,7 +39846,9 @@ paths:
       operationId: getApiV4AdminBatchedBackgroundMigrations
   "/api/v4/admin/ci/variables":
     get:
-      description: List all instance-level variables
+      summary: List all instance variables
+      description: Lists all instance-level variables. Use the `page` and `per_page`
+        pagination parameters to control the pagination of results.
       produces:
       - application/json
       parameters:
@@ -39829,14 +39870,16 @@ paths:
         example: 20
       responses:
         '200':
-          description: List all instance-level variables
+          description: List all instance variables
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
       tags:
       - ci_variables
       operationId: getApiV4AdminCiVariables
     post:
-      description: Create a new instance-level variable
+      summary: Create instance variable
+      description: Creates a instance-level variable. The maximum number of instance-level
+        variables can be changed.
       produces:
       - application/json
       consumes:
@@ -39849,7 +39892,7 @@ paths:
           "$ref": "#/definitions/postApiV4AdminCiVariables"
       responses:
         '201':
-          description: Create a new instance-level variable
+          description: Create instance variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '400':
@@ -39859,7 +39902,8 @@ paths:
       operationId: postApiV4AdminCiVariables
   "/api/v4/admin/ci/variables/{key}":
     get:
-      description: Get the details of a specific instance-level variable
+      summary: Retrieve instance variable details
+      description: Retrieves details of a specified instance-level variable.
       produces:
       - application/json
       parameters:
@@ -39870,7 +39914,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the details of a specific instance-level variable
+          description: Retrieve instance variable details
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '404':
@@ -39879,7 +39923,8 @@ paths:
       - ci_variables
       operationId: getApiV4AdminCiVariablesKey
     put:
-      description: Update an instance-level variable
+      summary: Update an instance variable
+      description: Updates a specified instance variable.
       produces:
       - application/json
       consumes:
@@ -39897,7 +39942,7 @@ paths:
           "$ref": "#/definitions/putApiV4AdminCiVariablesKey"
       responses:
         '200':
-          description: Update an instance-level variable
+          description: Update an instance variable
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Variable"
         '404':
@@ -39906,7 +39951,8 @@ paths:
       - ci_variables
       operationId: putApiV4AdminCiVariablesKey
     delete:
-      description: Delete an existing instance-level variable
+      summary: Delete instance variable
+      description: Deletes a specified instance variable.
       produces:
       - application/json
       parameters:
@@ -51928,7 +51974,7 @@ definitions:
     required:
     - key
     - value
-    description: Create a new variable in a group
+    description: Create a group variable
   putApiV4GroupsIdVariablesKey:
     type: object
     properties:
@@ -51956,7 +52002,7 @@ definitions:
       description:
         type: string
         description: The description of the variable
-    description: Update an existing variable from a group
+    description: Update a group variable
   API_Entities_IntegrationBasic:
     type: object
     properties:
@@ -57570,7 +57616,7 @@ definitions:
     required:
     - key
     - value
-    description: Create a new variable in a project
+    description: Create a variable
   putApiV4ProjectsIdVariablesKey:
     type: object
     properties:
@@ -57605,7 +57651,7 @@ definitions:
       description:
         type: string
         description: The description of the variable
-    description: Update an existing variable from a project
+    description: Update a variable
   API_Entities_Clusters_AgentTokenBasic:
     type: object
     properties:
@@ -64455,7 +64501,7 @@ definitions:
           to the project’s default branch when not set
     required:
     - content
-    description: Validate a CI YAML configuration with a namespace
+    description: Validate a CI/CD configuration
   postApiV4ProjectsIdUploads:
     type: object
     properties:
@@ -67307,7 +67353,7 @@ definitions:
           access to this project.
     required:
     - enabled
-    description: Patch CI_JOB_TOKEN access settings.
+    description: Update the CI/CD job token access settings for a project
   postApiV4ProjectsIdJobTokenScopeAllowlist:
     type: object
     properties:
@@ -67318,7 +67364,7 @@ definitions:
         example: 2
     required:
     - target_project_id
-    description: Add target project to allowlist.
+    description: Add a project to a CI/CD job token allowlist
   postApiV4ProjectsIdJobTokenScopeGroupsAllowlist:
     type: object
     properties:
@@ -67329,7 +67375,7 @@ definitions:
         example: 2
     required:
     - target_group_id
-    description: Add target group to allowlist.
+    description: Add a group to a CI/CD job token allowlist
   API_Entities_Projects_Packages_Protection_Rule:
     type: object
     properties:
@@ -71445,7 +71491,7 @@ definitions:
     required:
     - key
     - value
-    description: Create a new instance-level variable
+    description: Create instance variable
   putApiV4AdminCiVariablesKey:
     type: object
     properties:
@@ -71471,7 +71517,7 @@ definitions:
         enum:
         - env_var
         - file
-    description: Update an instance-level variable
+    description: Update an instance variable
   API_Entities_Dictionary_Table:
     type: object
     properties:

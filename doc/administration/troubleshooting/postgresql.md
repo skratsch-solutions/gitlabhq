@@ -319,7 +319,7 @@ To resolve the error, run `VACUUM` manually:
 ### GitLab database requirements
 
 See [database requirements](../../install/requirements.md#postgresql) and review and install the
-[required extension list](../../install/postgresql_extensions.md).
+[required extension list](../../install/requirements.md#extensions).
 
 ### Serialization errors in the `production/sidekiq` log
 

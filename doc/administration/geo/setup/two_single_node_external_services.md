@@ -423,7 +423,7 @@ to grant additional roles to your tracking database user (by default, this is
 - Google Cloud SQL requires the [`cloudsqlsuperuser`](https://cloud.google.com/sql/docs/postgres/users#default-users) role.
 
 Additional roles are needed for the installation of extensions during installation and upgrades. As an alternative,
-[ensure the extensions are installed manually, and read about the problems that may arise during future GitLab upgrades](../../../install/postgresql_extensions.md).
+[install the required extensions manually](../../postgresql/extensions.md).
 
 > [!note]
 > If you want to use Amazon RDS as a tracking database, make sure it has access to

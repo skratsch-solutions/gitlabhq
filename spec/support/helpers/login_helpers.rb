@@ -305,7 +305,9 @@ module LoginHelpers
   # 3. Any provider actions on OmniauthCallbacksController that were lost
   #    when the controller was autoloaded while Provider.providers was
   #    stubbed to a subset (e.g. only [:saml]).
-  def self.cleanup_provider_routes
+  def cleanup_provider_routes
+    block_and_wait_for_requests_complete if RSpec.current_example.metadata[:type] == :feature
+
     Rails.application.routes.disable_clear_and_finalize = false
     Rails.application.reload_routes!
 

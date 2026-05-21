@@ -807,7 +807,7 @@ Because we're adding our SSL certificate at the load balancer, we do not need th
 > [!note]
 > If the `gitlab` user has the [`rds_superuser`](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.PostgreSQL.CommonDBATasks.html#Appendix.PostgreSQL.CommonDBATasks.Roles) role, GitLab can install the required extensions automatically. In that case, the manual steps below are not needed.
 
-From your GitLab instance, connect to the RDS instance to verify access and to install the [required PostgreSQL extensions](../postgresql_extensions.md).
+From your GitLab instance, connect to the RDS instance to verify access and to install the [required PostgreSQL extensions](../../administration/postgresql/extensions.md).
 
 To find the host or endpoint, go to **Amazon RDS** > **Databases** and select the database you created earlier. Look for the endpoint under the **Connectivity & security** tab.
 
@@ -817,7 +817,7 @@ For `-h`, use only the RDS endpoint hostname - omit the trailing colon and port 
 sudo /opt/gitlab/embedded/bin/psql -U gitlab -h <rds-endpoint> -d gitlabhq_production
 ```
 
-Then install each [required extension](../postgresql_extensions.md) using `CREATE EXTENSION`:
+Then install each [required extension](../../administration/postgresql/extensions.md) using `CREATE EXTENSION`:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS btree_gist;

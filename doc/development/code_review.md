@@ -5,67 +5,35 @@ info: Any user with at least the Maintainer role can merge updates to this conte
 title: Code Review Guidelines
 ---
 
-This guide contains advice and best practices for performing code review, and
-having your code reviewed.
-
-All merge requests for GitLab CE and EE, whether written by a GitLab team member
-or a wider community member, must go through a code review process to ensure the
-code is effective, understandable, maintainable, and secure.
+All merge requests for GitLab CE and EE must go through code review to ensure the code is
+effective, understandable, maintainable, and secure.
 
 ## Getting your merge request reviewed, approved, and merged
 
-Before you begin:
+Before you begin, familiarize yourself with the
+[contribution acceptance criteria](contributing/merge_request_workflow.md#contribution-acceptance-criteria).
 
-- Familiarize yourself with the [contribution acceptance criteria](contributing/merge_request_workflow.md#contribution-acceptance-criteria).
-- If you need some guidance (for example, if it's your first merge request), feel free to ask
-  one of the [Merge request coaches](https://about.gitlab.com/company/team/?department=merge-request-coach).
+Have your code **reviewed** by a
+[reviewer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#reviewer)
+from your group or a [domain expert](#domain-experts).
 
-As soon as you have code to review, have the code **reviewed** by a [reviewer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#reviewer).
-This reviewer can be from your group or team, or a [domain expert](#domain-experts).
-The reviewer can:
-
-- Give you a second opinion on the chosen solution and implementation.
-- Help look for bugs, logic problems, or uncovered edge cases.
-
-If the merge request is small and straightforward to review, you can skip the reviewer step and
-directly ask a
+For small, straightforward changes, you can skip the reviewer step and go directly to a
 [maintainer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#maintainer).
+Examples of small and straightforward changes:
 
-What constitutes "small and straightforward" is a gray area. Here are
-some examples of small and straightforward changes:
-
-- Fixing a typo or making small copy changes ([example](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/121337#note_1399406719)).
-- A tiny refactor that doesn't change any behavior or data.
-- Removing references to a feature flag that has been default enabled for > 1 month.
+- Fixing a typo or making small copy changes.
+- A tiny refactor that doesn't change any behavior.
+- Removing a feature flag that has been default-enabled for more than one month.
 - Removing unused methods or classes.
-- A well-understood logic change that requires changes to < 5 lines of code.
+- A well-understood logic change that requires changes to fewer than five lines of code.
 
-Otherwise, a merge request should be first reviewed by a reviewer in each
-[category (for example: backend, database)](#approval-guidelines)
-the MR touches, as maintainers may not have the relevant domain knowledge. This
-also helps to spread the workload.
+Otherwise, have a reviewer in each [category](#approval-guidelines) the MR touches before passing
+to a maintainer. For security assistance, include `@gitlab-com/gl-security/appsec`.
 
-For assistance with security scans or comments, include the Application Security Team (`@gitlab-com/gl-security/appsec`).
+After the reviewer approves, a maintainer reviews and merges. The last required approver merges.
 
-The reviewers use the [reviewer functionality](../user/project/merge_requests/reviews/_index.md) in the sidebar.
-Reviewers can add their approval by [approving additionally](../user/project/merge_requests/approvals/_index.md#approve-a-merge-request).
-
-Depending on the areas your merge request touches, it must be **approved** by one
-or more [maintainers](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#maintainer).
-The **Approved** button is in the merge request widget.
-
-Getting your merge request **merged** also requires a maintainer. If it requires
-more than one approval, the last maintainer to review and approve merges it.
-
-Some domain areas (like `Verify`) require an approval from a domain expert, based on
-CODEOWNERS rules. Because CODEOWNERS sections are independent approval rules, we could have certain
-rules (for example `Verify`) that may be a subset of other more generic approval rules (for example `backend`).
-For a more efficient process, authors should look for domain-specific approvals before generic approvals.
-Domain-specific approvers may also be maintainers, and if so they should review
-the domain specifics and broader change at the same time and approve once for
-both roles.
-
-Read more about [author responsibilities](#the-responsibility-of-the-merge-request-author) below.
+For CODEOWNERS-required approvals, seek domain-specific approvals before generic ones.
+Domain-specific approvers who are also maintainers should review both aspects and approve once.
 
 ### Domain experts
 
@@ -100,57 +68,14 @@ To find a domain expert:
 ### Reviewer roulette
 
 > [!note]
-> [Reviewer roulette](https://gitlab-org.gitlab.io/gitlab-roulette/) is an internal tool for use on GitLab.com, and not available for use on customer installations.
+> [Reviewer roulette](https://gitlab-org.gitlab.io/gitlab-roulette/) is an internal tool for
+> GitLab.com, not available on customer installations.
 
-The [Danger bot](dangerbot.md) randomly picks a reviewer and a maintainer for
-each area of the codebase that your merge request seems to touch. It makes
-**recommendations** for developer reviewers and you should override it if you think someone else is a better
-fit.
+The [Danger bot](dangerbot.md) picks a reviewer and maintainer for each codebase area your MR
+touches. Override the suggestion if you know a better fit.
 
-[Approval Guidelines](#approval-guidelines) can help to pick [domain experts](#domain-experts).
-
-We only do UX reviews for MRs from teams that include a Product Designer. User-facing changes from these teams are required to have a UX review, even if it's behind a feature flag. Default to the recommended UX reviewer suggested.
-
-It picks reviewers and maintainers from the list at the
-[engineering projects](https://handbook.gitlab.com/handbook/engineering/projects/)
-page, with these behaviors:
-
-- It doesn't pick people whose Slack or [GitLab status](../user/profile/_index.md#set-your-status):
-  - Contains the string `OOO`, `PTO`, `Parental Leave`, `Friends and Family`, or `Conference`.
-  - Emoji is from one of these categories:
-    - **On leave** - 🌴 `palm_tree`, 🏖️ `beach`, ⛱ `beach_umbrella`, 🏖 `beach_with_umbrella`, 🌞 `sun_with_face`, 🎡 `ferris_wheel`, 🏙 `cityscape`
-    - **Out sick** - 🌡️ `thermometer`, 🤒 `face_with_thermometer`
-  - Important: The status emojis are not detected when present on the free text input **status message**. They have to be set on your GitLab **status emoji** by clicking on the emoji selector beside the text input.
-- It doesn't pick people who are already assigned a number of reviews that is equal to
-  or greater than their chosen "review limit". The review limit is the maximum number of
-  reviews people are ready to handle at a time. Set a review limit by using one of the following
-  as a Slack or [GitLab status](../user/profile/_index.md#set-your-status):
-  - 2️⃣ - `two`
-  - 3️⃣ - `three`
-  - 4️⃣ - `four`
-  - 5️⃣ - `five`
-
-  The minimum review limit is 2️⃣. The reason for not being able to completely turn oneself off
-  for reviews has been discussed [in this issue](https://gitlab.com/gitlab-org/quality/engineering-productivity/team/-/issues/377).
-
-  Review requests for merge requests that do not target the default branch of any
-  project under the [security group](https://gitlab.com/gitlab-org/security/) are
-  not counted. These MRs are usually backports, and maintainers or reviewers usually
-  do not need much time reviewing them.
-- It always picks the same reviewers and maintainers for the same
-  branch name (unless their out-of-office (`OOO`) status changes, as in point 1). It
-  removes leading `ce-` and `ee-`, and trailing `-ce` and `-ee`, so
-  that it can be stable for backport branches.
-- People whose Slack or [GitLab status](../user/profile/_index.md#set-your-status) emoji
-  is Ⓜ `:m:`are only suggested as reviewers on projects they are a maintainer of.
-
-The [Roulette dashboard](https://gitlab-org.gitlab.io/gitlab-roulette/) contains:
-
-- Assignment events in the last 7 and 30 days.
-- Currently assigned merge requests per person.
-- Sorting by different criteria.
-- A manual reviewer roulette.
-- Local time information.
+The roulette skips people whose status contains `OOO`, `PTO`, `Parental Leave`, `Friends and
+Family`, or `Conference`, or who are at review capacity (set via a number status emoji: 2️⃣–5️⃣).
 
 ### Approval guidelines
 
@@ -267,6 +192,8 @@ For further quality guidelines, see [testing](https://handbook.gitlab.com/handbo
 1. You have considered the scalability risk based on future predicted growth.
 1. You have considered the performance, reliability, and availability impacts of this change on large customers who may have significantly more data than the average customer.
 1. You have considered the performance, reliability, and availability impacts of this change on customers who may run GitLab on the [minimum system](../install/requirements.md).
+1. You are confident that this change is compatible with the [Cells architecture](cells/_index.md). For more information, see
+   [Cells development principles](cells/_index.md#cells-development-principles).
 
 ##### Observability instrumentation
 
@@ -694,81 +621,38 @@ experience, refactors the existing code). Then:
 
 ### Merging a merge request
 
-Before taking the decision to merge:
+Before merging:
 
 - Set the milestone.
-- Confirm that the correct [MR type label](labels/_index.md#type-labels) is applied.
-- Consider warnings and errors from danger bot, code quality, and other reports.
-  Unless a strong case can be made for the violation, these should be resolved
-  before merging. A comment must be posted if the MR is merged with any failed job.
-- If the MR contains both Quality and non-Quality-related changes, the MR should be merged by the relevant maintainer for user-facing changes (backend, frontend, or database) after the Quality related changes are approved by a Software Engineer in Test.
+- Confirm the correct [MR type label](labels/_index.md#type-labels) is applied.
+- Resolve warnings and errors from Danger bot, code quality, and other reports. Post a comment if
+  merging with any failed job.
 
-At least one maintainer must approve an MR before it can be merged. MR authors and
-people who add commits to an MR are not authorized to approve the MR and
-must seek a maintainer who has not contributed to the MR to approve it. In
-general, the final required approver should merge the MR.
+At least one maintainer must approve before merging. Authors and people who add commits cannot
+approve their own MR.
 
-Scenarios in which the final approver might not merge an MR:
-
-- Approver forgets to set auto-merge after approving.
-- Approver doesn't realize that they are the final approver.
-- Approver sets auto-merge but it is un-set by GitLab.
-
-If any of these scenarios occurs, an MR author may merge their own MR if it
-has all required approvals and they have merge rights to the repository.
-This is also in line with the GitLab [bias for action](https://handbook.gitlab.com/handbook/values/#bias-for-action) value.
-
-This policy is in place to satisfy the CHG-04 control of the GitLab
-[Change Management Controls](https://handbook.gitlab.com/handbook/security/security-and-technology-policies/change-management-policy/).
-
-To implement this policy in `gitlab-org/gitlab`, we have enabled the following
-settings to ensure MRs get an approval from a top-level CODEOWNERS maintainer:
-
-- [Prevent approval by merge request creator](../user/project/merge_requests/approvals/settings.md#prevent-approval-by-merge-request-creator).
-- [Prevent approvals by users who add commits](../user/project/merge_requests/approvals/settings.md#prevent-approvals-by-users-who-add-commits).
-- [Prevent editing approval rules in merge requests](../user/project/merge_requests/approvals/settings.md#prevent-editing-approval-rules-in-merge-requests).
-- [Remove all approvals when commits are added to the source branch](../user/project/merge_requests/approvals/settings.md#remove-all-approvals-when-commits-are-added-to-the-source-branch).
-
-To update the code owners in the `CODEOWNERS` file for `gitlab-org/gitlab`, follow
-the process explained in the [code owners approvals handbook section](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#code-owner-approvals).
-
-Some actions, such as rebasing locally or applying suggestions, are considered
-the same as adding a commit and could reset existing approvals. Approvals are not removed
-when rebasing from the UI or with the [`/rebase` quick action](../user/project/quick_actions.md#rebase).
+If the final approver did not set auto-merge, the MR author may merge their own MR if all required
+approvals are in place and they have merge rights. This aligns with the GitLab
+[bias for action](https://handbook.gitlab.com/handbook/values/#bias-for-action) value.
 
 When ready to merge:
 
 > [!warning]
-> **If the merge request is from a fork, also check the [additional guidelines for community contributions](#community-contributions).**
+> If the merge request is from a fork, also check the
+> [guidelines for community contributions](#community-contributions).
 
-- Consider using the [Squash and merge](../user/project/merge_requests/squash_and_merge.md)
-  feature when the merge request has a lot of commits.
-  When merging code, a maintainer should only use the squash feature if the
-  author has already set this option, or if the merge request clearly contains a
-  messy commit history, it will be more efficient to squash commits instead of
-  circling back with the author about that. Otherwise, if the MR only has a few commits, we'll
-  be respecting the author's setting by not squashing them.
-- Go to the merge request's **Pipelines** tab, and select **Run pipeline**. Then, on the **Overview** tab, enable **Auto-merge**.
-  Consider the following information:
-  - If **[the default branch is broken](https://handbook.gitlab.com/handbook/engineering/workflow/#broken-master),
-    do not merge the merge request** except for
-    [very specific cases](https://handbook.gitlab.com/handbook/engineering/workflow/#criteria-for-merging-during-broken-master).
-    For other cases, follow these [handbook instructions](https://handbook.gitlab.com/handbook/engineering/workflow/#merging-during-broken-master).
-  - If the latest pipeline was created before the merge request was approved, start a new pipeline to ensure that full RSpec suite has been run. You may skip this step only if the merge request does not contain any backend change.
-  - If the **latest [merged results pipeline](../ci/pipelines/merged_results_pipelines.md)** was **created less than 16 hours ago (72 hours for stable branches)**, you may merge without starting a new pipeline as the merge request is close enough to the target branch.
-- When you set the MR to auto-merge, you should take over
-  subsequent revisions for anything that would be spotted after that.
-- For merge requests that have had [Squash and merge](../user/project/merge_requests/squash_and_merge.md) set,
-  the squashed commit's default commit message is taken from the merge request title.
-  You're encouraged to [select a commit with a more informative commit message](../user/project/merge_requests/squash_and_merge.md) before merging.
-
-Thanks to **merged results pipelines**, authors no longer have to rebase their
-branch as frequently anymore (only when there are conflicts) because the Merge
-Results Pipeline already incorporate the latest changes from `main`.
-This results in faster review/merge cycles because maintainers don't have to ask
-for a final rebase: instead, they only have to start a MR pipeline and set auto-merge.
-This step brings us very close to the actual Merge Trains feature by testing the
-Merge Results against the latest `main` at the time of the pipeline creation.
+- Use [Squash and merge](../user/project/merge_requests/squash_and_merge.md) only if the author
+  set it or the commit history is messy.
+- In the **Pipelines** tab, select **Run pipeline**, then enable **Auto-merge** on the
+  **Overview** tab.
+  - Do not merge when
+    [the default branch is broken](https://handbook.gitlab.com/handbook/engineering/workflow/#broken-master),
+    except in
+    [specific cases](https://handbook.gitlab.com/handbook/engineering/workflow/#criteria-for-merging-during-broken-master).
+  - Start a new pipeline if the latest one was created before approval and the MR has backend
+    changes.
+  - You may skip a new pipeline if the latest merged results pipeline was created less than 16
+    hours ago (72 hours for stable branches).
 
 ### Community contributions
 
@@ -866,40 +750,20 @@ A GitLab engineer (generally the merge request coach) will:
 1. Make sure the content complies with all the merge request guidelines.
 1. Follow the regular review process as we do for any merge request.
 
-### The right balance
+### Finding the right balance
 
-One of the most difficult things during code review is finding the right
-balance in how deep the reviewer can interfere with the code created by a
-author.
+Finding the right balance in how deeply to review requires sound judgement. Keep in mind:
 
-- Learning how to find the right balance takes time; that is why we have
-  reviewers that become maintainers after some time spent on reviewing merge
-  requests.
-- Finding bugs is important, but thinking about good design is important as
-  well. Building abstractions and good design is what makes it possible to hide
-  complexity and makes future changes easier.
-- Enforcing and improving [code style](contributing/style_guides.md) should be primarily done through
-  [automation](https://handbook.gitlab.com/handbook/values/#cleanup-over-sign-off)
-  instead of review comments.
-- Asking the author to change the design sometimes means the complete rewrite
-  of the contributed code. It's usually a good idea to ask another maintainer or
-  reviewer before doing it, but have the courage to do it when you believe it is
-  important.
-- In the interest of [Iteration](https://handbook.gitlab.com/handbook/values/#iteration),
-  if your review suggestions are non-blocking changes, or personal preference
-  (not a documented or agreed requirement), consider approving the merge request
-  before passing it back to the author. This allows them to implement your suggestions
-  if they agree, or allows them to pass it onto the
-  maintainer for review straight away. This can help reduce our overall time-to-merge.
-- There is a difference in doing things right and doing things right now.
-  Ideally, we should do the former, but in the real world we need the latter as
-  well. A good example is a security fix which should be released as soon as
-  possible. Asking the author to do the major refactoring in the merge
-  request that is an urgent fix should be avoided.
+- Finding bugs is important, but good design reduces future complexity.
+- Enforce [code style](contributing/style_guides.md) through
+  [automation](https://handbook.gitlab.com/handbook/values/#cleanup-over-sign-off) rather than
+  review comments.
+- For non-blocking suggestions, consider approving the MR before passing it back. This reduces
+  time-to-merge.
+- Distinguish between doing things right and doing things right now. For example, avoid requiring major
+  refactors in an urgent security fix.
 - Doing things well today is usually better than doing something perfectly
-  tomorrow. Shipping a kludge today is usually worse than doing something well
-  tomorrow. When you are not able to find the right balance, ask other people
-  about their opinion.
+  tomorrow.
 
 ### GitLab-specific concerns
 
@@ -964,39 +828,14 @@ Properties of customer critical merge requests:
 
 ## Troubleshooting failing pipelines
 
-There are some cases where pipelines fail for reasons unrelated to the code changes that have been made. Some of these cases are listed here with a potential solution.
+- **Unrelated test failures**: Check if the failure also happens on the default branch.
+  If so, wait for the broken master fix, then rebase or re-run the pipeline.
+- **`danger-review` job failed**: Check if your MR has more than 20 commits. If so, rebase and
+  squash. Otherwise, re-run the job.
 
-Always remember that you don't need to have a passing pipeline in order to ask for a review, or help.
-If your pipeline is not passing and you have no idea why, feel free to reach out to the team, ask for help from MR coaches by leaving a comment on the MR with `@gitlab-bot help` as text, or reach out to the [Community Discord](https://discord.gg/gitlab) in the `contribute` channel.
-
-- **Tests failed for reasons that seem unrelated to the changes**: check if it also happens on the default branch. If that's the case you're facing a "broken master" and need to wait for the failure to be fixed on the default branch. After that, you can either rebase your branch, or simply run another pipeline if [merged results pipelines](../ci/pipelines/merged_results_pipelines.md) are enabled.
-- **The `danger-review` job failed**: check if your MR has more that 20 commits. If that's the case, rebase and squash them to have less commits, otherwise try to run the `danger-review` job again, it might just have been a temporary failure.
-
-## Examples
-
-How code reviews are conducted can surprise new contributors. Here are some examples of code reviews that should help to orient you as to what to expect.
-
-**["Modify `DiffNote` to reuse it for Designs"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/13703):**
-It contained everything from nitpicks around newlines to reasoning
-about what versions for designs are, how we should compare them
-if there was no previous version of a certain file (parent vs.
-blank `sha` vs empty tree).
-
-**["Support multi-line suggestions"](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/25211)**:
-The MR itself consists of a collaboration between FE and BE,
-and documenting comments from the author for the reviewer.
-There's some nitpicks, some questions for information, and
-towards the end, a security vulnerability.
-
-**["Allow multiple repositories per project"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/10251)**:
-ZJ referred to the other projects (workhorse) this might impact,
-suggested some improvements for consistency. And James' comments
-helped us with overall code quality (using delegation, `&.` those
-types of things), and making the code more robust.
-
-**["Support multiple assignees for merge requests"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/10161)**:
-A good example of collaboration on an MR touching multiple parts of the codebase. Nick pointed out interesting edge cases, James Lopez also joined in raising concerns on import/export feature.
+For help, comment `@gitlab-bot help` on the MR, or ask in the
+[Community Discord](https://discord.gg/gitlab) `contribute` channel.
 
 ### Credits
 
-Largely based on the [`thoughtbot` code review guide](https://github.com/thoughtbot/guides/tree/main/code-review).
+Based on the [`thoughtbot` code review guide](https://github.com/thoughtbot/guides/tree/main/code-review).

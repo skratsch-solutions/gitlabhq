@@ -78,7 +78,6 @@ export default {
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/admin_add_variable.mutation.graphql',
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/admin_delete_variable.mutation.graphql',
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/admin_update_variable.mutation.graphql',
-    'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/client/add_project_environment.mutation.graphql',
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/group_add_variable.mutation.graphql',
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/group_delete_variable.mutation.graphql',
     'app/assets/javascripts/ci/ci_variable_list/graphql/mutations/group_update_variable.mutation.graphql',
