@@ -50,10 +50,10 @@ module VerifiesWithEmail
 
       # Both `send_` methods will regenerate the respective code, making
       # the old one invalid.
-      # Only send email OTP when they're not locked and the FF is still
-      # enabled.
+      # Only send email OTP when they're not locked and the feature is
+      # still available.
       if !treat_as_locked?(user)
-        if Feature.enabled?(:email_based_mfa, user)
+        if user.email_otp_available?
           send_otp_with_email(
             user,
             secondary_email: secondary_email,
@@ -231,20 +231,10 @@ module VerifiesWithEmail
   # Checks whether email-based OTP is required for the current sign-in
   # attempt.
   #
-  # This feature uses a two-part rollout mechanism:
-  #   - Feature Flag acts as a kill switch that can be quickly disabled
-  #     via ChatOps
-  #   - User enrollment is controlled by setting the attribute
-  #     email_otp_required_after
-  #
-  # This allows us to halt or revert the rollout immediately while
-  # preserving per-user enrollment dates.
-  #
-  # Later, the Feature Flag will be changed to an ApplicationSetting so
-  # that self-managed administrators can turn this feature on after
-  # validating that they have mail delivery correctly configured.
+  # Availability is gated by `User#email_otp_available?`.
+  # Per-user enrollment is tracked by `email_otp_required_after`.
   def require_email_based_otp?(user)
-    return false unless Feature.enabled?(:email_based_mfa, user)
+    return false unless user.email_otp_available?
 
     password_based_login? &&
       # Skip on first log in (which occurs for most during account
@@ -328,7 +318,7 @@ module VerifiesWithEmail
 
   def permitted_to_view_skip_verification_confirmation?
     current_user &&
-      Feature.enabled?(:email_based_mfa, current_user) &&
+      current_user.email_otp_available? &&
       permitted_to_skip_email_otp_in_warning_period?(current_user) &&
       # User should not be able to visit users_skip_verification_confirmation_path after
       # finishing token verification OR after completing the skip verification workflow
@@ -369,6 +359,9 @@ module VerifiesWithEmail
     )
   end
 
+  # NOTE: This predicate gates the entire `verify_email` subsystem
+  # (locked accounts, untrusted IPs, and email OTP)
+  # TODO: decouple these gates - see https://gitlab.com/gitlab-org/gitlab/-/work_items/600091
   def require_email_verification_enabled?(user)
     ::Gitlab::CurrentSettings.require_email_verification_on_account_locked &&
       Feature.disabled?(:skip_require_email_verification, user, type: :ops)

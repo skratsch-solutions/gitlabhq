@@ -280,6 +280,14 @@ RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
       end
 
       it { is_expected.to be false }
+
+      context 'and email_otp_enabled application setting is enabled' do
+        before do
+          stub_application_setting(email_otp_enabled: true)
+        end
+
+        it { is_expected.to be true }
+      end
     end
 
     context 'when user has dismissed the banner' do

@@ -526,6 +526,27 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           it_behaves_like 'two factor prompt or successful login'
         end
 
+        context 'when email_otp_enabled application setting is enabled' do
+          let(:last_sign_in) { 1.day.ago }
+          let(:user) do
+            create(:user,
+              last_sign_in_at: last_sign_in,
+              email_otp_required_after: 1.day.ago
+            )
+          end
+
+          let(:log_reason) { 'email_otp' }
+
+          before do
+            stub_feature_flags(email_based_mfa: false)
+            stub_application_setting(email_otp_enabled: true)
+            perform_enqueued_jobs { sign_in }
+          end
+
+          it_behaves_like 'sends verification instructions for email OTP'
+          it_behaves_like 'prompt for email verification'
+        end
+
         context 'when email_otp_required_after is in the past and they have completed their first sign in' do
           let(:last_sign_in) { 1.day.ago }
           let(:user) do

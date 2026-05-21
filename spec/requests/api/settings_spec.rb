@@ -115,6 +115,7 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
       expect(json_response['terraform_state_encryption_enabled']).to eq(true)
       expect(json_response['iframe_rendering_enabled']).to be(false)
       expect(json_response['iframe_rendering_allowlist']).to eq([])
+      expect(json_response['email_otp_enabled']).to be(false)
       expect(json_response['authn_data_retention_cleanup_enabled']).to eq(false)
       expect(json_response['allow_s3_compatible_storage_for_offline_transfer']).to eq(false)
     end
@@ -161,6 +162,16 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
         expect(json_response['iframe_rendering_allowlist']).to match_array(['example.com', 'videos.example.com:443'])
         expect(json_response['iframe_rendering_allowlist_raw']).to eq(raw)
         expect(ApplicationSetting.current.iframe_rendering_allowlist).to match_array(['example.com', 'videos.example.com:443'])
+      end
+    end
+
+    context 'email_otp_enabled setting' do
+      it 'updates email_otp_enabled' do
+        put api('/application/settings', admin), params: { email_otp_enabled: true }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['email_otp_enabled']).to be(true)
+        expect(ApplicationSetting.current.email_otp_enabled?).to be(true)
       end
     end
 

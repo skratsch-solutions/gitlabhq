@@ -832,7 +832,8 @@ class ApplicationSetting < ApplicationRecord
     disable_password_authentication_for_users_with_sso_identities: [:boolean, { default: false }],
     root_moved_permanently_redirection: [:boolean, { default: false }],
     session_expire_from_init: [:boolean, { default: false }],
-    require_minimum_email_based_otp_for_users_with_passwords: [:boolean, { default: false }]
+    require_minimum_email_based_otp_for_users_with_passwords: [:boolean, { default: false }],
+    email_otp_enabled: [:boolean, { default: false }]
 
   validates :sign_in_restrictions, json_schema: { filename: 'application_setting_sign_in_restrictions' }
 

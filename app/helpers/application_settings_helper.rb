@@ -344,6 +344,7 @@ module ApplicationSettingsHelper
       :eks_secret_access_key,
       :email_author_in_body,
       :email_confirmation_setting,
+      :email_otp_enabled,
       :enabled_git_access_protocol,
       :enforce_ci_inbound_job_token_scope_enabled,
       :enforce_email_subaddress_restrictions,

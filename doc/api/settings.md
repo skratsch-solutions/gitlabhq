@@ -465,6 +465,7 @@ This heading is referenced by a script: `scripts/cells/application-settings-anal
 - `receptive_cluster_agents_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/463427) in GitLab 17.4.
 - `allow_all_integrations` and `allowed_integrations` [added](https://gitlab.com/gitlab-org/gitlab/-/issues/500610) in GitLab 17.6.
 - `iframe_rendering_enabled`, `iframe_rendering_allowlist`, and `iframe_rendering_allowlist_raw` introduced in GitLab 18.6.
+- `email_otp_enabled` introduced in GitLab 19.1.
 
 {{< /history >}}
 
@@ -604,6 +605,7 @@ to configure other related settings. These requirements are in the `Required` co
 | `email_additional_text`                    | string         | no                                   | Additional text added to the bottom of every email for legal/auditing/compliance reasons. Premium and Ultimate only. |
 | `email_author_in_body`                   | boolean          | no                                   | Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead. |
 | `email_confirmation_setting`             | string           | no                                   | Specifies whether users must confirm their email before sign in. Possible values are `off`, `soft`, and `hard`. |
+| `email_otp_enabled`                      | boolean          | no                                   | Enable Email-based one-time passwords (OTP) as a multi-factor authentication method. Disabled by default. Requires `require_email_verification_on_account_locked` to be `true`. |
 | `custom_http_clone_url_root`             | string           | no                                   | Set a custom Git clone URL for HTTP(S). |
 | `enabled_git_access_protocol`            | string           | no                                   | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `all` to allow both protocols. `all` value [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12944) in GitLab 16.9. |
 | `enforce_namespace_storage_limit`        | boolean          | no                                   | Enabling this permits enforcement of namespace storage limits. |

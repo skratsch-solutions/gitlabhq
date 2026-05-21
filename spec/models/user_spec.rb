@@ -3893,6 +3893,18 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
 
         is_expected.to eq(false)
       end
+
+      context 'and email_otp_enabled application setting is enabled' do
+        before do
+          stub_application_setting(email_otp_enabled: true)
+        end
+
+        it 'returns true when email_otp_required_after is in the past' do
+          user.email_otp_required_after = 1.second.ago
+
+          is_expected.to eq(true)
+        end
+      end
     end
 
     # Ensuring the valid state of `email_otp_required_after`, by
@@ -3905,6 +3917,29 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         .with(save: true).and_call_original
 
       is_expected.to eq(true)
+    end
+
+    context 'when only the email_otp_enabled application setting enables email OTP' do
+      let_it_be_with_reload(:user) do
+        create(:user, password_automatically_set: false, email_otp_required_after: nil)
+      end
+
+      before do
+        stub_feature_flags(email_based_mfa: false)
+        stub_application_setting(email_otp_enabled: true)
+        stub_application_setting(require_minimum_email_based_otp_for_users_with_passwords: true)
+      end
+
+      it 'persists email_otp_required_after via set_email_otp_required_after_based_on_restrictions' do
+        expect(user.two_factor_enabled?).to eq(false)
+        expect(user.email_otp_required_after).to be_nil
+        expect(user).to receive(:set_email_otp_required_after_based_on_restrictions)
+          .with(save: true).and_call_original
+
+        is_expected.to eq(true)
+
+        expect(user.reload.email_otp_required_after).not_to be_nil
+      end
     end
   end
 

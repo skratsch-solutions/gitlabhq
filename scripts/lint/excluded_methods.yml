@@ -83,3 +83,7 @@ ee/app/models/ee/application_setting.rb:
   - advanced_search_indexing_paused?: Will be used in follow-up MR !229833 for dedicated pause indexing
 app/models/ci/catalog/components_project.rb:
   - fetch_component: Pre-existing unused method from base branch (593966-msw-infrastructure-ai-catalog)
+app/helpers/mirror_helper.rb:
+  - remote_mirrors_table_data: Will be called from HAML view in follow-up feature-flagged MR for Vue mirror list table
+ee/app/helpers/ee/mirror_helper.rb:
+  - pull_mirror_table_data: Will be called from HAML view in follow-up feature-flagged MR for Vue mirror list table

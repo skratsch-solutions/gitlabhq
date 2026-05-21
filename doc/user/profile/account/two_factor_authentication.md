@@ -132,6 +132,7 @@ account if you lose access.
 
 - Introduced in GitLab 18.7 [with a feature flag](../../../administration/feature_flags/_index.md) named `email_based_mfa`. Disabled by default.
 - Enabled on GitLab.com in GitLab 18.7, with progressive rollout to all users throughout 2026.
+- New application setting `email_otp_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/599948) in GitLab 19.1. Disabled by default.
 
 {{< /history >}}
 

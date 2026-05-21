@@ -234,7 +234,7 @@ describe('NewDashboardButton', () => {
     });
 
     it('redirects to the new dashboard details page', () => {
-      expect(urlUtility.visitUrl).toHaveBeenCalledWith('/explore/analytics_dashboards/123');
+      expect(urlUtility.visitUrl).toHaveBeenCalledWith('/explore/analytics_dashboards/123/edit');
     });
   });
 

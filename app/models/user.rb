@@ -1532,11 +1532,18 @@ class User < ApplicationRecord
     otp_secret_expires_at.past?
   end
 
+  # Centralised location while transitioning from Feature Flag to
+  # Application Setting.
+  # TODO: Remove after https://gitlab.com/gitlab-org/gitlab/-/work_items/599948
+  def email_otp_available?
+    ::Feature.enabled?(:email_based_mfa, self) || ::Gitlab::CurrentSettings.email_otp_enabled?
+  end
+
   def email_based_otp_required?
     # Ensure that `email_otp_required_after` is set to a valid state.
     set_email_otp_required_after_based_on_restrictions(save: true)
 
-    Feature.enabled?(:email_based_mfa, self) &&
+    email_otp_available? &&
       email_otp_required_after.present? && email_otp_required_after <= Time.zone.now
   end
 

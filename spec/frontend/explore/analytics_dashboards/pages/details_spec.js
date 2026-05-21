@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
-import { shallowMount } from '@vue/test-utils';
-import { GlDashboardLayout, GlSkeletonLoader } from '@gitlab/ui';
+import { GlDashboardLayout, GlSkeletonLoader, GlEmptyState } from '@gitlab/ui';
+import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import { createAlert } from '~/alert';
@@ -37,7 +37,7 @@ describe('ExploreAnalyticsDashboard', () => {
     routeParams = { slug: '3' },
     stubs = {},
   } = {}) => {
-    wrapper = shallowMount(ExploreAnalyticsDashboard, {
+    wrapper = shallowMountExtended(ExploreAnalyticsDashboard, {
       propsData: { ...defaultPropsData, ...props },
       apolloProvider: requestHandlers || mockResolvedQuery(),
       provide: { breadcrumbState: mockBreadcrumbState },
@@ -49,6 +49,9 @@ describe('ExploreAnalyticsDashboard', () => {
   const findSkeletonLoader = () => wrapper.findComponent(GlSkeletonLoader);
   const findDashboardLayout = () => wrapper.findComponent(GlDashboardLayout);
   const findDashboardFilters = () => wrapper.findComponent(DashboardFilters);
+  const findAddPanelButton = () => wrapper.findByTestId('dashboard-add-panel-button');
+  const findSettingsButton = () => wrapper.findByTestId('dashboard-settings-button');
+  const findEmptyState = () => wrapper.findComponent(GlEmptyState);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -86,6 +89,14 @@ describe('ExploreAnalyticsDashboard', () => {
 
     it('passes the dashboard config to the layout', () => {
       expect(findDashboardLayout().props('config').title).toBe(config.title);
+    });
+
+    it('does not show the Add Panel button', () => {
+      expect(findAddPanelButton().exists()).toBe(false);
+    });
+
+    it('does not show the Settings cog button', () => {
+      expect(findSettingsButton().exists()).toBe(false);
     });
 
     it('replaces original panel ids with unique ids', () => {
@@ -221,6 +232,57 @@ describe('ExploreAnalyticsDashboard', () => {
           captureError: true,
         }),
       );
+    });
+  });
+
+  describe('when editing', () => {
+    beforeEach(async () => {
+      createComponent({ props: { isEditing: true } });
+      await waitForPromises();
+    });
+
+    it('shows the Add Panel button', () => {
+      expect(findAddPanelButton().exists()).toBe(true);
+      expect(findAddPanelButton().text()).toContain('Add panel');
+    });
+
+    it('shows the Settings cog button', () => {
+      expect(findSettingsButton().exists()).toBe(true);
+      expect(findSettingsButton().attributes('icon')).toBe('settings');
+    });
+  });
+
+  describe('empty state', () => {
+    it('does not show when there are panels', async () => {
+      createComponent({ props: { isEditing: true } });
+      await waitForPromises();
+
+      expect(findEmptyState().exists()).toBe(false);
+    });
+
+    it('shows when there are no panels', async () => {
+      const emptyDashboardResponse = {
+        customDashboard: {
+          ...mockDashboardResponse.customDashboard,
+          config: {
+            ...mockDashboardResponse.customDashboard.config,
+            panels: [],
+          },
+        },
+      };
+
+      createComponent({
+        props: { isEditing: true },
+        requestHandlers: mockResolvedQuery(emptyDashboardResponse),
+      });
+      await waitForPromises();
+
+      expect(findEmptyState().exists()).toBe(true);
+      expect(findEmptyState().props()).toMatchObject({
+        title: 'Start building your dashboard',
+        description: 'Add panels to this dashboard to visualize your analytics data.',
+        illustrationName: 'empty-epic-md',
+      });
     });
   });
 });

@@ -279,6 +279,14 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
       it_behaves_like 'updates boolean attribute', :remember_me_enabled
       it_behaves_like 'updates boolean attribute', :require_personal_access_token_expiry
       it_behaves_like 'updates boolean attribute', :organization_cluster_agent_authorization_enabled
+      it_behaves_like 'updates boolean attribute', :email_otp_enabled
+    end
+
+    it 'updates the email_otp_enabled setting via the admin controller' do
+      put :update, params: { application_setting: { email_otp_enabled: '1' } }
+
+      expect(response).to redirect_to(general_admin_application_settings_path)
+      expect(ApplicationSetting.current.email_otp_enabled).to eq(true)
     end
 
     context "personal access token prefix settings" do

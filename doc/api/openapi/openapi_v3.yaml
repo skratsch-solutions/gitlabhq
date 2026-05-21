@@ -16081,7 +16081,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_bc3c2d755ba2"
+              "$ref": "#/components/schemas/RequestBody_a677006fd27b"
   "/api/v4/service_accounts":
     post:
       operationId: postApiV4ServiceAccounts
@@ -77514,6 +77514,8 @@ components:
           type: string
         email_confirmation_setting:
           type: string
+        email_otp_enabled:
+          type: string
         enabled_git_access_protocol:
           type: string
         enforce_ci_inbound_job_token_scope_enabled:
@@ -90666,7 +90668,7 @@ components:
           description: Scopes available to the application. Separate multiple scopes
             with a space.
           nullable: true
-    RequestBody_bc3c2d755ba2:
+    RequestBody_a677006fd27b:
       type: object
       properties:
         admin_mode:
@@ -90883,6 +90885,11 @@ components:
           description: 'ONLY users with e-mail addresses that match these domain(s)
             will be able to sign-up. Wildcards allowed. Enter multiple entries on
             separate lines. Ex: domain.com, *.domain.com'
+          nullable: true
+        email_otp_enabled:
+          type: boolean
+          description: Enable Email-based one-time passwords (OTP) as a multi-factor
+            authentication method.
           nullable: true
         iframe_rendering_enabled:
           type: boolean

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { s__ } from '~/locale';
 import DashboardView from './pages/details.vue';
 import DashboardsList from './pages/list.vue';
+import { EDIT_DASHBOARD_PATH } from './constants';
 
 Vue.use(VueRouter);
 
@@ -22,6 +23,15 @@ export default (basePath, breadcrumbState) => {
         name: 'dashboard-detail',
         path: '/:slug',
         component: DashboardView,
+        meta: {
+          getName: () => breadcrumbState.name,
+        },
+      },
+      {
+        name: 'dashboard-edit',
+        path: `/:slug/${EDIT_DASHBOARD_PATH}`,
+        component: DashboardView,
+        props: () => ({ isEditing: true }),
         meta: {
           getName: () => breadcrumbState.name,
         },

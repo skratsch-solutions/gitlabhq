@@ -112,6 +112,7 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
         enable_language_server_restrictions: false,
         eks_integration_enabled: false,
         email_confirmation_setting: 'off',
+        email_otp_enabled: false,
         email_restrictions_enabled: false,
         enforce_email_subaddress_restrictions: false,
         enforce_terms: false,
@@ -262,7 +263,8 @@ RSpec.describe ApplicationSetting, feature_category: :settings, type: :model do
           'disable_password_authentication_for_users_with_sso_identities' => false,
           'root_moved_permanently_redirection' => false,
           'session_expire_from_init' => false,
-          'require_minimum_email_based_otp_for_users_with_passwords' => false
+          'require_minimum_email_based_otp_for_users_with_passwords' => false,
+          'email_otp_enabled' => false
         },
         signup_enabled: Settings.gitlab['signup_enabled'],
         silent_admin_exports_enabled: false,

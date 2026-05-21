@@ -8954,6 +8954,9 @@ msgstr ""
 msgid "Allow users to register any application to use GitLab as an OAuth provider. This setting does not affect group-level OAuth applications."
 msgstr ""
 
+msgid "Allow users to verify sign-ins using an email-based one-time password as a multi-factor authentication method."
+msgstr ""
+
 msgid "Allow users with up to Guest role to create groups and personal projects"
 msgstr ""
 
@@ -9760,6 +9763,12 @@ msgstr ""
 msgid "AnalyticsDashboards|%{count} groups selected"
 msgstr ""
 
+msgid "AnalyticsDashboards|Add panel"
+msgstr ""
+
+msgid "AnalyticsDashboards|Add panels to this dashboard to visualize your analytics data."
+msgstr ""
+
 msgid "AnalyticsDashboards|All"
 msgstr ""
 
@@ -9845,6 +9854,12 @@ msgid "AnalyticsDashboards|Projects"
 msgstr ""
 
 msgid "AnalyticsDashboards|Root Cause Analysis"
+msgstr ""
+
+msgid "AnalyticsDashboards|Settings"
+msgstr ""
+
+msgid "AnalyticsDashboards|Start building your dashboard"
 msgstr ""
 
 msgid "AnalyticsDashboards|This table doesn't include GitLab Duo Agent Platform events."
@@ -29048,6 +29063,9 @@ msgstr ""
 msgid "Email verification for locked accounts"
 msgstr ""
 
+msgid "Email-based one-time password (OTP)"
+msgstr ""
+
 msgid "Email:"
 msgstr ""
 
@@ -29268,6 +29286,9 @@ msgid "Enable email OTP"
 msgstr ""
 
 msgid "Enable email notification"
+msgstr ""
+
+msgid "Enable email-based one-time passwords"
 msgstr ""
 
 msgid "Enable embedded content"

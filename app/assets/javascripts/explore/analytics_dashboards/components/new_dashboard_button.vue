@@ -4,6 +4,7 @@ import { s__ } from '~/locale';
 import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
 import createCustomDashboardMutation from '../graphql/create_custom_dashboard.mutation.graphql';
 import { getDashboardIdFromGraphQLId } from '../utils';
+import { EDIT_DASHBOARD_PATH } from '../constants';
 
 export default {
   name: 'NewDashboardButton',
@@ -86,7 +87,7 @@ export default {
 
         const dashboardId = getDashboardIdFromGraphQLId(dashboard.id);
 
-        visitUrl(joinPaths(this.$router.options.base, `${dashboardId}`));
+        visitUrl(joinPaths(this.$router.options.base, String(dashboardId), EDIT_DASHBOARD_PATH));
       } catch (error) {
         this.errorMessage = s__(
           'AnalyticsDashboards|Failed to create dashboard. Please try again.',

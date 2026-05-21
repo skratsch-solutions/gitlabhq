@@ -1,7 +1,13 @@
 import { GlTable, GlAvatarLabeled } from '@gitlab/ui';
 import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
+import { visitUrl } from '~/lib/utils/url_utility';
 import DashboardsList from '~/vue_shared/components/dashboards_list/dashboards_list.vue';
 import DashboardDeleteModal from '~/vue_shared/components/dashboards_list/dashboard_delete_modal.vue';
+
+jest.mock('~/lib/utils/url_utility', () => ({
+  ...jest.requireActual('~/lib/utils/url_utility'),
+  visitUrl: jest.fn(),
+}));
 
 const mockDashboards = [
   {
@@ -59,6 +65,7 @@ describe('DashboardsList', () => {
   const findActionDropdowns = () => wrapper.findAllByTestId('dashboard-actions');
   const findDeleteActions = () => wrapper.findAllByTestId('dashboard-delete-action');
   const findDeleteModal = () => wrapper.findComponent(DashboardDeleteModal);
+  const findEditActions = () => wrapper.findAllByTestId('dashboard-edit-action');
 
   const createWrapper = (props = {}, mountFn = shallowMountExtended) => {
     wrapper = mountFn(DashboardsList, {
@@ -233,6 +240,10 @@ describe('DashboardsList', () => {
           createWrapper({ dashboards: mockSystemDashboards }, mountExtended);
         });
 
+        it('does not render edit action for system dashboards', () => {
+          expect(findEditActions()).toHaveLength(0);
+        });
+
         it('does not render delete action for system dashboards', () => {
           expect(findDeleteActions()).toHaveLength(0);
         });
@@ -246,6 +257,17 @@ describe('DashboardsList', () => {
 
         it('sets correct dashboardId when delete action is clicked', () => {
           expect(findDeleteModal().props('dashboardId')).toBe(mockDashboards[0].id);
+        });
+      });
+
+      describe('edit action', () => {
+        beforeEach(() => {
+          createWrapper({}, mountExtended);
+        });
+
+        it('redirects to the dashboard edit URL when edit action is clicked', () => {
+          findEditActions().at(0).vm.$emit('action');
+          expect(visitUrl).toHaveBeenCalledWith('/fake/url/1/edit');
         });
       });
     });

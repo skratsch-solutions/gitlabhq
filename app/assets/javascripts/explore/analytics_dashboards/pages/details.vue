@@ -1,5 +1,5 @@
 <script>
-import { GlDashboardLayout, GlSkeletonLoader } from '@gitlab/ui';
+import { GlDashboardLayout, GlSkeletonLoader, GlButton, GlEmptyState } from '@gitlab/ui';
 import { createAlert } from '~/alert';
 import { s__ } from '~/locale';
 import {
@@ -13,8 +13,15 @@ import DashboardFilters from '../components/dashboard_filters.vue';
 
 export default {
   name: 'ExploreAnalyticsDashboard',
-  components: { GlDashboardLayout, GlSkeletonLoader, DashboardFilters },
+  components: { GlDashboardLayout, GlSkeletonLoader, GlButton, GlEmptyState, DashboardFilters },
   inject: ['breadcrumbState'],
+  props: {
+    isEditing: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
   data() {
     return {
       dashboard: null,
@@ -51,6 +58,9 @@ export default {
       return this.dashboardConfig?.gridHeight === GRID_HEIGHT_COMPACT
         ? GRID_HEIGHT_COMPACT_MIN_CELL_HEIGHT
         : undefined;
+    },
+    hasPanels() {
+      return this.dashboardConfig.panels.length > 0;
     },
   },
   watch: {
@@ -107,6 +117,9 @@ export default {
       },
     },
   },
+  i18n: {
+    addPanel: s__('AnalyticsDashboards|Add panel'),
+  },
 };
 </script>
 <template>
@@ -125,6 +138,40 @@ export default {
           @set-projects="setProjectsFilter"
           @set-groups="setGroupsFilter"
         />
+      </template>
+
+      <template #actions>
+        <div v-if="isEditing" class="gl-flex gl-gap-2">
+          <gl-button icon="plus" data-testid="dashboard-add-panel-button">{{
+            $options.i18n.addPanel
+          }}</gl-button>
+          <gl-button
+            icon="settings"
+            :title="s__('AnalyticsDashboards|Settings')"
+            data-testid="dashboard-settings-button"
+          />
+        </div>
+      </template>
+
+      <template #empty-state>
+        <div
+          v-if="isEditing && !hasPanels"
+          class="gl-border gl-w-full gl-rounded-base gl-border-dashed gl-py-13"
+        >
+          <gl-empty-state
+            :title="s__('AnalyticsDashboards|Start building your dashboard')"
+            :description="
+              s__(
+                'AnalyticsDashboards|Add panels to this dashboard to visualize your analytics data.',
+              )
+            "
+            illustration-name="empty-epic-md"
+          >
+            <template #actions>
+              <gl-button variant="confirm" icon="plus">{{ $options.i18n.addPanel }}</gl-button>
+            </template>
+          </gl-empty-state>
+        </div>
       </template>
     </gl-dashboard-layout>
   </div>

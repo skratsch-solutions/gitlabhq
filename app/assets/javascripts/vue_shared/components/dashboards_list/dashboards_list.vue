@@ -11,6 +11,8 @@ import {
 } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { getTimeago } from '~/lib/utils/datetime/timeago_utility';
+import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
+import { EDIT_DASHBOARD_PATH } from '~/explore/analytics_dashboards/constants';
 import DashboardDeleteModal from './dashboard_delete_modal.vue';
 import DashboardsListNameCell from './dashboards_list_name_cell.vue';
 
@@ -45,25 +47,12 @@ export default {
       this.deleteDashboardId = id;
       this.$refs.deleteModal.show();
     },
+    handleEditAction(dashboardUrl) {
+      visitUrl(joinPaths(dashboardUrl, EDIT_DASHBOARD_PATH));
+    },
     formatUpdatedAt(updatedAt) {
       return getTimeago().format(updatedAt);
     },
-  },
-  actions: {
-    items: [
-      {
-        text: __('Edit'),
-        action: () => {},
-      },
-      {
-        text: __('Make a copy'),
-        action: () => {},
-      },
-      {
-        text: __('Share'),
-        action: () => {},
-      },
-    ],
   },
   avatarSize: 24,
   fields: [
@@ -133,7 +122,7 @@ export default {
           formatUpdatedAt(updatedAt)
         }}</span>
       </template>
-      <template #cell(actions)="{ field, item }">
+      <template #cell(actions)="{ field, item: { id, system, dashboardUrl } }">
         <gl-disclosure-dropdown
           v-gl-tooltip.hover
           icon="ellipsis_v"
@@ -145,12 +134,30 @@ export default {
           toggle-text="More actions"
           text-sr-only
         >
-          <gl-disclosure-dropdown-group :group="$options.actions" />
-          <gl-disclosure-dropdown-group v-if="!item.system" bordered>
+          <gl-disclosure-dropdown-item
+            v-if="!system"
+            data-testid="dashboard-edit-action"
+            @action="() => handleEditAction(dashboardUrl)"
+          >
+            <template #list-item>
+              {{ __('Edit') }}
+            </template>
+          </gl-disclosure-dropdown-item>
+          <gl-disclosure-dropdown-item>
+            <template #list-item>
+              {{ __('Make a copy') }}
+            </template>
+          </gl-disclosure-dropdown-item>
+          <gl-disclosure-dropdown-item>
+            <template #list-item>
+              {{ __('Share') }}
+            </template>
+          </gl-disclosure-dropdown-item>
+          <gl-disclosure-dropdown-group v-if="!system" bordered>
             <gl-disclosure-dropdown-item
               variant="danger"
               data-testid="dashboard-delete-action"
-              @action="showDeleteModal(item.id)"
+              @action="showDeleteModal(id)"
             >
               <template #list-item>
                 {{ __('Delete') }}
