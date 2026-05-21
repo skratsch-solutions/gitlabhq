@@ -86,4 +86,3 @@ API/DescriptionSuccessResponse:
     - 'lib/api/todos.rb'
     - 'lib/api/topics.rb'
     - 'lib/api/unleash.rb'
-    - 'lib/api/users.rb'

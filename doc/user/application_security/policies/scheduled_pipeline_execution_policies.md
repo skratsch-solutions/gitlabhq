@@ -150,6 +150,7 @@ To prevent overwhelming your CI/CD infrastructure when applying policies to mult
 - For monthly schedules, if you specify dates that don't exist in certain months (like 31 for February), those runs are skipped.
 - A security policy project can contain up to five scheduled pipeline execution policies.
 - A scheduled policy can only have one schedule configuration at a time.
+- A scheduled policy can target up to five branches. If you omit `branches`, the policy runs on the project default branch only.
 - When you apply a policy to multiple projects, ensure your time window is large enough to accommodate the number of projects, based on your available runner capacity. For example, a policy applied to 1000 projects with a one hour time window distributes pipeline creation evenly throughout that hour (approximately 16 pipelines per minute). Verify that your runners can handle this pipeline creation rate or choose a larger time window to avoid queuing or delays.
 - For monthly schedules, the interval between consecutive runs may vary due to random distribution during the time window. For example, a monthly schedule might run 20 days after the previous run, then 30 days later. This distribution is the expected behavior because it helps distribute load across your infrastructure.
 

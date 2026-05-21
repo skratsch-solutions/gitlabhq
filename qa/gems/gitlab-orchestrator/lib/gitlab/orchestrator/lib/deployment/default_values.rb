@@ -23,6 +23,7 @@ module Gitlab
                   https: false
                 },
                 ingress: {
+                  enabled: true,
                   configureCertmanager: false,
                   tls: {
                     enabled: false

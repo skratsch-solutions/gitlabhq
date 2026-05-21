@@ -31158,8 +31158,8 @@ paths:
       operationId: getApiV4ProjectsIdExportRelationsStatus
   "/api/v4/projects/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
-      summary: Set a url variable
-      description: Sets a URL variable for a webhook
+      summary: Update a URL variable
+      description: Updates a URL variable for a specified webhook.
       produces:
       - application/json
       consumes:
@@ -31188,13 +31188,13 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdHooksHookIdUrlVariablesKey"
       responses:
         '200':
-          description: Set a url variable
+          description: Update a URL variable
       tags:
       - hooks
       operationId: putApiV4ProjectsIdHooksHookIdUrlVariablesKey
     delete:
-      summary: Un-Set a url variable
-      description: Removes a URL variable from a webhook
+      summary: Delete a URL variable
+      description: Deletes a URL variable from a specified webhook.
       produces:
       - application/json
       parameters:
@@ -31216,14 +31216,14 @@ paths:
         required: true
       responses:
         '204':
-          description: Un-Set a url variable
+          description: Delete a URL variable
       tags:
       - hooks
       operationId: deleteApiV4ProjectsIdHooksHookIdUrlVariablesKey
   "/api/v4/projects/{id}/hooks/{hook_id}/custom_headers/{key}":
     put:
-      summary: Set a custom header
-      description: Sets a custom header for a webhook
+      summary: Update a custom header
+      description: Updates a custom header for a specified webhook.
       produces:
       - application/json
       consumes:
@@ -31252,13 +31252,13 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdHooksHookIdCustomHeadersKey"
       responses:
         '200':
-          description: Set a custom header
+          description: Update a custom header
       tags:
       - hooks
       operationId: putApiV4ProjectsIdHooksHookIdCustomHeadersKey
     delete:
-      summary: Un-Set a custom header
-      description: Removes a custom header from a webhook
+      summary: Delete a custom header
+      description: Deletes a custom header from a specified webhook.
       produces:
       - application/json
       parameters:
@@ -31280,7 +31280,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Un-Set a custom header
+          description: Delete a custom header
       tags:
       - hooks
       operationId: deleteApiV4ProjectsIdHooksHookIdCustomHeadersKey
@@ -31446,8 +31446,8 @@ paths:
       operationId: deleteApiV4ProjectsIdHooksHookId
   "/api/v4/projects/{id}/hooks/{hook_id}/events":
     get:
-      summary: Get events for a given hook id
-      description: List web hook logs by hook id
+      summary: List all events
+      description: Lists all events for a specified webhook.
       produces:
       - application/json
       parameters:
@@ -31555,7 +31555,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get events for a given hook id
+          description: List all events
         '400':
           description: Bad request
         '404':
@@ -31567,8 +31567,11 @@ paths:
       operationId: getApiV4ProjectsIdHooksHookIdEvents
   "/api/v4/projects/{id}/hooks/{hook_id}/test/{trigger}":
     post:
-      summary: Triggers a hook test
-      description: Triggers a hook test
+      summary: Trigger a test webhook
+      description: Triggers a test webhook. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_test_api_endpoint_rate_limit.
       produces:
       - application/json
       consumes:
@@ -31611,7 +31614,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Triggers a hook test
+          description: Trigger a test webhook
         '400':
           description: Bad request
         '404':
@@ -31626,7 +31629,10 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}/events/{hook_log_id}/resend":
     post:
       summary: Resend a webhook event
-      description: Resend a webhook event
+      description: Resends a webhook event. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_event_resend_api_endpoint_rate_limit.
       produces:
       - application/json
       consumes:
@@ -40630,8 +40636,8 @@ paths:
       operationId: getApiV4BulkImports
   "/api/v4/bulk_imports/entities":
     get:
-      summary: List all GitLab Migrations' entities
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migration entities
+      description: Lists all group or project migration entities.
       produces:
       - application/json
       parameters:
@@ -40675,7 +40681,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List all GitLab Migrations' entities
+          description: List all group or project migration entities
           schema:
             type: array
             items:
@@ -40691,8 +40697,8 @@ paths:
       operationId: getApiV4BulkImportsEntities
   "/api/v4/bulk_imports/{import_id}":
     get:
-      summary: Get GitLab Migration details
-      description: This feature was introduced in GitLab 14.1.
+      summary: Retrieve a group or project migration
+      description: Retrieves details of a group or project migration.
       produces:
       - application/json
       parameters:
@@ -40704,7 +40710,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get GitLab Migration details
+          description: Retrieve a group or project migration
           schema:
             "$ref": "#/definitions/API_Entities_BulkImport"
         '401':
@@ -40718,8 +40724,8 @@ paths:
       operationId: getApiV4BulkImportsImportId
   "/api/v4/bulk_imports/{import_id}/entities":
     get:
-      summary: List GitLab Migration entities
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migration entities
+      description: Lists all group or project migration entities for a specified migration.
       produces:
       - application/json
       parameters:
@@ -40759,7 +40765,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List GitLab Migration entities
+          description: List all group or project migration entities
           schema:
             type: array
             items:
@@ -40775,8 +40781,8 @@ paths:
       operationId: getApiV4BulkImportsImportIdEntities
   "/api/v4/bulk_imports/{import_id}/entities/{entity_id}":
     get:
-      summary: Get GitLab Migration entity details
-      description: This feature was introduced in GitLab 14.1.
+      summary: Retrieve a group or project migration entity
+      description: Retrieves details of a group or project migration entity.
       produces:
       - application/json
       parameters:
@@ -40794,7 +40800,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get GitLab Migration entity details
+          description: Retrieve a group or project migration entity
           schema:
             "$ref": "#/definitions/API_Entities_BulkImports"
         '401':
@@ -40808,8 +40814,9 @@ paths:
       operationId: getApiV4BulkImportsImportIdEntitiesEntityId
   "/api/v4/bulk_imports/{import_id}/entities/{entity_id}/failures":
     get:
-      summary: Get GitLab Migration entity failures
-      description: This feature was introduced in GitLab 16.6
+      summary: List all failed import records for a migration entity
+      description: Lists all failed import records for a group or project migration
+        entity. This feature was introduced in GitLab 16.6.
       produces:
       - application/json
       parameters:
@@ -40827,7 +40834,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get GitLab Migration entity failures
+          description: List all failed import records for a migration entity
           schema:
             "$ref": "#/definitions/API_Entities_BulkImports_EntityFailure"
         '401':
@@ -46607,8 +46614,8 @@ paths:
       operationId: putApiV4SuggestionsBatchApply
   "/api/v4/hooks/{hook_id}/url_variables/{key}":
     put:
-      summary: Set a url variable
-      description: Sets a URL variable for a webhook
+      summary: Update a URL variable
+      description: Updates a URL variable for a specified webhook.
       produces:
       - application/json
       consumes:
@@ -46632,13 +46639,13 @@ paths:
           "$ref": "#/definitions/putApiV4HooksHookIdUrlVariablesKey"
       responses:
         '200':
-          description: Set a url variable
+          description: Update a URL variable
       tags:
       - hooks
       operationId: putApiV4HooksHookIdUrlVariablesKey
     delete:
-      summary: Un-Set a url variable
-      description: Removes a URL variable from a webhook
+      summary: Delete a URL variable
+      description: Deletes a URL variable from a specified webhook.
       produces:
       - application/json
       parameters:
@@ -46655,14 +46662,14 @@ paths:
         required: true
       responses:
         '204':
-          description: Un-Set a url variable
+          description: Delete a URL variable
       tags:
       - hooks
       operationId: deleteApiV4HooksHookIdUrlVariablesKey
   "/api/v4/hooks/{hook_id}/custom_headers/{key}":
     put:
-      summary: Set a custom header
-      description: Sets a custom header for a webhook
+      summary: Update a custom header
+      description: Updates a custom header for a specified webhook.
       produces:
       - application/json
       consumes:
@@ -46686,13 +46693,13 @@ paths:
           "$ref": "#/definitions/putApiV4HooksHookIdCustomHeadersKey"
       responses:
         '200':
-          description: Set a custom header
+          description: Update a custom header
       tags:
       - hooks
       operationId: putApiV4HooksHookIdCustomHeadersKey
     delete:
-      summary: Un-Set a custom header
-      description: Removes a custom header from a webhook
+      summary: Delete a custom header
+      description: Deletes a custom header from a specified webhook.
       produces:
       - application/json
       parameters:
@@ -46709,7 +46716,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Un-Set a custom header
+          description: Delete a custom header
       tags:
       - hooks
       operationId: deleteApiV4HooksHookIdCustomHeadersKey
@@ -46830,8 +46837,9 @@ paths:
       - hooks
       operationId: putApiV4HooksHookId
     post:
-      summary: Test a hook
-      description: Tests a webhook by triggering a test event
+      summary: Create a test run
+      description: Creates a test run for a webhook. Executes the webhook with mock
+        data.
       produces:
       - application/json
       consumes:
@@ -46845,7 +46853,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Test a hook
+          description: Create a test run
       tags:
       - hooks
       operationId: postApiV4HooksHookId
@@ -47555,8 +47563,10 @@ paths:
       operationId: getApiV4DeployTokens
   "/api/v4/import/bitbucket":
     post:
-      summary: Import a BitBucket Cloud repository
-      description: This feature was introduced in GitLab 17.0.
+      summary: Import repository from Bitbucket Cloud
+      description: 'Imports a repository from Bitbucket Cloud to GitLab. Prerequisites:
+        - The prerequisites for Bitbucket Cloud importer. This feature was introduced
+        in GitLab 17.0.'
       produces:
       - application/json
       consumes:
@@ -47569,7 +47579,7 @@ paths:
           "$ref": "#/definitions/postApiV4ImportBitbucket"
       responses:
         '201':
-          description: Import a BitBucket Cloud repository
+          description: Import repository from Bitbucket Cloud
           schema:
             "$ref": "#/definitions/ProjectImportEntity"
         '400':
@@ -47587,8 +47597,11 @@ paths:
       operationId: postApiV4ImportBitbucket
   "/api/v4/import/bitbucket_server":
     post:
-      summary: Import a BitBucket Server repository
-      description: This feature was introduced in GitLab 13.2.
+      summary: Import repository from Bitbucket Server
+      description: Imports a repository from Bitbucket Server to GitLab. The Bitbucket
+        Project Key is only used for finding the repository in Bitbucket. You must
+        specify a `target_namespace` if you want to import the repository to a GitLab
+        group.
       produces:
       - application/json
       consumes:
@@ -47601,7 +47614,7 @@ paths:
           "$ref": "#/definitions/postApiV4ImportBitbucketServer"
       responses:
         '201':
-          description: Import a BitBucket Server repository
+          description: Import repository from Bitbucket Server
           schema:
             "$ref": "#/definitions/ProjectEntity"
         '400':
@@ -66840,7 +66853,7 @@ definitions:
         description: The value of the variable
     required:
     - value
-    description: Set a url variable
+    description: Update a URL variable
   putApiV4ProjectsIdHooksHookIdCustomHeadersKey:
     type: object
     properties:
@@ -66849,7 +66862,7 @@ definitions:
         description: The value of the custom header
     required:
     - value
-    description: Set a custom header
+    description: Update a custom header
   API_Entities_ProjectHook:
     type: object
     properties:
@@ -76464,7 +76477,7 @@ definitions:
         description: The value of the variable
     required:
     - value
-    description: Set a url variable
+    description: Update a URL variable
   putApiV4HooksHookIdCustomHeadersKey:
     type: object
     properties:
@@ -76473,7 +76486,7 @@ definitions:
         description: The value of the custom header
     required:
     - value
-    description: Set a custom header
+    description: Update a custom header
   API_Entities_Hook:
     type: object
     properties:
@@ -77416,7 +77429,7 @@ definitions:
     - bitbucket_api_token
     - repo_path
     - target_namespace
-    description: Import a BitBucket Cloud repository
+    description: Import repository from Bitbucket Cloud
   ProjectImportEntity:
     type: object
     properties:
@@ -77511,7 +77524,7 @@ definitions:
     - personal_access_token
     - bitbucket_server_project
     - bitbucket_server_repo
-    description: Import a BitBucket Server repository
+    description: Import repository from Bitbucket Server
   ProjectEntity:
     type: object
     properties:

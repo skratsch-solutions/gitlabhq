@@ -93,7 +93,13 @@ module Gitlab
                     }
                   }
                 },
+                ingress: {
+                  enabled: true,
+                  configureCertmanager: false,
+                  tls: { enabled: false }
+                },
                 minio: { enabled: false },
+                gatewayApi: { enabled: false, configureCertmanager: false, installEnvoy: false },
                 psql: {
                   host: @cnpg.host,
                   password: {
@@ -146,10 +152,9 @@ module Gitlab
                   redirect: { disable: true }
                 }
               },
-              postgresql: { install: false },
-              redis: { install: false },
-              minio: { install: false },
+              certmanager: { install: false },
               "nginx-ingress": {
+                enabled: true,
                 controller: {
                   replicaCount: 1,
                   minAavailable: 1,

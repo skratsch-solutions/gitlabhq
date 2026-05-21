@@ -145,9 +145,9 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '.owned_by' do
-    let(:user) { create(:user) }
-    let!(:owned_pipeline_schedule) { create(:ci_pipeline_schedule, owner: user, project: project) }
-    let!(:other_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:owned_pipeline_schedule) { create(:ci_pipeline_schedule, owner: user, project: project) }
+    let_it_be(:other_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
 
     subject { described_class.owned_by(user) }
 
@@ -157,8 +157,8 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '.for_project' do
-    let!(:project_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
-    let!(:other_pipeline_schedule) { create(:ci_pipeline_schedule) }
+    let_it_be(:project_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:other_pipeline_schedule) { create(:ci_pipeline_schedule) }
 
     subject { described_class.for_project(project) }
 
@@ -169,7 +169,7 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
 
   describe '#set_next_run_at' do
     let(:now) { Time.zone.local(2021, 3, 2, 1, 0) }
-    let(:pipeline_schedule) { create(:ci_pipeline_schedule, cron: "0 1 * * *", project: project) }
+    let_it_be_with_reload(:pipeline_schedule) { create(:ci_pipeline_schedule, cron: "0 1 * * *", project: project) }
 
     it 'calls fallback method next_run_at if there is no plan limit' do
       allow(Settings).to receive(:cron_jobs).and_return({ 'pipeline_schedule_worker' => { 'cron' => "0 1 2 3 *" } })
@@ -251,7 +251,7 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '#schedule_next_run!' do
-    let!(:pipeline_schedule) { create(:ci_pipeline_schedule, :nightly, project: project) }
+    let_it_be_with_reload(:pipeline_schedule) { create(:ci_pipeline_schedule, :nightly, project: project) }
 
     before do
       pipeline_schedule.update_column(:next_run_at, nil)
@@ -298,9 +298,9 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '#job_variables' do
-    let!(:pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
 
-    let!(:pipeline_schedule_variables) do
+    let_it_be(:pipeline_schedule_variables) do
       create_list(:ci_pipeline_schedule_variable, 2, pipeline_schedule: pipeline_schedule)
     end
 

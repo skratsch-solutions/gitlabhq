@@ -16,7 +16,7 @@ import IssueCardTimeInfo from 'ee_else_ce/work_items/list/components/issue_card_
 import { convertToSearchQuery, getInitialPageParams } from 'ee_else_ce/work_items/list/utils';
 import getWorkItemsQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_full.query.graphql';
 import getWorkItemsSlimQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_slim.query.graphql';
-import getWorkItemsRestQuery from '~/work_items/list/graphql/get_work_items_rest.query.graphql';
+import getWorkItemsRestQuery from 'ee_else_ce/work_items/list/graphql/get_work_items_rest.query.graphql';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_NAMESPACE } from '~/graphql_shared/constants';
 import { STATUS_OPEN } from '~/issues/constants';

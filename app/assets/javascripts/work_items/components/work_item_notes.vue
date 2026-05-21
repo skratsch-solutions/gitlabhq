@@ -10,7 +10,7 @@ import {
   TYPENAME_NOTE,
   TYPENAME_USER,
 } from '~/graphql_shared/constants';
-import { Mousetrap } from '~/lib/mousetrap';
+import { Mousetrap, suppressShortcutsUntilInputFocus } from '~/lib/mousetrap';
 import { ISSUABLE_COMMENT_OR_REPLY, keysFor } from '~/behaviors/shortcuts/keybindings';
 import { CopyAsGFM } from '~/behaviors/markdown/copy_as_gfm';
 import SystemNote from '~/work_items/components/notes/system_note.vue';
@@ -475,6 +475,8 @@ export default {
       return node.closest('.js-timeline-entry').getAttribute('discussion-id');
     },
     async quoteReply(e) {
+      suppressShortcutsUntilInputFocus();
+
       const discussionId = this.getDiscussionIdFromSelection();
       const text = await CopyAsGFM.selectionToGfm();
 

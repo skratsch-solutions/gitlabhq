@@ -101,7 +101,8 @@ You can create these merge requests a few days before the release.
 
 > [!warning]
 > Do not merge the changes until the release manager confirms that the packages are publicly
-> available, usually around 14:00 UTC.
+> available, usually around 14:00 UTC. Release managers will put a note in the
+> `#release-post` channel when it's time to publish.
 
 ### Update content to reflect today's release
 

@@ -5597,8 +5597,8 @@ paths:
   "/api/v4/groups/{id}/hooks":
     get:
       operationId: getApiV4GroupsIdHooks
-      summary: List group hooks
-      description: Get a list of group hooks
+      summary: List all group hooks
+      description: Lists all group hooks.
       tags:
       - Hooks
       responses:
@@ -5641,8 +5641,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4GroupsIdHooks
-      summary: Add group hook
-      description: Adds a hook to a specified group
+      summary: Create a group hook
+      description: Creates a hook for a specified group.
       tags:
       - Hooks
       responses:
@@ -5676,8 +5676,8 @@ paths:
   "/api/v4/groups/{id}/hooks/{hook_id}":
     get:
       operationId: getApiV4GroupsIdHooksHookId
-      summary: Get group hook
-      description: Get a specific hook for a group
+      summary: Retrieve a group hook
+      description: Retrieves a specified group hook.
       tags:
       - Hooks
       responses:
@@ -5706,8 +5706,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdHooksHookId
-      summary: Edit group hook
-      description: Edits a hook for a specified group
+      summary: Update a group hook
+      description: Updates a hook for a specified group.
       tags:
       - Hooks
       responses:
@@ -5746,8 +5746,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_8d712278f973"
     delete:
       operationId: deleteApiV4GroupsIdHooksHookId
-      summary: Delete group hook
-      description: Removes a hook from a group. This is an idempotent method and can
+      summary: Delete a group hook
+      description: Deletes a hook from a group. This is an idempotent method and can
         be called multiple times. Either the hook is available or not.
       tags:
       - Hooks
@@ -5778,8 +5778,8 @@ paths:
   "/api/v4/groups/{id}/hooks/{hook_id}/events":
     get:
       operationId: getApiV4GroupsIdHooksHookIdEvents
-      summary: Get events for a given hook id
-      description: List web hook logs by hook id
+      summary: List all events
+      description: Lists all events for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -5834,8 +5834,8 @@ paths:
   "/api/v4/groups/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4GroupsIdHooksHookIdUrlVariablesKey
-      summary: Set a url variable
-      description: Sets a URL variable for a webhook
+      summary: Update a URL variable
+      description: Updates a URL variable for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -5870,8 +5870,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_351ef4743250"
     delete:
       operationId: deleteApiV4GroupsIdHooksHookIdUrlVariablesKey
-      summary: Un-Set a url variable
-      description: Removes a URL variable from a webhook
+      summary: Delete a URL variable
+      description: Deletes a URL variable from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -5901,8 +5901,8 @@ paths:
   "/api/v4/groups/{id}/hooks/{hook_id}/custom_headers/{key}":
     put:
       operationId: putApiV4GroupsIdHooksHookIdCustomHeadersKey
-      summary: Set a custom header
-      description: Sets a custom header for a webhook
+      summary: Update a custom header
+      description: Updates a custom header for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -5937,8 +5937,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5302a191e8a2"
     delete:
       operationId: deleteApiV4GroupsIdHooksHookIdCustomHeadersKey
-      summary: Un-Set a custom header
-      description: Removes a custom header from a webhook
+      summary: Delete a custom header
+      description: Deletes a custom header from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -5968,8 +5968,11 @@ paths:
   "/api/v4/groups/{id}/hooks/{hook_id}/test/{trigger}":
     post:
       operationId: postApiV4GroupsIdHooksHookIdTestTrigger
-      summary: Triggers a hook test
-      description: Triggers a hook test
+      summary: Trigger a test webhook
+      description: Triggers a test webhook. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_test_api_endpoint_rate_limit.
       tags:
       - Hooks
       responses:
@@ -6024,7 +6027,10 @@ paths:
     post:
       operationId: postApiV4GroupsIdHooksHookIdEventsHookLogIdResend
       summary: Resend a webhook event
-      description: Resend a webhook event
+      description: Resends a webhook event. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_event_resend_api_endpoint_rate_limit.
       tags:
       - Hooks
       responses:
@@ -13084,7 +13090,8 @@ paths:
   "/api/v4/users":
     get:
       operationId: getApiV4Users
-      summary: Get the list of users
+      summary: List all users
+      description: Lists all users.
       tags:
       - Users
       responses:
@@ -13304,7 +13311,8 @@ paths:
         in: query
     post:
       operationId: postApiV4Users
-      summary: Create a user. Available only for admins.
+      summary: Create a user
+      description: Creates a new user account. Available only for administrators.
       tags:
       - Users
       responses:
@@ -13325,7 +13333,8 @@ paths:
   "/api/v4/users/{id}":
     get:
       operationId: getApiV4UsersId
-      summary: Get a single user
+      summary: Retrieve a user
+      description: Retrieves a single user by ID.
       tags:
       - Users
       responses:
@@ -13362,7 +13371,8 @@ paths:
         in: query
     put:
       operationId: putApiV4UsersId
-      summary: Update a user. Available only for admins.
+      summary: Update a user
+      description: Updates a user account. Available only for administrators.
       tags:
       - Users
       responses:
@@ -13391,7 +13401,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_eb331795d838"
     delete:
       operationId: deleteApiV4UsersId
-      summary: Delete a user. Available only for admins.
+      summary: Delete a user
+      description: Deletes a user account. Available only for administrators.
       tags:
       - Users
       responses:
@@ -13422,7 +13433,8 @@ paths:
   "/api/v4/users/{user_id}/status":
     get:
       operationId: getApiV4UsersUserIdStatus
-      summary: Get the status of a user
+      summary: Retrieve the status of a user
+      description: Retrieves the public profile status of a user.
       tags:
       - Users
       responses:
@@ -13447,6 +13459,7 @@ paths:
     post:
       operationId: postApiV4UsersIdFollow
       summary: Follow a user
+      description: Follows a user as the authenticated user.
       tags:
       - Users
       responses:
@@ -13471,6 +13484,7 @@ paths:
     post:
       operationId: postApiV4UsersIdUnfollow
       summary: Unfollow a user
+      description: Unfollows a user as the authenticated user.
       tags:
       - Users
       responses:
@@ -13494,7 +13508,8 @@ paths:
   "/api/v4/users/{id}/following":
     get:
       operationId: getApiV4UsersIdFollowing
-      summary: Get the users who follow a user
+      summary: List all users a user follows
+      description: Lists all users that the specified user follows.
       tags:
       - Users
       responses:
@@ -13536,7 +13551,8 @@ paths:
   "/api/v4/users/{id}/followers":
     get:
       operationId: getApiV4UsersIdFollowers
-      summary: Get the followers of a user
+      summary: List all followers of a user
+      description: Lists all followers of a user.
       tags:
       - Users
       responses:
@@ -13603,7 +13619,9 @@ paths:
   "/api/v4/users/{id}/identities/{provider}":
     delete:
       operationId: deleteApiV4UsersIdIdentitiesProvider
-      summary: Delete a user's identity. Available only for admins
+      summary: Delete a user identity
+      description: Deletes an identity that links a user to an external authentication
+        provider. Available only for administrators.
       tags:
       - Users
       responses:
@@ -13633,8 +13651,8 @@ paths:
   "/api/v4/users/{user_id}/project_deploy_keys":
     get:
       operationId: getApiV4UsersUserIdProjectDeployKeys
-      summary: Get the project-level Deploy keys that a specified user can access
-        to.
+      summary: List all project deploy keys accessible to a user
+      description: Lists all project-level deploy keys that a user can access.
       tags:
       - Deploy resources
       responses:
@@ -13676,7 +13694,8 @@ paths:
   "/api/v4/users/{user_id}/keys":
     post:
       operationId: postApiV4UsersUserIdKeys
-      summary: Add an SSH key to a specified user. Available only for admins.
+      summary: Add an SSH key for a user
+      description: Adds an SSH key to a specified user. Available only for administrators.
       tags:
       - Keys
       responses:
@@ -13705,7 +13724,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_daa524573b36"
     get:
       operationId: getApiV4UsersUserIdKeys
-      summary: Get the SSH keys of a specified user.
+      summary: List all SSH keys for a user
+      description: Lists all SSH keys for a specified user.
       tags:
       - Keys
       responses:
@@ -13747,7 +13767,8 @@ paths:
   "/api/v4/users/{id}/keys/{key_id}":
     get:
       operationId: getApiV4UsersIdKeysKeyId
-      summary: Get a SSH key of a specified user.
+      summary: Retrieve an SSH key for a user
+      description: Retrieves a single SSH key for a specified user.
       tags:
       - Keys
       responses:
@@ -13776,8 +13797,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UsersIdKeysKeyId
-      summary: Delete an existing SSH key from a specified user. Available only for
-        admins.
+      summary: Delete an SSH key for a user
+      description: Deletes an SSH key from a specified user. Available only for administrators.
       tags:
       - Keys
       responses:
@@ -13944,8 +13965,8 @@ paths:
       tags:
       - Keys
       responses:
-        '201':
-          description: Created
+        '202':
+          description: Accepted
         '404':
           description: Not Found
         '400':
@@ -13966,7 +13987,8 @@ paths:
   "/api/v4/users/{id}/emails":
     post:
       operationId: postApiV4UsersIdEmails
-      summary: Add an email address to a specified user. Available only for admins.
+      summary: Add an email address for a user
+      description: Adds an email address to a specified user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -13995,7 +14017,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_73d49773091b"
     get:
       operationId: getApiV4UsersIdEmails
-      summary: Get the emails addresses of a specified user. Available only for admins.
+      summary: List all email addresses for a user
+      description: Lists all email addresses for a specified user. Available only
+        for administrators.
       tags:
       - Users
       responses:
@@ -14037,7 +14061,9 @@ paths:
   "/api/v4/users/{id}/emails/{email_id}":
     delete:
       operationId: deleteApiV4UsersIdEmailsEmailId
-      summary: Delete an email address of a specified user. Available only for admins.
+      summary: Delete an email address for a user
+      description: Deletes an email address from a specified user. Available only
+        for administrators.
       tags:
       - Users
       responses:
@@ -14067,7 +14093,8 @@ paths:
   "/api/v4/users/{id}/activate":
     post:
       operationId: postApiV4UsersIdActivate
-      summary: Activate a deactivated user. Available only for admins.
+      summary: Activate a user
+      description: Activates a deactivated user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14087,7 +14114,9 @@ paths:
   "/api/v4/users/{id}/approve":
     post:
       operationId: postApiV4UsersIdApprove
-      summary: Approve a pending user. Available only for admins.
+      summary: Approve a user
+      description: Approves a user whose account is pending administrator approval.
+        Available only for administrators.
       tags:
       - Users
       responses:
@@ -14107,7 +14136,9 @@ paths:
   "/api/v4/users/{id}/reject":
     post:
       operationId: postApiV4UsersIdReject
-      summary: Reject a pending user. Available only for admins.
+      summary: Reject a user
+      description: Rejects a user whose account is pending administrator approval.
+        Available only for administrators.
       tags:
       - Users
       responses:
@@ -14127,7 +14158,8 @@ paths:
   "/api/v4/users/{id}/deactivate":
     post:
       operationId: postApiV4UsersIdDeactivate
-      summary: Deactivate an active user. Available only for admins.
+      summary: Deactivate a user
+      description: Deactivates an active user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14147,7 +14179,8 @@ paths:
   "/api/v4/users/{id}/block":
     post:
       operationId: postApiV4UsersIdBlock
-      summary: Block a user. Available only for admins.
+      summary: Block a user
+      description: Blocks a user from signing in. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14167,7 +14200,8 @@ paths:
   "/api/v4/users/{id}/unblock":
     post:
       operationId: postApiV4UsersIdUnblock
-      summary: Unblock a user. Available only for admins.
+      summary: Unblock a user
+      description: Unblocks a previously blocked user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14187,7 +14221,8 @@ paths:
   "/api/v4/users/{id}/ban":
     post:
       operationId: postApiV4UsersIdBan
-      summary: Ban a user. Available only for admins.
+      summary: Ban a user
+      description: Bans a user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14207,7 +14242,8 @@ paths:
   "/api/v4/users/{id}/unban":
     post:
       operationId: postApiV4UsersIdUnban
-      summary: Unban a user. Available only for admins.
+      summary: Unban a user
+      description: Unbans a previously banned user. Available only for administrators.
       tags:
       - Users
       responses:
@@ -14227,7 +14263,9 @@ paths:
   "/api/v4/users/{user_id}/memberships":
     get:
       operationId: getApiV4UsersUserIdMemberships
-      summary: Get memberships
+      summary: List all memberships for a user
+      description: Lists all project and group memberships for a user. Available only
+        for administrators.
       tags:
       - Users
       responses:
@@ -14279,13 +14317,18 @@ paths:
   "/api/v4/users/{id}/associations_count":
     get:
       operationId: getApiV4UsersIdAssociationsCount
-      summary: Returns a list of a specified user's count of projects, groups, issues
-        and merge requests.
+      summary: Retrieve user associations count
+      description: Retrieves counts of the projects, groups, issues, and merge requests
+        associated with a user.
       tags:
       - Users
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesUserAssociationsCount"
         '404':
           description: Not Found
         '400':
@@ -14473,7 +14516,8 @@ paths:
   "/api/v4/user":
     get:
       operationId: getApiV4User
-      summary: Get the currently authenticated user
+      summary: Retrieve the authenticated user
+      description: Retrieves the user record for the currently authenticated user.
       tags:
       - Users
       responses:
@@ -14486,7 +14530,8 @@ paths:
   "/api/v4/user/keys":
     get:
       operationId: getApiV4UserKeys
-      summary: Get the currently authenticated user's SSH keys
+      summary: List all SSH keys for the authenticated user
+      description: Lists all SSH keys for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14519,7 +14564,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4UserKeys
-      summary: Add a new SSH key to the currently authenticated user
+      summary: Add an SSH key for the authenticated user
+      description: Adds an SSH key to the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14540,7 +14586,8 @@ paths:
   "/api/v4/user/keys/{key_id}":
     get:
       operationId: getApiV4UserKeysKeyId
-      summary: Get a single key owned by currently authenticated user
+      summary: Retrieve an SSH key for the authenticated user
+      description: Retrieves a single SSH key for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14563,7 +14610,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UserKeysKeyId
-      summary: Delete an SSH key from the currently authenticated user
+      summary: Delete an SSH key for the authenticated user
+      description: Deletes an SSH key from the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14693,8 +14741,8 @@ paths:
       tags:
       - Keys
       responses:
-        '201':
-          description: Created
+        '202':
+          description: Accepted
         '404':
           description: Not Found
         '400':
@@ -14709,7 +14757,8 @@ paths:
   "/api/v4/user/emails":
     get:
       operationId: getApiV4UserEmails
-      summary: Get the currently authenticated user's email addresses
+      summary: List all email addresses for the authenticated user
+      description: Lists all email addresses for the currently authenticated user.
       tags:
       - Users
       responses:
@@ -14742,7 +14791,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4UserEmails
-      summary: Add new email address to the currently authenticated user
+      summary: Add an email address for the authenticated user
+      description: Adds an email address to the currently authenticated user.
       tags:
       - Users
       responses:
@@ -14861,7 +14911,9 @@ paths:
   "/api/v4/user/emails/{email_id}":
     get:
       operationId: getApiV4UserEmailsEmailId
-      summary: Get a single email address owned by the currently authenticated user
+      summary: Retrieve an email address for the authenticated user
+      description: Retrieves a single email address for the currently authenticated
+        user.
       tags:
       - Users
       responses:
@@ -14884,7 +14936,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UserEmailsEmailId
-      summary: Delete an email address from the currently authenticated user
+      summary: Delete an email address for the authenticated user
+      description: Deletes an email address from the currently authenticated user.
       tags:
       - Users
       responses:
@@ -14904,12 +14957,17 @@ paths:
   "/api/v4/user/activities":
     get:
       operationId: getApiV4UserActivities
-      summary: Get a list of user activities
+      summary: List all user activities
+      description: Lists all user activity entries since the given date.
       tags:
       - Users
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesUserActivity"
         '400':
           description: Bad Request
       parameters:
@@ -14986,7 +15044,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_6c119c47b9ae"
     get:
       operationId: getApiV4UserStatus
-      summary: get the status of the current user
+      summary: Retrieve the status of the authenticated user
+      description: Retrieves the status of the currently authenticated user.
       tags:
       - Users
       responses:
@@ -17251,8 +17310,8 @@ paths:
   "/api/v4/project_repository_storage_moves":
     get:
       operationId: getApiV4ProjectRepositoryStorageMoves
-      summary: Get a list of all project repository storage moves
-      description: This feature was introduced in GitLab 13.0.
+      summary: List all project repository storage moves
+      description: Lists all project repository storage moves.
       tags:
       - Storage moves
       responses:
@@ -17285,8 +17344,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectRepositoryStorageMoves
-      summary: Schedule bulk project repository storage moves
-      description: This feature was introduced in GitLab 13.7.
+      summary: Create repository storage moves for all projects on a storage shard
+      description: Creates repository storage moves for each project repository stored
+        on the source storage shard. This endpoint migrates all projects at once.
       tags:
       - Storage moves
       responses:
@@ -17303,8 +17363,8 @@ paths:
   "/api/v4/project_repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4ProjectRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a project repository storage move
-      description: This feature was introduced in GitLab 13.0.
+      summary: Retrieve a project repository storage move
+      description: Retrieves a specified project repository storage move.
       tags:
       - Storage moves
       responses:
@@ -17328,8 +17388,8 @@ paths:
   "/api/v4/projects/{id}/repository_storage_moves":
     get:
       operationId: getApiV4ProjectsIdRepositoryStorageMoves
-      summary: Get a list of all project repository storage moves
-      description: This feature was introduced in GitLab 13.1.
+      summary: List all repository storage moves for a project
+      description: Lists all repository storage moves for a project.
       tags:
       - Storage moves
       responses:
@@ -17372,8 +17432,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdRepositoryStorageMoves
-      summary: Schedule a project repository storage move
-      description: This feature was introduced in GitLab 13.1.
+      summary: Create a repository storage move for a project
+      description: Creates a repository storage move for a specified project.
       tags:
       - Storage moves
       responses:
@@ -17405,8 +17465,8 @@ paths:
   "/api/v4/projects/{id}/repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4ProjectsIdRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a project repository storage move
-      description: This feature was introduced in GitLab 13.1.
+      summary: Retrieve a repository storage move for a project
+      description: Retrieves a specified repository storage move for a project.
       tags:
       - Storage moves
       responses:
@@ -25158,8 +25218,8 @@ paths:
   "/api/v4/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4HooksHookIdUrlVariablesKey
-      summary: Set a url variable
-      description: Sets a URL variable for a webhook
+      summary: Update a URL variable
+      description: Updates a URL variable for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -25190,8 +25250,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_351ef4743250"
     delete:
       operationId: deleteApiV4HooksHookIdUrlVariablesKey
-      summary: Un-Set a url variable
-      description: Removes a URL variable from a webhook
+      summary: Delete a URL variable
+      description: Deletes a URL variable from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -25217,8 +25277,8 @@ paths:
   "/api/v4/hooks/{hook_id}/custom_headers/{key}":
     put:
       operationId: putApiV4HooksHookIdCustomHeadersKey
-      summary: Set a custom header
-      description: Sets a custom header for a webhook
+      summary: Update a custom header
+      description: Updates a custom header for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -25249,8 +25309,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5302a191e8a2"
     delete:
       operationId: deleteApiV4HooksHookIdCustomHeadersKey
-      summary: Un-Set a custom header
-      description: Removes a custom header from a webhook
+      summary: Delete a custom header
+      description: Deletes a custom header from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -25390,8 +25450,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_894e3528a83b"
     post:
       operationId: postApiV4HooksHookId
-      summary: Test a hook
-      description: Tests a webhook by triggering a test event
+      summary: Create a test run
+      description: Creates a test run for a webhook. Executes the webhook with mock
+        data.
       tags:
       - Hooks
       responses:
@@ -33039,8 +33100,8 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}/url_variables/{key}":
     put:
       operationId: putApiV4ProjectsIdHooksHookIdUrlVariablesKey
-      summary: Set a url variable
-      description: Sets a URL variable for a webhook
+      summary: Update a URL variable
+      description: Updates a URL variable for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -33075,8 +33136,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_351ef4743250"
     delete:
       operationId: deleteApiV4ProjectsIdHooksHookIdUrlVariablesKey
-      summary: Un-Set a url variable
-      description: Removes a URL variable from a webhook
+      summary: Delete a URL variable
+      description: Deletes a URL variable from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -33106,8 +33167,8 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}/custom_headers/{key}":
     put:
       operationId: putApiV4ProjectsIdHooksHookIdCustomHeadersKey
-      summary: Set a custom header
-      description: Sets a custom header for a webhook
+      summary: Update a custom header
+      description: Updates a custom header for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -33142,8 +33203,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5302a191e8a2"
     delete:
       operationId: deleteApiV4ProjectsIdHooksHookIdCustomHeadersKey
-      summary: Un-Set a custom header
-      description: Removes a custom header from a webhook
+      summary: Delete a custom header
+      description: Deletes a custom header from a specified webhook.
       tags:
       - Hooks
       responses:
@@ -33354,8 +33415,8 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}/events":
     get:
       operationId: getApiV4ProjectsIdHooksHookIdEvents
-      summary: Get events for a given hook id
-      description: List web hook logs by hook id
+      summary: List all events
+      description: Lists all events for a specified webhook.
       tags:
       - Hooks
       responses:
@@ -33410,8 +33471,11 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}/test/{trigger}":
     post:
       operationId: postApiV4ProjectsIdHooksHookIdTestTrigger
-      summary: Triggers a hook test
-      description: Triggers a hook test
+      summary: Trigger a test webhook
+      description: Triggers a test webhook. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_test_api_endpoint_rate_limit.
       tags:
       - Hooks
       responses:
@@ -33466,7 +33530,10 @@ paths:
     post:
       operationId: postApiV4ProjectsIdHooksHookIdEventsHookLogIdResend
       summary: Resend a webhook event
-      description: Resend a webhook event
+      description: Resends a webhook event. This endpoint has a rate limit of five
+        requests per minute for each webhook and authenticated user. To disable this
+        limit on GitLab Self-Managed and GitLab Dedicated, an administrator can disable
+        the feature flag named web_hook_event_resend_api_endpoint_rate_limit.
       tags:
       - Hooks
       responses:
@@ -50634,8 +50701,11 @@ paths:
   "/api/v4/import/bitbucket_server":
     post:
       operationId: postApiV4ImportBitbucketServer
-      summary: Import a BitBucket Server repository
-      description: This feature was introduced in GitLab 13.2.
+      summary: Import repository from Bitbucket Server
+      description: Imports a repository from Bitbucket Server to GitLab. The Bitbucket
+        Project Key is only used for finding the repository in Bitbucket. You must
+        specify a `target_namespace` if you want to import the repository to a GitLab
+        group.
       tags:
       - Project import
       responses:
@@ -50664,8 +50734,10 @@ paths:
   "/api/v4/import/bitbucket":
     post:
       operationId: postApiV4ImportBitbucket
-      summary: Import a BitBucket Cloud repository
-      description: This feature was introduced in GitLab 17.0.
+      summary: Import repository from Bitbucket Cloud
+      description: 'Imports a repository from Bitbucket Cloud to GitLab. Prerequisites:
+        - The prerequisites for Bitbucket Cloud importer. This feature was introduced
+        in GitLab 17.0.'
       tags:
       - Project import
       responses:
@@ -66869,8 +66941,8 @@ paths:
   "/api/v4/bulk_imports/entities":
     get:
       operationId: getApiV4BulkImportsEntities
-      summary: List all GitLab Migrations' entities
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migration entities
+      description: Lists all group or project migration entities.
       tags:
       - Imports
       responses:
@@ -66934,8 +67006,8 @@ paths:
   "/api/v4/bulk_imports/{import_id}":
     get:
       operationId: getApiV4BulkImportsImportId
-      summary: Get GitLab Migration details
-      description: This feature was introduced in GitLab 14.1.
+      summary: Retrieve a group or project migration
+      description: Retrieves details of a group or project migration.
       tags:
       - Imports
       responses:
@@ -66961,8 +67033,8 @@ paths:
   "/api/v4/bulk_imports/{import_id}/entities":
     get:
       operationId: getApiV4BulkImportsImportIdEntities
-      summary: List GitLab Migration entities
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migration entities
+      description: Lists all group or project migration entities for a specified migration.
       tags:
       - Imports
       responses:
@@ -67020,8 +67092,8 @@ paths:
   "/api/v4/bulk_imports/{import_id}/entities/{entity_id}":
     get:
       operationId: getApiV4BulkImportsImportIdEntitiesEntityId
-      summary: Get GitLab Migration entity details
-      description: This feature was introduced in GitLab 14.1.
+      summary: Retrieve a group or project migration entity
+      description: Retrieves details of a group or project migration entity.
       tags:
       - Imports
       responses:
@@ -67053,8 +67125,9 @@ paths:
   "/api/v4/bulk_imports/{import_id}/entities/{entity_id}/failures":
     get:
       operationId: getApiV4BulkImportsImportIdEntitiesEntityIdFailures
-      summary: Get GitLab Migration entity failures
-      description: This feature was introduced in GitLab 16.6
+      summary: List all failed import records for a migration entity
+      description: Lists all failed import records for a group or project migration
+        entity. This feature was introduced in GitLab 16.6.
       tags:
       - Imports
       responses:
@@ -76996,6 +77069,17 @@ components:
           type: string
         access_level:
           type: string
+    APIEntitiesUserAssociationsCount:
+      type: object
+      properties:
+        groups_count:
+          type: string
+        projects_count:
+          type: string
+        issues_count:
+          type: string
+        merge_requests_count:
+          type: string
     APIEntitiesImpersonationToken:
       type: object
       properties:
@@ -77095,6 +77179,15 @@ components:
         pass_user_identities_to_ci_jwt:
           type: string
         policy_advanced_editor:
+          type: string
+    APIEntitiesUserActivity:
+      type: object
+      properties:
+        username:
+          type: string
+        last_activity_on:
+          type: string
+        last_activity_at:
           type: string
     APIEntitiesAvatar:
       type: object

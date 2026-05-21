@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Ci::RunnerManager, feature_category: :fleet_visibility, type: :model do
+RSpec.describe Ci::RunnerManager, feature_category: :fleet_visibility do
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
 
@@ -178,12 +178,12 @@ RSpec.describe Ci::RunnerManager, feature_category: :fleet_visibility, type: :mo
   end
 
   describe '.ip_address_exists?' do
-    let(:existing_ip_address) { '127.0.0.1' }
+    let_it_be(:existing_ip_address) { '127.0.0.1' }
     let(:ip_address_to_find) { existing_ip_address }
 
     subject { described_class.ip_address_exists?(ip_address_to_find) }
 
-    before do
+    before_all do
       create(:ci_runner_machine, ip_address: existing_ip_address)
     end
 
@@ -283,14 +283,14 @@ RSpec.describe Ci::RunnerManager, feature_category: :fleet_visibility, type: :mo
   end
 
   describe '.aggregate_upgrade_status_by_runner_id' do
-    let!(:runner_version1) { create(:ci_runner_version, version: '16.0.0', status: :recommended) }
-    let!(:runner_version2) { create(:ci_runner_version, version: '16.0.1', status: :available) }
+    let_it_be(:runner_version1) { create(:ci_runner_version, version: '16.0.0', status: :recommended) }
+    let_it_be(:runner_version2) { create(:ci_runner_version, version: '16.0.1', status: :available) }
 
-    let!(:runner_a) { create(:ci_runner) }
-    let!(:runner_b) { create(:ci_runner) }
-    let!(:runner_manager_a1) { create(:ci_runner_machine, runner: runner_a, version: runner_version1.version) }
-    let!(:runner_manager_a2) { create(:ci_runner_machine, runner: runner_a, version: runner_version2.version) }
-    let!(:runner_manager_b1) { create(:ci_runner_machine, runner: runner_b, version: runner_version2.version) }
+    let_it_be(:runner_a) { create(:ci_runner) }
+    let_it_be(:runner_b) { create(:ci_runner) }
+    let_it_be(:runner_manager_a1) { create(:ci_runner_machine, runner: runner_a, version: runner_version1.version) }
+    let_it_be(:runner_manager_a2) { create(:ci_runner_machine, runner: runner_a, version: runner_version2.version) }
+    let_it_be(:runner_manager_b1) { create(:ci_runner_machine, runner: runner_b, version: runner_version2.version) }
 
     subject { described_class.aggregate_upgrade_status_by_runner_id }
 

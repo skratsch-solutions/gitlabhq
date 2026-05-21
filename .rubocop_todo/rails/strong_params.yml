@@ -177,7 +177,6 @@ Rails/StrongParams:
     - 'app/controllers/repositories/lfs_api_controller.rb'
     - 'app/controllers/repositories/lfs_locks_api_controller.rb'
     - 'app/controllers/repositories/lfs_storage_controller.rb'
-    - 'app/controllers/search_controller.rb'
     - 'app/controllers/sent_notifications_controller.rb'
     - 'app/controllers/sessions_controller.rb'
     - 'app/controllers/snippets/notes_controller.rb'

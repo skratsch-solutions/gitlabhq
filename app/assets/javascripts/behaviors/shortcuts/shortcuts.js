@@ -4,7 +4,7 @@ import Vue from 'vue';
 import { MARKDOWN_EVENT_TOGGLE } from '~/behaviors/preview_markdown';
 import { InternalEvents } from '~/tracking';
 import { FIND_FILE_SHORTCUT_CLICK } from '~/tracking/constants';
-import { Mousetrap, addStopCallback } from '~/lib/mousetrap';
+import { Mousetrap, addStopCallback, suppressShortcutsUntilInputFocus } from '~/lib/mousetrap';
 import { getCookie, setCookie, parseBoolean } from '~/lib/utils/common_utils';
 import { waitForElement } from '~/lib/utils/dom_utils';
 import findAndFollowLink from '~/lib/utils/navigation_utility';
@@ -232,6 +232,7 @@ export default class Shortcuts {
       this.helpModalElement = null;
       this.helpModalVueInstance = null;
     } else {
+      suppressShortcutsUntilInputFocus();
       this.helpModalElement = document.createElement('div');
       document.body.append(this.helpModalElement);
 
@@ -290,6 +291,7 @@ export default class Shortcuts {
   }
 
   static focusSearch(e) {
+    suppressShortcutsUntilInputFocus();
     document.querySelector('#super-sidebar-search')?.click();
     InternalEvents.trackEvent('press_keyboard_shortcut_to_activate_command_palette');
 
@@ -305,6 +307,7 @@ export default class Shortcuts {
       InternalEvents.trackEvent(FIND_FILE_SHORTCUT_CLICK);
     }
     e?.preventDefault();
+    suppressShortcutsUntilInputFocus();
     document.querySelector('#super-sidebar-search')?.click();
 
     const searchInput = await waitForElement('#super-sidebar-search-modal #search');
@@ -329,6 +332,7 @@ export default class Shortcuts {
   }
 
   static focusDuoChat(e) {
+    suppressShortcutsUntilInputFocus();
     document.querySelector('.js-tanuki-bot-chat-toggle')?.click();
 
     if (e.preventDefault) {

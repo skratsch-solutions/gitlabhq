@@ -1400,7 +1400,7 @@ func Test_intersectServerCapabilities(t *testing.T) {
 }
 
 func TestRunner_Shutdown(t *testing.T) {
-	t.Run("shutdown with canceled request context sends stop and releases lock", func(t *testing.T) {
+	t.Run("shutdown with canceled request context sends stop", func(t *testing.T) {
 		rdb := initRdb(t)
 		mockWf := &mockWorkflowStream{}
 
@@ -1425,26 +1425,13 @@ func TestRunner_Shutdown(t *testing.T) {
 			},
 		}
 
-		// Acquire lock first
-		mutex, err := r.lockManager.acquireLock(context.Background(), r.workflowID)
-		require.NoError(t, err)
-		r.mutex = mutex
-
-		// Verify lock is held before shutdown
-		lockExists := rdb.Exists(context.Background(), workflowLockPrefix+r.workflowID).Val()
-		require.Equal(t, int64(1), lockExists)
-
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer shutdownCancel()
 
 		// Shutdown should still attempt to send stop even though request context is done.
 		// The send will fail (context canceled), but Shutdown always returns nil.
-		err = r.Shutdown(shutdownCtx)
+		err := r.Shutdown(shutdownCtx)
 		require.NoError(t, err)
-
-		// Verify lock is released after shutdown
-		lockExists = rdb.Exists(context.Background(), workflowLockPrefix+r.workflowID).Val()
-		require.Equal(t, int64(0), lockExists)
 	})
 
 	t.Run("shutdown context done sends stop workflow and returns nil on ack", func(t *testing.T) {
@@ -1469,15 +1456,6 @@ func TestRunner_Shutdown(t *testing.T) {
 			},
 		}
 
-		// Acquire lock first
-		mutex, err := r.lockManager.acquireLock(context.Background(), r.workflowID)
-		require.NoError(t, err)
-		r.mutex = mutex
-
-		// Verify lock is held before shutdown
-		lockExists := rdb.Exists(context.Background(), workflowLockPrefix+r.workflowID).Val()
-		require.Equal(t, int64(1), lockExists)
-
 		shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
 		defer shutdownCancel()
 
@@ -1485,9 +1463,6 @@ func TestRunner_Shutdown(t *testing.T) {
 		go func() {
 			shutdownDone <- r.Shutdown(shutdownCtx)
 		}()
-
-		// give time for lock to be cleaned
-		time.Sleep(100 * time.Millisecond)
 
 		shutdownCancel()
 
@@ -1498,12 +1473,8 @@ func TestRunner_Shutdown(t *testing.T) {
 		// Simulate DWS acknowledging the stop
 		close(r.stop.acked)
 
-		err = <-shutdownDone
+		err := <-shutdownDone
 		require.NoError(t, err)
-
-		// Verify lock is released after shutdown
-		lockExists = rdb.Exists(context.Background(), workflowLockPrefix+r.workflowID).Val()
-		require.Equal(t, int64(0), lockExists)
 
 		sendEvents := mockWf.getSendEvents()
 		require.Len(t, sendEvents, 1)

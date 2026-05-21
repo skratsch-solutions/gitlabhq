@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-LIMIT = 5
-TOTAL_ISSUES = 30
+LIMIT = 10
+TOTAL_ISSUES = 25
 
 RSpec.shared_examples 'embedded views (GLQL)' do
   let(:is_mac) { page.evaluate_script('navigator.platform').include?('Mac') }
@@ -48,11 +48,11 @@ RSpec.shared_examples 'embedded views (GLQL)' do
     end
 
     it 'loads more issues on clicking the load more button' do
-      click_on "Load 20 more"
+      click_on "Load #{LIMIT} more"
       wait_for_requests
-      expect(page).to have_css("[data-testid='list'] li", count: LIMIT + 20)
+      expect(page).to have_css("[data-testid='list'] li", count: LIMIT * 2)
 
-      click_on "Load 5 more"
+      click_on "Load #{TOTAL_ISSUES - (LIMIT * 2)} more"
       wait_for_requests
       expect(page).to have_css("[data-testid='list'] li", count: TOTAL_ISSUES)
 

@@ -452,14 +452,19 @@ describe('workItemsRestResolver', () => {
   });
 
   describe('START_AND_DUE_DATE widget mapping', () => {
-    it('does not include START_AND_DUE_DATE widget when features.start_and_due_date is not present', async () => {
+    it('includes START_AND_DUE_DATE widget with null dates when features.start_and_due_date is not present', async () => {
       const item = makeRestItem({ features: null });
       mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
 
       const { nodes } = await workItemsRestResolver(makeNamespace(), {});
       const startAndDueDateWidget = nodes[0].widgets.find((w) => w.type === 'START_AND_DUE_DATE');
 
-      expect(startAndDueDateWidget).toBeUndefined();
+      expect(startAndDueDateWidget).toMatchObject({
+        __typename: 'WorkItemWidgetStartAndDueDate',
+        type: 'START_AND_DUE_DATE',
+        startDate: null,
+        dueDate: null,
+      });
     });
 
     it('maps start_date and due_date to the START_AND_DUE_DATE widget', async () => {

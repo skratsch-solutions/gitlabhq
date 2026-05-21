@@ -99,7 +99,6 @@ RSpec/ExampleWithoutDescription:
     - 'ee/spec/models/merge_request_spec.rb'
     - 'ee/spec/models/namespace_setting_spec.rb'
     - 'ee/spec/models/observability/metrics_issues_connection_spec.rb'
-    - 'ee/spec/models/package_metadata/checkpoint_spec.rb'
     - 'ee/spec/models/protected_environment_spec.rb'
     - 'ee/spec/models/protected_environments/approval_rule_spec.rb'
     - 'ee/spec/models/protected_environments/deploy_access_level_spec.rb'

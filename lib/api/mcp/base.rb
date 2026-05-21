@@ -52,8 +52,9 @@ module API
 
       helpers do
         def feature_available?
-          # This method will be redefined in EE.
-          true
+          return true unless ::Feature.enabled?(:mcp_server_availability_setting, :instance)
+
+          ::Gitlab::CurrentSettings.mcp_server_enabled?
         end
 
         # Returns the allowed MCP tool names for this request, as set by the Duo Workflow

@@ -227,7 +227,6 @@ app/models/todo.rb:
 - access_request_url
 - for_alert?
 - for_issue_or_work_item?
-- for_ssh_key?
 - review_requested?
 app/models/user.rb:
 - legacy_otp_secret

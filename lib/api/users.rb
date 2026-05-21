@@ -183,8 +183,10 @@ module API
         end
       end
 
-      desc 'Get the list of users' do
+      desc 'List all users' do
+        detail 'Lists all users.'
         success Entities::UserBasic
+        is_array true
         tags ['users']
       end
       params do
@@ -253,7 +255,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get a single user' do
+      desc 'Retrieve a user' do
+        detail 'Retrieves a single user by ID.'
         success Entities::User
         tags ['users']
       end
@@ -285,7 +288,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc "Get the status of a user" do
+      desc 'Retrieve the status of a user' do
+        detail 'Retrieves the public profile status of a user.'
         tags ['users']
         success Entities::UserStatus
       end
@@ -304,6 +308,7 @@ module API
       end
 
       desc 'Follow a user' do
+        detail 'Follows a user as the authenticated user.'
         tags ['users']
         success Entities::User
       end
@@ -327,6 +332,7 @@ module API
       end
 
       desc 'Unfollow a user' do
+        detail 'Unfollows a user as the authenticated user.'
         tags ['users']
         success Entities::User
       end
@@ -350,9 +356,11 @@ module API
         end
       end
 
-      desc 'Get the users who follow a user' do
+      desc 'List all users a user follows' do
+        detail 'Lists all users that the specified user follows.'
         tags ['users']
         success Entities::UserBasic
+        is_array true
       end
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
@@ -370,9 +378,11 @@ module API
         present paginate(user.followees), with: Entities::UserBasic
       end
 
-      desc 'Get the followers of a user' do
+      desc 'List all followers of a user' do
+        detail 'Lists all followers of a user.'
         tags ['users']
         success Entities::UserBasic
+        is_array true
       end
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
@@ -390,7 +400,8 @@ module API
         present paginate(user.followers), with: Entities::UserBasic
       end
 
-      desc 'Create a user. Available only for admins.' do
+      desc 'Create a user' do
+        detail 'Creates a new user account. Available only for administrators.'
         tags ['users']
         success Entities::UserWithAdmin
       end
@@ -435,7 +446,8 @@ module API
         end
       end
 
-      desc 'Update a user. Available only for admins.' do
+      desc 'Update a user' do
+        detail 'Updates a user account. Available only for administrators.'
         tags ['users']
         success Entities::UserWithAdmin
       end
@@ -514,7 +526,8 @@ module API
         end
       end
 
-      desc "Delete a user's identity. Available only for admins" do
+      desc 'Delete a user identity' do
+        detail 'Deletes an identity that links a user to an external authentication provider. Available only for administrators.'
         success Entities::UserWithAdmin
         tags ['users']
       end
@@ -536,8 +549,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get the project-level Deploy keys that a specified user can access to.' do
+      desc 'List all project deploy keys accessible to a user' do
+        detail 'Lists all project-level deploy keys that a user can access.'
         success Entities::DeployKey
+        is_array true
         tags ['deploy_resources']
       end
       params do
@@ -562,7 +577,8 @@ module API
         present paginate(keys), with: Entities::DeployKey
       end
 
-      desc 'Add an SSH key to a specified user. Available only for admins.' do
+      desc 'Add an SSH key for a user' do
+        detail 'Adds an SSH key to a specified user. Available only for administrators.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -591,8 +607,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get the SSH keys of a specified user.' do
+      desc 'List all SSH keys for a user' do
+        detail 'Lists all SSH keys for a specified user.'
         success Entities::SSHKey
+        is_array true
         tags ['keys']
       end
       params do
@@ -610,7 +628,8 @@ module API
         present paginate(keys), with: Entities::SSHKey
       end
 
-      desc 'Get a SSH key of a specified user.' do
+      desc 'Retrieve an SSH key for a user' do
+        detail 'Retrieves a single SSH key for a specified user.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -631,7 +650,8 @@ module API
         present key, with: Entities::SSHKey
       end
 
-      desc 'Delete an existing SSH key from a specified user. Available only for admins.' do
+      desc 'Delete an SSH key for a user' do
+        detail 'Deletes an SSH key from a specified user. Available only for administrators.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -685,6 +705,7 @@ module API
       desc 'Get the GPG keys of a specified user.' do
         detail 'This feature was added in GitLab 10.0'
         success Entities::GpgKey
+        is_array true
         tags ['keys']
       end
       params do
@@ -729,6 +750,7 @@ module API
 
       desc 'Delete an existing GPG key from a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
+        success code: 204
         tags ['keys']
       end
       params do
@@ -754,6 +776,7 @@ module API
 
       desc 'Revokes an existing GPG key from a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
+        success code: 202
         tags ['keys']
       end
       params do
@@ -775,7 +798,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Add an email address to a specified user. Available only for admins.' do
+      desc 'Add an email address for a user' do
+        detail 'Adds an email address to a specified user. Available only for administrators.'
         success Entities::Email
         tags ['users']
       end
@@ -801,8 +825,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get the emails addresses of a specified user. Available only for admins.' do
+      desc 'List all email addresses for a user' do
+        detail 'Lists all email addresses for a specified user. Available only for administrators.'
         success Entities::Email
+        is_array true
         tags ['users']
       end
       params do
@@ -819,7 +845,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Delete an email address of a specified user. Available only for admins.' do
+      desc 'Delete an email address for a user' do
+        detail 'Deletes an email address from a specified user. Available only for administrators.'
         success Entities::Email
         tags ['users']
       end
@@ -842,7 +869,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Delete a user. Available only for admins.' do
+      desc 'Delete a user' do
+        detail 'Deletes a user account. Available only for administrators.'
         success Entities::Email
         tags ['users']
       end
@@ -867,7 +895,9 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Activate a deactivated user. Available only for admins.' do
+      desc 'Activate a user' do
+        detail 'Activates a deactivated user. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -888,7 +918,9 @@ module API
         end
       end
 
-      desc 'Approve a pending user. Available only for admins.' do
+      desc 'Approve a user' do
+        detail 'Approves a user whose account is pending administrator approval. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -907,7 +939,9 @@ module API
         end
       end
 
-      desc 'Reject a pending user. Available only for admins.' do
+      desc 'Reject a user' do
+        detail 'Rejects a user whose account is pending administrator approval. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -926,7 +960,9 @@ module API
       end
 
       # rubocop: enable CodeReuse/ActiveRecord
-      desc 'Deactivate an active user. Available only for admins.' do
+      desc 'Deactivate a user' do
+        detail 'Deactivates an active user. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -949,7 +985,9 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Block a user. Available only for admins.' do
+      desc 'Block a user' do
+        detail 'Blocks a user from signing in. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -978,7 +1016,9 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Unblock a user. Available only for admins.' do
+      desc 'Unblock a user' do
+        detail 'Unblocks a previously blocked user. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -1001,7 +1041,9 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Ban a user. Available only for admins.' do
+      desc 'Ban a user' do
+        detail 'Bans a user. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -1019,7 +1061,9 @@ module API
         end
       end
 
-      desc 'Unban a user. Available only for admins.' do
+      desc 'Unban a user' do
+        detail 'Unbans a previously banned user. Available only for administrators.'
+        success code: 201
         tags ['users']
       end
       params do
@@ -1037,8 +1081,10 @@ module API
         end
       end
 
-      desc 'Get memberships' do
+      desc 'List all memberships for a user' do
+        detail 'Lists all project and group memberships for a user. Available only for administrators.'
         success Entities::Membership
+        is_array true
         tags ['users']
       end
       params do
@@ -1072,7 +1118,9 @@ module API
           end
         end
 
-        desc "Returns a list of a specified user's count of projects, groups, issues and merge requests." do
+        desc 'Retrieve user associations count' do
+          detail 'Retrieves counts of the projects, groups, issues, and merge requests associated with a user.'
+          success ::API::Entities::UserAssociationsCount
           tags ['users']
         end
         params do
@@ -1113,6 +1161,7 @@ module API
           desc 'Retrieve impersonation tokens. Available only for admins.' do
             detail 'This feature was introduced in GitLab 9.0'
             success Entities::ImpersonationToken
+            is_array true
             tags ['access_tokens']
           end
           params do
@@ -1159,6 +1208,7 @@ module API
 
           desc 'Revoke a impersonation token. Available only for admins.' do
             detail 'This feature was introduced in GitLab 9.0'
+            success code: 204
             tags ['access_tokens']
           end
           params do
@@ -1218,7 +1268,8 @@ module API
       # Enabling /user endpoint for the v3 version to allow oauth
       # authentication through this endpoint.
       version %w[v3 v4], using: :path do
-        desc 'Get the currently authenticated user' do
+        desc 'Retrieve the authenticated user' do
+          detail 'Retrieves the user record for the currently authenticated user.'
           success Entities::UserPublic
           tags ['users']
         end
@@ -1255,8 +1306,10 @@ module API
         end
       end
 
-      desc "Get the currently authenticated user's SSH keys" do
+      desc 'List all SSH keys for the authenticated user' do
+        detail 'Lists all SSH keys for the currently authenticated user.'
         success Entities::SSHKey
+        is_array true
         tags ['keys']
       end
       params do
@@ -1269,7 +1322,8 @@ module API
         present paginate(keys), with: Entities::SSHKey
       end
 
-      desc 'Get a single key owned by currently authenticated user' do
+      desc 'Retrieve an SSH key for the authenticated user' do
+        detail 'Retrieves a single SSH key for the currently authenticated user.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -1286,7 +1340,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Add a new SSH key to the currently authenticated user' do
+      desc 'Add an SSH key for the authenticated user' do
+        detail 'Adds an SSH key to the currently authenticated user.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -1308,7 +1363,8 @@ module API
         end
       end
 
-      desc 'Delete an SSH key from the currently authenticated user' do
+      desc 'Delete an SSH key for the authenticated user' do
+        detail 'Deletes an SSH key from the currently authenticated user.'
         success Entities::SSHKey
         tags ['keys']
       end
@@ -1331,6 +1387,7 @@ module API
       desc "Get the currently authenticated user's GPG keys" do
         detail 'This feature was added in GitLab 10.0'
         success Entities::GpgKey
+        is_array true
         tags ['keys']
       end
       params do
@@ -1380,6 +1437,7 @@ module API
 
       desc 'Revoke a GPG key owned by currently authenticated user' do
         detail 'This feature was added in GitLab 10.0'
+        success code: 202
         tags ['keys']
       end
       params do
@@ -1398,6 +1456,7 @@ module API
 
       desc 'Delete a GPG key from the currently authenticated user' do
         detail 'This feature was added in GitLab 10.0'
+        success code: 204
         tags ['keys']
       end
       params do
@@ -1416,8 +1475,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc "Get the currently authenticated user's email addresses" do
+      desc 'List all email addresses for the authenticated user' do
+        detail 'Lists all email addresses for the currently authenticated user.'
         success Entities::Email
+        is_array true
         tags ['users']
       end
       params do
@@ -1546,7 +1607,8 @@ module API
         present current_user.user_preference, with: Entities::UserPreferences
       end
 
-      desc 'Get a single email address owned by the currently authenticated user' do
+      desc 'Retrieve an email address for the authenticated user' do
+        detail 'Retrieves a single email address for the currently authenticated user.'
         success Entities::Email
         tags ['users']
       end
@@ -1563,7 +1625,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Add new email address to the currently authenticated user' do
+      desc 'Add an email address for the authenticated user' do
+        detail 'Adds an email address to the currently authenticated user.'
         success Entities::Email
         tags ['users']
       end
@@ -1581,7 +1644,9 @@ module API
         end
       end
 
-      desc 'Delete an email address from the currently authenticated user' do
+      desc 'Delete an email address for the authenticated user' do
+        detail 'Deletes an email address from the currently authenticated user.'
+        success code: 204
         tags ['users']
       end
       params do
@@ -1599,7 +1664,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get a list of user activities' do
+      desc 'List all user activities' do
+        detail 'Lists all user activity entries since the given date.'
+        success Entities::UserActivity
+        is_array true
         tags ['users']
       end
       params do
@@ -1660,7 +1728,8 @@ module API
         set_user_status(include_missing_params: false)
       end
 
-      desc 'get the status of the current user' do
+      desc 'Retrieve the status of the authenticated user' do
+        detail 'Retrieves the status of the currently authenticated user.'
         success Entities::UserStatus
         tags ['users']
       end

@@ -20,7 +20,7 @@ const REST_STATE_TO_GRAPHQL = {
   locked: 'LOCKED',
 };
 
-function mapWidgetsFromFeatures(features) {
+export function mapWidgetsFromFeatures(features, sharedNamespace) {
   const widgets = [];
 
   const labelsData = features?.labels;
@@ -74,19 +74,44 @@ function mapWidgetsFromFeatures(features) {
       : null,
   });
   const startAndDueDateData = features?.start_and_due_date;
-  if (startAndDueDateData) {
-    widgets.push({
-      __typename: 'WorkItemWidgetStartAndDueDate',
-      type: 'START_AND_DUE_DATE',
-      dueDate: startAndDueDateData.due_date ?? null,
-      startDate: startAndDueDateData.start_date ?? null,
-    });
-  }
+  widgets.push({
+    __typename: 'WorkItemWidgetStartAndDueDate',
+    type: 'START_AND_DUE_DATE',
+    dueDate: startAndDueDateData?.due_date ?? null,
+    startDate: startAndDueDateData?.start_date ?? null,
+  });
+
+  const hierarchy = features?.hierarchy;
+  widgets.push({
+    __typename: 'WorkItemWidgetHierarchy',
+    type: 'HIERARCHY',
+    parent: hierarchy?.parent
+      ? {
+          __typename: 'WorkItem',
+          id: hierarchy.parent.global_id,
+          iid: String(hierarchy.parent.iid),
+          title: hierarchy.parent.title,
+          confidential: hierarchy.parent.confidential ?? false,
+          webUrl: hierarchy.parent.web_url ?? null, // eslint-disable-line local-rules/no-web-url
+          namespace: sharedNamespace,
+          workItemType: hierarchy.parent.work_item_type
+            ? {
+                __typename: 'WorkItemType',
+                id: hierarchy.parent.work_item_type.id
+                  ? `gid://gitlab/WorkItems::Type/${hierarchy.parent.work_item_type.id}`
+                  : null,
+                name: hierarchy.parent.work_item_type.name,
+                iconName: hierarchy.parent.work_item_type.icon_name ?? null,
+              }
+            : null,
+        }
+      : null,
+  });
 
   return widgets;
 }
 
-function mapWorkItemToGraphQL(item, namespace) {
+export function mapWorkItemToGraphQL(item, sharedNamespace) {
   return {
     __typename: 'WorkItem',
     id: item.global_id,
@@ -111,11 +136,7 @@ function mapWorkItemToGraphQL(item, namespace) {
           webPath: item.author.web_path ?? null,
         }
       : null,
-    namespace: {
-      __typename: 'Namespace',
-      id: namespace.id,
-      fullPath: namespace.fullPath,
-    },
+    namespace: sharedNamespace,
     workItemType: item.work_item_type
       ? {
           __typename: 'WorkItemType',
@@ -126,12 +147,12 @@ function mapWorkItemToGraphQL(item, namespace) {
           iconName: item.work_item_type.icon_name ?? null,
         }
       : null,
-    widgets: mapWidgetsFromFeatures(item.features),
+    widgets: mapWidgetsFromFeatures(item.features, sharedNamespace),
   };
 }
 
 // Parses keyset pagination info from REST API response headers
-function parsePageInfo(headers) {
+export function parsePageInfo(headers) {
   const nextCursor = headers['x-next-cursor'] || null;
   const prevCursor = headers['x-prev-cursor'] || null;
   return {

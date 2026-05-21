@@ -1,7 +1,6 @@
 ---
 Performance/MethodObjectAsBlock:
   Exclude:
-    - 'lib/container_registry/base_client.rb'
     - 'lib/gitlab/ci/pipeline/chain/validate/external.rb'
     - 'lib/gitlab/dependency_linker/podspec_json_linker.rb'
     - 'lib/gitlab/search_context.rb'

@@ -119,12 +119,18 @@ describe('FieldPresenter', () => {
       ${'shortSha'}          | ${'abc123'}      | ${CodePresenter}       | ${'CodePresenter'}
       ${'refName'}           | ${'main'}        | ${CodePresenter}       | ${'CodePresenter'}
       ${'acceptanceRate'}    | ${0.75}          | ${PercentagePresenter} | ${'PercentagePresenter'}
+      ${'successRate'}       | ${0.95}          | ${PercentagePresenter} | ${'PercentagePresenter'}
+      ${'failureRate'}       | ${0.04}          | ${PercentagePresenter} | ${'PercentagePresenter'}
+      ${'canceledRate'}      | ${0.005}         | ${PercentagePresenter} | ${'PercentagePresenter'}
+      ${'skippedRate'}       | ${0.001}         | ${PercentagePresenter} | ${'PercentagePresenter'}
       ${'acceptedCount'}     | ${1234}          | ${NumberPresenter}     | ${'NumberPresenter'}
       ${'rejectedCount'}     | ${567}           | ${NumberPresenter}     | ${'NumberPresenter'}
       ${'shownCount'}        | ${1801}          | ${NumberPresenter}     | ${'NumberPresenter'}
       ${'totalCount'}        | ${10000}         | ${NumberPresenter}     | ${'NumberPresenter'}
       ${'usersCount'}        | ${42}            | ${NumberPresenter}     | ${'NumberPresenter'}
       ${'suggestionSizeSum'} | ${500000}        | ${NumberPresenter}     | ${'NumberPresenter'}
+      ${'durationQuantile'}  | ${3661}          | ${DurationPresenter}   | ${'DurationPresenter'}
+      ${'queuedDuration'}    | ${90}            | ${DurationPresenter}   | ${'DurationPresenter'}
     `('renders $presenterName for field key: $fieldKey', ({ fieldKey, field, presenter }) => {
       createWrapper({ [fieldKey]: field }, fieldKey);
 
@@ -145,6 +151,15 @@ describe('FieldPresenter', () => {
 
     it('renders CiStatusPresenter for status on a Pipeline', () => {
       createWrapper({ __typename: 'Pipeline', status: 'FAILED' }, 'status');
+
+      expect(wrapper.findComponent(CiStatusPresenter).exists()).toBe(true);
+    });
+
+    it('renders CiStatusPresenter for status on FinishedPipelinesAggregationResponseDimensions', () => {
+      createWrapper(
+        { __typename: 'FinishedPipelinesAggregationResponseDimensions', status: 'SUCCESS' },
+        'status',
+      );
 
       expect(wrapper.findComponent(CiStatusPresenter).exists()).toBe(true);
     });

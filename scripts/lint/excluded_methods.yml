@@ -6,17 +6,15 @@ ee/app/helpers/secrets_management/enrollment_helper.rb:
   - allow_secrets_manager_namespace_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper
   - allow_secrets_manager_instance_enrollment?: Called from HAML views and controllers via EE::ApplicationHelper
 app/models/ci/catalog/components_project.rb:
-  - fetch_component: Public API method for fetching component data by name; only called from specs currently but part of the model's interface
+  - fetch_component: Public API method for fetching component data by name; part of the model's interface
 app/models/project_setting.rb:
   - reviewer_auto_assignment_enabled?: Will be used in follow-up MR for reviewer auto-assignment
-app/models/ci/catalog/components_project.rb:
-  - fetch_component: Pre-existing unused method on master; not related to this MR.
 app/models/commit_signatures/x509_commit_signature.rb:
   - x509_commit: Accessed from lib/tasks/gitlab/x509/update.rake
 app/models/concerns/transactions.rb:
-- reset_open_transactions_baseline: Used in spec_helper.rb to configure transaction behavior
+  - reset_open_transactions_baseline: Used in spec_helper.rb to configure transaction behavior
 app/models/event.rb:
-- find_sti_class: Override of an ActiveRecord internal method
+  - find_sti_class: Override of an ActiveRecord internal method
 app/models/jira_import_state.rb:
   - owner_class_attribute_default: Used internally by state_machine
 app/models/merge_request_diff.rb:
@@ -67,7 +65,6 @@ ee/app/models/concerns/geo/repository_replicator_strategy.rb:
 ee/app/models/concerns/geo/verifiable_replicator.rb:
   - consume_event_checksum_succeeded: Called by Gitlab::Geo::Replicator#consume
 app/models/work_items/types_framework/provider.rb:
-  - by_ids_with_widget_definition_preload: Deprecated method for old WorkItems::Type model; scheduled for removal in https://gitlab.com/gitlab-org/gitlab/-/issues/581931
   - by_base_types_ordered_by_name: Public method on Provider, tested in specs. Temporarily unused but will be used in follow-up work
 ee/app/helpers/ee/projects_helper.rb:
   - show_duo_otel_button?: Will be used in follow-up MR for OTel generation with duo
@@ -81,8 +78,6 @@ ee/app/models/ai/catalog/item.rb:
   - starred_by?: Will be used in follow-up MR adding GraphQL mutation for starring AI catalog items
 ee/app/models/ee/application_setting.rb:
   - advanced_search_indexing_paused?: Will be used in follow-up MR !229833 for dedicated pause indexing
-app/models/ci/catalog/components_project.rb:
-  - fetch_component: Pre-existing unused method from base branch (593966-msw-infrastructure-ai-catalog)
 app/helpers/mirror_helper.rb:
   - remote_mirrors_table_data: Will be called from HAML view in follow-up feature-flagged MR for Vue mirror list table
 ee/app/helpers/ee/mirror_helper.rb:

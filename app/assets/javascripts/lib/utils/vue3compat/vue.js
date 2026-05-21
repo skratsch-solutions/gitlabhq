@@ -13,8 +13,9 @@ export * from '@vue/compat';
 
 class GitLabPatchedVue extends VueCompatOriginal {
   constructor(rawConfig, ...rest) {
-    if (rawConfig?.name) {
-      logDevNotice(`[V] Using Vue.js 3 (with @vue/compat) for ${rawConfig.name}`);
+    const appName = rawConfig?.name;
+    if (appName) {
+      logDevNotice(`[V] Using Vue.js 3 (with @vue/compat) for ${appName}`);
     }
 
     const config = rawConfig?.el ? { ...rawConfig } : rawConfig;
@@ -30,6 +31,15 @@ class GitLabPatchedVue extends VueCompatOriginal {
     super(config, ...rest);
     if (originalEl) {
       const fragment = new DocumentFragment();
+
+      // Mark Vue 3 apps in production
+      for (const node of config.el.childNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // Can be located with `document.querySelectorAll('[data-gitlab-vue3-app]')`
+          node.dataset.gitlabVue3App = appName || '';
+        }
+      }
+
       fragment.replaceChildren(...config.el.childNodes);
       originalEl.replaceWith(fragment);
     }

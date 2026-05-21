@@ -17693,7 +17693,9 @@ CREATE TABLE ci_project_metrics (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     project_id bigint NOT NULL,
-    first_pipeline_succeeded_at timestamp with time zone
+    first_pipeline_succeeded_at timestamp with time zone,
+    ci_config_generated_by text,
+    CONSTRAINT check_f4517ae3a7 CHECK ((char_length(ci_config_generated_by) <= 255))
 );
 
 CREATE SEQUENCE ci_project_metrics_id_seq

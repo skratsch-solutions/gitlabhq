@@ -365,10 +365,6 @@ class Todo < ApplicationRecord
     [Issue.name, WorkItem.name].any?(target_type)
   end
 
-  def for_ssh_key?
-    target_type == Key.name
-  end
-
   def parentless_type?
     self.class.parentless_action_types.include?(action)
   end

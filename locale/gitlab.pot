@@ -5971,6 +5971,9 @@ msgstr ""
 msgid "AdminSelfHostedModels|Endpoint"
 msgstr ""
 
+msgid "AdminSelfHostedModels|GitLab managed model"
+msgstr ""
+
 msgid "AdminSelfHostedModels|GitLab managed models"
 msgstr ""
 
@@ -6049,6 +6052,9 @@ msgstr ""
 msgid "AdminSelfHostedModels|Select model"
 msgstr ""
 
+msgid "AdminSelfHostedModels|Self-hosted model"
+msgstr ""
+
 msgid "AdminSelfHostedModels|Self-hosted model was not provided"
 msgstr ""
 
@@ -6077,6 +6083,12 @@ msgid "AdminSelfHostedModels|The self-hosted model was successfully saved."
 msgstr ""
 
 msgid "AdminSelfHostedModels|There was an error saving the self-hosted model. Please try again."
+msgstr ""
+
+msgid "AdminSelfHostedModels|This feature is using a GitLab managed model, external to your infrastructure."
+msgstr ""
+
+msgid "AdminSelfHostedModels|This feature is using a self-hosted model, deployed on your own infrastructure."
 msgstr ""
 
 msgid "AdminSelfHostedModels|This model cannot be applied to all %{mainFeature} sub-features"
@@ -28775,6 +28787,18 @@ msgid_plural "Duration|%s years"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Duration|%{count}d"
+msgstr ""
+
+msgid "Duration|%{count}h"
+msgstr ""
+
+msgid "Duration|%{count}m"
+msgstr ""
+
+msgid "Duration|%{count}s"
+msgstr ""
+
 msgid "During this process, you’ll be asked for URLs from GitLab’s side. Use the URLs shown below."
 msgstr ""
 
@@ -41581,6 +41605,9 @@ msgstr ""
 msgid "Job|Search visible log output"
 msgstr ""
 
+msgid "Job|Security policy"
+msgstr ""
+
 msgid "Job|Show complete raw"
 msgstr ""
 
@@ -41630,6 +41657,12 @@ msgid "Job|This job is stuck because the project doesn't have any runners online
 msgstr ""
 
 msgid "Job|This job is stuck because you don't have any active runners that can run this job."
+msgstr ""
+
+msgid "Job|This job was added by a pipeline execution policy"
+msgstr ""
+
+msgid "Job|This job was added by a scan execution policy"
 msgstr ""
 
 msgid "Job|Trigger"
@@ -63292,6 +63325,9 @@ msgstr ""
 msgid "ScanResultPolicy|Allowlist or Denylist"
 msgstr ""
 
+msgid "ScanResultPolicy|Always applied while this policy is active, regardless of branches or violations."
+msgstr ""
+
 msgid "ScanResultPolicy|Apply this approval rule to any branch or a specific protected branch."
 msgstr ""
 
@@ -63568,13 +63604,16 @@ msgstr ""
 msgid "ScanResultPolicy|Prevent branch modification"
 msgstr ""
 
-msgid "ScanResultPolicy|Prevent editing approval rules in projects and merge requests"
+msgid "ScanResultPolicy|Prevent editing approval rules on merge requests"
 msgstr ""
 
 msgid "ScanResultPolicy|Prevent group branch modification"
 msgstr ""
 
 msgid "ScanResultPolicy|Prevent pushing and force pushing"
+msgstr ""
+
+msgid "ScanResultPolicy|Project-wide settings"
 msgstr ""
 
 msgid "ScanResultPolicy|Protected branch settings"
@@ -63739,7 +63778,7 @@ msgstr ""
 msgid "ScanResultPolicy|When enabled, prevents pushing and force pushing to a protected branch if that branch is included in the security policy."
 msgstr ""
 
-msgid "ScanResultPolicy|When enabled, prevents users from adding, removing, or editing approval rules in projects and merge requests where this policy applies."
+msgid "ScanResultPolicy|When enabled, prevents users from overriding approval rules on merge requests in projects where this policy applies."
 msgstr ""
 
 msgid "ScanResultPolicy|When enabled, there will be password confirmation on approvals."
@@ -67684,6 +67723,9 @@ msgid "SecurityOrchestration|Policy exceeds the maximum of %{limit} actions"
 msgstr ""
 
 msgid "SecurityOrchestration|Policy exceeds the maximum of %{limit} approver actions"
+msgstr ""
+
+msgid "SecurityOrchestration|Policy exceeds the maximum of %{limit} branches per schedule"
 msgstr ""
 
 msgid "SecurityOrchestration|Policy exceeds the maximum of %{limit} pipeline execution schedules"

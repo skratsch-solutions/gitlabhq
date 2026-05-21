@@ -8,7 +8,6 @@ RSpec.shared_examples 'streaming audit event model' do
     let(:streamer) { instance_double(AuditEvents::ExternalDestinationStreamer) }
 
     before do
-      stub_feature_flags(stream_audit_events_from_new_tables: true)
       allow(AuditEvents::ExternalDestinationStreamer)
         .to receive(:new)
         .with(event_name, audit_event)

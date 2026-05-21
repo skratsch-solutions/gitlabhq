@@ -18,6 +18,15 @@ namespace :gitlab do
       Tasks::Gitlab::Permissions::Routes::DocsTask.new.check_docs
     end
 
+    namespace :assignable do
+      desc 'Delete deprecated assignable permissions once their rename migration is finalized in a prior milestone.'
+      task cleanup_deprecated: :environment do
+        require_relative './assignable/cleanup_deprecated_task'
+
+        Tasks::Gitlab::Permissions::Assignable::CleanupDeprecatedTask.new.run
+      end
+    end
+
     namespace :routes do
       desc 'Compile documentation for endpoints with granular personal access token support'
       task compile_docs: :environment do

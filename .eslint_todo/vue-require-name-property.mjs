@@ -103,7 +103,6 @@ export default {
     'app/assets/javascripts/branches/components/divergence_graph.vue',
     'app/assets/javascripts/branches/components/graph_bar.vue',
     'app/assets/javascripts/branches/components/sort_dropdown.vue',
-    'app/assets/javascripts/captcha/captcha_modal.vue',
     'app/assets/javascripts/ci/pipeline_editor/components/commit/commit_form.vue',
     'app/assets/javascripts/ci/pipeline_editor/components/commit/commit_section.vue',
     'app/assets/javascripts/ci/pipeline_editor/components/drawer/pipeline_editor_drawer.vue',

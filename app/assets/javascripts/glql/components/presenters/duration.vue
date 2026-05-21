@@ -11,7 +11,7 @@ export default {
   },
   computed: {
     formatted() {
-      return timeIntervalInWords(this.data);
+      return timeIntervalInWords(this.data, { abbreviated: true });
     },
   },
 };

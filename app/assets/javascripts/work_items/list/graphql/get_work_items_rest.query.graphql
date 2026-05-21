@@ -110,7 +110,7 @@ query getWorkItemsRest(
         updatedAt
         webPath
         state
-        widgets(onlyTypes: [LABELS, ASSIGNEES, MILESTONE, START_AND_DUE_DATE]) {
+        widgets(onlyTypes: [LABELS, ASSIGNEES, MILESTONE, START_AND_DUE_DATE, HIERARCHY]) {
           type
           ... on WorkItemWidgetLabels {
             allowsScopedLabels
@@ -144,6 +144,24 @@ query getWorkItemsRest(
           ... on WorkItemWidgetStartAndDueDate {
             dueDate
             startDate
+          }
+          ... on WorkItemWidgetHierarchy {
+            parent {
+              id
+              iid
+              title
+              confidential
+              webUrl
+              namespace {
+                id
+                fullPath
+              }
+              workItemType {
+                id
+                name
+                iconName
+              }
+            }
           }
         }
         workItemType {

@@ -57,7 +57,11 @@ const presentersByFieldKey = {
   health: HealthPresenter,
   healthStatus: HealthPresenter,
   state: StatePresenter,
-  status: { Pipeline: CiStatusPresenter, CiJob: CiStatusPresenter },
+  status: {
+    Pipeline: CiStatusPresenter,
+    CiJob: CiStatusPresenter,
+    FinishedPipelinesAggregationResponseDimensions: CiStatusPresenter,
+  },
   description: HtmlPresenter,
   descriptionHtml: HtmlPresenter,
   lastComment: HtmlPresenter,
@@ -82,12 +86,17 @@ const presentersByFieldKey = {
     compact: UserPresenter,
   },
   acceptanceRate: PercentagePresenter,
+  successRate: PercentagePresenter,
+  failureRate: PercentagePresenter,
+  canceledRate: PercentagePresenter,
+  skippedRate: PercentagePresenter,
   acceptedCount: NumberPresenter,
   rejectedCount: NumberPresenter,
   shownCount: NumberPresenter,
   totalCount: NumberPresenter,
   usersCount: NumberPresenter,
   suggestionSizeSum: NumberPresenter,
+  durationQuantile: DurationPresenter,
 };
 
 export default {

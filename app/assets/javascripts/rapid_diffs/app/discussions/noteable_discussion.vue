@@ -3,6 +3,7 @@ import { getAutoSaveKeyFromDiscussion } from '~/lib/utils/autosave';
 import { isLoggedIn } from '~/lib/utils/common_utils';
 import { confirmAction } from '~/lib/utils/confirm_via_gl_modal/confirm_via_gl_modal';
 import { ignoreWhilePending } from '~/lib/utils/ignore_while_pending';
+import { suppressShortcutsUntilInputFocus } from '~/lib/mousetrap';
 import { s__, __, sprintf } from '~/locale';
 import { detectAndConfirmSensitiveTokens } from '~/lib/utils/secret_detection';
 import { createAlert } from '~/alert';
@@ -121,6 +122,7 @@ export default {
       }
     },
     showReplyForm(text) {
+      suppressShortcutsUntilInputFocus();
       this.$emit('startReplying');
       if (typeof text !== 'undefined') {
         this.$nextTick(() => {

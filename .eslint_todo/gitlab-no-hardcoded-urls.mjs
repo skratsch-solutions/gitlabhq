@@ -99,7 +99,7 @@ export default {
     'ee/app/assets/javascripts/ai/tanuki_bot/constants.js',
     'ee/app/assets/javascripts/ai/tanuki_bot/components/duo_chat_state_manager.vue',
     'ee/app/assets/javascripts/analytics/analytics_dashboards/components/visualizations/data_table/metric_label.vue',
-    'ee/app/assets/javascripts/analytics/analytics_dashboards/components/visualizations/utils.js',
+    'app/assets/javascripts/analytics/analytics_dashboards/components/visualizations/utils.js',
     'ee/app/assets/javascripts/analytics/analytics_dashboards/data_sources/cube_analytics.js',
     'ee/app/assets/javascripts/analytics/dashboards/components/stories_constants.js',
     'ee/app/assets/javascripts/analytics/dashboards/constants.js',

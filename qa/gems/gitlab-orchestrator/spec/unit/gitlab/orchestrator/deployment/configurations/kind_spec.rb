@@ -180,7 +180,13 @@ RSpec.describe Gitlab::Orchestrator::Deployment::Configurations::Kind do
             }
           }
         },
+        ingress: {
+          enabled: true,
+          configureCertmanager: false,
+          tls: { enabled: false }
+        },
         minio: { enabled: false },
+        gatewayApi: { enabled: false, configureCertmanager: false, installEnvoy: false },
         psql: {
           host: "cnpg-rw.gitlab.svc.cluster.local",
           password: {
@@ -233,10 +239,9 @@ RSpec.describe Gitlab::Orchestrator::Deployment::Configurations::Kind do
           redirect: { disable: true }
         }
       },
-      postgresql: { install: false },
-      redis: { install: false },
-      minio: { install: false },
+      certmanager: { install: false },
       "nginx-ingress": {
+        enabled: true,
         controller: {
           replicaCount: 1,
           minAavailable: 1,

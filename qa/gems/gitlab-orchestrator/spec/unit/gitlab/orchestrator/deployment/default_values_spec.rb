@@ -52,6 +52,7 @@ RSpec.describe Gitlab::Orchestrator::Deployment::DefaultValues do
           https: false
         },
         ingress: {
+          enabled: true,
           configureCertmanager: false,
           tls: {
             enabled: false
