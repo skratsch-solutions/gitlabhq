@@ -42,10 +42,7 @@ project. These files are referenced from `AGENTS.md` (and its identical copy
 - **Claude Code**: Uses the project-scope skill at
   `.claude/skills/gitlab-coding-principles/SKILL.md`, auto-discovered from `.claude/skills/`.
 - **OpenCode**: Uses the equivalent skill at `.agents/skills/gitlab-coding-principles/SKILL.md`.
-  Both skill files have identical content, auto-generated from
-  `principles/manifest.yml` by the sync script.
-- **Reviewer agents**: Each agent (`.opencode/agents/`, `.claude/agents/`)
-  reads its corresponding principle from `principles/distilled/` at review time.
+- Both skill files have identical content, auto-generated from `manifest.yml` by the sync script.
 
 ## Adding Personal Instruction Files
 

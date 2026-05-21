@@ -1,10 +1,14 @@
-sync:
-  schedule: hourly
+# Auto-MR target configuration: how the scheduled sync job creates the
+# merge request. Read by gitlab-ai-principles-distiller-sync when
+# invoked with --push.
+auto_mr:
   branch_prefix: docs-sync/principles
+  title_template: "Update AI development principles from SSOT (%{date})"
   labels:
     - ai-agent
     - documentation
-  mr_batch: true
+    - type::maintenance
+  remove_source_branch: true
 
 # Non-distilled .ai/ files included in AGENTS.md Context Loading.
 # These are manually maintained and have no SSOT sources.

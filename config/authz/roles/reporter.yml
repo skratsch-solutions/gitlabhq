@@ -94,7 +94,6 @@ project:
   - update_issue
   - update_project_secrets
   - update_requirement
-  - write_ai_agents
 group:
   permissions: []
   raw_permissions:

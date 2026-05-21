@@ -3235,6 +3235,9 @@ msgstr ""
 msgid "AICatalog|That the user who runs it has access to."
 msgstr ""
 
+msgid "AICatalog|The number of projects that have used this item in the last 30 days."
+msgstr ""
+
 msgid "AICatalog|The service account does not belong to the configuration for the agent or flow associated with this project"
 msgstr ""
 

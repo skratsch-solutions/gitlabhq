@@ -1,0 +1,554 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require_relative '../../../support/tmpdir'
+require_relative '../../../../lib/gitlab/principles_distiller/sync'
+
+RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
+  include TmpdirHelper
+
+  let(:tmpdir) { mktmpdir }
+  let(:manifest) { described_class.new }
+
+  describe '.load_frontmatter_data' do
+    subject(:frontmatter_data) { manifest.load_frontmatter_data }
+
+    let(:principles_dir) { File.join(tmpdir, 'principles') }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      stub_const("#{described_class}::PRINCIPLES_DIR", 'principles')
+      FileUtils.mkdir_p(principles_dir)
+    end
+
+    context 'with file containing source_checksum frontmatter' do
+      before do
+        File.write(File.join(principles_dir, 'test.md'), "---\nsource_checksum: abc123\n---\n# Test")
+      end
+
+      it { is_expected.to eq({ 'test' => { checksum: 'abc123', distilled_at_sha: nil } }) }
+    end
+
+    context 'with file containing source_checksum and distilled_at_sha frontmatter' do
+      before do
+        File.write(File.join(principles_dir, 'test.md'),
+          "---\nsource_checksum: abc123\ndistilled_at_sha: def456\n---\n# Test")
+      end
+
+      it { is_expected.to eq({ 'test' => { checksum: 'abc123', distilled_at_sha: 'def456' } }) }
+    end
+
+    context 'with file without frontmatter' do
+      before do
+        File.write(File.join(principles_dir, 'no-frontmatter.md'), '# No frontmatter here')
+      end
+
+      it { is_expected.to eq({}) }
+    end
+
+    context 'with file without source_checksum key' do
+      before do
+        File.write(File.join(principles_dir, 'other.md'), "---\nother_key: value\n---\n# Other")
+      end
+
+      it { is_expected.to eq({}) }
+    end
+  end
+
+  describe '.load' do
+    let(:manifest_dir) { File.join(tmpdir, '.ai', 'principles') }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      FileUtils.mkdir_p(manifest_dir)
+      File.write(File.join(manifest_dir, 'manifest.yml'), manifest_yaml)
+    end
+
+    context 'when every principle has sources' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            backend:
+              sources:
+                - path: doc/backend.md
+                  url: https://example.com/backend
+            qa:
+              sources:
+                - path: doc/qa.md
+        YAML
+      end
+
+      it 'returns the parsed manifest without aborting' do
+        expect { manifest.load }.not_to raise_error
+      end
+    end
+
+    context 'when a principle is missing the sources key' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            backend:
+              sources:
+                - path: doc/backend.md
+            qa:
+              group: Testing
+        YAML
+      end
+
+      it 'aborts and names the offending principle' do
+        expect { manifest.load }
+          .to raise_error(SystemExit)
+          .and output(/qa/).to_stderr
+      end
+    end
+
+    context 'when a principle has an empty sources array' do
+      let(:manifest_yaml) do
+        <<~YAML
+          principles:
+            backend:
+              sources: []
+        YAML
+      end
+
+      it 'aborts and names the offending principle' do
+        expect { manifest.load }
+          .to raise_error(SystemExit)
+          .and output(/backend/).to_stderr
+      end
+    end
+  end
+
+  describe '.sources_footer' do
+    subject(:footer) { manifest.sources_footer(config) }
+
+    context 'with sources' do
+      let(:config) do
+        {
+          'sources' => [
+            { 'path' => 'doc/development/testing_guide/best_practices.md' },
+            { 'path' => 'doc/development/testing_guide/testing_levels.md' }
+          ]
+        }
+      end
+
+      it 'lists source paths', :aggregate_failures do
+        expect(footer).to include('## Authoritative sources')
+        expect(footer).to include('- doc/development/testing_guide/best_practices.md')
+        expect(footer).to include('- doc/development/testing_guide/testing_levels.md')
+      end
+    end
+
+    context 'without sources' do
+      let(:config) { { 'sources' => [] } }
+
+      it { is_expected.to eq('') }
+    end
+  end
+
+  describe '.generate_principles_skill' do
+    let(:agents_skill_path) { File.join(tmpdir, '.agents/skills/gitlab-coding-principles/SKILL.md') }
+    let(:claude_skill_path) { File.join(tmpdir, '.claude/skills/gitlab-coding-principles/SKILL.md') }
+    let(:manifest_data) do
+      {
+        'principles' => {
+          'backend' => { 'group' => 'Backend', 'description' => 'Backend Ruby/Rails',
+                         'file_filters' => ['app/**/*.rb'] },
+          'security' => { 'group' => 'Security', 'description' => 'Security vulnerabilities',
+                          'file_filters' => ['**/*'] }
+        },
+        'static_entries' => []
+      }
+    end
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      manifest.data = manifest_data
+      manifest.generate_principles_skill
+    end
+
+    it 'writes SKILL.md to both .agents/skills/ and .claude/skills/', :aggregate_failures do
+      expect(File.exist?(agents_skill_path)).to be true
+      expect(File.exist?(claude_skill_path)).to be true
+    end
+
+    it 'generates identical content in both locations' do
+      expect(File.read(agents_skill_path)).to eq(File.read(claude_skill_path))
+    end
+
+    it 'includes YAML frontmatter with name and description', :aggregate_failures do
+      content = File.read(claude_skill_path)
+
+      expect(content).to include('name: gitlab-coding-principles')
+      expect(content).to include('description: Load all relevant GitLab development principles')
+    end
+
+    it 'includes principle entries from manifest', :aggregate_failures do
+      content = File.read(claude_skill_path)
+
+      expect(content).to include('Backend Ruby/Rails')
+      expect(content).to include('Security vulnerabilities')
+      expect(content).to include('.ai/principles/distilled/backend.md')
+    end
+
+    context 'when skill files are already up to date' do
+      it 'does not rewrite them' do
+        mtime_before = File.mtime(claude_skill_path)
+        sleep 0.01
+        manifest.data = manifest_data
+        manifest.generate_principles_skill
+
+        expect(File.mtime(claude_skill_path)).to eq(mtime_before)
+      end
+    end
+  end
+
+  describe '.extract_frontmatter' do
+    subject(:extract_frontmatter) { manifest.extract_frontmatter(content) }
+
+    context 'with YAML frontmatter' do
+      let(:content) { "---\nsource_checksum: abc123\n---\n# Title\nBody" }
+
+      it { is_expected.to eq({ 'source_checksum' => 'abc123' }) }
+    end
+
+    context 'without frontmatter' do
+      let(:content) { '# Title\nBody' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when content does not start with ---' do
+      let(:content) { 'some text\n---\nmore' }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '.strip_frontmatter' do
+    subject(:strip_frontmatter) { manifest.strip_frontmatter(content) }
+
+    context 'with YAML frontmatter' do
+      let(:content) { "---\nsource_checksum: abc123\n---\n# Title\nBody" }
+
+      it { is_expected.to eq("# Title\nBody") }
+    end
+
+    context 'without frontmatter' do
+      let(:content) { "# Title\nBody" }
+
+      it { is_expected.to eq(content) }
+    end
+
+    context 'with leading whitespace after frontmatter' do
+      let(:content) { "---\nkey: val\n---\n\n\n# Title" }
+
+      it { is_expected.to eq('# Title') }
+    end
+  end
+
+  describe '.compute_checksum' do
+    subject(:checksum) { manifest.compute_checksum(config) }
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+    end
+
+    context 'with no sources' do
+      let(:config) { { 'sources' => [] } }
+
+      it { is_expected.to match(/\A[a-f0-9]{16}\z/) }
+    end
+
+    context 'when source content changes' do
+      let(:config) { { 'sources' => [{ 'path' => 'doc.md' }] } }
+
+      it 'changes the checksum' do
+        source_path = File.join(tmpdir, 'doc.md')
+        File.write(source_path, 'original content')
+
+        checksum1 = checksum
+
+        # Use a fresh Manifest (and therefore a fresh @file_cache) for the
+        # second read; the cache is intentionally process-lived to avoid
+        # duplicate I/O within one run, so in-test file mutations must
+        # escape the cache via a new instance.
+        File.write(source_path, 'modified content')
+        expect(described_class.new.compute_checksum(config)).not_to eq(checksum1)
+      end
+    end
+
+    context 'with a baseline file' do
+      let(:config) { { 'sources' => [], 'baseline' => 'baseline.md' } }
+
+      before do
+        File.write(File.join(tmpdir, 'baseline.md'), 'baseline rules')
+      end
+
+      it 'includes baseline content in checksum' do
+        checksum_without = manifest.compute_checksum({ 'sources' => [] })
+
+        expect(checksum).not_to eq(checksum_without)
+      end
+    end
+
+    context 'when description changes' do
+      it 'changes the checksum' do
+        with_desc_a = manifest.compute_checksum({ 'sources' => [], 'description' => 'A' })
+        with_desc_b = manifest.compute_checksum({ 'sources' => [], 'description' => 'B' })
+
+        expect(with_desc_a).not_to eq(with_desc_b)
+      end
+    end
+
+    context 'when group changes' do
+      it 'changes the checksum' do
+        in_group_a = manifest.compute_checksum({ 'sources' => [], 'group' => 'Backend' })
+        in_group_b = manifest.compute_checksum({ 'sources' => [], 'group' => 'Database' })
+
+        expect(in_group_a).not_to eq(in_group_b)
+      end
+    end
+
+    context 'when prerequisite flag changes' do
+      it 'changes the checksum' do
+        as_prereq = manifest.compute_checksum({ 'sources' => [], 'prerequisite' => true })
+        not_prereq = manifest.compute_checksum({ 'sources' => [], 'prerequisite' => false })
+
+        expect(as_prereq).not_to eq(not_prereq)
+      end
+    end
+
+    context 'when file_filters change' do
+      it 'changes the checksum' do
+        with_filters_a = manifest.compute_checksum({ 'sources' => [],
+'file_filters' => ['app/**/*.rb'] })
+        with_filters_b = manifest.compute_checksum({ 'sources' => [],
+'file_filters' => ['lib/**/*.rb'] })
+
+        expect(with_filters_a).not_to eq(with_filters_b)
+      end
+    end
+  end
+
+  describe '.generate_agents_md_context_loading' do
+    let(:manifest_data) do
+      {
+        'principles' => {
+          'database-queries' => { 'description' => 'SQL performance', 'group' => 'Database' },
+          'database-schema' => { 'description' => 'Column types', 'group' => 'Database' },
+          'backend-ruby' => { 'description' => 'Ruby style', 'group' => 'Backend' }
+        },
+        'static_entries' => [
+          { 'description' => 'Git conventions', 'path' => '.ai/git.md' }
+        ]
+      }
+    end
+
+    let(:agents_md_content) do
+      <<~MD
+        # GitLab Project Guidelines
+
+        ## Context Loading
+
+        <!-- BEGIN GENERATED: gitlab-ai-principles-distiller — do not edit manually -->
+        ### OpenCode
+
+        Old content that should be replaced.
+
+        <!-- END GENERATED -->
+
+        ### Claude Code
+
+        Skip this section.
+      MD
+    end
+
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      File.write(File.join(tmpdir, 'AGENTS.md'), agents_md_content)
+      File.write(File.join(tmpdir, 'CLAUDE.md'), agents_md_content)
+    end
+
+    it 'replaces the generated section with grouped principles' do
+      manifest.data = manifest_data
+      manifest.generate_agents_md_context_loading
+
+      content = File.read(File.join(tmpdir, 'AGENTS.md'))
+
+      expect(content).to include(
+        '<!-- BEGIN GENERATED: gitlab-ai-principles-distiller — do not edit manually -->'
+      )
+      expect(content).to include('<!-- END GENERATED -->')
+      expect(content).to include('**Database:**')
+      expect(content).to include('**Backend:**')
+      expect(content).to include('- **SQL performance**: Read .ai/principles/distilled/database-queries.md')
+      expect(content).to include('- **Ruby style**: Read .ai/principles/distilled/backend-ruby.md')
+      expect(content).to include('- **Git conventions**: Read .ai/git.md')
+      expect(content).not_to include('Old content that should be replaced')
+    end
+
+    it 'preserves group order from first appearance in manifest' do
+      manifest.data = manifest_data
+      manifest.generate_agents_md_context_loading
+
+      content = File.read(File.join(tmpdir, 'AGENTS.md'))
+      database_pos = content.index('**Database:**')
+      backend_pos = content.index('**Backend:**')
+
+      expect(database_pos).to be < backend_pos
+    end
+
+    it 'keeps CLAUDE.md identical to AGENTS.md' do
+      manifest.data = manifest_data
+      manifest.generate_agents_md_context_loading
+
+      expect(File.read(File.join(tmpdir, 'AGENTS.md')))
+        .to eq(File.read(File.join(tmpdir, 'CLAUDE.md')))
+    end
+
+    it 'does nothing when AGENTS.md does not exist' do
+      File.delete(File.join(tmpdir, 'AGENTS.md'))
+
+      expect do
+        manifest.data = manifest_data
+        manifest.generate_agents_md_context_loading
+      end.not_to raise_error
+    end
+
+    it 'does nothing when content is unchanged' do
+      manifest.data = manifest_data
+      manifest.generate_agents_md_context_loading
+      mtime_before = File.mtime(File.join(tmpdir, 'AGENTS.md'))
+
+      sleep(0.01)
+      manifest.data = manifest_data
+      manifest.generate_agents_md_context_loading
+      mtime_after = File.mtime(File.join(tmpdir, 'AGENTS.md'))
+
+      expect(mtime_after).to eq(mtime_before)
+    end
+  end
+
+  describe '.collect_ssot_docs source validation' do
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+    end
+
+    context 'when a source file does not exist' do
+      let(:config) do
+        { 'sources' => [{ 'path' => 'doc/missing.md', 'url' => 'https://example.com' }] }
+      end
+
+      it 'raises an error with the missing path' do
+        expect { manifest.collect_ssot_docs(config) }
+          .to raise_error(RuntimeError, %r{SSOT source file not found: doc/missing.md})
+      end
+    end
+
+    context 'when all source files exist' do
+      let(:config) do
+        { 'sources' => [{ 'path' => 'doc/existing.md', 'url' => 'https://example.com' }] }
+      end
+
+      before do
+        FileUtils.mkdir_p(File.join(tmpdir, 'doc'))
+        File.write(File.join(tmpdir, 'doc/existing.md'), '# Content')
+      end
+
+      it 'does not raise' do
+        expect { manifest.collect_ssot_docs(config) }.not_to raise_error
+      end
+    end
+  end
+
+  describe '.build_diff_hint' do
+    subject(:hint) { manifest.build_diff_hint(sha, source_paths) }
+
+    let(:sha) { 'abc123def456' }
+
+    context 'with simple paths' do
+      let(:source_paths) { ['doc/development/sql.md', 'doc/development/database/query_performance.md'] }
+
+      it 'produces a valid shelljoin git diff command' do
+        expected = 'git diff abc123def456..HEAD -- ' \
+          'doc/development/sql.md doc/development/database/query_performance.md'
+        expect(hint).to eq(expected)
+      end
+    end
+
+    context 'with a path containing spaces' do
+      let(:source_paths) { ['doc/my dir/file.md'] }
+
+      it 'shell-escapes the path so it is safe to copy-paste' do
+        expect(hint).not_to include('doc/my dir/file.md')
+      end
+    end
+  end
+
+  describe '.read_repo_file (thread safety)' do
+    before do
+      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
+      File.write(File.join(tmpdir, 'shared.md'), 'content')
+    end
+
+    it 'returns the same content from all threads and caches it exactly once' do
+      results = Array.new(10)
+      threads = Array.new(10) do |i|
+        Thread.new { results[i] = manifest.read_repo_file('shared.md') }
+      end
+      threads.each(&:join)
+
+      expect(results).to all(eq('content'))
+      expect(manifest.file_cache.keys).to eq(['shared.md'])
+    end
+  end
+
+  describe '.auto_mr_config' do
+    subject(:auto_mr_config) do
+      manifest.data = manifest_data
+      manifest.auto_mr_config
+    end
+
+    let(:full_cfg) do
+      {
+        'branch_prefix' => 'docs-sync/principles',
+        'title_template' => 'Update AI development principles from SSOT (%{date})',
+        'labels' => %w[ai-agent documentation type::maintenance],
+        'remove_source_branch' => true
+      }
+    end
+
+    context 'when all required keys are present' do
+      let(:manifest_data) { { 'auto_mr' => full_cfg } }
+
+      it 'returns the auto_mr block' do
+        expect(auto_mr_config).to eq(full_cfg)
+      end
+    end
+
+    context 'when the auto_mr block is missing entirely' do
+      let(:manifest_data) { {} }
+
+      it 'aborts' do
+        expect { auto_mr_config }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when the auto_mr block is not a hash' do
+      let(:manifest_data) { { 'auto_mr' => 'invalid' } }
+
+      it 'aborts' do
+        expect { auto_mr_config }.to raise_error(SystemExit)
+      end
+    end
+
+    context 'when a required key is missing' do
+      let(:manifest_data) { { 'auto_mr' => full_cfg.except('labels') } }
+
+      it 'aborts' do
+        expect { auto_mr_config }.to raise_error(SystemExit)
+      end
+    end
+  end
+end

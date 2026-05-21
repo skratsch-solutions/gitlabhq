@@ -17,7 +17,7 @@ module MergeRequestDiffHelpers
 
   def click_diff_line(line_holder, diff_side = nil)
     line = get_line_components(line_holder, diff_side)
-    scroll_to_elements_bottom(line_holder)
+    scroll_to_panel_elements_bottom(line_holder)
     line_holder.hover
     line[:num].find('.js-add-diff-note-button').click
   end
@@ -52,12 +52,6 @@ module MergeRequestDiffHelpers
       const panel = document.querySelector('.js-static-panel-inner');
       return (panel.scrollTop + panel.clientHeight) >= panel.scrollHeight;
     })()")
-  end
-
-  def scroll_to_elements_bottom(element)
-    evaluate_script("(function(el) {
-      window.scrollBy(0, el.getBoundingClientRect().bottom - window.innerHeight);
-    })(arguments[0]);", element.native)
   end
 
   def scroll_to_panel_elements_bottom(element)

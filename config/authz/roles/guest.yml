@@ -28,7 +28,6 @@ project:
   - create_work_item
   - delete_saved_view
   - export_work_items
-  - read_ai_agents
   - read_ai_catalog_item
   - read_ai_catalog_item_consumer
   - read_analytics
