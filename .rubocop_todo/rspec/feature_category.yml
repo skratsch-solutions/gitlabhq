@@ -452,7 +452,6 @@ RSpec/FeatureCategory:
     - 'ee/spec/serializers/autocomplete/group_entity_spec.rb'
     - 'ee/spec/serializers/autocomplete/group_serializer_spec.rb'
     - 'ee/spec/serializers/blocking_merge_request_entity_spec.rb'
-    - 'ee/spec/serializers/clusters/deployment_entity_spec.rb'
     - 'ee/spec/serializers/clusters/environment_serializer_spec.rb'
     - 'ee/spec/serializers/dashboard_environment_entity_spec.rb'
     - 'ee/spec/serializers/dashboard_environments_project_entity_spec.rb'

@@ -478,7 +478,6 @@ export default {
             <gl-button
               v-if="isOrbitCodeIntelligenceAvailable && (blobViewer || legacyViewerLoaded)"
               category="secondary"
-              size="small"
               icon="earth"
               @click="orbitPanelOpen = !orbitPanelOpen"
               >{{ __('Code Intelligence') }}</gl-button

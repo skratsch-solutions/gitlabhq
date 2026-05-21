@@ -258,4 +258,52 @@ describe('DashboardListTab', () => {
       );
     });
   });
+
+  describe('userId prop is reflected in the dashboards request', () => {
+    let mockQueryHandler;
+
+    beforeEach(async () => {
+      mockQueryHandler = jest.fn().mockResolvedValue({ data: mockDashboardsListResponse });
+      const apolloProvider = createMockApollo([[getDashboardsQuery, mockQueryHandler]]);
+
+      createComponent({
+        requestHandlers: apolloProvider,
+        props: { userId: 'gid://gitlab/User/1' },
+      });
+
+      await waitForPromises();
+    });
+
+    it('passes the userId as createdById in the query variables', () => {
+      expect(mockQueryHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          createdById: 'gid://gitlab/User/1',
+        }),
+      );
+    });
+  });
+
+  describe('when userId is not provided', () => {
+    let mockQueryHandler;
+
+    beforeEach(async () => {
+      mockQueryHandler = jest.fn().mockResolvedValue({ data: mockDashboardsListResponse });
+      const apolloProvider = createMockApollo([[getDashboardsQuery, mockQueryHandler]]);
+
+      createComponent({
+        requestHandlers: apolloProvider,
+        props: { userId: null },
+      });
+
+      await waitForPromises();
+    });
+
+    it('passes undefined for createdById in the query variables', () => {
+      expect(mockQueryHandler).toHaveBeenCalledWith(
+        expect.objectContaining({
+          createdById: undefined,
+        }),
+      );
+    });
+  });
 });

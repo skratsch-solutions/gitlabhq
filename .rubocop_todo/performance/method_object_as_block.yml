@@ -2,7 +2,6 @@
 Performance/MethodObjectAsBlock:
   Exclude:
     - 'lib/gitlab/ci/pipeline/chain/validate/external.rb'
-    - 'lib/gitlab/dependency_linker/podspec_json_linker.rb'
     - 'lib/gitlab/search_context.rb'
     - 'lib/gitlab/sidekiq_queue.rb'
     - 'lib/gitlab/uploads/migration_helper.rb'

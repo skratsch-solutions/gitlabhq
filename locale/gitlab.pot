@@ -69956,9 +69956,6 @@ msgstr ""
 msgid "SecurityReports|All images"
 msgstr ""
 
-msgid "SecurityReports|All projects"
-msgstr ""
-
 msgid "SecurityReports|All report types"
 msgstr ""
 
@@ -70232,9 +70229,6 @@ msgstr ""
 msgid "SecurityReports|Manage and track vulnerabilities identified in your selected projects. Vulnerabilities for selected projects are shown here when security testing is configured and a pipeline has been run on the default branch."
 msgstr ""
 
-msgid "SecurityReports|Maximum selected projects limit reached"
-msgstr ""
-
 msgid "SecurityReports|Median: %{days} day"
 msgid_plural "SecurityReports|Median: %{days} days"
 msgstr[0] ""
@@ -70450,9 +70444,6 @@ msgid "SecurityReports|Submit vulnerability"
 msgstr ""
 
 msgid "SecurityReports|Tags"
-msgstr ""
-
-msgid "SecurityReports|The Activity filter now defaults to showing only vulnerabilities that are \"still detected\". To see vulnerabilities regardless of their detection status, remove this filter."
 msgstr ""
 
 msgid "SecurityReports|The Vulnerability Report shows results of successful scans on your project's default branch, manually added vulnerability records, and vulnerabilities found from scanning operational environments. %{linkStart}Learn more%{linkEnd}."

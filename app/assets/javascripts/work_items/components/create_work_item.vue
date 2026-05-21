@@ -1113,8 +1113,9 @@ export default {
         });
       } catch (error) {
         this.error = error.message || this.createErrorText;
-        this.loading = false;
         Sentry.captureException(error);
+      } finally {
+        this.loading = false;
       }
     },
     async handleUpdateWidgetDraft(input) {
@@ -1513,6 +1514,7 @@ export default {
               variant="confirm"
               :disabled="!isTitleValid"
               :loading="loading"
+              class="js-no-auto-disable"
               data-testid="create-button"
             >
               {{ createWorkItemText }}

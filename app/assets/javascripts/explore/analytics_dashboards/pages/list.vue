@@ -18,6 +18,12 @@ export default {
     PageHeading,
     NewDashboardButton,
   },
+  props: {
+    currentUserId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       searchText: '',
@@ -58,6 +64,7 @@ export default {
         :title="s__('AnalyticsDashboards|Created by me')"
         :sr-text="s__('AnalyticsDashboards|Dashboards created by me')"
         scope="USER"
+        :user-id="currentUserId"
         :search="searchText"
       />
       <dashboard-list-tab

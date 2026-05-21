@@ -97,7 +97,6 @@ RSpec/FactoryBot/AvoidCreate:
     - 'ee/spec/serializers/audit_event_entity_spec.rb'
     - 'ee/spec/serializers/audit_event_serializer_spec.rb'
     - 'ee/spec/serializers/blocking_merge_request_entity_spec.rb'
-    - 'ee/spec/serializers/clusters/deployment_entity_spec.rb'
     - 'ee/spec/serializers/clusters/environment_entity_spec.rb'
     - 'ee/spec/serializers/clusters/environment_serializer_spec.rb'
     - 'ee/spec/serializers/dashboard_environment_entity_spec.rb'

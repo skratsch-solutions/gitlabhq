@@ -43,12 +43,15 @@ export default () => {
     apolloProvider,
     router,
     provide: {
-      currentUserId,
       exploreAnalyticsDashboardsPath,
       breadcrumbState,
     },
     render(h) {
-      return h(App);
+      return h(App, {
+        props: {
+          currentUserId,
+        },
+      });
     },
   });
 };

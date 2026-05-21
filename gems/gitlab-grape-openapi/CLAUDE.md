@@ -79,6 +79,22 @@ bundle exec rubocop
 bundle exec rubocop -a spec/                  # Safe autofix
 ```
 
+### Regenerating the gitlab-org/gitlab OpenAPI spec
+
+After changes that affect converter output, regenerate the consumer spec
+from the gitlab-org/gitlab repo root (not from this gem directory):
+
+```shell
+bundle exec rake gitlab:openapi:v3:generate
+```
+
+This writes `doc/api/openapi/openapi_v3.yaml`. Lint the result with
+Redocly to catch regressions:
+
+```shell
+npx -y @redocly/cli@latest lint doc/api/openapi/openapi_v3.yaml
+```
+
 ### CI
 
 Changes to this gem trigger a child pipeline via

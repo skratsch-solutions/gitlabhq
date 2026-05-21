@@ -82,6 +82,11 @@ export default {
     },
   },
   watch: {
+    showBlameInfo(newVal) {
+      if (!newVal && this.viewer === BLAME_VIEWER) {
+        this.viewer = this.activeViewerType;
+      }
+    },
     viewer(newVal, oldVal) {
       if (newVal !== BLAME_VIEWER && newVal !== oldVal) {
         this.$emit('viewer-changed', newVal);

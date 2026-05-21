@@ -5,11 +5,17 @@ import DashboardListTab from '~/explore/analytics_dashboards/components/dashboar
 import PageHeading from '~/vue_shared/components/page_heading.vue';
 import NewDashboardButton from '~/explore/analytics_dashboards/components/new_dashboard_button.vue';
 
+const MOCK_CURRENT_USER_ID = 'gid://gitlab/User/42';
+
 describe('ExploreAnalyticsDashboardsList', () => {
   let wrapper;
 
   const createComponent = () => {
-    wrapper = shallowMountExtended(ExploreAnalyticsDashboardsList);
+    wrapper = shallowMountExtended(ExploreAnalyticsDashboardsList, {
+      propsData: {
+        currentUserId: MOCK_CURRENT_USER_ID,
+      },
+    });
   };
 
   const findTabs = () => wrapper.findComponent(GlTabs);
@@ -55,19 +61,22 @@ describe('ExploreAnalyticsDashboardsList', () => {
       createComponent();
     });
 
-    it('renders the "All" tab first without scope filter', () => {
-      const tabs = findDashboardListTabs();
-      expect(tabs.at(0).props('scope')).toBeNull();
+    it('renders the "All" tab first without scope filter or userId', () => {
+      const tab = findDashboardListTabs().at(0);
+      expect(tab.props('scope')).toBeNull();
+      expect(tab.props('userId')).toBeNull();
     });
 
-    it('renders the "Created by me" tab second with USER scope', () => {
-      const tabs = findDashboardListTabs();
-      expect(tabs.at(1).props('scope')).toBe('USER');
+    it('renders the "Created by me" tab second with USER scope and the current user ID', () => {
+      const tab = findDashboardListTabs().at(1);
+      expect(tab.props('scope')).toBe('USER');
+      expect(tab.props('userId')).toBe(MOCK_CURRENT_USER_ID);
     });
 
-    it('renders the "Created by GitLab" tab third with GITLAB scope', () => {
-      const tabs = findDashboardListTabs();
-      expect(tabs.at(2).props('scope')).toBe('GITLAB');
+    it('renders the "Created by GitLab" tab third with GITLAB scope and no userId', () => {
+      const tab = findDashboardListTabs().at(2);
+      expect(tab.props('scope')).toBe('GITLAB');
+      expect(tab.props('userId')).toBeNull();
     });
   });
 

@@ -21,7 +21,7 @@ import {
   TOKEN_TYPE_WEIGHT,
   TOKEN_TYPE_STATUS,
 } from '~/vue_shared/components/filtered_search_bar/constants';
-import FilteredSearch from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
+import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import workItemTypesConfigurationQuery from '~/work_items/graphql/work_item_types_configuration.query.graphql';
 import { convertOldTypeTokenEnumToGid } from '~/work_items/list/utils';
@@ -33,7 +33,7 @@ export default {
   i18n: {
     search: __('Search'),
   },
-  components: { FilteredSearch },
+  components: { FilteredSearchBar },
   mixins: [glFeatureFlagMixin()],
   inject: ['fullPath', 'initialFilterParams', 'hasCustomFieldsFeature'],
   props: {
@@ -539,7 +539,7 @@ export default {
 </script>
 
 <template>
-  <filtered-search
+  <filtered-search-bar
     :key="filteredSearchKey"
     class="gl-w-full"
     namespace=""
