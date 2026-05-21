@@ -243,5 +243,4 @@ ee/app/helpers/ee/projects_helper.rb:
 - paid_duo_tier_for_project
 ee/app/models/virtual_registries/cache/entry.rb:
 - mark_as_pending_destruction
-ee/app/models/work_items/statuses/system_defined/lifecycle.rb:
-- find_available_status_by_name
+

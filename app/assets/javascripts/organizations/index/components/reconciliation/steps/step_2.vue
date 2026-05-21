@@ -5,8 +5,12 @@ import OrganizationGroupCard from '../organization_group_card.vue';
 import OrganizationCard from '../organization_card.vue';
 import BaseStep from './base_step.vue';
 
+const DRAGGING_CSS_CLASS = 'organizations-reconciliation-draggable-dragging';
+const FALLBACK_CSS_CLASS = 'organizations-reconciliation-draggable-fallback';
+
 export default {
   name: 'ReconciliationStep2',
+  FALLBACK_CSS_CLASS,
   components: {
     BaseStep,
     OrganizationCard,
@@ -43,6 +47,16 @@ export default {
 
       return this.initialDefaultOrgGroupIds.length !== this.currentDefaultOrgGroupIds.length;
     },
+  },
+  beforeDestroy() {
+    document.body.classList.remove(DRAGGING_CSS_CLASS);
+
+    // There is a bug in SortableJS where the fallback element is not removed when the instance is destroyed.
+    // This code manually removes the fallback element if the modal is closed while dragging.
+    const fallbackEl = document.querySelector(`.${FALLBACK_CSS_CLASS}`);
+    if (fallbackEl) {
+      fallbackEl.parentNode.removeChild(fallbackEl);
+    }
   },
   methods: {
     draggableGroup(organization) {
@@ -92,6 +106,12 @@ export default {
 
       this.$emit('update', updatedOrganizations);
     },
+    onChoose() {
+      document.body.classList.add(DRAGGING_CSS_CLASS);
+    },
+    onUnchoose() {
+      document.body.classList.remove(DRAGGING_CSS_CLASS);
+    },
   },
 };
 </script>
@@ -118,15 +138,18 @@ export default {
           <organization-card :organization="organization">
             <draggable
               class="organizations-reconciliation-draggable gl-flex gl-min-h-11 gl-flex-col gl-gap-4"
-              chosen-class="organizations-reconciliation-draggable-chosen"
+              chosen-class="gl-shadow-md"
               :value="organization.groups.nodes"
               :group="draggableGroup(organization)"
               item-key="id"
               :fallback-on-body="true"
               :force-fallback="true"
+              :fallback-class="$options.FALLBACK_CSS_CLASS"
               @start="onDraggableStart(organization, $event)"
               @input="onDraggableInput(organization, $event)"
               @end="onDraggableEnd"
+              @choose="onChoose"
+              @unchoose="onUnchoose"
             >
               <organization-group-card
                 v-for="group in organization.groups.nodes"
@@ -138,7 +161,7 @@ export default {
             <div
               v-if="shouldShowDropzone(organization)"
               data-testid="organization-dropzone"
-              class="organizations-reconciliation-draggable-empty-state gl-border-secondary gl-pointer-events-none gl-absolute gl-flex gl-h-11 gl-w-full gl-items-center gl-justify-center gl-rounded-md gl-border-dashed gl-border-strong"
+              class="organizations-reconciliation-draggable-dropzone gl-border-secondary gl-pointer-events-none gl-absolute gl-flex gl-h-11 gl-w-full gl-items-center gl-justify-center gl-rounded-md gl-border-dashed gl-border-strong"
             >
               <p class="gl-m-0 gl-text-secondary">{{ s__('Organization|Drop groups here') }}</p>
             </div>

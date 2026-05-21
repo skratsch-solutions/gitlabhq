@@ -49,7 +49,7 @@ module Enums
         api_fuzzing: 'gl-api-fuzzing-report.json',
         cyclonedx: 'gl-sbom.cdx.json',
         annotations: 'gl-annotations.json',
-        repository_xray: 'gl-repository-xray.json',
+        repository_xray: 'gl-repository-xray.json', # DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
         sarif: 'gl-sarif-report.sarif',
         environment_key: 'environment_key.txt'
       }.freeze
@@ -73,7 +73,7 @@ module Enums
         scip: :zip,
         cyclonedx: :gzip,
         annotations: :gzip,
-        repository_xray: :gzip,
+        repository_xray: :gzip, # DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
 
         # Security reports and license scanning reports are raw artifacts
         # because they used to be fetched by the frontend, but this is not the case anymore.
@@ -211,7 +211,7 @@ module Enums
           cyclonedx: 28, ## EE-specific
           requirements_v2: 29, ## EE-specific
           annotations: 30,
-          repository_xray: 31, ## EE-specific
+          repository_xray: 31, ## EE-specific, DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
           jacoco: 32,
           scip: 33, # SCIP data for code navigation
           sarif: 34, ## EE-specific

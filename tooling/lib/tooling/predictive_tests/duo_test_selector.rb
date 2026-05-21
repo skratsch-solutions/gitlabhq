@@ -269,6 +269,15 @@ module Tooling
           found = Dir.glob("#{dir}/**/*_spec.rb")
           @logger.debug "📂 #{dir}: found #{found.length} specs (recursive)"
           specs.concat(found)
+
+          # Pick up sibling root-level specs that share the directory's stem,
+          # e.g. expanding `ee/spec/features/duo_chat` also picks up
+          # `ee/spec/features/duo_chat_disabled_admin_spec.rb`.
+          siblings = Dir.glob("#{dir}*_spec.rb")
+          next if siblings.empty?
+
+          @logger.debug "🔗 #{dir}: found #{siblings.length} sibling root-level specs"
+          specs.concat(siblings)
         end
 
         individual_files.each do |file|

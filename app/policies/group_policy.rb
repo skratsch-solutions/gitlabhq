@@ -37,7 +37,12 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   condition(:project_bot) { user.project_bot? && access_level >= GroupMember::GUEST }
 
   condition(:has_projects) do
-    group_projects_for(user: @user, group: @subject).any?
+    # GUEST routes Users through the fast auth-only path
+    # (visible_to_user_and_access_level). Non-User actors stay on nil so
+    # the finder takes their visibility branches - DeployToken doesn't
+    # respond to authorized_projects, and anonymous needs public_only.
+    min_access_level = ::Gitlab::Access::GUEST if @user.is_a?(User)
+    group_projects_for(user: @user, group: @subject, min_access_level: min_access_level).any?
   end
 
   desc "User owns the group's organization"

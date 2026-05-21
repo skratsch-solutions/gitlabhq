@@ -214,7 +214,11 @@ detect-system-tests-duo-experiment:
           --changed-files-path $GLCI_PREDICTIVE_CHANGED_FILES_PATH
 
         echo "=== Duo Test Selection Results ==="
-        echo "System test specs: $(cat $GLCI_PREDICTIVE_DUO_SYSTEM_TESTS_PATH | wc -l)"
+        if [ -f "$GLCI_PREDICTIVE_DUO_SYSTEM_TESTS_PATH" ]; then
+          echo "System test specs: $(wc -l < "$GLCI_PREDICTIVE_DUO_SYSTEM_TESTS_PATH")"
+        else
+          echo "System test specs: 0 (Duo bailed; falling back to non-Duo strategies)"
+        fi
       fi
   artifacts:
     access: developer

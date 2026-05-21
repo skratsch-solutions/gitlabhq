@@ -29,7 +29,7 @@ describe('ReconciliationStep2', () => {
         ...props,
       },
       stubs: {
-        Draggable: stubComponent(Draggable, { props: ['group'] }),
+        Draggable: stubComponent(Draggable, { props: ['group', 'fallbackClass'] }),
       },
     });
   };
@@ -90,6 +90,10 @@ describe('ReconciliationStep2', () => {
 
   describe('drag and drop', () => {
     const findAllDraggableComponents = () => wrapper.findAllComponents(Draggable);
+    const findDraggableWithGroups = () =>
+      findAllDraggableComponents().at(organizationWithGroupsIndex);
+    const findDraggableWithoutGroups = () =>
+      findAllDraggableComponents().at(organizationWithoutGroupsIndex);
 
     it('renders a draggable for each organization', () => {
       createComponent();
@@ -97,14 +101,74 @@ describe('ReconciliationStep2', () => {
       expect(findAllDraggableComponents()).toHaveLength(mockOrganizations.length);
     });
 
+    it('passes fallbackClass prop to each draggable', () => {
+      createComponent();
+
+      findAllDraggableComponents().wrappers.forEach((draggable) => {
+        expect(draggable.props('fallbackClass')).toBe(
+          'organizations-reconciliation-draggable-fallback',
+        );
+      });
+    });
+
+    describe('when component is destroyed', () => {
+      const FALLBACK_CSS_CLASS = 'organizations-reconciliation-draggable-fallback';
+
+      it('removes lingering fallback element from the DOM', () => {
+        createComponent();
+
+        const fallbackEl = document.createElement('div');
+        fallbackEl.classList.add(FALLBACK_CSS_CLASS);
+        document.body.appendChild(fallbackEl);
+
+        wrapper.destroy();
+
+        expect(document.querySelector(`.${FALLBACK_CSS_CLASS}`)).toBe(null);
+      });
+
+      it('does not throw when no fallback element is present', () => {
+        createComponent();
+
+        expect(() => wrapper.destroy()).not.toThrow();
+      });
+    });
+
+    describe('when item is chosen', () => {
+      const DRAGGING_CSS_CLASS = 'organizations-reconciliation-draggable-dragging';
+
+      beforeEach(() => {
+        createComponent();
+
+        findDraggableWithGroups().vm.$emit('choose');
+      });
+
+      it('adds organizations-reconciliation-draggable-dragging CSS class to body', () => {
+        expect(document.body.classList.contains(DRAGGING_CSS_CLASS)).toBe(true);
+      });
+
+      describe('when item is unchosen', () => {
+        it('removes organizations-reconciliation-draggable-dragging CSS class from body', () => {
+          findDraggableWithGroups().vm.$emit('unchoose');
+
+          expect(document.body.classList.contains(DRAGGING_CSS_CLASS)).toBe(false);
+        });
+      });
+
+      describe('when component is destroyed', () => {
+        it('removes organizations-reconciliation-draggable-dragging CSS class from body', () => {
+          wrapper.destroy();
+
+          expect(document.body.classList.contains(DRAGGING_CSS_CLASS)).toBe(false);
+        });
+      });
+    });
+
     describe('when group is moved between organizations', () => {
       it('emits update event once with updated organization structure', async () => {
         createComponent();
 
-        const draggableComponents = findAllDraggableComponents();
-
-        const draggableWithGroups = draggableComponents.at(organizationWithGroupsIndex);
-        const draggableWithoutGroups = draggableComponents.at(organizationWithoutGroupsIndex);
+        const draggableWithGroups = findDraggableWithGroups();
+        const draggableWithoutGroups = findDraggableWithoutGroups();
         const groupToMoveIndex = 0;
         const groupToMove = organizationWithGroups.groups.nodes[groupToMoveIndex];
 
