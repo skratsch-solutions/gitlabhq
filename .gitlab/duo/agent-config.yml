@@ -12,8 +12,10 @@ setup_script:
   - npm install -g @anthropic-ai/sandbox-runtime@0.0.49 --ignore-scripts
   - srt --version
 
-  # Ruby gems — install to vendor/ so cache paths capture them.
-  - bundle config set --local path vendor
+  # Ruby gems — install to vendor/bundle so the path is covered by the
+  # existing /vendor/bundle/* entry in .gitignore, preventing gem stubs
+  # from being staged by git add -A.
+  - bundle config set --local path vendor/bundle
   - bundle config set --local frozen true
   - bundle install --jobs 4 --retry 3
 
@@ -28,7 +30,7 @@ cache:
       - Gemfile.lock
       - yarn.lock
   paths:
-    - vendor/ruby
+    - vendor/bundle
     - node_modules
 
 network_policy:

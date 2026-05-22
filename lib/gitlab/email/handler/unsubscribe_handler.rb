@@ -35,7 +35,7 @@ module Gitlab
           noteable = sent_notification.noteable
           raise NoteableNotFoundError unless noteable
 
-          noteable.unsubscribe(sent_notification.recipient)
+          noteable.unsubscribe(sent_notification.recipient, sent_notification.project)
         end
 
         def metrics_event

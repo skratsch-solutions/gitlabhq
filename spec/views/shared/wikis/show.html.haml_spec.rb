@@ -6,7 +6,7 @@ RSpec.describe 'shared/wikis/show.html.haml', feature_category: :wiki do
   include RSpec::Parameterized::TableSyntax
 
   # rubocop:disable RSpec/FactoryBot/AvoidCreate -- Need persisted objects
-  let_it_be(:project) { create(:project) }
+  let_it_be(:project, freeze: false) { create(:project) }
   let_it_be(:wiki_page, freeze: false) { create(:wiki_page, container: project) }
   # rubocop:enable RSpec/FactoryBot/AvoidCreate
 

@@ -13828,6 +13828,7 @@ CREATE TABLE ai_tool_rules (
     tool_name text NOT NULL,
     tool_source text,
     tool_arguments jsonb,
+    project_id bigint,
     CONSTRAINT check_72f465d750 CHECK ((char_length(tool_source) <= 255)),
     CONSTRAINT check_d7f656466e CHECK ((char_length(tool_name) <= 255)),
     CONSTRAINT chk_ai_tool_rules_has_permission CHECK (((web_access IS NOT NULL) OR (local_access IS NOT NULL))),
@@ -44700,6 +44701,8 @@ CREATE UNIQUE INDEX idx_ai_iaer_default_rule_on_accessible_entity ON ai_instance
 
 CREATE UNIQUE INDEX idx_ai_nfar_default_rule_on_root_ns_accessible_entity ON ai_namespace_feature_access_rules USING btree (root_namespace_id, accessible_entity) WHERE (through_namespace_id IS NULL);
 
+CREATE UNIQUE INDEX idx_ai_tool_rules_ns_proj_tool_unique ON ai_tool_rules USING btree (namespace_id, project_id, tool_name) WHERE (project_id IS NOT NULL);
+
 CREATE UNIQUE INDEX idx_ai_tool_rules_ns_tool_unique ON ai_tool_rules USING btree (namespace_id, tool_name);
 
 CREATE UNIQUE INDEX idx_ai_usage_events_uniqueness ON ONLY ai_usage_events USING btree (namespace_id, user_id, event, "timestamp") NULLS NOT DISTINCT;
@@ -45903,6 +45906,8 @@ CREATE INDEX index_ai_settings_on_duo_workflow_oauth_application_id ON ai_settin
 CREATE INDEX index_ai_settings_on_duo_workflow_service_account_user_id ON ai_settings USING btree (duo_workflow_service_account_user_id);
 
 CREATE UNIQUE INDEX index_ai_settings_on_singleton ON ai_settings USING btree (singleton);
+
+CREATE INDEX index_ai_tool_rules_on_project_id ON ai_tool_rules USING btree (project_id);
 
 CREATE INDEX index_ai_troubleshoot_job_events_on_job_id ON ONLY ai_troubleshoot_job_events USING btree (job_id);
 
@@ -57836,6 +57841,9 @@ ALTER TABLE ONLY merge_request_diff_commit_users
 
 ALTER TABLE ONLY packages_pypi_metadata
     ADD CONSTRAINT fk_884056a10f FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY ai_tool_rules
+    ADD CONSTRAINT fk_8889cd56bd FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY approval_group_rules_users
     ADD CONSTRAINT fk_888a0df3b7 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

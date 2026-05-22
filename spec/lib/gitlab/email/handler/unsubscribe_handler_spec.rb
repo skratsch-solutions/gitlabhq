@@ -50,24 +50,34 @@ RSpec.describe Gitlab::Email::Handler::UnsubscribeHandler do
 
   context 'user is unsubscribed' do
     it 'leaves user unsubscribed' do
-      expect { receiver.execute }.not_to change { noteable.subscribed?(user) }.from(false)
+      expect { receiver.execute }.not_to change { noteable.subscribed?(user, noteable.project) }.from(false)
     end
   end
 
   context 'user is subscribed' do
     before do
-      noteable.subscribe(user)
+      noteable.subscribe(user, noteable.project)
     end
 
     it 'unsubscribes user from notable' do
-      expect { receiver.execute }.to change { noteable.subscribed?(user) }.from(true).to(false)
+      expect { receiver.execute }.to change { noteable.subscribed?(user, noteable.project) }.from(true).to(false)
     end
 
     context 'when using old style unsubscribe link' do
       let(:email_raw) { fixture_file('emails/valid_reply.eml').gsub(mail_key, "#{mail_key}#{Gitlab::Email::Common::UNSUBSCRIBE_SUFFIX_LEGACY}") }
 
       it 'unsubscribes user from notable' do
-        expect { receiver.execute }.to change { noteable.subscribed?(user) }.from(true).to(false)
+        expect { receiver.execute }.to change { noteable.subscribed?(user, noteable.project) }.from(true).to(false)
+      end
+    end
+
+    context 'when using the partitioned reply key format' do
+      let!(:sent_notification) { SentNotification.record(noteable, user.id) }
+      let(:partitioned_key) { sent_notification.partitioned_reply_key }
+      let(:email_raw) { fixture_file('emails/valid_reply.eml').gsub(mail_key, "#{partitioned_key}#{Gitlab::Email::Common::UNSUBSCRIBE_SUFFIX}") }
+
+      it 'unsubscribes user from notable' do
+        expect { receiver.execute }.to change { noteable.subscribed?(user, noteable.project) }.from(true).to(false)
       end
     end
   end

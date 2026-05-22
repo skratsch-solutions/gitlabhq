@@ -199,85 +199,53 @@ For further quality guidelines, see [testing](https://handbook.gitlab.com/handbo
 
 ### The responsibility of the merge request author
 
-The responsibility to find the best solution and implement it lies with the
-merge request author. The author or [directly responsible individual](https://handbook.gitlab.com/handbook/people-group/directly-responsible-individuals/)
-(DRI) stays assigned to the merge request as the assignee throughout
-the code review lifecycle. If you are unable to set yourself as an assignee, ask a [reviewer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#reviewer) to do this for you.
+You are the [directly responsible individual](https://handbook.gitlab.com/handbook/people-group/directly-responsible-individuals/)
+(DRI) for finding the best solution. Stay as the assignee throughout the review lifecycle.
+If you cannot set yourself as an assignee, ask a
+[reviewer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#reviewer) to do it.
 
-Before requesting a review from a maintainer to approve and merge, they
-should be confident that:
+Before requesting a maintainer review, confirm:
 
-- It actually solves the problem it was meant to solve.
-- It does so in the most appropriate way.
-- It satisfies all requirements.
-- There are no remaining bugs, logical problems, uncovered edge cases,
-  or known vulnerabilities.
+- The MR solves the intended problem in the most appropriate way.
+- All requirements are satisfied.
+- No remaining bugs, logic problems, uncovered edge cases, or known vulnerabilities exist.
 
-The best way to do this, and to avoid unnecessary back-and-forth with reviewers,
-is to perform a self-review of your own merge request, following the
-[Code Review](#reviewing-a-merge-request) guidelines. During this self-review,
-try to include comments in the MR on lines
-where decisions or trade-offs were made, or where a contextual explanation might aid the reviewer in more easily understanding the code.
+Self-review your MR following the [Code Review](#reviewing-a-merge-request) guidelines.
+Add inline comments on lines where you made decisions or trade-offs,
+or where context helps the reviewer understand the code.
 
-To reach the required level of confidence in their solution, an author is expected
-to involve other people in the investigation and implementation processes as
-appropriate.
+Involve [domain experts](#domain-experts), product managers, UX designers, and database specialists
+as appropriate. If you are unsure whether your MR needs a domain expert review, it does.
 
-They are encouraged to reach out to [domain experts](#domain-experts) to discuss different solutions
-or get an implementation reviewed, to product managers and UX designers to clear
-up confusion or verify that the end result matches what they had in mind, to
-database specialists to get input on the data model or specific queries, or to
-any other developer to get an in-depth review of the solution.
+For features spanning 10 or more MRs, work with your EM or Staff Engineer to identify
+consistent maintainer who share the context.
 
-If you know you'll need many merge requests to deliver a feature (for example, you created a proof of concept and it is clear the feature will consist of 10+ merge requests),
-consider identifying reviewers and maintainers who possess the necessary understanding of the feature (you share the context with them). Then direct all merge requests to these reviewers.
-The best DRI for finding these reviewers is the EM or Staff Engineer. Having stable reviewer counterparts for multiple merge requests with the same context improves efficiency.
+If your MR touches multiple domains, request a review from an expert in each domain.
 
-If your merge request touches more than one domain (for example, Dynamic Analysis and GraphQL), ask for reviews from an expert from each domain.
+Before requesting review, add MR diff comments for:
 
-If an author is unsure if a merge request needs a [domain expert's](#domain-experts) opinion,
-then that indicates it does. Without it, it's unlikely they have the required level of confidence in their
-solution.
-
-Before the review, the author is requested to submit comments on the merge
-request diff alerting the reviewer to anything important as well as for anything
-that demands further explanation or attention. Examples of content that may
-warrant a comment could be:
-
-- The addition of a linting rule (RuboCop, JS etc).
-- The addition of a library (Ruby gem, JS lib etc).
-- Where not obvious, a link to the parent class or method.
-- Any benchmarking performed to complement the change.
+- Added linting rules (RuboCop, JS, and so on).
+- Added libraries (Ruby gems, JS libs, and so on).
+- Links to parent classes or methods, where not obvious.
+- Benchmarking results.
 - Potentially insecure code.
 
-If there are any projects, snippets, or other assets that are required for a reviewer to validate the solution, ensure they have access to those assets before requesting review.
+Ensure reviewers have access to any projects, snippets, or assets needed to validate the solution.
 
-When assigning reviewers, it can be helpful to:
+When assigning reviewers, comment to specify which domain each reviewer should focus on.
+This avoids ambiguity when a team member has expertise in multiple areas.
+For examples, see [MR 75921](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/75921#note_758161716)
+and [MR 109500](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/109500#note_1253955051).
 
-- Add a comment to the MR indicating which _type_ of review you are looking for
-  from that reviewer.
-  - For example, if an MR changes a database query and updates
-    backend code, the MR author first needs a `~backend` review and a `~database`
-    review. While assigning the reviewers, the author adds a comment to the MR
-    letting each reviewer know which domain they should review.
-  - Many GitLab team members are domain experts in more than one area,
-    so without this type of comment it is sometimes ambiguous what type
-    of review they are being asked to provide.
-  - Explicitness around MR review types is efficient for the MR author because
-    they receive the type of review that they are looking for and it is
-    efficient for the MR reviewers because they immediately know which type of review to provide.
-  - [Example 1](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/75921#note_758161716)
-  - [Example 2](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/109500#note_1253955051)
-- Only add TODO comments (referenced above) directly to the source code if the reviewer requires
-  you to do so. If TODO comments are added due to an actionable task,
-  [include a link to the relevant issue](code_comments.md).
-- Add comments that
-  [_explain why, not only what_](https://blog.codinghorror.com/code-tells-you-how-comments-tell-you-why/) the code is doing.
-- Request maintainer reviews only when all tests have passed. If the tests are failing and you have to request a review, ensure you leave a comment with an explanation.
-- Mention maintainers through email or Slack (if the maintainer is reachable
-  through Slack) only if you have an immediate request. If you can't add a reviewer for a merge request, `@` mentioning a maintainer in a comment is acceptable and in all other cases adding a reviewer is sufficient.
+Only add `TODO` comments to source code if a reviewer requires it.
+If you add a `TODO`, [include a link to the relevant issue](code_comments.md).
 
-This saves reviewers time and helps authors catch mistakes earlier.
+Write comments that [explain why, not only what](https://blog.codinghorror.com/code-tells-you-how-comments-tell-you-why/)
+the code does.
+
+Request maintainer reviews only when tests pass. If tests are failing, explain why in a comment.
+Contact maintainers by email or Slack only for immediate requests.
+In all other cases, adding them as a reviewer is sufficient.
 
 ### The responsibility of the reviewer
 
@@ -800,7 +768,7 @@ Properties of customer critical merge requests:
 ## Troubleshooting failing pipelines
 
 - **Unrelated test failures**: Check if the failure also happens on the default branch.
-  If so, wait for the broken master fix, then rebase or re-run the pipeline.
+  If so, wait for the broken master fix, then re-run the pipeline for the MR.
 - **`danger-review` job failed**: Check if your MR has more than 20 commits. If so, rebase and
   squash. Otherwise, re-run the job.
 

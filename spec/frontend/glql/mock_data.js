@@ -1,6 +1,7 @@
 export const MOCK_PROJECT = {
   __typename: 'Project',
   nameWithNamespace: 'GitLab Org / GitLab Test',
+  fullPath: 'gitlab-org/gitlab-test',
   webUrl: 'https://gitlab.com/gitlab-org/gitlab-test',
 };
 
