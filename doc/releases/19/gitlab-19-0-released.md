@@ -658,8 +658,7 @@ path across your organization.
 
 - Tier: Premium, Ultimate
 - Offering: GitLab Self-Managed, GitLab Dedicated
-- Links: [Documentation](../../administration/instance_limits.md#merge-train-parallel-pipeline-limit),
- [Related issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/374188)
+- Links: [Documentation](../../administration/instance_limits.md#merge-train-parallel-pipeline-limit), [Related issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/374188)
 
 {{< /details >}}
 

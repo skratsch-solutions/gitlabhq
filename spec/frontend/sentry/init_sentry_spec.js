@@ -7,6 +7,7 @@ import {
   isExternalOriginError,
   isServerUnavailableError,
   isNonActionableError,
+  isCspViolationEvent,
 } from '~/sentry/init_sentry';
 
 const mockDsn = 'https://123@sentry.gitlab.test/123';
@@ -323,6 +324,21 @@ describe('SentryConfig', () => {
           }),
         ).toBeNull();
       });
+
+      it('drops CSP violation events with a csp envelope', () => {
+        const event = { event_id: 'csp1', csp: { blocked_uri: 'https://example.com' } };
+
+        expect(beforeSend(event, {})).toBeNull();
+      });
+
+      it('drops CSP violation events with a synthesized "Blocked \'...\'" message', () => {
+        const event = {
+          event_id: 'csp2',
+          message: "Blocked 'connect' from 'snowplowprd.trx.gitlab.net'",
+        };
+
+        expect(beforeSend(event, {})).toBeNull();
+      });
     });
 
     describe('when user is not logged in', () => {
@@ -455,6 +471,55 @@ describe('SentryConfig', () => {
       expect(isNonActionableError({})).toBe(false);
       expect(isNonActionableError({}, undefined)).toBe(false);
       expect(isNonActionableError({}, {})).toBe(false);
+    });
+  });
+
+  describe('isCspViolationEvent', () => {
+    it('returns true when the event has a csp envelope', () => {
+      expect(isCspViolationEvent({ csp: { blocked_uri: 'https://example.com' } })).toBe(true);
+    });
+
+    it.each([
+      "Blocked 'connect' from 'snowplowprd.trx.gitlab.net'",
+      "Blocked 'script' from 'inline:'",
+      "Blocked 'style' from 'fonts.googleapis.com'",
+      "Blocked inline script attribute from 'inline:'",
+    ])('returns true for CSP violation message: %s', (message) => {
+      expect(isCspViolationEvent({ message })).toBe(true);
+    });
+
+    it('returns true when the exception value is a CSP violation message', () => {
+      const event = {
+        exception: { values: [{ type: 'Error', value: "Blocked 'script' from 'inline:'" }] },
+      };
+
+      expect(isCspViolationEvent(event)).toBe(true);
+    });
+
+    it('returns false for ordinary application errors', () => {
+      expect(isCspViolationEvent({ message: 'Cannot read properties of null' })).toBe(false);
+      expect(
+        isCspViolationEvent({
+          exception: { values: [{ type: 'TypeError', value: 'x is not a function' }] },
+        }),
+      ).toBe(false);
+    });
+
+    it.each([
+      "Blocked 'user' from performing action",
+      'Blocked by feature flag',
+      "Blocked 'admin'",
+    ])(
+      'returns false for application messages that resemble CSP but lack the source: %s',
+      (message) => {
+        expect(isCspViolationEvent({ message })).toBe(false);
+      },
+    );
+
+    it('returns false for empty or missing input', () => {
+      expect(isCspViolationEvent()).toBe(false);
+      expect(isCspViolationEvent(null)).toBe(false);
+      expect(isCspViolationEvent({})).toBe(false);
     });
   });
 });

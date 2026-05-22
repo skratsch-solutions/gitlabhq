@@ -901,6 +901,22 @@ RSpec.describe Repository, feature_category: :source_code_management do
       end
     end
 
+    context 'with filename with pathspec characters' do
+      let(:project) { create(:project, :empty_repo) }
+      let(:filename) { ':wq' }
+      let(:newrev) { project.repository.commit('master').sha }
+
+      before do
+        create_file_in_repo(project, 'master', 'master', filename, 'Test file')
+      end
+
+      subject(:list_commits) { repository.list_commits(ref: 'master', path: filename, literal_pathspec: true).map(&:id) }
+
+      it 'returns commits' do
+        expect(list_commits).to eq([newrev])
+      end
+    end
+
     describe 'when storage is broken', :broken_storage do
       it 'raises a storage error' do
         expect_to_raise_storage_error { broken_repository.list_commits(ref: 'master') }

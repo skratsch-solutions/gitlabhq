@@ -1,0 +1,10 @@
+---
+name: search_autocomplete_use_ilike
+description:
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/600604
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236877
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/600567
+milestone: '19.1'
+group: group::global search
+type: gitlab_com_derisk
+default_enabled: false

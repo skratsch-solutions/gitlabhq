@@ -8,6 +8,8 @@ module Gitlab
         include Queueable
         include Observable
 
+        WORKER_TYPE = :organization
+
         self.table_name = :background_operation_workers
 
         has_many :jobs,

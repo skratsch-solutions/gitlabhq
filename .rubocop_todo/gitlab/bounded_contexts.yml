@@ -45,6 +45,7 @@ Gitlab/BoundedContexts:
     - 'app/finders/data_transfer/group_data_transfer_finder.rb'
     - 'app/finders/data_transfer/project_data_transfer_finder.rb'
     - 'app/finders/database/batched_background_migrations_finder.rb'
+    - 'app/finders/database/batched_background_operations_cell_local_finder.rb'
     - 'app/finders/deploy_keys/deploy_keys_finder.rb'
     - 'app/finders/deployments_finder.rb'
     - 'app/finders/events_finder.rb'

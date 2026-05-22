@@ -476,6 +476,7 @@ RSpec.describe 'Every Sidekiq worker', feature_category: :sidekiq do
         'Security::ProcessScanEventsWorker' => 3,
         'Security::StoreScansWorker' => 3,
         'Security::TrackSecureScansWorker' => 1,
+        'SecretsManagement::ProvisionProjectSecretsManagerTaskWorker' => false,
         'ServiceDeskEmailReceiverWorker' => 3,
         'SetUserStatusBasedOnUserCapSettingWorker' => 3,
         'Snippets::ScheduleBulkRepositoryShardMovesWorker' => 3,

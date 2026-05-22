@@ -54,6 +54,8 @@ tags:
   description: Operations related to badges.
 - name: Batched background migrations
   description: Operations related to batched background migrations.
+- name: Batched background operations
+  description: Operations related to batched background operations.
 - name: Boards
   description: Operations related to boards.
 - name: Branches
@@ -69992,6 +69994,46 @@ paths:
         schema:
           type: integer
         in: path
+  "/api/v4/admin/batched_background_operations":
+    get:
+      operationId: getApiV4AdminBatchedBackgroundOperations
+      summary: Get the list of batched background operations
+      description: This feature was introduced in GitLab 19.1.
+      tags:
+      - Batched background operations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+      parameters:
+      - name: database
+        required: false
+        description: The name of the database, the default `main`
+        schema:
+          type: string
+          enum:
+          - main
+          - ci
+          - sec
+          - embedding
+          - geo
+          default: main
+          nullable: true
+        in: query
+      - name: job_class_name
+        required: false
+        description: Filter operations by job class name.
+        schema:
+          type: string
+          nullable: true
+        in: query
   "/api/v4/admin/batched_background_migrations/{id}":
     get:
       operationId: getApiV4AdminBatchedBackgroundMigrationsId
@@ -85880,6 +85922,43 @@ components:
           type: boolean
         active:
           type: boolean
+    APIEntitiesBatchedBackgroundOperation:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "<cluster>:<partition_id>:<id/uuid>"
+        partition:
+          type: integer
+          example: 1
+        job_class_name:
+          type: string
+          example: UsersDeleteUnconfirmedSecondaryEmails
+        table_name:
+          type: string
+          example: users
+        column_name:
+          type: string
+          example: id
+        status:
+          type: string
+          example: active
+        created_at:
+          type: string
+          format: date-time
+          example: '2025-05-15T10:00:00Z'
+        started_at:
+          type: string
+          format: date-time
+          example: '2025-05-15T10:05:00Z'
+        finished_at:
+          type: string
+          format: date-time
+          example: '2025-05-15T11:00:00Z'
+        on_hold_until:
+          type: string
+          format: date-time
+          example: '2025-05-15T10:15:00Z'
     APIEntitiesBatchedBackgroundMigration:
       type: object
       properties:

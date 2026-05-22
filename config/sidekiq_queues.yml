@@ -1055,6 +1055,8 @@
   - 1
 - - secrets_management_provision_project_secrets_manager
   - 1
+- - secrets_management_provision_project_secrets_manager_task
+  - 1
 - - secrets_management_reconcile_namespace_secret_count
   - 1
 - - security_analyzer_namespace_statuses_adjustment

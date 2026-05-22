@@ -213,6 +213,7 @@ module API
         # Keep in alphabetical order
         mount ::API::AccessRequests
         mount ::API::Admin::BatchedBackgroundMigrations
+        mount ::API::Admin::BatchedBackgroundOperations
         mount ::API::Admin::BroadcastMessages
         mount ::API::Admin::Ci::Variables
         mount ::API::Admin::Dictionary

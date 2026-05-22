@@ -127,6 +127,8 @@ tags:
   description: Operations about terraforms
 - name: batched_background_migrations
   description: Operations about batched_background_migrations
+- name: batched_background_operations
+  description: Operations about batched_background_operations
 - name: database_dictionary
   description: Operations about database_dictionaries
 - name: migrations
@@ -39889,6 +39891,44 @@ paths:
       tags:
       - batched_background_migrations
       operationId: getApiV4AdminBatchedBackgroundMigrations
+  "/api/v4/admin/batched_background_operations":
+    get:
+      summary: Get the list of batched background operations
+      description: This feature was introduced in GitLab 19.1.
+      produces:
+      - application/json
+      parameters:
+      - in: query
+        name: database
+        description: The name of the database, the default `main`
+        type: string
+        default: main
+        enum:
+        - main
+        - ci
+        - sec
+        - embedding
+        - geo
+        required: false
+      - in: query
+        name: job_class_name
+        description: Filter operations by job class name.
+        type: string
+        required: false
+      responses:
+        '200':
+          description: Get the list of batched background operations
+          schema:
+            type: array
+            items:
+              "$ref": "#/definitions/API_Entities_BatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+      tags:
+      - batched_background_operations
+      operationId: getApiV4AdminBatchedBackgroundOperations
   "/api/v4/admin/ci/variables":
     get:
       summary: List all instance variables
@@ -71508,6 +71548,56 @@ definitions:
         - geo
         default: main
     description: Pause a batched background migration
+  API_Entities_BatchedBackgroundOperation:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "<cluster>:<partition_id>:<id/uuid>"
+      partition:
+        type: integer
+        format: int32
+        example: 1
+      job_class_name:
+        type: string
+        example: UsersDeleteUnconfirmedSecondaryEmails
+      table_name:
+        type: string
+        example: users
+      column_name:
+        type: string
+        example: id
+      status:
+        type: string
+        example: active
+      created_at:
+        type: string
+        format: date-time
+        example: '2025-05-15T10:00:00Z'
+      started_at:
+        type: string
+        format: date-time
+        example: '2025-05-15T10:05:00Z'
+      finished_at:
+        type: string
+        format: date-time
+        example: '2025-05-15T11:00:00Z'
+      on_hold_until:
+        type: string
+        format: date-time
+        example: '2025-05-15T10:15:00Z'
+    required:
+    - id
+    - partition
+    - job_class_name
+    - table_name
+    - column_name
+    - status
+    - created_at
+    - started_at
+    - finished_at
+    - on_hold_until
+    description: API_Entities_BatchedBackgroundOperation model
   postApiV4AdminCiVariables:
     type: object
     properties:

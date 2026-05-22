@@ -780,7 +780,7 @@ GEM
     git (1.19.1)
       addressable (~> 2.8)
       rchardet (~> 1.8)
-    gitaly (18.11.2)
+    gitaly (19.0.0)
       grpc (~> 1.0)
     gitlab (4.19.0)
       httparty (~> 0.20)
@@ -2414,7 +2414,7 @@ DEPENDENCIES
   gettext (~> 3.5, >= 3.5.1)
   gettext_i18n_rails (~> 1.13.0)
   git (~> 1.8)
-  gitaly (~> 18.11.0)
+  gitaly (~> 19.0)
   gitlab-active-context!
   gitlab-backup-cli!
   gitlab-chronic (~> 0.10.5)
@@ -2908,7 +2908,7 @@ CHECKSUMS
   gettext (3.5.2) sha256=ada02c59aa7e9f56bd2522faedaed16421dd2f3ddb5fe28628c0be5abcbf3c74
   gettext_i18n_rails (1.13.0) sha256=d4a4739d928b6ce52a2d694d33a831dcb06c7c8e197b3172fc73dfaa20ac8ee6
   git (1.19.1) sha256=b0a422d9f6517353c48a330d6114de4db9e0c82dbe7202964a1d9f1fbc827d70
-  gitaly (18.11.2) sha256=1b6eba9ce3794d9bfa662d3b59ff9c70fb12cac4b3b8fb7ed0546e89b2b38c42
+  gitaly (19.0.0) sha256=b908390020e4c3bcc101dd8651da65b998190912201a1821194283866a6c5d6a
   gitlab (4.19.0) sha256=3f645e3e195dbc24f0834fbf83e8ccfb2056d8e9712b01a640aad418a6949679
   gitlab-active-context (0.0.1)
   gitlab-backup-cli (0.0.1)

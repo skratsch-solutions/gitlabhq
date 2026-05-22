@@ -67,11 +67,12 @@ class ProjectPolicy < BasePolicy
 
   rule { admin | organization_owner }.enable :read_all_organization_resources
 
-  desc "User is a member of the group"
-  condition(:group_member, scope: :subject) { project_group_member? }
-
-  desc "User is a requester of the group"
-  condition(:group_requester, scope: :subject) { project_group_requester? }
+  desc "User already has access to the project or its group, or has a pending group access request"
+  condition(:has_project_access_or_pending_request) do
+    team_access_level >= Gitlab::Access::GUEST ||
+      project_group_member? ||
+      project_group_requester?
+  end
 
   desc "User is external"
   condition(:external_user) { user.external? }
@@ -489,7 +490,7 @@ class ProjectPolicy < BasePolicy
     prevent :destroy_package
   end
 
-  rule { owner | admin | organization_owner | guest | group_member | group_requester }.prevent :request_access
+  rule { has_project_access_or_pending_request }.prevent :request_access
   rule { ~request_access_enabled }.prevent :request_access
 
   rule { ~user_confirmed }.policy do

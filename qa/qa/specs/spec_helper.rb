@@ -113,6 +113,7 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     FactoryBot.find_definitions
+    QA::Tools::TestResourceDataProcessor.load_prior_resources
   end
 
   config.after do

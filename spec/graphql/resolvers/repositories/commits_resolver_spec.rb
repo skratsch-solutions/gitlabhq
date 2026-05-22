@@ -105,6 +105,16 @@ RSpec.describe Resolvers::Repositories::CommitsResolver, feature_category: :sour
         end
       end
 
+      describe 'literal_pathspec' do
+        it 'passes literal_pathspec: true to list_commits' do
+          expect(repository).to receive(:list_commits)
+            .with(hash_including(literal_pathspec: true))
+            .and_call_original
+
+          commits
+        end
+      end
+
       describe 'pagination params' do
         before do
           allow(repository).to receive(:list_commits).and_call_original

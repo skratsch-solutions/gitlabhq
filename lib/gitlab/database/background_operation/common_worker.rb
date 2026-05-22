@@ -47,6 +47,8 @@ module Gitlab
           scope :with_job_arguments, ->(args) { where("job_arguments = ?", args.to_json) } # rubocop:disable Rails/WhereEquals -- to override Rails comparison
           scope :not_on_hold, -> { where('on_hold_until IS NULL OR on_hold_until < NOW()') }
           scope :for_gitlab_schema, ->(gitlab_schema) { where(gitlab_schema: gitlab_schema) }
+          scope :for_job_class, ->(job_class_name) { where(job_class_name: job_class_name) }
+          scope :ordered_by_created_at_desc, -> { order(created_at: :desc) }
 
           scope :executable, -> do
             with_statuses(:queued, :active, :paused).not_on_hold
@@ -220,6 +222,11 @@ module Gitlab
 
           def migrated_tuple_count
             jobs.with_status(:succeeded).sum(:batch_size)
+          end
+
+          # Format <worker_type:partition_id:id>
+          def external_id
+            "#{self.class::WORKER_TYPE}:#{partition}:#{id.last}"
           end
 
           private

@@ -601,10 +601,18 @@
     - $CNG_HELM_REPOSITORY_CACHE
   policy: pull
 
+.qa-test-resources-cache: &qa-test-resources-cache
+  key: "qa-test-resources-${CI_PIPELINE_ID}-${CI_JOB_NAME}"
+  paths:
+    - qa/tmp/test-resources-*.json
+    - qa/tmp/failed-test-resources-*.json
+  policy: pull-push
+
 .qa-cache:
   variables: *qa-bundler-variables
   cache:
     - *qa-ruby-gems-cache
+    - *qa-test-resources-cache
 
 .qa-cache-pull-push:
   variables: *qa-bundler-variables
@@ -619,6 +627,7 @@
   cache:
     - *qa-ruby-gems-cache
     - *cng-helm-cache
+    - *qa-test-resources-cache
 
 .cng-qa-cache-push:
   variables:

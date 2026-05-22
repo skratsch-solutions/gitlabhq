@@ -176,10 +176,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
 
   rule { logged_in_viewable }.enable :read_group
 
-  rule { admin | organization_owner }.policy do
-    enable :read_group
-  end
-
   rule { has_projects }.policy do
     enable(*Authz::Role.get(:descendant_project_member).direct_permissions(:group))
   end

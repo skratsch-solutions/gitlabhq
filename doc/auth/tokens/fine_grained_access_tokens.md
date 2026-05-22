@@ -2566,6 +2566,16 @@ Grants the ability to create and read placeholder reassignments.
 | Create | Group | `POST` | `/groups/:id/placeholder_reassignments` |
 | Read | Group | `GET` | `/groups/:id/placeholder_reassignments` |
 
+### System Migration And Integration resources
+
+#### Batched Background Operation
+
+Grants the ability to read batched background operations.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/admin/batched_background_operations` |
+
 ### Wiki resources
 
 #### Wiki

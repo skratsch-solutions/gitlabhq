@@ -138,6 +138,26 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
         expect(described_class.for_gitlab_schema(:gitlab_ci_org).to_a).to match_array([ci_worker])
       end
     end
+
+    describe '.for_job_class' do
+      let_it_be(:custom_job_worker) { create(worker_factory, :queued, job_class_name: 'CustomJob') }
+
+      it 'returns workers with the matching job_class_name' do
+        expect(described_class.for_job_class('CustomJob')).to match_array([custom_job_worker])
+      end
+
+      it 'returns an empty relation when no workers match' do
+        expect(described_class.for_job_class('NoSuchJob')).to be_empty
+      end
+    end
+
+    describe '.ordered_by_created_at_desc' do
+      it 'orders workers by created_at descending' do
+        ordered = described_class.ordered_by_created_at_desc.pluck(:created_at)
+
+        expect(ordered).to eq(ordered.sort.reverse)
+      end
+    end
   end
 
   describe 'state machine transitions', :freeze_time do
@@ -596,6 +616,14 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
       worker = create(worker_factory, :failed)
 
       expect { worker.finish! }.to raise_error(StateMachines::InvalidTransition)
+    end
+  end
+
+  describe '#external_id' do
+    it 'returns the id with the correct format' do
+      worker = create(worker_factory) # rubocop:disable Rails/SaveBang -- this is a factory
+
+      expect(worker.external_id).to eq("#{worker.class::WORKER_TYPE}:#{worker.partition}:#{worker.id.last}")
     end
   end
 end
