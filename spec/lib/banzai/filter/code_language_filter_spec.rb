@@ -41,21 +41,22 @@ RSpec.describe Banzai::Filter::CodeLanguageFilter, feature_category: :markdown d
     end
   end
 
-  context 'when lang is specified on `pre`' do
-    it 'adds data-canonical-lang and removes lang attribute' do
-      result = filter('<pre lang="ruby"><code>def fun end</code></pre>')
-
-      expect(result.to_html.delete("\n"))
-        .to eq('<pre data-canonical-lang="ruby"><code>def fun end</code></pre>')
+  context 'when lang is specified' do
+    where(:html) do
+      [
+        '<pre lang="ruby"><code>def fun end</code></pre>',
+        '<pre><code lang="ruby">def fun end</code></pre>',
+        '<pre lang="ruby">def fun end</pre>'
+      ]
     end
-  end
 
-  context 'when lang is specified on `code`' do
-    it 'adds data-canonical-lang to `pre` and removes lang attribute' do
-      result = filter('<pre><code lang="ruby">def fun end</code></pre>')
+    with_them do
+      it 'adds data-canonical-lang to pre and removes lang attribute' do
+        result = filter(html)
 
-      expect(result.to_html.delete("\n"))
-        .to eq('<pre data-canonical-lang="ruby"><code>def fun end</code></pre>')
+        expect(result.to_html.delete("\n"))
+          .to eq('<pre data-canonical-lang="ruby"><code>def fun end</code></pre>')
+      end
     end
   end
 

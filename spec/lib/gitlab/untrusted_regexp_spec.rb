@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
 require 'support/shared_examples/lib/gitlab/malicious_regexp_shared_examples'
 
 RSpec.describe Gitlab::UntrustedRegexp, feature_category: :shared do
@@ -123,90 +123,35 @@ RSpec.describe Gitlab::UntrustedRegexp, feature_category: :shared do
       end
     end
 
-    context 'when nil is passed with feature flag disabled' do
-      let(:regexp) { '\w{0,2}' }
-      let(:text) { nil }
-
-      before do
-        stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-      end
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when nil is passed with feature flag enabled' do
+    context 'when nil is passed' do
       let(:regexp) { '\w{0,2}' }
       let(:text) { nil }
 
       it { is_expected.to eq(false) }
     end
 
-    context 'when a matching empty string is passed with feature flag disabled' do
-      let(:regexp) { '\w{0,2}' }
-      let(:text) { '' }
-
-      before do
-        stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-      end
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when a matching empty string is passed with feature flag enabled' do
+    context 'when a matching empty string is passed' do
       let(:regexp) { '\w{0,2}' }
       let(:text) { '' }
 
       it { is_expected.to eq(true) }
     end
 
-    context 'when a matching string only containing spaces is passed with feature flag disabled' do
-      let(:regexp) { '^\s{0,2}$' }
-      let(:text) { ' ' }
-
-      before do
-        stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-      end
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when a matching string only containing spaces is passed with feature flag enabled' do
+    context 'when a matching string only containing spaces is passed' do
       let(:regexp) { '^\s{0,2}$' }
       let(:text) { ' ' }
 
       it { is_expected.to eq(true) }
     end
 
-    context 'when a non-matching empty string is passed with feature flag disabled' do
-      let(:regexp) { '\w{1,2}' }
-      let(:text) { '' }
-
-      before do
-        stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-      end
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when a non-matching empty string is passed with feature flag enabled' do
+    context 'when a non-matching empty string is passed' do
       let(:regexp) { '\w{1,2}' }
       let(:text) { '' }
 
       it { is_expected.to eq(false) }
     end
 
-    context 'when a non-matching string only containing spaces is passed with feature flag disabled' do
-      let(:regexp) { '^\s{2,4}$' }
-      let(:text) { ' ' }
-
-      before do
-        stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-      end
-
-      it { is_expected.to eq(false) }
-    end
-
-    context 'when a non-matching string only containing spaces is passed with feature flag enabled' do
+    context 'when a non-matching string only containing spaces is passed' do
       let(:regexp) { '^\s{2,4}$' }
       let(:text) { ' ' }
 

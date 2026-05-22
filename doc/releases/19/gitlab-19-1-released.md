@@ -8,6 +8,8 @@ description: "Summary of features included in 19.1"
 The following features are being delivered for GitLab 19.1.
 These features are now available on GitLab.com.
 
+If this page is empty, no new features have been added yet.
+
 <!-- Copy this template, and paste it into the doc section where it belongs:
 
 Primary feature, Agentic Core, Scale and Deployments, or Unified DevOps and Security.

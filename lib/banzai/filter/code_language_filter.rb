@@ -17,7 +17,12 @@ module Banzai
       CSS   = 'pre > code:only-child'
       XPATH = Gitlab::Utils::Nokogiri.css_to_xpath(CSS).freeze
 
+      BARE_PRE_CSS   = 'pre[lang]:not(:has(code))'
+      BARE_PRE_XPATH = Gitlab::Utils::Nokogiri.css_to_xpath(BARE_PRE_CSS).freeze
+
       def call
+        wrap_bare_pre_content
+
         doc.xpath(XPATH).each do |node|
           transform_node(node)
         end
@@ -49,6 +54,16 @@ module Banzai
       end
 
       private
+
+      # Some markup languages (e.g., org-ruby) produce <pre lang="ruby">code</pre>
+      # without a <code> wrapper. Wrap these so pre > code:only-child can match.
+      def wrap_bare_pre_content
+        doc.xpath(BARE_PRE_XPATH).each do |pre_node|
+          code_node = Nokogiri::XML::Node.new('code', doc)
+          code_node.children = pre_node.children
+          pre_node.add_child(code_node)
+        end
+      end
 
       def extract_language_with_priority(code_node, pre_node)
         pre_node.attr('lang') || code_node.attr('lang')

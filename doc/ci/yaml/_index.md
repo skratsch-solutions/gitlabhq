@@ -2662,7 +2662,7 @@ In this example:
 
 **Additional details**:
 
-- You can find regex examples in [Code Coverage](../testing/code_coverage/_index.md#coverage-regex-patterns).
+- You can find regex examples in [Code Coverage](../testing/code_coverage/coverage_reporting.md#coverage-regex-patterns).
 - If there is more than one matched line in the job output, the last line is used
   (the first result of reverse search).
 - If there are multiple matches in a single line, the last match is searched

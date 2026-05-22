@@ -49,12 +49,12 @@ const (
 	capabilityShellCommand         capability = "shell_command"
 	capabilityReadFileChunked      capability = "read_file_chunked"
 	capabilityCommandTimeout       capability = "command_timeout"
+	capabilityWebSearch            capability = "web_search"
 
 	// Server capabilities
 	capabilityAdvancedSearch     capability = "advanced_search"
 	capabilityToolCallApproval   capability = "tool_call_approval"
 	capabilityJobTracePagination capability = "job_trace_pagination"
-	capabilityWebSearch          capability = "web_search"
 )
 
 // ClientCapabilities is how gitlab-lsp -> workhorse -> Duo Workflow Service communicates
@@ -70,6 +70,7 @@ var ClientCapabilities = []capability{
 	capabilityShellCommand,
 	capabilityReadFileChunked,
 	capabilityCommandTimeout,
+	capabilityWebSearch,
 }
 
 // ServerCapabilities defines the list of allowed server capabilities that
@@ -84,7 +85,6 @@ var ServerCapabilities = []capability{
 	capabilityAdvancedSearch,
 	capabilityToolCallApproval,
 	capabilityJobTracePagination,
-	capabilityWebSearch,
 }
 
 var errFailedToAcquireLockError = errors.New("handleWebSocketMessages: failed to acquire lock")

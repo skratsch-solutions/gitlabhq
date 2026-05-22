@@ -38,13 +38,6 @@ from any job in any stage in the pipeline. The coverage displays for each line:
 Hovering over the coverage bar provides further information, such as the number
 of times the line was checked by tests.
 
-Uploading a test coverage report does not enable:
-
-- [Test coverage results](_index.md#view-coverage-results) in the merge request widget.
-- [Code coverage history](_index.md#view-coverage-history).
-
-You must configure these separately.
-
 ## Limits
 
 A limit of 100 `<source>` nodes for Cobertura format XML files applies. If your Cobertura report exceeds

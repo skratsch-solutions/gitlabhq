@@ -35,7 +35,7 @@ module Banzai
         doc.xpath(XPATH_MATH_STYLE).each do |node|
           break if render_nodes_limit_reached?(@nodes_count)
 
-          node[:class] = MarkdownFilter.glfm_markdown?(context) ? TAG_CLASS : MATH_CLASSES
+          node[:class] = TAG_CLASS
 
           @nodes_count += 1
         end

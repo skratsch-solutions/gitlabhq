@@ -76,14 +76,10 @@ module Gitlab
       scan_regexp.match(text)
     end
 
-    def match?(text, allow_empty_string: false)
+    def match?(text)
       return false if text.nil?
 
-      scan(text).present? && ((allow_empty_string || always_allow_empty_string_matching?) || text.present?)
-    end
-
-    def always_allow_empty_string_matching?
-      Feature.enabled?(:untrusted_regexp_always_allow_empty_string_matching, :instance)
+      scan(text).present?
     end
 
     def replace(text, rewrite)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
 require_relative Rails.root.join('lib/ci/inputs/base_input.rb')
 require_relative Rails.root.join('lib/ci/inputs/string_input.rb')
 require_relative Rails.root.join('lib/ci/inputs/rules_evaluator.rb')
@@ -175,18 +175,6 @@ RSpec.describe Ci::Inputs::StringInput, feature_category: :pipeline_composition 
           input.validate_param!('')
 
           expect(input.errors).to be_empty
-        end
-
-        context 'when feature flag is disabled' do
-          before do
-            stub_feature_flags(untrusted_regexp_always_allow_empty_string_matching: false)
-          end
-
-          it 'still allows empty string matching' do
-            input.validate_param!('')
-
-            expect(input.errors).to be_empty
-          end
         end
       end
 

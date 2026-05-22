@@ -63,7 +63,7 @@ RSpec.describe WebHookWorker, feature_category: :integrations do
       let_it_be(:container) { project }
       let_it_be(:wiki) { container.wiki }
       let_it_be(:content) { 'test content' }
-      let_it_be(:wiki_page) { create(:wiki_page, container: container, content: content) }
+      let_it_be(:wiki_page, freeze: false) { create(:wiki_page, container: container, content: content) }
 
       let(:object_kind) { 'wiki_page' }
       let(:slug) { wiki_page.slug }

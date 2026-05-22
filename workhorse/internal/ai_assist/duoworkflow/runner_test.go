@@ -782,24 +782,21 @@ func TestRunner_handleWebSocketMessage(t *testing.T) {
 			expectedErrMsg:     "",
 		},
 		{
-			name:               "start request with web_search server capability",
-			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
+			name:               "start request with web_search client capability",
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": ["web_search"]}}`),
 			clientCapabilities: []string{"web_search"},
-			serverCapabilities: []string{"web_search"},
 			expectedErrMsg:     "",
 		},
 		{
-			name:               "start request with web_search and other server capabilities",
-			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
-			clientCapabilities: []string{"advanced_search", "web_search"},
-			serverCapabilities: []string{"advanced_search", "web_search"},
+			name:               "start request with web_search and other client capabilities",
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": ["shell_command", "web_search"]}}`),
+			clientCapabilities: []string{"shell_command", "web_search"},
 			expectedErrMsg:     "",
 		},
 		{
 			name:               "start request with unknown web_search variant is filtered out",
-			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": []}}`),
+			message:            []byte(`{"startRequest": {"workflowID": "id-123", "goal": "test goal", "clientCapabilities": ["web_search_unknown"]}}`),
 			clientCapabilities: []string{},
-			serverCapabilities: []string{"web_search_unknown"},
 			expectedErrMsg:     "",
 		},
 	}
@@ -1379,21 +1376,57 @@ func Test_intersectServerCapabilities(t *testing.T) {
 			fromServer: []string{"advanced_search"},
 			expected:   []string{"advanced_search"},
 		},
-		{
-			name:       "web_search capability passes through",
-			fromServer: []string{"web_search"},
-			expected:   []string{"web_search"},
-		},
-		{
-			name:       "web_search combined with other capabilities",
-			fromServer: []string{"advanced_search", "web_search"},
-			expected:   []string{"advanced_search", "web_search"},
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := intersectServerCapabilities(tt.fromServer)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func Test_intersectClientCapabilities(t *testing.T) {
+	tests := []struct {
+		name       string
+		fromClient []string
+		expected   []string
+	}{
+		{
+			name:       "returns empty when no matches",
+			fromClient: []string{"unknown_capability"},
+			expected:   []string{},
+		},
+		{
+			name:       "empty input returns empty",
+			fromClient: []string{},
+			expected:   []string{},
+		},
+		{
+			name:       "nil input returns empty",
+			fromClient: nil,
+			expected:   []string{},
+		},
+		{
+			name:       "web_search capability passes through",
+			fromClient: []string{"web_search"},
+			expected:   []string{"web_search"},
+		},
+		{
+			name:       "web_search combined with other capabilities",
+			fromClient: []string{"shell_command", "web_search"},
+			expected:   []string{"shell_command", "web_search"},
+		},
+		{
+			name:       "unknown web_search variant is filtered out",
+			fromClient: []string{"web_search_unknown"},
+			expected:   []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := intersectClientCapabilities(tt.fromClient)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

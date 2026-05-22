@@ -266,11 +266,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     prevent :create_subgroup
   end
 
-  rule { owner | admin | organization_owner }.policy do
-    enable :read_statistics
-    enable :update_group_organization
-  end
-
   rule { maintainer & can?(:create_projects) }.policy do
     enable :transfer_projects
     enable :import_projects

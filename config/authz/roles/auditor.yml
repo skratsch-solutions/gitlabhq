@@ -18,6 +18,8 @@ project:
   - award_emoji
   - build_download_code
   - build_read_container_image
+  - create_vulnerability_archive_export
+  - create_vulnerability_export
   - download_code
   - download_debian_package
   - download_generic_package
@@ -121,6 +123,7 @@ project:
   - read_project_import
   - read_project_member
   - read_project_merge_request_analytics
+  - read_project_security_dashboard
   - read_project_security_exclusions
   - read_pypi_package
   - read_release
@@ -142,6 +145,7 @@ project:
   - read_saved_view
   - read_security_inventory
   - read_security_orchestration_policies
+  - read_security_project_tracked_ref
   - read_security_resource
   - read_security_settings
   - read_snippet

@@ -50483,6 +50483,8 @@ CREATE INDEX index_virtual_registries_packages_maven_upstreams_on_url ON virtual
 
 CREATE UNIQUE INDEX index_virtual_registries_settings_on_group_id ON virtual_registries_settings USING btree (group_id);
 
+CREATE UNIQUE INDEX index_vuln_archived_records_on_unique_attrs_and_project_id ON ONLY vulnerability_archived_records USING btree (vulnerability_identifier, date, project_id);
+
 CREATE UNIQUE INDEX index_vuln_findings_on_uuid_including_vuln_id_1 ON vulnerability_occurrences USING btree (uuid) INCLUDE (vulnerability_id);
 
 CREATE UNIQUE INDEX index_vuln_hist_stats_on_project_date_and_tracked_context_id ON vulnerability_historical_statistics USING btree (project_id, date, security_project_tracked_context_id) NULLS NOT DISTINCT;
@@ -50548,8 +50550,6 @@ CREATE INDEX index_vulnerability_archived_records_on_archive_id_and_date ON ONLY
 CREATE INDEX index_vulnerability_archived_records_on_archive_id_and_id ON ONLY vulnerability_archived_records USING btree (archive_id, id);
 
 CREATE INDEX index_vulnerability_archived_records_on_project_id ON ONLY vulnerability_archived_records USING btree (project_id);
-
-CREATE UNIQUE INDEX index_vulnerability_archived_records_on_unique_attributes ON ONLY vulnerability_archived_records USING btree (vulnerability_identifier, date);
 
 CREATE UNIQUE INDEX index_vulnerability_archives_on_project_id_and_date ON ONLY vulnerability_archives USING btree (project_id, date);
 

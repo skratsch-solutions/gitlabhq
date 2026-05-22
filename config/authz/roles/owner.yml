@@ -142,6 +142,7 @@ group:
   - read_saml_user
   - read_secrets_manager_enrollment
   - read_service_account
+  - read_statistics
   - read_subscription_usage
   - read_usage_quotas
   - read_web_hook
@@ -163,6 +164,7 @@ group:
   - update_git_access_protocol
   - update_group_link
   - update_group_member
+  - update_group_organization
   - update_knowledge_graph_setting
   - update_member_invitation_setting
   - update_runners_registration_token

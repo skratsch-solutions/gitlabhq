@@ -87,6 +87,12 @@ yarn.lock @gitlab-org/maintainers/frontend
 /spec/frontend_integration/ @gitlab-org/maintainers/frontend
 /ee/spec/frontend_integration/ @gitlab-org/maintainers/frontend
 
+# Events / Analytics
+/config/metrics/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/ee/config/metrics/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/config/events/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+/ee/config/events/ @gitlab-org/maintainers/rails-backend @gitlab-org/maintainers/frontend
+
 # Database
 /db/ @gitlab-org/maintainers/database
 /db/fixtures/ @gitlab-org/maintainers/rails-backend
@@ -655,10 +661,10 @@ Dangerfile
 /lib/gitlab/usage/
 /ee/lib/ee/gitlab/usage_data_counters/
 /ee/lib/ee/gitlab/usage/
-/config/metrics/
-/ee/config/metrics/
-/config/events/
-/ee/config/events/
+/config/metrics/objects_schemas/
+/config/metrics/schema/
+/config/events/schema/
+/ee/config/metrics/object_schemas/
 /app/workers/gitlab_service_ping_worker.rb
 /spec/workers/gitlab_service_ping_worker_spec.rb
 /ee/spec/lib/gitlab/usage_data_counters/
