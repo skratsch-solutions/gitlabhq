@@ -2632,11 +2632,8 @@ rspec:
 ### `coverage`
 
 Use `coverage` with a custom regular expression to configure how code coverage
-is extracted from the job output. The coverage is shown in the UI if at least one
-line in the job output matches the regular expression.
-
-To extract the code coverage value from the match, GitLab uses
-this smaller regular expression: `\d+(?:\.\d+)?`.
+is extracted from the job output. GitLab displays the matched percentage in the
+MR widget, pipeline job list, and analytics graphs.
 
 **Supported values**:
 
@@ -2656,22 +2653,26 @@ job1:
 In this example:
 
 1. GitLab checks the job log for a match with the regular expression. A line
-   like `Code coverage: 67.89% of lines covered` would match.
-1. GitLab then checks the matched fragment to find a match to the regular expression: `\d+(?:\.\d+)?`.
-   The sample regex can match a code coverage of `67.89`.
+   like `Code coverage: 67.89% of lines covered` matches.
+1. GitLab then checks the matched fragment against `\d+(?:\.\d+)?` to extract
+   the number. The sample regex matches `67.89`.
 
 **Additional details**:
 
-- You can find regex examples in [Code Coverage](../testing/code_coverage/coverage_reporting.md#coverage-regex-patterns).
-- If there is more than one matched line in the job output, the last line is used
-  (the first result of reverse search).
-- If there are multiple matches in a single line, the last match is searched
-  for the coverage number.
-- If there are multiple coverage numbers found in the matched fragment, the first number is used.
+- If there is more than one matched line in the job output, the last line is used.
+- If there are multiple matches in a single line, the last match is used.
+- If there are multiple coverage numbers in the matched fragment, the first number is used.
 - Leading zeros are removed.
 - Coverage output from [child pipelines](../pipelines/downstream_pipelines.md#parent-child-pipelines)
-  is not recorded or displayed. See [issue 280818](https://gitlab.com/gitlab-org/gitlab/-/issues/280818)
-  for more details.
+  is not recorded. See [issue 280818](https://gitlab.com/gitlab-org/gitlab/-/issues/280818).
+- To display line-by-line diff annotations in the MR diff, configure
+  [`artifacts:reports:coverage_report`](artifacts_reports.md#artifactsreportscoverage_report)
+  separately. Configuring one does not enable the other.
+
+**Related topics**:
+
+- [Coverage regex patterns](../testing/code_coverage/coverage_reporting.md#coverage-regex-patterns)
+- [Coverage visualization](../testing/code_coverage/coverage_visualization.md)
 
 ---
 

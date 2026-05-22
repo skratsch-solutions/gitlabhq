@@ -136,13 +136,19 @@ GitLab cannot display the combined results of multiple `browser_performance` rep
 
 ## `artifacts:reports:coverage_report`
 
-Use `coverage_report:` to collect [coverage report](../testing/_index.md) in Cobertura or JaCoCo formats.
+Use `coverage_report` to collect a coverage report in Cobertura or JaCoCo format.
+After the pipeline completes, GitLab parses the report and displays line-by-line
+coverage annotations in the merge request diff.
 
-The `coverage_format:` Can be either [`cobertura`](../testing/code_coverage/cobertura.md) or
-[`jacoco`](../testing/code_coverage/jacoco.md).
+> [!note]
+> This keyword produces diff annotations only. It does not display a coverage percentage
+> in the MR widget or populate coverage history graphs. To display a coverage percentage,
+> configure the [`coverage`](_index.md#coverage) keyword separately.
 
-Cobertura was originally developed for Java, but there are many third-party ports for other languages such as
-JavaScript, Python, and Ruby.
+For more information, see:
+
+- [Cobertura coverage visualization](../testing/code_coverage/cobertura.md)
+- [JaCoCo coverage visualization](../testing/code_coverage/jacoco.md)
 
 ```yaml
 artifacts:
@@ -152,17 +158,12 @@ artifacts:
       path: coverage/cobertura-coverage.xml
 ```
 
-The collected coverage report is uploaded to GitLab as an artifact.
+You can generate multiple reports and collect them using
+[wildcards](../jobs/job_artifacts.md#with-wildcards).
+GitLab merges the results into a single report.
 
-You can generate multiple JaCoCo or Cobertura reports and include them in the final
-job artifact using [wildcards](../jobs/job_artifacts.md#with-wildcards).
-The results of the reports are aggregated in the final coverage report.
-
-The results of coverage reports appear in merge request [diff annotations](../testing/code_coverage/_index.md#coverage-visualization).
-
-> [!note]
-> Coverage reports from child pipelines appear in merge request diff annotations,
-> but the artifacts themselves are not shared with parent pipelines.
+Coverage reports from child pipelines appear in merge request diff annotations,
+but are not shared with parent pipelines.
 
 ## `artifacts:reports:codequality`
 

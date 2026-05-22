@@ -93,7 +93,6 @@ ee/app/models/security/orchestration_policy_configuration.rb:
 - compliance_framework_ids_with_policy_index
 - experiment_configuration
 app/helpers/ci/catalog/resources_helper.rb:
-- can_view_namespace_catalog?
 - js_ci_catalog_data
 app/helpers/groups_helper.rb:
 - group_title_link

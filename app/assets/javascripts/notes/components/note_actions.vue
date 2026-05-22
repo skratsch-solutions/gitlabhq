@@ -160,6 +160,7 @@ export default {
       default: '',
     },
   },
+  emits: ['handleDelete', 'handleEdit', 'handleResolve', 'start-replying', 'updateAssignees'],
   data() {
     return {
       isReportAbuseDrawerOpen: false,

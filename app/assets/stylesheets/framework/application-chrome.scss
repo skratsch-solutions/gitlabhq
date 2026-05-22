@@ -176,11 +176,6 @@
     contain: layout;
   }
 
-  &.issue-boards-page .panel-content,
-  &.issue-boards-page .work-item-detail-panel {
-    @apply gl-pb-0;
-  }
-
   .panel-content-inner,
   .work-item-detail-panel-content {
     overflow-x: hidden;
@@ -270,12 +265,6 @@
         }
       }
     }
-  }
-
-  &.issue-boards-page .panel-content-inner,
-  &.group-epics-roadmap-html .panel-content-inner {
-    @apply gl-px-0;
-    overflow: auto;
   }
 
   // Sidebar adjustments

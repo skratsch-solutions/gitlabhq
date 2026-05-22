@@ -62,6 +62,8 @@ RSpec.describe Tooling::Danger::ProjectHelper, feature_category: :tooling do
 
       'app/assets/foo'                   | [:frontend]
       'app/views/foo'                    | [:frontend, :backend]
+      'public/-/graphql/introspection_result.json'               | [:backend]
+      'public/-/graphql/introspection_result_no_deprecated.json' | [:backend]
       'public/foo'                       | [:frontend]
       'scripts/frontend/foo'             | [:frontend]
       'spec/frontend/bar'                | [:frontend]

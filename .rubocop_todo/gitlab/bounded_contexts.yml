@@ -3360,7 +3360,6 @@ Gitlab/BoundedContexts:
     - 'ee/app/workers/concerns/elastic/migration_state.rb'
     - 'ee/app/workers/concerns/geo_backoff_delay.rb'
     - 'ee/app/workers/concerns/geo_queue.rb'
-    - 'ee/app/workers/concerns/update_orchestration_policy_configuration.rb'
     - 'ee/app/workers/create_github_webhook_worker.rb'
     - 'ee/app/workers/dependencies/destroy_export_worker.rb'
     - 'ee/app/workers/dependencies/export_worker.rb'

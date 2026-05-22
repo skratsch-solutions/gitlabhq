@@ -2154,7 +2154,6 @@
 - './ee/spec/workers/compliance_management/chain_of_custody_report_worker_spec.rb'
 - './ee/spec/workers/compliance_management/merge_requests/compliance_violations_worker_spec.rb'
 - './ee/spec/workers/concerns/elastic/migration_options_spec.rb'
-- './ee/spec/workers/concerns/update_orchestration_policy_configuration_spec.rb'
 - './ee/spec/workers/create_github_webhook_worker_spec.rb'
 - './ee/spec/workers/deployments/auto_rollback_worker_spec.rb'
 - './ee/spec/workers/dora/daily_metrics/refresh_worker_spec.rb'

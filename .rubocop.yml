@@ -864,7 +864,6 @@ RSpec/AvoidConditionalStatements:
 
 RSpec/FeatureSpecMaxExamples:
   Enabled: true
-  Max: 25
   Include:
     - 'spec/features/**/*.rb'
     - 'ee/spec/features/**/*.rb'

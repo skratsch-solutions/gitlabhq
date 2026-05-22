@@ -430,7 +430,7 @@ To use models from Google Vertex AI, you must authenticate your AI Gateway insta
   ```shell
   GOOGLE_APPLICATION_CREDENTIALS=/path/to/application_default_credentials.json
   VERTEXAI_PROJECT=<gcp-project-id>
-  VERTEXAI_LOCATION=global
+  VERTEXAI_LOCATION=global # or any specific location, e.g., "europe-west1"
   ```
 
 - Run the AI Gateway container on Google Cloud Run and use the [Cloud Run service account](https://docs.litellm.ai/docs/providers/vertex#using-gcp-service-account) for Vertex AI access.

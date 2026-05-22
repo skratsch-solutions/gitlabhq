@@ -862,7 +862,7 @@ GEM
       activesupport (>= 6, < 8.1)
       json_schemer (~> 2.4.0)
       mutex_m (~> 0.3.0)
-    gitlab-styles (14.0.0)
+    gitlab-styles (14.1.0)
       rubocop (= 1.81.7)
       rubocop-capybara (= 2.21.0)
       rubocop-factory_bot (= 2.26.1)
@@ -2441,7 +2441,7 @@ DEPENDENCIES
   gitlab-secret_detection (< 1.0)
   gitlab-security_report_schemas (= 0.2.0.min15.0.0.max15.2.4)
   gitlab-sidekiq-fetcher!
-  gitlab-styles (~> 14.0)
+  gitlab-styles (~> 14.1)
   gitlab-topology-service-client (~> 0.1)!
   gitlab-utils!
   gitlab_chronic_duration (~> 0.12)
@@ -2939,7 +2939,7 @@ CHECKSUMS
   gitlab-secret_detection (0.41.0) sha256=6d64971af2c4b37eda3eb79f61ef6cbe67e841e730fc52e1549a9ceb34c3329c
   gitlab-security_report_schemas (0.2.0.min15.0.0.max15.2.4) sha256=7ed47c45096101514327ad512979a672889ac899531bfc948cb5905c816e39bf
   gitlab-sidekiq-fetcher (0.12.1)
-  gitlab-styles (14.0.0) sha256=68b18899d795f70b67d6f190871c18cf194833cb57b4ea4c3070548464565783
+  gitlab-styles (14.1.0) sha256=f39bc5619636bad3690d574438d70b865f48e38d57a38d7823bdeff2a90d2d5a
   gitlab-topology-service-client (0.1)
   gitlab-utils (0.2.0)
   gitlab_chronic_duration (0.12.0) sha256=0d766944d415b5c831f176871ee8625783fc0c5bfbef2d79a3a616f207ffc16d

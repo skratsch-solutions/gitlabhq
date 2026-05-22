@@ -10,7 +10,7 @@ import {
   GlIntersectionObserver,
 } from '@gitlab/ui';
 import noAccessSvg from '@gitlab/svgs/dist/illustrations/empty-state/empty-search-md.svg';
-import DuoWorkflowAction from 'ee_component/ai/shared/widgets/duo_workflow_action.vue';
+import DuoWorkItemToMrAction from 'ee_component/ai/shared/widgets/duo_work_item_to_mr_action.vue';
 import DesignDropzone from '~/vue_shared/components/upload_dropzone/upload_dropzone.vue';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { s__, __ } from '~/locale';
@@ -148,7 +148,7 @@ export default {
     WorkItemVulnerabilities: () =>
       import('ee_component/work_items/components/work_item_vulnerabilities.vue'),
     WorkItemMetadataProvider,
-    DuoWorkflowAction,
+    DuoWorkItemToMrAction,
   },
   mixins: [glFeatureFlagsMixin(), trackingMixin],
   inject: {
@@ -318,6 +318,14 @@ export default {
     },
   },
   computed: {
+    showGenerateMrWithDuoButton() {
+      if (!this.duoRemoteFlowsAvailability) return false;
+
+      const hasAgentPlan =
+        this.workItem?.features?.agentPlan || Boolean(this.findWidget('AGENT_PLAN'));
+
+      return !hasAgentPlan;
+    },
     workItemProjectId() {
       return this.workItem?.project?.id;
     },
@@ -582,23 +590,6 @@ export default {
     },
     canPasteDesign() {
       return !this.isSaving && !this.isAddingNotes && !this.editMode && !this.activeChildItem;
-    },
-    agentPrivileges() {
-      return [1, 2, 3, 4, 5];
-    },
-    duoWorkflowGoal() {
-      const username = window.gon?.current_username || '';
-      const resourceName = this.workItemType?.toLowerCase() || 'issue';
-      const resourceUrl = this.workItem.webUrl || '';
-      /* eslint-disable @gitlab/require-i18n-strings -- LLM prompt content sent to Duo Developer agent, not user-facing UI */
-      return [
-        `@${username} assigned you to solve the following ${resourceName}: ${resourceUrl}`,
-        '',
-        'Fetch the details and understand the problem thoroughly before writing any code. Consider what might be causing the issue and where in the codebase the relevant logic lives. If there are multiple possible approaches, reason about the tradeoffs and pick the simplest one that fully addresses the issue. Implement your solution, verify it works, then create a merge request with your changes.',
-        '',
-        `When you have completed your work, @mention @${username} in a comment on the issue to notify them. And assign them to the merge request unless told differently.`,
-      ].join('\n');
-      /* eslint-enable @gitlab/require-i18n-strings */
     },
     confidentialityToggledText() {
       return this.workItem.confidential
@@ -1243,17 +1234,13 @@ export default {
                       :project-id="workItemProjectId"
                     />
                     <div>
-                      <duo-workflow-action
-                        v-if="duoRemoteFlowsAvailability"
+                      <duo-work-item-to-mr-action
+                        v-if="showGenerateMrWithDuoButton"
                         :project-path="workItemFullPath"
-                        :hover-message="__('Generate merge request with Duo')"
-                        :goal="duoWorkflowGoal"
-                        workflow-definition="developer/v1"
-                        :agent-privileges="agentPrivileges"
                         :work-item-id="workItem.iid"
-                        size="medium"
-                        >{{ __('Generate MR with Duo') }}</duo-workflow-action
-                      >
+                        :work-item-type="workItemType"
+                        :work-item-web-url="workItem.webUrl"
+                      />
                     </div>
                   </div>
                 </div>

@@ -19582,6 +19582,26 @@ CREATE SEQUENCE dast_sites_id_seq
 
 ALTER SEQUENCE dast_sites_id_seq OWNED BY dast_sites.id;
 
+CREATE TABLE dependency_firewall_policy_rules (
+    id bigint NOT NULL,
+    security_policy_id bigint NOT NULL,
+    security_policy_management_project_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    rule_index integer DEFAULT 0 NOT NULL,
+    type smallint DEFAULT 0 NOT NULL,
+    content jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+CREATE SEQUENCE dependency_firewall_policy_rules_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE dependency_firewall_policy_rules_id_seq OWNED BY dependency_firewall_policy_rules.id;
+
 CREATE TABLE dependency_list_export_part_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -36323,6 +36343,8 @@ ALTER TABLE ONLY dast_site_validations ALTER COLUMN id SET DEFAULT nextval('dast
 
 ALTER TABLE ONLY dast_sites ALTER COLUMN id SET DEFAULT nextval('dast_sites_id_seq'::regclass);
 
+ALTER TABLE ONLY dependency_firewall_policy_rules ALTER COLUMN id SET DEFAULT nextval('dependency_firewall_policy_rules_id_seq'::regclass);
+
 ALTER TABLE ONLY dependency_list_export_parts ALTER COLUMN id SET DEFAULT nextval('dependency_list_export_parts_id_seq'::regclass);
 
 ALTER TABLE ONLY dependency_list_exports ALTER COLUMN id SET DEFAULT nextval('dependency_list_exports_id_seq'::regclass);
@@ -39791,6 +39813,9 @@ ALTER TABLE application_settings
 
 ALTER TABLE namespace_settings
     ADD CONSTRAINT default_branch_protection_defaults_size_constraint CHECK ((octet_length((default_branch_protection_defaults)::text) <= 1024)) NOT VALID;
+
+ALTER TABLE ONLY dependency_firewall_policy_rules
+    ADD CONSTRAINT dependency_firewall_policy_rules_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY dependency_list_export_part_uploads
     ADD CONSTRAINT dependency_list_export_part_uploads_pkey PRIMARY KEY (id, model_type);
@@ -44693,6 +44718,10 @@ CREATE INDEX i_custom_email_verifications_on_triggered_at_and_state_started ON s
 CREATE INDEX i_dast_pre_scan_verification_steps_on_pre_scan_verification_id ON dast_pre_scan_verification_steps USING btree (dast_pre_scan_verification_id);
 
 CREATE INDEX i_dast_profiles_tags_on_scanner_profiles_id ON dast_profiles_tags USING btree (dast_profile_id);
+
+CREATE INDEX i_dep_fw_rules_pol_mgmt_proj_id ON dependency_firewall_policy_rules USING btree (security_policy_management_project_id);
+
+CREATE UNIQUE INDEX i_dep_fw_rules_uniq_rule_idx ON dependency_firewall_policy_rules USING btree (security_policy_id, rule_index);
 
 CREATE UNIQUE INDEX i_duo_workflows_events_on_correlation_id_project_id ON duo_workflows_events USING btree (correlation_id_value, project_id);
 
@@ -56750,6 +56779,9 @@ ALTER TABLE ONLY security_pipeline_execution_project_schedules
 ALTER TABLE p_ci_build_trace_metadata
     ADD CONSTRAINT fk_21d25cac1a_p FOREIGN KEY (partition_id, trace_artifact_id) REFERENCES p_ci_job_artifacts(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE ONLY dependency_firewall_policy_rules
+    ADD CONSTRAINT fk_22827be539 FOREIGN KEY (security_policy_management_project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY issuable_metric_image_upload_states
     ADD CONSTRAINT fk_22b622dc92 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -59056,6 +59088,9 @@ ALTER TABLE ONLY merge_requests_compliance_violations
 
 ALTER TABLE ONLY issue_emails
     ADD CONSTRAINT fk_ed0f4c4b51 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY dependency_firewall_policy_rules
+    ADD CONSTRAINT fk_ed43da2c1c FOREIGN KEY (security_policy_id) REFERENCES security_policies(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY duo_workflows_workflows
     ADD CONSTRAINT fk_ed58162ace FOREIGN KEY (merge_request_id) REFERENCES merge_requests(id) ON DELETE CASCADE;

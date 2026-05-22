@@ -572,6 +572,12 @@ RSpec.describe 'Login', :with_current_organization, :clean_gitlab_redis_sessions
 
       expect(page.current_url).to end_with('/api/graphql?my_fake_idp')
     end
+
+    it 'does not redirect to the identity provider when auto_sign_in=false is set', :js do
+      visit new_user_session_path(auto_sign_in: 'false')
+
+      expect(page).to have_button('Sign in')
+    end
   end
 
   describe 'without two-factor authentication' do

@@ -200,6 +200,12 @@ RSpec::Matchers.define :have_correct_replication_target do |clickhouse_table_nam
             "(#{lookup_primary_keys.join(', ')}) don't start with the PostgreSQL table's primary keys " \
             "(#{postgresql_primary_keys.join(', ')})"
         end
+
+        if lookup_primary_keys.sort != clickhouse_primary_keys.sort
+          @errors << "the ClickHouse lookup table '#{lookup_table}' primary keys " \
+            "(#{lookup_primary_keys.join(', ')}) don't cover the same columns as the main ClickHouse table " \
+            "'#{clickhouse_table}' primary keys (#{clickhouse_primary_keys.join(', ')})"
+        end
       end
     end
 

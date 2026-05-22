@@ -34,6 +34,7 @@ export default {
       required: true,
     },
   },
+  emits: ['resolve', 'showReplyForm'],
   computed: {
     resolvableNotes() {
       return this.discussion.notes.filter((x) => x.resolvable);
