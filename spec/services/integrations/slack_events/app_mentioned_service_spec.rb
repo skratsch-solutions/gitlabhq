@@ -579,11 +579,11 @@ RSpec.describe Integrations::SlackEvents::AppMentionedService, feature_category:
             )
           end
 
-          it 'logs the error with to_s fallback' do
+          it 'logs the error with the normalized hash response' do
             expect(Gitlab::IntegrationsLogger).to receive(:error).with(
               hash_including(
                 message: 'Slack API error when posting response',
-                response: a_kind_of(String)
+                response: hash_including('ok' => false, 'error' => 'unexpected string response')
               )
             )
 

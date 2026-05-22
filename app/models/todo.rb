@@ -357,10 +357,6 @@ class Todo < ApplicationRecord
     target_type == DesignManagement::Design.name
   end
 
-  def for_alert?
-    target_type == AlertManagement::Alert.name
-  end
-
   def for_issue_or_work_item?
     [Issue.name, WorkItem.name].any?(target_type)
   end

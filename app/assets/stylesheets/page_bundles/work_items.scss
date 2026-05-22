@@ -132,6 +132,16 @@ $work-item-overview-gap-width: 2rem;
   }
 }
 
+.work-item-display-settings-drawer {
+  .work-item-dropdown-toggle {
+    @apply gl-px-0;
+    // stylelint-disable-next-line gitlab/no-gl-class
+    .gl-new-dropdown-item-content {
+      @apply gl-px-0;
+    }
+  }
+}
+
 .editable-wi-title {
   width: 100%;
   @include gl-container-width-up(md, panel) {

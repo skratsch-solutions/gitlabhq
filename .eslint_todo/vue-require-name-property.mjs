@@ -1611,8 +1611,6 @@ export default {
     'ee/app/assets/javascripts/security_dashboard/components/instance/report_not_configured_instance.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/pipeline_vulnerability_report.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/report_status_alert.vue',
-    'ee/app/assets/javascripts/security_dashboard/components/pipeline/resolve_with_ai_button.vue',
-    'ee/app/assets/javascripts/security_dashboard/components/pipeline/resolve_with_ai_info_popover.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/scan_alerts.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_dismissal_reason.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_finding_modal.vue',

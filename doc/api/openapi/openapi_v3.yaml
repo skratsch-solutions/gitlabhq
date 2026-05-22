@@ -13691,8 +13691,8 @@ paths:
   "/api/v4/users/{user_id}/project_deploy_keys":
     get:
       operationId: getApiV4UsersUserIdProjectDeployKeys
-      summary: List all project deploy keys accessible to a user
-      description: Lists all project-level deploy keys that a user can access.
+      summary: List all project deploy keys for a user
+      description: Lists all project deploy keys accessible to a specified user.
       tags:
       - Deploy resources
       responses:
@@ -28208,9 +28208,8 @@ paths:
   "/api/v4/projects/{id}/releases/{tag_name}/assets/links":
     get:
       operationId: getApiV4ProjectsIdReleasesTagNameAssetsLinks
-      summary: List links of a release
-      description: Get assets as links from a release. This feature was introduced
-        in GitLab 11.7.
+      summary: List all release links
+      description: Lists all assets as links from a release.
       tags:
       - Releases
       responses:
@@ -28260,8 +28259,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdReleasesTagNameAssetsLinks
       summary: Create a release link
-      description: Create an asset as a link from a release. This feature was introduced
-        in GitLab 11.7.
+      description: Creates an asset link for a specified release.
       tags:
       - Releases
       responses:
@@ -28299,9 +28297,8 @@ paths:
   "/api/v4/projects/{id}/releases/{tag_name}/assets/links/{link_id}":
     get:
       operationId: getApiV4ProjectsIdReleasesTagNameAssetsLinksLinkId
-      summary: Get a release link
-      description: Get an asset as a link from a release. This feature was introduced
-        in GitLab 11.7.
+      summary: Retrieve a release link
+      description: Retrieves a specified asset as a link from a release.
       tags:
       - Releases
       responses:
@@ -28339,8 +28336,7 @@ paths:
     put:
       operationId: putApiV4ProjectsIdReleasesTagNameAssetsLinksLinkId
       summary: Update a release link
-      description: Update an asset as a link from a release. This feature was introduced
-        in GitLab 11.7.
+      description: Updates a specified asset link for a release.
       tags:
       - Releases
       responses:
@@ -28384,8 +28380,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdReleasesTagNameAssetsLinksLinkId
       summary: Delete a release link
-      description: Deletes an asset as a link from a release. This feature was introduced
-        in GitLab 11.7.
+      description: Deletes a specified asset link from a release.
       tags:
       - Releases
       responses:
@@ -28423,8 +28418,8 @@ paths:
   "/api/v4/groups/{id}/releases":
     get:
       operationId: getApiV4GroupsIdReleases
-      summary: List group releases
-      description: Returns a list of group releases.
+      summary: List all releases in a group
+      description: Lists all releases for projects in a specified group.
       tags:
       - Releases
       responses:
@@ -28490,9 +28485,8 @@ paths:
   "/api/v4/projects/{id}/releases":
     get:
       operationId: getApiV4ProjectsIdReleases
-      summary: List Releases
-      description: Returns a paginated list of releases. This feature was introduced
-        in GitLab 11.7.
+      summary: List all releases in a project
+      description: Lists all releases for a specified project. Sorted by `released_at`.
       tags:
       - Releases
       responses:
@@ -28587,7 +28581,7 @@ paths:
       operationId: postApiV4ProjectsIdReleases
       summary: Create a release
       description: Creates a release. Developer level access to the project is required
-        to create a release. This feature was introduced in GitLab 11.7.
+        to create a release.
       tags:
       - Releases
       responses:
@@ -28627,9 +28621,8 @@ paths:
   "/api/v4/projects/{id}/releases/{tag_name}":
     get:
       operationId: getApiV4ProjectsIdReleasesTagName
-      summary: Get a release by a tag name
-      description: Gets a release for the given tag. This feature was introduced in
-        GitLab 11.7.
+      summary: Retrieve a release by tag name
+      description: Retrieves a release with a specified tag name.
       tags:
       - Releases
       responses:
@@ -28670,7 +28663,7 @@ paths:
       operationId: putApiV4ProjectsIdReleasesTagName
       summary: Update a release
       description: Updates a release. Developer level access to the project is required
-        to update a release. This feature was introduced in GitLab 11.7.
+        to update a release.
       tags:
       - Releases
       responses:
@@ -55159,9 +55152,7 @@ paths:
     get:
       operationId: getApiV4DeployTokens
       summary: List all deploy tokens
-      description: Get a list of all deploy tokens across the GitLab instance. This
-        endpoint requires administrator access. This feature was introduced in GitLab
-        12.9.
+      description: Lists all deploy tokens for the instance.
       tags:
       - Deploy resources
       responses:
@@ -55204,9 +55195,8 @@ paths:
   "/api/v4/projects/{id}/deploy_tokens":
     get:
       operationId: getApiV4ProjectsIdDeployTokens
-      summary: List project deploy tokens
-      description: Get a list of a project's deploy tokens. This feature was introduced
-        in GitLab 12.9.
+      summary: List all project deploy tokens
+      description: Lists all project deploy tokens.
       tags:
       - Deploy resources
       responses:
@@ -55260,8 +55250,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdDeployTokens
       summary: Create a project deploy token
-      description: Creates a new deploy token for a project. This feature was introduced
-        in GitLab 12.9.
+      description: Creates a project deploy token.
       tags:
       - Deploy resources
       responses:
@@ -55296,9 +55285,8 @@ paths:
   "/api/v4/projects/{id}/deploy_tokens/{token_id}":
     get:
       operationId: getApiV4ProjectsIdDeployTokensTokenId
-      summary: Get a project deploy token
-      description: Get a single project's deploy token by ID. This feature was introduced
-        in GitLab 14.9.
+      summary: Retrieve a project deploy token
+      description: Retrieves a project deploy token.
       tags:
       - Deploy resources
       responses:
@@ -55331,7 +55319,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdDeployTokensTokenId
       summary: Delete a project deploy token
-      description: This feature was introduced in GitLab 12.9.
+      description: Deletes a project deploy token.
       tags:
       - Deploy resources
       responses:
@@ -55360,9 +55348,8 @@ paths:
   "/api/v4/groups/{id}/deploy_tokens":
     get:
       operationId: getApiV4GroupsIdDeployTokens
-      summary: List group deploy tokens
-      description: Get a list of a group's deploy tokens. This feature was introduced
-        in GitLab 12.9.
+      summary: List all group deploy tokens
+      description: Lists all group deploy tokens.
       tags:
       - Deploy resources
       responses:
@@ -55416,8 +55403,7 @@ paths:
     post:
       operationId: postApiV4GroupsIdDeployTokens
       summary: Create a group deploy token
-      description: Creates a new deploy token for a group. This feature was introduced
-        in GitLab 12.9.
+      description: Creates a group deploy token.
       tags:
       - Deploy resources
       responses:
@@ -55452,7 +55438,7 @@ paths:
   "/api/v4/groups/{id}/deploy_tokens/{token_id}":
     get:
       operationId: getApiV4GroupsIdDeployTokensTokenId
-      summary: Get a group deploy token
+      summary: Retrieve a group deploy token
       description: 'Get a single group''s deploy token by ID. This feature was introduced
         in GitLab 14.9. '
       tags:
@@ -55487,8 +55473,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdDeployTokensTokenId
       summary: Delete a group deploy token
-      description: Removes a deploy token from the group. This feature was introduced
-        in GitLab 12.9.
+      description: Deletes a group deploy token.
       tags:
       - Deploy resources
       responses:
@@ -55518,9 +55503,7 @@ paths:
     get:
       operationId: getApiV4DeployKeys
       summary: List all deploy keys
-      description: Get a list of all deploy keys across all projects of the GitLab
-        instance. This endpoint requires administrator access and is not available
-        on GitLab.com.
+      description: Lists all deploy keys for the instance.
       tags:
       - Deploy resources
       responses:
@@ -55563,8 +55546,8 @@ paths:
     post:
       operationId: postApiV4DeployKeys
       summary: Create a deploy key
-      description: Create a deploy key for the GitLab instance. This endpoint requires
-        administrator access.
+      description: Creates a deploy key for the GitLab instance. Requires administrator
+        access.
       tags:
       - Deploy resources
       responses:
@@ -55589,8 +55572,8 @@ paths:
   "/api/v4/projects/{id}/deploy_keys":
     get:
       operationId: getApiV4ProjectsIdDeployKeys
-      summary: List deploy keys for project
-      description: Get a list of a project's deploy keys.
+      summary: List all deploy keys for project
+      description: Lists all deploy keys for a specified project.
       tags:
       - Deploy resources
       responses:
@@ -55634,9 +55617,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdDeployKeys
-      summary: Add deploy key
-      description: Creates a new deploy key for a project. If the deploy key already
-        exists in another project, it's joined to the current project only if the
+      summary: Add a deploy key for a project
+      description: Adds a deploy key for a specified project. If the deploy key already
+        exists in another project, it is joined to the current project only if the
         original one is accessible by the same user.
       tags:
       - Deploy resources
@@ -55672,8 +55655,8 @@ paths:
   "/api/v4/projects/{id}/deploy_keys/{key_id}":
     get:
       operationId: getApiV4ProjectsIdDeployKeysKeyId
-      summary: Get a single deploy key
-      description: Get a single key.
+      summary: Retrieve a deploy key
+      description: Retrieves a specified deploy key.
       tags:
       - Deploy resources
       responses:
@@ -55705,7 +55688,7 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdDeployKeysKeyId
-      summary: Update deploy key
+      summary: Update a deploy key
       description: Updates a deploy key for a project.
       tags:
       - Deploy resources
@@ -55748,9 +55731,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_ff3336380fc4"
     delete:
       operationId: deleteApiV4ProjectsIdDeployKeysKeyId
-      summary: Delete deploy key
-      description: Removes a deploy key from the project. If the deploy key is used
-        only for this project, it's deleted from the system.
+      summary: Delete a deploy key
+      description: Deletes a deploy key from the project. If the deploy key is used
+        only for this project, it is deleted from the system.
       tags:
       - Deploy resources
       responses:
@@ -55781,8 +55764,7 @@ paths:
       operationId: postApiV4ProjectsIdDeployKeysKeyIdEnable
       summary: Enable a deploy key
       description: Enables a deploy key for a project so this can be used. Returns
-        the enabled key, with a status code 201 when successful. This feature was
-        added in GitLab 8.11.
+        the enabled key, with a status code 201 when successful.
       tags:
       - Deploy resources
       responses:

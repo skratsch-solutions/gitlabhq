@@ -323,7 +323,6 @@ export default {
     'ee/app/assets/javascripts/security_configuration/secret_detection/components/exclusion_list.vue',
     'ee/app/assets/javascripts/security_dashboard/components/instance/project_list.vue',
     'ee/app/assets/javascripts/security_dashboard/components/instance/project_manager.vue',
-    'ee/app/assets/javascripts/security_dashboard/components/pipeline/resolve_with_ai_button.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_finding_modal.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_finding_modal_details.vue',
     'ee/app/assets/javascripts/security_dashboard/components/shared/vulnerability_details_graphql/index.vue',

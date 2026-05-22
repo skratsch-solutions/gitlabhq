@@ -519,73 +519,53 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
       end
     end
 
-    it 'generates query with window wrapper when window metrics are requested' do
+    it 'returns results when window metrics are requested' do
       request = Gitlab::Database::Aggregation::Request.new(
         dimensions: [{ identifier: :user_id }],
         metrics: [{ identifier: :returning_users_count }]
       )
 
-      plan = request.to_query_plan(engine)
-      aggregation_result = engine.send(:execute_query_plan, plan)
-
-      expect(aggregation_result.send(:query).to_sql).to include('ch_aggregation_window_query')
+      expect(engine).to execute_aggregation(request).and_return(match_array([
+        { user_id: 1, returning_users_count: 0 },
+        { user_id: 2, returning_users_count: 0 }
+      ]))
     end
 
-    it 'generates query without window wrapper when no window metrics are requested' do
+    it 'returns correct aggregation results when only regular metrics are requested' do
       request = Gitlab::Database::Aggregation::Request.new(
         dimensions: [{ identifier: :user_id }],
         metrics: [{ identifier: :total_count }]
       )
 
-      plan = request.to_query_plan(engine)
-      aggregation_result = engine.send(:execute_query_plan, plan)
-
-      expect(aggregation_result.send(:query).to_sql).not_to include('ch_aggregation_window_query')
+      expect(engine).to execute_aggregation(request).and_return(match_array([
+        { user_id: 1, total_count: 4 },
+        { user_id: 2, total_count: 1 }
+      ]))
     end
 
-    it 'applies ORDER BY after the window wrapper query' do
+    it 'orders window metric results by the specified dimension and computes integer intersection values' do
       request = Gitlab::Database::Aggregation::Request.new(
         dimensions: [{ identifier: :user_id }],
         metrics: [{ identifier: :returning_users_count }],
         order: [{ identifier: :user_id, direction: :asc }]
       )
 
-      plan = request.to_query_plan(engine)
-      aggregation_result = engine.send(:execute_query_plan, plan)
-      sql = aggregation_result.send(:query).to_sql
-
-      expect(sql).to match(/ch_aggregation_window_query.*ORDER BY.*aeq_user_id.*ASC/m)
+      expect(engine).to execute_aggregation(request).and_return([
+        { user_id: 1, returning_users_count: 0 },
+        { user_id: 2, returning_users_count: 0 }
+      ])
     end
 
-    it 'replaces window metric alias with window SQL in windowed projections' do
-      request = Gitlab::Database::Aggregation::Request.new(
-        dimensions: [{ identifier: :user_id }],
-        metrics: [{ identifier: :returning_users_count }]
-      )
-
-      plan = request.to_query_plan(engine)
-      aggregation_result = engine.send(:execute_query_plan, plan)
-      sql = aggregation_result.send(:query).to_sql
-
-      expect(sql).to include('arrayIntersect')
-      expect(sql).to include('length(')
-      expect(sql).to include('lagInFrame')
-      expect(sql).to include('aeq_returning_users_count')
-    end
-
-    it 'passes non-window metric aliases through unchanged in windowed projections' do
+    it 'returns both regular and window metrics when mixed' do
       request = Gitlab::Database::Aggregation::Request.new(
         dimensions: [{ identifier: :user_id }],
         metrics: [{ identifier: :total_count }, { identifier: :returning_users_count }]
       )
 
-      plan = request.to_query_plan(engine)
-      aggregation_result = engine.send(:execute_query_plan, plan)
-      sql = aggregation_result.send(:query).to_sql
-
-      # non-window metric alias is a plain column reference, not wrapped in bitmap SQL
-      expect(sql).to include('aeq_total_count')
-      expect(sql).not_to match(/bitmap\w+\([^,]*aeq_total_count/)
+      expect(engine).to execute_aggregation(request).and_return(match_array([
+        { user_id: 1, total_count: 4, returning_users_count: 0 },
+        { user_id: 2, total_count: 1, returning_users_count: 0 }
+      ]))
     end
 
     context 'with lagged_count metric type' do
@@ -603,20 +583,18 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
         end
       end
 
-      it 'generates lag window SQL for lagged_count metric' do
+      it 'returns previous period user counts using lag window logic' do
         request = Gitlab::Database::Aggregation::Request.new(
           dimensions: [{ identifier: :user_id }],
-          metrics: [{ identifier: :previous_users_count }]
+          metrics: [{ identifier: :previous_users_count }],
+          order: [{ identifier: :user_id, direction: :asc }]
         )
 
-        plan = request.to_query_plan(engine)
-        aggregation_result = engine.send(:execute_query_plan, plan)
-        sql = aggregation_result.send(:query).to_sql
-
-        expect(sql).to include('lagInFrame')
-        expect(sql).not_to include('bitmapCardinality')
-        expect(sql).not_to include('finalizeAggregation')
-        expect(sql).not_to include('arrayIntersect')
+        # user_id=1 is the first group (no prior) so lag=0; user_id=2 sees prior count of 1
+        expect(engine).to execute_aggregation(request).and_return([
+          { user_id: 1, previous_users_count: 0 },
+          { user_id: 2, previous_users_count: 1 }
+        ])
       end
     end
 
@@ -636,20 +614,17 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
         end
       end
 
-      it 'wraps all window metrics in the window query' do
+      it 'computes both window metrics together' do
         request = Gitlab::Database::Aggregation::Request.new(
           dimensions: [{ identifier: :user_id }],
-          metrics: [{ identifier: :returning_users_count }, { identifier: :previous_users_count }]
+          metrics: [{ identifier: :returning_users_count }, { identifier: :previous_users_count }],
+          order: [{ identifier: :user_id, direction: :asc }]
         )
 
-        plan = request.to_query_plan(engine)
-        aggregation_result = engine.send(:execute_query_plan, plan)
-        sql = aggregation_result.send(:query).to_sql
-
-        expect(sql).to include('arrayIntersect')
-        expect(sql).to include('lagInFrame')
-        expect(sql).to include('aeq_returning_users_count')
-        expect(sql).to include('aeq_previous_users_count')
+        expect(engine).to execute_aggregation(request).and_return([
+          { user_id: 1, returning_users_count: 0, previous_users_count: 0 },
+          { user_id: 2, returning_users_count: 0, previous_users_count: 1 }
+        ])
       end
     end
 
@@ -657,7 +632,6 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
       let(:engine_definition) do
         described_class.build do
           self.table_name = 'agent_platform_sessions'
-          self.table_primary_key = %w[namespace_path user_id session_id flow_type]
 
           dimensions do
             column :flow_type, :string
@@ -673,7 +647,7 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
         end
       end
 
-      it 'partitions the window by non-over dimension aliases' do
+      it 'returns window metrics partitioned correctly by non-over dimension' do
         request = Gitlab::Database::Aggregation::Request.new(
           dimensions: [
             { identifier: :flow_type },
@@ -682,20 +656,22 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
           metrics: [
             { identifier: :returning_users_count },
             { identifier: :previous_users_count }
-          ]
+          ],
+          order: [{ identifier: :event_date, parameters: { granularity: 'daily' }, direction: :asc }]
         )
 
-        plan = request.to_query_plan(engine)
-        sql = engine.send(:execute_query_plan, plan).send(:query).to_sql
-
-        expect(sql).to include(
-          'lagInFrame(aeq_returning_users_count, 1, []) ' \
-            'OVER (PARTITION BY aeq_flow_type ORDER BY aeq_event_date_daily ASC)'
-        )
-        expect(sql).to include(
-          'lagInFrame(aeq_previous_users_count, 1, 0) ' \
-            'OVER (PARTITION BY aeq_flow_type ORDER BY aeq_event_date_daily ASC)'
-        )
+        # Window is PARTITION BY flow_type ORDER BY event_date ASC.
+        # user 1 reappears on 2025-04-04 after 2025-03-04, so retained count = 1 on that date.
+        expect(engine).to execute_aggregation(request).and_return([
+          { flow_type: 'chat', event_date_daily: Date.parse('2025-03-01'), returning_users_count: 0,
+            previous_users_count: 0 },
+          { flow_type: 'chat', event_date_daily: Date.parse('2025-03-02'), returning_users_count: 0,
+            previous_users_count: 1 },
+          { flow_type: 'chat', event_date_daily: Date.parse('2025-03-04'), returning_users_count: 0,
+            previous_users_count: 1 },
+          { flow_type: 'chat', event_date_daily: Date.parse('2025-04-04'), returning_users_count: 1,
+            previous_users_count: 1 }
+        ])
       end
     end
 
@@ -729,28 +705,18 @@ RSpec.describe Gitlab::Database::Aggregation::ClickHouse::Engine, :click_house, 
         )
       end
 
-      let(:paginated_sql) do
-        response = engine.execute(request)
-        response.payload[:data].limit(10).offset(20).send(:query).to_sql
-      end
+      it 'applies filter, order, and pagination to window metric results' do
+        # All 5 sessions are flow_type=chat; 4 distinct event dates ordered DESC.
+        # user 1 reappears on 2025-04-04 after 2025-03-04, so retained = 1 on that date.
+        expect(engine).to execute_aggregation(request).and_return([
+          { event_date_daily: Date.parse('2025-04-04'), returning_users_count: 1 },
+          { event_date_daily: Date.parse('2025-03-04'), returning_users_count: 0 },
+          { event_date_daily: Date.parse('2025-03-02'), returning_users_count: 0 },
+          { event_date_daily: Date.parse('2025-03-01'), returning_users_count: 0 }
+        ])
 
-      it 'nests filter on inner aggregation, order and pagination on outer window query' do
-        sql = paginated_sql
-
-        expect(sql).to include('ch_aggregation_inner_query')
-        expect(sql).to include('ch_aggregation_finalized_query')
-        expect(sql).to include('ch_aggregation_window_query')
-
-        expect(sql)
-        .to match(/WHERE\s+`agent_platform_sessions`\.`flow_type`\s+IN\s+\('chat'\).*ch_aggregation_inner_query/m)
-
-        expect(sql).to include('arrayIntersect')
-        expect(sql).to include('lagInFrame(aeq_returning_users_count, 1, [])')
-        expect(sql).to include('OVER (ORDER BY aeq_event_date_daily ASC)')
-
-        expect(sql).to match(/ch_aggregation_window_query.*ORDER BY.*aeq_event_date_daily.*DESC/m)
-        expect(sql).to match(/LIMIT\s+10/)
-        expect(sql).to match(/OFFSET\s+20/)
+        paginated = engine.execute(request).payload[:data].limit(2).offset(0).to_a
+        expect(paginated.size).to eq(2)
       end
     end
   end

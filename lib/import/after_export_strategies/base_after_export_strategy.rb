@@ -67,13 +67,12 @@ module Import
         retries = 0
 
         loop do
-          if retries > 0
-            Project.uncached do
-              project.association(:import_export_uploads).reset
-            end
+          export_ready = Project.uncached do
+            project.association(:import_export_uploads).reset if retries > 0
+            project.export_file_exists?(current_user)
           end
 
-          return if project.export_file_exists?(current_user)
+          break if export_ready
 
           retries += 1
           raise StrategyError if retries > max_retries

@@ -96,8 +96,16 @@ The priority is for the item to be merged before the release.
 
 ## Technical Writer release day process
 
-On release day, the writer assigned to the upcoming release creates two merge requests: one for the `gitlab` repo and one for `docs-gitlab-com`.
-You can create these merge requests a few days before the release.
+On release day, the writer assigned to the upcoming release creates three merge requests:
+
+- One for the `gitlab` repo. This MR updates the introductory language and the description text.
+  It also introduces a page for the next release and adds a redirect.
+- One for `docs-gitlab-com`. This MR adds the next release version to the navigation.
+- One that backports the final release notes to the most recent "stable branch."
+  For example, if you are releasing 19.1, the stable branch is `19-1-stable-ee`.
+
+You can create the first two merge requests a few days before the release.
+The third one must be done on release day.
 
 > [!warning]
 > Do not merge the changes until the release manager confirms that the packages are publicly
@@ -207,6 +215,48 @@ For example, add 19.1:
 
 You can now push your commit. This merge request is complete.
 
+### Backport the final notes
+
+After the release notes are published, you must backport them. Do this work on release day and not before.
+
+The final cutoff for the `gitlab` repository happens the Friday before the release.
+If a user selects the version from the upper-right corner of the docs site, they won't get the final notes.
+Backporting makes the notes visible and up-to-date when users select the newly released version.
+
+1. Check out the "stable branch." For example, if you are releasing 19.1, check out `19-1-stable-ee`.
+1. Open the latest release notes from the `gitlab` repository and copy the file contents.
+1. Paste the contents over the local version of the release notes.
+1. Open a merge request and select the **Stable branch** template to populate the description.
+   Change the target branch to the stable branch (`19-1-stable-ee`).
+1. Have a maintainer review and merge. (It can be another tech writer.) 
+   If the branch is still locked, ask for assistance in the `#release-post` channel,
+   or wait a few hours until the branch is available to merge.
+1. After merge, [create a new docs pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
+   For **Run for branch name or tag**, select the version to deploy. In this example, choose `19.1`,
+   then select **New pipeline**.
+
+## Update a release note after the release deadline
+
+To update or add a release note after the release, complete the following steps.
+
+Update the `gitlab` repository:
+
+1. Open a merge request to update the Markdown file in the `gitlab` repository.
+1. Make your changes and have a technical writer review and merge.
+
+Backport the change:
+
+1. Check out the "stable branch." For example, if you are updating 19.0, check out `19-0-stable-ee`.
+1. Make your change in this branch.
+1. Open a merge request and set the target branch to the stable branch (`19-0-stable-ee`).
+1. Have a maintainer review and merge. (It can be another tech writer.)
+1. After merge, [create a new docs pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
+   For **Run for branch name or tag**, select the version to deploy. In this example, choose `19.0`,
+   then select **New pipeline**.
+
+1. On <https://docs.gitlab.com>, select the version in the upper-right corner and ensure the notes
+   were updated successfully.
+
 ## New release notes file template
 
 ```markdown
@@ -219,6 +269,8 @@ description: "Summary of features included in 19.0"
 
 The following features are being delivered for GitLab 19.0.
 These features are now available on GitLab.com.
+
+If this page is empty, no new features have been added yet.
 
 <!-- Copy this template, and paste it into the doc section where it belongs:
 

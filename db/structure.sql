@@ -6549,6 +6549,62 @@ CREATE TABLE loose_foreign_keys_deleted_records (
 )
 PARTITION BY LIST (partition);
 
+CREATE TABLE loose_foreign_keys_namespace_deleted_records (
+    id uuid DEFAULT gen_random_uuid_v7() NOT NULL,
+    partition bigint DEFAULT 1 NOT NULL,
+    primary_key_value bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    consume_after timestamp with time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    cleanup_attempts smallint DEFAULT 0,
+    fully_qualified_table_name text NOT NULL,
+    CONSTRAINT check_6de36fff9b CHECK ((char_length(fully_qualified_table_name) <= 150))
+)
+PARTITION BY LIST (partition);
+
+CREATE TABLE loose_foreign_keys_organization_deleted_records (
+    id uuid DEFAULT gen_random_uuid_v7() NOT NULL,
+    partition bigint DEFAULT 1 NOT NULL,
+    primary_key_value bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    consume_after timestamp with time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    cleanup_attempts smallint DEFAULT 0,
+    fully_qualified_table_name text NOT NULL,
+    CONSTRAINT check_b7a9a49d0f CHECK ((char_length(fully_qualified_table_name) <= 150))
+)
+PARTITION BY LIST (partition);
+
+CREATE TABLE loose_foreign_keys_project_deleted_records (
+    id uuid DEFAULT gen_random_uuid_v7() NOT NULL,
+    partition bigint DEFAULT 1 NOT NULL,
+    primary_key_value bigint NOT NULL,
+    project_id bigint NOT NULL,
+    consume_after timestamp with time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    cleanup_attempts smallint DEFAULT 0,
+    fully_qualified_table_name text NOT NULL,
+    CONSTRAINT check_9bbf29b982 CHECK ((char_length(fully_qualified_table_name) <= 150))
+)
+PARTITION BY LIST (partition);
+
+CREATE TABLE loose_foreign_keys_user_deleted_records (
+    id uuid DEFAULT gen_random_uuid_v7() NOT NULL,
+    partition bigint DEFAULT 1 NOT NULL,
+    primary_key_value bigint NOT NULL,
+    user_id bigint NOT NULL,
+    consume_after timestamp with time zone DEFAULT now(),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    status smallint DEFAULT 1 NOT NULL,
+    cleanup_attempts smallint DEFAULT 0,
+    fully_qualified_table_name text NOT NULL,
+    CONSTRAINT check_567afb94f0 CHECK ((char_length(fully_qualified_table_name) <= 150))
+)
+PARTITION BY LIST (partition);
+
 CREATE TABLE merge_request_commits_metadata (
     authored_date timestamp without time zone,
     committed_date timestamp without time zone,
@@ -40363,6 +40419,18 @@ ALTER TABLE ONLY lists
 ALTER TABLE ONLY loose_foreign_keys_deleted_records
     ADD CONSTRAINT loose_foreign_keys_deleted_records_pkey PRIMARY KEY (partition, id);
 
+ALTER TABLE ONLY loose_foreign_keys_namespace_deleted_records
+    ADD CONSTRAINT loose_foreign_keys_namespace_deleted_records_pkey PRIMARY KEY (partition, id);
+
+ALTER TABLE ONLY loose_foreign_keys_organization_deleted_records
+    ADD CONSTRAINT loose_foreign_keys_organization_deleted_records_pkey PRIMARY KEY (partition, id);
+
+ALTER TABLE ONLY loose_foreign_keys_project_deleted_records
+    ADD CONSTRAINT loose_foreign_keys_project_deleted_records_pkey PRIMARY KEY (partition, id);
+
+ALTER TABLE ONLY loose_foreign_keys_user_deleted_records
+    ADD CONSTRAINT loose_foreign_keys_user_deleted_records_pkey PRIMARY KEY (partition, id);
+
 ALTER TABLE ONLY member_approvals
     ADD CONSTRAINT member_approvals_pkey PRIMARY KEY (id);
 
@@ -48116,6 +48184,14 @@ CREATE INDEX index_ldap_admin_role_links_on_organization_id ON ldap_admin_role_l
 CREATE INDEX index_ldap_admin_role_links_on_provider_and_sync_status ON ldap_admin_role_links USING btree (provider, sync_status);
 
 CREATE INDEX index_ldap_group_links_on_member_role_id ON ldap_group_links USING btree (member_role_id);
+
+CREATE INDEX index_lfk_namespace_deleted_records_partitioned_query ON ONLY loose_foreign_keys_namespace_deleted_records USING btree (partition, fully_qualified_table_name, consume_after, id) WHERE (status = 1);
+
+CREATE INDEX index_lfk_organization_deleted_records_partitioned_query ON ONLY loose_foreign_keys_organization_deleted_records USING btree (partition, fully_qualified_table_name, consume_after, id) WHERE (status = 1);
+
+CREATE INDEX index_lfk_project_deleted_records_partitioned_query ON ONLY loose_foreign_keys_project_deleted_records USING btree (partition, fully_qualified_table_name, consume_after, id) WHERE (status = 1);
+
+CREATE INDEX index_lfk_user_deleted_records_partitioned_query ON ONLY loose_foreign_keys_user_deleted_records USING btree (partition, fully_qualified_table_name, consume_after, id) WHERE (status = 1);
 
 CREATE UNIQUE INDEX index_lfs_file_locks_on_project_id_and_path ON lfs_file_locks USING btree (project_id, path);
 

@@ -2,6 +2,7 @@ import { GlDrawer } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import WorkItemDisplaySettingsDrawer from '~/work_items/list/components/work_item_display_settings_drawer.vue';
 import WorkItemDisplaySettingsSort from '~/work_items/list/components/work_item_display_settings_sort.vue';
+import WorkItemDisplaySettingsMetadata from '~/work_items/list/components/work_item_display_settings_metadata.vue';
 
 const SORT_OPTIONS = [
   {
@@ -11,16 +12,23 @@ const SORT_OPTIONS = [
   },
 ];
 
+const DEFAULT_PROPS = {
+  open: false,
+  fullPath: 'gitlab-org/gitlab',
+  workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
+};
+
 describe('WorkItemDisplaySettingsDrawer', () => {
   let wrapper;
 
   const findDrawer = () => wrapper.findComponent(GlDrawer);
   const findSort = () => wrapper.findComponent(WorkItemDisplaySettingsSort);
+  const findMetadata = () => wrapper.findComponent(WorkItemDisplaySettingsMetadata);
 
   const createComponent = ({ props = {}, slots = {} } = {}) => {
     wrapper = shallowMountExtended(WorkItemDisplaySettingsDrawer, {
       propsData: {
-        open: false,
+        ...DEFAULT_PROPS,
         ...props,
       },
       slots,
@@ -41,7 +49,7 @@ describe('WorkItemDisplaySettingsDrawer', () => {
     expect(wrapper.emitted('close')).toHaveLength(1);
   });
 
-  it('renders slot content in place of the placeholder', () => {
+  it('renders slot content alongside the metadata section', () => {
     createComponent({
       slots: { default: '<div data-testid="custom-body">custom</div>' },
     });
@@ -75,6 +83,38 @@ describe('WorkItemDisplaySettingsDrawer', () => {
       findSort().vm.$emit('sort', 'CREATED_ASC');
 
       expect(wrapper.emitted('sort')).toEqual([['CREATED_ASC']]);
+    });
+  });
+
+  describe('display settings metadata section', () => {
+    it('renders the metadata component with respective props', () => {
+      const namespacePreferences = { hiddenMetadataKeys: ['weight'] };
+      createComponent({
+        props: {
+          namespacePreferences,
+          isGroup: true,
+          isServiceDeskList: false,
+          sortKey: 'CREATED_DESC',
+        },
+      });
+
+      expect(findMetadata().props()).toMatchObject({
+        namespacePreferences,
+        fullPath: 'gitlab-org/gitlab',
+        isGroup: true,
+        isServiceDeskList: false,
+        workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
+        sortKey: 'CREATED_DESC',
+      });
+    });
+
+    it('updates user preferences when the metadata component emits updates', () => {
+      createComponent();
+
+      const payload = { hiddenMetadataKeys: ['weight'] };
+      findMetadata().vm.$emit('update-settings', payload);
+
+      expect(wrapper.emitted('update-settings')).toEqual([[payload]]);
     });
   });
 });

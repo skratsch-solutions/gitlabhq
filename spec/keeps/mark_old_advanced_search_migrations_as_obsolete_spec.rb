@@ -191,6 +191,66 @@ RSpec.describe Keeps::MarkOldAdvancedSearchMigrationsAsObsolete, feature_categor
         expect(changes).to be_empty
       end
     end
+
+    context 'when the group label is not found in groups.json' do
+      let(:logger) { instance_double(Gitlab::Housekeeper::Logger).as_null_object }
+
+      before do
+        keep.instance_variable_set(:@logger, logger)
+        keeps_groups_helper = instance_double(Keeps::Helpers::Groups,
+          group_for_group_label: nil,
+          available_reviewers_for_group: [])
+        allow(Keeps::Helpers::Groups).to receive(:instance).and_return(keeps_groups_helper)
+      end
+
+      it 'skips the migration and logs the bad label' do
+        expect(logger).to receive(:puts).with(/Skipping #{migration_version}.*not found in groups\.json/)
+
+        changes = []
+        keep.each_identified_change { |change| changes << change }
+
+        expect(changes).to be_empty
+      end
+    end
+
+    context 'when the migration group has no available reviewers' do
+      let(:fallback_reviewers) { ['@fallback_engineer'] }
+
+      before do
+        keeps_groups_helper = instance_double(Keeps::Helpers::Groups,
+          group_for_group_label: groups[:foo].to_json)
+        allow(Keeps::Helpers::Groups).to receive(:instance).and_return(keeps_groups_helper)
+        allow(keeps_groups_helper).to receive(:available_reviewers_for_group)
+          .with(groups[:foo].to_json, reviewer_types: ['backend_engineers']).and_return([])
+        allow(keeps_groups_helper).to receive(:available_reviewers_for_group)
+          .with(anything, reviewer_types: ['backend_engineers']).and_return(fallback_reviewers)
+      end
+
+      it 'falls back to the default group for the assignee' do
+        changes = []
+        keep.each_identified_change { |change| changes << change }
+
+        expect(changes.size).to eq(1)
+        expect(changes.first.assignees).to include('@fallback_engineer')
+      end
+    end
+
+    context 'when no group has available reviewers' do
+      before do
+        keeps_groups_helper = instance_double(Keeps::Helpers::Groups,
+          group_for_group_label: groups[:foo].to_json,
+          available_reviewers_for_group: [])
+        allow(Keeps::Helpers::Groups).to receive(:instance).and_return(keeps_groups_helper)
+      end
+
+      it 'still yields a change but does not set an assignee' do
+        changes = []
+        keep.each_identified_change { |change| changes << change }
+
+        expect(changes.size).to eq(1)
+        expect(changes.first.assignees).to be_empty
+      end
+    end
   end
 
   describe '#make_change!' do
@@ -488,6 +548,32 @@ RSpec.describe Keeps::MarkOldAdvancedSearchMigrationsAsObsolete, feature_categor
         expect(prompt_generator).to receive(:fetch).once
           .with(migration_name, migration_name.underscore, 'other_file.rb')
           .and_return(nil)
+
+        keep.send(:ai_patch, migration_data, change)
+      end
+    end
+
+    context 'when migration_data uses the same path format the keep produces' do
+      let(:migration_data) do
+        {
+          file: migration_file,
+          spec_file: "#{described_class::MIGRATIONS_SPECS_PATH}/" \
+            "#{migration_version}_#{migration_name.underscore}_spec.rb",
+          yaml_filename: yaml_file,
+          yaml_content: YAML.load_file(yaml_file)
+        }
+      end
+
+      let(:canonical_spec_path) do
+        "ee/spec/elastic/migrate/#{migration_version}_#{migration_name.underscore}_spec.rb"
+      end
+
+      before do
+        allow(keep).to receive(:files_mentioning_migration).and_return([canonical_spec_path])
+      end
+
+      it 'excludes the spec file from AI patching' do
+        expect(prompt_generator).not_to receive(:fetch)
 
         keep.send(:ai_patch, migration_data, change)
       end

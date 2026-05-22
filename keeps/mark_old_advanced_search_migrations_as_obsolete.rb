@@ -21,7 +21,7 @@ module Keeps
   class MarkOldAdvancedSearchMigrationsAsObsolete < ::Gitlab::Housekeeper::Keep
     MIGRATIONS_PATH = 'ee/elastic/migrate'
     MIGRATION_REGEXP = /\A([0-9]+)_([_a-z0-9]*)\.rb\z/
-    MIGRATIONS_SPECS_PATH = 'ee/spec/elastic/migrate/'
+    MIGRATIONS_SPECS_PATH = 'ee/spec/elastic/migrate'
     MIGRATION_DOCS_PATH = 'ee/elastic/docs'
     MAX_FILES_LIMIT = 50
     GREP_IGNORE = [
@@ -50,14 +50,26 @@ module Keeps
         change.title = "Mark #{version} as obsolete"
         change.identifiers = ['mark_obsolete', version, migration_name]
         group_label = migration_data[:yaml_content]['group'] || DEFAULT_GROUP_LABEL
+
+        unless groups_helper.group_for_group_label(group_label)
+          @logger&.puts "Skipping #{version}: group label #{group_label.inspect} not found in " \
+            "groups.json (check #{migration_data[:yaml_filename]})"
+          next
+        end
+
         change.labels = [
           'maintenance::refactor',
           group_label
         ]
         group_team_map = get_group_team_map(group_label)
-        assignee = group_team_map.min_by { |_k, v| v }.first
-        change.assignees = assignee
-        group_team_map[assignee] += 1
+        group_team_map = get_group_team_map(DEFAULT_GROUP_LABEL) if group_team_map.empty?
+
+        if group_team_map.any?
+          assignee = group_team_map.min_by { |_k, v| v }.first
+          change.assignees = assignee
+          group_team_map[assignee] += 1
+        end
+
         change.changelog_ee = true
 
         # rubocop:disable Gitlab/DocumentationLinks/HardcodedUrl -- Not running inside rails application

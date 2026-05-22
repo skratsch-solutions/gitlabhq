@@ -323,20 +323,6 @@ RSpec.describe Todo, feature_category: :notifications do
     end
   end
 
-  describe '#for_alert?' do
-    it 'returns true when target is a Alert' do
-      subject.target_type = 'AlertManagement::Alert'
-
-      expect(subject.for_alert?).to eq(true)
-    end
-
-    it 'returns false when target is not a Alert' do
-      subject.target_type = 'Issue'
-
-      expect(subject.for_alert?).to eq(false)
-    end
-  end
-
   describe '#for_issue_or_work_item?' do
     it 'returns true when target is an Issue' do
       subject.target_type = 'Issue'

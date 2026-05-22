@@ -3,12 +3,14 @@ import { GlDrawer } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { DRAWER_Z_INDEX } from '~/lib/utils/constants';
 import WorkItemDisplaySettingsSort from './work_item_display_settings_sort.vue';
+import WorkItemDisplaySettingsMetadata from './work_item_display_settings_metadata.vue';
 
 export default {
   name: 'WorkItemDisplaySettingsDrawer',
   components: {
     GlDrawer,
     WorkItemDisplaySettingsSort,
+    WorkItemDisplaySettingsMetadata,
   },
   i18n: {
     title: s__('WorkItems|Display'),
@@ -16,6 +18,14 @@ export default {
   props: {
     open: {
       type: Boolean,
+      required: true,
+    },
+    fullPath: {
+      type: String,
+      required: true,
+    },
+    workItemTypeId: {
+      type: String,
       required: true,
     },
     sortOptions: {
@@ -28,8 +38,23 @@ export default {
       required: false,
       default: '',
     },
+    namespacePreferences: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isServiceDeskList: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
-  emits: ['close', 'sort'],
+  emits: ['close', 'sort', 'update-settings'],
   computed: {
     hasSortOptions() {
       return this.sortOptions.length > 0;
@@ -41,6 +66,9 @@ export default {
     },
     onSort(newSortKey) {
       this.$emit('sort', newSortKey);
+    },
+    onSettingsUpdate(input) {
+      this.$emit('update-settings', input);
     },
   },
   DRAWER_Z_INDEX,
@@ -67,6 +95,15 @@ export default {
         @sort="onSort"
       />
       <div :class="{ 'gl-border-t gl-pt-4': hasSortOptions }">
+        <work-item-display-settings-metadata
+          :namespace-preferences="namespacePreferences"
+          :full-path="fullPath"
+          :is-group="isGroup"
+          :is-service-desk-list="isServiceDeskList"
+          :work-item-type-id="workItemTypeId"
+          :sort-key="sortKey"
+          @update-settings="onSettingsUpdate"
+        />
         <slot></slot>
       </div>
     </template>

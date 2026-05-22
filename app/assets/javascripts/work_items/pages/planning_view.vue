@@ -2062,8 +2062,14 @@ export default {
       :open="isDisplayDrawerOpen"
       :sort-options="sortOptions"
       :sort-key="sortKey"
+      :namespace-preferences="displaySettingsSoT.namespacePreferences"
+      :full-path="rootPageFullPath"
+      :is-group="isGroup"
+      :is-service-desk-list="isServiceDeskList"
+      :work-item-type-id="workItemTypeId"
       @close="isDisplayDrawerOpen = false"
       @sort="handleSort"
+      @settings="handleLocalDisplayPreferencesUpdate"
     />
   </div>
 </template>

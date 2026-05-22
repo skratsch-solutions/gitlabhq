@@ -101,6 +101,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       organization_isolations
       organization_push_rules
       organization_settings
+      loose_foreign_keys_organization_deleted_records
       web_hooks
       web_hook_logs_daily
     ]

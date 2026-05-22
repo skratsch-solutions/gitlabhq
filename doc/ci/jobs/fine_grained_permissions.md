@@ -225,11 +225,11 @@ CI/CD job tokens can access the following REST API endpoints:
 | ---------- | ------------ | --------------- | ----- |
 | Download a project release asset file | `GET /projects/:id/releases/:tag_name/downloads/*direct_asset_path` | `READ_RELEASES` | Read |
 | Generates a changelog section for a release and returns it | `GET /projects/:id/repository/changelog` | `READ_RELEASES` | Read |
-| Get a release by a tag name | `GET /projects/:id/releases/:tag_name` | `READ_RELEASES` | Read |
-| Get a release link | `GET /projects/:id/releases/:tag_name/assets/links/:link_id` | `READ_RELEASES` | Read |
 | Get the latest project release | `GET /projects/:id/releases/permalink/latest(/)(*suffix_path)` | `READ_RELEASES` | Read |
-| List Releases | `GET /projects/:id/releases` | `READ_RELEASES` | Read |
-| List links of a release | `GET /projects/:id/releases/:tag_name/assets/links` | `READ_RELEASES` | Read |
+| List all release links | `GET /projects/:id/releases/:tag_name/assets/links` | `READ_RELEASES` | Read |
+| List all releases in a project | `GET /projects/:id/releases` | `READ_RELEASES` | Read |
+| Retrieve a release by tag name | `GET /projects/:id/releases/:tag_name` | `READ_RELEASES` | Read |
+| Retrieve a release link | `GET /projects/:id/releases/:tag_name/assets/links/:link_id` | `READ_RELEASES` | Read |
 | Collect release evidence | `POST /projects/:id/releases/:tag_name/evidence` | `ADMIN_RELEASES` | Read and write |
 | Create a release | `POST /projects/:id/releases` | `ADMIN_RELEASES` | Read and write |
 | Create a release link | `POST /projects/:id/releases/:tag_name/assets/links` | `ADMIN_RELEASES` | Read and write |

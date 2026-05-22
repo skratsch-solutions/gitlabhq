@@ -26,6 +26,8 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
   # the table name to remove this once a decision has been made.
   let(:allowed_to_be_missing_not_null) { [] }
 
+  let(:permanently_excluded_from_org_fk) { %w[loose_foreign_keys_organization_deleted_records] }
+
   # Tables with a multi-column `sharding_key` must enforce that exactly one of the sharding key columns is
   # non-null per row, via a `num_nonnulls(...) = 1` (or equivalent `<>`) check constraint. Tables that still
   # rely on a looser `>= 1` / `> 0` / `OR`-style constraint, or have a NOT VALID strict constraint, are
@@ -105,8 +107,15 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       # No LFK needed: daily partitions are dropped after 1 day via retain_for
       # https://gitlab.com/gitlab-org/gitlab/-/blob/ccc2459924e2805e43ad8f97eec15a6932d84f68/ee/app/models/analytics/knowledge_graph/code_indexing_task.rb#L13
       'p_knowledge_graph_code_indexing_tasks.project_id',
-      'merge_request_diff_commits_b5377a7a34.project_id'
       # No need for FK, rows will be deleted by the LFK to merge_request_diffs
+      'merge_request_diff_commits_b5377a7a34.project_id',
+      # Sharding key columns (organization_id, namespace_id, project_id, user_id) for LFK deleted records intentionally
+      # have no foreign key constraints. These tables track record deletions for async LFK cleanup.
+      # The referenced parent record may already be deleted by the time the LFK record is inserted or processed.
+      'loose_foreign_keys_organization_deleted_records.organization_id',
+      'loose_foreign_keys_namespace_deleted_records.namespace_id',
+      'loose_foreign_keys_project_deleted_records.project_id',
+      'loose_foreign_keys_user_deleted_records.user_id'
     ]
   end
 
@@ -284,7 +293,9 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
     end
 
     # Step 3: Check foreign keys using Rails schema introspection
-    columns_to_check = organization_id_columns.reject { |column| allowed_organization_id_violations[column[0]] }
+    columns_to_check = organization_id_columns
+                         .reject { |column| allowed_organization_id_violations[column[0]] }
+                         .reject { |column| permanently_excluded_from_org_fk.include?(column[0]) }
     messages = columns_to_check.filter_map do |column|
       table_name = column[0]
       violations = column[1..].compact

@@ -295,7 +295,13 @@ RSpec.describe 'Database schema',
       lfs_objects_projects: %w[lfs_object_id], # Referential integrity will be handled by application code
       project_repositories: %w[shard_id], # Referential integrity will be handled by application code
       group_wiki_repositories: %w[shard_id], # Referential integrity will be handled by application code
-      enabled_foundational_flow_check_results: %w[check_id] # checks are not persisted in the DB and come from ActiveRecord::FixedItemsModel::Model
+      enabled_foundational_flow_check_results: %w[check_id], # checks are not persisted in the DB and come from ActiveRecord::FixedItemsModel::Model
+      # Sharding key columns (organization_id, namespace_id, project_id, user_id) for LFK deleted records intentionally have no foreign key constraints.
+      # These tables track record deletions for async LFK cleanup. The referenced parent record may already be deleted by the time the LFK record is inserted or processed.
+      loose_foreign_keys_organization_deleted_records: %w[organization_id],
+      loose_foreign_keys_namespace_deleted_records: %w[namespace_id],
+      loose_foreign_keys_project_deleted_records: %w[project_id],
+      loose_foreign_keys_user_deleted_records: %w[user_id]
     }.with_indifferent_access.freeze
   end
 

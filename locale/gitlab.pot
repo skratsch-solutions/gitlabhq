@@ -7684,6 +7684,12 @@ msgstr ""
 msgid "AiGovernance|Source"
 msgstr ""
 
+msgid "AiGovernance|This tool can access any GitLab read endpoint. Changes to other read tools may not take effect if this tool remains on Allow."
+msgstr ""
+
+msgid "AiGovernance|This tool can invoke shell commands including git, curl, and file operations. It may bypass restrictions set on other tools."
+msgstr ""
+
 msgid "AiGovernance|Tool management"
 msgstr ""
 
@@ -41692,6 +41698,9 @@ msgstr ""
 msgid "Job|This job failed because the necessary resources were not successfully created."
 msgstr ""
 
+msgid "Job|This job is archived"
+msgstr ""
+
 msgid "Job|This job is stuck because of one of the following problems. There are no active runners online, no runners for the %{linkStart}protected branch%{linkEnd}, or no runners that match all of the job's tags:"
 msgstr ""
 
@@ -41717,6 +41726,9 @@ msgid "Job|Waiting for resource"
 msgstr ""
 
 msgid "Job|We could not find this element"
+msgstr ""
+
+msgid "Job|You can still view the log and download artifacts, but retry, cancel, and manual job actions are disabled. %{linkStart}Learn more about archived pipelines%{linkEnd}."
 msgstr ""
 
 msgid "Job|You cannot rerun trigger jobs from this list."
@@ -45894,6 +45906,72 @@ msgid "Mirroring was successfully disabled."
 msgstr ""
 
 msgid "Mirroring will only be available if the feature is included in the plan of the selected group or user."
+msgstr ""
+
+msgid "Mirror|All branches"
+msgstr ""
+
+msgid "Mirror|All protected branches"
+msgstr ""
+
+msgid "Mirror|Copy SSH public key"
+msgstr ""
+
+msgid "Mirror|Direction"
+msgstr ""
+
+msgid "Mirror|Disable"
+msgstr ""
+
+msgid "Mirror|Disabled"
+msgstr ""
+
+msgid "Mirror|Enable"
+msgstr ""
+
+msgid "Mirror|Error"
+msgstr ""
+
+msgid "Mirror|Failed to disable mirror."
+msgstr ""
+
+msgid "Mirror|Failed to enable mirror."
+msgstr ""
+
+msgid "Mirror|Failed to remove mirror."
+msgstr ""
+
+msgid "Mirror|Failed to sync mirror."
+msgstr ""
+
+msgid "Mirror|Last successful update"
+msgstr ""
+
+msgid "Mirror|Last update attempt"
+msgstr ""
+
+msgid "Mirror|Never"
+msgstr ""
+
+msgid "Mirror|Remove"
+msgstr ""
+
+msgid "Mirror|Repository"
+msgstr ""
+
+msgid "Mirror|Specific branches"
+msgstr ""
+
+msgid "Mirror|Status"
+msgstr ""
+
+msgid "Mirror|This mirror is disabled and will not sync."
+msgstr ""
+
+msgid "Mirror|Update now"
+msgstr ""
+
+msgid "Mirror|Updating"
 msgstr ""
 
 msgid "Miscellaneous"
@@ -76839,9 +76917,6 @@ msgid "This job is an out-of-date deployment to %{environmentLink}."
 msgstr ""
 
 msgid "This job is an out-of-date deployment to %{environmentLink}. View the %{deploymentLink}."
-msgstr ""
-
-msgid "This job is archived."
 msgstr ""
 
 msgid "This job is creating a deployment to %{environmentLink} using cluster %{clusterNameOrLink} and namespace %{kubernetesNamespace}."

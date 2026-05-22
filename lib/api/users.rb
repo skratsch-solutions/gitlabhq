@@ -549,8 +549,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'List all project deploy keys accessible to a user' do
-        detail 'Lists all project-level deploy keys that a user can access.'
+      desc 'List all project deploy keys for a user' do
+        detail 'Lists all project deploy keys accessible to a specified user.'
         success Entities::DeployKey
         is_array true
         tags ['deploy_resources']

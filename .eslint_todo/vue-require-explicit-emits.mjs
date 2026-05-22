@@ -845,7 +845,6 @@ export default {
     'ee/app/assets/javascripts/security_configuration/security_attributes/components/shared/attribute_token.vue',
     'ee/app/assets/javascripts/security_dashboard/components/instance/project_list.vue',
     'ee/app/assets/javascripts/security_dashboard/components/instance/project_manager.vue',
-    'ee/app/assets/javascripts/security_dashboard/components/pipeline/resolve_with_ai_button.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_dismissal_reason.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_finding_modal.vue',
     'ee/app/assets/javascripts/security_dashboard/components/pipeline/vulnerability_finding_modal_details.vue',

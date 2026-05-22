@@ -17,6 +17,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
   describe '#execute' do
     before do
       allow(service).to receive(:strategy_execute)
+      allow(service).to receive(:sleep)
     end
 
     it 'returns if project exported file is not found' do
@@ -224,16 +225,25 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
         service.ensure_export_ready!(user)
       end
 
-      it 'uses uncached block when clearing association on retry' do
+      it 'wraps each iteration in an uncached block to bypass the query cache' do
         call_count = 0
         allow(project).to receive(:export_file_exists?) do
           call_count += 1
           call_count >= 2
         end
 
-        expect(Project).to receive(:uncached).once.and_yield
+        expect(Project).to receive(:uncached).twice.and_yield
 
         service.ensure_export_ready!(user, max_retries: 5, base_delay: 0.01)
+      end
+
+      it 'checks export_file_exists? inside the uncached block' do
+        allow(project).to receive(:export_file_exists?).and_return(true)
+
+        expect(Project).to receive(:uncached).once.and_yield
+        expect(project).to receive(:export_file_exists?).once
+
+        service.ensure_export_ready!(user)
       end
     end
   end
