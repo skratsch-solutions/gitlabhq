@@ -1473,10 +1473,6 @@ class MergeRequest < ApplicationRecord
     !source_project.in_fork_network_of?(target_project)
   end
 
-  def can_be_closed?
-    opened?
-  end
-
   def ensure_merge_request_diff
     return if merge_request_diff.persisted?
 
@@ -2733,6 +2729,10 @@ class MergeRequest < ApplicationRecord
 
   def prepared?
     prepared_at.present?
+  end
+
+  def initial_preparation?
+    preparing? && !prepared?
   end
 
   def check_for_spam?(*)

@@ -18,7 +18,6 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 import { getParameterByName } from '~/lib/utils/url_utility';
 import { s__, __, sprintf } from '~/locale';
 import { createAlert } from '~/alert';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_USER, TYPENAME_PERSONAL_ACCESS_TOKEN } from '~/graphql_shared/constants';
 import createGranularPersonalAccessTokenMutation from '~/personal_access_tokens/graphql/create_granular_personal_access_token.mutation.graphql';
@@ -64,7 +63,6 @@ export default {
         'ee_component/personal_access_tokens/components/create_granular_token/ask_dap_permissions.vue'
       ),
   },
-  mixins: [glFeatureFlagsMixin()],
   inject: ['accessTokenMaxDate', 'accessTokenTableUrl'],
   data() {
     return {
@@ -424,7 +422,7 @@ export default {
           <gl-tabs content-class="!gl-p-0">
             <template #tabs-end>
               <ask-dap-permissions
-                v-if="$options.components.AskDapPermissions && glFeatures.patPermissionsSuggestions"
+                v-if="$options.components.AskDapPermissions"
                 @permissions-selected="handlePermissionsSelected"
                 @permissions-cleared="handlePermissionsCleared"
               />

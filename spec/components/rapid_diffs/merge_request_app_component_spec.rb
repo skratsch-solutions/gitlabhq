@@ -31,7 +31,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
   end
 
   let(:presenter) do
-    double( # rubocop:disable RSpec/VerifiedDoubles -- preparing? is delegated via SimpleDelegator at runtime
+    double( # rubocop:disable RSpec/VerifiedDoubles -- initial_preparation? is delegated at runtime
       ::RapidDiffs::MergeRequestPresenter,
       diffs_stats_endpoint: diffs_stats_endpoint,
       diff_files_endpoint: diff_files_endpoint,
@@ -54,7 +54,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       default_suggestion_commit_message: default_suggestion_commit_message,
       new_comment_template_paths: new_comment_template_paths,
       linked_file: nil,
-      preparing?: false,
+      initial_preparation?: false,
       coverage_endpoint: coverage_endpoint
     )
   end
@@ -168,9 +168,9 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
     end
   end
 
-  context 'when merge request is preparing' do
+  context 'when merge request is in initial preparation' do
     before do
-      allow(presenter).to receive(:preparing?).and_return(true)
+      allow(presenter).to receive(:initial_preparation?).and_return(true)
       allow(app_component).to receive(:with_empty_state).and_yield
     end
 
@@ -181,7 +181,7 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
     end
   end
 
-  it 'does not render building message when not preparing' do
+  it 'does not render building message when not in initial preparation' do
     render_component
 
     expect(page).not_to have_text('Building your merge request')

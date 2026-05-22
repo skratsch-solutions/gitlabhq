@@ -9,6 +9,7 @@ import { sortableStart, sortableEnd } from '~/sortable/utils';
 import Tracking from '~/tracking';
 import { getParameterByName } from '~/lib/utils/url_utility';
 import { getWorkItemTypeAllowedStatusMap } from '~/work_items/utils';
+import toast from '~/vue_shared/plugins/global_toast';
 import listQuery from 'ee_else_ce/boards/graphql/board_lists_deferred.query.graphql';
 import setActiveBoardItemMutation from 'ee_else_ce/boards/graphql/client/set_active_board_item.mutation.graphql';
 import BoardNewIssue from 'ee_else_ce/boards/components/board_new_issue.vue';
@@ -102,6 +103,7 @@ export default {
       dragCancelled: false,
       hasMadeDrawerAttempt: false,
       workItemTypeAllowedStatusMap: {},
+      toastMessage: null,
     };
   },
   apollo: {
@@ -361,6 +363,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('popstate', this.checkDrawerParams);
+    this.clearPendingMoveToast();
   },
   methods: {
     listHeight() {
@@ -406,6 +409,9 @@ export default {
       // Attach listener to detect `ESC` key press to cancel drag.
       document.addEventListener('keyup', this.handleKeyUp.bind(this));
 
+      // Clear any pending move toast and action when drag starts
+      this.clearPendingMoveToast();
+
       sortableStart();
       this.track('drag_card', { label: 'board' });
     },
@@ -425,6 +431,10 @@ export default {
 
       // Detach listener as soon as drag ends.
       document.removeEventListener('keyup', this.handleKeyUp.bind(this));
+
+      // Clear any pending move toast and action when drag ends
+      this.clearPendingMoveToast();
+
       // Drag was cancelled, prevent reordering.
       if (this.dragCancelled) return;
 
@@ -492,6 +502,13 @@ export default {
         // We need to manually trigger it to simulate cancel behaviour as VueDraggable doesn't
         // natively support it, see https://github.com/SortableJS/Vue.Draggable/issues/968.
         document.dispatchEvent(new Event('mouseup'));
+      }
+    },
+    clearPendingMoveToast() {
+      // Clear any pending move toast and action
+      if (this.toastMessage) {
+        this.toastMessage.hide();
+        this.toastMessage = null;
       }
     },
     isItemInTheList(itemIid) {
@@ -597,6 +614,9 @@ export default {
       }
     },
     async moveToPosition(positionInList, oldIndex, item) {
+      const itemBeforeOldPosition = oldIndex === 0 ? null : this.boardListItems[oldIndex - 1]?.id;
+      const itemAfterOldPosition = this.boardListItems[oldIndex + 1]?.id;
+
       try {
         await this.$apollo.mutate({
           mutation: listIssuablesQueries[this.issuableType].moveMutation,
@@ -643,6 +663,23 @@ export default {
             }
           },
         });
+
+        const message =
+          positionInList === 0
+            ? s__('Boards|Item moved to start of list.')
+            : s__('Boards|Item moved to end of list.');
+
+        // Show toast with undo action
+        this.toastMessage = toast(message, {
+          action: {
+            text: __('Undo'),
+            onClick: () =>
+              this.undoMoveToPosition(item, oldIndex, {
+                moveAfterId: itemAfterOldPosition,
+                moveBeforeId: itemBeforeOldPosition,
+              }),
+          },
+        });
       } catch (error) {
         setError({
           error,
@@ -652,6 +689,33 @@ export default {
               issuableType: this.isEpicBoard ? 'epic' : 'issue',
             },
           ),
+        });
+      }
+    },
+    async undoMoveToPosition(item, previousIndex, previousPosition = {}) {
+      if (!item || Number.isNaN(previousIndex) || previousIndex < 0) {
+        return;
+      }
+
+      this.clearPendingMoveToast();
+
+      try {
+        // Use moveBoardItem to revert to previous position
+        await this.moveBoardItem(
+          {
+            itemId: item.id,
+            iid: item.iid,
+            fromListId: this.currentList.id,
+            toListId: this.currentList.id,
+            moveAfterId: previousPosition.moveAfterId,
+            moveBeforeId: previousPosition.moveBeforeId,
+          },
+          previousIndex,
+        );
+      } catch (error) {
+        setError({
+          error,
+          message: s__('Boards|An error occurred while undoing the move. Please try again.'),
         });
       }
     },

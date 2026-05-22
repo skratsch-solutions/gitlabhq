@@ -17000,6 +17000,63 @@ CREATE SEQUENCE cd_applications_id_seq
 
 ALTER SEQUENCE cd_applications_id_seq OWNED BY cd_applications.id;
 
+CREATE TABLE cd_artifact_sources (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    service_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE SEQUENCE cd_artifact_sources_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_artifact_sources_id_seq OWNED BY cd_artifact_sources.id;
+
+CREATE TABLE cd_services (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    application_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    description text,
+    CONSTRAINT check_dd010ddc2b CHECK ((char_length(name) <= 255)),
+    CONSTRAINT check_e7207253e4 CHECK ((char_length(description) <= 2000))
+);
+
+CREATE SEQUENCE cd_services_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_services_id_seq OWNED BY cd_services.id;
+
+CREATE TABLE cd_versions (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    artifact_source_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    CONSTRAINT check_c338b24516 CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE cd_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_versions_id_seq OWNED BY cd_versions.id;
+
 CREATE TABLE cells_outstanding_leases (
     uuid uuid NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -36060,6 +36117,12 @@ ALTER TABLE ONLY catalog_verified_namespaces ALTER COLUMN id SET DEFAULT nextval
 
 ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applications_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_artifact_sources ALTER COLUMN id SET DEFAULT nextval('cd_artifact_sources_id_seq'::regclass);
+
+ALTER TABLE ONLY cd_services ALTER COLUMN id SET DEFAULT nextval('cd_services_id_seq'::regclass);
+
+ALTER TABLE ONLY cd_versions ALTER COLUMN id SET DEFAULT nextval('cd_versions_id_seq'::regclass);
+
 ALTER TABLE ONLY chat_names ALTER COLUMN id SET DEFAULT nextval('chat_names_id_seq'::regclass);
 
 ALTER TABLE ONLY chat_teams ALTER COLUMN id SET DEFAULT nextval('chat_teams_id_seq'::regclass);
@@ -39225,6 +39288,15 @@ ALTER TABLE ONLY catalog_verified_namespaces
 
 ALTER TABLE ONLY cd_applications
     ADD CONSTRAINT cd_applications_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_artifact_sources
+    ADD CONSTRAINT cd_artifact_sources_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_services
+    ADD CONSTRAINT cd_services_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_versions
+    ADD CONSTRAINT cd_versions_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cells_outstanding_leases
     ADD CONSTRAINT cells_outstanding_leases_pkey PRIMARY KEY (uuid);
@@ -46432,6 +46504,18 @@ CREATE INDEX index_catalog_resources_on_state ON catalog_resources USING btree (
 CREATE UNIQUE INDEX index_catalog_verified_namespaces_on_namespace_id ON catalog_verified_namespaces USING btree (namespace_id);
 
 CREATE UNIQUE INDEX index_cd_applications_on_group_id_and_name ON cd_applications USING btree (group_id, name);
+
+CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING btree (group_id);
+
+CREATE UNIQUE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
+
+CREATE UNIQUE INDEX index_cd_services_on_application_id_and_name ON cd_services USING btree (application_id, name);
+
+CREATE INDEX index_cd_services_on_group_id ON cd_services USING btree (group_id);
+
+CREATE UNIQUE INDEX index_cd_versions_on_artifact_source_id_and_name ON cd_versions USING btree (artifact_source_id, name);
+
+CREATE INDEX index_cd_versions_on_group_id ON cd_versions USING btree (group_id);
 
 CREATE INDEX index_chat_names_on_team_id_and_chat_id ON chat_names USING btree (team_id, chat_id);
 
@@ -57296,6 +57380,9 @@ ALTER TABLE ONLY security_policy_requirements
 ALTER TABLE ONLY ldap_admin_role_links
     ADD CONSTRAINT fk_5b7b686d35 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_services
+    ADD CONSTRAINT fk_5b7ba35b2b FOREIGN KEY (application_id) REFERENCES cd_applications(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY packages_conan_file_metadata
     ADD CONSTRAINT fk_5bb7e23d6d FOREIGN KEY (package_revision_id) REFERENCES packages_conan_package_revisions(id) ON DELETE CASCADE;
 
@@ -57395,6 +57482,9 @@ ALTER TABLE ONLY ai_catalog_item_consumers
 ALTER TABLE ONLY user_admin_roles
     ADD CONSTRAINT fk_62ce6c86fd FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_artifact_sources
+    ADD CONSTRAINT fk_62fa175638 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY merge_request_diff_details
     ADD CONSTRAINT fk_63097c0adc FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -57406,6 +57496,9 @@ ALTER TABLE ONLY snippet_repository_states
 
 ALTER TABLE ONLY deployment_approvals
     ADD CONSTRAINT fk_63920ba071 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_services
+    ADD CONSTRAINT fk_64133ceb23 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY merge_requests
     ADD CONSTRAINT fk_641731faff FOREIGN KEY (updated_by_id) REFERENCES users(id) ON DELETE SET NULL;
@@ -57952,6 +58045,9 @@ ALTER TABLE ONLY packages_debian_group_architectures
 
 ALTER TABLE ONLY secret_detection_token_statuses
     ADD CONSTRAINT fk_928017ddbc FOREIGN KEY (vulnerability_occurrence_id) REFERENCES vulnerability_occurrences(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_artifact_sources
+    ADD CONSTRAINT fk_92852a60d7 FOREIGN KEY (service_id) REFERENCES cd_services(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY clusters_kubernetes_namespaces
     ADD CONSTRAINT fk_9329325324 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
@@ -58586,6 +58682,9 @@ ALTER TABLE ONLY dast_profiles_pipelines
 ALTER TABLE ONLY tag_ssh_signatures
     ADD CONSTRAINT fk_cc24b85c89 FOREIGN KEY (key_id) REFERENCES keys(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY cd_versions
+    ADD CONSTRAINT fk_cc81bfeaee FOREIGN KEY (artifact_source_id) REFERENCES cd_artifact_sources(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY ai_settings
     ADD CONSTRAINT fk_cce81e0b9a FOREIGN KEY (amazon_q_service_account_user_id) REFERENCES users(id) ON DELETE SET NULL;
 
@@ -59065,6 +59164,9 @@ ALTER TABLE ONLY duo_workflow_session_artifacts
 
 ALTER TABLE ONLY user_group_member_roles
     ADD CONSTRAINT fk_f3b8fc5e4e FOREIGN KEY (shared_with_group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_versions
+    ADD CONSTRAINT fk_f4b428461e FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY abuse_report_user_mentions
     ADD CONSTRAINT fk_f4c2b15ef9 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;

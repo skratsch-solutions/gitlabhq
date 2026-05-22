@@ -18,7 +18,6 @@ module Ci
     include EachBatch
     include FastDestroyAll::Helpers
     include Gitlab::InternalEventsTracking
-    include Ci::PartitionableFinder
 
     self.table_name = :p_ci_pipelines
     self.primary_key = :id
@@ -557,6 +556,10 @@ module Ci
       archive_cutoff = Gitlab::CurrentSettings.archive_builds_older_than
 
       archive_cutoff ? created_after(archive_cutoff) : all
+    end
+
+    def self.find_by_id(id)
+      Gitlab::Ci::Pipeline::ByIdLookup.new(self, id).execute
     end
 
     # Returns the pipelines in descending order (= newest first), optionally

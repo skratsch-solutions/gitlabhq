@@ -347,8 +347,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe '#no_conflict_with_organization_user_details' do
-      let!(:user) { create(:user, :with_namespace, organization: organization) }
-      let!(:organization_user_detail) do
+      let_it_be(:user) { create(:user, :with_namespace, organization: organization) }
+      let_it_be(:organization_user_detail) do
         create(:organization_user_detail, organization: organization, user: user, username: 'test-username')
       end
 
@@ -619,8 +619,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     describe '.by_not_in_root_id' do
       it 'returns correct namespaces' do
-        expect(described_class.by_not_in_root_id(namespace1.id)).to contain_exactly(namespace, namespace2, namespace2sub)
-        expect(described_class.by_not_in_root_id(namespace2.id)).to contain_exactly(namespace, namespace1, namespace1sub)
+        expect(described_class.by_not_in_root_id(namespace1.id)).to contain_exactly(namespace, namespace2,
+          namespace2sub)
+        expect(described_class.by_not_in_root_id(namespace2.id)).to contain_exactly(namespace, namespace1,
+          namespace1sub)
         expect(described_class.by_not_in_root_id(namespace1sub.id)).to match_array(described_class.all)
       end
     end
@@ -755,7 +757,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     describe '.ordered_by_name' do
-      let!(:namespace) { create(:group, name: 'Beta') }
+      let_it_be(:namespace) { create(:group, name: 'Beta') }
 
       it 'includes namespaces in order' do
         expect(described_class.ordered_by_name).to eq [namespace, namespace1, namespace2, namespace1sub, namespace2sub]
@@ -764,10 +766,14 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     describe '.sorted_by_similarity_and_parent_id_desc' do
       it 'returns exact matches and top level groups first' do
-        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace1.path)).to eq([namespace1, namespace2, namespace2sub, namespace1sub, namespace])
-        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace2.path)).to eq([namespace2, namespace1, namespace2sub, namespace1sub, namespace])
-        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace2sub.name)).to eq([namespace2sub, namespace1sub, namespace2, namespace1, namespace])
-        expect(described_class.sorted_by_similarity_and_parent_id_desc('Namespace')).to eq([namespace2, namespace1, namespace2sub, namespace1sub, namespace])
+        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace1.path)).to eq([namespace1, namespace2,
+          namespace2sub, namespace1sub, namespace])
+        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace2.path)).to eq([namespace2, namespace1,
+          namespace2sub, namespace1sub, namespace])
+        expect(described_class.sorted_by_similarity_and_parent_id_desc(namespace2sub.name)).to eq([namespace2sub,
+          namespace1sub, namespace2, namespace1, namespace])
+        expect(described_class.sorted_by_similarity_and_parent_id_desc('Namespace')).to eq([namespace2, namespace1,
+          namespace2sub, namespace1sub, namespace])
       end
     end
 
@@ -806,7 +812,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
         expect(project_namespace).not_to be_nil
         expect(project_namespace.parent).not_to be_nil
         expect(described_class.all).to include(project_namespace)
-        expect(described_class.without_project_namespaces).to match_array([namespace, namespace1, namespace2, namespace1sub, namespace2sub, user_namespace, project_namespace.parent])
+        expect(described_class.without_project_namespaces).to match_array([namespace, namespace1, namespace2,
+          namespace1sub, namespace2sub, user_namespace, project_namespace.parent])
       end
     end
 
@@ -814,7 +821,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       subject { described_class.with_shared_runners_enabled }
 
       context 'when shared runners are enabled for namespace' do
-        let!(:namespace_inheriting_shared_runners) { create(:namespace, shared_runners_enabled: true) }
+        let_it_be(:namespace_inheriting_shared_runners) { create(:namespace, shared_runners_enabled: true) }
 
         it "returns a namespace inheriting shared runners" do
           is_expected.to include(namespace_inheriting_shared_runners)
@@ -822,7 +829,7 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
 
       context 'when shared runners are disabled for namespace' do
-        let!(:namespace_not_inheriting_shared_runners) { create(:namespace, shared_runners_enabled: false) }
+        let_it_be(:namespace_not_inheriting_shared_runners) { create(:namespace, shared_runners_enabled: false) }
 
         it "does not return a namespace not inheriting shared runners" do
           is_expected.not_to include(namespace_not_inheriting_shared_runners)
@@ -1020,8 +1027,15 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     it { is_expected.to delegate_method(:deletion_scheduled_at=).to(:namespace_details).with_arguments(:args) }
     it { is_expected.to delegate_method(:resource_access_token_notify_inherited?).to(:namespace_settings) }
     it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked?).to(:namespace_settings) }
-    it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_ancestor?).to(:namespace_settings) }
-    it { is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_application_setting?).to(:namespace_settings) }
+
+    it do
+      is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_ancestor?).to(:namespace_settings)
+    end
+
+    it do
+      is_expected.to delegate_method(:resource_access_token_notify_inherited_locked_by_application_setting?).to(:namespace_settings)
+    end
+
     it { is_expected.to delegate_method(:web_based_commit_signing_enabled).to(:namespace_settings) }
     it { is_expected.to delegate_method(:web_based_commit_signing_enabled?).to(:namespace_settings) }
     it { is_expected.to delegate_method(:lock_web_based_commit_signing_enabled).to(:namespace_settings) }
@@ -1093,7 +1107,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
     describe "#default_branch_protection_settings" do
       let(:default_branch_protection_defaults) { {} }
-      let(:namespace_setting) { create(:namespace_settings, default_branch_protection_defaults: default_branch_protection_defaults) }
+      let(:namespace_setting) do
+        create(:namespace_settings, default_branch_protection_defaults: default_branch_protection_defaults)
+      end
+
       let(:namespace) { create(:namespace, namespace_settings: namespace_setting) }
       let(:group) { create(:group, namespace_settings: namespace_setting) }
 
@@ -1414,8 +1431,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'when made a child group' do
-      let!(:parent_namespace) { create(:group) }
-      let!(:namespace) { create(:group, parent: parent_namespace) }
+      let_it_be(:parent_namespace) { create(:group) }
+      let_it_be(:namespace) { create(:group, parent: parent_namespace) }
 
       it 'returns database value' do
         expect(namespace.traversal_ids).to eq [parent_namespace.id, namespace.id]
@@ -1449,8 +1466,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
   end
 
   describe '#traversal_ids_as_sql' do
-    let!(:parent_namespace) { create(:group) }
-    let!(:namespace) { create(:group, parent: parent_namespace) }
+    let_it_be(:parent_namespace) { create(:group) }
+    let_it_be(:namespace) { create(:group, parent: parent_namespace) }
 
     it 'returns concatenated list of traversal IDs' do
       expect(namespace.traversal_ids_as_sql).to eq("#{parent_namespace.id},#{namespace.id}")
@@ -1461,7 +1478,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     subject(:traversal_ids_type) { described_class.traversal_ids_type }
 
     before do
-      allow(Gitlab::Database).to receive(:column_type).with(anything, 'namespaces', 'traversal_ids').and_return(pg_type_name)
+      allow(Gitlab::Database).to receive(:column_type).with(anything, 'namespaces',
+        'traversal_ids').and_return(pg_type_name)
     end
 
     context 'when the column type is _int4' do
@@ -1484,7 +1502,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       let(:pg_type_name) { '_text' }
 
       it 'raises an error' do
-        expect { traversal_ids_type }.to raise_error("unrecognized column type: _text id should be either an _int4 or _int8")
+        expect do
+          traversal_ids_type
+        end.to raise_error("unrecognized column type: _text id should be either an _int4 or _int8")
       end
     end
   end
@@ -1533,7 +1553,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       subject { namespace1.update!(parent: namespace2) }
 
       it 'sets the traversal_ids attribute' do
-        expect { subject }.to change { namespace1.traversal_ids }.from([namespace1.id]).to([namespace2.id, namespace1.id])
+        expect { subject }.to change {
+          namespace1.traversal_ids
+        }.from([namespace1.id]).to([namespace2.id, namespace1.id])
       end
     end
 
@@ -1669,7 +1691,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       before do
         allow(Gitlab).to receive(:com_except_jh?).and_return(true)
         stub_gitlab_api_client_to_support_gitlab_api(supported: true)
-        stub_container_registry_config(enabled: true, api_url: 'http://container-registry', key: 'spec/fixtures/x509_certificate_pk.key')
+        stub_container_registry_config(enabled: true, api_url: 'http://container-registry',
+          key: 'spec/fixtures/x509_certificate_pk.key')
       end
 
       it 'calls and returns GitlabApiClient.one_project_with_container_registry_tag' do
@@ -1865,13 +1888,15 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     it 'defaults use_minimum_char_limit to true' do
-      expect(described_class).to receive(:fuzzy_search).with(anything, anything, use_minimum_char_limit: true, exact_matches_first: false).once
+      expect(described_class).to receive(:fuzzy_search).with(anything, anything, use_minimum_char_limit: true,
+        exact_matches_first: false).once
 
       described_class.search('my namespace')
     end
 
     it 'passes use_minimum_char_limit if it is set' do
-      expect(described_class).to receive(:fuzzy_search).with(anything, anything, use_minimum_char_limit: false, exact_matches_first: false).once
+      expect(described_class).to receive(:fuzzy_search).with(anything, anything, use_minimum_char_limit: false,
+        exact_matches_first: false).once
 
       described_class.search('my namespace', use_minimum_char_limit: false)
     end
@@ -1885,7 +1910,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
 
       it 'returns exact matches first when parents are included' do
-        expect(described_class.search('some name', include_parents: true, exact_matches_first: true).to_a).to eq([first_group, second_group])
+        expect(described_class.search('some name', include_parents: true,
+          exact_matches_first: true).to_a).to eq([first_group, second_group])
       end
     end
 
@@ -2334,7 +2360,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       it { expect(child.all_projects_except_soft_deleted.to_a).to match_array([project2]) }
 
       context 'with soft deleted projects' do
-        let_it_be(:delayed_deletion_project) { create(:project, namespace: child, marked_for_deletion_at: Date.current) }
+        let_it_be(:delayed_deletion_project) do
+          create(:project, namespace: child, marked_for_deletion_at: Date.current)
+        end
 
         it 'skips delayed deletion project' do
           expect(namespace.all_projects_except_soft_deleted.to_a).to match_array([project2, project1])
@@ -2355,7 +2383,9 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       it { expect(user_namespace.all_projects_except_soft_deleted.to_a).to match_array([project]) }
 
       context 'with soft deleted projects' do
-        let_it_be(:delayed_deletion_project) { create(:project, namespace: user_namespace, marked_for_deletion_at: Date.current) }
+        let_it_be(:delayed_deletion_project) do
+          create(:project, namespace: user_namespace, marked_for_deletion_at: Date.current)
+        end
 
         it 'skips delayed deletion project' do
           expect(user_namespace.all_projects_except_soft_deleted.to_a).to match_array([project])
@@ -3000,7 +3030,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     with_them do
-      let(:namespace) { build(:namespace, shared_runners_enabled: shared_runners_enabled, allow_descendants_override_disabled_shared_runners: allow_descendants_override_disabled_shared_runners) }
+      let(:namespace) do
+        build(:namespace, shared_runners_enabled: shared_runners_enabled,
+          allow_descendants_override_disabled_shared_runners: allow_descendants_override_disabled_shared_runners)
+      end
 
       it 'returns the result' do
         expect(namespace.shared_runners_setting).to eq(shared_runners_setting)
@@ -3022,7 +3055,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     with_them do
-      let(:namespace) { build(:namespace, shared_runners_enabled: shared_runners_enabled, allow_descendants_override_disabled_shared_runners: allow_descendants_override_disabled_shared_runners) }
+      let(:namespace) do
+        build(:namespace, shared_runners_enabled: shared_runners_enabled,
+          allow_descendants_override_disabled_shared_runners: allow_descendants_override_disabled_shared_runners)
+      end
 
       it 'returns the result' do
         expect(namespace.shared_runners_setting_higher_than?(other_setting)).to eq(result)
@@ -3119,7 +3155,10 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
 
         context 'when parent allows shared runners and setting to false' do
           let(:parent) { create(:group, shared_runners_enabled: true) }
-          let(:group) { build(:group, :shared_runners_disabled, allow_descendants_override_disabled_shared_runners: false, parent_id: parent.id) }
+          let(:group) do
+            build(:group, :shared_runners_disabled, allow_descendants_override_disabled_shared_runners: false,
+              parent_id: parent.id)
+          end
 
           it 'is valid' do
             expect(group).to be_valid
@@ -3128,7 +3167,8 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
       end
     end
 
-    it_behaves_like 'validations called by different namespace types', :changing_allow_descendants_override_disabled_shared_runners_is_allowed
+    it_behaves_like 'validations called by different namespace types',
+      :changing_allow_descendants_override_disabled_shared_runners_is_allowed
   end
 
   describe '#root?' do
@@ -3289,10 +3329,6 @@ RSpec.describe Namespace, feature_category: :groups_and_projects do
     end
 
     context 'with ff enabled' do
-      before do
-        stub_feature_flags(certificate_based_clusters: true)
-      end
-
       context 'with a cluster_enabled_grant' do
         it 'is truthy' do
           create(:cluster_enabled_grant, namespace: namespace)

@@ -13331,6 +13331,9 @@ msgstr ""
 msgid "Boards|An error occurred while moving the list. Please try again."
 msgstr ""
 
+msgid "Boards|An error occurred while undoing the move. Please try again."
+msgstr ""
+
 msgid "Boards|An error occurred while updating the list. Please try again."
 msgstr ""
 
@@ -13389,6 +13392,12 @@ msgid "Boards|Expand"
 msgstr ""
 
 msgid "Boards|Failed to delete board. Please try again."
+msgstr ""
+
+msgid "Boards|Item moved to end of list."
+msgstr ""
+
+msgid "Boards|Item moved to start of list."
 msgstr ""
 
 msgid "Boards|Items"
@@ -78612,6 +78621,12 @@ msgid "Tracking"
 msgstr ""
 
 msgid "Training mode"
+msgstr ""
+
+msgid "TranscendPromo|On June 10 (June 11 for AMER/APAC), join us online to see what’s new and what’s next. Learn through technical demos and a live Duo Agent Platform workshop focused on top use cases like code review automation, pipeline fixes, and more."
+msgstr ""
+
+msgid "TranscendPromo|Register now for GitLab Transcend"
 msgstr ""
 
 msgid "Transfer"

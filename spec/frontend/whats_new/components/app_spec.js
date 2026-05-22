@@ -5,6 +5,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { mockTracking, unmockTracking } from 'helpers/tracking_helper';
 import App from '~/whats_new/components/app.vue';
+import TranscendPromoCard from '~/whats_new/components/transcend_promo_card.vue';
 import { useWhatsNew } from '~/whats_new/store';
 
 Vue.use(PiniaVuePlugin);
@@ -18,7 +19,7 @@ describe('App', () => {
   const updateHelpMenuUnreadBadge = jest.fn();
 
   const createWrapper = (options = {}) => {
-    const { glFeatures = {}, shallow = false, stateOverrides = {} } = options;
+    const { glFeatures = {}, shallow = false, stateOverrides = {}, props = {} } = options;
 
     Object.assign(store, stateOverrides);
 
@@ -29,6 +30,7 @@ describe('App', () => {
         initialReadArticles: [1, 2],
         mostRecentReleaseItemsCount: 3,
         updateHelpMenuUnreadBadge,
+        ...props,
       },
       ...(Object.keys(glFeatures).length > 0 && { provide: { glFeatures } }),
       ...(!shallow && {
@@ -57,6 +59,7 @@ describe('App', () => {
   };
 
   const getDrawer = () => wrapper.findComponent(GlDrawer);
+  const findTranscendPromoCard = () => wrapper.findComponent(TranscendPromoCard);
 
   beforeEach(() => {
     pinia = createTestingPinia();
@@ -202,6 +205,25 @@ describe('App', () => {
         await nextTick();
 
         expect(store.fetchItems).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('transcend promo card', () => {
+      it('does not render by default', () => {
+        createWrapper({
+          stateOverrides: { open: true, features: [], fetching: false },
+        });
+
+        expect(findTranscendPromoCard().exists()).toBe(false);
+      });
+
+      it('renders when showTranscendPromo is true', () => {
+        createWrapper({
+          stateOverrides: { open: true, features: [], fetching: false },
+          props: { showTranscendPromo: true },
+        });
+
+        expect(findTranscendPromoCard().exists()).toBe(true);
       });
     });
 

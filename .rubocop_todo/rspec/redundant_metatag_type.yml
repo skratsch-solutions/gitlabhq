@@ -367,7 +367,6 @@ RSpec/RedundantMetatagType:
     - 'spec/models/work_items/resource_link_event_spec.rb'
     - 'spec/models/work_items/user_preference_spec.rb'
     - 'spec/requests/acme_challenges_controller_spec.rb'
-    - 'spec/requests/admin/abuse_reports_controller_spec.rb'
     - 'spec/requests/admin/organizations_controller_spec.rb'
     - 'spec/requests/application_controller_spec.rb'
     - 'spec/requests/chaos_controller_spec.rb'

@@ -10,8 +10,8 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
   let(:cache) { described_class.new(repository) }
 
   describe 'TTL constants' do
-    it 'defines PENDING_EVENT_TTL as 1 hour' do
-      expect(described_class::PENDING_EVENT_TTL).to eq(1.hour)
+    it 'defines PENDING_EVENT_TTL as REBUILD_FLAG_TTL' do
+      expect(described_class::PENDING_EVENT_TTL).to eq(10.minutes)
     end
 
     it 'defines REBUILD_FLAG_TTL as 10 minutes' do
@@ -192,6 +192,28 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
 
         expect(cache.exist?(:branch_names)).to be false
       end
+
+      it 'marks cache as untrusted when adding a ref and SET key is missing' do
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.set(cache.trust_key(:branch_names), '1')
+        end
+
+        expect(cache.trusted?(:branch_names)).to be true
+
+        cache.handle_ref_change(:branch_names, branch_ref, false)
+
+        expect(cache.trusted?(:branch_names)).to be false
+      end
+
+      it 'does not mark cache as untrusted when deleting a ref and SET key is missing' do
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.set(cache.trust_key(:branch_names), '1')
+        end
+
+        cache.handle_ref_change(:branch_names, branch_ref, true)
+
+        expect(cache.trusted?(:branch_names)).to be true
+      end
     end
 
     context 'when rebuild is in progress but cache does not exist' do
@@ -268,7 +290,7 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
 
         Gitlab::Redis::RepositoryCache.with do |redis|
           ttl = redis.ttl(cache.pending_key(:branch_names))
-          expect(ttl).to be_within(10).of(1.hour.to_i)
+          expect(ttl).to be_within(10).of(described_class::PENDING_EVENT_TTL.to_i)
         end
       end
 
@@ -620,6 +642,18 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
 
         expect(result).to contain_exactly('orphan-branch')
       end
+
+      it 'marks cache as trusted even for empty set' do
+        cache.write(:branch_names, [])
+
+        expect(cache.trusted?(:branch_names)).to be true
+      end
+
+      it 'does not create Redis key for empty set without pending events' do
+        cache.write(:branch_names, [])
+
+        expect(cache.exist?(:branch_names)).to be false
+      end
     end
 
     context 'when Redis error occurs' do
@@ -763,6 +797,53 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
         ttl = cache.ttl(:branch_names)
         expect(ttl).to be > 0
         expect(ttl).to be <= 2.weeks
+      end
+    end
+
+    context 'when cache was written with empty values (0 branches/tags)' do
+      before do
+        cache.write(:branch_names, [])
+      end
+
+      it 'returns empty array without calling the block', :aggregate_failures do
+        expect { |b| cache.fetch(:branch_names, &b) }.not_to yield_control
+        expect(cache.fetch(:branch_names) { %w[should_not_be_called] }).to eq([])
+      end
+
+      it 'logs cache hit with count 0' do
+        expect(Gitlab::AppLogger).to receive(:info).with(
+          hash_including(
+            message: 'cache_hit',
+            rebuildable_cache: hash_including(
+              event: :cache_hit,
+              cache_key: :branch_names,
+              count: 0
+            )
+          )
+        )
+
+        cache.fetch(:branch_names) { [] }
+      end
+
+      it 'is marked trusted' do
+        expect(cache.trusted?(:branch_names)).to be true
+      end
+
+      it 'self-heals when a branch is added to a previously empty project' do
+        # Trust flag is set but key doesn't exist after writing empty set
+        expect(cache.trusted?(:branch_names)).to be true
+        expect(cache.exist?(:branch_names)).to be false
+
+        # A branch is created - simple_update detects the SET key is missing
+        # and marks cache as untrusted
+        cache.handle_ref_change(:branch_names, 'refs/heads/new-branch', false)
+        expect(cache.trusted?(:branch_names)).to be false
+
+        # Next fetch triggers a full rebuild and picks up the new branch
+        result = cache.fetch(:branch_names) { %w[new-branch] }
+
+        expect(result).to contain_exactly('new-branch')
+        expect(cache.trusted?(:branch_names)).to be true
       end
     end
 
@@ -912,6 +993,17 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
       end
     end
 
+    context 'when cache was written with empty values' do
+      before do
+        cache.write(:branch_names, [])
+      end
+
+      it 'returns empty results without calling the block', :aggregate_failures do
+        expect { |b| cache.search(:branch_names, '*', &b) }.not_to yield_control
+        expect(cache.search(:branch_names, '*') { %w[should_not_rebuild] }.to_a).to eq([])
+      end
+    end
+
     context 'with special characters in pattern' do
       before do
         cache.write(:branch_names, %w[release-1.0 release-1.1 release-2.0 test-release])
@@ -997,6 +1089,16 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
       cache.write(:branch_names, %w[main])
 
       expect(cache.ttl(:branch_names)).to be_within(10).of(1.hour.to_i)
+    end
+  end
+
+  describe 'pending event TTL' do
+    it 'equals REBUILD_FLAG_TTL to ensure orphaned events expire before next rebuild' do
+      expect(described_class::PENDING_EVENT_TTL).to eq(described_class::REBUILD_FLAG_TTL)
+    end
+
+    it 'is shorter than TRUST_TTL' do
+      expect(described_class::PENDING_EVENT_TTL).to be < described_class::TRUST_TTL
     end
   end
 

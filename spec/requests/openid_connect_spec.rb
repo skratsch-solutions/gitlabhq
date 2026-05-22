@@ -115,10 +115,10 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
     end
 
     context 'UserInfo payload' do
-      let!(:group1) { create :group }
-      let!(:group2) { create :group }
-      let!(:group3) { create :group, parent: group2 }
-      let!(:group4) { create :group, parent: group3 }
+      let_it_be(:group1) { create :group }
+      let_it_be(:group2) { create :group }
+      let_it_be(:group3) { create :group, parent: group2 }
+      let_it_be(:group4) { create :group, parent: group3 }
 
       before do
         group1.add_member(user, GroupMember::OWNER)
@@ -158,10 +158,10 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
     end
 
     context 'ID token payload' do
-      let!(:group1) { create :group }
-      let!(:group2) { create :group }
-      let!(:group3) { create :group, parent: group2 }
-      let!(:group4) { create :group, parent: group3 }
+      let_it_be(:group1) { create :group }
+      let_it_be(:group2) { create :group }
+      let_it_be(:group3) { create :group, parent: group2 }
+      let_it_be(:group4) { create :group, parent: group3 }
 
       before do
         group1.add_member(user, Gitlab::Access::OWNER)
@@ -363,10 +363,10 @@ RSpec.describe 'OpenID Connect requests', feature_category: :system_access do
     end
 
     context 'ID token payload' do
-      let!(:group1) { create :group }
-      let!(:group2) { create :group }
-      let!(:group3) { create :group, parent: group2 }
-      let!(:group4) { create :group, parent: group3 }
+      let_it_be(:group1) { create :group }
+      let_it_be(:group2) { create :group }
+      let_it_be(:group3) { create :group, parent: group2 }
+      let_it_be(:group4) { create :group, parent: group3 }
 
       before do
         group1.add_member(user, Gitlab::Access::OWNER)

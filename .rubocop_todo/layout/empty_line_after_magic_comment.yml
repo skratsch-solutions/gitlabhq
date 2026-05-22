@@ -385,7 +385,6 @@ Layout/EmptyLineAfterMagicComment:
     - 'spec/policies/design_management/design_policy_spec.rb'
     - 'spec/requests/api/composer_packages_spec.rb'
     - 'spec/requests/api/debian_group_packages_spec.rb'
-    - 'spec/requests/api/feature_flags_spec.rb'
     - 'spec/requests/api/graphql/ci/ci_cd_setting_spec.rb'
     - 'spec/requests/api/graphql/ci/groups_spec.rb'
     - 'spec/requests/api/graphql/ci/jobs_spec.rb'

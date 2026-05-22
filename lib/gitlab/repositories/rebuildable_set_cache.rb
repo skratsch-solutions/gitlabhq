@@ -6,13 +6,13 @@
 module Gitlab
   module Repositories
     class RebuildableSetCache < Gitlab::SetCache
-      # TTL for pending events queue during cache rebuilds.
-      # This value is arbitrary and can be adjusted based on observed behavior.
-      PENDING_EVENT_TTL = 1.hour
-
       # TTL for rebuild lock flag (prevents stuck rebuilds).
       # This value is arbitrary and can be adjusted based on observed behavior.
       REBUILD_FLAG_TTL = 10.minutes
+
+      # TTL for pending events queue during cache rebuilds.
+      # Matches REBUILD_FLAG_TTL so orphaned events expire before the next rebuild.
+      PENDING_EVENT_TTL = REBUILD_FLAG_TTL
 
       # TTL for trust flag (cache self-heals when expired).
       # This value is arbitrary and can be adjusted based on observed behavior.
@@ -32,20 +32,30 @@ module Gitlab
       # Lua script for atomic SADD only if key exists.
       # Prevents race condition where key expires between EXISTS check and SADD,
       # which would create a partial cache with only one element.
+      #
+      # Returns:
+      #   -1: key does not exist (SADD was not attempted)
+      #    0: key exists, element was already a member (no-op)
+      #    1: key exists, element was added
       SADD_IF_EXISTS_SCRIPT = <<~LUA
         if redis.call('EXISTS', KEYS[1]) == 1 then
           return redis.call('SADD', KEYS[1], ARGV[1])
         end
-        return 0
+        return -1
       LUA
 
       # Lua script for atomic SREM only if key exists.
       # Prevents race condition where key expires between EXISTS check and SREM.
+      #
+      # Returns:
+      #   -1: key does not exist (SREM was not attempted)
+      #    0: key exists, element was not a member (no-op)
+      #    1: key exists, element was removed
       SREM_IF_EXISTS_SCRIPT = <<~LUA
         if redis.call('EXISTS', KEYS[1]) == 1 then
           return redis.call('SREM', KEYS[1], ARGV[1])
         end
-        return 0
+        return -1
       LUA
 
       attr_reader :repository, :namespace, :expires_in
@@ -185,7 +195,7 @@ module Gitlab
           end
         end
 
-        if exists && is_trusted
+        if is_trusted
           log_event(:cache_hit, key, count: smembers.size)
           return smembers
         end
@@ -203,12 +213,9 @@ module Gitlab
         full_key = cache_key(key)
 
         with do |redis|
-          exists, is_trusted = redis.pipelined do |pipeline|
-            pipeline.exists?(full_key) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
-            pipeline.exists?(trust_key(key)) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
-          end
+          is_trusted = redis.exists?(trust_key(key)) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
 
-          write(key, yield) unless exists && is_trusted
+          write(key, yield) unless is_trusted
 
           redis.sscan_each(full_key, match: pattern)
         end
@@ -228,7 +235,12 @@ module Gitlab
           if deleted
             redis.eval(SREM_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
           else
-            redis.eval(SADD_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+            result = redis.eval(SADD_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+
+            # SADD_IF_EXISTS returns -1 when the SET key doesn't exist (add was skipped).
+            # This happens when the cache was written with an empty set (no Redis key created).
+            # Mark untrusted so the next fetch triggers a full rebuild.
+            mark_untrusted(key) if result == -1
           end
         end
       rescue ::Redis::BaseError => e

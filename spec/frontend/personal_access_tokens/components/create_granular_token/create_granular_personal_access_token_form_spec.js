@@ -28,7 +28,6 @@ import PersonalAccessTokenPermissionsSelector from '~/personal_access_tokens/com
 import ConfirmUnsavedChangesDialog from '~/vue_shared/components/confirm_unsaved_changes_dialog.vue';
 import CreatedPersonalAccessToken from '~/personal_access_tokens/components/created_personal_access_token.vue';
 import createGranularPersonalAccessTokenMutation from '~/personal_access_tokens/graphql/create_granular_personal_access_token.mutation.graphql';
-import getAccessTokenPermissions from '~/personal_access_tokens/graphql/get_access_token_permissions.query.graphql';
 import getSourcePersonalAccessToken from '~/personal_access_tokens/graphql/get_source_personal_access_token.query.graphql';
 import { MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH } from '~/personal_access_tokens/constants';
 import {
@@ -54,10 +53,6 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
   let mockApollo;
 
   const mockMutationHandler = jest.fn().mockResolvedValue(mockCreateMutationResponse);
-  const mockPermissionsHandler = jest
-    .fn()
-    .mockResolvedValue({ data: { accessTokenPermissions: [] } });
-
   const mockSourceTokenHandler = jest.fn().mockResolvedValue(mockGroupScopedTokenQueryResponse);
 
   const createComponent = ({
@@ -67,7 +62,6 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
   } = {}) => {
     mockApollo = createMockApollo([
       [createGranularPersonalAccessTokenMutation, mutationHandler],
-      [getAccessTokenPermissions, mockPermissionsHandler],
       [getSourcePersonalAccessToken, sourceTokenHandler],
     ]);
 
@@ -81,6 +75,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
       stubs: {
         GlSprintf,
         GlTabs: { template: '<div><slot name="tabs-end" /><slot /></div>' },
+        AskDapPermissions: true,
       },
     });
   };

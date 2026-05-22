@@ -9,8 +9,13 @@ export default (dataset = {}, updateHelpMenuUnreadBadge) => {
   if (whatsNewApp) {
     useWhatsNew().openDrawer();
   } else {
-    const { versionDigest, initialReadArticles, markAsReadPath, mostRecentReleaseItemsCount } =
-      dataset;
+    const {
+      versionDigest,
+      initialReadArticles,
+      markAsReadPath,
+      mostRecentReleaseItemsCount,
+      showTranscendPromo,
+    } = dataset;
     const el = document.createElement('div');
     document.body.append(el);
     whatsNewApp = new Vue({
@@ -25,6 +30,7 @@ export default (dataset = {}, updateHelpMenuUnreadBadge) => {
             markAsReadPath,
             mostRecentReleaseItemsCount,
             updateHelpMenuUnreadBadge,
+            showTranscendPromo,
           },
         });
       },

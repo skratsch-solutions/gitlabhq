@@ -8508,6 +8508,48 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     end
   end
 
+  describe '#initial_preparation?' do
+    subject(:merge_request) do
+      build_stubbed(:merge_request, prepared_at: prepared_at, merge_status: merge_status)
+    end
+
+    context 'when never prepared and currently preparing' do
+      let(:prepared_at) { nil }
+      let(:merge_status) { :preparing }
+
+      it 'returns true' do
+        expect(merge_request.initial_preparation?).to be(true)
+      end
+    end
+
+    context 'when previously prepared and currently preparing again' do
+      let(:prepared_at) { Time.current }
+      let(:merge_status) { :preparing }
+
+      it 'returns false' do
+        expect(merge_request.initial_preparation?).to be(false)
+      end
+    end
+
+    context 'when never prepared and not preparing' do
+      let(:prepared_at) { nil }
+      let(:merge_status) { :unchecked }
+
+      it 'returns false' do
+        expect(merge_request.initial_preparation?).to be(false)
+      end
+    end
+
+    context 'when previously prepared and not preparing' do
+      let(:prepared_at) { Time.current }
+      let(:merge_status) { :can_be_merged }
+
+      it 'returns false' do
+        expect(merge_request.initial_preparation?).to be(false)
+      end
+    end
+  end
+
   describe '#check_for_spam?' do
     let_it_be(:project) { create(:project, :public) }
     let(:merge_request) { build_stubbed(:merge_request, source_project: project) }

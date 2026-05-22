@@ -6,6 +6,7 @@ import { getContentWrapperHeight } from '~/lib/utils/dom_utils';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { useWhatsNew } from '../store';
 import OtherUpdates from './other_updates.vue';
+import TranscendPromoCard from './transcend_promo_card.vue';
 
 const trackingMixin = Tracking.mixin();
 
@@ -13,6 +14,7 @@ export default {
   components: {
     GlDrawer,
     OtherUpdates,
+    TranscendPromoCard,
   },
   mixins: [trackingMixin, glFeatureFlagsMixin()],
   props: {
@@ -39,6 +41,11 @@ export default {
       type: Function,
       required: false,
       default: () => {},
+    },
+    showTranscendPromo: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   computed: {
@@ -124,6 +131,8 @@ export default {
       </template>
 
       <div>
+        <transcend-promo-card v-if="showTranscendPromo" />
+
         <other-updates
           :features="features"
           :read-articles="readArticles"

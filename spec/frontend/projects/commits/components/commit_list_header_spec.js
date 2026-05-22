@@ -22,17 +22,20 @@ describe('CommitListHeader', () => {
     push: jest.fn(),
   };
 
-  const createComponent = (path = 'README.md') => {
+  const createComponent = ({ path = 'README.md', currentRef = '', refType = 'heads' } = {}) => {
     wrapper = shallowMountExtended(CommitListHeader, {
       provide: {
         projectRootPath: 'gitlab-org/gitlab',
         projectFullPath: 'gitlab-org/gitlab',
         projectId: '1',
         escapedRef: 'feature',
-        refType: 'heads',
+        refType,
         rootRef: 'main',
         browseFilesPath,
         commitsFeedPath,
+      },
+      propsData: {
+        currentRef,
       },
       mocks: {
         $router: mockRouter,
@@ -120,6 +123,28 @@ describe('CommitListHeader', () => {
       });
     });
 
+    describe('refSelectorValue', () => {
+      it('uses escapedRef when currentRef is not provided', () => {
+        createComponent();
+        expect(findRefSelector().props('value')).toBe('refs/heads/feature');
+      });
+
+      it('uses currentRef when provided', () => {
+        createComponent({ currentRef: 'develop' });
+        expect(findRefSelector().props('value')).toBe('refs/heads/develop');
+      });
+
+      it('uses currentRef without refType prefix when refType is absent', () => {
+        createComponent({ currentRef: 'develop', refType: '' });
+        expect(findRefSelector().props('value')).toBe('develop');
+      });
+
+      it('falls back to escapedRef when currentRef is empty string', () => {
+        createComponent({ currentRef: '' });
+        expect(findRefSelector().props('value')).toBe('refs/heads/feature');
+      });
+    });
+
     describe('open mr badge', () => {
       it('renders OpenMrBadge with correct props', () => {
         expect(findOpenMrBadge().exists()).toBe(true);
@@ -131,7 +156,7 @@ describe('CommitListHeader', () => {
       });
 
       it('does not render OpenMrBadge when there is no file path', () => {
-        createComponent('');
+        createComponent({ path: '' });
         expect(findOpenMrBadge().exists()).toBe(false);
       });
     });

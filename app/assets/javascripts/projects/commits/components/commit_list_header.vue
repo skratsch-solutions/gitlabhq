@@ -38,6 +38,11 @@ export default {
     'commitsFeedPath',
   ],
   props: {
+    currentRef: {
+      type: String,
+      required: false,
+      default: '',
+    },
     initialFilterTokens: {
       type: Array,
       required: false,
@@ -74,7 +79,8 @@ export default {
       };
     },
     refSelectorValue() {
-      return this.refType ? joinPaths('refs', this.refType, this.escapedRef) : this.escapedRef;
+      const ref = this.currentRef || this.escapedRef;
+      return this.refType ? joinPaths('refs', this.refType, ref) : ref;
     },
   },
   methods: {

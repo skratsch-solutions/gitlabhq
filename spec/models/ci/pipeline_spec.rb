@@ -686,6 +686,24 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     end
   end
 
+  describe '.find_by_id' do
+    it 'delegates to ByIdLookup with self as scope' do
+      lookup = instance_double(Gitlab::Ci::Pipeline::ByIdLookup, execute: :result)
+
+      expect(Gitlab::Ci::Pipeline::ByIdLookup).to receive(:new).with(described_class, 42).and_return(lookup)
+
+      expect(described_class.find_by_id(42)).to eq(:result)
+    end
+
+    it 'preserves chained relation conditions in the executed query' do
+      recorder = ActiveRecord::QueryRecorder.new do
+        described_class.where(id: 42).order(id: :desc).find_by_id(42)
+      end
+
+      expect(recorder.log).to include(a_string_matching(/ORDER BY.*p_ci_pipelines.*id.*DESC/i))
+    end
+  end
+
   describe '.for_iid' do
     subject { described_class.for_iid(iid) }
 

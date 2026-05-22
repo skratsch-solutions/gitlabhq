@@ -131,6 +131,17 @@ describe('CommitListApp', () => {
     it('renders the commit header component', () => {
       expect(findCommitHeader().exists()).toBe(true);
     });
+
+    it('passes currentRef to the header component', () => {
+      expect(findCommitHeader().props('currentRef')).toBe('main');
+    });
+
+    it('updates currentRef passed to header after ref change', async () => {
+      findCommitHeader().vm.$emit('ref-change', 'develop');
+      await waitForPromises();
+
+      expect(findCommitHeader().props('currentRef')).toBe('develop');
+    });
   });
 
   describe('commits data', () => {

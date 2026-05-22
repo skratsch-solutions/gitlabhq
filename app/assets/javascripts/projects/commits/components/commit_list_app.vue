@@ -288,6 +288,7 @@ export default {
   <div class="gl-mt-5 gl-@container/panel">
     <commit-list-header
       :file-path="currentPath"
+      :current-ref="currentRef"
       :initial-filter-tokens="initialFilterTokens"
       @filter="handleFilter"
       @ref-change="handleRefChange"

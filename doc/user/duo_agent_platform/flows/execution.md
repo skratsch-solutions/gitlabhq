@@ -230,7 +230,7 @@ and [configure a network policy](../environment_sandbox.md#configure-a-network-p
 (for example, firewall rules or network policies).
 
 To reduce job startup time by approximately 15-20 seconds, include the
-`@gitlab-org/duo-cli` npm package and the `glab` CLI in your custom image. This skips the download steps for these during flow startup.
+`@gitlab/duo-cli` npm package and the `glab` CLI in your custom image.
 The hardened image pre-installs both tools.
 
 ### Configure setup scripts
@@ -258,6 +258,71 @@ These commands complete the following actions:
 > image's `USER` directive. If your `setup_script` requires root access (for
 > example, to install system packages), ensure your custom image is configured
 > accordingly.
+
+### Use a custom image in an offline environment
+
+In offline environments where runners cannot reach external
+registries, you can prebuild a custom executor image that includes
+`@gitlab/duo-cli`. When the GitLab Duo CLI is already in the image, the
+flow startup skips the npm download step.
+
+Prerequisites:
+
+- Administrator access.
+- GitLab 18.9 or later.
+- Access to an online machine to build the image and download artifacts.
+
+To configure flows for an offline environment:
+
+1. On an online machine, build a custom image with the GitLab Duo CLI:
+
+   ```dockerfile
+   FROM registry.gitlab.com/gitlab-org/duo-workflow/default-docker-image/workflow-generic-image:v0.0.6
+   RUN npm install -g @gitlab/duo-cli@8.86.0
+   ```
+
+   Alternatively, to avoid npm entirely, download the standalone binary
+   from the [GitLab package registry](https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/packages):
+
+   ```dockerfile
+   FROM registry.gitlab.com/gitlab-org/duo-workflow/default-docker-image/workflow-generic-image:v0.0.6
+   COPY duo-linux-x64 /usr/bin/duo
+   RUN chmod +x /usr/bin/duo
+   ```
+
+   To download the standalone binary, run the following command:
+
+   ```shell
+   curl --location "https://gitlab.com/api/v4/projects/46519181/packages/generic/duo-cli/8.86.0/duo-linux-x64" \
+     --output duo-linux-x64
+   ```
+
+1. Transfer the image to your offline environment.
+   For example, with Docker, run the following commands:
+
+   ```shell
+   # On an online machine
+   docker save my-duo-executor:latest -o duo-executor.tar
+
+   # Transfer `duo-executor.tar` to the offline environment
+
+   # On an offline machine
+   docker load -i duo-executor.tar
+   ```
+
+1. Push the image to your internal container registry.
+1. Set the custom image registry:
+   1. In the upper-right corner, select **Admin**.
+   1. In the left sidebar, select **GitLab Duo**.
+   1. Select **Change configuration**.
+   1. In the **Image registry** text box, enter your internal registry URL
+      (for example, `registry.internal.example.com`).
+1. In the top bar, select **Search or go to** and find your project.
+1. To use the custom image, update the `agent-config.yml` file:
+
+   ```yaml
+   image: registry.internal.example.com/duo-executor:latest
+   ```
 
 ### Configure caching
 
