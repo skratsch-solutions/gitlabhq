@@ -16979,6 +16979,26 @@ CREATE SEQUENCE catalog_verified_namespaces_id_seq
 
 ALTER SEQUENCE catalog_verified_namespaces_id_seq OWNED BY catalog_verified_namespaces.id;
 
+CREATE TABLE cd_applications (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    description text,
+    CONSTRAINT check_5c9e2dc179 CHECK ((char_length(description) <= 2000)),
+    CONSTRAINT check_66e220abb5 CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE cd_applications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_applications_id_seq OWNED BY cd_applications.id;
+
 CREATE TABLE cells_outstanding_leases (
     uuid uuid NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -36037,6 +36057,8 @@ ALTER TABLE ONLY catalog_resources ALTER COLUMN id SET DEFAULT nextval('catalog_
 
 ALTER TABLE ONLY catalog_verified_namespaces ALTER COLUMN id SET DEFAULT nextval('catalog_verified_namespaces_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applications_id_seq'::regclass);
+
 ALTER TABLE ONLY chat_names ALTER COLUMN id SET DEFAULT nextval('chat_names_id_seq'::regclass);
 
 ALTER TABLE ONLY chat_teams ALTER COLUMN id SET DEFAULT nextval('chat_teams_id_seq'::regclass);
@@ -39199,6 +39221,9 @@ ALTER TABLE ONLY catalog_resources
 
 ALTER TABLE ONLY catalog_verified_namespaces
     ADD CONSTRAINT catalog_verified_namespaces_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_applications
+    ADD CONSTRAINT cd_applications_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cells_outstanding_leases
     ADD CONSTRAINT cells_outstanding_leases_pkey PRIMARY KEY (uuid);
@@ -46400,6 +46425,8 @@ CREATE INDEX index_catalog_resources_on_search_vector ON catalog_resources USING
 CREATE INDEX index_catalog_resources_on_state ON catalog_resources USING btree (state);
 
 CREATE UNIQUE INDEX index_catalog_verified_namespaces_on_namespace_id ON catalog_verified_namespaces USING btree (namespace_id);
+
+CREATE UNIQUE INDEX index_cd_applications_on_group_id_and_name ON cd_applications USING btree (group_id, name);
 
 CREATE INDEX index_chat_names_on_team_id_and_chat_id ON chat_names USING btree (team_id, chat_id);
 
@@ -58205,6 +58232,9 @@ ALTER TABLE ONLY audit_events_streaming_instance_namespace_filters
 
 ALTER TABLE ONLY work_item_transitions
     ADD CONSTRAINT fk_ac61084d25 FOREIGN KEY (moved_to_id) REFERENCES issues(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY cd_applications
+    ADD CONSTRAINT fk_ac9b2d76ca FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY work_item_progresses
     ADD CONSTRAINT fk_acdc04a1e3 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

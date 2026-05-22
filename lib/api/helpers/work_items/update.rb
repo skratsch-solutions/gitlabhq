@@ -9,7 +9,7 @@ module API
           authorize! :update_work_item, work_item
 
           update_params = build_update_work_item_params
-          widget_params = extract_update_feature_params(work_item.resource_parent)
+          widget_params = extract_update_feature_params(work_item)
           validate_supported_widgets!(work_item.work_item_type, work_item.resource_parent, widget_params)
 
           ::WorkItems::UpdateService.new(
@@ -34,10 +34,10 @@ module API
           update_params
         end
 
-        def extract_update_feature_params(_resource_parent)
+        def extract_update_feature_params(work_item)
           return {} unless params.key?(:features)
 
-          params[:features].to_h.deep_symbolize_keys.each_with_object({}) do |(key, value), hash|
+          widget_params = params[:features].to_h.deep_symbolize_keys.each_with_object({}) do |(key, value), hash|
             widget_key = :"#{key}_widget"
 
             case key
@@ -63,6 +63,9 @@ module API
 
             hash[widget_key] = value
           end
+
+          strip_disabled_widget_params!(widget_params, work_item.work_item_type, work_item.resource_parent)
+          widget_params
         end
       end
     end

@@ -198,8 +198,12 @@ instructions:
       18. Use `fast_spec_helper` instead of `spec_helper` for well-isolated classes in `lib/` that do not need Rails
       19. Use `be_like_time` matcher for time comparisons to handle precision differences between Ruby and PostgreSQL
       20. Use `freeze_time` or `travel_to` for time-dependent tests — never use `sleep`
-      21. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/best_practices.md
-      22. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/testing_levels.md
+      21. When asserting on collections where order does not matter, use `match_array` instead of `eq` or `match` to avoid dataset-specific flakiness. For example, prefer `expect(result).to match_array([item1, item2])` over `expect(result).to eq([item1, item2])`
+      22. Avoid calling `.first`, `.last`, or `.take` on ActiveRecord relations without an explicit `.order()` clause — PostgreSQL does not guarantee row ordering without ORDER BY, which causes dataset-specific flaky tests
+      23. When using `Faker` or random values in tests, ensure the test handles edge cases that random input might produce. If the test depends on a specific format, use a hardcoded value instead of a random one
+      24. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/best_practices.md
+      25. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/testing_levels.md
+      26. Reference: https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/testing_guide/unhealthy_tests.md
 
   - name: Documentation
     fileFilters:

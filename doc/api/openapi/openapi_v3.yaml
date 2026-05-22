@@ -11609,6 +11609,40 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_b808ad08c5f9"
+  "/api/v4/admin/active_context/dead_queue":
+    delete:
+      operationId: deleteApiV4AdminActiveContextDeadQueue
+      summary: Clear the ActiveContext dead queue
+      tags:
+      - Active context
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+  "/api/v4/admin/active_context/dead_queue/replay":
+    post:
+      operationId: postApiV4AdminActiveContextDeadQueueReplay
+      summary: Replay items from the dead queue into another queue
+      tags:
+      - Active context
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: 400 Bad Request
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_7006a9228543"
   "/api/v4/admin/active_context/code/enabled_namespaces":
     put:
       operationId: putApiV4AdminActiveContextCodeEnabledNamespaces
@@ -89920,6 +89954,15 @@ components:
           type: integer
           description: Connection ID (defaults to active connection)
           nullable: true
+    RequestBody_7006a9228543:
+      type: object
+      properties:
+        queue:
+          type: string
+          description: Target queue name (e.g. retry_queue, code, code_backfill)
+          nullable: true
+      required:
+      - queue
     RequestBody_55fe1bae2c8d:
       type: object
       properties:

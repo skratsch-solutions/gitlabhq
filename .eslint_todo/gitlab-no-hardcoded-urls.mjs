@@ -47,7 +47,6 @@ export default {
     'app/assets/javascripts/pages/sessions/new/username_validator.js',
     'app/assets/javascripts/projects/commit_box/info/components/commit_refs.vue',
     'app/assets/javascripts/projects/commits/mock_commits.js',
-    'app/assets/javascripts/projects/commits/store/actions.js',
     'app/assets/javascripts/projects/settings/api/access_dropdown_api.js',
     'app/assets/javascripts/projects/your_work/constants.js',
     'app/assets/javascripts/repository/commits_service.js',

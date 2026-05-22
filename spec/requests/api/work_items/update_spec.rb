@@ -363,7 +363,7 @@ RSpec.describe API::WorkItems::Update, feature_category: :portfolio_management d
     context 'when feature is not supported by the work item type' do
       it 'returns 400' do
         allow_any_instance_of(WorkItems::TypesFramework::SystemDefined::Type) # rubocop:disable RSpec/AnyInstanceOf -- type instances are recreated per-namespace
-          .to receive(:widget_classes).and_return([])
+          .to receive_messages(widget_classes: [], widget_definitions: [])
 
         patch api(api_request_path, user), params: { features: { description: { description: 'Some text' } } }
 

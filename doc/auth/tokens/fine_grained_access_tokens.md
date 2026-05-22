@@ -2007,6 +2007,15 @@ Grants the ability to protect tags.
 
 ### Search resources
 
+#### Active Context Dead Queue
+
+Grants the ability to clear and replay the ActiveContext dead queue.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Clear | Instance | `DELETE` | `/admin/active_context/dead_queue` |
+| Replay | Instance | `POST` | `/admin/active_context/dead_queue/replay` |
+
 #### Global Search
 
 Grants the ability to use global search functionality.

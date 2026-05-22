@@ -376,7 +376,8 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
         type_double = instance_double(
           WorkItems::TypesFramework::SystemDefined::Type,
           name: 'Task',
-          widget_classes: []
+          widget_classes: [],
+          widget_definitions: []
         )
         allow_next_instance_of(WorkItems::TypesFramework::Provider) do |provider|
           allow(provider).to receive(:find_by_base_type).and_return(type_double)
