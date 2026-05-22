@@ -42,7 +42,6 @@ module Gitlab
                       committer: 'MergeRequest::DiffCommitUser',
                       merge_request_commits_metadata: 'MergeRequest::CommitsMetadata',
                       merge_request_diff_commits: 'MergeRequestDiffCommit',
-                      work_item_description: 'WorkItems::Description',
                       user_contributions: 'User',
                       squash_option: 'Projects::BranchRules::SquashOption' }.freeze
 

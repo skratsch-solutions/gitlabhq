@@ -305,46 +305,24 @@ that it meets all requirements, you should:
 ### The responsibility of the maintainer
 
 Maintainers are responsible for the overall health, quality, and consistency of
-the GitLab codebase, across domains and product areas.
+the GitLab codebase.
+Their reviews focus on architecture, code organization, separation of concerns, tests,
+DRYness, consistency, and readability.
 
-Consequently, their reviews focus primarily on things like overall
-architecture, code organization, separation of concerns, tests, DRYness,
-consistency, and readability.
+Maintainers are the DRI for ensuring MRs reasonably meet
+[acceptance criteria](contributing/merge_request_workflow.md#contribution-acceptance-criteria).
 
-Because a maintainer's job only depends on their knowledge of the overall GitLab
-codebase, and not that of any specific domain, they can review, approve, and merge
-MRs from any team and in any product area.
+A maintainer makes sound judgements when evaluating the impact of an MR.
+If a maintainer feels that an MR is not able to merged, it is their responsibility to say so.
+The maintainer is also the expert adviser who knows when to pull in others for a
+second opinion.
 
-Maintainers are the DRI of assuring that the acceptance criteria of a merge request are reasonably met.
-In general, [quality is everyone's responsibility](https://handbook.gitlab.com/handbook/engineering/quality/),
-but maintainers of an MR are held responsible for **ensuring** that an MR meets those general quality standards.
-
-This includes [avoiding the creation of technical debt in follow-up issues](contributing/issue_workflow.md#technical-debt-in-follow-up-issues).
-
-If a maintainer feels that an MR is substantial enough, or requires a [domain expert](#domain-experts),
-maintainers have the discretion to request a review from another reviewer, or maintainer. Here are some
-examples of maintainers proactively doing this during review:
-
-- <https://gitlab.com/gitlab-org/gitlab/-/merge_requests/82708#note_872325561>
-- <https://gitlab.com/gitlab-org/gitlab/-/merge_requests/38003#note_387981596>
-- <https://gitlab.com/gitlab-org/gitlab/-/merge_requests/14017#note_178828088>
-
-Maintainers do their best to also review the specifics of the chosen solution
-before merging, but as they are not necessarily [domain experts](#domain-experts), they may be poorly
-placed to do so without an unreasonable investment of time. In those cases, they
-defer to the judgment of the author and earlier reviewers, in favor of focusing on their primary responsibilities.
-
-If a developer who happens to also be a maintainer was involved in a merge request
-as a reviewer, it is recommended that they are not also picked as the maintainer to ultimately approve and merge it.
-
-Maintainers should check before merging if the merge request is approved by the
-required approvers.
-If still awaiting further approvals from others, `@` mention the author and explain why in a comment.
+When a maintainer approves an MR, they are taking responsibility alongside the author.
+This means that when there is a production incident, the maintainer may get
+paged to help resolve issues.
 
 Certain merge requests may target a stable branch. For an overview of how to handle these requests,
 see the [patch release runbook](https://gitlab.com/gitlab-org/release/docs/-/blob/master/general/patch/engineers.md).
-
-After merging, a maintainer should stay as the reviewer listed on the merge request.
 
 ### Dogfooding the Reviewers feature
 

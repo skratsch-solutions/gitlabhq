@@ -410,7 +410,6 @@ RSpec.describe 'Every Sidekiq worker', feature_category: :sidekiq do
         'PipelineNotificationWorker' => 3,
         'PostReceive' => 3,
         'ProcessCommitWorker' => 3,
-        'ProductAnalytics::InitializeSnowplowProductAnalyticsWorker' => 1,
         'ProjectCacheWorker' => 3,
         'ProjectDestroyWorker' => 3,
         'ProjectExportWorker' => false,

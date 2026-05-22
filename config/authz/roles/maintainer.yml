@@ -80,6 +80,7 @@ project:
   - create_cluster
   - create_deploy_token
   - create_environment_terminal
+  - create_external_status_check
   - create_freeze_period
   - create_pipeline_subscription
   - create_protected_branch
@@ -90,6 +91,7 @@ project:
   - create_squash_option
   - create_web_ide_terminal
   - delete_branch_rule
+  - delete_external_status_check
   - delete_freeze_period
   - delete_job_artifact
   - delete_protected_tag
@@ -165,6 +167,7 @@ project:
   - update_cluster
   - update_cvs_for_container_scanning
   - update_cvs_for_dependency_scanning
+  - update_external_status_check
   - update_freeze_period
   - update_pages
   - update_pipeline_variable_override_setting

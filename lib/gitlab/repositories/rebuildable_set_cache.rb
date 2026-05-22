@@ -221,6 +221,26 @@ module Gitlab
         end
       end
 
+      # Override to add trust-awareness.
+      # Returns [false, false] when the cache is untrusted, causing the
+      # caller (RepositoryCacheAdapter) to fall through to a full lookup
+      # which triggers a cache rebuild via #fetch.
+      def try_include?(key, value)
+        full_key = cache_key(key)
+
+        result, exists, is_trusted = with do |redis|
+          redis.multi do |multi|
+            multi.sismember(full_key, value.to_s)
+            multi.exists?(full_key) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
+            multi.exists?(trust_key(key)) # rubocop:disable CodeReuse/ActiveRecord -- Not ActiveRecord
+          end
+        end
+
+        return [false, false] unless is_trusted
+
+        [result, exists]
+      end
+
       private
 
       # Update cache by adding or removing a single ref (no rebuild in progress)

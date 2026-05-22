@@ -215,5 +215,5 @@ GitLab works to restore service as quickly as possible while ensuring data integ
 
 ## Contact sales
 
-Ready to get started? [Contact our sales team](https://about.gitlab.com/sales/dedicated/)
+Ready to get started? [Contact our sales team](https://about.gitlab.com/sales/)
 to discuss your requirements and learn how we can support your organization's compliance and security needs.

@@ -162,8 +162,21 @@ describe('DashboardListTab', () => {
 
     it('passes the correct dashboards to the list component', () => {
       const dashboards = findDashboardsList().props('dashboards');
-      expect(dashboards).toHaveLength(1);
+      expect(dashboards).toHaveLength(2);
       expect(dashboards[0].name).toBe('Fake trends');
+    });
+
+    it('builds the dashboard URL from the numeric ID for custom dashboards', () => {
+      const [customDashboard] = findDashboardsList().props('dashboards');
+
+      expect(customDashboard.dashboardUrl).toBe('/explore/analytics_dashboards/3');
+    });
+
+    it('builds the dashboard URL from the slug for system dashboards', () => {
+      const dashboards = findDashboardsList().props('dashboards');
+      const systemDashboard = dashboards.find((dashboard) => dashboard.system);
+
+      expect(systemDashboard.dashboardUrl).toBe('/explore/analytics_dashboards/merge_requests');
     });
   });
 
@@ -179,7 +192,7 @@ describe('DashboardListTab', () => {
     });
 
     it('renders the tab with the correct tab count', () => {
-      expect(findTab().props('tabCount')).toBe(1);
+      expect(findTab().props('tabCount')).toBe(2);
     });
 
     it('renders the tab with the correct sr text', () => {

@@ -127,11 +127,6 @@ class Issue < ApplicationRecord
     inverse_of: :work_item,
     autosave: true
 
-  has_one :work_item_description,
-    class_name: 'WorkItems::Description',
-    inverse_of: :work_item,
-    autosave: true
-
   has_one :work_item_transition, class_name: 'WorkItems::Transition', inverse_of: :work_item
   has_one :work_item_position, class_name: 'WorkItems::Position', inverse_of: :work_item
 
@@ -140,8 +135,6 @@ class Issue < ApplicationRecord
   accepts_nested_attributes_for :issuable_severity, update_only: true
   accepts_nested_attributes_for :sentry_issue
   accepts_nested_attributes_for :incident_management_issuable_escalation_status, update_only: true
-  accepts_nested_attributes_for :work_item_description
-
   validates :project, presence: true, if: -> { !namespace || namespace.is_a?(Namespaces::ProjectNamespace) }
   validates :namespace, presence: true
   validates :work_item_type, presence: true
@@ -310,8 +303,6 @@ class Issue < ApplicationRecord
   scope :with_projects_matching_search_data, -> { where('issue_search_data.project_id = issues.project_id') }
 
   before_validation :ensure_namespace_id, :ensure_work_item_type, :ensure_namespace_traversal_ids
-  before_validation :ensure_work_item_description, if: :importing?
-
   after_save :ensure_metrics!, unless: :skip_metrics?
   after_commit :expire_etag_cache, unless: :importing?
   after_create_commit :record_create_action, unless: :importing?
@@ -917,19 +908,6 @@ class Issue < ApplicationRecord
   # Overridden in EE for test case check
   def require_legacy_views?
     from_service_desk? || work_item_type&.incident?
-  end
-
-  def ensure_work_item_description
-    return if work_item_description.present?
-
-    build_work_item_description(
-      description: description,
-      description_html: description_html,
-      last_edited_at: last_edited_at,
-      last_edited_by_id: last_edited_by_id,
-      lock_version: lock_version,
-      cached_markdown_version: cached_markdown_version
-    )
   end
 
   def ==(other)

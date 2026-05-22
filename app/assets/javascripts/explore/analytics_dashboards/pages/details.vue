@@ -1,6 +1,7 @@
 <script>
 import { GlDashboardLayout, GlSkeletonLoader, GlButton, GlEmptyState } from '@gitlab/ui';
 import { createAlert } from '~/alert';
+import { isNumeric } from '~/lib/utils/number_utils';
 import { s__ } from '~/locale';
 import {
   GRID_HEIGHT_COMPACT,
@@ -10,6 +11,7 @@ import {
 import { getUniquePanelId, convertToDashboardGraphQLId } from '../utils';
 import getDashboardQuery from '../graphql/get_dashboard.query.graphql';
 import DashboardFilters from '../components/dashboard_filters.vue';
+import getSystemDashboardQuery from '../graphql/get_system_dashboard.query.graphql';
 
 export default {
   name: 'ExploreAnalyticsDashboard',
@@ -31,8 +33,15 @@ export default {
     };
   },
   computed: {
+    slug() {
+      return this.$route?.params.slug;
+    },
+    isSystemDashboard() {
+      // Custom dashboards are routed by their numeric ID; system dashboards by their slug.
+      return !isNumeric(this.slug);
+    },
     dashboardId() {
-      return convertToDashboardGraphQLId(this.$route?.params.slug);
+      return this.isSystemDashboard ? this.slug : convertToDashboardGraphQLId(this.slug);
     },
     dashboardConfig() {
       if (!this.dashboard?.config) return {};
@@ -101,12 +110,17 @@ export default {
   },
   apollo: {
     dashboard: {
-      query: getDashboardQuery,
+      query() {
+        return this.isSystemDashboard ? getSystemDashboardQuery : getDashboardQuery;
+      },
       variables() {
+        if (this.isSystemDashboard) {
+          return { slug: this.dashboardId };
+        }
         return { id: this.dashboardId };
       },
-      update({ customDashboard = {} }) {
-        return customDashboard;
+      update({ customDashboard = {}, customSystemDashboard = {} }) {
+        return this.isSystemDashboard ? customSystemDashboard : customDashboard;
       },
       error(err) {
         createAlert({

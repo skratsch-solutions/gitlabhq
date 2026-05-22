@@ -1262,7 +1262,6 @@ Style/InlineDisableAnnotation:
     - 'ee/app/workers/package_metadata/advisories_sync_worker.rb'
     - 'ee/app/workers/package_metadata/licenses_sync_worker.rb'
     - 'ee/app/workers/personal_access_tokens/instance/policy_worker.rb'
-    - 'ee/app/workers/product_analytics/initialize_snowplow_product_analytics_worker.rb'
     - 'ee/app/workers/project_template_export_worker.rb'
     - 'ee/app/workers/projects/disable_legacy_open_source_license_for_inactive_projects_worker.rb'
     - 'ee/app/workers/pull_mirrors/reenable_configuration_worker.rb'

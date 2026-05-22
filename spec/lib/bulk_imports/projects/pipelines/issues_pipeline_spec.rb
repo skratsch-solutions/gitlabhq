@@ -52,7 +52,7 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
       allow(Import::PlaceholderReferences::PushService).to receive(:from_record).and_call_original
     end
 
-    it 'imports issue into destination project and creates work_item_description record' do
+    it 'imports issue into destination project and creates record' do
       pipeline.run
 
       expect(project.issues.count).to eq(1)
@@ -66,16 +66,6 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
         expect(imported_issue.author).to eq(user)
         expect(imported_issue.state).to eq('opened')
         expect(imported_issue.updated_at.to_s).to eq('2016-06-14 15:02:47 UTC')
-
-        expect(imported_issue.work_item_description).to have_attributes(
-          work_item_id: imported_issue.id,
-          namespace_id: imported_issue.namespace_id,
-          description: imported_issue.description,
-          description_html: imported_issue.description_html,
-          last_edited_at: imported_issue.last_edited_at,
-          last_editing_user: imported_issue.last_edited_by,
-          lock_version: imported_issue.lock_version
-        )
       end
     end
 
@@ -302,11 +292,7 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
             actions: [{ event: 'creation', design: { filename: 'design.png', iid: 1 } }]
           }],
           issue_assignees: [{ user_id: 101 }],
-          award_emoji: [{ name: 'clapper', user_id: 101 }],
-          work_item_description: {
-            description: 'Imported issue description',
-            last_edited_by_id: 101
-          }
+          award_emoji: [{ name: 'clapper', user_id: 101 }]
         }.deep_stringify_keys
       end
 
@@ -329,7 +315,6 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
         expect(issue.updated_by).to be_import_user
         expect(issue.last_edited_by).to be_import_user
         expect(issue.closed_by).to be_import_user
-        expect(issue.work_item_description.last_editing_user).to be_import_user
         expect(event.author).to be_import_user
         expect(timelog.user).to be_import_user
         expect(note.author).to be_import_user
@@ -346,7 +331,7 @@ RSpec.describe BulkImports::Projects::Pipelines::IssuesPipeline, feature_categor
         source_user = Import::SourceUser.find_by(source_user_identifier: 101)
         expect(source_user.placeholder_user).to be_import_user
 
-        expect(Import::PlaceholderReferences::PushService).to have_received(:from_record).exactly(17).times
+        expect(Import::PlaceholderReferences::PushService).to have_received(:from_record).exactly(16).times
       end
 
       context 'when direct reassignment is supported' do

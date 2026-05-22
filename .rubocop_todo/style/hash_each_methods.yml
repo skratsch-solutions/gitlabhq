@@ -52,7 +52,6 @@ Style/HashEachMethods:
     - 'ee/spec/models/vulnerabilities/feedback_spec.rb'
     - 'ee/spec/services/approval_rules/finalize_service_spec.rb'
     - 'ee/spec/services/package_metadata/sync_service_spec.rb'
-    - 'ee/spec/workers/product_analytics/sync_funnels_worker_spec.rb'
     - 'keeps/remove_duplicated_indexes.rb'
     - 'lib/api/todos.rb'
     - 'lib/backup/targets/database.rb'

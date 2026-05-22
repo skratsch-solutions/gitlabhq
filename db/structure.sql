@@ -24687,6 +24687,14 @@ CREATE TABLE namespace_root_storage_statistics (
     private_forks_storage_size bigint DEFAULT 0 NOT NULL
 );
 
+CREATE TABLE namespace_secret_counts (
+    namespace_id bigint NOT NULL,
+    root_namespace_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    count integer DEFAULT 0 NOT NULL
+);
+
 CREATE TABLE namespace_settings (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
@@ -40519,6 +40527,9 @@ ALTER TABLE ONLY namespace_package_settings
 ALTER TABLE ONLY namespace_root_storage_statistics
     ADD CONSTRAINT namespace_root_storage_statistics_pkey PRIMARY KEY (namespace_id);
 
+ALTER TABLE ONLY namespace_secret_counts
+    ADD CONSTRAINT namespace_secret_counts_pkey PRIMARY KEY (namespace_id);
+
 ALTER TABLE ONLY namespace_settings
     ADD CONSTRAINT namespace_settings_pkey PRIMARY KEY (namespace_id);
 
@@ -48527,6 +48538,8 @@ CREATE UNIQUE INDEX index_namespace_isolations_on_namespace_id ON namespace_isol
 
 CREATE UNIQUE INDEX index_namespace_root_storage_statistics_on_namespace_id ON namespace_root_storage_statistics USING btree (namespace_id);
 
+CREATE INDEX index_namespace_secret_counts_on_root_namespace_id ON namespace_secret_counts USING btree (root_namespace_id);
+
 CREATE INDEX index_namespace_settings_on_duo_features ON namespace_settings USING btree (duo_features_enabled, lock_duo_features_enabled) INCLUDE (namespace_id) WHERE (duo_features_enabled IS NOT NULL);
 
 CREATE INDEX index_namespace_settings_on_namespace_id_where_archived_true ON namespace_settings USING btree (namespace_id) WHERE (archived = true);
@@ -51424,6 +51437,8 @@ CREATE INDEX temp_index_on_users_where_dark_theme ON users USING btree (id) WHER
 CREATE UNIQUE INDEX term_agreements_unique_index ON term_agreements USING btree (user_id, term_id);
 
 CREATE INDEX tmp_idx_orphaned_approval_project_rules ON approval_project_rules USING btree (id) WHERE ((report_type = ANY (ARRAY[2, 4])) AND (security_orchestration_policy_configuration_id IS NULL));
+
+CREATE INDEX tmp_idx_p_sent_notifications_on_noteable_id_for_epics ON ONLY p_sent_notifications USING btree (noteable_id) WHERE (noteable_type = 'Epic'::text);
 
 CREATE INDEX tmp_idx_redirect_routes_on_source_type_id_where_namespace_null ON redirect_routes USING btree (source_type, id) WHERE (namespace_id IS NULL);
 
@@ -59624,6 +59639,9 @@ ALTER TABLE ONLY boards_epic_lists
 ALTER TABLE ONLY approval_merge_request_rules_groups
     ADD CONSTRAINT fk_rails_2020a7124a FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY namespace_secret_counts
+    ADD CONSTRAINT fk_rails_20e6539d53 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY user_statuses
     ADD CONSTRAINT fk_rails_2178592333 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
@@ -59965,6 +59983,9 @@ ALTER TABLE ONLY merge_requests_closing_issues
 
 ALTER TABLE ONLY protected_environment_deploy_access_levels
     ADD CONSTRAINT fk_rails_45cc02a931 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY namespace_secret_counts
+    ADD CONSTRAINT fk_rails_46733a5656 FOREIGN KEY (root_namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY smartcard_identities
     ADD CONSTRAINT fk_rails_4689f889a9 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

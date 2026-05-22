@@ -2,8 +2,8 @@ import { GlTabs, GlSearchBoxByType } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import ExploreAnalyticsDashboardsList from '~/explore/analytics_dashboards/pages/list.vue';
 import DashboardListTab from '~/explore/analytics_dashboards/components/dashboard_list_tab.vue';
-import PageHeading from '~/vue_shared/components/page_heading.vue';
 import NewDashboardButton from '~/explore/analytics_dashboards/components/new_dashboard_button.vue';
+import PageHeading from '~/vue_shared/components/page_heading.vue';
 
 const MOCK_CURRENT_USER_ID = 'gid://gitlab/User/42';
 
@@ -41,11 +41,12 @@ describe('ExploreAnalyticsDashboardsList', () => {
       expect(findDashboardListTabs()).toHaveLength(3);
     });
 
-    it('renders the page title', () => {
+    it('renders the page heading with the title', () => {
+      expect(findPageHeading().exists()).toBe(true);
       expect(findPageHeading().props('heading')).toBe('Analytics dashboards');
     });
 
-    it('renders the page description', () => {
+    it('renders the page heading description', () => {
       expect(findPageHeading().text()).toContain(
         'Keep your teams aligned around the metrics that matter most.',
       );

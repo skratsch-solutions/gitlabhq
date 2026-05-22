@@ -1322,9 +1322,29 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
     end
 
     context 'when the test fails' do
-      it 'returns result with the error' do
+      it 'returns a 401 response with the error' do
         test_url = 'http://jira.example.com/rest/api/2/serverInfo'
-        error_message = 'Some specific failure.'
+        error_message = 'Unauthorized'
+        response = 'Jira returned HTTP 401: Unauthorized'
+
+        WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
+          .to_raise(JIRA::HTTPError.new(double(message: error_message, code: '401')))
+
+        expect(jira_integration).to receive(:log_exception).with(
+          kind_of(JIRA::HTTPError),
+          message: 'Error sending message',
+          client_url: 'http://jira.example.com',
+          client_path: '/rest/api/2/serverInfo',
+          client_status: '401'
+        )
+
+        expect(jira_integration.test(nil)).to eq(success: false, result: response)
+      end
+
+      it 'returns a 403 response with the error' do
+        test_url = 'http://jira.example.com/rest/api/2/serverInfo'
+        error_message = 'Forbidden'
+        response = 'Jira returned HTTP 403: Forbidden'
 
         WebMock.stub_request(:get, test_url).with(basic_auth: [username, password])
           .to_raise(JIRA::HTTPError.new(double(message: error_message, code: '403')))
@@ -1337,7 +1357,7 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
           client_status: '403'
         )
 
-        expect(jira_integration.test(nil)).to eq(success: false, result: error_message)
+        expect(jira_integration.test(nil)).to eq(success: false, result: response)
       end
     end
   end

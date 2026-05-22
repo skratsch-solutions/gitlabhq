@@ -8,7 +8,12 @@ import { createAlert } from '~/alert';
 import ExploreAnalyticsDashboard from '~/explore/analytics_dashboards/pages/details.vue';
 import DashboardFilters from '~/explore/analytics_dashboards/components/dashboard_filters.vue';
 import getDashboardQuery from '~/explore/analytics_dashboards/graphql/get_dashboard.query.graphql';
-import { mockDashboardResponse, mockDashboardCompactGridResponse } from '../mock_data';
+import getSystemDashboardQuery from '~/explore/analytics_dashboards/graphql/get_system_dashboard.query.graphql';
+import {
+  mockDashboardResponse,
+  mockDashboardCompactGridResponse,
+  mockSystemDashboardResponse,
+} from '../mock_data';
 
 Vue.use(VueApollo);
 
@@ -35,13 +40,14 @@ describe('ExploreAnalyticsDashboard', () => {
     requestHandlers,
     props = {},
     routeParams = { slug: '3' },
+    routeMeta = { system: false },
     stubs = {},
   } = {}) => {
     wrapper = shallowMountExtended(ExploreAnalyticsDashboard, {
       propsData: { ...defaultPropsData, ...props },
       apolloProvider: requestHandlers || mockResolvedQuery(),
       provide: { breadcrumbState: mockBreadcrumbState },
-      mocks: { $route: { params: routeParams } },
+      mocks: { $route: { params: routeParams, meta: routeMeta } },
       stubs,
     });
   };
@@ -283,6 +289,84 @@ describe('ExploreAnalyticsDashboard', () => {
         description: 'Add panels to this dashboard to visualize your analytics data.',
         illustrationName: 'empty-epic-md',
       });
+    });
+  });
+
+  describe('when the route is a system dashboard', () => {
+    let customQueryHandler;
+    let systemQueryHandler;
+
+    const createSystemComponent = ({ slug = 'merge_requests' } = {}) => {
+      customQueryHandler = jest.fn().mockResolvedValue({ data: mockDashboardResponse });
+      systemQueryHandler = jest.fn().mockResolvedValue({ data: mockSystemDashboardResponse });
+
+      const apolloProvider = createMockApollo([
+        [getDashboardQuery, customQueryHandler],
+        [getSystemDashboardQuery, systemQueryHandler],
+      ]);
+
+      createComponent({
+        requestHandlers: apolloProvider,
+        routeParams: { slug },
+      });
+    };
+
+    beforeEach(async () => {
+      createSystemComponent();
+      await waitForPromises();
+    });
+
+    it('uses the system dashboard query', () => {
+      expect(systemQueryHandler).toHaveBeenCalledWith({ slug: 'merge_requests' });
+    });
+
+    it('does not call the custom dashboard query', () => {
+      expect(customQueryHandler).not.toHaveBeenCalled();
+    });
+
+    it('does not convert the slug into a GraphQL ID', () => {
+      expect(systemQueryHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ slug: 'merge_requests' }),
+      );
+      expect(systemQueryHandler).not.toHaveBeenCalledWith(
+        expect.objectContaining({ slug: expect.stringContaining('gid://') }),
+      );
+    });
+
+    it('renders the system dashboard config in the layout', () => {
+      expect(wrapper.findComponent(GlDashboardLayout).props('config').title).toBe(
+        mockSystemDashboardResponse.customSystemDashboard.config.title,
+      );
+    });
+  });
+
+  describe('when the system dashboard does not exist', () => {
+    let systemQueryHandler;
+
+    beforeEach(async () => {
+      systemQueryHandler = jest.fn().mockResolvedValue({ data: { customSystemDashboard: null } });
+
+      const apolloProvider = createMockApollo([[getSystemDashboardQuery, systemQueryHandler]]);
+
+      createComponent({
+        requestHandlers: apolloProvider,
+        routeParams: { slug: 'does_not_exist' },
+      });
+
+      await waitForPromises();
+    });
+
+    it('queries the system dashboard endpoint with the slug', () => {
+      expect(systemQueryHandler).toHaveBeenCalledWith({ slug: 'does_not_exist' });
+    });
+
+    it('does not show an error alert', () => {
+      expect(createAlert).not.toHaveBeenCalled();
+    });
+
+    it('renders the dashboard layout with an empty config', () => {
+      expect(findDashboardLayout().exists()).toBe(true);
+      expect(findDashboardLayout().props('config')).toEqual({});
     });
   });
 });

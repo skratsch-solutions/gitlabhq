@@ -67,8 +67,6 @@ RSpec/VerifiedDoubleReference:
     - 'ee/spec/workers/compliance_management/project_framework_export_mailer_worker_spec.rb'
     - 'ee/spec/workers/compliance_management/standards_adherence_export_mailer_worker_spec.rb'
     - 'ee/spec/workers/compliance_management/violation_export_mailer_worker_spec.rb'
-    - 'ee/spec/workers/product_analytics/move_funnels_worker_spec.rb'
-    - 'ee/spec/workers/product_analytics/sync_funnels_worker_spec.rb'
     - 'ee/spec/workers/projects/disable_legacy_open_source_license_for_inactive_projects_worker_spec.rb'
     - 'ee/spec/workers/vulnerabilities/orphaned_remediations_cleanup_worker_spec.rb'
     - 'qa/spec/page/logging_spec.rb'

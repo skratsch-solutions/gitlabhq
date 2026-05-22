@@ -40,7 +40,6 @@ tree:
       - design_versions:
         - actions:
           - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
-      - :work_item_description
       - :issue_assignees
       - :zoom_meetings
       - :sentry_issue
@@ -789,10 +788,6 @@ included_attributes:
     - :source_commit
     - :close_after_error_tracking_resolve
     - :close_auto_resolve_prometheus_alert
-  work_item_description:
-    - :description
-    - :last_edited_at
-    - :last_edited_by_id
   note_diff_file:
     - :new_file
     - :renamed_file

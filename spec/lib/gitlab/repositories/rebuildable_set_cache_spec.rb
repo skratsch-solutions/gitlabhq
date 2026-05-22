@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_repository_cache, feature_category: :source_code_management do
+  using RSpec::Parameterized::TableSyntax
+
   let_it_be(:project) { create(:project) }
   let(:repository) { project.repository }
   let(:namespace) { "#{repository.full_path}:{#{project.id}}" }
@@ -1049,6 +1051,64 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
         count = result.count { |b| b.end_with?('0') }
 
         expect(count).to eq(10)
+      end
+    end
+  end
+
+  describe '#try_include?' do
+    where(:description, :cache_state, :value, :expected) do
+      'trusted cache, existing member'       | :trusted   | 'main'        | [true, true]
+      'trusted cache, non-existing member'   | :trusted   | 'nonexistent' | [false, true]
+      'untrusted cache, existing member'     | :untrusted | 'main'        | [false, false]
+      'untrusted cache, non-existing member' | :untrusted | 'nonexistent' | [false, false]
+      'no cache, any member'                 | :no_cache  | 'main'        | [false, false]
+    end
+
+    with_them do
+      before do
+        next if cache_state == :no_cache
+
+        cache.write(:branch_names, %w[main develop])
+
+        if cache_state == :untrusted
+          Gitlab::Redis::RepositoryCache.with do |redis|
+            redis.del(cache.trust_key(:branch_names))
+          end
+        end
+      end
+
+      it { expect(cache.try_include?(:branch_names, value)).to eq(expected) }
+    end
+
+    context 'when cache is updated incrementally' do
+      before do
+        cache.write(:branch_names, %w[main])
+      end
+
+      it 'reflects the added ref' do
+        cache.handle_ref_change(:branch_names, 'refs/heads/feature', false)
+
+        expect(cache.try_include?(:branch_names, 'feature')).to eq([true, true])
+      end
+    end
+
+    context 'when trust has expired and a ref is added via handle_ref_change' do
+      before do
+        cache.write(:branch_names, %w[main develop])
+        # Simulate trust expiry - cache set still exists but is no longer trusted
+        Gitlab::Redis::RepositoryCache.with do |redis|
+          redis.del(cache.trust_key(:branch_names))
+        end
+      end
+
+      it 'returns [false, false] for the newly added ref' do
+        # simple_update successfully adds the ref to the existing set
+        cache.handle_ref_change(:branch_names, 'refs/heads/new-branch', false)
+
+        # Despite the ref being present in the set, try_include? returns
+        # [false, false] because the cache is untrusted, forcing the caller
+        # to take the cold-cache path and trigger a full rebuild.
+        expect(cache.try_include?(:branch_names, 'new-branch')).to eq([false, false])
       end
     end
   end

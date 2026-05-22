@@ -27665,6 +27665,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Path to configuration file"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Pipeline events configuration"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Plan updated"
 msgstr ""
 
@@ -27701,10 +27704,19 @@ msgstr ""
 msgid "DuoAgentsPlatform|Security Agent"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Select a condition"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Select a service account"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Select at least one pipeline event."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Select one or multiple event types"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Select pipeline events"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Service account"
@@ -27753,6 +27765,9 @@ msgid "DuoAgentsPlatform|Trigger not found."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Trigger updated successfully."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Trigger when"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Triggers"
@@ -40998,6 +41013,9 @@ msgid "JiraService|Jira project key"
 msgstr ""
 
 msgid "JiraService|Jira project keys"
+msgstr ""
+
+msgid "JiraService|Jira returned HTTP %{code}: %{message}"
 msgstr ""
 
 msgid "JiraService|Jira service account"

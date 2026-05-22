@@ -10,6 +10,7 @@ query getDashboards($search: String, $scope: CustomDashboardScope = ALL, $create
       config
       createdAt
       system
+      slug
       ... on CustomDashboard {
         organization {
           id

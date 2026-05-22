@@ -431,7 +431,7 @@ module Integrations
       result = {}.merge!(server_info, client_info) if server_info && client_info
 
       success = server_info.present? && client_info.present?
-      result = @error&.message unless success
+      result = jira_error_message(@error) unless success
       { success: success, result: result }
     end
 
@@ -731,6 +731,16 @@ module Integrations
       log_exception(e, message: 'Error sending message', client_url: client_url, client_path: path,
         client_status: e.try(:code))
       nil
+    end
+
+    def jira_error_message(error)
+      return unless error
+      return error.message unless error.respond_to?(:code)
+
+      code = error.code.to_i
+      return error.message if code == 0
+
+      format(s_('JiraService|Jira returned HTTP %{code}: %{message}'), code: code, message: error.message)
     end
 
     def client_url

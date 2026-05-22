@@ -2314,7 +2314,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "[title, cadence_title]"
+        example:
+        - title
+        - cadence_title
       - name: include_ancestors
         required: false
         description: Include iterations from parent and its ancestors
@@ -2433,7 +2435,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "[title, cadence_title]"
+        example:
+        - title
+        - cadence_title
       - name: include_ancestors
         required: false
         description: Include iterations from parent and its ancestors
@@ -3555,7 +3559,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: maven,yarn
+        example:
+        - maven
+        - yarn
         style: form
         explode: false
       - name: page

@@ -63,8 +63,10 @@ To create a trigger:
    - **Assign reviewer**: When the service account user is assigned
      as a reviewer to a merge request.
    - **Pipeline events**: When a pipeline changes state.
-     The possible states are `created`, `started`, `succeeded`, and `failed`.
    - **Merge request ready**: When a draft merge request is marked as ready for review.
+1. Optional. If you selected **Pipeline events**, in the **Pipeline events configuration** section,
+   from the **Trigger when** dropdown list, select one or more of the following states:
+   **Running**, **Passed**, **Failed**, or **Canceled**.
 1. From the **Service account** dropdown list,
    select a user to be [the composite identity](../composite_identity.md).
 1. For **Configuration source**, select one of the following:

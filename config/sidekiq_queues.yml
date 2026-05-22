@@ -845,14 +845,6 @@
   - 5
 - - process_commit
   - 3
-- - product_analytics_initialize_snowplow_product_analytics
-  - 1
-- - product_analytics_move_funnels
-  - 1
-- - product_analytics_post_push
-  - 1
-- - product_analytics_sync_funnels
-  - 1
 - - project_cache
   - 1
 - - project_destroy
@@ -1060,6 +1052,8 @@
 - - secrets_management_provision_group_secrets_manager
   - 1
 - - secrets_management_provision_project_secrets_manager
+  - 1
+- - secrets_management_reconcile_namespace_secret_count
   - 1
 - - security_analyzer_namespace_statuses_adjustment
   - 1
