@@ -1304,9 +1304,9 @@ class Group < Namespace
   end
 
   def pending_delete?
-    return false unless deletion_schedule
+    return false unless self_deletion_scheduled_deletion_created_on
 
-    deletion_schedule.marked_for_deletion_on.future?
+    self_deletion_scheduled_deletion_created_on.future?
   end
 
   def unarchive_descendants!

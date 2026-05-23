@@ -1387,6 +1387,32 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
     end
 
+    describe '#pending_delete?' do
+      context 'when group has no deletion schedule' do
+        let(:group) { create(:group) }
+
+        specify { expect(group.pending_delete?).to be(false) }
+      end
+
+      context 'when group is marked for deletion in the future' do
+        let(:group) { create(:group, deletion_scheduled_at: 1.day.from_now) }
+
+        specify { expect(group.pending_delete?).to be(true) }
+      end
+
+      context 'when group is marked for deletion in the past' do
+        let(:group) { create(:group, deletion_scheduled_at: 1.day.ago) }
+
+        specify { expect(group.pending_delete?).to be(false) }
+      end
+
+      context 'when group is marked for deletion today' do
+        let(:group) { create(:group, deletion_scheduled_at: Time.zone.today) }
+
+        specify { expect(group.pending_delete?).to be(false) }
+      end
+    end
+
     describe '.with_project_creation_levels' do
       let_it_be(:group_1) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
       let_it_be(:group_2) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS) }

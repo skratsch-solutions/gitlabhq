@@ -140,8 +140,11 @@ FactoryBot.define do
     end
 
     trait :deletion_scheduled do
+      deletion_scheduled_at { Date.current }
+
       after(:create) do |group, evaluator|
         group.schedule_deletion!(transition_user: evaluator.owner || create(:user))
+        group.update!(deletion_scheduled_at: evaluator.deletion_scheduled_at)
       end
     end
   end
