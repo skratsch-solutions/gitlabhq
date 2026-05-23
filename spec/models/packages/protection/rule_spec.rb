@@ -752,7 +752,11 @@ RSpec.describe Packages::Protection::Rule, type: :model, feature_category: :pack
       it { is_expected.to match_array expected_result }
     end
 
-    context 'with PyPI PEP 503 normalization' do
+    context 'with PyPI PEP 503 normalization',
+      quarantine: {
+        issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/601030',
+        type: :bug
+      } do
       pypi_type = Packages::Package.package_types[:pypi]
 
       it_behaves_like 'PEP 503 normalized matching' do

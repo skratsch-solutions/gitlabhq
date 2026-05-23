@@ -89591,6 +89591,9 @@ msgstr ""
 msgid "contains invalid URLs (%{urls})"
 msgstr ""
 
+msgid "contains invalid package URL: %{purl}"
+msgstr ""
+
 msgid "contribute to this project."
 msgstr ""
 

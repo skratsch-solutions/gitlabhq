@@ -314,8 +314,8 @@ module API
 
         desc 'Deletes a pipeline' do
           detail 'This feature was introduced in GitLab 11.6'
-          http_codes [[204, 'Pipeline was deleted'], [403, 'Forbidden']]
           success code: 204, message: 'Pipeline was deleted'
+          failure [[403, 'Forbidden']]
           tags ['pipelines']
         end
         params do

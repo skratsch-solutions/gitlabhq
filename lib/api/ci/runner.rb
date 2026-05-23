@@ -93,7 +93,8 @@ module API
 
         desc 'Delete a registered runner manager' do
           summary 'Internal endpoint that deletes a runner manager by authentication token and system ID.'
-          http_codes [[204, 'Runner manager was deleted'], [400, 'Bad Request'], [403, 'Forbidden'], [404, 'Not Found']]
+          success code: 204, message: 'Runner manager was deleted'
+          failure [[400, 'Bad Request'], [403, 'Forbidden'], [404, 'Not Found']]
           tags ['ci_runners']
         end
         params do
@@ -118,8 +119,8 @@ module API
 
         desc 'Validate authentication credentials' do
           summary "Verify authentication for a registered runner"
-          success Entities::Ci::RunnerRegistrationDetails
-          http_codes [[200, 'Credentials are valid'], [403, 'Forbidden'], [422, 'Runner is orphaned']]
+          success code: 200, model: Entities::Ci::RunnerRegistrationDetails, message: 'Credentials are valid'
+          failure [[403, 'Forbidden'], [422, 'Runner is orphaned']]
           tags ['ci_runners']
         end
         params do
@@ -186,10 +187,11 @@ module API
         before { set_application_context }
 
         desc 'Request a job' do
-          success Entities::Ci::JobRequest::Response
-          http_codes [[201, 'Job was scheduled'],
-            [204, 'No job for Runner'],
-            [403, 'Forbidden'],
+          success [
+            { code: 201, model: Entities::Ci::JobRequest::Response, message: 'Job was scheduled' },
+            { code: 204, message: 'No job for Runner' }
+          ]
+          failure [[403, 'Forbidden'],
             [409, 'Conflict'],
             [422, 'Runner is orphaned'],
             [429, 'Too Many Requests']]
@@ -272,9 +274,11 @@ module API
         end
 
         desc 'Update a job' do
-          http_codes [[200, 'Job was updated'],
-            [202, 'Update accepted'],
-            [400, 'Unknown parameters'],
+          success [
+            { code: 200, message: 'Job was updated' },
+            { code: 202, message: 'Update accepted' }
+          ]
+          failure [[400, 'Unknown parameters'],
             [403, 'Forbidden'],
             [409, 'Conflict'],
             [429, 'Too Many Requests']]
@@ -313,8 +317,8 @@ module API
         end
 
         desc 'Append a patch to the job trace' do
-          http_codes [[202, 'Trace was patched'],
-            [400, 'Missing Content-Range header'],
+          success code: 202, message: 'Trace was patched'
+          failure [[400, 'Missing Content-Range header'],
             [403, 'Forbidden'],
             [416, 'Range not satisfiable'],
             [429, 'Too Many Requests']]
@@ -356,8 +360,8 @@ module API
         end
 
         desc 'Authorize uploading job artifact' do
-          http_codes [[200, 'Upload allowed'],
-            [403, 'Forbidden'],
+          success code: 200, message: 'Upload allowed'
+          failure [[403, 'Forbidden'],
             [405, 'Artifacts support not enabled'],
             [413, 'File too large'],
             [429, 'Too Many Requests']]
@@ -397,9 +401,8 @@ module API
         end
 
         desc 'Upload a job artifact' do
-          success Entities::Ci::JobRequest::Response
-          http_codes [[201, 'Artifact uploaded'],
-            [400, 'Bad request'],
+          success code: 201
+          failure [[400, 'Bad request'],
             [403, 'Forbidden'],
             [405, 'Artifacts support not enabled'],
             [413, 'File too large'],
@@ -443,9 +446,11 @@ module API
         end
 
         desc 'Download the artifacts file for job' do
-          http_codes [[200, 'Download allowed'],
-            [302, 'Found'],
-            [401, 'Unauthorized'],
+          success [
+            { code: 200, message: 'Download allowed' },
+            { code: 302, message: 'Found' }
+          ]
+          failure [[401, 'Unauthorized'],
             [403, 'Forbidden'],
             [404, 'Artifact not found'],
             [429, 'Too Many Requests']]

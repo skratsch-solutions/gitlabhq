@@ -17,8 +17,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   condition(:has_access) { access_level != GroupMember::NO_ACCESS }
 
   condition(:guest) { access_level >= GroupMember::GUEST }
-  # Planner is a non-hierarchical role (some permissions available for planner might not be available for higher access levels)
-  condition(:planner) { access_level == GroupMember::PLANNER }
   condition(:reporter) { access_level >= GroupMember::REPORTER }
   # Security manager is a non-hierarchical role (some permissions available for security_manager might not be available for higher access levels)
   condition(:security_manager) { Gitlab::Security::SecurityManagerConfig.enabled? && access_level == GroupMember::SECURITY_MANAGER }

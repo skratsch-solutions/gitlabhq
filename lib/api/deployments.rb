@@ -214,8 +214,8 @@ module API
 
       desc 'Delete a specific deployment' do
         detail 'Delete a specific deployment that is not currently the last deployment for an environment or in a running state. This feature was introduced in GitLab 15.3.'
-        http_codes [
-          [204, 'Deployment destroyed'],
+        success code: 204, message: 'Deployment destroyed'
+        failure [
           [403, 'Forbidden'],
           [400, '"Cannot destroy running deployment" or "Deployment currently deployed to environment"']
         ]

@@ -45,7 +45,6 @@ API/DescriptionSuccessResponse:
     - 'lib/api/clusters/agents.rb'
     - 'lib/api/deploy_keys.rb'
     - 'lib/api/deploy_tokens.rb'
-    - 'lib/api/deployments.rb'
     - 'lib/api/environments.rb'
     - 'lib/api/feature_flags_user_lists.rb'
     - 'lib/api/features.rb'

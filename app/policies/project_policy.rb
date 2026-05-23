@@ -19,10 +19,6 @@ class ProjectPolicy < BasePolicy
   desc "User has guest access"
   condition(:guest) { team_member? }
 
-  # This is not a linear condition (some policies available for planner might not be available for higher access levels)
-  desc "User has planner access"
-  condition(:planner) { team_access_level == Gitlab::Access::PLANNER }
-
   desc "User has reporter access"
   condition(:reporter) { team_access_level >= Gitlab::Access::REPORTER }
 

@@ -65,7 +65,7 @@ module VerifiesWithEmail
             message: s_('IdentityVerification|Email Verification has ' \
               'been disabled and resending a code is not required. ' \
               'Log in again.')
-          }
+          }, status: :unprocessable_entity
           return
         end
       # Only lock & send when they are locked.
@@ -94,7 +94,10 @@ module VerifiesWithEmail
 
   def skip_verification_for_now
     return respond_422 unless user = find_verification_user
-    return render_403 unless permitted_to_skip_email_otp_in_warning_period?(user)
+
+    unless permitted_to_skip_email_otp_in_warning_period?(user)
+      return render json: { status: :failure }, status: :forbidden
+    end
 
     handle_verification_success(
       user,
@@ -121,7 +124,7 @@ module VerifiesWithEmail
       # this ensures the confirmation page cannot be visited by user manually navigating to this path
       session.delete(:verifies_with_email_user_id)
     else
-      render json: { status: :failure }
+      render json: { status: :failure }, status: :forbidden
     end
   end
 
@@ -266,7 +269,8 @@ module VerifiesWithEmail
       render json: { status: :success, redirect_path: redirect_path }
     else
       handle_verification_failure(user, result[:reason], result[:message])
-      render json: result
+      http_status = result[:reason] == :rate_limited ? :too_many_requests : :unauthorized
+      render json: result.slice(:status, :message), status: http_status
     end
   end
 
@@ -283,7 +287,7 @@ module VerifiesWithEmail
       s_("IdentityVerification|You've reached the maximum amount of resends. Wait %{interval} and try again."),
       interval: rate_limit_interval(:email_verification_code_send)
     )
-    render json: { status: :failure, message: message }
+    render json: { status: :failure, message: message }, status: :too_many_requests
   end
 
   def rate_limit_interval(rate_limit)

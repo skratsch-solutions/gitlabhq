@@ -216,10 +216,18 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'token' }))
         end
 
+        it 'returns 429 Too Many Requests' do
+          expect(response).to have_gitlab_http_status(:too_many_requests)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => "You've reached the maximum amount of tries. "\
                                      'Wait 10 minutes or send a new code and try again.')
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -228,10 +236,18 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'invalid_token' }))
         end
 
+        it 'returns 401 Unauthorized' do
+          expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => s_('IdentityVerification|The code is incorrect. '\
                                         'Enter it again, or send a new code.'))
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -241,9 +257,17 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'token' }))
         end
 
+        it 'returns 401 Unauthorized' do
+          expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => s_('IdentityVerification|The code has expired. Send a new code and try again.'))
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -405,10 +429,18 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'token' }))
         end
 
+        it 'returns 429 Too Many Requests' do
+          expect(response).to have_gitlab_http_status(:too_many_requests)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => "You've reached the maximum amount of tries. "\
                                      'Wait 10 minutes or send a new code and try again.')
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -417,10 +449,18 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'invalid_token' }))
         end
 
+        it 'returns 401 Unauthorized' do
+          expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => s_('IdentityVerification|The code is incorrect. '\
                                         'Enter it again, or send a new code.'))
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -430,9 +470,17 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           post(user_session_path(user: { verification_token: 'token' }))
         end
 
+        it 'returns 401 Unauthorized' do
+          expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+
         it 'adds a verification error message' do
           expect(json_response)
             .to include('message' => s_('IdentityVerification|The code has expired. Send a new code and try again.'))
+        end
+
+        it 'does not expose the internal reason key' do
+          expect(json_response).not_to have_key('reason')
         end
       end
 
@@ -789,6 +837,11 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
               .and not_change { user.locked_at }
           end
 
+          it 'returns 422 Unprocessable Entity' do
+            request_resend
+            expect(response).to have_gitlab_http_status(:unprocessable_entity)
+          end
+
           it 'adds a verification error message' do
             request_resend
             expect(json_response).to have_key('message')
@@ -874,6 +927,10 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
         perform_enqueued_jobs do
           post(users_resend_verification_code_path, params: params)
         end
+      end
+
+      it 'returns 429 Too Many Requests' do
+        expect(response).to have_gitlab_http_status(:too_many_requests)
       end
 
       it 'does not lock the user' do
@@ -1036,11 +1093,12 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
     context 'when user is not permitted to skip email OTP in warning period' do
       let(:permitted_to_skip_email_otp_in_warning_period) { false }
 
-      it 'returne a 403 status code and does not remove verifies_with_email_user_id session key' do
+      it 'returns a 403 JSON response and does not remove verifies_with_email_user_id session key' do
         post(users_skip_verification_for_now_path(user: { login: user.username }))
 
         expect(request.session[:verifies_with_email_user_id]).to eq(user.id)
         expect(response).to have_gitlab_http_status(:forbidden)
+        expect(json_response).to eq('status' => 'failure')
       end
     end
 
@@ -1097,10 +1155,11 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           stub_session(session_data: {})
         end
 
-        it 'returns error and does not render the template' do
+        it 'returns 403 Forbidden and does not render the template' do
           get(users_skip_verification_confirmation_path)
 
           expect(response).not_to render_template('skip_verification_confirmation')
+          expect(response).to have_gitlab_http_status(:forbidden)
           expect(json_response).to eq('status' => 'failure')
         end
       end
@@ -1110,10 +1169,11 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           stub_feature_flags(email_based_mfa: false)
         end
 
-        it 'returns error and does not render the template' do
+        it 'returns 403 Forbidden and does not render the template' do
           get(users_skip_verification_confirmation_path)
 
           expect(response).not_to render_template('skip_verification_confirmation')
+          expect(response).to have_gitlab_http_status(:forbidden)
           expect(json_response).to eq('status' => 'failure')
         end
       end
@@ -1123,10 +1183,11 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
           sign_out(user)
         end
 
-        it 'returns error and does not render the template' do
+        it 'returns 403 Forbidden and does not render the template' do
           get(users_skip_verification_confirmation_path)
 
           expect(response).not_to render_template('skip_verification_confirmation')
+          expect(response).to have_gitlab_http_status(:forbidden)
           expect(json_response).to eq('status' => 'failure')
         end
       end
@@ -1135,10 +1196,11 @@ RSpec.describe VerifiesWithEmail, :clean_gitlab_redis_sessions, :clean_gitlab_re
     context 'when user is not permitted to skip email OTP' do
       let(:permitted_to_skip_email_otp_in_warning_period) { false }
 
-      it 'returns error and does not render the template' do
+      it 'returns 403 Forbidden and does not render the template' do
         get(users_skip_verification_confirmation_path)
 
         expect(response).not_to render_template('skip_verification_confirmation')
+        expect(response).to have_gitlab_http_status(:forbidden)
         expect(json_response).to eq('status' => 'failure')
       end
     end

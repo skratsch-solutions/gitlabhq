@@ -41129,6 +41129,8 @@ paths:
       responses:
         '200':
           description: Credentials are valid
+          schema:
+            "$ref": "#/definitions/API_Entities_Ci_RunnerRegistrationDetails"
         '403':
           description: Forbidden
         '422':
@@ -41598,6 +41600,8 @@ paths:
       responses:
         '201':
           description: Job was scheduled
+          schema:
+            "$ref": "#/definitions/API_Entities_Ci_JobRequest_Response"
         '204':
           description: No job for Runner
         '403':
@@ -41733,7 +41737,7 @@ paths:
           "$ref": "#/definitions/postApiV4JobsIdArtifacts"
       responses:
         '201':
-          description: Artifact uploaded
+          description: Upload a job artifact
         '400':
           description: Bad request
         '403':
@@ -72633,6 +72637,321 @@ definitions:
     required:
     - token
     description: Request a job
+  API_Entities_Ci_JobRequest_Response:
+    type: object
+    properties:
+      id:
+        type: string
+      token:
+        type: string
+      allow_git_fetch:
+        type: string
+      job_info:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_JobInfo"
+      git_info:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_GitInfo"
+      runner_info:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_RunnerInfo"
+      inputs:
+        type: string
+      variables:
+        type: string
+      steps:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Step"
+      hooks:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Hook"
+      image:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Image"
+      services:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Service"
+      artifacts:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Artifacts"
+      cache:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Cache"
+      credentials:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Credentials"
+      features:
+        type: string
+      dependencies:
+        type: string
+      run:
+        type: string
+      suspend_options:
+        type: string
+      secrets:
+        type: string
+      policy_options:
+        type: string
+    required:
+    - id
+    - token
+    - allow_git_fetch
+    - job_info
+    - git_info
+    - runner_info
+    - inputs
+    - variables
+    - hooks
+    - image
+    - services
+    - artifacts
+    - cache
+    - credentials
+    - features
+    - dependencies
+    description: API_Entities_Ci_JobRequest_Response model
+  API_Entities_Ci_JobRequest_JobInfo:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      stage:
+        type: string
+      pipeline_id:
+        type: string
+      project_id:
+        type: string
+      project_name:
+        type: string
+      project_full_path:
+        type: string
+      namespace_id:
+        type: string
+      root_namespace_id:
+        type: string
+      organization_id:
+        type: string
+      instance_id:
+        type: string
+      instance_uuid:
+        type: string
+      user_id:
+        type: string
+      scoped_user_id:
+        type: string
+      time_in_queue_seconds:
+        type: string
+      project_jobs_running_on_instance_runners_count:
+        type: string
+      queue_size:
+        type: string
+      queue_depth:
+        type: string
+    required:
+    - id
+    - name
+    - stage
+    - pipeline_id
+    - project_id
+    - project_name
+    - project_full_path
+    - namespace_id
+    - root_namespace_id
+    - organization_id
+    - instance_id
+    - instance_uuid
+    - user_id
+    - scoped_user_id
+    - time_in_queue_seconds
+    - project_jobs_running_on_instance_runners_count
+    - queue_size
+    - queue_depth
+  API_Entities_Ci_JobRequest_GitInfo:
+    type: object
+    properties:
+      repo_url:
+        type: string
+      ref:
+        type: string
+      sha:
+        type: string
+      before_sha:
+        type: string
+      ref_type:
+        type: string
+      refspecs:
+        type: string
+      depth:
+        type: string
+      repo_object_format:
+        type: string
+      protected:
+        type: string
+    required:
+    - repo_url
+    - ref
+    - sha
+    - before_sha
+    - ref_type
+    - refspecs
+    - depth
+    - repo_object_format
+    - protected
+  API_Entities_Ci_JobRequest_RunnerInfo:
+    type: object
+    properties:
+      timeout:
+        type: string
+      runner_session_url:
+        type: string
+    required:
+    - timeout
+    - runner_session_url
+  API_Entities_Ci_JobRequest_Step:
+    type: object
+    properties:
+      name:
+        type: string
+      script:
+        type: string
+      timeout:
+        type: string
+      when:
+        type: string
+      allow_failure:
+        type: string
+    required:
+    - name
+    - script
+    - timeout
+    - when
+    - allow_failure
+  API_Entities_Ci_JobRequest_Hook:
+    type: object
+    properties:
+      name:
+        type: string
+      script:
+        type: string
+    required:
+    - name
+    - script
+  API_Entities_Ci_JobRequest_Image:
+    type: object
+    properties:
+      name:
+        type: string
+      entrypoint:
+        type: string
+      ports:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Port"
+      executor_opts:
+        type: string
+      pull_policy:
+        type: string
+    required:
+    - name
+    - entrypoint
+    - ports
+    - executor_opts
+    - pull_policy
+  API_Entities_Ci_JobRequest_Port:
+    type: object
+    properties:
+      number:
+        type: string
+      protocol:
+        type: string
+      name:
+        type: string
+    required:
+    - number
+    - protocol
+    - name
+  API_Entities_Ci_JobRequest_Service:
+    type: object
+    properties:
+      name:
+        type: string
+      entrypoint:
+        type: string
+      ports:
+        "$ref": "#/definitions/API_Entities_Ci_JobRequest_Port"
+      executor_opts:
+        type: string
+      pull_policy:
+        type: string
+      alias:
+        type: string
+      command:
+        type: string
+      variables:
+        type: string
+    required:
+    - name
+    - entrypoint
+    - ports
+    - executor_opts
+    - pull_policy
+    - alias
+    - command
+    - variables
+  API_Entities_Ci_JobRequest_Artifacts:
+    type: object
+    properties:
+      name:
+        type: string
+      untracked:
+        type: string
+      paths:
+        type: string
+      exclude:
+        type: string
+      when:
+        type: string
+      expire_in:
+        type: string
+      artifact_type:
+        type: string
+      artifact_format:
+        type: string
+    required:
+    - name
+    - paths
+    - when
+    - expire_in
+    - artifact_type
+    - artifact_format
+  API_Entities_Ci_JobRequest_Cache:
+    type: object
+    properties:
+      key:
+        type: string
+      untracked:
+        type: string
+      paths:
+        type: string
+      policy:
+        type: string
+      when:
+        type: string
+      fallback_keys:
+        type: string
+    required:
+    - key
+    - untracked
+    - paths
+    - policy
+    - when
+    - fallback_keys
+  API_Entities_Ci_JobRequest_Credentials:
+    type: object
+    properties:
+      type:
+        type: string
+      url:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+    required:
+    - type
+    - url
+    - username
+    - password
   putApiV4JobsId:
     type: object
     properties:

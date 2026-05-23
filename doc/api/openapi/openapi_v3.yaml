@@ -54649,7 +54649,7 @@ paths:
       - Deploy resources
       responses:
         '204':
-          description: Deployment destroyed
+          description: No Content
         '403':
           description: Forbidden
         '400':
@@ -62314,7 +62314,7 @@ paths:
       - Pipelines
       responses:
         '204':
-          description: Pipeline was deleted
+          description: No Content
         '403':
           description: Forbidden
       parameters:
@@ -63825,7 +63825,7 @@ paths:
       - CI runners
       responses:
         '204':
-          description: Runner manager was deleted
+          description: No Content
         '400':
           description: Bad Request
         '403':
@@ -63854,14 +63854,12 @@ paths:
       tags:
       - CI runners
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/APIEntitiesCiRunnerRegistrationDetails"
-        '200':
-          description: Credentials are valid
         '403':
           description: Forbidden
         '422':
@@ -63982,10 +63980,8 @@ paths:
       tags:
       - Jobs
       responses:
-        '200':
-          description: OK
         '202':
-          description: Trace was patched
+          description: Accepted
         '400':
           description: Missing Content-Range header
         '403':
@@ -64014,10 +64010,8 @@ paths:
       tags:
       - Jobs
       responses:
-        '201':
-          description: Created
         '200':
-          description: Upload allowed
+          description: OK
         '403':
           description: Forbidden
         '405':
@@ -64047,11 +64041,7 @@ paths:
       - Jobs
       responses:
         '201':
-          description: Artifact uploaded
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/APIEntitiesCiJobRequestResponse"
+          description: Created
         '400':
           description: Bad request
         '403':
