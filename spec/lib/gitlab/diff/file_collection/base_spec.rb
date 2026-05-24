@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::Diff::FileCollection::Base do
+RSpec.describe Gitlab::Diff::FileCollection::Base, feature_category: :code_review_workflow do
   let(:merge_request) { create(:merge_request) }
   let(:diffable) { merge_request.merge_request_diff }
   let(:diff_options) { {} }
@@ -32,6 +32,44 @@ RSpec.describe Gitlab::Diff::FileCollection::Base do
       allow(described_class).to receive(:max_blob_size).and_return(max_blob_size)
 
       expect(described_class.new(diffable, project: merge_request.project).raw_diff_files.all? { |file| file.max_blob_size == max_blob_size }).to be_truthy
+    end
+  end
+
+  describe 'rename diff stats' do
+    let(:project) { merge_request.project }
+    let(:diff_refs) do
+      instance_double(Gitlab::Diff::DiffRefs, base_sha: 'base', head_sha: 'head')
+    end
+
+    let(:new_path_stats) { Gitaly::DiffStats.new(path: 'new.py', additions: 57, deletions: 0) }
+    let(:old_path_stats) { Gitaly::DiffStats.new(path: 'old.py', additions: 0, deletions: 13) }
+    let(:diff_stats_collection) { Gitlab::Git::DiffStatsCollection.new([new_path_stats, old_path_stats]) }
+    let(:renamed_diff) do
+      {
+        old_path: 'old.py',
+        new_path: 'new.py',
+        renamed_file: true,
+        new_file: false,
+        deleted_file: false,
+        diff: ''
+      }
+    end
+
+    let(:diff_collection) { Gitlab::Git::DiffCollection.new([renamed_diff]) }
+    let(:diffable) do
+      instance_double(
+        MergeRequestDiff,
+        raw_diffs: diff_collection,
+        diff_stats: diff_stats_collection
+      )
+    end
+
+    it 'combines split rename stats for renamed files' do
+      diff_file = described_class.new(diffable, project: project, diff_refs: diff_refs).diff_files.first
+
+      expect(diff_file.renamed_file?).to be(true)
+      expect(diff_file.added_lines).to eq(57)
+      expect(diff_file.removed_lines).to eq(13)
     end
   end
 end
