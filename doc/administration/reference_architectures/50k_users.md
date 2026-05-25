@@ -1655,7 +1655,7 @@ On each node:
         storage: [
            {
               name: 'gitaly-1',
-              path: '/var/opt/gitlab/git-data',
+              path: '/var/opt/gitlab/git-data/repositories',
            },
         ],
      }
@@ -1669,7 +1669,7 @@ On each node:
         storage: [
            {
               name: 'gitaly-2',
-              path: '/var/opt/gitlab/git-data',
+              path: '/var/opt/gitlab/git-data/repositories',
            },
         ],
      }
@@ -1683,7 +1683,7 @@ On each node:
         storage: [
            {
               name: 'gitaly-3',
-              path: '/var/opt/gitlab/git-data',
+              path: '/var/opt/gitlab/git-data/repositories',
            },
         ],
      }

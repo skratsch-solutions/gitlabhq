@@ -298,12 +298,16 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
             issue_ids = [issue1.id, issue2.id]
 
             allow(recent_items_class).to receive(:new).with(user: user).and_return(recent_items)
-            expect(recent_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
+            search_result = Issue.id_in_ordered(issue_ids)
+            search_result = search_result.preload_namespace.preload_routables if ff_enabled
+            expect(recent_items).to receive(:search).with(search_term).and_return(search_result)
 
             control = ActiveRecord::QueryRecorder.new(skip_cached: true) { search_autocomplete_opts(search_term) }
 
             issue_ids += create_list(:issue, 3).map(&:id)
-            expect(recent_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered(issue_ids))
+            search_result = Issue.id_in_ordered(issue_ids)
+            search_result = search_result.preload_namespace.preload_routables if ff_enabled
+            expect(recent_items).to receive(:search).with(search_term).and_return(search_result)
 
             # Threshold of 6 allows for 2 additional queries per new issue (3 new issues = 6 queries)
             # These queries are needed for URL determination logic (work_item_type, namespace checks)

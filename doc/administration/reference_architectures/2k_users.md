@@ -521,7 +521,7 @@ To configure the Gitaly server, on the server node you want to use for Gitaly:
       storage: [
          {
             name: 'default',
-            path: '/var/opt/gitlab/git-data',
+            path: '/var/opt/gitlab/git-data/repositories',
          },
          {
             name: 'storage1',

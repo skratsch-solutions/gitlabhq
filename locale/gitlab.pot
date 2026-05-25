@@ -34751,6 +34751,9 @@ msgstr ""
 msgid "GlobalSearch|Recent merge requests"
 msgstr ""
 
+msgid "GlobalSearch|Recent work items"
+msgstr ""
+
 msgid "GlobalSearch|Reset"
 msgstr ""
 
@@ -37128,7 +37131,7 @@ msgstr ""
 msgid "HomePageProjectsWidget|Your projects are not available. Please refresh the page to try again."
 msgstr ""
 
-msgid "HomePageRecentlyViewedWidget|Issues, merge requests, and wiki pages you visit will appear here."
+msgid "HomePageRecentlyViewedWidget|Work items, merge requests, and wiki pages you visit will appear here."
 msgstr ""
 
 msgid "HomePageRecentlyViewedWidget|Your recently viewed items are not available. Please refresh the page to try again."

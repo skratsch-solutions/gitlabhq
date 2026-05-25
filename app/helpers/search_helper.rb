@@ -562,7 +562,7 @@ module SearchHelper
     return [] unless current_user
 
     recent_work_items = ::Gitlab::Search::RecentWorkItems.new(user: current_user)
-    recent_work_items.search(term).preload_namespace.preload_routables.map do |wi|
+    recent_work_items.search(term).map do |wi|
       # For group-level work items, use namespace (group) avatar; for project-level, use project avatar
       avatar_url = wi.project&.avatar_url || wi.namespace&.avatar_url || ''
 

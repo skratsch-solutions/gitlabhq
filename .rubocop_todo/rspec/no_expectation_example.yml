@@ -1,7 +1,6 @@
 ---
 RSpec/NoExpectationExample:
   Exclude:
-    - 'ee/spec/components/gitlab_subscriptions/discover_duo_pro_component_spec.rb'
     - 'ee/spec/features/boards/swimlanes/epics_swimlanes_drag_drop_spec.rb'
     - 'ee/spec/features/boards/swimlanes/epics_swimlanes_filtering_spec.rb'
     - 'ee/spec/features/groups/group_roadmap_spec.rb'

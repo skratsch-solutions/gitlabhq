@@ -45,10 +45,7 @@ For setup instructions, see [configure coverage reporting](coverage_reporting.md
 
 Coverage visualization parses a Cobertura or JaCoCo XML report that your test job uploads
 as a CI/CD artifact. After the pipeline completes, GitLab processes the report in the
-background and annotates lines in the MR diff:
-
-- Green: The line is covered by tests.
-- Red: The line is not covered.
+background and annotates lines in the MR diff.
 
 Annotations appear only on files that are changed in the MR diff. Files not changed in
 the MR are not annotated, even if the report includes coverage data for them.

@@ -18,9 +18,14 @@ module Gitlab
 
         # Query work items directly to support global search (including group-level items)
         # Similar to RecentEpics approach since WorkItemsFinder requires group context
-        work_items = WorkItem.inc_relations_for_permission_check
+        work_items = WorkItem
+          .inc_relations_for_permission_check
+          .id_in_ordered(ids)
+          .limit(::Gitlab::Search::RecentItems::SEARCH_LIMIT)
+          .preload_namespace
+          .preload_routables
+
         work_items = work_items.full_search(term, matched_columns: 'title') if term.present?
-        work_items = work_items.id_in_ordered(ids).limit(::Gitlab::Search::RecentItems::SEARCH_LIMIT)
 
         filter_by_permissions(work_items)
       end

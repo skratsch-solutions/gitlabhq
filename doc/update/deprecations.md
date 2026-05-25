@@ -173,6 +173,28 @@ We recommend to migrate to the bundled Envoy Gateway and Gateway API.
 Alternatively, you can deploy and configure an
 [external Ingress controller and class](https://docs.gitlab.com/charts/charts/globals/#configure-ingress-settings).
 
+## GitLab 19.5
+
+### Bitbucket Cloud issue and wiki import
+
+- Announced in GitLab 19.1
+- Removal in GitLab 19.5 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/601061).
+
+Atlassian is [sunsetting Bitbucket Cloud Issues and Wikis](https://community.atlassian.com/forums/Bitbucket-articles/Announcing-sunset-of-Bitbucket-Issues-and-Wikis/ba-p/3193882)
+on August 20, 2026. After that date, the underlying API endpoints are removed
+and GitLab can no longer import issues or wikis from Bitbucket Cloud.
+
+In GitLab 19.3, the Bitbucket Cloud importer is planned to handle the API
+removal gracefully and skip issues and wikis. In GitLab 19.5, the import
+code for issues and wikis is planned to be removed.
+
+Users who need their Bitbucket issue data should complete imports before the
+August 20, 2026 due date, or use the
+[CSV import](https://docs.gitlab.com/user/project/issues/csv_import/)
+after exporting from Bitbucket. For wikis, clone the Bitbucket wiki repository
+locally before the due date.
+
 ## GitLab 19.3
 
 ### The `glab duo ask` command
