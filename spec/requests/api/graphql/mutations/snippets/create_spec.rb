@@ -111,6 +111,13 @@ RSpec.describe 'Creating a Snippet', :with_current_organization, feature_categor
         let(:project) { nil }
       end
 
+      it_behaves_like 'authorizing granular token permissions for GraphQL', :create_snippet do
+        let(:boundary_object) { :user }
+        let(:mutation) { graphql_mutation(:create_snippet, mutation_vars, 'errors') }
+
+        let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+      end
+
       context 'when Current organization is present' do
         it 'adds an organization_id' do
           expect do
@@ -128,6 +135,13 @@ RSpec.describe 'Creating a Snippet', :with_current_organization, feature_categor
       end
 
       it_behaves_like 'creates snippet'
+
+      it_behaves_like 'authorizing granular token permissions for GraphQL', :create_snippet do
+        let(:boundary_object) { project }
+        let(:mutation) { graphql_mutation(:create_snippet, mutation_vars, 'errors') }
+
+        let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+      end
 
       context 'when Current organization is present' do
         it 'does not add an organization_id' do

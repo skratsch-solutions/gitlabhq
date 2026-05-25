@@ -104,7 +104,6 @@ Gitlab/JsonSafeParse:
     - 'ee/lib/gitlab/graphql/pagination/elastic_connection.rb'
     - 'ee/lib/gitlab/llm/ai_gateway/code_suggestions_client.rb'
     - 'ee/lib/gitlab/llm/ai_gateway/completions/categorize_question.rb'
-    - 'ee/lib/gitlab/llm/ai_gateway/response_modifiers/resolve_vulnerability.rb'
     - 'ee/lib/gitlab/llm/anthropic/client.rb'
     - 'ee/lib/gitlab/llm/chain/tools/identifier.rb'
     - 'ee/lib/gitlab/package_metadata/connector/ndjson_data_file.rb'

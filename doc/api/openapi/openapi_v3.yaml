@@ -13134,9 +13134,9 @@ paths:
   "/api/v4/users/{id}/support_pin/revoke":
     post:
       operationId: postApiV4UsersIdSupportPinRevoke
-      summary: Revoke support PIN for a user. Available only for admins.
-      description: This feature allows administrators to revoke the support PIN for
-        a specified user before its natural expiration
+      summary: Revoke a Support PIN for a user
+      description: Revokes a Support PIN for a specified user. This immediately expires
+        and removes the PIN. Administrators only.
       tags:
       - Users
       responses:
@@ -13468,7 +13468,7 @@ paths:
     delete:
       operationId: deleteApiV4UsersId
       summary: Delete a user
-      description: Deletes a user account. Available only for administrators.
+      description: Deletes a user. Administrators only.
       tags:
       - Users
       responses:
@@ -13500,7 +13500,8 @@ paths:
     get:
       operationId: getApiV4UsersUserIdStatus
       summary: Retrieve the status of a user
-      description: Retrieves the public profile status of a user.
+      description: Retrieves the status of a user. You can access this endpoint without
+        authentication.
       tags:
       - Users
       responses:
@@ -13525,7 +13526,7 @@ paths:
     post:
       operationId: postApiV4UsersIdFollow
       summary: Follow a user
-      description: Follows a user as the authenticated user.
+      description: Follows a specified user account.
       tags:
       - Users
       responses:
@@ -13660,8 +13661,9 @@ paths:
   "/api/v4/users/{id}/disable_two_factor":
     patch:
       operationId: patchApiV4UsersIdDisableTwoFactor
-      summary: Disable two factor authentication for a user. Available only for admins
-      description: This feature was added in GitLab 15.2
+      summary: Disable two-factor authentication for a user
+      description: Disables two-factor authentication for a specified user account.
+        Administrators only.
       tags:
       - Users
       responses:
@@ -13685,9 +13687,9 @@ paths:
   "/api/v4/users/{id}/identities/{provider}":
     delete:
       operationId: deleteApiV4UsersIdIdentitiesProvider
-      summary: Delete a user identity
-      description: Deletes an identity that links a user to an external authentication
-        provider. Available only for administrators.
+      summary: Delete authentication identity from a user
+      description: Deletes a user authentication identity using the provider name
+        associated with that identity. Administrators only.
       tags:
       - Users
       responses:
@@ -13761,7 +13763,7 @@ paths:
     post:
       operationId: postApiV4UsersUserIdKeys
       summary: Add an SSH key for a user
-      description: Adds an SSH key to a specified user. Available only for administrators.
+      description: Adds an SSH key for a specified user account. Administrators only.
       tags:
       - Keys
       responses:
@@ -13834,7 +13836,8 @@ paths:
     get:
       operationId: getApiV4UsersIdKeysKeyId
       summary: Retrieve an SSH key for a user
-      description: Retrieves a single SSH key for a specified user.
+      description: Retrieves an SSH key for a specified user account. This endpoint
+        does not require authentication.
       tags:
       - Keys
       responses:
@@ -13864,7 +13867,8 @@ paths:
     delete:
       operationId: deleteApiV4UsersIdKeysKeyId
       summary: Delete an SSH key for a user
-      description: Deletes an SSH key from a specified user. Available only for administrators.
+      description: Deletes an SSH key from a specified user account. Administrators
+        only.
       tags:
       - Keys
       responses:
@@ -13894,8 +13898,8 @@ paths:
   "/api/v4/users/{id}/gpg_keys":
     post:
       operationId: postApiV4UsersIdGpgKeys
-      summary: Add a GPG key to a specified user. Available only for admins.
-      description: This feature was added in GitLab 10.0
+      summary: Add a GPG key for a user
+      description: Adds a GPG key for a specified user account. Administrators only.
       tags:
       - Keys
       responses:
@@ -13924,8 +13928,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_896edd2b1a53"
     get:
       operationId: getApiV4UsersIdGpgKeys
-      summary: Get the GPG keys of a specified user.
-      description: This feature was added in GitLab 10.0
+      summary: List all GPG keys for a user
+      description: Lists all GPG keys for a specified user account. This endpoint
+        does not require authentication.
       tags:
       - Keys
       responses:
@@ -13967,8 +13972,9 @@ paths:
   "/api/v4/users/{id}/gpg_keys/{key_id}":
     get:
       operationId: getApiV4UsersIdGpgKeysKeyId
-      summary: Get a specific GPG key for a given user.
-      description: This feature was added in GitLab 13.5
+      summary: Retrieve a GPG key for a user
+      description: Retrieves a GPG key for a specified user account. This endpoint
+        does not require authentication.
       tags:
       - Keys
       responses:
@@ -13997,9 +14003,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UsersIdGpgKeysKeyId
-      summary: Delete an existing GPG key from a specified user. Available only for
-        admins.
-      description: This feature was added in GitLab 10.0
+      summary: Delete a GPG key for a user
+      description: Deletes a GPG key from a specified user account. Administrators
+        only.
       tags:
       - Keys
       responses:
@@ -14025,9 +14031,9 @@ paths:
   "/api/v4/users/{id}/gpg_keys/{key_id}/revoke":
     post:
       operationId: postApiV4UsersIdGpgKeysKeyIdRevoke
-      summary: Revokes an existing GPG key from a specified user. Available only for
-        admins.
-      description: This feature was added in GitLab 10.0
+      summary: Revoke a GPG key for a user.
+      description: Deletes a GPG key from a specified user account. Administrators
+        only.
       tags:
       - Keys
       responses:
@@ -14054,7 +14060,8 @@ paths:
     post:
       operationId: postApiV4UsersIdEmails
       summary: Add an email address for a user
-      description: Adds an email address to a specified user. Available only for administrators.
+      description: Adds an email address for a specified user account. Administrators
+        only.
       tags:
       - Users
       responses:
@@ -14128,8 +14135,8 @@ paths:
     delete:
       operationId: deleteApiV4UsersIdEmailsEmailId
       summary: Delete an email address for a user
-      description: Deletes an email address from a specified user. Available only
-        for administrators.
+      description: Deletes a specified email address for a user account. You cannot
+        delete a primary email address. Administrators only.
       tags:
       - Users
       responses:
@@ -14159,8 +14166,9 @@ paths:
   "/api/v4/users/{id}/activate":
     post:
       operationId: postApiV4UsersIdActivate
-      summary: Activate a user
-      description: Activates a deactivated user. Available only for administrators.
+      summary: Reactivate a user
+      description: Reactivates a specified user account that was previously deactivated.
+        Administrators only.
       tags:
       - Users
       responses:
@@ -14180,9 +14188,9 @@ paths:
   "/api/v4/users/{id}/approve":
     post:
       operationId: postApiV4UsersIdApprove
-      summary: Approve a user
-      description: Approves a user whose account is pending administrator approval.
-        Available only for administrators.
+      summary: Approve access to a user
+      description: Approves access to a specified user account that is pending approval.
+        Administrators only.
       tags:
       - Users
       responses:
@@ -14204,7 +14212,7 @@ paths:
       operationId: postApiV4UsersIdReject
       summary: Reject a user
       description: Rejects a user whose account is pending administrator approval.
-        Available only for administrators.
+        Administrators only.
       tags:
       - Users
       responses:
@@ -14225,7 +14233,7 @@ paths:
     post:
       operationId: postApiV4UsersIdDeactivate
       summary: Deactivate a user
-      description: Deactivates an active user. Available only for administrators.
+      description: Deactivates a specified user account. Administrators only.
       tags:
       - Users
       responses:
@@ -14245,8 +14253,8 @@ paths:
   "/api/v4/users/{id}/block":
     post:
       operationId: postApiV4UsersIdBlock
-      summary: Block a user
-      description: Blocks a user from signing in. Available only for administrators.
+      summary: Block access to a user
+      description: Blocks a specified user account. Administrators only.
       tags:
       - Users
       responses:
@@ -14267,7 +14275,7 @@ paths:
     post:
       operationId: postApiV4UsersIdUnblock
       summary: Unblock a user
-      description: Unblocks a previously blocked user. Available only for administrators.
+      description: Unblocks a previously blocked user. Administrators only.
       tags:
       - Users
       responses:
@@ -14288,7 +14296,7 @@ paths:
     post:
       operationId: postApiV4UsersIdBan
       summary: Ban a user
-      description: Bans a user. Available only for administrators.
+      description: Bans a specified user account. Administrators only.
       tags:
       - Users
       responses:
@@ -14309,7 +14317,7 @@ paths:
     post:
       operationId: postApiV4UsersIdUnban
       summary: Unban a user
-      description: Unbans a previously banned user. Available only for administrators.
+      description: Unbans a previously banned user. Administrators only.
       tags:
       - Users
       responses:
@@ -14330,8 +14338,8 @@ paths:
     get:
       operationId: getApiV4UsersUserIdMemberships
       summary: List all memberships for a user
-      description: Lists all project and group memberships for a user. Available only
-        for administrators.
+      description: Lists all project and group memberships for a user. Administrators
+        only.
       tags:
       - Users
       responses:
@@ -14494,8 +14502,9 @@ paths:
   "/api/v4/users/{user_id}/impersonation_tokens/{impersonation_token_id}":
     get:
       operationId: getApiV4UsersUserIdImpersonationTokensImpersonationTokenId
-      summary: Retrieve impersonation token. Available only for admins.
-      description: This feature was introduced in GitLab 9.0
+      summary: Retrieve an impersonation token for a user
+      description: Retrieves an impersonation token for a specified user. Administrators
+        only.
       tags:
       - Access tokens
       responses:
@@ -14524,8 +14533,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UsersUserIdImpersonationTokensImpersonationTokenId
-      summary: Revoke a impersonation token. Available only for admins.
-      description: This feature was introduced in GitLab 9.0
+      summary: Revoke an impersonation token
+      description: Revokes an impersonation token for a specified user. Administrators
+        only.
       tags:
       - Access tokens
       responses:
@@ -14596,7 +14606,7 @@ paths:
   "/api/v4/user/keys":
     get:
       operationId: getApiV4UserKeys
-      summary: List all SSH keys for the authenticated user
+      summary: List all SSH keys
       description: Lists all SSH keys for the currently authenticated user.
       tags:
       - Keys
@@ -14630,8 +14640,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4UserKeys
-      summary: Add an SSH key for the authenticated user
-      description: Adds an SSH key to the currently authenticated user.
+      summary: Add an SSH key
+      description: Adds an SSH key for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14652,8 +14662,8 @@ paths:
   "/api/v4/user/keys/{key_id}":
     get:
       operationId: getApiV4UserKeysKeyId
-      summary: Retrieve an SSH key for the authenticated user
-      description: Retrieves a single SSH key for the currently authenticated user.
+      summary: Retrieve an SSH key
+      description: Retrieves a specified SSH key for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14676,8 +14686,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UserKeysKeyId
-      summary: Delete an SSH key for the authenticated user
-      description: Deletes an SSH key from the currently authenticated user.
+      summary: Delete an SSH key
+      description: Deletes a specified SSH key from the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14701,8 +14711,8 @@ paths:
   "/api/v4/user/gpg_keys":
     get:
       operationId: getApiV4UserGpgKeys
-      summary: Get the currently authenticated user's GPG keys
-      description: This feature was added in GitLab 10.0
+      summary: List all GPG keys
+      description: Lists all GPG keys for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14735,8 +14745,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4UserGpgKeys
-      summary: Add a new GPG key to the currently authenticated user
-      description: This feature was added in GitLab 10.0
+      summary: Add a GPG key
+      description: Adds a GPG key for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14757,8 +14767,8 @@ paths:
   "/api/v4/user/gpg_keys/{key_id}":
     get:
       operationId: getApiV4UserGpgKeysKeyId
-      summary: Get a single GPG key owned by currently authenticated user
-      description: This feature was added in GitLab 10.0
+      summary: Retrieve a GPG key
+      description: Retrieves a GPG key for the currently authenticated user.
       tags:
       - Keys
       responses:
@@ -14802,7 +14812,7 @@ paths:
   "/api/v4/user/gpg_keys/{key_id}/revoke":
     post:
       operationId: postApiV4UserGpgKeysKeyIdRevoke
-      summary: Revoke a GPG key owned by currently authenticated user
+      summary: Revoke a GPG key
       description: This feature was added in GitLab 10.0
       tags:
       - Keys
@@ -14823,7 +14833,7 @@ paths:
   "/api/v4/user/emails":
     get:
       operationId: getApiV4UserEmails
-      summary: List all email addresses for the authenticated user
+      summary: List all email addresses for a user
       description: Lists all email addresses for the currently authenticated user.
       tags:
       - Users
@@ -14857,8 +14867,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4UserEmails
-      summary: Add an email address for the authenticated user
-      description: Adds an email address to the currently authenticated user.
+      summary: Add an email address
+      description: Adds an email address for the currently authenticated user.
       tags:
       - Users
       responses:
@@ -14911,9 +14921,9 @@ paths:
   "/api/v4/user/support_pin":
     post:
       operationId: postApiV4UserSupportPin
-      summary: Create a new Support PIN for the authenticated user
-      description: This feature creates a temporary Support PIN for the authenticated
-        user
+      summary: Create a new Support PIN
+      description: Creates a Support PIN for the currently authenticated user. GitLab
+        Support may ask for this PIN to validate your identity.
       tags:
       - Users
       responses:
@@ -14927,9 +14937,9 @@ paths:
           description: Bad Request
     get:
       operationId: getApiV4UserSupportPin
-      summary: Get the current Support PIN for the authenticated user
-      description: This feature retrieves the temporary Support PIN for the authenticated
-        user
+      summary: Retrieve Support PIN
+      description: Retrieves a Support PIN for the currently authenticated user. GitLab
+        Support may ask for this PIN to validate your identity.
       tags:
       - Users
       responses:
@@ -14977,9 +14987,9 @@ paths:
   "/api/v4/user/emails/{email_id}":
     get:
       operationId: getApiV4UserEmailsEmailId
-      summary: Retrieve an email address for the authenticated user
-      description: Retrieves a single email address for the currently authenticated
-        user.
+      summary: Retrieve details on an email address
+      description: Retrieves details on a specified email address for the currently
+        authenticated user.
       tags:
       - Users
       responses:
@@ -15002,7 +15012,7 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4UserEmailsEmailId
-      summary: Delete an email address for the authenticated user
+      summary: Delete an email address
       description: Deletes an email address from the currently authenticated user.
       tags:
       - Users
@@ -15023,8 +15033,8 @@ paths:
   "/api/v4/user/activities":
     get:
       operationId: getApiV4UserActivities
-      summary: List all user activities
-      description: Lists all user activity entries since the given date.
+      summary: List all activity for a user
+      description: Lists all activity for a specified user.
       tags:
       - Users
       responses:
@@ -15068,8 +15078,8 @@ paths:
   "/api/v4/user/status":
     put:
       operationId: putApiV4UserStatus
-      summary: Set the status of the current user
-      description: Any parameters that are not passed will be nullified.
+      summary: Update a user status
+      description: Updates the user status for the currently authenticated user.
       tags:
       - Users
       responses:
@@ -15124,8 +15134,9 @@ paths:
   "/api/v4/user/avatar":
     put:
       operationId: putApiV4UserAvatar
-      summary: Set the avatar of the current user
-      description: This feature was introduced in GitLab 17.0.
+      summary: Upload an avatar
+      description: Uploads an avatar for the currently authenticated user. This feature
+        was introduced in GitLab 17.0.
       tags:
       - Avatars
       responses:
@@ -15146,9 +15157,11 @@ paths:
   "/api/v4/user/personal_access_tokens":
     post:
       operationId: postApiV4UserPersonalAccessTokens
-      summary: Create a personal access token with limited scopes for the currently
-        authenticated user
-      description: This feature was introduced in GitLab 16.5
+      summary: Create a personal access token
+      description: Creates a personal access token for the currently authenticated
+        user. For security purposes, the token is limited to the `k8s_proxy` and `self_rotate`
+        scope. Token values are included with the response, but cannot be retrieved
+        later. This feature was introduced in GitLab 16.5.
       tags:
       - Access tokens
       responses:
@@ -70275,8 +70288,9 @@ paths:
   "/api/v4/groups/{id}/access_requests/{user_id}/approve":
     put:
       operationId: putApiV4GroupsIdAccessRequestsUserIdApprove
-      summary: Approves an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Approve an access request
+      description: Approves an access request for a specified user in a specified
+        group or project.
       tags:
       - Access requests
       responses:
@@ -70423,8 +70437,9 @@ paths:
   "/api/v4/projects/{id}/access_requests/{user_id}/approve":
     put:
       operationId: putApiV4ProjectsIdAccessRequestsUserIdApprove
-      summary: Approves an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Approve an access request
+      description: Approves an access request for a specified user in a specified
+        group or project.
       tags:
       - Access requests
       responses:

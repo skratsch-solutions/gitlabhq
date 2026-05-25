@@ -6,6 +6,8 @@ module Mutations
       graphql_name 'BranchRuleUpdate'
 
       authorize :update_branch_rule
+      authorize_granular_token permissions: :update_branch_rule,
+        boundary_argument: :id, boundary_type: :project
 
       argument :id, ::Types::GlobalIDType[::Projects::BranchRule],
         required: true,

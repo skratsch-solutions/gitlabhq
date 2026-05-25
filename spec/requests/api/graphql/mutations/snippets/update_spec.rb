@@ -140,6 +140,15 @@ RSpec.describe 'Updating a Snippet', feature_category: :source_code_management d
     it_behaves_like 'has spam protection' do
       let(:mutation_class) { ::Mutations::Snippets::Update }
     end
+
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :update_snippet do
+      let_it_be(:user) { create(:user) }
+      let(:snippet) { create(:personal_snippet, :private, :repository, author: user) }
+      let(:boundary_object) { :user }
+      let(:mutation) { graphql_mutation(:update_snippet, mutation_vars, 'errors') }
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
   end
 
   describe 'ProjectSnippet' do
@@ -175,6 +184,19 @@ RSpec.describe 'Updating a Snippet', feature_category: :source_code_management d
       end
 
       it_behaves_like 'graphql update actions'
+
+      it_behaves_like 'authorizing granular token permissions for GraphQL', :update_snippet do
+        let_it_be(:user) { create(:user, developer_of: project) }
+        let(:snippet) do
+          create(:project_snippet, :private, :repository, project: project, author: user,
+            file_name: original_file_name, title: original_title,
+            content: original_content, description: original_description)
+        end
+
+        let(:boundary_object) { project }
+        let(:mutation) { graphql_mutation(:update_snippet, mutation_vars, 'errors') }
+        let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+      end
 
       context 'when the snippet project feature is disabled' do
         it 'returns an an error' do

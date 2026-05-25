@@ -54,6 +54,13 @@ RSpec.describe 'BranchRuleUpdate', feature_category: :source_code_management do
       project.add_maintainer(user)
     end
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :update_branch_rule do
+      let(:boundary_object) { project }
+      let(:mutation) { graphql_mutation(:branch_rule_update, params, 'errors') }
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     it 'updates the branch rule' do
       post_mutation
 

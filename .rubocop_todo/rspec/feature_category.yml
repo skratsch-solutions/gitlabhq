@@ -2506,7 +2506,6 @@ RSpec/FeatureCategory:
     - 'spec/models/concerns/ci/artifactable_spec.rb'
     - 'spec/models/concerns/ci/bulk_insertable_tags_spec.rb'
     - 'spec/models/concerns/ci/has_ref_spec.rb'
-    - 'spec/models/concerns/ci/track_environment_usage_spec.rb'
     - 'spec/models/concerns/counter_attribute_spec.rb'
     - 'spec/models/concerns/cron_schedulable_spec.rb'
     - 'spec/models/concerns/cross_database_modification_spec.rb'

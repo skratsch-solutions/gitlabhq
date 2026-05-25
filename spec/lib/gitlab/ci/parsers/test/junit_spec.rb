@@ -211,6 +211,14 @@ RSpec.describe Gitlab::Ci::Parsers::Test::Junit, feature_category: :code_testing
             ::Gitlab::Ci::Reports::TestCase::STATUS_SUCCESS,
             nil
         end
+
+        context 'and is success with system-out' do
+          let(:testcase_content) { '<system-out>Some output</system-out>' }
+
+          it_behaves_like '<testcase> XML parser',
+            ::Gitlab::Ci::Reports::TestCase::STATUS_SUCCESS,
+            "System Out:\n\nSome output"
+        end
       end
 
       context 'PHPUnit' do
@@ -536,6 +544,29 @@ RSpec.describe Gitlab::Ci::Parsers::Test::Junit, feature_category: :code_testing
         expect(test_cases[0].has_attachment?).to be_truthy
         expect(test_cases[0].attachment).to eq("some/path.png")
 
+        expect(test_cases[0].job).to eq(job)
+      end
+    end
+
+    context 'when attachment is specified in successful test case' do
+      let(:junit) do
+        <<~XML
+          <testsuites>
+            <testsuite>
+              <testcase classname='Calculator' name='sumTest1' time='0.01'>
+                <system-out>[[ATTACHMENT|some/path.png]]</system-out>
+              </testcase>
+            </testsuite>
+          </testsuites>
+        XML
+      end
+
+      it 'assigns correct attributes to the test case' do
+        expect { subject }.not_to raise_error
+
+        expect(test_cases[0].status).to eq(::Gitlab::Ci::Reports::TestCase::STATUS_SUCCESS)
+        expect(test_cases[0].has_attachment?).to be_truthy
+        expect(test_cases[0].attachment).to eq("some/path.png")
         expect(test_cases[0].job).to eq(job)
       end
     end

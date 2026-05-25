@@ -39,6 +39,14 @@ RSpec.describe 'BranchRuleCreate', feature_category: :source_code_management do
       project.add_maintainer(current_user)
     end
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :create_branch_rule do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:mutation) { graphql_mutation(:branch_rule_create, params, 'errors') }
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     it 'creates the protected branch' do
       expect { post_mutation }.to change { ProtectedBranch.count }.by(1)
     end

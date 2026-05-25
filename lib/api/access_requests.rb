@@ -59,8 +59,8 @@ module API
           end
         end
 
-        desc 'Approves an access request for the given user.' do
-          detail 'This feature was introduced in GitLab 8.11.'
+        desc 'Approve an access request' do
+          detail 'Approves an access request for a specified user in a specified group or project.'
           success code: 201, model: Entities::Member, example: {
             "id" => 1,
             "username" => "raymond_smith",

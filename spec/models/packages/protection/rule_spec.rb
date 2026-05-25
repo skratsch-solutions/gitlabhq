@@ -757,7 +757,7 @@ RSpec.describe Packages::Protection::Rule, type: :model, feature_category: :pack
         issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/601030',
         type: :bug
       } do
-      pypi_type = Packages::Package.package_types[:pypi]
+      let(:pypi_type) { Packages::Package.package_types[:pypi] }
 
       it_behaves_like 'PEP 503 normalized matching' do
         let(:find_result) do

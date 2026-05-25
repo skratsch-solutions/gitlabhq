@@ -113,7 +113,8 @@ module Gitlab
               system_output = data['skipped']
             else
               status = ::Gitlab::Ci::Reports::TestCase::STATUS_SUCCESS
-              system_output = nil
+              system_output = system_out
+              attachment = attachment_path(data['system_out'])
             end
 
             ::Gitlab::Ci::Reports::TestCase.new(

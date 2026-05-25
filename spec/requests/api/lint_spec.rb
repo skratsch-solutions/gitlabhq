@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe API::Lint, feature_category: :pipeline_composition do
+  include StubRequests
+
   describe 'GET /projects/:id/ci/lint' do
     subject(:ci_lint) do
       get api("/projects/#{project.id}/ci/lint", api_user),
@@ -368,6 +370,87 @@ RSpec.describe API::Lint, feature_category: :pipeline_composition do
                 'project' => other_project.full_path,
                 'ref' => 'master'
               },
+              'context_project' => project.full_path,
+              'context_sha' => project.repository.head_commit.sha
+            }
+          )
+          expect(json_response['valid']).to eq(true)
+          expect(json_response['warnings']).to eq([])
+          expect(json_response['errors']).to eq([])
+        end
+      end
+
+      context 'when including a remote file' do
+        let_it_be(:remote_url) { 'https://example.com/remote-config.yml' }
+        let_it_be(:remote_content) do
+          <<~YAML
+            job:
+              script: echo 1
+          YAML
+        end
+
+        let_it_be(:project_files) do
+          {
+            '.gitlab-ci.yml' => <<~YAML
+              include:
+                - remote: #{remote_url}
+            YAML
+          }
+        end
+
+        let_it_be(:project) { create(:project, :custom_repo, files: project_files) }
+
+        before do
+          stub_full_request(remote_url).to_return(body: remote_content)
+        end
+
+        it 'passes validation' do
+          ci_lint
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['merged_yaml']).to include("script: echo 1")
+          expect(json_response['includes']).to contain_exactly(
+            {
+              'type' => 'remote',
+              'location' => remote_url,
+              'blob' => nil,
+              'raw' => remote_url,
+              'extra' => {},
+              'context_project' => project.full_path,
+              'context_sha' => project.repository.head_commit.sha
+            }
+          )
+          expect(json_response['valid']).to eq(true)
+          expect(json_response['warnings']).to eq([])
+          expect(json_response['errors']).to eq([])
+        end
+      end
+
+      context 'when including a template' do
+        let_it_be(:template_name) { 'Bash.gitlab-ci.yml' }
+
+        let_it_be(:project_files) do
+          {
+            '.gitlab-ci.yml' => <<~YAML
+              include:
+                - template: #{template_name}
+            YAML
+          }
+        end
+
+        let_it_be(:project) { create(:project, :custom_repo, files: project_files) }
+
+        it 'passes validation' do
+          ci_lint
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['includes']).to contain_exactly(
+            {
+              'type' => 'template',
+              'location' => template_name,
+              'blob' => nil,
+              'raw' => "https://gitlab.com/gitlab-org/gitlab/-/raw/master/lib/gitlab/ci/templates/#{template_name}",
+              'extra' => {},
               'context_project' => project.full_path,
               'context_sha' => project.repository.head_commit.sha
             }

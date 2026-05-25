@@ -359,8 +359,9 @@ paths:
       operationId: postApiV4GroupsIdAccessRequests
   "/api/v4/groups/{id}/access_requests/{user_id}/approve":
     put:
-      summary: Approves an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Approve an access request
+      description: Approves an access request for a specified user in a specified
+        group or project.
       produces:
       - application/json
       consumes:
@@ -385,7 +386,7 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdAccessRequestsUserIdApprove"
       responses:
         '201':
-          description: Approves an access request for the given user.
+          description: Approve an access request
           schema:
             "$ref": "#/definitions/API_Entities_Member"
       tags:
@@ -9373,8 +9374,9 @@ paths:
       operationId: postApiV4ProjectsIdAccessRequests
   "/api/v4/projects/{id}/access_requests/{user_id}/approve":
     put:
-      summary: Approves an access request for the given user.
-      description: This feature was introduced in GitLab 8.11.
+      summary: Approve an access request
+      description: Approves an access request for a specified user in a specified
+        group or project.
       produces:
       - application/json
       consumes:
@@ -9399,7 +9401,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdAccessRequestsUserIdApprove"
       responses:
         '201':
-          description: Approves an access request for the given user.
+          description: Approve an access request
           schema:
             "$ref": "#/definitions/API_Entities_Member"
       tags:
@@ -48284,7 +48286,7 @@ definitions:
         format: int32
         description: 'A valid access level (defaults: `30`, the Developer role)'
         default: 30
-    description: Approves an access request for the given user.
+    description: Approve an access request
   API_Entities_Member:
     type: object
     properties:
@@ -55846,7 +55848,7 @@ definitions:
         format: int32
         description: 'A valid access level (defaults: `30`, the Developer role)'
         default: 30
-    description: Approves an access request for the given user.
+    description: Approve an access request
   API_Entities_MetricImage:
     type: object
     properties:

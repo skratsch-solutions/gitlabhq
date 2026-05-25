@@ -175,7 +175,6 @@ create_admin_role
 create_alert_management_alert
 create_approvers
 create_bot_pipeline
-create_branch_rule
 create_build
 create_build_service_proxy
 create_build_terminal
@@ -648,7 +647,6 @@ update_admin_role
 update_alert_management_alert
 update_alert_management_metric_image
 update_approvers
-update_branch_rule
 update_build
 update_commit_status
 update_container_image

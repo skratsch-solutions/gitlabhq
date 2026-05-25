@@ -42,7 +42,6 @@ RSpec/NamedSubject:
     - 'ee/spec/controllers/groups/scim_oauth_controller_spec.rb'
     - 'ee/spec/controllers/groups/security/merge_commit_reports_controller_spec.rb'
     - 'ee/spec/controllers/projects/iterations_controller_spec.rb'
-    - 'ee/spec/controllers/projects/protected_environments_controller_spec.rb'
     - 'ee/spec/controllers/projects/quality/test_cases_controller_spec.rb'
     - 'ee/spec/controllers/projects/requirements_management/requirements_controller_spec.rb'
     - 'ee/spec/controllers/projects/security/scanned_resources_controller_spec.rb'
