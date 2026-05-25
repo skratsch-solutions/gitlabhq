@@ -73706,6 +73706,28 @@ components:
           type: string
         project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
           type: string
+        packages_debian_project_component_files_count:
+          type: string
+        packages_debian_project_component_files_checksum_total_count:
+          type: string
+        packages_debian_project_component_files_checksummed_count:
+          type: string
+        packages_debian_project_component_files_checksum_failed_count:
+          type: string
+        packages_debian_project_component_files_synced_count:
+          type: string
+        packages_debian_project_component_files_failed_count:
+          type: string
+        packages_debian_project_component_files_registry_count:
+          type: string
+        packages_debian_project_component_files_verification_total_count:
+          type: string
+        packages_debian_project_component_files_verified_count:
+          type: string
+        packages_debian_project_component_files_verification_failed_count:
+          type: string
+        packages_debian_project_component_files_oldest_unsynced_time:
+          type: string
         ai_vectorizable_file_uploads_count:
           type: string
         ai_vectorizable_file_uploads_checksum_total_count:
@@ -73997,6 +74019,10 @@ components:
         project_import_export_relation_export_upload_uploads_synced_in_percentage:
           type: string
         project_import_export_relation_export_upload_uploads_verified_in_percentage:
+          type: string
+        packages_debian_project_component_files_synced_in_percentage:
+          type: string
+        packages_debian_project_component_files_verified_in_percentage:
           type: string
         ai_vectorizable_file_uploads_synced_in_percentage:
           type: string
@@ -74704,6 +74730,28 @@ components:
           type: string
         project_import_export_relation_export_upload_uploads_oldest_unsynced_time:
           type: string
+        packages_debian_project_component_files_count:
+          type: string
+        packages_debian_project_component_files_checksum_total_count:
+          type: string
+        packages_debian_project_component_files_checksummed_count:
+          type: string
+        packages_debian_project_component_files_checksum_failed_count:
+          type: string
+        packages_debian_project_component_files_synced_count:
+          type: string
+        packages_debian_project_component_files_failed_count:
+          type: string
+        packages_debian_project_component_files_registry_count:
+          type: string
+        packages_debian_project_component_files_verification_total_count:
+          type: string
+        packages_debian_project_component_files_verified_count:
+          type: string
+        packages_debian_project_component_files_verification_failed_count:
+          type: string
+        packages_debian_project_component_files_oldest_unsynced_time:
+          type: string
         ai_vectorizable_file_uploads_count:
           type: string
         ai_vectorizable_file_uploads_checksum_total_count:
@@ -74995,6 +75043,10 @@ components:
         project_import_export_relation_export_upload_uploads_synced_in_percentage:
           type: string
         project_import_export_relation_export_upload_uploads_verified_in_percentage:
+          type: string
+        packages_debian_project_component_files_synced_in_percentage:
+          type: string
+        packages_debian_project_component_files_verified_in_percentage:
           type: string
         ai_vectorizable_file_uploads_synced_in_percentage:
           type: string

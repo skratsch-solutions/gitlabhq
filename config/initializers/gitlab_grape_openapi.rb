@@ -163,6 +163,7 @@ Gitlab::GrapeOpenapi.configure do |config|
     'API::Internal::Lfs',
     'API::Internal::Base',
     'API::Internal::AutoFlow',
+    'API::Internal::Coverage',
     'API::Scim::InstanceScim',
     'API::Scim::GroupScim'
   ]

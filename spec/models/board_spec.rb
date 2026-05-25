@@ -56,10 +56,10 @@ RSpec.describe Board do
 
   describe '#order_by_name_asc' do
     # rubocop:disable RSpec/VariableName
-    let!(:board_B) { create(:board, project: project, name: 'B') }
-    let!(:board_C) { create(:board, project: project, name: 'C') }
-    let!(:board_a) { create(:board, project: project, name: 'a') }
-    let!(:board_A) { create(:board, project: project, name: 'A') }
+    let_it_be(:board_B) { create(:board, project: project, name: 'B') }
+    let_it_be(:board_C) { create(:board, project: project, name: 'C') }
+    let_it_be(:board_a) { create(:board, project: project, name: 'a') }
+    let_it_be(:board_A) { create(:board, project: project, name: 'A') }
     # rubocop:enable RSpec/VariableName
 
     it 'returns in case-insensitive alphabetical order and then by ascending id' do
@@ -69,10 +69,10 @@ RSpec.describe Board do
 
   describe '#first_board' do
     # rubocop:disable RSpec/VariableName
-    let!(:board_B) { create(:board, project: project, name: 'B') }
-    let!(:board_C) { create(:board, project: project, name: 'C') }
-    let!(:board_a) { create(:board, project: project, name: 'a') }
-    let!(:board_A) { create(:board, project: project, name: 'A') }
+    let_it_be(:board_B) { create(:board, project: project, name: 'B') }
+    let_it_be(:board_C) { create(:board, project: project, name: 'C') }
+    let_it_be(:board_a) { create(:board, project: project, name: 'a') }
+    let_it_be(:board_A) { create(:board, project: project, name: 'A') }
     # rubocop:enable RSpec/VariableName
 
     it 'return the first case-insensitive alphabetical board as a relation' do

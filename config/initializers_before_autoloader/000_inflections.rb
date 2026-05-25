@@ -53,6 +53,7 @@ ActiveSupport::Inflector.inflections do |inflect|
     vulnerability_archive_export_upload_registry
     user_permission_export_upload_upload_registry
     bulk_import_export_upload_upload_registry
+    packages_debian_project_component_file_registry
     import_export_upload_upload_registry
     ai_vectorizable_file_upload_registry
     project_import_export_relation_export_upload_upload_registry

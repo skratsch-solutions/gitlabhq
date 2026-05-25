@@ -1,4 +1,4 @@
-import { GlButton, GlLink, GlSprintf, GlDashboardPanel } from '@gitlab/ui';
+import { GlButton, GlLink, GlSegmentedControl, GlSprintf, GlDashboardPanel } from '@gitlab/ui';
 import { nextTick } from 'vue';
 import { VARIANT_DANGER, VARIANT_WARNING, VARIANT_INFO } from '~/alert';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
@@ -77,6 +77,7 @@ describe('AnalyticsDashboardPanel', () => {
   const findDashboardPanelPermissionsWarning = () =>
     wrapper.findByTestId('dashboard-panel-access-warning');
   const findVisualization = () => wrapper.findComponent(LineChart);
+  const findSegmentedControl = () => wrapper.findComponent(GlSegmentedControl);
 
   const createWrapper = ({ props = {}, provide = {} } = {}) => {
     wrapper = shallowMountExtended(AnalyticsDashboardPanel, {
@@ -140,6 +141,10 @@ describe('AnalyticsDashboardPanel', () => {
         alertPopoverTitle: '',
         tooltip: {},
       });
+    });
+
+    it('does not render the segmented control', () => {
+      expect(findSegmentedControl().exists()).toBe(false);
     });
 
     it('fetches from the data source with the proper parameters', () => {
@@ -792,6 +797,113 @@ describe('AnalyticsDashboardPanel', () => {
         it('takes precedence over visualization tooltip', () => {
           expect(findExtendedDashboardPanel().props('tooltip')).toEqual(mockPanel.tooltip);
         });
+      });
+    });
+  });
+
+  describe('views', () => {
+    const mockSecondVisualization = {
+      ...mockPanel.visualization,
+      options: {
+        xAxis: { name: 'Project', type: 'category' },
+        yAxis: { name: 'Users' },
+      },
+    };
+
+    describe('default', () => {
+      const views = [
+        { text: 'Trend', visualization: mockPanel.visualization },
+        { text: 'Project breakdown', visualization: mockSecondVisualization },
+      ];
+
+      beforeEach(() => {
+        createWrapper({ props: { views } });
+        return waitForPromises();
+      });
+
+      it('renders the segmented control with an option per view', () => {
+        expect(findSegmentedControl().props('options')).toEqual([
+          { value: 0, text: 'Trend' },
+          { value: 1, text: 'Project breakdown' },
+        ]);
+      });
+
+      it('renders the first view by default', () => {
+        expect(findSegmentedControl().props('value')).toBe(0);
+      });
+
+      it('fetches data using the first view visualization', () => {
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.objectContaining({
+            visualizationType: mockPanel.visualization.type,
+            visualizationOptions: mockPanel.visualization.options,
+          }),
+        );
+      });
+
+      it('refetches data when a different view is selected', async () => {
+        findSegmentedControl().vm.$emit('input', 1);
+        await waitForPromises();
+
+        expect(mockFetch).toHaveBeenCalledWith(
+          expect.objectContaining({
+            visualizationOptions: mockSecondVisualization.options,
+          }),
+        );
+      });
+    });
+
+    describe('when the selected view has validation errors', () => {
+      const views = [
+        { text: 'Invalid', visualization: invalidVisualization },
+        { text: 'Valid', visualization: mockPanel.visualization },
+      ];
+
+      beforeEach(() => {
+        createWrapper({ props: { views } });
+        return waitForPromises();
+      });
+
+      it('surfaces the current view’s validation errors', () => {
+        expect(findExtendedDashboardPanel().props()).toMatchObject({
+          showAlertState: true,
+          alertPopoverTitle: 'Invalid visualization configuration',
+        });
+      });
+
+      it('clears the alert when switching to a valid view', async () => {
+        findSegmentedControl().vm.$emit('input', 1);
+        await waitForPromises();
+
+        expectPanelLoaded();
+      });
+    });
+
+    describe('when views have different permission requirements', () => {
+      const views = [
+        { text: 'Licensed', visualization: licensedVisualization },
+        { text: 'Unrestricted', visualization: mockPanel.visualization },
+      ];
+
+      beforeEach(() => {
+        createWrapper({
+          props: { views },
+          provide: {
+            glAbilities: { readDora4Analytics: false },
+          },
+        });
+        return waitForPromises();
+      });
+
+      it('shows the permissions warning for the unpermitted first view', () => {
+        expect(findDashboardPanelPermissionsWarning().exists()).toBe(true);
+      });
+
+      it('hides the warning when switching to a permitted view', async () => {
+        findSegmentedControl().vm.$emit('input', 1);
+        await waitForPromises();
+
+        expect(findDashboardPanelPermissionsWarning().exists()).toBe(false);
       });
     });
   });

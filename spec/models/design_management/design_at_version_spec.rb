@@ -258,15 +258,15 @@ RSpec.describe DesignManagement::DesignAtVersion do
   end
 
   describe '.lazy_find' do
-    let!(:version_a) do
+    let_it_be(:version_a) do
       create(:design_version, designs: create_list(:design, 3, issue: issue))
     end
 
-    let!(:version_b) do
+    let_it_be(:version_b) do
       create(:design_version, designs: create_list(:design, 1, issue: issue))
     end
 
-    let!(:version_c) do
+    let_it_be(:version_c) do
       create(:design_version, designs: create_list(:design, 1, issue: issue_b))
     end
 
@@ -310,16 +310,16 @@ RSpec.describe DesignManagement::DesignAtVersion do
     let(:results) { described_class.find(ids) }
 
     # 2 versions, with 5 total designs on issue A, so 2*5 = 10
-    let!(:version_a) do
+    let_it_be(:version_a) do
       create(:design_version, designs: create_list(:design, 3, issue: issue))
     end
 
-    let!(:version_b) do
+    let_it_be(:version_b) do
       create(:design_version, designs: create_list(:design, 2, issue: issue))
     end
     # 1 version, with 3 designs on issue B, so 1*3 = 3
 
-    let!(:version_c) do
+    let_it_be(:version_c) do
       create(:design_version, designs: create_list(:design, 3, issue: issue_b))
     end
 

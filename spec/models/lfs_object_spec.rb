@@ -26,7 +26,8 @@ RSpec.describe LfsObject, feature_category: :source_code_management do
         lfs_object_1, lfs_object_2 = create_list(:lfs_object, 2)
 
         expect(described_class.for_oids(lfs_object_1.oid)).to contain_exactly(lfs_object_1)
-        expect(described_class.for_oids([lfs_object_1.oid, lfs_object_2.oid])).to contain_exactly(lfs_object_1, lfs_object_2)
+        expect(described_class.for_oids([lfs_object_1.oid,
+          lfs_object_2.oid])).to contain_exactly(lfs_object_1, lfs_object_2)
       end
     end
   end
@@ -166,9 +167,9 @@ RSpec.describe LfsObject, feature_category: :source_code_management do
   end
 
   describe '.unreferenced_in_batches' do
-    let!(:unreferenced_lfs_object1) { create(:lfs_object, oid: '1' * 64) }
-    let!(:referenced_lfs_object) { create(:lfs_objects_project).lfs_object }
-    let!(:unreferenced_lfs_object2) { create(:lfs_object, oid: '2' * 64) }
+    let_it_be(:unreferenced_lfs_object1) { create(:lfs_object, oid: '1' * 64) }
+    let_it_be(:referenced_lfs_object) { create(:lfs_objects_project).lfs_object }
+    let_it_be(:unreferenced_lfs_object2) { create(:lfs_object, oid: '2' * 64) }
 
     it 'returns lfs objects in batches' do
       stub_const('LfsObject::BATCH_SIZE', 1)

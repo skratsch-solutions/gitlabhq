@@ -1,6 +1,6 @@
 <script>
 import { isString, merge } from 'lodash-es';
-import { GlButton, GlLink, GlSprintf } from '@gitlab/ui';
+import { GlButton, GlLink, GlSegmentedControl, GlSprintf } from '@gitlab/ui';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import glAbilitiesMixin from '~/vue_shared/mixins/gl_abilities_mixin';
 import glLicensedFeaturesMixin from '~/vue_shared/mixins/gl_licensed_features_mixin';
@@ -25,6 +25,7 @@ export default {
   components: {
     ExtendedDashboardPanel,
     GlLink,
+    GlSegmentedControl,
     GlSprintf,
     GlButton,
     LineChart: () =>
@@ -65,10 +66,13 @@ export default {
       required: false,
       default: () => ({}),
     },
+    views: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
-    const validationErrors = this.visualization?.errors;
-
     return {
       errors: [],
       warnings: [],
@@ -76,7 +80,6 @@ export default {
       alertTitle: '',
       alertDescription: '',
       alertDescriptionLink: '',
-      validationErrors,
       canRetryError: false,
       data: null,
       loading: false,
@@ -84,14 +87,24 @@ export default {
       currentRequestNumber: 0,
       visualizationOptionOverrides: {},
       visualizationQueryOverrides: {},
+      selectedViewIndex: 0,
     };
   },
   computed: {
+    currentVisualization() {
+      return this.views[this.selectedViewIndex]?.visualization ?? this.visualization;
+    },
+    segmentOptions() {
+      return this.views.map((view, index) => ({ value: index, text: view.text }));
+    },
+    validationErrors() {
+      return this.currentVisualization?.errors;
+    },
     hasValidationErrors() {
       return Boolean(this.validationErrors);
     },
     showEmptyState() {
-      return !this.showAlertState && isEmptyPanelData(this.visualization.type, this.data);
+      return !this.showAlertState && isEmptyPanelData(this.currentVisualization.type, this.data);
     },
     alertVariant() {
       if (this.hasAccessError || this.errors.length > 0) return VARIANT_DANGER;
@@ -125,17 +138,17 @@ export default {
       });
     },
     visualizationOptions() {
-      return merge({}, this.visualization.options, this.visualizationOptionOverrides);
+      return merge({}, this.currentVisualization.options, this.visualizationOptionOverrides);
     },
     aggregatedQuery() {
       return {
-        ...this.visualization.data.query,
+        ...this.currentVisualization.data.query,
         ...this.queryOverrides,
         ...this.visualizationQueryOverrides,
       };
     },
     isPermitted() {
-      switch (this.visualization.slug) {
+      switch (this.currentVisualization.slug) {
         case VISUALIZATION_SLUG_VSD_SECURITY_METRICS_TABLE:
           return this.glAbilities?.readSecurityResource;
         case VISUALIZATION_SLUG_VSD_DORA_METRICS_TABLE:
@@ -147,7 +160,7 @@ export default {
       }
     },
     isLicensed() {
-      switch (this.visualization.slug) {
+      switch (this.currentVisualization.slug) {
         case VISUALIZATION_SLUG_VSD_SECURITY_METRICS_TABLE:
           return this.glLicensedFeatures?.securityDashboard;
         case VISUALIZATION_SLUG_VSD_DORA_METRICS_TABLE:
@@ -174,7 +187,7 @@ export default {
       return null;
     },
     visualizationDocsLink() {
-      return VISUALIZATION_DOCUMENTATION_LINKS[this.visualization.slug] || '';
+      return VISUALIZATION_DOCUMENTATION_LINKS[this.currentVisualization.slug] || '';
     },
     bodyContentClasses() {
       return this.hasAccessError ? 'gl-content-center' : '';
@@ -188,7 +201,7 @@ export default {
     },
   },
   watch: {
-    visualization: {
+    currentVisualization: {
       handler: 'onVisualizationChange',
       immediate: true,
     },
@@ -227,7 +240,7 @@ export default {
     },
     async fetchData() {
       const { aggregatedQuery, filters } = this;
-      const { type: dataType } = this.visualization.data;
+      const { type: dataType } = this.currentVisualization.data;
       this.loading = true;
       this.clearAlerts();
       const requestNumber = this.currentRequestNumber + 1;
@@ -242,8 +255,8 @@ export default {
           namespace: this.namespace,
           isProject: this.isProject,
           query: aggregatedQuery,
-          visualizationType: this.visualization.type,
-          visualizationOptions: this.visualization.options,
+          visualizationType: this.currentVisualization.type,
+          visualizationOptions: this.currentVisualization.options,
           setAlerts: this.setAlerts,
           filters,
           onRequestDelayed: () => {
@@ -331,6 +344,10 @@ export default {
     :alert-popover-title="alertTitle"
     :body-content-classes="bodyContentClasses"
   >
+    <template v-if="views.length" #filters>
+      <gl-segmented-control v-model="selectedViewIndex" :options="segmentOptions" />
+    </template>
+
     <template #body>
       <div
         v-if="hasAccessError"
@@ -355,7 +372,7 @@ export default {
       </span>
 
       <component
-        :is="visualization.type"
+        :is="currentVisualization.type"
         v-else
         class="gl-overflow-y-hidden"
         :data="data"

@@ -64,6 +64,24 @@ RSpec.describe 'Link alerts to an incident', feature_category: :incident_managem
       expected_response = [linked_alert, alert1, alert2].map { |a| { 'iid' => a.iid.to_s } }
       expect(mutation_response.dig('issue', 'alertManagementAlerts', 'nodes')).to match_array(expected_response)
     end
+
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :update_issue do
+      let(:user) { developer }
+      let(:boundary_object) { project }
+      let(:mutation) do
+        graphql_mutation(
+          :issue_link_alerts,
+          {
+            project_path: project.full_path,
+            iid: incident.iid.to_s,
+            alert_references: [alert1.to_reference]
+          },
+          'errors'
+        )
+      end
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
   end
 
   context 'when hide_incident_management_features flag is enabled' do

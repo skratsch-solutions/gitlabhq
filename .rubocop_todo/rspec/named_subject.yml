@@ -61,7 +61,6 @@ RSpec/NamedSubject:
     - 'ee/spec/finders/gpg_keys_finder_spec.rb'
     - 'ee/spec/finders/group_saml_identity_finder_spec.rb'
     - 'ee/spec/finders/groups_finder_spec.rb'
-    - 'ee/spec/finders/issues_finder_spec.rb'
     - 'ee/spec/finders/iterations/cadences_finder_spec.rb'
     - 'ee/spec/finders/iterations_finder_spec.rb'
     - 'ee/spec/finders/notes_finder_spec.rb'

@@ -324,18 +324,6 @@ paged to help resolve issues.
 Certain merge requests may target a stable branch. For an overview of how to handle these requests,
 see the [patch release runbook](https://gitlab.com/gitlab-org/release/docs/-/blob/master/general/patch/engineers.md).
 
-### Dogfooding the Reviewers feature
-
-Our code review process dogfoods the [Merge request reviews feature](../user/project/merge_requests/reviews/_index.md).
-Here is a summary, which is also reflected in other sections.
-
-- Merge request authors and DRIs stay as Assignees.
-- Merge request reviewers stay as Reviewers even after they have reviewed.
-- Authors [request a review](../user/project/merge_requests/reviews/_index.md#request-a-review) by assigning users as Reviewers.
-- Authors [re-request a review](../user/project/merge_requests/reviews/_index.md#re-request-a-review) when they have made changes and wish a reviewer to re-review.
-- Reviewers use the [reviews feature](../user/project/merge_requests/reviews/_index.md#start-a-review) to submit feedback.
-  You can select **Start review** or **Start a review** rather than **Add comment now** in any comment context on the MR.
-
 ## Best practices
 
 ### Everyone
@@ -467,33 +455,6 @@ considered the comment:
 Leave GitLab Duo discussion threads unresolved so that reviewers and
 maintainers can easily see your responses and verify that all automated feedback
 has been appropriately addressed.
-
-### Requesting a review
-
-When you are ready to have your merge request reviewed,
-you should [request an initial review](../user/project/merge_requests/reviews/_index.md) by selecting a reviewer based on the [approval guidelines](#approval-guidelines).
-
-When a merge request has multiple areas for review, it is recommended you specify which area a reviewer should be reviewing, and at which stage (first or second).
-This will help team members who qualify as a reviewer for multiple areas to know which area they're being requested to review.
-For example, when a merge request has both `backend` and `frontend` concerns, you can mention the reviewer in this manner:
-`@john_doe can you please review ~backend?` or `@jane_doe - could you please give this MR a ~frontend maintainer review?`
-
-You can also use `workflow::ready for review` label. That means that your merge request is ready to be reviewed and any reviewer can pick it. It is recommended to use that label only if there isn't time pressure and make sure the merge request is assigned to a reviewer.
-
-When re-requesting a review, click the [**Re-request a review** icon](../user/project/merge_requests/reviews/_index.md#re-request-a-review) ({{< icon name="redo" >}}) next to the reviewer's name, or use the `/request_review @user` quick action.
-This ensures the merge request appears in the reviewer's **Reviews requested** section of their merge request homepage.
-
-When your merge request receives an approval from the first reviewer it can be passed to a maintainer. You should default to choosing a maintainer with [domain expertise](#domain-experts), and otherwise follow the Reviewer Roulette recommendation or use the label `ready for merge`.
-
-Sometimes, a maintainer may not be available for review. They could be out of the office or [at capacity](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#review-response-slo).
-You can and should check the maintainer's availability in their profile. If the maintainer recommended by
-the roulette is not available, choose someone else from that list.
-
-It is the responsibility of the author for the merge request to be reviewed. If it stays in the `ready for review` state too long it is recommended to request a review from a specific reviewer.
-
-### Volunteering to review
-
-GitLab engineers who have capacity can regularly check the list of [merge requests to review](https://gitlab.com/groups/gitlab-org/-/merge_requests?state=opened&label_name%5B%5D=workflow%3A%3Aready%20for%20review) and add themselves as a reviewer for any merge request they want to review.
 
 ### Reviewing a merge request
 

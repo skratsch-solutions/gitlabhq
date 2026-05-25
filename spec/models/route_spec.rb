@@ -85,8 +85,9 @@ RSpec.describe Route do
   end
 
   describe '.by_paths' do
-    let!(:nested_group) { create(:group, path: 'foo', name: 'foo', parent: group) }
-    let!(:project) { create(:project, path: 'other-project', namespace: group) }
+    let_it_be(:group) { create(:group, path: 'git_lab', name: 'git_lab') }
+    let_it_be(:nested_group) { create(:group, path: 'foo', name: 'foo', parent: group) }
+    let_it_be(:project) { create(:project, path: 'other-project', namespace: group) }
 
     it 'returns correct routes' do
       expect(described_class.by_paths(%w[git_lab/foo git_lab/other-project])).to match_array(
@@ -370,14 +371,14 @@ RSpec.describe Route do
 
   describe 'conflicting routes validation' do
     context 'when there is a conflicting route' do
-      let!(:conflicting_group) { create(:group, path: 'foo') }
+      let_it_be(:conflicting_group) { create(:group, path: 'foo') }
 
       before do
         route.path = conflicting_group.route.path
       end
 
       context 'when deleting the conflicting route' do
-        let!(:offending_route) { conflicting_group.route }
+        let_it_be(:offending_route) { conflicting_group.route }
 
         it 'does not delete the original route' do
           # before deleting the route, check its there
