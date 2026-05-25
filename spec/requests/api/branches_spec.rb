@@ -467,17 +467,24 @@ RSpec.describe API::Branches, feature_category: :source_code_management do
     end
 
     context 'when requesting page 2 with the new branches finder' do
-      it 'returns correct branches for the second page' do
-        get api(route, user), params: { per_page: 5, page: 1 }
+      it 'returns correct branches and pagination headers for the second page' do
+        total_branches = project.repository.branch_count
+        per_page = 5
+        expected_total_pages = (total_branches / per_page.to_f).ceil
+
+        get api(route, user), params: { per_page: per_page, page: 1 }
         first_page_names = json_response.map { |b| b['name'] }
 
-        get api(route, user), params: { per_page: 5, page: 2 }
+        get api(route, user), params: { per_page: per_page, page: 2 }
         second_page_names = json_response.map { |b| b['name'] }
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(second_page_names).not_to be_empty
         expect(second_page_names).not_to include(*first_page_names)
         expect(response.headers['X-Page']).to eq('2')
+        expect(response.headers['X-Prev-Page']).to eq('1')
+        expect(response.headers['X-Total']).to eq(total_branches.to_s)
+        expect(response.headers['X-Total-Pages']).to eq(expected_total_pages.to_s)
       end
     end
 

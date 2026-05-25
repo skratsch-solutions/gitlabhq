@@ -1433,6 +1433,123 @@ RSpec.describe Ci::PipelineProcessing::AtomicProcessingService, feature_category
       end
     end
 
+    describe 'rescheduling PipelineProcessWorker' do
+      before do
+        # Suppress the PipelineProcessWorker enqueues that happen via job transitions
+        allow_any_instance_of(CommitStatus).to receive(:run_after_commit) # rubocop:disable RSpec/AnyInstanceOf -- need to stub all
+      end
+
+      context 'when @new_collection is not built (no stopped jobs at snapshot)' do
+        before do
+          create_build('linux', stage_idx: 0)
+        end
+
+        context 'and post-processing pipeline.needs_processing? is true' do
+          before do
+            allow(pipeline).to receive(:needs_processing?).and_return(true, true)
+          end
+
+          it 'reschedules the worker' do
+            expect(PipelineProcessWorker).to receive(:perform_async).with(pipeline.id).once
+
+            process_pipeline
+          end
+        end
+
+        context 'and post-processing pipeline.needs_processing? is false' do
+          before do
+            allow(pipeline).to receive(:needs_processing?).and_return(true, false)
+          end
+
+          it 'does not reschedule the worker' do
+            expect(PipelineProcessWorker).not_to receive(:perform_async)
+
+            process_pipeline
+          end
+        end
+      end
+
+      context 'when @new_collection is built (stopped jobs at snapshot)' do
+        let(:config) do
+          <<-YAML
+          manual1:
+            stage: test
+            when: manual
+            script: exit 0
+
+          test1:
+            stage: test
+            needs: [manual1]
+            script: exit 0
+          YAML
+        end
+
+        let(:pipeline) do
+          Ci::CreatePipelineService.new(project, user, { ref: 'master' }).execute(:push).payload
+        end
+
+        let(:manual1) { pipeline.all_jobs.find_by(name: 'manual1') }
+
+        before do
+          stub_ci_pipeline_yaml_file(config)
+          pipeline # create the pipeline
+          process_pipeline # drive jobs to their initial states (manual1: manual, test1: skipped)
+          manual1.enqueue! # play the manual job
+        end
+
+        context 'and @new_collection.processing_jobs.any? is true' do
+          before do
+            mock_play_jobs_during_processing([manual1])
+            # We set post-processing pipeline.needs_processing? to false to confirm it's ignored
+            allow(pipeline).to receive(:needs_processing?).and_return(true, false)
+          end
+
+          it 'reschedules the worker' do
+            expect(PipelineProcessWorker).to receive(:perform_async).with(pipeline.id).once
+
+            process_pipeline
+          end
+
+          context 'when FF `ci_check_needs_processing_using_new_status_collection` is disabled' do
+            before do
+              stub_feature_flags(ci_check_needs_processing_using_new_status_collection: false)
+            end
+
+            it 'does not reschedule the worker because post-processing pipeline.needs_processing? is false' do
+              expect(PipelineProcessWorker).not_to receive(:perform_async)
+
+              process_pipeline
+            end
+          end
+        end
+
+        context 'and @new_collection.processing_jobs.any? is false' do
+          before do
+            # We set post-processing pipeline.needs_processing? to true to confirm it's ignored
+            allow(pipeline).to receive(:needs_processing?).and_return(true, true)
+          end
+
+          it 'does not reschedule the worker' do
+            expect(PipelineProcessWorker).not_to receive(:perform_async)
+
+            process_pipeline
+          end
+
+          context 'when FF `ci_check_needs_processing_using_new_status_collection` is disabled' do
+            before do
+              stub_feature_flags(ci_check_needs_processing_using_new_status_collection: false)
+            end
+
+            it 'reschedules the worker because post-processing pipeline.needs_processing? is true' do
+              expect(PipelineProcessWorker).to receive(:perform_async).with(pipeline.id).once
+
+              process_pipeline
+            end
+          end
+        end
+      end
+    end
+
     describe 'processing delay observation', :sidekiq_inline do
       context 'with stage-based jobs' do
         before do

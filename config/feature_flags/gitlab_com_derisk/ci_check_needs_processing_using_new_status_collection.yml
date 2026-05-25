@@ -1,0 +1,10 @@
+---
+name: ci_check_needs_processing_using_new_status_collection
+description: Use @new_collection in `AtomicProcessingService` to evaluate needs_processing? when available.
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/598584
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237333
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/600901
+milestone: '19.1'
+group: group::ci platform
+type: gitlab_com_derisk
+default_enabled: false

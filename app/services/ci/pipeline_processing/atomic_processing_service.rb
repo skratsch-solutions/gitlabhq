@@ -44,8 +44,16 @@ module Ci
             ResetSkippedJobsService.new(project, user).execute(jobs)
           end
 
-          needs_processing = pipeline.needs_processing?
-          log_processing_check_mismatch(needs_processing)
+          # Remove with FF `ci_atomic_processing_log_check_mismatch`
+          pipeline_needs_processing = pipeline.needs_processing?
+          log_processing_check_mismatch(pipeline_needs_processing)
+
+          # If @new_collection is already evaluated from new_alive_jobs, we can use it to avoid another call to DB
+          needs_processing = if check_needs_processing_using_new_collection? && @new_collection
+                               @new_collection.processing_jobs.any?
+                             else
+                               pipeline_needs_processing
+                             end
 
           # Re-schedule if we need further processing
           PipelineProcessWorker.perform_async(pipeline.id) if needs_processing
@@ -173,7 +181,7 @@ module Ci
 
         return [] if initial_stopped_job_names.empty?
 
-        # Change @new_collection back to local var if FF `ci_atomic_processing_log_check_mismatch` reverted
+        # Change @new_collection back to local var if `ci_check_needs_processing_using_new_status_collection` reverted
         @new_collection = AtomicProcessingService::StatusCollection.new(pipeline)
         new_alive_job_names = initial_stopped_job_names - @new_collection.stopped_job_names
 
@@ -231,6 +239,10 @@ module Ci
           needs_processing: needs_processing,
           processing_jobs_any: processing_jobs_any
         )
+      end
+
+      def check_needs_processing_using_new_collection?
+        Feature.enabled?(:ci_check_needs_processing_using_new_status_collection, project)
       end
     end
   end

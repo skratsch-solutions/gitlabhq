@@ -11,7 +11,7 @@ import {
 } from './constants';
 
 export default {
-  name: 'DateRangeFilter',
+  name: 'DateRangeFilterEE',
   components: {
     GlCollapsibleListbox,
     GlDaterangePicker,

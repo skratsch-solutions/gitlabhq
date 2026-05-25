@@ -103,15 +103,6 @@ RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
       it { expect(tag.signature).not_to be_nil }
       it { expect(tag.lazy_cached_signature).not_to be_nil }
       it { expect(tag.user_email).to eq('test@example.com') }
-
-      context 'when render_ssh_signed_tags_verification_status is not enabled' do
-        before do
-          stub_feature_flags(render_ssh_signed_tags_verification_status: false)
-        end
-
-        it { expect(tag.signature).to be_nil }
-        it { expect(tag.lazy_cached_signature).to be_nil }
-      end
     end
 
     it { expect(repository.tags.size).to be > 0 }
@@ -302,14 +293,6 @@ RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
       let(:stubbed_signature_type) { :SSH }
 
       it { is_expected.to be_truthy }
-
-      context 'when render_ssh_signed_tags_verification_status is not enabled' do
-        before do
-          stub_feature_flags(render_ssh_signed_tags_verification_status: false)
-        end
-
-        it { is_expected.to be_falsey }
-      end
     end
   end
 end

@@ -204,6 +204,11 @@ You are the [directly responsible individual](https://handbook.gitlab.com/handbo
 If you cannot set yourself as an assignee, ask a
 [reviewer](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#reviewer) to do it.
 
+Do not submit a merge request that is too large, fixes multiple issues, has high
+complexity, or implements more than one feature.
+
+If the MR touches multiple CODEOWNERS sections, to minimize the approvals needed consider
+splitting the MR by concerns to parallelize reviews.
 Before requesting a maintainer review, confirm:
 
 - The MR solves the intended problem in the most appropriate way.
@@ -251,56 +256,18 @@ In all other cases, adding them as a reviewer is sufficient.
 
 Reviewers are responsible for reviewing the specifics of the chosen solution.
 
-If you are unavailable to review an assigned merge request within the [Review-response SLO](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#review-response-slo):
+If unavailable within the
+[Review-response SLO](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#review-response-slo),
+inform the author, find a replacement using the
+[Review Workload Dashboard](https://gitlab-org.gitlab.io/gitlab-roulette/), and assign them.
 
-1. Inform the author that you're not available.
-1. Use the [GitLab Review Workload Dashboard](https://gitlab-org.gitlab.io/gitlab-roulette/) to select a new reviewer.
-1. Assign the new reviewer to the merge request.
+When confident the MR meets all
+[contribution acceptance criteria](contributing/merge_request_workflow.md#contribution-acceptance-criteria):
 
-This demonstrates a [bias for action](https://handbook.gitlab.com/handbook/values/#operate-with-a-bias-for-action) and ensures an efficient MR review progress.
-
-Add a comment like the following:
-
-```plaintext
-Hi <@mr-author>, I'm unavailable for review but I've [spun the roulette wheel](https://gitlab-org.gitlab.io/gitlab-roulette/) for this project and it has selected <@new-reviewer>.
-
-@new-reviewer may you please review this MR when you have time? If you're unavailable, please [spin the roulette wheel](https://gitlab-org.gitlab.io/gitlab-roulette/) again and select and assign a new reviewer, thank-you.
-
-/assign_reviewer <@new-reviewer>
-/unassign_reviewer me
-```
-
-[Review the merge request](#reviewing-a-merge-request) thoroughly.
-
-Verify that the merge request meets all [contribution acceptance criteria](contributing/merge_request_workflow.md#contribution-acceptance-criteria).
-
-Some merge requests may require domain experts to help with the specifics.
-Reviewers, if they are not a domain expert in the area, can do any of the following:
-
-- Review the merge request and loop in a domain expert for another review. This expert
-  can either be another reviewer or a maintainer.
-- Pass the review to another reviewer they deem more suitable.
-- If no domain experts are available, review on a best-effort basis.
-
-You should guide the author towards splitting the merge request into smaller merge requests if it is:
-
-- Too large.
-- Fixes more than one issue.
-- Implements more than one feature.
-- Has a high complexity resulting in additional risk.
-
-The author may choose to request that the current maintainers and reviewers review the split MRs
-or request a new group of maintainers and reviewers.
-
-If the author has added local verification steps, indicate if you did these so the maintainer knows whether they were done, and what the result was.
-
-When you are confident
-that it meets all requirements, you should:
-
-- Select **Approve**.
-- `@` mention the author to generate a to-do notification, and advise them that their merge request has been reviewed and approved.
-- Request a review from a maintainer. Default to requests for a maintainer with [domain expertise](#domain-experts),
-  however, if one isn't available or you think the merge request doesn't need a review by a [domain expert](#domain-experts), feel free to follow the [Reviewer roulette](#reviewer-roulette) suggestion.
+1. Select **Approve**.
+1. `@` mention the author to notify them.
+1. Request a review from a maintainer with [domain expertise](#domain-experts), or follow the
+   [Reviewer roulette](#reviewer-roulette) suggestion.
 
 ### The responsibility of the maintainer
 
@@ -538,95 +505,22 @@ When ready to merge:
 > **Review all changes thoroughly for malicious code before starting a
 > [merged results pipeline](../ci/pipelines/merge_request_pipelines.md#run-pipelines-in-the-parent-project).**
 
-When reviewing merge requests added by wider community contributors:
+When reviewing community MRs:
 
-- Pay particular attention to new dependencies and dependency updates, such as Ruby gems and Node packages.
-  While changes to files like `Gemfile.lock` or `yarn.lock` might appear trivial, they could lead to the
-  fetching of malicious packages.
+- Scrutinize new dependencies (e.g. `Gemfile.lock`, `yarn.lock`). They could introduce malicious packages.
 - Review links and images, especially in documentation MRs.
-- When in doubt, ask someone from `@gitlab-com/gl-security/appsec` to review the merge request **before manually starting any merge request pipeline**.
-- Only set the milestone when the merge request is likely to be included in
-  the current milestone. This is to avoid confusion around when it'll be
-  merged and avoid moving milestone too often when it's not yet ready.
-
-#### Testing community contributions locally
-
-When reviewing merge requests from forked repositories, you have several methods to test the changes locally:
-
-- Use the GitLab CLI:
-
-  ```shell
-  glab mr checkout <MR_ID>
-  ```
-
-  For more information, see the [GitLab CLI commands](https://docs.gitlab.com/cli/mr/checkout/).
-- Use cURL to apply the diff.
-  Use one of the following methods:
-
-  - Fetch and apply the diff directly:
-
-     ```shell
-     curl --silent <MR_URL>.diff | git apply
-     ```
-
-     Replace `<MR_URL>` with the full URL to the merge request.
-     For example: `https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1234.diff`.
-
-  - Create a Git alias to avoid typing the full URL each time:
-
-     ```shell
-     git config --global alias.mr '!f() { curl --silent "https://gitlab.com/gitlab-org/gitlab/-/merge_requests/$1.diff" | git apply; }; f'
-     ```
-
-    After the alias is created, use it with just the merge request ID. For example:
-
-     ```shell
-     git mr 1234
-     ```
-
-- Use GDK switch:
-
-  ```shell
-  gdk switch <MR_ID>
-  ```
-
-  > [!note]
-  > This command also runs `gdk update`, which updates your development environment.
-  > The process can take several minutes to complete.
-
-  For more information, see the
-  [GDK `switch.rb` file](https://gitlab.com/gitlab-org/gitlab-development-kit/-/blob/main/lib/gdk/command/switch.rb).
-
-#### Add the canonical project/fork as a remote
-
-  If you frequently need to checkout upstream branches, you can add the canonical project/fork as a remote:
-
-  ```shell
-  git remote add upstream https://gitlab.com/<canonical group>/<canonical project>.git
-  ```
-
-  Then:
-
-   ```shell
-   git fetch upstream
-   git checkout upstream/<remote-branch-name>
-   ```
+- When in doubt, ask `@gitlab-com/gl-security/appsec` to review **before** starting any pipeline.
+- Set the milestone only when the MR is likely to merge in the current milestone.
 
 #### Taking over a community merge request
 
-When an MR needs further changes but the author is not responding for a long period of time,
-or is unable to finish the MR, GitLab can take it over.
-A GitLab engineer (generally the merge request coach) will:
+When an MR needs changes but the author is unresponsive or unable to finish:
 
-1. Add a comment to their MR saying you'll take it over to be able to get it merged.
-1. Add the label `~"coach will finish"` to their MR.
-1. Create a new feature branch from the main branch.
-1. Merge their branch into your new feature branch.
-1. Open a new merge request to merge your feature branch into the main branch.
-1. Link the community MR from your MR and label it as `~"Community contribution"`.
-1. Make any necessary final adjustments and ping the contributor to give them the chance to review your changes, and to make them aware that their content is being merged into the main branch.
-1. Make sure the content complies with all the merge request guidelines.
-1. Follow the regular review process as we do for any merge request.
+1. Comment that you (the merge request coach) are taking over.
+1. Add the `~"coach will finish"` label.
+1. Create a feature branch from main and merge their branch into it.
+1. Open a new MR, link the community MR, and add the `~"Community contribution"` label.
+1. Notify the contributor and follow the regular review process.
 
 ### Finding the right balance
 
