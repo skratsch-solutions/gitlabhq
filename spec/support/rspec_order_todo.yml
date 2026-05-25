@@ -3046,7 +3046,6 @@
 - './spec/features/users/confirmation_spec.rb'
 - './spec/features/user_sees_revert_modal_spec.rb'
 - './spec/features/users/email_verification_on_login_spec.rb'
-- './spec/features/users/login_spec.rb'
 - './spec/features/users/logout_spec.rb'
 - './spec/features/users/one_trust_csp_spec.rb'
 - './spec/features/user_sorts_things_spec.rb'

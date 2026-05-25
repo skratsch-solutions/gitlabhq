@@ -1013,7 +1013,6 @@ RSpec/ContextWording:
     - 'spec/features/tags/maintainer_deletes_protected_tag_spec.rb'
     - 'spec/features/user_can_display_performance_bar_spec.rb'
     - 'spec/features/user_opens_link_to_comment_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/features/users/overview_spec.rb'
     - 'spec/features/users/show_spec.rb'
     - 'spec/features/users/snippets_spec.rb'

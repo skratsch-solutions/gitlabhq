@@ -2336,7 +2336,6 @@ Layout/LineLength:
     - 'spec/features/security/project/snippet/public_access_spec.rb'
     - 'spec/features/unsubscribe_links_spec.rb'
     - 'spec/features/user_settings/active_sessions_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/features/users/overview_spec.rb'
     - 'spec/features/users/user_browses_projects_on_user_page_spec.rb'
     - 'spec/features/webauthn_spec.rb'

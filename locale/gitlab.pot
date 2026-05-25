@@ -27012,11 +27012,24 @@ msgstr ""
 msgid "Duo workflow"
 msgstr ""
 
+msgid "DuoAgentPlatform|%{base} Attention required."
+msgstr ""
+
 msgid "DuoAgentPlatform|%{component} did not produce an answer"
 msgstr ""
 
 msgid "DuoAgentPlatform|%{component} returned —"
 msgstr ""
+
+msgid "DuoAgentPlatform|%{count} Duo agent session. Activate to view."
+msgid_plural "DuoAgentPlatform|%{count} Duo agent sessions. Activate to view."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "DuoAgentPlatform|%{count} session"
+msgid_plural "DuoAgentPlatform|%{count} sessions"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "DuoAgentPlatform|%{linkStart}What are flows%{linkEnd}?"
 msgstr ""
@@ -27052,6 +27065,9 @@ msgid "DuoAgentPlatform|Allow foundational flows"
 msgstr ""
 
 msgid "DuoAgentPlatform|Awaiting your input"
+msgstr ""
+
+msgid "DuoAgentPlatform|Couldn't load sessions."
 msgstr ""
 
 msgid "DuoAgentPlatform|Created session"
@@ -27107,6 +27123,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Response"
 msgstr ""
 
+msgid "DuoAgentPlatform|Retry"
+msgstr ""
+
 msgid "DuoAgentPlatform|Returned to agent"
 msgstr ""
 
@@ -27142,6 +27161,9 @@ msgstr[1] ""
 msgid "DuoAgentPlatform|Show tool details"
 msgstr ""
 
+msgid "DuoAgentPlatform|Showing most recent %{count}"
+msgstr ""
+
 msgid "DuoAgentPlatform|Something went wrong saving Duo Agent Platform settings"
 msgstr ""
 
@@ -27170,6 +27192,9 @@ msgid "DuoAgentPlatform|Track GitLab Duo Agent Platform sessions in commits"
 msgstr ""
 
 msgid "DuoAgentPlatform|User messaged agent"
+msgstr ""
+
+msgid "DuoAgentPlatform|View all sessions"
 msgstr ""
 
 msgid "DuoAgentPlatform|View details"

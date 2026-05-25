@@ -203,5 +203,35 @@ module Features
         extensions: { credProps: true }
       )
     end
+
+    # Drives the email-OTP fallback after the user has reached the
+    # 2FA challenge page: clicks "send code to email address", reads
+    # the code from the delivered mail, submits it, and asserts the
+    # post-login content. Requires `include EmailHelpers` in the spec.
+    def verify_email_otp_fallback_workflow(user)
+      perform_enqueued_jobs do
+        click_button 'send code to email address'
+
+        expect(page).to have_content('Verification code')
+
+        # WebAuthn UI should be hidden
+        expect(page).not_to have_content('Trying to communicate with your device')
+
+        # TOTP form should be hidden
+        expect(page).not_to have_content('Enter verification code')
+
+        mail = wait_for('mail found for user') { find_email_for(user) }
+        expect(mail.to).to match_array([user.email])
+        expect(mail.subject).to eq(s_('IdentityVerification|Verify your identity'))
+
+        code = mail.body.parts.first.to_s[/\d{#{Users::EmailVerification::GenerateTokenService::TOKEN_LENGTH}}/o]
+        fill_in s_('IdentityVerification|Verification code'), with: code
+
+        expect { click_button s_('IdentityVerification|Verify code') }
+          .to change { user.reload.sign_in_count }
+
+        expect(page).to have_content('Welcome to GitLab')
+      end
+    end
   end
 end

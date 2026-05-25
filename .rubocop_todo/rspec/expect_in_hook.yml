@@ -105,7 +105,6 @@ RSpec/ExpectInHook:
     - 'spec/features/projects/show/user_sees_setup_shortcut_buttons_spec.rb'
     - 'spec/features/protected_branches_spec.rb'
     - 'spec/features/snippets/spam_snippets_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/graphql/mutations/design_management/move_spec.rb'
     - 'spec/helpers/commits_helper_spec.rb'
     - 'spec/helpers/groups_helper_spec.rb'

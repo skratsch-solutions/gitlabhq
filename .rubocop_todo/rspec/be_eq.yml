@@ -508,7 +508,6 @@ RSpec/BeEq:
     - 'spec/features/projects/show/user_sees_setup_shortcut_buttons_spec.rb'
     - 'spec/features/sentry_js_spec.rb'
     - 'spec/features/user_settings/password_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/finders/boards/visits_finder_spec.rb'
     - 'spec/finders/concerns/finder_with_cross_project_access_spec.rb'
     - 'spec/finders/packages/go/package_finder_spec.rb'

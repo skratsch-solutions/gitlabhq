@@ -61,7 +61,6 @@ RSpec/NoExpectationExample:
     - 'spec/features/projects/files/template_selector_menu_spec.rb'
     - 'spec/features/projects/files/undo_template_spec.rb'
     - 'spec/features/user_settings/ssh_keys_spec.rb'
-    - 'spec/features/users/login_spec.rb'
     - 'spec/frontend/fixtures/listbox.rb'
     - 'spec/frontend/fixtures/merge_requests.rb'
     - 'spec/frontend/fixtures/merge_requests_diffs.rb'
