@@ -3408,6 +3408,20 @@
     - <<: *if-default-refs
       changes: *code-backstage-spec-patterns
 
+# Detects unique_by declarations that reference indexes not available at deploy time
+# See: https://gitlab.com/gitlab-com/gl-infra/production/-/issues/9604
+.preflight:rules:unique-by-index-check:
+  rules:
+    - <<: *if-merge-request
+      changes:
+        - "{,ee/,jh/}app/models/**/*.rb"
+        - "{,ee/,jh/}app/services/**/*.rb"
+        - "{,ee/,jh/}app/workers/**/*.rb"
+        - "{,ee/,jh/}lib/gitlab/background_migration/**/*.rb"
+        - "{,ee/,jh/}lib/gitlab/database/**/*.rb"
+        - "{,ee/,jh/}lib/gitlab/ingestion/**/*.rb"
+        - "{,ee/,jh/}ee/lib/gitlab/ingestion/**/*.rb"
+
 .preflight:rules:pipeline-tier-1:
   rules:
     - <<: *if-merge-request-labels-pipeline-expedite

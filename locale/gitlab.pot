@@ -2044,9 +2044,6 @@ msgstr ""
 msgid "/q test is now supported by using /q dev in an issue or merge request. To generate unit tests for this MR, add an inline comment and enter /q dev along with a comment about the tests you want written."
 msgstr ""
 
-msgid "0"
-msgstr ""
-
 msgid "0 B"
 msgstr ""
 
@@ -74416,10 +74413,10 @@ msgstr ""
 msgid "SuperSonics|Could not activate subscription"
 msgstr ""
 
-msgid "SuperSonics|Credits"
+msgid "SuperSonics|Enter activation code"
 msgstr ""
 
-msgid "SuperSonics|Enter activation code"
+msgid "SuperSonics|Explore pricing"
 msgstr ""
 
 msgid "SuperSonics|Export license usage file"

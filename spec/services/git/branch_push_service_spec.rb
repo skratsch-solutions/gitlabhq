@@ -269,10 +269,14 @@ RSpec.describe Git::BranchPushService, :use_clean_rails_redis_caching, :services
       let(:oldrev) { blankrev }
       let(:ref) { 'refs/heads/other' }
 
-      it "finds references", :sidekiq_might_not_need_inline do
+      before do
+        project.repository.add_branch(user, 'other', newrev)
+
         allow(project.repository).to receive(:commits_between).with(blankrev, newrev).and_return([])
         allow(project.repository).to receive(:commits_between).with("master", newrev).and_return([commit])
+      end
 
+      it "finds references", :sidekiq_inline do
         expect(SystemNoteService).to receive(:cross_reference).with(issue, commit, user)
 
         subject

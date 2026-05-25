@@ -91,8 +91,6 @@ export default {
     'app/assets/javascripts/profile/components/activity_calendar.vue',
     'app/assets/javascripts/projects/commits/components/commit_filtered_search.vue',
     'app/assets/javascripts/projects/compare/components/app.vue',
-    'app/assets/javascripts/projects/new_v2/components/import_by_url_form.vue',
-    'app/assets/javascripts/projects/new_v2/components/shared_project_creation_fields.vue',
     'app/assets/javascripts/projects/settings/branch_rules/components/index.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/diff_discussions.vue',
     'app/assets/javascripts/rapid_diffs/app/discussions/discussion_notes.vue',
