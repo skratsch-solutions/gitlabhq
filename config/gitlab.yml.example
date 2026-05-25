@@ -370,6 +370,8 @@ production: &base
   #       bucket: packages
   #     dependency_proxy:
   #       bucket: dependency_proxy
+  #     agent_plan_content:
+  #       bucket: agent-plan-content
 
   ## Consolidated object store config for Google Cloud Storage
   # object_store:
@@ -400,6 +402,8 @@ production: &base
   #       bucket: gitlab-ci-secure-files
   #     pages:
   #       bucket: gitlab-pages
+  #     agent_plan_content:
+  #       bucket: gitlab-agent-plan-content
 
   ## Build Artifacts
   artifacts:
