@@ -2260,7 +2260,6 @@ RSpec/FeatureCategory:
     - 'spec/lib/gitlab/slash_commands/issue_search_spec.rb'
     - 'spec/lib/gitlab/slash_commands/issue_show_spec.rb'
     - 'spec/lib/gitlab/slash_commands/presenters/access_spec.rb'
-    - 'spec/lib/gitlab/slash_commands/presenters/deploy_spec.rb'
     - 'spec/lib/gitlab/slash_commands/presenters/error_spec.rb'
     - 'spec/lib/gitlab/slash_commands/presenters/incident_management/incident_new_spec.rb'
     - 'spec/lib/gitlab/slash_commands/presenters/issue_close_spec.rb'
