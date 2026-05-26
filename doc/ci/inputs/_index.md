@@ -804,7 +804,7 @@ In this example, assuming the input uses the default value and `$MY_VAR` is an u
 Use `expand_vars` to expand [CI/CD variables](../variables/_index.md) in the input value.
 
 Only variables you can [use with the `include` keyword](../yaml/includes.md#use-variables-with-include) and which are
-**not** [masked](../variables/_index.md#mask-a-cicd-variable) can be expanded.
+not [masked](../variables/_index.md#mask-a-cicd-variable) can be expanded.
 [Nested variable expansion](../variables/where_variables_can_be_used.md#nested-variable-expansion) is not supported.
 
 Example:

@@ -68,7 +68,7 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
         ORG
       end
 
-      it 'tags the pre element with the mermaid language' do
+      it 'applies the canonical language attribute' do
         expect(pre['data-canonical-lang']).to eq('mermaid')
       end
 
@@ -78,12 +78,16 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
     end
 
     context 'with a math block' do
-      # TODO: Stubs gitlab-markup output for math until LaTeX-to-data-math-style conversion is added in markups.rb
-      let(:input) { '\[ \sqrt{2} \]' }
-      let(:stubbed_html) { +'<pre data-math-style="display"><code>\sqrt{2}</code></pre>' }
+      let(:input) do
+        <<~ORG
+          #+begin_src math
+          \\sqrt{2}
+          #+end_src
+        ORG
+      end
 
-      before do
-        allow(GitHub::Markup).to receive(:render).with(file_name, input).and_return(stubbed_html)
+      it 'applies the canonical language attribute' do
+        expect(pre['data-canonical-lang']).to eq('math')
       end
 
       it 'preserves the math style attribute' do
@@ -152,16 +156,17 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
       expect(pre.at_css('code')[:class]).to include('js-render-mermaid')
     end
 
-    it 'renders math blocks' do
-      # TODO: Stubs gitlab-markup output for math until LaTeX-to-data-math-style conversion is added in markups.rb
-      input = '.. math:: \sqrt{2}'
-      html = +'<pre data-math-style="display"><code>\sqrt{2}</code></pre>'
+    it 'renders math source blocks' do
+      input = <<~RST
+        .. code:: math
 
-      allow(GitHub::Markup).to receive(:render).with('unimportant_name.rst', input).and_return(html)
+           \\sqrt{2}
+      RST
 
       result = render('unimportant_name.rst', input, context)
       doc = Nokogiri::HTML.fragment(result)
       pre = doc.css('pre').first
+      expect(pre['data-canonical-lang']).to eq('math')
       expect(pre['data-math-style']).to eq('display')
       expect(pre[:class]).to include('js-render-math')
     end

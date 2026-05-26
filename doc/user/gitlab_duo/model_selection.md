@@ -23,25 +23,25 @@ The following table lists the default model for each GitLab Duo feature.
 | Feature | Model |
 |---------|---------------|
 | **Code Suggestions** | |
-| Code Generation | Claude Sonnet 4 Vertex |
+| Code Generation | Claude Sonnet 4.6 Vertex |
 | Code Completion | Codestral 25.08 Fireworks |
 | **GitLab Duo Chat** | |
-| General Chat | Claude Sonnet 4.5 Vertex |
-| Code Explanation | Claude Sonnet 4 |
-| Test Generation | Claude Sonnet 4.5 Vertex |
-| Refactor Code | Claude Sonnet 4.5 Vertex |
-| Fix Code | Claude Sonnet 4.5 Vertex |
-| Root Cause Analysis | Claude Sonnet 4 Vertex |
+| General Chat | Claude Sonnet 4.6 Vertex |
+| Code Explanation | Claude Sonnet 4.6 Vertex |
+| Test Generation | Claude Sonnet 4.6 Vertex |
+| Refactor Code | Claude Sonnet 4.6 Vertex |
+| Fix Code | Claude Sonnet 4.6 Vertex |
+| Root Cause Analysis | Claude Sonnet 4.6 Vertex |
 | **GitLab Duo for merge requests** | |
-| Merge Commit Message Generation | Claude Sonnet 4 Vertex|
-| Merge Request Summary | Claude Sonnet 4 Vertex |
-| Code Review Summary | Claude Sonnet 4 Vertex |
+| Merge Commit Message Generation | Claude Sonnet 4.6 Vertex|
+| Merge Request Summary | Claude Sonnet 4.6 Vertex |
+| Code Review Summary | Claude Sonnet 4.6 Vertex |
 | Code Review | Claude Sonnet 4.5 Vertex |
 | **Other GitLab Duo features** | |
 | Vulnerability Explanation | Claude Sonnet 4.6 Vertex |
 | Vulnerability Resolution | Claude Sonnet 4.6 Vertex |
-| Discussion Summary | Claude Sonnet 4.5 Vertex |
-| GitLab Duo for CLI | Claude Haiku 4.5 |
+| Discussion Summary | Claude Sonnet 4.6 Vertex |
+| GitLab Duo for CLI | Claude Sonnet 4.6 Vertex |
 
 ## Supported models
 

@@ -29,7 +29,7 @@ Here's an overview of what you're going to do:
 
 First, make sure your Hugo site is ready to push to GitLab. You need to have your content, a theme, and a Hugo configuration file.
 
-Don't build your site, as GitLab does that for you. In fact, it's important to **not** upload your `public` folder, as this can cause conflicts later on.
+Don't build your site, as GitLab does that for you. In fact, it's important to not upload your `public` folder, as this can cause conflicts later on.
 
 The easiest way to exclude your `public` folder is by creating a `.gitignore` file and adding a new line with `public/` as the text.
 

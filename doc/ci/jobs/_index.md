@@ -180,13 +180,13 @@ In this example:
   - inherits: Nothing.
 - `rspec`:
   - inherits: the default `image` and the `WEBHOOK_URL` variable.
-  - does **not** inherit: the default `before_script` and the `DOMAIN` variable.
+  - does not inherit: the default `before_script` and the `DOMAIN` variable.
 - `capybara`:
   - inherits: the default `before_script` and `image`.
-  - does **not** inherit: the `DOMAIN` and `WEBHOOK_URL` variables.
+  - does not inherit: the `DOMAIN` and `WEBHOOK_URL` variables.
 - `karma`:
   - inherits: the default `image` and `before_script`, and the `DOMAIN` variable.
-  - does **not** inherit: `WEBHOOK_URL` variable.
+  - does not inherit: `WEBHOOK_URL` variable.
 
 ## View jobs in a pipeline
 

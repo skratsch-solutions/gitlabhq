@@ -19,7 +19,7 @@ it secured by HTTPS, you must issue a certificate for that
 (sub)domain and install it on your project.
 
 > [!note]
-> Certificates are **not** required to add to your custom
+> Certificates are not required to add to your custom
 > (sub)domain on your GitLab Pages project, though they are
 > highly recommendable.
 

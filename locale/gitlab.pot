@@ -25467,6 +25467,9 @@ msgstr ""
 msgid "DeployKeys|SHA"
 msgstr ""
 
+msgid "DeployKeys|Search deploy keys"
+msgstr ""
+
 msgid "DeployTokens|Active deploy tokens"
 msgstr ""
 
@@ -64151,9 +64154,6 @@ msgstr ""
 msgid "Search comment templates"
 msgstr ""
 
-msgid "Search deploy keys"
-msgstr ""
-
 msgid "Search files"
 msgstr ""
 
@@ -90792,6 +90792,9 @@ msgid "must belong to the same compliance requirement."
 msgstr ""
 
 msgid "must belong to the same namespace."
+msgstr ""
+
+msgid "must belong to the same organization."
 msgstr ""
 
 msgid "must belong to the same project as the vulnerability"

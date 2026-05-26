@@ -52,9 +52,6 @@ module BranchRules
     end
 
     def skip_empty_access_levels?(access_levels_params)
-      return true if access_levels_params.nil?
-      return false unless Feature.enabled?(:skip_empty_access_levels_in_branch_rules, project)
-
       access_levels_params.blank?
     end
 

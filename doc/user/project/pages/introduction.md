@@ -89,7 +89,7 @@ To deploy this Pages site again, run a new pipeline.
 
 When using Pages under the top-level domain of a GitLab instance (`*.example.io`), you can't use HTTPS with subdomains
 of subdomains. If your namespace or group name contains a dot (for example, `foo.bar`) the domain
-`https://foo.bar.example.io` does **not** work.
+`https://foo.bar.example.io` does not work.
 
 This limitation is because of the [HTTP Over TLS protocol](https://www.rfc-editor.org/rfc/rfc2818#section-3.1). HTTP pages
 work as long as you don't redirect HTTP to HTTPS.

@@ -220,7 +220,7 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
 
   rule { has_access }.enable :read_namespace_via_membership
 
-  rule { can?(:read_nested_project_resources) }.policy do
+  rule { can?(:read_cross_project) & can?(:read_group) }.policy do
     enable :read_group_activity
     enable :read_group_issues
     enable :read_group_boards
@@ -228,10 +228,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     enable :read_group_milestones
     enable :read_group_merge_requests
     enable :read_group_build_report_results
-  end
-
-  rule { can?(:read_cross_project) & can?(:read_group) }.policy do
-    enable :read_nested_project_resources
   end
 
   rule { maintainer & maintainer_can_create_group }.enable :create_subgroup

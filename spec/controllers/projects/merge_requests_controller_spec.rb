@@ -2404,6 +2404,23 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :code_review
           let(:expected_discussion_ids) { [mr_note1.discussion_id, mr_note2.discussion_id] }
         end
       end
+
+      context 'when a commit discussion references a commit no longer in the repository' do
+        let!(:orphan_commit_note) do
+          create(:diff_note_on_commit, project: merge_request.project)
+        end
+
+        before do
+          allow_any_instance_of(Project).to receive(:commit).and_call_original
+          allow_any_instance_of(Project).to receive(:commit).with(orphan_commit_note.commit_id).and_return(nil)
+        end
+
+        it 'returns 200 instead of raising ActionController::UrlGenerationError' do
+          get :discussions, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
     end
   end
 

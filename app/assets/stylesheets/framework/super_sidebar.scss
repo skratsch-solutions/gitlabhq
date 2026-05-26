@@ -20,6 +20,7 @@ $command-palette-spacing: px-to-rem(14px);
   --super-sidebar-accent-foreground-color: hsl(from var(--super-sidebar-theme-accent-color) h calc(s - 20) 20);
   --super-sidebar-accent-background-color: hsla(from var(--super-sidebar-theme-accent-color) h s l / 16%);
 
+  --super-sidebar-hr-border-color: var(--gl-color-alpha-dark-8);
   --super-sidebar-hr-mix-blend-mode: multiply;
 }
 
@@ -33,34 +34,7 @@ $command-palette-spacing: px-to-rem(14px);
   --super-sidebar-accent-foreground-color: hsl(from var(--super-sidebar-theme-accent-color) h s 88);
   --super-sidebar-accent-background-color: hsla(from var(--super-sidebar-theme-accent-color) h s l / 32%);
 
-  --super-sidebar-hr-mix-blend-mode: color-dodge;
-}
-
-.super-sidebar,
-.application-chrome {
-  --body-background-color: var(--gl-background-color-strong);
-
-  --super-sidebar-accent-color-fg: var(--gl-color-blue-800);
-  --super-sidebar-accent-color-bg: var(--gl-color-blue-100);
-
-  --super-sidebar-nav-item-hover-bg: var(--gl-color-alpha-dark-8);
-  --super-sidebar-nav-item-active-bg: var(--gl-color-alpha-dark-16);
-  --super-sidebar-nav-item-current-bg: var(--super-sidebar-accent-color-bg);
-
-  --super-sidebar-hr-mix-blend-mode: multiply;
-}
-
-.gl-dark .super-sidebar,
-.gl-dark.application-chrome {
-  --body-background-color: var(--gl-background-color-subtle);
-
-  --super-sidebar-accent-color-fg: var(--gl-color-blue-200);
-  --super-sidebar-accent-color-bg: var(--gl-color-neutral-950);
-
-  --super-sidebar-nav-item-hover-bg: var(--gl-color-alpha-light-16);
-  --super-sidebar-nav-item-active-bg: var(--gl-color-alpha-light-24);
-  --super-sidebar-nav-item-current-bg: rgb(from var(--super-sidebar-accent-color-fg) r g b / 15%);
-
+  --super-sidebar-hr-border-color: var(--gl-color-alpha-light-16);
   --super-sidebar-hr-mix-blend-mode: color-dodge;
 }
 
@@ -285,8 +259,7 @@ $command-palette-spacing: px-to-rem(14px);
   }
 
   hr {
-    @apply gl-border-alpha-dark-8;
-    @apply dark:gl-border-alpha-light-16;
+    border-color: var(--super-sidebar-hr-border-color);
     mix-blend-mode: var(--super-sidebar-hr-mix-blend-mode);
   }
 

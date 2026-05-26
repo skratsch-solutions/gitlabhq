@@ -53,7 +53,7 @@ export default {
         };
       },
       update(data) {
-        return data?.mergeRequest?.linkedWorkItems || [];
+        return (data?.mergeRequest?.linkedWorkItems || []).filter((i) => i.workItem);
       },
       result() {
         this.checkDetailPanelParams();

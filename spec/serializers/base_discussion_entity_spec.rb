@@ -161,4 +161,19 @@ RSpec.describe BaseDiscussionEntity, feature_category: :shared do
       )
     end
   end
+
+  context 'when a commit discussion references a commit that no longer exists' do
+    let_it_be(:note) { create(:diff_note_on_commit) }
+
+    before do
+      allow(discussion).to receive(:noteable).and_return(nil)
+    end
+
+    it 'does not raise on discussion_path or truncated_diff_lines_path' do
+      expect { json }.not_to raise_error
+
+      expect(json[:discussion_path]).to be_nil
+      expect(json[:truncated_diff_lines_path]).to be_nil
+    end
+  end
 end

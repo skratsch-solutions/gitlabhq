@@ -139,6 +139,22 @@ describe('MRRelatedWorkItems', () => {
     });
   });
 
+  it('filters out null workItem entries and renders valid items', async () => {
+    const nullWorkItem = { linkType: 'CLOSES', workItem: null, __typename: 'LinkedWorkItem' };
+
+    createComponent({
+      queryHandler: jest
+        .fn()
+        .mockResolvedValue(buildQueryResponse([closingItem1, nullWorkItem, mentionedItem])),
+    });
+    await waitForPromises();
+
+    const links = findAllLinks();
+    expect(links).toHaveLength(2);
+    expect(links.at(0).text()).toBe('Fix bug');
+    expect(links.at(1).text()).toBe('Refactor code');
+  });
+
   describe('with items (not exceeding collapse threshold)', () => {
     beforeEach(async () => {
       createComponent({

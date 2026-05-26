@@ -17061,7 +17061,10 @@ CREATE TABLE cd_artifact_sources (
     group_id bigint NOT NULL,
     service_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    source_type smallint DEFAULT 0 NOT NULL,
+    project_id bigint,
+    CONSTRAINT check_project_id_present_when_internal_pipeline CHECK ((NOT ((source_type = 0) AND (project_id IS NULL))))
 );
 
 CREATE SEQUENCE cd_artifact_sources_id_seq
@@ -17127,7 +17130,11 @@ CREATE TABLE cd_versions (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
-    CONSTRAINT check_c338b24516 CHECK ((char_length(name) <= 255))
+    digest text,
+    reference text,
+    CONSTRAINT check_152b375e60 CHECK ((char_length(reference) <= 1024)),
+    CONSTRAINT check_c338b24516 CHECK ((char_length(name) <= 255)),
+    CONSTRAINT check_f8b51f68f7 CHECK ((char_length(digest) <= 255))
 );
 
 CREATE SEQUENCE cd_versions_id_seq
@@ -46648,6 +46655,8 @@ CREATE UNIQUE INDEX index_cd_applications_on_group_id_and_name ON cd_application
 
 CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING btree (group_id);
 
+CREATE INDEX index_cd_artifact_sources_on_project_id ON cd_artifact_sources USING btree (project_id) WHERE (project_id IS NOT NULL);
+
 CREATE UNIQUE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
 
 CREATE INDEX index_cd_environments_on_cluster_agent_id ON cd_environments USING btree (cluster_agent_id);
@@ -57799,6 +57808,9 @@ ALTER TABLE ONLY import_source_users
 
 ALTER TABLE ONLY security_scheduled_pipeline_execution_policy_test_runs
     ADD CONSTRAINT fk_71b16d3f94 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_artifact_sources
+    ADD CONSTRAINT fk_71b7b33975 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE RESTRICT;
 
 ALTER TABLE ONLY user_saved_views
     ADD CONSTRAINT fk_71bf55035c FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;

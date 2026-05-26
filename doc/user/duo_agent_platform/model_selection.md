@@ -23,7 +23,7 @@ This table lists the default model for each feature in the Agent Platform.
 |-------|--------------|
 | GitLab Duo Agentic Chat | Claude Sonnet 4.6 Vertex |
 | Code Review Flow | Claude Sonnet 4.6 Vertex |
-| All other agents | Claude Sonnet 4.5 Vertex |
+| All other agents | Claude Sonnet 4.6 Vertex |
 
 ## Supported models
 

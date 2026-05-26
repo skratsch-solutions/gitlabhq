@@ -4889,7 +4889,7 @@ job:
 ```
 
 To create a release and a new tag at the same time, your [`rules`](#rules)
-should **not** configure the job to run only for new tags. A semantic versioning example:
+should not configure the job to run only for new tags. A semantic versioning example:
 
 ```yaml
 job:
@@ -5334,7 +5334,7 @@ to specific files.
 
 For new branch pipelines or when there is no Git `push` event, `rules: changes` always evaluates to true
 and the job always runs. Pipelines like tag pipelines, scheduled pipelines,
-and manual pipelines, all do **not** have a Git `push` event associated with them.
+and manual pipelines, all do not have a Git `push` event associated with them.
 To cover these cases, use [`rules: changes: compare_to`](#ruleschangescompare_to) to specify
 the branch to compare against the pipeline ref.
 

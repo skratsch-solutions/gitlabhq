@@ -96,6 +96,29 @@ RSpec.describe Banzai::Filter::MathFilter, feature_category: :markdown do
     end
   end
 
+  context 'on pre elements with data-math-style' do
+    let(:doc) { filter(html, {}) }
+    let(:pre) { doc.at_css('pre') }
+
+    context 'when a <pre data-canonical-lang="math"> has no data-math-style' do
+      let(:html) { '<pre data-canonical-lang="math"><code>\sqrt{2}</code></pre>' }
+
+      it 'sets the math style attribute' do
+        expect(pre['data-math-style']).to eq('display')
+        expect(pre[:class]).to eq('js-render-math')
+      end
+    end
+
+    context 'when a <pre data-canonical-lang="math"> already has data-math-style' do
+      let(:html) { '<pre data-canonical-lang="math" data-math-style="inline"><code>\sqrt{2}</code></pre>' }
+
+      it 'preserves the math style attribute' do
+        expect(pre['data-math-style']).to eq('inline')
+        expect(pre[:class]).to eq('js-render-math')
+      end
+    end
+  end
+
   it_behaves_like 'pipeline timing check'
 
   def pipeline_filter(text, context = {})
