@@ -28,6 +28,7 @@ RSpec.shared_examples 'create environment for job' do
         subject
 
         job.save!
+        job.job_environment.save!
 
         expect(job.job_environment).to be_valid
         expect(job.job_environment).to have_attributes(
@@ -61,6 +62,7 @@ RSpec.shared_examples 'create environment for job' do
           subject
 
           job.save!
+          job.job_environment.save!
 
           expect(job.job_environment).to be_valid
           expect(job.job_environment).to have_attributes(

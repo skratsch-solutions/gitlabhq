@@ -23,11 +23,6 @@
     // Application chrome background
     background-color: var(--body-background-color);
   }
-
-  // Free trial button
-  .topbar-signup-button {
-    @apply gl-bg-neutral-800 gl-border-neutral-800 dark:gl-bg-neutral-100 dark:gl-border-neutral-100 #{!important};
-  }
 }
 
 /*
@@ -259,18 +254,6 @@
     &:not(.wiki-sidebar):not(.build-sidebar):not(.is-merge-request) .panel-content-inner {
       @container content-panels (width >= #{map.get($breakpoints, 'sm')}) {
         padding-right: $right-sidebar-width;
-      }
-    }
-  }
-
-  // MR changes tab
-  .container-fluid:not(.container-limited),
-  .container-fluid.rd-page-container {
-    .detail-page-header,
-    .detail-page-description,
-    .merge-request-tabs-container {
-      &.is-merge-request {
-        max-width: calc(#{$fixed-layout-width} - (var(--container-padding-x) * 2)) !important;
       }
     }
   }

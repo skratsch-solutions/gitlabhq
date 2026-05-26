@@ -1,7 +1,6 @@
 ---
 RSpec/NamedSubject:
   Exclude:
-    - 'ee/spec/controllers/admin/audit_log_reports_controller_spec.rb'
     - 'ee/spec/controllers/admin/emails_controller_spec.rb'
     - 'ee/spec/controllers/admin/geo/settings_controller_spec.rb'
     - 'ee/spec/controllers/admin/groups_controller_spec.rb'
@@ -12,7 +11,6 @@ RSpec/NamedSubject:
     - 'ee/spec/controllers/ee/autocomplete_controller_spec.rb'
     - 'ee/spec/controllers/ee/groups/group_members_controller_spec.rb'
     - 'ee/spec/controllers/ee/groups/settings/ci_cd_controller_spec.rb'
-    - 'ee/spec/controllers/ee/groups/variables_controller_spec.rb'
     - 'ee/spec/controllers/ee/groups_controller_spec.rb'
     - 'ee/spec/controllers/ee/omniauth_callbacks_controller_spec.rb'
     - 'ee/spec/controllers/ee/passwords_controller_spec.rb'

@@ -11,8 +11,8 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
   let_it_be(:service_account) { create(:user, :service_account, composite_identity_enforced: true) }
-  let_it_be(:label) { create(:label, title: 'a', project: project) }
-  let_it_be(:label2) { create(:label) }
+  let_it_be(:label, freeze: false) { create(:label, title: 'a', project: project) }
+  let_it_be(:label2, freeze: false) { create(:label) }
   let_it_be(:milestone) { create(:milestone, project: project) }
 
   let(:merge_request) do

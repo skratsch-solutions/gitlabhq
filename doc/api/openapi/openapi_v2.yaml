@@ -3636,7 +3636,8 @@ paths:
         items:
           type: string
         required: false
-        example: main
+        example:
+        - main
       - in: query
         name: architectures
         description: The list of Architectures
@@ -3644,7 +3645,8 @@ paths:
         items:
           type: string
         required: false
-        example: amd64
+        example:
+        - amd64
       responses:
         '200':
           description: Get a list of Debian Distributions
@@ -3793,7 +3795,8 @@ paths:
         items:
           type: string
         required: false
-        example: main
+        example:
+        - main
       - in: query
         name: architectures
         description: The list of Architectures
@@ -3801,7 +3804,8 @@ paths:
         items:
           type: string
         required: false
-        example: amd64
+        example:
+        - amd64
       responses:
         '202':
           description: Delete a Debian Distribution
@@ -15009,7 +15013,6 @@ paths:
         description: Ignore case when searching (case-insensitive search)
         type: boolean
         required: false
-        example: 'False'
       responses:
         '200':
           description: Search for packages
@@ -16092,7 +16095,6 @@ paths:
         description: Ignore case when searching (case-insensitive search)
         type: boolean
         required: false
-        example: 'False'
       responses:
         '200':
           description: Search for packages
@@ -30656,7 +30658,8 @@ paths:
         items:
           type: string
         required: false
-        example: main
+        example:
+        - main
       - in: query
         name: architectures
         description: The list of Architectures
@@ -30664,7 +30667,8 @@ paths:
         items:
           type: string
         required: false
-        example: amd64
+        example:
+        - amd64
       responses:
         '200':
           description: Get a list of Debian Distributions
@@ -30813,7 +30817,8 @@ paths:
         items:
           type: string
         required: false
-        example: main
+        example:
+        - main
       - in: query
         name: architectures
         description: The list of Architectures
@@ -30821,7 +30826,8 @@ paths:
         items:
           type: string
         required: false
-        example: amd64
+        example:
+        - amd64
       responses:
         '202':
           description: Delete a Debian Distribution
@@ -41974,7 +41980,6 @@ paths:
         description: Ignore case when searching (case-insensitive search)
         type: boolean
         required: false
-        example: 'False'
       responses:
         '200':
           description: Search for packages
@@ -51665,13 +51670,15 @@ definitions:
       components:
         type: array
         description: The list of Components
-        example: main
+        example:
+        - main
         items:
           type: string
       architectures:
         type: array
         description: The list of Architectures
-        example: amd64
+        example:
+        - amd64
         items:
           type: string
     required:
@@ -51762,13 +51769,15 @@ definitions:
       components:
         type: array
         description: The list of Components
-        example: main
+        example:
+        - main
         items:
           type: string
       architectures:
         type: array
         description: The list of Architectures
-        example: amd64
+        example:
+        - amd64
         items:
           type: string
     description: Update a Debian Distribution
@@ -66495,13 +66504,15 @@ definitions:
       components:
         type: array
         description: The list of Components
-        example: main
+        example:
+        - main
         items:
           type: string
       architectures:
         type: array
         description: The list of Architectures
-        example: amd64
+        example:
+        - amd64
         items:
           type: string
     required:
@@ -66539,13 +66550,15 @@ definitions:
       components:
         type: array
         description: The list of Components
-        example: main
+        example:
+        - main
         items:
           type: string
       architectures:
         type: array
         description: The list of Architectures
-        example: amd64
+        example:
+        - amd64
         items:
           type: string
     description: Update a Debian Distribution

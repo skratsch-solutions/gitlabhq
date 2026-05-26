@@ -112,7 +112,7 @@ module API
                 requires :q, type: String, desc: 'Search query', documentation: { example: 'Hello*' }
                 optional :ignorecase, type: ::Grape::API::Boolean,
                   desc: 'Ignore case when searching (case-insensitive search)',
-                  documentation: { example: 'False' }
+                  documentation: { example: false }
               end
 
               route_setting :authentication, job_token_allowed: true, basic_auth_personal_access_token: true

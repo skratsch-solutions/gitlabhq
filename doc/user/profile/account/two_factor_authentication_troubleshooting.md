@@ -26,7 +26,7 @@ If a token was provided, it was either incorrect, expired, or improperly scoped.
 This error occurs when:
 
 - You have enabled 2FA and attempted to authenticate with a username and password.
-- You are on GitLab.com and your account requires 2FA (see [email OTP troubleshooting](#email-otp-troubleshooting)).
+- You have not enabled 2FA, but it is mandatory for the GitLab instance. This applies to GitLab.com. For more information, see [Mandatory MFA Changes](https://support.gitlab.com/hc/en-us/articles/26704344871452-Upcoming-Mandatory-MFA-Changes) and [email OTP troubleshooting](#email-otp-troubleshooting).
 - You have not enabled 2FA and attempted to authenticate with an incorrect username or password.
 - You have not enabled 2FA and the [enforce 2FA for all users](../../../security/two_factor_authentication.md#enforce-2fa-for-all-users) setting is active.
 - You have not enabled 2FA and the [**Allow password authentication for Git over HTTP(S)**](../../../administration/settings/sign_in_restrictions.md#allow-password-authentication-for-git-over-https)

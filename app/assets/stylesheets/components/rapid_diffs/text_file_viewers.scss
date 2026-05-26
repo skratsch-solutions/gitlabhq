@@ -433,6 +433,7 @@ diff-file:where([data-with-discussion-toggle], [data-line-range-dragging]) .rd-l
   --rd-line-coverage-inline-padding: 7px;
   position: relative;
   display: none;
+  float: left;
   padding: 0 var(--rd-line-coverage-inline-padding);
   width: var(--rd-line-coverage-size);
   margin-right: calc((var(--rd-line-coverage-size) + var(--rd-line-coverage-inline-padding) * 2) * -1);

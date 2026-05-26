@@ -7,7 +7,7 @@ title: デベロッパーフロー
 
 {{< details >}}
 
-- プラン: [Free](../../../../subscriptions/gitlab_credits.md#for-the-free-tier-on-gitlabcom)、Premium、Ultimate
+- プラン: [Free](../../../../subscriptions/gitlab_credits.md#for-the-free-tier)、Premium、Ultimate
 - 提供形態: GitLab.com、GitLab Self-Managed、GitLab Dedicated
 
 {{< /details >}}
@@ -33,12 +33,11 @@ title: デベロッパーフロー
 
 ## 前提条件 {#prerequisites}
 
-デベロッパーフローを使用するには、次の条件を満たす必要があります:
-
-- プロジェクトでデベロッパー、メンテナー、またはオーナーのロールを持っている。
-- [他の前提条件](../../_index.md#prerequisites)を満たしている。
-- [GitLab Duoサービスアカウントがコミットとブランチを作成できることを確認している](../../troubleshooting.md#session-is-stuck-in-created-state)。
-- **基本フローを許可**と**デベロッパー**が[有効になっている](_index.md#turn-foundational-flows-on-or-off)ことをトップレベルグループで確認します。
+- [GitLab Duo Agent Platformの前提条件](../../_index.md#prerequisites)を満たしていること。
+- [トップレベルグループ](_index.md#turn-foundational-flows-on-or-off)で、**基本フローを許可**と**デベロッパー**を有効にします。
+- プロジェクトのデベロッパー、メンテナー、またはオーナーロールが必要です。
+- [サービスアカウントを許可するようにプッシュルールを設定します](../../troubleshooting.md#configure-push-rules-to-allow-a-service-account)。
+- プロジェクトで[独自のRunnerを設定する](../execution.md#configure-runners)か、[GitLabホスト型Runnerを有効にします](../../../../ci/runners/hosted_runners/_index.md)。
 
 ## プロジェクトをセットアップする {#set-up-your-project}
 
@@ -73,21 +72,21 @@ promising approach.
 
 デベロッパーフローは、そのセッションへのリンクで応答します。
 
-あるいは、進捗状況を監視するには、左サイドバーで**自動化** > **セッション**を選択します。
+あるいは、進捗を監視するには、左サイドバーで**AI** > **セッション**を選択します。
 
 ### イシューからマージリクエストを生成する {#generate-a-merge-request-from-an-issue}
 
 イシューからマージリクエストを作成するには:
 
 1. 上部のバーで、**検索または移動先**を選択して、プロジェクトを見つけます。
-1. **Plan** > **作業アイテム**を選択し、次に**タイプ** = **Issue**でフィルタリングします。
+1. 左サイドバーで**Plan** > **作業アイテム**を選択し、次に**タイプ** = **Issue**でフィルタリングします。
 1. マージリクエストを作成するイシューを選択します。
 1. イシューからマージリクエストを作成するには、次のいずれかの方法を使用します:
    - Duo Developerサービスアカウントをイシューに割り当てます:
      1. 右サイドバーの**担当者**セクションで、**編集**を選択します。
      1. `duo developer`と入力し、検索結果から選択します。
    - イシューヘッダーの下にある**GitLab Duoでマージリクエストを生成**を選択します。
-1. オプション。フローの進捗状況を監視するには、左サイドバーで**自動化** > **セッション**を選択します。
+1. オプション。フローの進捗を監視するには、左サイドバーで**AI** > **セッション**を選択します。
 1. セッションが完了したら、イシューの**アクティビティ**セクションにあるリンクからマージリクエストをレビューします。
 
 ## ベストプラクティス {#best-practices}

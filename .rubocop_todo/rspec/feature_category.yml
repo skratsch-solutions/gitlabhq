@@ -1513,7 +1513,6 @@ RSpec/FeatureCategory:
     - 'spec/lib/gitlab/ci/build/policy/variables_spec.rb'
     - 'spec/lib/gitlab/ci/build/policy_spec.rb'
     - 'spec/lib/gitlab/ci/build/port_spec.rb'
-    - 'spec/lib/gitlab/ci/build/prerequisite/factory_spec.rb'
     - 'spec/lib/gitlab/ci/build/rules/rule_spec.rb'
     - 'spec/lib/gitlab/ci/build/status/reason_spec.rb'
     - 'spec/lib/gitlab/ci/config/entry/allow_failure_spec.rb'

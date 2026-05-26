@@ -161,6 +161,94 @@ RSpec.describe GenerateRspecPipeline, :silence_stdout, feature_category: :toolin
         end
       end
 
+      context 'with a custom max_nodes override below MAX_NODES_COUNT' do
+        subject do
+          described_class.new(
+            rspec_files_path: rspec_files.path,
+            pipeline_template_path: pipeline_template.path,
+            max_nodes: 20
+          )
+        end
+
+        let(:rspec_files_content) do
+          Array.new(51) { |i| "spec/migrations/#{i}_spec.rb" }.join(' ')
+        end
+
+        before do
+          stub_const(
+            "#{described_class}::DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS",
+            described_class::OPTIMAL_TEST_JOB_DURATION_IN_SECONDS
+          )
+        end
+
+        it 'caps parallelization at the override' do
+          subject.generate!
+
+          expect(File.read("#{pipeline_template.path}.yml"))
+            .to eq("rspec migration:\n  parallel: 20")
+        end
+      end
+
+      context 'with a custom max_nodes override above MAX_NODES_COUNT' do
+        subject do
+          described_class.new(
+            rspec_files_path: rspec_files.path,
+            pipeline_template_path: pipeline_template.path,
+            max_nodes: 88
+          )
+        end
+
+        let(:rspec_files_content) do
+          Array.new(88) { |i| "spec/migrations/#{i}_spec.rb" }.join(' ')
+        end
+
+        before do
+          stub_const(
+            "#{described_class}::DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS",
+            described_class::OPTIMAL_TEST_JOB_DURATION_IN_SECONDS
+          )
+        end
+
+        it 'parallelizes up to the override and bypasses enforce_needs_limit!' do
+          subject.generate!
+
+          expect(File.read("#{pipeline_template.path}.yml"))
+            .to eq("rspec migration:\n  parallel: 88")
+        end
+      end
+
+      context 'with a non-positive max_nodes value' do
+        let(:rspec_files_content) do
+          Array.new(60) { |i| "spec/migrations/#{i}_spec.rb" }.join(' ')
+        end
+
+        before do
+          stub_const(
+            "#{described_class}::DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS",
+            described_class::OPTIMAL_TEST_JOB_DURATION_IN_SECONDS
+          )
+        end
+
+        [0, -1].each do |bad_value|
+          context "with max_nodes: #{bad_value}" do
+            subject do
+              described_class.new(
+                rspec_files_path: rspec_files.path,
+                pipeline_template_path: pipeline_template.path,
+                max_nodes: bad_value
+              )
+            end
+
+            it 'falls back to MAX_NODES_COUNT instead of rendering an invalid parallel value' do
+              subject.generate!
+
+              expect(File.read("#{pipeline_template.path}.yml"))
+                .to eq("rspec migration:\n  parallel: #{described_class::MAX_NODES_COUNT}")
+            end
+          end
+        end
+      end
+
       context 'when active test levels exceed GITLAB_MAX_NEEDS_COUNT' do
         before do
           stub_const("#{described_class}::GITLAB_MAX_NEEDS_COUNT", 1)

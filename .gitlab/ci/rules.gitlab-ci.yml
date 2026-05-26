@@ -176,6 +176,9 @@
 .if-fork-merge-request: &if-fork-merge-request
   if: '($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train") && $CI_PROJECT_NAMESPACE !~ /^gitlab(-org)?($|\/)/ && $CI_MERGE_REQUEST_LABELS !~ /pipeline:run-all-rspec/'
 
+.if-per-test-coverage-delta: &if-per-test-coverage-delta
+  if: '$GLCI_PER_TEST_COVERAGE_DELTA == "true"'
+
 .if-merge-request-no-tier: &if-merge-request-no-tier
   if: '($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train") && $CI_MERGE_REQUEST_LABELS !~ /pipeline::tier-/'
 
@@ -3831,3 +3834,10 @@
 .test-metadata:rules:export-diff-stats:
   rules:
     - *if-merge-request
+
+###############################
+# Per-test coverage rules     #
+###############################
+.per-test-coverage:rules:delta:
+  rules:
+    - <<: *if-per-test-coverage-delta

@@ -34119,7 +34119,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: main
+        example:
+        - main
         style: form
         explode: false
       - name: architectures
@@ -34131,7 +34132,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: amd64
+        example:
+        - amd64
         style: form
         explode: false
   "/api/v4/projects/{id}/debian_distributions/{codename}":
@@ -34311,7 +34313,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: main
+        example:
+        - main
         style: form
         explode: false
       - name: architectures
@@ -34323,7 +34326,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: amd64
+        example:
+        - amd64
         style: form
         explode: false
   "/api/v4/projects/{id}/debian_distributions/{codename}/key.asc":
@@ -51773,7 +51777,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: main
+        example:
+        - main
         style: form
         explode: false
       - name: architectures
@@ -51785,7 +51790,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: amd64
+        example:
+        - amd64
         style: form
         explode: false
   "/api/v4/groups/{id}/-/debian_distributions/{codename}":
@@ -51965,7 +51971,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: main
+        example:
+        - main
         style: form
         explode: false
       - name: architectures
@@ -51977,7 +51984,8 @@ paths:
             type: string
           nullable: true
         in: query
-        example: amd64
+        example:
+        - amd64
         style: form
         explode: false
   "/api/v4/groups/{id}/-/debian_distributions/{codename}/key.asc":
@@ -56281,7 +56289,7 @@ paths:
           type: boolean
           nullable: true
         in: query
-        example: 'False'
+        example: false
   "/api/v4/projects/{id}/packages/conan/v2/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV2ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
@@ -57545,7 +57553,7 @@ paths:
           type: boolean
           nullable: true
         in: query
-        example: 'False'
+        example: false
   "/api/v4/projects/{id}/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4ProjectsIdPackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch
@@ -58724,7 +58732,7 @@ paths:
           type: boolean
           nullable: true
         in: query
-        example: 'False'
+        example: false
   "/api/v4/packages/conan/v1/conans/{package_name}/{package_version}/{package_username}/{package_channel}/search":
     get:
       operationId: getApiV4PackagesConanV1ConansPackageNamePackageVersionPackageUsernamePackageChannelSearch

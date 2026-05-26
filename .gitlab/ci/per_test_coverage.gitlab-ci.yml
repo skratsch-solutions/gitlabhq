@@ -1,0 +1,108 @@
+# Per-test coverage capture: parent-pipeline jobs that drive the instrumented
+# child pipeline. Only active when GLCI_PER_TEST_COVERAGE_DELTA=true is set
+# on the maintenance schedule (id 23503) via the .if-per-test-coverage-delta
+# rule anchor in rules.gitlab-ci.yml.
+#
+# Design: https://gitlab.com/gitlab-org/quality/analytics/team/-/work_items/661+
+
+variables:
+  GLCI_PER_TEST_COVERAGE_QUEUE_FOSS_PATH: "tmp/per-test-coverage-queue-foss.txt"
+  GLCI_PER_TEST_COVERAGE_QUEUE_EE_PATH: "tmp/per-test-coverage-queue-ee.txt"
+  GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE: ".gitlab/ci/per_test_coverage/child_pipeline_template.erb"
+  GLCI_PER_TEST_COVERAGE_PARALLEL_NODES: "88"
+
+per-test-coverage:pipeline-generate:
+  extends:
+    - .rails-job-base
+    - .per-test-coverage:rules:delta
+  stage: prepare
+  needs:
+    - job: "retrieve-tests-metadata"
+    - job: "detect-tests"
+      optional: true
+  variables:
+    SKIP_PIPELINE_YML_FILE: ".gitlab/ci/overrides/skip.yml"
+    # This job renders child pipeline YAML; it does not touch the database.
+    SETUP_DB: "false"
+  script:
+    # Step 1: select the test queue for this slot (weekday delta + stale-rescue,
+    # or weekend bucket). Exits 2 if the merged queue is empty.
+    - |
+      set +e
+      ruby scripts/per_test_coverage/select_tests.rb --output-dir tmp
+      select_exit=$?
+      set -e
+      if [ "$select_exit" -eq 2 ]; then
+        echo "Queue empty for this slot. Emitting skip.yml for the child pipeline."
+        cp "${SKIP_PIPELINE_YML_FILE}" tmp/per-test-coverage-child-pipeline-foss.yml
+        cp "${SKIP_PIPELINE_YML_FILE}" tmp/per-test-coverage-child-pipeline-ee.yml
+        exit 0
+      elif [ "$select_exit" -ne 0 ]; then
+        echo "select_tests.rb failed with exit code ${select_exit}"
+        exit "$select_exit"
+      fi
+    # Step 2: render FOSS half of the child pipeline.
+    - |
+      scripts/generate_rspec_pipeline.rb \
+        -t "${GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE}" \
+        -k "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" \
+        -f "${GLCI_PER_TEST_COVERAGE_QUEUE_FOSS_PATH}" \
+        -j "${DEFAULT_RSPEC_PREDICTIVE_JOB_TAGS}" \
+        -n "${GLCI_PER_TEST_COVERAGE_PARALLEL_NODES}" \
+        -o tmp/per-test-coverage-child-pipeline-foss.yml
+    # Step 3: render EE half of the child pipeline.
+    - |
+      scripts/generate_rspec_pipeline.rb \
+        -t "${GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE}" \
+        -k "${KNAPSACK_RSPEC_SUITE_REPORT_PATH}" \
+        -f "${GLCI_PER_TEST_COVERAGE_QUEUE_EE_PATH}" \
+        -j "${DEFAULT_RSPEC_PREDICTIVE_JOB_TAGS}" \
+        -n "${GLCI_PER_TEST_COVERAGE_PARALLEL_NODES}" \
+        -o tmp/per-test-coverage-child-pipeline-ee.yml \
+        -p "ee/"
+    - echo "Content of tmp/per-test-coverage-child-pipeline-foss.yml:"
+    - cat tmp/per-test-coverage-child-pipeline-foss.yml
+    - echo "================================================"
+    - echo "Content of tmp/per-test-coverage-child-pipeline-ee.yml:"
+    - cat tmp/per-test-coverage-child-pipeline-ee.yml
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - tmp/per-test-coverage-child-pipeline-foss.yml
+      - tmp/per-test-coverage-child-pipeline-ee.yml
+      - tmp/per-test-coverage-queue-foss.txt
+      - tmp/per-test-coverage-queue-ee.txt
+
+per-test-coverage:trigger:
+  extends:
+    - .per-test-coverage:rules:delta
+  stage: test
+  needs:
+    - job: "setup-test-env"
+      artifacts: false
+    - job: "retrieve-tests-metadata"
+      artifacts: false
+    - job: "compile-test-assets"
+      artifacts: false
+    - job: "per-test-coverage:pipeline-generate"
+      artifacts: true
+  # Per-test coverage capture is data collection, not a release gate. A failing
+  # child pipeline (shard OOM, instrumented test flake, etc.) must not turn the
+  # parent maintenance pipeline red. The child still shows inline in the parent
+  # pipeline graph for visibility because of `strategy: depend`.
+  allow_failure: true
+  variables:
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+    GIT_STRATEGY: $GIT_STRATEGY
+    PIPELINE_NAME: "per-test-coverage"
+    GLCI_PER_TEST_COVERAGE: "true"
+  trigger:
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+    include:
+      - artifact: tmp/per-test-coverage-child-pipeline-foss.yml
+        job: "per-test-coverage:pipeline-generate"
+      - artifact: tmp/per-test-coverage-child-pipeline-ee.yml
+        job: "per-test-coverage:pipeline-generate"

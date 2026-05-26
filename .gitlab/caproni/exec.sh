@@ -38,7 +38,7 @@ COMMAND="cd $MONOLITH_DIR && mise exec -- $QUOTED_ARGS"
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   if command -v brew >/dev/null 2>&1; then
-    libpq_prefix="$(brew --prefix --installed libpq@16 2>/dev/null || brew --prefix --installed libpq 2>/dev/null || true)"
+    libpq_prefix="$(brew --prefix --installed libpq@17 2>/dev/null || brew --prefix --installed libpq 2>/dev/null || true)"
     if [[ -n "$libpq_prefix" && -d "$libpq_prefix/bin" ]]; then
       export PATH="$libpq_prefix/bin:$PATH"
     fi

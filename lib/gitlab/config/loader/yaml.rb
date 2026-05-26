@@ -25,11 +25,7 @@ module Gitlab
           # binary/octet-stream, Windows-1252, ISO-8859-1) cannot contain a
           # UTF-8 BOM, and running the UTF-8 BOM regex against them would
           # either raise Encoding::CompatibilityError or risk mojibake.
-          config_to_parse = if Feature.enabled?(:ci_yaml_loader_strip_bom, Feature.current_request) && utf8?(config)
-                              Gitlab::EncodingHelper.strip_bom(config)
-                            else
-                              config
-                            end
+          config_to_parse = utf8?(config) ? Gitlab::EncodingHelper.strip_bom(config) : config
 
           @config = YAML.safe_load(config_to_parse,
             permitted_classes: [Symbol, *additional_permitted_classes],

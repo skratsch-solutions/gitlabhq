@@ -339,22 +339,12 @@ RSpec.describe Gitlab::Config::Loader::Yaml, feature_category: :pipeline_composi
   context 'when yaml content has a UTF-8 BOM' do
     let(:yml) { "\xEF\xBB\xBFimage: 'image:1.0'" }
 
-    context 'with ci_yaml_loader_strip_bom enabled' do
-      before do
-        stub_feature_flags(ci_yaml_loader_strip_bom: true)
-      end
-
-      it 'strips the BOM and returns a valid hash' do
-        expect(loader.load!).to eq(image: 'image:1.0')
-      end
+    it 'strips the BOM and returns a valid hash' do
+      expect(loader.load!).to eq(image: 'image:1.0')
     end
   end
 
   context 'when yaml content has non-UTF-8 encoding' do
-    before do
-      stub_feature_flags(ci_yaml_loader_strip_bom: true)
-    end
-
     # We skip strip_bom for non-UTF-8 input because the UTF-8 BOM regex would
     # raise Encoding::CompatibilityError or risk mojibake. The customer
     # scenario (binary/octet-stream remote include returning ASCII-8BIT) and
