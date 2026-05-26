@@ -27,6 +27,7 @@ const makeRestItem = (overrides = {}) => ({
   closed_at: null,
   reference: 'gitlab-org/gitlab-shell#42',
   web_path: '/gitlab-org/gitlab-shell/-/work_items/42',
+  user_discussions_count: 0,
   author: {
     id: 1,
     name: 'Administrator',
@@ -100,6 +101,7 @@ describe('workItemsRestResolver', () => {
       expect(node.updatedAt).toBe(item.updated_at);
       expect(node.closedAt).toBeNull();
       expect(node.webPath).toBe(item.web_path);
+      expect(node.userDiscussionsCount).toBe(0);
     });
 
     it('maps confidential field with default value of false', async () => {
@@ -136,6 +138,24 @@ describe('workItemsRestResolver', () => {
       const { nodes } = await workItemsRestResolver(makeNamespace(), {});
 
       expect(nodes[0].hidden).toBe(true);
+    });
+
+    it('maps userDiscussionsCount field with default value of 0', async () => {
+      const item = makeRestItem();
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+      expect(nodes[0].userDiscussionsCount).toBe(0);
+    });
+
+    it('maps userDiscussionsCount field when provided', async () => {
+      const item = makeRestItem({ user_discussions_count: 5 });
+      mockAxios.onGet(ENDPOINT).reply(HTTP_STATUS_OK, [item], {});
+
+      const { nodes } = await workItemsRestResolver(makeNamespace(), {});
+
+      expect(nodes[0].userDiscussionsCount).toBe(5);
     });
 
     it('maps author to UserCore shape', async () => {

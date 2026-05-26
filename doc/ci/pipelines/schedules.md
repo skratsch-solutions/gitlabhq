@@ -60,7 +60,7 @@ To create a pipeline schedule:
      and not in any other pipeline run. Inputs are recommended for pipeline configuration instead of variables
      because they offer improved security and flexibility.
 
-If the project has reached the [maximum number of pipeline schedules](../../administration/instance_limits.md#number-of-pipeline-schedules),
+If the project has reached the [maximum number of pipeline schedules](../../administration/cicd/limits.md#number-of-pipeline-schedules),
 delete unused schedules before adding another.
 
 ## Edit a pipeline schedule

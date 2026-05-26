@@ -95,6 +95,7 @@ module API
 
         desc 'Denies an access request for the given user.' do
           detail 'This feature was introduced in GitLab 8.11.'
+          success code: 204, message: 'Resource deleted'
           tags %w[access_requests]
         end
         params do

@@ -115,6 +115,7 @@ module API
 
           desc 'Delete a secure file' do
             detail 'Deletes a specified secure file from a project.'
+            success code: 204, message: 'Resource deleted'
             tags %w[secure_files]
             failure [{ code: 404, message: '404 Not found' }]
           end

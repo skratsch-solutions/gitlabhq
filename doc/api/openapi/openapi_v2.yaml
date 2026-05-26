@@ -413,7 +413,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Denies an access request for the given user.
+          description: Resource deleted
       tags:
       - access_requests
       operationId: deleteApiV4GroupsIdAccessRequestsUserId
@@ -918,7 +918,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes a badge from the group.
+          description: Resource deleted
       tags:
       - badges
       operationId: deleteApiV4GroupsIdBadgesBadgeId
@@ -1241,8 +1241,8 @@ paths:
         type: string
         required: true
       responses:
-        '204':
-          description: Remove a group.
+        '202':
+          description: Accepted
       tags:
       - groups
       operationId: deleteApiV4GroupsId
@@ -2221,7 +2221,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Unshare a group with a group
+          description: Resource deleted
       tags:
       - groups
       operationId: deleteApiV4GroupsIdShareGroupId
@@ -2616,13 +2616,15 @@ paths:
         items:
           type: string
         required: false
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
       - in: query
         name: version_prefix
         description: The version prefix of runners to return
         type: string
         required: false
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - in: query
         name: page
         description: Current page number
@@ -3277,7 +3279,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a group deploy token
+          description: Resource deleted
         '401':
           description: Unauthorized
         '404':
@@ -7645,7 +7647,7 @@ paths:
         required: false
       responses:
         '204':
-          description: Removes a user from a group or project.
+          description: Resource deleted
       tags:
       - members
       operationId: deleteApiV4GroupsIdMembersUserId
@@ -7994,7 +7996,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes a billable member from a group or project.
+          description: Resource deleted
       tags:
       - members
       operationId: deleteApiV4GroupsIdBillableMembersUserId
@@ -9432,7 +9434,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Denies an access request for the given user.
+          description: Resource deleted
       tags:
       - access_requests
       operationId: deleteApiV4ProjectsIdAccessRequestsUserId
@@ -10774,7 +10776,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Removes a badge from the project.
+          description: Resource deleted
       tags:
       - badges
       operationId: deleteApiV4ProjectsIdBadgesBadgeId
@@ -11965,13 +11967,15 @@ paths:
         items:
           type: string
         required: false
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
       - in: query
         name: version_prefix
         description: The version prefix of runners to return
         type: string
         required: false
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - in: query
         name: page
         description: Current page number
@@ -12220,7 +12224,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a secure file
+          description: Resource deleted
         '404':
           description: 404 Not found
       tags:
@@ -12266,7 +12270,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: query
         name: page
         description: Current page number
@@ -12454,7 +12458,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - name: postApiV4ProjectsIdPipeline
         in: body
         required: true
@@ -12488,7 +12492,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: query
         name: ref
         description: Branch ref of pipeline. Uses project default branch if not specified.
@@ -12521,7 +12525,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12554,7 +12558,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12581,7 +12585,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12660,7 +12664,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12734,7 +12738,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12770,7 +12774,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12804,7 +12808,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12840,7 +12844,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12883,7 +12887,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -12919,7 +12923,7 @@ paths:
         description: The project ID or URL-encoded path
         type: string
         required: true
-        example: 11
+        example: '11'
       - in: path
         name: pipeline_id
         description: The pipeline ID
@@ -14038,7 +14042,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Revoke an agent token
+          description: Resource deleted
       tags:
       - cluster_agents
       operationId: deleteApiV4ProjectsIdClusterAgentsAgentIdTokensTokenId
@@ -14153,7 +14157,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a registered agent
+          description: Resource deleted
       tags:
       - cluster_agents
       operationId: deleteApiV4ProjectsIdClusterAgentsAgentId
@@ -17839,7 +17843,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a deploy key
+          description: Resource deleted
         '401':
           description: Unauthorized
         '404':
@@ -18015,7 +18019,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a project deploy token
+          description: Resource deleted
         '401':
           description: Unauthorized
         '404':
@@ -19762,7 +19766,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete feature flag user list
+          description: Resource deleted
         '401':
           description: Unauthorized
         '404':
@@ -26771,7 +26775,7 @@ paths:
         required: false
       responses:
         '204':
-          description: Removes a user from a group or project.
+          description: Resource deleted
       tags:
       - members
       operationId: deleteApiV4ProjectsIdMembersUserId
@@ -29786,7 +29790,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a pages domain
+          description: Resource deleted
       tags:
       - gitlab_pages
       operationId: deleteApiV4ProjectsIdPagesDomainsDomain
@@ -40993,7 +40997,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a registered runner
+          description: Resource deleted
         '403':
           description: Forbidden
       tags:
@@ -41057,13 +41061,15 @@ paths:
         items:
           type: string
         required: false
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
       - in: query
         name: version_prefix
         description: The version prefix of runners to return
         type: string
         required: false
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - in: query
         name: page
         description: Current page number
@@ -41253,13 +41259,15 @@ paths:
         items:
           type: string
         required: false
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
       - in: query
         name: version_prefix
         description: The version prefix of runners to return
         type: string
         required: false
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - in: query
         name: page
         description: Current page number
@@ -44260,7 +44268,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a feature
+          description: Resource deleted
       tags:
       - features
       operationId: deleteApiV4FeaturesName
@@ -48181,7 +48189,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete a topic
+          description: Resource deleted
       tags:
       - project_topics
       operationId: deleteApiV4TopicsId
@@ -72479,7 +72487,9 @@ definitions:
       tag_list:
         type: array
         description: The list of tags for a runner
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
         items:
           type: string
       run_untagged:

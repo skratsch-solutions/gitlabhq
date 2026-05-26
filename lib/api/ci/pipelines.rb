@@ -18,7 +18,7 @@ module API
       allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
 
       params do
-        requires :id, type: String, desc: 'The project ID or URL-encoded path', documentation: { example: 11 }
+        requires :id, type: String, desc: 'The project ID or URL-encoded path', documentation: { example: '11' }
       end
       resource :projects, requirements: ::API::API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         desc 'Get all Pipelines of the project' do

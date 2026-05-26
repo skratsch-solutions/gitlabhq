@@ -124,7 +124,7 @@ RSpec.describe Lint::UnusedMethods, feature_category: :tooling do
 
       it 'loads source files' do
         expect(linter).to receive(:load_source_files).and_call_original
-        silence_output { linter.run }
+        linter.run
       end
     end
   end
@@ -159,18 +159,5 @@ RSpec.describe Lint::UnusedMethods, feature_category: :tooling do
       expect(File.fnmatch('app/**/*.builder', 'spec/fixtures/test.builder')).to be false
       expect(File.fnmatch('ee/app/**/*.builder', 'spec/fixtures/test.builder')).to be false
     end
-  end
-
-  private
-
-  def silence_output
-    original_stdout = $stdout
-    original_stderr = $stderr
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-    yield
-  ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
   end
 end

@@ -716,6 +716,9 @@ msgstr ""
 msgid "%{cores} cores"
 msgstr ""
 
+msgid "%{count} %{label}"
+msgstr ""
+
 msgid "%{count} %{scope} for term '%{term}'"
 msgstr ""
 
@@ -2968,7 +2971,7 @@ msgstr ""
 msgid "AICatalog|Immediate security threat"
 msgstr ""
 
-msgid "AICatalog|In the AI Catalog, only show agents and flows created or owned by projects in this group hierarchy, or foundational agents and flows. Agents and flows from outside this group hierarchy are hidden, and cannot be enabled or used."
+msgid "AICatalog|In the AI Catalog, show only agents and flows that belong to projects in this group hierarchy or foundational agents and flows. Agents and flows from outside this group hierarchy are hidden and cannot be turned on or used."
 msgstr ""
 
 msgid "AICatalog|Input cannot exceed %{value} characters."
@@ -3331,6 +3334,9 @@ msgstr ""
 msgid "AICatalog|Triage Issue, Generate Release Notes, Update Docs"
 msgstr ""
 
+msgid "AICatalog|Trigger this %{itemType} when a merge request cannot be merged anymore due to a code conflict."
+msgstr ""
+
 msgid "AICatalog|Trigger this %{itemType} when a merge request is marked as ready for review (draft status removed)."
 msgstr ""
 
@@ -3413,6 +3419,9 @@ msgid "AICatalog|Wasting compute or causing performance issues."
 msgstr ""
 
 msgid "AICatalog|What are tools?"
+msgstr ""
+
+msgid "AICatalog|What is the AI Catalog"
 msgstr ""
 
 msgid "AICatalog|When this agent runs, it will have access to the projects the user who runs it has access to."
@@ -7882,9 +7891,6 @@ msgstr ""
 msgid "AiPowered|Allow external agents"
 msgstr ""
 
-msgid "AiPowered|Allow external agents in projects. Users with the Maintainer or Owner role can connect external agents."
-msgstr ""
-
 msgid "AiPowered|Allow projects to extend network sandbox settings"
 msgstr ""
 
@@ -8002,7 +8008,7 @@ msgstr ""
 msgid "AiPowered|Create group"
 msgstr ""
 
-msgid "AiPowered|Custom agents and flows"
+msgid "AiPowered|Custom and external agents and flows"
 msgstr ""
 
 msgid "AiPowered|Data and privacy"
@@ -8378,6 +8384,9 @@ msgid "AiPowered|Users with the Maintainer or Owner role for a project can creat
 msgstr ""
 
 msgid "AiPowered|Users with the Maintainer or Owner role for a project can include recommended domains, add more domains, and allow all Unix sockets."
+msgstr ""
+
+msgid "AiPowered|Users with the Maintainer or Owner role for a project can use external agents."
 msgstr ""
 
 msgid "AiPowered|View configuration"
@@ -19080,6 +19089,9 @@ msgstr ""
 msgid "ComplianceFramework|Instance level compliance framework"
 msgstr ""
 
+msgid "ComplianceFramework|Need an example JSON schema? Look through our %{linkStart}examples here.%{linkEnd}"
+msgstr ""
+
 msgid "ComplianceFramework|New compliance framework"
 msgstr ""
 
@@ -21453,6 +21465,18 @@ msgid "Continuous Vulnerability Scanning for Container Scanning"
 msgstr ""
 
 msgid "Continuous Vulnerability Scanning for Dependency Scanning"
+msgstr ""
+
+msgid "ContinuousDeployment|Applications"
+msgstr ""
+
+msgid "ContinuousDeployment|Continuous Deployment"
+msgstr ""
+
+msgid "ContinuousDeployment|Deploy"
+msgstr ""
+
+msgid "ContinuousDeployment|Environments"
 msgstr ""
 
 msgid "Contribute to GitLab"
@@ -27034,6 +27058,11 @@ msgid_plural "DuoAgentPlatform|%{count} sessions"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "DuoAgentPlatform|%{count} session %{title}"
+msgid_plural "DuoAgentPlatform|%{count} sessions %{title}"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "DuoAgentPlatform|%{linkStart}What are flows%{linkEnd}?"
 msgstr ""
 
@@ -27070,7 +27099,16 @@ msgstr ""
 msgid "DuoAgentPlatform|Awaiting your input"
 msgstr ""
 
+msgid "DuoAgentPlatform|Cancelled"
+msgstr ""
+
+msgid "DuoAgentPlatform|Completed"
+msgstr ""
+
 msgid "DuoAgentPlatform|Couldn't load sessions."
+msgstr ""
+
+msgid "DuoAgentPlatform|Created"
 msgstr ""
 
 msgid "DuoAgentPlatform|Created session"
@@ -27091,6 +27129,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Error occurred when starting the flow."
 msgstr ""
 
+msgid "DuoAgentPlatform|Failed"
+msgstr ""
+
 msgid "DuoAgentPlatform|Failed to load agent sessions for this merge request."
 msgstr ""
 
@@ -27103,11 +27144,6 @@ msgstr ""
 msgid "DuoAgentPlatform|Foundational GitLab Duo Flows"
 msgstr ""
 
-msgid "DuoAgentPlatform|Hide %d inactive session"
-msgid_plural "DuoAgentPlatform|Hide %d inactive sessions"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "DuoAgentPlatform|Image registry"
 msgstr ""
 
@@ -27115,6 +27151,9 @@ msgid "DuoAgentPlatform|Job ID"
 msgstr ""
 
 msgid "DuoAgentPlatform|No GitLab Credits remain for this billing period. %{linkStart}Learn more.%{linkEnd}"
+msgstr ""
+
+msgid "DuoAgentPlatform|Paused"
 msgstr ""
 
 msgid "DuoAgentPlatform|Remote GitLab Duo Flows"
@@ -27135,7 +27174,7 @@ msgstr ""
 msgid "DuoAgentPlatform|Review the %{linkStart}most recent job%{linkEnd} for details on what went wrong."
 msgstr ""
 
-msgid "DuoAgentPlatform|Session"
+msgid "DuoAgentPlatform|Running"
 msgstr ""
 
 msgid "DuoAgentPlatform|Session ID"
@@ -27155,11 +27194,6 @@ msgstr ""
 
 msgid "DuoAgentPlatform|Sessions"
 msgstr ""
-
-msgid "DuoAgentPlatform|Show %d inactive session"
-msgid_plural "DuoAgentPlatform|Show %d inactive sessions"
-msgstr[0] ""
-msgstr[1] ""
 
 msgid "DuoAgentPlatform|Show tool details"
 msgstr ""
@@ -32552,6 +32586,9 @@ msgstr ""
 msgid "FoundationalAgents|When turned on, foundational agents are available for projects in this group. %{linkStart}What are foundational agents%{linkEnd}?"
 msgstr ""
 
+msgid "FoundationalFlow|Analyze and fix breaking changes caused by dependency bumps."
+msgstr ""
+
 msgid "FoundationalFlow|Analyze critical SAST vulnerabilities."
 msgstr ""
 
@@ -32580,6 +32617,9 @@ msgid "FoundationalFlow|Recommend Reviewers"
 msgstr ""
 
 msgid "FoundationalFlow|Recommend reviewers for merge requests based on availability, workload, and timezone."
+msgstr ""
+
+msgid "FoundationalFlow|Resolve Dependency Bump Breaking Changes"
 msgstr ""
 
 msgid "FoundationalFlow|Resolve SAST Vulnerability"
@@ -45070,6 +45110,9 @@ msgstr ""
 msgid "Merge request branch workflow"
 msgstr ""
 
+msgid "Merge request code conflict"
+msgstr ""
+
 msgid "Merge request commits"
 msgstr ""
 
@@ -50931,9 +50974,6 @@ msgstr ""
 msgid "Orbit|Additional metadata if required"
 msgstr ""
 
-msgid "Orbit|Advanced query"
-msgstr ""
-
 msgid "Orbit|Agents that know your codebase like your team does"
 msgstr ""
 
@@ -51084,9 +51124,6 @@ msgstr ""
 msgid "Orbit|Execute query"
 msgstr ""
 
-msgid "Orbit|Exit full screen"
-msgstr ""
-
 msgid "Orbit|Explore"
 msgstr ""
 
@@ -51154,9 +51191,6 @@ msgid "Orbit|Group"
 msgstr ""
 
 msgid "Orbit|Groups"
-msgstr ""
-
-msgid "Orbit|Hide SQL"
 msgstr ""
 
 msgid "Orbit|Hide schema"
@@ -51333,10 +51367,13 @@ msgstr ""
 msgid "Orbit|Properties"
 msgstr ""
 
-msgid "Orbit|Query Editor"
+msgid "Orbit|Query"
 msgstr ""
 
 msgid "Orbit|Query Orbit directly, or power up your agents with GitLab context. Using Orbit outside of GitLab uses GitLab Credits."
+msgstr ""
+
+msgid "Orbit|Query editor"
 msgstr ""
 
 msgid "Orbit|Recently merged merge requests and the people who merged them"
@@ -51360,9 +51397,6 @@ msgstr ""
 msgid "Orbit|Run this command in your terminal to configure %{host} automatically."
 msgstr ""
 
-msgid "Orbit|SDLC Map"
-msgstr ""
-
 msgid "Orbit|Save"
 msgstr ""
 
@@ -51381,6 +51415,9 @@ msgstr ""
 msgid "Orbit|SecurityScan"
 msgstr ""
 
+msgid "Orbit|Select entity"
+msgstr ""
+
 msgid "Orbit|Select scope"
 msgstr ""
 
@@ -51396,10 +51433,10 @@ msgstr ""
 msgid "Orbit|Setup guide"
 msgstr ""
 
-msgid "Orbit|Show SQL"
+msgid "Orbit|Show in map"
 msgstr ""
 
-msgid "Orbit|Show in map"
+msgid "Orbit|Show labels"
 msgstr ""
 
 msgid "Orbit|Show less"
@@ -51565,6 +51602,9 @@ msgid "Orbit|WorkItem"
 msgstr ""
 
 msgid "Orbit|You must have the Owner role in a top-level group to turn on Orbit. Ask an owner to turn on Orbit."
+msgstr ""
+
+msgid "Orbit|Zoom"
 msgstr ""
 
 msgid "Orbit|Zoom in"
@@ -72125,6 +72165,9 @@ msgstr ""
 msgid "Should you ever lose your phone or access to your one time password secret, each of these recovery codes can be used one time each to regain access to your account. Please save them in a safe place, or you %{boldStart}will%{boldEnd} lose access to your account."
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 msgid "Show %{count} closed %{itemText}"
 msgstr ""
 
@@ -74091,6 +74134,18 @@ msgid "SubscriptionManagement|Changes to subscriptions from GitLab partners requ
 msgstr ""
 
 msgid "SubscriptionManagement|This subscription is managed through a GitLab Partner. To make changes to the subscription, contact the partner."
+msgstr ""
+
+msgid "SubscriptionRegistration|Complete your purchase"
+msgstr ""
+
+msgid "SubscriptionRegistration|Continue to Customers Portal"
+msgstr ""
+
+msgid "SubscriptionRegistration|Customers Portal"
+msgstr ""
+
+msgid "SubscriptionRegistration|You'll use your GitLab.com account to access Customers Portal, where you can finish your purchase and manage your subscription."
 msgstr ""
 
 msgid "SubscriptionTableRow|*Access temporarily extended until %{temporaryExtensionEndDate}"

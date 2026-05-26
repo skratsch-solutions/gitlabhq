@@ -22,6 +22,7 @@ import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link
  */
 
 export default {
+  name: 'CommitItem',
   components: {
     UserAvatarLink,
     SimpleCopyButton,

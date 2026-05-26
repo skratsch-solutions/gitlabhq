@@ -185,6 +185,7 @@ module API
       end
 
       desc 'Delete a pages domain' do
+        success code: 204, message: 'Resource deleted'
         tags %w[gitlab_pages]
       end
       params do

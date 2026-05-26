@@ -62048,7 +62048,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: page
         required: false
         description: Current page number
@@ -62268,7 +62268,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       requestBody:
         required: true
         content:
@@ -62302,7 +62302,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: ref
         required: false
         description: Branch ref of pipeline. Uses project default branch if not specified.
@@ -62338,7 +62338,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62364,7 +62364,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62398,7 +62398,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62486,7 +62486,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62568,7 +62568,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62603,7 +62603,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62638,7 +62638,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62675,7 +62675,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62716,7 +62716,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -62751,7 +62751,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 11
+        example: '11'
       - name: pipeline_id
         required: true
         description: The pipeline ID
@@ -63006,7 +63006,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
         style: form
         explode: false
       - name: version_prefix
@@ -63017,7 +63019,7 @@ paths:
           pattern: "(?<=^|\\n(?!$))[\\d+.]+"
           nullable: true
         in: query
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - name: page
         required: false
         description: Current page number
@@ -63162,7 +63164,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
         style: form
         explode: false
       - name: version_prefix
@@ -63173,7 +63177,7 @@ paths:
           pattern: "(?<=^|\\n(?!$))[\\d+.]+"
           nullable: true
         in: query
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - name: page
         required: false
         description: Current page number
@@ -63581,7 +63585,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
         style: form
         explode: false
       - name: version_prefix
@@ -63592,7 +63598,7 @@ paths:
           pattern: "(?<=^|\\n(?!$))[\\d+.]+"
           nullable: true
         in: query
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - name: page
         required: false
         description: Current page number
@@ -63757,7 +63763,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: "['macos', 'shell']"
+        example:
+        - macos
+        - shell
         style: form
         explode: false
       - name: version_prefix
@@ -63768,7 +63776,7 @@ paths:
           pattern: "(?<=^|\\n(?!$))[\\d+.]+"
           nullable: true
         in: query
-        example: "'15.1.' or '16.'"
+        example: 15.1.
       - name: page
         required: false
         description: Current page number
@@ -65059,8 +65067,8 @@ paths:
       tags:
       - Groups
       responses:
-        '204':
-          description: No Content
+        '202':
+          description: Accepted
         '404':
           description: Not Found
         '400':

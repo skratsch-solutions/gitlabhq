@@ -105,7 +105,7 @@ module Gitlab
 
       def validate_data!(data)
         super
-        validate_event_specific_data!(data.fetch(:data))
+        validate_event_specific_data!(data.with_indifferent_access.fetch(:data))
       end
       override :validate_data!
 

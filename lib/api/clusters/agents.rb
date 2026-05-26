@@ -69,6 +69,7 @@ module API
 
         desc 'Delete a registered agent' do
           detail 'This feature was introduced in GitLab 14.10. Deletes an existing agent registration.'
+          success code: 204, message: 'Resource deleted'
           tags %w[cluster_agents]
         end
         params do

@@ -26,7 +26,7 @@ You can sometimes use parent-child pipelines and multi-project pipelines for sim
 but there are [key differences](pipeline_architectures.md).
 
 A pipeline hierarchy can contain up to 1000 downstream pipelines by default.
-For more information about this limit and how to change it, see [Limit pipeline hierarchy size](../../administration/instance_limits.md#limit-pipeline-hierarchy-size).
+For more information about this limit and how to change it, see [Limit pipeline hierarchy size](../../administration/cicd/limits.md#limit-pipeline-hierarchy-size).
 
 ## Parent-child pipelines
 
@@ -189,7 +189,7 @@ You can trigger a child pipeline from a YAML file generated in a job, instead of
 static file saved in your project. This technique can be very powerful for generating pipelines
 targeting content that changed or to build a matrix of targets and architectures.
 
-The artifact containing the generated YAML file must be within [instance limits](../../administration/instance_limits.md#maximum-size-of-the-ci-artifacts-archive).
+The artifact containing the generated YAML file must be within [instance limits](../../administration/cicd/limits.md#maximum-size-of-the-ci-artifacts-archive).
 
 <i class="fa-youtube-play" aria-hidden="true"></i>
 For an overview, see [Create child pipelines using dynamically generated configurations](https://youtu.be/nMdfus2JWHM).

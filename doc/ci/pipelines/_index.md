@@ -377,7 +377,7 @@ To trigger the pipeline when the upstream project is rebuilt:
 
 The maximum number of upstream pipeline subscriptions is 2 by default, for both the upstream and
 downstream projects. On GitLab Self-Managed, an administrator can change this
-[limit](../../administration/instance_limits.md#number-of-cicd-subscriptions-to-a-project).
+[limit](../../administration/cicd/limits.md#number-of-cicd-subscriptions-to-a-project).
 
 ## How pipeline duration is calculated
 

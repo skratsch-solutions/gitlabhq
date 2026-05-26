@@ -236,4 +236,4 @@ and the gem's implementation.
 
 For GitLab.com tier limits, see [GitLab.com CI/CD settings](../../user/gitlab_com/_index.md#cicd).
 
-To change these limits on GitLab Self-Managed, see [CI/CD limits](../../administration/instance_limits.md#cicd-limits).
+To change these limits on GitLab Self-Managed, see [CI/CD limits](../../administration/cicd/limits.md#limit-dotenv-file-size).

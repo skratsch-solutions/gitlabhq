@@ -49,7 +49,7 @@ export default {
       return this.commitRef?.tag || this.pipeline?.type === 'tag';
     },
     commitUrl() {
-      return this.pipeline?.commit?.commit_path || this.pipeline?.commit?.webUrl;
+      return this.pipeline?.commit?.commit_path || this.pipeline?.commit?.webPath;
     },
     commitShortSha() {
       return this.pipeline?.commit?.short_id || this.pipeline?.commit?.shortId;

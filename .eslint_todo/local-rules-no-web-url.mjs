@@ -8,7 +8,6 @@ export default {
     'app/assets/javascripts/ci/admin/jobs_table/components/cells/project_cell.vue',
     'app/assets/javascripts/ci/catalog/components/list/ci_resources_list_item.vue',
     'app/assets/javascripts/ci/job_details/components/job_header.vue',
-    'app/assets/javascripts/ci/pipelines_page/components/pipeline_url.vue',
     'app/assets/javascripts/ci/runner/components/runner_jobs_table.vue',
     'app/assets/javascripts/contribution_events/components/target_link.vue',
     'app/assets/javascripts/deployments/components/deployment_header.vue',

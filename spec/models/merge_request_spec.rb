@@ -7551,6 +7551,74 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
       end
 
       it_behaves_like 'notify conflict behavior'
+
+      describe 'publishing CodeConflictEvent' do
+        let(:state) { :opened }
+
+        before do
+          allow(notification_service).to receive(:merge_request_unmergeable)
+          allow(todo_service).to receive(:merge_request_became_unmergeable)
+        end
+
+        it 'publishes a MergeRequests::CodeConflictEvent when transitioning from unchecked' do
+          expect { subject.mark_as_unmergeable! }
+            .to publish_event(MergeRequests::CodeConflictEvent)
+        end
+
+        it 'publishes a MergeRequests::CodeConflictEvent when transitioning from checking' do
+          subject.mark_as_checking!
+
+          expect { subject.mark_as_unmergeable! }
+            .to publish_event(MergeRequests::CodeConflictEvent)
+        end
+
+        it 'does not publish a MergeRequests::CodeConflictEvent when the corresponding feature flag is disabled' do
+          stub_feature_flags(merge_request_code_conflict_flow_trigger: false)
+
+          subject.mark_as_checking!
+
+          expect { subject.mark_as_unmergeable! }
+            .not_to publish_event(MergeRequests::CodeConflictEvent)
+        end
+
+        it 'builds the event from the merge request' do
+          expect(MergeRequests::CodeConflictEvent)
+            .to receive(:build)
+                  .with(merge_request: subject)
+                  .and_call_original
+
+          subject.mark_as_unmergeable!
+        end
+
+        context 'when transitioning to a non-conflict state' do
+          it 'does not publish a MergeRequests::CodeConflictEvent on mark_as_mergeable!' do
+            allow(subject.project.repository).to receive(:can_be_merged?).and_return(true)
+
+            expect { subject.mark_as_mergeable! }
+              .not_to publish_event(MergeRequests::CodeConflictEvent)
+          end
+        end
+
+        context 'when the merge request is closed' do
+          let(:state) { :closed }
+
+          it 'does not publish a MergeRequests::CodeConflictEvent' do
+            expect { subject.mark_as_unmergeable! }
+              .not_to publish_event(MergeRequests::CodeConflictEvent)
+          end
+        end
+
+        context 'when the merge request notify_conflict? is false' do
+          before do
+            allow(subject).to receive(:notify_conflict?).and_return(false)
+          end
+
+          it 'does not publish a MergeRequests::CodeConflictEvent' do
+            expect { subject.mark_as_unmergeable! }
+              .not_to publish_event(MergeRequests::CodeConflictEvent)
+          end
+        end
+      end
     end
 
     describe 'check_state?' do

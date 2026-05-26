@@ -5,12 +5,13 @@ ignored_columns:
 - secrets
 - id_tokens
 replication_targets:
-- name: clickhouse_main
-  target: siphon_p_ci_builds_metadata
-  dedup_by:
-  - id
-  - partition_id
-  reconcile:
-    column: traversal_path
-    expression_key_columns:
-    - project_id
+  - name: clickhouse_main
+    target: siphon_p_ci_builds_metadata
+    dedup_by_columns_lookup_table: siphon_p_ci_builds_metadata_pg_pkey_ordered
+    dedup_by:
+    - id
+    - partition_id
+    reconcile:
+      column: traversal_path
+      expression_key_columns:
+      - project_id

@@ -28,7 +28,7 @@ RSpec.describe Sidebars::Organizations::SuperSidebarPanel, feature_category: :na
     end
 
     it "is exposed as a renderable menu" do
-      expect(subject.instance_variable_get(:@menus).map(&:class)).to eq(category_menu)
+      expect(subject.instance_variable_get(:@menus).map(&:class)).to include(*category_menu)
     end
   end
 

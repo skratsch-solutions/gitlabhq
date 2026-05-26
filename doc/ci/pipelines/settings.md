@@ -302,4 +302,4 @@ To configure automatic pipeline cleanup:
 1. Select **Save changes**.
 
 For GitLab Self-Managed, administrators can increase the upper limit for
-[automatic pipeline cleanup](../../administration/instance_limits.md#maximum-config-value-for-automatic-pipeline-cleanup).
+[automatic pipeline cleanup](../../administration/cicd/limits.md#maximum-retention-period-for-automatic-pipeline-cleanup).

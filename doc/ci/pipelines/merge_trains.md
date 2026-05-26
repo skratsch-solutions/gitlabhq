@@ -190,13 +190,10 @@ To add a merge request to a merge train:
 The merge request's merge train status displays under the pipeline widget with a
 message similar to `This merge request is 2 of 3 in queue.`
 
-Each merge train can run a maximum number of pipelines in parallel.
+Each merge train can run a [maximum number of pipelines in parallel](#merge-train-parallel-pipeline-limit).
 The default limit is 20. If you add more merge requests to the merge
 train than the limit, the extra merge requests are queued until a
 pipeline completes. The number of queued merge requests is unlimited.
-
-To change this limit, see
-[merge train pipeline limits](../../administration/instance_limits.md#merge-train-parallel-pipeline-limit).
 
 ## Remove a merge request from a merge train
 
@@ -287,6 +284,31 @@ to merge with the attribute `skip_merge_train` set to `true`.
 
 The merge request merges, and the existing merge train pipelines are not canceled
 or restarted.
+
+### Merge train parallel pipeline limit
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/374188) in GitLab 19.0.
+
+{{< /history >}}
+
+By default, each [merge train](../../ci/pipelines/merge_trains.md) can run
+a maximum of 20 pipelines in parallel. When this limit is reached,
+additional merge requests are queued until a pipeline slot is available.
+
+To modify this limit for your project:
+
+1. In the top bar, select **Search or go to** and find your project.
+1. In the left sidebar, select **Settings** > **Merge requests**.
+1. In the **Merge options** section, set a value for **Maximum parallel pipelines per merge train**.
+   The minimum value is `1`. A value of `1` processes merge requests sequentially with no parallelism.
+1. Select **Save changes**.
+
+The project limit cannot exceed the [instance limit](../../administration/cicd/limits.md#merge-train-parallel-pipeline-limit).
+
+You can also use the [projects API](../../api/projects.md), or the
+[GraphQL API](../../api/graphql/reference/_index.md#projectcicdsetting).
 
 ## Troubleshooting
 

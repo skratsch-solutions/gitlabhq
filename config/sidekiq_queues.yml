@@ -53,6 +53,8 @@
   - 1
 - - ai_catalog_flows_cascade_sync_foundational_flows
   - 1
+- - ai_catalog_flows_execute_code_conflict_ai_workflow_triggers
+  - 1
 - - ai_catalog_flows_sync_project_foundational_flows
   - 1
 - - ai_duo_workflows_cancel_associated_pipelines

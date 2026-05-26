@@ -376,7 +376,7 @@ Prerequisites:
 1. In the top bar, select **Search or go to** and find your group.
 1. In the left sidebar, select **Settings** > **GitLab Duo**.
 1. Select **Change configuration**.
-1. Under **Custom agents and flows**, select or clear the
+1. Under **Custom and external agents and flows**, select or clear the
    **Allow custom agents** checkbox.
 1. Select **Save changes**.
 
@@ -393,7 +393,7 @@ Prerequisites:
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **GitLab Duo**.
 1. Select **Change configuration**.
-1. Under **Custom agents and flows**, select or clear the
+1. Under **Custom and external agents and flows**, select or clear the
    **Allow custom agents** checkbox.
 1. Select **Save changes**.
 

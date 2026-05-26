@@ -27,6 +27,7 @@ The following settings are available:
 - Runners: Configure runner registration, version management, and token settings.
 - Job token permissions: Control job token access across projects.
 - Job logs: Configure job log settings like incremental logging.
+- [CI/CD limits](../cicd/limits.md).
 
 ## Access continuous integration and deployment settings
 
@@ -107,7 +108,7 @@ Control how [job artifacts](../cicd/job_artifacts.md) are stored and managed acr
 Set size limits for job artifacts to control storage use.
 Each artifact file in a job has a default maximum size of 100 MB.
 
-Job artifacts defined with `artifacts:reports` can have [different limits](../instance_limits.md#maximum-file-size-per-type-of-artifact).
+Job artifacts defined with `artifacts:reports` can have [different limits](../cicd/limits.md#maximum-file-size-per-type-of-artifact).
 When different limits apply, the smaller value is used.
 
 > [!note]
@@ -276,23 +277,6 @@ The maximum downstream pipeline trigger rate limits how many downstream pipeline
 can be triggered per minute for a given combination of project, user, and commit.
 The default value is `0`, which means there is no restriction.
 
-#### Pipeline limit per Git push
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/186134) in GitLab 18.0.
-
-{{< /history >}}
-
-Set the maximum number of tag or branch pipelines that can be triggered by a single Git push.
-For more information about this limit, see [number of pipelines per Git push](../instance_limits.md#number-of-pipelines-per-git-push).
-
-1. In the upper-right corner, select **Admin**.
-1. In the left sidebar, select **Settings** > **CI/CD**.
-1. Expand **Continuous Integration and Deployment**.
-1. Change the value of **Pipeline limit per Git push**.
-1. Select **Save changes**.
-
 #### Specify a default CI/CD configuration file
 
 Set a custom path and filename to use as the default for CI/CD configuration files in all new projects.
@@ -338,44 +322,6 @@ This banner appears in merge requests for projects that have the
 The Jenkins migration banner is displayed by default. To hide it:
 
 1. Select the **Show the migrate from Jenkins banner** checkbox.
-1. Select **Save changes**.
-
-### Set CI/CD limits
-
-{{< history >}}
-
-- **Maximum number of active pipelines per project** setting [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/368195) in GitLab 16.0.
-- **Maximum number of instance-level CI/CD variables** setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/456845) in GitLab 17.1.
-- **Maximum size of a dotenv artifact in bytes** setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/155791) in GitLab 17.1.
-- **Maximum number of variables in a dotenv artifact** setting [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/155791) in GitLab 17.1.
-- **Maximum number of jobs in a single pipeline** setting [moved](https://gitlab.com/gitlab-org/gitlab/-/issues/287669) from GitLab Enterprise Edition to GitLab Community Edition in 17.6.
-
-{{< /history >}}
-
-Set CI/CD limits to control resource usage and help prevent performance issues.
-
-You can configure the following CI/CD limits:
-
-<!-- vale gitlab_base.CurrentStatus = NO -->
-- Maximum number of instance-level CI/CD variables
-- Maximum size of a dotenv artifact in bytes
-- Maximum number of variables in a dotenv artifact
-- Maximum number of jobs in a single pipeline
-- Total number of jobs in currently active pipelines
-- Maximum number of pipeline subscriptions to and from a project
-- Maximum number of pipeline schedules
-- Maximum number of needs dependencies that a job can have
-- Maximum number of runners created or active in a group during the past seven days
-- Maximum number of runners created or active in a project during the past seven days
-- Maximum number of downstream pipelines in a pipeline's hierarchy tree
-- Maximum parallel pipelines per merge train
-<!-- vale gitlab_base.CurrentStatus = YES -->
-
-For more information on what these limits control, see [CI/CD limits](../instance_limits.md#cicd-limits).
-
-To configure CI/CD limits:
-
-1. Under **CI/CD limits**, set values for the limits you want to configure.
 1. Select **Save changes**.
 
 ## Access package registry settings

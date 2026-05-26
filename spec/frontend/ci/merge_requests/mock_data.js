@@ -214,8 +214,7 @@ export const mockPipelineUpdateResponse = {
         sha: '577d7917b5d80ef8cd8e543186aae41ccd870022',
         shortId: '577d7917',
         title: 'Edit .gitlab-ci.yml',
-        webUrl:
-          'http://gdk.test:3000/root/ci-project/-/commit/577d7917b5d80ef8cd8e543186aae41ccd870022',
+        webPath: '/root/ci-project/-/commit/577d7917b5d80ef8cd8e543186aae41ccd870022',
         author: {
           id: 'gid://gitlab/User/1',
           avatarUrl:
@@ -347,8 +346,7 @@ export const mockPipelines = [
       sha: 'ab708cdcfd838846528c736f36ac2d2fea4508fb',
       shortId: 'ab708cdc',
       title: 'Update .gitlab-ci.yml file',
-      webUrl:
-        'http://gdk.test:3000/root/ci-project/-/commit/ab708cdcfd838846528c736f36ac2d2fea4508fb',
+      webPath: '/root/ci-project/-/commit/ab708cdcfd838846528c736f36ac2d2fea4508fb',
       author: {
         id: 'gid://gitlab/User/1',
         avatarUrl:
@@ -466,8 +464,7 @@ export const mockPipelines = [
       sha: 'ab708cdcfd838846528c736f36ac2d2fea4508fb',
       shortId: 'ab708cdc',
       title: 'Update .gitlab-ci.yml file',
-      webUrl:
-        'http://gdk.test:3000/root/ci-project/-/commit/ab708cdcfd838846528c736f36ac2d2fea4508fb',
+      webPath: '/root/ci-project/-/commit/ab708cdcfd838846528c736f36ac2d2fea4508fb',
       author: {
         id: 'gid://gitlab/User/1',
         avatarUrl:

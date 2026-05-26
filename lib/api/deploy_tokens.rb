@@ -145,6 +145,7 @@ module API
 
       desc 'Delete a project deploy token' do
         detail 'Deletes a project deploy token.'
+        success code: 204, message: 'Resource deleted'
         failure [
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' }
@@ -257,6 +258,7 @@ module API
 
       desc 'Delete a group deploy token' do
         detail 'Deletes a group deploy token.'
+        success code: 204, message: 'Resource deleted'
         failure [
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' }

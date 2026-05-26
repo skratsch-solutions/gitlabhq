@@ -124,6 +124,7 @@ module API
 
         desc 'Delete feature flag user list' do
           detail 'Deletes a feature flag user list. This feature was introduced in GitLab 12.10.'
+          success code: 204, message: 'Resource deleted'
           failure [
             { code: 401, message: 'Unauthorized' },
             { code: 404, message: 'Not found' },

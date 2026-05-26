@@ -249,6 +249,7 @@ module API
       desc 'Delete a deploy key' do
         detail 'Deletes a deploy key from the project. If the deploy key is used only for this project, it is ' \
           'deleted from the system.'
+        success code: 204, message: 'Resource deleted'
         failure [
           { code: 401, message: 'Unauthorized' },
           { code: 404, message: 'Not found' }

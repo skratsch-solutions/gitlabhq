@@ -298,10 +298,11 @@ class MergeRequest < ApplicationRecord
     end
 
     # rubocop: disable CodeReuse/ServiceClass
-    after_transition [:unchecked, :checking] => :cannot_be_merged do |merge_request, transition|
+    after_transition [:unchecked, :checking] => :cannot_be_merged do |merge_request, _|
       merge_request.run_after_commit do
         next unless merge_request.notify_conflict?
 
+        publish_code_conflict_event
         NotificationService.new.merge_request_unmergeable(merge_request)
         TodoService.new.merge_request_became_unmergeable(merge_request)
       end
@@ -2973,6 +2974,13 @@ class MergeRequest < ApplicationRecord
       .use_primary { self.class.where(id: id).pick(:state_id) }
 
     primary_state_id != state_id
+  end
+
+  def publish_code_conflict_event
+    return unless Feature.enabled?(:merge_request_code_conflict_flow_trigger, self.project)
+
+    cloud_event = MergeRequests::CodeConflictEvent.build(merge_request: self)
+    Gitlab::EventStore.publish(cloud_event) if cloud_event
   end
 
   def committer_emails_from_diff

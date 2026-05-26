@@ -36,7 +36,7 @@ RSpec.shared_examples Integrations::Base::HangoutsChat do
 
   describe "#execute" do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project) { create(:project, :repository, :wiki_repo) }
+    let_it_be_with_reload(:project) { create(:project, :repository, :wiki_repo) }
 
     before do
       allow(chat_integration).to receive_messages(

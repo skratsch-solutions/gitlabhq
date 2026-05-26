@@ -446,6 +446,7 @@ module API
       end
 
       desc 'Remove a group.' do
+        success code: 202, message: 'Accepted'
         tags %w[groups]
       end
       route_setting :authorization, permissions: :delete_group, boundary_type: :group
@@ -767,6 +768,7 @@ module API
       end
 
       desc 'Unshare a group with a group' do
+        success code: 204, message: 'Resource deleted'
         tags ['groups']
       end
       params do

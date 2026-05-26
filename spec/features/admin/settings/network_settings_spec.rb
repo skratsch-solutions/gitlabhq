@@ -15,142 +15,133 @@ RSpec.describe 'Admin updates network settings', :request_store, :enable_admin_m
     visit network_admin_application_settings_path
   end
 
-  it 'changes Outbound requests settings' do
+  it 'changes Outbound requests settings', :aggregate_failures do
     within_testid('outbound-requests-content') do
-      check 'Allow requests to the local network from webhooks and integrations'
-      # Enabled by default
-      uncheck 'Allow requests to the local network from system hooks'
-      # Enabled by default
-      uncheck 'Enforce DNS-rebinding attack protection'
+      click_unchecked_field(s_('OutboundRequests|Allow requests to the local network from webhooks and integrations'))
+      click_checked_field(s_('OutboundRequests|Allow requests to the local network from system hooks'))
+      click_checked_field(s_('OutboundRequests|Enforce DNS-rebinding attack protection'))
+
+      expect_save_settings
+
+      expect_field_checked(s_('OutboundRequests|Allow requests to the local network from webhooks and integrations'))
+      expect_field_unchecked(s_('OutboundRequests|Allow requests to the local network from system hooks'))
+      expect_field_unchecked(s_('OutboundRequests|Enforce DNS-rebinding attack protection'))
     end
-
-    expect_save_settings('outbound-requests-content')
-
-    expect(current_settings.allow_local_requests_from_web_hooks_and_services).to be true
-    expect(current_settings.allow_local_requests_from_system_hooks).to be false
-    expect(current_settings.dns_rebinding_protection_enabled).to be false
   end
 
-  it 'changes User and IP rate limits settings' do
+  it 'changes User and IP rate limits settings', :aggregate_failures do
     within_testid('ip-limits-content') do
-      check 'Enable unauthenticated API request rate limit'
-      fill_in 'Maximum unauthenticated API requests per rate limit period per IP', with: 100
-      fill_in 'Unauthenticated API rate limit period in seconds', with: 200
+      click_unchecked_field(_('Enable unauthenticated API request rate limit'))
+      fill_field_with_new_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '100')
+      fill_field_with_new_value(_('Unauthenticated API rate limit period in seconds'), '200')
 
-      check 'Enable unauthenticated web request rate limit'
-      fill_in 'Maximum unauthenticated web requests per rate limit period per IP', with: 300
-      fill_in 'Unauthenticated web rate limit period in seconds', with: 400
+      click_unchecked_field(_('Enable unauthenticated web request rate limit'))
+      fill_field_with_new_value(_('Maximum unauthenticated web requests per rate limit period per IP'), '300')
+      fill_field_with_new_value(_('Unauthenticated web rate limit period in seconds'), '400')
 
-      check 'Enable authenticated API request rate limit'
-      fill_in 'Maximum authenticated API requests per rate limit period per user', with: 500
-      fill_in 'Authenticated API rate limit period in seconds', with: 600
+      click_unchecked_field(_('Enable authenticated API request rate limit'))
+      fill_field_with_new_value(_('Maximum authenticated API requests per rate limit period per user'), '500')
+      fill_field_with_new_value(_('Authenticated API rate limit period in seconds'), '600')
 
-      check 'Enable authenticated web request rate limit'
-      fill_in 'Maximum authenticated web requests per rate limit period per user', with: 700
-      fill_in 'Authenticated web rate limit period in seconds', with: 800
+      click_unchecked_field(_('Enable authenticated web request rate limit'))
+      fill_field_with_new_value(_('Maximum authenticated web requests per rate limit period per user'), '700')
+      fill_field_with_new_value(_('Authenticated web rate limit period in seconds'), '800')
 
-      fill_in "Maximum authenticated requests to project/:id/jobs per minute", with: 1000
+      fill_field_with_new_value("Maximum authenticated requests to project/:id/jobs per minute", '1000')
 
-      fill_in 'Plain-text response to send to clients that hit a rate limit', with: 'Custom message'
+      fill_field_with_new_value(_('Plain-text response to send to clients that hit a rate limit'), 'Custom message')
+
+      expect_save_settings
+
+      expect_field_checked(_('Enable unauthenticated API request rate limit'))
+      expect_field_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '100')
+      expect_field_value(_('Unauthenticated API rate limit period in seconds'), '200')
+
+      expect_field_checked(_('Enable unauthenticated web request rate limit'))
+      expect_field_value(_('Maximum unauthenticated web requests per rate limit period per IP'), '300')
+      expect_field_value(_('Unauthenticated web rate limit period in seconds'), '400')
+
+      expect_field_checked(_('Enable authenticated API request rate limit'))
+      expect_field_value(_('Maximum authenticated API requests per rate limit period per user'), '500')
+      expect_field_value(_('Authenticated API rate limit period in seconds'), '600')
+
+      expect_field_checked(_('Enable authenticated web request rate limit'))
+      expect_field_value(_('Maximum authenticated web requests per rate limit period per user'), '700')
+      expect_field_value(_('Authenticated web rate limit period in seconds'), '800')
+
+      expect_field_value("Maximum authenticated requests to project/:id/jobs per minute", '1000')
+
+      expect_field_value(_('Plain-text response to send to clients that hit a rate limit'), 'Custom message')
     end
-
-    expect_save_settings('ip-limits-content')
-
-    expect(current_settings).to have_attributes(
-      throttle_unauthenticated_api_enabled: true,
-      throttle_unauthenticated_api_requests_per_period: 100,
-      throttle_unauthenticated_api_period_in_seconds: 200,
-      throttle_unauthenticated_enabled: true,
-      throttle_unauthenticated_requests_per_period: 300,
-      throttle_unauthenticated_period_in_seconds: 400,
-      throttle_authenticated_api_enabled: true,
-      throttle_authenticated_api_requests_per_period: 500,
-      throttle_authenticated_api_period_in_seconds: 600,
-      throttle_authenticated_web_enabled: true,
-      throttle_authenticated_web_requests_per_period: 700,
-      throttle_authenticated_web_period_in_seconds: 800,
-      project_jobs_api_rate_limit: 1000,
-      rate_limiting_response_text: 'Custom message'
-    )
   end
 
-  it 'changes authenticated Git HTTP rate limits settings' do
-    # Default settings
-    expect(current_settings.throttle_authenticated_git_http_enabled)
-      .to be(false)
-    expect(current_settings.throttle_authenticated_git_http_requests_per_period)
-      .to eq(ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_PERIOD)
-    expect(current_settings.throttle_authenticated_git_http_period_in_seconds)
-      .to eq(ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_LIMIT)
-
+  it 'changes authenticated Git HTTP rate limits settings', :aggregate_failures do
     within_testid('git-http-limits-settings') do
-      check 'Enable authenticated Git HTTP request rate limit'
-
-      fill_in(
-        'Maximum authenticated Git HTTP requests per period per user',
-        with: ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_LIMIT + 1
+      click_unchecked_field(_('Enable authenticated Git HTTP request rate limit'))
+      fill_field_with_new_value(
+        _('Maximum authenticated Git HTTP requests per period per user'),
+        (ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_LIMIT + 1).to_s
+      )
+      fill_field_with_new_value(
+        _('Authenticated Git HTTP rate limit period in seconds'),
+        (ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_PERIOD + 2).to_s
       )
 
-      fill_in(
-        'Authenticated Git HTTP rate limit period in seconds',
-        with: ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_PERIOD + 2
+      expect_save_settings
+
+      expect_field_checked(_('Enable authenticated Git HTTP request rate limit'))
+      expect_field_value(
+        _('Maximum authenticated Git HTTP requests per period per user'),
+        (ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_LIMIT + 1).to_s
+      )
+      expect_field_value(
+        _('Authenticated Git HTTP rate limit period in seconds'),
+        (ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_PERIOD + 2).to_s
       )
     end
-
-    expect_save_settings('git-http-limits-settings')
-
-    expect(current_settings.throttle_authenticated_git_http_enabled)
-      .to be(true)
-
-    expect(current_settings.throttle_authenticated_git_http_requests_per_period)
-      .to eq(ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_PERIOD + 1)
-
-    expect(current_settings.throttle_authenticated_git_http_period_in_seconds)
-      .to eq(ApplicationSetting::DEFAULT_AUTHENTICATED_GIT_HTTP_LIMIT + 2)
   end
 
   it 'changes Issues rate limits settings' do
     within_testid('issue-limits-settings') do
-      fill_in 'Maximum number of requests per minute', with: 0
+      fill_field_with_new_value(_('Maximum number of requests per minute'), '0')
+
+      expect_save_settings
+
+      expect_field_value(_('Maximum number of requests per minute'), '0')
     end
-
-    expect_save_settings('issue-limits-settings')
-
-    expect(current_settings.issues_create_limit).to eq(0)
   end
 
-  it 'changes Pipelines rate limits settings' do
+  it 'changes Pipelines rate limits settings', :aggregate_failures do
     within_testid('pipeline-limits-settings') do
-      fill_in 'Maximum number of requests per project, sha and user. Resets after 1 minute.', with: 10
-      fill_in 'Maximum number of requests for a user. Resets after 1 minute.', with: 100
+      fill_field_with_new_value(_('Maximum number of requests per project, sha and user. Resets after 1 minute.'), '10')
+      fill_field_with_new_value(_('Maximum number of requests for a user. Resets after 1 minute.'), '100')
+
+      expect_save_settings
+
+      expect_field_value(_('Maximum number of requests per project, sha and user. Resets after 1 minute.'), '10')
+      expect_field_value(_('Maximum number of requests for a user. Resets after 1 minute.'), '100')
     end
-
-    expect_save_settings('pipeline-limits-settings')
-
-    expect(current_settings.pipeline_limit_per_project_user_sha).to eq(10)
-    expect(current_settings.pipeline_limit_per_user).to eq(100)
   end
 
   it 'changes gitlab shell operation limits settings' do
     within_testid('gitlab-shell-operation-limits') do
-      fill_in 'Maximum number of Git operations per minute', with: 100
+      fill_field_with_new_value(s_('ShellOperations|Maximum number of Git operations per minute'), '100')
+
+      expect_save_settings
+
+      expect_field_value(s_('ShellOperations|Maximum number of Git operations per minute'), '100')
     end
-
-    expect_save_settings('gitlab-shell-operation-limits')
-
-    expect(current_settings.gitlab_shell_operation_limit).to eq(100)
   end
 
   shared_examples 'API rate limit setting' do
     it 'changes the rate limits settings' do
-      new_rate_limit = 1234
       within_testid(network_settings_section) do
-        fill_in rate_limit_field, with: new_rate_limit
+        fill_field_with_new_value(rate_limit_field, '1234')
+
+        expect_save_settings
+
+        expect_field_value(rate_limit_field, '1234')
       end
-
-      expect_save_settings(network_settings_section)
-
-      expect(current_settings[application_setting_key]).to eq(new_rate_limit)
     end
   end
 
@@ -166,16 +157,15 @@ RSpec.describe 'Admin updates network settings', :request_store, :enable_admin_m
       let(:application_setting_key) { :users_get_by_id_limit }
 
       it 'changes Users API rate limits settings', :aggregate_failures do
-        new_rate_limit = 0
         within_testid('users-api-limits-settings') do
-          fill_in rate_limit_field, with: new_rate_limit
-          fill_in 'Excluded users', with: 'someone, someone_else'
+          fill_field_with_new_value(rate_limit_field, '0')
+          fill_in _('Excluded users'), with: 'someone, someone_else'
+
+          expect_save_settings
+
+          expect_field_value(rate_limit_field, '0')
+          expect_field_value(_('Excluded users'), "someone\nsomeone_else")
         end
-
-        expect_save_settings('users-api-limits-settings')
-
-        expect(current_settings[application_setting_key]).to eq(new_rate_limit)
-        expect(current_settings.users_get_by_id_limit_allowlist).to eq(%w[someone someone_else])
       end
     end
 
@@ -438,27 +428,26 @@ RSpec.describe 'Admin updates network settings', :request_store, :enable_admin_m
   end
 
   shared_examples 'regular throttle rate limit settings' do
-    it 'changes rate limit settings' do
+    it 'changes rate limit settings', :aggregate_failures do
       within_testid(selector) do
-        check 'Enable unauthenticated API request rate limit'
-        fill_in 'Maximum unauthenticated API requests per rate limit period per IP', with: 12
-        fill_in 'Unauthenticated API rate limit period in seconds', with: 34
+        click_unchecked_field(_('Enable unauthenticated API request rate limit'))
+        fill_field_with_new_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
+        fill_field_with_new_value(_('Unauthenticated API rate limit period in seconds'), '34')
 
-        check 'Enable authenticated API request rate limit'
-        fill_in 'Maximum authenticated API requests per rate limit period per user', with: 56
-        fill_in 'Authenticated API rate limit period in seconds', with: 78
+        click_unchecked_field(_('Enable authenticated API request rate limit'))
+        fill_field_with_new_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
+        fill_field_with_new_value(_('Authenticated API rate limit period in seconds'), '78')
+
+        expect_save_settings
+
+        expect_field_checked(_('Enable unauthenticated API request rate limit'))
+        expect_field_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
+        expect_field_value(_('Unauthenticated API rate limit period in seconds'), '34')
+
+        expect_field_checked(_('Enable authenticated API request rate limit'))
+        expect_field_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
+        expect_field_value(_('Authenticated API rate limit period in seconds'), '78')
       end
-
-      expect_save_settings(selector)
-
-      expect(current_settings).to have_attributes(
-        "throttle_unauthenticated_#{fragment}_enabled" => true,
-        "throttle_unauthenticated_#{fragment}_requests_per_period" => 12,
-        "throttle_unauthenticated_#{fragment}_period_in_seconds" => 34,
-        "throttle_authenticated_#{fragment}_enabled" => true,
-        "throttle_authenticated_#{fragment}_requests_per_period" => 56,
-        "throttle_authenticated_#{fragment}_period_in_seconds" => 78
-      )
     end
   end
 
@@ -483,19 +472,15 @@ RSpec.describe 'Admin updates network settings', :request_store, :enable_admin_m
     include_examples 'regular throttle rate limit settings'
   end
 
-  it 'changes search rate limits' do
+  it 'changes search rate limits', :aggregate_failures do
     within_testid('search-limits-settings') do
-      fill_in 'Maximum number of requests per minute for an authenticated user', with: 98
-      fill_in 'Maximum number of requests per minute for an unauthenticated IP address', with: 76
+      fill_field_with_new_value(_('Maximum number of requests per minute for an authenticated user'), '98')
+      fill_field_with_new_value(_('Maximum number of requests per minute for an unauthenticated IP address'), '76')
+
+      expect_save_settings
+
+      expect_field_value(_('Maximum number of requests per minute for an authenticated user'), '98')
+      expect_field_value(_('Maximum number of requests per minute for an unauthenticated IP address'), '76')
     end
-
-    expect_save_settings('search-limits-settings')
-
-    expect(current_settings.search_rate_limit).to eq(98)
-    expect(current_settings.search_rate_limit_unauthenticated).to eq(76)
-  end
-
-  def current_settings
-    ApplicationSetting.current_without_cache
   end
 end

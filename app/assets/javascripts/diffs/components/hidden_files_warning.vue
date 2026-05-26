@@ -9,6 +9,7 @@ export const i18n = {
 };
 
 export default {
+  name: 'HiddenFilesWarning',
   i18n,
   components: {
     GlAlert,

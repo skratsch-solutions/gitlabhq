@@ -144,6 +144,7 @@ module API
 
         desc "Removes a badge from the #{source_type}." do
           detail 'This feature was introduced in GitLab 10.6.'
+          success code: 204, message: 'Resource deleted'
           tags %w[badges]
         end
         params do

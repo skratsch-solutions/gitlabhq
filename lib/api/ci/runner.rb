@@ -76,6 +76,7 @@ module API
 
         desc 'Delete a registered runner' do
           summary "Delete a runner by authentication token"
+          success code: 204, message: 'Resource deleted'
           failure [[403, 'Forbidden']]
           tags ['ci_runners']
         end

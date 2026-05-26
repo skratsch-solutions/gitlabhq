@@ -905,7 +905,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
 
     context 'add related issue' do
       let_it_be(:private_project) { create(:project) }
-      let_it_be(:related_issue) { create(:issue, project: private_project) }
+      let_it_be_with_reload(:related_issue) { create(:issue, project: private_project) }
 
       let(:opts) do
         { title: 'A new issue', add_related_issue: related_issue }

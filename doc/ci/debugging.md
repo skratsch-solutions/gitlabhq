@@ -334,7 +334,7 @@ If you are using pull mirroring, you can check the [troubleshooting entry for pu
 
 ### Pipeline with many jobs fails to start
 
-A Pipeline that has more jobs than the instance's defined [CI/CD limits](../administration/settings/continuous_integration.md#set-cicd-limits)
+A Pipeline that has more jobs than the instance's defined [CI/CD limits](../administration/cicd/limits.md#maximum-number-of-jobs-in-a-pipeline)
 fails to start.
 
 To reduce the number of jobs in a single pipeline, you can split your `.gitlab-ci.yml`
@@ -463,7 +463,7 @@ To reduce the configuration size, you can:
 - Use [parent and child pipelines](pipelines/downstream_pipelines.md#parent-child-pipelines) to move some
   work to jobs in an independent child pipeline.
 
-On GitLab Self-Managed, you can [increase the size limits](../administration/instance_limits.md#maximum-size-and-depth-of-cicd-configuration-yaml-files).
+On GitLab Self-Managed, you can [increase the size limits](../administration/cicd/limits.md#maximum-size-and-depth-of-cicd-configuration-yaml-files).
 
 ### `500` error when editing the `.gitlab-ci.yml` file
 

@@ -860,20 +860,6 @@ BEGIN
 END
 $$;
 
-CREATE FUNCTION insert_into_loose_foreign_keys_deleted_records_with_group_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-INSERT INTO loose_foreign_keys_deleted_records
-(fully_qualified_table_name, primary_key_value)
-SELECT current_schema() || '.' || TG_ARGV[0], old_table."group_id"
-FROM old_table;
-
-RETURN NULL;
-
-END
-$$;
-
 CREATE FUNCTION insert_namespaces_sync_event() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -3617,20 +3603,6 @@ END IF;
 RETURN NEW;
 
 END
-$$;
-
-CREATE FUNCTION trigger_7840c345e48f() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  row_data JSONB;
-BEGIN
-  row_data := to_jsonb(NEW);
-  IF row_data ? 'source_xid_convert_to_bigint' THEN
-    NEW."source_xid_convert_to_bigint" := NEW."source_xid";
-  END IF;
-  RETURN NEW;
-END;
 $$;
 
 CREATE FUNCTION trigger_78c85ddc4031() RETURNS trigger
@@ -16692,7 +16664,6 @@ CREATE TABLE bulk_import_entities (
     jid text,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    source_xid_convert_to_bigint integer,
     migrate_projects boolean DEFAULT true NOT NULL,
     has_failures boolean DEFAULT false,
     migrate_memberships boolean DEFAULT true NOT NULL,
@@ -55751,8 +55722,6 @@ CREATE TRIGGER group_type_ci_runner_machines_loose_fk_trigger AFTER DELETE ON gr
 
 CREATE TRIGGER group_type_ci_runners_loose_fk_trigger AFTER DELETE ON group_type_ci_runners REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_override_table('ci_runners');
 
-CREATE TRIGGER group_wiki_repositories_loose_fk_trigger AFTER DELETE ON group_wiki_repositories REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_with_group_id('group_wiki_repositories');
-
 CREATE TRIGGER instance_type_ci_runner_machines_loose_fk_trigger AFTER DELETE ON instance_type_ci_runner_machines REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_override_table('ci_runner_machines');
 
 CREATE TRIGGER instance_type_ci_runners_loose_fk_trigger AFTER DELETE ON instance_type_ci_runners REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION insert_into_loose_foreign_keys_deleted_records_override_table('ci_runners');
@@ -56076,8 +56045,6 @@ CREATE TRIGGER trigger_744ab45ee5ac BEFORE INSERT OR UPDATE ON protected_branch_
 CREATE TRIGGER trigger_7495f5e0efcb BEFORE INSERT OR UPDATE ON snippet_user_mentions FOR EACH ROW EXECUTE FUNCTION trigger_7495f5e0efcb();
 
 CREATE TRIGGER trigger_77d9fbad5b12 BEFORE INSERT OR UPDATE ON packages_debian_project_distribution_keys FOR EACH ROW EXECUTE FUNCTION trigger_77d9fbad5b12();
-
-CREATE TRIGGER trigger_7840c345e48f BEFORE INSERT OR UPDATE ON bulk_import_entities FOR EACH ROW EXECUTE FUNCTION trigger_7840c345e48f();
 
 CREATE TRIGGER trigger_78c85ddc4031 BEFORE INSERT OR UPDATE ON issue_emails FOR EACH ROW EXECUTE FUNCTION trigger_78c85ddc4031();
 
@@ -56967,7 +56934,7 @@ ALTER TABLE ONLY audit_events_instance_amazon_s3_configurations
     ADD CONSTRAINT fk_266365d2b0 FOREIGN KEY (stream_destination_id) REFERENCES audit_events_instance_external_streaming_destinations(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY group_wiki_repositories
-    ADD CONSTRAINT fk_26f867598c FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_26f867598c FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY user_namespace_callouts
     ADD CONSTRAINT fk_27a69fd1bd FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
@@ -57645,7 +57612,7 @@ ALTER TABLE ONLY user_preferences
     ADD CONSTRAINT fk_61f4fd80d1 FOREIGN KEY (duo_default_namespace_id) REFERENCES namespaces(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY group_wiki_repository_states
-    ADD CONSTRAINT fk_621768bf3d FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_621768bf3d FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY vulnerability_reads
     ADD CONSTRAINT fk_62736f638f FOREIGN KEY (vulnerability_id) REFERENCES vulnerabilities(id) ON DELETE CASCADE;
@@ -58059,7 +58026,7 @@ ALTER TABLE ONLY project_settings
     ADD CONSTRAINT fk_8264eab4ae FOREIGN KEY (pipeline_execution_policy_bot_access_group_id) REFERENCES namespaces(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY group_wiki_repository_states
-    ADD CONSTRAINT fk_832511c9f1 FOREIGN KEY (group_wiki_repository_id) REFERENCES group_wiki_repositories(group_id) ON DELETE CASCADE NOT VALID;
+    ADD CONSTRAINT fk_832511c9f1 FOREIGN KEY (group_wiki_repository_id) REFERENCES group_wiki_repositories(group_id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY import_export_uploads
     ADD CONSTRAINT fk_83319d9721 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;

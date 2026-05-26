@@ -99,6 +99,7 @@ module API
 
       desc 'Delete a feature' do
         detail "Removes a feature gate. Response is equal when the gate exists, or doesn't."
+        success code: 204, message: 'Resource deleted'
         tags features_tags
       end
       delete ':name' do

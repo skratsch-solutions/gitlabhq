@@ -1,12 +1,6 @@
 ---
 RSpec/NamedSubject:
   Exclude:
-    - 'ee/spec/controllers/admin/emails_controller_spec.rb'
-    - 'ee/spec/controllers/admin/geo/settings_controller_spec.rb'
-    - 'ee/spec/controllers/admin/groups_controller_spec.rb'
-    - 'ee/spec/controllers/admin/identities_controller_spec.rb'
-    - 'ee/spec/controllers/admin/projects_controller_spec.rb'
-    - 'ee/spec/controllers/admin/users_controller_spec.rb'
     - 'ee/spec/controllers/concerns/ee/routable_actions/sso_enforcement_redirect_spec.rb'
     - 'ee/spec/controllers/ee/autocomplete_controller_spec.rb'
     - 'ee/spec/controllers/ee/groups/group_members_controller_spec.rb'
@@ -29,7 +23,6 @@ RSpec/NamedSubject:
     - 'ee/spec/controllers/groups/analytics/repository_analytics_controller_spec.rb'
     - 'ee/spec/controllers/groups/analytics/tasks_by_type_controller_spec.rb'
     - 'ee/spec/controllers/groups/epics_controller_spec.rb'
-    - 'ee/spec/controllers/groups/groups_controller_spec.rb'
     - 'ee/spec/controllers/groups/insights_controller_spec.rb'
     - 'ee/spec/controllers/groups/issues_controller_spec.rb'
     - 'ee/spec/controllers/groups/iterations_controller_spec.rb'

@@ -87,6 +87,7 @@ RSpec.describe Packages::Generic::CreatePackageFileService, feature_category: :p
     end
 
     context 'with a status' do
+      let(:package) { create(:generic_package, project: project) }
       let(:params) { super().merge(status: 'hidden') }
       let(:package_params) { super().merge(status: 'hidden') }
 

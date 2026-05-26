@@ -169,6 +169,7 @@ module API
         # rubocop: enable CodeReuse/ActiveRecord
 
         desc 'Removes a user from a group or project.' do
+          success code: 204, message: 'Resource deleted'
           tags %w[members]
         end
         params do

@@ -101,9 +101,13 @@ export default {
       if (!this.isGitlabCom) {
         const gitlabBasePathURL = new URL(this.gitlabBasePath);
         oauthAuthorizeURLWithChallenge.hostname = gitlabBasePathURL.hostname;
-        oauthAuthorizeURLWithChallenge.pathname = `${
-          gitlabBasePathURL.pathname === '/' ? '' : gitlabBasePathURL.pathname
-        }${oauthAuthorizeURLWithChallenge.pathname}`;
+        const basePathname = gitlabBasePathURL.pathname.replace(/\/+$/, '');
+        if (
+          basePathname &&
+          !oauthAuthorizeURLWithChallenge.pathname.startsWith(`${basePathname}/`)
+        ) {
+          oauthAuthorizeURLWithChallenge.pathname = `${basePathname}${oauthAuthorizeURLWithChallenge.pathname}`;
+        }
       }
 
       return oauthAuthorizeURLWithChallenge.toString();

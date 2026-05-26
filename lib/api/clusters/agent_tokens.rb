@@ -80,6 +80,7 @@ module API
 
             desc 'Revoke an agent token' do
               detail 'This feature was introduced in GitLab 15.0. Revokes an agent token.'
+              success code: 204, message: 'Resource deleted'
               tags %w[cluster_agents]
             end
             params do

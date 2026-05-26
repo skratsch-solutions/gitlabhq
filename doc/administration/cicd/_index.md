@@ -87,7 +87,7 @@ configured to use `needs` then return the error `job can only need 0 others`.
 
 [Scheduled pipelines](../../ci/pipelines/schedules.md) can be configured with any [cron value](../../topics/cron/_index.md),
 but they do not always run exactly when scheduled. An internal process, called the
-_pipeline schedule worker_, queues all the scheduled pipelines, but does not
+"pipeline schedule worker", queues all the scheduled pipelines, but does not
 run continuously. The worker runs on its own schedule, and scheduled pipelines that
 are ready to start are only queued the next time the worker runs. Scheduled pipelines
 can't run more frequently than the worker.

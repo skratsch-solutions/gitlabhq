@@ -1,0 +1,10 @@
+---
+name: merge_request_code_conflict_flow_trigger
+description: This feature flag control on Project level if should show this new trigger event to customers
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/592455
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234044
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/598716
+milestone: '19.1'
+group: group::ai coding
+type: gitlab_com_derisk
+default_enabled: false

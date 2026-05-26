@@ -126,6 +126,7 @@ export function mapWorkItemToGraphQL(item, sharedNamespace) {
     hidden: item.hidden ?? false,
     reference: item.reference ?? null,
     webPath: item.web_path ?? null,
+    userDiscussionsCount: item.user_discussions_count ?? 0,
     author: item.author
       ? {
           __typename: 'UserCore',
@@ -171,7 +172,7 @@ export async function workItemsRestResolver(namespace, args) {
 
   restParams.set(
     'fields',
-    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,author,work_item_type,confidential,hidden',
+    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,author,work_item_type,confidential,hidden,user_discussions_count',
   );
   restParams.set('features', 'labels,assignees,milestone,start_and_due_date');
 

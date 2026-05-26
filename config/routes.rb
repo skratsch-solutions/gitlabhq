@@ -112,7 +112,7 @@ InitializerConnections.warn_if_database_connection do
       # Terraform service discovery
       get '.well-known/terraform.json' => 'terraform/services#index', as: :terraform_services
 
-      draw :organizations
+      draw_all :organizations
 
       # Begin of the /-/ scope.
       # Use this scope for all new global routes.

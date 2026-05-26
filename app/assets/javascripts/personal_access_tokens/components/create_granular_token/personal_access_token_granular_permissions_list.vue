@@ -98,23 +98,24 @@ export default {
     <div
       v-for="category in selectedResourcesGroupedByCategory"
       :key="category.key"
-      :data-testid="`category-${category.key}`"
+      data-testid="selected-category"
     >
-      <div class="gl-heading-5 gl-mt-4 gl-font-bold" data-testid="category-heading">
+      <div class="gl-heading-5 gl-mt-4 gl-font-bold" data-testid="selected-category-heading">
         {{ category.name }}
       </div>
       <div
         v-for="resource in category.resources"
         :key="resource.key"
         class="gl-mb-6 gl-flex gl-items-center gl-justify-between gl-gap-3"
+        data-testid="selected-resource"
       >
         <div class="gl-min-w-0 gl-flex-1">
-          <div data-testid="resource-name">
+          <div data-testid="selected-resource-name">
             {{ resource.name }}
           </div>
           <div
             class="gl-mt-1 gl-line-clamp-2 gl-max-w-62 gl-text-sm gl-leading-20 gl-text-subtle"
-            data-testid="resource-description"
+            data-testid="selected-resource-description"
           >
             {{ resource.description }}
           </div>

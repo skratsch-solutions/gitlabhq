@@ -105,6 +105,84 @@ describe('SignInOauthButton', () => {
         );
       });
     });
+
+    describe('when `gitlabBasePath` is hosted at a subpath', () => {
+      const mockClientId = '798412381';
+      const mockSubpathBasePath = 'https://gitlab.mycompany.com/gitlab';
+      const expectedAuthorizeUrl = `${mockSubpathBasePath}/oauth/authorize?code_challenge=mock-challenge&code_challenge_method=S256&client_id=${mockClientId}`;
+      const buildOauthMetadata = (oauthAuthorizeUrl) => ({
+        ...mockOauthMetadata,
+        oauth_authorize_url: oauthAuthorizeUrl,
+      });
+
+      const triggerSignIn = async (oauthMetadata, basePath) => {
+        fetchOAuthApplicationId.mockReturnValue({ data: { application_id: mockClientId } });
+        jest.spyOn(window, 'open').mockReturnValue();
+
+        store = createStore();
+        wrapper = shallowMount(SignInOauthButton, {
+          store,
+          provide: { oauthMetadata },
+          propsData: { gitlabBasePath: basePath },
+        });
+
+        findButton().vm.$emit('click');
+        await nextTick();
+        await waitForPromises();
+      };
+
+      it('does not duplicate the subpath when the backend URL already includes it', async () => {
+        await triggerSignIn(
+          buildOauthMetadata('https://gitlab.mycompany.com/gitlab/oauth/authorize'),
+          mockSubpathBasePath,
+        );
+
+        expect(window.open).toHaveBeenCalledWith(
+          expectedAuthorizeUrl,
+          I18N_DEFAULT_SIGN_IN_BUTTON_TEXT,
+          OAUTH_WINDOW_OPTIONS,
+        );
+      });
+
+      it('prepends the subpath when the backend URL is missing it', async () => {
+        await triggerSignIn(
+          buildOauthMetadata('https://gitlab.com/oauth/authorize'),
+          mockSubpathBasePath,
+        );
+
+        expect(window.open).toHaveBeenCalledWith(
+          expectedAuthorizeUrl,
+          I18N_DEFAULT_SIGN_IN_BUTTON_TEXT,
+          OAUTH_WINDOW_OPTIONS,
+        );
+      });
+
+      it('strips a trailing slash from the base path to avoid double slashes', async () => {
+        await triggerSignIn(
+          buildOauthMetadata('https://gitlab.com/oauth/authorize'),
+          `${mockSubpathBasePath}/`,
+        );
+
+        expect(window.open).toHaveBeenCalledWith(
+          expectedAuthorizeUrl,
+          I18N_DEFAULT_SIGN_IN_BUTTON_TEXT,
+          OAUTH_WINDOW_OPTIONS,
+        );
+      });
+
+      it('handles a trailing slash on the base path when the backend URL already includes the subpath', async () => {
+        await triggerSignIn(
+          buildOauthMetadata('https://gitlab.mycompany.com/gitlab/oauth/authorize'),
+          `${mockSubpathBasePath}/`,
+        );
+
+        expect(window.open).toHaveBeenCalledWith(
+          expectedAuthorizeUrl,
+          I18N_DEFAULT_SIGN_IN_BUTTON_TEXT,
+          OAUTH_WINDOW_OPTIONS,
+        );
+      });
+    });
   });
 
   it.each`
