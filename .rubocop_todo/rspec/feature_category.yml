@@ -3105,7 +3105,6 @@ RSpec/FeatureCategory:
     - 'spec/validators/json_schema_validator_spec.rb'
     - 'spec/validators/kubernetes_container_resources_validator_spec.rb'
     - 'spec/validators/named_ecdsa_key_validator_spec.rb'
-    - 'spec/validators/namespace_path_validator_spec.rb'
     - 'spec/validators/nested_attributes_duplicates_validator_spec.rb'
     - 'spec/validators/public_url_validator_spec.rb'
     - 'spec/validators/qualified_domain_array_validator_spec.rb'

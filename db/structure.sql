@@ -20499,6 +20499,8 @@ CREATE TABLE duo_workflows_workflows (
     ai_catalog_item_id bigint,
     summary text,
     messaging_callback_context jsonb,
+    title text,
+    CONSTRAINT check_1033e7a455 CHECK ((char_length(title) <= 40)),
     CONSTRAINT check_13bb5688db CHECK ((char_length(summary) <= 1024)),
     CONSTRAINT check_30ca07a4ef CHECK ((char_length(goal) <= 16384)),
     CONSTRAINT check_3a9162f1ae CHECK ((char_length(image) <= 2048)),

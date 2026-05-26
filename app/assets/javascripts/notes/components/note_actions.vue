@@ -170,7 +170,6 @@ export default {
   computed: {
     ...mapState(useNotes, [
       'isPromoteCommentToTimelineEventInProgress',
-      'getUserDataByProp',
       'getNoteableData',
       'canUserAddIncidentTimelineEvents',
     ]),
@@ -182,14 +181,8 @@ export default {
     ariaLabelNotePreview() {
       return this.notePreviewText ? `: '${this.notePreviewText}'` : '';
     },
-    shouldShowActionsDropdown() {
-      return this.currentUserId;
-    },
     showDeleteAction() {
       return this.canDelete && !this.canReportAsAbuse && !this.noteUrl;
-    },
-    currentUserId() {
-      return this.getUserDataByProp('id');
     },
     isUserAssigned() {
       return this.assignees && this.assignees.some(({ id }) => id === this.author.id);
@@ -440,7 +433,7 @@ export default {
       class="note-action-button js-note-delete"
       @click="onDelete"
     />
-    <div v-else-if="shouldShowActionsDropdown" class="more-actions dropdown">
+    <div v-else class="more-actions dropdown">
       <gl-disclosure-dropdown
         v-gl-tooltip
         :title="$options.i18n.moreActionsLabel"

@@ -44,7 +44,7 @@
 
   // Layout
   &.page-with-panels .layout-page {
-    @apply gl-flex gl-gap-0 lg:gl-gap-3 gl-items-stretch gl-justify-start lg:gl-justify-center gl-flex-col lg:gl-flex-row lg:gl-pl-0 lg:gl-pb-3 sm:gl-pr-3;
+    @apply gl-flex gl-gap-0 lg:gl-gap-3 gl-items-stretch gl-justify-start lg:gl-justify-center gl-flex-col lg:gl-flex-row lg:gl-pb-3 sm:gl-px-3;
     min-height: 0;
     flex: 1;
   }
@@ -55,18 +55,6 @@
   /* stylelint-enable gitlab/no-js-class */
     @apply gl-relative #{!important};
     @apply gl-top-0;
-  }
-
-  // Super sidebar alignment
-  #super-sidebar {
-    @apply lg:-gl-mr-3;
-  }
-
-  .page-with-super-sidebar {
-    .super-sidebar-loading ~ .panels-container,
-    .super-sidebar-wrapper ~ .panels-container {
-      @apply lg:gl-ml-0;
-    }
   }
 
   // Panels container
@@ -98,11 +86,6 @@
         @apply gl-hidden;
       }
     }
-  }
-
-  // Add some left margin on pages with no left sidebar (like /search)
-  .panels-container {
-    @apply sm:gl-ml-3;
   }
 
   // Contextual panel
@@ -395,10 +378,6 @@
         var(--gl-background-color-default);
       background-color: var(--body-background-color);
     }
-
-    .super-sidebar hr {
-      border-color: var(--gl-color-alpha-dark-8);
-    }
   }
 
   // Dark mode
@@ -423,10 +402,6 @@
         var(--_shade-2);
       background-color: var(--body-background-color);
     }
-  }
-
-  .super-sidebar:not(.super-sidebar-is-mobile) {
-    background: transparent !important;
   }
 
   .organization-switcher-button {

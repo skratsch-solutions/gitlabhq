@@ -994,6 +994,7 @@ CREATE TABLE siphon_duo_workflows_workflows
     `_siphon_deleted` Bool DEFAULT false CODEC(ZSTD(1)),
     `messaging_callback_context` Nullable(String),
     `summary` Nullable(String),
+    `title` Nullable(String),
     PROJECTION pg_pkey_ordered
     (
         SELECT *

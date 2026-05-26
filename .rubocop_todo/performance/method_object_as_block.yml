@@ -11,4 +11,3 @@ Performance/MethodObjectAsBlock:
     - 'spec/models/design_management/version_spec.rb'
     - 'spec/support/helpers/migrations_helpers.rb'
     - 'spec/support/shared_examples/models/active_record_enum_shared_examples.rb'
-    - 'spec/support_specs/helpers/stub_feature_flags_spec.rb'

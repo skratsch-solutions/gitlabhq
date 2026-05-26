@@ -35,48 +35,6 @@ After the reviewer approves, a maintainer reviews and merges. The last required 
 For CODEOWNERS-required approvals, seek domain-specific approvals before generic ones.
 Domain-specific approvers who are also maintainers should review both aspects and approve once.
 
-### Domain experts
-
-Domain experts are team members who have substantial experience with a specific technology,
-product feature, or area of the codebase. Team members are encouraged to self-identify as
-domain experts and add it to their
-[team profiles](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#how-to-self-identify-as-a-domain-expert).
-
-When self-identifying as a domain expert, it is recommended to assign the MR changing the `.yml` file to be merged by an already established Domain Expert or a corresponding Engineering Manager.
-
-We make the following assumption with regards to automatically being considered a domain expert:
-
-- Team members working in a specific stage/group (for example, create: source code) are considered domain experts for that area of the app they work on.
-- Team members working on a specific feature (for example, search) are considered domain experts for that feature.
-
-We default to assigning reviews to team members with domain expertise for code reviews. UX reviews default to the recommended reviewer from the Review Roulette. Due to designer capacity limits, areas not supported by a Product Designer will no longer require a UX review unless it is a community contribution.
-When a suitable [domain expert](#domain-experts) isn't available, you can choose any team member to review the MR, or follow the [Reviewer roulette](#reviewer-roulette) recommendation (see above for UX reviews). Double check if the person is OOO before assigning them.
-
-To find a domain expert:
-
-- In the Merge Request approvals widget, select [View eligible approvers](../user/project/merge_requests/approvals/rules.md#eligible-approvers).
-  This widget shows recommended and required approvals per area of the codebase.
-  These rules are defined in [Code Owners](../user/project/merge_requests/approvals/rules.md#code-owners-as-approvers).
-- View the list of team members who work in the [stage or group](https://handbook.gitlab.com/handbook/product/categories/#devops-stages) related to the merge request.
-- View team members' domain expertise on the [engineering projects](https://handbook.gitlab.com/handbook/engineering/projects/) page or on the [GitLab team page](https://about.gitlab.com/company/team/). Domains are self-identified, so use your judgment to map the changes on your merge request to a domain.
-- Look for team members who have contributed to the files in the merge request. View the logs by running `git log <file>`.
-- Look for team members who have reviewed the files. You can find the relevant merge request by:
-  1. Getting the commit SHA by using `git log <file>`.
-  1. Navigating to `https://gitlab.com/gitlab-org/gitlab/-/commit/<SHA>`.
-  1. Selecting the related merge request shown for the commit.
-
-### Reviewer roulette
-
-> [!note]
-> [Reviewer roulette](https://gitlab-org.gitlab.io/gitlab-roulette/) is an internal tool for
-> GitLab.com, not available on customer installations.
-
-The [Danger bot](dangerbot.md) picks a reviewer and maintainer for each codebase area your MR
-touches. Override the suggestion if you know a better fit.
-
-The roulette skips people whose status contains `OOO`, `PTO`, `Parental Leave`, `Friends and
-Family`, or `Conference`, or who are at review capacity (set via a number status emoji: 2️⃣–5️⃣).
-
 ### Approval guidelines
 
 As described in the section on the responsibility of the maintainer below, you
@@ -131,71 +89,92 @@ by a reviewer before passing it to a maintainer as described in the
    Designers do not require a Product Designer to approve feature changes, unless the changes are community contributions.
 1. End-to-end changes include all files in the `qa` directory.
 
-#### Acceptance checklist
+### Reviewing a merge request
 
-<!-- When editing, remember to announce the change to Engineering Division -->
+Understand why the change is necessary (fixes a bug, improves the user
+experience, refactors the existing code). Then:
 
-This checklist encourages the authors, reviewers, and maintainers of merge requests (MRs) to confirm changes were analyzed for high-impact risks to quality, performance, reliability, security, observability, and maintainability.
+- Try to be thorough in your reviews to reduce the number of iterations.
+- Communicate which ideas you feel strongly about and those you don't.
+- Identify ways to simplify the code while still solving the problem.
+- Offer alternative implementations, but assume the author already considered
+  them. ("What do you think about using a custom validator here?")
+- Seek to understand the author's perspective.
+- Check out the branch, and test the changes locally. You can decide how much manual testing you want to perform.
 
-Using checklists improves quality in software engineering. This checklist is a straightforward tool to support and bolster the skills of contributors to the GitLab codebase.
+  - If the merge request requires significant GDK modifications (such as adding new services, modifying environment variables, or complex configuration changes), consider these approaches:
+    - **Skip local testing** and perform a thorough code review instead, then request a domain expert from the author's team to do local verification.
+    - **Request additional verification** such as screenshots, videos, or detailed testing steps from the author.
+    - **Identify the minimal change** needed to trigger the code path (for example, setting a condition to `true` in the code) rather than full environment setup.
 
-##### Quality
+  Your testing might result in opportunities to add automated tests.
+- If you don't understand a piece of code, _say so_. There's a good chance
+  someone else would be confused by it as well.
+- Ensure the author is clear on what is required from them to address/resolve the suggestion.
+  - Consider using the [Conventional Comment format](https://conventionalcomments.org#format) to
+    convey your intent.
+  - For non-mandatory suggestions, decorate with (non-blocking) so the author knows they can
+    optionally resolve within the merge request or follow-up at a later stage. When the only suggestions are
+    non-blocking, move the MR onto the next stage to reduce async cycles. When you are a first round
+    reviewer, pass to a maintainer to review. When you are the final approving maintainer,
+    generate follow-ups from the non-blocking suggestions and merge or set auto-merge.
+    The author then has the option to either cancel the auto-merge by implementing the non-blocking suggestions,
+    they provide a follow-up MR after the MR got merged, or decide to not implement the suggestions.
+  - There's a [Chrome/Firefox add-on](https://gitlab.com/conventionalcomments/conventional-comments-button) which you can use to apply [Conventional Comment](https://conventionalcomments.org/) prefixes.
+- Ensure there are no open dependencies. Check [linked issues](../user/project/issues/related_issues.md) for blockers. Clarify with the authors
+  if necessary. If blocked by one or more open MRs, set an [MR dependency](../user/project/merge_requests/dependencies.md).
+- After a round of line notes, it can be helpful to post a summary note such as
+  "Looks good to me", or "Just a couple things to address."
+- Let the author know if changes are required following your review.
 
-For further quality guidelines, see [testing](https://handbook.gitlab.com/handbook/engineering/testing/).
+> [!warning]
+> **If the merge request is from a fork, also check the [additional guidelines for community contributions](#community-contributions).**
 
-1. You have self-reviewed this MR per [code review guidelines](code_review.md).
-1. The code follows the [software design guidelines](software_design.md).
-1. Ensure [automated tests](testing_guide/_index.md) exist following the [testing pyramid](testing_guide/testing_levels.md). Add missing tests or create an issue documenting testing gaps.
-1. You have considered the technical impacts on GitLab.com, Dedicated and self-managed.
-1. You have considered the impact of this change on the frontend, backend, and database portions of the system where appropriate and applied the `~ux`, `~frontend`, `~backend`, and `~database` labels accordingly.
-1. You have tested this MR in [all supported browsers](../install/requirements.md#supported-web-browsers), or determined that this testing is not needed.
-1. You have confirmed that this change is [backwards compatible across updates](multi_version_compatibility.md), or you have decided that this does not apply.
-1. You have properly separated [EE content](ee_features.md) (if any) from FOSS. Consider [running the CI pipelines in a FOSS context](ee_features.md#run-ci-pipelines-in-a-foss-context).
-1. You have considered that existing data may be surprisingly varied. For example, if adding a new model validation, consider making it optional on existing data.
-1. You have fixed flaky tests related to this MR, or have explained why they can be ignored. Flaky tests have error `Flaky test '<path/to/test>' was found in the list of files changed by this MR.` but can be in jobs that pass with warnings.
+### GitLab-specific concerns
 
-##### Performance, reliability, and availability
+GitLab is used in a lot of places. Many users use
+our [Omnibus packages](https://about.gitlab.com/install/), but some use
+the [Docker images](../install/docker/_index.md), some are
+[installed from source](../install/self_compiled/_index.md),
+and there are other installation methods available. GitLab.com itself is a large
+Enterprise Edition instance. This has some implications:
 
-1. You are confident that this MR does not harm performance, or you have asked a reviewer to help assess the performance impact. ([Merge request performance guidelines](merge_request_concepts/performance.md))
-1. You have added [information for database reviewers in the MR description](database_review.md#required), or you have decided that it is unnecessary.
-   - [Does this MR have database-related changes?](database_review.md)
-1. You have considered the availability and reliability risks of this change.
-1. You have considered the scalability risk based on future predicted growth.
-1. You have considered the performance, reliability, and availability impacts of this change on large customers who may have significantly more data than the average customer.
-1. You have considered the performance, reliability, and availability impacts of this change on customers who may run GitLab on the [minimum system](../install/requirements.md).
-1. You are confident that this change is compatible with the [Cells architecture](cells/_index.md). For more information, see
-   [Cells development principles](cells/_index.md#cells-development-principles).
-
-##### Observability instrumentation
-
-1. You have included enough instrumentation to facilitate debugging and proactive performance improvements through observability.
-   See [example](https://gitlab.com/gitlab-org/gitlab/-/issues/346124#expectations) of adding feature flags, logging, and instrumentation.
-
-##### Documentation
-
-1. You have included changelog trailers, or you have decided that they are not needed.
-   - [Does this MR need a changelog?](changelog.md#what-warrants-a-changelog-entry)
-1. You have added/updated documentation or decided that documentation changes are unnecessary for this MR.
-   - [Is documentation required?](documentation/workflow.md#documentation-for-a-product-change)
-
-##### Security
-
-1. You have confirmed that if this MR contains changes to processing or storing of credentials or tokens, authorization, and authentication methods, or other items described in [the security review guidelines](https://handbook.gitlab.com/handbook/security/product-security/security-platforms-architecture/application-security/appsec-reviews/#what-should-be-reviewed), you have added the `~security` label and you have `@`-mentioned `@gitlab-com/gl-security/appsec`.
-1. You have reviewed the documentation regarding [internal application security reviews](https://handbook.gitlab.com/handbook/security/product-security/security-platforms-architecture/application-security/appsec-reviews/#internal-application-security-reviews) for **when** and **how** to request a security review and requested a security review if this is warranted for this change.
-1. If there are security scan results that are blocking the MR (due to the [merge request approval policies](https://gitlab.com/gitlab-com/gl-security/security-policies)):
-   - For true positive findings, they should be corrected before the merge request is merged. This will remove the AppSec approval required by the merge request approval policy.
-   - For false positive findings, something that should be discussed for risk acceptance, or anything questionable, ping `@gitlab-com/gl-security/appsec`.
-
-##### Deployment
-
-1. You have considered using a feature flag for this change because the change may be high risk.
-1. If you are using a feature flag, you plan to test the change in staging before you test it in production, and you have considered rolling it out to a subset of production customers before rolling it out to all customers.
-   - [When to use a feature flag](https://handbook.gitlab.com/handbook/product-development/how-we-work/product-development-flow/feature-flag-lifecycle/#when-to-use-feature-flags)
-1. You have informed the Infrastructure department of a default setting or new setting change per [definition of done](contributing/merge_request_workflow.md#definition-of-done), or decided that this is unnecessary.
-
-##### Compliance
-
-1. You have confirmed that the correct [MR type label](labels/_index.md) has been applied.
+1. **Query changes** should be tested to ensure that they don't result in worse
+   performance at the scale of GitLab.com:
+   1. Generating large quantities of data locally can help.
+   1. Asking for query plans from GitLab.com is the most reliable way to validate
+      these.
+1. **Database migrations** must be:
+   1. Reversible.
+   1. Performant at the scale of GitLab.com - ask a maintainer to test the
+      migration on the staging environment if you aren't sure.
+   1. Categorized correctly:
+      - Regular migrations run before the new code is running on the instance.
+      - [Post-deployment migrations](database/post_deployment_migrations.md) run _after_
+        the new code is deployed, when the instance is configured to do that.
+      - [Batched background migrations](database/batched_background_migrations.md) run in Sidekiq, and
+        should be used for migrations that
+        [exceed the post-deployment migration time limit](migration_style_guide.md#how-long-a-migration-should-take)
+        GitLab.com scale.
+1. **Sidekiq workers** [cannot change in a backwards-incompatible way](sidekiq/compatibility_across_updates.md):
+   1. Sidekiq queues are not drained before a deploy happens, so there are
+      workers in the queue from the previous version of GitLab.
+   1. If you need to change a method signature, try to do so across two releases,
+      and accept both the old and new arguments in the first of those.
+   1. Similarly, if you need to remove a worker, stop it from being scheduled in
+      one release, then remove it in the next. This allows existing jobs to
+      execute.
+   1. Don't forget, not every instance is upgraded to every intermediate version
+      (some people may go from X.1.0 to X.10.0, or even try bigger upgrades!), so
+      try to be liberal in accepting the old format if it is cheap to do so.
+1. **Cached values** may persist across releases. If you are changing the type a
+   cached value returns (say, from a string or nil to an array), change the
+   cache key at the same time.
+1. **Settings** should be added as a
+   [last resort](https://handbook.gitlab.com/handbook/product/product-principles/#convention-over-configuration). See [Adding a new setting to GitLab Rails](architecture.md#adding-a-new-setting-in-gitlab-rails).
+1. **File system access** is not possible in a [cloud-native architecture](architecture.md#adapting-existing-and-introducing-new-components).
+   Ensure that we support object storage for any file storage we need to perform. For more
+   information, see the [uploads documentation](uploads/_index.md).
 
 ### The responsibility of the merge request author
 
@@ -293,117 +272,151 @@ see the [patch release runbook](https://gitlab.com/gitlab-org/release/docs/-/blo
 
 ## Best practices
 
+### Domain experts
+
+Domain experts are team members who have substantial experience with a specific technology,
+product feature, or area of the codebase. Team members are encouraged to self-identify as
+domain experts and add it to their
+[team profiles](https://handbook.gitlab.com/handbook/engineering/workflow/code-review/#how-to-self-identify-as-a-domain-expert).
+
+When self-identifying as a domain expert, it is recommended to assign the MR changing the `.yml` file to be merged by an already established Domain Expert or a corresponding Engineering Manager.
+
+We make the following assumption with regards to automatically being considered a domain expert:
+
+- Team members working in a specific stage/group (for example, create: source code) are considered domain experts for that area of the app they work on.
+- Team members working on a specific feature (for example, search) are considered domain experts for that feature.
+
+We default to assigning reviews to team members with domain expertise for code reviews. UX reviews default to the recommended reviewer from the Review Roulette. Due to designer capacity limits, areas not supported by a Product Designer will no longer require a UX review unless it is a community contribution.
+When a suitable [domain expert](#domain-experts) isn't available, you can choose any team member to review the MR, or follow the [Reviewer roulette](#reviewer-roulette) recommendation (see above for UX reviews). Double check if the person is OOO before assigning them.
+
+To find a domain expert:
+
+- In the Merge Request approvals widget, select [View eligible approvers](../user/project/merge_requests/approvals/rules.md#eligible-approvers).
+  This widget shows recommended and required approvals per area of the codebase.
+  These rules are defined in [Code Owners](../user/project/merge_requests/approvals/rules.md#code-owners-as-approvers).
+- View the list of team members who work in the [stage or group](https://handbook.gitlab.com/handbook/product/categories/#devops-stages) related to the merge request.
+- View team members' domain expertise on the [engineering projects](https://handbook.gitlab.com/handbook/engineering/projects/) page or on the [GitLab team page](https://about.gitlab.com/company/team/). Domains are self-identified, so use your judgment to map the changes on your merge request to a domain.
+- Look for team members who have contributed to the files in the merge request. View the logs by running `git log <file>`.
+- Look for team members who have reviewed the files. You can find the relevant merge request by:
+  1. Getting the commit SHA by using `git log <file>`.
+  1. Navigating to `https://gitlab.com/gitlab-org/gitlab/-/commit/<SHA>`.
+  1. Selecting the related merge request shown for the commit.
+
+### Reviewer roulette
+
+> [!note]
+> [Reviewer roulette](https://gitlab-org.gitlab.io/gitlab-roulette/) is an internal tool for
+> GitLab.com, not available on customer installations.
+
+The [Danger bot](dangerbot.md) picks a reviewer and maintainer for each codebase area your MR
+touches. Override the suggestion if you know a better fit.
+
+The roulette skips people whose status contains `OOO`, `PTO`, `Parental Leave`, `Friends and
+Family`, or `Conference`, or who are at review capacity (set via a number status emoji: 2️⃣–5️⃣).
+
+### Acceptance checklist
+
+<!-- When editing, remember to announce the change to Engineering Division -->
+
+This checklist encourages the authors, reviewers, and maintainers of merge requests (MRs) to confirm changes were analyzed for high-impact risks to quality, performance, reliability, security, observability, and maintainability.
+
+Using checklists improves quality in software engineering. This checklist is a straightforward tool to support and bolster the skills of contributors to the GitLab codebase.
+
+#### Quality
+
+For further quality guidelines, see [testing](https://handbook.gitlab.com/handbook/engineering/testing/).
+
+1. You have self-reviewed this MR per [code review guidelines](code_review.md).
+1. The code follows the [software design guidelines](software_design.md).
+1. Ensure [automated tests](testing_guide/_index.md) exist following the [testing pyramid](testing_guide/testing_levels.md). Add missing tests or create an issue documenting testing gaps.
+1. You have considered the technical impacts on GitLab.com, Dedicated and self-managed.
+1. You have considered the impact of this change on the frontend, backend, and database portions of the system where appropriate and applied the `~ux`, `~frontend`, `~backend`, and `~database` labels accordingly.
+1. You have tested this MR in [all supported browsers](../install/requirements.md#supported-web-browsers), or determined that this testing is not needed.
+1. You have confirmed that this change is [backwards compatible across updates](multi_version_compatibility.md), or you have decided that this does not apply.
+1. You have properly separated [EE content](ee_features.md) (if any) from FOSS. Consider [running the CI pipelines in a FOSS context](ee_features.md#run-ci-pipelines-in-a-foss-context).
+1. You have considered that existing data may be surprisingly varied. For example, if adding a new model validation, consider making it optional on existing data.
+1. You have fixed flaky tests related to this MR, or have explained why they can be ignored. Flaky tests have error `Flaky test '<path/to/test>' was found in the list of files changed by this MR.` but can be in jobs that pass with warnings.
+
+#### Performance, reliability, and availability
+
+1. You are confident that this MR does not harm performance, or you have asked a reviewer to help assess the performance impact. ([Merge request performance guidelines](merge_request_concepts/performance.md))
+1. You have added [information for database reviewers in the MR description](database_review.md#required), or you have decided that it is unnecessary.
+   - [Does this MR have database-related changes?](database_review.md)
+1. You have considered the availability and reliability risks of this change.
+1. You have considered the scalability risk based on future predicted growth.
+1. You have considered the performance, reliability, and availability impacts of this change on large customers who may have significantly more data than the average customer.
+1. You have considered the performance, reliability, and availability impacts of this change on customers who may run GitLab on the [minimum system](../install/requirements.md).
+1. You are confident that this change is compatible with the [Cells architecture](cells/_index.md). For more information, see
+   [Cells development principles](cells/_index.md#cells-development-principles).
+
+#### Observability instrumentation
+
+1. You have included enough instrumentation to facilitate debugging and proactive performance improvements through observability.
+   See [example](https://gitlab.com/gitlab-org/gitlab/-/issues/346124#expectations) of adding feature flags, logging, and instrumentation.
+
+#### Documentation
+
+1. You have included changelog trailers, or you have decided that they are not needed.
+   - [Does this MR need a changelog?](changelog.md#what-warrants-a-changelog-entry)
+1. You have added/updated documentation or decided that documentation changes are unnecessary for this MR.
+   - [Is documentation required?](documentation/workflow.md#documentation-for-a-product-change)
+
+#### Security
+
+1. You have confirmed that if this MR contains changes to processing or storing of credentials or tokens, authorization, and authentication methods, or other items described in [the security review guidelines](https://handbook.gitlab.com/handbook/security/product-security/security-platforms-architecture/application-security/appsec-reviews/#what-should-be-reviewed), you have added the `~security` label and you have `@`-mentioned `@gitlab-com/gl-security/appsec`.
+1. You have reviewed the documentation regarding [internal application security reviews](https://handbook.gitlab.com/handbook/security/product-security/security-platforms-architecture/application-security/appsec-reviews/#internal-application-security-reviews) for **when** and **how** to request a security review and requested a security review if this is warranted for this change.
+1. If there are security scan results that are blocking the MR (due to the [merge request approval policies](https://gitlab.com/gitlab-com/gl-security/security-policies)):
+   - For true positive findings, they should be corrected before the merge request is merged. This will remove the AppSec approval required by the merge request approval policy.
+   - For false positive findings, something that should be discussed for risk acceptance, or anything questionable, ping `@gitlab-com/gl-security/appsec`.
+
+#### Deployment
+
+1. You have considered using a feature flag for this change because the change may be high risk.
+1. If you are using a feature flag, you plan to test the change in staging before you test it in production, and you have considered rolling it out to a subset of production customers before rolling it out to all customers.
+   - [When to use a feature flag](https://handbook.gitlab.com/handbook/product-development/how-we-work/product-development-flow/feature-flag-lifecycle/#when-to-use-feature-flags)
+1. You have informed the Infrastructure department of a default setting or new setting change per [definition of done](contributing/merge_request_workflow.md#definition-of-done), or decided that this is unnecessary.
+
+#### Compliance
+
+1. You have confirmed that the correct [MR type label](labels/_index.md) has been applied.
+
 ### Everyone
 
 - Be kind.
-- Accept that many programming decisions are opinions. Discuss tradeoffs, which
-  you prefer, and reach a resolution quickly.
-- Ask questions; don't make demands. ("What do you think about naming this
-  `:user_id`?")
-- Ask for clarification. ("I didn't understand. Can you clarify?")
-- Avoid selective ownership of code. ("mine", "not mine", "yours")
-- Avoid using terms that could be seen as referring to personal traits. ("dumb",
-  "stupid"). Assume everyone is intelligent and well-meaning.
-- Be explicit. Remember people don't always understand your intentions online.
-- Be humble. ("I'm not sure - let's look it up.")
-- Don't use hyperbole. ("always", "never", "endlessly", "nothing")
-- Be careful about the use of sarcasm. Everything we do is public; what seems
-  like good-natured ribbing to you and a long-time colleague might come off as
-  mean and unwelcoming to a person new to the project.
-- Consider one-on-one chats or video calls if there are too many "I didn't
-  understand" or "Alternative solution:" comments. Post a follow-up comment
-  summarizing one-on-one discussion.
-- If you ask a question to a specific person, always start the comment by
-  mentioning them; this ensures they see it if their notification level is
-  set to "mentioned" and other people understand they don't have to respond.
+- Accept that many programming decisions are opinions. Discuss trade-offs and resolve quickly.
+- Ask questions. Make suggestions, not demands.
+- Avoid selective ownership of code ("mine", "not mine").
+- Be explicit. People don't always understand your intentions online.
+- Be humble. Consider a one-on-one call for lengthy misunderstandings and post a follow-up summary.
+- Mention the person directly when a comment is addressed specifically to them.
 
-### Recommendations for MR authors to get their changes merged faster
+### For authors: getting changes merged faster
 
-1. Make sure to follow best practices.
-   - Write efficient instructions, add screenshots, steps to validate, etc.
-   - Read and address any comments added by `dangerbot`.
-   - Follow the [acceptance checklist](#acceptance-checklist).
-1. Follow GitLab patterns, even if you think there's a better way.
-   - Discussions often delay merging code. If a discussion is getting too long, consider following the documented approach or the maintainer's suggestion, then open a separate MR to implement your approach as part of our best practices and have the discussions there.
-1. Consider splitting big MRs into smaller ones. Around `200` lines is a good goal.
-   - Smaller MRs reduce cognitive load for authors and reviewers.
-   - Reviewers tend to pick up smaller MRs to review first (a large number of files can be scary).
-   - Discussions on one particular part of the code will not block other parts of the code from being merged.
-   - Smaller MRs are often simpler, and you can consider skipping the first review and [sending directly to the maintainer](#getting-your-merge-request-reviewed-approved-and-merged), or skipping one of the suggested competency areas (frontend or backend, for example).
-   - Mocks can be a good approach, even though they add another MR later; replacing a mock with a server request is usually a quick MR to review.
-     - Be sure that any UI with mocked data is behind a [feature flag](feature_flags/_index.md).
-   - Pull common dependencies into the first MRs to avoid excessive rebases.
-     - For sequential MRs use [stacked diffs](../user/project/merge_requests/stacked_diffs.md).
-     - For dependent MRs (for example, `A` -> `B` -> `C`), have their branches target each other instead of `master`. For example, have `C` target `B`, `B` target `A`, and `A` target `master`. This way each MR will have only their corresponding `diff`.
-   - Split merge request into smaller MRs in a way that only one maintainer is required per MR, for example, by shipping database changes before you implement the feature.
-   - ⚠️ Split MRs with caution: MRs that are **too** small increase the number of total reviews, which can cause the opposite effect.
-1. Minimize the number of reviewers in a single MR.
-   - Example: A DB reviewer can also review backend and or tests. A FullStack engineer can do both frontend and backend reviews.
-   - Using mocks can make the first MRs be `frontend` only, and later we can request `backend` review for the server request (see "splitting MRs" above).
-1. **Know your maintainers.**
-   - Knowing your maintainers will make code review a better experience for you
-     and your maintainers. If you have a small group of maintainers who are
-     usually reviewing your work, over time you will develop intuition for what the
-     maintainer is going to be unhappy about, and how the merge request has to be
-     structured to make the review faster.
-1. **Assign a maintainer who is a domain expert.**
-   - Assigning a maintainer who is a domain expert can significantly reduce the
-     time-to-merge. Maintainers usually prioritize reviewing merge requests
-     changing areas in the codebase they are familiar with. Even a small merge
-     request can wait very long for a review if a maintainer sees it, but concludes
-     that the time investment to understand the code will be significant. In that
-     case, maintainers tend to prioritize reviewing merge requests which are easier
-     for them to understand, because this way they will be more efficient reviewers.
-1. **Structure and write your MRs in a way that they are easy to review.**
-   - Once you know your maintainers and usually assign maintainers who are
-     domain experts, over time you will also develop intuition for how to make
-     your merge request easier to review. What it means that "a merge request
-     is easy to review" depends on who is going to review the merge request, and
-     whether they are domain experts. There are a few universal ways of making
-     a merge request easier to review which are outlined above (like splitting an MR
-     into smaller chunks), but once you become a domain expert, you know your
-     maintainer, and the maintainer is a domain expert as well, you will be able to
-     optimize for making your MRs a pleasure to review, and this will significantly
-     reduce time-to-merge.
+1. Follow best practices: write clear descriptions, add screenshots and validation steps, address
+   `dangerbot` comments, and complete the [acceptance checklist](#acceptance-checklist).
+1. Follow GitLab patterns. Long discussions delay merging. Consider following the documented
+   approach, then open a separate MR to propose changes to best practices.
+1. Keep MRs small. Around 200 lines is a good target.
+   - Smaller MRs are reviewed faster and have fewer blocking discussions.
+   - Use [stacked diffs](../user/project/merge_requests/stacked_diffs.md) for sequential MRs.
+   - Split changes so only one maintainer is required per MR (for example, ship database changes
+     before the feature).
+   - UI with mocked data must be behind a [feature flag](feature_flags/_index.md).
+1. Minimize the number of reviewers. A database reviewer can also review backend; a fullstack
+   engineer can cover frontend and backend.
+1. Know your maintainers and assign domain experts. Maintainers prioritize MRs in areas they know
+   well.
 
 ### Having your merge request reviewed
 
-Keep in mind that code review is a process that can take multiple
-iterations, and reviewers may spot things later that they may not have seen the
-first time.
-
-- The first reviewer of your code is you. Before you perform that first push
-  of your shiny new branch, read through the entire diff. Does it make sense?
-  Did you include something unrelated to the overall purpose of the changes? Did
-  you forget to remove any debugging code?
-- Write a detailed description as outlined in the [merge request guidelines](contributing/merge_request_workflow.md#merge-request-guidelines-for-contributors).
-  Some reviewers may not be familiar with the product feature or area of the
-  codebase. Thorough descriptions help all reviewers understand your request
-  and test effectively.
-- If you know your change depends on another being merged first, note it in the
-  description and set a [merge request dependency](../user/project/merge_requests/dependencies.md).
-- Be grateful for the reviewer's suggestions. ("Good call. I'll make that change.")
-- Don't take it personally. The review is of the code, not of you.
-- Explain why the code exists. ("It's like that because of these reasons. Would
-  it be more clear if I rename this class/file/method/variable?")
-- Extract unrelated changes and refactorings into future merge requests/issues.
-- Seek to understand the reviewer's perspective.
-- Try to respond to every comment.
-- The merge request author resolves only the threads they have fully
-  addressed. If there's an open reply, an open thread, a suggestion,
-  a question, or anything else, the thread should be left to be resolved
-  by the reviewer.
-- It should not be assumed that all feedback requires their recommended changes
-  to be incorporated into the MR before it is merged. It is a judgment call by
-  the MR author and the reviewer as to if this is required, or if a follow-up
-  issue should be created to address the feedback in the future after the MR in
-  question is merged.
-- Push commits based on earlier rounds of feedback as isolated commits to the
-  branch. Do not squash until the branch is ready to merge. Reviewers should be
-  able to read individual updates based on their earlier feedback.
-- Request a new review from the reviewer once you are ready for another round of
-  review. If you do not have the ability to request a review, `@`
-  mention the reviewer instead.
+- Read through the entire diff before your first push. Check for unrelated changes and debug code.
+- Write a detailed description per the
+  [merge request guidelines](contributing/merge_request_workflow.md#merge-request-guidelines-for-contributors).
+- Don't take feedback personally. Rather, the review is of the code, and its impact on production systems.
+- Explain why the code exists, not just what it does.
+- Try to respond to every comment. Only resolve threads you have fully addressed. If a comment can be addressed in a follow-up issue, work with the maintainer on a path forward.
+- Push feedback-based changes as isolated commits. Do not squash until ready to merge.
+- Re-request review once you are ready for another round.
 
 ### Responding to GitLab Duo review comments
 
@@ -422,47 +435,6 @@ considered the comment:
 Leave GitLab Duo discussion threads unresolved so that reviewers and
 maintainers can easily see your responses and verify that all automated feedback
 has been appropriately addressed.
-
-### Reviewing a merge request
-
-Understand why the change is necessary (fixes a bug, improves the user
-experience, refactors the existing code). Then:
-
-- Try to be thorough in your reviews to reduce the number of iterations.
-- Communicate which ideas you feel strongly about and those you don't.
-- Identify ways to simplify the code while still solving the problem.
-- Offer alternative implementations, but assume the author already considered
-  them. ("What do you think about using a custom validator here?")
-- Seek to understand the author's perspective.
-- Check out the branch, and test the changes locally. You can decide how much manual testing you want to perform.
-
-  - If the merge request requires significant GDK modifications (such as adding new services, modifying environment variables, or complex configuration changes), consider these approaches:
-    - **Skip local testing** and perform a thorough code review instead, then request a domain expert from the author's team to do local verification.
-    - **Request additional verification** such as screenshots, videos, or detailed testing steps from the author.
-    - **Identify the minimal change** needed to trigger the code path (for example, setting a condition to `true` in the code) rather than full environment setup.
-
-  Your testing might result in opportunities to add automated tests.
-- If you don't understand a piece of code, _say so_. There's a good chance
-  someone else would be confused by it as well.
-- Ensure the author is clear on what is required from them to address/resolve the suggestion.
-  - Consider using the [Conventional Comment format](https://conventionalcomments.org#format) to
-    convey your intent.
-  - For non-mandatory suggestions, decorate with (non-blocking) so the author knows they can
-    optionally resolve within the merge request or follow-up at a later stage. When the only suggestions are
-    non-blocking, move the MR onto the next stage to reduce async cycles. When you are a first round
-    reviewer, pass to a maintainer to review. When you are the final approving maintainer,
-    generate follow-ups from the non-blocking suggestions and merge or set auto-merge.
-    The author then has the option to either cancel the auto-merge by implementing the non-blocking suggestions,
-    they provide a follow-up MR after the MR got merged, or decide to not implement the suggestions.
-  - There's a [Chrome/Firefox add-on](https://gitlab.com/conventionalcomments/conventional-comments-button) which you can use to apply [Conventional Comment](https://conventionalcomments.org/) prefixes.
-- Ensure there are no open dependencies. Check [linked issues](../user/project/issues/related_issues.md) for blockers. Clarify with the authors
-  if necessary. If blocked by one or more open MRs, set an [MR dependency](../user/project/merge_requests/dependencies.md).
-- After a round of line notes, it can be helpful to post a summary note such as
-  "Looks good to me", or "Just a couple things to address."
-- Let the author know if changes are required following your review.
-
-> [!warning]
-> **If the merge request is from a fork, also check the [additional guidelines for community contributions](#community-contributions).**
 
 ### Merging a merge request
 
@@ -536,52 +508,6 @@ Finding the right balance in how deeply to review requires sound judgement. Keep
   refactors in an urgent security fix.
 - Doing things well today is usually better than doing something perfectly
   tomorrow.
-
-### GitLab-specific concerns
-
-GitLab is used in a lot of places. Many users use
-our [Omnibus packages](https://about.gitlab.com/install/), but some use
-the [Docker images](../install/docker/_index.md), some are
-[installed from source](../install/self_compiled/_index.md),
-and there are other installation methods available. GitLab.com itself is a large
-Enterprise Edition instance. This has some implications:
-
-1. **Query changes** should be tested to ensure that they don't result in worse
-   performance at the scale of GitLab.com:
-   1. Generating large quantities of data locally can help.
-   1. Asking for query plans from GitLab.com is the most reliable way to validate
-      these.
-1. **Database migrations** must be:
-   1. Reversible.
-   1. Performant at the scale of GitLab.com - ask a maintainer to test the
-      migration on the staging environment if you aren't sure.
-   1. Categorized correctly:
-      - Regular migrations run before the new code is running on the instance.
-      - [Post-deployment migrations](database/post_deployment_migrations.md) run _after_
-        the new code is deployed, when the instance is configured to do that.
-      - [Batched background migrations](database/batched_background_migrations.md) run in Sidekiq, and
-        should be used for migrations that
-        [exceed the post-deployment migration time limit](migration_style_guide.md#how-long-a-migration-should-take)
-        GitLab.com scale.
-1. **Sidekiq workers** [cannot change in a backwards-incompatible way](sidekiq/compatibility_across_updates.md):
-   1. Sidekiq queues are not drained before a deploy happens, so there are
-      workers in the queue from the previous version of GitLab.
-   1. If you need to change a method signature, try to do so across two releases,
-      and accept both the old and new arguments in the first of those.
-   1. Similarly, if you need to remove a worker, stop it from being scheduled in
-      one release, then remove it in the next. This allows existing jobs to
-      execute.
-   1. Don't forget, not every instance is upgraded to every intermediate version
-      (some people may go from X.1.0 to X.10.0, or even try bigger upgrades!), so
-      try to be liberal in accepting the old format if it is cheap to do so.
-1. **Cached values** may persist across releases. If you are changing the type a
-   cached value returns (say, from a string or nil to an array), change the
-   cache key at the same time.
-1. **Settings** should be added as a
-   [last resort](https://handbook.gitlab.com/handbook/product/product-principles/#convention-over-configuration). See [Adding a new setting to GitLab Rails](architecture.md#adding-a-new-setting-in-gitlab-rails).
-1. **File system access** is not possible in a [cloud-native architecture](architecture.md#adapting-existing-and-introducing-new-components).
-   Ensure that we support object storage for any file storage we need to perform. For more
-   information, see the [uploads documentation](uploads/_index.md).
 
 ### Customer critical merge requests
 

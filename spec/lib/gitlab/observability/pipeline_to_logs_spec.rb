@@ -2,7 +2,7 @@
 
 require 'fast_spec_helper'
 
-RSpec.describe Gitlab::Observability::PipelineToLogs, feature_category: :integrations do
+RSpec.describe Gitlab::Observability::PipelineToLogs, feature_category: :observability do
   let(:integration) do
     Struct.new(:otel_endpoint_url, :otel_headers, :service_name, :environment).new(
       'https://example.com/otel',

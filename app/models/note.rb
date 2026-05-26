@@ -440,9 +440,17 @@ class Note < ApplicationRecord
     return commit if for_commit?
 
     super
-  rescue StandardError
+  rescue StandardError => e
     # Temp fix to prevent app crash
     # if note commit id doesn't exist
+    Gitlab::ErrorTracking.track_exception(
+      e,
+      note_id: id,
+      noteable_type: noteable_type,
+      noteable_id: noteable_id,
+      commit_id: commit_id,
+      discussion_id: discussion_id
+    )
     nil
   end
 

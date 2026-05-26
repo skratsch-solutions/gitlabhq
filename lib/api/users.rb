@@ -124,8 +124,9 @@ module API
         end
       end
 
-      desc 'Get support PIN for a user. Available only for admins.' do
-        detail 'This feature allows administrators to retrieve the support PIN for a specified user'
+      desc 'Retrieve a Support PIN for a user' do
+        detail 'Retrieves a Support PIN for a specified user. GitLab Support may ask for this PIN to validate your ' \
+          'identity. Administrators only.'
         success Entities::UserSupportPin
         is_array false
         tags ['users']
@@ -185,7 +186,8 @@ module API
       end
 
       desc 'List all users' do
-        detail 'Lists all users.'
+        detail 'Lists all users on the instance. This endpoint supports keyset pagination. In GitLab 17.0 and later, ' \
+          'keyset pagination is used by default.'
         success Entities::UserBasic
         is_array true
         tags ['users']
@@ -256,8 +258,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Retrieve a user' do
-        detail 'Retrieves a single user by ID.'
+      desc 'Retrieve a user as a regular user' do
+        detail 'Retrieves a specified user as a regular user.'
         success Entities::User
         tags ['users']
       end
@@ -333,7 +335,7 @@ module API
       end
 
       desc 'Unfollow a user' do
-        detail 'Unfollows a user as the authenticated user.'
+        detail 'Unfollows a specified user account.'
         tags ['users']
         success Entities::User
       end
@@ -357,8 +359,8 @@ module API
         end
       end
 
-      desc 'List all users a user follows' do
-        detail 'Lists all users that the specified user follows.'
+      desc 'List all accounts followed by a user' do
+        detail 'Lists all user accounts being followed by a specified user.'
         tags ['users']
         success Entities::UserBasic
         is_array true
@@ -379,8 +381,8 @@ module API
         present paginate(user.followees), with: Entities::UserBasic
       end
 
-      desc 'List all followers of a user' do
-        detail 'Lists all followers of a user.'
+      desc 'List all accounts that follow a user' do
+        detail 'Lists all user accounts that follow a specified user.'
         tags ['users']
         success Entities::UserBasic
         is_array true
@@ -402,7 +404,7 @@ module API
       end
 
       desc 'Create a user' do
-        detail 'Creates a new user account. Available only for administrators.'
+        detail 'Creates a user. Administrators only.'
         tags ['users']
         success Entities::UserWithAdmin
       end
@@ -448,7 +450,7 @@ module API
       end
 
       desc 'Update a user' do
-        detail 'Updates a user account. Available only for administrators.'
+        detail 'Updates the details of a specified user.'
         tags ['users']
         success Entities::UserWithAdmin
       end
@@ -610,7 +612,7 @@ module API
       # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'List all SSH keys for a user' do
-        detail 'Lists all SSH keys for a specified user.'
+        detail 'Lists all SSH keys for a specified user account.'
         success Entities::SSHKey
         is_array true
         tags ['keys']
@@ -828,7 +830,7 @@ module API
       # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'List all email addresses for a user' do
-        detail 'Lists all email addresses for a specified user. Available only for administrators.'
+        detail 'Lists all email addresses for a specified user account. Administrators only.'
         success Entities::Email
         is_array true
         tags ['users']
@@ -942,8 +944,8 @@ module API
         end
       end
 
-      desc 'Reject a user' do
-        detail 'Rejects a user whose account is pending administrator approval. Administrators only.'
+      desc 'Reject access to a user' do
+        detail 'Rejects access to a specified user account that is pending approval. Administrators only.'
         success code: 201
         tags ['users']
       end
@@ -1019,8 +1021,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Unblock a user' do
-        detail 'Unblocks a previously blocked user. Administrators only.'
+      desc 'Unblock access to a user' do
+        detail 'Unblocks a specified user account that was previously blocked. Administrators only.'
         success code: 201
         tags ['users']
       end
@@ -1065,7 +1067,7 @@ module API
       end
 
       desc 'Unban a user' do
-        detail 'Unbans a previously banned user. Administrators only.'
+        detail 'Unbans a specified user account that was previously banned. Administrators only.'
         success code: 201
         tags ['users']
       end
@@ -1084,8 +1086,8 @@ module API
         end
       end
 
-      desc 'List all memberships for a user' do
-        detail 'Lists all project and group memberships for a user. Administrators only.'
+      desc 'List all project and group memberships for a user' do
+        detail 'Lists all project and group memberships for a specified user. Administrators only.'
         success Entities::Membership
         is_array true
         tags ['users']
@@ -1121,8 +1123,8 @@ module API
           end
         end
 
-        desc 'Retrieve user associations count' do
-          detail 'Retrieves counts of the projects, groups, issues, and merge requests associated with a user.'
+        desc 'Retrieve association counts for a user' do
+          detail 'Retrieves the number of groups, projects, issues, and merge requests associated with a specified user.'
           success ::API::Entities::UserAssociationsCount
           tags ['users']
         end
@@ -1161,8 +1163,8 @@ module API
 
           before { authenticated_as_admin! }
 
-          desc 'Retrieve impersonation tokens. Available only for admins.' do
-            detail 'This feature was introduced in GitLab 9.0'
+          desc 'List all impersonation tokens for a user' do
+            detail 'Lists all impersonation tokens for a specified user. Administrators only.'
             success Entities::ImpersonationToken
             is_array true
             tags ['access_tokens']
@@ -1175,8 +1177,11 @@ module API
             present paginate(finder(declared_params(include_missing: false)).execute), with: Entities::ImpersonationToken
           end
 
-          desc 'Create a impersonation token. Available only for admins.' do
-            detail 'This feature was introduced in GitLab 9.0'
+          desc 'Create an impersonation token' do
+            detail 'Creates an impersonation token. These tokens are used to act on behalf of a user and can perform ' \
+              'API calls as well as Git read and write actions. These tokens are not visible to the associated user ' \
+              'on their profile settings page. Token values are included with the response, but cannot be retrieved ' \
+              'later. Administrators only.'
             success Entities::ImpersonationTokenWithToken
             tags ['access_tokens']
           end
@@ -1235,8 +1240,9 @@ module API
 
           before { authenticated_as_admin! }
 
-          desc 'Create a personal access token. Available only for admins.' do
-            detail 'This feature was introduced in GitLab 13.6'
+          desc 'Create a personal access token for a user' do
+            detail 'Creates a personal access token for a user. Token values are included with the response, but ' \
+              'cannot be retrieved later. Administrators only.'
             success Entities::PersonalAccessTokenWithToken
             tags ['access_tokens']
           end
@@ -1271,8 +1277,8 @@ module API
       # Enabling /user endpoint for the v3 version to allow oauth
       # authentication through this endpoint.
       version %w[v3 v4], using: :path do
-        desc 'Retrieve the authenticated user' do
-          detail 'Retrieves the user record for the currently authenticated user.'
+        desc 'Retrieve current user details' do
+          detail 'Retrieves details about your user account.'
           success Entities::UserPublic
           tags ['users']
         end
@@ -1457,8 +1463,8 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Delete a GPG key from the currently authenticated user' do
-        detail 'This feature was added in GitLab 10.0'
+      desc 'Delete a GPG key' do
+        detail 'Deletes a GPG key from your user account.'
         success code: 204
         tags ['keys']
       end
@@ -1531,9 +1537,9 @@ module API
         end
       end
 
-      desc 'Create a new Support PIN' do
-        detail 'Creates a Support PIN for the currently authenticated user. GitLab Support may ask for this PIN ' \
-          'to validate your identity.'
+      desc 'Create a Support PIN' do
+        detail 'Creates a Support PIN. The PIN expires seven days after creation. GitLab Support may ask for this ' \
+          'PIN to validate your identity.'
         success Entities::UserSupportPin
         tags ['users']
       end
@@ -1572,9 +1578,9 @@ module API
         end
       end
 
-      desc "Update the current user's preferences" do
+      desc 'Update your user preferences' do
         success Entities::UserPreferences
-        detail 'This feature was introduced in GitLab 13.10.'
+        detail 'Updates your user preferences.'
         tags ['users']
       end
       params do
@@ -1602,9 +1608,9 @@ module API
         end
       end
 
-      desc "Get the current user's preferences" do
+      desc 'Retrieve your user preferences' do
         success Entities::UserPreferences
-        detail 'This feature was introduced in GitLab 14.0.'
+        detail 'Retrieves your user preferences.'
         tags ['users']
       end
       route_setting :authorization, permissions: :read_user_preference, boundary_type: :user
@@ -1650,7 +1656,8 @@ module API
       end
 
       desc 'Delete an email address' do
-        detail 'Deletes an email address from the currently authenticated user.'
+        detail 'Deletes the specified email address. You cannot delete a primary email address. Any future emails ' \
+          'sent to the deleted email address are sent to the primary email address instead.'
         success code: 204
         tags ['users']
       end
@@ -1701,9 +1708,10 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Update a user status' do
+      desc 'Set a user status' do
+        detail 'Sets the status of the currently authenticated user. Any parameters that are not passed are ' \
+          'nullified. This operation is similar but distinct from the Update a user status operation.'
         success Entities::UserStatus
-        detail 'Updates the user status for the currently authenticated user.'
         tags ['users']
       end
       params do
@@ -1714,9 +1722,10 @@ module API
         set_user_status(include_missing_params: true)
       end
 
-      desc 'Set the status of the current user' do
+      desc 'Update a user status' do
         success Entities::UserStatus
-        detail 'Any parameters that are not passed will be ignored.'
+        detail 'Sets the status of the currently authenticated user. Any parameters that are not passed are ' \
+          'ignored. This operation is similar but distinct from the Set a user status operation.'
         tags ['users']
       end
       params do
@@ -1733,8 +1742,8 @@ module API
         set_user_status(include_missing_params: false)
       end
 
-      desc 'Retrieve the status of the authenticated user' do
-        detail 'Retrieves the status of the currently authenticated user.'
+      desc 'Retrieve your user status' do
+        detail 'Retrieves your user status.'
         success Entities::UserStatus
         tags ['users']
       end
