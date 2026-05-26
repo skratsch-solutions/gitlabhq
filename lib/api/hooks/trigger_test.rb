@@ -17,6 +17,7 @@ module API
         success code: 201
         failure [
           { code: 400, message: 'Bad request' },
+          { code: 403, message: 'Forbidden' },
           { code: 404, message: 'Not found' },
           { code: 422, message: 'Unprocessable entity' },
           { code: 429, message: 'Too many requests' }
@@ -44,6 +45,8 @@ module API
 
         if success
           created!
+        elsif result.reason == :forbidden
+          forbidden!(result.message)
         else
           render_api_error!(result.message, 422)
         end

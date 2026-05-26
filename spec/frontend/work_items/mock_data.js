@@ -1961,6 +1961,10 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
   },
   timeTracking: {
     type: 'TIME_TRACKING',
+    humanReadableAttributes: {
+      timeEstimate: '',
+      __typename: 'WorkItemTimeTrackingHumanReadableAttributes',
+    },
     __typename: 'WorkItemWidgetTimeTracking',
   },
   notes: { discussionLocked, __typename: 'WorkItemWidgetNotes' },
@@ -11415,6 +11419,9 @@ export const workItemsQueryResponseWithFeatures = {
               },
               timeTracking: {
                 type: 'TIME_TRACKING',
+                humanReadableAttributes: {
+                  timeEstimate: '',
+                },
               },
               healthStatus: {
                 healthStatus: null,
@@ -11512,6 +11519,9 @@ export const workItemsQueryResponseWithFeatures = {
               },
               timeTracking: {
                 type: 'TIME_TRACKING',
+                humanReadableAttributes: {
+                  timeEstimate: '',
+                },
               },
               healthStatus: {
                 healthStatus: null,

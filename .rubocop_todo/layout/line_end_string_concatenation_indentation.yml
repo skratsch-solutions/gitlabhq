@@ -436,7 +436,6 @@ Layout/LineEndStringConcatenationIndentation:
     - 'spec/lib/gitlab/checks/tag_check_spec.rb'
     - 'spec/lib/gitlab/ci/ansi2html_spec.rb'
     - 'spec/lib/gitlab/ci/build/rules/rule/clause/exists_spec.rb'
-    - 'spec/lib/gitlab/ci/components/usages/aggregators/cursor_spec.rb'
     - 'spec/lib/gitlab/ci/config/external/file/remote_spec.rb'
     - 'spec/lib/gitlab/ci/config/interpolation/interpolator_spec.rb'
     - 'spec/lib/gitlab/ci/config/yaml/loader_spec.rb'

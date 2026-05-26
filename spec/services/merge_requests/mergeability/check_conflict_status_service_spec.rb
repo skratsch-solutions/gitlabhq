@@ -35,7 +35,7 @@ RSpec.describe MergeRequests::Mergeability::CheckConflictStatusService, feature_
     end
 
     context 'when the source branch sha does not match the diff head sha' do
-      let(:merge_request) { create(:merge_request) }
+      let(:merge_request) { build_stubbed(:merge_request) }
       let(:result) { check_conflict_status.execute }
 
       before do

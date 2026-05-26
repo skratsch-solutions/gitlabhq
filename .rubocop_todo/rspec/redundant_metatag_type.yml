@@ -71,7 +71,6 @@ RSpec/RedundantMetatagType:
     - 'ee/spec/models/sbom/source_spec.rb'
     - 'ee/spec/models/search/elastic/reindexing_slice_spec.rb'
     - 'ee/spec/models/search/elastic/reindexing_subtask_spec.rb'
-    - 'ee/spec/models/search/elastic/reindexing_task_spec.rb'
     - 'ee/spec/models/security/group_security_exclusion_spec.rb'
     - 'ee/spec/models/security/policy_setting_spec.rb'
     - 'ee/spec/models/security/project_security_exclusion_spec.rb'

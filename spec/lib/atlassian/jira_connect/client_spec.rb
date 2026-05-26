@@ -13,7 +13,7 @@ RSpec.describe Atlassian::JiraConnect::Client, feature_category: :integrations d
   let_it_be(:red_herrings) { create_list(:merge_request, 1, :unique_branches) }
   let_it_be(:mrs_by_description) { create_list(:merge_request, 2, :unique_branches, :jira_description) }
 
-  let_it_be(:pipelines) do
+  let_it_be(:pipelines, freeze: false) do
     (red_herrings + mrs_by_branch + mrs_by_title + mrs_by_description).map do |mr|
       create(:ci_pipeline, merge_request: mr)
     end

@@ -644,7 +644,6 @@ RSpec/BeEq:
     - 'spec/lib/gitlab/ci/build/rules/rule/clause/if_spec.rb'
     - 'spec/lib/gitlab/ci/build/rules/rule_spec.rb'
     - 'spec/lib/gitlab/ci/build/rules_spec.rb'
-    - 'spec/lib/gitlab/ci/components/usages/aggregators/cursor_spec.rb'
     - 'spec/lib/gitlab/ci/config/entry/processable_spec.rb'
     - 'spec/lib/gitlab/ci/config/entry/pull_policy_spec.rb'
     - 'spec/lib/gitlab/ci/config/entry/rules/rule_spec.rb'

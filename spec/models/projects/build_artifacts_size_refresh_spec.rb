@@ -67,7 +67,8 @@ RSpec.describe Projects::BuildArtifactsSizeRefresh, feature_category: :job_artif
         let_it_be_with_reload(:refresh) do
           create(
             :project_build_artifacts_size_refresh,
-            :created
+            :created,
+            updated_at: 2.days.ago
           )
         end
 
@@ -95,7 +96,7 @@ RSpec.describe Projects::BuildArtifactsSizeRefresh, feature_category: :job_artif
         end
 
         it 'bumps the updated_at' do
-          expect { refresh.process! }.to change { refresh.updated_at.to_i }.to(now.to_i)
+          expect { refresh.process! }.to change { refresh.reload.updated_at.to_i }.to(now.to_i)
         end
 
         it 'resets the build artifacts size stats' do

@@ -183,6 +183,7 @@ export const config = {
         },
       },
       WorkItemWidgetHierarchy: {
+        merge: true,
         fields: {
           // If we add any key args, the children field becomes children({"first":10}) and
           // kills any possibility to handle it on the widget level without hardcoding a string.
@@ -190,6 +191,12 @@ export const config = {
             keyArgs: false,
           },
         },
+      },
+      WorkItemWidgetLinkedItems: {
+        merge: true,
+      },
+      WorkItemWidgetNotifications: {
+        merge: true,
       },
       WorkItemWidgetVulnerabilities: {
         fields: {

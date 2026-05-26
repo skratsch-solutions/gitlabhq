@@ -210,8 +210,9 @@ export default {
         <personal-access-token-resources-list
           v-else-if="permissionsFilteredBySearch.length"
           v-model="selectedResources"
-          :permissions-filtered-by-search="permissionsFilteredBySearch"
+          :permissions="permissionsFilteredBySearch"
           :scope="scope"
+          :is-filtering="Boolean(searchTerm)"
         />
         <div v-else class="gl-my-4 gl-text-center gl-text-subtle">
           {{ $options.i18n.noResourcesFound }}

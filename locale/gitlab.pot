@@ -29286,9 +29286,6 @@ msgstr ""
 msgid "Emoji"
 msgstr ""
 
-msgid "Emoji already assigned"
-msgstr ""
-
 msgid "Empty file"
 msgstr ""
 
@@ -53413,7 +53410,7 @@ msgstr ""
 msgid "Permissions"
 msgstr ""
 
-msgid "Permissions Assistant"
+msgid "Permissions Assistant (beta)"
 msgstr ""
 
 msgid "Permissions Help"

@@ -118,9 +118,7 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
 
     it('filters permissions by target boundaries', () => {
       expect(findResourcesList().props('scope')).toBe('namespace');
-      expect(findResourcesList().props('permissionsFilteredBySearch')).toStrictEqual(
-        mockGroupPermissions,
-      );
+      expect(findResourcesList().props('permissions')).toStrictEqual(mockGroupPermissions);
 
       expect(findPermissionsList().props('permissions')).toStrictEqual(mockGroupPermissions);
       expect(findPermissionsList().props('scope')).toEqual('namespace');
@@ -132,9 +130,7 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
       await waitForPromises();
 
       expect(findResourcesList().props('scope')).toBe('user');
-      expect(findResourcesList().props('permissionsFilteredBySearch')).toStrictEqual(
-        mockUserPermissions,
-      );
+      expect(findResourcesList().props('permissions')).toStrictEqual(mockUserPermissions);
 
       expect(findPermissionsList().props('permissions')).toStrictEqual(mockUserPermissions);
       expect(findPermissionsList().props('scope')).toEqual('user');
@@ -143,9 +139,7 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
     it('searches by permission description', async () => {
       await findSearchBox().vm.$emit('input', 'Repository');
 
-      expect(findResourcesList().props('permissionsFilteredBySearch')).toStrictEqual([
-        mockGroupPermissions[2],
-      ]);
+      expect(findResourcesList().props('permissions')).toStrictEqual([mockGroupPermissions[2]]);
 
       expect(findPermissionsList().props('permissions')).toStrictEqual(mockGroupPermissions);
     });
@@ -153,7 +147,7 @@ describe('PersonalAccessTokenPermissionsSelector', () => {
     it('searches by permission category', async () => {
       await findSearchBox().vm.$emit('input', 'groups');
 
-      expect(findResourcesList().props('permissionsFilteredBySearch')).toStrictEqual([
+      expect(findResourcesList().props('permissions')).toStrictEqual([
         mockGroupPermissions[0],
         mockGroupPermissions[1],
         mockGroupPermissions[3],

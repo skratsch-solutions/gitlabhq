@@ -4408,7 +4408,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
   describe 'link_forked_project' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let_it_be(:top_level_group) { create(:group) }
     let_it_be(:subgroup) { create(:group, parent: top_level_group) }
     let_it_be(:personal_project) { create(:project, namespace: user.namespace) }

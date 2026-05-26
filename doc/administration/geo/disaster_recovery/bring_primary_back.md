@@ -68,6 +68,39 @@ To bring the former **primary** site up to date:
       (when it was a primary site) disable it by editing `/etc/gitlab/gitlab.rb`
       and running `sudo gitlab-ctl reconfigure`.
    1. You can then set up database replication on the **secondary** site.
+   1. Initialize the Geo tracking database schema on the reintroduced **secondary** site.
+
+      `gitlab-ctl replicate-geo-database` only replicates the main `gitlabhq_production`
+      database. The Geo tracking database (`gitlabhq_geo_production`) is local to the
+      **secondary** site and is normally migrated by `sudo gitlab-ctl reconfigure` through
+      `geo_secondary['auto_migrate']`. If `auto_migrate` is disabled, the tracking
+      database is external, or it was empty when reconfigure last ran, the Geo Log
+      Cursor stalls and all sync types remain at 0%.
+
+      In those cases, on a Rails or Sidekiq node of the **secondary** site:
+      
+      1. [Run the tracking database migrations manually](../setup/external_database.md#set-up-the-database-schema).
+      1. Restart the Geo Log Cursor so it picks up the new schema:
+
+         ```shell
+         sudo gitlab-ctl restart geo-logcursor
+         ```
+
+      1. Verify the tracking database is correctly set up before continuing:
+
+         ```shell
+         # Confirm the tracking database has tables
+         sudo gitlab-geo-psql -d gitlabhq_geo_production -c "\dt"
+
+         # Confirm all tracking database migrations are applied
+         sudo gitlab-rake db:migrate:status:geo | grep -w down
+
+         # Run the full Geo check
+         sudo gitlab-rake gitlab:geo:check
+         ```
+
+      The `db:migrate:status:geo` command should return no `down` migrations, and
+      `gitlab:geo:check` should report `GitLab Geo tracking database is correctly configured ... yes` in its output.
 
    1. Configure JWT audience for OpenBao. If you have enabled GitLab Secrets Manager
       and the primary and secondary sites don't share the same JWT audience,
