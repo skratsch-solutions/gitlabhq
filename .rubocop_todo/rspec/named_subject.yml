@@ -22,7 +22,6 @@ RSpec/NamedSubject:
     - 'ee/spec/controllers/ee/projects/merge_requests/creations_controller_spec.rb'
     - 'ee/spec/controllers/ee/projects/merge_requests_controller_spec.rb'
     - 'ee/spec/controllers/ee/projects/settings/ci_cd_controller_spec.rb'
-    - 'ee/spec/controllers/ee/projects/settings/repository_controller_spec.rb'
     - 'ee/spec/controllers/ee/projects_controller_spec.rb'
     - 'ee/spec/controllers/ee/registrations_controller_spec.rb'
     - 'ee/spec/controllers/ee/root_controller_spec.rb'

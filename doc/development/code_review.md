@@ -94,37 +94,22 @@ by a reviewer before passing it to a maintainer as described in the
 Understand why the change is necessary (fixes a bug, improves the user
 experience, refactors the existing code). Then:
 
-- Try to be thorough in your reviews to reduce the number of iterations.
+- Be thorough to reduce the number of iterations.
 - Communicate which ideas you feel strongly about and those you don't.
 - Identify ways to simplify the code while still solving the problem.
 - Offer alternative implementations, but assume the author already considered
   them. ("What do you think about using a custom validator here?")
 - Seek to understand the author's perspective.
-- Check out the branch, and test the changes locally. You can decide how much manual testing you want to perform.
-
-  - If the merge request requires significant GDK modifications (such as adding new services, modifying environment variables, or complex configuration changes), consider these approaches:
-    - **Skip local testing** and perform a thorough code review instead, then request a domain expert from the author's team to do local verification.
-    - **Request additional verification** such as screenshots, videos, or detailed testing steps from the author.
-    - **Identify the minimal change** needed to trigger the code path (for example, setting a condition to `true` in the code) rather than full environment setup.
-
-  Your testing might result in opportunities to add automated tests.
-- If you don't understand a piece of code, _say so_. There's a good chance
-  someone else would be confused by it as well.
-- Ensure the author is clear on what is required from them to address/resolve the suggestion.
-  - Consider using the [Conventional Comment format](https://conventionalcomments.org#format) to
-    convey your intent.
-  - For non-mandatory suggestions, decorate with (non-blocking) so the author knows they can
-    optionally resolve within the merge request or follow-up at a later stage. When the only suggestions are
-    non-blocking, move the MR onto the next stage to reduce async cycles. When you are a first round
-    reviewer, pass to a maintainer to review. When you are the final approving maintainer,
-    generate follow-ups from the non-blocking suggestions and merge or set auto-merge.
-    The author then has the option to either cancel the auto-merge by implementing the non-blocking suggestions,
-    they provide a follow-up MR after the MR got merged, or decide to not implement the suggestions.
-  - There's a [Chrome/Firefox add-on](https://gitlab.com/conventionalcomments/conventional-comments-button) which you can use to apply [Conventional Comment](https://conventionalcomments.org/) prefixes.
-- Ensure there are no open dependencies. Check [linked issues](../user/project/issues/related_issues.md) for blockers. Clarify with the authors
-  if necessary. If blocked by one or more open MRs, set an [MR dependency](../user/project/merge_requests/dependencies.md).
-- After a round of line notes, it can be helpful to post a summary note such as
-  "Looks good to me", or "Just a couple things to address."
+- Check out the branch and test the changes locally. For MRs requiring significant
+  GDK modifications, consider requesting screenshots, videos, or domain-expert verification
+  instead. Your testing might result in opportunities to add automated tests.
+- If you don't understand a piece of code, _say so_.
+- Use the [Conventional Comment format](https://conventionalcomments.org#format) to convey intent.
+  Mark non-mandatory suggestions as (`**non-blocking:**`). When only non-blocking suggestions remain,
+  move the MR to the next stage rather than waiting.
+- Ensure there are no open dependencies. Check [linked issues](../user/project/issues/related_issues.md)
+  for blockers. If blocked by open MRs, set an [MR dependency](../user/project/merge_requests/dependencies.md).
+- After a round of line notes, post a summary note such as "Looks good to me" or "Just a couple things to address."
 - Let the author know if changes are required following your review.
 
 > [!warning]
@@ -132,41 +117,21 @@ experience, refactors the existing code). Then:
 
 ### GitLab-specific concerns
 
-GitLab is used in a lot of places. Many users use
-our [Omnibus packages](https://about.gitlab.com/install/), but some use
-the [Docker images](../install/docker/_index.md), some are
-[installed from source](../install/self_compiled/_index.md),
-and there are other installation methods available. GitLab.com itself is a large
-Enterprise Edition instance. This has some implications:
+GitLab is used in a lot of places, from [Omnibus packages](https://about.gitlab.com/install/),
+to [source installations](../install/self_compiled/_index.md).
+GitLab.com itself is a large Enterprise Edition instance.
+This has some implications:
 
 1. **Query changes** should be tested to ensure that they don't result in worse
-   performance at the scale of GitLab.com:
-   1. Generating large quantities of data locally can help.
-   1. Asking for query plans from GitLab.com is the most reliable way to validate
-      these.
+   performance at the scale of GitLab.com.
+   See [database review guidelines](database_review.md).
 1. **Database migrations** must be:
    1. Reversible.
    1. Performant at the scale of GitLab.com - ask a maintainer to test the
       migration on the staging environment if you aren't sure.
-   1. Categorized correctly:
-      - Regular migrations run before the new code is running on the instance.
-      - [Post-deployment migrations](database/post_deployment_migrations.md) run _after_
-        the new code is deployed, when the instance is configured to do that.
-      - [Batched background migrations](database/batched_background_migrations.md) run in Sidekiq, and
-        should be used for migrations that
-        [exceed the post-deployment migration time limit](migration_style_guide.md#how-long-a-migration-should-take)
-        GitLab.com scale.
-1. **Sidekiq workers** [cannot change in a backwards-incompatible way](sidekiq/compatibility_across_updates.md):
-   1. Sidekiq queues are not drained before a deploy happens, so there are
-      workers in the queue from the previous version of GitLab.
-   1. If you need to change a method signature, try to do so across two releases,
-      and accept both the old and new arguments in the first of those.
-   1. Similarly, if you need to remove a worker, stop it from being scheduled in
-      one release, then remove it in the next. This allows existing jobs to
-      execute.
-   1. Don't forget, not every instance is upgraded to every intermediate version
-      (some people may go from X.1.0 to X.10.0, or even try bigger upgrades!), so
-      try to be liberal in accepting the old format if it is cheap to do so.
+   1. The correct migration type. See the guidance to choose which
+      [migration type](migration_style_guide.md#choose-an-appropriate-migration-type).
+1. **Sidekiq workers** [cannot change in a backwards-incompatible way](sidekiq/compatibility_across_updates.md).
 1. **Cached values** may persist across releases. If you are changing the type a
    cached value returns (say, from a string or nil to an array), change the
    cache key at the same time.
