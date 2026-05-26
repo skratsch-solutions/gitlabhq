@@ -360,7 +360,6 @@ Style/GuardClause:
     - 'lib/gitlab/git_access.rb'
     - 'lib/gitlab/git_access_design.rb'
     - 'lib/gitlab/git_access_snippet.rb'
-    - 'lib/gitlab/gitaly_client/conflicts_service.rb'
     - 'lib/gitlab/gitaly_client/operation_service.rb'
     - 'lib/gitlab/github_import.rb'
     - 'lib/gitlab/github_import/client.rb'

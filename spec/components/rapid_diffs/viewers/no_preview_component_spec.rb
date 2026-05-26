@@ -159,6 +159,23 @@ RSpec.describe RapidDiffs::Viewers::NoPreviewComponent, type: :component, featur
       end
     end
 
+    context 'when diff is collapsed because the file is generated' do
+      before do
+        allow(diff_file).to receive_messages(collapsed?: true, generated?: true)
+      end
+
+      it 'shows generated file collapsed message with .gitattributes hint and docs link', :aggregate_failures do
+        render_component
+        expect(page).to have_text(
+          'Generated files are collapsed by default. To change this behavior, ' \
+            'edit the .gitattributes file. Learn more.'
+        )
+        expect(page).to have_css('code', text: '.gitattributes')
+        expect(page).to have_link('Learn more.', href: /collapse-generated-files/)
+        verify_virtual_rendering_params
+      end
+    end
+
     context 'with a non-diffable file' do
       before do
         allow(diff_file).to receive(:diffable?).and_return(false)

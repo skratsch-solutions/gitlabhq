@@ -133,7 +133,6 @@ RSpec/NoExpectationExample:
     - 'spec/support/shared_examples/namespaces/hierarchy_examples.rb'
     - 'spec/support/shared_examples/quick_actions/issuable/issuable_quick_actions_shared_examples.rb'
     - 'spec/support/shared_examples/services/check_ingress_ip_address_service_shared_examples.rb'
-    - 'spec/support/shared_examples/services/notification_service_shared_examples.rb'
     - 'spec/support/shared_examples/services/updating_mentions_shared_examples.rb'
     - 'spec/support_specs/matchers/internal_events_matchers_spec.rb'
     - 'spec/tasks/gitlab/ldap_rake_spec.rb'

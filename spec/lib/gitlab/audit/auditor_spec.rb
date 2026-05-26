@@ -315,10 +315,11 @@ RSpec.describe Gitlab::Audit::Auditor, feature_category: :audit_events do
       it 'tracks error' do
         audit!
 
+        # Error is tracked for both legacy and new table writes when both fail
         expect(Gitlab::ErrorTracking).to have_received(:track_exception).with(
           kind_of(ActiveRecord::RecordInvalid),
           { audit_operation: name }
-        )
+        ).at_least(:once)
       end
 
       it 'does not throw exception' do
@@ -345,6 +346,48 @@ RSpec.describe Gitlab::Audit::Auditor, feature_category: :audit_events do
 
       it 'does not throw exception' do
         expect { auditor.audit(context) }.not_to raise_exception
+      end
+    end
+
+    context 'when stop_legacy_audit_event_writes feature flag is enabled' do
+      before do
+        stub_feature_flags(stop_legacy_audit_event_writes: true)
+      end
+
+      it 'does not write to the legacy AuditEvent table' do
+        expect { audit! }.not_to change { AuditEvent.count }
+      end
+
+      it 'still writes to the scoped audit event tables' do
+        expect { audit! }.to change { AuditEvents::GroupAuditEvent.count }.by(1)
+      end
+
+      it 'still logs to file' do
+        expect(::Gitlab::AuditJsonLogger).to receive(:build).and_return(logger)
+
+        audit!
+
+        expect(logger).to have_received(:info).with(
+          hash_including(
+            'author_id' => author.id,
+            'entity_id' => group.id,
+            'entity_type' => group.class.name
+          )
+        )
+      end
+
+      context 'when the flag is disabled (rollback behavior)' do
+        before do
+          stub_feature_flags(stop_legacy_audit_event_writes: false)
+        end
+
+        it 'resumes writing to the legacy AuditEvent table' do
+          expect { audit! }.to change { AuditEvent.count }.by(1)
+        end
+
+        it 'still writes to the scoped audit event tables' do
+          expect { audit! }.to change { AuditEvents::GroupAuditEvent.count }.by(1)
+        end
       end
     end
   end

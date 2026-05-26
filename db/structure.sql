@@ -17073,6 +17073,32 @@ CREATE SEQUENCE cd_artifact_sources_id_seq
 
 ALTER SEQUENCE cd_artifact_sources_id_seq OWNED BY cd_artifact_sources.id;
 
+CREATE TABLE cd_environments (
+    id bigint NOT NULL,
+    group_id bigint,
+    organization_id bigint,
+    cluster_agent_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    platform_type smallint DEFAULT 0 NOT NULL,
+    name text NOT NULL,
+    description text,
+    region text,
+    CONSTRAINT check_19cc3798cd CHECK ((char_length(description) <= 1024)),
+    CONSTRAINT check_1e9426d39c CHECK ((char_length(region) <= 255)),
+    CONSTRAINT check_6a24a5902d CHECK ((num_nonnulls(group_id, organization_id) = 1)),
+    CONSTRAINT check_7fb5aed63b CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE cd_environments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_environments_id_seq OWNED BY cd_environments.id;
+
 CREATE TABLE cd_services (
     id bigint NOT NULL,
     group_id bigint NOT NULL,
@@ -36203,6 +36229,8 @@ ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applica
 
 ALTER TABLE ONLY cd_artifact_sources ALTER COLUMN id SET DEFAULT nextval('cd_artifact_sources_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_environments ALTER COLUMN id SET DEFAULT nextval('cd_environments_id_seq'::regclass);
+
 ALTER TABLE ONLY cd_services ALTER COLUMN id SET DEFAULT nextval('cd_services_id_seq'::regclass);
 
 ALTER TABLE ONLY cd_versions ALTER COLUMN id SET DEFAULT nextval('cd_versions_id_seq'::regclass);
@@ -39377,6 +39405,9 @@ ALTER TABLE ONLY cd_applications
 
 ALTER TABLE ONLY cd_artifact_sources
     ADD CONSTRAINT cd_artifact_sources_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_environments
+    ADD CONSTRAINT cd_environments_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cd_services
     ADD CONSTRAINT cd_services_pkey PRIMARY KEY (id);
@@ -46617,6 +46648,8 @@ CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING 
 
 CREATE UNIQUE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
 
+CREATE INDEX index_cd_environments_on_cluster_agent_id ON cd_environments USING btree (cluster_agent_id);
+
 CREATE UNIQUE INDEX index_cd_services_on_application_id_and_name ON cd_services USING btree (application_id, name);
 
 CREATE INDEX index_cd_services_on_group_id ON cd_services USING btree (group_id);
@@ -51598,6 +51631,10 @@ CREATE UNIQUE INDEX uniq_idx_audit_events_instance_aws_configs_stream_dests ON a
 CREATE UNIQUE INDEX uniq_idx_audit_events_instance_ext_audit_event_stream_dests ON audit_events_instance_external_audit_event_destinations USING btree (stream_destination_id) WHERE (stream_destination_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uniq_idx_audit_events_instance_gcp_configs_stream_dests ON audit_events_instance_google_cloud_logging_configurations USING btree (stream_destination_id) WHERE (stream_destination_id IS NOT NULL);
+
+CREATE UNIQUE INDEX uniq_idx_cd_environments_on_group_id_and_name ON cd_environments USING btree (group_id, name) WHERE (group_id IS NOT NULL);
+
+CREATE UNIQUE INDEX uniq_idx_cd_environments_on_organization_id_and_name ON cd_environments USING btree (organization_id, name) WHERE (organization_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uniq_idx_on_packages_conan_package_references_package_reference ON packages_conan_package_references USING btree (package_id, recipe_revision_id, reference);
 
@@ -57422,6 +57459,9 @@ ALTER TABLE ONLY agent_user_access_group_authorizations
 ALTER TABLE ONLY group_crm_settings
     ADD CONSTRAINT fk_54592e5f57 FOREIGN KEY (source_group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_environments
+    ADD CONSTRAINT fk_54d43a716a FOREIGN KEY (cluster_agent_id) REFERENCES cluster_agents(id) ON DELETE RESTRICT;
+
 ALTER TABLE ONLY epic_issues
     ADD CONSTRAINT fk_54dd5d38a7 FOREIGN KEY (work_item_parent_link_id) REFERENCES work_item_parent_links(id) ON DELETE CASCADE;
 
@@ -57688,6 +57728,9 @@ ALTER TABLE ONLY projects
 
 ALTER TABLE ONLY scan_result_policy_violation_details
     ADD CONSTRAINT fk_6cfb6bae9a FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_environments
+    ADD CONSTRAINT fk_6d01437cc9 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY compliance_framework_security_policies
     ADD CONSTRAINT fk_6d3bd0c9f1 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58333,6 +58376,9 @@ ALTER TABLE ONLY deployment_merge_requests
 
 ALTER TABLE ONLY project_compliance_violations
     ADD CONSTRAINT fk_a066372b6c FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_environments
+    ADD CONSTRAINT fk_a124ccc042 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY issues
     ADD CONSTRAINT fk_a194299be1 FOREIGN KEY (moved_to_id) REFERENCES issues(id) ON DELETE SET NULL;

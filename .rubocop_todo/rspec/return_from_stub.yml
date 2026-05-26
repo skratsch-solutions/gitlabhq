@@ -65,7 +65,6 @@ RSpec/ReturnFromStub:
     - 'spec/models/blob_spec.rb'
     - 'spec/models/ci/build_spec.rb'
     - 'spec/models/ci/pipeline_spec.rb'
-    - 'spec/models/ci/processable_spec.rb'
     - 'spec/models/concerns/deprecated_assignee_spec.rb'
     - 'spec/models/concerns/discussion_on_diff_spec.rb'
     - 'spec/models/diff_note_spec.rb'
