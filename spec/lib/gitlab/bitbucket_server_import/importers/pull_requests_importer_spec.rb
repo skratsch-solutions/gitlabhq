@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Gitlab::BitbucketServerImport::Importers::PullRequestsImporter, :clean_gitlab_redis_shared_state, feature_category: :importers do
   include RepoHelpers
 
-  let_it_be(:project) do
+  let_it_be(:project, freeze: false) do
     create(:project, :with_import_url, :import_started, :empty_repo,
       import_data_attributes: {
         data: { 'project_key' => 'key', 'repo_slug' => 'slug' },
@@ -166,7 +166,9 @@ RSpec.describe Gitlab::BitbucketServerImport::Importers::PullRequestsImporter, :
       end
 
       context 'when a commit already exists' do
-        let_it_be(:commit_sha) { create_file_in_repo(project, 'master', 'master', 'test.txt', 'testing')[:result] }
+        let_it_be(:commit_sha) do
+          create_file_in_repo(project, 'master', 'master', 'test.txt', 'testing')[:result]
+        end
 
         it 'does not fetch the commit' do
           expected_refmap = [

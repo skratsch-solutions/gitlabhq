@@ -17,6 +17,10 @@ module Namespaces
 
       LEASE_TIMEOUT = 30.minutes.to_i
 
+      def self.lease_key(group_id)
+        "namespaces_groups_transfer_worker:#{group_id}"
+      end
+
       def perform(group_id, new_parent_group_id, user_id)
         group = Group.find_by_id(group_id)
         return unless group
@@ -26,7 +30,7 @@ module Namespaces
 
         new_parent_group = Group.find_by_id(new_parent_group_id) if new_parent_group_id
 
-        lease_key = ['namespaces_groups_transfer_worker', group_id].join(':')
+        lease_key = self.class.lease_key(group_id)
         exclusive_lease = Gitlab::ExclusiveLease.new(lease_key, uuid: jid, timeout: LEASE_TIMEOUT)
         lease = exclusive_lease.try_obtain
 

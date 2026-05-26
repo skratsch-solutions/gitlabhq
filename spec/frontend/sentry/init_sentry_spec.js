@@ -85,6 +85,7 @@ describe('SentryConfig', () => {
               /You must be logged in/,
               /Request failed with status code \d+/,
               /Response not successful: Received status code \d+/,
+              /Request aborted/,
             ],
             tracePropagationTargets: [/^\//],
             tracesSampleRate: mockSentryClientsideTracesSampleRate,
@@ -458,6 +459,11 @@ describe('SentryConfig', () => {
 
     it('returns true when only event.message matches', () => {
       expect(isNonActionableError({ message: 'Failed to fetch' })).toBe(true);
+    });
+
+    it('returns true for Request aborted errors', () => {
+      const error = new Error('Request aborted');
+      expect(isNonActionableError({}, { originalException: error })).toBe(true);
     });
 
     it('returns false for actionable application errors', () => {

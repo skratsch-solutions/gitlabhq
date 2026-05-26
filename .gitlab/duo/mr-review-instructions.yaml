@@ -191,7 +191,7 @@ instructions:
       11. Prefer `let_it_be` over `let` or `let!` for database-backed objects that do not need to change between examples. Use `let_it_be_with_reload` when the object is mutated in a `before` block, and `let_it_be_with_refind` only when a fresh ActiveRecord instance is strictly necessary. Do not define a `let_it_be` that depends on stubs or state set up in a `before` block — `let_it_be` runs in `before(:all)` before per-example stubs are active. Reference: https://docs.gitlab.com/development/testing_guide/best_practices/#lets-talk-about-let
       12. Use `non_existing_record_id` and `non_existing_record_iid` instead of hardcoded IDs like `123` or `999` — hardcoded IDs can collide with real records in CI
       13. Use `have_gitlab_http_status` with named status symbols (`:ok`, `:not_found`, `:created`) not numeric codes (`200`, `404`)
-      14. Do not wrap constants or static values in `let` blocks — use them inline or as local constants
+      14. Do not wrap a constant or static value in `let` if it is used in only one example — inline it or use a local variable inside the `it` block. When the value is shared across multiple examples in the same context, prefer `let`. Do not suggest local variables at the `context` or `describe` scope as a replacement for `let`
       15. Do not define a `let` variable in the top-level `describe` if it is only used in one nested block — define it in that block instead
       16. Avoid bare `subject` in expectations — use a named subject (e.g., `subject(:result)`) or an explicit method call
       17. Every top-level `RSpec.describe` block must have a `feature_category:` metadata tag

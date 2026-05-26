@@ -1385,9 +1385,12 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
         end
       end
 
-      context 'when the group is already in transfer_scheduled state' do
+      context 'when the group is already in transfer_scheduled state with an active worker' do
         before do
           group.schedule_transfer!(transition_user: user)
+          Gitlab::ExclusiveLease.new(
+            Namespaces::Groups::TransferWorker.lease_key(group.id), timeout: 30.minutes
+          ).try_obtain
         end
 
         it 'does not enqueue the worker and shows an error' do

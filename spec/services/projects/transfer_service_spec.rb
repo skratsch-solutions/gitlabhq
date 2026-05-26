@@ -989,6 +989,68 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
         expect(result.message).to eq('Unable to initiate transfer. The project may already have a transfer in progress.')
       end
     end
+
+    context 'when project namespace has stale transfer state with no active worker' do
+      before do
+        project.project_namespace.schedule_transfer!(transition_user: user)
+        project.project_namespace.start_transfer!(transition_user: user)
+      end
+
+      it 'cancels the stale state and proceeds with the transfer', :aggregate_failures do
+        allow(Projects::TransferWorker).to receive(:perform_async)
+
+        result = service.schedule_async_transfer(new_namespace)
+
+        expect(result).to be_success
+        expect(project.project_namespace.reload.state).to eq('transfer_scheduled')
+      end
+
+      it 'logs a warning about the stale state' do
+        allow(Projects::TransferWorker).to receive(:perform_async)
+        allow(Gitlab::AppLogger).to receive(:warn)
+
+        service.schedule_async_transfer(new_namespace)
+
+        expect(Gitlab::AppLogger).to have_received(:warn).with(hash_including(
+          message: 'Cancelling stale transfer state - no active worker lease found',
+          project_id: project.id
+        ))
+      end
+    end
+
+    context 'when project namespace has stale transfer_scheduled state with no active worker' do
+      before do
+        project.project_namespace.schedule_transfer!(transition_user: user)
+      end
+
+      it 'cancels the stale state and proceeds with the transfer', :aggregate_failures do
+        allow(Projects::TransferWorker).to receive(:perform_async)
+
+        result = service.schedule_async_transfer(new_namespace)
+
+        expect(result).to be_success
+        expect(project.project_namespace.reload.state).to eq('transfer_scheduled')
+      end
+    end
+
+    context 'when project namespace has transfer state with active worker lease' do
+      before do
+        project.project_namespace.schedule_transfer!(transition_user: user)
+        project.project_namespace.start_transfer!(transition_user: user)
+        Gitlab::ExclusiveLease.new(
+          Projects::TransferWorker.lease_key(project.id), timeout: 30.minutes
+        ).try_obtain
+      end
+
+      it 'does not cancel the state and returns error', :aggregate_failures do
+        expect(Projects::TransferWorker).not_to receive(:perform_async)
+
+        result = service.schedule_async_transfer(new_namespace)
+
+        expect(result).to be_error
+        expect(result.message).to eq('Unable to initiate transfer. The project may already have a transfer in progress.')
+      end
+    end
   end
 
   def project_namespace_in_sync(group)

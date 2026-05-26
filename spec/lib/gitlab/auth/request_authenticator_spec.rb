@@ -314,7 +314,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
     context 'with :editor_extension format' do
       let_it_be(:pat_user) { create(:user) }
-      let_it_be(:personal_access_token) { create(:personal_access_token, user: pat_user) }
+      let_it_be(:personal_access_token, freeze: false) { create(:personal_access_token, user: pat_user) }
 
       let_it_be(:oauth_user) { create(:user) }
       let_it_be(:oauth_access_token) { create(:oauth_access_token, resource_owner: oauth_user) }
@@ -407,7 +407,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
   end
 
   describe '#find_personal_access_token_from_http_basic_auth' do
-    let_it_be(:personal_access_token) { create(:personal_access_token) }
+    let_it_be(:personal_access_token, freeze: false) { create(:personal_access_token) }
     let_it_be(:user) { personal_access_token.user }
 
     before do
@@ -452,7 +452,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
 
   describe '#find_user_from_job_token' do
     let_it_be(:user) { build(:user) }
-    let_it_be(:job) { build(:ci_build, user: user, status: :running) }
+    let_it_be(:job, freeze: false) { build(:ci_build, user: user, status: :running) }
 
     before do
       env[Gitlab::Auth::AuthFinders::JOB_TOKEN_HEADER] = 'glcbt-token_value'
@@ -513,7 +513,7 @@ RSpec.describe Gitlab::Auth::RequestAuthenticator, feature_category: :system_acc
   end
 
   describe '#job_from_token' do
-    let_it_be(:job) { create(:ci_build, :running) }
+    let_it_be(:job, freeze: false) { create(:ci_build, :running) }
 
     it 'returns the job using #find_job_from_job_token' do
       allow_any_instance_of(described_class)

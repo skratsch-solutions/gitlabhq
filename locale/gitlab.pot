@@ -27147,7 +27147,7 @@ msgstr ""
 msgid "DuoAgentPlatform|Image registry"
 msgstr ""
 
-msgid "DuoAgentPlatform|Job ID"
+msgid "DuoAgentPlatform|Job IDs"
 msgstr ""
 
 msgid "DuoAgentPlatform|No GitLab Credits remain for this billing period. %{linkStart}Learn more.%{linkEnd}"

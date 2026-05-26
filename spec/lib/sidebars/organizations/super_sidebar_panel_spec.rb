@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Sidebars::Organizations::SuperSidebarPanel, feature_category: :navigation do
   let_it_be(:organization) { build(:organization) }
   let_it_be(:user) { build(:user) }
-  let_it_be(:context) do
+  let_it_be(:context, freeze: false) do
     Sidebars::Context.new(
       current_user: user,
       container: organization

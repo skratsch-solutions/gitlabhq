@@ -637,7 +637,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     if pipeline&.active?
       ::Gitlab::PollingInterval.set_header(response, interval: 3000)
 
-      render json: '', status: :no_content && return
+      return render json: '', status: :no_content
     end
 
     case report_comparison[:status]

@@ -66,6 +66,7 @@ const NON_ACTIONABLE_ERROR_PATTERNS = [
   /You must be logged in/,
   /Request failed with status code \d+/,
   /Response not successful: Received status code \d+/,
+  /Request aborted/,
 ];
 
 export function isNonActionableError(event, hint) {

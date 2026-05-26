@@ -6656,6 +6656,9 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
         before do
           group.add_owner(user)
           project.project_namespace.schedule_transfer!(transition_user: user)
+          Gitlab::ExclusiveLease.new(
+            Projects::TransferWorker.lease_key(project.id), timeout: 30.minutes
+          ).try_obtain
         end
 
         it 'returns error when already scheduled', :aggregate_failures do

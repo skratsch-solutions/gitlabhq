@@ -143,7 +143,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#find_project!' do
-    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :public) }
     let_it_be(:user) { create(:user) }
 
     shared_examples 'private project without access' do
@@ -327,7 +327,7 @@ RSpec.describe API::Helpers, feature_category: :api do
           end
 
           context 'when the project feature is publicly accessible' do
-            let_it_be(:project) { create(:project, :public, :builds_enabled) }
+            let_it_be(:project, freeze: false) { create(:project, :public, :builds_enabled) }
 
             before do
               allow(helper).to receive(:route_setting).with(:authorization).and_return(allow_public_access_for_enabled_project_features: :builds)
@@ -379,7 +379,7 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
 
     context 'support for IDs and paths as argument' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
 
       let(:user) { project.first_owner }
 
@@ -478,7 +478,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#find_pipeline!' do
-    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :public) }
     let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
     let_it_be(:user) { create(:user) }
 
@@ -548,7 +548,7 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
 
     context 'support for IDs and paths as argument' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
       let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
 
       let(:user) { project.first_owner }
@@ -658,7 +658,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#find_group!' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
     let_it_be(:user) { create(:user) }
 
     shared_examples 'private group without access' do
@@ -709,7 +709,7 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
 
     context 'with support for IDs and paths as arguments' do
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       let(:user) { group.first_owner }
 
@@ -757,7 +757,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   context 'with support for organization as an argument' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let_it_be(:organization) { create(:organization) }
 
     before do
@@ -785,7 +785,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#find_group_by_full_path!' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
     let_it_be(:user) { create(:user) }
 
     shared_examples 'private group without access' do
@@ -886,7 +886,7 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
 
     context 'when namespace is a project namespace' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
 
       it 'returns nil by id by default' do
         expect(helper.find_namespace(project.project_namespace.id)).to be_nil
@@ -917,7 +917,7 @@ RSpec.describe API::Helpers, feature_category: :api do
 
   describe '#find_namespace_by_path' do
     context 'when project namespaces are allowed' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
 
       it 'falls back to the project namespace when not found via namespace lookup' do
         expect(::Namespace).to receive(:find_by_full_path).with(project.full_path).and_return(nil)
@@ -995,7 +995,7 @@ RSpec.describe API::Helpers, feature_category: :api do
     it_behaves_like 'user namespace finder'
 
     context 'when namespace is a project namespace' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let(:current_user) { project.first_owner }
 
       before do
@@ -1056,7 +1056,7 @@ RSpec.describe API::Helpers, feature_category: :api do
 
   describe '#find_namespace_by_path!' do
     context 'when namespace is a project namespace' do
-      let_it_be(:project) { create(:project, :private) }
+      let_it_be(:project, freeze: false) { create(:project, :private) }
       let(:current_user) { project.first_owner }
 
       before do
@@ -1116,7 +1116,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#authorized_project_scope?' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:other_project) { create(:project) }
     let_it_be(:job) { create(:ci_build) }
 
@@ -1220,7 +1220,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   describe '#track_event' do
     let_it_be(:user) { create(:user) }
     let_it_be(:namespace) { create(:namespace) }
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let(:event_name) { 'i_compliance_dashboard' }
     let(:unknown_event) { 'unknown' }
 
@@ -1477,7 +1477,7 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#present_disk_file!' do
-    let_it_be(:dummy_class) do
+    let_it_be(:dummy_class, freeze: false) do
       Class.new do
         attr_reader :headers
         alias_method :header, :headers
@@ -2018,8 +2018,8 @@ RSpec.describe API::Helpers, feature_category: :api do
   end
 
   describe '#boundaries_for_endpoint' do
-    let_it_be(:project) { create(:project) }
-    let_it_be(:group) { create(:group) }
+    let_it_be(:project, freeze: false) { create(:project) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let(:access_token) { instance_double(PersonalAccessToken, granular?: true) }
 
     before do

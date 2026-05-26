@@ -3987,6 +3987,9 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
       context 'when transfer cannot be scheduled' do
         before do
           group.schedule_transfer!(transition_user: user)
+          Gitlab::ExclusiveLease.new(
+            Namespaces::Groups::TransferWorker.lease_key(group.id), timeout: 30.minutes
+          ).try_obtain
         end
 
         it 'returns error when already scheduled', :aggregate_failures do

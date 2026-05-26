@@ -522,9 +522,7 @@ export default [
   // Page entrypoints must be top-level execution scripts and must not export anything.
   // See `scripts/frontend/find_pages_without_top_level_execution.mjs`.
   {
-    files: [
-      '{,ee/,jh/}app/assets/javascripts/pages/**/index.js',
-    ],
+    files: ['{,ee/,jh/}app/assets/javascripts/pages/**/index.js'],
     rules: {
       'local-rules/page-entrypoint-must-execute': 'error',
     },
@@ -851,13 +849,19 @@ export default [
         {
           selector: 'CallExpression[callee.object.name=/[Rr]outer/][callee.property.name="push"]',
           message:
-            'Do not use router.push. Use the UI to trigger actions which in turn trigger route changes to simulate user behaviours.',
+            'Do not use router.push. Simulate user behaviours and assert the resulting HTML.',
         },
         {
           selector:
             'CallExpression[callee.object.property.name=/[Rr]outer/][callee.property.name="push"]',
           message:
-            'Do not use router.push. Use the UI to trigger actions which in turn trigger route changes to simulate user behaviours.',
+            'Do not use router.push. Simulate user behaviours and assert the resulting HTML.',
+        },
+        {
+          selector:
+            'MemberExpression[object.name=/[Rr]outer/][property.name="currentRoute"]',
+          message:
+            'Do not access the router properties directly. Simulate user behaviours and assert the resulting HTML.',
         },
         {
           selector: 'MemberExpression[property.name="nextTick"]',
@@ -881,6 +885,16 @@ export default [
             'CallExpression[callee.object.property.name="vm"][callee.property.name="$emit"]',
           message:
             'Do not emit events on component instances. Trigger the user interaction that causes the event instead.',
+        },
+        {
+          selector: 'MemberExpression[object.name=/[Ss]tore/][property.name="state"]',
+          message:
+            'Do not access store.state directly. Simulate user behaviours and assert the resulting HTML.',
+        },
+        {
+          selector: 'MemberExpression[object.property.name=/[Ss]tore/][property.name="state"]',
+          message:
+            'Do not access store.state directly. Simulate user behaviours and assert the resulting HTML.',
         },
       ],
     },

@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Gitlab::MergeRequests::DiffResolver, feature_category: :code_review_workflow do
   include RepoHelpers
 
-  let_it_be(:merge_request) { create(:merge_request) }
+  let_it_be(:merge_request, freeze: false) { create(:merge_request) }
   let_it_be(:base_diff_1) { merge_request.merge_request_diff }
 
   let_it_be(:commit_sha) do

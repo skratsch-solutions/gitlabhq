@@ -41,10 +41,12 @@ RSpec.describe Namespaces::TransferWorkerHelper, feature_category: :groups_and_p
         group.schedule_transfer!(transition_user: user)
       end
 
-      it 'cancels the state' do
+      it 'does not cancel the state', :aggregate_failures do
+        expect(group).not_to receive(:cancel_transfer!)
+
         worker.cancel_stale_transfer_state(group, group_id: group.id)
 
-        expect(group.reload).to be_ancestor_inherited
+        expect(group.reload).to be_transfer_scheduled
       end
     end
 

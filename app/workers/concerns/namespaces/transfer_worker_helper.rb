@@ -7,7 +7,7 @@ module Namespaces
     private
 
     def cancel_stale_transfer_state(namespace, **log_params)
-      return unless namespace.transfer_in_progress? || namespace.transfer_scheduled?
+      return unless namespace.transfer_in_progress?
 
       Gitlab::AppLogger.warn(
         message: 'Cancelling stale transfer state',

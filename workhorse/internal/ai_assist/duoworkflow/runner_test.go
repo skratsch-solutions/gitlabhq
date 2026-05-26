@@ -1433,43 +1433,10 @@ func Test_intersectClientCapabilities(t *testing.T) {
 }
 
 func TestRunner_Shutdown(t *testing.T) {
-	t.Run("shutdown with canceled request context sends stop", func(t *testing.T) {
+	t.Run("waits for context then sends stop and releases lock on ack", func(t *testing.T) {
 		rdb := initRdb(t)
 		mockWf := &mockWorkflowStream{}
-
-		ctx, cancel := context.WithCancel(context.Background())
-		cancel() // cancel immediately so originalReq context is already done
-
-		req := httptest.NewRequest("GET", "/duo", nil)
-		req = req.WithContext(ctx)
-
-		r := &runner{
-			originalReq: req,
-			lockFlow:    true,
-			streamManager: &streamManager{
-				wf:          mockWf,
-				originalReq: req,
-			},
-			lockManager:         newWorkflowLockManager(rdb),
-			workflowID:          "shutdown-lock-test-123",
-			stopWorkflowTimeout: 10 * time.Millisecond,
-			stop: stopCoordinator{
-				acked: make(chan struct{}),
-			},
-		}
-
-		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer shutdownCancel()
-
-		// Shutdown should still attempt to send stop even though request context is done.
-		// The send will fail (context canceled), but Shutdown always returns nil.
-		err := r.Shutdown(shutdownCtx)
-		require.NoError(t, err)
-	})
-
-	t.Run("shutdown context done sends stop workflow and returns nil on ack", func(t *testing.T) {
-		rdb := initRdb(t)
-		mockWf := &mockWorkflowStream{}
+		mockConn := &mockWebSocketConn{}
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		req := httptest.NewRequest("GET", "/duo", nil)
@@ -1477,6 +1444,7 @@ func TestRunner_Shutdown(t *testing.T) {
 
 		r := &runner{
 			originalReq: req,
+			conn:        mockConn,
 			lockFlow:    true,
 			streamManager: &streamManager{
 				wf:          mockWf,
@@ -1489,14 +1457,28 @@ func TestRunner_Shutdown(t *testing.T) {
 			},
 		}
 
+		// Pre-acquire the lock so we can verify it gets released
+		mutex, err := r.lockManager.acquireLock(context.Background(), r.workflowID)
+		require.NoError(t, err)
+		r.mutex = mutex
+
+		shutdownDone := make(chan error, 1)
 		shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
 		defer shutdownCancel()
 
-		shutdownDone := make(chan error, 1)
 		go func() {
 			shutdownDone <- r.Shutdown(shutdownCtx)
 		}()
 
+		// Verify Shutdown blocks while contexts are alive
+		select {
+		case <-shutdownDone:
+			t.Fatal("Shutdown should not return before a context expires")
+		case <-time.After(50 * time.Millisecond):
+			// expected: still waiting
+		}
+
+		// Cancel the shutdown context to unblock
 		shutdownCancel()
 
 		require.Eventually(t, func() bool {
@@ -1506,7 +1488,7 @@ func TestRunner_Shutdown(t *testing.T) {
 		// Simulate DWS acknowledging the stop
 		close(r.stop.acked)
 
-		err := <-shutdownDone
+		err = <-shutdownDone
 		require.NoError(t, err)
 
 		sendEvents := mockWf.getSendEvents()
@@ -1514,29 +1496,166 @@ func TestRunner_Shutdown(t *testing.T) {
 		stopEvent := sendEvents[0].GetStopWorkflow()
 		require.NotNil(t, stopEvent)
 		require.Equal(t, "WORKHORSE_SERVER_SHUTDOWN", stopEvent.Reason)
+
+		// Verify the lock was released: acquiring it again should succeed
+		newMutex, lockErr := r.lockManager.acquireLock(context.Background(), r.workflowID)
+		require.NoError(t, lockErr)
+		require.NotNil(t, newMutex)
+		r.lockManager.releaseLock(context.Background(), newMutex, r.workflowID)
 	})
 
-	t.Run("shutdown always returns nil even when stop times out", func(t *testing.T) {
+	t.Run("sends CloseGoingAway to websocket when shutdown context fires", func(t *testing.T) {
 		mockWf := &mockWorkflowStream{}
+		controlMessages := []struct {
+			msgType int
+			data    []byte
+		}{}
+		mockConn := &mockWebSocketConn{}
+		wrappedConn := &shutdownTrackingConn{
+			mockWebSocketConn: mockConn,
+			controlMessages:   &controlMessages,
+		}
+
+		// Use a live request context so the shutdown context fires first (not the request context).
 		req := httptest.NewRequest("GET", "/duo", nil)
 
+		stopAcked := make(chan struct{})
 		r := &runner{
 			originalReq: req,
+			conn:        wrappedConn,
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			stop: stopCoordinator{
+				acked: stopAcked,
+			},
+		}
+
+		go func() {
+			for len(mockWf.getSendEvents()) == 0 {
+				time.Sleep(5 * time.Millisecond)
+			}
+			close(stopAcked)
+		}()
+
+		// Cancel the shutdown context immediately so it fires first.
+		shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
+		shutdownCancel()
+		err := r.Shutdown(shutdownCtx)
+		require.NoError(t, err)
+
+		// Verify a CloseGoingAway frame was sent
+		require.Len(t, controlMessages, 1)
+		require.Equal(t, websocket.CloseMessage, controlMessages[0].msgType)
+		expectedMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
+		require.Equal(t, expectedMsg, controlMessages[0].data)
+	})
+
+	t.Run("skips CloseGoingAway when request context fires first", func(t *testing.T) {
+		mockWf := &mockWorkflowStream{}
+		controlMessages := []struct {
+			msgType int
+			data    []byte
+		}{}
+		mockConn := &mockWebSocketConn{}
+		wrappedConn := &shutdownTrackingConn{
+			mockWebSocketConn: mockConn,
+			controlMessages:   &controlMessages,
+		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // cancel immediately so originalReq context is already done
+		req := httptest.NewRequest("GET", "/duo", nil)
+		req = req.WithContext(ctx)
+
+		stopAcked := make(chan struct{})
+		r := &runner{
+			originalReq: req,
+			conn:        wrappedConn,
 			streamManager: &streamManager{
 				wf:          mockWf,
 				originalReq: req,
 			},
 			stopWorkflowTimeout: 10 * time.Millisecond,
 			stop: stopCoordinator{
-				acked: make(chan struct{}),
+				acked: stopAcked,
 			},
 		}
 
-		shutdownCtx, shutdownCancel := context.WithCancel(context.Background())
-		shutdownCancel() // cancel immediately to trigger shutdown
+		// Use a live shutdown context so only the request context fires.
+		err := r.Shutdown(context.Background())
+		require.NoError(t, err)
 
-		err := r.Shutdown(shutdownCtx)
+		// CloseGoingAway must NOT be sent when the request context fired first.
+		require.Empty(t, controlMessages, "CloseGoingAway should not be sent when request context is done")
+	})
+
+	t.Run("returns nil even when stop times out", func(t *testing.T) {
+		mockWf := &mockWorkflowStream{}
+		mockConn := &mockWebSocketConn{}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // cancel immediately to unblock the select
+		req := httptest.NewRequest("GET", "/duo", nil)
+		req = req.WithContext(ctx)
+
+		r := &runner{
+			originalReq: req,
+			conn:        mockConn,
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			stopWorkflowTimeout: 10 * time.Millisecond,
+			stop: stopCoordinator{
+				acked: make(chan struct{}), // never closed = timeout
+			},
+		}
+
+		err := r.Shutdown(context.Background())
 		require.NoError(t, err, "Shutdown should always return nil")
+	})
+
+	t.Run("releases lock even when stop fails", func(t *testing.T) {
+		rdb := initRdb(t)
+		mockWf := &mockWorkflowStream{}
+		mockConn := &mockWebSocketConn{}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel() // cancel immediately to unblock the select
+		req := httptest.NewRequest("GET", "/duo", nil)
+		req = req.WithContext(ctx)
+
+		r := &runner{
+			originalReq: req,
+			conn:        mockConn,
+			lockFlow:    true,
+			streamManager: &streamManager{
+				wf:          mockWf,
+				originalReq: req,
+			},
+			lockManager:         newWorkflowLockManager(rdb),
+			workflowID:          "shutdown-no-release-test",
+			stopWorkflowTimeout: 10 * time.Millisecond,
+			stop: stopCoordinator{
+				acked: make(chan struct{}), // never closed = timeout
+			},
+		}
+
+		// Pre-acquire the lock
+		mutex, err := r.lockManager.acquireLock(context.Background(), r.workflowID)
+		require.NoError(t, err)
+		r.mutex = mutex
+
+		err = r.Shutdown(context.Background())
+		require.NoError(t, err)
+
+		// Lock should have been released even though stop timed out,
+		// so the executor can reconnect to a new workhorse instance.
+		newMutex, lockErr := r.lockManager.acquireLock(context.Background(), r.workflowID)
+		require.NoError(t, lockErr, "lock should be released even when stop fails")
+		r.lockManager.releaseLock(context.Background(), newMutex, r.workflowID)
 	})
 }
 
@@ -2270,6 +2389,28 @@ func TestRunner_pingWebSocket(t *testing.T) {
 			t.Fatal("timed out waiting for pingWebSocket to return")
 		}
 	})
+}
+
+// shutdownTrackingConn wraps mockWebSocketConn and records WriteControl calls
+// so tests can verify the close frame sent during Shutdown.
+type shutdownTrackingConn struct {
+	*mockWebSocketConn
+	controlMessages *[]struct {
+		msgType int
+		data    []byte
+	}
+}
+
+func (s *shutdownTrackingConn) WriteControl(msgType int, data []byte, deadline time.Time) error {
+	*s.controlMessages = append(*s.controlMessages, struct {
+		msgType int
+		data    []byte
+	}{msgType: msgType, data: data})
+	return s.mockWebSocketConn.WriteControl(msgType, data, deadline)
+}
+
+func (s *shutdownTrackingConn) SetPongHandler(h func(string) error) {
+	s.mockWebSocketConn.SetPongHandler(h)
 }
 
 // pingTrackingConn wraps mockWebSocketConn and calls onPing when WriteControl

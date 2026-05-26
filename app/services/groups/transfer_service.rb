@@ -35,6 +35,8 @@ module Groups
       @new_parent_group = new_parent_group
       ensure_allowed_transfer
 
+      cancel_stale_transfer_state
+
       group.state_metadata[:transfer_target_parent_id] = new_parent_group&.id
 
       unless group.schedule_transfer(transition_user: current_user)
@@ -158,6 +160,23 @@ module Groups
     def post_update_hooks(updated_project_ids, old_root_ancestor_id)
       refresh_project_authorizations
       refresh_descendant_groups if @new_parent_group
+    end
+
+    # Note: There is a small window where a worker could acquire the lease between
+    # the lease check and cancel_transfer!. This is acceptable because the worker's own
+    # cancel_stale_transfer_state handles this as a safety net.
+    def cancel_stale_transfer_state
+      return unless group.transfer_in_progress? || group.transfer_scheduled?
+
+      lease_key = Namespaces::Groups::TransferWorker.lease_key(group.id)
+      return if Gitlab::ExclusiveLease.get_uuid(lease_key)
+
+      Gitlab::AppLogger.warn(
+        message: 'Cancelling stale transfer state - no active worker lease found',
+        state: group.state,
+        group_id: group.id
+      )
+      group.cancel_transfer!
     end
 
     # Overridden in EE

@@ -40,6 +40,8 @@ module Projects
       ensure_allowed_transfer(new_namespace)
 
       project_namespace = project.project_namespace
+      cancel_stale_transfer_state(project_namespace)
+
       project_namespace.state_metadata[:transfer_target_parent_id] = new_namespace.id
 
       unless project_namespace.schedule_transfer(transition_user: current_user)
@@ -107,6 +109,23 @@ module Projects
       else
         ::Gitlab::AppLogger.error(log_payload)
       end
+    end
+
+    # Note: There is a small window where a worker could acquire the lease between
+    # the lease check and cancel_transfer!. This is acceptable because the worker's own
+    # cancel_stale_transfer_state handles this as a safety net.
+    def cancel_stale_transfer_state(project_namespace)
+      return unless project_namespace.transfer_in_progress? || project_namespace.transfer_scheduled?
+
+      lease_key = Projects::TransferWorker.lease_key(project.id)
+      return if Gitlab::ExclusiveLease.get_uuid(lease_key)
+
+      Gitlab::AppLogger.warn(
+        message: 'Cancelling stale transfer state - no active worker lease found',
+        state: project_namespace.state,
+        project_id: project.id
+      )
+      project_namespace.cancel_transfer!
     end
 
     def ensure_allowed_transfer(namespace)

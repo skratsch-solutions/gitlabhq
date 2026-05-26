@@ -883,7 +883,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
         end
 
         context 'when using a personal namespace project access token' do
-          let_it_be(:project_bot_user) { create(:user, :project_bot) }
+          let_it_be(:project_bot_user, freeze: false) { create(:user, :project_bot) }
           let_it_be(:access_token) { create(:personal_access_token, user: project_bot_user) }
 
           context 'when the token belongs to the project' do
@@ -902,7 +902,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           let_it_be(:project) { create(:project, group: group) }
 
           context 'when using a project access token' do
-            let_it_be(:project_bot_user) { create(:user, :project_bot) }
+            let_it_be(:project_bot_user, freeze: false) { create(:user, :project_bot) }
             let_it_be(:access_token) { create(:personal_access_token, user: project_bot_user) }
 
             context 'when token user belongs to the project' do
@@ -917,7 +917,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           end
 
           context 'when using a group access token' do
-            let_it_be(:project_bot_user) { create(:user, name: 'Group token bot', email: "group_#{group.id}_bot@example.com", username: "group_#{group.id}_bot", user_type: :project_bot) }
+            let_it_be(:project_bot_user, freeze: false) { create(:user, name: 'Group token bot', email: "group_#{group.id}_bot@example.com", username: "group_#{group.id}_bot", user_type: :project_bot) }
             let_it_be(:access_token) { create(:personal_access_token, user: project_bot_user) }
 
             context 'when the token belongs to the group' do
@@ -1376,7 +1376,7 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
       end
 
       context 'when the deploy token has write_registry as a scope' do
-        let_it_be(:deploy_token) { create(:deploy_token, write_registry: true, read_repository: false, read_registry: false, projects: [project]) }
+        let_it_be(:deploy_token, freeze: false) { create(:deploy_token, write_registry: true, read_repository: false, read_registry: false, projects: [project]) }
         let_it_be(:login) { deploy_token.username }
 
         context 'when registry enabled' do

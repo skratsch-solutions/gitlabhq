@@ -359,6 +359,76 @@ RSpec.describe 'Query.project.jobAnalytics', :click_house, :freeze_time, feature
       it { expect_graphql_errors_to_include("Argument 'sort' on Field 'jobAnalytics' has an invalid value") }
     end
 
+    describe 'fromTime lookback limit' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:job_analytics_fields) { simple_name_fields }
+      let(:max_lookback) { Resolvers::Ci::JobAnalyticsResolver::MAX_LOOKBACK }
+      let(:error_message) { "`fromTime` cannot be earlier than #{max_lookback.inspect} ago." }
+
+      def from_time_for(scenario)
+        case scenario
+        when :within           then 30.days.ago
+        when :at_boundary      then max_lookback.ago
+        when :at_midnight      then max_lookback.ago.utc.beginning_of_day
+        when :one_second_over  then max_lookback.ago.utc.beginning_of_day - 1.second
+        when :over             then (max_lookback + 1.day).ago
+        end
+      end
+
+      where(:scenario, :valid) do
+        :within          | true
+        :at_boundary     | true
+        :at_midnight     | true
+        :one_second_over | false
+        :over            | false
+      end
+
+      with_them do
+        let(:job_analytics_args) do
+          { fromTime: from_time_for(scenario).iso8601, toTime: Time.current.iso8601 }
+        end
+
+        it 'validates fromTime against the maximum lookback' do
+          if valid
+            expect_graphql_errors_to_be_empty
+          else
+            expect_graphql_errors_to_include(error_message)
+          end
+        end
+      end
+
+      context 'when fromTime is earlier than the maximum lookback' do
+        let(:job_analytics_args) do
+          { fromTime: (max_lookback + 1.day).ago.iso8601, toTime: Time.current.iso8601 }
+        end
+
+        it 'does not query ClickHouse', :aggregate_failures do
+          expect(::ClickHouse::Client).not_to receive(:select)
+
+          post_graphql(query, current_user: current_user)
+
+          expect_graphql_errors_to_include(error_message)
+        end
+      end
+
+      context 'when neither fromTime nor toTime is provided' do
+        let(:job_analytics_args) { {} }
+
+        it 'uses the default 7-day lookback and succeeds' do
+          expect_graphql_errors_to_be_empty
+        end
+      end
+
+      context 'when fromTime is explicitly null' do
+        let(:job_analytics_args) { { fromTime: nil } }
+
+        it 'is treated as omitted and uses the default lookback' do
+          expect_graphql_errors_to_be_empty
+        end
+      end
+    end
+
     context 'with stage_name selection' do
       let(:job_analytics_fields) do
         query_graphql_field(:nodes, nil, [

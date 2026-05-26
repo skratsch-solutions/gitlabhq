@@ -16,6 +16,10 @@ module Projects
 
     LEASE_TIMEOUT = 30.minutes.to_i
 
+    def self.lease_key(project_id)
+      "projects_transfer_worker:#{project_id}"
+    end
+
     def perform(project_id, new_namespace_id, user_id)
       project = Project.find_by_id(project_id)
       return unless project
@@ -26,7 +30,7 @@ module Projects
       new_namespace = Namespace.find_by_id(new_namespace_id)
       return unless new_namespace
 
-      lease_key = ['projects_transfer_worker', project_id].join(':')
+      lease_key = self.class.lease_key(project_id)
       exclusive_lease = Gitlab::ExclusiveLease.new(lease_key, uuid: jid, timeout: LEASE_TIMEOUT)
       lease = exclusive_lease.try_obtain
 

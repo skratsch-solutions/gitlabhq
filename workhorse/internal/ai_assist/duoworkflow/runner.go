@@ -588,12 +588,22 @@ func (r *runner) stopWorkflow(reason string, closeErr error) error {
 }
 
 // Shutdown gracefully stops the workflow runner during server shutdown.
-// It waits for either the shutdown context or the request context to expire before
-// sending a stop workflow request to the agent platform.
+// It first waits for the workflow to finish naturally within the shutdown grace
+// period. If either the request context or the shutdown context expires before
+// the workflow completes, it sends a StopWorkflowRequest to DWS, releases the
+// distributed lock, and sends a CloseGoingAway frame to the WebSocket client so
+// the executor can reconnect to a new workhorse instance and resume from the
+// last DWS checkpoint.
 // Errors during shutdown are logged but not returned to allow other runners to proceed.
 func (r *runner) Shutdown(ctx context.Context) error {
+	// requestContextDone is set to true when the original request context fires
+	// first. In that case the client is already gone, so we skip sending
+	// CloseGoingAway — there is no one to receive it.
+	var requestContextDone bool
+
 	select {
 	case <-r.originalReq.Context().Done():
+		requestContextDone = true
 		log.WithRequest(r.originalReq).Info("Shutdown: request context done, sending stop workflow")
 	case <-ctx.Done():
 		log.WithRequest(r.originalReq).Info("Shutdown: shutdown context done, sending stop workflow")
@@ -607,6 +617,27 @@ func (r *runner) Shutdown(ctx context.Context) error {
 		log.WithRequest(r.originalReq).WithError(err).Info("Shutdown: failed to stop workflow gracefully")
 	} else {
 		log.WithRequest(r.originalReq).Info("Shutdown: workflow stopped gracefully")
+	}
+
+	// Always release the lock so the executor can acquire it on the new
+	// workhorse instance. Even if the stop request failed or timed out, the
+	// instance is going away and holding the lock would block reconnection
+	// for up to 2 hours (the lock TTL).
+	if r.lockFlow {
+		// Use a detached context because the request context may already be
+		// canceled during shutdown, but we still need to reach Redis.
+		r.lockManager.releaseLock(context.Background(), r.mutex, r.workflowID) // lint:allow context.Background
+	}
+
+	// Send CloseGoingAway (1001) to signal the client to reconnect. Skip this
+	// when the request context fired first — the client is already gone and
+	// there is no WebSocket connection to write to.
+	if !requestContextDone {
+		deadline := time.Now().Add(wsCloseTimeout)
+		closeMsg := websocket.FormatCloseMessage(websocket.CloseGoingAway, "server shutdown")
+		if wsErr := r.conn.WriteControl(websocket.CloseMessage, closeMsg, deadline); wsErr != nil {
+			log.WithRequest(r.originalReq).WithError(wsErr).Info("Shutdown: failed to send CloseGoingAway to client")
+		}
 	}
 
 	return nil

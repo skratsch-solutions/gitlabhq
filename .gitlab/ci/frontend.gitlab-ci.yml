@@ -566,6 +566,8 @@ jest-msw-integration vue3:
   extends:
     - jest-msw-integration
     - .vue3
+  # We do not allow new specs that aren't Vue3 compatible to avoid increased debt.
+  allow_failure: false
 
 jest-integration:
   extends:

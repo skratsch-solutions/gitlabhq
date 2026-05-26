@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :markdown do
   let_it_be(:group)    { create(:group) }
   let_it_be(:subgroup) { create(:group, parent: group) }
-  let_it_be(:project)  { create(:project, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:project2) { create(:project) }
   let_it_be(:issue1)   { create(:issue, project: project) }
   let_it_be(:issue2)   { create(:issue, project: project) }
@@ -13,7 +13,7 @@ RSpec.describe Banzai::Filter::References::ReferenceCache, feature_category: :ma
   let_it_be(:issue4)   { create(:issue, project: project2) }
   let_it_be(:doc)      { Nokogiri::HTML.fragment("#{issue1.to_reference} #{issue2.to_reference} #{issue3.to_reference(full: true)}") }
   let_it_be(:result)   { {} }
-  let_it_be(:filter_class) { Banzai::Filter::References::IssueReferenceFilter }
+  let_it_be(:filter_class, freeze: false) { Banzai::Filter::References::IssueReferenceFilter }
 
   let(:filter) { filter_class.new(doc, project: project) }
   let(:cache)  { described_class.new(filter, { project: project }, result) }

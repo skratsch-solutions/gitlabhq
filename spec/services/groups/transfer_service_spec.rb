@@ -1177,7 +1177,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
 
     subject(:schedule) { transfer_service.schedule_async_transfer(new_parent_group) }
 
-    it 'returns success response and enqueues the worker' do
+    it 'returns success response and enqueues the worker', :aggregate_failures do
       expect(Namespaces::Groups::TransferWorker).to receive(:perform_async).with(
         group.id,
         new_parent_group.id,
@@ -1196,7 +1196,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
       expect(group.reload.state).to eq('transfer_scheduled')
     end
 
-    it 'stores transfer_target_parent_id in state_metadata' do
+    it 'stores transfer_target_parent_id in state_metadata', :aggregate_failures do
       allow(Namespaces::Groups::TransferWorker).to receive(:perform_async)
 
       schedule
@@ -1210,7 +1210,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
     context 'when transferring to root (nil parent)' do
       subject(:schedule) { transfer_service.schedule_async_transfer(nil) }
 
-      it 'enqueues the worker with nil new_parent_group_id' do
+      it 'enqueues the worker with nil new_parent_group_id', :aggregate_failures do
         expect(Namespaces::Groups::TransferWorker).to receive(:perform_async).with(
           group.id,
           nil,
@@ -1235,7 +1235,63 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
         group.update_column(:state, Group.states[:creation_in_progress])
       end
 
-      it 'returns error response and does not enqueue the worker' do
+      it 'returns error response and does not enqueue the worker', :aggregate_failures do
+        expect(Namespaces::Groups::TransferWorker).not_to receive(:perform_async)
+
+        expect(schedule).to be_error
+        expect(schedule.message).to eq('Unable to initiate transfer. The group may already have a transfer in progress.')
+      end
+    end
+
+    context 'when group has stale transfer state with no active worker' do
+      before do
+        group.schedule_transfer!(transition_user: user)
+        group.start_transfer!(transition_user: user)
+      end
+
+      it 'cancels the stale state and proceeds with the transfer', :aggregate_failures do
+        allow(Namespaces::Groups::TransferWorker).to receive(:perform_async)
+
+        expect(schedule).to be_success
+        expect(group.reload.state).to eq('transfer_scheduled')
+      end
+
+      it 'logs a warning about the stale state' do
+        allow(Namespaces::Groups::TransferWorker).to receive(:perform_async)
+        allow(Gitlab::AppLogger).to receive(:warn)
+
+        schedule
+
+        expect(Gitlab::AppLogger).to have_received(:warn).with(hash_including(
+          message: 'Cancelling stale transfer state - no active worker lease found',
+          group_id: group.id
+        ))
+      end
+    end
+
+    context 'when group has stale transfer_scheduled state with no active worker' do
+      before do
+        group.schedule_transfer!(transition_user: user)
+      end
+
+      it 'cancels the stale state and proceeds with the transfer', :aggregate_failures do
+        allow(Namespaces::Groups::TransferWorker).to receive(:perform_async)
+
+        expect(schedule).to be_success
+        expect(group.reload.state).to eq('transfer_scheduled')
+      end
+    end
+
+    context 'when group has transfer state with active worker lease' do
+      before do
+        group.schedule_transfer!(transition_user: user)
+        group.start_transfer!(transition_user: user)
+        Gitlab::ExclusiveLease.new(
+          Namespaces::Groups::TransferWorker.lease_key(group.id), timeout: 30.minutes
+        ).try_obtain
+      end
+
+      it 'does not cancel the state and returns error', :aggregate_failures do
         expect(Namespaces::Groups::TransferWorker).not_to receive(:perform_async)
 
         expect(schedule).to be_error

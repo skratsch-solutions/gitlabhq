@@ -33,7 +33,7 @@ export function buildHandlers(allFeatureHandlers, allRestEndpoints) {
       }
 
       // eslint-disable-next-line no-console
-      console.log(`No handler for operationName: ${operationName}`);
+      console.warn(`No handler for operationName: ${operationName}`);
       return res(ctx.status(400));
     }),
 
