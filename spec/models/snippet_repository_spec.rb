@@ -138,7 +138,7 @@ RSpec.describe SnippetRepository, feature_category: :source_code_management do
 
   it_behaves_like 'shardable scopes' do
     let_it_be(:record_1) { create(:snippet_repository) }
-    let_it_be(:record_2, reload: true) { create(:snippet_repository) }
+    let_it_be_with_reload(:record_2) { create(:snippet_repository) }
   end
 
   describe '.find_snippet' do

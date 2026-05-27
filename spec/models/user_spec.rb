@@ -5251,7 +5251,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#pending_invitations' do
-    let_it_be(:user, reload: true) { create(:user, email: 'user@email.com') }
+    let_it_be_with_reload(:user) { create(:user, email: 'user@email.com') }
     let_it_be(:invited_member) do
       create(:project_member, :invited, invite_email: user.email)
     end
@@ -9260,7 +9260,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#dismissed_callout?' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:feature_name) { Users::Callout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
@@ -9289,7 +9289,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#find_or_initialize_callout' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:feature_name) { Users::Callout.feature_names.each_key.first }
 
     subject(:find_or_initialize_callout) { user.find_or_initialize_callout(feature_name) }
@@ -9328,7 +9328,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#dismissed_callout_for_group?' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:group) { create(:group) }
     let_it_be(:feature_name) { Users::GroupCallout.feature_names.each_key.first }
 
@@ -9364,7 +9364,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#dismissed_callout_for_project?' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:project) { create(:project) }
     let_it_be(:feature_name) { Users::ProjectCallout.feature_names.each_key.first }
 
@@ -9400,7 +9400,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#find_or_initialize_group_callout' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:group) { create(:group) }
     let_it_be(:feature_name) { Users::GroupCallout.feature_names.each_key.first }
 
@@ -9444,7 +9444,7 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
   end
 
   describe '#find_or_initialize_project_callout' do
-    let_it_be(:user, refind: true) { create(:user) }
+    let_it_be_with_refind(:user) { create(:user) }
     let_it_be(:project) { create(:project) }
     let_it_be(:feature_name) { Users::ProjectCallout.feature_names.each_key.first }
 

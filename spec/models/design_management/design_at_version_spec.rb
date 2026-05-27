@@ -5,9 +5,9 @@ require 'spec_helper'
 RSpec.describe DesignManagement::DesignAtVersion do
   include DesignManagementTestHelpers
 
-  let_it_be(:issue, reload: true) { create(:issue) }
-  let_it_be(:issue_b, reload: true) { create(:issue) }
-  let_it_be(:design, reload: true) { create(:design, issue: issue) }
+  let_it_be_with_reload(:issue) { create(:issue) }
+  let_it_be_with_reload(:issue_b) { create(:issue) }
+  let_it_be_with_reload(:design) { create(:design, issue: issue) }
   let_it_be(:version) { create(:design_version, designs: [design]) }
 
   describe '#id' do

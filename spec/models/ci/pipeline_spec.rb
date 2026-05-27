@@ -3262,7 +3262,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     context 'when repository exists' do
       using RSpec::Parameterized::TableSyntax
 
-      let_it_be(:pipeline, refind: true) { create(:ci_empty_pipeline) }
+      let_it_be_with_refind(:pipeline) { create(:ci_empty_pipeline) }
 
       where(:tag, :ref, :result) do
         false | 'master'              | true
@@ -4996,7 +4996,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep, feature_category: 
     shared_examples_for 'fetches environments in self and project descendant pipelines' do |factory_type|
       context 'when pipeline is not child nor parent' do
         let_it_be(:pipeline, freeze: false) { create(:ci_pipeline, :created) }
-        let_it_be(:job, refind: true) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
+        let_it_be_with_refind(:job) { create(factory_type, :with_deployment, :deploy_to_production, pipeline: pipeline) }
 
         it 'returns just the pipeline environment' do
           expect(subject).to contain_exactly(job.deployment.environment)

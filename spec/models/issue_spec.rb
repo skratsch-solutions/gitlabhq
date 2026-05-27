@@ -259,7 +259,7 @@ RSpec.describe Issue, feature_category: :team_planning do
       end
 
       context 'when a type was already set' do
-        let_it_be(:issue, refind: true) { create(:issue, project: project) }
+        let_it_be_with_refind(:issue) { create(:issue, project: project) }
 
         it 'does not fetch a work item type from the provider' do
           expect(issue.work_item_type_id).to eq(issue_type.id)
@@ -1276,7 +1276,7 @@ RSpec.describe Issue, feature_category: :team_planning do
   end
 
   describe '#to_branch_name' do
-    let_it_be(:issue, reload: true) { create(:issue, project: reusable_project, iid: 123, title: 'Testing Issue') }
+    let_it_be_with_reload(:issue) { create(:issue, project: reusable_project, iid: 123, title: 'Testing Issue') }
 
     it 'returns a branch name with the issue title if not confidential' do
       expect(issue.to_branch_name).to eq('123-testing-issue')

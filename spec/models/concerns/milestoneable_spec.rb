@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Milestoneable do
-  let_it_be(:group, reload: true) { create(:group) }
+  let_it_be_with_reload(:group) { create(:group) }
   let_it_be(:project) { create(:project, :repository, group: group) }
   let_it_be(:user) { create(:user) }
   let_it_be(:milestone) { create(:milestone, project: project) }

@@ -292,8 +292,8 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
     context 'when the MR comes from a fork' do
       include ProjectForksHelper
 
-      let_it_be(:forked_project, reload: true) { fork_project(project, nil, repository: true) }
-      let_it_be(:merge_request, reload: true) { create(:merge_request, source_project: forked_project, target_project: project) }
+      let_it_be_with_reload(:forked_project) { fork_project(project, nil, repository: true) }
+      let_it_be_with_reload(:merge_request) { create(:merge_request, source_project: forked_project, target_project: project) }
 
       it 'returns IDE path for MR in the forked repo with target project included as param' do
         params = { merge_request_id: merge_request.iid, target_project: project.full_path }

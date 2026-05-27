@@ -430,6 +430,17 @@ RSpec.describe Integrations::Jira, feature_category: :integrations do
         expect(jira_integration.reference_pattern.match(key).to_s).to eq('')
       end
     end
+
+    # Regression: Gitlab::Regex.jira_issue_key_regex's default expression
+    # escape is a lookbehind, which RE2 (the engine behind UntrustedRegexp)
+    # cannot compile. `#jira_issue_match_regex` must override the default so
+    # the source it interpolates remains RE2-compatible.
+    context 'when compiled through Gitlab::UntrustedRegexp (RE2)' do
+      it 'does not raise when building the reference pattern' do
+        expect { jira_integration.reference_pattern }.not_to raise_error
+        expect(jira_integration.reference_pattern).to be_a(Gitlab::UntrustedRegexp)
+      end
+    end
   end
 
   describe '.valid_jira_cloud_url?' do

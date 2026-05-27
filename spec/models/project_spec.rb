@@ -393,7 +393,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     context 'updating a project' do
       let_it_be(:project_namespace) { create(:project_namespace) }
-      let_it_be(:project, reload: true) { project_namespace.project }
+      let_it_be_with_reload(:project) { project_namespace.project }
 
       context 'when project has an associated project namespace' do
         # when FF is disabled creating a project does not create a project_namespace, so we create one
@@ -6804,7 +6804,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#has_ci?' do
-    let_it_be(:project, reload: true) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     context 'when has .gitlab-ci.yml' do
       before do
@@ -6937,7 +6937,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       Feature.enable_percentage_of_actors(:force_autodevops_on_by_default, 0)
     end
 
-    let_it_be(:project, reload: true) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     subject { project.auto_devops_enabled? }
 
@@ -7072,7 +7072,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#has_auto_devops_implicitly_enabled?' do
-    let_it_be(:project, reload: true) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     context 'when disabled in settings' do
       before do
@@ -9378,7 +9378,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '#environments_for_scope' do
-    let_it_be(:project, reload: true) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     before do
       create_list(:environment, 2, project: project)

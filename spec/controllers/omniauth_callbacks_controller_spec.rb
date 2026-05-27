@@ -835,17 +835,9 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
         using RSpec::Parameterized::TableSyntax
 
         let(:ommiauth_provider_config_with_step_up_auth) do
-          GitlabSettings::Options.new(
-            name: "openid_connect",
-            step_up_auth: {
-              admin_mode: {
-                id_token: {
-                  required: required_id_token_claims,
-                  included: included_id_token_claims
-                }
-              }
-            }
-          )
+          build(:omniauth_provider_config,
+            id_token_required: required_id_token_claims,
+            id_token_included: included_id_token_claims)
         end
 
         before do
@@ -921,7 +913,7 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
       end
 
       context 'without step-up authentication configuration' do
-        let(:ommiauth_provider_config_with_step_up_auth) { GitlabSettings::Options.new(name: "openid_connect") }
+        let(:ommiauth_provider_config_with_step_up_auth) { build(:omniauth_provider_config, :no_step_up_auth) }
 
         it 'does not add session key "step_up_auth"' do
           get provider
@@ -934,17 +926,9 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
         using RSpec::Parameterized::TableSyntax
 
         let(:ommiauth_provider_config_with_namespace_step_up_auth) do
-          GitlabSettings::Options.new(
-            name: "openid_connect",
-            step_up_auth: {
-              namespace: {
-                id_token: {
-                  required: required_id_token_claims,
-                  included: included_id_token_claims
-                }
-              }
-            }
-          )
+          build(:omniauth_provider_config, :with_namespace_scope,
+            id_token_required: required_id_token_claims,
+            id_token_included: included_id_token_claims)
         end
 
         before do
@@ -995,21 +979,7 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
 
       context 'with both admin_mode and namespace scopes configured' do
         let(:ommiauth_provider_config_with_both_scopes) do
-          GitlabSettings::Options.new(
-            name: "openid_connect",
-            step_up_auth: {
-              admin_mode: {
-                id_token: {
-                  required: { claim_1: 'gold' }
-                }
-              },
-              namespace: {
-                id_token: {
-                  required: { claim_1: 'silver' }
-                }
-              }
-            }
-          )
+          build(:omniauth_provider_config, :with_both_scopes)
         end
 
         before do

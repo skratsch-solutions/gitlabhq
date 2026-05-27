@@ -6,18 +6,7 @@ RSpec.describe 'Step-up authentication', :with_current_organization, :js, featur
   let_it_be(:extern_uid) { 'my-uid' }
   let_it_be(:provider_oidc) { 'openid_connect' }
 
-  let(:provider_oidc_config_with_step_up_auth) do
-    GitlabSettings::Options.new(
-      name: provider_oidc,
-      step_up_auth: {
-        admin_mode: {
-          id_token: {
-            required: { acr: 'gold' }
-          }
-        }
-      }
-    )
-  end
+  let(:provider_oidc_config_with_step_up_auth) { build(:omniauth_provider_config, provider_name: provider_oidc) }
 
   let(:additional_info_rejected_step_up_auth) { { extra: { raw_info: { acr: 'bronze' } } } }
   let(:additional_info_success_step_up_auth) { { extra: { raw_info: { acr: 'gold' } } } }

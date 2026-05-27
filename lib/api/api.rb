@@ -245,7 +245,6 @@ module API
         mount ::API::Clusters::AgentTokens
         mount ::API::Clusters::Agents
         mount ::API::CargoProjectPackages
-        mount ::API::Chaos
         mount ::API::Commits
         mount ::API::CommitStatuses
         mount ::API::ComposerPackages

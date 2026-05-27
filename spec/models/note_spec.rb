@@ -812,7 +812,7 @@ RSpec.describe Note, feature_category: :team_planning do
   end
 
   describe '#last_edited_by' do
-    let_it_be(:note, reload: true) do
+    let_it_be_with_reload(:note) do
       create_timestamp = 1.day.ago
       create(:note, created_at: create_timestamp, updated_at: create_timestamp)
     end

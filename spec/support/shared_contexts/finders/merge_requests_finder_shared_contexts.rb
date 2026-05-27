@@ -17,7 +17,7 @@ RSpec.shared_context 'MergeRequestsFinder multiple projects with merge requests 
   let_it_be(:user2) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:subgroup) { create(:group, parent: group) }
-  let_it_be(:project1, reload: true) do
+  let_it_be_with_reload(:project1) do
     allow_gitaly_n_plus_1 { create(:project, :public, group: group, maintainers: user) }
   end
   # We cannot use `let_it_be` here otherwise we get:
@@ -38,15 +38,15 @@ RSpec.shared_context 'MergeRequestsFinder multiple projects with merge requests 
     end
   end
 
-  let_it_be(:project4, reload: true) do
+  let_it_be_with_reload(:project4) do
     allow_gitaly_n_plus_1 { create(:project, :repository, group: subgroup, developers: user) }
   end
 
-  let_it_be(:project5, reload: true) do
+  let_it_be_with_reload(:project5) do
     allow_gitaly_n_plus_1 { create(:project, group: subgroup, developers: user) }
   end
 
-  let_it_be(:project6, reload: true) do
+  let_it_be_with_reload(:project6) do
     allow_gitaly_n_plus_1 { create(:project, group: subgroup, developers: user) }
   end
 

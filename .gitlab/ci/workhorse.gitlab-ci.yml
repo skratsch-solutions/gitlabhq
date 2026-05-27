@@ -48,9 +48,13 @@ workhorse:test go:
     matrix:
       - GO_VERSION: ["1.25"]
         REDIS_VERSION: ["7.0", "6.2"]
+  variables:
+    GLCI_TEST_METRICS_RUN_TYPE: workhorse-go-${GO_VERSION}-redis-${REDIS_VERSION}
   script:
     - make -C workhorse test-coverage 2>&1 | tee workhorse/test-output.txt
-    - make -C workhorse TEST_OPTIONS="-json" test > workhorse/test-output.json 2>&1 || true
+    - |
+      make -C workhorse TEST_OPTIONS="-json" test 2>workhorse/test-output.err \
+      | go -C workhorse tool gitlab-test-metrics-exporter > workhorse/test-output.json || true
     - cd workhorse && go run ../scripts/workhorse/go_coverage_to_lcov.go cover.out coverage.lcov
   coverage: '/\d+.\d+%/'
   artifacts:
@@ -61,6 +65,7 @@ workhorse:test go:
       - workhorse/cover.out
       - workhorse/coverage.lcov
       - workhorse/test-output.json
+      - workhorse/test-output.err
       - log/gitaly-test.log
 
 workhorse:test no_gitaly_transactions:

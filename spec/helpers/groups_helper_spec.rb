@@ -741,37 +741,14 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
     let_it_be(:current_user) { create(:user, owner_of: group) }
 
     let(:omniauth_provider_oidc) do
-      GitlabSettings::Options.new(
-        name: "openid_connect",
-        step_up_auth: {
-          namespace: {
-            id_token: {
-              required: {
-                acr: 'gold'
-              }
-            }
-          }
-        }
-      )
+      build(:omniauth_provider_config, :with_namespace_scope)
     end
 
     let(:omniauth_provider_oidc_only_namespace) do
-      GitlabSettings::Options.new(
-        name: "openid_connect_only_namespace",
-        label: "OpenID Connect (Only namespace)",
-        args: {
-          strategy_class: 'OmniAuth::Strategies::OpenIDConnect'
-        },
-        step_up_auth: {
-          namespace: {
-            id_token: {
-              required: {
-                acr: 'gold'
-              }
-            }
-          }
-        }
-      )
+      build(:omniauth_provider_config, :with_namespace_scope,
+        provider_name: 'openid_connect_only_namespace',
+        label: 'OpenID Connect (Only namespace)',
+        args: { strategy_class: 'OmniAuth::Strategies::OpenIDConnect' })
     end
 
     subject { helper.step_up_auth_provider_options_for_select }

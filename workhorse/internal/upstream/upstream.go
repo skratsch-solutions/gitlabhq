@@ -256,12 +256,28 @@ func (u *upstream) findGeoProxyRoute(cleanedPath string, r *http.Request) *route
 	return &u.geoProxyRoute
 }
 
+// isShuttingDown returns true if the shutdown signal has been received.
+func (u *upstream) isShuttingDown() bool {
+	if u.shutdownChan == nil {
+		return false
+	}
+	select {
+	case <-u.shutdownChan:
+		return true
+	default:
+		return false
+	}
+}
+
 func (u *upstream) pollGeoProxyAPI() {
 	defer close(u.geoPollerDone)
 
 	// Check enableGeoProxyFeature every time because `callGeoProxyApi()` can change its value.
 	// This is can also be disabled through the GEO_SECONDARY_PROXY env var.
 	for u.enableGeoProxyFeature {
+		if u.isShuttingDown() {
+			return
+		}
 		u.callGeoProxyAPI()
 		u.geoProxyPollSleep(geoProxyAPIPollingInterval)
 	}

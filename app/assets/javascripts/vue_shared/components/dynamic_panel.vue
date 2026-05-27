@@ -40,7 +40,7 @@ export default {
 </script>
 
 <template>
-  <div class="paneled-view js-paneled-view contextual-panel !gl-w-full">
+  <div class="paneled-view js-paneled-view contextual-panel !gl-h-full !gl-w-full">
     <div class="panel-header">
       <div class="panel-header-inner">
         <slot name="header">

@@ -20,7 +20,12 @@ RSpec.describe MergeRequests::BuildService, feature_category: :code_review_workf
   let(:milestone_id) { nil }
   let(:label_ids) { [] }
   let(:merge_request) { service.execute }
-  let(:compare) { double(:compare, commits: commits) }
+  let(:compare) do
+    double(:compare).tap do |c|
+      allow(c).to receive(:commits).and_return(commits)
+    end
+  end
+
   let(:commit_1) do
     double(:commit_1,
       sha: 'f00ba6',
@@ -126,6 +131,20 @@ RSpec.describe MergeRequests::BuildService, feature_category: :code_review_workf
 
     it 'does not assign force_remove_source_branch' do
       expect(merge_request.force_remove_source_branch?).to be_truthy
+    end
+
+    it 'sets COMPARE_COMMITS_LIMIT to one more than COMMITS_SAFE_SIZE for truncation detection' do
+      expect(described_class::COMPARE_COMMITS_LIMIT).to eq(MergeRequestDiff::COMMITS_SAFE_SIZE + 1)
+    end
+
+    it 'limits the number of compare commits' do
+      stub_compare
+
+      expect(compare).to receive(:commits)
+        .with(limit: described_class::COMPARE_COMMITS_LIMIT)
+        .and_return([])
+
+      merge_request
     end
 
     context 'with force_remove_source_branch parameter when the user is authorized' do

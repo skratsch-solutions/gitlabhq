@@ -644,6 +644,48 @@ if [[ -f "$GITLAB_YML" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
+# 5f. Disable object_store.enabled in every block of the test: section
+#
+#     The cluster config points uploads/artifacts/LFS/external_diffs/etc. at
+#     the in-cluster minio (gitlab-minio-svc.gitlab.svc:9000) with
+#     object_store.enabled: true. RSpec loads WebMock and blocks real HTTP,
+#     so fixtures that touch storage (e.g. Duo Bot avatar upload during user
+#     seeding) fail with WebMock::NetConnectNotAllowedError.
+#
+#     GitLab CI / GDK seed test config from config/gitlab.yml.example, whose
+#     test: block sets object_store.enabled: false at every level. We can't
+#     swap to .example wholesale (we'd lose the cluster-derived development:
+#     section), so flip every object_store.enabled within the test: block.
+# ---------------------------------------------------------------------------
+
+if [[ -f "$GITLAB_YML" ]]; then
+  echo ""
+  echo "==> Disabling object_store.enabled in the test: block of config/gitlab.yml..."
+  awk '
+    BEGIN { in_test = 0; in_object_store = 0; os_indent = -1 }
+    /^test:/                             { in_test = 1; in_object_store = 0; print; next }
+    in_test && /^[a-zA-Z]/               { in_test = 0; in_object_store = 0 }
+    in_test && /^[[:space:]]+object_store:[[:space:]]*$/ {
+      match($0, /^ +/)
+      os_indent = RLENGTH
+      in_object_store = 1
+      print; next
+    }
+    in_test && in_object_store {
+      match($0, /^ */)
+      this_indent = RLENGTH
+      if ($0 !~ /^[[:space:]]*$/ && this_indent <= os_indent) {
+        in_object_store = 0
+      } else if ($0 ~ /^[[:space:]]+enabled:[[:space:]]+true[[:space:]]*$/) {
+        sub(/true/, "false")
+      }
+    }
+    { print }
+  ' "$GITLAB_YML" > "$GITLAB_YML.tmp" && mv "$GITLAB_YML.tmp" "$GITLAB_YML"
+  echo "  ✓ config/gitlab.yml"
+fi
+
+# ---------------------------------------------------------------------------
 # 6. Write static vite.gdk.json
 #
 #    vite.gdk.json is committed to the repo and should always use 127.0.0.1

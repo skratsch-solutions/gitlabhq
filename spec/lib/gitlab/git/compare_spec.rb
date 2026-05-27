@@ -46,6 +46,18 @@ RSpec.describe Gitlab::Git::Compare, feature_category: :source_code_management d
 
       it { is_expected.to be_empty }
     end
+
+    context 'with limit parameter' do
+      it 'passes the limit to Commit.between and does not cache the result' do
+        expect(Gitlab::Git::Commit).to receive(:between)
+          .with(repository, anything, anything, limit: 10)
+          .twice
+          .and_return([])
+
+        compare.commits(limit: 10)
+        compare.commits(limit: 10)
+      end
+    end
   end
 
   describe '#diffs' do

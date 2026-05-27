@@ -3,7 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/badges/components/open_mr_badge/open_mr_badge.vue',
     'app/assets/javascripts/boards/components/board_card.vue',
     'app/assets/javascripts/ci/admin/jobs_table/components/cells/project_cell.vue',
     'app/assets/javascripts/ci/catalog/components/list/ci_resources_list_item.vue',

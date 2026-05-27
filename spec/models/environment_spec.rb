@@ -1903,7 +1903,7 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
     subject { environment.has_opened_alert? }
 
     let_it_be(:project) { create(:project) }
-    let_it_be(:environment, reload: true) { create(:environment, project: project) }
+    let_it_be_with_reload(:environment) { create(:environment, project: project) }
 
     context 'when environment has an triggered alert' do
       let!(:alert) { create(:alert_management_alert, :triggered, project: project, environment: environment) }
@@ -1926,7 +1926,7 @@ RSpec.describe Environment, :use_clean_rails_memory_store_caching, feature_categ
     subject { environment.cancel_deployment_jobs! }
 
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:environment, reload: true) { create(:environment, project: project) }
+    let_it_be_with_reload(:environment) { create(:environment, project: project) }
 
     let!(:deployment) { create(:deployment, project: project, environment: environment, deployable: job) }
     let!(:job) { create(:ci_build, :running, project: project, environment: environment) }

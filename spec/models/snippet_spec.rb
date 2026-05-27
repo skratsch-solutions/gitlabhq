@@ -439,7 +439,7 @@ RSpec.describe Snippet, feature_category: :source_code_management do
   end
 
   describe 'only_include_projects_with_snippets_enabled' do
-    let_it_be(:project, reload: true) { create(:project_empty_repo) }
+    let_it_be_with_reload(:project) { create(:project_empty_repo) }
     let_it_be(:snippet, freeze: false) { create(:project_snippet, project: project) }
 
     let(:access_level) { ProjectFeature::ENABLED }

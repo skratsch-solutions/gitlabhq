@@ -43,7 +43,7 @@ This glossary provides definitions for terms related to Elasticsearch.
 
 ## Install an Elasticsearch or AWS OpenSearch cluster
 
-Elasticsearch and AWS OpenSearch are **not** included in the Linux package.
+Elasticsearch and AWS OpenSearch are not included in the Linux package.
 You can install a search cluster yourself or use a cloud-hosted offering such as:
 
 - [Elasticsearch Service](https://www.elastic.co/elasticsearch/service) (available on Amazon Web Services, Google Cloud Platform, and Microsoft Azure)

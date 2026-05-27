@@ -1212,22 +1212,6 @@ class MergeRequest < ApplicationRecord
     diffs.diff_files.map(&:new_path)
   end
 
-  def diff_base_commit
-    if merge_request_diff.persisted?
-      merge_request_diff.base_commit
-    else
-      branch_merge_base_commit
-    end
-  end
-
-  def diff_start_commit
-    if merge_request_diff.persisted?
-      merge_request_diff.start_commit
-    else
-      target_branch_head
-    end
-  end
-
   def diff_head_commit
     if merge_request_diff.persisted?
       merge_request_diff.head_commit

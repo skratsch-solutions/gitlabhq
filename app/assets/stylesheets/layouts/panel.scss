@@ -1,22 +1,37 @@
-// All panels
-.paneled-view.static-panel,
-.paneled-view.contextual-panel,
-.paneled-view.ai-panels .ai-panel {
+// Panel header offset
+.panel-top-offset-panel-header-height {
+  top: $panel-header-inner-height;
+}
+
+// Panels
+// Static, dynamic and AI panel wrapper
+.paneled-view {
+  @apply gl-relative;
+  @apply gl-overflow-clip;
+  @apply gl-bg-default;
+  @apply gl-p-0;
+
   @media (forced-colors: active) {
     border: 1px solid;
   }
 }
 
-// Static and Contextual panels
-.paneled-view.static-panel,
-.paneled-view.contextual-panel {
-  @apply gl-relative;
+.paneled-view,
+.paneled-view-portal {
+  @apply gl-flex;
   @apply gl-flex-1;
+  @apply gl-flex-col;
+  @apply gl-h-full;
+  @apply gl-rounded-xl;
+}
+
+// Dynamic panel portal
+.paneled-view-portal {
+  @apply empty:gl-hidden;
+  @apply gl-z-[252];
+  @apply gl-w-full;
+  @apply sm:gl-w-8/10;
   @apply gl-overflow-y-auto;
-  @apply gl-bg-default;
-  @apply gl-overflow-clip;
-  @apply gl-p-0;
-  @apply gl-rounded-[1rem];
 }
 
 // Panel header
@@ -40,6 +55,9 @@
 }
 
 .panel-header-inner-text {
+  @apply gl-inline-flex;
+  @apply gl-min-w-0;
+  @apply gl-gap-3;
   @apply gl-text-sm;
   @apply gl-font-bold;
 }
@@ -51,10 +69,12 @@
   @apply gl-items-center;
 }
 
-.panel-header-panel-actions {
+.panel-header-controls {
+  @apply gl-flex;
   @apply gl-border;
   @apply gl-leading-0;
   @apply gl-ml-2;
+  @apply -gl-mr-[1px];
   border-radius: calc(var(--gl-border-radius-lg) + 1px);
 }
 
@@ -71,6 +91,24 @@
     @apply gl-gap-3;
     @apply gl-items-center;
   }
+}
+
+.panel-content {
+  @apply gl-flex;
+  @apply gl-flex-col;
+  @apply gl-flex-1;
+  @apply gl-min-h-0;
+  contain: layout;
+  // a slight padding is added to the panel itself so that scrollbar does not get covered by the rounded edge of the panel
+  // we're using padding instead of margin so that fixed elements connect with the bottom edge of the panel
+  @apply gl-pb-3;
+}
+
+.panel-content-inner {
+  @apply gl-flex-1;
+  @apply gl-overflow-x-hidden;
+  @apply gl-overflow-y-auto;
+  scrollbar-gutter: stable;
 }
 
 .panel-content-inner > .container-fluid {

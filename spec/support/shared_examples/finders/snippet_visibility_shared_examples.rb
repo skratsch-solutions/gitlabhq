@@ -8,7 +8,7 @@ RSpec.shared_examples 'snippet visibility' do
   let_it_be(:external) { create(:user, :external) }
   let_it_be(:non_member) { create(:user) }
 
-  let_it_be(:project, reload: true) do
+  let_it_be_with_reload(:project) do
     create(:project, :public).tap do |project|
       project.add_developer(author)
       project.add_developer(member)
@@ -236,7 +236,7 @@ RSpec.shared_examples 'snippet visibility' do
           member = project.member(external)
 
           if project.private?
-            project.add_developer(external) unless member
+            project.add_developer(external) unless member # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
           elsif member
             member.delete
           end

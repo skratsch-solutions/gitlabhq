@@ -851,7 +851,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   context 'traversal queries' do
-    let_it_be(:group, reload: true) { create(:group, :nested) }
+    let_it_be_with_reload(:group) { create(:group, :nested) }
 
     it_behaves_like 'namespace traversal'
 
@@ -3587,9 +3587,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.preset_root_ancestor_for' do
-    let_it_be(:rootgroup, reload: true) { create(:group) }
-    let_it_be(:subgroup, reload: true) { create(:group, parent: rootgroup) }
-    let_it_be(:subgroup2, reload: true) { create(:group, parent: subgroup) }
+    let_it_be_with_reload(:rootgroup) { create(:group) }
+    let_it_be_with_reload(:subgroup) { create(:group, parent: rootgroup) }
+    let_it_be_with_reload(:subgroup2) { create(:group, parent: subgroup) }
 
     it 'does noting for single group' do
       expect(subgroup).not_to receive(:self_and_ancestors)

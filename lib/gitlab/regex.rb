@@ -208,7 +208,16 @@ module Gitlab
 
     # Based on Jira's project key format
     # https://confluence.atlassian.com/adminjiraserver073/changing-the-project-key-format-861253229.html
-    def jira_issue_key_regex(expression_escape: '\b')
+    #
+    # `\b` is unreliable: Onigmo treats most non-ASCII letters as word
+    # characters, so an issue key directly adjacent to CJK or accented text
+    # never matches. The ASCII-only negative lookbehind preserves the
+    # word-boundary semantics for ASCII input (the class mirrors Onigmo's
+    # ASCII word-char set) while letting non-ASCII input fall through.
+    #
+    # Callers that interpolate the source into RE2 (which does not support
+    # lookbehind) must pass `expression_escape: '\b'` explicitly.
+    def jira_issue_key_regex(expression_escape: '(?<![A-Za-z0-9_])')
       /#{expression_escape}([A-Z][A-Z_0-9]+-\d+)/
     end
 

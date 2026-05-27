@@ -10,7 +10,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
   using RSpec::Parameterized::TableSyntax
 
   let_it_be(:namespace) { create_default(:namespace).freeze }
-  let_it_be(:project, refind: true) { create_default(:project, :repository).freeze }
+  let_it_be_with_refind(:project) { create_default(:project, :repository).freeze }
 
   subject { create(:merge_request, source_project: project) }
 
@@ -2114,7 +2114,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be_with_reload(:issue4) { create(:issue, project: project) }
 
     before do
-      project.add_developer(subject.author)
+      project.add_developer(subject.author) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
       create(
         :merge_requests_closing_issues,
@@ -2202,7 +2202,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be_with_reload(:issue) { create(:issue, project: project) }
 
     before do
-      project.add_developer(subject.author)
+      project.add_developer(subject.author) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
     end
 
@@ -3146,7 +3146,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#can_remove_source_branch?' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:merge_request, reload: true) { create(:merge_request, :simple) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, :simple) }
 
     subject { merge_request }
 
@@ -4706,7 +4706,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#compare_accessibility_reports' do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:merge_request, reload: true) { create(:merge_request, :with_accessibility_reports, source_project: project) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, :with_accessibility_reports, source_project: project) }
     let_it_be(:pipeline) { merge_request.head_pipeline }
 
     subject { merge_request.compare_accessibility_reports }
@@ -4762,7 +4762,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
 
   describe '#compare_codequality_reports' do
     let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:merge_request, reload: true) { create(:merge_request, :with_codequality_reports, source_project: project) }
+    let_it_be_with_reload(:merge_request) { create(:merge_request, :with_codequality_reports, source_project: project) }
     let_it_be(:pipeline) { merge_request.head_pipeline }
 
     subject { merge_request.compare_codequality_reports }
@@ -5014,7 +5014,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         before do
-          project.add_maintainer(current_user)
+          project.add_maintainer(current_user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
 
           ProcessCommitWorker.new.perform(
             project.id,

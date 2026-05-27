@@ -1465,7 +1465,7 @@ RSpec.describe Member, feature_category: :groups_and_projects do
 
     context 'when after accepting invite' do
       let_it_be(:group, freeze: false) { create(:group, require_two_factor_authentication: true) }
-      let_it_be(:member, reload: true) { create(:group_member, :invited, source: group) }
+      let_it_be_with_reload(:member) { create(:group_member, :invited, source: group) }
       let_it_be(:email) { member.invite_email }
       let(:user) { build(:user, email: email) }
 
@@ -1499,7 +1499,7 @@ RSpec.describe Member, feature_category: :groups_and_projects do
 
     context 'when after accept request' do
       let_it_be(:group, freeze: false) { create(:group, require_two_factor_authentication: true) }
-      let_it_be(:member, reload: true) { create(:group_member, :awaiting, source: group) }
+      let_it_be_with_reload(:member) { create(:group_member, :awaiting, source: group) }
 
       it 'calls updates the two factor requirement' do
         expect(member.user).to receive(:require_two_factor_authentication_from_group).and_call_original

@@ -472,7 +472,11 @@ module Integrations
     private
 
     def jira_issue_match_regex
-      jira_regex = jira_issue_regex.presence || Gitlab::Regex.jira_issue_key_regex.source
+      # `Gitlab::UntrustedRegexp` is RE2-backed and RE2 does not support
+      # lookbehind, so we override the default `expression_escape` to keep an
+      # RE2-compatible source. The outer `\b` below already handles the
+      # boundary before the prefix.
+      jira_regex = jira_issue_regex.presence || Gitlab::Regex.jira_issue_key_regex(expression_escape: '').source
 
       Gitlab::UntrustedRegexp.new("\\b#{jira_issue_prefix}(?P<issue>#{jira_regex})")
     end

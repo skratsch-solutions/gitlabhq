@@ -60,7 +60,7 @@ RSpec.describe LfsObject, feature_category: :source_code_management do
 
   describe '#project_allowed_access?' do
     let_it_be(:lfs_object) { create(:lfs_objects_project).lfs_object }
-    let_it_be(:project, reload: true) { create(:project) }
+    let_it_be_with_reload(:project) { create(:project) }
 
     it 'returns true when project is linked' do
       create(:lfs_objects_project, lfs_object: lfs_object, project: project)
@@ -74,7 +74,7 @@ RSpec.describe LfsObject, feature_category: :source_code_management do
 
     context 'when project is a member of a fork network' do
       let_it_be(:fork_network) { create(:fork_network) }
-      let_it_be(:fork_network_root_project, reload: true) { fork_network.root_project }
+      let_it_be_with_reload(:fork_network_root_project) { fork_network.root_project }
       let_it_be(:fork_network_membership) { create(:fork_network_member, project: project, fork_network: fork_network) }
 
       it 'returns true for all members when forked project is linked' do

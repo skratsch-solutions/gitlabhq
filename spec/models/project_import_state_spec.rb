@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe ProjectImportState, type: :model, feature_category: :importers do
   let_it_be(:correlation_id) { 'cid' }
-  let_it_be(:import_state, refind: true) { create(:import_state, correlation_id_value: correlation_id) }
+  let_it_be_with_refind(:import_state) { create(:import_state, correlation_id_value: correlation_id) }
 
   subject { import_state }
 

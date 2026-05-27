@@ -2585,7 +2585,7 @@ Any API calls to change the rate limits for `user_email_lookup_limit` must use `
 - Removal in GitLab 16.6 ([breaking change](https://docs.gitlab.com/update/terminology/#breaking-change))
 - To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/420678).
 
-Starting in 16.6, projects that are **public** or **internal** will no longer authorize job token requests from projects that are **not** on the project's allowlist when [**Limit access to this project**](https://docs.gitlab.com/ci/jobs/ci_job_token/#add-a-group-or-project-to-the-job-token-allowlist) is enabled.
+Starting in 16.6, projects that are **public** or **internal** will no longer authorize job token requests from projects that are not on the project's allowlist when [**Limit access to this project**](https://docs.gitlab.com/ci/jobs/ci_job_token/#add-a-group-or-project-to-the-job-token-allowlist) is enabled.
 
 If you have [public or internal](https://docs.gitlab.com/user/public_access/#change-project-visibility) projects with the **Limit access to this project** setting enabled, you must add any projects which make job token requests to your project's allowlist for continued authorization.
 

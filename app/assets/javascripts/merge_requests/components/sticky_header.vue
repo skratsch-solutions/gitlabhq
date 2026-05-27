@@ -173,7 +173,7 @@ export default {
 
 <template>
   <gl-intersection-observer
-    class="merge-request-sticky-header-wrapper gl-relative gl-top-8"
+    class="merge-request-sticky-header-wrapper panel-top-offset-panel-header-height gl-relative"
     @appear="setStickyHeaderVisible(false)"
     @disappear="setStickyHeaderVisible(true)"
   >

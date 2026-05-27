@@ -176,14 +176,6 @@ RSpec.describe Gitlab::Email::Handler::CreateMergeRequestHandler do
 
           expect(merge_request.target_branch).to eq('with-codeowners')
         end
-
-        it 'based the merge request of the target_branch' do
-          receiver.execute
-
-          merge_request = project.merge_requests.find_by!(source_branch: 'new-branch-with-a-patch')
-
-          expect(merge_request.diff_base_commit).to eq(project.repository.commit('with-codeowners'))
-        end
       end
     end
   end

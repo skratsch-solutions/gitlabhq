@@ -48,8 +48,6 @@ export default {
     'app/assets/javascripts/analytics/devops_reports/components/devops_score.vue',
     'app/assets/javascripts/analytics/devops_reports/components/service_ping_disabled.vue',
     'app/assets/javascripts/analytics/shared/components/daterange.vue',
-    'app/assets/javascripts/authentication/sessions/components/session_expire_modal.vue',
-    'app/assets/javascripts/authentication/two_factor_auth/components/two_factor_action_confirm.vue',
     'app/assets/javascripts/badges/components/open_mr_badge/open_mr_badge.vue',
     'app/assets/javascripts/badges/components/supported_placeholders.vue',
     'app/assets/javascripts/behaviors/components/diagram_performance_warning.vue',

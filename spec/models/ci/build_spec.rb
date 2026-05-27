@@ -9,10 +9,10 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   include Ci::PipelineVariableHelpers
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:group, reload: true) { create_default(:group, :allow_runner_registration_token) }
-  let_it_be(:project, reload: true) { create_default(:project, :repository, group: group) }
+  let_it_be_with_reload(:group) { create_default(:group, :allow_runner_registration_token) }
+  let_it_be_with_reload(:project) { create_default(:project, :repository, group: group) }
 
-  let_it_be(:pipeline, reload: true) do
+  let_it_be_with_reload(:pipeline) do
     create_default(
       :ci_pipeline,
       project: project,
@@ -22,7 +22,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     )
   end
 
-  let_it_be(:build, refind: true) { create(:ci_build, pipeline: pipeline, yaml_variables: []) }
+  let_it_be_with_refind(:build) { create(:ci_build, pipeline: pipeline, yaml_variables: []) }
 
   let(:allow_runner_registration_token) { false }
   let_it_be(:public_project) { create(:project, :public) }
@@ -945,7 +945,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     subject(:schedule) { build.schedule }
 
     before do
-      project.add_developer(user)
+      project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
     end
 
     let(:build) { create(:ci_build, :created, :schedulable, user: user, pipeline: pipeline) }
@@ -1715,7 +1715,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
     context 'when user is a developer' do
       before do
-        project.add_developer(cache_user)
+        project.add_developer(cache_user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
       end
 
       it { is_expected.to be_falsy }
@@ -1723,7 +1723,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
     context 'when user is a maintainer' do
       before do
-        project.add_maintainer(cache_user)
+        project.add_maintainer(cache_user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
       end
 
       it { is_expected.to be_truthy }
@@ -2437,7 +2437,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
       end
 
       before do
-        project.add_developer(user)
+        project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
         allow(build).to receive(:auto_retry_allowed?) { true }
       end
 
@@ -2677,7 +2677,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     subject { build.other_scheduled_actions }
 
     before do
-      project.add_developer(user)
+      project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
     end
 
     context "when other build's status is success" do
@@ -2717,7 +2717,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
     let(:build) { create(:ci_build, :manual, pipeline: pipeline) }
 
     before do
-      project.add_developer(user)
+      project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
     end
 
     it 'enqueues the build' do
@@ -5071,7 +5071,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
   end
 
   describe 'pages deployments', feature_category: :pages do
-    let_it_be(:build, reload: true) { create(:ci_build, name: 'pages', pipeline: pipeline, user: user) }
+    let_it_be_with_reload(:build) { create(:ci_build, name: 'pages', pipeline: pipeline, user: user) }
 
     context 'when pages are enabled' do
       before do
@@ -5950,7 +5950,7 @@ RSpec.describe Ci::Build, feature_category: :continuous_integration, factory_def
 
         before do
           build.update!(user: user)
-          project.add_developer(user)
+          project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
         end
 
         it 'resolves the todo for the old failed build' do

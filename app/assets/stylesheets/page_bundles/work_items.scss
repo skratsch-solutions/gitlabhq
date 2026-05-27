@@ -23,6 +23,16 @@ $work-item-overview-gap-width: 2rem;
 }
 
 .work-item-detail-panel {
+  // a slight padding is added to the panel itself so that scrollbar does not get covered by the rounded edge of the panel
+  // we're using padding instead of margin so that fixed elements connect with the bottom edge of the panel
+  @apply gl-pb-3;
+  @apply gl-h-full;
+  @apply gl-bg-default;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  contain: layout;
   transition: none;
 }
 
@@ -36,8 +46,15 @@ $work-item-overview-gap-width: 2rem;
   @apply gl-px-[--container-padding-x];
   @apply gl-py-3;
   @apply gl-border-b;
-  @apply lg:gl-px-5;
   z-index: $panel-header-inner-z-index;
+}
+
+.work-item-detail-panel-content {
+  @apply gl-flex-1;
+  @apply gl-px-[--container-padding-x];
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 @include gl-container-width-down(md, panel) {

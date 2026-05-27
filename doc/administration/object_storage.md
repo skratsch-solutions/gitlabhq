@@ -806,7 +806,7 @@ settings are populated from the previous settings.
      ```
 
    If you are using a custom Azure storage domain, `azure_storage_domain`
-   does **not** have to be set in the Workhorse configuration. This
+   does not have to be set in the Workhorse configuration. This
    information is exchanged in an API call between GitLab Rails and
    Workhorse.
 

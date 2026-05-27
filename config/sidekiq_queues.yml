@@ -1015,6 +1015,8 @@
   - 1
 - - search_zoekt_indexing_task
   - 1
+- - search_zoekt_indexing_task_delete
+  - 1
 - - search_zoekt_initial_indexing_event
   - 1
 - - search_zoekt_lost_node_event

@@ -154,7 +154,7 @@ as well as permissions and credentials.
 PostgreSQL can also hold some level of cached data like HTML-rendered Markdown and cached merge-requests diff.
 This can also be configured to be offloaded to object storage.
 
-We use PostgreSQL's own replication functionality to replicate data from the **primary** to **secondary** sites.
+We use PostgreSQL's own replication functionality to replicate data from the primary to secondary sites.
 
 We use Redis both as a cache store and to hold persistent data for our background jobs system. Because both
 use-cases have data that are exclusive to the same Geo site, we don't replicate it between sites.
@@ -200,9 +200,9 @@ Feature.enable(:geo_package_file_replication)
 
 > [!warning]
 > Features not on this list, or with **No** in the **Replicated** column,
-> are not replicated to a **secondary** site. Failing over without manually
+> are not replicated to a secondary site. Failing over without manually
 > replicating data from those features causes the data to be **lost**.
-> To use those features on a **secondary** site, or to execute a failover
+> To use those features on a secondary site, or to execute a failover
 > successfully, you must replicate their data using some other means.
 
 | Feature                                                                                                               | Replicated (added in GitLab version)                                          | Verified (added in GitLab version)                                            | GitLab-managed object storage replication (added in GitLab version)             | GitLab-managed object storage verification (added in GitLab version)            | Notes |

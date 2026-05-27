@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Ci::Bridge, feature_category: :continuous_integration do
   include Ci::PipelineVariableHelpers
 
-  let_it_be(:project, refind: true) { create(:project, :repository, :in_group) }
+  let_it_be_with_refind(:project) { create(:project, :repository, :in_group) }
   let_it_be(:target_project) { create(:project, name: 'project', namespace: create(:namespace, name: 'my')) }
   let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
 

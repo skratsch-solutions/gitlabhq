@@ -2808,7 +2808,6 @@ incompatible with personal access tokens.
 | `GET` | `/api/scim/:version/groups/:group/Users/:id` | SCIM token |
 | `PATCH` | `/api/scim/:version/groups/:group/Users/:id` | SCIM token |
 | `DELETE` | `/api/scim/:version/groups/:group/Users/:id` | SCIM token |
-| `GET` | `/chaos/test` | Internal testing |
 | `POST` | `/container_registry_event/events` | Container registry event token |
 | `GET` | `/feature_flags/unleash/:project_id` | Unleash token |
 | `GET` | `/feature_flags/unleash/:project_id/client/features` | Unleash token |

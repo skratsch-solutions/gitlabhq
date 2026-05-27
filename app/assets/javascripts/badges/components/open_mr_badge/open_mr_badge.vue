@@ -117,7 +117,7 @@ export default {
         data?.project?.mergeRequests?.nodes?.map((node) => ({
           ...node,
           text: node.title,
-          href: node.webUrl,
+          href: node.webPath,
         })) || [],
       error(error) {
         logError(

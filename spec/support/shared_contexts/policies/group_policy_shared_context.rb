@@ -3,7 +3,7 @@
 # rubocop:disable RSpec/MultipleMemoizedHelpers -- Shared context provides fixtures for all group policy tests
 RSpec.shared_context 'GroupPolicy context' do
   let_it_be(:organization) { create(:common_organization) }
-  let_it_be(:group, refind: true) do
+  let_it_be_with_refind(:group) do
     create(:group, :private, :owner_subgroup_creation_only, :allow_runner_registration_token,
       organization: organization)
   end

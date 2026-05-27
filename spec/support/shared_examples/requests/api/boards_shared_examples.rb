@@ -219,7 +219,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
     end
 
     context "when the user is parent owner" do
-      let_it_be(:owner, reload: true) { create(:user) }
+      let_it_be_with_reload(:owner) { create(:user) }
 
       before do
         if board_parent.try(:namespace)

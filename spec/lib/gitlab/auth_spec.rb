@@ -1798,24 +1798,6 @@ RSpec.describe Gitlab::Auth, :use_clean_rails_memory_store_caching, feature_cate
           described_class.find_with_user_password(user.username, 'test1234test')
         end
       end
-
-      context 'when cache_find_with_user_password feature flag is disabled' do
-        before do
-          stub_feature_flags(cache_find_with_user_password: false)
-        end
-
-        context 'when RequestStore is active', :request_store do
-          it 'does not cache — bcrypt runs every time' do
-            expect(Devise::Encryptor).to receive(:compare).twice.and_call_original
-
-            result1 = described_class.find_with_user_password(user.username, 'test1234test')
-            result2 = described_class.find_with_user_password(user.username, 'test1234test')
-
-            expect(result1).to eq(user)
-            expect(result2).to eq(user)
-          end
-        end
-      end
     end
   end
 

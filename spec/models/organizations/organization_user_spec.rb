@@ -250,7 +250,7 @@ RSpec.describe Organizations::OrganizationUser, type: :model, feature_category: 
     end
 
     context 'when user is the owner' do
-      let_it_be(:organization_user, reload: true) { create(:organization_owner) }
+      let_it_be_with_reload(:organization_user) { create(:organization_owner) }
       let_it_be(:organization) { organization_user.organization }
 
       context 'when another owner does not exist' do
@@ -258,7 +258,7 @@ RSpec.describe Organizations::OrganizationUser, type: :model, feature_category: 
       end
 
       context 'when another owner exists' do
-        let_it_be(:another_owner, reload: true) { create(:organization_owner, organization: organization) }
+        let_it_be_with_reload(:another_owner) { create(:organization_owner, organization: organization) }
 
         where(:current_owner_active?, :another_owner_active?, :last_owner?) do
           true  | true  | false

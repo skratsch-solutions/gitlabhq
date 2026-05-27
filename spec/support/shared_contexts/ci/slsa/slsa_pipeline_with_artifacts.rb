@@ -2,9 +2,9 @@
 
 RSpec.shared_context 'with build, pipeline and artifacts' do
   let_it_be(:user) { create(:user) }
-  let_it_be(:group, reload: true) { create_default(:group, :allow_runner_registration_token) }
-  let_it_be(:project, reload: true) { create_default(:project, :public, :repository, group: group) }
-  let_it_be(:pipeline, reload: true) do
+  let_it_be_with_reload(:group) { create_default(:group, :allow_runner_registration_token) }
+  let_it_be_with_reload(:project) { create_default(:project, :public, :repository, group: group) }
+  let_it_be_with_reload(:pipeline) do
     create_default(
       :ci_pipeline,
       project: project,

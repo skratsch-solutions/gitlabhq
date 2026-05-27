@@ -222,7 +222,7 @@ RSpec.describe Packages::PackageFile, feature_category: :package_registry do
   end
 
   context 'for updating project statistics' do
-    let_it_be(:package, reload: true) { create(:maven_package, package_files: [], maven_metadatum: nil) }
+    let_it_be_with_reload(:package) { create(:maven_package, package_files: [], maven_metadatum: nil) }
 
     context 'when the package file has an explicit size' do
       subject { build(:package_file, :jar, package: package, size: 42) }

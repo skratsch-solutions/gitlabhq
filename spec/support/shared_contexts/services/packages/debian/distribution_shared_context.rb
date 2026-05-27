@@ -19,9 +19,9 @@ RSpec.shared_context 'with Debian distribution' do |container_type|
 
   if container_type == :project
     let_it_be(:container) { project }
-    let_it_be(:distribution, reload: true) { project_distribution }
+    let_it_be_with_reload(:distribution) { project_distribution }
   else
     let_it_be(:container) { group }
-    let_it_be(:distribution, reload: true) { create(:debian_group_distribution, container: group, codename: 'unstable', valid_time_duration_seconds: 48.hours.to_i) }
+    let_it_be_with_reload(:distribution) { create(:debian_group_distribution, container: group, codename: 'unstable', valid_time_duration_seconds: 48.hours.to_i) }
   end
 end

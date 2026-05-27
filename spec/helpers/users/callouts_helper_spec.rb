@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe Users::CalloutsHelper, feature_category: :navigation do
   include StubVersion
-  let_it_be(:user, refind: true) { create(:user) }
+  let_it_be_with_refind(:user) { create(:user) }
 
   before do
     allow(helper).to receive(:current_user).and_return(user)
