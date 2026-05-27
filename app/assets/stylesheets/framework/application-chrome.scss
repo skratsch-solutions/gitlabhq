@@ -245,23 +245,6 @@
     }
   }
 
-  // Sidebar adjustments
-  :where(.right-sidebar-expanded) {
-    .content-wrapper {
-      @apply gl-pr-0 #{!important};
-    }
-
-    &:not(.wiki-sidebar):not(.build-sidebar):not(.is-merge-request) .panel-content-inner {
-      @container content-panels (width >= #{map.get($breakpoints, 'sm')}) {
-        padding-right: $right-sidebar-width;
-      }
-    }
-  }
-
-  .right-sidebar.right-sidebar-collapsed.issues-bulk-update {
-    @apply gl-border-l-0;
-  }
-
   :where(.right-sidebar-collapsed:not(.issuable-bulk-update-sidebar, .is-merge-request)) {
     .content-wrapper {
       @apply gl-pr-0 #{!important};
@@ -391,21 +374,5 @@
 
   .work-item-detail-panel .work-item-overview-right-sidebar {
     @apply gl-pb-10;
-  }
-}
-
-.duo-chat-panel {
-  @media (min-width: $breakpoint-lg) {
-    width: var(--ai-navigation-rail-size);
-  }
-
-  @media (max-width: $breakpoint-lg - 1) {
-    height: var(--ai-navigation-rail-size);
-  }
-}
-
-.duo-chat-panel[data-expanded] {
-  @media (min-width: $breakpoint-lg) {
-    width: calc(var(--ai-panel-width) + var(--ai-panels-gap) + var(--ai-navigation-rail-size));
   }
 }

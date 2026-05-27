@@ -4513,9 +4513,8 @@ paths:
   "/api/v4/projects/{id}/google_cloud/setup/integrations.sh":
     get:
       operationId: getApiV4ProjectsIdGoogleCloudSetupIntegrationsSh
-      summary: Get shell script to setup an integration in Google Cloud
-      description: Returns a shell script for configuring Google Cloud integrations
-        with the project.
+      summary: Retrieve setup script for Google Cloud integration
+      description: Retrieves the setup script for Google Cloud integration.
       tags:
       - Project Google Cloud integration
       responses:
@@ -4554,9 +4553,8 @@ paths:
   "/api/v4/projects/{id}/google_cloud/setup/runner_deployment_project.sh":
     get:
       operationId: getApiV4ProjectsIdGoogleCloudSetupRunnerDeploymentProjectSh
-      summary: Get shell script to set up Google Cloud project for runner deployment
-      description: Returns a shell script for setting up a Google Cloud project for
-        runner deployment.
+      summary: Retrieve configuration script for Google Cloud runner provisioning
+      description: Retrieves the configuration script for Google Cloud runner provisioning.
       tags:
       - Project Google Cloud integration
       responses:
@@ -4870,7 +4868,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -4879,7 +4877,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -4888,7 +4886,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -4897,7 +4895,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -5051,7 +5049,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -5060,7 +5058,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -5069,7 +5067,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -5078,7 +5076,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -6308,7 +6306,8 @@ paths:
   "/api/v4/groups/{id}/member_roles":
     get:
       operationId: getApiV4GroupsIdMemberRoles
-      summary: Get Member Roles for a group
+      summary: List all group member roles
+      description: Lists all member roles in a specified group.
       tags:
       - Member roles
       responses:
@@ -6333,7 +6332,9 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdMemberRoles
-      summary: Create Member Role for a group
+      summary: Add a member role to a group
+      description: Adds a member role to a group. You can only add member roles at
+        the root level of the group.
       tags:
       - Member roles
       responses:
@@ -6365,7 +6366,8 @@ paths:
   "/api/v4/groups/{id}/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4GroupsIdMemberRolesMemberRoleId
-      summary: Delete Member Role for a group
+      summary: Remove member role of a group
+      description: Removes a specified member role from a group.
       tags:
       - Member roles
       responses:
@@ -6395,7 +6397,8 @@ paths:
   "/api/v4/member_roles":
     get:
       operationId: getApiV4MemberRoles
-      summary: Get Member Roles for this GitLab instance
+      summary: List all instance member roles
+      description: Lists all member roles for this GitLab instance.
       tags:
       - Member roles
       responses:
@@ -6409,7 +6412,8 @@ paths:
           description: Unauthorized
     post:
       operationId: postApiV4MemberRoles
-      summary: Create Member Role on the GitLab instance
+      summary: Create an instance member role
+      description: Creates an instance member role.
       tags:
       - Member roles
       responses:
@@ -6432,7 +6436,8 @@ paths:
   "/api/v4/member_roles/{member_role_id}":
     delete:
       operationId: deleteApiV4MemberRolesMemberRoleId
-      summary: Delete Member Role
+      summary: Delete an instance member role
+      description: Deletes an instance member role.
       tags:
       - Member roles
       responses:
@@ -16275,7 +16280,8 @@ paths:
   "/api/v4/application/settings":
     get:
       operationId: getApiV4ApplicationSettings
-      summary: Get the current application settings
+      summary: Retrieve application settings
+      description: Retrieves the current application settings for this GitLab instance.
       tags:
       - Instance
       responses:
@@ -16287,7 +16293,8 @@ paths:
                 "$ref": "#/components/schemas/APIEntitiesApplicationSetting"
     put:
       operationId: putApiV4ApplicationSettings
-      summary: Modify application settings
+      summary: Update application settings
+      description: Updates the current application settings for this GitLab instance.
       tags:
       - Instance
       responses:
@@ -17198,7 +17205,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -17207,7 +17214,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -17216,7 +17223,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -17225,7 +17232,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -20007,7 +20014,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -20016,7 +20023,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -20025,7 +20032,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -20034,7 +20041,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -25741,7 +25748,8 @@ paths:
   "/api/v4/application/statistics":
     get:
       operationId: getApiV4ApplicationStatistics
-      summary: Get the current application statistics
+      summary: Retrieve application statistics
+      description: Retrieves the current application statistics for this GitLab instance.
       tags:
       - Instance
       responses:
@@ -27038,7 +27046,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -27047,7 +27055,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -27056,7 +27064,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -27065,7 +27073,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -27281,7 +27289,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -27290,7 +27298,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -27299,7 +27307,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -27308,7 +27316,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -28827,8 +28835,8 @@ paths:
   "/api/v4/groups/{id}/-/packages/pypi/simple":
     get:
       operationId: getApiV4GroupsIdDashPackagesPypiSimple
-      summary: The PyPi Simple Group Index Endpoint
-      description: This feature was introduced in GitLab 15.1
+      summary: List all packages for a group
+      description: Lists all packages for a specified group in an HTML file.
       tags:
       - Packages
       responses:
@@ -28852,8 +28860,8 @@ paths:
   "/api/v4/projects/{id}/packages/pypi/simple":
     get:
       operationId: getApiV4ProjectsIdPackagesPypiSimple
-      summary: The PyPi Simple Project Index Endpoint
-      description: This feature was introduced in GitLab 15.1
+      summary: List all packages for a project
+      description: Lists all packages for a specified project in an HTML file.
       tags:
       - Packages
       responses:
@@ -28877,8 +28885,8 @@ paths:
   "/api/v4/projects/{id}/packages/pypi":
     post:
       operationId: postApiV4ProjectsIdPackagesPypi
-      summary: The PyPi Package upload endpoint
-      description: This feature was introduced in GitLab 12.10
+      summary: Upload a package
+      description: Uploads a PyPI package for a specified project.
       tags:
       - Packages
       responses:
@@ -29595,7 +29603,9 @@ paths:
   "/api/v4/users/{user_id}/contributed_projects":
     get:
       operationId: getApiV4UsersUserIdContributedProjects
-      summary: Get projects that a user has contributed to
+      summary: List all projects contributions for a user
+      description: Lists all contributions to visible projects for a specified user.
+        Returns only contributions in the past year.
       tags:
       - Projects
       responses:
@@ -29676,7 +29686,9 @@ paths:
   "/api/v4/users/{user_id}/starred_projects":
     get:
       operationId: getApiV4UsersUserIdStarredProjects
-      summary: Get projects starred by a user
+      summary: List all projects starred by a user
+      description: Lists all visible projects starred by a specified user. Unauthenticated
+        requests return only public projects.
       tags:
       - Projects
       responses:
@@ -30085,7 +30097,8 @@ paths:
   "/api/v4/projects/{id}/restore":
     post:
       operationId: postApiV4ProjectsIdRestore
-      summary: Restore a project
+      summary: Restore a project marked for deletion
+      description: Restores a specified project that was marked for deletion.
       tags:
       - Projects
       responses:
@@ -30107,7 +30120,10 @@ paths:
   "/api/v4/projects":
     get:
       operationId: getApiV4Projects
-      summary: Get a list of visible projects for authenticated user
+      summary: List all projects
+      description: Lists all projects. Unauthenticated requests return only public
+        projects with a limited subset of attributes. You can filter responses by
+        custom attributes.
       tags:
       - Projects
       responses:
@@ -30562,7 +30578,10 @@ paths:
         in: query
     put:
       operationId: putApiV4ProjectsId
-      summary: Update an existing project
+      summary: Update a project
+      description: Updates an existing project. If your HTTP repository is not publicly
+        accessible, add authentication information to the URL `https://username:password@gitlab.company.com/group/project.git`,
+        where `password` is a public access key with the `api` scope.
       tags:
       - Projects
       responses:
@@ -30648,7 +30667,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_8ac230459ce6"
     delete:
       operationId: deleteApiV4ProjectsIdFork
-      summary: Remove a forked_from relationship
+      summary: Delete a fork relationship
+      description: Deletes a fork relationship between projects.
       tags:
       - Projects
       responses:
@@ -30672,7 +30692,8 @@ paths:
   "/api/v4/projects/{id}/forks":
     get:
       operationId: getApiV4ProjectsIdForks
-      summary: List forks of this project
+      summary: List all forks of a project
+      description: Lists all forks of a project.
       tags:
       - Projects
       responses:
@@ -31033,6 +31054,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdUnarchive
       summary: Unarchive a project
+      description: Unarchives a specified project. You must be an administrator or
+        have the Owner role on the project.
       tags:
       - Projects
       responses:
@@ -31057,6 +31080,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdStar
       summary: Star a project
+      description: Stars a specified project.
       tags:
       - Projects
       responses:
@@ -31083,6 +31107,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdUnstar
       summary: Unstar a project
+      description: Unstars a specified project.
       tags:
       - Projects
       responses:
@@ -31108,7 +31133,8 @@ paths:
   "/api/v4/projects/{id}/starrers":
     get:
       operationId: getApiV4ProjectsIdStarrers
-      summary: Get the users who starred a project
+      summary: List all users who starred a project
+      description: Lists all users who starred a specified project.
       tags:
       - Projects
       responses:
@@ -31180,7 +31206,8 @@ paths:
   "/api/v4/projects/{id}/fork/{forked_from_id}":
     post:
       operationId: postApiV4ProjectsIdForkForkedFromId
-      summary: Mark this project as forked from another
+      summary: Create a fork relationship
+      description: Creates a fork relationship between a project and an upstream project.
       tags:
       - Projects
       responses:
@@ -31215,7 +31242,8 @@ paths:
   "/api/v4/projects/{id}/share":
     post:
       operationId: postApiV4ProjectsIdShare
-      summary: Share the project with a group
+      summary: Share a project with a group
+      description: Shares a specified project with a group.
       tags:
       - Projects
       responses:
@@ -31249,7 +31277,8 @@ paths:
   "/api/v4/projects/{id}/share/{group_id}":
     delete:
       operationId: deleteApiV4ProjectsIdShareGroupId
-      summary: Remove a group share
+      summary: Delete a shared project link in a group
+      description: Deletes a shared project link in a group.
       tags:
       - Projects
       responses:
@@ -31277,8 +31306,12 @@ paths:
   "/api/v4/projects/{id}/import_project_members/{project_id}":
     post:
       operationId: postApiV4ProjectsIdImportProjectMembersProjectId
-      summary: Import members from another project
-      description: This feature was introduced in GitLab 14.2
+      summary: Import members
+      description: Imports members from another project. If the role of the importing
+        member for the target project is a Maintainer, then members with the Owner
+        role for the source project are imported with the Maintainer role. If the
+        importing member is an Owner, then members with the Owner role for the source
+        project are imported with the Owner role.
       tags:
       - Projects
       responses:
@@ -31308,7 +31341,8 @@ paths:
   "/api/v4/projects/{id}/users":
     get:
       operationId: getApiV4ProjectsIdUsers
-      summary: Get the users list of a project
+      summary: List all members of a project
+      description: Lists all members with access to a specified project.
       tags:
       - Projects
       responses:
@@ -31553,7 +31587,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdHousekeeping
       summary: Start the housekeeping task for a project
-      description: This feature was introduced in GitLab 9.0.
+      description: Starts the housekeeping task for a project.
       tags:
       - Projects
       responses:
@@ -31606,7 +31640,8 @@ paths:
   "/api/v4/projects/{id}/transfer":
     put:
       operationId: putApiV4ProjectsIdTransfer
-      summary: Transfer a project to a new namespace
+      summary: Transfer a project to another namespace
+      description: Transfers a project to another namespace.
       tags:
       - Projects
       responses:
@@ -31640,7 +31675,8 @@ paths:
   "/api/v4/projects/{id}/transfer_locations":
     get:
       operationId: getApiV4ProjectsIdTransferLocations
-      summary: Get the namespaces to where the project can be transferred
+      summary: List all transferable namespaces for a project
+      description: Lists all namespaces where a specified project can be transferred.
       tags:
       - Projects
       responses:
@@ -31690,7 +31726,10 @@ paths:
   "/api/v4/projects/{id}/storage":
     get:
       operationId: getApiV4ProjectsIdStorage
-      summary: Show the storage information
+      summary: Retrieve the path to repository storage
+      description: Retrieves the path to repository storage for a specified project.
+        If you are using Gitaly Cluster (Praefect), see Praefect-generated replica
+        paths instead. Administrators only.
       tags:
       - Projects
       responses:
@@ -35308,7 +35347,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter tokens which were created after given datetime
@@ -35317,7 +35356,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_before
         required: false
         description: Filter tokens which were used before given datetime
@@ -35326,7 +35365,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: last_used_after
         required: false
         description: Filter tokens which were used after given datetime
@@ -35335,7 +35374,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter tokens which expire before given datetime
@@ -60627,6 +60666,44 @@ paths:
           - type: string
           - type: integer
         in: path
+  "/api/v4/projects/{id}/packages/cargo/{package_name}/{package_version}/download":
+    get:
+      operationId: getApiV4ProjectsIdPackagesCargoPackageNamePackageVersionDownload
+      summary: Download a Cargo crate
+      description: This endpoint serves the .crate file for a given package name and
+        version
+      tags:
+      - Packages
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
+      - name: package_name
+        required: true
+        description: The cargo package name
+        schema:
+          type: string
+        in: path
+      - name: package_version
+        required: true
+        description: The cargo package version
+        schema:
+          type: string
+        in: path
   "/api/v4/projects/{id}/cluster_agents":
     get:
       operationId: getApiV4ProjectsIdClusterAgents
@@ -64792,7 +64869,9 @@ paths:
   "/api/v4/groups":
     get:
       operationId: getApiV4Groups
-      summary: Get a groups list
+      summary: List all groups
+      description: Lists all visible groups for the authenticated user. Unauthenticated
+        requests return only public groups.
       tags:
       - Groups
       responses:
@@ -64964,7 +65043,9 @@ paths:
         in: query
     post:
       operationId: postApiV4Groups
-      summary: Create a group. Available only for users who can create groups.
+      summary: Create a group
+      description: Creates a project group. Available only for users who can create
+        groups.
       tags:
       - Groups
       responses:
@@ -65080,6 +65161,8 @@ paths:
     post:
       operationId: postApiV4GroupsIdArchive
       summary: Archive a group
+      description: Archives a specified group. You must be an administrator or have
+        the Owner role for the group.
       tags:
       - Groups
       responses:

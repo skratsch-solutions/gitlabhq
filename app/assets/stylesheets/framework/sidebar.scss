@@ -71,17 +71,9 @@
     }
   }
 
-  @include media-breakpoint-only(sm) {
-    &:not(.wiki-sidebar):not(.build-sidebar):not(.issuable-bulk-update-sidebar):not(.is-merge-request) .content-wrapper {
-      padding-right: $right-sidebar-collapsed-width;
-    }
-  }
-
-  &:not(.is-merge-request):not(.build-sidebar) {
-    @include media-breakpoint-up(sm) {
-      .content-wrapper {
-        padding-right: $right-sidebar-width;
-      }
+  &:not(.wiki-sidebar, .build-sidebar, .is-merge-request) .panel-content-inner {
+    @container content-panels (width >= #{map.get($breakpoints, 'sm')}) {
+      padding-right: $right-sidebar-width;
     }
   }
 }
@@ -144,6 +136,10 @@
     border-bottom: 0;
     padding-top: 0;
   }
+}
+
+.issues-bulk-update.right-sidebar.right-sidebar-collapsed {
+  @apply gl-border-l-0;
 }
 
 .issuable-sidebar .labels {

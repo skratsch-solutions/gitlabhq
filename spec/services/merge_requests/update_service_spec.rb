@@ -1321,7 +1321,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       context 'when MergeRequestsClosingIssues already exist' do
         let_it_be(:third_issue) { create(:issue, project: project) }
 
-        before_all do
+        before do
           merge_request.update!(description: "Closes #{first_issue.to_reference} and #{second_issue.to_reference}")
           merge_request.cache_merge_request_closes_issues!(user)
         end

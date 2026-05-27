@@ -157,7 +157,14 @@ RSpec.describe 'Query.project.jobAnalytics', :click_house, :freeze_time, feature
         let(:job_analytics_fields) { basic_fields }
         let(:failed_rates) { nodes.map { |n| n.dig('statistics', 'failedRate') } }
 
-        it { expect(failed_rates).to eq(failed_rates.compact.sort.reverse) }
+        it 'returns non-nil rates in descending order with nils last' do
+          # ClickHouse sorts NULLs last by default in DESC order
+          # NULLs come from jobs whose denominator is 0 (success + failed == 0).
+          non_nil_count = failed_rates.compact.size
+
+          expect(failed_rates.first(non_nil_count)).to eq(failed_rates.compact.sort.reverse)
+          expect(failed_rates.drop(non_nil_count)).to all(be_nil)
+        end
       end
 
       context 'when sorted by stage name ascending' do
@@ -483,8 +490,10 @@ RSpec.describe 'Query.project.jobAnalytics', :click_house, :freeze_time, feature
         ])
       end
 
+      # Denominator excludes canceled/skipped: only success + failed.
       let(:failed_rate) do
-        ((rspec_node_stats['failedCount'].to_f / Float(rspec_node_stats['totalCount'])) * 100).round(2)
+        denominator = rspec_node_stats['successCount'].to_f + rspec_node_stats['failedCount'].to_f
+        ((rspec_node_stats['failedCount'].to_f / denominator) * 100).round(2)
       end
 
       it 'returns both counts and rates' do

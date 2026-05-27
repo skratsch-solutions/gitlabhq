@@ -22,23 +22,6 @@ module API
     end
 
     helpers do
-      # Enable code suggestions if the feature flag is enabled for the project or group
-      def code_suggestions_enabled?(project: nil, group: nil)
-        return false unless project.present? || group.present?
-
-        if project.present?
-          project_record = ::Project.find_by_full_path(project)
-          return false unless project_record
-
-          return Feature.enabled?(:glql_code_suggestion_analytics_aggregation, project_record)
-        end
-
-        group_record = ::Group.find_by_full_path(group)
-        return false unless group_record
-
-        Feature.enabled?(:glql_code_suggestion_analytics_aggregation, group_record)
-      end
-
       def get_compile_context(
         fields: nil,
         dimensions: nil,
@@ -49,10 +32,8 @@ module API
         project: nil,
         group: nil
       )
-        code_suggestions_enabled = code_suggestions_enabled?(project: project, group: group)
-
         {
-          featureFlags: { glqlCodeSuggestions: code_suggestions_enabled },
+          featureFlags: {},
           username: user&.username,
           mode: mode,
           sort: sort,

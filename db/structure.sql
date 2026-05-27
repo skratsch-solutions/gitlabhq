@@ -17029,6 +17029,45 @@ CREATE SEQUENCE cd_services_id_seq
 
 ALTER SEQUENCE cd_services_id_seq OWNED BY cd_services.id;
 
+CREATE TABLE cd_version_set_entries (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    version_set_id bigint NOT NULL,
+    version_id bigint NOT NULL,
+    service_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE SEQUENCE cd_version_set_entries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_version_set_entries_id_seq OWNED BY cd_version_set_entries.id;
+
+CREATE TABLE cd_version_sets (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    application_id bigint NOT NULL,
+    environment_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    name text NOT NULL,
+    CONSTRAINT check_141e70e0e2 CHECK ((char_length(name) <= 255))
+);
+
+CREATE SEQUENCE cd_version_sets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_version_sets_id_seq OWNED BY cd_version_sets.id;
+
 CREATE TABLE cd_versions (
     id bigint NOT NULL,
     group_id bigint NOT NULL,
@@ -36128,6 +36167,10 @@ ALTER TABLE ONLY cd_environments ALTER COLUMN id SET DEFAULT nextval('cd_environ
 
 ALTER TABLE ONLY cd_services ALTER COLUMN id SET DEFAULT nextval('cd_services_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_version_set_entries ALTER COLUMN id SET DEFAULT nextval('cd_version_set_entries_id_seq'::regclass);
+
+ALTER TABLE ONLY cd_version_sets ALTER COLUMN id SET DEFAULT nextval('cd_version_sets_id_seq'::regclass);
+
 ALTER TABLE ONLY cd_versions ALTER COLUMN id SET DEFAULT nextval('cd_versions_id_seq'::regclass);
 
 ALTER TABLE ONLY chat_names ALTER COLUMN id SET DEFAULT nextval('chat_names_id_seq'::regclass);
@@ -39306,6 +39349,12 @@ ALTER TABLE ONLY cd_environments
 
 ALTER TABLE ONLY cd_services
     ADD CONSTRAINT cd_services_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT cd_version_set_entries_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_version_sets
+    ADD CONSTRAINT cd_version_sets_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cd_versions
     ADD CONSTRAINT cd_versions_pkey PRIMARY KEY (id);
@@ -46547,6 +46596,22 @@ CREATE INDEX index_cd_environments_on_cluster_agent_id ON cd_environments USING 
 CREATE UNIQUE INDEX index_cd_services_on_application_id_and_name ON cd_services USING btree (application_id, name);
 
 CREATE INDEX index_cd_services_on_group_id ON cd_services USING btree (group_id);
+
+CREATE INDEX index_cd_version_set_entries_on_group_id ON cd_version_set_entries USING btree (group_id);
+
+CREATE INDEX index_cd_version_set_entries_on_service_id ON cd_version_set_entries USING btree (service_id);
+
+CREATE INDEX index_cd_version_set_entries_on_version_id ON cd_version_set_entries USING btree (version_id);
+
+CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_service_id ON cd_version_set_entries USING btree (version_set_id, service_id);
+
+CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_version_id ON cd_version_set_entries USING btree (version_set_id, version_id);
+
+CREATE UNIQUE INDEX index_cd_version_sets_on_application_id_and_name ON cd_version_sets USING btree (application_id, name);
+
+CREATE INDEX index_cd_version_sets_on_environment_id ON cd_version_sets USING btree (environment_id);
+
+CREATE INDEX index_cd_version_sets_on_group_id ON cd_version_sets USING btree (group_id);
 
 CREATE UNIQUE INDEX index_cd_versions_on_artifact_source_id_and_name ON cd_versions USING btree (artifact_source_id, name);
 
@@ -56452,6 +56517,9 @@ ALTER TABLE ONLY ai_active_context_tasks
 ALTER TABLE ONLY merge_request_assignees
     ADD CONSTRAINT fk_088f01d08d FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_version_sets
+    ADD CONSTRAINT fk_08be5079de FOREIGN KEY (environment_id) REFERENCES cd_environments(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY observability_traces_issues_connections
     ADD CONSTRAINT fk_08c2664321 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -56644,6 +56712,9 @@ ALTER TABLE ONLY jira_tracker_data
 ALTER TABLE ONLY ascp_scans
     ADD CONSTRAINT fk_16efa16ef2 FOREIGN KEY (base_scan_id) REFERENCES ascp_scans(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT fk_176511dcce FOREIGN KEY (version_id) REFERENCES cd_versions(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY incident_management_timeline_events
     ADD CONSTRAINT fk_17a5fafbd4 FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE CASCADE;
 
@@ -56655,6 +56726,9 @@ ALTER TABLE ONLY scan_result_policy_violations
 
 ALTER TABLE ONLY ai_catalog_item_versions
     ADD CONSTRAINT fk_17de6d0f79 FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT fk_17dfa51483 FOREIGN KEY (service_id) REFERENCES cd_services(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY incident_management_timeline_events
     ADD CONSTRAINT fk_1800597ef9 FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL;
@@ -57027,6 +57101,9 @@ ALTER TABLE ONLY namespaces
 
 ALTER TABLE ONLY saml_providers
     ADD CONSTRAINT fk_351dde3a84 FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT fk_35649fed52 FOREIGN KEY (version_set_id) REFERENCES cd_version_sets(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY suggestions
     ADD CONSTRAINT fk_35c950f0d6 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
@@ -57715,6 +57792,9 @@ ALTER TABLE ONLY snippet_statistics
 ALTER TABLE ONLY granular_scopes
     ADD CONSTRAINT fk_73a513f489 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_version_set_entries
+    ADD CONSTRAINT fk_73d2ab5ec1 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY authentication_events
     ADD CONSTRAINT fk_73fdb1f630 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
@@ -57906,6 +57986,9 @@ ALTER TABLE ONLY work_item_weights_sources
 
 ALTER TABLE ONLY alert_management_alert_user_mentions
     ADD CONSTRAINT fk_8175238264 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_version_sets
+    ADD CONSTRAINT fk_81ae7931b0 FOREIGN KEY (application_id) REFERENCES cd_applications(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY tag_x509_signatures
     ADD CONSTRAINT fk_81b00bcc6e FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
@@ -58332,6 +58415,9 @@ ALTER TABLE ONLY security_pipeline_execution_project_schedules
 
 ALTER TABLE ONLY security_policy_settings
     ADD CONSTRAINT fk_a79f0f4501 FOREIGN KEY (csp_namespace_id) REFERENCES namespaces(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY cd_version_sets
+    ADD CONSTRAINT fk_a7c314342d FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY snippet_statistics
     ADD CONSTRAINT fk_a8031c4c3e FOREIGN KEY (snippet_project_id) REFERENCES projects(id) ON DELETE CASCADE;

@@ -474,7 +474,7 @@ Grants the ability to create, delete, and read secure files.
 
 #### Terraform State
 
-Grants the ability to create, delete, lock, and read Terraform state.
+Grants the ability to create, delete, lock, read, and update Terraform state.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
@@ -1037,6 +1037,7 @@ Grants the ability to create, delete, read, and update packages.
 | Delete | Project | `DELETE` | `/projects/:id/packages/nuget/*package_name/*package_version` |
 | Delete | Project | `DELETE` | `/projects/:id/packages/:package_id` |
 | Delete | Group | `DELETE` | `/groups/:id/-/packages/npm/-/package/*package_name/dist-tags/:tag` |
+| Read | Project | `GET` | `/projects/:id/packages/cargo/:package_name/:package_version/download` |
 | Read | Project | `GET` | `/projects/:id/packages/composer/archives/*package_name` |
 | Read | Project | `GET` | `/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/search` |
 | Read | Project | `GET` | `/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel/packages/:conan_package_reference` |

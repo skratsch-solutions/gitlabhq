@@ -30,6 +30,12 @@ RSpec.describe 'PipelineTriggerDelete', feature_category: :continuous_integratio
       project.add_owner(current_user)
     end
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :delete_trigger do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     context 'when the id is invalid' do
       let(:id) { non_existing_record_id }
 

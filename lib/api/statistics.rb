@@ -9,7 +9,8 @@ module API
     COUNTED_ITEMS = [Project, User, Group, ForkNetworkMember, ForkNetwork, Issue,
       MergeRequest, Note, Snippet, Key, Milestone].freeze
 
-    desc 'Get the current application statistics' do
+    desc 'Retrieve application statistics' do
+      detail 'Retrieves the current application statistics for this GitLab instance.'
       success code: 200, model: Entities::ApplicationStatistics
       tags %w[instance]
     end

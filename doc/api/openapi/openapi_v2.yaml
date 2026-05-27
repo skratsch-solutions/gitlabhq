@@ -1018,7 +1018,9 @@ paths:
       operationId: deleteApiV4GroupsIdCustomAttributesKey
   "/api/v4/groups":
     get:
-      description: Get a groups list
+      summary: List all groups
+      description: Lists all visible groups for the authenticated user. Unauthenticated
+        requests return only public groups.
       produces:
       - application/json
       parameters:
@@ -1145,7 +1147,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a groups list
+          description: List all groups
           schema:
             type: array
             items:
@@ -1154,7 +1156,9 @@ paths:
       - groups
       operationId: getApiV4Groups
     post:
-      description: Create a group. Available only for users who can create groups.
+      summary: Create a group
+      description: Creates a project group. Available only for users who can create
+        groups.
       produces:
       - application/json
       consumes:
@@ -1167,7 +1171,7 @@ paths:
           "$ref": "#/definitions/postApiV4Groups"
       responses:
         '201':
-          description: Create a group. Available only for users who can create groups.
+          description: Create a group
           schema:
             "$ref": "#/definitions/API_Entities_Group"
       tags:
@@ -1248,7 +1252,9 @@ paths:
       operationId: deleteApiV4GroupsId
   "/api/v4/groups/{id}/archive":
     post:
-      description: Archive a group
+      summary: Archive a group
+      description: Archives a specified group. You must be an administrator or have
+        the Owner role for the group.
       produces:
       - application/json
       consumes:
@@ -8866,8 +8872,8 @@ paths:
       operationId: getApiV4GroupsIdPackagesPypiFilesSha256*fileIdentifier
   "/api/v4/groups/{id}/-/packages/pypi/simple":
     get:
-      summary: The PyPi Simple Group Index Endpoint
-      description: This feature was introduced in GitLab 15.1
+      summary: List all packages for a group
+      description: Lists all packages for a specified group in an HTML file.
       produces:
       - application/json
       parameters:
@@ -8879,7 +8885,7 @@ paths:
         required: true
       responses:
         '200':
-          description: The PyPi Simple Group Index Endpoint
+          description: List all packages for a group
         '401':
           description: Unauthorized
         '403':
@@ -14183,6 +14189,42 @@ paths:
       tags:
       - packages
       operationId: getApiV4ProjectsIdPackagesCargoConfigJson
+  "/api/v4/projects/{id}/packages/cargo/{package_name}/{package_version}/download":
+    get:
+      summary: Download a Cargo crate
+      description: This endpoint serves the .crate file for a given package name and
+        version
+      produces:
+      - application/octet-stream
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
+      - in: path
+        name: package_name
+        description: The cargo package name
+        type: string
+        required: true
+      - in: path
+        name: package_version
+        description: The cargo package version
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Download a Cargo crate
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      tags:
+      - packages
+      operationId: getApiV4ProjectsIdPackagesCargoPackageNamePackageVersionDownload
   "/api/v4/projects/{id}/repository/commits":
     get:
       summary: List all repository commits
@@ -35100,7 +35142,8 @@ paths:
       operationId: deleteApiV4ProjectsIdCustomAttributesKey
   "/api/v4/projects/{id}/restore":
     post:
-      description: Restore a project
+      summary: Restore a project marked for deletion
+      description: Restores a specified project that was marked for deletion.
       produces:
       - application/json
       consumes:
@@ -35113,7 +35156,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Restore a project
+          description: Restore a project marked for deletion
           schema:
             "$ref": "#/definitions/API_Entities_Project"
       tags:
@@ -35121,7 +35164,10 @@ paths:
       operationId: postApiV4ProjectsIdRestore
   "/api/v4/projects":
     get:
-      description: Get a list of visible projects for authenticated user
+      summary: List all projects
+      description: Lists all projects. Unauthenticated requests return only public
+        projects with a limited subset of attributes. You can filter responses by
+        custom attributes.
       produces:
       - application/json
       parameters:
@@ -35365,7 +35411,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get a list of visible projects for authenticated user
+          description: List all projects
           schema:
             type: array
             items:
@@ -35501,7 +35547,10 @@ paths:
       - projects
       operationId: getApiV4ProjectsId
     put:
-      description: Update an existing project
+      summary: Update a project
+      description: Updates an existing project. If your HTTP repository is not publicly
+        accessible, add authentication information to the URL `https://username:password@gitlab.company.com/group/project.git`,
+        where `password` is a public access key with the `api` scope.
       produces:
       - application/json
       consumes:
@@ -35519,7 +35568,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsId"
       responses:
         '200':
-          description: Update an existing project
+          description: Update a project
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '400':
@@ -35582,7 +35631,8 @@ paths:
       - projects
       operationId: postApiV4ProjectsIdFork
     delete:
-      description: Remove a forked_from relationship
+      summary: Delete a fork relationship
+      description: Deletes a fork relationship between projects.
       produces:
       - application/json
       parameters:
@@ -35593,7 +35643,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Remove a forked_from relationship
+          description: Delete a fork relationship
         '304':
           description: Not modified
         '403':
@@ -35605,7 +35655,8 @@ paths:
       operationId: deleteApiV4ProjectsIdFork
   "/api/v4/projects/{id}/forks":
     get:
-      description: List forks of this project
+      summary: List all forks of a project
+      description: Lists all forks of a project.
       produces:
       - application/json
       parameters:
@@ -35848,7 +35899,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List forks of this project
+          description: List all forks of a project
           schema:
             type: array
             items:
@@ -35900,7 +35951,9 @@ paths:
       operationId: postApiV4ProjectsIdArchive
   "/api/v4/projects/{id}/unarchive":
     post:
-      description: Unarchive a project
+      summary: Unarchive a project
+      description: Unarchives a specified project. You must be an administrator or
+        have the Owner role on the project.
       produces:
       - application/json
       consumes:
@@ -35923,7 +35976,8 @@ paths:
       operationId: postApiV4ProjectsIdUnarchive
   "/api/v4/projects/{id}/star":
     post:
-      description: Star a project
+      summary: Star a project
+      description: Stars a specified project.
       produces:
       - application/json
       consumes:
@@ -35948,7 +36002,8 @@ paths:
       operationId: postApiV4ProjectsIdStar
   "/api/v4/projects/{id}/unstar":
     post:
-      description: Unstar a project
+      summary: Unstar a project
+      description: Unstars a specified project.
       produces:
       - application/json
       consumes:
@@ -35973,7 +36028,8 @@ paths:
       operationId: postApiV4ProjectsIdUnstar
   "/api/v4/projects/{id}/starrers":
     get:
-      description: Get the users who starred a project
+      summary: List all users who starred a project
+      description: Lists all users who starred a specified project.
       produces:
       - application/json
       parameters:
@@ -36006,7 +36062,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get the users who starred a project
+          description: List all users who starred a project
           schema:
             type: array
             items:
@@ -36039,7 +36095,8 @@ paths:
       operationId: getApiV4ProjectsIdLanguages
   "/api/v4/projects/{id}/fork/{forked_from_id}":
     post:
-      description: Mark this project as forked from another
+      summary: Create a fork relationship
+      description: Creates a fork relationship between a project and an upstream project.
       produces:
       - application/json
       consumes:
@@ -36058,7 +36115,7 @@ paths:
         example: gitlab
       responses:
         '201':
-          description: Mark this project as forked from another
+          description: Create a fork relationship
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '401':
@@ -36072,7 +36129,8 @@ paths:
       operationId: postApiV4ProjectsIdForkForkedFromId
   "/api/v4/projects/{id}/share":
     post:
-      description: Share the project with a group
+      summary: Share a project with a group
+      description: Shares a specified project with a group.
       produces:
       - application/json
       consumes:
@@ -36090,7 +36148,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdShare"
       responses:
         '201':
-          description: Share the project with a group
+          description: Share a project with a group
           schema:
             "$ref": "#/definitions/API_Entities_ProjectGroupLink"
         '400':
@@ -36104,7 +36162,8 @@ paths:
       operationId: postApiV4ProjectsIdShare
   "/api/v4/projects/{id}/share/{group_id}":
     delete:
-      description: Remove a group share
+      summary: Delete a shared project link in a group
+      description: Deletes a shared project link in a group.
       produces:
       - application/json
       parameters:
@@ -36121,7 +36180,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Remove a group share
+          description: Delete a shared project link in a group
         '400':
           description: Bad request
         '404':
@@ -36131,8 +36190,12 @@ paths:
       operationId: deleteApiV4ProjectsIdShareGroupId
   "/api/v4/projects/{id}/import_project_members/{project_id}":
     post:
-      summary: Import members from another project
-      description: This feature was introduced in GitLab 14.2
+      summary: Import members
+      description: Imports members from another project. If the role of the importing
+        member for the target project is a Maintainer, then members with the Owner
+        role for the source project are imported with the Maintainer role. If the
+        importing member is an Owner, then members with the Owner role for the source
+        project are imported with the Owner role.
       produces:
       - application/json
       consumes:
@@ -36151,7 +36214,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Import members from another project
+          description: Import members
         '403':
           description: Unauthenticated
         '404':
@@ -36163,7 +36226,8 @@ paths:
       operationId: postApiV4ProjectsIdImportProjectMembersProjectId
   "/api/v4/projects/{id}/users":
     get:
-      description: Get the users list of a project
+      summary: List all members of a project
+      description: Lists all members with access to a specified project.
       produces:
       - application/json
       parameters:
@@ -36204,7 +36268,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get the users list of a project
+          description: List all members of a project
           schema:
             type: array
             items:
@@ -36370,7 +36434,7 @@ paths:
   "/api/v4/projects/{id}/housekeeping":
     post:
       summary: Start the housekeeping task for a project
-      description: This feature was introduced in GitLab 9.0.
+      description: Starts the housekeeping task for a project.
       produces:
       - application/json
       consumes:
@@ -36424,7 +36488,8 @@ paths:
       operationId: postApiV4ProjectsIdRepositorySize
   "/api/v4/projects/{id}/transfer":
     put:
-      description: Transfer a project to a new namespace
+      summary: Transfer a project to another namespace
+      description: Transfers a project to another namespace.
       produces:
       - application/json
       consumes:
@@ -36442,7 +36507,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdTransfer"
       responses:
         '200':
-          description: Transfer a project to a new namespace
+          description: Transfer a project to another namespace
           schema:
             "$ref": "#/definitions/API_Entities_Project"
         '400':
@@ -36456,7 +36521,8 @@ paths:
       operationId: putApiV4ProjectsIdTransfer
   "/api/v4/projects/{id}/transfer_locations":
     get:
-      description: Get the namespaces to where the project can be transferred
+      summary: List all transferable namespaces for a project
+      description: Lists all namespaces where a specified project can be transferred.
       produces:
       - application/json
       parameters:
@@ -36489,7 +36555,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get the namespaces to where the project can be transferred
+          description: List all transferable namespaces for a project
           schema:
             type: array
             items:
@@ -36501,7 +36567,10 @@ paths:
       operationId: getApiV4ProjectsIdTransferLocations
   "/api/v4/projects/{id}/storage":
     get:
-      description: Show the storage information
+      summary: Retrieve the path to repository storage
+      description: Retrieves the path to repository storage for a specified project.
+        If you are using Gitaly Cluster (Praefect), see Praefect-generated replica
+        paths instead. Administrators only.
       produces:
       - application/json
       parameters:
@@ -36512,7 +36581,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Show the storage information
+          description: Retrieve the path to repository storage
           schema:
             "$ref": "#/definitions/API_Entities_ProjectRepositoryStorage"
         '403':
@@ -36946,8 +37015,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesPypiFilesSha256*fileIdentifier
   "/api/v4/projects/{id}/packages/pypi/simple":
     get:
-      summary: The PyPi Simple Project Index Endpoint
-      description: This feature was introduced in GitLab 15.1
+      summary: List all packages for a project
+      description: Lists all packages for a specified project in an HTML file.
       produces:
       - application/json
       parameters:
@@ -36958,7 +37027,7 @@ paths:
         required: true
       responses:
         '200':
-          description: The PyPi Simple Project Index Endpoint
+          description: List all packages for a project
         '401':
           description: Unauthorized
         '403':
@@ -37000,8 +37069,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesPypiSimple*packageName
   "/api/v4/projects/{id}/packages/pypi":
     post:
-      summary: The PyPi Package upload endpoint
-      description: This feature was introduced in GitLab 12.10
+      summary: Upload a package
+      description: Uploads a PyPI package for a specified project.
       produces:
       - application/json
       consumes:
@@ -37019,7 +37088,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPackagesPypi"
       responses:
         '201':
-          description: The PyPi Package upload endpoint
+          description: Upload a package
         '400':
           description: Bad Request
         '401':
@@ -43859,7 +43928,9 @@ paths:
       operationId: getApiV4UsersUserIdProjects
   "/api/v4/users/{user_id}/contributed_projects":
     get:
-      description: Get projects that a user has contributed to
+      summary: List all projects contributions for a user
+      description: Lists all contributions to visible projects for a specified user.
+        Returns only contributions in the past year.
       produces:
       - application/json
       parameters:
@@ -43922,7 +43993,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get projects that a user has contributed to
+          description: List all projects contributions for a user
           schema:
             type: array
             items:
@@ -43934,7 +44005,9 @@ paths:
       operationId: getApiV4UsersUserIdContributedProjects
   "/api/v4/users/{user_id}/starred_projects":
     get:
-      description: Get projects starred by a user
+      summary: List all projects starred by a user
+      description: Lists all visible projects starred by a specified user. Unauthenticated
+        requests return only public projects.
       produces:
       - application/json
       parameters:
@@ -44177,7 +44250,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get projects starred by a user
+          description: List all projects starred by a user
           schema:
             type: array
             items:
@@ -46023,28 +46096,28 @@ paths:
         type: string
         format: date-time
         required: false
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - in: query
         name: created_after
         description: Filter tokens which were created after given datetime
         type: string
         format: date-time
         required: false
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - in: query
         name: last_used_before
         description: Filter tokens which were used before given datetime
         type: string
         format: date-time
         required: false
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - in: query
         name: last_used_after
         description: Filter tokens which were used after given datetime
         type: string
         format: date-time
         required: false
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - in: query
         name: expires_before
         description: Filter tokens which expire before given datetime
@@ -47456,12 +47529,13 @@ paths:
       operationId: putApiV4ApplicationAppearance
   "/api/v4/application/statistics":
     get:
-      description: Get the current application statistics
+      summary: Retrieve application statistics
+      description: Retrieves the current application statistics for this GitLab instance.
       produces:
       - application/json
       responses:
         '200':
-          description: Get the current application statistics
+          description: Retrieve application statistics
           schema:
             "$ref": "#/definitions/API_Entities_ApplicationStatistics"
       tags:
@@ -49349,7 +49423,7 @@ definitions:
     required:
     - name
     - path
-    description: Create a group. Available only for users who can create groups.
+    description: Create a group
   putApiV4GroupsId:
     type: object
     properties:
@@ -69957,7 +70031,7 @@ definitions:
         type: boolean
         description: Require all security policy pipelines to succeed before merge
           requests can be merged
-    description: Update an existing project
+    description: Update a project
   postApiV4ProjectsIdShare:
     type: object
     properties:
@@ -69988,7 +70062,7 @@ definitions:
     required:
     - group_id
     - group_access
-    description: Share the project with a group
+    description: Share a project with a group
   API_Entities_ProjectGroupLink:
     type: object
     properties:
@@ -70073,7 +70147,7 @@ definitions:
         example: gitlab
     required:
     - namespace
-    description: Transfer a project to a new namespace
+    description: Transfer a project to another namespace
   API_Entities_ProjectRepositoryStorage:
     type: object
     properties:
@@ -70560,7 +70634,7 @@ definitions:
     - content
     - name
     - version
-    description: The PyPi Package upload endpoint
+    description: Upload a package
   postApiV4ProjectsIdReleases:
     type: object
     properties:

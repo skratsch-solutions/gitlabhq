@@ -13,10 +13,13 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
     before do
       stub_env('IN_MEMORY_APPLICATION_SETTINGS', 'false')
       sign_in(admin)
-      visit general_admin_application_settings_path
     end
 
     context 'on General page' do
+      before do
+        visit general_admin_application_settings_path
+      end
+
       it 'change visibility settings' do
         within_testid('admin-visibility-access-settings') do
           choose_option("application_setting_default_project_visibility_20")
@@ -473,24 +476,29 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
           end
         end
       end
+    end
 
-      context 'for granular personal access token enforcement settings' do
-        context 'when `granular_personal_access_tokens_enforcement` feature flag is disabled' do
-          before do
-            stub_feature_flags(granular_personal_access_tokens_enforcement: false)
-            visit general_admin_application_settings_path
-          end
-
-          it 'does not show the enforcement section' do
-            expect(page).not_to have_content(
-              s_('AccessTokens|Fine-grained personal access tokens')
-            )
-          end
+    describe 'Personal Access Token enforcement settings' do
+      context 'when `granular_personal_access_tokens_enforcement` feature flag is disabled' do
+        before do
+          stub_feature_flags(granular_personal_access_tokens_enforcement: false)
+          visit general_admin_application_settings_path
         end
 
-        context 'when `granular_personal_access_tokens_enforcement` feature flag is enabled', :freeze_time do
+        it 'does not show the enforcement section' do
+          expect(page).not_to have_content(
+            s_('AccessTokens|Fine-grained personal access tokens')
+          )
+        end
+      end
+
+      context 'when `granular_personal_access_tokens_enforcement` feature flag is enabled', :freeze_time do
+        before do
+          stub_feature_flags(granular_personal_access_tokens_enforcement: true)
+        end
+
+        context 'when enforcement is not yet enabled' do
           before do
-            stub_feature_flags(granular_personal_access_tokens_enforcement: true)
             visit general_admin_application_settings_path
           end
 
@@ -550,35 +558,35 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
               expect(page).to have_content(_('Please enter a date value.'))
             end
           end
+        end
 
-          context 'when enforcement is already enabled' do
-            before do
-              current_settings.update_columns(
-                personal_access_token_settings: {
-                  enforce_granular_tokens: true,
-                  granular_tokens_enforced_after: 1.month.ago.to_date
-                }
+        context 'when enforcement is already enabled' do
+          before do
+            current_settings.update_columns(
+              personal_access_token_settings: {
+                enforce_granular_tokens: true,
+                granular_tokens_enforced_after: 1.month.ago.to_date
+              }
+            )
+
+            visit general_admin_application_settings_path
+          end
+
+          it 'saving without changing the date does not throw an error' do
+            within_testid('account-and-limit-settings-content') { expect_save_settings }
+          end
+
+          it 'unchecking the checkbox updates granular token enforcement settings', :js do
+            within_testid('account-and-limit-settings-content') do
+              click_checked_field(
+                s_('AccessTokens|Require fine-grained personal access tokens after a specific date')
               )
 
-              visit general_admin_application_settings_path
-            end
+              expect_save_settings
 
-            it 'saving without changing the date does not throw an error' do
-              within_testid('account-and-limit-settings-content') { expect_save_settings }
-            end
-
-            it 'unchecking the checkbox updates granular token enforcement settings', :js do
-              within_testid('account-and-limit-settings-content') do
-                click_checked_field(
-                  s_('AccessTokens|Require fine-grained personal access tokens after a specific date')
-                )
-
-                expect_save_settings
-
-                expect_field_unchecked(
-                  s_('AccessTokens|Require fine-grained personal access tokens after a specific date')
-                )
-              end
+              expect_field_unchecked(
+                s_('AccessTokens|Require fine-grained personal access tokens after a specific date')
+              )
             end
           end
         end
@@ -620,6 +628,10 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
     end
 
     context 'on Integrations page' do
+      before do
+        visit general_admin_application_settings_path
+      end
+
       it 'enable hiding third party offers' do
         within_testid('third-party-offers-settings') do
           click_unchecked_field(
@@ -661,5 +673,9 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
     it 'loads admin settings page without redirect for reauthentication' do
       expect(page).to have_current_path general_admin_application_settings_path, ignore_query: true
     end
+  end
+
+  def current_settings
+    ApplicationSetting.current_without_cache || Gitlab::CurrentSettings.current_application_settings
   end
 end

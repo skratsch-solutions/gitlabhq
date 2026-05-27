@@ -41646,6 +41646,9 @@ msgstr ""
 msgid "Job|Full screen mode is not available"
 msgstr ""
 
+msgid "Job|How this is calculated?"
+msgstr ""
+
 msgid "Job|Job artifacts"
 msgstr ""
 
@@ -41695,6 +41698,9 @@ msgid "Job|Preparing"
 msgstr ""
 
 msgid "Job|Queued"
+msgstr ""
+
+msgid "Job|Rate = failed_jobs / (success + failed). Canceled and skipped jobs aren't included. Success rate is the inverse."
 msgstr ""
 
 msgid "Job|Retry"
@@ -53648,6 +53654,9 @@ msgstr ""
 msgid "PipelineCharts|Failure rate"
 msgstr ""
 
+msgid "PipelineCharts|How this is calculated?"
+msgstr ""
+
 msgid "PipelineCharts|Last 180 days"
 msgstr ""
 
@@ -53664,6 +53673,9 @@ msgid "PipelineCharts|Median duration"
 msgstr ""
 
 msgid "PipelineCharts|Pipelines"
+msgstr ""
+
+msgid "PipelineCharts|Rate = failed_pipelines / (success + failed). Canceled and skipped pipelines aren't included. Success rate is the inverse."
 msgstr ""
 
 msgid "PipelineCharts|Source"
@@ -88951,6 +88963,9 @@ msgid "already exists for the given recipe revision, package reference, and pack
 msgstr ""
 
 msgid "already has a \"created\" issue link"
+msgstr ""
+
+msgid "already has an entry in this version set"
 msgstr ""
 
 msgid "already shared with this group"

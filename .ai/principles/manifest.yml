@@ -292,8 +292,8 @@ principles:
         url: https://docs.gitlab.com/development/reusing_abstractions/
       - path: doc/development/software_design.md
         url: https://docs.gitlab.com/development/software_design/
-      - path: doc/development/event_store.md
-        url: https://docs.gitlab.com/development/event_store/
+      - path: doc/development/eventstore/_index.md
+        url: https://docs.gitlab.com/development/eventstore/
       - path: doc/development/module_with_instance_variables.md
         url: https://docs.gitlab.com/development/module_with_instance_variables/
       - path: doc/development/application_limits.md

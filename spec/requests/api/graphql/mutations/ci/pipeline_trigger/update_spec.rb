@@ -33,6 +33,17 @@ RSpec.describe 'PipelineTriggerUpdate', feature_category: :continuous_integratio
       project.add_owner(current_user)
     end
 
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :update_trigger do
+      let(:user) { current_user }
+      let(:boundary_object) { project }
+      let(:mutation) do
+        graphql_mutation(:pipeline_trigger_update, { id: trigger.to_global_id.to_s, description: new_description },
+          'errors')
+      end
+
+      let(:request) { post_graphql_mutation(mutation, token: { personal_access_token: pat }) }
+    end
+
     context 'when the params are invalid' do
       let(:new_description) { nil }
 

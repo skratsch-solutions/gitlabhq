@@ -128,6 +128,28 @@ export function waitForAssertion(assertion) {
 }
 
 /**
+ * Intercept GraphQL operation names to build a single
+ * list of all missing operations for better visibily
+ * while writing new test suites that require new handlers.
+ */
+export const missingOperations = new Set([]);
+
+/**
+ * Capture a graphql operation that failed
+ * @param {string} name - name of the graphql operation
+ */
+export function captureMissingOperation(name) {
+  missingOperations.add(name);
+}
+
+/**
+ * Clear the missing operations set.
+ */
+export function clearMissingOperations() {
+  missingOperations.clear();
+}
+
+/**
  * Request tracking utilities for MSW integration tests.
  * Allows tests to verify which endpoints were called and with what parameters.
  */

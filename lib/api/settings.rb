@@ -19,7 +19,8 @@ module API
       end
     end
 
-    desc 'Get the current application settings' do
+    desc 'Retrieve application settings' do
+      detail 'Retrieves the current application settings for this GitLab instance.'
       tags ['instance']
       success Entities::ApplicationSetting
     end
@@ -27,7 +28,8 @@ module API
       present current_settings, with: Entities::ApplicationSetting
     end
 
-    desc 'Modify application settings' do
+    desc 'Update application settings' do
+      detail 'Updates the current application settings for this GitLab instance.'
       tags ['instance']
       success Entities::ApplicationSetting
     end

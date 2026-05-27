@@ -2,7 +2,7 @@
 
 RSpec.shared_context 'ProjectPolicy context' do
   let_it_be_with_reload(:organization) { create(:common_organization) }
-  let_it_be(:owner_namespace) { create(:user_namespace, organization: organization) }
+  let_it_be(:owner_namespace, freeze: false) { create(:user_namespace, organization: organization) }
   let_it_be_with_reload(:organization_owner) { create(:organization_user, :owner, organization: organization).user }
   let_it_be(:group, refind: true) { create(:group, :public, organization: organization) }
 

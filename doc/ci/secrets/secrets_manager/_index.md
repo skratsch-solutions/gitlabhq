@@ -34,6 +34,9 @@ Use GitLab Secrets Manager to securely store and manage secrets and credentials 
 GitLab Secrets Manager public beta is available to **GitLab Premium and Ultimate** customers.
 You can opt in to the public beta on GitLab.com or on a self-managed instance.
 
+For a click-through demo, see [GitLab Secrets Manager](https://click-through-demo-generator-27bd12.gitlab.io/demos/demo-20260506-094904/).
+<!-- Demo published on 2026-05-27 -->
+
 ## Opt in on GitLab.com
 
 On GitLab.com, a top-level group owner can opt in to GitLab Secrets Manager for their group.
