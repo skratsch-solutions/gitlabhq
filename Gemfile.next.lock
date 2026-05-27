@@ -785,7 +785,7 @@ GEM
       terminal-table (>= 1.5.1)
     gitlab-chronic (0.10.6)
       numerizer (~> 0.2)
-    gitlab-cloud-connector (1.47.0)
+    gitlab-cloud-connector (1.49.0)
       activesupport (>= 7.0)
       jwt (~> 2.9)
     gitlab-crystalball (1.1.3)
@@ -2419,7 +2419,7 @@ DEPENDENCIES
   gitlab-active-context!
   gitlab-backup-cli!
   gitlab-chronic (~> 0.10.5)
-  gitlab-cloud-connector (~> 1.45)
+  gitlab-cloud-connector (~> 1.49)
   gitlab-crystalball (~> 1.1.3)
   gitlab-dangerfiles (~> 4.11.1)
   gitlab-database-data_isolation!
@@ -2915,7 +2915,7 @@ CHECKSUMS
   gitlab-active-context (0.0.1)
   gitlab-backup-cli (0.0.1)
   gitlab-chronic (0.10.6) sha256=a244d11a1396d2aac6ae9b2f326adf1605ec1ad20c29f06e8b672047d415a9ac
-  gitlab-cloud-connector (1.47.0) sha256=1c16d8d0944e1d729f4b16eb482d6a8b09a5f13d2bda3a94c1d67163868fb63c
+  gitlab-cloud-connector (1.49.0) sha256=9bdbb3c29f89de8bfdea74db93b755313c3726776fd5b254746571e47d507594
   gitlab-crystalball (1.1.3) sha256=ea9a90d659704a042d763ce6d343a9f664cd650e0787a19adec7036ea4390861
   gitlab-dangerfiles (4.11.1) sha256=e0fda94e7581b76e46b41aa89d56abdf3bbb19d5c36902570de7c8beb8034031
   gitlab-database-data_isolation (0.1.0)

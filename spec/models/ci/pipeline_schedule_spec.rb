@@ -172,7 +172,8 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
     let_it_be_with_reload(:pipeline_schedule) { create(:ci_pipeline_schedule, cron: "0 1 * * *", project: project) }
 
     it 'calls fallback method next_run_at if there is no plan limit' do
-      allow(Settings).to receive(:cron_jobs).and_return({ 'pipeline_schedule_worker' => { 'cron' => "0 1 2 3 *" } })
+      allow(Gitlab::SidekiqConfig).to receive(:cron_jobs)
+        .and_return({ 'pipeline_schedule_worker' => { 'cron' => "0 1 2 3 *" } })
 
       travel_to(now) do
         expect(pipeline_schedule).to receive(:calculate_next_run_at).and_call_original
@@ -397,11 +398,11 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
 
   describe '#worker_cron' do
     before do
-      allow(Settings).to receive(:cron_jobs)
-        .and_return({ pipeline_schedule_worker: { cron: "* 1 2 3 4" } }.with_indifferent_access)
+      allow(Gitlab::SidekiqConfig).to receive(:cron_jobs)
+        .and_return({ 'pipeline_schedule_worker' => { 'cron' => "* 1 2 3 4" } })
     end
 
-    it "returns cron expression set in Settings" do
+    it "returns cron expression" do
       expect(subject.worker_cron_expression).to eq("* 1 2 3 4")
     end
   end

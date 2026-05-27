@@ -64,7 +64,7 @@ import {
   BUILDING_YOUR_MR,
   SOMETHING_WENT_WRONG,
   ERROR_LOADING_FULL_DIFF,
-  ERROR_DISMISSING_SUGESTION_POPOVER,
+  ERROR_DISMISSING_SUGGESTION_POPOVER,
   ENCODED_FILE_PATHS_TITLE,
   ENCODED_FILE_PATHS_MESSAGE,
 } from '../i18n';
@@ -937,7 +937,7 @@ export const setSuggestPopoverDismissed = ({ commit, state }) =>
     })
     .catch(() => {
       createAlert({
-        message: ERROR_DISMISSING_SUGESTION_POPOVER,
+        message: ERROR_DISMISSING_SUGGESTION_POPOVER,
       });
     });
 

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import Vue, { nextTick } from 'vue';
 import VueApollo from 'vue-apollo';
 import { GlDashboardLayout, GlSkeletonLoader, GlEmptyState } from '@gitlab/ui';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
@@ -7,6 +7,7 @@ import waitForPromises from 'helpers/wait_for_promises';
 import { createAlert } from '~/alert';
 import ExploreAnalyticsDashboard from '~/explore/analytics_dashboards/pages/details.vue';
 import DashboardFilters from '~/explore/analytics_dashboards/components/dashboard_filters.vue';
+import DashboardSettingsDrawer from '~/explore/analytics_dashboards/components/dashboard_settings_drawer.vue';
 import getDashboardQuery from '~/explore/analytics_dashboards/graphql/get_dashboard.query.graphql';
 import getSystemDashboardQuery from '~/explore/analytics_dashboards/graphql/get_system_dashboard.query.graphql';
 import {
@@ -58,6 +59,7 @@ describe('ExploreAnalyticsDashboard', () => {
   const findAddPanelButton = () => wrapper.findByTestId('dashboard-add-panel-button');
   const findSettingsButton = () => wrapper.findByTestId('dashboard-settings-button');
   const findEmptyState = () => wrapper.findComponent(GlEmptyState);
+  const findSettingsDrawer = () => wrapper.findComponent(DashboardSettingsDrawer);
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -95,14 +97,6 @@ describe('ExploreAnalyticsDashboard', () => {
 
     it('passes the dashboard config to the layout', () => {
       expect(findDashboardLayout().props('config').title).toBe(config.title);
-    });
-
-    it('does not show the Add Panel button', () => {
-      expect(findAddPanelButton().exists()).toBe(false);
-    });
-
-    it('does not show the Settings cog button', () => {
-      expect(findSettingsButton().exists()).toBe(false);
     });
 
     it('replaces original panel ids with unique ids', () => {
@@ -258,6 +252,25 @@ describe('ExploreAnalyticsDashboard', () => {
     });
   });
 
+  describe('when not editing', () => {
+    beforeEach(async () => {
+      createComponent({ props: { isEditing: false } });
+      await waitForPromises();
+    });
+
+    it('does not show the Add Panel button', () => {
+      expect(findAddPanelButton().exists()).toBe(false);
+    });
+
+    it('does not show the Settings cog button', () => {
+      expect(findSettingsButton().exists()).toBe(false);
+    });
+
+    it('does not render the settings drawer', () => {
+      expect(findSettingsDrawer().exists()).toBe(false);
+    });
+  });
+
   describe('empty state', () => {
     it('does not show when there are panels', async () => {
       createComponent({ props: { isEditing: true } });
@@ -367,6 +380,47 @@ describe('ExploreAnalyticsDashboard', () => {
     it('renders the dashboard layout with an empty config', () => {
       expect(findDashboardLayout().exists()).toBe(true);
       expect(findDashboardLayout().props('config')).toEqual({});
+    });
+  });
+
+  describe('settings drawer', () => {
+    beforeEach(async () => {
+      createComponent({ props: { isEditing: true } });
+      await waitForPromises();
+    });
+
+    it('renders the settings drawer', () => {
+      expect(findSettingsDrawer().exists()).toBe(true);
+    });
+
+    it('passes the correct props to the settings drawer', () => {
+      expect(findSettingsDrawer().props()).toMatchObject({
+        open: false,
+        dashboardConfig: expect.any(Object),
+        dashboardId: expect.any(String),
+      });
+    });
+
+    describe('when the settings button is clicked', () => {
+      beforeEach(async () => {
+        findSettingsButton().vm.$emit('click');
+        await nextTick();
+      });
+
+      it('opens the settings drawer', () => {
+        expect(findSettingsDrawer().props('open')).toBe(true);
+      });
+
+      describe('when the settings drawer emits close', () => {
+        beforeEach(async () => {
+          findSettingsDrawer().vm.$emit('close');
+          await nextTick();
+        });
+
+        it('closes the settings drawer', () => {
+          expect(findSettingsDrawer().props('open')).toBe(false);
+        });
+      });
     });
   });
 });

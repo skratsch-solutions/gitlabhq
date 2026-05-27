@@ -109,7 +109,6 @@ RSpec/NamedSubject:
     - 'ee/spec/graphql/mutations/merge_requests/update_approval_rules_spec.rb'
     - 'ee/spec/graphql/mutations/releases/update_spec.rb'
     - 'ee/spec/graphql/mutations/requirements_management/create_requirement_spec.rb'
-    - 'ee/spec/graphql/mutations/requirements_management/export_requirements_spec.rb'
     - 'ee/spec/graphql/mutations/requirements_management/update_requirement_spec.rb'
     - 'ee/spec/graphql/mutations/security/finding/dismiss_spec.rb'
     - 'ee/spec/graphql/mutations/security_policy/assign_security_policy_project_spec.rb'

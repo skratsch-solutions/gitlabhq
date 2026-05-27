@@ -16,6 +16,7 @@ export default {
     GlFormTextarea,
     GlAlert,
   },
+  inject: ['exploreAnalyticsDashboardsPath'],
   data() {
     return {
       showModal: false,
@@ -87,7 +88,9 @@ export default {
 
         const dashboardId = getDashboardIdFromGraphQLId(dashboard.id);
 
-        visitUrl(joinPaths(this.$router.options.base, String(dashboardId), EDIT_DASHBOARD_PATH));
+        visitUrl(
+          joinPaths(this.exploreAnalyticsDashboardsPath, String(dashboardId), EDIT_DASHBOARD_PATH),
+        );
       } catch (error) {
         this.errorMessage = s__(
           'AnalyticsDashboards|Failed to create dashboard. Please try again.',

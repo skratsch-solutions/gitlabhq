@@ -11,11 +11,19 @@ import {
 import { getUniquePanelId, convertToDashboardGraphQLId } from '../utils';
 import getDashboardQuery from '../graphql/get_dashboard.query.graphql';
 import DashboardFilters from '../components/dashboard_filters.vue';
+import DashboardSettingsDrawer from '../components/dashboard_settings_drawer.vue';
 import getSystemDashboardQuery from '../graphql/get_system_dashboard.query.graphql';
 
 export default {
   name: 'ExploreAnalyticsDashboard',
-  components: { GlDashboardLayout, GlSkeletonLoader, GlButton, GlEmptyState, DashboardFilters },
+  components: {
+    GlDashboardLayout,
+    GlSkeletonLoader,
+    GlButton,
+    GlEmptyState,
+    DashboardFilters,
+    DashboardSettingsDrawer,
+  },
   inject: ['breadcrumbState'],
   props: {
     isEditing: {
@@ -30,6 +38,7 @@ export default {
       filters: {},
       selectedGroup: null,
       selectedProject: null,
+      isSettingsDrawerOpen: false,
     };
   },
   computed: {
@@ -78,6 +87,12 @@ export default {
     },
   },
   methods: {
+    openSettingsDrawer() {
+      this.isSettingsDrawerOpen = true;
+    },
+    closeSettingsDrawer() {
+      this.isSettingsDrawerOpen = false;
+    },
     setDateRangeFilter({ dateRangeOption, startDate, endDate }) {
       this.filters = {
         ...this.filters,
@@ -163,6 +178,7 @@ export default {
             icon="settings"
             :title="s__('AnalyticsDashboards|Settings')"
             data-testid="dashboard-settings-button"
+            @click="openSettingsDrawer"
           />
         </div>
       </template>
@@ -188,5 +204,13 @@ export default {
         </div>
       </template>
     </gl-dashboard-layout>
+
+    <dashboard-settings-drawer
+      v-if="isEditing"
+      :dashboard-id="dashboard?.id || ''"
+      :dashboard-config="dashboardConfig"
+      :open="isSettingsDrawerOpen"
+      @close="closeSettingsDrawer"
+    />
   </div>
 </template>

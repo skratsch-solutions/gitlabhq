@@ -16,6 +16,7 @@ export default {
       required: true,
     },
   },
+  emits: ['delete'],
   data() {
     return {
       isDeleting: false,
@@ -48,6 +49,7 @@ export default {
       this.errorMessage = '';
       this.isDeleting = false;
     },
+    // eslint-disable-next-line vue/no-unused-properties -- Used externally to hide the modal
     hide() {
       this.$refs.modal.hide();
     },
@@ -77,7 +79,7 @@ export default {
           return;
         }
 
-        this.hide();
+        this.$emit('delete');
       } catch (error) {
         this.isDeleting = false;
         this.errorMessage = error.message;

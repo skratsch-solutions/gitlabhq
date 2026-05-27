@@ -185,23 +185,22 @@ Key DSL methods:
 
 #### 2. Configure the cron job
 
-Add the cron schedule to `config/initializers/1_settings.rb`:
+Add an entry to `config/schedule.yml` (FOSS) or `ee/config/schedule.yml` (EE):
 
-```ruby
-Settings.cron_jobs['bbo_users_delete_unconfirmed_secondary'] ||= {}
-Settings.cron_jobs['bbo_users_delete_unconfirmed_secondary']['cron'] ||= '0 * * * *'
-Settings.cron_jobs['bbo_users_delete_unconfirmed_secondary']['job_class'] = 'Database::BackgroundOperation::CronEnqueueWorker'
-Settings.cron_jobs['bbo_users_delete_unconfirmed_secondary']['args'] = {
-  'job_class_name' => 'UsersDeleteUnconfirmedSecondaryEmails',
-  'table_name' => 'emails',
-  'column_name' => 'id'
-}
+```yaml
+bbo_users_delete_unconfirmed_secondary:
+  class: Database::BackgroundOperation::CronEnqueueWorker
+  cron: "0 * * * *"
+  args:
+    job_class_name: UsersDeleteUnconfirmedSecondaryEmails
+    table_name: emails
+    column_name: id
 ```
 
 Configuration fields:
 
+- `class`: Always `Database::BackgroundOperation::CronEnqueueWorker`.
 - `cron`: Standard cron expression for the schedule.
-- `job_class`: Always `Database::BackgroundOperation::CronEnqueueWorker`.
 - `args`: A hash containing:
   - `job_class_name`: The class name of your operation (without the
     `Gitlab::BackgroundOperation::` prefix).

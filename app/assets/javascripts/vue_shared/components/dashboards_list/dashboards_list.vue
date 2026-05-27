@@ -47,6 +47,9 @@ export default {
       this.deleteDashboardId = id;
       this.$refs.deleteModal.show();
     },
+    handleDeleteSuccess() {
+      this.$refs.deleteModal.hide();
+    },
     handleEditAction(dashboardUrl) {
       visitUrl(joinPaths(dashboardUrl, EDIT_DASHBOARD_PATH));
     },
@@ -84,7 +87,11 @@ export default {
 </script>
 <template>
   <div>
-    <dashboard-delete-modal ref="deleteModal" :dashboard-id="deleteDashboardId" />
+    <dashboard-delete-modal
+      ref="deleteModal"
+      :dashboard-id="deleteDashboardId"
+      @delete="handleDeleteSuccess"
+    />
 
     <gl-table stacked="sm" :items="dashboards" :fields="$options.fields">
       <template #head(actions)="column"

@@ -9832,6 +9832,9 @@ msgstr ""
 msgid "AnalyticsDashboards|Dashboard filters"
 msgstr ""
 
+msgid "AnalyticsDashboards|Dashboard settings"
+msgstr ""
+
 msgid "AnalyticsDashboards|Dashboard title"
 msgstr ""
 
@@ -9887,6 +9890,9 @@ msgid "AnalyticsDashboards|Projects"
 msgstr ""
 
 msgid "AnalyticsDashboards|Root Cause Analysis"
+msgstr ""
+
+msgid "AnalyticsDashboards|Save"
 msgstr ""
 
 msgid "AnalyticsDashboards|Settings"
@@ -21267,6 +21273,9 @@ msgid "ContainerRegistry|Something went wrong while updating the cleanup policy.
 msgstr ""
 
 msgid "ContainerRegistry|Sorry, your filter produced no results."
+msgstr ""
+
+msgid "ContainerRegistry|Supported platforms: %{supportedPlatforms}"
 msgstr ""
 
 msgid "ContainerRegistry|Tag pattern"

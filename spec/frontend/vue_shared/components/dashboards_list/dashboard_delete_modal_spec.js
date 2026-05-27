@@ -170,8 +170,8 @@ describe('DashboardDeleteModal', () => {
         });
       });
 
-      it('closes the modal', () => {
-        expect(hideModal).toHaveBeenCalled();
+      it('emits the `delete` event', () => {
+        expect(wrapper.emitted('delete')).toHaveLength(1);
       });
     });
   });

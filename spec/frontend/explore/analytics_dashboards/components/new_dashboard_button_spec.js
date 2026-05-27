@@ -46,12 +46,8 @@ describe('NewDashboardButton', () => {
 
     wrapper = shallowMountExtended(NewDashboardButton, {
       apolloProvider: mockApollo,
-      mocks: {
-        $router: {
-          options: {
-            base: '/explore/analytics_dashboards/',
-          },
-        },
+      provide: {
+        exploreAnalyticsDashboardsPath: '/explore/analytics_dashboards/',
       },
     });
   };

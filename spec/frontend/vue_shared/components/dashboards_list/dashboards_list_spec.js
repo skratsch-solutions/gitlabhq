@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { GlTable, GlAvatarLabeled } from '@gitlab/ui';
 import { shallowMountExtended, mountExtended } from 'helpers/vue_test_utils_helper';
 import { visitUrl } from '~/lib/utils/url_utility';
@@ -257,6 +258,13 @@ describe('DashboardsList', () => {
 
         it('sets correct dashboardId when delete action is clicked', () => {
           expect(findDeleteModal().props('dashboardId')).toBe(mockDashboards[0].id);
+        });
+
+        it('hides the modal when the delete is completed', async () => {
+          const hideModalSpy = jest.spyOn(findDeleteModal().vm, 'hide');
+          findDeleteModal().vm.$emit('delete');
+          await nextTick();
+          expect(hideModalSpy).toHaveBeenCalled();
         });
       });
 
