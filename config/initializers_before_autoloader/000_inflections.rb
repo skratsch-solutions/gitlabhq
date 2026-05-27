@@ -50,6 +50,7 @@ ActiveSupport::Inflector.inflections do |inflect|
     packages_helm_metadata_cache_registry
     vulnerability_export_upload_registry
     issuable_metric_image_upload_registry
+    vulnerability_export_part_upload_registry
     vulnerability_archive_export_upload_registry
     user_permission_export_upload_upload_registry
     bulk_import_export_upload_upload_registry

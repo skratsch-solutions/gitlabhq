@@ -358,5 +358,23 @@ RSpec.describe Projects::MergeRequests::ConflictsController, feature_category: :
         end
       end
     end
+
+    context 'when Gitlab::Git::CommandError is raised' do
+      before do
+        allow_next_instance_of(MergeRequests::Conflicts::ResolveService) do |service|
+          allow(service).to receive(:execute)
+            .and_raise(Gitlab::Git::CommandError, 'error')
+        end
+
+        resolve_conflicts([])
+      end
+
+      it 'returns a 500 with the error message' do
+        aggregate_failures do
+          expect(response).to have_gitlab_http_status(:internal_server_error)
+          expect(json_response['message']).to include('error')
+        end
+      end
+    end
   end
 end

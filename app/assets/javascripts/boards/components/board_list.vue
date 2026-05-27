@@ -30,7 +30,7 @@ import {
   updateIssueCountAndWeight,
   setError,
 } from '../graphql/cache_updates';
-import { shouldCloneCard, moveItemVariables } from '../boards_util';
+import { getBoardListTitleId, shouldCloneCard, moveItemVariables } from '../boards_util';
 import BoardCard from './board_card.vue';
 import BoardCutLine from './board_cut_line.vue';
 
@@ -89,6 +89,11 @@ export default {
       type: String,
       required: false,
       default: null,
+    },
+    focused: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -350,12 +355,22 @@ export default {
 
       return !hasMatchingStatus;
     },
+    listTitleId() {
+      return getBoardListTitleId(this.list.id);
+    },
   },
   watch: {
     boardListItems() {
       this.$nextTick(() => {
         this.showCount = this.scrollHeight() > Math.ceil(this.listHeight());
       });
+    },
+    focused(newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          this.$el.focus();
+        });
+      }
     },
   },
   created() {
@@ -819,9 +834,14 @@ export default {
 <template>
   <div
     v-show="!list.collapsed"
+    :tabindex="focused ? 0 : -1"
+    role="group"
+    :aria-labelledby="listTitleId"
     class="board-list-component gl-relative gl-flex gl-h-full gl-min-h-0 gl-flex-col"
     :class="{ 'board-column-not-applicable': isInapplicable }"
     data-testid="board-list-cards-area"
+    @keydown.left.self.exact.prevent="$emit('focus-adjacent', -1)"
+    @keydown.right.self.exact.prevent="$emit('focus-adjacent', 1)"
   >
     <div
       v-if="isInapplicable"

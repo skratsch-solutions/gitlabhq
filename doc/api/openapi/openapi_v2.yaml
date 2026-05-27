@@ -18726,7 +18726,8 @@ paths:
       operationId: postApiV4ProjectsIdDeploymentsDeploymentIdApproval
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes":
     get:
-      description: Get a list of merge request draft notes
+      summary: List all merge request draft notes
+      description: Lists all merge request draft notes.
       produces:
       - application/json
       parameters:
@@ -18743,7 +18744,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of merge request draft notes
+          description: List all merge request draft notes
           schema:
             type: array
             items:
@@ -18756,7 +18757,8 @@ paths:
       - draft_notes
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotes
     post:
-      description: Create a new draft note
+      summary: Create a draft note
+      description: Creates a draft note for a specified merge request.
       produces:
       - application/json
       consumes:
@@ -18780,7 +18782,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotes"
       responses:
         '201':
-          description: Create a new draft note
+          description: Create a draft note
           schema:
             "$ref": "#/definitions/API_Entities_DraftNote"
         '401':
@@ -18792,7 +18794,8 @@ paths:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotes
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/{draft_note_id}":
     get:
-      description: Get a single draft note
+      summary: Retrieve a draft note
+      description: Retrieves a draft note for a specified merge request.
       produces:
       - application/json
       parameters:
@@ -18815,7 +18818,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single draft note
+          description: Retrieve a draft note
           schema:
             "$ref": "#/definitions/API_Entities_DraftNote"
         '401':
@@ -18826,7 +18829,8 @@ paths:
       - draft_notes
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
     put:
-      description: Modify an existing draft note
+      summary: Update a draft note
+      description: Updates a draft note for a specified merge request.
       produces:
       - application/json
       consumes:
@@ -18856,7 +18860,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId"
       responses:
         '200':
-          description: Modify an existing draft note
+          description: Update a draft note
           schema:
             "$ref": "#/definitions/API_Entities_DraftNote"
         '401':
@@ -18867,7 +18871,8 @@ paths:
       - draft_notes
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
     delete:
-      description: Delete a draft note
+      summary: Delete a draft note
+      description: Deletes a draft note for a specified merge request.
       produces:
       - application/json
       parameters:
@@ -18898,7 +18903,8 @@ paths:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/{draft_note_id}/publish":
     put:
-      description: Publish a pending draft note
+      summary: Publish a draft note
+      description: Publishes a draft note for a specified merge request.
       produces:
       - application/json
       consumes:
@@ -18923,7 +18929,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Publish a pending draft note
+          description: Publish a draft note
         '401':
           description: Unauthorized
         '404':
@@ -18933,7 +18939,9 @@ paths:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteIdPublish
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/bulk_publish":
     post:
-      description: Bulk publish all pending draft notes
+      summary: Publish all pending draft notes
+      description: Publishes all pending draft notes for a specified merge request
+        that belong to the currently authenticated user.
       produces:
       - application/json
       consumes:
@@ -18952,7 +18960,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Bulk publish all pending draft notes
+          description: Publish all pending draft notes
         '401':
           description: Unauthorized
         '404':
@@ -28058,8 +28066,9 @@ paths:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidMergeRef
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/cancel_merge_when_pipeline_succeeds":
     post:
-      summary: Cancel Merge When Pipeline Succeeds
-      description: Cancel merge if "Merge When Pipeline Succeeds" is enabled
+      summary: Cancel merge when pipeline succeeds
+      description: Cancels an automatic merge for a merge request that has been set
+        to merge when the pipeline succeeds.
       produces:
       - application/json
       consumes:
@@ -28077,7 +28086,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Cancel Merge When Pipeline Succeeds
+          description: Cancel merge when pipeline succeeds
           schema:
             "$ref": "#/definitions/API_Entities_MergeRequest"
         '401':
@@ -59138,7 +59147,7 @@ definitions:
         - position_type
     required:
     - note
-    description: Create a new draft note
+    description: Create a draft note
   putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId:
     type: object
     properties:
@@ -59240,7 +59249,7 @@ definitions:
         - start_sha
         - head_sha
         - position_type
-    description: Modify an existing draft note
+    description: Update a draft note
   API_Entities_Environment:
     type: object
     properties:
@@ -74463,6 +74472,28 @@ definitions:
         type: string
       issuable_metric_image_uploads_oldest_unsynced_time:
         type: string
+      vulnerability_export_part_uploads_count:
+        type: string
+      vulnerability_export_part_uploads_checksum_total_count:
+        type: string
+      vulnerability_export_part_uploads_checksummed_count:
+        type: string
+      vulnerability_export_part_uploads_checksum_failed_count:
+        type: string
+      vulnerability_export_part_uploads_synced_count:
+        type: string
+      vulnerability_export_part_uploads_failed_count:
+        type: string
+      vulnerability_export_part_uploads_registry_count:
+        type: string
+      vulnerability_export_part_uploads_verification_total_count:
+        type: string
+      vulnerability_export_part_uploads_verified_count:
+        type: string
+      vulnerability_export_part_uploads_verification_failed_count:
+        type: string
+      vulnerability_export_part_uploads_oldest_unsynced_time:
+        type: string
       vulnerability_archive_export_uploads_count:
         type: string
       vulnerability_archive_export_uploads_checksum_total_count:
@@ -74867,6 +74898,10 @@ definitions:
         type: string
       issuable_metric_image_uploads_verified_in_percentage:
         type: string
+      vulnerability_export_part_uploads_synced_in_percentage:
+        type: string
+      vulnerability_export_part_uploads_verified_in_percentage:
+        type: string
       vulnerability_archive_export_uploads_synced_in_percentage:
         type: string
       vulnerability_archive_export_uploads_verified_in_percentage:
@@ -75214,6 +75249,17 @@ definitions:
     - issuable_metric_image_uploads_verified_count
     - issuable_metric_image_uploads_verification_failed_count
     - issuable_metric_image_uploads_oldest_unsynced_time
+    - vulnerability_export_part_uploads_count
+    - vulnerability_export_part_uploads_checksum_total_count
+    - vulnerability_export_part_uploads_checksummed_count
+    - vulnerability_export_part_uploads_checksum_failed_count
+    - vulnerability_export_part_uploads_synced_count
+    - vulnerability_export_part_uploads_failed_count
+    - vulnerability_export_part_uploads_registry_count
+    - vulnerability_export_part_uploads_verification_total_count
+    - vulnerability_export_part_uploads_verified_count
+    - vulnerability_export_part_uploads_verification_failed_count
+    - vulnerability_export_part_uploads_oldest_unsynced_time
     - vulnerability_archive_export_uploads_count
     - vulnerability_archive_export_uploads_checksum_total_count
     - vulnerability_archive_export_uploads_checksummed_count
@@ -75416,6 +75462,8 @@ definitions:
     - packages_helm_metadata_caches_verified_in_percentage
     - issuable_metric_image_uploads_synced_in_percentage
     - issuable_metric_image_uploads_verified_in_percentage
+    - vulnerability_export_part_uploads_synced_in_percentage
+    - vulnerability_export_part_uploads_verified_in_percentage
     - vulnerability_archive_export_uploads_synced_in_percentage
     - vulnerability_archive_export_uploads_verified_in_percentage
     - vulnerability_export_uploads_synced_in_percentage

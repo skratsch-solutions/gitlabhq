@@ -16,7 +16,7 @@ RSpec.describe Users::DestroyService, feature_category: :user_management do
         expect { service.execute(user) }
           .to(
             change do
-              Users::GhostUserMigration.where(user: user, initiator_user: admin).exists?
+              Users::GhostUserMigration.where(user: user, user_type: user.user_type, initiator_user: admin).exists?
             end.from(false).to(true))
       end
 

@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 module Users
-  class MigrateRecordsToGhostUserInBatchesService
+  class MigrateUserTypeRecordsToGhostUserInBatchesService
     LIMIT_SIZE = 1000
 
-    def initialize
+    def initialize(user_type:)
+      @scope = scope_for(user_type)
       @execution_tracker = Gitlab::Utils::ExecutionTracker.new
     end
 
@@ -30,8 +31,21 @@ module Users
 
     attr_reader :execution_tracker
 
+    def scope_for(user_type)
+      case user_type
+      when :human then Users::GhostUserMigration.for_humans
+      when :non_human then Users::GhostUserMigration.for_non_humans
+      else
+        if Feature.enabled?(:split_ghost_user_migration_queue_into_human_and_non_human, :instance)
+          raise ArgumentError, "Unknown user_type: #{user_type.inspect}"
+        end
+
+        Users::GhostUserMigration
+      end
+    end
+
     def ghost_user_migrations
-      Users::GhostUserMigration.consume_order.limit(LIMIT_SIZE)
+      @scope.consume_order.limit(LIMIT_SIZE)
     end
 
     def reschedule(job)

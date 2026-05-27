@@ -18,6 +18,7 @@ title: Customize review instructions for the Agent Platform
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/545136) in GitLab 18.2 as a [beta](../../../policy/development_stages_support.md#beta) [with a flag](../../../administration/feature_flags/_index.md) named `duo_code_review_custom_instructions`. Disabled by default.
 - Feature flag `duo_code_review_custom_instructions` [enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/199802) in GitLab 18.3.
 - Feature flag `duo_code_review_custom_instructions` [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/202262) in GitLab 18.4.
+- Union patterns (for example, `{rb,ts}`) in `fileFilters` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237952) in GitLab 19.1.
 
 {{< /history >}}
 
@@ -211,7 +212,7 @@ For example, for a project that contains Ruby files:
 | `!**/*.test.rb` | Exclude all Ruby test files |
 | `!spec/**/*.rb` | Exclude all Ruby files in the `spec` directory and its subdirectories |
 | `!tests/**/*`   | Exclude all files in the `tests` directory and its subdirectories |
-| `**/*.{js,jsx}` | JavaScript and JSX files in all directories |
+| `**/*.{js,jsx}` | JavaScript and JSX files in all directories (GitLab 19.1 and later) |
 
 The following example shows the difference between `**/*.rb` and `*.rb`:
 

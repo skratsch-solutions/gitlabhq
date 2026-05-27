@@ -697,6 +697,15 @@ Gitlab/AvoidGitlabInstanceChecks:
     - 'db/post_migrate/*.rb'
     - 'ee/db/fixtures/**/*'
 
+Gitlab/AvoidGitlabDedicatedInstanceChecks:
+  Enabled: true
+  Exclude:
+    - 'db/migrate/*.rb'
+    - 'db/post_migrate/*.rb'
+    - 'ee/db/fixtures/**/*'
+    - 'ee/elastic/migrate/*.rb'
+    - 'ee/lib/gitlab/dedicated.rb'
+
 Gitlab/EeOnlyClass:
   Enabled: true
   Include:

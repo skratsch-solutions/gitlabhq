@@ -157,6 +157,23 @@ principles:
       - path: doc/development/fe_guide/security.md
         url: https://docs.gitlab.com/development/fe_guide/security/
 
+  authentication:
+    description: Authentication, authorization, and composite identity (Duo agents)
+    group: Security
+    file_filters:
+      - 'app/controllers/**/*.rb'
+      - 'app/services/**/*.rb'
+      - 'lib/gitlab/auth/**/*.rb'
+      - 'lib/api/helpers/**/*.rb'
+      - 'ee/app/controllers/**/*.rb'
+      - 'ee/app/services/**/*.rb'
+      - 'ee/lib/gitlab/auth/**/*.rb'
+    sources:
+      - path: doc/development/authentication.md
+        url: https://docs.gitlab.com/development/authentication/
+      - path: doc/development/ai_features/composite_identity.md
+        url: https://docs.gitlab.com/development/ai_features/composite_identity/
+
   # ── Permissions ───────────────────────────────────────────────────────────
 
   permissions-fundamentals:

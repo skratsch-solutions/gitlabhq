@@ -440,6 +440,10 @@ Just as with SaaS-only features, avoid using `Gitlab::CurrentSettings.gitlab_ded
 application code. Instead, use `Gitlab::Dedicated.feature_available?(:specific_feature)` to provide context about why
 the feature behaves differently for Dedicated.
 
+The `Gitlab/AvoidGitlabDedicatedInstanceChecks` RuboCop rule enforces this convention by flagging direct calls to
+`Gitlab::CurrentSettings.gitlab_dedicated_instance?` and `Gitlab::Dedicated.dedicated_instance?` except where
+explicitly excluded in RuboCop configuration.
+
 ### Exceptions for database migrations
 
 Database migrations may need to check for Dedicated instances using `Gitlab::CurrentSettings.gitlab_dedicated_instance?`

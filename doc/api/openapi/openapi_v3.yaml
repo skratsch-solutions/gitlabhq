@@ -2397,7 +2397,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 5
+        example: '5'
       - name: state
         required: false
         description: Return "opened", "upcoming", "current (previously started)",
@@ -4583,8 +4583,8 @@ paths:
   "/api/v4/projects/{id}/approvals":
     get:
       operationId: getApiV4ProjectsIdApprovals
-      summary: Get all project approvers and related configuration
-      description: This feature was introduced in 10.6
+      summary: Retrieve approval configuration for a project
+      description: Retrieves the approval configuration for a project.
       tags:
       - Project approvals
       responses:
@@ -4609,8 +4609,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdApprovals
-      summary: Change approval-related configuration
-      description: This feature was introduced in 10.6
+      summary: Create or update approval configuration for a project
+      description: Creates or updates the approval configuration for a project. The
+        currently authenticated user must be an eligible approver.
       tags:
       - Project approvals
       responses:
@@ -5374,7 +5375,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/blocks/{block_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidBlocksBlockId
-      summary: Get a merge request dependency
+      summary: Retrieve a merge request dependency
+      description: Retrieves a specified merge request dependency.
       tags:
       - Merge requests
       responses:
@@ -5491,7 +5493,8 @@ paths:
   "/api/v4/projects/{id}/merge_request_approval_setting":
     get:
       operationId: getApiV4ProjectsIdMergeRequestApprovalSetting
-      summary: Get project-level MR approval settings
+      summary: Retrieve MR approval settings for a project
+      description: Retrieves the merge request approval settings for a specified project.
       tags:
       - Merge request approvals
       responses:
@@ -5514,7 +5517,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdMergeRequestApprovalSetting
-      summary: Update existing merge request approval setting
+      summary: Update MR approval settings for a project
+      description: Updates the merge request approval settings for a specified project.
       tags:
       - Merge request approvals
       responses:
@@ -5546,7 +5550,8 @@ paths:
   "/api/v4/groups/{id}/merge_request_approval_setting":
     get:
       operationId: getApiV4GroupsIdMergeRequestApprovalSetting
-      summary: Get group merge request approval setting
+      summary: Retrieve MR approval settings for a group
+      description: Retrieves the merge request approval settings for a specified group.
       tags:
       - Merge request approvals
       responses:
@@ -5567,7 +5572,8 @@ paths:
         in: path
     put:
       operationId: putApiV4GroupsIdMergeRequestApprovalSetting
-      summary: Update existing merge request approval setting
+      summary: Update MR approval settings for a group
+      description: Updates the merge request approval settings for a specified group.
       tags:
       - Merge request approvals
       responses:
@@ -6957,7 +6963,8 @@ paths:
   "/api/v4/projects/{id}/mirror/pull":
     post:
       operationId: postApiV4ProjectsIdMirrorPull
-      summary: Triggers a pull mirror operation
+      summary: Start the pull mirroring process for a project
+      description: Starts the pull mirroring process for a specified project.
       tags:
       - Project mirrors
       responses:
@@ -6986,8 +6993,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_a7a890622ef9"
     put:
       operationId: putApiV4ProjectsIdMirrorPull
-      summary: Update a pull mirror
-      description: This feature was introduced in GitLab 17.5.
+      summary: Update project pull mirroring settings
+      description: Updates pull mirroring settings for a specified project. This feature
+        was introduced in GitLab 17.5.
       tags:
       - Project mirrors
       responses:
@@ -7018,7 +7026,8 @@ paths:
       x-gitlab-lifecycle: experiment
     get:
       operationId: getApiV4ProjectsIdMirrorPull
-      summary: Get a pull mirror
+      summary: Retrieve project pull mirror details
+      description: Retrieves pull mirror details for a specified project.
       tags:
       - Project mirrors
       responses:
@@ -10117,7 +10126,10 @@ paths:
   "/api/v4/projects/{id}/approval_rules":
     get:
       operationId: getApiV4ProjectsIdApprovalRules
-      summary: Get all project approval rules
+      summary: List all approval rules for a project
+      description: Lists all approval rules and any associated details for a specified
+        project. To restrict the list of approval rules, use the `page` and `per_page`
+        pagination parameters.
       tags:
       - Approval rules
       responses:
@@ -10160,7 +10172,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdApprovalRules
-      summary: Create new project approval rule
+      summary: Create an approval rule for a project
+      description: Creates an approval rule for a specified project.
       tags:
       - Approval rules
       responses:
@@ -10192,7 +10205,8 @@ paths:
   "/api/v4/projects/{id}/approval_rules/{approval_rule_id}":
     get:
       operationId: getApiV4ProjectsIdApprovalRulesApprovalRuleId
-      summary: Get a single approval rule
+      summary: Retrieve an approval rule for a project
+      description: Retrieves information about a specified approval rule for a project.
       tags:
       - Approval rules
       responses:
@@ -10221,7 +10235,14 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdApprovalRulesApprovalRuleId
-      summary: Update project approval rule
+      summary: Update an approval rule for a project
+      description: Updates a specified approval rule for a project. This endpoint
+        removes any approvers and groups not defined in the `group_ids`, `user_ids`,
+        or `usernames` attributes. Hidden groups (private groups the user does not
+        have permission to view) that are not in the `users` or `groups` parameters
+        are preserved by default. To remove them, set `remove_hidden_groups` to `true`.
+        This ensures hidden groups are not removed unintentionally when a user updates
+        an approval rule.
       tags:
       - Approval rules
       responses:
@@ -10258,7 +10279,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_fad4e55b805b"
     delete:
       operationId: deleteApiV4ProjectsIdApprovalRulesApprovalRuleId
-      summary: Destroy project approval rule
+      summary: Delete an approval rule for a project
+      description: Deletes an approval rule for a specified project.
       tags:
       - Approval rules
       responses:
@@ -39713,8 +39735,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/cancel_merge_when_pipeline_succeeds":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidCancelMergeWhenPipelineSucceeds
-      summary: Cancel Merge When Pipeline Succeeds
-      description: Cancel merge if "Merge When Pipeline Succeeds" is enabled
+      summary: Cancel merge when pipeline succeeds
+      description: Cancels an automatic merge for a merge request that has been set
+        to merge when the pipeline succeeds.
       tags:
       - Merge requests
       responses:
@@ -54235,7 +54258,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotes
-      summary: Get a list of merge request draft notes
+      summary: List all merge request draft notes
+      description: Lists all merge request draft notes.
       tags:
       - Draft notes
       responses:
@@ -54264,7 +54288,8 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotes
-      summary: Create a new draft note
+      summary: Create a draft note
+      description: Creates a draft note for a specified merge request.
       tags:
       - Draft notes
       responses:
@@ -54300,7 +54325,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/{draft_note_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
-      summary: Get a single draft note
+      summary: Retrieve a draft note
+      description: Retrieves a draft note for a specified merge request.
       tags:
       - Draft notes
       responses:
@@ -54335,7 +54361,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
-      summary: Modify an existing draft note
+      summary: Update a draft note
+      description: Updates a draft note for a specified merge request.
       tags:
       - Draft notes
       responses:
@@ -54377,6 +54404,7 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteId
       summary: Delete a draft note
+      description: Deletes a draft note for a specified merge request.
       tags:
       - Draft notes
       responses:
@@ -54412,7 +54440,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/{draft_note_id}/publish":
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesDraftNoteIdPublish
-      summary: Publish a pending draft note
+      summary: Publish a draft note
+      description: Publishes a draft note for a specified merge request.
       tags:
       - Draft notes
       responses:
@@ -54444,7 +54473,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/draft_notes/bulk_publish":
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish
-      summary: Bulk publish all pending draft notes
+      summary: Publish all pending draft notes
+      description: Publishes all pending draft notes for a specified merge request
+        that belong to the currently authenticated user.
       tags:
       - Draft notes
       responses:
@@ -73689,6 +73720,28 @@ components:
           type: string
         issuable_metric_image_uploads_oldest_unsynced_time:
           type: string
+        vulnerability_export_part_uploads_count:
+          type: string
+        vulnerability_export_part_uploads_checksum_total_count:
+          type: string
+        vulnerability_export_part_uploads_checksummed_count:
+          type: string
+        vulnerability_export_part_uploads_checksum_failed_count:
+          type: string
+        vulnerability_export_part_uploads_synced_count:
+          type: string
+        vulnerability_export_part_uploads_failed_count:
+          type: string
+        vulnerability_export_part_uploads_registry_count:
+          type: string
+        vulnerability_export_part_uploads_verification_total_count:
+          type: string
+        vulnerability_export_part_uploads_verified_count:
+          type: string
+        vulnerability_export_part_uploads_verification_failed_count:
+          type: string
+        vulnerability_export_part_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -74092,6 +74145,10 @@ components:
         issuable_metric_image_uploads_synced_in_percentage:
           type: string
         issuable_metric_image_uploads_verified_in_percentage:
+          type: string
+        vulnerability_export_part_uploads_synced_in_percentage:
+          type: string
+        vulnerability_export_part_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string
@@ -74713,6 +74770,28 @@ components:
           type: string
         issuable_metric_image_uploads_oldest_unsynced_time:
           type: string
+        vulnerability_export_part_uploads_count:
+          type: string
+        vulnerability_export_part_uploads_checksum_total_count:
+          type: string
+        vulnerability_export_part_uploads_checksummed_count:
+          type: string
+        vulnerability_export_part_uploads_checksum_failed_count:
+          type: string
+        vulnerability_export_part_uploads_synced_count:
+          type: string
+        vulnerability_export_part_uploads_failed_count:
+          type: string
+        vulnerability_export_part_uploads_registry_count:
+          type: string
+        vulnerability_export_part_uploads_verification_total_count:
+          type: string
+        vulnerability_export_part_uploads_verified_count:
+          type: string
+        vulnerability_export_part_uploads_verification_failed_count:
+          type: string
+        vulnerability_export_part_uploads_oldest_unsynced_time:
+          type: string
         vulnerability_archive_export_uploads_count:
           type: string
         vulnerability_archive_export_uploads_checksum_total_count:
@@ -75116,6 +75195,10 @@ components:
         issuable_metric_image_uploads_synced_in_percentage:
           type: string
         issuable_metric_image_uploads_verified_in_percentage:
+          type: string
+        vulnerability_export_part_uploads_synced_in_percentage:
+          type: string
+        vulnerability_export_part_uploads_verified_in_percentage:
           type: string
         vulnerability_archive_export_uploads_synced_in_percentage:
           type: string

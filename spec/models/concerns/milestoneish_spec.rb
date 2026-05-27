@@ -27,8 +27,8 @@ RSpec.describe Milestone, 'Milestoneish', factory_default: :keep do
   let_it_be(:label_3) { create(:label, title: 'label_3') }
 
   before do
-    project.add_developer(member) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
-    project.add_guest(guest) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+    project.add_developer(member) # -- Does not work in before_all
+    project.add_guest(guest) # -- Does not work in before_all
   end
 
   describe '#milestone_issues' do

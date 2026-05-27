@@ -292,6 +292,7 @@
     "UserPermissionExportUploadUploadRegistry",
     "UserUploadRegistry",
     "VulnerabilityArchiveExportUploadRegistry",
+    "VulnerabilityExportPartUploadRegistry",
     "VulnerabilityExportUploadRegistry"
   ],
   "RegistryInterface": [

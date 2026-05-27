@@ -236,7 +236,7 @@ RSpec.shared_examples 'snippet visibility' do
           member = project.member(external)
 
           if project.private?
-            project.add_developer(external) unless member # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+            project.add_developer(external) unless member # -- Does not work in before_all
           elsif member
             member.delete
           end

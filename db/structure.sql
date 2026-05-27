@@ -1291,98 +1291,6 @@ RETURN NULL;
 END
 $$;
 
-CREATE FUNCTION sync_project_push_rules_on_delete() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
- BEGIN
-    IF (OLD.project_id IS NOT NULL) THEN
-      DELETE FROM project_push_rules WHERE project_id = OLD.project_id;
-    END IF;
-   RETURN OLD;
-  END;
- $$;
-
-CREATE FUNCTION sync_project_push_rules_on_insert_update() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
- BEGIN
-    IF (NEW.project_id IS NOT NULL) THEN
-      IF EXISTS (SELECT 1 FROM project_push_rules WHERE project_id = NEW.project_id) THEN
-        UPDATE project_push_rules SET
-          max_file_size = NEW.max_file_size,
-          member_check = NEW.member_check,
-          prevent_secrets = NEW.prevent_secrets,
-          commit_committer_name_check = NEW.commit_committer_name_check,
-          deny_delete_tag = NEW.deny_delete_tag,
-          reject_unsigned_commits = NEW.reject_unsigned_commits,
-          commit_committer_check = NEW.commit_committer_check,
-          reject_non_dco_commits = NEW.reject_non_dco_commits,
-          commit_message_regex = NEW.commit_message_regex,
-          branch_name_regex = NEW.branch_name_regex,
-          commit_message_negative_regex = NEW.commit_message_negative_regex,
-          author_email_regex = NEW.author_email_regex,
-          file_name_regex = NEW.file_name_regex,
-          updated_at = NEW.updated_at
-        WHERE project_id = NEW.project_id;
-      ELSE
-        INSERT INTO project_push_rules (
-          id,
-          project_id,
-          max_file_size,
-          member_check,
-          prevent_secrets,
-          commit_committer_name_check,
-          deny_delete_tag,
-          reject_unsigned_commits,
-          commit_committer_check,
-          reject_non_dco_commits,
-          commit_message_regex,
-          branch_name_regex,
-          commit_message_negative_regex,
-          author_email_regex,
-          file_name_regex,
-          created_at,
-          updated_at
-        ) VALUES (
-          nextval(pg_get_serial_sequence('project_push_rules', 'id')),
-          NEW.project_id,
-          NEW.max_file_size,
-          NEW.member_check,
-          NEW.prevent_secrets,
-          NEW.commit_committer_name_check,
-          NEW.deny_delete_tag,
-          NEW.reject_unsigned_commits,
-          NEW.commit_committer_check,
-          NEW.reject_non_dco_commits,
-          NEW.commit_message_regex,
-          NEW.branch_name_regex,
-          NEW.commit_message_negative_regex,
-          NEW.author_email_regex,
-          NEW.file_name_regex,
-          NEW.created_at,
-          NEW.updated_at
-        )
-        ON CONFLICT (project_id) DO UPDATE SET
-          max_file_size = EXCLUDED.max_file_size,
-          member_check = EXCLUDED.member_check,
-          prevent_secrets = EXCLUDED.prevent_secrets,
-          commit_committer_name_check = EXCLUDED.commit_committer_name_check,
-          deny_delete_tag = EXCLUDED.deny_delete_tag,
-          reject_unsigned_commits = EXCLUDED.reject_unsigned_commits,
-          commit_committer_check = EXCLUDED.commit_committer_check,
-          reject_non_dco_commits = EXCLUDED.reject_non_dco_commits,
-          commit_message_regex = EXCLUDED.commit_message_regex,
-          branch_name_regex = EXCLUDED.branch_name_regex,
-          commit_message_negative_regex = EXCLUDED.commit_message_negative_regex,
-          author_email_regex = EXCLUDED.author_email_regex,
-          file_name_regex = EXCLUDED.file_name_regex,
-          updated_at = EXCLUDED.updated_at;
-      END IF;
-    END IF;
-   RETURN NEW;
-  END;
- $$;
-
 CREATE FUNCTION sync_redirect_routes_namespace_id() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -1981,6 +1889,22 @@ IF NEW."group_id" IS NULL THEN
   INTO NEW."group_id"
   FROM "approval_group_rules"
   WHERE "approval_group_rules"."id" = NEW."approval_group_rule_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
+CREATE FUNCTION trigger_16bb23b09f5d() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."organization_id" IS NULL THEN
+  SELECT "organization_id"
+  INTO NEW."organization_id"
+  FROM "vulnerability_export_part_uploads"
+  WHERE "vulnerability_export_part_uploads"."id" = NEW."vulnerability_export_part_upload_id";
 END IF;
 
 RETURN NEW;
@@ -13689,6 +13613,8 @@ CREATE TABLE ai_namespace_feature_settings (
     feature smallint NOT NULL,
     offered_model_ref text,
     offered_model_name text,
+    model_allowlist_enabled boolean DEFAULT false NOT NULL,
+    model_allowlist_gitlab_model_refs text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT check_14e81e87bc CHECK ((char_length(offered_model_ref) <= 255)),
     CONSTRAINT check_c850e74656 CHECK ((char_length(offered_model_name) <= 255))
 );
@@ -14972,6 +14898,7 @@ CREATE TABLE application_settings (
     duo_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     mcp_server_settings jsonb DEFAULT '{}'::jsonb NOT NULL,
     secrets_manager_instance_enrolled boolean DEFAULT false NOT NULL,
+    duo_template_project_id bigint,
     CONSTRAINT app_settings_container_reg_cleanup_tags_max_list_size_positive CHECK ((container_registry_cleanup_tags_service_max_list_size >= 0)),
     CONSTRAINT app_settings_dep_proxy_ttl_policies_worker_capacity_positive CHECK ((dependency_proxy_ttl_group_policy_worker_capacity >= 0)),
     CONSTRAINT app_settings_ext_pipeline_validation_service_url_text_limit CHECK ((char_length(external_pipeline_validation_service_url) <= 255)),
@@ -21269,7 +21196,8 @@ CREATE TABLE ghost_user_migrations (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     hard_delete boolean DEFAULT false NOT NULL,
-    consume_after timestamp with time zone DEFAULT now() NOT NULL
+    consume_after timestamp with time zone DEFAULT now() NOT NULL,
+    user_type smallint
 );
 
 CREATE SEQUENCE ghost_user_migrations_id_seq
@@ -22522,6 +22450,8 @@ CREATE TABLE instance_model_selection_feature_settings (
     feature smallint NOT NULL,
     offered_model_ref text,
     offered_model_name text,
+    model_allowlist_enabled boolean DEFAULT false NOT NULL,
+    model_allowlist_gitlab_model_refs text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT check_2d921a9d8a CHECK ((char_length(offered_model_ref) <= 255)),
     CONSTRAINT check_6159907afe CHECK ((char_length(offered_model_name) <= 255))
 );
@@ -33170,6 +33100,29 @@ CREATE SEQUENCE vulnerability_detection_transitions_id_seq
 
 ALTER SEQUENCE vulnerability_detection_transitions_id_seq OWNED BY vulnerability_detection_transitions.id;
 
+CREATE TABLE vulnerability_export_part_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    vulnerability_export_part_upload_id bigint NOT NULL,
+    organization_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_924d02b251 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE vulnerability_export_part_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE vulnerability_export_part_upload_states_id_seq OWNED BY vulnerability_export_part_upload_states.id;
+
 CREATE TABLE vulnerability_export_part_uploads (
     id bigint DEFAULT nextval('uploads_id_seq'::regclass) NOT NULL,
     size bigint NOT NULL,
@@ -37415,6 +37368,8 @@ ALTER TABLE ONLY vulnerability_archives ALTER COLUMN id SET DEFAULT nextval('vul
 
 ALTER TABLE ONLY vulnerability_detection_transitions ALTER COLUMN id SET DEFAULT nextval('vulnerability_detection_transitions_id_seq'::regclass);
 
+ALTER TABLE ONLY vulnerability_export_part_upload_states ALTER COLUMN id SET DEFAULT nextval('vulnerability_export_part_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY vulnerability_export_parts ALTER COLUMN id SET DEFAULT nextval('vulnerability_export_parts_id_seq'::regclass);
 
 ALTER TABLE ONLY vulnerability_export_upload_states ALTER COLUMN id SET DEFAULT nextval('vulnerability_export_upload_states_id_seq'::regclass);
@@ -38933,6 +38888,9 @@ ALTER TABLE ONLY ai_instance_accessible_entity_rules
 ALTER TABLE ONLY ai_namespace_feature_access_rules
     ADD CONSTRAINT ai_namespace_feature_access_rules_pkey PRIMARY KEY (id);
 
+ALTER TABLE ai_namespace_feature_settings
+    ADD CONSTRAINT ai_namespace_feature_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100)) NOT VALID;
+
 ALTER TABLE ONLY ai_namespace_feature_settings
     ADD CONSTRAINT ai_namespace_feature_settings_pkey PRIMARY KEY (id);
 
@@ -40264,6 +40222,9 @@ ALTER TABLE ONLY instance_audit_events_streaming_headers
 
 ALTER TABLE ONLY instance_model_selection_feature_settings
     ADD CONSTRAINT instance_model_selection_feature_settings_pkey PRIMARY KEY (id);
+
+ALTER TABLE instance_model_selection_feature_settings
+    ADD CONSTRAINT instance_model_selection_settings_model_allowlist_refs_size CHECK ((cardinality(model_allowlist_gitlab_model_refs) <= 100)) NOT VALID;
 
 ALTER TABLE ONLY instance_type_ci_runner_machines
     ADD CONSTRAINT instance_type_ci_runner_machines_pkey PRIMARY KEY (id, runner_type);
@@ -41824,6 +41785,9 @@ ALTER TABLE ONLY vulnerability_archives
 
 ALTER TABLE ONLY vulnerability_detection_transitions
     ADD CONSTRAINT vulnerability_detection_transitions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY vulnerability_export_part_upload_states
+    ADD CONSTRAINT vulnerability_export_part_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY vulnerability_export_part_uploads
     ADD CONSTRAINT vulnerability_export_part_uploads_pkey PRIMARY KEY (id, model_type);
@@ -44879,6 +44843,8 @@ CREATE INDEX idx_analytics_devops_adoption_segments_on_namespace_id ON analytics
 
 CREATE INDEX idx_analytics_devops_adoption_snapshots_finalized ON analytics_devops_adoption_snapshots USING btree (namespace_id, end_time) WHERE (recorded_at >= end_time);
 
+CREATE INDEX idx_application_settings_on_duo_template_project_id ON application_settings USING btree (duo_template_project_id);
+
 CREATE INDEX idx_approval_merge_request_rules_approved_approvers_project_id ON approval_merge_request_rules_approved_approvers USING btree (project_id);
 
 CREATE INDEX idx_approval_merge_request_rules_on_mr_id_config_id_and_id ON approval_merge_request_rules USING btree (merge_request_id, security_orchestration_policy_configuration_id, id);
@@ -45696,6 +45662,22 @@ CREATE INDEX idx_ve_upl_states_on_verification_started ON vulnerability_export_u
 CREATE INDEX idx_ve_upl_states_on_verification_state ON vulnerability_export_upload_states USING btree (verification_state);
 
 CREATE INDEX idx_ve_upl_states_pending_verification ON vulnerability_export_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE UNIQUE INDEX idx_vep_upl_on_id_unique ON vulnerability_export_part_uploads USING btree (id);
+
+CREATE INDEX idx_vep_upl_states_failed_verification ON vulnerability_export_part_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_vep_upl_states_needs_verification_id ON vulnerability_export_part_upload_states USING btree (vulnerability_export_part_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE INDEX idx_vep_upl_states_on_organization_id ON vulnerability_export_part_upload_states USING btree (organization_id);
+
+CREATE UNIQUE INDEX idx_vep_upl_states_on_vep_upl_id ON vulnerability_export_part_upload_states USING btree (vulnerability_export_part_upload_id);
+
+CREATE INDEX idx_vep_upl_states_on_verification_started ON vulnerability_export_part_upload_states USING btree (vulnerability_export_part_upload_id, verification_started_at) WHERE (verification_state = 1);
+
+CREATE INDEX idx_vep_upl_states_on_verification_state ON vulnerability_export_part_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_vep_upl_states_pending_verification ON vulnerability_export_part_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE INDEX idx_vr_cleanup_policies_on_next_run_at_when_runnable ON virtual_registries_cleanup_policies USING btree (next_run_at) WHERE ((enabled = true) AND (status = ANY (ARRAY[0, 2])));
 
@@ -47591,7 +47573,11 @@ CREATE INDEX index_geo_nodes_on_primary ON geo_nodes USING btree ("primary");
 
 CREATE INDEX index_ghost_user_migrations_on_consume_after_id ON ghost_user_migrations USING btree (consume_after, id);
 
+CREATE INDEX index_ghost_user_migrations_on_consume_after_id_non_human ON ghost_user_migrations USING btree (consume_after, id) WHERE (user_type <> 0);
+
 CREATE UNIQUE INDEX index_ghost_user_migrations_on_user_id ON ghost_user_migrations USING btree (user_id);
+
+CREATE INDEX index_ghost_user_migrations_on_user_type_consume_after_id ON ghost_user_migrations USING btree (user_type, consume_after, id);
 
 CREATE INDEX index_gin_ci_namespace_mirrors_on_traversal_ids ON ci_namespace_mirrors USING gin (traversal_ids);
 
@@ -55819,6 +55805,8 @@ CREATE TRIGGER trigger_1513378d715d BEFORE INSERT OR UPDATE ON issue_assignment_
 
 CREATE TRIGGER trigger_158ac875f254 BEFORE INSERT OR UPDATE ON approval_group_rules_users FOR EACH ROW EXECUTE FUNCTION trigger_158ac875f254();
 
+CREATE TRIGGER trigger_16bb23b09f5d BEFORE INSERT OR UPDATE ON vulnerability_export_part_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_16bb23b09f5d();
+
 CREATE TRIGGER trigger_174b23fa3dfb BEFORE INSERT OR UPDATE ON approval_project_rules_users FOR EACH ROW EXECUTE FUNCTION trigger_174b23fa3dfb();
 
 CREATE TRIGGER trigger_1825cdc71779 BEFORE INSERT OR UPDATE ON organization_detail_uploads FOR EACH ROW EXECUTE FUNCTION trigger_1825cdc71779();
@@ -56321,10 +56309,6 @@ CREATE TRIGGER trigger_sync_packages_composer_with_composer_metadata AFTER INSER
 
 CREATE TRIGGER trigger_sync_packages_composer_with_packages AFTER INSERT OR DELETE OR UPDATE ON packages_packages FOR EACH ROW EXECUTE FUNCTION sync_packages_composer_with_packages();
 
-CREATE TRIGGER trigger_sync_project_push_rules_delete AFTER DELETE ON push_rules FOR EACH ROW EXECUTE FUNCTION sync_project_push_rules_on_delete();
-
-CREATE TRIGGER trigger_sync_project_push_rules_insert_update AFTER INSERT OR UPDATE ON push_rules FOR EACH ROW EXECUTE FUNCTION sync_project_push_rules_on_insert_update();
-
 CREATE TRIGGER trigger_sync_redirect_routes_namespace_id BEFORE INSERT OR UPDATE ON redirect_routes FOR EACH ROW WHEN ((new.namespace_id IS NULL)) EXECUTE FUNCTION sync_redirect_routes_namespace_id();
 
 CREATE TRIGGER trigger_sync_work_item_positions_from_issues AFTER INSERT OR UPDATE OF relative_position, namespace_id ON issues FOR EACH ROW EXECUTE FUNCTION sync_work_item_positions_from_issues();
@@ -56543,6 +56527,9 @@ ALTER TABLE ONLY dast_sites
 
 ALTER TABLE ONLY project_saved_replies
     ADD CONSTRAINT fk_0ace76afbb FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE NOT VALID;
+
+ALTER TABLE ONLY application_settings
+    ADD CONSTRAINT fk_0acf967cd9 FOREIGN KEY (duo_template_project_id) REFERENCES projects(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY work_item_custom_lifecycles
     ADD CONSTRAINT fk_0b028ab81c FOREIGN KEY (default_open_status_id) REFERENCES work_item_custom_statuses(id) ON DELETE CASCADE;
@@ -57261,6 +57248,9 @@ ALTER TABLE ONLY merge_request_predictions
 ALTER TABLE ONLY clusters
     ADD CONSTRAINT fk_43af04cf6d FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY vulnerability_export_part_upload_states
+    ADD CONSTRAINT fk_4417138d44 FOREIGN KEY (vulnerability_export_part_upload_id) REFERENCES vulnerability_export_part_uploads(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY incident_management_timeline_events
     ADD CONSTRAINT fk_4432fc4d78 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -57314,6 +57304,9 @@ ALTER TABLE ONLY agent_organization_authorizations
 
 ALTER TABLE ONLY catalog_resource_component_last_usages
     ADD CONSTRAINT fk_4adc9539c0 FOREIGN KEY (catalog_resource_id) REFERENCES catalog_resources(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY vulnerability_export_part_upload_states
+    ADD CONSTRAINT fk_4b010cb78b FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY user_namespace_callouts
     ADD CONSTRAINT fk_4b1257f385 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

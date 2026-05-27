@@ -95,6 +95,7 @@ Consult these topics for information on contributing to specific GitLab features
 - [Value Stream Analytics development guide](value_stream_analytics.md)
 - [Application limits](application_limits.md)
 - [AI features](ai_features/_index.md)
+- [AI development principles](agent_principles/_index.md)
 - [Application settings](application_settings.md)
 - [Remote Development](remote_development/_index.md)
 - [Markdown (GLFM) development guide](gitlab_flavored_markdown/_index.md)
@@ -143,6 +144,7 @@ The following integration guides are internal. Some integrations require access 
 - [Database guidelines](database/_index.md).
 - [Data retention policies](data_retention_policies.md)
 - [Gitaly guidelines](gitaly.md)
+- [Aggregation engines](aggregation_engines.md)
 
 ## Testing guides
 

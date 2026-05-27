@@ -891,8 +891,8 @@ module API
         end
       end
 
-      desc 'Cancel Merge When Pipeline Succeeds' do
-        detail 'Cancel merge if "Merge When Pipeline Succeeds" is enabled'
+      desc 'Cancel merge when pipeline succeeds' do
+        detail 'Cancels an automatic merge for a merge request that has been set to merge when the pipeline succeeds.'
         success Entities::MergeRequest
         failure [
           { code: 401, message: 'Unauthorized' },

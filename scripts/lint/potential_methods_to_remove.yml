@@ -44,9 +44,6 @@ ee/app/models/ee/group.rb:
 - count_within_namespaces
 ee/app/models/ee/group_member.rb:
 - provisioned_by_this_group?
-ee/app/models/ee/merge_request.rb:
-- sync_project_approval_rules_for_policy_configuration
-- delete_approval_rules_for_policy_configuration
 ee/app/models/ee/namespace.rb:
 - old_path_with_namespace_for
 - default_plan?

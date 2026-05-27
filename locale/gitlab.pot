@@ -2920,6 +2920,9 @@ msgstr ""
 msgid "AICatalog|Foundational"
 msgstr ""
 
+msgid "AICatalog|Foundational agents and flows must be enabled in the Admin area or group settings."
+msgstr ""
+
 msgid "AICatalog|Frequently failing or nuisance activity."
 msgstr ""
 
@@ -3101,6 +3104,9 @@ msgid "AICatalog|OAuth Client ID"
 msgstr ""
 
 msgid "AICatalog|OAuth Client Secret"
+msgstr ""
+
+msgid "AICatalog|One or more projects not found, or you do not have permission to enable this item in the project."
 msgstr ""
 
 msgid "AICatalog|Only members of this project can edit or delete this agent."
@@ -3350,6 +3356,12 @@ msgid "AICatalog|Trigger this %{itemType} when the service account user is assig
 msgstr ""
 
 msgid "AICatalog|Trigger this %{itemType} when the service account user is mentioned in an issue or merge request."
+msgstr ""
+
+msgid "AICatalog|Trigger types are not supported for this item type."
+msgstr ""
+
+msgid "AICatalog|Trigger types are required for flows."
 msgstr ""
 
 msgid "AICatalog|Type"
@@ -28385,6 +28397,9 @@ msgstr ""
 msgid "DuoCodeReview|I finished my review and found nothing to comment on. Nice work! :tada:"
 msgstr ""
 
+msgid "DuoCodeReview|I found issues to comment on but was unable to post the inline comments due to line number mismatches. My review found:"
+msgstr ""
+
 msgid "DuoCodeReview|I have encountered some problems while I was reviewing. Please try again later."
 msgstr ""
 
@@ -33791,6 +33806,12 @@ msgid "Geo|Vulnerability Archive Export Upload"
 msgstr ""
 
 msgid "Geo|Vulnerability Archive Export Uploads"
+msgstr ""
+
+msgid "Geo|Vulnerability Export Part Upload"
+msgstr ""
+
+msgid "Geo|Vulnerability Export Part Uploads"
 msgstr ""
 
 msgid "Geo|Vulnerability Export Upload"
@@ -40765,6 +40786,9 @@ msgstr ""
 msgid "JiraConnect|Groups are the GitLab groups and subgroups you link to this Jira instance."
 msgstr ""
 
+msgid "JiraConnect|If your instance is on a local or private network, Chrome 142 and later may block the request because of its Local Network Access policy when GitLab is loaded inside Jira Cloud. Use Firefox or Safari, or ask your administrator to allow local network access for Jira Cloud in your enterprise Chrome policy. %{linkStart}Learn more%{linkEnd}."
+msgstr ""
+
 msgid "JiraConnect|Jira Connect Additional Audience URL"
 msgstr ""
 
@@ -40865,6 +40889,9 @@ msgid "JiraConnect|You must use a %{linkStart}supported browser%{linkEnd} to use
 msgstr ""
 
 msgid "JiraConnect|You should now see GitLab.com activity inside your Jira Cloud issues. %{linkStart}Learn more%{linkEnd}"
+msgstr ""
+
+msgid "JiraConnect|Your browser couldn't reach the GitLab instance."
 msgstr ""
 
 msgid "JiraConnect|Your browser is not supported"

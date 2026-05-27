@@ -40,6 +40,7 @@ describe('Board list component', () => {
   const findIntersectionObserver = () => wrapper.findComponent(GlIntersectionObserver);
   const findBoardListCount = () => wrapper.find('.board-list-count');
   const findBoardCardButtons = () => wrapper.findAll('a.board-card-button');
+  const findBoardListCardsArea = () => findByTestId('board-list-cards-area');
   const queryHandlerFailure = jest.fn().mockRejectedValue(new Error('error'));
   const namespaceWorkItemTypesQueryHandler = jest
     .fn()
@@ -82,7 +83,7 @@ describe('Board list component', () => {
     });
 
     it('renders component', () => {
-      expect(wrapper.find('.board-list-component').exists()).toBe(true);
+      expect(findBoardListCardsArea().exists()).toBe(true);
     });
 
     it('renders loading icon', () => {
@@ -633,6 +634,71 @@ describe('Board list component', () => {
       }));
 
       expect(wrapper.vm.wipLimitText).toBe('Work in progress limit: 3 items');
+    });
+  });
+
+  describe('keyboard navigation', () => {
+    const findListWrapper = () => findByTestId('tree-root-wrapper');
+
+    beforeEach(async () => {
+      ({ wrapper, resolveQuery, resolveMutation } = createComponent({
+        apolloQueryHandlers: [[listIssuesQuery, () => mockGroupIssuesResponse()]],
+      }));
+      await resolveQuery(listQuery);
+      await resolveQuery(listIssuesQuery);
+    });
+
+    it('has tabindex="0" when focused prop is true', () => {
+      ({ wrapper } = createComponent({ componentProps: { focused: true } }));
+      expect(findBoardListCardsArea().attributes('tabindex')).toBe('0');
+    });
+
+    it('has tabindex="-1" when focused prop is false', () => {
+      ({ wrapper } = createComponent({ componentProps: { focused: false } }));
+      expect(findBoardListCardsArea().attributes('tabindex')).toBe('-1');
+    });
+
+    it('has role="group" on the board list cards area', () => {
+      expect(findBoardListCardsArea().attributes('role')).toBe('group');
+    });
+
+    it('has aria-labelledby referencing the list title id', () => {
+      const labelledBy = findBoardListCardsArea().attributes('aria-labelledby');
+      expect(labelledBy).toMatch(/^board-list-title-/);
+    });
+
+    it('does not have tabindex on the inner list wrapper', () => {
+      expect(findListWrapper().attributes('tabindex')).toBeUndefined();
+    });
+
+    describe('keyboard events', () => {
+      it('emits focus-adjacent with -1 on left arrow keydown', async () => {
+        await findBoardListCardsArea().trigger('keydown.left');
+        expect(wrapper.emitted('focus-adjacent')).toEqual([[-1]]);
+      });
+
+      it('emits focus-adjacent with 1 on right arrow keydown', async () => {
+        await findBoardListCardsArea().trigger('keydown.right');
+        expect(wrapper.emitted('focus-adjacent')).toEqual([[1]]);
+      });
+    });
+
+    describe('focused prop watcher', () => {
+      it('calls $el.focus() when focused changes to true', async () => {
+        jest.spyOn(findBoardListCardsArea().element, 'focus');
+        await wrapper.setProps({ focused: true });
+        await nextTick();
+        expect(findBoardListCardsArea().element.focus).toHaveBeenCalled();
+      });
+
+      it('does not call $el.focus() when focused changes to false', async () => {
+        await wrapper.setProps({ focused: true });
+        await nextTick();
+        jest.spyOn(findBoardListCardsArea().element, 'focus');
+        await wrapper.setProps({ focused: false });
+        await nextTick();
+        expect(findBoardListCardsArea().element.focus).not.toHaveBeenCalled();
+      });
     });
   });
 });

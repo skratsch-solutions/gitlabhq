@@ -1975,7 +1975,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let(:confidential_issue) { create(:issue, :confidential, project: subject.source_project) }
 
     before do
-      group.add_developer(subject.author) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Subject can't be referenced in a before context
+      group.add_developer(subject.author) # -- Subject can't be referenced in a before context
       subject.project.add_developer(subject.author)
       subject.target_branch = subject.project.default_branch
       commit = double(
@@ -2114,7 +2114,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be_with_reload(:issue4) { create(:issue, project: project) }
 
     before do
-      project.add_developer(subject.author) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+      project.add_developer(subject.author) # -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
       create(
         :merge_requests_closing_issues,
@@ -2202,7 +2202,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     let_it_be_with_reload(:issue) { create(:issue, project: project) }
 
     before do
-      project.add_developer(subject.author) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+      project.add_developer(subject.author) # -- Does not work in before_all
       subject.target_branch = subject.project.default_branch
     end
 
@@ -5014,7 +5014,7 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
         end
 
         before do
-          project.add_maintainer(current_user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+          project.add_maintainer(current_user) # -- Does not work in before_all
 
           ProcessCommitWorker.new.perform(
             project.id,
