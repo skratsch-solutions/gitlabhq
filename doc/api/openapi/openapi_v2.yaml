@@ -8987,8 +8987,8 @@ paths:
       operationId: getApiV4GroupsIdReleases
   "/api/v4/groups/{id}/access_tokens/self/rotate":
     post:
-      summary: Rotate a resource access token
-      description: Rotates a resource access token by passing it to the API in a header
+      summary: Rotate a group access token
+      description: Rotates a group access token by passing it to the API in a header.
       produces:
       - application/json
       consumes:
@@ -9006,7 +9006,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdAccessTokensSelfRotate"
       responses:
         '200':
-          description: Rotate a resource access token
+          description: Rotate a group access token
           schema:
             "$ref": "#/definitions/API_Entities_ResourceAccessTokenWithToken"
         '400':
@@ -38296,8 +38296,8 @@ paths:
       operationId: postApiV4ProjectsIdRepositoryChangelog
   "/api/v4/projects/{id}/access_tokens/self/rotate":
     post:
-      summary: Rotate a resource access token
-      description: Rotates a resource access token by passing it to the API in a header
+      summary: Rotate a project access token
+      description: Rotates a project access token by passing it to the API in a header.
       produces:
       - application/json
       consumes:
@@ -38315,7 +38315,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdAccessTokensSelfRotate"
       responses:
         '200':
-          description: Rotate a resource access token
+          description: Rotate a project access token
           schema:
             "$ref": "#/definitions/API_Entities_ResourceAccessTokenWithToken"
         '400':
@@ -45938,14 +45938,14 @@ paths:
       operationId: getApiV4PagesDomains
   "/api/v4/personal_access_tokens/self":
     get:
-      summary: Get single personal access token
-      description: Get the details of a personal access token by passing it to the
-        API in a header
+      summary: Retrieve a personal access token
+      description: Retrieves a specified personal access token by passing it to the
+        API in a header.
       produces:
       - application/json
       responses:
         '200':
-          description: Get single personal access token
+          description: Retrieve a personal access token
           schema:
             "$ref": "#/definitions/API_Entities_PersonalAccessTokenWithLastUsedIps"
         '401':
@@ -45957,7 +45957,7 @@ paths:
       operationId: getApiV4PersonalAccessTokensSelf
     delete:
       summary: Revoke a personal access token
-      description: Revoke a personal access token by passing it to the API in a header
+      description: Revokes a personal access token by passing it to the API in a header.
       produces:
       - application/json
       responses:
@@ -45970,9 +45970,10 @@ paths:
       operationId: deleteApiV4PersonalAccessTokensSelf
   "/api/v4/personal_access_tokens/self/associations":
     get:
-      summary: Return personal access token associations
-      description: Get groups and projects this personal access token can access by
-        passing it to the API in a header
+      summary: List all token associations
+      description: Lists all groups and projects accessible by the personal access
+        token used to authenticate the request. Generally, this includes any groups
+        or projects that the user is a member of.
       produces:
       - application/json
       parameters:
@@ -46007,7 +46008,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Return personal access token associations
+          description: List all token associations
           schema:
             "$ref": "#/definitions/API_Entities_PersonalAccessToken"
         '401':
@@ -46049,9 +46050,10 @@ paths:
       operationId: postApiV4PersonalAccessTokensSelfRotate
   "/api/v4/personal_access_tokens":
     get:
-      summary: List personal access tokens
-      description: Get all personal access tokens the authenticated user has access
-        to.
+      summary: List all personal access tokens
+      description: Lists all personal access tokens accessible by the authenticated
+        user. For administrators, returns all personal access tokens in the instance.
+        For non-administrators, returns all of their personal access tokens.
       produces:
       - application/json
       parameters:
@@ -46148,7 +46150,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List personal access tokens
+          description: List all personal access tokens
           schema:
             type: array
             items:
@@ -46160,9 +46162,10 @@ paths:
       operationId: getApiV4PersonalAccessTokens
   "/api/v4/personal_access_tokens/{id}":
     get:
-      summary: Get single personal access token
-      description: Get a personal access token by using the ID of the personal access
-        token.
+      summary: Retrieve a personal access token
+      description: Retrieves details for a specified personal access token. Administrators
+        can retrieve details on any token. Non-administrators can only retrieve details
+        on their own tokens.
       produces:
       - application/json
       parameters:
@@ -46173,7 +46176,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get single personal access token
+          description: Retrieve a personal access token
           schema:
             "$ref": "#/definitions/API_Entities_PersonalAccessTokenWithLastUsedIps"
         '401':
@@ -46185,8 +46188,8 @@ paths:
       operationId: getApiV4PersonalAccessTokensId
     delete:
       summary: Revoke a personal access token
-      description: Revoke a personal access token by using the ID of the personal
-        access token.
+      description: Revokes a specified personal access token. Administrators can revoke
+        tokens for any user. Non-administrators can only revoke their own tokens.
       produces:
       - application/json
       parameters:
@@ -46205,8 +46208,10 @@ paths:
       operationId: deleteApiV4PersonalAccessTokensId
   "/api/v4/personal_access_tokens/{id}/rotate":
     post:
-      summary: Rotate personal access token
-      description: Rotates a personal access token.
+      summary: Rotate a personal access token
+      description: Rotates a specified personal access token. This revokes the previous
+        token and creates a token that expires after one week. Administrators can
+        revoke tokens for any user. Non-administrators can only revoke their own tokens.
       produces:
       - application/json
       consumes:
@@ -46224,7 +46229,7 @@ paths:
           "$ref": "#/definitions/postApiV4PersonalAccessTokensIdRotate"
       responses:
         '201':
-          description: Rotate personal access token
+          description: Rotate a personal access token
           schema:
             "$ref": "#/definitions/API_Entities_PersonalAccessTokenWithToken"
       tags:
@@ -55685,7 +55690,7 @@ definitions:
         format: date
         description: The expiration date of the token
         example: '2021-01-31'
-    description: Rotate a resource access token
+    description: Rotate a group access token
   API_Entities_ResourceAccessTokenWithToken:
     type: object
     properties:
@@ -71224,7 +71229,7 @@ definitions:
         format: date
         description: The expiration date of the token
         example: '2021-01-31'
-    description: Rotate a resource access token
+    description: Rotate a project access token
   API_Entities_ResourceMilestoneEvent:
     type: object
     properties:
@@ -76754,7 +76759,7 @@ definitions:
         format: date
         description: The expiration date of the token
         example: '2021-01-31'
-    description: Rotate personal access token
+    description: Rotate a personal access token
   API_Entities_Snippet:
     type: object
     properties:

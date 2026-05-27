@@ -4,7 +4,7 @@ require 'spec_helper'
 
 # Features not yet implemented in the REST API
 UNIMPLEMENTED_FEATURES = %w[
-  agent_plan ai_session award_emoji crm_contacts current_user_todos custom_fields development
+  agent_plan ai_session crm_contacts current_user_todos custom_fields development
   email_participants linked_resources notes notifications participants test_reports vulnerabilities
 ].freeze
 

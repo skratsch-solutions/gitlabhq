@@ -1531,7 +1531,9 @@ paths:
   "/api/v4/groups/{id}/enterprise_users":
     get:
       operationId: getApiV4GroupsIdEnterpriseUsers
-      summary: Get a list of enterprise users of the group
+      summary: List all enterprise users
+      description: Lists all enterprise users for a specified top-level group. Use
+        the `page` and `per_page` pagination parameters to filter the results.
       tags:
       - Enterprise users
       responses:
@@ -1627,7 +1629,8 @@ paths:
   "/api/v4/groups/{id}/enterprise_users/{user_id}":
     get:
       operationId: getApiV4GroupsIdEnterpriseUsersUserId
-      summary: Get a single enterprise user of the group
+      summary: Retrieve an enterprise user
+      description: Retrieves a specified enterprise user.
       tags:
       - Enterprise users
       responses:
@@ -1658,7 +1661,8 @@ paths:
         in: path
     patch:
       operationId: patchApiV4GroupsIdEnterpriseUsersUserId
-      summary: Modify an enterprise user
+      summary: Update an enterprise user
+      description: Updates a specified enterprise user.
       tags:
       - Enterprise users
       responses:
@@ -1696,6 +1700,7 @@ paths:
     delete:
       operationId: deleteApiV4GroupsIdEnterpriseUsersUserId
       summary: Delete an enterprise user
+      description: Deletes a specified enterprise user.
       tags:
       - Enterprise users
       responses:
@@ -1732,7 +1737,9 @@ paths:
   "/api/v4/groups/{id}/enterprise_users/{user_id}/disable_two_factor":
     patch:
       operationId: patchApiV4GroupsIdEnterpriseUsersUserIdDisableTwoFactor
-      summary: Disable two factor authentication for an enterprise user
+      summary: Disable two-factor authentication for an enterprise user
+      description: Disables two-factor authentication (2FA) for a specified enterprise
+        user.
       tags:
       - Enterprise users
       responses:
@@ -26945,8 +26952,8 @@ paths:
   "/api/v4/projects/{id}/access_tokens/self/rotate":
     post:
       operationId: postApiV4ProjectsIdAccessTokensSelfRotate
-      summary: Rotate a resource access token
-      description: Rotates a resource access token by passing it to the API in a header
+      summary: Rotate a project access token
+      description: Rotates a project access token by passing it to the API in a header.
       tags:
       - Access tokens
       responses:
@@ -26980,8 +26987,8 @@ paths:
   "/api/v4/groups/{id}/access_tokens/self/rotate":
     post:
       operationId: postApiV4GroupsIdAccessTokensSelfRotate
-      summary: Rotate a resource access token
-      description: Rotates a resource access token by passing it to the API in a header
+      summary: Rotate a group access token
+      description: Rotates a group access token by passing it to the API in a header.
       tags:
       - Access tokens
       responses:
@@ -27015,8 +27022,8 @@ paths:
   "/api/v4/projects/{id}/access_tokens":
     get:
       operationId: getApiV4ProjectsIdAccessTokens
-      summary: Get list of all access tokens for the specified resource
-      description: This feature was introduced in GitLab 13.9.
+      summary: List all project access tokens
+      description: Lists all project access tokens for a specified project.
       tags:
       - Access tokens
       responses:
@@ -27130,8 +27137,12 @@ paths:
         example: created_at_desc
     post:
       operationId: postApiV4ProjectsIdAccessTokens
-      summary: Create a resource access token
-      description: This feature was introduced in GitLab 13.9.
+      summary: Create a project access token
+      description: Creates a project access token for a specified project. You cannot
+        create a token with an access level greater than your account. For example,
+        a user with the Maintainer role cannot create a project access token with
+        the Owner role. You must use a personal access token with this endpoint. You
+        cannot authenticate with a project access token.
       tags:
       - Access tokens
       responses:
@@ -27162,8 +27173,8 @@ paths:
   "/api/v4/projects/{id}/access_tokens/{token_id}":
     get:
       operationId: getApiV4ProjectsIdAccessTokensTokenId
-      summary: Get an access token for the specified resource by ID
-      description: This feature was introduced in GitLab 14.10.
+      summary: Retrieve details on a project access token
+      description: Retrieves details on a specified project access token.
       tags:
       - Access tokens
       responses:
@@ -27194,8 +27205,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdAccessTokensTokenId
-      summary: Revoke a resource access token
-      description: This feature was introduced in GitLab 13.9.
+      summary: Revoke a project access token
+      description: Revokes a specified project access token.
       tags:
       - Access tokens
       responses:
@@ -27221,13 +27232,18 @@ paths:
   "/api/v4/projects/{id}/access_tokens/{token_id}/rotate":
     post:
       operationId: postApiV4ProjectsIdAccessTokensTokenIdRotate
-      summary: Rotate a resource access token
-      description: This feature was introduced in GitLab 16.0.
+      summary: Rotate a project access token
+      description: Rotates a project access token. This immediately revokes the previous
+        token and creates a token. Generally, this endpoint rotates a specific project
+        access token by authenticating with a personal access token. You can also
+        use a project access token to rotate itself. If you attempt to use this endpoint
+        to rotate a token that was previously revoked, any active tokens from the
+        same token family are revoked. This feature was introduced in GitLab 16.0.
       tags:
       - Access tokens
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -27258,8 +27274,8 @@ paths:
   "/api/v4/groups/{id}/access_tokens":
     get:
       operationId: getApiV4GroupsIdAccessTokens
-      summary: Get list of all access tokens for the specified resource
-      description: This feature was introduced in GitLab 13.9.
+      summary: List all group access tokens
+      description: Lists all group access tokens for a specified group.
       tags:
       - Access tokens
       responses:
@@ -27373,8 +27389,12 @@ paths:
         example: created_at_desc
     post:
       operationId: postApiV4GroupsIdAccessTokens
-      summary: Create a resource access token
-      description: This feature was introduced in GitLab 13.9.
+      summary: Create a group access token
+      description: Creates a group access token for a specified group. You cannot
+        create a token with an access level greater than your account. For example,
+        a user with the Maintainer role cannot create a group access token with the
+        Owner role. You must use a personal access token with this endpoint. You cannot
+        authenticate with a group access token.
       tags:
       - Access tokens
       responses:
@@ -27405,8 +27425,8 @@ paths:
   "/api/v4/groups/{id}/access_tokens/{token_id}":
     get:
       operationId: getApiV4GroupsIdAccessTokensTokenId
-      summary: Get an access token for the specified resource by ID
-      description: This feature was introduced in GitLab 14.10.
+      summary: Retrieve details on a group access token
+      description: Retrieves details on a specified group access token.
       tags:
       - Access tokens
       responses:
@@ -27437,8 +27457,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4GroupsIdAccessTokensTokenId
-      summary: Revoke a resource access token
-      description: This feature was introduced in GitLab 13.9.
+      summary: Revoke a group access token
+      description: Revokes a specified group access token.
       tags:
       - Access tokens
       responses:
@@ -27464,13 +27484,18 @@ paths:
   "/api/v4/groups/{id}/access_tokens/{token_id}/rotate":
     post:
       operationId: postApiV4GroupsIdAccessTokensTokenIdRotate
-      summary: Rotate a resource access token
-      description: This feature was introduced in GitLab 16.0.
+      summary: Rotate a group access token
+      description: Rotates a group access token. This immediately revokes the previous
+        token and creates a token. Generally, this endpoint rotates a specific group
+        access token by authenticating with a personal access token. You can also
+        use a group access token to rotate itself. If you attempt to use this endpoint
+        to rotate a token that was previously revoked, any active tokens from the
+        same token family are revoked. This feature was introduced in GitLab 16.0.
       tags:
       - Access tokens
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -35235,9 +35260,9 @@ paths:
   "/api/v4/personal_access_tokens/self":
     get:
       operationId: getApiV4PersonalAccessTokensSelf
-      summary: Get single personal access token
-      description: Get the details of a personal access token by passing it to the
-        API in a header
+      summary: Retrieve a personal access token
+      description: Retrieves a specified personal access token by passing it to the
+        API in a header.
       tags:
       - Access tokens
       responses:
@@ -35254,7 +35279,7 @@ paths:
     delete:
       operationId: deleteApiV4PersonalAccessTokensSelf
       summary: Revoke a personal access token
-      description: Revoke a personal access token by passing it to the API in a header
+      description: Revokes a personal access token by passing it to the API in a header.
       tags:
       - Access tokens
       responses:
@@ -35265,9 +35290,10 @@ paths:
   "/api/v4/personal_access_tokens/self/associations":
     get:
       operationId: getApiV4PersonalAccessTokensSelfAssociations
-      summary: Return personal access token associations
-      description: Get groups and projects this personal access token can access by
-        passing it to the API in a header
+      summary: List all token associations
+      description: Lists all groups and projects accessible by the personal access
+        token used to authenticate the request. Generally, this includes any groups
+        or projects that the user is a member of.
       tags:
       - Access tokens
       responses:
@@ -35317,9 +35343,10 @@ paths:
   "/api/v4/personal_access_tokens":
     get:
       operationId: getApiV4PersonalAccessTokens
-      summary: List personal access tokens
-      description: Get all personal access tokens the authenticated user has access
-        to.
+      summary: List all personal access tokens
+      description: Lists all personal access tokens accessible by the authenticated
+        user. For administrators, returns all personal access tokens in the instance.
+        For non-administrators, returns all of their personal access tokens.
       tags:
       - Access tokens
       responses:
@@ -35450,9 +35477,10 @@ paths:
   "/api/v4/personal_access_tokens/{id}":
     get:
       operationId: getApiV4PersonalAccessTokensId
-      summary: Get single personal access token
-      description: Get a personal access token by using the ID of the personal access
-        token.
+      summary: Retrieve a personal access token
+      description: Retrieves details for a specified personal access token. Administrators
+        can retrieve details on any token. Non-administrators can only retrieve details
+        on their own tokens.
       tags:
       - Access tokens
       responses:
@@ -35474,8 +35502,8 @@ paths:
     delete:
       operationId: deleteApiV4PersonalAccessTokensId
       summary: Revoke a personal access token
-      description: Revoke a personal access token by using the ID of the personal
-        access token.
+      description: Revokes a specified personal access token. Administrators can revoke
+        tokens for any user. Non-administrators can only revoke their own tokens.
       tags:
       - Access tokens
       responses:
@@ -35491,8 +35519,10 @@ paths:
   "/api/v4/personal_access_tokens/{id}/rotate":
     post:
       operationId: postApiV4PersonalAccessTokensIdRotate
-      summary: Rotate personal access token
-      description: Rotates a personal access token.
+      summary: Rotate a personal access token
+      description: Rotates a specified personal access token. This revokes the previous
+        token and creates a token that expires after one week. Administrators can
+        revoke tokens for any user. Non-administrators can only revoke their own tokens.
       tags:
       - Access tokens
       responses:

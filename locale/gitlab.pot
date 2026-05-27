@@ -50971,6 +50971,9 @@ msgstr ""
 msgid "Orbit"
 msgstr ""
 
+msgid "Orbit|%{boldStart}The initial scan can take some time depending on the amount of content.%{boldEnd} After that, updated content is automatically re-indexed. You can turn off GitLab Orbit at any time."
+msgstr ""
+
 msgid "Orbit|%{boldStart}The initial scan can take some time depending on the amount of content.%{boldEnd} After that, updated content is automatically re-indexed. You can turn off Orbit at any time."
 msgstr ""
 
@@ -51022,6 +51025,9 @@ msgstr ""
 msgid "Orbit|All content from this group, its subgroups, and projects will be added to Orbit. Existing access controls still apply — users who cannot access content in this group won't see it through Orbit."
 msgstr ""
 
+msgid "Orbit|All content from this group, its subgroups, and projects will be indexed by GitLab Orbit. Your existing role-based access controls still apply. Users can access only the data they have permission to see in GitLab."
+msgstr ""
+
 msgid "Orbit|All groups and projects"
 msgstr ""
 
@@ -51031,7 +51037,13 @@ msgstr ""
 msgid "Orbit|Back to symbols"
 msgstr ""
 
+msgid "Orbit|Beta"
+msgstr ""
+
 msgid "Orbit|Branch"
+msgstr ""
+
+msgid "Orbit|By turning on this feature, you accept the %{linkStart}GitLab Testing Agreement%{linkEnd}."
 msgstr ""
 
 msgid "Orbit|CI/CD"
@@ -51172,6 +51184,9 @@ msgstr ""
 msgid "Orbit|Explore data"
 msgstr ""
 
+msgid "Orbit|Failed to enable GitLab Orbit. Please try again."
+msgstr ""
+
 msgid "Orbit|Failed to enable Orbit. Please try again."
 msgstr ""
 
@@ -51214,13 +51229,13 @@ msgstr ""
 msgid "Orbit|Finding"
 msgstr ""
 
-msgid "Orbit|Get started"
-msgstr ""
-
 msgid "Orbit|GitLab Duo"
 msgstr ""
 
 msgid "Orbit|GitLab Duo will use Orbit to provide enhanced intelligence."
+msgstr ""
+
+msgid "Orbit|GitLab Orbit is in beta."
 msgstr ""
 
 msgid "Orbit|GitLab status"
@@ -51542,6 +51557,12 @@ msgid "Orbit|Turn off indexing"
 msgstr ""
 
 msgid "Orbit|Turn on"
+msgstr ""
+
+msgid "Orbit|Turn on GitLab Orbit"
+msgstr ""
+
+msgid "Orbit|Turn on GitLab Orbit for %{groupName}"
 msgstr ""
 
 msgid "Orbit|Turn on Orbit for %{groupName}"

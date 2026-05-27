@@ -237,6 +237,93 @@ Supported actions:
 | Copy contents | Copy the table or list contents to clipboard. |
 | Reload        | Reload this view.                                              |
 
+## Analytics mode
+
+{{< details >}}
+
+- Tier: Free, Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+
+{{< /details >}}
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/21212) in GitLab 19.1.
+
+{{< /history >}}
+
+GLQL supports an analytics mode for data sources that provide
+aggregated metrics. Analytics mode queries use `dimensions` and `metrics`
+instead of `fields` to group and aggregate data.
+
+Some data sources support both standard and analytics mode.
+See each [data source](data_sources/_index.md) page for supported modes.
+
+### Syntax
+
+Analytics mode queries use the following structure:
+
+````yaml
+```glql
+mode: analytics
+query: type = <DataSource> and <filters>
+dimensions: <dimension fields>
+metrics: <metric fields>
+sort: <field> <direction>
+limit: <number>
+```
+````
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `mode: analytics` | Yes | Required to use analytics mode. |
+| `metrics` | Yes | Aggregated values to compute. At least one metric is required. |
+| `dimensions` | No | Fields to group results by. Select any combination, or omit entirely to return a single aggregated row. |
+| `sort` | No | Sort fields must also appear in your selected dimensions or metrics. |
+| `limit` | No | Defaults to `100`. Maximum value is `100`. |
+
+### Custom aliases
+
+Use the `as` keyword to rename dimension or metric columns:
+
+```plaintext
+dimensions: language as "Language", ideName as "IDE"
+metrics: totalCount as "Total", acceptanceRate as "Acceptance Rate"
+```
+
+### Sorting
+
+Sort by any field that appears in your selected dimensions or metrics.
+You cannot sort by a field that is not in your selected dimensions or metrics.
+
+```plaintext
+sort: acceptanceRate desc
+```
+
+Multiple sort fields are supported:
+
+```plaintext
+sort: totalCount desc, acceptanceRate asc
+```
+
+### Example
+
+The following query returns Code Suggestions acceptance rate by language
+for the last 30 days, sorted by acceptance rate:
+
+````yaml
+```glql
+display: table
+mode: analytics
+query: type = CodeSuggestion and timestamp >= -30d
+dimensions: language as "Language"
+metrics: totalCount as "Total", acceptanceRate as "Acceptance Rate"
+sort: acceptanceRate desc
+```
+````
+
+For more information, see the examples for a specific [data source](data_sources/_index.md).
+
 ## Advanced Search integration
 
 {{< details >}}

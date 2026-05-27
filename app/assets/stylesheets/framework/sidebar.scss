@@ -17,10 +17,10 @@
   padding-right: 0;
 
   &:not(.is-merge-request) {
-    @include media-breakpoint-up(sm) {
+    @include gl-container-width-up(sm, content-panels) {
       @apply gl-border-l;
 
-      &:not(.wiki-sidebar):not(.build-sidebar):not(.issuable-bulk-update-sidebar) .content-wrapper {
+      &:not(.wiki-sidebar):not(.build-sidebar):not(.issuable-bulk-update-sidebar) .panel-content-inner {
         padding-right: $right-sidebar-collapsed-width;
       }
     }
@@ -72,7 +72,7 @@
   }
 
   &:not(.wiki-sidebar, .build-sidebar, .is-merge-request) .panel-content-inner {
-    @container content-panels (width >= #{map.get($breakpoints, 'sm')}) {
+    @include gl-container-width-up(sm, content-panels) {
       padding-right: $right-sidebar-width;
     }
   }
@@ -469,7 +469,7 @@
     /* Small devices (tablets, 768px and up) */
 
     &:not(.right-sidebar-merge-requests) {
-      @include gl-container-width-up(sm, panel) {
+      @include gl-container-width-up(sm, content-panels) {
         display: block;
       }
     }

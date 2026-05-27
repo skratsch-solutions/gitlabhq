@@ -13,7 +13,7 @@ RSpec.describe EnvironmentEntity, feature_category: :continuous_delivery do
 
   let_it_be(:user)    { create(:user) }
   let_it_be(:project) { create(:project, :repository, developers: user) }
-  let_it_be(:environment, refind: true) { create(:environment, project: project) }
+  let_it_be_with_refind(:environment) { create(:environment, project: project) }
 
   before do
     allow(request).to receive(:current_user).and_return(user)

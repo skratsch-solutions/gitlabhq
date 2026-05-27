@@ -41,11 +41,11 @@ in the Agent Platform.
 | Claude Opus 4.7      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5                | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.1              | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
-| GPT-5.2              | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.2              | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
 | GPT-5.5 <sup>1</sup> | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5 Codex          | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.2 Codex        | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
-| GPT-5.3 Codex        | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| GPT-5.3 Codex        | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
 | GPT-5 Mini           | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.4 Mini         | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.4 Nano         | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
@@ -74,6 +74,7 @@ in the Agent Platform.
 - Feature flag `duo_agent_platform_model_selection` [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/218591) in GitLab 18.9.
 - LLM [updated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) to Claude Sonnet 4.6 Vertex for Code Review Flow in GitLab 19.1.
 - [Separate model selection](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/236876) from GitLab Duo Code Review introduced for Code Review Flow in GitLab 19.1, using the **Agentic Code Review** setting.
+- GPT-5.2 and GPT-5.3 Codex [added](https://gitlab.com/gitlab-org/modelops/applied-ml/code-suggestions/ai-assist/-/merge_requests/5652) as selectable models for Code Review Flow in GitLab 19.1.
 
 {{< /history >}}
 

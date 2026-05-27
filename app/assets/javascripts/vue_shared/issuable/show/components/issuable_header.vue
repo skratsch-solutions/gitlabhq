@@ -276,7 +276,7 @@ export default {
       >
       <gl-button
         icon="chevron-double-lg-left"
-        class="js-sidebar-toggle gl-ml-auto gl-block @sm/panel:!gl-hidden"
+        class="js-sidebar-toggle gl-ml-auto gl-block @sm/content-panels:!gl-hidden"
         :aria-label="__('Expand sidebar')"
         @click="handleRightSidebarToggleClick"
       />

@@ -15,15 +15,15 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
 
   let(:current_user_sanitized) { 'www_example_com' }
 
-  let_it_be(:user, reload: true) { create(:user) }
-  let_it_be(:current_user, reload: true) { create(:user, email: "current@email.com", name: 'www.example.com') }
-  let_it_be(:assignee, reload: true) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
-  let_it_be(:reviewer, reload: true) { create(:user, email: 'reviewer@example.com', name: 'Jane Doe') }
+  let_it_be_with_reload(:user) { create(:user) }
+  let_it_be_with_reload(:current_user) { create(:user, email: "current@email.com", name: 'www.example.com') }
+  let_it_be_with_reload(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
+  let_it_be_with_reload(:reviewer) { create(:user, email: 'reviewer@example.com', name: 'Jane Doe') }
 
   let(:previous_assignee1) { create(:user, name: 'Previous Assignee 1') }
   let(:previous_assignee_ids) { [previous_assignee1.id] }
 
-  let_it_be(:merge_request, reload: true) do
+  let_it_be_with_reload(:merge_request) do
     create(
       :merge_request,
       source_project: project,
@@ -35,7 +35,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
     )
   end
 
-  let_it_be(:issue, reload: true) do
+  let_it_be_with_reload(:issue) do
     create(
       :issue,
       author: current_user,

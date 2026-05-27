@@ -50,6 +50,12 @@ name. The downstream pipeline fails to create with the error: `downstream pipeli
 
 Only trigger multi-project pipelines with tag names that do not match branch names.
 
+## Trigger job fails with `data integrity failure`
+
+This error indicates an unexpected exception during job processing. For causes and
+resolution steps, see
+[error: `data integrity failure`](../jobs/job_troubleshooting.md#error-data-integrity-failure).
+
 ## `403 Forbidden` error when downloading a job artifact from an upstream pipeline
 
 In GitLab 15.9 and later, CI/CD job tokens are scoped to the project that the pipeline executes under. Therefore, the job token in a downstream pipeline cannot be used to access an upstream project by default.

@@ -70,6 +70,16 @@ For more information, see the relevant:
 - [Migration guide](https://docs.gitlab.com/user/compliance/compliance_pipelines/#pipeline-execution-policies-migration).
 - [Blog post](https://about.gitlab.com/blog/why-gitlab-is-deprecating-compliance-pipelines-in-favor-of-security-policies/).
 
+### Dependency Proxy for packages is deprecated
+
+- Announced in GitLab 19.1
+- Removal in GitLab 20.0
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/601255).
+
+The Dependency Proxy for packages is deprecated and will be removed in a future release. This feature has been replaced by the **Maven virtual registry**, which provides improved performance, better upstream proxying and caching capabilities, and deeper integration with GitLab's package management workflows.
+
+**Action required:** Migrate your package manager configuration from the Dependency Proxy for packages endpoints to the Maven virtual registry. See the [Maven virtual registry documentation](https://docs.gitlab.com/user/packages/virtual_registry/maven/) for setup instructions.
+
 ### Design Management deprecated
 
 - Announced in GitLab 18.6

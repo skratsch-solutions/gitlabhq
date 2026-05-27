@@ -118,11 +118,13 @@ module API
           ).execute.first
         end
 
-        def count_preloads_for(work_items, field_keys, _feature_keys)
+        def count_preloads_for(work_items, field_keys, feature_keys)
           preloads = {}
           if field_keys.include?(:user_discussions_count)
             preloads[:user_discussions_counts] = preload_user_discussions_counts(work_items)
           end
+
+          preloads[:award_emoji_counts] = preload_award_emoji_counts(work_items) if feature_keys.include?(:award_emoji)
 
           preloads
         end
@@ -173,6 +175,19 @@ module API
             work_items.first.class.base_class.name,
             'COUNT(DISTINCT discussion_id) AS count'
           ).each_with_object({}) { |row, hash| hash[row.noteable_id] = row.count.to_i }
+        end
+
+        def preload_award_emoji_counts(work_items)
+          return {} if work_items.empty?
+
+          awardable_type = work_items.first.class.base_class.name
+          ::AwardEmoji
+            .votes_for_collection(work_items.map(&:id), awardable_type)
+            .each_with_object({}) do |row, hash|
+              counts = hash[row.awardable_id] ||= { up: 0, down: 0 }
+              key = row.name == ::AwardEmoji::UPVOTE_NAME ? :up : :down
+              counts[key] = row.count.to_i
+            end
         end
 
         def work_items_parent_params(resource_parent)

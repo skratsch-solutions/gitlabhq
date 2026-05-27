@@ -29,6 +29,7 @@ where each usage action consumes a number of credits.
 
 Credits are calculated based on the features and models you use, as listed in the credit multiplier tables.
 You are billed for features that are [generally available](../policy/development_stages_support.md#generally-available).
+Some pre-release features also incur usage charges. If charges apply, the feature's documentation page notes this.
 
 Billing occurs at the root namespace or top-level group level, not at the project level.
 Credit usage is attributed to the subject who performs the action, regardless of which project they are using the features in.

@@ -62,7 +62,6 @@ RSpec.shared_examples 'work item API field parity' do
   describe 'Feature exposure parity' do
     let(:graphql_feature_exceptions) do
       Set.new(%w[
-        award_emoji
         crm_contacts
         current_user_todos
         development
@@ -80,8 +79,11 @@ RSpec.shared_examples 'work item API field parity' do
     # error_tracking exposes only identifier, stack_trace and status require external API calls.
     # hierarchy exposes only parent / has_parent. children, ancestors, and rolled-up counts
     # require separate paginated endpoints.
+    # award_emoji exposes only upvotes / downvotes / new_custom_emoji_path. The award_emoji
+    # collection itself lives on a separate paginated GET /work_items/:iid/award_emoji endpoint.
     let(:skipped_feature_comparison) do
-      Set.new(%w[assignees milestone error_tracking hierarchy]).merge(extra_skipped_feature_comparison)
+      Set.new(%w[assignees milestone error_tracking hierarchy award_emoji])
+        .merge(extra_skipped_feature_comparison)
     end
 
     it 'keeps feature payloads aligned with known differences' do

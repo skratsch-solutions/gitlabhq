@@ -308,7 +308,7 @@ GitLab Duo respects branch protection rules and does not force-push to
 protected branches.
 
 This feature is in beta and is gated behind the `mr_ai_resolve_conflicts` feature flag,
-disabled by default.
+enabled by default.
 
 ### Restrict the AI Catalog to a group hierarchy
 
@@ -576,7 +576,7 @@ The profile activates two scan triggers:
 
 - Tier: Ultimate
 - Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
-- Links: [Documentation](../../user/application_security/dependency_scanning/dependency_scanning_sbom/_index.md#dependency-resolution) | [Related epic](https://gitlab.com/groups/gitlab-org/-/work_items/590734)
+- Links: [Documentation](../../user/application_security/dependency_scanning/dependency_scanning_sbom/_index.md#dependency-resolution), [Related epic](https://gitlab.com/groups/gitlab-org/-/work_items/590734)
 
 {{< /details >}}
 
@@ -627,6 +627,22 @@ Remediation guidance is now included for the following checks:
 - [TLS configuration](../../user/application_security/api_security_testing/checks/tls_server_configuration_check.md)
 - [Authentication token](../../user/application_security/api_security_testing/checks/authentication_token_check.md)
 - [XML injection](../../user/application_security/api_security_testing/checks/xml_injection_check.md)
+
+### Security data in merge request Reports tab
+
+<!-- categories: Vulnerability Management -->
+
+{{< details >}}
+
+- Tier: Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated, GitLab Dedicated for Government
+- Links: [Documentation](../../user/project/merge_requests/reports.md), [Related epic](https://gitlab.com/groups/gitlab-org/-/work_items/20406)
+
+{{< /details >}}
+
+Merge requests include a new Reports tab that shows all findings from security scans, license compliance results, and code quality reports for the pipeline.
+
+GitLab bot comments in the activity feed are still available to view any policy violations that prevent the merge request from being merged.
 
 ### Improved array support for CI/CD inputs
 
