@@ -4829,8 +4829,9 @@ paths:
   "/api/v4/groups/{id}/manage/personal_access_tokens":
     get:
       operationId: getApiV4GroupsIdManagePersonalAccessTokens
-      summary: Get Personal access tokens
-      description: This feature was introduced in GitLab 17.8.
+      summary: List all personal access tokens for a group
+      description: Lists all personal access tokens associated with enterprise users
+        in a top-level group. This feature was introduced in GitLab 17.8.
       tags:
       - Group credentials inventory
       responses:
@@ -4957,9 +4958,8 @@ paths:
   "/api/v4/groups/{id}/manage/personal_access_tokens/{pat_id}":
     delete:
       operationId: deleteApiV4GroupsIdManagePersonalAccessTokensPatId
-      summary: Revoke a personal access token for the group
-      description: Revoke a personal access token by using the ID of the personal
-        access token.
+      summary: Revoke a personal access token for an enterprise user
+      description: Revokes a specified personal access token for an enterprise user.
       tags:
       - Group credentials inventory
       responses:
@@ -4981,8 +4981,10 @@ paths:
   "/api/v4/groups/{id}/manage/personal_access_tokens/{pat_id}/rotate":
     post:
       operationId: postApiV4GroupsIdManagePersonalAccessTokensPatIdRotate
-      summary: Rotate personal access token
-      description: Rotates a personal access token.
+      summary: Rotate a personal access token for an enterprise user
+      description: Rotates a specified personal access token for an enterprise user
+        associated with the top-level group. This revokes the previous token and creates
+        a token that expires after one week.
       tags:
       - Group credentials inventory
       responses:
@@ -5016,8 +5018,9 @@ paths:
   "/api/v4/groups/{id}/manage/resource_access_tokens":
     get:
       operationId: getApiV4GroupsIdManageResourceAccessTokens
-      summary: Get resource access tokens
-      description: This feature was introduced in GitLab 17.10.
+      summary: List all group and project access tokens for a group
+      description: Lists all group and project access tokens associated with a top-level-group.
+        This feature was introduced in GitLab 17.10.
       tags:
       - Group credentials inventory
       responses:
@@ -5142,9 +5145,9 @@ paths:
   "/api/v4/groups/{id}/manage/resource_access_tokens/{prat_id}":
     delete:
       operationId: deleteApiV4GroupsIdManageResourceAccessTokensPratId
-      summary: Revoke a resource access token for the group
-      description: Revoke a resource access token by using the ID of the resource
-        access token.
+      summary: Revoke a group or project access token for a group
+      description: Revokes a specified group or project access token associated with
+        a top-level group.
       tags:
       - Group credentials inventory
       responses:
@@ -5173,9 +5176,9 @@ paths:
   "/api/v4/groups/{id}/manage/resource_access_tokens/{prat_id}/rotate":
     post:
       operationId: postApiV4GroupsIdManageResourceAccessTokensPratIdRotate
-      summary: Rotate a resource access token for the group
-      description: Rotate a resource access token by using the ID of the resource
-        access token.
+      summary: Rotate a group or project access token for a group
+      description: Rotates a specified group or project access token associated with
+        a top-level group. This revokes the previous token and creates a new token.
       tags:
       - Group credentials inventory
       responses:
@@ -5201,8 +5204,9 @@ paths:
   "/api/v4/groups/{id}/manage/ssh_keys":
     get:
       operationId: getApiV4GroupsIdManageSshKeys
-      summary: Get the ssh_keys for the user belonging to group
-      description: This feature was introduced in GitLab 17.9.
+      summary: List all SSH keys for a group
+      description: Lists all SSH public keys associated with enterprise users in a
+        top-level-group. This feature was introduced in GitLab 17.9.
       tags:
       - Group credentials inventory
       responses:
@@ -5278,8 +5282,9 @@ paths:
   "/api/v4/groups/{id}/manage/ssh_keys/{key_id}":
     delete:
       operationId: deleteApiV4GroupsIdManageSshKeysKeyId
-      summary: Delete an existing SSH key
-      description: Delete an existing SSH key by using the ID of the key.
+      summary: Delete an SSH key for an enterprise user
+      description: Deletes a specified SSH public key for an enterprise user associated
+        with the top-level group.
       tags:
       - Group credentials inventory
       responses:
@@ -7363,8 +7368,8 @@ paths:
   "/api/v4/ldap/groups":
     get:
       operationId: getApiV4LdapGroups
-      summary: List LDAP groups
-      description: Limit size to 20 of them.
+      summary: List all LDAP groups
+      description: Lists all LDAP groups on the GitLab instance. Limited to 20 results.
       tags:
       - LDAP
       responses:
@@ -7388,8 +7393,9 @@ paths:
   "/api/v4/ldap/{provider}/groups":
     get:
       operationId: getApiV4LdapProviderGroups
-      summary: List LDAP groups by the requested provider
-      description: Limit size to 20 of them.
+      summary: List all LDAP groups by provider
+      description: Lists all LDAP groups for the specified provider. Limited to 20
+        results.
       tags:
       - LDAP
       responses:
@@ -26564,8 +26570,9 @@ paths:
   "/api/v4/projects/{id}/packages/rubygems/quick/Marshal.4.8/{file_name}":
     get:
       operationId: getApiV4ProjectsIdPackagesRubygemsQuickMarshal48FileName
-      summary: Download the gemspec file
-      description: This feature was introduced in GitLab 13.9
+      summary: Download a gemspec file
+      description: Downloads a gemspec file in Marshal format for a specified gem
+        version.
       tags:
       - Packages
       responses:
@@ -26595,8 +26602,8 @@ paths:
   "/api/v4/projects/{id}/packages/rubygems/gems/{file_name}":
     get:
       operationId: getApiV4ProjectsIdPackagesRubygemsGemsFileName
-      summary: Download the .gem package
-      description: This feature was introduced in GitLab 13.9
+      summary: Download a gem file
+      description: Downloads a specified gem file for a project.
       tags:
       - Packages
       responses:
@@ -26650,7 +26657,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdPackagesRubygemsApiV1Gems
       summary: Upload a gem
-      description: This feature was introduced in GitLab 13.9
+      description: Uploads a gem for a specified project.
       tags:
       - Packages
       responses:
@@ -26680,8 +26687,10 @@ paths:
   "/api/v4/projects/{id}/packages/rubygems/api/v1/dependencies":
     get:
       operationId: getApiV4ProjectsIdPackagesRubygemsApiV1Dependencies
-      summary: Fetch a list of dependencies
-      description: This feature was introduced in GitLab 13.9
+      summary: Retrieve dependencies
+      description: Retrieves a list of dependencies for specified gems. The response
+        is a marshalled array of hashes for all versions of the requested gems. Because
+        the response is marshalled, you can store it in a file.
       tags:
       - Packages
       responses:
@@ -34450,8 +34459,9 @@ paths:
   "/api/v4/projects/{id}/registry/protection/tag/rules":
     get:
       operationId: getApiV4ProjectsIdRegistryProtectionTagRules
-      summary: Gets a list of container protection tag rules for a project.
-      description: This feature was introduced in GitLab 18.7.
+      summary: List all container registry protection tag rules
+      description: Lists all container registry protection tag rules for a project.
+        This feature was introduced in GitLab 18.7.
       tags:
       - Projects
       responses:
@@ -34478,9 +34488,10 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdRegistryProtectionTagRules
-      summary: Create a container protection tag rule for a project. 5 rule limit
-        per project.
-      description: This feature was introduced in GitLab 18.8.
+      summary: Create a container registry protection tag rule
+      description: Creates a container registry protection tag rule for a project
+        to control who can push or delete container tags. This feature was introduced
+        in GitLab 18.8.
       tags:
       - Projects
       responses:
@@ -34518,8 +34529,9 @@ paths:
   "/api/v4/projects/{id}/registry/protection/tag/rules/{protection_rule_id}":
     patch:
       operationId: patchApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId
-      summary: Update a container protection tag rule for a project.
-      description: This feature was introduced in GitLab 18.9.
+      summary: Update a container registry protection tag rule
+      description: Updates a container registry protection tag rule for a project.
+        This feature was introduced in GitLab 18.9.
       tags:
       - Projects
       responses:
@@ -34562,8 +34574,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_564ba4e69f21"
     delete:
       operationId: deleteApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId
-      summary: Delete container protection tag rule
-      description: This feature was introduced in GitLab 18.9.
+      summary: Delete a container registry protection tag rule
+      description: Deletes a container registry protection tag rule from a project.
+        This feature was introduced in GitLab 18.9.
       tags:
       - Projects
       responses:
@@ -34595,7 +34608,9 @@ paths:
   "/api/v4/projects/{id}/registry/protection/repository/rules":
     get:
       operationId: getApiV4ProjectsIdRegistryProtectionRepositoryRules
-      summary: Get list of container registry protection rules for a project
+      summary: List all container repository protection rules
+      description: Lists all container repository protection rules for a specified
+        project.
       tags:
       - Projects
       responses:
@@ -34622,7 +34637,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdRegistryProtectionRepositoryRules
-      summary: Create a container protection rule for a project
+      summary: Create a container repository protection rule
+      description: Creates a container repository protection rule for a specified
+        project to control who can push or delete container images.
       tags:
       - Projects
       responses:
@@ -34660,7 +34677,9 @@ paths:
   "/api/v4/projects/{id}/registry/protection/repository/rules/{protection_rule_id}":
     patch:
       operationId: patchApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId
-      summary: Update a container protection rule for a project
+      summary: Update a container repository protection rule
+      description: Updates a container repository protection rule for a specified
+        project.
       tags:
       - Projects
       responses:
@@ -34703,7 +34722,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_bb42806f0f00"
     delete:
       operationId: deleteApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId
-      summary: Delete container protection rule
+      summary: Delete a container repository protection rule
+      description: Deletes a specified container repository protection rule.
       tags:
       - Projects
       responses:
@@ -36725,9 +36745,9 @@ paths:
   "/api/v4/projects/{id}/packages/npm/{package_name}":
     put:
       operationId: putApiV4ProjectsIdPackagesNpmPackageName
-      summary: Create or deprecate NPM package
-      description: Create was introduced in GitLab 11.8 & deprecate support was added
-        in 16.0
+      summary: Create or deprecate an NPM package
+      description: Creates or deprecates an NPM package for a specified project. Deprecate
+        support was added in GitLab 16.0.
       tags:
       - Packages
       responses:
@@ -36883,8 +36903,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_6b7a2e61a22c"
     get:
       operationId: getApiV4NamespacesId
-      summary: Get namespace by ID
-      description: Get a namespace by ID
+      summary: Retrieve namespace details
+      description: Retrieves a specified namespace.
       tags:
       - Namespaces
       responses:
@@ -37002,10 +37022,9 @@ paths:
   "/api/v4/namespaces":
     get:
       operationId: getApiV4Namespaces
-      summary: List namespaces
-      description: Get a list of the namespaces of the authenticated user. If the
-        user is an administrator, a list of all namespaces in the GitLab instance
-        is shown.
+      summary: List all namespaces
+      description: Lists all namespaces available to the current user. If the user
+        is an administrator, this endpoint returns all namespaces in the instance.
       tags:
       - Namespaces
       responses:
@@ -37077,9 +37096,8 @@ paths:
   "/api/v4/namespaces/{id}/exists":
     get:
       operationId: getApiV4NamespacesIdExists
-      summary: Get existence of a namespace
-      description: Get existence of a namespace by path. Suggests a new namespace
-        path that does not already exist.
+      summary: Verify namespace availability
+      description: Verifies that a namespace is available for use.
       tags:
       - Namespaces
       responses:
@@ -61452,7 +61470,8 @@ paths:
         example: 10
     put:
       operationId: putApiV4ProjectsIdTriggersTriggerId
-      summary: Update a trigger token
+      summary: Update a pipeline trigger token
+      description: Updates a pipeline trigger token for a project.
       tags:
       - CI triggers
       responses:
@@ -64472,7 +64491,9 @@ paths:
   "/api/v4/projects/{id}/jobs":
     get:
       operationId: getApiV4ProjectsIdJobs
-      summary: Get a projects jobs
+      summary: List all jobs for a project
+      description: Lists all jobs for a specified project. By default, this request
+        returns 20 results at a time because the API results are paginated.
       tags:
       - CI jobs
       responses:
@@ -64538,7 +64559,8 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}":
     get:
       operationId: getApiV4ProjectsIdJobsJobId
-      summary: Get a specific job of a project
+      summary: Retrieve a job
+      description: Retrieves a job with the specified job ID.
       tags:
       - CI jobs
       responses:
@@ -64569,7 +64591,8 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/trace":
     get:
       operationId: getApiV4ProjectsIdJobsJobIdTrace
-      summary: Get a trace of a specific job of a project
+      summary: Retrieve a log file for a job
+      description: Retrieves a log file for a job.
       tags:
       - CI jobs
       responses:
@@ -64619,7 +64642,8 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/cancel":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdCancel
-      summary: Cancel a specific job of a project
+      summary: Cancel a job
+      description: Cancels a specified job in a project.
       tags:
       - CI jobs
       responses:
@@ -64656,7 +64680,8 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/retry":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdRetry
-      summary: Retry a specific job of a project
+      summary: Retry a job
+      description: Retries a specified job in a project.
       tags:
       - CI jobs
       responses:
@@ -64693,7 +64718,9 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/erase":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdErase
-      summary: Erase job (remove artifacts and the trace)
+      summary: Erase a job
+      description: Erases a specified job in a project. This removes job artifacts
+        and the job log.
       tags:
       - CI jobs
       responses:
@@ -64726,8 +64753,9 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/play":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdPlay
-      summary: Trigger an actionable job (manual, delayed, etc)
-      description: This feature was added in GitLab 8.11
+      summary: Run a job
+      description: Runs a specified job. For a job in manual status, triggers an action
+        to start the job.
       tags:
       - CI jobs
       responses:
@@ -64766,7 +64794,8 @@ paths:
   "/api/v4/job":
     get:
       operationId: getApiV4Job
-      summary: Get current job using job token
+      summary: Retrieve a job by job token
+      description: Retrieves a job that was generated by a specified job token.
       tags:
       - CI jobs
       responses:
@@ -64785,8 +64814,8 @@ paths:
   "/api/v4/job/allowed_agents":
     get:
       operationId: getApiV4JobAllowedAgents
-      summary: Get current agents
-      description: Retrieves a list of agents for the given job token
+      summary: List all GitLab agents for Kubernetes by job token
+      description: Lists all GitLab agents for Kubernetes with a specified `CI_JOB_TOKEN`.
       tags:
       - Agents
       responses:
@@ -66754,8 +66783,9 @@ paths:
   "/api/v4/projects/{id}/jobs/artifacts/{ref_name}/download":
     get:
       operationId: getApiV4ProjectsIdJobsArtifactsRefNameDownload
-      summary: Download the artifacts archive from a job
-      description: This feature was introduced in GitLab 8.10
+      summary: Retrieve job artifacts
+      description: Retrieves the artifacts archive for the latest successful job on
+        a specified branch or tag.
       tags:
       - Job artifacts
       responses:
@@ -66847,8 +66877,8 @@ paths:
         in: query
     delete:
       operationId: deleteApiV4ProjectsIdJobsJobIdArtifacts
-      summary: Delete the artifacts files from a job
-      description: This feature was introduced in GitLab 11.9
+      summary: Delete job artifacts
+      description: Deletes job artifacts from a specified job in a project.
       tags:
       - Job artifacts
       responses:
@@ -66878,9 +66908,9 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/artifacts/tree":
     get:
       operationId: getApiV4ProjectsIdJobsJobIdArtifactsTree
-      summary: List all files in the artifacts archive
-      description: Lists all files and directories in the artifacts archive without
-        extracting them
+      summary: List all files in an artifacts archive
+      description: Lists all files in a specified artifacts archive without extracting
+        them.
       tags:
       - Job artifacts
       responses:
@@ -66958,7 +66988,9 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/artifacts/keep":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdArtifactsKeep
-      summary: Keep the artifacts to prevent them from being deleted
+      summary: Retain job artifacts
+      description: Retains job artifacts. Prevents artifacts for a job from being
+        automatically deleted when they reach their expiration date.
       tags:
       - Job artifacts
       responses:
@@ -66992,7 +67024,8 @@ paths:
   "/api/v4/projects/{id}/artifacts":
     delete:
       operationId: deleteApiV4ProjectsIdArtifacts
-      summary: Expire the artifacts files from a project
+      summary: Delete all job artifacts in a project
+      description: Deletes job artifacts from all jobs in a specified project.
       tags:
       - Job artifacts
       responses:

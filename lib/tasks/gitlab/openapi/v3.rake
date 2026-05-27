@@ -40,7 +40,7 @@ namespace :gitlab do
       task generate_and_validate: [:generate, :validate]
 
       desc 'GitLab | OpenAPI | Check if OpenAPI v3 doc is up to date'
-      task check_docs: [:environment, :enable_feature_flags] do
+      task check_docs: :environment do
         generator = Gitlab::GrapeOpenapi::Generator.new(
           api_classes: API::Base.descendants
         )

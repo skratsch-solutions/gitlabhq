@@ -97,11 +97,11 @@ CI/CD job tokens can access the following REST API endpoints:
 | Download a specific file from artifacts archive | `GET /projects/:id/jobs/:job_id/artifacts/*artifact_path` | `READ_JOBS` | Read |
 | Download a specific file from artifacts archive from a ref | `GET /projects/:id/jobs/artifacts/:ref_name/raw/*artifact_path` | `READ_JOBS` | Read |
 | Download the artifacts archive from a job | `GET /projects/:id/jobs/:job_id/artifacts` | `READ_JOBS` | Read |
-| Download the artifacts archive from a job | `GET /projects/:id/jobs/artifacts/:ref_name/download` | `READ_JOBS` | Read |
 | Download the artifacts file for job | `GET /jobs/:id/artifacts` | `READ_JOBS` | Read |
-| Get a projects jobs | `GET /projects/:id/jobs` | `READ_JOBS` | Read |
 | Get pipeline jobs | `GET /projects/:id/pipelines/:pipeline_id/jobs` | `READ_JOBS` | Read |
-| List all files in the artifacts archive | `GET /projects/:id/jobs/:job_id/artifacts/tree` | `READ_JOBS` | Read |
+| List all files in an artifacts archive | `GET /projects/:id/jobs/:job_id/artifacts/tree` | `READ_JOBS` | Read |
+| List all jobs for a project | `GET /projects/:id/jobs` | `READ_JOBS` | Read |
+| Retrieve job artifacts | `GET /projects/:id/jobs/artifacts/:ref_name/download` | `READ_JOBS` | Read |
 
 ### Merge requests endpoints
 
@@ -181,7 +181,7 @@ CI/CD job tokens can access the following REST API endpoints:
 | Create or Update the given tag for the given NPM package and version | `PUT /groups/:id/-/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Create or Update the given tag for the given NPM package and version | `PUT /packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
 | Create or Update the given tag for the given NPM package and version | `PUT /projects/:id/packages/npm/-/package/*package_name/dist-tags/:tag` | `ADMIN_PACKAGES` | Read and write |
-| Create or deprecate NPM package | `PUT /projects/:id/packages/npm/:package_name` | `ADMIN_PACKAGES` | Read and write |
+| Create or deprecate an NPM package | `PUT /projects/:id/packages/npm/:package_name` | `ADMIN_PACKAGES` | Read and write |
 | Delete Package | `DELETE /packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` | `ADMIN_PACKAGES` | Read and write |
 | Delete Package | `DELETE /projects/:id/packages/conan/v1/conans/:package_name/:package_version/:package_username/:package_channel` | `ADMIN_PACKAGES` | Read and write |
 | Delete a package file | `DELETE /projects/:id/packages/:package_id/package_files/:package_file_id` | `ADMIN_PACKAGES` | Read and write |
@@ -296,8 +296,8 @@ CI/CD job tokens cannot access the following endpoints:
 | Download a package file from a group | `GET /groups/:id/-/packages/pypi/files/:sha256/*file_identifier` |
 | List all packages for a group | `GET /groups/:id/-/packages/pypi/simple` |
 | The PyPi Simple Group Package Endpoint | `GET /groups/:id/-/packages/pypi/simple/*package_name` |
-| Get current job using job token | `GET /job` |
-| Get current agents | `GET /job/allowed_agents` |
+| Retrieve a job by job token | `GET /job` |
+| List all GitLab agents for Kubernetes by job token | `GET /job/allowed_agents` |
 | Search for packages | `GET /packages/conan/v1/conans/search` |
 | Ping the Conan API | `GET /packages/conan/v1/ping` |
 | Authenticate user against conan CLI | `GET /packages/conan/v1/users/authenticate` |

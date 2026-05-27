@@ -24,8 +24,10 @@ module Iam
         return accept_challenge(
           challenge: @consent_challenge,
           client_id: @consent_data[:client_id],
+          client_name: @consent_data[:client_name],
           requested_scopes: @consent_data[:requested_scopes],
-          granted_scopes: @consent_data[:requested_scopes]
+          granted_scopes: @consent_data[:requested_scopes],
+          client_scopes: @consent_data[:client_scopes]
         )
       end
 
@@ -33,7 +35,9 @@ module Iam
         challenge: @consent_challenge,
         subject: @consent_data[:subject],
         client_id: @consent_data[:client_id],
-        requested_scopes: @consent_data[:requested_scopes]
+        client_name: @consent_data[:client_name],
+        requested_scopes: @consent_data[:requested_scopes],
+        client_scopes: @consent_data[:client_scopes]
       )
       render :show
     end
@@ -44,8 +48,10 @@ module Iam
       accept_challenge(
         challenge: @consent_challenge,
         client_id: @cached_consent_data[:client_id],
+        client_name: @cached_consent_data[:client_name],
         requested_scopes: @cached_consent_data[:requested_scopes],
-        granted_scopes: @cached_consent_data[:requested_scopes]
+        granted_scopes: @cached_consent_data[:requested_scopes],
+        client_scopes: @cached_consent_data[:client_scopes]
       )
     end
 
@@ -53,21 +59,31 @@ module Iam
       handle_iam_result(
         Authn::IamService::RejectConsentChallengeService.new(
           challenge: @consent_challenge,
-          user: current_user
+          user: current_user,
+          client_id: @cached_consent_data[:client_id],
+          client_name: @cached_consent_data[:client_name],
+          requested_scopes: @cached_consent_data[:requested_scopes],
+          client_scopes: @cached_consent_data[:client_scopes],
+          ip_address: request.remote_ip,
+          user_agent: request.user_agent
         ).execute
       )
     end
 
     private
 
-    def accept_challenge(challenge:, client_id:, requested_scopes:, granted_scopes:)
+    def accept_challenge(challenge:, client_id:, client_name:, requested_scopes:, granted_scopes:, client_scopes:)
       handle_iam_result(
         Authn::IamService::AcceptConsentChallengeService.new(
           challenge: challenge,
           user: current_user,
           granted_scopes: granted_scopes,
           client_id: client_id,
-          requested_scopes: requested_scopes
+          client_name: client_name,
+          requested_scopes: requested_scopes,
+          client_scopes: client_scopes,
+          ip_address: request.remote_ip,
+          user_agent: request.user_agent
         ).execute
       )
     end
@@ -81,10 +97,16 @@ module Iam
       end
     end
 
-    def cache_consent_data(challenge:, subject:, client_id:, requested_scopes:)
+    def cache_consent_data(challenge:, subject:, client_id:, client_name:, requested_scopes:, client_scopes:)
       Rails.cache.write(
         consent_data_cache_key(challenge),
-        { subject: subject, client_id: client_id, requested_scopes: requested_scopes },
+        {
+          subject: subject,
+          client_id: client_id,
+          client_name: client_name,
+          requested_scopes: requested_scopes,
+          client_scopes: client_scopes
+        },
         expires_in: CONSENT_DATA_CACHE_TTL
       )
     end

@@ -74,7 +74,13 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
 
       cached = Rails.cache.read(cache_key)
       expect(cached).to eq(
-        { subject: user.id.to_s, client_id: client_id, requested_scopes: requested_scopes }
+        {
+          subject: user.id.to_s,
+          client_id: client_id,
+          client_name: 'Test App',
+          requested_scopes: requested_scopes,
+          client_scopes: %w[openid profile email]
+        }
       )
     end
 

@@ -142,7 +142,8 @@ module API
           end
         end
 
-        desc 'Update a trigger token' do
+        desc 'Update a pipeline trigger token' do
+          detail 'Updates a pipeline trigger token for a project.'
           tags ['ci_triggers']
           success code: 200, model: Entities::Trigger
           failure [

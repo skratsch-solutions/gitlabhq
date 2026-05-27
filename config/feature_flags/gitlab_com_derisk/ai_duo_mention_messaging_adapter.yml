@@ -1,0 +1,10 @@
+---
+name: ai_duo_mention_messaging_adapter
+description: Route @GitLabDuo MR mention chat to the DAP gitlab_duo_mention_assistant flow via messaging adapter.
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/585237
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237658
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/601102
+milestone: '19.1'
+group: group::ai coding
+type: gitlab_com_derisk
+default_enabled: false

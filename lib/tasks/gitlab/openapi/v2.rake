@@ -45,7 +45,7 @@ namespace :gitlab do
       task generate_and_check: [:generate, :validate]
 
       desc 'GitLab | OpenAPI | Check if OpenAPI doc are up to date'
-      task check_docs: [:environment, :enable_feature_flags] do
+      task check_docs: :environment do
         ENV['store'] = 'tmp/openapi.json'
         Rake::Task["oapi:fetch"].invoke(['openapi.json'])
 

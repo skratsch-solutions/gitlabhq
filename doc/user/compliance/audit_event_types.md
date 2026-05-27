@@ -125,7 +125,9 @@ Audit event types belong to the following product categories.
 | [`oauth_application_deleted`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227392) | User deletes an OAuth application | {{< yes >}} | GitLab [19.0](https://gitlab.com/gitlab-org/gitlab/-/work_items/23054) | User |
 | [`oauth_application_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227392) | User updates an OAuth application | {{< yes >}} | GitLab [19.0](https://gitlab.com/gitlab-org/gitlab/-/work_items/23054) | User |
 | [`secure_ci_job_token_policies_updated`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/170930) | Permissions are updated for a CI_JOB_TOKEN scope | {{< yes >}} | GitLab [17.6](https://gitlab.com/gitlab-org/gitlab/-/issues/495144) | Project |
+| [`user_authorized_iam_oauth_application`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235073) | User authorized an IAM OAuth application | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/issues/589572) | User |
 | [`user_authorized_oauth_application`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/179187) | User authorized an OAuth application | {{< yes >}} | GitLab [17.9](https://gitlab.com/gitlab-org/gitlab/-/issues/514152) | User |
+| [`user_rejected_iam_oauth_application`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235073) | User rejected an IAM OAuth application | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/issues/589572) | User |
 
 ### Build artifacts
 

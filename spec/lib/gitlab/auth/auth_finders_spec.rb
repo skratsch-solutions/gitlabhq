@@ -195,9 +195,9 @@ RSpec.describe Gitlab::Auth::AuthFinders, feature_category: :system_access do
     context 'with composite CI_JOB_TOKEN (JWT)', :request_store do
       let_it_be(:scoped_user) { create(:user) }
       let_it_be(:service_account) { create(:user, :service_account, composite_identity_enforced: true) }
-      let_it_be(:project, reload: true) { create(:project, :private, developers: scoped_user) }
-      let_it_be(:pipeline, reload: true) { create(:ci_pipeline, project: project, user: service_account) }
-      let_it_be(:job, reload: true) do
+      let_it_be_with_reload(:project) { create(:project, :private, developers: scoped_user) }
+      let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project, user: service_account) }
+      let_it_be_with_reload(:job) do
         create(:ci_build, :running, pipeline: pipeline, project: project, user: service_account, options: { scoped_user_id: scoped_user.id })
       end
 
@@ -1152,9 +1152,9 @@ RSpec.describe Gitlab::Auth::AuthFinders, feature_category: :system_access do
     context 'with composite CI_JOB_TOKEN over basic auth', :request_store do
       let_it_be(:scoped_user) { create(:user) }
       let_it_be(:service_account) { create(:user, :service_account, composite_identity_enforced: true) }
-      let_it_be(:project, reload: true) { create(:project, :private, developers: scoped_user) }
-      let_it_be(:pipeline, reload: true) { create(:ci_pipeline, project: project, user: service_account) }
-      let_it_be(:job, reload: true) do
+      let_it_be_with_reload(:project) { create(:project, :private, developers: scoped_user) }
+      let_it_be_with_reload(:pipeline) { create(:ci_pipeline, project: project, user: service_account) }
+      let_it_be_with_reload(:job) do
         create(:ci_build, :running, pipeline: pipeline, project: project, user: service_account, options: { scoped_user_id: scoped_user.id })
       end
 

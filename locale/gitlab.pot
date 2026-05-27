@@ -17723,6 +17723,9 @@ msgstr ""
 msgid "CodeGenerationVolumeTrendsChart|Lines of code shown"
 msgstr ""
 
+msgid "CodeGenerationVolumeTrendsChart|Tracks lines of code accepted and shown from GitLab Duo Code Suggestions. %{linkStart}Learn more%{linkEnd}."
+msgstr ""
+
 msgid "CodeIntelligence|This is the definition"
 msgstr ""
 
@@ -17781,6 +17784,12 @@ msgid "CodeSuggestionsAcceptanceByIdeChart|Failed to load code suggestions data 
 msgstr ""
 
 msgid "CodeSuggestionsAcceptanceByIdeChart|Failed to load metrics for: %{ideNames}"
+msgstr ""
+
+msgid "CodeSuggestionsAcceptanceByIdeChart|Shows accepted GitLab Duo Code Suggestions by IDE. %{linkStart}Learn more%{linkEnd}."
+msgstr ""
+
+msgid "CodeSuggestionsAcceptanceByLanguageChart|Accepted GitLab Duo Code Suggestions by programming language. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
 msgid "CodeSuggestionsAcceptanceByLanguageChart|Failed to load code suggestions data by language."
@@ -28385,6 +28394,9 @@ msgstr ""
 msgid "DuoCodeReview|Error code: [%{error_code}](%{error_code_url})"
 msgstr ""
 
+msgid "DuoCodeReview|Failed to start the Duo workflow. Please try again."
+msgstr ""
+
 msgid "DuoCodeReview|GitLab Duo Code Review"
 msgstr ""
 
@@ -28407,6 +28419,15 @@ msgid "DuoCodeReview|I'm already reviewing this merge request. I'll post my feed
 msgstr ""
 
 msgid "DuoCodeReview|Requires the Code Review foundational flow to be enabled. %{link_start}Learn how to enable foundational flows%{link_end}."
+msgstr ""
+
+msgid "DuoCodeReview|Something went wrong while running the task. Please try again."
+msgstr ""
+
+msgid "DuoCodeReview|Something went wrong. Please try again."
+msgstr ""
+
+msgid "DuoCodeReview|The workflow completed but no response was produced. Please try again."
 msgstr ""
 
 msgid "DuoCodeReview|When enabled, GitLab Duo will automatically review new merge requests across all groups and projects. Draft merge requests and merge requests without changes are skipped."
@@ -54231,6 +54252,9 @@ msgid "Pipelines settings for '%{project_name}' were successfully updated."
 msgstr ""
 
 msgid "PipelinesUsingDapChart|All Pipelines"
+msgstr ""
+
+msgid "PipelinesUsingDapChart|Tracks pipelines triggered by GitLab Duo Agent Platform compared to all pipelines. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 
 msgid "PipelinesUsingDapChart|With Agent Platform"

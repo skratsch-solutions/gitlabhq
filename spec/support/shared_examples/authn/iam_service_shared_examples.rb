@@ -27,6 +27,16 @@ RSpec.shared_examples 'iam service error response with user' do |reason:, messag
   end
 end
 
+RSpec.shared_examples 'does not emit IAM consent audit event' do
+  it 'does not emit an IAM consent audit event' do
+    expect(::Gitlab::Audit::Auditor).not_to receive(:audit).with(
+      hash_including(name: match(/iam_oauth_application/))
+    )
+
+    result
+  end
+end
+
 RSpec.shared_examples 'iam service transport failure' do |http_method:|
   context 'when a network error occurs' do
     before do

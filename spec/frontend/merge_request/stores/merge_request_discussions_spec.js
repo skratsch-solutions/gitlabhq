@@ -234,7 +234,7 @@ describe('mergeRequestDiscussions store', () => {
           note: {
             note: 'test',
             position: JSON.stringify({
-              base_sha: 'base000',
+              base_sha: 'start111',
               start_sha: 'start111',
               head_sha: 'head222',
               old_line: 1,
@@ -296,7 +296,7 @@ describe('mergeRequestDiscussions store', () => {
         preview_suggestions: true,
         line: 5,
         file_path: 'a.rb',
-        base_sha: 'base000',
+        base_sha: 'start111',
         start_sha: 'start111',
         head_sha: 'head222',
       });
@@ -582,7 +582,7 @@ describe('mergeRequestDiscussions store', () => {
           note: {
             note: 'draft comment',
             position: JSON.stringify({
-              base_sha: 'base000',
+              base_sha: 'start111',
               start_sha: 'start111',
               head_sha: 'head222',
               old_line: 1,
@@ -644,7 +644,7 @@ describe('mergeRequestDiscussions store', () => {
   });
 
   describe('version-aware discussion matching', () => {
-    const diffRefs = { base_sha: 'base000', head_sha: 'head222', start_sha: 'start111' };
+    const diffRefs = { base_sha: 'start111', head_sha: 'head222', start_sha: 'start111' };
     const otherRefs = { base_sha: 'other', head_sha: 'other', start_sha: 'other' };
     const filePaths = { oldPath: 'a.js', newPath: 'a.js' };
     const makePos = (refs, line = 5) => ({
@@ -920,7 +920,7 @@ describe('mergeRequestDiscussions store', () => {
       it.each([
         ['returns', diffRefs, 1],
         ['excludes', otherRefs, 0],
-      ])('%s image discussions with %s SHAs', (_, refs, expected) => {
+      ])('%s image discussions with matching SHAs', (_, refs, expected) => {
         useDiscussions().setInitialDiscussions([
           {
             id: 'img',

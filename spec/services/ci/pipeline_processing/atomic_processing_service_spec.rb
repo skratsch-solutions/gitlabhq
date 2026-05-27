@@ -1296,30 +1296,6 @@ RSpec.describe Ci::PipelineProcessing::AtomicProcessingService, feature_category
         expect(Gitlab::AppJsonLogger).to receive(:info).with(a_hash_including(message: /^Cannot obtain an exclusive lease/))
         expect(process_pipeline).to be_falsy
       end
-
-      # Remove with FF `ci_atomic_processing_check_inside_lease`
-      it 'does not call needs_processing? before attempting the lease' do
-        expect(pipeline).not_to receive(:needs_processing?)
-
-        process_pipeline
-      end
-
-      context 'when FF `ci_atomic_processing_check_inside_lease` is disabled' do
-        before do
-          stub_feature_flags(ci_atomic_processing_check_inside_lease: false)
-        end
-
-        it 'skips pipeline processing' do
-          expect(Gitlab::AppJsonLogger).to receive(:info).with(a_hash_including(message: /^Cannot obtain an exclusive lease/))
-          expect(process_pipeline).to be_falsy
-        end
-
-        it 'calls needs_processing? before attempting the lease' do
-          expect(pipeline).to receive(:needs_processing?).and_call_original
-
-          process_pipeline
-        end
-      end
     end
 
     # Remove this context with FF `ci_atomic_processing_log_check_mismatch`

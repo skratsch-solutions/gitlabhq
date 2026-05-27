@@ -33,14 +33,17 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
         };
       }
 
-      // Default "compare with master" view anchors start_sha at source.base_sha;
-      // target.start_sha drifts with master and would not match stored positions.
-      const startSha = target.version_index == null ? source.base_sha : target.start_sha;
+      // Mirror the backend's diff_refs:
+      // - Compare with target branch (version_index null): base_sha anchored at source.base_sha;
+      //   target.start_sha drifts with master and would not match stored positions.
+      // - Version-to-version compare (version_index present): backend uses a straight diff
+      //   (Compare#diff_refs with @straight=true), which collapses base_sha onto start_sha.
+      const baseAndStart = target.version_index == null ? source.base_sha : target.start_sha;
 
       return {
-        base_sha: source.base_sha,
+        base_sha: baseAndStart,
         head_sha: source.head_sha,
-        start_sha: startSha,
+        start_sha: baseAndStart,
       };
     },
   },

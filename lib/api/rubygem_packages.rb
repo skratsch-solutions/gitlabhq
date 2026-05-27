@@ -65,8 +65,8 @@ module API
           not_found!
         end
 
-        desc 'Download the gemspec file' do
-          detail 'This feature was introduced in GitLab 13.9'
+        desc 'Download a gemspec file' do
+          detail 'Downloads a gemspec file in Marshal format for a specified gem version.'
           success code: 200
           failure [
             { code: 401, message: 'Unauthorized' },
@@ -92,8 +92,8 @@ module API
           present_carrierwave_file!(package_file.file)
         end
 
-        desc 'Download the .gem package' do
-          detail 'This feature was introduced in GitLab 13.9'
+        desc 'Download a gem file' do
+          detail 'Downloads a specified gem file for a project.'
           success code: 200
           failure [
             { code: 401, message: 'Unauthorized' },
@@ -139,7 +139,7 @@ module API
           end
 
           desc 'Upload a gem' do
-            detail 'This feature was introduced in GitLab 13.9'
+            detail 'Uploads a gem for a specified project.'
             success code: 201
             failure [
               { code: 401, message: 'Unauthorized' },
@@ -183,8 +183,10 @@ module API
             forbidden!
           end
 
-          desc 'Fetch a list of dependencies' do
-            detail 'This feature was introduced in GitLab 13.9'
+          desc 'Retrieve dependencies' do
+            detail 'Retrieves a list of dependencies for specified gems. The response is a marshalled array of ' \
+              'hashes for all versions of the requested gems. Because the response is marshalled, you can store it in ' \
+              'a file.'
             success code: 200
             failure [
               { code: 401, message: 'Unauthorized' },

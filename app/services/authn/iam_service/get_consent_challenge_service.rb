@@ -5,7 +5,9 @@ module Authn
     class GetConsentChallengeService
       CONSENT_REQUEST_PATH = '/oauth2/internal/auth/requests/consent'
 
-      MANDATORY_FIELDS = %i[subject requested_scopes client_id client_name client_owner client_created_at].freeze
+      MANDATORY_FIELDS = %i[
+        subject requested_scopes client_id client_name client_owner client_created_at client_scopes
+      ].freeze
 
       def initialize(challenge:, client: HttpClient.new)
         @challenge = challenge
@@ -33,7 +35,8 @@ module Authn
           client_id: oauth_client['client_id'],
           client_name: oauth_client['client_name'],
           client_owner: oauth_client['owner'],
-          client_created_at: Time.zone.parse(oauth_client['created_at'].to_s)
+          client_created_at: Time.zone.parse(oauth_client['created_at'].to_s),
+          client_scopes: Array(oauth_client['scopes'])
         }
 
         missing = MANDATORY_FIELDS.select { |f| payload[f].blank? }

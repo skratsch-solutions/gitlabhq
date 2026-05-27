@@ -141,7 +141,7 @@ RSpec.describe Banzai::Filter::References::WorkItemReferenceFilter, feature_cate
   end
 
   context 'when group level work item URL reference' do
-    let_it_be(:work_item, reload: true)   { create(:work_item, :group_level, namespace: group) }
+    let_it_be_with_reload(:work_item) { create(:work_item, :group_level, namespace: group) }
     let_it_be(:work_item_link_reference)  { item_url(work_item) }
     let_it_be(:work_item_url)             { work_item_link_reference }
     let_it_be(:reference)                 { work_item_url }
@@ -152,7 +152,7 @@ RSpec.describe Banzai::Filter::References::WorkItemReferenceFilter, feature_cate
   end
 
   context 'when group level work item full reference' do
-    let_it_be(:work_item, reload: true)   { create(:work_item, :group_level, namespace: group) }
+    let_it_be_with_reload(:work_item) { create(:work_item, :group_level, namespace: group) }
     let_it_be(:work_item_link_reference)  { item_url(work_item) }
     let_it_be(:work_item_url)             { work_item_link_reference }
     let_it_be(:reference)                 { work_item.to_reference(full: true) }
@@ -173,7 +173,7 @@ RSpec.describe Banzai::Filter::References::WorkItemReferenceFilter, feature_cate
   end
 
   context 'on cross project [work_item:project/path/XXX] reference' do
-    let_it_be(:work_item, reload: true)   { create(:work_item, project: cross_project) }
+    let_it_be_with_reload(:work_item) { create(:work_item, project: cross_project) }
     let_it_be(:work_item_link_reference)  { item_url(work_item) }
     let_it_be(:work_item_url)             { work_item_link_reference }
     let_it_be(:written_reference)         { "[work_item:#{cross_project.full_path}/#{work_item.iid}]" }
@@ -186,7 +186,7 @@ RSpec.describe Banzai::Filter::References::WorkItemReferenceFilter, feature_cate
   # Example:
   #   "See http://localhost/cross-namespace/cross-project/-/work_items/1"
   context 'when cross-project URL reference' do
-    let_it_be(:work_item, reload: true)   { create(:work_item, project: cross_project) }
+    let_it_be_with_reload(:work_item) { create(:work_item, project: cross_project) }
     let_it_be(:work_item_link_reference)  { item_url(work_item) }
     let_it_be(:work_item_url)             { work_item_link_reference }
     let_it_be(:reference)                 { work_item_url }
@@ -247,7 +247,7 @@ RSpec.describe Banzai::Filter::References::WorkItemReferenceFilter, feature_cate
   # Example:
   #   'See <a href=\"http://localhost/cross-namespace/cross-project/-/work_items/1\">Reference</a>''
   context 'when cross-project URL in link href' do
-    let_it_be(:work_item, reload: true)   { create(:work_item, project: cross_project) }
+    let_it_be_with_reload(:work_item) { create(:work_item, project: cross_project) }
     let_it_be(:work_item_link_reference)  { item_url(work_item) }
     let_it_be(:work_item_url)             { work_item_link_reference }
     let_it_be(:reference)                 { work_item_url }

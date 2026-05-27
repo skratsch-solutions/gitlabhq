@@ -9,11 +9,11 @@ RSpec.describe RelativePositioning::Mover, feature_category: :portfolio_manageme
   indices = (0..).take(range.size)
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:one_sibling, reload: true) { create(:project, creator: user, namespace: user.namespace) }
-  let_it_be(:one_free_space, reload: true) { create(:project, creator: user, namespace: user.namespace) }
-  let_it_be(:fully_occupied, reload: true) { create(:project, creator: user, namespace: user.namespace) }
-  let_it_be(:no_issues, reload: true) { create(:project, creator: user, namespace: user.namespace) }
-  let_it_be(:three_sibs, reload: true) { create(:project, creator: user, namespace: user.namespace) }
+  let_it_be_with_reload(:one_sibling) { create(:project, creator: user, namespace: user.namespace) }
+  let_it_be_with_reload(:one_free_space) { create(:project, creator: user, namespace: user.namespace) }
+  let_it_be_with_reload(:fully_occupied) { create(:project, creator: user, namespace: user.namespace) }
+  let_it_be_with_reload(:no_issues) { create(:project, creator: user, namespace: user.namespace) }
+  let_it_be_with_reload(:three_sibs) { create(:project, creator: user, namespace: user.namespace) }
 
   let(:start) { ((range.first + range.last) / 2.0).floor }
 

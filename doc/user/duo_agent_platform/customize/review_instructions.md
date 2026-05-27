@@ -109,12 +109,24 @@ To configure custom merge request review instructions:
          2. Include error scenarios
          3. Use shared examples to reduce duplication
 
+     - name: Database Migrations
+       fileFilters:
+         - "db/migrate/**/*.rb"
+         - "db/post_migrate/**/*.rb"
+       instructions: |
+         1. Follow the migration safety guidelines in
+            https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/database/avoiding_downtime_in_migrations.md
+         2. Apply the team checklist in docs/migrations-checklist.md
+
      - name: All Files
        fileFilters:
          - "**/*"   # All files in the repository
        instructions: |
          1. Explain the "why" behind each suggestion
    ```
+
+   For details about referencing files in instructions, see
+   [reference files in instructions](#reference-files-in-instructions).
 
    For glob syntax examples, see the
    [file pattern reference](#file-pattern-reference).
@@ -132,7 +144,9 @@ To configure custom merge request review instructions:
 
    - GitLab Duo automatically applies your custom instructions when the file
      patterns match.
-   - Multiple instruction groups can apply to a single file.
+   - Multiple instruction groups can apply to a single file. When a file
+     matches the `fileFilters` of more than one group, Code Review Flow applies
+     the instructions from every matching group.
    - For review comments triggered by your custom instructions, GitLab Duo uses this format:
 
      ```plaintext
@@ -175,15 +189,91 @@ To configure custom review instructions for a group:
 1. Under **Custom review instructions for groups**, select a project in your group.
 1. Select **Save changes**.
 
+## Reference files in instructions
+
+You can reference other files in custom instructions instead of duplicating content.
+Code Review Flow reads the referenced files during the pre-scan step
+and extracts relevant guidance.
+
+Custom instructions support two file reference patterns:
+
+- Files in the same project as the merge request: Use a repository-relative path,
+  such as `docs/security-checklist.md`.
+- Files in other projects on the same GitLab instance: Use a full
+  GitLab blob URL, such as
+  `https://gitlab.example.com/group/project/-/blob/main/docs/style-guide.md`.
+  The URL must point to the same GitLab instance as the merge request and
+  must use the `/-/blob/<ref>/<path>` format.
+
+For example:
+
+```yaml
+instructions:
+  - name: Database Migrations
+    fileFilters:
+      - "db/migrate/**/*.rb"
+    instructions: |
+      1. Follow the migration guidelines in
+         https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/development/database/avoiding_downtime_in_migrations.md
+      2. Reference the team checklist in docs/db-checklist.md
+```
+
+### Limitations of file references
+
+File reference resolution has the following constraints:
+
+- Same GitLab instance only. URLs that point to a different GitLab
+  instance, to public GitLab from a GitLab Self-Managed instance, or to any
+  non-GitLab site, such as Confluence or a public documentation site, are not
+  fetched.
+- Blob URLs only, formatted as `/-/blob/<ref>/<path>`. Wiki pages, issues,
+  raw URLs, and snippets are not fetched.
+- Same project for bare paths. A bare path such as `docs/security.md`
+  resolves against the same project as the merge request. Use a full GitLab
+  blob URL to reference a file in a different project.
+- Best effort, not guaranteed. Code Review Flow decides which references
+  to fetch based on the instruction text. A reference that fails to resolve,
+  such as a path that does not exist or a URL the parser rejects, is skipped
+  silently.
+- Code Review Flow uses a summary, not the original file. It summarizes the
+  fetched content during the pre-scan step and uses the summary during the
+  review. Two reviews of the same merge request can produce different
+  summaries.
+
+If you want Code Review Flow to use the exact file contents and not a summary,
+include it as a rule in the `instructions:` field instead of referencing the
+file. Inline instructions are used as written.
+
 ## Best practices
 
 When writing custom review instructions:
 
-- Be specific and actionable.
+- Be specific and actionable. Code Review Flow checks each rule against the
+  diff. For example, a concrete rule like "verify that public methods have YARD
+  documentation" produces useful comments, but abstract guidance like
+  "document your code well" does not.
 - Number your instructions for clarity.
-- Focus on the most important standards.
+- Focus on the most important standards. Every rule's text becomes part of
+  the review prompt, so long lists of low-value rules inflate the prompt
+  without adding signal.
 - Explain the "why" when helpful.
 - Start with straightforward instructions, and add complexity as needed.
+- Focus on project-specific standards that Code Review Flow wouldn't apply
+  by default. Custom instructions add to the standard review criteria instead
+  of replacing them. General advice like "add error handling" or "use
+  meaningful names" is usually already covered. Use custom instructions for
+  what only your project knows: internal APIs, architectural conventions,
+  domain-specific patterns.
+- Make file patterns reflect the actual scope of the rule. Code Review Flow
+  reads each instruction alongside each `fileFilters` reference and applies
+  the rule only to files that match those patterns. For example, a rule for "Rails
+  controllers" scoped to `**/*.rb` will apply to gems, scripts, and
+  tests, not just controllers. Use `app/controllers/**/*.rb` instead.
+- Only use external file references for instructions where exact wording
+  does not matter, otherwise include the details as a rule in the
+  `instructions:` field directly. Code Review Flow generates and uses
+  summaries for referenced files, but uses the exact wording defined in
+  `instructions`.
 
 For example:
 

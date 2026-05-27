@@ -8,9 +8,26 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
   let(:iam_service_url) { 'https://iam.example.com' }
   let(:iam_secret) { 'test-secret-token' }
   let(:challenge) { 'a' * 64 }
+  let(:client_id) { 'test-client-id' }
+  let(:client_name) { 'Test App' }
+  let(:requested_scopes) { %w[openid profile email] }
+  let(:client_scopes) { %w[openid profile email] }
+  let(:ip_address) { '198.51.100.42' }
+  let(:user_agent) { 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)' }
   let(:redirect_url) { "#{iam_service_url}/oauth2/authorize?error=access_denied" }
 
-  let(:service) { described_class.new(challenge: challenge, user: user) }
+  let(:service) do
+    described_class.new(
+      challenge: challenge,
+      user: user,
+      client_id: client_id,
+      client_name: client_name,
+      requested_scopes: requested_scopes,
+      client_scopes: client_scopes,
+      ip_address: ip_address,
+      user_agent: user_agent
+    )
+  end
 
   subject(:result) { service.execute }
 
@@ -53,6 +70,52 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
           )
         )
       end
+
+      it 'emits an audit event' do
+        expect(::Gitlab::Audit::Auditor).to receive(:audit).with({
+          name: 'user_rejected_iam_oauth_application',
+          author: user,
+          scope: user,
+          target: user,
+          target_details: client_name,
+          message: 'User rejected an OAuth application.',
+          additional_details: {
+            application_id: client_id,
+            application_name: client_name,
+            scopes: client_scopes,
+            requested_scopes: requested_scopes,
+            granted_scopes: [],
+            user_agent: user_agent
+          },
+          ip_address: ip_address
+        })
+
+        result
+      end
+
+      context 'when ip_address and user_agent are not provided' do
+        let(:service) do
+          described_class.new(
+            challenge: challenge,
+            user: user,
+            client_id: client_id,
+            client_name: client_name,
+            requested_scopes: requested_scopes,
+            client_scopes: client_scopes
+          )
+        end
+
+        it 'emits an audit event with nil ip_address and user_agent' do
+          expect(::Gitlab::Audit::Auditor).to receive(:audit).with(
+            hash_including(
+              ip_address: nil,
+              additional_details: hash_including(user_agent: nil)
+            )
+          )
+
+          result
+        end
+      end
     end
 
     context 'when IAM returns an HTTP error' do
@@ -64,6 +127,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       include_examples 'iam service error response with user',
         reason: :iam_request_failed,
         message: 'IAM consent reject failed: HTTP 400'
+
+      include_examples 'does not emit IAM consent audit event'
     end
 
     context 'when redirect_to is missing' do
@@ -75,6 +140,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       include_examples 'iam service error response with user',
         reason: :invalid_response,
         message: 'IAM consent reject response missing redirect_to'
+
+      include_examples 'does not emit IAM consent audit event'
     end
 
     context 'when the response body is nil' do
@@ -85,6 +152,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       include_examples 'iam service error response with user',
         reason: :invalid_response,
         message: 'IAM consent reject response missing redirect_to'
+
+      include_examples 'does not emit IAM consent audit event'
     end
 
     context 'when the response body is invalid JSON' do
@@ -95,6 +164,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       include_examples 'iam service error response with user',
         reason: :invalid_response,
         message: 'IAM consent reject response has invalid body'
+
+      include_examples 'does not emit IAM consent audit event'
     end
 
     context 'when redirect_to is an untrusted URL' do
@@ -106,6 +177,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       include_examples 'iam service error response with user',
         reason: :invalid_redirect_url,
         message: 'IAM consent reject response contains invalid redirect URL'
+
+      include_examples 'does not emit IAM consent audit event'
     end
 
     include_examples 'iam service transport failure', http_method: :put

@@ -20,20 +20,12 @@ module Ci
       end
 
       def execute
-        # rubocop: disable Style/SoleNestedConditional -- Temporary for FF readability
-        if Feature.disabled?(:ci_atomic_processing_check_inside_lease, project)
-          return unless pipeline.needs_processing?
-        end
-
         # Run the process only if we can obtain an exclusive lease; returns nil if lease is unavailable
         success = try_obtain_lease do
-          if Feature.enabled?(:ci_atomic_processing_check_inside_lease, project)
-            next unless pipeline.needs_processing?
-          end
+          next unless pipeline.needs_processing?
 
           process!
         end
-        # rubocop: enable Style/SoleNestedConditional
 
         if success
           # If any jobs changed from stopped to alive status during pipeline processing, we must

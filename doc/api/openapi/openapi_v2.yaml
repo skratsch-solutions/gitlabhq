@@ -11074,8 +11074,9 @@ paths:
       operationId: postApiV4ProjectsIdCatalogPublish
   "/api/v4/projects/{id}/jobs/artifacts/{ref_name}/download":
     get:
-      summary: Download the artifacts archive from a job
-      description: This feature was introduced in GitLab 8.10
+      summary: Retrieve job artifacts
+      description: Retrieves the artifacts archive for the latest successful job on
+        a specified branch or tag.
       produces:
       - application/json
       parameters:
@@ -11110,7 +11111,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Download the artifacts archive from a job
+          description: Retrieve job artifacts
         '401':
           description: Unauthorized
         '403':
@@ -11212,8 +11213,8 @@ paths:
       - job_artifacts
       operationId: getApiV4ProjectsIdJobsJobIdArtifacts
     delete:
-      summary: Delete the artifacts files from a job
-      description: This feature was introduced in GitLab 11.9
+      summary: Delete job artifacts
+      description: Deletes job artifacts from a specified job in a project.
       produces:
       - application/json
       parameters:
@@ -11230,7 +11231,7 @@ paths:
         required: true
       responses:
         '204':
-          description: Delete the artifacts files from a job
+          description: Delete job artifacts
         '401':
           description: Unauthorized
         '403':
@@ -11242,9 +11243,9 @@ paths:
       operationId: deleteApiV4ProjectsIdJobsJobIdArtifacts
   "/api/v4/projects/{id}/jobs/{job_id}/artifacts/tree":
     get:
-      summary: List all files in the artifacts archive
-      description: Lists all files and directories in the artifacts archive without
-        extracting them
+      summary: List all files in an artifacts archive
+      description: Lists all files in a specified artifacts archive without extracting
+        them.
       produces:
       - application/json
       parameters:
@@ -11297,7 +11298,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List all files in the artifacts archive
+          description: List all files in an artifacts archive
           schema:
             type: array
             items:
@@ -11356,7 +11357,9 @@ paths:
       operationId: getApiV4ProjectsIdJobsJobIdArtifacts*artifactPath
   "/api/v4/projects/{id}/jobs/{job_id}/artifacts/keep":
     post:
-      description: Keep the artifacts to prevent them from being deleted
+      summary: Retain job artifacts
+      description: Retains job artifacts. Prevents artifacts for a job from being
+        automatically deleted when they reach their expiration date.
       produces:
       - application/json
       consumes:
@@ -11375,7 +11378,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Keep the artifacts to prevent them from being deleted
+          description: Retain job artifacts
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11389,7 +11392,8 @@ paths:
       operationId: postApiV4ProjectsIdJobsJobIdArtifactsKeep
   "/api/v4/projects/{id}/artifacts":
     delete:
-      description: Expire the artifacts files from a project
+      summary: Delete all job artifacts in a project
+      description: Deletes job artifacts from all jobs in a specified project.
       produces:
       - application/json
       parameters:
@@ -11400,7 +11404,7 @@ paths:
         required: true
       responses:
         '202':
-          description: Expire the artifacts files from a project
+          description: Delete all job artifacts in a project
         '401':
           description: Unauthorized
         '403':
@@ -11412,7 +11416,9 @@ paths:
       operationId: deleteApiV4ProjectsIdArtifacts
   "/api/v4/projects/{id}/jobs":
     get:
-      description: Get a projects jobs
+      summary: List all jobs for a project
+      description: Lists all jobs for a specified project. By default, this request
+        returns 20 results at a time because the API results are paginated.
       produces:
       - application/json
       parameters:
@@ -11469,7 +11475,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get a projects jobs
+          description: List all jobs for a project
           schema:
             type: array
             items:
@@ -11485,7 +11491,8 @@ paths:
       operationId: getApiV4ProjectsIdJobs
   "/api/v4/projects/{id}/jobs/{job_id}":
     get:
-      description: Get a specific job of a project
+      summary: Retrieve a job
+      description: Retrieves a job with the specified job ID.
       produces:
       - application/json
       parameters:
@@ -11503,7 +11510,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific job of a project
+          description: Retrieve a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11517,7 +11524,8 @@ paths:
       operationId: getApiV4ProjectsIdJobsJobId
   "/api/v4/projects/{id}/jobs/{job_id}/trace":
     get:
-      description: Get a trace of a specific job of a project
+      summary: Retrieve a log file for a job
+      description: Retrieves a log file for a job.
       produces:
       - application/json
       parameters:
@@ -11552,7 +11560,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a trace of a specific job of a project
+          description: Retrieve a log file for a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11566,7 +11574,8 @@ paths:
       operationId: getApiV4ProjectsIdJobsJobIdTrace
   "/api/v4/projects/{id}/jobs/{job_id}/cancel":
     post:
-      description: Cancel a specific job of a project
+      summary: Cancel a job
+      description: Cancels a specified job in a project.
       produces:
       - application/json
       consumes:
@@ -11591,7 +11600,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdJobsJobIdCancel"
       responses:
         '201':
-          description: Cancel a specific job of a project
+          description: Cancel a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11605,7 +11614,8 @@ paths:
       operationId: postApiV4ProjectsIdJobsJobIdCancel
   "/api/v4/projects/{id}/jobs/{job_id}/retry":
     post:
-      description: Retry a specific job of a project
+      summary: Retry a job
+      description: Retries a specified job in a project.
       produces:
       - application/json
       consumes:
@@ -11630,7 +11640,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdJobsJobIdRetry"
       responses:
         '201':
-          description: Retry a specific job of a project
+          description: Retry a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11644,7 +11654,9 @@ paths:
       operationId: postApiV4ProjectsIdJobsJobIdRetry
   "/api/v4/projects/{id}/jobs/{job_id}/erase":
     post:
-      description: Erase job (remove artifacts and the trace)
+      summary: Erase a job
+      description: Erases a specified job in a project. This removes job artifacts
+        and the job log.
       produces:
       - application/json
       consumes:
@@ -11664,7 +11676,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Erase job (remove artifacts and the trace)
+          description: Erase a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':
@@ -11680,8 +11692,9 @@ paths:
       operationId: postApiV4ProjectsIdJobsJobIdErase
   "/api/v4/projects/{id}/jobs/{job_id}/play":
     post:
-      summary: Trigger an actionable job (manual, delayed, etc)
-      description: This feature was added in GitLab 8.11
+      summary: Run a job
+      description: Runs a specified job. For a job in manual status, triggers an action
+        to start the job.
       produces:
       - application/json
       consumes:
@@ -11706,7 +11719,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdJobsJobIdPlay"
       responses:
         '200':
-          description: Trigger an actionable job (manual, delayed, etc)
+          description: Run a job
           schema:
             "$ref": "#/definitions/API_Entities_Ci_JobBasic"
         '400':
@@ -13670,7 +13683,8 @@ paths:
       - ci_triggers
       operationId: getApiV4ProjectsIdTriggersTriggerId
     put:
-      description: Update a trigger token
+      summary: Update a pipeline trigger token
+      description: Updates a pipeline trigger token for a project.
       produces:
       - application/json
       consumes:
@@ -13695,7 +13709,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdTriggersTriggerId"
       responses:
         '200':
-          description: Update a trigger token
+          description: Update a pipeline trigger token
           schema:
             "$ref": "#/definitions/API_Entities_Trigger"
         '400':
@@ -28815,9 +28829,9 @@ paths:
       operationId: getApiV4ProjectsIdPackagesNpm*packageName-*fileName
   "/api/v4/projects/{id}/packages/npm/{package_name}":
     put:
-      summary: Create or deprecate NPM package
-      description: Create was introduced in GitLab 11.8 & deprecate support was added
-        in 16.0
+      summary: Create or deprecate an NPM package
+      description: Creates or deprecates an NPM package for a specified project. Deprecate
+        support was added in GitLab 16.0.
       produces:
       - application/json
       consumes:
@@ -28840,7 +28854,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPackagesNpmPackageName"
       responses:
         '200':
-          description: Create or deprecate NPM package
+          description: Create or deprecate an NPM package
         '400':
           description: Bad Request
         '401':
@@ -30326,7 +30340,9 @@ paths:
       operationId: deleteApiV4ProjectsIdRegistryRepositoriesRepositoryIdTagsTagName
   "/api/v4/projects/{id}/registry/protection/repository/rules":
     get:
-      description: Get list of container registry protection rules for a project
+      summary: List all container repository protection rules
+      description: Lists all container repository protection rules for a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -30337,7 +30353,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get list of container registry protection rules for a project
+          description: List all container repository protection rules
           schema:
             type: array
             items:
@@ -30352,7 +30368,9 @@ paths:
       - projects
       operationId: getApiV4ProjectsIdRegistryProtectionRepositoryRules
     post:
-      description: Create a container protection rule for a project
+      summary: Create a container repository protection rule
+      description: Creates a container repository protection rule for a specified
+        project to control who can push or delete container images.
       produces:
       - application/json
       consumes:
@@ -30370,7 +30388,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRegistryProtectionRepositoryRules"
       responses:
         '201':
-          description: Create a container protection rule for a project
+          description: Create a container repository protection rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_ContainerRegistry_Protection_Rule"
         '400':
@@ -30388,7 +30406,9 @@ paths:
       operationId: postApiV4ProjectsIdRegistryProtectionRepositoryRules
   "/api/v4/projects/{id}/registry/protection/repository/rules/{protection_rule_id}":
     patch:
-      description: Update a container protection rule for a project
+      summary: Update a container repository protection rule
+      description: Updates a container repository protection rule for a specified
+        project.
       produces:
       - application/json
       consumes:
@@ -30412,7 +30432,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId"
       responses:
         '200':
-          description: Update a container protection rule for a project
+          description: Update a container repository protection rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_ContainerRegistry_Protection_Rule"
         '400':
@@ -30429,7 +30449,8 @@ paths:
       - projects
       operationId: patchApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId
     delete:
-      description: Delete container protection rule
+      summary: Delete a container repository protection rule
+      description: Deletes a specified container repository protection rule.
       produces:
       - application/json
       parameters:
@@ -30460,8 +30481,9 @@ paths:
       operationId: deleteApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId
   "/api/v4/projects/{id}/registry/protection/tag/rules":
     get:
-      summary: Gets a list of container protection tag rules for a project.
-      description: This feature was introduced in GitLab 18.7.
+      summary: List all container registry protection tag rules
+      description: Lists all container registry protection tag rules for a project.
+        This feature was introduced in GitLab 18.7.
       produces:
       - application/json
       parameters:
@@ -30472,7 +30494,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Gets a list of container protection tag rules for a project.
+          description: List all container registry protection tag rules
           schema:
             type: array
             items:
@@ -30487,9 +30509,10 @@ paths:
       - projects
       operationId: getApiV4ProjectsIdRegistryProtectionTagRules
     post:
-      summary: Create a container protection tag rule for a project. 5 rule limit
-        per project.
-      description: This feature was introduced in GitLab 18.8.
+      summary: Create a container registry protection tag rule
+      description: Creates a container registry protection tag rule for a project
+        to control who can push or delete container tags. This feature was introduced
+        in GitLab 18.8.
       produces:
       - application/json
       consumes:
@@ -30507,8 +30530,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRegistryProtectionTagRules"
       responses:
         '201':
-          description: Create a container protection tag rule for a project. 5 rule
-            limit per project.
+          description: Create a container registry protection tag rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_ContainerRegistry_Protection_TagRule"
         '400':
@@ -30526,8 +30548,9 @@ paths:
       operationId: postApiV4ProjectsIdRegistryProtectionTagRules
   "/api/v4/projects/{id}/registry/protection/tag/rules/{protection_rule_id}":
     patch:
-      summary: Update a container protection tag rule for a project.
-      description: This feature was introduced in GitLab 18.9.
+      summary: Update a container registry protection tag rule
+      description: Updates a container registry protection tag rule for a project.
+        This feature was introduced in GitLab 18.9.
       produces:
       - application/json
       consumes:
@@ -30551,7 +30574,7 @@ paths:
           "$ref": "#/definitions/patchApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId"
       responses:
         '200':
-          description: Update a container protection tag rule for a project.
+          description: Update a container registry protection tag rule
           schema:
             "$ref": "#/definitions/API_Entities_Projects_ContainerRegistry_Protection_TagRule"
         '400':
@@ -30568,8 +30591,9 @@ paths:
       - projects
       operationId: patchApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId
     delete:
-      summary: Delete container protection tag rule
-      description: This feature was introduced in GitLab 18.9.
+      summary: Delete a container registry protection tag rule
+      description: Deletes a container registry protection tag rule from a project.
+        This feature was introduced in GitLab 18.9.
       produces:
       - application/json
       parameters:
@@ -38631,8 +38655,9 @@ paths:
       operationId: getApiV4ProjectsIdPackagesRubygemsFileName
   "/api/v4/projects/{id}/packages/rubygems/quick/Marshal.4.8/{file_name}":
     get:
-      summary: Download the gemspec file
-      description: This feature was introduced in GitLab 13.9
+      summary: Download a gemspec file
+      description: Downloads a gemspec file in Marshal format for a specified gem
+        version.
       produces:
       - application/json
       parameters:
@@ -38649,7 +38674,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download the gemspec file
+          description: Download a gemspec file
         '401':
           description: Unauthorized
         '403':
@@ -38661,8 +38686,8 @@ paths:
       operationId: getApiV4ProjectsIdPackagesRubygemsQuickMarshal48FileName
   "/api/v4/projects/{id}/packages/rubygems/gems/{file_name}":
     get:
-      summary: Download the .gem package
-      description: This feature was introduced in GitLab 13.9
+      summary: Download a gem file
+      description: Downloads a specified gem file for a project.
       produces:
       - application/json
       parameters:
@@ -38679,7 +38704,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download the .gem package
+          description: Download a gem file
         '401':
           description: Unauthorized
         '403':
@@ -38717,7 +38742,7 @@ paths:
   "/api/v4/projects/{id}/packages/rubygems/api/v1/gems":
     post:
       summary: Upload a gem
-      description: This feature was introduced in GitLab 13.9
+      description: Uploads a gem for a specified project.
       produces:
       - application/json
       consumes:
@@ -38748,8 +38773,10 @@ paths:
       operationId: postApiV4ProjectsIdPackagesRubygemsApiV1Gems
   "/api/v4/projects/{id}/packages/rubygems/api/v1/dependencies":
     get:
-      summary: Fetch a list of dependencies
-      description: This feature was introduced in GitLab 13.9
+      summary: Retrieve dependencies
+      description: Retrieves a list of dependencies for specified gems. The response
+        is a marshalled array of hashes for all versions of the requested gems. Because
+        the response is marshalled, you can store it in a file.
       produces:
       - application/json
       parameters:
@@ -38768,7 +38795,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Fetch a list of dependencies
+          description: Retrieve dependencies
         '401':
           description: Unauthorized
         '403':
@@ -40995,12 +41022,13 @@ paths:
       operationId: postApiV4BulkImportsImportIdCancel
   "/api/v4/job":
     get:
-      description: Get current job using job token
+      summary: Retrieve a job by job token
+      description: Retrieves a job that was generated by a specified job token.
       produces:
       - application/json
       responses:
         '200':
-          description: Get current job using job token
+          description: Retrieve a job by job token
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '400':
@@ -41014,13 +41042,13 @@ paths:
       operationId: getApiV4Job
   "/api/v4/job/allowed_agents":
     get:
-      summary: Get current agents
-      description: Retrieves a list of agents for the given job token
+      summary: List all GitLab agents for Kubernetes by job token
+      description: Lists all GitLab agents for Kubernetes with a specified `CI_JOB_TOKEN`.
       produces:
       - application/json
       responses:
         '200':
-          description: Get current agents
+          description: List all GitLab agents for Kubernetes by job token
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '400':
@@ -45524,8 +45552,8 @@ paths:
       - namespaces
       operationId: putApiV4NamespacesId
     get:
-      summary: Get namespace by ID
-      description: Get a namespace by ID
+      summary: Retrieve namespace details
+      description: Retrieves a specified namespace.
       produces:
       - application/json
       parameters:
@@ -45536,7 +45564,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get namespace by ID
+          description: Retrieve namespace details
           schema:
             "$ref": "#/definitions/API_Entities_Namespace"
         '401':
@@ -45662,10 +45690,9 @@ paths:
       operationId: getApiV4NamespacesStorageLimitExclusions
   "/api/v4/namespaces":
     get:
-      summary: List namespaces
-      description: Get a list of the namespaces of the authenticated user. If the
-        user is an administrator, a list of all namespaces in the GitLab instance
-        is shown.
+      summary: List all namespaces
+      description: Lists all namespaces available to the current user. If the user
+        is an administrator, this endpoint returns all namespaces in the instance.
       produces:
       - application/json
       parameters:
@@ -45717,7 +45744,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List namespaces
+          description: List all namespaces
           schema:
             type: array
             items:
@@ -45729,9 +45756,8 @@ paths:
       operationId: getApiV4Namespaces
   "/api/v4/namespaces/{id}/exists":
     get:
-      summary: Get existence of a namespace
-      description: Get existence of a namespace by path. Suggests a new namespace
-        path that does not already exist.
+      summary: Verify namespace availability
+      description: Verifies that a namespace is available for use.
       produces:
       - application/json
       parameters:
@@ -45749,7 +45775,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get existence of a namespace
+          description: Verify namespace availability
           schema:
             "$ref": "#/definitions/API_Entities_NamespaceExistence"
         '401':
@@ -56557,7 +56583,7 @@ definitions:
         type: boolean
         description: Force cancellation for a job with a state of `canceling`
         example: true
-    description: Cancel a specific job of a project
+    description: Cancel a job
   postApiV4ProjectsIdJobsJobIdRetry:
     type: object
     properties:
@@ -56566,7 +56592,7 @@ definitions:
         description: Input values for the job
         example:
           environment: production
-    description: Retry a specific job of a project
+    description: Retry a job
   postApiV4ProjectsIdJobsJobIdPlay:
     type: object
     properties:
@@ -56593,7 +56619,7 @@ definitions:
         description: Input values for the job
         example:
           environment: production
-    description: Trigger an actionable job (manual, delayed, etc)
+    description: Run a job
   API_Entities_Ci_JobBasic:
     type: object
     properties:
@@ -57757,7 +57783,7 @@ definitions:
       description:
         type: string
         description: The trigger token description
-    description: Update a trigger token
+    description: Update a pipeline trigger token
   postApiV4ProjectsIdVariables:
     type: object
     properties:
@@ -65998,7 +66024,7 @@ definitions:
         description: The package file to be published (generated by Multipart middleware)
     required:
     - file
-    description: Create or deprecate NPM package
+    description: Create or deprecate an NPM package
   API_Entities_Nuget_PackagesVersions:
     type: object
     properties:
@@ -66427,7 +66453,7 @@ definitions:
         - admin
     required:
     - repository_path_pattern
-    description: Create a container protection rule for a project
+    description: Create a container repository protection rule
   patchApiV4ProjectsIdRegistryProtectionRepositoryRulesProtectionRuleId:
     type: object
     properties:
@@ -66456,7 +66482,7 @@ definitions:
         - owner
         - admin
         - ''
-    description: Update a container protection rule for a project
+    description: Update a container repository protection rule
   API_Entities_Projects_ContainerRegistry_Protection_TagRule:
     type: object
     properties:
@@ -66511,8 +66537,7 @@ definitions:
     - tag_name_pattern
     - minimum_access_level_for_push
     - minimum_access_level_for_delete
-    description: Create a container protection tag rule for a project. 5 rule limit
-      per project.
+    description: Create a container registry protection tag rule
   patchApiV4ProjectsIdRegistryProtectionTagRulesProtectionRuleId:
     type: object
     properties:
@@ -66540,7 +66565,7 @@ definitions:
         - owner
         - admin
         - ''
-    description: Update a container protection tag rule for a project.
+    description: Update a container registry protection tag rule
   postApiV4ProjectsIdDebianDistributions:
     type: object
     properties:

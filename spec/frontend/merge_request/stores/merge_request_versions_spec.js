@@ -99,14 +99,16 @@ describe('mergeRequestVersions store', () => {
       });
     });
 
-    it('uses target start_sha when comparing against a specific target version', () => {
+    it('collapses base_sha onto start_sha when comparing against a specific target version', () => {
+      // Backend's MergeRequestDiffComparison uses Compare#diff_refs with @straight=true,
+      // which sets base_sha = start_sha. Mirror that here so submitted positions match.
       store.setVersions({
         sourceVersions: [{ selected: true, base_sha: 'base000', head_sha: 'head222' }],
         targetVersions: [{ selected: true, head: false, version_index: 2, start_sha: 'start111' }],
       });
 
       expect(store.diffRefs).toEqual({
-        base_sha: 'base000',
+        base_sha: 'start111',
         head_sha: 'head222',
         start_sha: 'start111',
       });

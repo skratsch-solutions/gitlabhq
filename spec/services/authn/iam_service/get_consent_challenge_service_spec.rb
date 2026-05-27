@@ -48,7 +48,7 @@ RSpec.describe Authn::IamService::GetConsentChallengeService, feature_category: 
         expect(result).to be_success
         expect(result.payload.keys).to match_array(
           %i[skip_consent subject requested_scopes
-            client_id client_name client_owner client_created_at]
+            client_id client_name client_owner client_created_at client_scopes]
         )
         expect(result.payload[:skip_consent]).to be(false)
         expect(result.payload[:subject]).to eq('123')
@@ -57,6 +57,7 @@ RSpec.describe Authn::IamService::GetConsentChallengeService, feature_category: 
         expect(result.payload[:client_name]).to eq('Test App')
         expect(result.payload[:client_owner]).to eq('GitLab User')
         expect(result.payload[:client_created_at]).to eq(Time.zone.parse('2025-01-01T00:00:00Z'))
+        expect(result.payload[:client_scopes]).to eq(%w[openid profile email])
       end
 
       it 'sends the GET request to IAM' do
@@ -142,7 +143,7 @@ RSpec.describe Authn::IamService::GetConsentChallengeService, feature_category: 
       include_examples 'iam service error response',
         reason: :invalid_response,
         message: 'IAM consent response missing mandatory fields: ' \
-          'client_id, client_name, client_owner, client_created_at'
+          'client_id, client_name, client_owner, client_created_at, client_scopes'
     end
 
     context 'when client_id is missing' do
@@ -169,6 +170,22 @@ RSpec.describe Authn::IamService::GetConsentChallengeService, feature_category: 
       include_examples 'iam service error response',
         reason: :invalid_response,
         message: 'IAM consent response missing mandatory fields: client_created_at'
+    end
+
+    context 'when client.scopes is missing' do
+      let(:consent_response_body) { super().tap { |b| b[:client].delete('scopes') } }
+
+      include_examples 'iam service error response',
+        reason: :invalid_response,
+        message: 'IAM consent response missing mandatory fields: client_scopes'
+    end
+
+    context 'when client.scopes is an empty array' do
+      let(:consent_response_body) { super().tap { |b| b[:client]['scopes'] = [] } }
+
+      include_examples 'iam service error response',
+        reason: :invalid_response,
+        message: 'IAM consent response missing mandatory fields: client_scopes'
     end
 
     include_examples 'iam service transport failure', http_method: :get

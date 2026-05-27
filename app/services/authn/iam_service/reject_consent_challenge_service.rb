@@ -5,9 +5,19 @@ module Authn
     class RejectConsentChallengeService
       REJECT_PATH = '/oauth2/internal/auth/requests/consent/reject'
 
-      def initialize(challenge:, user:, client: HttpClient.new)
+      # rubocop:disable Metrics/ParameterLists -- all arguments needed
+      def initialize(
+        challenge:, user:, client_id:, client_name:, requested_scopes:,
+        client_scopes:, ip_address: nil, user_agent: nil, client: HttpClient.new)
+        # rubocop:enable Metrics/ParameterLists
         @challenge = challenge
         @user = user
+        @client_id = client_id
+        @client_name = client_name
+        @requested_scopes = requested_scopes
+        @client_scopes = client_scopes
+        @ip_address = ip_address
+        @user_agent = user_agent
         @client = client
       end
 
@@ -25,7 +35,8 @@ module Authn
         return missing_redirect_error if redirect_to.blank?
         return invalid_redirect_error unless RedirectUrlValidator.valid?(redirect_to)
 
-        # TODO: handle consent record and emit audit event (deferred to follow-up MR).
+        # TODO: handle consent record (deferred to follow-up MR).
+        emit_audit_event
 
         ServiceResponse.success(payload: { redirect_to: redirect_to })
       rescue HttpClient::RequestError => e
@@ -41,6 +52,28 @@ module Authn
           error: 'access_denied',
           error_description: 'The user denied the request'
         }
+      end
+
+      def emit_audit_event
+        audit_context = {
+          name: 'user_rejected_iam_oauth_application',
+          author: @user,
+          scope: @user,
+          target: @user,
+          target_details: @client_name,
+          message: 'User rejected an OAuth application.',
+          additional_details: {
+            application_id: @client_id,
+            application_name: @client_name,
+            scopes: @client_scopes,
+            requested_scopes: @requested_scopes,
+            granted_scopes: [],
+            user_agent: @user_agent
+          },
+          ip_address: @ip_address
+        }
+
+        ::Gitlab::Audit::Auditor.audit(audit_context)
       end
 
       def http_error(response)

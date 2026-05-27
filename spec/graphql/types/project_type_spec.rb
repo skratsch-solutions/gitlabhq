@@ -128,7 +128,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
   end
 
   describe 'container_registry_enabled' do
-    let_it_be(:project, reload: true) { create(:project, :public) }
+    let_it_be_with_reload(:project) { create(:project, :public) }
     let_it_be(:user) { create(:user) }
 
     let(:query) do
@@ -837,7 +837,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
   end
 
   describe 'open_merge_requests_count' do
-    let_it_be(:project, reload: true) { create(:project, :public) }
+    let_it_be_with_reload(:project) { create(:project, :public) }
     let_it_be(:open_merge_request) { create(:merge_request, source_project: project) }
     let_it_be(:closed_merge_request) { create(:merge_request, :closed, source_project: project) }
 
@@ -921,7 +921,7 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
 
   describe 'branch_rules' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:project, reload: true) { create(:project, :public) }
+    let_it_be_with_reload(:project) { create(:project, :public) }
     let_it_be(:name) { 'feat/*' }
     let_it_be(:protected_branch, freeze: false) do
       create(:protected_branch, project: project, name: name)
