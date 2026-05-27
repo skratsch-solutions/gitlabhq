@@ -3,7 +3,11 @@ import { setCookie, handleLocationHash, historyPushState } from '~/lib/utils/com
 import { scrollToElement } from '~/lib/utils/scroll_utils';
 import { createAlert, VARIANT_WARNING } from '~/alert';
 import axios from '~/lib/utils/axios_utils';
-import { HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from '~/lib/utils/http_status';
+import {
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_OK,
+  HTTP_STATUS_SERVICE_UNAVAILABLE,
+} from '~/lib/utils/http_status';
 import Poll from '~/lib/utils/poll';
 import {
   mergeUrlParams,
@@ -171,6 +175,7 @@ export async function fetchFileByFile() {
     // Overloading "batch" loading indicators so the UI stays mostly the same
     this[types.SET_BATCH_LOADING_STATE]('loading');
     this[types.SET_RETRIEVING_BATCHES](true);
+    this[types.SET_GITALY_ERROR_MESSAGE](null);
 
     const urlParams = {
       old_path: treeEntry.filePaths.old,
@@ -202,7 +207,13 @@ export async function fetchFileByFile() {
 
         eventHub.$emit('diffFilesModified');
       })
-      .catch(() => {
+      .catch((error) => {
+        if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
+          const gitalyErrorMessage = error.response?.data?.error;
+          if (gitalyErrorMessage) {
+            this[types.SET_GITALY_ERROR_MESSAGE](gitalyErrorMessage);
+          }
+        }
         this[types.SET_BATCH_LOADING_STATE]('error');
       })
       .finally(() => {
@@ -229,6 +240,7 @@ export function fetchDiffFilesBatch(linkedFileLoading = false) {
   if (!linkedFileLoading) {
     this[types.SET_BATCH_LOADING_STATE]('loading');
     this[types.SET_RETRIEVING_BATCHES](true);
+    this[types.SET_GITALY_ERROR_MESSAGE](null);
   }
   eventHub.$emit(EVT_PERF_MARK_DIFF_FILES_START);
 
@@ -323,6 +335,12 @@ export function fetchDiffFilesBatch(linkedFileLoading = false) {
         return null;
       })
       .catch((error) => {
+        if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
+          const gitalyErrorMessage = error.response?.data?.error;
+          if (gitalyErrorMessage) {
+            this[types.SET_GITALY_ERROR_MESSAGE](gitalyErrorMessage);
+          }
+        }
         this[types.SET_RETRIEVING_BATCHES](false);
         this[types.SET_BATCH_LOADING_STATE]('error');
         throw error;
@@ -1124,6 +1142,7 @@ export function fetchLinkedFile(linkedFileUrl) {
 
   this[types.SET_BATCH_LOADING_STATE]('loading');
   this[types.SET_RETRIEVING_BATCHES](true);
+  this[types.SET_GITALY_ERROR_MESSAGE](null);
 
   return axios
     .get(linkedFileUrl)
@@ -1169,6 +1188,12 @@ export function fetchLinkedFile(linkedFileUrl) {
       eventHub.$emit('diffFilesModified');
     })
     .catch((error) => {
+      if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
+        const gitalyErrorMessage = error.response?.data?.error;
+        if (gitalyErrorMessage) {
+          this[types.SET_GITALY_ERROR_MESSAGE](gitalyErrorMessage);
+        }
+      }
       this[types.SET_BATCH_LOADING_STATE]('error');
       throw error;
     })

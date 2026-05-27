@@ -153,7 +153,6 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
       "slack_integrations_scopes_archived" => "https://gitlab.com/gitlab-org/gitlab/-/issues/584705",
       "snippet_user_mentions" => "https://gitlab.com/gitlab-org/gitlab/-/issues/517825",
       "uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
-      "uploads_archived" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "user_permission_export_upload_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "vulnerability_archive_export_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",
       "vulnerability_remediation_uploads" => "https://gitlab.com/gitlab-org/gitlab/-/issues/398199",

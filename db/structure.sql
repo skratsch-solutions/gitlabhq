@@ -1605,71 +1605,6 @@ $$;
 
 COMMENT ON FUNCTION table_sync_function_3f39f64fc3() IS 'Partitioning migration: table sync for merge_request_diff_files table';
 
-CREATE FUNCTION table_sync_function_40ecbfb353() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-IF (TG_OP = 'DELETE') THEN
-  DELETE FROM uploads_archived where "id" = OLD."id";
-ELSIF (TG_OP = 'UPDATE') THEN
-  UPDATE uploads_archived
-  SET "size" = NEW."size",
-    "path" = NEW."path",
-    "checksum" = NEW."checksum",
-    "model_id" = NEW."model_id",
-    "model_type" = NEW."model_type",
-    "uploader" = NEW."uploader",
-    "created_at" = NEW."created_at",
-    "store" = NEW."store",
-    "mount_point" = NEW."mount_point",
-    "secret" = NEW."secret",
-    "version" = NEW."version",
-    "uploaded_by_user_id" = NEW."uploaded_by_user_id",
-    "organization_id" = NEW."organization_id",
-    "namespace_id" = NEW."namespace_id",
-    "project_id" = NEW."project_id"
-  WHERE uploads_archived."id" = NEW."id";
-ELSIF (TG_OP = 'INSERT') THEN
-  INSERT INTO uploads_archived ("id",
-    "size",
-    "path",
-    "checksum",
-    "model_id",
-    "model_type",
-    "uploader",
-    "created_at",
-    "store",
-    "mount_point",
-    "secret",
-    "version",
-    "uploaded_by_user_id",
-    "organization_id",
-    "namespace_id",
-    "project_id")
-  VALUES (NEW."id",
-    NEW."size",
-    NEW."path",
-    NEW."checksum",
-    NEW."model_id",
-    NEW."model_type",
-    NEW."uploader",
-    NEW."created_at",
-    NEW."store",
-    NEW."mount_point",
-    NEW."secret",
-    NEW."version",
-    NEW."uploaded_by_user_id",
-    NEW."organization_id",
-    NEW."namespace_id",
-    NEW."project_id");
-END IF;
-RETURN NULL;
-
-END
-$$;
-
-COMMENT ON FUNCTION table_sync_function_40ecbfb353() IS 'Partitioning migration: table sync for uploads table';
-
 CREATE FUNCTION timestamp_coalesce(t1 timestamp with time zone, t2 anyelement) RETURNS timestamp without time zone
     LANGUAGE plpgsql IMMUTABLE
     AS $$
@@ -32055,26 +31990,6 @@ CREATE SEQUENCE upload_states_upload_id_seq
 
 ALTER SEQUENCE upload_states_upload_id_seq OWNED BY upload_states.upload_id;
 
-CREATE TABLE uploads_archived (
-    id bigint NOT NULL,
-    size bigint NOT NULL,
-    path character varying(511) NOT NULL,
-    checksum character varying(64),
-    model_id bigint,
-    model_type character varying,
-    uploader character varying NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    store integer DEFAULT 1,
-    mount_point character varying,
-    secret character varying,
-    version integer DEFAULT 1 NOT NULL,
-    uploaded_by_user_id bigint,
-    organization_id bigint,
-    namespace_id bigint,
-    project_id bigint,
-    CONSTRAINT check_5e9547379c CHECK ((store IS NOT NULL))
-);
-
 CREATE TABLE user_achievements (
     id bigint NOT NULL,
     achievement_id bigint NOT NULL,
@@ -41690,9 +41605,6 @@ ALTER TABLE ONLY upcoming_reconciliations
 ALTER TABLE ONLY upload_states
     ADD CONSTRAINT upload_states_pkey PRIMARY KEY (upload_id);
 
-ALTER TABLE ONLY uploads_archived
-    ADD CONSTRAINT uploads_archived_pkey PRIMARY KEY (id);
-
 ALTER TABLE ONLY user_achievements
     ADD CONSTRAINT user_achievements_pkey PRIMARY KEY (id);
 
@@ -50524,16 +50436,6 @@ CREATE INDEX index_upload_states_on_verification_state ON upload_states USING bt
 
 CREATE INDEX index_upload_states_pending_verification ON upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
-CREATE INDEX index_uploads_on_checksum ON uploads_archived USING btree (checksum);
-
-CREATE INDEX index_uploads_on_model_id_model_type_uploader_created_at ON uploads_archived USING btree (model_id, model_type, uploader, created_at);
-
-CREATE INDEX index_uploads_on_store ON uploads_archived USING btree (store);
-
-CREATE INDEX index_uploads_on_uploaded_by_user_id ON uploads_archived USING btree (uploaded_by_user_id);
-
-CREATE INDEX index_uploads_on_uploader_and_path ON uploads_archived USING btree (uploader, path);
-
 CREATE INDEX index_user_achievements_on_achievement_id_revoked_by_is_null ON user_achievements USING btree (achievement_id, ((revoked_by_user_id IS NULL)));
 
 CREATE INDEX index_user_achievements_on_awarded_by_revoked_by_is_null ON user_achievements USING btree (awarded_by_user_id, ((revoked_by_user_id IS NULL)));
@@ -55796,8 +55698,6 @@ CREATE TRIGGER slsa_attestations_loose_fk_trigger AFTER DELETE ON slsa_attestati
 
 CREATE TRIGGER sync_project_authorizations_to_migration AFTER INSERT OR DELETE OR UPDATE ON project_authorizations FOR EACH ROW EXECUTE FUNCTION sync_project_authorizations_to_migration_table();
 
-CREATE TRIGGER table_sync_trigger_4ea4473e79 AFTER INSERT OR DELETE OR UPDATE ON uploads FOR EACH ROW EXECUTE FUNCTION table_sync_function_40ecbfb353();
-
 CREATE TRIGGER table_sync_trigger_57c8465cd7_delete AFTER DELETE ON merge_request_diff_commits REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE FUNCTION table_sync_function_0992e728d3_delete();
 
 CREATE TRIGGER table_sync_trigger_57c8465cd7_insert AFTER INSERT ON merge_request_diff_commits REFERENCING NEW TABLE AS new_table FOR EACH STATEMENT EXECUTE FUNCTION table_sync_function_0992e728d3_insert();
@@ -58636,9 +58536,6 @@ ALTER TABLE ONLY namespace_commit_emails
 
 ALTER TABLE ONLY customer_relations_contacts
     ADD CONSTRAINT fk_b91ddd9345 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY uploads_archived
-    ADD CONSTRAINT fk_b94f059d73 FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY system_access_group_microsoft_graph_access_tokens
     ADD CONSTRAINT fk_b961a3df76 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;

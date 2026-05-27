@@ -435,6 +435,78 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
       end
     end
 
+    context 'with parentless todo organization_id updates' do
+      let_it_be_with_refind(:user1) { create(:user, organization: old_organization) }
+      let_it_be_with_refind(:user2) { create(:user, organization: old_organization) }
+      let_it_be_with_refind(:non_group_user) { create(:user, organization: old_organization) }
+      let_it_be_with_refind(:project) { create(:project, namespace: group, organization: old_organization) }
+      let_it_be_with_refind(:issue) { create(:issue, project: project) }
+
+      before_all do
+        group.add_developer(user1)
+        group.add_developer(user2)
+      end
+
+      def create_parentless_todo(user:)
+        key = create(:key, user: user)
+        create(:todo,
+          user: user,
+          author: user,
+          target: key,
+          action: Todo::SSH_KEY_EXPIRED,
+          project: nil
+        )
+      end
+
+      it 'updates organization_id for parentless todos of transferred users' do
+        parentless_todo1 = create_parentless_todo(user: user1)
+        parentless_todo2 = create_parentless_todo(user: user2)
+
+        service.execute
+
+        expect(parentless_todo1.reload.organization_id).to eq(new_organization.id)
+        expect(parentless_todo2.reload.organization_id).to eq(new_organization.id)
+      end
+
+      it 'does not update parentless todos for users not in the group' do
+        non_group_todo = create_parentless_todo(user: non_group_user)
+
+        expect { service.execute }.not_to change { non_group_todo.reload.organization_id }
+      end
+
+      it 'does not update project-scoped todos (organization_id is NULL)' do
+        project_todo = create(:todo, user: user1, target: issue, project: project)
+
+        service.execute
+
+        expect(project_todo.reload.organization_id).to be_nil
+      end
+    end
+
+    context 'with import failure organization_id updates' do
+      let_it_be_with_refind(:user1) { create(:user, organization: old_organization) }
+      let_it_be_with_refind(:non_group_user) { create(:user, organization: old_organization) }
+
+      before_all do
+        group.add_developer(user1)
+      end
+
+      it 'updates organization_id for user-scoped import failures of transferred users' do
+        import_failure = create(:import_failure, user: user1, project: nil, organization: old_organization)
+
+        service.execute
+
+        expect(import_failure.reload.organization_id).to eq(new_organization.id)
+      end
+
+      it 'does not update import failures for users not in the group' do
+        non_group_failure = create(:import_failure, user: non_group_user, project: nil,
+          organization: old_organization)
+
+        expect { service.execute }.not_to change { non_group_failure.reload.organization_id }
+      end
+    end
+
     context 'with associated organization_id updates', :aggregate_failures do
       let_it_be_with_refind(:user1) { create(:user, organization: old_organization) }
       let_it_be_with_refind(:user2) { create(:user, organization: old_organization) }

@@ -105,6 +105,7 @@ module Organizations
           update_users(user_ids)
           update_user_projects(user_ids)
           update_todos(user_ids)
+          update_import_failures(user_ids)
           update_granular_scopes(user_ids)
           update_associated_organization_ids(user_ids)
           update_personal_snippet_notes(user_ids)
@@ -155,6 +156,16 @@ module Organizations
           new_bot = new_organization_bots[user_type]
 
           Todo.for_author(old_bot&.id).for_user(user_ids).update_all(author_id: new_bot.id)
+        end
+
+        update_organization_id_for(Todo) do |relation|
+          relation.where(user_id: user_ids)
+        end
+      end
+
+      def update_import_failures(user_ids)
+        update_organization_id_for(ImportFailure) do |relation|
+          relation.where(user_id: user_ids)
         end
       end
       # rubocop:enable CodeReuse/ActiveRecord

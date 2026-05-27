@@ -33,7 +33,6 @@ RSpec.describe BulkImports::Projects::Pipelines::ProjectAttributesPipeline, :wit
       'public_builds' => true,
       'last_repository_check_failed' => nil,
       'only_allow_merge_if_pipeline_succeeds' => true,
-      'has_external_issue_tracker' => false,
       'request_access_enabled' => true,
       'has_external_wiki' => false,
       'ci_config_path' => nil,
@@ -98,6 +97,12 @@ RSpec.describe BulkImports::Projects::Pipelines::ProjectAttributesPipeline, :wit
       expect(Gitlab::ImportExport::AttributeCleaner).to receive(:clean).and_call_original
 
       expect(pipeline.transform(context, input)).to eq({ 'description' => 'description' })
+    end
+
+    it 'does not import has_external_issue_tracker' do
+      input = { 'description' => 'description', 'has_external_issue_tracker' => false }
+
+      expect(pipeline.transform(context, input)).not_to have_key('has_external_issue_tracker')
     end
   end
 
