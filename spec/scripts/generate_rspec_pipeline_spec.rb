@@ -125,8 +125,18 @@ RSpec.describe GenerateRspecPipeline, :silence_stdout, feature_category: :toolin
       end
 
       context 'when parallelization > 0' do
-        before do
-          stub_const("#{described_class}::DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS", 360)
+        # With the documented defaults (DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS = 11s),
+        # files_per_node = (600 - 180) / 11 ~= 38 for non-system levels and (900 - 180) / 11 ~= 65
+        # for the system level. We pick file counts that force 2 or more shards per level so the
+        # parallelisation branch of the heuristic is exercised against realistic numbers.
+        let(:rspec_files_content) do
+          [
+            Array.new(150) { |i| "spec/migrations/#{i}_spec.rb" },
+            Array.new(50)  { |i| "spec/lib/gitlab/background_migration/#{i}_spec.rb" },
+            Array.new(50)  { |i| "spec/models/#{i}_spec.rb" },
+            Array.new(50)  { |i| "spec/controllers/#{i}_spec.rb" },
+            Array.new(100) { |i| "spec/features/#{i}_spec.rb" }
+          ].flatten.join(' ')
         end
 
         it 'generates the pipeline config' do
@@ -274,6 +284,8 @@ RSpec.describe GenerateRspecPipeline, :silence_stdout, feature_category: :toolin
             "#{described_class}::DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS",
             described_class::OPTIMAL_TEST_JOB_DURATION_IN_SECONDS
           )
+          # Neutralise per-test-level overrides so this test exercises only the needs-limit logic.
+          stub_const("#{described_class}::OPTIMAL_TEST_JOB_DURATION_OVERRIDES_PER_TEST_LEVEL", {})
         end
 
         it 'reduces the largest level parallelization to stay within the needs limit' do
@@ -316,11 +328,12 @@ RSpec.describe GenerateRspecPipeline, :silence_stdout, feature_category: :toolin
       it 'generates the pipeline config with parallelization based on Knapsack' do
         subject.generate!
 
+        # System tests use a 15-minute target job duration (via OPTIMAL_TEST_JOB_DURATION_OVERRIDES_PER_TEST_LEVEL),
+        # which fits the two system files in this fixture into a single shard.
         expect(File.read("#{pipeline_template.path}.yml"))
           .to eq(
             "rspec migration:\n  parallel: 4\nrspec background_migration:\n" \
-            "rspec unit:\n  parallel: 2\nrspec integration:\n" \
-            "rspec system:\n  parallel: 2"
+            "rspec unit:\n  parallel: 2\nrspec integration:\nrspec system:"
           )
       end
 
@@ -350,6 +363,36 @@ RSpec.describe GenerateRspecPipeline, :silence_stdout, feature_category: :toolin
               "rspec migration:\nrspec background_migration:\nrspec unit:\n" \
               "rspec integration:\nrspec system:"
             )
+        end
+      end
+
+      context 'when many slower system files are detected' do
+        # Mix slower system test files with files from every other test
+        # level so we can verify the system override is scoped correctly.
+        let(:rspec_files_content) do
+          [
+            Array.new(40) { |i| "spec/features/slower_#{i}_spec.rb" },
+            Array.new(50) { |i| "spec/migrations/#{i}_spec.rb" },
+            Array.new(50) { |i| "spec/lib/gitlab/background_migration/#{i}_spec.rb" },
+            Array.new(50) { |i| "spec/models/#{i}_spec.rb" },
+            Array.new(50) { |i| "spec/controllers/#{i}_spec.rb" }
+          ].flatten.join(' ')
+        end
+
+        let(:knapsack_report_content) do
+          entries = Array.new(40) { |i| %("spec/features/slower_#{i}_spec.rb": 300.0) }
+          "{#{entries.join(',')}}"
+        end
+
+        it 'applies the system override without affecting other test levels', :aggregate_failures do
+          subject.generate!
+
+          content = File.read("#{pipeline_template.path}.yml")
+          expect(content).to include("rspec system:\n  parallel: 17")
+          expect(content).to include("rspec migration:\n  parallel: 2")
+          expect(content).to include("rspec background_migration:\n  parallel: 2")
+          expect(content).to include("rspec unit:\n  parallel: 2")
+          expect(content).to include("rspec integration:\n  parallel: 2")
         end
       end
     end

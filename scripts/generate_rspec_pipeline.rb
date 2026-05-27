@@ -23,33 +23,39 @@ class GenerateRspecPipeline
   GITLAB_MAX_NEEDS_COUNT = 50
 
   OPTIMAL_TEST_JOB_DURATION_IN_SECONDS = 600 # 10 MINUTES
+  # System tests have much heavier per-file durations than other levels, so the default 10-minute
+  # target produces one-or-two-files-per-shard on the predictive path. A larger target amortises
+  # the fixed per-shard setup cost (gem install, DB setup, autoload) over more useful test time.
+  OPTIMAL_TEST_JOB_DURATION_OVERRIDES_PER_TEST_LEVEL = {
+    system: 900 # 15 MINUTES
+  }.freeze
   SETUP_DURATION_IN_SECONDS = 180.0 # 3 MINUTES
   OPTIMAL_TEST_RUNTIME_DURATION_IN_SECONDS = OPTIMAL_TEST_JOB_DURATION_IN_SECONDS - SETUP_DURATION_IN_SECONDS
 
-  # As of 2024-07-16:
+  # As of 2026-05-19:
   # $ find spec -type f | wc -l
-  #  16007 (`SPEC_FILES_COUNT`)
+  #  18849 (`SPEC_FILES_COUNT`)
   # and
   # $ find ee/spec -type f | wc -l
-  #  8548 (`EE_SPEC_FILES_COUNT`)
-  # which gives a total of 24555 test files (`ALL_SPEC_FILES_COUNT`).
+  #  13761 (`EE_SPEC_FILES_COUNT`)
+  # which gives a total of 32610 test files (`ALL_SPEC_FILES_COUNT`).
   #
-  # Total time to run all tests (based on https://gitlab-org.gitlab.io/rspec_profiling_stats/)
-  # is 251509 seconds (`TEST_SUITE_DURATION_IN_SECONDS`).
+  # Total time to run all tests (sum of durations in `knapsack/report-master.json`)
+  # is 378332 seconds (`TEST_SUITE_DURATION_IN_SECONDS`).
   #
-  # This gives an approximate 251509 / 24555 = 10.2 seconds per test file
+  # This gives an approximate 378332 / 32610 = 11.6 seconds per test file
   # (`DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS`).
   #
   # If we want each test job to finish in 10 minutes, given we have 3 minutes of setup (`SETUP_DURATION_IN_SECONDS`),
   # then we need to give 7 minutes of testing to each test node (`OPTIMAL_TEST_RUNTIME_DURATION_IN_SECONDS`).
-  # (7 * 60) / 10.2 = 41.17
+  # (7 * 60) / 11.6 = 36.21
   #
   # So if we'd want to run the full test suites in 10 minutes (`OPTIMAL_TEST_JOB_DURATION_IN_SECONDS`),
-  # we'd need to run at max 41 test file per nodes (`#optimal_test_file_count_per_node_per_test_level`).
-  SPEC_FILES_COUNT = 16007
-  EE_SPEC_FILES_COUNT = 8548
+  # we'd need to run at max 36 test files per node (`#optimal_test_file_count_per_node_per_test_level`).
+  SPEC_FILES_COUNT = 18849
+  EE_SPEC_FILES_COUNT = 13761
   ALL_SPEC_FILES_COUNT = SPEC_FILES_COUNT + EE_SPEC_FILES_COUNT
-  TEST_SUITE_DURATION_IN_SECONDS = 251509
+  TEST_SUITE_DURATION_IN_SECONDS = 378332
   DEFAULT_AVERAGE_TEST_FILE_DURATION_IN_SECONDS = TEST_SUITE_DURATION_IN_SECONDS / ALL_SPEC_FILES_COUNT
 
   # pipeline_template_path: A YAML pipeline configuration template to generate the final pipeline config from
@@ -193,10 +199,18 @@ class GenerateRspecPipeline
   end
 
   def optimal_test_file_count_per_node_per_test_level(test_level, rspec_files)
+    runtime_budget = optimal_test_runtime_duration_for(test_level)
     [
-      (OPTIMAL_TEST_RUNTIME_DURATION_IN_SECONDS / average_test_file_duration(test_level, rspec_files)),
+      (runtime_budget / average_test_file_duration(test_level, rspec_files)),
       1
     ].max
+  end
+
+  def optimal_test_runtime_duration_for(test_level)
+    target_job_duration = OPTIMAL_TEST_JOB_DURATION_OVERRIDES_PER_TEST_LEVEL.fetch(
+      test_level, OPTIMAL_TEST_JOB_DURATION_IN_SECONDS
+    )
+    target_job_duration - SETUP_DURATION_IN_SECONDS
   end
 
   def average_test_file_duration(test_level, rspec_files)

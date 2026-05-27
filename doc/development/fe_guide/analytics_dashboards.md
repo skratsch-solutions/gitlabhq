@@ -230,7 +230,7 @@ To create a built-in analytics dashboard:
    The `gridAttributes` position the panel within a 12x12 dashboard grid.
 
    `tooltip` adds a help icon next to the panel title that displays contextual help on hover, using `description` text and an optional `descriptionLink` to embed a link between the `%{linkStart}` and `%{linkEnd}` placeholders. You can also define a `tooltip` at the visualization level in `visualization.options` or dynamically using the [`setVisualizationOverrides`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/ee/app/assets/javascripts/analytics/analytics_dashboards/components/analytics_dashboard_panel.vue#L261) callback function from a data source. Note that panel-level tooltips take precedence over visualization-level tooltips.
-1. Optional. Add `views` to a panel to let users switch between multiple visualizations. A panel must define between 2 and 5 views. Each view requires a `text` label and a `visualization` (inline visualization or visualization template). The first view is selected by default. The panel-level `visualization` property is still required by the schema when `views` is set. Set it to the same visualization as the first view.
+1. Optional. Add `views` to a panel to let users switch between multiple visualizations. A panel must define between 2 and 5 views (see [Pajamas segmented control](https://design.gitlab.com/components/segmented-control)). Each view requires a `text` label and a `visualization` (inline visualization or visualization template). The first view is selected by default. The panel-level `visualization` property is still required by the schema when `views` is set. Set it to the same visualization as the first view.
 
    ```yaml
    # cool_dashboard/dashboard.yaml

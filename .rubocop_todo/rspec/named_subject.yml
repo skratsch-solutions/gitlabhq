@@ -119,7 +119,6 @@ RSpec/NamedSubject:
     - 'ee/spec/graphql/mutations/vulnerabilities/bulk_dismiss_spec.rb'
     - 'ee/spec/graphql/mutations/vulnerabilities/create_external_issue_link_spec.rb'
     - 'ee/spec/graphql/mutations/vulnerabilities/create_spec.rb'
-    - 'ee/spec/graphql/mutations/vulnerabilities/destroy_external_issue_link_spec.rb'
     - 'ee/spec/graphql/mutations/vulnerabilities/dismiss_spec.rb'
     - 'ee/spec/graphql/mutations/vulnerabilities/revert_to_detected_spec.rb'
     - 'ee/spec/graphql/resolvers/app_sec/fuzzing/coverage/corpuses_resolver_spec.rb'

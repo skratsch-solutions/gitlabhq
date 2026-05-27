@@ -305,13 +305,13 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     let(:query) { 'test' }
 
     subject(:results) do
-      described_class.new(user, query, project: project, organization_id: current_organization.id)
+      described_class.new(user, query, project: project)
     end
 
-    it 'passes organization_id to NotesFinder' do
+    it "passes the project's organization_id to NotesFinder" do
       expect(NotesFinder).to receive(:new).with(
         anything,
-        hash_including(organization_id: current_organization.id)
+        hash_including(organization_id: project.organization_id)
       ).and_call_original
 
       results.objects('notes')

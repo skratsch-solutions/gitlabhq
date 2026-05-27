@@ -51,6 +51,10 @@ module API
             work_item.work_item_type
           end
 
+          expose_field :namespace,
+            using: ::API::Entities::NamespaceBasic,
+            documentation: { type: 'Entities::NamespaceBasic' }
+
           expose_field :create_note_email,
             documentation: { type: 'String', example: 'issue-1@example.com' },
             expose_nil: true do |work_item, options|

@@ -21,10 +21,6 @@ module API
         user_project.hooks
       end
 
-      def webhook_signing_token_actor
-        user_project
-      end
-
       params :common_hook_parameters do
         optional :name, type: String, desc: 'Name of the hook'
         optional :description, type: String, desc: 'Description of the hook'

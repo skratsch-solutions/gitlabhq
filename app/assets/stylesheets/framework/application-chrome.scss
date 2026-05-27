@@ -302,40 +302,6 @@
 }
 
 /*
- * Duo chat
- */
-
- .application-chrome {
-
-  // Your messages
-  // stylelint-disable-next-line gitlab/no-has -- scoped to chat message container
-  .duo-chat-message-container:has(.duo-chat-message .gl-avatar) {
-    @apply gl-justify-end;
-
-    .duo-chat-message {
-      background-color: rgb(from var(--super-sidebar-theme-accent-color) r g b / 15%);
-      @apply gl-rounded-bl-[1rem] gl-rounded-br-none;
-    }
-  }
-
-  // stylelint-disable-next-line gitlab/no-has -- scoped to chat message container
-  &.gl-dark .duo-chat-message-container:has(.duo-chat-message.gl-text-feedback-info) {
-    // stylelint-disable-next-line gitlab/no-has -- scoped to chat message element
-    .duo-chat-message:not(:has(.error-icon)) {
-      background-color: rgb(from var(--super-sidebar-theme-accent-color) r g b / 30%);
-    }
-  }
-
-  .duo-chat-message-container {
-    // stylelint-disable-next-line gitlab/no-has -- scoped to chat message element
-    .duo-chat-message:has(.error-icon) {
-      @apply gl-bg-subtle;
-    }
-  }
-
-}
-
-/*
  * Themes
  */
 

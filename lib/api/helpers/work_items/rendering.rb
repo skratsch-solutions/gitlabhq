@@ -53,6 +53,26 @@ module API
         end
 
         def render_children_for(parent_work_item)
+          render_paginated_work_items_for(parent_work_item, entity: Entities::WorkItemBasic) do |preloads|
+            build_children_relation(parent_work_item, state: params[:state], preloads: preloads)
+          end
+        end
+
+        def render_linked_items_for(parent_work_item, link_type: nil)
+          render_paginated_work_items_for(
+            parent_work_item, entity: ::API::Entities::WorkItems::LinkedWorkItem
+          ) do |preloads|
+            build_linked_items_relation(
+              parent_work_item, state: params[:state], link_type: link_type, preloads: preloads
+            )
+          end
+        end
+
+        # Work items are loaded via the parent relation (keyset-ordered, by relative position for children), not via
+        # WorkItemsFinder. Pagination runs first so finalize sees the full page and produces a correct next-cursor,
+        # then per-record :read_work_item policy filters the response in Ruby. A page may therefore present fewer items
+        # than per_page when some records are not readable, but cursor advancement stays correct.
+        def render_paginated_work_items_for(parent_work_item, entity:)
           check_work_item_rest_api_feature_flag!
           check_pagination_param!(params)
 
@@ -63,15 +83,11 @@ module API
           feature_keys = requested_feature_keys(params[:features])
           preloads = preload_associations_for(field_keys, feature_keys, resource_parent)
 
-          children_relation = build_children_relation(parent_work_item, state: params[:state], preloads: preloads)
+          relation = yield(preloads)
 
           params[:pagination] = 'keyset'
 
-          # Children are loaded via the model association (keyset-ordered by relative position), not via
-          # WorkItemsFinder. Pagination runs first so finalize sees the full page and produces a correct next-cursor,
-          # then per-record :read_work_item policy filters the response in Ruby. A page may therefore present fewer
-          # items than per_page when some children are not readable, but cursor advancement stays correct.
-          paginated = paginate_with_strategies(children_relation) do |records|
+          paginated = paginate_with_strategies(relation) do |records|
             preload_hierarchy_authorization(records, feature_keys)
             records
           end
@@ -79,12 +95,12 @@ module API
           records = Array(paginated)
           preload_work_item_policies(records)
 
-          visible_children = DeclarativePolicy.user_scope do
-            records.select { |child| Ability.allowed?(current_user, :read_work_item, child) }
+          visible = DeclarativePolicy.user_scope do
+            records.select { |record| Ability.allowed?(current_user, :read_work_item, record) }
           end
 
-          present visible_children,
-            with: Entities::WorkItemBasic,
+          present visible,
+            with: entity,
             current_user: current_user,
             scope_validator: ::Gitlab::Auth::ScopeValidator.new(
               access_token.present?, Gitlab::Auth::RequestAuthenticator.new(request)

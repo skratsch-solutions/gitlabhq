@@ -359,26 +359,6 @@ RSpec.shared_examples 'web-hook API endpoints' do |prefix|
         expect(response).to have_gitlab_http_status(:created)
         expect(json_response["signing_token_present"]).to be(false)
       end
-
-      context 'when webhook_signing_token feature flag is disabled' do
-        before do
-          stub_feature_flags(webhook_signing_token: false)
-        end
-
-        it "ignores the signing_token param" do
-          signing_token = "whsec_#{Base64.strict_encode64('a' * 32)}"
-
-          post api(collection_uri, user, admin_mode: user.admin?),
-            params: { url: "http://example.com", signing_token: signing_token }
-
-          expect(response).to have_gitlab_http_status(:created)
-          expect(json_response["signing_token_present"]).to be(false)
-
-          hook = scope.find(json_response["id"])
-
-          expect(hook.signing_token).to be_nil
-        end
-      end
     end
 
     it "returns a 400 error if url not given" do
@@ -525,23 +505,6 @@ RSpec.shared_examples 'web-hook API endpoints' do |prefix|
 
       expect(response).to have_gitlab_http_status(:unprocessable_entity)
       expect(json_response["error"]).to include("Custom headers validation failed")
-    end
-
-    context 'when webhook_signing_token feature flag is disabled' do
-      before do
-        stub_feature_flags(webhook_signing_token: false)
-      end
-
-      it "ignores the signing_token param" do
-        signing_token = "whsec_#{Base64.strict_encode64('a' * 32)}"
-
-        put api(hook_uri, user, admin_mode: user.admin?),
-          params: { url: "http://example.com", signing_token: signing_token }
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response["signing_token_present"]).to be(false)
-        expect(hook.reload.signing_token).to be_nil
-      end
     end
   end
 

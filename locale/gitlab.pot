@@ -27147,6 +27147,12 @@ msgstr ""
 msgid "DuoAgentPlatform|Image registry"
 msgstr ""
 
+msgid "DuoAgentPlatform|Implement with GitLab Duo"
+msgstr ""
+
+msgid "DuoAgentPlatform|Implement work item with GitLab Duo"
+msgstr ""
+
 msgid "DuoAgentPlatform|Job IDs"
 msgstr ""
 
@@ -32786,9 +32792,6 @@ msgstr ""
 msgid "Generate API key at %{site}"
 msgstr ""
 
-msgid "Generate MR with Duo"
-msgstr ""
-
 msgid "Generate a default set of labels"
 msgstr ""
 
@@ -32796,9 +32799,6 @@ msgid "Generate commit message"
 msgstr ""
 
 msgid "Generate group access tokens scoped to this group for your applications that need access to the GitLab API."
-msgstr ""
-
-msgid "Generate merge request with Duo"
 msgstr ""
 
 msgid "Generate new export"
@@ -84644,9 +84644,6 @@ msgid "Webhooks|Save this token now because you can only access it once."
 msgstr ""
 
 msgid "Webhooks|Save this token now because you can only access it once. After you save this form, any apps that rely on the previous token won't work until you replace it with this token."
-msgstr ""
-
-msgid "Webhooks|Secret token"
 msgstr ""
 
 msgid "Webhooks|Secret token (not recommended)"

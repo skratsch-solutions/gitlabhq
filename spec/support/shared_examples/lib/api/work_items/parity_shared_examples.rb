@@ -35,7 +35,6 @@ RSpec.shared_examples 'work item API field parity' do
         description_html
         external_author
         name
-        namespace
         project
         promoted_to_epic_url
         show_plan_upgrade_promotion

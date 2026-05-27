@@ -14,9 +14,11 @@ include:
   script:
     - source scripts/utils.sh
     - pg_dumpall -h postgres -U postgres > pg_dumpall.sql
+    - bundle exec rake db:schema:cache:dump
   artifacts:
     paths:
       - pg_dumpall.sql
+      - db/*schema_cache.yml
 
 clickhouse:check-schema:
   variables:

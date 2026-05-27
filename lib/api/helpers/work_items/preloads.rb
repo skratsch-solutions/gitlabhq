@@ -35,7 +35,8 @@ module API
           moved_to_work_item_url: [:moved_to],
           promoted_to_epic_url: [:work_item_transition],
           web_url: [:author],
-          web_path: [:author]
+          web_path: [:author],
+          namespace: [{ namespace: :route }]
         }.freeze
 
         PROJECT_FIELD_PRELOADS = {
@@ -134,6 +135,16 @@ module API
           # N+1 when loading those associations
           all_preloads = (preloads + WORK_ITEM_REFERENCE_PRELOADS).uniq
           relation.preload(*all_preloads) # rubocop:disable CodeReuse/ActiveRecord -- Preloading associations for API response
+        end
+
+        def build_linked_items_relation(work_item, state: nil, link_type: nil, preloads: [])
+          # Unconditionally preload author and project / namespace / route so the :read_work_item policy check doesn't
+          # N+1 when loading those associations
+          all_preloads = (preloads + WORK_ITEM_REFERENCE_PRELOADS).uniq
+
+          relation = ::WorkItem.linked_items_for(work_item.id, link_type: link_type, preload: all_preloads)
+          relation = relation.with_state(state) if state.to_s.in?(%w[opened closed])
+          relation
         end
 
         # Preloads the project / group membership associated with the work items so the :read_project and :read_group

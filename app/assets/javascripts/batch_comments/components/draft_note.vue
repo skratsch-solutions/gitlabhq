@@ -11,6 +11,7 @@ import { useBatchComments } from '~/batch_comments/store';
 import { useNotes } from '~/notes/store/legacy_notes';
 
 export default {
+  name: 'DraftNote',
   components: {
     NoteableNote,
     GlBadge,
