@@ -128,6 +128,7 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
       service.instance_variable_set(:@project, project)
 
       allow(service).to receive(:sleep)
+      allow(service).to receive(:capture_export_diagnostics).and_return({})
     end
 
     context 'when export file exists on first check' do
@@ -135,6 +136,14 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
         allow(project).to receive(:export_file_exists?).and_return(true)
 
         expect { service.ensure_export_ready!(user) }.not_to raise_error
+      end
+
+      it 'does not gather diagnostics' do
+        allow(project).to receive(:export_file_exists?).and_return(true)
+
+        expect(service).not_to receive(:capture_export_diagnostics)
+
+        service.ensure_export_ready!(user)
       end
     end
 
@@ -172,6 +181,36 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
         end.to raise_error(described_class::StrategyError)
 
         expect(call_count).to eq(3) # initial + 2 retries
+      end
+
+      it 'merges captured diagnostics into each retry log' do
+        allow(project).to receive(:export_file_exists?).and_return(false)
+        allow(service).to receive(:capture_export_diagnostics).and_return(
+          current_user_id: user.id,
+          upload_id: 42,
+          upload_count_for_user: 1,
+          export_file_column_present: true,
+          export_file_exists: false,
+          export_archive_exists: true
+        )
+
+        expect(service.send(:logger)).to receive(:info).with(
+          hash_including(
+            message: "Export file not ready, retrying",
+            retry_count: kind_of(Integer),
+            backoff_seconds: kind_of(Numeric),
+            current_user_id: user.id,
+            upload_id: 42,
+            upload_count_for_user: 1,
+            export_file_column_present: true,
+            export_file_exists: false,
+            export_archive_exists: true
+          )
+        ).at_least(:once)
+
+        expect do
+          service.ensure_export_ready!(user, max_retries: 2, base_delay: 0.01)
+        end.to raise_error(described_class::StrategyError)
       end
     end
 
@@ -237,13 +276,62 @@ RSpec.describe Import::AfterExportStrategies::BaseAfterExportStrategy, feature_c
         service.ensure_export_ready!(user, max_retries: 5, base_delay: 0.01)
       end
 
-      it 'checks export_file_exists? inside the uncached block' do
-        allow(project).to receive(:export_file_exists?).and_return(true)
+      it 'checks export_file_exists? and gathers diagnostics inside the uncached block' do
+        allow(project).to receive(:export_file_exists?).and_return(false, true)
 
-        expect(Project).to receive(:uncached).once.and_yield
-        expect(project).to receive(:export_file_exists?).once
+        expect(Project).to receive(:uncached).at_least(:once).and_yield
+        expect(service).to receive(:capture_export_diagnostics).with(user).once.and_return({})
 
-        service.ensure_export_ready!(user)
+        service.ensure_export_ready!(user, max_retries: 2, base_delay: 0.01)
+      end
+    end
+  end
+
+  describe '#capture_export_diagnostics' do
+    let(:upload) { create(:import_export_upload, project: project, user: user) }
+
+    before do
+      service.instance_variable_set(:@project, project)
+    end
+
+    it 'returns the upload id, column presence and existence flags' do
+      allow(project).to receive(:import_export_upload_by_user).with(user).and_return(upload)
+
+      diagnostics = service.send(:capture_export_diagnostics, user)
+
+      expect(diagnostics).to include(
+        current_user_id: user.id,
+        upload_id: upload.id,
+        export_file_column_present: upload[:export_file].present?,
+        export_file_exists: upload.export_file_exists?,
+        upload_count_for_user: kind_of(Integer)
+      )
+    end
+
+    context 'when no upload exists for the user' do
+      it 'returns nil ids and falsey flags' do
+        allow(project).to receive(:import_export_upload_by_user).with(user).and_return(nil)
+
+        diagnostics = service.send(:capture_export_diagnostics, user)
+
+        expect(diagnostics).to include(
+          current_user_id: user.id,
+          upload_id: nil,
+          export_file_column_present: false,
+          export_file_exists: false,
+          export_archive_exists: nil
+        )
+      end
+    end
+
+    context 'when the storage existence check raises' do
+      it 'returns nil for export_archive_exists rather than propagating the error' do
+        allow(project).to receive(:import_export_upload_by_user).with(user).and_return(upload)
+        allow(upload).to receive(:export_archive_exists?).and_raise(StandardError, 'boom')
+
+        diagnostics = service.send(:capture_export_diagnostics, user)
+
+        expect(diagnostics[:export_archive_exists]).to be_nil
       end
     end
   end

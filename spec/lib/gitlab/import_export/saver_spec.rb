@@ -57,6 +57,7 @@ RSpec.describe Gitlab::ImportExport::Saver, feature_category: :importers do
         assign_duration_s: anything,
         upload_duration_s: anything,
         upload_bytes: anything,
+        upload_id: kind_of(Integer),
         export_file_saved: anything,
         export_file_exists: anything,
         export_archive_exists: anything
@@ -73,6 +74,26 @@ RSpec.describe Gitlab::ImportExport::Saver, feature_category: :importers do
     expect(FileUtils).not_to have_received(:rm_rf).with(base_path)
     expect(FileUtils).to have_received(:rm_rf).with(archive_path)
     expect(Dir.exist?(archive_path)).to eq(false)
+  end
+
+  context 'when the export_file column saved but CarrierWave reports no file' do
+    it 'logs a warning so the divergence is visible before the after-export strategy runs' do
+      stub_uploads_object_storage(ImportExportUploader)
+      allow_next_instance_of(ImportExportUpload) do |upload|
+        allow(upload).to receive(:export_file_exists?).and_return(false)
+      end
+
+      allow(Gitlab::Export::Logger).to receive(:info).and_call_original
+
+      expect(Gitlab::Export::Logger).to receive(:warn).with(
+        hash_including(
+          message: 'Export file column saved but CarrierWave reports no file',
+          upload_id: kind_of(Integer)
+        )
+      )
+
+      subject.save # rubocop:disable Rails/SaveBang -- not an ActiveRecord
+    end
   end
 
   context 'when export_archive_exists? raises an error' do

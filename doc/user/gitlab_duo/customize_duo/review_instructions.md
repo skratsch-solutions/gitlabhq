@@ -162,7 +162,8 @@ To configure custom review instructions for a group:
 
 1. In the top bar, select **Search or go to** and find your top-level group.
 1. In the left sidebar, select **Settings** > **GitLab Duo**.
-1. Under **Custom review instructions for groups**, select a project in your group.
+1. Under **Custom review instructions for groups**, select the project that contains the
+   `.gitlab/duo/mr-review-instructions.yaml` file with your group's review instructions.
 1. Select **Save changes**.
 
 ## Best practices

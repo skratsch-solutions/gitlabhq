@@ -5,6 +5,8 @@ module Integrations
     class AppMentionedService
       include Gitlab::Utils::StrongMemoize
 
+      DUO_SLACK_DOCS_URL = 'https://docs.gitlab.com/user/project/integrations/gitlab_slack_application/#gitlab-duo'
+
       def initialize(params)
         @params = params.with_indifferent_access
         @slack_event = (@params[:event] || {}).with_indifferent_access
@@ -42,7 +44,8 @@ module Integrations
           slack_api.add_reaction(channel: channel_id, name: 'lock', timestamp: message_ts)
           slack_api.post_ephemeral(
             channel: channel_id, user: slack_user_id,
-            text: 'You do not have access to this feature yet.'
+            text: 'You do not have access to this feature yet. ' \
+              "For more information, see #{DUO_SLACK_DOCS_URL}"
           )
           return ServiceResponse.success
         end
@@ -51,7 +54,8 @@ module Integrations
           slack_api.add_reaction(channel: channel_id, name: 'lock', timestamp: message_ts)
           slack_api.post_ephemeral(
             channel: channel_id, user: slack_user_id,
-            text: 'This feature requires GitLab Duo Agent Platform.'
+            text: 'This feature requires GitLab Duo Agent Platform. ' \
+              "For more information, see #{DUO_SLACK_DOCS_URL}"
           )
           return ServiceResponse.success
         end

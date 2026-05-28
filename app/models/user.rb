@@ -2772,10 +2772,6 @@ class User < ApplicationRecord
     super.presence || build_user_preference
   end
 
-  def pending_todo_for(target)
-    todos.find_by(target: target, state: :pending)
-  end
-
   def password_expired?
     !!(password_expires_at && password_expires_at.past?)
   end

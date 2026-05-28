@@ -512,7 +512,6 @@ Gitlab/NamespacedClass:
     - 'app/serializers/issuable_entity.rb'
     - 'app/serializers/issuable_sidebar_basic_entity.rb'
     - 'app/serializers/issuable_sidebar_extras_entity.rb'
-    - 'app/serializers/issuable_sidebar_todo_entity.rb'
     - 'app/serializers/issue_board_entity.rb'
     - 'app/serializers/issue_entity.rb'
     - 'app/serializers/issue_serializer.rb'

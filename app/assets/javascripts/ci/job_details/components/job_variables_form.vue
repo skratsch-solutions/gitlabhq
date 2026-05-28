@@ -145,61 +145,63 @@ export default {
     <gl-collapse id="variables-form-collapse" :visible="expanded" class="gl-mx-auto gl-mt-5">
       <gl-loading-icon v-if="$apollo.queries.variables.loading" class="gl-mt-5" size="lg" />
 
-      <div
-        v-for="(variable, index) in variables"
-        :key="variable.id"
-        class="gl-mb-5 gl-flex gl-items-center"
-        data-testid="ci-variable-row"
-      >
-        <gl-form-input-group class="gl-mr-4 gl-grow">
-          <template #prepend>
-            <gl-input-group-text>
-              {{ s__('CiVariables|Key') }}
-            </gl-input-group-text>
-          </template>
-          <gl-form-input
-            :ref="inputRef('key', variable.id)"
-            v-model="variable.key"
-            :placeholder="s__('CiVariables|Input variable key')"
-            data-testid="ci-variable-key"
-            @change="addEmptyVariable"
-          />
-        </gl-form-input-group>
+      <div :key="`variables-rows-${variables.length}`">
+        <div
+          v-for="(variable, index) in variables"
+          :key="variable.id"
+          class="gl-mb-5 gl-flex gl-items-center"
+          data-testid="ci-variable-row"
+        >
+          <gl-form-input-group class="gl-mr-4 gl-grow">
+            <template #prepend>
+              <gl-input-group-text>
+                {{ s__('CiVariables|Key') }}
+              </gl-input-group-text>
+            </template>
+            <gl-form-input
+              :ref="inputRef('key', variable.id)"
+              v-model="variable.key"
+              :placeholder="s__('CiVariables|Input variable key')"
+              data-testid="ci-variable-key"
+              @change="addEmptyVariable"
+            />
+          </gl-form-input-group>
 
-        <gl-form-input-group class="gl-grow-2">
-          <template #prepend>
-            <gl-input-group-text>
-              {{ s__('CiVariables|Value') }}
-            </gl-input-group-text>
-          </template>
-          <gl-form-input
-            :ref="inputRef('value', variable.id)"
-            v-model="variable.value"
-            :placeholder="s__('CiVariables|Input variable value')"
-            data-testid="ci-variable-value"
-          />
-        </gl-form-input-group>
+          <gl-form-input-group class="gl-grow-2">
+            <template #prepend>
+              <gl-input-group-text>
+                {{ s__('CiVariables|Value') }}
+              </gl-input-group-text>
+            </template>
+            <gl-form-input
+              :ref="inputRef('value', variable.id)"
+              v-model="variable.value"
+              :placeholder="s__('CiVariables|Input variable value')"
+              data-testid="ci-variable-value"
+            />
+          </gl-form-input-group>
 
-        <gl-button
-          v-if="canRemove(index)"
-          v-gl-tooltip
-          :aria-label="s__('CiVariables|Remove inputs')"
-          :title="s__('CiVariables|Remove inputs')"
-          :class="$options.clearBtnSharedClasses"
-          category="tertiary"
-          icon="remove"
-          data-testid="delete-variable-btn"
-          @click="deleteVariable(variable.id)"
-        />
-        <gl-button
-          v-else
-          aria-hidden="true"
-          class="gl-pointer-events-none gl-opacity-0"
-          :class="$options.clearBtnSharedClasses"
-          data-testid="delete-variable-btn-placeholder"
-          category="tertiary"
-          icon="remove"
-        />
+          <gl-button
+            v-if="canRemove(index)"
+            v-gl-tooltip
+            :aria-label="s__('CiVariables|Remove inputs')"
+            :title="s__('CiVariables|Remove inputs')"
+            :class="$options.clearBtnSharedClasses"
+            category="tertiary"
+            icon="remove"
+            data-testid="delete-variable-btn"
+            @click="deleteVariable(variable.id)"
+          />
+          <gl-button
+            v-else
+            aria-hidden="true"
+            class="gl-pointer-events-none gl-opacity-0"
+            :class="$options.clearBtnSharedClasses"
+            data-testid="delete-variable-btn-placeholder"
+            category="tertiary"
+            icon="remove"
+          />
+        </div>
       </div>
 
       <div class="gl-mt-5 gl-text-center">

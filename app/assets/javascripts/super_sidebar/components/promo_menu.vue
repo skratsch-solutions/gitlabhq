@@ -86,15 +86,19 @@ export default {
 </script>
 
 <template>
-  <div class="gl-flex">
+  <div class="gl-flex gl-gap-3">
+    <div
+      class="gl-border-r gl-mx-2 gl-my-3 gl-block gl-h-5 gl-w-1 gl-border-r-strong sm:gl-hidden"
+    ></div>
     <gl-disclosure-dropdown
-      icon="profile"
+      icon="user"
       category="tertiary"
       :toggle-text="__('Menu')"
       text-sr-only
       no-caret
       :items="items"
       class="gl-block lg:gl-hidden"
+      toggle-class="!gl-rounded-full !gl-border !gl-border-strong"
     >
       <gl-disclosure-dropdown-group v-if="showAuthButtons">
         <div class="gl-flex gl-flex-col gl-gap-3 gl-px-4 gl-py-3">

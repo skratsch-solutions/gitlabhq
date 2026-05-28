@@ -74670,6 +74670,9 @@ msgstr ""
 msgid "SuperSonics|I agree that my use of the GitLab Software is subject to the Subscription Agreement located at the %{linkStart}Terms of Service%{linkEnd}, unless otherwise agreed to in writing with GitLab."
 msgstr ""
 
+msgid "SuperSonics|If your new subscription is not future-dated, it immediately replaces your current one. To complete your remaining term, activate the new one on or after the renewal date."
+msgstr ""
+
 msgid "SuperSonics|Learn how to %{linkStart}activate your subscription%{linkEnd}."
 msgstr ""
 

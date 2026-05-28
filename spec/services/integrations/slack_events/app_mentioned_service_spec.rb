@@ -216,7 +216,7 @@ RSpec.describe Integrations::SlackEvents::AppMentionedService, feature_category:
             body: hash_including(
               'channel' => channel_id,
               'user' => slack_user_id,
-              'text' => 'You do not have access to this feature yet.'
+              'text' => a_string_including('You do not have access to this feature yet.')
             )
           )
         end
@@ -270,7 +270,7 @@ RSpec.describe Integrations::SlackEvents::AppMentionedService, feature_category:
               body: hash_including(
                 'channel' => channel_id,
                 'user' => slack_user_id,
-                'text' => 'This feature requires GitLab Duo Agent Platform.'
+                'text' => a_string_including('This feature requires GitLab Duo Agent Platform.')
               )
             )
           end

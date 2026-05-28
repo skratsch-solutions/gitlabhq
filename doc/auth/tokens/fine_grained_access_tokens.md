@@ -2910,6 +2910,7 @@ incompatible with personal access tokens.
 | `POST` | `/internal/two_factor_push_otp_check` | GitLab Shell token |
 | `POST` | `/internal/two_factor_recovery_codes` | GitLab Shell token |
 | `POST` | `/internal/workhorse/authorize_upload` | Workhorse verification |
+| `POST` | `/internal/workhorse/oauth_routing` | Workhorse verification |
 | `GET` | `/job` | CI job token |
 | `GET` | `/job/allowed_agents` | CI job token |
 | `PUT` | `/jobs/:id` | CI job token |

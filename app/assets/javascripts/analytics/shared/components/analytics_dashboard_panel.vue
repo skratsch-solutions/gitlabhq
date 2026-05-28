@@ -9,7 +9,7 @@ import { HTTP_STATUS_BAD_REQUEST } from '~/lib/utils/http_status';
 import { __, s__, sprintf } from '~/locale';
 import ExtendedDashboardPanel from '~/vue_shared/components/customizable_dashboard/extended_dashboard_panel.vue';
 import dataSources from 'ee_else_ce/analytics/analytics_dashboards/data_sources';
-import eeVisualizations from 'ee_else_ce/analytics/analytics_dashboards/components/visualizations';
+import visualizations from 'ee_else_ce/analytics/analytics_dashboards/components/visualizations';
 import {
   PANEL_TROUBLESHOOTING_URL,
   VISUALIZATION_DOCUMENTATION_LINKS,
@@ -28,9 +28,7 @@ export default {
     GlSegmentedControl,
     GlSprintf,
     GlButton,
-    LineChart: () =>
-      import('~/analytics/analytics_dashboards/components/visualizations/line_chart.vue'),
-    ...eeVisualizations,
+    ...visualizations,
   },
   mixins: [glAbilitiesMixin(), glLicensedFeaturesMixin()],
   inject: [

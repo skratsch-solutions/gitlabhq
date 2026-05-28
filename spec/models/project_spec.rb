@@ -5058,6 +5058,46 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
+  describe '#external_import?' do
+    let_it_be_with_reload(:project) { create(:project) }
+
+    context 'when import_url is set' do
+      before do
+        project.update_column(:import_url, 'https://example.com/repo.git')
+      end
+
+      it { expect(project.external_import?).to be(true) }
+    end
+
+    context 'when import_url is blank' do
+      before do
+        project.update_column(:import_url, nil)
+      end
+
+      it { expect(project.external_import?).to be(false) }
+    end
+
+    # Regression: https://gitlab.com/gitlab-org/gitlab/-/issues/596707
+    context 'when import_url is malformed and cannot be parsed' do
+      before do
+        project.update_column(:import_url, 'git:\\\\fileserver01\\repos\\my-project\\source')
+      end
+
+      it 'returns true without raising Addressable::URI::InvalidURIError' do
+        expect { project.external_import? }.not_to raise_error
+        expect(project.external_import?).to be(true)
+      end
+
+      it 'does not block saving the project' do
+        expect { project.touch }.not_to raise_error
+      end
+
+      it 'does not block destroying the project' do
+        expect { project.destroy! }.not_to raise_error
+      end
+    end
+  end
+
   describe '#jira_import?' do
     let_it_be(:project) { build(:project, import_type: 'jira') }
     let_it_be(:jira_import) { build(:jira_import_state, project: project) }

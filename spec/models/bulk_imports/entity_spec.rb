@@ -370,9 +370,9 @@ RSpec.describe BulkImports::Entity, type: :model, feature_category: :importers d
           entity = build(:bulk_import_entity, :project_entity, bulk_import: offline_import)
           pipelines = entity.pipelines
 
-          # Until offline-only pipelines are implemented, only checking for EntityFinisher may falsely pass
           expect(pipelines).to contain_exactly(
-            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 0)
+            hash_including(pipeline: Import::Offline::Projects::Pipelines::ProjectPipeline, stage: 0),
+            hash_including(pipeline: BulkImports::Common::Pipelines::EntityFinisher, stage: 1)
           )
         end
       end

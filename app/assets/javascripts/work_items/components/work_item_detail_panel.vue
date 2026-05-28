@@ -264,28 +264,30 @@ export default {
             @click="handleCopyToClipboard"
           />
         </div>
-        <gl-button
-          v-gl-tooltip.bottom
-          data-testid="work-item-detail-panel-link-button"
-          :href="activeItem.webUrl"
-          :title="$options.i18n.openTooltipText"
-          category="tertiary"
-          icon="maximize"
-          size="small"
-          :aria-label="$options.i18n.openTooltipText"
-          @click="redirectToWorkItem"
-        />
-        <!-- eslint-enable local-rules/vue-no-web-url -->
-        <gl-button
-          v-gl-tooltip.bottom
-          class="gl-detail-panel-close-button"
-          category="tertiary"
-          icon="close"
-          size="small"
-          :aria-label="$options.i18n.closePanelText"
-          :title="$options.i18n.closePanelText"
-          @click="handleClose"
-        />
+        <div class="panel-header-controls">
+          <gl-button
+            v-gl-tooltip.bottom
+            data-testid="work-item-detail-panel-link-button"
+            :href="activeItem.webUrl"
+            :title="$options.i18n.openTooltipText"
+            category="tertiary"
+            icon="maximize"
+            size="small"
+            :aria-label="$options.i18n.openTooltipText"
+            @click="redirectToWorkItem"
+          />
+          <!-- eslint-enable local-rules/vue-no-web-url -->
+          <gl-button
+            v-gl-tooltip.bottom
+            class="gl-detail-panel-close-button"
+            category="tertiary"
+            icon="close"
+            size="small"
+            :aria-label="$options.i18n.closePanelText"
+            :title="$options.i18n.closePanelText"
+            @click="handleClose"
+          />
+        </div>
       </div>
       <work-item-metadata-provider :full-path="activeItemFullPath">
         <!-- eslint-disable vue/custom-event-name-casing, vue/v-on-event-hyphenation-->

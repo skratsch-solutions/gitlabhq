@@ -99,7 +99,7 @@ const monthlyVisualization = {
 
 export default {
   component: AnalyticsDashboardPanel,
-  title: 'ee/analytics/analytics_dashboards/components/analytics_dashboard_panel',
+  title: 'analytics/shared/components/analytics_dashboard_panel',
 };
 
 const Template = (args, { argTypes }) => ({

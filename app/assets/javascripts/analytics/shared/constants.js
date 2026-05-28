@@ -547,3 +547,5 @@ export const VISUALIZATION_DOCUMENTATION_LINKS = {
 };
 
 export const NULL_SERIES_ID = 'nullSeries';
+
+export const EVENT_LABEL_CLICK_METRIC_IN_DASHBOARD_TABLE = 'click_metric_in_dashboard_table';

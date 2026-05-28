@@ -1880,7 +1880,7 @@ class Project < ApplicationRecord
   end
 
   def external_import?
-    safe_import_url.present?
+    import_url.present?
   end
 
   def notify_project_import_complete?
