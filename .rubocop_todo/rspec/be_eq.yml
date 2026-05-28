@@ -1371,4 +1371,3 @@ RSpec/BeEq:
     - 'spec/workers/projects/record_target_platforms_worker_spec.rb'
     - 'spec/workers/repository_check/batch_worker_spec.rb'
     - 'spec/workers/repository_check/single_repository_worker_spec.rb'
-    - 'spec/workers/users/unconfirmed_secondary_emails_deletion_cron_worker_spec.rb'

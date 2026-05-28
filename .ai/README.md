@@ -23,10 +23,16 @@ project. These files are referenced from `AGENTS.md` (and its identical copy
   ci-cd.md                 # CI/CD pipeline guidelines
   git.md                   # Git workflow guidelines
   merge-requests.md        # Merge request workflow guidelines
+  code-review.md           # Code review methodology and standards
   principles/              # SSOT-derived development principles
     manifest.yml           # Manifest: doc paths, file filters, baselines
     distilled/             # Auto-generated principle files (23 domains)
     baselines/             # Hand-curated rules not yet in docs.gitlab.com
+.claude/
+  skills/<name>/SKILL.md   # Shared Claude Code skills (auto-discovered)
+.agents/
+  skills -> ../.claude/skills   # symlink, so other agents such as Duo and OpenCode
+                                # pickup skills on session startup.
 ```
 
 ## How instructions are loaded
@@ -40,9 +46,54 @@ project. These files are referenced from `AGENTS.md` (and its identical copy
   guidance. Works with any AI tool that respects directory-scoped
   `AGENTS.md` files.
 - **Claude Code**: Uses the project-scope skill at
-  `.claude/skills/gitlab-coding-principles/SKILL.md`, auto-discovered from `.claude/skills/`.
-- **OpenCode**: Uses the equivalent skill at `.agents/skills/gitlab-coding-principles/SKILL.md`.
-- Both skill files have identical content, auto-generated from `manifest.yml` by the sync script.
+  `.claude/skills/gitlab-coding-principles/SKILL.md`, auto-discovered from
+  `.claude/skills/`.
+- **OpenCode and other AGENTS.md-aware tools**: Use the same file via the
+  `.agents/skills` symlink, which points at `.claude/skills`. No second
+  copy to keep in sync.
+
+## Shared Claude Code skills
+
+Skills are auto-discovered by Claude Code from the project-root
+`.claude/skills/` directory — **no install step is required**. After
+cloning, every committed skill is immediately available. The same
+directory is exposed to other tools via the `.agents/skills` symlink.
+
+`.claude/` is gitignored at the project root, so shared skills are
+committed with `git add --force` — the same pattern used for everything
+in `.ai/`. See [`.claude/skills/README.md`](../.claude/skills/README.md)
+for the directory layout and conventions.
+
+### Personal overrides
+
+To customise a shared skill for yourself without touching the team's
+version, create a **personal-level** copy at the same skill name under
+your home directory:
+
+```
+~/.claude/skills/<name>/SKILL.md
+```
+
+Claude Code resolves same-named skills across levels by precedence:
+
+> enterprise > personal > project
+
+A personal-level skill takes precedence over the project-level one
+committed in this repo. See the Claude Code docs on
+[where skills live and how precedence works][skills-docs] for the full
+table.
+
+[skills-docs]: https://code.claude.com/docs/en/skills#where-skills-live
+
+> **Why not "override" at the project level by editing the file in
+> place?** The project-level files under `.claude/skills/` are tracked
+> by git via `git add --force`. Once a path is tracked, `.gitignore`
+> no longer shields it: editing the working-tree copy is an ordinary
+> uncommitted change, and any later `git pull` that advances the same
+> path is refused with `error: Your local changes ... would be
+> overwritten by merge` until you commit, stash, or discard. Use the
+> personal-level path instead — it's a different file, so git never
+> sees a conflict and Claude Code's precedence rule picks your version.
 
 ## Adding Personal Instruction Files
 
@@ -67,13 +118,14 @@ To add a new shared module that all contributors benefit from:
 
 ## Local Overrides
 
-Create `CLAUDE.local.md` at the repository root for personal customizations.
-This file is explicitly referenced via `@CLAUDE.local.md` in both `CLAUDE.md`
-and `AGENTS.md`. Claude Code also loads it natively by convention.
-It can reference any additional gitignored files you have in `.ai/` or
+Create `AGENTS.local.md` at any directory level for personal customizations.
+This file is explicitly referenced via `@AGENTS.local.md` in both `CLAUDE.md`
+and `AGENTS.md`. `CLAUDE.local.md` is also supported — Claude Code loads it
+natively by convention, not via an explicit reference in the instruction files.
+Both files can reference any additional gitignored files you have in `.ai/` or
 elsewhere.
 
-`CLAUDE.local.md` is gitignored and will not be committed.
+The `AGENTS.local.md` is gitignored and will not be committed.
 It may also be symlinked from a local source-controlled repo.
 
 ## See also

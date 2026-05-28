@@ -13,10 +13,15 @@ Load the following instruction files based on your current task:
 
 - When working with **git, commits, or branches**: Read .ai/git.md
 - When working with **merge requests**: Read .ai/merge-requests.md
+- When **reviewing code or giving feedback**: Read .ai/code-review.md
 - When working with **CI/CD pipelines or `.gitlab-ci.yml`**: Read .ai/ci-cd.md
-- Before planning or implementing code changes, load the
-  `gitlab-coding-principles` skill: read
-  .agents/skills/gitlab-coding-principles/SKILL.md and follow its instructions.
+- Before planning or implementing code changes, load the `gitlab-coding-principles` skill.
+
+## Always-on rules
+
+These apply to every task without needing a trigger:
+
+- **Minimal fix** — apply the smallest change that solves the problem; do not expand scope across layers unless each layer is genuinely load-bearing
 
 ## Project Notes
 

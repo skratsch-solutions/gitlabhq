@@ -812,8 +812,8 @@ gradual rollout. After the migration completes, remove the legacy entry and the
 QUERY_COMPONENTS = {
   ::Search::Elastic::Filters => [
     :by_type,
-    { method: :by_search_level_and_membership, migration: :backfill_traversal_ids_for_milestones },
-    { method: :by_project_authorization, unless_migration: :backfill_traversal_ids_for_milestones },
+    { method: :by_search_level_and_membership, migration: :migration_name },
+    { method: :by_project_authorization, unless_migration: :migration_name },
     :by_archived
   ],
   ::Search::Elastic::Formats => [

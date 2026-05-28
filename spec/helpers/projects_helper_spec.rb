@@ -1738,7 +1738,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
   describe '#branch_rules_path' do
     subject { helper.branch_rules_path }
 
-    it { is_expected.to eq(project_settings_repository_path(project, anchor: 'js-branch-rules')) }
+    it { is_expected.to eq(project_settings_repository_path(project, anchor: 'branch-rules')) }
   end
 
   describe '#visibility_level_content' do

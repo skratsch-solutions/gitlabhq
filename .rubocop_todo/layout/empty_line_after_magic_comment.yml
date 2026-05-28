@@ -198,8 +198,6 @@ Layout/EmptyLineAfterMagicComment:
     - 'ee/spec/models/ci/minutes/usage_spec.rb'
     - 'ee/spec/models/deployments/approval_summary_spec.rb'
     - 'ee/spec/models/ee/group_member_spec.rb'
-    - 'ee/spec/models/ee/project_member_spec.rb'
-    - 'ee/spec/models/protected_environment_spec.rb'
     - 'ee/spec/models/protected_environments/approval_rule_spec.rb'
     - 'ee/spec/models/protected_environments/deploy_access_level_spec.rb'
     - 'ee/spec/models/work_items/progress_spec.rb'

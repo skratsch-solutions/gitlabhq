@@ -11,17 +11,27 @@ RSpec.shared_context 'with merge request approval settings' do
   let(:project_prevents_committer_approval) { false }
   let(:approval_policy_prevents_committer_approval) { false }
 
+  let(:policy_config) do
+    create(:security_orchestration_policy_configuration, project: approval_rule_project)
+  end
+
   let(:policy_read) do
     if approval_policy_prevents_author_approval && approval_policy_prevents_committer_approval
       create(:scan_result_policy_read,
+        project: approval_rule_project,
+        security_orchestration_policy_configuration: policy_config,
         project_approval_settings: {
           prevent_approval_by_author: true,
           prevent_approval_by_commit_author: true
         })
     elsif approval_policy_prevents_author_approval
-      create(:scan_result_policy_read, :prevent_approval_by_author)
+      create(:scan_result_policy_read, :prevent_approval_by_author,
+        project: approval_rule_project,
+        security_orchestration_policy_configuration: policy_config)
     elsif approval_policy_prevents_committer_approval
-      create(:scan_result_policy_read, :prevent_approval_by_commit_author)
+      create(:scan_result_policy_read, :prevent_approval_by_commit_author,
+        project: approval_rule_project,
+        security_orchestration_policy_configuration: policy_config)
     end
   end
 

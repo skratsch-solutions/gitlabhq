@@ -636,7 +636,7 @@ module ProjectsHelper
   end
 
   def branch_rules_path
-    project_settings_repository_path(@project, anchor: 'js-branch-rules')
+    project_settings_repository_path(@project, anchor: 'branch-rules')
   end
 
   def visibility_level_content(project, css_class: nil, icon_css_class: nil, icon_variant: nil)

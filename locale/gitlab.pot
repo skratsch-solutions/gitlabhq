@@ -27418,6 +27418,9 @@ msgstr ""
 msgid "DuoAgenticChat|Let's work through this together..."
 msgstr ""
 
+msgid "DuoAgenticChat|More active sessions"
+msgstr ""
+
 msgid "DuoAgenticChat|No GitLab Credits remain for this billing period. Turn off the %{agenticModeStart}Agentic mode%{agenticModeEnd} toggle or ask your administrator for more credits. %{linkStart}Learn more%{linkEnd}."
 msgstr ""
 

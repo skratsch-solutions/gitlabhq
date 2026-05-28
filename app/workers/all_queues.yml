@@ -1546,16 +1546,6 @@
   :idempotent: true
   :tags: []
   :queue_namespace: :cronjob
-- :name: cronjob:users_unconfirmed_secondary_emails_deletion_cron
-  :worker_name: Users::UnconfirmedSecondaryEmailsDeletionCronWorker
-  :feature_category: :user_management
-  :has_external_dependencies: false
-  :urgency: :low
-  :resource_boundary: :unknown
-  :weight: 1
-  :idempotent: true
-  :tags: []
-  :queue_namespace: :cronjob
 - :name: cronjob:version_version_check_cron
   :worker_name: Gitlab::Version::VersionCheckCronWorker
   :feature_category: :service_ping

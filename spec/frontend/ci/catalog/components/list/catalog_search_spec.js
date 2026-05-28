@@ -8,6 +8,7 @@ import {
   SORT_DESC,
   SORT_OPTION_CREATED,
   SORT_OPTION_POPULARITY,
+  SORT_OPTION_RELEASED,
   SORT_OPTION_STAR_COUNT,
 } from '~/ci/catalog/constants';
 
@@ -218,18 +219,16 @@ describe('CatalogSearch', () => {
     });
 
     describe('when changing sort option', () => {
-      it('changes the sort option to `Created date`', async () => {
-        await findSorting().vm.$emit('sortByChange', SORT_OPTION_CREATED);
+      it.each`
+        sortOption                | label
+        ${SORT_OPTION_CREATED}    | ${'Created date'}
+        ${SORT_OPTION_RELEASED}   | ${'Released date'}
+        ${SORT_OPTION_STAR_COUNT} | ${'Star count'}
+      `('changes the sort option to `$label`', async ({ sortOption, label }) => {
+        await findSorting().vm.$emit('sortByChange', sortOption);
 
-        expect(findSorting().props().sortBy).toBe(SORT_OPTION_CREATED);
-        expect(findSorting().props().text).toBe('Created date');
-      });
-
-      it('changes the sort option to `Star count`', async () => {
-        await findSorting().vm.$emit('sortByChange', SORT_OPTION_STAR_COUNT);
-
-        expect(findSorting().props('sortBy')).toBe(SORT_OPTION_STAR_COUNT);
-        expect(findSorting().props('text')).toBe('Star count');
+        expect(findSorting().props('sortBy')).toBe(sortOption);
+        expect(findSorting().props('text')).toBe(label);
       });
     });
   });

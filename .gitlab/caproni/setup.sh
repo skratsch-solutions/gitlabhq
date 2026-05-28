@@ -686,31 +686,16 @@ if [[ -f "$GITLAB_YML" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Write static vite.gdk.json
-#
-#    vite.gdk.json is committed to the repo and should always use 127.0.0.1
-#    so that the Vite dev server is reachable via port-forward.  Writing it
-#    here is a no-op in most cases but ensures correctness if the file was
-#    regenerated or replaced (e.g. by gdk rake generate_config_files).
+# 6. Remove leftover config/vite.gdk.json from earlier versions of this script.
 # ---------------------------------------------------------------------------
 
-echo ""
-echo "==> Writing static config/vite.gdk.json..."
-
-cat > "$GITLAB_DIR/config/vite.gdk.json" <<'EOF'
-{
-  "enabled": true,
-  "public_host": "127.0.0.1",
-  "host": "127.0.0.1",
-  "port": 3038,
-  "hmr": {
-    "clientPort": 3038,
-    "host": "127.0.0.1",
-    "protocol": "ws"
-  }
-}
-EOF
-echo "  ✓ config/vite.gdk.json"
+VITE_GDK_JSON="$GITLAB_DIR/config/vite.gdk.json"
+if [[ -f "$VITE_GDK_JSON" ]]; then
+  echo ""
+  echo "==> Removing leftover config/vite.gdk.json from previous setup runs..."
+  rm -f "$VITE_GDK_JSON"
+  echo "  ✓ removed config/vite.gdk.json"
+fi
 
 # ---------------------------------------------------------------------------
 # 7. Summary

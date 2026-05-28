@@ -61,7 +61,6 @@ RSpec/RedundantMetatagType:
     - 'ee/spec/models/project_import_state_spec.rb'
     - 'ee/spec/models/projects/compliance_standards/adherence_spec.rb'
     - 'ee/spec/models/resource_iteration_event_spec.rb'
-    - 'ee/spec/models/resource_weight_event_spec.rb'
     - 'ee/spec/models/sbom/component_spec.rb'
     - 'ee/spec/models/sbom/component_version_spec.rb'
     - 'ee/spec/models/sbom/graph_path_spec.rb'

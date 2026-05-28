@@ -249,8 +249,6 @@ RSpec/BeforeAllRoleAssignment:
     - 'ee/spec/models/ci/minutes/notification_spec.rb'
     - 'ee/spec/models/dast/profile_schedule_spec.rb'
     - 'ee/spec/models/ee/ci/build_dependencies_spec.rb'
-    - 'ee/spec/models/ee/namespaces/namespace_ban_spec.rb'
-    - 'ee/spec/models/ee/project_authorization_spec.rb'
     - 'ee/spec/models/ee/project_group_link_spec.rb'
     - 'ee/spec/models/ee/user_spec.rb'
     - 'ee/spec/models/epic_issue_spec.rb'

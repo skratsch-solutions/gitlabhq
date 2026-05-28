@@ -5229,7 +5229,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: created_after
         required: false
         description: Filter ssh keys which were created after given datetime
@@ -5238,7 +5238,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: expires_before
         required: false
         description: Filter ssh keys which expire before given datetime
@@ -5247,7 +5247,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2022-01-01'
+        example: '2022-01-01T00:00:00Z'
       - name: expires_after
         required: false
         description: Filter ssh keys which expire after given datetime
@@ -5256,7 +5256,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-01-01'
+        example: '2021-01-01T00:00:00Z'
       - name: page
         required: false
         description: Current page number

@@ -283,6 +283,11 @@ pre-commit:
       tags: gitaly
       glob: '{Gemfile.lock,VERSION}'
       run: 'scripts/lint/gitaly_version.rb'
+    skills-parity:
+      tags: claude tooling
+      files: git diff --name-only --diff-filter=d --staged
+      glob: '{.claude/skills/**,.agents/skills/**}'
+      run: scripts/check-skills-parity.sh
 
 auto-fix:
   parallel: true

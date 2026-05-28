@@ -14,3 +14,8 @@ allowed_committed_files:
   # and Claude Code (.claude/skills/) to provide the routing table for
   # the gitlab-coding-principles content.
   - .claude/skills/gitlab-coding-principles/SKILL.md
+  # Project-scope explainer for the shared Claude Code skills directory
+  # (gitlab-org/gitlab#20880). Committed so every contributor sees the
+  # same conventions; the directory itself is auto-discovered by Claude
+  # Code with no install step.
+  - .claude/skills/README.md
