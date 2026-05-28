@@ -732,7 +732,6 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
             "Ai::EventsCount",
             "Ai::UsageEvent",
             "Analytics::CustomDashboards::DashboardVersion",
-            "Dependencies::DependencyListExport",
             "LDAPKey",
             "RemoteDevelopment::OrganizationClusterAgentMapping",
             "Vulnerabilities::Export"
@@ -758,7 +757,8 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
               'Snippet',
               'ImportFailure',
               'Clusters::Cluster',
-              'AntiAbuse::Event'
+              'AntiAbuse::Event',
+              'Dependencies::DependencyListExport'
             ]
           end
 

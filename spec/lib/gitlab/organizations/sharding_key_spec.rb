@@ -35,7 +35,6 @@ RSpec.describe 'new tables missing sharding_key', feature_category: :organizatio
   # use the strict, validated form.
   let(:allowed_to_have_loose_multi_column_sharding_constraint) do
     [
-      'dependency_list_exports', # has `num_nonnulls(group_id, organization_id, project_id) > 0`
       'events', # has `(group_id IS NOT NULL) OR (project_id IS NOT NULL) OR (personal_namespace_id IS NOT NULL)`
       'labels', # constraint exists as `num_nonnulls(...) = 1` but is NOT VALID; tracked in https://gitlab.com/gitlab-org/gitlab/-/issues/558353
       'notes', # has `num_nonnulls(namespace_id, organization_id, project_id) >= 1`

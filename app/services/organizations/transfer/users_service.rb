@@ -29,7 +29,12 @@ module Organizations
             "GitlabSubscriptions::SeatAssignment", "GitlabSubscriptions::UserAddOnAssignment", "Authz::AdminRole",
             "Authz::GranularScope", "Authz::PersonalAccessTokenGranularScope",
             "MemberRole", "Ai::Catalog::ItemConsumer", "ProjectSnippet", "Snippet", "ImportFailure",
-            "Clusters::Cluster", "AntiAbuse::Event"]
+            "Clusters::Cluster", "AntiAbuse::Event",
+            # Dependencies::DependencyListExport is scoped to one of project/group/pipeline per
+            # `only_one_exportable`. Its organization_id is derived from the project/group and
+            # cannot be updated independently under the
+            # num_nonnulls(group_id, organization_id, project_id) = 1 check constraint.
+            "Dependencies::DependencyListExport"]
         end
       end
 

@@ -27565,6 +27565,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Analyze pipeline failures and get fix suggestions"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Analyze your .gitlab-ci.yml and get actionable improvement suggestions in a new draft merge request."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Are you sure you want to cancel this session? This action cannot be undone."
 msgstr ""
 
@@ -27733,6 +27736,12 @@ msgstr ""
 msgid "DuoAgentsPlatform|Identify code improvements"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Improve CI setup"
+msgstr ""
+
+msgid "DuoAgentsPlatform|Improve your CI setup"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Initialize context path not configured."
 msgstr ""
 
@@ -27764,6 +27773,9 @@ msgid "DuoAgentsPlatform|New agent sessions will appear here."
 msgstr ""
 
 msgid "DuoAgentsPlatform|New trigger"
+msgstr ""
+
+msgid "DuoAgentsPlatform|No .gitlab-ci.yml found on the default branch. Add a CI configuration file to use this feature."
 msgstr ""
 
 msgid "DuoAgentsPlatform|No agent sessions yet"
@@ -27854,6 +27866,9 @@ msgid "DuoAgentsPlatform|Something went wrong while fetching Agent Flows"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while initializing project context."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Something went wrong while starting the CI improvement workflow."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Start a Free Trial"
@@ -50630,6 +50645,9 @@ msgstr ""
 msgid "Onboarding|(optional)"
 msgstr ""
 
+msgid "Onboarding|A CI improvement workflow is already in progress."
+msgstr ""
+
 msgid "Onboarding|Blank project (default)"
 msgstr ""
 
@@ -50672,10 +50690,16 @@ msgstr ""
 msgid "Onboarding|Looking for your team?"
 msgstr ""
 
+msgid "Onboarding|No .gitlab-ci.yml found on the default branch."
+msgstr ""
+
 msgid "Onboarding|Organization name"
 msgstr ""
 
 msgid "Onboarding|Project"
+msgstr ""
+
+msgid "Onboarding|Project context initialization is already in progress."
 msgstr ""
 
 msgid "Onboarding|Project failed to be created"
@@ -61382,6 +61406,12 @@ msgid "Reset to project defaults"
 msgstr ""
 
 msgid "Reset token"
+msgstr ""
+
+msgid "Resize AI panel"
+msgstr ""
+
+msgid "Resize panel"
 msgstr ""
 
 msgid "Resize sidebar"

@@ -91,6 +91,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       bulk_import_entities
       bulk_import_failures
       bulk_import_trackers
+      dependency_list_exports
       enabled_foundational_flow_check_results
       import_offline_configurations
       integrations
