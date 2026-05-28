@@ -3687,7 +3687,10 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approval_rules":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalRules
-      summary: Get all merge request approval rules
+      summary: List all approval rules for a merge request
+      description: Lists all approval rules and any associated details for a specified
+        merge request. Use the `page` and `per_page` pagination parameters to restrict
+        the list of approval rules.
       tags:
       - Merge request approvals
       responses:
@@ -3736,7 +3739,10 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalRules
-      summary: Create new merge request approval rules
+      summary: Create an approval rule for a merge request
+      description: Creates an approval rule for a specified merge request. If `approval_project_rule_id`
+        is set with the ID of an existing approval rule from the project, this endpoint
+        copies the values for `name`, `users`, and `groups` from the project rule.
       tags:
       - Merge request approvals
       responses:
@@ -3774,7 +3780,9 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/approval_rules/{approval_rule_id}":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalRulesApprovalRuleId
-      summary: Get merge request approval rule
+      summary: Retrieve an approval rule for a specific merge request
+      description: Retrieves information about an approval rule for a specified merge
+        request.
       tags:
       - Merge request approvals
       responses:
@@ -3811,7 +3819,11 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalRulesApprovalRuleId
-      summary: Update merge request approval rule
+      summary: Update an approval rule for a merge request
+      description: Updates a specified approval rule for a merge request. This endpoint
+        removes any approvers and groups not included in the `group_ids`, `user_ids`,
+        or `usernames` attributes. The `report_approver` or `code_owner` rules are
+        system-generated, and you cannot edit them.
       tags:
       - Merge request approvals
       responses:
@@ -3854,7 +3866,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_a7310696de45"
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidApprovalRulesApprovalRuleId
-      summary: Destroy merge request approval rule
+      summary: Delete an approval rule for a merge request
+      description: Deletes a specified approval rule for a merge request. The `report_approver`
+        or `code_owner` rules are system-generated, and you cannot edit them.
       tags:
       - Merge request approvals
       responses:
@@ -5304,7 +5318,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/blocks":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidBlocks
-      summary: Get all merge request dependencies
+      summary: List all dependencies for a merge request
+      description: List all merge request dependencies for a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -5354,6 +5369,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidBlocks
       summary: Create a merge request dependency
+      description: Creates a merge request dependency between two merge requests.
+        The merge request is blocked until the dependency merges.
       tags:
       - Merge requests
       responses:
@@ -5421,7 +5438,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdMergeRequestsMergeRequestIidBlocksBlockId
-      summary: Delete a merge request dependency
+      summary: Remove a merge request dependency
+      description: Removes a merge request dependency.
       tags:
       - Merge requests
       responses:
@@ -5455,7 +5473,8 @@ paths:
   "/api/v4/projects/{id}/merge_requests/{merge_request_iid}/blockees":
     get:
       operationId: getApiV4ProjectsIdMergeRequestsMergeRequestIidBlockees
-      summary: Get all merge requests are blockees for this merge request
+      summary: Retrieve blocked merge requests
+      description: Retrieves merge requests blocked by a specified merge request.
       tags:
       - Merge requests
       responses:
@@ -16089,8 +16108,9 @@ paths:
   "/api/v4/snippet_repository_storage_moves":
     get:
       operationId: getApiV4SnippetRepositoryStorageMoves
-      summary: Get a list of all snippet repository storage moves
-      description: This feature was introduced in GitLab 13.8.
+      summary: List all snippet repository storage moves
+      description: Lists all snippet repository storage moves. By default, `GET` requests
+        return 20 results at a time because the API results are paginated.
       tags:
       - Storage moves
       responses:
@@ -16123,8 +16143,10 @@ paths:
         example: 20
     post:
       operationId: postApiV4SnippetRepositoryStorageMoves
-      summary: Schedule bulk snippet repository storage moves
-      description: This feature was introduced in GitLab 13.8.
+      summary: Schedule repository storage moves for all snippets on a storage shard
+      description: Schedules repository storage moves for each snippet repository
+        stored on the source storage shard. This endpoint migrates all snippets at
+        once.
       tags:
       - Storage moves
       responses:
@@ -16141,8 +16163,8 @@ paths:
   "/api/v4/snippet_repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4SnippetRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a snippet repository storage move
-      description: This feature was introduced in GitLab 13.8.
+      summary: Retrieve a snippet repository storage move
+      description: Retrieves a specified snippet repository storage move.
       tags:
       - Storage moves
       responses:
@@ -16166,8 +16188,10 @@ paths:
   "/api/v4/snippets/{id}/repository_storage_moves":
     get:
       operationId: getApiV4SnippetsIdRepositoryStorageMoves
-      summary: Get a list of all snippets repository storage moves
-      description: This feature was introduced in GitLab 13.8.
+      summary: List all repository storage moves for a snippet
+      description: Lists all repository storage moves for a specified snippet. By
+        default, `GET` requests return 20 results at a time because the API results
+        are paginated.
       tags:
       - Storage moves
       responses:
@@ -16208,8 +16232,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4SnippetsIdRepositoryStorageMoves
-      summary: Schedule a snippet repository storage move
-      description: This feature was introduced in GitLab 13.8.
+      summary: Schedule a repository storage move for a snippet
+      description: Schedules a repository storage move for a specified snippet.
       tags:
       - Storage moves
       responses:
@@ -16239,8 +16263,8 @@ paths:
   "/api/v4/snippets/{id}/repository_storage_moves/{repository_storage_move_id}":
     get:
       operationId: getApiV4SnippetsIdRepositoryStorageMovesRepositoryStorageMoveId
-      summary: Get a snippet repository storage move
-      description: This feature was introduced in GitLab 13.8.
+      summary: Retrieve a repository storage move for a snippet
+      description: Retrieves a repository storage move for a specified snippet.
       tags:
       - Storage moves
       responses:
@@ -52740,7 +52764,8 @@ paths:
   "/api/v4/projects/{id}/repository/files/{file_path}/blame":
     head:
       operationId: headApiV4ProjectsIdRepositoryFilesFilePathBlame
-      summary: Get blame file metadata from repository
+      summary: Retrieve file blame metadata
+      description: Retrieves blame metadata for lines in a specified file.
       tags:
       - Files
       responses:
@@ -52773,7 +52798,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9b6075b1f0e7"
     get:
       operationId: getApiV4ProjectsIdRepositoryFilesFilePathBlame
-      summary: Get blame file from the repository
+      summary: Retrieve file blame history from a repository
+      description: Retrieves blame history for a specified file in a repository. Each
+        blame range contains lines and their corresponding commit information.
       tags:
       - Files
       responses:
@@ -52834,7 +52861,8 @@ paths:
   "/api/v4/projects/{id}/repository/files/{file_path}/raw":
     get:
       operationId: getApiV4ProjectsIdRepositoryFilesFilePathRaw
-      summary: Get raw file contents from the repository
+      summary: Retrieve a raw file from a repository
+      description: Retrieves the raw file contents for a specified file in a repository.
       tags:
       - Files
       responses:
@@ -52877,7 +52905,8 @@ paths:
   "/api/v4/projects/{id}/repository/files/{file_path}":
     head:
       operationId: headApiV4ProjectsIdRepositoryFilesFilePath
-      summary: Get file metadata from repository
+      summary: Retrieve file metadata
+      description: Retrieves metadata for a specified file in a repository.
       tags:
       - Files
       responses:
@@ -52910,7 +52939,10 @@ paths:
               "$ref": "#/components/schemas/RequestBody_9b6075b1f0e7"
     get:
       operationId: getApiV4ProjectsIdRepositoryFilesFilePath
-      summary: Get a file from the repository
+      summary: Retrieve a file from a repository
+      description: Retrieves information about a specified file in a repository. This
+        includes information like the name, size, and the file contents. File content
+        is Base64 encoded.
       tags:
       - Files
       responses:
@@ -52945,7 +52977,9 @@ paths:
         example: main
     post:
       operationId: postApiV4ProjectsIdRepositoryFilesFilePath
-      summary: Create new file in repository
+      summary: Create a file in a repository
+      description: Creates a file in a specified repository. Use the Commits API to
+        create multiple files with a single request.
       tags:
       - Files
       responses:
@@ -52978,7 +53012,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_2ac2fde49c57"
     put:
       operationId: putApiV4ProjectsIdRepositoryFilesFilePath
-      summary: Update existing file in repository
+      summary: Update a file in a repository
+      description: Updates a specified file in a repository. Use the Commits API to
+        update multiple files with a single request.
       tags:
       - Files
       responses:
@@ -53011,7 +53047,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_32bf04c4fc2d"
     delete:
       operationId: deleteApiV4ProjectsIdRepositoryFilesFilePath
-      summary: Delete an existing file in repository
+      summary: Delete a file in a repository
+      description: Deletes a specified file in a repository. Use the Commits API to
+        delete multiple files with a single request.
       tags:
       - Files
       responses:

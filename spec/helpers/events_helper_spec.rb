@@ -12,7 +12,7 @@ RSpec.describe EventsHelper, factory_default: :keep, feature_category: :user_pro
   include Gitlab::Routing
   include Banzai::Filter::Concerns::OutputSafety
 
-  let_it_be(:project, freeze: false) { create_default(:project).freeze }
+  let_it_be(:project) { create_default(:project).freeze }
   let_it_be(:project_with_repo) { create(:project, :public, :repository).freeze }
   let_it_be(:user) { create_default(:user).freeze }
 

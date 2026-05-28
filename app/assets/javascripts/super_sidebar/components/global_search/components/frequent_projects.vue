@@ -14,6 +14,9 @@ export default {
     // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     frecentProjects: {
       query: currentUserFrecentProjectsQuery,
+      skip() {
+        return !this.isLoggedIn;
+      },
       context: {
         featureCategory: 'navigation',
       },
@@ -25,9 +28,17 @@ export default {
     emptyStateText: s__('Navigation|Projects you visit often will appear here.'),
   },
   computed: {
+    isLoggedIn() {
+      return Boolean(gon.current_username);
+    },
     items() {
       return this.frecentProjects || [];
     },
+  },
+  created() {
+    if (!this.isLoggedIn) {
+      this.$emit('nothing-to-render');
+    }
   },
   FREQUENTLY_VISITED_PROJECTS_HANDLE,
 };
@@ -35,6 +46,7 @@ export default {
 
 <template>
   <frequent-items
+    v-if="isLoggedIn"
     :loading="$apollo.queries.frecentProjects.loading"
     :empty-state-text="$options.i18n.emptyStateText"
     :group-name="$options.i18n.groupName"

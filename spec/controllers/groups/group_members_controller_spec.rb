@@ -6,7 +6,7 @@ RSpec.describe Groups::GroupMembersController, feature_category: :groups_and_pro
   include ExternalAuthorizationServiceHelpers
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:group, reload: true) { create(:group, :public) }
+  let_it_be_with_reload(:group) { create(:group, :public) }
 
   before do
     travel_to DateTime.new(2019, 4, 1)

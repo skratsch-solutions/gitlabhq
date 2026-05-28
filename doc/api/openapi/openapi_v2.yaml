@@ -19840,7 +19840,8 @@ paths:
       operationId: deleteApiV4ProjectsIdFeatureFlagsUserListsIid
   "/api/v4/projects/{id}/repository/files/{file_path}/blame":
     head:
-      description: Get blame file metadata from repository
+      summary: Retrieve file blame metadata
+      description: Retrieves blame metadata for lines in a specified file.
       produces:
       - application/json
       parameters:
@@ -19864,12 +19865,14 @@ paths:
         example: main
       responses:
         '200':
-          description: Get blame file metadata from repository
+          description: Retrieve file blame metadata
       tags:
       - files
       operationId: headApiV4ProjectsIdRepositoryFilesFilePathBlame
     get:
-      description: Get blame file from the repository
+      summary: Retrieve file blame history from a repository
+      description: Retrieves blame history for a specified file in a repository. Each
+        blame range contains lines and their corresponding commit information.
       produces:
       - application/json
       parameters:
@@ -19907,7 +19910,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get blame file from the repository
+          description: Retrieve file blame history from a repository
           schema:
             "$ref": "#/definitions/API_Entities_BlameRange"
       tags:
@@ -19915,7 +19918,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryFilesFilePathBlame
   "/api/v4/projects/{id}/repository/files/{file_path}/raw":
     get:
-      description: Get raw file contents from the repository
+      summary: Retrieve a raw file from a repository
+      description: Retrieves the raw file contents for a specified file in a repository.
       produces:
       - application/json
       parameters:
@@ -19945,7 +19949,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Get raw file contents from the repository
+          description: Retrieve a raw file from a repository
           schema:
             type: file
       tags:
@@ -19953,7 +19957,8 @@ paths:
       operationId: getApiV4ProjectsIdRepositoryFilesFilePathRaw
   "/api/v4/projects/{id}/repository/files/{file_path}":
     head:
-      description: Get file metadata from repository
+      summary: Retrieve file metadata
+      description: Retrieves metadata for a specified file in a repository.
       produces:
       - application/json
       parameters:
@@ -19977,12 +19982,15 @@ paths:
         example: main
       responses:
         '200':
-          description: Get file metadata from repository
+          description: Retrieve file metadata
       tags:
       - files
       operationId: headApiV4ProjectsIdRepositoryFilesFilePath
     get:
-      description: Get a file from the repository
+      summary: Retrieve a file from a repository
+      description: Retrieves information about a specified file in a repository. This
+        includes information like the name, size, and the file contents. File content
+        is Base64 encoded.
       produces:
       - application/json
       parameters:
@@ -20006,12 +20014,14 @@ paths:
         example: main
       responses:
         '200':
-          description: Get a file from the repository
+          description: Retrieve a file from a repository
       tags:
       - files
       operationId: getApiV4ProjectsIdRepositoryFilesFilePath
     post:
-      description: Create new file in repository
+      summary: Create a file in a repository
+      description: Creates a file in a specified repository. Use the Commits API to
+        create multiple files with a single request.
       produces:
       - application/json
       consumes:
@@ -20036,12 +20046,14 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdRepositoryFilesFilePath"
       responses:
         '201':
-          description: Create new file in repository
+          description: Create a file in a repository
       tags:
       - files
       operationId: postApiV4ProjectsIdRepositoryFilesFilePath
     put:
-      description: Update existing file in repository
+      summary: Update a file in a repository
+      description: Updates a specified file in a repository. Use the Commits API to
+        update multiple files with a single request.
       produces:
       - application/json
       consumes:
@@ -20066,12 +20078,14 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdRepositoryFilesFilePath"
       responses:
         '200':
-          description: Update existing file in repository
+          description: Update a file in a repository
       tags:
       - files
       operationId: putApiV4ProjectsIdRepositoryFilesFilePath
     delete:
-      description: Delete an existing file in repository
+      summary: Delete a file in a repository
+      description: Deletes a specified file in a repository. Use the Commits API to
+        delete multiple files with a single request.
       produces:
       - application/json
       parameters:
@@ -20126,7 +20140,7 @@ paths:
         example: 2695effb5807a22ff3d138d593fd856244e155e7
       responses:
         '204':
-          description: Delete an existing file in repository
+          description: Delete a file in a repository
       tags:
       - files
       operationId: deleteApiV4ProjectsIdRepositoryFilesFilePath
@@ -59851,7 +59865,7 @@ definitions:
         description: The file content to be created (generated by Multipart middleware)
     required:
     - file
-    description: Create new file in repository
+    description: Create a file in a repository
   putApiV4ProjectsIdRepositoryFilesFilePath:
     type: object
     properties:
@@ -59860,7 +59874,7 @@ definitions:
         description: The file content to be updated (generated by Multipart middleware)
     required:
     - file
-    description: Update existing file in repository
+    description: Update a file in a repository
   API_Entities_FreezePeriod:
     type: object
     properties:

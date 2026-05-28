@@ -256,10 +256,9 @@ Tasks pending/processing by type: (none)
 Storage buffer factor:            0.831× [dynamic (observed)]
 
 Feature Flags (Non-Default Values)
-- zoekt_offset_pagination:      disabled
+Feature flags:  none
 
 Feature Flags (Default Values)
-- zoekt_batch_update_index_storage_bytes:  disabled
 - zoekt_cap_file_match_results:            disabled
 
 Node Details

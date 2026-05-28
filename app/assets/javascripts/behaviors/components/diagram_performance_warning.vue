@@ -14,6 +14,7 @@ export default {
 </script>
 
 <template>
+  <!-- eslint-disable vue/v-on-event-hyphenation -->
   <gl-alert
     :primary-button-text="$options.i18n.buttonText"
     variant="warning"
@@ -22,4 +23,5 @@ export default {
   >
     {{ $options.i18n.bodyText }}
   </gl-alert>
+  <!-- eslint-enable vue/v-on-event-hyphenation -->
 </template>

@@ -5626,6 +5626,9 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|An AI assistant that helps users accelerate software development using real-time conversational AI. This setting is for regular Duo Chat only. %{linkStart}Learn more.%{linkEnd}"
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|An AI chat assistant that autonomously uses tools and performs multi-step tasks to answer complex questions. %{linkStart}Learn more.%{linkEnd}"
+msgstr ""
+
 msgid "AdminAIPoweredFeatures|An AI-native feature that generates a summary of discussions on an issue. %{linkStart}Learn more.%{linkEnd}"
 msgstr ""
 
@@ -5636,6 +5639,12 @@ msgid "AdminAIPoweredFeatures|Apply to all sub-features"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Assists developers by generating and completing code in real-time. %{linkStart}Learn more.%{linkEnd}"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|Available models"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|Available models: Agentic Chat"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Code Suggestions"
@@ -5654,6 +5663,9 @@ msgid "AdminAIPoweredFeatures|Features"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|GitLab Duo Agent Platform"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|GitLab Duo Agentic Chat"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|GitLab Duo Chat"
@@ -19252,6 +19264,12 @@ msgid "ComplianceReport|Date detected"
 msgstr ""
 
 msgid "ComplianceReport|Details"
+msgstr ""
+
+msgid "ComplianceReport|Detected after"
+msgstr ""
+
+msgid "ComplianceReport|Detected before"
 msgstr ""
 
 msgid "ComplianceReport|Dismiss"

@@ -7,8 +7,8 @@ RSpec.describe Projects::IssuesController, :request_store, feature_category: :te
   include ProjectForksHelper
   include_context 'includes Spam constants'
 
-  let_it_be(:project, reload: true) { create(:project) }
-  let_it_be(:user, reload: true) { create(:user) }
+  let_it_be_with_reload(:project) { create(:project) }
+  let_it_be_with_reload(:user) { create(:user) }
 
   let_it_be(:issue) { create(:issue, project: project) }
   let(:spam_action_response_fields) { { 'stub_spam_action_response_fields' => true } }

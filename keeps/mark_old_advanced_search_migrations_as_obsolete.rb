@@ -68,6 +68,9 @@ module Keeps
           assignee = group_team_map.min_by { |_k, v| v }.first
           change.assignees = assignee
           group_team_map[assignee] += 1
+        else
+          @logger&.puts "No available reviewers for #{version} in #{group_label} or fallback " \
+            "#{DEFAULT_GROUP_LABEL}; the MR will be unassigned"
         end
 
         change.changelog_ee = true
@@ -264,7 +267,7 @@ module Keeps
         yaml_file = "#{MIGRATION_DOCS_PATH}/#{version}_#{filename}.yml"
         spec_file = "#{MIGRATIONS_SPECS_PATH}/#{version}_#{filename}_spec.rb"
 
-        yield(f, spec_file, yaml_file, YAML.load_file(yaml_file))
+        yield(f, spec_file, yaml_file, YAML.safe_load_file(yaml_file))
       end
     end
 
@@ -290,8 +293,9 @@ module Keeps
       source = RuboCop::ProcessedSource.new(File.read(file), RuboCop::ConfigStore.new.for_file('.').target_ruby_version)
       rewriter = Parser::Source::TreeRewriter.new(source.buffer)
       describe_block = source.ast.each_node(:block).first
+      feature_category = existing_feature_category_source(describe_block) || ':global_search'
       content = <<~RUBY.strip
-        RSpec.describe #{name}, feature_category: :global_search do
+        RSpec.describe #{name}, feature_category: #{feature_category} do
           it_behaves_like 'a deprecated Advanced Search migration', #{version}
         end
       RUBY
@@ -300,6 +304,17 @@ module Keeps
       process = rewriter.process.lstrip.gsub(/\n{3,}/, "\n\n")
 
       File.write(file, process)
+    end
+
+    def existing_feature_category_source(describe_block)
+      send_node = describe_block&.send_node
+      return unless send_node
+
+      hash_arg = send_node.arguments.find(&:hash_type?)
+      return unless hash_arg
+
+      pair = hash_arg.pairs.find { |p| p.key.sym_type? && p.key.value == :feature_category }
+      pair&.value&.source
     end
 
     def migration_marked_as_obsolete_milestone

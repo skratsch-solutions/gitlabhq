@@ -290,6 +290,7 @@ For premium models with optimized integration:
 | `gpt-5.4` (long context) | 1.11 |
 | `claude-opus-4.6` | 1.1 |
 | `claude-opus-4.7` | 1.1 |
+| `claude-opus-4.8` | 1.1 |
 | `gpt-5.5` (short context) | 1.0 |
 | `gpt-5.5` (long context) | 0.57 |
 

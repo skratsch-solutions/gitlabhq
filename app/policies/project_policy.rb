@@ -360,9 +360,6 @@ class ProjectPolicy < BasePolicy
 
   rule { ~can?(:read_environment) }.prevent :read_freeze_period
 
-  rule { guest & can?(:download_code) }.enable :build_download_code
-  rule { guest & can?(:read_container_image) }.enable :build_read_container_image
-
   rule { ~forking_allowed }.prevent :fork_project
 
   rule { metrics_dashboard_disabled }.policy do
@@ -920,7 +917,10 @@ class ProjectPolicy < BasePolicy
 
   rule { ~model_experiments_enabled }.prevent :write_model_experiments
 
-  rule { ~private_project & guest & external_user }.enable :read_container_image
+  rule { ~private_project & guest & external_user }.policy do
+    enable :read_container_image
+    enable :build_read_container_image
+  end
 
   rule { can?(:create_pipeline_schedule) }.policy do
     enable :read_ci_pipeline_schedules_plan_limit

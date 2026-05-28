@@ -48,8 +48,6 @@ export default {
     'app/assets/javascripts/analytics/devops_reports/components/devops_score.vue',
     'app/assets/javascripts/analytics/devops_reports/components/service_ping_disabled.vue',
     'app/assets/javascripts/analytics/shared/components/daterange.vue',
-    'app/assets/javascripts/badges/components/open_mr_badge/open_mr_badge.vue',
-    'app/assets/javascripts/badges/components/supported_placeholders.vue',
     'app/assets/javascripts/behaviors/components/diagram_performance_warning.vue',
     'app/assets/javascripts/behaviors/components/json_table.vue',
     'app/assets/javascripts/behaviors/shortcuts/shortcuts_help.vue',

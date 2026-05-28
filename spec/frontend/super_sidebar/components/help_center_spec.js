@@ -145,12 +145,6 @@ describe('HelpCenter component', () => {
       });
     });
 
-    it('passes custom offset to the dropdown', () => {
-      expect(findDropdown().props('dropdownOffset')).toEqual({
-        mainAxis: 4,
-      });
-    });
-
     describe('with GitLab version check feature enabled', () => {
       beforeEach(() => {
         createWrapper({

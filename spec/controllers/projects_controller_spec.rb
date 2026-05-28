@@ -7,7 +7,7 @@ RSpec.describe ProjectsController, feature_category: :groups_and_projects do
   include ProjectForksHelper
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:project, reload: true) { create(:project, :with_export, service_desk_enabled: false) }
+  let_it_be_with_reload(:project) { create(:project, :with_export, service_desk_enabled: false) }
   let_it_be(:group) { create(:group) }
   let_it_be(:public_project, freeze: false) { create(:project, :public, namespace: group) }
   let_it_be(:user, freeze: false) { create(:user) }

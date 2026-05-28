@@ -8,7 +8,9 @@
 variables:
   GLCI_PER_TEST_COVERAGE_QUEUE_FOSS_PATH: "tmp/per-test-coverage-queue-foss.txt"
   GLCI_PER_TEST_COVERAGE_QUEUE_EE_PATH: "tmp/per-test-coverage-queue-ee.txt"
+  GLCI_PER_TEST_COVERAGE_QUEUE_JEST_PATH: "tmp/per-test-coverage-queue-jest.txt"
   GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE: ".gitlab/ci/per_test_coverage/child_pipeline_template.erb"
+  GLCI_PER_TEST_COVERAGE_JEST_CHILD_PIPELINE_TEMPLATE: ".gitlab/ci/per_test_coverage/jest_child_pipeline_template.erb"
   GLCI_PER_TEST_COVERAGE_PARALLEL_NODES: "88"
 
 per-test-coverage:pipeline-generate:
@@ -33,15 +35,16 @@ per-test-coverage:pipeline-generate:
       select_exit=$?
       set -e
       if [ "$select_exit" -eq 2 ]; then
-        echo "Queue empty for this slot. Emitting skip.yml for the child pipeline."
+        echo "Queue empty for this slot. Emitting skip.yml for all three child pipelines."
         cp "${SKIP_PIPELINE_YML_FILE}" tmp/per-test-coverage-child-pipeline-foss.yml
         cp "${SKIP_PIPELINE_YML_FILE}" tmp/per-test-coverage-child-pipeline-ee.yml
+        cp "${SKIP_PIPELINE_YML_FILE}" tmp/per-test-coverage-child-pipeline-jest.yml
         exit 0
       elif [ "$select_exit" -ne 0 ]; then
         echo "select_tests.rb failed with exit code ${select_exit}"
         exit "$select_exit"
       fi
-    # Step 2: render FOSS half of the child pipeline.
+    # Step 2: render FOSS rspec half of the child pipeline.
     - |
       scripts/generate_rspec_pipeline.rb \
         -t "${GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE}" \
@@ -50,7 +53,7 @@ per-test-coverage:pipeline-generate:
         -j "${DEFAULT_RSPEC_PREDICTIVE_JOB_TAGS}" \
         -n "${GLCI_PER_TEST_COVERAGE_PARALLEL_NODES}" \
         -o tmp/per-test-coverage-child-pipeline-foss.yml
-    # Step 3: render EE half of the child pipeline.
+    # Step 3: render EE rspec half of the child pipeline.
     - |
       scripts/generate_rspec_pipeline.rb \
         -t "${GLCI_PER_TEST_COVERAGE_CHILD_PIPELINE_TEMPLATE}" \
@@ -60,18 +63,29 @@ per-test-coverage:pipeline-generate:
         -n "${GLCI_PER_TEST_COVERAGE_PARALLEL_NODES}" \
         -o tmp/per-test-coverage-child-pipeline-ee.yml \
         -p "ee/"
+    # Step 4: render jest half of the child pipeline.
+    - |
+      scripts/generate_jest_pipeline.rb \
+        -t "${GLCI_PER_TEST_COVERAGE_JEST_CHILD_PIPELINE_TEMPLATE}" \
+        -f "${GLCI_PER_TEST_COVERAGE_QUEUE_JEST_PATH}" \
+        -o tmp/per-test-coverage-child-pipeline-jest.yml
     - echo "Content of tmp/per-test-coverage-child-pipeline-foss.yml:"
     - cat tmp/per-test-coverage-child-pipeline-foss.yml
     - echo "================================================"
     - echo "Content of tmp/per-test-coverage-child-pipeline-ee.yml:"
     - cat tmp/per-test-coverage-child-pipeline-ee.yml
+    - echo "================================================"
+    - echo "Content of tmp/per-test-coverage-child-pipeline-jest.yml:"
+    - cat tmp/per-test-coverage-child-pipeline-jest.yml
   artifacts:
     expire_in: 1 day
     paths:
       - tmp/per-test-coverage-child-pipeline-foss.yml
       - tmp/per-test-coverage-child-pipeline-ee.yml
+      - tmp/per-test-coverage-child-pipeline-jest.yml
       - tmp/per-test-coverage-queue-foss.txt
       - tmp/per-test-coverage-queue-ee.txt
+      - tmp/per-test-coverage-queue-jest.txt
 
 per-test-coverage:trigger:
   extends:
@@ -105,4 +119,6 @@ per-test-coverage:trigger:
       - artifact: tmp/per-test-coverage-child-pipeline-foss.yml
         job: "per-test-coverage:pipeline-generate"
       - artifact: tmp/per-test-coverage-child-pipeline-ee.yml
+        job: "per-test-coverage:pipeline-generate"
+      - artifact: tmp/per-test-coverage-child-pipeline-jest.yml
         job: "per-test-coverage:pipeline-generate"

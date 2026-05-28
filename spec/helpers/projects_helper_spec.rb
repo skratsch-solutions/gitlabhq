@@ -819,7 +819,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
   end
 
   describe '#transfer_project_message' do
-    let_it_be(:project) { create(:project, name: 'My Test  Project') }
+    let_it_be(:project, freeze: false) { create(:project, name: 'My Test  Project') }
 
     it 'includes the project full path' do
       result = helper.transfer_project_message(project)
@@ -991,7 +991,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
   describe '#fork_button_data_attributes' do
     using RSpec::Parameterized::TableSyntax
 
-    let_it_be(:project) { create(:project, :repository, :public) }
+    let_it_be(:project, freeze: false) { create(:project, :repository, :public) }
 
     project_forks_path = '/project/forks'
     project_new_fork_path = '/project/new/fork'
@@ -1261,7 +1261,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
 
     context 'with unsaved project' do
-      let_it_be(:project) { build(:project) }
+      let_it_be(:project, freeze: false) { build(:project) }
 
       it { is_expected.to be(false) }
     end
@@ -1319,7 +1319,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
     end
 
     context 'with unsaved project' do
-      let_it_be(:project) { build(:project) }
+      let_it_be(:project, freeze: false) { build(:project) }
 
       it_behaves_like 'does not show the banner'
     end
@@ -1927,7 +1927,7 @@ RSpec.describe ProjectsHelper, feature_category: :source_code_management do
 
   describe '#project_unarchive_settings_app_data' do
     let_it_be_with_reload(:ancestor) { create(:group) }
-    let_it_be(:project) { create(:project, group: ancestor) }
+    let_it_be(:project, freeze: false) { create(:project, group: ancestor) }
 
     subject { helper.project_unarchive_settings_app_data(project) }
 

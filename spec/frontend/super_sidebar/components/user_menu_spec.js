@@ -55,15 +55,6 @@ describe('UserMenu component', () => {
     trackingSpy = mockTracking(undefined, wrapper.element, jest.spyOn);
   };
 
-  it('passes custom offset to the dropdown', () => {
-    createWrapper();
-
-    expect(findDropdown().props('dropdownOffset')).toEqual({
-      crossAxis: -192,
-      mainAxis: 4,
-    });
-  });
-
   describe('Toggle button', () => {
     let toggle;
 

@@ -12,7 +12,7 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 import { FORUM_URL, PROMO_URL, CONTRIBUTE_URL } from '~/constants';
 import { __ } from '~/locale';
 import Tracking from '~/tracking';
-import { DROPDOWN_Y_OFFSET, HELP_MENU_TRACKING_DEFAULTS } from '../constants';
+import { HELP_MENU_TRACKING_DEFAULTS } from '../constants';
 
 export default {
   components: {
@@ -235,7 +235,6 @@ export default {
       });
     },
   },
-  dropdownOffset: { mainAxis: DROPDOWN_Y_OFFSET },
 };
 </script>
 
@@ -248,7 +247,6 @@ export default {
 
     <gl-disclosure-dropdown
       class="super-sidebar-help-center-dropdown"
-      :dropdown-offset="$options.dropdownOffset"
       block
       @shown="trackDropdownToggle(true)"
       @hidden="trackDropdownToggle(false)"

@@ -16,8 +16,10 @@
 #   if early ones miss, so the bucket sweep is robust to occasional skipped
 #   ticks.
 #
-# Output: two files in OUTPUT_DIR, one per test list (FOSS vs EE), consumed by
-# generate_rspec_pipeline.rb in the next CI step.
+# Output: three files in OUTPUT_DIR, one per test list (FOSS rspec, EE rspec,
+# jest). Rspec halves are consumed by generate_rspec_pipeline.rb; the jest half
+# is consumed by generate_jest_pipeline.rb. Partition by file extension: paths
+# ending in _spec.js route to jest, the rest split FOSS / EE by `ee/` prefix.
 #
 # Exit codes:
 #   0: at least one test queued, queue files written
@@ -39,6 +41,7 @@ module PerTestCoverage
     OUTPUT_DIR_DEFAULT = 'tmp'
     FOSS_QUEUE_FILENAME = 'per-test-coverage-queue-foss.txt'
     EE_QUEUE_FILENAME = 'per-test-coverage-queue-ee.txt'
+    JEST_QUEUE_FILENAME = 'per-test-coverage-queue-jest.txt'
     SOURCE_FILE_PATHS = %w[app lib ee/app ee/lib config/initializers].freeze
     SPEC_FILE_PATHS = %w[spec ee/spec].freeze
     STALE_INTERVAL_DAYS = 14
@@ -141,15 +144,17 @@ module PerTestCoverage
     def run!
       queue = weekend_bucket_slot? ? weekend_bucket_queue : weekday_queue
 
-      foss, ee = queue.uniq.partition { |path| !path.start_with?('ee/') }
+      jest, rspec = queue.uniq.partition { |path| jest_test?(path) }
+      foss, ee = rspec.partition { |path| !path.start_with?('ee/') }
 
       FileUtils.mkdir_p(@output_dir)
       File.write(foss_queue_path, foss.join("\n"))
       File.write(ee_queue_path, ee.join("\n"))
+      File.write(jest_queue_path, jest.join("\n"))
 
-      info "Wrote #{foss.size} FOSS tests and #{ee.size} EE tests to the queue"
+      info "Wrote #{foss.size} FOSS rspec, #{ee.size} EE rspec, #{jest.size} jest tests to the queue"
 
-      return unless foss.empty? && ee.empty?
+      return unless foss.empty? && ee.empty? && jest.empty?
 
       info "Queue is empty for this slot. Caller should emit skip.yml for the child pipeline."
       exit(EMPTY_QUEUE_EXIT_CODE)
@@ -169,6 +174,17 @@ module PerTestCoverage
 
     def ee_queue_path
       File.join(@output_dir, EE_QUEUE_FILENAME)
+    end
+
+    def jest_queue_path
+      File.join(@output_dir, JEST_QUEUE_FILENAME)
+    end
+
+    # Jest specs live under spec/frontend/ or ee/spec/frontend/ and end in
+    # _spec.js. The .js suffix alone is enough to disambiguate from rspec
+    # because rspec specs end in _spec.rb.
+    def jest_test?(path)
+      path.end_with?('_spec.js')
     end
 
     # True when the current slot is one of the first two weekend slots since
@@ -269,7 +285,7 @@ module PerTestCoverage
     end
 
     def default_test_file_glob
-      Dir.glob('{spec,ee/spec}/**/*_spec.rb')
+      Dir.glob('{spec,ee/spec}/**/*_spec.{rb,js}')
     end
   end
 end

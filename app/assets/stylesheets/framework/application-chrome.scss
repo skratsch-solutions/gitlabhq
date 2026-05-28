@@ -126,11 +126,6 @@
     min-height: 0;
   }
 
-  // Fix design management fullscreen display in panels
-  .design-detail-layout .panel-content {
-    @apply gl-fixed gl-inset-0 gl-overflow-visible gl-rounded-none gl-max-w-none gl-z-1 gl-h-screen #{!important};
-  }
-
   // Content adjustments within panels
   .paneled-view {
     // Issue sticky header
@@ -159,13 +154,6 @@
     @include media-breakpoint-up(lg) {
       .project-page-indicator:not(.hidden) + .project-page-layout .project-page-sidebar {
         top: calc(#{$gl-spacing-scale-4}) !important;
-      }
-    }
-
-    // User profile sidebar
-    @include media-breakpoint-up(lg) {
-      .user-profile .profile-header {
-        top: -1px !important;
       }
     }
 
@@ -202,10 +190,6 @@
       @apply gl-left-3 #{!important};
       width: calc(100% - #{$gl-spacing-scale-3 * 2});
     }
-  }
-
-  .gl-drawer {
-    width: min(calc(100% - #{$gl-spacing-scale-6}), 400px);
   }
 
 }

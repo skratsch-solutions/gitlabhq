@@ -408,7 +408,7 @@ RSpec.describe OmniauthCallbacksController, type: :controller, feature_category:
         end
 
         context 'when fragment has encoded content' do
-          let_it_be(:malicious_redirect_fragment, reload: true) { '#code%3Dtest_code&L90' }
+          let(:malicious_redirect_fragment) { '#code%3Dtest_code&L90' }
 
           it 'fails login and redirects to login path' do
             post provider, session: { user_return_to: '/fake/url#replaceme' }

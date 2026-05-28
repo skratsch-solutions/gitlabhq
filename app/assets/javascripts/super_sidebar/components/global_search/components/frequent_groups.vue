@@ -14,6 +14,9 @@ export default {
     // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     frecentGroups: {
       query: currentUserFrecentGroupsQuery,
+      skip() {
+        return !this.isLoggedIn;
+      },
     },
   },
   i18n: {
@@ -22,9 +25,17 @@ export default {
     emptyStateText: s__('Navigation|Groups you visit often will appear here.'),
   },
   computed: {
+    isLoggedIn() {
+      return Boolean(gon.current_username);
+    },
     items() {
       return this.frecentGroups || [];
     },
+  },
+  created() {
+    if (!this.isLoggedIn) {
+      this.$emit('nothing-to-render');
+    }
   },
   FREQUENTLY_VISITED_GROUPS_HANDLE,
 };
@@ -32,6 +43,7 @@ export default {
 
 <template>
   <frequent-items
+    v-if="isLoggedIn"
     :loading="$apollo.queries.frecentGroups.loading"
     :empty-state-text="$options.i18n.emptyStateText"
     :group-name="$options.i18n.groupName"

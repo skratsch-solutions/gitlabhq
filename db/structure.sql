@@ -44817,9 +44817,7 @@ CREATE UNIQUE INDEX idx_ai_iaer_default_rule_on_accessible_entity ON ai_instance
 
 CREATE UNIQUE INDEX idx_ai_nfar_default_rule_on_root_ns_accessible_entity ON ai_namespace_feature_access_rules USING btree (root_namespace_id, accessible_entity) WHERE (through_namespace_id IS NULL);
 
-CREATE UNIQUE INDEX idx_ai_tool_rules_ns_proj_tool_unique ON ai_tool_rules USING btree (namespace_id, project_id, tool_name) WHERE (project_id IS NOT NULL);
-
-CREATE UNIQUE INDEX idx_ai_tool_rules_ns_tool_unique ON ai_tool_rules USING btree (namespace_id, tool_name);
+CREATE UNIQUE INDEX idx_ai_tool_rules_ns_proj_tool_unique ON ai_tool_rules USING btree (namespace_id, project_id, tool_name) NULLS NOT DISTINCT;
 
 CREATE UNIQUE INDEX idx_ai_usage_events_uniqueness ON ONLY ai_usage_events USING btree (namespace_id, user_id, event, "timestamp") NULLS NOT DISTINCT;
 

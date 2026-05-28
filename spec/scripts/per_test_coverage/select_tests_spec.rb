@@ -14,12 +14,15 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
   let(:output_dir) { Dir.mktmpdir('per-test-coverage-spec') }
   let(:foss_queue_path) { File.join(output_dir, 'per-test-coverage-queue-foss.txt') }
   let(:ee_queue_path) { File.join(output_dir, 'per-test-coverage-queue-ee.txt') }
+  let(:jest_queue_path) { File.join(output_dir, 'per-test-coverage-queue-jest.txt') }
   let(:all_test_files) do
     %w[
       spec/models/user_spec.rb
       spec/services/foo_spec.rb
+      spec/frontend/foo_spec.js
       ee/spec/models/license_spec.rb
       ee/spec/services/bar_spec.rb
+      ee/spec/frontend/bar_spec.js
       qa/qa/specs/features/foo_spec.rb
     ]
   end
@@ -40,11 +43,12 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
     FileUtils.rm_rf(output_dir)
   end
 
-  shared_examples 'writes the expected queues' do |foss:, ee:|
-    it "writes FOSS and EE queue files" do
+  shared_examples 'writes the expected queues' do |foss:, ee:, jest: []|
+    it "writes FOSS, EE, and jest queue files" do
       expect { select_tests.run! }.not_to raise_error
       expect(File.read(foss_queue_path).split("\n")).to match_array(foss)
       expect(File.read(ee_queue_path).split("\n")).to match_array(ee)
+      expect(File.read(jest_queue_path).split("\n")).to match_array(jest)
     end
   end
 
@@ -142,7 +146,9 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
         it "queues only files whose hash mod 2 equals #{bucket}" do
           select_tests.run!
 
-          queued = File.read(foss_queue_path).split("\n") + File.read(ee_queue_path).split("\n")
+          queued = File.read(foss_queue_path).split("\n") +
+            File.read(ee_queue_path).split("\n") +
+            File.read(jest_queue_path).split("\n")
           queued.reject!(&:empty?)
           expect(queued).not_to be_empty, "bucket #{bucket} should match at least one fixture file"
           queued.each do |path|
@@ -288,7 +294,7 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
       end
     end
 
-    context 'when categorising FOSS vs EE by path prefix' do
+    context 'when categorising FOSS vs EE vs jest by path' do
       let(:now) { Time.utc(2026, 5, 12, 10, 0, 0) } # Tuesday
 
       before do
@@ -297,14 +303,16 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
         allow(git).to receive(:diff_files).and_return([])
         allow(clickhouse_client).to receive(:query).with(/INTERVAL 14 DAY/, anything).and_return(
           [
-            { 'test_file' => 'spec/models/user_spec.rb' },         # FOSS
-            { 'test_file' => 'ee/spec/models/license_spec.rb' },   # EE
-            { 'test_file' => 'qa/qa/specs/features/foo_spec.rb' }  # FOSS (qa is not ee)
+            { 'test_file' => 'spec/models/user_spec.rb' },         # FOSS rspec
+            { 'test_file' => 'spec/frontend/foo_spec.js' },        # jest
+            { 'test_file' => 'ee/spec/models/license_spec.rb' },   # EE rspec
+            { 'test_file' => 'ee/spec/frontend/bar_spec.js' },     # jest (ee/ prefix, but jest)
+            { 'test_file' => 'qa/qa/specs/features/foo_spec.rb' }  # FOSS rspec (qa is not ee)
           ]
         )
       end
 
-      it 'puts non-ee paths in FOSS, ee/ paths in EE' do
+      it 'splits rspec into FOSS/EE by ee/ prefix and routes _spec.js files to jest' do
         select_tests.run!
 
         expect(File.read(foss_queue_path).split("\n")).to match_array(
@@ -312,6 +320,9 @@ RSpec.describe PerTestCoverage::SelectTests, :silence_stdout, feature_category: 
         )
         expect(File.read(ee_queue_path).split("\n")).to match_array(
           %w[ee/spec/models/license_spec.rb]
+        )
+        expect(File.read(jest_queue_path).split("\n")).to match_array(
+          %w[spec/frontend/foo_spec.js ee/spec/frontend/bar_spec.js]
         )
       end
     end
