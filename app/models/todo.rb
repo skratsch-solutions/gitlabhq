@@ -305,10 +305,6 @@ class Todo < ApplicationRecord
     action == REVIEW_REQUESTED
   end
 
-  def merge_train_removed?
-    action == MERGE_TRAIN_REMOVED
-  end
-
   def member_access_requested?
     action == MEMBER_ACCESS_REQUESTED
   end

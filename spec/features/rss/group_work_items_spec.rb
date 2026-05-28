@@ -121,7 +121,7 @@ RSpec.describe 'Project Work Items RSS Feed', feature_category: :team_planning d
 
       context 'when the user has full permission to see work items in both projects' do
         before do
-          other_project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- Does not work in before_all
+          other_project.add_developer(user) # rubocop:disable RSpec/BeforeAllRoleAssignment -- `user` is a `let!`, not `let_it_be`, so `before_all` cannot access it
         end
 
         it 'renders both work items' do

@@ -71,7 +71,7 @@ module Projects
       def reset_registration_token
         ::Ci::Runners::ResetRegistrationTokenService.new(@project, current_user).execute
 
-        flash[:toast] = _("New runners registration token has been generated!")
+        flash[:toast] = _("New runners registration token has been generated.")
         redirect_to namespace_project_settings_ci_cd_path
       end
 

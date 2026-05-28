@@ -18729,6 +18729,12 @@ msgstr ""
 msgid "ComplianceFrameworks|\"%{name}\" is a reserved word and cannot be used as a compliance framework name."
 msgstr ""
 
+msgid "ComplianceFrameworks|A compliance framework named \"%{name}\" already exists in this group. Go back to the Basic information step and choose a unique name."
+msgstr ""
+
+msgid "ComplianceFrameworks|A compliance framework with this name already exists. Please choose a different name."
+msgstr ""
+
 msgid "ComplianceFrameworks|A compliance frameworks CSV export for the group \"%{group_name}\" is attached to this email."
 msgstr ""
 
@@ -18868,6 +18874,9 @@ msgid "ComplianceFrameworks|External control"
 msgstr ""
 
 msgid "ComplianceFrameworks|GitLab controls are pre-defined rules that are configured for GitLab resources. External environmental controls use the API to check the status and details of an external environment."
+msgstr ""
+
+msgid "ComplianceFrameworks|Go to Basic information"
 msgstr ""
 
 msgid "ComplianceFrameworks|Go to the %{linkStart}compliance center / project page%{linkEnd} to apply projects for this framework."
@@ -29525,6 +29534,9 @@ msgid "Enable instance runners for this group"
 msgstr ""
 
 msgid "Enable integration"
+msgstr ""
+
+msgid "Enable license detection within CycloneDX SBOM files. When disabled, licenses are reported as unknown."
 msgstr ""
 
 msgid "Enable maintenance mode"
@@ -42979,6 +42991,9 @@ msgstr ""
 msgid "License Compliance| Used by %{dependencies}"
 msgstr ""
 
+msgid "License Scanning for CycloneDX"
+msgstr ""
+
 msgid "License compliance"
 msgstr ""
 
@@ -47755,7 +47770,7 @@ msgstr ""
 msgid "New response for issue #%{issue_iid}:"
 msgstr ""
 
-msgid "New runners registration token has been generated!"
+msgid "New runners registration token has been generated."
 msgstr ""
 
 msgid "New snippet"
@@ -54791,6 +54806,9 @@ msgid "Pipelines|yaml invalid"
 msgstr ""
 
 msgid "Pipeline|95th percentile"
+msgstr ""
+
+msgid "Pipeline|A Fix pipeline session is already running or completed for this pipeline. Push a new commit or re-run the pipeline to try again."
 msgstr ""
 
 msgid "Pipeline|Actions"

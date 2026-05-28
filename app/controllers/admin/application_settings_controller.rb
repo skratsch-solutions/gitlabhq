@@ -89,7 +89,7 @@ module Admin
     def reset_registration_token
       ::Ci::Runners::ResetRegistrationTokenService.new(@application_setting, current_user).execute
 
-      flash[:notice] = _('New runners registration token has been generated!')
+      flash[:notice] = _('New runners registration token has been generated.')
       redirect_to admin_runners_path
     end
 

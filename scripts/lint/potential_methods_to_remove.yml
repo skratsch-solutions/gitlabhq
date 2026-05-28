@@ -210,7 +210,6 @@ app/models/project.rb:
 - valid_runners_token?
 - storage_upgradable?
 app/models/todo.rb:
-- merge_train_removed?
 - access_request_url
 - for_issue_or_work_item?
 - review_requested?

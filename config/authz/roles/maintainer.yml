@@ -162,6 +162,7 @@ project:
   - rename_project
   - set_license_information_source
   - stop_environment
+  - toggle_license_scanning_for_cyclonedx
   - update_approvers
   - update_branch_rule
   - update_cluster

@@ -47,7 +47,7 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
             click_checked_field s_('VisibilityLevel|Internal')
           end
 
-          expect_save_settings(refresh: true)
+          expect_save_settings
 
           within_testid('restricted-visibility-levels') do
             expect_field_unchecked s_('VisibilityLevel|Public')
@@ -213,7 +213,7 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
             within_testid('account-and-limit-settings-content') do
               click_unchecked_field(_('Deactivate dormant users after a period of inactivity'))
 
-              expect_save_settings(refresh: true)
+              expect_save_settings
 
               expect_field_checked(_('Deactivate dormant users after a period of inactivity'))
             end
@@ -226,7 +226,7 @@ RSpec.describe 'Admin updates general settings', feature_category: :settings do
               click_unchecked_field(_('Deactivate dormant users after a period of inactivity'))
               fill_field_with_new_value(_('Days of inactivity before deactivation'), '180')
 
-              expect_save_settings(refresh: true)
+              expect_save_settings
 
               expect_field_checked(_('Deactivate dormant users after a period of inactivity'))
               expect_field_value(_('Days of inactivity before deactivation'), '180')

@@ -46,6 +46,7 @@ project:
   - read_vulnerability
   - update_cvs_for_container_scanning
   - update_cvs_for_dependency_scanning
+  - toggle_license_scanning_for_cyclonedx
   - update_on_demand_dast_scan
   - update_sast_vulnerability_resolution_setting
   - update_security_setting
