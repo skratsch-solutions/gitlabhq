@@ -196,12 +196,6 @@ ul.related-merge-requests > li gl-emoji {
   }
 }
 
-// stylelint-disable-next-line gitlab/no-gl-class
-.work-item-detail-panel .gl-drawer-header-sticky,
-.issue-sticky-header {
-  @include translucent-glass-background;
-}
-
 .limit-container-width {
   .issue-sticky-header-text {
     max-width: $limited-layout-width;

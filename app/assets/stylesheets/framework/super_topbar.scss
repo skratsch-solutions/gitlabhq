@@ -40,4 +40,11 @@
     @apply dark:gl-bg-neutral-100;
     @apply dark:gl-border-neutral-100;
   }
+
+  // Organization switcher button
+  .organization-switcher-button .gl-button-text {
+    display: flex;
+    align-items: center;
+    gap: var(--gl-spacing-scale-2);
+  }
 }

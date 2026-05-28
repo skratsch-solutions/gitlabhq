@@ -13,6 +13,7 @@ import { initCommitWidget } from '~/rapid_diffs/app/init_commit_widget';
 import { initCompareVersions } from '~/rapid_diffs/app/init_compare_versions';
 import { initNewDiscussionToggle } from '~/rapid_diffs/app/init_new_discussions_toggle';
 import { initLineRangeSelection } from '~/rapid_diffs/app/init_line_range_selection';
+import { initHotkeys } from '~/rapid_diffs/app/init_hotkeys';
 
 class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
   adapterConfig = adapters;
@@ -26,6 +27,8 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     await this.#initDiscussions();
     initNewDiscussionToggle(this.root, { allowExpandedLines: true });
     initLineRangeSelection(this.root);
+    // initHotkeys returns a teardown function, but there is no destroy lifecycle yet
+    initHotkeys();
   }
 
   // eslint-disable-next-line class-methods-use-this

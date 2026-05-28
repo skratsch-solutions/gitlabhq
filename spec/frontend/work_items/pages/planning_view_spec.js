@@ -2676,6 +2676,12 @@ describe('planning-view', () => {
         expect(drawerProps.sortOptions.length).toBeGreaterThan(0);
       });
 
+      it('passes commonPreferences to the drawer', () => {
+        expect(findDisplaySettingsDrawer().props('commonPreferences')).toEqual({
+          shouldOpenItemsInSidePanel: true,
+        });
+      });
+
       it('updates sort and saves the preference when the drawer emits sort', async () => {
         findDisplaySettingsDrawer().vm.$emit('sort', UPDATED_DESC);
         await waitForPromises();

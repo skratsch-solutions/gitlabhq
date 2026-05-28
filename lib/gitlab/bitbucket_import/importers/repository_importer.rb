@@ -91,7 +91,7 @@ module Gitlab
         end
 
         def client
-          Bitbucket::Client.new(project.import_data.credentials)
+          ::Import::BitbucketImport::ClientFactory.for(project)
         end
       end
     end

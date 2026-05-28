@@ -832,4 +832,99 @@ describe('CommitListApp', () => {
       });
     });
   });
+
+  describe('file path filtering', () => {
+    const createPathRouter = (filePath = '', routeQuery = {}) => {
+      const router = new VueRouter({
+        mode: 'abstract',
+        routes: [
+          { path: '/main/:path*', name: 'commitsPath', component: CommitListApp },
+          { path: '/:ref/:path*', name: 'commitsAnyRef', component: CommitListApp },
+          { path: '/:pathMatch(.*)*', redirect: '/main' },
+        ],
+      });
+      router.push({ path: filePath ? `/main/${filePath}` : '/main', query: routeQuery });
+      return router;
+    };
+
+    const createComponentWithPath = (handler, filePath = '', routeQuery = {}) => {
+      wrapper = shallowMountExtended(CommitListApp, {
+        apolloProvider: createMockApollo([[commitsQuery, handler]]),
+        provide: defaultProvide,
+        router: createPathRouter(filePath, routeQuery),
+      });
+    };
+
+    it('passes file path to GraphQL query', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path: 'app/models/user.rb' }));
+    });
+
+    it('passes null path when no file path in route', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler);
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path: null }));
+    });
+
+    it('preserves file path after ref change', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      handler.mockClear();
+      findCommitHeader().vm.$emit('ref-change', 'develop');
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(
+        expect.objectContaining({ ref: 'develop', path: 'app/models/user.rb' }),
+      );
+    });
+
+    it('updates path when navigating via breadcrumbs', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      handler.mockClear();
+
+      await wrapper.vm.$router.push('/main/app/models');
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path: 'app/models' }));
+    });
+
+    it('preserves path when switching ref hits the wildcard fallback route', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponse);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      // Navigate to a different ref — matches the 'commitsAnyRef' wildcard route.
+      // syncPathFromRoute skips the update because params.path is unreliable here.
+      await wrapper.vm.$router.push('/develop/app/models/user.rb');
+      await waitForPromises();
+
+      expect(wrapper.vm.currentPath).toBe('app/models/user.rb');
+    });
+
+    it('resets pagination when route path changes', async () => {
+      const handler = jest.fn().mockResolvedValue(mockCommitsQueryResponseWithNextPage);
+      createComponentWithPath(handler, 'app/models/user.rb');
+      await waitForPromises();
+
+      findPagination().vm.$emit('next');
+      await waitForPromises();
+
+      handler.mockClear();
+
+      await wrapper.vm.$router.push('/main/app');
+      await waitForPromises();
+
+      expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path: 'app', after: null }));
+    });
+  });
 });

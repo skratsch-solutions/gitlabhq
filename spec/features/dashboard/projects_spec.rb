@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'Dashboard Projects', :js, :with_current_organization, feature_category: :groups_and_projects do
   let_it_be(:user) { create(:user, organization: current_organization) }
-  let_it_be(:project, reload: true) { create(:project, :repository, creator: build(:user)) } # ensure creator != owner to avoid N+1 false-positive
+  let_it_be_with_reload(:project) { create(:project, :repository, creator: build(:user)) } # ensure creator != owner to avoid N+1 false-positive
   let_it_be(:project2) { create(:project, :public) }
   let_it_be(:personal_project) { create(:project, namespace: user.namespace) }
   let_it_be(:personal_project_with_stars) { create(:project, namespace: user.namespace, star_count: 10) }

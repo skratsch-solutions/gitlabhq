@@ -208,7 +208,7 @@ module Tasks
 
           def sort_routes_by_request_method(routes)
             routes.sort_by do |r|
-              REQUEST_METHOD_SORT_ORDER[r.route.request_method.to_sym]
+              [REQUEST_METHOD_SORT_ORDER[r.route.request_method.to_sym], route_path(r.route)]
             end
           end
 

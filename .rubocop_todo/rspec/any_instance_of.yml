@@ -24,7 +24,6 @@ RSpec/AnyInstanceOf:
     - 'ee/spec/models/push_rule_spec.rb'
     - 'ee/spec/presenters/ci/pipeline_presenter_spec.rb'
     - 'ee/spec/requests/api/geo_nodes_spec.rb'
-    - 'ee/spec/requests/api/issues_spec.rb'
     - 'ee/spec/requests/api/projects_spec.rb'
     - 'ee/spec/requests/git_http_spec.rb'
     - 'ee/spec/requests/groups_controller_spec.rb'

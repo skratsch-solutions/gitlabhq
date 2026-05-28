@@ -22,7 +22,6 @@ import workItemAllowedParentTypesQuery from '../graphql/work_item_allowed_parent
 import {
   I18N_WORK_ITEM_ERROR_UPDATING,
   NO_WORK_ITEM_IID,
-  WORK_ITEM_TYPE_NAME_ISSUE,
   WIDGET_TYPE_HIERARCHY,
 } from '../constants';
 
@@ -92,9 +91,6 @@ export default {
     };
   },
   computed: {
-    isIssue() {
-      return this.workItemType === WORK_ITEM_TYPE_NAME_ISSUE;
-    },
     isLoading() {
       return (
         this.$apollo.queries.namespaceWorkItems.loading ||
@@ -188,9 +184,8 @@ export default {
           : projectWorkItemsQuery;
       },
       variables() {
-        // TODO: Remove the this.isIssue check once issues are migrated to work items
         const baseVariables = {
-          fullPath: this.isIssue ? this.groupPath : this.fullPath,
+          fullPath: this.areAnyAllowedParentTypesGroupWorkItems ? this.groupPath : this.fullPath,
           searchTerm: this.searchTerm,
           workItemTypeIds: [
             ...this.allowedParentTypes,

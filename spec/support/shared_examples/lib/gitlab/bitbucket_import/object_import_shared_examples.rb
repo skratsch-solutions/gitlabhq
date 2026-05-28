@@ -77,6 +77,31 @@ RSpec.shared_examples Gitlab::BitbucketImport::ObjectImporter do
           expect { worker.class.perform_inline(project_id, {}, waiter_key) }.to raise_error(StandardError)
         end
       end
+
+      context 'when refresh! cannot acquire the OAuth lock' do
+        before do
+          allow_next(worker.importer_class).to receive(:execute)
+            .and_raise(Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError)
+        end
+
+        it 're-enqueues the job with a delay and skips the waiter notification', :aggregate_failures do
+          expect(worker.class).to receive(:perform_in).with(
+            Gitlab::BitbucketImport::ObjectImporter::REENQUEUE_DELAY,
+            project_id, kind_of(Hash), waiter_key
+          )
+          expect(Gitlab::JobWaiter).not_to receive(:notify)
+
+          worker.class.perform_inline(project_id, {}, waiter_key)
+        end
+
+        it 'does not track the lock timeout as an importer failure' do
+          allow(worker.class).to receive(:perform_in)
+
+          expect(Gitlab::Import::ImportFailureService).not_to receive(:track)
+
+          worker.class.perform_inline(project_id, {}, waiter_key)
+        end
+      end
     end
 
     context 'when project import has been cancelled' do

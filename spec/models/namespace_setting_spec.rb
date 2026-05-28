@@ -985,4 +985,24 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
       end
     end
   end
+
+  describe '#clear_granular_tokens_enforced_after' do
+    before do
+      namespace_settings.update!(
+        enforce_granular_tokens: true,
+        granular_tokens_enforced_after: Date.current
+      )
+    end
+
+    context 'when enforce_granular_tokens is set to `false`' do
+      before do
+        namespace_settings.enforce_granular_tokens = false
+      end
+
+      it 'clears the `granular_tokens_enforced_after` date' do
+        expect { namespace_settings.save! }
+          .to change { namespace_settings.granular_tokens_enforced_after }.to(nil)
+      end
+    end
+  end
 end

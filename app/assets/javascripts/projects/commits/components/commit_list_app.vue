@@ -77,35 +77,12 @@ export default {
     },
   },
   watch: {
-    '$route.path': function watchRoutePathForRef(newPath) {
-      const refSegment = extractFirstPathSegment(newPath);
-      const newRef = refSegment
-        ? safeDecodeURIComponent(refSegment)
-        : decodeURIComponent(this.escapedRef);
-
-      if (this.currentRef !== newRef) {
-        this.currentRef = newRef;
-        this.resetPagination();
-      }
-    },
     $route(newRoute) {
-      const filters = urlQueryToFilter(newRoute.query, {
-        filterNamesAllowList: ['author', 'message', 'committed_after', 'committed_before'],
-      });
-      const author = filters.author?.value || null;
-      const message = filters.message?.value || null;
-      const committedAfter = filters.committed_after?.value || null;
-      const committedBefore = filters.committed_before?.value || null;
-      const pageSize = parseInt(newRoute.query.page_size, 10) || DEFAULT_PAGE_SIZE;
+      const refChanged = this.syncRefFromRoute(newRoute);
+      const pathChanged = this.syncPathFromRoute(newRoute);
+      const filtersChanged = this.syncFiltersFromRoute(newRoute);
 
-      if (
-        this.authorFilter !== author ||
-        this.messageFilter !== message ||
-        this.committedAfterFilter !== committedAfter ||
-        this.committedBeforeFilter !== committedBefore ||
-        this.pageSize !== pageSize
-      ) {
-        this.applyFiltersFromRoute(filters, newRoute.query);
+      if (refChanged || pathChanged || filtersChanged) {
         this.resetPagination();
       }
     },
@@ -177,17 +154,9 @@ export default {
     },
   },
   created() {
-    // Initialize currentRef from route path
-    const refSegment = extractFirstPathSegment(this.$route.path);
-    if (refSegment) {
-      this.currentRef = safeDecodeURIComponent(refSegment);
-    }
-
-    // Initialize filters from URL query
-    const filters = urlQueryToFilter(this.$route.query, {
-      filterNamesAllowList: ['author', 'message', 'committed_after', 'committed_before'],
-    });
-    this.applyFiltersFromRoute(filters, this.$route.query);
+    this.syncRefFromRoute(this.$route);
+    this.syncPathFromRoute(this.$route);
+    this.syncFiltersFromRoute(this.$route);
   },
   mounted() {
     performanceMarkAndMeasure({
@@ -203,6 +172,51 @@ export default {
     getFormattedDate(dateTime) {
       const date = newDate(dateTime);
       return isValidDate(date) ? localeDateFormat.asDate.format(date) : dateTime;
+    },
+    syncRefFromRoute(route) {
+      const refSegment = extractFirstPathSegment(route.path);
+      const newRef = refSegment
+        ? safeDecodeURIComponent(refSegment)
+        : decodeURIComponent(this.escapedRef);
+
+      if (this.currentRef === newRef) return false;
+      this.currentRef = newRef;
+      return true;
+    },
+    syncPathFromRoute(route) {
+      // The wildcard fallback route ('commitsAnyRef') matches after a ref switch
+      // but its params.path may include ref segments for refs containing slashes,
+      // so we skip the update here — handleRefChange already preserves currentPath.
+      if (route.name === 'commitsAnyRef') return false;
+
+      const rawPath = route.params?.path;
+      const normalizedPath = Array.isArray(rawPath) ? rawPath.join('/') : rawPath || null;
+      if (this.currentPath === normalizedPath) return false;
+      this.currentPath = normalizedPath;
+      return true;
+    },
+    syncFiltersFromRoute(route) {
+      const filters = urlQueryToFilter(route.query, {
+        filterNamesAllowList: ['author', 'message', 'committed_after', 'committed_before'],
+      });
+      const author = filters.author?.value || null;
+      const message = filters.message?.value || null;
+      const committedAfter = filters.committed_after?.value || null;
+      const committedBefore = filters.committed_before?.value || null;
+      const pageSize = parseInt(route.query.page_size, 10) || DEFAULT_PAGE_SIZE;
+
+      if (
+        this.authorFilter === author &&
+        this.messageFilter === message &&
+        this.committedAfterFilter === committedAfter &&
+        this.committedBeforeFilter === committedBefore &&
+        this.pageSize === pageSize
+      ) {
+        return false;
+      }
+
+      this.applyFiltersFromRoute(filters, route.query);
+      return true;
     },
     handleRefChange(newRef) {
       this.currentRef = newRef;

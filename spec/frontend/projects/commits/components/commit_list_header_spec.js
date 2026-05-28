@@ -22,7 +22,13 @@ describe('CommitListHeader', () => {
     push: jest.fn(),
   };
 
-  const createComponent = ({ path = 'README.md', currentRef = '', refType = 'heads' } = {}) => {
+  const createComponent = ({
+    filePath = 'README.md',
+    currentRef = '',
+    refType = 'heads',
+    routePath = '/dev/README.md',
+    routeParams = {},
+  } = {}) => {
     wrapper = shallowMountExtended(CommitListHeader, {
       provide: {
         projectRootPath: 'gitlab-org/gitlab',
@@ -36,13 +42,15 @@ describe('CommitListHeader', () => {
       },
       propsData: {
         currentRef,
+        filePath,
       },
       mocks: {
         $router: mockRouter,
         $route: {
-          path: '/dev/README.md',
+          path: routePath,
           params: {
-            path,
+            path: filePath,
+            ...routeParams,
           },
         },
       },
@@ -156,7 +164,7 @@ describe('CommitListHeader', () => {
       });
 
       it('does not render OpenMrBadge when there is no file path', () => {
-        createComponent({ path: '' });
+        createComponent({ filePath: '' });
         expect(findOpenMrBadge().exists()).toBe(false);
       });
     });

@@ -234,6 +234,30 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::DocsTask, :silence_stdout, fe
         expect(markdown).to eq(expected_markdown)
       end
     end
+
+    context 'when multiple routes share resource, action, boundary, and request method but differ in path' do
+      let(:download_package_route_a) do
+        create_route_double(%i[download_package], :project, 'GET', '/api/:version/path/to/package_a')
+      end
+
+      let(:download_package_route_b) do
+        create_route_double(%i[download_package], :project, 'GET', '/api/:version/path/to/package_b')
+      end
+
+      it 'orders rows the same way regardless of the input route order' do
+        allow(::API::API).to receive(:endpoints).and_return(
+          [instance_double(Grape::Endpoint, routes: [download_package_route_b, download_package_route_a])]
+        )
+        descending_input = described_class.new.allowed_endpoints
+
+        allow(::API::API).to receive(:endpoints).and_return(
+          [instance_double(Grape::Endpoint, routes: [download_package_route_a, download_package_route_b])]
+        )
+        ascending_input = described_class.new.allowed_endpoints
+
+        expect(descending_input).to eq(ascending_input)
+      end
+    end
   end
 
   describe '#publicly_accessible_endpoints' do

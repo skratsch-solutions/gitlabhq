@@ -21,6 +21,16 @@ export const createRouter = (basePath, escapedRef) => {
         name: 'commitsPathDecoded',
         component: CommitListApp,
       },
+      {
+        // Wildcard fallback so every URL still matches a route after a ref
+        // switch (the specific routes above are hardcoded to the initial ref).
+        // params.path may include ref segments for refs containing slashes,
+        // so the component must not rely on it for the file path — the ref
+        // change handler preserves currentPath independently.
+        path: '/:ref/:path*',
+        name: 'commitsAnyRef',
+        component: CommitListApp,
+      },
     ],
   });
 

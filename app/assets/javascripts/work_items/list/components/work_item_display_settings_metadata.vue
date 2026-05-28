@@ -158,8 +158,8 @@ export default {
 </script>
 
 <template>
-  <div data-testid="display-settings-metadata">
-    <span>{{ $options.i18n.fields }}</span>
+  <div data-testid="display-settings-metadata" class="gl-pb-3">
+    <span class="gl-pl-4">{{ $options.i18n.fields }}</span>
     <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
       <gl-disclosure-dropdown-item
         v-for="metadata in applicableMetadataPreferences"

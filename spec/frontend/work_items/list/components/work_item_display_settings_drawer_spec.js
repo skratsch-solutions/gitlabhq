@@ -3,6 +3,7 @@ import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import WorkItemDisplaySettingsDrawer from '~/work_items/list/components/work_item_display_settings_drawer.vue';
 import WorkItemDisplaySettingsSort from '~/work_items/list/components/work_item_display_settings_sort.vue';
 import WorkItemDisplaySettingsMetadata from '~/work_items/list/components/work_item_display_settings_metadata.vue';
+import WorkItemDisplaySettingsUserPreferences from '~/work_items/list/components/work_item_display_settings_user_preferences.vue';
 
 const SORT_OPTIONS = [
   {
@@ -24,14 +25,14 @@ describe('WorkItemDisplaySettingsDrawer', () => {
   const findDrawer = () => wrapper.findComponent(GlDrawer);
   const findSort = () => wrapper.findComponent(WorkItemDisplaySettingsSort);
   const findMetadata = () => wrapper.findComponent(WorkItemDisplaySettingsMetadata);
+  const findUserPreferences = () => wrapper.findComponent(WorkItemDisplaySettingsUserPreferences);
 
-  const createComponent = ({ props = {}, slots = {} } = {}) => {
+  const createComponent = ({ props = {} } = {}) => {
     wrapper = shallowMountExtended(WorkItemDisplaySettingsDrawer, {
       propsData: {
         ...DEFAULT_PROPS,
         ...props,
       },
-      slots,
     });
   };
 
@@ -47,14 +48,6 @@ describe('WorkItemDisplaySettingsDrawer', () => {
     findDrawer().vm.$emit('close');
 
     expect(wrapper.emitted('close')).toHaveLength(1);
-  });
-
-  it('renders slot content alongside the metadata section', () => {
-    createComponent({
-      slots: { default: '<div data-testid="custom-body">custom</div>' },
-    });
-
-    expect(wrapper.findByTestId('custom-body').exists()).toBe(true);
   });
 
   describe('sort section', () => {
@@ -108,13 +101,26 @@ describe('WorkItemDisplaySettingsDrawer', () => {
       });
     });
 
-    it('updates user preferences when the metadata component emits updates', () => {
+    it('re-emits update-settings when the metadata component emits updates', () => {
       createComponent();
 
       const payload = { hiddenMetadataKeys: ['weight'] };
       findMetadata().vm.$emit('update-settings', payload);
 
       expect(wrapper.emitted('update-settings')).toEqual([[payload]]);
+    });
+  });
+
+  describe('user preferences section', () => {
+    it('renders the user preferences component with respective props', () => {
+      const commonPreferences = { shouldOpenItemsInSidePanel: false };
+      createComponent({ props: { commonPreferences } });
+
+      expect(findUserPreferences().props()).toMatchObject({
+        commonPreferences,
+        fullPath: 'gitlab-org/gitlab',
+        workItemTypeId: 'gid://gitlab/WorkItems::Type/8',
+      });
     });
   });
 });

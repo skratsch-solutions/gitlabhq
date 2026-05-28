@@ -7,7 +7,6 @@
 
   .top-bar {
     @include job-log-top-bar;
-    @include translucent-glass-background(var(--gl-background-color-section));
 
     &.affix {
       top: $calc-application-header-height;

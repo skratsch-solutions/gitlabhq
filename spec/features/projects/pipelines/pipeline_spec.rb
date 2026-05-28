@@ -59,7 +59,7 @@ RSpec.describe 'Pipeline', :js, feature_category: :continuous_integration do
     include_context 'pipeline builds'
 
     let_it_be(:group) { create(:group) }
-    let_it_be(:project, reload: true) { create(:project, :repository, group: group) }
+    let_it_be_with_reload(:project) { create(:project, :repository, group: group) }
 
     let(:pipeline) do
       create(:ci_pipeline, name: 'Build pipeline', project: project, ref: 'master', sha: project.commit.id, user: user)

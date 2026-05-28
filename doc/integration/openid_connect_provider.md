@@ -58,6 +58,8 @@ The following user information is shared with clients:
 | `name`               | `string`  | The user's full name | {{< yes >}} | {{< yes >}} |
 | `nickname`           | `string`  | The user's GitLab username | {{< yes >}}| {{< yes >}} |
 | `preferred_username` | `string`  | The user's GitLab username | {{< yes >}} | {{< yes >}} |
+| `given_name`         | `string`  | The user's first name | {{< yes >}} | {{< yes >}} |
+| `family_name`        | `string`  | The user's last name | {{< yes >}} | {{< yes >}} |
 | `email`              | `string`  | The user's primary email address | {{< yes >}} | {{< yes >}} |
 | `email_verified`     | `boolean` | Whether the user's email address is verified | {{< yes >}} | {{< yes >}} |
 | `website`            | `string`  | URL for the user's website | {{< yes >}} | {{< yes >}} |

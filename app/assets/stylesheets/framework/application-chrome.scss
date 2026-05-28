@@ -83,14 +83,6 @@
     }
   }
 
-  // Contextual panel
-  .paneled-view.contextual-panel {
-    @apply gl-overflow-y-auto gl-flex-1 gl-rounded-lg gl-bg-default empty:gl-hidden gl-h-full;
-    @apply gl-z-[252] gl-w-full sm:gl-w-8/10 gl-right-0;
-    display: flex;
-    flex-direction: column;
-  }
-
   // AI panel
   .ai-panels {
     overflow: inherit;
@@ -129,24 +121,6 @@
     }
   }
 
-  .content-wrapper {
-    display: flex;
-    flex-direction: column;
-  }
-
-  // Panel content
-  .panel-content,
-  .work-item-detail-panel {
-    // a slight padding is added to the panel itself so that scrollbar does not get covered by the rounded edge of the panel
-    // we're using padding instead of margin so that fixed elements connect with the bottom edge of the panel
-    @apply gl-pb-3;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    contain: layout;
-  }
-
   #contextual-panel-portal > .vue-portal-target {
     flex: 1;
     min-height: 0;
@@ -159,11 +133,6 @@
 
   // Content adjustments within panels
   .paneled-view {
-    // Work item drawer
-    .work-item-detail-panel {
-      @apply gl-h-full gl-pt-0;
-    }
-
     // Issue sticky header
     .issue-sticky-header:not(.merge-request-sticky-header) {
       @apply gl-w-full gl-border-b-subtle;
@@ -290,17 +259,6 @@
         linear-gradient(-10deg, var(--_shade-5), transparent),
         var(--_shade-2);
       background-color: var(--body-background-color);
-    }
-  }
-
-  .organization-switcher-button {
-    @apply gl-bg-alpha-dark-8 dark:gl-bg-alpha-light-16;
-    @apply gl-border-transparent;
-
-    .gl-button-text {
-      display: flex;
-      align-items: center;
-      gap: var(--gl-spacing-scale-2);
     }
   }
 }

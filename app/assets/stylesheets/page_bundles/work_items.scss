@@ -23,6 +23,7 @@ $work-item-overview-gap-width: 2rem;
 }
 
 .work-item-detail-panel {
+  @apply gl-pt-0;
   // a slight padding is added to the panel itself so that scrollbar does not get covered by the rounded edge of the panel
   // we're using padding instead of margin so that fixed elements connect with the bottom edge of the panel
   @apply gl-pb-3;
@@ -156,6 +157,11 @@ $work-item-overview-gap-width: 2rem;
     // stylelint-disable-next-line gitlab/no-gl-class
     .gl-new-dropdown-item-content {
       @apply gl-px-0;
+    }
+    // stylelint-disable-next-line gitlab/no-gl-class
+    .gl-new-dropdown-item-text-wrapper {
+      padding-block: 6px;
+      padding-inline: 12px;
     }
   }
 }

@@ -645,13 +645,14 @@ describe('WorkItemParent component', () => {
   describe('work item type configuration', () => {
     describe('query selection based on configuration', () => {
       it.each`
-        workItemType   | isGroupWorkItemType | expectedQuery
-        ${'Epic'}      | ${true}             | ${'group'}
-        ${'Epic'}      | ${null}             | ${'project'}
-        ${'Objective'} | ${false}            | ${'project'}
-        ${'Objective'} | ${null}             | ${'project'}
-        ${'Issue'}     | ${true}             | ${'group'}
-        ${'Issue'}     | ${null}             | ${'project'}
+        workItemType               | isGroupWorkItemType | expectedQuery
+        ${'Epic'}                  | ${true}             | ${'group'}
+        ${'Epic'}                  | ${null}             | ${'project'}
+        ${'Objective'}             | ${false}            | ${'project'}
+        ${'Objective'}             | ${null}             | ${'project'}
+        ${'Issue'}                 | ${true}             | ${'group'}
+        ${'Issue'}                 | ${null}             | ${'project'}
+        ${'Custom work item type'} | ${false}            | ${'group'}
       `(
         'selects correct query when workItemType=$workItemType, isGroupWorkItemType=$isGroupWorkItemType',
         async ({ workItemType, isGroupWorkItemType, expectedQuery }) => {

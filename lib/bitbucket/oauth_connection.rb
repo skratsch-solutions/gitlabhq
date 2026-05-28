@@ -6,15 +6,16 @@ module Bitbucket
 
     attr_reader :expires_at, :expires_in, :refresh_token, :token
 
-    def initialize(options = {})
+    def initialize(options = {}, refresh_strategy: nil)
       @api_version   = options.fetch(:api_version, Bitbucket::Connection::DEFAULT_API_VERSION)
       @base_uri      = options.fetch(:base_uri, Bitbucket::Connection::DEFAULT_BASE_URI)
       @default_query = options.fetch(:query, Bitbucket::Connection::DEFAULT_QUERY)
 
-      @token         = options[:token]
-      @expires_at    = options[:expires_at]
-      @expires_in    = options[:expires_in]
-      @refresh_token = options[:refresh_token]
+      @token            = options[:token]
+      @expires_at       = options[:expires_at]
+      @expires_in       = options[:expires_in]
+      @refresh_token    = options[:refresh_token]
+      @refresh_strategy = refresh_strategy
     end
 
     def get(path, extra_query = {})
@@ -30,12 +31,26 @@ module Bitbucket
     delegate :expired?, to: :connection
 
     def refresh!
+      return @refresh_strategy.refresh(self) if @refresh_strategy
+
+      perform_refresh!
+    end
+
+    def perform_refresh!
       response = connection.refresh!
 
       @token         = response.token
       @expires_at    = response.expires_at
       @expires_in    = response.expires_in
       @refresh_token = response.refresh_token
+      @connection    = nil
+    end
+
+    def adopt_credentials(token:, expires_at:, expires_in:, refresh_token:)
+      @token         = token
+      @expires_at    = expires_at
+      @expires_in    = expires_in
+      @refresh_token = refresh_token
       @connection    = nil
     end
 

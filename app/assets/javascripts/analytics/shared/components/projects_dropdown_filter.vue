@@ -265,7 +265,7 @@ export default {
           :entity-name="selectedProjects[0].name"
           :size="16"
           :shape="$options.AVATAR_SHAPE_OPTION_RECT"
-          :alt="selectedProjects[0].name"
+          :alt="''"
           class="gl-mr-2 gl-inline-flex gl-shrink-0 gl-align-middle"
         />
         <gl-truncate :text="selectedProjectsLabel" class="gl-min-w-0 gl-grow" />

@@ -947,6 +947,50 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     end
   end
 
+  describe 'updating :enforce_granular_tokens and :granular_tokens_enforced_after' do
+    let(:settings) { group.namespace_settings }
+
+    subject(:update_group) do
+      put :update, params: {
+        id: group.to_param,
+        group: {
+          enforce_granular_tokens: true,
+          granular_tokens_enforced_after: Date.current.to_s
+        }
+      }
+    end
+
+    before do
+      sign_in(user)
+    end
+
+    context 'when user is a group owner' do
+      before do
+        group.add_owner(user)
+      end
+
+      it 'updates the attributes' do
+        update_group
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(settings.reload.enforce_granular_tokens).to be(true)
+        expect(settings.granular_tokens_enforced_after).to eq(Date.current)
+      end
+    end
+
+    context 'when not a group owner' do
+      before do
+        group.add_maintainer(user)
+      end
+
+      it 'does not update the attributes' do
+        expect { update_group }.not_to change { settings.reload.enforce_granular_tokens }
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
+
   describe '#ensure_canonical_path' do
     before do
       sign_in(user)

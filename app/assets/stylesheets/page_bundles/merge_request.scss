@@ -138,7 +138,7 @@ $merge-request-sticky-header-height: rem-to-px($mr-sticky-tabs-height) + 1px;
         top: $calc-application-header-height;
         height: $merge-request-sticky-header-height;
         right: var(--scrollbar-width, 0);
-        @include translucent-glass-background;
+        @apply gl-bg-default;
         @apply gl-border-b;
         @apply gl-fixed;
         @apply gl-left-0;
@@ -187,7 +187,7 @@ $merge-request-sticky-header-height: rem-to-px($mr-sticky-tabs-height) + 1px;
   .merge-request-sticky-header {
     z-index: calc($top-bar-z-index - 1);
     min-height: $mr-sticky-header-height; // Allow container to grow with content or browser zoom
-    @include translucent-glass-background;
+    @apply gl-bg-default;
   }
 }
 

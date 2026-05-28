@@ -2063,13 +2063,14 @@ export default {
       :sort-options="sortOptions"
       :sort-key="sortKey"
       :namespace-preferences="displaySettingsSoT.namespacePreferences"
+      :common-preferences="displaySettings.commonPreferences"
       :full-path="rootPageFullPath"
       :is-group="isGroup"
       :is-service-desk-list="isServiceDeskList"
       :work-item-type-id="workItemTypeId"
       @close="isDisplayDrawerOpen = false"
       @sort="handleSort"
-      @settings="handleLocalDisplayPreferencesUpdate"
+      @update-settings="handleLocalDisplayPreferencesUpdate"
     />
   </div>
 </template>

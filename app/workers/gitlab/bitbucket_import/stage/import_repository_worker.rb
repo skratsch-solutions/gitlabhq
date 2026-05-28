@@ -26,7 +26,7 @@ module Gitlab
         def preallocate_iids!(project)
           max_iids = {}
           repo = project.import_source
-          client = Bitbucket::Client.new(project.import_data.credentials)
+          client = ::Import::BitbucketImport::ClientFactory.for(project)
 
           unless iid_allocated?(project, :merge_requests)
             max_pr_iid = fetch_last_iid('pull request', project) { client.last_pull_request(repo) }

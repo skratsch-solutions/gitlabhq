@@ -34,8 +34,8 @@ module Bitbucket
 
     WORKSPACE_PAGE_LENGTH = 100
 
-    def initialize(options = {})
-      @connection = Connection.new(options)
+    def initialize(options = {}, refresh_strategy: nil)
+      @connection = Connection.new(options, refresh_strategy: refresh_strategy)
     end
 
     # Fetches data from the Bitbucket API and yields a Page object for every page
