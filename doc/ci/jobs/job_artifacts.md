@@ -323,6 +323,29 @@ https://gitlab.com/<full-project-path>/-/jobs/artifacts/main/browse?job=build
 
 Replace `<full-project-path>` with a valid project path, you can find it in the URL for your project.
 
+## Set the maximum artifacts size
+
+Set size limits for job artifacts to control storage use.
+Each artifact file in a job has a default maximum size of 100 MB.
+
+> [!note]
+> This setting applies to the size of the final archive file, not individual files in a job.
+
+You can configure artifact size limits for:
+
+- [An instance](../../administration/cicd/limits.md#maximum-artifacts-size):
+  The base setting that applies to all projects and groups.
+- A group: Overrides the instance setting for all projects in the group.
+- A project: Overrides both instance and group settings for a specific project.
+
+To change the maximum artifact size for a group or project:
+
+1. In the top bar, select **Search or go to** and find your project or group.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **General pipelines**.
+1. Change the value of **Maximum artifacts size** (in MB).
+1. Select **Save changes**.
+
 ## Delete job log and artifacts
 
 > [!warning]

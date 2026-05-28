@@ -452,7 +452,7 @@ The cache is stored as a compressed CI/CD artifact. Artifact size limits apply:
 
 - GitLab.com: 1 GB maximum artifact size.
 - GitLab Self-Managed: 100 MB default maximum artifact size. An administrator can adjust this
-  limit in [CI/CD settings](../../../administration/settings/continuous_integration.md#set-maximum-artifacts-size).
+  limit in [CI/CD settings](../../../administration/cicd/limits.md#maximum-artifacts-size).
 
 ##### Store cache in external object storage
 

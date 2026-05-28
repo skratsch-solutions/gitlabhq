@@ -14,7 +14,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   let(:issue_title)       { 'foo' }
   let(:issue_description) { 'closed' }
 
-  let_it_be(:project, reload: true) do
+  let_it_be_with_reload(:project) do
     create(:project, :public, creator_id: owner.id, namespace: owner.namespace, reporters: user, guests: guest)
   end
 

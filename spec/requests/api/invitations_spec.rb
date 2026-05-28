@@ -12,7 +12,7 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
   let(:email) { 'email1@example.com' }
   let(:email2) { 'email2@example.com' }
 
-  let_it_be(:project, reload: true) do
+  let_it_be_with_reload(:project) do
     create(:project, :public, creator_id: maintainer.id, namespace: maintainer.namespace) do |project|
       project.add_developer(developer)
       project.add_maintainer(maintainer)
@@ -20,7 +20,7 @@ RSpec.describe API::Invitations, feature_category: :user_profile do
     end
   end
 
-  let_it_be(:group, reload: true) do
+  let_it_be_with_reload(:group) do
     create(:group, :public) do |group|
       group.add_developer(developer)
       group.add_owner(maintainer)

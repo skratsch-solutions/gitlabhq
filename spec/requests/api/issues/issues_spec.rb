@@ -6,7 +6,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   using RSpec::Parameterized::TableSyntax
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:project, reload: true) { create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, reporters: user) }
+  let_it_be_with_reload(:project) { create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, reporters: user) }
   let_it_be(:private_mrs_project) do
     create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, merge_requests_access_level: ProjectFeature::PRIVATE, reporters: user)
   end

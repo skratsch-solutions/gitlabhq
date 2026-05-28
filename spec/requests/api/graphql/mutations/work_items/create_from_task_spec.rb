@@ -7,7 +7,7 @@ RSpec.describe "Create a work item from a task in a work item's description", fe
 
   let_it_be(:project) { create(:project) }
   let_it_be(:developer) { create(:user, developer_of: project) }
-  let_it_be(:work_item, refind: true) do
+  let_it_be_with_refind(:work_item) do
     create(:work_item, :confidential, project: project, description: '- [ ] A task in a list', lock_version: 3)
   end
 

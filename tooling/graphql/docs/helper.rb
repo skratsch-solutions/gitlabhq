@@ -26,14 +26,14 @@ module Tooling
       CONNECTION_ARGS = %w[after before first last].to_set
 
       FIELD_HEADER = <<~MD
-        #### Fields
+        Fields:
 
         | Name | Type | Description |
         | ---- | ---- | ----------- |
       MD
 
       ARG_HEADER = <<~MD
-        # Arguments
+        Arguments:
 
         | Name | Type | Description |
         | ---- | ---- | ----------- |
@@ -86,23 +86,15 @@ module Tooling
             render_return_type(field),
             render_input_type(field),
             render_connection_note(field),
-            render_argument_table(heading_level, args, arg_owner),
+            render_argument_table(args, arg_owner),
             render_return_fields(field, owner: owner)
           ]
 
           join(:block, chunks)
         end
 
-        def render_argument_table(level, args, owner)
-          arg_header =
-
-            # Only permit heading levels valid in CommonMark
-            if level < 6
-              ('#' * level) + ARG_HEADER
-            else
-              ARG_HEADER.sub("# Arguments", "Arguments:")
-            end
-
+        def render_argument_table(args, owner)
+          arg_header = ARG_HEADER
           render_field_table(arg_header, args, owner)
         end
 
@@ -125,7 +117,7 @@ module Tooling
           type_name = owner[:name] if owner
           header_prefix = '#' * level_bump
           sections = [
-            render_simple_fields(no_args, type_name, header_prefix),
+            render_simple_fields(no_args, type_name),
             render_fields_with_arguments(with_args, type_name, header_prefix)
           ]
 
@@ -210,8 +202,8 @@ module Tooling
           "Returns #{render_field_type(query[:type])}."
         end
 
-        def render_simple_fields(fields, type_name, header_prefix)
-          render_field_table(header_prefix + FIELD_HEADER, fields, type_name)
+        def render_simple_fields(fields, type_name)
+          render_field_table(FIELD_HEADER, fields, type_name)
         end
 
         def render_fields_with_arguments(fields, type_name, header_prefix)

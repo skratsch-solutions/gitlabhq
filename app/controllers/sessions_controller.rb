@@ -292,7 +292,7 @@ class SessionsController < Devise::SessionsController
 
   def store_redirect_uri
     redirect_uri =
-      if request.referer.present? && (params['redirect_to_referer'] == 'yes')
+      if request.referer.present? && (params.permit(:redirect_to_referer)[:redirect_to_referer] == 'yes')
         URI(request.referer)
       else
         URI(request.url)
@@ -320,7 +320,7 @@ class SessionsController < Devise::SessionsController
 
     # If a "auto_sign_in" query parameter is set to a falsy value, don't auto sign-in.
     # Otherwise, the default is to auto sign-in.
-    return if Gitlab::Utils.to_boolean(params[:auto_sign_in]) == false
+    return if Gitlab::Utils.to_boolean(params.permit(:auto_sign_in)[:auto_sign_in]) == false
 
     # Auto sign in with an Omniauth provider only if the standard "you need to sign-in" alert is
     # registered or no alert at all. In case of another alert (such as a blocked user), it is safer
@@ -408,7 +408,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def set_invite_params
-    @invite_email = ActionController::Base.helpers.sanitize(params[:invite_email])
+    @invite_email = ActionController::Base.helpers.sanitize(params.permit(:invite_email)[:invite_email])
   end
 
   def store_login_challenge

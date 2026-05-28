@@ -11,7 +11,7 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
   using RSpec::Parameterized::TableSyntax
 
   let_it_be(:organization) { create(:organization) }
-  let_it_be(:user, reload: true) { create(:user, organizations: [organization]) }
+  let_it_be_with_reload(:user) { create(:user, organizations: [organization]) }
 
   let(:admin) { create(:admin) }
   let(:key) { create(:key, user: user) }
@@ -305,7 +305,7 @@ RSpec.describe API::Helpers, :enable_admin_mode, feature_category: :system_acces
     end
 
     describe "when authenticating using a job token" do
-      let_it_be(:job, reload: true) do
+      let_it_be_with_reload(:job) do
         create(:ci_build, user: user, status: :running)
       end
 

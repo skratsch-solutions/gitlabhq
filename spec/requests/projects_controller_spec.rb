@@ -27,8 +27,8 @@ RSpec.describe ProjectsController, :with_license, feature_category: :groups_and_
 
   describe 'GET #show' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, developer_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, developer_of: group) }
       let(:expected_success_status) { :ok }
 
       subject(:make_request) { get project_path(project) }
@@ -65,7 +65,7 @@ RSpec.describe ProjectsController, :with_license, feature_category: :groups_and_
 
   describe 'GET #edit' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
+      let_it_be_with_reload(:group) { create(:group) }
       let_it_be(:project, freeze: true) { create(:project, namespace: group) }
 
       subject(:make_request) { get edit_project_path(project) }
@@ -75,21 +75,21 @@ RSpec.describe ProjectsController, :with_license, feature_category: :groups_and_
       end
 
       context 'when user is maintainer' do
-        let_it_be(:user, reload: true) { create(:user, maintainer_of: project) }
+        let_it_be_with_reload(:user) { create(:user, maintainer_of: project) }
         let(:expected_success_status) { :ok }
 
         it_behaves_like 'enforces step-up authentication (request spec)'
       end
 
       context 'when user is developer' do
-        let_it_be(:user, reload: true) { create(:user, developer_of: project) }
+        let_it_be_with_reload(:user) { create(:user, developer_of: project) }
         let(:expected_success_status) { :not_found }
 
         it_behaves_like 'does not enforce step-up authentication'
       end
 
       context 'when user is not a member' do
-        let_it_be(:user, reload: true) { create(:user) }
+        let_it_be_with_reload(:user) { create(:user) }
         let(:expected_success_status) { :not_found }
 
         it_behaves_like 'does not enforce step-up authentication'

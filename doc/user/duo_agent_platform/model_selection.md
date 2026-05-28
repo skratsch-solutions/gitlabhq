@@ -39,6 +39,7 @@ in the Agent Platform.
 | Claude Opus 4.5      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | Claude Opus 4.6      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | Claude Opus 4.7      | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
+| Gemini 3.5 Flash     | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5                | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.1              | {{< yes >}}             | {{< no >}}       | {{< yes >}}      |
 | GPT-5.2              | {{< yes >}}             | {{< yes >}}      | {{< yes >}}      |
@@ -99,6 +100,23 @@ To select a model for a feature:
 In the IDE, model selection for GitLab Duo Agentic Chat is applied only when the connection type is set to WebSocket.
 
 To specify a model for the GitLab Duo CLI, see [select a model](../gitlab_duo_cli/_index.md#select-a-model).
+
+### Selecting the right model
+
+For many use cases, starting with a faster, more cost-effective model like
+Claude Haiku 4.5 or GPT-5.4 Mini can be the optimal approach.
+For this approach:
+
+1. Select Claude Haiku 4.5 or GPT-5.4 Mini.
+1. Test your use case thoroughly.
+1. Evaluate if performance meets your requirements.
+1. Upgrade only if necessary for specific capability gaps.
+
+You can use this approach for the following:
+
+- Exploratory or high-volume tasks
+- Applications with strict latency requirements
+- Cost-sensitive implementations
 
 ## Troubleshooting
 

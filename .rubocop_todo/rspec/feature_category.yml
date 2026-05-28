@@ -1744,7 +1744,6 @@ RSpec/FeatureCategory:
     - 'spec/lib/gitlab/diff/inline_diff_spec.rb'
     - 'spec/lib/gitlab/diff/line_mapper_spec.rb'
     - 'spec/lib/gitlab/diff/line_spec.rb'
-    - 'spec/lib/gitlab/diff/lines_unfolder_spec.rb'
     - 'spec/lib/gitlab/diff/pair_selector_spec.rb'
     - 'spec/lib/gitlab/diff/parallel_diff_spec.rb'
     - 'spec/lib/gitlab/diff/parser_spec.rb'

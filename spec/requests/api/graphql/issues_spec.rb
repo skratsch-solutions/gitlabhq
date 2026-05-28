@@ -85,7 +85,7 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
   end
 
   let_it_be(:archived_issue) { create(:issue, project: archived_project) }
-  let_it_be(:issues, reload: true) { [issue_a, issue_b, issue_c, issue_d, issue_e] }
+  let_it_be_with_reload(:issues) { [issue_a, issue_b, issue_c, issue_d, issue_e] }
   # we need to always provide at least one filter to the query so it doesn't fail
   let_it_be(:base_params) { { iids: issues.map { |issue| issue.iid.to_s } } }
 

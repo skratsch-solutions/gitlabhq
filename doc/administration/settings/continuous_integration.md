@@ -103,38 +103,6 @@ To share a project runner with multiple projects:
 
 Control how [job artifacts](../cicd/job_artifacts.md) are stored and managed across your GitLab instance.
 
-#### Set maximum artifacts size
-
-Set size limits for job artifacts to control storage use.
-Each artifact file in a job has a default maximum size of 100 MB.
-
-Job artifacts defined with `artifacts:reports` can have [different limits](../cicd/limits.md#maximum-file-size-per-type-of-artifact).
-When different limits apply, the smaller value is used.
-
-> [!note]
-> This setting applies to the size of the final archive file, not individual files in a job.
-
-You can configure artifact size limits for:
-
-- An instance: The base setting that applies to all projects and groups.
-- A group: Overrides the instance setting for all projects in the group.
-- A project: Overrides both instance and group settings for a specific project.
-
-For GitLab.com limits, see [Artifacts maximum size](../../user/gitlab_com/_index.md#cicd).
-
-To change the maximum artifact size for an instance:
-
-1. Enter a value in the **Maximum artifacts size (MB)** text box.
-1. Select **Save changes**.
-
-To change the maximum artifact size for a group or project:
-
-1. In the top bar, select **Search or go to** and find your project or group.
-1. In the left sidebar, select **Settings** > **CI/CD**.
-1. Expand **General pipelines**.
-1. Change the value of **Maximum artifacts size** (in MB).
-1. Select **Save changes**.
-
 #### Set default artifacts expiration
 
 Set how long job artifacts are kept before being automatically deleted.
@@ -242,40 +210,6 @@ To protect all new CI/CD variables by default:
 
 1. Select the **Protect CI/CD variables by default** checkbox.
 1. Select **Save changes**.
-
-#### Set maximum includes
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/207270) in GitLab 16.0.
-
-{{< /history >}}
-
-Limit how many external YAML files a pipeline can include using the [`include` keyword](../../ci/yaml/includes.md).
-This limit prevents performance issues when pipelines include too many files.
-
-By default, a pipeline can include up to 150 files.
-When a pipeline exceeds this limit, it fails with an error.
-
-To set the maximum number of included files per pipeline:
-
-1. Enter a value in the **Maximum includes** text box.
-1. Select **Save changes**.
-
-#### Limit downstream pipeline trigger rate
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144077) in GitLab 16.10.
-
-{{< /history >}}
-
-Restrict how many [downstream pipelines](../../ci/pipelines/downstream_pipelines.md)
-can be triggered per minute from a single source.
-
-The maximum downstream pipeline trigger rate limits how many downstream pipelines
-can be triggered per minute for a given combination of project, user, and commit.
-The default value is `0`, which means there is no restriction.
 
 #### Specify a default CI/CD configuration file
 

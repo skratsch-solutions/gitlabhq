@@ -45398,10 +45398,19 @@ msgstr ""
 msgid "MergeRequestsTab|Merged"
 msgstr ""
 
+msgid "MergeRequests|Assign all code owners as reviewers"
+msgstr ""
+
+msgid "MergeRequests|Assign every code owner defined in your CODEOWNERS file."
+msgstr ""
+
+msgid "MergeRequests|Assign reviewers with GitLab Duo Agent Platform"
+msgstr ""
+
 msgid "MergeRequests|Automatic reviewer assignment"
 msgstr ""
 
-msgid "MergeRequests|Automatically assign code owners as reviewers"
+msgid "MergeRequests|Automatically assign all code owners as reviewers"
 msgstr ""
 
 msgid "MergeRequests|Automatically assign reviewers when a merge request is ready."
@@ -45425,6 +45434,9 @@ msgstr ""
 msgid "MergeRequests|Create issue to resolve thread"
 msgstr ""
 
+msgid "MergeRequests|Do not assign reviewers automatically"
+msgstr ""
+
 msgid "MergeRequests|Draft"
 msgstr ""
 
@@ -45443,6 +45455,9 @@ msgstr ""
 msgid "MergeRequests|Merge request revert failed"
 msgstr ""
 
+msgid "MergeRequests|Recommends the minimum number of reviewers required to satisfy each approval rule."
+msgstr ""
+
 msgid "MergeRequests|Reference copied"
 msgstr ""
 
@@ -45453,6 +45468,9 @@ msgid "MergeRequests|Requires that merge checks pass."
 msgstr ""
 
 msgid "MergeRequests|Resolve thread"
+msgstr ""
+
+msgid "MergeRequests|Reviewer assignment strategy"
 msgstr ""
 
 msgid "MergeRequests|Squashing failed: Squash the commits locally, resolve any conflicts, then push the branch."

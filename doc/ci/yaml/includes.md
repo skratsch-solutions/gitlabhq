@@ -650,7 +650,7 @@ limit is reached. You can remove one included file at a time to try to narrow do
 which configuration file is the source of the loop or excessive included files.
 
 In [GitLab 16.0 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/207270) users on GitLab Self-Managed can
-change the [maximum includes](../../administration/settings/continuous_integration.md#set-maximum-includes) value.
+change the [maximum includes](../../administration/cicd/limits.md#maximum-number-of-includes) value.
 
 ### Error: `Local file <file> does not exist!` with `include:local`
 

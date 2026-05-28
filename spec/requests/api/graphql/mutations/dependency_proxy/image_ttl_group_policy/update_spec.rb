@@ -46,8 +46,8 @@ RSpec.describe 'Updating the dependency proxy image ttl policy', feature_categor
   describe 'post graphql mutation' do
     subject { post_graphql_mutation(mutation, current_user: user) }
 
-    let_it_be(:ttl_policy, reload: true) { create(:image_ttl_group_policy) }
-    let_it_be(:group, reload: true) { ttl_policy.group }
+    let_it_be_with_reload(:ttl_policy) { create(:image_ttl_group_policy) }
+    let_it_be_with_reload(:group) { ttl_policy.group }
 
     context 'without permission' do
       it_behaves_like 'returning no response'

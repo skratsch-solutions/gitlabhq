@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_projects do
   describe '#execute' do
-    let_it_be(:user, reload: true) { create(:user, email: 'user@email.com') }
+    let_it_be_with_reload(:user) { create(:user, email: 'user@email.com') }
     let(:invite_emails) { [user.email] }
 
     subject(:execute) { described_class.new(invite_emails).execute }

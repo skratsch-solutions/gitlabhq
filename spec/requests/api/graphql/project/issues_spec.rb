@@ -77,7 +77,7 @@ RSpec.describe 'getting an issue list for a project', feature_category: :team_pl
     create(:subscription, subscribable: issue_b, user: current_user, subscribed: false)
   end
 
-  let_it_be(:issues, reload: true) { [issue_a, issue_b, issue_c, issue_d, issue_e] }
+  let_it_be_with_reload(:issues) { [issue_a, issue_b, issue_c, issue_d, issue_e] }
 
   let(:issue_nodes_path) { %w[project issues nodes] }
   let(:issue_filter_params) { {} }

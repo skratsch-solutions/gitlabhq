@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe UserRecentEventsFinder do
-  let_it_be(:project_owner, reload: true) { create(:user) }
-  let_it_be(:current_user, reload: true)  { create(:user) }
+  let_it_be_with_reload(:project_owner) { create(:user) }
+  let_it_be_with_reload(:current_user)  { create(:user) }
   let_it_be(:private_project)  { create(:project, :private, creator: project_owner) }
   let_it_be(:internal_project) { create(:project, :internal, creator: project_owner) }
   let_it_be(:public_project, freeze: false) { create(:project, :public, creator: project_owner) }
@@ -43,7 +43,7 @@ RSpec.describe UserRecentEventsFinder do
     end
 
     context 'events from multiple users' do
-      let_it_be(:second_user, reload: true) { create(:user) }
+      let_it_be_with_reload(:second_user) { create(:user) }
       let_it_be(:private_project_second_user) { create(:project, :private, creator: second_user) }
 
       let_it_be(:internal_project_second_user) { create(:project, :internal, creator: second_user) }

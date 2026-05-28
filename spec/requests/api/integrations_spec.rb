@@ -7,9 +7,9 @@ RSpec.describe API::Integrations, feature_category: :integrations do
 
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
-  let_it_be(:project, reload: true) { create(:project, creator_id: user.id, namespace: user.namespace, owners: [user]) }
+  let_it_be_with_reload(:project) { create(:project, creator_id: user.id, namespace: user.namespace, owners: [user]) }
   let_it_be(:project2) { create(:project, creator_id: user.id, namespace: user.namespace) }
-  let_it_be(:group, reload: true) { create(:group, owners: user) }
+  let_it_be_with_reload(:group) { create(:group, owners: user) }
 
   context "Project level integrations" do
     let_it_be(:available_integration_names) do

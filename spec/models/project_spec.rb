@@ -22,7 +22,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     claiming_attributes: [:id]
 
   context 'when runner registration is allowed' do
-    let_it_be(:project) { create(:project, :allow_runner_registration_token) }
+    let_it_be_with_reload(:project) { create(:project, :allow_runner_registration_token) }
 
     it_behaves_like 'ensures runners_token is prefixed' do
       subject(:record) { project }

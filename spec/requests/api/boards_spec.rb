@@ -7,7 +7,7 @@ RSpec.describe API::Boards, :with_license, feature_category: :portfolio_manageme
   let_it_be(:non_member) { create(:user) }
   let_it_be(:guest) { create(:user) }
   let_it_be(:admin) { create(:user, :admin) }
-  let_it_be(:board_parent, reload: true) { create(:project, :public, creator_id: user.id, namespace: user.namespace) }
+  let_it_be_with_reload(:board_parent) { create(:project, :public, creator_id: user.id, namespace: user.namespace) }
 
   let_it_be(:dev_label) do
     create(:label, title: 'Development', color: '#FFAABB', project: board_parent)

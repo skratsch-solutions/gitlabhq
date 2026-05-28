@@ -521,7 +521,7 @@ RSpec.describe API::FeatureFlags, feature_category: :feature_flags do
 
   describe 'PUT /projects/:id/feature_flags/:name' do
     context 'with a version 2 feature flag' do
-      let_it_be(:feature_flag, reload: true) do
+      let_it_be_with_reload(:feature_flag) do
         create(:operations_feature_flag, :new_version_flag,
           project: project, active: true, name: 'feature1', description: 'old description')
       end

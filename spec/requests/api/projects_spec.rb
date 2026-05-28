@@ -12,11 +12,11 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   let_it_be(:user2) { create(:user) }
   let_it_be(:user3) { create(:user) }
   let_it_be(:admin) { create(:admin) }
-  let_it_be(:project, reload: true) { create(:project, :repository, create_branch: 'something_else', namespace: user.namespace, updated_at: 5.days.ago) }
-  let_it_be(:project2, reload: true) { create(:project, namespace: user.namespace, updated_at: 4.days.ago) }
+  let_it_be_with_reload(:project) { create(:project, :repository, create_branch: 'something_else', namespace: user.namespace, updated_at: 5.days.ago) }
+  let_it_be_with_reload(:project2) { create(:project, namespace: user.namespace, updated_at: 4.days.ago) }
   let_it_be(:project_member) { create(:project_member, :developer, user: user3, project: project) }
   let_it_be(:user4) { create(:user, username: 'user.withdot') }
-  let_it_be(:project3, reload: true) do
+  let_it_be_with_reload(:project3) do
     create(
       :project,
       :private,
@@ -39,7 +39,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
     )
   end
 
-  let_it_be(:project4, reload: true) do
+  let_it_be_with_reload(:project4) do
     create(:project, creator_id: user4.id, namespace: user4.namespace)
   end
 
@@ -5051,7 +5051,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
       context 'with changes to the avatar' do
         let_it_be(:avatar_file) { fixture_file_upload('spec/fixtures/banana_sample.gif', 'image/gif') }
         let_it_be(:alternate_avatar_file) { fixture_file_upload('spec/fixtures/rails_sample.png', 'image/png') }
-        let_it_be(:project_with_avatar, reload: true) do
+        let_it_be_with_reload(:project_with_avatar) do
           create(
             :project,
             :private,

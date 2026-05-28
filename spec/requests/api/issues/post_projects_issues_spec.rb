@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_planning do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project, reload: true) do
+  let_it_be_with_reload(:project) do
     create(:project, :public, creator_id: user.id, namespace: user.namespace, reporters: user)
   end
 
@@ -286,7 +286,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       let(:project) { merge_request.source_project }
 
       before do
-        project.add_maintainer(user)
+        project.add_maintainer(user) # -- Does not work in before_all
       end
 
       context 'resolving all discussions in a merge request' do

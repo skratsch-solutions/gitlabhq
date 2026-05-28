@@ -35,12 +35,12 @@ end
 
 RSpec.shared_context 'with default branch pipeline setup' do
   let_it_be(:pipeline_branch) { default_branch }
-  let_it_be(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch) }
+  let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch) }
 end
 
 RSpec.shared_context 'with feature branch pipeline setup' do
   let_it_be(:pipeline_branch) { feature_branch }
-  let_it_be(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch) }
+  let(:service) { Ci::CreatePipelineService.new(project, user, ref: pipeline_branch) }
 
   before(:context) do
     project.repository.create_file(
@@ -77,7 +77,7 @@ RSpec.shared_context 'with MR pipeline setup' do
   end
 
   # Use Ci::CreatePipelineService directly so that `inputs:` are threaded into the MR pipeline.
-  let_it_be(:service) { Ci::CreatePipelineService.new(project, user, ref: merge_request.ref_path) }
+  let(:service) { Ci::CreatePipelineService.new(project, user, ref: merge_request.ref_path) }
 
   let(:pipeline) do
     pipeline_inputs = defined?(inputs) ? inputs : {}

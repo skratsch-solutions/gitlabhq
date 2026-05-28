@@ -274,8 +274,9 @@ For premium models with optimized integration:
 |-------|------------------------|
 | `claude-4.5-haiku` | 6.7 |
 | `gpt-5-4-mini` | 6.7 |
-| `gpt-5-codex` | 3.3|
+| `gemini-3.5-flash` | 3.3 |
 | `gpt-5` | 3.3 |
+| `gpt-5-codex` | 3.3 |
 | `gpt-5.2` | 2.5 |
 | `gpt-5.2-codex` | 2.5 |
 | `gpt-5.3-codex` | 2.5 |
@@ -284,9 +285,13 @@ For premium models with optimized integration:
 | `claude-sonnet-4` | 2.0 |
 | `claude-sonnet-4.5` | 2.0 |
 | `claude-sonnet-4.6` | 2.0 |
+| `gpt-5.4` (short context) | 2.0 |
 | `claude-opus-4.5` | 1.2 |
-| `claude-opus-4.6`  | 1.1 |
+| `gpt-5.4` (long context) | 1.11 |
+| `claude-opus-4.6` | 1.1 |
 | `claude-opus-4.7` | 1.1 |
+| `gpt-5.5` (short context) | 1.0 |
+| `gpt-5.5` (long context) | 0.57 |
 
 ### Features
 

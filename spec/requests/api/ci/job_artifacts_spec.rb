@@ -9,15 +9,15 @@ RSpec.describe API::Ci::JobArtifacts, feature_category: :job_artifacts do
 
   include HttpIOHelpers
 
-  let_it_be(:project, reload: true) do
+  let_it_be_with_reload(:project) do
     create(:project, :repository, public_builds: false)
   end
 
-  let_it_be(:other_project, reload: true) do
+  let_it_be_with_reload(:other_project) do
     create(:project, :repository)
   end
 
-  let_it_be(:pipeline, reload: true) do
+  let_it_be_with_reload(:pipeline) do
     create(:ci_pipeline, project: project, sha: project.commit.id, ref: project.default_branch)
   end
 
@@ -32,7 +32,7 @@ RSpec.describe API::Ci::JobArtifacts, feature_category: :job_artifacts do
   end
 
   before do
-    project.add_developer(developer)
+    project.add_developer(developer) # -- Does not work in before_all because developer uses let, not let_it_be
   end
 
   shared_examples 'returns unauthorized' do

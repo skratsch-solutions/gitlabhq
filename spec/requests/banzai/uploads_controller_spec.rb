@@ -11,7 +11,7 @@ RSpec.describe Banzai::UploadsController, feature_category: :markdown do
     let(:secret) { FileUploader.generate_secret }
 
     context 'with project upload' do
-      let_it_be(:project, reload: true) { create(:project, :private) }
+      let_it_be_with_reload(:project) { create(:project, :private) }
 
       before_all do
         project.add_guest(user)

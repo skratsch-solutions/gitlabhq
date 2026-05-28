@@ -12,7 +12,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
   let_it_be(:reporter) { create(:user, reporter_of: group) }
   let_it_be(:guest) { create(:user, guest_of: group) }
   let_it_be(:planner) { create(:user, planner_of: group) }
-  let_it_be(:work_item, refind: true) { create(:work_item, project: project, author: author) }
+  let_it_be_with_refind(:work_item) { create(:work_item, project: project, author: author) }
 
   let(:input) { { 'stateEvent' => 'CLOSE', 'title' => 'updated title' } }
   let(:fields) do
@@ -647,7 +647,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       context 'when updating parent' do
-        let_it_be(:work_item, reload: true) { create(:work_item, :task, project: project) }
+        let_it_be_with_reload(:work_item) { create(:work_item, :task, project: project) }
         let_it_be(:invalid_parent) { create(:work_item, :task, project: project) }
 
         context 'when parent work item type is invalid' do
@@ -779,7 +779,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       context 'when reordering existing child' do
-        let_it_be(:work_item, reload: true) { create(:work_item, :task, project: project) }
+        let_it_be_with_reload(:work_item) { create(:work_item, :task, project: project) }
 
         context "when parent is already assigned" do
           before_all do

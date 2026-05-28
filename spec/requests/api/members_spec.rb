@@ -10,7 +10,7 @@ RSpec.describe API::Members, feature_category: :groups_and_projects do
   let_it_be(:stranger) { create(:user) }
   let_it_be(:user_with_minimal_access, freeze: false) { create(:user) }
 
-  let_it_be(:project, refind: true) do
+  let_it_be_with_refind(:project) do
     create(:project, :public, creator_id: maintainer.id, group: create(:group, :public)) do |project|
       project.add_maintainer(maintainer)
       project.add_developer(developer, current_user: maintainer)
@@ -18,7 +18,7 @@ RSpec.describe API::Members, feature_category: :groups_and_projects do
     end
   end
 
-  let_it_be(:group, refind: true) do
+  let_it_be_with_refind(:group) do
     create(:group, :public) do |group|
       group.add_owner(maintainer)
       group.add_developer(developer, maintainer)

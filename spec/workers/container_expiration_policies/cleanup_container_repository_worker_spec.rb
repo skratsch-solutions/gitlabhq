@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, feature_category: :container_registry do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:repository, refind: true) { create(:container_repository, :cleanup_scheduled, expiration_policy_started_at: 1.month.ago) }
-  let_it_be(:other_repository, refind: true) { create(:container_repository, expiration_policy_started_at: 15.days.ago) }
+  let_it_be_with_refind(:repository) { create(:container_repository, :cleanup_scheduled, expiration_policy_started_at: 1.month.ago) }
+  let_it_be_with_refind(:other_repository) { create(:container_repository, expiration_policy_started_at: 15.days.ago) }
 
   let(:project) { repository.project }
   let(:policy) { project.container_expiration_policy }

@@ -85,7 +85,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
         expectation = <<~DOC
           ### `ArrayTest`
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -104,7 +104,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
             Returns [`ArrayTest`](#arraytest).
 
-            #### Arguments
+            Arguments:
 
             | Name | Type | Description |
             | ---- | ---- | ----------- |
@@ -140,7 +140,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
         expectation = <<~DOC
           ### `OrderingTest`
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -189,7 +189,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           Testing doc refs.
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -204,7 +204,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           Returns [`String!`](#string).
 
-          ###### Arguments
+          Arguments:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -294,7 +294,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
          Returns [`String!`](#string).
 
-         ###### Arguments
+         Arguments:
 
          | Name | Type | Description |
          | ---- | ---- | ----------- |
@@ -341,7 +341,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A thing we used to use, but no longer support.
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -362,7 +362,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           Returns [`String!`](#string).
 
-          ###### Arguments
+          Arguments:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -430,7 +430,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
          Returns [`String!`](#string).
 
-         ###### Arguments
+         Arguments:
 
          | Name | Type | Description |
          | ---- | ---- | ----------- |
@@ -468,7 +468,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A thing with fields in alpha.
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -487,7 +487,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           Returns [`String!`](#string).
 
-          ###### Arguments
+          Arguments:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -585,7 +585,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
             A test for rendering IDs.
 
-            #### Fields
+            Fields:
 
             | Name | Type | Description |
             | ---- | ---- | ----------- |
@@ -676,7 +676,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
             Input type: `MakeItPrettyInput`
 
-            #### Arguments
+            Arguments:
 
             | Name | Type | Description |
             | ---- | ---- | ----------- |
@@ -685,7 +685,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
             | <a id="mutation-makeitpretty-prettinessfactor"></a>`prettinessFactor` | [`Float!`](#float) | How much prettier?. |
             | <a id="mutation-makeitpretty-pulchritude"></a>`pulchritude` {{< icon name="warning-solid" >}} | [`Float`](#float) | **Deprecated** in GitLab 72.34. This was renamed. Use: `prettinessFactor`. |
 
-            #### Fields
+            Fields:
 
             | Name | Type | Description |
             | ---- | ---- | ----------- |
@@ -726,7 +726,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A time-frame defined as a closed inclusive range of two dates.
 
-          #### Arguments
+          Arguments:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -773,7 +773,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A filter input.
 
-          #### Arguments
+          Arguments:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -827,7 +827,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A test for abstract types.
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -855,7 +855,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           - [`AfricanSwallow`](#africanswallow)
 
-          ##### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |
@@ -867,7 +867,7 @@ RSpec.describe Tooling::Graphql::Docs::Renderer, feature_category: :api do
 
           A swallow from Africa.
 
-          #### Fields
+          Fields:
 
           | Name | Type | Description |
           | ---- | ---- | ----------- |

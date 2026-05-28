@@ -77,8 +77,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'GET #index' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :found }
 
       subject(:make_request) { get groups_path }
@@ -131,8 +131,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       subject(:make_request) { get group_path(group) }
 
       context 'for private group' do
-        let_it_be(:group, reload: true) { create(:group, :private) }
-        let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+        let_it_be_with_reload(:group) { create(:group, :private) }
+        let_it_be_with_reload(:user) { create(:user, owner_of: group) }
 
         context 'when user authenticated' do
           before do
@@ -144,8 +144,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
       end
 
       context 'for public group' do
-        let_it_be(:group, reload: true) { create(:group) }
-        let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+        let_it_be_with_reload(:group) { create(:group) }
+        let_it_be_with_reload(:user) { create(:user, owner_of: group) }
 
         context 'when user authenticated' do
           before do
@@ -164,8 +164,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'GET #new' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :ok }
 
       subject(:make_request) { get new_group_path }
@@ -180,8 +180,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'POST #create' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :found }
 
       subject(:make_request) do
@@ -268,7 +268,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
+      let_it_be_with_reload(:group) { create(:group) }
 
       subject(:make_request) { get edit_group_path(group) }
 
@@ -296,8 +296,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'GET #activity' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :ok }
 
       subject(:make_request) { get activity_group_path(group) }
@@ -312,8 +312,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'GET #issues' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
 
       let(:expected_success_status) { :redirect }
 
@@ -329,8 +329,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'GET #merge_requests' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :ok }
 
       subject(:make_request) { get merge_requests_group_path(group) }
@@ -345,7 +345,7 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'PATCH #update' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
+      let_it_be_with_reload(:group) { create(:group) }
 
       subject(:make_request) { patch group_path(group), params: { group: { name: 'Updated Name' } } }
 
@@ -377,8 +377,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'DELETE #destroy' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :found }
 
       subject(:make_request) { delete group_path(group) }
@@ -393,8 +393,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'PUT #transfer' do
     context 'step-up authentication enforcement' do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let_it_be(:parent_group, freeze: true) { create(:group) }
       let(:expected_success_status) { :found }
 
@@ -491,8 +491,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
 
   describe 'POST #export' do
     context 'step-up authentication enforcement', :clean_gitlab_redis_rate_limiting do
-      let_it_be(:group, reload: true) { create(:group) }
-      let_it_be(:user, reload: true) { create(:user, owner_of: group) }
+      let_it_be_with_reload(:group) { create(:group) }
+      let_it_be_with_reload(:user) { create(:user, owner_of: group) }
       let(:expected_success_status) { :found }
 
       subject(:make_request) { post export_group_path(group) }

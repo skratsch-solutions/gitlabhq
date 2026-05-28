@@ -1485,7 +1485,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
   end
 
   describe "GET /groups/:id/merge_requests" do
-    let_it_be(:group, reload: true) { create(:group, :public) }
+    let_it_be_with_reload(:group) { create(:group, :public) }
     let_it_be(:project) { create(:project, :public, :repository, creator: user, namespace: group, only_allow_merge_if_pipeline_succeeds: false) }
     let(:endpoint_path) { "/groups/#{group.id}/merge_requests" }
 

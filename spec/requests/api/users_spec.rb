@@ -8,7 +8,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
   include CryptoHelpers
 
   let_it_be(:admin) { create(:admin) }
-  let_it_be(:user, reload: true) { create(:user, username: 'user.withdot') }
+  let_it_be_with_reload(:user) { create(:user, username: 'user.withdot') }
   let_it_be(:key, freeze: false) { create(:key, user: user) }
   let_it_be(:gpg_key, freeze: false) { create(:gpg_key, user: user) }
   let_it_be(:email, freeze: false) { create(:email, user: user) }
@@ -28,7 +28,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
 
   context 'admin notes' do
     let_it_be(:admin) { create(:admin, note: '2019-10-06 | 2FA added | user requested | www.gitlab.com') }
-    let_it_be(:user, reload: true) { create(:user, note: '2018-11-05 | 2FA removed | user requested | www.gitlab.com') }
+    let_it_be_with_reload(:user) { create(:user, note: '2018-11-05 | 2FA removed | user requested | www.gitlab.com') }
 
     describe 'POST /users' do
       let(:path) { '/users' }
@@ -834,7 +834,7 @@ RSpec.describe API::Users, :with_current_organization, :aggregate_failures, feat
   end
 
   describe "GET /users/:id" do
-    let_it_be(:user2, reload: true) { create(:user, username: 'another_user') }
+    let_it_be_with_reload(:user2) { create(:user, username: 'another_user') }
 
     let(:path) { "/users/#{user.id}" }
 

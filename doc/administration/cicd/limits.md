@@ -35,6 +35,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of Instance-level CI/CD variables that can be defined**.
    The default is `25`.
 1. Select **Save changes**.
@@ -54,6 +55,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum size of a dotenv artifact in bytes**.
 1. Select **Save changes**.
 
@@ -74,6 +76,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of variables in a dotenv artifact**.
 1. Select **Save changes**.
 
@@ -97,6 +100,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of jobs in a single pipeline**.
 1. Select **Save changes**.
 
@@ -118,6 +122,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Total number of jobs in currently active pipelines**.
 1. Select **Save changes**.
 
@@ -135,6 +140,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of pipeline subscriptions to and from a project**.
 1. Select **Save changes**.
 
@@ -151,6 +157,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of pipeline schedules**.
 1. Select **Save changes**.
 
@@ -166,10 +173,14 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of needs dependencies that a job can have**
 1. Select **Save changes**.
 
-This limit cannot be disabled. Defaults to `50`. Set to `0` to block all needs dependencies.
+This limit cannot be disabled. Defaults to `50`.
+
+Set to `0` to block all needs dependencies. Pipelines with jobs configured to use `needs`
+then return the error `job can only need 0 others`.
 
 ## Number of registered runners for groups and projects
 
@@ -187,6 +198,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for either:
    - **Maximum number of runners created or active in a group during the past seven days**
    - **Maximum number of runners created or active in a project during the past seven days**
@@ -210,6 +222,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum number of downstream pipelines in a pipeline's hierarchy tree**.
 1. Select **Save changes**.
 
@@ -231,6 +244,7 @@ To configure this limit:
 
 1. In the upper-right corner, select **Admin**.
 1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
 1. Under **CI/CD limits**, set a value for **Maximum parallel pipelines per merge train**.
    The minimum value is `1`. A value of `1` processes merge requests sequentially with no parallelism.
 1. Select **Save changes**.
@@ -281,6 +295,115 @@ To change this limit on your GitLab Self-Managed instance:
 1. In the left sidebar, select **Settings** > **CI/CD**.
 1. Expand **Continuous Integration and Deployment**.
 1. Change the value of **Pipeline limit per Git push**.
+1. Select **Save changes**.
+
+## Pipeline creation rate limits
+
+{{< history >}}
+
+- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/362475) in GitLab 15.0 [with a flag](../feature_flags/_index.md) named `ci_enforce_throttle_pipelines_creation`. Disabled by default. Enabled on GitLab.com
+- [Enabled by default](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/196545) in 18.3.
+
+{{< /history >}}
+
+You can set limits so that users and processes can't request more than a certain number of pipelines each minute.
+These limits can help save resources and improve stability.
+
+GitLab enforces two types of rate limits for pipeline creation:
+
+- **Per project, commit, and user**: Limits pipelines created for the same combination of project,
+  commit SHA, and user. Disabled by default.
+- **Per user**: Limits total pipelines created by a user across all projects. Disabled by default.
+
+For example, if you set a per-user limit of `100`, and a user sends `101` pipeline creation requests
+to the [trigger API](../../ci/triggers/_index.md) within one minute across different projects,
+the 101st request is blocked. Access to the endpoint is allowed again after one minute.
+
+These limits are not applied per IP address.
+
+Requests that exceed the limits are logged in the `application_json.log` file.
+
+### Set pipeline request limits
+
+Prerequisites:
+
+- Administrator access.
+
+To limit the number of pipeline requests:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **Network**.
+1. Expand **Pipelines Rate Limits**.
+   - Under **Max requests per minute per project, user, and commit**, enter a value greater than `0` to limit pipelines
+     for the same project, commit, and user combination.
+   - Under **Max requests per minute per user**, enter a value greater than `0` to limit total pipelines created by each user.
+     Set to `0` for unlimited requests per minute.
+1. Select **Save changes**.
+
+Both rate limits are evaluated independently:
+
+- A user creating multiple pipelines for the same commit SHA in a project is subject to the **per project, user, and commit** limit.
+- A user creating pipelines across different projects or commits is subject to the **per user** limit.
+- If either limit is exceeded, the pipeline creation request is blocked.
+
+## Limit downstream pipeline trigger rate
+
+Restrict how many [downstream pipelines](../../ci/pipelines/downstream_pipelines.md)
+can be triggered per minute from a single source.
+
+The maximum downstream pipeline trigger rate limits how many downstream pipelines
+can be triggered per minute for a given combination of project, user, and commit.
+The default value is `0`, which means there is no restriction.
+
+To configure this limit:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
+1. Set a value for **Maximum downstream pipeline trigger rate**.
+1. Select **Save changes**.
+
+## Maximum artifacts size
+
+Set size limits for job artifacts to control storage use.
+Each artifact file in a job has a default maximum size of 100 MB.
+
+Job artifacts defined with `artifacts:reports` can have [different limits](#maximum-file-size-per-type-of-artifact).
+When different limits apply, the smaller value is used.
+
+> [!note]
+> This setting applies to the size of the final archive file, not individual files in a job.
+
+You can configure artifact size limits for:
+
+- An instance: The base setting that applies to all projects and groups.
+- A group: Overrides the instance setting for all projects in the group.
+- A project: Overrides both instance and group settings for a specific project.
+
+For GitLab.com limits, see [Artifacts maximum size](../../user/gitlab_com/_index.md#cicd).
+
+To change the maximum artifact size for an instance:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
+1. Enter a value in the **Maximum artifacts size (MB)** text box.
+1. Select **Save changes**.
+
+## Maximum number of includes
+
+Limit how many external YAML files a pipeline can include using the [`include` keyword](../../ci/yaml/includes.md).
+This limit prevents performance issues when pipelines include too many files.
+
+By default, a pipeline can include up to 150 files.
+When a pipeline exceeds this limit, it fails with an error.
+
+To set the maximum number of included files per pipeline:
+
+1. In the upper-right corner, select **Admin**.
+1. In the left sidebar, select **Settings** > **CI/CD**.
+1. Expand **Continuous Integration and Deployment**.
+1. Enter a value in the **Maximum includes** text box.
 1. Select **Save changes**.
 
 ## CI/CD limits instance configuration
@@ -334,33 +457,6 @@ To set this limit to `100`, run the following in the
 Plan.default.actual_limits.update!(pipeline_triggers: 100)
 ```
 
-### Number of pipeline schedules
-
-{{< details >}}
-
-- Tier: Premium, Ultimate
-- Offering: GitLab Self-Managed, GitLab Dedicated
-
-{{< /details >}}
-
-The total number of pipeline schedules can be limited per project. This limit is
-checked each time a new pipeline schedule is created. If a new pipeline schedule
-would cause the total number of pipeline schedules to exceed the limit, the
-pipeline schedule is not created.
-
-On GitLab Self-Managed and GitLab Dedicated, this limit is defined
-under a `default` plan that affects all projects.
-By default, there is a limit of `10` pipeline schedules.
-
-To set this limit, use the [Plan Limits API](../../api/plan_limits.md).
-
-For GitLab Self-Managed, you can also use the [GitLab Rails console](../operations/rails_console.md#starting-a-rails-console-session).
-For example, to set the limit to 100:
-
-```ruby
-Plan.default.actual_limits.update!(ci_pipeline_schedules: 100)
-```
-
 ### Limit the number of pipelines created by a pipeline schedule each day
 
 You can limit the number of pipelines that each individual pipeline schedule can trigger per day.
@@ -382,6 +478,32 @@ To set this limit to `1440` on a GitLab Self-Managed instance, run the following
 ```ruby
 Plan.default.actual_limits.update!(ci_daily_pipeline_schedule_triggers: 1440)
 ```
+
+### Maximum scheduled pipeline frequency
+
+[Scheduled pipelines](../../ci/pipelines/schedules.md) can be configured with any [cron value](../../topics/cron/_index.md),
+but they do not always run exactly when scheduled. An internal process, called the
+"pipeline schedule worker", queues all the scheduled pipelines, but does not
+run continuously. The worker runs on its own schedule, and scheduled pipelines that
+are ready to start are only queued the next time the worker runs. Scheduled pipelines
+can't run more frequently than the worker.
+
+The default frequency of the pipeline schedule worker is `3-59/10 * * * *` (every ten minutes,
+starting with `0:03`, `0:13`, `0:23`, and so on). The default frequency for GitLab.com
+is listed in the [GitLab.com settings](../../user/gitlab_com/_index.md#cicd).
+
+To change the frequency of the pipeline schedule worker:
+
+1. Edit the `gitlab_rails['pipeline_schedule_worker_cron']` value in your instance's `gitlab.rb` file.
+1. [Reconfigure GitLab](../restart_gitlab.md#reconfigure-a-linux-package-installation) for the changes to take effect.
+
+For example, to set the maximum frequency of pipelines to twice a day, set `pipeline_schedule_worker_cron`
+to a cron value of `0 */12 * * *` (`00:00` and `12:00` every day).
+
+When many pipeline schedules run at the same time, additional delays can occur.
+The pipeline schedule worker processes pipelines in [batches](https://gitlab.com/gitlab-org/gitlab/-/blob/3426be1b93852c5358240c5df40970c0ddfbdb2a/app/workers/pipeline_schedule_worker.rb#L13-14)
+with a small delay between each batch to distribute system load. This can cause pipeline
+schedules to start several minutes to over an hour after their scheduled time, depending on system load.
 
 ### Limit the number of schedule rules defined for security policy project
 
@@ -434,7 +556,7 @@ To update the `default` plan of one of these limits, in the
 Job artifacts defined with [`artifacts:reports`](../../ci/yaml/_index.md#artifactsreports)
 that are uploaded by the runner are rejected if the file size exceeds the maximum
 file size limit. The limit is determined by comparing the project's
-[maximum artifact size setting](../settings/continuous_integration.md#set-maximum-artifacts-size)
+[maximum artifact size setting](#maximum-artifacts-size)
 with the instance limit for the given artifact type, and choosing the smaller value.
 
 Limits are set in megabytes, so the smallest possible value that can be defined is `1 MB`.

@@ -128,6 +128,23 @@ To select a model for a feature:
 1. For the feature you want to configure, select a model from the dropdown list.
 1. Optional. To apply the model to all features in the section, select **Apply to all**.
 
+### Selecting the right model
+
+For many use cases, starting with a faster, more cost-effective model like
+Claude Haiku 4.5 or GPT-5.4 Mini can be the optimal approach.
+For this approach:
+
+1. Select Claude Haiku 4.5 or GPT-5.4 Mini.
+1. Test your use case thoroughly.
+1. Evaluate if performance meets your requirements.
+1. Upgrade only if necessary for specific capability gaps.
+
+You can use this approach for the following:
+
+- Exploratory or high-volume tasks
+- Applications with strict latency requirements
+- Cost-sensitive implementations
+
 ## Troubleshooting
 
 When selecting models other than the default, you might encounter the following issues.

@@ -19,9 +19,6 @@ class ProjectPolicy < BasePolicy
   desc "User has guest access"
   condition(:guest) { team_member? }
 
-  desc "User has security manager access"
-  condition(:security_manager) { Gitlab::Security::SecurityManagerConfig.enabled? && team_access_level == Gitlab::Access::SECURITY_MANAGER }
-
   desc "User has developer access"
   condition(:developer) { team_access_level >= Gitlab::Access::DEVELOPER }
 

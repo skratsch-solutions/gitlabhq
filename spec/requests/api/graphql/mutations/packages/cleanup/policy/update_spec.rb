@@ -6,7 +6,7 @@ RSpec.describe 'Updating the packages cleanup policy', feature_category: :packag
   include GraphqlHelpers
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:project, reload: true) { create(:project) }
+  let_it_be_with_reload(:project) { create(:project) }
   let_it_be(:user) { create(:user) }
 
   let(:params) do
