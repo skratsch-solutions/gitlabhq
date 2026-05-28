@@ -406,6 +406,9 @@ semgrep:
       sarif: gl-sarif-report.sarif
 ```
 
+For details on behavior, limits, field mapping, and inferred report
+types, see [SARIF reports](../../user/application_security/detect/sarif.md).
+
 ## `artifacts:reports:sast`
 
 The `sast` report collects [SAST vulnerabilities](../../user/application_security/sast/_index.md).

@@ -53,8 +53,10 @@ Your instance includes the following security controls:
 
 ### Data residency and infrastructure isolation
 
-To meet US data residency requirements, your instance is deployed
-on [AWS GovCloud](https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/whatis.html) in the US-West region.
+To meet US data residency requirements, your instance is deployed on
+[AWS GovCloud](https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/whatis.html) in the US-West region.
+The GitLab instance runs exclusively on AWS GovCloud. Your own workloads and adjacent systems can run on any platform,
+including GCP or Azure, and integrate with your instance.
 
 All customer data, including repositories, databases, artifacts, and backups, remains within the AWS GovCloud boundary.
 Your environment includes all infrastructure necessary to host the GitLab application with complete isolation from GitLab.com.
@@ -170,8 +172,6 @@ The following operational features are not available:
 
 - Geo
 - Self-serve purchasing and configuration
-- Support for deploying to non-AWS cloud providers, such as GCP or Azure
-- Pre-production environments
 
 ### Feature flags
 

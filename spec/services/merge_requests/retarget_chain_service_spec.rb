@@ -11,7 +11,7 @@ RSpec.describe MergeRequests::RetargetChainService, feature_category: :code_revi
 
   subject { described_class.new(project: project, current_user: user).execute(merge_request) }
 
-  before do
+  before_all do
     project.add_maintainer(user)
   end
 

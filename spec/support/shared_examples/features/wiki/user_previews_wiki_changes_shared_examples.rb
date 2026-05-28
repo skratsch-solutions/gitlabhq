@@ -92,7 +92,7 @@ RSpec.shared_examples 'User previews wiki changes' do
 
       # the above generates two separate lists (not embedded) in CommonMark
       expect(preview).to have_content("sublist")
-      expect(preview).not_to have_xpath("//ol//li//ul")
+      expect(preview).to have_no_xpath("//ol//li//ul")
     end
 
     it "does not linkify double brackets inside code blocks as expected" do

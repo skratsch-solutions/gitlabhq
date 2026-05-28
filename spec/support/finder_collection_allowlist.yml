@@ -77,6 +77,7 @@
 - Releases::EvidencePipelineFinder
 - Repositories::BranchNamesFinder
 - Repositories::ChangelogTagFinder
+- Repositories::CommitsFinder
 - Repositories::TreeFinder
 - Security::PipelineVulnerabilitiesFinder
 - Security::ScanExecutionPoliciesFinder
