@@ -28,7 +28,7 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
   describe '#render?' do
     context 'when user can read issues' do
       it 'returns true' do
-        expect(subject.render?).to eq true
+        expect(subject.render?).to be true
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
       let(:user) { nil }
 
       it 'returns false' do
-        expect(subject.render?).to eq false
+        expect(subject.render?).to be false
       end
     end
   end
@@ -46,7 +46,7 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
       it 'returns true' do
         stub_feature_flags(show_work_items_sidebar_count: true)
 
-        expect(subject.has_pill?).to eq true
+        expect(subject.has_pill?).to be true
       end
     end
 
@@ -54,7 +54,7 @@ RSpec.describe Sidebars::Projects::Menus::WorkItemsMenu, feature_category: :navi
       it 'returns false' do
         stub_feature_flags(show_work_items_sidebar_count: false)
 
-        expect(subject.has_pill?).to eq false
+        expect(subject.has_pill?).to be false
       end
     end
   end

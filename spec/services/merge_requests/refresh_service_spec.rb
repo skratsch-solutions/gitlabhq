@@ -958,7 +958,7 @@ RSpec.describe MergeRequests::RefreshService, feature_category: :code_review_wor
     let_it_be(:user) { create(:user) }
     let_it_be(:author) { user }
 
-    let_it_be(:merge_request, refind: true) do
+    let_it_be_with_refind(:merge_request) do
       create(
         :merge_request,
         source_project: project,

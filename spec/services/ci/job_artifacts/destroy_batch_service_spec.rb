@@ -13,15 +13,15 @@ RSpec.describe Ci::JobArtifacts::DestroyBatchService, feature_category: :job_art
     )
   end
 
-  let_it_be(:artifact_with_file, refind: true) do
+  let_it_be_with_refind(:artifact_with_file) do
     create(:ci_job_artifact, :zip)
   end
 
-  let_it_be(:artifact_without_file, refind: true) do
+  let_it_be_with_refind(:artifact_without_file) do
     create(:ci_job_artifact)
   end
 
-  let_it_be(:undeleted_artifact, refind: true) do
+  let_it_be_with_refind(:undeleted_artifact) do
     create(:ci_job_artifact)
   end
 

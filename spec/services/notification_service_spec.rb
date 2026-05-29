@@ -4649,8 +4649,8 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
   end
 
   describe 'Pages domains' do
-    let_it_be(:project, reload: true) { create(:project) }
-    let_it_be(:domain, reload: true) { create(:pages_domain, project: project) }
+    let_it_be_with_reload(:project) { create(:project) }
+    let_it_be_with_reload(:domain) { create(:pages_domain, project: project) }
     let_it_be(:u_blocked) { blocked_user }
     let_it_be(:u_silence) { create_user_with_notification(:disabled, 'silent', project) }
     let_it_be(:u_owner) { project.first_owner }

@@ -430,38 +430,6 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync::Manifest do
     end
   end
 
-  describe '.collect_ssot_docs source validation' do
-    before do
-      Gitlab::PrinciplesDistiller::Workspace.path = tmpdir
-    end
-
-    context 'when a source file does not exist' do
-      let(:config) do
-        { 'sources' => [{ 'path' => 'doc/missing.md', 'url' => 'https://example.com' }] }
-      end
-
-      it 'raises an error with the missing path' do
-        expect { manifest.collect_ssot_docs(config) }
-          .to raise_error(RuntimeError, %r{SSOT source file not found: doc/missing.md})
-      end
-    end
-
-    context 'when all source files exist' do
-      let(:config) do
-        { 'sources' => [{ 'path' => 'doc/existing.md', 'url' => 'https://example.com' }] }
-      end
-
-      before do
-        FileUtils.mkdir_p(File.join(tmpdir, 'doc'))
-        File.write(File.join(tmpdir, 'doc/existing.md'), '# Content')
-      end
-
-      it 'does not raise' do
-        expect { manifest.collect_ssot_docs(config) }.not_to raise_error
-      end
-    end
-  end
-
   describe '.build_diff_hint' do
     subject(:hint) { manifest.build_diff_hint(sha, source_paths) }
 

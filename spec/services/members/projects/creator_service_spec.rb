@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Members::Projects::CreatorService, feature_category: :groups_and_projects do
-  let_it_be(:source, reload: true) { create(:project, :public) }
-  let_it_be(:source2, reload: true) { create(:project, :public) }
+  let_it_be_with_reload(:source) { create(:project, :public) }
+  let_it_be_with_reload(:source2) { create(:project, :public) }
   let_it_be(:user, freeze: false) { create(:user) }
 
   describe '.access_levels' do

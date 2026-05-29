@@ -599,6 +599,9 @@ group :test do
   gem 'derailed_benchmarks', require: false, feature_category: :shared # rubocop:todo Gemfile/MissingFeatureCategory -- https://gitlab.com/gitlab-org/gitlab/-/issues/581839
 
   gem 'gitlab_quality-test_tooling', '~> 3.14.0', require: false, feature_category: :tooling
+
+  # Test execution result export
+  gem 'gitlab-rspec-metrics-exporter', '~> 0.2.0', require: false, feature_category: :tooling
 end
 
 gem 'octokit', '~> 9.0', feature_category: :importers

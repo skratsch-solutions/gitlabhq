@@ -847,6 +847,9 @@ GEM
     gitlab-markup (2.0.0)
     gitlab-net-dns (0.15.0)
       logger
+    gitlab-rspec-metrics-exporter (0.2.0)
+      logger (>= 1.4, < 2.0)
+      rspec-core (>= 3.12, < 4.0)
     gitlab-sdk (0.3.1)
       activesupport (>= 5.2.0)
       rake (~> 13.0)
@@ -2439,6 +2442,7 @@ DEPENDENCIES
   gitlab-markup (~> 2.0.0)
   gitlab-net-dns (~> 0.15.0)
   gitlab-rspec!
+  gitlab-rspec-metrics-exporter (~> 0.2.0)
   gitlab-rspec_flaky!
   gitlab-safe_request_store!
   gitlab-schema-validation!
@@ -2939,6 +2943,7 @@ CHECKSUMS
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e
   gitlab-net-dns (0.15.0) sha256=d229aae205055b86b2ad166981257eb589ce6d6a146aa79b3ea2b1e5d9741f46
   gitlab-rspec (0.1.0)
+  gitlab-rspec-metrics-exporter (0.2.0) sha256=9d05ee0437d30cc59d78437e795916e13746f070ea2423e88e9325e96bd09c63
   gitlab-rspec_flaky (0.1.0)
   gitlab-safe_request_store (0.1.0)
   gitlab-schema-validation (0.1.0)

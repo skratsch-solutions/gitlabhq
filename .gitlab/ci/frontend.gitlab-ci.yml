@@ -78,6 +78,8 @@ compile-test-assets:
   extends:
     - .compile-assets-base
     - .frontend:rules:compile-test-assets
+  tags:
+    - $GITLAB_LARGE_RUNNER_OPTIONAL
   artifacts:
     expire_in: 7d
     paths:

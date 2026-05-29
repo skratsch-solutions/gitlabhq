@@ -89,5 +89,6 @@ RSpec.describe 'Comment sort direction', feature_category: :team_planning do
   def add_comment(text)
     fill_in 'Add a reply', with: text
     click_button 'Comment'
+    expect(page).to have_field('Add a reply', with: '')
   end
 end

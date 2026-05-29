@@ -549,7 +549,7 @@ RSpec.describe WorkItems::UpdateService, feature_category: :team_planning do
 
         context 'when milestone is updated' do
           it "triggers 'issuableMilestoneUpdated'" do
-            expect(work_item.milestone).to eq(nil)
+            expect(work_item.milestone).to be_nil
             expect(GraphqlTriggers).to receive(:issuable_milestone_updated).with(work_item).and_call_original
 
             update_work_item

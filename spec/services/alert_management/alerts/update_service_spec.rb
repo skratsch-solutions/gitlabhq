@@ -7,7 +7,7 @@ RSpec.describe AlertManagement::Alerts::UpdateService, feature_category: :incide
   let_it_be(:other_user_with_permissions) { create(:user) }
   let_it_be(:user_without_permissions) { create(:user) }
   let_it_be(:project) { create(:project, developers: [user_with_permissions, other_user_with_permissions]) }
-  let_it_be(:alert, reload: true) { create(:alert_management_alert, :triggered, project: project) }
+  let_it_be_with_reload(:alert) { create(:alert_management_alert, :triggered, project: project) }
 
   let(:current_user) { user_with_permissions }
   let(:params) { {} }

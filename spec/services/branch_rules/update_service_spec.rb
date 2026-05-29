@@ -6,7 +6,7 @@ RSpec.describe BranchRules::UpdateService, feature_category: :source_code_manage
   let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:user) { create(:user, guest_of: project) }
   let_it_be(:deploy_key_id) { create(:deploy_key, user: user, write_access_to: project).id }
-  let_it_be(:protected_branch, reload: true) { create(:protected_branch, project: project) }
+  let_it_be_with_reload(:protected_branch) { create(:protected_branch, project: project) }
 
   describe '#execute' do
     let!(:allow_force_push) { !protected_branch.allow_force_push }

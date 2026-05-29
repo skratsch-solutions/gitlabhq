@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Projects::DetectRepositoryLanguagesService, :clean_gitlab_redis_shared_state, feature_category: :groups_and_projects do
-  let_it_be(:project, reload: true) { create(:project, :repository) }
+  let_it_be_with_reload(:project) { create(:project, :repository) }
 
   subject { described_class.new(project) }
 

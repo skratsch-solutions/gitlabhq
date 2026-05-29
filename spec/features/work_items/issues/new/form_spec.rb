@@ -108,6 +108,7 @@ RSpec.describe 'New/edit issue', :js, feature_category: :team_planning do
         end
 
         click_button 'Create Issue'
+        expect(page).to have_css('h1', text: 'title')
 
         within_testid('work-item-overview-right-sidebar') do
           expect(page).to have_link user.name

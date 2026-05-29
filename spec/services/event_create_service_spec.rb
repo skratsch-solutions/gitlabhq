@@ -8,7 +8,7 @@ RSpec.describe EventCreateService, :clean_gitlab_redis_cache, :clean_gitlab_redi
   let(:service) { described_class.new }
   let(:dates) { { start_date: Date.today.beginning_of_week, end_date: Date.today.next_week } }
 
-  let_it_be(:user, reload: true) { create :user }
+  let_it_be_with_reload(:user) { create :user }
   let_it_be(:project) { create(:project) }
 
   shared_examples 'it records the event in the event counter' do

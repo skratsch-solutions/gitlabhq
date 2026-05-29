@@ -177,9 +177,9 @@ RSpec.describe 'Incident details', :js, feature_category: :incident_management d
     fill_in 'Add a reply', with: '/promote_to_incident'
     click_button 'Comment'
 
+    expect(page).to have_testid('work-item-type-icon', text: 'Incident')
     expect(issue.reload.issue_type).to eq('incident')
     expect(page).to have_css('h1', text: issue.title)
-    expect(page).to have_testid('work-item-type-icon', text: 'Incident')
   end
 
   it 'routes the user to the issue details page when the `issue_type` is set to issue',

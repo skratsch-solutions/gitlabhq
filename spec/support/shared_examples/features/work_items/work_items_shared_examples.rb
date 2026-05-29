@@ -253,6 +253,7 @@ RSpec.shared_examples 'work items labels' do |namespace_type|
       click_button "Create #{namespace_type} label"
       send_keys 'Quintessence'
       click_button 'Create'
+      expect(page).to have_content('Quintessence')
       click_button 'Apply'
 
       expect(page).to have_css '.gl-label', text: 'Quintessence'
@@ -482,6 +483,10 @@ RSpec.shared_examples 'work items lock discussion' do
     click_button 'Lock discussion'
 
     expect(page).to have_text "Discussion is locked. Only members can comment."
+
+    within_testid('work-item-actions-dropdown') do
+      expect(page).to have_no_testid('base-dropdown-menu')
+    end
 
     click_button _('More actions'), match: :first
     click_button 'Unlock discussion'
@@ -1181,6 +1186,7 @@ RSpec.shared_examples 'work items hierarchy' do |testid, type|
     click_button "New #{type.to_s.capitalize}"
     fill_in 'Add a title', with: title
     click_button "Create #{type.to_s.capitalize}"
+    expect(page).to have_link title
   end
 end
 

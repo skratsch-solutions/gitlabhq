@@ -196,21 +196,6 @@ module Gitlab
           end
         end
 
-        def collect_ssot_docs(config)
-          config.fetch('sources', []).filter_map do |source|
-            full_path = Workspace.join(source['path'])
-            unless File.exist?(full_path) || File.exist?(full_path.sub(/(\.md)$/, '/_index.md'))
-              raise "SSOT source file not found: #{source['path']} — " \
-                'check that the path in manifest.yml matches an existing file on the current branch'
-            end
-
-            content = read_repo_file(source['path'])
-            next unless content
-
-            "### Source: #{source['url']}\nPath: #{source['path']}\n\n#{content}"
-          end.join("\n\n---\n\n")
-        end
-
         def sources_footer(config)
           sources = config.fetch('sources', [])
           return '' if sources.empty?

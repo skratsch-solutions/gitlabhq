@@ -9,9 +9,8 @@ RSpec.shared_examples 'promote_to_incident quick action' do
         fill_in('Add a reply', with: '/promote_to_incident')
         click_button 'Comment'
 
-        expect(issue.reload.issue_type).to eq('incident')
-        # Page does full refresh, so check the work item type
         expect(page).to have_css('[data-testid="work-item-type-icon"]', text: 'Incident')
+        expect(issue.reload.issue_type).to eq('incident')
       end
     end
 

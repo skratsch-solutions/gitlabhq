@@ -192,7 +192,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     subject { described_class.new(noteable: noteable, container: project, author: author).change_time_estimate }
 
     context 'when noteable is an issue' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       it_behaves_like 'a system note' do
         let(:action) { 'time_tracking' }
@@ -278,7 +278,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     subject { described_class.new(noteable: noteable, container: project, author: author).created_timelog(timelog) }
 
     context 'when the timelog has a positive time spent value' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       let(:timelog) { create(:timelog, user: author, issue: noteable, time_spent: 1800, spent_at: '2022-03-30T00:00:00.000Z') }
 
@@ -288,7 +288,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     end
 
     context 'when the timelog has a negative time spent value' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       let!(:existing_timelog) { create(:timelog, user: author, issue: noteable, time_spent: time_spent.to_i) }
 
@@ -314,7 +314,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     subject { described_class.new(noteable: noteable, container: project, author: author).remove_timelog(timelog) }
 
     context 'when the timelog has a positive time spent value' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       let(:timelog) { create(:timelog, user: author, issue: noteable, time_spent: 1800, spent_at: '2022-03-30T12:00:00.000Z') }
 
@@ -332,7 +332,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     end
 
     context 'when the timelog has a negative time spent value' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       let!(:existing_timelog) { create(:timelog, user: author, issue: noteable, time_spent: time_spent.to_i) }
 
@@ -350,7 +350,7 @@ RSpec.describe ::SystemNotes::TimeTrackingService, feature_category: :team_plann
     subject { described_class.new(noteable: noteable, container: project, author: author).change_time_spent }
 
     context 'when noteable is an issue' do
-      let_it_be(:noteable, reload: true) { create(:issue, project: project) }
+      let_it_be_with_reload(:noteable) { create(:issue, project: project) }
 
       it_behaves_like 'a system note' do
         let(:action) { 'time_tracking' }

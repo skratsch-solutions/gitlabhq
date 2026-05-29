@@ -1244,7 +1244,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
       let_it_be(:user) { create(:user) }
       let_it_be(:group) { create(:group, :public) }
       let_it_be(:project, freeze: false) { create(:project, :private, :repository, group: group, developers: user) }
-      let_it_be(:merge_request, refind: true) { create(:merge_request, :simple, :unchanged, source_project: project) }
+      let_it_be_with_refind(:merge_request) { create(:merge_request, :simple, :unchanged, source_project: project) }
       let_it_be(:first_issue) { create(:issue, project: project) }
       let_it_be(:second_issue) { create(:issue, project: project) }
 

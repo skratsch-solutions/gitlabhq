@@ -435,7 +435,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
         let_it_be(:bug_label) { create(:label, project: project, title: 'bug') }
         let_it_be(:to_be_copied_label) { create(:label, project: project, title: 'to be copied') }
         let_it_be(:feature_label) { create(:label, project: project, title: 'feature') }
-        let_it_be(:issue, reload: true) { create(:issue, project: project, labels: [bug_label], due_date: '2019-01-01') }
+        let_it_be_with_reload(:issue) { create(:issue, project: project, labels: [bug_label], due_date: '2019-01-01') }
         let_it_be(:issue_2, freeze: false) { create(:issue, project: project, labels: [bug_label, to_be_copied_label]) }
 
         context 'for issues' do

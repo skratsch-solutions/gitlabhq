@@ -221,6 +221,7 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
         fill_in 'Description', with: 'bug description'
 
         click_button 'Create Issue'
+        expect(page).to have_content('bug 345')
       end
     end
 

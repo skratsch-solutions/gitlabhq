@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Groups::CreateService, '#execute', feature_category: :groups_and_projects do
-  let_it_be(:user, reload: true) { create(:user) }
+  let_it_be_with_reload(:user) { create(:user) }
   let_it_be(:organization, freeze: false) { create(:organization, users: [user]) }
   let(:current_user) { user }
   let(:group_params) do

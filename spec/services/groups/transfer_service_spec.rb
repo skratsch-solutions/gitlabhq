@@ -329,7 +329,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
       end
 
       context 'when the group is allowed to be transferred' do
-        let_it_be(:new_parent_group, reload: true) { create(:group, :public) }
+        let_it_be_with_reload(:new_parent_group) { create(:group, :public) }
         let_it_be(:new_parent_group_integration) { create(:integrations_slack, :group, group: new_parent_group, webhook: 'http://new-group.slack.com') }
 
         before do
@@ -1107,7 +1107,7 @@ RSpec.describe Groups::TransferService, :sidekiq_inline, feature_category: :grou
     end
 
     context 'with namespace_commit_emails concerns' do
-      let_it_be(:group, reload: true) { create(:group) }
+      let_it_be_with_reload(:group) { create(:group) }
       let_it_be(:target) { create(:group) }
 
       before do

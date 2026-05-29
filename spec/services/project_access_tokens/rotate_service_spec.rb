@@ -137,7 +137,7 @@ RSpec.describe ProjectAccessTokens::RotateService, feature_category: :system_acc
 
           context 'when its a bot user' do
             let_it_be(:bot_user, freeze: false) { create(:user, :project_bot) }
-            let_it_be(:token, reload: true) { create(:personal_access_token, user: bot_user) }
+            let_it_be_with_reload(:token) { create(:personal_access_token, user: bot_user) }
             let_it_be(:bot_user_membership) do
               create(
                 :project_member,

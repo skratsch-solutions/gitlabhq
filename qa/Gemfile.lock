@@ -152,6 +152,9 @@ GEM
       rainbow (>= 3, < 4)
       table_print (= 1.5.7)
       zeitwerk (>= 2, < 3)
+    gitlab-rspec-metrics-exporter (0.2.0)
+      logger (>= 1.4, < 2.0)
+      rspec-core (>= 3.12, < 4.0)
     gitlab_quality-test_tooling (3.15.0)
       activesupport (>= 7.0)
       amatch (~> 0.4.1)
@@ -421,6 +424,7 @@ DEPENDENCIES
   fog-google (~> 1.29, >= 1.29.4)
   gitlab-orchestrator!
   gitlab-qa (~> 15, >= 15.7.2)
+  gitlab-rspec-metrics-exporter (~> 0.2.0)
   gitlab-utils!
   gitlab_quality-test_tooling (~> 3.15.0)
   junit_merge (~> 0.1.2)
@@ -495,6 +499,7 @@ CHECKSUMS
   gitlab (4.19.0) sha256=3f645e3e195dbc24f0834fbf83e8ccfb2056d8e9712b01a640aad418a6949679
   gitlab-orchestrator (0.0.1)
   gitlab-qa (15.7.2) sha256=4b6584fabf325f5229b98a3641af2b6ad5abbd0d6682816602d08c760729422c
+  gitlab-rspec-metrics-exporter (0.2.0) sha256=9d05ee0437d30cc59d78437e795916e13746f070ea2423e88e9325e96bd09c63
   gitlab-utils (0.2.0)
   gitlab_quality-test_tooling (3.15.0) sha256=88087c8561bccf4d0faabf6395cde673b6c0bf57f4dc0bdfe3dc30e0f031aef7
   google-apis-compute_v1 (0.101.0) sha256=1dea57ab0a579424305aac3219cbd70196b6f3e0d1c6387e1412e3b676c25f3f

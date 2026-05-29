@@ -40,8 +40,12 @@ RSpec.shared_examples 'clone quick action' do
         it 'clones the issue with all notes' do
           fill_in('Add a reply', with: 'Some random note')
           click_button 'Comment'
+          expect(page).to have_field('Add a reply', with: '')
+
           fill_in('Add a reply', with: 'Another note')
           click_button 'Comment'
+          expect(page).to have_field('Add a reply', with: '')
+
           fill_in('Add a reply', with: "/clone --with_notes #{target_project.full_path}")
           click_button 'Comment'
 
@@ -159,6 +163,7 @@ RSpec.shared_examples 'clone quick action' do
         # misspelled quick action
         fill_in('Add a reply', with: "test note.\n/cloe #{target_project.full_path}")
         click_button 'Comment'
+        expect(page).to have_field('Add a reply', with: '')
 
         expect(issue.reload).not_to be_closed
 
@@ -169,6 +174,7 @@ RSpec.shared_examples 'clone quick action' do
         end
 
         expect(page).to have_content 'test note.'
+        expect(page).to have_content "cloned to #{target_project.full_path}"
         expect(issue.reload).to be_open
 
         visit project_issue_path(target_project, issue)
