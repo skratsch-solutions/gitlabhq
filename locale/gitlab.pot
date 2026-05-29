@@ -66280,6 +66280,9 @@ msgstr ""
 msgid "SecurityOrchestration|Additional configuration"
 msgstr ""
 
+msgid "SecurityOrchestration|Advisory"
+msgstr ""
+
 msgid "SecurityOrchestration|After dismissing the alert, the information will never be shown again."
 msgstr ""
 
@@ -67227,10 +67230,16 @@ msgstr ""
 msgid "SecurityOrchestration|Enforce/Revert Setting"
 msgstr ""
 
+msgid "SecurityOrchestration|Enforced"
+msgstr ""
+
 msgid "SecurityOrchestration|Enforcement"
 msgstr ""
 
 msgid "SecurityOrchestration|Enforcement Mode"
+msgstr ""
+
+msgid "SecurityOrchestration|Enforcement type"
 msgstr ""
 
 msgid "SecurityOrchestration|Ensure specific security scans are executed"
@@ -67894,6 +67903,9 @@ msgid "SecurityOrchestration|No policy.yml file found"
 msgstr ""
 
 msgid "SecurityOrchestration|No rules defined - policy will not run."
+msgstr ""
+
+msgid "SecurityOrchestration|No rules defined for this policy."
 msgstr ""
 
 msgid "SecurityOrchestration|No scope"
@@ -69098,6 +69110,9 @@ msgid "SecurityOrchestration|This merge request approval policy targets the defa
 msgstr ""
 
 msgid "SecurityOrchestration|This merge request migrates compliance pipeline `%{path}` to a pipeline execution policy scoped to framework [%{framework}](%{link})."
+msgstr ""
+
+msgid "SecurityOrchestration|This policy applies when the license for a dependency matches any of the following criteria:"
 msgstr ""
 
 msgid "SecurityOrchestration|This policy doesn't contain any actions or override project approval settings. You cannot create an empty policy."

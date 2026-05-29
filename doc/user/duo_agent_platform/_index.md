@@ -103,6 +103,8 @@ but you require credits in your Monthly Commitment Pool to access them.
 | Feature | Free | Premium | Ultimate |
 |---------|---|---|---|
 | [Custom flows](flows/custom.md) <br /> Combine multiple agents to solve your business problems. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
+| [Initialize project context](onboarding.md#initialize-project-context) <br /> Automatically generate an `AGENTS.md` file that documents your project conventions for use by AI agents. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
+| [Improve CI/CD setup](onboarding.md#improve-cicd-setup) <br /> Analyze your CI/CD configuration and generate a merge request with suggested improvements. | {{< yes >}} | {{< yes >}} | {{< yes >}} |
 | [MCP server](../gitlab_duo/model_context_protocol/mcp_server.md) <br /> Securely connect AI tools and applications to your GitLab instance. | {{< no >}} | {{< yes >}} | {{< yes >}} |
 | [CI Expert Agent](agents/foundational_agents/ci_expert_agent.md) <br /> Create, debug, and optimize GitLab CI/CD pipelines. | {{< no >}} | {{< yes >}} | {{< yes >}} |
 | [External MCP servers](../gitlab_duo/model_context_protocol/ai_catalog_mcp_servers.md) <br /> Connect custom agents to external data sources and third-party services using MCP servers. | {{< no >}} | {{< yes >}} | {{< yes >}} |

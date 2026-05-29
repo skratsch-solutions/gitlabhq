@@ -345,15 +345,23 @@ For further quality guidelines, see [testing](https://handbook.gitlab.com/handbo
 
 1. You have confirmed that the correct [MR type label](labels/_index.md) has been applied.
 
-### Everyone
+### Participating in code review
 
 - Be kind.
 - Accept that many programming decisions are opinions. Discuss trade-offs and resolve quickly.
 - Ask questions. Make suggestions, not demands.
-- Avoid selective ownership of code ("mine", "not mine").
 - Be explicit. People don't always understand your intentions online.
 - Be humble. Consider a one-on-one call for lengthy misunderstandings and post a follow-up summary.
 - Mention the person directly when a comment is addressed specifically to them.
+- Read through the entire diff before your first push. Check for unrelated changes and debug code.
+- Write a detailed description per the
+  [merge request guidelines](contributing/merge_request_workflow.md#merge-request-guidelines-for-contributors).
+- Don't take feedback personally. The review is of the code and its impact on production systems.
+- Explain why the code exists, not just what it does.
+- Try to respond to every comment. Only resolve threads you have fully addressed. If a comment can be
+  addressed in a follow-up issue, work with the maintainer on a path forward.
+- Re-request review once you are ready for another round.
+- Address all GitLab Duo review comments before requesting a review from human reviewers.
 
 ### For authors: getting changes merged faster
 
@@ -371,35 +379,6 @@ For further quality guidelines, see [testing](https://handbook.gitlab.com/handbo
    engineer can cover frontend and backend.
 1. Know your maintainers and assign domain experts. Maintainers prioritize MRs in areas they know
    well.
-
-### Having your merge request reviewed
-
-- Read through the entire diff before your first push. Check for unrelated changes and debug code.
-- Write a detailed description per the
-  [merge request guidelines](contributing/merge_request_workflow.md#merge-request-guidelines-for-contributors).
-- Don't take feedback personally. Rather, the review is of the code, and its impact on production systems.
-- Explain why the code exists, not just what it does.
-- Try to respond to every comment. Only resolve threads you have fully addressed. If a comment can be addressed in a follow-up issue, work with the maintainer on a path forward.
-- Push feedback-based changes as isolated commits. Do not squash until ready to merge.
-- Re-request review once you are ready for another round.
-
-### Responding to GitLab Duo review comments
-
-When GitLab Duo provides automated code review comments on your merge request,
-address all comments before requesting a review from human reviewers.
-
-Your response can take any form, as long as it clearly indicates that you have
-considered the comment:
-
-- If you made changes based on the suggestion, explain what you changed.
-- If the issue is already addressed in another way, mention how it was resolved.
-- If the comment is not relevant or incorrect, explain why you are not acting on it.
-  A "thumbs down" can be adequate if the comment is clearly irrelevant, but
-  an explanation is preferable if there might be any confusion.
-
-Leave GitLab Duo discussion threads unresolved so that reviewers and
-maintainers can easily see your responses and verify that all automated feedback
-has been appropriately addressed.
 
 ### Merging a merge request
 
@@ -473,21 +452,6 @@ Finding the right balance in how deeply to review requires sound judgement. Keep
   refactors in an urgent security fix.
 - Doing things well today is usually better than doing something perfectly
   tomorrow.
-
-### Customer critical merge requests
-
-A merge request may benefit from being considered a customer critical priority because there is a significant benefit to the business in doing so.
-
-Properties of customer critical merge requests:
-
-- A senior director or higher in Development must approve that a merge request qualifies as customer-critical. Alternatively, if two of their direct reports approve, that can also serve as approval.
-- The DRI applies the `customer-critical-merge-request` label to the merge request.
-- It is required that the reviewers and maintainers involved with a customer critical merge request are engaged as soon as this decision is made.
-- It is required to prioritize work for those involved on a customer critical merge request so that they have the time available necessary to focus on it.
-- It is required to adhere to GitLab [values](https://handbook.gitlab.com/handbook/values/) and processes when working on customer critical merge requests, taking particular note of family and friends first/work second, definition of done, iteration, and release when it's ready.
-- Customer critical merge requests are required to not reduce security, introduce data-loss risk, reduce availability, nor break existing functionality per the process for [prioritizing technical decisions](https://handbook.gitlab.com/handbook/engineering/development/principles/#prioritizing-technical-decisions).
-- On customer critical requests, it is recommended that those involved consider coordinating synchronously (Zoom, Slack) in addition to asynchronously (merge requests comments) if they believe this may reduce the elapsed time to merge even though this may sacrifice [efficiency](https://handbook.gitlab.com/handbook/company/culture/all-remote/asynchronous/#evaluating-efficiency).
-- After a customer critical merge request is merged, a retrospective must be completed with the intention of reducing the frequency of future customer critical merge requests.
 
 ## Troubleshooting failing pipelines
 

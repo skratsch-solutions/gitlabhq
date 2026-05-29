@@ -510,7 +510,8 @@ CREATE TABLE namespaces (
     traversal_ids bigint[] DEFAULT '{}'::bigint[] NOT NULL,
     organization_id bigint,
     state smallint DEFAULT 0,
-    CONSTRAINT check_2eae3bdf93 CHECK ((organization_id IS NOT NULL))
+    CONSTRAINT check_2eae3bdf93 CHECK ((organization_id IS NOT NULL)),
+    CONSTRAINT check_9d490f2140 CHECK ((state IS NOT NULL))
 );
 
 CREATE FUNCTION find_namespaces_by_id(namespaces_id bigint) RETURNS namespaces
@@ -39355,9 +39356,6 @@ ALTER TABLE ONLY group_type_ci_runners
 
 ALTER TABLE abuse_reports
     ADD CONSTRAINT check_95e5f0c300 CHECK ((char_length(message) <= 2048)) NOT VALID;
-
-ALTER TABLE namespaces
-    ADD CONSTRAINT check_9d490f2140 CHECK ((state IS NOT NULL)) NOT VALID;
 
 ALTER TABLE related_epic_links
     ADD CONSTRAINT check_a6d9d7c276 CHECK ((issue_link_id IS NOT NULL)) NOT VALID;
