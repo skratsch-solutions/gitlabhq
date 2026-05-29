@@ -825,18 +825,18 @@ GEM
       rb_sys (~> 0.9.124)
     gitlab-kas-grpc (18.5.0.pre.rc4)
       grpc (~> 1.0)
-    gitlab-labkit (2.0.0)
-      actionpack (>= 5.0.0, < 8.1.0)
-      activesupport (>= 5.0.0, < 8.1.0)
+    gitlab-labkit (2.3.0)
+      actionpack (>= 5.0.0, < 8.2.0)
+      activesupport (>= 5.0.0, < 8.2.0)
       google-protobuf (>= 3.25, < 5.0)
       grpc (>= 1.75)
       jaeger-client (~> 1.1.0)
       json_schemer (>= 2.3.0, < 3.0)
       openssl (~> 3.3.2)
-      opentelemetry-exporter-otlp (~> 0.31.1)
-      opentelemetry-instrumentation-all (~> 0.89.1)
-      opentelemetry-sdk (~> 1.10)
-      opentracing (~> 0.4)
+      opentelemetry-exporter-otlp (>= 0.31, < 1)
+      opentelemetry-instrumentation-all (>= 0.89, < 1)
+      opentelemetry-sdk (>= 1.10, < 2)
+      opentracing (>= 0.4, < 1)
       pg_query (>= 6.1.0, < 7.0)
       prometheus-client-mmap (>= 1.2, < 2.0)
       redis (> 3.0.0, < 6.0.0)
@@ -2440,7 +2440,7 @@ DEPENDENCIES
   gitlab-http!
   gitlab-iam-grpc!
   gitlab-kas-grpc (~> 18.5.0.pre.rc4)
-  gitlab-labkit (~> 2.0.0)
+  gitlab-labkit (~> 2.3.0)
   gitlab-license (~> 2.6)
   gitlab-mail_room (~> 1.0.0)
   gitlab-markup (~> 2.0.0)
@@ -2942,7 +2942,7 @@ CHECKSUMS
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)
   gitlab-kas-grpc (18.5.0.pre.rc4) sha256=8efe8bc957572bad2ee90c22836b285eb65574591db5c8a7bc8080f69ddebcc6
-  gitlab-labkit (2.0.0) sha256=16292af3f0cfc0ca94aaff9a007b1ee88bb44e6dc4b362628ad21eba82eb59b7
+  gitlab-labkit (2.3.0) sha256=ee48d426bdc016283ecfd864538ada5edae235513238f3bb265afed8232195d0
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
   gitlab-mail_room (1.0.0) sha256=00910bc000ff819f8e2030fd2260f7b40f025c410b11b82de8f67de7922c0159
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e

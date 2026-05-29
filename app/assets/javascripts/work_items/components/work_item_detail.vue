@@ -42,6 +42,7 @@ import {
   WIDGET_TYPE_MILESTONE,
   WORK_ITEM_TYPE_NAME_INCIDENT,
   VIEW_CONTEXT,
+  WORK_ITEM_DETAIL_PANEL,
 } from '../constants';
 
 import workItemUpdatedSubscription from '../graphql/work_item_updated.subscription.graphql';
@@ -217,6 +218,7 @@ export default {
       designUploadErrorVariant: ALERT_VARIANTS.danger,
       workspacePermissions: defaultWorkspacePermissions,
       activeChildItem: null,
+      activePanel: null,
       isEmptyStateVisible: false,
       dragCounter: 0,
       isDesignUploadButtonInViewport: false,
@@ -525,7 +527,7 @@ export default {
       return this.workItem.widgets;
     },
     isItemSelected() {
-      return !isEmpty(this.activeChildItem);
+      return !isEmpty(this.activeChildItem) && this.activePanel === WORK_ITEM_DETAIL_PANEL;
     },
     activeChildItemType() {
       return this.activeChildItem?.workItemType?.name;
@@ -690,6 +692,7 @@ export default {
     openContextualView({ event, modalWorkItem }) {
       if (!modalWorkItem) {
         this.activeChildItem = null;
+        this.activePanel = null;
         return;
       }
 
@@ -707,9 +710,21 @@ export default {
 
       if (this.activeChildItem && this.activeChildItem.iid === modalWorkItem.iid) {
         this.activeChildItem = null;
+        this.activePanel = null;
       } else {
         this.activeChildItem = modalWorkItem;
+        this.activePanel = WORK_ITEM_DETAIL_PANEL;
       }
+    },
+    requestPanel(name) {
+      this.activePanel = name;
+      if (name !== WORK_ITEM_DETAIL_PANEL) {
+        this.activeChildItem = null;
+      }
+    },
+    closeContextualPanel() {
+      this.activeChildItem = null;
+      this.activePanel = null;
     },
     openReportAbuseModal(reply) {
       if (this.isModal) {
@@ -1183,6 +1198,14 @@ export default {
                   v-model="truncationEnabled"
                   :storage-key="$options.ENABLE_TRUNCATION_STORAGE_KEY"
                 />
+                <slot
+                  name="widgets-top"
+                  :work-item="workItem"
+                  :is-detail-panel="isDetailPanel"
+                  :active-panel="activePanel"
+                  :edit-mode="editMode"
+                  :request-panel="requestPanel"
+                ></slot>
                 <work-item-description
                   v-if="hasDescriptionWidget"
                   :edit-mode="editMode"
@@ -1325,6 +1348,7 @@ export default {
                 :parent-iteration="workItemIteration"
                 :parent-milestone="workItemMilestone"
                 :active-child-item-id="activeChildItemId"
+                :active-panel="activePanel"
                 :can-update="canUpdate"
                 :can-update-children="canUpdateChildren"
                 :confidential="workItem.confidential"
@@ -1343,6 +1367,7 @@ export default {
                 :work-item-type="workItem.workItemType.name"
                 :can-admin-work-item-link="canAdminWorkItemLink"
                 :active-child-item-id="activeChildItemId"
+                :active-panel="activePanel"
                 :has-blocked-work-items-feature="hasBlockedWorkItemsFeature"
                 contextual-view-enabled
                 @showModal="openContextualView"
@@ -1402,7 +1427,7 @@ export default {
         :issuable-type="activeChildItemType"
         :view-context="$options.VIEW_CONTEXT.drawerWorkItem"
         click-outside-exclude-selector=".issuable-list"
-        @close="activeChildItem = null"
+        @close="closeContextualPanel"
         @work-item-deleted="deleteChildItem"
       />
       <work-item-abuse-modal

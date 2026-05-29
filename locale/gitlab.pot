@@ -3271,6 +3271,9 @@ msgstr ""
 msgid "AICatalog|This %{itemType} was removed from the AI Catalog. You can still use it in this %{targetType}."
 msgstr ""
 
+msgid "AICatalog|This %{linkStart}service account%{linkEnd} is created automatically and used internally by the Code Review flow. To trigger the flow, assign %{boldStart}@GitLabDuo%{boldEnd} as a reviewer on a merge request — do not assign or mention this account."
+msgstr ""
+
 msgid "AICatalog|This MCP server has tools for finding, creating, and updating objects in..."
 msgstr ""
 
@@ -7606,25 +7609,43 @@ msgstr ""
 msgid "AgentPlan|Choose a workplan template"
 msgstr ""
 
+msgid "AgentPlan|Create workplan"
+msgstr ""
+
 msgid "AgentPlan|Delete workplan"
 msgstr ""
 
-msgid "AgentPlan|Describe your intent for Duo. A workplan structures context into an agent-ready input for autonomous execution."
+msgid "AgentPlan|Describe your intent for Duo. A workplan turns your description into an executable plan for autonomous task completion."
 msgstr ""
 
-msgid "AgentPlan|Edit workplan"
+msgid "AgentPlan|Edit"
 msgstr ""
 
 msgid "AgentPlan|Generate workplan with Duo"
 msgstr ""
 
-msgid "AgentPlan|No workplan has been added yet. You don't have permission to edit the workplan."
+msgid "AgentPlan|No workplan"
+msgstr ""
+
+msgid "AgentPlan|No workplan has been added yet. You don't have permission to create or edit the workplan."
+msgstr ""
+
+msgid "AgentPlan|Not started"
+msgstr ""
+
+msgid "AgentPlan|Ready"
 msgstr ""
 
 msgid "AgentPlan|Select workplan template"
 msgstr ""
 
+msgid "AgentPlan|View workplan"
+msgstr ""
+
 msgid "AgentPlan|Workplan"
+msgstr ""
+
+msgid "AgentPlan|Workplan:"
 msgstr ""
 
 msgid "AgentPlan|You are here to help refine a plan for the user from the Work Item context to a Markdown output with key information required for Agent to pick off the work. The template should have a Why, How, What format with key insights and list of steps. If the issue is lacking details, start by reading the comments. Then, ask clarifying questions to the users in Chat until you are confident. If there are pending questions, please preserve them inside the plan. Then, please proceed with updating the work item 'Workplan' widget with your output. You can erase everything was there before and add your new plan entirely. Don't preserve existing notes if they dont align with what you wrote. If there is enough information but the title or description is lacking, please propose to update it minimally with key insights. Try to preserve anything that is already present, just add on top and dont repeat the full plan. What is important is syncing up enough to preserve the intent and adding data where we had none before."
@@ -11364,6 +11385,12 @@ msgid "AuditStreams|%d destination"
 msgid_plural "AuditStreams|%d destinations"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "AuditStreams|%{count} selected"
+msgstr ""
+
+msgid "AuditStreams|%{selected} of %{maximum} selected"
+msgstr ""
 
 msgid "AuditStreams|A header with this name already exists."
 msgstr ""
@@ -18077,9 +18104,6 @@ msgid "Collapse merge details"
 msgstr ""
 
 msgid "Collapse milestones"
-msgstr ""
-
-msgid "Collapse panel"
 msgstr ""
 
 msgid "Collapse replies"
@@ -32736,7 +32760,7 @@ msgstr ""
 msgid "FoundationalFlow|Secret Detection False Positive Detection"
 msgstr ""
 
-msgid "FoundationalFlow|Streamline code reviews by analyzing code changes, comments, and linked issues."
+msgid "FoundationalFlow|Streamline code reviews by analyzing code changes and relevant codebase context. To run this flow, assign `@GitLabDuo` as a reviewer on a merge request. [Learn more](https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/#use-the-flow)."
 msgstr ""
 
 msgid "FoundationalFlow|Turn feedback into actionable merge requests or issues."

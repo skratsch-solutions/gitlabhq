@@ -85,7 +85,6 @@ export default {
       canCreateSnippet: false,
       isDeleteModalVisible: false,
       isDropdownShown: false,
-      embedDropdown: false,
     };
   },
   computed: {
@@ -149,7 +148,7 @@ export default {
       );
     },
     hasPersonalSnippetActions() {
-      return this.showActionDropdown || this.embedDropdown || this.canBeCloned;
+      return this.showActionDropdown || this.canBeCloned;
     },
     editLink() {
       return `${this.snippet.webUrl}/edit`;

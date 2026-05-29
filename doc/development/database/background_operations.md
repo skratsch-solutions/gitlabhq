@@ -218,7 +218,8 @@ Gitlab::Database::BackgroundOperation::Worker.enqueue(
   'target_table',
   'id',
   job_arguments: %w[arg1 arg2],
-  user: current_user
+  user: current_user,
+  organization: Current.organization
 )
 ```
 
@@ -231,8 +232,9 @@ Parameters:
 - `min_cursor` (optional): An array specifying the starting cursor position.
   When omitted, the framework resumes from the previous operation's last
   cursor or falls back to `MIN(column)`.
-- `user`: The user initiating the operation. Sets `user_id` and
-  `organization_id` on the record.
+- `user`: The user initiating the operation.
+- `organization`: Since this is a user triggered action, `Current.organization` will already be available and that has to
+  be passed along.
 
 The framework automatically checks for duplicates, estimates
 `total_tuple_count` via `pg_class`, sets default batch parameters, and resolves

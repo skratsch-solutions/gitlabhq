@@ -86,6 +86,7 @@ the related documentation:
 | Limit of dotenv variables                                                        | Free tier: `50`<br>Premium tier: `100`<br>Ultimate tier: `150`                                             | See [Limit dotenv variables](../../administration/cicd/limits.md#limit-dotenv-variables). |
 | Maximum downstream pipeline trigger rate (for a given project, user, and commit) | `350` each minute                                                                                          | See [Maximum downstream pipeline trigger rate](../../administration/cicd/limits.md#limit-downstream-pipeline-trigger-rate). |
 | Maximum number of downstream pipelines in a pipeline's hierarchy tree            | `1000`                                                                                                     | See [Limit pipeline hierarchy size](../../administration/cicd/limits.md#limit-pipeline-hierarchy-size). |
+| Maximum number of pipeline creation requests per project, commit, and user (per minute) | `25`                                                                                                | See [pipeline creation rate limits](../../administration/cicd/limits.md#pipeline-creation-rate-limits). |
 
 ## Container registry
 
