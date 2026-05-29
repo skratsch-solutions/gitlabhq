@@ -21,6 +21,20 @@ module Authz
 
       def reset!
         @cache = nil
+        @conditionally_enables_requirements = nil
+      end
+
+      # Maps each permission that declares `conditionally_enables:` to the set
+      # of broader permissions it lists. Used by role expansion: a permission
+      # is granted to the role when the role holds *every* permission in its
+      # requirement set.
+      def conditionally_enables_requirements
+        @conditionally_enables_requirements ||= Authz::Permission.all.each_with_object({}) do |(_, permission), index|
+          requirements = permission.conditionally_enables
+          next if requirements.nil? || requirements.empty?
+
+          index[permission.name.to_sym] = requirements.to_set
+        end
       end
 
       private
@@ -81,7 +95,7 @@ module Authz
         set.merge(self.class.get(parent_name).resolve_permissions(scope, evaluated_roles))
       end
 
-      inherited | direct_permissions(scope)
+      expand_conditionally_enables(inherited | direct_permissions(scope))
     end
 
     private
@@ -101,15 +115,39 @@ module Authz
     end
 
     # Returns all project permissions for this role including permissions
-    # from inherited roles.
+    # from inherited roles and those derived via `conditionally_enables:` expansion.
     def project_permissions
       @project_permissions ||= resolve_permissions(:project, Set.new)
     end
 
     # Returns all group permissions for this role including permissions
-    # from inherited roles.
+    # from inherited roles and those derived via `conditionally_enables:` expansion.
     def group_permissions
       @group_permissions ||= resolve_permissions(:group, Set.new)
+    end
+
+    # Returns a new set that includes every permission in `set` plus every
+    # permission whose `conditionally_enables:` requirements are all satisfied
+    # by the expanding set. Repeats until the set stops growing, which handles
+    # transitive chains (a newly added permission may itself satisfy another
+    # candidate's requirements) and terminates on cycles, since an
+    # unsatisfiable requirement set never grows the result.
+    def expand_conditionally_enables(set)
+      expanded = set.dup
+
+      loop do
+        before = expanded.size
+        conditionally_enables_requirements.each do |name, requirements|
+          expanded.add(name) if requirements.subset?(expanded)
+        end
+        break if expanded.size == before
+      end
+
+      expanded
+    end
+
+    def conditionally_enables_requirements
+      self.class.conditionally_enables_requirements
     end
 
     def direct_project_permissions

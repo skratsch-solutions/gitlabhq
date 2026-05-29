@@ -183,7 +183,6 @@ RSpec/BeEq:
     - 'ee/spec/models/dast/site_profile_secret_variable_spec.rb'
     - 'ee/spec/models/dast_site_spec.rb'
     - 'ee/spec/models/dast_site_validation_spec.rb'
-    - 'ee/spec/models/deployment_spec.rb'
     - 'ee/spec/models/ee/active_session_spec.rb'
     - 'ee/spec/models/ee/alert_management/alert_spec.rb'
     - 'ee/spec/models/ee/audit_event_spec.rb'

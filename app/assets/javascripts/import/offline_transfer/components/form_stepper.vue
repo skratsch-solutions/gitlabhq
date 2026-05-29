@@ -128,7 +128,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-flex gl-flex-col">
+  <div class="gl-flex gl-flex-col gl-pt-3">
     <ul class="gl-mb-0 gl-flex gl-list-none gl-p-0">
       <li
         v-for="(step, index) in steps"

@@ -9,17 +9,20 @@ RSpec.describe 'Work items list filters', :js, feature_category: :portfolio_mana
   let_it_be(:user2) { create(:user) }
 
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :public, group: group, developers: [user1, user2]) }
+  let_it_be(:project, freeze: false) { create(:project, :public, group: group, developers: [user1, user2]) }
 
   let_it_be(:label1) { create(:label, project: project) }
   let_it_be(:label2) { create(:label, project: project) }
 
-  let_it_be(:milestone1) { create(:milestone, project: project, start_date: 5.days.ago, due_date: 13.days.from_now) }
+  let_it_be(:milestone1, freeze: false) do
+    create(:milestone, project: project, start_date: 5.days.ago, due_date: 13.days.from_now)
+  end
+
   let_it_be(:milestone2) do
     create(:milestone, project: project, start_date: 2.days.from_now, due_date: 9.days.from_now)
   end
 
-  let_it_be(:release1) { create(:release, project: project, tag: 'v1.0.0', milestones: [milestone1]) }
+  let_it_be(:release1, freeze: false) { create(:release, project: project, tag: 'v1.0.0', milestones: [milestone1]) }
   let_it_be(:release2) { create(:release, project: project, tag: 'v2.0.0', milestones: [milestone2]) }
 
   let_it_be(:incident) do

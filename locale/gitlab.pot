@@ -7558,15 +7558,6 @@ msgstr ""
 msgid "AgentArtifacts|Created before"
 msgstr ""
 
-msgid "AgentArtifacts|Credits"
-msgstr ""
-
-msgid "AgentArtifacts|Credits used in this session"
-msgstr ""
-
-msgid "AgentArtifacts|Failed to load AI item names."
-msgstr ""
-
 msgid "AgentArtifacts|Failed to load agent artifacts."
 msgstr ""
 
@@ -7577,9 +7568,6 @@ msgid "AgentArtifacts|Failed to load projects."
 msgstr ""
 
 msgid "AgentArtifacts|Filter agent artifacts"
-msgstr ""
-
-msgid "AgentArtifacts|Model used"
 msgstr ""
 
 msgid "AgentArtifacts|No agent artifacts found."
@@ -15804,10 +15792,16 @@ msgstr ""
 msgid "CiCatalog|How do I publish a component?"
 msgstr ""
 
+msgid "CiCatalog|Last used"
+msgstr ""
+
 msgid "CiCatalog|Learn more about designated creators"
 msgstr ""
 
 msgid "CiCatalog|Learn more about verified creators on GitLab Self-Managed or GitLab Dedicated."
+msgstr ""
+
+msgid "CiCatalog|Newest version"
 msgstr ""
 
 msgid "CiCatalog|No component available"
@@ -15825,6 +15819,9 @@ msgstr ""
 msgid "CiCatalog|No versions available"
 msgstr ""
 
+msgid "CiCatalog|Oldest version"
+msgstr ""
+
 msgid "CiCatalog|Outdated"
 msgstr ""
 
@@ -15835,6 +15832,9 @@ msgid "CiCatalog|Private - This component project can only be viewed by project 
 msgstr ""
 
 msgid "CiCatalog|Private project"
+msgstr ""
+
+msgid "CiCatalog|Project name"
 msgstr ""
 
 msgid "CiCatalog|Project path"
@@ -15877,6 +15877,12 @@ msgid "CiCatalog|See more"
 msgstr ""
 
 msgid "CiCatalog|Set component project as a CI/CD Catalog project. %{linkStart}What is the CI/CD Catalog?%{linkEnd}"
+msgstr ""
+
+msgid "CiCatalog|Sort direction: ascending"
+msgstr ""
+
+msgid "CiCatalog|Sort direction: descending"
 msgstr ""
 
 msgid "CiCatalog|Status"
@@ -32790,6 +32796,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "Free top-level groups will soon be limited to %{free_users_limit} users and %{free_storage_limit} of data"
+msgstr ""
+
+msgid "Free top-level namespaces with private visibility cannot have more than %{free_limit} users. From %{strong_start}%{enforcement_date}%{strong_end}, if your namespace has more than %{free_limit} users, it will be placed in %{link_start}a read-only state%{link_end}. Contact your top-level group Owner to reduce the number of users in the namespace, make the namespace public, upgrade to a paid tier, or start a free %{duration}-day Ultimate trial."
+msgstr ""
+
+msgid "Free top-level namespaces with private visibility cannot have more than %{free_limit} users. From %{strong_start}%{enforcement_date}%{strong_end}, if your namespace has more than %{free_limit} users, it will be placed in %{link_start}a read-only state%{link_end}. To prevent this, reduce the number of users in the namespace, make the namespace public, upgrade to a paid tier, or start a free %{duration}-day Ultimate trial."
 msgstr ""
 
 msgid "Free trial will expire in %{days}"
@@ -50235,7 +50247,16 @@ msgstr ""
 msgid "Offline nodes automatically deleted after"
 msgstr ""
 
+msgid "OfflineTransferExport|Each selected group is exported with all of its subgroups and projects."
+msgstr ""
+
+msgid "OfflineTransferExport|Export"
+msgstr ""
+
 msgid "OfflineTransferExport|Export complete"
+msgstr ""
+
+msgid "OfflineTransferExport|Export configuration"
 msgstr ""
 
 msgid "OfflineTransferExport|Export failed"
@@ -50244,7 +50265,16 @@ msgstr ""
 msgid "OfflineTransferExport|Export for offline transfer"
 msgstr ""
 
-msgid "OfflineTransferExport|Export your groups and projects to an object storage service you control. You can import the groups and projects to any GitLab instance, even with no network connection between this instance and the destination instance."
+msgid "OfflineTransferExport|Export your groups to an AWS S3 storage service you control. You can import them to any GitLab instance, even without a network connection between this instance and the destination instance."
+msgstr ""
+
+msgid "OfflineTransferExport|Review export"
+msgstr ""
+
+msgid "OfflineTransferExport|Select groups to export"
+msgstr ""
+
+msgid "OfflineTransferExport|Start export"
 msgstr ""
 
 msgid "OfflineTransferExport|The offline export you started on %{start_date} from %{strong_open}%{source_hostname}%{strong_close} has failed."
@@ -50263,9 +50293,6 @@ msgid "OfflineTransfer|Configure"
 msgstr ""
 
 msgid "OfflineTransfer|Export"
-msgstr ""
-
-msgid "OfflineTransfer|Export configuration"
 msgstr ""
 
 msgid "OfflineTransfer|Export failed. Entity full paths must be provided."
@@ -50301,16 +50328,7 @@ msgstr ""
 msgid "OfflineTransfer|Review"
 msgstr ""
 
-msgid "OfflineTransfer|Review export"
-msgstr ""
-
 msgid "OfflineTransfer|Select entities"
-msgstr ""
-
-msgid "OfflineTransfer|Select groups and projects to export"
-msgstr ""
-
-msgid "OfflineTransfer|Start export"
 msgstr ""
 
 msgid "OfflineTransfer|Unable to access object storage bucket."
@@ -54123,6 +54141,9 @@ msgid "PipelineSchedules|Pipeline schedule successfully deleted."
 msgstr ""
 
 msgid "PipelineSchedules|Pipeline schedules"
+msgstr ""
+
+msgid "PipelineSchedules|Pipeline variables are restricted by the project %{linkStart}CI/CD settings%{linkEnd}. Existing schedule variables are still injected into scheduled pipelines and are shown here as read-only."
 msgstr ""
 
 msgid "PipelineSchedules|Provide a short description for this pipeline"
@@ -88897,6 +88918,9 @@ msgid "Your merge requests with approvals by all assigned reviewers."
 msgstr ""
 
 msgid "Your name"
+msgstr ""
+
+msgid "Your namespace %{namespace_name} is over %{link_start}the %{free_limit} user limit%{link_end}"
 msgstr ""
 
 msgid "Your namespace storage is full"

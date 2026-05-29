@@ -6,14 +6,14 @@ RSpec.describe 'New/edit issue', :js, feature_category: :team_planning do
   include ActionView::Helpers::JavaScriptHelper
   include ListboxHelpers
 
-  let_it_be(:project)   { create(:project, :repository) }
-  let_it_be(:user)      { create(:user, maintainer_of: project) }
+  let_it_be(:project, freeze: false)   { create(:project, :repository) }
+  let_it_be(:user, freeze: false)      { create(:user, maintainer_of: project) }
   let_it_be(:user2)     { create(:user, maintainer_of: project) }
   let_it_be(:guest)     { create(:user, guest_of: project) }
-  let_it_be(:milestone) { create(:milestone, project: project) }
+  let_it_be(:milestone, freeze: false) { create(:milestone, project: project) }
   let_it_be(:label)     { create(:label, project: project) }
   let_it_be(:label2)    { create(:label, project: project) }
-  let_it_be(:issue)     { create(:issue, project: project, assignees: [user], milestone: milestone) }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project, assignees: [user], milestone: milestone) }
   let_it_be(:confidential_issue) { create(:issue, project: project, assignees: [user], milestone: milestone, confidential: true) }
 
   let(:current_user) { user }

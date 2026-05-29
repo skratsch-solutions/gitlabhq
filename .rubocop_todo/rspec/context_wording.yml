@@ -334,7 +334,6 @@ RSpec/ContextWording:
     - 'ee/spec/models/dast_scanner_profile_spec.rb'
     - 'ee/spec/models/dast_site_profile_spec.rb'
     - 'ee/spec/models/dast_site_validation_spec.rb'
-    - 'ee/spec/models/deployment_spec.rb'
     - 'ee/spec/models/ee/audit_event_spec.rb'
     - 'ee/spec/models/ee/award_emoji_spec.rb'
     - 'ee/spec/models/ee/event_spec.rb'

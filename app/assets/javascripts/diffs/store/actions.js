@@ -4,11 +4,7 @@ import { scrollToElement } from '~/lib/utils/scroll_utils';
 import { createAlert, VARIANT_WARNING } from '~/alert';
 import axios from '~/lib/utils/axios_utils';
 
-import {
-  HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_OK,
-  HTTP_STATUS_SERVICE_UNAVAILABLE,
-} from '~/lib/utils/http_status';
+import { HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from '~/lib/utils/http_status';
 import Poll from '~/lib/utils/poll';
 import {
   mergeUrlParams,
@@ -82,6 +78,7 @@ import {
   parseUrlHashAsFileHash,
   isUrlHashNoteLink,
   findDiffFile,
+  extractGitalyErrorMessage,
 } from './utils';
 
 export const setBaseConfig = ({ commit }, options) => {
@@ -218,11 +215,9 @@ export const fetchFileByFile = async ({ state, getters, commit }) => {
         eventHub.$emit('diffFilesModified');
       })
       .catch((error) => {
-        if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
-          const gitalyErrorMessage = error.response?.data?.error;
-          if (gitalyErrorMessage) {
-            commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
-          }
+        const gitalyErrorMessage = extractGitalyErrorMessage(error);
+        if (gitalyErrorMessage) {
+          commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
         }
         commit(types.SET_BATCH_LOADING_STATE, 'error');
       })
@@ -327,11 +322,9 @@ export const fetchDiffFilesBatch = ({ commit, state, dispatch }, linkedFileLoadi
         return null;
       })
       .catch((error) => {
-        if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
-          const gitalyErrorMessage = error.response?.data?.error;
-          if (gitalyErrorMessage) {
-            commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
-          }
+        const gitalyErrorMessage = extractGitalyErrorMessage(error);
+        if (gitalyErrorMessage) {
+          commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
         }
         commit(types.SET_RETRIEVING_BATCHES, false);
         commit(types.SET_BATCH_LOADING_STATE, 'error');
@@ -1118,11 +1111,9 @@ export const fetchLinkedFile = ({ state, commit, dispatch }, linkedFileUrl) => {
       eventHub.$emit('diffFilesModified');
     })
     .catch((error) => {
-      if (error.response?.status === HTTP_STATUS_SERVICE_UNAVAILABLE) {
-        const gitalyErrorMessage = error.response?.data?.error;
-        if (gitalyErrorMessage) {
-          commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
-        }
+      const gitalyErrorMessage = extractGitalyErrorMessage(error);
+      if (gitalyErrorMessage) {
+        commit(types.SET_GITALY_ERROR_MESSAGE, gitalyErrorMessage);
       }
       commit(types.SET_BATCH_LOADING_STATE, 'error');
       throw error;
