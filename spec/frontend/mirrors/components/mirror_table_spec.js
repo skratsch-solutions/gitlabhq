@@ -1,9 +1,14 @@
 import { GlTable, GlAlert, GlBadge } from '@gitlab/ui';
+import { nextTick } from 'vue';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import waitForPromises from 'helpers/wait_for_promises';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import MirrorTable from '~/mirrors/components/mirror_table.vue';
 import MirrorActions from '~/mirrors/components/mirror_actions.vue';
+import { deleteRemoteMirror, syncRemoteMirror, updateRemoteMirror } from '~/api/remote_mirrors_api';
 import { PROJECT_ID, createMirror } from './mock_data';
+
+jest.mock('~/api/remote_mirrors_api');
 
 describe('MirrorTable', () => {
   let wrapper;
@@ -34,6 +39,10 @@ describe('MirrorTable', () => {
   const findMirrorActions = () => wrapper.findAllComponents(MirrorActions);
   const findTableRows = () => findTable().findAll('tbody tr');
   const findBranchSettingBadge = () => wrapper.findByTestId('mirror-branches-badge');
+  const findDeleteButtons = () => wrapper.findAllByTestId('delete-mirror-button');
+  const findSyncButtons = () => wrapper.findAllByTestId('update-now-button');
+  const findDisableButtons = () => wrapper.findAllByTestId('disable-mirror-button');
+  const findEnableButtons = () => wrapper.findAllByTestId('enable-mirror-button');
 
   describe('rendering', () => {
     it('renders GlTable with correct items', () => {
@@ -228,6 +237,141 @@ describe('MirrorTable', () => {
       createComponent({ settingsEnabled: false });
 
       expect(findMirrorActions()).toHaveLength(0);
+    });
+  });
+
+  describe('onDelete', () => {
+    it('removes mirror from list on success', async () => {
+      deleteRemoteMirror.mockResolvedValue();
+      createComponent();
+
+      findDeleteButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(deleteRemoteMirror).toHaveBeenCalledWith(PROJECT_ID, 1);
+      expect(findTableRows()).toHaveLength(1);
+    });
+
+    it('re-inserts mirror and shows alert on failure', async () => {
+      deleteRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent();
+
+      findDeleteButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().exists()).toBe(true);
+      expect(findAlert().text()).toBe('Failed to remove mirror.');
+      expect(findTableRows()).toHaveLength(2);
+    });
+  });
+
+  describe('onSync', () => {
+    it('sets updateStatus to started and calls API', async () => {
+      syncRemoteMirror.mockResolvedValue();
+      createComponent();
+
+      findSyncButtons().at(0).trigger('click');
+      await nextTick();
+
+      expect(syncRemoteMirror).toHaveBeenCalledWith(PROJECT_ID, 1);
+      expect(findSyncButtons().at(0).props('disabled')).toBe(true);
+
+      await waitForPromises();
+
+      expect(findSyncButtons().at(0).props('disabled')).toBe(true);
+    });
+
+    it('reverts updateStatus and shows alert on failure', async () => {
+      syncRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent();
+
+      findSyncButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().exists()).toBe(true);
+      expect(findAlert().text()).toBe('Failed to sync mirror.');
+      expect(findSyncButtons().at(0).props('disabled')).toBe(false);
+    });
+  });
+
+  describe('onToggle', () => {
+    it('disables mirror and calls API with enabled: false', async () => {
+      updateRemoteMirror.mockResolvedValue();
+      createComponent({ mirrors: [createMirror({ id: 1 })] });
+
+      findDisableButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(updateRemoteMirror).toHaveBeenCalledWith(PROJECT_ID, 1, { enabled: false });
+      expect(findDisableButtons()).toHaveLength(0);
+      expect(findEnableButtons()).toHaveLength(1);
+    });
+
+    it('enables mirror and calls API with enabled: true', async () => {
+      updateRemoteMirror.mockResolvedValue();
+      createComponent({ mirrors: [createMirror({ id: 1, enabled: false })] });
+
+      findEnableButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(updateRemoteMirror).toHaveBeenCalledWith(PROJECT_ID, 1, { enabled: true });
+      expect(findEnableButtons()).toHaveLength(0);
+      expect(findDisableButtons()).toHaveLength(1);
+    });
+
+    it('reverts enabled state and shows alert on disable failure', async () => {
+      updateRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent({ mirrors: [createMirror({ id: 1 })] });
+
+      findDisableButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().text()).toBe('Failed to disable mirror.');
+      expect(findDisableButtons()).toHaveLength(1);
+    });
+
+    it('reverts enabled state and shows alert on enable failure', async () => {
+      updateRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent({ mirrors: [createMirror({ id: 1, enabled: false })] });
+
+      findEnableButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().text()).toBe('Failed to enable mirror.');
+      expect(findEnableButtons()).toHaveLength(1);
+    });
+  });
+
+  describe('alert dismissal', () => {
+    it('hides alert when dismiss is clicked', async () => {
+      deleteRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent();
+
+      findDeleteButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().exists()).toBe(true);
+
+      findAlert().vm.$emit('dismiss');
+      await nextTick();
+
+      expect(findAlert().exists()).toBe(false);
+    });
+
+    it('replaces previous alert message with new one on subsequent failure', async () => {
+      deleteRemoteMirror.mockRejectedValue(new Error('fail'));
+      syncRemoteMirror.mockRejectedValue(new Error('fail'));
+      createComponent();
+
+      findDeleteButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().text()).toBe('Failed to remove mirror.');
+
+      findSyncButtons().at(0).trigger('click');
+      await waitForPromises();
+
+      expect(findAlert().text()).toBe('Failed to sync mirror.');
     });
   });
 });

@@ -79,7 +79,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
                 create(link_factory, source_id: task1.id, target_id: issue.id)
               end
 
-              it do
+              it 'is invalid' do
                 expect(parent_link).not_to be_valid
                 expect(parent_link.errors[:work_item]).to include(error_msg)
               end
@@ -90,7 +90,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
                 create(link_factory, source_id: issue.id, target_id: task1.id)
               end
 
-              it do
+              it 'is invalid' do
                 expect(parent_link).not_to be_valid
                 expect(parent_link.errors[:work_item]).to include(error_msg)
               end
@@ -104,7 +104,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
                 parent_link.save!(validate: false)
               end
 
-              it do
+              it 'is valid' do
                 expect(parent_link).to be_valid
                 expect(parent_link.errors[:work_item]).not_to include(error_msg)
               end
@@ -116,7 +116,7 @@ RSpec.describe WorkItems::ParentLink, feature_category: :portfolio_management do
                 parent_link.save!(validate: false)
               end
 
-              it do
+              it 'is valid' do
                 expect(parent_link).to be_valid
                 expect(parent_link.errors[:work_item]).not_to include(error_msg)
               end

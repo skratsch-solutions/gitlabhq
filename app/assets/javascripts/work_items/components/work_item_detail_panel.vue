@@ -241,13 +241,13 @@ export default {
   <mounting-portal v-if="open" mount-to="#contextual-panel-portal" append>
     <div data-testid="work-item-detail-panel" class="work-item-detail-panel gl-leading-reset">
       <div class="work-item-detail-panel-header">
-        <div class="gl-flex gl-grow gl-items-center gl-gap-2">
+        <div class="gl-flex gl-grow gl-items-center gl-gap-2 gl-truncate">
           <!-- eslint-disable local-rules/vue-no-web-url -->
           <gl-link
             ref="workItemUrl"
             data-testid="work-item-detail-panel-ref-link"
             :href="activeItem.webUrl"
-            class="gl-text-sm gl-font-bold gl-text-default"
+            class="gl-truncate gl-text-sm gl-font-bold gl-text-default"
             @click="redirectToWorkItem"
           >
             {{ headerReference }}

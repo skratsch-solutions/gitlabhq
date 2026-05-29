@@ -196,11 +196,11 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
   end
 
   describe 'blob search' do
-    let(:project) { create(:project, :public, :repository) }
+    let_it_be(:project) { create(:project, :public, :repository) }
 
     it_behaves_like 'general blob search', 'repository', 'blobs' do
-      let(:disabled_project) { create(:project, :public, :repository, :repository_disabled) }
-      let(:private_project) { create(:project, :public, :repository, :repository_private) }
+      let_it_be(:disabled_project) { create(:project, :public, :repository, :repository_disabled) }
+      let_it_be(:private_project) { create(:project, :public, :repository, :repository_private) }
       let(:expected_file_by_path) { 'files/images/wm.svg' }
       let(:expected_file_by_content) { 'CHANGELOG' }
     end
@@ -291,9 +291,9 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     let(:project) { create(:project, :public) }
 
     context 'when filtering' do
-      let!(:project) { create(:project, :public) }
-      let!(:opened_result) { create(:merge_request, :opened, source_project: project, title: 'foo opened') }
-      let!(:closed_result) { create(:merge_request, :closed, source_project: project, title: 'foo closed') }
+      let_it_be(:project) { create(:project, :public) }
+      let_it_be(:opened_result) { create(:merge_request, :opened, source_project: project, title: 'foo opened') }
+      let_it_be(:closed_result) { create(:merge_request, :closed, source_project: project, title: 'foo closed') }
       let(:query) { 'foo' }
 
       include_examples 'search results filtered by state'
@@ -352,8 +352,8 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
   end
 
   describe '#limited_notes_count' do
-    let(:project) { create(:project, :public) }
-    let(:note) { create(:note_on_issue, project: project) }
+    let_it_be(:project) { create(:project, :public) }
+    let_it_be(:note) { create(:note_on_issue, project: project) }
     let(:query) { note.note }
 
     context 'when count_limit is lower than total amount' do
@@ -398,7 +398,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     let(:query) { search_phrase }
 
     context 'when project is internal' do
-      let(:project) { create(:project, :internal, :repository) }
+      let_it_be(:project) { create(:project, :internal, :repository) }
 
       subject(:commits) { results.objects('commits') }
 
@@ -416,8 +416,11 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'when project is private' do
-      let!(:creator) { create(:user, username: 'private-project-author') }
-      let!(:private_project) { create(:project, :private, :repository, creator: creator, namespace: creator.namespace) }
+      let_it_be(:creator) { create(:user, username: 'private-project-author') }
+      let_it_be(:private_project) do
+        create(:project, :private, :repository, creator: creator, namespace: creator.namespace)
+      end
+
       let(:team_master) do
         user = create(:user, username: 'private-project-master')
         private_project.add_maintainer(user)
@@ -465,9 +468,9 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
   end
 
   describe 'commit search' do
-    context 'with pagination' do
-      let(:project) { create(:project, :public, :repository) }
+    let_it_be(:project) { create(:project, :public, :repository) }
 
+    context 'with pagination' do
       it 'returns the correct results for each page' do
         expect(results_page(1)).to contain_exactly(commit('b83d6e391c22777fca1ed3012fce84f633d7fed0'))
         expect(results_page(2)).to contain_exactly(commit('498214de67004b1da3d820901307bed2a68a8ef6'))
@@ -512,8 +515,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'when searching by commit message' do
-      let(:project) { create(:project, :public, :repository) }
-      let(:commit) { project.repository.commit('59e29889be61e6e0e5e223bfa9ac2721d31605b8') }
+      let_it_be(:commit) { project.repository.commit('59e29889be61e6e0e5e223bfa9ac2721d31605b8') }
       let(:message) { 'Sorry, I did a mistake' }
       let(:query) { message }
 
@@ -548,8 +550,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'when searching by commit hash' do
-      let(:project) { create(:project, :public, :repository) }
-      let(:commit) { project.repository.commit('0b4bc9a') }
+      let_it_be(:commit) { project.repository.commit('0b4bc9a') }
 
       commit_hashes = { short: '0b4bc9a', full: '0b4bc9a49b562e85de7cc9e834518ea6828729b9' }
 
@@ -584,7 +585,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'with project milestones' do
-      let!(:project_milestone) { create(:milestone, project: project, title: 'release v1') }
+      let_it_be(:project_milestone) { create(:milestone, project: project, title: 'release v1') }
 
       it 'returns project milestones' do
         expect(results.objects('milestones')).to include(project_milestone)
@@ -592,7 +593,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'with group milestones' do
-      let!(:group_milestone) { create(:milestone, group: group, title: 'release v2') }
+      let_it_be(:group_milestone) { create(:milestone, group: group, title: 'release v2') }
 
       it 'includes group milestones inherited by the project' do
         expect(results.objects('milestones')).to include(group_milestone)
@@ -603,7 +604,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
       let_it_be(:parent_group) { create(:group) }
       let_it_be(:child_group) { create(:group, parent: parent_group) }
       let_it_be(:project_in_child_group) { create(:project, :public, group: child_group) }
-      let!(:ancestor_milestone) { create(:milestone, group: parent_group, title: 'release v3') }
+      let_it_be(:ancestor_milestone) { create(:milestone, group: parent_group, title: 'release v3') }
 
       it 'includes milestones from ancestor groups' do
         project_in_child_group.add_developer(user)
@@ -614,8 +615,8 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
     end
 
     context 'with both project and group milestones' do
-      let!(:project_milestone) { create(:milestone, project: project, title: 'release alpha') }
-      let!(:group_milestone) { create(:milestone, group: group, title: 'release beta') }
+      let_it_be(:project_milestone) { create(:milestone, project: project, title: 'release alpha') }
+      let_it_be(:group_milestone) { create(:milestone, group: group, title: 'release beta') }
 
       it 'includes both project and group milestones' do
         objects = results.objects('milestones')
@@ -626,7 +627,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
 
     context 'when user cannot read milestones' do
       let_it_be(:private_project) { create(:project, :private) }
-      let!(:milestone) { create(:milestone, project: private_project, title: 'release secret') }
+      let_it_be(:milestone) { create(:milestone, project: private_project, title: 'release secret') }
 
       it 'returns no milestones' do
         results = described_class.new(user, 'release', project: private_project)
@@ -637,7 +638,7 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
 
     context 'with a project in a personal namespace (no group)' do
       let_it_be(:personal_project) { create(:project, :public, namespace: user.namespace) }
-      let!(:personal_milestone) { create(:milestone, project: personal_project, title: 'release personal') }
+      let_it_be(:personal_milestone) { create(:milestone, project: personal_project, title: 'release personal') }
 
       it 'returns project milestones without errors' do
         results = described_class.new(user, 'release', project: personal_project)

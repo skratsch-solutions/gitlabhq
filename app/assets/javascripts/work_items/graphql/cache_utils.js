@@ -49,7 +49,7 @@ import getWorkItemTreeQuery from './work_item_tree.query.graphql';
 
 const getNotesWidgetFromSourceData = (draftData) =>
   draftData?.namespace?.workItem?.features
-    ? draftData?.namespace?.workItem?.notes
+    ? draftData?.namespace?.workItem?.features.notes
     : findNotesWidget(draftData?.namespace?.workItem);
 
 const updateNotesWidgetDataInDraftData = (draftData, notesWidget) => {
@@ -76,7 +76,8 @@ export const updateCacheAfterCreatingNote = (currentNotes, newNote, { prepend = 
   return produce(currentNotes, (draftData) => {
     const notesWidget = getNotesWidgetFromSourceData(draftData);
 
-    if (!notesWidget.discussions) {
+    // Early return if notesWidget or discussions is not available
+    if (!notesWidget || !notesWidget.discussions) {
       return;
     }
 
@@ -113,7 +114,8 @@ export const updateCacheAfterDeletingNote = (currentNotes, subscriptionData) => 
   return produce(currentNotes, (draftData) => {
     const notesWidget = getNotesWidgetFromSourceData(draftData);
 
-    if (!notesWidget.discussions) {
+    // Early return if notesWidget or discussions is not available
+    if (!notesWidget || !notesWidget.discussions) {
       return;
     }
 
@@ -149,7 +151,8 @@ function updateNoteAwardEmojiCache(currentNotes, note, callback) {
   return produce(currentNotes, (draftData) => {
     const notesWidget = getNotesWidgetFromSourceData(draftData);
 
-    if (!notesWidget.discussions) {
+    // Early return if notesWidget or discussions is not available
+    if (!notesWidget || !notesWidget.discussions) {
       return;
     }
 

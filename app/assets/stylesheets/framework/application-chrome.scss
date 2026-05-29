@@ -150,13 +150,6 @@
       }
     }
 
-    // Project sidebar
-    @include media-breakpoint-up(lg) {
-      .project-page-indicator:not(.hidden) + .project-page-layout .project-page-sidebar {
-        top: calc(#{$gl-spacing-scale-4}) !important;
-      }
-    }
-
     // Sticky flash alert
     // stylelint-disable-next-line gitlab/no-has -- scoped to flash-container element
     .flash-container:has(.gl-alert) {

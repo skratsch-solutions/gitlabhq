@@ -140,6 +140,17 @@ export const config = {
           // kills any possibility to handle it on the widget level without hardcoding a string.
           discussions: {
             keyArgs: false,
+            // we want to concat next page of discussions to the existing ones
+            // handled here so it applies `features.notes.discussions`
+            merge(existing, incoming, { variables }) {
+              if (existing && incoming && variables.after) {
+                return {
+                  ...incoming,
+                  nodes: [...existing.nodes, ...incoming.nodes],
+                };
+              }
+              return incoming;
+            },
           },
         },
       },
@@ -263,6 +274,8 @@ export const config = {
                 }
 
                 // we want to concat next page of discussions to the existing ones
+                // kept for the legacy `widgets[]` path; `features.notes.discussions` is handled
+                // by the field-level merge on `WorkItemWidgetNotes.discussions` above.
                 if (incomingWidget?.type === WIDGET_TYPE_NOTES && context.variables.after) {
                   // concatPagination won't work because we were placing new widget here so we have to do this manually
                   return {

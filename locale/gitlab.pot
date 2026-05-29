@@ -25338,6 +25338,9 @@ msgstr ""
 msgid "DependencyProxy|Dependency Proxy"
 msgstr ""
 
+msgid "DependencyProxy|Dependency Proxy for Packages is deprecated"
+msgstr ""
+
 msgid "DependencyProxy|Dependency Proxy image prefix"
 msgstr ""
 
@@ -25381,6 +25384,9 @@ msgid "DependencyProxy|Something went wrong while fetching the dependency proxy 
 msgstr ""
 
 msgid "DependencyProxy|There are no images in the cache"
+msgstr ""
+
+msgid "DependencyProxy|This feature will be removed in GitLab 20.0. We recommend migrating to the Maven Virtual Registry, which provides the same caching functionality with additional features. %{linkStart}Learn more about the deprecation%{linkEnd}."
 msgstr ""
 
 msgid "DependencyProxy|To see the image prefix and what is in the cache, visit the %{linkStart}Dependency Proxy%{linkEnd}"
@@ -72656,6 +72662,9 @@ msgid "SignUp|By clicking %{button_text} or registering through a third party yo
 msgstr ""
 
 msgid "SignUp|By clicking %{button_text} or registering through a third party you accept the GitLab %{link_start}Terms of Use and acknowledge the Privacy Statement and Cookie Policy%{link_end}."
+msgstr ""
+
+msgid "SignUp|By clicking %{button_text} you accept the %{link_start}GitLab Terms of Use and acknowledge the Privacy Statement and Cookie Policy%{link_end}."
 msgstr ""
 
 msgid "SignUp|By signing in you accept the %{link_start}Terms of Use and acknowledge the Privacy Statement and Cookie Policy%{link_end}."

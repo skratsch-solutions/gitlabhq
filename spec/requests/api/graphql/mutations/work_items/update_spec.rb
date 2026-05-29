@@ -604,7 +604,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       let(:relative_range) { [valid_child1, valid_child2].map(&:parent_link).map(&:relative_position) }
 
       shared_examples 'updates work item parent and sets the relative position' do
-        it do
+        it 'updates the parent and sets the relative position' do
           expect do
             post_graphql_mutation(mutation, current_user: current_user)
             work_item.reload
@@ -619,7 +619,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       shared_examples 'sets the relative position and does not update work item parent' do
-        it do
+        it 'sets the relative position without updating the parent' do
           expect do
             post_graphql_mutation(mutation, current_user: current_user)
             work_item.reload
@@ -634,7 +634,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
       end
 
       shared_examples 'returns "relative position is not valid" error message' do
-        it do
+        it 'returns the invalid relative position error message' do
           expect do
             post_graphql_mutation(mutation, current_user: current_user)
             work_item.reload

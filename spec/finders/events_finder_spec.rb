@@ -5,30 +5,49 @@ require 'spec_helper'
 RSpec.describe EventsFinder do
   let_it_be(:user) { create(:user) }
   let(:private_user) { create(:user, private_profile: true) }
-  let(:other_user) { create(:user) }
+  let_it_be(:other_user) { create(:user) }
 
-  let(:project1) { create(:project, :private, creator_id: user.id, namespace: user.namespace) }
-  let(:project2) { create(:project, :private, creator_id: user.id, namespace: user.namespace) }
+  let_it_be(:project1) { create(:project, :private, creator_id: user.id, namespace: user.namespace) }
+  let_it_be(:project2) { create(:project, :private, creator_id: user.id, namespace: user.namespace) }
 
-  let(:closed_issue) { create(:closed_issue, project: project1, author: user) }
-  let(:opened_merge_request) { create(:merge_request, source_project: project2, author: user) }
-  let!(:closed_issue_event) { create(:event, :closed, project: project1, author: user, target: closed_issue, created_at: Date.new(2016, 12, 30)) }
-  let!(:opened_merge_request_event) { create(:event, :created, project: project2, author: user, target: opened_merge_request, created_at: Date.new(2017, 1, 31)) }
-  let(:closed_issue2) { create(:closed_issue, project: project1, author: user) }
-  let(:opened_merge_request2) { create(:merge_request, source_project: project2, author: user) }
-  let!(:closed_issue_event2) { create(:event, :closed, project: project1, author: user, target: closed_issue, created_at: Date.new(2016, 2, 2)) }
-  let!(:opened_merge_request_event2) { create(:event, :created, project: project2, author: user, target: opened_merge_request, created_at: Date.new(2017, 2, 2)) }
-  let(:opened_merge_request3) { create(:merge_request, source_project: project1, author: other_user) }
-  let!(:other_developer_event) { create(:event, :created, project: project1, author: other_user, target: opened_merge_request3) }
+  let_it_be(:closed_issue) { create(:closed_issue, project: project1, author: user) }
+  let_it_be(:opened_merge_request) { create(:merge_request, source_project: project2, author: user) }
+  let_it_be(:closed_issue_event) do
+    create(:event, :closed, project: project1, author: user, target: closed_issue, created_at: Date.new(2016, 12, 30))
+  end
 
-  let_it_be(:public_project, freeze: false) { create(:project, :public, creator_id: user.id, namespace: user.namespace) }
+  let_it_be(:opened_merge_request_event) do
+    create(:event, :created, project: project2, author: user, target: opened_merge_request,
+      created_at: Date.new(2017, 1, 31))
+  end
 
-  let(:confidential_issue) { create(:closed_issue, confidential: true, project: public_project, author: user) }
-  let!(:confidential_event) { create(:event, :closed, project: public_project, author: user, target: confidential_issue) }
+  let_it_be(:closed_issue_event2) do
+    create(:event, :closed, project: project1, author: user, target: closed_issue, created_at: Date.new(2016, 2, 2))
+  end
+
+  let_it_be(:opened_merge_request_event2) do
+    create(:event, :created, project: project2, author: user, target: opened_merge_request,
+      created_at: Date.new(2017, 2, 2))
+  end
+
+  let_it_be(:opened_merge_request3) { create(:merge_request, source_project: project1, author: other_user) }
+  let_it_be(:other_developer_event) do
+    create(:event, :created, project: project1, author: other_user, target: opened_merge_request3)
+  end
+
+  let_it_be(:public_project, freeze: false) do
+    create(:project, :public, creator_id: user.id, namespace: user.namespace)
+  end
+
+  let_it_be(:confidential_issue) { create(:closed_issue, confidential: true, project: public_project, author: user) }
+  let_it_be(:confidential_event) do
+    create(:event, :closed, project: public_project, author: user, target: confidential_issue)
+  end
 
   context 'when targeting a user' do
     it 'returns events between specified dates filtered on action and type' do
-      events = described_class.new(source: user, current_user: user, action: 'created', target_type: 'merge_request', after: Date.new(2017, 1, 1), before: Date.new(2017, 2, 1)).execute
+      events = described_class.new(source: user, current_user: user, action: 'created', target_type: 'merge_request',
+        after: Date.new(2017, 1, 1), before: Date.new(2017, 2, 1)).execute
 
       expect(events).to eq([opened_merge_request_event])
     end
@@ -53,7 +72,7 @@ RSpec.describe EventsFinder do
     end
 
     it 'returns nothing when the current user cannot read cross project' do
-      expect(Ability).to receive(:allowed?).with(user, :read_cross_project) { false }
+      expect(Ability).to receive(:allowed?).with(user, :read_cross_project).and_return(false)
 
       events = described_class.new(source: user, current_user: user).execute
 
@@ -78,7 +97,7 @@ RSpec.describe EventsFinder do
   end
 
   context 'dashboard events' do
-    before do
+    before_all do
       project1.add_developer(other_user)
     end
 
@@ -101,7 +120,8 @@ RSpec.describe EventsFinder do
 
   context 'when targeting a project' do
     it 'returns project events between specified dates filtered on action and type' do
-      events = described_class.new(source: project1, current_user: user, action: 'closed', target_type: 'issue', after: Date.new(2016, 12, 1), before: Date.new(2017, 1, 1)).execute
+      events = described_class.new(source: project1, current_user: user, action: 'closed', target_type: 'issue',
+        after: Date.new(2016, 12, 1), before: Date.new(2017, 1, 1)).execute
 
       expect(events).to eq([closed_issue_event])
     end

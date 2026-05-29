@@ -32,7 +32,6 @@ import {
   WIDGET_TYPE_DESCRIPTION,
   WIDGET_TYPE_HIERARCHY,
   WORK_ITEM_TYPE_NAME_OBJECTIVE,
-  WIDGET_TYPE_NOTES,
   WIDGET_TYPE_LINKED_ITEMS,
   WIDGET_TYPE_DESIGNS,
   WORK_ITEM_REFERENCE_CHAR,
@@ -57,6 +56,7 @@ import {
   findErrorTrackingWidget,
   findLinkedResourcesWidget,
   findHierarchyWidgetDefinition,
+  findNotesWidget,
   activeWorkItemIds,
 } from '../utils';
 import { updateWorkItemCurrentTodosWidget } from '../graphql/cache_utils';
@@ -440,7 +440,7 @@ export default {
       return this.findWidget(WIDGET_TYPE_HIERARCHY);
     },
     workItemNotes() {
-      return this.findWidget(WIDGET_TYPE_NOTES);
+      return findNotesWidget(this.workItem);
     },
     workItemDevelopment() {
       return this.findWidget(WIDGET_TYPE_DEVELOPMENT);

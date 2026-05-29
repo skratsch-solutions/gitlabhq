@@ -3,11 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/add_context_commits_modal/components/add_context_commits_modal_trigger.vue',
-    'app/assets/javascripts/add_context_commits_modal/components/add_context_commits_modal_wrapper.vue',
-    'app/assets/javascripts/add_context_commits_modal/components/date_option.vue',
-    'app/assets/javascripts/add_context_commits_modal/components/review_tab_container.vue',
-    'app/assets/javascripts/add_context_commits_modal/components/token.vue',
     'app/assets/javascripts/admin/application_settings/deletion_protection/components/form_group.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/chronic_duration_input.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/expiration_interval_description.vue',

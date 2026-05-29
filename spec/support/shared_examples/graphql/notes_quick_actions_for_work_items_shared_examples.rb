@@ -52,7 +52,7 @@ end
 
 RSpec.shared_examples 'work item supports labels widget updates via quick actions' do
   shared_examples 'work item labels are updated' do
-    it do
+    it 'updates the work item labels' do
       expect do
         post_graphql_mutation(mutation, current_user: current_user)
         noteable.reload

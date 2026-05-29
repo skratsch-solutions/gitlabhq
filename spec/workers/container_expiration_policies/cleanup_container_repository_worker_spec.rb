@@ -387,6 +387,20 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
       end
     end
 
+    context 'when one repository has null started_at and another has a past started_at' do
+      let_it_be(:never_processed_repository) { create(:container_repository) }
+
+      before do
+        policy.update!(next_run_at: 5.minutes.ago)
+        repository.update!(expiration_policy_cleanup_status: :cleanup_unscheduled, expiration_policy_started_at: 1.hour.ago)
+        never_processed_repository.project.container_expiration_policy.update_columns(enabled: true, next_run_at: 5.minutes.ago)
+      end
+
+      it 'selects the repository with null started_at first' do
+        expect(worker.send(:container_repository)).to eq(never_processed_repository)
+      end
+    end
+
     context 'with another repository in cleanup unfinished state' do
       let_it_be(:another_repository) { create(:container_repository, :cleanup_unfinished) }
 
