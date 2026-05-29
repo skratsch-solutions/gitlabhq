@@ -1091,6 +1091,9 @@ msgstr ""
 msgid "%{labelStart}Actual response:%{labelEnd} %{headers}"
 msgstr ""
 
+msgid "%{labelStart}Affected Endpoint:%{labelEnd} %{url}"
+msgstr ""
+
 msgid "%{labelStart}Assert:%{labelEnd} %{assertion}"
 msgstr ""
 
@@ -1098,6 +1101,9 @@ msgid "%{labelStart}CVSS:%{labelEnd} %{cvss}"
 msgstr ""
 
 msgid "%{labelStart}Class:%{labelEnd} %{class}"
+msgstr ""
+
+msgid "%{labelStart}Container Image:%{labelEnd} %{image}"
 msgstr ""
 
 msgid "%{labelStart}Crash Address:%{labelEnd} %{crash_address}"
@@ -1112,19 +1118,19 @@ msgstr ""
 msgid "%{labelStart}Crash Type:%{labelEnd} %{crash_type}"
 msgstr ""
 
-msgid "%{labelStart}EPSS:%{labelEnd} %{epss}"
+msgid "%{labelStart}Detected by:%{labelEnd} %{scanner}"
 msgstr ""
 
 msgid "%{labelStart}Evidence:%{labelEnd} %{evidence}"
 msgstr ""
 
+msgid "%{labelStart}Exploit Probability (EPSS):%{labelEnd} %{epss}"
+msgstr ""
+
 msgid "%{labelStart}File:%{labelEnd} %{file}"
 msgstr ""
 
-msgid "%{labelStart}Has Known Exploit (KEV):%{labelEnd} %{kev}"
-msgstr ""
-
-msgid "%{labelStart}Image:%{labelEnd} %{image}"
+msgid "%{labelStart}Known Exploited (CISA KEV):%{labelEnd} %{kev}"
 msgstr ""
 
 msgid "%{labelStart}Method:%{labelEnd} %{method}"
@@ -1136,22 +1142,16 @@ msgstr ""
 msgid "%{labelStart}Project:%{labelEnd} %{project}"
 msgstr ""
 
-msgid "%{labelStart}Reachable:%{labelEnd} %{reachability}"
+msgid "%{labelStart}Reachability:%{labelEnd} %{reachability}"
 msgstr ""
 
 msgid "%{labelStart}Report type:%{labelEnd} %{reportType}"
-msgstr ""
-
-msgid "%{labelStart}Scanner:%{labelEnd} %{scanner}"
 msgstr ""
 
 msgid "%{labelStart}Sent request:%{labelEnd} %{headers}"
 msgstr ""
 
 msgid "%{labelStart}Severity:%{labelEnd} %{severity}"
-msgstr ""
-
-msgid "%{labelStart}URL:%{labelEnd} %{url}"
 msgstr ""
 
 msgid "%{labelStart}Unmodified response:%{labelEnd} %{headers}"
@@ -7502,6 +7502,9 @@ msgid "AdvancedSearch|You have %{count} pending %{migrations_link_start}advanced
 msgstr ""
 
 msgid "AdvancedSearch|You have pending obsolete migrations"
+msgstr ""
+
+msgid "Affected Location"
 msgstr ""
 
 msgid "Affected columns"
@@ -84004,6 +84007,12 @@ msgstr ""
 msgid "Vulnerability|Additional Info"
 msgstr ""
 
+msgid "Vulnerability|Affected Endpoint:"
+msgstr ""
+
+msgid "Vulnerability|Affected Location"
+msgstr ""
+
 msgid "Vulnerability|Archive pending"
 msgstr ""
 
@@ -84040,6 +84049,9 @@ msgstr ""
 msgid "Vulnerability|Component"
 msgstr ""
 
+msgid "Vulnerability|Container Image:"
+msgstr ""
+
 msgid "Vulnerability|Crash address:"
 msgstr ""
 
@@ -84062,6 +84074,9 @@ msgid "Vulnerability|Detected"
 msgstr ""
 
 msgid "Vulnerability|Detected by a security policy"
+msgstr ""
+
+msgid "Vulnerability|Detected by:"
 msgstr ""
 
 msgid "Vulnerability|Detection method"
@@ -84139,9 +84154,6 @@ msgstr ""
 msgid "Vulnerability|Image and tag"
 msgstr ""
 
-msgid "Vulnerability|Image:"
-msgstr ""
-
 msgid "Vulnerability|Image: %{linkStart}%{image}%{linkEnd}"
 msgstr ""
 
@@ -84152,12 +84164,6 @@ msgid "Vulnerability|Information related to how the vulnerability was discovered
 msgstr ""
 
 msgid "Vulnerability|Likely FP"
-msgstr ""
-
-msgid "Vulnerability|Links"
-msgstr ""
-
-msgid "Vulnerability|Location"
 msgstr ""
 
 msgid "Vulnerability|NOT a false positive"
@@ -84181,6 +84187,9 @@ msgstr ""
 msgid "Vulnerability|Project:"
 msgstr ""
 
+msgid "Vulnerability|References"
+msgstr ""
+
 msgid "Vulnerability|Remove false positive flag"
 msgstr ""
 
@@ -84200,9 +84209,6 @@ msgid "Vulnerability|Request/Response"
 msgstr ""
 
 msgid "Vulnerability|Resolve the vulnerability in these dependencies to see additional paths. GitLab shows a maximum of 20 dependency paths per vulnerability."
-msgstr ""
-
-msgid "Vulnerability|Scanner:"
 msgstr ""
 
 msgid "Vulnerability|Security Audit"
@@ -84280,9 +84286,6 @@ msgstr ""
 msgid "Vulnerability|Training not available for this vulnerability."
 msgstr ""
 
-msgid "Vulnerability|URL:"
-msgstr ""
-
 msgid "Vulnerability|Unknown"
 msgstr ""
 
@@ -84319,7 +84322,7 @@ msgstr ""
 msgid "Vulnerability|Vulnerable method:"
 msgstr ""
 
-msgid "Vulnerability|What is 'Has known exploit (KEV)'?"
+msgid "Vulnerability|What is 'Known Exploited (CISA KEV)'?"
 msgstr ""
 
 msgid "Vulnerability|What is CVSS?"
@@ -89767,6 +89770,9 @@ msgstr ""
 msgid "ciReport|RPS"
 msgstr ""
 
+msgid "ciReport|Remediation Guidance"
+msgstr ""
+
 msgid "ciReport|Resolve with merge request"
 msgstr ""
 
@@ -89801,9 +89807,6 @@ msgid "ciReport|Security scanning is loading"
 msgstr ""
 
 msgid "ciReport|Showing %{fetchedItems} of %{totalItems} items"
-msgstr ""
-
-msgid "ciReport|Solution"
 msgstr ""
 
 msgid "ciReport|Something went wrong while fetching the finding. Please try again later."

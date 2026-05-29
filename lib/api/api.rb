@@ -381,6 +381,7 @@ module API
         mount ::API::WorkItems::LinkedItems
         mount ::API::WorkItems::AwardEmoji
         mount ::API::WorkItems::Notes
+        mount ::API::WorkItems::EmailParticipants
         mount ::API::Wikis
 
         add_open_api_documentation!

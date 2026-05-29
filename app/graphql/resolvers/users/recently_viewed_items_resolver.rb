@@ -36,13 +36,7 @@ module Resolvers
                                  ::Gitlab::Search::RecentIssues
                                end
 
-        types = [issues_or_work_items, ::Gitlab::Search::RecentMergeRequests]
-        types << ::Gitlab::Search::RecentWikiPages if wiki_pages_enabled?
-        types
-      end
-
-      def wiki_pages_enabled?
-        Feature.enabled?(:recently_viewed_wiki_pages, current_user)
+        [issues_or_work_items, ::Gitlab::Search::RecentMergeRequests, ::Gitlab::Search::RecentWikiPages]
       end
 
       # This method is overridden in EE to add Epic authorization.

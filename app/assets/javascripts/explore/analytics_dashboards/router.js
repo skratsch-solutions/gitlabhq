@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { s__ } from '~/locale';
 import DashboardView from './pages/details.vue';
+import DashboardEdit from './pages/edit.vue';
 import DashboardsList from './pages/list.vue';
 import { EDIT_DASHBOARD_PATH } from './constants';
 
@@ -30,8 +31,7 @@ export default (basePath, breadcrumbState) => {
       {
         name: 'dashboard-edit',
         path: `/:slug/${EDIT_DASHBOARD_PATH}`,
-        component: DashboardView,
-        props: () => ({ isEditing: true }),
+        component: DashboardEdit,
         meta: {
           getName: () => breadcrumbState.name,
         },
