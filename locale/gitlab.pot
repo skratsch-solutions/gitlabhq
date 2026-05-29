@@ -598,7 +598,7 @@ msgstr ""
 msgid "%{attribute} already taken."
 msgstr ""
 
-msgid "%{author_container_start}%{author}requested to merge %{author_container_end}%{source_branch} %{copy_button} into %{target_branch} %{target_copy_button} %{created_at}"
+msgid "%{author_container_start}%{author}requested to merge %{author_container_end}%{stack_dropdown}%{source_branch} %{copy_button} into %{target_branch} %{target_copy_button} %{created_at}"
 msgstr ""
 
 msgid "%{author_link} cloned %{original_issue} to %{new_issue}."
@@ -45539,6 +45539,9 @@ msgstr ""
 msgid "MergeRequests|started a thread on commit %{link}"
 msgstr ""
 
+msgid "MergeRequest|%{currentIndex} of %{stackSize}"
+msgstr ""
+
 msgid "MergeRequest|%{targetStart}Compare%{targetEnd} %{sourceStart}and%{sourceEnd}"
 msgstr ""
 
@@ -45546,6 +45549,9 @@ msgid "MergeRequest|Allow merge request pipelines to access protected variables 
 msgstr ""
 
 msgid "MergeRequest|Awaiting review"
+msgstr ""
+
+msgid "MergeRequest|Bottom of stack merges into %{branch} first."
 msgstr ""
 
 msgid "MergeRequest|Can't fetch the diff needed to update this view. Please reload this page."
@@ -45582,6 +45588,9 @@ msgid "MergeRequest|Error loading full diff. Please try again."
 msgstr ""
 
 msgid "MergeRequest|Failed to load the page"
+msgstr ""
+
+msgid "MergeRequest|Merge request %{currentIndex} of %{stackSize} in stack"
 msgstr ""
 
 msgid "MergeRequest|No files found"
@@ -50925,6 +50934,9 @@ msgid "Only ‘Reporter’ roles and above on tiers Premium and above can see Pr
 msgstr ""
 
 msgid "Open"
+msgstr ""
+
+msgid "Open %{date}"
 msgstr ""
 
 msgid "Open GitLab Duo Chat"
@@ -73691,6 +73703,9 @@ msgid "Squashing combines multiple commits into a single commit on merge. This k
 msgstr ""
 
 msgid "Stack trace"
+msgstr ""
+
+msgid "Stacked merge requests"
 msgstr ""
 
 msgid "Stage"

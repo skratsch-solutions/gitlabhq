@@ -10,6 +10,8 @@ module API
           { namespace: { parent: :route } }
         ].freeze
 
+        NOTE_REFERENCE_PRELOADS = %i[author project noteable updated_by system_note_metadata].freeze
+
         FEATURE_PRELOADS = {
           description: [:last_edited_by],
           assignees: [:assignees],
@@ -147,6 +149,16 @@ module API
           relation = ::WorkItem.linked_items_for(work_item.id, link_type: link_type, preload: all_preloads)
           relation = relation.with_state(state) if state.to_s.in?(%w[opened closed])
           relation
+        end
+
+        def build_notes_relation(parent_work_item, notes_filter:)
+          # Preload the associations Entities::Note serializes per row (author, project, noteable)
+          # plus updated_by and system_note_metadata, otherwise rendering a page issues per-note
+          # queries proportional to per_page.
+          parent_work_item.notes
+            .with_notes_filter(notes_filter)
+            .preload(NOTE_REFERENCE_PRELOADS) # rubocop:disable CodeReuse/ActiveRecord -- Preloading associations for API response
+            .reorder(order_options_with_tie_breaker) # rubocop:disable CodeReuse/ActiveRecord -- needed for stable ordering on `order_by` + `sort`
         end
 
         # Preloads the project / group membership associated with the work items so the :read_project and :read_group

@@ -5,7 +5,6 @@ require 'spec_helper'
 RSpec.describe SearchHelper, :with_current_organization, feature_category: :global_search do
   include MarkupHelper
   include BadgesHelper
-  include WorkItemsHelper
 
   before do
     stub_feature_flags(work_item_legacy_url: true, work_items_autocomplete: true)
@@ -323,6 +322,46 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
 
         context 'when work_items_autocomplete is disabled' do
           it_behaves_like 'recently viewed work items or issues', false
+        end
+
+        it 'builds URLs using work_item_path helper for issues', :aggregate_failures do
+          project = create(:project, :with_avatar)
+          project.add_developer(user)
+          issue = create(:issue, title: 'test work item', project: project)
+
+          recent_work_items = instance_double(::Gitlab::Search::RecentWorkItems)
+          expect(::Gitlab::Search::RecentWorkItems).to receive(:new).with(user: user).and_return(recent_work_items)
+          expect(recent_work_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered([issue.id]))
+
+          expected_url = work_item_path(issue)
+
+          results = search_autocomplete_opts(search_term)
+
+          work_item_result = results.find { |r| r[:category] == 'Recent work items' }
+          expect(work_item_result).to be_present
+          expect(work_item_result[:url]).to eq(expected_url)
+          expect(work_item_result[:url]).to include(project.full_path)
+          expect(work_item_result[:url]).to match(%r{/-/(issues|work_items)/\d+})
+        end
+
+        it 'builds URLs using work_item_path helper for work items', :aggregate_failures do
+          project = create(:project, :with_avatar)
+          project.add_developer(user)
+          work_item = create(:work_item, project: project, title: 'test work item')
+
+          recent_work_items = instance_double(::Gitlab::Search::RecentWorkItems)
+          expect(::Gitlab::Search::RecentWorkItems).to receive(:new).with(user: user).and_return(recent_work_items)
+          expect(recent_work_items).to receive(:search).with(search_term).and_return(Issue.id_in_ordered([work_item.id]))
+
+          expected_url = work_item_path(work_item)
+
+          results = search_autocomplete_opts(search_term)
+
+          work_item_result = results.find { |r| r[:category] == 'Recent work items' }
+          expect(work_item_result).to be_present
+          expect(work_item_result[:url]).to eq(expected_url)
+          expect(work_item_result[:url]).to include(project.full_path)
+          expect(work_item_result[:url]).to match(%r{/-/(issues|work_items)/\d+})
         end
 
         it 'includes the users recently viewed merge requests', :aggregate_failures do

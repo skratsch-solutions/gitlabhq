@@ -219,7 +219,7 @@ describe('mergeRequestDiscussions store', () => {
       };
       useDiffDiscussions().discussionForms.push(formDiscussion);
 
-      await store.createLineDiscussion(formDiscussion, 'test');
+      await store.createLineDiscussion({ discussion: formDiscussion, noteBody: 'test' });
 
       expect(mockNotesStore.saveNote).toHaveBeenCalledWith({
         endpoint: '/api/notes',
@@ -250,6 +250,26 @@ describe('mergeRequestDiscussions store', () => {
         },
       });
       expect(useDiffDiscussions().discussionForms).not.toContainEqual(formDiscussion);
+    });
+
+    it('forwards showWhitespace override to the position payload', async () => {
+      const formDiscussion = {
+        id: 'form-2',
+        isForm: true,
+        position: { old_line: 1, old_path: 'a.rb', new_path: 'a.rb' },
+        lineChange: { change: 'added', position: 'new' },
+        lineCode: 'hash_0_1',
+      };
+      useDiffsView().showWhitespace = false;
+
+      await store.createLineDiscussion({
+        discussion: formDiscussion,
+        noteBody: 'test',
+        showWhitespace: true,
+      });
+
+      const sentPosition = JSON.parse(mockNotesStore.saveNote.mock.calls[0][0].data.note.position);
+      expect(sentPosition.ignore_whitespace_change).toBe(false);
     });
   });
 
@@ -370,7 +390,7 @@ describe('mergeRequestDiscussions store', () => {
       const formDiscussion = { id: 'form-1', isForm: true, position };
       useDiffDiscussions().discussionForms.push(formDiscussion);
 
-      await store.createFileDiscussion(formDiscussion, 'test');
+      await store.createFileDiscussion({ discussion: formDiscussion, noteBody: 'test' });
 
       expect(mockNotesStore.saveNote).toHaveBeenCalledWith({
         endpoint: '/api/notes',
@@ -574,7 +594,10 @@ describe('mergeRequestDiscussions store', () => {
     it('calls createNewDraft with correct params and removes the form', async () => {
       useDiffDiscussions().discussionForms.push(formDiscussion);
 
-      await store.createDraftLineDiscussion(formDiscussion, 'draft comment');
+      await store.createDraftLineDiscussion({
+        discussion: formDiscussion,
+        noteBody: 'draft comment',
+      });
 
       expect(mockDraftNotes.createNewDraft).toHaveBeenCalledWith({
         endpoint: '/drafts',
@@ -611,7 +634,10 @@ describe('mergeRequestDiscussions store', () => {
     it('calls createNewDraft and removes the file form', async () => {
       useDiffDiscussions().discussionForms.push(formDiscussion);
 
-      await store.createDraftFileDiscussion(formDiscussion, 'draft file comment');
+      await store.createDraftFileDiscussion({
+        discussion: formDiscussion,
+        noteBody: 'draft file comment',
+      });
 
       expect(mockDraftNotes.createNewDraft).toHaveBeenCalledWith({
         endpoint: '/drafts',

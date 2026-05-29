@@ -76,7 +76,7 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     });
   }
 
-  async function createLineDiscussion(discussion, noteBody) {
+  async function createLineDiscussion({ discussion, noteBody, showWhitespace }) {
     const { diffRefs } = useMergeRequestVersions();
     await notes.saveNote(
       buildLineDiscussionData({
@@ -85,12 +85,13 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
         noteableData: notes.noteableData,
         viewConfig: useDiffsView(),
         diffRefs,
+        showWhitespace,
       }),
     );
     diffDiscussions.removeNewLineDiscussionForm(discussion);
   }
 
-  async function createFileDiscussion(discussion, noteBody) {
+  async function createFileDiscussion({ discussion, noteBody, showWhitespace }) {
     const { diffRefs } = useMergeRequestVersions();
     await notes.saveNote(
       buildLineDiscussionData({
@@ -99,6 +100,7 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
         noteableData: notes.noteableData,
         viewConfig: useDiffsView(),
         diffRefs,
+        showWhitespace,
       }),
     );
     diffDiscussions.removeNewFileDiscussionForm(discussion);
@@ -147,7 +149,7 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
     });
   }
 
-  async function createDraftNote(discussion, noteBody) {
+  async function createDraftNote({ discussion, noteBody, showWhitespace }) {
     const { draftsPath } = notes.notesData;
     const { diffRefs } = useMergeRequestVersions();
     const data = buildDraftLineDiscussionData({
@@ -155,17 +157,18 @@ export const useMergeRequestDiscussions = defineStore('mergeRequestDiscussions',
       noteBody,
       viewConfig: useDiffsView(),
       diffRefs,
+      showWhitespace,
     });
     await draftNotes.createNewDraft({ endpoint: draftsPath, data });
   }
 
-  async function createDraftLineDiscussion(discussion, noteBody) {
-    await createDraftNote(discussion, noteBody);
+  async function createDraftLineDiscussion({ discussion, noteBody, showWhitespace }) {
+    await createDraftNote({ discussion, noteBody, showWhitespace });
     diffDiscussions.removeNewLineDiscussionForm(discussion);
   }
 
-  async function createDraftFileDiscussion(discussion, noteBody) {
-    await createDraftNote(discussion, noteBody);
+  async function createDraftFileDiscussion({ discussion, noteBody, showWhitespace }) {
+    await createDraftNote({ discussion, noteBody, showWhitespace });
     diffDiscussions.removeNewFileDiscussionForm(discussion);
   }
 

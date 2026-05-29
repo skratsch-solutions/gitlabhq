@@ -32,6 +32,7 @@ export default {
     MilestoneLink: () => import('./milestone_link.vue'),
     ChangePercentageIndicator: () => import('./change_percentage_indicator.vue'),
     MetricLabel: () => import('./metric_label.vue'),
+    ProjectAvatar: () => import('./project_avatar.vue'),
     TrendLine: () => import('./trend_line.vue'),
     UserLink: () => import('./user_link.vue'),
   },

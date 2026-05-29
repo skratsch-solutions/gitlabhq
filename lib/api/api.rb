@@ -380,6 +380,7 @@ module API
         mount ::API::WorkItems::Children
         mount ::API::WorkItems::LinkedItems
         mount ::API::WorkItems::AwardEmoji
+        mount ::API::WorkItems::Notes
         mount ::API::Wikis
 
         add_open_api_documentation!

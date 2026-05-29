@@ -167,6 +167,19 @@ describe('Merge request utils', () => {
       const position = JSON.parse(result.data.note.position);
       expect(position.ignore_whitespace_change).toBe(true);
     });
+
+    it('forces ignore_whitespace_change to false when showWhitespace override is true', () => {
+      const result = buildLineDiscussionData({
+        discussion,
+        noteBody: 'test comment',
+        noteableData,
+        viewConfig: { ...viewConfig, showWhitespace: false },
+        diffRefs,
+        showWhitespace: true,
+      });
+      const position = JSON.parse(result.data.note.position);
+      expect(position.ignore_whitespace_change).toBe(false);
+    });
   });
 
   describe('buildDraftLineDiscussionData', () => {
@@ -214,6 +227,18 @@ describe('Merge request utils', () => {
       });
       const position = JSON.parse(result.note.position);
       expect(position.ignore_whitespace_change).toBe(true);
+    });
+
+    it('forces ignore_whitespace_change to false when showWhitespace override is true', () => {
+      const result = buildDraftLineDiscussionData({
+        discussion,
+        noteBody: 'draft comment',
+        viewConfig: { ...viewConfig, showWhitespace: false },
+        diffRefs,
+        showWhitespace: true,
+      });
+      const position = JSON.parse(result.note.position);
+      expect(position.ignore_whitespace_change).toBe(false);
     });
 
     it('uses explicit position_type when provided', () => {

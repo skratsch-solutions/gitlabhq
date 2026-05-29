@@ -2,6 +2,7 @@
 
 module SearchHelper
   include Gitlab::Utils::StrongMemoize
+  include WorkItemsHelper # Provides work_item_path for recent_work_items_autocomplete
 
   # params which should persist when a new tab is selected
   SEARCH_GENERIC_PARAMS = [

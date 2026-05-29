@@ -269,6 +269,13 @@ class Note < ApplicationRecord
       :noteable
     end
 
+    def supported_keyset_orderings
+      {
+        created_at: [:asc, :desc],
+        updated_at: [:asc, :desc]
+      }
+    end
+
     # Group diff discussions by line code or file path.
     # It is not needed to group by line code when comment is
     # on an image.
