@@ -173,6 +173,29 @@ The token also includes custom claims provided by GitLab:
 The ID token is encoded by using RS256 and signed with a dedicated private key.
 The expiry time for the token is set to the job's timeout if specified, or 5 minutes if no timeout is specified.
 
+### Use ID token claims in cloud trust policies
+
+Cloud providers that federate with GitLab as an OIDC identity provider can validate the claims above as condition keys in trust policies.
+
+When you write a trust policy, include stable, unique identifiers such as `namespace_id` and `project_id` alongside path-based claims like `sub`, when supported by the cloud provider and GitLab offering. `project_id` is globally unique and remains the same for the lifetime of the project. `namespace_id` is stable while the project remains in its current namespace. Because both identifiers are independent of paths, trust policies that include them are not affected by changes to paths, such as group or project renames.
+
+For AWS on GitLab.com, the following GitLab claims are available as condition keys for the `gitlab.com` OIDC identity provider:
+
+- `namespace_id`
+- `project_id`
+- `user_id`
+- `user_login`
+- `user_email`
+- `user_access_level`
+- `ref_protected`
+- `pipeline_source`
+
+These condition keys are available only for the `gitlab.com` OIDC identity provider. They are not currently available for GitLab Self-Managed or GitLab Dedicated, where only the `sub` claim is supported as an AWS condition key.
+
+Do not rely on `user_login` or `user_email` as the only condition, because a user can change them. Confirm the exact set of supported claims against AWS's published condition keys for the GitLab identity provider.
+
+For a complete AWS trust policy example using `sub`, `namespace_id`, and `project_id`, see [Configure OpenID Connect in AWS](../cloud_services/aws/_index.md#configure-a-role-and-trust). For HashiCorp Vault, see [bound claims](hashicorp_vault_tutorial.md).
+
 ## Troubleshooting
 
 ### `400: missing token` status code

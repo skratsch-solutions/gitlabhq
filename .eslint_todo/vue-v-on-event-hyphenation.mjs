@@ -130,7 +130,6 @@ export default {
     'app/assets/javascripts/vue_merge_request_widget/components/widget/dynamic_content.vue',
     'app/assets/javascripts/vue_merge_request_widget/components/widget/widget.vue',
     'app/assets/javascripts/vue_shared/access_tokens/components/access_tokens.vue',
-    'app/assets/javascripts/vue_shared/alert_details/components/sidebar/sidebar_todo.vue',
     'app/assets/javascripts/vue_shared/components/customizable_dashboard/extended_dashboard_panel.vue',
     'app/assets/javascripts/vue_shared/components/diff_viewer/viewers/image_diff/onion_skin_viewer.vue',
     'app/assets/javascripts/vue_shared/components/diff_viewer/viewers/image_diff/swipe_viewer.vue',

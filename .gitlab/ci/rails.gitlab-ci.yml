@@ -1521,15 +1521,15 @@ rspec-ee system pg17 pgvector17 es8:
 
 rspec fail-fast:
   extends:
-    - .rspec-base-pg16
-    - .rspec-fail-fast  # extends from .rspec-fail-fast last to override script from .rspec-base-pg16
+    - .rspec-base-pg17
+    - .rspec-fail-fast  # extends from .rspec-fail-fast last to override script from .rspec-base-pg17
   variables:
     MATCHING_TESTS_PATH: "${GLCI_PREDICTIVE_RSPEC_MATCHING_TESTS_FOSS_PATH}"
 
 rspec-ee fail-fast:
   extends:
-    - .rspec-ee-base-pg16
-    - .rspec-fail-fast  # extends from .rspec-fail-fast last to override script from .rspec-ee-base-pg16
+    - .rspec-ee-base-pg17
+    - .rspec-fail-fast  # extends from .rspec-fail-fast last to override script from .rspec-ee-base-pg17
   variables:
     MATCHING_TESTS_PATH: "${GLCI_PREDICTIVE_RSPEC_MATCHING_TESTS_EE_PATH}"
 

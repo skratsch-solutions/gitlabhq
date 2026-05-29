@@ -271,7 +271,7 @@ GitLab Duo Agentic Chatがツールを使用するには、その都度ユーザ
 
 GitLab Duoはブランチ保護ルールを尊重し、保護ブランチへの強制プッシュは行いません。
 
-この機能はベータ版であり、`mr_ai_resolve_conflicts`機能フラグで制御されており、デフォルトでは無効になっています。
+この機能はベータ版であり、`mr_ai_resolve_conflicts`機能フラグで制御されており、デフォルトでは有効になっています。
 
 ### AIカタログをグループ階層に制限する {#restrict-the-ai-catalog-to-a-group-hierarchy}
 

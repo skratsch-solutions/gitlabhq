@@ -136,7 +136,7 @@ GitLab are of the `gitlab_com_derisk` type.
 - `default_enabled`: **Must not** be set to true. This kind of feature flag is meant to lower the risk on GitLab.com, thus there's no need to keep the flag in the codebase after it's been enabled on GitLab.com. `default_enabled: true` will not have any effect for this type of feature flag.
 - Maximum Lifespan: 2 months after it's merged into the default branch
 - Documentation: This type of feature flag doesn't need to be documented in the
-  [All feature flags in GitLab](../../administration/feature_flags/list.md) page given they're short-lived and deployment-related
+  [All feature flags in GitLab](../../administration/feature_flags/list.md) page given they're short-lived and deployment-related.
 - Rollout issue: **Must** have a rollout issue created from the
   [Feature flag Roll Out template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/issue_templates/Feature%20Flag%20Roll%20Out.md)
 
@@ -184,7 +184,7 @@ Once the feature is complete, the feature flag type can be changed to the `gitla
 - `default_enabled`: **Must not** be set to true. If needed, this type can be changed to beta once the feature is complete.
 - Maximum Lifespan: 4 months after it's merged into the default branch
 - Documentation: This type of feature flag doesn't need to be documented in the
-  [All feature flags in GitLab](../../administration/feature_flags/list.md) page given they're mostly hiding unfinished code
+  [All feature flags in GitLab](../../administration/feature_flags/list.md) page given they're mostly hiding unfinished code.
 - Rollout issue: Likely no need for a rollout issues, as `wip` feature flags should be transitioned to
   another type before being enabled
 
@@ -214,7 +214,9 @@ Providing a flag in this case allows engineers and customers to disable the new 
   reason on specific on-premise installations)
 - Maximum Lifespan: 6 months after it's merged into the default branch
 - Documentation: This type of feature flag **must** be documented in the
-  [All feature flags in GitLab](../../administration/feature_flags/list.md) page
+  [All feature flags in GitLab](../../administration/feature_flags/list.md) page.
+  That page is [auto-generated during the docs build](../documentation/site_architecture/automation.md) from the YAML definition files,
+  so no manual edits to that page are needed.
 - Rollout issue: **Must** have a rollout issue
   created from the
   [Feature flag Roll Out template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/.gitlab/issue_templates/Feature%20Flag%20Roll%20Out.md)
@@ -253,6 +255,8 @@ confirm that the `ops` feature flag is still in use.
 - Documentation: This type of feature flag **must** be documented in the
   [All feature flags in GitLab](../../administration/feature_flags/list.md) page as well as be associated with an operational
   runbook describing the circumstances when it can be used.
+  That page is [auto-generated during the docs build](../documentation/site_architecture/automation.md) from the YAML definition files,
+  so no manual edits to that page are needed
 - Rollout issue: Likely no need for a rollout issues, as it is hard to predict when they are enabled or disabled
 
 #### Usage

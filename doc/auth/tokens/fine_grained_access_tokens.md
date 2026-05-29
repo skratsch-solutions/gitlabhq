@@ -599,11 +599,23 @@ Grants the ability to read code suggestion enabled status.
 
 #### Duo Workflow
 
-Grants the ability to resume duo workflows.
+Grants the ability to create, read, and resume duo workflows.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Create | User | `POST` | `/ai/duo_workflows/workflows` |
+| Read | User | `GET` | `/ai/duo_workflows/list_tools` |
+| Read | User | `GET` | `/ai/duo_workflows/workflows/agent_privileges` |
+| Read | User | `GET` | `/ai/duo_workflows/ws` |
 | Resume | User | `POST` | `/ai/duo_workflows/workflows/:workflow_id/resume` |
+
+#### Duo Workflow Direct Access Token
+
+Grants the ability to create direct access tokens for duo workflows
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | User | `POST` | `/ai/duo_workflows/direct_access` |
 
 #### Third Party Agent Direct Access Token
 

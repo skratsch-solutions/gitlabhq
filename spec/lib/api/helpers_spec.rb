@@ -1534,12 +1534,73 @@ RSpec.describe API::Helpers, feature_category: :api do
     end
   end
 
+  describe '#apply_etag_or_suppress_rack_etag!' do
+    let(:response_headers) { {} }
+
+    before do
+      allow(helper).to receive(:headers).and_return(response_headers)
+      allow(helper).to receive(:header) { |key, value| response_headers[key] = value }
+    end
+
+    context 'when workhorse_download_etag_caching is enabled' do
+      context 'when an etag is provided' do
+        it 'sets the ETag header to the provided value' do
+          helper.apply_etag_or_suppress_rack_etag!(%("digest"))
+
+          expect(response_headers).to eq('ETag' => %("digest"))
+        end
+      end
+
+      context 'when no etag is provided and Last-Modified is not set' do
+        it 'sets Last-Modified to 0 to suppress Rack::ETag' do
+          helper.apply_etag_or_suppress_rack_etag!(nil)
+
+          expect(response_headers).to eq('Last-Modified' => '0')
+        end
+      end
+
+      context 'when no etag is provided and Last-Modified is already set' do
+        let(:response_headers) { { 'Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT' } }
+
+        it 'leaves Last-Modified unchanged' do
+          helper.apply_etag_or_suppress_rack_etag!(nil)
+
+          expect(response_headers).to eq('Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT')
+        end
+      end
+    end
+
+    context 'when workhorse_download_etag_caching is disabled' do
+      before do
+        stub_feature_flags(workhorse_download_etag_caching: false)
+      end
+
+      it 'does not set ETag even when one is provided' do
+        helper.apply_etag_or_suppress_rack_etag!(%("digest"))
+
+        expect(response_headers).to be_empty
+      end
+
+      it 'does not set Last-Modified when no etag is provided' do
+        helper.apply_etag_or_suppress_rack_etag!(nil)
+
+        expect(response_headers).to be_empty
+      end
+    end
+  end
+
   describe '#present_carrierwave_file!' do
     let(:supports_direct_download) { false }
     let(:content_type) { nil }
     let(:content_disposition) { nil }
     let(:extra_response_headers) { {} }
     let(:extra_send_url_params) { {} }
+    let(:etag) { nil }
+
+    before do
+      allow(helper).to receive(:headers).and_return({})
+      allow(helper).to receive(:header)
+    end
 
     subject do
       helper.present_carrierwave_file!(
@@ -1548,7 +1609,8 @@ RSpec.describe API::Helpers, feature_category: :api do
         content_disposition:,
         content_type:,
         extra_response_headers:,
-        extra_send_url_params:
+        extra_send_url_params:,
+        etag:
       )
     end
 
@@ -1645,8 +1707,7 @@ RSpec.describe API::Helpers, feature_category: :api do
           it 'sends a workhorse header with the correct content type' do
             expect(helper).to receive(:status).with(:ok)
             expect(helper).to receive(:body).with('')
-            expect(helper).to receive(:header) do |name, value|
-              expect(name).to eq(Gitlab::Workhorse::SEND_DATA_HEADER)
+            expect(helper).to receive(:header).with(Gitlab::Workhorse::SEND_DATA_HEADER, anything) do |_name, value|
               command, encoded_params = value.split(":")
               params = Gitlab::Json.parse(Base64.urlsafe_decode64(encoded_params))
 
@@ -1664,8 +1725,7 @@ RSpec.describe API::Helpers, feature_category: :api do
           it 'sends a workhorse header with the response headers' do
             expect(helper).to receive(:status).with(:ok)
             expect(helper).to receive(:body).with('')
-            expect(helper).to receive(:header) do |name, value|
-              expect(name).to eq(Gitlab::Workhorse::SEND_DATA_HEADER)
+            expect(helper).to receive(:header).with(Gitlab::Workhorse::SEND_DATA_HEADER, anything) do |_name, value|
               command, encoded_params = value.split(":")
               params = Gitlab::Json.parse(Base64.urlsafe_decode64(encoded_params))
 
@@ -1683,8 +1743,7 @@ RSpec.describe API::Helpers, feature_category: :api do
           it 'sends a workhorse header with checksum headers' do
             expect(helper).to receive(:status).with(:ok)
             expect(helper).to receive(:body).with('')
-            expect(helper).to receive(:header) do |name, value|
-              expect(name).to eq(Gitlab::Workhorse::SEND_DATA_HEADER)
+            expect(helper).to receive(:header).with(Gitlab::Workhorse::SEND_DATA_HEADER, anything) do |_name, value|
               command, encoded_params = value.split(':')
               params = Gitlab::Json.parse(Base64.urlsafe_decode64(encoded_params))
 
@@ -1702,8 +1761,7 @@ RSpec.describe API::Helpers, feature_category: :api do
           it 'sends a workhorse header with the response headers' do
             expect(helper).to receive(:status).with(:ok)
             expect(helper).to receive(:body).with('')
-            expect(helper).to receive(:header) do |name, value|
-              expect(name).to eq(Gitlab::Workhorse::SEND_DATA_HEADER)
+            expect(helper).to receive(:header).with(Gitlab::Workhorse::SEND_DATA_HEADER, anything) do |_name, value|
               command, encoded_params = value.split(":")
               params = Gitlab::Json.parse(Base64.urlsafe_decode64(encoded_params))
 
@@ -1712,6 +1770,28 @@ RSpec.describe API::Helpers, feature_category: :api do
               expect(restrict_forwarded_response_headers_params['Enabled']).to be_truthy
               expect(restrict_forwarded_response_headers_params['AllowList']).to contain_exactly('x-optional-header')
             end
+
+            subject
+          end
+        end
+
+        context 'when an etag is provided' do
+          let(:etag) { %("digest-abc") }
+
+          it 'sets the ETag header before delegating to Workhorse' do
+            allow(helper).to receive(:status)
+            allow(helper).to receive(:body)
+            expect(helper).to receive(:header).with('ETag', %("digest-abc"))
+
+            subject
+          end
+        end
+
+        context 'when no etag is provided' do
+          it 'sets Last-Modified: 0 to suppress Rack::ETag default' do
+            allow(helper).to receive(:status)
+            allow(helper).to receive(:body)
+            expect(helper).to receive(:header).with('Last-Modified', '0')
 
             subject
           end
@@ -1730,6 +1810,8 @@ RSpec.describe API::Helpers, feature_category: :api do
       before do
         allow(helper).to receive(:env).and_return({})
         allow(helper).to receive(:request).and_return(instance_double(Rack::Request, head?: is_head_request))
+        allow(helper).to receive(:headers).and_return({})
+        allow(helper).to receive(:header)
         stub_artifacts_object_storage(enabled: true)
       end
 

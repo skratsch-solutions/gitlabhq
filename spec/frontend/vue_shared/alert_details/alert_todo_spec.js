@@ -3,7 +3,7 @@ import VueApollo from 'vue-apollo';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import todoMarkDoneMutation from '~/graphql_shared/mutations/todo_mark_done.mutation.graphql';
-import SidebarTodo from '~/vue_shared/alert_details/components/sidebar/sidebar_todo.vue';
+import AlertTodo from '~/vue_shared/alert_details/components/alert_todo.vue';
 import createAlertTodoMutation from '~/vue_shared/alert_details/graphql/mutations/alert_todo_create.mutation.graphql';
 import alertQuery from '~/vue_shared/alert_details/graphql/queries/alert_sidebar_details.query.graphql';
 import waitForPromises from 'jest/__helpers__/wait_for_promises';
@@ -11,7 +11,7 @@ import mockAlerts from './mocks/alerts.json';
 
 const mockAlert = mockAlerts[1];
 
-describe('Alert Details Sidebar To Do', () => {
+describe('Alert Details To Do', () => {
   let wrapper;
   let requestHandler;
 
@@ -35,11 +35,9 @@ describe('Alert Details Sidebar To Do', () => {
     ]);
   };
 
-  function mountComponent({ data, sidebarCollapsed = true, handler = defaultHandler } = {}) {
+  function mountComponent({ data, handler = defaultHandler } = {}) {
     const propsData = {
-      alert: { ...mockAlert },
-      ...data,
-      sidebarCollapsed,
+      alert: { ...mockAlert, ...data?.alert },
       projectPath: 'projectPath',
     };
     const fakeApollo = createMockApolloProvider(handler);
@@ -60,7 +58,7 @@ describe('Alert Details Sidebar To Do', () => {
       },
     });
 
-    wrapper = mountExtended(SidebarTodo, {
+    wrapper = mountExtended(AlertTodo, {
       apolloProvider: fakeApollo,
       propsData,
     });
@@ -71,15 +69,14 @@ describe('Alert Details Sidebar To Do', () => {
   describe('updating the alert to do', () => {
     describe('adding a todo', () => {
       beforeEach(() => {
-        mountComponent({
-          sidebarCollapsed: false,
-        });
+        mountComponent({});
       });
 
       it('renders a button for adding a To-Do', async () => {
         await nextTick();
 
-        expect(findToDoButton().text()).toBe('Add a to-do item');
+        expect(findToDoButton().attributes('title')).toBe('Add a to-do item');
+        expect(findToDoButton().attributes('aria-label')).toBe('Add a to-do item');
       });
 
       it('calls `$apollo.mutate` with `createAlertTodoMutation` mutation and variables containing `iid`, `todoEvent`, & `projectPath`', async () => {
@@ -111,7 +108,6 @@ describe('Alert Details Sidebar To Do', () => {
       beforeEach(() => {
         mountComponent({
           data: { alert: { ...mockAlert, todos: { nodes: [{ id: '1234' }] } } },
-          sidebarCollapsed: false,
           loading: false,
         });
       });
@@ -119,7 +115,8 @@ describe('Alert Details Sidebar To Do', () => {
       it('renders a Mark To-Do Items Done button when todo is present', async () => {
         await nextTick();
 
-        expect(findToDoButton().text()).toBe('Mark to-do items done');
+        expect(findToDoButton().attributes('title')).toBe('Mark to-do items done');
+        expect(findToDoButton().attributes('aria-label')).toBe('Mark to-do items done');
       });
 
       it('calls `$apollo.mutate` with `todoMarkDoneMutation` mutation and variables containing `id`', async () => {

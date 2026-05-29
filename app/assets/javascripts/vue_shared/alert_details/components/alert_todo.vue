@@ -1,20 +1,28 @@
 <script>
 import produce from 'immer';
+import { GlButton, GlTooltipDirective, GlAnimatedTodoIcon } from '@gitlab/ui';
+import { __, s__ } from '~/locale';
 import todoMarkDoneMutation from '~/graphql_shared/mutations/todo_mark_done.mutation.graphql';
-import { s__ } from '~/locale';
-import Todo from '~/sidebar/components/todo_toggle/todo.vue';
 import { updateGlobalTodoCount } from '~/sidebar/utils';
-import createAlertTodoMutation from '../../graphql/mutations/alert_todo_create.mutation.graphql';
-import alertQuery from '../../graphql/queries/alert_sidebar_details.query.graphql';
+import createAlertTodoMutation from '../graphql/mutations/alert_todo_create.mutation.graphql';
+import alertQuery from '../graphql/queries/alert_sidebar_details.query.graphql';
+
+const MARK_TEXT = __('Mark to-do items done');
+const TODO_TEXT = __('Add a to-do item');
 
 export default {
+  name: 'AlertTodo',
   i18n: {
     UPDATE_ALERT_TODO_ERROR: s__(
       'AlertManagement|There was an error while updating the to-do item of the alert.',
     ),
   },
   components: {
-    Todo,
+    GlButton,
+    GlAnimatedTodoIcon,
+  },
+  directives: {
+    GlTooltip: GlTooltipDirective,
   },
   props: {
     alert: {
@@ -23,10 +31,6 @@ export default {
     },
     projectPath: {
       type: String,
-      required: true,
-    },
-    sidebarCollapsed: {
-      type: Boolean,
       required: true,
     },
   },
@@ -45,6 +49,9 @@ export default {
     },
     hasPendingTodos() {
       return this.alert?.todos?.nodes.length > 0;
+    },
+    buttonLabel() {
+      return this.hasPendingTodos ? MARK_TEXT : TODO_TEXT;
     },
     getAlertQueryVariables() {
       return {
@@ -118,6 +125,13 @@ export default {
         data,
       });
     },
+    handleButtonClick() {
+      if (this.hasPendingTodos) {
+        this.markAsDone();
+      } else {
+        this.addToDo();
+      }
+    },
     throwError(err = '') {
       const error = err || s__('AlertManagement|Please try again.');
       this.$emit('alert-error', `${this.$options.i18n.UPDATE_ALERT_TODO_ERROR} ${error}`);
@@ -127,20 +141,22 @@ export default {
 </script>
 
 <template>
-  <div
-    :class="{
-      block: sidebarCollapsed,
-      'gl-inline-flex gl-basis-full': !sidebarCollapsed,
-    }"
+  <gl-button
+    v-gl-tooltip.bottom.hover
+    data-testid="alert-todo-button"
+    :disabled="isUpdating"
+    :title="buttonLabel"
+    class="btn-icon"
+    :aria-label="buttonLabel"
+    :data-issuable-id="alertID"
+    data-issuable-type="alert"
+    @click="handleButtonClick"
   >
-    <todo
-      data-testid="alert-todo-button"
-      :collapsed="sidebarCollapsed"
-      :issuable-id="alertID"
-      :is-todo="hasPendingTodos"
-      :is-action-active="isUpdating"
-      issuable-type="alert"
-      @toggleTodo="hasPendingTodos ? markAsDone() : addToDo()"
+    <gl-animated-todo-icon
+      :is-on="hasPendingTodos"
+      :class="{ '!gl-text-status-info': hasPendingTodos }"
+      class="gl-button-icon"
+      :name="hasPendingTodos ? 'todo-done' : 'todo-add'"
     />
-  </div>
+  </gl-button>
 </template>

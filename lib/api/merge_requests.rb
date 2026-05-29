@@ -140,6 +140,66 @@ module API
           merge_request.diff_head_pipeline_success?
       end
 
+      def execute_merge(merge_request, auto_merge, merge_params)
+        if Feature.enabled?(:fix_merge_api_train_bypass, merge_request.project)
+          execute_merge_with_train_guard(merge_request, auto_merge, merge_params)
+        else
+          execute_merge_legacy(merge_request, auto_merge, merge_params)
+        end
+      end
+
+      def execute_merge_with_train_guard(merge_request, auto_merge, merge_params)
+        if auto_merge
+          auto_merge_service = AutoMergeService.new(merge_request.target_project, current_user, merge_params)
+          preferred_strategy = auto_merge_service.preferred_strategy(merge_request)
+
+          if preferred_strategy
+            auto_merge_service.execute(merge_request, preferred_strategy)
+          elsif pipeline_allows_merge?(merge_request)
+            execute_immediate_merge!(merge_request, merge_params)
+          else
+            not_allowed!
+          end
+        elsif merge_request.mergeable?
+          execute_immediate_merge!(merge_request, merge_params)
+        else
+          not_allowed!
+        end
+      end
+
+      def execute_merge_legacy(merge_request, auto_merge, merge_params)
+        if auto_merge
+          strategy_available =
+            AutoMergeService
+              .new(merge_request.project, current_user)
+              .available_strategies(merge_request)
+              .include?(merge_request.default_auto_merge_strategy)
+
+          if strategy_available
+            AutoMergeService.new(merge_request.target_project, current_user, merge_params)
+              .execute(merge_request, merge_request.default_auto_merge_strategy)
+          elsif pipeline_allows_merge?(merge_request)
+            execute_immediate_merge!(merge_request, merge_params)
+          else
+            not_allowed!
+          end
+        elsif merge_request.mergeable?
+          execute_immediate_merge!(merge_request, merge_params)
+        else
+          not_allowed!
+        end
+      end
+
+      def execute_immediate_merge!(merge_request, merge_params)
+        render_api_error!('Branch cannot be merged', 422) unless merge_request.mergeable?
+
+        ::MergeRequests::MergeService
+          .new(project: merge_request.target_project, current_user: current_user, params: merge_params)
+          .execute(merge_request)
+
+        render_api_error!('Branch cannot be merged', 422) unless merge_request.merged?
+      end
+
       def build_merge_params(merge_request)
         check_sha_param!(params, merge_request)
 
@@ -836,36 +896,7 @@ module API
 
         merge_params = build_merge_params(merge_request)
 
-        if auto_merge
-          strategy_available =
-            AutoMergeService
-              .new(merge_request.project, current_user)
-              .available_strategies(merge_request)
-              .include?(merge_request.default_auto_merge_strategy)
-
-          if strategy_available
-            AutoMergeService.new(merge_request.target_project, current_user, merge_params)
-              .execute(merge_request, merge_request.default_auto_merge_strategy)
-          elsif pipeline_allows_merge?(merge_request)
-            render_api_error!('Branch cannot be merged', 422) unless merge_request.mergeable?
-
-            ::MergeRequests::MergeService
-              .new(project: merge_request.target_project, current_user: current_user, params: merge_params)
-              .execute(merge_request)
-
-            render_api_error!("Branch cannot be merged", 422) unless merge_request.merged?
-          else
-            not_allowed!
-          end
-        elsif merge_request.mergeable?
-          ::MergeRequests::MergeService
-              .new(project: merge_request.target_project, current_user: current_user, params: merge_params)
-              .execute(merge_request)
-
-          render_api_error!("Branch cannot be merged", 422) unless merge_request.merged?
-        else
-          not_allowed!
-        end
+        execute_merge(merge_request, auto_merge, merge_params)
 
         present merge_request, with: Entities::MergeRequest, current_user: current_user, project: user_project
       end

@@ -8461,16 +8461,10 @@ msgstr ""
 msgid "AlertManagement|Alert"
 msgstr ""
 
-msgid "AlertManagement|Alert assignees: %{assignees}"
-msgstr ""
-
 msgid "AlertManagement|Alert detail"
 msgstr ""
 
 msgid "AlertManagement|Alert details"
-msgstr ""
-
-msgid "AlertManagement|Alert status: %{status}"
 msgstr ""
 
 msgid "AlertManagement|Alerts"
@@ -89130,6 +89124,9 @@ msgstr ""
 msgid "added a Zoom call to this issue"
 msgstr ""
 
+msgid "agent plan content"
+msgstr ""
+
 msgid "agents"
 msgstr ""
 
@@ -91675,9 +91672,6 @@ msgid "to"
 msgstr ""
 
 msgid "today"
-msgstr ""
-
-msgid "toggle collapse"
 msgstr ""
 
 msgid "total must be less than or equal to %{size}"
