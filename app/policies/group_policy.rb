@@ -50,35 +50,20 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
 
   condition(:create_projects_disabled) do
     next true if @user.nil?
+    next true if Gitlab::VisibilityLevel.allowed_levels_for_user(@user, @subject).empty?
 
-    visibility_levels = if can?(:admin_all_resources)
-                          # admin can create projects even with restricted visibility levels
-                          Gitlab::VisibilityLevel.values
-                        else
-                          Gitlab::VisibilityLevel.allowed_levels
-                        end
-
-    allowed_visibility_levels = visibility_levels.select do |level|
-      Project.new(group: @subject).visibility_level_allowed?(level)
+    case @subject.project_creation_level
+    when ::Gitlab::Access::NO_ONE_PROJECT_ACCESS then true
+    when ::Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS then !can?(:admin_all_resources)
+    when ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS then access_level < GroupMember::DEVELOPER
+    when ::Gitlab::Access::MAINTAINER_PROJECT_ACCESS then access_level < GroupMember::MAINTAINER
+    when ::Gitlab::Access::OWNER_PROJECT_ACCESS then access_level < GroupMember::OWNER
+    else false
     end
-
-    Group.prevent_project_creation?(user, @subject.project_creation_level) || allowed_visibility_levels.empty?
   end
 
   condition(:create_subgroup_disabled) do
     Gitlab::VisibilityLevel.allowed_levels_for_user(@user, @subject).empty?
-  end
-
-  condition(:owner_project_creation_level, scope: :subject) do
-    @subject.project_creation_level == ::Gitlab::Access::OWNER_PROJECT_ACCESS
-  end
-
-  condition(:maintainer_project_creation_level, scope: :subject) do
-    @subject.project_creation_level == ::Gitlab::Access::MAINTAINER_PROJECT_ACCESS
-  end
-
-  condition(:developer_project_creation_level, scope: :subject) do
-    @subject.project_creation_level == ::Gitlab::Access::DEVELOPER_PROJECT_ACCESS
   end
 
   condition(:maintainer_can_create_group, scope: :subject) do
@@ -241,9 +226,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     owner & (~share_with_group_locked | ~has_parent | ~parent_share_with_group_locked | can_change_parent_share_with_group_lock)
   end.enable :change_share_with_group_lock
 
-  rule { owner & owner_project_creation_level }.enable :create_projects
-  rule { maintainer & maintainer_project_creation_level }.enable :create_projects
-  rule { developer & developer_project_creation_level }.enable :create_projects
   rule { create_projects_disabled }.policy do
     prevent :create_projects
     prevent :import_projects

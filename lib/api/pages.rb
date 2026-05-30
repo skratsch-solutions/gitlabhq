@@ -14,7 +14,8 @@ module API
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Unpublish pages' do
-        detail 'Remove pages. The user must have administrator access. This feature was introduced in GitLab 12.6'
+        detail 'Remove pages. The user must have the Maintainer or Owner role for the project. ' \
+          'This feature was introduced in GitLab 12.6'
         success code: 204
         failure [
           { code: 401, message: 'Unauthorized' },
@@ -32,7 +33,7 @@ module API
       end
 
       desc 'Update pages settings' do
-        detail 'Update page settings for a project. User must have administrative access.'
+        detail 'Update page settings for a project. The user must have the Maintainer or Owner role for the project.'
         success code: 200
         failure [
           { code: 401, message: 'Unauthorized' },
@@ -68,7 +69,8 @@ module API
       end
 
       desc 'Get pages settings' do
-        detail 'Get pages URL and other settings. This feature was introduced in Gitlab 16.8'
+        detail 'Get pages URL and other settings. The user must have the Maintainer or Owner role for the project. ' \
+          'This feature was introduced in GitLab 16.8'
         success code: 200
         failure [
           { code: 401, message: 'Unauthorized' },

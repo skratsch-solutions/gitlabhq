@@ -7,7 +7,6 @@ export default {
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/chronic_duration_input.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/expiration_interval_description.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/expiration_intervals.vue',
-    'app/assets/javascripts/admin/applications/components/delete_application.vue',
     'app/assets/javascripts/admin/statistics_panel/components/app.vue',
     'app/assets/javascripts/admin/topics/components/merge_topics.vue',
     'app/assets/javascripts/admin/topics/components/remove_avatar.vue',

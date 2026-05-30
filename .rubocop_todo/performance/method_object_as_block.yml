@@ -4,5 +4,4 @@ Performance/MethodObjectAsBlock:
     - 'lib/gitlab/sidekiq_queue.rb'
     - 'lib/gitlab/uploads/migration_helper.rb'
     - 'spec/graphql/resolvers/concerns/caching_array_resolver_spec.rb'
-    - 'spec/lib/api/entities/merge_request_basic_spec.rb'
     - 'spec/support/shared_examples/models/active_record_enum_shared_examples.rb'

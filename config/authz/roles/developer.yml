@@ -135,6 +135,7 @@ group:
   - create_duo_workflow_for_ci
   - create_observability_access_request
   - create_package
+  - create_projects
   - create_saved_replies
   - create_vulnerability_export
   - create_wiki

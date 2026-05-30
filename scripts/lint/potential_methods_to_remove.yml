@@ -122,7 +122,6 @@ app/models/ci/runner.rb:
 - fallback_owner_project
 app/models/clusters/cluster.rb:
 - platform_kubernetes_active?
-- legacy_auto_devops_domain
 app/models/clusters/concerns/application_data.rb:
 - certificate_files
 app/models/clusters/concerns/application_status.rb:

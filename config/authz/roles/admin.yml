@@ -15,7 +15,6 @@ project:
 group:
   permissions: []
   raw_permissions:
-  - create_projects
   - delete_custom_attribute
   - read_custom_attribute
   - update_custom_attribute

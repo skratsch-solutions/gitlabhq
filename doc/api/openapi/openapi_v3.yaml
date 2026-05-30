@@ -35841,8 +35841,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdPages
       summary: Unpublish pages
-      description: Remove pages. The user must have administrator access. This feature
-        was introduced in GitLab 12.6
+      description: Remove pages. The user must have the Maintainer or Owner role for
+        the project. This feature was introduced in GitLab 12.6
       tags:
       - GitLab Pages
       responses:
@@ -35865,8 +35865,8 @@ paths:
     patch:
       operationId: patchApiV4ProjectsIdPages
       summary: Update pages settings
-      description: Update page settings for a project. User must have administrative
-        access.
+      description: Update page settings for a project. The user must have the Maintainer
+        or Owner role for the project.
       tags:
       - GitLab Pages
       responses:
@@ -35895,8 +35895,8 @@ paths:
     get:
       operationId: getApiV4ProjectsIdPages
       summary: Get pages settings
-      description: Get pages URL and other settings. This feature was introduced in
-        Gitlab 16.8
+      description: Get pages URL and other settings. The user must have the Maintainer
+        or Owner role for the project. This feature was introduced in GitLab 16.8
       tags:
       - GitLab Pages
       responses:

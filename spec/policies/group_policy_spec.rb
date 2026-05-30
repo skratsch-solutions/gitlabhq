@@ -757,7 +757,7 @@ RSpec.describe GroupPolicy, feature_category: :system_access do
       context 'maintainer' do
         let(:current_user) { maintainer }
 
-        it { is_expected.to be_allowed(:import_projects) }
+        it { is_expected.to be_disallowed(:import_projects) }
       end
 
       context 'owner' do

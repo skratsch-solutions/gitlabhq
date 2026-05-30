@@ -13631,6 +13631,9 @@ msgstr ""
 msgid "BranchRules|Are you sure you want to delete this branch rule? This action cannot be undone."
 msgstr ""
 
+msgid "BranchRules|Branch name cannot exceed 255 characters."
+msgstr ""
+
 msgid "BranchRules|Branch name or pattern"
 msgstr ""
 
@@ -71128,9 +71131,6 @@ msgid "See examples."
 msgstr ""
 
 msgid "See our website for help"
-msgstr ""
-
-msgid "See the Geo troubleshooting documentation to learn more: %{docs_url}"
 msgstr ""
 
 msgid "See the affected projects in the GitLab admin panel"

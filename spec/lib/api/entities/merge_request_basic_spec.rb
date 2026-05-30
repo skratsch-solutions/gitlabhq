@@ -46,7 +46,7 @@ RSpec.describe ::API::Entities::MergeRequestBasic, feature_category: :code_revie
 
       query = scope.all
       batch = ActiveRecord::QueryRecorder.new do
-        entities = query.map(&method(:present))
+        entities = query.map { |record| present(record) }
 
         entities.to_json
       end
