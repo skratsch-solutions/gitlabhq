@@ -11,8 +11,9 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   with_options scope: :subject, score: 0
   condition(:public_group) { @subject.public? }
 
+  desc "Group is visible to internal users"
   with_score 0
-  condition(:logged_in_viewable) { @user && @subject.try(:internal?) && !@user.external? }
+  condition(:internal_access) { @user && @subject.try(:internal?) && !@user.external? }
 
   condition(:has_access) { access_level != GroupMember::NO_ACCESS }
 
@@ -137,6 +138,10 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     enable(*Authz::Role.get(:public_anonymous).direct_permissions(:group))
   end
 
+  rule { (~anonymous & public_group) | internal_access }.policy do
+    enable(*Authz::Role.get(:public_authenticated).permissions(:group))
+  end
+
   rule { admin }.policy do
     enable(*Authz::Role.get(:admin).permissions(:group))
   end
@@ -153,8 +158,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   rule { can?(:read_group) & design_management_enabled }.policy do
     enable :read_design_activity
   end
-
-  rule { logged_in_viewable }.enable :read_group
 
   rule { has_projects }.policy do
     enable(*Authz::Role.get(:descendant_project_member).direct_permissions(:group))
@@ -214,12 +217,7 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
 
   rule { maintainer & maintainer_can_create_group }.enable :create_subgroup
 
-  rule { public_group | logged_in_viewable }.enable :view_globally
-
-  rule { default }.enable(:request_access)
-
   rule { ~request_access_enabled }.prevent :request_access
-  rule { ~can?(:view_globally) }.prevent   :request_access
   rule { has_access }.prevent              :request_access
 
   rule do

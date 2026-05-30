@@ -60,4 +60,5 @@ project:
   - upload_file
 group:
   permissions: []
-  raw_permissions: []
+  raw_permissions:
+  - request_access

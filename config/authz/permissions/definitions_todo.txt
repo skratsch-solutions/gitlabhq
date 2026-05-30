@@ -700,7 +700,6 @@ use_project_statistics_filters
 use_quick_actions
 use_slash_commands
 view_edit_page
-view_globally
 view_group_ci_cd_analytics
 view_group_devops_adoption
 view_instance_devops_adoption

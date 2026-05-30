@@ -2040,4 +2040,53 @@ RSpec.describe GroupPolicy, feature_category: :system_access do
       end
     end
   end
+
+  describe ':request_access' do
+    let_it_be(:public_group)   { create(:group, :public) }
+    let_it_be(:internal_group) { create(:group, :internal) }
+    let_it_be(:private_group)  { create(:group, :private) }
+    let_it_be(:logged_in_user) { create(:user) }
+    let_it_be(:external_user)  { create(:user, :external) }
+
+    subject { described_class.new(current_user, group) }
+
+    context 'when user can request access' do
+      where(:case_name, :current_user, :group) do
+        'logged-in non-member on public group'   | lazy { logged_in_user } | lazy { public_group }
+        'logged-in non-member on internal group' | lazy { logged_in_user } | lazy { internal_group }
+        'external user on public group'          | lazy { external_user }  | lazy { public_group }
+      end
+
+      with_them do
+        it { expect_allowed(:request_access) }
+      end
+    end
+
+    context 'when user cannot request access' do
+      where(:case_name, :current_user, :group) do
+        'anonymous on public group'             | lazy { nil }            | lazy { public_group }
+        'anonymous on internal group'           | lazy { nil }            | lazy { internal_group }
+        'anonymous on private group'            | lazy { nil }            | lazy { private_group }
+        'external user on internal group'       | lazy { external_user }  | lazy { internal_group }
+        'external user on private group'        | lazy { external_user }  | lazy { private_group }
+        'logged-in non-member on private group' | lazy { logged_in_user } | lazy { private_group }
+      end
+
+      with_them do
+        it { expect_disallowed(:request_access) }
+      end
+    end
+
+    context 'when the group has request_access_enabled disabled' do
+      subject { described_class.new(logged_in_user, create(:group, :public, request_access_enabled: false)) }
+
+      it { expect_disallowed(:request_access) }
+    end
+
+    context 'when the user is already a member' do
+      subject { described_class.new(guest, group) }
+
+      it { expect_disallowed(:request_access) }
+    end
+  end
 end

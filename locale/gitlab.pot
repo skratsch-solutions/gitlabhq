@@ -43172,6 +43172,12 @@ msgstr ""
 msgid "LicenseScanningReport|The following SBOM reports could not be parsed. Therefore the list of components and their licenses may be incomplete."
 msgstr ""
 
+msgid "LicenseScanning|License scanning for CycloneDX is disabled"
+msgstr ""
+
+msgid "LicenseScanning|License scanning for CycloneDX is enabled"
+msgstr ""
+
 msgid "Licensed Enterprise Edition features can be used if the project namespace's plan includes the feature, or if the project is public."
 msgstr ""
 
