@@ -15,7 +15,7 @@ title: Install OpenBao for a Linux package deployment of GitLab
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/work_items/9669) in GitLab 19.0 as beta.
+- [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/work_items/9669) as a beta feature in GitLab 19.0.
 
 {{< /history >}}
 
@@ -495,4 +495,4 @@ To verify the installation:
    }
    ```
 
-1. [Enable the GitLab Secrets Manager](../../ci/secrets/secrets_manager/_index.md#enable-for-a-group-or-project).
+1. [Enable the GitLab Secrets Manager](../../ci/secrets/secrets_manager/_index.md#enable-gitlab-secrets-manager).

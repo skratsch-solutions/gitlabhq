@@ -25,7 +25,6 @@
         = helpers.gl_loading_icon(size: 'sm')
     -# using label produces better results in VoiceOver than labelledby + hidden h2
     %section.rd-app-content{ aria: { label: content_label } }
-      .rd-app-content-header{ data: { hidden_files_warning: true } }
       - if empty_state_visible?
         - if empty_state?
           = empty_state
@@ -33,6 +32,7 @@
           = render RapidDiffs::EmptyStateComponent.new
       .rd-app-diffs-list
         = before_diffs_list
+        .rd-app-content-header{ data: { hidden_files_warning: true } }
         -# performance optimization: using a sibling element to cover diffs list is faster than changing opacity on the parent
         .rd-app-diffs-list-loading-overlay{ data: { diffs_overlay: true } }
         .flash-container{ data: { diffs_list_alert: true } }

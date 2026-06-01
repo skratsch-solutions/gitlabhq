@@ -250,6 +250,12 @@ To remove the user cap:
 When you change from user cap to restricted access, all pending members (both members awaiting approval and invited members) are automatically removed.
 To ensure users are approved as members, you must approve or remove pending members before enabling restricted access.
 
+> [!note]
+> On GitLab Self-Managed, GitLab caches application settings for 60 seconds by default.
+> As a result, when you switch between restricted access and user cap, some UI changes
+> (such as seat-control banners and member-blocking behavior) may not appear immediately.
+> You can adjust this delay in [application settings](../application_settings_cache.md).
+
 ## Modify password complexity requirements
 
 By default, user passwords have a limited number of [requirements](../../user/profile/user_passwords.md#password-requirements).

@@ -44,6 +44,7 @@ export default {
       required: true,
     },
   },
+  emits: ['remove', 'update:header-key', 'update:header-value'],
   computed: {
     valueIsHidden() {
       return MASK_ITEM_VALUE_HIDDEN === this.headerValue;

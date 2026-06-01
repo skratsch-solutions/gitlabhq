@@ -7,7 +7,7 @@ import { InternalEvents } from '~/tracking';
 import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_item_list_user_preferences.mutation.graphql';
 import getUserWorkItemsPreferences from '~/work_items/graphql/get_user_preferences.query.graphql';
 import {
-  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS,
+  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
   METADATA_KEYS,
   ROUTES,
 } from '~/work_items/constants';
@@ -22,6 +22,8 @@ export default {
   mixins: [InternalEvents.mixin()],
   i18n: {
     fields: s__('WorkItems|Fields'),
+    shown: s__('WorkItems|Shown'),
+    hidden: s__('WorkItems|Hidden'),
   },
   props: {
     workItemTypeId: {
@@ -61,12 +63,22 @@ export default {
       return this.namespacePreferences?.hiddenMetadataKeys || [];
     },
     applicableMetadataPreferences() {
-      return WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS.filter((item) => {
+      return WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter((item) => {
         if (item.key === METADATA_KEYS.STATUS) {
           return !this.isServiceDeskList;
         }
         return !this.isGroup || item.isPresentInGroup;
       });
+    },
+    shownPreferences() {
+      return this.applicableMetadataPreferences.filter(
+        (item) => !this.hiddenMetadataKeys.includes(item.key),
+      );
+    },
+    hiddenPreferences() {
+      return this.applicableMetadataPreferences.filter((item) =>
+        this.hiddenMetadataKeys.includes(item.key),
+      );
     },
   },
   methods: {
@@ -160,25 +172,51 @@ export default {
 <template>
   <div data-testid="display-settings-metadata" class="gl-pb-3">
     <span class="gl-pl-4">{{ $options.i18n.fields }}</span>
-    <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
-      <gl-disclosure-dropdown-item
-        v-for="metadata in applicableMetadataPreferences"
-        :key="metadata.key"
-        class="work-item-dropdown-toggle"
-        @action="toggleMetadataDisplaySettings(metadata.key)"
-      >
-        <template #list-item>
-          <div class="gl-flex gl-items-center gl-gap-3">
-            <gl-icon :name="metadata.icon" />
-            <gl-toggle
-              :value="!hiddenMetadataKeys.includes(metadata.key)"
-              :label="metadata.label"
-              class="gl-w-full gl-justify-between"
-              label-position="left"
-            />
-          </div>
-        </template>
-      </gl-disclosure-dropdown-item>
-    </ul>
+    <div v-if="shownPreferences.length" data-testid="shown-preferences" class="gl-mt-3">
+      <span class="gl-pl-4 gl-text-sm gl-font-bold">{{ $options.i18n.shown }}</span>
+      <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
+        <gl-disclosure-dropdown-item
+          v-for="metadata in shownPreferences"
+          :key="metadata.key"
+          class="work-item-dropdown-toggle"
+          @action="toggleMetadataDisplaySettings(metadata.key)"
+        >
+          <template #list-item>
+            <div class="gl-flex gl-items-center gl-gap-3">
+              <gl-icon :name="metadata.icon" />
+              <gl-toggle
+                :value="true"
+                :label="metadata.label"
+                class="gl-w-full gl-justify-between"
+                label-position="left"
+              />
+            </div>
+          </template>
+        </gl-disclosure-dropdown-item>
+      </ul>
+    </div>
+    <div v-if="hiddenPreferences.length" data-testid="hidden-preferences" class="gl-mt-3">
+      <span class="gl-pl-4 gl-text-sm gl-font-bold">{{ $options.i18n.hidden }}</span>
+      <ul class="gl-m-0 gl-mt-2 gl-list-none gl-p-0">
+        <gl-disclosure-dropdown-item
+          v-for="metadata in hiddenPreferences"
+          :key="metadata.key"
+          class="work-item-dropdown-toggle"
+          @action="toggleMetadataDisplaySettings(metadata.key)"
+        >
+          <template #list-item>
+            <div class="gl-flex gl-items-center gl-gap-3">
+              <gl-icon :name="metadata.icon" />
+              <gl-toggle
+                :value="false"
+                :label="metadata.label"
+                class="gl-w-full gl-justify-between"
+                label-position="left"
+              />
+            </div>
+          </template>
+        </gl-disclosure-dropdown-item>
+      </ul>
+    </div>
   </div>
 </template>

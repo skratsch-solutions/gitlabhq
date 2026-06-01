@@ -767,6 +767,11 @@ msgid_plural "%{count} files"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%{count} file is expanded by default."
+msgid_plural "%{count} files are expanded by default."
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{count} files touched"
 msgstr ""
 
@@ -32469,9 +32474,6 @@ msgstr ""
 msgid "Footer message"
 msgstr ""
 
-msgid "For a faster browsing experience, only %{strongStart}%{visible} of %{total}%{strongEnd} files are shown. Download one of the files below to see all changes."
-msgstr ""
-
 msgid "For a faster browsing experience, only %{strong_open}%{display_size} of %{real_size}%{strong_close} files are shown."
 msgstr ""
 
@@ -50971,6 +50973,11 @@ msgstr ""
 
 msgid "Only the author can change visibility settings"
 msgstr ""
+
+msgid "Only the first %{count} file is listed on this page."
+msgid_plural "Only the first %{count} files are listed on this page."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Only track method calls that take longer to complete than the given duration."
 msgstr ""
@@ -71493,13 +71500,16 @@ msgstr ""
 msgid "SemanticSearch|Failed to connect: %{error}."
 msgstr ""
 
+msgid "SemanticSearch|For GitLab-managed models, make sure you have access to GitLab-operated %{ai_gateway_link_start}AI Gateway%{ai_gateway_link_end}."
+msgstr ""
+
+msgid "SemanticSearch|For Self-hosted models, you first need to add a model under the \"Embedding\" model family on the %{add_self_hosted_model_link_start}Add self-hosted model%{add_self_hosted_model_link_end} form."
+msgstr ""
+
 msgid "SemanticSearch|In use"
 msgstr ""
 
 msgid "SemanticSearch|Make sure the model allows the value, and your vector store can handle it."
-msgstr ""
-
-msgid "SemanticSearch|Make sure you have access to GitLab-operated AI Gateway before selecting a GitLab-managed model."
 msgstr ""
 
 msgid "SemanticSearch|Next model"
@@ -78272,6 +78282,9 @@ msgid "To use the system's default, set this value to 0."
 msgstr ""
 
 msgid "To view all %{scannedResourcesCount} scanned URLs, %{linkStart}please download the CSV file%{linkEnd}"
+msgstr ""
+
+msgid "To view all changes, download the diff."
 msgstr ""
 
 msgid "To view usage, refresh this page in a few minutes."
@@ -85706,6 +85719,9 @@ msgstr ""
 msgid "WorkItems|Fields"
 msgstr ""
 
+msgid "WorkItems|Hidden"
+msgstr ""
+
 msgid "WorkItems|How do I use statuses?"
 msgstr ""
 
@@ -85713,6 +85729,9 @@ msgid "WorkItems|Open items in side panel"
 msgstr ""
 
 msgid "WorkItems|Options applied to all views"
+msgstr ""
+
+msgid "WorkItems|Shown"
 msgstr ""
 
 msgid "WorkItems|Sort order rebalancing in progress. Reordering is temporarily disabled."

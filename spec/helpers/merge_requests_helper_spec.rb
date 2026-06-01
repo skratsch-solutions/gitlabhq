@@ -262,6 +262,10 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
       it { expect(tab_count_display(merge_request, 10)).to eq(10) }
       it { expect(tab_count_display(merge_request, '10')).to eq('10') }
     end
+
+    context 'when count is nil' do
+      it { expect(tab_count_display(merge_request, nil)).to eq('-') }
+    end
   end
 
   describe '#allow_collaboration_unavailable_reason' do

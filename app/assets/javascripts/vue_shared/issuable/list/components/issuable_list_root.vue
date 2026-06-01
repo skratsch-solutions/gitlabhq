@@ -252,6 +252,19 @@ export default {
       default: null,
     },
   },
+  emits: [
+    'click-tab',
+    'dismiss-alert',
+    'filter',
+    'next-page',
+    'page-change',
+    'page-size-change',
+    'previous-page',
+    'reorder',
+    'select-issuable',
+    'sort',
+    'update-legacy-bulk-edit',
+  ],
   data() {
     return {
       checkedIssuableIds: [],

@@ -447,7 +447,9 @@ module MergeRequestsHelper
   end
 
   def tab_count_display(merge_request, count)
-    merge_request.preparing? ? "-" : count
+    return "-" if merge_request.preparing? || count.nil?
+
+    count
   end
 
   def review_bar_data(_merge_request, _user)

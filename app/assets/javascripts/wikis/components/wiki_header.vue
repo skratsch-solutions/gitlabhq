@@ -54,6 +54,7 @@ export default {
     pagePersisted: { default: null },
     queryVariables: { default: null },
   },
+  emits: ['is-editing'],
   apollo: {
     wikiPage: {
       query: wikiPageQuery,

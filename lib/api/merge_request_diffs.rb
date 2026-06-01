@@ -5,6 +5,9 @@ module API
   class MergeRequestDiffs < ::API::Base
     include PaginationParams
     include Helpers::Unidiff
+    include APIGuard
+
+    allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
 
     before { authenticate! }
 

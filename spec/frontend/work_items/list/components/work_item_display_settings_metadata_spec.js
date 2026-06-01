@@ -10,7 +10,7 @@ import updateWorkItemListUserPreference from '~/work_items/graphql/update_work_i
 import { useMockInternalEventsTracking } from 'helpers/tracking_internal_events_helper';
 import {
   WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS,
-  METADATA_KEYS,
+  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED,
   ROUTES,
 } from '~/work_items/constants';
 
@@ -18,7 +18,7 @@ Vue.use(VueApollo);
 
 jest.mock('~/alert');
 
-const firstMetadataKey = METADATA_KEYS[Object.keys(METADATA_KEYS)[0]];
+const firstAlphabeticalKey = WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED[0].key;
 
 describe('WorkItemDisplaySettingsMetadata', () => {
   let wrapper;
@@ -32,7 +32,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
         errors: [],
         userPreferences: {
           __typename: 'UserPreferences',
-          displaySettings: { hiddenMetadataKeys: [firstMetadataKey] },
+          displaySettings: { hiddenMetadataKeys: [firstAlphabeticalKey] },
           sort: 'UPDATED_DESC',
         },
       },
@@ -64,6 +64,8 @@ describe('WorkItemDisplaySettingsMetadata', () => {
     });
   };
 
+  const findShownSection = () => wrapper.find('[data-testid="shown-preferences"]');
+  const findHiddenSection = () => wrapper.find('[data-testid="hidden-preferences"]');
   const findDropdownItems = () => wrapper.findAllComponents(GlDisclosureDropdownItem);
   const findToggles = () => wrapper.findAllComponents(GlToggle);
   const findFirstDropdownItem = () => findDropdownItems().at(0);
@@ -78,16 +80,6 @@ describe('WorkItemDisplaySettingsMetadata', () => {
     expect(findToggles()).toHaveLength(WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS.length);
   });
 
-  it('marks toggles as on when the key is not in hiddenMetadataKeys', () => {
-    createComponent({
-      mountFn: mount,
-      props: { namespacePreferences: { hiddenMetadataKeys: [firstMetadataKey] } },
-    });
-
-    const toggleForHiddenKey = findToggles().at(0);
-    expect(toggleForHiddenKey.props('value')).toBe(false);
-  });
-
   it('renders only group-applicable metadata fields in group context', () => {
     createComponent({ props: { isGroup: true } });
 
@@ -95,6 +87,59 @@ describe('WorkItemDisplaySettingsMetadata', () => {
       (field) => field.isPresentInGroup,
     );
     expect(findToggles()).toHaveLength(groupApplicableFields.length);
+  });
+
+  describe('shown/hidden grouping', () => {
+    it('renders only the shown section when no fields are hidden', () => {
+      createComponent({ mountFn: mount });
+
+      expect(findShownSection().exists()).toBe(true);
+      expect(findHiddenSection().exists()).toBe(false);
+    });
+
+    it('renders both sections when at least one field is hidden', () => {
+      createComponent({
+        mountFn: mount,
+        props: { namespacePreferences: { hiddenMetadataKeys: [firstAlphabeticalKey] } },
+      });
+
+      expect(findShownSection().exists()).toBe(true);
+      expect(findHiddenSection().exists()).toBe(true);
+    });
+
+    it('renders only the hidden section when every field is hidden', () => {
+      createComponent({
+        mountFn: mount,
+        props: {
+          namespacePreferences: {
+            hiddenMetadataKeys: WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS.map((f) => f.key),
+          },
+        },
+      });
+
+      expect(findShownSection().exists()).toBe(false);
+      expect(findHiddenSection().exists()).toBe(true);
+    });
+
+    it('sorts toggles alphabetically by label across both sections', () => {
+      const hidden = WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.slice(0, 2).map(
+        (f) => f.key,
+      );
+      createComponent({
+        mountFn: mount,
+        props: { namespacePreferences: { hiddenMetadataKeys: hidden } },
+      });
+
+      const labelsInOrder = findToggles().wrappers.map((t) => t.props('label'));
+      const expectedHiddenLabels = WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter((f) =>
+        hidden.includes(f.key),
+      ).map((f) => f.label);
+      const expectedShownLabels = WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED.filter(
+        (f) => !hidden.includes(f.key),
+      ).map((f) => f.label);
+
+      expect(labelsInOrder).toEqual([...expectedShownLabels, ...expectedHiddenLabels]);
+    });
   });
 
   describe('when not on a saved view', () => {
@@ -109,7 +154,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
       expect(namespacePreferencesHandler).toHaveBeenCalledWith({
         namespace: 'gitlab-org/gitlab',
         displaySettings: {
-          hiddenMetadataKeys: [firstMetadataKey],
+          hiddenMetadataKeys: [firstAlphabeticalKey],
         },
       });
     });
@@ -137,7 +182,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
       expect(trackEventSpy).toHaveBeenCalledWith(
         'work_item_metadata_field_hidden',
-        { property: firstMetadataKey },
+        { property: firstAlphabeticalKey },
         undefined,
       );
     });
@@ -154,7 +199,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
       expect(namespacePreferencesHandler).not.toHaveBeenCalled();
       expect(wrapper.emitted('update-settings')).toEqual([
-        [{ hiddenMetadataKeys: [firstMetadataKey] }],
+        [{ hiddenMetadataKeys: [firstAlphabeticalKey] }],
       ]);
     });
 
@@ -166,7 +211,7 @@ describe('WorkItemDisplaySettingsMetadata', () => {
 
       expect(trackEventSpy).toHaveBeenCalledWith(
         'work_item_metadata_field_hidden',
-        { property: firstMetadataKey },
+        { property: firstAlphabeticalKey },
         undefined,
       );
     });

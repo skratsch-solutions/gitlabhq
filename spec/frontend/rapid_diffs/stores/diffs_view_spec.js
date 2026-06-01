@@ -52,15 +52,17 @@ describe('Diffs view store', () => {
       const addedLines = 10;
       const removedLines = 20;
       const diffsCount = 5;
+      const realSize = '5';
       mockAxios.onGet(endpoint).reply(HTTP_STATUS_OK, {
         diffs_stats: {
           added_lines: addedLines,
           removed_lines: removedLines,
           diffs_count: diffsCount,
+          real_size: realSize,
         },
       });
       await store.loadDiffsStats();
-      expect(store.diffsStats).toEqual({ addedLines, removedLines, diffsCount });
+      expect(store.diffsStats).toEqual({ addedLines, removedLines, diffsCount, realSize });
       expect(store.overflow).toBe(null);
     });
 
@@ -153,9 +155,14 @@ describe('Diffs view store', () => {
   });
 
   describe('#totalFilesCount', () => {
-    it('returns diffs count', () => {
+    it('returns diffs count when real size is not provided', () => {
       store.diffsStats = { diffsCount: 10 };
       expect(store.totalFilesCount).toBe(10);
+    });
+
+    it('returns real size when provided so the "+" suffix is preserved', () => {
+      store.diffsStats = { diffsCount: 10, realSize: '10+' };
+      expect(store.totalFilesCount).toBe('10+');
     });
   });
 });

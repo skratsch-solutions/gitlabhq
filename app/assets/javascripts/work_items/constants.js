@@ -421,6 +421,9 @@ export const WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS = [
   },
 ];
 
+export const WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS_SORTED =
+  WORK_ITEM_LIST_PREFERENCES_METADATA_FIELDS.toSorted((a, b) => a.label.localeCompare(b.label));
+
 export const WORK_ITEM_CREATE_SOURCES = {
   GLOBAL_NAV: 'global_nav',
   CHILD_ITEMS_WIDGET: 'child_items_widget',

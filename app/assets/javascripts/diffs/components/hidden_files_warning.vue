@@ -1,11 +1,12 @@
 <script>
 import { GlAlert, GlButton, GlSprintf } from '@gitlab/ui';
-import { __, sprintf } from '~/locale';
+import { __, n__ } from '~/locale';
 
 export const i18n = {
   title: __('Some changes are not shown.'),
   plainDiff: __('Plain diff'),
   emailPatch: __('Patches'),
+  download: __('To view all changes, download the diff.'),
 };
 
 export default {
@@ -37,11 +38,22 @@ export default {
     },
   },
   computed: {
-    message() {
-      return sprintf(
-        __(`For a faster browsing experience, only %{strongStart}%{visible} of %{total}%{strongEnd} files are shown.
-          Download one of the files below to see all changes.`),
-        { visible: this.visible, total: this.total },
+    listedCount() {
+      // Accepts a number or a "N+" string; pluralization and display use the integer.
+      return parseInt(this.total, 10) || 0;
+    },
+    listedMessage() {
+      return n__(
+        'Only the first %{count} file is listed on this page.',
+        'Only the first %{count} files are listed on this page.',
+        this.listedCount,
+      );
+    },
+    expandedMessage() {
+      return n__(
+        '%{count} file is expanded by default.',
+        '%{count} files are expanded by default.',
+        this.visible,
       );
     },
   },
@@ -50,11 +62,17 @@ export default {
 
 <template>
   <gl-alert variant="warning" class="gl-mb-5" :title="$options.i18n.title" :dismissible="false">
-    <gl-sprintf :message="message">
-      <template #strong="{ content }">
-        <strong>{{ content }}</strong>
+    <gl-sprintf :message="listedMessage">
+      <template #count>
+        <strong>{{ listedCount }}</strong>
       </template>
     </gl-sprintf>
+    <gl-sprintf :message="expandedMessage">
+      <template #count>
+        <strong>{{ visible }}</strong>
+      </template>
+    </gl-sprintf>
+    {{ $options.i18n.download }}
     <template #actions>
       <gl-button v-if="plainDiffPath" :href="plainDiffPath" class="gl-alert-action gl-mr-3">
         {{ $options.i18n.plainDiff }}

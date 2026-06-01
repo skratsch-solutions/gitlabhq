@@ -389,6 +389,11 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
+    it_behaves_like 'ai_workflows scope' do
+      let(:note_action) { put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{note.discussion_id}/notes/#{note.id}", oauth_access_token: oauth_token), params: { body: 'Hello!' } }
+      let(:expected_status) { :ok }
+    end
+
     it_behaves_like 'authorizing granular token permissions', :"update_#{noteable_type_singular}_discussion_note" do
       let(:boundary_object) { parent }
       let(:request) do

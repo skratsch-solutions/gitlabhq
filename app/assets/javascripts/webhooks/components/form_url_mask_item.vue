@@ -42,6 +42,7 @@ export default {
       default: null,
     },
   },
+  emits: ['input', 'remove'],
   computed: {
     keyInputId() {
       return this.inputId('key');

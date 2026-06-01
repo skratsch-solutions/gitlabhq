@@ -9,7 +9,7 @@ module API
     helpers ::RendersNotes
 
     allow_access_with_scope :ai_workflows, if: ->(request) do
-      request.get? || request.head? || request.post?
+      request.get? || request.head? || request.post? || request.put?
     end
 
     before do

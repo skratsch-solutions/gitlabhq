@@ -120,6 +120,7 @@ export default {
       default: '',
     },
   },
+  emits: ['toggle'],
   data() {
     return {
       isTicketCalloutDismissed: localStorage.getItem(TICKET_CALLOUT_DISMISSED_KEY) === 'true',

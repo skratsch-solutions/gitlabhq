@@ -32,6 +32,7 @@ export default {
       required: true,
     },
   },
+  emits: ['error'],
   data() {
     return {
       isLoading: false,

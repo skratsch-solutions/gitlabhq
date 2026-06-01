@@ -8,8 +8,6 @@ description: "Summary of features included in 19.1"
 The following features are being delivered for GitLab 19.1.
 These features are now available on GitLab.com.
 
-If this page is empty, no new features have been added yet.
-
 <!-- Copy this template, and paste it into the doc section where it belongs:
 
 Primary feature, Agentic Core, Scale and Deployments, or Unified DevOps and Security.
@@ -46,6 +44,29 @@ The first person to add a feature in this area, please make the title visible an
 
 The first person to add a feature in this area, please make the title visible and delete this comment -->
 
-<!-- ## Unified DevOps and Security
+## Unified DevOps and Security
 
-The first person to add a feature in this area, please make the title visible and delete this comment -->
+### Clearer, security industry-standard labels in vulnerability details
+
+<!-- categories: Vulnerability Management -->
+
+{{< details >}}
+
+- Tier: Ultimate
+- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
+- Links: [Documentation](../../user/application_security/vulnerabilities/_index.md), [Related issue](https://gitlab.com/groups/gitlab-org/-/work_items/21978)
+
+{{< /details >}}
+
+In GitLab 19.1, the vulnerability results details page uses consistent, descriptive, and security industry-standard terminology for scan results:
+
+- **Scanner** is now **Detected by**
+- **EPSS** is now **Exploit Probability (EPSS)**
+- **Has Known Exploit (KEV)** is now **Known Exploited (CISA KEV)**
+- **Reachable** is now **Reachability**
+- **Image** is now **Container Image** (Container Scanning)
+- **Location** is now **Affected Location**
+- **URL** is now **Affected Endpoint** (DAST, API fuzzing)
+- **Method** is now **HTTP Method** (DAST, API fuzzing)
+- **Solution** is now **Remediation Guidance**
+- **Links** is now **References**

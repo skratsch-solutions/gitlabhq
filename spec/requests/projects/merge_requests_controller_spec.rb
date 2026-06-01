@@ -531,7 +531,9 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
       it 'returns an empty array' do
         send_request
 
-        expect(json_response['diffs_stats']).to eq({ "added_lines" => 0, "removed_lines" => 0, "diffs_count" => 0 })
+        expect(json_response['diffs_stats']).to eq(
+          { "added_lines" => 0, "removed_lines" => 0, "diffs_count" => 0, "real_size" => nil }
+        )
       end
     end
 
@@ -573,6 +575,18 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
             removed_lines: 0,
             diffs_count: 1
           }
+        end
+      end
+
+      context 'when diffs overflow' do
+        include_examples 'overflow' do
+          let(:expected_stats) do
+            {
+              visible_count: 1,
+              email_path: "/#{project.full_path}/-/commit/#{commit_id}.patch",
+              diff_path: "/#{project.full_path}/-/commit/#{commit_id}.diff"
+            }
+          end
         end
       end
     end

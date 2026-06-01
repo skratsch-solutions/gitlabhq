@@ -29,6 +29,7 @@ export default {
       required: true,
     },
   },
+  emits: ['close-drawer', 'mark-article-as-read'],
   data() {
     return {
       articleOpen: false,

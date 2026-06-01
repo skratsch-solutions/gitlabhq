@@ -8,6 +8,7 @@ import { useCodeReview } from '~/diffs/stores/code_review';
 import { useMergeRequestDiscussions } from '~/merge_request/stores/merge_request_discussions';
 import { useTestCoverage } from '~/rapid_diffs/stores/test_coverage';
 import { useDiffsList } from '~/rapid_diffs/stores/diffs_list';
+import { useDiffsView } from '~/rapid_diffs/stores/diffs_view';
 import { DiffFile } from '~/rapid_diffs/web_components/diff_file';
 import { initCommitWidget } from '~/rapid_diffs/app/init_commit_widget';
 import { initCompareVersions } from '~/rapid_diffs/app/init_compare_versions';
@@ -24,6 +25,7 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     this.#initCompareVersions();
     this.#initCommitWidget();
     this.#initCoverage();
+    this.#initChangesTabCount();
     await this.#initDiscussions();
     initNewDiscussionToggle(this.root, { allowExpandedLines: true });
     initLineRangeSelection(this.root);
@@ -104,6 +106,21 @@ class MergeRequestRapidDiffsApp extends RapidDiffsFacade {
     const store = useTestCoverage(pinia);
     store.endpoint = coverageEndpoint;
     store.fetchCoverage();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  #initChangesTabCount() {
+    const tabCount = document.querySelector('.js-changes-tab-count');
+    if (!tabCount) return;
+    const store = useDiffsView(pinia);
+    watch(
+      () => store.totalFilesCount,
+      (count) => {
+        if (count == null) return;
+        tabCount.textContent = count;
+      },
+      { immediate: true },
+    );
   }
 }
 

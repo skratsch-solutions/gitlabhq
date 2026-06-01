@@ -187,6 +187,7 @@ export default {
     'pageHeading',
     'wikiUrl',
   ],
+  emits: ['is-editing'],
   saveOptions: [
     {
       text: s__('WikiPage|Save changes directly'),

@@ -40,10 +40,27 @@ describe('HiddenFilesWarning', () => {
     expect(wrapper.findAllComponents(GlButton)).toHaveLength(0);
   });
 
-  it('has a correct visible/total files text', () => {
+  const renderedText = () => wrapper.text().replace(/\s+/g, ' ').trim();
+
+  it('renders the listed, expanded and download sentences', () => {
     createComponent();
-    expect(wrapper.text()).toContain(
-      'For a faster browsing experience, only 5 of 10 files are shown. Download one of the files below to see all changes',
+    expect(renderedText()).toContain(
+      'Only the first 10 files are listed on this page. 5 files are expanded by default. To view all changes, download the diff.',
     );
+  });
+
+  it('declines the listed sentence in the singular form', () => {
+    createComponent({ total: 1 });
+    expect(renderedText()).toContain('Only the first 1 file is listed on this page.');
+  });
+
+  it('declines the expanded sentence in the singular form', () => {
+    createComponent({ visible: 1 });
+    expect(renderedText()).toContain('1 file is expanded by default.');
+  });
+
+  it('drops the "+" suffix when total is passed as a "N+" string', () => {
+    createComponent({ total: '10+' });
+    expect(renderedText()).toContain('Only the first 10 files are listed on this page.');
   });
 });
