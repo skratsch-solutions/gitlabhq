@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.shared_examples 'a subscribable resource api' do
   include GraphqlHelpers
 
-  let_it_be(:current_user) { create(:user) }
+  let_it_be(:current_user, freeze: false) { create(:user) }
   let(:project) { resource.project }
   let(:input) { { subscribed_state: true } }
   let(:resource_ref) { resource.class.name.camelize(:lower) }

@@ -9,8 +9,8 @@ RSpec.shared_examples 'deploy keys with protected branches' do
   let(:dropdown_sections_minus_deploy_keys) { all_dropdown_sections - ['Deploy keys'] }
 
   context 'when deploy keys are enabled to this project' do
-    let_it_be(:write_access_key) { create(:deploy_key, user: user, write_access_to: project) }
-    let_it_be(:readonly_access_key) { create(:deploy_key, user: user, readonly_access_to: project) }
+    let_it_be(:write_access_key, freeze: false) { create(:deploy_key, user: user, write_access_to: project) }
+    let_it_be(:readonly_access_key, freeze: false) { create(:deploy_key, user: user, readonly_access_to: project) }
 
     context 'when only one deploy key can push' do
       it "shows all dropdown sections in the 'Allowed to push' main dropdown, with only one deploy key" do

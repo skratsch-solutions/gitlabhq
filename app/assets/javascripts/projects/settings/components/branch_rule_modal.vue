@@ -7,6 +7,9 @@ import getProtectableBranches from '../graphql/queries/protectable_branches.quer
 const wildcardsHelpDocLink = helpPagePath('user/project/repository/branches/protected', {
   anchor: 'use-wildcard-rules',
 });
+
+// 255 characters is filesystem path limit on most systems
+const MAX_BRANCH_NAME_LENGTH = 255;
 export default {
   name: 'BranchRuleModal',
   wildcardsHelpDocLink,
@@ -76,7 +79,7 @@ export default {
       return items;
     },
     isBranchNameTooLong() {
-      return this.searchQuery.length > 255;
+      return this.searchQuery.length > MAX_BRANCH_NAME_LENGTH;
     },
     filteredOpenBranches() {
       const openBranches = this.protectableBranches.map((item) => ({

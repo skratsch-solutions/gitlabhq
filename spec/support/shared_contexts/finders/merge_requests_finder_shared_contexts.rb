@@ -13,10 +13,10 @@ RSpec.shared_context 'MergeRequestsFinder multiple projects with merge requests 
     end
   end
 
-  let_it_be(:user)  { create(:user) }
-  let_it_be(:user2) { create(:user) }
-  let_it_be(:group) { create(:group) }
-  let_it_be(:subgroup) { create(:group, parent: group) }
+  let_it_be(:user, freeze: false)  { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
   let_it_be_with_reload(:project1) do
     allow_gitaly_n_plus_1 { create(:project, :public, group: group, maintainers: user) }
   end
@@ -50,8 +50,8 @@ RSpec.shared_context 'MergeRequestsFinder multiple projects with merge requests 
     allow_gitaly_n_plus_1 { create(:project, group: subgroup, developers: user) }
   end
 
-  let_it_be(:label) { create(:label, project: project1) }
-  let_it_be(:label2) { create(:label, project: project1) }
+  let_it_be(:label, freeze: false) { create(:label, project: project1) }
+  let_it_be(:label2, freeze: false) { create(:label, project: project1) }
 
   let!(:merge_request1) do
     create(
@@ -86,7 +86,7 @@ RSpec.shared_context 'MergeRequestsFinder multiple projects with merge requests 
     )
   end
 
-  let_it_be(:merge_request5) do
+  let_it_be(:merge_request5, freeze: false) do
     create(
       :merge_request, :simple, author: user,
       source_project: project4, target_project: project4,

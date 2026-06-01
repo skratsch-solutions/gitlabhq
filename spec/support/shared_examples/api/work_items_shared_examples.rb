@@ -186,7 +186,7 @@ RSpec.shared_examples 'work item listing payload' do
 end
 
 RSpec.shared_examples 'avoids N+1 queries' do
-  let_it_be(:timelog_user) { create(:user) }
+  let_it_be(:timelog_user, freeze: false) { create(:user) }
 
   before do
     create(:issue_assignee, issue: primary_work_item, assignee: user)

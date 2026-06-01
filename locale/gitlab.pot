@@ -27879,6 +27879,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Project context has already been initialized."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Project context has already been initialized. %{linkStart}View the agent session%{linkEnd} to find the merge request."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Read file"
 msgstr ""
 

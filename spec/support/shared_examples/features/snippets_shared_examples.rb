@@ -183,11 +183,11 @@ RSpec.shared_examples 'show and render proper snippet blob' do
 end
 
 RSpec.shared_examples 'personal snippet with references' do
-  let_it_be(:project)         { create(:project, :repository) }
-  let_it_be(:merge_request)   { create(:merge_request, source_project: project) }
-  let_it_be(:project_snippet) { create(:project_snippet, :repository, project: project) }
-  let_it_be(:issue)           { create(:issue, project: project) }
-  let_it_be(:commit)          { project.commit }
+  let_it_be(:project, freeze: false)         { create(:project, :repository) }
+  let_it_be(:merge_request, freeze: false)   { create(:merge_request, source_project: project) }
+  let_it_be(:project_snippet, freeze: false) { create(:project_snippet, :repository, project: project) }
+  let_it_be(:issue, freeze: false)           { create(:issue, project: project) }
+  let_it_be(:commit, freeze: false)          { project.commit }
 
   let(:mr_reference)          { merge_request.to_reference(full: true) }
   let(:issue_reference)       { issue.to_reference(full: true) }

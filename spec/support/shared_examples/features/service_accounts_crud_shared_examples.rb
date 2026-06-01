@@ -64,7 +64,7 @@ RSpec.shared_examples 'service account CRUD' do |path_helper_method:|
   end
 
   describe 'access token management' do
-    let_it_be(:service_account) do
+    let_it_be(:service_account, freeze: false) do
       create(:user, :service_account, name: 'Token SA', **provisioning_attribute)
     end
 

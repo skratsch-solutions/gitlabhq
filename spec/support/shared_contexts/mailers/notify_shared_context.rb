@@ -2,7 +2,7 @@
 
 RSpec.shared_context 'gitlab email notification' do
   let_it_be_with_reload(:group) { create(:group) }
-  let_it_be(:subgroup) { create(:group, parent: group) }
+  let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
   let_it_be_with_reload(:project) { create(:project, :repository, name: 'a-known-name', group: group) }
   let_it_be_with_reload(:recipient) { create(:user, email: 'recipient@example.com') }
   let(:gitlab_sender_display_name) { Gitlab.config.gitlab.email_display_name }

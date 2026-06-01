@@ -61,8 +61,8 @@ RSpec.shared_examples 'embedded views (GLQL)' do
   end
 
   context 'with a query displaying jobs' do
-    let_it_be(:ci_pipeline) { create(:ci_pipeline, :success, project: project) }
-    let_it_be(:ci_build) { create(:ci_build, :success, pipeline: ci_pipeline, name: 'rspec unit') }
+    let_it_be(:ci_pipeline, freeze: false) { create(:ci_pipeline, :success, project: project) }
+    let_it_be(:ci_build, freeze: false) { create(:ci_build, :success, pipeline: ci_pipeline, name: 'rspec unit') }
 
     before do
       submit_glql_view(
@@ -85,7 +85,7 @@ RSpec.shared_examples 'embedded views (GLQL)' do
   end
 
   context 'with a query displaying pipelines' do
-    let_it_be(:ci_pipeline) { create(:ci_pipeline, :success, project: project, name: 'Deploy pipeline') }
+    let_it_be(:ci_pipeline, freeze: false) { create(:ci_pipeline, :success, project: project, name: 'Deploy pipeline') }
 
     before do
       submit_glql_view(
@@ -203,8 +203,8 @@ RSpec.shared_examples 'embedded views (GLQL)' do
   end
 
   context 'with a query displaying projects' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:group_project) { create(:project, namespace: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:group_project, freeze: false) { create(:project, namespace: group) }
 
     before_all do
       group.add_maintainer(user)

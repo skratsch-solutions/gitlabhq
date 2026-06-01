@@ -12,7 +12,7 @@ RSpec.shared_examples 'User previews wiki changes' do
   end
 
   shared_examples 'relative links' do
-    let_it_be(:page_content) do
+    let_it_be(:page_content, freeze: false) do
       <<~HEREDOC
         Some text so key event for [ does not trigger an incorrect replacement.
         [regular link](regular)

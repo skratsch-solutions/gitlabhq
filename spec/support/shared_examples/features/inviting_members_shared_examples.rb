@@ -193,7 +193,7 @@ RSpec.shared_examples 'inviting members' do |snowplow_invite_label|
       end
 
       context 'when there are multiple users invited with errors' do
-        let_it_be(:user3) { create(:user) }
+        let_it_be(:user3, freeze: false) { create(:user) }
 
         before do
           group.add_maintainer(user3)
