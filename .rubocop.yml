@@ -1190,6 +1190,13 @@ RSpec/HaveGitlabHttpStatus:
     - 'spec/**/*'
     - 'ee/spec/**/*'
 
+RSpec/MissingMatchWhenNegated:
+  Enabled: true
+  Include:
+    - 'spec/**/*'
+    - 'ee/spec/**/*'
+    - 'qa/**/*'
+
 RSpec/ContextWording:
   Prefixes:
   - 'when'

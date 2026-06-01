@@ -17,7 +17,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
       Integration.available_integration_names(include_instance_specific: false) - excluded_integrations
     end
 
-    let_it_be(:project_integrations_map) do
+    let_it_be(:project_integrations_map, freeze: false) do
       available_integration_names.index_with do |name|
         # Activate Confluence so it appears in API response
         traits = (name == 'confluence' ? [] : [:inactive])

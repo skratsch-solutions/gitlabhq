@@ -2986,4 +2986,5 @@ incompatible with personal access tokens.
 | `POST` | `/runners/reset_authentication_token` | Runner token |
 | `GET` | `/runners/router/discovery` | Runner token |
 | `POST` | `/runners/verify` | Runner token |
+| `POST` | `/token_exchange` | Modular service token exchange |
 | `GET` | `/usage_data/metric_definitions` | Usage data token |

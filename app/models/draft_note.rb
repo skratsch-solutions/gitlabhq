@@ -7,7 +7,7 @@ class DraftNote < ApplicationRecord
   include BulkInsertSafe
 
   PUBLISH_ATTRS = %i[noteable type note internal].freeze
-  DIFF_ATTRS = %i[position original_position change_position commit_id].freeze
+  DIFF_ATTRS = %i[position original_position change_position commit_id line_code].freeze
 
   sha_attribute :commit_id
 

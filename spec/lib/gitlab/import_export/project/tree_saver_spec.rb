@@ -17,11 +17,11 @@ RSpec.describe Gitlab::ImportExport::Project::TreeSaver, :with_license, feature_
     subject { get_json(full_path, exportable_path, relation_name) }
 
     describe 'saves project tree attributes' do
-      let_it_be(:shared) { project.import_export_shared }
+      let_it_be(:shared, freeze: false) { project.import_export_shared }
 
       let(:relation_name) { :projects }
 
-      let_it_be(:full_path) { File.join(shared.export_path, 'tree') }
+      let_it_be(:full_path, freeze: false) { File.join(shared.export_path, 'tree') }
 
       before_all do
         RSpec::Mocks.with_temporary_scope do

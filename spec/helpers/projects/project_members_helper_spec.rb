@@ -6,7 +6,7 @@ RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_pro
   include MembersPresentation
 
   let_it_be(:current_user) { create(:user) }
-  let_it_be(:project) { create(:project, group: create(:group)) }
+  let_it_be(:project, freeze: false) { create(:project, group: create(:group)) }
 
   before do
     allow(helper).to receive(:current_user).and_return(current_user)

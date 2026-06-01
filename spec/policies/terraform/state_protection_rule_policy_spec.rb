@@ -14,6 +14,7 @@ RSpec.describe Terraform::StateProtectionRulePolicy, feature_category: :infrastr
 
       it { expect_disallowed(:read_terraform_state) }
       it { expect_disallowed(:admin_terraform_state) }
+      it { expect_disallowed(:delete_terraform_state_protection_rule) }
     end
 
     context 'as a developer' do
@@ -21,6 +22,7 @@ RSpec.describe Terraform::StateProtectionRulePolicy, feature_category: :infrastr
 
       it { expect_allowed(:read_terraform_state) }
       it { expect_disallowed(:admin_terraform_state) }
+      it { expect_disallowed(:delete_terraform_state_protection_rule) }
     end
 
     context 'as a maintainer' do
@@ -28,6 +30,7 @@ RSpec.describe Terraform::StateProtectionRulePolicy, feature_category: :infrastr
 
       it { expect_allowed(:read_terraform_state) }
       it { expect_allowed(:admin_terraform_state) }
+      it { expect_allowed(:delete_terraform_state_protection_rule) }
     end
   end
 end

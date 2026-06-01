@@ -34098,6 +34098,12 @@ msgstr ""
 msgid "GitAbuse|You cannot specify more than %{maxAllowedUsers} excluded users."
 msgstr ""
 
+msgid "GitGuardian|API endpoint"
+msgstr ""
+
+msgid "GitGuardian|GitGuardian API base URL. Defaults to %{default_url}. Use %{eu_url} for the EU region, or the URL of your self-hosted GitGuardian instance. Must use HTTPS."
+msgstr ""
+
 msgid "GitGuardian|Personal access token to authenticate calls to the GitGuardian API."
 msgstr ""
 
@@ -79842,6 +79848,9 @@ msgid "Unauthorized to delete a package protection rule"
 msgstr ""
 
 msgid "Unauthorized to delete a protection rule for container image tags"
+msgstr ""
+
+msgid "Unauthorized to delete a terraform state protection rule"
 msgstr ""
 
 msgid "Unauthorized to update a Terraform state protection rule"

@@ -1440,9 +1440,12 @@ RSpec.shared_examples 'issues or work items finder' do |factory, execute_context
       end
 
       context 'when filtering items assigned to the current user' do
-        let_it_be(:assigned_user) { create(:user) }
-        let_it_be(:assigned_public_item) { create(factory, project: project, assignees: [assigned_user]) }
-        let_it_be(:assigned_confidential_item) do
+        let_it_be(:assigned_user, freeze: false) { create(:user) }
+        let_it_be(:assigned_public_item, freeze: false) do
+          create(factory, project: project, assignees: [assigned_user])
+        end
+
+        let_it_be(:assigned_confidential_item, freeze: false) do
           create(factory, project: project, confidential: true, assignees: [assigned_user])
         end
 

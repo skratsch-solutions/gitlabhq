@@ -8,7 +8,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   include AdminModeHelper
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:organization) { create(:organization) }
+  let_it_be(:organization, freeze: false) { create(:organization) }
   let_it_be_with_refind(:group) { create(:group) }
 
   let(:developer_access) { Gitlab::Access::DEVELOPER_PROJECT_ACCESS }
@@ -73,10 +73,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     it { is_expected.to have_one(:harbor_integration) }
 
     describe '#non_invite_group_members' do
-      let_it_be(:group) { create(:group) }
-      let_it_be(:non_requested_member) { create(:group_member, group: group) }
-      let_it_be(:non_invited_member) { create(:group_member, group: group) }
-      let_it_be(:non_minimal_access_member) { create(:group_member, group: group) }
+      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:non_requested_member, freeze: false) { create(:group_member, group: group) }
+      let_it_be(:non_invited_member, freeze: false) { create(:group_member, group: group) }
+      let_it_be(:non_minimal_access_member, freeze: false) { create(:group_member, group: group) }
 
       before do
         create(:group_member, :access_request, group: group)
@@ -90,8 +90,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#request_group_members' do
-      let_it_be(:group) { create(:group) }
-      let_it_be(:requested_member) { create(:group_member, :access_request, group: group) }
+      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:requested_member, freeze: false) { create(:group_member, :access_request, group: group) }
 
       before do
         create(:group_member, group: group) # regular member
@@ -105,8 +105,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#namespace_members' do
-      let_it_be(:requester) { create(:user) }
-      let_it_be(:developer) { create(:user) }
+      let_it_be(:requester, freeze: false) { create(:user) }
+      let_it_be(:developer, freeze: false) { create(:user) }
 
       before_all do
         group.request_access(requester)
@@ -128,8 +128,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#namespace_requesters' do
-      let_it_be(:requester) { create(:user) }
-      let_it_be(:developer) { create(:user) }
+      let_it_be(:requester, freeze: false) { create(:user) }
+      let_it_be(:developer, freeze: false) { create(:user) }
 
       before_all do
         group.request_access(requester)
@@ -152,9 +152,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     describe '#namespace_members_and_requesters' do
       let_it_be_with_reload(:group) { create(:group) }
-      let_it_be(:requester) { create(:user) }
-      let_it_be(:developer) { create(:user) }
-      let_it_be(:invited_member) { create(:group_member, :invited, :owner, group: group) }
+      let_it_be(:requester, freeze: false) { create(:user) }
+      let_it_be(:developer, freeze: false) { create(:user) }
+      let_it_be(:invited_member, freeze: false) { create(:group_member, :invited, :owner, group: group) }
 
       before_all do
         group.request_access(requester)
@@ -243,8 +243,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#members & #requesters' do
-      let_it_be(:requester) { create(:user) }
-      let_it_be(:developer) { create(:user) }
+      let_it_be(:requester, freeze: false) { create(:user) }
+      let_it_be(:developer, freeze: false) { create(:user) }
 
       before_all do
         group.request_access(requester)
@@ -269,8 +269,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe 'validations' do
-    let_it_be(:private_organization) { create(:organization, :private) }
-    let_it_be(:public_organization) { create(:organization, :public) }
+    let_it_be(:private_organization, freeze: false) { create(:organization, :private) }
+    let_it_be(:public_organization, freeze: false) { create(:organization, :public) }
 
     it { is_expected.to validate_presence_of :name }
     it { is_expected.not_to allow_value('colon:in:path').for(:path) } # This is to validate that a specially crafted name cannot bypass a pattern match. See !72555
@@ -347,9 +347,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#notification_settings' do
-      let_it_be(:user) { create(:user) }
-      let_it_be(:group) { create(:group) }
-      let_it_be(:sub_group) { create(:group, parent_id: group.id) }
+      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:sub_group, freeze: false) { create(:group, parent_id: group.id) }
 
       before_all do
         group.add_developer(user)
@@ -638,7 +638,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   context 'when creating a new project' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
 
     it 'automatically creates the groups feature for the group' do
       expect(group.group_feature).to be_an_instance_of(Groups::FeatureSetting)
@@ -996,12 +996,12 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.groups_user_can' do
-    let_it_be(:public_group) { create(:group, :public) }
-    let_it_be(:internal_subgroup) { create(:group, :internal, parent: public_group) }
-    let_it_be(:private_subgroup_1) { create(:group, :private, parent: internal_subgroup) }
-    let_it_be(:private_subgroup_2) { create(:group, :private, parent: private_subgroup_1) }
+    let_it_be(:public_group, freeze: false) { create(:group, :public) }
+    let_it_be(:internal_subgroup, freeze: false) { create(:group, :internal, parent: public_group) }
+    let_it_be(:private_subgroup_1, freeze: false) { create(:group, :private, parent: internal_subgroup) }
+    let_it_be(:private_subgroup_2, freeze: false) { create(:group, :private, parent: private_subgroup_1) }
 
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     it 'filters groups based on permissions' do
       private_subgroup_2.add_guest(user)
@@ -1085,24 +1085,24 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.sort_by_attribute' do
-    let_it_be(:group_1) { create(:group, id: 10, name: 'Y group') }
-    let_it_be(:group_2) { create(:group, id: 11, name: 'J group', created_at: 2.days.ago, updated_at: 1.day.ago) }
-    let_it_be(:group_3) { create(:group, id: 12, name: 'A group') }
-    let_it_be(:group_4) { create(:group, id: 13, name: 'F group', created_at: 1.day.ago, updated_at: 1.day.ago) }
+    let_it_be(:group_1, freeze: false) { create(:group, id: 10, name: 'Y group') }
+    let_it_be(:group_2, freeze: false) { create(:group, id: 11, name: 'J group', created_at: 2.days.ago, updated_at: 1.day.ago) }
+    let_it_be(:group_3, freeze: false) { create(:group, id: 12, name: 'A group') }
+    let_it_be(:group_4, freeze: false) { create(:group, id: 13, name: 'F group', created_at: 1.day.ago, updated_at: 1.day.ago) }
 
-    let_it_be(:project_1) do
+    let_it_be(:project_1, freeze: false) do
       create(:project, namespace: group_1, statistics: create(:project_statistics, storage_size: 1278370))
     end
 
-    let_it_be(:project_2) do
+    let_it_be(:project_2, freeze: false) do
       create(:project, namespace: group_2, statistics: create(:project_statistics, storage_size: 3178370))
     end
 
-    let_it_be(:project_3) do
+    let_it_be(:project_3, freeze: false) do
       create(:project, namespace: group_3, statistics: create(:project_statistics, storage_size: 1178370))
     end
 
-    let_it_be(:project_4) do
+    let_it_be(:project_4, freeze: false) do
       create(:project, namespace: group_4, statistics: create(:project_statistics, storage_size: 2278370))
     end
 
@@ -1176,10 +1176,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe 'scopes' do
-    let_it_be(:private_group)  { create(:group, :private)  }
-    let_it_be(:internal_group) { create(:group, :internal) }
-    let_it_be(:user1) { create(:user) }
-    let_it_be(:user2) { create(:user) }
+    let_it_be(:private_group, freeze: false)  { create(:group, :private)  }
+    let_it_be(:internal_group, freeze: false) { create(:group, :internal) }
+    let_it_be(:user1, freeze: false) { create(:user) }
+    let_it_be(:user2, freeze: false) { create(:user) }
 
     describe 'public_only' do
       subject { described_class.public_only.to_a }
@@ -1206,7 +1206,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe 'with_non_archived_projects' do
-      let_it_be(:project) { create(:project, group: private_group, archived: false) }
+      let_it_be(:project, freeze: false) { create(:project, group: private_group, archived: false) }
 
       subject { described_class.with_non_archived_projects }
 
@@ -1217,7 +1217,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe 'preload_owners' do
-      let_it_be(:owner) { create(:user) }
+      let_it_be(:owner, freeze: false) { create(:user) }
 
       before_all do
         private_group.add_owner(owner)
@@ -1232,7 +1232,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe 'with_non_invite_group_members' do
-      let_it_be(:group_member) { create(:group_member, member_namespace: private_group, requested_at: nil, invite_token: nil, access_level: Gitlab::Access::DEVELOPER) }
+      let_it_be(:group_member, freeze: false) { create(:group_member, member_namespace: private_group, requested_at: nil, invite_token: nil, access_level: Gitlab::Access::DEVELOPER) }
 
       subject { described_class.with_non_invite_group_members }
 
@@ -1243,7 +1243,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.with_request_group_members' do
-      let_it_be(:group_member) { create(:group_member, :access_request, member_namespace: private_group) }
+      let_it_be(:group_member, freeze: false) { create(:group_member, :access_request, member_namespace: private_group) }
 
       subject(:with_request_group_members) { described_class.with_request_group_members }
 
@@ -1254,7 +1254,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe 'for_authorized_group_members' do
-      let_it_be(:group_member1) { create(:group_member, source: private_group, user_id: user1.id, access_level: Gitlab::Access::OWNER) }
+      let_it_be(:group_member1, freeze: false) { create(:group_member, source: private_group, user_id: user1.id, access_level: Gitlab::Access::OWNER) }
 
       it do
         result = described_class.for_authorized_group_members([user1.id, user2.id])
@@ -1264,8 +1264,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe 'for_authorized_project_members' do
-      let_it_be(:project) { create(:project, group: internal_group) }
-      let_it_be(:project_member1) { create(:project_member, source: project, user_id: user1.id, access_level: Gitlab::Access::DEVELOPER) }
+      let_it_be(:project, freeze: false) { create(:project, group: internal_group) }
+      let_it_be(:project_member1, freeze: false) { create(:project_member, source: project, user_id: user1.id, access_level: Gitlab::Access::DEVELOPER) }
 
       it do
         result = described_class.for_authorized_project_members([user1.id, user2.id])
@@ -1275,8 +1275,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.aimed_for_deletion' do
-      let_it_be(:group_not_marked_for_deletion) { create(:group) }
-      let_it_be(:group_marked_for_deletion) { create(:group_with_deletion_schedule) }
+      let_it_be(:group_not_marked_for_deletion, freeze: false) { create(:group) }
+      let_it_be(:group_marked_for_deletion, freeze: false) { create(:group_with_deletion_schedule) }
 
       subject(:relation) { described_class.aimed_for_deletion }
 
@@ -1287,15 +1287,15 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.self_or_ancestors_aimed_for_deletion' do
-      let_it_be(:group_not_marked_for_deletion) { create(:group) }
-      let_it_be(:group_not_marked_for_deletion_subgroup) { create(:group, parent: group_not_marked_for_deletion) }
-      let_it_be(:group_marked_for_deletion) { create(:group_with_deletion_schedule) }
+      let_it_be(:group_not_marked_for_deletion, freeze: false) { create(:group) }
+      let_it_be(:group_not_marked_for_deletion_subgroup, freeze: false) { create(:group, parent: group_not_marked_for_deletion) }
+      let_it_be(:group_marked_for_deletion, freeze: false) { create(:group_with_deletion_schedule) }
 
-      let_it_be(:group_marked_for_deletion_with_active_parent) do
+      let_it_be(:group_marked_for_deletion_with_active_parent, freeze: false) do
         create(:group_with_deletion_schedule, parent: group_not_marked_for_deletion)
       end
 
-      let_it_be(:group_not_marked_for_deletion_with_parent_marked_for_deletion) do
+      let_it_be(:group_not_marked_for_deletion_with_parent_marked_for_deletion, freeze: false) do
         create(:group, parent: group_marked_for_deletion)
       end
 
@@ -1323,8 +1323,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.not_aimed_for_deletion' do
-      let_it_be(:group_not_marked_for_deletion) { create(:group) }
-      let_it_be(:group_marked_for_deletion) { create(:group_with_deletion_schedule) }
+      let_it_be(:group_not_marked_for_deletion, freeze: false) { create(:group) }
+      let_it_be(:group_marked_for_deletion, freeze: false) { create(:group_with_deletion_schedule) }
 
       subject(:relation) { described_class.not_aimed_for_deletion }
 
@@ -1335,15 +1335,15 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.self_and_ancestors_not_aimed_for_deletion' do
-      let_it_be(:group_not_marked_for_deletion) { create(:group) }
-      let_it_be(:group_not_marked_for_deletion_subgroup) { create(:group, parent: group_not_marked_for_deletion) }
-      let_it_be(:group_marked_for_deletion) { create(:group_with_deletion_schedule) }
+      let_it_be(:group_not_marked_for_deletion, freeze: false) { create(:group) }
+      let_it_be(:group_not_marked_for_deletion_subgroup, freeze: false) { create(:group, parent: group_not_marked_for_deletion) }
+      let_it_be(:group_marked_for_deletion, freeze: false) { create(:group_with_deletion_schedule) }
 
-      let_it_be(:group_marked_for_deletion_with_active_parent) do
+      let_it_be(:group_marked_for_deletion_with_active_parent, freeze: false) do
         create(:group_with_deletion_schedule, parent: group_not_marked_for_deletion)
       end
 
-      let_it_be(:group_not_marked_for_deletion_with_parent_marked_for_deletion) do
+      let_it_be(:group_not_marked_for_deletion_with_parent_marked_for_deletion, freeze: false) do
         create(:group, parent: group_marked_for_deletion)
       end
 
@@ -1371,8 +1371,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.marked_for_deletion_on' do
-      let_it_be(:group_marked_for_deletion) { create(:group_with_deletion_schedule, marked_for_deletion_on: Date.parse('2024-01-01')) }
-      let_it_be(:group_not_marked_for_deletion) { create(:group) }
+      let_it_be(:group_marked_for_deletion, freeze: false) { create(:group_with_deletion_schedule, marked_for_deletion_on: Date.parse('2024-01-01')) }
+      let_it_be(:group_not_marked_for_deletion, freeze: false) { create(:group) }
 
       context 'when marked_for_deletion_on is present' do
         it 'returns groups marked for deletion on the specified date' do
@@ -1414,11 +1414,11 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.with_project_creation_levels' do
-      let_it_be(:group_1) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
-      let_it_be(:group_2) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS) }
-      let_it_be(:group_3) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-      let_it_be(:group_4) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
-      let_it_be(:group_5) { create(:group, project_creation_level: nil) }
+      let_it_be(:group_1, freeze: false) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
+      let_it_be(:group_2, freeze: false) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS) }
+      let_it_be(:group_3, freeze: false) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
+      let_it_be(:group_4, freeze: false) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
+      let_it_be(:group_5, freeze: false) { create(:group, project_creation_level: nil) }
 
       it 'returns groups with the specified project creation levels' do
         result = described_class.with_project_creation_levels([
@@ -1432,7 +1432,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.excluding_restricted_visibility_levels_for_user' do
-      let_it_be(:admin_user) { create(:admin) }
+      let_it_be(:admin_user, freeze: false) { create(:admin) }
 
       let(:private_vis) { Gitlab::VisibilityLevel::PRIVATE }
       let(:internal_vis) { Gitlab::VisibilityLevel::INTERNAL }
@@ -1470,13 +1470,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.project_creation_allowed' do
-      let_it_be(:group_1) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
-      let_it_be(:group_2) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS) }
-      let_it_be(:group_3) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-      let_it_be(:group_4) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
-      let_it_be(:group_5) { create(:group, project_creation_level: Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS) }
-      let_it_be(:group_6) { create(:group, project_creation_level: nil) } # `nil` inherits `default_project_creation`
-      let_it_be(:all_groups) { described_class.id_in([group_1, group_2, group_3, group_4, group_5, group_6]) }
+      let_it_be(:group_1, freeze: false) { create(:group, project_creation_level: Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
+      let_it_be(:group_2, freeze: false) { create(:group, project_creation_level: Gitlab::Access::DEVELOPER_PROJECT_ACCESS) }
+      let_it_be(:group_3, freeze: false) { create(:group, project_creation_level: Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
+      let_it_be(:group_4, freeze: false) { create(:group, project_creation_level: Gitlab::Access::OWNER_PROJECT_ACCESS) }
+      let_it_be(:group_5, freeze: false) { create(:group, project_creation_level: Gitlab::Access::ADMINISTRATOR_PROJECT_ACCESS) }
+      let_it_be(:group_6, freeze: false) { create(:group, project_creation_level: nil) } # `nil` inherits `default_project_creation`
+      let_it_be(:all_groups, freeze: false) { described_class.id_in([group_1, group_2, group_3, group_4, group_5, group_6]) }
 
       where(:admin_user?, :admin_mode, :default_project_creation, :expected_groups) do
         false | false | Gitlab::Access::NO_ONE_PROJECT_ACCESS               | lazy { [group_2, group_3, group_4] }
@@ -1568,11 +1568,11 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     describe 'accessible_to_user' do
       subject { described_class.accessible_to_user(user) }
 
-      let_it_be(:public_group) { create(:group, :public) }
-      let_it_be(:unaccessible_group) { create(:group, :private) }
-      let_it_be(:unaccessible_subgroup) { create(:group, :private, parent: unaccessible_group) }
-      let_it_be(:accessible_group) { create(:group, :private) }
-      let_it_be(:accessible_subgroup) { create(:group, :private, parent: accessible_group) }
+      let_it_be(:public_group, freeze: false) { create(:group, :public) }
+      let_it_be(:unaccessible_group, freeze: false) { create(:group, :private) }
+      let_it_be(:unaccessible_subgroup, freeze: false) { create(:group, :private, parent: unaccessible_group) }
+      let_it_be(:accessible_group, freeze: false) { create(:group, :private) }
+      let_it_be(:accessible_subgroup, freeze: false) { create(:group, :private, parent: accessible_group) }
 
       context 'when user is nil' do
         let(:user) { nil }
@@ -1581,7 +1581,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
 
       context 'when user is present' do
-        let_it_be(:user) { create(:user) }
+        let_it_be(:user, freeze: false) { create(:user) }
 
         it { is_expected.to match_array([group, internal_group, public_group]) }
 
@@ -1597,13 +1597,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     describe '.sorted_by_similarity_desc' do
       # Exact match to the search term
-      let_it_be(:first) { create(:group, path: 'similar-b', name: 'similar-b') }
+      let_it_be(:first, freeze: false) { create(:group, path: 'similar-b', name: 'similar-b') }
       # Not similar at all
-      let_it_be(:last) { create(:group, path: 'different-path-a', name: 'different-name-a') }
+      let_it_be(:last, freeze: false) { create(:group, path: 'different-path-a', name: 'different-name-a') }
 
       # The two middle terms have the same distance from the search term
-      let_it_be(:middle) { create(:group, path: 'similar-a', name: 'similar-a') }
-      let_it_be(:middle_two) { create(:group, path: 'similar-c', name: 'similar-c') }
+      let_it_be(:middle, freeze: false) { create(:group, path: 'similar-a', name: 'similar-a') }
+      let_it_be(:middle_two, freeze: false) { create(:group, path: 'similar-c', name: 'similar-c') }
 
       let(:search_term) { 'similar-b' }
 
@@ -1619,9 +1619,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.in_organization' do
-      let_it_be(:org1) { create(:organization) }
-      let_it_be(:org2) { create(:organization) }
-      let_it_be(:groups) { create_pair(:group, organization: org1) }
+      let_it_be(:org1, freeze: false) { create(:organization) }
+      let_it_be(:org2, freeze: false) { create(:organization) }
+      let_it_be(:groups, freeze: false) { create_pair(:group, organization: org1) }
 
       before do
         create(:group, organization: org2)
@@ -1633,9 +1633,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.by_min_access_level' do
-      let_it_be(:user) { create(:user) }
-      let_it_be(:group1) { create(:group) }
-      let_it_be(:group2) { create(:group) }
+      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:group1, freeze: false) { create(:group) }
+      let_it_be(:group2, freeze: false) { create(:group) }
 
       let(:owner_access_level) { Gitlab::Access::OWNER }
       let(:developer_access_level) { Gitlab::Access::DEVELOPER }
@@ -1661,13 +1661,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     describe 'descendants_with_shared_with_groups' do
       subject { described_class.descendants_with_shared_with_groups(parent_group) }
 
-      let_it_be(:grand_parent_group) { create(:group, :public) }
-      let_it_be(:parent_group) { create(:group, :public, parent: grand_parent_group) }
-      let_it_be(:subgroup) { create(:group, :public, parent: parent_group) }
-      let_it_be(:subsubgroup) { create(:group, :public, parent: subgroup) }
+      let_it_be(:grand_parent_group, freeze: false) { create(:group, :public) }
+      let_it_be(:parent_group, freeze: false) { create(:group, :public, parent: grand_parent_group) }
+      let_it_be(:subgroup, freeze: false) { create(:group, :public, parent: parent_group) }
+      let_it_be(:subsubgroup, freeze: false) { create(:group, :public, parent: subgroup) }
 
-      let_it_be(:shared_to_group) { create(:group, :public) }
-      let_it_be(:shared_to_sub_group) { create(:group, :public) }
+      let_it_be(:shared_to_group, freeze: false) { create(:group, :public) }
+      let_it_be(:shared_to_sub_group, freeze: false) { create(:group, :public) }
 
       context 'when parent group is nil' do
         let(:parent_group) { nil }
@@ -1690,9 +1690,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     shared_examples 'ancestor aware active scope' do
-      let_it_be(:active_group) { create(:group) }
-      let_it_be(:inactive_group) { create(:group, :archived) }
-      let_it_be(:inactive_subgroup) { create(:group, parent: inactive_group) }
+      let_it_be(:active_group, freeze: false) { create(:group) }
+      let_it_be(:inactive_group, freeze: false) { create(:group, :archived) }
+      let_it_be(:inactive_subgroup, freeze: false) { create(:group, parent: inactive_group) }
 
       it { is_expected.to include(active_group) }
       it { is_expected.not_to include(inactive_group, inactive_subgroup) }
@@ -1711,9 +1711,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     shared_examples 'ancestor aware inactive scope' do
-      let_it_be(:active_group) { create(:group) }
-      let_it_be(:inactive_group) { create(:group, :archived) }
-      let_it_be(:inactive_subgroup) { create(:group, parent: inactive_group) }
+      let_it_be(:active_group, freeze: false) { create(:group) }
+      let_it_be(:inactive_group, freeze: false) { create(:group, :archived) }
+      let_it_be(:inactive_subgroup, freeze: false) { create(:group, parent: inactive_group) }
 
       it { is_expected.to include(inactive_group, inactive_subgroup) }
       it { is_expected.not_to include(active_group) }
@@ -1732,8 +1732,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.with_integrations' do
-      let_it_be(:group_with_integration) { create(:group) }
-      let_it_be(:group_without_integration) { create(:group) }
+      let_it_be(:group_with_integration, freeze: false) { create(:group) }
+      let_it_be(:group_without_integration, freeze: false) { create(:group) }
 
       before do
         create(:integrations_slack, :group, group: group_with_integration, group_mention_events: true, group_confidential_mention_events: true)
@@ -1746,9 +1746,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '.excluding_self_and_ancestors_archived' do
-      let_it_be(:root_group) { create(:group) }
-      let_it_be(:subgroup) { create(:group, parent: root_group) }
-      let_it_be(:sub_subgroup) { create(:group, parent: subgroup) }
+      let_it_be(:root_group, freeze: false) { create(:group) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: root_group) }
+      let_it_be(:sub_subgroup, freeze: false) { create(:group, parent: subgroup) }
 
       subject { root_group.self_and_descendants.excluding_self_and_ancestors_archived }
 
@@ -1868,7 +1868,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#to_human_reference' do
-    let_it_be(:new_group) { create(:group) }
+    let_it_be(:new_group, freeze: false) { create(:group) }
 
     it { expect(group.to_human_reference).to be_nil }
     it { expect(group.to_human_reference(new_group)).to eq(group.full_name) }
@@ -2049,8 +2049,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#last_owner_in_list?' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     context 'when user is nil' do
       it 'returns false' do
@@ -2088,10 +2088,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   context 'when analyzing blocked owners' do
-    let_it_be(:blocked_user) { create(:user, :blocked) }
+    let_it_be(:blocked_user, freeze: false) { create(:user, :blocked) }
 
     describe '#blocked_owners' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
 
       before do
         group.add_member(blocked_user, GroupMember::OWNER)
@@ -2115,7 +2115,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#member_owners_excluding_project_bots_and_service_accounts' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     let!(:member_owner) do
       group.add_member(user, GroupMember::OWNER)
@@ -2191,7 +2191,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       context 'when subgroup' do
         let!(:subgroup) { create(:group, parent: group) }
 
-        let_it_be(:user_2) { create(:user) }
+        let_it_be(:user_2, freeze: false) { create(:user) }
 
         let!(:member_owner_2) do
           subgroup.add_member(user_2, GroupMember::OWNER)
@@ -2202,7 +2202,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         end
 
         context 'with group sharing' do
-          let_it_be(:invited_group) { create(:group) }
+          let_it_be(:invited_group, freeze: false) { create(:group) }
 
           let!(:invited_group_owner) { invited_group.add_member(user, GroupMember::OWNER) }
 
@@ -2229,7 +2229,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when there are no owners' do
-      let_it_be(:empty_group) { create(:group) }
+      let_it_be(:empty_group, freeze: false) { create(:group) }
 
       it 'returns an empty result' do
         expect(empty_group.member_owners_excluding_project_bots_and_service_accounts).to be_empty
@@ -2368,11 +2368,11 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#has_user?' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:subgroup) { create(:group, parent: group) }
-    let_it_be(:user) { create(:user) }
-    let_it_be(:user2) { create(:user) }
-    let_it_be(:invited_group_member) { create(:group_member, :owner, :invited, group: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:user2, freeze: false) { create(:user) }
+    let_it_be(:invited_group_member, freeze: false) { create(:group_member, :owner, :invited, group: group) }
 
     subject { group.has_user?(user) }
 
@@ -2416,8 +2416,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#member?' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     before_all do
       group.add_developer(user)
@@ -2461,8 +2461,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#member_of_self_or_descendant?' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     subject { group.member_of_self_or_descendant?(user) }
 
@@ -2504,7 +2504,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#max_member_access_for_user' do
-    let_it_be(:group_user) { create(:user) }
+    let_it_be(:group_user, freeze: false) { create(:user) }
 
     context 'with user in the group' do
       before_all do
@@ -2516,7 +2516,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
 
       context 'when user is not active' do
-        let_it_be(:group_user) { create(:user, :deactivated) }
+        let_it_be(:group_user, freeze: false) { create(:user, :deactivated) }
 
         it 'returns NO_ACCESS' do
           expect(group.max_member_access_for_user(group_user)).to eq(Gitlab::Access::NO_ACCESS)
@@ -2531,7 +2531,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'evaluating admin access level' do
-      let_it_be(:admin) { create(:admin) }
+      let_it_be(:admin, freeze: false) { create(:admin) }
 
       context 'when admin mode is enabled', :enable_admin_mode do
         it 'returns OWNER by default' do
@@ -2552,8 +2552,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when organization owner' do
-      let_it_be(:group) { create(:group) }
-      let_it_be(:org_owner) { create(:user, owner_of: group.organization) }
+      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:org_owner, freeze: false) { create(:user, owner_of: group.organization) }
 
       it 'returns OWNER by default' do
         expect(group.max_member_access_for_user(org_owner)).to eq(Gitlab::Access::OWNER)
@@ -2586,16 +2586,16 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'group shared with another group' do
-      let_it_be(:parent_group_user) { create(:user) }
-      let_it_be(:child_group_user) { create(:user) }
+      let_it_be(:parent_group_user, freeze: false) { create(:user) }
+      let_it_be(:child_group_user, freeze: false) { create(:user) }
 
-      let_it_be(:group_parent) { create(:group, :private) }
-      let_it_be(:group) { create(:group, :private, parent: group_parent) }
-      let_it_be(:group_child) { create(:group, :private, parent: group) }
+      let_it_be(:group_parent, freeze: false) { create(:group, :private) }
+      let_it_be(:group, freeze: false) { create(:group, :private, parent: group_parent) }
+      let_it_be(:group_child, freeze: false) { create(:group, :private, parent: group) }
 
-      let_it_be(:shared_group_parent) { create(:group, :private) }
-      let_it_be(:shared_group) { create(:group, :private, parent: shared_group_parent) }
-      let_it_be(:shared_group_child) { create(:group, :private, parent: shared_group) }
+      let_it_be(:shared_group_parent, freeze: false) { create(:group, :private) }
+      let_it_be(:shared_group, freeze: false) { create(:group, :private, parent: shared_group_parent) }
+      let_it_be(:shared_group_child, freeze: false) { create(:group, :private, parent: shared_group) }
 
       before_all do
         group_parent.add_owner(parent_group_user)
@@ -2672,10 +2672,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'multiple groups shared with group' do
-      let_it_be(:user) { create(:user) }
-      let_it_be(:group) { create(:group, :private) }
-      let_it_be(:shared_group_parent) { create(:group, :private) }
-      let_it_be(:shared_group) { create(:group, :private, parent: shared_group_parent) }
+      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:group, freeze: false) { create(:group, :private) }
+      let_it_be(:shared_group_parent, freeze: false) { create(:group, :private) }
+      let_it_be(:shared_group, freeze: false) { create(:group, :private, parent: shared_group_parent) }
 
       before_all do
         group.add_owner(user)
@@ -2695,9 +2695,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#direct_members' do
-    let_it_be(:group) { create(:group, :nested) }
-    let_it_be(:maintainer) { group.parent.add_member(create(:user), GroupMember::MAINTAINER) }
-    let_it_be(:developer) { group.add_member(create(:user), GroupMember::DEVELOPER) }
+    let_it_be(:group, freeze: false) { create(:group, :nested) }
+    let_it_be(:maintainer, freeze: false) { group.parent.add_member(create(:user), GroupMember::MAINTAINER) }
+    let_it_be(:developer, freeze: false) { group.add_member(create(:user), GroupMember::DEVELOPER) }
 
     it 'does not return members of the parent' do
       expect(group.direct_members).not_to include(maintainer)
@@ -2810,12 +2810,12 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   context 'members-related methods' do
-    let_it_be(:group) { create(:group, :nested) }
-    let_it_be(:sub_group) { create(:group, parent: group) }
+    let_it_be(:group, freeze: false) { create(:group, :nested) }
+    let_it_be(:sub_group, freeze: false) { create(:group, parent: group) }
 
-    let_it_be(:maintainer) { group.parent.add_member(create(:user), GroupMember::MAINTAINER) }
-    let_it_be(:developer) { group.add_member(create(:user), GroupMember::DEVELOPER) }
-    let_it_be(:other_developer) { group.add_member(create(:user), GroupMember::DEVELOPER) }
+    let_it_be(:maintainer, freeze: false) { group.parent.add_member(create(:user), GroupMember::MAINTAINER) }
+    let_it_be(:developer, freeze: false) { group.add_member(create(:user), GroupMember::DEVELOPER) }
+    let_it_be(:other_developer, freeze: false) { group.add_member(create(:user), GroupMember::DEVELOPER) }
 
     describe '#hierarchy_members' do
       it 'returns parents members' do
@@ -2829,7 +2829,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#hierarchy_members_with_inactive' do
-      let_it_be(:maintainer_blocked) { group.parent.add_member(create(:user, :blocked), GroupMember::MAINTAINER) }
+      let_it_be(:maintainer_blocked, freeze: false) { group.parent.add_member(create(:user, :blocked), GroupMember::MAINTAINER) }
 
       it 'returns parents members' do
         expect(group.hierarchy_members_with_inactive).to include(developer)
@@ -2843,12 +2843,12 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     describe '#descendant_project_members_with_inactive' do
-      let_it_be(:ancestor_group_project) { create(:project, group: group) }
-      let_it_be(:ancestor_group_project_member) { ancestor_group_project.add_maintainer(create(:user)) }
+      let_it_be(:ancestor_group_project, freeze: false) { create(:project, group: group) }
+      let_it_be(:ancestor_group_project_member, freeze: false) { ancestor_group_project.add_maintainer(create(:user)) }
 
-      let_it_be(:project) { create(:project, group: sub_group) }
-      let_it_be(:project_member) { project.add_maintainer(create(:user)) }
-      let_it_be(:blocked_project_member) { project.add_maintainer(create(:user, :blocked)) }
+      let_it_be(:project, freeze: false) { create(:project, group: sub_group) }
+      let_it_be(:project_member, freeze: false) { project.add_maintainer(create(:user)) }
+      let_it_be(:blocked_project_member, freeze: false) { project.add_maintainer(create(:user, :blocked)) }
 
       it 'returns members of descendant projects' do
         expect(sub_group.descendant_project_members_with_inactive).to contain_exactly(project_member, blocked_project_member)
@@ -2876,9 +2876,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#refresh_members_authorized_projects' do
-    let_it_be(:group) { create(:group, :nested) }
-    let_it_be(:parent_group_user) { create(:user) }
-    let_it_be(:group_user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group, :nested) }
+    let_it_be(:parent_group_user, freeze: false) { create(:user) }
+    let_it_be(:group_user, freeze: false) { create(:user) }
 
     before_all do
       group.parent.add_maintainer(parent_group_user)
@@ -2903,9 +2903,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#users_ids_of_direct_members' do
-    let_it_be(:group) { create(:group, :nested) }
-    let_it_be(:parent_group_user) { create(:user) }
-    let_it_be(:group_user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group, :nested) }
+    let_it_be(:parent_group_user, freeze: false) { create(:user) }
+    let_it_be(:group_user, freeze: false) { create(:user) }
 
     before_all do
       group.parent.add_maintainer(parent_group_user)
@@ -2947,9 +2947,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'group sharing' do
-      let_it_be(:group) { create(:group) }
-      let_it_be(:group_user) { create(:user) }
-      let_it_be(:shared_group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
+      let_it_be(:group_user, freeze: false) { create(:user) }
+      let_it_be(:shared_group, freeze: false) { create(:group) }
 
       before_all do
         group.add_developer(group_user)
@@ -2963,10 +2963,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'distinct user ids' do
-      let_it_be(:subgroup) { create(:group, :nested) }
-      let_it_be(:user) { create(:user) }
-      let_it_be(:shared_with_group) { create(:group) }
-      let_it_be(:other_subgroup_user) { create(:user) }
+      let_it_be(:subgroup, freeze: false) { create(:group, :nested) }
+      let_it_be(:user, freeze: false) { create(:user) }
+      let_it_be(:shared_with_group, freeze: false) { create(:group) }
+      let_it_be(:other_subgroup_user, freeze: false) { create(:user) }
 
       before_all do
         create(:group_group_link, shared_group: subgroup, shared_with_group: shared_with_group)
@@ -2987,7 +2987,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#self_and_hierarchy_intersecting_with_user_groups' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
     let(:subject) { group.self_and_hierarchy_intersecting_with_user_groups(user) }
 
     it 'makes a call to GroupsFinder' do
@@ -2997,7 +2997,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when the group is private' do
-      let_it_be(:group) { create(:group, :private) }
+      let_it_be(:group, freeze: false) { create(:group, :private) }
 
       context 'when the user is not a member of the group' do
         it 'is an empty array' do
@@ -3016,7 +3016,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
 
       context 'when the group has a sub group' do
-        let_it_be(:subgroup) { create(:group, :private, parent: group) }
+        let_it_be(:subgroup, freeze: false) { create(:group, :private, parent: group) }
 
         context 'when the user is not a member of the subgroup' do
           it 'is an empty array' do
@@ -3034,7 +3034,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
           end
 
           context 'when the group has an ancestor' do
-            let_it_be(:ancestor) { create(:group, :private) }
+            let_it_be(:ancestor, freeze: false) { create(:group, :private) }
 
             before do
               group.parent = ancestor
@@ -3050,7 +3050,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when the group is public' do
-      let_it_be(:group) { create(:group, :public) }
+      let_it_be(:group, freeze: false) { create(:group, :public) }
 
       it 'is equal to the public group regardless of membership' do
         expect(subject).to match_array([group])
@@ -3260,9 +3260,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#highest_group_member' do
-    let_it_be(:nested_group) { create(:group, parent: group) }
-    let_it_be(:nested_group_2) { create(:group, parent: nested_group) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:nested_group, freeze: false) { create(:group, parent: group) }
+    let_it_be(:nested_group_2, freeze: false) { create(:group, parent: nested_group) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     subject(:highest_group_member) { nested_group_2.highest_group_member(user) }
 
@@ -3304,9 +3304,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   describe '#bots' do
     subject { group.bots.allow_cross_joins_across_databases(url: "https://gitlab.com/gitlab-org/gitlab/-/issues/436662") }
 
-    let_it_be(:group) { create(:group) }
-    let_it_be(:project_bot) { create(:user, :project_bot) }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:project_bot, freeze: false) { create(:user, :project_bot) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     before_all do
       [project_bot, user].each do |member|
@@ -3557,7 +3557,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#access_request_approvers_to_be_notified' do
-    let_it_be(:group) { create(:group, :public) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
 
     it 'returns a maximum of ten owners of the group in recent_sign_in descending order' do
       limit = 2
@@ -3729,7 +3729,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     context 'when service desk is enabled' do
       context 'for top level group' do
-        let_it_be(:project) { create(:project, group: group, service_desk_enabled: true) }
+        let_it_be(:project, freeze: false) { create(:project, group: group, service_desk_enabled: true) }
 
         it { is_expected.to eq(true) }
 
@@ -3743,15 +3743,15 @@ RSpec.describe Group, feature_category: :groups_and_projects do
       end
 
       context 'for subgroup project' do
-        let_it_be(:subgroup) { create(:group, :private, parent: group) }
-        let_it_be(:project) { create(:project, group: subgroup, service_desk_enabled: true) }
+        let_it_be(:subgroup, freeze: false) { create(:group, :private, parent: group) }
+        let_it_be(:project, freeze: false) { create(:project, group: subgroup, service_desk_enabled: true) }
 
         it { is_expected.to eq(true) }
       end
     end
 
     context 'when none of group child projects has service desk enabled' do
-      let_it_be(:project) { create(:project, group: group, service_desk_enabled: false) }
+      let_it_be(:project, freeze: false) { create(:project, group: group, service_desk_enabled: false) }
 
       before do
         project.update!(service_desk_enabled: false)
@@ -3768,13 +3768,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.ids_with_disabled_email' do
-    let_it_be(:parent_1) { create(:group) }
-    let_it_be(:child_1) { create(:group, parent: parent_1) }
+    let_it_be(:parent_1, freeze: false) { create(:group) }
+    let_it_be(:child_1, freeze: false) { create(:group, parent: parent_1) }
 
-    let_it_be(:parent_2) { create(:group) }
-    let_it_be(:child_2) { create(:group, parent: parent_2) }
+    let_it_be(:parent_2, freeze: false) { create(:group) }
+    let_it_be(:child_2, freeze: false) { create(:group, parent: parent_2) }
 
-    let_it_be(:other_group) { create(:group) }
+    let_it_be(:other_group, freeze: false) { create(:group) }
 
     shared_examples 'returns namespaces with disabled email' do
       subject(:group_ids_where_email_is_disabled) { described_class.ids_with_disabled_email([child_1, child_2, other_group]) }
@@ -3919,7 +3919,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#dependency_proxy_image_prefix' do
-    let_it_be(:group) { build_stubbed(:group, path: 'GroupWithUPPERcaseLetters') }
+    let_it_be(:group, freeze: false) { build_stubbed(:group, path: 'GroupWithUPPERcaseLetters') }
 
     it 'converts uppercase letters to lowercase' do
       expect(group.dependency_proxy_image_prefix).to end_with("/groupwithuppercaseletters#{DependencyProxy::URL_SUFFIX}")
@@ -4023,9 +4023,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.descendant_groups_counts' do
-    let_it_be(:parent) { create(:group) }
-    let_it_be(:group) { create(:group, parent: parent) }
-    let_it_be(:project) { create(:project, namespace: parent) }
+    let_it_be(:parent, freeze: false) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group, parent: parent) }
+    let_it_be(:project, freeze: false) { create(:project, namespace: parent) }
 
     subject(:descendant_groups_counts) { described_class.id_in(parent).descendant_groups_counts }
 
@@ -4035,10 +4035,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.projects_counts' do
-    let_it_be(:parent) { create(:group) }
-    let_it_be(:group) { create(:group, parent: parent) }
-    let_it_be(:project) { create(:project, namespace: parent) }
-    let_it_be(:archived_project) { create(:project, :archived, namespace: parent) }
+    let_it_be(:parent, freeze: false) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group, parent: parent) }
+    let_it_be(:project, freeze: false) { create(:project, namespace: parent) }
+    let_it_be(:archived_project, freeze: false) { create(:project, :archived, namespace: parent) }
 
     subject(:projects_counts) { described_class.id_in(parent).projects_counts }
 
@@ -4048,8 +4048,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.group_members_counts' do
-    let_it_be(:parent) { create(:group) }
-    let_it_be(:group) { create(:group, parent: parent) }
+    let_it_be(:parent, freeze: false) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group, parent: parent) }
 
     before_all do
       create(:group_member, group: parent)
@@ -4065,19 +4065,19 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#shared_with_group_links_visible_to_user' do
-    let_it_be(:admin) { create :admin }
-    let_it_be(:normal_user) { create :user }
-    let_it_be(:user_with_access) { create :user }
-    let_it_be(:user_with_parent_access) { create :user }
-    let_it_be(:user_without_access) { create :user }
-    let_it_be(:shared_group) { create :group }
-    let_it_be(:parent_group) { create :group, :private }
-    let_it_be(:shared_with_private_group) { create :group, :private, parent: parent_group }
-    let_it_be(:shared_with_internal_group) { create :group, :internal }
-    let_it_be(:shared_with_public_group) { create :group, :public }
-    let_it_be(:private_group_group_link) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_private_group) }
-    let_it_be(:internal_group_group_link) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_internal_group) }
-    let_it_be(:public_group_group_link) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_public_group) }
+    let_it_be(:admin, freeze: false) { create :admin }
+    let_it_be(:normal_user, freeze: false) { create :user }
+    let_it_be(:user_with_access, freeze: false) { create :user }
+    let_it_be(:user_with_parent_access, freeze: false) { create :user }
+    let_it_be(:user_without_access, freeze: false) { create :user }
+    let_it_be(:shared_group, freeze: false) { create :group }
+    let_it_be(:parent_group, freeze: false) { create :group, :private }
+    let_it_be(:shared_with_private_group, freeze: false) { create :group, :private, parent: parent_group }
+    let_it_be(:shared_with_internal_group, freeze: false) { create :group, :internal }
+    let_it_be(:shared_with_public_group, freeze: false) { create :group, :public }
+    let_it_be(:private_group_group_link, freeze: false) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_private_group) }
+    let_it_be(:internal_group_group_link, freeze: false) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_internal_group) }
+    let_it_be(:public_group_group_link, freeze: false) { create(:group_group_link, shared_group: shared_group, shared_with_group: shared_with_public_group) }
 
     before_all do
       shared_with_private_group.add_developer(user_with_access)
@@ -4133,7 +4133,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when there is no interval in group settings' do
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4157,7 +4157,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4170,7 +4170,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(group_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4185,7 +4185,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(project_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4196,10 +4196,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     # runner_token_expiration_interval should not affect the expiration interval, only
     # subgroup_runner_token_expiration_interval should.
     context 'when there is a grandparent group enforced group interval' do
-      let_it_be(:grandparent_group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:grandparent_group) { create(:group, namespace_settings: grandparent_group_settings) }
-      let_it_be(:parent_group) { create(:group, parent: grandparent_group) }
-      let_it_be(:subgroup) { create(:group, parent: parent_group) }
+      let_it_be(:grandparent_group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:grandparent_group, freeze: false) { create(:group, namespace_settings: grandparent_group_settings) }
+      let_it_be(:parent_group, freeze: false) { create(:group, parent: grandparent_group) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: parent_group) }
 
       subject { subgroup }
 
@@ -4208,10 +4208,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when there is a grandparent group enforced subgroup interval' do
-      let_it_be(:grandparent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:grandparent_group) { create(:group, namespace_settings: grandparent_group_settings) }
-      let_it_be(:parent_group) { create(:group, parent: grandparent_group) }
-      let_it_be(:subgroup) { create(:group, parent: parent_group) }
+      let_it_be(:grandparent_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:grandparent_group, freeze: false) { create(:group, namespace_settings: grandparent_group_settings) }
+      let_it_be(:parent_group, freeze: false) { create(:group, parent: grandparent_group) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: parent_group) }
 
       subject { subgroup }
 
@@ -4222,10 +4222,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     # project_runner_token_expiration_interval should not affect the expiration interval, only
     # subgroup_runner_token_expiration_interval should.
     context 'when there is a grandparent group enforced project interval' do
-      let_it_be(:grandparent_group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:grandparent_group) { create(:group, namespace_settings: grandparent_group_settings) }
-      let_it_be(:parent_group) { create(:group, parent: grandparent_group) }
-      let_it_be(:subgroup) { create(:group, parent: parent_group) }
+      let_it_be(:grandparent_group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:grandparent_group, freeze: false) { create(:group, namespace_settings: grandparent_group_settings) }
+      let_it_be(:parent_group, freeze: false) { create(:group, parent: grandparent_group) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: parent_group) }
 
       subject { subgroup }
 
@@ -4234,10 +4234,10 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when there is a parent group enforced interval overridden by group interval' do
-      let_it_be(:parent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 5.days.to_i) }
-      let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
-      let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:subgroup_with_settings) { create(:group, parent: parent_group, namespace_settings: group_settings) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 5.days.to_i) }
+      let_it_be(:parent_group, freeze: false) { create(:group, namespace_settings: parent_group_settings) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:subgroup_with_settings, freeze: false) { create(:group, parent: parent_group, namespace_settings: group_settings) }
 
       subject { subgroup_with_settings }
 
@@ -4255,8 +4255,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(group_runner_token_expiration_interval: 3.days.to_i)
       end
 
-      let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:group_with_settings) { create(:group, namespace_settings: group_settings) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_with_settings, freeze: false) { create(:group, namespace_settings: group_settings) }
 
       subject { group_with_settings }
 
@@ -4269,8 +4269,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(group_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:group_with_settings) { create(:group, namespace_settings: group_settings) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_with_settings, freeze: false) { create(:group, namespace_settings: group_settings) }
 
       subject { group_with_settings }
 
@@ -4283,9 +4283,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(group_runner_token_expiration_interval: 3.days.to_i)
       end
 
-      let_it_be(:parent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
-      let_it_be(:subgroup) { create(:group, parent: parent_group) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:parent_group, freeze: false) { create(:group, namespace_settings: parent_group_settings) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: parent_group) }
 
       subject { subgroup }
 
@@ -4298,9 +4298,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
         stub_application_setting(group_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:parent_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
-      let_it_be(:subgroup) { create(:group, parent: parent_group) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:parent_group, freeze: false) { create(:group, namespace_settings: parent_group_settings) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: parent_group) }
 
       subject { subgroup }
 
@@ -4310,9 +4310,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     # Unrelated groups should not affect the expiration interval.
     context 'when there is an enforced group interval in an unrelated group' do
-      let_it_be(:unrelated_group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:unrelated_group) { create(:group, namespace_settings: unrelated_group_settings) }
-      let_it_be(:group) { create(:group) }
+      let_it_be(:unrelated_group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:unrelated_group, freeze: false) { create(:group, namespace_settings: unrelated_group_settings) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4322,9 +4322,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
 
     # Subgroups should not affect the parent group expiration interval.
     context 'when there is an enforced group interval in a subgroup' do
-      let_it_be(:subgroup_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
-      let_it_be(:subgroup) { create(:group, parent: group, namespace_settings: subgroup_settings) }
-      let_it_be(:group) { create(:group) }
+      let_it_be(:subgroup_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:subgroup, freeze: false) { create(:group, parent: group, namespace_settings: subgroup_settings) }
+      let_it_be(:group, freeze: false) { create(:group) }
 
       subject { group }
 
@@ -4597,17 +4597,17 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#cluster_agents' do
-    let_it_be(:other_group) { create(:group) }
-    let_it_be(:other_project) { create(:project, namespace: other_group) }
+    let_it_be(:other_group, freeze: false) { create(:group) }
+    let_it_be(:other_project, freeze: false) { create(:project, namespace: other_group) }
 
-    let_it_be(:root_group) { create(:group) }
-    let_it_be(:subgroup) { create(:group, parent: root_group) }
-    let_it_be(:project_in_group) { create(:project, namespace: root_group) }
-    let_it_be(:project_in_subgroup) { create(:project, namespace: subgroup) }
+    let_it_be(:root_group, freeze: false) { create(:group) }
+    let_it_be(:subgroup, freeze: false) { create(:group, parent: root_group) }
+    let_it_be(:project_in_group, freeze: false) { create(:project, namespace: root_group) }
+    let_it_be(:project_in_subgroup, freeze: false) { create(:project, namespace: subgroup) }
 
-    let_it_be(:cluster_agent_for_other_project) { create(:cluster_agent, project: other_project) }
-    let_it_be(:cluster_agent_for_project) { create(:cluster_agent, project: project_in_group) }
-    let_it_be(:cluster_agent_for_project_in_subgroup) { create(:cluster_agent, project: project_in_subgroup) }
+    let_it_be(:cluster_agent_for_other_project, freeze: false) { create(:cluster_agent, project: other_project) }
+    let_it_be(:cluster_agent_for_project, freeze: false) { create(:cluster_agent, project: project_in_group) }
+    let_it_be(:cluster_agent_for_project_in_subgroup, freeze: false) { create(:cluster_agent, project: project_in_subgroup) }
 
     subject { root_group.cluster_agents }
 
@@ -4615,8 +4615,8 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#active?' do
-    let_it_be(:active_group) { create(:group) }
-    let_it_be(:inactive_group) { create(:group_with_deletion_schedule) }
+    let_it_be(:active_group, freeze: false) { create(:group) }
+    let_it_be(:inactive_group, freeze: false) { create(:group_with_deletion_schedule) }
 
     context 'when group is active' do
       specify { expect(active_group.active?).to be(true) }
@@ -4627,13 +4627,13 @@ RSpec.describe Group, feature_category: :groups_and_projects do
     end
 
     context 'when ancestor is active' do
-      let_it_be(:group_with_active_ancestor) { create(:group, parent: active_group) }
+      let_it_be(:group_with_active_ancestor, freeze: false) { create(:group, parent: active_group) }
 
       specify { expect(group_with_active_ancestor.active?).to be(true) }
     end
 
     context 'when ancestor is inactive' do
-      let_it_be(:group_with_inactive_ancestor) { create(:group, parent: inactive_group) }
+      let_it_be(:group_with_inactive_ancestor, freeze: false) { create(:group, parent: inactive_group) }
 
       specify { expect(group_with_inactive_ancestor.active?).to be(false) }
     end
@@ -4647,9 +4647,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.security_managers' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:security_manager) { create(:group_member, :security_manager, group: group) }
-    let_it_be(:developer) { create(:group_member, :developer, group: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:security_manager, freeze: false) { create(:group_member, :security_manager, group: group) }
+    let_it_be(:developer, freeze: false) { create(:group_member, :developer, group: group) }
 
     context 'when security manager role is enabled' do
       it 'returns security manager members' do
@@ -4670,7 +4670,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#add_security_manager' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     context 'with security manager role' do
       it 'adds security manager when feature is enabled' do
@@ -4838,7 +4838,7 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '#mcp_server_enabled', feature_category: :mcp_server do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
 
     it 'delegates to namespace_settings' do
       group.namespace_settings.update!(mcp_server_enabled: true)
@@ -4847,9 +4847,9 @@ RSpec.describe Group, feature_category: :groups_and_projects do
   end
 
   describe '.with_mcp_server_enabled', feature_category: :mcp_server do
-    let_it_be(:group_on) { create(:group) }
-    let_it_be(:group_off) { create(:group) }
-    let_it_be(:group_nil) { create(:group) }
+    let_it_be(:group_on, freeze: false) { create(:group) }
+    let_it_be(:group_off, freeze: false) { create(:group) }
+    let_it_be(:group_nil, freeze: false) { create(:group) }
 
     before do
       group_on.namespace_settings.update!(mcp_server_enabled: true)

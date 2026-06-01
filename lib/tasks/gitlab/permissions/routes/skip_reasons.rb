@@ -18,6 +18,7 @@ module Tasks
             job_token_auth: 'CI job token',
             kas_jwt_auth: 'Kubernetes agent JWT',
             mailroom_token_auth: 'Mailroom token',
+            modular_service_token_exchange: 'Modular service token exchange',
             openbao_token_auth: 'OpenBao token',
             external_registry_redirect: 'External registry redirect',
             ai_workflows_token_auth: 'AI Workflows OAuth token',

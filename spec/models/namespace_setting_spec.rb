@@ -37,8 +37,8 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
     describe '.for_namespaces' do
       let(:setting_1) { create(:namespace_settings, namespace: namespace_1) }
       let(:setting_2) { create(:namespace_settings, namespace: namespace_2) }
-      let_it_be(:namespace_1) { create(:namespace) }
-      let_it_be(:namespace_2) { create(:namespace) }
+      let_it_be(:namespace_1, freeze: false) { create(:namespace) }
+      let_it_be(:namespace_2, freeze: false) { create(:namespace) }
 
       it 'returns namespace setting for the given projects' do
         expect(described_class.for_namespaces(namespace_1)).to contain_exactly(setting_1)
@@ -137,10 +137,10 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
       end
 
       context 'with separate namespace hierarchies' do
-        let_it_be(:other_root) { create(:group) }
-        let_it_be(:other_child) { create(:group, parent: other_root) }
-        let_it_be(:other_root_settings) { other_root.namespace_settings }
-        let_it_be(:other_child_settings) { other_child.namespace_settings }
+        let_it_be(:other_root, freeze: false) { create(:group) }
+        let_it_be(:other_child, freeze: false) { create(:group, parent: other_root) }
+        let_it_be(:other_root_settings, freeze: false) { other_root.namespace_settings }
+        let_it_be(:other_child_settings, freeze: false) { other_child.namespace_settings }
 
         before do
           root_settings.update!(archived: true)
@@ -161,9 +161,9 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
     end
 
     describe '.next_namespace_ids' do
-      let_it_be(:namespace_1) { create(:namespace, :with_namespace_settings) }
-      let_it_be(:namespace_2) { create(:namespace, :with_namespace_settings) }
-      let_it_be(:namespace_3) { create(:namespace, :with_namespace_settings) }
+      let_it_be(:namespace_1, freeze: false) { create(:namespace, :with_namespace_settings) }
+      let_it_be(:namespace_2, freeze: false) { create(:namespace, :with_namespace_settings) }
+      let_it_be(:namespace_3, freeze: false) { create(:namespace, :with_namespace_settings) }
 
       let(:namespace_ids) { [namespace_1.id, namespace_2.id, namespace_3.id].sort }
 
@@ -927,7 +927,7 @@ RSpec.describe NamespaceSetting, feature_category: :groups_and_projects do
   end
 
   describe '#granular_tokens_enforced?' do
-    let_it_be(:namespace_settings) { build(:namespace_settings) }
+    let_it_be(:namespace_settings, freeze: false) { build(:namespace_settings) }
     let(:enforced_after) { Date.current }
 
     subject(:granular_tokens_enforced?) { namespace_settings.granular_tokens_enforced? }

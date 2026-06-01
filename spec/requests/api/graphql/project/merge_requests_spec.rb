@@ -6,7 +6,7 @@ RSpec.describe 'getting merge request listings nested in a project', feature_cat
   include GraphqlHelpers
 
   let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :repository, :public, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :repository, :public, group: group) }
   let_it_be(:current_user) { create(:user) }
   let_it_be(:label) { create(:label, project: project) }
   let_it_be(:group_label) { create(:group_label, group: group) }

@@ -475,7 +475,7 @@ RSpec.describe Note, feature_category: :team_planning do
       end
 
       context 'for a project noteable' do
-        let_it_be(:merge_request) { create(:merge_request) }
+        let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
         it 'copies the project_namespace_id of the project' do
           note = build(:note, noteable: merge_request, project: merge_request.project)
@@ -727,7 +727,7 @@ RSpec.describe Note, feature_category: :team_planning do
   describe "noteable_author?" do
     let_it_be(:user1) { create(:user) }
     let_it_be(:user2) { create(:user) }
-    let_it_be(:project) { create(:project, :public, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
 
     context 'when note is on commit' do
       let(:noteable) { create(:commit, project: project, author: user1) }
@@ -1396,9 +1396,9 @@ RSpec.describe Note, feature_category: :team_planning do
   end
 
   describe ".grouped_diff_discussions" do
-    let_it_be(:merge_request) { create(:merge_request) }
-    let_it_be(:project) { merge_request.project }
-    let_it_be(:active_position2) do
+    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
+    let_it_be(:project, freeze: false) { merge_request.project }
+    let_it_be(:active_position2, freeze: false) do
       Gitlab::Diff::Position.new(
         old_path: "files/ruby/popen.rb",
         new_path: "files/ruby/popen.rb",
@@ -1420,7 +1420,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
     let_it_be(:active_diff_note1) { create(:diff_note_on_merge_request, project: project, noteable: merge_request) }
     let_it_be(:active_diff_note2) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, in_reply_to: active_diff_note1) }
-    let_it_be(:active_diff_note3) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, position: active_position2) }
+    let_it_be(:active_diff_note3, freeze: false) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, position: active_position2) }
     let_it_be(:outdated_diff_note1) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, position: outdated_position) }
     let_it_be(:outdated_diff_note2) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, in_reply_to: outdated_diff_note1) }
 
@@ -1815,7 +1815,7 @@ RSpec.describe Note, feature_category: :team_planning do
     end
 
     context 'for merge requests' do
-      let_it_be(:merge_request) { create(:merge_request) }
+      let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
       context 'when adding a note to the MR' do
         let(:note) { build(:note, noteable: merge_request, project: merge_request.project) }
@@ -2271,7 +2271,7 @@ RSpec.describe Note, feature_category: :team_planning do
   end
 
   describe '#show_outdated_changes?' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:noteable) { create(:merge_request, source_project: project) }
     let_it_be(:note) { build(:note, noteable: noteable, system: true) }
 

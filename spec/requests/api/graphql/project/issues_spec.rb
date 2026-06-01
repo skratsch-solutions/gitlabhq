@@ -17,7 +17,7 @@ RSpec.describe 'getting an issue list for a project', feature_category: :team_pl
   let_it_be(:priority2, freeze: false) { create(:label, project: project, priority: 5) }
   let_it_be(:priority3, freeze: false) { create(:label, project: project, priority: 10) }
 
-  let_it_be(:issue_a) do
+  let_it_be(:issue_a, freeze: false) do
     create(
       :issue,
       project: project,

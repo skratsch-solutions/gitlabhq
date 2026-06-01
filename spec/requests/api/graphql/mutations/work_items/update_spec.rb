@@ -227,7 +227,7 @@ RSpec.describe 'Update a work item', feature_category: :team_planning do
 
       let(:add_label_ids) { [] }
       let(:remove_label_ids) { [] }
-      let_it_be(:group_work_item) { create(:work_item, :task, :group_level, namespace: group) }
+      let_it_be(:group_work_item, freeze: false) { create(:work_item, :task, :group_level, namespace: group) }
 
       before_all do
         work_item.update!(labels: [existing_label])

@@ -59,16 +59,16 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
 
         context 'using a group handle' do
           let_it_be(:issuable_parent) { create(:project) }
-          let_it_be(:issuable_attributes) { { source_project: issuable_parent, target_project: issuable_parent } }
-          let_it_be(:issuable_factory) { :merge_request }
-          let_it_be(:factory_params) { [:simple, :unique_branches] }
+          let_it_be(:issuable_attributes, freeze: false) { { source_project: issuable_parent, target_project: issuable_parent } }
+          let_it_be(:issuable_factory, freeze: false) { :merge_request }
+          let_it_be(:factory_params, freeze: false) { [:simple, :unique_branches] }
           let_it_be(:search_params) { { project_id: issuable_parent.id } }
 
           it_behaves_like 'filterable by group handle for', :author
         end
 
         context 'filters by author or assignee' do
-          let_it_be(:merge_request6) do
+          let_it_be(:merge_request6, freeze: false) do
             create(
               :merge_request, :simple, :unique_branches, assignees: [user], reviewers: [create(:user)],
               source_project: project1, target_project: project1
@@ -857,9 +857,9 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
 
         context 'using a group handle' do
           let_it_be(:issuable_parent) { create(:project) }
-          let_it_be(:issuable_attributes) { { source_project: issuable_parent, target_project: issuable_parent } }
-          let_it_be(:issuable_factory) { :merge_request }
-          let_it_be(:factory_params) { [:simple, :unique_branches] }
+          let_it_be(:issuable_attributes, freeze: false) { { source_project: issuable_parent, target_project: issuable_parent } }
+          let_it_be(:issuable_factory, freeze: false) { :merge_request }
+          let_it_be(:factory_params, freeze: false) { [:simple, :unique_branches] }
           let_it_be(:search_params) { { project_id: issuable_parent.id } }
 
           it_behaves_like 'filterable by group handle for', :assignees
@@ -984,7 +984,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
         end
 
         context 'by more than a single reviewer with username' do
-          let_it_be(:merge_request6) do
+          let_it_be(:merge_request6, freeze: false) do
             create(
               :merge_request, assignees: [user], author: user, reviewers: [user2, create(:user)],
               source_project: project1, target_project: project1,

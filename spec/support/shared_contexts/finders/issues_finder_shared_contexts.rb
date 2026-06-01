@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.shared_context 'Issues or WorkItems Finder context' do |factory|
-  let_it_be(:user) { create(:user) }
-  let_it_be(:user2) { create(:user) }
-  let_it_be(:group) { create(:group) }
-  let_it_be(:subgroup) { create(:group, parent: group) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:subgroup, freeze: false) { create(:group, parent: group) }
   let_it_be_with_reload(:project1) { create(:project, group: group) }
   let_it_be_with_reload(:project2) { create(:project) }
   let_it_be_with_reload(:project3) { create(:project, group: subgroup) }

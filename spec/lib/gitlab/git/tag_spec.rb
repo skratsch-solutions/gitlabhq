@@ -3,8 +3,8 @@
 require "spec_helper"
 
 RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
-  let_it_be(:project) { create(:project, :repository) }
-  let_it_be(:repository) { project.repository.raw }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
+  let_it_be(:repository, freeze: false) { project.repository.raw }
 
   describe '#tags' do
     describe 'unsigned tag' do

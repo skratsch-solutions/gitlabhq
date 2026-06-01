@@ -174,7 +174,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
 
   context 'when querying features.hierarchy' do
     let_it_be(:children) { create_list(:work_item, 4, :task, project: project) }
-    let_it_be(:child_link1) { create(:parent_link, work_item_parent: item1, work_item: children[0]) }
+    let_it_be(:child_link1, freeze: false) { create(:parent_link, work_item_parent: item1, work_item: children[0]) }
     let_it_be(:child_link2) { create(:parent_link, work_item_parent: item1, work_item: children[1]) }
 
     let(:fields) do
@@ -539,9 +539,9 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
 
   context 'when fetching work item participants widget' do
     let_it_be(:other_project) { create(:project, group: group) }
-    let_it_be(:project) { other_project }
-    let_it_be(:users) { create_list(:user, 3) }
-    let_it_be(:work_items) { create_list(:work_item, 3, project: project, assignees: users) }
+    let_it_be(:project, freeze: false) { other_project }
+    let_it_be(:users, freeze: false) { create_list(:user, 3) }
+    let_it_be(:work_items, freeze: false) { create_list(:work_item, 3, project: project, assignees: users) }
 
     let(:fields) do
       <<~GRAPHQL

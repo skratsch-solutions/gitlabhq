@@ -8,8 +8,8 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
   let_it_be(:group) { create(:group) }
   let_it_be(:public_project) { create(:project, :public, group: group) }
   let_it_be(:repository_project) { create(:project, :repository) }
-  let_it_be(:project) { public_project }
-  let_it_be(:developer) { create(:user, developer_of: [public_project, repository_project]) }
+  let_it_be(:project, freeze: false) { public_project }
+  let_it_be(:developer, freeze: false) { create(:user, developer_of: [public_project, repository_project]) }
   let_it_be(:developer2) { create(:user) }
   let_it_be(:developer3) { create(:user) }
   let_it_be_with_reload(:issue) { create(:issue, project: project) }
@@ -2751,7 +2751,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
     end
 
     describe 'add_email command' do
-      let_it_be(:issuable) { issue }
+      let_it_be(:issuable, freeze: false) { issue }
 
       shared_examples 'command available' do
         it 'is not part of the available commands' do
@@ -4494,7 +4494,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
   describe '#available_commands' do
     context 'when Guest is creating a new issue' do
       let_it_be(:guest) { create(:user) }
-      let_it_be(:developer) { create(:user) }
+      let_it_be(:developer, freeze: false) { create(:user) }
 
       let(:current_user) { guest }
 

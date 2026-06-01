@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe API::Issues, feature_category: :team_planning do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be_with_reload(:project) { create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, reporters: user) }
   let_it_be(:private_mrs_project) do
     create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, merge_requests_access_level: ProjectFeature::PRIVATE, reporters: user)
@@ -20,7 +20,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   let_it_be(:assignee)    { create(:assignee) }
   let_it_be(:admin) { create(:user, :admin) }
 
-  let_it_be(:milestone) { create(:milestone, title: '1.0.0', project: project) }
+  let_it_be(:milestone, freeze: false) { create(:milestone, title: '1.0.0', project: project) }
   let_it_be(:empty_milestone) { create(:milestone, title: '2.0.0', project: project) }
 
   let_it_be(:closed_issue, freeze: false) do
@@ -1129,7 +1129,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
       let_it_be(:current_user) { create(:user) }
 
       let_it_be(:group) { create(:group) }
-      let_it_be(:project) { create(:project, namespace: group, developers: [current_user]) }
+      let_it_be(:project, freeze: false) { create(:project, namespace: group, developers: [current_user]) }
 
       let_it_be(:restricted_issue) { create(:issue, project: project, assignees: [current_user]) }
       let_it_be(:unrestricted_issue) { create(:issue, project: project, assignees: [current_user]) }
@@ -1581,7 +1581,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
 
   describe 'PUT /projects/:id/issues/:issue_iid/reorder' do
     let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project, group: group) }
+    let_it_be(:project, freeze: false) { create(:project, group: group) }
     let_it_be(:issue1) { create(:issue, project: project, relative_position: 10) }
     let_it_be(:issue2) { create(:issue, project: project, relative_position: 20) }
     let_it_be(:issue3) { create(:issue, project: project, relative_position: 30) }

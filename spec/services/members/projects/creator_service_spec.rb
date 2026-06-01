@@ -76,7 +76,7 @@ RSpec.describe Members::Projects::CreatorService, feature_category: :groups_and_
     end
 
     context 'service account membership eligibility' do
-      let_it_be(:maintainer) { create(:user, maintainer_of: source) }
+      let_it_be(:maintainer, freeze: false) { create(:user, maintainer_of: source) }
 
       context 'when the service account is not eligible for membership' do
         let_it_be(:other_project) { create(:project, namespace: source.namespace) }

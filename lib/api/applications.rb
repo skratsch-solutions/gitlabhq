@@ -32,7 +32,7 @@ module API
       end
       route_setting :authorization, permissions: :create_oauth_application, boundary_type: :instance
       post do
-        application = Authn::OauthApplication.new(declared_params)
+        application = ::Authn::OauthApplication.new(declared_params)
         application.organization = Current.organization
 
         if application.save

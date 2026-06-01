@@ -80,8 +80,12 @@ export function convertGraphQLVarsToRestParams(vars) {
     }
   }
 
-  appendParam(params, 'cursor', vars.after ?? vars.afterCursor);
-  appendParam(params, 'per_page', vars.first ?? vars.firstPageSize);
+  appendParam(params, 'cursor', vars.after ?? vars.afterCursor ?? vars.before ?? vars.beforeCursor);
+  appendParam(
+    params,
+    'per_page',
+    vars.first ?? vars.firstPageSize ?? vars.last ?? vars.lastPageSize,
+  );
   appendParam(params, 'search', vars.search);
 
   if (vars.in) {

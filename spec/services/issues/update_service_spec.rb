@@ -3,16 +3,16 @@
 require 'spec_helper'
 
 RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category: :team_planning do
-  let_it_be(:user) { create(:user) }
-  let_it_be(:user2) { create(:user) }
-  let_it_be(:user3) { create(:user) }
-  let_it_be(:guest) { create(:user) }
-  let_it_be(:group) { create(:group, :public, maintainers: user, developers: [user2, user3], guests: guest) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
+  let_it_be(:user3, freeze: false) { create(:user) }
+  let_it_be(:guest, freeze: false) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group, :public, maintainers: user, developers: [user2, user3], guests: guest) }
   let_it_be_with_reload(:project) { create(:project, :repository, group: group) }
-  let_it_be(:label) { create(:label, title: 'a', project: project) }
-  let_it_be(:label2) { create(:label, title: 'b', project: project) }
-  let_it_be(:label3) { create(:label, title: 'c', project: project) }
-  let_it_be(:milestone) { create(:milestone, project: project) }
+  let_it_be(:label, freeze: false) { create(:label, title: 'a', project: project) }
+  let_it_be(:label2, freeze: false) { create(:label, title: 'b', project: project) }
+  let_it_be(:label3, freeze: false) { create(:label, title: 'c', project: project) }
+  let_it_be(:milestone, freeze: false) { create(:milestone, project: project) }
 
   let(:container) { project }
   let(:issue) do
@@ -30,7 +30,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
   end
 
   describe 'execute' do
-    let_it_be(:contact) { create(:contact, group: group) }
+    let_it_be(:contact, freeze: false) { create(:contact, group: group) }
 
     def find_note(starting_with)
       issue.notes.find do |note|
@@ -1248,7 +1248,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'when assignee is a service account with composite_identity_enforced' do
-        let_it_be(:new_assignee) { create(:user, :service_account, composite_identity_enforced: true, developer_of: project) }
+        let_it_be(:new_assignee, freeze: false) { create(:user, :service_account, composite_identity_enforced: true, developer_of: project) }
 
         it 'assigns the user' do
           expect(::Gitlab::Auth::Identity).to receive(:link_from_scoped_user).and_call_original
@@ -1280,7 +1280,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
       end
 
       context 'when assignee is a regular user account with composite_identity_enforced' do
-        let_it_be(:new_assignee) { create(:user, developer_of: project) }
+        let_it_be(:new_assignee, freeze: false) { create(:user, developer_of: project) }
 
         before do
           new_assignee.composite_identity_enforced!
@@ -1573,7 +1573,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
 
     context 'move issue to another project or group' do
       shared_examples 'move issue to another project' do
-        let_it_be(:target_project) { create(:project) }
+        let_it_be(:target_project, freeze: false) { create(:project) }
 
         context 'valid project' do
           before do
@@ -1597,7 +1597,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
 
       context 'when target container is a group' do
         context 'without access to the group' do
-          let_it_be(:target_container) { create(:group) }
+          let_it_be(:target_container, freeze: false) { create(:group) }
 
           it 'does not call any clone service' do
             expect(WorkItems::DataSync::MoveService).not_to receive(:new)
@@ -1611,7 +1611,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
     context 'clone an issue' do
       shared_examples 'clone an issue' do
         context 'clone' do
-          let_it_be(:target_project) { create(:project) }
+          let_it_be(:target_project, freeze: false) { create(:project) }
 
           before do
             target_project.add_maintainer(user)
@@ -1648,7 +1648,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
 
       context 'when target container is a group' do
         context 'without access to the group' do
-          let_it_be(:target_container) { create(:group) }
+          let_it_be(:target_container, freeze: false) { create(:group) }
 
           it 'does not call any clone service' do
             expect(WorkItems::DataSync::CloneService).not_to receive(:new)

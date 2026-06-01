@@ -110,7 +110,7 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
   end
 
   describe 'GET #index' do
-    let_it_be(:public_project) { create(:project, :public) }
+    let_it_be(:public_project, freeze: false) { create(:project, :public) }
 
     it_behaves_like 'rate limited endpoint', rate_limit_key: :search_rate_limit, use_second_scope: false do
       let(:current_user) { user }
@@ -186,7 +186,7 @@ RSpec.describe Projects::MergeRequestsController, feature_category: :source_code
 
   context 'token authentication' do
     context 'when public project' do
-      let_it_be(:public_project) { create(:project, :public) }
+      let_it_be(:public_project, freeze: false) { create(:project, :public) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'index atom', public_resource: true do
         let(:url) { project_merge_requests_url(public_project, format: :atom) }

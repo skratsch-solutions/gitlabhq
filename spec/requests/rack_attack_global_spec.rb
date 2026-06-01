@@ -88,7 +88,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
 
   describe 'API requests authenticated with personal access token', :api do
     let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:token) { create(:personal_access_token, user: user) }
+    let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
     let_it_be(:other_user) { create(:user) }
     let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
 
@@ -549,7 +549,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
     context 'authenticated', :api do
       let_it_be(:project) { create(:project, :internal) }
       let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:token) { create(:personal_access_token, user: user) }
+      let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
       let_it_be(:other_user) { create(:user) }
       let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
 
@@ -705,7 +705,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
   describe 'authenticated git http requests' do
     let_it_be(:project) { create(:project, :repository, :public) }
     let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:token) { create(:personal_access_token, user: user) }
+    let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
 
     let(:git_info_refs_path) { "/#{project.full_path}.git/info/refs?service=git-upload-pack" }
     let(:headers) do
@@ -819,7 +819,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
 
     context 'when authenticated' do
       let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:token) { create(:personal_access_token, user: user) }
+      let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
 
       let(:headers) { WorkhorseHelpers.workhorse_internal_api_request_header.merge(basic_auth_headers(user, token)) }
 
@@ -846,7 +846,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
   describe 'authenticated git lfs requests', :api do
     let_it_be(:project) { create(:project, :internal) }
     let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:token) { create(:personal_access_token, user: user) }
+    let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
     let_it_be(:other_user) { create(:user) }
     let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
 
@@ -1042,7 +1042,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
     context 'authenticated', :api do
       let_it_be(:project) { create(:project, :internal, :custom_repo, files: { 'README' => 'foo' }) }
       let_it_be(:user, freeze: false) { create(:user) }
-      let_it_be(:token) { create(:personal_access_token, user: user) }
+      let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
       let_it_be(:other_user) { create(:user) }
       let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
 
@@ -1250,7 +1250,7 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
     context 'authenticated' do
       let_it_be(:user, freeze: false) { create(:user) }
       let_it_be(:member) { group.add_owner(user) }
-      let_it_be(:token) { create(:personal_access_token, user: user) }
+      let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
       let_it_be(:other_user) { create(:user) }
       let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
 

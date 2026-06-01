@@ -314,3 +314,4 @@ CI/CD job tokens cannot access the following endpoints:
 | List tags of a repository | `GET /projects/:id/registry/repositories/:repository_id/tags` |
 | Get details about a repository tag | `GET /projects/:id/registry/repositories/:repository_id/tags/:tag_name` |
 | Transitions a DAST site validation to a new state. | `POST /internal/dast/site_validations/:id/transition` |
+| Issue a short-lived JWT for a single modular-service audience | `POST /token_exchange` |

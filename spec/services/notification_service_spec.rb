@@ -831,7 +831,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     describe '#deploy_token_about_to_expire' do
       let_it_be(:project, freeze: false) { create(:project) }
       let_it_be(:regular_user) { create(:user) }
-      let_it_be(:project_owner) { create(:user) }
+      let_it_be(:project_owner, freeze: false) { create(:user) }
       let_it_be(:project_maintainer) { create(:user) }
       let_it_be(:deploy_token) { create(:deploy_token, expires_at: 5.days.from_now.iso8601) }
       let_it_be(:project_deploy_token) { create(:project_deploy_token, project: project, deploy_token: deploy_token) }
@@ -1107,7 +1107,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
     describe 'issue note' do
       let_it_be(:project, freeze: false) { create(:project, :private) }
       let_it_be_with_reload(:issue) { create(:issue, project: project, assignees: [assignee]) }
-      let_it_be(:mentioned_issue) { create(:issue, assignees: issue.assignees) }
+      let_it_be(:mentioned_issue, freeze: false) { create(:issue, assignees: issue.assignees) }
       let_it_be_with_reload(:author) { create(:user) }
 
       let(:note) { create(:note_on_issue, author: author, noteable: issue, project_id: issue.project_id, note: '@mention referenced, @unsubscribed_mentioned and @outsider also') }
@@ -1473,9 +1473,9 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
     context 'issue note mention' do
       let_it_be(:issue) { create(:issue, project: project, assignees: [assignee]) }
-      let_it_be(:mentioned_issue) { create(:issue, assignees: issue.assignees) }
+      let_it_be(:mentioned_issue, freeze: false) { create(:issue, assignees: issue.assignees) }
       let_it_be(:user_to_exclude) { create(:user) }
-      let_it_be(:author) { create(:user) }
+      let_it_be(:author, freeze: false) { create(:user) }
 
       let(:user_mentions) do
         other_members = [
@@ -1924,7 +1924,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
 
   context 'wiki page note' do
     let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
-    let_it_be(:wiki_page_meta) { create(:wiki_page_meta, :for_wiki_page, container: project) }
+    let_it_be(:wiki_page_meta, freeze: false) { create(:wiki_page_meta, :for_wiki_page, container: project) }
     let_it_be(:note, freeze: false) { create(:note, noteable: wiki_page_meta, project: project) }
 
     before_all do

@@ -169,9 +169,9 @@ RSpec.describe Ci::ProcessSyncEventsService, feature_category: :continuous_integ
       let(:hierarchy_class) { Ci::Catalog::Resource }
 
       let_it_be(:project1, freeze: false) { create(:project) }
-      let_it_be(:project2) { create(:project) }
+      let_it_be(:project2, freeze: false) { create(:project) }
       let_it_be_with_refind(:resource1) { create(:ci_catalog_resource, project: project1) }
-      let_it_be(:resource2) { create(:ci_catalog_resource, project: project2) }
+      let_it_be(:resource2, freeze: false) { create(:ci_catalog_resource, project: project2) }
 
       before_all do
         create(:ci_catalog_resource_sync_event, catalog_resource: resource1, status: :processed)

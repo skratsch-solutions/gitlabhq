@@ -6243,8 +6243,10 @@ export const workItemsWithSubChildQueryResponse = {
     namespace: {
       id: 'gid://gitlab/Group/3',
       __typename: 'Group',
+      fullPath: 'full/path',
       name: 'Test',
       workItems: {
+        __typename: 'WorkItemConnection',
         pageInfo: {
           hasNextPage: true,
           hasPreviousPage: false,
@@ -6754,13 +6756,37 @@ export const combinedQueryResultExample = [
   },
 ];
 
+export const workItemsRestQueryResponse = {
+  data: {
+    namespace: {
+      id: 'gid://gitlab/Group/3',
+      __typename: 'Group',
+      fullPath: 'full/path',
+      name: 'Test',
+      workItems: {
+        __typename: 'WorkItemConnection',
+        pageInfo: {
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'startCursor',
+          endCursor: 'endCursor',
+          __typename: 'PageInfo',
+        },
+        nodes: combinedQueryResultExample,
+      },
+    },
+  },
+};
+
 export const workItemsQueryResponseCombined = {
   data: {
     namespace: {
       id: 'gid://gitlab/Group/3',
       __typename: 'Group',
+      fullPath: 'full/path',
       name: 'Test',
       workItems: {
+        __typename: 'WorkItemConnection',
         pageInfo: {
           hasNextPage: true,
           hasPreviousPage: false,

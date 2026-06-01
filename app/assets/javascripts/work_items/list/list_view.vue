@@ -81,13 +81,14 @@ export default {
   inject: ['isGroup', 'workItemType'],
   apollo: {
     workItemsFull() {
-      return this.createWorkItemQuery(getWorkItemsQuery);
+      const query = this.createWorkItemQuery(getWorkItemsQuery);
+      if (this.useRestApi) {
+        return { ...query, skip: true };
+      }
+      return query;
     },
     workItemsSlim() {
-      const query =
-        this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi
-          ? getWorkItemsRestQuery
-          : getWorkItemsSlimQuery;
+      const query = this.useRestApi ? getWorkItemsRestQuery : getWorkItemsSlimQuery;
       return this.createWorkItemQuery(query);
     },
   },
@@ -193,16 +194,17 @@ export default {
     };
   },
   computed: {
+    useRestApi() {
+      return this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi;
+    },
     issuablesWrapper() {
       return this.isManualOrdering ? VueDraggable : 'ul';
     },
     workItems() {
-      const useRestApi =
-        this.glFeatures.workItemRestApiFrontendUsers && this.glFeatures.workItemRestApi;
       const combined = combineWorkItemLists(
         this.workItemsSlim,
         this.workItemsFull,
-        !useRestApi && Boolean(this.glFeatures.workItemFeaturesField),
+        !this.useRestApi && Boolean(this.glFeatures.workItemFeaturesField),
       );
       const sortKey = this.queryVariables.sort || CREATED_DESC;
       return getSortedWorkItems(combined, sortKey);
@@ -211,7 +213,7 @@ export default {
       return this.$apollo.queries.workItemsSlim.loading;
     },
     detailLoading() {
-      return this.$apollo.queries.workItemsFull.loading;
+      return this.useRestApi ? false : this.$apollo.queries.workItemsFull.loading;
     },
     skeletonItemCount() {
       const { workItemsCount, pageSize } = this;

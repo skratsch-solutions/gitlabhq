@@ -3008,7 +3008,7 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
     context "when the project is public or internal and not on the allowlist" do
       let_it_be(:current_user) { create(:user) }
       let_it_be(:project) { public_project }
-      let_it_be(:scope_project) { create(:project, :private) }
+      let_it_be(:scope_project, freeze: false) { create(:project, :private) }
       let(:job) { build_stubbed(:ci_build, project: scope_project, user: current_user) }
 
       context 'with all features enabled' do

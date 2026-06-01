@@ -25,7 +25,7 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
   let_it_be(:priority3, freeze: false) { create(:label, project: project_a, priority: 10) }
   let_it_be(:priority4, freeze: false) { create(:label, project: project_d, priority: 15) }
 
-  let_it_be(:issue_a) do
+  let_it_be(:issue_a, freeze: false) do
     create(
       :issue,
       project: project_a,

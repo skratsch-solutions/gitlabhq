@@ -22,7 +22,7 @@ RSpec.describe Banzai::Filter::MathFilter, feature_category: :markdown do
 
     doc = pipeline_filter(markdown)
 
-    expect(doc.search('.js-render-math').count).to eq(5)
+    expect(doc.search('.js-render-math').count).to eq(6)
   end
 
   context 'when limiting how many elements can be marked as math' do

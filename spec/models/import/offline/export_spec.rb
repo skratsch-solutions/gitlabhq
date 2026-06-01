@@ -104,7 +104,7 @@ RSpec.describe Import::Offline::Export, feature_category: :importers do
   end
 
   describe 'email notification' do
-    let_it_be(:export) { create(:offline_export, :started) }
+    let_it_be(:export, freeze: false) { create(:offline_export, :started) }
     let_it_be(:configuration) { create(:offline_configuration, offline_export: export) }
 
     describe 'after transitioning to finished' do

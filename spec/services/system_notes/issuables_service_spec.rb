@@ -6,7 +6,7 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
   include ProjectForksHelper
 
   let_it_be(:group)   { create(:group) }
-  let_it_be(:project) { create(:project, :repository, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, :repository, group: group) }
   let_it_be(:author)  { create(:user) }
 
   let(:noteable)      { create(:issue, project: project) }

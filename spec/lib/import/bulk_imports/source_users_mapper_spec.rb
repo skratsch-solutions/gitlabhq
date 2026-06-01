@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe Import::BulkImports::SourceUsersMapper, feature_category: :importers do
-  let_it_be(:portable) { create(:group) }
+  let_it_be(:portable, freeze: false) { create(:group) }
   let_it_be(:ghost_user) { Users::Internal.in_organization(portable.organization).ghost }
-  let_it_be(:bulk_import) { create(:bulk_import, :with_configuration) }
+  let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration) }
   let_it_be(:entity, freeze: false) do
     create(
       :bulk_import_entity,

@@ -6,7 +6,7 @@ RSpec.describe 'Querying a Milestone', feature_category: :team_planning do
   include GraphqlHelpers
 
   let_it_be(:group) { create(:group, :public) }
-  let_it_be(:project) { create(:project, group: group) }
+  let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:guest) { create(:user) }
   let_it_be(:inherited_guest) { create(:user) }
   let_it_be(:inherited_reporter) { create(:user) }

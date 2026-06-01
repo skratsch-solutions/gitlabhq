@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe Notes::CreateService, feature_category: :team_planning do
-  let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :repository, group: group) }
-  let_it_be(:issue) { create(:issue, project: project) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:project, freeze: false) { create(:project, :repository, group: group) }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   let(:base_opts) { { note: 'Awesome comment', noteable_type: 'Issue', noteable_id: issue.id } }
   let(:opts) { base_opts.merge(confidential: true) }
@@ -168,7 +168,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
       end
 
       context 'in a commit' do
-        let_it_be(:commit) { create(:commit, project: project) }
+        let_it_be(:commit, freeze: false) { create(:commit, project: project) }
         let(:opts) { { note: 'Awesome comment', noteable_type: 'Commit', commit_id: commit.id } }
 
         subject(:execute_create_service) { described_class.new(project, user, opts).execute }
@@ -201,12 +201,12 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
       end
 
       context 'in a merge request' do
-        let_it_be(:project_with_repo) { create(:project, :repository) }
+        let_it_be(:project_with_repo, freeze: false) { create(:project, :repository) }
         let_it_be(:merge_request, freeze: false) do
           create(:merge_request, source_project: project_with_repo, target_project: project_with_repo)
         end
 
-        let_it_be(:position) do
+        let_it_be(:position, freeze: false) do
           Gitlab::Diff::Position.new(
             old_path: "files/ruby/popen.rb",
             new_path: "files/ruby/popen.rb",
@@ -431,10 +431,10 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
 
     context 'note with commands' do
       context 'all quick actions' do
-        let_it_be(:milestone) { create(:milestone, project: project, title: "sprint") }
-        let_it_be(:bug_label) { create(:label, project: project, title: 'bug') }
-        let_it_be(:to_be_copied_label) { create(:label, project: project, title: 'to be copied') }
-        let_it_be(:feature_label) { create(:label, project: project, title: 'feature') }
+        let_it_be(:milestone, freeze: false) { create(:milestone, project: project, title: "sprint") }
+        let_it_be(:bug_label, freeze: false) { create(:label, project: project, title: 'bug') }
+        let_it_be(:to_be_copied_label, freeze: false) { create(:label, project: project, title: 'to be copied') }
+        let_it_be(:feature_label, freeze: false) { create(:label, project: project, title: 'feature') }
         let_it_be_with_reload(:issue) { create(:issue, project: project, labels: [bug_label], due_date: '2019-01-01') }
         let_it_be(:issue_2, freeze: false) { create(:issue, project: project, labels: [bug_label, to_be_copied_label]) }
 
@@ -615,10 +615,10 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
     context 'design note', feature_category: :design_management do
       subject(:service) { described_class.new(project, user, params) }
 
-      let_it_be(:design) { create(:design, :with_file) }
-      let_it_be(:project) { design.project }
-      let_it_be(:user) { project.first_owner }
-      let_it_be(:params) do
+      let_it_be(:design, freeze: false) { create(:design, :with_file) }
+      let_it_be(:project, freeze: false) { design.project }
+      let_it_be(:user, freeze: false) { project.first_owner }
+      let_it_be(:params, freeze: false) do
         {
           type: 'DiffNote',
           noteable: design,
@@ -794,7 +794,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
         end
 
         context 'for a non-first note in a discussion' do
-          let_it_be(:previous_note) do
+          let_it_be(:previous_note, freeze: false) do
             create(:note, noteable: wiki_page_meta, project: wiki_page_meta.project)
           end
 
@@ -871,7 +871,7 @@ RSpec.describe Notes::CreateService, feature_category: :team_planning do
 
     context 'when creating a note on a design version' do
       let_it_be(:work_item, freeze: false) { create(:work_item, project: project) }
-      let_it_be(:design) { create(:design, issue: work_item) }
+      let_it_be(:design, freeze: false) { create(:design, issue: work_item) }
 
       let(:opts) do
         {

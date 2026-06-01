@@ -817,7 +817,7 @@ RSpec.describe API::Wikis, feature_category: :wiki do
   end
 
   context 'when authenticated with a token that has the ai_workflows scope' do
-    let_it_be(:project) { create(:project, :wiki_repo) }
+    let_it_be(:project, freeze: false) { create(:project, :wiki_repo) }
     let_it_be(:wiki, freeze: false) { create(:project_wiki, project: project, user: user) }
     let_it_be(:wiki_page) { create(:wiki_page, wiki: wiki) }
     let(:oauth_access_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }

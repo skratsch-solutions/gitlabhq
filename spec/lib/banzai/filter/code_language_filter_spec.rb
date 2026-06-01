@@ -60,6 +60,29 @@ RSpec.describe Banzai::Filter::CodeLanguageFilter, feature_category: :markdown d
     end
   end
 
+  context 'when lang is specified as a CSS class on `code`' do
+    it 'extracts language from language- class, sets data-canonical-lang, and removes the class' do
+      result = filter('<pre><code class="language-ruby">def fun end</code></pre>')
+
+      expect(result.to_html.delete("\n"))
+        .to eq('<pre data-canonical-lang="ruby"><code>def fun end</code></pre>')
+    end
+
+    it 'handles multiple classes and extracts only the language- one' do
+      result = filter('<pre><code class="foo language-ruby bar">def fun end</code></pre>')
+
+      expect(result.to_html.delete("\n"))
+        .to eq('<pre data-canonical-lang="ruby"><code class="foo bar">def fun end</code></pre>')
+    end
+
+    it 'does nothing when no language- class is present' do
+      result = filter('<pre><code class="foo bar">def fun end</code></pre>')
+
+      expect(result.to_html.delete("\n"))
+        .to eq('<pre><code class="foo bar">def fun end</code></pre>')
+    end
+  end
+
   context 'when lang has extra params' do
     let_it_be(:lang_params) { 'foo-bar-kux' }
     let_it_be(:xss_lang) { %(ruby data-meta="foo-bar-kux"&lt;script&gt;alert(1)&lt;/script&gt;) }

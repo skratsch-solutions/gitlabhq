@@ -59,7 +59,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe "#relative_raw_path" do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
 
     before do
       assign(:project, project)
@@ -82,7 +82,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   context 'viewer related' do
-    let_it_be(:project) { create(:project, lfs_enabled: true) }
+    let_it_be(:project, freeze: false) { create(:project, lfs_enabled: true) }
 
     let(:viewer_class) do
       Class.new(BlobViewer::Base) do
@@ -211,7 +211,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#ide_edit_path' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let(:current_user) { create(:user) }
     let(:can_push_code) { true }
 
@@ -278,7 +278,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#ide_merge_request_path' do
-    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:project, freeze: false) { create(:project, :repository) }
     let_it_be(:merge_request) { create(:merge_request, source_project: project) }
 
     it 'returns IDE path for the given MR if MR is not merged' do
@@ -341,7 +341,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#ide_fork_and_edit_path' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:user) { create(:user) }
 
     let(:current_user) { user }
@@ -379,7 +379,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#fork_and_edit_path' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:user) { create(:user) }
 
     let(:current_user) { user }
@@ -912,7 +912,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#edit_fork_button_tag' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:user) { create(:user) }
 
     let(:current_user) { user }
@@ -931,7 +931,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
   end
 
   describe '#vue_blob_header_app_data' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
     let_it_be(:blob) { fake_blob(path: 'README.md') }
     let(:ref) { 'feature' }
     let(:ref_type) { :branch }

@@ -45,6 +45,14 @@ RSpec.describe DraftNotes::PublishService, feature_category: :code_review_workfl
       expect(DraftNote.count).to eq(1)
     end
 
+    it 'propagates the draft line_code to the published note' do
+      draft = drafts.first
+
+      publish(draft: draft)
+
+      expect(merge_request.notes.order(id: :asc).first.line_code).to eq(draft.line_code)
+    end
+
     it 'does not skip notification', :sidekiq_might_not_need_inline do
       note_params = drafts.first.publish_params.merge(skip_keep_around_commits: false)
       expect(Notes::CreateService).to receive(:new).with(project, user, note_params).and_call_original

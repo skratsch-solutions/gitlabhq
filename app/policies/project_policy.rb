@@ -434,6 +434,11 @@ class ProjectPolicy < BasePolicy
     prevent :update_terraform_state
     prevent :admin_terraform_state
     prevent :destroy_terraform_state
+    prevent :delete_terraform_state_protection_rule
+  end
+
+  rule { can?(:admin_terraform_state) }.policy do
+    enable :delete_terraform_state_protection_rule
   end
 
   rule { can?(:metrics_dashboard) }.policy do

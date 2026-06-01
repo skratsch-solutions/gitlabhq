@@ -99,6 +99,7 @@ module Gitlab
           search_rate_limit_unauthenticated: { threshold: -> { application_settings.search_rate_limit_unauthenticated }, interval: 1.minute },
           service_account_creation: { threshold: 10, interval: 1.minute },
           temporary_email_failure: { threshold: 300, interval: 1.day },
+          token_exchange: { threshold: 60, interval: 1.minute },
           update_environment_canary_ingress: { threshold: 1, interval: 1.minute },
           update_namespace_name: { threshold: -> { application_settings.update_namespace_name_rate_limit }, interval: 1.hour },
           user_large_commit_request: { threshold: 3, interval: 30.seconds },

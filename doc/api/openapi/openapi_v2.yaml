@@ -54137,6 +54137,11 @@ definitions:
   putApiV4GroupsIdIntegrationsGitGuardian:
     type: object
     properties:
+      api_url:
+        type: string
+        description: GitGuardian API base URL. Defaults to https://api.gitguardian.com.
+          Use https://api.eu1.gitguardian.com for the EU region, or the URL of your
+          self-hosted GitGuardian instance. Must use HTTPS.
       token:
         type: string
         description: Personal access token to authenticate calls to the GitGuardian
@@ -61839,6 +61844,11 @@ definitions:
   putApiV4ProjectsIdServicesGitGuardian:
     type: object
     properties:
+      api_url:
+        type: string
+        description: GitGuardian API base URL. Defaults to https://api.gitguardian.com.
+          Use https://api.eu1.gitguardian.com for the EU region, or the URL of your
+          self-hosted GitGuardian instance. Must use HTTPS.
       token:
         type: string
         description: Personal access token to authenticate calls to the GitGuardian
@@ -63766,6 +63776,11 @@ definitions:
   putApiV4ProjectsIdIntegrationsGitGuardian:
     type: object
     properties:
+      api_url:
+        type: string
+        description: GitGuardian API base URL. Defaults to https://api.gitguardian.com.
+          Use https://api.eu1.gitguardian.com for the EU region, or the URL of your
+          self-hosted GitGuardian instance. Must use HTTPS.
       token:
         type: string
         description: Personal access token to authenticate calls to the GitGuardian

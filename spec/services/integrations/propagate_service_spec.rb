@@ -78,6 +78,20 @@ RSpec.describe Integrations::PropagateService, feature_category: :integrations d
         end
       end
 
+      context 'with projects spread across multiple descendant namespaces' do
+        let_it_be(:project_in_group) { create(:project, group: group) }
+        let_it_be(:project_in_subgroup) { create(:project, group: subgroup) }
+
+        it 'batches each namespace separately and enqueues a worker per namespace', :aggregate_failures do
+          expect(PropagateIntegrationProjectWorker).to receive(:perform_async)
+            .with(group_integration.id, project_in_group.id, project_in_group.id)
+          expect(PropagateIntegrationProjectWorker).to receive(:perform_async)
+            .with(group_integration.id, project_in_subgroup.id, project_in_subgroup.id)
+
+          described_class.new(group_integration).execute
+        end
+      end
+
       context 'and the integration is instance specific' do
         let_it_be(:group_integration) { create(:beyond_identity_integration, :group, group: group, instance: false) }
 

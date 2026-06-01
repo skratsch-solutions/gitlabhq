@@ -85,7 +85,7 @@ module Integrations
 
     def propagate_integration_to_descendant_projects
       if Feature.enabled?(:integration_propagation_simplified_batching, integration.group.root_ancestor)
-        # Pluck namespace IDs first, then batch on a simple IN (ids) scope.
+        # Pluck namespace IDs first, then batch each namespace separately.
         # The worker re-applies all filters, so we skip them here to
         # avoid expensive OFFSET queries in each_batch.
         # See https://gitlab.com/gitlab-org/gitlab/-/issues/591182
@@ -94,12 +94,12 @@ module Integrations
           .excluding_self_and_ancestors_archived
           .ids # rubocop:disable CodeReuse/ActiveRecord -- avoids subquery in each_batch scope
 
-        return if namespace_ids.empty?
-
-        propagate_integrations(
-          Project.in_namespace(namespace_ids),
-          PropagateIntegrationProjectWorker
-        )
+        namespace_ids.each do |namespace_id|
+          propagate_integrations(
+            Project.in_namespace(namespace_id),
+            PropagateIntegrationProjectWorker
+          )
+        end
       else
         propagate_integrations(
           Project.without_integration_excluding_ancestor_archived_check(integration)

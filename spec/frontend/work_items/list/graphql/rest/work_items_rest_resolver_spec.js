@@ -37,6 +37,7 @@ const makeRestItem = (overrides = {}) => ({
   },
   namespace: {
     id: 10,
+    kind: 'project',
     full_path: FULL_PATH,
   },
   work_item_type: {
@@ -171,13 +172,16 @@ describe('workItemsRestResolver', () => {
       expect(author.username).toBe(item.author.username);
     });
 
-    it('maps namespace from resolver context to Namespace shape', async () => {
-      const item = makeRestItem();
-      const testNamespace = makeNamespace(
-        'test-org/test-project',
-        'gid://gitlab/Namespaces::ProjectNamespace/99',
-      );
-      const testEndpoint = `/api/v4/namespaces/${encodeURIComponent('test-org/test-project')}/-/work_items`;
+    it('maps namespace from REST API response to Namespace shape', async () => {
+      const item = makeRestItem({
+        namespace: {
+          id: 99,
+          kind: 'project',
+          full_path: 'test-org/test-project',
+        },
+      });
+      const testNamespace = makeNamespace('test-org', 'gid://gitlab/Namespaces::GroupNamespace/35');
+      const testEndpoint = `/api/v4/namespaces/${encodeURIComponent('test-org')}/-/work_items`;
       mockAxios.onGet(testEndpoint).reply(HTTP_STATUS_OK, [item], {});
 
       const { nodes } = await workItemsRestResolver(testNamespace, {});

@@ -20,6 +20,11 @@ const REST_STATE_TO_GRAPHQL = {
   locked: 'LOCKED',
 };
 
+const NAMESPACE_KIND_TO_TYPENAME = {
+  project: 'Namespaces::ProjectNamespace',
+  group: 'Namespaces::GroupNamespace',
+};
+
 export function mapWidgetsFromFeatures(features, sharedNamespace) {
   const widgets = [];
 
@@ -112,6 +117,16 @@ export function mapWidgetsFromFeatures(features, sharedNamespace) {
 }
 
 export function mapWorkItemToGraphQL(item, sharedNamespace) {
+  const itemNamespace =
+    item.namespace.full_path !== sharedNamespace.fullPath
+      ? {
+          __typename: 'Namespace',
+          // eslint-disable-next-line @gitlab/require-i18n-strings
+          id: `gid://gitlab/${NAMESPACE_KIND_TO_TYPENAME[item.namespace.kind] || 'Namespace'}/${item.namespace.id}`,
+          fullPath: item.namespace.full_path,
+        }
+      : sharedNamespace;
+
   return {
     __typename: 'WorkItem',
     id: item.global_id,
@@ -137,7 +152,7 @@ export function mapWorkItemToGraphQL(item, sharedNamespace) {
           webPath: item.author.web_path ?? null,
         }
       : null,
-    namespace: sharedNamespace,
+    namespace: itemNamespace,
     workItemType: item.work_item_type
       ? {
           __typename: 'WorkItemType',
@@ -172,7 +187,7 @@ export async function workItemsRestResolver(namespace, args) {
 
   restParams.set(
     'fields',
-    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,author,work_item_type,confidential,hidden,user_discussions_count',
+    'id,iid,global_id,title,title_html,state,created_at,updated_at,closed_at,reference,web_path,author,work_item_type,confidential,hidden,user_discussions_count,namespace',
   );
   restParams.set('features', 'labels,assignees,milestone,start_and_due_date');
 
@@ -187,6 +202,7 @@ export async function workItemsRestResolver(namespace, args) {
   }
 
   const nodes = (response.data ?? []).map((item) => mapWorkItemToGraphQL(item, namespace));
+
   const pageInfo = parsePageInfo(response.headers);
   return {
     __typename: 'WorkItemConnection',

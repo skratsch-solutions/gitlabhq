@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_planning do
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be_with_reload(:project) do
     create(:project, :public, creator_id: user.id, namespace: user.namespace, reporters: user)
   end
@@ -12,11 +12,11 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
   let_it_be(:non_member) { create(:user) }
   let_it_be(:guest) { create(:user, guest_of: project) }
   let_it_be(:author) { create(:author) }
-  let_it_be(:milestone) { create(:milestone, title: '1.0.0', project: project) }
+  let_it_be(:milestone, freeze: false) { create(:milestone, title: '1.0.0', project: project) }
   let_it_be(:assignee) { create(:assignee) }
   let_it_be(:admin) { create(:user, :admin) }
 
-  let_it_be(:closed_issue) do
+  let_it_be(:closed_issue, freeze: false) do
     create :closed_issue,
       author: user,
       assignees: [user],

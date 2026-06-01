@@ -1085,10 +1085,30 @@ export default {
         this.activeItem = null;
       }
       if (newValue.fullPath !== oldValue.fullPath && !this.isSavedView) {
-        this.updateData(getParameterByName(PARAM_SORT));
+        const paginationKeys = ['page_after', 'page_before', 'first_page_size', 'last_page_size'];
+        const hasPaginationParams = paginationKeys.some(
+          (key) => newValue.query[key] || oldValue.query[key],
+        );
 
-        if (Object.keys(newValue.query).length === 0) {
-          this.addStateToken();
+        let onlyPaginationChanged = false;
+        if (hasPaginationParams) {
+          const oldQueryWithoutPagination = { ...oldValue.query };
+          const newQueryWithoutPagination = { ...newValue.query };
+
+          paginationKeys.forEach((key) => {
+            delete oldQueryWithoutPagination[key];
+            delete newQueryWithoutPagination[key];
+          });
+
+          onlyPaginationChanged = isEqual(oldQueryWithoutPagination, newQueryWithoutPagination);
+        }
+
+        if (!onlyPaginationChanged) {
+          this.updateData(getParameterByName(PARAM_SORT));
+
+          if (Object.keys(newValue.query).length === 0) {
+            this.addStateToken();
+          }
         }
       }
       if (this.isSavedView) {
@@ -1394,13 +1414,19 @@ export default {
         );
       }
 
-      this.pageParams = getInitialPageParams(
+      const newPageParams = getInitialPageParams(
         this.pageSize,
         isPositiveInteger(firstPageSize) ? parseInt(firstPageSize, 10) : undefined,
         isPositiveInteger(lastPageSize) ? parseInt(lastPageSize, 10) : undefined,
         getParameterByName(PARAM_PAGE_AFTER) ?? undefined,
         getParameterByName(PARAM_PAGE_BEFORE) ?? undefined,
       );
+
+      // Only update pageParams if they actually changed to avoid triggering duplicate queries
+      const paramsEqual = isEqual(this.pageParams, newPageParams);
+      if (!paramsEqual) {
+        this.pageParams = newPageParams;
+      }
 
       // Trigger pageSize UI component update based on URL changes
       this.pageSize = this.pageParams.firstPageSize || DEFAULT_PAGE_SIZE;

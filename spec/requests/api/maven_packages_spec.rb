@@ -19,7 +19,7 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
   let_it_be(:personal_access_token) { create(:personal_access_token, user: user) }
   let_it_be_with_reload(:job) { create(:ci_build, user: user, status: :running, project: project) }
   let_it_be(:deploy_token, freeze: false) { create(:deploy_token, read_package_registry: true, write_package_registry: true, projects: [project]) }
-  let_it_be(:deploy_token_for_group) { create(:deploy_token, :group, read_package_registry: true, write_package_registry: true, groups: [group]) }
+  let_it_be(:deploy_token_for_group, freeze: false) { create(:deploy_token, :group, read_package_registry: true, write_package_registry: true, groups: [group]) }
 
   let(:snowplow_gitlab_standard_context) { { project: project, namespace: project.namespace, user: user, property: 'i_package_maven_user' } }
 

@@ -69,7 +69,7 @@ module API
         end
         route_setting :authorization, permissions: :read_oauth_application, boundary_type: :user
         get ':id' do
-          application = Authn::OauthApplication.find_by_id(params[:id])
+          application = ::Authn::OauthApplication.find_by_id(params[:id])
           break not_found!('Application') unless application
 
           authorize! :read_oauth_application, application
@@ -87,7 +87,7 @@ module API
         end
         route_setting :authorization, permissions: :delete_oauth_application, boundary_type: :user
         delete ':id' do
-          application = Authn::OauthApplication.find_by_id(params[:id])
+          application = ::Authn::OauthApplication.find_by_id(params[:id])
           break not_found!('Application') unless application
 
           authorize! :delete_oauth_application, application
@@ -119,7 +119,7 @@ module API
         end
         route_setting :authorization, permissions: :update_oauth_application, boundary_type: :user
         put ':id' do
-          application = Authn::OauthApplication.find_by_id(params[:id])
+          application = ::Authn::OauthApplication.find_by_id(params[:id])
           break not_found!('Application') unless application
 
           authorize! :update_oauth_application, application

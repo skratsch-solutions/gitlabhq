@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Routes::RenameDescendantsService, feature_category: :groups_and_projects do
   let_it_be(:parent_group, freeze: false) { create(:group, name: 'old-name', path: 'old-path') }
-  let_it_be(:parent_route) { parent_group.route }
+  let_it_be(:parent_route, freeze: false) { parent_group.route }
   let_it_be(:subgroups) { create_list(:group, 4, parent: parent_group) }
   let_it_be(:subgroup_projects) { subgroups.map { |subgroup| create(:project, group: subgroup) } }
 

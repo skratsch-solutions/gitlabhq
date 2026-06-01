@@ -90,7 +90,7 @@ RSpec.describe Event, feature_category: :user_profile do
   describe 'validations' do
     describe 'action' do
       context 'for a design' do
-        let_it_be(:author) { create(:user) }
+        let_it_be(:author, freeze: false) { create(:user) }
 
         where(:action, :valid) do
           valid = described_class::DESIGN_ACTIONS.map(&:to_s).to_set
@@ -139,21 +139,21 @@ RSpec.describe Event, feature_category: :user_profile do
       subject { described_class.for_project }
 
       context 'when target_type is Project' do
-        let_it_be(:event) { create(:event, target: project) }
+        let_it_be(:event, freeze: false) { create(:event, target: project) }
 
         it { is_expected.to contain_exactly(event) }
       end
 
       context 'when target_type is nil' do
         context 'with project actions' do
-          let_it_be(:project_action_events) do
+          let_it_be(:project_action_events, freeze: false) do
             described_class::PROJECT_ACTIONS.map do |action|
               factory = action == :pushed ? :push_event : :event
               create(factory, target: nil, action: action, project: project)
             end
           end
 
-          let_it_be(:orphaned_project_action_events) do
+          let_it_be(:orphaned_project_action_events, freeze: false) do
             described_class::PROJECT_ACTIONS
               .excluding(:pushed) # PushEvent has a presence validation requirement for Project.
               .map { |action| create(:event, target: nil, action: action, project: nil) }
@@ -166,8 +166,8 @@ RSpec.describe Event, feature_category: :user_profile do
         end
 
         context 'with non-project actions' do
-          let_it_be(:non_project_action_event) { create(:event, target: nil, action: :closed, project: project) }
-          let_it_be(:orphaned_non_project_action_event) { create(:event, target: nil, action: :closed, project: nil) }
+          let_it_be(:non_project_action_event, freeze: false) { create(:event, target: nil, action: :closed, project: project) }
+          let_it_be(:orphaned_non_project_action_event, freeze: false) { create(:event, target: nil, action: :closed, project: nil) }
 
           it 'excludes all non-project action events regardless of project presence' do
             is_expected.not_to include(non_project_action_event, orphaned_non_project_action_event)
@@ -176,7 +176,7 @@ RSpec.describe Event, feature_category: :user_profile do
       end
 
       context 'when target_type is not Project' do
-        let_it_be(:non_project_event) { create(:event, :for_issue) }
+        let_it_be(:non_project_event, freeze: false) { create(:event, :for_issue) }
 
         it { is_expected.not_to include(non_project_event) }
       end
@@ -236,7 +236,7 @@ RSpec.describe Event, feature_category: :user_profile do
     end
 
     describe '.for_fingerprint' do
-      let_it_be(:with_fingerprint) { create(:event, fingerprint: 'aaa', project: project) }
+      let_it_be(:with_fingerprint, freeze: false) { create(:event, fingerprint: 'aaa', project: project) }
 
       before_all do
         create(:event, project: project)
@@ -490,14 +490,14 @@ RSpec.describe Event, feature_category: :user_profile do
   end
 
   describe '#visible_to_user?' do
-    let_it_be(:non_member) { create(:user) }
-    let_it_be(:member) { create(:user) }
-    let_it_be(:guest) { create(:user) }
-    let_it_be(:author) { create(:author) }
-    let_it_be(:assignee) { create(:user) }
-    let_it_be(:admin) { create(:admin) }
-    let_it_be(:public_project) { create(:project, :public) }
-    let_it_be(:private_project) { create(:project, :private) }
+    let_it_be(:non_member, freeze: false) { create(:user) }
+    let_it_be(:member, freeze: false) { create(:user) }
+    let_it_be(:guest, freeze: false) { create(:user) }
+    let_it_be(:author, freeze: false) { create(:author) }
+    let_it_be(:assignee, freeze: false) { create(:user) }
+    let_it_be(:admin, freeze: false) { create(:admin) }
+    let_it_be(:public_project, freeze: false) { create(:project, :public) }
+    let_it_be(:private_project, freeze: false) { create(:project, :private) }
 
     let(:project) { public_project }
     let(:issue) { create(:issue, project: project, author: author, assignees: [assignee]) }
@@ -989,7 +989,7 @@ RSpec.describe Event, feature_category: :user_profile do
   end
 
   describe 'wiki_page predicate scopes' do
-    let_it_be(:events) do
+    let_it_be(:events, freeze: false) do
       [
         create(:push_event),
         create(:closed_issue_event),
@@ -1032,7 +1032,7 @@ RSpec.describe Event, feature_category: :user_profile do
 
   describe 'categorization' do
     let_it_be(:project, freeze: false) { create(:project, :repository) }
-    let_it_be(:all_valid_events) do
+    let_it_be(:all_valid_events, freeze: false) do
       # mapping from factory name to whether we need to supply the project
       valid_target_factories = {
         issue: true,
@@ -1120,8 +1120,8 @@ RSpec.describe Event, feature_category: :user_profile do
   end
 
   describe '.limit_recent' do
-    let_it_be(:event1) { create(:closed_issue_event) }
-    let_it_be(:event2) { create(:closed_issue_event) }
+    let_it_be(:event1, freeze: false) { create(:closed_issue_event) }
+    let_it_be(:event2, freeze: false) { create(:closed_issue_event) }
 
     describe 'without an explicit limit' do
       subject { described_class.limit_recent }
@@ -1401,13 +1401,13 @@ RSpec.describe Event, feature_category: :user_profile do
   end
 
   context 'with snippet note' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:note_on_project_snippet) { create(:note_on_project_snippet, author: user) }
-    let_it_be(:note_on_personal_snippet) { create(:note_on_personal_snippet, author: user) }
-    let_it_be(:other_note) { create(:note_on_issue, author: user) }
-    let_it_be(:personal_snippet_event) { create(:event, :commented, project: nil, target: note_on_personal_snippet, author: user) }
-    let_it_be(:project_snippet_event) { create(:event, :commented, project: note_on_project_snippet.project, target: note_on_project_snippet, author: user) }
-    let_it_be(:other_event) { create(:event, :commented, project: other_note.project, target: other_note, author: user) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:note_on_project_snippet, freeze: false) { create(:note_on_project_snippet, author: user) }
+    let_it_be(:note_on_personal_snippet, freeze: false) { create(:note_on_personal_snippet, author: user) }
+    let_it_be(:other_note, freeze: false) { create(:note_on_issue, author: user) }
+    let_it_be(:personal_snippet_event, freeze: false) { create(:event, :commented, project: nil, target: note_on_personal_snippet, author: user) }
+    let_it_be(:project_snippet_event, freeze: false) { create(:event, :commented, project: note_on_project_snippet.project, target: note_on_project_snippet, author: user) }
+    let_it_be(:other_event, freeze: false) { create(:event, :commented, project: other_note.project, target: other_note, author: user) }
 
     describe '#snippet_note?' do
       it 'returns true for a project snippet event' do
@@ -1566,7 +1566,7 @@ RSpec.describe Event, feature_category: :user_profile do
     end
 
     context 'when target_id is set' do
-      let_it_be(:issue) { create(:issue, project: project) }
+      let_it_be(:issue, freeze: false) { create(:issue, project: project) }
 
       let(:event) { build(:event, target_type: issue.class.name, target_id: issue.id) }
 
@@ -1598,8 +1598,8 @@ RSpec.describe Event, feature_category: :user_profile do
 
   context 'with loose foreign key on events.author_id' do
     it_behaves_like 'cleanup by a loose foreign key' do
-      let_it_be(:parent) { create(:user) }
-      let_it_be(:model) { create(:event, author: parent) }
+      let_it_be(:parent, freeze: false) { create(:user) }
+      let_it_be(:model, freeze: false) { create(:event, author: parent) }
     end
   end
 end

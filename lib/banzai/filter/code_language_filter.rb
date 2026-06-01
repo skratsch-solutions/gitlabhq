@@ -13,6 +13,7 @@ module Banzai
       prepend Concerns::PipelineTimingCheck
 
       LANG_PARAMS_DELIMITER = ':'
+      LANGUAGE_CLASS_PREFIX = 'language-'
 
       CSS   = 'pre > code:only-child'
       XPATH = Gitlab::Utils::Nokogiri.css_to_xpath(CSS).freeze
@@ -66,7 +67,33 @@ module Banzai
       end
 
       def extract_language_with_priority(code_node, pre_node)
-        pre_node.attr('lang') || code_node.attr('lang')
+        pre_node.attr('lang') || code_node.attr('lang') || extract_language_from_class(code_node)
+      end
+
+      # Returns [language_class, other_classes] from a code node's class attribute.
+      # language_class is the first `language-*` token found (nil if none).
+      def partition_language_class(code_node)
+        classes = code_node.attr('class')&.split
+        return [nil, nil] unless classes
+
+        language_class, others = classes.partition { |c| c.start_with?(LANGUAGE_CLASS_PREFIX) }
+        [language_class.first, others]
+      end
+
+      def extract_language_from_class(code_node)
+        lang_class, = partition_language_class(code_node)
+        lang_class&.delete_prefix(LANGUAGE_CLASS_PREFIX)
+      end
+
+      def remove_language_class(code_node)
+        lang_class, others = partition_language_class(code_node)
+        return unless lang_class
+
+        if others.empty?
+          code_node.remove_attribute('class')
+        else
+          code_node.set_attribute('class', others.join(' '))
+        end
       end
 
       def cleanup_all_language_attributes(code_node, pre_node)
@@ -74,6 +101,7 @@ module Banzai
         pre_node.remove_attribute('lang')
         pre_node.remove_attribute('data-meta')
         code_node.remove_attribute('data-meta')
+        remove_language_class(code_node)
       end
 
       def set_final_language_attributes(pre_node, lang, lang_params)

@@ -312,6 +312,8 @@ tags:
   description: Operations related to Terraform.
 - name: To-dos
   description: Operations related to to-dos.
+- name: Token exchange
+  description: Operations related to token exchange.
 - name: Unleash
   description: Operations related to Unleash.
 - name: Usage data
@@ -819,6 +821,32 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/RequestBody_e1213847c669"
+  "/api/v4/token_exchange":
+    post:
+      operationId: postApiV4TokenExchange
+      summary: Issue a short-lived JWT for a single modular-service audience
+      description: Issues a short-lived RS256 JWT scoped to one modular-service audience
+        (such as the Artifact Registry). Claims include the requesting user id (sub),
+        organization id, and deployment realm (saas / self-managed). Presented to
+        the corresponding backend and verified against the instance JWKS.
+      tags:
+      - Token exchange
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestBody_cb5963407baa"
+      x-gitlab-lifecycle: experiment
   "/api/v4/code_suggestions/completions":
     post:
       operationId: postApiV4CodeSuggestionsCompletions
@@ -46731,7 +46759,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_8b6ccb734999"
+              "$ref": "#/components/schemas/RequestBody_042bdf1ba13f"
   "/api/v4/projects/{id}/services/google-cloud-platform-artifact-registry":
     put:
       operationId: putApiV4ProjectsIdServicesGoogleCloudPlatformArtifactRegistry
@@ -48629,7 +48657,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_8b6ccb734999"
+              "$ref": "#/components/schemas/RequestBody_042bdf1ba13f"
   "/api/v4/projects/{id}/integrations/google-cloud-platform-artifact-registry":
     put:
       operationId: putApiV4ProjectsIdIntegrationsGoogleCloudPlatformArtifactRegistry
@@ -50527,7 +50555,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_8b6ccb734999"
+              "$ref": "#/components/schemas/RequestBody_042bdf1ba13f"
   "/api/v4/groups/{id}/integrations/google-cloud-platform-artifact-registry":
     put:
       operationId: putApiV4GroupsIdIntegrationsGoogleCloudPlatformArtifactRegistry
@@ -86761,6 +86789,24 @@ components:
           nullable: true
       required:
       - content
+    RequestBody_cb5963407baa:
+      type: object
+      properties:
+        audience:
+          type: string
+          enum:
+          - gitlab-artifact-registry
+          description: Target service audience (e.g. gitlab-artifact-registry)
+          minLength: 1
+        expires_in:
+          type: integer
+          minimum: 1
+          maximum: 43200
+          description: Requested token lifetime in seconds. Defaults to 300; cap is
+            43200. Pending appsec review of client-controlled TTL.
+          nullable: true
+      required:
+      - audience
     RequestBody_5dd53f5e1063:
       type: object
       properties:
@@ -103823,9 +103869,15 @@ components:
       required:
       - token
       - repository_url
-    RequestBody_8b6ccb734999:
+    RequestBody_042bdf1ba13f:
       type: object
       properties:
+        api_url:
+          type: string
+          description: GitGuardian API base URL. Defaults to https://api.gitguardian.com.
+            Use https://api.eu1.gitguardian.com for the EU region, or the URL of your
+            self-hosted GitGuardian instance. Must use HTTPS.
+          nullable: true
         token:
           type: string
           description: Personal access token to authenticate calls to the GitGuardian

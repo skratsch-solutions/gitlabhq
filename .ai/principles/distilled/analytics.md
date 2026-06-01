@@ -1,6 +1,6 @@
 ---
-source_checksum: aa26a2b36c085845
-distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
+source_checksum: 60e066e57bebbe7e
+distilled_at_sha: 4bdca94fd505e9510cf535c34f2343e7b91332fe
 ---
 <!-- Auto-generated from docs.gitlab.com by gitlab-ai-principles-distiller — do not edit manually -->
 
@@ -13,7 +13,12 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - Ensure every fired event has a corresponding definition file in `config/events` or `ee/config/events`.
 - Verify the [event definition file](https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/event_definition_guide/) is correct and complete.
 - DO NOT include sensitive information (per the [data classification standard](https://handbook.gitlab.com/handbook/security/data-classification-standard/)) in tracking parameters.
-- DO NOT use deprecated analytics methods.
+- DO NOT use deprecated analytics methods (`Gitlab::Tracking.event`, Redis, or RedisHLL tracking); use `track_internal_event` (backend) or `trackEvent` (frontend) instead.
+- Ensure the `action` name follows the [naming convention](https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/quick_start/#defining-event-and-metrics).
+- Ensure the event `description` is clear to readers outside the team.
+- Place the event definition file under `ee/config/events` if the event fires only from EE code.
+- When the `action` field of an existing event changes, confirm the author considered the [renaming implications](https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/event_definition_guide/#changing-the-action-property-in-event-definitions).
+- When removing an event, verify the [event removal process](https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/event_lifecycle/#remove-an-event) was followed.
 
 ### Metric Definitions
 
@@ -23,7 +28,10 @@ distilled_at_sha: 52964caf288c3d9936b8ce4a3d2242c1f92567fa
 - Check the `product_group` field corresponds to the [stages file](https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/stages.yml)
 - Verify the file location reflects the correct time frame and whether it belongs under `ee/`.
 - Verify the metric's tiers are correctly set.
+- Prefer `data_source: internal_events` for new metrics; hand off to the Analytics Instrumentation team if `data_source: database` is used.
+- DO NOT use deprecated `redis` or `redis_hll` data sources for new metrics; see the [migration guide](https://docs.gitlab.com/development/internal_analytics/internal_event_instrumentation/migration/).
 - Ensure changed or removed metrics have notified `@csops-team`, `@gitlab-data/analytics-engineers`, and `@gitlab-data/product-analysts` via a comment on the issue, and all groups have acknowledged the change.
+- When updating an existing metric, verify the [metric change procedure](https://docs.gitlab.com/development/internal_analytics/metrics/metrics_lifecycle/#change-an-existing-metric) was followed.
 
 ### Event Firing Verification
 
