@@ -518,7 +518,7 @@ Following the submission of the login form, authentication is determined to be u
 
 ### Verification checks
 
-Verification checks run checks on the state of the browser once authentication is complete
+Verification checks run checks on the state of the browser after authentication is complete
 to determine further if authentication succeeded.
 
 DAST tests for the absence of a login form if no verification checks are configured.

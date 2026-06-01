@@ -19,6 +19,25 @@ describe('mergeRequestVersions store', () => {
       expect(store.sourceVersions).toEqual(sourceVersions);
       expect(store.targetVersions).toEqual(targetVersions);
     });
+
+    it('sets contextCommits when provided', () => {
+      const contextCommits = {
+        href: '/diffs?only_context_commits=true',
+        commits_count: 2,
+        selected: true,
+        diff_refs: { base_sha: 'b', head_sha: 'h', start_sha: 'b' },
+      };
+
+      store.setVersions({ sourceVersions: [], targetVersions: [], contextCommits });
+
+      expect(store.contextCommits).toEqual(contextCommits);
+    });
+
+    it('defaults contextCommits to null when omitted', () => {
+      store.setVersions({ sourceVersions: [], targetVersions: [] });
+
+      expect(store.contextCommits).toBeNull();
+    });
   });
 
   describe('setCommit', () => {
@@ -55,6 +74,23 @@ describe('mergeRequestVersions store', () => {
       store.setVersions({ sourceVersions: [{ id: 1, selected: false }], targetVersions: [] });
 
       expect(store.selectedSourceVersion).toBeUndefined();
+    });
+
+    it('returns the context commits entry when context commits is selected', () => {
+      const contextCommits = {
+        href: '/diffs?only_context_commits=true',
+        commits_count: 4,
+        selected: true,
+        diff_refs: { base_sha: 'cc_base', head_sha: 'cc_head', start_sha: 'cc_base' },
+      };
+
+      store.setVersions({
+        sourceVersions: [{ id: 1, selected: false }],
+        targetVersions: [],
+        contextCommits,
+      });
+
+      expect(store.selectedSourceVersion).toEqual(contextCommits);
     });
   });
 
@@ -143,6 +179,23 @@ describe('mergeRequestVersions store', () => {
       store.setCommit({ id: 'sha', diff_refs: commitDiffRefs });
 
       expect(store.diffRefs).toEqual(commitDiffRefs);
+    });
+
+    it('returns context commits diff_refs when context commits is selected', () => {
+      const contextCommits = {
+        href: '/diffs?only_context_commits=true',
+        commits_count: 4,
+        selected: true,
+        diff_refs: { base_sha: 'cc_base', head_sha: 'cc_head', start_sha: 'cc_base' },
+      };
+
+      store.setVersions({
+        sourceVersions: [{ selected: false, base_sha: 'base000', head_sha: 'head222' }],
+        targetVersions: [{ selected: true, head: true, start_sha: 'start111', head_sha: 'th' }],
+        contextCommits,
+      });
+
+      expect(store.diffRefs).toEqual(contextCommits.diff_refs);
     });
   });
 });

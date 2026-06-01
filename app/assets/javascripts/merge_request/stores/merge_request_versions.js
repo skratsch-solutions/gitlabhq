@@ -5,11 +5,16 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
     return {
       sourceVersions: [],
       targetVersions: [],
+      contextCommits: null,
       commit: null,
     };
   },
   getters: {
+    isViewingContextCommits() {
+      return Boolean(this.contextCommits?.selected);
+    },
     selectedSourceVersion() {
+      if (this.isViewingContextCommits) return this.contextCommits;
       return this.sourceVersions.find((v) => v.selected);
     },
     selectedTargetVersion() {
@@ -21,6 +26,7 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
     },
     diffRefs() {
       if (this.commit) return this.commit.diff_refs;
+      if (this.isViewingContextCommits) return this.contextCommits.diff_refs;
 
       const source = this.selectedSourceVersion;
       const target = this.selectedTargetVersion;
@@ -48,9 +54,10 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
     },
   },
   actions: {
-    setVersions({ sourceVersions, targetVersions }) {
+    setVersions({ sourceVersions, targetVersions, contextCommits = null }) {
       this.sourceVersions = sourceVersions;
       this.targetVersions = targetVersions;
+      this.contextCommits = contextCommits;
     },
     setCommit(commit) {
       this.commit = commit;

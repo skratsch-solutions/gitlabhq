@@ -139,7 +139,8 @@ module RapidDiffs
         resource,
         diff_id: request_params[:diff_id],
         start_sha: request_params[:start_sha],
-        commit_id: request_params[:commit_id]
+        commit_id: request_params[:commit_id],
+        only_context_commits: request_params[:only_context_commits]
       ).as_json
     end
 

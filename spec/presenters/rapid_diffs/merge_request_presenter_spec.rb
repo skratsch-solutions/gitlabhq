@@ -443,7 +443,8 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
         resource,
         diff_id: '10',
         start_sha: 'abc123',
-        commit_id: nil
+        commit_id: nil,
+        only_context_commits: nil
       ).and_return(entity)
       expect(entity).to receive(:as_json).and_return({ 'source_versions' => [], 'target_versions' => [] })
 
@@ -458,6 +459,21 @@ RSpec.describe ::RapidDiffs::MergeRequestPresenter, feature_category: :code_revi
         expect(RapidDiffs::DiffCompareVersionsEntity).to receive(:represent).with(
           resource,
           hash_including(commit_id: 'abc123')
+        ).and_return(entity)
+        allow(entity).to receive(:as_json).and_return({})
+
+        presenter.versions
+      end
+    end
+
+    context 'when only_context_commits is present' do
+      let(:request_params) { { only_context_commits: 'true' } }
+
+      it 'passes only_context_commits to the entity' do
+        entity = instance_double(RapidDiffs::DiffCompareVersionsEntity)
+        expect(RapidDiffs::DiffCompareVersionsEntity).to receive(:represent).with(
+          resource,
+          hash_including(only_context_commits: 'true')
         ).and_return(entity)
         allow(entity).to receive(:as_json).and_return({})
 
