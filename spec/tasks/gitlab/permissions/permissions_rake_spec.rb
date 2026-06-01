@@ -7,9 +7,9 @@ RSpec.describe 'gitlab:permissions rake tasks', :silence_stdout, feature_categor
     Rake.application.rake_require('tasks/gitlab/permissions/permissions')
   end
 
-  def stub_task_initialization(klass)
+  def stub_task_initialization(klass, times: 1)
     task = instance_double(klass)
-    expect(klass).to receive(:new).and_return(task)
+    expect(klass).to receive(:new).exactly(times).times.and_return(task)
     task
   end
 

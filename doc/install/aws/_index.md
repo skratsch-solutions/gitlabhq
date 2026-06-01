@@ -122,6 +122,12 @@ As we are using [Amazon S3 object storage](#amazon-s3-object-storage), our EC2 i
    }
    ```
 
+   > [!note]
+   > If an external process tags objects in your S3 buckets (for example, AWS GuardDuty Malware
+   > Protection), add `s3:GetObjectTagging` to the object-level `Action` list for source buckets
+   > and `s3:PutObjectTagging` for destination buckets. Without these permissions, GitLab
+   > `CopyObject` operations fail with `AccessDenied` when copying tagged objects.
+
 1. Select **Next** to review the policy. Give your policy a name (we use `gl-s3-policy`), and select **Create policy**.
 
 ### Create an IAM Role

@@ -85,7 +85,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::DocsTask, :silence_stdout, fe
     context 'when the docs are up to date' do
       it 'outputs a success message' do
         expect { check_docs }
-          .to output("Granular Personal Access Token allowed endpoints documentation is up to date.\n")
+          .to output("REST endpoint documentation is up-to-date\n")
           .to_stdout
       end
     end
@@ -99,7 +99,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::DocsTask, :silence_stdout, fe
         <<~OUTPUT
           ##########
           #
-          # Granular Personal Access Token allowed endpoints documentation is outdated! Please update it by running `bundle exec rake gitlab:permissions:routes:compile_docs`.
+          # REST endpoint documentation is outdated! Please update it by running `bundle exec rake gitlab:permissions:routes:compile_docs`.
           #
           ##########
         OUTPUT
@@ -119,7 +119,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::DocsTask, :silence_stdout, fe
         <<~OUTPUT
           ##########
           #
-          # Granular Personal Access Token allowed endpoints documentation is outdated! Please update it by running `bundle exec rake gitlab:permissions:routes:compile_docs`.
+          # REST endpoint documentation is outdated! Please update it by running `bundle exec rake gitlab:permissions:routes:compile_docs`.
           #
           ##########
         OUTPUT
@@ -140,7 +140,7 @@ RSpec.describe Tasks::Gitlab::Permissions::Routes::DocsTask, :silence_stdout, fe
 
     it 'outputs a success message' do
       expect { compile_docs }
-        .to output("Granular Personal Access Token allowed endpoints documentation compiled.\n")
+        .to output("REST endpoint documentation compiled\n")
         .to_stdout
     end
 

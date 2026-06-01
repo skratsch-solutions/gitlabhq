@@ -109,6 +109,8 @@ To upgrade Gitaly Cluster (Praefect) nodes by using an AMI redeployment process:
 
 ## Upgrade the PostgreSQL nodes
 
+If you are using a Patroni (HA PostgreSQL) configuration, skip this section and follow the [Upgrade Patroni nodes](#upgrade-patroni-nodes) steps instead.
+
 For non-clustered PostgreSQL servers:
 
 1. Upgrade the server by [upgrading with the Linux package](package/_index.md#upgrade-with-the-linux-package).

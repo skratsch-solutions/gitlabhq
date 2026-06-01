@@ -25,11 +25,11 @@ module Tasks
 
             template = ERB.new(File.read(template_path))
             if doc == template.result(binding)
-              puts 'Granular Personal Access Token allowed endpoints documentation is up to date.'
+              puts 'REST endpoint documentation is up-to-date'
             else
               puts '##########'
               puts '#'
-              puts '# Granular Personal Access Token allowed endpoints documentation is outdated! Please update it ' \
+              puts '# REST endpoint documentation is outdated! Please update it ' \
                 'by running `bundle exec rake gitlab:permissions:routes:compile_docs`.'
               puts '#'
               puts '##########'
@@ -41,7 +41,7 @@ module Tasks
           def compile_docs
             template = ERB.new(File.read(template_path))
             File.write(doc_path, template.result(binding))
-            puts 'Granular Personal Access Token allowed endpoints documentation compiled.'
+            puts 'REST endpoint documentation compiled'
           end
 
           def allowed_endpoints

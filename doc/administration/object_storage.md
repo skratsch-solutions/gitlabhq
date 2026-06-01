@@ -308,6 +308,12 @@ To set up an instance profile:
    }
    ```
 
+   > [!note]
+   > If an external process tags objects in your S3 buckets (for example, AWS GuardDuty Malware
+   > Protection), add `s3:GetObjectTagging` to the object-level `Action` list for source buckets
+   > and `s3:PutObjectTagging` for destination buckets. Without these permissions, GitLab
+   > `CopyObject` operations fail with `AccessDenied` when copying tagged objects.
+
 1. [Attach this role](https://repost.aws/knowledge-center/attach-replace-ec2-instance-profile)
    to the EC2 instance hosting your GitLab instance.
 1. Set the `use_iam_profile` GitLab configuration option to `true`.

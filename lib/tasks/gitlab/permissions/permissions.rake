@@ -34,13 +34,6 @@ namespace :gitlab do
 
         Tasks::Gitlab::Permissions::Routes::DocsTask.new.compile_docs
       end
-
-      desc 'Remove stale entries from the routes authorization todo file'
-      task cleanup_todo: :environment do
-        require_relative './routes/cleanup_todo_task'
-
-        Tasks::Gitlab::Permissions::Routes::CleanupTodoTask.new.run
-      end
     end
   end
 end
