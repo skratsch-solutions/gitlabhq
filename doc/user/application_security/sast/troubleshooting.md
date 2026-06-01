@@ -14,7 +14,7 @@ title: Troubleshooting SAST
 
 The following troubleshooting scenarios have been collected from customer support cases. If you
 experience a problem not addressed here, or the information here does not fix your problem, see the
-[GitLab Support](https://about.gitlab.com/support/) page for ways to get help.
+[GitLab Support](https://support.gitlab.com/) page for ways to get help.
 
 ## Debug-level logging
 

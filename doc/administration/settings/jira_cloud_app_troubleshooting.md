@@ -204,7 +204,7 @@ You should see a `GET` request to `https://gitlab.com/-/jira_connect/installatio
 This request should return a `200 OK`, but it might return a `422 Unprocessable Entity` if there was a problem.
 You can check the response body for the error.
 
-If you cannot resolve the issue and you're a GitLab customer, contact [GitLab Support](https://about.gitlab.com/support/) for assistance.
+If you cannot resolve the issue and you're a GitLab customer, contact [GitLab Support](https://support.gitlab.com/) for assistance.
 Provide GitLab Support with:
 
 - Your GitLab Self-Managed instance URL.

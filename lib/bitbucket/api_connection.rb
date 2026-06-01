@@ -23,6 +23,14 @@ module Bitbucket # rubocop:disable Gitlab:BoundedContexts -- existing module
       response.parsed_response
     end
 
+    def get_response_code(path, extra_query = {})
+      response = retry_with_exponential_backoff do
+        Import::Clients::HTTP.get(build_url(path), basic_auth: basic_auth, headers: headers, query: extra_query)
+      end
+
+      response.code.to_i
+    end
+
     private
 
     def logger

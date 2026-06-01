@@ -195,7 +195,7 @@ For comprehensive analysis of these factors, see [reference architecture sizing]
 - Component-specific scaling recommendations for different workload patterns.
 - Network bandwidth analysis for heavy data transfer scenarios.
 
-If this situation applies to you, reach out to your GitLab representative or our [Support team](https://about.gitlab.com/support/)
+If this situation applies to you, reach out to your GitLab representative or our [Support team](https://support.gitlab.com/)
 for further guidance.
 
 ### Cloud provider services
@@ -329,7 +329,7 @@ Their presence and how they are used can put a significant strain on the entire 
 The performance implications are largely software in nature. Additional hardware resources lead to diminishing returns.
 
 > [!warning]
-> If this applies to you, we strongly recommend you follow the linked documentation and reach out to your GitLab representative or our [Support team](https://about.gitlab.com/support/) for further guidance.
+> If this applies to you, we strongly recommend you follow the linked documentation and reach out to your GitLab representative or our [Support team](https://support.gitlab.com/) for further guidance.
 
 Large monorepos come with notable cost. If you have such a repository,
 follow these guidance to ensure good performance and to keep costs in check:
@@ -358,7 +358,7 @@ You might have to adjust the suggested specifications to compensate if you use:
 - [System hooks](../system_hooks.md).
 
 Generally, you should have robust monitoring in place to measure the impact of any additional workloads to
-inform any changes needed to be made. Reach out to your GitLab representative or our [Support team](https://about.gitlab.com/support/)
+inform any changes needed to be made. Reach out to your GitLab representative or our [Support team](https://support.gitlab.com/)
 for further guidance.
 
 ### Load Balancers
@@ -594,7 +594,7 @@ In this section you can find links to documentation for relevant areas and speci
 The reference architectures are designed as validated starting points based on typical workload patterns, not final configurations. Most production deployments benefit from adjustments based on actual usage patterns that emerge through monitoring. The architectures are scalable throughout, and you can tune them iteratively as your workload characteristics become clear. Scaling can be done component-by-component or wholesale to the next architecture size when metrics indicate sustained resource pressure.
 
 > [!note]
-> If a component is continuously exhausting its given resources, reach out to our [Support team](https://about.gitlab.com/support/) before performing any significant scaling.
+> If a component is continuously exhausting its given resources, reach out to our [Support team](https://support.gitlab.com/) before performing any significant scaling.
 
 #### When to scale
 
@@ -661,7 +661,7 @@ You should take an iterative approach when scaling downwards, to ensure there ar
 In some cases, scaling a component significantly may result in knock on effects for downstream components, impacting performance. The architectures are designed with balance in mind to ensure components that depend on each other are congruent in terms of specifications. Notably scaling a component may result in additional throughput being passed to the other components it depends on. As a result, you could have to scale these other dependent components as well. To determine this, monitor the saturation metrics of all dependent services before scaling. If multiple interdependent components show saturation, they should be scaled together in a coordinated manner rather than sequentially, preventing bottlenecks from simply shifting between components.
 
 > [!note]
-> The architectures have been designed to have elasticity to accommodate an upstream component being scaled. However, reach out to our [Support team](https://about.gitlab.com/support/) before you make any significant changes to your environment to be safe.
+> The architectures have been designed to have elasticity to accommodate an upstream component being scaled. However, reach out to our [Support team](https://support.gitlab.com/) before you make any significant changes to your environment to be safe.
 
 The following components can impact others when they have been significantly scaled:
 

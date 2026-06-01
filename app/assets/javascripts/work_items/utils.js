@@ -94,6 +94,7 @@ export const findDesignsWidget = (workItem) =>
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_DESIGNS);
 
 export const findDevelopmentWidget = (workItem) =>
+  workItem?.features?.development ||
   workItem?.widgets?.find((widget) => widget.type === WIDGET_TYPE_DEVELOPMENT);
 
 export const findEmailParticipantsWidget = (workItem) =>

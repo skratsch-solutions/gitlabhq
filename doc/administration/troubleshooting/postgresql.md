@@ -21,7 +21,7 @@ make use of the Support team's collected knowledge.
 > own risk.
 
 If you're on a [paid tier](https://about.gitlab.com/pricing/) and aren't sure
-how to use these commands, [contact Support](https://about.gitlab.com/support/)
+how to use these commands, [contact Support](https://support.gitlab.com/)
 for assistance with any issues you're having.
 
 ## Start a database console

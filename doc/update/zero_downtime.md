@@ -30,7 +30,7 @@ using specific load balancer or infrastructure capabilities. These techniques de
 infrastructure capabilities.
 
 For any additional information reach out to your GitLab representative or the
-[Support team](https://about.gitlab.com/support/).
+[Support team](https://support.gitlab.com/).
 
 ### Requirements
 

@@ -78,6 +78,31 @@ RSpec.describe RapidDiffs::AppComponent, type: :component, feature_category: :co
     expect(data['show_whitespace']).to eq(show_whitespace)
     expect(data['diff_view_type']).to eq(diff_view.to_s)
     expect(data['lazy']).to eq(lazy)
+    expect(data['file_by_file_mode']).to be(false)
+  end
+
+  context "when user has file by file mode enabled" do
+    let_it_be(:user) { build_stubbed(:user, view_diffs_file_by_file: true) }
+
+    before do
+      allow(component).to receive(:helpers).and_wrap_original do |original_method, *args|
+        helpers = original_method.call(*args)
+        allow(helpers).to receive_messages(
+          hide_whitespace?: !show_whitespace,
+          diff_view: diff_view,
+          api_v4_user_preferences_path: update_user_endpoint,
+          current_user: user
+        )
+        helpers
+      end
+    end
+
+    it "sets file_by_file_mode to true" do
+      render_component
+      app = page.find('[data-rapid-diffs]')
+      data = Gitlab::Json.parse(app['data-app-data'])
+      expect(data['file_by_file_mode']).to be(true)
+    end
   end
 
   context "with extra_app_data" do

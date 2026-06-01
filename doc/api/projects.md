@@ -2844,7 +2844,7 @@ This endpoint can also immediately delete a project that was previously marked f
 
 > [!warning]
 > On GitLab.com, after a project is deleted, its data is retained for 30 days, and permanent deletion is not available.
-> If you really need to delete a project immediately on GitLab.com, you can open a [support ticket](https://about.gitlab.com/support/).
+> If you really need to delete a project immediately on GitLab.com, you can open a [support ticket](https://support.gitlab.com/).
 
 ```plaintext
 DELETE /projects/:id

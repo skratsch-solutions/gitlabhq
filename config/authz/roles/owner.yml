@@ -96,7 +96,6 @@ group:
   - create_runners
   - create_secrets_manager_enrollment
   - create_service_account
-  - create_subgroup
   - delete_enterprise_user
   - delete_group_link
   - delete_secrets_manager_enrollment

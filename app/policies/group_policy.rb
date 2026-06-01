@@ -64,11 +64,13 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   end
 
   condition(:create_subgroup_disabled) do
-    Gitlab::VisibilityLevel.allowed_levels_for_user(@user, @subject).empty?
-  end
+    next true if Gitlab::VisibilityLevel.allowed_levels_for_user(@user, @subject).empty?
 
-  condition(:maintainer_can_create_group, scope: :subject) do
-    @subject.subgroup_creation_level == ::Gitlab::Access::MAINTAINER_SUBGROUP_ACCESS
+    case @subject.subgroup_creation_level
+    when ::Gitlab::Access::OWNER_SUBGROUP_ACCESS then access_level < GroupMember::OWNER
+    when ::Gitlab::Access::MAINTAINER_SUBGROUP_ACCESS then access_level < GroupMember::MAINTAINER
+    else false
+    end
   end
 
   condition(:design_management_enabled) do
@@ -214,8 +216,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     enable :read_group_merge_requests
     enable :read_group_build_report_results
   end
-
-  rule { maintainer & maintainer_can_create_group }.enable :create_subgroup
 
   rule { ~request_access_enabled }.prevent :request_access
   rule { has_access }.prevent              :request_access

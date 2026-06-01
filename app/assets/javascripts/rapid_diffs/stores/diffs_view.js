@@ -17,6 +17,7 @@ export const useDiffsView = defineStore('diffsView', {
     return {
       viewType: INLINE_DIFF_VIEW_TYPE,
       showWhitespace: true,
+      fileByFileMode: false,
       singleFileMode: false,
       updateUserEndpoint: undefined,
       streamUrl: undefined,

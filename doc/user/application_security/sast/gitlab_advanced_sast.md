@@ -705,7 +705,7 @@ In some cases, Semgrep vulnerabilities may still appear as duplicates if the [de
 ## Request source code of LGPL-licensed components in GitLab Advanced SAST
 
 To request information about the source code of LGPL-licensed components in GitLab Advanced SAST,
-[contact GitLab Support](https://about.gitlab.com/support/).
+[contact GitLab Support](https://support.gitlab.com/).
 
 To ensure a quick response, include the GitLab Advanced SAST analyzer version in your request.
 

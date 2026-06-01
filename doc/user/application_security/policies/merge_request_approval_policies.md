@@ -1221,7 +1221,7 @@ Potential solutions:
 
 ### Support request for debugging of merge request approval policy
 
-GitLab.com users may submit a [support ticket](https://about.gitlab.com/support/) titled "Merge request approval policy debugging". Provide the following details:
+GitLab.com users may submit a [support ticket](https://support.gitlab.com/) titled "Merge request approval policy debugging". Provide the following details:
 
 - Group path, project path and optionally merge request ID
 - Severity

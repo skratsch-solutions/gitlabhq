@@ -49,6 +49,7 @@ describe('View settings', () => {
       showWhitespace: true,
       diffViewType: 'parallel',
       updateUserEndpoint: '/update-user-endpoint',
+      fileByFileMode: false,
     };
     setHTMLFixture(`
       <div
@@ -66,6 +67,15 @@ describe('View settings', () => {
     expect(useDiffsView().viewType).toBe('parallel');
     expect(useDiffsView().showWhitespace).toBe(true);
     expect(useDiffsView().updateUserEndpoint).toBe('/update-user-endpoint');
+    expect(useDiffsView().fileByFileMode).toBe(false);
+    expect(useDiffsView().singleFileMode).toBe(false);
+  });
+
+  it('initializes file by file mode from app data', () => {
+    appData.fileByFileMode = true;
+    init();
+    expect(useDiffsView().fileByFileMode).toBe(true);
+    expect(useDiffsView().singleFileMode).toBe(true);
   });
 
   it('sets loaded files', () => {

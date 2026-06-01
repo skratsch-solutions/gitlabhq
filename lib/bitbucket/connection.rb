@@ -27,6 +27,10 @@ module Bitbucket
       connection.get(...)
     end
 
+    def get_response_code(...)
+      connection.get_response_code(...)
+    end
+
     private
 
     def api_connection?

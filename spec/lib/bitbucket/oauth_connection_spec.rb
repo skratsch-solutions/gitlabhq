@@ -104,6 +104,51 @@ RSpec.describe Bitbucket::OauthConnection, feature_category: :importers do
     end
   end
 
+  describe '#get_response_code' do
+    context 'when the request succeeds' do
+      it 'returns the HTTP status code as an integer' do
+        oauth_response = instance_double(OAuth2::Response, status: 200, parsed: {})
+
+        allow_next_instance_of(OAuth2::AccessToken) do |instance|
+          allow(instance).to receive_messages(get: oauth_response, expired?: false)
+        end
+
+        connection = described_class.new({ token: token })
+
+        expect(connection.get_response_code('/repositories/workspace/repo/issues')).to eq(200)
+      end
+    end
+
+    context 'when the request returns a non-retryable error status' do
+      it 'returns the HTTP status code from the error' do
+        faraday_response = instance_double(Faraday::Response, status: 404, headers: {}, body: 'Not Found')
+        allow(faraday_response).to receive(:on_complete)
+        oauth2_error = OAuth2::Error.new(OAuth2::Response.new(faraday_response))
+
+        allow_next_instance_of(OAuth2::AccessToken) do |instance|
+          allow(instance).to receive(:get).and_raise(oauth2_error)
+        end
+
+        connection = described_class.new({ token: token })
+
+        expect(connection.get_response_code('/repositories/workspace/repo/issues')).to eq(404)
+      end
+    end
+
+    context 'when retries are exhausted due to rate limiting' do
+      it 'raises RateLimitError' do
+        allow_next_instance_of(OAuth2::AccessToken) do |instance|
+          allow(instance).to receive(:get).and_raise(Bitbucket::ExponentialBackoff::RateLimitError)
+        end
+
+        connection = described_class.new({ token: token })
+
+        expect { connection.get_response_code('/repositories/workspace/repo/issues') }
+          .to raise_error(Bitbucket::ExponentialBackoff::RateLimitError)
+      end
+    end
+  end
+
   describe '#expired?' do
     it 'calls connection.expired?' do
       expect_next_instance_of(OAuth2::AccessToken) do |instance|

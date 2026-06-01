@@ -41,6 +41,11 @@ describe('Diffs view store', () => {
     useDiffsList().reloadDiffs.mockResolvedValue();
   });
 
+  it('has fileByFileMode default state', () => {
+    expect(store.fileByFileMode).toBe(false);
+    expect(store.singleFileMode).toBe(false);
+  });
+
   describe('#loadDiffsStats', () => {
     const endpoint = '/stats';
 

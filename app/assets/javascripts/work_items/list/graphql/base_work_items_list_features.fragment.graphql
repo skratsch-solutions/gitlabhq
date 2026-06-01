@@ -11,6 +11,17 @@ fragment BaseWorkItemsListFeatures on WorkItemFeatures {
       }
     }
   }
+  labels {
+    allowsScopedLabels
+    labels {
+      nodes {
+        id
+        color
+        description
+        title
+      }
+    }
+  }
   awardEmoji {
     upvotes
     downvotes

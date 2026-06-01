@@ -59,11 +59,14 @@ const initSettingsApp = (el, pinia) => {
 };
 
 export const initViewSettings = ({ pinia, target, appData }) => {
-  const { showWhitespace, diffViewType, updateUserEndpoint } = appData;
+  const { showWhitespace, diffViewType, updateUserEndpoint, fileByFileMode } = appData;
+  const fileByFile = parseBoolean(fileByFileMode);
   useDiffsView(pinia).$patch({
     showWhitespace: parseBoolean(showWhitespace),
     viewType: diffViewType,
     updateUserEndpoint,
+    fileByFileMode: fileByFile,
+    singleFileMode: fileByFile,
   });
   useDiffsList(pinia).fillInLoadedFiles();
   return initSettingsApp(target, pinia);

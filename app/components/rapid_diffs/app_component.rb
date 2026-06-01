@@ -44,7 +44,8 @@ module RapidDiffs
         diff_file_endpoint: diff_file_endpoint,
         update_user_endpoint: update_user_endpoint,
         linked_file_data: linked_file_data,
-        lazy: lazy?
+        lazy: lazy?,
+        file_by_file_mode: file_by_file_mode?
       }.merge(@extra_app_data || {})
     end
 
@@ -67,6 +68,10 @@ module RapidDiffs
 
     def show_whitespace?
       !helpers.hide_whitespace?
+    end
+
+    def file_by_file_mode?
+      !!helpers.current_user&.view_diffs_file_by_file
     end
 
     def empty_state_visible?

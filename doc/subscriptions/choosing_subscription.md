@@ -56,7 +56,7 @@ Some add-ons are only available to specific subscription tiers and offerings.
 
 ## Contact Support
 
-- See the tiers of [GitLab Support](https://about.gitlab.com/support/).
+- See the tiers of [GitLab Support](https://support.gitlab.com/).
 - [Submit a request](https://support.gitlab.com/hc/en-us/requests/new) through the Support Portal.
 
 We also encourage all users to search our project trackers for known issues and existing feature requests in the [GitLab project](https://gitlab.com/gitlab-org/gitlab/-/issues/).

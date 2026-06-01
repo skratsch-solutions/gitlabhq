@@ -124,7 +124,7 @@ If you cannot access any associated email address:
 - If you are a GitLab.com enterprise user, ask your group owner to
   [change your email address](../../enterprise_user/_index.md#change-the-email-addresses-for-an-enterprise-user).
 - On GitLab Self-Managed, contact your GitLab administrator.
-- [Contact GitLab Support](https://about.gitlab.com/support/).
+- [Contact GitLab Support](https://support.gitlab.com/).
 
 ### Email OTP cannot be enabled or disabled
 

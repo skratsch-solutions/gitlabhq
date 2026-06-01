@@ -50,4 +50,14 @@ RSpec.describe Bitbucket::Connection, feature_category: :importers do
       bitbucket_connection.get
     end
   end
+
+  describe '#get_response_code' do
+    it 'delegates to underlying connection' do
+      expect_next_instance_of(Bitbucket::OauthConnection) do |connection|
+        expect(connection).to receive(:get_response_code)
+      end
+
+      bitbucket_connection.get_response_code
+    end
+  end
 end

@@ -70,6 +70,10 @@ module Bitbucket
       end
     end
 
+    def issues_available?(repo)
+      [404, 410].exclude?(connection.get_response_code("/repositories/#{repo}/issues?pagelen=1"))
+    end
+
     def last_issue(repo)
       parsed_response = connection.get("/repositories/#{repo}/issues?pagelen=1&sort=-created_on&state=ALL")
       return unless parsed_response['values']&.first

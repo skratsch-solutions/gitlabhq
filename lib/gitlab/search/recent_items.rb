@@ -70,13 +70,7 @@ module Gitlab
       def query_items_by_ids(term, ids)
         return finder.new(user).klass.none if ids.empty?
 
-        if Feature.enabled?(:search_autocomplete_use_ilike, user)
-          query_items_with_ilike(term, ids)
-        else
-          finder.new(user, search: term, in: 'title', skip_full_text_search_project_condition: true)
-            .execute
-            .limit(SEARCH_LIMIT).without_order.id_in_ordered(ids)
-        end
+        query_items_with_ilike(term, ids)
       end
 
       def query_items_with_ilike(term, ids)

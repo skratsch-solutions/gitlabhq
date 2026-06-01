@@ -28,6 +28,18 @@ module Bitbucket
       response.parsed
     end
 
+    def get_response_code(path, extra_query = {})
+      response = retry_with_exponential_backoff do
+        refresh! if expired?
+
+        connection.get(build_url(path), params: @default_query.merge(extra_query))
+      end
+
+      response.status
+    rescue OAuth2::Error => e
+      e.response.status
+    end
+
     delegate :expired?, to: :connection
 
     def refresh!

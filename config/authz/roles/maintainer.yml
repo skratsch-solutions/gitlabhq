@@ -221,6 +221,7 @@ group:
   - create_jira_connect_subscription
   - create_project_fork
   - create_protected_branch
+  - create_subgroup
   - create_virtual_registry
   - create_work_item_type
   - delete_custom_emoji

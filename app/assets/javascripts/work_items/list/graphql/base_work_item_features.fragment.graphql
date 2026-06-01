@@ -44,19 +44,9 @@ fragment BaseWorkItemFeatures on WorkItemFeatures {
     dueDate
     rollUp
   }
-  timeTracking {
-    type
-    humanReadableAttributes {
-      timeEstimate
-    }
-  }
   notes {
+    type
     discussionLocked
-  }
-  development {
-    closingMergeRequests {
-      count
-    }
   }
   hierarchy {
     parent {

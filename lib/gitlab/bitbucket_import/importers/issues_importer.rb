@@ -9,6 +9,12 @@ module Gitlab
         def execute
           return job_waiter unless repo.issues_enabled?
 
+          unless client.issues_available?(project.import_source)
+            log_warn(import_stage: 'import_issues',
+              message: 'Bitbucket Issues API is unavailable, skipping issues import')
+            return job_waiter
+          end
+
           log_info(import_stage: 'import_issues', message: 'importing issues')
 
           labels = build_labels_hash
@@ -16,7 +22,8 @@ module Gitlab
           each_object_to_import do |object|
             job_delay = calculate_job_delay(job_waiter.jobs_remaining)
 
-            issue_hash = object.to_hash.merge({ issue_type_id: default_issue_type_id, label_id: labels[object[:kind]] })
+            issue_hash = object.to_hash
+              .merge({ issue_type_id: default_issue_type_id, label_id: labels[object[:kind]] })
             sidekiq_worker_class.perform_in(job_delay, project.id, issue_hash, job_waiter.key)
           end
 

@@ -18,7 +18,7 @@ GitLab provides several tools to help make it easier to debug your CI/CD configu
 If you are unable to resolve pipeline issues, you can get help from:
 
 - The [GitLab community forum](https://forum.gitlab.com/)
-- GitLab [Support](https://about.gitlab.com/support/)
+- GitLab [Support](https://support.gitlab.com/)
 
 If you are having issues with a specific CI/CD feature, see the related troubleshooting section
 for that feature:

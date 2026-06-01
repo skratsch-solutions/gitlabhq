@@ -201,7 +201,7 @@ a timeout.
 Occasionally the Sidekiq process can fail to export a project, for example if
 it is terminated during execution.
 
-GitLab.com users should [contact Support](https://about.gitlab.com/support/#contact-support) to resolve this issue.
+GitLab.com users should [contact Support](https://support.gitlab.com/hc/en-us/articles/11626483177756-GitLab-Support#contact-support) to resolve this issue.
 
 GitLab Self-Managed administrators can use the Rails console to bypass the Sidekiq process and
 manually trigger the project export:

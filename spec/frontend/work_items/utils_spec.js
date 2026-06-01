@@ -9,6 +9,7 @@ import {
   WIDGET_TYPE_NOTES,
   WIDGET_TYPE_ERROR_TRACKING,
   WIDGET_TYPE_CRM_CONTACTS,
+  WIDGET_TYPE_DEVELOPMENT,
   WIDGET_TYPE_LABELS,
   WIDGET_TYPE_LINKED_RESOURCES,
   WIDGET_TYPE_HIERARCHY,
@@ -41,6 +42,7 @@ import {
   findAssigneesWidget,
   findAwardEmojiWidget,
   findBlockerLinkedItems,
+  findDevelopmentWidget,
   findErrorTrackingWidget,
   findNotificationsWidget,
   findNotesWidget,
@@ -1324,6 +1326,37 @@ describe('findLabelsWidget', () => {
 
   it('returns undefined when neither exists', () => {
     expect(findLabelsWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findDevelopmentWidget', () => {
+  const developmentWidget = {
+    type: WIDGET_TYPE_DEVELOPMENT,
+    willAutoCloseByMergeRequest: false,
+    closingMergeRequests: { count: 0, nodes: [] },
+  };
+  const featuresDevelopment = {
+    willAutoCloseByMergeRequest: true,
+    closingMergeRequests: { count: 1, nodes: [] },
+  };
+
+  it('returns features.development when present', () => {
+    const workItem = {
+      features: { development: featuresDevelopment },
+      widgets: [developmentWidget],
+    };
+
+    expect(findDevelopmentWidget(workItem)).toBe(featuresDevelopment);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [developmentWidget] };
+
+    expect(findDevelopmentWidget(workItem)).toBe(developmentWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findDevelopmentWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

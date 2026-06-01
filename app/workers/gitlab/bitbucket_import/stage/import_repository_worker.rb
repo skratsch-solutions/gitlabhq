@@ -36,7 +36,7 @@ module Gitlab
             end
           end
 
-          unless iid_allocated?(project, :issues)
+          if !iid_allocated?(project, :issues) && client.issues_available?(repo)
             max_issue_iid = fetch_last_iid('issue', project) { client.last_issue(repo) }
             if Gitlab::Import::IidPreallocator.valid_iid_value?(max_issue_iid)
               max_iids[:issues] = max_issue_iid

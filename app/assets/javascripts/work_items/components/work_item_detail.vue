@@ -36,7 +36,6 @@ import {
   WIDGET_TYPE_DESIGNS,
   WORK_ITEM_REFERENCE_CHAR,
   WORK_ITEM_TYPE_NAME_EPIC,
-  WIDGET_TYPE_DEVELOPMENT,
   STATE_OPEN,
   WIDGET_TYPE_ITERATION,
   WIDGET_TYPE_MILESTONE,
@@ -54,6 +53,7 @@ import workspacePermissionsQuery from '../graphql/workspace_permissions.query.gr
 import {
   findAssigneesWidget,
   findAwardEmojiWidget,
+  findDevelopmentWidget,
   findErrorTrackingWidget,
   findLinkedResourcesWidget,
   findHierarchyWidgetDefinition,
@@ -445,7 +445,7 @@ export default {
       return findNotesWidget(this.workItem);
     },
     workItemDevelopment() {
-      return this.findWidget(WIDGET_TYPE_DEVELOPMENT);
+      return findDevelopmentWidget(this.workItem);
     },
     workItemIteration() {
       return this.findWidget(WIDGET_TYPE_ITERATION)?.iteration;

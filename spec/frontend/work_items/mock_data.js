@@ -1967,7 +1967,7 @@ export const mockWorkItemFeaturesData = ({ discussionLocked = false } = {}) => (
     },
     __typename: 'WorkItemWidgetTimeTracking',
   },
-  notes: { discussionLocked, __typename: 'WorkItemWidgetNotes' },
+  notes: { type: 'NOTES', discussionLocked, __typename: 'WorkItemWidgetNotes' },
   development: { closingMergeRequests: { count: 0 } },
   hierarchy: { parent: null },
   healthStatus: { healthStatus: null },
