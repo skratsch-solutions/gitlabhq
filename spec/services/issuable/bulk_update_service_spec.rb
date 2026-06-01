@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Issuable::BulkUpdateService, feature_category: :team_planning do
-  let_it_be(:user)    { create(:user) }
+  let_it_be(:user, freeze: false)    { create(:user) }
   let_it_be(:project, freeze: false) { create(:project, :repository, namespace: user.namespace) }
 
   def bulk_update(issuables, extra_params = {})
@@ -380,7 +380,7 @@ RSpec.describe Issuable::BulkUpdateService, feature_category: :team_planning do
   end
 
   context 'with issuables at a group level' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
 
     let(:parent) { group }
 

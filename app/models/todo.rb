@@ -301,10 +301,6 @@ class Todo < ApplicationRecord
     action == ASSIGNED
   end
 
-  def review_requested?
-    action == REVIEW_REQUESTED
-  end
-
   def member_access_requested?
     action == MEMBER_ACCESS_REQUESTED
   end

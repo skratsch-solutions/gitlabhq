@@ -40,6 +40,10 @@ module API
         attrs.delete(:repository_storage) unless can?(current_user, :change_repository_storage, project)
       end
 
+      def authorize_project_update!(_project)
+        authorize_admin_project
+      end
+
       def verify_project_filters!(attrs)
         attrs.delete(:repository_storage) unless can?(current_user, :use_project_statistics_filters)
       end
@@ -659,7 +663,7 @@ module API
       end
       route_setting :authorization, permissions: :update_project, boundary_type: :project
       put ':id', feature_category: :groups_and_projects do
-        authorize_admin_project
+        authorize_project_update!(user_project)
         attrs = declared_params(include_missing: false)
         authorize! :rename_project, user_project if attrs[:name].present?
         authorize! :change_visibility_level, user_project if user_project.visibility_attribute_present?(attrs)

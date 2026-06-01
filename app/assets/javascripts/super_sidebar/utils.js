@@ -3,6 +3,7 @@ import AccessorUtilities from '~/lib/utils/accessor';
 import { FREQUENT_ITEMS, FIFTEEN_MINUTES_IN_MS } from '~/super_sidebar/constants';
 import axios from '~/lib/utils/axios_utils';
 import { numberToMetricPrefix } from '~/lib/utils/number_utils';
+import { HTTP_STATUS_UNPROCESSABLE_ENTITY } from '~/lib/utils/http_status';
 
 /**
  * This takes an array of project or groups that were stored in the local storage, to be shown in
@@ -76,6 +77,12 @@ const updateItemAccess = (
         id: contextItem.id,
       },
     }).catch((e) => {
+      // A 422 response from the track visits endpoint is expected (e.g. when
+      // the CSRF token is stale) and non-actionable from the frontend. Swallow
+      // it silently to avoid polluting Sentry with noise.
+      if (e?.response?.status === HTTP_STATUS_UNPROCESSABLE_ENTITY) {
+        return;
+      }
       // Override gon.feature_category as this code loads on all pages
       Sentry.captureException(e, { tags: { feature_category: 'navigation' } });
     });

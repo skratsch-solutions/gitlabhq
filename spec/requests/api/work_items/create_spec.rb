@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management do
-  let_it_be(:user) { create(:user) }
-  let_it_be(:group) { create(:group, :private, reporters: user) }
-  let_it_be(:project) { create(:project, :private, :repository, group: group, reporters: user) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group, :private, reporters: user) }
+  let_it_be(:project, freeze: false) { create(:project, :private, :repository, group: group, reporters: user) }
 
-  let_it_be(:task_type) { ::WorkItems::TypesFramework::Provider.new.find_by_base_type(:task) }
-  let_it_be(:issue_type) { ::WorkItems::TypesFramework::Provider.new.find_by_base_type(:issue) }
+  let_it_be(:task_type, freeze: false) { ::WorkItems::TypesFramework::Provider.new.find_by_base_type(:task) }
+  let_it_be(:issue_type, freeze: false) { ::WorkItems::TypesFramework::Provider.new.find_by_base_type(:issue) }
 
   before do
     stub_feature_flags(work_item_rest_api: user)
@@ -198,7 +198,7 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
     end
 
     context 'when user does not have permission' do
-      let_it_be(:other_user) { create(:user) }
+      let_it_be(:other_user, freeze: false) { create(:user) }
 
       before do
         stub_feature_flags(work_item_rest_api: other_user)
@@ -282,7 +282,7 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
     end
 
     context 'when namespace is a user namespace' do
-      let_it_be(:user_namespace) { create(:namespace, owner: user) }
+      let_it_be(:user_namespace, freeze: false) { create(:namespace, owner: user) }
 
       it 'returns 404' do
         post api("/namespaces/#{CGI.escape(user_namespace.full_path)}/-/work_items", user), params: {
@@ -313,7 +313,7 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
     end
 
     context 'with created_at param' do
-      let_it_be(:owner) { create(:user) }
+      let_it_be(:owner, freeze: false) { create(:user) }
 
       before_all do
         project.add_owner(owner)
@@ -443,7 +443,7 @@ RSpec.describe API::WorkItems::Create, feature_category: :portfolio_management d
     context 'when epics license is not enabled' do
       # We need to move just definitions of EE system defined types to CE and
       # keep the implementations EE
-      let_it_be(:epic_type_id) { 8 }
+      let_it_be(:epic_type_id, freeze: false) { 8 }
 
       it 'returns forbidden for epic type' do
         post api(api_request_path, user), params: {

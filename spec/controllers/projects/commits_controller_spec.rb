@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe Projects::CommitsController, feature_category: :source_code_management do
   let_it_be(:project, freeze: false) { create(:project, :repository) }
-  let_it_be(:repository) { project.repository }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:repository, freeze: false) { project.repository }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   before do
     project.add_maintainer(user)

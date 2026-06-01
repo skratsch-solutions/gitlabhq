@@ -85,7 +85,6 @@ import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filte
 import NewResourceDropdown from '~/vue_shared/components/new_resource_dropdown/new_resource_dropdown.vue';
 import IssuableTabs from '~/vue_shared/issuable/list/components/issuable_tabs.vue';
 import UserCalloutDismisser from '~/vue_shared/components/user_callout_dismisser.vue';
-import ListView from 'ee_else_ce/work_items/list/list_view.vue';
 
 import {
   convertLegacyTypeFormat,
@@ -154,6 +153,8 @@ import {
   VIEW_CONTEXT,
 } from '../constants';
 
+const ListView = () => import('ee_else_ce/work_items/list/list_view.vue');
+const BoardView = () => import('ee_else_ce/work_items/board/board_view.vue');
 const DateToken = () => import('~/vue_shared/components/filtered_search_bar/tokens/date_token.vue');
 const EmojiToken = () =>
   import('~/vue_shared/components/filtered_search_bar/tokens/emoji_token.vue');
@@ -203,6 +204,7 @@ export default {
     NewSavedViewModal,
     IssuableTabs,
     ListView,
+    BoardView,
     WorkItemsOnboardingModal,
     UserCalloutDismisser,
     WorkItemDetailPanel,
@@ -262,6 +264,7 @@ export default {
     const loggedIn = isLoggedIn();
     return {
       namespaceId: null,
+      viewMode: 'list',
       activeItem: null,
       sortKey: CREATED_DESC,
       error: undefined,
@@ -493,6 +496,9 @@ export default {
   computed: {
     isDisplaySettingsDrawerEnabled() {
       return Boolean(this.glFeatures.workItemListDisplaySettingsDrawer);
+    },
+    isPlanningViewBoardEnabled() {
+      return Boolean(this.glFeatures.planningViewBoards);
     },
     workItemDetailPanelEnabled() {
       return this.displaySettings?.commonPreferences?.shouldOpenItemsInSidePanel ?? true;
@@ -1802,6 +1808,17 @@ export default {
               :create-source="$options.WORK_ITEM_CREATE_SOURCES.WORK_ITEM_LIST"
               @work-item-created="handleWorkItemCreated"
             />
+            <gl-button
+              v-if="isPlanningViewBoardEnabled"
+              data-testid="toggle-view-mode-button"
+              @click="viewMode = viewMode === 'list' ? 'board' : 'list'"
+            >
+              {{
+                viewMode === 'list'
+                  ? s__('WorkItemBoard|Show Board')
+                  : s__('WorkItemBoard|Show List')
+              }}
+            </gl-button>
           </template>
         </saved-views-selectors>
       </template>
@@ -1987,6 +2004,8 @@ export default {
       </div>
     </template>
     <list-view
+      v-if="viewMode === 'list'"
+      data-testid="list-view"
       :root-page-full-path="rootPageFullPath"
       :with-tabs="withTabs"
       :query-variables="queryVariables"
@@ -2083,6 +2102,12 @@ export default {
         </empty-state-without-any-issues>
       </template>
     </list-view>
+    <board-view
+      v-if="viewMode === 'board' && isPlanningViewBoardEnabled"
+      :root-page-full-path="rootPageFullPath"
+      :query-variables="queryVariables"
+      @set-error="($evt) => (error = $evt)"
+    />
     <work-item-display-settings-drawer
       v-if="isDisplaySettingsDrawerEnabled"
       :open="isDisplayDrawerOpen"

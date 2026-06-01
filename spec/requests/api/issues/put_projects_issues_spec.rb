@@ -4,12 +4,12 @@ require 'spec_helper'
 
 RSpec.describe API::Issues, feature_category: :team_planning do
   let_it_be(:user, freeze: false) { create(:user) }
-  let_it_be(:owner) { create(:owner) }
+  let_it_be(:owner, freeze: false) { create(:owner) }
   let(:user2)             { create(:user) }
   let(:non_member)        { create(:user) }
-  let_it_be(:guest)       { create(:user) }
-  let_it_be(:author)      { create(:author) }
-  let_it_be(:assignee)    { create(:assignee) }
+  let_it_be(:guest, freeze: false)       { create(:user) }
+  let_it_be(:author, freeze: false)      { create(:author) }
+  let_it_be(:assignee, freeze: false)    { create(:assignee) }
   let(:admin)             { create(:user, :admin) }
   let(:issue_title)       { 'foo' }
   let(:issue_description) { 'closed' }
@@ -52,14 +52,14 @@ RSpec.describe API::Issues, feature_category: :team_planning do
       description: issue_description
   end
 
-  let_it_be(:label) do
+  let_it_be(:label, freeze: false) do
     create(:label, title: 'label', color: '#FFAABB', project: project)
   end
 
   let!(:label_link) { create(:label_link, label: label, target: issue) }
   let(:milestone) { create(:milestone, title: '1.0.0', project: project) }
 
-  let_it_be(:empty_milestone) do
+  let_it_be(:empty_milestone, freeze: false) do
     create(:milestone, title: '2.0.0', project: project)
   end
 

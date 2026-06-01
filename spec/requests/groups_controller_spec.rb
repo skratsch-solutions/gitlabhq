@@ -52,8 +52,8 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
   end
 
   describe 'POST #preview_markdown' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:developer) { create(:user, developer_of: group) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:developer, freeze: false) { create(:user, developer_of: group) }
 
     before do
       login_as(developer)
@@ -197,9 +197,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
   end
 
   describe 'GET #edit' do
-    let_it_be(:group) { create(:group, :public) }
-    let_it_be(:owner) { create(:user) }
-    let_it_be(:maintainer) { create(:user) }
+    let_it_be(:group, freeze: false) { create(:group, :public) }
+    let_it_be(:owner, freeze: false) { create(:user) }
+    let_it_be(:maintainer, freeze: false) { create(:user) }
     let(:url) { edit_group_path(group) }
 
     before_all do
@@ -412,9 +412,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when groups_and_projects_async_transfer feature flag is enabled' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be_with_reload(:group) { create(:group, :public) }
-      let_it_be(:new_parent_group) { create(:group, :public) }
+      let_it_be(:new_parent_group, freeze: false) { create(:group, :public) }
 
       before_all do
         group.add_owner(user)
@@ -463,9 +463,9 @@ RSpec.describe GroupsController, feature_category: :groups_and_projects do
     end
 
     context 'when groups_and_projects_async_transfer feature flag is disabled' do
-      let_it_be(:user) { create(:user) }
+      let_it_be(:user, freeze: false) { create(:user) }
       let_it_be_with_reload(:group) { create(:group, :public) }
-      let_it_be(:new_parent_group) { create(:group, :public) }
+      let_it_be(:new_parent_group, freeze: false) { create(:group, :public) }
 
       before_all do
         group.add_owner(user)

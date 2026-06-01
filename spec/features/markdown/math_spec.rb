@@ -119,8 +119,11 @@ RSpec.describe 'Math rendering', :js, feature_category: :markdown do
     end
 
     context 'when limits are disabled' do
-      let_it_be(:namespace_settings) { create(:namespace_settings, math_rendering_limits_enabled: false) }
-      let_it_be(:group) { create(:group, namespace_settings: namespace_settings) }
+      let_it_be(:namespace_settings, freeze: false) do
+        create(:namespace_settings, math_rendering_limits_enabled: false)
+      end
+
+      let_it_be(:group, freeze: false) { create(:group, namespace_settings: namespace_settings) }
       let_it_be(:project) { create(:project, :public, group: group) }
 
       it 'does not render lazy load button' do

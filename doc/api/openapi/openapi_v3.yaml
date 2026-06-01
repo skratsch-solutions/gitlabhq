@@ -8500,7 +8500,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: bug,reproduced
+        example:
+        - bug
+        - reproduced
         style: form
         explode: false
       - name: with_labels_details
@@ -8610,7 +8612,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: bug,reproduced
+        example:
+        - bug
+        - reproduced
       - name: not[author_id]
         required: false
         description: Return epics which are not authored by the user with the given
@@ -8724,7 +8728,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: bug,reproduced
+        example:
+        - bug
+        - reproduced
         style: form
         explode: false
       - name: with_labels_details
@@ -8834,7 +8840,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: bug,reproduced
+        example:
+        - bug
+        - reproduced
       - name: not[author_id]
         required: false
         description: Return epics which are not authored by the user with the given

@@ -203,7 +203,6 @@ RSpec/BeEq:
     - 'ee/spec/models/ee/user_spec.rb'
     - 'ee/spec/models/environment_spec.rb'
     - 'ee/spec/models/gitlab/seat_link_data_spec.rb'
-    - 'ee/spec/models/gitlab_subscriptions/add_on_purchase_spec.rb'
     - 'ee/spec/models/gitlab_subscriptions/add_on_spec.rb'
     - 'ee/spec/models/gitlab_subscriptions/upcoming_reconciliation_spec.rb'
     - 'ee/spec/models/incident_management/issuable_escalation_status_spec.rb'

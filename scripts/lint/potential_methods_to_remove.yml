@@ -209,7 +209,6 @@ app/models/project.rb:
 app/models/todo.rb:
 - access_request_url
 - for_issue_or_work_item?
-- review_requested?
 app/models/user.rb:
 - legacy_otp_secret
 ee/app/models/ai/duo_code_review.rb:

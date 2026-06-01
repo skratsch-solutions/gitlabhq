@@ -3,18 +3,18 @@
 require 'spec_helper'
 
 RSpec.describe API::WorkItems, feature_category: :portfolio_management do
-  let_it_be(:user) { create(:user) }
-  let_it_be(:editor) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:editor, freeze: false) { create(:user) }
 
-  let_it_be(:group) { create(:group, :private, reporters: user) }
+  let_it_be(:group, freeze: false) { create(:group, :private, reporters: user) }
 
-  let_it_be(:project) do
+  let_it_be(:project, freeze: false) do
     create(:project, :private, group: group, reporters: user, skip_disk_validation: true)
   end
 
   let_it_be(:project_label, freeze: false) { create(:label, project: project, title: 'project-label') }
-  let_it_be(:project_milestone) { create(:milestone, project: project, title: 'project-milestone') }
-  let_it_be(:project_work_item) do
+  let_it_be(:project_milestone, freeze: false) { create(:milestone, project: project, title: 'project-milestone') }
+  let_it_be(:project_work_item, freeze: false) do
     create(
       :work_item,
       project: project,
@@ -24,7 +24,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     )
   end
 
-  let_it_be(:project_work_item2) { create(:work_item, project: project) }
+  let_it_be(:project_work_item2, freeze: false) { create(:work_item, project: project) }
 
   before do
     stub_feature_flags(work_item_rest_api: user)
@@ -43,7 +43,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     end
 
     context 'when listing project work items' do
-      let_it_be(:namespace_record) { project.project_namespace }
+      let_it_be(:namespace_record, freeze: false) { project.project_namespace }
       let(:primary_work_item) { project_work_item }
       let(:secondary_work_item) { project_work_item2 }
       let(:label) { project_label }
@@ -71,8 +71,8 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
       end
 
       describe 'hierarchy feature N+1 prevention' do
-        let_it_be(:hierarchy_parent) { create(:work_item, project: project) }
-        let_it_be(:child_task) { create(:work_item, :task, project: project) }
+        let_it_be(:hierarchy_parent, freeze: false) { create(:work_item, project: project) }
+        let_it_be(:child_task, freeze: false) { create(:work_item, :task, project: project) }
 
         # Pair hierarchy with web_url so the project / namespace preloads are also active,
         # isolating the assertion to the hierarchy preload rather than unrelated lookups
@@ -107,7 +107,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     end
 
     context 'when namespace is not a group or project' do
-      let_it_be(:user_namespace) { create(:namespace, owner: user) }
+      let_it_be(:user_namespace, freeze: false) { create(:namespace, owner: user) }
 
       it 'returns not found' do
         get api("/namespaces/#{CGI.escape(user_namespace.full_path)}/-/work_items", user)
@@ -143,7 +143,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     end
 
     context 'when namespace is not a group or project' do
-      let_it_be(:user_namespace) { create(:namespace, owner: user) }
+      let_it_be(:user_namespace, freeze: false) { create(:namespace, owner: user) }
 
       it 'returns not found' do
         get api("/namespaces/#{CGI.escape(user_namespace.full_path)}/-/work_items/1", user)
@@ -154,7 +154,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
   end
 
   describe 'GET /projects/:id/-/work_items' do
-    let_it_be(:namespace_record) { project.project_namespace }
+    let_it_be(:namespace_record, freeze: false) { project.project_namespace }
     let(:primary_work_item) { project_work_item }
     let(:secondary_work_item) { project_work_item2 }
     let(:label) { project_label }
@@ -195,7 +195,7 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     it_behaves_like 'work item show endpoint'
 
     context 'when authenticated with a token that has the ai_workflows scope' do
-      let_it_be(:oauth_token) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
+      let_it_be(:oauth_token, freeze: false) { create(:oauth_access_token, user: user, scopes: [:ai_workflows]) }
 
       it 'returns the work item successfully' do
         get api("#{api_request_path}/#{primary_work_item.iid}", oauth_access_token: oauth_token)
@@ -212,9 +212,9 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     end
 
     context 'when accessing a confidential work item' do
-      let_it_be(:public_project) { create(:project, :public) }
-      let_it_be(:confidential_work_item) { create(:work_item, :confidential, project: public_project) }
-      let_it_be(:non_member_user) { create(:user) }
+      let_it_be(:public_project, freeze: false) { create(:project, :public) }
+      let_it_be(:confidential_work_item, freeze: false) { create(:work_item, :confidential, project: public_project) }
+      let_it_be(:non_member_user, freeze: false) { create(:user) }
 
       before do
         stub_feature_flags(work_item_rest_api: non_member_user)
@@ -228,11 +228,11 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
     end
 
     context 'when the hierarchy feature is requested' do
-      let_it_be(:other_project) { create(:project, :private) }
+      let_it_be(:other_project, freeze: false) { create(:project, :private) }
 
       context 'with a parent the user cannot read' do
-        let_it_be(:hidden_parent) { create(:work_item, project: other_project) }
-        let_it_be(:visible_task) { create(:work_item, :task, project: project) }
+        let_it_be(:hidden_parent, freeze: false) { create(:work_item, project: other_project) }
+        let_it_be(:visible_task, freeze: false) { create(:work_item, :task, project: project) }
 
         before_all do
           create(:parent_link, work_item: visible_task, work_item_parent: hidden_parent)
@@ -260,9 +260,9 @@ RSpec.describe API::WorkItems, feature_category: :portfolio_management do
 
     context 'when requesting title_html' do
       context 'when the title contains a cross-project reference to a private project' do
-        let_it_be(:private_project) { create(:project, :private) }
-        let_it_be(:private_work_item) { create(:work_item, project: private_project, title: 'Secret') }
-        let_it_be(:work_item_with_reference) do
+        let_it_be(:private_project, freeze: false) { create(:project, :private) }
+        let_it_be(:private_work_item, freeze: false) { create(:work_item, project: private_project, title: 'Secret') }
+        let_it_be(:work_item_with_reference, freeze: false) do
           create(:work_item, project: project, title: "#{private_project.full_path}##{private_work_item.iid}")
         end
 

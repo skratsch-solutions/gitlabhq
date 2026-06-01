@@ -20,7 +20,7 @@ RSpec.describe 'Incident details', :js, feature_category: :incident_management d
     }
   end
 
-  let_it_be(:project) { create(:project) }
+  let_it_be(:project, freeze: false) { create(:project) }
   let_it_be(:developer) { create(:user, developer_of: project) }
 
   let_it_be(:alert) do

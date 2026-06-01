@@ -2,30 +2,6 @@
 @import 'framework/variables';
 
 /*
- * Application chrome
- */
-
-.application-chrome {
-  // Scroll bars styles
-  scrollbar-color: var(--gl-color-neutral-400) transparent;
-
-  @media (forced-colors: active) {
-    scrollbar-color: var(--gl-color-neutral-950) transparent;
-  }
-
-  // Fix height
-  &, body {
-    @apply gl-h-full;
-  }
-
-  body {
-    @apply gl-flex gl-flex-col;
-    // Application chrome background
-    background-color: var(--body-background-color);
-  }
-}
-
-/*
  * Panels
  */
 
@@ -156,16 +132,6 @@
       top: auto !important;
     }
 
-    // Commits diff file tree header
-    .diff-file .file-title-flex-parent {
-      @include media-breakpoint-up(md) {
-        &.is-commit,
-        &.is-compare,
-        &.is-wiki {
-          top: 0 !important;
-        }
-      }
-    }
   }
 
   // AI panel

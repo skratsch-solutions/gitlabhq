@@ -3,15 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe Notes::UpdateService, feature_category: :team_planning do
-  let_it_be(:group) { create(:group, :public) }
+  let_it_be(:group, freeze: false) { create(:group, :public) }
   let_it_be(:project, freeze: false) { create(:project, :public, group: group) }
-  let_it_be(:private_group) { create(:group, :private) }
-  let_it_be(:private_project) { create(:project, :private, group: private_group) }
-  let_it_be(:user) { create(:user) }
-  let_it_be(:user2) { create(:user) }
-  let_it_be(:user3) { create(:user) }
-  let_it_be(:issue) { create(:issue, project: project) }
-  let_it_be(:issue2) { create(:issue, project: private_project) }
+  let_it_be(:private_group, freeze: false) { create(:group, :private) }
+  let_it_be(:private_project, freeze: false) { create(:project, :private, group: private_group) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
+  let_it_be(:user3, freeze: false) { create(:user) }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+  let_it_be(:issue2, freeze: false) { create(:issue, project: private_project) }
   let(:note) { create(:note, project: project, noteable: issue, author: user, note: "Old note #{user2.to_reference}") }
   let(:markdown) do
     <<-MARKDOWN.strip_heredoc

@@ -1538,7 +1538,6 @@ Style/InlineDisableAnnotation:
     - 'lib/api/hooks/test.rb'
     - 'lib/api/hooks/url_variables.rb'
     - 'lib/api/internal/base.rb'
-    - 'lib/api/internal/workhorse.rb'
     - 'lib/api/issues.rb'
     - 'lib/api/members.rb'
     - 'lib/api/merge_requests.rb'

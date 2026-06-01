@@ -1,6 +1,27 @@
 html {
+  // Scroll bars styles
+  scrollbar-color: var(--gl-color-neutral-400) transparent;
+
+  @media (forced-colors: active) {
+    scrollbar-color: var(--gl-color-neutral-950) transparent;
+  }
+
   &.touch .tooltip {
     display: none !important;
+  }
+}
+
+.application-chrome {
+  // Fix page height
+  &, body {
+    @apply gl-h-full;
+  }
+
+  body {
+    @apply gl-flex;
+    @apply gl-flex-col;
+    // Application chrome background
+    background-color: var(--body-background-color);
   }
 }
 

@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe WorkItems::SavedViews::UpdateService, feature_category: :portfolio_management do
-  let_it_be(:current_user) { create(:user) }
-  let_it_be(:other_user) { create(:user) }
-  let_it_be(:project) { create(:project, planners: current_user) }
+  let_it_be(:current_user, freeze: false) { create(:user) }
+  let_it_be(:other_user, freeze: false) { create(:user) }
+  let_it_be(:project, freeze: false) { create(:project, planners: current_user) }
 
   let_it_be_with_reload(:saved_view) do
     create(:saved_view,
@@ -71,7 +71,7 @@ RSpec.describe WorkItems::SavedViews::UpdateService, feature_category: :portfoli
     end
 
     context 'when container is a group (non-Project)' do
-      let_it_be(:group) { create(:group, planners: current_user) }
+      let_it_be(:group, freeze: false) { create(:group, planners: current_user) }
       let_it_be(:group_saved_view, freeze: false) do
         create(:saved_view,
           namespace: group,
@@ -90,7 +90,7 @@ RSpec.describe WorkItems::SavedViews::UpdateService, feature_category: :portfoli
 
     context 'when updating visibility' do
       context 'without permission' do
-        let_it_be(:other_saved_view) do
+        let_it_be(:other_saved_view, freeze: false) do
           create(:saved_view,
             namespace: project.project_namespace,
             author: other_user,

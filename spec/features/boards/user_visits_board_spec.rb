@@ -17,7 +17,7 @@ RSpec.describe 'User visits issue boards', :js, feature_category: :portfolio_man
   issue_with_all_filters = "issue with all filters"
 
   let_it_be(:group) { create_default(:group, :public) }
-  let_it_be(:project) { create_default(:project, :public, group: group) }
+  let_it_be(:project, freeze: false) { create_default(:project, :public, group: group) }
 
   let_it_be(:label1) { create(:group_label, group: group, name: label_name1) }
   let_it_be(:label2) { create(:group_label, group: group, name: label_name2) }

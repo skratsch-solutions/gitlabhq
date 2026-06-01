@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'Projects::ReleasesController', feature_category: :release_orchestration do
-  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :repository) }
   let_it_be(:user, freeze: false) { create(:user, developer_of: project) }
 
   # Added as a request spec because of https://gitlab.com/gitlab-org/gitlab/-/issues/232386
@@ -15,7 +15,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
         url: internal_redirect_url)
     end
 
-    let_it_be(:url) { "#{project_releases_path(project)}/#{release.tag}/downloads/bin/darwin-amd64" }
+    let_it_be(:url, freeze: false) { "#{project_releases_path(project)}/#{release.tag}/downloads/bin/darwin-amd64" }
 
     subject(:download_request) { get url }
 
@@ -97,7 +97,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
 
   context 'token authentication' do
     context 'when public project' do
-      let_it_be(:public_project) { create(:project, :repository, :public) }
+      let_it_be(:public_project, freeze: false) { create(:project, :repository, :public) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'index atom', public_resource: true do
         let(:url) { project_releases_url(public_project, format: :atom) }
@@ -105,7 +105,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
     end
 
     context 'when private project' do
-      let_it_be(:private_project) { create(:project, :repository, :private) }
+      let_it_be(:private_project, freeze: false) { create(:project, :repository, :private) }
 
       it_behaves_like 'authenticates sessionless user for the request spec', 'index atom', public_resource: false, ignore_metrics: true do
         let(:url) { project_releases_url(private_project, format: :atom) }
@@ -169,7 +169,7 @@ RSpec.describe 'Projects::ReleasesController', feature_category: :release_orches
     end
 
     context 'when the project is public with private repository and user is unauthenticated' do
-      let_it_be(:public_project) do
+      let_it_be(:public_project, freeze: false) do
         create(:project, :repository, :public, repository_access_level: ProjectFeature::PRIVATE)
       end
 

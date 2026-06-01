@@ -6,7 +6,7 @@ RSpec.describe 'getting a repository in a project', feature_category: :source_co
   include GraphqlHelpers
 
   let_it_be(:project, freeze: false) { create(:project, :repository) }
-  let_it_be(:repository) { project.repository }
+  let_it_be(:repository, freeze: false) { project.repository }
 
   let(:current_user) { project.first_owner }
   let(:fields) { all_graphql_fields_for('Repository') }

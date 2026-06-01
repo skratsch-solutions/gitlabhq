@@ -4,14 +4,14 @@ require 'spec_helper'
 
 RSpec.describe Achievements::UpdateService, feature_category: :user_profile do
   describe '#execute' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     let(:params) { attributes_for(:achievement, namespace: group) }
 
     subject(:response) { described_class.new(user, group, params).execute }
 
     context 'when user does not have permission' do
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
       let_it_be(:achievement, freeze: false) { create(:achievement, namespace: group) }
 
       before_all do
@@ -26,7 +26,7 @@ RSpec.describe Achievements::UpdateService, feature_category: :user_profile do
     end
 
     context 'when user has permission' do
-      let_it_be(:group) { create(:group) }
+      let_it_be(:group, freeze: false) { create(:group) }
       let_it_be(:achievement, freeze: false) { create(:achievement, namespace: group) }
 
       before_all do

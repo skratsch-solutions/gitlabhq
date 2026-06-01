@@ -5,11 +5,11 @@ require 'spec_helper'
 RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
   include GraphqlHelpers
 
-  let_it_be(:current_user) { create(:user) }
-  let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, :empty_repo, :public, group: group) }
-  let_it_be(:issue) { create(:issue, project: project) }
-  let_it_be(:error_class) { Gitlab::Graphql::Errors::ArgumentError }
+  let_it_be(:current_user, freeze: false) { create(:user) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:project, freeze: false) { create(:project, :empty_repo, :public, group: group) }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+  let_it_be(:error_class, freeze: false) { Gitlab::Graphql::Errors::ArgumentError }
 
   let(:timelogs) { resolve_timelogs(**args) }
 
@@ -18,7 +18,7 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
   end
 
   shared_examples_for 'with a project' do
-    let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
     let_it_be(:timelog1, freeze: false) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.beginning_of_day) }
     let_it_be(:timelog2, freeze: false) { create(:issue_timelog, issue: issue, spent_at: 2.days.ago.end_of_day) }
     let_it_be(:timelog3, freeze: false) do
@@ -90,7 +90,7 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
     end
 
     context 'when arguments are invalid' do
-      let_it_be(:error_class) { Gitlab::Graphql::Errors::ArgumentError }
+      let_it_be(:error_class, freeze: false) { Gitlab::Graphql::Errors::ArgumentError }
 
       context 'when start_time and start_date are present' do
         let(:args) { { start_time: 6.days.ago, start_date: 6.days.ago } }
@@ -125,11 +125,11 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
   end
 
   shared_examples 'with a group' do
-    let_it_be(:short_time_ago) { 5.days.ago.beginning_of_day }
-    let_it_be(:medium_time_ago) { 15.days.ago.beginning_of_day }
+    let_it_be(:short_time_ago, freeze: false) { 5.days.ago.beginning_of_day }
+    let_it_be(:medium_time_ago, freeze: false) { 15.days.ago.beginning_of_day }
 
-    let_it_be(:issue) { create(:issue, project: project) }
-    let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
 
     let_it_be(:timelog1, freeze: false) do
       create(:issue_timelog, issue: issue, spent_at: short_time_ago.beginning_of_day)
@@ -153,7 +153,7 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
     end
 
     context 'when the group does not exist' do
-      let_it_be(:error_class) { Gitlab::Graphql::Errors::ResourceNotAvailable }
+      let_it_be(:error_class, freeze: false) { Gitlab::Graphql::Errors::ResourceNotAvailable }
 
       let(:extra_args) { { group_id: "gid://gitlab/Group/#{non_existing_record_id}" } }
 
@@ -232,11 +232,11 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
   end
 
   shared_examples 'with the current user' do
-    let_it_be(:short_time_ago) { 5.days.ago.beginning_of_day }
-    let_it_be(:medium_time_ago) { 15.days.ago.beginning_of_day }
+    let_it_be(:short_time_ago, freeze: false) { 5.days.ago.beginning_of_day }
+    let_it_be(:medium_time_ago, freeze: false) { 15.days.ago.beginning_of_day }
 
-    let_it_be(:issue) { create(:issue, project: project) }
-    let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+    let_it_be(:issue, freeze: false) { create(:issue, project: project) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
 
     let_it_be(:timelog1, freeze: false) { create(:issue_timelog, issue: issue, user: current_user) }
     let_it_be(:timelog2, freeze: false) { create(:issue_timelog, issue: issue, user: create(:user)) }
@@ -328,28 +328,28 @@ RSpec.describe Resolvers::TimelogResolver, feature_category: :team_planning do
   end
 
   context 'when the sort argument is provided' do
-    let_it_be(:timelog_a) do
+    let_it_be(:timelog_a, freeze: false) do
       create(
         :issue_timelog, time_spent: 7200, spent_at: 1.hour.ago,
         created_at: 1.hour.ago, updated_at: 1.hour.ago, user: current_user
       )
     end
 
-    let_it_be(:timelog_b) do
+    let_it_be(:timelog_b, freeze: false) do
       create(
         :issue_timelog, time_spent: 5400, spent_at: 2.hours.ago,
         created_at: 2.hours.ago, updated_at: 2.hours.ago, user: current_user
       )
     end
 
-    let_it_be(:timelog_c) do
+    let_it_be(:timelog_c, freeze: false) do
       create(
         :issue_timelog, time_spent: 1800, spent_at: 30.minutes.ago,
         created_at: 30.minutes.ago, updated_at: 30.minutes.ago, user: current_user
       )
     end
 
-    let_it_be(:timelog_d) do
+    let_it_be(:timelog_d, freeze: false) do
       create(
         :issue_timelog, time_spent: 3600, spent_at: 1.day.ago,
         created_at: 1.day.ago, updated_at: 1.day.ago, user: current_user

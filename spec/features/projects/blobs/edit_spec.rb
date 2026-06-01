@@ -7,7 +7,7 @@ RSpec.describe 'Editing file blob', :js, feature_category: :source_code_manageme
   include TreeHelper
   include Features::BlobSpecHelpers
 
-  let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
   let_it_be(:merge_request) { create(:merge_request, source_project: project, source_branch: 'feature', target_branch: 'master') }
   let(:branch) { 'master' }
   let(:file_path) { project.repository.ls_files(project.repository.root_ref)[1] }

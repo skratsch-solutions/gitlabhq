@@ -318,7 +318,6 @@ RSpec/AvoidWaitForRequests:
     - 'spec/features/merge_request/rapid_diffs/user_views_diffs_spec.rb'
     - 'spec/features/merge_request/user_accepts_merge_request_spec.rb'
     - 'spec/features/merge_request/user_allows_commits_from_memebers_who_can_merge_spec.rb'
-    - 'spec/features/merge_request/user_approves_spec.rb'
     - 'spec/features/merge_request/user_assigns_themselves_reviewer_spec.rb'
     - 'spec/features/merge_request/user_assigns_themselves_spec.rb'
     - 'spec/features/merge_request/user_awards_emoji_spec.rb'

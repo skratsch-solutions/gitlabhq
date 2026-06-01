@@ -17,18 +17,18 @@ RSpec.describe Members::Groups::CreatorService, feature_category: :groups_and_pr
 
   describe '.add_members' do
     it_behaves_like 'bulk member creation' do
-      let_it_be(:source_type) { Group }
-      let_it_be(:member_type) { GroupMember }
+      let_it_be(:source_type, freeze: false) { Group }
+      let_it_be(:member_type, freeze: false) { GroupMember }
     end
   end
 
   describe '.add_member' do
     it_behaves_like 'member creation' do
-      let_it_be(:member_type) { GroupMember }
+      let_it_be(:member_type, freeze: false) { GroupMember }
     end
 
     it_behaves_like 'member creation with organization isolation' do
-      let_it_be(:source_type) { Group }
+      let_it_be(:source_type, freeze: false) { Group }
     end
 
     context 'authorized projects update' do
@@ -53,7 +53,7 @@ RSpec.describe Members::Groups::CreatorService, feature_category: :groups_and_pr
     end
 
     context 'service account membership eligibility' do
-      let_it_be(:owner) { create(:user, owner_of: source) }
+      let_it_be(:owner, freeze: false) { create(:user, owner_of: source) }
 
       context 'when the service account is not eligible for membership' do
         let(:ineligible_sa) do

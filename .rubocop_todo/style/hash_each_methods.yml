@@ -70,7 +70,6 @@ Style/HashEachMethods:
     - 'lib/gitlab/middleware/multipart.rb'
     - 'lib/gitlab/repo_path.rb'
     - 'lib/gitlab/seeder.rb'
-    - 'lib/gitlab/sidekiq_config.rb'
     - 'lib/tasks/gitlab/db.rake'
     - 'lib/tasks/gitlab/setup.rake'
     - 'qa/spec/specs/runner_spec.rb'
@@ -104,4 +103,3 @@ Style/HashEachMethods:
     - 'spec/support/shared_examples/requests/api/npm_packages_shared_examples.rb'
     - 'spec/support/shared_examples/services/packages_shared_examples.rb'
     - 'tooling/danger/analytics_instrumentation.rb'
-    - 'tooling/graphql/docs/helper.rb'

@@ -6,7 +6,7 @@ RSpec.describe SearchController, feature_category: :global_search do
   include ExternalAuthorizationServiceHelpers
 
   context 'for authorized user' do
-    let_it_be(:user) { create(:user) }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     before do
       sign_in(user)
@@ -165,7 +165,7 @@ RSpec.describe SearchController, feature_category: :global_search do
         using RSpec::Parameterized::TableSyntax
         render_views
 
-        let_it_be(:project) { create(:project, :public, :repository, :wiki_repo) }
+        let_it_be(:project, freeze: false) { create(:project, :public, :repository, :wiki_repo) }
 
         subject(:request) { get(:show, params: { project_id: project.id, scope: scope, search: 'merge' }) }
 
@@ -339,8 +339,8 @@ RSpec.describe SearchController, feature_category: :global_search do
       end
 
       context 'when finding issue comments' do
-        let_it_be(:project) { create(:project, :public) }
-        let_it_be(:note) { create(:note_on_issue, project: project) }
+        let_it_be(:project, freeze: false) { create(:project, :public) }
+        let_it_be(:note, freeze: false) { create(:note_on_issue, project: project) }
 
         it 'finds issue comments' do
           get :show, params: { project_id: project.id, scope: 'notes', search: note.note }
@@ -374,13 +374,13 @@ RSpec.describe SearchController, feature_category: :global_search do
           [Gitlab::Tracking::ServicePingContext.new(data_source: :redis_hll, event: property).to_context]
         end
 
-        let_it_be(:namespace) { create(:group) }
+        let_it_be(:namespace, freeze: false) { create(:group) }
       end
 
       context 'on restricted projects' do
         context 'when signed out' do
-          let_it_be(:project) { create(:project, :public, :issues_private) }
-          let_it_be(:note) { create(:note_on_issue, project: project) }
+          let_it_be(:project, freeze: false) { create(:project, :public, :issues_private) }
+          let_it_be(:note, freeze: false) { create(:note_on_issue, project: project) }
 
           before do
             sign_out(user)
@@ -394,8 +394,8 @@ RSpec.describe SearchController, feature_category: :global_search do
         end
 
         context "when hiding merge request comments" do
-          let_it_be(:project) { create(:project, :public, :merge_requests_private) }
-          let_it_be(:note) { create(:note_on_merge_request, project: project) }
+          let_it_be(:project, freeze: false) { create(:project, :public, :merge_requests_private) }
+          let_it_be(:note, freeze: false) { create(:note_on_merge_request, project: project) }
 
           it "doesn't expose comments on merge_requests" do
             get :show, params: { project_id: project.id, scope: 'notes', search: note.note }
@@ -405,8 +405,8 @@ RSpec.describe SearchController, feature_category: :global_search do
         end
 
         context "when hiding snippet comments" do
-          let_it_be(:project) { create(:project, :public, :snippets_private) }
-          let_it_be(:note) { create(:note_on_project_snippet, project: project) }
+          let_it_be(:project, freeze: false) { create(:project, :public, :snippets_private) }
+          let_it_be(:note, freeze: false) { create(:note_on_project_snippet, project: project) }
 
           it "doesn't expose comments on snippets" do
             get :show, params: { project_id: project.id, scope: 'notes', search: note.note }
@@ -787,7 +787,7 @@ RSpec.describe SearchController, feature_category: :global_search do
           [Gitlab::Tracking::ServicePingContext.new(data_source: :redis_hll, event: property).to_context]
         end
 
-        let_it_be(:namespace) { create(:group) }
+        let_it_be(:namespace, freeze: false) { create(:group) }
       end
 
       it 'records SLI apdex without search context' do
@@ -976,7 +976,7 @@ RSpec.describe SearchController, feature_category: :global_search do
     end
 
     context 'for abusive searches', :aggregate_failures do
-      let_it_be(:project) { create(:project, :public, name: 'hello world') }
+      let_it_be(:project, freeze: false) { create(:project, :public, name: 'hello world') }
       let(:make_abusive_request) do
         get :show, params: { scope: '1;drop%20tables;boom', search: 'hello world', project_id: project.id }
       end
@@ -1058,7 +1058,7 @@ RSpec.describe SearchController, feature_category: :global_search do
     describe 'search rate limits' do
       using RSpec::Parameterized::TableSyntax
 
-      let_it_be(:project) { create(:project, :public) }
+      let_it_be(:project, freeze: false) { create(:project, :public) }
 
       where(:endpoint, :params) do
         :show         | { search: 'hello', scope: 'projects' }
