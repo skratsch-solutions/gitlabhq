@@ -202,6 +202,110 @@ RSpec.describe Gitlab::Kas::Client, feature_category: :deployment_management do
       end
     end
 
+    describe '#publish_events' do
+      let(:topic) { 'test.topic' }
+      let(:event) do
+        Gitlab::Agent::Event::CloudEvent.new(
+          id: 'test-id',
+          source: 'test',
+          spec_version: '1.0',
+          type: 'com.example.test'
+        )
+      end
+
+      let(:other_event) do
+        Gitlab::Agent::Event::CloudEvent.new(
+          id: 'other-id',
+          source: 'test',
+          spec_version: '1.0',
+          type: 'com.example.test'
+        )
+      end
+
+      context 'with one or more events' do
+        let(:stub) { instance_double(Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub) }
+        let(:request) { instance_double(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest) }
+
+        before do
+          expect(Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub).to receive(:new)
+            .with('example.kas.internal', :this_channel_is_insecure, timeout: client.send(:timeout))
+            .and_return(stub)
+        end
+
+        it 'wraps a single event in an array before publishing', :aggregate_failures do
+          expect(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest).to receive(:new)
+            .with(topic: topic, events: [event])
+            .and_return(request)
+
+          response = Gitlab::Agent::EventsPlatform::Rpc::PublishResponse.new(message_ids: ['1234567890-0'])
+
+          expect(stub).to receive(:publish)
+            .with(request, metadata: { 'authorization' => 'bearer test-token', **feature_flags })
+            .and_return(response)
+
+          expect(client.publish_events(topic: topic, events: event)).to eq(['1234567890-0'])
+        end
+
+        it 'publishes a batch of events and returns all message IDs', :aggregate_failures do
+          expect(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest).to receive(:new)
+            .with(topic: topic, events: [event, other_event])
+            .and_return(request)
+
+          response = Gitlab::Agent::EventsPlatform::Rpc::PublishResponse.new(
+            message_ids: %w[1234567890-0 1234567891-0]
+          )
+
+          expect(stub).to receive(:publish)
+            .with(request, metadata: { 'authorization' => 'bearer test-token', **feature_flags })
+            .and_return(response)
+
+          expect(client.publish_events(topic: topic, events: [event, other_event]))
+            .to eq(%w[1234567890-0 1234567891-0])
+        end
+
+        it 'propagates gRPC errors from the stub', :aggregate_failures do
+          expect(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest).to receive(:new)
+            .with(topic: topic, events: [event])
+            .and_return(request)
+
+          expect(stub).to receive(:publish)
+            .with(request, metadata: { 'authorization' => 'bearer test-token', **feature_flags })
+            .and_raise(GRPC::Unavailable.new('relay down'))
+
+          expect { client.publish_events(topic: topic, events: [event]) }
+            .to raise_error(GRPC::Unavailable)
+        end
+      end
+
+      context 'with no events' do
+        before do
+          expect(Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub).not_to receive(:new)
+          expect(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest).not_to receive(:new)
+        end
+
+        it 'returns an empty array and skips the RPC call when events is nil' do
+          expect(client.publish_events(topic: topic, events: nil)).to eq([])
+        end
+
+        it 'returns an empty array and skips the RPC call when events is an empty array' do
+          expect(client.publish_events(topic: topic, events: [])).to eq([])
+        end
+      end
+
+      context 'when the publish_events_to_relay feature flag is disabled' do
+        before do
+          stub_feature_flags(publish_events_to_relay: false)
+
+          expect(Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub).not_to receive(:new)
+          expect(Gitlab::Agent::EventsPlatform::Rpc::PublishRequest).not_to receive(:new)
+        end
+
+        it 'returns an empty array and skips the RPC call' do
+          expect(client.publish_events(topic: topic, events: event)).to eq([])
+        end
+      end
+    end
+
     describe '#send_git_push_event' do
       let(:stub) { instance_double(Gitlab::Agent::Notifications::Rpc::Notifications::Stub) }
       let(:request) { instance_double(Gitlab::Agent::Notifications::Rpc::GitPushEventRequest) }

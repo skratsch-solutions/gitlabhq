@@ -20,6 +20,10 @@
     word-wrap: normal;
     border-left: 1px solid;
 
+    code.line, code .line {
+      padding-left: 10px;
+    }
+
     code {
       display: inline-block;
       min-width: 100%;
@@ -31,7 +35,6 @@
       .line {
         display: block;
         width: 100%;
-        padding-left: 10px;
         padding-right: 10px;
         white-space: pre;
 

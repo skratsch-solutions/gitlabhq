@@ -13,7 +13,7 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
 
     it 'defines state enum with correct values' do
       is_expected.to define_enum_for(:state)
-        .with_values(unconfirmed: 0, deletion_scheduled: 1, deletion_in_progress: 2, confirmed: 3, active: 4)
+        .with_values(unconfirmed: 0, soft_deleted: 1, deletion_in_progress: 2, confirmed: 3, active: 4)
         .without_instance_methods
     end
   end
@@ -22,7 +22,7 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
     subject { organization }
 
     it 'declares all expected states' do
-      is_expected.to have_states :active, :deletion_scheduled, :deletion_in_progress, :unconfirmed, :confirmed
+      is_expected.to have_states :active, :soft_deleted, :deletion_in_progress, :unconfirmed, :confirmed
     end
 
     it 'has unconfirmed as initial state for new records' do
@@ -33,34 +33,29 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
     describe 'valid transitions' do
       it { is_expected.to handle_events :confirm, when: :unconfirmed }
       it { is_expected.to handle_events :activate, when: :confirmed }
-      it { is_expected.to handle_events :schedule_deletion, when: :active }
-      it { is_expected.to handle_events :start_deletion, when: :deletion_scheduled }
-      it { is_expected.to handle_events :cancel_deletion, when: :deletion_scheduled }
-      it { is_expected.to handle_events :cancel_deletion, when: :deletion_in_progress }
-      it { is_expected.to handle_events :reschedule_deletion, when: :deletion_in_progress }
+      it { is_expected.to handle_events :soft_delete, when: :active }
+      it { is_expected.to handle_events :hard_delete, when: :soft_deleted }
+      it { is_expected.to handle_events :restore, when: :soft_deleted }
     end
 
     describe 'rejected transitions' do
       where(:from_state, :event) do
         :unconfirmed          | :activate
-        :unconfirmed          | :schedule_deletion
-        :unconfirmed          | :start_deletion
-        :unconfirmed          | :cancel_deletion
-        :unconfirmed          | :reschedule_deletion
+        :unconfirmed          | :soft_delete
+        :unconfirmed          | :hard_delete
+        :unconfirmed          | :restore
         :confirmed            | :confirm
-        :confirmed            | :schedule_deletion
-        :confirmed            | :start_deletion
-        :confirmed            | :cancel_deletion
-        :confirmed            | :reschedule_deletion
+        :confirmed            | :soft_delete
+        :confirmed            | :hard_delete
+        :confirmed            | :restore
         :active               | :confirm
         :active               | :activate
-        :active               | :start_deletion
-        :active               | :cancel_deletion
-        :active               | :reschedule_deletion
-        :deletion_scheduled   | :schedule_deletion
-        :deletion_scheduled   | :reschedule_deletion
-        :deletion_in_progress | :schedule_deletion
-        :deletion_in_progress | :start_deletion
+        :active               | :hard_delete
+        :active               | :restore
+        :soft_deleted         | :soft_delete
+        :deletion_in_progress | :soft_delete
+        :deletion_in_progress | :hard_delete
+        :deletion_in_progress | :restore
       end
 
       with_them do
@@ -101,22 +96,22 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
         .to(:confirmed)
     end
 
-    context 'with schedule_deletion' do
+    context 'with soft_delete' do
       before do
         organization.update_column(:state, Organizations::Organization.states[:active])
       end
 
-      it 'prevents schedule_deletion without a transition_user' do
-        expect(organization.schedule_deletion).to be false
+      it 'prevents soft_delete without a transition_user' do
+        expect(organization.soft_delete).to be false
         expect(organization.errors[:state])
-          .to include('schedule_deletion transition needs transition_user')
+          .to include('soft_delete transition needs transition_user')
       end
 
-      it 'allows schedule_deletion with a transition_user' do
-        expect { organization.schedule_deletion(transition_user: user) }
+      it 'allows soft_delete with a transition_user' do
+        expect { organization.soft_delete(transition_user: user) }
           .to change { organization.state_name }
           .from(:active)
-          .to(:deletion_scheduled)
+          .to(:soft_deleted)
       end
     end
   end
@@ -172,79 +167,79 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
         expect(existing_org).to be_active
       end
 
-      it 'can schedule deletion without confirmed_by_user_id' do
-        expect { existing_org.schedule_deletion(transition_user: user) }
+      it 'can soft delete without confirmed_by_user_id' do
+        expect { existing_org.soft_delete(transition_user: user) }
           .to change { existing_org.state_name }
           .from(:active)
-          .to(:deletion_scheduled)
+          .to(:soft_deleted)
       end
     end
   end
 
   describe '#ensure_organization_is_empty' do
-    it 'prevents schedule_deletion when organization is not empty' do
+    it 'prevents soft_delete when organization is not empty' do
       create(:group, organization: organization)
 
-      expect(organization.schedule_deletion(transition_user: user)).to be false
+      expect(organization.soft_delete(transition_user: user)).to be false
       expect(organization.errors[:state])
-        .to include('schedule_deletion transition requires the organization to be empty')
+        .to include('soft_delete transition requires the organization to be empty')
     end
 
-    it 'allows schedule_deletion when organization is empty' do
-      expect { organization.schedule_deletion(transition_user: user) }
+    it 'allows soft_delete when organization is empty' do
+      expect { organization.soft_delete(transition_user: user) }
         .to change { organization.state_name }
         .from(:active)
-        .to(:deletion_scheduled)
+        .to(:soft_deleted)
     end
   end
 
-  describe '#set_deletion_schedule_data' do
+  describe '#set_soft_deletion_data' do
     before do
       organization.update_column(:state, Organizations::Organization.states[:active])
     end
 
-    it 'sets deletion_scheduled_at on the detail' do
+    it 'sets soft_deleted_at on the detail' do
       freeze_time do
-        organization.schedule_deletion(transition_user: user)
+        organization.soft_delete(transition_user: user)
 
-        expect(organization.organization_detail.deletion_scheduled_at)
+        expect(organization.organization_detail.soft_deleted_at)
           .to be_within(1.minute).of(Time.current)
       end
     end
 
-    it 'stores deletion_scheduled_by_user_id in state_metadata' do
-      organization.schedule_deletion(transition_user: user)
+    it 'stores soft_deletion_scheduled_by_user_id in state_metadata' do
+      organization.soft_delete(transition_user: user)
       organization.reload
 
-      expect(organization.organization_detail.state_metadata['deletion_scheduled_by_user_id'])
+      expect(organization.organization_detail.state_metadata['soft_deletion_scheduled_by_user_id'])
         .to eq(user.id)
     end
   end
 
-  describe '#clear_deletion_schedule_data' do
+  describe '#clear_soft_deletion_data' do
     before do
       organization.update_column(:state, Organizations::Organization.states[:active])
-      organization.schedule_deletion(transition_user: user)
+      organization.soft_delete(transition_user: user)
     end
 
-    it 'clears deletion_scheduled_at' do
-      organization.cancel_deletion
+    it 'clears soft_deleted_at' do
+      organization.restore
 
-      expect(organization.organization_detail.deletion_scheduled_at).to be_nil
+      expect(organization.organization_detail.soft_deleted_at).to be_nil
     end
 
-    it 'removes deletion_scheduled_by_user_id from state_metadata' do
-      organization.cancel_deletion
+    it 'removes soft_deletion_scheduled_by_user_id from state_metadata' do
+      organization.restore
       organization.reload
 
       expect(organization.organization_detail.state_metadata)
-        .not_to have_key('deletion_scheduled_by_user_id')
+        .not_to have_key('soft_deletion_scheduled_by_user_id')
     end
   end
 
   describe '#update_state_metadata_on_failure' do
     it 'records error in state_metadata when transition is invalid' do
-      organization.cancel_deletion
+      organization.restore
       organization.reload
 
       expect(organization.organization_detail.state_metadata['last_error'])

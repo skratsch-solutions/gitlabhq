@@ -34,7 +34,11 @@ export default {
     data-testid="select-group-row"
     @click="$emit('toggle')"
   >
-    <gl-form-checkbox class="gl-pointer-events-none gl-mt-1 gl-pt-2" :checked="checked" />
+    <gl-form-checkbox
+      class="gl-pointer-events-none gl-mt-1 gl-pt-2"
+      :checked="checked"
+      :aria-label="name"
+    />
     <gl-avatar
       :fallback-on-error="true"
       :entity-name="name"

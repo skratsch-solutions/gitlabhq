@@ -202,9 +202,12 @@
     "WikiPage"
   ],
   "NoteableType": [
+    "AlertManagementAlert",
     "Design",
     "Issue",
-    "MergeRequest"
+    "MergeRequest",
+    "Snippet",
+    "WikiPage"
   ],
   "OrchestrationPolicy": [
     "ApprovalPolicy",

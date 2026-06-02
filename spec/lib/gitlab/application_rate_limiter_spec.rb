@@ -759,11 +759,44 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
         described_class.throttled?(:project_generate_new_export, scope: user)
       end
 
-      it 'does not dispatch when a resource is provided' do
+      it 'does not dispatch when a resource is provided for an INCR-mode key' do
+        # The strategy becomes IncrementPerActionedResource (SADD/SCARD), which
+        # would diverge silently from labkit's INCR-mode rule for this key, so
+        # dispatch is gated on the spec being count_distinct (set-mode).
         stub_feature_flags(rate_limiter_use_labkit_users_get_by_id: true)
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
 
         described_class.throttled?(:users_get_by_id, scope: user, resource: user)
+      end
+    end
+
+    context 'with an IncrementPerActionedResource strategy on a count_distinct key' do
+      let_it_be(:project) { create(:project) }
+      let(:count_distinct_spec) do
+        {
+          limiter_name: 'applimiter_distinct',
+          rule_name: 'limit_distinct_by_user',
+          characteristics: %i[user],
+          count_distinct: :project_id,
+          action: :block,
+          flag_scope: :cohort_4
+        }
+      end
+
+      before do
+        allow(Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits).to receive(:all)
+          .and_return(users_get_by_id: count_distinct_spec)
+        stub_feature_flags(rate_limiter_use_labkit_cohort_4: true,
+          rate_limiter_use_labkit_cohort_4_enforce: false)
+      end
+
+      it 'dispatches to the labkit adapter and forwards the resource id and overrides' do
+        expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!)
+          .with(:users_get_by_id, scope: user,
+            context: { resource_id: project.id, threshold: 5, interval: 60 }).and_return(false)
+
+        described_class.throttled?(:users_get_by_id, scope: user, resource: project,
+          threshold: 5, interval: 60)
       end
     end
 

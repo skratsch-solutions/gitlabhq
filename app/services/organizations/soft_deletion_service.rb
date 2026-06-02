@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Organizations
-  class MarkForDeletionService
+  class SoftDeletionService
     include BaseServiceUtility
     include ::Gitlab::Loggable
 
@@ -13,11 +13,11 @@ module Organizations
     def execute
       return error(_('Insufficient permissions')) unless authorized?
       return error(_('Organization must be empty before it can be deleted')) unless organization.empty?
-      return error(_('Organization has already been marked for deletion')) if organization.deletion_scheduled?
+      return error(_('Organization has already been deleted')) if organization.soft_deleted?
 
-      organization.schedule_deletion(transition_user: current_user)
+      organization.soft_delete(transition_user: current_user)
 
-      return error(organization.errors.full_messages.join(', ')) unless organization.deletion_scheduled?
+      return error(organization.errors.full_messages.join(', ')) unless organization.soft_deleted?
 
       log_event
 
@@ -38,7 +38,7 @@ module Organizations
 
     def log_event
       log_info(build_structured_payload(
-        message: "Organization marked for deletion",
+        message: "Organization soft deleted",
         Labkit::Fields::GL_USER_ID => current_user.id,
         Labkit::Fields::GL_ORGANIZATION_ID => organization.id,
         organization_path: organization.full_path
@@ -47,4 +47,4 @@ module Organizations
   end
 end
 
-Organizations::MarkForDeletionService.prepend_mod
+Organizations::SoftDeletionService.prepend_mod

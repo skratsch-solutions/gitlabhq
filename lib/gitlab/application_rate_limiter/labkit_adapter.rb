@@ -39,10 +39,18 @@ module Gitlab
         # fresh per-call UUID, so percentage rollouts behave non-deterministically
         # from non-request paths. Operate these flags as fully on or fully off.
 
-        def shadow_or_enforce?(key, threshold_override:, interval_override:)
-          return false unless SupportedRateLimits.all.key?(key)
+        # +context+ is the same per-call hash forwarded to {#run!}/{#run_peek!}
+        # as labkit `rule_context:`. The gate reads its +:threshold+ /
+        # +:interval+ overrides to decide routing: an override on an INCR-mode
+        # (non-count_distinct) key can't be honoured by the labkit Rule, so the
+        # call records the override and routes back to legacy.
+        def shadow_or_enforce?(key, context: {})
+          spec = SupportedRateLimits.all[key]
+          return false unless spec
 
-          if !threshold_override.nil? || !interval_override.nil?
+          threshold_override = context[:threshold]
+          interval_override = context[:interval]
+          if (!threshold_override.nil? || !interval_override.nil?) && spec[:count_distinct].nil?
             record_override(key, threshold_override, interval_override)
             return false
           end
@@ -50,6 +58,14 @@ module Gitlab
           # rubocop:disable Gitlab/FeatureFlagKeyDynamic -- flag bases enumerated in SupportedRateLimits.all with matching YAMLs in config/feature_flags/wip/
           Feature.enabled?(:"rate_limiter_use_labkit_#{flag_basis(key)}", Feature.current_request, type: :wip)
           # rubocop:enable Gitlab/FeatureFlagKeyDynamic
+        end
+
+        # Whether the spec for +key+ describes a count_distinct (SADD/SCARD)
+        # rule. Used by the dispatch to decide whether IncrementPerActionedResource
+        # calls can be routed to the labkit path without semantic drift.
+        def set_mode?(key)
+          spec = SupportedRateLimits.all[key]
+          !spec.nil? && !spec[:count_distinct].nil?
         end
 
         # Whether labkit's decision should win over the legacy decision.
@@ -65,11 +81,27 @@ module Gitlab
         # decision (whether the request should be blocked, ignoring whether
         # enforcement is on).
         #
+        # +context+ carries per-call data that doesn't live in the registry:
+        # +:resource_id+ supplies the SADD member for count_distinct
+        # (set-mode) rules; ignored for INCR-mode rules. The whole hash is
+        # forwarded as labkit `rule_context:`, so the Rule's one-arity
+        # `limit:`/`period:` callables read +:threshold+ / +:interval+ from
+        # it and return the per-call value without rebuilding the Rule.
+        #
         # @return [Boolean] labkit's decision (exceeded?)
-        def run!(key, scope:)
+        def run!(key, scope:, context: {})
           spec = SupportedRateLimits.all.fetch(key)
           rule = build_rule(key, spec)
-          result = build_limiter(spec, rule).check(identifier_for(rule, scope))
+          identifier = identifier_for(rule, scope)
+
+          member_slot = spec[:count_distinct]
+          resource_id = context[:resource_id]
+          identifier[member_slot] = resource_id if member_slot && resource_id
+
+          result = build_limiter(spec, rule).check(
+            identifier,
+            rule_context: context
+          )
 
           return false if result.error?
 
@@ -80,13 +112,18 @@ module Gitlab
         # boolean decision. Mirrors {#run!} for callers that route through
         # ApplicationRateLimiter#peek (cohort 3). The labkit Redis key shape
         # is identical to {#run!} so a peek observes the same counter that
-        # a paired non-peek call site increments.
+        # a paired non-peek call site increments. count_distinct (set-mode)
+        # rules do not need the SET member on peek; labkit reads SCARD on
+        # the bucket key directly.
         #
         # @return [Boolean] labkit's decision (exceeded?)
-        def run_peek!(key, scope:)
+        def run_peek!(key, scope:, context: {})
           spec = SupportedRateLimits.all.fetch(key)
           rule = build_rule(key, spec)
-          result = build_limiter(spec, rule).peek(identifier_for(rule, scope))
+          result = build_limiter(spec, rule).peek(
+            identifier_for(rule, scope),
+            rule_context: context
+          )
 
           return false if result.error?
 
@@ -100,9 +137,9 @@ module Gitlab
         # can filter them out of go/no-go queries without losing the
         # underlying signal (e.g. "is labkit systematically blocking more
         # than legacy at the edges?").
-        def record_divergence(key, labkit_decision, legacy_decision)
+        def record_divergence(key, labkit_decision, legacy_decision, interval_seconds:)
           agreement = labkit_decision == legacy_decision ? :match : :diverge
-          shadow_counter.increment(key: key, agreement: agreement, boundary: window_boundary?(key))
+          shadow_counter.increment(key: key, agreement: agreement, boundary: window_boundary?(interval_seconds))
         end
 
         private
@@ -132,12 +169,28 @@ module Gitlab
         # first construction. The Redis round-trip in `check` dominates
         # construction cost, so the per-call allocation is not load-bearing.
         def build_rule(key, spec)
+          limit_value = ::Gitlab::ApplicationRateLimiter.threshold(key)
+          period_value = ::Gitlab::ApplicationRateLimiter.interval(key)
+
+          # limit/period are one-arity callables resolved per check against
+          # the per-call context forwarded via Limiter#check(rule_context:).
+          # A set-mode (count_distinct) entry reads its per-call override
+          # (e.g. namespace_settings.unique_project_download_limit) from
+          # :threshold/:interval; an INCR-mode entry carries neither (an
+          # override would have routed back to legacy upstream), so it falls
+          # back to the freshly-resolved registry value, identical to a plain
+          # config value. Cohort 6 will extend per-call overrides to INCR-mode
+          # keys via a separate signal.
+          limit = ->(ctx) { ctx&.dig(:threshold) || limit_value }
+          period = ->(ctx) { ctx&.dig(:interval) || period_value }
+
           ::Labkit::RateLimit::Rule.new(
             name: spec[:rule_name],
             characteristics: spec[:characteristics],
-            limit: ::Gitlab::ApplicationRateLimiter.threshold(key),
-            period: ::Gitlab::ApplicationRateLimiter.interval(key),
-            action: spec[:action]
+            limit: limit,
+            period: period,
+            action: spec[:action],
+            count_distinct: spec[:count_distinct]
           )
         end
 
@@ -228,8 +281,17 @@ module Gitlab
           nil
         end
 
-        def window_boundary?(key)
-          interval_seconds = ::Gitlab::ApplicationRateLimiter.interval(key)
+        # Whether the call landed within BOUNDARY_NOISE_SECONDS of a window
+        # edge. +interval_seconds+ is the actual window length the call used
+        # (registry value or per-call override resolved by the caller).
+        # Returns false on a zero/non-Integer interval: set-mode entries
+        # whose registry interval is a placeholder (e.g.
+        # unique_project_downloads_for_namespace) would otherwise divmod by
+        # 0; untagging is safe because the shadow counter still records the
+        # call under boundary=false.
+        def window_boundary?(interval_seconds)
+          return false if interval_seconds.to_i <= 0
+
           _, elapsed = Time.now.to_i.divmod(interval_seconds)
           elapsed < BOUNDARY_NOISE_SECONDS || elapsed >= interval_seconds - BOUNDARY_NOISE_SECONDS
         end

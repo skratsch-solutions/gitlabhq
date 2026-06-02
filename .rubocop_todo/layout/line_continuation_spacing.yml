@@ -56,7 +56,6 @@ Layout/LineContinuationSpacing:
     - 'ee/spec/requests/api/graphql/mutations/iterations/cadences/update_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/iterations/create_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/iterations/update_spec.rb'
-    - 'ee/spec/requests/api/graphql/mutations/projects/initialize_product_analytics_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/projects/set_compliance_framework_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/quality_management/test_cases/create_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/requirements_management/create_requirement_spec.rb'

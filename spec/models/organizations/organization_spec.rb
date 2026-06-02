@@ -205,9 +205,9 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     describe '.active' do
       let_it_be(:active_org) { create(:organization) }
 
-      let_it_be(:deletion_scheduled_org) do
+      let_it_be(:soft_deleted_org) do
         create(:organization).tap do |o|
-          o.update_column(:state, described_class.states['deletion_scheduled'])
+          o.update_column(:state, described_class.states['soft_deleted'])
         end
       end
 
@@ -219,7 +219,7 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
       it 'returns only active organizations' do
         expect(described_class.active).to include(active_org)
-        expect(described_class.active).not_to include(deletion_scheduled_org, deletion_in_progress_org)
+        expect(described_class.active).not_to include(soft_deleted_org, deletion_in_progress_org)
       end
     end
 
@@ -371,10 +371,10 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   describe 'invalid state transitions' do
     let_it_be(:user, freeze: false) { create(:user) }
 
-    it 'cannot schedule_deletion! from deletion_scheduled state' do
-      organization.update_column(:state, described_class.states['deletion_scheduled'])
+    it 'cannot soft_delete! from soft_deleted state' do
+      organization.update_column(:state, described_class.states['soft_deleted'])
 
-      expect { organization.schedule_deletion!(transition_user: user) }
+      expect { organization.soft_delete!(transition_user: user) }
         .to raise_error(StateMachines::InvalidTransition)
     end
   end

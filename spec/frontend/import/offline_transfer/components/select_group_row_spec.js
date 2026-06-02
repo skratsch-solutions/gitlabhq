@@ -19,10 +19,11 @@ describe('SelectGroupRow', () => {
   const findAvatar = () => wrapper.findComponent(GlAvatar);
   const findAllParagraphs = () => wrapper.findAll('p');
 
-  it('renders the name', () => {
+  it('renders the correct name', () => {
     createComponent();
 
     expect(wrapper.text()).toContain('Flight');
+    expect(findCheckbox().props('ariaLabel')).toBe('Flight');
   });
 
   it('does not render a description element when description is not provided', () => {

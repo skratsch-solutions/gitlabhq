@@ -21562,16 +21562,40 @@ msgstr ""
 msgid "Continuous Vulnerability Scanning for Dependency Scanning"
 msgstr ""
 
+msgid "ContinuousDeployment|%{applicationCount} application across %{groupCount} group"
+msgstr ""
+
+msgid "ContinuousDeployment|%{applicationCount} applications across %{groupCount} group"
+msgstr ""
+
+msgid "ContinuousDeployment|%{applicationCount} applications across %{groupCount} groups"
+msgstr ""
+
+msgid "ContinuousDeployment|All"
+msgstr ""
+
 msgid "ContinuousDeployment|Applications"
 msgstr ""
 
 msgid "ContinuousDeployment|Continuous Deployment"
 msgstr ""
 
+msgid "ContinuousDeployment|Degraded"
+msgstr ""
+
 msgid "ContinuousDeployment|Deploy"
 msgstr ""
 
 msgid "ContinuousDeployment|Environments"
+msgstr ""
+
+msgid "ContinuousDeployment|Filter applications..."
+msgstr ""
+
+msgid "ContinuousDeployment|New application"
+msgstr ""
+
+msgid "ContinuousDeployment|Running"
 msgstr ""
 
 msgid "Contribute to GitLab"
@@ -32777,7 +32801,7 @@ msgstr ""
 msgid "FoundationalFlow|Secret Detection False Positive Detection"
 msgstr ""
 
-msgid "FoundationalFlow|Streamline code reviews by analyzing code changes and relevant codebase context. To run this flow, assign `@GitLabDuo` as a reviewer on a merge request. [Learn more](https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/#use-the-flow)."
+msgid "FoundationalFlow|Streamline code reviews by analyzing code changes and relevant codebase context. [How can I use this flow](https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/#use-the-flow)?"
 msgstr ""
 
 msgid "FoundationalFlow|Turn feedback into actionable merge requests or issues."
@@ -51572,6 +51596,9 @@ msgstr ""
 msgid "Orbit|Open as query"
 msgstr ""
 
+msgid "Orbit|OpenCode"
+msgstr ""
+
 msgid "Orbit|Orbit"
 msgstr ""
 
@@ -51896,7 +51923,7 @@ msgstr ""
 msgid "Organization ID cannot be nil"
 msgstr ""
 
-msgid "Organization has already been marked for deletion"
+msgid "Organization has already been deleted"
 msgstr ""
 
 msgid "Organization must be empty before it can be deleted"

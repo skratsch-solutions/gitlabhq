@@ -1453,7 +1453,6 @@ Style/InlineDisableAnnotation:
     - 'ee/spec/requests/api/graphql/mutations/boards/epic_boards/epic_move_list_spec.rb'
     - 'ee/spec/requests/api/graphql/mutations/geo/registries/update_spec.rb'
     - 'ee/spec/requests/api/graphql/project/merge_request_spec.rb'
-    - 'ee/spec/requests/api/graphql/project/product_analytics/product_analytics_spec.rb'
     - 'ee/spec/requests/api/groups_spec.rb'
     - 'ee/spec/requests/api/internal/base_spec.rb'
     - 'ee/spec/requests/groups/issues_controller_spec.rb'

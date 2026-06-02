@@ -11,7 +11,8 @@ module Gitlab
         configuration_project: Gitlab::Agent::ConfigurationProject::Rpc::ConfigurationProject::Stub,
         autoflow: Gitlab::Agent::AutoFlow::Rpc::AutoFlow::Stub,
         notifications: Gitlab::Agent::Notifications::Rpc::Notifications::Stub,
-        managed_resources: Gitlab::Agent::ManagedResources::Rpc::Provisioner::Stub
+        managed_resources: Gitlab::Agent::ManagedResources::Rpc::Provisioner::Stub,
+        events_platform: Gitlab::Agent::EventsPlatform::Rpc::EventsPlatform::Stub
       }.freeze
 
       AUTOFLOW_CI_VARIABLE_ENV_SCOPE = 'autoflow/internal-use'
@@ -109,6 +110,30 @@ module Gitlab
             project: ::Feature::Kas.project_actor(project),
             group: ::Feature::Kas.group_actor(project)
           ))
+      end
+
+      # Publishes one or more CloudEvents to the events_platform service in GitLab Relay.
+      #
+      # @param topic [String] the topic to publish to (e.g., "gitlab.events").
+      # @param events [Gitlab::Agent::Event::CloudEvent, Array<Gitlab::Agent::Event::CloudEvent>]
+      #   a single CloudEvent or an array of CloudEvents.
+      # @return [Array<String>] the broker message IDs assigned to the published events.
+      #   Returns an empty array when `events` is `nil` or empty (no RPC call is made).
+      def publish_events(topic:, events:)
+        return [] unless Feature.enabled?(:publish_events_to_relay, :instance)
+
+        events = Array.wrap(events)
+        return [] if events.empty?
+
+        request = Gitlab::Agent::EventsPlatform::Rpc::PublishRequest.new(
+          topic: topic,
+          events: events
+        )
+
+        stub_for(:events_platform)
+          .publish(request, metadata: metadata)
+          .message_ids
+          .to_a
       end
 
       def get_environment_template(agent:, template_name:)

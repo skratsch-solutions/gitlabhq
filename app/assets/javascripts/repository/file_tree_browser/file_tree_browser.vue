@@ -133,14 +133,16 @@ export default {
           :ref-type="refType"
           :is-animating="isAnimating"
         />
-        <gl-button
-          target="_blank"
-          icon="comment-dots"
-          rel="noopener noreferrer"
-          :href="$options.feedbackIssue"
-          >{{ __('Provide feedback') }}</gl-button
-        >
       </file-browser-height>
     </transition>
+    <gl-button
+      v-show="fileTreeBrowserIsVisible"
+      target="_blank"
+      icon="comment-dots"
+      rel="noopener noreferrer"
+      :href="$options.feedbackIssue"
+      class="gl-fixed gl-bottom-4 gl-z-9999"
+      >{{ __('Provide feedback') }}</gl-button
+    >
   </div>
 </template>

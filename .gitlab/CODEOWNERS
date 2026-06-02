@@ -9,14 +9,14 @@
 #
 # The fallback list should be reduced over time:
 #   * BE maintainers group was removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/228392
-[Maintainers] @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/maintainers/kas-version-maintainers
+[Maintainers] @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers
 *
 
 # All maintainer groups can approve /scripts/ and /.gitlab/
 # https://gitlab.com/gitlab-org/gitlab/-/work_items/594402#note_3249020797
-/scripts/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
-/tooling/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
-/.gitlab/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
+/scripts/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
+/tooling/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
+/.gitlab/ @gitlab-org/maintainers/frontend @gitlab-org/maintainers/database @gl-dx/maintainers @gl-dx/tooling-maintainers @gitlab-org/delivery @gitlab-org/maintainers/cicd-templates @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops @gitlab-org/maintainers/kas-version-maintainers @gitlab-org/maintainers/rails-backend
 
 # Workhorse
 /workhorse/ @gitlab-org/maintainers/gitlab-workhorse
@@ -102,7 +102,7 @@ yarn.lock @gitlab-org/maintainers/frontend
 /ee/db/click_house/ @gitlab-org/maintainers/clickhouse
 /db/siphon/ @gitlab-org/maintainers/clickhouse
 
-.gitlab/CODEOWNERS @gitlab-org/development-leaders @gitlab-org/tw-leadership
+.gitlab/CODEOWNERS @gitlab-org/development-leaders @gitlab-org/tw-leadership @gitlab-org/technical-writing/tw-docops
 
 /*_VERSION @gitlab-org/maintainers/rails-backend @gitlab-org/delivery
 
@@ -136,7 +136,7 @@ yarn.lock @gitlab-org/maintainers/frontend
 ## Technical writing files that do not need `*` rule approval,
 ## but still require an approval from a TW team DRI for each file.
 .markdownlint-cli2.yaml @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
-/data/deprecations/templates/ @marcel.amirault @gitlab-org/tw-leadership
+/data/deprecations/templates/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 /doc/.markdownlint/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership
 /doc/.vale/gitlab_base/spelling-exceptions.txt @gl-docsteam
 /doc/.vale/ @gitlab-org/technical-writing/tw-docops @gitlab-org/tw-leadership

@@ -25478,8 +25478,8 @@ CREATE TABLE organization_details (
     description text,
     description_html text,
     avatar text,
-    deletion_scheduled_at timestamp with time zone,
     state_metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
+    soft_deleted_at timestamp with time zone,
     CONSTRAINT check_71dfb7807f CHECK ((char_length(description) <= 1024)),
     CONSTRAINT check_9fbd483b51 CHECK ((char_length(avatar) <= 255))
 );
@@ -34863,7 +34863,6 @@ CREATE TABLE zoekt_nodes (
     metadata jsonb DEFAULT '{}'::jsonb NOT NULL,
     indexed_bytes bigint DEFAULT 0 NOT NULL,
     usable_storage_bytes bigint DEFAULT 0 NOT NULL,
-    usable_storage_bytes_locked_until timestamp with time zone,
     schema_version smallint DEFAULT 0 NOT NULL,
     services smallint[] DEFAULT '{0}'::smallint[] NOT NULL,
     webserver_last_seen_at timestamp with time zone,

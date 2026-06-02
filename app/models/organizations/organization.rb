@@ -71,12 +71,12 @@ module Organizations
       :avatar,
       :avatar_url,
       :remove_avatar!,
-      :deletion_error,
-      :deletion_error=,
+      :hard_deletion_error,
+      :hard_deletion_error=,
       :state_metadata,
       :state_metadata=,
-      :deletion_scheduled_at,
-      :deletion_scheduled_at=,
+      :soft_deleted_at,
+      :soft_deleted_at=,
       to: :organization_detail
 
     accepts_nested_attributes_for :organization_detail

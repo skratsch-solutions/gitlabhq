@@ -115,7 +115,6 @@ Search/NamespacedClass:
     - 'ee/lib/gitlab/elastic/client.rb'
     - 'ee/lib/gitlab/elastic/document_reference.rb'
     - 'ee/lib/gitlab/elastic/elasticsearch_enabled_cache.rb'
-    - 'ee/lib/gitlab/elastic/group_search_results.rb'
     - 'ee/lib/gitlab/elastic/helper.rb'
     - 'ee/lib/gitlab/elastic/indexer.rb'
     - 'ee/lib/gitlab/elastic/project_search_results.rb'
