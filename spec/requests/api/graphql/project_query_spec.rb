@@ -465,23 +465,6 @@ RSpec.describe 'getting project information', feature_category: :groups_and_proj
           global_id_of(non_trending_project).to_s
         )
       end
-
-      context 'when disable_trending_args feature flag is disabled' do
-        before do
-          stub_feature_flags(disable_trending_args: false)
-        end
-
-        it 'returns only trending projects' do
-          post_graphql(projects_query, current_user: current_user)
-
-          project_ids = graphql_data_at(:projects, :nodes).pluck('id')
-
-          expect(project_ids).to contain_exactly(
-            global_id_of(trending_project1).to_s,
-            global_id_of(trending_project2).to_s
-          )
-        end
-      end
     end
 
     context 'when argument is false' do

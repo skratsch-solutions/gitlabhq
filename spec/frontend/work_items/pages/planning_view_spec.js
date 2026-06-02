@@ -242,7 +242,6 @@ const findDisplaySettingsButton = () => wrapper.findByTestId('display-settings-b
 const findServiceDeskInfoBanner = () => wrapper.findComponent(InfoBanner);
 const findWorkItemListActions = () => wrapper.findComponent(WorkItemListActions);
 const findBulkEditStartButton = () => wrapper.findByTestId('bulk-edit-start-button');
-const findAnalyzeItemsButton = () => wrapper.findByTestId('analyze-items-button');
 const findServiceDeskEmptyStateWithAnyIssues = () =>
   wrapper.findComponent(EmptyStateWithAnyTickets);
 const findServiceDeskEmptyStateWithoutAnyIssues = () =>
@@ -1124,11 +1123,13 @@ describe('planning-view', () => {
   });
 
   describe('when workItemType is provided', () => {
-    it('passes "types" property to list-view queryVariables', async () => {
-      await mountComponent({ provide: { workItemType: WORK_ITEM_TYPE_NAME_EPIC } });
+    it('passes "workItemTypeIds" property to list-view queryVariables', async () => {
+      mountComponent({ provide: { workItemType: WORK_ITEM_TYPE_NAME_EPIC } });
+
+      await waitForPromises();
 
       expect(findListView().props('queryVariables')).toMatchObject({
-        types: 'EPIC',
+        workItemTypeIds: 'gid://gitlab/WorkItems::Type/1',
       });
     });
   });
@@ -2164,19 +2165,6 @@ describe('planning-view', () => {
         });
       });
     });
-  });
-
-  describe('analyze items button', () => {
-    it.each([true, false])(
-      'renders=%s based on duoQuickActionWorkItemList feature flag',
-      async (duoQuickActionWorkItemList) => {
-        await mountComponent({
-          provide: { glFeatures: { duoQuickActionWorkItemList } },
-        });
-
-        expect(findAnalyzeItemsButton().exists()).toBe(duoQuickActionWorkItemList);
-      },
-    );
   });
 
   describe('when service desk list', () => {

@@ -1,0 +1,10 @@
+---
+name: merge_request_approved_flow_trigger
+description: This feature flag is scoped to the Project level. If enabled, this new trigger event is shown to customers.
+feature_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/592456
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237081
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/work_items/599843
+milestone: '19.1'
+group: group::ai coding
+type: gitlab_com_derisk
+default_enabled: false

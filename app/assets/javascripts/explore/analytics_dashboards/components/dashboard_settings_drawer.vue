@@ -1,18 +1,20 @@
 <script>
-import { GlDrawer, GlFormGroup, GlFormInput, GlFormTextarea, GlButton } from '@gitlab/ui';
+import { GlDrawer, GlButton, GlAlert } from '@gitlab/ui';
 import { getContentWrapperHeight } from '~/lib/utils/dom_utils';
 import { visitUrl } from '~/lib/utils/url_utility';
+import { s__ } from '~/locale';
 import DashboardDeleteModal from '../../../vue_shared/components/dashboards_list/dashboard_delete_modal.vue';
+import updateCustomDashboardMutation from '../graphql/update_custom_dashboard.mutation.graphql';
+import DashboardSettingsForm from './dashboard_settings_form.vue';
 
 export default {
   name: 'DashboardSettingsDrawer',
   components: {
     GlDrawer,
-    GlFormGroup,
-    GlFormInput,
-    GlFormTextarea,
     GlButton,
+    GlAlert,
     DashboardDeleteModal,
+    DashboardSettingsForm,
   },
   inject: ['exploreAnalyticsDashboardsPath'],
   props: {
@@ -32,13 +34,20 @@ export default {
   emits: ['close'],
   data() {
     return {
-      title: '',
-      description: '',
+      formData: {
+        title: '',
+        description: '',
+      },
+      errorMessage: '',
+      isLoading: false,
     };
   },
   computed: {
     drawerHeaderHeight() {
       return getContentWrapperHeight();
+    },
+    panels() {
+      return this.dashboardConfig.panels;
     },
   },
   watch: {
@@ -53,8 +62,64 @@ export default {
   },
   methods: {
     syncConfig() {
-      this.title = this.dashboardConfig?.title || '';
-      this.description = this.dashboardConfig?.description || '';
+      this.formData = {
+        title: this.dashboardConfig?.title || '',
+        description: this.dashboardConfig?.description || '',
+      };
+      this.clearError();
+    },
+    clearError() {
+      this.errorMessage = '';
+    },
+    async handleSave() {
+      this.clearError();
+
+      const title = this.formData.title.trim();
+      const description = this.formData.description.trim();
+      if (!title) {
+        this.errorMessage = s__('AnalyticsDashboards|Dashboard title is required.');
+        return;
+      }
+
+      this.isLoading = true;
+
+      try {
+        const { data } = await this.$apollo.mutate({
+          mutation: updateCustomDashboardMutation,
+          variables: {
+            input: {
+              id: this.dashboardId,
+              name: title,
+              description,
+              config: {
+                title,
+                description,
+                panels: this.panels,
+              },
+            },
+          },
+          update: (cache) => {
+            const cacheId = cache.identify({
+              id: this.dashboardId,
+              __typename: 'CustomDashboard',
+            });
+            cache.evict({ id: cacheId });
+          },
+        });
+
+        const { errors } = data?.updateCustomDashboard || {};
+        if (errors?.length) {
+          [this.errorMessage] = errors;
+        } else {
+          this.$emit('close');
+        }
+      } catch (error) {
+        this.errorMessage = s__(
+          'AnalyticsDashboards|Failed to update dashboard. Please try again.',
+        );
+      } finally {
+        this.isLoading = false;
+      }
     },
     showDeleteModal() {
       this.$refs.deleteModal.show();
@@ -80,44 +145,33 @@ export default {
       </template>
 
       <template #default>
-        <div>
-          <gl-form-group
-            :label="s__('AnalyticsDashboards|Dashboard title')"
-            label-for="dashboard-title"
-          >
-            <gl-form-input
-              id="dashboard-title"
-              v-model="title"
-              :placeholder="s__('AnalyticsDashboards|Enter a title')"
-              data-testid="dashboard-title-input"
-            />
-          </gl-form-group>
-          <gl-form-group
-            :label="s__('AnalyticsDashboards|Dashboard description')"
-            label-for="dashboard-description"
-          >
-            <gl-form-textarea
-              id="dashboard-description"
-              v-model="description"
-              :placeholder="s__('AnalyticsDashboards|Enter a description (optional)')"
-              data-testid="dashboard-description-textarea"
-            />
-          </gl-form-group>
-        </div>
+        <gl-alert v-if="errorMessage" variant="danger" class="gl-mb-4" @dismiss="clearError">
+          {{ errorMessage }}
+        </gl-alert>
+        <dashboard-settings-form v-model="formData" :is-loading="isLoading" />
       </template>
 
       <template #footer>
         <div class="gl-flex gl-w-full gl-items-center gl-gap-3">
-          <gl-button variant="confirm" data-testid="settings-save-button">{{
-            s__('AnalyticsDashboards|Save')
-          }}</gl-button>
-          <gl-button data-testid="settings-cancel-button" @click="$emit('close')">{{
-            s__('AnalyticsDashboards|Cancel')
-          }}</gl-button>
+          <gl-button
+            variant="confirm"
+            :loading="isLoading"
+            data-testid="settings-save-button"
+            @click="handleSave"
+          >
+            {{ s__('AnalyticsDashboards|Save') }}
+          </gl-button>
+          <gl-button
+            :disabled="isLoading"
+            data-testid="settings-cancel-button"
+            @click="$emit('close')"
+            >{{ s__('AnalyticsDashboards|Cancel') }}</gl-button
+          >
           <gl-button
             class="gl-ml-auto"
             variant="danger"
             category="secondary"
+            :disabled="isLoading"
             data-testid="settings-delete-button"
             @click="showDeleteModal"
           >

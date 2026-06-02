@@ -277,6 +277,14 @@ module Gitlab
       /\A[a-z]([-_a-z0-9]*[a-z0-9])?\z/
     end
 
+    def cd_name_regex
+      @cd_name_regex ||= /\A[a-zA-Z0-9_]([a-zA-Z0-9_\-]*[a-zA-Z0-9_])?\z/
+    end
+
+    def cd_name_regex_message
+      "can contain only letters, digits, '_' and '-'. Cannot start or end with '-'."
+    end
+
     # One or more `part`s, separated by separator
     def sep_by_1(separator, part)
       %r{#{part} (#{separator} #{part})*}x

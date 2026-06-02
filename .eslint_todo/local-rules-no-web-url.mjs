@@ -8,7 +8,6 @@ export default {
     'app/assets/javascripts/ci/job_details/components/job_header.vue',
     'app/assets/javascripts/ci/runner/components/runner_jobs_table.vue',
     'app/assets/javascripts/contribution_events/components/target_link.vue',
-    'app/assets/javascripts/diffs/components/commit_item.vue',
     'app/assets/javascripts/environments/helpers/deployment_data_transformation_helper.js',
     'app/assets/javascripts/glql/components/presenters/issuable.vue',
     'app/assets/javascripts/groups/show/graphql/resolvers.js',

@@ -127,9 +127,6 @@ describe('WorkItemParent component', () => {
         allowedParentTypesForNewWorkItem,
       },
       provide: {
-        glFeatures: {
-          workItemConfigurableTypes: true,
-        },
         getWorkItemTypeConfiguration: mockWorkItemConfigGetter,
         workItemTypesConfiguration: [
           { id: 'gid://gitlab/WorkItems::Type/1', name: 'Issue', isGroupWorkItemType: false },

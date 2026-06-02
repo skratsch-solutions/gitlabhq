@@ -5,6 +5,7 @@ import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import NewDashboardButton from '~/explore/analytics_dashboards/components/new_dashboard_button.vue';
+import DashboardSettingsForm from '~/explore/analytics_dashboards/components/dashboard_settings_form.vue';
 import createCustomDashboardMutation from '~/explore/analytics_dashboards/graphql/create_custom_dashboard.mutation.graphql';
 import * as urlUtility from '~/lib/utils/url_utility';
 
@@ -54,8 +55,7 @@ describe('NewDashboardButton', () => {
 
   const findButton = () => wrapper.findComponent(GlButton);
   const findModal = () => wrapper.findComponent(GlModal);
-  const findTitleInput = () => wrapper.findByTestId('dashboard-title-input');
-  const findDescriptionTextarea = () => wrapper.findByTestId('dashboard-description-textarea');
+  const findSettingsForm = () => wrapper.findComponent(DashboardSettingsForm);
   const findErrorAlert = () => wrapper.findComponent(GlAlert);
 
   it('renders the New dashboard button', () => {
@@ -81,12 +81,8 @@ describe('NewDashboardButton', () => {
       return findButton().vm.$emit('click');
     });
 
-    it('renders a Dashboard title input field', () => {
-      expect(findTitleInput().exists()).toBe(true);
-    });
-
-    it('renders a Dashboard description text area', () => {
-      expect(findDescriptionTextarea().exists()).toBe(true);
+    it('renders the DashboardSettingsForm component', () => {
+      expect(findSettingsForm().exists()).toBe(true);
     });
 
     it('closes the modal when the cancel action is pressed', async () => {
@@ -105,16 +101,12 @@ describe('NewDashboardButton', () => {
       createComponent();
       await findButton().vm.$emit('click');
 
-      findTitleInput().vm.$emit('input', 'test');
+      findSettingsForm().vm.$emit('input', { title: 'test', description: '' });
       findModal().vm.$emit('primary', { preventDefault: jest.fn() });
     });
 
-    it('disables the title input', () => {
-      expect(findTitleInput().props('disabled')).toBe(true);
-    });
-
-    it('disables the description text area', () => {
-      expect(findDescriptionTextarea().attributes('disabled')).toBeDefined();
+    it('passes isLoading as true to the form', () => {
+      expect(findSettingsForm().props('isLoading')).toBe(true);
     });
 
     it('disables the cancel action', () => {
@@ -160,7 +152,7 @@ describe('NewDashboardButton', () => {
       );
 
       await findButton().vm.$emit('click');
-      findTitleInput().vm.$emit('input', 'Test Dashboard');
+      findSettingsForm().vm.$emit('input', { title: 'Test Dashboard', description: '' });
 
       findModal().vm.$emit('primary', { preventDefault: jest.fn() });
       await waitForPromises();
@@ -181,7 +173,7 @@ describe('NewDashboardButton', () => {
       createComponent(jest.fn().mockRejectedValue(new Error('Network error')));
 
       await findButton().vm.$emit('click');
-      findTitleInput().vm.$emit('input', 'Test Dashboard');
+      findSettingsForm().vm.$emit('input', { title: 'Test Dashboard', description: '' });
 
       findModal().vm.$emit('primary', { preventDefault: jest.fn() });
       await waitForPromises();
@@ -205,8 +197,7 @@ describe('NewDashboardButton', () => {
       createComponent();
 
       await findButton().vm.$emit('click');
-      findTitleInput().vm.$emit('input', name);
-      findDescriptionTextarea().vm.$emit('input', description);
+      findSettingsForm().vm.$emit('input', { title: name, description });
 
       findModal().vm.$emit('primary', { preventDefault: jest.fn() });
       await waitForPromises();
@@ -234,28 +225,53 @@ describe('NewDashboardButton', () => {
     });
   });
 
+  it('trims title and description when sending the mutation', async () => {
+    createComponent();
+
+    await findButton().vm.$emit('click');
+    findSettingsForm().vm.$emit('input', {
+      title: '  Test dashboard with spaces  ',
+      description: '  Test description with spaces  ',
+    });
+
+    findModal().vm.$emit('primary', { preventDefault: jest.fn() });
+    await waitForPromises();
+
+    expect(mockApollo.defaultClient.mutate).toHaveBeenCalledWith({
+      mutation: createCustomDashboardMutation,
+      variables: {
+        input: {
+          name: 'Test dashboard with spaces',
+          description: 'Test description with spaces',
+          config: {
+            title: 'Test dashboard with spaces',
+            description: 'Test description with spaces',
+            panels: [],
+          },
+        },
+      },
+    });
+  });
+
   describe('opening the modal', () => {
     beforeEach(async () => {
       createComponent();
       await findButton().vm.$emit('click');
     });
 
-    it('clears the title input', async () => {
-      findTitleInput().vm.$emit('input', 'Previous Title');
+    it('resets formData to empty values', async () => {
+      findSettingsForm().vm.$emit('input', {
+        title: 'Previous Title',
+        description: 'Previous Description',
+      });
 
       await findModal().vm.$emit('canceled');
       await findButton().vm.$emit('click');
 
-      expect(findTitleInput().props('value')).toBe('');
-    });
-
-    it('clears the description text area', async () => {
-      findDescriptionTextarea().vm.$emit('input', 'Previous Description');
-
-      await findModal().vm.$emit('canceled');
-      await findButton().vm.$emit('click');
-
-      expect(findDescriptionTextarea().props('value')).toBe('');
+      expect(findSettingsForm().props('value')).toEqual({
+        title: '',
+        description: '',
+      });
     });
 
     it('clears the error alert', async () => {

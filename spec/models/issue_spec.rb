@@ -2312,20 +2312,6 @@ RSpec.describe Issue, feature_category: :team_planning do
       expect(json['work_item_type']).to eq({ 'name' => issue.work_item_type.name })
     end
 
-    context 'when work_item_configurable_types feature flag is disabled' do
-      before do
-        stub_feature_flags(work_item_configurable_types: false)
-      end
-
-      it 'renames exported_work_item_type using the legacy base_type format' do
-        json = issue.as_json(methods: [:exported_work_item_type])
-
-        expect(json).to have_key('work_item_type')
-        expect(json).not_to have_key('exported_work_item_type')
-        expect(json['work_item_type']).to eq({ 'base_type' => issue.work_item_type.base_type })
-      end
-    end
-
     it 'does not add work_item_type when exported_work_item_type is not in methods' do
       json = issue.as_json(only: [:id])
 

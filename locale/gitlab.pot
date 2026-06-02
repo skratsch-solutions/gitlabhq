@@ -3354,6 +3354,9 @@ msgstr ""
 msgid "AICatalog|Trigger this %{itemType} when a merge request is marked as ready for review (draft status removed)."
 msgstr ""
 
+msgid "AICatalog|Trigger this %{itemType} when a merge request transitions to fully approved (the approval that crosses the required-approvals threshold)."
+msgstr ""
+
 msgid "AICatalog|Trigger this %{itemType} when a pipeline status changes."
 msgstr ""
 
@@ -9907,6 +9910,9 @@ msgid "AnalyticsDashboards|Failed to load dashboards list. Please try again."
 msgstr ""
 
 msgid "AnalyticsDashboards|Failed to load namespace metadata."
+msgstr ""
+
+msgid "AnalyticsDashboards|Failed to update dashboard. Please try again."
 msgstr ""
 
 msgid "AnalyticsDashboards|Groups"
@@ -27192,6 +27198,9 @@ msgid "DuoAgentPlatform|%{linkStart}What are flows%{linkEnd}?"
 msgstr ""
 
 msgid "DuoAgentPlatform|%{name} session %{id}"
+msgstr ""
+
+msgid "DuoAgentPlatform|%{text} by %{name}"
 msgstr ""
 
 msgid "DuoAgentPlatform|Action"
@@ -45334,9 +45343,6 @@ msgstr ""
 msgid "Merge request branch workflow"
 msgstr ""
 
-msgid "Merge request code conflict"
-msgstr ""
-
 msgid "Merge request commits"
 msgstr ""
 
@@ -45359,9 +45365,6 @@ msgid "Merge request must not be draft."
 msgstr ""
 
 msgid "Merge request not merged"
-msgstr ""
-
-msgid "Merge request ready"
 msgstr ""
 
 msgid "Merge request reports"
@@ -45698,6 +45701,15 @@ msgid "MergeRequest|Failed to load the page"
 msgstr ""
 
 msgid "MergeRequest|Merge request %{currentIndex} of %{stackSize} in stack"
+msgstr ""
+
+msgid "MergeRequest|Merge request approved"
+msgstr ""
+
+msgid "MergeRequest|Merge request code conflict"
+msgstr ""
+
+msgid "MergeRequest|Merge request ready"
 msgstr ""
 
 msgid "MergeRequest|No files found"
@@ -84995,9 +85007,6 @@ msgid "WorkItem|An error occurred while updating the status."
 msgstr ""
 
 msgid "WorkItem|An error occurred while updating work item settings."
-msgstr ""
-
-msgid "WorkItem|Analyze items"
 msgstr ""
 
 msgid "WorkItem|Ancestor"

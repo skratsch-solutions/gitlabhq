@@ -143,7 +143,6 @@ import WorkItemDisplaySettingsDrawer from '../list/components/work_item_display_
 
 import {
   WORK_ITEM_TYPE_NAME_TICKET,
-  NAME_TO_ENUM_MAP,
   WORK_ITEM_TYPE_NAME_EPIC,
   WORK_ITEM_TYPE_NAME_ISSUE,
   ROUTES,
@@ -645,9 +644,7 @@ export default {
     defaultWorkItemTypes() {
       return this.workItemTypesConfiguration
         .filter((type) => type.isFilterableListView)
-        .map((type) =>
-          this.glFeatures.workItemConfigurableTypes ? type.id : NAME_TO_ENUM_MAP[type.name],
-        );
+        .map((type) => type.id);
     },
     queryVariables() {
       const hasGroupFilter = Boolean(this.urlFilterParams.group_path);
@@ -1008,23 +1005,19 @@ export default {
         hasCustomFieldsFeature: this.hasCustomFieldsFeature,
         hasStatusFeature: this.hasStatusFeature,
       });
-      if (this.glFeatures.workItemConfigurableTypes) {
-        if (params.types) {
-          params.workItemTypeIds = convertNumberToGid(params.types);
-          delete params.types;
-        }
-        if (params.not?.types) {
-          params.not.workItemTypeIds = convertNumberToGid(params.not.types);
-          delete params.not.types;
-        }
+      if (params.types) {
+        params.workItemTypeIds = convertNumberToGid(params.types);
+        delete params.types;
+      }
+      if (params.not?.types) {
+        params.not.workItemTypeIds = convertNumberToGid(params.not.types);
+        delete params.not.types;
       }
       return params;
     },
     apiTypesArgument() {
-      const singleWorkItemType = this.glFeatures.workItemConfigurableTypes
-        ? this.getWorkItemTypeConfiguration(this.workItemType)?.id
-        : NAME_TO_ENUM_MAP[this.workItemType];
-      const field = this.glFeatures.workItemConfigurableTypes ? 'workItemTypeIds' : 'types';
+      const singleWorkItemType = this.getWorkItemTypeConfiguration(this.workItemType)?.id;
+      const field = 'workItemTypeIds';
       return {
         [field]: this.apiFilterParams[field] || singleWorkItemType || this.defaultWorkItemTypes,
       };
@@ -1160,10 +1153,7 @@ export default {
       }
 
       // TODO remove when we no longer need to convert old type[]=ISSUE params to new type[]=1 params
-      if (
-        this.glFeatures.workItemConfigurableTypes &&
-        this.filterTokens.some((token) => token.type === TOKEN_TYPE_TYPE)
-      ) {
+      if (this.filterTokens.some((token) => token.type === TOKEN_TYPE_TYPE)) {
         const tokens = convertOldTypeTokenEnumToGid(this.filterTokens, workItemTypesConfiguration);
         this.handleFilter(tokens);
       }
@@ -1251,9 +1241,7 @@ export default {
       const filteredTokens = tokens.filter(
         (token) => availableTokenTypes.includes(token.type) || token.type === FILTERED_SEARCH_TERM,
       );
-      return this.glFeatures.workItemConfigurableTypes
-        ? convertLegacyTypeFormat(filteredTokens, this.getWorkItemTypeConfiguration)
-        : filteredTokens;
+      return convertLegacyTypeFormat(filteredTokens, this.getWorkItemTypeConfiguration);
     },
     restoreViewDraft() {
       const draft = localStorage.getItem(this.savedViewDraftStorageKey);
@@ -1926,8 +1914,8 @@ export default {
     <template v-if="!isServiceDeskList">
       <!-- state-count -->
       <div class="gl-border-b gl-flex gl-flex-wrap gl-justify-between gl-gap-y-3 gl-py-3">
-        <div class="gl-flex gl-flex-wrap gl-items-center gl-gap-3">
-          <span data-testid="work-item-count">{{ workItemTotalStateCount }}</span>
+        <div class="gl-flex gl-items-center">
+          <span data-testid="work-item-count" class="gl-mr-3">{{ workItemTotalStateCount }}</span>
           <gl-button
             v-if="allowBulkEditing"
             size="small"
@@ -1938,14 +1926,6 @@ export default {
             @click="showBulkEditSidebar = true"
           >
             {{ __('Bulk edit') }}
-          </gl-button>
-          <gl-button
-            v-if="glFeatures.duoQuickActionWorkItemList"
-            size="small"
-            icon="tanuki-ai"
-            data-testid="analyze-items-button"
-          >
-            {{ s__('WorkItem|Analyze items') }}
           </gl-button>
         </div>
 

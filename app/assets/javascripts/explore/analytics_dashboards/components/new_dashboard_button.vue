@@ -1,28 +1,29 @@
 <script>
-import { GlButton, GlModal, GlFormGroup, GlFormInput, GlFormTextarea, GlAlert } from '@gitlab/ui';
+import { GlButton, GlModal, GlAlert } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
 import createCustomDashboardMutation from '../graphql/create_custom_dashboard.mutation.graphql';
 import { getDashboardIdFromGraphQLId } from '../utils';
 import { EDIT_DASHBOARD_PATH } from '../constants';
+import DashboardSettingsForm from './dashboard_settings_form.vue';
 
 export default {
   name: 'NewDashboardButton',
   components: {
     GlButton,
     GlModal,
-    GlFormGroup,
-    GlFormInput,
-    GlFormTextarea,
     GlAlert,
+    DashboardSettingsForm,
   },
   inject: ['exploreAnalyticsDashboardsPath'],
   data() {
     return {
       showModal: false,
       isLoading: false,
-      title: '',
-      description: '',
+      formData: {
+        title: '',
+        description: '',
+      },
       errorMessage: '',
     };
   },
@@ -43,8 +44,10 @@ export default {
   methods: {
     openModal() {
       this.showModal = true;
-      this.title = '';
-      this.description = '';
+      this.formData = {
+        title: '',
+        description: '',
+      };
       this.clearError();
     },
     closeModal() {
@@ -56,7 +59,9 @@ export default {
     async handlePrimary() {
       this.clearError();
 
-      if (!this.title.trim()) {
+      const title = this.formData.title.trim();
+      const description = this.formData.description.trim();
+      if (!title) {
         this.errorMessage = s__('AnalyticsDashboards|Dashboard title is required.');
         return;
       }
@@ -68,11 +73,11 @@ export default {
           mutation: createCustomDashboardMutation,
           variables: {
             input: {
-              name: this.title,
-              description: this.description,
+              name: title,
+              description,
               config: {
-                title: this.title,
-                description: this.description,
+                title,
+                description,
                 panels: [],
               },
             },
@@ -121,30 +126,7 @@ export default {
       <gl-alert v-if="errorMessage" variant="danger" class="gl-mb-4" @dismiss="clearError">
         {{ errorMessage }}
       </gl-alert>
-      <gl-form-group
-        :label="s__('AnalyticsDashboards|Dashboard title')"
-        label-for="dashboard-title"
-      >
-        <gl-form-input
-          id="dashboard-title"
-          v-model="title"
-          :placeholder="s__('AnalyticsDashboards|Enter a title')"
-          :disabled="isLoading"
-          data-testid="dashboard-title-input"
-        />
-      </gl-form-group>
-      <gl-form-group
-        :label="s__('AnalyticsDashboards|Dashboard description')"
-        label-for="dashboard-description"
-      >
-        <gl-form-textarea
-          id="dashboard-description"
-          v-model="description"
-          :placeholder="s__('AnalyticsDashboards|Enter a description (optional)')"
-          :disabled="isLoading"
-          data-testid="dashboard-description-textarea"
-        />
-      </gl-form-group>
+      <dashboard-settings-form v-model="formData" :is-loading="isLoading" />
     </gl-modal>
   </div>
 </template>

@@ -1080,8 +1080,10 @@
   - "config/authz/permissions/**/*.yml"
   - "config/authz/permission_groups/**/*.yml"
   - "config/authz/roles/**/*.yml"
+  - "config/authz/graphql/authorization_todo.txt"
   - "lib/tasks/gitlab/permissions/**/*.rb"
   - "{,ee/}app/policies/**/*.rb"
+  - "{,ee/}app/graphql/**/*.rb"
   - "{,ee/}lib/api/**/*.rb"
 
 .ci-job-token-policies-patterns: &ci-job-token-policies-patterns

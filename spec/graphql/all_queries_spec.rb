@@ -64,6 +64,7 @@ RSpec.describe 'graphql queries', feature_category: :api do
     app/assets/javascripts/explore/analytics_dashboards/graphql/get_dashboards.query.graphql
     app/assets/javascripts/explore/analytics_dashboards/graphql/get_dashboard.query.graphql
     app/assets/javascripts/explore/analytics_dashboards/graphql/create_custom_dashboard.mutation.graphql
+    app/assets/javascripts/explore/analytics_dashboards/graphql/update_custom_dashboard.mutation.graphql
     app/assets/javascripts/vue_shared/components/dashboards_list/delete_custom_dashboard.mutation.graphql
     app/assets/javascripts/explore/analytics_dashboards/graphql/get_system_dashboard.query.graphql
   ]

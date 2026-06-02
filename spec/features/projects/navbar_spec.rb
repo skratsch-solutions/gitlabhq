@@ -35,7 +35,6 @@ RSpec.describe 'Project navbar', :with_license, :js, feature_category: :groups_a
   describe 'when hide_error_tracking_features is disabled' do
     before do
       stub_feature_flags(hide_error_tracking_features: false)
-      stub_feature_flags(work_item_configurable_types: false)
     end
 
     it_behaves_like 'verified navigation bar' do
@@ -110,7 +109,6 @@ RSpec.describe 'Project navbar', :with_license, :js, feature_category: :groups_a
   describe 'when hide_error_tracking_features is enabled' do
     context 'when error tracking feature flag is enabled' do
       before do
-        stub_feature_flags(work_item_configurable_types: false)
         remove_nav_item(_('Error Tracking'))
 
         visit project_path(project)

@@ -18,7 +18,7 @@ const Template = (args, { argTypes }) => ({
     exploreAnalyticsDashboardsPath: '/explore/analytics_dashboards',
   },
   template: `
-    <div>
+    <div class="gl-min-h-31">
       <gl-button @click="isDrawerOpen = true">Open Settings</gl-button>
       <dashboard-settings-drawer
         :open="isDrawerOpen"
