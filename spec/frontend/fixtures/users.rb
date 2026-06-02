@@ -37,7 +37,7 @@ RSpec.describe 'Users (JavaScript fixtures)', feature_category: :user_profile do
 
     before do
       enable_design_management
-      stub_licensed_features(epics: true)
+      stub_licensed_features(epics: true, requirements: true)
       group.add_owner(user)
       project.add_maintainer(user)
       sign_in(user)

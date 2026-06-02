@@ -71,6 +71,20 @@ RSpec.describe Tree, feature_category: :source_code_management do
     it { is_expected.to be_an_instance_of(Gitaly::PaginationCursor) }
   end
 
+  describe '#project' do
+    it 'returns the project from the repository' do
+      expect(tree.project).to eq(repository.project)
+    end
+
+    context 'when repository is nil' do
+      before do
+        tree.repository = nil
+      end
+
+      it { expect(tree.project).to be_nil }
+    end
+  end
+
   private
 
   def fake_blob(name)

@@ -9,7 +9,7 @@ module Types
 
       authorize :read_terraform_state
       authorize_granular_token permissions: :read_terraform_state,
-        boundary: ->(obj) { obj.terraform_state&.project },
+        boundary: :project,
         boundary_type: :project
 
       field :id, GraphQL::Types::ID,

@@ -272,7 +272,7 @@ To use component context in a component, you must:
 
 1. Declare which component context fields the component needs in the [`spec:component`](../yaml/_index.md#speccomponent) header.
    `spec:component` supports `name`, `sha`, `version`, and `reference` fields.
-1. Reference the context fields using the CI/CD expression `$[[ component.field-name ]]` in the component template.
+1. Reference the context fields using the CI/CD expression `$[[ component.field-name ]]` in the component template (outside the `spec` section).
 
 For example, a component that references a Docker image built with the same version:
 

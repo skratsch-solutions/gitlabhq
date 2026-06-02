@@ -125,6 +125,11 @@ module Gitlab
         "tag:" + Digest::SHA1.hexdigest([name, message, target, target_commit&.sha].join)
       end
 
+      def project
+        container = repository&.container
+        container if container.is_a?(::Project)
+      end
+
       private
 
       def tagger

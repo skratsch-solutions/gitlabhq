@@ -4,6 +4,8 @@
 - content_for :hide_invite_members_button, true
 
 = render_if_exists 'groups/group_members/minimal_access_provisioning_alert'
+- if Gitlab::Security::SecurityManagerConfig.enabled? && can_admin_group_member?(@group)
+  #js-security-manager-role-banner
 
 - if can_admin_group_member?(@group)
   = render_if_exists 'groups/group_members/link_to_pending_members'

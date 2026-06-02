@@ -19,9 +19,6 @@ class ProjectPolicy < BasePolicy
   desc "User has guest access"
   condition(:guest) { team_member? }
 
-  desc "User has maintainer access"
-  condition(:maintainer) { team_access_level >= Gitlab::Access::MAINTAINER }
-
   desc "User has owner access"
   condition :owner do
     owner_of_personal_namespace = project.owner.present? && project.owner == @user

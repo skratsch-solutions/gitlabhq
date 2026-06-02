@@ -600,7 +600,8 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
     subject { get :slack_app_manifest_download }
 
     it 'downloads the GitLab for Slack app manifest' do
-      allow(Slack::Manifest).to receive(:to_h).and_return({ foo: 'bar' })
+      stub_feature_flags(slack_duo_agent: false)
+      allow(Slack::Manifest).to receive(:to_h).with(duo_enabled: false).and_return({ foo: 'bar' })
 
       subject
 
@@ -608,6 +609,30 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
       expect(response.headers['Content-Disposition']).to eq(
         'attachment; filename="slack_manifest.json"; filename*=UTF-8\'\'slack_manifest.json'
       )
+    end
+
+    context 'when the slack_duo_agent flag is disabled' do
+      before do
+        stub_feature_flags(slack_duo_agent: false)
+      end
+
+      it 'passes duo_enabled: false to the manifest' do
+        expect(Slack::Manifest).to receive(:to_json).with(duo_enabled: false).and_return('{}')
+
+        subject
+      end
+    end
+
+    context 'when the slack_duo_agent flag is enabled for the admin' do
+      before do
+        stub_feature_flags(slack_duo_agent: admin)
+      end
+
+      it 'passes duo_enabled: true to the manifest' do
+        expect(Slack::Manifest).to receive(:to_json).with(duo_enabled: true).and_return('{}')
+
+        subject
+      end
     end
   end
 
@@ -619,13 +644,38 @@ RSpec.describe Admin::ApplicationSettingsController, :do_not_mock_admin_mode_set
     subject { get :slack_app_manifest_share }
 
     it 'redirects the user to the Slack Manifest share URL' do
-      allow(Slack::Manifest).to receive(:to_h).and_return({ foo: 'bar' })
+      stub_feature_flags(slack_duo_agent: false)
+      allow(Slack::Manifest).to receive(:to_h).with(duo_enabled: false).and_return({ foo: 'bar' })
 
       subject
 
       expect(response).to redirect_to(
         "https://api.slack.com/apps?new_app=1&manifest_json=%7B%22foo%22%3A%22bar%22%7D"
       )
+    end
+
+    context 'when the slack_duo_agent flag is disabled' do
+      before do
+        stub_feature_flags(slack_duo_agent: false)
+      end
+
+      it 'passes duo_enabled: false to the manifest' do
+        expect(Slack::Manifest).to receive(:share_url).with(duo_enabled: false).and_return('https://api.slack.com/apps')
+
+        subject
+      end
+    end
+
+    context 'when the slack_duo_agent flag is enabled for the admin' do
+      before do
+        stub_feature_flags(slack_duo_agent: admin)
+      end
+
+      it 'passes duo_enabled: true to the manifest' do
+        expect(Slack::Manifest).to receive(:share_url).with(duo_enabled: true).and_return('https://api.slack.com/apps')
+
+        subject
+      end
     end
   end
 

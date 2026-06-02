@@ -869,8 +869,6 @@ export default {
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/graphql/queries/devops_adoption_enabled_namespaces.query.graphql',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/graphql/queries/devops_adoption_overview_chart.query.graphql',
     'ee/app/assets/javascripts/analytics/devops_reports/devops_adoption/graphql/queries/get_groups.query.graphql',
-    'ee/app/assets/javascripts/analytics/merge_request_analytics/graphql/queries/throughput_chart.query.graphql',
-    'ee/app/assets/javascripts/analytics/merge_request_analytics/graphql/queries/throughput_table.query.graphql',
     'ee/app/assets/javascripts/analytics/repository_analytics/graphql/queries/get_group_projects.query.graphql',
     'ee/app/assets/javascripts/analytics/repository_analytics/graphql/queries/get_group_test_coverage.query.graphql',
     'ee/app/assets/javascripts/analytics/repository_analytics/graphql/queries/get_projects_test_coverage.query.graphql',

@@ -1,5 +1,5 @@
-import CalculateSum from './calculate_sum.vue';
 import DataTable from './data_table.vue';
+import CalculateSum from './calculate_sum.vue';
 
 const data = [
   [10, 20, 30],

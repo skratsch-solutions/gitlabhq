@@ -211,16 +211,6 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
       it 'sanitizes SSH signature from CI_COMMIT_TAG_MESSAGE' do
         expect(subject.to_hash['CI_COMMIT_TAG_MESSAGE']).to eq("Version 1.0.0\n\n")
       end
-
-      context 'when "strip_signature_from_ci_commit_tag_message" FF is disabled' do
-        before do
-          stub_feature_flags(strip_signature_from_ci_commit_tag_message: false)
-        end
-
-        it 'returns signature in the message' do
-          expect(subject.to_hash['CI_COMMIT_TAG_MESSAGE']).to eq(tag_message_with_signature)
-        end
-      end
     end
 
     context 'when merge request is present' do

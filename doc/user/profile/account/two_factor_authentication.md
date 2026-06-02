@@ -194,7 +194,7 @@ For more information, see the [Cisco Duo API documentation](https://duo.com/docs
    For Linux package installations:
 
    ```ruby
-    gitlab_rails['duo_auth_enabled'] = false
+    gitlab_rails['duo_auth_enabled'] = true
     gitlab_rails['duo_auth_integration_key'] = '<duo_integration_key_value>'
     gitlab_rails['duo_auth_secret_key'] = '<duo_secret_key_value>'
     gitlab_rails['duo_auth_hostname'] = '<duo_api_hostname>'

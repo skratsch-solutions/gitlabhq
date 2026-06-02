@@ -74553,6 +74553,28 @@ definitions:
         type: string
       vulnerability_export_part_uploads_oldest_unsynced_time:
         type: string
+      alert_management_metric_image_uploads_count:
+        type: string
+      alert_management_metric_image_uploads_checksum_total_count:
+        type: string
+      alert_management_metric_image_uploads_checksummed_count:
+        type: string
+      alert_management_metric_image_uploads_checksum_failed_count:
+        type: string
+      alert_management_metric_image_uploads_synced_count:
+        type: string
+      alert_management_metric_image_uploads_failed_count:
+        type: string
+      alert_management_metric_image_uploads_registry_count:
+        type: string
+      alert_management_metric_image_uploads_verification_total_count:
+        type: string
+      alert_management_metric_image_uploads_verified_count:
+        type: string
+      alert_management_metric_image_uploads_verification_failed_count:
+        type: string
+      alert_management_metric_image_uploads_oldest_unsynced_time:
+        type: string
       vulnerability_archive_export_uploads_count:
         type: string
       vulnerability_archive_export_uploads_checksum_total_count:
@@ -74961,6 +74983,10 @@ definitions:
         type: string
       vulnerability_export_part_uploads_verified_in_percentage:
         type: string
+      alert_management_metric_image_uploads_synced_in_percentage:
+        type: string
+      alert_management_metric_image_uploads_verified_in_percentage:
+        type: string
       vulnerability_archive_export_uploads_synced_in_percentage:
         type: string
       vulnerability_archive_export_uploads_verified_in_percentage:
@@ -75319,6 +75345,17 @@ definitions:
     - vulnerability_export_part_uploads_verified_count
     - vulnerability_export_part_uploads_verification_failed_count
     - vulnerability_export_part_uploads_oldest_unsynced_time
+    - alert_management_metric_image_uploads_count
+    - alert_management_metric_image_uploads_checksum_total_count
+    - alert_management_metric_image_uploads_checksummed_count
+    - alert_management_metric_image_uploads_checksum_failed_count
+    - alert_management_metric_image_uploads_synced_count
+    - alert_management_metric_image_uploads_failed_count
+    - alert_management_metric_image_uploads_registry_count
+    - alert_management_metric_image_uploads_verification_total_count
+    - alert_management_metric_image_uploads_verified_count
+    - alert_management_metric_image_uploads_verification_failed_count
+    - alert_management_metric_image_uploads_oldest_unsynced_time
     - vulnerability_archive_export_uploads_count
     - vulnerability_archive_export_uploads_checksum_total_count
     - vulnerability_archive_export_uploads_checksummed_count
@@ -75523,6 +75560,8 @@ definitions:
     - issuable_metric_image_uploads_verified_in_percentage
     - vulnerability_export_part_uploads_synced_in_percentage
     - vulnerability_export_part_uploads_verified_in_percentage
+    - alert_management_metric_image_uploads_synced_in_percentage
+    - alert_management_metric_image_uploads_verified_in_percentage
     - vulnerability_archive_export_uploads_synced_in_percentage
     - vulnerability_archive_export_uploads_verified_in_percentage
     - vulnerability_export_uploads_synced_in_percentage

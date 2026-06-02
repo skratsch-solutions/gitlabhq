@@ -7,7 +7,7 @@ import {
   CONTRIBUTOR_METRICS,
   PIPELINE_ANALYTICS_METRICS,
   UNITS,
-} from '~/analytics/shared/constants';
+} from '../shared/constants';
 
 export const TREND_STYLE_ASC = 'ASC';
 export const TREND_STYLE_DESC = 'DESC';

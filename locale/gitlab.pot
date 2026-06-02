@@ -33096,6 +33096,12 @@ msgstr ""
 msgid "Geo|Add site"
 msgstr ""
 
+msgid "Geo|Alert Management Metric Image Upload"
+msgstr ""
+
+msgid "Geo|Alert Management Metric Image Uploads"
+msgstr ""
+
 msgid "Geo|All"
 msgstr ""
 
@@ -44750,6 +44756,9 @@ msgstr ""
 msgid "MemberRole|Infrastructure as code"
 msgstr ""
 
+msgid "MemberRole|Learn more"
+msgstr ""
+
 msgid "MemberRole|Learn more about %{linkStart}available custom permissions%{linkEnd}."
 msgstr ""
 
@@ -44763,6 +44772,9 @@ msgid "MemberRole|Member role"
 msgstr ""
 
 msgid "MemberRole|Name"
+msgstr ""
+
+msgid "MemberRole|New Security Manager role now available"
 msgstr ""
 
 msgid "MemberRole|New role"
@@ -44913,6 +44925,9 @@ msgid "MemberRole|The Security Manager role is for security team members who nee
 msgstr ""
 
 msgid "MemberRole|The Security Manager role provides comprehensive access to security features, including vulnerability management, security dashboards, policy configuration, and compliance tools. Designed for users who manage security and compliance across your organization. %{linkStart}Learn more.%{linkEnd}"
+msgstr ""
+
+msgid "MemberRole|The Security Manager role provides comprehensive access to security features, including vulnerability management, security dashboards, policy configuration, and compliance tools. Use this role for users who manage security and compliance across your organization."
 msgstr ""
 
 msgid "MemberRole|This member is an LDAP user. Changing their role will override the settings from the LDAP group sync."

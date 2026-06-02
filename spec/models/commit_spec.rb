@@ -854,6 +854,12 @@ TEXT
     end
   end
 
+  describe '#has_agent_session?' do
+    it 'returns false' do
+      expect(commit.has_agent_session?).to be false
+    end
+  end
+
   describe '#draft?' do
     [
       'squash! ', 'fixup! ',

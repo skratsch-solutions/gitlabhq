@@ -146,7 +146,7 @@ class MergeRequestDiffCommit < ApplicationRecord
       )
       .group(:sha)
 
-    relation = relation.where(project_id: project_id) if partition_enabled?(project_id)
+    relation = relation.where(project_id: project_id) if read_new_commits_table?(project_id)
 
     relation
   end
@@ -174,8 +174,11 @@ class MergeRequestDiffCommit < ApplicationRecord
     # rubocop:enable Database/AvoidUsingPluckWithoutLimit
   end
 
-  def self.partition_enabled?(project_id)
-    Feature.enabled?(:merge_request_diff_commits_partition, Project.actor_from_id(project_id))
+  def self.read_new_commits_table?(project_id)
+    actor = Project.actor_from_id(project_id)
+
+    Feature.enabled?(:mr_diff_commits_read_new_table, actor) &&
+      Feature.enabled?(:merge_request_diff_commits_partition, actor)
   end
 
   def self.commit_rows_with_metadata(project_id, merge_request_diff_id, rows)

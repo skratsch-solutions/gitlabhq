@@ -422,7 +422,6 @@ module Geo
           class #{replicable_name_camel} < ::Upload
             include ::Geo::ReplicableModel
             include ::Geo::VerifiableModel
-            extend ::Gitlab::Utils::Override
 
             self.table_name = '#{table_name}'
             self.primary_key = :id
@@ -736,7 +735,6 @@ module Geo
         module Geo
           class #{replicator_class_name} < Gitlab::Geo::Replicator
             include ::Geo::BlobReplicatorStrategy#{upload_model_validation_include}
-            extend ::Gitlab::Utils::Override
 
             def self.model
               #{replicator_model_reference}
@@ -1352,7 +1350,7 @@ module Geo
 
         FactoryBot.define do
           factory :geo_#{replicable_name}_state, class: 'Geo::#{state_class_name}' do
-            #{replicable_name}
+            geo_#{replicable_name}
 
             trait :checksummed do
               verification_checksum { 'abc' }

@@ -295,4 +295,22 @@ RSpec.describe Gitlab::Git::Tag, feature_category: :source_code_management do
       it { is_expected.to be_truthy }
     end
   end
+
+  describe '#project' do
+    let(:tag) { repository.tags.first }
+
+    context 'when the container is a Project' do
+      it 'returns the project' do
+        expect(tag.project).to eq(project)
+      end
+    end
+
+    context 'when the container is not a Project' do
+      before do
+        allow(tag.repository).to receive(:container).and_return(build(:group))
+      end
+
+      it { expect(tag.project).to be_nil }
+    end
+  end
 end

@@ -333,6 +333,50 @@ RSpec.describe Integrations::GitlabSlackApplication, feature_category: :integrat
         expect(integration).not_to be_upgrade_needed
       end
     end
+
+    context 'when the slack_duo_agent flag is enabled' do
+      before do
+        stub_feature_flags(slack_duo_agent: true)
+      end
+
+      context 'with all_features_supported' do
+        subject(:integration) { create(:gitlab_slack_application_integration, :all_features_supported) }
+
+        it 'is still false (upgrade_needed? is not affected by the flag)' do
+          expect(integration).not_to be_upgrade_needed
+        end
+      end
+
+      context 'without all_features_supported' do
+        subject(:integration) { create(:gitlab_slack_application_integration) }
+
+        it 'is still true (upgrade_needed? is not affected by the flag)' do
+          expect(integration).to be_upgrade_needed
+        end
+      end
+    end
+
+    context 'when the slack_duo_agent flag is disabled' do
+      before do
+        stub_feature_flags(slack_duo_agent: false)
+      end
+
+      context 'with all_features_supported' do
+        subject(:integration) { create(:gitlab_slack_application_integration, :all_features_supported) }
+
+        it 'is false' do
+          expect(integration).not_to be_upgrade_needed
+        end
+      end
+
+      context 'without all_features_supported' do
+        subject(:integration) { create(:gitlab_slack_application_integration) }
+
+        it 'is true' do
+          expect(integration).to be_upgrade_needed
+        end
+      end
+    end
   end
 
   describe '#after_build_from_integration' do

@@ -130,11 +130,12 @@ module Admin
     end
 
     def slack_app_manifest_share
-      redirect_to Slack::Manifest.share_url
+      redirect_to Slack::Manifest.share_url(duo_enabled: duo_enabled_for_manifest?)
     end
 
     def slack_app_manifest_download
-      send_data Slack::Manifest.to_json, type: :json, disposition: 'attachment', filename: 'slack_manifest.json'
+      send_data Slack::Manifest.to_json(duo_enabled: duo_enabled_for_manifest?),
+        type: :json, disposition: 'attachment', filename: 'slack_manifest.json'
     end
 
     private
@@ -142,6 +143,10 @@ module Admin
     def set_application_setting
       @application_setting = ApplicationSetting.current_without_cache
       @plans = Plan.all
+    end
+
+    def duo_enabled_for_manifest?
+      Feature.enabled?(:slack_duo_agent, current_user)
     end
 
     def disable_query_limiting

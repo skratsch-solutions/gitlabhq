@@ -130,7 +130,8 @@ module Users
       # 126 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/227807
       work_items_onboarding_modal: 127,
       duo_panel_empty_state_auto_expanded: 128, # EE-only
-      inline_blame_popover: 129
+      inline_blame_popover: 129,
+      security_manager_role: 130
     }
 
     validates :feature_name,

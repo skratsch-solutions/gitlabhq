@@ -114,15 +114,11 @@ module Gitlab
         def boundary(object, arguments, context, directive)
           return unless directive
 
-          boundary_type = directive.arguments[:boundary_type]
-          procs = @field.owner.try(:granular_token_boundary_procs) || {}
-
           BoundaryExtractor.new(
             object: object,
             arguments: arguments,
             context: context,
-            directive: directive,
-            boundary_proc: procs[boundary_type]
+            directive: directive
           ).extract
         end
 

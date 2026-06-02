@@ -17,8 +17,8 @@ import {
   VISUALIZATION_SLUG_DORA_PROJECTS_COMPARISON,
   VISUALIZATION_SLUG_VSD_DORA_METRICS_TABLE,
   VISUALIZATION_SLUG_VSD_SECURITY_METRICS_TABLE,
-} from '~/analytics/shared/constants';
-import { isEmptyPanelData } from '~/analytics/shared/utils';
+} from '../constants';
+import { isEmptyPanelData } from '../utils';
 
 export default {
   name: 'AnalyticsDashboardPanel',

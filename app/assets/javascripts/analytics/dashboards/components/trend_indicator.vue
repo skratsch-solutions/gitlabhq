@@ -1,6 +1,6 @@
 <script>
 import { GlIcon } from '@gitlab/ui';
-import { UNITS } from '~/analytics/shared/constants';
+import { UNITS } from '../../shared/constants';
 import { formatMetric } from '../utils';
 import { TREND_STYLES, TREND_STYLE_ASC, TREND_STYLE_DESC } from '../constants';
 

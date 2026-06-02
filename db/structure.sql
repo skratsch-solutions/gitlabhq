@@ -4566,6 +4566,22 @@ RETURN NEW;
 END
 $$;
 
+CREATE FUNCTION trigger_c4f5bed67b15() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+IF NEW."project_id" IS NULL THEN
+  SELECT "project_id"
+  INTO NEW."project_id"
+  FROM "alert_management_alert_metric_image_uploads"
+  WHERE "alert_management_alert_metric_image_uploads"."id" = NEW."alert_management_metric_image_upload_id";
+END IF;
+
+RETURN NEW;
+
+END
+$$;
+
 CREATE FUNCTION trigger_c52d215d50a1() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -13986,6 +14002,29 @@ CREATE SEQUENCE alert_management_http_integrations_id_seq
     CACHE 1;
 
 ALTER SEQUENCE alert_management_http_integrations_id_seq OWNED BY alert_management_http_integrations.id;
+
+CREATE TABLE alert_management_metric_image_upload_states (
+    id bigint NOT NULL,
+    verification_started_at timestamp with time zone,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    alert_management_metric_image_upload_id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    verification_state smallint DEFAULT 0 NOT NULL,
+    verification_retry_count smallint DEFAULT 0 NOT NULL,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_59253c7f10 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE alert_management_metric_image_upload_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE alert_management_metric_image_upload_states_id_seq OWNED BY alert_management_metric_image_upload_states.id;
 
 CREATE TABLE allowed_email_domains (
     id bigint NOT NULL,
@@ -35929,6 +35968,8 @@ ALTER TABLE ONLY alert_management_alerts ALTER COLUMN id SET DEFAULT nextval('al
 
 ALTER TABLE ONLY alert_management_http_integrations ALTER COLUMN id SET DEFAULT nextval('alert_management_http_integrations_id_seq'::regclass);
 
+ALTER TABLE ONLY alert_management_metric_image_upload_states ALTER COLUMN id SET DEFAULT nextval('alert_management_metric_image_upload_states_id_seq'::regclass);
+
 ALTER TABLE ONLY allowed_email_domains ALTER COLUMN id SET DEFAULT nextval('allowed_email_domains_id_seq'::regclass);
 
 ALTER TABLE ONLY analytics_cycle_analytics_group_stages ALTER COLUMN id SET DEFAULT nextval('analytics_cycle_analytics_group_stages_id_seq'::regclass);
@@ -38942,6 +38983,9 @@ ALTER TABLE ONLY alert_management_alerts
 
 ALTER TABLE ONLY alert_management_http_integrations
     ADD CONSTRAINT alert_management_http_integrations_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY alert_management_metric_image_upload_states
+    ADD CONSTRAINT alert_management_metric_image_upload_states_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY allowed_email_domains
     ADD CONSTRAINT allowed_email_domains_pkey PRIMARY KEY (id);
@@ -44833,7 +44877,23 @@ CREATE INDEX idx_ai_vec_file_upload_states_pending_verification ON ai_vectorizab
 
 CREATE UNIQUE INDEX idx_ai_vectorizable_file_upload_states_on_upload_id ON ai_vectorizable_file_upload_states USING btree (ai_vectorizable_file_upload_id);
 
+CREATE UNIQUE INDEX idx_alert_management_alert_metric_image_uploads_on_id ON alert_management_alert_metric_image_uploads USING btree (id);
+
 CREATE INDEX idx_alert_management_alerts_on_created_at_project_id_with_issue ON alert_management_alerts USING btree (created_at, project_id) WHERE (issue_id IS NOT NULL);
+
+CREATE INDEX idx_amm_upload_states_failed_verification ON alert_management_metric_image_upload_states USING btree (verification_retry_at NULLS FIRST) WHERE (verification_state = 3);
+
+CREATE INDEX idx_amm_upload_states_needs_verification_id ON alert_management_metric_image_upload_states USING btree (alert_management_metric_image_upload_id) WHERE ((verification_state = 0) OR (verification_state = 3));
+
+CREATE UNIQUE INDEX idx_amm_upload_states_on_amm_upload_id ON alert_management_metric_image_upload_states USING btree (alert_management_metric_image_upload_id);
+
+CREATE INDEX idx_amm_upload_states_on_project_id ON alert_management_metric_image_upload_states USING btree (project_id);
+
+CREATE INDEX idx_amm_upload_states_on_verification_state ON alert_management_metric_image_upload_states USING btree (verification_state);
+
+CREATE INDEX idx_amm_upload_states_pending_verification ON alert_management_metric_image_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
+
+CREATE INDEX idx_amm_upload_states_verification_started ON alert_management_metric_image_upload_states USING btree (alert_management_metric_image_upload_id, verification_started_at) WHERE (verification_state = 1);
 
 CREATE INDEX idx_analytics_devops_adoption_segments_on_namespace_id ON analytics_devops_adoption_segments USING btree (namespace_id);
 
@@ -56139,6 +56199,8 @@ CREATE TRIGGER trigger_c24a252f7b04 BEFORE INSERT OR UPDATE ON design_management
 
 CREATE TRIGGER trigger_c40a5bb7c1c3 BEFORE INSERT OR UPDATE ON bulk_import_export_upload_uploads FOR EACH ROW EXECUTE FUNCTION trigger_c40a5bb7c1c3();
 
+CREATE TRIGGER trigger_c4f5bed67b15 BEFORE INSERT OR UPDATE ON alert_management_metric_image_upload_states FOR EACH ROW EXECUTE FUNCTION trigger_c4f5bed67b15();
+
 CREATE TRIGGER trigger_c52d215d50a1 BEFORE INSERT OR UPDATE ON incident_management_pending_issue_escalations FOR EACH ROW EXECUTE FUNCTION trigger_c52d215d50a1();
 
 CREATE TRIGGER trigger_c59fe6f31e71 BEFORE INSERT OR UPDATE ON security_orchestration_policy_rule_schedules FOR EACH ROW EXECUTE FUNCTION trigger_c59fe6f31e71();
@@ -58116,6 +58178,9 @@ ALTER TABLE ONLY subscription_seat_assignments
 ALTER TABLE ONLY organization_users
     ADD CONSTRAINT fk_8d9b20725d FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY alert_management_metric_image_upload_states
+    ADD CONSTRAINT fk_8d9ee1eb53 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY approval_merge_request_rules_approved_approvers
     ADD CONSTRAINT fk_8dfb93b836 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -59297,6 +59362,9 @@ ALTER TABLE ONLY cd_versions
 
 ALTER TABLE ONLY abuse_report_user_mentions
     ADD CONSTRAINT fk_f4c2b15ef9 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY alert_management_metric_image_upload_states
+    ADD CONSTRAINT fk_f507f261df FOREIGN KEY (alert_management_metric_image_upload_id) REFERENCES alert_management_alert_metric_image_uploads(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY scan_result_policy_violations
     ADD CONSTRAINT fk_f53706dbdd FOREIGN KEY (scan_result_policy_id) REFERENCES scan_result_policies(id) ON DELETE CASCADE;

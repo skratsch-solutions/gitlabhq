@@ -244,9 +244,11 @@ verify-start-workflow-service-assets:
       REGISTRY="registry.gitlab.com"
 
       DUO_CLI_VERSION=$(grep -oP 'DUO_CLI_VERSION\s*=\s*"\K[^"]+' "${SERVICE_FILE}")
-      echo "Checking npm availability of @gitlab/duo-cli@${DUO_CLI_VERSION}..."
-      npm view "@gitlab/duo-cli@${DUO_CLI_VERSION}" version || \
-        { echo "ERROR: @gitlab/duo-cli@${DUO_CLI_VERSION} is not available on the npm registry. Update DUO_CLI_VERSION or publish the package." && exit 1; }
+      DUO_CLI_PROJECT_ID=$(grep -oP 'DUO_CLI_PROJECT_ID\s*=\s*"\K[^"]+' "${SERVICE_FILE}")
+      BINARY_URL="https://gitlab.com/api/v4/projects/${DUO_CLI_PROJECT_ID}/packages/generic/duo-cli/${DUO_CLI_VERSION}/duo-linux-x64"
+      echo "Checking availability of duo-cli binary at ${BINARY_URL}..."
+      curl --fail -sI "${BINARY_URL}" -o /dev/null || \
+        { echo "ERROR: duo-cli binary for version ${DUO_CLI_VERSION} is not available at ${BINARY_URL}. Update DUO_CLI_VERSION or publish the binary." && exit 1; }
 
       check_image() {
         local image_path="$1"

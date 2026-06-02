@@ -47,7 +47,7 @@ False positive detection runs automatically in the following scenarios:
 - The scan detects secrets.
 - GitLab Duo features are enabled for the project.
 
-The analysis runs in the background and results appear in the vulnerability report once processing is complete.
+The analysis runs in the background and results appear in the vulnerability report after processing is complete.
 
 ## Manual trigger
 

@@ -94,11 +94,7 @@ module Gitlab
               append_variable(variables, key: 'CI_COMMIT_TAG_MESSAGE') do
                 next unless git_tag
 
-                if Feature.enabled?(:strip_signature_from_ci_commit_tag_message, pipeline.project)
-                  strip_signature(git_tag.message)
-                else
-                  git_tag.message
-                end
+                strip_signature(git_tag.message)
               end
             end
           end

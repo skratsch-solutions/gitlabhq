@@ -1,4 +1,4 @@
-import { TREND_STYLE_DESC, TREND_STYLE_NONE } from '../../../../dashboards/constants';
+import { TREND_STYLE_DESC, TREND_STYLE_NONE } from '~/analytics/dashboards/constants';
 import DataTable from './data_table.vue';
 import TrendLine from './trend_line.vue';
 

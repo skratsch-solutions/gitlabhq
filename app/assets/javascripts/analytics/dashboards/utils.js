@@ -1,6 +1,6 @@
-import { UNITS } from '~/analytics/shared/constants';
-import { formatBigInt } from '~/analytics/shared/utils';
 import { days, percentHundred, minutes } from '~/lib/utils/unit_format';
+import { UNITS } from '../shared/constants';
+import { formatBigInt } from '../shared/utils';
 
 /**
  * Checks if a string representation of a value contains an

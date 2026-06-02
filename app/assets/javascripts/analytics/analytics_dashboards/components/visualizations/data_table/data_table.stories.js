@@ -1,5 +1,5 @@
 import DashboardLayout from 'storybook_helpers/dashboards/dashboard_layout.vue';
-import { TREND_STYLE_DESC } from '../../../../dashboards/constants';
+import { TREND_STYLE_DESC } from '~/analytics/dashboards/constants';
 import DataTable from './data_table.vue';
 
 export default {

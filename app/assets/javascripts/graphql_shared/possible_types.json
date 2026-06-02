@@ -265,6 +265,7 @@
     "AbuseReportUploadRegistry",
     "AchievementUploadRegistry",
     "AiVectorizableFileUploadRegistry",
+    "AlertManagementMetricImageUploadRegistry",
     "BulkImportExportUploadUploadRegistry",
     "CiSecureFileRegistry",
     "ContainerRepositoryRegistry",

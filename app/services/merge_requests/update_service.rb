@@ -403,7 +403,7 @@ module MergeRequests
     end
 
     def filter_sentinel_values(param)
-      param.reject { _1 == 0 }
+      param.reject { |sentinel| sentinel == 0 }
     end
 
     def trigger_merge_request_status_updated(merge_request)
