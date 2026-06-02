@@ -69620,9 +69620,6 @@ msgstr ""
 msgid "SecurityReports|GitLab Duo resolution"
 msgstr ""
 
-msgid "SecurityReports|Group your vulnerabilities by one of the provided categories. Leave feedback or suggestions in %{feedbackIssueStart}this issue%{feedbackIssueEnd}."
-msgstr ""
-
 msgid "SecurityReports|Has a solution"
 msgstr ""
 
@@ -69716,9 +69713,6 @@ msgid "SecurityReports|Monitor vulnerabilities in your project"
 msgstr ""
 
 msgid "SecurityReports|Monitored projects"
-msgstr ""
-
-msgid "SecurityReports|New feature: Grouping"
 msgstr ""
 
 msgid "SecurityReports|New status must be different than current status."

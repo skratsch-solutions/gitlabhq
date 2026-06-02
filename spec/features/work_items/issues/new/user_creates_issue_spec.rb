@@ -6,8 +6,8 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
   include DropzoneHelper
   include ListboxHelpers
 
-  let_it_be(:project) { create(:project_empty_repo, :public) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:project, freeze: false) { create(:project_empty_repo, :public) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   context "when unauthenticated" do
     before do
@@ -170,7 +170,7 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
     end
 
     context 'form create handles issue creation by default' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
 
       before do
         visit new_project_issue_path(project)
@@ -182,7 +182,7 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
     end
 
     context 'form create handles incident creation' do
-      let_it_be(:project) { create(:project) }
+      let_it_be(:project, freeze: false) { create(:project) }
 
       before do
         visit new_project_issue_path(project, { issuable_template: 'incident', issue: { issue_type: 'incident' } })
@@ -242,7 +242,7 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
   end
 
   context 'when signed in as reporter' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
 
     before_all do
       project.add_reporter(user)
@@ -267,7 +267,7 @@ RSpec.describe "User creates issue", :js, feature_category: :team_planning do
   end
 
   context 'when signed in as a maintainer' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project, freeze: false) { create(:project) }
 
     before_all do
       project.add_maintainer(user)

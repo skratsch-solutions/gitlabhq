@@ -332,6 +332,45 @@ RSpec.describe Ci::CloneJobService, feature_category: :continuous_integration do
         end
       end
 
+      describe 'job source' do
+        context 'when the source is a security policy' do
+          before do
+            create(:ci_build_source, job: job, source: :pipeline_execution_policy)
+            job.reset
+          end
+
+          it 'preserves the policy-origin source on the cloned job', :aggregate_failures do
+            expect(new_job.job_source).to be_present
+            expect(new_job.job_source.source).to eq('pipeline_execution_policy')
+            expect(new_job.job_source.project_id).to eq(project.id)
+            expect(new_job.source).to eq('pipeline_execution_policy')
+          end
+
+          it 'creates a new job source rather than reusing the original' do
+            expect(new_job.job_source).not_to eq(job.job_source)
+          end
+        end
+
+        context 'when the source is the pipeline source' do
+          before do
+            create(:ci_build_source, job: job, source: pipeline.source)
+            job.reset
+          end
+
+          it 'clones the non-policy source' do
+            expect(new_job.job_source.source).to eq(pipeline.source)
+          end
+        end
+
+        context 'when the job has no job source' do
+          it 'does not build a job source and falls back to the pipeline source', :aggregate_failures do
+            expect(job.job_source).to be_nil
+            expect(new_job.job_source).to be_nil
+            expect(new_job.source).to eq(pipeline.source)
+          end
+        end
+      end
+
       context 'when given new job inputs' do
         let(:new_job) do
           described_class

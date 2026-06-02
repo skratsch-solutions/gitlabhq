@@ -309,6 +309,64 @@ RSpec.describe Gitlab::Graphql::Authz::GranularTokenAuthorization, feature_categ
         end
       end
 
+      context 'with a traversal directive' do
+        let(:field) do
+          create_field_with_directive(
+            boundary: 'itself', permissions: ['read_wiki'], boundary_type: 'project', traversal: true
+          )
+        end
+
+        it 'does not call the authorization service and resolves successfully' do
+          expect(::Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)
+
+          expect(resolve).to eq('field_value')
+        end
+
+        it 'verifies the token can read the boundary' do
+          expect(access_token).to receive(:can?).with(:read_boundary, anything).and_return(true)
+
+          resolve
+        end
+
+        context 'when the token has no scope on the boundary' do
+          let_it_be(:other_project) { create(:project, :private) }
+          let(:object) { other_project }
+
+          it 'raises a ResourceNotAvailable 404' do
+            expect { resolve }.to raise_error(
+              Gitlab::Graphql::Errors::ResourceNotAvailable,
+              ::Authz::Tokens::AuthorizeGranularScopesService::NOT_FOUND_MESSAGE
+            )
+          end
+        end
+
+        it 'caches the traversal check by boundary so the token is checked only once' do
+          expect(access_token).to receive(:can?).once.with(:read_boundary, anything).and_return(true)
+
+          resolve
+          resolve
+        end
+
+        context 'when the boundary type is standalone (user or instance)' do
+          %w[user instance].each do |standalone_type|
+            context "when boundary_type is #{standalone_type}" do
+              let(:field) do
+                create_field_with_directive(
+                  boundary: standalone_type, permissions: ['read_wiki'],
+                  boundary_type: standalone_type, traversal: true
+                )
+              end
+
+              it 'falls back to the regular permission check instead of traversal' do
+                expect(::Authz::Tokens::AuthorizeGranularScopesService).to receive(:new).and_call_original
+
+                expect { resolve }.to raise_error(Gitlab::Graphql::Errors::ResourceNotAvailable)
+              end
+            end
+          end
+        end
+      end
+
       context 'with caching' do
         it 'does not call service when cached result exists' do
           expect(::Authz::Tokens::AuthorizeGranularScopesService).not_to receive(:new)

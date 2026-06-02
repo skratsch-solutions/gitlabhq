@@ -477,7 +477,7 @@ RSpec.describe 'Group.runners', feature_category: :fleet_visibility do
       GRAPHQL
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_group, :read_runner] do
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_runner do
       let(:user) { create(:user, owner_of: group) }
       let(:boundary_object) { group }
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }
@@ -536,7 +536,7 @@ RSpec.describe 'Project.runners', feature_category: :fleet_visibility do
       GRAPHQL
     end
 
-    it_behaves_like 'authorizing granular token permissions for GraphQL', [:read_project, :read_runner] do
+    it_behaves_like 'authorizing granular token permissions for GraphQL', :read_runner do
       let(:user) { create(:user, maintainer_of: project) }
       let(:boundary_object) { project }
       let(:request) { post_graphql(query, token: { personal_access_token: pat }) }

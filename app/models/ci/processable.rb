@@ -60,6 +60,7 @@ module Ci
 
     accepts_nested_attributes_for :needs
     accepts_nested_attributes_for :job_definition_instance
+    accepts_nested_attributes_for :job_source
 
     scope :preload_needs, -> { preload(:needs) }
     scope :preload_job_definition_instances, -> { preload(:job_definition_instance) }

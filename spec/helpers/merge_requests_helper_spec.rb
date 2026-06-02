@@ -57,10 +57,12 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
 
     context 'for endpoint_diff_for_path' do
       context 'when sub-group project namespace' do
-        let_it_be(:group) { create(:group, :public) }
-        let_it_be(:subgroup) { create(:group, :private, parent: group) }
+        let_it_be(:group, freeze: false) { create(:group, :public) }
+        let_it_be(:subgroup, freeze: false) { create(:group, :private, parent: group) }
         let_it_be(:project, freeze: false) { create(:project, :private, group: subgroup) }
-        let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+        let_it_be(:merge_request, freeze: false) do
+          create(:merge_request, source_project: project, target_project: project)
+        end
 
         it 'returns expected values' do
           expect(
@@ -212,7 +214,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
 
   describe '#sticky_header_data' do
     let_it_be(:project, freeze: false) { create(:project) }
-    let_it_be(:draft_merge_request) { create(:merge_request, :opened, :draft_merge_request) }
+    let_it_be(:draft_merge_request, freeze: false) { create(:merge_request, :opened, :draft_merge_request) }
     let(:imported_merge_request) do
       create(:merge_request, source_project: project, target_project: project, imported_from: imported_from)
     end
@@ -275,7 +277,7 @@ RSpec.describe MergeRequestsHelper, feature_category: :code_review_workflow do
       create(:merge_request, author: author, source_project: project, source_branch: generate(:branch))
     end
 
-    let_it_be(:public_project) { create(:project, :small_repo, :public) }
+    let_it_be(:public_project, freeze: false) { create(:project, :small_repo, :public) }
     let(:project) { public_project }
     let(:forked_project) { fork_project(project) }
     let(:author) { project.creator }

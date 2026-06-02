@@ -77,7 +77,7 @@ module Users
       # 74 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/132751
       # 75 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/221970
       security_policy_protected_branch_modification: 76, # EE-only
-      vulnerability_report_grouping: 77, # EE-only
+      # 77 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238671
       # 78 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/161010,
       # 79 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143862
       # 80 removed in https://gitlab.com/gitlab-org/gitlab/-/merge_requests/224957

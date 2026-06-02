@@ -10,7 +10,7 @@ RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_
     subject(:execute) { described_class.new(invite_emails).execute }
 
     context 'when the invite_email is the same case as the user email' do
-      let_it_be(:invited_member) do
+      let_it_be(:invited_member, freeze: false) do
         create(:project_member, :invited, invite_email: user.email)
       end
 
@@ -20,11 +20,11 @@ RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_
     end
 
     context 'when there is a non-lowercased private commit email' do
-      let_it_be(:invite_emails) do
+      let_it_be(:invite_emails, freeze: false) do
         ["#{user.id}-BOBBY_TABLES@#{Gitlab::CurrentSettings.current_application_settings.commit_email_hostname}"]
       end
 
-      let_it_be(:invited_member) do
+      let_it_be(:invited_member, freeze: false) do
         create(:project_member, :invited, invite_email: invite_emails.first)
       end
 
@@ -38,7 +38,7 @@ RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_
     end
 
     context 'when the invite has already been accepted' do
-      let_it_be(:invited_member) do
+      let_it_be(:invited_member, freeze: false) do
         create(:project_member, :invited, invite_email: user.email)
       end
 
@@ -50,7 +50,7 @@ RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_
     end
 
     context 'when the invite_email is a different case than the user email' do
-      let_it_be(:upper_case_existing_invite) do
+      let_it_be(:upper_case_existing_invite, freeze: false) do
         create(:project_member, :invited, invite_email: user.email.upcase)
       end
 
@@ -61,7 +61,7 @@ RSpec.describe Members::PendingInvitationsFinder, feature_category: :groups_and_
 
     context 'with an uppercase version of the email matches another member' do
       let_it_be(:project_member_invite, freeze: false) { create(:project_member, :invited, invite_email: user.email) }
-      let_it_be(:upper_case_existing_invite) do
+      let_it_be(:upper_case_existing_invite, freeze: false) do
         create(:project_member, :invited, source: project_member_invite.project, invite_email: user.email.upcase)
       end
 

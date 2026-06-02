@@ -732,7 +732,6 @@ RSpec/ContextWording:
     - 'spec/components/pajamas/banner_component_spec.rb'
     - 'spec/components/pajamas/spinner_component_spec.rb'
     - 'spec/config/object_store_settings_spec.rb'
-    - 'spec/constraints/authz/admin_constraint_spec.rb'
     - 'spec/constraints/namespaces/group_url_constraint_spec.rb'
     - 'spec/constraints/projects/project_url_constraint_spec.rb'
     - 'spec/constraints/users/user_url_constraint_spec.rb'

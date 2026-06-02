@@ -388,7 +388,7 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
     end
 
     context 'when one repository has null started_at and another has a past started_at' do
-      let_it_be(:never_processed_repository) { create(:container_repository) }
+      let_it_be(:never_processed_repository, freeze: false) { create(:container_repository) }
 
       before do
         policy.update!(next_run_at: 5.minutes.ago)
@@ -402,7 +402,7 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
     end
 
     context 'with another repository in cleanup unfinished state' do
-      let_it_be(:another_repository) { create(:container_repository, :cleanup_unfinished) }
+      let_it_be(:another_repository, freeze: false) { create(:container_repository, :cleanup_unfinished) }
 
       before do
         policy.update_column(:next_run_at, 5.minutes.ago)
@@ -516,7 +516,7 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
     end
 
     context 'with container repositories waiting for cleanup' do
-      let_it_be(:unfinished_repositories) { create_list(:container_repository, 2, :cleanup_unfinished) }
+      let_it_be(:unfinished_repositories, freeze: false) { create_list(:container_repository, 2, :cleanup_unfinished) }
 
       it { is_expected.to eq(3) }
     end

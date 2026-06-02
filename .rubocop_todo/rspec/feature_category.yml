@@ -645,7 +645,6 @@ RSpec/FeatureCategory:
     - 'spec/config/object_store_settings_spec.rb'
     - 'spec/config/smime_signature_settings_spec.rb'
     - 'spec/config/upgrade_path_spec.rb'
-    - 'spec/constraints/authz/admin_constraint_spec.rb'
     - 'spec/constraints/integrations/jira_encoded_url_constraint_spec.rb'
     - 'spec/constraints/namespaces/group_url_constraint_spec.rb'
     - 'spec/constraints/projects/project_url_constraint_spec.rb'

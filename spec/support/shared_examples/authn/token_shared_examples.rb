@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'token handling with unsupported token type' do
   context 'with unsupported token type' do
-    let_it_be(:plaintext) { 'unsupported' }
+    let_it_be(:plaintext, freeze: false) { 'unsupported' }
 
     describe '#initialize' do
       it 'is nil when the token type is not supported' do
@@ -79,7 +79,7 @@ end
 
 RSpec.shared_examples 'contains instance prefix when enabled' do
   context 'with default instance prefix' do
-    let_it_be(:instance_prefix) { 'instanceprefix' }
+    let_it_be(:instance_prefix, freeze: false) { 'instanceprefix' }
 
     before do
       stub_application_setting(instance_token_prefix: instance_prefix)
@@ -95,7 +95,7 @@ RSpec.shared_examples 'contains instance prefix when enabled' do
   end
 
   context 'with custom instance prefix' do
-    let_it_be(:instance_prefix) { 'instanceprefix' }
+    let_it_be(:instance_prefix, freeze: false) { 'instanceprefix' }
 
     before do
       stub_application_setting(instance_token_prefix: instance_prefix)

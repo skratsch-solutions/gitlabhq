@@ -295,6 +295,10 @@ namespaces_prune_aggregation_schedules_worker:
   class: Namespaces::PruneAggregationSchedulesWorker
   cron: "5 1 * * *"
 
+namespaces_stuck_transfers_cancel_cron_worker:
+  class: Namespaces::StuckTransfersCancelCronWorker
+  cron: "*/30 * * * *"
+
 object_storage_delete_stale_direct_uploads_worker:
   class: ObjectStorage::DeleteStaleDirectUploadsWorker
   cron: "*/6 * * * *"

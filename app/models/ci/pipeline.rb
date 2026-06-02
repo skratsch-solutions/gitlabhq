@@ -914,7 +914,11 @@ module Ci
     end
 
     def archived?(log: false)
-      archive_builds_older_than = Gitlab::CurrentSettings.current_application_settings.archive_builds_older_than
+      archive_builds_older_than =
+        if ::Feature.enabled?(:ci_pipeline_archival_setting, project)
+          Gitlab::CurrentSettings.current_application_settings.archive_builds_older_than
+        end
+
       is_archived = archive_builds_older_than.present? && created_at < archive_builds_older_than
 
       if log

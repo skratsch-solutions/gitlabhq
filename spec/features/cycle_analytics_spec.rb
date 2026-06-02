@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'Value Stream Analytics', :js, feature_category: :value_stream_management do
   include CycleAnalyticsHelpers
 
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:guest) { create(:user) }
   let_it_be(:stage_table_selector) { '[data-testid="vsa-stage-table"]' }
   let_it_be(:stage_filter_bar) { '[data-testid="vsa-filter-bar"]' }

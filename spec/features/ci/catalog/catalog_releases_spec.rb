@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'CI/CD Catalog releases', :js, feature_category: :pipeline_composition do
-  let_it_be(:tag_name) { 'v1.0.0' }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:tag_name, freeze: false) { 'v1.0.0' }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be_with_reload(:namespace) { create(:group, owners: user) }
   let_it_be_with_reload(:project) do
     create(
@@ -15,7 +15,7 @@ RSpec.describe 'CI/CD Catalog releases', :js, feature_category: :pipeline_compos
     )
   end
 
-  let_it_be(:draft_catalog_resource) do
+  let_it_be(:draft_catalog_resource, freeze: false) do
     create(:ci_catalog_resource, project: project)
   end
 
@@ -76,7 +76,7 @@ RSpec.describe 'CI/CD Catalog releases', :js, feature_category: :pipeline_compos
   end
 
   describe 'when a resource has multiple releases' do
-    let_it_be(:project_with_components) do
+    let_it_be(:project_with_components, freeze: false) do
       create(
         :project,
         :catalog_resource_with_components,
@@ -85,19 +85,19 @@ RSpec.describe 'CI/CD Catalog releases', :js, feature_category: :pipeline_compos
       )
     end
 
-    let_it_be(:ci_resource) do
+    let_it_be(:ci_resource, freeze: false) do
       create(:ci_catalog_resource, :published, project: project_with_components)
     end
 
-    let_it_be(:old_tag_name) { 'v0.5.0' }
-    let_it_be(:new_tag_name) { 'v1.0.0' }
+    let_it_be(:old_tag_name, freeze: false) { 'v0.5.0' }
+    let_it_be(:new_tag_name, freeze: false) { 'v1.0.0' }
 
-    let_it_be(:release_1) do
+    let_it_be(:release_1, freeze: false) do
       create(:release, :with_catalog_resource_version, project: project_with_components, tag: old_tag_name,
         author: user)
     end
 
-    let_it_be(:release_2) do
+    let_it_be(:release_2, freeze: false) do
       create(:release, :with_catalog_resource_version, project: project_with_components, tag: new_tag_name,
         author: user)
     end

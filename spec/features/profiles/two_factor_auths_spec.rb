@@ -64,7 +64,7 @@ RSpec.describe 'Password and authentication', feature_category: :system_access d
       end
 
       context 'when two factor is enforced for administrator users' do
-        let_it_be(:admin) { create(:admin) }
+        let_it_be(:admin, freeze: false) { create(:admin) }
 
         before do
           stub_application_setting(require_admin_two_factor_authentication: require_admin_two_factor_authentication)

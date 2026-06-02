@@ -1126,6 +1126,16 @@
   :idempotent: false
   :tags: []
   :queue_namespace: :cronjob
+- :name: cronjob:namespaces_stuck_transfers_cancel_cron
+  :worker_name: Namespaces::StuckTransfersCancelCronWorker
+  :feature_category: :groups_and_projects
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
+  :tags: []
+  :queue_namespace: :cronjob
 - :name: cronjob:object_storage_delete_stale_direct_uploads
   :worker_name: ObjectStorage::DeleteStaleDirectUploadsWorker
   :feature_category: :job_artifacts
@@ -2521,6 +2531,16 @@
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: false
+  :tags: []
+  :queue_namespace: :package_repositories
+- :name: package_repositories:packages_rubygems_create_spec_files
+  :worker_name: Packages::Rubygems::CreateSpecFilesWorker
+  :feature_category: :package_registry
+  :has_external_dependencies: false
+  :urgency: :low
+  :resource_boundary: :memory
+  :weight: 1
+  :idempotent: true
   :tags: []
   :queue_namespace: :package_repositories
 - :name: package_repositories:packages_rubygems_extraction
