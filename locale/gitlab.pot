@@ -44810,6 +44810,9 @@ msgstr ""
 msgid "MemberRole|Secrets management"
 msgstr ""
 
+msgid "MemberRole|Security Manager role now available"
+msgstr ""
+
 msgid "MemberRole|Security asset inventories"
 msgstr ""
 
@@ -44883,6 +44886,9 @@ msgid "MemberRole|The Reporter role is suitable for team members who need to sta
 msgstr ""
 
 msgid "MemberRole|The Security Manager role is for security team members who need to view and manage security features for the group or project."
+msgstr ""
+
+msgid "MemberRole|The Security Manager role provides comprehensive access to security features, including vulnerability management, security dashboards, policy configuration, and compliance tools. Designed for users who manage security and compliance across your organization. %{linkStart}Learn more.%{linkEnd}"
 msgstr ""
 
 msgid "MemberRole|This member is an LDAP user. Changing their role will override the settings from the LDAP group sync."

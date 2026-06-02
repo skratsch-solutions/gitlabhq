@@ -3,7 +3,6 @@
  */
 export default {
   files: [
-    'app/assets/javascripts/admin/application_settings/deletion_protection/components/form_group.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/chronic_duration_input.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/expiration_interval_description.vue',
     'app/assets/javascripts/admin/application_settings/runner_token_expiration/components/expiration_intervals.vue',

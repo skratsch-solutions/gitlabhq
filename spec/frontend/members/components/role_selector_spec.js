@@ -1,8 +1,16 @@
-import { GlCollapsibleListbox } from '@gitlab/ui';
+import { GlBadge, GlCollapsibleListbox, GlLink, GlPopover } from '@gitlab/ui';
 import { mountExtended } from 'helpers/vue_test_utils_helper';
+import { ACCESS_LEVEL_SECURITY_MANAGER_STRING } from '~/access_level/constants';
+import { helpPagePath } from '~/helpers/help_page_helper';
+import { visitUrl } from '~/lib/utils/url_utility';
 import { roleDropdownItems } from '~/members/utils';
 import RoleSelector from '~/members/components/role_selector.vue';
 import { member } from '../mock_data';
+
+jest.mock('~/lib/utils/url_utility', () => ({
+  ...jest.requireActual('~/lib/utils/url_utility'),
+  visitUrl: jest.fn().mockName('visitUrlMock'),
+}));
 
 describe('Role selector', () => {
   const dropdownItems = roleDropdownItems(member);
@@ -119,6 +127,61 @@ describe('Role selector', () => {
       const description = findRoleDescription('role-custom-100');
 
       expect(description.exists()).toBe(false);
+    });
+  });
+
+  describe('Security Manager role badge', () => {
+    const securityManagerRole = {
+      value: ACCESS_LEVEL_SECURITY_MANAGER_STRING,
+      text: 'Security Manager',
+      accessLevel: 25,
+    };
+    const guestRole = {
+      value: 'GUEST',
+      text: 'Guest',
+      accessLevel: 10,
+    };
+
+    const findBadge = () => wrapper.findComponent(GlBadge);
+    const findPopover = () => wrapper.findComponent(GlPopover);
+
+    it('renders a "New" badge and popover next to the Security Manager role', () => {
+      const roles = { flatten: [securityManagerRole], formatted: [securityManagerRole] };
+      createWrapper({ roles, value: securityManagerRole });
+
+      const badge = findBadge();
+      expect(badge.exists()).toBe(true);
+      expect(badge.attributes('id')).toBe('security-manager-role-badge');
+      expect(badge.text()).toContain('New');
+
+      const popover = findPopover();
+      expect(popover.exists()).toBe(true);
+      expect(popover.props('target')).toBe('security-manager-role-badge');
+      expect(popover.props('title')).toBe('Security Manager role now available');
+      expect(popover.text()).toContain(
+        'The Security Manager role provides comprehensive access to security features',
+      );
+
+      const learnMoreLink = popover.findComponent(GlLink);
+      expect(learnMoreLink.exists()).toBe(true);
+      expect(learnMoreLink.text()).toBe('Learn more.');
+    });
+
+    it('opens the permissions help page when the popover link is clicked', async () => {
+      const roles = { flatten: [securityManagerRole], formatted: [securityManagerRole] };
+      createWrapper({ roles, value: securityManagerRole });
+
+      await findPopover().findComponent(GlLink).trigger('mousedown');
+
+      expect(visitUrl).toHaveBeenCalledWith(helpPagePath('user/permissions'), true);
+    });
+
+    it('does not render the badge or popover for non-Security-Manager roles', () => {
+      const roles = { flatten: [guestRole], formatted: [guestRole] };
+      createWrapper({ roles, value: guestRole });
+
+      expect(findBadge().exists()).toBe(false);
+      expect(findPopover().exists()).toBe(false);
     });
   });
 });

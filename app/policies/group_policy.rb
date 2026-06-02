@@ -18,7 +18,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   condition(:has_access) { access_level != GroupMember::NO_ACCESS }
 
   condition(:guest) { access_level >= GroupMember::GUEST }
-  condition(:developer) { access_level >= GroupMember::DEVELOPER }
   condition(:maintainer) { access_level >= GroupMember::MAINTAINER }
   condition(:owner) { access_level >= GroupMember::OWNER }
 
@@ -179,10 +178,8 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     enable :read_namespace
     enable :read_upload
     enable :read_group_metadata
-    enable :upload_file
+    enable :read_achievement
   end
-
-  rule { anonymous }.prevent :upload_file
 
   rule { ~achievements_enabled }.policy do
     prevent :read_achievement
@@ -191,18 +188,10 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
     prevent :destroy_user_achievement
   end
 
-  rule { can?(:read_group) }.policy do
-    enable :read_achievement
-  end
-
   rule { ~public_group & ~has_access }.prevent :read_counts
 
   rule { ~can_read_group_member }.policy do
     prevent :read_group_member
-  end
-
-  rule { ~can?(:read_group) }.policy do
-    prevent :read_design_activity
   end
 
   rule { has_access }.enable :read_namespace_via_membership
@@ -227,15 +216,11 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   rule { create_projects_disabled }.policy do
     prevent :create_projects
     prevent :import_projects
+    prevent :transfer_projects
   end
 
   rule { create_subgroup_disabled }.policy do
     prevent :create_subgroup
-  end
-
-  rule { maintainer & can?(:create_projects) }.policy do
-    enable :transfer_projects
-    enable :import_projects
   end
 
   rule { read_package_registry_deploy_token }.policy do

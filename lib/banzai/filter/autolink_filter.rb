@@ -4,8 +4,8 @@ require 'uri'
 
 # This filter handles autolinking when a pipeline does not
 # use the MarkdownFilter, which handles it's own autolinking.
-# This happens in particular for the SingleLinePipeline and the
-# CommitDescriptionPipeline.
+# This happens in particular for the SingleLinePipeline,
+# CommitDescriptionPipeline, and org-mode markup rendering.
 #
 # rubocop:disable Rails/OutputSafety -- this is legacy/unused, no need fixing.
 # rubocop:disable Gitlab/NoCodeCoverageComment -- no coverage needed for a legacy filter
@@ -76,7 +76,8 @@ module Banzai
       def call
         if MarkdownFilter.glfm_markdown?(context) &&
             context[:pipeline] != :single_line &&
-            context[:pipeline] != :commit_description
+            context[:pipeline] != :commit_description &&
+            context[:pipeline] != :org_markup
           return doc
         end
 

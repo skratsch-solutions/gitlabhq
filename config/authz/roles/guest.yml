@@ -98,3 +98,4 @@ group:
   - set_new_work_item_metadata
   - update_saved_view
   - update_saved_view_visibility
+  - upload_file

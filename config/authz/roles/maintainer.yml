@@ -253,6 +253,7 @@ group:
   - read_security_configuration
   - read_work_item_setting
   - start_trial
+  - transfer_projects
   - update_ci_namespace_settings
   - update_cluster
   - update_product_analytics_settings

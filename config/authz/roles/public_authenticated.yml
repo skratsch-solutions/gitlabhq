@@ -62,3 +62,4 @@ group:
   permissions: []
   raw_permissions:
   - request_access
+  - upload_file
