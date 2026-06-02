@@ -20420,11 +20420,13 @@ CREATE TABLE duo_workflows_workflows (
     summary text,
     messaging_callback_context jsonb,
     title text,
+    model_metadata_json text,
     CONSTRAINT check_1033e7a455 CHECK ((char_length(title) <= 40)),
     CONSTRAINT check_13bb5688db CHECK ((char_length(summary) <= 1024)),
     CONSTRAINT check_30ca07a4ef CHECK ((char_length(goal) <= 16384)),
     CONSTRAINT check_3a9162f1ae CHECK ((char_length(image) <= 2048)),
     CONSTRAINT check_73884a5839 CHECK ((num_nonnulls(namespace_id, project_id) = 1)),
+    CONSTRAINT check_e39af3a04c CHECK ((char_length(model_metadata_json) <= 1024)),
     CONSTRAINT check_ec723e2a1a CHECK ((char_length(workflow_definition) <= 255)),
     CONSTRAINT check_workflows_single_noteable CHECK ((num_nonnulls(issue_id, merge_request_id) <= 1))
 );

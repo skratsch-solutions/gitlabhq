@@ -9,6 +9,8 @@ additional_properties:
   property:
     description: the name of the build
 product_group: pipeline_execution
+product_categories:
+- continuous_integration
 milestone: '16.9'
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141421
 tiers:

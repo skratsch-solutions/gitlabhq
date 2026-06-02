@@ -5,10 +5,12 @@ module API
     class Jobs < ::API::Base
       include PaginationParams
       include APIGuard
+      include ::API::Concerns::McpAccess
 
       helpers ::API::Helpers::ProjectStatsRefreshConflictsHelpers
 
       allow_access_with_scope :ai_workflows, if: ->(request) { request.get? || request.head? }
+      allow_mcp_access_read
 
       resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         before { authenticate! }
@@ -96,7 +98,7 @@ module API
         # TODO: We should use `present_disk_file!` and leave this implementation for backward compatibility (when build trace
         #       is saved in the DB instead of file). But before that, we need to consider how to replace the value of
         #       `runners_token` with some mask (like `xxxxxx`) when sending trace file directly by workhorse.
-        desc 'Retrieve a log file for a job' do
+        desc 'Get a trace of a specific job of a project' do
           detail 'Retrieves a log file for a job.'
           success code: 200, model: Entities::Ci::Job
           failure [
@@ -107,6 +109,7 @@ module API
           tags ['ci_jobs']
         end
         params do
+          requires :id, types: [String, Integer], desc: 'The ID or URL-encoded path of the project'
           requires :job_id, type: Integer, desc: 'The ID of a job', documentation: { example: 88 }
           optional :byte_offset, type: Integer, desc: 'Byte offset to start reading from',
             values: 0.., documentation: { example: 0 }
@@ -114,6 +117,7 @@ module API
             values: 1..Gitlab::Ci::Trace::Stream::LIMIT_SIZE, documentation: { example: 51200 }
         end
 
+        route_setting :mcp, tool_name: :get_job_log, params: [:id, :job_id]
         route_setting :authorization, permissions: :read_job, boundary_type: :project
         get ':id/jobs/:job_id/trace', urgency: :low, feature_category: :continuous_integration do
           authorize_read_builds!

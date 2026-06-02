@@ -101,7 +101,7 @@ primary is used to make communication more secure.
        'name' => 'geo_event',
        'url' => 'https://<example.com>/api/v4/container_registry_event/events',
        'timeout' => '500ms',
-       'threshold' => 5,
+       'maxretries' => 5,
        'backoff' => '1s',
        'headers' => {
          'Authorization' => ['<replace_with_a_secret_token>']

@@ -179,6 +179,21 @@ Example:
 Show me all jobs in pipeline 12345 for project gitlab-org/gitlab
 ```
 
+## `get_job_log`
+
+Retrieves the trace (log output) for a specific CI/CD job.
+
+| Parameter | Type    | Required | Description |
+|-----------|---------|----------|-------------|
+| `id`      | string  | Yes      | ID or URL-encoded path of the project. |
+| `job_id`  | integer | Yes      | ID of the job. |
+
+Example:
+
+```plaintext
+Show me the log output for job 88 in project gitlab-org/gitlab
+```
+
 ## `manage_pipeline`
 
 {{< history >}}

@@ -41,6 +41,7 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
 
       expect(tool_names).to include(
         'get_pipeline_jobs',
+        'get_job_log',
         'search',
         'get_issue',
         'create_issue',
@@ -208,7 +209,7 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
       read_only_tools = %w[
         get_mcp_server_version get_issue get_merge_request
         get_merge_request_commits get_merge_request_diffs
-        get_merge_request_pipelines get_pipeline_jobs
+        get_merge_request_pipelines get_pipeline_jobs get_job_log
         get_workitem_notes search search_labels
       ]
 

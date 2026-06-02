@@ -1246,7 +1246,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_369b06dce752"
+              "$ref": "#/components/schemas/RequestBody_6c703c7de3c0"
     get:
       operationId: getApiV4AiDuoWorkflowsWorkflowsIdCheckpoints
       summary: List all workflow checkpoints
@@ -1466,6 +1466,19 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
+      parameters:
+      - name: workflow_id
+        required: false
+        description: The ID of an existing workflow. When provided and the workflow
+          has a stored model selection, that selection is reused to ensure provider
+          stickiness.
+        schema:
+          type: string
+          nullable: true
+        in: query
+        example: '1'
       x-gitlab-lifecycle: experiment
   "/api/v4/ai/duo_workflows/workflows":
     post:
@@ -64665,7 +64678,7 @@ paths:
   "/api/v4/projects/{id}/jobs/{job_id}/trace":
     get:
       operationId: getApiV4ProjectsIdJobsJobIdTrace
-      summary: Retrieve a log file for a job
+      summary: Get a trace of a specific job of a project
       description: Retrieves a log file for a job.
       tags:
       - CI jobs
@@ -64683,6 +64696,14 @@ paths:
         '404':
           description: Not found
       parameters:
+      - name: id
+        required: true
+        description: The ID or URL-encoded path of the project
+        schema:
+          oneOf:
+          - type: string
+          - type: integer
+        in: path
       - name: job_id
         required: true
         description: The ID of a job
@@ -64709,10 +64730,6 @@ paths:
           nullable: true
         in: query
         example: 51200
-      - name: id
-        required: true
-        schema: {}
-        in: path
   "/api/v4/projects/{id}/jobs/{job_id}/cancel":
     post:
       operationId: postApiV4ProjectsIdJobsJobIdCancel
@@ -87159,7 +87176,7 @@ components:
           nullable: true
       required:
       - status_event
-    RequestBody_369b06dce752:
+    RequestBody_6c703c7de3c0:
       type: object
       properties:
         thread_ts:
@@ -87181,6 +87198,10 @@ components:
         metadata:
           type: object
           description: Checkpoint metadata
+          nullable: true
+        model_metadata_json:
+          type: string
+          description: JSON string of the model metadata
           nullable: true
       required:
       - thread_ts

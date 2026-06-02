@@ -80,9 +80,14 @@ class GlobalPolicy < BasePolicy
 
   rule { blocked | internal }.policy do
     prevent :log_in
-    prevent :access_api
     prevent :receive_notifications
     prevent :use_slash_commands
+  end
+
+  # Internal users with :_access_api_as_internal_user (e.g. security policy bots)
+  # are exempt from this prevention.
+  rule { blocked | (internal & ~can?(:_access_api_as_internal_user)) }.policy do
+    prevent :access_api
   end
 
   rule { ~can?(:access_api) }.prevent :execute_graphql_mutation

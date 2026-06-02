@@ -7557,13 +7557,25 @@ msgstr ""
 msgid "AgentArtifacts|AI Item"
 msgstr ""
 
+msgid "AgentArtifacts|Agent can't edit/create files without HITL"
+msgstr ""
+
 msgid "AgentArtifacts|Audit events"
+msgstr ""
+
+msgid "AgentArtifacts|Control:"
 msgstr ""
 
 msgid "AgentArtifacts|Created after"
 msgstr ""
 
 msgid "AgentArtifacts|Created before"
+msgstr ""
+
+msgid "AgentArtifacts|EU AI Act"
+msgstr ""
+
+msgid "AgentArtifacts|EU-AI-14.4: Human Oversight over high-risk artificial intelligence systems."
 msgstr ""
 
 msgid "AgentArtifacts|Failed to load agent artifacts."
@@ -7578,6 +7590,12 @@ msgstr ""
 msgid "AgentArtifacts|Filter agent artifacts"
 msgstr ""
 
+msgid "AgentArtifacts|Framework:"
+msgstr ""
+
+msgid "AgentArtifacts|Go to settings"
+msgstr ""
+
 msgid "AgentArtifacts|No agent artifacts found."
 msgstr ""
 
@@ -7585,6 +7603,9 @@ msgid "AgentArtifacts|No audit events found."
 msgstr ""
 
 msgid "AgentArtifacts|Project"
+msgstr ""
+
+msgid "AgentArtifacts|Requirement:"
 msgstr ""
 
 msgid "AgentArtifacts|Session"
@@ -7600,6 +7621,9 @@ msgid "AgentArtifacts|Start time"
 msgstr ""
 
 msgid "AgentArtifacts|View full session details"
+msgstr ""
+
+msgid "AgentArtifacts|Violation"
 msgstr ""
 
 msgid "AgentPlan|Are you sure you want to delete this workplan? This action cannot be undone."
@@ -27236,6 +27260,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Cancelled"
 msgstr ""
 
+msgid "DuoAgentPlatform|Commit authored in a GitLab Duo Agent session"
+msgstr ""
+
 msgid "DuoAgentPlatform|Completed"
 msgstr ""
 
@@ -27276,6 +27303,9 @@ msgid "DuoAgentPlatform|Flow"
 msgstr ""
 
 msgid "DuoAgentPlatform|Foundational GitLab Duo Flows"
+msgstr ""
+
+msgid "DuoAgentPlatform|GitLab Duo Agent session"
 msgstr ""
 
 msgid "DuoAgentPlatform|Image registry"
@@ -51482,6 +51512,9 @@ msgstr ""
 msgid "Orbit|GitLab Orbit is in beta."
 msgstr ""
 
+msgid "Orbit|GitLab Orbit is not yet available for this namespace. Please try again later."
+msgstr ""
+
 msgid "Orbit|GitLab status"
 msgstr ""
 
@@ -51909,6 +51942,9 @@ msgid "Orbit|Who triggered this pipeline?"
 msgstr ""
 
 msgid "Orbit|WorkItem"
+msgstr ""
+
+msgid "Orbit|You don't have permission to update Orbit for this namespace."
 msgstr ""
 
 msgid "Orbit|You must have the Owner role in a top-level group to turn on Orbit. Ask an owner to turn on Orbit."

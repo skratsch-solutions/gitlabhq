@@ -8,7 +8,5 @@ description: Stores user acceptances of terms of service to track compliance wit
   usage agreements.
 introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/commit/82eeb72c8c03727540b902d40e7e657d0a5ecb4c
 milestone: '10.8'
-gitlab_schema: gitlab_main_user
-sharding_key:
-  user_id: users
+gitlab_schema: gitlab_main_cell_setting
 table_size: small

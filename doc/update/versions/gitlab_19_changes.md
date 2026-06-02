@@ -51,10 +51,24 @@ Before upgrading to GitLab 19.0, review the following:
 - [19.0.0] - [Spamcheck removed from Linux package and GitLab Helm chart](#spamcheck-removed-from-linux-package-and-gitlab-helm-chart) (Linux package, Helm chart)
 - [19.0.0] - [NGINX Ingress replaced by Gateway API with Envoy Gateway](#nginx-ingress-replaced-by-gateway-api-with-envoy-gateway) (Helm chart)
 - [19.0.0] - [Bundled PostgreSQL, Redis, and MinIO removed from GitLab Helm chart](#bundled-postgresql-redis-and-minio-removed-from-gitlab-helm-chart) (Helm chart)
+- [19.0.0 - 19.0.1] - [Geo container repository sync silently skips OCI image index tags](#geo-container-repository-sync-silently-skips-oci-image-index-tags) (Geo)
+- [16.0.0 - 19.0.1] - [Geo design management replication `NoMethodError` when project is `nil`](#geo-design-management-replication-nomethoderror-when-project-is-nil) (Geo)
 
 ## Upgrade notes
 
 Specific upgrade notes for GitLab 19.
+
+### Geo design management replication `NoMethodError` when project is `nil`
+
+- Affects: Geo
+- Affected versions: 16.0.0 - 19.0.1
+
+On Geo secondary sites, a `NoMethodError` could occur during replication of
+design management repositories when the associated project had been deleted,
+leaving an orphaned `DesignManagement::Repository` record. GitLab 19.0.2 corrects
+this issue.
+
+For more information, see [issue 597049](https://gitlab.com/gitlab-org/gitlab/-/issues/597049).
 
 ### PostgreSQL 17 minimum requirement
 
@@ -67,6 +81,36 @@ The minimum supported version of PostgreSQL is now version 17. Before installing
   [upgrade the packaged PostgreSQL server](https://docs.gitlab.com/omnibus/settings/database.html#upgrade-packaged-postgresql-server).
 - If you use an [external PostgreSQL](../../administration/postgresql/external.md) instance,
   upgrade it to PostgreSQL 17.
+
+### Geo container repository sync silently skips OCI image index tags
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+
+{{< /details >}}
+
+- Affects: Geo (container registry)
+- Affected versions:
+
+  | Release | Affected patch releases | Fixed patch level |
+  | ------- | ----------------------- | ----------------- |
+  | 19.0    | 19.0.0 - 19.0.1         | 19.0.2            |
+
+On Geo secondary sites, container repository sync silently skipped tags whose
+manifest is an OCI image index (`application/vnd.oci.image.index.v1+json`).
+Multi-arch images and BuildKit cache tags commonly use this manifest type. No
+error was raised and tag counts matched, but `docker pull` of an affected tag
+from the secondary returned `manifest unknown`. The same root cause also left
+orphan tags on the secondary that sync could not remove.
+
+After you upgrade both the primary and secondary sites to a fixed version, newly
+synced tags are correct. Previously affected repositories converge on their next
+verification cycle, which can take up to the re-verification interval (90 days by
+default). To repair affected repositories immediately,
+[resync the container repositories on the secondary site](../../administration/geo/replication/container_registry.md#manually-trigger-a-container-registry-sync-event).
+
+For more information, see [issue 600486](https://gitlab.com/gitlab-org/gitlab/-/work_items/600486).
 
 ### Linux package support for Ubuntu 20.04 discontinued
 

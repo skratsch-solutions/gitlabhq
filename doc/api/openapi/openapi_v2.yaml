@@ -11524,11 +11524,16 @@ paths:
       operationId: getApiV4ProjectsIdJobsJobId
   "/api/v4/projects/{id}/jobs/{job_id}/trace":
     get:
-      summary: Retrieve a log file for a job
+      summary: Get a trace of a specific job of a project
       description: Retrieves a log file for a job.
       produces:
       - application/json
       parameters:
+      - in: path
+        name: id
+        description: The ID or URL-encoded path of the project
+        type: string
+        required: true
       - in: path
         name: job_id
         description: The ID of a job
@@ -11553,14 +11558,9 @@ paths:
         maximum: 512000
         required: false
         example: 51200
-      - in: path
-        name: id
-        type: integer
-        format: int32
-        required: true
       responses:
         '200':
-          description: Retrieve a log file for a job
+          description: Get a trace of a specific job of a project
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Job"
         '401':

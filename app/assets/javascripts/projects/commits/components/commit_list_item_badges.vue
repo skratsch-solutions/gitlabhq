@@ -1,5 +1,6 @@
 <script>
 import { GlBadge, GlTooltipDirective, GlTruncate } from '@gitlab/ui';
+import AgentSessionBadge from '~/commit/components/agent_session_badge.vue';
 import SignatureBadge from '~/commit/components/signature_badge.vue';
 import CiIcon from '~/vue_shared/components/ci_icon/ci_icon.vue';
 
@@ -8,6 +9,7 @@ export default {
   components: {
     GlBadge,
     GlTruncate,
+    AgentSessionBadge,
     SignatureBadge,
     CiIcon,
   },
@@ -54,6 +56,7 @@ export default {
         :signature="commit.signature"
         class="gl-my-2 !gl-ml-0 gl-h-6"
       />
+      <agent-session-badge v-if="commit.hasAgentSession" />
       <button
         v-if="hasMultipleTags"
         v-gl-tooltip
@@ -83,6 +86,7 @@ export default {
       class="gl-hidden gl-items-center gl-gap-3 @md/panel:gl-flex"
       data-testid="commit-badges-container"
     >
+      <agent-session-badge v-if="commit.hasAgentSession" />
       <button
         v-if="hasMultipleTags"
         v-gl-tooltip
