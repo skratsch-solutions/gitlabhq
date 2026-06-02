@@ -86,6 +86,7 @@ describe('SentryConfig', () => {
               /Request failed with status code \d+/,
               /Response not successful: Received status code \d+/,
               /Request aborted/,
+              /signal is aborted/i,
             ],
             tracePropagationTargets: [/^\//],
             tracesSampleRate: mockSentryClientsideTracesSampleRate,
@@ -463,6 +464,11 @@ describe('SentryConfig', () => {
 
     it('returns true for Request aborted errors', () => {
       const error = new Error('Request aborted');
+      expect(isNonActionableError({}, { originalException: error })).toBe(true);
+    });
+
+    it('returns true for AbortError: signal is aborted without reason (Chromium navigation abort)', () => {
+      const error = new DOMException('signal is aborted without reason', 'AbortError');
       expect(isNonActionableError({}, { originalException: error })).toBe(true);
     });
 
