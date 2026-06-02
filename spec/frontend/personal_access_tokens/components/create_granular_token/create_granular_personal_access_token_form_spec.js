@@ -227,7 +227,7 @@ describe('CreateGranularPersonalAccessTokenForm', () => {
 
       const publicAccessLink = findLinks().at(1);
       expect(publicAccessLink.attributes('href')).toBe(
-        helpPagePath('auth/tokens/fine_grained_access_tokens.md', {
+        helpPagePath('auth/tokens/fine_grained_access_tokens_rest.md', {
           anchor: 'publicly-accessible-endpoints',
         }),
       );

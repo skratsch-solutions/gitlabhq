@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category: :importers do
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let(:tmpdir) { Dir.mktmpdir }
-  let_it_be(:group) { create(:group) }
-  let_it_be(:project) { create(:project, group: group) }
-  let_it_be(:bulk_import) { create(:bulk_import, user: user) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:project, freeze: false) { create(:project, group: group) }
+  let_it_be(:bulk_import, freeze: false) { create(:bulk_import, user: user) }
 
   before_all do
     group.add_owner(user)
@@ -40,7 +40,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       )
     end
 
-    let_it_be(:tracker) do
+    let_it_be(:tracker, freeze: false) do
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 
@@ -114,7 +114,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       )
     end
 
-    let_it_be(:tracker) do
+    let_it_be(:tracker, freeze: false) do
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 
@@ -174,7 +174,7 @@ RSpec.describe BulkImports::Common::Pipelines::MaxIidsPipeline, feature_category
       )
     end
 
-    let_it_be(:tracker) do
+    let_it_be(:tracker, freeze: false) do
       create(:bulk_import_tracker, entity: entity, pipeline_name: described_class.to_s)
     end
 

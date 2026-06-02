@@ -39,7 +39,7 @@ module Gitlab
         end
 
         def load
-          path = Workspace.join(MANIFEST_PATH)
+          path = Workspace.safe_join(MANIFEST_PATH)
           abort Rainbow("ERROR: Manifest not found at #{path}").red unless File.exist?(path)
 
           @data = YAML.safe_load_file(path)
@@ -80,7 +80,7 @@ module Gitlab
         end
 
         def load_frontmatter_data
-          Dir.glob(Workspace.join(PRINCIPLES_DIR, '*.md')).each_with_object({}) do |path, data|
+          Dir.glob(Workspace.safe_join(PRINCIPLES_DIR, '*.md')).each_with_object({}) do |path, data|
             name = File.basename(path, '.md')
             frontmatter = extract_frontmatter(File.read(path))
             next unless frontmatter&.key?('source_checksum')
@@ -184,7 +184,11 @@ module Gitlab
           # Guard file_cache writes from concurrent parallel_distill threads.
           @file_cache_mutex.synchronize do
             file_cache[path] ||= begin
-              full_path = Workspace.join(path)
+              # `path` originates from the manifest YAML; `safe_join` rejects
+              # traversal segments that would escape the workspace. Same
+              # guarantee applies to the other `Workspace.safe_join` callsites
+              # in this gem.
+              full_path = Workspace.safe_join(path)
               if File.exist?(full_path)
                 File.read(full_path)
               else
@@ -228,8 +232,8 @@ module Gitlab
 
           written = []
           [
-            Workspace.join('.agents/skills/gitlab-coding-principles/SKILL.md'),
-            Workspace.join(CLAUDE_SKILL_PATH)
+            Workspace.safe_join('.agents/skills/gitlab-coding-principles/SKILL.md'),
+            Workspace.safe_join(CLAUDE_SKILL_PATH)
           ].each do |path|
             next if File.exist?(path) && File.read(path) == skill_content
 
@@ -261,7 +265,7 @@ module Gitlab
             generated_footer
           ].join("\n")
 
-          agents_path = Workspace.join('AGENTS.md')
+          agents_path = Workspace.safe_join('AGENTS.md')
           return unless File.exist?(agents_path)
 
           content = File.read(agents_path)
@@ -275,7 +279,7 @@ module Gitlab
 
           File.write(agents_path, updated)
 
-          claude_path = Workspace.join('CLAUDE.md')
+          claude_path = Workspace.safe_join('CLAUDE.md')
           File.write(claude_path, updated)
 
           puts "  Updated AGENTS.md and CLAUDE.md (#{principles.size} principles, " \
@@ -288,7 +292,7 @@ module Gitlab
             note = prerequisite_note(name)
             next unless note
 
-            path = Workspace.join(principles_path(name))
+            path = Workspace.safe_join(principles_path(name))
             next unless File.exist?(path)
 
             content = File.read(path)

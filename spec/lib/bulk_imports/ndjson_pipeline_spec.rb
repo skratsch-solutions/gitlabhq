@@ -4,14 +4,14 @@ require 'spec_helper'
 
 RSpec.describe BulkImports::NdjsonPipeline, feature_category: :importers do
   let_it_be(:group, freeze: false) { create(:group) }
-  let_it_be(:project) { create(:project) }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:project, freeze: false) { create(:project) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration, user: user) }
   let_it_be(:entity, freeze: false) { create(:bulk_import_entity, bulk_import: bulk_import, group: group) }
-  let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
+  let_it_be(:tracker, freeze: false) { create(:bulk_import_tracker, entity: entity) }
   let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker, batch_number: 1) }
 
-  let_it_be(:source_user_1) do
+  let_it_be(:source_user_1, freeze: false) do
     create(:import_source_user,
       import_type: ::Import::SOURCE_DIRECT_TRANSFER,
       namespace: group,
@@ -21,7 +21,7 @@ RSpec.describe BulkImports::NdjsonPipeline, feature_category: :importers do
     )
   end
 
-  let_it_be(:source_user_2) do
+  let_it_be(:source_user_2, freeze: false) do
     create(:import_source_user,
       import_type: ::Import::SOURCE_DIRECT_TRANSFER,
       namespace: group,
@@ -31,7 +31,7 @@ RSpec.describe BulkImports::NdjsonPipeline, feature_category: :importers do
     )
   end
 
-  let_it_be(:source_user_reassigned) do
+  let_it_be(:source_user_reassigned, freeze: false) do
     create(:import_source_user, :completed,
       import_type: ::Import::SOURCE_DIRECT_TRANSFER,
       namespace: group,
@@ -40,7 +40,7 @@ RSpec.describe BulkImports::NdjsonPipeline, feature_category: :importers do
     )
   end
 
-  let_it_be(:source_user_placeholder_user) do
+  let_it_be(:source_user_placeholder_user, freeze: false) do
     create(:import_source_user,
       import_type: ::Import::SOURCE_DIRECT_TRANSFER,
       namespace: group,

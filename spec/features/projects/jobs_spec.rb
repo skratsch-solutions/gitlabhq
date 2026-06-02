@@ -723,7 +723,7 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
 
       it 'shows manual action empty state', :js do
         expect(page).to have_content(job.detailed_status(user).illustration[:title])
-        expect(page).to have_content('This job requires a manual action')
+        expect(page).to have_content('This job requires manual action')
         expect(page).to have_content(
           _(
             'This job does not start automatically and must be started manually. ' \
@@ -761,7 +761,7 @@ RSpec.describe 'Jobs', :clean_gitlab_redis_shared_state, feature_category: :grou
         click_link 'Unschedule job'
 
         wait_for_requests
-        expect(page).to have_content('This job requires a manual action')
+        expect(page).to have_content('This job requires manual action')
         expect(page).to have_content(
           _(
             'This job does not start automatically and must be started manually. ' \

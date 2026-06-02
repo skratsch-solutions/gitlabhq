@@ -3,13 +3,13 @@
 require 'spec_helper'
 
 RSpec.describe BulkImports::Pipeline::Context, feature_category: :importers do
-  let_it_be(:user) { create(:user, :admin) }
-  let_it_be(:group) { create(:group) }
-  let_it_be(:bulk_import) { create(:bulk_import, :with_configuration, user: user) }
-  let_it_be(:offline_bulk_import) { create(:bulk_import, :with_offline_configuration, user: user) }
-  let_it_be(:project) { create(:project) }
-  let_it_be(:project_entity) { create(:bulk_import_entity, :project_entity, project: project) }
-  let_it_be(:project_tracker) { create(:bulk_import_tracker, entity: project_entity) }
+  let_it_be(:user, freeze: false) { create(:user, :admin) }
+  let_it_be(:group, freeze: false) { create(:group) }
+  let_it_be(:bulk_import, freeze: false) { create(:bulk_import, :with_configuration, user: user) }
+  let_it_be(:offline_bulk_import, freeze: false) { create(:bulk_import, :with_offline_configuration, user: user) }
+  let_it_be(:project, freeze: false) { create(:project) }
+  let_it_be(:project_entity, freeze: false) { create(:bulk_import_entity, :project_entity, project: project) }
+  let_it_be(:project_tracker, freeze: false) { create(:bulk_import_tracker, entity: project_entity) }
 
   let_it_be_with_reload(:entity) do
     create(

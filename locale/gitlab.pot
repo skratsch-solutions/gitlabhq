@@ -76337,7 +76337,7 @@ msgstr ""
 msgid "This job ran in %{environmentLink}."
 msgstr ""
 
-msgid "This job requires a manual action"
+msgid "This job requires manual action"
 msgstr ""
 
 msgid "This job runs in %{environmentLink} using cluster %{clusterNameOrLink} and namespace %{kubernetesNamespace}."

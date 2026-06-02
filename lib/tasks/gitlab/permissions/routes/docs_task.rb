@@ -5,8 +5,9 @@ module Tasks
     module Permissions
       module Routes
         class DocsTask
+          include ::Tasks::Gitlab::Permissions::MarkdownTable
+
           REQUEST_METHOD_SORT_ORDER = { GET: 0, POST: 1, PATCH: 2, PUT: 3, HEAD: 4, DELETE: 5 }.freeze
-          BOUNDARY_SORT_ORDER = { project: 0, group: 1, user: 2, instance: 3 }.freeze
           REASON_LABELS = SkipReasons::REASON_LABELS
 
           def initialize
@@ -15,7 +16,7 @@ module Tasks
             @skipped_routes = all_routes.select do |r|
               r.settings.dig(:authorization, :skip_granular_token_authorization)
             end
-            @doc_path = Rails.root.join('doc/auth/tokens/fine_grained_access_tokens.md')
+            @doc_path = Rails.root.join('doc/auth/tokens/fine_grained_access_tokens_rest.md')
             @template_path =
               Rails.root.join('tooling/authz/permissions/docs/templates/granular_pat_rest_api_endpoints.md.erb')
           end
@@ -177,28 +178,6 @@ module Tasks
 
           def route_path(route)
             route.origin.delete_prefix('/api/:version')
-          end
-
-          def markdown_row(row)
-            "| #{row.join(' | ')} |"
-          end
-
-          def build_table(header)
-            table = []
-            table << markdown_row(header)
-            table << markdown_row(header.map { |item| '-' * item.length })
-            table += yield
-            table.join("\n")
-          end
-
-          def build_section(title, description, routes)
-            subsections = routes.map.with_index do |(subsection, subsection_routes), index|
-              subsection = yield(subsection, subsection_routes)
-              subsection += "\n" unless index == routes.size - 1
-              subsection
-            end.join("\n")
-
-            [title, description, subsections].compact.join("\n")
           end
 
           def build_route_row(base_columns, route)

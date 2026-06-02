@@ -13321,6 +13321,7 @@ CREATE TABLE ai_catalog_item_versions (
     created_by_id bigint,
     yaml_definition_file text,
     yaml_definition_file_store smallint DEFAULT 1 NOT NULL,
+    deprecated boolean DEFAULT false NOT NULL,
     CONSTRAINT check_481086fa5c CHECK ((char_length(yaml_definition_file) <= 255)),
     CONSTRAINT check_8cabb46fa3 CHECK ((char_length(version) <= 50))
 );

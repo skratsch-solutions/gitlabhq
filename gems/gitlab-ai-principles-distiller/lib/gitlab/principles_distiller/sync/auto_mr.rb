@@ -57,7 +57,7 @@ module Gitlab
           # Writes deferred to here so the publish branch is the only diff.
           paths_to_commit = distilled_contents.map do |name, content|
             path = manifest.principles_path(name)
-            File.write(Workspace.join(path), content)
+            File.write(Workspace.safe_join(path), content)
             path
           end
 

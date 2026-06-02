@@ -101,7 +101,7 @@ module Gitlab
       private
 
       def load_distillation_prompt
-        path = Workspace.join(PROMPT_PATH)
+        path = Workspace.safe_join(PROMPT_PATH)
         abort Rainbow("ERROR: prompt not found at #{path}").red unless File.exist?(path)
 
         content = File.read(path)

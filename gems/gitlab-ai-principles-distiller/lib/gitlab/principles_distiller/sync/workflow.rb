@@ -179,7 +179,7 @@ module Gitlab
         # file exists on disk before triggering the workflow.
         def validate_sources!(config)
           config.fetch('sources', []).each do |source|
-            full_path = Workspace.join(source['path'])
+            full_path = Workspace.safe_join(source['path'])
             next if File.exist?(full_path) || File.exist?(full_path.sub(/(\.md)$/, '/_index.md'))
 
             raise "SSOT source file not found: #{source['path']} — " \

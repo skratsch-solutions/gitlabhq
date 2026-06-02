@@ -7,8 +7,8 @@ RSpec.describe API::Entities::Tag, feature_category: :source_code_management do
     subject { entity.as_json }
 
     let_it_be(:project, freeze: false) { create(:project, :public, :repository) }
-    let_it_be(:repository) { project.repository }
-    let_it_be(:user) { create(:user) }
+    let_it_be(:repository, freeze: false) { project.repository }
+    let_it_be(:user, freeze: false) { create(:user) }
 
     let(:tag) { repository.find_tag('v1.0.0') }
     let(:releases) { nil }

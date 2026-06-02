@@ -14,7 +14,7 @@ RSpec.describe Gitlab::BitbucketServerImport::Importers::PullRequestsImporter, :
     )
   end
 
-  let_it_be(:repository) { project.repository }
+  let_it_be(:repository, freeze: false) { project.repository }
 
   subject(:importer) { described_class.new(project) }
 
@@ -166,7 +166,7 @@ RSpec.describe Gitlab::BitbucketServerImport::Importers::PullRequestsImporter, :
       end
 
       context 'when a commit already exists' do
-        let_it_be(:commit_sha) do
+        let_it_be(:commit_sha, freeze: false) do
           create_file_in_repo(project, 'master', 'master', 'test.txt', 'testing')[:result]
         end
 

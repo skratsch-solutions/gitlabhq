@@ -321,9 +321,12 @@ export default {
     ),
   },
   fineGrainedTokensDocPath: helpPagePath('auth/tokens/fine_grained_access_tokens.md'),
-  publiclyAccessibleEndpointsDocPath: helpPagePath('auth/tokens/fine_grained_access_tokens.md', {
-    anchor: 'publicly-accessible-endpoints',
-  }),
+  publiclyAccessibleEndpointsDocPath: helpPagePath(
+    'auth/tokens/fine_grained_access_tokens_rest.md',
+    {
+      anchor: 'publicly-accessible-endpoints',
+    },
+  ),
   MAX_NAME_LENGTH,
   MAX_DESCRIPTION_LENGTH,
 };

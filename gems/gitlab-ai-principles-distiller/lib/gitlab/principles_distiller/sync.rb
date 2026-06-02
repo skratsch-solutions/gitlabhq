@@ -91,7 +91,7 @@ module Gitlab
         results, failed = build_distilled_contents(affected, rewrite: rewrite)
         results.each do |name, content|
           path = manifest.principles_path(name)
-          File.write(Workspace.join(path), content)
+          File.write(Workspace.safe_join(path), content)
           puts "  #{name}: #{Rainbow("updated and written to #{path}").green}"
         end
 
@@ -137,7 +137,7 @@ module Gitlab
       def announce_distillation_start(name, mutex)
         log = ->(msg) { mutex ? mutex.synchronize { puts msg } : puts(msg) }
 
-        if File.exist?(Workspace.join(manifest.principles_path(name)))
+        if File.exist?(Workspace.safe_join(manifest.principles_path(name)))
           log.call(Rainbow("  #{name}: distilling (existing file found)...").faint)
         else
           log.call(Rainbow("  #{name}: no existing file — regenerating from scratch...").yellow)
@@ -305,7 +305,7 @@ module Gitlab
       # Returns the distilled file content stripped of its YAML frontmatter,
       # or nil if no file exists yet.
       def read_principles_file(name)
-        path = Workspace.join(manifest.principles_path(name))
+        path = Workspace.safe_join(manifest.principles_path(name))
         return unless File.exist?(path)
 
         manifest.strip_frontmatter(File.read(path))

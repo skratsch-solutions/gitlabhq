@@ -20,24 +20,36 @@ RSpec.describe 'gitlab:permissions rake tasks', :silence_stdout, feature_categor
       routes_validate_task = stub_task_initialization(Tasks::Gitlab::Permissions::Routes::ValidateTask)
       graphql_validate_task = stub_task_initialization(Tasks::Gitlab::Permissions::Graphql::ValidateTask)
       routes_docs_task = stub_task_initialization(Tasks::Gitlab::Permissions::Routes::DocsTask)
+      graphql_docs_task = stub_task_initialization(Tasks::Gitlab::Permissions::Graphql::DocsTask)
 
       expect(validate_task).to receive(:run)
       expect(assignable_validate_task).to receive(:run)
       expect(routes_validate_task).to receive(:run)
       expect(graphql_validate_task).to receive(:run)
       expect(routes_docs_task).to receive(:check_docs)
+      expect(graphql_docs_task).to receive(:check_docs)
 
       run_rake_task('gitlab:permissions:validate')
     end
   end
 
-  describe 'compile_docs' do
+  describe 'routes:compile_docs' do
     it 'invokes Gitlab::Permissions::Routes::DocsTask' do
       task = stub_task_initialization(Tasks::Gitlab::Permissions::Routes::DocsTask)
 
       expect(task).to receive(:compile_docs)
 
       run_rake_task('gitlab:permissions:routes:compile_docs')
+    end
+  end
+
+  describe 'graphql:compile_docs' do
+    it 'invokes Gitlab::Permissions::Graphql::DocsTask' do
+      task = stub_task_initialization(Tasks::Gitlab::Permissions::Graphql::DocsTask)
+
+      expect(task).to receive(:compile_docs)
+
+      run_rake_task('gitlab:permissions:graphql:compile_docs')
     end
   end
 end
