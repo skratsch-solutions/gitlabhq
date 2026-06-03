@@ -90,7 +90,8 @@ RSpec.describe Git::BranchPushService, :use_clean_rails_redis_caching, :services
           checkout_sha: SeedRepo::Commit::ID,
           variables_attributes: [],
           push_options: nil,
-          gitaly_context: nil
+          gitaly_context: nil,
+          pipeline_creation_request: nil
         }
       ).and_call_original
 

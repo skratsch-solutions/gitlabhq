@@ -157,7 +157,27 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
         pipeline
 
         expect(Ci::TrackPipelineTriggerEventsWorker).to have_received(:perform_async).with(
-          'Ci::PipelineCreatedEvent', { 'pipeline_id' => pipeline.id, 'partition_id' => pipeline.partition_id })
+          'Ci::PipelineCreatedEvent', {
+            'pipeline_id' => pipeline.id,
+            'partition_id' => pipeline.partition_id
+          }
+        )
+      end
+
+      it 'includes pipeline_creation_request in PipelineCreatedEvent when provided' do
+        creation_request = { 'key' => 'request-key', 'id' => 'request-id' }
+
+        allow(Ci::TrackPipelineTriggerEventsWorker).to receive(:perform_async)
+
+        execute_service(pipeline_creation_request: creation_request)
+
+        expect(Ci::TrackPipelineTriggerEventsWorker).to have_received(:perform_async).with(
+          'Ci::PipelineCreatedEvent', {
+            'pipeline_id' => kind_of(Integer),
+            'partition_id' => kind_of(Integer),
+            'pipeline_creation_request' => creation_request
+          }
+        )
       end
 
       it 'records pipeline size in a prometheus histogram' do
@@ -1465,7 +1485,10 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
               pipeline
 
               expect(MergeRequests::UpdateHeadPipelineWorker).to have_received(:perform_async).with(
-                'Ci::PipelineCreatedEvent', { 'pipeline_id' => pipeline.id, 'partition_id' => pipeline.partition_id })
+                'Ci::PipelineCreatedEvent', {
+                  'pipeline_id' => pipeline.id,
+                  'partition_id' => pipeline.partition_id
+                })
             end
 
             context 'when target sha is specified' do
@@ -1861,6 +1884,61 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
         end
       end
 
+      context 'when the pipeline is filtered as empty' do
+        let(:config) do
+          {
+            test: {
+              script: 'ls',
+              rules: [{ if: "$CI_PIPELINE_SOURCE == 'nonexistent_source'" }]
+            }
+          }
+        end
+
+        context 'when track_ref_pipeline_creation feature flag is enabled' do
+          before do
+            stub_feature_flags(track_ref_pipeline_creation: true)
+          end
+
+          it 'updates the status with `filtered`' do
+            creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+
+            execute_service(
+              merge_request: merge_request, pipeline_creation_request: creation_request, source: :merge_request_event
+            )
+
+            filtered_request = ::Ci::PipelineCreation::Requests.hget(creation_request)
+            expect(filtered_request['status']).to eq(::Ci::PipelineCreation::Requests::FILTERED)
+          end
+
+          it 'triggers GraphQL subscription for the merge request' do
+            creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+
+            expect(GraphqlTriggers).to receive(:ci_pipeline_creation_requests_updated).with(merge_request)
+
+            execute_service(
+              merge_request: merge_request, pipeline_creation_request: creation_request, source: :merge_request_event
+            )
+          end
+        end
+
+        context 'when track_ref_pipeline_creation feature flag is disabled' do
+          before do
+            stub_feature_flags(track_ref_pipeline_creation: false)
+          end
+
+          it 'updates the status with `failed` instead of `filtered`' do
+            creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+
+            execute_service(
+              merge_request: merge_request, pipeline_creation_request: creation_request, source: :merge_request_event
+            )
+
+            request_data = ::Ci::PipelineCreation::Requests.hget(creation_request)
+            expect(request_data['status']).to eq(::Ci::PipelineCreation::Requests::FAILED)
+          end
+        end
+      end
+
       context 'when merge_request is not present' do
         it 'does not trigger GraphQL subscription' do
           creation_request = ::Ci::PipelineCreation::Requests.start_for_project(project)
@@ -1906,32 +1984,72 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
         context 'when the pipeline creation fails' do
           let_it_be_with_reload(:user) { create(:user) }
 
-          it 'does not update the pipeline creation request status' do
-            creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+          context 'when track_ref_pipeline_creation feature flag is enabled' do
+            before do
+              stub_feature_flags(track_ref_pipeline_creation: true)
+            end
 
-            execute_service(
-              merge_request: merge_request,
-              pipeline_creation_request: creation_request,
-              defer_request_completion: true,
-              source: :merge_request_event
-            )
+            it 'updates the pipeline creation request status because pipeline was not persisted' do
+              creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
 
-            request_data = ::Ci::PipelineCreation::Requests.hget(creation_request)
-            expect(request_data['status']).to eq(::Ci::PipelineCreation::Requests::IN_PROGRESS)
-            expect(request_data['error']).to be_nil
+              execute_service(
+                merge_request: merge_request,
+                pipeline_creation_request: creation_request,
+                defer_request_completion: true,
+                source: :merge_request_event
+              )
+
+              request_data = ::Ci::PipelineCreation::Requests.hget(creation_request)
+              expect(request_data['status']).to eq(::Ci::PipelineCreation::Requests::FAILED)
+              expect(request_data['error']).to eq('Insufficient permissions to create a new pipeline')
+            end
+
+            it 'triggers GraphQL subscription because pipeline was not persisted' do
+              creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+
+              expect(GraphqlTriggers).to receive(:ci_pipeline_creation_requests_updated).with(merge_request)
+
+              execute_service(
+                merge_request: merge_request,
+                pipeline_creation_request: creation_request,
+                defer_request_completion: true,
+                source: :merge_request_event
+              )
+            end
           end
 
-          it 'does not trigger GraphQL subscription' do
-            creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+          context 'when track_ref_pipeline_creation feature flag is disabled' do
+            before do
+              stub_feature_flags(track_ref_pipeline_creation: false)
+            end
 
-            expect(GraphqlTriggers).not_to receive(:ci_pipeline_creation_requests_updated)
+            it 'does not update the pipeline creation request status' do
+              creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
 
-            execute_service(
-              merge_request: merge_request,
-              pipeline_creation_request: creation_request,
-              defer_request_completion: true,
-              source: :merge_request_event
-            )
+              execute_service(
+                merge_request: merge_request,
+                pipeline_creation_request: creation_request,
+                defer_request_completion: true,
+                source: :merge_request_event
+              )
+
+              request_data = ::Ci::PipelineCreation::Requests.hget(creation_request)
+              expect(request_data['status']).to eq(::Ci::PipelineCreation::Requests::IN_PROGRESS)
+              expect(request_data['error']).to be_nil
+            end
+
+            it 'does not trigger GraphQL subscription' do
+              creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+
+              expect(GraphqlTriggers).not_to receive(:ci_pipeline_creation_requests_updated)
+
+              execute_service(
+                merge_request: merge_request,
+                pipeline_creation_request: creation_request,
+                defer_request_completion: true,
+                source: :merge_request_event
+              )
+            end
           end
         end
       end
@@ -2146,6 +2264,23 @@ RSpec.describe Ci::CreatePipelineService, :clean_gitlab_redis_cache, feature_cat
 
       expect(response).to be_success
       expect(response.payload).to eq('test-id')
+    end
+
+    context 'when a pre-created pipeline_creation_request is provided' do
+      let(:pre_created_request) { { 'key' => 'pre-created-key', 'id' => 'pre-created-id' } }
+
+      it 'uses the pre-created request instead of creating a new one' do
+        expect(Ci::PipelineCreation::Requests).not_to receive(:start_for_project)
+
+        expect(CreatePipelineWorker).to receive(:perform_async).with(
+          project.id, user.id, project.default_branch, 'web', { 'save_on_errors' => false },
+          hash_including('pipeline_creation_request' => pre_created_request)
+        )
+
+        service = described_class.new(project, user, ref: project.default_branch,
+          pipeline_creation_request: pre_created_request)
+        service.execute_async('web', { save_on_errors: false })
+      end
     end
   end
 end

@@ -5953,8 +5953,74 @@ RSpec.describe MergeRequest, factory_default: :keep, feature_category: :code_rev
     context 'when pipeline creating request is false' do
       let(:creating) { false }
 
-      it 'is false' do
-        expect(pipeline_creating).to eq false
+      context 'when pipeline_creating_for_source_ref? is true' do
+        before do
+          allow(subject).to receive(:pipeline_creating_for_source_ref?).and_return(true)
+        end
+
+        it 'is true' do
+          expect(pipeline_creating).to eq true
+        end
+      end
+
+      context 'when pipeline_creating_for_source_ref? is false' do
+        before do
+          allow(subject).to receive(:pipeline_creating_for_source_ref?).and_return(false)
+        end
+
+        it 'is false' do
+          expect(pipeline_creating).to eq false
+        end
+      end
+    end
+  end
+
+  describe '#pipeline_creating_for_source_ref?' do
+    let(:merge_request) { create(:merge_request, source_project: project) }
+
+    subject { merge_request.pipeline_creating_for_source_ref? }
+
+    context 'when source_project is nil' do
+      before do
+        allow(merge_request).to receive(:source_project).and_return(nil)
+      end
+
+      it { is_expected.to eq false }
+    end
+
+    context 'when track_ref_pipeline_creation feature flag is disabled' do
+      before do
+        stub_feature_flags(track_ref_pipeline_creation: false)
+      end
+
+      it { is_expected.to eq false }
+    end
+
+    context 'when track_ref_pipeline_creation feature flag is enabled' do
+      before do
+        stub_feature_flags(track_ref_pipeline_creation: true)
+      end
+
+      context 'when a pipeline is being created for the source ref' do
+        before do
+          allow(Ci::PipelineCreation::Requests)
+            .to receive(:pipeline_creating_for_ref?)
+            .with(merge_request.source_project, merge_request.source_branch_ref)
+            .and_return(true)
+        end
+
+        it { is_expected.to eq true }
+      end
+
+      context 'when no pipeline is being created for the source ref' do
+        before do
+          allow(Ci::PipelineCreation::Requests)
+            .to receive(:pipeline_creating_for_ref?)
+            .with(merge_request.source_project, merge_request.source_branch_ref)
+            .and_return(false)
+        end
+
+        it { is_expected.to eq false }
       end
     end
   end

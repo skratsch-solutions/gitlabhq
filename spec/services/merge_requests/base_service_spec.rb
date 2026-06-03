@@ -89,7 +89,8 @@ RSpec.describe MergeRequests::BaseService, feature_category: :code_review_workfl
       it 'creates a pipeline directly' do
         expect(MergeRequests::CreatePipelineService)
           .to receive(:new)
-          .with(hash_including(project: project, current_user: user, params: { allow_duplicate: false }))
+          .with(hash_including(project: project, current_user: user,
+            params: hash_including(allow_duplicate: false)))
           .and_call_original
         expect(MergeRequests::CreatePipelineWorker).not_to receive(:perform_async)
 
@@ -100,7 +101,8 @@ RSpec.describe MergeRequests::BaseService, feature_category: :code_review_workfl
         it 'passes :allow_duplicate as true' do
           expect(MergeRequests::CreatePipelineService)
           .to receive(:new)
-          .with(hash_including(project: project, current_user: user, params: { allow_duplicate: true }))
+          .with(hash_including(project: project, current_user: user,
+            params: hash_including(allow_duplicate: true)))
           .and_call_original
           expect(MergeRequests::CreatePipelineWorker).not_to receive(:perform_async)
 
@@ -115,7 +117,8 @@ RSpec.describe MergeRequests::BaseService, feature_category: :code_review_workfl
 
         expect(MergeRequests::CreatePipelineService)
           .to receive(:new)
-          .with(project: project, current_user: user, params: { allow_duplicate: false })
+          .with(hash_including(project: project, current_user: user,
+            params: hash_including(allow_duplicate: false)))
           .and_return(service)
 
         expect(service).to receive(:execute_async).with(merge_request)
@@ -129,7 +132,8 @@ RSpec.describe MergeRequests::BaseService, feature_category: :code_review_workfl
 
           expect(MergeRequests::CreatePipelineService)
             .to receive(:new)
-            .with(project: project, current_user: user, params: { allow_duplicate: true })
+            .with(hash_including(project: project, current_user: user,
+              params: hash_including(allow_duplicate: true)))
             .and_return(service)
 
           expect(service).to receive(:execute_async).with(merge_request)

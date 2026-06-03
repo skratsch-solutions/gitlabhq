@@ -61409,7 +61409,12 @@ paths:
   "/api/v4/projects/{id}/(ref/{ref}/)trigger/pipeline":
     post:
       operationId: postApiV4ProjectsIdRefRefTriggerPipeline
-      summary: Trigger a GitLab project pipeline
+      summary: Trigger a pipeline with a token
+      description: Triggers a pipeline with a token. With a CI/CD job token, the triggered
+        pipeline is a multi-project pipeline. The job that authenticates the request
+        becomes associated with the upstream pipeline, which is visible on the pipeline
+        graph. If you use a trigger token in a job, the job is not associated with
+        the upstream pipeline.
       tags:
       - CI triggers
       responses:
@@ -61453,7 +61458,8 @@ paths:
   "/api/v4/projects/{id}/triggers":
     get:
       operationId: getApiV4ProjectsIdTriggers
-      summary: Get trigger tokens list
+      summary: List all project trigger tokens
+      description: Lists all pipeline trigger tokens for a specified project.
       tags:
       - CI triggers
       responses:
@@ -61500,6 +61506,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdTriggers
       summary: Create a trigger token
+      description: Creates a pipeline trigger token for a project.
       tags:
       - CI triggers
       responses:
@@ -61536,7 +61543,8 @@ paths:
   "/api/v4/projects/{id}/triggers/{trigger_id}":
     get:
       operationId: getApiV4ProjectsIdTriggersTriggerId
-      summary: Get specific trigger token of a project
+      summary: Retrieve trigger token details
+      description: Retrieves details of a pipeline trigger token for a project.
       tags:
       - CI triggers
       responses:
@@ -61614,7 +61622,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_2610bfd7da4b"
     delete:
       operationId: deleteApiV4ProjectsIdTriggersTriggerId
-      summary: Delete a trigger token
+      summary: Delete a pipeline trigger token
+      description: Deletes a pipeline trigger token for a project.
       tags:
       - CI triggers
       responses:
@@ -62259,8 +62268,9 @@ paths:
   "/api/v4/projects/{id}/pipelines":
     get:
       operationId: getApiV4ProjectsIdPipelines
-      summary: Get all Pipelines of the project
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all project pipelines
+      description: Lists all pipelines in a project. By default, child pipelines are
+        not included in the results. To return child pipelines, set `source` to `parent_pipeline`.
       tags:
       - Pipelines
       responses:
@@ -62475,8 +62485,8 @@ paths:
   "/api/v4/projects/{id}/pipeline":
     post:
       operationId: postApiV4ProjectsIdPipeline
-      summary: Create a new pipeline
-      description: This feature was introduced in GitLab 8.14
+      summary: Create a pipeline
+      description: Creates a pipeline in the specified project.
       tags:
       - Pipelines
       responses:
@@ -62511,8 +62521,11 @@ paths:
   "/api/v4/projects/{id}/pipelines/latest":
     get:
       operationId: getApiV4ProjectsIdPipelinesLatest
-      summary: Gets the latest pipeline for the project branch
-      description: This feature was introduced in GitLab 12.3
+      summary: Retrieve the latest pipeline
+      description: Retrieves the latest pipeline for the most recent commit on a specified
+        ref in a project. If no pipeline exists for the commit, a `403` status code
+        is returned. Use the `page` and `per_page` pagination parameters to control
+        the pagination of results.
       tags:
       - Pipelines
       responses:
@@ -62547,8 +62560,9 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineId
-      summary: Gets a specific pipeline for the project
-      description: This feature was introduced in GitLab 8.11
+      summary: Retrieve a pipeline
+      description: Retrieves a specified pipeline from a project. You can also get
+        a child pipeline.
       tags:
       - Pipelines
       responses:
@@ -62581,8 +62595,8 @@ paths:
         example: 18
     delete:
       operationId: deleteApiV4ProjectsIdPipelinesPipelineId
-      summary: Deletes a pipeline
-      description: This feature was introduced in GitLab 11.6
+      summary: Delete a pipeline
+      description: Deletes a specified pipeline for a project.
       tags:
       - Pipelines
       responses:
@@ -62608,7 +62622,8 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/jobs":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdJobs
-      summary: Get pipeline jobs
+      summary: List all jobs by pipeline
+      description: Lists all jobs for a specified pipeline.
       tags:
       - Pipelines
       responses:
@@ -62696,7 +62711,8 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/bridges":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdBridges
-      summary: Get pipeline bridge jobs
+      summary: List all trigger jobs by pipeline
+      description: Lists all trigger jobs for a specified pipeline.
       tags:
       - Pipelines
       responses:
@@ -62777,8 +62793,9 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/variables":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdVariables
-      summary: Gets the variables for a given pipeline
-      description: This feature was introduced in GitLab 11.11
+      summary: List all pipeline variables
+      description: Lists all pipeline variables for a specified pipeline. Use the
+        `page` and `per_page` pagination parameters to control the pagination of results.
       tags:
       - Pipelines
       responses:
@@ -62812,8 +62829,8 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/test_report":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdTestReport
-      summary: Gets the test report for a given pipeline
-      description: This feature was introduced in GitLab 13.0.
+      summary: Retrieve a test report for a pipeline
+      description: Retrieves a test report for a pipeline.
       tags:
       - Pipelines
       responses:
@@ -62847,8 +62864,8 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/test_report_summary":
     get:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdTestReportSummary
-      summary: Gets the test report summary for a given pipeline
-      description: This feature was introduced in GitLab 14.2
+      summary: Retrieve a test report summary for a pipeline
+      description: Retrieves a test report summary for a pipeline.
       tags:
       - Pipelines
       responses:
@@ -62882,8 +62899,9 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/metadata":
     put:
       operationId: putApiV4ProjectsIdPipelinesPipelineIdMetadata
-      summary: Updates pipeline metadata
-      description: This feature was introduced in GitLab 16.6
+      summary: Update pipeline metadata
+      description: Updates pipeline metadata. The metadata contains the name of the
+        pipeline. This feature was introduced in GitLab 16.6.
       tags:
       - Pipelines
       responses:
@@ -62925,8 +62943,9 @@ paths:
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/retry":
     post:
       operationId: postApiV4ProjectsIdPipelinesPipelineIdRetry
-      summary: Retry builds in the pipeline
-      description: This feature was introduced in GitLab 8.11.
+      summary: Retry jobs in a pipeline
+      description: Retries failed or canceled jobs in a pipeline. If there are no
+        failed or canceled jobs in the pipeline, calling this endpoint has no effect.
       tags:
       - Pipelines
       responses:

@@ -253,14 +253,9 @@ module Gitlab
 
         with do |redis|
           if deleted
-            redis.eval(SREM_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+            remove_if_cache_exists(redis, full_key, ref_name)
           else
-            result = redis.eval(SADD_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
-
-            # SADD_IF_EXISTS returns -1 when the SET key doesn't exist (add was skipped).
-            # This happens when the cache was written with an empty set (no Redis key created).
-            # Mark untrusted so the next fetch triggers a full rebuild.
-            mark_untrusted(key) if result == -1
+            add_if_cache_exists(redis, key, full_key, ref_name)
           end
         end
       rescue ::Redis::BaseError => e
@@ -292,9 +287,9 @@ module Gitlab
           end
 
           if deleted
-            redis.eval(SREM_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+            remove_if_cache_exists(redis, full_key, ref_name)
           else
-            redis.eval(SADD_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+            add_if_cache_exists(redis, key, full_key, ref_name)
           end
         end
       rescue ::Redis::BaseError => e
@@ -303,6 +298,27 @@ module Gitlab
           error_message: e.message)
         mark_untrusted(key)
         raise
+      end
+
+      # Atomically add ref to the cache set only if the set key exists.
+      # Marks cache untrusted when the key is absent (SADD was skipped),
+      # so the next fetch triggers a full rebuild.
+      # @param redis [Redis] Redis connection
+      # @param key [String] Cache key (e.g., :branch_names)
+      # @param full_key [String] Full Redis key for the set
+      # @param ref_name [String] Short ref name (e.g., "main")
+      def add_if_cache_exists(redis, key, full_key, ref_name)
+        result = redis.eval(SADD_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
+        mark_untrusted(key) if result == -1
+      end
+
+      # Atomically remove ref from the cache set only if the set key exists.
+      # Unlike add, removal from a non-existent set is harmless - no untrust needed.
+      # @param redis [Redis] Redis connection
+      # @param full_key [String] Full Redis key for the set
+      # @param ref_name [String] Short ref name (e.g., "main")
+      def remove_if_cache_exists(redis, full_key, ref_name)
+        redis.eval(SREM_IF_EXISTS_SCRIPT, keys: [full_key], argv: [ref_name])
       end
 
       def suffixed_cache_key(type, suffix)

@@ -22,7 +22,6 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
 
   condition(:has_parent, scope: :subject) { @subject.has_parent? }
   condition(:is_root_namespace, scope: :subject) { @subject.root? }
-  condition(:share_with_group_locked, scope: :subject) { @subject.share_with_group_lock? }
   condition(:parent_share_with_group_locked, scope: :subject) { @subject.parent&.share_with_group_lock? }
   condition(:can_change_parent_share_with_group_lock) { can?(:change_share_with_group_lock, @subject.parent) }
   condition(:can_read_group_member) { can_read_group_member? }
@@ -208,9 +207,7 @@ class GroupPolicy < Namespaces::GroupProjectNamespaceSharedPolicy
   rule { ~request_access_enabled }.prevent :request_access
   rule { has_access }.prevent              :request_access
 
-  rule do
-    owner & (~share_with_group_locked | ~has_parent | ~parent_share_with_group_locked | can_change_parent_share_with_group_lock)
-  end.enable :change_share_with_group_lock
+  rule { parent_share_with_group_locked & ~can_change_parent_share_with_group_lock }.prevent :change_share_with_group_lock
 
   rule { create_projects_disabled }.policy do
     prevent :create_projects

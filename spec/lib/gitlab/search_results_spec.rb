@@ -357,19 +357,25 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
           create(:issue, project: project, title: 'non popular', upvotes_count: 1)
         end
 
-        include_examples 'search results sorted' do
-          let(:results_created) do
-            described_class.new(user, 'sorted', Project.order(:id), sort: sort, filters: filters)
-          end
+        %w[issues work_items].each do |searched_scope|
+          context "when scope is #{searched_scope}" do
+            let(:scope) { searched_scope }
 
-          let(:results_updated) do
-            described_class.new(user, 'updated', Project.order(:id), sort: sort, filters: filters)
-          end
-        end
+            include_examples 'search results sorted' do
+              let(:results_created) do
+                described_class.new(user, 'sorted', Project.order(:id), sort: sort, filters: filters)
+              end
 
-        include_examples 'search results sorted by popularity' do
-          let(:results_popular) do
-            described_class.new(user, 'popular', Project.order(:id), sort: sort, filters: filters)
+              let(:results_updated) do
+                described_class.new(user, 'updated', Project.order(:id), sort: sort, filters: filters)
+              end
+            end
+
+            include_examples 'search results sorted by popularity' do
+              let(:results_popular) do
+                described_class.new(user, 'popular', Project.order(:id), sort: sort, filters: filters)
+              end
+            end
           end
         end
       end

@@ -251,6 +251,39 @@ RSpec.describe Gitlab::Repositories::RebuildableSetCache, :clean_gitlab_redis_re
 
         expect(pending_events).to contain_exactly('-old-branch')
       end
+
+      # Regression: dual_write previously did not mark_untrusted when
+      # SADD_IF_EXISTS returned -1 (SET key absent), leaving a trusted cache
+      # that silently reported the pushed ref as absent.
+      context 'when adding a ref via dual_write and the SET key is missing' do
+        before do
+          # Empty rebuild left the cache trusted but with no SET key.
+          Gitlab::Redis::RepositoryCache.with do |redis|
+            redis.set(cache.trust_key(:branch_names), '1')
+            redis.del(cache.cache_key(:branch_names))
+          end
+        end
+
+        it 'does not silently leave a trusted cache missing the pushed ref' do
+          expect(cache.trusted?(:branch_names)).to be true
+
+          cache.handle_ref_change(:branch_names, 'refs/heads/main', false)
+
+          # The add could not be applied to the live set (key absent), so the
+          # cache must not remain trusted while reporting the branch as absent.
+          aggregate_failures do
+            # The pushed ref is preserved for reconciliation.
+            pending_events = Gitlab::Redis::RepositoryCache.with do |redis|
+              redis.lrange(cache.pending_key(:branch_names), 0, -1)
+            end
+            expect(pending_events).to contain_exactly('+main')
+
+            # Trust must be invalidated so the next read rebuilds and self-heals,
+            # rather than confidently returning a wrong "branch does not exist".
+            expect(cache.trusted?(:branch_names)).to be false
+          end
+        end
+      end
     end
 
     context 'when rebuild is in progress' do

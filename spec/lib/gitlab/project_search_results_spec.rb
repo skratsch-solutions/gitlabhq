@@ -284,6 +284,62 @@ RSpec.describe Gitlab::ProjectSearchResults, :with_current_organization, feature
       include_examples 'search results filtered by state'
       include_examples 'search results filtered by confidential'
     end
+
+    context 'with ordering' do
+      let_it_be(:ordering_project) { create(:project, :public) }
+
+      let_it_be(:old_result) { create(:issue, project: ordering_project, title: 'sorted old', created_at: 1.month.ago) }
+      let_it_be(:new_result) do
+        create(:issue, project: ordering_project, title: 'sorted recent', created_at: 1.day.ago)
+      end
+
+      let_it_be(:very_old_result) do
+        create(:issue, project: ordering_project, title: 'sorted old2', created_at: 1.year.ago)
+      end
+
+      let_it_be(:old_updated) do
+        create(:issue, project: ordering_project, title: 'updated old', updated_at: 1.month.ago)
+      end
+
+      let_it_be(:new_updated) do
+        create(:issue, project: ordering_project, title: 'updated recent', updated_at: 1.day.ago)
+      end
+
+      let_it_be(:very_old_updated) do
+        create(:issue, project: ordering_project, title: 'updated old2', updated_at: 1.year.ago)
+      end
+
+      let_it_be(:less_popular_result) do
+        create(:issue, project: ordering_project, title: 'less popular', upvotes_count: 10)
+      end
+
+      let_it_be(:popular_result) { create(:issue, project: ordering_project, title: 'popular', upvotes_count: 100) }
+      let_it_be(:non_popular_result) do
+        create(:issue, project: ordering_project, title: 'non popular', upvotes_count: 1)
+      end
+
+      %w[issues work_items].each do |searched_scope|
+        context "when scope is #{searched_scope}" do
+          let(:scope) { searched_scope }
+
+          include_examples 'search results sorted' do
+            let(:results_created) do
+              described_class.new(user, 'sorted', project: ordering_project, sort: sort, filters: filters)
+            end
+
+            let(:results_updated) do
+              described_class.new(user, 'updated', project: ordering_project, sort: sort, filters: filters)
+            end
+          end
+
+          include_examples 'search results sorted by popularity' do
+            let(:results_popular) do
+              described_class.new(user, 'popular', project: ordering_project, sort: sort, filters: filters)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe 'merge requests search' do

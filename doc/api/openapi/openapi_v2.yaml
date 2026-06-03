@@ -12278,8 +12278,9 @@ paths:
       operationId: getApiV4ProjectsIdSecureFilesSecureFileIdDownload
   "/api/v4/projects/{id}/pipelines":
     get:
-      summary: Get all Pipelines of the project
-      description: This feature was introduced in GitLab 8.11.
+      summary: List all project pipelines
+      description: Lists all pipelines in a project. By default, child pipelines are
+        not included in the results. To return child pipelines, set `source` to `parent_pipeline`.
       produces:
       - application/json
       parameters:
@@ -12450,7 +12451,7 @@ paths:
         example: Build pipeline
       responses:
         '200':
-          description: Get all Pipelines of the project
+          description: List all project pipelines
           schema:
             type: array
             items:
@@ -12464,8 +12465,8 @@ paths:
       operationId: getApiV4ProjectsIdPipelines
   "/api/v4/projects/{id}/pipeline":
     post:
-      summary: Create a new pipeline
-      description: This feature was introduced in GitLab 8.14
+      summary: Create a pipeline
+      description: Creates a pipeline in the specified project.
       produces:
       - application/json
       consumes:
@@ -12484,7 +12485,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdPipeline"
       responses:
         '201':
-          description: Create a new pipeline
+          description: Create a pipeline
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Pipeline"
         '400':
@@ -12500,8 +12501,11 @@ paths:
       operationId: postApiV4ProjectsIdPipeline
   "/api/v4/projects/{id}/pipelines/latest":
     get:
-      summary: Gets the latest pipeline for the project branch
-      description: This feature was introduced in GitLab 12.3
+      summary: Retrieve the latest pipeline
+      description: Retrieves the latest pipeline for the most recent commit on a specified
+        ref in a project. If no pipeline exists for the commit, a `403` status code
+        is returned. Use the `page` and `per_page` pagination parameters to control
+        the pagination of results.
       produces:
       - application/json
       parameters:
@@ -12519,7 +12523,7 @@ paths:
         example: develop
       responses:
         '200':
-          description: Gets the latest pipeline for the project branch
+          description: Retrieve the latest pipeline
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineWithMetadata"
         '401':
@@ -12533,8 +12537,9 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesLatest
   "/api/v4/projects/{id}/pipelines/{pipeline_id}":
     get:
-      summary: Gets a specific pipeline for the project
-      description: This feature was introduced in GitLab 8.11
+      summary: Retrieve a pipeline
+      description: Retrieves a specified pipeline from a project. You can also get
+        a child pipeline.
       produces:
       - application/json
       parameters:
@@ -12553,7 +12558,7 @@ paths:
         example: 18
       responses:
         '200':
-          description: Gets a specific pipeline for the project
+          description: Retrieve a pipeline
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineWithMetadata"
         '401':
@@ -12566,8 +12571,8 @@ paths:
       - pipelines
       operationId: getApiV4ProjectsIdPipelinesPipelineId
     delete:
-      summary: Deletes a pipeline
-      description: This feature was introduced in GitLab 11.6
+      summary: Delete a pipeline
+      description: Deletes a specified pipeline for a project.
       produces:
       - application/json
       parameters:
@@ -12594,7 +12599,8 @@ paths:
       operationId: deleteApiV4ProjectsIdPipelinesPipelineId
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/jobs":
     get:
-      description: Get pipeline jobs
+      summary: List all jobs by pipeline
+      description: Lists all jobs for a specified pipeline.
       produces:
       - application/json
       parameters:
@@ -12657,7 +12663,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get pipeline jobs
+          description: List all jobs by pipeline
           schema:
             type: array
             items:
@@ -12673,7 +12679,8 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdJobs
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/bridges":
     get:
-      description: Get pipeline bridge jobs
+      summary: List all trigger jobs by pipeline
+      description: Lists all trigger jobs for a specified pipeline.
       produces:
       - application/json
       parameters:
@@ -12730,7 +12737,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get pipeline bridge jobs
+          description: List all trigger jobs by pipeline
           schema:
             type: array
             items:
@@ -12746,8 +12753,9 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdBridges
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/variables":
     get:
-      summary: Gets the variables for a given pipeline
-      description: This feature was introduced in GitLab 11.11
+      summary: List all pipeline variables
+      description: Lists all pipeline variables for a specified pipeline. Use the
+        `page` and `per_page` pagination parameters to control the pagination of results.
       produces:
       - application/json
       parameters:
@@ -12766,7 +12774,7 @@ paths:
         example: 18
       responses:
         '200':
-          description: Gets the variables for a given pipeline
+          description: List all pipeline variables
           schema:
             type: array
             items:
@@ -12782,8 +12790,8 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdVariables
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/test_report":
     get:
-      summary: Gets the test report for a given pipeline
-      description: This feature was introduced in GitLab 13.0.
+      summary: Retrieve a test report for a pipeline
+      description: Retrieves a test report for a pipeline.
       produces:
       - application/json
       parameters:
@@ -12802,7 +12810,7 @@ paths:
         example: 18
       responses:
         '200':
-          description: Gets the test report for a given pipeline
+          description: Retrieve a test report for a pipeline
           schema:
             "$ref": "#/definitions/TestReportEntity"
         '401':
@@ -12816,8 +12824,8 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdTestReport
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/test_report_summary":
     get:
-      summary: Gets the test report summary for a given pipeline
-      description: This feature was introduced in GitLab 14.2
+      summary: Retrieve a test report summary for a pipeline
+      description: Retrieves a test report summary for a pipeline.
       produces:
       - application/json
       parameters:
@@ -12836,7 +12844,7 @@ paths:
         example: 18
       responses:
         '200':
-          description: Gets the test report summary for a given pipeline
+          description: Retrieve a test report summary for a pipeline
           schema:
             "$ref": "#/definitions/TestReportSummaryEntity"
         '401':
@@ -12850,8 +12858,9 @@ paths:
       operationId: getApiV4ProjectsIdPipelinesPipelineIdTestReportSummary
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/metadata":
     put:
-      summary: Updates pipeline metadata
-      description: This feature was introduced in GitLab 16.6
+      summary: Update pipeline metadata
+      description: Updates pipeline metadata. The metadata contains the name of the
+        pipeline. This feature was introduced in GitLab 16.6.
       produces:
       - application/json
       consumes:
@@ -12877,7 +12886,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdPipelinesPipelineIdMetadata"
       responses:
         '200':
-          description: Updates pipeline metadata
+          description: Update pipeline metadata
           schema:
             "$ref": "#/definitions/API_Entities_Ci_PipelineWithMetadata"
         '400':
@@ -12893,8 +12902,9 @@ paths:
       operationId: putApiV4ProjectsIdPipelinesPipelineIdMetadata
   "/api/v4/projects/{id}/pipelines/{pipeline_id}/retry":
     post:
-      summary: Retry builds in the pipeline
-      description: This feature was introduced in GitLab 8.11.
+      summary: Retry jobs in a pipeline
+      description: Retries failed or canceled jobs in a pipeline. If there are no
+        failed or canceled jobs in the pipeline, calling this endpoint has no effect.
       produces:
       - application/json
       consumes:
@@ -12915,7 +12925,7 @@ paths:
         example: 18
       responses:
         '201':
-          description: Retry builds in the pipeline
+          description: Retry jobs in a pipeline
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Pipeline"
         '401':
@@ -13533,7 +13543,12 @@ paths:
       operationId: deleteApiV4ProjectsIdPipelineSchedulesPipelineScheduleIdVariablesKey
   "/api/v4/projects/{id}/(ref/{ref}/)trigger/pipeline":
     post:
-      description: Trigger a GitLab project pipeline
+      summary: Trigger a pipeline with a token
+      description: Triggers a pipeline with a token. With a CI/CD job token, the triggered
+        pipeline is a multi-project pipeline. The job that authenticates the request
+        becomes associated with the upstream pipeline, which is visible on the pipeline
+        graph. If you use a trigger token in a job, the job is not associated with
+        the upstream pipeline.
       produces:
       - application/json
       consumes:
@@ -13558,7 +13573,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsId(refRef)triggerPipeline"
       responses:
         '201':
-          description: Trigger a GitLab project pipeline
+          description: Trigger a pipeline with a token
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Pipeline"
         '400':
@@ -13574,7 +13589,8 @@ paths:
       operationId: postApiV4ProjectsId(refRef)triggerPipeline
   "/api/v4/projects/{id}/triggers":
     get:
-      description: Get trigger tokens list
+      summary: List all project trigger tokens
+      description: Lists all pipeline trigger tokens for a specified project.
       produces:
       - application/json
       parameters:
@@ -13602,7 +13618,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get trigger tokens list
+          description: List all project trigger tokens
           schema:
             type: array
             items:
@@ -13617,7 +13633,8 @@ paths:
       - ci_triggers
       operationId: getApiV4ProjectsIdTriggers
     post:
-      description: Create a trigger token
+      summary: Create a trigger token
+      description: Creates a pipeline trigger token for a project.
       produces:
       - application/json
       consumes:
@@ -13652,7 +13669,8 @@ paths:
       operationId: postApiV4ProjectsIdTriggers
   "/api/v4/projects/{id}/triggers/{trigger_id}":
     get:
-      description: Get specific trigger token of a project
+      summary: Retrieve trigger token details
+      description: Retrieves details of a pipeline trigger token for a project.
       produces:
       - application/json
       parameters:
@@ -13671,7 +13689,7 @@ paths:
         example: 10
       responses:
         '200':
-          description: Get specific trigger token of a project
+          description: Retrieve trigger token details
           schema:
             "$ref": "#/definitions/API_Entities_Trigger"
         '401':
@@ -13725,7 +13743,8 @@ paths:
       - ci_triggers
       operationId: putApiV4ProjectsIdTriggersTriggerId
     delete:
-      description: Delete a trigger token
+      summary: Delete a pipeline trigger token
+      description: Deletes a pipeline trigger token for a project.
       produces:
       - application/json
       parameters:
@@ -13744,7 +13763,7 @@ paths:
         example: 10
       responses:
         '204':
-          description: Delete a trigger token
+          description: Delete a pipeline trigger token
         '401':
           description: Unauthorized
         '403':
@@ -56889,7 +56908,7 @@ definitions:
         description: The list of inputs to be used to create the pipeline.
     required:
     - ref
-    description: Create a new pipeline
+    description: Create a pipeline
   API_Entities_Ci_Pipeline:
     type: object
     properties:
@@ -57481,7 +57500,7 @@ definitions:
         example: Deployment to production
     required:
     - name
-    description: Updates pipeline metadata
+    description: Update pipeline metadata
   API_Entities_Ci_PipelineSchedule:
     type: object
     properties:
@@ -57755,7 +57774,7 @@ definitions:
         description: The list of inputs to be used to create the pipeline.
     required:
     - token
-    description: Trigger a GitLab project pipeline
+    description: Trigger a pipeline with a token
   API_Entities_Trigger:
     type: object
     properties:

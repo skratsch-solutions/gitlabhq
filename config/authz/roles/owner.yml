@@ -89,6 +89,7 @@ group:
   - change_prevent_group_forking
   - change_prevent_sharing_groups_outside_hierarchy
   - change_seat_control
+  - change_share_with_group_lock
   - change_visibility_level
   - create_deploy_token
   - create_group_link

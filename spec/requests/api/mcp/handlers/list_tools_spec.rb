@@ -254,7 +254,7 @@ RSpec.describe API::Mcp, 'List tools request', feature_category: :mcp_server do
 
         expect(pipeline_jobs_tool).to include(
           'name' => 'get_pipeline_jobs',
-          'description' => 'Get pipeline jobs',
+          'description' => 'List all jobs by pipeline',
           'inputSchema' => {
             'type' => 'object',
             'properties' => {

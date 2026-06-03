@@ -97,6 +97,18 @@ In GitLab 20.0, GitLab will begin deprecation of Design Management. Design Manag
 The Audit Event APIs for instances, groups, and projects currently support optional keyset pagination. In GitLab 20.0
 we will enforce keyset pagination on these APIs.
 
+### Go module proxy (experimental) is deprecated
+
+- Announced in GitLab 19.1
+- Removal in GitLab 20.0
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/issues/592132).
+
+The experimental Go module proxy in the GitLab package registry is deprecated and will be removed in GitLab 20.0. This feature never progressed beyond experimental status.
+
+It will be replaced by a **Go virtual registry**, which will provide a more complete and reliable experience for resolving Go modules through GitLab.
+
+**Action required:** If you are using GitLab as a Go module proxy, plan to migrate to the Go virtual registry once it becomes available. In the interim, you may configure an alternative proxy (such as `proxy.golang.org` or a self-hosted solution) by updating your `GOPROXY` environment variable.
+
 ### Legacy group-level audit event streaming destination GraphQL APIs
 
 - Announced in GitLab 18.10

@@ -193,4 +193,227 @@ RSpec.describe Ci::PipelineCreation::Requests, :clean_gitlab_redis_shared_state,
       end
     end
   end
+
+  describe '.start_for_ref' do
+    let_it_be(:ref_project) { create(:project) }
+    let(:ref) { 'refs/heads/feature-branch' }
+
+    it 'stores a pipeline creation for the ref and returns its key and ID' do
+      allow(SecureRandom).to receive(:uuid).and_return('test-id')
+
+      request = described_class.start_for_ref(ref_project, ref)
+
+      expect(request).to eq({
+        'key' => described_class.ref_key(ref_project, ref),
+        'id' => 'test-id'
+      })
+      expect(described_class.hget(request)).to eq({ 'status' => 'in_progress' })
+    end
+
+    it 'allows multiple requests for the same ref' do
+      allow(SecureRandom).to receive(:uuid).and_return('test-id-1')
+      request1 = described_class.start_for_ref(ref_project, ref)
+
+      allow(SecureRandom).to receive(:uuid).and_return('test-id-2')
+      request2 = described_class.start_for_ref(ref_project, ref)
+
+      described_class.succeeded(request1, 1)
+
+      expect(described_class.hget(request1)).to eq({ 'status' => 'succeeded', 'pipeline_id' => 1 })
+      expect(described_class.hget(request2)).to eq({ 'status' => 'in_progress' })
+    end
+  end
+
+  describe '.pipeline_creating_for_ref?' do
+    let_it_be(:ref_project) { create(:project) }
+    let(:ref) { 'refs/heads/feature-branch' }
+
+    context 'when there are in-progress pipeline creations for the ref' do
+      it 'returns true' do
+        described_class.start_for_ref(ref_project, ref)
+
+        expect(described_class.pipeline_creating_for_ref?(ref_project, ref)).to be true
+      end
+    end
+
+    context 'when all pipeline creations for the ref are completed' do
+      it 'returns false' do
+        request = described_class.start_for_ref(ref_project, ref)
+        described_class.succeeded(request, 1)
+
+        expect(described_class.pipeline_creating_for_ref?(ref_project, ref)).to be false
+      end
+    end
+
+    context 'when there are no pipeline creations for the ref' do
+      it 'returns false' do
+        expect(described_class.pipeline_creating_for_ref?(ref_project, ref)).to be false
+      end
+    end
+
+    context 'when some requests are completed and some are in progress' do
+      it 'returns true' do
+        request1 = described_class.start_for_ref(ref_project, ref)
+        described_class.start_for_ref(ref_project, ref)
+        described_class.succeeded(request1, 1)
+
+        expect(described_class.pipeline_creating_for_ref?(ref_project, ref)).to be true
+      end
+    end
+  end
+
+  describe '.for_ref' do
+    let_it_be(:ref_project) { create(:project) }
+    let(:ref) { 'refs/heads/feature-branch' }
+
+    it 'returns all requests for the ref' do
+      allow(SecureRandom).to receive(:uuid).and_return('test-id-1')
+      request1 = described_class.start_for_ref(ref_project, ref)
+
+      allow(SecureRandom).to receive(:uuid).and_return('test-id-2')
+      described_class.start_for_ref(ref_project, ref)
+
+      described_class.succeeded(request1, 1)
+
+      requests = described_class.for_ref(ref_project, ref)
+
+      expect(requests).to contain_exactly(
+        { 'status' => 'succeeded', 'pipeline_id' => 1 },
+        { 'status' => 'in_progress' }
+      )
+    end
+  end
+
+  describe '.filtered' do
+    context 'when given a pipeline creation key and ID' do
+      it 'sets the pipeline creation to the filtered status' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        described_class.filtered(request)
+
+        expect(described_class.hget(request)).to eq(
+          { 'status' => 'filtered' }
+        )
+      end
+    end
+
+    context 'when not given a request' do
+      it 'returns nil' do
+        expect(described_class.filtered(nil)).to be_nil
+      end
+    end
+  end
+
+  describe '.safe_filtered' do
+    context 'when given a pipeline creation key and ID' do
+      it 'sets the pipeline creation to the filtered status' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        described_class.safe_filtered(request)
+
+        expect(described_class.hget(request)).to eq(
+          { 'status' => 'filtered' }
+        )
+      end
+    end
+
+    context 'when not given a request' do
+      it 'returns nil' do
+        expect(described_class.safe_filtered(nil)).to be_nil
+      end
+    end
+
+    context 'when a Redis::BaseError occurs' do
+      it 'tracks the exception and does not raise' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        allow(described_class).to receive(:filtered).and_raise(Redis::ConnectionError, 'connection refused')
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(Redis::ConnectionError),
+          request: request
+        )
+
+        expect { described_class.safe_filtered(request) }.not_to raise_error
+      end
+    end
+
+    context 'when a RedisClient::Error occurs' do
+      it 'tracks the exception and does not raise' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        allow(described_class).to receive(:filtered).and_raise(RedisClient::ConnectionError, 'connection refused')
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(RedisClient::ConnectionError),
+          request: request
+        )
+
+        expect { described_class.safe_filtered(request) }.not_to raise_error
+      end
+    end
+  end
+
+  describe '.safe_failed' do
+    context 'when given a pipeline creation key and ID' do
+      it 'sets the pipeline creation to the failed status' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        described_class.safe_failed(request, 'pipeline limit per push exceeded')
+
+        expect(described_class.hget(request)).to eq(
+          { 'status' => 'failed', 'error' => 'pipeline limit per push exceeded' }
+        )
+      end
+    end
+
+    context 'when not given a request' do
+      it 'returns nil' do
+        expect(described_class.safe_failed(nil, 'error')).to be_nil
+      end
+    end
+
+    context 'when a Redis::BaseError occurs' do
+      it 'tracks the exception and does not raise' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        allow(described_class).to receive(:failed).and_raise(Redis::ConnectionError, 'connection refused')
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(Redis::ConnectionError),
+          request: request
+        )
+
+        expect { described_class.safe_failed(request, 'error') }.not_to raise_error
+      end
+    end
+
+    context 'when a RedisClient::Error occurs' do
+      it 'tracks the exception and does not raise' do
+        request = described_class.start_for_merge_request(merge_request)
+
+        allow(described_class).to receive(:failed).and_raise(RedisClient::ConnectionError, 'connection refused')
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(RedisClient::ConnectionError),
+          request: request
+        )
+
+        expect { described_class.safe_failed(request, 'error') }.not_to raise_error
+      end
+    end
+  end
+
+  describe '.ref_key' do
+    let_it_be(:ref_project) { create(:project) }
+
+    it 'returns the Redis cache key for the ref' do
+      ref = 'refs/heads/feature-branch'
+      ref_hash = Digest::SHA256.hexdigest(ref)
+
+      expect(described_class.ref_key(ref_project, ref)).to eq(
+        "pipeline_creation:projects:{#{ref_project.id}}:ref:{#{ref_hash}}"
+      )
+    end
+  end
 end

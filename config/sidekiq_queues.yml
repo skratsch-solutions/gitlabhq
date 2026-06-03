@@ -1067,6 +1067,8 @@
   - 1
 - - secrets_management_provision_group_secrets_manager
   - 1
+- - secrets_management_provision_group_secrets_manager_task
+  - 1
 - - secrets_management_provision_project_secrets_manager
   - 1
 - - secrets_management_provision_project_secrets_manager_task

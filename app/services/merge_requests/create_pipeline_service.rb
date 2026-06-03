@@ -12,7 +12,8 @@ module MergeRequests
     end
 
     def execute_async(merge_request)
-      pipeline_creation_request = ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
+      pipeline_creation_request = params[:pipeline_creation_request] ||
+        ::Ci::PipelineCreation::Requests.start_for_merge_request(merge_request)
 
       # We need to update the merge status here because a pipeline has begun creating and MRs that require a
       # successful pipeline should not be mergable at this point.

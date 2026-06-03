@@ -83,7 +83,7 @@ RSpec.describe PostReceiveService, feature_category: :source_code_management do
       expect(Repositories::PostReceiveWorker).to receive(:perform_async)
         .with(gl_repository, identifier, changes, {
           'secret_push_protection' => { 'skip_all' => true }
-        }, { 'gitaly_context' => gitaly_context })
+        }, hash_including('gitaly_context' => gitaly_context))
 
       subject
     end
@@ -96,7 +96,7 @@ RSpec.describe PostReceiveService, feature_category: :source_code_management do
           .with(gl_repository, identifier, changes, {
             'secret_push_protection' => { 'skip_all' => true },
             'ci' => { 'skip' => true }
-          }, { 'gitaly_context' => gitaly_context })
+          }, hash_including('gitaly_context' => gitaly_context))
 
         subject
       end
@@ -108,7 +108,7 @@ RSpec.describe PostReceiveService, feature_category: :source_code_management do
           expect(Repositories::PostReceiveWorker).to receive(:perform_async)
             .with(gl_repository, identifier, changes, {
               'ci' => { 'skip' => true }
-            }, { 'gitaly_context' => gitaly_context })
+            }, hash_including('gitaly_context' => gitaly_context))
 
           subject
         end
@@ -235,6 +235,106 @@ RSpec.describe PostReceiveService, feature_category: :source_code_management do
         ).to receive(:execute).and_return(invalid_merge_request)
 
         expect(subject).to include(build_alert_message(message))
+      end
+
+      context 'with pipeline creation requests', :clean_gitlab_redis_shared_state do
+        context 'when track_ref_pipeline_creation feature flag is enabled' do
+          before do
+            stub_feature_flags(track_ref_pipeline_creation: true)
+          end
+
+          it 'creates pipeline creation requests for each branch ref' do
+            expect(Ci::PipelineCreation::Requests).to receive(:start_for_ref)
+              .with(project, "refs/heads/#{branch_name}")
+              .and_call_original
+
+            Sidekiq::Testing.fake! { subject }
+          end
+
+          it 'passes pipeline_creation_requests to PostReceiveWorker' do
+            expect(Repositories::PostReceiveWorker).to receive(:perform_async)
+              .with(
+                gl_repository,
+                identifier,
+                changes,
+                hash_including('merge_request' => hash_including('create' => true)),
+                hash_including('pipeline_creation_requests' => hash_including("refs/heads/#{branch_name}"))
+              )
+
+            Sidekiq::Testing.fake! { subject }
+          end
+
+          context 'when push options include merge_request.create and merge_when_pipeline_succeeds' do
+            let(:params) do
+              super().merge(push_options: ['merge_request.create', 'merge_request.merge_when_pipeline_succeeds'])
+            end
+
+            it 'makes pipeline_creating? return true on the MR before the pipeline is created (race condition guard)' do
+              merge_request = nil
+
+              allow(NewMergeRequestWorker).to receive(:perform_async) do |mr_id, _user_id, _worker_params|
+                merge_request = MergeRequest.find(mr_id)
+
+                expect(merge_request.pipeline_creating?).to be(true),
+                  "Expected pipeline_creating? to be true after MR creation but before pipeline creation. " \
+                    "This prevents auto-merge from merging without waiting for CI."
+              end
+
+              Sidekiq::Testing.fake! { subject }
+
+              expect(merge_request).to be_present
+            end
+          end
+
+          context 'when a branch is deleted (blank newrev)' do
+            let(:changes) do
+              "570e7b2abdd848b95f2f578043fc23bd6f6fd24d #{Gitlab::Git::SHA1_BLANK_SHA} refs/heads/#{branch_name}"
+            end
+
+            it 'does not create a pipeline creation request for the deleted branch' do
+              expect(Ci::PipelineCreation::Requests).not_to receive(:start_for_ref)
+
+              Sidekiq::Testing.fake! { subject }
+            end
+          end
+
+          context 'when changes include tag refs' do
+            let(:changes) do
+              "#{Gitlab::Git::SHA1_BLANK_SHA} 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/tags/v1.0"
+            end
+
+            it 'does not create a pipeline creation request for tag refs' do
+              expect(Ci::PipelineCreation::Requests).not_to receive(:start_for_ref)
+
+              Sidekiq::Testing.fake! { subject }
+            end
+          end
+        end
+
+        context 'when track_ref_pipeline_creation feature flag is disabled' do
+          before do
+            stub_feature_flags(track_ref_pipeline_creation: false)
+          end
+
+          it 'does not create pipeline creation requests' do
+            expect(Ci::PipelineCreation::Requests).not_to receive(:start_for_ref)
+
+            Sidekiq::Testing.fake! { subject }
+          end
+
+          it 'does not pass pipeline_creation_requests to PostReceiveWorker' do
+            expect(Repositories::PostReceiveWorker).to receive(:perform_async)
+              .with(
+                gl_repository,
+                identifier,
+                changes,
+                anything,
+                hash_not_including('pipeline_creation_requests')
+              )
+
+            Sidekiq::Testing.fake! { subject }
+          end
+        end
       end
     end
   end

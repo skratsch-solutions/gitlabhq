@@ -13,9 +13,14 @@ Gitlab::Database::DataIsolation.configure do |config|
   config.current_sharding_key_value = ->(type) {
     return unless Gitlab::Organizations::Isolation.enabled?
 
+    organization_id = Current.organization&.id if Current.organization_assigned
+    return unless organization_id
+
     case type
     when :organizations
-      Current.organization_assigned ? Current.organization&.id : nil
+      organization_id
+    when :users
+      User.select(:id).in_organization(organization_id)
     end
   }
 end

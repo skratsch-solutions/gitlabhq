@@ -46,15 +46,28 @@ module Git
       merge_request_branches = merge_request_branches_for(ref_type, changes)
 
       changes.each do |change|
+        ref = change[:ref]
+        create_pipelines = under_process_limit?(change)
+        pipeline_creation_request = params[:pipeline_creation_requests]&.dig(ref)
+
         options = {
           change: change,
           push_options: params[:push_options],
           gitaly_context: params[:gitaly_context],
           merge_request_branches: merge_request_branches,
-          create_pipelines: under_process_limit?(change),
+          create_pipelines: create_pipelines,
           execute_project_hooks: execute_project_hooks,
           create_push_event: !create_bulk_push_event
         }
+
+        if pipeline_creation_request
+          if create_pipelines
+            options[:pipeline_creation_request] = pipeline_creation_request
+          else
+            # try to fail the request early, but don't raise on redis error etc
+            Ci::PipelineCreation::Requests.safe_failed(pipeline_creation_request, 'pipeline limit per push exceeded')
+          end
+        end
 
         options[:process_commit_worker_pool] = process_commit_worker_pool if ref_type == :branch
 

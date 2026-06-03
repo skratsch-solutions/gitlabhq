@@ -9,7 +9,16 @@ RSpec.describe MergeRequests::UpdateHeadPipelineWorker, feature_category: :code_
 
   let(:ref) { 'master' }
   let(:pipeline) { create(:ci_pipeline, project: project, ref: ref) }
-  let(:event) { Ci::PipelineCreatedEvent.new(data: { pipeline_id: pipeline.id, partition_id: pipeline.partition_id }) }
+  let(:pipeline_creation_request) { nil }
+  let(:event) do
+    event_data = {
+      pipeline_id: pipeline.id,
+      partition_id: pipeline.partition_id
+    }
+    event_data[:pipeline_creation_request] = pipeline_creation_request if pipeline_creation_request
+
+    Ci::PipelineCreatedEvent.new(data: event_data)
+  end
 
   subject(:handle_event) { consume_event(subscriber: described_class, event: event) }
 
@@ -39,6 +48,34 @@ RSpec.describe MergeRequests::UpdateHeadPipelineWorker, feature_category: :code_
 
         expect(merge_request_1.reload.head_pipeline).to eq(pipeline)
         expect(merge_request_2.reload.head_pipeline).to eq(pipeline)
+      end
+
+      context 'when a ref pipeline creation request is included' do
+        let(:pipeline_creation_request) { Ci::PipelineCreation::Requests.start_for_ref(project, "refs/heads/#{ref}") }
+
+        it 'completes the request after updating merge request head pipelines' do
+          merge_request_1
+          merge_request_2
+
+          handle_event
+
+          request_data = Ci::PipelineCreation::Requests.hget(pipeline_creation_request)
+
+          expect(merge_request_1.reload.head_pipeline).to eq(pipeline)
+          expect(merge_request_2.reload.head_pipeline).to eq(pipeline)
+          expect(request_data['status']).to eq(Ci::PipelineCreation::Requests::SUCCEEDED)
+          expect(request_data['pipeline_id']).to eq(pipeline.id)
+        end
+
+        it 'triggers GraphQL updates for affected merge requests' do
+          merge_request_1
+          merge_request_2
+
+          expect(GraphqlTriggers).to receive(:ci_pipeline_creation_requests_updated).with(merge_request_1)
+          expect(GraphqlTriggers).to receive(:ci_pipeline_creation_requests_updated).with(merge_request_2)
+
+          handle_event
+        end
       end
 
       context 'when the merge request is not open' do
@@ -110,6 +147,28 @@ RSpec.describe MergeRequests::UpdateHeadPipelineWorker, feature_category: :code_
         handle_event
 
         expect(merge_request.reload.head_pipeline).to eq(pipeline)
+      end
+
+      context 'when the request is a merge request pipeline creation request' do
+        let(:pipeline) do
+          create(:ci_pipeline,
+            :merge_request_event,
+            project: project,
+            ref: merge_request_1.ref_path,
+            sha: project.repository.commit(ref).id,
+            merge_request: merge_request_1)
+        end
+
+        let(:pipeline_creation_request) { Ci::PipelineCreation::Requests.start_for_merge_request(merge_request_1) }
+
+        it 'can complete the pipeline creation request again' do
+          handle_event
+
+          request_data = Ci::PipelineCreation::Requests.hget(pipeline_creation_request)
+
+          expect(request_data['status']).to eq(Ci::PipelineCreation::Requests::SUCCEEDED)
+          expect(request_data['pipeline_id']).to eq(pipeline.id)
+        end
       end
     end
 

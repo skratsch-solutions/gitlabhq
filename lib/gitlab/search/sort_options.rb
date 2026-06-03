@@ -4,8 +4,8 @@ module Gitlab
   module Search
     module SortOptions
       SCOPE_ONLY_SORT = {
-        popularity_asc: %w[issues],
-        popularity_desc: %w[issues]
+        popularity_asc: %w[issues work_items],
+        popularity_desc: %w[issues work_items]
       }.freeze
 
       DOC_TYPE_ONLY_SORT = {

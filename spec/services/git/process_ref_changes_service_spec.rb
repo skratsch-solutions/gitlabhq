@@ -195,6 +195,76 @@ RSpec.describe Git::ProcessRefChangesService, feature_category: :source_code_man
       end
     end
 
+    context 'with pipeline_creation_requests param' do
+      let(:ref_under_limit) { changes.first[:ref] }
+      let(:ref_over_limit) { changes.second[:ref] }
+      let(:fake_request_under) { { 'key' => 'under_key', 'id' => 'under_id' } }
+      let(:fake_request_over) { { 'key' => 'over_key', 'id' => 'over_id' } }
+      let(:params) do
+        {
+          changes: git_changes,
+          pipeline_creation_requests: {
+            ref_under_limit => fake_request_under,
+            ref_over_limit => fake_request_over
+          }
+        }
+      end
+
+      before do
+        stub_application_setting(git_push_pipeline_limit: 1)
+        allow(push_service_class).to receive(:new).and_return(service)
+      end
+
+      it 'passes pipeline_creation_request to the push service for refs under the limit' do
+        expect(push_service_class)
+          .to receive(:new)
+          .with(project, user, hash_including(pipeline_creation_request: fake_request_under))
+          .and_return(service)
+
+        subject.execute
+      end
+
+      it 'does not pass pipeline_creation_request for refs over the limit' do
+        expect(push_service_class)
+          .not_to receive(:new)
+          .with(project, user, hash_including(pipeline_creation_request: fake_request_over))
+
+        subject.execute
+      end
+
+      it 'marks the request as failed for refs over the limit' do
+        expect(Ci::PipelineCreation::Requests)
+          .to receive(:safe_failed)
+          .with(fake_request_over, 'pipeline limit per push exceeded')
+
+        subject.execute
+      end
+
+      it 'does not mark the request as failed for refs under the limit' do
+        expect(Ci::PipelineCreation::Requests)
+          .not_to receive(:safe_failed)
+          .with(fake_request_under, anything)
+
+        subject.execute
+      end
+    end
+
+    context 'without pipeline_creation_requests param' do
+      before do
+        allow(push_service_class).to receive(:new).and_return(service)
+      end
+
+      it 'does not include pipeline_creation_request in push service options' do
+        expect(push_service_class)
+          .to receive(:new)
+          .with(project, user, hash_not_including(:pipeline_creation_request))
+          .exactly(changes.count).times
+          .and_return(service)
+
+        subject.execute
+      end
+    end
+
     describe "housekeeping", :clean_gitlab_redis_cache, :clean_gitlab_redis_queues, :clean_gitlab_redis_shared_state do
       let(:housekeeping) { ::Repositories::HousekeepingService.new(project) }
 
