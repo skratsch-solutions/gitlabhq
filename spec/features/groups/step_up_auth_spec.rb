@@ -221,7 +221,7 @@ RSpec.describe 'Group step-up authentication', :with_current_organization, :js, 
 
     # rubocop:disable RSpec/AvoidConditionalStatements -- Testing deterministic behavior after sign-in: either success or fail.
     if expect_fail
-      expect(page).to have_current_path(new_group_step_up_auth_path(group))
+      expect(page).to have_content('Step-up authentication required.')
     else
       expect(page).to have_current_path(group_path(group))
     end

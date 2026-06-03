@@ -22,8 +22,8 @@ module Gitlab
           inverse_of: :worker,
           partition_foreign_key: :worker_partition
 
-        belongs_to :organization
-        belongs_to :user
+        belongs_to :organization, class_name: '::Organizations::Organization'
+        belongs_to :user, class_name: '::User'
       end
     end
   end

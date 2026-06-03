@@ -185,7 +185,7 @@ detect-tests:
       - ${GLCI_PREDICTIVE_RSPEC_MATCHING_TESTS_EE_PATH}
       - ${GLCI_PREDICTIVE_RSPEC_MATCHING_TESTS_FOSS_PATH}
 
-detect-system-tests-duo-experiment:
+detect-system-tests-duo:
   extends:
     - .with-ci-node-image
   needs: []

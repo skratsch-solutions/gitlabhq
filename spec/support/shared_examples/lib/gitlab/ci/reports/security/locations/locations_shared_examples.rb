@@ -54,5 +54,11 @@ RSpec.shared_examples 'vulnerability location' do
 
       expect(subject).to eq(false)
     end
+
+    context 'when the other object is not a location' do
+      it 'is not equal instead of raising' do
+        expect(location_1).not_to eq('not a location')
+      end
+    end
   end
 end

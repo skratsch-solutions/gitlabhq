@@ -3860,8 +3860,8 @@ paths:
       operationId: getApiV4GroupsIdDebianDistributionsCodenameKeyAsc
   "/api/v4/groups/{id}/export/download":
     get:
-      summary: Download export
-      description: This feature was introduced in GitLab 12.5.
+      summary: Retrieve a group export download
+      description: Retrieves the exported archive for a specified group.
       produces:
       - application/octet-stream
       - application/json
@@ -3873,7 +3873,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download export
+          description: Retrieve a group export download
         '400':
           description: Bad request
         '401':
@@ -3889,8 +3889,8 @@ paths:
       operationId: getApiV4GroupsIdExportDownload
   "/api/v4/groups/{id}/export":
     post:
-      summary: Start export
-      description: This feature was introduced in GitLab 12.5.
+      summary: Create a group export
+      description: Creates a group export for a specified group.
       produces:
       - application/json
       consumes:
@@ -3903,7 +3903,7 @@ paths:
         required: true
       responses:
         '202':
-          description: Start export
+          description: Create a group export
         '401':
           description: Unauthorized
         '403':
@@ -3919,8 +3919,8 @@ paths:
       operationId: postApiV4GroupsIdExport
   "/api/v4/groups/{id}/export_relations":
     post:
-      summary: Start relations export
-      description: This feature was introduced in GitLab 13.12
+      summary: Schedule a relations export for a group
+      description: Schedules a relations export for a specified group.
       produces:
       - application/json
       consumes:
@@ -3938,7 +3938,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdExportRelations"
       responses:
         '202':
-          description: Start relations export
+          description: Schedule a relations export for a group
         '401':
           description: Unauthorized
         '403':
@@ -3952,8 +3952,8 @@ paths:
       operationId: postApiV4GroupsIdExportRelations
   "/api/v4/groups/{id}/export_relations/download":
     get:
-      summary: Download relations export
-      description: This feature was introduced in GitLab 13.12
+      summary: Download a relations export for a group
+      description: Downloads a group relations export file.
       produces:
       - application/octet-stream
       - application/json
@@ -3981,7 +3981,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Download relations export
+          description: Download a relations export for a group
         '401':
           description: Unauthorized
         '403':
@@ -3995,8 +3995,8 @@ paths:
       operationId: getApiV4GroupsIdExportRelationsDownload
   "/api/v4/groups/{id}/export_relations/status":
     get:
-      summary: Relations export status
-      description: This feature was introduced in GitLab 13.12
+      summary: Retrieve the status of an relations export for a group
+      description: Retrieves the status of a relations export for a group.
       produces:
       - application/json
       parameters:
@@ -4012,7 +4012,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Relations export status
+          description: Retrieve the status of an relations export for a group
           schema:
             type: array
             items:
@@ -4044,8 +4044,9 @@ paths:
       operationId: postApiV4GroupsImportAuthorize
   "/api/v4/groups/import":
     post:
-      summary: Create a new group import
-      description: This feature was introduced in GitLab 12.8
+      summary: Create a group import
+      description: Creates a group import. The maximum import file size can be set
+        by the Administrator on GitLab Self-Managed (defaults to `0` (unlimited)).
       produces:
       - application/json
       consumes:
@@ -4082,7 +4083,7 @@ paths:
         required: false
       responses:
         '202':
-          description: Create a new group import
+          description: Create a group import
         '401':
           description: Unauthorized
         '403':
@@ -4235,8 +4236,8 @@ paths:
       - groups
       operationId: getApiV4GroupsIdPlaceholderReassignments
     post:
-      summary: Upload placeholder reassignments CSV file
-      description: Uploads a CSV file containing placeholder reassignments for a group
+      summary: Reassign placeholders
+      description: Reassigns placeholder users with an uploaded CSV file.
       produces:
       - application/json
       consumes:
@@ -4254,7 +4255,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdPlaceholderReassignments"
       responses:
         '201':
-          description: Upload placeholder reassignments CSV file
+          description: Reassign placeholders
       tags:
       - groups
       operationId: postApiV4GroupsIdPlaceholderReassignments
@@ -31043,8 +31044,9 @@ paths:
       operationId: getApiV4ProjectsIdEvents
   "/api/v4/projects/{id}/export":
     get:
-      summary: Get export status
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve the status of a project export
+      description: Retrieves the status of the most recent export for a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -31055,7 +31057,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get export status
+          description: Retrieve the status of a project export
           schema:
             "$ref": "#/definitions/API_Entities_ProjectExportStatus"
         '401':
@@ -31070,8 +31072,9 @@ paths:
       - project_import
       operationId: getApiV4ProjectsIdExport
     post:
-      summary: Start export
-      description: This feature was introduced in GitLab 10.6.
+      summary: Export a project
+      description: Exports a project. Use the `upload` hash parameter to upload the
+        exported project to a web server or any S3-compatible platform.
       produces:
       - application/json
       consumes:
@@ -31089,7 +31092,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdExport"
       responses:
         '202':
-          description: Start export
+          description: Export a project
         '400':
           description: Bad request
         '401':
@@ -31107,8 +31110,8 @@ paths:
       operationId: postApiV4ProjectsIdExport
   "/api/v4/projects/{id}/export/download":
     get:
-      summary: Download export
-      description: This feature was introduced in GitLab 10.6.
+      summary: Download a project export
+      description: Downloads the most recent export of a specified project.
       produces:
       - application/octet-stream
       - application/json
@@ -31120,7 +31123,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Download export
+          description: Download a project export
         '401':
           description: Unauthorized
         '403':
@@ -31134,8 +31137,8 @@ paths:
       operationId: getApiV4ProjectsIdExportDownload
   "/api/v4/projects/{id}/export_relations":
     post:
-      summary: Start relations export
-      description: This feature was introduced in GitLab 14.4
+      summary: Schedule a relations export for a project
+      description: Schedules a relations export for a specified project.
       produces:
       - application/json
       consumes:
@@ -31153,7 +31156,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdExportRelations"
       responses:
         '202':
-          description: Start relations export
+          description: Schedule a relations export for a project
         '400':
           description: Bad request
         '401':
@@ -31169,8 +31172,8 @@ paths:
       operationId: postApiV4ProjectsIdExportRelations
   "/api/v4/projects/{id}/export_relations/download":
     get:
-      summary: Download relations export
-      description: This feature was introduced in GitLab 14.4
+      summary: Download a relations export for a project
+      description: Downloads a project relations export file.
       produces:
       - application/octet-stream
       - application/gzip
@@ -31199,7 +31202,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Download relations export
+          description: Download a relations export for a project
         '400':
           description: Bad request
         '401':
@@ -31217,8 +31220,8 @@ paths:
       operationId: getApiV4ProjectsIdExportRelationsDownload
   "/api/v4/projects/{id}/export_relations/status":
     get:
-      summary: Relations export status
-      description: This feature was introduced in GitLab 14.4
+      summary: Retrieve the status of an relations export for a project
+      description: Retrieves the status of a relations export for a project.
       produces:
       - application/json
       parameters:
@@ -31234,7 +31237,7 @@ paths:
         required: false
       responses:
         '200':
-          description: Relations export status
+          description: Retrieve the status of an relations export for a project
           schema:
             type: array
             items:
@@ -31380,8 +31383,8 @@ paths:
       operationId: deleteApiV4ProjectsIdHooksHookIdCustomHeadersKey
   "/api/v4/projects/{id}/hooks":
     get:
-      summary: List project hooks
-      description: Get a list of project hooks
+      summary: List all webhooks for a project
+      description: Lists all webhooks for a specified project.
       produces:
       - application/json
       parameters:
@@ -31408,7 +31411,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List project hooks
+          description: List all webhooks for a project
           schema:
             type: array
             items:
@@ -31417,8 +31420,8 @@ paths:
       - hooks
       operationId: getApiV4ProjectsIdHooks
     post:
-      summary: Add project hook
-      description: Adds a hook to a specified project
+      summary: Add a webhook to a project
+      description: Adds a webhook to a specified project.
       produces:
       - application/json
       consumes:
@@ -31436,7 +31439,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdHooks"
       responses:
         '201':
-          description: Add project hook
+          description: Add a webhook to a project
           schema:
             "$ref": "#/definitions/API_Entities_ProjectHook"
         '400':
@@ -31450,8 +31453,8 @@ paths:
       operationId: postApiV4ProjectsIdHooks
   "/api/v4/projects/{id}/hooks/{hook_id}":
     get:
-      summary: Get project hook
-      description: Get a specific hook for a project
+      summary: Retrieve a project webhook
+      description: Retrieves a specified webhook for a project.
       produces:
       - application/json
       parameters:
@@ -31468,7 +31471,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get project hook
+          description: Retrieve a project webhook
           schema:
             "$ref": "#/definitions/API_Entities_ProjectHook"
         '404':
@@ -31477,8 +31480,8 @@ paths:
       - hooks
       operationId: getApiV4ProjectsIdHooksHookId
     put:
-      summary: Edit project hook
-      description: Edits a hook for a specified project.
+      summary: Update a project webhook
+      description: Updates a specified webhook for a project.
       produces:
       - application/json
       consumes:
@@ -31502,7 +31505,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdHooksHookId"
       responses:
         '200':
-          description: Edit project hook
+          description: Update a project webhook
           schema:
             "$ref": "#/definitions/API_Entities_ProjectHook"
         '400':
@@ -31515,9 +31518,8 @@ paths:
       - hooks
       operationId: putApiV4ProjectsIdHooksHookId
     delete:
-      summary: Delete a project hook
-      description: Removes a hook from a project. This is an idempotent method and
-        can be called multiple times. Either the hook is available or not.
+      summary: Delete a project webhook
+      description: Deletes a specified webhook for a project.
       produces:
       - application/json
       parameters:
@@ -31777,8 +31779,8 @@ paths:
       operationId: postApiV4ProjectsImportAuthorize
   "/api/v4/projects/import":
     post:
-      summary: Create a new project import
-      description: This feature was introduced in GitLab 10.6.
+      summary: Import a project from a local archive
+      description: Imports a project from a local archive.
       produces:
       - application/json
       consumes:
@@ -32464,7 +32466,7 @@ paths:
         required: false
       responses:
         '201':
-          description: Create a new project import
+          description: Import a project from a local archive
           schema:
             "$ref": "#/definitions/API_Entities_ProjectImportStatus"
         '401':
@@ -32482,8 +32484,9 @@ paths:
       operationId: postApiV4ProjectsImport
   "/api/v4/projects/{id}/import":
     get:
-      summary: Get a project import status
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve the status of a project import
+      description: Retrieves the status of the most recent import for a specified
+        project.
       produces:
       - application/json
       parameters:
@@ -32494,7 +32497,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a project import status
+          description: Retrieve the status of a project import
           schema:
             "$ref": "#/definitions/API_Entities_ProjectImportStatus"
         '401':
@@ -32551,8 +32554,8 @@ paths:
       operationId: postApiV4ProjectsIdImportGit
   "/api/v4/projects/remote-import":
     post:
-      summary: Create a new project import using a remote object storage path
-      description: This feature was introduced in GitLab 13.2.
+      summary: Import a project from a remote archive
+      description: Imports a project from a remote archive.
       produces:
       - application/json
       consumes:
@@ -33187,7 +33190,7 @@ paths:
         required: false
       responses:
         '201':
-          description: Create a new project import using a remote object storage path
+          description: Import a project from a remote archive
           schema:
             "$ref": "#/definitions/API_Entities_ProjectImportStatus"
         '401':
@@ -33221,8 +33224,10 @@ paths:
       operationId: postApiV4ProjectsImportRelationAuthorize
   "/api/v4/projects/import-relation":
     post:
-      summary: Re-import a relation into a project
-      description: This feature was introduced in GitLab 16.11.
+      summary: Import project resources
+      description: Imports project resources included with a project archive. The
+        type of item to import is controlled by the `relation` attribute. Skips items
+        that were previously imported. This feature was introduced in GitLab 16.11.
       produces:
       - application/json
       consumes:
@@ -33297,7 +33302,7 @@ paths:
         required: false
       responses:
         '201':
-          description: Re-import a relation into a project
+          description: Import project resources
           schema:
             "$ref": "#/definitions/API_Entities_RelationImportTracker"
         '401':
@@ -33315,8 +33320,11 @@ paths:
       operationId: postApiV4ProjectsImportRelation
   "/api/v4/projects/{id}/relation-imports":
     get:
-      summary: Get the statuses of relation imports for specified project
-      description: This feature was introduced in GitLab 16.11.
+      summary: Retrieve the status of a project resource import
+      description: Retrieves the status of the most recent relation import for a specified
+        project. Because only one relation import can be scheduled at a time, you
+        can use this endpoint to check whether the previous import completed successfully.
+        This feature was introduced in GitLab 16.11.
       produces:
       - application/json
       parameters:
@@ -33327,7 +33335,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get the statuses of relation imports for specified project
+          description: Retrieve the status of a project resource import
           schema:
             "$ref": "#/definitions/API_Entities_ProjectImportStatus"
         '401':
@@ -33345,8 +33353,9 @@ paths:
       operationId: getApiV4ProjectsIdRelationImports
   "/api/v4/projects/remote-import-s3":
     post:
-      summary: Create a new project import using a file from AWS S3
-      description: This feature was introduced in GitLab 14.9.
+      summary: Import a project from an AWS S3 bucket
+      description: Imports a project from an archive stored in a specified AWS S3
+        bucket.
       produces:
       - application/json
       consumes:
@@ -34001,7 +34010,7 @@ paths:
         required: false
       responses:
         '201':
-          description: Create a new project import using a file from AWS S3
+          description: Import a project from an AWS S3 bucket
           schema:
             "$ref": "#/definitions/API_Entities_ProjectImportStatus"
         '401':
@@ -40637,8 +40646,9 @@ paths:
       operationId: getApiV4Avatar
   "/api/v4/bulk_imports":
     post:
-      summary: Start a new GitLab Migration
-      description: This feature was introduced in GitLab 14.2.
+      summary: Start a group or project migration
+      description: Starts a group or project migration. To migrate a project, specify
+        `entities[project_entity]`.
       produces:
       - application/json
       consumes:
@@ -40715,7 +40725,7 @@ paths:
           type: boolean
       responses:
         '201':
-          description: Start a new GitLab Migration
+          description: Start a group or project migration
           schema:
             "$ref": "#/definitions/API_Entities_BulkImport"
         '401':
@@ -40732,8 +40742,8 @@ paths:
       - imports
       operationId: postApiV4BulkImports
     get:
-      summary: List all GitLab Migrations
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migrations
+      description: Lists all group or project migrations.
       produces:
       - application/json
       parameters:
@@ -40777,7 +40787,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List all GitLab Migrations
+          description: List all group or project migrations
           schema:
             type: array
             items:
@@ -41005,8 +41015,9 @@ paths:
       operationId: getApiV4BulkImportsImportIdEntitiesEntityIdFailures
   "/api/v4/bulk_imports/{import_id}/cancel":
     post:
-      summary: Cancel GitLab Migration
-      description: This feature was introduced in GitLab 17.1
+      summary: Cancel a migration
+      description: Cancels a direct transfer migration. This feature was introduced
+        in GitLab 17.1.
       produces:
       - application/json
       consumes:
@@ -41020,7 +41031,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Cancel GitLab Migration
+          description: Cancel a migration
           schema:
             "$ref": "#/definitions/API_Entities_BulkImport"
         '401':
@@ -46873,8 +46884,8 @@ paths:
       operationId: deleteApiV4HooksHookIdCustomHeadersKey
   "/api/v4/hooks":
     get:
-      summary: List system hooks
-      description: Get a list of all system hooks
+      summary: List all system hooks
+      description: Lists all system hooks for the instance.
       produces:
       - application/json
       parameters:
@@ -46896,7 +46907,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List system hooks
+          description: List all system hooks
           schema:
             type: array
             items:
@@ -46905,8 +46916,8 @@ paths:
       - hooks
       operationId: getApiV4Hooks
     post:
-      summary: Add new system hook
-      description: Add a new system hook
+      summary: Create a system hook
+      description: Creates a system hook.
       produces:
       - application/json
       consumes:
@@ -46919,7 +46930,7 @@ paths:
           "$ref": "#/definitions/postApiV4Hooks"
       responses:
         '201':
-          description: Add new system hook
+          description: Create a system hook
           schema:
             "$ref": "#/definitions/API_Entities_Hook"
         '400':
@@ -46933,8 +46944,8 @@ paths:
       operationId: postApiV4Hooks
   "/api/v4/hooks/{hook_id}":
     get:
-      summary: Get system hook
-      description: Get a system hook by its ID. Introduced in GitLab 14.9.
+      summary: Retrieve a system hook
+      description: Retrieves a specified system hook.
       produces:
       - application/json
       parameters:
@@ -46946,7 +46957,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get system hook
+          description: Retrieve a system hook
           schema:
             "$ref": "#/definitions/API_Entities_Hook"
         '404':
@@ -46955,8 +46966,8 @@ paths:
       - hooks
       operationId: getApiV4HooksHookId
     put:
-      summary: Edit system hook
-      description: Edits a system hook
+      summary: Update a system hook
+      description: Updates a specified system hook.
       produces:
       - application/json
       consumes:
@@ -46975,7 +46986,7 @@ paths:
           "$ref": "#/definitions/putApiV4HooksHookId"
       responses:
         '200':
-          description: Edit system hook
+          description: Update a system hook
           schema:
             "$ref": "#/definitions/API_Entities_Hook"
         '400':
@@ -47009,8 +47020,8 @@ paths:
       - hooks
       operationId: postApiV4HooksHookId
     delete:
-      summary: Delete system hook
-      description: Deletes a system hook
+      summary: Delete a system hook
+      description: Deletes a specified system hook. Administrators only.
       produces:
       - application/json
       parameters:
@@ -47024,7 +47035,7 @@ paths:
         '404':
           description: Not found
         '204':
-          description: Delete system hook
+          description: Delete a system hook
           schema:
             "$ref": "#/definitions/API_Entities_Hook"
       tags:
@@ -47780,8 +47791,8 @@ paths:
       operationId: postApiV4ImportBitbucketServer
   "/api/v4/import/github":
     post:
-      summary: Import a GitHub project
-      description: This feature was introduced in GitLab 11.3.4.
+      summary: Import a repository from GitHub
+      description: Imports a repository from GitHub to GitLab.
       produces:
       - application/json
       consumes:
@@ -47794,7 +47805,7 @@ paths:
           "$ref": "#/definitions/postApiV4ImportGithub"
       responses:
         '201':
-          description: Import a GitHub project
+          description: Import a repository from GitHub
           schema:
             "$ref": "#/definitions/ProjectEntity"
         '400':
@@ -47812,8 +47823,8 @@ paths:
       operationId: postApiV4ImportGithub
   "/api/v4/import/github/cancel":
     post:
-      summary: Cancel GitHub project import
-      description: This feature was introduced in GitLab 15.5
+      summary: Cancel a GitHub project import
+      description: Cancels an in-progress import of a GitHub project to GitLab.
       produces:
       - application/json
       consumes:
@@ -47826,7 +47837,7 @@ paths:
           "$ref": "#/definitions/postApiV4ImportGithubCancel"
       responses:
         '200':
-          description: Cancel GitHub project import
+          description: Cancel a GitHub project import
           schema:
             "$ref": "#/definitions/ProjectImportEntity"
         '400':
@@ -47844,8 +47855,11 @@ paths:
       operationId: postApiV4ImportGithubCancel
   "/api/v4/import/github/gists":
     post:
-      summary: Import User Gists
-      description: This feature was introduced in GitLab 15.8
+      summary: Import GitHub gists into GitLab snippets
+      description: Imports personal GitHub gists into GitLab snippets. You can import
+        gists with up to 10 files. GitHub gists with more than 10 files are skipped.
+        You should manually migrate these GitHub gists. If any gists cannot be imported,
+        an email is sent with a list of gists that were not imported.
       produces:
       - application/json
       consumes:
@@ -47858,7 +47872,7 @@ paths:
           "$ref": "#/definitions/postApiV4ImportGithubGists"
       responses:
         '202':
-          description: Import User Gists
+          description: Import GitHub gists into GitLab snippets
         '401':
           description: Unauthorized
         '422':
@@ -51900,7 +51914,7 @@ definitions:
       batched:
         type: boolean
         description: Whether to export in batches
-    description: Start relations export
+    description: Schedule a relations export for a group
   API_Entities_BulkImports_ExportStatus:
     type: object
     properties:
@@ -52122,7 +52136,7 @@ definitions:
         description: The CSV file containing the reassignments
     required:
     - file
-    description: Upload placeholder reassignments CSV file
+    description: Reassign placeholders
   API_Entities_Ci_Variable:
     type: object
     properties:
@@ -67007,14 +67021,14 @@ definitions:
           ["merge_requests", "issues"])
         items:
           type: string
-    description: Start export
+    description: Export a project
   postApiV4ProjectsIdExportRelations:
     type: object
     properties:
       batched:
         type: boolean
         description: Whether to export in batches
-    description: Start relations export
+    description: Schedule a relations export for a project
   putApiV4ProjectsIdHooksHookIdUrlVariablesKey:
     type: object
     properties:
@@ -67298,7 +67312,7 @@ definitions:
           required:
           - key
           - value
-    description: Edit project hook
+    description: Update a project webhook
   postApiV4ProjectsIdHooks:
     type: object
     properties:
@@ -67428,7 +67442,7 @@ definitions:
           - value
     required:
     - url
-    description: Add project hook
+    description: Add a webhook to a project
   API_Entities_ProjectImportStatus:
     type: object
     properties:
@@ -77317,7 +77331,7 @@ definitions:
           - value
     required:
     - url
-    description: Add new system hook
+    description: Create a system hook
   putApiV4HooksHookId:
     type: object
     properties:
@@ -77402,7 +77416,7 @@ definitions:
           required:
           - key
           - value
-    description: Edit system hook
+    description: Update a system hook
   postApiV4FeatureFlagsUnleashProjectIdClientRegister:
     type: object
     properties:
@@ -78247,7 +78261,7 @@ definitions:
     - personal_access_token
     - repo_id
     - target_namespace
-    description: Import a GitHub project
+    description: Import a repository from GitHub
   postApiV4ImportGithubCancel:
     type: object
     properties:
@@ -78257,7 +78271,7 @@ definitions:
         description: ID of importing project to be canceled
     required:
     - project_id
-    description: Cancel GitHub project import
+    description: Cancel a GitHub project import
   postApiV4ImportGithubGists:
     type: object
     properties:
@@ -78266,7 +78280,7 @@ definitions:
         description: GitHub personal access token
     required:
     - personal_access_token
-    description: Import User Gists
+    description: Import GitHub gists into GitLab snippets
   postApiV4SlackTrigger:
     type: object
     properties:

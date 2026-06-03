@@ -12,7 +12,7 @@ module Tooling
   module PredictiveTests
     # rubocop:disable Gitlab/Json -- not rails
     class DuoTestSelector
-      CONFIDENCE_THRESHOLD = 0.8
+      CONFIDENCE_THRESHOLD = 0.7
       PROMPT_FILE = 'tooling/lib/tooling/predictive_tests/duo_test_selection_prompt.txt'
       DUO_OUTPUT_FILE = 'duo_feature_specs.json'
 

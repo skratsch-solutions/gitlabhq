@@ -76,6 +76,12 @@ To find subscribers, search the subscription files under
 | `Groups::GroupDeletedEvent` | `groups_and_projects` | CE | Published after a group and all its contents are permanently destroyed. |
 | `Groups::GroupTransferedEvent` | `groups_and_projects` | CE | Published after a group is transferred to a different parent namespace. |
 
+## Mcp
+
+| Event | Feature category | Edition | Description |
+|-------|-----------------|---------|-------------|
+| `Mcp::ServerSettingsChangedEvent` | `mcp_server` | EE | Published when a group's MCP server namespace settings (e.g. `mcp_server_enabled`) change, so consumers such as the MCP server cache can be refreshed. |
+
 ## Members
 
 | Event | Feature category | Edition | Description |

@@ -7,7 +7,6 @@ RSpec/ExpectInHook:
     - 'ee/spec/controllers/groups/seat_usage_controller_spec.rb'
     - 'ee/spec/features/boards/new_issue_spec.rb'
     - 'ee/spec/features/projects/feature_flags/user_creates_feature_flag_spec.rb'
-    - 'ee/spec/features/projects/feature_flags/user_deletes_feature_flag_spec.rb'
     - 'ee/spec/features/projects/settings/ee/service_desk_setting_spec.rb'
     - 'ee/spec/finders/ee/template_finder_spec.rb'
     - 'ee/spec/finders/license_template_finder_spec.rb'

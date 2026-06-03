@@ -25543,8 +25543,8 @@ paths:
   "/api/v4/hooks":
     get:
       operationId: getApiV4Hooks
-      summary: List system hooks
-      description: Get a list of all system hooks
+      summary: List all system hooks
+      description: Lists all system hooks for the instance.
       tags:
       - Hooks
       responses:
@@ -25577,8 +25577,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4Hooks
-      summary: Add new system hook
-      description: Add a new system hook
+      summary: Create a system hook
+      description: Creates a system hook.
       tags:
       - Hooks
       responses:
@@ -25603,8 +25603,8 @@ paths:
   "/api/v4/hooks/{hook_id}":
     get:
       operationId: getApiV4HooksHookId
-      summary: Get system hook
-      description: Get a system hook by its ID. Introduced in GitLab 14.9.
+      summary: Retrieve a system hook
+      description: Retrieves a specified system hook.
       tags:
       - Hooks
       responses:
@@ -25625,8 +25625,8 @@ paths:
         in: path
     put:
       operationId: putApiV4HooksHookId
-      summary: Edit system hook
-      description: Edits a system hook
+      summary: Update a system hook
+      description: Updates a specified system hook.
       tags:
       - Hooks
       responses:
@@ -25678,8 +25678,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4HooksHookId
-      summary: Delete system hook
-      description: Deletes a system hook
+      summary: Delete a system hook
+      description: Deletes a specified system hook. Administrators only.
       tags:
       - Hooks
       responses:
@@ -33110,8 +33110,8 @@ paths:
   "/api/v4/projects/import":
     post:
       operationId: postApiV4ProjectsImport
-      summary: Create a new project import
-      description: This feature was introduced in GitLab 10.6.
+      summary: Import a project from a local archive
+      description: Imports a project from a local archive.
       tags:
       - Project import
       responses:
@@ -33140,8 +33140,9 @@ paths:
   "/api/v4/projects/{id}/import":
     get:
       operationId: getApiV4ProjectsIdImport
-      summary: Get a project import status
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve the status of a project import
+      description: Retrieves the status of the most recent import for a specified
+        project.
       tags:
       - Project import
       responses:
@@ -33214,8 +33215,8 @@ paths:
   "/api/v4/projects/remote-import":
     post:
       operationId: postApiV4ProjectsRemoteImport
-      summary: Create a new project import using a remote object storage path
-      description: This feature was introduced in GitLab 13.2.
+      summary: Import a project from a remote archive
+      description: Imports a project from a remote archive.
       tags:
       - Project import
       responses:
@@ -33258,8 +33259,10 @@ paths:
   "/api/v4/projects/import-relation":
     post:
       operationId: postApiV4ProjectsImportRelation
-      summary: Re-import a relation into a project
-      description: This feature was introduced in GitLab 16.11.
+      summary: Import project resources
+      description: Imports project resources included with a project archive. The
+        type of item to import is controlled by the `relation` attribute. Skips items
+        that were previously imported. This feature was introduced in GitLab 16.11.
       tags:
       - Project import
       responses:
@@ -33288,8 +33291,11 @@ paths:
   "/api/v4/projects/{id}/relation-imports":
     get:
       operationId: getApiV4ProjectsIdRelationImports
-      summary: Get the statuses of relation imports for specified project
-      description: This feature was introduced in GitLab 16.11.
+      summary: Retrieve the status of a project resource import
+      description: Retrieves the status of the most recent relation import for a specified
+        project. Because only one relation import can be scheduled at a time, you
+        can use this endpoint to check whether the previous import completed successfully.
+        This feature was introduced in GitLab 16.11.
       tags:
       - Project import
       responses:
@@ -33321,8 +33327,9 @@ paths:
   "/api/v4/projects/remote-import-s3":
     post:
       operationId: postApiV4ProjectsRemoteImportS3
-      summary: Create a new project import using a file from AWS S3
-      description: This feature was introduced in GitLab 14.9.
+      summary: Import a project from an AWS S3 bucket
+      description: Imports a project from an archive stored in a specified AWS S3
+        bucket.
       tags:
       - Project import
       responses:
@@ -33487,8 +33494,8 @@ paths:
   "/api/v4/projects/{id}/hooks":
     get:
       operationId: getApiV4ProjectsIdHooks
-      summary: List project hooks
-      description: Get a list of project hooks
+      summary: List all webhooks for a project
+      description: Lists all webhooks for a specified project.
       tags:
       - Hooks
       responses:
@@ -33531,8 +33538,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdHooks
-      summary: Add project hook
-      description: Adds a hook to a specified project
+      summary: Add a webhook to a project
+      description: Adds a webhook to a specified project.
       tags:
       - Hooks
       responses:
@@ -33566,8 +33573,8 @@ paths:
   "/api/v4/projects/{id}/hooks/{hook_id}":
     get:
       operationId: getApiV4ProjectsIdHooksHookId
-      summary: Get project hook
-      description: Get a specific hook for a project
+      summary: Retrieve a project webhook
+      description: Retrieves a specified webhook for a project.
       tags:
       - Hooks
       responses:
@@ -33596,8 +33603,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdHooksHookId
-      summary: Edit project hook
-      description: Edits a hook for a specified project.
+      summary: Update a project webhook
+      description: Updates a specified webhook for a project.
       tags:
       - Hooks
       responses:
@@ -33636,9 +33643,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_1423636206a1"
     delete:
       operationId: deleteApiV4ProjectsIdHooksHookId
-      summary: Delete a project hook
-      description: Removes a hook from a project. This is an idempotent method and
-        can be called multiple times. Either the hook is available or not.
+      summary: Delete a project webhook
+      description: Deletes a specified webhook for a project.
       tags:
       - Hooks
       responses:
@@ -33816,8 +33822,9 @@ paths:
   "/api/v4/projects/{id}/export":
     get:
       operationId: getApiV4ProjectsIdExport
-      summary: Get export status
-      description: This feature was introduced in GitLab 10.6.
+      summary: Retrieve the status of a project export
+      description: Retrieves the status of the most recent export for a specified
+        project.
       tags:
       - Project import
       responses:
@@ -33846,8 +33853,9 @@ paths:
         in: path
     post:
       operationId: postApiV4ProjectsIdExport
-      summary: Start export
-      description: This feature was introduced in GitLab 10.6.
+      summary: Export a project
+      description: Exports a project. Use the `upload` hash parameter to upload the
+        exported project to a web server or any S3-compatible platform.
       tags:
       - Project import
       responses:
@@ -33883,8 +33891,8 @@ paths:
   "/api/v4/projects/{id}/export/download":
     get:
       operationId: getApiV4ProjectsIdExportDownload
-      summary: Download export
-      description: This feature was introduced in GitLab 10.6.
+      summary: Download a project export
+      description: Downloads the most recent export of a specified project.
       tags:
       - Project import
       responses:
@@ -33910,8 +33918,8 @@ paths:
   "/api/v4/projects/{id}/export_relations":
     post:
       operationId: postApiV4ProjectsIdExportRelations
-      summary: Start relations export
-      description: This feature was introduced in GitLab 14.4
+      summary: Schedule a relations export for a project
+      description: Schedules a relations export for a specified project.
       tags:
       - Project import
       responses:
@@ -33945,8 +33953,8 @@ paths:
   "/api/v4/projects/{id}/export_relations/download":
     get:
       operationId: getApiV4ProjectsIdExportRelationsDownload
-      summary: Download relations export
-      description: This feature was introduced in GitLab 14.4
+      summary: Download a relations export for a project
+      description: Downloads a project relations export file.
       tags:
       - Project import
       responses:
@@ -33997,8 +34005,8 @@ paths:
   "/api/v4/projects/{id}/export_relations/status":
     get:
       operationId: getApiV4ProjectsIdExportRelationsStatus
-      summary: Relations export status
-      description: This feature was introduced in GitLab 14.4
+      summary: Retrieve the status of an relations export for a project
+      description: Retrieves the status of a relations export for a project.
       tags:
       - Project import
       responses:
@@ -50893,8 +50901,8 @@ paths:
   "/api/v4/import/github":
     post:
       operationId: postApiV4ImportGithub
-      summary: Import a GitHub project
-      description: This feature was introduced in GitLab 11.3.4.
+      summary: Import a repository from GitHub
+      description: Imports a repository from GitHub to GitLab.
       tags:
       - Project import
       responses:
@@ -50923,8 +50931,8 @@ paths:
   "/api/v4/import/github/cancel":
     post:
       operationId: postApiV4ImportGithubCancel
-      summary: Cancel GitHub project import
-      description: This feature was introduced in GitLab 15.5
+      summary: Cancel a GitHub project import
+      description: Cancels an in-progress import of a GitHub project to GitLab.
       tags:
       - Project import
       responses:
@@ -50953,8 +50961,11 @@ paths:
   "/api/v4/import/github/gists":
     post:
       operationId: postApiV4ImportGithubGists
-      summary: Import User Gists
-      description: This feature was introduced in GitLab 15.8
+      summary: Import GitHub gists into GitLab snippets
+      description: Imports personal GitHub gists into GitLab snippets. You can import
+        gists with up to 10 files. GitHub gists with more than 10 files are skipped.
+        You should manually migrate these GitHub gists. If any gists cannot be imported,
+        an email is sent with a list of gists that were not imported.
       tags:
       - Imports
       responses:
@@ -51413,8 +51424,8 @@ paths:
         in: path
     post:
       operationId: postApiV4GroupsIdPlaceholderReassignments
-      summary: Upload placeholder reassignments CSV file
-      description: Uploads a CSV file containing placeholder reassignments for a group
+      summary: Reassign placeholders
+      description: Reassigns placeholder users with an uploaded CSV file.
       tags:
       - Groups
       responses:
@@ -51612,8 +51623,9 @@ paths:
   "/api/v4/groups/import":
     post:
       operationId: postApiV4GroupsImport
-      summary: Create a new group import
-      description: This feature was introduced in GitLab 12.8
+      summary: Create a group import
+      description: Creates a group import. The maximum import file size can be set
+        by the Administrator on GitLab Self-Managed (defaults to `0` (unlimited)).
       tags:
       - Group import and export
       responses:
@@ -51636,8 +51648,8 @@ paths:
   "/api/v4/groups/{id}/export/download":
     get:
       operationId: getApiV4GroupsIdExportDownload
-      summary: Download export
-      description: This feature was introduced in GitLab 12.5.
+      summary: Retrieve a group export download
+      description: Retrieves the exported archive for a specified group.
       tags:
       - Group import and export
       responses:
@@ -51663,8 +51675,8 @@ paths:
   "/api/v4/groups/{id}/export":
     post:
       operationId: postApiV4GroupsIdExport
-      summary: Start export
-      description: This feature was introduced in GitLab 12.5.
+      summary: Create a group export
+      description: Creates a group export for a specified group.
       tags:
       - Group import and export
       responses:
@@ -51690,8 +51702,8 @@ paths:
   "/api/v4/groups/{id}/export_relations":
     post:
       operationId: postApiV4GroupsIdExportRelations
-      summary: Start relations export
-      description: This feature was introduced in GitLab 13.12
+      summary: Schedule a relations export for a group
+      description: Schedules a relations export for a specified group.
       tags:
       - Group import and export
       responses:
@@ -51721,8 +51733,8 @@ paths:
   "/api/v4/groups/{id}/export_relations/download":
     get:
       operationId: getApiV4GroupsIdExportRelationsDownload
-      summary: Download relations export
-      description: This feature was introduced in GitLab 13.12
+      summary: Download a relations export for a group
+      description: Downloads a group relations export file.
       tags:
       - Group import and export
       responses:
@@ -51767,8 +51779,8 @@ paths:
   "/api/v4/groups/{id}/export_relations/status":
     get:
       operationId: getApiV4GroupsIdExportRelationsStatus
-      summary: Relations export status
-      description: This feature was introduced in GitLab 13.12
+      summary: Retrieve the status of an relations export for a group
+      description: Retrieves the status of a relations export for a group.
       tags:
       - Group import and export
       responses:
@@ -67178,8 +67190,9 @@ paths:
   "/api/v4/bulk_imports":
     post:
       operationId: postApiV4BulkImports
-      summary: Start a new GitLab Migration
-      description: This feature was introduced in GitLab 14.2.
+      summary: Start a group or project migration
+      description: Starts a group or project migration. To migrate a project, specify
+        `entities[project_entity]`.
       tags:
       - Imports
       responses:
@@ -67207,8 +67220,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_3a1760c4bbba"
     get:
       operationId: getApiV4BulkImports
-      summary: List all GitLab Migrations
-      description: This feature was introduced in GitLab 14.1.
+      summary: List all group or project migrations
+      description: Lists all group or project migrations.
       tags:
       - Imports
       responses:
@@ -67490,8 +67503,9 @@ paths:
   "/api/v4/bulk_imports/{import_id}/cancel":
     post:
       operationId: postApiV4BulkImportsImportIdCancel
-      summary: Cancel GitLab Migration
-      description: This feature was introduced in GitLab 17.1
+      summary: Cancel a migration
+      description: Cancels a direct transfer migration. This feature was introduced
+        in GitLab 17.1.
       tags:
       - Imports
       responses:

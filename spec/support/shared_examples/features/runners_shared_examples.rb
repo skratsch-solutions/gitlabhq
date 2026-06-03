@@ -29,10 +29,11 @@ RSpec.shared_examples 'shows and resets runner registration token' do
       click_button('Reset token', match: :first)
     end
 
+    expect(find('.gl-toast')).to have_content('New registration token generated!')
+
     # new registration token
     click_on dropdown_text
     expect(find_field('token-value').value).not_to eq(registration_token)
-    expect(find('.gl-toast')).to have_content('New registration token generated!')
   end
 end
 

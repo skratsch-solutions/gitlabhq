@@ -847,7 +847,7 @@ rspec-predictive:pipeline-generate:
   needs:
     - job: "detect-tests"
     - job: "retrieve-tests-metadata"
-    - job: "detect-system-tests-duo-experiment"
+    - job: "detect-system-tests-duo"
       optional: true
   script:
     - scripts/prepare_predictive_system_pipeline.rb

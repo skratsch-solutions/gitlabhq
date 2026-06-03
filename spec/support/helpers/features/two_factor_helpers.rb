@@ -227,10 +227,11 @@ module Features
         code = mail.body.parts.first.to_s[/\d{#{Users::EmailVerification::GenerateTokenService::TOKEN_LENGTH}}/o]
         fill_in s_('IdentityVerification|Verification code'), with: code
 
-        expect { click_button s_('IdentityVerification|Verify code') }
-          .to change { user.reload.sign_in_count }
+        expect do
+          click_button s_('IdentityVerification|Verify code')
 
-        expect(page).to have_content('Welcome to GitLab')
+          expect(page).to have_content('Welcome to GitLab')
+        end.to change { user.reload.sign_in_count }
       end
     end
   end
