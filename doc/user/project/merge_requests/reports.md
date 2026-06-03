@@ -17,12 +17,9 @@ title: Merge request reports
 
 - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/20406) in GitLab 19.0 [with a flag](../../../administration/feature_flags/_index.md) named `mr_reports_tab`. Disabled by default.
 - [Enabled on GitLab.com, GitLab Self-Managed, and GitLab Dedicated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234820) in GitLab 19.1.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/234782) in GitLab 19.1. Feature flag `mr_reports_tab` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 The **Reports** tab on a merge request shows detailed findings from CI/CD
 pipeline scans. The tab displays security scan findings,
@@ -151,7 +148,7 @@ When security scanning is enabled, you might encounter the following issues.
 
 ### Dismissed vulnerabilities are visible in the security scan report
 
-When you view the security widget in a merge request, the widget might include vulnerabilities
+When you view the security scan report in a merge request, the report might include vulnerabilities
 that are already dismissed.
 
 No solution is available for this issue. To track the proposed solution, see

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Database::MigrationHelpers::LooseForeignKeyHelpers, feature_category: :database do
-  let_it_be(:migration) do
+  let_it_be(:migration, freeze: false) do
     ActiveRecord::Migration.new.extend(described_class)
   end
 

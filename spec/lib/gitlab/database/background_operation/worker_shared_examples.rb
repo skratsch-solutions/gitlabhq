@@ -20,11 +20,11 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
   end
 
   describe 'scopes' do
-    let_it_be(:queued_worker) { create(worker_factory, :queued) }
-    let_it_be(:active_worker) { create(worker_factory, :active) }
-    let_it_be(:paused_worker) { create(worker_factory, :paused) }
-    let_it_be(:finished_worker) { create(worker_factory, :finished) }
-    let_it_be(:failed_worker) { create(worker_factory, :failed) }
+    let_it_be(:queued_worker, freeze: false) { create(worker_factory, :queued) }
+    let_it_be(:active_worker, freeze: false) { create(worker_factory, :active) }
+    let_it_be(:paused_worker, freeze: false) { create(worker_factory, :paused) }
+    let_it_be(:finished_worker, freeze: false) { create(worker_factory, :finished) }
+    let_it_be(:failed_worker, freeze: false) { create(worker_factory, :failed) }
 
     let(:unfinished_workers) { [queued_worker, active_worker, paused_worker] }
     let(:completed_workers) { [finished_worker, failed_worker] }
@@ -120,7 +120,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
     end
 
     describe '.executable' do
-      let_it_be(:paused_without_hold) { create(worker_factory, :paused, on_hold_until: 2.days.ago) }
+      let_it_be(:paused_without_hold, freeze: false) { create(worker_factory, :paused, on_hold_until: 2.days.ago) }
 
       it 'returns workers with queued, active, paused statuses and on_hold_until in the past' do
         expect(described_class.executable).to match_array([queued_worker, active_worker, paused_without_hold])
@@ -129,7 +129,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
 
     describe '.for_gitlab_schema' do
       let(:main_workers) { [queued_worker, active_worker, paused_worker, finished_worker, failed_worker] }
-      let_it_be(:ci_worker) { create(worker_factory, :queued, gitlab_schema: :gitlab_ci_org) }
+      let_it_be(:ci_worker, freeze: false) { create(worker_factory, :queued, gitlab_schema: :gitlab_ci_org) }
 
       it 'returns workers with the specified gitlab_schema' do
         expect(described_class.for_gitlab_schema([:gitlab_main_org, :gitlab_ci_org]).to_a)
@@ -140,7 +140,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
     end
 
     describe '.for_job_class' do
-      let_it_be(:custom_job_worker) { create(worker_factory, :queued, job_class_name: 'CustomJob') }
+      let_it_be(:custom_job_worker, freeze: false) { create(worker_factory, :queued, job_class_name: 'CustomJob') }
 
       it 'returns workers with the matching job_class_name' do
         expect(described_class.for_job_class('CustomJob')).to match_array([custom_job_worker])
@@ -174,7 +174,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
     end
 
     context 'with logging' do
-      let_it_be(:pending_worker) { create(worker_factory, :queued) }
+      let_it_be(:pending_worker, freeze: false) { create(worker_factory, :queued) }
 
       it 'logs state transitions' do
         expect(::Gitlab::Database::BackgroundOperation::Observability::EventLogger).to receive(:log).with(
@@ -445,7 +445,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
   end
 
   describe '#on_hold?', :freeze_time do
-    let_it_be(:worker) { create(worker_factory, :queued) }
+    let_it_be(:worker, freeze: false) { create(worker_factory, :queued) }
 
     subject(:on_hold) { worker.on_hold? }
 
@@ -569,7 +569,7 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
   end
 
   describe '#create_job!' do
-    let_it_be(:worker) { create(worker_factory, :queued) }
+    let_it_be(:worker, freeze: false) { create(worker_factory, :queued) }
     let(:min_cursor) { [1] }
     let(:max_cursor) { [1000] }
 

@@ -16,7 +16,7 @@ RSpec.describe Gitlab::Graphql::MarkdownField do
     end
 
     context 'developer warnings' do
-      let_it_be(:expected_error) { /Only `method` is allowed to specify the markdown field/ }
+      let_it_be(:expected_error, freeze: false) { /Only `method` is allowed to specify the markdown field/ }
 
       it 'raises when passing a resolver' do
         expect { class_with_markdown_field(:test_html, null: true, resolver: 'not really') }
@@ -25,10 +25,10 @@ RSpec.describe Gitlab::Graphql::MarkdownField do
     end
 
     context 'resolving markdown' do
-      let_it_be(:note) { build(:note, note: '# Markdown!') }
-      let_it_be(:expected_markdown) { '<h1 data-sourcepos="1:1-1:11" dir="auto">Markdown!</h1>' }
+      let_it_be(:note, freeze: false) { build(:note, note: '# Markdown!') }
+      let_it_be(:expected_markdown, freeze: false) { '<h1 data-sourcepos="1:1-1:11" dir="auto">Markdown!</h1>' }
       let_it_be(:query, freeze: false) { GraphQL::Query.new(empty_schema, document: nil, context: {}, variables: {}) }
-      let_it_be(:context) { GraphQL::Query::Context.new(query: query, values: {}) }
+      let_it_be(:context, freeze: false) { GraphQL::Query::Context.new(query: query, values: {}) }
 
       let(:type_class) { class_with_markdown_field(:note_html, null: false) }
       let(:type_instance) { type_class.authorized_new(note, context) }

@@ -1026,8 +1026,7 @@ class ProjectPolicy < BasePolicy
   end
 
   def cross_project_push_allowed_for_job_token?
-    Feature.enabled?(:allow_push_to_allowlisted_projects, project) &&
-      project.ci_cross_project_push_for_job_token_allowed? &&
+    project.ci_cross_project_push_for_job_token_allowed? &&
       project.ci_inbound_job_token_scope_enabled? &&
       @user.ci_job_token_scope.policies_allowed?(project, [:admin_repositories])
   end

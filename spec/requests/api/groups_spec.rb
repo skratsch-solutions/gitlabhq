@@ -1062,8 +1062,15 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
       end
     end
 
-    context 'when using the marked_for_deletion_on filter' do
-      let_it_be(:group_with_deletion_on) { create(:group_with_deletion_schedule, name: "group_with_deletion_on", marked_for_deletion_on: Date.parse('2024-01-01'), owners: user1) }
+    context 'when using the marked_for_deletion_on filter', :freeze_time do
+      let_it_be(:group_with_deletion_on) do
+        create(:group_with_deletion_schedule, :deletion_scheduled,
+          name: "group_with_deletion_on",
+          deletion_scheduled_at: Date.parse('2024-01-01'),
+          marked_for_deletion_on: Date.parse('2024-01-01'),
+          owners: user1)
+      end
+
       let_it_be(:group_without_deletion) { create(:group, name: "group_without_deletion", owners: user1) }
       let(:response_groups) { json_response.map { |group| group['id'] } }
 
@@ -3555,7 +3562,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
     end
 
     shared_examples_for 'marks group for delayed deletion' do
-      it 'marks group for delayed deletion', :clean_gitlab_redis_queues do
+      it 'marks group for delayed deletion', :clean_gitlab_redis_queues, :freeze_time do
         Sidekiq::Testing.fake! do
           expect { api_request }.not_to change { GroupDestroyWorker.jobs.size }
         end
@@ -3563,7 +3570,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
         group.reload
 
         expect(response).to have_gitlab_http_status(:accepted)
-        expect(group.self_deletion_scheduled_deletion_created_on).to eq(Date.current)
+        expect(group.self_deletion_scheduled_deletion_created_on).to eq(Time.current)
         expect(group.deleting_user).to eq(user)
       end
     end
@@ -3617,7 +3624,8 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
         context 'when group is already marked for deletion' do
           before do
-            create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.current)
+            group.reload
+            group.schedule_deletion!(transition_user: user1)
           end
 
           context 'when full_path param is not passed' do

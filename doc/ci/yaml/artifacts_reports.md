@@ -172,7 +172,7 @@ collected code quality report uploads to GitLab as an artifact.
 
 GitLab can display the results of one or more reports in:
 
-- The merge request [code quality widget](../testing/code_quality.md#merge-request-widget).
+- The merge request [code quality report](../../user/project/merge_requests/reports.md#code-quality-report).
 - The merge request [diff annotations](../testing/code_quality.md#merge-request-changes-view).
 - The [full report](../testing/metrics_reports.md).
 

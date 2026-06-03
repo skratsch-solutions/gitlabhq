@@ -427,6 +427,7 @@ RSpec.describe 'Edit group settings', :with_current_organization, feature_catego
 
     context 'when group is marked for deletion' do
       before do
+        group.schedule_deletion!(transition_user: user)
         create(:group_deletion_schedule, group: group)
       end
 

@@ -4226,14 +4226,11 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
       let(:job) { build_stubbed(:ci_build, project: source_project, user: current_user) }
 
       def enable_cross_project_push_gates!(
-        feature_flag: project,
         push_repository: true,
         cross_project_push: true,
         inbound_scope: true,
         link: { default_permissions: false, job_token_policies: %w[admin_repositories] }
       )
-        stub_feature_flags(allow_push_to_allowlisted_projects: feature_flag)
-
         project.ci_cd_settings.update!(
           push_repository_for_job_token_allowed: push_repository,
           cross_project_push_for_job_token_allowed: cross_project_push
@@ -4259,20 +4256,12 @@ RSpec.describe ProjectPolicy, feature_category: :system_access do
           .and_return(current_user.set_ci_job_token_scope!(job))
       end
 
-      context 'when all four gates are satisfied' do
+      context 'when all gates are satisfied' do
         before do
           enable_cross_project_push_gates!
         end
 
         it { is_expected.to be_allowed(:build_push_code) }
-      end
-
-      context 'when feature flag is disabled' do
-        before do
-          enable_cross_project_push_gates!(feature_flag: false)
-        end
-
-        it { is_expected.to be_disallowed(:build_push_code) }
       end
 
       context 'when cross_project_push setting is disabled' do

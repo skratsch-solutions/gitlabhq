@@ -202,7 +202,7 @@ RSpec.describe Organizations::GroupsController, feature_category: :organization 
       specify do
         gitlab_request
 
-        expect(group).to be_self_deletion_scheduled
+        expect(group.reload).to be_self_deletion_scheduled
       end
     end
 
@@ -298,6 +298,7 @@ RSpec.describe Organizations::GroupsController, feature_category: :organization 
 
           context 'when group is already marked for deletion' do
             before do
+              group.schedule_deletion!(transition_user: user)
               create(:group_deletion_schedule, group: group)
             end
 

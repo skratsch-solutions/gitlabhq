@@ -50,6 +50,11 @@ Use full URLs. Do not use short references.
 - Correct: `Resolves https://gitlab.com/gitlab-org/gitlab/-/issues/123456`
 - Incorrect: `Resolves #123456`
 
+This applies to merge request titles and descriptions as well, not only
+commit messages. Danger scans the MR description and fails when it finds
+short references such as `!123`, `#123`, `group/project#123`, or `%12.3`,
+because they render as plain text outside GitLab.
+
 ## Commit trailers
 
 Do not add `Co-Authored-By:` trailers to commit messages.

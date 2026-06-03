@@ -437,7 +437,7 @@ RSpec.describe GroupPolicy, feature_category: :system_access do
         end
 
         context 'when group ancestor is marked for deletion' do
-          let(:ancestor) { create(:group_with_deletion_schedule, organization: group.organization) }
+          let(:ancestor) { create(:group, :deletion_scheduled, organization: group.organization) }
 
           before do
             group.parent = ancestor

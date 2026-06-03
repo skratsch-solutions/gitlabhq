@@ -14,7 +14,7 @@ RSpec.describe 'Admin (GraphQL fixtures)', feature_category: :organization do
     end
 
     let_it_be(:pending_deletion_group) do
-      create(:group_with_deletion_schedule, owners: [owner, current_user], marked_for_deletion_on: Date.yesterday)
+      create(:group_with_deletion_schedule, :deletion_scheduled, owners: [owner, current_user])
     end
 
     let_it_be(:projects) do

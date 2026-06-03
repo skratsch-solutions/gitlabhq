@@ -6,27 +6,30 @@ RSpec.describe EventCollection do
   include DesignManagementTestHelpers
 
   describe '#to_a' do
-    let_it_be(:group) { create(:group) }
-    let_it_be(:project) { create(:project_empty_repo, group: group) }
-    let_it_be(:projects) { Project.where(id: project.id) }
-    let_it_be(:user) { create(:user) }
-    let_it_be(:merge_request) { create(:merge_request) }
+    let_it_be(:group, freeze: false) { create(:group) }
+    let_it_be(:project, freeze: false) { create(:project_empty_repo, group: group) }
+    let_it_be(:projects, freeze: false) { Project.where(id: project.id) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:merge_request, freeze: false) { create(:merge_request) }
 
     before do
       enable_design_management
     end
 
     context 'with project events' do
-      let_it_be(:push_event_payloads) do
+      let_it_be(:push_event_payloads, freeze: false) do
         Array.new(9) do
           create(:push_event_payload, event: create(:push_event, project: project, author: user))
         end
       end
 
-      let_it_be(:merge_request_events) { create_list(:event, 10, :merged, project: project, target: merge_request) }
-      let_it_be(:closed_issue_event) { create(:closed_issue_event, project: project, author: user) }
-      let_it_be(:wiki_page_event) { create(:wiki_page_event, project: project) }
-      let_it_be(:design_event) { create(:design_event, project: project) }
+      let_it_be(:merge_request_events, freeze: false) do
+        create_list(:event, 10, :merged, project: project, target: merge_request)
+      end
+
+      let_it_be(:closed_issue_event, freeze: false) { create(:closed_issue_event, project: project, author: user) }
+      let_it_be(:wiki_page_event, freeze: false) { create(:wiki_page_event, project: project) }
+      let_it_be(:design_event, freeze: false) { create(:design_event, project: project) }
 
       let(:push_events) { push_event_payloads.map(&:event) }
 
@@ -123,14 +126,14 @@ RSpec.describe EventCollection do
     end
 
     context 'with multiple projects' do
-      let_it_be(:project_1) { create(:project_empty_repo, name: 'Project Z') }
-      let_it_be(:project_1_event) { create(:wiki_page_event, project: project_1) }
+      let_it_be(:project_1, freeze: false) { create(:project_empty_repo, name: 'Project Z') }
+      let_it_be(:project_1_event, freeze: false) { create(:wiki_page_event, project: project_1) }
 
-      let_it_be(:project_2) { create(:project_empty_repo, name: 'Project A') }
-      let_it_be(:project_2_event) { create(:wiki_page_event, project: project_2) }
+      let_it_be(:project_2, freeze: false) { create(:project_empty_repo, name: 'Project A') }
+      let_it_be(:project_2_event, freeze: false) { create(:wiki_page_event, project: project_2) }
 
       context 'when projects param has an order by clause' do
-        let_it_be(:projects_sorted_by_name) do
+        let_it_be(:projects_sorted_by_name, freeze: false) do
           Project.where(id: [project_1.id, project_2.id]).limit(1).order(:name)
         end
 
@@ -171,8 +174,8 @@ RSpec.describe EventCollection do
       end
 
       context 'with pagination through events' do
-        let_it_be(:project_events) { create_list(:event, 10, project: project) }
-        let_it_be(:group_events) { create_list(:event, 10, group: group, author: user) }
+        let_it_be(:project_events, freeze: false) { create_list(:event, 10, project: project) }
+        let_it_be(:group_events, freeze: false) { create_list(:event, 10, group: group, author: user) }
 
         let(:subject) { described_class.new(projects, limit: 10, offset: 5, groups: groups).to_a }
 

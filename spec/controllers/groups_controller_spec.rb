@@ -112,7 +112,9 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
     context 'adjourned deletion', :freeze_time do
       render_views
 
-      let_it_be(:subgroup) { create(:group, :private, parent: group) }
+      let_it_be(:active_subgroup) { create(:group, :private, parent: group) }
+      let_it_be(:deleted_subgroup) { create(:group, :deletion_scheduled, :private, parent: group) }
+
       let_it_be(:deletion_date) { permanent_deletion_date_formatted(Date.current) }
       let_it_be(:ancestor_notice) do
         safe_format(
@@ -122,6 +124,8 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
           date: tag.strong(deletion_date)
         )
       end
+
+      let(:subgroup) { active_subgroup }
 
       subject(:get_show) { get :show, params: { id: subgroup.to_param } }
 
@@ -135,8 +139,9 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
       context 'when the parent group has been scheduled for deletion' do
         before do
+          group.schedule_deletion!(transition_user: user)
           create(:group_deletion_schedule,
-            group: subgroup.parent,
+            group: group,
             marked_for_deletion_on: Date.current,
             deleting_user: user
           )
@@ -149,13 +154,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
         end
 
         context 'when the group itself has also been scheduled for deletion' do
-          before do
-            create(:group_deletion_schedule,
-              group: subgroup,
-              marked_for_deletion_on: Date.current,
-              deleting_user: user
-            )
-          end
+          let(:subgroup) { deleted_subgroup }
 
           it 'does not show the notice that the parent group has been scheduled for deletion' do
             subject
@@ -640,6 +639,7 @@ RSpec.describe GroupsController, factory_default: :keep, feature_category: :code
 
       context 'when group is already marked for deletion' do
         before do
+          group.schedule_deletion!(transition_user: user)
           create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.current)
         end
 

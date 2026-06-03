@@ -78,11 +78,13 @@ RSpec.describe Emails::Groups do
     end
   end
 
-  describe '#group_scheduled_for_deletion' do
+  describe '#group_scheduled_for_deletion', :freeze_time do
     # rubocop:disable RSpec/FactoryBot/AvoidCreate -- Need associations
     let_it_be(:user) { create(:user) }
-    let_it_be(:group) { create(:group_with_deletion_schedule, owners: user) }
-    let_it_be(:sub_group) { create(:group_with_deletion_schedule, parent: group) }
+    let_it_be(:group) { create(:group, owners: user) }
+    let_it_be(:sub_group) do
+      create(:group_with_deletion_schedule, :deletion_scheduled, parent: group, deleting_user: user)
+    end
     # rubocop:enable RSpec/FactoryBot/AvoidCreate
 
     let_it_be(:deletion_adjourned_period) { 7 }
@@ -95,7 +97,7 @@ RSpec.describe Emails::Groups do
 
     subject { Notify.group_scheduled_for_deletion(user.id, sub_group.id) }
 
-    it 'has the expected content', :aggregate_failures, :freeze_time do
+    it 'has the expected content', :aggregate_failures do
       is_expected.to have_subject("#{sub_group.name} | Group scheduled for deletion")
 
       is_expected.to have_body_text(

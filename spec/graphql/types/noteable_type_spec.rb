@@ -10,7 +10,8 @@ RSpec.describe GitlabSchema.types['NoteableType'], feature_category: :team_plann
       Types::SnippetType,
       Types::DesignManagement::DesignType,
       Types::AlertManagement::AlertType,
-      Types::Wikis::WikiPageType
+      Types::Wikis::WikiPageType,
+      Types::Repositories::CommitType
     ])
   end
 
@@ -22,6 +23,8 @@ RSpec.describe GitlabSchema.types['NoteableType'], feature_category: :team_plann
       expect(described_class.resolve_type(build_stubbed(:design), {})).to eq(Types::DesignManagement::DesignType)
       expect(described_class.resolve_type(build_stubbed(:alert_management_alert), {})).to eq(Types::AlertManagement::AlertType)
       expect(described_class.resolve_type(build_stubbed(:wiki_page_meta), {})).to eq(Types::Wikis::WikiPageType)
+      # `Commit` is a PORO (not ActiveRecord), so it is built rather than stubbed.
+      expect(described_class.resolve_type(build(:commit), {})).to eq(Types::Repositories::CommitType)
     end
 
     it 'raises for an unsupported type' do
@@ -34,6 +37,7 @@ RSpec.describe GitlabSchema.types['NoteableType'], feature_category: :team_plann
     it 'returns true for a noteable the union can resolve', :aggregate_failures do
       expect(described_class.resolvable?(build_stubbed(:issue))).to be(true)
       expect(described_class.resolvable?(build_stubbed(:wiki_page_meta))).to be(true)
+      expect(described_class.resolvable?(build(:commit))).to be(true)
     end
 
     it 'returns false for a noteable the union cannot resolve' do

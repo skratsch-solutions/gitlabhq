@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipeline_composition do
-  let_it_be(:project) { create_default(:project, :repository, create_tag: 'test').freeze }
-  let_it_be(:user) { create(:user) }
+  let_it_be(:project, freeze: false) { create_default(:project, :repository, create_tag: 'test').freeze }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   let(:pipeline) { build(:ci_empty_pipeline, :created, project: project) }
 
@@ -214,8 +214,8 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
     end
 
     context 'when merge request is present' do
-      let_it_be(:assignees) { create_list(:user, 2) }
-      let_it_be(:milestone) { create(:milestone, project: project) }
+      let_it_be(:assignees, freeze: false) { create_list(:user, 2) }
+      let_it_be(:milestone, freeze: false) { create(:milestone, project: project) }
       let_it_be(:labels, freeze: false) { create_list(:label, 2) }
       let(:merge_request_description) { nil }
 
@@ -413,7 +413,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
     end
 
     context 'when pipeline triggered by upstream project' do
-      let_it_be(:upstream_project) { create(:project) }
+      let_it_be(:upstream_project, freeze: false) { create(:project) }
       let(:upstream_pipeline) { create(:ci_pipeline, project: upstream_project) }
       let(:pipeline) { create(:ci_pipeline, project: project) }
       let(:bridge) do
@@ -490,8 +490,10 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
     end
 
     context 'when source is a pipeline schedule' do
-      let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
-      let_it_be(:pipeline) { create(:ci_pipeline, pipeline_schedule: pipeline_schedule, project: project) }
+      let_it_be(:pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, project: project) }
+      let_it_be(:pipeline, freeze: false) do
+        create(:ci_pipeline, pipeline_schedule: pipeline_schedule, project: project)
+      end
 
       it 'exposes the pipeline schedule description variable' do
         expect(subject.to_hash)
@@ -597,7 +599,7 @@ RSpec.describe Gitlab::Ci::Variables::Builder::Pipeline, feature_category: :pipe
     end
 
     context 'with lazy variable evaluation', :request_store do
-      let_it_be(:merge_request) do
+      let_it_be(:merge_request, freeze: false) do
         create(:merge_request, :simple, source_project: project, target_project: project)
       end
 

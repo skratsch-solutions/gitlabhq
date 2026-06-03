@@ -38,6 +38,7 @@ import { loadViewer } from './blob_viewers';
 const trackingMixin = InternalEvents.mixin();
 
 export default {
+  name: 'BlobContentViewer',
   components: {
     BlobHeader,
     BlobContent,

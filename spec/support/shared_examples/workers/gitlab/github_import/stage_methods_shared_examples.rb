@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples Gitlab::GithubImport::StageMethods do
-  let_it_be(:project) { create(:project, :import_started, import_url: 'https://t0ken@github.com/repo/repo.git') }
+  let_it_be(:project, freeze: false) { create(:project, :import_started, import_url: 'https://t0ken@github.com/repo/repo.git') }
 
   describe '.sidekiq_retries_exhausted' do
     it 'tracks the exception and marks the import as failed' do

@@ -6,8 +6,8 @@ RSpec.describe Gitlab::Repositories::ContainingCommitFinder, feature_category: :
   subject(:finder) { described_class.new(repository, sha, params) }
 
   let_it_be(:project, freeze: false) { create(:project, :small_repo) }
-  let_it_be(:repository) { project.repository }
-  let_it_be(:sha) { repository.commit.sha }
+  let_it_be(:repository, freeze: false) { project.repository }
+  let_it_be(:sha, freeze: false) { repository.commit.sha }
   let(:params) { {} }
 
   before_all do

@@ -35,7 +35,7 @@ RSpec.shared_context 'with merge request approval settings' do
     end
   end
 
-  let_it_be(:group) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group) }
   let_it_be_with_reload(:group_setting) { group.create_group_merge_request_approval_setting! }
 
   before do

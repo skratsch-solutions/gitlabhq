@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration do
   let_it_be_with_reload(:project) { create_default(:project, :repository) }
-  let_it_be(:repository) { project.repository }
+  let_it_be(:repository, freeze: false) { project.repository }
 
   subject(:schedule) { build(:ci_pipeline_schedule, project: project) }
 
@@ -145,9 +145,9 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '.owned_by' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:owned_pipeline_schedule) { create(:ci_pipeline_schedule, owner: user, project: project) }
-    let_it_be(:other_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:owned_pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, owner: user, project: project) }
+    let_it_be(:other_pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, project: project) }
 
     subject { described_class.owned_by(user) }
 
@@ -157,8 +157,8 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '.for_project' do
-    let_it_be(:project_pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
-    let_it_be(:other_pipeline_schedule) { create(:ci_pipeline_schedule) }
+    let_it_be(:project_pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:other_pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule) }
 
     subject { described_class.for_project(project) }
 
@@ -299,9 +299,9 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '#job_variables' do
-    let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, project: project) }
 
-    let_it_be(:pipeline_schedule_variables) do
+    let_it_be(:pipeline_schedule_variables, freeze: false) do
       create_list(:ci_pipeline_schedule_variable, 2, pipeline_schedule: pipeline_schedule)
     end
 
@@ -409,7 +409,7 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
 
   context 'loose foreign key on ci_pipeline_schedules.project_id' do
     it_behaves_like 'cleanup by a loose foreign key' do
-      let_it_be(:parent) { create(:project, :repository) }
+      let_it_be(:parent, freeze: false) { create(:project, :repository) }
       let!(:model) { create(:ci_pipeline_schedule, project: parent) }
     end
   end
@@ -532,7 +532,7 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '#inputs_hash' do
-    let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, project: project) }
+    let_it_be(:pipeline_schedule, freeze: false) { create(:ci_pipeline_schedule, project: project) }
 
     before_all do
       create(:ci_pipeline_schedule_input, pipeline_schedule: pipeline_schedule, name: 'input1', value: 'value1')
@@ -545,9 +545,9 @@ RSpec.describe Ci::PipelineSchedule, feature_category: :continuous_integration d
   end
 
   describe '.grouped_by_active' do
-    let_it_be(:active_schedule_1)   { create(:ci_pipeline_schedule, active: true, project: project) }
-    let_it_be(:active_schedule_2)   { create(:ci_pipeline_schedule, active: true, project: project) }
-    let_it_be(:inactive_schedule_1) { create(:ci_pipeline_schedule, active: false, project: project) }
+    let_it_be(:active_schedule_1, freeze: false)   { create(:ci_pipeline_schedule, active: true, project: project) }
+    let_it_be(:active_schedule_2, freeze: false)   { create(:ci_pipeline_schedule, active: true, project: project) }
+    let_it_be(:inactive_schedule_1, freeze: false) { create(:ci_pipeline_schedule, active: false, project: project) }
 
     subject(:result) { described_class.grouped_by_active }
 

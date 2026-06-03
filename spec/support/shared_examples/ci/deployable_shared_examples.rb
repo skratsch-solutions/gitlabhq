@@ -27,9 +27,9 @@ RSpec.shared_examples 'a deployable job' do
     end
 
     context 'when deployment is not persisted' do
-      let_it_be(:project) { create(:project, :repository) }
-      let_it_be(:commits) { project.repository.commits('master', limit: 2) }
-      let_it_be(:environment) { create(:environment, project: project) }
+      let_it_be(:project, freeze: false) { create(:project, :repository) }
+      let_it_be(:commits, freeze: false) { project.repository.commits('master', limit: 2) }
+      let_it_be(:environment, freeze: false) { create(:environment, project: project) }
 
       let(:unpersisted_deployment) do
         FactoryBot.build(
@@ -343,7 +343,7 @@ RSpec.shared_examples 'a deployable job' do
   end
 
   describe '#environment_permanent_metadata' do
-    let_it_be(:environment) { create(:environment, name: 'production') }
+    let_it_be(:environment, freeze: false) { create(:environment, name: 'production') }
 
     let(:options) { { script: 'script', environment: { name: 'production', action: 'prepare' } } }
     let(:job) { create(factory_type, project: project, environment: 'production', options: options) }
@@ -408,7 +408,7 @@ RSpec.shared_examples 'a deployable job' do
   end
 
   describe '#link_to_environment' do
-    let_it_be(:environment) { create(:environment, name: 'production', project: project) }
+    let_it_be(:environment, freeze: false) { create(:environment, name: 'production', project: project) }
 
     let(:job) { create(factory_type, environment: environment.name, project: project) }
 

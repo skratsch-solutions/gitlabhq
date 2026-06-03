@@ -36,14 +36,13 @@ RSpec.describe 'Organizations (GraphQL fixtures)', feature_category: :organizati
     let_it_be(:organization) { organizations.first }
     let_it_be_with_reload(:current_user) { create(:admin, organization: organization, organizations: []) }
     let_it_be(:user) { create(:user, organization: organization, organizations: []) }
-    let_it_be(:groups) { create_list(:group, 3, organization: organization) }
 
-    let_it_be(:group) { groups.first }
     let_it_be(:group_user) { create(:user, organization: organization) }
-    let_it_be(:group_owner) { create(:group_member, :owner, group: group, user: group_user) }
-    let_it_be(:deletion_schedule) do
-      create(:group_deletion_schedule, group: group, marked_for_deletion_on: Date.yesterday)
+    let_it_be(:group) do
+      create(:group_with_deletion_schedule, :deletion_scheduled, organization: organization, owners: [group_user])
     end
+
+    let_it_be(:groups) { create_list(:group, 2, organization: organization).prepend(group) }
 
     let_it_be(:projects) do
       groups.map do |group|

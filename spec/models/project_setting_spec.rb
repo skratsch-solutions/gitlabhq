@@ -11,10 +11,10 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
   end
 
   describe 'scopes' do
-    let_it_be(:project_1) { create(:project) }
-    let_it_be(:project_2) { create(:project) }
-    let_it_be(:project_setting_1) { create(:project_setting, project: project_1) }
-    let_it_be(:project_setting_2) { create(:project_setting, project: project_2) }
+    let_it_be(:project_1, freeze: false) { create(:project) }
+    let_it_be(:project_2, freeze: false) { create(:project) }
+    let_it_be(:project_setting_1, freeze: false) { create(:project_setting, project: project_1) }
+    let_it_be(:project_setting_2, freeze: false) { create(:project_setting, project: project_2) }
 
     it 'returns project setting for the given projects' do
       expect(described_class.for_projects(project_1)).to contain_exactly(project_setting_1)
@@ -267,8 +267,8 @@ RSpec.describe ProjectSetting, type: :model, feature_category: :groups_and_proje
   end
 
   describe '#runner_registration_enabled' do
-    let_it_be(:settings) { create(:project_setting) }
-    let_it_be(:group) { create(:group) }
+    let_it_be(:settings, freeze: false) { create(:project_setting) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let_it_be(:project, freeze: false) { create(:project, project_setting: settings, group: group) }
 
     it 'returns true' do

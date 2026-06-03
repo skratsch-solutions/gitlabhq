@@ -76,7 +76,7 @@ RSpec.describe Gitlab::ImportExport::Project::RelationTreeRestorer, :clean_gitla
     let(:path) { 'spec/fixtures/lib/gitlab/import_export/complex/tree' }
     let(:relation_reader) { Gitlab::ImportExport::Json::NdjsonReader.new(path) }
 
-    let_it_be(:group) do
+    let_it_be(:group, freeze: false) do
       create(:group, :shared_runners_disabled_and_unoverridable, maintainers: user)
     end
 
@@ -195,7 +195,7 @@ RSpec.describe Gitlab::ImportExport::Project::RelationTreeRestorer, :clean_gitla
   end
 
   describe '#restore_single_relation' do
-    let_it_be(:importable) { create(:project) }
+    let_it_be(:importable, freeze: false) { create(:project) }
 
     let(:relation_reader) do
       Gitlab::ImportExport::Json::NdjsonReader.new(

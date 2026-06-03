@@ -36,10 +36,12 @@ RSpec.describe WorkItems::Widgets::Development, feature_category: :team_planning
   end
 
   describe '#will_auto_close_by_merge_request' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let_it_be_with_reload(:project) { create(:project, group: group) }
-    let_it_be(:open_merge_request) { create(:merge_request, :opened, source_project: project) }
-    let_it_be(:closed_merge_request) { create(:merge_request, :closed, source_project: project, target_branch: 'f2') }
+    let_it_be(:open_merge_request, freeze: false) { create(:merge_request, :opened, source_project: project) }
+    let_it_be(:closed_merge_request, freeze: false) do
+      create(:merge_request, :closed, source_project: project, target_branch: 'f2')
+    end
 
     subject { described_class.new(work_item).will_auto_close_by_merge_request }
 

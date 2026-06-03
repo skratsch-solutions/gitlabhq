@@ -241,7 +241,7 @@ export default {
   <mounting-portal v-if="open" mount-to="#contextual-panel-portal" append>
     <div data-testid="work-item-detail-panel" class="work-item-detail-panel gl-leading-reset">
       <div class="work-item-detail-panel-header">
-        <div class="gl-flex gl-grow gl-items-center gl-gap-2 gl-truncate">
+        <div class="gl-flex gl-min-w-0 gl-grow gl-items-center gl-gap-2">
           <!-- eslint-disable local-rules/vue-no-web-url -->
           <gl-link
             ref="workItemUrl"

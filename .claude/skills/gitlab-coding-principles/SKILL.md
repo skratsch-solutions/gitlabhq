@@ -21,6 +21,11 @@ ALWAYS load Database principles regardless of which files you are editing.
 **Security:**
 - **Security vulnerabilities and secure coding**: Read .ai/principles/distilled/security.md
 
+**Permissions:**
+- **Where to check permissions, naming conventions, role definitions**: Read .ai/principles/distilled/permissions-fundamentals.md *(load for any permissions work)*
+- **Granular PAT (GPAT) compliance for GraphQL types and mutations**: Read .ai/principles/distilled/permissions-graphql-gpat.md *(also load: .ai/principles/distilled/permissions-fundamentals.md)*
+- **Granular PAT (GPAT) compliance for REST endpoints and job tokens**: Read .ai/principles/distilled/permissions-rest-gpat.md *(also load: .ai/principles/distilled/permissions-fundamentals.md)*
+
 **Code Review:**
 - **General code review practices and acceptance checklist**: Read .ai/principles/distilled/code-review.md
 

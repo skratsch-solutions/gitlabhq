@@ -413,6 +413,25 @@ RSpec.describe Gitlab::SearchResults, feature_category: :global_search do
             expect(results.objects('projects')).to eq([unarchived_result])
           end
         end
+
+        context 'when the autocomplete filter is added' do
+          let(:filters) { { autocomplete: true } }
+          let_it_be(:member_project) { create(:project, :public, name: 'Test member') }
+          let_it_be(:unrelated_public_project) { create(:project, :public, name: 'Test unrelated') }
+          let(:limit_projects) { Project.id_in([member_project.id, unrelated_public_project.id]) }
+
+          before_all do
+            member_project.add_developer(user)
+          end
+
+          it 'returns only projects visible to the user' do
+            expect(results.objects('projects')).to include(member_project)
+          end
+
+          it 'does not return projects the user cannot see' do
+            expect(results.objects('projects')).not_to include(unrelated_public_project)
+          end
+        end
       end
     end
 

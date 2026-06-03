@@ -780,8 +780,10 @@ RSpec.describe SearchHelper, :with_current_organization, feature_category: :glob
         stub_feature_flags(search_projects_autocomplete_use_search_service: user)
       end
 
-      it 'delegates to search_using_search_service with projects scope' do
-        expect(self).to receive(:search_using_search_service).with(user, 'projects', search_term, 5).and_call_original
+      it 'delegates to search_using_search_service with projects scope and autocomplete flag' do
+        expect(self).to receive(:search_using_search_service)
+          .with(user, 'projects', search_term, 5, { autocomplete: true })
+          .and_call_original
 
         projects_autocomplete(search_term)
       end

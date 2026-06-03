@@ -2589,6 +2589,9 @@ msgstr ""
 msgid "AICatalog|All project members will be able to use it."
 msgstr ""
 
+msgid "AICatalog|All projects must belong to the same organization as the agent or flow."
+msgstr ""
+
 msgid "AICatalog|Already enabled"
 msgstr ""
 

@@ -209,6 +209,7 @@ module Gitlab
     def projects
       scope = limit_projects
       scope = scope.self_and_ancestors_non_archived unless filters[:include_archived]
+      scope = scope.id_in(current_user_authorized_project_ids) if filters[:autocomplete] && current_user
 
       scope.search(query, include_namespace: true, use_minimum_char_limit: false)
     end

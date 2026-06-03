@@ -273,12 +273,9 @@ the [projects API](../../api/projects.md#update-a-project).
 {{< history >}}
 
 - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/479907) in GitLab 19.0 [with a flag](../../administration/feature_flags/_index.md) named `allow_push_to_allowlisted_projects`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/597258) in GitLab 19.1. Feature flag `allow_push_to_allowlisted_projects` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 You can allow CI/CD job tokens from allowlisted projects to push to your project repository.
 This is useful for GitOps workflows, submodule tagging, and cross-repository CI/CD pipelines

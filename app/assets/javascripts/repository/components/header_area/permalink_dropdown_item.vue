@@ -12,6 +12,7 @@ import { getAbsolutePermalinkPath } from './utils';
 Vue.use(GlToast);
 
 export default {
+  name: 'PermalinkDropdownItem',
   components: {
     GlDisclosureDropdownItem,
   },

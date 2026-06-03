@@ -35,8 +35,8 @@ RSpec.describe RapidDiffs::DiffFileComponent, type: :component, feature_category
     end
 
     context 'with environment' do
-      let_it_be(:project) { build_stubbed(:project, :repository) }
-      let_it_be(:environment) { build_stubbed(:environment, project: project) }
+      let_it_be(:project, freeze: false) { build_stubbed(:project, :repository) }
+      let_it_be(:environment, freeze: false) { build_stubbed(:environment, project: project) }
 
       it 'renders the default header with environment when no custom header is provided' do
         allow_next_instance_of(

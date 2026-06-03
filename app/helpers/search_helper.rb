@@ -487,7 +487,13 @@ module SearchHelper
   # Autocomplete results for the current user's projects
   def projects_autocomplete(term, limit = 5)
     projects = if Feature.enabled?(:search_projects_autocomplete_use_search_service, current_user)
-                 search_using_search_service(current_user, 'projects', term, limit)
+                 search_using_search_service(
+                   current_user,
+                   'projects',
+                   term,
+                   limit,
+                   { autocomplete: true }
+                 )
                else
                  current_user.authorized_projects.order_id_desc.search(
                    term,

@@ -2038,7 +2038,7 @@ ee/app/workers/ai/repository_xray/
 /ee/lib/search/cluster_health_check/
 /ee/lib/gitlab/elastic/bulk_indexer.rb
 /ee/lib/search/elastic/document_reference.rb
-/ee/lib/gitlab/elastic/client.rb
+/ee/lib/search/elastic/client.rb
 /ee/lib/gitlab/elastic/helper.rb
 /ee/app/models/concerns/elastic/
 /ee/app/models/concerns/search/elastic/

@@ -11,6 +11,7 @@ module Types
       present_using CommitPresenter
 
       implements Types::TodoableInterface
+      implements Types::Notes::NoteableInterface
 
       field :id, type: GraphQL::Types::ID, null: false,
         description: 'ID (global ID) of the commit.'

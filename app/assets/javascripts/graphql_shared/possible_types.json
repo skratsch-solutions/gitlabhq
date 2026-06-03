@@ -190,6 +190,7 @@
   "NoteableInterface": [
     "AlertManagementAlert",
     "BoardEpic",
+    "Commit",
     "CountableVulnerability",
     "Design",
     "Epic",
@@ -203,6 +204,7 @@
   ],
   "NoteableType": [
     "AlertManagementAlert",
+    "Commit",
     "Design",
     "Issue",
     "MergeRequest",

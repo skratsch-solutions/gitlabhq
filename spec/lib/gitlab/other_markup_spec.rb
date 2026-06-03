@@ -213,10 +213,10 @@ RSpec.describe Gitlab::OtherMarkup, feature_category: :wiki do
   end
 
   context 'when rendering takes too long' do
-    let_it_be(:file_name) { 'foo.bar' }
-    let_it_be(:project) { create(:project, :repository) }
-    let_it_be(:context) { { project: project } }
-    let_it_be(:text) { +'Noël' }
+    let_it_be(:file_name, freeze: false) { 'foo.bar' }
+    let_it_be(:project, freeze: false) { create(:project, :repository) }
+    let_it_be(:context, freeze: false) { { project: project } }
+    let_it_be(:text, freeze: false) { +'Noël' }
 
     before do
       stub_const('Gitlab::OtherMarkup::RENDER_TIMEOUT', 0.1)
