@@ -16950,6 +16950,27 @@ CREATE SEQUENCE cd_artifact_sources_id_seq
 
 ALTER SEQUENCE cd_artifact_sources_id_seq OWNED BY cd_artifact_sources.id;
 
+CREATE TABLE cd_deployments (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    rollout_id bigint NOT NULL,
+    version_set_entry_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    started_at timestamp with time zone,
+    finished_at timestamp with time zone,
+    state smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE cd_deployments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_deployments_id_seq OWNED BY cd_deployments.id;
+
 CREATE TABLE cd_environments (
     id bigint NOT NULL,
     group_id bigint,
@@ -16975,6 +16996,27 @@ CREATE SEQUENCE cd_environments_id_seq
     CACHE 1;
 
 ALTER SEQUENCE cd_environments_id_seq OWNED BY cd_environments.id;
+
+CREATE TABLE cd_rollouts (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    version_set_id bigint NOT NULL,
+    environment_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    started_at timestamp with time zone,
+    finished_at timestamp with time zone,
+    state smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE cd_rollouts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE cd_rollouts_id_seq OWNED BY cd_rollouts.id;
 
 CREATE TABLE cd_services (
     id bigint NOT NULL,
@@ -17020,7 +17062,7 @@ CREATE TABLE cd_version_sets (
     id bigint NOT NULL,
     group_id bigint NOT NULL,
     application_id bigint NOT NULL,
-    environment_id bigint NOT NULL,
+    environment_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
@@ -36160,7 +36202,11 @@ ALTER TABLE ONLY cd_applications ALTER COLUMN id SET DEFAULT nextval('cd_applica
 
 ALTER TABLE ONLY cd_artifact_sources ALTER COLUMN id SET DEFAULT nextval('cd_artifact_sources_id_seq'::regclass);
 
+ALTER TABLE ONLY cd_deployments ALTER COLUMN id SET DEFAULT nextval('cd_deployments_id_seq'::regclass);
+
 ALTER TABLE ONLY cd_environments ALTER COLUMN id SET DEFAULT nextval('cd_environments_id_seq'::regclass);
+
+ALTER TABLE ONLY cd_rollouts ALTER COLUMN id SET DEFAULT nextval('cd_rollouts_id_seq'::regclass);
 
 ALTER TABLE ONLY cd_services ALTER COLUMN id SET DEFAULT nextval('cd_services_id_seq'::regclass);
 
@@ -39349,8 +39395,14 @@ ALTER TABLE ONLY cd_applications
 ALTER TABLE ONLY cd_artifact_sources
     ADD CONSTRAINT cd_artifact_sources_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY cd_deployments
+    ADD CONSTRAINT cd_deployments_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY cd_environments
     ADD CONSTRAINT cd_environments_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT cd_rollouts_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY cd_services
     ADD CONSTRAINT cd_services_pkey PRIMARY KEY (id);
@@ -46633,7 +46685,19 @@ CREATE INDEX index_cd_artifact_sources_on_project_id ON cd_artifact_sources USIN
 
 CREATE UNIQUE INDEX index_cd_artifact_sources_on_service_id ON cd_artifact_sources USING btree (service_id);
 
+CREATE INDEX index_cd_deployments_on_group_id ON cd_deployments USING btree (group_id);
+
+CREATE UNIQUE INDEX index_cd_deployments_on_rollout_id_and_version_set_entry_id ON cd_deployments USING btree (rollout_id, version_set_entry_id);
+
+CREATE INDEX index_cd_deployments_on_version_set_entry_id ON cd_deployments USING btree (version_set_entry_id);
+
 CREATE INDEX index_cd_environments_on_cluster_agent_id ON cd_environments USING btree (cluster_agent_id);
+
+CREATE INDEX index_cd_rollouts_on_environment_id ON cd_rollouts USING btree (environment_id);
+
+CREATE INDEX index_cd_rollouts_on_group_id ON cd_rollouts USING btree (group_id);
+
+CREATE INDEX index_cd_rollouts_on_version_set_id_and_state ON cd_rollouts USING btree (version_set_id, state);
 
 CREATE UNIQUE INDEX index_cd_services_on_application_id_and_name ON cd_services USING btree (application_id, name);
 
@@ -46650,8 +46714,6 @@ CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_service_i
 CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_version_id ON cd_version_set_entries USING btree (version_set_id, version_id);
 
 CREATE UNIQUE INDEX index_cd_version_sets_on_application_id_and_name ON cd_version_sets USING btree (application_id, name);
-
-CREATE INDEX index_cd_version_sets_on_environment_id ON cd_version_sets USING btree (environment_id);
 
 CREATE INDEX index_cd_version_sets_on_group_id ON cd_version_sets USING btree (group_id);
 
@@ -56549,9 +56611,6 @@ ALTER TABLE ONLY ai_active_context_tasks
 ALTER TABLE ONLY merge_request_assignees
     ADD CONSTRAINT fk_088f01d08d FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY cd_version_sets
-    ADD CONSTRAINT fk_08be5079de FOREIGN KEY (environment_id) REFERENCES cd_environments(id) ON DELETE CASCADE;
-
 ALTER TABLE ONLY observability_traces_issues_connections
     ADD CONSTRAINT fk_08c2664321 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
@@ -57311,6 +57370,9 @@ ALTER TABLE ONLY merge_requests_approval_rules_projects
 ALTER TABLE ONLY organization_user_details
     ADD CONSTRAINT fk_4533918f8e FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_deployments
+    ADD CONSTRAINT fk_454afcb5d3 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY ai_settings
     ADD CONSTRAINT fk_4571bb0ccc FOREIGN KEY (duo_workflow_oauth_application_id) REFERENCES oauth_applications(id) ON DELETE SET NULL;
 
@@ -58048,6 +58110,9 @@ ALTER TABLE ONLY related_epic_links
 
 ALTER TABLE ONLY project_settings
     ADD CONSTRAINT fk_8264eab4ae FOREIGN KEY (pipeline_execution_policy_bot_access_group_id) REFERENCES namespaces(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY cd_deployments
+    ADD CONSTRAINT fk_828c4990f7 FOREIGN KEY (rollout_id) REFERENCES cd_rollouts(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY group_wiki_repository_states
     ADD CONSTRAINT fk_832511c9f1 FOREIGN KEY (group_wiki_repository_id) REFERENCES group_wiki_repositories(group_id) ON DELETE CASCADE;
@@ -58928,6 +58993,9 @@ ALTER TABLE ONLY environments
 ALTER TABLE ONLY issue_user_mentions
     ADD CONSTRAINT fk_d1f967521a FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT fk_d20f4cff9b FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY user_group_member_roles
     ADD CONSTRAINT fk_d222d57eec FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
@@ -58936,6 +59004,9 @@ ALTER TABLE ONLY jira_tracker_data
 
 ALTER TABLE ONLY boards_epic_user_preferences
     ADD CONSTRAINT fk_d32c3d693c FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_deployments
+    ADD CONSTRAINT fk_d37a491545 FOREIGN KEY (version_set_entry_id) REFERENCES cd_version_set_entries(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY user_admin_roles
     ADD CONSTRAINT fk_d3e201cb93 FOREIGN KEY (admin_role_id) REFERENCES admin_roles(id) ON DELETE CASCADE;
@@ -59090,6 +59161,9 @@ ALTER TABLE ONLY ci_resources
 ALTER TABLE ONLY ci_sources_pipelines
     ADD CONSTRAINT fk_e1bad85861_p FOREIGN KEY (partition_id, pipeline_id) REFERENCES p_ci_pipelines(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT fk_e1c7f6029e FOREIGN KEY (version_set_id) REFERENCES cd_version_sets(id) ON DELETE CASCADE;
+
 ALTER TABLE p_ci_builds_metadata
     ADD CONSTRAINT fk_e20479742e_p FOREIGN KEY (partition_id, build_id) REFERENCES p_ci_builds(partition_id, id) ON UPDATE CASCADE ON DELETE CASCADE;
 
@@ -59179,6 +59253,9 @@ ALTER TABLE ONLY project_requirement_compliance_statuses
 
 ALTER TABLE ONLY integrations
     ADD CONSTRAINT fk_e8fe908a34 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_rollouts
+    ADD CONSTRAINT fk_e9ee5d697b FOREIGN KEY (environment_id) REFERENCES cd_environments(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY pages_domains
     ADD CONSTRAINT fk_ea2f6dfc6f FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

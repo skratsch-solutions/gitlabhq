@@ -2691,6 +2691,12 @@ msgstr ""
 msgid "AICatalog|Connects to an AI model provider outside GitLab."
 msgstr ""
 
+msgid "AICatalog|Contact maintainer to disable"
+msgstr ""
+
+msgid "AICatalog|Contact maintainer to enable"
+msgstr ""
+
 msgid "AICatalog|Contact your administrator to enable GitLab Duo"
 msgstr ""
 
@@ -88306,6 +88312,9 @@ msgstr ""
 msgid "already has a \"created\" issue link"
 msgstr ""
 
+msgid "already has a deployment in this rollout"
+msgstr ""
+
 msgid "already has an entry in this version set"
 msgstr ""
 
@@ -90203,6 +90212,9 @@ msgid "must belong to same project of the work item."
 msgstr ""
 
 msgid "must belong to the compliance requirement."
+msgstr ""
+
+msgid "must belong to the rollout's version set"
 msgstr ""
 
 msgid "must belong to the same compliance requirement."
