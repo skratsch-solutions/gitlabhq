@@ -482,15 +482,13 @@ func startRailsServer(t *testing.T, geoProxyEndpointResponseBody *string) *httpt
 
 func startWorkhorseServer(t *testing.T, railsServerURL string, enableGeoProxyFeature bool) (*httptest.Server, func()) {
 	geoProxySleepC := make(chan struct{})
-	geoProxySleep := func(time.Duration) <-chan time.Time {
+	geoProxySleep := func(d time.Duration) <-chan time.Time {
 		// Indicate to caller that we have been reached
 		geoProxySleepC <- struct{}{}
 		// Wait for caller to instruct us to complete
 		<-geoProxySleepC
-		// Immediately end and return timer
-		ch := make(chan time.Time, 1)
-		ch <- time.Now()
-		return ch
+
+		return immediateSleep(d)
 	}
 
 	myConfigureRoutes := func(u *upstream) {

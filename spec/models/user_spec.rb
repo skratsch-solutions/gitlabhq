@@ -2941,6 +2941,18 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
         user.update_tracked_fields!(request)
       end.not_to change { user.reload.current_sign_in_at }
     end
+
+    context 'when the record is frozen' do
+      before do
+        user.freeze
+      end
+
+      it 'does not raise and does not write' do
+        expect do
+          expect { user.update_tracked_fields!(request) }.not_to raise_error
+        end.not_to change { User.find(user.id).current_sign_in_at }
+      end
+    end
   end
 
   shared_context 'user keys' do
@@ -7447,6 +7459,16 @@ RSpec.describe User, :with_current_organization, feature_category: :user_profile
       let(:user) { build(:user) }
 
       it 'does not raise an ActiveRecord::StatementInvalid statement exception' do
+        expect { user.update_two_factor_requirement }.not_to raise_error
+      end
+    end
+
+    context 'when the record is frozen' do
+      before do
+        user.freeze
+      end
+
+      it 'does not raise' do
         expect { user.update_two_factor_requirement }.not_to raise_error
       end
     end

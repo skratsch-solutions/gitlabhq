@@ -11,7 +11,7 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
     using RSpec::Parameterized::TableSyntax
 
     where(:scenario, :key, :threshold_override, :interval_override, :flag_on, :expected) do
-      'key not handled by the adapter'             | :web_hook_calls      | nil | nil | true  | false
+      'key not handled by the adapter'             | :project_generate_new_export | nil | nil | true | false
       'threshold override forces the legacy path'  | :pipelines_create    | 10  | nil | true  | false
       'interval override forces the legacy path'   | :pipelines_create    | nil | 60  | true  | false
       'use_labkit flag is off'                     | :pipelines_create    | nil | nil | false | false
@@ -87,6 +87,31 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       end
     end
 
+    context 'with a threshold_from_caller (web_hook_calls) entry' do
+      let(:override_counter) { instance_double(Prometheus::Client::Counter, increment: nil) }
+
+      before do
+        allow(Gitlab::Metrics).to receive(:counter).and_call_original
+        allow(Gitlab::Metrics).to receive(:counter)
+          .with(:gitlab_rate_limiter_labkit_override_total, anything, anything)
+          .and_return(override_counter)
+      end
+
+      it 'routes through labkit and records no override for a caller-supplied threshold', :aggregate_failures do
+        expect(override_counter).not_to receive(:increment)
+
+        expect(described_class.shadow_or_enforce?(:web_hook_calls,
+          context: { threshold: 500, interval: nil })).to be(true)
+      end
+
+      # The threshold opt-out is threshold-scoped: the interval is registry-owned
+      # (1.minute) for these keys, so an interval override still bails to legacy.
+      it 'still bails to legacy when an interval override is passed' do
+        expect(described_class.shadow_or_enforce?(:web_hook_calls,
+          context: { threshold: nil, interval: 120 })).to be(false)
+      end
+    end
+
     context 'when an override is passed' do
       let(:override_counter) { instance_double(Prometheus::Client::Counter, increment: nil) }
 
@@ -117,7 +142,7 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       it 'does not record overrides for keys the adapter does not handle' do
         expect(override_counter).not_to receive(:increment)
 
-        described_class.shadow_or_enforce?(:web_hook_calls, context: { threshold: 10, interval: nil })
+        described_class.shadow_or_enforce?(:project_generate_new_export, context: { threshold: 10, interval: nil })
       end
 
       it 'does not record when no override is passed' do
@@ -166,6 +191,13 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
 
       stub_feature_flags(rate_limiter_use_labkit_cohort_3_enforce: false)
       expect(described_class.enforce?(:glql)).to be(false)
+    end
+
+    it 'reflects the cohort-wide enforce flag for cohort 6 entries', :aggregate_failures do
+      expect(described_class.enforce?(:web_hook_calls)).to be(true)
+
+      stub_feature_flags(rate_limiter_use_labkit_cohort_6_enforce: false)
+      expect(described_class.enforce?(:web_hook_calls)).to be(false)
     end
   end
 
@@ -418,6 +450,43 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
         end
       end
     end
+
+    context 'with a threshold_from_caller key (web_hook_calls)' do
+      let_it_be(:namespace) { create(:namespace) }
+
+      let(:expected_key) do
+        "labkit:rl:applimiter_web_hook_calls:limit_web_hook_calls_by_namespace:namespace:#{namespace.id}"
+      end
+
+      it 'increments the namespace-keyed labkit counter' do
+        described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 10 })
+
+        count = Gitlab::Redis::RateLimiting.with { |r| r.get(expected_key) }
+        expect(count.to_i).to eq(1)
+      end
+
+      it 'resolves the limit from the caller threshold in rule_context' do
+        described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 1 })
+        result = described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 1 })
+
+        expect(result).to be(true)
+      end
+
+      it 'does not exceed when the count is within the caller threshold' do
+        result = described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 100 })
+
+        expect(result).to be(false)
+      end
+
+      it 'routes a Group scope through the namespace characteristic' do
+        group = create(:group)
+        described_class.run!(:web_hook_calls, scope: group, context: { threshold: 10 })
+
+        group_key = "labkit:rl:applimiter_web_hook_calls:limit_web_hook_calls_by_namespace:namespace:#{group.id}"
+        count = Gitlab::Redis::RateLimiting.with { |r| r.get(group_key) }
+        expect(count.to_i).to eq(1)
+      end
+    end
   end
 
   describe '.run_peek!' do
@@ -446,6 +515,28 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       described_class.run!(:glql, scope: 'sha-abc123')
 
       expect(described_class.run_peek!(:glql, scope: 'sha-abc123')).to be(true)
+    end
+
+    context 'with a threshold_from_caller key (web_hook_calls)' do
+      let_it_be(:namespace) { create(:namespace) }
+
+      let(:expected_key) do
+        "labkit:rl:applimiter_web_hook_calls:limit_web_hook_calls_by_namespace:namespace:#{namespace.id}"
+      end
+
+      it 'does not increment the counter' do
+        described_class.run_peek!(:web_hook_calls, scope: namespace, context: { threshold: 10 })
+
+        expect(Gitlab::Redis::RateLimiting.with { |r| r.get(expected_key) }).to be_nil
+      end
+
+      it 'reads the counter written by a paired non-peek call' do
+        described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 1 })
+        described_class.run!(:web_hook_calls, scope: namespace, context: { threshold: 1 })
+
+        expect(described_class.run_peek!(:web_hook_calls, scope: namespace,
+          context: { threshold: 1 })).to be(true)
+      end
     end
 
     context 'when the labkit peek errors' do

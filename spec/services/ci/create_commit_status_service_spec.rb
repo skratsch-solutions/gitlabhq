@@ -37,6 +37,18 @@ RSpec.describe Ci::CreateCommitStatusService, :clean_gitlab_redis_cache, feature
     end
   end
 
+  context 'when the ref is ambiguous' do
+    before do
+      allow(project).to receive(:protected_for?).and_raise(Repository::AmbiguousRefError)
+    end
+
+    it 'returns a bad_request ServiceResponse without raising', :aggregate_failures do
+      expect(response).to be_error
+      expect(response.http_status).to eq(:bad_request)
+      expect(response.message).to include('Ref is ambiguous')
+    end
+  end
+
   context 'when pipeline for sha does not exists' do
     %w[pending running success failed canceled skipped].each do |status|
       context "for #{status}" do

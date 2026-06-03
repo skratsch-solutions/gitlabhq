@@ -143,6 +143,9 @@ class User < ApplicationRecord
   # rubocop: disable CodeReuse/ServiceClass
   def update_tracked_fields!(request)
     return if Gitlab::Database.read_only?
+    # No-op on frozen records: production records are never frozen,
+    # so this only guards frozen shared test fixtures from a lazy write.
+    return if frozen?
 
     update_tracked_fields(request)
 
@@ -2650,6 +2653,10 @@ class User < ApplicationRecord
   end
 
   def update_two_factor_requirement
+    # No-op on frozen records: production records are never frozen,
+    # so this only guards frozen shared test fixtures from a lazy write.
+    return if frozen?
+
     periods = expanded_groups_requiring_two_factor_authentication.pluck(:two_factor_grace_period)
 
     self.require_two_factor_authentication_from_group = periods.any?

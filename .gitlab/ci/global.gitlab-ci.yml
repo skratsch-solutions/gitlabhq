@@ -45,7 +45,22 @@
   services:
     - name: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:redis-cluster-${REDIS_CLUSTER_VERSION}
       alias: rediscluster  # configure connections in config/redis.yml
-    - name: redis:${REDIS_VERSION}-alpine
+    - name: redis:7.2-alpine
+      alias: redis
+
+.valkey-services:
+  services:
+    - name: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:redis-cluster-${REDIS_CLUSTER_VERSION}
+      alias: rediscluster  # configure connections in config/redis.yml
+    - name: valkey/valkey:7.2
+      alias: redis
+
+.use-pg17-valkey:
+  extends:
+    - .use-pg17
+  services:
+    - !reference [.postgres-auto-explain-service, services]
+    - !reference [.valkey-services, services]
 
 .pg-base-variables:
   variables:
@@ -58,7 +73,7 @@
       alias: postgres
     - !reference [.redis-services, services]
 
-.db-services-with-auto-explain:
+.postgres-auto-explain-service:
   services:
     - name: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:postgres-${PG_VERSION}
       command:
@@ -84,6 +99,10 @@
         - -c
         - auto_explain.log_timing=off
       alias: postgres
+
+.db-services-with-auto-explain:
+  services:
+    - !reference [.postgres-auto-explain-service, services]
     - !reference [.redis-services, services]
 
 .use-pg16:
@@ -93,7 +112,6 @@
     - !reference [.db-services-with-auto-explain, services]
   variables:
     PG_VERSION: "16"
-    REDIS_VERSION: "7.0"
     REDIS_CLUSTER_VERSION: "7.0.11"
 
 .use-pg17:
@@ -103,7 +121,6 @@
     - !reference [.db-services-with-auto-explain, services]
   variables:
     PG_VERSION: "17"
-    REDIS_VERSION: "7.0"
     REDIS_CLUSTER_VERSION: "7.0.11"
 
 .use-pg18:
@@ -113,7 +130,6 @@
     - !reference [.db-services-with-auto-explain, services]
   variables:
     PG_VERSION: "18"
-    REDIS_VERSION: "7.0"
     REDIS_CLUSTER_VERSION: "7.0.11"
 
 

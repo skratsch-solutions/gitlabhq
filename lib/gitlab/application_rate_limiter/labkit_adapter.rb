@@ -40,17 +40,16 @@ module Gitlab
         # from non-request paths. Operate these flags as fully on or fully off.
 
         # +context+ is the same per-call hash forwarded to {#run!}/{#run_peek!}
-        # as labkit `rule_context:`. The gate reads its +:threshold+ /
-        # +:interval+ overrides to decide routing: an override on an INCR-mode
-        # (non-count_distinct) key can't be honoured by the labkit Rule, so the
-        # call records the override and routes back to legacy.
+        # as labkit `rule_context:`. A per-call +:threshold+/+:interval+ override
+        # the labkit Rule can't honour routes the call back to legacy; see
+        # {#override_routes_to_legacy?} for which entries honour which override.
         def shadow_or_enforce?(key, context: {})
           spec = SupportedRateLimits.all[key]
           return false unless spec
 
           threshold_override = context[:threshold]
           interval_override = context[:interval]
-          if (!threshold_override.nil? || !interval_override.nil?) && spec[:count_distinct].nil?
+          if override_routes_to_legacy?(spec, threshold_override, interval_override)
             record_override(key, threshold_override, interval_override)
             return false
           end
@@ -144,6 +143,21 @@ module Gitlab
 
         private
 
+        # Whether a per-call threshold/interval override can't be honoured by
+        # the labkit Rule for this spec, and so must route the call to legacy.
+        def override_routes_to_legacy?(spec, threshold_override, interval_override)
+          if spec[:count_distinct]
+            # set-mode: labkit applies threshold and interval per-call
+            false
+          elsif spec[:threshold_from_caller]
+            # applies a per-call threshold; its interval is registry-owned
+            !interval_override.nil?
+          else
+            # plain INCR: labkit applies no per-call override
+            !threshold_override.nil? || !interval_override.nil?
+          end
+        end
+
         # Resolves the shadow/enforce flag-name basis for a key. Cohort 1
         # entries (no flag_scope) use the key itself; cohort-wide entries
         # (`flag_scope: :cohort_N`) use the scope symbol so every entry in
@@ -176,11 +190,11 @@ module Gitlab
           # the per-call context forwarded via Limiter#check(rule_context:).
           # A set-mode (count_distinct) entry reads its per-call override
           # (e.g. namespace_settings.unique_project_download_limit) from
-          # :threshold/:interval; an INCR-mode entry carries neither (an
-          # override would have routed back to legacy upstream), so it falls
-          # back to the freshly-resolved registry value, identical to a plain
-          # config value. Cohort 6 will extend per-call overrides to INCR-mode
-          # keys via a separate signal.
+          # :threshold/:interval; a threshold_from_caller entry (web_hook_calls*)
+          # reads its caller-supplied :threshold the same way. Any other
+          # INCR-mode entry carries neither (an override would have routed back
+          # to legacy upstream), so it falls back to the freshly-resolved
+          # registry value, identical to a plain config value.
           limit = ->(ctx) { ctx&.dig(:threshold) || limit_value }
           period = ->(ctx) { ctx&.dig(:interval) || period_value }
 

@@ -23,6 +23,8 @@ module Ci
         message: 'Another update to this commit status is in progress',
         reason: :conflict
       )
+    rescue Repository::AmbiguousRefError
+      bad_request('Ref is ambiguous - specify refs/heads/<name> or refs/tags/<name>')
     end
 
     private

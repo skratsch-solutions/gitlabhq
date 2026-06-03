@@ -31,8 +31,8 @@ title: External agents
 {{< /history >}}
 
 > [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
+> The availability of this feature is controlled by a feature flag and enabled for verified customers.
+> In order to enable external agents for your customer namespace or GitLab instance, contact GitLab support.
 
 GitLab Duo agents work in parallel to help you create code, research results,
 and perform tasks simultaneously.

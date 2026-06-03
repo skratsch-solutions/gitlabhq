@@ -123,8 +123,8 @@ You can search across your entire GitLab instance including code, work items, me
 
 ### GitLab Duo
 
-[GitLab Duo](../../user/gitlab_duo/_index.md) AI features are authorized under GovRAMP
-and available to state, local, and education agencies with no additional compliance review.
+[GitLab Duo](../../user/gitlab_duo/_index.md) AI features are authorized under FedRAMP and GovRAMP
+and available to federal, state, local, and education agencies with no additional compliance review.
 Available features include:
 
 - [GitLab Duo Code Suggestions](../../user/project/repository/code_suggestions/_index.md)

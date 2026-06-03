@@ -1416,6 +1416,31 @@ rspec-ee system pg18:
 #####################################
 
 ##################################################
+# Default branch weekly scheduled jobs #
+# Integration tests with Valkey instead of Redis, using the production PG version (PG17)
+
+rspec unit pg17 valkey:
+  extends:
+    - .rspec-base-pg17-valkey
+    - .rspec-unit-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
+rspec integration pg17 valkey:
+  extends:
+    - .rspec-base-pg17-valkey
+    - .rspec-integration-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
+rspec system pg17 valkey:
+  extends:
+    - .rspec-base-pg17-valkey
+    - .rspec-system-parallel
+    - .rails:rules:default-branch-schedule-weekly--code-backstage-default-rules
+
+# Default branch weekly scheduled jobs #
+##################################################
+
+##################################################
 # EE: default branch weekly scheduled jobs #
 # Integration tests with Elasticsearch 8.X and OpenSearch versions
 # and the actual PG production version (PG17)
