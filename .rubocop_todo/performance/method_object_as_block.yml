@@ -1,5 +1,4 @@
 ---
 Performance/MethodObjectAsBlock:
   Exclude:
-    - 'lib/gitlab/uploads/migration_helper.rb'
     - 'spec/support/shared_examples/models/active_record_enum_shared_examples.rb'

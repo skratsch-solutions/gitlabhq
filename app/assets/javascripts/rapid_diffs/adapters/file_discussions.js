@@ -26,6 +26,8 @@ function mountFileDiscussionsApp({ container, oldPath, newPath, appData, store, 
       return {
         store,
         userPermissions: appData.userPermissions,
+        sourceBranch: appData.sourceBranch,
+        iid: appData.iid,
         endpoints: provideAppData(appData),
         noteableType: appData.noteableType,
         filePaths: { oldPath, newPath },

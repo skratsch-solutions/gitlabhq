@@ -20,6 +20,8 @@ module RapidDiffs
       {
         mr_path: mr_path,
         project_path: project_path,
+        source_branch: presenter.resource.source_branch,
+        iid: presenter.resource.iid,
         code_review_enabled: code_review_enabled,
         user_permissions: user_permissions,
         discussions_endpoint: discussions_endpoint,

@@ -26,6 +26,8 @@ function mountDiscussionRow({ lineRow, parallel, appData, store, trigger, id, sh
       return {
         store,
         userPermissions: appData.userPermissions,
+        sourceBranch: appData.sourceBranch,
+        iid: appData.iid,
         endpoints: {
           discussions: appData.discussionsEndpoint,
           previewMarkdown: appData.previewMarkdownEndpoint,

@@ -1191,6 +1191,42 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
             expect(merge_requests).to contain_exactly(merge_request3)
           end
         end
+
+        context 'combined with search and CTE optimisation' do
+          # Regression for PG::GroupingError when approved_by + search wraps the
+          # relation in a CTE - the outer GROUP BY must cover every issuable column.
+          it 'does not raise when approved_by_usernames=<username> and search are combined' do
+            params = {
+              approved_by_usernames: user2.username,
+              search: 'test',
+              attempt_project_search_optimizations: true
+            }
+
+            expect { described_class.new(user, params).execute.load }.not_to raise_error
+          end
+
+          it 'does not raise when approved_by_usernames=None and search are combined' do
+            params = {
+              approved_by_usernames: 'None',
+              search: 'test',
+              attempt_project_search_optimizations: true
+            }
+
+            expect { described_class.new(user, params).execute.load }.not_to raise_error
+          end
+
+          it 'returns merge requests approved by that user' do
+            params = {
+              approved_by_usernames: user2.username,
+              search: merge_request3.title,
+              attempt_project_search_optimizations: true
+            }
+
+            merge_requests = described_class.new(user, params).execute
+
+            expect(merge_requests).to contain_exactly(merge_request3)
+          end
+        end
       end
 
       context 'filtering by created_at/updated_at' do

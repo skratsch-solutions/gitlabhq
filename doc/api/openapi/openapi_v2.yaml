@@ -14263,14 +14263,14 @@ paths:
         type: string
         format: date-time
         required: false
-        example: '2021-09-20T11:50:22.001'
+        example: '2021-09-20T11:50:22.001Z'
       - in: query
         name: until
         description: Only commits before or on this date will be returned
         type: string
         format: date-time
         required: false
-        example: '2021-09-20T11:50:22.001'
+        example: '2021-09-20T11:50:22.001Z'
       - in: query
         name: path
         description: The file path
@@ -38237,7 +38237,9 @@ paths:
         items:
           type: string
         required: true
-        example: main
+        example:
+        - main
+        - feature
       responses:
         '200':
           description: Get the common ancestor between commits

@@ -101,7 +101,7 @@ module API
           requires :id,
             type: String,
             desc: "The #{source_type} ID",
-            documentation: { example: 2 }
+            documentation: { example: '2' }
           requires :scopes,
             type: Array[String],
             values: ::Gitlab::Auth.resource_bot_scopes.map(&:to_s),

@@ -216,11 +216,11 @@ module API
         optional :since,
           type: DateTime,
           desc: 'Only commits after or on this date will be returned',
-          documentation: { example: '2021-09-20T11:50:22.001' }
+          documentation: { example: '2021-09-20T11:50:22.001Z' }
         optional :until,
           type: DateTime,
           desc: 'Only commits before or on this date will be returned',
-          documentation: { example: '2021-09-20T11:50:22.001' }
+          documentation: { example: '2021-09-20T11:50:22.001Z' }
         optional :path,
           type: String,
           desc: 'The file path',

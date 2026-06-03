@@ -27245,7 +27245,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 2
+        example: '2'
       requestBody:
         required: true
         content:
@@ -27497,7 +27497,7 @@ paths:
         schema:
           type: string
         in: path
-        example: 2
+        example: '2'
       requestBody:
         required: true
         content:
@@ -28035,7 +28035,9 @@ paths:
             type: string
           nullable: true
         in: query
-        example: main
+        example:
+        - main
+        - feature
         style: form
         explode: false
   "/api/v4/projects/{id}/repository/changelog":
@@ -60219,7 +60221,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-09-20T11:50:22.001'
+        example: '2021-09-20T11:50:22.001Z'
       - name: until
         required: false
         description: Only commits before or on this date will be returned
@@ -60228,7 +60230,7 @@ paths:
           format: date-time
           nullable: true
         in: query
-        example: '2021-09-20T11:50:22.001'
+        example: '2021-09-20T11:50:22.001Z'
       - name: path
         required: false
         description: The file path

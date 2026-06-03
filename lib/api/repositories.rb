@@ -326,7 +326,7 @@ module API
         requires :refs, type: Array[String],
           coerce_with: ::API::Validations::Types::CommaSeparatedToArray.coerce,
           desc: 'The refs to find the common ancestor of, multiple refs can be passed',
-          documentation: { example: 'main' }
+          documentation: { example: %w[main feature] }
       end
       route_setting :authorization, permissions: :read_repository_merge_base, boundary_type: :project
       get ':id/repository/merge_base' do

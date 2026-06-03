@@ -75,6 +75,8 @@ RSpec.describe RapidDiffs::MergeRequestAppComponent, feature_category: :code_rev
       extra_app_data: {
         mr_path: mr_path,
         project_path: project_path,
+        source_branch: merge_request.source_branch,
+        iid: merge_request.iid,
         code_review_enabled: false,
         user_permissions: user_permissions,
         discussions_endpoint: discussions_endpoint,

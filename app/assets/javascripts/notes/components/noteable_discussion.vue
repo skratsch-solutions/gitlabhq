@@ -388,6 +388,11 @@ export default {
                     :resolve-button-title="resolveButtonTitle"
                     :resolve-with-issue-path="resolveWithIssuePath"
                     :should-show-jump-to-next-discussion="shouldShowJumpToNextDiscussion"
+                    :source-branch="getNoteableData.source_branch"
+                    :iid="getNoteableData.iid"
+                    :can-resolve-discussions-with-ai="
+                      getNoteableData.can_resolve_discussions_with_ai
+                    "
                     @showReplyForm="showReplyForm"
                     @resolve="resolveHandler"
                   />

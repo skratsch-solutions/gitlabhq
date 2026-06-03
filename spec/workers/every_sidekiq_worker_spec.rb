@@ -458,6 +458,7 @@ RSpec.describe 'Every Sidekiq worker', feature_category: :sidekiq do
         'Search::Elastic::DeleteWorker' => 3,
         'Search::Zoekt::DeleteProjectEventWorker' => 1,
         'Search::Zoekt::ForceUpdateOverprovisionedIndexEventWorker' => 1,
+        'Search::Zoekt::IndexingTaskBatchWorker' => 1,
         'Search::Zoekt::IndexingTaskDeleteWorker' => 1,
         'Search::Zoekt::IndexMarkAsPendingEvictionEventWorker' => 1,
         'Search::Zoekt::IndexMarkedAsReadyEventWorker' => 1,

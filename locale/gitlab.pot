@@ -5631,6 +5631,11 @@ msgstr ""
 msgid "Admin notes"
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|%d model selected"
+msgid_plural "AdminAIPoweredFeatures|%d models selected"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "AdminAIPoweredFeatures|AI-native features"
 msgstr ""
 
@@ -5642,6 +5647,11 @@ msgstr ""
 
 msgid "AdminAIPoweredFeatures|Add self-hosted model"
 msgstr ""
+
+msgid "AdminAIPoweredFeatures|All available models (%d model)"
+msgid_plural "AdminAIPoweredFeatures|All available models (%d models)"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "AdminAIPoweredFeatures|An AI assistant that helps users accelerate software development using real-time conversational AI. This setting is for regular Duo Chat only. %{linkStart}Learn more.%{linkEnd}"
 msgstr ""
@@ -5664,7 +5674,7 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|Available models"
 msgstr ""
 
-msgid "AdminAIPoweredFeatures|Available models: Agentic Chat"
+msgid "AdminAIPoweredFeatures|Available models: %{featureTitle}"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Code Suggestions"
@@ -5709,6 +5719,9 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|Other GitLab Duo features"
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|Restrict to specific models"
+msgstr ""
+
 msgid "AdminAIPoweredFeatures|Select a model"
 msgstr ""
 
@@ -5716,6 +5729,9 @@ msgid "AdminAIPoweredFeatures|Select a model version for full control of your co
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Select the model for the feature"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|When turned on, users can only use the models selected below. When turned off, users can use all available %{linkStart}GitLab managed models%{linkEnd}, including those added in the future."
 msgstr ""
 
 msgid "AdminAiPoweredFeatures|%{selected_model} is incompatible with the %{title} feature"
@@ -8488,6 +8504,9 @@ msgid "AiPowered|When you save, GitLab Duo will be turned off for all groups, su
 msgstr ""
 
 msgid "AiPowered|registry.gitlab.com"
+msgstr ""
+
+msgid "Ai|started %{session_link} and will let you know when it's finished"
 msgstr ""
 
 msgid "Akismet"
@@ -27341,6 +27360,9 @@ msgstr ""
 msgid "DuoAgentPlatform|Request"
 msgstr ""
 
+msgid "DuoAgentPlatform|Resolve with GitLab Duo"
+msgstr ""
+
 msgid "DuoAgentPlatform|Response"
 msgstr ""
 
@@ -28607,9 +28629,6 @@ msgid "DuoCodeReview|is reviewing your merge request and will let you know when 
 msgstr ""
 
 msgid "DuoCodeReview|is working on a reply"
-msgstr ""
-
-msgid "DuoCodeReview|started %{session_link} and will let you know when it's finished"
 msgstr ""
 
 msgid "DuoCoreTrialDiscover|Accelerate learning and collaboration through AI interaction"
@@ -47136,6 +47155,9 @@ msgstr ""
 msgid "More options"
 msgstr ""
 
+msgid "More resolve options"
+msgstr ""
+
 msgid "More than %{control_count} controls not allowed for a requirement."
 msgstr ""
 
@@ -61692,6 +61714,9 @@ msgid "Resolve source branch %{source_branch_name} conflicts using interactive m
 msgstr ""
 
 msgid "Resolve thread"
+msgstr ""
+
+msgid "Resolve with new issue"
 msgstr ""
 
 msgid "Resolve, @%{username}"

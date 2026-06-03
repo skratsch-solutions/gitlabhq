@@ -1473,6 +1473,7 @@ module Geo
       patch_registry_classes
       patch_geo_node_type
       patch_registrable_type
+      patch_authorization_todo
       patch_inflections
       patch_registries_shared_context
       patch_registries_spec
@@ -1556,6 +1557,15 @@ module Geo
         new_line: "#{new_entry},",
         after_anchor: true
       )
+    end
+
+    # -- GraphQL granular token authorization allowlist --
+
+    def patch_authorization_todo
+      file_path = 'config/authz/graphql/authorization_todo.txt'
+      new_entry = "type:#{graphql_name}"
+
+      insert_into_sorted_list(file_path, new_entry)
     end
 
     # -- Inflections --
@@ -2073,6 +2083,48 @@ module Geo
       end
 
       File.write(file_path, content)
+      @files_modified << file_path
+      puts "  [PATCH]  #{file_path}"
+    end
+
+    # Insert a single line into a flat, alphabetically sorted list file (one entry
+    # per line, with leading comment lines). Entries are kept in Ruby sort order so
+    # the result matches what `gitlab:permissions:validate` writes when it syncs the
+    # todo file.
+    def insert_into_sorted_list(file_path, new_entry)
+      unless File.exist?(file_path)
+        warn "  [SKIP]   #{file_path} (file not found)"
+        return
+      end
+
+      lines = File.readlines(file_path)
+
+      if lines.any? { |line| line.strip == new_entry }
+        puts "  [SKIP]   #{file_path} (already contains entry)"
+        return
+      end
+
+      # Insert before the first entry that sorts after the new one, skipping
+      # comment and blank lines.
+      insert_index = lines.index do |line|
+        stripped = line.strip
+        next false if stripped.empty? || stripped.start_with?('#')
+
+        stripped > new_entry
+      end
+
+      if insert_index
+        lines.insert(insert_index, "#{new_entry}\n")
+      else
+        lines << "#{new_entry}\n"
+      end
+
+      if dry_run
+        puts "  [PATCH]  #{file_path}"
+        return
+      end
+
+      File.write(file_path, lines.join)
       @files_modified << file_path
       puts "  [PATCH]  #{file_path}"
     end
