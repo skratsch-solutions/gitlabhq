@@ -127,10 +127,6 @@ module Ci
         .transform_values { |s| Ci::RunnerVersion.statuses.key(s).to_sym }
     end
 
-    def self.ip_address_exists?(ip_address)
-      exists?(ip_address:)
-    end
-
     def self.version_regex_expression_for_version(version)
       case version
       when /\d+\.\d+\.\d+/

@@ -217,6 +217,7 @@ group:
   - create_ai_catalog_third_party_flow_item_consumer
   - create_ai_foundational_flow_item_consumer
   - create_cd_application
+  - create_cd_environment
   - create_cluster
   - create_jira_connect_subscription
   - create_project_fork
@@ -237,6 +238,7 @@ group:
   - provision_gke_runner
   - read_any_audit_event
   - read_cd_application
+  - read_cd_environment
   - read_ci_namespace_settings
   - read_deploy_token
   - read_group_all_available_runners

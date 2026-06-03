@@ -46833,8 +46833,6 @@ CREATE UNIQUE INDEX index_ci_runner_controller_tokens_on_token_digest ON ci_runn
 
 CREATE INDEX index_ci_runner_machines_on_executor_type ON ONLY ci_runner_machines USING btree (executor_type);
 
-CREATE INDEX index_ci_runner_machines_on_ip_address ON ONLY ci_runner_machines USING btree (ip_address);
-
 CREATE INDEX index_ci_runner_machines_on_major_version ON ONLY ci_runner_machines USING btree ("substring"(version, '^\d+\.'::text), version, runner_id);
 
 CREATE INDEX index_ci_runner_machines_on_minor_version ON ONLY ci_runner_machines USING btree ("substring"(version, '^\d+\.\d+\.'::text), version, runner_id);
@@ -47749,8 +47747,6 @@ CREATE INDEX index_group_type_ci_runner_machines_on_created_at_and_id_desc ON gr
 
 CREATE INDEX index_group_type_ci_runner_machines_on_executor_type ON group_type_ci_runner_machines USING btree (executor_type);
 
-CREATE INDEX index_group_type_ci_runner_machines_on_ip_address ON group_type_ci_runner_machines USING btree (ip_address);
-
 CREATE INDEX index_group_type_ci_runner_machines_on_major_version ON group_type_ci_runner_machines USING btree ("substring"(version, '^\d+\.'::text), version, runner_id);
 
 CREATE INDEX index_group_type_ci_runner_machines_on_minor_version ON group_type_ci_runner_machines USING btree ("substring"(version, '^\d+\.\d+\.'::text), version, runner_id);
@@ -47960,8 +47956,6 @@ CREATE UNIQUE INDEX index_inst_type_ci_runner_machines_on_runner_id_type_system_
 CREATE UNIQUE INDEX index_instance_model_selection_feature_settings_on_feature ON instance_model_selection_feature_settings USING btree (feature);
 
 CREATE INDEX index_instance_type_ci_runner_machines_on_executor_type ON instance_type_ci_runner_machines USING btree (executor_type);
-
-CREATE INDEX index_instance_type_ci_runner_machines_on_ip_address ON instance_type_ci_runner_machines USING btree (ip_address);
 
 CREATE INDEX index_instance_type_ci_runner_machines_on_major_version ON instance_type_ci_runner_machines USING btree ("substring"(version, '^\d+\.'::text), version, runner_id);
 
@@ -49568,8 +49562,6 @@ CREATE INDEX index_project_topics_on_topic_id ON project_topics USING btree (top
 CREATE INDEX index_project_type_ci_runner_machines_on_created_at_and_id_desc ON project_type_ci_runner_machines USING btree (created_at, id DESC);
 
 CREATE INDEX index_project_type_ci_runner_machines_on_executor_type ON project_type_ci_runner_machines USING btree (executor_type);
-
-CREATE INDEX index_project_type_ci_runner_machines_on_ip_address ON project_type_ci_runner_machines USING btree (ip_address);
 
 CREATE INDEX index_project_type_ci_runner_machines_on_major_version ON project_type_ci_runner_machines USING btree ("substring"(version, '^\d+\.'::text), version, runner_id);
 
@@ -55327,8 +55319,6 @@ ALTER INDEX index_ci_runner_machines_on_created_at_and_id_desc ATTACH PARTITION 
 
 ALTER INDEX index_ci_runner_machines_on_executor_type ATTACH PARTITION index_group_type_ci_runner_machines_on_executor_type;
 
-ALTER INDEX index_ci_runner_machines_on_ip_address ATTACH PARTITION index_group_type_ci_runner_machines_on_ip_address;
-
 ALTER INDEX index_ci_runner_machines_on_major_version ATTACH PARTITION index_group_type_ci_runner_machines_on_major_version;
 
 ALTER INDEX index_ci_runner_machines_on_minor_version ATTACH PARTITION index_group_type_ci_runner_machines_on_minor_version;
@@ -55365,8 +55355,6 @@ ALTER INDEX index_ci_runner_machines_on_runner_id_and_type_and_system_xid ATTACH
 
 ALTER INDEX index_ci_runner_machines_on_executor_type ATTACH PARTITION index_instance_type_ci_runner_machines_on_executor_type;
 
-ALTER INDEX index_ci_runner_machines_on_ip_address ATTACH PARTITION index_instance_type_ci_runner_machines_on_ip_address;
-
 ALTER INDEX index_ci_runner_machines_on_major_version ATTACH PARTITION index_instance_type_ci_runner_machines_on_major_version;
 
 ALTER INDEX index_ci_runner_machines_on_minor_version ATTACH PARTITION index_instance_type_ci_runner_machines_on_minor_version;
@@ -55402,8 +55390,6 @@ ALTER INDEX index_ci_runner_machines_on_runner_id_and_type_and_system_xid ATTACH
 ALTER INDEX index_ci_runner_machines_on_created_at_and_id_desc ATTACH PARTITION index_project_type_ci_runner_machines_on_created_at_and_id_desc;
 
 ALTER INDEX index_ci_runner_machines_on_executor_type ATTACH PARTITION index_project_type_ci_runner_machines_on_executor_type;
-
-ALTER INDEX index_ci_runner_machines_on_ip_address ATTACH PARTITION index_project_type_ci_runner_machines_on_ip_address;
 
 ALTER INDEX index_ci_runner_machines_on_major_version ATTACH PARTITION index_project_type_ci_runner_machines_on_major_version;
 

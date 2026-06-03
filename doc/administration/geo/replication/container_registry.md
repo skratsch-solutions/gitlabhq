@@ -170,6 +170,37 @@ For each application and Sidekiq node on the secondary site:
    gitlab-ctl reconfigure
    ```
 
+### Disable container registry replication
+
+> [!note]
+> When the container registry service is disabled, Geo automatically skips
+> verification attempts for container repositories. Container registry metrics
+> are hidden from the Geo dashboard. Existing verification states remain in
+> the database but are not displayed.
+
+To stop replicating container images to a secondary site and disable the local container registry:
+
+1. SSH into the primary server node and sign in as the `root` user:
+
+   ```shell
+   sudo -i
+   ```
+
+1. Edit `/etc/gitlab/gitlab.rb` and add:
+
+   ```ruby
+   # Disable Geo replication for the container registry
+   gitlab_rails['geo_registry_replication_enabled'] = false
+   # Disable the container registry service itself
+   registry['enable'] = false
+   ```
+
+1. Reconfigure the node for the change to take effect:
+
+   ```shell
+   sudo gitlab-ctl reconfigure
+   ```
+
 ### Verify replication
 
 To verify container registry replication is working, on the secondary site:

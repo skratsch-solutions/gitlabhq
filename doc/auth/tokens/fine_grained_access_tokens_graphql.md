@@ -75,6 +75,17 @@ Grants the ability to create and delete CI catalog resources.
 | Create | Project | Mutation | `CatalogResourcesCreate` |
 | Delete | Project | Mutation | `CatalogResourcesDestroy` |
 
+#### Cd Environment
+
+Grants the ability to create and read cd environments.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Group | Mutation | `CdEnvironmentCreate` |
+| Create | Instance | Mutation | `CdEnvironmentCreate` |
+| Read | Group | Type | `CdEnvironment` |
+| Read | Instance | Type | `CdEnvironment` |
+
 #### Cluster Agent
 
 Grants the ability to create, delete, and read cluster agents.

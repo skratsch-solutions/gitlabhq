@@ -107,12 +107,6 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
         expect(token.revoke!(admin).status).to eq(:success)
       end
     end
-
-    describe '#resource_name' do
-      subject(:resource_name) { token.resource_name }
-
-      it { is_expected.to eq 'PersonalAccessToken' }
-    end
   end
 
   context 'when the token is a resource token' do
@@ -124,12 +118,6 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
       it 'successfully revokes the token', :enable_admin_mode do
         expect(token.revoke!(admin).status).to eq(:success)
       end
-
-      describe '#resource_name' do
-        subject(:resource_name) { token.resource_name }
-
-        it { is_expected.to eq 'ProjectAccessToken' }
-      end
     end
 
     context 'when the token is a group access token' do
@@ -140,22 +128,6 @@ RSpec.describe Authn::Tokens::PersonalAccessToken, feature_category: :system_acc
       it 'successfully revokes the token', :enable_admin_mode do
         expect(token.revoke!(admin).status).to eq(:success)
       end
-
-      describe '#resource_name' do
-        subject(:resource_name) { token.resource_name }
-
-        it { is_expected.to eq 'GroupAccessToken' }
-      end
-    end
-  end
-
-  context 'when the token is from a bot without a resource' do
-    let_it_be(:plaintext) { create(:personal_access_token, user: create(:user, :project_bot)).token }
-
-    describe '#resource_name' do
-      subject(:resource_name) { token.resource_name }
-
-      it { is_expected.to be_nil }
     end
   end
 
