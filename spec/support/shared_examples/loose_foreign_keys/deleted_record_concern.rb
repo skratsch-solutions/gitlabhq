@@ -3,7 +3,7 @@
 RSpec.shared_examples 'a loose foreign key record that includes DeletedRecordConcern class methods' do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:table) { 'public.projects' }
+  let_it_be(:table, freeze: false) { 'public.projects' }
 
   let(:records) { described_class.load_batch_for_table(table, 10) }
 
@@ -62,7 +62,7 @@ RSpec.shared_examples 'a loose foreign key record that includes DeletedRecordCon
 end
 
 RSpec.shared_examples 'a loose foreign key record that includes DeletedRecordConcern sliding list partitioning' do
-  let_it_be(:table) { 'public.projects' }
+  let_it_be(:table, freeze: false) { 'public.projects' }
 
   let(:connection) { described_class.connection }
   let(:partition_manager) { Gitlab::Database::Partitioning::PartitionManager.new(described_class) }

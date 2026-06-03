@@ -3,7 +3,7 @@
 RSpec.shared_examples 'wiki model' do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:user) { create(:user, :commit_email) }
+  let_it_be(:user, freeze: false) { create(:user, :commit_email) }
 
   let(:wiki_container) { raise NotImplementedError }
   let(:wiki_container_without_repo) { raise NotImplementedError }

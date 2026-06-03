@@ -394,7 +394,7 @@ GEM
     unparser (0.6.5)
       diff-lcs (~> 1.3)
       parser (>= 3.1.0)
-    uri (0.13.0)
+    uri (1.1.1)
     warning (1.6.0)
     websocket (1.2.10)
     wisper (2.0.1)
@@ -607,7 +607,7 @@ CHECKSUMS
   uber (0.1.0) sha256=5beeb407ff807b5db994f82fa9ee07cfceaa561dad8af20be880bc67eba935dc
   unicode-display_width (2.5.0) sha256=7e7681dcade1add70cb9fda20dd77f300b8587c81ebbd165d14fd93144ff0ab4
   unparser (0.6.5) sha256=1c702926651c3b71f97a7169221f2178191f7165a4859aef2a776d31f8e8ee18
-  uri (0.13.0) sha256=26553c2a9399762e1e8bebd4444b4361c4b21298cf1c864b22eeabc9c4998f24
+  uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
   warning (1.6.0) sha256=a49cdfae19fb77d19afff2efbe45f8ab759e9cd25b4e4ce2c79dbaf46bdb6c9e
   websocket (1.2.10) sha256=2cc1a4a79b6e63637b326b4273e46adcddf7871caa5dc5711f2ca4061a629fa8
   wisper (2.0.1) sha256=ce17bc5c3a166f241a2e6613848b025c8146fce2defba505920c1d1f3f88fae6

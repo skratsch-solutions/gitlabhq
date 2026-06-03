@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 RSpec.shared_examples 'search recent items' do
-  let_it_be(:user) { create(:user) }
-  let_it_be(:recent_items) { described_class.new(user: user) }
+  let_it_be(:user, freeze: false) { create(:user) }
+  let_it_be(:recent_items, freeze: false) { described_class.new(user: user) }
   let(:item) { create_item(content: 'hello world 1', parent: parent) }
   let(:parent) { create(parent_type, :public) }
 

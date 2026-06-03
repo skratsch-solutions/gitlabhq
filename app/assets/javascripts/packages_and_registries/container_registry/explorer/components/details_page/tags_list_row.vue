@@ -40,6 +40,7 @@ import PlatformBadgesRow from './platform_badges_row.vue';
 import SignatureDetailsModal from './signature_details_modal.vue';
 
 export default {
+  name: 'TagsListRow',
   components: {
     GlSprintf,
     GlFormCheckbox,

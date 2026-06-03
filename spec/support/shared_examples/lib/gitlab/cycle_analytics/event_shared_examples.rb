@@ -70,18 +70,18 @@ RSpec.shared_examples_for 'LEFT JOIN-able value stream analytics event' do
 end
 
 RSpec.shared_examples_for 'value stream analytics first assignment event methods' do
-  let_it_be(:model1) { create(model_factory) } # rubocop: disable Rails/SaveBang
-  let_it_be(:model2) { create(model_factory) } # rubocop: disable Rails/SaveBang
+  let_it_be(:model1, freeze: false) { create(model_factory) } # rubocop: disable Rails/SaveBang -- model_factory is a dynamic symbol; create() bang variant does not exist for dynamic factory names
+  let_it_be(:model2, freeze: false) { create(model_factory) } # rubocop: disable Rails/SaveBang -- model_factory is a dynamic symbol; create() bang variant does not exist for dynamic factory names
 
-  let_it_be(:assignment_event1) do
+  let_it_be(:assignment_event1, freeze: false) do
     create(event_factory, action: :add, created_at: 3.years.ago, model_factory => model1)
   end
 
-  let_it_be(:assignment_event2) do
+  let_it_be(:assignment_event2, freeze: false) do
     create(event_factory, action: :add, created_at: 2.years.ago, model_factory => model1)
   end
 
-  let_it_be(:unassignment_event1) do
+  let_it_be(:unassignment_event1, freeze: false) do
     create(event_factory, action: :remove, created_at: 1.year.ago, model_factory => model1)
   end
 

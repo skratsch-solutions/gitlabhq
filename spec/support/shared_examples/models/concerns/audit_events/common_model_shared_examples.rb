@@ -136,9 +136,9 @@ RSpec.shared_examples 'includes ::AuditEvents::CommonModel concern' do
   end
 
   describe '.order_by' do
-    let_it_be(:event_1) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
-    let_it_be(:event_2) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
-    let_it_be(:event_3) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
+    let_it_be(:event_1, freeze: false) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
+    let_it_be(:event_2, freeze: false) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
+    let_it_be(:event_3, freeze: false) { create(audit_event_symbol) }  # rubocop:disable Rails/SaveBang -- Method not available
 
     subject(:events) { audit_event_class.order_by(method) }
 

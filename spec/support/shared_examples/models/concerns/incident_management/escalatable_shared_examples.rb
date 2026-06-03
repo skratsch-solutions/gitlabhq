@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'a model including Escalatable' do
-  let_it_be(:escalatable_factory) { factory_from_class(described_class) }
+  let_it_be(:escalatable_factory, freeze: false) { factory_from_class(described_class) }
   let_it_be_with_reload(:triggered_escalatable) { create(escalatable_factory, :triggered) }
   let_it_be_with_reload(:acknowledged_escalatable) { create(escalatable_factory, :acknowledged) }
   let_it_be_with_reload(:resolved_escalatable) { create(escalatable_factory, :resolved) }

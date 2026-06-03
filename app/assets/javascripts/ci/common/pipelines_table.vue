@@ -221,6 +221,7 @@ export default {
           Category: 'pipeline',
           Content: JSON.stringify({
             source_branch: this.currentBranch(item),
+            source: item?.source || '',
           }),
         },
       ];

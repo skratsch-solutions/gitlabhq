@@ -10,7 +10,9 @@ RSpec.shared_examples 'protected ref deploy_key access' do
   describe 'validations' do
     context 'when deploy_key?' do
       context 'when deploy key has write access to the project' do
-        let_it_be(:deploy_key) { create(:deploy_keys_project, :write_access, project: project).deploy_key }
+        let_it_be(:deploy_key, freeze: false) do
+          create(:deploy_keys_project, :write_access, project: project).deploy_key
+        end
 
         subject(:access_level) do
           build(described_factory, protected_ref_name => protected_ref, deploy_key: deploy_key)
@@ -33,7 +35,9 @@ RSpec.shared_examples 'protected ref deploy_key access' do
       end
 
       context 'when deploy key does not have write access to the project' do
-        let_it_be(:deploy_key) { create(:deploy_keys_project, :readonly_access, project: project).deploy_key }
+        let_it_be(:deploy_key, freeze: false) do
+          create(:deploy_keys_project, :readonly_access, project: project).deploy_key
+        end
 
         subject(:access_level) do
           build(described_factory, protected_ref_name => protected_ref, deploy_key: deploy_key)
@@ -70,7 +74,9 @@ RSpec.shared_examples 'protected ref deploy_key access' do
       end
 
       context 'when a deploy key already added for this protected ref' do
-        let_it_be(:deploy_key) { create(:deploy_keys_project, :write_access, project: project).deploy_key }
+        let_it_be(:deploy_key, freeze: false) do
+          create(:deploy_keys_project, :write_access, project: project).deploy_key
+        end
 
         before_all do
           project.add_guest(deploy_key.user)
@@ -119,9 +125,9 @@ RSpec.shared_examples 'protected ref deploy_key access' do
   end
 
   describe '#check_access' do
-    let_it_be(:user) { create(:user) }
-    let_it_be(:deploy_key) { create(:deploy_key, user: user) }
-    let_it_be(:deploy_keys_project) do
+    let_it_be(:user, freeze: false) { create(:user) }
+    let_it_be(:deploy_key, freeze: false) { create(:deploy_key, user: user) }
+    let_it_be(:deploy_keys_project, freeze: false) do
       create(:deploy_keys_project, :write_access, project: project, deploy_key: deploy_key)
     end
 
@@ -185,7 +191,7 @@ RSpec.shared_examples 'protected ref deploy_key access' do
         end
 
         context 'when deploy key does not belong to the user' do
-          let_it_be(:deploy_key) do
+          let_it_be(:deploy_key, freeze: false) do
             create(:deploy_keys_project, :write_access, project: project).deploy_key
           end
 

@@ -14,7 +14,7 @@ RSpec.shared_examples Gitlab::BitbucketImport::ObjectImporter do
   end
 
   describe '#perform' do
-    let_it_be(:import_started_project) { create(:project, :import_started) }
+    let_it_be(:import_started_project, freeze: false) { create(:project, :import_started) }
 
     let(:project_id) { project_id }
     let(:waiter_key) { 'key' }
@@ -36,7 +36,7 @@ RSpec.shared_examples Gitlab::BitbucketImport::ObjectImporter do
     end
 
     context 'when project has import started' do
-      let_it_be(:project) do
+      let_it_be(:project, freeze: false) do
         create(:project, :import_started, import_data_attributes: {
           data: { 'project_key' => 'key', 'repo_slug' => 'slug' },
           credentials: { 'token' => 'token' }
@@ -105,7 +105,7 @@ RSpec.shared_examples Gitlab::BitbucketImport::ObjectImporter do
     end
 
     context 'when project import has been cancelled' do
-      let_it_be(:project_id) { create(:project, :import_canceled).id }
+      let_it_be(:project_id, freeze: false) { create(:project, :import_canceled).id }
 
       it 'does not call the importer' do
         expect_next(worker.importer_class).not_to receive(:execute)

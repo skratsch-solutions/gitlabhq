@@ -306,57 +306,25 @@ instructions:
       - "spec/**/*.rb"
     instructions: |
       When this MR touches a feature flag YAML definition file, Ruby code, frontend code,
-      or specs that reference a feature flag, check for the following unsafe removal patterns:
+      or specs that reference a feature flag, check for the following unsafe removal patterns.
 
-      1. **Same-MR enablement and removal**: Flag any MR that both sets `default_enabled: true`
-         in a feature flag YAML file AND removes all references to that same flag in code
-         (see check 5 for the full list of reference patterns to verify).
-         These two steps must be delivered in separate merge requests across separate milestones.
-         Remind: "Setting `default_enabled: true` and removing the flag in the same MR skips
-         the milestone where self-managed instances adopt the new default. Instances that never
-         explicitly enabled the flag will jump straight from the disabled code path to no code
-         path at all, which can cause data loss or errors during zero-downtime upgrades.
-         See [incident #562149](https://gitlab.com/gitlab-org/gitlab/-/issues/562149)."
-
-      2. **Same-milestone enablement and removal across multiple MRs**: If the MR description,
-         commit messages, or the milestone field indicate that a companion MR in the same
-         milestone is handling the other half of the flag lifecycle (one MR sets
-         `default_enabled: true`, another removes the flag), flag this as a risk.
-         Remind: "Even across separate MRs, enabling by default and removing a feature flag
-         in the same milestone means self-managed instances that upgrade directly to that
-         milestone version never run with the flag enabled by default. The `default_enabled: true`
-         change must ship in milestone N, and the removal must ship in milestone N+1 or later."
-
-      3. **Data-write flags need extra care**: If the flag guards a data write (for example,
+      1. **Zero downtime upgrade safety check — flag removal**: For any MR that removes a
+         feature flag, check whether the flag guards a data write (for example,
          writing to a new table or column, running a migration, or populating a new data
-         structure), apply rules 1 and 2 with higher urgency. Ask:
-         "Does this feature flag gate a data write or schema change? If so, removing it
-         without a prior milestone of `default_enabled: true` will leave self-managed instances
-         with empty or inconsistent data after upgrading."
+         structure), cache key, cleanup path, or any state transition shared between components (Rails, Sidekiq) or API.
+         If yes, flag it for explicit human review — the agent cannot determine ZDU safety from
+         code structure alone.
+         Ask the author: "Does the code behind this flag produce or consume shared state
+         that old-version components must still handle correctly after this flag is removed?
+         If yes, describe how the expand phase was completed in a prior milestone.
+         See [Zero-downtime upgrade compatibility](https://docs.gitlab.com/development/feature_flags/controls/#zero-downtime-upgrade-compatibility)."
+         Note: neither enabling the flag in production nor setting `default_enabled: true`
+         in a prior milestone guarantees ZDU safety — old-version nodes still run with the
+         flag disabled during a rolling upgrade.
+         Also check `intended_to_rollout_by`: if set to a future date relative to this MR's target milestone,
+         flag the removal as premature — the team has explicitly declared it not ready.
 
-      4. **Flag removed without `default_enabled: true` ever shipped in a prior release**: When
-         a feature flag YAML file is deleted (or all references to it are removed from code),
-         check the flag's YAML file (or its Git history if it is being deleted) to confirm that
-         `default_enabled: true` was committed and shipped in a released GitLab milestone before
-         this MR's target milestone. If it was not, flag this as unsafe even if the flag was
-         enabled in production via the admin UI or ChatOps.
-         Production enablement only affects GitLab.com and instances where an operator manually
-         enabled the flag. Self-managed instances that upgrade directly to the removal milestone
-         will skip the enabled code path entirely, which can cause data loss or errors.
-         Also check the `intended_to_rollout_by` field in the YAML: if it is set to a future
-         date relative to this MR's target milestone, the team has explicitly declared the
-         removal premature — flag it regardless of `default_enabled` history. A past date is
-         supporting evidence the team intended rollout by then.
-         Remind: "A feature flag must have `default_enabled: true` committed and shipped in a
-         GitLab release (milestone N) before the flag and its guards can be removed in a
-         subsequent release (milestone N+1 or later). Enabling the flag in production via the
-         admin UI or ChatOps is not a substitute — it does not protect self-managed instances
-         on upgrade. Check the Git history of the flag's YAML file to confirm a commit setting
-         `default_enabled: true` was included in a released milestone prior to this MR's target
-         milestone. See [feature flag development guidelines](https://docs.gitlab.com/development/feature_flags/#feature-flag-lifecycle)
-         and [incident #562149](https://gitlab.com/gitlab-org/gitlab/-/issues/562149)."
-
-      5. **Incomplete reference removal**: When a flag is being removed, verify that ALL
+      2. **Incomplete reference removal**: When a flag is being removed, verify that ALL
          reference patterns are cleaned up, not just Ruby backend guards. Check for:
          - Ruby: `Feature.enabled?(:flag_name)`, `Feature.disabled?(:flag_name)`
          - Ruby (push to frontend): `push_frontend_feature_flag :flag_name`
@@ -367,7 +335,7 @@ instructions:
          Flag any MR that removes the YAML and Ruby guards but leaves frontend or spec
          references intact.
 
-      6. **Changelog trailer correctness**: When a flag is removed, verify that a `Changelog:`
+      3. **Changelog trailer correctness**: When a flag is removed, verify that a `Changelog:`
          trailer is present in the commit message and that its type matches the flag's final
          state:
          - `other` — flag was already `default_enabled: true` in a prior milestone, just
@@ -375,8 +343,7 @@ instructions:
          - `added` or `fixed` — flag was enabled (new code path is now permanent); type should
            match the rollout issue's `type::` label (`type::feature` → `added`,
            `type::bug` → `fixed`)
-         - `removed` — flag was disabled and `default_enabled: true`, meaning the feature is
-           being removed
+         - `removed` — flag was disabled or removed
 
       Reference: https://gitlab.com/gitlab-org/gitlab/-/issues/564825
 

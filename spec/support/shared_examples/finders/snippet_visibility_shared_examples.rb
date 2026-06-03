@@ -3,10 +3,10 @@
 RSpec.shared_examples 'snippet visibility' do
   using RSpec::Parameterized::TableSyntax
 
-  let_it_be(:author) { create(:user) }
-  let_it_be(:member) { create(:user) }
-  let_it_be(:external) { create(:user, :external) }
-  let_it_be(:non_member) { create(:user) }
+  let_it_be(:author, freeze: false) { create(:user) }
+  let_it_be(:member, freeze: false) { create(:user) }
+  let_it_be(:external, freeze: false) { create(:user, :external) }
+  let_it_be(:non_member, freeze: false) { create(:user) }
 
   let_it_be_with_reload(:project) do
     create(:project, :public).tap do |project|
@@ -27,9 +27,9 @@ RSpec.shared_examples 'snippet visibility' do
   let(:snippet) { snippets[snippet_visibility] }
 
   context "For project snippets" do
-    let_it_be(:private_snippet) { create(:project_snippet, :private, project: project, author: author) }
-    let_it_be(:public_snippet) { create(:project_snippet, :public, project: project, author: author) }
-    let_it_be(:internal_snippet) { create(:project_snippet, :internal, project: project, author: author) }
+    let_it_be(:private_snippet, freeze: false) { create(:project_snippet, :private, project: project, author: author) }
+    let_it_be(:public_snippet, freeze: false) { create(:project_snippet, :public, project: project, author: author) }
+    let_it_be(:internal_snippet, freeze: false) { create(:project_snippet, :internal, project: project, author: author) }
 
     let!(:users) do
       {
@@ -293,9 +293,9 @@ RSpec.shared_examples 'snippet visibility' do
     end
 
     with_them do
-      let_it_be(:private_snippet) { create(:personal_snippet, :private, author: author) }
-      let_it_be(:public_snippet) { create(:personal_snippet, :public, author: author) }
-      let_it_be(:internal_snippet) { create(:personal_snippet, :internal, author: author) }
+      let_it_be(:private_snippet, freeze: false) { create(:personal_snippet, :private, author: author) }
+      let_it_be(:public_snippet, freeze: false) { create(:personal_snippet, :public, author: author) }
+      let_it_be(:internal_snippet, freeze: false) { create(:personal_snippet, :internal, author: author) }
 
       context "For personal and #{params[:snippet_visibility]} snippets with #{params[:user_type]} user" do
         it 'returns proper outcome' do

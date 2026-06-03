@@ -7,6 +7,7 @@ import RegistrySearch from '~/vue_shared/components/registry/registry_search.vue
 import UrlSync from '~/vue_shared/components/url_sync.vue';
 
 export default {
+  name: 'InfrastructureSearch',
   components: { RegistrySearch, UrlSync },
   inject: {
     isGroupPage: {

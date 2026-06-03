@@ -478,33 +478,39 @@ take one of the following actions:
 
 ### Zero-downtime upgrade compatibility
 
-Before removing a feature flag, consider whether it gates a data write or state change.
-If the flag controls whether data is written to a new table or column (for example, a deduplication
-or migration feature), removing the flag without a prior `default_enabled: true` milestone creates
-a risk during zero-downtime upgrades of GitLab Self-Managed instances.
+Before removing a feature flag, consider whether the code it guards is safe to run
+across [mixed-version nodes during a zero-downtime upgrade](../multi_version_compatibility.md#a-walkthrough-of-an-update) of GitLab Self-Managed instances.
 
-During a zero-downtime upgrade, different nodes in the cluster run different versions of the code
-simultaneously. If the flag is removed in version N+1 but was never enabled by default in version N,
-instances that never turned the flag on have no data in the new location. After upgrading,
-all code paths unconditionally use the new location, returning empty or incorrect results for
-existing records. For a real-world example, see [incident #562149](https://gitlab.com/gitlab-org/gitlab/-/issues/562149).
+During a zero-downtime upgrade, different components (Rails, Sidekiq, and others) run different versions
+of the code simultaneously. If a feature flag gates a write path, a cache key, or any state
+transition shared between components, the old-version components must still behave correctly
+when new-version components have the flag removed. For a real-world example, see [incident #562149](https://gitlab.com/gitlab-org/gitlab/-/issues/562149).
 
 > [!warning]
-> If a feature flag gates a data write (for example, writing to a new table or column),
-> set it to `default_enabled: true` for at least one milestone before removing the flag.
-> This ensures all GitLab Self-Managed instances have populated the new data location
-> before the old code path is deleted.
+> A feature flag is not a compatibility boundary. Removing a flag (or setting it to
+> `default_enabled: true`) does not make the code behind it safe to run on mixed-version
+> nodes. During a rolling upgrade, components on the previous version still run with the
+> flag disabled.
 
-The safe removal sequence for flags that gate data writes is:
+The correct approach is the
+[expand-and-contract pattern](../multi_version_compatibility.md#expand-and-contract-pattern).
+See also the [feature flags section](../multi_version_compatibility.md#feature-flags) of
+that document for guidance specific to feature flags.
 
-1. Milestone N: Set `default_enabled: true` in the flag's YAML definition. Both the old
-   and new code paths must remain fully functional.
-1. Milestone N+1 (or later): Remove the flag and all references to the old code path.
-   By this point, every instance that upgraded through milestone N has had the flag enabled
-   and the new data location populated.
+For flags that guard a data write, cache key, or state transition, apply the pattern across
+three milestones:
 
-For flags that do not gate data writes (for example, pure UI or behavior toggles),
-this extra milestone is not required, but still recommended as good practice.
+1. Milestone N (expand): Introduce the new behavior while keeping the old behavior intact.
+   Make the guarded code safe across mixed-version nodes. For example, if the flag gates a
+   Redis cache write, ensure the cleanup path on old-version components does not depend on
+   the flag being enabled. Both old and new code paths must coexist safely.
+1. Milestone N+1 (migrate): Update all consumers to use the new code path. Confirm the
+   expand phase is complete and no component depends on the old path.
+1. Milestone N+2 (contract): Remove the flag and all references to the old code path.
+
+For flags that do not gate data writes, cache keys, or state transitions (for example,
+pure UI or behavior toggles), this multi-milestone pattern is not required, but still recommended
+as good practice.
 
 To remove a feature flag, open **one merge request** to make the changes. In the MR:
 

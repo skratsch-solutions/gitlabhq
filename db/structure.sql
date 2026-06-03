@@ -44793,8 +44793,6 @@ CREATE INDEX i_batched_background_migration_job_transition_logs_on_job_id ON ONL
 
 CREATE UNIQUE INDEX i_bulk_import_export_batches_id_batch_number ON bulk_import_export_batches USING btree (export_id, batch_number);
 
-CREATE UNIQUE INDEX i_bulk_import_trackers_id_batch_number ON bulk_import_batch_trackers USING btree (tracker_id, batch_number);
-
 CREATE UNIQUE INDEX i_ci_job_token_group_scope_links_on_source_and_target_project ON ci_job_token_group_scope_links USING btree (source_project_id, target_group_id);
 
 CREATE INDEX i_compliance_frameworks_on_id_and_created_at ON compliance_management_frameworks USING btree (id, created_at, pipeline_configuration_full_path);

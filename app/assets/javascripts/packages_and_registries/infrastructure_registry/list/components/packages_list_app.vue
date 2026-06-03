@@ -16,6 +16,7 @@ import { useInfrastructureList } from '~/packages_and_registries/infrastructure_
 import { FILTERED_SEARCH_TERM } from '~/vue_shared/components/filtered_search_bar/constants';
 
 export default {
+  name: 'PackagesListApp',
   components: {
     GlEmptyState,
     GlLink,

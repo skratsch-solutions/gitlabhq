@@ -3,7 +3,7 @@
 RSpec.shared_examples 'list_preferences_for user' do |list_factory, list_id_attribute|
   subject { create(list_factory) } # rubocop:disable Rails/SaveBang
 
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
 
   describe '#preferences_for' do
     context 'when user is nil' do

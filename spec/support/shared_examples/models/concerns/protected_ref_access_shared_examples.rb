@@ -33,8 +33,8 @@ RSpec.shared_examples 'protected ref access' do
     describe '::for_role' do
       subject(:for_role) { described_class.for_role }
 
-      let_it_be(:developer_access) { create(described_factory, :developer_access) }
-      let_it_be(:maintainer_access) { create(described_factory, :maintainer_access) }
+      let_it_be(:developer_access, freeze: false) { create(described_factory, :developer_access) }
+      let_it_be(:maintainer_access, freeze: false) { create(described_factory, :maintainer_access) }
 
       it 'includes all role based access levels' do
         expect(for_role).to contain_exactly(developer_access, maintainer_access)
@@ -58,7 +58,7 @@ RSpec.shared_examples 'protected ref access' do
   end
 
   describe '#check_access(user, current_project)' do
-    let_it_be(:current_user) { create(:user) }
+    let_it_be(:current_user, freeze: false) { create(:user) }
 
     let(:access_level) { ::Gitlab::Access::DEVELOPER }
     let(:current_project) { project }
