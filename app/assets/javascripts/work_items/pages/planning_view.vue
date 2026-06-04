@@ -1395,17 +1395,19 @@ export default {
         sortKey = state === STATUS_CLOSED ? UPDATED_DESC : CREATED_DESC;
       }
 
-      const tokens = getFilterTokens(window.location.search, {
+      let tokens = getFilterTokens(window.location.search, {
         includeStateToken: !this.withTabs,
         hasCustomFieldsFeature: this.hasCustomFieldsFeature,
         convertTypeTokens: true,
       });
-      this.filterTokens = groupMultiSelectFilterTokens(tokens, this.searchTokens);
+      tokens = groupMultiSelectFilterTokens(tokens, this.searchTokens);
 
       if (!this.hasStateToken && this.state === STATUS_ALL) {
-        this.filterTokens = this.filterTokens.filter(
-          (filterToken) => filterToken.type !== TOKEN_TYPE_STATE,
-        );
+        tokens = tokens.filter((filterToken) => filterToken.type !== TOKEN_TYPE_STATE);
+      }
+
+      if (!isEqual(tokens, this.filterTokens)) {
+        this.filterTokens = tokens;
       }
 
       const newPageParams = getInitialPageParams(

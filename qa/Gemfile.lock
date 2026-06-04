@@ -97,7 +97,7 @@ GEM
       logger
     factory_bot (6.5.1)
       activesupport (>= 6.1.0)
-    faker (3.6.1)
+    faker (3.8.0)
       i18n (>= 1.8.11, < 2)
     faraday (2.9.2)
       faraday-net_http (>= 2.0, < 3.2)
@@ -419,7 +419,7 @@ DEPENDENCIES
   capybara (~> 3.40.0)
   capybara-screenshot (~> 1.0.27)
   factory_bot (~> 6.5.1)
-  faker (~> 3.6, >= 3.6.1)
+  faker (~> 3.8)
   faraday-retry (~> 2.4)
   fog-google (~> 1.29, >= 1.29.4)
   gitlab-orchestrator!
@@ -479,7 +479,7 @@ CHECKSUMS
   erubi (1.12.0) sha256=27bedb74dfb1e04ff60674975e182d8ca787f2224f2e8143268c7696f42e4723
   excon (1.3.0) sha256=d83d3bc2a46a74f969406071e0acc32971381a01d7382a79fa75529fb28046be
   factory_bot (6.5.1) sha256=40581ea7bec0aee05514b8f4f99ed477274bdf1884c1372de5209e60322d6ca9
-  faker (3.6.1) sha256=c513d23c1d26b426283e913b25e0b714576011d7c1ad368a9ac6ea2113a1ccde
+  faker (3.8.0) sha256=c147b308df73a90f27a4fc84f18d4c22ef0ad9c2a64b2b61c86fd0ca71753efc
   faraday (2.9.2) sha256=6595edbe3b4663223e52a315f6bf2bca97ea1527bab7e02a926bf8afcf7423a4
   faraday-net_http (3.1.0) sha256=1627be414960d0131691190ff524506ba6607402a50fb6eccda9e64ca60f859f
   faraday-retry (2.4.0) sha256=7b79c48fb7e56526faf247b12d94a680071ff40c9fda7cf1ec1549439ad11ebe

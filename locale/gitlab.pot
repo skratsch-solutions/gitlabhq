@@ -2649,6 +2649,15 @@ msgstr ""
 msgid "AICatalog|Build agents and flows to automate tasks and solve complex problems."
 msgstr ""
 
+msgid "AICatalog|Bulk enablement completed for %{item_name}"
+msgstr ""
+
+msgid "AICatalog|Bulk enablement completed with errors for %{item_name}"
+msgstr ""
+
+msgid "AICatalog|Bulk enablement failed for %{item_name}"
+msgstr ""
+
 msgid "AICatalog|Can be enabled in other projects."
 msgstr ""
 
@@ -2853,6 +2862,9 @@ msgstr ""
 msgid "AICatalog|External"
 msgstr ""
 
+msgid "AICatalog|Failed projects:"
+msgstr ""
+
 msgid "AICatalog|Failed to add agents to AI Catalog."
 msgstr ""
 
@@ -2887,6 +2899,9 @@ msgid "AICatalog|Failed to report agent. %{error}"
 msgstr ""
 
 msgid "AICatalog|Failed to report flow. %{error}"
+msgstr ""
+
+msgid "AICatalog|Failed: %{count}"
 msgstr ""
 
 msgid "AICatalog|Flow"
@@ -3237,6 +3252,9 @@ msgstr ""
 msgid "AICatalog|Shared resources."
 msgstr ""
 
+msgid "AICatalog|Something went wrong on our end whilst processing this project"
+msgstr ""
+
 msgid "AICatalog|Spam or low quality"
 msgstr ""
 
@@ -3244,6 +3262,9 @@ msgid "AICatalog|Star"
 msgstr ""
 
 msgid "AICatalog|Star toggle failed. Try again later."
+msgstr ""
+
+msgid "AICatalog|Successful: %{count}"
 msgstr ""
 
 msgid "AICatalog|System prompt"
@@ -3343,6 +3364,9 @@ msgid "AICatalog|Tools are built and maintained by GitLab."
 msgstr ""
 
 msgid "AICatalog|Tools are built and maintained by GitLab. %{linkStart}What are tools?%{linkEnd}"
+msgstr ""
+
+msgid "AICatalog|Total projects: %{total}"
 msgstr ""
 
 msgid "AICatalog|Transport"
@@ -3493,6 +3517,24 @@ msgid "AICatalog|You must have the Maintainer or Owner role to enable an agent i
 msgstr ""
 
 msgid "AICatalog|You must sign in to star this item"
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{item_name} completed successfully."
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{item_name} completed with errors."
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{item_name} did not complete successfully."
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{link_start}%{item_name}%{link_end} completed successfully."
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{link_start}%{item_name}%{link_end} completed with errors."
+msgstr ""
+
+msgid "AICatalog|Your bulk enablement of %{link_start}%{item_name}%{link_end} did not complete successfully."
 msgstr ""
 
 msgid "AICatalog|agent"
@@ -5672,6 +5714,9 @@ msgid "AdminAIPoweredFeatures|Assists developers by generating and completing co
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Available models"
+msgstr ""
+
+msgid "AdminAIPoweredFeatures|Available models can only be configured when using a GitLab managed model."
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Available models: %{featureTitle}"
