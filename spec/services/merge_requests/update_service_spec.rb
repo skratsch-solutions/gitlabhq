@@ -535,8 +535,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer, :request_store, feature_ca
 
         expect(MergeRequests::CreatePipelineService)
           .to receive(:new)
-          .with(hash_including(project: project, current_user: user,
-            params: hash_including(allow_duplicate: true, pipeline_creation_request: nil)))
+          .with(project: project, current_user: user, params: { allow_duplicate: true })
           .and_return(service)
 
         expect(service).to receive(:execute_async).with(merge_request)

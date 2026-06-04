@@ -36,14 +36,12 @@ module Ci
       FAILED = 'failed'
       IN_PROGRESS = 'in_progress'
       SUCCEEDED = 'succeeded'
-      FILTERED = 'filtered'
-      STATUSES = [FAILED, IN_PROGRESS, SUCCEEDED, FILTERED].freeze
+      STATUSES = [FAILED, IN_PROGRESS, SUCCEEDED].freeze
 
       REDIS_EXPIRATION_TIME = 300
       PROJECT_REDIS_KEY = "pipeline_creation:projects:{%{project_id}}"
       MERGE_REQUEST_REDIS_KEY = "#{PROJECT_REDIS_KEY}:mrs:{%{mr_id}}".freeze
       REQUEST_REDIS_KEY = "#{PROJECT_REDIS_KEY}:request:{%{request_id}}".freeze
-      REF_REDIS_KEY = "#{PROJECT_REDIS_KEY}:ref:{%{ref_hash}}".freeze
 
       class << self
         def failed(request, error)
@@ -52,28 +50,10 @@ module Ci
           hset(request, FAILED, error: error)
         end
 
-        def safe_failed(request, error)
-          failed(request, error)
-        rescue ::Redis::BaseError, ::RedisClient::Error => e
-          Gitlab::ErrorTracking.track_exception(e, request: request)
-        end
-
         def succeeded(request, pipeline_id)
           return unless request.present?
 
           hset(request, SUCCEEDED, pipeline_id: pipeline_id)
-        end
-
-        def filtered(request)
-          return unless request.present?
-
-          hset(request, FILTERED)
-        end
-
-        def safe_filtered(request)
-          filtered(request)
-        rescue ::Redis::BaseError, ::RedisClient::Error => e
-          Gitlab::ErrorTracking.track_exception(e, request: request)
         end
 
         def start_for_project(project)
@@ -93,27 +73,6 @@ module Ci
           request
         end
 
-        def start_for_ref(project, ref)
-          request_id = generate_id
-          request = { 'key' => ref_key(project, ref), 'id' => request_id }
-
-          hset(request, IN_PROGRESS)
-
-          request
-        end
-
-        def pipeline_creating_for_ref?(project, ref)
-          for_ref(project, ref).any? { |request| request['status'] == IN_PROGRESS }
-        end
-
-        def for_ref(project, ref)
-          key = ref_key(project, ref)
-
-          Gitlab::Redis::SharedState
-            .with { |redis| redis.hvals(key) }
-            .filter_map { |request| Gitlab::Json.safe_parse(request) }
-        end
-
         def pipeline_creating_for_merge_request?(merge_request)
           for_merge_request(merge_request).any? { |request| request['status'] == IN_PROGRESS }
         end
@@ -123,7 +82,7 @@ module Ci
 
           Gitlab::Redis::SharedState
             .with { |redis| redis.hvals(key) }
-            .filter_map { |request| Gitlab::Json.safe_parse(request) }
+            .map { |request| Gitlab::Json.safe_parse(request) }
         end
 
         def get_request(project, request_id)
@@ -136,11 +95,6 @@ module Ci
 
         def merge_request_key(merge_request)
           format(MERGE_REQUEST_REDIS_KEY, project_id: merge_request.project_id, mr_id: merge_request.id)
-        end
-
-        def ref_key(project, ref)
-          ref_hash = Digest::SHA256.hexdigest(ref)
-          format(REF_REDIS_KEY, project_id: project.id, ref_hash: ref_hash)
         end
 
         # Extracts merge request ID from Redis key and returns the MergeRequest object

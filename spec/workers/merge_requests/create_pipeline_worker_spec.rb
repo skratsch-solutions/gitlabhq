@@ -253,17 +253,11 @@ RSpec.describe MergeRequests::CreatePipelineWorker, feature_category: :pipeline_
 
       context 'when pipeline creation fails with a non-retriable error' do
         let(:error_message) { 'Cannot create a pipeline for this merge request: duplicate pipeline.' }
-        let(:failed_pipeline) { create(:ci_pipeline, project: project) }
 
         before do
-          allow(failed_pipeline).to receive_messages(
-            full_error_messages: [error_message],
-            failure_reason: :unknown_failure
-          )
-
           allow_next_instance_of(MergeRequests::CreatePipelineService) do |service|
             allow(service).to receive(:execute)
-              .and_return(ServiceResponse.error(message: error_message, payload: failed_pipeline))
+              .and_return(ServiceResponse.error(message: error_message))
           end
         end
 
@@ -276,48 +270,6 @@ RSpec.describe MergeRequests::CreatePipelineWorker, feature_category: :pipeline_
         end
 
         it_behaves_like 'triggers GraphQL subscription'
-      end
-
-      context 'when pipeline creation fails but pipeline is filtered as empty' do
-        let(:error_message) { 'Pipeline was filtered as empty' }
-        let(:filtered_pipeline) { build_stubbed(:ci_pipeline, project: project, failure_reason: :filtered_by_rules) }
-
-        before do
-          allow_next_instance_of(MergeRequests::CreatePipelineService) do |service|
-            allow(service).to receive(:execute)
-              .and_return(ServiceResponse.error(message: error_message, payload: filtered_pipeline))
-          end
-        end
-
-        context 'when track_ref_pipeline_creation feature flag is enabled' do
-          before do
-            stub_feature_flags(track_ref_pipeline_creation: true)
-          end
-
-          it 'marks the request as filtered after update_head_pipeline' do
-            subject
-
-            result = Ci::PipelineCreation::Requests.hget(pipeline_creation_request)
-            expect(result['status']).to eq(Ci::PipelineCreation::Requests::FILTERED)
-          end
-
-          it_behaves_like 'triggers GraphQL subscription'
-        end
-
-        context 'when track_ref_pipeline_creation feature flag is disabled' do
-          before do
-            stub_feature_flags(track_ref_pipeline_creation: false)
-          end
-
-          it 'marks the request as failed instead of filtered' do
-            subject
-
-            result = Ci::PipelineCreation::Requests.hget(pipeline_creation_request)
-            expect(result['status']).to eq(Ci::PipelineCreation::Requests::FAILED)
-          end
-
-          it_behaves_like 'triggers GraphQL subscription'
-        end
       end
     end
 

@@ -2,11 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe CreatePipelineWorker, :clean_gitlab_redis_shared_state, feature_category: :pipeline_composition do
+RSpec.describe CreatePipelineWorker, feature_category: :pipeline_composition do
   describe '.sidekiq_retries_exhausted' do
     let_it_be(:project) { create(:project) }
-    let(:creation_params) { {} }
-    let(:job) { { 'args' => [project.id, non_existing_record_id, 'main', :push, {}, creation_params] } }
+    let(:job) { { 'args' => [project.id, non_existing_record_id, 'main', :push, {}, {}] } }
 
     it 'calls perform_failure with extracted args and the exception' do
       exception = RuntimeError.new('something went wrong')
@@ -16,36 +15,6 @@ RSpec.describe CreatePipelineWorker, :clean_gitlab_redis_shared_state, feature_c
       end
 
       described_class.sidekiq_retries_exhausted_block.call(job, exception)
-    end
-
-    context 'when pipeline_creation_request is present' do
-      let(:pipeline_creation_request) { { 'key' => 'test-key', 'id' => 'test-id' } }
-      let(:creation_params) { { 'pipeline_creation_request' => pipeline_creation_request } }
-
-      it 'marks the pipeline creation request as failed' do
-        expect(Ci::PipelineCreation::Requests)
-          .to receive(:failed)
-          .with(pipeline_creation_request, 'Cannot create a pipeline after multiple retries.')
-
-        described_class.sidekiq_retries_exhausted_block.call(job, StandardError.new('test'))
-      end
-    end
-
-    context 'when pipeline_creation_request is not present' do
-      it 'does not call failed' do
-        expect(Ci::PipelineCreation::Requests).not_to receive(:failed)
-
-        described_class.sidekiq_retries_exhausted_block.call(job, StandardError.new('test'))
-      end
-    end
-
-    context 'when creation_params is nil' do
-      let(:job) { { 'args' => [project.id, non_existing_record_id, 'main', :push, {}] } }
-
-      it 'does not raise an error' do
-        expect { described_class.sidekiq_retries_exhausted_block.call(job, StandardError.new('test')) }
-          .not_to raise_error
-      end
     end
   end
 

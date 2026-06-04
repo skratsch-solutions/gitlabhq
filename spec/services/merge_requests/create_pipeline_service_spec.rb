@@ -423,22 +423,6 @@ RSpec.describe MergeRequests::CreatePipelineService, :clean_gitlab_redis_cache, 
       ).to be_truthy
     end
 
-    context 'when a pre-created pipeline_creation_request is provided' do
-      let(:pre_created_request) { { 'key' => 'pre-created-key', 'id' => 'pre-created-id' } }
-      let(:params) { { pipeline_creation_request: pre_created_request } }
-
-      it 'uses the pre-created request instead of creating a new one' do
-        expect(Ci::PipelineCreation::Requests).not_to receive(:start_for_merge_request)
-
-        expect(MergeRequests::CreatePipelineWorker).to receive(:perform_async).with(
-          project.id, user.id, merge_request.id,
-          hash_including('pipeline_creation_request' => pre_created_request)
-        )
-
-        service.execute_async(merge_request)
-      end
-    end
-
     context 'when defer_mr_pipeline_creation_request_completion is enabled' do
       it 'includes defer_request_completion in worker params' do
         expect(MergeRequests::CreatePipelineWorker).to receive(:perform_async).with(

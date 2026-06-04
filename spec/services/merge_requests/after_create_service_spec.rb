@@ -63,8 +63,7 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
 
     it 'creates a pipeline asynchronously' do
       expect(after_create_service)
-        .to receive(:create_pipeline_for).with(merge_request, merge_request.author,
-          async: true, pipeline_creation_request: anything)
+        .to receive(:create_pipeline_for).with(merge_request, merge_request.author, async: true)
 
       execute_service
     end
@@ -74,8 +73,7 @@ RSpec.describe MergeRequests::AfterCreateService, feature_category: :code_review
         stub_feature_flags(async_mr_pipeline_creation: false)
 
         expect(after_create_service)
-          .to receive(:create_pipeline_for).with(merge_request, merge_request.author,
-            async: false, pipeline_creation_request: anything)
+          .to receive(:create_pipeline_for).with(merge_request, merge_request.author, async: false)
         expect(merge_request).to receive(:update_head_pipeline)
 
         execute_service

@@ -17,17 +17,13 @@ module MergeRequests
     private
 
     def prepare_for_mergeability(merge_request)
-      pipeline_creation_request = params[:pipeline_creation_request]
-
       if async_pipeline_creation?(merge_request)
         logger.info(**log_payload(merge_request, 'Creating pipeline async'))
-        create_pipeline_for(merge_request, current_user, async: true,
-          pipeline_creation_request: pipeline_creation_request)
+        create_pipeline_for(merge_request, current_user, async: true)
         logger.info(**log_payload(merge_request, 'Pipeline creating async'))
       else
         logger.info(**log_payload(merge_request, 'Creating pipeline'))
-        create_pipeline_for(merge_request, current_user, async: false,
-          pipeline_creation_request: pipeline_creation_request)
+        create_pipeline_for(merge_request, current_user, async: false)
         merge_request.update_head_pipeline
         logger.info(**log_payload(merge_request, 'Pipeline created'))
       end

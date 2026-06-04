@@ -358,7 +358,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
 
   describe '.push_remote_url' do
     # push_remote_url is a private AutoMr helper. Specs reach it via send.
-    subject(:url) { sync.send(:push_remote_url, 'api-token', project_arg) }
+    subject(:url) { sync.send(:push_remote_url, project_arg) }
 
     before do
       allow(sync.workflow).to receive(:gitlab_host).and_return(gitlab_host)
@@ -373,8 +373,8 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         stub_const('ENV', 'CI_PROJECT_PATH' => 'gitlab-org/gitlab')
       end
 
-      it 'embeds oauth2:<token> + the CI_PROJECT_PATH form' do
-        expect(url).to eq('https://oauth2:api-token@gitlab.com/gitlab-org/gitlab.git')
+      it 'returns a credential-free HTTPS URL using CI_PROJECT_PATH' do
+        expect(url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
       end
     end
 
@@ -386,7 +386,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       end
 
       it 'falls back to the path argument' do
-        expect(url).to eq('https://oauth2:api-token@gitlab.com/gitlab-org/gitlab.git')
+        expect(url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
       end
     end
 
@@ -412,7 +412,7 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
       end
 
       it 'uses the host from workflow.gitlab_host' do
-        expect(url).to eq('https://oauth2:api-token@gitlab.example.com/group/repo.git')
+        expect(url).to eq('https://gitlab.example.com/group/repo.git')
       end
     end
   end
@@ -538,6 +538,77 @@ RSpec.describe Gitlab::PrinciplesDistiller::Sync do # rubocop:disable RSpec/Spec
         expect(received_body[:title]).to eq("Custom title #{today}")
         expect(received_body[:labels]).to eq('label-a,label-b')
         expect(received_body[:remove_source_branch]).to be(false)
+      end
+    end
+
+    describe 'git push token handling' do
+      # Capture the env hash passed to `system(env, 'git', ..., 'push', ...)`
+      # without invoking the actual push.
+      def capture_push_env
+        captured = nil
+        allow(sync).to receive(:system).and_call_original
+        allow(sync).to receive(:system).and_return(true)
+        allow(sync).to receive(:system) do |*args, **|
+          captured = args[0] if args.size > 1 && args[0].is_a?(Hash) && args.include?('push')
+
+          true
+        end
+        create_branch_and_mr
+        captured
+      end
+
+      context 'with no existing GIT_CONFIG_COUNT in the environment' do
+        it 'passes a single PRIVATE-TOKEN header scoped to the push URL via env vars' do
+          expect(capture_push_env).to eq(
+            'GIT_CONFIG_COUNT' => '1',
+            'GIT_CONFIG_KEY_0' => 'http.https://gitlab.com/gitlab-org/gitlab.extraHeader',
+            'GIT_CONFIG_VALUE_0' => 'PRIVATE-TOKEN: token'
+          )
+        end
+
+        it 'does not embed the token in the push URL' do
+          captured_url = nil
+          allow(sync).to receive(:system).and_call_original
+          allow(sync).to receive(:system).and_return(true)
+          allow(sync).to receive(:system) do |*args, **|
+            if args.size > 1 && args[0].is_a?(Hash) && args.include?('push')
+              captured_url = args.find { |a| a.is_a?(String) && a.start_with?('https://') }
+            end
+
+            true
+          end
+          create_branch_and_mr
+
+          expect(captured_url).to eq('https://gitlab.com/gitlab-org/gitlab.git')
+          expect(captured_url).not_to include('token')
+        end
+      end
+
+      context 'when the parent environment already injects GIT_CONFIG_* entries' do
+        # Simulates a GitLab Runner that pre-populates `GIT_CONFIG_COUNT`/
+        # `GIT_CONFIG_KEY_*`/`GIT_CONFIG_VALUE_*` from CI variables.
+        before do
+          stub_const('ENV', {
+            'GITLAB_API_TOKEN' => 'token',
+            'CI_PROJECT_ID' => 'gitlab-org/gitlab',
+            'CI_DEFAULT_BRANCH' => 'master',
+            'CI_PROJECT_PATH' => 'gitlab-org/gitlab',
+            'CI_PROJECT_DIR' => '/tmp/workspace',
+            'GIT_CONFIG_COUNT' => '2',
+            'GIT_CONFIG_KEY_0' => 'http.proxy',
+            'GIT_CONFIG_VALUE_0' => 'http://proxy.example:8080',
+            'GIT_CONFIG_KEY_1' => 'core.sshCommand',
+            'GIT_CONFIG_VALUE_1' => 'ssh -i /secrets/id_rsa'
+          })
+        end
+
+        it 'appends at the next index without clobbering the existing count' do
+          expect(capture_push_env).to eq(
+            'GIT_CONFIG_COUNT' => '3',
+            'GIT_CONFIG_KEY_2' => 'http.https://gitlab.com/gitlab-org/gitlab.extraHeader',
+            'GIT_CONFIG_VALUE_2' => 'PRIVATE-TOKEN: token'
+          )
+        end
       end
     end
 

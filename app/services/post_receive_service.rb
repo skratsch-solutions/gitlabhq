@@ -22,17 +22,12 @@ class PostReceiveService
 
     update_rebuildable_ref_cache if repository
 
-    # Create ref-based pipeline creation requests early to ensure
-    # pipeline_creating_for_ref? returns true as soon as possible, to make the
-    # CI mergeability check's race window as small as possible.
-    pipeline_creation_requests = prepare_pipeline_creation_requests
-
     # The PostReceive worker will normally invalidate the cache. However, it
     # runs asynchronously. If push options require us to create a new merge
     # request synchronously, we can't rely on that, so invalidate the cache here
     repository&.expire_branches_cache if mr_options&.fetch(:create, false)
 
-    schedule_post_receive_worker(pipeline_creation_requests: pipeline_creation_requests)
+    schedule_post_receive_worker
 
     if mr_options.present?
       message = process_mr_push_options(mr_options, params[:changes])
@@ -85,30 +80,9 @@ class PostReceiveService
 
   private
 
-  def prepare_pipeline_creation_requests
-    return unless Feature.enabled?(:track_ref_pipeline_creation, project)
-    return unless repository&.repo_type&.project?
-
-    changes = Gitlab::ChangesList.new(params[:changes])
-    requests = {}
-
-    changes.each do |change|
-      next unless Gitlab::Git.branch_ref?(change[:ref])
-      next if Gitlab::Git.blank_ref?(change[:newrev])
-
-      ref = change[:ref]
-      requests[ref] = Ci::PipelineCreation::Requests.start_for_ref(project, ref)
-    end
-
-    requests.presence
-  end
-
-  def schedule_post_receive_worker(pipeline_creation_requests: nil)
+  def schedule_post_receive_worker
     worker = Repositories::PostReceiveWorker
-    worker_params = {
-      'gitaly_context' => params[:gitaly_context],
-      'pipeline_creation_requests' => pipeline_creation_requests&.transform_keys(&:to_s)
-    }.compact
+    worker_params = { 'gitaly_context' => params[:gitaly_context] }
 
     worker.perform_async(params[:gl_repository], params[:identifier],
       params[:changes], push_options.as_json, worker_params)

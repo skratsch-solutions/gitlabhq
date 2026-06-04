@@ -147,27 +147,6 @@ RSpec.describe Repositories::PostReceiveWorker, :clean_gitlab_redis_shared_state
         end
       end
 
-      context 'with pipeline_creation_requests param' do
-        let(:changes) do
-          <<~CHANGES
-            #{SeedRepo::Commit::PARENT_ID} #{SeedRepo::Commit::ID} refs/heads/test1
-          CHANGES
-        end
-
-        let(:fake_request) { { 'key' => 'test-key', 'id' => 'test-id' } }
-        let(:pipeline_creation_requests) { { 'refs/heads/test1' => fake_request } }
-
-        it 'passes pipeline_creation_requests to process_ref_changes' do
-          expect(Git::ProcessRefChangesService).to receive(:new).with(
-            project, project.first_owner,
-            hash_including(pipeline_creation_requests: pipeline_creation_requests)
-          ).and_call_original
-
-          worker.perform(gl_repository, key_id, Base64.encode64(changes), {},
-            { 'pipeline_creation_requests' => pipeline_creation_requests })
-        end
-      end
-
       context 'for branches' do
         let(:changes) do
           <<~CHANGES

@@ -180,6 +180,7 @@ GitLab cannot process a result in any of the following cases:
 - The `ruleId` is missing.
 - The `physicalLocation` is missing.
 - Any of the required components used to generate the finding identifier are nil.
+- A string field exceeds its [character limit](#limits).
 
 The drop rate is calculated across the entire SARIF artifact, not for each `run` in the file. When
 the share of unprocessable results across all runs exceeds the threshold, the
@@ -199,15 +200,27 @@ as its scanner.
 Use multi-run reports to combine the output of several scanners into a single
 artifact. For example, a job can run two scanners and emit a single SARIF file that contains two runs.
 
-Each report must contain fewer than 20 runs.
+For the per-file run limit, see [limits](#limits).
 
 ## Limits
 
-| Limit                       | Default                            | Configurable |
-|-----------------------------|------------------------------------|--------------|
-| Maximum SARIF artifact size | 10 MB (`ci_max_artifact_size_sarif`) | {{< yes >}}  |
-| Maximum runs per SARIF file | 20                                 | {{< no >}}   |
-| Supported SARIF versions    | 2.1.0 only                         | {{< no >}}   |
+| Limit                                  | Default                                                       | Configurable |
+|----------------------------------------|---------------------------------------------------------------|--------------|
+| Maximum SARIF artifact size            | 10 MB (`ci_max_artifact_size_sarif`)                          | {{< yes >}}  |
+| Maximum runs per SARIF file            | 20                                                            | {{< no >}}   |
+| Maximum results per run                | 5,000                                                         | {{< no >}}   |
+| Maximum rules per run                  | 25,000                                                        | {{< no >}}   |
+| Maximum tags per rule                  | 10                                                            | {{< no >}}   |
+| Maximum `rule.name` length             | 255 characters                                                | {{< no >}}   |
+| Maximum `shortDescription.text` length | 1,024 characters                                              | {{< no >}}   |
+| Maximum `fullDescription.text` length  | 1,024 characters, truncated to 255 when used as finding title | {{< no >}}   |
+| Maximum `message.text` length          | 1,024 characters, truncated to 255 when used as finding title | {{< no >}}   |
+| Maximum `helpUri` length               | 2,048 characters                                              | {{< no >}}   |
+| Supported SARIF versions               | 2.1.0 only                                                    | {{< no >}}   |
+
+When a per-run count exceeds its limit, GitLab process the first N entries and records a warning.
+When a result has a string field that exceeds its character limit,
+the whole result is skipped and counted toward the [drop rate](#ingestion-behavior).
 
 For GitLab Self-Managed instances, an administrator can change configurable limits
 through the [instance limits](../../../administration/instance_limits.md).

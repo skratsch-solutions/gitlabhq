@@ -197,10 +197,7 @@ RSpec.describe Git::BaseHooksService, feature_category: :source_code_management 
         allow(Ci::CreatePipelineService).to receive(:new).and_call_original
         expect(Ci::CreatePipelineService)
           .to receive(:new)
-          .with(project, user, pipeline_params.merge(
-            push_options: push_options.deep_stringify_keys,
-            pipeline_creation_request: anything
-          ))
+          .with(project, user, pipeline_params.merge(push_options: push_options.deep_stringify_keys))
           .and_call_original
 
         expect { subject.execute }.to change { Ci::Pipeline.count }.by(1)
@@ -241,10 +238,7 @@ RSpec.describe Git::BaseHooksService, feature_category: :source_code_management 
       it 'triggers an async pipeline creation' do
         expect(Ci::CreatePipelineService)
           .to receive(:new)
-                .with(project, user, pipeline_params.merge(
-                  push_options: push_options&.deep_stringify_keys,
-                  pipeline_creation_request: anything
-                ))
+                .with(project, user, pipeline_params.merge(push_options: push_options&.deep_stringify_keys))
                 .and_return(pipeline_service)
         expect(subject).not_to receive(:log_pipeline_errors)
 

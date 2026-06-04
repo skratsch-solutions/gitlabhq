@@ -75,13 +75,8 @@ module MergeRequests
 
     def complete_pipeline_creation_request(result, pipeline_creation_request, merge_request)
       if result.error?
-        if result.payload&.filtered_as_empty? &&
-            Feature.enabled?(:track_ref_pipeline_creation, merge_request.target_project)
-          ::Ci::PipelineCreation::Requests.filtered(pipeline_creation_request)
-        else
-          error_message = result.message
-          ::Ci::PipelineCreation::Requests.failed(pipeline_creation_request, error_message)
-        end
+        error_message = result.message
+        ::Ci::PipelineCreation::Requests.failed(pipeline_creation_request, error_message)
       else
         ::Ci::PipelineCreation::Requests.succeeded(pipeline_creation_request, result.payload.id)
       end

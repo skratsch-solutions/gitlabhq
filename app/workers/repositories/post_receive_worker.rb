@@ -20,7 +20,6 @@ module Repositories
 
     def perform(gl_repository, identifier, changes, push_options = {}, params = {})
       gitaly_context = params['gitaly_context'] || {}
-      @pipeline_creation_requests = params['pipeline_creation_requests'] || {}
       container, project, repo_type = Gitlab::GlRepository.parse(gl_repository)
       @project = project
       @gl_repository = gl_repository
@@ -71,11 +70,7 @@ module Repositories
       expire_caches(post_received, project.repository)
       enqueue_project_cache_update(post_received, project)
 
-      process_ref_changes(project, user,
-        push_options: push_options,
-        changes: changes,
-        gitaly_context: gitaly_context,
-        pipeline_creation_requests: @pipeline_creation_requests)
+      process_ref_changes(project, user, push_options: push_options, changes: changes, gitaly_context: gitaly_context)
       update_remote_mirrors(post_received, project)
       after_project_changes_hooks(project, user, changes.refs, changes.repository_data)
     end

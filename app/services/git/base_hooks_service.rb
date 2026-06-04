@@ -58,10 +58,7 @@ module Git
     def create_pipeline
       return unless create_pipeline?
 
-      sidekiq_safe_pipeline_params = pipeline_params.merge(
-        push_options: push_options&.deep_stringify_keys,
-        pipeline_creation_request: params[:pipeline_creation_request]
-      )
+      sidekiq_safe_pipeline_params = pipeline_params.merge(push_options: push_options&.deep_stringify_keys)
 
       Ci::CreatePipelineService
         .new(project, current_user, sidekiq_safe_pipeline_params)

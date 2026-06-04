@@ -459,6 +459,29 @@ RSpec.describe 'Gitaly unavailable graceful degradation', feature_category: :sou
     end
   end
 
+  describe 'Projects::FindFileController' do
+    describe '#show' do
+      include_context 'when Gitlab::Git::Commit.find raises Gitaly error'
+
+      let(:make_request) { get project_find_file_path(project, 'master') }
+
+      it_behaves_like 'handles Gitaly errors for request specs'
+    end
+
+    describe '#list' do
+      let(:make_request) { get project_files_path(project, 'master', format: :json) }
+
+      let(:allow_gitaly_to_raise_error) do
+        allow_next_instance_of(Repository) do |repository|
+          allow(repository).to receive(:ls_files)
+            .and_raise(Gitlab::Git::CommandError, 'Gitaly unavailable')
+        end
+      end
+
+      it_behaves_like 'handles Gitaly errors for json format'
+    end
+  end
+
   describe 'Projects::MergeRequests::DiffsController' do
     let_it_be(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 

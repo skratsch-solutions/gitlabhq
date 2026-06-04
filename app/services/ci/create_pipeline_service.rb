@@ -113,17 +113,8 @@ module Ci
         .build!
 
       if pipeline.persisted?
-        event_data = {
-          pipeline_id: pipeline.id,
-          partition_id: pipeline.partition_id
-        }
-
-        if params[:pipeline_creation_request]
-          event_data[:pipeline_creation_request] = params[:pipeline_creation_request].to_h
-        end
-
         Gitlab::EventStore.publish(
-          Ci::PipelineCreatedEvent.new(data: event_data)
+          Ci::PipelineCreatedEvent.new(data: { pipeline_id: pipeline.id, partition_id: pipeline.partition_id })
         )
 
         after_successful_creation_hook
@@ -133,10 +124,18 @@ module Ci
       end
 
       if error_message = pipeline.full_error_messages.presence || pipeline.failure_reason.presence
-        complete_failed_pipeline_creation_request(error_message, merge_request)
+        unless params[:defer_request_completion]
+          ::Ci::PipelineCreation::Requests.failed(params[:pipeline_creation_request], error_message)
+          GraphqlTriggers.ci_pipeline_creation_requests_updated(merge_request) if merge_request
+        end
+
         ServiceResponse.error(message: error_message, payload: pipeline)
       else
-        complete_succeeded_pipeline_creation_request(merge_request)
+        unless params[:defer_request_completion]
+          ::Ci::PipelineCreation::Requests.succeeded(params[:pipeline_creation_request], pipeline.id)
+          GraphqlTriggers.ci_pipeline_creation_requests_updated(merge_request) if merge_request
+        end
+
         ServiceResponse.success(payload: pipeline)
       end
 
@@ -147,9 +146,7 @@ module Ci
     # rubocop: enable Metrics/ParameterLists, Metrics/AbcSize
 
     def execute_async(source, options)
-      # Use pre-created request if available, otherwise create a new project request
-      pipeline_creation_request = params[:pipeline_creation_request] ||
-        ::Ci::PipelineCreation::Requests.start_for_project(project)
+      pipeline_creation_request = ::Ci::PipelineCreation::Requests.start_for_project(project)
       creation_params = params.merge(pipeline_creation_request: pipeline_creation_request)
 
       ::CreatePipelineWorker.perform_async(
@@ -168,31 +165,6 @@ module Ci
 
     def after_successful_creation_hook
       # overridden in EE
-    end
-
-    def complete_failed_pipeline_creation_request(error_message, merge_request)
-      if Feature.enabled?(:track_ref_pipeline_creation, project)
-        if pipeline.filtered_as_empty?
-          ::Ci::PipelineCreation::Requests.safe_filtered(params[:pipeline_creation_request])
-        elsif !params[:defer_request_completion] || !pipeline.persisted?
-          ::Ci::PipelineCreation::Requests.safe_failed(params[:pipeline_creation_request], error_message)
-        else
-          return
-        end
-      else
-        return if params[:defer_request_completion]
-
-        ::Ci::PipelineCreation::Requests.safe_failed(params[:pipeline_creation_request], error_message)
-      end
-
-      GraphqlTriggers.ci_pipeline_creation_requests_updated(merge_request) if merge_request
-    end
-
-    def complete_succeeded_pipeline_creation_request(merge_request)
-      return if params[:defer_request_completion]
-
-      ::Ci::PipelineCreation::Requests.succeeded(params[:pipeline_creation_request], pipeline.id)
-      GraphqlTriggers.ci_pipeline_creation_requests_updated(merge_request) if merge_request
     end
 
     # rubocop:disable Gitlab/NoCodeCoverageComment

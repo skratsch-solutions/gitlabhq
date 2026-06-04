@@ -219,6 +219,13 @@ describe('Chunk component', () => {
         createComponent(CHUNK_2);
         expect(findRawLayer().classes()).toContain('!gl-text-transparent');
       });
+
+      it('pins raw layer min-height to totalLines so the overlay cannot overhang', () => {
+        createComponent(CHUNK_2);
+        expect(findRawLayer().attributes('style')).toContain(
+          `min-height: calc(${CHUNK_2.totalLines} * var(--source-line-height))`,
+        );
+      });
     });
 
     describe('highlighted overlay layer', () => {

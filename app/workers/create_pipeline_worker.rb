@@ -10,16 +10,8 @@ class CreatePipelineWorker # rubocop:disable Scalability/IdempotentWorker
 
   sidekiq_retries_exhausted do |job, exception|
     project_id, _user_id, ref, _source, _execute_options, creation_params = job['args']
-    creation_params = creation_params.to_h
 
-    pipeline_creation_request = creation_params['pipeline_creation_request']
-    if pipeline_creation_request
-      ::Ci::PipelineCreation::Requests.failed(
-        pipeline_creation_request, 'Cannot create a pipeline after multiple retries.'
-      )
-    end
-
-    new.perform_failure(project_id, ref, exception, creation_params)
+    new.perform_failure(project_id, ref, exception, creation_params.to_h)
   end
 
   queue_namespace :pipeline_creation

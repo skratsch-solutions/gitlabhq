@@ -84,6 +84,15 @@ export default {
       const defaultGutterWidth = 96;
       return { marginLeft: `${this.$refs.lineNumbers?.offsetWidth || defaultGutterWidth}px` };
     },
+    // Pin the raw `<code>` to `totalLines` × line-height so the in-flow layer
+    // matches the overlay and the overlay's trailing box can't overhang
+    // into `.file-content` (which would spawn a spurious second scrollbar).
+    rawCodeStyling() {
+      return {
+        ...this.codeStyling,
+        minHeight: `calc(${this.totalLines} * var(--source-line-height))`,
+      };
+    },
   },
   watch: {
     shouldHighlight: {
@@ -190,7 +199,7 @@ export default {
     >
       <pre
         class="code highlight gl-relative gl-m-0 gl-w-full !gl-overflow-visible !gl-border-none !gl-p-0 gl-leading-0"
-      ><code v-once class="line gl-relative gl-z-1 !gl-whitespace-pre !gl-bg-transparent !gl-text-transparent" :style="codeStyling" data-testid="content" @click="forwardEventToHighlight" @mouseover="forwardEventToHighlight" @mouseout="forwardEventToHighlight" v-text="rawContent"></code><code v-if="shouldHighlight" ref="highlightOverlay" v-safe-html="highlightedContent" :style="codeStyling" class="gl-absolute gl-left-0" inert></code></pre>
+      ><code v-once class="line gl-relative gl-z-1 !gl-whitespace-pre !gl-bg-transparent !gl-text-transparent" :style="rawCodeStyling" data-testid="content" @click="forwardEventToHighlight" @mouseover="forwardEventToHighlight" @mouseout="forwardEventToHighlight" v-text="rawContent"></code><code v-if="shouldHighlight" ref="highlightOverlay" v-safe-html="highlightedContent" :style="codeStyling" class="gl-absolute gl-left-0" inert></code></pre>
     </gl-intersection-observer>
   </div>
 </template>

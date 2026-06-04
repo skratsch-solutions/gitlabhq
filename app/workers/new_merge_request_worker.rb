@@ -16,13 +16,7 @@ class NewMergeRequestWorker
   worker_resource_boundary :cpu
   weight 2
 
-  def self.idempotency_arguments(arguments)
-    # Exclude pipeline_creation_request because it's randomly generated and would break deduplication
-    merge_request_id, user_id, params = arguments
-    [merge_request_id, user_id, (params || {}).except('pipeline_creation_request')]
-  end
-
-  def perform(merge_request_id, user_id, params = {})
+  def perform(merge_request_id, user_id)
     context = { merge_request_id: merge_request_id, user_id: user_id }
     xp = Labkit::UserExperienceSli.resume(:create_merge_request, **context)
 
@@ -33,7 +27,7 @@ class NewMergeRequestWorker
     return xp.complete(**context) if xp.has_error?
 
     MergeRequests::AfterCreateService
-      .new(project: issuable.target_project, current_user: user, params: params.symbolize_keys)
+      .new(project: issuable.target_project, current_user: user)
       .execute(issuable)
 
     xp.complete(**context)

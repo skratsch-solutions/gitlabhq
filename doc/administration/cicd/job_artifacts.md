@@ -430,10 +430,13 @@ artifacts through the [**Admin** area settings](limits.md#maximum-artifacts-size
 
 ## Storage statistics
 
-You can see the total storage used for job artifacts for groups and projects in:
+You can view the total storage used for job artifacts for groups and projects.
 
-- The **Admin** area
-- The [groups](../../api/groups.md) and [projects](../../api/projects.md) APIs
+To find which groups or projects use the most storage:
+
+- In the **Admin** area, go to **Overview** > **Projects** and sort by **Storage size**.
+- Use the [groups](../../api/groups.md) and [projects](../../api/projects.md) APIs
+  to return storage statistics for each group or project.
 
 ## Implementation details
 

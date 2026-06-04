@@ -76,8 +76,11 @@ module Gitlab
           # --force is safe here: the branch is auto-generated and always
           # rebuilt from origin/<default_branch>, so only our own prior
           # commit can be lost. (--force-with-lease would require a prefetch.)
-          system('git', '-C', Workspace.path, 'push', '--force', push_remote_url(api_token, project_id),
-            "#{branch}:#{branch}", exception: true)
+          push_url = push_remote_url(project_id)
+          git_push_env(api_token, push_url) do |env|
+            system(env, 'git', '-C', Workspace.path, 'push', '--force', push_url,
+              "#{branch}:#{branch}", exception: true)
+          end
 
           prefetch_prior_shas!(affected)
 
@@ -229,8 +232,11 @@ module Gitlab
           mrs.first&.fetch('iid', nil)
         end
 
-        # Embeds the PAT so `git push` works even when origin is the read-only CI_JOB_TOKEN form.
-        def push_remote_url(api_token, project_path_or_id)
+        # Returns the plain HTTPS push URL with no embedded credentials.
+        # Authentication is supplied separately via `git_push_env`, which
+        # injects a `PRIVATE-TOKEN` header through `GIT_CONFIG_*` env vars
+        # so the token never lands in argv, the URL, or git's reflog.
+        def push_remote_url(project_path_or_id)
           host = URI(workflow.gitlab_host).host || 'gitlab.com'
           # CI_PROJECT_ID is numeric, not usable as a URL path.
           project_path = ENV.fetch(Env::CI_PROJECT_PATH, nil)
@@ -243,7 +249,30 @@ module Gitlab
             project_path = project_path_or_id.to_s
           end
 
-          "https://oauth2:#{api_token}@#{host}/#{project_path}.git"
+          "https://#{host}/#{project_path}.git"
+        end
+
+        # Injects the API token as a `PRIVATE-TOKEN` HTTP header scoped to
+        # the push URL via `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_*`/`GIT_CONFIG_VALUE_*`
+        # env vars
+        # (https://git-scm.com/docs/git-config#Documentation/git-config.txt-GITCONFIGCOUNT).
+        # This keeps the token out of:
+        # - argv (no `git -c http.extraHeader=...`).
+        # - the remote URL (no `https://oauth2:TOKEN@host/...`).
+        # - git's reflog and trace output.
+        # The env hash is block-local and goes out of scope on return.
+        #
+        # Appends to any existing `GIT_CONFIG_*` entries injected by the parent
+        # environment (e.g. GitLab Runner) rather than overwriting them.
+        def git_push_env(api_token, push_url)
+          scope = push_url.delete_suffix('.git')
+          next_index = ENV.fetch('GIT_CONFIG_COUNT', '0').to_i
+          env = {
+            'GIT_CONFIG_COUNT' => (next_index + 1).to_s,
+            "GIT_CONFIG_KEY_#{next_index}" => "http.#{scope}.extraHeader",
+            "GIT_CONFIG_VALUE_#{next_index}" => "PRIVATE-TOKEN: #{api_token}"
+          }
+          yield env
         end
 
         def create_mr(

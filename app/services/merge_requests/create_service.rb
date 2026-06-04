@@ -26,18 +26,9 @@ module MergeRequests
       current_user_id = current_user.id
 
       issuable.run_after_commit do
-        # Create a pipeline creation request early to ensure pipeline_creating_for_merge_request?
-        # returns true as early as possible, making the CI mergeability check's
-        # race window as small as possible.
-        pipeline_creation_request = if Feature.enabled?(:track_ref_pipeline_creation, issuable.target_project)
-                                      Ci::PipelineCreation::Requests.start_for_merge_request(issuable)
-                                    end
-
         # Add new items to MergeRequests::AfterCreateService if they can
         # be performed in Sidekiq
-        NewMergeRequestWorker.perform_async(issuable.id, current_user_id, {
-          'pipeline_creation_request' => pipeline_creation_request
-        }.compact)
+        NewMergeRequestWorker.perform_async(issuable.id, current_user_id)
       end
 
       issuable.mark_as_preparing

@@ -2053,15 +2053,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def pipeline_creating?
-    Ci::PipelineCreation::Requests.pipeline_creating_for_merge_request?(self) ||
-      pipeline_creating_for_source_ref?
-  end
-
-  def pipeline_creating_for_source_ref?
-    return false unless source_project
-    return false unless Feature.enabled?(:track_ref_pipeline_creation, source_project)
-
-    Ci::PipelineCreation::Requests.pipeline_creating_for_ref?(source_project, source_branch_ref)
+    Ci::PipelineCreation::Requests.pipeline_creating_for_merge_request?(self)
   end
 
   def environments_in_head_pipeline(deployment_status: nil)
