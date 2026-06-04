@@ -788,7 +788,6 @@ export default [
       globals: {
         waitForElement: 'readonly',
         getText: 'readonly',
-        findByTestId: 'readonly',
         findInDrawer: 'readonly',
         findButtonByText: 'readonly',
         findByGraphQLId: 'readonly',
@@ -803,6 +802,8 @@ export default [
         capturedRequests: 'readonly',
         resetCapturedRequests: 'readonly',
         captureRequest: 'readonly',
+        screen: 'readonly',
+        within: 'readonly',
       },
     },
 
@@ -818,19 +819,23 @@ export default [
             ...specRestrictedImportsPaths,
             {
               name: 'helpers/wait_for_promises',
-              message: 'Use waitFor from @testing-library/dom instead.',
+              message: 'Use waitFor from @testing-library/vue instead.',
             },
             {
               name: 'helpers/vue_test_utils_helper',
               importNames: ['mountExtended', 'shallowMountExtended'],
               message:
-                'Use mount from @vue/test-utils instead. After mounting, use native DOM APIs for interactions and assertions.',
+                'Use fullMount from test_helpers.js instead. After mounting, use @testing-library/vue queries for interactions and assertions.',
             },
             {
               name: '@vue/test-utils',
-              importNames: ['createWrapper'],
               message:
-                'Do not wrap DOM elements in VTU wrappers. Use native DOM APIs (querySelector, click, getAttribute) instead.',
+                'Do not import from @vue/test-utils in MSW integration specs. Use @testing-library/vue for queries and fullMount from test_helpers.js for mounting.',
+            },
+            {
+              name: '@testing-library/dom',
+              message:
+                'Import from @testing-library/vue instead of @testing-library/dom. It re-exports everything from @testing-library/dom.',
             },
           ],
           patterns: [
@@ -838,7 +843,7 @@ export default [
             {
               group: ['vue'],
               importNames: ['nextTick'],
-              message: 'Use waitFor from @testing-library/dom instead of nextTick.',
+              message: 'Use waitFor from @testing-library/vue instead of nextTick.',
             },
           ],
         },
@@ -865,11 +870,11 @@ export default [
         },
         {
           selector: 'MemberExpression[property.name="nextTick"]',
-          message: 'Use waitFor from @testing-library/dom instead of nextTick.',
+          message: 'Use waitFor from @testing-library/vue instead of nextTick.',
         },
         {
           selector: 'MemberExpression[property.name="$nextTick"]',
-          message: 'Use waitFor from @testing-library/dom instead of $nextTick.',
+          message: 'Use waitFor from @testing-library/vue instead of $nextTick.',
         },
         {
           selector: 'MemberExpression[property.name="__vue__"]',

@@ -55,6 +55,25 @@ RSpec.describe NoteDiffFile, feature_category: :code_review_workflow do
     end
   end
 
+  describe '#raw_diff_file' do
+    context 'when the diff note has a valid original_position' do
+      it 'returns a Gitlab::Diff::File' do
+        expect(note_diff_file.raw_diff_file).to be_a(Gitlab::Diff::File)
+      end
+    end
+
+    context 'when the diff note has a nil original_position (corrupt YAML in the column)' do
+      before do
+        allow(diff_note).to receive(:original_position).and_return(nil)
+      end
+
+      it 'returns nil without raising', :aggregate_failures do
+        expect { note_diff_file.raw_diff_file }.not_to raise_error
+        expect(note_diff_file.raw_diff_file).to be_nil
+      end
+    end
+  end
+
   describe '#diff_export' do
     let_it_be(:encoded) { "b\xC3\xA5r" }
     let_it_be(:expected) { "bår" }

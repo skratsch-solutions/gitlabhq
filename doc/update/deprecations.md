@@ -231,6 +231,33 @@ natural language descriptions.
 
 Use [`glab duo cli`](https://docs.gitlab.com/cli/duo/cli/) instead for AI-powered assistance in the CLI.
 
+## GitLab 19.2
+
+### Advanced Search is Required for Self Managed Ultimate Tier
+
+- Announced in GitLab 18.11
+- Removal in GitLab 19.2
+- To discuss this change or learn more, see the [deprecation issue](https://gitlab.com/gitlab-org/gitlab/-/work_items/582417).
+
+We now **_require_** that Self Managed Ultimate Tier customers use
+[Advanced Search](https://docs.gitlab.com/integration/advanced_search/elasticsearch/)
+to get full access to the full suite of Ultimate Tier functionality. GitLab will not break without
+Advanced Search, however not all Ultimate Tier functionality will be available unless
+it is enabled.
+
+We previously **_recommended_** enabling Advanced Search as a way to improve query
+performance for certain features. We have now established that building full functionality
+that requires Advanced Search is fundamental to meeting the pace and quality of delivery
+that we require.
+
+No existing functionality will break or degrade by not using Advanced Search. This is a
+forward-looking change only: new functionality may not be supported without Advanced
+Search. Ultimate Tier GA features may now have a hard requirement on Advanced Search
+for full or partial functionality.
+
+Guidance for enabling Advanced Search can be
+[found in our documentation](https://docs.gitlab.com/user/search/advanced_search/).
+
 ## GitLab 19.1
 
 ### Elasticsearch 7.x no longer supported for advanced search

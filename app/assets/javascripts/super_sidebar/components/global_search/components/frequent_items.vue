@@ -53,6 +53,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['action'],
   computed: {
     formattedItems() {
       // Each item needs two different representations. One is for the

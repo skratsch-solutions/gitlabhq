@@ -75623,6 +75623,7 @@ components:
       properties:
         state:
           type: string
+          example: 'on'
         gates:
           "$ref": "#/components/schemas/APIEntitiesFeatureGate"
     APIEntitiesExperiment:
@@ -76837,7 +76838,8 @@ components:
       type: object
       properties:
         csp_namespace_id:
-          type: string
+          type: integer
+          example: 1
     APIEntitiesAnalyticsKnowledgeGraphEnabledNamespace:
       type: object
       properties:
@@ -77803,7 +77805,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          example: 1
         application_id:
           type: string
           example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
@@ -77828,7 +77831,8 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: integer
+          example: 1
         application_id:
           type: string
           example: 5832fc6e14300a0d962240a8144466eef4ee93ef0d218477e55f11cf12fc3737
@@ -82889,7 +82893,7 @@ components:
           type: string
           example: c401a659d0c
         kas:
-          type: string
+          type: object
         enterprise:
           type: boolean
     APIEntitiesMergeRequestDiff:
@@ -86286,40 +86290,58 @@ components:
       properties:
         title:
           type: string
+          example: GitLab Community Edition
         description:
           type: string
+          example: Open source software to collaborate on code
         pwa_name:
           type: string
+          example: GitLab
         pwa_short_name:
           type: string
+          example: GitLab
         pwa_description:
           type: string
+          example: GitLab as PWA
         logo:
           type: string
+          example: "/uploads/-/system/appearance/logo/1/logo.png"
         pwa_icon:
           type: string
+          example: "/uploads/-/system/appearance/pwa_icon/1/icon.png"
         header_logo:
           type: string
+          example: "/uploads/-/system/appearance/header_logo/1/header.png"
         favicon:
           type: string
+          example: "/uploads/-/system/appearance/favicon/1/favicon.png"
         new_project_guidelines:
           type: string
+          example: Please read the FAQs for help.
         member_guidelines:
           type: string
+          example: Please read the member guidelines.
         profile_image_guidelines:
           type: string
+          example: Custom profile image guidelines
         header_message:
           type: string
+          example: This is a header message
         footer_message:
           type: string
+          example: This is a footer message
         message_background_color:
           type: string
+          example: "#e75e40"
         message_font_color:
           type: string
+          example: "#ffffff"
         email_header_and_footer_enabled:
-          type: string
+          type: boolean
+          example: false
         site_name:
           type: string
+          example: GitLab
     APIEntitiesMetricImage:
       type: object
       properties:
@@ -86443,22 +86465,35 @@ components:
           type: integer
         message:
           type: string
+          example: Example broadcast message
         starts_at:
           type: string
+          format: date-time
+          example: '2016-01-04T15:39:55.570Z'
         ends_at:
           type: string
+          format: date-time
+          example: '2016-01-06T15:39:55.570Z'
         color:
           type: string
+          example: "#E75E40"
         font:
           type: string
+          example: "#FFFFFF"
         target_access_levels:
-          type: string
+          type: array
+          example:
+          - 10
+          - 30
         target_path:
           type: string
+          example: "*/welcome"
         broadcast_type:
           type: string
+          example: banner
         theme:
           type: string
+          example: indigo
         dismissable:
           type: boolean
         active:

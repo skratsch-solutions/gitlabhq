@@ -513,7 +513,8 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
-            error_message: s_('TransferOrganization|Only root groups can be transferred to a different organization.')
+            error_message:
+              s_('TransferOrganization|Only top-level groups can be transferred to a different organization.')
           )
         )
       end
@@ -1067,7 +1068,8 @@ RSpec.describe Organizations::Transfer::GroupsService, :aggregate_failures, feat
         expect(result.message).to eq(
           format(
             s_('TransferOrganization|Group organization transfer failed: %{error_message}'),
-            error_message: s_('TransferOrganization|Only root groups can be transferred to a different organization.')
+            error_message:
+              s_('TransferOrganization|Only top-level groups can be transferred to a different organization.')
           )
         )
       end

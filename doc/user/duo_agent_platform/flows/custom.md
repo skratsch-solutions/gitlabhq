@@ -30,6 +30,8 @@ title: Custom flows
 - Available on the Free tier on GitLab.com with GitLab Credits in GitLab 18.10.
 - Feature flag `ai_catalog_project_level_enablement` removed in GitLab 18.11.
 - **Merge request ready** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592454) in GitLab 19.0 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_ready_flow_trigger`. Disabled by default.
+- **Merge request code conflict** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592455) in GitLab 19.1 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_code_conflict_flow_trigger`. Disabled by default.
+- **Merge request approved** trigger event type [introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/592456) in GitLab 19.1 with a [flag](../../../administration/feature_flags/_index.md) named `merge_request_approved_flow_trigger`. Disabled by default.
 
 {{< /history >}}
 
@@ -173,6 +175,8 @@ To enable a flow:
    - **Pipeline events**: When a pipeline changes state.
      The possible states are `created`, `started`, `succeeded`, and `failed`.
    - **Merge request ready**: When a draft merge request is marked as ready for review.
+   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
+   - **Merge request approved**: When a merge request receives all required approvals.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -194,6 +198,8 @@ To enable a flow:
    - **Assign reviewer**: When the service account user is assigned
      as a reviewer to a merge request.
    - **Merge request ready**: When a draft merge request is marked as ready for review.
+   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
+   - **Merge request approved**: When a merge request receives all required approvals.
 1. Select **Enable**.
 
 {{< /tab >}}
@@ -229,6 +235,8 @@ To enable a flow in a project:
    - **Assign reviewer**: When the service account user is assigned
      as a reviewer to a merge request.
    - **Merge request ready**: When a draft merge request is marked as ready for review.
+   - **Merge request code conflict**: When a merge request can no longer be merged due to a code conflict.
+   - **Merge request approved**: When a merge request receives all required approvals.
 1. Select **Enable**.
 
 The flow appears in the project's **AI** > **Flows** list.

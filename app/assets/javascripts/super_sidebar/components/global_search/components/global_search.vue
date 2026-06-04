@@ -100,6 +100,7 @@ export default {
     CommandsOverviewDropdown,
   },
   mixins: [trackingMixin, modalKeyboardNavigationMixin],
+  emits: ['hidden', 'shown'],
   data() {
     return {
       nextFocusedItemIndex: null,

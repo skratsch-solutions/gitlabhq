@@ -70,6 +70,7 @@ export default {
       default: () => ({}),
     },
   },
+  emits: ['nav-item-keydown-esc', 'nav-link-click', 'nav-pin-keydown-esc', 'pin-add', 'pin-remove'],
   data() {
     return {
       isMouseIn: false,

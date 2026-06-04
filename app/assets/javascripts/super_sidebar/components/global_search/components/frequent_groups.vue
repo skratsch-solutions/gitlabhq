@@ -10,6 +10,7 @@ export default {
     FrequentItems,
   },
   inject: ['groupsPath'],
+  emits: ['action', 'nothing-to-render'],
   apollo: {
     // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     frecentGroups: {

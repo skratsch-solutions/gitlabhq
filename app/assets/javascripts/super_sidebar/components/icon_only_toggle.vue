@@ -8,6 +8,7 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   inject: ['isIconOnly'],
+  emits: ['toggle'],
   computed: {
     icon() {
       return this.isIconOnly ? 'collapse-right' : 'collapse-left';

@@ -540,9 +540,9 @@ describe('CommitListApp', () => {
         await waitForPromises();
       });
 
-      it('does not render pagination controls', () => {
+      it('does not render pagination buttons but still shows page size selector', () => {
         expect(findPagination().exists()).toBe(false);
-        expect(findPageSizeSelector().exists()).toBe(false);
+        expect(findPageSizeSelector().exists()).toBe(true);
       });
     });
 

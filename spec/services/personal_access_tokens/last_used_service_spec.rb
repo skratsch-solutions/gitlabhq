@@ -371,5 +371,17 @@ RSpec.describe PersonalAccessTokens::LastUsedService, feature_category: :system_
         expect { service_execution }.not_to change { personal_access_token.last_used_at }
       end
     end
+
+    context 'when the token is frozen' do
+      let(:personal_access_token) { create(:personal_access_token, last_used_at: 1.year.ago) }
+
+      before do
+        personal_access_token.freeze
+      end
+
+      it 'does not update the last_used_at timestamp' do
+        expect { service_execution }.not_to change { personal_access_token.last_used_at }
+      end
+    end
   end
 end

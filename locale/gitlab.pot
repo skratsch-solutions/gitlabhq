@@ -27913,6 +27913,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Create triggers to automatically run pipelines when specified events occur in your project."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Creates a .gitlab/duo/agent-config.yml file so CI-launched Duo Agent Platform flows run in a container that matches your project tech stack."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Data Analyst"
 msgstr ""
 
@@ -27953,6 +27956,9 @@ msgid "DuoAgentsPlatform|Event types"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Event types are required."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Execution environment has already been initialized."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Failed to cancel session. Please try again."
@@ -28013,6 +28019,9 @@ msgid "DuoAgentsPlatform|Improve your CI setup"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Initialize context path not configured."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Initialize execution environment"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Initialize project context"
@@ -28139,6 +28148,9 @@ msgid "DuoAgentsPlatform|Something went wrong while fetching Agent Flows"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while initializing project context."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Something went wrong while initializing the execution environment."
 msgstr ""
 
 msgid "DuoAgentsPlatform|Something went wrong while starting the CI improvement workflow."
@@ -78465,6 +78477,9 @@ msgstr ""
 msgid "TransferOrganization|Cannot transfer users to a different organization if all users do not belong to the same organization as the top-level group."
 msgstr ""
 
+msgid "TransferOrganization|Failed to transfer %{failed_count} of %{total_count} groups"
+msgstr ""
+
 msgid "TransferOrganization|Group is already in the target organization."
 msgstr ""
 
@@ -78474,7 +78489,13 @@ msgstr ""
 msgid "TransferOrganization|Group transfer to organization initiated"
 msgstr ""
 
-msgid "TransferOrganization|Only root groups can be transferred to a different organization."
+msgid "TransferOrganization|Only top-level groups can be transferred to a different organization."
+msgstr ""
+
+msgid "TransferOrganization|Target organization must be specified."
+msgstr ""
+
+msgid "TransferOrganization|Top-level group organization transfer failed: %{error_message}"
 msgstr ""
 
 msgid "TransferOrganization|You must be an owner of both the group and new organization."
@@ -81936,9 +81957,6 @@ msgid "View changed file"
 msgstr ""
 
 msgid "View commit %{commit_id}"
-msgstr ""
-
-msgid "View commit details"
 msgstr ""
 
 msgid "View commits for tag %{tag}"

@@ -217,7 +217,9 @@ module Organizations
 
       def localized_error_messages
         {
-          group_not_root: s_('TransferOrganization|Only root groups can be transferred to a different organization.'),
+          group_not_root: s_(
+            'TransferOrganization|Only top-level groups can be transferred to a different organization.'
+          ),
           already_transferred: s_('TransferOrganization|Group is already in the target organization.'),
           permission: s_("TransferOrganization|You must be an owner of both the group and new organization.")
         }.freeze

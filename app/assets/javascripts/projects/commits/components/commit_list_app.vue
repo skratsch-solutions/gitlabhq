@@ -1,5 +1,5 @@
 <script>
-import { GlIcon, GlKeysetPagination, GlLoadingIcon } from '@gitlab/ui';
+import { GlKeysetPagination, GlLoadingIcon, GlIcon } from '@gitlab/ui';
 import { InternalEvents } from '~/tracking';
 import { isValidDate, localeDateFormat, newDate } from '~/lib/utils/datetime_utility';
 import { createAlert } from '~/alert';
@@ -325,15 +325,22 @@ export default {
         </li>
       </ol>
 
-      <div v-if="showPagination" class="gl-mt-4 gl-flex gl-items-center gl-justify-between">
-        <div></div>
+      <div
+        class="gl-relative gl-mt-4 gl-flex"
+        :class="showPagination ? 'gl-justify-center' : 'gl-justify-end'"
+      >
         <gl-keyset-pagination
+          v-if="showPagination"
           :has-previous-page="hasPreviousPage"
           :has-next-page="pageInfo.hasNextPage"
           @prev="prevPage"
           @next="nextPage"
         />
-        <page-size-selector :value="pageSize" @input="handlePageSizeChange" />
+        <page-size-selector
+          :value="pageSize"
+          :class="showPagination ? 'gl-absolute gl-right-0' : ''"
+          @input="handlePageSizeChange"
+        />
       </div>
     </template>
 

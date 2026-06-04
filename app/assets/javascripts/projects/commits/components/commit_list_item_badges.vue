@@ -48,6 +48,9 @@ export default {
       class="gl-my-2 gl-flex gl-flex-wrap gl-items-center gl-gap-3 @md/panel:gl-hidden"
       data-testid="commit-badges-mobile-container"
     >
+      <code class="gl-font-monospace" data-testid="commit-sha">
+        {{ commit.shortId }}
+      </code>
       <div v-if="hasPipeline" class="gl-flex gl-items-center">
         <ci-icon :status="pipelineStatus" />
       </div>
@@ -77,9 +80,6 @@ export default {
           <gl-truncate :text="commitTags[0]" with-tooltip />
         </gl-badge>
       </button>
-      <span class="gl-font-monospace" data-testid="commit-sha">
-        {{ commit.shortId }}
-      </span>
     </div>
 
     <div

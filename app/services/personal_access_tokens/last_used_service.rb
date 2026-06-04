@@ -56,6 +56,9 @@ module PersonalAccessTokens
 
     def needs_update?
       return false if ::Gitlab::Database.read_only?
+      # No-op on frozen records: production records are never frozen,
+      # so this only guards frozen shared test fixtures from a lazy write.
+      return false if @personal_access_token.frozen?
 
       last_used_ip_needs_update? || last_used_at_needs_update?
     end

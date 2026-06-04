@@ -49,6 +49,7 @@ export default {
       default: () => ({}),
     },
   },
+  emits: ['collapse-toggle', 'nav-link-click', 'pin-add', 'pin-remove'],
   data() {
     return {
       isExpanded: Boolean(this.expanded || this.item.is_active),
