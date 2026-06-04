@@ -12,6 +12,7 @@ import {
 import noAccessSvg from '@gitlab/svgs/dist/illustrations/empty-state/empty-search-md.svg';
 import DuoWorkItemToMrAction from 'ee_component/ai/shared/widgets/duo_work_item_to_mr_action.vue';
 import DesignDropzone from '~/vue_shared/components/upload_dropzone/upload_dropzone.vue';
+import DetailLayout from '~/vue_shared/components/detail_layout.vue';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { s__, __ } from '~/locale';
 import { InternalEvents } from '~/tracking';
@@ -119,6 +120,7 @@ export default {
     DesignDropzone,
     DesignWidget,
     DesignUploadButton,
+    DetailLayout,
     GlAlert,
     GlButton,
     GlEmptyState,
@@ -453,11 +455,6 @@ export default {
     workItemMilestone() {
       return this.findWidget(WIDGET_TYPE_MILESTONE)?.milestone;
     },
-    workItemBodyClass() {
-      return {
-        'gl-pt-5': !this.updateError && !this.isModal,
-      };
-    },
     flashNoticeMessage() {
       const numberOfDiscussionsResolved = getParameterByName('resolves_discussion');
       return numberOfDiscussionsResolved === 'all'
@@ -597,6 +594,19 @@ export default {
       return this.workItem.confidential
         ? s__('WorkItem|Confidentiality turned on.')
         : s__('WorkItem|Confidentiality turned off.');
+    },
+    hasAlerts() {
+      return this.info || this.updateError || this.refetchError;
+    },
+    showWidgets() {
+      return (
+        this.workItemLinkedResources.length ||
+        this.hasDesignWidget ||
+        this.showWorkItemTree ||
+        this.workItemLinkedItems ||
+        this.workItemDevelopment ||
+        this.$scopedSlots.widgets
+      );
     },
   },
   watch: {
@@ -978,46 +988,347 @@ export default {
     >
       <!-- Do not remove the element below, it allows for scrolling to top on click of sticky header -->
       <div id="top"></div>
-      <section class="work-item-view">
-        <component :is="isModalOrDetailPanel ? 'h2' : 'h1'" v-if="editMode" class="gl-sr-only">{{
-          s__('WorkItem|Edit work item')
-        }}</component>
-        <gl-alert
-          v-if="info"
-          class="gl-mb-3"
-          variant="info"
-          data-testid="info-alert"
-          @dismiss="dismissInfo"
-        >
-          {{ flashNoticeMessage }}
-        </gl-alert>
-        <section v-if="updateError" class="flash-container flash-container-page sticky">
-          <gl-alert class="gl-mb-3" variant="danger" @dismiss="updateError = undefined">
-            {{ updateError }}
-          </gl-alert>
-        </section>
-        <section
-          v-if="refetchError"
-          :class="
-            isDetailPanel ? 'gl-sticky gl-top-0' : 'flash-container flash-container-page sticky'
-          "
-          :style="{ zIndex: 100 }"
-          data-testid="work-item-refetch-alert"
-        >
-          <gl-alert class="gl-mb-3" variant="warning" @dismiss="refetchError = null">
-            <span>{{ refetchError }}</span>
-            <gl-button
-              class="gl-ml-2"
-              category="primary"
-              variant="confirm"
-              size="small"
-              @click="$apollo.queries.workItem.refetch()"
+      <detail-layout :loading="workItemLoading">
+        <template #loading>
+          <work-item-loading />
+        </template>
+        <template #before>
+          <work-item-sticky-header
+            v-if="showIntersectionObserver"
+            :current-user-todos="currentUserTodos"
+            :show-work-item-current-user-todos="showWorkItemCurrentUserTodos"
+            :parent-work-item-confidentiality="parentWorkItemConfidentiality"
+            :full-path="workItemFullPath"
+            :is-modal="isModal"
+            :is-drawer="isDetailPanel"
+            :work-item="workItem"
+            :is-sticky-header-showing="isStickyHeaderShowing"
+            :archived="workItem.archived"
+            @hideStickyHeader="hideStickyHeader"
+            @showStickyHeader="showStickyHeader"
+            @deleteWorkItem="$emit('deleteWorkItem', { workItemType, workItemId: workItem.id })"
+            @toggleWorkItemConfidentiality="toggleConfidentiality"
+            @error="updateError = $event"
+            @promotedToObjective="$emit('promotedToObjective', iid)"
+            @workItemTypeChanged="workItemTypeChanged"
+            @toggleEditMode="enableEditMode"
+            @workItemStateUpdated="$emit('workItemStateUpdated')"
+            @toggleReportAbuseModal="toggleReportAbuseModal"
+            @todosUpdated="updateWorkItemCurrentTodosWidgetCache"
+          >
+            <template #actions>
+              <work-item-actions
+                v-if="workItemPresent"
+                v-bind="workItemActionProps"
+                :update-in-progress="updateInProgress"
+                @deleteWorkItem="$emit('deleteWorkItem', { workItemType, workItemId: workItem.id })"
+                @toggleWorkItemConfidentiality="toggleConfidentiality"
+                @error="updateError = $event"
+                @promotedToObjective="$emit('promotedToObjective', iid)"
+                @workItemStateUpdated="$emit('workItemStateUpdated')"
+                @workItemTypeChanged="workItemTypeChanged"
+                @toggleReportAbuseModal="toggleReportAbuseModal"
+                @work-item-created="handleWorkItemCreated"
+                @toggleSidebar="handleToggleSidebar"
+                @toggleTruncationEnabled="handleTruncationEnabled"
+              />
+            </template>
+          </work-item-sticky-header>
+        </template>
+
+        <template #heading-wrapper>
+          <div class="gl-grow">
+            <component :is="isModalOrDetailPanel ? 'h2' : 'h1'" v-if="editMode" class="gl-sr-only">
+              {{ s__('WorkItem|Edit work item') }}
+            </component>
+            <work-item-ancestors v-if="shouldShowAncestors" :work-item="workItem" class="gl-mb-1" />
+            <div v-if="!error" :class="titleClassHeader" data-testid="work-item-type">
+              <work-item-title
+                v-if="workItem.title"
+                ref="title"
+                :is-editing="editMode"
+                :is-modal="isModalOrDetailPanel"
+                :title="workItem.title"
+                :title-html="workItem.titleHtml"
+                @updateWorkItem="updateWorkItem"
+                @updateDraft="updateDraft('title', $event)"
+                @error="updateError = $event"
+              />
+            </div>
+            <work-item-title
+              v-if="workItem.title && shouldShowAncestors"
+              ref="title"
+              :is-editing="editMode"
+              :is-modal="isModalOrDetailPanel"
+              :class="titleClassComponent"
+              :title="workItem.title"
+              :title-html="workItem.titleHtml"
+              @error="updateError = $event"
+              @updateWorkItem="updateWorkItem"
+              @updateDraft="updateDraft('title', $event)"
+            />
+          </div>
+        </template>
+
+        <template v-if="(!editMode || !showSidebar) && !error" #description>
+          <div class="gl-flex gl-items-center gl-gap-3">
+            <work-item-created-updated
+              v-if="!editMode"
+              :full-path="workItemFullPath"
+              :work-item-iid="iid"
+              class="gl-grow"
+            />
+            <div
+              v-if="!showSidebar"
+              class="work-item-container-xs-hidden gl-hidden @md/panel:gl-block"
             >
-              {{ __('Refresh') }}
+              <gl-button
+                size="small"
+                category="secondary"
+                data-testid="work-item-show-sidebar-button"
+                icon="sidebar-right"
+                @click="handleToggleSidebar"
+              >
+                {{ s__('WorkItem|Show sidebar') }}
+              </gl-button>
+            </div>
+          </div>
+        </template>
+
+        <template #actions>
+          <div class="gl-ml-auto gl-mt-1 gl-flex gl-grow gl-gap-3">
+            <gl-button
+              v-if="shouldShowEditButton"
+              v-gl-tooltip.bottom.html
+              :title="editTooltip"
+              category="secondary"
+              data-testid="work-item-edit-form-button"
+              class="shortcut-edit-wi-description"
+              @click="enableEditMode"
+            >
+              {{ __('Edit') }}
             </gl-button>
+            <todos-toggle
+              v-if="showWorkItemCurrentUserTodos"
+              :item-id="workItem.id"
+              :current-user-todos="currentUserTodos"
+              todos-button-type="secondary"
+              @todosUpdated="updateWorkItemCurrentTodosWidgetCache"
+              @error="updateError = $event"
+            />
+            <work-item-notifications-widget
+              v-if="newTodoAndNotificationsEnabled"
+              :work-item-id="workItem.id"
+              @error="updateError = $event"
+            />
+            <work-item-actions
+              v-if="workItemPresent"
+              v-bind="workItemActionProps"
+              :update-in-progress="updateInProgress"
+              @deleteWorkItem="$emit('deleteWorkItem', { workItemType, workItemId: workItem.id })"
+              @toggleWorkItemConfidentiality="toggleConfidentiality"
+              @error="updateError = $event"
+              @promotedToObjective="$emit('promotedToObjective', iid)"
+              @workItemStateUpdated="$emit('workItemStateUpdated')"
+              @workItemTypeChanged="workItemTypeChanged"
+              @toggleReportAbuseModal="toggleReportAbuseModal"
+              @work-item-created="handleWorkItemCreated"
+              @toggleSidebar="handleToggleSidebar"
+              @toggleTruncationEnabled="handleTruncationEnabled"
+            />
+            <gl-button
+              v-if="isModal"
+              class="gl-hidden @sm/panel:!gl-block"
+              category="tertiary"
+              data-testid="work-item-close"
+              icon="close"
+              :aria-label="__('Close')"
+              @click="$emit('close')"
+            />
+          </div>
+        </template>
+
+        <template v-if="hasAlerts" #alerts>
+          <gl-alert
+            v-if="info"
+            class="gl-mb-3"
+            variant="info"
+            data-testid="info-alert"
+            @dismiss="dismissInfo"
+          >
+            {{ flashNoticeMessage }}
           </gl-alert>
-        </section>
-        <section :class="workItemBodyClass">
+          <section v-if="updateError" class="flash-container flash-container-page sticky">
+            <gl-alert class="gl-mb-3" variant="danger" @dismiss="updateError = undefined">
+              {{ updateError }}
+            </gl-alert>
+          </section>
+          <section
+            v-if="refetchError"
+            :class="
+              isDetailPanel ? 'gl-sticky gl-top-0' : 'flash-container flash-container-page sticky'
+            "
+            :style="{ zIndex: 100 }"
+            data-testid="work-item-refetch-alert"
+          >
+            <gl-alert class="gl-mb-3" variant="warning" @dismiss="refetchError = null">
+              <span>{{ refetchError }}</span>
+              <gl-button
+                class="gl-ml-2"
+                category="primary"
+                variant="confirm"
+                size="small"
+                @click="$apollo.queries.workItem.refetch()"
+              >
+                {{ __('Refresh') }}
+              </gl-button>
+            </gl-alert>
+          </section>
+        </template>
+
+        <template #sidebar>
+          <section
+            data-testid="work-item-overview-right-sidebar"
+            class="work-item-overview-right-sidebar"
+            :class="{ 'is-modal': isModal, '@md/panel:gl-hidden': !showSidebar }"
+          >
+            <h2 class="gl-sr-only">{{ s__('WorkItem|Attributes') }}</h2>
+            <work-item-attributes-wrapper
+              :class="{ 'gl-top-9': isDetailPanel }"
+              :full-path="workItemFullPath"
+              :work-item="workItem"
+              :group-path="groupPath"
+              :is-group="isGroup"
+              @error="updateError = $event"
+              @attributesUpdated="$emit('attributesUpdated', $event)"
+            />
+          </section>
+        </template>
+
+        <template v-if="showWidgets" #widgets>
+          <work-item-linked-resources
+            v-if="workItemLinkedResources.length"
+            :linked-resources="workItemLinkedResources"
+          />
+
+          <design-widget
+            v-if="hasDesignWidget"
+            :class="{ 'gl-mt-0': isDetailPanel }"
+            :work-item-id="workItem.id"
+            :work-item-iid="iid"
+            :work-item-full-path="workItemFullPath"
+            :work-item-web-url="workItem.webUrl"
+            :is-group="isGroup"
+            :upload-error="designUploadError"
+            :upload-error-variant="designUploadErrorVariant"
+            :is-saving="isSaving"
+            :can-reorder-design="canReorderDesign"
+            :is-board="isBoard"
+            :can-add-design="canAddDesign"
+            :can-update-design="canUpdateDesign"
+            :can-paste-design="canPasteDesign"
+            @upload="onUploadDesign"
+            @dismissError="designUploadError = null"
+          >
+            <template #empty-state>
+              <design-dropzone
+                v-if="isEmptyStateVisible && !isSaving && isDragDataValid && !isAddingNotes"
+                class="gl-relative gl-mt-5"
+                show-upload-design-overlay
+                validate-design-upload-on-dragover
+                hide-upload-text-on-dragging
+                :accept-design-formats="$options.VALID_DESIGN_FILE_MIMETYPE.mimetype"
+                @change="onUploadDesign"
+              >
+                <template #upload-text>
+                  {{ s__('DesignManagement|Drag images here to add designs.') }}
+                </template>
+              </design-dropzone>
+            </template>
+          </design-widget>
+
+          <slot name="widgets" :work-item="workItem"></slot>
+
+          <work-item-tree
+            v-if="showWorkItemTree"
+            :full-path="workItemFullPath"
+            :is-group="isGroup"
+            :work-item-type="workItemType"
+            :parent-work-item-type="workItem.workItemType.name"
+            :work-item-id="workItem.id"
+            :work-item-iid="iid"
+            :parent-iteration="workItemIteration"
+            :parent-milestone="workItemMilestone"
+            :active-child-item-id="activeChildItemId"
+            :can-update="canUpdate"
+            :can-update-children="canUpdateChildren"
+            :confidential="workItem.confidential"
+            :allowed-child-types="allowedChildTypes"
+            :is-drawer="isDetailPanel"
+            contextual-view-enabled
+            @show-modal="openContextualView"
+            @add-child="$emit('add-child')"
+          />
+          <work-item-relationships
+            v-if="workItemLinkedItems"
+            :is-group="isGroup"
+            :work-item-id="workItem.id"
+            :work-item-iid="iid"
+            :work-item-full-path="workItemFullPath"
+            :work-item-type="workItem.workItemType.name"
+            :can-admin-work-item-link="canAdminWorkItemLink"
+            :active-child-item-id="activeChildItemId"
+            :has-blocked-work-items-feature="hasBlockedWorkItemsFeature"
+            contextual-view-enabled
+            @showModal="openContextualView"
+          />
+
+          <work-item-development
+            v-if="workItemDevelopment"
+            :is-modal="isModal"
+            :work-item-id="workItem.id"
+            :work-item-iid="iid"
+            :work-item-full-path="workItemFullPath"
+          />
+
+          <work-item-vulnerabilities
+            :work-item-iid="iid"
+            :work-item-full-path="workItemFullPath"
+            data-testid="work-item-vulnerabilities"
+          />
+        </template>
+
+        <template v-if="workItemNotes" #activity>
+          <work-item-notes
+            ref="workItemNotes"
+            :full-path="workItemFullPath"
+            :work-item-id="workItem.id"
+            :work-item-iid="workItem.iid"
+            :work-item-type="workItemType"
+            :work-item-type-id="workItemTypeId"
+            :is-modal="isModal"
+            :is-drawer="isDetailPanel"
+            :assignees="workItemAssignees && workItemAssignees.assignees.nodes"
+            :can-set-work-item-metadata="canAssignUnassignUser"
+            :can-summarize-comments="canSummarizeComments"
+            :can-create-note="canCreateNote"
+            :is-discussion-locked="isDiscussionLocked"
+            :is-work-item-confidential="workItem.confidential"
+            :new-comment-template-paths="workItem.commentTemplatesPaths"
+            :use-h2="!isModalOrDetailPanel"
+            :small-header-style="isModal"
+            :parent-id="parentWorkItemId"
+            :hide-fullscreen-markdown-button="isDetailPanel"
+            @error="updateError = $event"
+            @openReportAbuse="openReportAbuseModal"
+            @start-editing="isAddingNotes = true"
+            @stop-editing="isAddingNotes = false"
+            @focus="isAddingNotes = true"
+            @blur="isAddingNotes = false"
+          />
+        </template>
+
+        <section class="work-item-view">
           <div :class="modalCloseButtonClass">
             <gl-button
               v-if="isModal"
@@ -1029,170 +1340,14 @@ export default {
               @click="$emit('close')"
             />
           </div>
-          <work-item-loading v-if="workItemLoading" />
           <gl-empty-state
-            v-else-if="error"
+            v-if="error"
             :title="s__('WorkItem|Work item not found')"
             :description="error"
             :svg-path="$options.noAccessSvg"
           />
           <div v-else data-testid="detail-wrapper">
-            <div class="gl-block gl-flex-row gl-items-start gl-gap-3 @sm/panel:!gl-flex">
-              <work-item-ancestors
-                v-if="shouldShowAncestors"
-                :work-item="workItem"
-                class="gl-mb-1"
-              />
-              <div v-if="!error" :class="titleClassHeader" data-testid="work-item-type">
-                <work-item-title
-                  v-if="workItem.title"
-                  ref="title"
-                  :is-editing="editMode"
-                  :is-modal="isModalOrDetailPanel"
-                  :title="workItem.title"
-                  :title-html="workItem.titleHtml"
-                  @updateWorkItem="updateWorkItem"
-                  @updateDraft="updateDraft('title', $event)"
-                  @error="updateError = $event"
-                />
-              </div>
-              <div class="gl-ml-auto gl-mt-1 gl-flex gl-gap-3 gl-self-start">
-                <gl-button
-                  v-if="shouldShowEditButton"
-                  v-gl-tooltip.bottom.html
-                  :title="editTooltip"
-                  category="secondary"
-                  data-testid="work-item-edit-form-button"
-                  class="shortcut-edit-wi-description"
-                  @click="enableEditMode"
-                >
-                  {{ __('Edit') }}
-                </gl-button>
-                <todos-toggle
-                  v-if="showWorkItemCurrentUserTodos"
-                  :item-id="workItem.id"
-                  :current-user-todos="currentUserTodos"
-                  todos-button-type="secondary"
-                  @todosUpdated="updateWorkItemCurrentTodosWidgetCache"
-                  @error="updateError = $event"
-                />
-                <work-item-notifications-widget
-                  v-if="newTodoAndNotificationsEnabled"
-                  :work-item-id="workItem.id"
-                  @error="updateError = $event"
-                />
-                <work-item-actions
-                  v-if="workItemPresent"
-                  v-bind="workItemActionProps"
-                  :update-in-progress="updateInProgress"
-                  @deleteWorkItem="
-                    $emit('deleteWorkItem', { workItemType, workItemId: workItem.id })
-                  "
-                  @toggleWorkItemConfidentiality="toggleConfidentiality"
-                  @error="updateError = $event"
-                  @promotedToObjective="$emit('promotedToObjective', iid)"
-                  @workItemStateUpdated="$emit('workItemStateUpdated')"
-                  @workItemTypeChanged="workItemTypeChanged"
-                  @toggleReportAbuseModal="toggleReportAbuseModal"
-                  @work-item-created="handleWorkItemCreated"
-                  @toggleSidebar="handleToggleSidebar"
-                  @toggleTruncationEnabled="handleTruncationEnabled"
-                />
-              </div>
-              <gl-button
-                v-if="isModal"
-                class="gl-hidden @sm/panel:!gl-block"
-                category="tertiary"
-                data-testid="work-item-close"
-                icon="close"
-                :aria-label="__('Close')"
-                @click="$emit('close')"
-              />
-            </div>
-            <div>
-              <work-item-title
-                v-if="workItem.title && shouldShowAncestors"
-                ref="title"
-                :is-editing="editMode"
-                :is-modal="isModalOrDetailPanel"
-                :class="titleClassComponent"
-                :title="workItem.title"
-                :title-html="workItem.titleHtml"
-                @error="updateError = $event"
-                @updateWorkItem="updateWorkItem"
-                @updateDraft="updateDraft('title', $event)"
-              />
-              <div class="gl-flex gl-items-center gl-gap-3">
-                <work-item-created-updated
-                  v-if="!editMode"
-                  :full-path="workItemFullPath"
-                  :work-item-iid="iid"
-                  class="gl-grow"
-                />
-                <div
-                  v-if="!showSidebar"
-                  class="work-item-container-xs-hidden gl-hidden @md/panel:gl-block"
-                >
-                  <gl-button
-                    size="small"
-                    category="secondary"
-                    data-testid="work-item-show-sidebar-button"
-                    icon="sidebar-right"
-                    @click="handleToggleSidebar"
-                  >
-                    {{ s__('WorkItem|Show sidebar') }}
-                  </gl-button>
-                </div>
-              </div>
-            </div>
-            <work-item-sticky-header
-              v-if="showIntersectionObserver"
-              :current-user-todos="currentUserTodos"
-              :show-work-item-current-user-todos="showWorkItemCurrentUserTodos"
-              :parent-work-item-confidentiality="parentWorkItemConfidentiality"
-              :full-path="workItemFullPath"
-              :is-modal="isModal"
-              :is-drawer="isDetailPanel"
-              :work-item="workItem"
-              :is-sticky-header-showing="isStickyHeaderShowing"
-              :archived="workItem.archived"
-              @hideStickyHeader="hideStickyHeader"
-              @showStickyHeader="showStickyHeader"
-              @deleteWorkItem="$emit('deleteWorkItem', { workItemType, workItemId: workItem.id })"
-              @toggleWorkItemConfidentiality="toggleConfidentiality"
-              @error="updateError = $event"
-              @promotedToObjective="$emit('promotedToObjective', iid)"
-              @workItemTypeChanged="workItemTypeChanged"
-              @toggleEditMode="enableEditMode"
-              @workItemStateUpdated="$emit('workItemStateUpdated')"
-              @toggleReportAbuseModal="toggleReportAbuseModal"
-              @todosUpdated="updateWorkItemCurrentTodosWidgetCache"
-            >
-              <template #actions>
-                <work-item-actions
-                  v-if="workItemPresent"
-                  v-bind="workItemActionProps"
-                  :update-in-progress="updateInProgress"
-                  @deleteWorkItem="
-                    $emit('deleteWorkItem', { workItemType, workItemId: workItem.id })
-                  "
-                  @toggleWorkItemConfidentiality="toggleConfidentiality"
-                  @error="updateError = $event"
-                  @promotedToObjective="$emit('promotedToObjective', iid)"
-                  @workItemStateUpdated="$emit('workItemStateUpdated')"
-                  @workItemTypeChanged="workItemTypeChanged"
-                  @toggleReportAbuseModal="toggleReportAbuseModal"
-                  @work-item-created="handleWorkItemCreated"
-                  @toggleSidebar="handleToggleSidebar"
-                  @toggleTruncationEnabled="handleTruncationEnabled"
-                />
-              </template>
-            </work-item-sticky-header>
-            <div
-              data-testid="work-item-overview"
-              class="work-item-overview"
-              :class="{ 'sidebar-hidden': !showSidebar }"
-            >
+            <div data-testid="work-item-overview" :class="{ 'sidebar-hidden': !showSidebar }">
               <section>
                 <local-storage-sync
                   v-model="truncationEnabled"
@@ -1272,154 +1427,16 @@ export default {
                 v-model="showSidebar"
                 :storage-key="$options.SHOW_SIDEBAR_STORAGE_KEY"
               />
-              <section
-                data-testid="work-item-overview-right-sidebar"
-                class="work-item-overview-right-sidebar"
-                :class="{ 'is-modal': isModal, '@md/panel:gl-hidden': !showSidebar }"
-              >
-                <h2 class="gl-sr-only">{{ s__('WorkItem|Attributes') }}</h2>
-                <work-item-attributes-wrapper
-                  :full-path="workItemFullPath"
-                  :work-item="workItem"
-                  :group-path="groupPath"
-                  :is-group="isGroup"
-                  @error="updateError = $event"
-                  @attributesUpdated="$emit('attributesUpdated', $event)"
-                />
-              </section>
 
               <work-item-error-tracking
                 v-if="workItemErrorTracking.identifier"
                 :full-path="workItemFullPath"
                 :iid="iid"
               />
-
-              <work-item-linked-resources
-                v-if="workItemLinkedResources.length"
-                :linked-resources="workItemLinkedResources"
-              />
-
-              <design-widget
-                v-if="hasDesignWidget"
-                :class="{ 'gl-mt-0': isDetailPanel }"
-                :work-item-id="workItem.id"
-                :work-item-iid="iid"
-                :work-item-full-path="workItemFullPath"
-                :work-item-web-url="workItem.webUrl"
-                :is-group="isGroup"
-                :upload-error="designUploadError"
-                :upload-error-variant="designUploadErrorVariant"
-                :is-saving="isSaving"
-                :can-reorder-design="canReorderDesign"
-                :is-board="isBoard"
-                :can-add-design="canAddDesign"
-                :can-update-design="canUpdateDesign"
-                :can-paste-design="canPasteDesign"
-                @upload="onUploadDesign"
-                @dismissError="designUploadError = null"
-              >
-                <template #empty-state>
-                  <design-dropzone
-                    v-if="isEmptyStateVisible && !isSaving && isDragDataValid && !isAddingNotes"
-                    class="gl-relative gl-mt-5"
-                    show-upload-design-overlay
-                    validate-design-upload-on-dragover
-                    hide-upload-text-on-dragging
-                    :accept-design-formats="$options.VALID_DESIGN_FILE_MIMETYPE.mimetype"
-                    @change="onUploadDesign"
-                  >
-                    <template #upload-text>
-                      {{ s__('DesignManagement|Drag images here to add designs.') }}
-                    </template>
-                  </design-dropzone>
-                </template>
-              </design-widget>
-
-              <slot name="widgets" :work-item="workItem"></slot>
-
-              <work-item-tree
-                v-if="showWorkItemTree"
-                :full-path="workItemFullPath"
-                :is-group="isGroup"
-                :work-item-type="workItemType"
-                :parent-work-item-type="workItem.workItemType.name"
-                :work-item-id="workItem.id"
-                :work-item-iid="iid"
-                :parent-iteration="workItemIteration"
-                :parent-milestone="workItemMilestone"
-                :active-child-item-id="activeChildItemId"
-                :active-panel="activePanel"
-                :can-update="canUpdate"
-                :can-update-children="canUpdateChildren"
-                :confidential="workItem.confidential"
-                :allowed-child-types="allowedChildTypes"
-                :is-drawer="isDetailPanel"
-                contextual-view-enabled
-                @show-modal="openContextualView"
-                @add-child="$emit('add-child')"
-              />
-              <work-item-relationships
-                v-if="workItemLinkedItems"
-                :is-group="isGroup"
-                :work-item-id="workItem.id"
-                :work-item-iid="iid"
-                :work-item-full-path="workItemFullPath"
-                :work-item-type="workItem.workItemType.name"
-                :can-admin-work-item-link="canAdminWorkItemLink"
-                :active-child-item-id="activeChildItemId"
-                :active-panel="activePanel"
-                :has-blocked-work-items-feature="hasBlockedWorkItemsFeature"
-                contextual-view-enabled
-                @showModal="openContextualView"
-              />
-
-              <work-item-development
-                v-if="workItemDevelopment"
-                :is-modal="isModal"
-                :work-item-id="workItem.id"
-                :work-item-iid="iid"
-                :work-item-full-path="workItemFullPath"
-              />
-
-              <work-item-vulnerabilities
-                :work-item-iid="iid"
-                :work-item-full-path="workItemFullPath"
-                data-testid="work-item-vulnerabilities"
-              />
-
-              <work-item-notes
-                v-if="workItemNotes"
-                ref="workItemNotes"
-                :full-path="workItemFullPath"
-                :work-item-id="workItem.id"
-                :work-item-iid="workItem.iid"
-                :work-item-type="workItemType"
-                :work-item-type-id="workItemTypeId"
-                :is-modal="isModal"
-                :is-drawer="isDetailPanel"
-                :assignees="workItemAssignees && workItemAssignees.assignees.nodes"
-                :can-set-work-item-metadata="canAssignUnassignUser"
-                :can-summarize-comments="canSummarizeComments"
-                :can-create-note="canCreateNote"
-                :is-discussion-locked="isDiscussionLocked"
-                :is-work-item-confidential="workItem.confidential"
-                :new-comment-template-paths="workItem.commentTemplatesPaths"
-                class="gl-pt-5"
-                :use-h2="!isModalOrDetailPanel"
-                :small-header-style="isModal"
-                :parent-id="parentWorkItemId"
-                :hide-fullscreen-markdown-button="isDetailPanel"
-                @error="updateError = $event"
-                @openReportAbuse="openReportAbuseModal"
-                @start-editing="isAddingNotes = true"
-                @stop-editing="isAddingNotes = false"
-                @focus="isAddingNotes = true"
-                @blur="isAddingNotes = false"
-              />
             </div>
           </div>
         </section>
-      </section>
+      </detail-layout>
       <work-item-detail-panel
         v-if="!isDetailPanel"
         :active-item="activeChildItem"

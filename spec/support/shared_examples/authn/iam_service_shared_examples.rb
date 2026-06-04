@@ -37,6 +37,12 @@ RSpec.shared_examples 'does not emit IAM consent audit event' do
   end
 end
 
+RSpec.shared_examples 'does not create a consent record' do
+  it 'does not create a consent record' do
+    expect { result }.not_to change { Authn::OauthConsent.count }
+  end
+end
+
 RSpec.shared_examples 'iam service transport failure' do |http_method:|
   context 'when a network error occurs' do
     before do

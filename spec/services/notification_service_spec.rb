@@ -3333,6 +3333,25 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
         )
       end
 
+      it 'does not notify a custom-level participant who disabled push_to_merge_request' do
+        custom_participant = create(:user)
+        project.add_maintainer(custom_participant)
+        create_notification_setting(custom_participant, project, :custom)
+        update_custom_notification(:push_to_merge_request, custom_participant, resource: project, value: false)
+        merge_request.assignees << custom_participant
+
+        expect do
+          notification.push_to_merge_request_with_data(
+            merge_request,
+            merge_request.author,
+            new_commits_data: new_commits_data,
+            total_new_commits_count: 2,
+            existing_commits_data: existing_commits_data,
+            total_existing_commits_count: 50
+          )
+        end.to not_enqueue_mail_with(Notify, :push_to_merge_request_email, custom_participant, any_args)
+      end
+
       it_behaves_like 'project emails are disabled', check_delivery_jobs_queue: true do
         let(:notification_target)  { merge_request }
         let(:notification_trigger) do

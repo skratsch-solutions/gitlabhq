@@ -384,7 +384,7 @@ export default {
 </script>
 
 <template>
-  <div class="gl-my-5">
+  <div>
     <div v-if="isDescriptionEmpty" class="gl-text-subtle">{{ __('No description') }}</div>
     <div
       v-else

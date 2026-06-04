@@ -25212,7 +25212,7 @@ CREATE TABLE oauth_consents (
     user_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
-    status smallint DEFAULT 0 NOT NULL,
+    status smallint NOT NULL,
     client_id text NOT NULL,
     consent_challenge text NOT NULL,
     requested_scopes text[],
@@ -49658,6 +49658,8 @@ CREATE INDEX index_project_upload_states_on_verification_state ON project_upload
 CREATE INDEX index_project_upload_states_pending_verification ON project_upload_states USING btree (verified_at NULLS FIRST) WHERE (verification_state = 0);
 
 CREATE UNIQUE INDEX index_project_uploads_on_id ON project_uploads USING btree (id);
+
+CREATE INDEX index_project_uploads_on_project_id_and_id ON project_uploads USING btree (project_id, id);
 
 CREATE UNIQUE INDEX index_project_user_callouts_feature ON user_project_callouts USING btree (user_id, feature_name, project_id);
 

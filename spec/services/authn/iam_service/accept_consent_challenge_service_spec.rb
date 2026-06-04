@@ -155,9 +155,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
         expect(result.reason).to eq(:consent_record_invalid)
       end
 
-      it 'does not create a second record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'does not emit IAM consent audit event'
     end
@@ -168,9 +166,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
           body: { error: 'Failed to accept consent' }.to_json)
       end
 
-      it 'does not create a consent record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :iam_request_failed,
@@ -185,9 +181,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
           body: { something_else: 'value' }.to_json)
       end
 
-      it 'does not create a consent record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_response,
@@ -214,9 +208,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: nil)
       end
 
-      it 'does not create a consent record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_response,
@@ -230,9 +222,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: 'not json{')
       end
 
-      it 'does not create a consent record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_response,
@@ -247,9 +237,7 @@ RSpec.describe Authn::IamService::AcceptConsentChallengeService, feature_categor
           body: { redirect_to: 'https://untrusted.example.com/oauth2/authorize' }.to_json)
       end
 
-      it 'does not create a consent record' do
-        expect { result }.not_to change { Authn::OauthConsent.count }
-      end
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_redirect_url,

@@ -15,7 +15,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   let_it_be(:non_member) { create(:user) }
   let_it_be(:guest) { create(:user, guest_of: [project, private_mrs_project]) }
   let_it_be(:planner) { create(:user, planner_of: [project]) }
-  let_it_be(:owner) { create(:user, owner_of: [project]) }
+  let_it_be(:owner, freeze: false) { create(:user, owner_of: [project]) }
   let_it_be(:author, freeze: false)      { create(:author) }
   let_it_be(:assignee, freeze: false)    { create(:assignee) }
   let_it_be(:admin) { create(:user, :admin) }

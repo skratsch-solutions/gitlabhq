@@ -9,6 +9,7 @@ import { createControlledMockApollo } from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
 import setWindowLocation from 'helpers/set_window_location_helper';
 import { useRealDate } from 'helpers/fake_date';
+import DetailLayout from '~/vue_shared/components/detail_layout.vue';
 import WorkItemLoading from '~/work_items/components/work_item_loading.vue';
 import WorkItemDetail from '~/work_items/components/work_item_detail.vue';
 import WorkItemActions from '~/work_items/components/work_item_actions.vue';
@@ -201,6 +202,7 @@ describe('WorkItemDetail component', () => {
       },
       stubs: {
         GlSprintf,
+        DetailLayout,
         WorkItemAncestors: true,
         WorkItemWeight: true,
         WorkItemIteration: true,
@@ -1286,10 +1288,6 @@ describe('WorkItemDetail component', () => {
     beforeEach(async () => {
       createComponent();
       await mockApollo.resolveAll();
-    });
-
-    it('has the `work-item-overview` class', () => {
-      expect(findWorkItemTwoColumnViewContainer().classes()).toContain('work-item-overview');
     });
 
     it('renders the work item sticky header component', () => {

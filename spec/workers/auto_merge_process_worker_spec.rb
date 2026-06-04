@@ -71,6 +71,34 @@ RSpec.describe AutoMergeProcessWorker, feature_category: :continuous_delivery do
       end
     end
 
+    describe 'database load balancing' do
+      let(:worker) { described_class.new }
+
+      context 'when auto_merge_use_primary_db is enabled for the project' do
+        before do
+          stub_feature_flags(auto_merge_use_primary_db: merge_request.project)
+        end
+
+        it 'forces reads to the primary' do
+          expect(worker).to receive(:use_primary_db_reads).and_call_original
+
+          worker.perform(args)
+        end
+      end
+
+      context 'when auto_merge_use_primary_db is disabled' do
+        before do
+          stub_feature_flags(auto_merge_use_primary_db: false)
+        end
+
+        it 'does not force reads to the primary' do
+          expect(worker).not_to receive(:use_primary_db_reads)
+
+          worker.perform(args)
+        end
+      end
+    end
+
     # Integer args are deprecated as of 17.5. IDs should be passed
     # as a hash with  merge_request_id and pipeline_id keys.
     # https://gitlab.com/gitlab-org/gitlab/-/issues/497247

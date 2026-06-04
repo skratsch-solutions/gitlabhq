@@ -404,7 +404,7 @@ RSpec.describe API::Integrations, feature_category: :integrations do
       Integration.available_integration_names(include_project_specific: false, include_instance_specific: false) - excluded_integrations
     end
 
-    let_it_be(:group_integrations_map) do
+    let_it_be(:group_integrations_map, freeze: false) do
       available_integration_names.index_with do |name|
         traits = (name == 'confluence' ? [] : [:inactive])
         create(integration_factory(name), *traits, :group, group: group)

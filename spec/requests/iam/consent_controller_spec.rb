@@ -14,6 +14,8 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
   let(:redirect_url) { "#{iam_service_url}/oauth2/authorize?consent_verifier=#{'b' * 64}" }
   let(:reject_redirect_url) { "#{iam_service_url}/oauth2/authorize?error=access_denied" }
   let(:requested_scopes) { %w[openid profile] }
+  let(:client_name) { 'Test App' }
+  let(:client_scopes) { %w[openid profile email] }
 
   let(:consent_response_body) do
     {
@@ -22,10 +24,10 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
       requested_scope: requested_scopes,
       client: {
         'client_id' => client_id,
-        'client_name' => 'Test App',
+        'client_name' => client_name,
         'owner' => 'GitLab User',
         'created_at' => '2025-01-01T00:00:00Z',
-        'scopes' => %w[openid profile email]
+        'scopes' => client_scopes
       }
     }
   end
@@ -44,7 +46,7 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
       body: { redirect_to: reject_redirect_url }.to_json)
   end
 
-  let(:cache_key) { "iam:consent_data:#{challenge}" }
+  let(:cache_key) { "iam:consent_data:#{user.id}:#{challenge}" }
 
   before do
     stub_feature_flags(iam_svc_login: true)
@@ -55,6 +57,42 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
     )
     sign_in(user)
     allow(Gitlab::HTTP).to receive_messages(get: get_response, put: accept_response)
+  end
+
+  shared_examples 'isolates cached consent by user' do
+    let_it_be(:other_user) { create(:user) }
+
+    before do
+      get iam_consent_path, params: { consent_challenge: challenge }
+      sign_in(other_user)
+      allow(Gitlab::AuthLogger).to receive(:error)
+    end
+
+    it 'rejects the cross-user request without calling IAM', :aggregate_failures do
+      expect { request }.not_to change { Authn::OauthConsent.count }
+
+      expect(response).to have_gitlab_http_status(:bad_request)
+      expect(response.body).to include('An error has occurred')
+      expect(Gitlab::HTTP).not_to have_received(:put)
+      expect(Gitlab::AuthLogger).to have_received(:error).with(
+        hash_including(message: 'Consent session expired or already used')
+      )
+    end
+
+    it 'leaves the initiating user cached consent intact' do
+      request
+
+      cached = Rails.cache.read(cache_key)
+      expect(cached).to eq(
+        {
+          subject: user.id.to_s,
+          client_id: client_id,
+          client_name: client_name,
+          requested_scopes: requested_scopes,
+          client_scopes: client_scopes
+        }
+      )
+    end
   end
 
   describe 'GET #show' do
@@ -77,9 +115,9 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
         {
           subject: user.id.to_s,
           client_id: client_id,
-          client_name: 'Test App',
+          client_name: client_name,
           requested_scopes: requested_scopes,
-          client_scopes: %w[openid profile email]
+          client_scopes: client_scopes
         }
       )
     end
@@ -252,6 +290,10 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
       end
     end
 
+    context 'when a different signed-in user attempts to consume the cached challenge' do
+      it_behaves_like 'isolates cached consent by user'
+    end
+
     context 'when the consent form was not rendered first' do
       it 'returns 400', :aggregate_failures do
         request
@@ -279,8 +321,15 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
         expect(response).to redirect_to(reject_redirect_url)
       end
 
-      it 'does not create a consent record' do
-        expect { request }.not_to change { Authn::OauthConsent.count }
+      it 'creates a rejected consent record from cached data', :aggregate_failures do
+        expect { request }.to change { Authn::OauthConsent.count }.by(1)
+
+        consent = Authn::OauthConsent.last
+        expect(consent.user).to eq(user)
+        expect(consent.client_id).to eq(client_id)
+        expect(consent.requested_scopes).to eq(requested_scopes)
+        expect(consent.granted_scopes).to eq([])
+        expect(consent).to be_rejected
       end
 
       it 'consumes the cache entry so a subsequent accept is rejected', :aggregate_failures do
@@ -319,6 +368,10 @@ RSpec.describe Iam::ConsentController, :use_clean_rails_memory_store_caching,
           expect(response.body).to include('An error has occurred')
         end
       end
+    end
+
+    context 'when a different signed-in user attempts to consume the cached challenge' do
+      it_behaves_like 'isolates cached consent by user'
     end
 
     context 'when the consent form was not rendered first' do

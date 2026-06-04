@@ -164,7 +164,7 @@ module Iam
     end
 
     def consent_data_cache_key(challenge)
-      "#{CONSENT_DATA_CACHE_KEY_PREFIX}:#{challenge}"
+      "#{CONSENT_DATA_CACHE_KEY_PREFIX}:#{current_user.id}:#{challenge}"
     end
 
     def fail_consent(message:, status:, reason: nil)

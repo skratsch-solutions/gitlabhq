@@ -35,7 +35,7 @@ module Authn
         return missing_redirect_error if redirect_to.blank?
         return invalid_redirect_error unless RedirectUrlValidator.valid?(redirect_to)
 
-        # TODO: handle consent record (deferred to follow-up MR).
+        persist_consent_record!
         emit_audit_event
 
         ServiceResponse.success(payload: { redirect_to: redirect_to })
@@ -43,9 +43,32 @@ module Authn
         ServiceResponse.error(message: e.message, reason: :service_unavailable)
       rescue JSON::ParserError
         invalid_body_error
+      rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+        log_persistence_failure(e)
+        ServiceResponse.error(message: e.message, reason: :consent_record_invalid)
       end
 
       private
+
+      def persist_consent_record!
+        Authn::OauthConsent.create!(
+          consent_challenge: @challenge,
+          user: @user,
+          client_id: @client_id,
+          requested_scopes: @requested_scopes,
+          granted_scopes: [],
+          status: :rejected
+        )
+      end
+
+      def log_persistence_failure(error)
+        Gitlab::AuthLogger.error(
+          message: 'IAM consent record persistence failed after IAM reject',
+          reason: 'consent_record_invalid',
+          error: error.message,
+          Labkit::Fields::GL_USER_ID => @user.id
+        )
+      end
 
       def request_body
         {

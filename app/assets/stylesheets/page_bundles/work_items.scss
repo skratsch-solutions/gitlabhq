@@ -67,14 +67,6 @@ $work-item-overview-gap-width: 2rem;
   .work-item-container-xs-hidden {
     display: none !important;
   }
-
-  .work-item-attributes-wrapper {
-    position: static !important;
-    overflow-y: initial !important;
-    margin-bottom: 0 !important;
-    height: auto !important;
-    @apply gl-mt-5;
-  }
 }
 
 .work-item-overview:not(.sidebar-hidden) {
@@ -90,15 +82,40 @@ $work-item-overview-gap-width: 2rem;
 }
 
 .work-item-overview-right-sidebar {
-  margin-top: $gl-spacing-scale-5;
-
-  .work-item-attributes-item {
+   .work-item-attributes-item {
     @apply gl-mb-4;
 
     &:not(:first-child) {
       @apply gl-pt-4;
       @apply gl-border-t;
       @apply gl-border-subtle;
+    }
+  }
+}
+
+// 2-column layout for attributes at sm/md container widths
+// where the sidebar sits below content full-width. Reverts to single column
+// at lg+ where the sidebar becomes a narrow right column.
+.work-item-attributes-wrapper {
+  @include gl-container-width-up(sm) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gl-detail-layout-gap, $gl-spacing-scale-7);
+
+    // First item of the right column has nothing above it within its column,
+    // so drop the separator border applied by the sidebar rule above.
+    > .work-item-attributes-item:nth-child(2) {
+      @apply gl-border-t-0;
+      @apply gl-pt-0;
+    }
+  }
+
+  @include gl-container-width-up(lg) {
+    display: block;
+
+    > .work-item-attributes-item:nth-child(2) {
+      @apply gl-border-t;
+      @apply gl-pt-4;
     }
   }
 }
@@ -113,14 +130,8 @@ $work-item-overview-gap-width: 2rem;
 }
 
 @include gl-container-width-up(md) {
-  .work-item-attributes-wrapper {
-    top: calc(#{$work-item-sticky-header-height} + #{$gl-spacing-scale-3});
-    height: calc(var(--panel-content-inner-height) - var(--work-item-sticky-header-height) - 1.5rem + 1px); // 1.5rem is to account for padding, the +1px is to account for a border
-    margin-bottom: calc(#{$content-wrapper-padding} * -1);
+   .work-item-attributes-wrapper {
     padding-inline: $gl-spacing-scale-3;
-    position: sticky;
-    overflow-y: auto;
-    overflow-x: hidden;
   }
 
   .work-item-overview-right-sidebar {

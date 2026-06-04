@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe API::AwardEmoji, feature_category: :shared do
   let_it_be_with_reload(:project) { create(:project, :private) }
-  let_it_be(:user)          { create(:user) }
-  let_it_be(:issue)         { create(:issue, project: project) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:issue, freeze: false) { create(:issue, project: project) }
   let_it_be(:snippet, freeze: false) { create(:project_snippet, :public, project: project) }
   let_it_be(:award_emoji) { create(:award_emoji, awardable: issue, user: user) }
   let_it_be(:note, freeze: false) { create(:note, project: project, noteable: issue) }
@@ -299,7 +299,7 @@ RSpec.describe API::AwardEmoji, feature_category: :shared do
         let_it_be(:group) { create(:group) }
         let_it_be(:project, freeze: false) { create(:project, :public, namespace: group) }
         let_it_be(:issue) { create(:issue, project: project) }
-        let_it_be(:note) { create(:note, :confidential, project: project, noteable: issue, author: user) }
+        let_it_be(:note, freeze: false) { create(:note, :confidential, project: project, noteable: issue, author: user) }
 
         context 'with sufficient persmissions' do
           let(:current_user) { user }

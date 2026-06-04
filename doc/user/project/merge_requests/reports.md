@@ -144,7 +144,7 @@ To view code quality findings:
 
 ## Troubleshooting
 
-When security scanning is enabled, you might encounter the following issues.
+You might encounter the following issues when viewing reports.
 
 ### Dismissed vulnerabilities are visible in the security scan report
 
@@ -153,3 +153,15 @@ that are already dismissed.
 
 No solution is available for this issue. To track the proposed solution, see
 [issue 411235](https://gitlab.com/gitlab-org/gitlab/-/issues/411235).
+
+### The license compliance report is stuck in a loading state
+
+A loading spinner is displayed in the following scenarios:
+
+- While the pipeline is in progress.
+- If the pipeline is complete, but still parsing the results in the background.
+- If the license scanning job is complete, but the pipeline is still running.
+
+The license compliance report polls every few seconds for updated results. When the pipeline is complete, the first poll after pipeline completion triggers parsing of the results. This can take a few seconds depending on the size of the generated report.
+
+The final state is a successful pipeline run that has been completed, parsed, and displayed in the report.

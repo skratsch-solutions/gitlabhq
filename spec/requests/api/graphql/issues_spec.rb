@@ -11,9 +11,9 @@ RSpec.describe 'getting an issue list at root level', feature_category: :team_pl
   let_it_be(:current_user) { developer }
   let_it_be(:group1) { create(:group, developers: developer) }
   let_it_be(:group2) { create(:group, developers: developer, reporters: reporter) }
-  let_it_be(:project_a) { create(:project, :repository, :public, group: group1) }
+  let_it_be(:project_a, freeze: false) { create(:project, :repository, :public, group: group1) }
   let_it_be(:project_b) { create(:project, :repository, :private, group: group1) }
-  let_it_be(:project_c) { create(:project, :repository, :public, group: group2) }
+  let_it_be(:project_c, freeze: false) { create(:project, :repository, :public, group: group2) }
   let_it_be(:project_d) { create(:project, :repository, :private, group: group2) }
   let_it_be(:archived_project) { create(:project, :repository, :archived, group: group2) }
   let_it_be(:milestone1) { create(:milestone, project: project_c, due_date: 10.days.from_now) }

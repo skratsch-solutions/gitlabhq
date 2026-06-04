@@ -16,12 +16,12 @@ RSpec.describe 'Value Stream Analytics', :js, feature_category: :value_stream_ma
   let_it_be(:metrics_selector) { "[data-testid='vsa-metrics']" }
   let_it_be(:predefined_date_ranges_dropdown_selector) { '[data-testid="vsa-predefined-date-ranges-dropdown"]' }
   let_it_be(:project, freeze: false) { create(:project, :repository, maintainers: user) }
-  let_it_be(:issue) { create(:issue, title: 'My feature', project: project, created_at: 3.weeks.ago) }
+  let_it_be(:issue, freeze: false) { create(:issue, title: 'My feature', project: project, created_at: 3.weeks.ago) }
   let_it_be(:milestone) { create(:milestone, project: project) }
   let_it_be(:mr, freeze: false) { create(:merge_request, source_project: project) }
   let_it_be(:commit) { create_commit("References #{issue.to_reference}", project, user, mr.source_branch, commit_time: mr.created_at - 1.day, skip_push_handler: true) }
   let_it_be(:closed_issues) { create(:merge_requests_closing_issues, merge_request: mr, issue_id: issue.id) }
-  let_it_be(:pipeline) do
+  let_it_be(:pipeline, freeze: false) do
     create(:ci_empty_pipeline, status: 'created', project: project, ref: mr.source_branch, sha: mr.source_branch_sha, head_pipeline_of: mr)
   end
 

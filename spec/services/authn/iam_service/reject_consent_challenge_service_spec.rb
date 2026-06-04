@@ -4,11 +4,12 @@ require 'spec_helper'
 
 RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_category: :system_access do
   let_it_be(:user) { create(:user) }
+  let_it_be(:oauth_application) { create(:oauth_application) }
 
   let(:iam_service_url) { 'https://iam.example.com' }
   let(:iam_secret) { 'test-secret-token' }
   let(:challenge) { 'a' * 64 }
-  let(:client_id) { 'test-client-id' }
+  let(:client_id) { oauth_application.uid }
   let(:client_name) { 'Test App' }
   let(:requested_scopes) { %w[openid profile email] }
   let(:client_scopes) { %w[openid profile email] }
@@ -71,6 +72,18 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         )
       end
 
+      it 'creates a rejected consent record', :aggregate_failures do
+        expect { result }.to change { Authn::OauthConsent.count }.by(1)
+
+        consent = Authn::OauthConsent.last
+        expect(consent.consent_challenge).to eq(challenge)
+        expect(consent.user).to eq(user)
+        expect(consent.client_id).to eq(client_id)
+        expect(consent.requested_scopes).to eq(requested_scopes)
+        expect(consent.granted_scopes).to eq([])
+        expect(consent).to be_rejected
+      end
+
       it 'emits an audit event' do
         expect(::Gitlab::Audit::Auditor).to receive(:audit).with({
           name: 'user_rejected_iam_oauth_application',
@@ -118,11 +131,34 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       end
     end
 
+    context 'when the consent record already exists' do
+      before do
+        create(:oauth_consent, consent_challenge: challenge, user: user, client_id: client_id)
+      end
+
+      it 'returns an error and logs the failure', :aggregate_failures do
+        expect(Gitlab::AuthLogger).to receive(:error).with(
+          hash_including(
+            message: 'IAM consent record persistence failed after IAM reject',
+            reason: 'consent_record_invalid',
+            Labkit::Fields::GL_USER_ID => user.id
+          )
+        )
+
+        expect(result).to be_error
+        expect(result.reason).to eq(:consent_record_invalid)
+      end
+
+      it_behaves_like 'does not create a consent record'
+    end
+
     context 'when IAM returns an HTTP error' do
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: false, code: 400,
           body: { error: 'Invalid challenge' }.to_json)
       end
+
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :iam_request_failed,
@@ -137,6 +173,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
           body: { some_other_field: 'value' }.to_json)
       end
 
+      it_behaves_like 'does not create a consent record'
+
       include_examples 'iam service error response with user',
         reason: :invalid_response,
         message: 'IAM consent reject response missing redirect_to'
@@ -148,6 +186,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
       let(:http_response) do
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: nil)
       end
+
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_response,
@@ -161,6 +201,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200, body: 'not json{')
       end
 
+      it_behaves_like 'does not create a consent record'
+
       include_examples 'iam service error response with user',
         reason: :invalid_response,
         message: 'IAM consent reject response has invalid body'
@@ -173,6 +215,8 @@ RSpec.describe Authn::IamService::RejectConsentChallengeService, feature_categor
         instance_double(Gitlab::HTTP::Response, success?: true, code: 200,
           body: { redirect_to: 'https://untrusted.example.com/oauth2/authorize' }.to_json)
       end
+
+      it_behaves_like 'does not create a consent record'
 
       include_examples 'iam service error response with user',
         reason: :invalid_redirect_url,

@@ -204,20 +204,19 @@ For more information, see the [GitLab.com AI Gateway configuration diagram](conf
 
 To set up this infrastructure, see [how to configure GitLab Duo on a GitLab Self-Managed instance](../gitlab_duo/configure/gitlab_self_managed.md).
 
-## Set up a private infrastructure
+## Set up private infrastructure
 
-If you have an offline license, you can set up a fully private infrastructure:
+If you have an offline license, you can set up fully private infrastructure:
 
 1. Install a Large Language Model (LLM) serving infrastructure.
 
-   - GitLab supports various platforms for serving and hosting your LLMs, such as vLLM, AWS Bedrock,
-     and Azure OpenAI. For more information about each platform, see [supported LLM platforms documentation](supported_llm_serving_platforms.md).
-
-   - GitLab provides a matrix of supported models with their specific features and hardware requirements. For more information,
-     see the [supported models and hardware requirements documentation](supported_models_and_hardware_requirements.md).
+   - Review the [supported LLM platforms](supported_llm_serving_platforms.md) to choose
+     a serving and hosting platform, such as vLLM, AWS Bedrock, or Azure OpenAI.
+   - Check the [supported models and hardware requirements](supported_models_and_hardware_requirements.md)
+     to confirm your model and hardware choices.
 
 1. [Install the AI Gateway](../../install/install_ai_gateway.md) to access GitLab Duo features.
-1. [Configure your GitLab instance](configure_duo_features.md) for features to use self-hosted models.
+1. [Configure your GitLab instance](configure_duo_features.md) to use self-hosted models.
 1. [Enable logging](logging.md) to track and manage your system's performance.
 
 ## Related topics

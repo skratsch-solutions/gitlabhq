@@ -24,11 +24,22 @@ RSpec.describe Authn::OauthConsent, feature_category: :system_access do
     context 'when consent is revoked' do
       subject(:consent) { create(:oauth_consent, :revoked) }
 
-      it 'prevents transition back to authorized', :aggregate_failures do
+      it 'prevents any status change', :aggregate_failures do
         consent.status = 'authorized'
 
         expect(consent).not_to be_valid
         expect(consent.errors[:status]).to include('revoked consent cannot be modified')
+      end
+    end
+
+    context 'when consent is rejected' do
+      subject(:consent) { create(:oauth_consent, :rejected) }
+
+      it 'prevents any status change', :aggregate_failures do
+        consent.status = 'authorized'
+
+        expect(consent).not_to be_valid
+        expect(consent.errors[:status]).to include('rejected consent cannot be modified')
       end
     end
 

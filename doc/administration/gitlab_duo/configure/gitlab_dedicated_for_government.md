@@ -27,7 +27,7 @@ To set up GitLab Duo Self-Hosted:
 1. Allow outbound connections to the self-hosted AI Gateway by
    [creating a support ticket](https://support.gitlab.com/hc/en-us/requests/new?ticket_form_id=4414917877650)
    to request an opening to your AI Gateway URL.
-1. [Set up your private infrastructure](../../gitlab_duo_self_hosted/_index.md#set-up-a-private-infrastructure).
+1. [Set up your private infrastructure](../../gitlab_duo_self_hosted/_index.md#set-up-private-infrastructure).
 
 ## Related topics
 

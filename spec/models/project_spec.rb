@@ -1891,7 +1891,10 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe 'runner registration token' do
-    let(:project) { create(:project, :allow_runner_registration_token, runners_token: initial_token) }
+    let_it_be_with_reload(:runner_namespace) { create(:namespace) }
+    let(:project) do
+      create(:project, :allow_runner_registration_token, runners_token: initial_token, namespace: runner_namespace)
+    end
 
     context 'when no token provided' do
       let(:initial_token) { '' }
