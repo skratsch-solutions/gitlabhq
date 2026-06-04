@@ -1,15 +1,13 @@
 <script>
-import { GlBadge, GlCollapsibleListbox, GlLink, GlPopover, GlSprintf } from '@gitlab/ui';
+import { GlCollapsibleListbox } from '@gitlab/ui';
 import { ACCESS_LEVEL_SECURITY_MANAGER_STRING } from '~/access_level/constants';
-import { helpPagePath } from '~/helpers/help_page_helper';
+import SecurityManagerNewBadge from '~/access_level/components/security_manager_new_badge.vue';
 import { s__ } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 
 export default {
   ACCESS_LEVEL_SECURITY_MANAGER_STRING,
-  badgeId: 'security-manager-role-badge',
-  helpPath: helpPagePath('user/permissions'),
-  components: { GlBadge, GlCollapsibleListbox, GlLink, GlPopover, GlSprintf },
+  components: { GlCollapsibleListbox, SecurityManagerNewBadge },
   inject: {
     manageMemberRolesPath: { default: null },
   },
@@ -47,9 +45,6 @@ export default {
       const role = this.roles.flatten.find(({ value }) => value === selectedValue);
       this.$emit('input', role);
     },
-    openPermissionsHelpPage() {
-      visitUrl(helpPagePath('user/permissions'), true);
-    },
   },
 };
 </script>
@@ -69,33 +64,9 @@ export default {
     <template #list-item="{ item }">
       <div class="gl-flex gl-items-start gl-justify-between gl-gap-2" data-testid="role-data">
         <span data-testid="role-name">{{ item.text }}</span>
-        <gl-badge
+        <security-manager-new-badge
           v-if="item.value === $options.ACCESS_LEVEL_SECURITY_MANAGER_STRING"
-          :id="$options.badgeId"
-          variant="info"
-        >
-          {{ __('New') }}
-
-          <gl-popover
-            :target="$options.badgeId"
-            :title="s__('MemberRole|Security Manager role now available')"
-            css-classes="gl-max-w-xs"
-            placement="top"
-            boundary="viewport"
-          >
-            <gl-sprintf
-              :message="
-                s__(
-                  'MemberRole|The Security Manager role provides comprehensive access to security features, including vulnerability management, security dashboards, policy configuration, and compliance tools. Designed for users who manage security and compliance across your organization. %{linkStart}Learn more.%{linkEnd}',
-                )
-              "
-            >
-              <template #link="{ content }">
-                <gl-link @mousedown.prevent="openPermissionsHelpPage">{{ content }}</gl-link>
-              </template>
-            </gl-sprintf>
-          </gl-popover>
-        </gl-badge>
+        />
       </div>
       <div
         v-if="item.dropdownDescription || item.description"

@@ -36,15 +36,11 @@ module Ci
             ResetSkippedJobsService.new(project, user).execute(jobs)
           end
 
-          # Remove with FF `ci_atomic_processing_log_check_mismatch`
-          pipeline_needs_processing = pipeline.needs_processing?
-          log_processing_check_mismatch(pipeline_needs_processing)
-
           # If @new_collection is already evaluated from new_alive_jobs, we can use it to avoid another call to DB
           needs_processing = if check_needs_processing_using_new_collection? && @new_collection
                                @new_collection.processing_jobs.any?
                              else
-                               pipeline_needs_processing
+                               pipeline.needs_processing?
                              end
 
           # Re-schedule if we need further processing
@@ -210,26 +206,6 @@ module Ci
           pipeline_id: pipeline.id,
           user_id: jobs.first.user.id,
           jobs_count: jobs.count
-        )
-      end
-
-      # Temporary monitoring to determine if the last pipeline.needs_processing?
-      # can be replaced with new_collection.processing_jobs.any?.
-      # See https://gitlab.com/gitlab-org/gitlab/-/work_items/598584.
-      def log_processing_check_mismatch(needs_processing)
-        return unless Feature.enabled?(:ci_atomic_processing_log_check_mismatch, project)
-        return unless @new_collection # Populated via new_alive_jobs
-
-        processing_jobs_any = @new_collection.processing_jobs.any?
-        return if needs_processing == processing_jobs_any
-
-        Gitlab::AppJsonLogger.info(
-          class: self.class.name,
-          message: 'needs_processing? differs from new_collection.processing_jobs.any?',
-          project_id: project.id,
-          pipeline_id: pipeline.id,
-          needs_processing: needs_processing,
-          processing_jobs_any: processing_jobs_any
         )
       end
 

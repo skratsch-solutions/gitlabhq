@@ -153,11 +153,26 @@ class MergeRequestDiffCommit < ApplicationRecord
 
   def self.commit_shas_from_metadata(project_id:, limit:, partition_enabled: false)
     # Until `merge_request_commits_metadata` records are backfilled, SHAs data may be in found in either table
-    metadata_join_sql = <<~SQL.squish
-      LEFT JOIN merge_request_commits_metadata
-      ON merge_request_commits_metadata.id = merge_request_diff_commits.merge_request_commits_metadata_id
-      AND merge_request_commits_metadata.project_id = ?
-    SQL
+    metadata_join_sql =
+      if Feature.enabled?(:commit_shas_metadata_lateral_join, Feature.current_request)
+        # LATERAL with LIMIT 1 fences the subquery against pull-up so the planner does a per-row primary key
+        # lookup (nested loop) instead of a hash join that scans every metadata row for the project.
+        <<~SQL.squish
+          LEFT JOIN LATERAL (
+            SELECT sha
+            FROM merge_request_commits_metadata
+            WHERE merge_request_commits_metadata.id = merge_request_diff_commits.merge_request_commits_metadata_id
+            AND merge_request_commits_metadata.project_id = ?
+            LIMIT 1
+          ) merge_request_commits_metadata ON TRUE
+        SQL
+      else
+        <<~SQL.squish
+          LEFT JOIN merge_request_commits_metadata
+          ON merge_request_commits_metadata.id = merge_request_diff_commits.merge_request_commits_metadata_id
+          AND merge_request_commits_metadata.project_id = ?
+        SQL
+      end
 
     # raw SQL in pluck() bypass ActiveRecord's type casting, so encode() is needed to convert bytea to hex
     shas_sql = Arel.sql("encode(COALESCE(merge_request_commits_metadata.sha, merge_request_diff_commits.sha), 'hex')")

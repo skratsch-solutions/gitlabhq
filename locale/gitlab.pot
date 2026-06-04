@@ -5728,13 +5728,13 @@ msgstr ""
 msgid "AdminAIPoweredFeatures|Compatible models"
 msgstr ""
 
+msgid "AdminAIPoweredFeatures|Default model"
+msgstr ""
+
 msgid "AdminAIPoweredFeatures|Disabled"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Feature"
-msgstr ""
-
-msgid "AdminAIPoweredFeatures|Features"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|GitLab Duo Agent Platform"
@@ -5768,12 +5768,6 @@ msgid "AdminAIPoweredFeatures|Restrict to specific models"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|Select a model"
-msgstr ""
-
-msgid "AdminAIPoweredFeatures|Select a model version for full control of your configuration, or GitLab Default for GitLab to manage the selection."
-msgstr ""
-
-msgid "AdminAIPoweredFeatures|Select the model for the feature"
 msgstr ""
 
 msgid "AdminAIPoweredFeatures|When turned on, users can only use the models selected below. When turned off, users can use all available %{linkStart}GitLab managed models%{linkEnd}, including those added in the future."
@@ -64463,9 +64457,6 @@ msgstr ""
 msgid "ScanResultPolicy|When KEV/EPSS data is unavailable, fall back to severity-based blocking"
 msgstr ""
 
-msgid "ScanResultPolicy|When a %{scanType} with %{scanners} runs against %{branches} %{branchExceptions} and finds %{vulnerabilitiesNumber} %{boldDescription} all the following criteria:"
-msgstr ""
-
 msgid "ScanResultPolicy|When a security policy fails for an unspecified reason."
 msgstr ""
 
@@ -64556,13 +64547,7 @@ msgstr ""
 msgid "ScanResultPolicy|token"
 msgstr ""
 
-msgid "ScanResultPolicy|vulnerabilities allowed"
-msgstr ""
-
 msgid "ScanResultPolicy|vulnerability states"
-msgstr ""
-
-msgid "ScanResultPolicy|vulnerability type that matches"
 msgstr ""
 
 msgid "Scanner"

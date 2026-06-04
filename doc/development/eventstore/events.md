@@ -63,6 +63,12 @@ To find subscribers, search the subscription files under
 |-------|-----------------|---------|-------------|
 | `ContainerRegistry::ImagePushedEvent` | `container_registry` | EE | Published when the container registry notifies GitLab of a successful image push, so subscribers (e.g. container scanning) can react to the new image. |
 
+## GitLab
+
+| Event | Feature category | Edition | Description |
+|-------|-----------------|---------|-------------|
+| `Gitlab::FeatureFlags::FeatureFlagModifiedEvent` | `feature_flags` | CE | Published when a feature flag is modified via `Feature.enable()` or `Feature.disable()`. The event is emitted whenever Flipper confirms a state change occurred, indicating a global enable/disable, or an actor being added/removed from the feature flag. The operation field indicates the type of change - `enabled_globally`, `disabled_globally`, `enabled_actor`, or `disabled_actor`. For actor operations, the actor field contains the specific actor's flipper ID (for example, `User:123`, `Group:456`). |
+
 ## GitLab Subscriptions
 
 | Event | Feature category | Edition | Description |

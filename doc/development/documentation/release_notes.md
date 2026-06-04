@@ -5,10 +5,26 @@ info: For assistance with this Style Guide page, see <https://handbook.gitlab.co
 title: Release notes
 ---
 
-In GitLab 19.0, a new process exists for monthly release posts.
+GitLab release notes are stored in the `gitlab` repository.
 
-For this month, we will use a single Markdown file. We can adjust the process
-based on feedback and the user experience during this release.
+Release notes are organized into one directory for each release with an `index.md` file and individual
+files for each feature. For example, the structure is similar to:
+
+```plaintext
+doc/
+└─ releases/
+   └─ 19/
+     └─ gitlab-19-0-released/
+     │  ├── index.md
+     │  └── featureA-Beta.md
+     └─ gitlab-19-1-released/
+        ├── index.md
+        ├── featureB.md
+        └── featureA-GA.md
+```
+
+For each release, the product manager is responsible for creating the MR and files for the feature release note.
+The Technical writing team is responsible for creating all other directories and files.
 
 ## How to add a feature release note
 
@@ -17,37 +33,8 @@ To update the release notes for 19.0:
 1. Open the [`gitlab-19-0-released.md`](../../releases/19/gitlab-19-0-released.md) file
    in the `gitlab-org/gitlab` project.
 1. Copy the commented-out text at the top of the page. It's an `H3` heading, comment for the category, details, and a block of text.
-1. Paste the text into the section that makes the most sense: primary feature, or one of the three groups.
-
-   Agentic Core includes:
-
-   - `ai-powered`
-   - `modelops`
-
-   Unified DevOps and Security includes:
-
-   - `create`
-   - `plan`
-   - `verify`
-   - `deploy`
-   - `package`
-   - `application_security_testing`
-   - `security_risk_management`
-   - `software_supply_chain_security`
-   - `analytics`
-
-   Scale and Deployments includes:
-
-   - `fulfillment`
-   - `growth`
-   - `foundations`
-   - `tenant_scale`
-   - `gitlab_delivery`
-   - `gitlab_dedicated`
-   - `production_engineering`
-   - `data_access`
-   - unlisted or unknown
-
+1. Paste the text into the section that makes the most sense: the primary feature, or one of the
+   secondary groups. For more information, see [release post organization](#organization).
 1. Add a `>` to the end of the category comment so it's properly formatted HTML: (`<!-- categories: <name value from categories.yml> -->`).
    Add values that match the [categories.yml](https://gitlab.com/gitlab-com/www-gitlab-com/-/blob/master/data/categories.yml) file.
    The value is case-sensitive.
@@ -74,10 +61,9 @@ The format should be similar to:
 
 ```markdown
 We'd also like to announce this month's [Notable Contributor](https://contributors.gitlab.com/notable-contributors):
-Norman Debald!
+<name>!
 
-We are excited to recognize [Norman](https://gitlab.com/Modjo85), a Level 3 contributor
-with more than 40 merged improvements across GitLab since joining in May 2022.
+We are excited to recognize [Name](https://gitlab.com/<username>), a ....
 ```
 
 This merge request can be merged at any point before the release, though
@@ -152,14 +138,14 @@ Open the file for the release, for example `doc/releases/19/gitlab-19-0-released
 1. Change the intro text from:
 
    ```markdown
-   The following features are being delivered for GitLab 19.0.
+   The following features are being delivered for GitLab <version>.
    These features are now available on GitLab.com.
    ```
 
    To:
 
    ```markdown
-   On <April 16, 2026>, <GitLab 18.11> was released with the following features.
+   On <release date>, GitLab <version> was released with the following features.
    ```
 
    Replace the date and version with the version that's being released.
@@ -169,7 +155,7 @@ Open the file for the release, for example `doc/releases/19/gitlab-19-0-released
 Now create a file for the next version.
 
 1. In the `/doc/releases/` folder, create a Markdown file for the next release. For example, `19/gitlab-19-1-released.md`.
-1. Populate the file with the [template](#new-release-notes-file-template).
+1. Populate the file with the [template](#templates).
 1. Add a `>` to the end of the category comment so it's properly formatted HTML: `<!-- categories: <name value from categories.yml> -->`
 1. In the metadata and intro text, change the version number to the next version number.
 
@@ -228,7 +214,7 @@ Backporting makes the notes visible and up-to-date when users select the newly r
 1. Paste the contents over the local version of the release notes.
 1. Open a merge request and select the **Stable branch** template to populate the description.
    Change the target branch to the stable branch (`19-1-stable-ee`).
-1. Have a maintainer review and merge. (It can be another tech writer.) 
+1. Have a maintainer review and merge. (It can be another tech writer.)
    If the branch is still locked, ask for assistance in the `#release-post` channel,
    or wait a few hours until the branch is available to merge.
 1. After merge, [create a new docs pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
@@ -257,58 +243,89 @@ Backport the change:
 1. On <https://docs.gitlab.com>, select the version in the upper-right corner and ensure the notes
    were updated successfully.
 
-## New release notes file template
+## Organization
+
+In the release post, each feature release note is grouped into a section based on the `stage`
+metadata defined in the feature release note. Each [stage](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/blob/main/data/release_post_groupings.yaml)
+maps to one of the following sections:
+
+| Section                     | Stages |
+| --------------------------- | ------ |
+| Primary features            | -      |
+| Agentic Core                | `ai-powered`, `modelops` |
+| Unified DevOps and Security | `analytics`, `application_security_testing`, `create`, `deploy`, `knowledge_graph`, `package`, `plan`, `security_risk_management`, `software_supply_chain_security`, `verify` |
+| Scale and Deployments       | `data_access`, `database_excellence`, `developer_experience`, `foundations`, `fulfillment`, `gitlab_dedicated`, `gitlab_delivery`, `growth`, `production_engineering`, `tenant_scale`, `unlisted/unknown` |
+
+Sections appear in the order listed in the table, with `Primary features` first. Any stage that
+isn't mapped appears in the `Scale and Deployments` section. To add features to the `Primary features` section,
+use the [`level`](#feature-release-note-metadata) metadata.
+
+In each section, feature release notes are listed alphabetically by title. To override this order, define a value
+for the `weight` metadata, where lower numbers go first.
+
+Generally, use multiples of 10 (such as `10`, `20`, `30`) to leave room for future insertions, and avoid single-digit
+values unless a note must absolutely appear first.
+
+## Metadata
+
+### Minor release index metadata
+
+| Metadata      | Format                                                                                                                         | Description |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| `title`       | Pre-release: `GitLab <version> - not yet released`<br>Post-release: `GitLab <version>`                                         | Page title. Uses the first format before release, and the second on release day. |
+| `description` | Pre-release: `Summary of features included in <version>`<br>Post-release: `GitLab <version> released with <top feature title>` | Short summary displayed on cards for the index page. |
+| `group`       | `Monthly Release`, `Patch Release`                                                                                             | Used for analytics and feedback. Always uses `Monthly Release`; patch releases are created through a different process. |
+| `stage`       | `Release Notes`                                                                                                                | Used for analytics and feedback. Always uses `Release Notes`. |
+
+### Feature release note metadata
+
+| Metadata             | Format                                                                                                 | Description |
+| -------------------- | ------------------------------------------------------------------------------------------------------ | ----------- |
+| `title`              | string                                                                                                 | Feature title. Displayed as a section heading. Ideally seven words or fewer. |
+| `tier`               | array, formatted like `[ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government]` | Feature tier. Formatting matters. Requires at least one. Always follow this order. |
+| `offering`           | array, formatted like `[ Free, Premium, Ultimate ]`                                                    | Feature offerings. Requires at least one. Always follow this order. |
+| `documentation_link` | relative URL                                                                                           | Link to the feature documentation. Don't use `https://`-style links. |
+| `work_item`          | absolute URL                                                                                           | Link to the related work item. Must not be confidential. |
+| `categories`         | array                                                                                                  | An array with the `Name` value of one or more [categories](https://gitlab.com/gitlab-com/www-gitlab-com/-/blob/master/data/categories.yml). Values are case-sensitive, separate multiple values with commas. If a related category doesn't exist, make another merge request to add it. |
+| `stage`              | string                                                                                                 | Name of the stage that created the feature. Used to [organize](#organization) the section the release note appears in. |
+| `level`              | One of: `primary` or `secondary`                                                                       | Optional. Controls placement in the `Primary features` section. If undefined, defaults to `secondary`. |
+| `weight`             | number                                                                                                 | Optional. Controls ordering in each [section](#organization). Lower numbers go first. To force a feature release note first in a section, use a lower number such as 10. To avoid sorting issues with other feature release notes, avoid using single-digit numbers unless the note must absolutely appear first. |
+
+## Templates
+
+### Minor release index
 
 ```markdown
 ---
-stage: Release Notes
+title: "GitLab <version> - not yet released"
+description: "Summary of features included in <version>"
 group: Monthly Release
-title: "GitLab 19.0 release notes - not yet released"
-description: "Summary of features included in 19.0"
+stage: Release Notes
 ---
 
-The following features are being delivered for GitLab 19.0.
+The following features are being delivered for GitLab <version>.
 These features are now available on GitLab.com.
 
-If this page is empty, no new features have been added yet.
+## Notable contributor
+```
 
-<!-- Copy this template, and paste it into the doc section where it belongs:
+### Feature release note
 
-Primary feature, Agentic Core, Scale and Deployments, or Unified DevOps and Security.
+```markdown
+---
+title:
+tier: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government ]
+offering: [ Free, Premium, Ultimate ]
+stage:
+documentation_link: "../../../_index.md#popular-topics"
+work_item: https://gitlab.com/groups/gitlab-org/-/work_items/<work-item-number>
+categories: [ System Access, Permissions ]
+level: primary or secondary
+weight: 50
+---
 
-Update all the information as needed.
+The text of the feature release note.
 
-### Feature explanation here
-
-<!-- categories: <name value from categories.yml> --
-
-{{</* details */>}}
-
-- Tier: Free, Premium, Ultimate
-- Offering: GitLab.com, GitLab Self-Managed, GitLab Dedicated
-- Links: [Documentation](../../ci/yaml/_index.md), [Related issue](https://gitlab.com/groups/gitlab-org/-/work_items/17754)
-
-{{</* /details */>}}
-
-Now write 125 words or fewer to explain the value of this improvement.
+Explain the value of this improvement with 125 words or fewer.
 Use phrases that start with, "In previous versions of GitLab, you couldn't... Now you can..."
-
-Use present tense, and speak about "you" instead of "the user."
--->
-
-<!-- ## Primary features
-
-The first person to add a feature in this area, please make the title visible and delete this comment -->
-
-<!-- ## Agentic Core
-
-The first person to add a feature in this area, please make the title visible and delete this comment -->
-
-<!-- ## Scale and Deployments
-
-The first person to add a feature in this area, please make the title visible and delete this comment -->
-
-<!-- ## Unified DevOps and Security
-
-The first person to add a feature in this area, please make the title visible and delete this comment -->
 ```

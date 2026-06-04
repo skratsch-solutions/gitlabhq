@@ -1,4 +1,0 @@
----
-Performance/MethodObjectAsBlock:
-  Exclude:
-    - 'spec/support/shared_examples/models/active_record_enum_shared_examples.rb'

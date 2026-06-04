@@ -5,8 +5,10 @@ RSpec.shared_examples 'having unique enum values' do
     it "has unique values in #{name.inspect}" do
       duplicated = enum.group_by(&:last).select { |key, value| value.size > 1 }
 
+      duplicated_values = duplicated.values.map { |value| Hash[value] }
+
       expect(duplicated).to be_empty,
-        "Duplicated values detected: #{duplicated.values.map(&Hash.method(:[]))}"
+        "Duplicated values detected: #{duplicated_values}"
     end
   end
 end

@@ -285,37 +285,47 @@ RSpec.describe MergeRequestDiffCommit, feature_category: :code_review_workflow d
       stub_feature_flags(mr_diff_commits_read_new_table: false)
     end
 
-    it 'returns commit shas from both metadata and diff commits' do
-      result = described_class
-        .for_merge_request_diff(merge_request_diff.id, project.id)
-        .commit_shas_from_metadata(project_id: project.id, limit: nil)
+    # Both flag states must return identical results: the flag only swaps the SQL join strategy
+    # (LATERAL nested loop vs. plain hash-eligible LEFT JOIN), not the data.
+    [true, false].each do |lateral_join_enabled|
+      context "when commit_shas_metadata_lateral_join is #{lateral_join_enabled ? 'enabled' : 'disabled'}" do
+        before do
+          stub_feature_flags(commit_shas_metadata_lateral_join: lateral_join_enabled)
+        end
 
-      expect(result).to contain_exactly('abc123', 'def456')
-    end
+        it 'returns commit shas from both metadata and diff commits' do
+          result = described_class
+            .for_merge_request_diff(merge_request_diff.id, project.id)
+            .commit_shas_from_metadata(project_id: project.id, limit: nil)
 
-    it 'respects the limit parameter' do
-      result = described_class
-        .for_merge_request_diff(merge_request_diff.id, project.id)
-        .commit_shas_from_metadata(project_id: project.id, limit: 1)
+          expect(result).to contain_exactly('abc123', 'def456')
+        end
 
-      expect(result.size).to eq(1)
-    end
+        it 'respects the limit parameter' do
+          result = described_class
+            .for_merge_request_diff(merge_request_diff.id, project.id)
+            .commit_shas_from_metadata(project_id: project.id, limit: 1)
 
-    context 'when partition_enabled is true' do
-      it 'filters by project_id' do
-        result = described_class
-          .for_merge_request_diff(merge_request_diff.id, project.id)
-          .commit_shas_from_metadata(project_id: project.id, limit: nil, partition_enabled: true)
+          expect(result.size).to eq(1)
+        end
 
-        expect(result).to contain_exactly('abc123', 'def456')
-      end
+        context 'when partition_enabled is true' do
+          it 'filters by project_id' do
+            result = described_class
+              .for_merge_request_diff(merge_request_diff.id, project.id)
+              .commit_shas_from_metadata(project_id: project.id, limit: nil, partition_enabled: true)
 
-      it 'returns empty result when project_id does not match' do
-        result = described_class
-          .for_merge_request_diff(merge_request_diff.id, non_existing_record_id)
-          .commit_shas_from_metadata(project_id: non_existing_record_id, limit: nil, partition_enabled: true)
+            expect(result).to contain_exactly('abc123', 'def456')
+          end
 
-        expect(result).to be_empty
+          it 'returns empty result when project_id does not match' do
+            result = described_class
+              .for_merge_request_diff(merge_request_diff.id, non_existing_record_id)
+              .commit_shas_from_metadata(project_id: non_existing_record_id, limit: nil, partition_enabled: true)
+
+            expect(result).to be_empty
+          end
+        end
       end
     end
   end

@@ -773,13 +773,53 @@ Hash keys are modules (`Filters`, `Formats`, `Sorts`, `Aggregations`). Values ar
 an array of methods on that module. Each method receives the running `query_hash:`
 and the builder's `options:`, and returns the next `query_hash`.
 
+`skip_if_size_zero` skips query components when the size is set to zero. For example, sorting
+does not need to be applied when running a count only query.
+
 A minimal example from `Search::Elastic::UserQueryBuilder`:
 
 ```ruby
 QUERY_COMPONENTS = {
   ::Search::Elastic::Filters => %i[by_forbidden_states by_user_accessible_namespaces],
   ::Search::Elastic::Formats => %i[size source_fields],
-  ::Search::Elastic::Sorts => %i[sort_by]
+  ::Search::Elastic::Sorts::Base => %i[sort_by]
+}.freeze
+```
+
+An more complex example from `Search::Elastic::WorkItemQueryBuilder`:
+
+```ruby
+QUERY_COMPONENTS = {
+  ::Search::Elastic::Filters => %i[
+    by_combined_search_level_and_membership
+    by_combined_confidentiality
+    by_state
+    by_not_hidden
+    by_label_ids
+    by_archived
+    by_work_item_type_ids
+    by_author
+    by_assignees
+    by_milestone
+    by_milestone_state
+    by_label_names
+    by_weight
+    by_health_status
+    by_closed_at
+    by_created_at
+    by_updated_at
+    by_due_date
+    by_iids
+  ],
+  ::Search::Elastic::Aggregations => %i[by_label_ids by_work_item_type_ids],
+  ::Search::Elastic::Formats => [
+    { method: :source_fields, skip_if_size_zero: true },
+    { method: :page, skip_if_size_zero: true },
+    { method: :size, skip_if_size_zero: true }
+  ],
+  ::Search::Elastic::Sorts::WorkItem => [
+    { method: :sort_by, skip_if_size_zero: true }
+  ]
 }.freeze
 ```
 
