@@ -7624,6 +7624,9 @@ msgstr ""
 msgid "Agent or flow already enabled"
 msgstr ""
 
+msgid "AgentArtifacts|%{workflowDefinition} session %{workflowId}"
+msgstr ""
+
 msgid "AgentArtifacts|AI Item"
 msgstr ""
 
@@ -7633,7 +7636,16 @@ msgstr ""
 msgid "AgentArtifacts|Agent can't edit/create files without HITL"
 msgstr ""
 
+msgid "AgentArtifacts|Agent output"
+msgstr ""
+
 msgid "AgentArtifacts|Audit events"
+msgstr ""
+
+msgid "AgentArtifacts|Author ID"
+msgstr ""
+
+msgid "AgentArtifacts|Author name"
 msgstr ""
 
 msgid "AgentArtifacts|Control:"
@@ -7645,10 +7657,16 @@ msgstr ""
 msgid "AgentArtifacts|Created before"
 msgstr ""
 
+msgid "AgentArtifacts|Details"
+msgstr ""
+
 msgid "AgentArtifacts|EU AI Act"
 msgstr ""
 
 msgid "AgentArtifacts|EU-AI-14.4: Human Oversight over high-risk artificial intelligence systems."
+msgstr ""
+
+msgid "AgentArtifacts|Event type"
 msgstr ""
 
 msgid "AgentArtifacts|Failed to load agent artifacts."
@@ -7669,10 +7687,19 @@ msgstr ""
 msgid "AgentArtifacts|Go to settings"
 msgstr ""
 
+msgid "AgentArtifacts|IP address"
+msgstr ""
+
+msgid "AgentArtifacts|Input prompt"
+msgstr ""
+
 msgid "AgentArtifacts|No agent artifacts found."
 msgstr ""
 
 msgid "AgentArtifacts|No audit events found."
+msgstr ""
+
+msgid "AgentArtifacts|No details available for this event."
 msgstr ""
 
 msgid "AgentArtifacts|Project"
@@ -7690,7 +7717,28 @@ msgstr ""
 msgid "AgentArtifacts|Session details"
 msgstr ""
 
+msgid "AgentArtifacts|Show less"
+msgstr ""
+
+msgid "AgentArtifacts|Show more"
+msgstr ""
+
 msgid "AgentArtifacts|Start time"
+msgstr ""
+
+msgid "AgentArtifacts|Summary"
+msgstr ""
+
+msgid "AgentArtifacts|System prompt"
+msgstr ""
+
+msgid "AgentArtifacts|Target details"
+msgstr ""
+
+msgid "AgentArtifacts|Target type"
+msgstr ""
+
+msgid "AgentArtifacts|Timestamp"
 msgstr ""
 
 msgid "AgentArtifacts|View full session details"
@@ -34258,7 +34306,7 @@ msgstr ""
 msgid "GitGuardian|Personal access token to authenticate calls to the GitGuardian API."
 msgstr ""
 
-msgid "GitGuardian|Scan pushed document contents for policy breaks."
+msgid "GitGuardian|Scan pushed commits for hardcoded secrets with GitGuardian, and block pushes that contain them."
 msgstr ""
 
 msgid "GitHub API rate limit exceeded. Try again after %{reset_time}"
@@ -50966,6 +51014,12 @@ msgstr ""
 msgid "Onboarding|Email"
 msgstr ""
 
+msgid "Onboarding|Execution environment has already been initialized."
+msgstr ""
+
+msgid "Onboarding|Execution environment initialization is already in progress."
+msgstr ""
+
 msgid "Onboarding|First name"
 msgstr ""
 
@@ -63599,7 +63653,7 @@ msgstr ""
 msgid "Scan execution policy"
 msgstr ""
 
-msgid "Scan pushed document contents for policy breaks. %{docs_link}"
+msgid "Scan pushed commits for hardcoded secrets with GitGuardian, and block pushes that contain them. %{docs_link}"
 msgstr ""
 
 msgid "ScanExecutionPolicy|%{boldStart}inject_ci%{boldEnd} strategy was deprecated. It was replaced by %{boldStart}inject_policy%{boldEnd} which enforces custom stages. %{linkStart}Learn more%{linkEnd}."
@@ -79042,6 +79096,9 @@ msgid "Unauthorized"
 msgstr ""
 
 msgid "Unauthorized to access the cluster agent in this project"
+msgstr ""
+
+msgid "Unauthorized to create a Terraform state protection rule"
 msgstr ""
 
 msgid "Unauthorized to create a container registry protection rule"

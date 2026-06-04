@@ -56621,6 +56621,9 @@ ALTER TABLE ONLY work_item_custom_lifecycle_statuses
 ALTER TABLE ONLY merge_request_assignment_events
     ADD CONSTRAINT fk_08f7602bfd FOREIGN KEY (merge_request_id) REFERENCES merge_requests(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY subscription_user_add_on_assignment_versions
+    ADD CONSTRAINT fk_091e013a61 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY merge_requests_approval_rules_groups
     ADD CONSTRAINT fk_094b4086a3 FOREIGN KEY (approval_rule_id) REFERENCES merge_requests_approval_rules(id) ON DELETE CASCADE;
 
@@ -59647,9 +59650,6 @@ ALTER TABLE ONLY security_policies
 
 ALTER TABLE ONLY virtual_registries_packages_npm_upstreams
     ADD CONSTRAINT fk_rails_08949a6736 FOREIGN KEY (group_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY subscription_user_add_on_assignment_versions
-    ADD CONSTRAINT fk_rails_091e013a61 FOREIGN KEY (organization_id) REFERENCES organizations(id);
 
 ALTER TABLE ONLY trending_projects
     ADD CONSTRAINT fk_rails_09feecd872 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;

@@ -516,6 +516,44 @@ could time out and return `500` errors. SCIM `DELETE` and `PATCH` requests now r
 success response immediately. Membership removal is handled asynchronously, so identity
 providers and SCIM clients receive consistent success responses.
 
+### Filter Credits dashboard by product and date (Beta)
+
+<!-- categories: Consumables Cost Management -->
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed
+- Links: [Documentation](../../subscriptions/gitlab_credits.md#gitlab-credits-dashboard)
+
+{{< /details >}}
+
+The in-product GitLab Credits dashboard now supports product filtering, date
+range selection, and Secrets Manager usage visibility.
+
+You can filter usage by product (including GitLab Duo and Secrets Manager) 
+and date range, see a daily usage chart across selected products, and
+review per-user attribution with a Usage control status column.
+
+The dashboard also includes usage from service accounts so automated activity
+is reflected in per-user attribution, and surfaces non-billable and beta
+events such as Secrets Manager Open Beta activity. This gives you a complete
+view of credit consumption in your organization.
+
+### Review prior months of Credits usage (Beta)
+
+<!-- categories: Consumables Cost Management -->
+
+{{< details >}}
+
+- Tier: Premium, Ultimate
+- Offering: GitLab.com, GitLab Self-Managed
+- Links: [Documentation](../../subscriptions/gitlab_credits.md#gitlab-credits-dashboard)
+
+{{< /details >}}
+
+In previous versions of GitLab, the Credits dashboard showed only the current billing month, so you couldn't compare trends, audit a usage spike after the fact, or build a budget conversation around prior consumption. Now you can navigate to prior billing months in the Credits dashboard.
+
 ## Unified DevOps and Security
 
 ### Auto remediation for vulnerable dependencies (Experiment)

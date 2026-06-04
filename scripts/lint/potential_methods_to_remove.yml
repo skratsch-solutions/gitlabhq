@@ -87,8 +87,6 @@ ee/app/models/security/category.rb:
 ee/app/models/security/orchestration_policy_configuration.rb:
 - compliance_framework_ids_with_policy_index
 - experiment_configuration
-app/helpers/groups_helper.rb:
-- group_title_link
 app/helpers/integrations_helper.rb:
 - integration_issue_type
 - integration_todo_target_type

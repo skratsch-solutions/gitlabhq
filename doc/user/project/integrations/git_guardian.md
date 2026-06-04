@@ -22,10 +22,10 @@ title: GitGuardian
 
 {{< /history >}}
 
-[GitGuardian](https://www.gitguardian.com/) is a cybersecurity service that detects sensitive data such as API keys
-and passwords in source code repositories.
-It scans Git repositories, alerts on policy violations, and helps organizations
-fix security issues before hackers can exploit them.
+[GitGuardian](https://www.gitguardian.com/) is a secrets detection service that finds hardcoded
+credentials such as API keys, passwords, and tokens in source code repositories.
+When you enable this integration, GitLab sends each push to GitGuardian for scanning.
+If GitGuardian detects a secret, GitLab blocks the push.
 
 You can configure GitLab to reject commits based on GitGuardian policies.
 

@@ -150,6 +150,7 @@ module Types
     mount_mutation Mutations::Terraform::State::Delete
     mount_mutation Mutations::Terraform::State::Lock
     mount_mutation Mutations::Terraform::State::Unlock
+    mount_mutation Mutations::Terraform::StateProtectionRule::Create, experiment: { milestone: '19.1' }
     mount_mutation Mutations::Terraform::StateProtectionRule::Delete, experiment: { milestone: '19.1' }
     mount_mutation Mutations::Terraform::StateProtectionRule::Update, experiment: { milestone: '18.11' }
     mount_mutation Mutations::Timelogs::Create

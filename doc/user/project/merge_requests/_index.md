@@ -257,12 +257,19 @@ To close merge requests in the project:
 GitLab closes the merge request, but preserves records of the merge request,
 its comments, and any associated pipelines.
 
-### Delete the source branch on merge
+### Delete the source branch
+
+{{< history >}}
+
+- Option to delete the source branch from a closed merge request [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237646) in GitLab 19.1.
+
+{{< /history >}}
 
 You can delete the source branch for a merge request:
 
 - When you create a merge request, by selecting **Delete source branch when merge request accepted**.
 - When you merge a merge request, if you have the Maintainer role, by selecting **Delete source branch**.
+- When you close a merge request without merging, by selecting **Delete source branch**.
 
 An administrator can make this option the default in the project's settings.
 

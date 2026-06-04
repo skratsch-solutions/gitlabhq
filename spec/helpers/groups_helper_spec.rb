@@ -110,37 +110,6 @@ RSpec.describe GroupsHelper, feature_category: :groups_and_projects do
     end
   end
 
-  describe '#group_title_link' do
-    let_it_be(:group, freeze: false) { create(:group, :with_avatar) }
-
-    let(:raw_link) { group_title_link(group, show_avatar: true) }
-    let(:document) { Nokogiri::HTML.parse(raw_link) }
-
-    describe 'link' do
-      subject(:link) { document.css('.group-path').first }
-
-      it 'uses the group name as innerText' do
-        expect(link.inner_text).to match(group.name)
-      end
-
-      it 'links to the group path' do
-        expect(link.attr('href')).to eq(group_path(group))
-      end
-    end
-
-    describe 'icon' do
-      subject(:icon) { document.css('.avatar-tile').first }
-
-      it 'specifies the group name as the alt text' do
-        expect(icon.attr('alt')).to eq(group.name)
-      end
-
-      it 'uses the group\'s avatar_url' do
-        expect(icon.attr('src')).to match(group.avatar_url)
-      end
-    end
-  end
-
   describe '#share_with_group_lock_help_text' do
     context 'traversal queries' do
       let_it_be_with_reload(:root_group) { create(:group) }

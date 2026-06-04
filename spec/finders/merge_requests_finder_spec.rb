@@ -345,35 +345,7 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
           end
         end
 
-        context 'with mr_lookup_by_checking_traversal_ids_on_join feature flag' do
-          context 'when the flag is enabled' do
-            it_behaves_like 'filtering by group'
-
-            it 'uses the traversal_ids JOIN on project_namespace_id in the generated SQL' do
-              finder = described_class.new(user, { group_id: group.id, include_subgroups: true })
-              sql = finder.execute.to_sql
-
-              expect(sql).to include('ns.id = projects.project_namespace_id')
-              expect(sql).to include('ns.traversal_ids @>')
-            end
-          end
-
-          context 'when the flag is disabled' do
-            before do
-              stub_feature_flags(mr_lookup_by_checking_traversal_ids_on_join: false)
-            end
-
-            it_behaves_like 'filtering by group'
-
-            it 'does not use the traversal_ids JOIN on project_namespace_id in the generated SQL' do
-              finder = described_class.new(user, { group_id: group.id, include_subgroups: true })
-              sql = finder.execute.to_sql
-
-              expect(sql).not_to include('ns.id = projects.project_namespace_id')
-              expect(sql).not_to include('ns.traversal_ids @>')
-            end
-          end
-        end
+        it_behaves_like 'filtering by group'
 
         context 'with group_mr_in_operator_optimization feature flag' do
           # Minimal params that satisfy idx_mrs_on_target_id_and_created_at_and_state_id:
