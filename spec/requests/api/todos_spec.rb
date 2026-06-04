@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe API::Todos, feature_category: :source_code_management do
   include DesignManagementTestHelpers
 
-  let_it_be(:group) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group) }
   let_it_be(:group_2) { create(:group) }
   let_it_be(:project_1, freeze: false) { create(:project, :repository, group: group) }
   let_it_be(:project_2) { create(:project) }

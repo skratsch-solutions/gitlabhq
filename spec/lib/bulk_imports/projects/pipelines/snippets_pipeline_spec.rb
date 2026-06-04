@@ -19,7 +19,7 @@ RSpec.describe BulkImports::Projects::Pipelines::SnippetsPipeline, feature_categ
     )
   end
 
-  let_it_be(:tracker) { create(:bulk_import_tracker, entity: entity) }
+  let_it_be(:tracker, freeze: false) { create(:bulk_import_tracker, entity: entity) }
   let_it_be(:context, freeze: false) { BulkImports::Pipeline::Context.new(tracker) }
 
   let(:snippet_attributes) { {} }

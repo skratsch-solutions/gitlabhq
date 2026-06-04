@@ -114,12 +114,12 @@ RSpec.describe Timelog, feature_category: :team_planning do
     let_it_be(:group) { create(:group) }
     let_it_be(:group_project) { create(:project, :empty_repo, group: group) }
     let_it_be(:group_issue, freeze: false) { create(:issue, project: group_project) }
-    let_it_be(:group_merge_request) { create(:merge_request, source_project: group_project) }
+    let_it_be(:group_merge_request, freeze: false) { create(:merge_request, source_project: group_project) }
 
     let_it_be(:subgroup) { create(:group, parent: group) }
     let_it_be(:subgroup_project) { create(:project, :empty_repo, group: subgroup) }
-    let_it_be(:subgroup_issue) { create(:issue, project: subgroup_project) }
-    let_it_be(:subgroup_merge_request) { create(:merge_request, source_project: subgroup_project) }
+    let_it_be(:subgroup_issue, freeze: false) { create(:issue, project: subgroup_project) }
+    let_it_be(:subgroup_merge_request, freeze: false) { create(:merge_request, source_project: subgroup_project) }
 
     let_it_be(:short_time_ago) { 5.days.ago }
     let_it_be(:medium_time_ago, freeze: false) { 15.days.ago }

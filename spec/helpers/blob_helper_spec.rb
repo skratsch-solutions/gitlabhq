@@ -932,7 +932,7 @@ RSpec.describe BlobHelper, feature_category: :source_code_management do
 
   describe '#vue_blob_header_app_data' do
     let_it_be(:project, freeze: false) { create(:project) }
-    let_it_be(:blob) { fake_blob(path: 'README.md') }
+    let_it_be(:blob, freeze: false) { fake_blob(path: 'README.md') }
     let(:ref) { 'feature' }
     let(:ref_type) { :branch }
     let(:breadcrumb_data) { { title: 'README.md', 'is-last': true } }

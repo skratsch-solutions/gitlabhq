@@ -1,6 +1,5 @@
 <script>
 import {
-  GlBadge,
   GlButton,
   GlDisclosureDropdown,
   GlDisclosureDropdownGroup,
@@ -12,21 +11,29 @@ import { helpPagePath } from '~/helpers/help_page_helper';
 import { FORUM_URL, PROMO_URL, CONTRIBUTE_URL } from '~/constants';
 import { __ } from '~/locale';
 import Tracking from '~/tracking';
+import GitlabExperiment from '~/experimentation/components/gitlab_experiment.vue';
+import { isExperimentVariant } from '~/experimentation/utils';
+import WhatsNewForYouMenuItem from '~/whats_new/components/whats_new_for_you_menu_item.vue';
 import { HELP_MENU_TRACKING_DEFAULTS } from '../constants';
 
+const WHATS_NEW_EXPERIMENT = 'whats_new_placement';
+const WHATS_NEW_PLACEMENT = 'help_menu';
+
 export default {
+  WHATS_NEW_EXPERIMENT,
   components: {
-    GlBadge,
     GlButton,
     GlDisclosureDropdown,
     GlDisclosureDropdownGroup,
+    GitlabExperiment,
     GitlabVersionCheckBadge,
     HelpCenterUpgradeSubscription,
+    WhatsNewForYouMenuItem,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [Tracking.mixin({ property: 'nav_help_menu' })],
+  mixins: [Tracking.mixin({ property: 'nav_help_menu', experiment: WHATS_NEW_EXPERIMENT })],
   i18n: {
     help: __('Help'),
     support: __('Support'),
@@ -38,7 +45,6 @@ export default {
     feedback: __('Provide feedback'),
     shortcuts: __('Keyboard shortcuts'),
     version: __('Your GitLab version'),
-    whatsnew: __("What's new"),
     terms: __('Terms and privacy'),
     privacy: __('Privacy statement'),
   },
@@ -48,12 +54,6 @@ export default {
       type: Object,
       required: true,
     },
-  },
-  data() {
-    return {
-      whatsNewMostRecentReleaseUnreadCount: this.calculateWhatsNewMostRecentReleaseUnreadCount(),
-      toggleWhatsNewDrawer: null,
-    };
   },
   computed: {
     showUpgradeSubscription() {
@@ -149,17 +149,7 @@ export default {
               },
               shortcut: '?',
             },
-            this.sidebarData.display_whats_new && {
-              text: this.$options.i18n.whatsnew,
-              action: this.showWhatsNew,
-              count: this.whatsNewMostRecentReleaseUnreadCount,
-              extraAttrs: {
-                'data-track-action': 'click_button',
-                'data-track-label': 'whats_new',
-                'data-track-property': HELP_MENU_TRACKING_DEFAULTS['data-track-property'],
-              },
-            },
-          ].filter(Boolean),
+          ],
         },
       };
 
@@ -185,43 +175,6 @@ export default {
     },
   },
   methods: {
-    calculateWhatsNewMostRecentReleaseUnreadCount() {
-      if (!this.sidebarData.display_whats_new) {
-        return 0;
-      }
-
-      return (
-        this.sidebarData.whats_new_most_recent_release_items_count -
-        this.sidebarData.whats_new_read_articles.length
-      );
-    },
-
-    async showWhatsNew() {
-      if (!this.toggleWhatsNewDrawer) {
-        const { default: toggleWhatsNewDrawer } = await import(
-          /* webpackChunkName: 'whatsNewApp' */ '~/whats_new'
-        );
-        this.toggleWhatsNewDrawer = toggleWhatsNewDrawer;
-
-        this.toggleWhatsNewDrawer(
-          {
-            versionDigest: this.sidebarData.whats_new_version_digest,
-            initialReadArticles: this.sidebarData.whats_new_read_articles,
-            markAsReadPath: this.sidebarData.whats_new_mark_as_read_path,
-            mostRecentReleaseItemsCount: this.sidebarData.whats_new_most_recent_release_items_count,
-            showTranscendPromo: this.sidebarData.whats_new_show_transcend_promo,
-          },
-          this.updateWhatsNewNotificationBadge,
-        );
-      } else {
-        this.toggleWhatsNewDrawer();
-      }
-    },
-
-    updateWhatsNewNotificationBadge(unreadCount) {
-      this.whatsNewMostRecentReleaseUnreadCount = unreadCount;
-    },
-
     trackingAttrs(label) {
       return {
         ...HELP_MENU_TRACKING_DEFAULTS,
@@ -233,6 +186,13 @@ export default {
       this.track('click_toggle', {
         label: show ? 'show_help_dropdown' : 'hide_help_dropdown',
       });
+
+      if (!show) return;
+
+      const isCandidate = isExperimentVariant(WHATS_NEW_EXPERIMENT, 'candidate');
+      if (this.sidebarData.display_whats_new && !isCandidate) {
+        this.track('render_whats_new_for_you_menu_item', { property: WHATS_NEW_PLACEMENT });
+      }
     },
   },
 };
@@ -292,14 +252,16 @@ export default {
         <template #list-item="{ item }">
           <span class="-gl-my-1 gl-flex gl-items-center gl-justify-between">
             {{ item.text }}
-            <gl-badge v-if="item.count" pill variant="info" aria-hidden="true">{{
-              item.count
-            }}</gl-badge>
-
-            <kbd v-else-if="item.shortcut" aria-hidden="true" class="flat">?</kbd>
+            <kbd v-if="item.shortcut" aria-hidden="true" class="flat">?</kbd>
           </span>
         </template>
       </gl-disclosure-dropdown-group>
+
+      <gitlab-experiment :name="$options.WHATS_NEW_EXPERIMENT">
+        <template #control>
+          <whats-new-for-you-menu-item :sidebar-data="sidebarData" placement="help_menu" />
+        </template>
+      </gitlab-experiment>
     </gl-disclosure-dropdown>
   </div>
 </template>

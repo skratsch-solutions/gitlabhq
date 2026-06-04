@@ -39,10 +39,47 @@ module API
               present_entity(operations)
             end
           end
+
+          params do
+            requires :id,
+              type: Integer,
+              desc: 'The batched background operation id'
+          end
+          route_param :id do
+            desc 'Retrieve a batched background operation' do
+              detail 'This feature was introduced in GitLab 19.1.'
+              success ::API::Entities::BatchedBackgroundOperation
+              failure [
+                { code: 401, message: '401 Unauthorized' },
+                { code: 403, message: '403 Forbidden' },
+                { code: 404, message: '404 Not found' }
+              ]
+              tags %w[batched_background_operations]
+            end
+            params do
+              optional :database,
+                type: String,
+                values: Gitlab::Database.all_database_names,
+                desc: 'The name of the database',
+                default: 'main'
+            end
+            route_setting :authorization, permissions: :read_batched_background_operation, boundary_type: :instance
+            get do
+              Gitlab::Database::SharedModel.using_connection(base_model.connection) do
+                not_found!('Batched background operation') unless batched_background_operation
+                present_entity(batched_background_operation)
+              end
+            end
+          end
         end
       end
 
       helpers do
+        def batched_background_operation
+          @batched_background_operation ||=
+            Gitlab::Database::BackgroundOperation::WorkerCellLocal.find_by_id(params[:id])
+        end
+
         def base_model
           @base_model ||= begin
             database = params[:database] || Gitlab::Database::MAIN_DATABASE_NAME

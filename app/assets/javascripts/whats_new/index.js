@@ -15,6 +15,7 @@ export default (dataset = {}, updateHelpMenuUnreadBadge) => {
       markAsReadPath,
       mostRecentReleaseItemsCount,
       showTranscendPromo,
+      placement,
     } = dataset;
     const el = document.createElement('div');
     document.body.append(el);
@@ -31,6 +32,7 @@ export default (dataset = {}, updateHelpMenuUnreadBadge) => {
             mostRecentReleaseItemsCount,
             updateHelpMenuUnreadBadge,
             showTranscendPromo,
+            placement,
           },
         });
       },

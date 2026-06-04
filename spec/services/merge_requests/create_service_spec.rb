@@ -38,6 +38,28 @@ RSpec.describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state, f
         expect(merge_request.merge_params['force_remove_source_branch']).to eq('1')
       end
 
+      describe 'author resolution' do
+        it 'sets the MR author to current_user when no composite identity link is in scope' do
+          expect(merge_request.author).to eq(user)
+        end
+
+        context 'when current_user is the scoped user of a composite identity link', :request_store do
+          let_it_be(:service_account) { create(:user, :service_account, composite_identity_enforced: true) }
+
+          before_all do
+            project.add_developer(service_account)
+          end
+
+          before do
+            Gitlab::Auth::Identity.link_from_scoped_user(service_account, user, context: :authentication)
+          end
+
+          it 'sets the MR author to the composite identity primary actor (service account)' do
+            expect(merge_request.author).to eq(service_account)
+          end
+        end
+      end
+
       it 'invalidates counts cache for author' do
         expect(user).to receive(:invalidate_merge_request_cache_counts)
 

@@ -3031,9 +3031,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
   end
 
   describe '.sort_by_attribute' do
-    let_it_be(:project1) { create(:project, star_count: 2, last_activity_at: 1.minute.ago) }
-    let_it_be(:project2) { create(:project, star_count: 1) }
-    let_it_be(:project3) { create(:project, last_activity_at: 2.minutes.ago) }
+    let_it_be(:project1, freeze: false) { create(:project, star_count: 2, last_activity_at: 1.minute.ago) }
+    let_it_be(:project2, freeze: false) { create(:project, star_count: 1) }
+    let_it_be(:project3, freeze: false) { create(:project, last_activity_at: 2.minutes.ago) }
 
     it 'reorders the input relation by start count desc' do
       projects = described_class.sort_by_attribute(:stars_desc)
@@ -7268,7 +7268,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
       end
 
       context 'when the project does have a git repository' do
-        let_it_be(:project_with_repo) { create(:project, :test_repo) }
+        let_it_be(:project_with_repo, freeze: false) { create(:project, :test_repo) }
 
         it 'creates a project_repository record' do
           expect { project_with_repo.after_import }.to change { ProjectRepository.count }.by(1)
@@ -9824,7 +9824,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     # runner_token_expiration_interval should not affect the expiration interval, only
     # project_runner_token_expiration_interval should.
     context 'when there is a group-enforced group interval' do
-      let_it_be(:group_settings) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9837,7 +9837,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     # subgroup_runner_token_expiration_interval should not affect the expiration interval, only
     # project_runner_token_expiration_interval should.
     context 'when there is a group-enforced subgroup interval' do
-      let_it_be(:group_settings) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, subgroup_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9848,7 +9848,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'when there is an owner group-enforced project interval' do
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9859,11 +9859,11 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'when there is a grandparent group-enforced interval' do
-      let_it_be(:grandparent_group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 3.days.to_i) }
+      let_it_be(:grandparent_group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 3.days.to_i) }
       let_it_be(:grandparent_group) { create(:group, namespace_settings: grandparent_group_settings) }
-      let_it_be(:parent_group_settings) { create(:namespace_settings) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings) }
       let_it_be(:parent_group) { create(:group, parent: grandparent_group, namespace_settings: parent_group_settings) }
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, parent: parent_group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9874,9 +9874,9 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'when there is a parent group-enforced interval overridden by group-enforced interval' do
-      let_it_be(:parent_group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 5.days.to_i) }
+      let_it_be(:parent_group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 5.days.to_i) }
       let_it_be(:parent_group) { create(:group, namespace_settings: parent_group_settings) }
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, parent: parent_group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9922,7 +9922,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         stub_application_setting(project_runner_token_expiration_interval: 3.days.to_i)
       end
 
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9937,7 +9937,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
         stub_application_setting(project_runner_token_expiration_interval: 5.days.to_i)
       end
 
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 
@@ -9948,7 +9948,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'when group-enforced interval overrides project interval' do
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 3.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 3.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group, runner_token_expiration_interval: 4.days.to_i) }
 
@@ -9959,7 +9959,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
 
     context 'when project interval overrides group-enforced interval' do
-      let_it_be(:group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 5.days.to_i) }
+      let_it_be(:group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 5.days.to_i) }
       let_it_be(:group, freeze: false) { create(:group, namespace_settings: group_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group, runner_token_expiration_interval: 4.days.to_i) }
 
@@ -9971,7 +9971,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
 
     # Unrelated groups should not affect the expiration interval.
     context 'when there is an enforced project interval in an unrelated group' do
-      let_it_be(:unrelated_group_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:unrelated_group_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:unrelated_group) { create(:group, namespace_settings: unrelated_group_settings) }
       let_it_be(:project, freeze: false) { create(:project) }
 
@@ -9984,7 +9984,7 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     # Subgroups should not affect the parent group expiration interval.
     context 'when there is an enforced project interval in a subgroup' do
       let_it_be(:group, freeze: false) { create(:group) }
-      let_it_be(:subgroup_settings) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
+      let_it_be(:subgroup_settings, freeze: false) { create(:namespace_settings, project_runner_token_expiration_interval: 4.days.to_i) }
       let_it_be(:subgroup, freeze: false) { create(:group, parent: group, namespace_settings: subgroup_settings) }
       let_it_be(:project, freeze: false) { create(:project, group: group) }
 

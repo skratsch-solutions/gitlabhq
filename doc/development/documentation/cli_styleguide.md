@@ -351,16 +351,10 @@ adapted for Cobra's wrapper.
 When an environment variable is deprecated, update the `help:environment` annotation in `root.go`.
 Keep all entries in alphabetical order.
 
-1. For the existing entry, replace the description with:
-
-   ```plaintext
-   OLD_VAR: Deprecated. Planned for removal in a future release. Use NEW_VAR instead.
-   ```
-
+1. Remove the deprecated variable entry.
 1. Add a new entry for the replacement variable with a full description.
-
 1. Run `make gen-docs` and commit the regenerated files.
-1. Apply the same updates and pattern to the variables section of the [README](https://gitlab.com/gitlab-org/cli/-/blob/main/README.md#environment-variables).
+1. Apply the same updates to the variables section of the [README](https://gitlab.com/gitlab-org/cli/-/blob/main/README.md#environment-variables).
 
 ## GitLab version support
 

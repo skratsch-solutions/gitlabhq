@@ -58,11 +58,11 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
         end
 
         context 'using a group handle' do
-          let_it_be(:issuable_parent) { create(:project) }
+          let_it_be(:issuable_parent, freeze: false) { create(:project) }
           let_it_be(:issuable_attributes, freeze: false) { { source_project: issuable_parent, target_project: issuable_parent } }
           let_it_be(:issuable_factory, freeze: false) { :merge_request }
           let_it_be(:factory_params, freeze: false) { [:simple, :unique_branches] }
-          let_it_be(:search_params) { { project_id: issuable_parent.id } }
+          let_it_be(:search_params, freeze: false) { { project_id: issuable_parent.id } }
 
           it_behaves_like 'filterable by group handle for', :author
         end
@@ -828,11 +828,11 @@ RSpec.describe MergeRequestsFinder, feature_category: :code_review_workflow do
         end
 
         context 'using a group handle' do
-          let_it_be(:issuable_parent) { create(:project) }
+          let_it_be(:issuable_parent, freeze: false) { create(:project) }
           let_it_be(:issuable_attributes, freeze: false) { { source_project: issuable_parent, target_project: issuable_parent } }
           let_it_be(:issuable_factory, freeze: false) { :merge_request }
           let_it_be(:factory_params, freeze: false) { [:simple, :unique_branches] }
-          let_it_be(:search_params) { { project_id: issuable_parent.id } }
+          let_it_be(:search_params, freeze: false) { { project_id: issuable_parent.id } }
 
           it_behaves_like 'filterable by group handle for', :assignees
         end

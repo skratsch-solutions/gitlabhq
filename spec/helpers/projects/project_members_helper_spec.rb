@@ -13,7 +13,7 @@ RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_pro
   end
 
   describe 'project members' do
-    let_it_be(:links) { ::Members::GroupLinksCollection.new([]) }
+    let_it_be(:links, freeze: false) { ::Members::GroupLinksCollection.new([]) }
     let_it_be(:members) { create_list(:project_member, 2, project: project) }
     let_it_be(:invited) { create_list(:project_member, 2, :invited, project: project) }
     let_it_be(:access_requests) { create_list(:project_member, 2, :access_request, project: project) }
@@ -100,7 +100,7 @@ RSpec.describe Projects::ProjectMembersHelper, feature_category: :groups_and_pro
         let_it_be(:project_group_link) { create(:project_group_link, project: project, group: shared_with_group) }
         let_it_be(:group_group_link) { create(:group_group_link, shared_group: shared_with_group) }
 
-        let_it_be(:links) do
+        let_it_be(:links, freeze: false) do
           ::Members::GroupLinksCollection.new([group_group_link, project_group_link])
         end
 

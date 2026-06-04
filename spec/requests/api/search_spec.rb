@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe API::Search, :clean_gitlab_redis_rate_limiting, feature_category: :global_search do
   let_it_be(:user) { create(:user) }
   let_it_be(:user2) { create(:user) }
-  let_it_be(:group) { create(:group) }
+  let_it_be(:group, freeze: false) { create(:group) }
   let_it_be_with_reload(:project) do
     create(:project, :wiki_repo, :public, name: 'awesome project', group: group)
   end

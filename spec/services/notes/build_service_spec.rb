@@ -11,7 +11,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
   let_it_be(:author) { note.author }
   let_it_be(:user) { author }
   let_it_be(:noteable_author, freeze: false) { create(:user) }
-  let_it_be(:other_user) { create(:user) }
+  let_it_be(:other_user, freeze: false) { create(:user) }
   let_it_be(:external) { create(:user, :external) }
 
   let(:base_params) { { note: 'Test' } }
@@ -33,7 +33,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
 
       context 'when a note with that original discussion ID exists' do
         context 'when discussion is resolved' do
-          let_it_be(:merge_request) { create(:merge_request, source_project: project) }
+          let_it_be(:merge_request, freeze: false) { create(:merge_request, source_project: project) }
           let_it_be(:mr_note) { create(:discussion_note_on_merge_request, :resolved, noteable: merge_request, project: project, author: author) }
 
           let(:params) { { in_reply_to_discussion_id: mr_note.discussion_id } }
@@ -89,7 +89,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
         end
 
         context 'when a snippet is private' do
-          let_it_be(:snippet) { create(:personal_snippet, :private, author: snippet_author) }
+          let_it_be(:snippet, freeze: false) { create(:personal_snippet, :private, author: snippet_author) }
           let_it_be(:note, freeze: false) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
 
           it 'creates a reply note when the author replies' do
@@ -107,7 +107,7 @@ RSpec.describe Notes::BuildService, feature_category: :team_planning do
         end
 
         context 'when a snippet is internal' do
-          let_it_be(:snippet) { create(:personal_snippet, :internal, author: snippet_author) }
+          let_it_be(:snippet, freeze: false) { create(:personal_snippet, :internal, author: snippet_author) }
           let_it_be(:note, freeze: false) { create(:discussion_note_on_personal_snippet, noteable: snippet) }
 
           it 'creates a reply note when the author replies' do

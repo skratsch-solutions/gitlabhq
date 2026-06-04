@@ -8,15 +8,13 @@ import { useWhatsNew } from '../store';
 import OtherUpdates from './other_updates.vue';
 import TranscendPromoCard from './transcend_promo_card.vue';
 
-const trackingMixin = Tracking.mixin();
-
 export default {
   components: {
     GlDrawer,
     OtherUpdates,
     TranscendPromoCard,
   },
-  mixins: [trackingMixin, glFeatureFlagsMixin()],
+  mixins: [Tracking.mixin({ experiment: 'whats_new_placement' }), glFeatureFlagsMixin()],
   props: {
     versionDigest: {
       type: String,
@@ -47,6 +45,10 @@ export default {
       required: false,
       default: false,
     },
+    placement: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
     ...mapState(useWhatsNew, ['open', 'features', 'pageInfo', 'fetching', 'readArticles']),
@@ -69,10 +71,10 @@ export default {
     const body = document.querySelector('body');
     const { namespaceId } = body.dataset;
 
-    this.track('click_whats_new_drawer', {
+    this.track('view_whats_new_drawer', {
       label: 'namespace_id',
       value: namespaceId,
-      property: 'navigation_top',
+      property: this.placement,
     });
   },
   methods: {

@@ -209,7 +209,8 @@
   grid-template-columns: 1fr;
 }
 
-.reviewers-dropdown .gl-new-dropdown-panel {
+.reviewers-dropdown .gl-new-dropdown-panel,
+.sidebar-dropdown-widget-listbox .gl-new-dropdown-panel {
   min-width: $right-sidebar-width - $gl-padding;
 }
 

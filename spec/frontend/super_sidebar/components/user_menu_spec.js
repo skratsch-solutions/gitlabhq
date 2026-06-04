@@ -6,8 +6,10 @@ import { mountExtended } from 'helpers/vue_test_utils_helper';
 import { stubComponent } from 'helpers/stub_component';
 import UserMenu from '~/super_sidebar/components/user_menu.vue';
 import UserMenuProfileItem from '~/super_sidebar/components/user_menu_profile_item.vue';
+import WhatsNewForYouMenuItem from '~/whats_new/components/whats_new_for_you_menu_item.vue';
 import SetStatusModal from '~/set_status_modal/set_status_modal_wrapper.vue';
 import { mockTracking } from 'helpers/tracking_helper';
+import { stubExperiments } from 'helpers/experimentation_helper';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as Sentry from '~/sentry/sentry_browser_wrapper';
 import { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_OK } from '~/lib/utils/http_status';
@@ -22,6 +24,16 @@ jest.mock('~/lib/logger');
 describe('UserMenu component', () => {
   let wrapper;
   let trackingSpy;
+  let origGl;
+
+  beforeEach(() => {
+    origGl = window.gl;
+    window.gl = { ...window.gl, experiments: {} };
+  });
+
+  afterEach(() => {
+    window.gl = origGl;
+  });
 
   const GlEmoji = { template: '<img/>' };
   const findDropdown = () => wrapper.findComponent(GlDisclosureDropdown);
@@ -652,6 +664,54 @@ describe('UserMenu component', () => {
           label: 'user_sign_out',
           property: 'nav_user_menu',
         });
+      });
+    });
+  });
+
+  describe('whats_new_placement experiment', () => {
+    const findWhatsNewForYouMenuItem = () => wrapper.findComponent(WhatsNewForYouMenuItem);
+
+    const whatsNewSidebarData = {
+      display_whats_new: true,
+      whats_new_most_recent_release_items_count: 3,
+      whats_new_version_digest: 'abc',
+      whats_new_mark_as_read_path: '/mark_as_read',
+      whats_new_read_articles: [],
+    };
+
+    describe('when not in the candidate variant', () => {
+      it('does not render the WhatsNewForYouMenuItem (no experiment data)', () => {
+        createWrapper(whatsNewSidebarData);
+        expect(findWhatsNewForYouMenuItem().exists()).toBe(false);
+      });
+
+      it('does not render the WhatsNewForYouMenuItem in the control variant', () => {
+        stubExperiments({ whats_new_placement: 'control' });
+        createWrapper(whatsNewSidebarData);
+        expect(findWhatsNewForYouMenuItem().exists()).toBe(false);
+      });
+    });
+
+    describe('candidate variant', () => {
+      beforeEach(() => {
+        stubExperiments({ whats_new_placement: 'candidate' });
+        createWrapper(whatsNewSidebarData);
+      });
+
+      it('renders WhatsNewForYouMenuItem with profile_menu placement', () => {
+        const item = findWhatsNewForYouMenuItem();
+        expect(item.exists()).toBe(true);
+        expect(item.props('placement')).toBe('profile_menu');
+        expect(item.props('icon')).toBe('compass');
+      });
+
+      it('fires the render tracking event when the dropdown is shown', () => {
+        showDropdown();
+        expect(trackingSpy).toHaveBeenCalledWith(
+          undefined,
+          'render_whats_new_for_you_menu_item',
+          expect.objectContaining({ property: 'profile_menu' }),
+        );
       });
     });
   });

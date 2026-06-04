@@ -2568,6 +2568,7 @@ Grants the ability to read batched background operations.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/admin/batched_background_operations` |
+| Read | Instance | `GET` | `/admin/batched_background_operations/:id` |
 
 ### Wiki resources
 

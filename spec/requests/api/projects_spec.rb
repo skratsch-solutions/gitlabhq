@@ -2519,7 +2519,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   end
 
   describe "GET /projects/:id/groups" do
-    let_it_be(:root_group) { create(:group, :public, name: 'root group') }
+    let_it_be(:root_group, freeze: false) { create(:group, :public, name: 'root group') }
     let_it_be(:project_group) { create(:group, :public, parent: root_group, name: 'project group') }
     let_it_be(:shared_group_with_dev_access) { create(:group, :private, parent: root_group, name: 'shared group') }
     let_it_be(:shared_group_with_reporter_access) { create(:group, :public) }
@@ -2657,8 +2657,8 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   end
 
   describe 'GET /project/:id/share_locations' do
-    let_it_be(:root_group) { create(:group, :public, name: 'root group', path: 'root-group-path') }
-    let_it_be(:project_group1) { create(:group, :public, parent: root_group, name: 'group1', path: 'group-1-path') }
+    let_it_be(:root_group, freeze: false) { create(:group, :public, name: 'root group', path: 'root-group-path') }
+    let_it_be(:project_group1, freeze: false) { create(:group, :public, parent: root_group, name: 'group1', path: 'group-1-path') }
     let_it_be(:project_group2) { create(:group, :public, parent: root_group, name: 'group2', path: 'group-2-path') }
     let_it_be(:project, freeze: false) { create(:project, :private, group: project_group1) }
     let(:path) { "/projects/#{project.id}/share_locations" }
@@ -4080,7 +4080,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
   end
 
   describe 'GET /projects/:id/invited_groups' do
-    let_it_be(:main_group) { create(:group, :private, owners: user1) }
+    let_it_be(:main_group, freeze: false) { create(:group, :private, owners: user1) }
     let_it_be(:direct_group1) { create(:group, :private, owners: user1) }
     let_it_be(:direct_group2) { create(:group, :private, owners: user1) }
     let_it_be(:inherited_group) { create(:group, :private, owners: user1) }
@@ -6722,7 +6722,7 @@ RSpec.describe API::Projects, :aggregate_failures, feature_category: :groups_and
 
   describe 'GET /projects/:id/transfer_locations' do
     let_it_be(:user, freeze: false) { create(:user) }
-    let_it_be(:source_group) { create(:group) }
+    let_it_be(:source_group, freeze: false) { create(:group) }
     let_it_be(:project, freeze: false) { create(:project, group: source_group) }
 
     let(:params) { {} }

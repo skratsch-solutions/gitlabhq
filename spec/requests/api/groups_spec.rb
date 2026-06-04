@@ -2292,7 +2292,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   end
 
   describe "GET /groups/:id/groups/shared" do
-    let_it_be(:main_group) do
+    let_it_be(:main_group, freeze: false) do
       create(:group, :private, name: "b-group", path: "w#{group1.path}", owners: user1)
     end
 
@@ -2591,7 +2591,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   end
 
   describe "GET /groups/:id/invited_groups" do
-    let_it_be(:main_group) do
+    let_it_be(:main_group, freeze: false) do
       create(:group, :private, name: "b-group", path: "w#{group1.path}", owners: user1)
     end
 
@@ -2763,7 +2763,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
     let_it_be(:user1) { create(:user) }
     let_it_be(:user2) { create(:user) }
 
-    let_it_be_with_refind(:group) { create(:group, owners: user1) }
+    let_it_be_with_refind(:group, freeze: false) { create(:group, owners: user1) }
     let_it_be_with_refind(:group_2) { create(:group, owners: user1) }
 
     context 'when unauthenticated' do
@@ -2823,7 +2823,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
     let_it_be(:user1) { create(:user) }
     let_it_be(:user2) { create(:user) }
 
-    let_it_be_with_reload(:group) { create(:group, :archived, owners: user1) }
+    let_it_be_with_reload(:group, freeze: false) { create(:group, :archived, owners: user1) }
     let_it_be_with_reload(:group_2) { create(:group, :archived, owners: user1) }
 
     context 'when unauthenticated' do
@@ -3675,7 +3675,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   describe "POST /groups/:id/restore" do
     let_it_be(:user) { user1 }
     let_it_be(:unauthorized_user) { user2 }
-    let_it_be(:group) do
+    let_it_be(:group, freeze: false) do
       create(:group_with_deletion_schedule, :deletion_scheduled, marked_for_deletion_on: 1.day.ago,
         deleting_user: user, owners: user)
     end
@@ -3798,7 +3798,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
   describe 'GET /groups/:id/transfer_locations' do
     let_it_be(:user) { create(:user) }
-    let_it_be(:source_group) { create(:group, :private) }
+    let_it_be(:source_group, freeze: false) { create(:group, :private) }
 
     let(:params) { {} }
 
@@ -3896,7 +3896,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
   describe 'POST /groups/:id/transfer' do
     let_it_be(:user) { create(:user) }
     let_it_be_with_reload(:new_parent_group) { create(:group, :private) }
-    let_it_be_with_reload(:group) { create(:group, :nested, :private) }
+    let_it_be_with_reload(:group, freeze: false) { create(:group, :nested, :private) }
 
     before do
       new_parent_group.add_owner(user)
@@ -4097,7 +4097,7 @@ RSpec.describe API::Groups, :with_current_organization, feature_category: :group
 
   describe 'POST /groups/:id/transfer_to_organization' do
     let_it_be(:organization) { create(:organization) }
-    let_it_be(:group_to_transfer) { create(:group, :private) }
+    let_it_be(:group_to_transfer, freeze: false) { create(:group, :private) }
     let_it_be(:subgroup) { create(:group, :private, parent: group_to_transfer) }
 
     before do

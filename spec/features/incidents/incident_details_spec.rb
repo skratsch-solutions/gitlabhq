@@ -23,7 +23,7 @@ RSpec.describe 'Incident details', :js, feature_category: :incident_management d
   let_it_be(:project, freeze: false) { create(:project) }
   let_it_be(:developer) { create(:user, developer_of: project) }
 
-  let_it_be(:alert) do
+  let_it_be(:alert, freeze: false) do
     create(:alert_management_alert, project: project, payload: payload)
   end
 

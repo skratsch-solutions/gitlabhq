@@ -2913,6 +2913,17 @@ curl --request DELETE \
 
 ## Merge a merge request
 
+{{< history >}}
+
+- Routing `auto_merge` requests to the merge train on projects with
+  [merge trains](../ci/pipelines/merge_trains.md) enabled
+  [changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/237922) in GitLab 19.1
+  [with a feature flag](../administration/feature_flags/_index.md) named
+  `fix_merge_api_train_bypass`. Disabled by default. The merge request is added to the merge
+  train instead of merging directly.
+
+{{< /history >}}
+
 Accept and merge changes submitted with merge request using this API.
 
 ```plaintext
@@ -2925,7 +2936,7 @@ Supported attributes:
 |--------------------------------|-------------------|----------|-------------|
 | `id`                           | integer or string | Yes      | The ID or [URL-encoded path of the project](rest/_index.md#namespaced-paths). |
 | `merge_request_iid`            | integer           | Yes      | The internal ID of the merge request. |
-| `auto_merge`                   | boolean           | No       | If `true`, the merge request merges when the pipeline succeeds. |
+| `auto_merge`                   | boolean           | No       | If `true`, the merge request merges when checks pass. |
 | `merge_commit_message`         | string            | No       | Custom merge commit message. |
 | `merge_when_pipeline_succeeds` | boolean           | No       | [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/521291) in GitLab 17.11. Use `auto_merge` instead. |
 | `sha`                          | string            | No       | If present, this SHA must match the HEAD of the source branch. Use to ensure that only reviewed commits are merged. |

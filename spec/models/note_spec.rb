@@ -2201,7 +2201,7 @@ RSpec.describe Note, feature_category: :team_planning do
 
     context 'when parent is a project' do
       let_it_be(:project, freeze: false) { create(:project) }
-      let_it_be(:noteable) { create(:wiki_page_meta, project: project) }
+      let_it_be(:noteable, freeze: false) { create(:wiki_page_meta, project: project) }
       let(:note) { create(:note, project: project, author: user, noteable: noteable) }
 
       before_all do

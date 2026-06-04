@@ -32,6 +32,10 @@ module Gitlab
         included do |worker_class|
           include ::Gitlab::Utils::StrongMemoize
 
+          # Setting this lets ActiveRecord look up records by scalar 'id' (unique across partitions)
+          worker_class.primary_key = :id
+          worker_class.query_constraints :id, :partition
+
           # Partition should not be changed once the record is created
           attr_readonly :partition
 
@@ -226,7 +230,7 @@ module Gitlab
 
           # Format <worker_type:partition_id:id>
           def external_id
-            "#{self.class::WORKER_TYPE}:#{partition}:#{id.last}"
+            "#{self.class::WORKER_TYPE}:#{partition}:#{id}"
           end
 
           private

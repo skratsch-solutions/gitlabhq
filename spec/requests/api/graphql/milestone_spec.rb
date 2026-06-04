@@ -11,7 +11,7 @@ RSpec.describe 'Querying a Milestone', feature_category: :team_planning do
   let_it_be(:inherited_guest) { create(:user) }
   let_it_be(:inherited_reporter) { create(:user) }
   let_it_be(:inherited_developer) { create(:user) }
-  let_it_be(:milestone) { create(:milestone, project: project) }
+  let_it_be(:milestone, freeze: false) { create(:milestone, project: project) }
   let_it_be(:release_a, freeze: false) { create(:release, project: project) }
   let_it_be(:release_b, freeze: false) { create(:release, project: project) }
 

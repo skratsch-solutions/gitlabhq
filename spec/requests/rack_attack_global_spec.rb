@@ -89,8 +89,8 @@ RSpec.describe 'Rack Attack global throttles', :use_clean_rails_memory_store_cac
   describe 'API requests authenticated with personal access token', :api do
     let_it_be(:user, freeze: false) { create(:user) }
     let_it_be(:token, freeze: false) { create(:personal_access_token, user: user) }
-    let_it_be(:other_user) { create(:user) }
-    let_it_be(:other_user_token) { create(:personal_access_token, user: other_user) }
+    let_it_be(:other_user, freeze: false) { create(:user) }
+    let_it_be(:other_user_token, freeze: false) { create(:personal_access_token, user: other_user) }
 
     let(:throttle_setting_prefix) { 'throttle_authenticated_api' }
     let(:api_partial_url) { '/todos' }

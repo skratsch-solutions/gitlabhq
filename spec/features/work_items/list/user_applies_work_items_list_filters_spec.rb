@@ -5,20 +5,20 @@ require 'spec_helper'
 RSpec.describe 'Work items list filters', :js, feature_category: :portfolio_management do
   include FilteredSearchHelpers
 
-  let_it_be(:user1) { create(:user) }
-  let_it_be(:user2) { create(:user) }
+  let_it_be(:user1, freeze: false) { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
 
   let_it_be(:group) { create(:group) }
   let_it_be(:project, freeze: false) { create(:project, :public, group: group, developers: [user1, user2]) }
 
-  let_it_be(:label1) { create(:label, project: project) }
-  let_it_be(:label2) { create(:label, project: project) }
+  let_it_be(:label1, freeze: false) { create(:label, project: project) }
+  let_it_be(:label2, freeze: false) { create(:label, project: project) }
 
   let_it_be(:milestone1, freeze: false) do
     create(:milestone, project: project, start_date: 5.days.ago, due_date: 13.days.from_now)
   end
 
-  let_it_be(:milestone2) do
+  let_it_be(:milestone2, freeze: false) do
     create(:milestone, project: project, start_date: 2.days.from_now, due_date: 9.days.from_now)
   end
 

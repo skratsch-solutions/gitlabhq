@@ -11,13 +11,13 @@ RSpec.describe API::Issues, feature_category: :team_planning do
     create(:project, :public, :repository, creator_id: user.id, namespace: user.namespace, merge_requests_access_level: ProjectFeature::PRIVATE, reporters: user)
   end
 
-  let_it_be(:user2) { create(:user) }
+  let_it_be(:user2, freeze: false) { create(:user) }
   let_it_be(:non_member) { create(:user) }
   let_it_be(:guest) { create(:user, guest_of: [project, private_mrs_project]) }
   let_it_be(:planner) { create(:user, planner_of: [project]) }
   let_it_be(:owner) { create(:user, owner_of: [project]) }
-  let_it_be(:author)      { create(:author) }
-  let_it_be(:assignee)    { create(:assignee) }
+  let_it_be(:author, freeze: false)      { create(:author) }
+  let_it_be(:assignee, freeze: false)    { create(:assignee) }
   let_it_be(:admin) { create(:user, :admin) }
 
   let_it_be(:milestone, freeze: false) { create(:milestone, title: '1.0.0', project: project) }
@@ -37,7 +37,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
     )
   end
 
-  let_it_be(:confidential_issue) do
+  let_it_be(:confidential_issue, freeze: false) do
     create(
       :issue,
       :confidential,
@@ -49,7 +49,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
     )
   end
 
-  let_it_be(:issue) do
+  let_it_be(:issue, freeze: false) do
     create(
       :issue,
       author: user,
@@ -1126,7 +1126,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
     end
 
     context "when issues are filtered by authorization" do
-      let_it_be(:current_user) { create(:user) }
+      let_it_be(:current_user, freeze: false) { create(:user) }
 
       let_it_be(:group) { create(:group) }
       let_it_be(:project, freeze: false) { create(:project, namespace: group, developers: [current_user]) }
@@ -1580,7 +1580,7 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   end
 
   describe 'PUT /projects/:id/issues/:issue_iid/reorder' do
-    let_it_be(:group) { create(:group) }
+    let_it_be(:group, freeze: false) { create(:group) }
     let_it_be(:project, freeze: false) { create(:project, group: group) }
     let_it_be(:issue1) { create(:issue, project: project, relative_position: 10) }
     let_it_be(:issue2) { create(:issue, project: project, relative_position: 20) }

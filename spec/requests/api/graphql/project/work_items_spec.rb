@@ -175,7 +175,7 @@ RSpec.describe 'getting a work item list for a project', feature_category: :port
   context 'when querying features.hierarchy' do
     let_it_be(:children) { create_list(:work_item, 4, :task, project: project) }
     let_it_be(:child_link1, freeze: false) { create(:parent_link, work_item_parent: item1, work_item: children[0]) }
-    let_it_be(:child_link2) { create(:parent_link, work_item_parent: item1, work_item: children[1]) }
+    let_it_be(:child_link2, freeze: false) { create(:parent_link, work_item_parent: item1, work_item: children[1]) }
 
     let(:fields) do
       <<~GRAPHQL

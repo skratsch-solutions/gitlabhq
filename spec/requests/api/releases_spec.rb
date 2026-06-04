@@ -1863,11 +1863,11 @@ RSpec.describe API::Releases, :aggregate_failures, feature_category: :release_or
   describe 'GET /groups/:id/releases' do
     let_it_be(:user1) { create(:user, can_create_group: false) }
     let_it_be(:admin) { create(:admin) }
-    let_it_be(:group1) { create(:group) }
+    let_it_be(:group1, freeze: false) { create(:group) }
     let_it_be(:group2) { create(:group, :private) }
     let_it_be(:project1, freeze: false) { create(:project, namespace: group1) }
-    let_it_be(:project2) { create(:project, namespace: group2) }
-    let_it_be(:project3) { create(:project, namespace: group1, path: 'test', visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
+    let_it_be(:project2, freeze: false) { create(:project, namespace: group2) }
+    let_it_be(:project3, freeze: false) { create(:project, namespace: group1, path: 'test', visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
     let_it_be(:release1, freeze: false) { create(:release, project: project1) }
     let_it_be(:release2, freeze: false) { create(:release, project: project2) }
     let_it_be(:release3) { create(:release, project: project3) }

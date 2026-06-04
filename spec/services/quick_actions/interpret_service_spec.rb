@@ -6,7 +6,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
   include AfterNextHelpers
 
   let_it_be(:group) { create(:group) }
-  let_it_be(:public_project) { create(:project, :public, group: group) }
+  let_it_be(:public_project, freeze: false) { create(:project, :public, group: group) }
   let_it_be(:repository_project) { create(:project, :repository) }
   let_it_be(:project, freeze: false) { public_project }
   let_it_be(:developer, freeze: false) { create(:user, developer_of: [public_project, repository_project]) }
@@ -1828,7 +1828,7 @@ RSpec.describe QuickActions::InterpretService, feature_category: :text_editors d
       end
 
       it_behaves_like 'confidential command' do
-        let_it_be(:work_item) { create(:work_item, :task, project: project) }
+        let_it_be(:work_item, freeze: false) { create(:work_item, :task, project: project) }
         let(:content) { '/confidential' }
         let(:issuable) { work_item }
       end

@@ -70376,6 +70376,47 @@ paths:
           type: string
           nullable: true
         in: query
+  "/api/v4/admin/batched_background_operations/{id}":
+    get:
+      operationId: getApiV4AdminBatchedBackgroundOperationsId
+      summary: Retrieve a batched background operation
+      description: This feature was introduced in GitLab 19.1.
+      tags:
+      - Batched background operations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/APIEntitiesBatchedBackgroundOperation"
+        '401':
+          description: 401 Unauthorized
+        '403':
+          description: 403 Forbidden
+        '404':
+          description: 404 Not found
+      parameters:
+      - name: id
+        required: true
+        description: The batched background operation id
+        schema:
+          type: integer
+        in: path
+      - name: database
+        required: false
+        description: The name of the database
+        schema:
+          type: string
+          enum:
+          - main
+          - ci
+          - sec
+          - embedding
+          - geo
+          default: main
+          nullable: true
+        in: query
   "/api/v4/admin/batched_background_migrations/{id}":
     get:
       operationId: getApiV4AdminBatchedBackgroundMigrationsId

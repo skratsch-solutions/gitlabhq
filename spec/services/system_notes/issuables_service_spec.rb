@@ -223,7 +223,7 @@ RSpec.describe ::SystemNotes::IssuablesService, feature_category: :team_planning
   describe '#request_review' do
     subject(:request_review) { service.request_review(reviewer, unapproved) }
 
-    let_it_be(:reviewer) { create(:user) }
+    let_it_be(:reviewer, freeze: false) { create(:user) }
     let_it_be(:noteable, freeze: false) { create(:merge_request, :simple, source_project: project, reviewers: [reviewer]) }
     let(:unapproved) { false }
 

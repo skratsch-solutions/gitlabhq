@@ -151,8 +151,8 @@ docs hugo_build:
     - hugo --gc --printPathWarnings --panicOnWarning  --environment test
     # Test for invalid index pages
     # See https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/blob/main/scripts/check-index-filenames.sh
-    - make check-index-pages SEARCH_DIR="../doc"
-    - make check-index-pages SEARCH_DIR="../doc-locale"
+    - make check-index-pages SEARCH_DIR="../doc" SEARCH_PROJECT="gitlab"
+    - make check-index-pages SEARCH_DIR="../doc-locale" SEARCH_PROJECT="gitlab"
 
 docs-lint links:
   extends:

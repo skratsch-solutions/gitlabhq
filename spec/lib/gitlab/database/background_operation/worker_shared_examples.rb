@@ -623,7 +623,17 @@ RSpec.shared_examples 'background operation worker functionality' do |worker_fac
     it 'returns the id with the correct format' do
       worker = create(worker_factory) # rubocop:disable Rails/SaveBang -- this is a factory
 
-      expect(worker.external_id).to eq("#{worker.class::WORKER_TYPE}:#{worker.partition}:#{worker.id.last}")
+      expect(worker.external_id).to eq("#{worker.class::WORKER_TYPE}:#{worker.partition}:#{worker.id}")
+    end
+  end
+
+  describe 'primary key and query constraints' do
+    it 'uses :id as the primary key' do
+      expect(described_class.primary_key).to eq('id')
+    end
+
+    it 'scopes write operations by both id and partition' do
+      expect(described_class.query_constraints_list).to eq(%w[id partition])
     end
   end
 end

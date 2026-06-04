@@ -1057,7 +1057,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
           let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification, freeze: false) { create(:service_desk_custom_email_verification, project: project) }
 
-          let_it_be(:settings) do
+          let_it_be(:settings, freeze: false) do
             create(
               :service_desk_setting,
               project: project,
@@ -1122,7 +1122,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
           let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification, freeze: false) { create(:service_desk_custom_email_verification, project: project) }
 
-          let_it_be(:settings) do
+          let_it_be(:settings, freeze: false) do
             create(
               :service_desk_setting,
               project: project,
@@ -1226,7 +1226,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
           let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification, freeze: false) { create(:service_desk_custom_email_verification, project: project) }
 
-          let_it_be(:settings) do
+          let_it_be(:settings, freeze: false) do
             create(
               :service_desk_setting,
               project: project,
@@ -1291,7 +1291,7 @@ RSpec.describe Notify, feature_category: :code_review_workflow do
           let_it_be(:credentials) { build(:service_desk_custom_email_credential, project: project).save!(validate: false) }
           let_it_be(:verification, freeze: false) { create(:service_desk_custom_email_verification, project: project) }
 
-          let_it_be(:settings) do
+          let_it_be(:settings, freeze: false) do
             create(
               :service_desk_setting,
               project: project,

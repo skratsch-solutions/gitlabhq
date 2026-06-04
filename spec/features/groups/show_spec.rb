@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'Group show page', :with_current_organization, feature_category: :groups_and_projects do
   include Features::InviteMembersModalHelpers
 
-  let_it_be(:user) { create(:user) }
+  let_it_be(:user, freeze: false) { create(:user) }
   let_it_be(:group, freeze: false) { create(:group) }
 
   let(:path) { group_path(group) }

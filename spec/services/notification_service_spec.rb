@@ -3181,7 +3181,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       let(:mailer_method) { :changed_reviewer_of_merge_request_email }
 
       let_it_be(:current_user) { create(:user) }
-      let_it_be(:reviewer) { create(:user) }
+      let_it_be(:reviewer, freeze: false) { create(:user) }
 
       before do
         update_custom_notification(:change_reviewer_merge_request, u_guest_custom, resource: project)
@@ -3672,7 +3672,7 @@ RSpec.describe NotificationService, :mailer, feature_category: :team_planning do
       let(:mailer) { double }
 
       let_it_be(:current_user) { create(:user) }
-      let_it_be(:reviewer) { create(:user) }
+      let_it_be(:reviewer, freeze: false) { create(:user) }
 
       it 'sends email to reviewer', :aggregate_failures do
         expect do

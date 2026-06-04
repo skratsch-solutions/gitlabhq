@@ -30,6 +30,7 @@ describe('App', () => {
         initialReadArticles: [1, 2],
         mostRecentReleaseItemsCount: 3,
         updateHelpMenuUnreadBadge,
+        placement: 'help_menu',
         ...props,
       },
       ...(Object.keys(glFeatures).length > 0 && { provide: { glFeatures } }),
@@ -88,13 +89,33 @@ describe('App', () => {
         expect(getDrawer().exists()).toBe(true);
       });
 
-      it('dispatches openDrawer and tracking calls when mounted', () => {
+      it('dispatches openDrawer and fires view_whats_new_drawer with the placement', () => {
         expect(store.openDrawer).toHaveBeenCalledWith('version-digest');
-        expect(trackingSpy).toHaveBeenCalledWith(undefined, 'click_whats_new_drawer', {
-          label: 'namespace_id',
-          property: 'navigation_top',
-          value: 'namespace-840',
+        expect(trackingSpy).toHaveBeenCalledWith(
+          undefined,
+          'view_whats_new_drawer',
+          expect.objectContaining({
+            label: 'namespace_id',
+            value: 'namespace-840',
+            property: 'help_menu',
+          }),
+        );
+      });
+
+      it('tracks the candidate placement when mounted with placement=profile_menu', () => {
+        createWrapper({
+          props: { placement: 'profile_menu' },
+          stateOverrides: { open: true, features: [], fetching: false },
         });
+        expect(trackingSpy).toHaveBeenCalledWith(
+          undefined,
+          'view_whats_new_drawer',
+          expect.objectContaining({
+            label: 'namespace_id',
+            value: 'namespace-840',
+            property: 'profile_menu',
+          }),
+        );
       });
 
       it('sets readArticles from initialReadArticles', () => {

@@ -326,8 +326,8 @@ RSpec.describe 'GitLab Markdown', :aggregate_failures, feature_category: :markdo
   end
 
   context 'wiki pipeline' do
-    let_it_be(:wiki) { feat.wiki }
-    let_it_be(:wiki_page) { feat.wiki_page }
+    let_it_be(:wiki, freeze: false) { feat.wiki }
+    let_it_be(:wiki_page, freeze: false) { feat.wiki_page }
 
     let_it_be(:html, freeze: false) do
       RSpec::Mocks.with_temporary_scope do

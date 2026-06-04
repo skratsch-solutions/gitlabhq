@@ -764,11 +764,11 @@ RSpec.describe API::MavenPackages, feature_category: :package_registry do
       let_it_be(:project2) { create(:project, :private, group: sub_group2) }
       let_it_be(:project3) { create(:project, :private, group: sub_group1) }
       let_it_be(:package_name) { 'foo' }
-      let_it_be(:package1) { create(:maven_package, project: project1, name: package_name, version: nil) }
+      let_it_be(:package1, freeze: false) { create(:maven_package, project: project1, name: package_name, version: nil) }
       let_it_be(:package_file1) { create(:package_file, :xml, package: package1, file_name: 'maven-metadata.xml') }
-      let_it_be(:package2) { create(:maven_package, project: project2, name: package_name, version: nil) }
+      let_it_be(:package2, freeze: false) { create(:maven_package, project: project2, name: package_name, version: nil) }
       let_it_be(:package_file2) { create(:package_file, :xml, package: package2, file_name: 'maven-metadata.xml') }
-      let_it_be(:package3) { create(:maven_package, project: project3, name: package_name, version: nil) }
+      let_it_be(:package3, freeze: false) { create(:maven_package, project: project3, name: package_name, version: nil) }
       let_it_be(:package_file3) { create(:package_file, :xml, package: package3, file_name: 'maven-metadata.xml') }
 
       let(:maven_metadatum) { package3.maven_metadatum }

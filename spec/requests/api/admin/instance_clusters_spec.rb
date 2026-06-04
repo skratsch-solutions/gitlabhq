@@ -51,7 +51,7 @@ RSpec.describe ::API::Admin::InstanceClusters, feature_category: :deployment_man
   end
 
   describe "GET /admin/clusters/:cluster_id" do
-    let_it_be(:platform_kubernetes) do
+    let_it_be(:platform_kubernetes, freeze: false) do
       create(:cluster_platform_kubernetes, :configured)
     end
 

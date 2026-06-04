@@ -5,19 +5,19 @@ require 'spec_helper'
 RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_planning do
   include GraphqlHelpers
 
-  let_it_be(:current_user) { create(:user) }
-  let_it_be(:reporter) { create(:user) }
+  let_it_be(:current_user, freeze: false) { create(:user) }
+  let_it_be(:reporter, freeze: false) { create(:user) }
 
   let_it_be(:group) { create(:group) }
   let_it_be(:project, freeze: false) { create(:project, group: group) }
   let_it_be(:other_project) { create(:project, group: group) }
 
   let_it_be(:started_milestone) { create(:milestone, project: project, title: "started milestone", start_date: 1.day.ago) }
-  let_it_be(:assignee)  { create(:user) }
-  let_it_be(:issue1)    { create(:incident, project: project, state: :opened, created_at: 3.hours.ago, updated_at: 3.hours.ago, milestone: started_milestone) }
+  let_it_be(:assignee, freeze: false) { create(:user) }
+  let_it_be(:issue1, freeze: false) { create(:incident, project: project, state: :opened, created_at: 3.hours.ago, updated_at: 3.hours.ago, milestone: started_milestone) }
   let_it_be(:issue2, freeze: false) { create(:issue, project: project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
-  let_it_be(:issue3)    { create(:issue, project: other_project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
-  let_it_be(:issue4)    { create(:issue) }
+  let_it_be(:issue3, freeze: false) { create(:issue, project: other_project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago, assignees: [assignee]) }
+  let_it_be(:issue4, freeze: false) { create(:issue) }
   let_it_be(:label1)    { create(:label, project: project) }
   let_it_be(:label2)    { create(:label, project: project) }
   let_it_be(:upvote_award) { create(:award_emoji, :upvote, user: current_user, awardable: issue1) }
@@ -310,7 +310,7 @@ RSpec.describe Resolvers::ProjectIssuesResolver, feature_category: :team_plannin
           let_it_be(:issuable1) { create(:issue, project: project, title: 'first created') }
           let_it_be(:issuable2) { create(:issue, project: project, title: 'second created', description: 'text 1') }
           let_it_be(:issuable3) { create(:issue, project: project, title: 'third', description: 'text 2') }
-          let_it_be(:issuable4) { create(:issue, project: project) }
+          let_it_be(:issuable4, freeze: false) { create(:issue, project: project) }
 
           let_it_be(:finder_class) { IssuesFinder }
           let_it_be(:optimization_param) { :attempt_project_search_optimizations }

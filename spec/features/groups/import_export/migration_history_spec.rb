@@ -8,7 +8,7 @@ RSpec.describe 'Import/Export - GitLab migration history', :js, feature_category
   let_it_be(:user_import_1, freeze: false) { create(:bulk_import, user: user) }
   let_it_be(:finished_entity_1, freeze: false) { create(:bulk_import_entity, :finished, bulk_import: user_import_1) }
 
-  let_it_be(:user_import_2) { create(:bulk_import, user: user) }
+  let_it_be(:user_import_2, freeze: false) { create(:bulk_import, user: user) }
   let_it_be(:failed_entity_2) { create(:bulk_import_entity, :failed, bulk_import: user_import_2) }
 
   before do

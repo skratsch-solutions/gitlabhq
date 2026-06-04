@@ -13,7 +13,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
   let_it_be(:guest) { create(:user, guest_of: project) }
   let_it_be(:author) { create(:author) }
   let_it_be(:milestone, freeze: false) { create(:milestone, title: '1.0.0', project: project) }
-  let_it_be(:assignee) { create(:assignee) }
+  let_it_be(:assignee, freeze: false) { create(:assignee) }
   let_it_be(:admin) { create(:user, :admin) }
 
   let_it_be(:closed_issue, freeze: false) do
@@ -38,7 +38,7 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       updated_at: 2.hours.ago
   end
 
-  let_it_be(:issue) do
+  let_it_be(:issue, freeze: false) do
     create :issue,
       author: user,
       assignees: [user],
