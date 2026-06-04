@@ -51324,9 +51324,6 @@ msgstr ""
 msgid "Orbit|Additional metadata if required"
 msgstr ""
 
-msgid "Orbit|Agents that know your codebase like your team does"
-msgstr ""
-
 msgid "Orbit|All content from this group, its subgroups, and projects will be added to Orbit. Existing access controls still apply — users who cannot access content in this group won't see it through Orbit."
 msgstr ""
 
@@ -51414,6 +51411,12 @@ msgstr ""
 msgid "Orbit|Configure Orbit for a group"
 msgstr ""
 
+msgid "Orbit|Connect"
+msgstr ""
+
+msgid "Orbit|Connect Orbit to your tools"
+msgstr ""
+
 msgid "Orbit|Connect to Orbit"
 msgstr ""
 
@@ -51456,9 +51459,6 @@ msgstr ""
 msgid "Orbit|Cursor"
 msgstr ""
 
-msgid "Orbit|Deeper intelligence, not just faster responses"
-msgstr ""
-
 msgid "Orbit|Definition"
 msgstr ""
 
@@ -51468,16 +51468,13 @@ msgstr ""
 msgid "Orbit|Double-click to explore connections"
 msgstr ""
 
-msgid "Orbit|Duo agents reason about how your code, pipelines, issues, and MRs actually connect — not just what's in a single file or prompt."
+msgid "Orbit|Enable GitLab Duo Agent Platform to ask…"
 msgstr ""
 
 msgid "Orbit|Enable indexing for a top-level group to make its projects queryable."
 msgstr ""
 
 msgid "Orbit|Entities"
-msgstr ""
-
-msgid "Orbit|Every merge request, resolved incident, and linked issue enriches the graph, so Duo agents get progressively more intelligent about your organization."
 msgstr ""
 
 msgid "Orbit|Execute query"
@@ -51490,6 +51487,9 @@ msgid "Orbit|Explore data"
 msgstr ""
 
 msgid "Orbit|Failed to enable GitLab Orbit. Please try again."
+msgstr ""
+
+msgid "Orbit|Failed to enable Orbit in GitLab Duo. Please try again."
 msgstr ""
 
 msgid "Orbit|Failed to enable Orbit. Please try again."
@@ -51549,9 +51549,6 @@ msgstr ""
 msgid "Orbit|GitLab status"
 msgstr ""
 
-msgid "Orbit|Give your tools the full picture. Orbit gives your AI tools structured access to how your organization builds software in GitLab, from code and history to plans and standards, so agents return answers that are more accurate and more efficient."
-msgstr ""
-
 msgid "Orbit|Group"
 msgstr ""
 
@@ -51576,9 +51573,6 @@ msgstr ""
 msgid "Orbit|Indexed groups"
 msgstr ""
 
-msgid "Orbit|Instead of manually gathering context before asking an agent for help, the Knowledge Graph provides that connective tissue automatically."
-msgstr ""
-
 msgid "Orbit|Invalid JSON query. Please check the syntax."
 msgstr ""
 
@@ -51598,12 +51592,6 @@ msgid "Orbit|Last indexed:"
 msgstr ""
 
 msgid "Orbit|Learn more"
-msgstr ""
-
-msgid "Orbit|Learn more about Orbit"
-msgstr ""
-
-msgid "Orbit|Less context-switching, more flow"
 msgstr ""
 
 msgid "Orbit|List pipelines that failed in the last week"
@@ -51696,10 +51684,16 @@ msgstr ""
 msgid "Orbit|Orbit configuration"
 msgstr ""
 
+msgid "Orbit|Orbit gives your AI tools structured access to everything in GitLab, with intelligent relationships that help agents understand your codebase."
+msgstr ""
+
 msgid "Orbit|Orbit is GitLab's knowledge graph, giving agents structured understanding of your projects and how everything relates. Turn on Orbit to use in GitLab Duo or connect via MCP."
 msgstr ""
 
 msgid "Orbit|Orbit is available"
+msgstr ""
+
+msgid "Orbit|Orbit is turned off in GitLab Duo."
 msgstr ""
 
 msgid "Orbit|Orbit is unavailable"
@@ -51825,9 +51819,6 @@ msgstr ""
 msgid "Orbit|Showing %{returned} of %{total} indexed nodes."
 msgstr ""
 
-msgid "Orbit|Smarter over time"
-msgstr ""
-
 msgid "Orbit|Source Code"
 msgstr ""
 
@@ -51838,9 +51829,6 @@ msgid "Orbit|Table"
 msgstr ""
 
 msgid "Orbit|Templates"
-msgstr ""
-
-msgid "Orbit|The Knowledge Graph gives agents the relationship context they need to make recommendations grounded in how your team actually works."
 msgstr ""
 
 msgid "Orbit|Toggle indexed content"
@@ -51855,10 +51843,10 @@ msgstr ""
 msgid "Orbit|Total indexed:"
 msgstr ""
 
-msgid "Orbit|Try asking"
+msgid "Orbit|Try asking an agent"
 msgstr ""
 
-msgid "Orbit|Try asking an agent"
+msgid "Orbit|Try asking…"
 msgstr ""
 
 msgid "Orbit|Turn off Orbit indexing"
@@ -51900,10 +51888,13 @@ msgstr ""
 msgid "Orbit|Unable to load index status. Please try again."
 msgstr ""
 
+msgid "Orbit|Use Orbit in GitLab Duo"
+msgstr ""
+
 msgid "Orbit|Use Orbit with GitLab Duo"
 msgstr ""
 
-msgid "Orbit|Use Orbit with your tools"
+msgid "Orbit|Use Orbit."
 msgstr ""
 
 msgid "Orbit|User"

@@ -13,7 +13,7 @@ RSpec.describe 'bin/dedicated-feature', feature_category: :feature_flags do
   before do
     allow(HTTParty)
       .to receive(:get)
-        .with(DedicatedFeatureOptionParser::WWW_GITLAB_COM_GROUPS_JSON, format: :plain)
+        .with(FeatureGenerator::Shared::WWW_GITLAB_COM_GROUPS_JSON, format: :plain)
         .and_return(groups.to_json)
   end
 
@@ -30,10 +30,7 @@ RSpec.describe 'bin/dedicated-feature', feature_category: :feature_flags do
       allow(creator).to receive(:all_dedicated_feature_names) { existing_dedicated_features }
       allow(creator).to receive_messages(branch_name: 'feature-branch', editor: nil)
 
-      # ignore writes
       allow(File).to receive(:write).and_return(true)
-
-      # ignore stdin
       allow(Readline).to receive(:readline).and_raise('EOF')
     end
 
@@ -51,7 +48,7 @@ RSpec.describe 'bin/dedicated-feature', feature_category: :feature_flags do
       it 'requires feature branch' do
         expect(creator).to receive(:branch_name).and_return('master')
 
-        expect { execute }.to raise_error(DedicatedFeatureHelpers::Abort, /Create a branch first/)
+        expect { execute }.to raise_error(FeatureGenerator::Shared::Abort, /Create a branch first/)
       end
     end
 
@@ -99,121 +96,32 @@ RSpec.describe 'bin/dedicated-feature', feature_category: :feature_flags do
       it 'missing Dedicated feature name' do
         expect do
           expect { described_class.parse(%w[--amend]) }.to output(/Dedicated feature name is required/).to_stdout
-        end.to raise_error(DedicatedFeatureHelpers::Abort)
+        end.to raise_error(FeatureGenerator::Shared::Abort)
       end
 
       it 'parses -h' do
         expect do
           expect { described_class.parse(%w[foo -h]) }.to output(/Usage:/).to_stdout
-        end.to raise_error(DedicatedFeatureHelpers::Done)
+        end.to raise_error(FeatureGenerator::Shared::Done)
       end
     end
 
     describe '.read_group' do
-      let(:group_prompt) { /Specify the group label to which the Dedicated feature belongs, from the following list/ }
-
-      before do
+      it 'uses the Dedicated feature noun in the prompt' do
         allow(described_class).to receive(:fzf_available?).and_return(false)
-      end
+        expect(Readline).to receive(:readline).and_return('group::geo')
 
-      context 'when valid group is given' do
-        let(:group) { 'group::geo' }
-
-        it 'reads group from stdin' do
-          expect(Readline).to receive(:readline).and_return(group)
-          expect do
-            expect(described_class.read_group).to eq('group::geo')
-          end.to output(group_prompt).to_stdout
-        end
-      end
-
-      context 'when valid index is given' do
-        it 'picks the group successfully' do
-          expect(Readline).to receive(:readline).and_return('1')
-          expect do
-            expect(described_class.read_group).to eq('group::geo')
-          end.to output(group_prompt).to_stdout
-        end
-      end
-
-      context 'with invalid group given' do
-        it 'shows error message and retries' do
-          expect(Readline).to receive(:readline).and_return('invalid')
-          expect(Readline).to receive(:readline).and_raise('EOF')
-
-          expect do
-            expect { described_class.read_group }.to raise_error(/EOF/)
-          end.to output(group_prompt).to_stdout
-            .and output(/The group label isn't in the above labels list/).to_stderr
-        end
-      end
-
-      context 'when invalid index is given' do
-        it 'shows error message and retries' do
-          expect(Readline).to receive(:readline).and_return('12')
-          expect(Readline).to receive(:readline).and_raise('EOF')
-
-          expect do
-            expect { described_class.read_group }.to raise_error(/EOF/)
-          end.to output(group_prompt).to_stdout
-            .and output(/The group label isn't in the above labels list/).to_stderr
-        end
+        expect { described_class.read_group }
+          .to output(/Dedicated feature/).to_stdout
       end
     end
 
     describe '.read_introduced_by_url' do
-      context 'with valid URL given' do
-        let(:url) { 'https://merge-request' }
+      it 'uses the Dedicated feature noun in the prompt' do
+        expect(Readline).to receive(:readline).and_return('')
 
-        it 'reads URL from stdin' do
-          expect(Readline).to receive(:readline).and_return(url)
-          expect(HTTParty).to receive(:head).with(url).and_return(instance_double(HTTParty::Response, success?: true))
-
-          expect do
-            expect(described_class.read_introduced_by_url).to eq('https://merge-request')
-          end.to output(/URL of the MR introducing the Dedicated feature/).to_stdout
-        end
-      end
-
-      context 'with invalid URL given' do
-        let(:url) { 'https://invalid' }
-
-        it 'shows error message and retries' do
-          expect(Readline).to receive(:readline).and_return(url)
-          expect(HTTParty).to receive(:head).with(url).and_return(instance_double(HTTParty::Response, success?: false))
-          expect(Readline).to receive(:readline).and_raise('EOF')
-
-          expect do
-            expect { described_class.read_introduced_by_url }.to raise_error(/EOF/)
-          end.to output(/URL of the MR introducing the Dedicated feature/).to_stdout
-                                                                     .and output(/URL '#{url}' isn't valid/).to_stderr
-        end
-      end
-
-      context 'with empty URL given' do
-        let(:url) { '' }
-
-        it 'skips entry' do
-          expect(Readline).to receive(:readline).and_return(url)
-
-          expect do
-            expect(described_class.read_introduced_by_url).to be_nil
-          end.to output(/URL of the MR introducing the Dedicated feature/).to_stdout
-        end
-      end
-
-      context 'with a non-URL given' do
-        let(:url) { 'malformed' }
-
-        it 'shows error message and retries' do
-          expect(Readline).to receive(:readline).and_return(url)
-          expect(Readline).to receive(:readline).and_raise('EOF')
-
-          expect do
-            expect { described_class.read_introduced_by_url }.to raise_error(/EOF/)
-          end.to output(/URL of the MR introducing the Dedicated feature/).to_stdout
-                                                                     .and output(/URL needs to start with/).to_stderr
-        end
+        expect { described_class.read_introduced_by_url }
+          .to output(/Dedicated feature/).to_stdout
       end
     end
   end

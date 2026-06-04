@@ -5,37 +5,17 @@
 # Automatically stages the file and amends the previous commit if the `--amend`
 # argument is used.
 
-require 'fileutils'
-require 'httparty'
-require 'json'
 require 'optparse'
-require 'readline'
-require 'shellwords'
-require 'uri'
 require 'yaml'
 
-require_relative '../lib/gitlab/popen'
-
-module DedicatedFeatureHelpers
-  Abort = Class.new(StandardError)
-  Done = Class.new(StandardError)
-
-  def capture_stdout(cmd)
-    output = IO.popen(cmd, &:read)
-    fail_with "command failed: #{cmd.join(' ')}" unless $?.success?
-    output
-  end
-
-  def fail_with(message)
-    raise Abort, "\e[31merror\e[0m #{message}"
-  end
-end
+require_relative 'lib/feature_generator/shared'
 
 class DedicatedFeatureOptionParser
-  extend DedicatedFeatureHelpers
+  extend FeatureGenerator::Shared::Helpers
+  extend FeatureGenerator::Shared::OptionParserMixin
 
-  WWW_GITLAB_COM_SITE = 'https://about.gitlab.com'.freeze
-  WWW_GITLAB_COM_GROUPS_JSON = "#{WWW_GITLAB_COM_SITE}/groups.json".freeze
+  NOUN = 'Dedicated feature'
+
   Options = Struct.new(
     :name,
     :group,
@@ -82,7 +62,7 @@ class DedicatedFeatureOptionParser
 
         opts.on('-h', '--help', 'Print help message') do
           $stdout.puts opts
-          raise Done
+          raise FeatureGenerator::Shared::Done
         end
       end
 
@@ -91,7 +71,7 @@ class DedicatedFeatureOptionParser
       unless argv.one?
         $stdout.puts parser.help
         $stdout.puts
-        raise Abort, 'Dedicated feature name is required'
+        raise FeatureGenerator::Shared::Abort, 'Dedicated feature name is required'
       end
 
       # Normalize name: downcase, hyphens to underscores
@@ -100,137 +80,22 @@ class DedicatedFeatureOptionParser
       options
     end
 
-    def groups
-      @groups ||= fetch_json(WWW_GITLAB_COM_GROUPS_JSON)
-    end
-
-    def group_labels
-      @group_labels ||= groups.map { |_, group| group['label'] }.sort
-    end
-
-    def group_list
-      group_labels.map.with_index do |group_label, index|
-        "#{index + 1}. #{group_label}"
-      end
-    end
-
-    def fzf_available?
-      find_compatible_command(%w[fzf])
-    end
-
-    def prompt_readline(prompt:)
-      Readline.readline('?> ', false)&.strip
-    end
-
-    def prompt_fzf(list:, prompt:)
-      arr = list.join("\n")
-
-      selection = IO.popen(%W[fzf --tac --prompt #{prompt}], "r+") do |pipe|
-        pipe.puts(arr)
-        pipe.close_write
-        pipe.readlines
-      end.join.strip
-
-      selection[/(\d+)\./, 1]
-    end
-
-    def print_list(list)
-      return if list.empty?
-
-      $stdout.puts list.join("\n")
-    end
-
-    def print_prompt(prompt)
-      $stdout.puts
-      $stdout.puts ">> #{prompt}:"
-      $stdout.puts
-    end
-
-    def prompt_list(prompt:, list: nil)
-      if fzf_available?
-        prompt_fzf(list: list, prompt: prompt)
-      else
-        prompt_readline(prompt: prompt)
-      end
-    end
-
-    def fetch_json(json_url)
-      json = with_retries { HTTParty.get(json_url, format: :plain) }
-      JSON.parse(json)
-    end
-
-    def with_retries(attempts: 3)
-      yield
-    rescue Errno::ECONNRESET, OpenSSL::SSL::SSLError, Net::OpenTimeout
-      retry if (attempts -= 1).positive?
-      raise
-    end
-
     def read_group
-      prompt = 'Specify the group label to which the Dedicated feature belongs, from the following list'
-
-      unless fzf_available?
-        print_prompt(prompt)
-        print_list(group_list)
-      end
-
-      loop do
-        group = prompt_list(prompt: prompt, list: group_list)
-        group = group_labels[group.to_i - 1] unless group.to_i.zero?
-
-        if group_labels.include?(group)
-          $stdout.puts "You picked the group '#{group}'"
-          return group
-        else
-          $stderr.puts "The group label isn't in the above labels list"
-        end
-      end
+      super(noun: NOUN)
     end
 
     def read_introduced_by_url
-      read_url('URL of the MR introducing the Dedicated feature (enter to skip and let Danger provide a suggestion directly in the MR):')
-    end
-
-    def read_milestone
-      milestone = File.read('VERSION')
-      milestone.gsub(/^(\d+\.\d+).*$/, '\1').chomp
-    end
-
-    def read_url(prompt)
-      $stdout.puts
-      $stdout.puts ">> #{prompt}"
-
-      loop do
-        url = Readline.readline('?> ', false)&.strip
-        url = nil if url&.empty?
-        return url if url.nil? || valid_url?(url)
-      end
-    end
-
-    def valid_url?(url)
-      unless url.start_with?('https://')
-        $stderr.puts 'URL needs to start with https://'
-        return false
-      end
-
-      response = HTTParty.head(url)
-
-      return true if response.success?
-
-      $stderr.puts "URL '#{url}' isn't valid!"
-      false
-    end
-
-    def find_compatible_command(commands)
-      commands.find do |command|
-        Gitlab::Popen.popen(%W[which #{command.split(' ')[0]}])[1] == 0
-      end
+      super(noun: NOUN)
     end
   end
 end
 
 class DedicatedFeatureCreator
-  include DedicatedFeatureHelpers
+  include FeatureGenerator::Shared::Helpers
+  include FeatureGenerator::Shared::CreatorMixin
+
+  CONFIG_DIR = File.join('ee', 'config', 'dedicated_features')
+  NOUN       = 'Dedicated feature'
 
   attr_reader :options
 
@@ -240,7 +105,7 @@ class DedicatedFeatureCreator
 
   def execute
     assert_feature_branch!
-    assert_name!
+    assert_name!(noun: NOUN)
     assert_existing_dedicated_feature!
 
     options.group ||= DedicatedFeatureOptionParser.read_group
@@ -255,9 +120,7 @@ class DedicatedFeatureCreator
       amend_commit if options.amend
     end
 
-    if editor
-      system(editor, file_path)
-    end
+    system(editor, file_path) if editor
   end
 
   private
@@ -275,25 +138,8 @@ class DedicatedFeatureCreator
     }
   end
 
-  def write
-    FileUtils.mkdir_p(File.dirname(file_path))
-    File.write(file_path, contents)
-  end
-
-  def editor
-    ENV['EDITOR']
-  end
-
-  def amend_commit
-    fail_with 'git add failed' unless system(*%W[git add #{file_path}])
-
-    system('git commit --amend')
-  end
-
-  def assert_feature_branch!
-    return unless branch_name == 'master'
-
-    fail_with 'Create a branch first!'
+  def file_path
+    File.join(CONFIG_DIR, "#{options.name}.yml")
   end
 
   def assert_existing_dedicated_feature!
@@ -304,29 +150,11 @@ class DedicatedFeatureCreator
     fail_with "#{existing_path} already exists! Use `--force` to overwrite."
   end
 
-  def assert_name!
-    return if options.name.match(/\A[a-z0-9_-]+\Z/)
-
-    fail_with 'Provide a name for the Dedicated feature that is [a-z0-9_-]'
-  end
-
-  def file_path
-    dedicated_features_path.sub('*.yml', options.name + '.yml')
-  end
-
   def all_dedicated_feature_names
     @all_dedicated_feature_names ||=
-      Dir.glob(dedicated_features_path).map do |path|
+      Dir.glob(File.join(CONFIG_DIR, '*.yml')).to_h do |path|
         [File.basename(path, '.yml'), path]
-      end.to_h
-  end
-
-  def dedicated_features_path
-    File.join('ee', 'config', 'dedicated_features', '*.yml')
-  end
-
-  def branch_name
-    @branch_name ||= capture_stdout(%w[git symbolic-ref --short HEAD]).strip
+      end
   end
 end
 
@@ -334,10 +162,10 @@ if $0 == __FILE__
   begin
     options = DedicatedFeatureOptionParser.parse(ARGV)
     DedicatedFeatureCreator.new(options).execute
-  rescue DedicatedFeatureHelpers::Abort => ex
+  rescue FeatureGenerator::Shared::Abort => ex
     $stderr.puts ex.message
     exit 1
-  rescue DedicatedFeatureHelpers::Done
+  rescue FeatureGenerator::Shared::Done
     exit
   end
 end

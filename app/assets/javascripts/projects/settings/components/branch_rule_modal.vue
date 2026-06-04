@@ -39,6 +39,7 @@ export default {
       required: true,
     },
   },
+  emits: ['cancel', 'primary'],
   apollo: {
     // eslint-disable-next-line @gitlab/vue-no-undef-apollo-properties
     project: {

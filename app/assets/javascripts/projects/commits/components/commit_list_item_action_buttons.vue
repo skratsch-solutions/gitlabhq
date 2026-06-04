@@ -31,6 +31,7 @@ export default {
       default: '',
     },
   },
+  emits: ['click'],
   computed: {
     copyCommitShaTitle() {
       return sprintf(__('Copy commit SHA %{sha}'), { sha: this.commit.sha });

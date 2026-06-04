@@ -747,9 +747,7 @@ class ProjectPolicy < BasePolicy
     (can?(:read_project_for_iids) & issues_visible_to_user) | can?(:read_issue)
   end.enable :read_issue_iid
 
-  rule do
-    (~guest & can?(:read_project_for_iids) & merge_requests_visible_to_user) | can?(:read_merge_request)
-  end.enable :read_merge_request_iid
+  rule { ~merge_requests_visible_to_user }.prevent :read_merge_request_iid
 
   rule { external_authorization_enabled & ~classification_label_authorized }.prevent_all do
     # Preventing access here still allows the projects to be listed. Listing

@@ -54,6 +54,7 @@ export default {
       default: () => [],
     },
   },
+  emits: ['filter', 'ref-change'],
   computed: {
     dropdownItems() {
       return [
