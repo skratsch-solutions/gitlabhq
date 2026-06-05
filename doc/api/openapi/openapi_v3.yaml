@@ -35621,9 +35621,8 @@ paths:
   "/api/v4/projects/{id}/clusters":
     get:
       operationId: getApiV4ProjectsIdClusters
-      summary: List project clusters
-      description: This feature was introduced in GitLab 11.7. Returns a list of project
-        clusters.
+      summary: List all clusters in a project
+      description: Lists all clusters in a specified project.
       tags:
       - Clusters
       responses:
@@ -35665,9 +35664,8 @@ paths:
   "/api/v4/projects/{id}/clusters/{cluster_id}":
     get:
       operationId: getApiV4ProjectsIdClustersClusterId
-      summary: Get a single project cluster
-      description: This feature was introduced in GitLab 11.7. Gets a single project
-        cluster.
+      summary: Retrieve a cluster from a project
+      description: Retrieves a specified cluster in a project.
       tags:
       - Clusters
       responses:
@@ -35698,9 +35696,8 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdClustersClusterId
-      summary: Edit project cluster
-      description: This feature was introduced in GitLab 11.7. Updates an existing
-        project cluster.
+      summary: Update a cluster in a project
+      description: Updates a cluster in a specified project.
       tags:
       - Clusters
       responses:
@@ -35739,10 +35736,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_1feb0eb198f0"
     delete:
       operationId: deleteApiV4ProjectsIdClustersClusterId
-      summary: Delete project cluster
-      description: This feature was introduced in GitLab 11.7. Deletes an existing
-        project cluster. Does not remove existing resources within the connected Kubernetes
-        cluster.
+      summary: Delete cluster from a project
+      description: Deletes a specified cluster from a project. Does not remove existing
+        resources in the connected Kubernetes cluster.
       tags:
       - Clusters
       responses:
@@ -35774,9 +35770,8 @@ paths:
   "/api/v4/projects/{id}/clusters/user":
     post:
       operationId: postApiV4ProjectsIdClustersUser
-      summary: Add existing cluster to project
-      description: This feature was introduced in GitLab 11.7. Adds an existing Kubernetes
-        cluster to the project.
+      summary: Add a cluster to a project
+      description: Adds a cluster to a specified project.
       tags:
       - Clusters
       responses:
@@ -37715,7 +37710,7 @@ paths:
     get:
       operationId: getApiV4Metadata
       summary: Retrieve metadata information for this GitLab instance
-      description: This feature was introduced in GitLab 15.2.
+      description: Retrieves metadata information for the GitLab instance.
       tags:
       - Metadata
       responses:
@@ -55448,9 +55443,8 @@ paths:
   "/api/v4/projects/{id}/environments":
     get:
       operationId: getApiV4ProjectsIdEnvironments
-      summary: List environments
-      description: Get all environments for a given project. This feature was introduced
-        in GitLab 8.11.
+      summary: List all environments
+      description: Lists all environments for a specified project.
       tags:
       - Environments
       responses:
@@ -55523,10 +55517,8 @@ paths:
         in: query
     post:
       operationId: postApiV4ProjectsIdEnvironments
-      summary: Create a new environment
-      description: Creates a new environment with the given name and `external_url`.
-        It returns `201` if the environment was successfully created, `400` for wrong
-        parameters. This feature was introduced in GitLab 8.11.
+      summary: Create an environment
+      description: Creates an environment for a specified project.
       tags:
       - Environments
       responses:
@@ -55562,9 +55554,7 @@ paths:
     put:
       operationId: putApiV4ProjectsIdEnvironmentsEnvironmentId
       summary: Update an existing environment
-      description: Updates an existing environment name and/or `external_url`. It
-        returns `200` if the environment was successfully updated. In case of an error,
-        a status code `400` is returned. This feature was introduced in GitLab 8.11.
+      description: Updates an existing environment for a project.
       tags:
       - Environments
       responses:
@@ -55605,9 +55595,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdEnvironmentsEnvironmentId
       summary: Delete an environment
-      description: It returns 204 if the environment was successfully deleted, and
-        404 if the environment does not exist. This feature was introduced in GitLab
-        8.11.
+      description: Deletes an environment from a project. The environment must be
+        stopped first.
       tags:
       - Environments
       responses:
@@ -55639,7 +55628,8 @@ paths:
         in: path
     get:
       operationId: getApiV4ProjectsIdEnvironmentsEnvironmentId
-      summary: Get a specific environment
+      summary: Retrieve an environment
+      description: Retrieves a specified environment for a project.
       tags:
       - Environments
       responses:
@@ -55672,11 +55662,10 @@ paths:
   "/api/v4/projects/{id}/environments/review_apps":
     delete:
       operationId: deleteApiV4ProjectsIdEnvironmentsReviewApps
-      summary: Delete multiple stopped review apps
-      description: It schedules for deletion multiple environments that have already
-        been stopped and are in the review app folder. The actual deletion is performed
-        after 1 week from the time of execution. By default, it only deletes environments
-        30 days or older. You can change this default using the `before` parameter.
+      summary: Schedule multiple stopped review apps for deletion
+      description: Schedules multiple stopped review apps for deletion. The deletion
+        is performed after 1 week. By default, only environments 30 days or older
+        are deleted.
       tags:
       - Environments
       responses:
@@ -55737,7 +55726,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdEnvironmentsEnvironmentIdStop
       summary: Stop an environment
-      description: It returns 200 if the environment was successfully stopped.
+      description: Stops a specified running environment.
       tags:
       - Environments
       responses:
@@ -55779,7 +55768,8 @@ paths:
     post:
       operationId: postApiV4ProjectsIdEnvironmentsStopStale
       summary: Stop stale environments
-      description: It returns `200` if stale environment check was scheduled successfully
+      description: Stops all environments that were last modified or deployed to before
+        a specified date. Excludes protected environments.
       tags:
       - Environments
       responses:
@@ -56051,9 +56041,8 @@ paths:
   "/api/v4/projects/{id}/deployments":
     get:
       operationId: getApiV4ProjectsIdDeployments
-      summary: List project deployments
-      description: Get a list of deployments in a project. This feature was introduced
-        in GitLab 8.11.
+      summary: List all project deployments
+      description: Lists all deployments in a project.
       tags:
       - Deploy resources
       responses:
@@ -56186,7 +56175,7 @@ paths:
     post:
       operationId: postApiV4ProjectsIdDeployments
       summary: Create a deployment
-      description: This feature was introduced in GitLab 12.4.
+      description: Creates a deployment.
       tags:
       - Deploy resources
       responses:
@@ -56221,8 +56210,8 @@ paths:
   "/api/v4/projects/{id}/deployments/{deployment_id}":
     get:
       operationId: getApiV4ProjectsIdDeploymentsDeploymentId
-      summary: Get a specific deployment
-      description: This feature was introduced in GitLab 8.11.
+      summary: Retrieve a deployment
+      description: Retrieves a specified deployment.
       tags:
       - Deploy resources
       responses:
@@ -56255,7 +56244,7 @@ paths:
     put:
       operationId: putApiV4ProjectsIdDeploymentsDeploymentId
       summary: Update a deployment
-      description: This feature was introduced in GitLab 12.4.
+      description: Updates a specified deployment.
       tags:
       - Deploy resources
       responses:
@@ -56297,10 +56286,9 @@ paths:
               "$ref": "#/components/schemas/RequestBody_5df06608a67f"
     delete:
       operationId: deleteApiV4ProjectsIdDeploymentsDeploymentId
-      summary: Delete a specific deployment
-      description: Delete a specific deployment that is not currently the last deployment
-        for an environment or in a running state. This feature was introduced in GitLab
-        15.3.
+      summary: Delete a deployment
+      description: Deletes a specified deployment that is not currently the last deployment
+        for an environment or in a `running` state.
       tags:
       - Deploy resources
       responses:
@@ -56330,9 +56318,8 @@ paths:
   "/api/v4/projects/{id}/deployments/{deployment_id}/merge_requests":
     get:
       operationId: getApiV4ProjectsIdDeploymentsDeploymentIdMergeRequests
-      summary: List of merge requests associated with a deployment
-      description: Retrieves the list of merge requests shipped with a given deployment.
-        This feature was introduced in GitLab 12.7.
+      summary: List all merge requests associated with a deployment
+      description: Lists all merge requests shipped with a specified deployment.
       tags:
       - Deploy resources
       responses:
@@ -65023,10 +65010,10 @@ paths:
   "/api/v4/runners/{id}/jobs":
     get:
       operationId: getApiV4RunnersIdJobs
-      summary: List jobs running on a runner
-      description: List jobs that are being processed or were processed by the specified
-        runner. The list of jobs is limited to projects where the user has at least
-        the Reporter role.
+      summary: List all jobs processed by a runner
+      description: Lists all jobs that are being processed or were processed by a
+        specified runner. The list of jobs is limited to projects where the user has
+        the Reporter, Developer, Maintainer, or Owner role.
       tags:
       - Runners
       - Jobs
@@ -65153,7 +65140,7 @@ paths:
   "/api/v4/projects/{id}/runners":
     get:
       operationId: getApiV4ProjectsIdRunners
-      summary: Get runners available for project
+      summary: List all runners for a project
       description: List all runners available in the project, including from ancestor
         groups and any allowed shared runners.
       tags:
@@ -65455,7 +65442,8 @@ paths:
   "/api/v4/runners/reset_registration_token":
     post:
       operationId: postApiV4RunnersResetRegistrationToken
-      summary: Reset runner registration token
+      summary: Reset the runner registration token for the instance
+      description: Resets the runner registration token for the GitLab instance.
       tags:
       - Runners
       - Groups
@@ -65471,7 +65459,8 @@ paths:
   "/api/v4/projects/{id}/runners/reset_registration_token":
     post:
       operationId: postApiV4ProjectsIdRunnersResetRegistrationToken
-      summary: Reset runner registration token
+      summary: Reset the runner registration token for a project
+      description: Resets the runner registration token for a specified project.
       tags:
       - Runners
       - Projects
@@ -65498,7 +65487,8 @@ paths:
   "/api/v4/groups/{id}/runners/reset_registration_token":
     post:
       operationId: postApiV4GroupsIdRunnersResetRegistrationToken
-      summary: Reset runner registration token
+      summary: Reset the runner registration token for a group
+      description: Resets the runner registration token for a specified group.
       tags:
       - Runners
       - Groups
@@ -65813,7 +65803,8 @@ paths:
   "/api/v4/projects/{id}/resource_groups":
     get:
       operationId: getApiV4ProjectsIdResourceGroups
-      summary: Get all resource groups for a project
+      summary: List all resource groups
+      description: Lists all resource groups for a specified project.
       tags:
       - CI resource groups
       responses:
@@ -65858,7 +65849,8 @@ paths:
   "/api/v4/projects/{id}/resource_groups/{key}":
     get:
       operationId: getApiV4ProjectsIdResourceGroupsKey
-      summary: Get a specific resource group
+      summary: Retrieve a resource group
+      description: Retrieves a specified resource group for a project.
       tags:
       - CI resource groups
       responses:
@@ -65890,8 +65882,10 @@ paths:
         in: path
     put:
       operationId: putApiV4ProjectsIdResourceGroupsKey
-      summary: Edit an existing resource group
-      description: Updates an existing resource group's properties.
+      summary: Update a resource group
+      description: Updates the properties for a specified resource group. It returns
+        `200` if the resource group was successfully updated. In case of an error,
+        a status code `400` is returned.
       tags:
       - CI resource groups
       responses:
@@ -65932,7 +65926,8 @@ paths:
   "/api/v4/projects/{id}/resource_groups/{key}/current_job":
     get:
       operationId: getApiV4ProjectsIdResourceGroupsKeyCurrentJob
-      summary: Show current job for a specific resource group
+      summary: Retrieve current job for a resource group
+      description: Retrieves the current job for a specified resource group in a project.
       tags:
       - CI resource groups
       responses:
@@ -65965,7 +65960,8 @@ paths:
   "/api/v4/projects/{id}/resource_groups/{key}/upcoming_jobs":
     get:
       operationId: getApiV4ProjectsIdResourceGroupsKeyUpcomingJobs
-      summary: List upcoming jobs for a specific resource group
+      summary: List all upcoming jobs for a resource group
+      description: Lists all upcoming jobs for a specified resource group.
       tags:
       - CI resource groups
       responses:

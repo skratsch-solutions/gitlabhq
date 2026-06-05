@@ -16913,13 +16913,15 @@ ALTER SEQUENCE catalog_verified_namespaces_id_seq OWNED BY catalog_verified_name
 
 CREATE TABLE cd_applications (
     id bigint NOT NULL,
-    group_id bigint NOT NULL,
+    group_id bigint,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
     description text,
+    organization_id bigint,
     CONSTRAINT check_5c9e2dc179 CHECK ((char_length(description) <= 2000)),
-    CONSTRAINT check_66e220abb5 CHECK ((char_length(name) <= 255))
+    CONSTRAINT check_66e220abb5 CHECK ((char_length(name) <= 255)),
+    CONSTRAINT check_e8c57495cd CHECK ((num_nonnulls(group_id, organization_id) = 1))
 );
 
 CREATE SEQUENCE cd_applications_id_seq
@@ -46667,8 +46669,6 @@ CREATE INDEX index_catalog_resources_on_state ON catalog_resources USING btree (
 
 CREATE UNIQUE INDEX index_catalog_verified_namespaces_on_namespace_id ON catalog_verified_namespaces USING btree (namespace_id);
 
-CREATE UNIQUE INDEX index_cd_applications_on_group_id_and_name ON cd_applications USING btree (group_id, name);
-
 CREATE INDEX index_cd_artifact_sources_on_group_id ON cd_artifact_sources USING btree (group_id);
 
 CREATE INDEX index_cd_artifact_sources_on_project_id ON cd_artifact_sources USING btree (project_id) WHERE (project_id IS NOT NULL);
@@ -51672,6 +51672,10 @@ CREATE UNIQUE INDEX uniq_idx_audit_events_instance_aws_configs_stream_dests ON a
 CREATE UNIQUE INDEX uniq_idx_audit_events_instance_ext_audit_event_stream_dests ON audit_events_instance_external_audit_event_destinations USING btree (stream_destination_id) WHERE (stream_destination_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uniq_idx_audit_events_instance_gcp_configs_stream_dests ON audit_events_instance_google_cloud_logging_configurations USING btree (stream_destination_id) WHERE (stream_destination_id IS NOT NULL);
+
+CREATE UNIQUE INDEX uniq_idx_cd_applications_on_group_id_and_name ON cd_applications USING btree (group_id, name) WHERE (group_id IS NOT NULL);
+
+CREATE UNIQUE INDEX uniq_idx_cd_applications_on_organization_id_and_name ON cd_applications USING btree (organization_id, name) WHERE (organization_id IS NOT NULL);
 
 CREATE UNIQUE INDEX uniq_idx_cd_environments_on_group_id_and_name ON cd_environments USING btree (group_id, name) WHERE (group_id IS NOT NULL);
 
@@ -56977,6 +56981,9 @@ ALTER TABLE ONLY project_ci_cd_settings
 
 ALTER TABLE ONLY snippet_repository_storage_moves
     ADD CONSTRAINT fk_2522a20cfb FOREIGN KEY (snippet_project_id) REFERENCES projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY cd_applications
+    ADD CONSTRAINT fk_252b746456 FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY security_pipeline_execution_policy_config_links
     ADD CONSTRAINT fk_256bbe966d FOREIGN KEY (security_policy_id) REFERENCES security_policies(id) ON DELETE CASCADE;

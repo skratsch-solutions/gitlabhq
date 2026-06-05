@@ -69,23 +69,23 @@ CI/CD job tokens can access the following REST API endpoints:
 
 | Permission | API endpoint | Permission name | Scope |
 | ---------- | ------------ | --------------- | ----- |
-| Get a specific deployment | `GET /projects/:id/deployments/:deployment_id` | `READ_DEPLOYMENTS` | Read |
-| List of merge requests associated with a deployment | `GET /projects/:id/deployments/:deployment_id/merge_requests` | `READ_DEPLOYMENTS` | Read |
-| List project deployments | `GET /projects/:id/deployments` | `READ_DEPLOYMENTS` | Read |
+| List all merge requests associated with a deployment | `GET /projects/:id/deployments/:deployment_id/merge_requests` | `READ_DEPLOYMENTS` | Read |
+| List all project deployments | `GET /projects/:id/deployments` | `READ_DEPLOYMENTS` | Read |
+| Retrieve a deployment | `GET /projects/:id/deployments/:deployment_id` | `READ_DEPLOYMENTS` | Read |
 | Approve or reject a blocked deployment | `POST /projects/:id/deployments/:deployment_id/approval` | `ADMIN_DEPLOYMENTS` | Read and write |
 | Create a deployment | `POST /projects/:id/deployments` | `ADMIN_DEPLOYMENTS`, `ADMIN_ENVIRONMENTS` | Read and write |
-| Delete a specific deployment | `DELETE /projects/:id/deployments/:deployment_id` | `ADMIN_DEPLOYMENTS` | Read and write |
+| Delete a deployment | `DELETE /projects/:id/deployments/:deployment_id` | `ADMIN_DEPLOYMENTS` | Read and write |
 | Update a deployment | `PUT /projects/:id/deployments/:deployment_id` | `ADMIN_DEPLOYMENTS` | Read and write |
 
 ### Environments endpoints
 
 | Permission | API endpoint | Permission name | Scope |
 | ---------- | ------------ | --------------- | ----- |
-| Get a specific environment | `GET /projects/:id/environments/:environment_id` | `READ_ENVIRONMENTS` | Read |
-| List environments | `GET /projects/:id/environments` | `READ_ENVIRONMENTS` | Read |
-| Create a new environment | `POST /projects/:id/environments` | `ADMIN_ENVIRONMENTS` | Read and write |
+| List all environments | `GET /projects/:id/environments` | `READ_ENVIRONMENTS` | Read |
+| Retrieve an environment | `GET /projects/:id/environments/:environment_id` | `READ_ENVIRONMENTS` | Read |
+| Create an environment | `POST /projects/:id/environments` | `ADMIN_ENVIRONMENTS` | Read and write |
 | Delete an environment | `DELETE /projects/:id/environments/:environment_id` | `ADMIN_ENVIRONMENTS` | Read and write |
-| Delete multiple stopped review apps | `DELETE /projects/:id/environments/review_apps` | `ADMIN_ENVIRONMENTS` | Read and write |
+| Schedule multiple stopped review apps for deletion | `DELETE /projects/:id/environments/review_apps` | `ADMIN_ENVIRONMENTS` | Read and write |
 | Stop an environment | `POST /projects/:id/environments/:environment_id/stop` | `ADMIN_ENVIRONMENTS` | Read and write |
 | Stop stale environments | `POST /projects/:id/environments/stop_stale` | `ADMIN_ENVIRONMENTS` | Read and write |
 | Update an existing environment | `PUT /projects/:id/environments/:environment_id` | `ADMIN_ENVIRONMENTS` | Read and write |

@@ -727,6 +727,37 @@ module Gitlab
               characteristics: %i[project group user],
               action: :block,
               flag_scope: :cohort_2
+            },
+            # Cohort 5: per-database Sidekiq resource-usage (DB duration) limits,
+            # one Limiter per database. Cost-mode (the per-job DB duration is the
+            # `check(cost:)` value, not a call count). threshold and interval are
+            # both caller-supplied: SidekiqLimits.limits_for resolves the worker's
+            # urgency rule and any ApplicationSetting override upstream, so the
+            # labkit Rule must use that resolved value (not a static constant) for
+            # the shadow comparison against legacy to be meaningful.
+            main_db_duration_limit_per_worker: {
+              limiter_name: 'applimiter_main_db_duration_limit_per_worker',
+              rule_name: 'limit_main_db_duration_per_worker',
+              characteristics: %i[worker_name],
+              action: :block,
+              flag_scope: :cohort_5,
+              cost_mode: true
+            },
+            ci_db_duration_limit_per_worker: {
+              limiter_name: 'applimiter_ci_db_duration_limit_per_worker',
+              rule_name: 'limit_ci_db_duration_per_worker',
+              characteristics: %i[worker_name],
+              action: :block,
+              flag_scope: :cohort_5,
+              cost_mode: true
+            },
+            sec_db_duration_limit_per_worker: {
+              limiter_name: 'applimiter_sec_db_duration_limit_per_worker',
+              rule_name: 'limit_sec_db_duration_per_worker',
+              characteristics: %i[worker_name],
+              action: :block,
+              flag_scope: :cohort_5,
+              cost_mode: true
             }
           }
         end

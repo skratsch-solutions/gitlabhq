@@ -3384,10 +3384,10 @@ msgstr ""
 msgid "AICatalog|Trigger this %{itemType} when a merge request cannot be merged anymore due to a code conflict."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a merge request is marked as ready for review (draft status removed)."
+msgid "AICatalog|Trigger this %{itemType} when a merge request is approved."
 msgstr ""
 
-msgid "AICatalog|Trigger this %{itemType} when a merge request transitions to fully approved (the approval that crosses the required-approvals threshold)."
+msgid "AICatalog|Trigger this %{itemType} when a merge request's draft status is removed, and it is ready for review."
 msgstr ""
 
 msgid "AICatalog|Trigger this %{itemType} when a pipeline status changes."
@@ -28099,6 +28099,9 @@ msgstr ""
 msgid "DuoAgentsPlatform|Manage trigger settings."
 msgstr ""
 
+msgid "DuoAgentsPlatform|Merge request events configuration"
+msgstr ""
+
 msgid "DuoAgentsPlatform|Modify plan"
 msgstr ""
 
@@ -28174,7 +28177,13 @@ msgstr ""
 msgid "DuoAgentsPlatform|Select a service account"
 msgstr ""
 
+msgid "DuoAgentsPlatform|Select at least one merge request action."
+msgstr ""
+
 msgid "DuoAgentsPlatform|Select at least one pipeline event."
+msgstr ""
+
+msgid "DuoAgentsPlatform|Select merge request actions"
 msgstr ""
 
 msgid "DuoAgentsPlatform|Select one or multiple event types"
@@ -45896,6 +45905,9 @@ msgstr ""
 msgid "MergeRequest|Allow merge request pipelines to access protected variables and runners"
 msgstr ""
 
+msgid "MergeRequest|Approved"
+msgstr ""
+
 msgid "MergeRequest|Awaiting review"
 msgstr ""
 
@@ -45939,9 +45951,6 @@ msgid "MergeRequest|Failed to load the page"
 msgstr ""
 
 msgid "MergeRequest|Merge request %{currentIndex} of %{stackSize} in stack"
-msgstr ""
-
-msgid "MergeRequest|Merge request approved"
 msgstr ""
 
 msgid "MergeRequest|Merge request code conflict"

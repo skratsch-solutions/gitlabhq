@@ -25,6 +25,7 @@ RSpec.describe 'organization transfer support tracking', :aggregate_failures, fe
       analytics_cycle_analytics_stage_event_hashes
       background_operation_jobs
       background_operation_workers
+      cd_applications
       cd_environments
       cluster_platforms_kubernetes
       cluster_providers_gcp

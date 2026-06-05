@@ -363,11 +363,13 @@ module Gitlab
       # call. Plain IncrementPerAction maps to labkit's INCR-mode rules;
       # IncrementPerActionedResource maps to labkit's count_distinct (SADD)
       # rules with +resource_id+ as the SET member. IncrementResourceUsagePerAction
-      # stays on the legacy path. Peek dispatches to a read-only Redis
-      # round-trip so the labkit counter only advances via paired non-peek
-      # call sites.
+      # maps to labkit cost-mode rules (caller-supplied threshold/interval),
+      # passing the per-request consumption as labkit `check(cost:)`. Peek
+      # dispatches to a read-only Redis round-trip so the labkit counter only
+      # advances via paired non-peek call sites.
       def dispatch_to_labkit(key, scope:, strategy:, peek:, threshold:, interval:)
         resource_id = nil
+        cost = nil
         case strategy
         when IncrementPerAction
           # INCR-mode strategy maps to any non-count_distinct labkit rule.
@@ -379,6 +381,14 @@ module Gitlab
           return unless LabkitAdapter.set_mode?(key)
 
           resource_id = strategy.resource_key
+        when IncrementResourceUsagePerAction
+          # Cost-mode: per-worker resource-usage accumulation. Cost is the
+          # resource consumed this request (read from SafeRequestStore via the
+          # strategy's resource_key); threshold/interval are the SidekiqLimits-
+          # resolved (override-aware) values passed by resource_usage_throttled?.
+          return unless LabkitAdapter.cost_mode?(key)
+
+          cost = ::Gitlab::SafeRequestStore[strategy.resource_key.to_sym].to_f
         else
           return
         end
@@ -390,7 +400,7 @@ module Gitlab
         if peek
           LabkitAdapter.run_peek!(key, scope: scope, context: context)
         else
-          LabkitAdapter.run!(key, scope: scope, context: context)
+          LabkitAdapter.run!(key, scope: scope, context: context, cost: cost)
         end
       end
 

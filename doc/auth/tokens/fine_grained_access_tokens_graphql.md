@@ -75,6 +75,17 @@ Grants the ability to create and delete CI catalog resources.
 | Create | Project | Mutation | `CatalogResourcesCreate` |
 | Delete | Project | Mutation | `CatalogResourcesDestroy` |
 
+#### Cd Application
+
+Grants the ability to create and read cd applications.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Create | Group | Mutation | `CdApplicationCreate` |
+| Create | Instance | Mutation | `CdApplicationCreate` |
+| Read | Group | Type | `CdApplication` |
+| Read | Instance | Type | `CdApplication` |
+
 #### Cd Environment
 
 Grants the ability to create and read cd environments.
@@ -252,6 +263,19 @@ Grants the ability to create, delete, read, and update triggers.
 | Delete | Project | Mutation | `PipelineTriggerDelete` |
 | Read | Project | Type | `PipelineTrigger` |
 | Update | Project | Mutation | `PipelineTriggerUpdate` |
+
+### Duo resources
+
+#### Model Selection Allowlist
+
+Grants the ability to read model selection allowlists.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Group | Type | `AiModelSelectionAllowList` |
+| Read | Group | Type | `AiModelSelectionAllowListModel` |
+| Read | Instance | Type | `AiModelSelectionAllowList` |
+| Read | Instance | Type | `AiModelSelectionAllowListModel` |
 
 ### Groups resources
 

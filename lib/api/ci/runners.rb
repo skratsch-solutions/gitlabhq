@@ -275,10 +275,9 @@ module API
           destroy_conditionally!(runner) { ::Ci::Runners::UnregisterRunnerService.new(runner, current_user).execute }
         end
 
-        desc 'List jobs running on a runner' do
-          summary "List runner's jobs"
-          detail 'List jobs that are being processed or were processed by the specified runner. ' \
-                 'The list of jobs is limited to projects where the user has at least the Reporter role.'
+        desc 'List all jobs processed by a runner' do
+          detail 'Lists all jobs that are being processed or were processed by a specified runner. The list of jobs ' \
+            'is limited to projects where the user has the Reporter, Developer, Maintainer, or Owner role.'
           success Entities::Ci::JobBasicWithProject
           failure [[401, 'Unauthorized'], [403, 'No access granted'], [404, 'Runner not found']]
           tags %w[runners jobs]
@@ -336,7 +335,10 @@ module API
       resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         before { authorize! :read_runners, user_project }
 
-        desc 'Get runners available for project' do
+        desc 'List all runners for a project' do
+          detail 'Lists all runners available in the project, including from ancestor groups and any allowed ' \
+            'instance runners. Prerequisites: - You must be an administrator of the GitLab instance or have at least ' \
+            'the Maintainer or Auditor role for the target project.'
           summary "List project's runners"
           detail 'List all runners available in the project, including from ancestor groups ' \
                  'and any allowed shared runners.'
@@ -439,8 +441,8 @@ module API
       resource :runners do
         before { authenticate_non_get! }
 
-        desc 'Reset runner registration token' do
-          summary "Reset instance's runner registration token"
+        desc 'Reset the runner registration token for the instance' do
+          detail 'Resets the runner registration token for the GitLab instance.'
           success Entities::Ci::ResetTokenResult
           failure [[403, 'Forbidden']]
           tags %w[runners groups]
@@ -459,8 +461,8 @@ module API
       resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         before { authenticate_non_get! }
 
-        desc 'Reset runner registration token' do
-          summary "Reset the runner registration token for a project"
+        desc 'Reset the runner registration token for a project' do
+          detail 'Resets the runner registration token for a specified project.'
           success Entities::Ci::ResetTokenResult
           failure [[401, 'Unauthorized'], [403, 'Forbidden'], [404, 'Project Not Found']]
           tags %w[runners projects]
@@ -481,8 +483,8 @@ module API
       resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         before { authenticate_non_get! }
 
-        desc 'Reset runner registration token' do
-          summary "Reset the runner registration token for a group"
+        desc 'Reset the runner registration token for a group' do
+          detail "Resets the runner registration token for a specified group."
           success Entities::Ci::ResetTokenResult
           failure [[401, 'Unauthorized'], [403, 'Forbidden'], [404, 'Group Not Found']]
           tags %w[runners groups]

@@ -67,6 +67,14 @@ module Gitlab
           !spec.nil? && !spec[:count_distinct].nil?
         end
 
+        # Whether the spec for +key+ accumulates a Float cost (resource-usage,
+        # cohort 5) rather than counting calls. Cost-mode dispatch passes the
+        # per-request consumption as labkit `check(cost:)`.
+        def cost_mode?(key)
+          spec = SupportedRateLimits.all[key]
+          !spec.nil? && !!spec[:cost_mode]
+        end
+
         # Whether labkit's decision should win over the legacy decision.
         def enforce?(key)
           return false unless SupportedRateLimits.all.key?(key)
@@ -87,8 +95,13 @@ module Gitlab
         # `limit:`/`period:` callables read +:threshold+ / +:interval+ from
         # it and return the per-call value without rebuilding the Rule.
         #
+        # +cost+ is the float amount a cost-mode (resource-usage) entry adds to
+        # the counter, passed to labkit as `check(cost:)`. It does not travel
+        # through rule_context, which only resolves limit/period and never moves
+        # the counter. Ignored (labkit defaults to 1) for count/set-mode entries.
+        #
         # @return [Boolean] labkit's decision (exceeded?)
-        def run!(key, scope:, context: {})
+        def run!(key, scope:, context: {}, cost: nil)
           spec = SupportedRateLimits.all.fetch(key)
           rule = build_rule(key, spec)
           identifier = identifier_for(rule, scope)
@@ -97,10 +110,14 @@ module Gitlab
           resource_id = context[:resource_id]
           identifier[member_slot] = resource_id if member_slot && resource_id
 
-          result = build_limiter(spec, rule).check(
-            identifier,
-            rule_context: context
-          )
+          # Cost-mode (resource-usage) entries add the measured cost; everything
+          # else is a plain count, labkit's default cost of 1. A zero-cost job
+          # must not create an empty counter, mirroring
+          # IncrementResourceUsagePerAction#increment, and only cost-mode can be 0.
+          check_cost = spec[:cost_mode] ? cost.to_f : 1
+          return false if check_cost == 0
+
+          result = build_limiter(spec, rule).check(identifier, cost: check_cost, rule_context: context)
 
           return false if result.error?
 
@@ -146,11 +163,13 @@ module Gitlab
         # Whether a per-call threshold/interval override can't be honoured by
         # the labkit Rule for this spec, and so must route the call to legacy.
         def override_routes_to_legacy?(spec, threshold_override, interval_override)
-          if spec[:count_distinct]
-            # set-mode: labkit applies threshold and interval per-call
+          if spec[:count_distinct] || spec[:cost_mode]
+            # set-mode and cost-mode resolve threshold and interval per call
+            # (cost-mode keys aren't in .rate_limits at all), so labkit owns both.
             false
           elsif spec[:threshold_from_caller]
-            # applies a per-call threshold; its interval is registry-owned
+            # threshold is caller-supplied; its interval is registry-owned, so a
+            # per-call interval override can't be honoured and bails to legacy.
             !interval_override.nil?
           else
             # plain INCR: labkit applies no per-call override
@@ -183,20 +202,18 @@ module Gitlab
         # first construction. The Redis round-trip in `check` dominates
         # construction cost, so the per-call allocation is not load-bearing.
         def build_rule(key, spec)
-          limit_value = ::Gitlab::ApplicationRateLimiter.threshold(key)
-          period_value = ::Gitlab::ApplicationRateLimiter.interval(key)
-
-          # limit/period are one-arity callables resolved per check against
-          # the per-call context forwarded via Limiter#check(rule_context:).
-          # A set-mode (count_distinct) entry reads its per-call override
-          # (e.g. namespace_settings.unique_project_download_limit) from
-          # :threshold/:interval; a threshold_from_caller entry (web_hook_calls*)
-          # reads its caller-supplied :threshold the same way. Any other
-          # INCR-mode entry carries neither (an override would have routed back
-          # to legacy upstream), so it falls back to the freshly-resolved
-          # registry value, identical to a plain config value.
-          limit = ->(ctx) { ctx&.dig(:threshold) || limit_value }
-          period = ->(ctx) { ctx&.dig(:interval) || period_value }
+          # limit/period are one-arity callables resolved per check. A caller
+          # that supplies the value via rule_context wins: a set-mode
+          # (count_distinct) entry its per-call override, a threshold_from_caller
+          # entry (web_hook_calls*) its :threshold, a cohort 5 resource-usage
+          # entry both :threshold and :interval. Otherwise the value falls back
+          # to the registry, resolved fresh per check so application-setting
+          # changes and test stubs propagate. The fallback is lazy on purpose:
+          # cohort 5's keys aren't in ApplicationRateLimiter.rate_limits
+          # (interval(key) would raise InvalidKeyError), but their ctx always
+          # carries both values, so the registry is never consulted for them.
+          limit = ->(ctx) { ctx&.dig(:threshold) || ::Gitlab::ApplicationRateLimiter.threshold(key) }
+          period = ->(ctx) { ctx&.dig(:interval) || ::Gitlab::ApplicationRateLimiter.interval(key) }
 
           ::Labkit::RateLimit::Rule.new(
             name: spec[:rule_name],

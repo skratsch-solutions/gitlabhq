@@ -1,3 +1,7 @@
+:root {
+  --container-padding-x: #{$gl-spacing-scale-4};
+}
+
 html {
   // Scroll bars styles
   scrollbar-color: var(--gl-color-neutral-400) transparent;

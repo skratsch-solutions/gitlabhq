@@ -2664,7 +2664,7 @@ paths:
   "/api/v4/groups/{id}/runners/reset_registration_token":
     post:
       summary: Reset the runner registration token for a group
-      description: Reset runner registration token
+      description: Resets the runner registration token for a specified group.
       produces:
       - application/json
       consumes:
@@ -2677,7 +2677,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Reset runner registration token
+          description: Reset the runner registration token for a group
           schema:
             "$ref": "#/definitions/API_Entities_Ci_ResetTokenResult"
         '401':
@@ -11735,7 +11735,8 @@ paths:
       operationId: postApiV4ProjectsIdJobsJobIdPlay
   "/api/v4/projects/{id}/resource_groups":
     get:
-      description: Get all resource groups for a project
+      summary: List all resource groups
+      description: Lists all resource groups for a specified project.
       produces:
       - application/json
       parameters:
@@ -11763,7 +11764,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get all resource groups for a project
+          description: List all resource groups
           schema:
             type: array
             items:
@@ -11777,7 +11778,8 @@ paths:
       operationId: getApiV4ProjectsIdResourceGroups
   "/api/v4/projects/{id}/resource_groups/{key}":
     get:
-      description: Get a specific resource group
+      summary: Retrieve a resource group
+      description: Retrieves a specified resource group for a project.
       produces:
       - application/json
       parameters:
@@ -11794,7 +11796,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific resource group
+          description: Retrieve a resource group
           schema:
             "$ref": "#/definitions/API_Entities_Ci_ResourceGroup"
         '401':
@@ -11805,8 +11807,10 @@ paths:
       - ci_resource_groups
       operationId: getApiV4ProjectsIdResourceGroupsKey
     put:
-      summary: Edit an existing resource group
-      description: Updates an existing resource group's properties.
+      summary: Update a resource group
+      description: Updates the properties for a specified resource group. It returns
+        `200` if the resource group was successfully updated. In case of an error,
+        a status code `400` is returned.
       produces:
       - application/json
       consumes:
@@ -11830,7 +11834,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdResourceGroupsKey"
       responses:
         '200':
-          description: Edit an existing resource group
+          description: Update a resource group
           schema:
             "$ref": "#/definitions/API_Entities_Ci_ResourceGroup"
         '400':
@@ -11844,7 +11848,8 @@ paths:
       operationId: putApiV4ProjectsIdResourceGroupsKey
   "/api/v4/projects/{id}/resource_groups/{key}/current_job":
     get:
-      description: Show current job for a specific resource group
+      summary: Retrieve current job for a resource group
+      description: Retrieves the current job for a specified resource group in a project.
       produces:
       - application/json
       parameters:
@@ -11861,7 +11866,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Show current job for a specific resource group
+          description: Retrieve current job for a resource group
           schema:
             "$ref": "#/definitions/API_Entities_Ci_JobBasic"
         '401':
@@ -11873,7 +11878,8 @@ paths:
       operationId: getApiV4ProjectsIdResourceGroupsKeyCurrentJob
   "/api/v4/projects/{id}/resource_groups/{key}/upcoming_jobs":
     get:
-      description: List upcoming jobs for a specific resource group
+      summary: List all upcoming jobs for a resource group
+      description: Lists all upcoming jobs for a specified resource group.
       produces:
       - application/json
       parameters:
@@ -11906,7 +11912,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List upcoming jobs for a specific resource group
+          description: List all upcoming jobs for a resource group
           schema:
             type: array
             items:
@@ -12011,7 +12017,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: Get runners available for project
+          description: List all runners for a project
           schema:
             "$ref": "#/definitions/API_Entities_Ci_Runner"
         '400':
@@ -12097,7 +12103,7 @@ paths:
   "/api/v4/projects/{id}/runners/reset_registration_token":
     post:
       summary: Reset the runner registration token for a project
-      description: Reset runner registration token
+      description: Resets the runner registration token for a specified project.
       produces:
       - application/json
       consumes:
@@ -12110,7 +12116,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Reset runner registration token
+          description: Reset the runner registration token for a project
           schema:
             "$ref": "#/definitions/API_Entities_Ci_ResetTokenResult"
         '401':
@@ -18102,9 +18108,8 @@ paths:
       operationId: deleteApiV4ProjectsIdDeployTokensTokenId
   "/api/v4/projects/{id}/deployments":
     get:
-      summary: List project deployments
-      description: Get a list of deployments in a project. This feature was introduced
-        in GitLab 8.11.
+      summary: List all project deployments
+      description: Lists all deployments in a project.
       produces:
       - application/json
       parameters:
@@ -18202,7 +18207,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List project deployments
+          description: List all project deployments
           schema:
             type: array
             items:
@@ -18218,7 +18223,7 @@ paths:
       operationId: getApiV4ProjectsIdDeployments
     post:
       summary: Create a deployment
-      description: This feature was introduced in GitLab 12.4.
+      description: Creates a deployment.
       produces:
       - application/json
       consumes:
@@ -18251,8 +18256,8 @@ paths:
       operationId: postApiV4ProjectsIdDeployments
   "/api/v4/projects/{id}/deployments/{deployment_id}":
     get:
-      summary: Get a specific deployment
-      description: This feature was introduced in GitLab 8.11.
+      summary: Retrieve a deployment
+      description: Retrieves a specified deployment.
       produces:
       - application/json
       parameters:
@@ -18270,7 +18275,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific deployment
+          description: Retrieve a deployment
           schema:
             "$ref": "#/definitions/API_Entities_DeploymentExtended"
         '401':
@@ -18282,7 +18287,7 @@ paths:
       operationId: getApiV4ProjectsIdDeploymentsDeploymentId
     put:
       summary: Update a deployment
-      description: This feature was introduced in GitLab 12.4.
+      description: Updates a specified deployment.
       produces:
       - application/json
       consumes:
@@ -18321,10 +18326,9 @@ paths:
       - deploy_resources
       operationId: putApiV4ProjectsIdDeploymentsDeploymentId
     delete:
-      summary: Delete a specific deployment
-      description: Delete a specific deployment that is not currently the last deployment
-        for an environment or in a running state. This feature was introduced in GitLab
-        15.3.
+      summary: Delete a deployment
+      description: Deletes a specified deployment that is not currently the last deployment
+        for an environment or in a `running` state.
       produces:
       - application/json
       parameters:
@@ -18353,9 +18357,8 @@ paths:
       operationId: deleteApiV4ProjectsIdDeploymentsDeploymentId
   "/api/v4/projects/{id}/deployments/{deployment_id}/merge_requests":
     get:
-      summary: List of merge requests associated with a deployment
-      description: Retrieves the list of merge requests shipped with a given deployment.
-        This feature was introduced in GitLab 12.7.
+      summary: List all merge requests associated with a deployment
+      description: Lists all merge requests shipped with a specified deployment.
       produces:
       - application/json
       parameters:
@@ -18711,7 +18714,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List of merge requests associated with a deployment
+          description: List all merge requests associated with a deployment
           schema:
             type: array
             items:
@@ -19003,9 +19006,8 @@ paths:
       operationId: postApiV4ProjectsIdMergeRequestsMergeRequestIidDraftNotesBulkPublish
   "/api/v4/projects/{id}/environments":
     get:
-      summary: List environments
-      description: Get all environments for a given project. This feature was introduced
-        in GitLab 8.11.
+      summary: List all environments
+      description: Lists all environments for a specified project.
       produces:
       - application/json
       parameters:
@@ -19056,7 +19058,7 @@ paths:
         required: false
       responses:
         '200':
-          description: List environments
+          description: List all environments
           schema:
             type: array
             items:
@@ -19069,10 +19071,8 @@ paths:
       - environments
       operationId: getApiV4ProjectsIdEnvironments
     post:
-      summary: Create a new environment
-      description: Creates a new environment with the given name and `external_url`.
-        It returns `201` if the environment was successfully created, `400` for wrong
-        parameters. This feature was introduced in GitLab 8.11.
+      summary: Create an environment
+      description: Creates an environment for a specified project.
       produces:
       - application/json
       consumes:
@@ -19091,7 +19091,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdEnvironments"
       responses:
         '201':
-          description: Create a new environment
+          description: Create an environment
           schema:
             "$ref": "#/definitions/API_Entities_Environment"
         '400':
@@ -19106,9 +19106,7 @@ paths:
   "/api/v4/projects/{id}/environments/{environment_id}":
     put:
       summary: Update an existing environment
-      description: Updates an existing environment name and/or `external_url`. It
-        returns `200` if the environment was successfully updated. In case of an error,
-        a status code `400` is returned. This feature was introduced in GitLab 8.11.
+      description: Updates an existing environment for a project.
       produces:
       - application/json
       consumes:
@@ -19147,9 +19145,8 @@ paths:
       operationId: putApiV4ProjectsIdEnvironmentsEnvironmentId
     delete:
       summary: Delete an environment
-      description: It returns 204 if the environment was successfully deleted, and
-        404 if the environment does not exist. This feature was introduced in GitLab
-        8.11.
+      description: Deletes an environment from a project. The environment must be
+        stopped first.
       produces:
       - application/json
       parameters:
@@ -19178,7 +19175,8 @@ paths:
       - environments
       operationId: deleteApiV4ProjectsIdEnvironmentsEnvironmentId
     get:
-      description: Get a specific environment
+      summary: Retrieve an environment
+      description: Retrieves a specified environment for a project.
       produces:
       - application/json
       parameters:
@@ -19196,7 +19194,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific environment
+          description: Retrieve an environment
           schema:
             "$ref": "#/definitions/API_Entities_Environment"
         '401':
@@ -19208,11 +19206,10 @@ paths:
       operationId: getApiV4ProjectsIdEnvironmentsEnvironmentId
   "/api/v4/projects/{id}/environments/review_apps":
     delete:
-      summary: Delete multiple stopped review apps
-      description: It schedules for deletion multiple environments that have already
-        been stopped and are in the review app folder. The actual deletion is performed
-        after 1 week from the time of execution. By default, it only deletes environments
-        30 days or older. You can change this default using the `before` parameter.
+      summary: Schedule multiple stopped review apps for deletion
+      description: Schedules multiple stopped review apps for deletion. The deletion
+        is performed after 1 week. By default, only environments 30 days or older
+        are deleted.
       produces:
       - application/json
       parameters:
@@ -19251,7 +19248,7 @@ paths:
         '400':
           description: Bad request
         '204':
-          description: Delete multiple stopped review apps
+          description: Schedule multiple stopped review apps for deletion
           schema:
             "$ref": "#/definitions/API_Entities_EnvironmentBasic"
         '401':
@@ -19266,7 +19263,7 @@ paths:
   "/api/v4/projects/{id}/environments/{environment_id}/stop":
     post:
       summary: Stop an environment
-      description: It returns 200 if the environment was successfully stopped.
+      description: Stops a specified running environment.
       produces:
       - application/json
       consumes:
@@ -19306,7 +19303,8 @@ paths:
   "/api/v4/projects/{id}/environments/stop_stale":
     post:
       summary: Stop stale environments
-      description: It returns `200` if stale environment check was scheduled successfully
+      description: Stops all environments that were last modified or deployed to before
+        a specified date. Excludes protected environments.
       produces:
       - application/json
       consumes:
@@ -29934,9 +29932,8 @@ paths:
       operationId: getApiV4ProjectsIdAvatar
   "/api/v4/projects/{id}/clusters":
     get:
-      summary: List project clusters
-      description: This feature was introduced in GitLab 11.7. Returns a list of project
-        clusters.
+      summary: List all clusters in a project
+      description: Lists all clusters in a specified project.
       produces:
       - application/json
       parameters:
@@ -29963,7 +29960,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List project clusters
+          description: List all clusters in a project
           schema:
             type: array
             items:
@@ -29975,9 +29972,8 @@ paths:
       operationId: getApiV4ProjectsIdClusters
   "/api/v4/projects/{id}/clusters/{cluster_id}":
     get:
-      summary: Get a single project cluster
-      description: This feature was introduced in GitLab 11.7. Gets a single project
-        cluster.
+      summary: Retrieve a cluster from a project
+      description: Retrieves a specified cluster in a project.
       produces:
       - application/json
       parameters:
@@ -29994,7 +29990,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single project cluster
+          description: Retrieve a cluster from a project
           schema:
             "$ref": "#/definitions/API_Entities_ClusterProject"
         '403':
@@ -30005,9 +30001,8 @@ paths:
       - clusters
       operationId: getApiV4ProjectsIdClustersClusterId
     put:
-      summary: Edit project cluster
-      description: This feature was introduced in GitLab 11.7. Updates an existing
-        project cluster.
+      summary: Update a cluster in a project
+      description: Updates a cluster in a specified project.
       produces:
       - application/json
       consumes:
@@ -30031,7 +30026,7 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdClustersClusterId"
       responses:
         '200':
-          description: Edit project cluster
+          description: Update a cluster in a project
           schema:
             "$ref": "#/definitions/API_Entities_ClusterProject"
         '400':
@@ -30044,10 +30039,9 @@ paths:
       - clusters
       operationId: putApiV4ProjectsIdClustersClusterId
     delete:
-      summary: Delete project cluster
-      description: This feature was introduced in GitLab 11.7. Deletes an existing
-        project cluster. Does not remove existing resources within the connected Kubernetes
-        cluster.
+      summary: Delete cluster from a project
+      description: Deletes a specified cluster from a project. Does not remove existing
+        resources in the connected Kubernetes cluster.
       produces:
       - application/json
       parameters:
@@ -30066,7 +30060,7 @@ paths:
         '403':
           description: Forbidden
         '204':
-          description: Delete project cluster
+          description: Delete cluster from a project
           schema:
             "$ref": "#/definitions/API_Entities_ClusterProject"
         '404':
@@ -30076,9 +30070,8 @@ paths:
       operationId: deleteApiV4ProjectsIdClustersClusterId
   "/api/v4/projects/{id}/clusters/user":
     post:
-      summary: Add existing cluster to project
-      description: This feature was introduced in GitLab 11.7. Adds an existing Kubernetes
-        cluster to the project.
+      summary: Add a cluster to a project
+      description: Adds a cluster to a specified project.
       produces:
       - application/json
       consumes:
@@ -30096,7 +30089,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdClustersUser"
       responses:
         '201':
-          description: Add existing cluster to project
+          description: Add a cluster to a project
           schema:
             "$ref": "#/definitions/API_Entities_ClusterProject"
         '400':
@@ -41647,10 +41640,10 @@ paths:
       operationId: getApiV4RunnersIdProjects
   "/api/v4/runners/{id}/jobs":
     get:
-      summary: List runner's jobs
-      description: List jobs that are being processed or were processed by the specified
-        runner. The list of jobs is limited to projects where the user has at least
-        the Reporter role.
+      summary: List all jobs processed by a runner
+      description: Lists all jobs that are being processed or were processed by a
+        specified runner. The list of jobs is limited to projects where the user has
+        the Reporter, Developer, Maintainer, or Owner role.
       produces:
       - application/json
       parameters:
@@ -41724,7 +41717,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List jobs running on a runner
+          description: List all jobs processed by a runner
           schema:
             "$ref": "#/definitions/API_Entities_Ci_JobBasicWithProject"
         '401':
@@ -41768,15 +41761,15 @@ paths:
       operationId: postApiV4RunnersIdResetAuthenticationToken
   "/api/v4/runners/reset_registration_token":
     post:
-      summary: Reset instance's runner registration token
-      description: Reset runner registration token
+      summary: Reset the runner registration token for the instance
+      description: Resets the runner registration token for the GitLab instance.
       produces:
       - application/json
       consumes:
       - application/json
       responses:
         '201':
-          description: Reset runner registration token
+          description: Reset the runner registration token for the instance
           schema:
             "$ref": "#/definitions/API_Entities_Ci_ResetTokenResult"
         '403':
@@ -48200,7 +48193,7 @@ paths:
   "/api/v4/metadata":
     get:
       summary: Retrieve metadata information for this GitLab instance
-      description: This feature was introduced in GitLab 15.2.
+      description: Retrieves metadata information for the GitLab instance.
       produces:
       - application/json
       responses:
@@ -56840,7 +56833,7 @@ definitions:
         - oldest_first
         - newest_first
         - newest_ready_first
-    description: Edit an existing resource group
+    description: Update a resource group
   postApiV4ProjectsIdRunners:
     type: object
     properties:
@@ -59473,7 +59466,7 @@ definitions:
         - with_action
     required:
     - name
-    description: Create a new environment
+    description: Create an environment
   putApiV4ProjectsIdEnvironmentsEnvironmentId:
     type: object
     properties:
@@ -66416,7 +66409,7 @@ definitions:
     required:
     - name
     - platform_kubernetes_attributes
-    description: Add existing cluster to project
+    description: Add a cluster to a project
   putApiV4ProjectsIdClustersClusterId:
     type: object
     properties:
@@ -66461,7 +66454,7 @@ definitions:
           namespace:
             type: string
             description: Unique namespace related to Project
-    description: Edit project cluster
+    description: Update a cluster in a project
   API_Entities_ContainerRegistry_TagDetails:
     type: object
     properties:

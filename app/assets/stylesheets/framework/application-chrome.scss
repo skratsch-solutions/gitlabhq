@@ -6,7 +6,6 @@
  */
 
 .page-with-panels {
-  --container-padding-x: #{$gl-spacing-scale-4};
   --ai-panel-height: 3rem; //= 48px
 
   @include media-breakpoint-up(lg) {

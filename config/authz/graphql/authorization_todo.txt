@@ -87,7 +87,6 @@ mutation:BulkEnableDevopsAdoptionNamespaces
 mutation:BulkRunnerDelete
 mutation:BulkSetVulnerabilityFindingsDueDates
 mutation:BulkUpdateSecurityAttributes
-mutation:CdApplicationCreate
 mutation:ClusterAgentTokenRevoke
 mutation:ConfigureContainerScanning
 mutation:ConfigureDependencyScanning
@@ -582,7 +581,6 @@ type:BranchRule
 type:BulkImportExportUploadUploadRegistry
 type:BurnupChartDailyTotals
 type:CarPermissions
-type:CdApplication
 type:CiApplicationSettings
 type:CiBuildNeed
 type:CiCatalogResource

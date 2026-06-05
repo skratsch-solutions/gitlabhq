@@ -208,7 +208,7 @@ The `gitlab:zoekt:info` Rake task returns an output similar to the following:
 
 ```console
 Exact Code Search
-GitLab version:                                      19.0.0
+GitLab version:                                      19.1.0
 Enable indexing:                                     yes
 Enable searching:                                    yes
 Pause indexing:                                      no
@@ -259,7 +259,7 @@ Feature Flags (Non-Default Values)
 Feature flags:  none
 
 Feature Flags (Default Values)
-- zoekt_cap_file_match_results:            disabled
+Feature flags:  none
 
 Node Details
 Node 1 - test-zoekt-hostname-1:

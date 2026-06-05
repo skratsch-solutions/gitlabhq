@@ -793,10 +793,50 @@ RSpec.describe Gitlab::ApplicationRateLimiter, :clean_gitlab_redis_rate_limiting
       it 'dispatches to the labkit adapter and forwards the resource id and overrides' do
         expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!)
           .with(:users_get_by_id, scope: user,
-            context: { resource_id: project.id, threshold: 5, interval: 60 }).and_return(false)
+            context: { resource_id: project.id, threshold: 5, interval: 60 }, cost: nil).and_return(false)
 
         described_class.throttled?(:users_get_by_id, scope: user, resource: project,
           threshold: 5, interval: 60)
+      end
+    end
+
+    context 'with a cost-mode key via resource_usage_throttled?', :request_store do
+      let(:resource_key) { :main_db_duration_s }
+
+      before do
+        Gitlab::SafeRequestStore.begin!
+        Gitlab::SafeRequestStore[resource_key] = 5.0
+      end
+
+      context 'when the use_labkit flag is on (enforce off)' do
+        before do
+          stub_feature_flags(rate_limiter_use_labkit_cohort_5: true,
+            rate_limiter_use_labkit_cohort_5_enforce: false)
+        end
+
+        it 'dispatches to the adapter forwarding the resolved threshold, interval and cost' do
+          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).to receive(:run!)
+            .with(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+              context: hash_including(threshold: 1234, interval: 77), cost: 5.0).and_return(false)
+
+          described_class.resource_usage_throttled?(:main_db_duration_limit_per_worker,
+            scope: 'SomeWorker', resource_key: resource_key, threshold: 1234, interval: 77)
+        end
+      end
+
+      context 'when the use_labkit flag is off' do
+        before do
+          stub_feature_flags(rate_limiter_use_labkit_cohort_5: false,
+            rate_limiter_use_labkit_cohort_5_enforce: false)
+        end
+
+        it 'stays on the legacy path and does not dispatch to the adapter', :aggregate_failures do
+          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run!)
+          expect(Gitlab::ApplicationRateLimiter::LabkitAdapter).not_to receive(:run_peek!)
+
+          described_class.resource_usage_throttled?(:main_db_duration_limit_per_worker,
+            scope: 'SomeWorker', resource_key: resource_key, threshold: 1234, interval: 77)
+        end
       end
     end
 

@@ -112,6 +112,18 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
       end
     end
 
+    context 'with a cost-mode entry' do
+      # cost-mode entries resolve both threshold and interval per call, so an
+      # interval override is forwarded through rule_context rather than routing
+      # the call to legacy. Contrast with the threshold_from_caller-only
+      # web_hook_calls regression guard above, which still bails to legacy on an
+      # interval override.
+      it 'does not route to legacy when an interval override is passed' do
+        expect(described_class.shadow_or_enforce?(:main_db_duration_limit_per_worker,
+          context: { threshold: 10, interval: 60 })).to be(true)
+      end
+    end
+
     context 'when an override is passed' do
       let(:override_counter) { instance_double(Prometheus::Client::Counter, increment: nil) }
 
@@ -168,6 +180,20 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
 
     it 'returns false for keys not in the registry' do
       expect(described_class.set_mode?(:web_hook_calls)).to be(false)
+    end
+  end
+
+  describe '.cost_mode?' do
+    it 'returns true for a resource-usage (cost-mode) entry' do
+      expect(described_class.cost_mode?(:main_db_duration_limit_per_worker)).to be(true)
+    end
+
+    it 'returns false for an INCR-mode entry' do
+      expect(described_class.cost_mode?(:pipelines_create)).to be(false)
+    end
+
+    it 'returns false for keys not in the registry' do
+      expect(described_class.cost_mode?(:not_a_registered_key)).to be(false)
     end
   end
 
@@ -485,6 +511,61 @@ RSpec.describe Gitlab::ApplicationRateLimiter::LabkitAdapter,
         group_key = "labkit:rl:applimiter_web_hook_calls:limit_web_hook_calls_by_namespace:namespace:#{group.id}"
         count = Gitlab::Redis::RateLimiting.with { |r| r.get(group_key) }
         expect(count.to_i).to eq(1)
+      end
+    end
+
+    context 'with a cost-mode key (main_db_duration_limit_per_worker)' do
+      let(:expected_key) do
+        "labkit:rl:applimiter_main_db_duration_limit_per_worker:limit_main_db_duration_per_worker" \
+          ":worker_name:SomeWorker"
+      end
+
+      def labkit_cost
+        Gitlab::Redis::RateLimiting.with { |r| r.get(expected_key) }
+      end
+
+      it 'accumulates the per-call cost (INCRBYFLOAT) on the worker-keyed counter' do
+        described_class.run!(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+          context: { threshold: 10, interval: 60 }, cost: 1.5)
+        described_class.run!(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+          context: { threshold: 10, interval: 60 }, cost: 2.5)
+
+        expect(labkit_cost.to_f).to eq(4.0)
+      end
+
+      it 'returns true when the cost exceeds the caller threshold' do
+        result = described_class.run!(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+          context: { threshold: 10, interval: 60 }, cost: 11.0)
+
+        expect(result).to be(true)
+      end
+
+      it 'returns false and writes no Redis key when the cost is zero', :aggregate_failures do
+        result = described_class.run!(:main_db_duration_limit_per_worker, scope: 'SomeWorker',
+          context: { threshold: 10, interval: 60 }, cost: 0)
+
+        expect(result).to be(false)
+        expect(labkit_cost).to be_nil
+      end
+    end
+  end
+
+  describe '.build_rule' do
+    context 'with a cost-mode key (threshold and interval supplied per call)' do
+      let(:spec) { Gitlab::ApplicationRateLimiter::LabkitAdapter::SupportedRateLimits.all[key] }
+      let(:key) { :main_db_duration_limit_per_worker }
+
+      # The key is not registered in ApplicationRateLimiter.rate_limits, so the
+      # registry fallback (threshold(key)/interval(key)) must not be consulted -
+      # interval(key) would raise InvalidKeyError. Both values arrive per call.
+      it 'resolves limit/period from rule_context without touching the registry', :aggregate_failures do
+        expect(Gitlab::ApplicationRateLimiter).not_to receive(:threshold)
+        expect(Gitlab::ApplicationRateLimiter).not_to receive(:interval)
+
+        rule = described_class.send(:build_rule, key, spec)
+
+        expect(rule.limit.call({ threshold: 42, interval: 600 })).to eq(42)
+        expect(rule.period.call({ threshold: 42, interval: 600 })).to eq(600)
       end
     end
   end
