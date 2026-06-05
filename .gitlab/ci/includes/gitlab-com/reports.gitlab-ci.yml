@@ -29,8 +29,13 @@ gitlab-advanced-sast:
   variables:
     GITLAB_ADVANCED_SAST_ENABLED: 'true'
     AST_ENABLE_MR_PIPELINES: 'true'
+    # Run on saas-linux-xlarge-amd64 (16 vCPU / 64 GB) with --multi-core 8.
+    # Validated across nine experimental rounds as the best Pareto point on
+    # job duration vs runner tier — see MR description.
+    # See https://gitlab.com/gitlab-org/gitlab/-/issues/601931.
+    SAST_SCANNER_ALLOWED_CLI_OPTS: "--multi-core 8"
   tags:
-    - saas-linux-2xlarge-amd64
+    - saas-linux-xlarge-amd64
   rules: !reference [".reports:rules:gitlab-advanced-sast", rules]
 
 semgrep-sast:

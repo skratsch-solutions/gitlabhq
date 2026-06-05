@@ -12,7 +12,7 @@ describe('DashboardFilters', () => {
   };
   const DateRangeFilterStub = {
     name: 'DateRangeFilter',
-    props: ['defaultOption'],
+    props: ['defaultOption', 'options', 'dateRangeLimit'],
     template: '<div />',
   };
 
@@ -55,6 +55,41 @@ describe('DashboardFilters', () => {
     it('defaults the date range filter to the last 30 days', () => {
       expect(findDateRangeFilter().exists()).toBe(true);
       expect(findDateRangeFilter().props('defaultOption')).toBe('30d');
+    });
+  });
+
+  describe('dashboard-driven filter config', () => {
+    it('applies the YAML defaultOption, options, and numberOfDaysLimit to the date range filter', () => {
+      const dashboardFilters = {
+        dateRange: {
+          enabled: true,
+          defaultOption: '365d',
+          options: ['7d', '30d', '90d', '180d', '365d', 'custom'],
+          numberOfDaysLimit: 365,
+        },
+      };
+
+      createComponent({ props: { dashboardFilters } });
+
+      expect(findDateRangeFilter().props('defaultOption')).toBe('365d');
+      expect(findDateRangeFilter().props('options')).toEqual(dashboardFilters.dateRange.options);
+      expect(findDateRangeFilter().props('dateRangeLimit')).toBe(365);
+    });
+
+    it('hides the date range filter when the YAML disables it', () => {
+      createComponent({
+        props: { dashboardFilters: { dateRange: { enabled: false } } },
+      });
+
+      expect(findDateRangeFilter().exists()).toBe(false);
+    });
+
+    it('falls back to the built-in defaults when the YAML omits the filters section', () => {
+      createComponent({ props: { dashboardFilters: {} } });
+
+      expect(findDateRangeFilter().props('defaultOption')).toBe('30d');
+      expect(findDateRangeFilter().props('options')).toBeUndefined();
+      expect(findDateRangeFilter().props('dateRangeLimit')).toBe(0);
     });
   });
 

@@ -1313,6 +1313,8 @@
   - 1
 - - users_experimental_communication_opt_in
   - 1
+- - users_notify_dormant_user_blocked
+  - 1
 - - users_track_namespace_visits
   - 1
 - - virtual_registries_cleanup_execute_policy

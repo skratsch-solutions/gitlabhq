@@ -6874,6 +6874,12 @@ msgstr ""
 msgid "AdminStatistics|Snippets"
 msgstr ""
 
+msgid "AdminUsers|%{buy_seats_link_start}Purchase additional seats%{buy_seats_link_end}."
+msgstr ""
+
+msgid "AdminUsers|%{users_link_start}Manage unused accounts%{users_link_end} to free up seats."
+msgstr ""
+
 msgid "AdminUsers|Access"
 msgstr ""
 
@@ -6890,6 +6896,9 @@ msgid "AdminUsers|Access the API"
 msgstr ""
 
 msgid "AdminUsers|Access to their groups and projects."
+msgstr ""
+
+msgid "AdminUsers|Action required: Dormant user blocked due to seat limits"
 msgstr ""
 
 msgid "AdminUsers|Activate"
@@ -6986,6 +6995,9 @@ msgid "AdminUsers|Cannot unblock LDAP blocked users"
 msgstr ""
 
 msgid "AdminUsers|Change access"
+msgstr ""
+
+msgid "AdminUsers|Change the user's role in the group or project."
 msgstr ""
 
 msgid "AdminUsers|Cohorts"
@@ -7096,10 +7108,16 @@ msgstr ""
 msgid "AdminUsers|Here are some helpful links to help you manage your instance:"
 msgstr ""
 
+msgid "AdminUsers|Hi %{recipient_name},"
+msgstr ""
+
 msgid "AdminUsers|Humans"
 msgstr ""
 
 msgid "AdminUsers|If you have any questions about this process please consult our %{doc_link} or %{support_link}."
+msgstr ""
+
+msgid "AdminUsers|If you have any questions or need help, contact GitLab support."
 msgstr ""
 
 msgid "AdminUsers|Important information about usage on your GitLab instance"
@@ -7141,6 +7159,9 @@ msgstr ""
 msgid "AdminUsers|Manage (accept/reject) pending user sign ups"
 msgstr ""
 
+msgid "AdminUsers|Manage unused accounts (%{url}) to free up seats."
+msgstr ""
+
 msgid "AdminUsers|May be directly added to groups and projects. %{linkStart}Learn more about auditor role.%{linkEnd}"
 msgstr ""
 
@@ -7172,6 +7193,9 @@ msgid "AdminUsers|Projects limit"
 msgstr ""
 
 msgid "AdminUsers|Projects, issues, merge requests, and comments of this user are hidden from other users."
+msgstr ""
+
+msgid "AdminUsers|Purchase additional seats (%{url})."
 msgstr ""
 
 msgid "AdminUsers|Re-enable spam monitoring for %{username}?"
@@ -7228,6 +7252,18 @@ msgstr ""
 msgid "AdminUsers|Stop monitoring %{username} for possible spam?"
 msgstr ""
 
+msgid "AdminUsers|Thank you,"
+msgstr ""
+
+msgid "AdminUsers|The GitLab Team"
+msgstr ""
+
+msgid "AdminUsers|The dormant user %{strong_start}%{user_name}%{strong_end} (%{username}) attempted to sign in, but was blocked because %{ra_link_start}restricted access%{ra_link_end} is on and no seats are available."
+msgstr ""
+
+msgid "AdminUsers|The dormant user %{user_name} (%{username}) attempted to sign in, but was blocked because restricted access (%{url}) is on and no seats are available."
+msgstr ""
+
 msgid "AdminUsers|The maximum compute minutes that jobs in this namespace can use on instance runners each month. Set 0 for unlimited. Set empty to inherit the global setting of %{minutes}"
 msgstr ""
 
@@ -7261,7 +7297,16 @@ msgstr ""
 msgid "AdminUsers|There are no more seats left in your subscription. New users cannot be approved for this instance."
 msgstr ""
 
+msgid "AdminUsers|This user has been set to pending approval. Their existing group and project memberships have been preserved and can be restored when seats become available."
+msgstr ""
+
 msgid "AdminUsers|This user's access level is managed with LDAP. Remove user's mapping or change group's role in %{linkStart}LDAP synchronization%{linkEnd} to modify access."
+msgstr ""
+
+msgid "AdminUsers|To allow this user to be approved, you should first review your %{seat_usage_link_start}seat usage%{seat_usage_link_end}. Then either:"
+msgstr ""
+
+msgid "AdminUsers|To allow this user to be approved, you should first review your seat usage (%{url}). Then either:"
 msgstr ""
 
 msgid "AdminUsers|To confirm, type %{name}"

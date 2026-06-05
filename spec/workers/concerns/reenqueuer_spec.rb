@@ -81,7 +81,7 @@ RSpec.describe Reenqueuer, feature_category: :sidekiq do
       end
 
       it 'returns the original value from #perform' do
-        expect(job.perform).to eq(true)
+        expect(job.perform).to be(true)
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe Reenqueuer, feature_category: :sidekiq do
       end
 
       it 'returns the original value from #perform' do
-        expect(job.perform).to eq(false)
+        expect(job.perform).to be(false)
       end
     end
   end

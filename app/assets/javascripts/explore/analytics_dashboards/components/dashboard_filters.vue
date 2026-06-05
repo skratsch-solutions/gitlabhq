@@ -25,9 +25,30 @@ export default {
       type: String,
       required: true,
     },
+    dashboardFilters: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
   },
   emits: ['set-date-range', 'set-projects', 'set-groups'],
-  DATE_RANGE_OPTION_LAST_30_DAYS,
+  computed: {
+    dateRangeConfig() {
+      return this.dashboardFilters?.dateRange ?? {};
+    },
+    showDateRangeFilter() {
+      return this.dateRangeConfig.enabled !== false;
+    },
+    dateRangeDefaultOption() {
+      return this.dateRangeConfig.defaultOption ?? DATE_RANGE_OPTION_LAST_30_DAYS;
+    },
+    dateRangeOptions() {
+      return this.dateRangeConfig.options;
+    },
+    dateRangeLimit() {
+      return this.dateRangeConfig.numberOfDaysLimit ?? 0;
+    },
+  },
 };
 </script>
 <template>
@@ -47,9 +68,11 @@ export default {
         @project-selected="$emit('set-projects', $event)"
       />
     </gl-form-group>
-    <gl-form-group :label="$options.i18n.dateRangeLabel">
+    <gl-form-group v-if="showDateRangeFilter" :label="$options.i18n.dateRangeLabel">
       <date-range-filter
-        :default-option="$options.DATE_RANGE_OPTION_LAST_30_DAYS"
+        :default-option="dateRangeDefaultOption"
+        :options="dateRangeOptions"
+        :date-range-limit="dateRangeLimit"
         @change="$emit('set-date-range', $event)"
       />
     </gl-form-group>

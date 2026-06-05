@@ -17066,6 +17066,8 @@ CREATE TABLE cd_version_sets (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     name text NOT NULL,
+    entries_digest text,
+    CONSTRAINT check_093aa0099e CHECK ((char_length(entries_digest) <= 64)),
     CONSTRAINT check_141e70e0e2 CHECK ((char_length(name) <= 255))
 );
 
@@ -18910,14 +18912,6 @@ CREATE TABLE container_expiration_policies (
     enabled boolean DEFAULT false NOT NULL,
     name_regex_keep text,
     CONSTRAINT container_expiration_policies_name_regex_keep CHECK ((char_length(name_regex_keep) <= 255))
-);
-
-CREATE TABLE container_registry_data_repair_details (
-    missing_count integer DEFAULT 0,
-    project_id bigint NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    status smallint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE container_registry_protection_rules (
@@ -39794,9 +39788,6 @@ ALTER TABLE ONLY virtual_registries_packages_npm_registry_upstreams
 ALTER TABLE ONLY container_expiration_policies
     ADD CONSTRAINT container_expiration_policies_pkey PRIMARY KEY (project_id);
 
-ALTER TABLE ONLY container_registry_data_repair_details
-    ADD CONSTRAINT container_registry_data_repair_details_pkey PRIMARY KEY (project_id);
-
 ALTER TABLE ONLY container_registry_protection_rules
     ADD CONSTRAINT container_registry_protection_rules_pkey PRIMARY KEY (id);
 
@@ -46711,6 +46702,8 @@ CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_service_i
 
 CREATE UNIQUE INDEX index_cd_version_set_entries_on_version_set_id_and_version_id ON cd_version_set_entries USING btree (version_set_id, version_id);
 
+CREATE UNIQUE INDEX index_cd_version_sets_on_application_id_and_entries_digest ON cd_version_sets USING btree (application_id, entries_digest) WHERE (entries_digest IS NOT NULL);
+
 CREATE UNIQUE INDEX index_cd_version_sets_on_application_id_and_name ON cd_version_sets USING btree (application_id, name);
 
 CREATE INDEX index_cd_version_sets_on_group_id ON cd_version_sets USING btree (group_id);
@@ -47088,8 +47081,6 @@ CREATE INDEX index_compliance_requirements_on_namespace_id ON compliance_require
 CREATE INDEX index_compromised_password_detections_on_user_id ON compromised_password_detections USING btree (user_id);
 
 CREATE INDEX index_container_expiration_policies_on_next_run_at_and_enabled ON container_expiration_policies USING btree (next_run_at, enabled);
-
-CREATE INDEX index_container_registry_data_repair_details_on_status ON container_registry_data_repair_details USING btree (status);
 
 CREATE INDEX index_container_repositories_on_next_delete_attempt_at ON container_repositories USING btree (next_delete_attempt_at) WHERE (status = 0);
 
@@ -61188,9 +61179,6 @@ ALTER TABLE ONLY packages_debian_project_component_files
 
 ALTER TABLE ONLY namespace_aggregation_schedules
     ADD CONSTRAINT fk_rails_b565c8d16c FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY container_registry_data_repair_details
-    ADD CONSTRAINT fk_rails_b70d8111d9 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 
 ALTER TABLE batched_background_migration_job_transition_logs
     ADD CONSTRAINT fk_rails_b7523a175b FOREIGN KEY (batched_background_migration_job_id) REFERENCES batched_background_migration_jobs(id) ON DELETE CASCADE;

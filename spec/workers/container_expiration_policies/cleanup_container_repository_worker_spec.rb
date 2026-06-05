@@ -357,7 +357,7 @@ RSpec.describe ContainerExpirationPolicies::CleanupContainerRepositoryWorker, fe
         it 'selects the correct repository', :freeze_time do
           case expected_selected_repository
           when :none
-            expect(subject).to eq(nil)
+            expect(subject).to be_nil
             next
           when :repository
             expect(subject).to eq(repository)

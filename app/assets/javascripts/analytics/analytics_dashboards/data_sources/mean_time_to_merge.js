@@ -4,10 +4,8 @@ import {
   computeMttmData,
   filterToMRThroughputQueryObject,
 } from '~/analytics/merge_request_analytics/utils';
-import {
-  DATE_RANGE_OPTIONS,
-  DATE_RANGE_OPTION_LAST_365_DAYS,
-} from '~/explore/analytics_dashboards/components/constants';
+import { getDateRange } from '~/explore/analytics_dashboards/components/utils';
+import { DATE_RANGE_OPTION_LAST_365_DAYS } from '~/explore/analytics_dashboards/components/constants';
 
 export default async function fetch({
   namespace,
@@ -24,8 +22,7 @@ export default async function fetch({
     startDate,
     endDate,
     text: subtitle,
-  } = DATE_RANGE_OPTIONS[dateRangeOption || dateRange] ||
-  DATE_RANGE_OPTIONS[DATE_RANGE_OPTION_LAST_365_DAYS];
+  } = getDateRange(dateRangeOption || dateRange, DATE_RANGE_OPTION_LAST_365_DAYS);
 
   setVisualizationOverrides({ visualizationOptionOverrides: { subtitle } });
 
