@@ -4,6 +4,7 @@ import VueApollo from 'vue-apollo';
 import { shallowMountExtended } from 'helpers/vue_test_utils_helper';
 import createMockApollo from 'helpers/mock_apollo_helper';
 import waitForPromises from 'helpers/wait_for_promises';
+import { NO_PLATFORMS_AVAILABLE_TEXT } from '~/packages_and_registries/container_registry/explorer/constants/index';
 import PlatformBadgesRow from '~/packages_and_registries/container_registry/explorer/components/details_page/platform_badges_row.vue';
 import PlatformBadge from '~/packages_and_registries/container_registry/explorer/components/details_page/platform_badge.vue';
 import DetailsRow from '~/vue_shared/components/registry/details_row.vue';
@@ -31,6 +32,7 @@ describe('platform badges row', () => {
   };
 
   const findSupportedPlatforms = () => wrapper.findByTestId('manifest-platforms');
+  const findNoPlatformsMessage = () => wrapper.findByTestId('no-platforms-available');
   const findLoadingIcon = () => wrapper.findComponent(GlLoadingIcon);
   const findPlatformBadges = () => wrapper.findAllComponents(PlatformBadge);
 
@@ -146,6 +148,14 @@ describe('platform badges row', () => {
             digest: 'sha256:s3',
             platform: null,
           },
+          {
+            digest: 'sha256:s4',
+            platform: { os: '', architecture: 'amd64', variant: null, osVersion: null },
+          },
+          {
+            digest: 'sha256:s5',
+            platform: { os: 'linux', architecture: '', variant: null, osVersion: null },
+          },
         ],
       }),
     );
@@ -164,6 +174,7 @@ describe('platform badges row', () => {
     await waitForPromises();
 
     expect(findPlatformBadges()).toHaveLength(0);
+    expect(findNoPlatformsMessage().text()).toBe(NO_PLATFORMS_AVAILABLE_TEXT);
   });
 
   it('renders no badges when the query errors', async () => {

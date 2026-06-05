@@ -107,12 +107,6 @@ or import additional pipeline configuration.
 
 ### `default`
 
-{{< history >}}
-
-- Support for `id_tokens` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/419750) in GitLab 16.4.
-
-{{< /history >}}
-
 You can set global defaults for some keywords. Each default keyword is copied to every job
 that doesn't already have it defined.
 
@@ -217,11 +211,8 @@ And optionally:
 - You can have up to 150 includes per pipeline by default, including [nested](includes.md#use-nested-includes). Additionally:
   - In [GitLab 16.0 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/207270) users on GitLab Self-Managed can
     change the [maximum includes](../../administration/cicd/limits.md#maximum-number-of-includes) value.
-  - In [GitLab 15.10 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/367150) you can have up to 150 includes.
-    In nested includes, the same file can be included multiple times, but duplicated includes
+  - In nested includes, the same file can be included multiple times, but duplicated includes
     count towards the limit.
-  - From [GitLab 14.9 to GitLab 15.9](https://gitlab.com/gitlab-org/gitlab/-/issues/28987), you can have up to 100 includes.
-    The same file can be included multiple times in nested includes, but duplicates are ignored.
 
 ---
 
@@ -241,6 +232,12 @@ pipeline configuration.
 include:
   - component: $CI_SERVER_FQDN/my-org/security-components/secret-detection@1.0
 ```
+
+**Additional details**:
+
+- If the component's source project is private, the user running the pipeline must have at least the Reporter role
+  For internal projects, any authenticated non-external user can access the component.
+  For public projects, no membership is required.
 
 **Related topics**:
 
@@ -339,9 +336,11 @@ include:
 - When the pipeline starts, the `.gitlab-ci.yml` file configuration included by all methods is evaluated.
   The configuration is a snapshot in time and persists in the database. GitLab does not reflect any changes to
   the referenced `.gitlab-ci.yml` file configuration until the next pipeline starts.
-- When you include a YAML file from another private project, the user running the pipeline
-  must be a member of both projects and have the appropriate permissions to run pipelines.
-  A `not found or access denied` error may be displayed if the user does not have access to any of the included files.
+- For any private project in `include:project`, the user running the pipeline must have at least the Reporter role.
+  For internal projects, any authenticated non-external user can access the included files.
+  For public projects, no membership is required.
+  A `not found or access denied` error is displayed if the user does not have
+  sufficient permissions on the included project.
 - Be careful when including another project's CI/CD configuration file. No pipelines or notifications trigger when CI/CD configuration files change.
   From a security perspective, this is similar to pulling a third-party dependency. For the `ref`, consider:
   - Using a specific SHA hash, which should be the most stable option. Use the
@@ -584,12 +583,6 @@ include:
 
 ### `stages`
 
-{{< history >}}
-
-- Support for nested array of strings [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/439451) in GitLab 16.9.
-
-{{< /history >}}
-
 Use `stages` to define stages that contain groups of jobs. Use [`stage`](#stage)
 in a job to configure the job to run in a specific stage.
 
@@ -660,14 +653,6 @@ You can use some [predefined CI/CD variables](../variables/predefined_variables.
 
 #### `workflow:auto_cancel:on_new_commit`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/412473) in GitLab 16.8 [with a flag](../../administration/feature_flags/_index.md) named `ci_workflow_auto_cancel_on_new_commit`. Disabled by default.
-- [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/434676) in GitLab 16.9.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/434676) in GitLab 16.10. Feature flag `ci_workflow_auto_cancel_on_new_commit` removed.
-
-{{< /history >}}
-
 Use `workflow:auto_cancel:on_new_commit` to configure the behavior of
 the [auto-cancel redundant pipelines](../pipelines/settings.md#auto-cancel-redundant-pipelines) feature.
 
@@ -701,13 +686,6 @@ In this example:
 ---
 
 #### `workflow:auto_cancel:on_job_failure`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/23605) in GitLab 16.10 [with a flag](../../administration/feature_flags/_index.md) named `auto_cancel_pipeline_on_job_failure`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/433163) in GitLab 16.11. Feature flag `auto_cancel_pipeline_on_job_failure` removed.
-
-{{< /history >}}
 
 Use `workflow:auto_cancel:on_job_failure` to configure which jobs should be canceled as soon as one job fails.
 
@@ -750,14 +728,6 @@ In this example, if `job2` fails, `job1` is canceled if it is still running and 
 ---
 
 #### `workflow:name`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/372538) in GitLab 15.5 [with a flag](../../administration/feature_flags/_index.md) named `pipeline_name`. Disabled by default.
-- [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/376095) in GitLab 15.7.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/376095) in GitLab 15.8. Feature flag `pipeline_name` removed.
-
-{{< /history >}}
 
 You can use `name` in `workflow:` to define a name for pipelines.
 
@@ -937,16 +907,6 @@ When the branch is something else:
 
 #### `workflow:rules:auto_cancel`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/436467) in GitLab 16.8 [with a flag](../../administration/feature_flags/_index.md) named `ci_workflow_auto_cancel_on_new_commit`. Disabled by default.
-- [Enabled on GitLab.com and GitLab Self-Managed](https://gitlab.com/gitlab-org/gitlab/-/issues/434676) in GitLab 16.9.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/434676) in GitLab 16.10. Feature flag `ci_workflow_auto_cancel_on_new_commit` removed.
-- `on_job_failure` option for `workflow:rules` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/23605) in GitLab 16.10 [with a flag](../../administration/feature_flags/_index.md) named `auto_cancel_pipeline_on_job_failure`. Disabled by default.
-- `on_job_failure` option for `workflow:rules` [generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/433163) in GitLab 16.11. Feature flag `auto_cancel_pipeline_on_job_failure` removed.
-
-{{< /history >}}
-
 Use `workflow:rules:auto_cancel` to configure the behavior of
 the [`workflow:auto_cancel:on_new_commit`](#workflowauto_cancelon_new_commit) or
 the [`workflow:auto_cancel:on_job_failure`](#workflowauto_cancelon_job_failure) features.
@@ -999,12 +959,6 @@ with `---`.
 ---
 
 ### `spec`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/391331) in GitLab 15.11 as a beta feature.
-
-{{< /history >}}
 
 Add a `spec` section to the header of a YAML file to configure the behavior of a pipeline
 when a configuration is added to the pipeline with the `include` keyword.
@@ -1061,12 +1015,6 @@ scan-website:
 
 ##### `spec:inputs:default`
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/391331) in GitLab 15.11 as a beta feature.
-
-{{< /history >}}
-
 Inputs are mandatory when included, unless you set a default value with `spec:inputs:default`.
 
 Use `default: ''` to have no default value.
@@ -1107,12 +1055,6 @@ In this example:
 ---
 
 ##### `spec:inputs:description`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/415637) in GitLab 16.5.
-
-{{< /history >}}
 
 Use `description` to give a description to a specific input. The description does
 not affect the behavior of the input and is only used to help users of the file
@@ -1182,12 +1124,6 @@ In this example:
 ---
 
 ##### `spec:inputs:regex`
-
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/410836) in GitLab 16.5.
-
-{{< /history >}}
 
 Use `spec:inputs:regex` to specify a regular expression that the input must match.
 
@@ -1949,13 +1885,6 @@ job:
 
 #### `artifacts:public`
 
-{{< history >}}
-
-- [Updated](https://gitlab.com/gitlab-org/gitlab/-/issues/322454) in GitLab 15.10. Artifacts created with `artifacts:public` before 15.10 are not guaranteed to remain private after this update.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/294503) in GitLab 16.7. Feature flag `non_public_artifacts` removed.
-
-{{< /history >}}
-
 > [!note]
 > `artifacts:public` is now superseded by [`artifacts:access`](#artifactsaccess) which
 > has more options.
@@ -1992,7 +1921,6 @@ job:
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/145206) in GitLab 16.11.
 - `maintainer` option [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/454398) in GitLab 18.4.
 
 {{< /history >}}

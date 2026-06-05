@@ -178,6 +178,8 @@ export const SUPPORTED_PLATFORMS_ROW_TEXT = s__(
   'ContainerRegistry|Supported platforms: %{supportedPlatforms}',
 );
 
+export const NO_PLATFORMS_AVAILABLE_TEXT = s__('ContainerRegistry|None');
+
 // The third component in os.version (e.g. 10.0.26100.32860) for a Windows image
 // is the Windows build number. We map build number to labels using information from
 // https://learn.microsoft.com/en-us/windows/release-health/release-information to

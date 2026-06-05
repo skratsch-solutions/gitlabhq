@@ -3,7 +3,7 @@ import { GlSprintf, GlLoadingIcon } from '@gitlab/ui';
 import { convertToGraphQLId } from '~/graphql_shared/utils';
 import { TYPENAME_CONTAINER_REPOSITORY } from '~/graphql_shared/constants';
 import DetailsRow from '~/vue_shared/components/registry/details_row.vue';
-import { SUPPORTED_PLATFORMS_ROW_TEXT } from '../../constants/index';
+import { NO_PLATFORMS_AVAILABLE_TEXT, SUPPORTED_PLATFORMS_ROW_TEXT } from '../../constants/index';
 import getTagPlatformDetailsQuery from '../../graphql/queries/get_tag_platform_details.query.graphql';
 import PlatformBadge from './platform_badge.vue';
 
@@ -17,6 +17,7 @@ export default {
     },
   },
   i18n: {
+    NO_PLATFORMS_AVAILABLE_TEXT,
     SUPPORTED_PLATFORMS_ROW_TEXT,
   },
   data() {
@@ -45,7 +46,7 @@ export default {
     tagManifests() {
       const manifests = this.tagDetails?.manifests ?? [];
       return [...manifests]
-        .filter((m) => m.platform)
+        .filter((m) => m.platform && m.platform.os && m.platform.architecture)
         .sort((a, b) => {
           for (const field of ['os', 'architecture', 'variant', 'osVersion']) {
             const aVal = a.platform[field] ?? '';
@@ -69,12 +70,17 @@ export default {
       <template #supportedPlatforms>
         <gl-loading-icon v-if="isLoading" inline size="sm" />
         <template v-else>
-          <platform-badge
-            v-for="manifest in tagManifests"
-            :key="manifest.digest"
-            :platform="manifest.platform"
-            class="gl-mb-2 gl-mr-2"
-          />
+          <template v-if="tagManifests && tagManifests.length">
+            <platform-badge
+              v-for="manifest in tagManifests"
+              :key="manifest.digest"
+              :platform="manifest.platform"
+              class="gl-mb-2 gl-mr-2"
+            />
+          </template>
+          <span v-else data-testid="no-platforms-available">{{
+            $options.i18n.NO_PLATFORMS_AVAILABLE_TEXT
+          }}</span>
         </template>
       </template>
     </gl-sprintf>

@@ -7687,6 +7687,9 @@ msgstr ""
 msgid "AgentArtifacts|Author name"
 msgstr ""
 
+msgid "AgentArtifacts|Close"
+msgstr ""
+
 msgid "AgentArtifacts|Control:"
 msgstr ""
 
@@ -21427,6 +21430,9 @@ msgid "ContainerRegistry|No container image tags are protected."
 msgstr ""
 
 msgid "ContainerRegistry|No container repositories are protected."
+msgstr ""
+
+msgid "ContainerRegistry|None"
 msgstr ""
 
 msgid "ContainerRegistry|Not yet scheduled"
@@ -44395,6 +44401,9 @@ msgid "Max size of this project's repository, including LFS files. %{repository_
 msgstr ""
 
 msgid "Max size of this project's repository. %{repository_size_limit_link}."
+msgstr ""
+
+msgid "Maximize"
 msgstr ""
 
 msgid "Maximize panel"

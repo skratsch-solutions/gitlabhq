@@ -244,17 +244,41 @@ describe('Pipeline Url Component', () => {
         label: TRACKING_CATEGORIES.table,
       });
     });
+  });
 
-    describe('GraphQL', () => {
-      it('formats ref URL correctly', () => {
-        createComponent({
-          props: {
-            pipeline: { ...mockBranchPipeline, merge_request: null },
-          },
-        });
-
-        expect(findCommitRefName().attributes('href')).toBe('commits/main');
+  describe('commit links', () => {
+    it('formats ref URL correctly', () => {
+      createComponent({
+        props: {
+          pipeline: { ...mockBranchPipeline, merge_request: null },
+        },
       });
+
+      expect(findCommitRefName().attributes('href')).toBe('commits/main');
+    });
+
+    it('renders commit SHA link with webPath from GraphQL data', () => {
+      createComponent({
+        props: {
+          pipeline: { ...mockBranchPipeline, merge_request: null },
+        },
+      });
+
+      expect(findCommitShortSha().attributes('href')).toBe(
+        '/root/ci-project/-/commit/de80f1042526e0374ba1cfdca7c1d6595406e949',
+      );
+    });
+
+    it('renders commit title link with webPath from GraphQL data', () => {
+      createComponent({
+        props: {
+          pipeline: { ...mockBranchPipeline, merge_request: null, name: null },
+        },
+      });
+
+      expect(findPipelineIdentifierLink().attributes('href')).toBe(
+        '/root/ci-project/-/commit/de80f1042526e0374ba1cfdca7c1d6595406e949',
+      );
     });
   });
 });

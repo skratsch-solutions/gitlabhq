@@ -10,9 +10,17 @@ process_file() {
   local file="$1"
   [ -f "$file" ] || return 0
   local result
+  # First pass (per-line): split a fully flattened "> [!note] text" line into
+  # the marker and a "> text" line.
+  # Second pass (whole-file): when the marker is already on its own line but the
+  # following content line is missing its "> " prefix, add it. The negative
+  # lookahead leaves already-correct lines (next line starts with ">") and blank
+  # lines untouched, so Case 1's output is never re-processed.
   result=$(perl -CSD -pe '
     s/^(\s*)(>\s*\[!(?:note|flag|warning|disclaimer|tip|caution)\]) ?(\S.*)$/$1$2\n$1> $3/ui;
-  ' "$file")
+  ' "$file" | perl -CSD -0777 -pe '
+    s/^([ \t]*)(>[ \t]*\[!(?:note|flag|warning|disclaimer|tip|caution)\])[ \t]*\n(?![ \t]*>)[ \t]*(\S.*)$/$1$2\n$1> $3/uigm;
+  ')
   if [ "$result" != "$(cat "$file")" ]; then
     printf '%s\n' "$result" > "$file"
     echo "Updated: $file"

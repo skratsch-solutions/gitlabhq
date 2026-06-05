@@ -56,8 +56,6 @@ If no symbol is displayed in the [changes view](code_quality.md#merge-request-ch
 
 Code Quality automatically [combines multiple reports](code_quality.md#scan-code-for-quality-violations).
 
-In GitLab 15.6 and earlier, Code Quality used only the artifact from the latest created job (with the largest job ID). Code Quality artifacts from earlier jobs were ignored.
-
 ## RuboCop errors
 
 When using Code Quality jobs on a Ruby project, you can encounter problems running RuboCop.
