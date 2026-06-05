@@ -51,7 +51,8 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
           label_ids: labels.map(&:id),
           milestone_id: milestone.id,
           milestone: milestone,
-          due_date: Date.tomorrow }
+          due_date: Date.tomorrow,
+          start_date: Date.tomorrow }
       end
 
       before_all do
@@ -323,6 +324,7 @@ RSpec.describe Issues::CreateService, feature_category: :team_planning do
           expect(issue.labels).to be_empty
           expect(issue.milestone).to be_nil
           expect(issue.due_date).to be_nil
+          expect(issue.start_date).to be_nil
         end
 
         it 'can create confidential issues' do

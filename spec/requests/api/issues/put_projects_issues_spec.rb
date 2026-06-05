@@ -497,13 +497,24 @@ RSpec.describe API::Issues, feature_category: :team_planning do
   end
 
   describe 'PUT /projects/:id/issues/:issue_iid to update due date' do
-    it 'creates a new project issue', :aggregate_failures do
+    it 'updates the due date of a project issue', :aggregate_failures do
       due_date = 2.weeks.from_now.to_date.iso8601
 
       put api_for_user, params: { due_date: due_date }
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['due_date']).to eq(due_date)
+    end
+  end
+
+  describe 'PUT /projects/:id/issues/:issue_iid to update start date' do
+    it 'updates the start date of a project issue', :aggregate_failures do
+      start_date = 2.weeks.from_now.to_date.iso8601
+
+      put api_for_user, params: { start_date: start_date }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(json_response['start_date']).to eq(start_date)
     end
   end
 end

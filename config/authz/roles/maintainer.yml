@@ -96,6 +96,7 @@ project:
   - delete_job_artifact
   - delete_protected_tag
   - delete_service_account
+  - delete_squash_option
   - delete_timelog
   - destroy_deploy_token
   - destroy_deployment
@@ -103,7 +104,6 @@ project:
   - destroy_protected_branch
   - destroy_release
   - destroy_resource_access_tokens
-  - destroy_squash_option
   - destroy_upload
   - enable_container_scanning_for_registry
   - enable_secret_push_protection

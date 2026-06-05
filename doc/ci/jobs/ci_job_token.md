@@ -109,9 +109,6 @@ When the setting is enforced, the CI/CD job token is always restricted to the pr
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/346298/) in GitLab 15.9. [Deployed behind the `:inbound_ci_scoped_job_token` feature flag](../../administration/feature_flags/_index.md), enabled by default.
-- [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/346298/) in GitLab 15.10.
-- **Allow access to this project with a CI_JOB_TOKEN** setting [renamed to **Limit access to this project**](https://gitlab.com/gitlab-org/gitlab/-/issues/411406) in GitLab 16.3.
 - Adding groups to the job token allowlist [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/415519) in GitLab 17.0.
 - **Token Access** section renamed to **Job token permissions**, and [**Limit access to this project** setting renamed to **Authorized groups and projects**](https://gitlab.com/gitlab-org/gitlab/-/issues/415519) in GitLab 17.2.
 - [**Authorized groups and projects** setting renamed to **CI/CD job token allowlist**](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/160078) in GitLab 17.3.
@@ -152,7 +149,6 @@ You can also add a group or project to the allowlist [with the API](../../api/gr
 
 {{< history >}}
 
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/405369) in GitLab 16.6.
 - Access to the repository [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/439158) in GitLab 17.0.
 
 {{< /history >}}
@@ -191,7 +187,6 @@ To set a feature to be only visible to project members:
 
 {{< history >}}
 
-- **Allow access to this project with a CI_JOB_TOKEN** setting [renamed to **Limit access to this project**](https://gitlab.com/gitlab-org/gitlab/-/issues/411406) in GitLab 16.3.
 - **Token Access** section renamed to **Job token permissions**, and [**Limit access to this project** setting renamed to **Authorized groups and projects**](https://gitlab.com/gitlab-org/gitlab/-/issues/415519) in GitLab 17.2.
 - [**Authorized groups and projects** setting renamed to **CI/CD job token allowlist**](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/160078) in GitLab 17.3.
 

@@ -190,12 +190,6 @@ job:
 
 ## View all job artifacts in a project
 
-{{< history >}}
-
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/407475) in GitLab 16.0. Feature flag `artifacts_management_page` removed.
-
-{{< /history >}}
-
 You can view all artifacts stored in a project from the **Build** > **Artifacts** page.
 This list displays all jobs and their associated artifacts. Expand an entry to access
 all artifacts associated with a job, including:
@@ -368,13 +362,6 @@ You can also delete individual artifacts from the **Artifacts** page.
 
 ### Bulk delete artifacts
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/33348) in GitLab 15.10 [with a flag](../../administration/feature_flags/_index.md) named `ci_job_artifact_bulk_destroy`. Disabled by default.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/issues/398581) in GitLab 16.1. Feature flag `ci_job_artifact_bulk_destroy` removed.
-
-{{< /history >}}
-
 You can delete multiple artifacts at the same time:
 
 1. In the top bar, select **Search or go to** and find your project.
@@ -401,12 +388,6 @@ With this configuration, the **View exposed artifact** section displays a link t
 ![A merge request widget that links to exposed artifacts.](img/mr_artifact_expose_v18_4.png)
 
 ## Keep artifacts from most recent successful jobs
-
-{{< history >}}
-
-- Artifacts for [blocked](https://gitlab.com/gitlab-org/gitlab/-/issues/387087) or [failed](https://gitlab.com/gitlab-org/gitlab/-/issues/266958) pipelines changed to no longer be kept indefinitely in GitLab 16.7.
-
-{{< /history >}}
 
 By default, artifacts are always kept for the most recent successful pipeline on each ref.
 Any `expire_in` configuration does not apply to the most recent artifacts.

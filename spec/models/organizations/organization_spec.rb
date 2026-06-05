@@ -40,6 +40,78 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   describe 'validations' do
     subject { organization }
 
+    describe '#validate_single_organization_on_self_managed' do
+      subject(:new_organization) { build(:organization) }
+
+      context 'when Gitlab.com', :saas do
+        before do
+          allow(Gitlab).to receive(:com?).and_return(true)
+          allow(::Gitlab).to receive(:dev_or_test_env?).and_return(false)
+        end
+
+        it 'allows creating additional organizations' do
+          expect(new_organization).to be_valid
+        end
+      end
+
+      context 'when on self-managed' do
+        before do
+          allow(Gitlab).to receive(:com?).and_return(false)
+          allow(::Gitlab).to receive(:dev_or_test_env?).and_return(false)
+        end
+
+        context 'when creating the default organization' do
+          # rubocop:disable Gitlab/AvoidConstDefaultOrganizationId -- required for this test
+          subject(:new_default_organization) { build(:organization, id: described_class::DEFAULT_ORGANIZATION_ID) }
+          # rubocop:enable Gitlab/AvoidConstDefaultOrganizationId
+
+          context 'when an organization already exists' do
+            it 'is invalid and adds an error', :aggregate_failures do
+              expect(new_default_organization).not_to be_valid
+              expect(new_default_organization.errors[:base])
+                .to include(s_('Organization|Only one organization is allowed on this instance.'))
+            end
+          end
+
+          context 'when no organization exists' do
+            before do
+              described_class.without_default.delete_all
+            end
+
+            it 'allows creating the default organization' do
+              expect(new_default_organization).to be_valid
+            end
+          end
+        end
+
+        context 'when creating a non-default organization' do
+          context 'when an organization already exists' do
+            it 'is invalid and adds an error', :aggregate_failures do
+              expect(new_organization).not_to be_valid
+              expect(new_organization.errors[:base])
+                .to include(s_('Organization|Only one organization is allowed on this instance.'))
+            end
+          end
+
+          context 'when no organization exists' do
+            before do
+              described_class.without_default.delete_all
+            end
+
+            it 'is valid' do
+              expect(new_organization).to be_valid
+            end
+          end
+        end
+
+        context 'when updating an existing organization' do
+          it 'does not run the validation' do
+            expect(organization).to be_valid
+          end
+        end
+      end
+    end
+
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_length_of(:name).is_at_most(255) }
     it { is_expected.to validate_presence_of(:path) }
@@ -277,6 +349,40 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
   end
 
   it_behaves_like 'an isolatable', :organization
+
+  describe '#destroy!' do
+    context 'when trying to delete the last organization' do
+      it 'raises an error' do
+        expect do
+          organization.destroy!
+        end.to raise_error(ActiveRecord::RecordNotDestroyed, _('Cannot delete the last organization'))
+      end
+    end
+
+    context 'when trying to delete another organization' do
+      let(:to_be_removed) { create(:organization) }
+
+      it 'does not raise error' do
+        expect { to_be_removed.destroy! }.not_to raise_error
+      end
+    end
+  end
+
+  describe '#destroy' do
+    context 'when trying to delete the last organization' do
+      it 'returns false' do
+        expect(organization.destroy).to eq(false)
+      end
+    end
+
+    context 'when trying to delete another organization' do
+      let(:to_be_removed) { create(:organization) }
+
+      it 'does not raise error' do
+        expect { to_be_removed.destroy! }.not_to raise_error
+      end
+    end
+  end
 
   describe '#owner_user_ids' do
     let_it_be(:organization_users) { create_list(:organization_user, 3, :owner, organization: organization) }

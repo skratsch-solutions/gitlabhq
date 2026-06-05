@@ -63,6 +63,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
           state_event: 'close',
           label_ids: [label&.id],
           due_date: Date.tomorrow,
+          start_date: Date.tomorrow,
           discussion_locked: true,
           severity: 'low',
           milestone_id: milestone.id,
@@ -110,7 +111,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
           .to publish_event(::WorkItems::WorkItemUpdatedEvent).with(
             id: issue.id,
             namespace_id: issue.namespace_id,
-            updated_attributes: %w[title updated_at description milestone_id updated_by_id due_date lock_version title_html description_html last_edited_at last_edited_by_id discussion_locked]
+            updated_attributes: %w[title updated_at description milestone_id updated_by_id due_date start_date lock_version title_html description_html last_edited_at last_edited_by_id discussion_locked]
           )
       end
 
@@ -580,6 +581,7 @@ RSpec.describe Issues::UpdateService, :mailer, :request_store, feature_category:
           expect(issue.labels).to be_empty
           expect(issue.milestone).to be_nil
           expect(issue.due_date).to be_nil
+          expect(issue.start_date).to be_nil
           expect(issue.discussion_locked).to be_falsey
           expect(issue.confidential).to be_falsey
           expect(issue.issue_type).to eql('issue')

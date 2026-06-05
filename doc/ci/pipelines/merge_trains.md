@@ -13,14 +13,6 @@ title: Merge trains
 
 {{< /details >}}
 
-{{< history >}}
-
-- [In GitLab 16.0 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/359057), the **Start merge train** and **Start merge train when pipeline succeeds** buttons became **Set to auto-merge**. **Remove from merge train** became **Cancel auto-merge**.
-- Support for [fast-forward](../../user/project/merge_requests/methods/_index.md#fast-forward-merge) and [semi-linear](../../user/project/merge_requests/methods/_index.md#merge-commit-with-semi-linear-history) merge methods [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/282442) in GitLab 16.5 [with a flag](../../administration/feature_flags/_index.md) named `fast_forward_merge_trains_support`. Enabled by default.
-- [Feature flag `fast_forward_merge_trains_support` removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148964#note_1855981445) in GitLab 16.11.
-
-{{< /history >}}
-
 In projects with frequent merges to the default branch, changes in different merge requests
 might conflict with each other. Use merge trains to put merge requests in a queue.
 Each merge request is compared to the other, earlier merge requests, to ensure they all work together.
@@ -96,12 +88,6 @@ are canceled.
 
 ## Enable merge trains
 
-{{< history >}}
-
-- `disable_merge_trains` feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/282477) in GitLab 16.5.
-
-{{< /history >}}
-
 Prerequisites:
 
 - You must have the Maintainer role.
@@ -115,8 +101,6 @@ To enable merge trains:
 
 1. In the top bar, select **Search or go to** and find your project.
 1. In the left sidebar, select **Settings** > **Merge requests**.
-1. In GitLab 16.4 and earlier, in the **Merge method** section, verify that **Merge commit** is selected.
-   In GitLab 16.5 and later, you can use any merge method.
 1. In the **Merge options** section, ensure **Enable merged results pipelines** is enabled
    and select **Enable merge trains**.
 1. Select **Save changes**.

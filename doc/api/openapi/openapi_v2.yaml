@@ -64479,6 +64479,9 @@ definitions:
       due_date:
         type: string
         description: Date string in the format YEAR-MONTH-DAY
+      start_date:
+        type: string
+        description: Date string in the format YEAR-MONTH-DAY
       confidential:
         type: boolean
         description: Boolean parameter if the issue should be confidential
@@ -64565,6 +64568,9 @@ definitions:
         items:
           type: string
       due_date:
+        type: string
+        description: Date string in the format YEAR-MONTH-DAY
+      start_date:
         type: string
         description: Date string in the format YEAR-MONTH-DAY
       confidential:

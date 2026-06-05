@@ -43859,7 +43859,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_9b0ee174f73a"
+              "$ref": "#/components/schemas/RequestBody_38544661d22c"
   "/api/v4/projects/{id}/issues_statistics":
     get:
       operationId: getApiV4ProjectsIdIssuesStatistics
@@ -44259,7 +44259,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RequestBody_96918c611839"
+              "$ref": "#/components/schemas/RequestBody_0e1153b6a771"
     delete:
       operationId: deleteApiV4ProjectsIdIssuesIssueIid
       summary: Delete a project issue
@@ -101499,7 +101499,7 @@ components:
           nullable: true
       required:
       - content
-    RequestBody_9b0ee174f73a:
+    RequestBody_38544661d22c:
       type: object
       properties:
         title:
@@ -101571,6 +101571,10 @@ components:
           type: string
           description: Date string in the format YEAR-MONTH-DAY
           nullable: true
+        start_date:
+          type: string
+          description: Date string in the format YEAR-MONTH-DAY
+          nullable: true
         confidential:
           type: boolean
           description: Boolean parameter if the issue should be confidential
@@ -101606,7 +101610,7 @@ components:
           nullable: true
       required:
       - title
-    RequestBody_96918c611839:
+    RequestBody_0e1153b6a771:
       type: object
       properties:
         title:
@@ -101669,6 +101673,10 @@ components:
           description: Comma-separated list of label names
           nullable: true
         due_date:
+          type: string
+          description: Date string in the format YEAR-MONTH-DAY
+          nullable: true
+        start_date:
           type: string
           description: Date string in the format YEAR-MONTH-DAY
           nullable: true

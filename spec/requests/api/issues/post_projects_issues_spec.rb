@@ -329,6 +329,20 @@ RSpec.describe API::Issues, :aggregate_failures, feature_category: :team_plannin
       end
     end
 
+    context 'with start date' do
+      it 'creates a new project issue' do
+        start_date = 2.weeks.from_now.to_date.iso8601
+
+        post api("/projects/#{project.id}/issues", user),
+          params: { title: 'new issue', start_date: start_date }
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(json_response['title']).to eq('new issue')
+        expect(json_response['description']).to be_nil
+        expect(json_response['start_date']).to eq(start_date)
+      end
+    end
+
     context 'setting created_at' do
       let(:fixed_time) { Time.new(2001, 1, 1) }
       let(:creation_time) { 2.weeks.ago }

@@ -13,12 +13,6 @@ title: Compute minutes
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Renamed](https://gitlab.com/groups/gitlab-com/-/epics/2150) from "CI/CD minutes" to "compute quota" or "compute minutes" in GitLab 16.1.
-
-{{< /history >}}
-
 The usage of instance runners by projects running CI/CD jobs is measured in compute minutes.
 
 For some installation types, your [namespace](../../user/namespace/_index.md) has a [compute quota](instance_runner_compute_minutes.md#compute-quota-enforcement),

@@ -29,6 +29,7 @@ module API
           :description,
           :discussion_locked,
           :due_date,
+          :start_date,
           :labels,
           :add_labels,
           :remove_labels,

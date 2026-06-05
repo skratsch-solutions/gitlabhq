@@ -398,18 +398,15 @@ If a pipeline has multiple failed or canceled jobs, you can retry all of them at
 ## Cancel jobs
 
 You can cancel a CI/CD job that hasn't completed yet.
-
-When you cancel a job, what happens next depends on its state and the GitLab Runner version:
+When you cancel a job, what happens next depends on its state:
 
 - For jobs that haven't started executing yet, the job is canceled immediately.
 - For running jobs:
-  - For GitLab Runner 16.10 and later with GitLab 17.0 and later:
-    1. The job is marked as `canceling`.
-    1. The currently-running command is allowed to complete. The rest of the commands in the job's
-       [`before_script`](../yaml/_index.md#before_script) or [`script`](../yaml/_index.md#script) are skipped.
-    1. If the job has an `after_script` section, it always starts and runs to completion.
-    1. The job is marked as `canceled`.
-  - For GitLab Runner 16.9 and earlier with GitLab 16.11 and earlier, the job is `canceled` immediately without running `after_script`.
+  1. The job is marked as `canceling`.
+  1. The running command is allowed to complete. The rest of the commands in the job's
+     [`before_script`](../yaml/_index.md#before_script) or [`script`](../yaml/_index.md#script) are skipped.
+  1. If the job has an `after_script` section, it always starts and runs to completion.
+  1. The job is marked as `canceled`.
 
 If you need to cancel a job immediately without waiting for the `after_script`, use [force cancel](#force-cancel-a-job).
 

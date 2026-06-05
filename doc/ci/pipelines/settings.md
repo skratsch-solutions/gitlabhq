@@ -112,12 +112,6 @@ For more information, see [Deployment safety](../environments/deployment_safety.
 
 {{< /details >}}
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/137301) in GitLab 16.7.
-
-{{< /history >}}
-
 You can customize which roles have permission to cancel pipelines or jobs.
 
 By default, users with the Developer, Maintainer, or Owner role can cancel pipelines or jobs.

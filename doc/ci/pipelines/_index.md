@@ -199,15 +199,6 @@ In this example:
 
 #### Configure a list of selectable prefilled variable values
 
-{{< history >}}
-
-- [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/363660) in GitLab 15.5 [with a flag](../../administration/feature_flags/_index.md) named `run_pipeline_graphql`. Disabled by default.
-- The `options` keyword was [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/105502) in GitLab 15.7.
-- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106038) in GitLab 15.7. Feature flag `run_pipeline_graphql` removed.
-- The variables list sometimes did not populate correctly due to [a bug](https://gitlab.com/gitlab-org/gitlab/-/issues/386245), which was resolved in GitLab 15.9.
-
-{{< /history >}}
-
 You can define an array of CI/CD variable values the user can select from when running a pipeline manually.
 These values are in a dropdown list in the **New pipeline** page. Add the list of
 value options to `options` and set the default value with `value`. The string in `value`
@@ -449,13 +440,6 @@ To view the pipelines that relate to a specific merge request, go to the **Pipel
 in the merge request.
 
 ### Pipeline details
-
-{{< history >}}
-
-- Pipeline detail view [updated](https://gitlab.com/gitlab-org/gitlab/-/issues/424403) in GitLab 16.6 [with a flag](../../administration/feature_flags/_index.md) named `new_pipeline_graph`. Disabled by default.
-- Updated pipeline detail view [enabled on GitLab.com](https://gitlab.com/gitlab-org/gitlab/-/issues/426902) in GitLab 16.8.
-
-{{< /history >}}
 
 Select a pipeline to open the pipeline details page which shows every job in the pipeline.
 From this page you can cancel a running pipeline, retry failed jobs, or [delete a pipeline](#delete-a-pipeline).
