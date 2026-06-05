@@ -149,4 +149,19 @@ RSpec.describe Sidebars::Projects::Menus::RepositoryMenu, feature_category: :sou
       end
     end
   end
+
+  describe 'Feature Library metadata' do
+    before do
+      project.project_feature.update!(analytics_access_level: ProjectFeature::ENABLED)
+    end
+
+    it 'gives every item a description and a unique library_icon', :aggregate_failures do
+      items = subject.renderable_items
+      serialized = items.map(&:serialize_for_super_sidebar)
+
+      expect(serialized).to all(include(:description, :library_icon))
+      icons = serialized.map { |item| item[:library_icon] }
+      expect(icons).to match_array(icons.uniq)
+    end
+  end
 end

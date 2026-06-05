@@ -205,6 +205,10 @@ export default [
       // Dot-prefixed directories were implicitly ignored under legacy
       // eslintrc config (FlatCompat) but must be listed explicitly in flat config
       '.eslint_todo/**',
+
+      // Shared agent skills are documentation assets (including example
+      // .graphql queries), not application code, so they are not linted.
+      '.claude/skills/**',
     ],
   },
   // Legacy plugin configs (via FlatCompat)

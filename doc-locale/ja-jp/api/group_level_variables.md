@@ -180,7 +180,7 @@ curl --request POST \
 指定されたグループ変数を更新します。同じキーを持つ変数が複数ある場合は、`filter`を使用して、正しい`environment_scope`を選択します。
 
 > [!warning]
-`environment_scope`に対してフィルタリングしたときに、その`environment_scope`が存在しない場合、エンドポイントは同じ名前で異なる環境スコープの変数の更新にフォールバックします。[グループ変数の詳細を取得する](#retrieve-details-of-a-group-variable)エンドポイントを使用して、指定された変数のスコープの存在を確認します。
+> `environment_scope`に対してフィルタリングしたときに、その`environment_scope`が存在しない場合、エンドポイントは同じ名前で異なる環境スコープの変数の更新にフォールバックします。[グループ変数の詳細を取得する](#retrieve-details-of-a-group-variable)エンドポイントを使用して、指定された変数のスコープの存在を確認します。
 
 ```plaintext
 PUT /groups/:id/variables/:key

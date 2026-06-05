@@ -10710,7 +10710,7 @@ paths:
     post:
       operationId: postApiV4RunnerControllersRunnerControllerIdTokens
       summary: Create a runner controller token
-      description: Create a new token for a specific runner controller.
+      description: Creates a runner controller token.
       tags:
       - Runner controller tokens
       responses:
@@ -10861,8 +10861,11 @@ paths:
   "/api/v4/runner_controllers/{id}/scopes/instance":
     post:
       operationId: postApiV4RunnerControllersIdScopesInstance
-      summary: Add instance-level scope
-      description: Add an instance-level scope to a runner controller.
+      summary: Add instance scope
+      description: Adds an instance scope to a runner controller. When added, the
+        runner controller evaluates jobs for all runners in the GitLab instance. A
+        runner controller can have only one instance scope. If an instance scope already
+        exists, this operation returns an error.
       tags:
       - Runner controllers
       responses:
@@ -10887,8 +10890,8 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4RunnerControllersIdScopesInstance
-      summary: Remove instance-level scope
-      description: Remove an instance-level scope from a runner controller.
+      summary: Remove instance scope
+      description: Removes an instance scope from a runner controller.
       tags:
       - Runner controllers
       responses:
@@ -10909,7 +10912,10 @@ paths:
     post:
       operationId: postApiV4RunnerControllersIdScopesRunnersRunnerId
       summary: Add runner scope
-      description: Add a runner scope to a runner controller.
+      description: Adds a runner scope to a runner controller. When added, the runner
+        controller evaluates jobs only for a specified runner. A runner controller
+        with an instance scope cannot have runner scopes. Remove the instance scope
+        before adding runner scopes.
       tags:
       - Runner controllers
       responses:
@@ -62256,9 +62262,9 @@ paths:
   "/api/v4/projects/{id}/cluster_agents":
     get:
       operationId: getApiV4ProjectsIdClusterAgents
-      summary: List the agents for a project
-      description: This feature was introduced in GitLab 14.10. Returns the list of
-        agents registered for the project.
+      summary: List all agents
+      description: Lists all agents registered for the project. You must have the
+        Developer, Maintainer, or Owner role to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62301,9 +62307,9 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdClusterAgents
-      summary: Register an agent with a project
-      description: This feature was introduced in GitLab 14.10. Registers an agent
-        to the project.
+      summary: Create an agent
+      description: Creates an agent for the project. You must have the Maintainer
+        or Owner role to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62335,9 +62341,9 @@ paths:
   "/api/v4/projects/{id}/cluster_agents/{agent_id}":
     get:
       operationId: getApiV4ProjectsIdClusterAgentsAgentId
-      summary: Get details about an agent
-      description: This feature was introduced in GitLab 14.10. Gets a single agent
-        details.
+      summary: Retrieve details on an agent
+      description: Retrieves details on a specified agent. You must have the Developer,
+        Maintainer, or Owner role to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62368,9 +62374,9 @@ paths:
         in: path
     delete:
       operationId: deleteApiV4ProjectsIdClusterAgentsAgentId
-      summary: Delete a registered agent
-      description: This feature was introduced in GitLab 14.10. Deletes an existing
-        agent registration.
+      summary: Delete an agent
+      description: Deletes an existing agent registration. You must have the Maintainer
+        or Owner role to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62398,9 +62404,9 @@ paths:
   "/api/v4/projects/{id}/cluster_agents/{agent_id}/tokens":
     get:
       operationId: getApiV4ProjectsIdClusterAgentsAgentIdTokens
-      summary: List tokens for an agent
-      description: This feature was introduced in GitLab 15.0. Returns a list of tokens
-        for an agent.
+      summary: List all agent tokens
+      description: Lists all active tokens for an agent. You must have the Developer,
+        Maintainer, or Owner role to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62450,8 +62456,9 @@ paths:
     post:
       operationId: postApiV4ProjectsIdClusterAgentsAgentIdTokens
       summary: Create an agent token
-      description: This feature was introduced in GitLab 15.0. Creates a new token
-        for an agent.
+      description: Creates a token for an agent. You must have the Maintainer or Owner
+        role to use this endpoint. An agent can have only two active tokens at one
+        time.
       tags:
       - Cluster agents
       responses:
@@ -62489,9 +62496,10 @@ paths:
   "/api/v4/projects/{id}/cluster_agents/{agent_id}/tokens/{token_id}":
     get:
       operationId: getApiV4ProjectsIdClusterAgentsAgentIdTokensTokenId
-      summary: Get a single agent token
-      description: This feature was introduced in GitLab 15.0. Gets a single agent
-        token.
+      summary: Retrieve an agent token
+      description: Retrieves a specified agent token. You must have the Developer,
+        Maintainer, or Owner role to use this endpoint. Returns a `404` if the agent
+        token has been revoked.
       tags:
       - Cluster agents
       responses:
@@ -62529,7 +62537,8 @@ paths:
     delete:
       operationId: deleteApiV4ProjectsIdClusterAgentsAgentIdTokensTokenId
       summary: Revoke an agent token
-      description: This feature was introduced in GitLab 15.0. Revokes an agent token.
+      description: Revokes an agent token. You must have the Maintainer or Owner role
+        to use this endpoint.
       tags:
       - Cluster agents
       responses:
@@ -62563,9 +62572,9 @@ paths:
   "/api/v4/discover-cert-based-clusters":
     get:
       operationId: getApiV4DiscoverCertBasedClusters
-      summary: Discover all descendant certificate-based clusters in a group
-      description: This feature was introduced in GitLab 17.9. It will be removed
-        in 18.0.
+      summary: List all certificate-based clusters
+      description: Lists all certificate-based clusters associated with a project.
+        This feature was introduced in GitLab 17.9.
       tags:
       - Clusters
       responses:
@@ -64573,7 +64582,9 @@ paths:
   "/api/v4/runners":
     get:
       operationId: getApiV4Runners
-      summary: Get runners available for user
+      summary: List all available runners
+      description: Lists all runners available to the user. For group runners, you
+        must have the Owner role in the owner namespace.
       tags:
       - Runners
       responses:
@@ -64684,8 +64695,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4Runners
-      summary: Register a new runner
-      description: Register a new runner for the instance
+      summary: Create a runner
+      description: Creates a runner.
       tags:
       - CI runners
       responses:
@@ -64710,6 +64721,7 @@ paths:
     delete:
       operationId: deleteApiV4Runners
       summary: Delete a registered runner
+      description: Deletes a specified registered runner.
       tags:
       - CI runners
       responses:
@@ -64728,10 +64740,9 @@ paths:
   "/api/v4/runners/all":
     get:
       operationId: getApiV4RunnersAll
-      summary: Get all runners - shared and project
-      description: Get a list of all runners in the GitLab instance (shared and project).
-        Access is restricted to users with either administrator access or auditor
-        access.
+      summary: List all runners
+      description: Lists all runners in the GitLab instance (project and shared).
+        You must have either administrator access or auditor access.
       tags:
       - Runners
       responses:
@@ -64843,10 +64854,10 @@ paths:
   "/api/v4/runners/{id}":
     get:
       operationId: getApiV4RunnersId
-      summary: Get runner's details
-      description: At least the Maintainer role is required to get runner details
-        at the project and group level. Instance-level runner details via this endpoint
-        are available to all signed in users.
+      summary: Retrieve details on a runner
+      description: Retrieves details of a runner. Instance runner details are available
+        to all authenticated users through this endpoint. For groups and projects,
+        you must have the Maintainer or Owner role for the associated project or group.
       tags:
       - Runners
       responses:
@@ -64880,7 +64891,8 @@ paths:
         in: query
     put:
       operationId: putApiV4RunnersId
-      summary: Update runner's details
+      summary: Update a runner
+      description: Updates a specified runner.
       tags:
       - Runners
       responses:
@@ -64913,7 +64925,8 @@ paths:
               "$ref": "#/components/schemas/RequestBody_e81b9d9977a2"
     delete:
       operationId: deleteApiV4RunnersId
-      summary: Remove a runner
+      summary: Delete a runner
+      description: Deletes a specified runner.
       tags:
       - Runners
       responses:
@@ -64941,7 +64954,8 @@ paths:
   "/api/v4/runners/{id}/managers":
     get:
       operationId: getApiV4RunnersIdManagers
-      summary: Get a list of all runner's managers
+      summary: List all managers for a runner
+      description: List all managers for a specified runner.
       tags:
       - Runners
       responses:
@@ -65114,7 +65128,8 @@ paths:
   "/api/v4/runners/{id}/reset_authentication_token":
     post:
       operationId: postApiV4RunnersIdResetAuthenticationToken
-      summary: Reset runner authentication token
+      summary: Reset an authentication token for a runner
+      description: Resets the authentication token for a specified runner.
       tags:
       - Runners
       responses:
@@ -65263,8 +65278,8 @@ paths:
         example: 20
     post:
       operationId: postApiV4ProjectsIdRunners
-      summary: Assign a runner to project
-      description: Assign an available project runner to the project.
+      summary: Assign a runner to a project
+      description: Assigns an available project runner to a project.
       tags:
       - Runners
       - Projects
@@ -65300,9 +65315,10 @@ paths:
   "/api/v4/projects/{id}/runners/{runner_id}":
     delete:
       operationId: deleteApiV4ProjectsIdRunnersRunnerId
-      summary: Unassign a runner from project
-      description: It is not possible to unassign a runner from the owner project.
-        If so, an error is returned. Use the call to delete a runner instead.
+      summary: Unassign a runner from a project
+      description: Unassigns a specified project runner from a project. You cannot
+        unassign a runner from the owner project. Use the delete a runner operation
+        instead.
       tags:
       - Runners
       - Projects
@@ -65341,9 +65357,9 @@ paths:
   "/api/v4/groups/{id}/runners":
     get:
       operationId: getApiV4GroupsIdRunners
-      summary: Get runners available for group
-      description: List all runners available in the group as well as its ancestor
-        groups, including any allowed shared runners.
+      summary: List all runners in a group
+      description: Lists all runners available in a specified group and any ancestor
+        groups, including any allowed instance runners.
       tags:
       - Runners
       - Groups
@@ -65545,7 +65561,8 @@ paths:
   "/api/v4/runners/verify":
     post:
       operationId: postApiV4RunnersVerify
-      summary: Validate authentication credentials
+      summary: Verify authentication for a registered runner
+      description: Verifies authentication for a registered runner.
       tags:
       - CI runners
       responses:
@@ -65568,7 +65585,9 @@ paths:
   "/api/v4/runners/reset_authentication_token":
     post:
       operationId: postApiV4RunnersResetAuthenticationToken
-      summary: Reset runner authentication token with current token
+      summary: Reset a runner authentication token with the current token
+      description: Resets a runner authentication token with the token used to authenticate
+        the request.
       tags:
       - CI runners
       responses:
@@ -65592,8 +65611,8 @@ paths:
     get:
       operationId: getApiV4RunnersRouterDiscovery
       summary: Discover Job Router information
-      description: This endpoint can be used by the runner to retrieve information
-        about the Job Router.
+      description: Discovers Job Router information for a runner. You must provide
+        a valid runner authentication token.
       tags:
       - CI runners
       responses:

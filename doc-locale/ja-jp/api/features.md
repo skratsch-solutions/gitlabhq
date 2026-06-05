@@ -115,7 +115,7 @@ curl --request GET \
 機能フラグのゲート値を作成または更新します。指定された名前の機能フラグがまだ存在しない場合、それは作成されます。値はboolean、または時間のパーセンテージを示す整数にすることができます。
 
 > [!warning]
-開発中の機能を有効にする前に、[セキュリティと安定性のリスク](../administration/feature_flags/_index.md#risks-when-enabling-features-still-in-development)を理解しておく必要があります。
+> 開発中の機能を有効にする前に、[セキュリティと安定性のリスク](../administration/feature_flags/_index.md#risks-when-enabling-features-still-in-development)を理解しておく必要があります。
 
 ```plaintext
 POST /features/:name

@@ -502,6 +502,23 @@ RSpec.describe Projects::TransferService, feature_category: :groups_and_projects
 
       it_behaves_like 'project transfer failed with a message', 'Project cannot be transferred, because image tags are present in its container registry'
     end
+
+    context 'when the container registry is unreachable' do
+      before do
+        allow(project).to receive(:has_container_registry_tags?).and_raise(Faraday::ConnectionFailed.new('end of file reached'))
+      end
+
+      it_behaves_like 'project transfer failed with a message', 'Cannot transfer project: failed to connect to the container registry. Please try again later.'
+
+      it 'tracks the exception' do
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+          an_instance_of(Faraday::ConnectionFailed),
+          project_id: project.id
+        )
+
+        execute_transfer
+      end
+    end
   end
 
   context 'namespace -> not allowed namespace' do

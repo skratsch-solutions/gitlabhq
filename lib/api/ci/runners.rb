@@ -121,7 +121,9 @@ module API
       end
 
       resource :runners do
-        desc 'Get runners available for user' do
+        desc 'List all available runners' do
+          detail 'Lists all runners available to the user. For group runners, you must have the ' \
+            'Owner role in the owner namespace.'
           summary 'List available runners'
           success Entities::Ci::Runner
           failure [[400, 'Scope contains invalid value'], [401, 'Unauthorized']]
@@ -139,10 +141,9 @@ module API
           present paginate(runners), with: Entities::Ci::Runner, current_user: current_user
         end
 
-        desc 'Get all runners - shared and project' do
-          summary 'List all runners'
-          detail 'Get a list of all runners in the GitLab instance (shared and project). ' \
-                 'Access is restricted to users with either administrator access or auditor access.'
+        desc 'List all runners' do
+          detail 'Lists all runners in the GitLab instance (project and shared). You must have ' \
+            'either administrator access or auditor access.'
           success Entities::Ci::Runner
           failure [[400, 'Scope contains invalid value'], [401, 'Unauthorized']]
           tags %w[runners]
@@ -161,9 +162,10 @@ module API
           present paginate(runners), with: Entities::Ci::Runner, current_user: current_user
         end
 
-        desc "Get runner's details" do
-          detail 'At least the Maintainer role is required to get runner details at the project and group level. ' \
-                 'Instance-level runner details via this endpoint are available to all signed in users.'
+        desc 'Retrieve details on a runner' do
+          detail 'Retrieves details of a runner. Instance runner details are available to all authenticated users ' \
+            'through this endpoint. For groups and projects, you must have the Maintainer or Owner role for the ' \
+            'associated project or group.'
           success Entities::Ci::RunnerDetails
           failure [[401, 'Unauthorized'], [403, 'No access granted'], [404, 'Runner not found']]
           tags %w[runners]
@@ -179,7 +181,8 @@ module API
           present runner, with: Entities::Ci::RunnerDetails, current_user: current_user, include_projects: params[:include_projects]
         end
 
-        desc "Get a list of all runner's managers" do
+        desc 'List all managers for a runner' do
+          detail 'List all managers for a specified runner.'
           success Entities::Ci::RunnerManager
           failure [[403, 'Forbidden']]
           tags %w[runners]
@@ -219,7 +222,8 @@ module API
           present paginate(projects), with: Entities::BasicProjectDetails
         end
 
-        desc "Update runner's details" do
+        desc 'Update a runner' do
+          detail 'Updates a specified runner.'
           summary "Update details of a runner"
           success Entities::Ci::RunnerDetails
           failure [[400, 'Bad Request'], [401, 'Unauthorized'], [403, 'No access granted'], [404, 'Runner not found']]
@@ -256,7 +260,8 @@ module API
           end
         end
 
-        desc 'Remove a runner' do
+        desc 'Delete a runner' do
+          detail 'Deletes a specified runner.'
           summary 'Delete a runner'
           success Entities::Ci::Runner
           failure [[401, 'Unauthorized'], [403, 'No access granted'],
@@ -307,7 +312,8 @@ module API
           present jobs, with: Entities::Ci::JobBasicWithProject
         end
 
-        desc 'Reset runner authentication token' do
+        desc 'Reset an authentication token for a runner' do
+          detail 'Resets the authentication token for a specified runner.'
           summary "Reset runner's authentication token"
           success Entities::Ci::ResetTokenResult
           failure [[403, 'No access granted'], [404, 'Runner not found'], [422, 'Unprocessable Entity']]
@@ -361,8 +367,8 @@ module API
           present paginate(runners), with: Entities::Ci::Runner, current_user: current_user
         end
 
-        desc 'Assign a runner to project' do
-          detail "Assign an available project runner to the project."
+        desc 'Assign a runner to a project' do
+          detail 'Assigns an available project runner to a project.'
           success Entities::Ci::Runner
           failure [[400, 'Bad Request'],
             [403, 'No access granted'], [403, 'Runner is a group runner'], [403, 'Runner is locked'],
@@ -387,10 +393,9 @@ module API
           end
         end
 
-        desc "Unassign a runner from project" do
-          summary "Unassign a project runner from the project"
-          detail "It is not possible to unassign a runner from the owner project. " \
-                 "If so, an error is returned. Use the call to delete a runner instead."
+        desc 'Unassign a runner from a project' do
+          detail 'Unassigns a specified project runner from a project. You cannot unassign a runner from the owner ' \
+            'project. Use the delete a runner operation instead.'
           success Entities::Ci::Runner
           failure [[400, 'Bad Request'],
             [403, 'You cannot unassign a runner from the owner project. Delete the runner instead'],
@@ -418,10 +423,9 @@ module API
       resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
         before { authorize! :read_runners, user_group }
 
-        desc 'Get runners available for group' do
-          summary "List group's runners"
-          detail 'List all runners available in the group as well as its ancestor groups, ' \
-                 'including any allowed shared runners.'
+        desc 'List all runners in a group' do
+          detail 'Lists all runners available in a specified group and any ancestor groups, including any allowed ' \
+            'instance runners.'
           success Entities::Ci::Runner
           failure [[400, 'Scope contains invalid value'], [403, 'Forbidden']]
           tags %w[runners groups]

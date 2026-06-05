@@ -23,7 +23,7 @@ title: グループレベルの保護環境API
 このAPIを使用して、[グループレベルの保護環境](../ci/environments/protected_environments.md#group-level-protected-environments)を操作します。
 
 > [!note]
-保護環境については、[保護環境API](protected_environments.md)を参照してください。
+> 保護環境については、[保護環境API](protected_environments.md)を参照してください。
 
 ## 有効なアクセスレベル {#valid-access-levels}
 

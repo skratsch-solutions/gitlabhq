@@ -1667,4 +1667,4 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 ```
 
 > [!note]
-`health_status`パラメータは「Healthy」または 「Unhealthy」の状態にしかなれませんが、`health`パラメータは空、「Healthy」、または実際のエラーメッセージを含めることができます。
+> `health_status`パラメータは「Healthy」または 「Unhealthy」の状態にしかなれませんが、`health`パラメータは空、「Healthy」、または実際のエラーメッセージを含めることができます。

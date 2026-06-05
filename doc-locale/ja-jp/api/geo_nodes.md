@@ -13,7 +13,7 @@ title: GeoノードAPI (非推奨)
 {{< /details >}}
 
 > [!warning]
-GeoノードAPIは、GitLab 16.0で[非推奨](https://gitlab.com/gitlab-org/gitlab/-/issues/369140)となり、APIのv5で削除される予定です。代わりに[GeoサイトAPI](geo_sites.md)を使用してください。これは破壊的な変更です。
+> GeoノードAPIは、GitLab 16.0で[非推奨](https://gitlab.com/gitlab-org/gitlab/-/issues/369140)となり、APIのv5で削除される予定です。代わりに[GeoサイトAPI](geo_sites.md)を使用してください。これは破壊的な変更です。
 
 このAPIを使用して、[Geoノード](../administration/geo/_index.md)を管理します。
 
@@ -1675,4 +1675,4 @@ curl \
 ```
 
 > [!note]
-`health_status`パラメータは「Healthy」または「Unhealthy」状態のみですが、`health`パラメータは空、「Healthy」、または実際のエラーメッセージを含むことができます。
+> `health_status`パラメータは「Healthy」または「Unhealthy」状態のみですが、`health`パラメータは空、「Healthy」、または実際のエラーメッセージを含むことができます。

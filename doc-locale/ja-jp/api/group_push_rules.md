@@ -91,7 +91,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 ```
 
 > [!note]
-これは、[プロジェクトプッシュルールAPI](project_push_rules.md#retrieve-the-push-rules-of-a-project)とは異なります。このAPIは、プッシュルールが構成されていない場合に、リテラル文字列`"null"`とともにHTTP `200 OK`を返します。
+> これは、[プロジェクトプッシュルールAPI](project_push_rules.md#retrieve-the-push-rules-of-a-project)とは異なります。このAPIは、プッシュルールが構成されていない場合に、リテラル文字列`"null"`とともにHTTP `200 OK`を返します。
 
 無効になっている場合、一部のブール属性は`false`ではなく`null`を返します。例: 
 

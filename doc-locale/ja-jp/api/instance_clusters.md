@@ -13,7 +13,7 @@ title: インスタンスクラスターAPI (証明書ベース) (非推奨)
 {{< /details >}}
 
 > [!warning]
-この機能はGitLab 14.5で[非推奨](https://gitlab.com/groups/gitlab-org/configure/-/epics/8)になりました。
+> この機能はGitLab 14.5で[非推奨](https://gitlab.com/groups/gitlab-org/configure/-/epics/8)になりました。
 
 [インスタンスレベルのKubernetesクラスター](../user/instance/clusters/_index.md)を使用すると、KubernetesクラスターをGitLabインスタンスに接続し、同じクラスターをインスタンス内のすべてのプロジェクトで使用できます。
 
@@ -249,7 +249,7 @@ PUT /admin/clusters/:cluster_id
 | `platform_kubernetes_attributes[namespace]` | 文字列  | いいえ       | プロジェクトに関連する一意のネームスペース                                                |
 
 > [!note]
-`name`、`api_url`、`ca_cert`、`token`は、[既存のKubernetesクラスターを追加](../user/project/clusters/add_existing_cluster.md)オプション、または[インスタンスクラスターを作成](#create-an-instance-cluster)エンドポイントを介してクラスターが追加された場合にのみ更新できます。
+> `name`、`api_url`、`ca_cert`、`token`は、[既存のKubernetesクラスターを追加](../user/project/clusters/add_existing_cluster.md)オプション、または[インスタンスクラスターを作成](#create-an-instance-cluster)エンドポイントを介してクラスターが追加された場合にのみ更新できます。
 
 リクエスト例: 
 

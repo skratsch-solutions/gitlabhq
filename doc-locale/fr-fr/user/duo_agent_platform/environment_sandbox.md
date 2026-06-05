@@ -139,7 +139,7 @@ Lorsque SRT est installé, les flows ne peuvent accéder par défaut qu'aux doma
 Si vous utilisez une image personnalisée sans SRT, aucune restriction réseau n'est appliquée et le flow peut accéder à n'importe quel domaine accessible depuis le runner.
 
 > [!note]
-La `network_policy` n'autorise pas `"*"` dans `allowed_domains` ni dans `denied_domains`. SRT ne prend pas en charge l'activation de tout le trafic réseau. Cependant, les caractères génériques sont autorisés dans les domaines, par exemple `"*.domain.com"`.
+> La `network_policy` n'autorise pas `"*"` dans `allowed_domains` ni dans `denied_domains`. SRT ne prend pas en charge l'activation de tout le trafic réseau. Cependant, les caractères génériques sont autorisés dans les domaines, par exemple `"*.domain.com"`.
 
 #### Contrôles de la politique réseau par l'administrateur {#administrator-network-policy-controls}
 
@@ -178,7 +178,7 @@ network_policy:
 Utilisez le paramètre `allow_all_unix_sockets` pour accorder au flow l'accès à tous les sockets de domaine Unix sur l'hôte. Cette option est désactivée par défaut.
 
 > [!warning]
-L'activation de `allow_all_unix_sockets` accorde l'accès à tous les sockets Unix. N'activez cette option que si nécessaire et uniquement dans des environnements de confiance.
+> L'activation de `allow_all_unix_sockets` accorde l'accès à tous les sockets Unix. N'activez cette option que si nécessaire et uniquement dans des environnements de confiance.
 
 ### Configurer les contrôles d'accès réseau pour votre instance ou groupe {#configure-network-access-controls-for-your-instance-or-group}
 
@@ -243,7 +243,7 @@ Ce paramètre est désactivé par défaut (`false`). Pour l'activer, dans votre 
 Lorsque les contrôles d'accès réseau sont activés en mode strict (**Allow projects to extend network sandbox settings** désactivé), vous pouvez uniquement désactiver `include_recommended_allowed`. Le définir sur `true` n'a aucun effet lorsque l'administrateur l'a désactivé.
 
 > [!warning]
-L'activation de `include_recommended_allowed` autorise l'accès réseau à un large ensemble de domaines externes. Ces points de sortie pourraient potentiellement être utilisés pour exfiltrer des données de votre environnement. N'activez cette option que si nécessaire et uniquement dans des environnements de confiance.
+> L'activation de `include_recommended_allowed` autorise l'accès réseau à un large ensemble de domaines externes. Ces points de sortie pourraient potentiellement être utilisés pour exfiltrer des données de votre environnement. N'activez cette option que si nécessaire et uniquement dans des environnements de confiance.
 
 Ce paramètre active l'accès aux domaines suivants :
 

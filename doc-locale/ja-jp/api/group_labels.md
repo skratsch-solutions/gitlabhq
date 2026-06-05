@@ -210,7 +210,7 @@ curl --request PUT \
 ```
 
 > [!note]
-古いエンドポイント`PUT /groups/:id/labels` (パラメータに`name`を含む) は引き続き利用可能ですが、非推奨です。
+> 古いエンドポイント`PUT /groups/:id/labels` (パラメータに`name`を含む) は引き続き利用可能ですが、非推奨です。
 
 ## グループラベルを削除 {#delete-a-group-label}
 
@@ -232,7 +232,7 @@ curl --request DELETE \
 ```
 
 > [!note]
-古いエンドポイント`DELETE /groups/:id/labels` (パラメータに`name`を含む) は引き続き利用可能ですが、非推奨です。
+> 古いエンドポイント`DELETE /groups/:id/labels` (パラメータに`name`を含む) は引き続き利用可能ですが、非推奨です。
 
 ## グループラベルを購読 {#subscribe-to-a-group-label}
 

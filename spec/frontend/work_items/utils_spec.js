@@ -44,6 +44,8 @@ import {
   findBlockerLinkedItems,
   findDevelopmentWidget,
   findErrorTrackingWidget,
+  findHierarchyWidget,
+  findMilestoneWidget,
   findNotificationsWidget,
   findNotesWidget,
   findOpenChildItemsCountsByType,
@@ -1101,6 +1103,54 @@ describe('getSortValue', () => {
     const item = itemModifier(mockItem);
     const result = getSortValue(item, sortKey);
     expect(result).toEqual(expectedResult);
+  });
+});
+
+describe('findMilestoneWidget', () => {
+  const milestoneWidget = { type: WIDGET_TYPE_MILESTONE, milestone: { id: 'gid://m/1' } };
+  const featuresMilestone = { milestone: { id: 'gid://m/2' } };
+
+  it('returns features.milestone when present', () => {
+    const workItem = {
+      features: { milestone: featuresMilestone },
+      widgets: [milestoneWidget],
+    };
+
+    expect(findMilestoneWidget(workItem)).toBe(featuresMilestone);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [milestoneWidget] };
+
+    expect(findMilestoneWidget(workItem)).toBe(milestoneWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findMilestoneWidget({ widgets: [] })).toBeUndefined();
+  });
+});
+
+describe('findHierarchyWidget', () => {
+  const hierarchyWidget = { type: WIDGET_TYPE_HIERARCHY, hasChildren: true };
+  const featuresHierarchy = { hasChildren: false };
+
+  it('returns features.hierarchy when present', () => {
+    const workItem = {
+      features: { hierarchy: featuresHierarchy },
+      widgets: [hierarchyWidget],
+    };
+
+    expect(findHierarchyWidget(workItem)).toBe(featuresHierarchy);
+  });
+
+  it('falls back to widgets when features not present', () => {
+    const workItem = { widgets: [hierarchyWidget] };
+
+    expect(findHierarchyWidget(workItem)).toBe(hierarchyWidget);
+  });
+
+  it('returns undefined when neither exists', () => {
+    expect(findHierarchyWidget({ widgets: [] })).toBeUndefined();
   });
 });
 

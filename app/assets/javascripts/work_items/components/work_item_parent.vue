@@ -135,11 +135,7 @@ export default {
     },
     selectedParentMilestone() {
       const selectedParent = this.visibleWorkItems?.find(({ id }) => id === this.localSelectedItem);
-      return (
-        (this.glFeatures?.workItemFeaturesField
-          ? selectedParent?.features?.milestone?.milestone
-          : findMilestoneWidget(selectedParent)?.milestone) || null
-      );
+      return findMilestoneWidget(selectedParent)?.milestone || null;
     },
     showCustomNoneValue() {
       return this.hasParent && this.parent === null;

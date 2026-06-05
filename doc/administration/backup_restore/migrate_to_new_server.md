@@ -139,7 +139,6 @@ To prepare the new server:
    gitlab_exporter['enable'] = false
    gitlab_pages['enable'] = false
    gitlab_workhorse['enable'] = false
-   grafana['enable'] = false
    logrotate['enable'] = false
    gitlab_rails['incoming_email_enabled'] = false
    nginx['enable'] = false

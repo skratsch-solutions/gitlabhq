@@ -13,7 +13,7 @@ title: グループクラスターAPI（証明書ベース）（非推奨）
 {{< /details >}}
 
 > [!warning]
-この機能はGitLab 14.5で[非推奨](https://gitlab.com/groups/gitlab-org/configure/-/epics/8)になりました。
+> この機能はGitLab 14.5で[非推奨](https://gitlab.com/groups/gitlab-org/configure/-/epics/8)になりました。
 
 同様に、[プロジェクトレベル](../user/project/clusters/_index.md)および[インスタンスレベル](../user/instance/clusters/_index.md)のKubernetesクラスターを使用すると、Kubernetesクラスターをグループに接続でき、複数のプロジェクトで同じクラスターを使用できます。
 
@@ -264,7 +264,7 @@ PUT /groups/:id/clusters/:cluster_id
 | `environment_scope`                       | 文字列         | いいえ       | クラスターに関連付けられた環境。PremiumおよびUltimateのみです。                      |
 
 > [!note]
-`name`、`api_url`、`ca_cert`、および`token`は、クラスターが[「既存のKubernetesクラスターを追加」](../user/project/clusters/add_existing_cluster.md)オプションまたは[「グループクラスターを作成」](#create-a-group-cluster)エンドポイントを介して追加された場合にのみ更新できます。
+> `name`、`api_url`、`ca_cert`、および`token`は、クラスターが[「既存のKubernetesクラスターを追加」](../user/project/clusters/add_existing_cluster.md)オプションまたは[「グループクラスターを作成」](#create-a-group-cluster)エンドポイントを介して追加された場合にのみ更新できます。
 
 リクエスト例: 
 

@@ -118,7 +118,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 - リクエスタが共有グループのメンバーである。
 
 > [!note]
-招待されたグループのメンバーは、共有グループで共有メンバーシップを持っています。つまり、リクエスタが共有グループのメンバーであるが、招待プライベートグループのメンバーではない場合、このエンドポイントを使用すると、リクエスタは招待プライベートグループのメンバーを含む、すべての共有グループのメンバーを取得できます。
+> 招待されたグループのメンバーは、共有グループで共有メンバーシップを持っています。つまり、リクエスタが共有グループのメンバーであるが、招待プライベートグループのメンバーではない場合、このエンドポイントを使用すると、リクエスタは招待プライベートグループのメンバーを含む、すべての共有グループのメンバーを取得できます。
 
 この関数は、ページネーションパラメータ`page`および`per_page`を受け取り、ユーザーのリストを制限します。
 
@@ -278,7 +278,7 @@ curl --request PUT --header "Content-Type: application/json" \
 祖先グループを介して継承または招待されたメンバーを含む、グループの指定されたメンバーを取得します。詳細については、[すべての継承メンバーをリストする](#list-all-group-members-including-inherited-and-invited-members)を参照してください。
 
 > [!note]
-招待されたグループのメンバーは、共有グループで共有メンバーシップを持っています。つまり、リクエスタが共有グループのメンバーであるが、招待プライベートグループのメンバーではない場合、このエンドポイントを使用すると、リクエスタは招待プライベートグループのメンバーを含む、すべての共有グループのメンバーを取得できます。
+> 招待されたグループのメンバーは、共有グループで共有メンバーシップを持っています。つまり、リクエスタが共有グループのメンバーであるが、招待プライベートグループのメンバーではない場合、このエンドポイントを使用すると、リクエスタは招待プライベートグループのメンバーを含む、すべての共有グループのメンバーを取得できます。
 
 ```plaintext
 GET /groups/:id/members/all/:user_id
@@ -536,7 +536,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 削除の対象となるユーザーがグループメンバーである必要はありません。たとえば、ユーザーがグループ内のプロジェクトに直接追加された場合でも、このAPIエンドポイントを使用してユーザーを削除できます。
 
 > [!note]
-非同期でメンバーを削除するため、変更が完了するまでに数分かかります。
+> 非同期でメンバーを削除するため、変更が完了するまでに数分かかります。
 
 ```plaintext
 DELETE /groups/:id/billable_members/:user_id
@@ -631,7 +631,7 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
 ```
 
 > [!note]
-[ロールのプロモートに対する管理者承認](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions)が有効になっている場合、既存ユーザーを請求対象ロールにプロモートするメンバーシップリクエストには、管理者の承認が必要です。
+> [ロールのプロモートに対する管理者承認](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions)が有効になっている場合、既存ユーザーを請求対象ロールにプロモートするメンバーシップリクエストには、管理者の承認が必要です。
 
 **請求対象でないプロモーションの管理**を有効にするには、最初に`enable_member_promotion_management`アプリケーション設定を有効にする必要があります。
 
@@ -717,7 +717,7 @@ curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
 ```
 
 > [!note]
-[ロールのプロモートに対する管理者承認](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions)が有効になっている場合、既存ユーザーを請求対象ロールにプロモートするメンバーシップリクエストには、管理者の承認が必要です。
+> [ロールのプロモートに対する管理者承認](../administration/settings/sign_up_restrictions.md#turn-on-administrator-approval-for-role-promotions)が有効になっている場合、既存ユーザーを請求対象ロールにプロモートするメンバーシップリクエストには、管理者の承認が必要です。
 
 **請求対象でないプロモーションの管理**を有効にするには、最初に`enable_member_promotion_management`アプリケーション設定を有効にする必要があります。
 

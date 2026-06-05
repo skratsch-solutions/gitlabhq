@@ -41,7 +41,7 @@ Nous pouvons interrompre les compilations de packages avant la fin de vie du fou
 Nous nous efforçons de fournir un préavis d'au moins 6 mois avant d'interrompre le support de toute version de système d'exploitation. Lorsque des limitations techniques ou des contraintes du fournisseur nécessitent un préavis plus court, nous communiquerons les changements dès que possible.
 
 > [!note]
-`amd64` et `x86_64` font référence à la même architecture 64 bits. Les noms `arm64` et `aarch64` sont également interchangeables et font référence à la même architecture.
+> `amd64` et `x86_64` font référence à la même architecture 64 bits. Les noms `arm64` et `aarch64` sont également interchangeables et font référence à la même architecture.
 
 | Système d'exploitation                                                                   | Première version GitLab prise en charge | Architecture          | Fin de vie du système d'exploitation | Dernière version GitLab prise en charge proposée  | Notes de release en amont                                                                                        |
 |------------------------------------------------------------------------------------|--------------------------------|-----------------------|----------------------|-------------------------------|---------------------------------------------------------------------------------------------------------------|
@@ -134,7 +134,7 @@ Pour désinstaller le package Linux, vous pouvez choisir de conserver vos donné
    ```
 
    > [!note]
-Si vous rencontrez un problème lors de la suppression des comptes ou des groupes, exécutez `userdel` ou `groupdel` manuellement pour les supprimer. Vous pouvez également supprimer manuellement les répertoires personnels d'utilisateurs restants dans `/home/`.
+   > Si vous rencontrez un problème lors de la suppression des comptes ou des groupes, exécutez `userdel` ou `groupdel` manuellement pour les supprimer. Vous pouvez également supprimer manuellement les répertoires personnels d'utilisateurs restants dans `/home/`.
 
 1. Choisissez si vous souhaitez conserver vos données ou les supprimer entièrement :
 
@@ -221,7 +221,7 @@ Avant de procéder à la mise à niveau :
 1. Préparez-vous à la migration des jetons OAuth lors de la mise à niveau vers FIPS 140-3 :  GitLab 18.6.0, 18.5.2 et 18.4.4 ont introduit le hachage SHA512 pour les jetons OAuth afin de se conformer aux exigences FIPS 140-3. Auparavant, GitLab utilisait PBKDF2 sans sel, ce qui est incompatible avec les systèmes conformes FIPS 140-3 tels qu'Ubuntu 22.04.
 
    > [!note]
-Cette migration est uniquement requise lors du passage à des systèmes d'exploitation conformes FIPS 140-3 (tels qu'Ubuntu 22.04). Aucune modification n'est nécessaire si vous utilisez déjà des versions FIPS plus anciennes (telles qu'Ubuntu 20.04) ou si vous restez sur des systèmes non FIPS.
+   > Cette migration est uniquement requise lors du passage à des systèmes d'exploitation conformes FIPS 140-3 (tels qu'Ubuntu 22.04). Aucune modification n'est nécessaire si vous utilisez déjà des versions FIPS plus anciennes (telles qu'Ubuntu 20.04) ou si vous restez sur des systèmes non FIPS.
 
    Lors de la migration depuis une instance non FIPS ou une version FIPS plus ancienne vers une instance FIPS 140-3 :
 

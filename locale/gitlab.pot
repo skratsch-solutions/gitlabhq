@@ -14393,6 +14393,9 @@ msgstr ""
 msgid "Browse Files"
 msgstr ""
 
+msgid "Browse and manage your repository files."
+msgstr ""
+
 msgid "Browse artifacts"
 msgstr ""
 
@@ -18685,6 +18688,9 @@ msgid "Compare branches and continue"
 msgstr ""
 
 msgid "Compare changes"
+msgstr ""
+
+msgid "Compare changes between branches, tags, or commits."
 msgstr ""
 
 msgid "Compare revisions"
@@ -27779,6 +27785,9 @@ msgid "DuoAgenticChat|Set up automated workflows and AI agents."
 msgstr ""
 
 msgid "DuoAgenticChat|Start a new conversation"
+msgstr ""
+
+msgid "DuoAgenticChat|Starting the session. Please wait"
 msgstr ""
 
 msgid "DuoAgenticChat|Steps to turn on GitLab Duo"
@@ -44055,6 +44064,9 @@ msgstr ""
 msgid "Manage templates…"
 msgstr ""
 
+msgid "Manage the branches of your repository."
+msgstr ""
+
 msgid "Manage usage"
 msgstr ""
 
@@ -51945,6 +51957,9 @@ msgstr ""
 msgid "Orbit|Relationships"
 msgstr ""
 
+msgid "Orbit|Reset zoom"
+msgstr ""
+
 msgid "Orbit|Run a query to see results"
 msgstr ""
 
@@ -51954,9 +51969,6 @@ msgstr ""
 msgid "Orbit|Run this command in your terminal to configure %{host} automatically."
 msgstr ""
 
-msgid "Orbit|Save"
-msgstr ""
-
 msgid "Orbit|Schema"
 msgstr ""
 
@@ -51964,6 +51976,9 @@ msgid "Orbit|Search"
 msgstr ""
 
 msgid "Orbit|Search entities and relationships"
+msgstr ""
+
+msgid "Orbit|Search groups"
 msgstr ""
 
 msgid "Orbit|Security"
@@ -70550,6 +70565,9 @@ msgstr ""
 msgid "SecurityTxt|When present, this will be publicly available at %{codeOpen}https://gitlab.example.com/.well-known/security.txt%{codeClose}. Maximum 2048 characters."
 msgstr ""
 
+msgid "See commit statistics for each contributor."
+msgstr ""
+
 msgid "See example DevOps Score page in our documentation."
 msgstr ""
 
@@ -74472,6 +74490,9 @@ msgid "Tag name should not start with %{prefixes}"
 msgstr ""
 
 msgid "Tag push"
+msgstr ""
+
+msgid "Tag specific points in your repository history."
 msgstr ""
 
 msgid "Tag this commit."
@@ -78618,6 +78639,9 @@ msgstr ""
 msgid "TransferProject|A project with the same name or path was recently deleted in the target namespace. Please wait for the deletion to complete or permanently delete it first."
 msgstr ""
 
+msgid "TransferProject|Cannot transfer project: failed to connect to the container registry. Please try again later."
+msgstr ""
+
 msgid "TransferProject|Please select a new namespace for your project."
 msgstr ""
 
@@ -79582,6 +79606,9 @@ msgid "UpdateProject|Cannot rename or delete project because it contains contain
 msgstr ""
 
 msgid "UpdateProject|Cannot rename project, the container registry path rename validation failed: %{error}"
+msgstr ""
+
+msgid "UpdateProject|Cannot rename project: failed to connect to the container registry. Please try again later."
 msgstr ""
 
 msgid "UpdateProject|Changing the restrict_user_defined_variables or ci_pipeline_variables_minimum_override_role is not allowed"
@@ -82188,6 +82215,9 @@ msgstr ""
 msgid "View the %{code_open}last_activity_at%{code_close} attribute for %{project_link} using the %{projects_api_link}."
 msgstr ""
 
+msgid "View the commit history of your repository."
+msgstr ""
+
 msgid "View the documentation"
 msgstr ""
 
@@ -82996,6 +83026,9 @@ msgid "Visual Studio Code (HTTPS)"
 msgstr ""
 
 msgid "Visual Studio Code (SSH)"
+msgstr ""
+
+msgid "Visualize the branch and commit graph of your repository."
 msgstr ""
 
 msgid "Volume's name must be less than %{character_limit} characters"

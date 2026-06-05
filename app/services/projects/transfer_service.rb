@@ -179,6 +179,10 @@ module Projects
       raise_error_due_to_tags_if_transfer_is_not_allowed
       raise_error_due_to_tags_if_not_in_same_root(project)
       raise_error_due_to_tags_if_transfer_dry_run_fails(project)
+    rescue Faraday::Error => e
+      Gitlab::ErrorTracking.track_exception(e, project_id: project.id)
+      raise TransferError,
+        s_('TransferProject|Cannot transfer project: failed to connect to the container registry. Please try again later.')
     end
 
     def raise_error_due_to_tags_if_transfer_is_not_allowed

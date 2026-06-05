@@ -26,7 +26,7 @@ GitLabの機能フラグ（[ユーザーリスト](../operations/feature_flags.m
 - デベロッパー、メンテナー、またはオーナーロールが必要です。
 
 > [!note]
-全ユーザーの機能フラグを操作するには、[機能フラグAPI](feature_flags.md)を参照してください。
+> 全ユーザーの機能フラグを操作するには、[機能フラグAPI](feature_flags.md)を参照してください。
 
 ## プロジェクトのすべての機能フラグユーザーリストを一覧表示 {#list-all-feature-flag-user-lists-for-a-project}
 

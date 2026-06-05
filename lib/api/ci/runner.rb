@@ -10,9 +10,9 @@ module API
       before { check_if_backoff_required! }
 
       resource :runners do
-        desc 'Register a new runner' do
+        desc 'Create a runner' do
+          detail 'Creates a runner.'
           tags ['ci_runners']
-          detail "Register a new runner for the instance"
           success Entities::Ci::RunnerRegistrationDetails
           failure [[400, 'Bad Request'], [403, 'Forbidden'], [410, 'Gone']]
         end
@@ -75,6 +75,7 @@ module API
         end
 
         desc 'Delete a registered runner' do
+          detail 'Deletes a specified registered runner.'
           summary "Delete a runner by authentication token"
           success code: 204, message: 'Resource deleted'
           failure [[403, 'Forbidden']]
@@ -118,8 +119,8 @@ module API
           end
         end
 
-        desc 'Validate authentication credentials' do
-          summary "Verify authentication for a registered runner"
+        desc 'Verify authentication for a registered runner' do
+          detail 'Verifies authentication for a registered runner.'
           success code: 200, model: Entities::Ci::RunnerRegistrationDetails, message: 'Credentials are valid'
           failure [[403, 'Forbidden'], [422, 'Runner is orphaned']]
           tags ['ci_runners']
@@ -136,7 +137,8 @@ module API
           present current_runner, with: Entities::Ci::RunnerRegistrationDetails
         end
 
-        desc 'Reset runner authentication token with current token' do
+        desc 'Reset a runner authentication token with the current token' do
+          detail 'Resets a runner authentication token with the token used to authenticate the request.'
           success Entities::Ci::ResetTokenResult
           failure [[403, 'Forbidden'], [422, 'Unprocessable Entity']]
           tags ['ci_runners']
@@ -161,7 +163,8 @@ module API
           end
 
           desc 'Discover Job Router information' do
-            detail 'This endpoint can be used by the runner to retrieve information about the Job Router.'
+            detail 'Discovers Job Router information for a runner. You must provide a valid runner ' \
+              'authentication token.'
             success Entities::Ci::JobRouter::DiscoveryInformation
             failure [
               { code: 403, message: '403 Forbidden' },

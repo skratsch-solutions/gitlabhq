@@ -22,7 +22,7 @@ title: グループリリースAPI
 このAPIを使用して、グループ内の[プロジェクトのリリース](../user/project/releases/_index.md)を操作します。
 
 > [!note]
-プロジェクトのリリースを直接操作するには、[プロジェクトリリースAPI](releases/_index.md)を参照してください。
+> プロジェクトのリリースを直接操作するには、[プロジェクトリリースAPI](releases/_index.md)を参照してください。
 
 ## グループ内のすべてのリリースを一覧表示 {#list-all-releases-in-a-group}
 

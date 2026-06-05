@@ -240,6 +240,13 @@ export const config = {
                 merged.awardEmoji = { ...existing.awardEmoji, ...incoming.awardEmoji };
               }
 
+              // Preserve existing notes.discussions when the incoming notes object
+              // does not carry a discussions field. This happens when a subscription
+              // write (e.g. workItemUpdated) and trigger a network refetch.
+              if (incoming.notes && existing.notes?.discussions && !incoming.notes.discussions) {
+                merged.notes = { ...existing.notes, ...incoming.notes };
+              }
+
               return merged;
             },
           },
