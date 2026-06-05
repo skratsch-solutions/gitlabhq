@@ -29,6 +29,9 @@ To get started, [install and configure](setup.md) the plugin.
 
 The GitLab Duo plugin works with JetBrains Remote Development when installed on the host machine (remote server).
 
+> [!warning]
+> If you use remote development, install the plugin on the host machine only. 
+> If you install the plugin on the client (local) machine as well, GitLab Duo features will not work in your IDE.
 For information about installing plugins in remote development environments, see the JetBrains documentation:
 
 - [Install plugins in remote projects](https://www.jetbrains.com/help/idea/work-inside-remote-project.html#plugins).

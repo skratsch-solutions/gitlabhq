@@ -4,8 +4,11 @@ import {
   DIFF_VIEW_COOKIE_NAME,
   INLINE_DIFF_VIEW_TYPE,
   TRACKING_CLICK_DIFF_VIEW_SETTING,
+  TRACKING_CLICK_SINGLE_FILE_SETTING,
   TRACKING_DIFF_VIEW_INLINE,
   TRACKING_DIFF_VIEW_PARALLEL,
+  TRACKING_MULTIPLE_FILES_MODE,
+  TRACKING_SINGLE_FILE_MODE,
 } from '~/diffs/constants';
 import { queueRedisHllEvents } from '~/diffs/utils/queue_events';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
@@ -72,6 +75,17 @@ export const useDiffsView = defineStore('diffsView', {
       ]);
       historyPushState(mergeUrlParams({ view }, window.location.href));
       this.updateDiffView();
+    },
+    toggleFileByFile(value) {
+      this.fileByFileMode = value;
+      this.singleFileMode = value;
+      queueRedisHllEvents([
+        TRACKING_CLICK_SINGLE_FILE_SETTING,
+        value ? TRACKING_SINGLE_FILE_MODE : TRACKING_MULTIPLE_FILES_MODE,
+      ]);
+      if (this.updateUserEndpoint) {
+        axios.put(this.updateUserEndpoint, { view_diffs_file_by_file: value });
+      }
     },
     updateShowWhitespace(value) {
       this.showWhitespace = value;

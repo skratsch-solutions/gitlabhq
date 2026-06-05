@@ -136,4 +136,10 @@ describe('View settings', () => {
     await getVueInstance().$emit('toggleWhitespace', false);
     expect(useDiffsView().updateShowWhitespace).toHaveBeenCalledWith(false);
   });
+
+  it('toggles file by file', async () => {
+    init();
+    await getVueInstance().$emit('toggleFileByFile', true);
+    expect(useDiffsView().toggleFileByFile).toHaveBeenCalledWith(true);
+  });
 });

@@ -427,49 +427,38 @@ RSpec.describe 'Admin updates network settings', :request_store, :enable_admin_m
     end
   end
 
-  shared_examples 'regular throttle rate limit settings' do
-    it 'changes rate limit settings', :aggregate_failures do
-      within_testid(selector) do
-        click_unchecked_field(_('Enable unauthenticated API request rate limit'))
-        fill_field_with_new_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
-        fill_field_with_new_value(_('Unauthenticated API rate limit period in seconds'), '34')
+  describe 'throttle rate limit settings' do
+    using RSpec::Parameterized::TableSyntax
 
-        click_unchecked_field(_('Enable authenticated API request rate limit'))
-        fill_field_with_new_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
-        fill_field_with_new_value(_('Authenticated API rate limit period in seconds'), '78')
+    where(:description, :selector) do
+      'Package Registry' | 'packages-limits-settings'
+      'Files'            | 'files-limits-settings'
+      'Deprecated'       | 'deprecated-api-rate-limits-settings'
+    end
 
-        expect_save_settings
+    with_them do
+      it "changes #{description} API rate limits settings", :aggregate_failures do
+        within_testid(selector) do
+          click_unchecked_field(_('Enable unauthenticated API request rate limit'))
+          fill_field_with_new_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
+          fill_field_with_new_value(_('Unauthenticated API rate limit period in seconds'), '34')
 
-        expect_field_checked(_('Enable unauthenticated API request rate limit'))
-        expect_field_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
-        expect_field_value(_('Unauthenticated API rate limit period in seconds'), '34')
+          click_unchecked_field(_('Enable authenticated API request rate limit'))
+          fill_field_with_new_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
+          fill_field_with_new_value(_('Authenticated API rate limit period in seconds'), '78')
 
-        expect_field_checked(_('Enable authenticated API request rate limit'))
-        expect_field_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
-        expect_field_value(_('Authenticated API rate limit period in seconds'), '78')
+          expect_save_settings
+
+          expect_field_checked(_('Enable unauthenticated API request rate limit'))
+          expect_field_value(_('Maximum unauthenticated API requests per rate limit period per IP'), '12')
+          expect_field_value(_('Unauthenticated API rate limit period in seconds'), '34')
+
+          expect_field_checked(_('Enable authenticated API request rate limit'))
+          expect_field_value(_('Maximum authenticated API requests per rate limit period per user'), '56')
+          expect_field_value(_('Authenticated API rate limit period in seconds'), '78')
+        end
       end
     end
-  end
-
-  context 'for Package Registry API rate limits' do
-    let(:selector) { 'packages-limits-settings' }
-    let(:fragment) { :packages_api }
-
-    include_examples 'regular throttle rate limit settings'
-  end
-
-  context 'for Files API rate limits' do
-    let(:selector) { 'files-limits-settings' }
-    let(:fragment) { :files_api }
-
-    include_examples 'regular throttle rate limit settings'
-  end
-
-  context 'for Deprecated API rate limits' do
-    let(:selector) { 'deprecated-api-rate-limits-settings' }
-    let(:fragment) { :deprecated_api }
-
-    include_examples 'regular throttle rate limit settings'
   end
 
   it 'changes search rate limits', :aggregate_failures do

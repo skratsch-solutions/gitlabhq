@@ -8,8 +8,11 @@ import { setCookie } from '~/lib/utils/common_utils';
 import {
   DIFF_VIEW_COOKIE_NAME,
   TRACKING_CLICK_DIFF_VIEW_SETTING,
+  TRACKING_CLICK_SINGLE_FILE_SETTING,
   TRACKING_DIFF_VIEW_INLINE,
   TRACKING_DIFF_VIEW_PARALLEL,
+  TRACKING_MULTIPLE_FILES_MODE,
+  TRACKING_SINGLE_FILE_MODE,
 } from '~/diffs/constants';
 import { queueRedisHllEvents } from '~/diffs/utils/queue_events';
 import axios from '~/lib/utils/axios_utils';
@@ -128,6 +131,47 @@ describe('Diffs view store', () => {
         TRACKING_DIFF_VIEW_INLINE,
       ]);
       expect(store.viewType).toEqual('inline');
+    });
+  });
+
+  describe('#toggleFileByFile', () => {
+    it('enables file by file mode', () => {
+      store.toggleFileByFile(true);
+      expect(store.fileByFileMode).toBe(true);
+      expect(store.singleFileMode).toBe(true);
+      expect(queueRedisHllEvents).toHaveBeenCalledWith([
+        TRACKING_CLICK_SINGLE_FILE_SETTING,
+        TRACKING_SINGLE_FILE_MODE,
+      ]);
+    });
+
+    it('disables file by file mode', () => {
+      store.fileByFileMode = true;
+      store.singleFileMode = true;
+      store.toggleFileByFile(false);
+      expect(store.fileByFileMode).toBe(false);
+      expect(store.singleFileMode).toBe(false);
+      expect(queueRedisHllEvents).toHaveBeenCalledWith([
+        TRACKING_CLICK_SINGLE_FILE_SETTING,
+        TRACKING_MULTIPLE_FILES_MODE,
+      ]);
+    });
+
+    it('persists preference for authenticated users', async () => {
+      store.toggleFileByFile(true);
+      await waitForPromises();
+      expect(
+        mockAxios.history.put.some(
+          (item) => JSON.parse(item.data).view_diffs_file_by_file === true,
+        ),
+      ).toBe(true);
+    });
+
+    it('does not persist when updateUserEndpoint is undefined', async () => {
+      store.updateUserEndpoint = undefined;
+      store.toggleFileByFile(true);
+      await waitForPromises();
+      expect(mockAxios.history.put).toHaveLength(0);
     });
   });
 

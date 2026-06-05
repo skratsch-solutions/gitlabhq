@@ -31,7 +31,7 @@ const initSettingsApp = (el, pinia) => {
       ]),
     },
     methods: {
-      ...mapActions(useDiffsView, ['updateViewType', 'updateShowWhitespace']),
+      ...mapActions(useDiffsView, ['updateViewType', 'updateShowWhitespace', 'toggleFileByFile']),
     },
     render(h) {
       return h(DiffAppControls, {
@@ -50,6 +50,7 @@ const initSettingsApp = (el, pinia) => {
         on: {
           updateDiffViewType: this.updateViewType,
           toggleWhitespace: this.updateShowWhitespace,
+          toggleFileByFile: this.toggleFileByFile,
           expandAllFiles,
           collapseAllFiles,
         },
