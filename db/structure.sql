@@ -1055,21 +1055,6 @@ RETURN OLD;
 END
 $$;
 
-CREATE FUNCTION project_secrets_manager_maintenance_tasks_organization_id() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF NEW.organization_id IS NULL THEN
-    SELECT organization_id
-    INTO NEW.organization_id
-    FROM users
-    WHERE users.id = NEW.user_id;
-  END IF;
-
-  RETURN NEW;
-END
-$$;
-
 CREATE FUNCTION set_has_external_issue_tracker() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -50117,6 +50102,8 @@ CREATE INDEX index_security_categories_on_namespace_id_where_not_deleted ON secu
 
 CREATE INDEX index_security_finding_enrichments_on_cve_enrichment_id_and_id ON security_finding_enrichments USING btree (cve_enrichment_id, id);
 
+CREATE INDEX index_security_findings_on_scan_id_and_severity_and_id ON ONLY security_findings USING btree (scan_id, severity, id);
+
 CREATE UNIQUE INDEX index_security_inventory_filters_on_project_id ON security_inventory_filters USING btree (project_id);
 
 CREATE INDEX index_security_inventory_filters_on_traversal_ids ON security_inventory_filters USING btree (traversal_ids);
@@ -56398,8 +56385,6 @@ CREATE TRIGGER trigger_jira_tracker_data_sharding_key_on_insert BEFORE INSERT ON
 CREATE TRIGGER trigger_mark_geo_ci_job_artifact_summary_dirty AFTER INSERT OR DELETE OR UPDATE OF verification_state ON ci_job_artifact_states FOR EACH ROW EXECUTE FUNCTION mark_geo_ci_job_artifact_verification_summary_dirty();
 
 CREATE TRIGGER trigger_namespaces_traversal_ids_on_update AFTER UPDATE ON namespaces FOR EACH ROW WHEN ((old.traversal_ids IS DISTINCT FROM new.traversal_ids)) EXECUTE FUNCTION insert_namespaces_sync_event();
-
-CREATE TRIGGER trigger_project_secrets_manager_maintenance_tasks_organization_ BEFORE INSERT OR UPDATE ON project_secrets_manager_maintenance_tasks FOR EACH ROW EXECUTE FUNCTION project_secrets_manager_maintenance_tasks_organization_id();
 
 CREATE TRIGGER trigger_projects_parent_id_on_insert AFTER INSERT ON projects FOR EACH ROW EXECUTE FUNCTION insert_projects_sync_event();
 

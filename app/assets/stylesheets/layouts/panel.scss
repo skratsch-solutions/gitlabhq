@@ -32,6 +32,11 @@
   @apply gl-w-full;
   @apply sm:gl-w-8/10;
   @apply gl-overflow-y-auto;
+
+  > .vue-portal-target {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 // Panel header

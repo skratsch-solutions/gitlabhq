@@ -7816,10 +7816,13 @@ msgstr ""
 msgid "AgentPlan|No workplan has been added yet. You don't have permission to create or edit the workplan."
 msgstr ""
 
-msgid "AgentPlan|Not started"
+msgid "AgentPlan|Not yet created"
 msgstr ""
 
-msgid "AgentPlan|Ready"
+msgid "AgentPlan|Ready to view"
+msgstr ""
+
+msgid "AgentPlan|Regenerate workplan with Duo"
 msgstr ""
 
 msgid "AgentPlan|Select workplan template"
@@ -51799,6 +51802,9 @@ msgid "Orbit|Last indexed:"
 msgstr ""
 
 msgid "Orbit|Learn more"
+msgstr ""
+
+msgid "Orbit|Leave feedback"
 msgstr ""
 
 msgid "Orbit|List pipelines that failed in the last week"

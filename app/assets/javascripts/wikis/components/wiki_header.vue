@@ -21,6 +21,7 @@ import RestoreVersionModal from './restore_version_modal.vue';
 import WikiStickyHeader from './wiki_sticky_header.vue';
 
 export default {
+  name: 'WikiHeader',
   components: {
     WikiSidebarToggle,
     GlButton,

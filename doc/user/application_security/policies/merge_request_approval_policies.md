@@ -240,12 +240,9 @@ This rule enforces the defined actions based on security scan findings.
 {{< history >}}
 
 - `known_exploited`, `epss_score`, and `enrichment_data_unavailable` fields [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/576860) in GitLab 18.11 [with a feature flag](../../../administration/feature_flags/_index.md) named `security_policies_kev_filter`. Disabled by default.
+- [Generally available](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/229501) in GitLab 19.1. Feature flag `security_policies_kev_filter` removed.
 
 {{< /history >}}
-
-> [!flag]
-> The availability of this feature is controlled by a feature flag.
-> For more information, see the history.
 
 | Field                        | Type                 | Required | Possible values                                              | Description |
 |------------------------------|----------------------|----------|--------------------------------------------------------------|-------------|

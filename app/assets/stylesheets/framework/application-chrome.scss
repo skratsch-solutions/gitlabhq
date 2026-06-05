@@ -19,14 +19,6 @@
     flex: 1;
   }
 
-  // Unset fixed positions
-  /* stylelint-disable gitlab/no-js-class */
-  #js-peek {
-  /* stylelint-enable gitlab/no-js-class */
-    @apply gl-relative #{!important};
-    @apply gl-top-0;
-  }
-
   // AI panel
   .ai-panels {
     overflow: inherit;
@@ -63,11 +55,6 @@
     .ai-panel-maximized .panels-container {
       display: flex;
     }
-  }
-
-  #contextual-panel-portal > .vue-portal-target {
-    flex: 1;
-    min-height: 0;
   }
 
   // Content adjustments within panels
@@ -171,20 +158,5 @@
         var(--_shade-2);
       background-color: var(--body-background-color);
     }
-  }
-}
-
-/*
- * Animations
- */
-
-@supports (width: calc-size(auto, size)) {
-  .super-sidebar.super-sidebar-toggled-manually,
-  .panels-container {
-    width: calc-size(auto, size);
-    /* stylelint-disable-next-line property-no-unknown */
-    interpolate-size: allow-keywords;
-    transition: width .25s $gl-easing-out-cubic,
-                transform .25s $gl-easing-out-cubic !important;
   }
 }

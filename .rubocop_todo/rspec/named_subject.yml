@@ -143,7 +143,6 @@ RSpec/NamedSubject:
     - 'ee/spec/helpers/ee/ci/runners_helper_spec.rb'
     - 'ee/spec/helpers/ee/emails_helper_spec.rb'
     - 'ee/spec/helpers/ee/events_helper_spec.rb'
-    - 'ee/spec/helpers/ee/gitlab_routing_helper_spec.rb'
     - 'ee/spec/helpers/ee/groups/group_members_helper_spec.rb'
     - 'ee/spec/helpers/ee/groups_helper_spec.rb'
     - 'ee/spec/helpers/ee/kerberos_helper_spec.rb'

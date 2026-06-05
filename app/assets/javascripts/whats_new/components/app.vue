@@ -9,6 +9,7 @@ import OtherUpdates from './other_updates.vue';
 import TranscendPromoCard from './transcend_promo_card.vue';
 
 export default {
+  name: 'WhatsNewApp',
   components: {
     GlDrawer,
     OtherUpdates,

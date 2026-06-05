@@ -9,6 +9,7 @@ import { sprintf, __, s__ } from '~/locale';
 import { getContentWrapperHeight } from '~/lib/utils/dom_utils';
 
 export default {
+  name: 'WhatsNewFeature',
   components: {
     GlBadge,
     GlIcon,

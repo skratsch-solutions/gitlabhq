@@ -33,6 +33,14 @@ Fine-grained personal access tokens can access the following GraphQL types, muta
 
 ### Application Security resources
 
+#### Dependency
+
+Grants the ability to read dependencies.
+
+| Action | Access | Kind | Name |
+| ------ | ------ | ---- | ---- |
+| Read | Project | Type | `DependencyLocation` |
+
 #### Vulnerability
 
 Grants the ability to create, read, and update vulnerabilities.

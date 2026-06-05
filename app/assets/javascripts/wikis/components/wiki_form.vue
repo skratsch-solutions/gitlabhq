@@ -92,6 +92,7 @@ const getCommitMessage = (pageInfo) =>
 const getIsFormDirty = (pageInfo) => Boolean(getDraft(titleAutosaveKey(pageInfo)));
 
 export default {
+  name: 'WikiForm',
   i18n: {
     title: {
       label: s__('WikiPage|Title'),

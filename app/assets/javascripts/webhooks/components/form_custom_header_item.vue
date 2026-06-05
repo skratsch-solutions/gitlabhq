@@ -4,6 +4,7 @@ import { __, s__ } from '~/locale';
 import { MASK_ITEM_VALUE_HIDDEN } from '../constants';
 
 export default {
+  name: 'FormCustomHeaderItem',
   components: {
     GlButton,
     GlFormGroup,

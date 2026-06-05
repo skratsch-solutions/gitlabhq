@@ -83,6 +83,21 @@ html {
   }
 }
 
+// Smoothly animate the panels container and super sidebar when they expand
+// or collapse. `width: auto` can't normally be transitioned, so we use
+// `calc-size()` together with `interpolate-size: allow-keywords` to make the
+// intrinsic width animatable.
+@supports (width: calc-size(auto, size)) {
+  .panels-container,
+  .super-sidebar.super-sidebar-toggled-manually {
+    width: calc-size(auto, size);
+    /* stylelint-disable-next-line property-no-unknown */
+    interpolate-size: allow-keywords;
+    transition: width .25s $gl-easing-out-cubic,
+                transform .25s $gl-easing-out-cubic !important;
+  }
+}
+
 .content-wrapper {
   padding-top: var(--top-bar-height);
   padding-bottom: $content-wrapper-padding;
