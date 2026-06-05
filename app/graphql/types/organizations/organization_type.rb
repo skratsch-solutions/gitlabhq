@@ -61,9 +61,9 @@ module Types
         description: 'State of the organization.',
         experiment: { milestone: '19.0' }
       field :visibility,
-        GraphQL::Types::String,
+        Types::Organizations::VisibilityEnum,
         null: true,
-        description: 'Visibility level of the organization.'
+        description: 'Visibility of the organization.'
       field :web_path,
         GraphQL::Types::String,
         null: false,

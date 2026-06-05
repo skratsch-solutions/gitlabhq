@@ -821,6 +821,8 @@
   - 1
 - - organizations_groups_transfer
   - 1
+- - organizations_hard_delete
+  - 1
 - - package_cleanup
   - 1
 - - package_metadata_global_advisory_scan
@@ -1080,6 +1082,8 @@
 - - security_analyzer_namespace_statuses_process_group_deleted_events
   - 1
 - - security_analyzer_namespace_statuses_recalculate
+  - 1
+- - security_analyzers_status_ingestion_subscriber
   - 1
 - - security_analyzers_status_process_archived_events
   - 1

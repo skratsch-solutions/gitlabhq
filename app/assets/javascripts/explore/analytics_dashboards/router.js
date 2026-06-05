@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { s__ } from '~/locale';
+import DashboardsList from 'ee_else_ce/explore/analytics_dashboards/pages/list.vue';
 import DashboardView from './pages/details.vue';
 import DashboardEdit from './pages/edit.vue';
-import DashboardsList from './pages/list.vue';
 import { EDIT_DASHBOARD_PATH } from './constants';
 
 Vue.use(VueRouter);

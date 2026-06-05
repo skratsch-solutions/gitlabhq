@@ -26,26 +26,23 @@ doc/
 For each release, the product manager is responsible for creating the MR and files for the feature release note.
 The Technical writing team is responsible for creating all other directories and files.
 
-## How to add a feature release note
+## Create a feature release note
 
-To update the release notes for 19.0:
+To create a feature release note:
 
-1. Open the [`gitlab-19-0-released.md`](../../releases/19/gitlab-19-0-released.md) file
-   in the `gitlab-org/gitlab` project.
-1. Copy the commented-out text at the top of the page. It's an `H3` heading, comment for the category, details, and a block of text.
-1. Paste the text into the section that makes the most sense: the primary feature, or one of the
-   secondary groups. For more information, see [release post organization](#organization).
-1. Add a `>` to the end of the category comment so it's properly formatted HTML: (`<!-- categories: <name value from categories.yml> -->`).
-   Add values that match the [categories.yml](https://gitlab.com/gitlab-com/www-gitlab-com/-/blob/master/data/categories.yml) file.
-   The value is case-sensitive.
-   Use comma separation for multiple values.
-1. Edit the text to reflect your feature announcement.
+1. Identify the directory for the associated release. It should be something similar to `/doc/releases/19/gitlab-19-1-released/`.
+1. In this directory, create a Markdown file for the feature release note. Although the name doesn't matter, it's
+   helpful to name it so it's identifiable later.
+1. Paste the [template](#feature-release-note) from below into the Markdown file.
+1. Adjust the [metadata](#feature-release-note-metadata) to match your specific needs.
+   - Documentation links must be relative.
+   - Make sure work item links are not confidential.
+1. After the metadata, define the release note text.
    - Use 125 words or fewer, and no images or videos.
-   - Documentation links are allowed and must be relative.
-   - Ensure work item links are not confidential.
+   - Documentation links are allowed, but must be relative.
    - Links to other resources are also allowed.
-1. Open a merge request:
-   - Use the Release Notes Item template to populate the description and to track progress.
+1. Create a merge request:
+   - Use the `Release Notes Item` template to populate the description and track progress.
    - Assign the merge request to an Engineering Manager and Technical Writer for review.
 
 > [!note]
@@ -53,141 +50,146 @@ To update the release notes for 19.0:
 
 If your item is primary, review the instructions for What's new.
 
-## How the notable contributor is added
+## Edit or remove a feature release note
 
-Developer Relations creates the merge request that adds a few sentences about the release's notable contributor.
+If you need to update or entirely remove a feature release note, make a merge request with the requested changes,
+and assign to a Technical Writer for review.
 
-The format should be similar to:
+To remove a feature release note, you only need to delete the associated file. No other files need to be adjusted.
+
+## Add a notable contributor
+
+Developer Relations creates a merge request for each release that adds a few sentences about the notable contributor.
+This information needs to be added to the minor release index file.
+For example, `doc/releases/19/gitlab-19-1-released/index.md`.
+
+Use the following template after the existing introductory text:
 
 ```markdown
-We'd also like to announce this month's [Notable Contributor](https://contributors.gitlab.com/notable-contributors):
-<name>!
+## Notable contributor
 
-We are excited to recognize [Name](https://gitlab.com/<username>), a ....
+We are excited to recognize [Name](https://gitlab.com/<username>)
+as this month's [Notable Contributor](https://contributors.gitlab.com/notable-contributors)! ...
 ```
 
 This merge request can be merged at any point before the release, though
 you can check with the author to confirm.
 
-## Technical Writer review
+## Review a feature release note
 
-To review a release note merge request:
+After the merge request is created, a Technical Writer must review the [metadata](#feature-release-note-metadata) and body
+text. This process is similar to other documentation changes.
 
-1. Review the tiers, offerings, documentation link, issue link, and content.
-   Ensure the links have been changed from the examples, and that the work item isn't confidential.
-1. Start an automatic rebase with `/rebase` in an empty comment, then set it to auto-merge when the pipeline completes.
+## Publish release notes
 
-While it is preferable for the writer to merge, any Maintainer can merge.
-The priority is for the item to be merged before the release.
+On release day, the Technical Writer assigned to the upcoming release creates three merge requests:
 
-## Technical Writer release day process
-
-On release day, the writer assigned to the upcoming release creates three merge requests:
-
-- One for the `gitlab` repo. This MR updates the introductory language and the description text.
-  It also introduces a page for the next release and adds a redirect.
-- One for `docs-gitlab-com`. This MR adds the next release version to the navigation.
-- One that backports the final release notes to the most recent "stable branch."
-  For example, if you are releasing 19.1, the stable branch is `19-1-stable-ee`.
-
-You can create the first two merge requests a few days before the release.
-The third one must be done on release day.
+1. [Update content for the current release](#update-content-for-current-release) and
+   [create content for the upcoming release](#create-content-for-upcoming-release) in `gitlab`.
+   Can be done before release day.
+1. [Add current release to navigation](#add-current-release-to-navigation) in `docs-gitlab-com`.
+   Can be done before release day.
+1. [Backport the release notes](#backport-final-release-notes) to the most recent stable branch.
+   For example, if you are releasing 19.1, the stable branch is `19-1-stable-ee`.
+   Must be done on release day.
 
 > [!warning]
 > Do not merge the changes until the release manager confirms that the packages are publicly
-> available, usually around 14:00 UTC. Release managers will put a note in the
+> available, usually around 14:00 UTC. Release managers add a note in the
 > `#release-post` channel when it's time to publish.
 
-### Update content to reflect today's release
+### Update content for current release
 
-Open the file for the release, for example `doc/releases/19/gitlab-19-0-released.md`, and update the following content.
+As part of the publishing process, you must update the minor release index file.
 
+To update the content for the current release:
+
+1. Open the minor release index file. For example `doc/releases/19/gitlab-19-0-released/index.md`.
 1. In the metadata, after the `group`, add the release date. For example:
 
    ```markdown
    date: 2026-05-21
    ```
 
-   This addition will make the pipeline fail until the date of release.
-   This is expected.
+   This addition makes the pipeline fail until the date of release.
+   This failure is expected.
 
-1. Change the `description` metadata from:
+1. Update the `description` metadata:
 
    ```markdown
-   Summary of features included in <version>
+   # Original
+   description: Summary of features included in <version>
+
+   # New
+   desciption: GitLab <version> released with <top feature title>
    ```
 
-   To:
+   Replace the version and top feature title with the relevant information.
+
+1. Update the `title` metadata:
 
    ```markdown
-   GitLab <version> released with <top feature title>
-   ```
-
-1. Change the `title` from:
-
-   ```markdown
+   # Original
    title: GitLab <version> - not yet released
-   ```
 
-   To:
-
-   ```markdown
+   # New
    title: GitLab <version>
    ```
 
-1. Change the intro text from:
+1. Update the introductory text:
 
    ```markdown
+   # Original
    The following features are being delivered for GitLab <version>.
    These features are now available on GitLab.com.
-   ```
 
-   To:
-
-   ```markdown
+   # New
    On <release date>, GitLab <version> was released with the following features.
    ```
 
-   Replace the date and version with the version that's being released.
+   Replace the date and version with the relevant information.
 
-### Create content for next release
+### Create content for upcoming release
 
-Now create a file for the next version.
+As part of the publishing process, you must create the directory and content for the next release.
+For example, when publishing 19.1, you would create the directory and index file for 19.2.
 
-1. In the `/doc/releases/` folder, create a Markdown file for the next release. For example, `19/gitlab-19-1-released.md`.
-1. Populate the file with the [template](#templates).
-1. Add a `>` to the end of the category comment so it's properly formatted HTML: `<!-- categories: <name value from categories.yml> -->`
-1. In the metadata and intro text, change the version number to the next version number.
+To create content for the upcoming release:
 
-### Update the index file
-
-Now update the index file to point to the new file.
-
-1. Open `/doc/releases/19/_index.md`.
-1. Add the upcoming version, for example, if 19.0 is shipping, add 19.1:
+1. Identify the major version directory in `/doc/releases/`. For example `/doc/releases/19/`.
+1. Create content for the upcoming version:
+   1. Create a new directory for the upcoming release. For example, `19/gitlab-19-1-released/`.
+   1. In the new directory, create an `index.md` file for the upcoming release.
+      For example, `19/gitlab-19-1-released/index.md`.
+   1. Paste the [template](#minor-release-index) and update the version number.
+1. Add the file to the major version index page.
+   1. Go to the major version directory in `/doc/releases/`. For example `/doc/releases/19/`.
+   1. In `_index.md`, update the cards shortcode to reference the upcoming release file. For example:
 
    ```markdown
    {{</* cards */>}}
 
-   - [GitLab 19.0](gitlab-19-0-released.md)
-   - [GitLab 19.1](gitlab-19-1-released.md)
+   - [GitLab 19.0](gitlab-19-0-released/index.md)
+   - [GitLab 19.1](gitlab-19-1-released/index.md)
 
    {{</* /cards */>}}
    ```
 
-### Update the redirect file
+1. Update the upcoming redirect page to reference the upcoming release.
+   1. In `doc/releases/upcoming.md`, update the redirect metadata to point to the upcoming release file. For example:
 
-1. Open `doc/releases/upcoming.md`.
-1. Update the text and metadata to reflect the next release.
+      ```markdown
+      ---
+      redirect_to: '19/gitlab-19-1-released/index.md'
+      ---
+      ```
 
-You can now push your commit. This merge request is complete.
+1. Create a merge request and assign to a Technical Writer for review.
 
-### Update the left navigation
+### Add current release to navigation
 
-Now go to the `docs-gitlab-com` repository and update `navigation.yaml` to
-add the next version's page to the left navigation.
-
-For example, add 19.1:
+In the `docs-gitlab-com` repository, add the current release to `data/en-us/navigation.yaml`.
+For example:
 
 ```yaml
         - title: GitLab 19
@@ -201,12 +203,12 @@ For example, add 19.1:
 
 You can now push your commit. This merge request is complete.
 
-### Backport the final notes
+### Backport final release notes
 
-After the release notes are published, you must backport them. Do this work on release day and not before.
+After the release notes are published, you must backport them. You must do this work on release day and not before.
 
 The final cutoff for the `gitlab` repository happens the Friday before the release.
-If a user selects the version from the upper-right corner of the docs site, they won't get the final notes.
+If a user selects the version from the upper-right corner of the documentation site, they cannot get the final notes.
 Backporting makes the notes visible and up-to-date when users select the newly released version.
 
 1. Check out the "stable branch." For example, if you are releasing 19.1, check out `19-1-stable-ee`.
@@ -214,33 +216,30 @@ Backporting makes the notes visible and up-to-date when users select the newly r
 1. Paste the contents over the local version of the release notes.
 1. Open a merge request and select the **Stable branch** template to populate the description.
    Change the target branch to the stable branch (`19-1-stable-ee`).
-1. Have a maintainer review and merge. (It can be another tech writer.)
+1. Have a maintainer review and merge. (It can be another Technical Writer.)
    If the branch is still locked, ask for assistance in the `#release-post` channel,
    or wait a few hours until the branch is available to merge.
-1. After merge, [create a new docs pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
+1. After merge, [create a new pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
    For **Run for branch name or tag**, select the version to deploy. In this example, choose `19.1`,
    then select **New pipeline**.
 
-## Update a release note after the release deadline
+### Update content after a release
 
-To update or add a release note after the release, complete the following steps.
+To update, add, or remove a release note after the release deadline:
 
-Update the `gitlab` repository:
-
-1. Open a merge request to update the Markdown file in the `gitlab` repository.
-1. Make your changes and have a technical writer review and merge.
-
-Backport the change:
-
-1. Check out the "stable branch." For example, if you are updating 19.0, check out `19-0-stable-ee`.
-1. Make your change in this branch.
-1. Open a merge request and set the target branch to the stable branch (`19-0-stable-ee`).
-1. Have a maintainer review and merge. (It can be another tech writer.)
-1. After merge, [create a new docs pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new).
-   For **Run for branch name or tag**, select the version to deploy. In this example, choose `19.0`,
-   then select **New pipeline**.
-
-1. On <https://docs.gitlab.com>, select the version in the upper-right corner and ensure the notes
+1. Update the `gitlab` repository.
+   1. Open a merge request to update the Markdown file in the `gitlab` repository.
+   1. Make your changes.
+   1. Have a Technical Writer review and merge.
+1. Backport the changes.
+   1. Check out the stable branch. For example, if you are updating 19.0, check out `19-0-stable-ee`.
+   1. Make your change in this branch.
+   1. Open a merge request and set the target branch to the stable branch (`19-0-stable-ee`).
+   1. Have a maintainer review and merge. It can be another Technical Writer.
+   1. After merge, a technical writer must run a new [pipeline](https://gitlab.com/gitlab-org/technical-writing/docs-gitlab-com/-/pipelines/new) for the relevant stable branch in `docs-gitlab-com`.
+      For **Run for branch name or tag**, select the version to deploy. In this example, choose `19.0`,
+      then select **New pipeline**.
+1. On <https://docs.gitlab.com>, select the version in the upper-right corner and verify the notes
    were updated successfully.
 
 ## Organization
@@ -284,7 +283,7 @@ values unless a note must absolutely appear first.
 | `title`              | string                                                                                                 | Feature title. Displayed as a section heading. Ideally seven words or fewer. |
 | `tier`               | array, formatted like `[ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government]` | Feature tier. Formatting matters. Requires at least one. Always follow this order. |
 | `offering`           | array, formatted like `[ Free, Premium, Ultimate ]`                                                    | Feature offerings. Requires at least one. Always follow this order. |
-| `documentation_link` | relative URL                                                                                           | Link to the feature documentation. Don't use `https://`-style links. |
+| `documentation_link` | relative URL                                                                                           | Link to the feature documentation. Don't use `https://`-style links, and omit `_index.md` or the `.md` extension. |
 | `work_item`          | absolute URL                                                                                           | Link to the related work item. Must not be confidential. |
 | `categories`         | array                                                                                                  | An array with the `Name` value of one or more [categories](https://gitlab.com/gitlab-com/www-gitlab-com/-/blob/master/data/categories.yml). Values are case-sensitive, separate multiple values with commas. If a related category doesn't exist, make another merge request to add it. |
 | `stage`              | string                                                                                                 | Name of the stage that created the feature. Used to [organize](#organization) the section the release note appears in. |
@@ -316,8 +315,8 @@ These features are now available on GitLab.com.
 title:
 tier: [ gitlab_com, self_managed, gitlab_dedicated, gitlab_dedicated_for_government ]
 offering: [ Free, Premium, Ultimate ]
-stage:
-documentation_link: "../../../_index.md#popular-topics"
+stage: application_security_testing
+documentation_link: "../../../_index/#popular-topics"
 work_item: https://gitlab.com/groups/gitlab-org/-/work_items/<work-item-number>
 categories: [ System Access, Permissions ]
 level: primary or secondary

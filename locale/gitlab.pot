@@ -32027,6 +32027,9 @@ msgstr ""
 msgid "Failed to save timelog"
 msgstr ""
 
+msgid "Failed to schedule organization deletion"
+msgstr ""
+
 msgid "Failed to send email OTP. Please try again. If the problem persists, refresh your page or sign in again."
 msgstr ""
 
@@ -52194,6 +52197,9 @@ msgstr ""
 msgid "Organization must be empty before it can be deleted"
 msgstr ""
 
+msgid "Organization must be soft-deleted first"
+msgstr ""
+
 msgid "Organization parameter must be specified"
 msgstr ""
 
@@ -68685,6 +68691,9 @@ msgstr ""
 msgid "SecurityOrchestration|Test failed"
 msgstr ""
 
+msgid "SecurityOrchestration|Test pending"
+msgstr ""
+
 msgid "SecurityOrchestration|Test running"
 msgstr ""
 
@@ -69631,6 +69640,9 @@ msgstr ""
 msgid "SecurityProfiles|Only a project maintainer or owner can apply or disable profiles."
 msgstr ""
 
+msgid "SecurityProfiles|Pipeline job: #%{jobId}"
+msgstr ""
+
 msgid "SecurityProfiles|Preview default profile"
 msgstr ""
 
@@ -69685,7 +69697,7 @@ msgstr ""
 msgid "SecurityProfiles|Unconfigured"
 msgstr ""
 
-msgid "SecurityProfiles|View failed job #"
+msgid "SecurityProfiles|View failed job #%{jobId}"
 msgstr ""
 
 msgid "SecurityProfiles|View job #"
@@ -90492,6 +90504,9 @@ msgid "must be present when package revision exists"
 msgstr ""
 
 msgid "must be present when recipe revision exists"
+msgstr ""
+
+msgid "must be private or public"
 msgstr ""
 
 msgid "must be set for a project namespace"

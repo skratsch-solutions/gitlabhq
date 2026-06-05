@@ -16,10 +16,16 @@ module MergeRequestDiffHelpers
   end
 
   def click_diff_line(line_holder, diff_side = nil)
-    line = get_line_components(line_holder, diff_side)
-    scroll_to_panel_elements_bottom(line_holder)
-    line_holder.hover
-    line[:num].find('.js-add-diff-note-button').click
+    wait_for('new note form to appear on the row') do
+      line = get_line_components(line_holder, diff_side)
+      scroll_to_panel_elements_bottom(line_holder)
+      line_holder.hover
+
+      line[:num].find('.js-add-diff-note-button', wait: 0.2).click
+
+      page.has_field?('note_note', focused: true, wait: 0.2)
+    rescue Capybara::ElementNotFound
+    end
   end
 
   def get_line_components(line_holder, diff_side = nil)

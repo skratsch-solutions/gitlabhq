@@ -195,18 +195,6 @@ RSpec.describe Organizations::Transfer::UsersService, :aggregate_failures, featu
         end
       end
 
-      context 'when new organization is internal' do
-        let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::INTERNAL) }
-
-        it 'sets private_profile to true on users' do
-          service.execute
-
-          expect(user1.reload.private_profile).to be true
-          expect(user2.reload.private_profile).to be true
-          expect(user3.reload.private_profile).to be true
-        end
-      end
-
       context 'when new organization is private' do
         let_it_be(:new_organization) { create(:organization, visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
 

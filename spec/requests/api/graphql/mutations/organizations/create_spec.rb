@@ -90,6 +90,23 @@ RSpec.describe Mutations::Organizations::Create, feature_category: :organization
       include_examples 'creating an organization'
     end
 
+    context 'with visibility_level' do
+      let(:params) do
+        {
+          name: name,
+          path: path,
+          visibility: 'public'
+        }
+      end
+
+      it 'creates an organization with the given visibility level' do
+        create_organization
+
+        organization = Organizations::Organization.last
+        expect(organization.visibility_level).to eq(Gitlab::VisibilityLevel::PUBLIC)
+      end
+    end
+
     include_examples 'creating an organization'
   end
 end

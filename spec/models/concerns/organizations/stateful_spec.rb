@@ -35,6 +35,7 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
       it { is_expected.to handle_events :activate, when: :confirmed }
       it { is_expected.to handle_events :soft_delete, when: :active }
       it { is_expected.to handle_events :hard_delete, when: :soft_deleted }
+      it { is_expected.to handle_events :abort_hard_deletion, when: :deletion_in_progress }
       it { is_expected.to handle_events :restore, when: :soft_deleted }
     end
 
@@ -43,16 +44,20 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
         :unconfirmed          | :activate
         :unconfirmed          | :soft_delete
         :unconfirmed          | :hard_delete
+        :unconfirmed          | :abort_hard_deletion
         :unconfirmed          | :restore
         :confirmed            | :confirm
         :confirmed            | :soft_delete
         :confirmed            | :hard_delete
+        :confirmed            | :abort_hard_deletion
         :confirmed            | :restore
         :active               | :confirm
         :active               | :activate
         :active               | :hard_delete
+        :active               | :abort_hard_deletion
         :active               | :restore
         :soft_deleted         | :soft_delete
+        :soft_deleted         | :abort_hard_deletion
         :deletion_in_progress | :soft_delete
         :deletion_in_progress | :hard_delete
         :deletion_in_progress | :restore
@@ -96,22 +101,30 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
         .to(:confirmed)
     end
 
-    context 'with soft_delete' do
-      before do
-        organization.update_column(:state, Organizations::Organization.states[:active])
+    context 'with transition_user-requiring events' do
+      where(:from_state, :event, :to_state) do
+        :active               | :soft_delete         | :soft_deleted
+        :soft_deleted         | :hard_delete         | :deletion_in_progress
+        :deletion_in_progress | :abort_hard_deletion | :soft_deleted
       end
 
-      it 'prevents soft_delete without a transition_user' do
-        expect(organization.soft_delete).to be false
-        expect(organization.errors[:state])
-          .to include('soft_delete transition needs transition_user')
-      end
+      with_them do
+        before do
+          organization.update_column(:state, Organizations::Organization.states[from_state])
+        end
 
-      it 'allows soft_delete with a transition_user' do
-        expect { organization.soft_delete(transition_user: user) }
-          .to change { organization.state_name }
-          .from(:active)
-          .to(:soft_deleted)
+        it "prevents #{params[:event]} without a transition_user" do
+          expect(organization.public_send(event)).to be false
+          expect(organization.errors[:state])
+            .to include("#{event} transition needs transition_user")
+        end
+
+        it "allows #{params[:event]} with a transition_user" do
+          expect { organization.public_send(event, transition_user: user) }
+            .to change { organization.state_name }
+            .from(from_state)
+            .to(to_state)
+        end
       end
     end
   end
@@ -177,19 +190,30 @@ RSpec.describe Organizations::Stateful, feature_category: :organization do
   end
 
   describe '#ensure_organization_is_empty' do
-    it 'prevents soft_delete when organization is not empty' do
-      create(:group, organization: organization)
-
-      expect(organization.soft_delete(transition_user: user)).to be false
-      expect(organization.errors[:state])
-        .to include('soft_delete transition requires the organization to be empty')
+    where(:from_state, :event, :to_state) do
+      :active       | :soft_delete | :soft_deleted
+      :soft_deleted | :hard_delete | :deletion_in_progress
     end
 
-    it 'allows soft_delete when organization is empty' do
-      expect { organization.soft_delete(transition_user: user) }
-        .to change { organization.state_name }
-        .from(:active)
-        .to(:soft_deleted)
+    with_them do
+      before do
+        organization.update_column(:state, Organizations::Organization.states[from_state])
+      end
+
+      it "prevents #{params[:event]} when organization is not empty" do
+        create(:group, organization: organization)
+
+        expect(organization.public_send(event, transition_user: user)).to be false
+        expect(organization.errors[:state])
+          .to include("#{event} transition requires the organization to be empty")
+      end
+
+      it "allows #{params[:event]} when organization is empty" do
+        expect { organization.public_send(event, transition_user: user) }
+          .to change { organization.state_name }
+          .from(from_state)
+          .to(to_state)
+      end
     end
   end
 

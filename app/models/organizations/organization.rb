@@ -64,7 +64,9 @@ module Organizations
       'organizations/path': true,
       length: { minimum: 2, maximum: 255 }
 
-    validate :check_visibility_level, if: -> { new_record? || visibility_level_changed? }
+    validate :check_visibility_level_broader_than_groups,
+      :check_visibility_level_allowed,
+      if: -> { new_record? || visibility_level_changed? }
     validate :check_organization_reserved_name, if: -> { new_record? }
     validate :validate_single_organization_on_self_managed, on: :create
 
@@ -183,13 +185,19 @@ module Organizations
     private
 
     # The visibility must be broader than the visibility of any contained root groups.
-    def check_visibility_level
+    def check_visibility_level_broader_than_groups
       max_group_level = root_groups.maximum(:visibility_level)
       return unless max_group_level
 
       return if visibility_level >= max_group_level
 
       errors.add(:visibility_level, _("can not be more restrictive than group visibility levels"))
+    end
+
+    def check_visibility_level_allowed
+      return true if visibility_level.in? [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PRIVATE]
+
+      errors.add(:visibility_level, _("must be private or public"))
     end
 
     # The 'o' path is reserved as it's used for routing organization resources

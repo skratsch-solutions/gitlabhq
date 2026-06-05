@@ -119,12 +119,82 @@ describe('mergeRequestVersions store', () => {
     });
   });
 
-  describe('diffRefs', () => {
-    it('uses target refs when target is head', () => {
+  describe('isLatestVersion', () => {
+    it('returns true when selected source version has latest flag', () => {
       store.setVersions({
-        sourceVersions: [{ selected: true, base_sha: 'base000', head_sha: 'head222' }],
+        sourceVersions: [{ selected: true, latest: true }],
+        targetVersions: [{ selected: true, is_merge_head: true }],
+      });
+
+      expect(store.isLatestVersion).toBe(true);
+    });
+
+    it('returns false when selected source version is not latest', () => {
+      store.setVersions({
+        sourceVersions: [
+          { selected: true, latest: false },
+          { selected: false, latest: true },
+        ],
+        targetVersions: [{ selected: true, is_merge_head: true }],
+      });
+
+      expect(store.isLatestVersion).toBe(false);
+    });
+
+    it('returns false when viewing a commit', () => {
+      store.setVersions({
+        sourceVersions: [{ selected: true, latest: true }],
+        targetVersions: [{ selected: true, is_merge_head: true }],
+      });
+      store.setCommit({ id: 'abc', diff_refs: {} });
+
+      expect(store.isLatestVersion).toBe(false);
+    });
+
+    it('returns false when no source version is selected', () => {
+      store.setVersions({
+        sourceVersions: [{ selected: false, latest: true }],
+        targetVersions: [{ selected: true, is_merge_head: true }],
+      });
+
+      expect(store.isLatestVersion).toBe(false);
+    });
+  });
+
+  describe('sourceHeadSha', () => {
+    it('returns selected source version head_sha', () => {
+      store.setVersions({
+        sourceVersions: [{ selected: true, head_sha: 'src_head' }],
+        targetVersions: [{ selected: true, is_merge_head: true, head_sha: 'merge_head' }],
+      });
+
+      expect(store.sourceHeadSha).toBe('src_head');
+    });
+
+    it('returns commit id when viewing a commit', () => {
+      store.setCommit({ id: 'commit_abc', diff_refs: {} });
+
+      expect(store.sourceHeadSha).toBe('commit_abc');
+    });
+
+    it('returns null when no source version is selected', () => {
+      store.setVersions({
+        sourceVersions: [{ selected: false, head_sha: 'src_head' }],
+        targetVersions: [{ selected: true }],
+      });
+
+      expect(store.sourceHeadSha).toBeNull();
+    });
+  });
+
+  describe('diffRefs', () => {
+    it('uses target refs when target is merge head and source is latest', () => {
+      store.setVersions({
+        sourceVersions: [
+          { selected: true, latest: true, base_sha: 'base000', head_sha: 'head222' },
+        ],
         targetVersions: [
-          { selected: true, head: true, start_sha: 'start111', head_sha: 'target_head' },
+          { selected: true, is_merge_head: true, start_sha: 'start111', head_sha: 'target_head' },
         ],
       });
 
@@ -135,12 +205,33 @@ describe('mergeRequestVersions store', () => {
       });
     });
 
+    it('uses source refs when target is merge head but source is not latest', () => {
+      // The merge-head ref drifts with master, so we cannot use it to anchor positions
+      // against an older source version. Fall back to source-anchored refs instead.
+      store.setVersions({
+        sourceVersions: [
+          { selected: true, latest: false, base_sha: 'base000', head_sha: 'head222' },
+        ],
+        targetVersions: [
+          { selected: true, is_merge_head: true, start_sha: 'start111', head_sha: 'target_head' },
+        ],
+      });
+
+      expect(store.diffRefs).toEqual({
+        base_sha: 'base000',
+        head_sha: 'head222',
+        start_sha: 'base000',
+      });
+    });
+
     it('collapses base_sha onto start_sha when comparing against a specific target version', () => {
       // Backend's MergeRequestDiffComparison uses Compare#diff_refs with @straight=true,
       // which sets base_sha = start_sha. Mirror that here so submitted positions match.
       store.setVersions({
         sourceVersions: [{ selected: true, base_sha: 'base000', head_sha: 'head222' }],
-        targetVersions: [{ selected: true, head: false, version_index: 2, start_sha: 'start111' }],
+        targetVersions: [
+          { selected: true, is_merge_head: false, version_index: 2, start_sha: 'start111' },
+        ],
       });
 
       expect(store.diffRefs).toEqual({
@@ -154,7 +245,7 @@ describe('mergeRequestVersions store', () => {
       store.setVersions({
         sourceVersions: [{ selected: true, base_sha: 'base000', head_sha: 'head222' }],
         targetVersions: [
-          { selected: true, head: false, version_index: null, start_sha: 'master_tip' },
+          { selected: true, is_merge_head: false, version_index: null, start_sha: 'master_tip' },
         ],
       });
 
@@ -191,7 +282,9 @@ describe('mergeRequestVersions store', () => {
 
       store.setVersions({
         sourceVersions: [{ selected: false, base_sha: 'base000', head_sha: 'head222' }],
-        targetVersions: [{ selected: true, head: true, start_sha: 'start111', head_sha: 'th' }],
+        targetVersions: [
+          { selected: true, is_merge_head: true, start_sha: 'start111', head_sha: 'th' },
+        ],
         contextCommits,
       });
 

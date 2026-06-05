@@ -24,6 +24,14 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
       if (!this.commit) return null;
       return this.commit.id;
     },
+    isLatestVersion() {
+      if (this.commit) return false;
+      return Boolean(this.selectedSourceVersion?.latest);
+    },
+    sourceHeadSha() {
+      if (this.commit) return this.commit.id;
+      return this.selectedSourceVersion?.head_sha ?? null;
+    },
     diffRefs() {
       if (this.commit) return this.commit.diff_refs;
       if (this.isViewingContextCommits) return this.contextCommits.diff_refs;
@@ -31,7 +39,11 @@ export const useMergeRequestVersions = defineStore('mergeRequestVersions', {
       const source = this.selectedSourceVersion;
       const target = this.selectedTargetVersion;
       if (!source || !target) return null;
-      if (target.head) {
+      // Only use merge-head refs when the source is the latest version. The merge-head ref is
+      // dynamic (re-anchored to master on every push), so it cannot identify a stable draft
+      // position against an older source version — published notes are repositioned by the
+      // backend, drafts are not. When source is not latest, fall through to source-anchored refs.
+      if (target.is_merge_head && source.latest) {
         return {
           base_sha: target.start_sha,
           head_sha: target.head_sha,

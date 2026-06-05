@@ -121,7 +121,8 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
     context 'with visibility level' do
       shared_examples 'visibility level validation' do
         it 'performs visibility level validation' do
-          expect(organization).to receive(:check_visibility_level).and_call_original
+          expect(organization).to receive(:check_visibility_level_broader_than_groups).and_call_original
+          expect(organization).to receive(:check_visibility_level_allowed).and_call_original
 
           organization.valid?
         end
@@ -143,39 +144,65 @@ RSpec.describe Organizations::Organization, type: :model, feature_category: :org
 
       context 'when visibility level is not changed' do
         it 'skips visibility level validation' do
-          expect(organization).not_to receive(:check_visibility_level).and_call_original
+          expect(organization).not_to receive(:check_visibility_level_broader_than_groups)
+          expect(organization).not_to receive(:check_visibility_level_allowed)
 
           organization.valid?
         end
       end
 
-      where(:visibility_level, :max_group_visibility, :valid) do
-        [
-          [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::PRIVATE, true],
-          [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::INTERNAL, false],
-          [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::PUBLIC, false],
-          [Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::PRIVATE, true],
-          [Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::INTERNAL, true],
-          [Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::PUBLIC, false],
-          [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PRIVATE, true],
-          [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::INTERNAL, true],
-          [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PUBLIC, true]
-        ]
+      context 'when checking visibility level is broader than group visibility levels' do
+        where(:visibility_level, :max_group_visibility, :valid) do
+          [
+            [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::PRIVATE, true],
+            [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::INTERNAL, false],
+            [Gitlab::VisibilityLevel::PRIVATE, Gitlab::VisibilityLevel::PUBLIC, false],
+            [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PRIVATE, true],
+            [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::INTERNAL, true],
+            [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PUBLIC, true]
+          ]
+        end
+
+        with_them do
+          let(:organization) { build(:organization, visibility_level: visibility_level) }
+
+          it 'validates visibility level' do
+            allow(organization.root_groups).to receive(:maximum)
+              .with(:visibility_level).and_return(max_group_visibility)
+
+            expect(organization.valid?).to eq(valid)
+
+            error_message = "Visibility level can not be more restrictive than group visibility levels"
+            if valid
+              expect(organization.errors.full_messages).not_to include(error_message)
+            else
+              expect(organization.errors.full_messages).to include(error_message)
+            end
+          end
+        end
       end
 
-      with_them do
-        let(:organization) { build(:organization, visibility_level: visibility_level) }
+      context 'when checking visibility level is not internal' do
+        where(:visibility_level, :valid) do
+          [
+            [Gitlab::VisibilityLevel::PRIVATE, true],
+            [Gitlab::VisibilityLevel::INTERNAL, false],
+            [Gitlab::VisibilityLevel::PUBLIC, true]
+          ]
+        end
 
-        it 'validates visibility level' do
-          allow(organization.root_groups).to receive(:maximum).with(:visibility_level).and_return(max_group_visibility)
+        with_them do
+          let(:organization) { build(:organization, visibility_level: visibility_level) }
 
-          expect(organization.valid?).to eq(valid)
+          it 'validates visibility level is not internal' do
+            expect(organization.valid?).to eq(valid)
 
-          error_message = "Visibility level can not be more restrictive than group visibility levels"
-          if valid
-            expect(organization.errors.full_messages).not_to include(error_message)
-          else
-            expect(organization.errors.full_messages).to include(error_message)
+            error_message = "Visibility level must be private or public"
+            if valid
+              expect(organization.errors.full_messages).not_to include(error_message)
+            else
+              expect(organization.errors.full_messages).to include(error_message)
+            end
           end
         end
       end

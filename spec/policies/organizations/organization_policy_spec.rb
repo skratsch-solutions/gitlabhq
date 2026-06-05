@@ -129,6 +129,38 @@ RSpec.describe Organizations::OrganizationPolicy, feature_category: :organizatio
     end
   end
 
+  context 'when the user is an owner but is blocked, deactivated, or inactive' do
+    let(:current_user) { create(:user) }
+
+    before do
+      create(:organization_user, :owner, organization: organization, user: current_user)
+    end
+
+    context 'when the user is blocked' do
+      before do
+        current_user.block!
+      end
+
+      it { is_expected.to be_disallowed(:delete_organization) }
+    end
+
+    context 'when the user is deactivated' do
+      before do
+        current_user.deactivate!
+      end
+
+      it { is_expected.to be_disallowed(:delete_organization) }
+    end
+
+    context 'when the user is inactive (access locked)' do
+      before do
+        current_user.update!(locked_at: Time.current)
+      end
+
+      it { is_expected.to be_disallowed(:delete_organization) }
+    end
+  end
+
   context 'when the organization is the default organization' do
     let(:organization) { default_organization }
 

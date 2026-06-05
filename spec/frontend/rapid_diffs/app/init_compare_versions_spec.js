@@ -38,7 +38,7 @@ describe('initCompareVersions', () => {
   ];
 
   const targetVersions = [
-    { id: 'head', version_index: null, head: true, selected: true, branch: 'main' },
+    { id: 'head', version_index: null, is_merge_head: true, selected: true, branch: 'main' },
   ];
 
   const appData = {

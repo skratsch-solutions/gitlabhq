@@ -28,37 +28,6 @@
     @apply gl-top-0;
   }
 
-  // Panels container
-  .panels-container {
-    @apply gl-relative gl-grow gl-flex gl-pr-0 gl-pb-0;
-    min-height: 0;
-
-    // Inside the panels container, everything that calculates an offset from
-    // the top needs to ignore application header height, system header height,
-    // performance bar height, header height and top bar height, since these
-    // all lie outside of the panels. Note that the `px` IS REQUIRED here for
-    // these variables to function properly.
-    --application-header-height: 0px; // stylelint-disable-line length-zero-no-unit
-    --system-header-height: 0px; // stylelint-disable-line length-zero-no-unit
-    --performance-bar-height: 0px; // stylelint-disable-line length-zero-no-unit
-    --header-height: 0px; // stylelint-disable-line length-zero-no-unit
-    --top-bar-height: 0px; // stylelint-disable-line length-zero-no-unit
-
-    .panel-content-inner,
-    .vue-portal-target .work-item-detail-panel-content {
-      // This prevents the scrollbar transparency rule above from breaking scrollbars in dropdown menus
-      .dropdown-menu {
-        background: var(--gl-background-color-overlap);
-      }
-
-      // Hide alert wrapper if it's empty
-      // stylelint-disable-next-line gitlab/no-has -- scoped to direct alert-wrapper child
-      > .alert-wrapper:not(:has(*)) {
-        @apply gl-hidden;
-      }
-    }
-  }
-
   // AI panel
   .ai-panels {
     overflow: inherit;

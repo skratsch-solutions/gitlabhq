@@ -51,6 +51,34 @@ html {
   @apply gl-pb-3;
 }
 
+.panels-container {
+  @apply gl-relative;
+  @apply gl-grow;
+  @apply gl-flex;
+  @apply gl-pr-0;
+  @apply gl-pb-0;
+  @apply gl-min-h-0;
+  // Inside the panels container, everything that calculates an offset from
+  // the top needs to ignore application header height, system header height,
+  // performance bar height, header height and top bar height, since these
+  // all lie outside of the panels. Note that the `px` IS REQUIRED here for
+  // these variables to function properly.
+  --application-header-height: 0px; // stylelint-disable-line length-zero-no-unit
+  --system-header-height: 0px; // stylelint-disable-line length-zero-no-unit
+  --performance-bar-height: 0px; // stylelint-disable-line length-zero-no-unit
+  --header-height: 0px; // stylelint-disable-line length-zero-no-unit
+  --top-bar-height: 0px; // stylelint-disable-line length-zero-no-unit
+
+  .panel-content-inner,
+  .vue-portal-target .work-item-detail-panel-content {
+    // Hide alert wrapper if it's empty
+    // stylelint-disable-next-line gitlab/no-has -- scoped to direct alert-wrapper child
+    > .alert-wrapper:not(:has(*)) {
+      @apply gl-hidden;
+    }
+  }
+}
+
 .content-wrapper {
   padding-top: var(--top-bar-height);
   padding-bottom: $content-wrapper-padding;

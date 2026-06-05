@@ -22,8 +22,8 @@ module Organizations
 
       state_machine :state, initial: :unconfirmed do
         before_transition :update_state_metadata
-        before_transition on: :soft_delete, do: :ensure_transition_user
-        before_transition on: :soft_delete, do: :ensure_organization_is_empty
+        before_transition on: [:soft_delete, :hard_delete, :abort_hard_deletion], do: :ensure_transition_user
+        before_transition on: [:soft_delete, :hard_delete], do: :ensure_organization_is_empty
         before_transition on: :soft_delete, do: :set_soft_deletion_data
         before_transition on: :restore, do: :clear_soft_deletion_data
         before_transition on: :confirm, do: :ensure_confirmed_by_user
@@ -45,6 +45,10 @@ module Organizations
           transition soft_deleted: :deletion_in_progress
         end
 
+        event :abort_hard_deletion do
+          transition deletion_in_progress: :soft_deleted
+        end
+
         event :restore do
           transition soft_deleted: :active
         end
@@ -56,10 +60,10 @@ module Organizations
 
       private
 
-      def ensure_organization_is_empty(_transition)
+      def ensure_organization_is_empty(transition)
         return true if empty?
 
-        errors.add(:state, 'soft_delete transition requires the organization to be empty')
+        errors.add(:state, "#{transition.event} transition requires the organization to be empty")
         false
       end
 

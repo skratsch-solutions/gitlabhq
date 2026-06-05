@@ -44,6 +44,66 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
     end
   end
 
+  shared_examples 'merge requests list caching' do
+    let(:params) { {} }
+
+    before do
+      get api(endpoint_path), params: params
+    end
+
+    context 'when it is cached' do
+      it_behaves_like 'a cached MergeRequest api request'
+    end
+
+    context 'when it is not cached' do
+      context 'when the status changes' do
+        before do
+          merge_request.mark_as_unchecked!
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 1
+      end
+
+      context 'when the label changes' do
+        before do
+          merge_request.labels << create(:label, project: merge_request.project)
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 1
+      end
+
+      context 'when "with_labels_details" parameter is provided' do
+        let(:params) { { with_labels_details: true } }
+
+        it_behaves_like 'a non-cached MergeRequest api request', 4
+      end
+
+      context 'when the assignees change' do
+        before do
+          merge_request.assignees << create(:user)
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 1
+      end
+
+      context 'when the reviewers change' do
+        before do
+          merge_request.reviewers << create(:user)
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 1
+      end
+
+      context 'when another user requests' do
+        before do
+          sign_in(user2)
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 4
+      end
+    end
+  end
+
   shared_examples 'merge requests list' do
     it_behaves_like 'issuable API rate-limited search' do
       let(:url) { endpoint_path }
@@ -1272,63 +1332,7 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
     it_behaves_like 'merge requests list'
 
     context 'caching' do
-      let(:params) { {} }
-
-      before do
-        get api(endpoint_path), params: params
-      end
-
-      context 'when it is cached' do
-        it_behaves_like 'a cached MergeRequest api request'
-      end
-
-      context 'when it is not cached' do
-        context 'when the status changes' do
-          before do
-            merge_request.mark_as_unchecked!
-          end
-
-          it_behaves_like 'a non-cached MergeRequest api request', 1
-        end
-
-        context 'when the label changes' do
-          before do
-            merge_request.labels << create(:label, project: merge_request.project)
-          end
-
-          it_behaves_like 'a non-cached MergeRequest api request', 1
-        end
-
-        context 'when "with_labels_details" parameter is provided' do
-          let(:params) { { with_labels_details: true } }
-
-          it_behaves_like 'a non-cached MergeRequest api request', 4
-        end
-
-        context 'when the assignees change' do
-          before do
-            merge_request.assignees << create(:user)
-          end
-
-          it_behaves_like 'a non-cached MergeRequest api request', 1
-        end
-
-        context 'when the reviewers change' do
-          before do
-            merge_request.reviewers << create(:user)
-          end
-
-          it_behaves_like 'a non-cached MergeRequest api request', 1
-        end
-
-        context 'when another user requests' do
-          before do
-            sign_in(user2)
-          end
-
-          it_behaves_like 'a non-cached MergeRequest api request', 4
-        end
-      end
+      it_behaves_like 'merge requests list caching'
     end
 
     it "returns 404 for non public projects" do
@@ -1561,8 +1565,21 @@ RSpec.describe API::MergeRequests, :aggregate_failures, feature_category: :sourc
       end
     end
 
+    context 'caching', :use_clean_rails_memory_store_caching do
+      it_behaves_like 'merge requests list caching'
+
+      context 'when cache_list_mr_on_group_api_responses is disabled' do
+        before do
+          stub_feature_flags(cache_list_mr_on_group_api_responses: false)
+          get api(endpoint_path), params: {}
+        end
+
+        it_behaves_like 'a non-cached MergeRequest api request', 1
+      end
+    end
+
     it_behaves_like 'authorizing granular token permissions', :read_merge_request do
-      let(:boundary_object) { group }
+      let(:boundary_object) { Group.find(group.id) }
       let(:request) do
         get api(endpoint_path, personal_access_token: pat)
       end

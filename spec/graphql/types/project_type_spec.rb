@@ -453,6 +453,28 @@ RSpec.describe GitlabSchema.types['Project'], feature_category: :groups_and_proj
     end
   end
 
+  describe 'only_allow_merge_if_pipeline_succeeds field' do
+    let_it_be(:project) { create(:project) }
+
+    it 'resolves the value inherited from the parent group' do
+      expect(project).to receive(:only_allow_merge_if_pipeline_succeeds?)
+        .with(inherit_group_setting: true).and_return(true)
+
+      expect(resolve_field(:only_allow_merge_if_pipeline_succeeds, project, current_user: project.owner)).to be(true)
+    end
+  end
+
+  describe 'allow_merge_on_skipped_pipeline field' do
+    let_it_be(:project) { create(:project) }
+
+    it 'resolves the value inherited from the parent group' do
+      expect(project).to receive(:allow_merge_on_skipped_pipeline?)
+        .with(inherit_group_setting: true).and_return(true)
+
+      expect(resolve_field(:allow_merge_on_skipped_pipeline, project, current_user: project.owner)).to be(true)
+    end
+  end
+
   describe 'environments field' do
     subject { described_class.fields['environments'] }
 

@@ -264,6 +264,29 @@ describe('Merge request utils', () => {
       });
       expect(result.note.line_code).toBeNull();
     });
+
+    it('uses sourceHeadSha as head_sha when provided', () => {
+      const result = buildDraftLineDiscussionData({
+        discussion,
+        noteBody: 'draft comment',
+        viewConfig,
+        diffRefs,
+        sourceHeadSha: 'source_branch_head',
+      });
+      const position = JSON.parse(result.note.position);
+      expect(position.head_sha).toBe('source_branch_head');
+    });
+
+    it('falls back to diffRefs.head_sha when sourceHeadSha is not provided', () => {
+      const result = buildDraftLineDiscussionData({
+        discussion,
+        noteBody: 'draft comment',
+        viewConfig,
+        diffRefs,
+      });
+      const position = JSON.parse(result.note.position);
+      expect(position.head_sha).toBe('head222');
+    });
   });
 
   describe('buildDraftReplyData', () => {

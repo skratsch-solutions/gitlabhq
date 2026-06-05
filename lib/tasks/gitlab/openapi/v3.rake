@@ -27,6 +27,11 @@ namespace :gitlab do
           raise 'This task can only be run in the development or test environment'
         end
 
+        # Force deterministic output unless the caller explicitly opts in for THIS task
+        ENV['GITLAB_SIMULATE_SAAS'] = ENV['OPENAPI_SIMULATE_SAAS'].presence || 'false'
+        puts "Generating OpenAPI v3 docs with GITLAB_SIMULATE_SAAS=#{ENV['GITLAB_SIMULATE_SAAS']} " \
+          "(override with OPENAPI_SIMULATE_SAAS=true|false)"
+
         generator = Gitlab::GrapeOpenapi::Generator.new(
           api_classes: API::Base.descendants
         )
@@ -41,6 +46,11 @@ namespace :gitlab do
 
       desc 'GitLab | OpenAPI | Check if OpenAPI v3 doc is up to date'
       task check_docs: :environment do
+        # Force deterministic output unless the caller explicitly opts in for THIS task
+        ENV['GITLAB_SIMULATE_SAAS'] = ENV['OPENAPI_SIMULATE_SAAS'].presence || 'false'
+        puts "Checking OpenAPI v3 docs with GITLAB_SIMULATE_SAAS=#{ENV['GITLAB_SIMULATE_SAAS']} " \
+          "(override with OPENAPI_SIMULATE_SAAS=true|false)"
+
         generator = Gitlab::GrapeOpenapi::Generator.new(
           api_classes: API::Base.descendants
         )

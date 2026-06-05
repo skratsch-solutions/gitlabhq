@@ -10,7 +10,7 @@ describe('CompareVersions', () => {
     {
       id: 3,
       version_index: 3,
-      head: false,
+      is_merge_head: false,
       latest: true,
       selected: true,
       href: '/project/-/merge_requests/1/diffs?diff_id=3',
@@ -21,7 +21,7 @@ describe('CompareVersions', () => {
     {
       id: 2,
       version_index: 2,
-      head: false,
+      is_merge_head: false,
       latest: false,
       selected: false,
       href: '/project/-/merge_requests/1/diffs?diff_id=2',
@@ -35,7 +35,7 @@ describe('CompareVersions', () => {
     {
       id: 2,
       version_index: 2,
-      head: false,
+      is_merge_head: false,
       latest: false,
       selected: false,
       href: '/project/-/merge_requests/1/diffs?diff_id=3&start_sha=def456',
@@ -45,7 +45,7 @@ describe('CompareVersions', () => {
     {
       id: 'head',
       version_index: null,
-      head: true,
+      is_merge_head: true,
       latest: false,
       selected: true,
       href: '/project/-/merge_requests/1/diffs?diff_head=true',
@@ -170,7 +170,7 @@ describe('CompareVersions', () => {
         {
           id: 'base',
           version_index: null,
-          head: false,
+          is_merge_head: false,
           latest: false,
           selected: true,
           href: '/project/-/merge_requests/1/diffs?diff_id=3',
@@ -265,7 +265,7 @@ describe('CompareVersions', () => {
         {
           id: 2,
           version_index: 2,
-          head: false,
+          is_merge_head: false,
           latest: false,
           selected: true,
           href: '/project/-/merge_requests/1/diffs?diff_id=3&start_sha=def456',
@@ -275,7 +275,7 @@ describe('CompareVersions', () => {
         {
           id: 'head',
           version_index: null,
-          head: true,
+          is_merge_head: true,
           latest: false,
           selected: false,
           href: '/project/-/merge_requests/1/diffs',
@@ -296,7 +296,7 @@ describe('CompareVersions', () => {
         {
           id: 3,
           version_index: 3,
-          head: false,
+          is_merge_head: false,
           latest: true,
           selected: false,
           href: '/project/-/merge_requests/1/diffs?diff_id=3',
@@ -307,7 +307,7 @@ describe('CompareVersions', () => {
         {
           id: 2,
           version_index: 2,
-          head: false,
+          is_merge_head: false,
           latest: false,
           selected: true,
           href: '/project/-/merge_requests/1/diffs?diff_id=2',

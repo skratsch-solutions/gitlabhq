@@ -121,6 +121,23 @@ RSpec.describe API::Organizations, feature_category: :organization do
         expect(json_response['name']).to eq('New Organization')
         expect(json_response['path']).to eq('new-org')
         expect(json_response['description']).to eq('A new organization')
+        expect(json_response['visibility']).to eq('private')
+      end
+
+      context 'when visibility is provided' do
+        it 'creates a public organization' do
+          post api("/organizations", user), params: base_params.merge(visibility: 'public')
+
+          expect(response).to have_gitlab_http_status(:success)
+          expect(json_response['visibility']).to eq('public')
+        end
+
+        it 'returns error for internal organization' do
+          post api("/organizations", user), params: base_params.merge(visibility: 'internal')
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['error']).to eq('visibility does not have a valid value')
+        end
       end
 
       context 'when optional params are missing' do

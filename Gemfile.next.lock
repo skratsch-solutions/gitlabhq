@@ -82,14 +82,6 @@ PATH
       activerecord (>= 7)
 
 PATH
-  remote: gems/gitlab-grape-openapi
-  specs:
-    gitlab-grape-openapi (0.1.0)
-      grape (~> 2.0.0)
-      grape-entity (~> 1.0.1)
-      js_regex (~> 3.8)
-
-PATH
   remote: gems/gitlab-housekeeper
   specs:
     gitlab-housekeeper (0.1.0)
@@ -822,9 +814,13 @@ GEM
       rb_sys (~> 0.9.124)
     gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu)
       rb_sys (~> 0.9.124)
+    gitlab-grape-openapi (0.1.1)
+      grape (~> 2.0.0)
+      grape-entity (~> 1.0.1)
+      js_regex (~> 3.8)
     gitlab-kas-grpc (19.1.0.pre.rc2)
       grpc (~> 1.0)
-    gitlab-labkit (2.3.0)
+    gitlab-labkit (2.4.0)
       actionpack (>= 5.0.0, < 8.2.0)
       activesupport (>= 5.0.0, < 8.2.0)
       google-protobuf (>= 3.25, < 5.0)
@@ -2434,12 +2430,12 @@ DEPENDENCIES
   gitlab-fog-azure-rm (~> 2.5.0)
   gitlab-gkg-proto (~> 0.37.0)
   gitlab-glfm-markdown (~> 0.0.41)
-  gitlab-grape-openapi!
+  gitlab-grape-openapi (~> 0.1)
   gitlab-housekeeper!
   gitlab-http!
   gitlab-iam-grpc!
   gitlab-kas-grpc (~> 19.1.0.pre.rc2)
-  gitlab-labkit (~> 2.3.0)
+  gitlab-labkit (~> 2.4.0)
   gitlab-license (~> 2.6)
   gitlab-mail_room (~> 1.0.0)
   gitlab-markup (~> 2.0.0)
@@ -2935,12 +2931,12 @@ CHECKSUMS
   gitlab-glfm-markdown (0.0.41-arm64-darwin) sha256=8589ed60fd91ee564378800926518a581fdb4198c657428af2242c495de2a342
   gitlab-glfm-markdown (0.0.41-x86_64-darwin) sha256=964f5d32d09e47f1055d6b6b70fe67a9b412eb55e9008a8b1c0ba921b3206f2e
   gitlab-glfm-markdown (0.0.41-x86_64-linux-gnu) sha256=66c6b35a496848a89cef8e664854173ae49afbd4ed8fd5026e0955c27cf822ae
-  gitlab-grape-openapi (0.1.0)
+  gitlab-grape-openapi (0.1.1) sha256=09ddbcd22401fcc4a0b6e8b95a63b3b0ced04bb1ac240913a732c79beab2fee8
   gitlab-housekeeper (0.1.0)
   gitlab-http (0.1.0)
   gitlab-iam-grpc (0.1.0)
   gitlab-kas-grpc (19.1.0.pre.rc2) sha256=d63d683a7295de4e5f2edd294cb4f1069633859aa496792750604f662f6fe950
-  gitlab-labkit (2.3.0) sha256=ee48d426bdc016283ecfd864538ada5edae235513238f3bb265afed8232195d0
+  gitlab-labkit (2.4.0) sha256=d5a34ae40e8e0566140613d8102542dce10cefb69528199ccd1d803d61217d62
   gitlab-license (2.6.0) sha256=2c1f8ae73835640ec77bf758c1d0c9730635043c01cf77902f7976e826d7d016
   gitlab-mail_room (1.0.0) sha256=00910bc000ff819f8e2030fd2260f7b40f025c410b11b82de8f67de7922c0159
   gitlab-markup (2.0.0) sha256=951a1c871463a8f329e6c002b2da337cd547febcc1e33d84df4a212419fba02e

@@ -87,3 +87,6 @@ app/models/authn/oauth_application.rb:
 ee/app/models/concerns/ai/model_selection/model_allowlist.rb:
   - effective_allowed_model_refs: Will be called from the model allowlist read API and end-user enforcement (Agentic Chat resolver / DAP metadata service) in follow-up MRs for https://gitlab.com/groups/gitlab-org/-/work_items/22028
   - normalize_allowlist_model_refs: Will be called from the instance and namespace model allowlist update mutations/services in follow-up MRs for https://gitlab.com/groups/gitlab-org/-/work_items/22028
+ee/app/models/ee/organizations/organization_setting.rb:
+  - security_tracked_context_quota_with_default: Will be used in #598087 for quota enforcement service
+  - security_tracked_context_quota_explicitly_set?: Will be used in #598087 for quota enforcement service

@@ -43,6 +43,8 @@ module Organizations
 
     rule { (admin | organization_owner) & ~default_organization }.enable :delete_organization
 
+    rule { blocked | deactivated | inactive }.prevent :delete_organization
+
     rule { ~organization_admin_area_enabled }.policy do
       prevent :access_organization_admin_area
     end

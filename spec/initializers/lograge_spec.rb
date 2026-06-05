@@ -116,6 +116,32 @@ RSpec.describe 'lograge', type: :request, feature_category: :observability do
 
       get("/", params: large_params, headers: headers)
     end
+
+    context 'when X-Gitlab-Duo-Workflow-Id header is present' do
+      let(:headers) { { 'X-Gitlab-Duo-Workflow-Id' => 'wf-test-123' } }
+
+      it 'includes duo_workflow_id in the log' do
+        expect(Lograge.formatter).to receive(:call)
+          .with(a_hash_including(Labkit::Fields::DUO_WORKFLOW_ID => 'wf-test-123'))
+          .and_call_original
+
+        expect(Lograge.logger).to receive(:send)
+          .with(anything, include('"duo_workflow_id":"wf-test-123"'))
+          .and_call_original
+
+        subject
+      end
+    end
+
+    context 'when X-Gitlab-Duo-Workflow-Id header is absent' do
+      it 'does not include duo_workflow_id in the log' do
+        expect(Lograge.formatter).to receive(:call)
+          .with(hash_not_including(Labkit::Fields::DUO_WORKFLOW_ID))
+          .and_call_original
+
+        subject
+      end
+    end
   end
 
   context 'with a log subscriber' do

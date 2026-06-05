@@ -38,13 +38,13 @@ RSpec.describe Gitlab::TenantContainerLifecycle::Stateful::TransitionLogging, fe
         message: 'Organization state transition',
         organization_id: organization.id,
         from_state: :soft_deleted,
-        to_state: :deletion_in_progress,
-        event: :hard_delete,
+        to_state: :active,
+        event: :restore,
         Labkit::Fields::GL_USER_ID => nil
       )
     )
 
-    organization.hard_delete!
+    organization.restore!
   end
 
   it 'logs failed state transitions' do

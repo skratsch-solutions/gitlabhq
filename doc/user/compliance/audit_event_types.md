@@ -537,6 +537,7 @@ Audit event types belong to the following product categories.
 
 | Type name | Event triggered when | Saved to database | Introduced in | Scope |
 |:----------|:---------------------|:------------------|:--------------|:------|
+| [`organization_hard_deleted`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/238553) | An organization is hard-deleted (the database record is destroyed) | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/594310) | Instance |
 | [`organization_soft_deleted`](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/235915) | An organization is soft-deleted | {{< yes >}} | GitLab [19.1](https://gitlab.com/gitlab-org/gitlab/-/work_items/594308) | Instance |
 
 ### Package registry

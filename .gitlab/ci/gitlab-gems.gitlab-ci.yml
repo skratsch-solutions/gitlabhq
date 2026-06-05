@@ -55,9 +55,6 @@ include:
       gem_name: "mail-smtp_pool"
   - local: .gitlab/ci/templates/gem.gitlab-ci.yml
     inputs:
-      gem_name: "gitlab-grape-openapi"
-  - local: .gitlab/ci/templates/gem.gitlab-ci.yml
-    inputs:
       gem_name: "gitlab-database-data_isolation"
   - local: .gitlab/ci/templates/gem.gitlab-ci.yml
     inputs:

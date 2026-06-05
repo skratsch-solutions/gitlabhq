@@ -1,6 +1,6 @@
 import createRouter from '~/explore/analytics_dashboards/router';
 import DashboardView from '~/explore/analytics_dashboards/pages/details.vue';
-import DashboardsList from '~/explore/analytics_dashboards/pages/list.vue';
+import DashboardsList from 'ee_else_ce/explore/analytics_dashboards/pages/list.vue';
 
 // Vue Router 3 returns { route } from resolve(), Vue Router 4 returns the route directly.
 const resolveRoute = (router, path) => {

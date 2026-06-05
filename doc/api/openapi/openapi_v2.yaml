@@ -2250,7 +2250,8 @@ paths:
       operationId: postApiV4GroupsIdLdapSync
   "/api/v4/groups/{id}/audit_events":
     get:
-      description: Get a list of audit events in this group.
+      summary: List all group audit events
+      description: Lists all audit events for a specified group.
       produces:
       - application/json
       parameters:
@@ -2291,7 +2292,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of audit events in this group.
+          description: List all group audit events
           schema:
             type: array
             items:
@@ -2301,7 +2302,9 @@ paths:
       operationId: getApiV4GroupsIdAuditEvents
   "/api/v4/groups/{id}/audit_events/{audit_event_id}":
     get:
-      description: Get a specific audit event in this group.
+      summary: Retrieve a group audit event
+      description: Retrieves an audit event for a specified group. Only available
+        to group Owners and administrators.
       produces:
       - application/json
       parameters:
@@ -2318,7 +2321,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific audit event in this group.
+          description: Retrieve a group audit event
           schema:
             "$ref": "#/definitions/API_Entities_AuditEvent"
       tags:
@@ -3311,9 +3314,8 @@ paths:
       operationId: getApiV4GroupsIdAvatar
   "/api/v4/groups/{id}/clusters":
     get:
-      summary: List group clusters
-      description: This feature was introduced in GitLab 12.1. Returns a list of group
-        clusters.
+      summary: List all group clusters
+      description: Lists all group clusters for a specified group.
       produces:
       - application/json
       parameters:
@@ -3340,7 +3342,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List group clusters
+          description: List all group clusters
           schema:
             type: array
             items:
@@ -3352,9 +3354,8 @@ paths:
       operationId: getApiV4GroupsIdClusters
   "/api/v4/groups/{id}/clusters/{cluster_id}":
     get:
-      summary: Get a single group cluster
-      description: This feature was introduced in GitLab 12.1. Gets a single group
-        cluster.
+      summary: Retrieve a group cluster
+      description: Retrieves a specified group cluster.
       produces:
       - application/json
       parameters:
@@ -3371,7 +3372,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single group cluster
+          description: Retrieve a group cluster
           schema:
             "$ref": "#/definitions/API_Entities_ClusterGroup"
         '403':
@@ -3382,9 +3383,8 @@ paths:
       - clusters
       operationId: getApiV4GroupsIdClustersClusterId
     put:
-      summary: Edit group cluster
-      description: This feature was introduced in GitLab 12.1. Updates an existing
-        group cluster.
+      summary: Update a group cluster
+      description: Updates a specified group cluster.
       produces:
       - application/json
       consumes:
@@ -3408,7 +3408,7 @@ paths:
           "$ref": "#/definitions/putApiV4GroupsIdClustersClusterId"
       responses:
         '200':
-          description: Edit group cluster
+          description: Update a group cluster
           schema:
             "$ref": "#/definitions/API_Entities_ClusterGroup"
         '400':
@@ -3421,10 +3421,9 @@ paths:
       - clusters
       operationId: putApiV4GroupsIdClustersClusterId
     delete:
-      summary: Delete group cluster
-      description: This feature was introduced in GitLab 12.1. Deletes an existing
-        group cluster. Does not remove existing resources within the connected Kubernetes
-        cluster.
+      summary: Delete a group cluster
+      description: Deletes a specified group cluster. Does not remove existing resources
+        in the connected Kubernetes cluster.
       produces:
       - application/json
       parameters:
@@ -3443,7 +3442,7 @@ paths:
         '403':
           description: Forbidden
         '204':
-          description: Delete group cluster
+          description: Delete a group cluster
           schema:
             "$ref": "#/definitions/API_Entities_ClusterGroup"
         '404':
@@ -3453,9 +3452,9 @@ paths:
       operationId: deleteApiV4GroupsIdClustersClusterId
   "/api/v4/groups/{id}/clusters/user":
     post:
-      summary: Add existing cluster to group
-      description: This feature was introduced in GitLab 12.1. Adds an existing Kubernetes
-        cluster to the group.
+      summary: Create a group cluster
+      description: Creates a group cluster for a specified group by adding an existing
+        Kubernetes cluster.
       produces:
       - application/json
       consumes:
@@ -3473,7 +3472,7 @@ paths:
           "$ref": "#/definitions/postApiV4GroupsIdClustersUser"
       responses:
         '201':
-          description: Add existing cluster to group
+          description: Create a group cluster
           schema:
             "$ref": "#/definitions/API_Entities_ClusterGroup"
         '400':
@@ -19503,9 +19502,9 @@ paths:
       operationId: putApiV4ProjectsIdErrorTrackingSettings
   "/api/v4/projects/{id}/feature_flags":
     get:
-      summary: List feature flags for a project
-      description: Gets all feature flags of the requested project. This feature was
-        introduced in GitLab 12.5.
+      summary: List all feature flags for a project
+      description: Lists all feature flags of the requested project. Use the `page`
+        and `per_page` pagination parameters to control the pagination of results.
       produces:
       - application/json
       parameters:
@@ -19540,7 +19539,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List feature flags for a project
+          description: List all feature flags for a project
           schema:
             type: array
             items:
@@ -19553,9 +19552,8 @@ paths:
       - feature_flags
       operationId: getApiV4ProjectsIdFeatureFlags
     post:
-      summary: Create a new feature flag
-      description: Creates a new feature flag. This feature was introduced in GitLab
-        12.5.
+      summary: Create a feature flag
+      description: Creates a feature flag for a specified project.
       produces:
       - application/json
       consumes:
@@ -19573,7 +19571,7 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdFeatureFlags"
       responses:
         '201':
-          description: Create a new feature flag
+          description: Create a feature flag
           schema:
             "$ref": "#/definitions/API_Entities_FeatureFlag"
         '400':
@@ -19587,9 +19585,8 @@ paths:
       operationId: postApiV4ProjectsIdFeatureFlags
   "/api/v4/projects/{id}/feature_flags/{feature_flag_name}":
     get:
-      summary: Get a single feature flag
-      description: Gets a single feature flag. This feature was introduced in GitLab
-        12.5.
+      summary: Retrieve a feature flag
+      description: Retrieves a specified feature flag.
       produces:
       - application/json
       parameters:
@@ -19605,7 +19602,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single feature flag
+          description: Retrieve a feature flag
           schema:
             "$ref": "#/definitions/API_Entities_FeatureFlag"
         '401':
@@ -19617,7 +19614,7 @@ paths:
       operationId: getApiV4ProjectsIdFeatureFlagsFeatureFlagName
     put:
       summary: Update a feature flag
-      description: Updates a feature flag. This feature was introduced in GitLab 13.2.
+      description: Updates a specified feature flag.
       produces:
       - application/json
       consumes:
@@ -19656,7 +19653,7 @@ paths:
       operationId: putApiV4ProjectsIdFeatureFlagsFeatureFlagName
     delete:
       summary: Delete a feature flag
-      description: Deletes a feature flag. This feature was introduced in GitLab 12.5.
+      description: Deletes a specified feature flag.
       produces:
       - application/json
       parameters:
@@ -19683,8 +19680,7 @@ paths:
   "/api/v4/projects/{id}/feature_flags_user_lists":
     get:
       summary: List all feature flag user lists for a project
-      description: Gets all feature flag user lists for the requested project. This
-        feature was introduced in GitLab 12.10.
+      description: Lists all feature flag user lists for a specified project.
       produces:
       - application/json
       parameters:
@@ -19730,8 +19726,7 @@ paths:
       operationId: getApiV4ProjectsIdFeatureFlagsUserLists
     post:
       summary: Create a feature flag user list
-      description: Creates a feature flag user list. This feature was introduced in
-        GitLab 12.10.
+      description: Creates a feature flag user list in a specified project.
       produces:
       - application/json
       consumes:
@@ -19763,9 +19758,8 @@ paths:
       operationId: postApiV4ProjectsIdFeatureFlagsUserLists
   "/api/v4/projects/{id}/feature_flags_user_lists/{iid}":
     get:
-      summary: Get a feature flag user list
-      description: Gets a feature flag user list. This feature was introduced in GitLab
-        12.10.
+      summary: Retrieve a feature flag user list
+      description: Retrieves a specified feature flag user list.
       produces:
       - application/json
       parameters:
@@ -19781,7 +19775,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a feature flag user list
+          description: Retrieve a feature flag user list
           schema:
             "$ref": "#/definitions/API_Entities_FeatureFlag_UserList"
         '401':
@@ -19793,8 +19787,7 @@ paths:
       operationId: getApiV4ProjectsIdFeatureFlagsUserListsIid
     put:
       summary: Update a feature flag user list
-      description: Updates a feature flag user list. This feature was introduced in
-        GitLab 12.10.
+      description: Updates a specified feature flag user list.
       produces:
       - application/json
       consumes:
@@ -19831,8 +19824,7 @@ paths:
       operationId: putApiV4ProjectsIdFeatureFlagsUserListsIid
     delete:
       summary: Delete feature flag user list
-      description: Deletes a feature flag user list. This feature was introduced in
-        GitLab 12.10.
+      description: Deletes a specified feature flag user list.
       produces:
       - application/json
       parameters:
@@ -20166,9 +20158,8 @@ paths:
       operationId: deleteApiV4ProjectsIdRepositoryFilesFilePath
   "/api/v4/projects/{id}/freeze_periods":
     get:
-      summary: List freeze periods
-      description: Paginated list of Freeze Periods, sorted by created_at in ascending
-        order. This feature was introduced in GitLab 13.0.
+      summary: List all freeze periods
+      description: Lists all freeze periods for a specified project.
       produces:
       - application/json
       parameters:
@@ -20195,7 +20186,7 @@ paths:
         example: 20
       responses:
         '200':
-          description: List freeze periods
+          description: List all freeze periods
           schema:
             type: array
             items:
@@ -20209,8 +20200,8 @@ paths:
       operationId: getApiV4ProjectsIdFreezePeriods
     post:
       summary: Create a freeze period
-      description: Creates a freeze period. This feature was introduced in GitLab
-        13.0.
+      description: Creates a freeze period for a specified project. You must have
+        the Maintainer or Owner role for the project.
       produces:
       - application/json
       consumes:
@@ -20240,9 +20231,9 @@ paths:
       operationId: postApiV4ProjectsIdFreezePeriods
   "/api/v4/projects/{id}/freeze_periods/{freeze_period_id}":
     get:
-      summary: Get a freeze period
-      description: Get a freeze period for the given `freeze_period_id`. This feature
-        was introduced in GitLab 13.0.
+      summary: Retrieve a freeze period
+      description: Retrieves a freeze period for a specified `freeze_period_id`. You
+        must have the Reporter, Developer, Maintainer, or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -20259,7 +20250,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a freeze period
+          description: Retrieve a freeze period
           schema:
             "$ref": "#/definitions/API_Entities_FreezePeriod"
         '401':
@@ -20271,8 +20262,8 @@ paths:
       operationId: getApiV4ProjectsIdFreezePeriodsFreezePeriodId
     put:
       summary: Update a freeze period
-      description: Updates a freeze period for the given `freeze_period_id`. This
-        feature was introduced in GitLab 13.0.
+      description: Updates a freeze period for a specified `freeze_period_id`. You
+        must have the Maintainer or Owner role for the project.
       produces:
       - application/json
       consumes:
@@ -20307,8 +20298,8 @@ paths:
       operationId: putApiV4ProjectsIdFreezePeriodsFreezePeriodId
     delete:
       summary: Delete a freeze period
-      description: Deletes a freeze period for the given `freeze_period_id`. This
-        feature was introduced in GitLab 13.0.
+      description: Deletes a freeze period for a specified `freeze_period_id`. You
+        must have the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -26085,7 +26076,9 @@ paths:
       operationId: postApiV4ProjectsIdIssuesIssueIidMetricImagesAuthorize
   "/api/v4/projects/{id}/issues/{issue_iid}/metric_images":
     post:
-      description: Upload a metric image for an issue
+      summary: Upload a metric image for an incident
+      description: Uploads a screenshot of metric charts for an incident. Available
+        only for incidents.
       produces:
       - application/json
       consumes:
@@ -26108,14 +26101,15 @@ paths:
           "$ref": "#/definitions/postApiV4ProjectsIdIssuesIssueIidMetricImages"
       responses:
         '201':
-          description: Upload a metric image for an issue
+          description: Upload a metric image for an incident
           schema:
             "$ref": "#/definitions/API_Entities_IssuableMetricImage"
       tags:
       - metric_images
       operationId: postApiV4ProjectsIdIssuesIssueIidMetricImages
     get:
-      description: Metric Images for issue
+      summary: List all metric images for an incident
+      description: Lists all metric images for an incident.
       produces:
       - application/json
       parameters:
@@ -26131,7 +26125,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Metric Images for issue
+          description: List all metric images for an incident
           schema:
             "$ref": "#/definitions/API_Entities_IssuableMetricImage"
       tags:
@@ -26139,7 +26133,8 @@ paths:
       operationId: getApiV4ProjectsIdIssuesIssueIidMetricImages
   "/api/v4/projects/{id}/issues/{issue_iid}/metric_images/{metric_image_id}":
     put:
-      description: Update a metric image for an issue
+      summary: Update a metric image for an incident
+      description: Updates a metric image for an incident.
       produces:
       - application/json
       consumes:
@@ -26168,14 +26163,15 @@ paths:
           "$ref": "#/definitions/putApiV4ProjectsIdIssuesIssueIidMetricImagesMetricImageId"
       responses:
         '200':
-          description: Update a metric image for an issue
+          description: Update a metric image for an incident
           schema:
             "$ref": "#/definitions/API_Entities_IssuableMetricImage"
       tags:
       - metric_images
       operationId: putApiV4ProjectsIdIssuesIssueIidMetricImagesMetricImageId
     delete:
-      description: Remove a metric image for an issue
+      summary: Delete a metric image from an incident
+      description: Deletes a metric image from an incident.
       produces:
       - application/json
       parameters:
@@ -26197,7 +26193,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Remove a metric image for an issue
+          description: Delete a metric image from an incident
           schema:
             "$ref": "#/definitions/API_Entities_IssuableMetricImage"
       tags:
@@ -36664,7 +36660,8 @@ paths:
       operationId: getApiV4ProjectsIdStorage
   "/api/v4/projects/{id}/audit_events":
     get:
-      description: Get a list of audit events in this project.
+      summary: List all project audit events
+      description: Lists all audit events for a specified project.
       produces:
       - application/json
       parameters:
@@ -36705,7 +36702,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a list of audit events in this project.
+          description: List all project audit events
           schema:
             type: array
             items:
@@ -36715,7 +36712,9 @@ paths:
       operationId: getApiV4ProjectsIdAuditEvents
   "/api/v4/projects/{id}/audit_events/{audit_event_id}":
     get:
-      description: Get a specific audit event in this project.
+      summary: Retrieve a project audit event
+      description: Retrieves an audit event for a specified project. Only available
+        to users with the Maintainer or Owner role for the project.
       produces:
       - application/json
       parameters:
@@ -36732,7 +36731,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a specific audit event in this project.
+          description: Retrieve a project audit event
           schema:
             "$ref": "#/definitions/API_Entities_AuditEvent"
       tags:
@@ -40287,14 +40286,13 @@ paths:
       operationId: getApiV4AdminDatabasesDatabaseNameDictionaryTablesTableName
   "/api/v4/admin/clusters":
     get:
-      summary: List instance clusters
-      description: This feature was introduced in GitLab 13.2. Returns a list of instance
-        clusters.
+      summary: List all instance clusters
+      description: Lists all instance clusters for the instance.
       produces:
       - application/json
       responses:
         '200':
-          description: List instance clusters
+          description: List all instance clusters
           schema:
             type: array
             items:
@@ -40306,9 +40304,8 @@ paths:
       operationId: getApiV4AdminClusters
   "/api/v4/admin/clusters/{cluster_id}":
     get:
-      summary: Get a single instance cluster
-      description: This feature was introduced in GitLab 13.2. Returns a single instance
-        cluster.
+      summary: Retrieve a single instance cluster
+      description: Retrieves a specified instance cluster.
       produces:
       - application/json
       parameters:
@@ -40320,7 +40317,7 @@ paths:
         required: true
       responses:
         '200':
-          description: Get a single instance cluster
+          description: Retrieve a single instance cluster
           schema:
             "$ref": "#/definitions/API_Entities_Cluster"
         '403':
@@ -40331,9 +40328,8 @@ paths:
       - clusters
       operationId: getApiV4AdminClustersClusterId
     put:
-      summary: Edit instance cluster
-      description: This feature was introduced in GitLab 13.2. Updates an existing
-        instance cluster.
+      summary: Update an instance cluster
+      description: Updates an existing instance cluster.
       produces:
       - application/json
       consumes:
@@ -40352,7 +40348,7 @@ paths:
           "$ref": "#/definitions/putApiV4AdminClustersClusterId"
       responses:
         '200':
-          description: Edit instance cluster
+          description: Update an instance cluster
           schema:
             "$ref": "#/definitions/API_Entities_Cluster"
         '400':
@@ -40366,9 +40362,8 @@ paths:
       operationId: putApiV4AdminClustersClusterId
     delete:
       summary: Delete instance cluster
-      description: This feature was introduced in GitLab 13.2. Deletes an existing
-        instance cluster. Does not remove existing resources within the connected
-        Kubernetes cluster.
+      description: Deletes an existing instance cluster. Does not remove existing
+        resources in the connected Kubernetes cluster.
       produces:
       - application/json
       parameters:
@@ -40392,9 +40387,8 @@ paths:
       operationId: deleteApiV4AdminClustersClusterId
   "/api/v4/admin/clusters/add":
     post:
-      summary: Add existing instance cluster
-      description: This feature was introduced in GitLab 13.2. Adds an existing Kubernetes
-        instance cluster.
+      summary: Create an instance cluster
+      description: Creates an instance cluster by adding an existing Kubernetes cluster.
       produces:
       - application/json
       consumes:
@@ -40407,7 +40401,7 @@ paths:
           "$ref": "#/definitions/postApiV4AdminClustersAdd"
       responses:
         '201':
-          description: Add existing instance cluster
+          description: Create an instance cluster
           schema:
             "$ref": "#/definitions/API_Entities_Cluster"
         '400':
@@ -40513,7 +40507,7 @@ paths:
       operationId: getApiV4BroadcastMessages
     post:
       summary: Create a broadcast message
-      description: This feature was introduced in GitLab 8.12.
+      description: Creates a broadcast message.
       produces:
       - application/json
       consumes:
@@ -44361,13 +44355,13 @@ paths:
       operationId: getApiV4UsersUserIdStarredProjects
   "/api/v4/features":
     get:
-      summary: List all features
-      description: Get a list of all persisted features, with its gate values.
+      summary: List all feature flags
+      description: Lists all feature flags for the instance.
       produces:
       - application/json
       responses:
         '200':
-          description: List all features
+          description: List all feature flags
           schema:
             type: array
             items:
@@ -44377,13 +44371,13 @@ paths:
       operationId: getApiV4Features
   "/api/v4/features/definitions":
     get:
-      summary: List all feature definitions
-      description: Get a list of all feature definitions.
+      summary: List all feature flag definitions
+      description: Lists all feature flag definitions.
       produces:
       - application/json
       responses:
         '200':
-          description: List all feature definitions
+          description: List all feature flag definitions
           schema:
             type: array
             items:
@@ -44393,10 +44387,10 @@ paths:
       operationId: getApiV4FeaturesDefinitions
   "/api/v4/features/{name}":
     post:
-      summary: Set or create a feature
-      description: Set a feature's gate value. If a feature with the given name doesn't
-        exist yet, it's created. The value can be a boolean, or an integer to indicate
-        percentage of time.
+      summary: Create or update a feature flag
+      description: Creates or updates a feature flag value. If a feature with the
+        given name doesn't exist yet, the operation creates one. The value can be
+        a boolean or an integer to indicate percentage of time.
       produces:
       - application/json
       consumes:
@@ -44414,7 +44408,7 @@ paths:
           "$ref": "#/definitions/postApiV4FeaturesName"
       responses:
         '201':
-          description: Set or create a feature
+          description: Create or update a feature flag
           schema:
             "$ref": "#/definitions/API_Entities_Feature"
         '400':
@@ -44428,8 +44422,8 @@ paths:
       operationId: postApiV4FeaturesName
     delete:
       summary: Delete a feature
-      description: Removes a feature gate. Response is equal when the gate exists,
-        or doesn't.
+      description: Deletes a feature gate. Returns the same response if the feature
+        gate does not exist.
       produces:
       - application/json
       parameters:
@@ -51704,7 +51698,7 @@ definitions:
     required:
     - name
     - platform_kubernetes_attributes
-    description: Add existing cluster to group
+    description: Create a group cluster
   putApiV4GroupsIdClustersClusterId:
     type: object
     properties:
@@ -51749,7 +51743,7 @@ definitions:
           namespace:
             type: string
             description: Unique namespace related to Group
-    description: Edit group cluster
+    description: Update a group cluster
   API_Entities_ContainerRegistry_Repository:
     type: object
     properties:
@@ -59754,7 +59748,7 @@ definitions:
           - name
     required:
     - name
-    description: Create a new feature flag
+    description: Create a feature flag
   putApiV4ProjectsIdFeatureFlagsFeatureFlagName:
     type: object
     properties:
@@ -64672,7 +64666,7 @@ definitions:
         description: A description of the image or URL
     required:
     - file
-    description: Upload a metric image for an issue
+    description: Upload a metric image for an incident
   API_Entities_IssuableMetricImage:
     type: object
     properties:
@@ -64713,7 +64707,7 @@ definitions:
       url_text:
         type: string
         description: A description of the image or URL
-    description: Update a metric image for an issue
+    description: Update a metric image for an incident
   API_Entities_Ci_Lint_Result:
     type: object
     properties:
@@ -71965,7 +71959,7 @@ definitions:
     required:
     - name
     - platform_kubernetes_attributes
-    description: Add existing instance cluster
+    description: Create an instance cluster
   putApiV4AdminClustersClusterId:
     type: object
     properties:
@@ -72010,7 +72004,7 @@ definitions:
           namespace:
             type: string
             description: Unique namespace related to Project
-    description: Edit instance cluster
+    description: Update an instance cluster
   postApiV4AdminMigrationsTimestampMark:
     type: object
     properties:
@@ -73534,7 +73528,7 @@ definitions:
         description: Skip feature flag validation checks, such as a YAML definition
     required:
     - value
-    description: Set or create a feature
+    description: Create or update a feature flag
   API_Entities_Geo_PipelineRefs:
     type: object
     properties:
@@ -76684,6 +76678,12 @@ definitions:
       description:
         type: string
         description: The description of the organization
+      visibility:
+        type: string
+        description: The visibility level of the organization
+        enum:
+        - private
+        - public
       avatar:
         type: file
         description: The avatar image for the organization
@@ -76707,6 +76707,9 @@ definitions:
       description:
         type: string
         example: My description
+      visibility:
+        type: string
+        example: public
       created_at:
         type: string
         format: date-time
@@ -76726,6 +76729,7 @@ definitions:
     - name
     - path
     - description
+    - visibility
     - created_at
     - updated_at
     - web_url

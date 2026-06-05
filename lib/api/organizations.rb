@@ -24,6 +24,9 @@ module API
         requires :name, type: String, desc: 'The name of the organization'
         requires :path, type: String, desc: 'The path of the organization'
         optional :description, type: String, desc: 'The description of the organization'
+        optional :visibility, type: String,
+          values: %w[private public],
+          desc: 'The visibility level of the organization'
         optional :avatar, type: ::API::Validations::Types::WorkhorseFile, desc: 'The avatar image for the organization',
           documentation: { type: 'file' }
       end

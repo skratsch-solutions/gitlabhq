@@ -111,7 +111,7 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      def render_merge_requests(merge_requests, options, skip_cache: false)
+      def render_merge_requests(merge_requests, options, skip_cache: false, ttl: 8.hours)
         return present merge_requests, options if skip_cache
 
         cache_context = ->(mr) do
@@ -125,7 +125,7 @@ module API
         end
 
         present_cached merge_requests,
-          expires_in: 8.hours,
+          expires_in: ttl,
           cache_context: cache_context,
           **options
       end
@@ -312,7 +312,14 @@ module API
           options[:skip_merge_status_recheck] = true
         end
 
-        present merge_requests, options
+        unless Feature.enabled?(:cache_list_mr_on_group_api_responses, user_group)
+          present merge_requests, options
+          next
+        end
+
+        skip_cache = declared_params[:with_labels_details] == true
+
+        render_merge_requests(merge_requests, options, skip_cache: skip_cache, ttl: 30.minutes)
       end
     end
 

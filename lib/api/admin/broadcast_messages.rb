@@ -30,7 +30,7 @@ module API
         end
 
         desc 'Create a broadcast message' do
-          detail 'This feature was introduced in GitLab 8.12.'
+          detail 'Creates a broadcast message.'
           success Entities::System::BroadcastMessage
           tags ['broadcast_messages']
         end

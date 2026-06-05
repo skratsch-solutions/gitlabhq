@@ -128,7 +128,7 @@ describe('Merge Request Rapid Diffs app', () => {
   it('initializes compare versions on init', async () => {
     const versions = {
       source_versions: [{ id: 1, version_index: 1, selected: true }],
-      target_versions: [{ id: 'head', head: true, selected: true }],
+      target_versions: [{ id: 'head', is_merge_head: true, selected: true }],
     };
     buildApp({ versions });
     await app.init();
