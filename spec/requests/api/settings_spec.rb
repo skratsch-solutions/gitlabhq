@@ -15,6 +15,12 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
   end
 
   describe "GET /application/settings" do
+    it_behaves_like 'authorizing granular token permissions', :read_application_setting do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { get api('/application/settings', personal_access_token: pat) }
+    end
+
     before do
       # Testing config file config/gitlab.yml becomes SSOT for this API
       # see https://gitlab.com/gitlab-org/gitlab/-/issues/426091#note_1675160909
@@ -123,6 +129,14 @@ RSpec.describe API::Settings, 'Settings', :do_not_mock_admin_mode_setting, featu
 
   describe "PUT /application/settings" do
     let(:group) { create(:group) }
+
+    it_behaves_like 'authorizing granular token permissions', :update_application_setting do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) do
+        put api('/application/settings', personal_access_token: pat), params: { default_projects_limit: 42 }
+      end
+    end
 
     context 'iframe in markdown settings' do
       it 'updates iframe_rendering_enabled and iframe_rendering_allowlist via array' do

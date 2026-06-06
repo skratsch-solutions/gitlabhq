@@ -706,7 +706,7 @@ Grants the ability to create, read, revoke, and rotate personal access tokens.
 
 #### User
 
-Grants the ability to follow, read, and unfollow users.
+Grants the ability to activate, approve, ban, block, create, deactivate, delete, disable two factor, follow, read, reject, unban, unblock, unfollow, and update users.
 
 | Action | Access | Kind | Name |
 | ------ | ------ | ---- | ---- |

@@ -23,6 +23,7 @@ module API
         params do
           use :pagination
         end
+        route_setting :authorization, skip_granular_token_authorization: :public_endpoint
         get do
           messages = System::BroadcastMessage.all.order_id_desc
 
@@ -50,6 +51,7 @@ module API
           optional :dismissable, type: Boolean, desc: 'Is dismissable'
           optional :theme, type: String, values: System::BroadcastMessage.themes.keys, desc: 'The theme for the message'
         end
+        route_setting :authorization, permissions: :create_broadcast_message, boundary_type: :instance
         post do
           authenticated_as_admin!
 
@@ -70,6 +72,7 @@ module API
         params do
           requires :id, type: Integer, desc: 'Broadcast message ID'
         end
+        route_setting :authorization, skip_granular_token_authorization: :public_endpoint
         get ':id' do
           message = find_message
 
@@ -99,6 +102,7 @@ module API
           optional :dismissable, type: Boolean, desc: 'Is dismissable'
           optional :theme, type: String, values: System::BroadcastMessage.themes.keys, desc: 'The theme for the message'
         end
+        route_setting :authorization, permissions: :update_broadcast_message, boundary_type: :instance
         put ':id' do
           authenticated_as_admin!
 
@@ -119,6 +123,7 @@ module API
         params do
           requires :id, type: Integer, desc: 'Broadcast message ID'
         end
+        route_setting :authorization, permissions: :delete_broadcast_message, boundary_type: :instance
         delete ':id' do
           authenticated_as_admin!
 

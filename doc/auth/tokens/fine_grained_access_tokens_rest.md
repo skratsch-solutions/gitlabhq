@@ -683,12 +683,15 @@ Grants the ability to create, delete, read, and revoke GPG keys.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/user/gpg_keys` |
+| Create | Instance | `POST` | `/users/:id/gpg_keys` |
 | Delete | User | `DELETE` | `/user/gpg_keys/:key_id` |
+| Delete | Instance | `DELETE` | `/users/:id/gpg_keys/:key_id` |
 | Read | User | `GET` | `/user/gpg_keys` |
 | Read | User | `GET` | `/user/gpg_keys/:key_id` |
 | Read | User | `GET` | `/users/:id/gpg_keys` |
 | Read | User | `GET` | `/users/:id/gpg_keys/:key_id` |
 | Revoke | User | `POST` | `/user/gpg_keys/:key_id/revoke` |
+| Revoke | Instance | `POST` | `/users/:id/gpg_keys/:key_id/revoke` |
 
 #### Group
 
@@ -730,13 +733,14 @@ Grants the ability to create, delete, and read member roles.
 
 #### Namespace
 
-Grants the ability to read namespaces.
+Grants the ability to read and update namespaces.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | User | `GET` | `/namespaces` |
 | Read | User | `GET` | `/namespaces/:id` |
 | Read | User | `GET` | `/namespaces/:id/exists` |
+| Update | Instance | `PUT` | `/namespaces/:id` |
 
 #### Preference
 
@@ -770,12 +774,14 @@ Grants the ability to read and update statuses.
 
 #### Support PIN
 
-Grants the ability to create and read support PINs.
+Grants the ability to create, read, and revoke support PINs.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/user/support_pin` |
 | Read | User | `GET` | `/user/support_pin` |
+| Read | Instance | `GET` | `/users/:id/support_pin` |
+| Revoke | Instance | `POST` | `/users/:id/support_pin/revoke` |
 
 #### Template
 
@@ -876,6 +882,16 @@ Grants the ability to create, delete, read, and update vulnerability notes.
 
 ### Notifications resources
 
+#### Broadcast Message
+
+Grants the ability to create, delete, and update broadcast messages.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/broadcast_messages` |
+| Delete | Instance | `DELETE` | `/broadcast_messages/:id` |
+| Update | Instance | `PUT` | `/broadcast_messages/:id` |
+
 #### Todo
 
 Grants the ability to create, read, and update todos.
@@ -905,6 +921,16 @@ Grants the ability to read knowledge graph data.
 | Read | User | `GET` | `/orbit/tools` |
 | Read | User | `POST` | `/orbit/agent/commands/:name` |
 | Read | User | `POST` | `/orbit/query` |
+
+### Organizations resources
+
+#### Organization
+
+Grants the ability to create, read, and update organizations.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/organizations` |
 
 ### Packages And Registry resources
 
@@ -2057,6 +2083,24 @@ Grants the ability to read Zoekt nodes.
 
 ### Subscription And Licensing resources
 
+#### Add On Purchase
+
+Grants the ability to create, read, and update add on purchases.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/namespaces/:id/subscription_add_on_purchase/:add_on_name` |
+| Read | Instance | `GET` | `/namespaces/:id/subscription_add_on_purchase/:add_on_name` |
+| Update | Instance | `PUT` | `/namespaces/:id/subscription_add_on_purchase/:add_on_name` |
+
+#### Credit Card Validation
+
+Grants the ability to update credit card validations.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Update | Instance | `PUT` | `/user/:user_id/credit_card_validation` |
+
 #### GitLab Subscription
 
 Grants the ability to create, read, and update GitLab subscriptions.
@@ -2091,6 +2135,16 @@ Grants the ability to refresh billable users for licenses.
 | ------ | ------ | ------ | ---- |
 | Refresh | Instance | `PUT` | `/license/:id/refresh_billable_users` |
 
+#### Namespace Storage Limit Exclusion
+
+Grants the ability to create, delete, and read namespace storage limit exclusions.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/namespaces/:id/storage/limit_exclusion` |
+| Delete | Instance | `DELETE` | `/namespaces/:id/storage/limit_exclusion` |
+| Read | Instance | `GET` | `/namespaces/storage/limit_exclusions` |
+
 ### System Access resources
 
 #### Access Request
@@ -2110,6 +2164,15 @@ Grants the ability to approve, create, delete, and read access requests.
 | Read | Project | `GET` | `/projects/:id/access_requests` |
 | Read | Group | `GET` | `/groups/:id/access_requests` |
 
+#### Any Token
+
+Grants the ability to read and revoke any tokens.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `POST` | `/admin/token` |
+| Revoke | Instance | `DELETE` | `/admin/token` |
+
 #### Application Appearance
 
 Grants the ability to read and update application appearance settings.
@@ -2118,6 +2181,15 @@ Grants the ability to read and update application appearance settings.
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/application/appearance` |
 | Update | Instance | `PUT` | `/application/appearance` |
+
+#### Application Setting
+
+Grants the ability to read and update application settings.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/application/settings` |
+| Update | Instance | `PUT` | `/application/settings` |
 
 #### Counts
 
@@ -2166,9 +2238,12 @@ Grants the ability to create, delete, and read emails.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/user/emails` |
+| Create | Instance | `POST` | `/users/:id/emails` |
 | Delete | User | `DELETE` | `/user/emails/:email_id` |
+| Delete | Instance | `DELETE` | `/users/:id/emails/:email_id` |
 | Read | User | `GET` | `/user/emails` |
 | Read | User | `GET` | `/user/emails/:email_id` |
+| Read | Instance | `GET` | `/users/:id/emails` |
 
 #### Enterprise User
 
@@ -2189,6 +2264,36 @@ Grants the ability to read experiments.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Instance | `GET` | `/experiments` |
+
+#### Feature
+
+Grants the ability to delete, read, and update features.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Delete | Instance | `DELETE` | `/features/:name` |
+| Read | Instance | `GET` | `/features` |
+| Read | Instance | `GET` | `/features/definitions` |
+| Update | Instance | `POST` | `/features/:name` |
+
+#### Identity
+
+Grants the ability to delete identities.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Delete | Instance | `DELETE` | `/users/:id/identities/:provider` |
+
+#### Impersonation Token
+
+Grants the ability to create, read, and revoke impersonation tokens.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Create | Instance | `POST` | `/users/:user_id/impersonation_tokens` |
+| Read | Instance | `GET` | `/users/:user_id/impersonation_tokens` |
+| Read | Instance | `GET` | `/users/:user_id/impersonation_tokens/:impersonation_token_id` |
+| Revoke | Instance | `DELETE` | `/users/:user_id/impersonation_tokens/:impersonation_token_id` |
 
 #### Invitation
 
@@ -2226,6 +2331,15 @@ Grants the ability to create, delete, and read job token scope allowlists.
 | Delete | Project | `DELETE` | `/projects/:id/job_token_scope/groups_allowlist/:target_group_id` |
 | Read | Project | `GET` | `/projects/:id/job_token_scope/allowlist` |
 | Read | Project | `GET` | `/projects/:id/job_token_scope/groups_allowlist` |
+
+#### LDAP Group
+
+Grants the ability to read LDAP groups.
+
+| Action | Access | Method | Path |
+| ------ | ------ | ------ | ---- |
+| Read | Instance | `GET` | `/ldap/:provider/groups` |
+| Read | Instance | `GET` | `/ldap/groups` |
 
 #### LDAP Group Link
 
@@ -2323,10 +2437,18 @@ Grants the ability to create, read, revoke, and rotate personal access tokens.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/user/personal_access_tokens` |
+| Create | Instance | `POST` | `/users/:user_id/personal_access_tokens` |
+| Read | Group | `GET` | `/groups/:id/manage/personal_access_tokens` |
 | Read | User | `GET` | `/personal_access_tokens` |
 | Read | User | `GET` | `/personal_access_tokens/:id` |
+| Read | User | `GET` | `/personal_access_tokens/self` |
+| Read | User | `GET` | `/personal_access_tokens/self/associations` |
+| Revoke | Group | `DELETE` | `/groups/:id/manage/personal_access_tokens/:pat_id` |
 | Revoke | User | `DELETE` | `/personal_access_tokens/:id` |
+| Revoke | User | `DELETE` | `/personal_access_tokens/self` |
+| Rotate | Group | `POST` | `/groups/:id/manage/personal_access_tokens/:pat_id/rotate` |
 | Rotate | User | `POST` | `/personal_access_tokens/:id/rotate` |
+| Rotate | User | `POST` | `/personal_access_tokens/self/rotate` |
 
 #### Plan Limit
 
@@ -2355,14 +2477,17 @@ Grants the ability to create, delete, read, and rotate resource access tokens.
 | Create | Group | `POST` | `/groups/:id/access_tokens` |
 | Delete | Project | `DELETE` | `/projects/:id/access_tokens/:token_id` |
 | Delete | Group | `DELETE` | `/groups/:id/access_tokens/:token_id` |
+| Delete | Group | `DELETE` | `/groups/:id/manage/resource_access_tokens/:prat_id` |
 | Read | Project | `GET` | `/projects/:id/access_tokens` |
 | Read | Project | `GET` | `/projects/:id/access_tokens/:token_id` |
 | Read | Group | `GET` | `/groups/:id/access_tokens` |
 | Read | Group | `GET` | `/groups/:id/access_tokens/:token_id` |
+| Read | Group | `GET` | `/groups/:id/manage/resource_access_tokens` |
 | Rotate | Project | `POST` | `/projects/:id/access_tokens/:token_id/rotate` |
 | Rotate | Project | `POST` | `/projects/:id/access_tokens/self/rotate` |
 | Rotate | Group | `POST` | `/groups/:id/access_tokens/:token_id/rotate` |
 | Rotate | Group | `POST` | `/groups/:id/access_tokens/self/rotate` |
+| Rotate | Group | `POST` | `/groups/:id/manage/resource_access_tokens/:prat_id/rotate` |
 
 #### SAML Group Identity
 
@@ -2412,7 +2537,11 @@ Grants the ability to create, delete, and read SSH keys.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Create | User | `POST` | `/user/keys` |
+| Create | Instance | `POST` | `/users/:user_id/keys` |
+| Delete | Group | `DELETE` | `/groups/:id/manage/ssh_keys/:key_id` |
 | Delete | User | `DELETE` | `/user/keys/:key_id` |
+| Delete | Instance | `DELETE` | `/users/:id/keys/:key_id` |
+| Read | Group | `GET` | `/groups/:id/manage/ssh_keys` |
 | Read | User | `GET` | `/user/keys` |
 | Read | User | `GET` | `/user/keys/:key_id` |
 | Read | User | `GET` | `/users/:id/keys/:key_id` |
@@ -2426,11 +2555,15 @@ Grants the ability to create, delete, read, and update service accounts.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/service_accounts` |
 | Create | Group | `POST` | `/groups/:id/service_accounts` |
 | Create | Instance | `POST` | `/service_accounts` |
+| Delete | Project | `DELETE` | `/projects/:id/service_accounts/:user_id` |
 | Delete | Group | `DELETE` | `/groups/:id/service_accounts/:user_id` |
+| Read | Project | `GET` | `/projects/:id/service_accounts` |
 | Read | Group | `GET` | `/groups/:id/service_accounts` |
 | Read | Instance | `GET` | `/service_accounts` |
+| Update | Project | `PATCH` | `/projects/:id/service_accounts/:user_id` |
 | Update | Group | `PATCH` | `/groups/:id/service_accounts/:user_id` |
 | Update | Instance | `PATCH` | `/service_accounts/:user_id` |
 
@@ -2440,9 +2573,13 @@ Grants the ability to create, read, revoke, and rotate service account personal 
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Create | Project | `POST` | `/projects/:id/service_accounts/:user_id/personal_access_tokens` |
 | Create | Group | `POST` | `/groups/:id/service_accounts/:user_id/personal_access_tokens` |
+| Read | Project | `GET` | `/projects/:id/service_accounts/:user_id/personal_access_tokens` |
 | Read | Group | `GET` | `/groups/:id/service_accounts/:user_id/personal_access_tokens` |
+| Revoke | Project | `DELETE` | `/projects/:id/service_accounts/:user_id/personal_access_tokens/:token_id` |
 | Revoke | Group | `DELETE` | `/groups/:id/service_accounts/:user_id/personal_access_tokens/:token_id` |
+| Rotate | Project | `POST` | `/projects/:id/service_accounts/:user_id/personal_access_tokens/:token_id/rotate` |
 | Rotate | Group | `POST` | `/groups/:id/service_accounts/:user_id/personal_access_tokens/:token_id/rotate` |
 
 #### Statistic
@@ -2452,6 +2589,7 @@ Grants the ability to read statistics.
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
 | Read | Project | `GET` | `/projects/:id/statistics` |
+| Read | Instance | `GET` | `/application/statistics` |
 
 #### Usage Data Query
 
@@ -2463,14 +2601,28 @@ Grants the ability to read usage data queries.
 
 #### User
 
-Grants the ability to follow, read, and unfollow users.
+Grants the ability to activate, approve, ban, block, create, deactivate, delete, disable two factor, follow, read, reject, unban, unblock, unfollow, and update users.
 
 | Action | Access | Method | Path |
 | ------ | ------ | ------ | ---- |
+| Activate | Instance | `POST` | `/users/:id/activate` |
+| Approve | Instance | `POST` | `/users/:id/approve` |
+| Ban | Instance | `POST` | `/users/:id/ban` |
+| Block | Instance | `POST` | `/users/:id/block` |
+| Create | Instance | `POST` | `/users` |
+| Deactivate | Instance | `POST` | `/users/:id/deactivate` |
+| Delete | Instance | `DELETE` | `/users/:id` |
+| Disable Two Factor | Instance | `PATCH` | `/users/:id/disable_two_factor` |
 | Follow | User | `POST` | `/users/:id/follow` |
 | Read | User | `GET` | `/user` |
 | Read | User | `GET` | `/users/:id` |
+| Read | Instance | `GET` | `/users` |
+| Read | Instance | `GET` | `/users/:user_id/memberships` |
+| Reject | Instance | `POST` | `/users/:id/reject` |
+| Unban | Instance | `POST` | `/users/:id/unban` |
+| Unblock | Instance | `POST` | `/users/:id/unblock` |
 | Unfollow | User | `POST` | `/users/:id/unfollow` |
+| Update | Instance | `PUT` | `/users/:id` |
 
 ### System Migration resources
 
@@ -2598,6 +2750,8 @@ Fine-grained token scope checks are not applied to these endpoints.
 
 | Method | Path |
 | ------ | ---- |
+| `GET` | `/broadcast_messages` |
+| `GET` | `/broadcast_messages/:id` |
 | `GET` | `/groups/:id/-/packages/nuget/index` |
 | `GET` | `/groups/:id/-/packages/nuget/symbolfiles/*file_name/*signature/*same_file_name` |
 | `GET` | `/groups/:id/-/packages/nuget/v2` |
@@ -2621,6 +2775,7 @@ Fine-grained token scope checks are not applied to these endpoints.
 | `GET` | `/templates/licenses/:name` |
 | `GET` | `/topics` |
 | `GET` | `/topics/:id` |
+| `GET` | `/web_commits/public_key` |
 
 ## Publicly accessible endpoints
 

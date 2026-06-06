@@ -133,7 +133,6 @@ RSpec/NamedSubject:
     - 'ee/spec/graphql/types/vulnerability_location_type_spec.rb'
     - 'ee/spec/graphql/types/vulnerability_request_response_header_type_spec.rb'
     - 'ee/spec/graphql/types/vulnerability_request_type_spec.rb'
-    - 'ee/spec/graphql/types/vulnerability_response_type_spec.rb'
     - 'ee/spec/graphql/types/vulnerability_scanner_type_spec.rb'
     - 'ee/spec/graphql/types/vulnerability_type_spec.rb'
     - 'ee/spec/helpers/admin/emails_helper_spec.rb'

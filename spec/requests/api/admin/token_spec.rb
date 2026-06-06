@@ -82,6 +82,12 @@ RSpec.describe API::Admin::Token, :aggregate_failures, feature_category: :system
   describe 'POST /admin/token' do
     subject(:post_token) { post(api(url, api_user, admin_mode: true), params: params) }
 
+    it_behaves_like 'authorizing granular token permissions', :read_any_token do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { post api(url, personal_access_token: pat), params: { token: personal_access_token.token } }
+    end
+
     context 'when the user is an admin' do
       context 'with a valid token' do
         where(:token, :plaintext) do
@@ -169,6 +175,12 @@ RSpec.describe API::Admin::Token, :aggregate_failures, feature_category: :system
 
   describe 'DELETE /admin/token' do
     subject(:delete_token) { delete(api(url, api_user, admin_mode: true), params: params) }
+
+    it_behaves_like 'authorizing granular token permissions', :revoke_any_token do
+      let(:boundary_object) { :instance }
+      let(:user) { admin }
+      let(:request) { delete api(url, personal_access_token: pat), params: { token: personal_access_token.token } }
+    end
 
     context 'when the user is an admin' do
       context 'when the token is valid' do

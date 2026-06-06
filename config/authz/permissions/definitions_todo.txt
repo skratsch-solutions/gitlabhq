@@ -142,7 +142,6 @@ admin_work_item
 admin_work_item_lifecycle
 admin_work_item_link
 apply_suggestion
-approve_user
 assign_default_duo_group
 audit_event_definitions
 award_achievement
@@ -240,7 +239,6 @@ delete_pipl_user
 delete_project_secrets
 delete_project_subscription
 delete_tag
-delete_user
 destroy_alert_management_alert
 destroy_alert_management_metric_image
 destroy_approvers
@@ -387,7 +385,6 @@ read_all_organization_resources
 read_all_resources
 read_all_workspaces
 read_analytics
-read_application_setting
 read_application_statistics
 read_approvers
 read_attestation
@@ -593,7 +590,6 @@ read_workspaces_agent_config
 receive_confirmation_instructions
 receive_notifications
 register_group_runners
-reject_user
 remove_fork_project
 remove_group
 remove_pages
@@ -682,7 +678,6 @@ update_sentry_issue
 update_subscription
 update_subscription_limit
 update_timelog
-update_user
 update_user_achievement
 update_virtual_registry
 update_vulnerability

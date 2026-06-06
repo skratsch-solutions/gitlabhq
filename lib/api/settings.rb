@@ -24,6 +24,7 @@ module API
       tags ['instance']
       success Entities::ApplicationSetting
     end
+    route_setting :authorization, permissions: :read_application_setting, boundary_type: :instance
     get "application/settings" do
       present current_settings, with: Entities::ApplicationSetting
     end
@@ -283,6 +284,7 @@ module API
       optional(*Helpers::SettingsHelpers.optional_attributes)
       at_least_one_of(*Helpers::SettingsHelpers.optional_attributes)
     end
+    route_setting :authorization, permissions: :update_application_setting, boundary_type: :instance
     put "application/settings" do
       attrs = declared_params(include_missing: false)
 

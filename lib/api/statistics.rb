@@ -14,6 +14,7 @@ module API
       success code: 200, model: Entities::ApplicationStatistics
       tags %w[instance]
     end
+    route_setting :authorization, permissions: :read_statistic, boundary_type: :instance
     get "application/statistics", urgency: :low do
       counts = Gitlab::Database::Count.approximate_counts(COUNTED_ITEMS)
       present counts, with: Entities::ApplicationStatistics

@@ -15,6 +15,7 @@ module API
         is_array true
         tags features_tags
       end
+      route_setting :authorization, permissions: :read_feature, boundary_type: :instance
       get do
         features = Feature.all
 
@@ -27,6 +28,7 @@ module API
         is_array true
         tags features_tags
       end
+      route_setting :authorization, permissions: :read_feature, boundary_type: :instance
       get :definitions do
         definitions = ::Feature::Definition.definitions.values.map(&:to_h)
 
@@ -83,6 +85,7 @@ module API
         mutually_exclusive :key, :runner
         mutually_exclusive :key, :endpoint
       end
+      route_setting :authorization, permissions: :update_feature, boundary_type: :instance
       post ':name' do
         flag_params = declared_params(include_missing: false)
         response = ::Admin::SetFeatureFlagService
@@ -102,6 +105,7 @@ module API
         success code: 204, message: 'Resource deleted'
         tags features_tags
       end
+      route_setting :authorization, permissions: :delete_feature, boundary_type: :instance
       delete ':name' do
         Feature.remove(params[:name])
 

@@ -46,6 +46,7 @@ module API
           ]
           tags %w[access_tokens]
         end
+        route_setting :authorization, permissions: :read_personal_access_token, boundary_type: :user
         get 'self' do
           present access_token, with: Entities::PersonalAccessTokenWithLastUsedIps
         end
@@ -67,6 +68,7 @@ module API
           # rubocop:enable API/AccessLevelStringType
           use :pagination
         end
+        route_setting :authorization, permissions: :read_personal_access_token, boundary_type: :user
         get 'self/associations' do
           access_token_associations = {
             groups: paginate(load_groups),
@@ -83,6 +85,7 @@ module API
           ]
           tags %w[access_tokens]
         end
+        route_setting :authorization, permissions: :revoke_personal_access_token, boundary_type: :user
         delete 'self' do
           revoke_token(access_token)
         end

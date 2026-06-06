@@ -58,6 +58,11 @@ RSpec.describe API::Organizations, feature_category: :organization do
 
     let(:params) { base_params }
 
+    it_behaves_like 'authorizing granular token permissions', :create_organization do
+      let(:boundary_object) { :instance }
+      let(:request) { post api('/organizations', personal_access_token: pat), params: base_params }
+    end
+
     context 'when user is not authorized' do
       it 'returns unauthorized' do
         post api("/organizations"), params: params
