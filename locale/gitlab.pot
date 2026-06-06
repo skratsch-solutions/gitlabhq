@@ -65831,13 +65831,15 @@ msgstr ""
 msgid "SecurityAttributes|You must have at least the Maintainer role in this group to manage security attributes."
 msgstr ""
 
+msgid "SecurityConfiguration|%d scanner not enabled"
+msgid_plural "SecurityConfiguration|%d scanners not enabled"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "SecurityConfiguration|%{enabledCount} of %{totalCount}"
 msgstr ""
 
 msgid "SecurityConfiguration|%{featureName} merge request creation mutation failed"
-msgstr ""
-
-msgid "SecurityConfiguration|%{notEnabledCount} scanners not enabled"
 msgstr ""
 
 msgid "SecurityConfiguration|%{protectedCount} of %{totalCount} projects have scanners enabled"
@@ -65962,6 +65964,9 @@ msgstr ""
 msgid "SecurityConfiguration|Failed"
 msgstr ""
 
+msgid "SecurityConfiguration|Failed to load projects"
+msgstr ""
+
 msgid "SecurityConfiguration|Failed to load scanner statistics"
 msgstr ""
 
@@ -66004,6 +66009,9 @@ msgstr ""
 msgid "SecurityConfiguration|No profile applied"
 msgstr ""
 
+msgid "SecurityConfiguration|No projects found"
+msgstr ""
+
 msgid "SecurityConfiguration|No scanners enabled yet"
 msgstr ""
 
@@ -66028,16 +66036,27 @@ msgstr ""
 msgid "SecurityConfiguration|Project coverage"
 msgstr ""
 
-msgid "SecurityConfiguration|Projects not scanned in 90+ days"
-msgstr ""
+msgid "SecurityConfiguration|Project not scanned in 90+ days"
+msgid_plural "SecurityConfiguration|Projects not scanned in 90+ days"
+msgstr[0] ""
+msgstr[1] ""
 
-msgid "SecurityConfiguration|Projects with %{scannerName} running successfully"
-msgstr ""
+msgid "SecurityConfiguration|Project with %{scannerName} running successfully"
+msgid_plural "SecurityConfiguration|Projects with %{scannerName} running successfully"
+msgstr[0] ""
+msgstr[1] ""
 
-msgid "SecurityConfiguration|Projects with scan failures"
-msgstr ""
+msgid "SecurityConfiguration|Project with scan failures"
+msgid_plural "SecurityConfiguration|Projects with scan failures"
+msgstr[0] ""
+msgstr[1] ""
 
-msgid "SecurityConfiguration|Projects without %{scannerName} enabled"
+msgid "SecurityConfiguration|Project without %{scannerName} enabled"
+msgid_plural "SecurityConfiguration|Projects without %{scannerName} enabled"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SecurityConfiguration|Projects"
 msgstr ""
 
 msgid "SecurityConfiguration|Quick setup"
@@ -66134,6 +66153,9 @@ msgid "SecurityConfiguration|Using custom settings. You won't receive automatic 
 msgstr ""
 
 msgid "SecurityConfiguration|View and manage %{scanner} configuration across projects in the %{group} group."
+msgstr ""
+
+msgid "SecurityConfiguration|View project"
 msgstr ""
 
 msgid "SecurityConfiguration|View project configuration"
@@ -82261,6 +82283,9 @@ msgid "View project in admin area"
 msgstr ""
 
 msgid "View project labels"
+msgstr ""
+
+msgid "View projects"
 msgstr ""
 
 msgid "View public GPG key"

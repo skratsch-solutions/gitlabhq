@@ -35,22 +35,13 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
       [
         {
           table_name: '_test_import_partitioned',
+          partition_type: 'integer',
           partitions: [
             { partition_name: '_test_import_partitioned_1', from: 1, to: 100 },
             { partition_name: '_test_import_partitioned_100', from: 100, to: 200 }
           ]
         }
       ]
-    end
-
-    it 'creates missing partitions and skips existing ones' do
-      result = importer.import(table_definitions)
-
-      expect(result[:created]).to eq(1)
-      expect(result[:skipped]).to eq(1)
-      expect(result[:tables_processed]).to eq(1)
-
-      expect_range_partition_of('_test_import_partitioned_100', '_test_import_partitioned', "'100'", "'200'")
     end
 
     it 'is idempotent when run twice' do
@@ -66,6 +57,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
         [
           {
             'table_name' => '_test_import_partitioned',
+            'partition_type' => 'integer',
             'partitions' => [
               { 'partition_name' => '_test_import_partitioned_100', 'from' => 100, 'to' => 200 }
             ]
@@ -104,6 +96,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
         [
           {
             table_name: '_test_import_partitioned',
+            partition_type: 'integer',
             partitions: [
               { partition_name: '_test_import_partitioned_100', from: 100, to: 200 }
             ]
@@ -132,6 +125,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
         [
           {
             table_name: '_test_import_partitioned',
+            partition_type: 'integer',
             partitions: [
               { partition_name: '_test_import_partitioned_100', from: 100, to: 200 }
             ]
@@ -153,7 +147,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
 
     context 'with an empty partition list' do
       let(:empty_definitions) do
-        [{ table_name: '_test_import_partitioned', partitions: [] }]
+        [{ table_name: '_test_import_partitioned', partition_type: 'integer', partitions: [] }]
       end
 
       it 'returns zero counts' do
@@ -162,27 +156,6 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
         expect(result[:created]).to eq(0)
         expect(result[:skipped]).to eq(0)
         expect(result[:tables_processed]).to eq(1)
-      end
-    end
-
-    context 'when existing partitions have unparseable conditions' do
-      let(:unparseable_definitions) do
-        [
-          {
-            table_name: '_test_import_partitioned',
-            partitions: [
-              { partition_name: '_test_import_partitioned_100', from: 100, to: 200 }
-            ]
-          }
-        ]
-      end
-
-      it 'treats unparseable existing partitions as non-existent' do
-        allow(Gitlab::Database::Partitioning::IntRangePartition).to receive(:from_sql)
-          .and_raise(ArgumentError)
-
-        result = importer.import(unparseable_definitions)
-        expect(result[:created]).to eq(1)
       end
     end
 
@@ -216,33 +189,197 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionImporter, feature_catego
       end
     end
 
-    context 'with invalid partition bounds' do
-      let(:invalid_bounds_definitions) do
+    context 'with integer range partitions' do
+      it 'creates missing partitions and skips existing ones' do
+        result = importer.import(table_definitions)
+
+        expect(result[:created]).to eq(1)
+        expect(result[:skipped]).to eq(1)
+        expect(result[:tables_processed]).to eq(1)
+
+        expect_range_partition_of('_test_import_partitioned_100', '_test_import_partitioned', "'100'", "'200'")
+      end
+
+      context 'with invalid partition bounds' do
+        let(:invalid_bounds_definitions) do
+          [
+            {
+              table_name: '_test_import_partitioned',
+              partition_type: 'integer',
+              partitions: [
+                { partition_name: '_test_import_partitioned_invalid', from: 0, to: 100 }
+              ]
+            }
+          ]
+        end
+
+        it 'skips invalid partitions, logs warnings, and raises with error summary' do
+          expect(Gitlab::AppLogger).to receive(:warn).with(
+            hash_including(
+              message: 'Skipping invalid partition bounds',
+              table_name: '_test_import_partitioned',
+              partition_name: '_test_import_partitioned_invalid'
+            )
+          )
+
+          expect do
+            importer.import(invalid_bounds_definitions)
+          end.to raise_error(
+            Gitlab::Database::Partitioning::PartitionImporter::ImportError,
+            /table=_test_import_partitioned partition=_test_import_partitioned_invalid/
+          )
+        end
+      end
+
+      context 'when existing partitions have unparseable conditions' do
+        let(:unparseable_definitions) do
+          [
+            {
+              table_name: '_test_import_partitioned',
+              partition_type: 'integer',
+              partitions: [
+                { partition_name: '_test_import_partitioned_100', from: 100, to: 200 }
+              ]
+            }
+          ]
+        end
+
+        it 'treats unparseable existing partitions as non-existent' do
+          allow(Gitlab::Database::Partitioning::IntRangePartition).to receive(:from_sql)
+            .and_raise(ArgumentError)
+
+          result = importer.import(unparseable_definitions)
+          expect(result[:created]).to eq(1)
+        end
+      end
+    end
+
+    context 'with date range partitions' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_date_import_partitioned
+            (id serial NOT NULL, event_date date NOT NULL, PRIMARY KEY (id, event_date))
+            PARTITION BY RANGE (event_date);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_date_import_partitioned_202601
+          PARTITION OF _test_date_import_partitioned
+          FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_date_import_partitioned CASCADE')
+      end
+
+      let(:date_table_definitions) do
         [
           {
-            table_name: '_test_import_partitioned',
+            table_name: '_test_date_import_partitioned',
+            partition_type: 'date',
             partitions: [
-              { partition_name: '_test_import_partitioned_invalid', from: 0, to: 100 }
+              { partition_name: '_test_date_import_partitioned_202601', from: '2026-01-01', to: '2026-02-01' },
+              { partition_name: '_test_date_import_partitioned_202602', from: '2026-02-01', to: '2026-03-01' }
             ]
           }
         ]
       end
 
-      it 'skips invalid partitions, logs warnings, and raises with error summary' do
-        expect(Gitlab::AppLogger).to receive(:warn).with(
-          hash_including(
-            message: 'Skipping invalid partition bounds',
-            table_name: '_test_import_partitioned',
-            partition_name: '_test_import_partitioned_invalid'
-          )
-        )
+      it 'creates missing date partitions and skips existing ones' do
+        result = importer.import(date_table_definitions)
 
-        expect do
-          importer.import(invalid_bounds_definitions)
-        end.to raise_error(
-          Gitlab::Database::Partitioning::PartitionImporter::ImportError,
-          /table=_test_import_partitioned partition=_test_import_partitioned_invalid/
+        expect(result[:created]).to eq(1)
+        expect(result[:skipped]).to eq(1)
+        expect(result[:tables_processed]).to eq(1)
+
+        expect_range_partition_of(
+          '_test_date_import_partitioned_202602',
+          '_test_date_import_partitioned',
+          "'2026-02-01'",
+          "'2026-03-01'"
         )
+      end
+
+      context 'with invalid date values' do
+        let(:invalid_date_definitions) do
+          [
+            {
+              table_name: '_test_date_import_partitioned',
+              partition_type: 'date',
+              partitions: [
+                { partition_name: '_test_date_import_partitioned_bad', from: 'not-a-date', to: '2026-03-01' }
+              ]
+            }
+          ]
+        end
+
+        it 'skips the invalid partition and raises with error summary' do
+          expect(Gitlab::AppLogger).to receive(:warn).with(
+            hash_including(
+              message: 'Skipping invalid partition definition',
+              table_name: '_test_date_import_partitioned',
+              partition_name: '_test_date_import_partitioned_bad'
+            )
+          )
+
+          expect do
+            importer.import(invalid_date_definitions)
+          end.to raise_error(
+            Gitlab::Database::Partitioning::PartitionImporter::ImportError,
+            /table=_test_date_import_partitioned partition=_test_date_import_partitioned_bad/
+          )
+        end
+      end
+
+      context 'when an existing partition covers the source partition range' do
+        before do
+          connection.execute(<<~SQL)
+            CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_date_import_partitioned_000000
+            PARTITION OF _test_date_import_partitioned
+            FOR VALUES FROM (MINVALUE) TO ('2026-01-01');
+          SQL
+        end
+
+        let(:covered_definitions) do
+          [
+            {
+              table_name: '_test_date_import_partitioned',
+              partition_type: 'date',
+              partitions: [
+                { partition_name: '_test_date_import_partitioned_202001', from: '2020-01-01', to: '2020-02-01' }
+              ]
+            }
+          ]
+        end
+
+        it 'skips the partition without error' do
+          result = importer.import(covered_definitions)
+
+          expect(result[:created]).to eq(0)
+          expect(result[:skipped]).to eq(1)
+          expect(result[:tables_processed]).to eq(1)
+        end
+      end
+
+      context 'when existing date partitions have unparseable conditions' do
+        let(:definitions) do
+          [
+            {
+              table_name: '_test_date_import_partitioned',
+              partition_type: 'date',
+              partitions: [
+                { partition_name: '_test_date_import_partitioned_202602', from: '2026-02-01', to: '2026-03-01' }
+              ]
+            }
+          ]
+        end
+
+        it 'treats unparseable existing partitions as non-existent' do
+          allow(Gitlab::Database::Partitioning::TimePartition).to receive(:from_sql)
+            .and_raise(ArgumentError)
+
+          result = importer.import(definitions)
+          expect(result[:created]).to eq(1)
+        end
       end
     end
   end

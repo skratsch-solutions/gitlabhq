@@ -3,11 +3,13 @@
 module Gitlab
   module Database
     module Partitioning
-      # Export integer range partition definitions for a given connection
+      # Export integer and date range partition definitions for a given connection
       # so they can be imported into another cell prior to PG replication,
       # to avoid insertion errors.
       class PartitionExporter
-        INTEGER_TYPES = %w[integer bigint].freeze
+        include PartitionKeyColumnTypes
+
+        SUPPORTED_PARTITION_TYPES = Set.new(INTEGER_TYPES + DATE_TYPES).freeze
 
         # @param connection [ActiveRecord::ConnectionAdapters::AbstractAdapter]
         def initialize(connection:)
@@ -15,19 +17,22 @@ module Gitlab
         end
 
         # @return [Array<Hash>]
-        #   Array of { table_name: String, partitions: Array<Hash> } where each
-        #   partition is { partition_name: String, from: Integer, to: Integer }.
+        #   Array of { table_name: String, partition_type: String, partitions: Array<Hash> } where
+        #   integer partition hashes are { partition_name: String, from: Integer, to: Integer } and
+        #   date partition hashes are { partition_name: String, from: String|nil, to: String }.
         def export
           results = []
 
           Gitlab::Database::SharedModel.using_connection(@connection) do
-            range_tables = Gitlab::Database::PostgresPartitionedTable.where(strategy: 'range')
+            tables = Gitlab::Database::PostgresPartitionedTable.where(strategy: 'range').where.not(key_columns: [])
+            key_types = partition_key_types(tables)
 
-            range_tables.each do |table|
-              next unless integer_partition_key?(table)
+            tables.each do |table|
+              partition_type = key_types[table.identifier]
+              next unless SUPPORTED_PARTITION_TYPES.include?(partition_type)
 
-              partitions = export_partitions_for(table)
-              results << { table_name: table.name, partitions: partitions }
+              partitions = export_partitions_for_type(table, partition_type)
+              results << { table_name: table.name, partition_type: partition_type, partitions: partitions }
             end
           end
 
@@ -36,26 +41,36 @@ module Gitlab
 
         private
 
-        def integer_partition_key?(table)
-          key_column = table.key_columns.first
-          return false unless key_column
+        def partition_key_types(tables)
+          pairs = tables.map { |table| [table.key_columns.first, table.identifier] }
 
-          type = @connection.select_value(<<~SQL, nil, [key_column, table.identifier])
-            SELECT format_type(a.atttypid, a.atttypmod)
-            FROM pg_attribute a
-            WHERE a.attrelid = $2::regclass
-              AND a.attname = $1
-              AND a.attnum > 0
+          return {} if pairs.empty?
+
+          values = pairs.map { |col, id| "(#{@connection.quote(col)}, #{@connection.quote(id)})" }.join(', ')
+
+          @connection.select_rows(<<~SQL).to_h
+            SELECT refs.identifier, format_type(a.atttypid, a.atttypmod)
+            FROM (VALUES #{values}) AS refs(key_column, identifier)
+            JOIN pg_attribute a
+              ON a.attrelid = refs.identifier::regclass
+             AND a.attname = refs.key_column
+             AND a.attnum > 0
           SQL
-
-          INTEGER_TYPES.include?(type)
         end
 
-        def export_partitions_for(table)
+        def export_partitions_for_type(table, partition_type)
+          if INTEGER_TYPES.include?(partition_type)
+            export_partitions_for(table, IntRangePartition)
+          elsif DATE_TYPES.include?(partition_type)
+            export_partitions_for(table, TimePartition)
+          end
+        end
+
+        def export_partitions_for(table, partition_class)
           table.postgres_partitions.filter_map do |partition|
-            int_partition = IntRangePartition.from_sql(table.name, partition.name, partition.condition)
-            { partition_name: int_partition.partition_name, from: int_partition.from, to: int_partition.to }
-          rescue ArgumentError
+            parsed_partition = partition_class.from_sql(table.name, partition.name, partition.condition)
+            parsed_partition.export_definition
+          rescue ArgumentError, NotImplementedError
             nil
           end
         end

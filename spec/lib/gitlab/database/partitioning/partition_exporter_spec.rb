@@ -36,6 +36,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
 
         table_result = result.find { |r| r[:table_name] == '_test_int_range_partitioned' }
         expect(table_result).not_to be_nil
+        expect(table_result[:partition_type]).to eq('bigint')
         expect(table_result[:partitions]).to contain_exactly(
           { partition_name: '_test_int_range_partitioned_1', from: 1, to: 100 },
           { partition_name: '_test_int_range_partitioned_100', from: 100, to: 200 }
@@ -59,6 +60,10 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
           CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_date_range_partitioned_202601
           PARTITION OF _test_date_range_partitioned
           FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_date_range_partitioned_202602
+          PARTITION OF _test_date_range_partitioned
+          FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
         SQL
       end
 
@@ -66,10 +71,86 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
         connection.execute('DROP TABLE IF EXISTS _test_date_range_partitioned CASCADE')
       end
 
-      it 'excludes the table (non-integer partition key)' do
+      it 'includes the table with its partition definitions' do
         result = exporter.export
-        table_names = result.pluck(:table_name)
-        expect(table_names).not_to include('_test_date_range_partitioned')
+
+        table_result = result.find { |r| r[:table_name] == '_test_date_range_partitioned' }
+        expect(table_result).not_to be_nil
+        expect(table_result[:partition_type]).to eq('date')
+        expect(table_result[:partitions]).to contain_exactly(
+          { partition_name: '_test_date_range_partitioned_202601', from: '2026-01-01', to: '2026-02-01' },
+          { partition_name: '_test_date_range_partitioned_202602', from: '2026-02-01', to: '2026-03-01' }
+        )
+      end
+    end
+
+    context 'with a timestamp range-partitioned table' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_ts_range_partitioned
+            (id serial NOT NULL, created_at timestamp without time zone NOT NULL,
+             PRIMARY KEY (id, created_at))
+            PARTITION BY RANGE (created_at);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_ts_range_partitioned_202601
+          PARTITION OF _test_ts_range_partitioned
+          FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_ts_range_partitioned_202602
+          PARTITION OF _test_ts_range_partitioned
+          FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_ts_range_partitioned CASCADE')
+      end
+
+      it 'includes the table with partition_type' do
+        result = exporter.export
+
+        table_result = result.find { |r| r[:table_name] == '_test_ts_range_partitioned' }
+        expect(table_result).not_to be_nil
+        expect(table_result[:partition_type]).to eq('timestamp without time zone')
+        expect(table_result[:partitions]).to contain_exactly(
+          { partition_name: '_test_ts_range_partitioned_202601', from: '2026-01-01', to: '2026-02-01' },
+          { partition_name: '_test_ts_range_partitioned_202602', from: '2026-02-01', to: '2026-03-01' }
+        )
+      end
+    end
+
+    context 'with a timestamp with time zone range-partitioned table' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_tstz_range_partitioned
+            (id serial NOT NULL, created_at timestamp with time zone NOT NULL,
+             PRIMARY KEY (id, created_at))
+            PARTITION BY RANGE (created_at);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_tstz_range_partitioned_202601
+          PARTITION OF _test_tstz_range_partitioned
+          FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_tstz_range_partitioned_202602
+          PARTITION OF _test_tstz_range_partitioned
+          FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_tstz_range_partitioned CASCADE')
+      end
+
+      it 'includes the table with its partition definitions and timestamptz type' do
+        result = exporter.export
+
+        table_result = result.find { |r| r[:table_name] == '_test_tstz_range_partitioned' }
+        expect(table_result).not_to be_nil
+        expect(table_result[:partition_type]).to eq('timestamp with time zone')
+        expect(table_result[:partitions]).to contain_exactly(
+          { partition_name: '_test_tstz_range_partitioned_202601', from: '2026-01-01', to: '2026-02-01' },
+          { partition_name: '_test_tstz_range_partitioned_202602', from: '2026-02-01', to: '2026-03-01' }
+        )
       end
     end
 
@@ -96,7 +177,7 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
       end
     end
 
-    context 'when a partition condition cannot be parsed' do
+    context 'when an integer partition condition cannot be parsed' do
       before do
         connection.execute(<<~SQL)
           CREATE TABLE _test_parse_error_partitioned
@@ -122,6 +203,37 @@ RSpec.describe Gitlab::Database::Partitioning::PartitionExporter, feature_catego
 
         result = exporter.export
         table_result = result.find { |r| r[:table_name] == '_test_parse_error_partitioned' }
+        expect(table_result).not_to be_nil
+        expect(table_result[:partitions]).to be_empty
+      end
+    end
+
+    context 'when a date partition condition cannot be parsed' do
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE _test_date_parse_error_partitioned
+            (id serial NOT NULL, event_date date NOT NULL, PRIMARY KEY (id, event_date))
+            PARTITION BY RANGE (event_date);
+
+          CREATE TABLE #{Gitlab::Database::DYNAMIC_PARTITIONS_SCHEMA}._test_date_parse_error_partitioned_202601
+          PARTITION OF _test_date_parse_error_partitioned
+          FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+        SQL
+      end
+
+      after do
+        connection.execute('DROP TABLE IF EXISTS _test_date_parse_error_partitioned CASCADE')
+      end
+
+      it 'skips partitions that raise ArgumentError' do
+        allow(Gitlab::Database::Partitioning::TimePartition).to receive(:from_sql)
+          .and_call_original
+        allow(Gitlab::Database::Partitioning::TimePartition).to receive(:from_sql)
+          .with('_test_date_parse_error_partitioned', anything, anything)
+          .and_raise(ArgumentError)
+
+        result = exporter.export
+        table_result = result.find { |r| r[:table_name] == '_test_date_parse_error_partitioned' }
         expect(table_result).not_to be_nil
         expect(table_result[:partitions]).to be_empty
       end

@@ -5,6 +5,7 @@ module Gitlab
     module Partitioning
       class PartitionImporter
         include Gitlab::Database::MigrationHelpers::LooseForeignKeyHelpers
+        include PartitionKeyColumnTypes
 
         ImportError = Class.new(StandardError)
 
@@ -41,11 +42,12 @@ module Gitlab
         def process_table(table_def, dry_run:, totals:, errors:)
           table_name = table_def[:table_name] || table_def['table_name']
           partitions_data = table_def[:partitions] || table_def['partitions'] || []
+          partition_type = table_def[:partition_type] || table_def['partition_type']
 
           return unless connection.table_exists?(table_name)
 
           totals[:tables_processed] += 1
-          missing = missing_partitions(table_name, partitions_data, errors)
+          missing = missing_partitions(table_name, partitions_data, partition_type, errors)
 
           apply_partitions(missing, dry_run: dry_run)
           totals[:created] += missing.size
@@ -70,66 +72,43 @@ module Gitlab
           dry_run ? log_dry_run(partitions) : create_partitions(partitions)
         end
 
-        def missing_partitions(table_name, partitions_data, errors)
-          existing = existing_partition_bounds(table_name)
+        def missing_partitions(table_name, partitions_data, partition_type, errors)
+          if INTEGER_TYPES.include?(partition_type)
+            compute_missing_partitions(table_name, partitions_data, errors, partition_class: IntRangePartition)
+          elsif DATE_TYPES.include?(partition_type)
+            compute_missing_partitions(table_name, partitions_data, errors, partition_class: TimePartition)
+          else
+            []
+          end
+        end
+
+        def compute_missing_partitions(table_name, partitions_data, errors, partition_class:)
+          existing = existing_partitions(table_name, partition_class)
 
           partitions_data.filter_map do |partition_data|
             partition_name = partition_data[:partition_name] || partition_data['partition_name']
-            from_value = partition_data[:from] || partition_data['from']
-            to_value = partition_data[:to] || partition_data['to']
 
             begin
-              from = Integer(from_value)
-              to = Integer(to_value)
+              parsed_partition = partition_class.from_export_definition(table_name, partition_name, partition_data)
             rescue ArgumentError, TypeError
-              Gitlab::AppLogger.warn(
-                message: 'Skipping invalid partition definition',
-                table_name: table_name,
-                partition_name: partition_name,
-                from: from_value,
-                to: to_value
-              )
-
-              errors << format('table=%<table>s partition=%<partition>s from=%<from>p to=%<to>p (invalid definition)',
-                table: table_name,
-                partition: partition_name || 'unknown',
-                from: from_value,
-                to: to_value)
+              errors << track_invalid_range_partition_definition_error(table_name, partition_name, partition_data)
               next
             end
 
-            next if existing.any? { |partition| partition[:from] == from && partition[:to] == to }
+            next if existing.any? { |e| e.covers?(parsed_partition) }
 
-            IntRangePartition.new(table_name, from, to, partition_name: partition_name)
+            parsed_partition
           rescue StandardError => e
-            Gitlab::AppLogger.warn(
-              message: 'Skipping invalid partition bounds',
-              table_name: table_name,
-              partition_name: partition_name,
-              from: from,
-              to: to,
-              exception_class: e.class,
-              exception_message: e.message
-            )
-
-            errors << format('table=%<table>s partition=%<partition>s from=%<from>p to=%<to>p (%<class>s: %<message>s)',
-              table: table_name,
-              partition: partition_name || 'unknown',
-              from: from,
-              to: to,
-              class: e.class,
-              message: e.message)
+            errors << track_invalid_range_partition_error(table_name, partition_name, partition_data, e)
             nil
           end
         end
 
-        def existing_partition_bounds(table_name)
+        def existing_partitions(table_name, partition_class)
           Gitlab::Database::SharedModel.using_connection(connection) do
             Gitlab::Database::PostgresPartition.for_parent_table(table_name).filter_map do |partition|
-              int_partition = IntRangePartition.from_sql(table_name, partition.name, partition.condition)
-
-              { from: int_partition.from, to: int_partition.to }
-            rescue ArgumentError
+              partition_class.from_sql(table_name, partition.name, partition.condition)
+            rescue ArgumentError, NotImplementedError
               nil
             end
           end
@@ -161,13 +140,10 @@ module Gitlab
 
         def log_dry_run(partitions)
           partitions.each do |partition|
-            Gitlab::AppLogger.info(
+            Gitlab::AppLogger.info({
               message: 'Dry run: would create partition',
-              partition_name: partition.partition_name,
-              table_name: partition.table,
-              from: partition.from,
-              to: partition.to
-            )
+              table_name: partition.table
+            }.merge(partition.export_definition))
           end
         end
 
@@ -183,6 +159,48 @@ module Gitlab
           return unless has_loose_foreign_key?(partition.table)
 
           track_record_deletions_override_table_name(partition_identifier, partition.table)
+        end
+
+        def track_invalid_range_partition_definition_error(table_name, partition_name, partition_data)
+          from_value = partition_data[:from] || partition_data['from']
+          to_value = partition_data[:to] || partition_data['to']
+
+          Gitlab::AppLogger.warn(
+            message: 'Skipping invalid partition definition',
+            table_name: table_name,
+            partition_name: partition_name,
+            from: from_value,
+            to: to_value
+          )
+
+          format('table=%<table>s partition=%<partition>s from=%<from>p to=%<to>p (invalid definition)',
+            table: table_name,
+            partition: partition_name || 'unknown',
+            from: from_value,
+            to: to_value)
+        end
+
+        def track_invalid_range_partition_error(table_name, partition_name, partition_data, exception)
+          from_value = partition_data[:from] || partition_data['from']
+          to_value = partition_data[:to] || partition_data['to']
+
+          Gitlab::AppLogger.warn(
+            message: 'Skipping invalid partition bounds',
+            table_name: table_name,
+            partition_name: partition_name,
+            from: from_value,
+            to: to_value,
+            exception_class: exception.class,
+            exception_message: exception.message
+          )
+
+          format('table=%<table>s partition=%<partition>s from=%<from>p to=%<to>p (%<class>s: %<message>s)',
+            table: table_name,
+            partition: partition_name || 'unknown',
+            from: from_value,
+            to: to_value,
+            class: exception.class,
+            message: exception.message)
         end
       end
     end
