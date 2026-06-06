@@ -18558,6 +18558,9 @@ msgstr ""
 msgid "CommitMessage|Add %{file_name}"
 msgstr ""
 
+msgid "CommitPopover|Could not load commit. Please reload the page."
+msgstr ""
+
 msgid "CommitSignature|This commit was signed with a key that has expired."
 msgstr ""
 
@@ -64073,6 +64076,11 @@ msgstr ""
 msgid "ScanResultPolicy|%{count} licenses"
 msgstr ""
 
+msgid "ScanResultPolicy|%{count} override"
+msgid_plural "ScanResultPolicy|%{count} overrides"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "ScanResultPolicy|%{listType} according to the %{buttonType}"
 msgstr ""
 
@@ -64095,6 +64103,9 @@ msgid "ScanResultPolicy|Add new criteria"
 msgstr ""
 
 msgid "ScanResultPolicy|Add new license"
+msgstr ""
+
+msgid "ScanResultPolicy|Add override"
 msgstr ""
 
 msgid "ScanResultPolicy|Add policy exception"
@@ -64196,6 +64207,9 @@ msgstr ""
 msgid "ScanResultPolicy|Don't show me this again"
 msgstr ""
 
+msgid "ScanResultPolicy|Duplicate package URL."
+msgstr ""
+
 msgid "ScanResultPolicy|Duplicates will be removed"
 msgstr ""
 
@@ -64211,7 +64225,13 @@ msgstr ""
 msgid "ScanResultPolicy|Edit denylist"
 msgstr ""
 
+msgid "ScanResultPolicy|Edit license overrides"
+msgstr ""
+
 msgid "ScanResultPolicy|Enable automated systems and bots to bypass policies for approved workflows."
+msgstr ""
+
+msgid "ScanResultPolicy|Enter a valid package URL (e.g. pkg:pypi/urllib3)."
 msgstr ""
 
 msgid "ScanResultPolicy|Epss score"
@@ -64325,7 +64345,16 @@ msgstr ""
 msgid "ScanResultPolicy|Known exploited"
 msgstr ""
 
+msgid "ScanResultPolicy|License"
+msgstr ""
+
+msgid "ScanResultPolicy|License Overrides:"
+msgstr ""
+
 msgid "ScanResultPolicy|License is:"
+msgstr ""
+
+msgid "ScanResultPolicy|License overrides"
 msgstr ""
 
 msgid "ScanResultPolicy|License status"
@@ -64353,6 +64382,9 @@ msgid "ScanResultPolicy|Maximum of two status criteria allowed"
 msgstr ""
 
 msgid "ScanResultPolicy|Merge request approval settings"
+msgstr ""
+
+msgid "ScanResultPolicy|Mode"
 msgstr ""
 
 msgid "ScanResultPolicy|Moderate Risk (50%%)"
@@ -64385,7 +64417,19 @@ msgstr ""
 msgid "ScanResultPolicy|Only show/block vulnerabilities that %{boldStart}are%{boldEnd} being exploited."
 msgstr ""
 
+msgid "ScanResultPolicy|Override detected licenses for specific packages."
+msgstr ""
+
 msgid "ScanResultPolicy|Override project approval settings"
+msgstr ""
+
+msgid "ScanResultPolicy|Overwrite (always)"
+msgstr ""
+
+msgid "ScanResultPolicy|Package (purl)"
+msgstr ""
+
+msgid "ScanResultPolicy|Patch (unknown only)"
 msgstr ""
 
 msgid "ScanResultPolicy|Personal access token"
@@ -64434,6 +64478,9 @@ msgid "ScanResultPolicy|Recommended settings"
 msgstr ""
 
 msgid "ScanResultPolicy|Remove all approvals with new commit"
+msgstr ""
+
+msgid "ScanResultPolicy|Remove override"
 msgstr ""
 
 msgid "ScanResultPolicy|Require user re-authentication (password or SAML) to approve"
@@ -64614,6 +64661,9 @@ msgid "ScanResultPolicy|any commits"
 msgstr ""
 
 msgid "ScanResultPolicy|any unsigned commits"
+msgstr ""
+
+msgid "ScanResultPolicy|custom"
 msgstr ""
 
 msgid "ScanResultPolicy|denylist (%{licenseCount} %{licenses})"
@@ -67724,6 +67774,9 @@ msgstr ""
 msgid "SecurityOrchestration|License Types"
 msgstr ""
 
+msgid "SecurityOrchestration|License override details"
+msgstr ""
+
 msgid "SecurityOrchestration|Linked groups"
 msgstr ""
 
@@ -67960,6 +68013,9 @@ msgstr ""
 msgid "SecurityOrchestration|Override Severity"
 msgstr ""
 
+msgid "SecurityOrchestration|Override license"
+msgstr ""
+
 msgid "SecurityOrchestration|Override the following project settings:"
 msgstr ""
 
@@ -67970,6 +68026,9 @@ msgid "SecurityOrchestration|Owner"
 msgstr ""
 
 msgid "SecurityOrchestration|PCI-DSS"
+msgstr ""
+
+msgid "SecurityOrchestration|Package (purl)"
 msgstr ""
 
 msgid "SecurityOrchestration|Package Manager"

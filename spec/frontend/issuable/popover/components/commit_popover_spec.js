@@ -64,13 +64,11 @@ describe('CommitPopover', () => {
   const findPopover = () => wrapper.findComponent(GlPopover);
   const findSkeletonLoader = () => wrapper.findComponent(GlSkeletonLoader);
   const findAvatar = () => wrapper.findComponent(GlAvatar);
-
   const findCommitLink = () => wrapper.findByTestId('commit-title-link');
-
   const findTruncate = () => wrapper.findComponent(GlTruncate);
-
   const findSha = () => wrapper.findByTestId('commit-sha-link');
   const findAuthor = () => wrapper.findByTestId('commit-author-name');
+  const findErrorMessage = () => wrapper.findByTestId('commit-error-message');
 
   describe('when loading', () => {
     beforeEach(() => {
@@ -83,6 +81,10 @@ describe('CommitPopover', () => {
 
     it('does not render commit content', () => {
       expect(findCommitLink().exists()).toBe(false);
+    });
+
+    it('does not render the error message', () => {
+      expect(findErrorMessage().exists()).toBe(false);
     });
 
     it('passes commitSha and projectPath as query variables', () => {
@@ -108,6 +110,10 @@ describe('CommitPopover', () => {
       expect(findSkeletonLoader().exists()).toBe(false);
     });
 
+    it('does not render the error message', () => {
+      expect(findErrorMessage().exists()).toBe(false);
+    });
+
     it('renders the commit title', () => {
       expect(findTruncate().props('text')).toBe(mockCommit.title);
     });
@@ -125,7 +131,7 @@ describe('CommitPopover', () => {
     });
   });
 
-  describe('when commit is null', () => {
+  describe('when commit is not found (null response)', () => {
     beforeEach(async () => {
       createComponent({ queryResponse: jest.fn().mockResolvedValue(mockNullResponse) });
       await waitForPromises();
@@ -139,8 +145,36 @@ describe('CommitPopover', () => {
       expect(findCommitLink().exists()).toBe(false);
     });
 
+    it('does not render the error message', () => {
+      expect(findErrorMessage().exists()).toBe(false);
+    });
+
     it('hides the popover', () => {
       expect(findPopover().props('show')).toBe(false);
+    });
+  });
+
+  describe('when the query errors', () => {
+    beforeEach(async () => {
+      createComponent({ queryResponse: jest.fn().mockRejectedValue(new Error('Network error')) });
+      await waitForPromises();
+    });
+
+    it('does not render the skeleton loader', () => {
+      expect(findSkeletonLoader().exists()).toBe(false);
+    });
+
+    it('does not render commit content', () => {
+      expect(findCommitLink().exists()).toBe(false);
+    });
+
+    it('shows the popover', () => {
+      expect(findPopover().props('show')).toBe(true);
+    });
+
+    it('renders a user-friendly error message', () => {
+      expect(findErrorMessage().exists()).toBe(true);
+      expect(findErrorMessage().text()).toBe('Could not load commit. Please reload the page.');
     });
   });
 });

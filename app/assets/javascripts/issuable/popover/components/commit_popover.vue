@@ -1,6 +1,6 @@
 <script>
 import { GlAvatar, GlIcon, GlLink, GlPopover, GlSkeletonLoader, GlTruncate } from '@gitlab/ui';
-import { __, sprintf } from '~/locale';
+import { __, s__, sprintf } from '~/locale';
 import { getTimeago } from '~/lib/utils/datetime_utility';
 import { newDate } from '~/lib/utils/datetime/date_calculation_utility';
 import defaultAvatarUrl from 'images/no_avatar.png';
@@ -8,6 +8,10 @@ import query from '../queries/commit.query.graphql';
 
 export default {
   name: 'CommitPopover',
+
+  i18n: {
+    errorMessage: s__('CommitPopover|Could not load commit. Please reload the page.'),
+  },
 
   components: {
     GlAvatar,
@@ -35,8 +39,8 @@ export default {
 
   data() {
     return {
-      commit: null,
-      isLoading: true,
+      commit: {},
+      hasError: false,
     };
   },
 
@@ -49,27 +53,27 @@ export default {
           sha: this.commitSha,
         };
       },
-      update: (data) => data.project?.repository?.commit ?? null,
-      result() {
-        this.isLoading = false;
-      },
+      update: (data) => data.project?.repository?.commit ?? {},
       error() {
-        this.isLoading = false;
+        this.hasError = true;
       },
     },
   },
 
   computed: {
     authorName() {
-      return this.commit?.author?.name ?? this.commit?.authorName ?? '';
+      return this.commit.author?.name ?? this.commit.authorName ?? '';
     },
     avatarUrl() {
-      return this.commit?.author?.avatarUrl ?? defaultAvatarUrl;
+      return this.commit.author?.avatarUrl ?? defaultAvatarUrl;
     },
     authoredText() {
-      if (!this.commit?.authoredDate) return '';
+      if (!this.commit.authoredDate) return '';
       const timeago = getTimeago().format(newDate(this.commit.authoredDate));
       return sprintf(__('Authored %{timeago}'), { timeago });
+    },
+    isLoading() {
+      return this.$apollo.queries.commit.loading;
     },
   },
 };
@@ -81,13 +85,19 @@ export default {
     boundary="viewport"
     placement="top"
     css-classes="gl-min-w-30"
-    :show="isLoading || Boolean(commit)"
+    :show="isLoading || Boolean(commit.shortId) || hasError"
   >
     <gl-skeleton-loader v-if="isLoading" :height="15">
       <rect width="100%" height="15" rx="4" />
     </gl-skeleton-loader>
 
-    <template v-else-if="commit">
+    <template v-else-if="hasError">
+      <p class="gl-m-0 gl-text-subtle" data-testid="commit-error-message">
+        {{ $options.i18n.errorMessage }}
+      </p>
+    </template>
+
+    <template v-else-if="commit.shortId">
       <div class="gl-flex gl-flex-col gl-gap-3">
         <div class="gl-text-subtle" data-testid="commit-authored-text">
           {{ authoredText }}
