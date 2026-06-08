@@ -59212,9 +59212,6 @@ msgstr ""
 msgid "Projects|No projects found."
 msgstr ""
 
-msgid "Projects|No trending projects found"
-msgstr ""
-
 msgid "Projects|Project ID copied to clipboard."
 msgstr ""
 
@@ -59234,9 +59231,6 @@ msgid "Projects|This project is scheduled for deletion on %{date}. This action w
 msgstr ""
 
 msgid "Projects|View projects that are archived or pending deletion."
-msgstr ""
-
-msgid "Projects|View projects that are trending."
 msgstr ""
 
 msgid "Projects|Visit a project and select the star icon to save projects you want to find later."
@@ -78775,9 +78769,6 @@ msgid "Tree|Unable to load repository files"
 msgstr ""
 
 msgid "Trend"
-msgstr ""
-
-msgid "Trending"
 msgstr ""
 
 msgid "Trial registration unsuccessful"

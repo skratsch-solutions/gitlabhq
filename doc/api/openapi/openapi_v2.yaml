@@ -56589,7 +56589,6 @@ definitions:
         - jacoco
         - scip
         - sarif
-        - environment_key
         example: archive
       size:
         type: integer
@@ -73280,7 +73279,6 @@ definitions:
         - jacoco
         - scip
         - sarif
-        - environment_key
         default: archive
     description: Authorize uploading job artifact
   postApiV4JobsIdArtifacts:
@@ -73333,7 +73331,6 @@ definitions:
         - jacoco
         - scip
         - sarif
-        - environment_key
         default: archive
       artifact_format:
         type: string

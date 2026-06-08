@@ -1325,11 +1325,6 @@ class Project < ApplicationRecord
         }x
     end
 
-    def trending
-      joins('INNER JOIN trending_projects ON projects.id = trending_projects.project_id')
-        .reorder('trending_projects.id ASC')
-    end
-
     def cached_count
       Rails.cache.fetch('total_project_count', expires_in: 5.minutes) do
         Project.count

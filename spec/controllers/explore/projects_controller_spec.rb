@@ -3,38 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe Explore::ProjectsController, feature_category: :groups_and_projects do
-  shared_examples 'pushes feature flag' do |action|
-    render_views
-
-    it 'pushes expected feature flag to the frontend' do
-      stub_feature_flags(retire_trending_projects: false)
-
-      get action
-
-      expect(response.body).to have_pushed_frontend_feature_flags(
-        retireTrendingProjects: false
-      ), response.body
-    end
-  end
-
   shared_examples 'explore projects' do
-    describe 'GET #index' do
-      it_behaves_like 'pushes feature flag', :index
-    end
-
     describe 'GET #trending' do
       it 'redirects to active projects' do
         get :trending
 
         expect(response).to redirect_to(active_explore_projects_path(sort: 'stars_desc'))
-      end
-
-      context 'when `retire_trending_projects` flag is disabled' do
-        before do
-          stub_feature_flags(retire_trending_projects: false)
-        end
-
-        it_behaves_like 'pushes feature flag', :trending
       end
     end
 

@@ -31,6 +31,7 @@ import { useNotes } from '~/notes/store/legacy_notes';
 import titleSubscription from '../queries/title.subscription.graphql';
 
 export default {
+  name: 'StickyHeader',
   TYPE_MERGE_REQUEST,
   apollo: {
     $subscribe: {

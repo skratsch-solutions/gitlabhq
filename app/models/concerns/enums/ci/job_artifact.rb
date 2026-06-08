@@ -50,8 +50,7 @@ module Enums
         cyclonedx: 'gl-sbom.cdx.json',
         annotations: 'gl-annotations.json',
         repository_xray: 'gl-repository-xray.json', # DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
-        sarif: 'gl-sarif-report.sarif',
-        environment_key: 'environment_key.txt'
+        sarif: 'gl-sarif-report.sarif'
       }.freeze
 
       INTERNAL_TYPES = {
@@ -98,8 +97,7 @@ module Enums
         requirements_v2: :raw,
         coverage_fuzzing: :raw,
         api_fuzzing: :raw,
-        sarif: :raw,
-        environment_key: :raw
+        sarif: :raw
       }.freeze
 
       DOWNLOADABLE_TYPES = %w[
@@ -214,8 +212,8 @@ module Enums
           repository_xray: 31, ## EE-specific, DEPRECATED: https://gitlab.com/gitlab-org/gitlab/-/issues/500146
           jacoco: 32,
           scip: 33, # SCIP data for code navigation
-          sarif: 34, ## EE-specific
-          environment_key: 35
+          sarif: 34 ## EE-specific
+          # 35 was environment_key, removed in 19.1 - do not reuse
         }
       end
 

@@ -419,10 +419,6 @@ topology_service_stale_requests_cleanup_worker:
   class: Cells::StaleRequestsCleanupCronWorker
   cron: "*/5 * * * *"
 
-trending_projects_worker:
-  class: TrendingProjectsWorker
-  cron: "0 1 * * *"
-
 update_container_registry_info_worker:
   class: UpdateContainerRegistryInfoWorker
   cron: "0 0 * * *"

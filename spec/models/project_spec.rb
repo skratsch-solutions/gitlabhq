@@ -3331,32 +3331,6 @@ RSpec.describe Project, factory_default: :keep, feature_category: :groups_and_pr
     end
   end
 
-  describe '.trending' do
-    let(:group)    { create(:group, :public) }
-    let(:project1) { create(:project, :public, :repository, group: group) }
-    let(:project2) { create(:project, :public, :repository, group: group) }
-
-    before do
-      create_list(:note_on_commit, 2, project: project1)
-
-      create(:note_on_commit, project: project2)
-
-      TrendingProject.refresh!
-    end
-
-    subject { described_class.trending.to_a }
-
-    it 'sorts projects by the amount of notes in descending order' do
-      expect(subject).to eq([project1, project2])
-    end
-
-    it 'does not take system notes into account' do
-      create_list(:note_on_commit, 10, project: project2, system: true)
-
-      expect(described_class.trending.to_a).to eq([project1, project2])
-    end
-  end
-
   describe '.starred_by' do
     it 'returns only projects starred by the given user' do
       user1 = create(:user)

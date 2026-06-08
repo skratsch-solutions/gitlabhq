@@ -390,7 +390,6 @@ RSpec.describe '1_settings', feature_category: :settings do
         stuck_ci_jobs_worker
         stuck_export_jobs_worker
         stuck_merge_jobs_worker
-        trending_projects_worker
         update_container_registry_info_worker
         update_locked_unknown_artifacts_worker
         users_create_statistics_worker

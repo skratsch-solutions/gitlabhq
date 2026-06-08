@@ -24851,6 +24851,26 @@ CREATE TABLE namespace_settings (
     CONSTRAINT namespace_settings_unique_project_download_limit_allowlist_size CHECK ((cardinality(unique_project_download_limit_allowlist) <= 100))
 );
 
+CREATE TABLE namespace_state_propagations (
+    id bigint NOT NULL,
+    namespace_id bigint NOT NULL,
+    started_at timestamp with time zone,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    source_state smallint NOT NULL,
+    target_state smallint NOT NULL,
+    status smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE namespace_state_propagations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE namespace_state_propagations_id_seq OWNED BY namespace_state_propagations.id;
+
 CREATE TABLE namespace_statistics (
     id bigint NOT NULL,
     namespace_id bigint NOT NULL,
@@ -36795,6 +36815,8 @@ ALTER TABLE ONLY namespace_import_users ALTER COLUMN id SET DEFAULT nextval('nam
 
 ALTER TABLE ONLY namespace_isolations ALTER COLUMN id SET DEFAULT nextval('namespace_isolations_id_seq'::regclass);
 
+ALTER TABLE ONLY namespace_state_propagations ALTER COLUMN id SET DEFAULT nextval('namespace_state_propagations_id_seq'::regclass);
+
 ALTER TABLE ONLY namespace_statistics ALTER COLUMN id SET DEFAULT nextval('namespace_statistics_id_seq'::regclass);
 
 ALTER TABLE ONLY namespaces ALTER COLUMN id SET DEFAULT nextval('namespaces_id_seq'::regclass);
@@ -40637,6 +40659,9 @@ ALTER TABLE ONLY namespace_secret_counts
 
 ALTER TABLE ONLY namespace_settings
     ADD CONSTRAINT namespace_settings_pkey PRIMARY KEY (namespace_id);
+
+ALTER TABLE ONLY namespace_state_propagations
+    ADD CONSTRAINT namespace_state_propagations_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY namespace_statistics
     ADD CONSTRAINT namespace_statistics_pkey PRIMARY KEY (id);
@@ -45316,6 +45341,12 @@ CREATE INDEX idx_namespace_hostname_import_type_id_source_name_and_username ON i
 CREATE UNIQUE INDEX idx_namespace_settings_on_default_compliance_framework_id ON namespace_settings USING btree (default_compliance_framework_id);
 
 CREATE INDEX idx_namespace_settings_on_last_dormant_members_review_at ON namespace_settings USING btree (last_dormant_member_review_at) WHERE (remove_dormant_members = true);
+
+CREATE INDEX idx_namespace_state_propagations_on_namespace_id ON namespace_state_propagations USING btree (namespace_id);
+
+CREATE INDEX idx_namespace_state_propagations_on_status_created_at ON namespace_state_propagations USING btree (status, created_at);
+
+CREATE UNIQUE INDEX idx_namespace_state_propagations_unique_pending_processing ON namespace_state_propagations USING btree (namespace_id, target_state) WHERE (status = ANY (ARRAY[0, 1]));
 
 CREATE UNIQUE INDEX idx_note_duo_metadata_note_and_workflow ON note_duo_metadata USING btree (note_id, workflow_id);
 
@@ -58305,6 +58336,9 @@ ALTER TABLE ONLY issues
 
 ALTER TABLE ONLY protected_branch_push_access_levels
     ADD CONSTRAINT fk_9778b2c1bb FOREIGN KEY (member_role_id) REFERENCES member_roles(id) ON DELETE RESTRICT;
+
+ALTER TABLE ONLY namespace_state_propagations
+    ADD CONSTRAINT fk_9798d3f752 FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY enabled_foundational_flow_check_results
     ADD CONSTRAINT fk_97ace560fa FOREIGN KEY (enabled_foundational_flow_id) REFERENCES enabled_foundational_flows(id) ON DELETE CASCADE;

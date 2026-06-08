@@ -9,6 +9,7 @@ import { __ } from '~/locale';
 import CsvImportExportButtons from './csv_import_export_buttons.vue';
 
 export default {
+  name: 'MoreActionsDropdown',
   components: {
     GlDisclosureDropdown,
     GlDisclosureDropdownItem,

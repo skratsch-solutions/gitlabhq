@@ -1483,7 +1483,7 @@
   :urgency: :low
   :resource_boundary: :unknown
   :weight: 1
-  :idempotent: false
+  :idempotent: true
   :tags: []
   :queue_namespace: :cronjob
 - :name: cronjob:update_container_registry_info

@@ -52,16 +52,6 @@ RSpec.describe 'User explores projects', :js, feature_category: :user_profile do
       expect(page).to have_selector('.gl-tab-nav-item', text: 'Active')
       expect(page).to have_selector('.gl-tab-nav-item', text: 'Inactive')
     end
-
-    context 'when `retire_trending_projects` flag is disabled' do
-      it 'renders trending tab' do
-        stub_feature_flags(retire_trending_projects: false)
-
-        visit(explore_projects_path)
-
-        expect(page).to have_selector('.gl-tab-nav-item', text: 'Trending')
-      end
-    end
   end
 
   describe 'list' do
@@ -119,20 +109,6 @@ RSpec.describe 'User explores projects', :js, feature_category: :user_profile do
             visit trending_explore_projects_path
 
             expect(page).to have_current_path(active_explore_projects_path(sort: 'stars_desc'))
-          end
-
-          context 'when `retire_trending_projects` flag is disabled' do
-            before do
-              stub_feature_flags(retire_trending_projects: false)
-              visit(trending_explore_projects_path)
-            end
-
-            it 'shows active trending projects' do
-              expect(page).to have_content(public_project.title)
-              expect(page).to have_content(internal_project.title)
-              expect(page).not_to have_content(private_project.title)
-              expect(page).not_to have_content(archived_project.title)
-            end
           end
         end
       end

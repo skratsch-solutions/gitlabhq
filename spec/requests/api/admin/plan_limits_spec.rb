@@ -340,7 +340,6 @@ RSpec.describe API::Admin::PlanLimits, 'PlanLimits', feature_category: :shared d
         ci_max_artifact_size_dast
         ci_max_artifact_size_dependency_scanning
         ci_max_artifact_size_dotenv
-        ci_max_artifact_size_environment_key
         ci_max_artifact_size_jacoco
         ci_max_artifact_size_junit
         ci_max_artifact_size_license_management

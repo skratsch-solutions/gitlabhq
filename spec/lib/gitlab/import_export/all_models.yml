@@ -477,7 +477,6 @@ builds:
 - dast_scanner_profile
 - job_annotations
 - job_artifacts_annotations
-- job_artifacts_environment_key
 - project_mirror
 - job_source
 - supply_chain_attestation
